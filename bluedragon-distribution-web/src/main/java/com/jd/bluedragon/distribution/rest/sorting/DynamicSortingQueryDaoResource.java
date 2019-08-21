@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.rest.sorting;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.middleend.sorting.dao.DynamicSortingQueryDao;
+import com.jd.bluedragon.distribution.middleend.sorting.dao.MiddleEndSortingDao;
 import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +19,7 @@ import java.util.Map;
 @Produces({MediaType.APPLICATION_JSON})
 public class DynamicSortingQueryDaoResource {
     @Autowired
-    private DynamicSortingQueryDao dynamicSortingQueryDao;
+    private MiddleEndSortingDao middleEndSortingDao;
 
     @Autowired
     private SortingDao sortingDao;
@@ -34,7 +34,7 @@ public class DynamicSortingQueryDaoResource {
     @Path("/sorting/findByBoxCode")
     public Map<String,List<Sorting>> findByBoxCode(Sorting sorting) {
         List<Sorting> dmsResult = sortingDao.findByBoxCode(sorting);
-        List<Sorting> middleResult = dynamicSortingQueryDao.findByBoxCode(sorting);
+        List<Sorting> middleResult = middleEndSortingDao.findByBoxCode(sorting);
         Map<String,List<Sorting>> result = new HashMap<>();
         result.put("dmsQueryResult",dmsResult);
         result.put("middleEndResult",middleResult);
@@ -53,7 +53,7 @@ public class DynamicSortingQueryDaoResource {
     @Path("/sorting/existSortingByPackageCode")
     public Map<String,Boolean> existSortingByPackageCode(Sorting sorting) {
         Boolean dmsResult = sortingDao.existSortingByPackageCode(sorting);
-        Boolean middleResult = dynamicSortingQueryDao.existSortingByPackageCode(sorting);
+        Boolean middleResult = middleEndSortingDao.existSortingByPackageCode(sorting);
 
         Map<String,Boolean> result = new HashMap<>();
         result.put("dmsQueryResult",dmsResult);
@@ -74,7 +74,7 @@ public class DynamicSortingQueryDaoResource {
     @Path("/sorting/findPackCount")
     public Map<String,Integer> findPackCount(@QueryParam("createSiteCode") Integer createSiteCode, @QueryParam("boxCode") String boxCode) {
         Integer dmsResult = sortingDao.findPackCount(createSiteCode, boxCode);
-        Integer middleResult = dynamicSortingQueryDao.findPackCount(createSiteCode, boxCode);
+        Integer middleResult = middleEndSortingDao.findPackCount(createSiteCode, boxCode);
 
         Map<String,Integer> result = new HashMap<>();
         result.put("dmsQueryResult",dmsResult);
@@ -94,7 +94,7 @@ public class DynamicSortingQueryDaoResource {
     @Path("/sorting/findBoxDescSite")
     public Map<String,Sorting> findBoxDescSite(@QueryParam("createSiteCode") Integer createSiteCode, @QueryParam("boxCode") String boxCode) {
         Sorting dmsResult = sortingDao.findBoxDescSite(createSiteCode, boxCode);
-        Sorting middleResult = dynamicSortingQueryDao.findBoxDescSite(createSiteCode, boxCode);
+        Sorting middleResult = middleEndSortingDao.findBoxDescSite(createSiteCode, boxCode);
 
         Map<String,Sorting> result = new HashMap<>();
         result.put("dmsQueryResult",dmsResult);
@@ -114,7 +114,7 @@ public class DynamicSortingQueryDaoResource {
     @Path("/sorting/findBoxPackList")
     public Map<String,List<Sorting>> findBoxPackList(Sorting sorting) {
         List<Sorting> dmsResult = sortingDao.findBoxPackList(sorting);
-        List<Sorting> middleResult = dynamicSortingQueryDao.findBoxPackList(sorting);
+        List<Sorting> middleResult = middleEndSortingDao.findBoxPackList(sorting);
 
         Map<String,List<Sorting>> result = new HashMap<>();
         result.put("dmsQueryResult",dmsResult);
@@ -133,7 +133,7 @@ public class DynamicSortingQueryDaoResource {
     @Path("/sorting/queryByCode")
     public Map<String,List<Sorting>> queryByCode(Sorting sorting) {
         List<Sorting> dmsResult = sortingDao.queryByCode(sorting);
-        List<Sorting> middleResult = dynamicSortingQueryDao.queryByCode(sorting);
+        List<Sorting> middleResult = middleEndSortingDao.queryByCode(sorting);
 
         Map<String,List<Sorting>> result = new HashMap<>();
         result.put("dmsQueryResult",dmsResult);
@@ -153,7 +153,7 @@ public class DynamicSortingQueryDaoResource {
     @Path("/sorting/queryByCode2")
     public Map<String,List<Sorting>> queryByCode2(Sorting sorting) {
         List<Sorting> dmsResult = sortingDao.queryByCode2(sorting);
-        List<Sorting> middleResult = dynamicSortingQueryDao.queryByCode2(sorting);
+        List<Sorting> middleResult = middleEndSortingDao.queryByCode2(sorting);
 
         Map<String,List<Sorting>> result = new HashMap<>();
         result.put("dmsQueryResult",dmsResult);
@@ -172,7 +172,7 @@ public class DynamicSortingQueryDaoResource {
     @Path("/sorting/findByBsendCode")
     public Map<String,List<Sorting>> findByBsendCode(Sorting sorting) {
         List<Sorting> dmsResult = sortingDao.findByBsendCode(sorting);
-        List<Sorting> middleResult = dynamicSortingQueryDao.findByBsendCode(sorting);
+        List<Sorting> middleResult = middleEndSortingDao.findByBsendCode(sorting);
 
         Map<String,List<Sorting>> result = new HashMap<>();
         result.put("dmsQueryResult",dmsResult);
@@ -191,7 +191,7 @@ public class DynamicSortingQueryDaoResource {
     @Path("/sorting/findByPackageCode")
     public Map<String,List<Sorting>> findByPackageCode(Sorting sorting) {
         List<Sorting> dmsResult = sortingDao.findByPackageCode(sorting);
-        List<Sorting> middleResult = dynamicSortingQueryDao.findByPackageCode(sorting);
+        List<Sorting> middleResult = middleEndSortingDao.findByPackageCode(sorting);
 
         Map<String,List<Sorting>> result = new HashMap<>();
         result.put("dmsQueryResult",dmsResult);
@@ -212,7 +212,7 @@ public class DynamicSortingQueryDaoResource {
     @Path("/sorting/findByBoxCodeAndFetchNum")
     public Map<String,List<Sorting>> findByBoxCodeAndFetchNum(@QueryParam("boxCode") String boxCode, @QueryParam("createSiteCode") Integer createSiteCode, @QueryParam("fetchNum") int fetchNum) {
         List<Sorting> dmsResult = sortingDao.findByBoxCodeAndFetchNum(boxCode, createSiteCode, fetchNum);
-        List<Sorting> middleResult = dynamicSortingQueryDao.findByBoxCodeAndFetchNum(boxCode, createSiteCode, fetchNum);
+        List<Sorting> middleResult = middleEndSortingDao.findByBoxCodeAndFetchNum(boxCode, createSiteCode, fetchNum);
 
         Map<String,List<Sorting>> result = new HashMap<>();
         result.put("dmsQueryResult",dmsResult);
@@ -231,7 +231,7 @@ public class DynamicSortingQueryDaoResource {
     @Path("/sorting/findByWaybillCodeOrPackageCode")
     public  Map<String,List<Sorting>> findByWaybillCodeOrPackageCode(Sorting sorting) {
         List<Sorting> dmsResult = sortingDao.findByWaybillCodeOrPackageCode(sorting);
-        List<Sorting> middleResult = dynamicSortingQueryDao.findByWaybillCodeOrPackageCode(sorting);
+        List<Sorting> middleResult = middleEndSortingDao.findByWaybillCodeOrPackageCode(sorting);
 
         Map<String,List<Sorting>> result = new HashMap<>();
         result.put("dmsQueryResult",dmsResult);
