@@ -272,6 +272,7 @@
     <!-- pdf调用云打印生成handler配置 -->
 	<bean id="pdfJdCloudGenerateHandler" class="com.jd.bluedragon.distribution.print.waybill.handler.PdfLabelFileGenerateHandler">
 		<property name="jdCloudPrintService" ref="jdCloudPrintService"/>
+		<property name="pdfMaxPageNum" value="${beans.pdfJdCloudGenerateHandler.pdfMaxPageNum}"/>
 	</bean>
 	<!-- pdf本地生成service配置 -->
 	<bean id="jdCloudPrintService" class="com.jd.bluedragon.distribution.print.service.JdCloudPrintServiceImpl">
@@ -280,6 +281,7 @@
     <!-- pdf本地生成handler配置 -->
 	<bean id="pdfLocalGenerateHandler" class="com.jd.bluedragon.distribution.print.waybill.handler.PdfLabelFileGenerateHandler">
 		<property name="jdCloudPrintService" ref="localPrintService"/>
+		<property name="pdfMaxPageNum" value="${beans.pdfLocalGenerateHandler.pdfMaxPageNum}"/>
 	</bean>
 	<!-- pdf本地生成service配置 -->
 	<bean id="localPrintService" class="com.jd.bluedragon.distribution.print.service.JdCloudPrintServiceImpl">

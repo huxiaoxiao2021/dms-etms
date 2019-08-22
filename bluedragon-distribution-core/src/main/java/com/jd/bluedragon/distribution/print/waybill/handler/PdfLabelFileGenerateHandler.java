@@ -38,6 +38,10 @@ public class PdfLabelFileGenerateHandler implements Handler<WaybillPrintContext,
      * 云打印输出文件oss配置
      */
     private JdCloudPrintService jdCloudPrintService;
+    /**
+     * pdf页数上限，默认5000
+     */
+    private int pdfMaxPageNum  = 5000;
     
     /**
      * 包裹列表字段
@@ -50,6 +54,14 @@ public class PdfLabelFileGenerateHandler implements Handler<WaybillPrintContext,
         WaybillPrintRequest waybillPrintRequest = context.getRequest();
         BasePrintWaybill basePrintWaybill = context.getBasePrintWaybill();
         List<Map<String,String>> printDatas = convertPrintDatas(context);
+        if(printDatas.size() == 0){
+        	interceptResult.toFail("包裹数为0,生成pdf失败！");
+        	return interceptResult;
+        }
+        if(printDatas.size() > pdfMaxPageNum){
+        	interceptResult.toFail("包裹数大于"+pdfMaxPageNum+",生成pdf失败！");
+        	return interceptResult;
+        }
         JdCloudPrintRequest<Map<String,String>> jdCloudPrintRequest = jdCloudPrintService.getDefaultPdfRequest();
         if(waybillPrintRequest.getSiteCode() != null){
         	jdCloudPrintRequest.setLocation(waybillPrintRequest.getSiteCode().toString());
@@ -98,6 +110,7 @@ public class PdfLabelFileGenerateHandler implements Handler<WaybillPrintContext,
     	boolean isPackage = WaybillUtil.isPackageCode(barCode);
     	if(packList != null && packList.size()>0){
     		for(PrintPackage printPackage : packList){
+    			//传入包裹号，只打印当前包裹信息
     			if(isPackage && !barCode.equals(printPackage.getPackageCode())){
     				continue;
     			}
@@ -105,6 +118,9 @@ public class PdfLabelFileGenerateHandler implements Handler<WaybillPrintContext,
         		printData.putAll(waybillInfo);
         		printData.putAll(convertToMap(printPackage,null));
         		printDatas.add(printData);
+        		if(isPackage){
+        			break;
+        		}
     		}
     	}
     	return printDatas;
@@ -148,5 +164,17 @@ public class PdfLabelFileGenerateHandler implements Handler<WaybillPrintContext,
 	 */
 	public void setJdCloudPrintService(JdCloudPrintService jdCloudPrintService) {
 		this.jdCloudPrintService = jdCloudPrintService;
+	}
+	/**
+	 * @return the pdfMaxPageNum
+	 */
+	public int getPdfMaxPageNum() {
+		return pdfMaxPageNum;
+	}
+	/**
+	 * @param pdfMaxPageNum the pdfMaxPageNum to set
+	 */
+	public void setPdfMaxPageNum(int pdfMaxPageNum) {
+		this.pdfMaxPageNum = pdfMaxPageNum;
 	}
 }
