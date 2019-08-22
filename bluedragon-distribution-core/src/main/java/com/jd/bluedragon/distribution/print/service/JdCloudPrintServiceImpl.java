@@ -22,6 +22,8 @@ import org.springframework.web.client.RestTemplate;
 
 import com.jcloud.jss.JingdongStorageService;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.UmpConstants;
+import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.print.domain.JdCloudPrintOssConfig;
@@ -32,6 +34,8 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.print.engine.toolkit.IPrintPdfHelper;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 
 /**
  * 
@@ -44,6 +48,10 @@ import com.jd.ql.dms.print.engine.toolkit.IPrintPdfHelper;
 @Service
 public class JdCloudPrintServiceImpl implements JdCloudPrintService {
 	private static final Log logger = LogFactory.getLog(JdCloudPrintServiceImpl.class);
+	/**
+	 * 监控key
+	 */
+	private static final String UMP_KEY = UmpConstants.UMP_KEY_BASE+"service.JdCloudPrintServiceImpl.";
 	/**
 	 * rest请求content-type
 	 */
@@ -120,12 +128,14 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
 		if(!useJdCloudPrint || !sysConfigService.getConfigByName(SysConfigService.SYS_CONFIG_NAME_DMS_PRINT_USE_JD_CLOUD)){
 			return this.localPdfPrint(jdCloudPrintRequest);
 		}
+		CallerInfo callerInfo = ProfilerHelper.registerInfo(UMP_KEY+"jdCloudPrint");
 		RestTemplate template = new RestTemplate();
 		HttpHeaders header = new HttpHeaders();
 		header.add("Content-Type", REST_CONTENT_TYPE);
 		header.add("Accept", REST_CONTENT_TYPE);
 		HttpEntity<String> formEntity = new HttpEntity<String>(JsonHelper.toJson(jdCloudPrintRequest), header);
-		logger.info("开始调用云打印,req:"+ JsonHelper.toJson(jdCloudPrintRequest));
+		logger.info("开始调用云打印,req:"+ jdCloudPrintRequest.getOrderNum());
+		long startTime = System.currentTimeMillis();
 		ResponseEntity<String> responseEntity = template.postForEntity(jdCloudIdcPrintUrl, formEntity, String.class);
 		if (responseEntity != null && HttpStatus.OK.equals(responseEntity.getStatusCode())) {
 			List<JdCloudPrintResponse> list = JsonHelper.jsonToList(responseEntity.getBody(), JdCloudPrintResponse.class);
@@ -138,7 +148,8 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
 		}else{
 			printResult.toError("调用云打印IDC服务失败！");
 		}
-		logger.info("调用云打印结束,resp:"+ JsonHelper.toJson(responseEntity));
+		logger.info("调用云打印结束,cost:"+(System.currentTimeMillis() - startTime)+"ms,resp:"+ JsonHelper.toJson(responseEntity));
+		Profiler.registerInfoEnd(callerInfo);
 		return printResult;
 	}
 	/**
@@ -147,8 +158,10 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
 	 * @return
 	 */
 	private <M> JdResult<List<JdCloudPrintResponse>> localPdfPrint(JdCloudPrintRequest<M> jdCloudPrintRequest) {
+		CallerInfo callerInfo = ProfilerHelper.registerInfo(UMP_KEY+"localPdfPrint");
 		JdResult<List<JdCloudPrintResponse>> printResult = new JdResult<List<JdCloudPrintResponse>>();
-		logger.info("开始生成pdf,req:"+ JsonHelper.toJson(jdCloudPrintRequest));
+		logger.info("开始生成pdf,req:"+ jdCloudPrintRequest.getOrderNum());
+		long startTime = System.currentTimeMillis();
 		try {
 			String pdfFileName = jdCloudPrintRequest.getOrderNum()+"-"+System.currentTimeMillis()+".pdf";
 			String jssPdfPath = jdCloudPrintRequest.getOutputConfig().get(0).getPath()+"/"+pdfFileName;
@@ -171,10 +184,13 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
 			printResult.setData(printResponses);
 			printResult.toSuccess();
 		} catch (Throwable e) {
+			Profiler.functionError(callerInfo);
 			logger.error("本地生成pdf失败！", e);
 			printResult.toError("生成pdf失败！");
+		}finally{
+			Profiler.registerInfoEnd(callerInfo);
 		}
-		logger.info("生成pdf结束,resp:"+ JsonHelper.toJson(printResult));
+		logger.info("生成pdf结束,cost:"+(System.currentTimeMillis() - startTime)+"ms,resp:"+ JsonHelper.toJson(printResult));
 		return printResult;
 	}
 	/**
