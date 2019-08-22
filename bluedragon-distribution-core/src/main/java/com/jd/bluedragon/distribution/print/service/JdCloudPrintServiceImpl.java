@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -45,6 +44,10 @@ import com.jd.ql.dms.print.engine.toolkit.IPrintPdfHelper;
 @Service
 public class JdCloudPrintServiceImpl implements JdCloudPrintService {
 	private static final Log logger = LogFactory.getLog(JdCloudPrintServiceImpl.class);
+	/**
+	 * rest请求content-type
+	 */
+	private static final String REST_CONTENT_TYPE = "application/json; charset=UTF-8";
     /**
      * pdf输出路径日期格式
      */
@@ -119,8 +122,8 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
 		}
 		RestTemplate template = new RestTemplate();
 		HttpHeaders header = new HttpHeaders();
-		header.setContentType(MediaType.APPLICATION_JSON);
-		header.add("Accept", MediaType.APPLICATION_JSON_VALUE);
+		header.add("Content-Type", REST_CONTENT_TYPE);
+		header.add("Accept", REST_CONTENT_TYPE);
 		HttpEntity<String> formEntity = new HttpEntity<String>(JsonHelper.toJson(jdCloudPrintRequest), header);
 		logger.info("开始调用云打印,req:"+ JsonHelper.toJson(jdCloudPrintRequest));
 		ResponseEntity<String> responseEntity = template.postForEntity(jdCloudIdcPrintUrl, formEntity, String.class);
