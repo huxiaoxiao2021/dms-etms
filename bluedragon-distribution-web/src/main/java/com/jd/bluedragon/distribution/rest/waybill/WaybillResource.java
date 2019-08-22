@@ -2259,19 +2259,4 @@ public class WaybillResource {
 		result.setData(waybillNoCollectionResult);
 		return result;
 	}
-
-	/**
-	 * 修改取件单换单后新单的包裹数
-	 * @param waybillCode
-	 * @param packNum
-	 * @return
-	 */
-	@GET
-	@Path("/waybill/updatePackNum/{waybillCode}/{packNum}")
-	public InvokeResult updatePackNum(@PathParam("waybillCode") String waybillCode,
-                                      @PathParam("packNum") Integer packNum){
-		
-        return waybillCommonService.batchUpdatePackageByWaybillCode(waybillCode, packNum);
-	}
-
 }

@@ -239,4 +239,18 @@ public interface WaybillQueryManager{
 	 */
 	BaseEntity<String> getWaybillSignByWaybillCode(String waybillCode);
 
+	/**
+	 * 查询SKU与包裹的关系
+	 * @param sku 商品sku：自营是sku；ECLP是EMG码
+	 * @return
+     */
+	BaseEntity<SkuPackRelationDto> getSkuPackRelation(String sku);
+
+	/**
+	 * 修改包裹数量
+	 * @param waybillCode
+	 * @param list
+	 * @return
+	 */
+	BaseEntity<Boolean> batchUpdatePackageByWaybillCode(String waybillCode,List list);
 }
