@@ -353,10 +353,6 @@
                   alias="${basic.jsf.baseCrossPackageTagWS.alias}" timeout="${basic.jsf.baseCrossPackageTagWS.timeout}" retries="${jsf.retries}">
         <jsf:parameter key="token" value="${basic.jsf.baseCrossPackageTagWS.token}" hide="true"/>
     </jsf:consumer>
-    <!-- 加履系统 查询接口 郭海瑞 -->
-    <jsf:consumer id="handoverBillResource" interface="com.jd.jp.assemble.sdk.HandoverBillResource"
-                  protocol="jsf" alias="${jsf.handoverBill.alias}" timeout="${jsf.handoverBill.timeout}" check="false" retries="${jsf.retries}">
-    </jsf:consumer>
     <!-- 加履系统 查询接口 李杰 -->
     <jsf:consumer id="HandoverBillProvider" interface="com.jd.b2b.wt.assemble.sdk.service.HandoverBillProvider"
                   alias="${jsf.HandoverBillProvider.alias}" retries="${jsf.retries}"

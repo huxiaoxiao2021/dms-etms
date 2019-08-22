@@ -1,9 +1,5 @@
 package com.jd.bluedragon.core.base;
 
-import com.jd.b2b.wt.assemble.sdk.RpcResult;
-import com.jd.b2b.wt.assemble.sdk.req.HandoverBillPrintReq;
-import com.jd.b2b.wt.assemble.sdk.resp.HandoverBillResp;
-import com.jd.b2b.wt.assemble.sdk.resp.HandoverDetailResp;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.SkuSn;
@@ -245,20 +241,4 @@ public interface WaybillQueryManager{
      * */
     List<DeliveryPackageD> findWaybillPackList(String waybillCode);
 
-	/**
-	 * 查询交接单打印明细
-	 * @param handoverBillPrintReq
-	 * @return
-	 */
-	RpcResult<HandoverBillResp> searchHandoverDetail(HandoverBillPrintReq handoverBillPrintReq);
-
-	/**
-	 * 查询交接单能否打印
-	 */
-	Boolean searchHandoverisCanPrint(HandoverBillPrintReq handoverBillPrintReq);
-
-	/**
-	 *打印交接单
-	 */
-	RpcResult<List<HandoverDetailResp>> dismantlePrint(HandoverBillPrintReq handoverBillPrint);
 }
