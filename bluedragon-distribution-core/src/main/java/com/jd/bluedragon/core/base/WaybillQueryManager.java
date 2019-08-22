@@ -236,6 +236,13 @@ public interface WaybillQueryManager{
      */
 	BaseEntity<SkuPackRelationDto> getSkuPackRelation(String sku);
 
+	/**
+	 * 修改包裹数量
+	 * @param waybillCode
+	 * @param list
+	 * @return
+	 */
+	BaseEntity<Boolean> batchUpdatePackageByWaybillCode(String waybillCode,List list);
     /*
      *
      * 查询运单接口获取包裹列表

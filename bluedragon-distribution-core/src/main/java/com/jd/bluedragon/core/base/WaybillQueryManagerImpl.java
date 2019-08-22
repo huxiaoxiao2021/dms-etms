@@ -12,6 +12,7 @@ import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.api.WaybillTraceApi;
+import com.jd.etms.waybill.api.WaybillUpdateApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.PackageState;
@@ -64,6 +65,9 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 
     @Autowired
     private PackageStatusService packageStatusService;
+
+    @Autowired
+    private WaybillUpdateApi waybillUpdateApi;
 
     /**
      * 大包裹运单缓存开关
@@ -616,6 +620,19 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
             mState = {JProEnum.TP, JProEnum.FunctionError})
     public BaseEntity<SkuPackRelationDto> getSkuPackRelation(String sku) {
         return waybillQueryApi.getSkuPackRelation(sku);
+    }
+
+    /**
+     * 修改包裹数量
+     * @param waybillCode
+     * @param list
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMS.BASE.waybillQueryApi.batchUpdatePackageByWaybillCode", jAppName = Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public BaseEntity<Boolean> batchUpdatePackageByWaybillCode(String waybillCode,List list){
+        return waybillUpdateApi.batchUpdatePackageByWaybillCode(waybillCode, list);
     }
 
     /*

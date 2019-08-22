@@ -6,6 +6,7 @@
         http://www.springframework.org/schema/beans/spring-beans.xsd
 	    http://www.springframework.org/schema/util
 	    http://www.springframework.org/schema/util/spring-util.xsd">
+	<import resource="classpath:ql-dms-print-engine.xml"/>    
 	<!-- 业务指令集配置 -->
 	<bean id="jsonCommandHandlerMapping" class ="com.jd.bluedragon.distribution.command.handler.JsonCommandHandlerMapping">
 		<property name="handlerMap">
@@ -49,6 +50,8 @@
 				<entry key="100303"  value-ref="eclpShoppingPackagePrint"/>
 				<entry key="100304"  value-ref="packageReverseChangePrint"/>
 				<entry key="100305"  value-ref="packageReverseChangeReprint"/>
+				<!-- 冷链合伙人打印 -->
+				<entry key="100306"  value-ref="coldChainPackagePrint"/>
 			</map>
 		</property>
 	</bean>
@@ -171,7 +174,24 @@
 				<ref bean="templateSelectorWaybillHandler"/>
 			</list>
 		</property>
-	</bean>		
+	</bean>
+	<!-- 包裹标签打印-通过jsf调用打印逻辑处理 -->
+	<bean id="coldChainPackagePrint" class="com.jd.bluedragon.distribution.print.waybill.handler.PlatePrintOperateHandler">
+		<property name="handlers">
+			<list>
+				<ref bean="basicWaybillPrintHandler"/>
+				<ref bean="c2cInterceptHandler"/>
+				<ref bean="interceptWaybillHandler"/>
+				<ref bean="specialMarkWaybillHandler"/>
+				<ref bean="specialTextWaybillHandler"/>
+				<ref bean="promiseWaybillHandler"/>
+				<ref bean="customerAndConsignerInfoHandler"/>
+				<ref bean="remarkFieldHandler"/>
+				<ref bean="templateSelectorWaybillHandler"/>
+				<ref bean="pdfJdCloudGenerateHandler"/> 
+			</list>
+		</property>
+	</bean>			
 	<!-- 包裹标签打印-站点平台打印 -->
 	<bean id="sitePlatePrint" class="com.jd.bluedragon.distribution.print.waybill.handler.SitePlatePrintOperateHandler">
 		<property name="handlers">
@@ -268,5 +288,42 @@
             </list>
         </property>
     </bean>
-
+    <!-- pdf调用云打印生成handler配置 -->
+	<bean id="pdfJdCloudGenerateHandler" class="com.jd.bluedragon.distribution.print.waybill.handler.PdfLabelFileGenerateHandler">
+		<property name="jdCloudPrintService" ref="jdCloudPrintService"/>
+		<property name="pdfMaxPageNum" value="${beans.pdfJdCloudGenerateHandler.pdfMaxPageNum}"/>
+	</bean>
+	<!-- pdf本地生成service配置 -->
+	<bean id="jdCloudPrintService" class="com.jd.bluedragon.distribution.print.service.JdCloudPrintServiceImpl">
+		<property name="useJdCloudPrint" value="${beans.jdCloudPrintService.useJdCloudPrint}"/>
+	</bean>
+    <!-- pdf本地生成handler配置 -->
+	<bean id="pdfLocalGenerateHandler" class="com.jd.bluedragon.distribution.print.waybill.handler.PdfLabelFileGenerateHandler">
+		<property name="jdCloudPrintService" ref="localPrintService"/>
+		<property name="pdfMaxPageNum" value="${beans.pdfLocalGenerateHandler.pdfMaxPageNum}"/>
+	</bean>
+	<!-- pdf本地生成service配置 -->
+	<bean id="localPrintService" class="com.jd.bluedragon.distribution.print.service.JdCloudPrintServiceImpl">
+		<property name="useJdCloudPrint" value="${beans.localPrintService.useJdCloudPrint}"/>
+	</bean>
+	<bean id="pdfPrintOssConfig" class="com.jd.bluedragon.distribution.print.domain.JdCloudPrintOssConfig">
+		<property name="accessKey" value = "${print.out.config.jss.accessKey}"/>
+		<property name="secretKey" value = "${print.out.config.jss.secretKey}"/>
+		<property name="endpoint" value = "${print.out.config.jss.endpoint}"/>
+		<property name="bucket" value = "${print.out.config.jss.pdfBucket}"/>
+		<property name="socketTimeout" value = "${print.out.config.jss.socketTimeout}"/>
+	</bean>
+	<bean id="pdfOutJssClientConfig" class="com.jcloud.jss.client.ClientConfig">
+        <property name="connectionTimeout" value="${jss.connectionTimeout}"/>
+        <property name="socketTimeout" value="${print.out.config.jss.socketTimeout}"/>
+        <property name="endpoint" value="${print.out.config.jss.endpoint}"/>
+    </bean>
+	<bean id="pdfOutJssCredential" class="com.jcloud.jss.Credential">
+        <constructor-arg index="0" value="${print.out.config.jss.accessKey}"/>
+        <constructor-arg index="1" value="${print.out.config.jss.secretKey}"/>
+    </bean>
+    <bean id="pdfOutJssStorage" class="com.jcloud.jss.JingdongStorageService" depends-on="pdfOutJssCredential,pdfOutJssClientConfig">
+        <constructor-arg index="0" ref="pdfOutJssCredential" />
+        <constructor-arg index="1" ref="pdfOutJssClientConfig" />
+    </bean> 
 </beans>

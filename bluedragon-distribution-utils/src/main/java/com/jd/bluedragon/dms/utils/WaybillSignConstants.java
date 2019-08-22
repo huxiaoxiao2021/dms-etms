@@ -73,6 +73,12 @@ public interface WaybillSignConstants {
 	char CHAR_89_2 = '2';
 
 	/**
+	 * 卡班
+	 */
+	int POSITION_80 = 80;
+	char CHAR_80_7 = '7';
+
+	/**
 	 * B网冷链
 	 */
 	int POSITION_54 = 54;

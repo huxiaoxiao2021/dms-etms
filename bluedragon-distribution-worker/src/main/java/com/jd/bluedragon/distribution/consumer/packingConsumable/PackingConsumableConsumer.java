@@ -67,6 +67,10 @@ public class PackingConsumableConsumer extends MessageBaseConsumer {
             this.logger.error("PackingConsumableConsumer consume -->消息中没有运单号：" + message.getText());
             return;
         }
+        if(packingConsumable.getDmsCode() == null){
+            this.logger.error("PackingConsumableConsumer consume -->消息中没有站点编号：" + message.getText());
+            return;
+        }
         WaybillConsumableRecord oldRecord = waybillConsumableRecordService.queryOneByWaybillCode(packingConsumable.getWaybillCode());
         if(oldRecord != null && oldRecord.getId() != null){
             logger.warn("B网包装耗材，重复的运单号：" + message.getText());
@@ -92,7 +96,7 @@ public class PackingConsumableConsumer extends MessageBaseConsumer {
         waybillConsumableRecord.setWaybillCode(packingConsumable.getWaybillCode());
         //根据 packingConsumable.getDmsCode() 查询分拣中心信息
         Integer siteCode = packingConsumable.getDmsCode();
-        BaseStaffSiteOrgDto  dto = baseMajorManager.getBaseSiteBySiteId(siteCode);
+        BaseStaffSiteOrgDto dto = baseMajorManager.getBaseSiteBySiteId(siteCode);
         waybillConsumableRecord.setDmsId(dto.getSiteCode());
         waybillConsumableRecord.setDmsName(dto.getSiteName());
 

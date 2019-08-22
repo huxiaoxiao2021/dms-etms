@@ -541,7 +541,7 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
         dto.setFirstLevelName(transformChangeMode.getDesc());
         // 异常类型 (航空违禁品)
         dto.setSecondLevelCode(abnormalReason.getFxmId());
-        dto.setSecondLevelCode(abnormalReason.getDesc());
+        dto.setSecondLevelName(abnormalReason.getDesc());
         // 违禁品原因
         dto.setThirdLevel(contrabandReason.getDesc());
         dto.setOperatorErp(request.getUserErp());

@@ -684,6 +684,16 @@ public class BusinessUtil {
         return flage;
     }
 
+    /**
+     *判断是否是冷链卡班
+     */
+    public static Boolean isColdChainKB(String waybillSign,String productType){
+        return PRODUCT_TYPE_COLD_CHAIN_KB.equals(productType)
+                || (isSignChar(waybillSign,WaybillSignConstants.POSITION_80,WaybillSignConstants.CHAR_80_7)
+                     && isSignChar(waybillSign,WaybillSignConstants.POSITION_54,WaybillSignConstants.CHAR_54_2)
+                     && isSignInChars(waybillSign,WaybillSignConstants.POSITION_40,WaybillSignConstants.CHAR_40_2,WaybillSignConstants.CHAR_40_3)
+                    );
+    }
 
     /**
      * 判断是否是B网冷链运单

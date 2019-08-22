@@ -91,12 +91,6 @@ public interface ComposeService {
     int POSITION_146 = 146;
 
     /**
-     * specialMark1的常量
-     */
-    String SPECIAL_MARK1_WAREHOUSE_JD = "京仓";
-    String SPECIAL_MARK1_WAREHOUSE_NOT_JD = "非京仓";
-
-    /**
      * waybill_sign第54位等于4 且 第40位等于2或3
      */
     String  SPECIAL_MARK_MEDICINE ="医药";
