@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.api.domain.PackageTemplate;
 import com.jd.bluedragon.distribution.api.domain.TemporaryPackageTemplate;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.print.domain.LabelTemplate;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 
@@ -33,37 +34,45 @@ public class TemplateSelectServiceImpl implements TemplateSelectService {
      * @param siteCode
      * @return
      */
-    @Cache(key = "TemplateSelectServiceImpl.getMatchTemplate@args0@args1", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, redisEnable = false)
-    public String getMatchTemplate(String templateName, Integer siteCode) {
-        String matchTemplateName = null;
-
+    @Cache(key = "TemplateSelectServiceImpl.getMatchLabelTemplate@args0@args1", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, redisEnable = false)
+    public LabelTemplate getMatchLabelTemplate(String templateKey, Integer siteCode) {
+    	LabelTemplate matchedTemplate = new LabelTemplate();
+    	boolean matched = false;
         //1.从sysConfig表中查出业务模板对应的配置
-        List<SysConfig> sysConfigs = sysConfigService.getListByConfigName(templateName);
+        List<SysConfig> sysConfigs = sysConfigService.getListByConfigName(templateKey);
         if (sysConfigs != null && !sysConfigs.isEmpty()) {
             String content = sysConfigs.get(0).getConfigContent();
             if (StringUtils.isNotBlank(content)) {
                 //反序列化成包裹标签模板对象PackageTemplate
                 PackageTemplate packageTemplate = JsonHelper.fromJson(content, PackageTemplate.class);
-                String releaseTemplateName = packageTemplate.getReleaseTemplateName();
                 //如果没有测试模板的信息则返回正式模板
-                if (packageTemplate.getTemporaryTemplate() == null || packageTemplate.getTemporaryTemplate().size() < 1) {
-                    matchTemplateName = releaseTemplateName;
-                } else {
-                    //能够查到测试模板的信息，则循环测试模板，获取匹配的模板
-                    List<TemporaryPackageTemplate> temporaryTemplateList = packageTemplate.getTemporaryTemplate();
-                    for (TemporaryPackageTemplate template : temporaryTemplateList) {
-                        if (template.getSiteCodeList() != null && template.getSiteCodeList().size() > 0 &&
-                                template.getSiteCodeList().contains(siteCode)) {
-                            //如果当前测试模板的适用分拣中心列表中包含当前分拣中心，返回该测试模板
-                            return template.getTemporaryTemplateName();
-                        }
-                    }
-                    matchTemplateName = releaseTemplateName;
+                if (packageTemplate !=null){
+                	if(packageTemplate.getTemporaryTemplate() != null 
+                		&& !packageTemplate.getTemporaryTemplate().isEmpty()) {
+	                    //能够查到测试模板的信息，则循环测试模板，获取匹配的模板
+	                    List<TemporaryPackageTemplate> temporaryTemplateList = packageTemplate.getTemporaryTemplate();
+	                    for (TemporaryPackageTemplate template : temporaryTemplateList) {
+	                        if (template.getSiteCodeList() != null && template.getSiteCodeList().size() > 0 &&
+	                                template.getSiteCodeList().contains(siteCode)) {
+	                            //如果当前测试模板的适用分拣中心列表中包含当前分拣中心，返回该测试模板
+	                            matchedTemplate.setTemplateName(template.getTemporaryTemplateName());
+	                            matchedTemplate.setTemplateVersion(template.getTemporaryTemplateVersion());
+	                            matched = true;
+	                        }
+	                    }
+                	}
+                	if(!matched){
+                        matchedTemplate.setTemplateName(packageTemplate.getReleaseTemplateName());
+                        matchedTemplate.setTemplateVersion(packageTemplate.getReleaseTemplateVersion());
+                        matched = true;
+                	}
                 }
             }
         }
-
-        logger.info("包裹标签模板选择，根据业务模板:" + templateName + ",站点ID:" + siteCode + "获取到的模板名称为:" + matchTemplateName);
-        return matchTemplateName;
+        if(!matched){
+        	matchedTemplate.setTemplateName(templateKey);
+        }
+        logger.info("包裹标签模板选择，根据业务模板:" + templateKey + ",站点ID:" + siteCode + "获取到的模板名称为:" + JsonHelper.toJson(matchedTemplate));
+        return matchedTemplate;
     }
 }

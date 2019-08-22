@@ -1,6 +1,7 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.SkuSn;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillExtPro;
@@ -9,7 +10,6 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
 
-import java.util.Date;
 import java.util.List;
 public interface WaybillQueryManager{
 	
@@ -94,19 +94,6 @@ public interface WaybillQueryManager{
 	 * @return
 	 */
 	BaseEntity<List<BigWaybillDto>> getDatasByChoice(List<String> waybillCodes,WChoice wChoice);
-
-	/**
-	 * 发送全程跟踪消息
-	 * @param businessKey 业务主键 如订单号 取件单号
-	 * @param msgType 消息类型
-	 * @param title 消息主题
-	 * @param content 消息内容
-	 * @param operatorName 操作人
-	 * @param operateTime 操作时间
-	 * @return 发送成功与否
-	 */
-	boolean sendOrderTrace(String businessKey, int msgType,
-			String title, String content, String operatorName, Date operateTime);
 
 	/**
 	 * 发送全程跟踪消息
@@ -253,4 +240,11 @@ public interface WaybillQueryManager{
 	 * @return
 	 */
 	BaseEntity<Boolean> batchUpdatePackageByWaybillCode(String waybillCode,List list);
+    /*
+     *
+     * 查询运单接口获取包裹列表
+     *
+     * */
+    List<DeliveryPackageD> findWaybillPackList(String waybillCode);
+
 }

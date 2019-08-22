@@ -1,11 +1,14 @@
 package com.jd.bluedragon.core.base;
 
+import com.google.common.base.Strings;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.domain.SiteEntity;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
+import com.jd.bluedragon.sdk.modules.menu.CommonUseMenuApi;
+import com.jd.bluedragon.sdk.modules.menu.dto.MenuPdaRequest;
 import com.jd.bluedragon.utils.BaseContants;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
@@ -13,6 +16,8 @@ import com.jd.ldop.basic.api.BasicTraderAPI;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ldop.basic.dto.PageDTO;
 import com.jd.ldop.basic.dto.ResponseDTO;
+import com.jd.partner.waybill.api.WaybillManagerApi;
+import com.jd.partner.waybill.api.dto.response.ResultData;
 import com.jd.ql.basic.domain.*;
 import com.jd.ql.basic.dto.*;
 import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
@@ -23,6 +28,7 @@ import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.client.ClientRequest;
@@ -60,6 +66,14 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     @Autowired
     @Qualifier("basicPrimaryWSProxy")
     private BasicPrimaryWSProxy basicPrimaryWSProxy;
+
+    @Autowired
+    @Qualifier("allianceWaybillManagerApi")
+    private WaybillManagerApi allianceWaybillManagerApi;
+
+    @Autowired
+    @Qualifier("commonUseMenuApi")
+    private CommonUseMenuApi commonUseMenuApi;
 
     /**
      * 站点ID
@@ -647,4 +661,42 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 	public BaseSiteInfoDto getBaseSiteInfoBySiteId(Integer siteId) {
 		return basicSiteQueryWS.getBaseSiteInfoBySiteId(siteId);
 	}
+
+    /**
+     * 加盟商基础资料中获取 预付款是否充足
+     *
+     * @param allianceBusiId
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = UMP_KEY_PREFIX + "basicSiteQueryWS.allianceBusiMoneyEnough", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public boolean allianceBusiMoneyEnough(String allianceBusiId) {
+        ResultData resultData = allianceWaybillManagerApi.checkReceiveOrder(allianceBusiId,Constants.UMP_APP_NAME_DMSWEB);
+        if(resultData!=null && ResultData.SUCCESS_CODE.equals(resultData.getResultCode())){
+            return true;
+        }else{
+            logger.info("加盟商预付款返回失败或不充足"+allianceBusiId+"|"+(resultData != null?resultData.getResultMsg():""));
+            return false;
+        }
+
+    }
+
+    /**
+     * 获取常用功能
+     * @param siteCode
+     * @param erp
+     * @return
+     */
+    @Override
+    public String menuConstantAccount(String siteCode,String erp){
+        MenuPdaRequest request = new MenuPdaRequest();
+        request.setOperatorErp(erp);
+        request.setSiteCode(siteCode);
+        com.jd.bluedragon.sdk.modules.quarantine.dto.BaseResult<String> result =  commonUseMenuApi.getMenuConstantAccount(request);
+        if(result!=null && result.getStatusCode() == com.jd.bluedragon.sdk.modules.quarantine.dto.BaseResult.SUCCESS_CODE) {
+            return result.getData();
+        }
+        return StringUtils.EMPTY;
+    }
+
 }

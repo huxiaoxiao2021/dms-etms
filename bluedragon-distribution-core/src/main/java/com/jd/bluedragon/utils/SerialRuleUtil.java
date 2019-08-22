@@ -1,5 +1,6 @@
 package com.jd.bluedragon.utils;
 
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 
 import java.util.Date;
@@ -15,12 +16,6 @@ import java.util.regex.Pattern;
 public class SerialRuleUtil {
 
     public static final String SPLIT_CHAR_STRING = "-";
-
-
-    /**
-     * 提取发货批次号中站点正则
-     */
-    private static final Pattern RULE_SEND_CODE_SITE_CODE_REGEX = Pattern.compile("^[Y|y]?(\\d+)-(\\d+)-([0-9]{14,})$");
 
     /**
      * 库房号正则
@@ -44,12 +39,8 @@ public class SerialRuleUtil {
      * @param sendCode 发货批次号
      * @return
      */
-    public static final Integer getReceiveSiteCodeFromSendCode(String sendCode) {
-        Matcher matcher = RULE_SEND_CODE_SITE_CODE_REGEX.matcher(sendCode.trim());
-        if (matcher.matches()) {
-            return Integer.parseInt(matcher.group(2));
-        }
-        return null;
+    public static Integer getReceiveSiteCodeFromSendCode(String sendCode) {
+        return BusinessUtil.getReceiveSiteCodeFromSendCode(sendCode);
     }
 
     /**
@@ -58,15 +49,8 @@ public class SerialRuleUtil {
      * @param sendCode 发货批次号
      * @return
      */
-    public static final Integer getCreateSiteCodeFromSendCode(String sendCode) {
-        if (null == sendCode) {
-            return null;
-        }
-        Matcher matcher = RULE_SEND_CODE_SITE_CODE_REGEX.matcher(sendCode.trim());
-        if (matcher.matches()) {
-            return Integer.parseInt(matcher.group(1));
-        }
-        return null;
+    public static Integer getCreateSiteCodeFromSendCode(String sendCode) {
+        return BusinessUtil.getCreateSiteCodeFromSendCode(sendCode);
     }
 
     /**

@@ -31,8 +31,10 @@
                 <div class="form-group" style="margin-left: 30px;">
                     <label class="control-label" for="type-select">反馈类型：</label>
                     <select id="type-select" name="type" class="form-control" style="display:inline; width:300px;">
-                        #foreach($type in $typeMaps.entrySet())
-                            <option value="$!{type.key}">$!{type.value}</option>
+                        #if ($typeMaps)
+                            #foreach($type in $typeMaps.entrySet())
+                                <option value="$!{type.key}">$!{type.value}</option>
+                            #end
                         #end
                     </select>
                 </div>

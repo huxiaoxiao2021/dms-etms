@@ -113,7 +113,7 @@
 		                        </textarea>
                     		</div>
                             <div class="col-xs-3">
-                                <li class="active">（说明：一行一个运单号/包裹号，支持批量录入）</li>
+                                <li class="active">（说明：一行一个运单号/包裹号，支持批量录入，如操作数量较多请分批处理，最大支持1000单）</li>
                             </div>
                         </div>
                     </div>

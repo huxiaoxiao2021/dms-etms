@@ -57,7 +57,7 @@ public class WaybillStatusTask extends DBSingleScheduler {
                 fetchNum = fetchNum * queueNum / queryCondition.size();
             }
 
-            List<Task> Tasks = taskService.findLimitedTasks(fetchNum, queryCondition);
+            List<Task> Tasks = taskService.findLimitedTasks(fetchNum, queryCondition,this.ownSign);
             for (Task task : Tasks) {
                 if (!isMyTask(queueNum, task.getId(), queryCondition)) {
                     continue;

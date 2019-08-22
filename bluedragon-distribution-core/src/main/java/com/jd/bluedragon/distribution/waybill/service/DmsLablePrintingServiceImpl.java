@@ -97,15 +97,6 @@ public class DmsLablePrintingServiceImpl extends AbstractLabelPrintingServiceTem
             labelPrinting.appendSpecialMark(SPECIAL_MARK_SOLD_INTO_PACKAGE);
         }
 
-        //B网冷链打印京仓/非京仓  waybill_sign 第89位等于3时，打印 【京仓】；第89位等于4时，打印 【非京仓】
-        if(BusinessUtil.isColdChainWaybill(waybill.getWaybillSign())){
-            if(BusinessUtil.isWareHouseJDWaybill(waybill.getWaybillSign())){
-                labelPrinting.appendSpecialMark1(SPECIAL_MARK1_WAREHOUSE_JD);
-            }else if(BusinessUtil.isWareHouseNotJDWaybill(waybill.getWaybillSign())){
-                labelPrinting.appendSpecialMark1(SPECIAL_MARK1_WAREHOUSE_NOT_JD);
-            }
-        }
-
         //waybill_sign第54位等于4 且 第40位等于2或3时显示 【医药】，并且和B互斥--显示医药，则不显示B
         if(BusinessUtil.isBMedicine(waybill.getWaybillSign()) && BusinessUtil.isSignInChars(waybill.getWaybillSign(),WaybillSignConstants.POSITION_40, WaybillSignConstants.CHAR_40_2,WaybillSignConstants.CHAR_40_3)){
             labelPrinting.appendSpecialMark(SPECIAL_MARK_MEDICINE);

@@ -73,6 +73,12 @@ public interface WaybillSignConstants {
 	char CHAR_89_2 = '2';
 
 	/**
+	 * 卡班
+	 */
+	int POSITION_80 = 80;
+	char CHAR_80_7 = '7';
+
+	/**
 	 * B网冷链
 	 */
 	int POSITION_54 = 54;
@@ -129,4 +135,10 @@ public interface WaybillSignConstants {
 	char CHAR_98_1 = '1';
 	char CHAR_98_2 = '2';
 
+	/**
+	 * 加盟商
+	 * 106等于2代表加盟商运单
+	 */
+	int POSITION_106 = 106;
+	char CHAR_106_2 = '2';
 }

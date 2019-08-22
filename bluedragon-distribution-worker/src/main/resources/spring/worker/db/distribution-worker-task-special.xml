@@ -20,7 +20,8 @@
         <property name="dataSource" ref="taskDataSource"/>
         <property name="taskType" value="ReverseSendTask"/>
         <property name="managerFactory" ref="managerFactory"/>
-        <property name="ownSign" value="DMS"/>
+        <property name="ownSign" value="${ownSign}"/>
+       <property name="ownSigns" value="DMS,PRE"/>
         <property name="type" value="1300"/>
         <property name="keyType" value="4"/>
         <property name="desc" value="逆向发货回传任务"/>

@@ -100,6 +100,10 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
         }
         //传入的运单号处理
         String[] waybillcodes = StringUtils.trim(request.getWaybillCode()).split(AbnormalUnknownWaybill.SEPARATOR_SPLIT);
+        if (waybillcodes != null && waybillcodes.length > getMaxWaybillSize()) {
+            rest.toFail("一次操作数量超过规定数量"+getMaxWaybillSize()+",请分批操作！");
+            return rest;
+        }
         List<String> waybillList = Lists.newArrayList();
         //不合法的运单号
         StringBuilder notWaybillCodes = new StringBuilder();
@@ -471,6 +475,29 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
                 return Integer.parseInt(contents);
             } catch (Exception e) {
                 logger.warn("系统配置abnormal.unknown.report.times内容不合法：" + contents);
+                return defaultTimes;
+            }
+        }
+        return defaultTimes;
+    }
+
+    /**
+     * 从sysconfig表里查出来 运单限制
+     *
+     * @return
+     */
+    public int getMaxWaybillSize() {
+        final int defaultTimes = AbnormalUnknownWaybill.WAYBILL_SIZE_DEFAULT_MAX;//默认是1000条
+        List<SysConfig> sysConfigs = sysConfigService.getListByConfigName(Constants.SYS_ABNORMAL_UNKNOWN_REPORT_WAYBILL_MAX);
+        if (sysConfigs != null && !sysConfigs.isEmpty()) {
+            String contents = sysConfigs.get(0).getConfigContent();
+            if (StringUtils.isEmpty(contents)) {
+                return defaultTimes;
+            }
+            try {
+                return Integer.parseInt(contents);
+            } catch (Exception e) {
+                logger.warn("系统配置abnormal.unknown.report.waybill.max内容不合法：" + contents);
                 return defaultTimes;
             }
         }

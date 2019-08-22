@@ -3,7 +3,6 @@ package com.jd.bluedragon.dms.utils;
 import com.jd.etms.waybill.util.UniformValidateUtil;
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +14,6 @@ import java.util.regex.Matcher;
  * @date 2018年10月12日 16时:06分
  */
 public class WaybillUtil {
-    private final static Logger logger = Logger.getLogger(WaybillUtil.class);
 
     public static boolean isWaybillCode(String waybillCode) {
         return WaybillCodeRuleValidateUtil.isWaybillCode(waybillCode);
@@ -216,17 +214,12 @@ public class WaybillUtil {
      * 根据包裹号 生成所有的包裹号
      */
     public static List<String> generateAllPackageCodes(String packcode) {
-        logger.info("生成所有包裹号：" + packcode);
         List<String> list = new ArrayList<String>();
         //如果是有效的包裹号，根据包裹总数生成包裹号列表
         if (WaybillCodeRuleValidateUtil.isPackageCode(packcode)) {
             int totalPackageNum = WaybillCodeRuleValidateUtil.getPackNumByPackCode(packcode);//包裹总数
-            if (totalPackageNum >= 100) {
-                logger.warn("生成包裹大于100：" + totalPackageNum + "packcode:" + packcode);
-            }
             //超过2W 认为是不正常的单子
             if (totalPackageNum > DmsConstants.MAX_NUMBER) {
-                logger.error("生成包裹出错，包裹总数过大：" + totalPackageNum + "packcode:" + packcode);
                 return list;
             }
             //上海亚一包裹号处理
