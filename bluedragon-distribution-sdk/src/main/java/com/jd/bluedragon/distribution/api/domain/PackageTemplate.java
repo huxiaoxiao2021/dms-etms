@@ -10,6 +10,10 @@ public class PackageTemplate implements Serializable{
      * 正式版本的模板名称
      */
     private String releaseTemplateName;
+    /**
+     * 正式版本的模板版本号
+     */
+    private Integer releaseTemplateVersion;
 
     /**
      * 适用版本的模板及适用站点
@@ -31,4 +35,18 @@ public class PackageTemplate implements Serializable{
     public void setTemporaryTemplate(List<TemporaryPackageTemplate> temporaryTemplate) {
         this.temporaryTemplate = temporaryTemplate;
     }
+
+	/**
+	 * @return the releaseTemplateVersion
+	 */
+	public Integer getReleaseTemplateVersion() {
+		return releaseTemplateVersion;
+	}
+
+	/**
+	 * @param releaseTemplateVersion the releaseTemplateVersion to set
+	 */
+	public void setReleaseTemplateVersion(Integer releaseTemplateVersion) {
+		this.releaseTemplateVersion = releaseTemplateVersion;
+	}
 }

@@ -1019,7 +1019,13 @@
 			<artifactId>ldop-business-api</artifactId>
 			<version>1.0.38-SNAPSHOT</version>
 		</dependency>
-
+		<!-- 打印引擎    start-->
+        <dependency>
+			<groupId>com.jd.ql.dms.print</groupId>
+			<artifactId>label-print-engine</artifactId>
+			<version>1.1.10-SNAPSHOT</version>
+        </dependency>
+		<!-- 打印引擎    start-->
 	</dependencies>
 
 	<build>
