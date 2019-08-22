@@ -4,21 +4,15 @@ import com.jd.b2b.wt.assemble.sdk.RpcResult;
 import com.jd.b2b.wt.assemble.sdk.req.HandoverBillPrintReq;
 import com.jd.b2b.wt.assemble.sdk.resp.HandoverBillResp;
 import com.jd.b2b.wt.assemble.sdk.resp.HandoverDetailResp;
-import com.jd.b2b.wt.assemble.sdk.service.HandoverBillProvider;
 import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.performance.domain.Commodity;
 import com.jd.bluedragon.distribution.performance.domain.Performance;
 import com.jd.bluedragon.distribution.performance.domain.PerformanceCondition;
 import com.jd.bluedragon.distribution.performance.service.PerformanceService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.jp.assemble.sdk.GenericResult;
-import com.jd.jp.assemble.sdk.HandoverBillResource;
-import com.jd.jp.assemble.sdk.dto.HandoverBillDto;
-import com.jd.jp.assemble.sdk.dto.HandoverBillPrint;
-import com.jd.jp.assemble.sdk.dto.HandoverDetailDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -41,10 +35,8 @@ public class PerformanceServiceImpl implements PerformanceService {
 
     private final Logger logger = Logger.getLogger(this.getClass());
 
-    //@Autowired
-    //private HandoverBillResource handoverBillResource;
     @Autowired
-    private HandoverBillProvider handoverBillProvider;
+    private WaybillQueryManager waybillQueryManager;
     @Autowired
     private WaybillCommonService waybillCommonService;
 
@@ -61,7 +53,6 @@ public class PerformanceServiceImpl implements PerformanceService {
         pagerResult.setTotal(0);
 
         HandoverBillPrintReq handoverBillPrintReq = new HandoverBillPrintReq();
-        //HandoverBillPrint handoverBillPrint = new HandoverBillPrint();
         String performanceCode = performanceCondition.getPerformanceCode();
         if(StringUtils.isEmpty(performanceCondition.getPerformanceCode()) &&
                 StringUtils.isEmpty(performanceCondition.getWaybillorPackCode())) {
@@ -91,8 +82,7 @@ public class PerformanceServiceImpl implements PerformanceService {
         handoverBillPrintReq.setPageNo(performanceCondition.getOffset()/performanceCondition.getLimit()+1);
         handoverBillPrintReq.setPageSize(performanceCondition.getLimit());
         try {
-            RpcResult<HandoverBillResp> rpcResult = handoverBillProvider.searchDetail(handoverBillPrintReq);
-            //HandoverBillDto handoverBillDto = handoverBillResource.searchDetail(handoverBillPrint);
+            RpcResult<HandoverBillResp> rpcResult = waybillQueryManager.searchHandoverDetail(handoverBillPrintReq);
             if (rpcResult != null && rpcResult.getSuccess()) {
                 List<HandoverDetailResp> respsList = rpcResult.getValue().getHandoverDetailResps();
                 for (HandoverDetailResp handoverDetailResp : respsList) {
@@ -107,21 +97,6 @@ public class PerformanceServiceImpl implements PerformanceService {
                 }
                 pagerResult.setTotal(rpcResult.getValue().getCountDetail());
                 pagerResult.setRows(list);
-/*            if(handoverBillDto != null && handoverBillDto.getSuccess()){
-                List<HandoverDetailDto> dtoList = handoverBillDto.getDtoList();
-                for(HandoverDetailDto handoverDetailDto: dtoList){
-                    Performance performance =new Performance();
-                    performance.setPerformanceCode(performanceCode);
-                    performance.setPoNo(handoverDetailDto.getPoNo());
-                    performance.setWaybillCode(handoverDetailDto.getDeliveryOrderId());
-                    performance.setGoodName(handoverDetailDto.getSkuName());
-                    performance.setGoodNumber(handoverDetailDto.getSkuNum());
-                    performance.setPackageCode(handoverDetailDto.getContainerId());
-                    list.add(performance);
-                }
-                pagerResult.setTotal(handoverBillDto.getCountDetail());
-                pagerResult.setRows(list);
-            }*/
             }else {
                 this.logger.warn("通过履约单号查询履约单信息为空"+performanceCode);
             }
@@ -143,7 +118,6 @@ public class PerformanceServiceImpl implements PerformanceService {
         invokeResult.customMessage(400,"打印失败");
 
         HandoverBillPrintReq handoverBillPrint = new HandoverBillPrintReq();
-        //HandoverBillPrint handoverBillPrint = new HandoverBillPrint();
         if(StringUtils.isEmpty(performanceCode) || StringUtils.isEmpty(performanceCode.trim())) {
             String waybillCode = waybillorPackCode;
             if (WaybillUtil.isPackageCode(waybillorPackCode)) {
@@ -161,13 +135,11 @@ public class PerformanceServiceImpl implements PerformanceService {
             }
         }
 
-        //GenericResult<List<HandoverDetailDto>> result = null;
         RpcResult<List<HandoverDetailResp>> result = null;
         try {
             handoverBillPrint.setFulfillmentOrderId(performanceCode);
 
-            //result = handoverBillResource.dismantlePrint(handoverBillPrint);
-            result = handoverBillProvider.dismantlePrint(handoverBillPrint);
+            result = waybillQueryManager.dismantlePrint(handoverBillPrint);
         }catch (Exception e){
             this.logger.error("通过履约单号" + performanceCode + "获得加履单详情失败",e);
             return JsonHelper.toJson(invokeResult);
@@ -230,7 +202,7 @@ public class PerformanceServiceImpl implements PerformanceService {
     @Override
     public Integer getIsPrint(PerformanceCondition performanceCondition) {
 
-        //HandoverBillPrint handoverBillPrint = new HandoverBillPrint();
+
         HandoverBillPrintReq handoverBillPrintReq = new HandoverBillPrintReq();
         String performanceCode = performanceCondition.getPerformanceCode();
         if(StringUtils.isEmpty(performanceCondition.getPerformanceCode()) &&
@@ -261,13 +233,9 @@ public class PerformanceServiceImpl implements PerformanceService {
         handoverBillPrintReq.setPageNo(1);
         handoverBillPrintReq.setPageSize(10);
         try {
-            RpcResult<HandoverBillResp> rpcResult = handoverBillProvider.searchDetail(handoverBillPrintReq);
-            if(rpcResult != null && rpcResult.getSuccess()) {
-                if(rpcResult.getValue().getCanPrint()){
-                    return 1;
-                }
-                return 2;
-            }
+            if(waybillQueryManager.searchHandoverisCanPrint(handoverBillPrintReq))
+                return 1;
+            return 2;
         }catch (Exception e){
 
         }

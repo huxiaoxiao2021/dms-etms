@@ -1,6 +1,11 @@
 package com.jd.bluedragon.core.base;
 
 import com.alibaba.fastjson.JSON;
+import com.jd.b2b.wt.assemble.sdk.RpcResult;
+import com.jd.b2b.wt.assemble.sdk.req.HandoverBillPrintReq;
+import com.jd.b2b.wt.assemble.sdk.resp.HandoverBillResp;
+import com.jd.b2b.wt.assemble.sdk.resp.HandoverDetailResp;
+import com.jd.b2b.wt.assemble.sdk.service.HandoverBillProvider;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
@@ -60,6 +65,9 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 
     @Autowired
     private PackageStatusService packageStatusService;
+
+    @Autowired
+    private HandoverBillProvider handoverBillProvider;
 
     /**
      * 大包裹运单缓存开关
@@ -624,5 +632,27 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
         }
 
         return deliveryPackageDList;
+    }
+
+    @Override
+    @JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.searchHandoverDetail" , jAppName = Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public RpcResult<HandoverBillResp> searchHandoverDetail(HandoverBillPrintReq handoverBillPrintReq) {
+        return handoverBillProvider.searchDetail(handoverBillPrintReq);
+    }
+
+    @Override
+    @JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.searchHandoverisCanPrint" , jAppName = Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Boolean searchHandoverisCanPrint(HandoverBillPrintReq handoverBillPrintReq) {
+        RpcResult<HandoverBillResp> rpcResult = handoverBillProvider.searchDetail(handoverBillPrintReq);
+        return rpcResult.getValue().getCanPrint();
+    }
+
+    @Override
+    @JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.dismantlePrint" , jAppName = Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public RpcResult<List<HandoverDetailResp>> dismantlePrint(HandoverBillPrintReq handoverBillPrint) {
+        return handoverBillProvider.dismantlePrint(handoverBillPrint);
     }
 }
