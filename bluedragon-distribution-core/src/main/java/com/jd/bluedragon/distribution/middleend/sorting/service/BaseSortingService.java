@@ -65,9 +65,9 @@ public abstract class BaseSortingService {
     public static final String TASK_SORTING_FINGERPRINT_SORTING_5S = "TASK_SORTING_FP_5S_"; //5前缀
     public static final int TASK_1200_EX_TIME_5_S = 5;
 
-    public static final int SORTING_STATUS_IS_LOSS_0 = 0;
-    public static final int SORTING_STATUS_IS_LOSS_1 = 1;
-    public static final int SORTING_STATUS_FEATURE_TYPE_2 = 2;
+    public static final Integer SORTING_STATUS_IS_LOSS_0 = 0;
+    public static final Integer SORTING_STATUS_IS_LOSS_1 = 1;
+    public static final Integer SORTING_STATUS_FEATURE_TYPE_2 = 2;
 
 
     /**
@@ -204,11 +204,11 @@ public abstract class BaseSortingService {
         object.setMiddleEndSorting(middleEndSorting);
 
         //IS_LOSS FEATURE_TYPE 合并
-        if (dmsSorting.getFeatureType() == SORTING_STATUS_FEATURE_TYPE_2) {
+        if (SORTING_STATUS_FEATURE_TYPE_2.equals(dmsSorting.getFeatureType())) {
             middleEndSorting.setStatus(SortingObjectStatus.TRIPARTITE_RETURN_SPARE_WAREHOUSE);
-        } else if (dmsSorting.getIsLoss() == SORTING_STATUS_IS_LOSS_1) {
+        } else if (SORTING_STATUS_IS_LOSS_1.equals(dmsSorting.getIsLoss())) {
             middleEndSorting.setStatus(SortingObjectStatus.LOST);
-        } else if (dmsSorting.getIsLoss() == SORTING_STATUS_IS_LOSS_0) {
+        } else if (SORTING_STATUS_IS_LOSS_0.equals(dmsSorting.getIsLoss())) {
             middleEndSorting.setStatus(SortingObjectStatus.NORMAL);
         }
 
