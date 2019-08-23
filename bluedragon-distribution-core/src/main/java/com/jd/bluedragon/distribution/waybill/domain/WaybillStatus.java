@@ -61,6 +61,10 @@ public class WaybillStatus {
 
     /**配送异常节点全程跟踪类型*/
     public static final Integer WAYBILL_TRACK_QC = 2100;
+
+    /**运单修改补打 全程跟踪类型	*/
+    public static final Integer WAYBILL_TRACK_WAYBILL_BD = 7100;
+    public static final String WAYBILL_TRACK_WAYBILL_BD_MSG = "温馨提示：您的订单因信息修改，正在重新中转";
     /**
      * 空铁转陆运 全程跟踪节点
      */
@@ -79,10 +83,13 @@ public class WaybillStatus {
 
     /**
      * 全程跟踪消息类型mstType-运单修改补打
+     *
+     * 此枚举原先由调用运单sendOrderTrace的时候使用的，切换成sendbdTrace后使用了WAYBILL_TRACK_WAYBILL_BD。
+     * 由于task里历史数据 也有2400的数据，暂时不能删除引用
      **/
     public static final Integer WAYBILL_TRACK_MSGTYPE_UPDATE = 2400;
-    public static final String WAYBILL_TRACK_MSGTYPE_UPDATE_MSG = "运单修改补打";
-    public static final String WAYBILL_TRACK_MSGTYPE_UPDATE_CONTENT = "温馨提示：您的订单因信息修改，正在重新中转";
+//    public static final String WAYBILL_TRACK_MSGTYPE_UPDATE_MSG = "运单修改补打";
+//    public static final String WAYBILL_TRACK_MSGTYPE_UPDATE_CONTENT = "温馨提示：您的订单因信息修改，正在重新中转";
 
     /**
      * 全程跟踪消息类型mstType-运单修改补打

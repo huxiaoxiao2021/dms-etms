@@ -4,7 +4,6 @@ package com.jd.bluedragon.distribution.middleend.sorting.dao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 
 import java.util.List;
-import java.util.Map;
 
 public interface ISortingDao {
 
@@ -89,9 +88,4 @@ public interface ISortingDao {
      * @return
      */
     List<Sorting>  findByWaybillCodeOrPackageCode(Sorting sorting);
-
-
-    /**分页查询分拣记录*/
-    List<Sorting> findPageSorting(Map<String,Object> params);
-
 }

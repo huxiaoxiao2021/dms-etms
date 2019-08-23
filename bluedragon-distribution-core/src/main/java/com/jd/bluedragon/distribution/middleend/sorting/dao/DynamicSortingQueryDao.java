@@ -32,6 +32,11 @@ public class DynamicSortingQueryDao implements ISortingDao{
 
     private static final String SYSTEM_CONFIG_KEY_SORTING_QUERY_OPEN = "failover.sorting.query.site.open";
 
+    private static final String SORTING_QUERY_MODE_DMS ="DMS";
+    private static final String SORTING_QUERY_MODE_MIDDLEEND ="MIDDLEEND";
+    private static final String SORTING_QUERY_MODE_FAILOVER ="FAILOVER";
+
+
     /**
      * 根据ucc和system_config的配置确定选择哪个dao
      * @param createSiteCode
@@ -40,13 +45,13 @@ public class DynamicSortingQueryDao implements ISortingDao{
     public ISortingDao selectDao(Integer createSiteCode) {
         String sortingQueryMode = uccPropertyConfiguration.getSortingQueryMode();
         logger.info("sortingQueryMode:" + sortingQueryMode);
-        if("DMS".equals(sortingQueryMode)){
+        if(SORTING_QUERY_MODE_DMS.equals(sortingQueryMode)){
             logger.info("站点:" + createSiteCode +"使用sortingDao进行查询");
             return sortingDao;
-        }else if("MIDDLEEND".equals(sortingQueryMode)){
+        }else if(SORTING_QUERY_MODE_MIDDLEEND.equals(sortingQueryMode)){
             logger.info("站点:" + createSiteCode +"使用middleEndSortingDao进行查询");
             return middleEndSortingDao;
-        }else if("FAILOVER".equals(sortingQueryMode)){
+        }else if(SORTING_QUERY_MODE_FAILOVER.equals(sortingQueryMode)){
             //配置列表里有
             Set<Integer> siteCodeSet = siteService.getSiteCodesFromSysConfig(SYSTEM_CONFIG_KEY_SORTING_QUERY_OPEN);
             if(siteCodeSet!=null && siteCodeSet.contains(createSiteCode)){
@@ -177,13 +182,6 @@ public class DynamicSortingQueryDao implements ISortingDao{
      */
     public List<Sorting> findByWaybillCodeOrPackageCode(Sorting sorting){
         return selectDao(sorting.getCreateSiteCode()).findByWaybillCodeOrPackageCode(sorting);
-    }
-
-    /**
-     * 分页查询分拣记录
-     */
-    public List<Sorting> findPageSorting(Map<String, Object> params){
-        return selectDao((Integer)params.get("createSiteCode")).findPageSorting(params);
     }
 
     public SortingDao getSortingDao() {

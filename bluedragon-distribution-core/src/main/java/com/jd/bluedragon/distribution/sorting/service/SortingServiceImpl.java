@@ -1031,7 +1031,6 @@ public class SortingServiceImpl implements SortingService {
 	public List<Sorting> findOrderDetail(Sorting sorting) {
 		return this.sortingDao.findOrderDetail(sorting);
 	}
-
 	public List<Sorting> findOrder(Sorting sorting) {
 		return this.sortingDao.findOrder(sorting);
 	}
@@ -1203,10 +1202,19 @@ public class SortingServiceImpl implements SortingService {
         return null;
     }
 
-	@Override
-	public List<Sorting> findPageSorting(Map<String, Object> params) {
-		logger.info("SortingServiceImpl.findPageSorting begin...");
-		return dynamicSortingQueryDao.findPageSorting(params);
+	/**
+	 * 根据包裹号查询一条sorting记录
+	 * @param packageCode
+	 * @param createSiteCode
+	 * @return
+	 */
+	public Sorting getOneSortingByPackageCode(String packageCode,Integer createSiteCode){
+		List<Sorting> sortingList = findByPackageCode(createSiteCode,packageCode);
+		if(sortingList != null){
+			return sortingList.get(0);
+		}
+
+		return null;
 	}
 
 

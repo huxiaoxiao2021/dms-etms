@@ -1721,6 +1721,22 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             sendmodel.setOperator(sendM.getCreateUser());
 			//组装拒收原因
             makeRefuseReason(sendmodel);
+
+            //added by hanjiaxing3 2019.04.08
+            //reason:天音项目增加两个字段，从运单接口中获取cky2和storeId
+            BigWaybillDto bigWaybillDto = waybillService.getWaybillState(wayBillCode);
+
+            if (bigWaybillDto != null && bigWaybillDto.getWaybillState() != null) {
+                Integer distributeNo = bigWaybillDto.getWaybillState().getCky2();
+                Integer warehouseNo = bigWaybillDto.getWaybillState().getStoreId();
+                sendmodel.setDistributeNo(distributeNo);
+                sendmodel.setWarehouseNo(warehouseNo);
+                logger.info("通过运单getWaybillState接口获取到的信息为，配送中心编号：" + distributeNo + "，库房编号：" + warehouseNo);
+            } else {
+                logger.warn("通过运单getWaybillState接口获取到的信息为空！");
+            }
+            //end
+
 			String jsonStr = JsonHelper.toJson(sendmodel);
 			logger.info("推送ECLP的 MQ消息体 " + jsonStr);
 

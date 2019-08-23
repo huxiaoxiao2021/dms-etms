@@ -22,8 +22,14 @@ import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.api.WaybillSyncApi;
 import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.dto.BdTraceDto;
+import com.jd.ldop.business.api.dto.request.AbnormalOrderDTO;
+import com.jd.ldop.business.api.dto.response.ResponseStatus;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import com.jd.ldop.business.api.AbnormalOrderApi;
+import com.jd.ldop.business.api.dto.response.Response;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -73,6 +79,9 @@ public class QualityControlService {
 
     @Autowired
     private VrsRouteTransferRelationManager vrsRouteTransferRelationManager;
+
+    @Autowired
+    private AbnormalOrderApi abnormalOrderApi;
 
     public TaskResult dealQualityControlTask(Task task) {
         QualityControlRequest request = null;
@@ -307,6 +316,24 @@ public class QualityControlService {
                 logger.error("质控异常生成分拣退货数据异常，原因 " + e);
             }
         }
+    }
+
+    /**
+     * 获取运单协商再投状态
+     * @param
+     * @return 0：未处理 1：已处理
+     */
+    @JProfiler(jKey = "DMSWEB.QualityControlService.getRedeliveryState",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public int getRedeliveryState(String waybillCode,Integer businessID) {
+        int res = 1;
+        Response<AbnormalOrderDTO> dto = abnormalOrderApi.queryByCustomerIdDeliveryIdMainTypeId(waybillCode,businessID,20);
+        if(null!=dto && dto.getStatus()== ResponseStatus.SUCCESS && null!=dto.getResult()){
+           if (null != dto.getResult().getAbnormalState()) {
+               res = dto.getResult().getAbnormalState();
+           }
+        }
+
+        return res;
     }
 
     /**

@@ -10,7 +10,11 @@ public interface SysConfigService {
      * 配置分拣中心站点列表-不启用新统一包裹标签的print.dmsSiteCodes.nonuseNewTemplate
      */
     public static final String SYS_CONFIG_NAME_DMS_SITE_CODES_NONUSE_NEW_TEMPLATE = "print.dmsSiteCodes.nonuseNewTemplate";
-    
+    /**
+     * 是否开启云打印
+     */
+    public static final String SYS_CONFIG_NAME_DMS_PRINT_USE_JD_CLOUD = "print.config.useJdCloudPrint";
+
 	public List<SysConfig> getSwitchList();
 	public List<SysConfig> getList(SysConfig sysConfig);
 	public int del(Long pk);

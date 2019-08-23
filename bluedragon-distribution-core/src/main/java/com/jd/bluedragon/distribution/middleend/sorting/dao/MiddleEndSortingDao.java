@@ -46,6 +46,10 @@ public class MiddleEndSortingDao implements ISortingDao {
         ApiResult<List<com.jd.ql.shared.services.sorting.api.dto.Sorting>> apiResult = sharedSortingQueryManager.queryByContainerAndFlow(sorting.getBoxCode(), buildSortingFlow(sorting),direction );
         if (apiResult != null && ApiResult.OK_CODE == apiResult.getCode()) {
             List<com.jd.ql.shared.services.sorting.api.dto.Sorting> middleEndSortingList = apiResult.getData();
+            if(middleEndSortingList == null){
+                logger.error("调用中台接口findByBoxCode返回data为空.sorting:" + JSON.toJSONString(sorting) + ",返回值为:" + JSON.toJSONString(apiResult));
+                return null;
+            }
             return middleEndSorting2DmsSortingBatch(middleEndSortingList);
         } else {
             logger.error("调用中台接口queryByContainerAndFlow失败.sorting:" + JSON.toJSONString(sorting) + ",返回值为:" + JSON.toJSONString(apiResult));
@@ -98,6 +102,10 @@ public class MiddleEndSortingDao implements ISortingDao {
     public Sorting findBoxDescSite(Integer createSiteCode, String boxCode) {
         ApiResult<com.jd.ql.shared.services.sorting.api.dto.Sorting> apiResult = sharedSortingQueryManager.queryContainerDescSite(createSiteCode, boxCode);
         if (apiResult != null && ApiResult.OK_CODE == apiResult.getCode()) {
+            if(apiResult.getData() == null){
+                logger.error("调用中台接口findBoxDescSite返回data为空.createSiteCode:" + createSiteCode + ",boxCode" + boxCode +",返回值为:" + JSON.toJSONString(apiResult));
+                return null;
+            }
             return middleEndSorting2DmsSorting(apiResult.getData());
         } else {
             logger.error("调用中台接口findBoxDescSite失败.createSiteCode:" + createSiteCode + ",boxCode" + boxCode + ",返回值为:" + JSON.toJSONString(apiResult));
@@ -143,7 +151,11 @@ public class MiddleEndSortingDao implements ISortingDao {
             //循环获取剩余数据
             for (int i = 2; i <= totalPage; i++) {
                 pageBean.setPageSize(i);
-                apiResult = sharedSortingQueryManager.queryPackList(sorting.getCreateSiteCode(), sorting.getWaybillCode(), objectCode, SortingDirection.getEunmByType(sorting.getType()), pageBean);
+                apiResult = sharedSortingQueryManager.queryPackList(sorting.getCreateSiteCode(), sorting.getWaybillCode(), objectCode, direction, pageBean);
+                if (apiResult != null && ApiResult.OK_CODE == apiResult.getCode()) {
+                    logger.error("调用中台接口queryPackList查询结果不成功.:" + sorting.getCreateSiteCode() +","+ sorting.getWaybillCode() +","+objectCode +"," + JSON.toJSONString(pageBean) + ",返回值为:" + JSON.toJSONString(apiResult));
+                    return null;
+                }
                 sortingList.addAll(middleEndSorting2DmsSortingBatch(apiResult.getData().getList()));
             }
 
@@ -172,6 +184,10 @@ public class MiddleEndSortingDao implements ISortingDao {
 
             ApiResult<List<com.jd.ql.shared.services.sorting.api.dto.Sorting>> apiResult = sharedSortingQueryManager.queryBySiteCodeAndPackage(sorting.getCreateSiteCode(), sorting.getWaybillCode(), objectCode, direction);
             if (apiResult != null && ApiResult.OK_CODE == apiResult.getCode()) {
+                if(apiResult.getData() == null){
+                    logger.error("调用中台接口findBoxDescSite返回data为空.sorting:" + JSON.toJSONString(sorting) +",返回值为:" + JSON.toJSONString(apiResult));
+                    return null;
+                }
                 return middleEndSorting2DmsSortingBatch(apiResult.getData());
             } else {
                 logger.error("调用中台接口queryBySiteCodeAndPackage失败.sorting:" + JSON.toJSONString(sorting) + ",返回值为:" + JSON.toJSONString(apiResult));
@@ -218,6 +234,10 @@ public class MiddleEndSortingDao implements ISortingDao {
             for (int i = 2; i <= totalPage; i++) {
                 pageBean.setPageSize(i);
                 apiResult = sharedSortingQueryManager.queryByBatchCode(sorting.getCreateSiteCode(), sorting.getBsendCode(), pageBean);
+                if (apiResult != null && ApiResult.OK_CODE == apiResult.getCode()) {
+                    logger.error("调用中台接口queryByBatchCode查询结果不成功.:" + sorting.getCreateSiteCode() +","+ sorting.getBsendCode() + JSON.toJSONString(pageBean) + ",返回值为:" + JSON.toJSONString(apiResult));
+                    return null;
+                }
                 sortingList.addAll(middleEndSorting2DmsSortingBatch(apiResult.getData().getList()));
             }
 
@@ -249,6 +269,10 @@ public class MiddleEndSortingDao implements ISortingDao {
     public List<Sorting> findByBoxCodeAndFetchNum(String boxCode, int createSiteCode, int fetchNum) {
         ApiResult<List<com.jd.ql.shared.services.sorting.api.dto.Sorting>> apiResult = sharedSortingQueryManager.queryByContainerCodeAndFetchNum(createSiteCode, boxCode, fetchNum);
         if (apiResult != null && ApiResult.OK_CODE == apiResult.getCode()) {
+            if(apiResult.getData() == null){
+                logger.error("调用中台接口queryByContainerCodeAndFetchNum返回data为空.sorting:" +boxCode + ",createSiteCode:" + createSiteCode + ",fetchNum:" + fetchNum  +",返回值为:" + JSON.toJSONString(apiResult));
+                return null;
+            }
             return middleEndSorting2DmsSortingBatch(apiResult.getData());
         } else {
             logger.error("调用中台接口queryByBatchCode失败.boxCode:" + boxCode + ",createSiteCode:" + createSiteCode + ",fetchNum:" + fetchNum + ",返回值为:" + JSON.toJSONString(apiResult));
@@ -266,35 +290,15 @@ public class MiddleEndSortingDao implements ISortingDao {
         return queryByCode(sorting);
     }
 
-
-    /**
-     * 分页查询分拣记录
-     */
-    public List<Sorting> findPageSorting(Map<String, Object> params) {
-        PageBean<SortingObject> pageBean = new PageBean<>();
-        pageBean.setPageSize(1);
-        pageBean.setPageNum(1);
-
-//        params.put("createSiteCode",videoRequest.getSiteNo());
-//        params.put("packageCode",packageCode);
-//        params.put("startIndex",0);
-//        params.put("pageSize",1);
-
-        ApiResult<PageBean<com.jd.ql.shared.services.sorting.api.dto.Sorting>> apiResult = sharedSortingQueryManager.queryByPage((Integer) params.get("createSiteCode"), (String) params.get("packageCode"), pageBean);
-        if (apiResult != null && ApiResult.OK_CODE == apiResult.getCode()) {
-            return middleEndSorting2DmsSortingBatch(apiResult.getData().getList());
-        } else {
-            logger.error("调用中台接口queryByPage失败.params:" + JSON.toJSONString(params) + ",返回值为:" + JSON.toJSONString(apiResult));
-            return null;
-        }
-    }
-
     /**
      * 构建Flow对象
      * @param sorting
      * @return
      */
     private Flow buildSortingFlow(Sorting sorting) {
+        if(sorting == null){
+            return null;
+        }
         Integer createSiteCode = sorting.getCreateSiteCode();
         Integer receiveSiteCode = sorting.getReceiveSiteCode();
 
@@ -325,6 +329,10 @@ public class MiddleEndSortingDao implements ISortingDao {
      */
     private Sorting middleEndSorting2DmsSorting(com.jd.ql.shared.services.sorting.api.dto.Sorting middleendSorting) {
         Sorting sorting = new Sorting();
+
+        if(middleendSorting == null){
+            return null;
+        }
 
         //设置箱号
         if (BusinessUtil.isBoxcode(middleendSorting.getContainerCode())) {
@@ -379,23 +387,27 @@ public class MiddleEndSortingDao implements ISortingDao {
             sorting.setOperateTime(middleendSorting.getOperateTime());
 
             //设置正向,逆向,三方
-            sorting.setType(sortingObject.getSortingDirection().type());
+            if(sortingObject.getSortingDirection()!=null) {
+                sorting.setType(sortingObject.getSortingDirection().type());
+            }
 
             //设置是否取消
             sorting.setIsCancel(sortingObject.getIsCancel() == true ? 1 : 0);
 
             //设置isLoss、featureType
             SortingObjectStatus status = sortingObject.getStatus();
-            if (status.equals(SortingObjectStatus.NORMAL)) {
+            if (SortingObjectStatus.NORMAL.equals(status)) {
                 sorting.setIsLoss(status.type());
-            } else if (status.equals(SortingObjectStatus.LOST)) {
+            } else if (SortingObjectStatus.LOST.equals(status)) {
                 sorting.setIsLoss(status.type());
-            } else if (status.equals(SortingObjectStatus.TRIPARTITE_RETURN_SPARE_WAREHOUSE)) {
+            } else if (SortingObjectStatus.TRIPARTITE_RETURN_SPARE_WAREHOUSE.equals(status)) {
                 sorting.setFeatureType(status.type());
             }
 
             //设置status、spareReason
             sorting.setStatus(Sorting.STATUS_DONE);
+            sorting.setSpareReason(sortingObject.getComment());
+
         }
         return sorting;
     }
@@ -408,6 +420,10 @@ public class MiddleEndSortingDao implements ISortingDao {
      */
     private List<Sorting> middleEndSorting2DmsSortingBatch(List<com.jd.ql.shared.services.sorting.api.dto.Sorting> middleendSortingList) {
         List<Sorting> sortingList = new ArrayList<>();
+
+        if(middleendSortingList==null){
+            return null;
+        }
         for (com.jd.ql.shared.services.sorting.api.dto.Sorting middendSorting : middleendSortingList) {
             sortingList.add(middleEndSorting2DmsSorting(middendSorting));
         }

@@ -26,7 +26,7 @@ public class FailoverSortingDao implements ISortingDao {
      * @return
      */
     public List<Sorting> findByBoxCode(Sorting sorting) {
-        List<Sorting> sortingList = new ArrayList<>();
+        List<Sorting> sortingList = null;
         try {
             sortingList = middleEndSortingDao.findByBoxCode(sorting);
         } catch (Exception e) {
@@ -111,7 +111,7 @@ public class FailoverSortingDao implements ISortingDao {
      * @return
      */
     public List<Sorting> findBoxPackList(Sorting sorting) {
-        List<Sorting> sortingList = new ArrayList<>();
+        List<Sorting> sortingList = null;
         try {
             sortingList = middleEndSortingDao.findBoxPackList(sorting);
         } catch (Exception e) {
@@ -131,7 +131,7 @@ public class FailoverSortingDao implements ISortingDao {
      * @return
      */
     public List<Sorting> queryByCode(Sorting sorting) {
-        List<Sorting> sortingList = new ArrayList<>();
+        List<Sorting> sortingList = null;
         try {
             sortingList = middleEndSortingDao.queryByCode(sorting);
         } catch (Exception e) {
@@ -152,7 +152,7 @@ public class FailoverSortingDao implements ISortingDao {
      * @return
      */
     public List<Sorting> queryByCode2(Sorting sorting) {
-        List<Sorting> sortingList = new ArrayList<>();
+        List<Sorting> sortingList = null;
         try {
             sortingList = middleEndSortingDao.queryByCode2(sorting);
         } catch (Exception e) {
@@ -172,7 +172,7 @@ public class FailoverSortingDao implements ISortingDao {
      * @return
      */
     public List<Sorting> findByBsendCode(Sorting sorting) {
-        List<Sorting> sortingList = new ArrayList<>();
+        List<Sorting> sortingList =null;
         try {
             sortingList = middleEndSortingDao.findByBsendCode(sorting);
         } catch (Exception e) {
@@ -192,7 +192,7 @@ public class FailoverSortingDao implements ISortingDao {
      * @return
      */
     public List<Sorting> findByPackageCode(Sorting sorting) {
-        List<Sorting> sortingList = new ArrayList<>();
+        List<Sorting> sortingList = null;
         try {
             sortingList = middleEndSortingDao.findByPackageCode(sorting);
         } catch (Exception e) {
@@ -214,7 +214,7 @@ public class FailoverSortingDao implements ISortingDao {
      * @return
      */
     public List<Sorting> findByBoxCodeAndFetchNum(String boxCode, int createSiteCode, int fetchNum) {
-        List<Sorting> sortingList = new ArrayList<>();
+        List<Sorting> sortingList = null;
         try {
             sortingList = middleEndSortingDao.findByBoxCodeAndFetchNum(boxCode, createSiteCode, fetchNum);
         } catch (Exception e) {
@@ -234,7 +234,7 @@ public class FailoverSortingDao implements ISortingDao {
      * @return
      */
     public List<Sorting> findByWaybillCodeOrPackageCode(Sorting sorting) {
-        List<Sorting> sortingList = new ArrayList<>();
+        List<Sorting> sortingList = null;
         try {
             sortingList = middleEndSortingDao.findByWaybillCodeOrPackageCode(sorting);
         } catch (Exception e) {
@@ -243,24 +243,6 @@ public class FailoverSortingDao implements ISortingDao {
         if (sortingList == null) {
             logger.info("调用中台findByWaybillCodeOrPackageCode接口的返回值为空，调用分拣的接口查询");
             sortingList = sortingDao.findByWaybillCodeOrPackageCode(sorting);
-        }
-        return sortingList;
-    }
-
-
-    /**
-     * 分页查询分拣记录
-     */
-    public List<Sorting> findPageSorting(Map<String, Object> params) {
-        List<Sorting> sortingList = new ArrayList<>();
-        try {
-            sortingList = middleEndSortingDao.findPageSorting(params);
-        } catch (Exception e) {
-            logger.error("中台findByWaybillCodeOrPackageCode接口调用异常.params:" + JSON.toJSONString(params), e);
-        }
-        if (sortingList == null) {
-            logger.info("调用中台findByWaybillCodeOrPackageCode接口的返回值为空，调用分拣的接口查询");
-            sortingList = sortingDao.findPageSorting(params);
         }
         return sortingList;
     }

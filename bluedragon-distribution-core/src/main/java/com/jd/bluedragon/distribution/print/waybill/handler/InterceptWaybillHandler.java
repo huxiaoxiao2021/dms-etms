@@ -11,7 +11,7 @@ import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.print.service.ComposeService;
 /**
  * 
- * @ClassName: HideInfoWaybillHandler
+ * @ClassName: InterceptWaybillHandler
  * @Description: 取消锁定拦截处理
  * @author: wuyoude
  * @date: 2018年1月30日 上午9:18:31

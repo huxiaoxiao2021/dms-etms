@@ -11,6 +11,7 @@ import com.jd.bluedragon.utils.cache.BigWaybillPackageListCache;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.api.WaybillTraceApi;
+import com.jd.etms.waybill.api.WaybillUpdateApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.PackageState;
@@ -60,6 +61,9 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 
     @Autowired
     private PackageStatusService packageStatusService;
+
+    @Autowired
+    private WaybillUpdateApi waybillUpdateApi;
 
     /**
      * 大包裹运单缓存开关
@@ -214,37 +218,6 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
         wChoice.setQueryWaybillM(isWaybillM);
         wChoice.setQueryPackList(isPackList);
         return getDatasByChoice(waybillCodes, wChoice);
-    }
-
-    @Override
-    public boolean sendOrderTrace(String businessKey, int msgType, String title, String content, String operatorName, Date operateTime) {
-        CallerInfo info = Profiler.registerInfo("DMS.BASE.WaybillQueryManagerImpl.sendOrderTrace", false, true);
-        try {
-            OrderTraceDto orderTraceDto = new OrderTraceDto();
-            orderTraceDto.setBusinessKey(businessKey);
-            orderTraceDto.setMsgType(msgType);
-            orderTraceDto.setTitle(title);
-            orderTraceDto.setContent(content);
-            orderTraceDto.setOperatorName(operatorName);
-            orderTraceDto.setOperateTime(operateTime == null ? new Date() : operateTime);
-            BaseEntity<Boolean> baseEntity = waybillTraceApi.sendOrderTrace(orderTraceDto);
-            if (baseEntity != null) {
-                if (!baseEntity.getData()) {
-                    this.logger.warn("分拣数据回传全程跟踪sendOrderTrace异常：" + baseEntity.getMessage() + baseEntity.getData());
-                    Profiler.functionError(info);
-                    return false;
-                }
-            } else {
-                this.logger.warn("分拣数据回传全程跟踪接口sendOrderTrace异常");
-                Profiler.functionError(info);
-                return false;
-            }
-        } catch (Exception e) {
-            Profiler.functionError(info);
-        } finally {
-            Profiler.registerInfoEnd(info);
-        }
-        return true;
     }
 
     @Override
@@ -627,6 +600,19 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
             mState = {JProEnum.TP, JProEnum.FunctionError})
     public BaseEntity<SkuPackRelationDto> getSkuPackRelation(String sku) {
         return waybillQueryApi.getSkuPackRelation(sku);
+    }
+
+    /**
+     * 修改包裹数量
+     * @param waybillCode
+     * @param list
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMS.BASE.waybillQueryApi.batchUpdatePackageByWaybillCode", jAppName = Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public BaseEntity<Boolean> batchUpdatePackageByWaybillCode(String waybillCode,List list){
+        return waybillUpdateApi.batchUpdatePackageByWaybillCode(waybillCode, list);
     }
 
     /*
