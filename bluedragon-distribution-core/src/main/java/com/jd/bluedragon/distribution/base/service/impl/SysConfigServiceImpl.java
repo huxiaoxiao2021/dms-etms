@@ -46,8 +46,8 @@ public class SysConfigServiceImpl implements SysConfigService {
 	}
 
 	@Override
-	@Cache(key = "SysConfigServiceImpl.findConfigContentByConfigName@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000
-			,redisEnable = true, redisExpiredTime = 5 * 60 * 1000)
+	@Cache(key = "SysConfigServiceImpl.findConfigContentByConfigName@args0", memoryEnable = true, memoryExpiredTime = 2 * 60 * 1000
+			,redisEnable = true, redisExpiredTime = 2 * 60 * 1000)
 	public SysConfig findConfigContentByConfigName(String configName) {
 		return this.sysConfigDao.findConfigContentByConfigName(configName);
 	}

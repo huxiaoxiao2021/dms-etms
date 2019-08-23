@@ -3,8 +3,11 @@ package com.jd.bluedragon.distribution.saf;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.saf.domain.WaybillResponse;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +42,7 @@ public class GetWaybillSafServiceImpl implements GetWaybillSafService{
      * 通过箱号获取包裹信息
      * */
 	@Override
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.WEB.GetWaybillSafServiceImpl.getOrdersDetails", mState = JProEnum.TP)
 	public WaybillSafResponse<List<WaybillResponse>> getOrdersDetails(
 			String boxCode) {
 		if(boxCode ==null || boxCode.trim().equals("")){

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>新增意见反馈</title>
+    <meta http-equiv="pragma" content="no-cache"/>
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    #parse("system/common/baseImport.vm")
+    <script src="/static/js/feedback/add.js"></script>
+    <style>
+        hr {
+            padding: 0;
+            margin: 4px;
+        }
+
+        #add-form input {
+            height: 30px;
+        }
+    </style>
+</head>
+<body>
+<div id="main" style="margin-left: 10px;">
+    <ol class="breadcrumb">
+        <li>意见反馈</li>
+        <li>新增意见反馈</li>
+    </ol>
+    <div id="add-form-wrapper">
+        <form id="add-form" class="form-inline" enctype="multipart/form-data" method="POST">
+            <fieldset>
+                <div class="form-group" style="margin-left: 30px;">
+                    <label class="control-label" for="type-select">反馈类型：</label>
+                    <select id="type-select" name="type" class="form-control" style="display:inline; width:300px;">
+                        #if ($typeMaps)
+                            #foreach($type in $typeMaps.entrySet())
+                                <option value="$!{type.key}">$!{type.value}</option>
+                            #end
+                        #end
+                    </select>
+                </div>
+                <hr/>
+                <div class="form-group" style="margin-left: 30px;">
+                    <label class="control-label" for="theme-input">联系方式：</label>
+                    <input type="text" class="form-control edit-param no-update" id="contactInfo-input" name="contactInfo"
+                              placeholder="请输入联系手机号或邮箱" style="display:inline;width: 300px;"></input>
+                </div>
+                <hr/>
+                <div class="form-group" style="margin-left: 30px;">
+                    <label class="control-label" for="content-input">反馈内容：</label>
+                    <textarea type="text" class="form-control edit-param no-update" id="content-input" name="content"
+                              placeholder="请输入意见反馈内容" style="display:inline;width: 300px; height:100px;"></textarea>
+                </div>
+                <hr/>
+                <div class="form-group" style="margin-left: 30px;">
+                    <div class="form-group">
+                        <label for="image1">详细图片1</label>
+                        <input type="file" id="image1" name="image1" accept="image/*"/>
+                    </div>
+                </div>
+                <hr/>
+                <div class="form-group" style="margin-left: 30px;">
+                    <div class="form-group">
+                        <label for="image2">详细图片2</label>
+                        <input type="file" id="image2" name="image2" accept="image/*"/>
+                    </div>
+                </div>
+                <hr/>
+                <div class="form-group" style="margin-left: 30px;">
+                    <div class="form-group">
+                        <label for="image3">详细图片3</label>
+                        <input type="file" id="image3" name="image3" accept="image/*"/>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    <hr/>
+    <div id="toolbar" class="btn-group" style="float:right;margin-right: 60px;margin-top: 20px;">
+        <button id="btn_add" type="button" class="btn btn-primary">
+            <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>&nbsp;保存&nbsp;
+        </button>
+        <button id="btn_cancel" type="button" class="btn btn-default" style="margin-left: 20px;">
+            <span aria-hidden="true"></span>&nbsp;取消&nbsp;
+        </button>
+    </div>
+</div>
+
+</body>
+</html>

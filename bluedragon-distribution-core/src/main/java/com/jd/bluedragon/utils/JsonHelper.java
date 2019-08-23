@@ -1,5 +1,6 @@
 package com.jd.bluedragon.utils;
 
+import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
@@ -17,6 +18,7 @@ import org.codehaus.jackson.type.JavaType;
 import java.io.StringWriter;
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.Map;
 
 public class JsonHelper {
@@ -287,7 +289,20 @@ public class JsonHelper {
             return null;
         }
     }
-
+    /**
+     * json转成list对象
+     * @param json
+     * @param elementClasses 元素类型
+     * @return
+     */
+    public static <T> List<T> jsonToList(String json, Class<T> elementClasses) {
+        try {
+            return JSONObject.parseArray(json, elementClasses);
+        } catch (Exception e) {
+        	logger.error("GSON-反序列化JSON发生异常， 异常信息为：" + e.getMessage(), e);
+        }
+        return null;
+    }
     /**
      * added by zhanglei  统一对时间的处理
      * @param object

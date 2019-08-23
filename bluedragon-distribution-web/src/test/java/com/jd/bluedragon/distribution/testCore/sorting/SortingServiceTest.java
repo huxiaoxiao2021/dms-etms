@@ -39,39 +39,4 @@ public class SortingServiceTest {
 		Assert.assertEquals(1,result);
 	}
 
-	@Test
-	public void testfindSortingPackages(){
-        Sorting sorting = new Sorting();
-        sorting.setId(0L);
-        sorting.setBoxCode("");
-        sorting.setBoxCodes("");
-        sorting.setWaybillCode("");
-        sorting.setPackageCode("");
-        sorting.setPickupCode("");
-        sorting.setCreateSiteCode(0);
-        sorting.setCreateSiteName("");
-        sorting.setReceiveSiteCode(0);
-        sorting.setReceiveSiteName("");
-        sorting.setCreateUserCode(0);
-        sorting.setCreateUser("");
-        sorting.setCreateTime(new Date());
-        sorting.setOperateTime(new Date());
-        sorting.setUpdateUserCode(0);
-        sorting.setUpdateUser("");
-        sorting.setUpdateTime(new Date());
-        sorting.setYn(0);
-        sorting.setStatus(0);
-        sorting.setType(0);
-        sorting.setIsCancel(0);
-        sorting.setExcuteCount(0);
-        sorting.setExcuteTime(new Date());
-        sorting.setSpareReason("");
-        sorting.setIsLoss(0);
-        sorting.setFeatureType(0);
-        sorting.setWhReverse(0);
-//        sorting.setBoxCodeList(Lists.newArrayList());
-        sorting.setBsendCode("");
-
-        sortingService.findSortingPackages(sorting);
-    }
 }

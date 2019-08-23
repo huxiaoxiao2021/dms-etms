@@ -43,3 +43,4 @@ overlays/
 bluedragon-distribution.iws
 *.orig
 /bluedragon-distribution-utils/*.classpath
+/bluedragon-distribution-common-android/target

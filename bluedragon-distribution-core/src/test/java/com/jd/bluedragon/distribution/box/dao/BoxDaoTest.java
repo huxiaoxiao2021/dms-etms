@@ -38,17 +38,7 @@ public class BoxDaoTest extends AbstractDaoIntegrationTest{
         Box box = boxDao.findBoxByCode(code);
         Assert.assertNotNull(box);
     }
-	
-	@Test
-    public void testFindBoxesBySite() {
-        Box parameter = new Box();
-        parameter.setType("1");
-        parameter.setCreateSiteCode(691);
-        parameter.setReceiveSiteCode(288);
-        parameter.setQuantity(1);
-        List<Box> list = boxDao.findBoxesBySite(parameter);
-        Assert.assertNotNull(list);
-    }
+
 	
 	@Test
     public void testReprint() {

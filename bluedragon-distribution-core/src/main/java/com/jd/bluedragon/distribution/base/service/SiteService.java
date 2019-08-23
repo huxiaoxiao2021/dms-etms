@@ -1,15 +1,16 @@
 package com.jd.bluedragon.distribution.base.service;
 
-import java.util.List;
-import java.util.Set;
-
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.api.request.CapacityCodeRequest;
 import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
+import com.jd.bluedragon.distribution.base.domain.CreateAndReceiveSiteInfo;
 import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
 import com.jd.bluedragon.distribution.departure.domain.CapacityCodeResponse;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+
+import java.util.List;
+import java.util.Set;
 
 public interface SiteService {
 
@@ -42,6 +43,13 @@ public interface SiteService {
 	 * @param sendCode
      */
 	public Integer[]  getSiteCodeBySendCode (String sendCode);
+
+    /**
+     * 根据批次号获取 始发与目的信息
+     * @param sendCode 批次号
+     * @return 始发与目的信息
+     */
+    CreateAndReceiveSiteInfo getCreateAndReceiveSiteBySendCode (String sendCode);
     /**
      * 获取北京的分拣中心
      * @return
@@ -53,6 +61,11 @@ public interface SiteService {
 	 * @return
 	 */
 	Set<Integer> getCRouterAllowedList();
+	/**
+	 * 从sysconfig表里查出来需要通过中台生产箱号的分拣中心列表
+	 * @return
+	 */
+	public Set<Integer> getBoxFromSSCAllowedList();
 	/**
 	 * 根据省id获取分拣中心
 	 * @param provinceId

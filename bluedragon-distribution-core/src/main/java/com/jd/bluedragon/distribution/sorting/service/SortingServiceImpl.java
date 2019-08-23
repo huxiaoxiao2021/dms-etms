@@ -44,7 +44,6 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.CollectionHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
@@ -64,9 +63,10 @@ import com.jd.etms.waybill.dto.WChoice;
 import com.jd.fastjson.JSON;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -181,26 +181,6 @@ public class SortingServiceImpl implements SortingService {
 		} else {
 			return false;
 		}
-	}
-
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
-	public List<Sorting> findSortingPackages(Sorting sorting) {
-		List<String> boxCodelist = this.getBoxCodes(sorting);//方法对应的mapper 已经没有
-		if (CollectionUtils.isEmpty(boxCodelist)) {
-			return Collections.emptyList();
-		}
-
-		sorting.setBoxCodeList(boxCodelist);
-		return this.sortingDao.findSortingPackages(sorting);
-	}
-
-	private List<String> getBoxCodes(Sorting sorting) {
-		Box box = new Box();
-		box.setType(Box.BOX_TYPE_FORWARD);
-		box.setReceiveSiteCode(sorting.getReceiveSiteCode());
-		box.setStatuses(Box.BOX_STATUS_SORT + Constants.SEPARATOR_COMMA + Box.BOX_STATUS_INSPECT_PROCESSING);
-		List<Box> boxes = this.boxService.findBoxes(box);
-		return CollectionHelper.joinToList(boxes,"getCode");
 	}
 
 	public List<Sorting> findByBoxCode(Sorting sorting) {
@@ -1067,6 +1047,7 @@ public class SortingServiceImpl implements SortingService {
 		return pickup;
 	}
 
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.WEB.SortingServiceImpl.findOrderDetail", mState = JProEnum.TP)
 	public List<Sorting> findOrderDetail(Sorting sorting) {
 		return this.sortingDao.findOrderDetail(sorting);
 	}

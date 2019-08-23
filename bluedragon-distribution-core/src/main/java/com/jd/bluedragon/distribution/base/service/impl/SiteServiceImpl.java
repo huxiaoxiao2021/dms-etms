@@ -10,6 +10,7 @@ import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.CapacityCodeRequest;
 import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
+import com.jd.bluedragon.distribution.base.domain.CreateAndReceiveSiteInfo;
 import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SiteService;
@@ -238,6 +239,31 @@ public class SiteServiceImpl implements SiteService {
         return sites;
     }
 
+    @Override
+    public CreateAndReceiveSiteInfo getCreateAndReceiveSiteBySendCode(String sendCode) {
+        Integer[] siteCodes = this.getSiteCodeBySendCode(sendCode);
+        if (siteCodes[0] == -1 || siteCodes[1] == -1) {
+            return null;
+        }
+        CreateAndReceiveSiteInfo createAndReceiveSite = new CreateAndReceiveSiteInfo();
+        BaseStaffSiteOrgDto createSite = this.getSite(siteCodes[0]);
+        BaseStaffSiteOrgDto receiveSite = this.getSite(siteCodes[1]);
+        if(createSite != null){
+            createAndReceiveSite.setCreateSiteCode(createSite.getSiteCode());
+            createAndReceiveSite.setCreateSiteName(createSite.getSiteName());
+            createAndReceiveSite.setCreateSiteType(createSite.getSiteType());
+            createAndReceiveSite.setCreateSiteSubType(createSite.getSubType());
+        }
+
+        if(receiveSite != null){
+            createAndReceiveSite.setReceiveSiteCode(receiveSite.getSiteCode());
+            createAndReceiveSite.setReceiveSiteName(receiveSite.getSiteName());
+            createAndReceiveSite.setReceiveSiteType(receiveSite.getSiteType());
+            createAndReceiveSite.setReceiveSiteSubType(receiveSite.getSubType());
+        }
+        return createAndReceiveSite;
+    }
+
     /**
      * 获取属于北京的分拣中心列表
      */
@@ -265,6 +291,24 @@ public class SiteServiceImpl implements SiteService {
             }
         }
         return CRouterVerifyOpenDms;
+    }
+    /**
+     * 从sysconfig表里查出来箱号需要由中台生产的分拣中心列表
+     *
+     * @return
+     */
+    @Cache(key = "SiteServiceImpl.getBoxFromSSCAllowedList", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, redisEnable = false)
+    @Override
+    public Set<Integer> getBoxFromSSCAllowedList() {
+        Set<Integer> result = new TreeSet<>();
+        List<SysConfig> sysConfigList = sysConfigService.getListByConfigName(Constants.CREATE_BOX_FROM_SSC_SITE);
+        if (sysConfigList != null && !sysConfigList.isEmpty()) {
+            Set<String> sites = StringHelper.splitToSet(sysConfigList.get(0).getConfigContent(), Constants.SEPARATOR_COMMA);
+            for (String site : sites) {
+                result.add(Integer.valueOf(site));
+            }
+        }
+        return result;
     }
 
     /**

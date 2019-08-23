@@ -20,9 +20,6 @@ public interface SortingService {
      * @return */
     boolean doSorting(Task task);
 
-    /** 通过操作站点编号、包裹号码，查询对应分拣信息 */
-    List<Sorting> findSortingPackages(Sorting sorting);
-
     /** 通过操作站点编号、箱号，查询对应分拣信息 */
     List<Sorting> findByBoxCode(Sorting sorting);
 

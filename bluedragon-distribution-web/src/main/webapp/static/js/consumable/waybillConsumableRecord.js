@@ -5,6 +5,7 @@ $(function() {
     var queryUrl = '/consumable/waybillConsumableRecord/listData';
     var detailPageUrl = '/consumable/waybillConsumableRelation/toIndex';
     var exportDataUrl = '/consumable/waybillConsumableRecord/export';
+    var packUserErpUrl = '/consumable/waybillConsumableRelation/updatePackUserErp';
 
     /*最多查询近x天数据*/
     var PAST_LIMIT = 94;
@@ -149,9 +150,11 @@ $(function() {
                         content: detailPageUrl,
                         success: function(layero, index){
                             var waybillCode = row.waybillCode;
+                            var confirmStatus = row.confirmStatus;
                             var frameId = document.getElementById("detailFrame").getElementsByTagName("iframe")[0].id;
                             var frameWindow = $('#' + frameId)[0].contentWindow;
                             frameWindow.$('#waybillCode-value-input').val(waybillCode);
+                            frameWindow.$('#confirmStatus-value-input').val(confirmStatus);
                             frameWindow.$('#btn_query').click();
                         }
                     });
@@ -246,11 +249,10 @@ $(function() {
             $('#btn_confirm').click(function() {
                 var rows = $('#dataTable').bootstrapTable('getSelections');
                 if (rows.length < 1) {
-                    alert("错误，未选中数据");
+                    $.msg.warn("错误，未选中数据");
                     return;
                 }
-                var flag = confirm("是否确认这些运单?");
-                if (flag == true) {
+                $.msg.confirm('是否确认这些运单？',function () {
                     var params = [];
                     for(var i in rows){
                         if(rows[i].confirmStatus != 1){
@@ -260,20 +262,23 @@ $(function() {
                             data["dmsId"] = rows[i].dmsId;
                             params.push(data);
                         }
-                    };
+                    }
                     if(params.length == 0){
-                        alert("至少选中一条未确认的数据，已确认的运单不会重复确认！");
+                        $.msg.warn("至少选中一条未确认的数据，已确认的运单不会重复确认！");
                     }else{
                         $.ajaxHelper.doPostSync(confirmUrl,JSON.stringify(params),function(res){
-                            if(res&&res.succeed&&res.data){
-                                alert('操作成功,确认'+res.data+'条。');
+                            if(res != null && res.code == 200){
+                                $.msg.ok(res.message)
                                 tableInit().refresh();
-                            }else{
-                                alert('操作异常！');
+                            }else if (res != null && res.code == 400){
+                                $.msg.warn(res.message);
+                                tableInit().refresh();
+                            }else {
+                                $.msg.error('操作异常！');
                             }
                         });
                     }
-                }
+                })
             });
             $('#btn_submit').click(function() {
                 var params = {};
@@ -373,8 +378,52 @@ $(function() {
                     });
                 }else{
                     $.msg.warn('导出查询条件有误','请您检查导出查询条件是否有误');
+                }
+            });
+            //
+            $('#btn_update_erp').click(function() {
+                var rows = $('#dataTable').bootstrapTable('getSelections');
+
+                var confirmStatus = $('#confirmStatus-value-input').val()
+                if (rows.length < 1) {
+                    $.msg.warn("错误，未选中数据");
+                    return;
+                }
+
+                var waybillCodeList = [];
+                for(var i in rows){
+                    if (rows[i].confirmStatus == 0) {
+                        waybillCodeList.push(rows[i].waybillCode);
+                    }
                 };
-            })};
+                if (waybillCodeList.length == 0) {
+                    $.msg.warn("至少选择一条未确认的运单，已确认的运单无法修改打包人ERP！");
+                    return;
+                }
+
+                var packUserErp = $('#erp-value-input').val();
+                if (packUserErp == null || packUserErp == '') {
+                    $.msg.warn("请录入包装人ERP");
+                    return;
+                }
+
+                var params = {packUserErp: packUserErp};
+                params.waybillCodeList = waybillCodeList;
+                $.msg.confirm('是否将这些数据的包装人更新为【' + packUserErp + '】？',function () {
+                    var blocker = $.pageBlocker.block();
+                    $.ajaxHelper.doPostSync(packUserErpUrl,JSON.stringify(params),function(res){
+                        if(res.code == 200){
+                            $.msg.ok('操作成功！');
+                            tableInit().refresh();
+                        }else{
+                            $.msg.error(res.message);
+                        }
+                    });
+                    $.pageBlocker.close(blocker);
+                });
+
+            })
+        };
         return oInit;
     };
 

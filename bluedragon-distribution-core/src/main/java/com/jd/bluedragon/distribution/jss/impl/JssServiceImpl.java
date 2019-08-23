@@ -98,4 +98,9 @@ public class JssServiceImpl implements JssService {
         }
     }
 
+    @Override
+    public String getPublicBucketUrl(String bucket, String keyName) {
+        return "http://" + jssStorageClient.getEndpoint() + "/" + bucket + "/" + keyName;
+    }
+
 }

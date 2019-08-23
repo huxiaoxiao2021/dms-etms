@@ -202,30 +202,6 @@ public class SortingResource {
 
 
 	@GET
-	@Path("/sorting/package")
-	public List<SortingResponse> queryPackage(@QueryParam("packageCode") String packageCode,
-			@QueryParam("siteCode") Integer siteCode, @QueryParam("receiveSiteCode") Integer receiveSiteCode) {
-		this.logger.info("packageCode is " + packageCode);
-		this.logger.info("siteCode is " + siteCode);
-		this.logger.info("receiveSiteCode is " + receiveSiteCode);
-
-		Sorting sorting = new Sorting();
-		sorting.setPackageCode(packageCode);
-		// sorting.setWaybillCode(packageCode);
-		sorting.setCreateSiteCode(siteCode);
-		sorting.setReceiveSiteCode(receiveSiteCode);
-		sorting.setType(10);
-
-		List<Sorting> sortingPackages = this.sortingService.findSortingPackages(sorting);
-		List<SortingResponse> sortingResponses = new ArrayList<SortingResponse>();
-		for (Sorting waybillPackage : sortingPackages) {
-			sortingResponses.add(this.toSortingResponse(waybillPackage));
-		}
-
-		return sortingResponses;
-	}
-
-	@GET
 	@Path("/sorting/box")
 	public List<SortingResponse> queryPackages(@QueryParam("boxCode") String boxCode,
 			@QueryParam("siteCode") Integer siteCode) {

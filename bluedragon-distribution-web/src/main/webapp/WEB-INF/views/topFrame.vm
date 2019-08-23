@@ -103,6 +103,13 @@
         <span class="msg_time"> 时间：<font id="rTime"></font></span>
         <span class="msg_name">$!{roleName}：$!{username}</span>
         <span class="msg_help"><a href="/pages/faq/faq.html" target="mainFrame"> 帮助 </a></span>
+        <span class="msg_system">
+            <a href="/feedback/addView" target="mainFrame">
+                <font color="#FF0000" size="3">
+                    <b>意见反馈</b>
+                </font>
+            </a>
+        </span>
         <span id="currUserCode" class="hidden">$!{usercode}</span>
     </div>
     <div class="quit"><a href="#" onclick="quit();">退出</a></div>

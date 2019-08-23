@@ -27,6 +27,8 @@ import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -42,6 +44,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -361,6 +364,8 @@ public class TaskResource {
                 GantryException gantryException = this.convert2GantryException(domain);
                 gantryExceptionService.addGantryException(gantryException);
                 logger.warn("验货时间早于调整后的时间！时间调整数为：" + days.toString() + JsonHelper.toJsonUseGson(domain));
+            }else {
+                scannerTime = correctScannerTimeHeaderDate(scannerTime, date, registerNo);
             }
 
             domain.setScannerTime(scannerTime);
@@ -381,7 +386,49 @@ public class TaskResource {
         }
         return result;
     }
-    
+
+    /**
+     * 根据header 里的date校验龙门架扫描时间
+     * @param scannerTime
+     * @return scannerTime 调整后的操作时间
+     */
+    private Date correctScannerTimeHeaderDate(Date scannerTime, String headerDate, String registerNo){
+        try{
+            //配置校验的场地 为空校验全部场地
+            String correctionRegisterNo = PropertiesHelper.newInstance().getValue("GANTRY_SCANNER_TIME_CORRECTION_REGISTER_NO");
+            //均不校验
+            if(org.apache.commons.lang3.StringUtils.isNotBlank(correctionRegisterNo)){
+                String[] registerNos = correctionRegisterNo.split(",");
+                //不包含直接返回不处理
+                if(!ArrayUtils.contains(registerNos, registerNo)){
+                    return scannerTime;
+                }
+            }
+
+            Date gantryDate = null;
+            gantryDate = DateHelper.parseDateTime(headerDate);
+            if(gantryDate == null){
+                logger.info("headerDate 转 date 失败headerDate:" + headerDate);
+                return scannerTime;
+            }
+            long deviationMillSecond = System.currentTimeMillis() - gantryDate.getTime();
+            int deviationSecond = (int)deviationMillSecond/1000;
+            Date scannerTimeAfterCorrect = DateUtils.addSeconds(scannerTime, deviationSecond);
+            logger.info(MessageFormat.format("registerNo:{0} 扫描时间：{1},校准为:{2}", registerNo,
+                    DateHelper.formatDateTimeMs(scannerTime),
+                    DateHelper.formatDateTimeMs(scannerTimeAfterCorrect)
+            ));
+            if(scannerTimeAfterCorrect.getTime() > System.currentTimeMillis()){
+                return new Date();
+            }
+            return scannerTimeAfterCorrect;
+        }catch (Exception e){
+            logger.error(MessageFormat.format("校准龙门架时间时异常：scannerTime：{0} headerDate：{1}, registerNo:{2}",
+                    DateHelper.formatDateTimeMs(scannerTime), headerDate, registerNo),e);
+        }
+        return scannerTime;
+
+    }
 
     /**
      * 保存自动分拣机发货任务

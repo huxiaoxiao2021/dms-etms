@@ -81,6 +81,7 @@ public class DmsExternalReadServiceImpl implements DmsExternalReadService {
 	 * @see com.jd.bluedragon.distribution.external.service.DmsExternalService#findWaybillByBoxCode(java.lang.String)
 	 */
 	@Override
+    @JProfiler(jKey = "DMSWEB.DmsExternalReadServiceImpl.findWaybillByBoxCode", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
 	public List<String> findWaybillByBoxCode(String boxCode) {
 		CallerInfo info = Profiler.registerInfo("DMSWEB.DmsExternalReadServiceImpl.findWaybillByBoxCode", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
@@ -99,6 +100,7 @@ public class DmsExternalReadServiceImpl implements DmsExternalReadService {
 
 
 	@Override
+    @JProfiler(jKey = "DMSWEB.DmsExternalReadServiceImpl.findSendBoxByWaybillCode", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
 	public List<SendBoxDetailResponse> findSendBoxByWaybillCode(String waybillCode) {
         CallerInfo info = Profiler.registerInfo("DMSWEB.DmsExternalReadServiceImpl.findSendBoxByWaybillCode", Constants.UMP_APP_NAME_DMSWEB,false, true);
 		List<SendBoxDetailResponse> sendBoxList = null;
@@ -202,6 +204,7 @@ public class DmsExternalReadServiceImpl implements DmsExternalReadService {
 	}
 
 	@Override
+    @JProfiler(jKey = "DMSWEB.DmsExternalReadServiceImpl.getNewWaybillCode", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
 	public InvokeResult<String> getNewWaybillCode(String oldWaybillCode) {
 		InvokeResult<String> invokeResult = new InvokeResult<String>();
 		try {
