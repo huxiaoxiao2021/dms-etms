@@ -178,6 +178,9 @@ public class JdResponse extends JdObject {
     public static final Integer CODE_REVERSE_CHANGE_PRINT_ALREADY = 30121;
     public static final String MESSAGE_REVERSE_CHANGE_PRINT_ALREADY = "该单号{0}已打印";
 
+    public static final Integer CODE_RE_PRINT_REPEAT = 30122;
+    public static final String MESSAGE_RE_PRINT_REPEAT = "此条码已操作过补打，是否再次打印？";
+
     /** 请求服务URL */
     private String request;
     

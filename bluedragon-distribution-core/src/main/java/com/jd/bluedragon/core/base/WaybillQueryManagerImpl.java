@@ -510,7 +510,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
             callerInfo = ProfilerHelper.registerInfo("DMS.BASE.WaybillQueryManagerImpl.getOrderCodeByWaybillCode", Constants.UMP_APP_NAME_DMSWEB);
             BaseEntity<String> baseEntity = waybillQueryApi.getOrderCodeByWaybillCode(waybillCode, source);
             if (baseEntity.getResultCode() != 1) {
-                logger.error("根据运单号调用运单接口获取订单号失败.waybillCode:" + waybillCode + ",source:" + source +
+                logger.warn("根据运单号调用运单接口获取订单号失败.waybillCode:" + waybillCode + ",source:" + source +
                         ".返回值code:" + baseEntity.getResultCode() + ",message" + baseEntity.getMessage());
                 return null;
             }
