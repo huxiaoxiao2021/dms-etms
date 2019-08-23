@@ -36,6 +36,11 @@
                     <label class="control-label" for="unit-value-input">确认数量 ：</label>
                     <input type="text" id="confirm-value-input" class="form-control" name="confirmQuantity" style="display:inline;width: 250px;">
                 </div>
+                <hr/>
+                <div class="form-group" style="margin-left: 30px;">
+                    <label class="control-label" for="erp-value-input">打包人ERP ：</label>
+                    <input type="text" id="erp-value-input" class="form-control" name="packUserErp" style="display:inline;width: 250px;">
+                </div>
                 <div class="form-group" style="display: none">
                     <input type="hidden" id="waybillCode-value-input" class="form-control" name="waybillCode" readonly="readonly">
                 </div>

@@ -91,6 +91,9 @@ public class WaybillConsumableExportDto  implements Serializable {
     /** 单位 */
     private String unit;
 
+    /** 打包人ERP */
+    private String packUserErp;
+
     public Integer getDmsId() {
         return dmsId;
     }
@@ -297,5 +300,13 @@ public class WaybillConsumableExportDto  implements Serializable {
 
     public void setConfirmTimeStr(String confirmTimeStr) {
         this.confirmTimeStr = confirmTimeStr;
+    }
+
+    public String getPackUserErp() {
+        return packUserErp;
+    }
+
+    public void setPackUserErp(String packUserErp) {
+        this.packUserErp = packUserErp;
     }
 }
