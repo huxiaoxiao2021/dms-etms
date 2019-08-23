@@ -6,9 +6,11 @@ import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.List;
 
-import static com.jd.bluedragon.dms.utils.DmsConstants.SEND_CODE_REG;
+import static com.jd.bluedragon.dms.utils.DmsConstants.*;
 
 /**
  * @author tangchunqing
@@ -16,6 +18,12 @@ import static com.jd.bluedragon.dms.utils.DmsConstants.SEND_CODE_REG;
  * @date 2018年10月12日 18时:15分
  */
 public class BusinessUtil {
+
+    /**
+     * 提取发货批次号中站点正则
+     */
+    private static final Pattern RULE_SEND_CODE_SITE_CODE_REGEX = Pattern.compile(AO_SEND_CODE_REG);
+
     /**
      * 是不是发货批次号
      *
@@ -26,8 +34,33 @@ public class BusinessUtil {
         if (StringUtils.isBlank(sendCode)) {
             return false;
         }
-        return sendCode.matches(SEND_CODE_REG);
+        return sendCode.matches(SEND_CODE_REG) || sendCode.matches(AO_SEND_CODE_REG) || isSingleBatchNo(sendCode);
     }
+
+  /**
+   * 是否为新批次号
+   * 批次号判断批次号是否是：站点（数字）+站点（数字）+时间串（14位数字）+序号（2位数字）+模7余数
+   * 模7余数：对 站点第一位+站点第一位+时间串+序列号 取模
+   * 必须是17位（时间14位+序号2位+模7余数1位）
+   * @param input
+   * @return
+   */
+  public static boolean isSingleBatchNo(String input) {
+      if (StringUtils.isBlank(input)) {
+          return false;
+      }
+      if (input.matches(SEND_CODE_NEW_REG)) {
+          String[] tempStr = input.split("-");
+          String startSiteCode = tempStr[0];
+          String desSiteCode = tempStr[1];
+          String timeString = tempStr[2];
+          long mod = Long.valueOf(startSiteCode.substring(0, 1) + desSiteCode.substring(0, 1) + timeString.substring(0, timeString.length() - 1)) % 7L;
+          long tail = Long.valueOf(timeString.substring(timeString.length() - 1));
+          return mod == tail;
+      }
+
+      return false;
+  }
 
     /**
      * 判断输入字符串是否为箱号. 箱号规则： 箱号： B(T,G) C(S) 010F001 010F002 12345678 。
@@ -651,6 +684,16 @@ public class BusinessUtil {
         return flage;
     }
 
+    /**
+     *判断是否是冷链卡班
+     */
+    public static Boolean isColdChainKB(String waybillSign,String productType){
+        return PRODUCT_TYPE_COLD_CHAIN_KB.equals(productType)
+                || (isSignChar(waybillSign,WaybillSignConstants.POSITION_80,WaybillSignConstants.CHAR_80_7)
+                     && isSignChar(waybillSign,WaybillSignConstants.POSITION_54,WaybillSignConstants.CHAR_54_2)
+                     && isSignInChars(waybillSign,WaybillSignConstants.POSITION_40,WaybillSignConstants.CHAR_40_2,WaybillSignConstants.CHAR_40_3)
+                    );
+    }
 
     /**
      * 判断是否是B网冷链运单
@@ -731,6 +774,40 @@ public class BusinessUtil {
         return siteType.equals(96);
     }
 
+
+    /**
+     * 通过批次号获取目的站点
+     *
+     * @param sendCode 发货批次号
+     * @return
+     */
+    public static Integer getReceiveSiteCodeFromSendCode(String sendCode) {
+        if(!isSendCode(sendCode)){
+            return null;
+        }
+        Matcher matcher = RULE_SEND_CODE_SITE_CODE_REGEX.matcher(sendCode.trim());
+        if (matcher.matches()) {
+            return Integer.parseInt(matcher.group(2));
+        }
+        return null;
+    }
+
+    /**
+     * 通过批次号获取始发站点
+     *
+     * @param sendCode 发货批次号
+     * @return
+     */
+    public static Integer getCreateSiteCodeFromSendCode(String sendCode) {
+        if(!isSendCode(sendCode)){
+            return null;
+        }
+        Matcher matcher = RULE_SEND_CODE_SITE_CODE_REGEX.matcher(sendCode.trim());
+        if (matcher.matches()) {
+            return Integer.parseInt(matcher.group(1));
+        }
+        return null;
+    }
 
     /**
      * 是否是营业厅
@@ -834,4 +911,29 @@ public class BusinessUtil {
     public static boolean isInternationalWaybill(String sendPay){
         return isSignChar(sendPay,SendPayConstants.POSITION_124,SendPayConstants.CHAR_124_7);
     }
+
+    /**
+     * 判断是否是加盟商站点
+     * @param siteType
+     * @param subSiteType
+     * @return
+     */
+    public static boolean isAllianceBusiSite(Integer siteType, Integer subSiteType) {
+        if(siteType == null || subSiteType == null){
+            return Boolean.FALSE;
+        }
+        return siteType == 16 && subSiteType == 88;
+    }
+
+    /**
+     * 判断是否为正确的封箱号
+     */
+    public static boolean isSealBoxNo(String input){
+        if (StringUtils.isEmpty(input)) {
+            return Boolean.FALSE;
+        }
+
+       return input.matches(SEAL_BOX_NO);
+    }
+
 }

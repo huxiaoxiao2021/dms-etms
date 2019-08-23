@@ -141,4 +141,12 @@ public interface BaseMajorManager {
 	 * @return
 	 */
 	boolean allianceBusiMoneyEnough(String allianceBusiId);
+
+	/**
+	 * 获取常用功能菜单
+	 * @param siteCode
+	 * @param erp
+	 * @return
+	 */
+	String menuConstantAccount(String siteCode,String erp);
 }

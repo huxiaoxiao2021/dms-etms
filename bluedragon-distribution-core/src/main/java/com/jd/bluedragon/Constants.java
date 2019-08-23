@@ -968,5 +968,9 @@ public class Constants {
      * EMG条码前缀
      */
     public static final String EMG_CODE_PREFIX = "EMG";
+    /**
+     * 系统标识dms
+     */
+    public static final String SYS_CODE_DMS = "dms";
 
 }

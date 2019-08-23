@@ -4,6 +4,7 @@ import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.saf.WaybillSafResponse;
 
 /**
+ * 发往物流网关的接口不要在此类中加方法
  * <p>
  * Created by lixin39 on 2018/5/28.
  */

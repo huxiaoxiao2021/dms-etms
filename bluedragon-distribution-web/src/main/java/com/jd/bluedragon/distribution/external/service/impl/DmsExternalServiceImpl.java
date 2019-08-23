@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.external.service.impl;
 
+import com.jd.bluedragon.Constants;
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +27,13 @@ import com.jd.bluedragon.distribution.wss.service.PopAbnormalWssService;
 import com.jd.bluedragon.distribution.wss.service.SealVehicleBoxService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
 
 @Service("dmsExternalService")
 public class DmsExternalServiceImpl implements DmsExternalService {
@@ -51,25 +59,25 @@ public class DmsExternalServiceImpl implements DmsExternalService {
 
 
     @Override
-    @JProfiler(jKey = "DMSWEB.DmsExternalServiceImpl.updatePopPackNum", mState = {JProEnum.TP})
+    @JProfiler(jKey = "DMSWEB.DmsExternalServiceImpl.updatePopPackNum",mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public Boolean updatePopPackNum(String message) {
         return popWssService.updatePopPackNum(message);
     }
 
     @Override
-    @JProfiler(jKey = "DMSWEB.DmsExternalServiceImpl.batchAddSealVehicle", mState = {JProEnum.TP})
+    @JProfiler(jKey = "DMSWEB.DmsExternalServiceImpl.batchAddSealVehicle", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public BaseEntity<Map<String, Integer>> batchAddSealVehicle(List<SealVehicleDto> sealVehicleList) {
         return vehicleBoxService.batchAddSealVehicle(sealVehicleList);
     }
 
     @Override
-    @JProfiler(jKey = "DMSWEB.DmsExternalServiceImpl.batchUpdateSealVehicle", mState = {JProEnum.TP})
+    @JProfiler(jKey = "DMSWEB.DmsExternalServiceImpl.batchUpdateSealVehicle", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public BaseEntity<Map<String, Integer>> batchUpdateSealVehicle(List<SealVehicleDto> sealVehicleList) {
         return vehicleBoxService.batchUpdateSealVehicle(sealVehicleList);
     }
 
     @Override
-    @JProfiler(jKey = "DMSWEB.DmsExternalServiceImpl.batchAddSealBox", mState = {JProEnum.TP})
+    @JProfiler(jKey = "DMSWEB.DmsExternalServiceImpl.batchAddSealBox", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public BaseEntity<Map<String, Integer>> batchAddSealBox(List<SealBoxDto> sealBoxList) {
         return vehicleBoxService.batchAddSealBox(sealBoxList);
     }
@@ -79,13 +87,13 @@ public class DmsExternalServiceImpl implements DmsExternalService {
      * @return
      */
 	@Override
-	@JProfiler(jKey = "DMSWEB.DmsExternalServiceImpl.executeJsonCommand",jAppName=Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+	@JProfiler(jKey = "DMSWEB.DmsExternalServiceImpl.executeJsonCommand",mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
 	public String executeJsonCommand(String jsonCommand) {
 		return jdCommandService.execute(jsonCommand);
 	}
 
     @Override
-    @JProfiler(jKey = "DMSWEB.DmsExternalServiceImpl.pushArAbnormal",jAppName=Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+    @JProfiler(jKey = "DMSWEB.DmsExternalServiceImpl.pushArAbnormal",mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public ArAbnormalResponse pushArAbnormal(ArAbnormalRequest arAbnormalRequest) {
         return arAbnormalService.pushArAbnormal(arAbnormalRequest);
     }

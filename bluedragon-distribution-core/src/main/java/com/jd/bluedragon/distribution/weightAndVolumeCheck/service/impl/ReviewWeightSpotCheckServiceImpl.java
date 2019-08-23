@@ -311,7 +311,8 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
                     reviewWeightSpotCheck.setTrustCheckRate(trustNumOfShould==null?null:convertPercentage(trustNumOfActual,trustNumOfShould));            //信任商家抽查率
                     reviewWeightSpotCheck.setTrustPackageNumOfDiff(trustNumOfExcess);                      //信任商家抽查差异包裹数(超标数)
                     reviewWeightSpotCheck.setTrustCheckRateOfDiff(convertPercentage(trustNumOfExcess,trustNumOfActual));      //信任商家抽查差异率
-                    reviewWeightSpotCheck.setTotalCheckRate(spotCheckInfo==null?null:convertPercentage((trustNumOfActual+normalNumOfActual),(trustNumOfShould+normalNumOfShould)));                 //总抽查率
+                    reviewWeightSpotCheck.setTotalCheckRate(spotCheckInfo==null?null:convertPercentage((trustNumOfActual+normalNumOfActual),
+                            ((trustNumOfShould == null?0:trustNumOfShould)+normalNumOfShould)));                 //总抽查率
 
                     list.add(reviewWeightSpotCheck);
 
