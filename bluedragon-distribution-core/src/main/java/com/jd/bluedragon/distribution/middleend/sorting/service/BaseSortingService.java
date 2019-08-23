@@ -204,12 +204,12 @@ public abstract class BaseSortingService {
         object.setMiddleEndSorting(middleEndSorting);
 
         //IS_LOSS FEATURE_TYPE 合并
-        if (dmsSorting.getIsLoss() == SORTING_STATUS_IS_LOSS_0) {
-            middleEndSorting.setStatus(SortingObjectStatus.NORMAL);
+        if (dmsSorting.getFeatureType() == SORTING_STATUS_FEATURE_TYPE_2) {
+            middleEndSorting.setStatus(SortingObjectStatus.TRIPARTITE_RETURN_SPARE_WAREHOUSE);
         } else if (dmsSorting.getIsLoss() == SORTING_STATUS_IS_LOSS_1) {
             middleEndSorting.setStatus(SortingObjectStatus.LOST);
-        } else if (dmsSorting.getFeatureType() == SORTING_STATUS_FEATURE_TYPE_2) {
-            middleEndSorting.setStatus(SortingObjectStatus.TRIPARTITE_RETURN_SPARE_WAREHOUSE);
+        } else if (dmsSorting.getIsLoss() == SORTING_STATUS_IS_LOSS_0) {
+            middleEndSorting.setStatus(SortingObjectStatus.NORMAL);
         }
 
         //分拣类型
