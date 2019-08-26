@@ -319,5 +319,8 @@
         <!-- 分拣复重抽检任务统计 -->
         <mapper resource="mappers/mysql/alliance/AllianceBusiDeliveryDetailMapper.xml"/>
 
+        <!-- 包裹补打记录 -->
+        <mapper resource="mappers/mysql/reprint/ReprintRecordMapper.xml"/>
+
     </mappers>
 </configuration>
