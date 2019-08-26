@@ -34,6 +34,8 @@ public class IotServiceWSManagerImpl implements IotServiceWSManager {
     @Autowired
     private IotDeviceWS iotDeviceWS;
 
+    private static final Integer SYSTEM_CODE = 4;
+
     /**
      * 鸡毛信设备是否可用
      * @param deviceNo
@@ -66,7 +68,7 @@ public class IotServiceWSManagerImpl implements IotServiceWSManager {
         bindDeviceDto.setBindValue(waybillCode);
         bindDeviceDto.setBindType(IotDeviceBindTypeEnum.WAYBILL.getKey());
         bindDeviceDto.setErp(erp);
-        bindDeviceDto.setSystemCode(11111);
+        bindDeviceDto.setSystemCode(SYSTEM_CODE);
 
 
         CommonDto commonDto = iotDeviceWS.bindDevice(bindDeviceDto);
