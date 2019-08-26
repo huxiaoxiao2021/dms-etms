@@ -490,11 +490,16 @@ function existSubmit(insertParam,removeFailData,removeIndex){
         $("#waybill-weight-import-form-submit").linkbutton('disable'); //锁住导入按钮
         $("#waybill-weight-fail-message").html("");
         $("#waybill-weight-fail-submit-message").html("");
+        var fileInput = $("#importExcelFile");
+        if(!checkFileInput(fileInput)) { //其他操作
+        	$("#waybill-weight-import-form-submit").linkbutton('enable'); //解锁导入按钮
+        	return;
+        }
         $('#waybill-weight-import-form').form('submit', {
             url:waybill_weight_improt_url,
             success:function(data){
                 $("#waybill-weight-import-form-submit").linkbutton('enable'); //解锁导入按钮
-
+                
                 var data = eval('('+data+')');
 
                 if(data.code==SERVER_SUCCESS_CODE){
@@ -737,6 +742,26 @@ function allSubmitRemove(){
         }
     }
 }
+
+function checkFileInput(input) {
+	var filename = input.val();
+	var flag = false;
+	var index = filename.lastIndexOf(".");
+    var suffix = filename.substr(index+1);
+    if(suffix != 'xls' && suffix != 'xlsx'){
+        $.messager.alert('导入失败','请选择扩展名为xls、xlsx的文件');
+        return flag;
+    }
+	var filesize = 0; //判断浏览器种类
+	filesize = input[0].files[0].size;
+	//判断是否符合要求
+	if (filesize / (1024 * 1024) < 2 ) {
+		flag = true;
+	} else {
+		$.messager.alert('导入异常','附件过大，不要超过2M！');
+	} 
+	return flag;
+   } 
 /*
 });*/
 
