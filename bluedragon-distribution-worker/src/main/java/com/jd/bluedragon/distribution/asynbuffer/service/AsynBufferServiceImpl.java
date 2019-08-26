@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.framework.AbstractTaskExecute;
 import com.jd.bluedragon.distribution.inspection.exception.InspectionException;
 import com.jd.bluedragon.distribution.inspection.exception.WayBillCodeIllegalException;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
+import com.jd.bluedragon.distribution.middleend.SortingServiceFactory;
 import com.jd.bluedragon.distribution.partnerWaybill.service.PartnerWaybillService;
 import com.jd.bluedragon.distribution.receive.service.impl.ReceiveTaskExecutor;
 import com.jd.bluedragon.distribution.receiveInspectionExc.service.ShieldsErrorService;
@@ -217,17 +218,31 @@ public class AsynBufferServiceImpl implements AsynBufferService {
     @Autowired
     private SortingFactory sortingFactory;
 
+    @Autowired
+    SortingServiceFactory soringServiceFactory;
+
     public boolean sortingTaskProcess(Task task) throws Exception {
-        if(sortingService.useNewSorting(task.getCreateSiteCode())){
-            SortingVO sortingVO = new SortingVO(task);
-            return sortingFactory.bulid(sortingVO).execute(sortingVO);
-        }
-        return sortingService.processTaskData(task);
+//        if(sortingService.useNewSorting(task.getCreateSiteCode())){
+//            SortingVO sortingVO = new SortingVO(task);
+//            return sortingFactory.bulid(sortingVO).execute(sortingVO);
+//        }
+//        return sortingService.processTaskData(task);
+        return soringServiceFactory.getSortingService(task.getCreateSiteCode()).doSorting(task);
     }
 
     public boolean sortingSplitTaskProcess(Task task) throws Exception {
         SortingVO sortingVO = new SortingVO(task);
         return sortingFactory.bulid(sortingVO).execute(sortingVO);
+    }
+
+    /**
+     * 分拣核心操作成功后的补充操作
+     *
+     * @param task
+     * @return
+     */
+    public boolean executeSortingSuccess(Task task){
+       return sortingService.executeSortingSuccess(task);
     }
 
     //称重信息回传运单中心

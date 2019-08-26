@@ -473,4 +473,9 @@
                   alias="${common.use.menu.jsf.alias}" timeout="${common.use.menu.jsf.timeout}" retries="0">
     </jsf:consumer>
 
+    <!-- 中台-理货 -->
+    <jsf:consumer id="sharedSortingService" interface="com.jd.ql.shared.services.sorting.api.SortingService"
+                  protocol="jsf" alias="${jsf.middleEnd.sorting.alias}" timeout="${jsf.middleEnd.sorting.timeout}" retries="${jsf.retries}">
+    </jsf:consumer>
+
 </beans>

@@ -196,7 +196,7 @@
 			<artifactId>bluedragon-distribution-saf</artifactId>
 			<version>1.0.2</version>
 		</dependency>
-        <dependency>
+		<dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>bluedragon-distribution-common-android</artifactId>
             <version>1.0.4-SNAPSHOT</version>
@@ -1024,6 +1024,14 @@
 			<artifactId>preseparate-saf-client</artifactId>
 			<version>2.3.0-SNAPSHOT</version>
 		</dependency>
+
+		<!--中台-->
+		<dependency>
+			<groupId>com.jd.ql.shared.services</groupId>
+			<artifactId>sorting-api</artifactId>
+			<version>1.2-SNAPSHOT</version>
+		</dependency>
+
 
 		<dependency>
 			<groupId>com.jd.ldop.business</groupId>
