@@ -56,6 +56,12 @@
 		</dependency>
 
 		<dependency>
+			<groupId>com.jd.b2b.wt</groupId>
+			<artifactId>wt-assemble-sdk</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
             <groupId>com.jd.mrd</groupId>
             <artifactId>mrd-delivery-rpc-sdk</artifactId>
             <version>1.0.0-SNAPSHOT</version>
@@ -417,6 +423,10 @@
 					<groupId>org.springframework</groupId>
 					<artifactId>spring</artifactId>
 				</exclusion>
+				<exclusion>
+					<artifactId>commons-io</artifactId>
+					<groupId>commons-io</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 
@@ -432,6 +442,10 @@
 				<exclusion>
 					<groupId>com.jd.common</groupId>
 					<artifactId>jd-common-util</artifactId>
+				</exclusion>
+				<exclusion>
+					<artifactId>commons-io</artifactId>
+					<groupId>commons-io</groupId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -561,6 +575,10 @@
 				<exclusion>
 					<groupId>jackson-all</groupId>
 					<artifactId>jackson-all</artifactId>
+				</exclusion>
+				<exclusion>
+					<artifactId>commons-io</artifactId>
+					<groupId>commons-io</groupId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -905,13 +923,6 @@
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
 
-		<dependency>
-			<groupId>com.jd.jp.assemble</groupId>
-			<artifactId>jp-assemble-sdk</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-            <classifier>jdk16</classifier>
-        </dependency>
-
 		<!--JDDL-->
 		<dependency>
 			<groupId>jddl-utils</groupId>
@@ -1019,7 +1030,13 @@
 			<artifactId>ldop-business-api</artifactId>
 			<version>1.0.38-SNAPSHOT</version>
 		</dependency>
-
+		<!-- 打印引擎    start-->
+        <dependency>
+			<groupId>com.jd.ql.dms.print</groupId>
+			<artifactId>label-print-engine</artifactId>
+			<version>1.1.10-SNAPSHOT</version>
+        </dependency>
+		<!-- 打印引擎    start-->
 	</dependencies>
 
 	<build>

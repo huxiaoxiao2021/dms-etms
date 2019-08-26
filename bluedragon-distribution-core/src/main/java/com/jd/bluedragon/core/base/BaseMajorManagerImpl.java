@@ -675,7 +675,7 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         if(resultData!=null && ResultData.SUCCESS_CODE.equals(resultData.getResultCode())){
             return true;
         }else{
-            logger.info("加盟商预付款返回失败或不充足"+allianceBusiId+"|"+resultData.getResultMsg());
+            logger.info("加盟商预付款返回失败或不充足"+allianceBusiId+"|"+(resultData != null?resultData.getResultMsg():""));
             return false;
         }
 

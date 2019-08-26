@@ -19,7 +19,8 @@ public interface WaybillConsumableExportCol {
             "receiveUserErp",
             "confirmStatusStr",
             "confirmUserErp",
-            "confirmTimeStr"
+            "confirmTimeStr",
+            "packUserErp"
     };
     public static final String[] PROPERTYS = {
             "运单号",
@@ -33,6 +34,7 @@ public interface WaybillConsumableExportCol {
             "揽收人ERP",
             "确认状态",
             "确认人ERP",
-            "确认时间"
+            "确认时间",
+            "打包人ERP"
     };
 }

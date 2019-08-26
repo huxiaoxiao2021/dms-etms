@@ -152,4 +152,16 @@ public class DmsConstants {
      * 封箱号正则
      */
     public static final String  SEAL_BOX_NO="^(\\d{8}|\\d{10})[XZBJH]$";
+
+    /**
+     * 冷链卡班
+     */
+    public static final String PRODUCT_TYPE_COLD_CHAIN_KB = "LL-KB-M";
+
+    /**
+     * 京仓、非京仓、外仓
+     */
+    public static final String SPECIAL_MARK1_WAREHOUSE_JD = "京仓";
+    public static final String SPECIAL_MARK1_WAREHOUSE_NOT_JD = "非京仓";
+    public static final String SPECIAL_MARK1_WAREHOUSE_OUTER ="外仓";
 }

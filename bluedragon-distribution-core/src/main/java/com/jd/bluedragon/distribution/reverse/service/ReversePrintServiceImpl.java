@@ -301,7 +301,9 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         if(oldWaybillCode.toUpperCase().startsWith("Q")) {
             BaseEntity<PickupTask> result = waybillCommonService.getPickupTask(oldWaybillCode);
             if(null!=result&&null!=result.getData()&&StringHelper.isNotEmpty(result.getData().getSurfaceCode())) {
-                if(isPickUpFinished && !PICKUP_FINISHED_STATUS.equals(result.getData().getStatus())){
+                if(isPickUpFinished && !StringHelper.isEmpty(result.getData().getQplCode())){
+                    targetResult.customMessage(-1,"请使用"+result.getData().getQplCode()+"操作换单!");
+                }else if(isPickUpFinished && !PICKUP_FINISHED_STATUS.equals(result.getData().getStatus())){
                     targetResult.customMessage(-1,"未操作取件完成无法打印面单");
                 }else{
                     StringBuilder errorMessage = new StringBuilder();
