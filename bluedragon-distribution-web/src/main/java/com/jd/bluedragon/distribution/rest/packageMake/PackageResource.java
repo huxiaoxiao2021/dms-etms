@@ -26,6 +26,8 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -201,6 +203,7 @@ public class PackageResource {
     }
     @GET
     @Path("/package/checkRePrint/{barCode}")
+    @JProfiler(jKey = "DMSWEB.PackageResource.checkRePrint",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = JProEnum.TP)
     public JdResponse checkRePrint(@PathParam("barCode") String barCode){
         //1. 从redis中获得补打操作的条码缓存
         JdResponse jdResponse = new JdResponse();
@@ -218,6 +221,7 @@ public class PackageResource {
 
     @GET
     @Path("/package/checkRePrintNew/{barCode}")
+    @JProfiler(jKey = "DMSWEB.PackageResource.checkRePrintNew",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = JProEnum.TP)
     public JdResponse checkRePrintNew(@PathParam("barCode") String barCode){
         JdResponse jdResponse = new JdResponse();
         jdResponse.setCode(JdResponse.CODE_OK);
