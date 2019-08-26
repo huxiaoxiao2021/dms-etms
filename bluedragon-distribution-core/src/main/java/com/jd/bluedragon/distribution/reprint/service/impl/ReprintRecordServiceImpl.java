@@ -27,7 +27,7 @@ public class ReprintRecordServiceImpl implements ReprintRecordService {
     @Override
     public boolean isBarCodeRePrinted(String barCode) {
         //读取redis的缓存记录
-        String cachedKey = KeyConstants.genConstantsKey(KeyConstants.REDIS_PREFIX_KEY_PACK_REPRINT, barCode);
+        String cachedKey = KeyConstants.genConstantsKey(KeyConstants.REDIS_PREFIX_KEY_PACK_REPRINT_NEW, barCode);
         String barCodeCached = redisManager.getCache(cachedKey);
         //如果缓存有记录
         if (StringHelper.isNotEmpty(barCodeCached)) {
@@ -36,8 +36,8 @@ public class ReprintRecordServiceImpl implements ReprintRecordService {
         //查询运单是否有补打记录
         int count = rePrintRecordDao.getCountByCondition(barCode);
         if (count > 0) {
-            //1小时缓存
-            redisManager.setex(cachedKey, 3600, barCode);
+            //3小时缓存
+            redisManager.setex(cachedKey, 3 * 3600, barCode);
             return true;
         }
 
@@ -50,7 +50,13 @@ public class ReprintRecordServiceImpl implements ReprintRecordService {
             Date date = new Date();
             rePrintRecord.setOperateTime(date);
             rePrintRecord.setCreateTime(date);
-            rePrintRecordDao.add(rePrintRecord);
+            if (rePrintRecordDao.add(rePrintRecord) > 0) {
+                String barCode = rePrintRecord.getBarCode();
+                //读取redis的缓存记录
+                String cachedKey = KeyConstants.genConstantsKey(KeyConstants.REDIS_PREFIX_KEY_PACK_REPRINT_NEW, barCode);
+                //3小时缓存
+                redisManager.setex(cachedKey, 3 * 3600, barCode);
+            }
         } catch (Exception e) {
             logger.error("插入包裹补打记录表异常", e);
         }
