@@ -748,8 +748,8 @@ function checkFileInput(input) {
 	var flag = false;
 	var index = filename.lastIndexOf(".");
     var suffix = filename.substr(index+1);
-    if(suffix != 'xls' && suffix != 'xlsx'){
-        $.messager.alert('导入失败','请选择扩展名为xls、xlsx的文件');
+    if(suffix != 'xls'){
+        $.messager.alert('导入失败','请选择扩展名为xls的文件并使用系统提供的模板！');
         return flag;
     }
 	var filesize = 0; //判断浏览器种类
