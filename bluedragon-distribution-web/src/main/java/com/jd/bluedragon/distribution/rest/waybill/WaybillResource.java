@@ -703,6 +703,12 @@ public class WaybillResource {
 				}
 			}
 
+            if(scheduleSiteOrgDto != null && isCodMoneyGtZeroAndSiteThird(scheduleSiteOrgDto, waybill)){
+                logger.warn("codMoney大于0不能分配三方站点waybillCode[{}]siteType[{}]subType[{}]codMoney[{}]",
+                        waybillCodeOrPackage,scheduleSiteOrgDto.getSiteType(),scheduleSiteOrgDto.getSubType(),waybill.getCodMoney());
+                return new WaybillResponse<>(JdResponse.CODE_CODMONAY_THIRD_SITE_ERROR, JdResponse.MESSAGE_CODMONAY_THIRD_SITE_ERROR);
+            }
+
 			//暂时下线签单返回的校验 2019年3月12日20:59:26
             /*String waybillSign = waybill.getWaybillSign();
 			if(BusinessHelper.isSignatureReturnWaybill(waybillSign) && scheduleSiteOrgDto != null
@@ -728,7 +734,23 @@ public class WaybillResource {
 
 	}
 
-	/**
+    /**
+     * COD_MONEY 大于0的运单，不允许发送给三方站点（第三方-》第三方快递）
+     * @return
+     */
+    private boolean isCodMoneyGtZeroAndSiteThird(BaseStaffSiteOrgDto scheduleSiteOrgDto, Waybill waybill) {
+	    if(scheduleSiteOrgDto == null){
+            return Boolean.FALSE;
+        }
+        if(!NumberHelper.gt0(waybill.getRecMoney())){
+            return Boolean.FALSE;
+        }
+        //三方站点（第三方-》第三方快递）
+        return Objects.equals(Constants.THIRD_SITE_TYPE, scheduleSiteOrgDto.getSiteType())
+                && Objects.equals(Constants.THIRD_SITE_SUB_TYPE, scheduleSiteOrgDto.getSubType());
+    }
+
+    /**
 	 * <p>
 	 *     返调度获取打印信息
 	 * </p>
