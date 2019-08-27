@@ -336,7 +336,7 @@ public class WeighByWaybillController {
             }else {
                 service.errorLogForOperator(null, LoginContext.getLoginContext(),true);
                 if(service.isOpenIntercept()) {
-                    //return new JdResponse(JdResponse.CODE_FAIL,"未获取到操作人信息，请在青龙基础资料维护员工信息");
+                    return new JdResponse(JdResponse.CODE_FAIL,"未获取到操作人信息，请在青龙基础资料维护员工信息");
                 }
             }
             //解析excel
