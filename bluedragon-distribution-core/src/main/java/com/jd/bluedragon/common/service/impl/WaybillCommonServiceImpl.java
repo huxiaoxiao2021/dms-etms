@@ -423,6 +423,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         waybill.setImportantHint(waybillWS.getImportantHint());
         waybill.setOrderId(waybillWS.getVendorId());
         waybill.setBusiOrderCode(waybillWS.getBusiOrderCode());
+        waybill.setCodMoney(NumberHelper.getDoubleValue(waybillWS.getCodMoney()));
         if (isSetPack) {
         	//存放包裹的复重及打印信息
         	Map<String,PackOpeFlowDto> packOpeFlows = null;
