@@ -24,7 +24,7 @@ public enum WaybillPrintOperateTypeEnum {
     /**
      * 100306-冷链合伙人打印
      */
-    COLD_CHAIN_PRINT(100306, "冷链合伙人打印");
+    COLD_CHAIN_PRINT(100306, "冷链合伙人打印"),
 
     SITE_3PL_MASTER_RESCHEDULE_REPRINT(100307, "终端3PL：现场预分拣"),
     SITE_3PL_PACKAGE_AGAIN_REPRINT(100308, "终端3PL：包裹补打");
