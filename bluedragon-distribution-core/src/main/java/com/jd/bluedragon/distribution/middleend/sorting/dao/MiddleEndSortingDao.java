@@ -28,7 +28,7 @@ public class MiddleEndSortingDao implements ISortingDao {
     @Autowired
     private BaseMajorManager baseMajorManager;
 
-    private static final Integer BATCH_SIZE = 5000;
+    private static final Integer BATCH_SIZE = 1000;
 
     /**
      * 根据箱号查询分拣记录
