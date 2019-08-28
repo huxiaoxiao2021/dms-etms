@@ -912,6 +912,11 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             	target.appendSpecialMark(ComposeService.SPECIAL_MARK_AIRTRANSPORT);
             }
         }
+        //生鲜惠达-当waybillsign第31位=9，并且waybillsign第84位=3，则打印“航”字标
+        if(BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_9)
+        		&& BusinessUtil.isSignChar(waybill.getWaybillSign(), WaybillSignConstants.POSITION_84, WaybillSignConstants.CHAR_84_3)){
+        	target.appendSpecialMark(ComposeService.SPECIAL_MARK_AIRTRANSPORT);
+        }
         //waybill_sign标识位，第十六位为1且第三十一位为2且第五十五位为0，打同字标
         if(!BusinessUtil.isB2b(waybill.getWaybillSign()) &&
                 BusinessUtil.isSignChar(waybill.getWaybillSign(),16,'1') &&
