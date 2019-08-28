@@ -143,7 +143,7 @@ public class CollectGoodsPlaceController {
 			String userName = "";
 
 			CollectGoodsPlace updatePlace = collectGoodsPlaceService.findById(collectGoodsPlace.getId());
-			if(updatePlace.getCollectGoodsPlaceStatus().toString().equals(CollectGoodsPlaceStatusEnum.FREE_0.getCode())){
+			if(!updatePlace.getCollectGoodsPlaceStatus().toString().equals(CollectGoodsPlaceStatusEnum.FREE_0.getCode())){
 				rest.toError("操作失败，集货位存在包裹,请将集货区包裹操作完后在执行！");
 				return rest;
 			}
@@ -209,8 +209,8 @@ public class CollectGoodsPlaceController {
 		try {
 			for(Long id : ids){
 				CollectGoodsPlace collectGoodsPlace = collectGoodsPlaceService.findById(id);
-				if(collectGoodsPlace.getCollectGoodsPlaceStatus().toString().equals(CollectGoodsPlaceStatusEnum.FREE_0.getCode())){
-					rest.toError("操作失败，集货位存在包裹,请将集货区包裹操作完后在执行！");
+				if(!collectGoodsPlace.getCollectGoodsPlaceStatus().toString().equals(CollectGoodsPlaceStatusEnum.FREE_0.getCode())){
+				    rest.toError("操作失败，集货位存在包裹,请将集货区包裹操作完后在执行！");
 					return rest;
 				}
 			}

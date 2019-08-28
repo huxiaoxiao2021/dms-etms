@@ -274,7 +274,7 @@ $(function() {
 				    		alert('操作成功,删除'+res.data+'条。');
 				    		tableInit().refresh();
 				    	}else{
-				    		alert('操作异常！');
+				    		alert(res.message);
 				    	}
 				    });
 				}
@@ -293,7 +293,7 @@ $(function() {
 			    		alert('操作成功');
 			    		tableInit().refresh();
 			    	}else{
-			    		alert('操作异常');
+                        alert(res.message);
 			    	}
 			    });
 				$('#dataEditDiv').hide();
