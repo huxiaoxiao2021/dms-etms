@@ -1,10 +1,12 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
+import com.google.common.base.Objects;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.distribution.print.service.HideInfoService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.etms.waybill.domain.WaybillExt;
 import com.jd.fastjson.JSON;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
+import com.jd.bluedragon.utils.StringHelper;
 /**
  * 
  * @ClassName: CustomerAndConsignerInfoHandler
@@ -43,7 +46,6 @@ public class CustomerAndConsignerInfoHandler implements Handler<WaybillPrintCont
 			logger.error("处理面单收/寄件信息，context.BasePrintWaybill为空." + JSON.toJSONString(context));
 			return context.getResult();
 		}
-
 		//处理国际化运单的收件信息
 		internationalCustomerInfo(context);
 
@@ -54,8 +56,33 @@ public class CustomerAndConsignerInfoHandler implements Handler<WaybillPrintCont
 			waybillSign = context.getBigWaybillDto().getWaybill().getWaybillSign();
 		}
 		hideInfoService.setHideInfo(waybillSign, context.getBasePrintWaybill());
-
+		//手机号、座机一样只保留一个
+		removeRepeatedTel(context);
 		return context.getResult();
+	}
+	/**
+	 * 手机号、座机一样只保留一个
+	 * @param context
+	 */
+	private void removeRepeatedTel(WaybillPrintContext context) {
+		BasePrintWaybill printWaybill = context.getBasePrintWaybill();
+		//寄件人电话
+		if(Objects.equal(printWaybill.getConsignerTel(), printWaybill.getConsignerMobile())){
+			printWaybill.setConsignerTel(null);
+			printWaybill.setConsignerTelText(printWaybill.getConsignerMobile());
+		}
+		if(StringHelper.isNotEmpty(printWaybill.getCustomerContacts())){
+			String[] tels = printWaybill.getCustomerContacts().split(",", 2);
+			if(tels.length == 2){
+				if(Objects.equal(tels[0], tels[1])){
+					printWaybill.setCustomerContacts(tels[0]);
+					printWaybill.setCustomerPhoneText(tels[0]);
+					printWaybill.setTelFirst(null);
+					printWaybill.setTelLast(null);
+				}
+			}
+		}
+		
 	}
 
 	/**
