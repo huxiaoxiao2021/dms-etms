@@ -64,5 +64,11 @@ public interface PackagePrintService {
 	 * @return
 	 */
 	JdResult<Boolean> backScheduleAfter(JdCommand<String> reassignWaybillRequest);
+	/**
+	 * 包裹补打回调处理
+	 * @param reprintAfterRequest
+	 * @return
+	 */
+	JdResult<Boolean> reprintAfter(JdCommand<String> reprintAfterRequest);
 
 }
