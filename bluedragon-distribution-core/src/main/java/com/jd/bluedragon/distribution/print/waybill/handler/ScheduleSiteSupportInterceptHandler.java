@@ -7,6 +7,7 @@ import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
+import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -43,6 +44,9 @@ public class ScheduleSiteSupportInterceptHandler implements InterceptHandler<Way
     /* 运单查询 */
     @Autowired
     private WaybillQueryManager waybillQueryManager;
+
+    @Autowired
+    private WaybillPrintService waybillPrintService;
 
     @Override
     public InterceptResult<String> handle(WaybillPrintContext context) {
@@ -89,6 +93,13 @@ public class ScheduleSiteSupportInterceptHandler implements InterceptHandler<Way
                     result.toError(JdResponse.CODE_THREEPL_SCHEDULE_ERROR, JdResponse.MESSAGE_THREEPL_SCHEDULE_ERROR);
                     return result;
                 }
+            }
+
+            if(waybillPrintService.isCodMoneyGtZeroAndSiteThird(scheduleSiteOrgDto.getSiteType(),scheduleSiteOrgDto.getSubType()
+                    ,context.getWaybill().getCodMoney())){
+                LOGGER.warn("codMoney大于0不能分配三方站点waybillCode[{}]codMoney[{}]",waybillCode,String.valueOf(context.getWaybill().getCodMoney()));
+                result.toError(JdResponse.CODE_CODMONAY_THIRD_SITE_ERROR, JdResponse.MESSAGE_CODMONAY_THIRD_SITE_ERROR);
+                return result;
             }
 
             /* 根据运单打标和预分拣站点判断是否需要进行黑名单校验 :逆向退仓判断 */

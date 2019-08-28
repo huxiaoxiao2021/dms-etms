@@ -30,4 +30,13 @@ public interface WaybillPrintService {
      * @param target 打印对象
      */
     void dealDicTexts(String dicKey,Integer dicTypeCode,BasePrintWaybill target);
+
+    /**
+     * COD_MONEY 大于0的运单，不允许发送给三方站点（第三方-》第三方快递）
+     * @param siteType 站点类型
+     * @param subType 站点子类型
+     * @param codMoney 货款金额
+     * @return true 不能发送第三方快递,false 可以发送
+     */
+    boolean isCodMoneyGtZeroAndSiteThird(Integer siteType,Integer subType,Double codMoney);
 }
