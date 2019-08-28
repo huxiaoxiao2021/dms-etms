@@ -68,7 +68,7 @@ public class CustomerAndConsignerInfoHandler implements Handler<WaybillPrintCont
 		BasePrintWaybill printWaybill = context.getBasePrintWaybill();
 		//寄件人电话
 		if(Objects.equal(printWaybill.getConsignerTel(), printWaybill.getConsignerMobile())){
-			printWaybill.setConsignerTel(null);
+			printWaybill.setConsignerTel("");
 			printWaybill.setConsignerTelText(printWaybill.getConsignerMobile());
 		}
 		if(StringHelper.isNotEmpty(printWaybill.getCustomerContacts())){
@@ -77,8 +77,8 @@ public class CustomerAndConsignerInfoHandler implements Handler<WaybillPrintCont
 				if(Objects.equal(tels[0], tels[1])){
 					printWaybill.setCustomerContacts(tels[0]);
 					printWaybill.setCustomerPhoneText(tels[0]);
-					printWaybill.setTelFirst(null);
-					printWaybill.setTelLast(null);
+					printWaybill.setTelFirst("");
+					printWaybill.setTelLast("");
 				}
 			}
 		}
