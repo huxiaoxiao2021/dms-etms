@@ -264,7 +264,7 @@ $(function() {
                             alert("不允许删除异常类型的集货位");
                             return;
                         }
-                        if (rows[i].collectGoodsPlaceStatus == 1) {
+                        if (rows[i].collectGoodsPlaceStatus != 0) {
                             alert("不允许删除非空闲的集货位");
                             return;
                         }
@@ -382,7 +382,10 @@ $(function() {
                     alert("集货区编码已存在");
                     return;
                 }
-
+                if(collectPlaceArray.length == 0){
+                    alert("未添加任何集货位，禁止提交！");
+                    return;
+                }
                 $.ajaxHelper.doPostSync(saveUrl,JSON.stringify(collectPlaceArray),function(res){
                     if(res&&res.succeed){
                         alert('操作成功');
@@ -448,7 +451,7 @@ $(function() {
                     return false;
                 }
 
-                if(!reg1.test(collectGoodsPlaceNum) && collectGoodsPlaceNum < 999){
+                if(!reg1.test(collectGoodsPlaceNum) || collectGoodsPlaceNum > 999){
                     alert("集货位数量应在1至998内！");
                     return false;
                 }
