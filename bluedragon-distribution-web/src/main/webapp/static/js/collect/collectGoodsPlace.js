@@ -1,8 +1,14 @@
 $(function() {
 	var saveUrl = '/collect/collectGoodsPlace/save';
+    var updateUrl = '/collect/collectGoodsPlace/update';
+    var saveTypeUrl = '/collect/collectGoodsPlace/saveType';
 	var deleteUrl = '/collect/collectGoodsPlace/deleteByIds';
-  var detailUrl = '/collect/collectGoodsPlace/detail/';
-  var queryUrl = '/collect/collectGoodsPlace/listData';
+  	var detailUrl = '/collect/collectGoodsPlace/detail/';
+  	var queryUrl = '/collect/collectGoodsPlace/listData';
+    var checkAreaCodeUrl = '/collect/collectGoodsArea/check';
+    var findPlaceTypeUrl = '/collect/collectGoodsPlaceType/find/';
+  	var collectPlaceArray = new Array();
+
 	var tableInit = function() {
 		var oTableInit = new Object();
 		oTableInit.init = function() {
@@ -72,12 +78,45 @@ $(function() {
 		oTableInit.tableColums = [ {
 				checkbox : true
 			}, {
-				field : 'typeCode',
-				title : '编码'
+				field : 'createSiteName',
+				title : '场地'
 			}, {
-				field : 'typeName',
-				title : '名称'
-			} ];
+				field : 'collectGoodsAreaCode',
+				title : '集货区'
+			}, {
+				field : 'collectGoodsPlaceCode',
+				title : '集货位'
+			}, {
+				field : 'collectGoodsPlaceType',
+				title : '货位类型',
+				formatter : function(value,row,index){
+					return value=="1"?"小单":value=="2"?"中单":value=="3"?"大单":value=="4"?"异常":"未知类型";
+				}
+			}, {
+				field : 'collectGoodsPlaceStatus',
+				title : '状态',
+				formatter : function(value,row,index){
+					return value=="0"?"空闲":value=="1"?"非空闲":value=="2"?"已满":"未知状态";
+				}
+			} , {
+				field : 'createTime',
+				title : '创建时间',
+			    formatter : function(value,row,index){
+                return $.dateHelper.formateDateTimeOfTs(value);
+            }
+			}, {
+				field : 'createUser',
+				title : '创建人'
+			}, {
+				field : 'updateTime',
+				title : '修改时间',
+				formatter : function(value,row,index){
+					return $.dateHelper.formateDateTimeOfTs(value);
+				}
+			}, {
+				field : 'updateUser',
+				title : '修改人'
+			}];
 		oTableInit.refresh = function() {
 			$('#dataTable').bootstrapTable('refresh');
 		};
@@ -86,17 +125,90 @@ $(function() {
 	var pageInit = function() {
 		var oInit = new Object();
 		oInit.init = function() {
+
+            $.datePicker.createNew({
+                elem: '#createTimeGEStr',
+                theme: '#3f92ea',
+                type: 'datetime',
+                btns: ['now', 'confirm'],
+                done: function(value, date, endDate){
+                    /*重置表单验证状态*/
+
+
+                }
+            });
+            $.datePicker.createNew({
+                elem: '#createTimeLEStr',
+                theme: '#3f92ea',
+                type: 'datetime',
+                btns: ['now', 'confirm'],
+                done: function(value, date, endDate){
+                    /*重置表单验证状态*/
+
+                }
+            });
+            $.datePicker.createNew({
+                elem: '#updateTimeGEStr',
+                theme: '#3f92ea',
+                type: 'datetime',
+                btns: ['now', 'confirm'],
+                done: function(value, date, endDate){
+                    /*重置表单验证状态*/
+
+                }
+            });
+            $.datePicker.createNew({
+                elem: '#updateTimeLEStr',
+                theme: '#3f92ea',
+                type: 'datetime',
+                btns: ['now', 'confirm'],
+                done: function(value, date, endDate){
+                    /*重置表单验证状态*/
+
+                }
+            });
+
+
 			$('#dataEditDiv').hide();		
 		    $('#btn_query').click(function() {
 		    	tableInit().refresh();
 			});
 			$('#btn_add').click(function() {
+
+                $.ajaxHelper.doPostSync(findPlaceTypeUrl+$("#loginUserCreateSiteCode").val(),"",function(res){
+                    if(res&&res.succeed){
+                        var smallMax = 10;
+                        var middleMin = 11;
+                        var middleMax = 100
+                        var bigMin = 101;
+                        for(var pojo in res.data){
+                            if(res.data[pojo]['collectGoodsPlaceType'] == 1){
+                                smallMax = res.data[pojo]['maxPackNum'];
+
+                            }else if(res.data[pojo]['collectGoodsPlaceType'] == 2){
+                                middleMin = res.data[pojo]['minPackNum'];
+                                middleMax = res.data[pojo]['maxPackNum'];
+
+                            }else if(res.data[pojo]['collectGoodsPlaceType'] == 3){
+                                bigMin = res.data[pojo]['minPackNum'];
+
+                            }
+                        }
+
+                        $("#add-form-title").html("当前场站："+$("#loginUserCreateSiteName").val()+" 包裹数量范围（件）：小单≤"+smallMax+" 中单"+
+                            middleMin+"～"+middleMax+" 大单≥"+bigMin);
+                    }
+                });
+
 			    $('.edit-param').each(function () {
 			    	var _k = this.id;
 			        if(_k){
 			        	$(this).val('');
 			        }
 			    });
+                collectPlaceArray = new Array();
+                $("#place-add-table").html("");
+                $("#collect-goods-area").attr("readonly",false);
 			    $('#edit-form #typeGroup').val(null).trigger('change');
 			    $('#edit-form #parentId').val(null).trigger('change');
 				$('#dataTableDiv').hide();
@@ -113,10 +225,15 @@ $(function() {
 					alert("请选择一条数据");
 					return;
 				}
+                if (rows[0].collectGoodsPlaceType == 4) {
+                    alert("不允许修改异常类型的集货位");
+                    return;
+                }
+
 			    $.ajaxHelper.doPostSync(detailUrl+rows[0].id,null,function(res){
 			    	if(res&&res.succeed&&res.data){
-					    $('.edit-param').each(function () {
-					    	var _k = this.id;
+					    $('#place-change .edit-param').each(function () {
+					    	var _k = this.name;
 					        var _v = res.data[_k];
 					        if(_k){
 					        	if(_v != null && _v != undefined){
@@ -128,8 +245,7 @@ $(function() {
 					    });
 			    	}
 			    });
-				$('#dataTableDiv').hide();
-				$('#dataEditDiv').show();
+                $("#place-change").modal('show');
 			});
 
 			// 删
@@ -144,6 +260,14 @@ $(function() {
 					var params = [];
 					for(var i in rows){
 						params.push(rows[i].id);
+                        if (rows[i].collectGoodsPlaceType == 4) {
+                            alert("不允许删除异常类型的集货位");
+                            return;
+                        }
+                        if (rows[i].collectGoodsPlaceStatus == 1) {
+                            alert("不允许删除非空闲的集货位");
+                            return;
+                        }
 				    };
 					$.ajaxHelper.doPostSync(deleteUrl,JSON.stringify(params),function(res){
 				    	if(res&&res.succeed&&res.data){
@@ -174,15 +298,349 @@ $(function() {
 			    });
 				$('#dataEditDiv').hide();
 				$('#dataTableDiv').show();
-			});	
+			});
+            $('#btn_place_type_change').click(function() {
+
+                $("#place-type-change-site-name").html("当前场站："+$("#loginUserCreateSiteName").val());
+
+            	//获取集货位类型基础数据
+                $.ajaxHelper.doPostSync(findPlaceTypeUrl+$("#loginUserCreateSiteCode").val(),"",function(res){
+                    if(res&&res.succeed){
+                       for(var pojo in res.data){
+                           if(res.data[pojo]['collectGoodsPlaceType'] == 1){
+                           	   $("#small-pack-max-num").val(res.data[pojo]['maxPackNum']);
+                               $("#small-waybill-max-num").val(res.data[pojo]['maxWaybillNum']);
+						   }else if(res.data[pojo]['collectGoodsPlaceType'] == 2){
+                               $("#middle-pack-min-num").html(res.data[pojo]['minPackNum']+"个");
+                               $("#middle-pack-max-num").val(res.data[pojo]['maxPackNum']);
+                               $("#middle-waybill-max-num").val(res.data[pojo]['maxWaybillNum']);
+                           }else if(res.data[pojo]['collectGoodsPlaceType'] == 3){
+                               $("#big-pack-min-num").html(res.data[pojo]['minPackNum']+"个");
+                               $("#big-waybill-max-num").val(res.data[pojo]['maxWaybillNum']);
+                           }
+					   }
+                    }
+                });
+                $('#place-type-change').modal('show');
+            });
+
+            /**
+			 * 绘制集货位表格
+             */
+            $('#btn_add_place').click(function() {
+
+				if(checkPlaceAdd()){
+                    $("#collect-goods-area").attr("readonly","readonly");
+                    var collectGoodsArea = $("#collect-goods-area").val();
+                    var collectGoodsPlaceNum = $("#collect-goods-place-num").val();
+					var collectGoodsPlaceType = $("#collect-goods-place-type").val();
+					var collectGoodsPlaceTypeName = collectGoodsPlaceType==1?"小单":collectGoodsPlaceType==2?"中单":"大单";
+                    var tableHtml = "";
+                    var isAppend =  collectPlaceArray.length > 0;
+                    var initEndCodeIndex = collectPlaceArray.length;
+
+					for(var i = 1 ; i<= collectGoodsPlaceNum;i++){
+
+
+						var endCodeIndex = i+initEndCodeIndex;
+						var collectGoodsPlaceCode = collectGoodsArea+
+							(endCodeIndex<10?"00"+endCodeIndex:endCodeIndex<100?"0"+endCodeIndex:endCodeIndex);
+						tableHtml += "<tr><td>"+collectGoodsArea+"</td><td>"+collectGoodsPlaceTypeName+"</td><td>"+collectGoodsPlaceCode+"</td></tr>";
+                        var o = {};
+                        o['collectGoodsPlaceCode'] = collectGoodsPlaceCode;
+                        o['collectGoodsAreaCode'] = collectGoodsArea;
+                        o['collectGoodsPlaceType'] = collectGoodsPlaceType;
+						collectPlaceArray.push(o);
+					}
+					if(isAppend){
+                        $("#place-add-table").append(tableHtml);
+					}else{
+                        $("#place-add-table").html(tableHtml);
+					}
+
+
+				}
+
+            });
+
+
+            $("#collect-goods-area").change(function(){
+                if(checkAreaCodeExist($("#collect-goods-area").val())){
+                    alert("集货区编码已存在");
+                    return;
+                }
+			});
+
+
+
+            /**
+			 * 储位添加按钮
+             */
+            $('#btn_add_place_submit').click(function() {
+
+                if(checkAreaCodeExist($("#collect-goods-area").val())){
+                    alert("集货区编码已存在");
+                    return;
+                }
+
+                $.ajaxHelper.doPostSync(saveUrl,JSON.stringify(collectPlaceArray),function(res){
+                    if(res&&res.succeed){
+                        alert('操作成功');
+                        tableInit().refresh();
+                    }else{
+                        alert('操作异常');
+                    }
+                });
+                $('#dataEditDiv').hide();
+                $('#dataTableDiv').show();
+
+                collectPlaceArray = new Array();
+                $("#collect-goods-area").attr("readonly",false);
+			});
+
+            $("#middle-pack-max-num").change(function(){
+               if(checkMiddlePackMaxNum()){
+                   var middlePackMaxNum = $("#middle-pack-max-num").val();
+                   $("#big-pack-min-num").html(1+Number(middlePackMaxNum)+"个");
+			   }
+
+
+
+			});
+
+            $("#small-pack-max-num").change(function(){
+                if(checkSmallPackMaxNum()){
+                    var smallPackMaxNum = $("#small-pack-max-num").val();
+                    $("#middle-pack-min-num").html(1+Number(smallPackMaxNum)+"个");
+				}
+
+
+            });
+
+
+			function checkSmallPackMaxNum(){
+                var smallPackMaxNum = $("#small-pack-max-num").val();
+                var reg1 = /^[1-9][0-9]{0,4}$/;
+                if(!reg1.test(smallPackMaxNum) || smallPackMaxNum > 19998){
+                    alert("中单包裹数最大不得超过19998！");
+                    return false;
+                }
+                return true;
+			}
+
+            function checkMiddlePackMaxNum(){
+                var middlePackMaxNum = $("#middle-pack-max-num").val();
+                var reg1 = /^[1-9][0-9]{0,4}$/;
+                if(!reg1.test(middlePackMaxNum) || middlePackMaxNum > 19999 || middlePackMaxNum < Number($("#small-pack-max-num").val())){
+                    alert("中单包裹数最大不得超过19999！并且必须大于中单最小包裹数");
+                    return false;
+                }
+                return true;
+            }
+
+			function checkPlaceAdd(){
+				var collectGoodsArea = $("#collect-goods-area").val();
+                var collectGoodsPlaceNum = $("#collect-goods-place-num").val();
+                var reg1 = /^[1-9][0-9]{0,2}$/;
+                var reg2 = /^[A-Z]$/;
+                if(!reg2.test(collectGoodsArea)){
+                	alert("集货位编码只能是一位大写字母！");
+                    return false;
+                }
+
+                if(!reg1.test(collectGoodsPlaceNum) && collectGoodsPlaceNum < 999){
+                    alert("集货位数量应在1至998内！");
+                    return false;
+                }
+
+                if(checkAreaCodeExist($("#collect-goods-area").val())){
+                    alert("集货区编码已存在");
+                    return false;
+                }
+
+				return true;
+			}
+
+            /**
+			 * 保存集货类型 配置数据
+             */
+			$("#btn-collect-goods-palce-type").click(function(){
+
+				if(checkSmallPackMaxNum()&&checkMiddlePackMaxNum()){
+					//校验通过提交数据
+					var params = {"createSiteCode":$("#loginUserCreateSiteCode").val()};
+                    $('#place-type-change-form .edit-param').each(function () {
+                        var _k = this.name;
+                        var _v = $(this).val();
+                        if(_k && _v){
+
+                          params[_k]=_v;
+
+                        }
+                    });
+                    $.ajaxHelper.doPostSync(saveTypeUrl,JSON.stringify(params),function(res){
+                        if(res&&res.succeed){
+                            alert('操作成功');
+                            tableInit().refresh();
+                        }else{
+                            alert('操作异常');
+                        }
+                    });
+				}
+
+			});
+
+			$("#btn-collect-goods-palce-update").click(function(){
+
+                var params = {};
+                $('#place-change .edit-param').each(function () {
+                    var _k = this.name;
+                    var _v = $(this).val();
+                    if(_k && _v){
+                        params[_k]=_v;
+                    }
+                });
+                $.ajaxHelper.doPostSync(updateUrl,JSON.stringify(params),function(res){
+                    if(res&&res.succeed){
+                        alert('操作成功');
+                        tableInit().refresh();
+                    }else{
+                        alert('操作异常');
+                    }
+                });
+                $("#place-change").modal('hide');
+			});
+
 			$('#btn_return').click(function() {
 				$('#dataEditDiv').hide();
 				$('#dataTableDiv').show();
-			});		
+			});
+
+
+			function checkAreaCodeExist(areaCode){
+				var result = true;
+                $.ajaxHelper.doPostSync(checkAreaCodeUrl,JSON.stringify({"collectGoodsAreaCode":areaCode,
+                    "createSiteCode":$("#loginUserCreateSiteCode").val()}),function(res){
+                    if(res&&res.succeed){
+                        result = res.data;
+                    }
+                });
+                return result;
+			}
+
 		};
 		return oInit;
 	};
-	
+    initOrg();
 	tableInit().init();
 	pageInit().init();
 });
+
+var initLogin = true;
+function findSite(selectId,siteListUrl,initIdSelectId){
+    $(selectId).html("");
+    $.ajax({
+        type : "get",
+        url : siteListUrl,
+        data : {},
+        async : false,
+        success : function (data) {
+
+
+            var result = [];
+            if(data.length==1 && data[0].code!="200"){
+
+
+                result.push({id:"-999",text:data[0].message});
+
+            }else{
+                for(var i in data){
+                    if(data[i].siteCode && data[i].siteCode != ""){
+                        result.push({id:data[i].siteCode,text:data[i].siteName});
+                    }
+                }
+
+            }
+            if(initIdSelectId && result[0].id!="-999"){
+                $(initIdSelectId).val(result[0].id);
+            }
+
+            $(selectId).select2({
+                width: '100%',
+                placeholder:'请选择分拣中心',
+                allowClear:true,
+                data:result
+            });
+
+            if(initLogin){
+                //第一次登录 初始化登录人分拣中心
+                if($("#loginUserCreateSiteCode").val() != -1){
+                    //登录人大区
+                    $(selectId).val($("#loginUserCreateSiteCode").val()).trigger('change');
+                }
+            }
+            initLogin = false;
+
+        }
+    });
+}
+
+
+// 初始化大区下拉框
+function initOrg() {
+
+
+    var url = "/services/bases/allorgs";
+    var param = {};
+    $.ajax({
+        type: "get",
+        url: url,
+        data: param,
+        async: false,
+        success: function (data) {
+
+            var result = [];
+            for (var i in data) {
+                if (data[i].orgId && data[i].orgId != "") {
+                    result.push({id: data[i].orgId, text: data[i].orgName});
+
+                }
+
+            }
+
+            $('#site-group-select').select2({
+                width: '100%',
+                placeholder: '请选择机构',
+                allowClear: true,
+                data: result
+            });
+
+            $("#site-group-select")
+                .on("change", function (e) {
+                    $("#query-form #createSiteCode").val("");
+                    var orgId = $("#site-group-select").val();
+                    if (orgId) {
+                        var siteListUrl = '/services/bases/dms/' + orgId;
+                        findSite("#site-select", siteListUrl, "#query-form #createSiteCode");
+                    }
+
+                });
+
+            $("#site-select").on("change", function (e) {
+                var _s = $("#site-select").val();
+                $("#query-form #createSiteCode").val(_s);
+            });
+
+
+            if ($("#loginUserOrgId").val() != -1) {
+                //登录人大区
+                $('#site-group-select').val($("#loginUserOrgId").val()).trigger('change');
+            } else {
+                $('#site-group-select').val(null).trigger('change');
+            }
+
+            $('#site-group-select,#site-select').attr("disabled","disabled");
+        }
+    });
+
+}

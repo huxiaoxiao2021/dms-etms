@@ -8,6 +8,7 @@
 		<result column="collect_goods_area_code" property="collectGoodsAreaCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="collect_goods_place_type" property="collectGoodsPlaceType" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="collect_goods_place_status" property="collectGoodsPlaceStatus" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="waybill_code" property="waybillCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="package_code" property="packageCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="package_count" property="packageCount" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="create_site_code" property="createSiteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
@@ -21,7 +22,7 @@
 	</resultMap>
 
 	<sql id="Base_Column_List" >
-		id,collect_goods_place_code,collect_goods_area_code,collect_goods_place_type,collect_goods_place_status,package_code,
+		id,collect_goods_place_code,collect_goods_area_code,collect_goods_place_type,collect_goods_place_status,waybill_code,package_code,
 		package_count,create_site_code,create_site_name,create_user,update_user,
 		create_time,update_time,is_delete,ts
 	</sql>
@@ -30,9 +31,7 @@
 		insert into collect_goods_detail
 			(
 			<trim suffixOverrides=",">
-				<if test="id != null">
-					id,
-				</if>
+
 				<if test="collectGoodsPlaceCode != null">
 					collect_goods_place_code,
 				</if>
@@ -44,6 +43,9 @@
 				</if>
 				<if test="collectGoodsPlaceStatus != null">
 					collect_goods_place_status,
+				</if>
+				<if test="waybillCode != null">
+					waybill_code,
 				</if>
 				<if test="packageCode != null">
 					package_code,
@@ -60,29 +62,22 @@
 				<if test="createUser != null">
 					create_user,
 				</if>
-				<if test="updateUser != null">
-					update_user,
-				</if>
-				<if test="createTime != null">
+
+
 					create_time,
-				</if>
-				<if test="updateTime != null">
-					update_time,
-				</if>
-				<if test="isDelete != null">
-					is_delete,
-				</if>
-				<if test="ts != null">
-					ts
-				</if>
+
+
+
+				is_delete
+
+
+
 			</trim>
 			)
 			values
 			(
 			<trim suffixOverrides=",">
-				<if test="id != null">
-					#{id,jdbcType=BIGINT},
-				</if>
+
 				<if test="collectGoodsPlaceCode != null">
 					#{collectGoodsPlaceCode,jdbcType=VARCHAR},
 				</if>
@@ -94,6 +89,9 @@
 				</if>
 				<if test="collectGoodsPlaceStatus != null">
 					#{collectGoodsPlaceStatus,jdbcType=INTEGER},
+				</if>
+				<if test="waybillCode != null">
+					#{waybillCode,jdbcType=VARCHAR},
 				</if>
 				<if test="packageCode != null">
 					#{packageCode,jdbcType=VARCHAR},
@@ -110,21 +108,11 @@
 				<if test="createUser != null">
 					#{createUser,jdbcType=VARCHAR},
 				</if>
-				<if test="updateUser != null">
-					#{updateUser,jdbcType=VARCHAR},
-				</if>
-				<if test="createTime != null">
-					#{createTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="updateTime != null">
-					#{updateTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="isDelete != null">
-					#{isDelete,jdbcType=TINYINT},
-				</if>
-				<if test="ts != null">
-					#{ts,jdbcType=TIMESTAMP}
-				</if>
+
+				now(),
+
+				0
+
 			</trim>
 			)
 	</insert>
@@ -133,7 +121,7 @@
 		insert into collect_goods_detail
 			(
 				collect_goods_place_code,collect_goods_area_code,collect_goods_place_type,collect_goods_place_status,
-				package_code,package_count,create_site_code,create_site_name,create_user,
+				waybill_code,package_code,package_count,create_site_code,create_site_name,create_user,
 				update_user,create_time,update_time,is_delete,ts
 			)
 			values
@@ -143,6 +131,7 @@
 					#{item.collectGoodsAreaCode,jdbcType=VARCHAR},
 					#{item.collectGoodsPlaceType,jdbcType=INTEGER},
 					#{item.collectGoodsPlaceStatus,jdbcType=INTEGER},
+				    #{item.waybillCode,jdbcType=VARCHAR},
 					#{item.packageCode,jdbcType=VARCHAR},
 					#{item.packageCount,jdbcType=INTEGER},
 					#{item.createSiteCode,jdbcType=INTEGER},
@@ -221,6 +210,39 @@
 		</foreach>
 	</update>
 
+	<delete id="deleteByCollectGoodsDetail" parameterType="com.jd.bluedragon.distribution.collect.domain.CollectGoodsDetail">
+		delete from collect_goods_detail
+		where
+		create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		<if test="collectGoodsPlaceCode != null">
+			and collect_goods_place_code = #{collectGoodsPlaceCode,jdbcType=VARCHAR}
+		</if>
+		<if test="collectGoodsAreaCode != null">
+			and collect_goods_area_code = #{collectGoodsAreaCode,jdbcType=VARCHAR}
+		</if>
+		<if test="waybillCode != null">
+			and waybill_code = #{waybillCode,jdbcType=VARCHAR}
+		</if>
+		<if test="packageCode != null">
+			and package_code = #{packageCode,jdbcType=VARCHAR}
+		</if>
+	</delete>
+
+	<update id="transfer" parameterType="com.jd.bluedragon.distribution.collect.domain.CollectGoodsDetailCondition">
+		update collect_goods_detail
+		set collect_goods_place_code = #{targetCollectGoodsPlaceCode,jdbcType=VARCHAR},
+		collect_goods_place_type = #{collectGoodsPlaceType,jdbcType=INTEGER}
+		where
+		create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		<if test="collectGoodsPlaceCode != null">
+			and collect_goods_place_code = #{collectGoodsPlaceCode,jdbcType=VARCHAR}
+		</if>
+		<if test="waybillCode != null">
+			and waybill_code = #{waybillCode,jdbcType=VARCHAR}
+		</if>
+		and is_delete=0
+	</update>
+
 	<select id="findById" parameterType="Long" resultMap="CollectGoodsDetail">
 		select 
 		 <include refid="Base_Column_List"/>
@@ -243,23 +265,124 @@
 			and is_delete=0 
 	</sql>
 
+	<sql id="Query_Params_Condition_Sql">
+		<if test="createSiteCode != null">
+			and create_site_code = #{createSiteCode,jdbcType=BIGINT}
+		</if>
+		<if test="createTimeGE != null and createTimeLE !=null">
+			and create_time BETWEEN #{createTimeGE} and #{createTimeLE}
+		</if>
+		<if test="createTimeGE != null and createTimeLE ==null">
+			and  <![CDATA[   create_time >= #{createTimeGE}  ]]>
+		</if>
+		<if test="createTimeGE == null and createTimeLE !=null">
+			and  <![CDATA[   create_time <= #{createTimeLE}  ]]>
+		</if>
+
+		<if test="updateTimeGE != null and updateTimeLE !=null">
+			and update_time BETWEEN #{updateTimeGE} and #{updateTimeLE}
+		</if>
+		<if test="updateTimeGE != null and updateTimeLE ==null">
+			and  <![CDATA[   update_time >= #{updateTimeGE}  ]]>
+		</if>
+		<if test="updateTimeGE == null and updateTimeLE !=null">
+			and  <![CDATA[   update_time <= #{updateTimeLE}  ]]>
+		</if>
+
+		<if test="collectGoodsPlaceCode != null">
+			and collect_goods_place_code = #{collectGoodsPlaceCode,jdbcType=VARCHAR}
+		</if>
+		<if test="collectGoodsAreaCode != null">
+			and collect_goods_area_code = #{collectGoodsAreaCode,jdbcType=VARCHAR}
+		</if>
+		<if test="collectGoodsPlaceType != null">
+			and collect_goods_place_type = #{collectGoodsPlaceType,jdbcType=INTEGER}
+		</if>
+		<if test="waybillCode != null">
+			and waybill_code = #{waybillCode,jdbcType=VARCHAR}
+		</if>
+		<if test="packageCode != null">
+			and package_code = #{packageCode,jdbcType=VARCHAR}
+		</if>
+	</sql>
+
 	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
-		select 
-		 count(1) as num
-		from 
-		  collect_goods_detail 
-		where 1=1 
-		 <include refid="Base_Condition_Sql"/>
+
+		select count(1) from (
+			select
+			 count(1)
+			from
+			  collect_goods_detail
+			where 1=1
+			 <include refid="Base_Condition_Sql"/>
+
+		     <include refid="Query_Params_Condition_Sql"/>
+			group by waybill_code,collect_goods_place_code,package_count
+		) t
 	</select>
 
-	<select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="CollectGoodsDetail">
-		select 
-		 <include refid="Base_Column_List"/>
+	<select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="com.jd.bluedragon.distribution.collect.domain.CollectGoodsDetail">
+		select collect_goods_place_code as collectGoodsPlaceCode , waybill_code as waybillCode,package_count as packageCount,
+		count(1) as scanPackageCount,collect_goods_area_code as collectGoodsAreaCode,create_site_code as createSiteCode,create_site_name as createSiteName,min(create_time) as createTime
+		,create_user as createUser,collect_goods_place_status as collectGoodsPlaceStatus,collect_goods_place_type as collectGoodsPlaceType
 		from 
 		  collect_goods_detail 
 		where 1=1 
 		 <include refid="Base_Condition_Sql"/>
+		 <include refid="Query_Params_Condition_Sql"/>
+		 group by waybill_code,collect_goods_place_code,package_count
 		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
 	</select>
+
+	<select id="queryByCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="CollectGoodsDetail">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		collect_goods_detail
+		where 1=1
+		<include refid="Base_Condition_Sql"/>
+		<include refid="Query_Params_Condition_Sql"/>
+
+	</select>
+
+    <select id="findSacnWaybill" parameterType="com.jd.bluedragon.distribution.collect.domain.CollectGoodsDetail"  resultType="com.jd.bluedragon.distribution.collect.domain.CollectGoodsDetailCondition" >
+
+        select collect_goods_area_code as collectGoodsAreaCode,collect_goods_place_code as collectGoodsPlaceCode , waybill_code as waybillCode,package_count as packageCount,count(1) as scanPackageCount
+        from collect_goods_detail
+        where
+        create_site_code = #{createSiteCode,jdbcType=INTEGER}
+        <if test="collectGoodsPlaceCode != null">
+            and collect_goods_place_code = #{collectGoodsPlaceCode,jdbcType=VARCHAR}
+        </if>
+        <if test="collectGoodsAreaCode != null">
+            and collect_goods_area_code = #{collectGoodsAreaCode,jdbcType=VARCHAR}
+        </if>
+		<if test="waybillCode != null">
+			and waybill_code = #{waybillCode,jdbcType=VARCHAR}
+		</if>
+		<if test="packageCode != null">
+			and package_code = #{packageCode,jdbcType=VARCHAR}
+		</if>
+        and is_delete = 0
+        group by waybill_code,collect_goods_place_code,package_count
+    </select>
+
+    <select id="findCount" parameterType="com.jd.bluedragon.distribution.collect.domain.CollectGoodsDetail"  resultType="Integer" >
+
+        select count(1)
+        from collect_goods_detail
+        where
+        create_site_code = #{createSiteCode,jdbcType=INTEGER}
+        <if test="collectGoodsPlaceCode != null">
+            and collect_goods_place_code = #{collectGoodsPlaceCode,jdbcType=VARCHAR}
+        </if>
+        <if test="collectGoodsAreaCode != null">
+            and collect_goods_area_code = #{collectGoodsAreaCode,jdbcType=VARCHAR}
+        </if>
+        <if test="packageCode != null">
+            and package_code = #{packageCode,jdbcType=VARCHAR}
+        </if>
+        and is_delete = 0
+    </select>
 
 </mapper>

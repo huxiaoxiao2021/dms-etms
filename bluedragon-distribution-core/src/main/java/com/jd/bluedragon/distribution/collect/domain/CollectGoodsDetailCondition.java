@@ -1,6 +1,10 @@
 package com.jd.bluedragon.distribution.collect.domain;
 
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
+
+import java.util.Date;
 
 /**
  *
@@ -29,8 +33,14 @@ public class CollectGoodsDetailCondition extends BasePagerCondition {
 	 /** 包裹号 */
 	private String packageCode;
 
+	private String waybillCode;
+
 	 /** 包裹总数 */
 	private Integer packageCount;
+    /**
+     * 已扫包裹数
+     */
+	private Integer scanPackageCount;
 
 	 /** 所属站点编码 */
 	private Integer createSiteCode;
@@ -43,6 +53,19 @@ public class CollectGoodsDetailCondition extends BasePagerCondition {
 
 	 /** 修改用户 */
 	private String updateUser;
+	/**
+	 * 转移 目的集货位
+	 */
+	private String targetCollectGoodsPlaceCode;
+
+	private Date createTimeGE;
+	private Date createTimeLE;
+	private Date updateTimeGE;
+	private Date updateTimeLE;
+	private String createTimeGEStr;
+	private String createTimeLEStr;
+	private String updateTimeGEStr;
+	private String updateTimeLEStr;
 
 	/**
 	 * The set method for collectGoodsPlaceCode.
@@ -205,4 +228,94 @@ public class CollectGoodsDetailCondition extends BasePagerCondition {
 	}
 
 
+	public String getTargetCollectGoodsPlaceCode() {
+		return targetCollectGoodsPlaceCode;
+	}
+
+	public void setTargetCollectGoodsPlaceCode(String targetCollectGoodsPlaceCode) {
+		this.targetCollectGoodsPlaceCode = targetCollectGoodsPlaceCode;
+	}
+
+    public String getWaybillCode() {
+        return waybillCode;
+    }
+
+    public void setWaybillCode(String waybillCode) {
+        this.waybillCode = waybillCode;
+    }
+
+    public Integer getScanPackageCount() {
+        return scanPackageCount;
+    }
+
+    public void setScanPackageCount(Integer scanPackageCount) {
+        this.scanPackageCount = scanPackageCount;
+    }
+	public String getCreateTimeGEStr() {
+		return createTimeGEStr;
+	}
+
+	public void setCreateTimeGEStr(String createTimeGEStr) {
+		this.createTimeGEStr = createTimeGEStr;
+		setCreateTimeGE(DateHelper.parseDate(createTimeGEStr, Constants.DATE_TIME_FORMAT));
+	}
+
+	public String getCreateTimeLEStr() {
+		return createTimeLEStr;
+	}
+
+	public void setCreateTimeLEStr(String createTimeLEStr) {
+		this.createTimeLEStr = createTimeLEStr;
+		setCreateTimeLE(DateHelper.parseDate(createTimeLEStr, Constants.DATE_TIME_FORMAT));
+	}
+
+	public String getUpdateTimeGEStr() {
+		return updateTimeGEStr;
+	}
+
+	public void setUpdateTimeGEStr(String updateTimeGEStr) {
+		this.updateTimeGEStr = updateTimeGEStr;
+		setUpdateTimeGE(DateHelper.parseDate(updateTimeGEStr, Constants.DATE_TIME_FORMAT));
+	}
+
+	public String getUpdateTimeLEStr() {
+		return updateTimeLEStr;
+	}
+
+	public void setUpdateTimeLEStr(String updateTimeLEStr) {
+		this.updateTimeLEStr = updateTimeLEStr;
+		setUpdateTimeLE(DateHelper.parseDate(updateTimeLEStr, Constants.DATE_TIME_FORMAT));
+	}
+
+	public Date getCreateTimeGE() {
+		return createTimeGE;
+	}
+
+	public void setCreateTimeGE(Date createTimeGE) {
+		this.createTimeGE = createTimeGE;
+	}
+
+	public Date getCreateTimeLE() {
+		return createTimeLE;
+	}
+
+	public void setCreateTimeLE(Date createTimeLE) {
+		this.createTimeLE = createTimeLE;
+	}
+
+	public Date getUpdateTimeGE() {
+		return updateTimeGE;
+	}
+
+	public void setUpdateTimeGE(Date updateTimeGE) {
+		this.updateTimeGE = updateTimeGE;
+	}
+
+	public Date getUpdateTimeLE() {
+		return updateTimeLE;
+	}
+
+	public void setUpdateTimeLE(Date updateTimeLE) {
+		this.updateTimeLE = updateTimeLE;
+	}
 }

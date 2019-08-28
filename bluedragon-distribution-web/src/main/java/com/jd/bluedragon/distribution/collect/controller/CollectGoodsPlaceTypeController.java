@@ -53,6 +53,21 @@ public class CollectGoodsPlaceTypeController {
 		rest.setData(collectGoodsPlaceTypeService.findById(id));
 		return rest;
 	}
+
+	/**
+	 * 根据操作站点获取基本信息
+	 * @param id
+	 * @return
+	 */
+	@RequestMapping(value = "/find/{createSiteCode}")
+	public @ResponseBody JdResponse<List<CollectGoodsPlaceType>> detail(@PathVariable("createSiteCode") Integer createSiteCode) {
+		JdResponse<List<CollectGoodsPlaceType>> rest = new JdResponse<List<CollectGoodsPlaceType>>();
+		CollectGoodsPlaceType collectGoodsPlaceType = new CollectGoodsPlaceType();
+		collectGoodsPlaceType.setCreateSiteCode(createSiteCode);
+		rest.setData(collectGoodsPlaceTypeService.findByCreateSiteCode(collectGoodsPlaceType));
+		return rest;
+	}
+
 	/**
 	 * 保存数据
 	 * @param collectGoodsPlaceType

@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.collect.dao;
 import com.jd.bluedragon.distribution.collect.domain.CollectGoodsArea;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 
+import java.util.List;
+
 /**
  *
  * @ClassName: CollectGoodsAreaDao
@@ -13,5 +15,7 @@ import com.jd.ql.dms.common.web.mvc.api.Dao;
  */
 public interface CollectGoodsAreaDao extends Dao<CollectGoodsArea> {
 
+    int findExistByAreaCode(CollectGoodsArea e);
 
+    List<CollectGoodsArea> findBySiteCode(CollectGoodsArea e);
 }

@@ -696,7 +696,7 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         if(result!=null && result.getStatusCode() == com.jd.bluedragon.sdk.modules.quarantine.dto.BaseResult.SUCCESS_CODE) {
             return result.getData();
         }
-        return StringUtils.EMPTY;
+        return "[]";
     }
 
 }

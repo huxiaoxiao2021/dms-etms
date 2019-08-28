@@ -11,6 +11,8 @@ import com.jd.bluedragon.distribution.collect.domain.CollectGoodsArea;
 import com.jd.bluedragon.distribution.collect.dao.CollectGoodsAreaDao;
 import com.jd.bluedragon.distribution.collect.service.CollectGoodsAreaService;
 
+import java.util.List;
+
 /**
  *
  * @ClassName: CollectGoodsAreaServiceImpl
@@ -31,4 +33,14 @@ public class CollectGoodsAreaServiceImpl extends BaseService<CollectGoodsArea> i
 		return this.collectGoodsAreaDao;
 	}
 
+
+	@Override
+	public boolean findExistByAreaCode(CollectGoodsArea e) {
+		return collectGoodsAreaDao.findExistByAreaCode(e)>0?true:false;
+	}
+
+	@Override
+	public List<CollectGoodsArea> findBySiteCode(CollectGoodsArea e) {
+		return collectGoodsAreaDao.findBySiteCode(e);
+	}
 }

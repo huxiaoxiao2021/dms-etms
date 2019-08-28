@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.collect.dao;
 import com.jd.bluedragon.distribution.collect.domain.CollectGoodsPlaceType;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 
+import java.util.List;
+
 /**
  *
  * @ClassName: CollectGoodsPlaceTypeDao
@@ -13,5 +15,9 @@ import com.jd.ql.dms.common.web.mvc.api.Dao;
  */
 public interface CollectGoodsPlaceTypeDao extends Dao<CollectGoodsPlaceType> {
 
+    int findExistByCreateSiteCode(CollectGoodsPlaceType e);
 
+    List<CollectGoodsPlaceType> findByCreateSiteCode(CollectGoodsPlaceType e);
+
+    int deleteByCreateSiteCode(CollectGoodsPlaceType e);
 }

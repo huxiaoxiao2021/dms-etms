@@ -198,4 +198,11 @@ public interface WaybillCommonService {
 	 * @return
 	 */
 	InvokeResult<Integer> getPackNum(String waybillCode);
+
+	/**
+	 * 校验包裹是否存在
+	 * @param packCode
+	 * @return
+	 */
+	boolean checkPackExist(String packCode);
 }

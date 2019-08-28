@@ -6,6 +6,8 @@ import com.jd.bluedragon.distribution.collect.domain.CollectGoodsArea;
 import com.jd.bluedragon.distribution.collect.dao.CollectGoodsAreaDao;
 import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
 
+import java.util.List;
+
 /**
  *
  * @ClassName: CollectGoodsAreaDaoImpl
@@ -18,4 +20,13 @@ import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
 public class CollectGoodsAreaDaoImpl extends BaseDao<CollectGoodsArea> implements CollectGoodsAreaDao {
 
 
+    @Override
+    public int findExistByAreaCode(CollectGoodsArea e) {
+        return sqlSession.selectOne(this.nameSpace+".findExistByAreaCode", e);
+    }
+
+    @Override
+    public List<CollectGoodsArea> findBySiteCode(CollectGoodsArea e) {
+        return sqlSession.selectList(this.nameSpace+".findBySiteCode", e);
+    }
 }

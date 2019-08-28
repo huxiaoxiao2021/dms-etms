@@ -28,6 +28,9 @@ public class CollectGoodsDetail extends DbEntity {
 
 	 /** 包裹号 */
 	private String packageCode;
+	/** 运单号 */
+	private String waybillCode;
+
 
 	 /** 包裹总数 */
 	private Integer packageCount;
@@ -43,6 +46,8 @@ public class CollectGoodsDetail extends DbEntity {
 
 	 /** 修改用户 */
 	private String updateUser;
+
+	private Integer scanPackageCount;
 
 	/**
 	 * The set method for collectGoodsPlaceCode.
@@ -204,5 +209,19 @@ public class CollectGoodsDetail extends DbEntity {
 		return this.updateUser;
 	}
 
+	public String getWaybillCode() {
+		return waybillCode;
+	}
 
+	public void setWaybillCode(String waybillCode) {
+		this.waybillCode = waybillCode;
+	}
+
+	public Integer getScanPackageCount() {
+		return scanPackageCount;
+	}
+
+	public void setScanPackageCount(Integer scanPackageCount) {
+		this.scanPackageCount = scanPackageCount;
+	}
 }

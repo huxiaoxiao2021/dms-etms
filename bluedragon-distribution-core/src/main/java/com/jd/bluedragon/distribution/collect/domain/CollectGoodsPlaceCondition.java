@@ -1,6 +1,10 @@
 package com.jd.bluedragon.distribution.collect.domain;
 
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
+
+import java.util.Date;
 
 /**
  *
@@ -40,6 +44,26 @@ public class CollectGoodsPlaceCondition extends BasePagerCondition {
 
 	 /** 修改用户 */
 	private String updateUser;
+
+	/** 小单最大包裹数*/
+	private Integer smallPackMaxNum;
+	/** 中单最大包裹数*/
+	private Integer middlePackMaxNum;
+	/** 小单单最大运单数*/
+	private Integer smallWaybillMaxNum;
+	/** 中单最大运单数*/
+	private Integer middleWaybillMaxNum;
+	/** 大单最大运单数*/
+	private Integer bigWaybillMaxNum;
+
+	private Date createTimeGE;
+	private Date createTimeLE;
+	private Date updateTimeGE;
+	private Date updateTimeLE;
+	private String createTimeGEStr;
+	private String createTimeLEStr;
+	private String updateTimeGEStr;
+	private String updateTimeLEStr;
 
 	/**
 	 * The set method for collectGoodsPlaceCode.
@@ -185,5 +209,111 @@ public class CollectGoodsPlaceCondition extends BasePagerCondition {
 		return this.updateUser;
 	}
 
+	public Integer getSmallPackMaxNum() {
+		return smallPackMaxNum;
+	}
 
+	public void setSmallPackMaxNum(Integer smallPackMaxNum) {
+		this.smallPackMaxNum = smallPackMaxNum;
+	}
+
+	public Integer getMiddlePackMaxNum() {
+		return middlePackMaxNum;
+	}
+
+	public void setMiddlePackMaxNum(Integer middlePackMaxNum) {
+		this.middlePackMaxNum = middlePackMaxNum;
+	}
+
+	public Integer getSmallWaybillMaxNum() {
+		return smallWaybillMaxNum;
+	}
+
+	public void setSmallWaybillMaxNum(Integer smallWaybillMaxNum) {
+		this.smallWaybillMaxNum = smallWaybillMaxNum;
+	}
+
+	public Integer getMiddleWaybillMaxNum() {
+		return middleWaybillMaxNum;
+	}
+
+	public void setMiddleWaybillMaxNum(Integer middleWaybillMaxNum) {
+		this.middleWaybillMaxNum = middleWaybillMaxNum;
+	}
+
+	public Integer getBigWaybillMaxNum() {
+		return bigWaybillMaxNum;
+	}
+
+	public void setBigWaybillMaxNum(Integer bigWaybillMaxNum) {
+		this.bigWaybillMaxNum = bigWaybillMaxNum;
+	}
+
+	public String getCreateTimeGEStr() {
+		return createTimeGEStr;
+	}
+
+	public void setCreateTimeGEStr(String createTimeGEStr) {
+		this.createTimeGEStr = createTimeGEStr;
+		setCreateTimeGE(DateHelper.parseDate(createTimeGEStr, Constants.DATE_TIME_FORMAT));
+	}
+
+	public String getCreateTimeLEStr() {
+		return createTimeLEStr;
+	}
+
+	public void setCreateTimeLEStr(String createTimeLEStr) {
+		this.createTimeLEStr = createTimeLEStr;
+		setCreateTimeLE(DateHelper.parseDate(createTimeLEStr, Constants.DATE_TIME_FORMAT));
+	}
+
+	public String getUpdateTimeGEStr() {
+		return updateTimeGEStr;
+	}
+
+	public void setUpdateTimeGEStr(String updateTimeGEStr) {
+		this.updateTimeGEStr = updateTimeGEStr;
+		setUpdateTimeGE(DateHelper.parseDate(updateTimeGEStr, Constants.DATE_TIME_FORMAT));
+	}
+
+	public String getUpdateTimeLEStr() {
+		return updateTimeLEStr;
+	}
+
+	public void setUpdateTimeLEStr(String updateTimeLEStr) {
+		this.updateTimeLEStr = updateTimeLEStr;
+		setUpdateTimeLE(DateHelper.parseDate(updateTimeLEStr, Constants.DATE_TIME_FORMAT));
+	}
+
+	public Date getCreateTimeGE() {
+		return createTimeGE;
+	}
+
+	public void setCreateTimeGE(Date createTimeGE) {
+		this.createTimeGE = createTimeGE;
+	}
+
+	public Date getCreateTimeLE() {
+		return createTimeLE;
+	}
+
+	public void setCreateTimeLE(Date createTimeLE) {
+		this.createTimeLE = createTimeLE;
+	}
+
+	public Date getUpdateTimeGE() {
+		return updateTimeGE;
+	}
+
+	public void setUpdateTimeGE(Date updateTimeGE) {
+		this.updateTimeGE = updateTimeGE;
+	}
+
+	public Date getUpdateTimeLE() {
+		return updateTimeLE;
+	}
+
+	public void setUpdateTimeLE(Date updateTimeLE) {
+		this.updateTimeLE = updateTimeLE;
+	}
 }

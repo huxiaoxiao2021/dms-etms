@@ -524,4 +524,19 @@
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
 
+    <!-- 转运集货 -->
+    <bean id="collectGoodsAreaDao" class="com.jd.bluedragon.distribution.collect.dao.impl.CollectGoodsAreaDaoImpl">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+    <bean id="collectGoodsPlaceDao" class="com.jd.bluedragon.distribution.collect.dao.impl.CollectGoodsPlaceDaoImpl">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+    <bean id="collectGoodsPlaceTypeDao" class="com.jd.bluedragon.distribution.collect.dao.impl.CollectGoodsPlaceTypeDaoImpl">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+    <bean id="collectGoodsDetailDao" class="com.jd.bluedragon.distribution.collect.dao.impl.CollectGoodsDetailDaoImpl">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
+
 </beans>

@@ -26,8 +26,12 @@ public class CollectGoodsPlace extends DbEntity {
 	 /** 集货位类型 */
 	private Integer collectGoodsPlaceType;
 
-	 /** 集货位状态 0-空闲 1-非空闲 */
+	 /** 集货位状态 0-空闲 1-非空闲 2-已满*/
 	private Integer collectGoodsPlaceStatus;
+	/**
+	 * 已扫运单数
+	 */
+	private Integer scanWaybillNum;
 
 	 /** 所属站点编码 */
 	private Integer createSiteCode;
@@ -186,4 +190,11 @@ public class CollectGoodsPlace extends DbEntity {
 	}
 
 
+	public Integer getScanWaybillNum() {
+		return scanWaybillNum;
+	}
+
+	public void setScanWaybillNum(Integer scanWaybillNum) {
+		this.scanWaybillNum = scanWaybillNum;
+	}
 }

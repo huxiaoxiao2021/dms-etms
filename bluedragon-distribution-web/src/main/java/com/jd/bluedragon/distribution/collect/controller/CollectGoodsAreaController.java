@@ -2,6 +2,9 @@ package com.jd.bluedragon.distribution.collect.controller;
 
 import java.util.List;
 
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.web.ErpUserClient;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +36,8 @@ public class CollectGoodsAreaController {
 
 	@Autowired
 	private CollectGoodsAreaService collectGoodsAreaService;
-
+	@Autowired
+	BaseMajorManager baseMajorManager;
 	/**
 	 * 返回主页面
 	 * @return
@@ -96,4 +100,37 @@ public class CollectGoodsAreaController {
 		rest.setData(collectGoodsAreaService.queryByPagerCondition(collectGoodsAreaCondition));
 		return rest.getData();
 	}
+
+	/**
+	 * 校验集货区编码是否已存在
+	 * @param collectGoodsArea
+	 * @return
+	 */
+	@RequestMapping(value = "/check")
+	public @ResponseBody JdResponse<Boolean> check(@RequestBody CollectGoodsArea collectGoodsArea) {
+		JdResponse<Boolean> rest = new JdResponse<Boolean>();
+		try {
+			Integer createSiteCode = collectGoodsArea.getCreateSiteCode();
+			if(collectGoodsArea.getCreateSiteCode() == null || new Integer(0).equals(collectGoodsArea.getCreateSiteCode())){
+				ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+				String userCode;
+				if(erpUser!=null){
+					userCode = erpUser.getUserCode();
+					BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(userCode);
+					if (bssod!=null && bssod.getSiteType() == 64) {/** 站点类型为64的时候为分拣中心 **/
+						createSiteCode = bssod.getSiteCode();
+					}
+				}
+			}
+
+			collectGoodsArea.setCreateSiteCode(createSiteCode);
+
+			rest.setData(collectGoodsAreaService.findExistByAreaCode(collectGoodsArea));
+		} catch (Exception e) {
+			logger.error("fail to save！"+e.getMessage(),e);
+			rest.toError("服务异常！");
+		}
+		return rest;
+	}
+
 }

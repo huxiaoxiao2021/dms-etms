@@ -25,9 +25,7 @@
 		insert into collect_goods_area
 			(
 			<trim suffixOverrides=",">
-				<if test="id != null">
-					id,
-				</if>
+
 				<if test="collectGoodsAreaCode != null">
 					collect_goods_area_code,
 				</if>
@@ -43,29 +41,21 @@
 				<if test="createUser != null">
 					create_user,
 				</if>
-				<if test="updateUser != null">
-					update_user,
-				</if>
+
 				<if test="createTime != null">
 					create_time,
 				</if>
-				<if test="updateTime != null">
-					update_time,
-				</if>
+
 				<if test="isDelete != null">
-					is_delete,
+					is_delete
 				</if>
-				<if test="ts != null">
-					ts
-				</if>
+
 			</trim>
 			)
 			values
 			(
 			<trim suffixOverrides=",">
-				<if test="id != null">
-					#{id,jdbcType=BIGINT},
-				</if>
+
 				<if test="collectGoodsAreaCode != null">
 					#{collectGoodsAreaCode,jdbcType=VARCHAR},
 				</if>
@@ -81,21 +71,11 @@
 				<if test="createUser != null">
 					#{createUser,jdbcType=VARCHAR},
 				</if>
-				<if test="updateUser != null">
-					#{updateUser,jdbcType=VARCHAR},
-				</if>
-				<if test="createTime != null">
-					#{createTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="updateTime != null">
-					#{updateTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="isDelete != null">
-					#{isDelete,jdbcType=TINYINT},
-				</if>
-				<if test="ts != null">
-					#{ts,jdbcType=TIMESTAMP}
-				</if>
+
+				now(),
+
+				0
+
 			</trim>
 			)
 	</insert>
@@ -104,8 +84,8 @@
 		insert into collect_goods_area
 			(
 				collect_goods_area_code,collect_goods_area_name,create_site_code,create_site_name,
-				create_user,update_user,create_time,update_time,is_delete,
-				ts
+				create_user,create_time,is_delete
+
 			)
 			values
 			<foreach collection="list" item="item" index="index" separator=",">
@@ -115,11 +95,11 @@
 					#{item.createSiteCode,jdbcType=INTEGER},
 					#{item.createSiteName,jdbcType=VARCHAR},
 					#{item.createUser,jdbcType=VARCHAR},
-					#{item.updateUser,jdbcType=VARCHAR},
-					#{item.createTime,jdbcType=TIMESTAMP},
-					#{item.updateTime,jdbcType=TIMESTAMP},
-					#{item.isDelete,jdbcType=TINYINT},
-					#{item.ts,jdbcType=TIMESTAMP}
+
+					now(),
+
+					0
+
 				)
 			</foreach>
 	</insert>
@@ -192,6 +172,25 @@
 		where id = #{id,jdbcType=BIGINT}
 		  order by ts desc
 		limit 1
+	</select>
+	<select id="findExistByAreaCode" parameterType="com.jd.bluedragon.distribution.collect.domain.CollectGoodsArea" resultType="Integer">
+		select
+		count(1)
+		from
+		collect_goods_area
+		where collect_goods_area_code = #{collectGoodsAreaCode,jdbcType=BIGINT}
+		and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+	    and is_delete=0
+
+	</select>
+	<select id="findBySiteCode" parameterType="com.jd.bluedragon.distribution.collect.domain.CollectGoodsArea" resultMap="CollectGoodsArea">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		collect_goods_area
+		where create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		and is_delete=0
+
 	</select>
 
 	<sql id="Base_Condition_Sql" >

@@ -9,6 +9,7 @@
 		<result column="collect_goods_area_code" property="collectGoodsAreaCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="collect_goods_place_type" property="collectGoodsPlaceType" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="collect_goods_place_status" property="collectGoodsPlaceStatus" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="scan_waybill_num" property="scanWaybillNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="create_site_code" property="createSiteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="create_site_name" property="createSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -21,7 +22,7 @@
 
 	<sql id="Base_Column_List" >
 		id,collect_goods_place_code,collect_goods_place_name,collect_goods_area_code,collect_goods_place_type,collect_goods_place_status,
-		create_site_code,create_site_name,create_user,update_user,create_time,
+		scan_waybill_num,create_site_code,create_site_name,create_user,update_user,create_time,
 		update_time,is_delete,ts
 	</sql>
 
@@ -126,8 +127,8 @@
 		insert into collect_goods_place
 			(
 				collect_goods_place_code,collect_goods_place_name,collect_goods_area_code,collect_goods_place_type,
-				collect_goods_place_status,create_site_code,create_site_name,create_user,update_user,
-				create_time,update_time,is_delete,ts
+				collect_goods_place_status,create_site_code,create_site_name,create_user,
+				create_time,is_delete
 			)
 			values
 			<foreach collection="list" item="item" index="index" separator=",">
@@ -136,15 +137,13 @@
 					#{item.collectGoodsPlaceName,jdbcType=VARCHAR},
 					#{item.collectGoodsAreaCode,jdbcType=VARCHAR},
 					#{item.collectGoodsPlaceType,jdbcType=INTEGER},
-					#{item.collectGoodsPlaceStatus,jdbcType=INTEGER},
+					0,
 					#{item.createSiteCode,jdbcType=INTEGER},
 					#{item.createSiteName,jdbcType=VARCHAR},
 					#{item.createUser,jdbcType=VARCHAR},
-					#{item.updateUser,jdbcType=VARCHAR},
-					#{item.createTime,jdbcType=TIMESTAMP},
-					#{item.updateTime,jdbcType=TIMESTAMP},
-					#{item.isDelete,jdbcType=TINYINT},
-					#{item.ts,jdbcType=TIMESTAMP}
+					now(),
+					0
+
 				)
 			</foreach>
 	</insert>
@@ -173,24 +172,15 @@
 				<if test="createSiteName != null">
 					create_site_name = #{createSiteName,jdbcType=VARCHAR},
 				</if>
-				<if test="createUser != null">
-					create_user = #{createUser,jdbcType=VARCHAR},
-				</if>
+
 				<if test="updateUser != null">
 					update_user = #{updateUser,jdbcType=VARCHAR},
 				</if>
-				<if test="createTime != null">
-					create_time = #{createTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="updateTime != null">
-					update_time = #{updateTime,jdbcType=TIMESTAMP},
-				</if>
+
 				<if test="isDelete != null">
-					is_delete = #{isDelete,jdbcType=TINYINT},
+					is_delete = #{isDelete,jdbcType=TINYINT}
 				</if>
-				<if test="ts != null">
-					ts = #{ts,jdbcType=TIMESTAMP}
-				</if>
+				update_time = now()
 			</set>
 		where id = #{id,jdbcType=BIGINT}
 	</update>
@@ -210,6 +200,24 @@
 		</foreach>
 	</update>
 
+
+	<update id="updateStatus" parameterType="com.jd.bluedragon.distribution.collect.domain.CollectGoodsPlace">
+		update collect_goods_place
+		set
+		<if test="scanWaybillNum != null">
+			scan_waybill_num = #{scanWaybillNum,jdbcType=INTEGER},
+		</if>
+		collect_goods_place_status = #{collectGoodsPlaceStatus,jdbcType=INTEGER}
+
+		where create_site_code = #{createSiteCode,jdbcType=BIGINT}
+		<if test="collectGoodsPlaceCode != null">
+			and collect_goods_place_code = #{collectGoodsPlaceCode,jdbcType=VARCHAR}
+		</if>
+		<if test="collectGoodsAreaCode != null">
+			and collect_goods_area_code = #{collectGoodsAreaCode,jdbcType=VARCHAR}
+		</if>
+		and is_delete=0
+	</update>
 	<select id="findById" parameterType="Long" resultMap="CollectGoodsPlace">
 		select 
 		 <include refid="Base_Column_List"/>
@@ -232,13 +240,94 @@
 			and is_delete=0 
 	</sql>
 
+	<select id="findPlaceNotEmpty" parameterType="com.jd.bluedragon.distribution.collect.domain.CollectGoodsPlace" resultType="Integer">
+		select
+		count(1)
+		from
+		collect_goods_place
+		where create_site_code = #{createSiteCode,jdbcType=BIGINT}
+		and collect_goods_place_code = #{collectGoodsPlaceCode,jdbcType=VARCHAR}
+		and collect_goods_place_status = 1
+		and is_delete=0
+	</select>
+
+	<select id="findAbnormalPlace" parameterType="com.jd.bluedragon.distribution.collect.domain.CollectGoodsPlace" resultMap="CollectGoodsPlace">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		collect_goods_place
+		where create_site_code = #{createSiteCode,jdbcType=BIGINT}
+		and collect_goods_area_code = #{collectGoodsAreaCode,jdbcType=VARCHAR}
+		and collect_goods_place_type = #{collectGoodsPlaceType,jdbcType=INTEGER}
+		and is_delete=0
+		limit 1
+	</select>
+
+	<select id="findPlaceByCode" parameterType="com.jd.bluedragon.distribution.collect.domain.CollectGoodsPlace" resultMap="CollectGoodsPlace">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		collect_goods_place
+		where create_site_code = #{createSiteCode,jdbcType=BIGINT}
+		and collect_goods_place_code = #{collectGoodsPlaceCode,jdbcType=VARCHAR}
+		and is_delete=0
+		limit 1
+	</select>
+
+	<select id="findPlaceByAreaCode" parameterType="com.jd.bluedragon.distribution.collect.domain.CollectGoodsPlace" resultMap="CollectGoodsPlace">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		collect_goods_place
+		where create_site_code = #{createSiteCode,jdbcType=BIGINT}
+		and collect_goods_area_code = #{collectGoodsAreaCode,jdbcType=VARCHAR}
+		and is_delete=0
+
+	</select>
+
+	<sql id="Query_Params_Condition_Sql">
+		<if test="createSiteCode != null">
+			and create_site_code = #{createSiteCode,jdbcType=BIGINT}
+		</if>
+		<if test="createTimeGE != null and createTimeLE !=null">
+			and create_time BETWEEN #{createTimeGE} and #{createTimeLE}
+		</if>
+		<if test="createTimeGE != null and createTimeLE ==null">
+			and  <![CDATA[   create_time >= #{createTimeGE}  ]]>
+		</if>
+		<if test="createTimeGE == null and createTimeLE !=null">
+			and  <![CDATA[   create_time <= #{createTimeLE}  ]]>
+		</if>
+
+		<if test="updateTimeGE != null and updateTimeLE !=null">
+			and update_time BETWEEN #{updateTimeGE} and #{updateTimeLE}
+		</if>
+		<if test="updateTimeGE != null and updateTimeLE ==null">
+			and  <![CDATA[   update_time >= #{updateTimeGE}  ]]>
+		</if>
+		<if test="updateTimeGE == null and updateTimeLE !=null">
+			and  <![CDATA[   update_time <= #{updateTimeLE}  ]]>
+		</if>
+
+		<if test="collectGoodsPlaceCode != null">
+			and collect_goods_place_code = #{collectGoodsPlaceCode,jdbcType=VARCHAR}
+		</if>
+		<if test="collectGoodsAreaCode != null">
+			and collect_goods_area_code = #{collectGoodsAreaCode,jdbcType=VARCHAR}
+		</if>
+		<if test="collectGoodsPlaceType != null">
+			and collect_goods_place_type = #{collectGoodsPlaceType,jdbcType=INTEGER}
+		</if>
+	</sql>
+
 	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
 		select 
 		 count(1) as num
 		from 
 		  collect_goods_place 
 		where 1=1 
-		 <include refid="Base_Condition_Sql"/>
+		 	<include refid="Base_Condition_Sql"/>
+			<include refid="Query_Params_Condition_Sql"/>
 	</select>
 
 	<select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="CollectGoodsPlace">
@@ -247,7 +336,9 @@
 		from 
 		  collect_goods_place 
 		where 1=1 
-		 <include refid="Base_Condition_Sql"/>
+			<include refid="Base_Condition_Sql"/>
+			<include refid="Query_Params_Condition_Sql"/>
+
 		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
 	</select>
 

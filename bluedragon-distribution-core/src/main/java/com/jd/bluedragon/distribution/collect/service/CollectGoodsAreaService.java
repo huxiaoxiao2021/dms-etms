@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.collect.service;
 import com.jd.bluedragon.distribution.collect.domain.CollectGoodsArea;
 import com.jd.ql.dms.common.web.mvc.api.Service;
 
+import java.util.List;
+
 /**
  *
  * @ClassName: CollectGoodsAreaService
@@ -14,4 +16,6 @@ import com.jd.ql.dms.common.web.mvc.api.Service;
 public interface CollectGoodsAreaService extends Service<CollectGoodsArea> {
 
 
+    boolean findExistByAreaCode(CollectGoodsArea e);
+    List<CollectGoodsArea> findBySiteCode(CollectGoodsArea e);
 }

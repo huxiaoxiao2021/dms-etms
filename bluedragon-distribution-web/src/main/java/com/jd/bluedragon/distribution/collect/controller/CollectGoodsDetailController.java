@@ -2,10 +2,15 @@ package com.jd.bluedragon.distribution.collect.controller;
 
 import java.util.List;
 
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.web.ErpUserClient;
+import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +21,7 @@ import com.jd.bluedragon.distribution.collect.domain.CollectGoodsDetailCondition
 import com.jd.bluedragon.distribution.collect.service.CollectGoodsDetailService;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import org.springframework.web.servlet.ModelAndView;
 
 /**
  *
@@ -34,12 +40,31 @@ public class CollectGoodsDetailController {
 	@Autowired
 	private CollectGoodsDetailService collectGoodsDetailService;
 
+	@Autowired
+	BaseMajorManager baseMajorManager;
+
 	/**
 	 * 返回主页面
 	 * @return
 	 */
 	@RequestMapping(value = "/toIndex")
-	public String toIndex() {
+	public String toIndex(Model model) {
+
+		ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+		String userCode = "";
+		Long createSiteCode = new Long(-1);
+		Integer orgId = new Integer(-1);
+
+		if(erpUser!=null){
+			userCode = erpUser.getUserCode();
+			BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(userCode);
+			if (bssod!=null && bssod.getSiteType() == 64) {/** 站点类型为64的时候为分拣中心 **/
+				createSiteCode = new Long(bssod.getSiteCode());
+				orgId = bssod.getOrgId();
+			}
+		}
+
+		model.addAttribute("orgId",orgId).addAttribute("createSiteCode",createSiteCode);
 		return "/collect/collectGoodsDetail";
 	}
 	/**
@@ -95,5 +120,37 @@ public class CollectGoodsDetailController {
 		JdResponse<PagerResult<CollectGoodsDetail>> rest = new JdResponse<PagerResult<CollectGoodsDetail>>();
 		rest.setData(collectGoodsDetailService.queryByPagerCondition(collectGoodsDetailCondition));
 		return rest.getData();
+	}
+
+
+
+	/**
+	 * 获取明细
+	 * @param collectGoodsDetailCondition
+	 * @return
+	 */
+	@RequestMapping(value = "/showViews")
+	public @ResponseBody JdResponse<List<CollectGoodsDetail>> showViews(@RequestBody CollectGoodsDetailCondition collectGoodsDetailCondition) {
+		JdResponse<List<CollectGoodsDetail>> rest = new JdResponse<>();
+		rest.setData(collectGoodsDetailService.queryByCondition(collectGoodsDetailCondition));
+		return rest;
+	}
+
+	@RequestMapping(value = "/toExport")
+	public ModelAndView toExport(CollectGoodsDetailCondition collectGoodsDetailCondition, Model model) {
+		try {
+
+			List<List<Object>> resultList = collectGoodsDetailService.getExportData(collectGoodsDetailCondition);
+
+			model.addAttribute("filename", "集货报表.xls");
+			model.addAttribute("sheetname", "集货数据");
+			model.addAttribute("contents", resultList);
+
+			return new ModelAndView(new DefaultExcelView(), model.asMap());
+
+		} catch (Exception e) {
+			logger.error("toExport:" + e.getMessage(), e);
+			return null;
+		}
 	}
 }

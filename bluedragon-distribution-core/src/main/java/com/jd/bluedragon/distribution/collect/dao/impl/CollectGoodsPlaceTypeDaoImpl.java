@@ -6,6 +6,8 @@ import com.jd.bluedragon.distribution.collect.domain.CollectGoodsPlaceType;
 import com.jd.bluedragon.distribution.collect.dao.CollectGoodsPlaceTypeDao;
 import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
 
+import java.util.List;
+
 /**
  *
  * @ClassName: CollectGoodsPlaceTypeDaoImpl
@@ -17,5 +19,20 @@ import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
 @Repository("collectGoodsPlaceTypeDao")
 public class CollectGoodsPlaceTypeDaoImpl extends BaseDao<CollectGoodsPlaceType> implements CollectGoodsPlaceTypeDao {
 
+
+    @Override
+    public int findExistByCreateSiteCode(CollectGoodsPlaceType e) {
+        return sqlSession.selectOne(this.nameSpace+".findExistByCreateSiteCode", e);
+    }
+
+    @Override
+    public List<CollectGoodsPlaceType> findByCreateSiteCode(CollectGoodsPlaceType e) {
+        return sqlSession.selectList(this.nameSpace+".findByCreateSiteCode", e);
+    }
+
+    @Override
+    public int deleteByCreateSiteCode(CollectGoodsPlaceType e) {
+        return sqlSession.update(this.nameSpace+".deleteByCreateSiteCode", e);
+    }
 
 }

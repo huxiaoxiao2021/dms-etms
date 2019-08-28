@@ -1,7 +1,10 @@
 package com.jd.bluedragon.distribution.collect.dao;
 
 import com.jd.bluedragon.distribution.collect.domain.CollectGoodsDetail;
+import com.jd.bluedragon.distribution.collect.domain.CollectGoodsDetailCondition;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
+
+import java.util.List;
 
 /**
  *
@@ -13,5 +16,13 @@ import com.jd.ql.dms.common.web.mvc.api.Dao;
  */
 public interface CollectGoodsDetailDao extends Dao<CollectGoodsDetail> {
 
+    int deleteByCollectGoodsDetail(CollectGoodsDetail collectGoodsDetail);
 
+    boolean transfer(String sourcePlaceCode, String targetPlaceCode,Integer targetPlaceType, Integer createSiteCode, String waybillCode);
+
+    int findCount(CollectGoodsDetail collectGoodsDetail);
+
+    List<CollectGoodsDetailCondition> findSacnWaybill(CollectGoodsDetail collectGoodsDetail);
+
+    List<CollectGoodsDetail> queryByCondition(CollectGoodsDetailCondition collectGoodsDetailCondition);
 }
