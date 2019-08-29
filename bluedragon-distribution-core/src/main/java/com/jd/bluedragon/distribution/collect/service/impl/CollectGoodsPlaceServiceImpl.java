@@ -191,6 +191,11 @@ public class CollectGoodsPlaceServiceImpl extends BaseService<CollectGoodsPlace>
         //所属货位类型
         CollectGoodsPlaceTypeEnum belongsType = null;
         CollectGoodsPlace belongsPlace = null;
+        //获取当前站点配置的站点类型
+        CollectGoodsPlaceType queryPlaceTypeParam = new CollectGoodsPlaceType();
+        queryPlaceTypeParam.setCreateSiteCode(createSiteCode);
+        List<CollectGoodsPlaceType> allPlaceTypes = collectGoodsPlaceTypeService.findByCreateSiteCode(queryPlaceTypeParam);
+
         //查找此包裹对应的运单是否已上过某个货位
         CollectGoodsDetail queryParam = new CollectGoodsDetail();
         queryParam.setWaybillCode(WaybillUtil.getWaybillCode(packageCode));
@@ -225,9 +230,7 @@ public class CollectGoodsPlaceServiceImpl extends BaseService<CollectGoodsPlace>
             if(allPlaces==null || allPlaces.isEmpty()){
                 throw new CollectException("集货区下未查询到集货位");
             }
-            CollectGoodsPlaceType queryPlaceTypeParam = new CollectGoodsPlaceType();
-            queryPlaceTypeParam.setCreateSiteCode(createSiteCode);
-            List<CollectGoodsPlaceType> allPlaceTypes = collectGoodsPlaceTypeService.findByCreateSiteCode(queryPlaceTypeParam);
+
 
             //根据包裹总数判断 货位类型
             for(CollectGoodsPlaceType collectGoodsPlaceType : allPlaceTypes){
@@ -255,13 +258,12 @@ public class CollectGoodsPlaceServiceImpl extends BaseService<CollectGoodsPlace>
             if(belongsPlace == null){
                 return null;
             }
-            //最后获取最大扫描运单数
-            for(CollectGoodsPlaceType collectGoodsPlaceType : allPlaceTypes){
-                if(collectGoodsPlaceType.getCollectGoodsPlaceType().equals(belongsPlace.getCollectGoodsPlaceType())){
-                    maxScanWaybillNum = collectGoodsPlaceType.getMaxWaybillNum();
-                }
+        }
+        //最后获取最大扫描运单数
+        for(CollectGoodsPlaceType collectGoodsPlaceType : allPlaceTypes){
+            if(collectGoodsPlaceType.getCollectGoodsPlaceType().equals(belongsPlace.getCollectGoodsPlaceType())){
+                maxScanWaybillNum = collectGoodsPlaceType.getMaxWaybillNum();
             }
-
         }
 
         //更新推荐储位状态
@@ -383,6 +385,16 @@ public class CollectGoodsPlaceServiceImpl extends BaseService<CollectGoodsPlace>
         param.setCreateSiteCode(createSiteCode);
         param.setCollectGoodsPlaceCode(placeCode);
         return collectGoodsPlaceDao.findPlaceByCode(param);
+    }
+
+    @Override
+    public boolean deleteByAreaCode(List<String> codes) {
+        return collectGoodsPlaceDao.deleteByAreaCode(codes) > 0;
+    }
+
+    @Override
+    public List<CollectGoodsPlace> findPlaceByAreaCode(CollectGoodsPlace collectGoodsPlace) {
+        return collectGoodsPlaceDao.findPlaceByAreaCode(collectGoodsPlace);
     }
 
 

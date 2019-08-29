@@ -3,6 +3,7 @@ $(function() {
     var updateUrl = '/collect/collectGoodsPlace/update';
     var saveTypeUrl = '/collect/collectGoodsPlace/saveType';
 	var deleteUrl = '/collect/collectGoodsPlace/deleteByIds';
+    var deleteAreaUrl = '/collect/collectGoodsArea/deleteByCodes';
   	var detailUrl = '/collect/collectGoodsPlace/detail/';
   	var queryUrl = '/collect/collectGoodsPlace/listData';
     var checkAreaCodeUrl = '/collect/collectGoodsArea/check';
@@ -279,6 +280,41 @@ $(function() {
 				    });
 				}
 			});
+
+            // 删
+            $('#btn_area_delete').click(function() {
+                var rows = $('#dataTable').bootstrapTable('getSelections');
+                if (rows.length < 1) {
+                    alert("错误，未选中数据");
+                    return;
+                }
+                var params = [];
+                var confirmMsg = "是否删除这些数据? 集货区:";
+                for(var i in rows){
+                    if(params.indexOf(rows[i].collectGoodsAreaCode)==-1){
+                        params.push(rows[i].collectGoodsAreaCode);
+                        confirmMsg += rows[i].collectGoodsAreaCode+" ";
+                    }
+
+                    if (rows[i].collectGoodsPlaceStatus != 0) {
+                        alert("不允许删除非空闲的集货位");
+                        return;
+                    }
+                };
+
+                var flag = confirm(confirmMsg);
+                if (flag == true) {
+                    $.ajaxHelper.doPostSync(deleteAreaUrl,JSON.stringify(params),function(res){
+                        if(res&&res.succeed&&res.data){
+                            alert('操作成功!');
+                            tableInit().refresh();
+                        }else{
+                            alert(res.message);
+                        }
+                    });
+                }
+            });
+
 			$('#btn_submit').click(function() {
 				var params = {};
 				$('.edit-param').each(function () {
@@ -441,6 +477,20 @@ $(function() {
                 return true;
             }
 
+            function checkWaybillMaxNum(){
+
+                var smallWaybillMaxNum = $("#smallWaybillMaxNum").val();
+                var middleWaybillMaxNum = $("#middleWaybillMaxNum").val();
+                var bigWaybillMaxNum = $("#bigWaybillMaxNum").val();
+                var reg1 = /^[1-9][0-9]?$/;
+                if(!reg1.test(smallWaybillMaxNum) || !reg1.test(middleWaybillMaxNum) || !reg1.test(bigWaybillMaxNum)){
+                    alert("可存放单据范围0到99！请重新输入");
+                    return false;
+                }
+                return true;
+            }
+
+
 			function checkPlaceAdd(){
 				var collectGoodsArea = $("#collect-goods-area").val();
                 var collectGoodsPlaceNum = $("#collect-goods-place-num").val();
@@ -469,7 +519,7 @@ $(function() {
              */
 			$("#btn-collect-goods-palce-type").click(function(){
 
-				if(checkSmallPackMaxNum()&&checkMiddlePackMaxNum()){
+				if(checkSmallPackMaxNum()&&checkMiddlePackMaxNum()&&checkWaybillMaxNum()){
 					//校验通过提交数据
 					var params = {"createSiteCode":$("#loginUserCreateSiteCode").val()};
                     $('#place-type-change-form .edit-param').each(function () {

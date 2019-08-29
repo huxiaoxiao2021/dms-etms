@@ -18,4 +18,6 @@ public interface CollectGoodsAreaService extends Service<CollectGoodsArea> {
 
     boolean findExistByAreaCode(CollectGoodsArea e);
     List<CollectGoodsArea> findBySiteCode(CollectGoodsArea e);
+
+    boolean deleteByCode(List<String> codes);
 }

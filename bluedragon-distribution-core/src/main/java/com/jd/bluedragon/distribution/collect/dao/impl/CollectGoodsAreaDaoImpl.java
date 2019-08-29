@@ -29,4 +29,9 @@ public class CollectGoodsAreaDaoImpl extends BaseDao<CollectGoodsArea> implement
     public List<CollectGoodsArea> findBySiteCode(CollectGoodsArea e) {
         return sqlSession.selectList(this.nameSpace+".findBySiteCode", e);
     }
+
+    @Override
+    public int deleteByCode(List<String> codes) {
+        return sqlSession.delete(this.nameSpace+".deleteByCode", codes);
+    }
 }

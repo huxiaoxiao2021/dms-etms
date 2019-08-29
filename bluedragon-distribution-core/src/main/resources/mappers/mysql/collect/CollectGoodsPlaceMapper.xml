@@ -200,6 +200,13 @@
 		</foreach>
 	</update>
 
+	<delete id="deleteByAreaCode" parameterType="List">
+		delete from collect_goods_place
+		where collect_goods_area_code in
+		<foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+			#{item,jdbcType=VARCHAR}
+		</foreach>
+	</delete>
 
 	<update id="updateStatus" parameterType="com.jd.bluedragon.distribution.collect.domain.CollectGoodsPlace">
 		update collect_goods_place

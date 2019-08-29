@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.collect.service.impl;
 
+import com.jd.bluedragon.distribution.collect.service.CollectGoodsPlaceService;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 
@@ -28,6 +29,10 @@ public class CollectGoodsAreaServiceImpl extends BaseService<CollectGoodsArea> i
 	@Qualifier("collectGoodsAreaDao")
 	private CollectGoodsAreaDao collectGoodsAreaDao;
 
+	@Autowired
+	@Qualifier("collectGoodsPlaceService")
+	private CollectGoodsPlaceService collectGoodsPlaceService;
+
 	@Override
 	public Dao<CollectGoodsArea> getDao() {
 		return this.collectGoodsAreaDao;
@@ -42,5 +47,11 @@ public class CollectGoodsAreaServiceImpl extends BaseService<CollectGoodsArea> i
 	@Override
 	public List<CollectGoodsArea> findBySiteCode(CollectGoodsArea e) {
 		return collectGoodsAreaDao.findBySiteCode(e);
+	}
+
+	@Override
+	public boolean deleteByCode(List<String> codes) {
+
+		return collectGoodsAreaDao.deleteByCode(codes)>0 && collectGoodsPlaceService.deleteByAreaCode(codes);
 	}
 }

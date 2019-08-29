@@ -25,4 +25,6 @@ public interface CollectGoodsPlaceDao extends Dao<CollectGoodsPlace> {
     CollectGoodsPlace findPlaceByCode(CollectGoodsPlace collectGoodsPlace);
 
     List<CollectGoodsPlace> findPlaceByAreaCode(CollectGoodsPlace collectGoodsPlace);
+
+    int deleteByAreaCode(List<String> codes);
 }

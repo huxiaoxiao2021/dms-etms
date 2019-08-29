@@ -44,4 +44,9 @@ public class CollectGoodsPlaceDaoImpl extends BaseDao<CollectGoodsPlace> impleme
     public List<CollectGoodsPlace> findPlaceByAreaCode(CollectGoodsPlace collectGoodsPlace) {
         return sqlSession.selectList(this.nameSpace+".findPlaceByAreaCode", collectGoodsPlace);
     }
+
+    @Override
+    public int deleteByAreaCode(List<String> codes) {
+        return sqlSession.delete(this.nameSpace+".deleteByAreaCode", codes);
+    }
 }

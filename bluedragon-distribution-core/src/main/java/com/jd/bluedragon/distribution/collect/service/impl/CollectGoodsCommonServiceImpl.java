@@ -293,7 +293,8 @@ public class CollectGoodsCommonServiceImpl implements CollectGoodsCommonService{
         }
         targetCollectGoodsPlaceCode = targetCollectGoodsPlace.getCollectGoodsPlaceCode();
         targetCollectGoodsPlaceType = targetCollectGoodsPlace.getCollectGoodsPlaceType();
-
+        //记录日志
+        operateLogOfQuerySelf(req,"异常转移，原货位"+sourceCollectGoodsPlaceCode+",新货位"+targetCollectGoodsPlaceCode);
 
         //转移  集货明细
         collectGoodsDetailService.transfer(sourceCollectGoodsPlaceCode,targetCollectGoodsPlaceCode,targetCollectGoodsPlaceType,req.getOperateSiteCode(),req.getPackageCode());
@@ -326,8 +327,6 @@ public class CollectGoodsCommonServiceImpl implements CollectGoodsCommonService{
             throw new CollectException("变更目的货位状态失败");
         }
 
-        //记录日志
-        operateLogOfQuerySelf(req,"异常转移，原货位"+sourceCollectGoodsPlaceCode+",新货位"+targetCollectGoodsPlaceCode);
 
         return result;
     }

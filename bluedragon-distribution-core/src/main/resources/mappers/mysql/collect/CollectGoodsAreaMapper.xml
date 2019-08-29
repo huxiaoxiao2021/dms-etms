@@ -156,6 +156,13 @@
 		</foreach>
 	</update>
 
+	<delete id="deleteByCode" parameterType="List">
+		delete from collect_goods_area
+		where collect_goods_area_code in
+		<foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+			#{item,jdbcType=VARCHAR}
+		</foreach>
+	</delete>
 	<select id="findById" parameterType="Long" resultMap="CollectGoodsArea">
 		select 
 		 <include refid="Base_Column_List"/>

@@ -3,6 +3,9 @@ package com.jd.bluedragon.distribution.collect.controller;
 import java.util.List;
 
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.collect.domain.CollectGoodsPlace;
+import com.jd.bluedragon.distribution.collect.domain.CollectGoodsPlaceStatusEnum;
+import com.jd.bluedragon.distribution.collect.service.CollectGoodsPlaceService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.logging.Log;
@@ -36,6 +39,10 @@ public class CollectGoodsAreaController {
 
 	@Autowired
 	private CollectGoodsAreaService collectGoodsAreaService;
+
+	@Autowired
+	private CollectGoodsPlaceService collectGoodsPlaceService;
+
 	@Autowired
 	BaseMajorManager baseMajorManager;
 	/**
@@ -89,6 +96,51 @@ public class CollectGoodsAreaController {
 		}
 		return rest;
 	}
+
+	/**
+	 * 根据code删除多条数据
+	 * @return
+	 */
+	@RequestMapping(value = "/deleteByCodes")
+	public @ResponseBody JdResponse<Boolean> deleteByCodes(@RequestBody List<String> codes) {
+		JdResponse<Boolean> rest = new JdResponse<>();
+		try {
+			Integer createSiteCode = 0;
+
+			ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+			String userCode;
+			if(erpUser!=null){
+				userCode = erpUser.getUserCode();
+				BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(userCode);
+				if (bssod!=null && bssod.getSiteType() == 64) {/** 站点类型为64的时候为分拣中心 **/
+					createSiteCode = bssod.getSiteCode();
+				}
+			}else {
+				rest.toError("未获取到登录人信息！");
+				return rest;
+			}
+
+			for(String code : codes){
+				//校验货区是否有货
+				CollectGoodsPlace queryPlaceParam = new CollectGoodsPlace();
+				queryPlaceParam.setCreateSiteCode(createSiteCode);
+				queryPlaceParam.setCollectGoodsAreaCode(code);
+				List<CollectGoodsPlace> allPlaces = collectGoodsPlaceService.findPlaceByAreaCode(queryPlaceParam);
+				for(CollectGoodsPlace collectGoodsPlace : allPlaces){
+					if(!collectGoodsPlace.getCollectGoodsPlaceStatus().toString().equals(CollectGoodsPlaceStatusEnum.FREE_0.getCode())){
+						rest.toError("操作失败，集货位存在包裹,请将集货区包裹操作完后在执行！");
+						return rest;
+					}
+				}
+			}
+			rest.setData(collectGoodsAreaService.deleteByCode(codes));
+		} catch (Exception e) {
+			logger.error("fail to delete！"+e.getMessage(),e);
+			rest.toError("删除失败，服务异常！");
+		}
+		return rest;
+	}
+
 	/**
 	 * 根据条件分页查询数据信息
 	 * @param collectGoodsAreaCondition
