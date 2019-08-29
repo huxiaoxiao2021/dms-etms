@@ -1,11 +1,5 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
-import com.jd.bluedragon.distribution.print.domain.DmsPaperSize;
-import com.jd.bluedragon.distribution.print.domain.TemplateGroupEnum;
-import com.jd.bluedragon.distribution.print.service.TemplateSelectService;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -13,10 +7,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
+import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
+import com.jd.bluedragon.distribution.print.domain.DmsPaperSize;
+import com.jd.bluedragon.distribution.print.domain.LabelTemplate;
+import com.jd.bluedragon.distribution.print.domain.TemplateGroupEnum;
+import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
+import com.jd.bluedragon.distribution.print.service.TemplateSelectService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 @Service
 public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintContext,JdResult<String>>{
@@ -58,6 +59,7 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
          */
         boolean needMatchTemplate = StringUtils.isBlank(templateName);
         Integer siteCode = context.getRequest().getSiteCode();
+        Integer operateType = context.getRequest().getOperateType();
         String waybillSign = context.getWaybill().getWaybillSign();
         String paperSizeCode = context.getRequest().getPaperSizeCode();
         BasePrintWaybill basePrintWaybill = context.getBasePrintWaybill();
@@ -73,7 +75,10 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
             templateName = TEMPLATE_NAME_10_5;
         }else{
             if (needMatchTemplate) {
-                if (TemplateGroupEnum.TEMPLATE_GROUP_CODE_TC.equals(basePrintWaybill.getTemplateGroupCode())) {
+            	//冷链合伙人打印，指定为冷链模板
+            	if(WaybillPrintOperateTypeEnum.COLD_CHAIN_PRINT.getType().equals(operateType)){
+            		templateName = TEMPlATE_NAME_B2B_COLD;
+            	}else if (TemplateGroupEnum.TEMPLATE_GROUP_CODE_TC.equals(basePrintWaybill.getTemplateGroupCode())) {
                     //TC模板
                     templateName = TEMPlATE_NAME_TC;
                 }else if (TemplateGroupEnum.TEMPLATE_GROUP_CODE_B.equals(basePrintWaybill.getTemplateGroupCode())) {
@@ -119,9 +124,12 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
         //得到业务模板
         //根据key查config
         if (needMatchTemplate && siteCode != null) {
-            String temporaryTemplateName = templateSelectService.getMatchTemplate(templateName, siteCode);
-            if (StringUtils.isNotBlank(temporaryTemplateName)) {
-                templateName = temporaryTemplateName;
+        	LabelTemplate matchedTemplate = templateSelectService.getMatchLabelTemplate(templateName, siteCode);
+            if (matchedTemplate != null && StringUtils.isNotBlank(matchedTemplate.getTemplateName())) {
+                templateName = matchedTemplate.getTemplateName();
+                if(matchedTemplate.getTemplateVersion() != null){
+                	basePrintWaybill.setTemplateVersionStr(matchedTemplate.getTemplateVersion().toString());
+                }
             }
         }
         basePrintWaybill.setTemplateName(templateName);
