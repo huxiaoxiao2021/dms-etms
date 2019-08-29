@@ -64,7 +64,7 @@ public class JdResponse extends JdObject {
     public static final Integer CODE_SITE_SIGNRE_ERROR = 20009;
     public static final String MESSAGE_SITE_SIGNRE_ERROR = "此运单要求签单返回，只能分配至自营站点!";
 
-    public static final Integer CODE_CODMONAY_THIRD_SITE_ERROR = 20010;
+    public static final Integer CODE_CODMONAY_THIRD_SITE_ERROR = 20012;
     public static final String MESSAGE_CODMONAY_THIRD_SITE_ERROR = "有货到付款金额，不能分配到第三方快递！";
 
     public static final Integer CODE_UNLOADBILL = 2424;
