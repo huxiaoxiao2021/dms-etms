@@ -184,6 +184,11 @@ public class DynamicSortingQueryDao implements ISortingDao{
         return selectDao(sorting.getCreateSiteCode()).findByWaybillCodeOrPackageCode(sorting);
     }
 
+    @Override
+    public List<Sorting> findPackageCodesByWaybillCode(Sorting sorting) {
+        return selectDao(sorting.getCreateSiteCode()).findPackageCodesByWaybillCode(sorting);
+    }
+
     public SortingDao getSortingDao() {
         return sortingDao;
     }

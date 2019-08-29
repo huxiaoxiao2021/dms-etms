@@ -134,4 +134,10 @@ public class SharedSortingQueryManagerImpl implements SharedSortingQueryManager{
     public ApiResult<PageBean<Sorting>> queryByPage(Integer operateSiteId,String packageCode,PageBean pager){
         return sortingQueryService.queryByPage(tenantCode,operateSiteId,packageCode,pager);
     }
+
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.SharedSortingQueryManagerImpl.findPackageBoxCodesByWaybillCode",mState = {JProEnum.TP, JProEnum.FunctionError})
+    public ApiResult<List<Sorting>> findPackageBoxCodesByWaybillCode(Integer operateSiteId, String waybillCode) {
+        return sortingQueryService.findPackageBoxCodesByWaybillCode(tenantCode, operateSiteId, waybillCode);
+    }
 }

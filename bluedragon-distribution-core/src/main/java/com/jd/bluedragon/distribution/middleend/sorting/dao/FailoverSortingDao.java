@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.middleend.sorting.dao;
 import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.fastjson.JSON;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -243,6 +244,21 @@ public class FailoverSortingDao implements ISortingDao {
         if (sortingList == null) {
             logger.info("调用中台findByWaybillCodeOrPackageCode接口的返回值为空，调用分拣的接口查询");
             sortingList = sortingDao.findByWaybillCodeOrPackageCode(sorting);
+        }
+        return sortingList;
+    }
+
+    @Override
+    public List<Sorting> findPackageCodesByWaybillCode(Sorting sorting) {
+        List<Sorting> sortingList = null;
+        try {
+            sortingList = middleEndSortingDao.findPackageCodesByWaybillCode(sorting);
+        } catch (Exception e) {
+            logger.error("中台findPackageBoxCodesByWaybillCode接口调用异常.sorting:" + JSON.toJSONString(sorting), e);
+        }
+        if (CollectionUtils.isNotEmpty(sortingList)) {
+            logger.info("调用中台findPackageBoxCodesByWaybillCode接口的返回值为空，调用分拣的接口查询");
+            sortingList = sortingDao.findPackageCodesByWaybillCode(sorting);
         }
         return sortingList;
     }

@@ -100,4 +100,11 @@ public interface SharedSortingQueryManager {
      */
     ApiResult<PageBean<Sorting>> queryByPage(Integer operateSiteId, String packageCode, PageBean pager);
 
+    /**
+     * 根据运单号查询包裹容器信息
+     * @param operateSiteId 操作场站
+     * @param waybillCode 运单号
+     * @return 结果
+     */
+    ApiResult<List<Sorting>> findPackageBoxCodesByWaybillCode(Integer operateSiteId, String waybillCode);
 }

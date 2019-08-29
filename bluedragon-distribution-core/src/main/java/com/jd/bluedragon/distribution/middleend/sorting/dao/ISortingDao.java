@@ -88,4 +88,11 @@ public interface ISortingDao {
      * @return
      */
     List<Sorting>  findByWaybillCodeOrPackageCode(Sorting sorting);
+
+    /**
+     * 根据运单号，查询所有包裹号
+     * @param sorting 运单号
+     * @return
+     */
+    List<Sorting>  findPackageCodesByWaybillCode(Sorting sorting);
 }

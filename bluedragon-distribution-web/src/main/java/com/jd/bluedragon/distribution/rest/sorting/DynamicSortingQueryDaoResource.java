@@ -228,6 +228,24 @@ public class DynamicSortingQueryDaoResource {
      * @return
      */
     @POST
+    @Path("/sorting/findPackageCodesByWaybillCode")
+    public  Map<String,List<Sorting>> findPackageCodesByWaybillCode(Sorting sorting) {
+        List<Sorting> dmsResult = sortingDao.findPackageCodesByWaybillCode(sorting);
+        List<Sorting> middleResult = middleEndSortingDao.findPackageCodesByWaybillCode(sorting);
+
+        Map<String,List<Sorting>> result = new HashMap<>();
+        result.put("dmsQueryResult",dmsResult);
+        result.put("middleEndResult",middleResult);
+
+        return result;
+    }
+    /**
+     * 根据运单号或者包裹号，当前站点查询已分拣记录
+     *
+     * @param sorting 运单号
+     * @return
+     */
+    @POST
     @Path("/sorting/findByWaybillCodeOrPackageCode")
     public  Map<String,List<Sorting>> findByWaybillCodeOrPackageCode(Sorting sorting) {
         List<Sorting> dmsResult = sortingDao.findByWaybillCodeOrPackageCode(sorting);

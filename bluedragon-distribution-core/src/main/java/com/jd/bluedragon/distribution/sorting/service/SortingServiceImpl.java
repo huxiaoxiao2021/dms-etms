@@ -1353,4 +1353,8 @@ public class SortingServiceImpl implements SortingService {
 		}
 	}
 
+	@Override
+	public List<Sorting> findPackageCodesByWaybillCode(Sorting sorting) {
+		return dynamicSortingQueryDao.findPackageCodesByWaybillCode(sorting);
+	}
 }

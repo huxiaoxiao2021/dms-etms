@@ -10,11 +10,13 @@ import com.jd.fastjson.JSON;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.shared.services.sorting.api.ApiResult;
 import com.jd.ql.shared.services.sorting.api.dto.*;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -428,5 +430,26 @@ public class MiddleEndSortingDao implements ISortingDao {
             sortingList.add(middleEndSorting2DmsSorting(middendSorting));
         }
         return sortingList;
+    }
+
+    @Override
+    public List<Sorting> findPackageCodesByWaybillCode(Sorting sorting) {
+        ApiResult<List<com.jd.ql.shared.services.sorting.api.dto.Sorting>> result = sharedSortingQueryManager.findPackageBoxCodesByWaybillCode(sorting.getCreateSiteCode(), sorting.getWaybillCode());
+        if(result.getCode() == ApiResult.OK_CODE){
+            if(CollectionUtils.isNotEmpty(result.getData())){
+                List<Sorting> sortingList = new ArrayList<>(result.getData().size());
+                for(com.jd.ql.shared.services.sorting.api.dto.Sorting entry : result.getData()){
+                    Sorting dmsSorting = new Sorting();
+                    dmsSorting.setBoxCode(entry.getContainerCode());
+                    dmsSorting.setPackageCode(entry.getSortingObject().getObjectCode());
+                    sortingList.add(dmsSorting);
+                }
+                return sortingList;
+            }
+        }else{
+            logger.error("调用中台接口findPackageCodesByWaybillCode失败.createSiteCode:" + sorting.getCreateSiteCode() + ",waybillCode:" + sorting.getWaybillCode() + ",返回值为:" + JSON.toJSONString(result));
+        }
+
+        return Collections.EMPTY_LIST;
     }
 }

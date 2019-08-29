@@ -162,5 +162,10 @@ public interface SortingService {
      * @return
      */
     List<String> getWaybillCodeListByBoxCode(String boxCode);
-
+    /**
+     * 根据运单号，查询所有包裹号
+     * @param sorting 运单号
+     * @return
+     */
+    List<Sorting>  findPackageCodesByWaybillCode(Sorting sorting);
 }
