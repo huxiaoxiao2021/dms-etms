@@ -524,4 +524,9 @@
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
 
+    <!-- 包裹补打记录 -->
+    <bean id="rePrintRecord" class="com.jd.bluedragon.distribution.reprint.dao.ReprintRecordDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
 </beans>

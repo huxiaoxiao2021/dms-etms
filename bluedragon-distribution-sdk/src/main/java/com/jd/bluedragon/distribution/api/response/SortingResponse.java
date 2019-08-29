@@ -71,6 +71,9 @@ public class SortingResponse extends JdResponse {
     public static final Integer CODE_31122 = 31122;
     public static final String MESSAGE_31122 = "此单已报丢报损，是否继续退货";
 
+    public static final Integer CODE_EXE_ERROR = 22011;
+    public static final String MESSAGE_EXE_ERROR = "取消分拣异常";
+
 
     /** 箱号 */
     private String boxCode;
@@ -243,6 +246,49 @@ public class SortingResponse extends JdResponse {
     public String toString() {
         return "SortingResponse [getRequest()=" + this.getRequest() + ", getCode()="
                 + this.getCode() + ", getMessage()=" + this.getMessage() + "]";
+    }
+
+    public static SortingResponse sortingSended() {
+        return new SortingResponse(SortingResponse.CODE_SORTING_SENDED, SortingResponse.MESSAGE_SORTING_SENDED);
+    }
+
+    public static SortingResponse sortingInspected() {
+        return new SortingResponse(SortingResponse.CODE_SORTING_INSPECTED, SortingResponse.MESSAGE_SORTING_INSPECTED);
+    }
+
+    public static SortingResponse waitingProcess() {
+        return new SortingResponse(SortingResponse.CODE_SORTING_WAITING_PROCESS,
+                SortingResponse.MESSAGE_SORTING_WAITING_PROCESS);
+    }
+
+    public static SortingResponse sortingNotFund() {
+        return new SortingResponse(SortingResponse.CODE_SORTING_RECORD_NOT_FOUND,
+                SortingResponse.MESSAGE_SORTING_RECORD_NOT_FOUND);
+    }
+
+    public static SortingResponse paramIsNull() {
+        return new SortingResponse(SortingResponse.CODE_PARAM_IS_NULL, SortingResponse.MESSAGE_PARAM_IS_NULL);
+    }
+
+    public static SortingResponse paramIsError() {
+        return new SortingResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
+    }
+
+    public static SortingResponse waitingCancelProcess() {
+        return new SortingResponse(SortingResponse.CODE_SORTING_CANCEL_PROCESS, SortingResponse.MESSAGE_SORTING_CANCEL_PROCESS);
+    }
+
+    public static SortingResponse packageNumLimit() {
+        return new SortingResponse(SortingResponse.CODE_PACKAGE_NUM_LIMIT, SortingResponse.MESSAGE_PACKAGE_NUM_LIMIT);
+    }
+
+
+    public static SortingResponse ok() {
+        return new SortingResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+    }
+
+    public static SortingResponse exeError(){
+        return new SortingResponse(SortingResponse.CODE_EXE_ERROR,SortingResponse.MESSAGE_EXE_ERROR);
     }
 
 }

@@ -2,6 +2,7 @@ package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
+import com.jd.bluedragon.distribution.middleend.sorting.domain.DmsCustomSite;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.domain.PsStoreInfo;
@@ -141,4 +142,11 @@ public interface BaseMajorManager {
 	 * @return
 	 */
 	String menuConstantAccount(String siteCode,String erp);
+
+	/**
+	 * 获取分拣中心自定义站点
+	 * @param paramInteger
+	 * @return
+	 */
+	DmsCustomSite getDmsCustomSiteBySiteId(Integer paramInteger);
 }
