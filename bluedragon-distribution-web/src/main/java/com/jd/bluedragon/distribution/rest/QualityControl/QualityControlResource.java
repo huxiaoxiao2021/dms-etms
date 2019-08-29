@@ -179,7 +179,7 @@ public class QualityControlResource {
                         int res=qualityControlService.getRedeliveryState(waybillCode,busID);
                         if (res==0){
                             result.setData(false);
-                            logger.info("运单:"+waybillCode+" 协商再投未完成处理");
+                            logger.info("运单:" + waybillCode + " 协商再投未完成处理。操作人：" + request.getUserName());
                             break;
                         }
                     }

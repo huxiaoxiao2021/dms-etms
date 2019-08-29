@@ -463,6 +463,11 @@
                   protocol="jsf" alias="${vos.vehicleJobBusiness.jsf.alias}" timeout="${vos.vehicleJobBusiness.jsf.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
 
+    <!-- ICENTER系统 智能园区 园区叫号 何双（heshuang10）-->
+    <jsf:consumer id="iPdaDispatchJsfService" interface="com.jd.intelligent.center.api.service.IPdaDispatchJsfService" protocol="jsf"
+                  alias="${icenter.jsf.alias}" serialization="hessian" timeout="${icenter.jsf.timeout}" retries="${jsf.retries}">
+    </jsf:consumer>
+
 
     <jsf:consumer id="allianceWaybillManagerApi" interface="com.jd.partner.waybill.api.WaybillManagerApi" protocol="jsf"
                   alias="${jsf.ldop.alpha.waybill.alias}" timeout="${jsf.ldop.alpha.waybill.timeout}" retries="0">
