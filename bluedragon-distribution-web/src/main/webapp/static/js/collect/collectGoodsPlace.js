@@ -230,6 +230,10 @@ $(function() {
                     alert("不允许修改异常类型的集货位");
                     return;
                 }
+                if (rows[0].collectGoodsPlaceStatus != 0) {
+                    alert("不允许修改非空闲的集货位");
+                    return;
+                }
 
 			    $.ajaxHelper.doPostSync(detailUrl+rows[0].id,null,function(res){
 			    	if(res&&res.succeed&&res.data){
@@ -479,9 +483,9 @@ $(function() {
 
             function checkWaybillMaxNum(){
 
-                var smallWaybillMaxNum = $("#smallWaybillMaxNum").val();
-                var middleWaybillMaxNum = $("#middleWaybillMaxNum").val();
-                var bigWaybillMaxNum = $("#bigWaybillMaxNum").val();
+                var smallWaybillMaxNum = $("#small-waybill-max-num").val();
+                var middleWaybillMaxNum = $("#middle-waybill-max-num").val();
+                var bigWaybillMaxNum = $("#big-waybill-max-num").val();
                 var reg1 = /^[1-9][0-9]?$/;
                 if(!reg1.test(smallWaybillMaxNum) || !reg1.test(middleWaybillMaxNum) || !reg1.test(bigWaybillMaxNum)){
                     alert("可存放单据范围0到99！请重新输入");
@@ -501,7 +505,7 @@ $(function() {
                     return false;
                 }
 
-                if(!reg1.test(collectGoodsPlaceNum) || collectGoodsPlaceNum > 999){
+                if(!reg1.test(collectGoodsPlaceNum) || collectGoodsPlaceNum > 998){
                     alert("集货位数量应在1至998内！");
                     return false;
                 }
@@ -536,7 +540,7 @@ $(function() {
                             alert('操作成功');
                             tableInit().refresh();
                         }else{
-                            alert('操作异常');
+                            alert(res.message);
                         }
                     });
 				}
