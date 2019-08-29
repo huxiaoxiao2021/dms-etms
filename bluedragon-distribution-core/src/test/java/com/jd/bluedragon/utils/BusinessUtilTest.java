@@ -21,8 +21,7 @@ public class BusinessUtilTest {
     			,"1234567890-w1234567890-123456789012345"
     			,"1234567890-1234567890-w123456789012345"};
     	for(String code:sucCodes){
-    		BusinessUtil.isSingleBatchNo(code);
-    		//Assert.assertTrue(BusinessUtil.isSingleBatchNo(code));
+    		Assert.assertTrue(BusinessUtil.isSendCode(code));
     	}
     	for(String code:errorCodes){
     		Assert.assertFalse(BusinessUtil.isSendCode(code));
