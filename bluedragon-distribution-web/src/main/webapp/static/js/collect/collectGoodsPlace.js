@@ -509,7 +509,7 @@ $(function() {
                     alert("集货位数量应在1至998内！");
                     return false;
                 }
-                if(collectPlaceArray.length > 998){
+                if(collectPlaceArray.length+parseInt(collectGoodsPlaceNum) > 998){
                     alert("集货位数量应在1至998内！");
                     return false;
                 }
