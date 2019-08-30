@@ -509,6 +509,10 @@ $(function() {
                     alert("集货位数量应在1至998内！");
                     return false;
                 }
+                if(collectPlaceArray.length > 998){
+                    alert("集货位数量应在1至998内！");
+                    return false;
+                }
 
                 if(checkAreaCodeExist($("#collect-goods-area").val())){
                     alert("集货区编码已存在");
