@@ -14,8 +14,8 @@ import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
+import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -38,7 +38,7 @@ public class ExpressCollectionServiceImpl implements ExpressCollectionService {
     private InspectionDao inspectionDao;
 
     @Resource
-    private SortingDao sortingDao;
+    private SortingService sortingService;
     @Resource
     private SendDatailDao sendDatailDao;
 
@@ -162,7 +162,7 @@ public class ExpressCollectionServiceImpl implements ExpressCollectionService {
         Sorting sortingQuery = new Sorting();
         sortingQuery.setCreateSiteCode(createSiteCode);
         sortingQuery.setWaybillCode(waybillCode);
-        List<Sorting> sortingList = sortingDao.findPackageCodesByWaybillCode(sortingQuery);
+        List<Sorting> sortingList = sortingService.findPackageCodesByWaybillCode(sortingQuery);
         for (Sorting sorting : sortingList) {
             getBoxCodesMap(boxCodesMap, sorting.getBoxCode(), sorting.getPackageCode());
         }
