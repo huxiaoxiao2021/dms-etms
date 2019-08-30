@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.print.service;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
@@ -162,14 +163,16 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
 		JdResult<List<JdCloudPrintResponse>> printResult = new JdResult<List<JdCloudPrintResponse>>();
 		logger.info("开始生成pdf,req:"+ jdCloudPrintRequest.getOrderNum());
 		long startTime = System.currentTimeMillis();
-		try {
+
 			String pdfFileName = jdCloudPrintRequest.getOrderNum()+"-"+System.currentTimeMillis()+".pdf";
 			String jssPdfPath = jdCloudPrintRequest.getOutputConfig().get(0).getPath()+"/"+pdfFileName;
 			if(!localPdfTempPathExist){
 				checkAndCreateTempPath();
 			}
 			File pdfFile = new File(localPdfTempPath+"/"+pdfFileName);
-			OutputStream outputStream = new FileOutputStream(pdfFile);
+			OutputStream outputStream = null;
+		try {
+			outputStream = new FileOutputStream(pdfFile);
 			this.printPdfHelper.generatePdf(outputStream, jdCloudPrintRequest.getTemplate(), 0, 0, 0, (List<Map<String,String>>)jdCloudPrintRequest.getModel());
 			pdfOutJssStorage.bucket(pdfPrintOssConfig.getBucket()).object(jssPdfPath).entity(pdfFile).put();
 			pdfFile.deleteOnExit();
@@ -189,6 +192,13 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
 			printResult.toError("生成pdf失败！");
 		}finally{
 			Profiler.registerInfoEnd(callerInfo);
+			if(outputStream != null){
+				try {
+					outputStream.close();
+				} catch (IOException e) {
+					logger.error("OutPutStream关闭失败", e);
+				}
+			}
 		}
 		logger.info("生成pdf结束,cost:"+(System.currentTimeMillis() - startTime)+"ms,resp:"+ JsonHelper.toJson(printResult));
 		return printResult;

@@ -147,14 +147,16 @@ public abstract class BaseSortingService {
         //处理始发分拣和目的分拣
         DmsCustomSite createSite = null;
         try {
-            createSite = baseMajorManager.getDmsCustomSiteBySiteId(dmsSorting.getCreateSiteCode());
+            if(dmsSorting != null){
+                createSite = baseMajorManager.getDmsCustomSiteBySiteId(dmsSorting.getCreateSiteCode());
+            }
         } catch (Exception e) {
             this.logger.error("AbstractSortingService.prepareSorting处理始发分拣异常.createSiteCode:" + dmsSorting.getCreateSiteCode(), e);
         }
         extendObject.setCreateSite(createSite);
 
         //目的分拣以箱号目的地为准
-        if (StringUtils.isNotBlank(dmsSorting.getBoxCode()) && BusinessUtil.isBoxcode(dmsSorting.getBoxCode())) {
+        if (dmsSorting != null && StringUtils.isNotBlank(dmsSorting.getBoxCode()) && BusinessUtil.isBoxcode(dmsSorting.getBoxCode())) {
             Box box = boxService.findBoxByCode(dmsSorting.getBoxCode());
             if (box != null) {
                 dmsSorting.setReceiveSiteCode(box.getReceiveSiteCode());
@@ -163,7 +165,9 @@ public abstract class BaseSortingService {
 
         DmsCustomSite receiveSite = null;
         try {
-            receiveSite = baseMajorManager.getDmsCustomSiteBySiteId(dmsSorting.getReceiveSiteCode());
+            if(dmsSorting != null){
+                receiveSite = baseMajorManager.getDmsCustomSiteBySiteId(dmsSorting.getReceiveSiteCode());
+            }
         } catch (Exception e) {
             this.logger.error("AbstractSortingService.prepareSorting处理目的分拣异常.receiveSiteCode:" + dmsSorting.getReceiveSiteCode(), e);
         }
