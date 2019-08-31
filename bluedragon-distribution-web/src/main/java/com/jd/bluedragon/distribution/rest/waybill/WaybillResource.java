@@ -2261,7 +2261,7 @@ public class WaybillResource {
 			logger.error("请求差异查询，获取站点信息失败，参数："+ JsonHelper.toJson(waybillNoCollectionRequest));
 			return result;
 		} else {
-			//始发和目的都不是快运中心或车队
+			//始发和目的有一个是车队
 			if (Constants.BASE_SITE_MOTORCADE.equals(createSiteOrgDto.getSiteType()) ||
 					Constants.BASE_SITE_MOTORCADE.equals(receiveSiteOrgDto.getSiteType())) {
 				//全部都看
