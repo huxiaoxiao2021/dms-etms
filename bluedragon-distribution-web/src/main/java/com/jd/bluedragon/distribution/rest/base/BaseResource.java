@@ -1565,7 +1565,35 @@ public class BaseResource {
 
 		//根据机构编码及操作人erp查询
 		try{
-			String resultJsonStr = baseMajorManager.menuConstantAccount(request.getSiteCode(),request.getOperatorErp());
+			String resultJsonStr = baseMajorManager.menuConstantAccount(request.getSiteCode(),request.getOperatorErp(),1);
+			result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+			result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+			result.setData(resultJsonStr);
+		}catch (Exception e){
+			result.setCode(InvokeResult.SERVER_ERROR_CODE);
+			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
+			logger.error("常用功能异常"+JsonHelper.toJson(request),e);
+		}
+
+
+		return result;
+	}
+
+	@POST
+	@Path("menu/print/account")
+	public InvokeResult<String> menuPrintAccount(MenuPdaRequest request){
+		InvokeResult<String> result = new InvokeResult<>();
+		logger.info("打印客户端常用菜单统计，请求参数:" + JsonHelper.toJson(request));
+
+		if(StringUtils.isEmpty(request.getSiteCode())|| StringUtils.isEmpty(request.getOperatorErp())){
+			result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+			result.setMessage(InvokeResult.PARAM_ERROR);
+			return result;
+		}
+
+		//根据机构编码及操作人erp查询
+		try{
+			String resultJsonStr = baseMajorManager.menuConstantAccount(request.getSiteCode(),request.getOperatorErp(),3);
 			result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
 			result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
 			result.setData(resultJsonStr);

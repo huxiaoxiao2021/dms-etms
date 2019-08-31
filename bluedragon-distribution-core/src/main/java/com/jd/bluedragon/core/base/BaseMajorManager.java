@@ -139,9 +139,10 @@ public interface BaseMajorManager {
 	 * 获取常用功能菜单
 	 * @param siteCode
 	 * @param erp
+	 * 所属系统 1：WinCE版分拣系统 2：安卓版分拣系统 3：青龙分拣打印系统 4：青龙分拣WEB
 	 * @return
 	 */
-	String menuConstantAccount(String siteCode,String erp);
+	String menuConstantAccount(String siteCode,String erp,Integer source);
 
 	/**
 	 * 获取分拣中心自定义站点
