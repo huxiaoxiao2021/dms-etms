@@ -102,7 +102,8 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
             for (String barCode : tcResponse.getData()) {
                 if (WaybillUtil.isPackageCode(barCode)) {
                     String waybillCode = WaybillUtil.getWaybillCode(barCode);
-                    //根据查询范围确定是否计算C网以外的运单
+                    //根据查询范围确定是否计算不齐
+                    //如果只看B网范围，运单是不是B网运单或者是逆向单，如果不在范围里，跳过
                     if (queryAllWaybillType(waybillNoCollectionCondition) && ! isAllowScope(waybillCode)) {
                         continue;
                     }
@@ -238,8 +239,9 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
             //如果当前缺少的包裹结果小于阈值，进行计算添加
             if (packageCodeResultList.size() < this.noCollectionPackageMaxCount) {
 
-                //根据查询范围确定是否计算C网以外的运单
-                if (this.queryAllWaybillType(waybillNoCollectionCondition) && isAllowScope(waybillCode)) {
+                //根据查询范围确定是否计算不齐
+                //如果只看B网范围，运单是不是B网运单或者是逆向单，如果不在范围里，跳过
+                if (queryAllWaybillType(waybillNoCollectionCondition) && ! isAllowScope(waybillCode)) {
                     continue;
                 }
                 waybillCodeListTemp.add(waybillCode);
@@ -465,7 +467,7 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
         BigWaybillDto bigWaybillDto = findWaybillAndPack(waybillCode);
         if (bigWaybillDto != null && bigWaybillDto.getWaybill() != null && StringHelper.isNotEmpty(bigWaybillDto.getWaybill().getWaybillSign())) {
             String waybillSign = bigWaybillDto.getWaybill().getWaybillSign();
-            //如果不是B网，也不是逆向单，返回ture
+            //如果是B网或逆向单，返回ture
             return isBWaybill(waybillSign) || isReverseWaybill(waybillSign);
         } else {
             logger.warn("获取【" + waybillCode + "】的运单信息失败，按B网运单处理");
