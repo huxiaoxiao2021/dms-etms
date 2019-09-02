@@ -2,12 +2,14 @@ package com.jd.bluedragon.distribution.collect.controller;
 
 import java.util.List;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.collect.domain.CollectGoodsPlace;
 import com.jd.bluedragon.distribution.collect.domain.CollectGoodsPlaceStatusEnum;
 import com.jd.bluedragon.distribution.collect.service.CollectGoodsPlaceService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +51,7 @@ public class CollectGoodsAreaController {
 	 * 返回主页面
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_COLLECT_SET)
 	@RequestMapping(value = "/toIndex")
 	public String toIndex() {
 		return "/collect/collectGoodsArea";
@@ -58,6 +61,7 @@ public class CollectGoodsAreaController {
 	 * @param id
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_COLLECT_SET)
 	@RequestMapping(value = "/detail/{id}")
 	public @ResponseBody JdResponse<CollectGoodsArea> detail(@PathVariable("id") Long id) {
 		JdResponse<CollectGoodsArea> rest = new JdResponse<CollectGoodsArea>();
@@ -69,6 +73,7 @@ public class CollectGoodsAreaController {
 	 * @param collectGoodsArea
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_COLLECT_SET)
 	@RequestMapping(value = "/save")
 	public @ResponseBody JdResponse<Boolean> save(@RequestBody CollectGoodsArea collectGoodsArea) {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
@@ -85,6 +90,7 @@ public class CollectGoodsAreaController {
 	 * @param ids
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_COLLECT_SET)
 	@RequestMapping(value = "/deleteByIds")
 	public @ResponseBody JdResponse<Integer> deleteByIds(@RequestBody List<Long> ids) {
 		JdResponse<Integer> rest = new JdResponse<Integer>();
@@ -101,6 +107,7 @@ public class CollectGoodsAreaController {
 	 * 根据code删除多条数据
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_COLLECT_SET)
 	@RequestMapping(value = "/deleteByCodes")
 	public @ResponseBody JdResponse<Boolean> deleteByCodes(@RequestBody List<String> codes) {
 		JdResponse<Boolean> rest = new JdResponse<>();
@@ -146,6 +153,7 @@ public class CollectGoodsAreaController {
 	 * @param collectGoodsAreaCondition
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_COLLECT_SET)
 	@RequestMapping(value = "/listData")
 	public @ResponseBody PagerResult<CollectGoodsArea> listData(@RequestBody CollectGoodsAreaCondition collectGoodsAreaCondition) {
 		JdResponse<PagerResult<CollectGoodsArea>> rest = new JdResponse<PagerResult<CollectGoodsArea>>();
@@ -158,6 +166,7 @@ public class CollectGoodsAreaController {
 	 * @param collectGoodsArea
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_COLLECT_SET)
 	@RequestMapping(value = "/check")
 	public @ResponseBody JdResponse<Boolean> check(@RequestBody CollectGoodsArea collectGoodsArea) {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();

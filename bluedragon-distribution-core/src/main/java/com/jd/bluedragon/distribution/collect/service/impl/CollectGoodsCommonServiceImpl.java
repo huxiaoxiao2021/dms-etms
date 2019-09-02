@@ -90,7 +90,8 @@ public class CollectGoodsCommonServiceImpl implements CollectGoodsCommonService{
     public InvokeResult<CollectGoodsDTO> put(CollectGoodsDTO req) {
 
         InvokeResult<CollectGoodsDTO> result = new InvokeResult<>();
-
+        CollectGoodsDetail collectGoodsDetail ;
+        CollectGoodsPlace recommendPlace;
         //校验数据是否正常
         if (com.jd.common.util.StringUtils.isBlank(req.getCollectGoodsAreaCode()) ||
                 com.jd.common.util.StringUtils.isBlank(req.getOperateUserErp()) ||
@@ -127,36 +128,40 @@ public class CollectGoodsCommonServiceImpl implements CollectGoodsCommonService{
             result.setMessage("此集货区繁忙，请稍后重试！");
             return result;
         }
-        //获取推荐货位 并更新状态
-        CollectGoodsPlace recommendPlace = collectGoodsPlaceService.recommendPlace(req.getPackageCode(),
-                req.getCollectGoodsAreaCode(),req.getOperateSiteCode(),result);
+        try{
 
-        //无空闲储位则提示现场 不需要弹框 这种情况会很多容易弹框容易影响生产效率
-        if(recommendPlace == null){
-            result.setCode(COLLECT_NOT_TIP_CODE);
-            result.setMessage("无空闲货位！");
-            return result;
-        }
+            //获取推荐货位 并更新状态
+            recommendPlace = collectGoodsPlaceService.recommendPlace(req.getPackageCode(),
+                    req.getCollectGoodsAreaCode(),req.getOperateSiteCode(),result);
 
-        //记录集货明细
-        CollectGoodsDetail collectGoodsDetail = convertToDetail(req,recommendPlace);
-        //如果集齐 则 修改以前运单的集货数据 如果未集齐则直接记录
-        if(result.getCode() ==  COLLECT_ALL_TIP_CODE ){
-            CollectGoodsDetail cleanParam = new CollectGoodsDetail();
-            cleanParam.setCreateSiteCode(collectGoodsDetail.getCreateSiteCode());
-            cleanParam.setCollectGoodsAreaCode(collectGoodsDetail.getCollectGoodsAreaCode());
-            cleanParam.setCollectGoodsPlaceCode(collectGoodsDetail.getCollectGoodsPlaceCode());
-            cleanParam.setWaybillCode(collectGoodsDetail.getWaybillCode());
-            if(!collectGoodsDetailService.clean(cleanParam)){
-                throw new CollectException("集齐后,释放明细数据失败！");
+            //无空闲储位则提示现场 不需要弹框 这种情况会很多容易弹框容易影响生产效率
+            if(recommendPlace == null){
+                result.setCode(COLLECT_NOT_TIP_CODE);
+                result.setMessage("无空闲货位！");
+                return result;
             }
-        }else{
-            if(!collectGoodsDetailService.saveOrUpdate(collectGoodsDetail)){
-                throw new CollectException("记录集货明细失败！");
+
+            //记录集货明细
+            collectGoodsDetail = convertToDetail(req,recommendPlace);
+            //如果集齐 则 修改以前运单的集货数据 如果未集齐则直接记录
+            if(result.getCode() ==  COLLECT_ALL_TIP_CODE ){
+                CollectGoodsDetail cleanParam = new CollectGoodsDetail();
+                cleanParam.setCreateSiteCode(collectGoodsDetail.getCreateSiteCode());
+                cleanParam.setCollectGoodsAreaCode(collectGoodsDetail.getCollectGoodsAreaCode());
+                cleanParam.setCollectGoodsPlaceCode(collectGoodsDetail.getCollectGoodsPlaceCode());
+                cleanParam.setWaybillCode(collectGoodsDetail.getWaybillCode());
+                if(!collectGoodsDetailService.clean(cleanParam)){
+                    throw new CollectException("集齐后,释放明细数据失败！");
+                }
+            }else{
+                if(!collectGoodsDetailService.saveOrUpdate(collectGoodsDetail)){
+                    throw new CollectException("记录集货明细失败！");
+                }
             }
+        }finally {
+            //释放
+            unLock(req);
         }
-        //释放
-        unLock(req);
 
         //补验货
         inspection(req);
@@ -211,26 +216,41 @@ public class CollectGoodsCommonServiceImpl implements CollectGoodsCommonService{
         param.setCollectGoodsPlaceCode(req.getCollectGoodsPlaceCode());
         param.setCollectGoodsAreaCode(req.getCollectGoodsAreaCode());
         param.setCreateSiteCode(req.getOperateSiteCode());
-        //记录日志
-        operateLogOfQuerySelf(req,"手动释放");
-
-        //初始化参数
-        param.setCollectGoodsPlaceStatus(Integer.valueOf(CollectGoodsPlaceStatusEnum.FREE_0.getCode()));
-        //释放 集货区
-        //释放集货位
-        if(collectGoodsPlaceService.updateStatus(param)){
-            //释放集货明细
-            CollectGoodsDetail cleanParam = new CollectGoodsDetail();
-            cleanParam.setCreateSiteCode(param.getCreateSiteCode());
-            cleanParam.setCollectGoodsAreaCode(param.getCollectGoodsAreaCode());
-            cleanParam.setCollectGoodsPlaceCode(param.getCollectGoodsPlaceCode());
-
-            if(!collectGoodsDetailService.clean(cleanParam)){
-                throw new CollectException("释放集货明细失败");
-            }
-        }else{
-            throw new CollectException("释放集货位失败");
+        String areaCode = req.getCollectGoodsAreaCode();
+        if(StringUtils.isBlank(areaCode)){
+            areaCode = req.getCollectGoodsPlaceCode().substring(0,1);
         }
+        if(!lock(req.getOperateSiteCode(),areaCode)){
+            result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+            result.setMessage("此集货区繁忙，请稍后重试！");
+            return result;
+        }
+        try{
+            //记录日志
+            operateLogOfQuerySelf(req,"手动释放");
+
+            //初始化参数
+            param.setCollectGoodsPlaceStatus(Integer.valueOf(CollectGoodsPlaceStatusEnum.FREE_0.getCode()));
+            param.setScanWaybillNum(0);
+            //释放 集货区
+            //释放集货位
+            if(collectGoodsPlaceService.updateStatus(param)){
+                //释放集货明细
+                CollectGoodsDetail cleanParam = new CollectGoodsDetail();
+                cleanParam.setCreateSiteCode(param.getCreateSiteCode());
+                cleanParam.setCollectGoodsAreaCode(param.getCollectGoodsAreaCode());
+                cleanParam.setCollectGoodsPlaceCode(param.getCollectGoodsPlaceCode());
+
+                if(!collectGoodsDetailService.clean(cleanParam)){
+                    throw new CollectException("释放集货明细失败");
+                }
+            }else{
+                throw new CollectException("释放集货位失败");
+            }
+        }finally {
+            unLock(req.getOperateSiteCode(),areaCode);
+        }
+
 
         return result;
 
@@ -293,39 +313,50 @@ public class CollectGoodsCommonServiceImpl implements CollectGoodsCommonService{
         }
         targetCollectGoodsPlaceCode = targetCollectGoodsPlace.getCollectGoodsPlaceCode();
         targetCollectGoodsPlaceType = targetCollectGoodsPlace.getCollectGoodsPlaceType();
-        //记录日志
-        operateLogOfQuerySelf(req,"异常转移，原货位"+sourceCollectGoodsPlaceCode+",新货位"+targetCollectGoodsPlaceCode);
 
-        //转移  集货明细
-        collectGoodsDetailService.transfer(sourceCollectGoodsPlaceCode,targetCollectGoodsPlaceCode,targetCollectGoodsPlaceType,req.getOperateSiteCode(),req.getPackageCode());
-
-        //还原 源货位状态
-        // 需判断是不是所有包裹都已经转移走
-
-        CollectGoodsPlace updatesourceCollectGoodsPlace = new CollectGoodsPlace();
-        updatesourceCollectGoodsPlace.setCollectGoodsPlaceCode(sourceCollectGoodsPlaceCode);
-        updatesourceCollectGoodsPlace.setCreateSiteCode(req.getOperateSiteCode());
-        //未转移全部运单
-        if(isTransferWaybill && (sourceCollectGoodsPlace.getScanWaybillNum() - 1) > 0){
-            updatesourceCollectGoodsPlace.setCollectGoodsPlaceStatus(Integer.valueOf(CollectGoodsPlaceStatusEnum.NOT_FREE_1.getCode()));
-            updatesourceCollectGoodsPlace.setScanWaybillNum(sourceCollectGoodsPlace.getScanWaybillNum() - 1);
-        }else{
-            updatesourceCollectGoodsPlace.setCollectGoodsPlaceStatus(Integer.valueOf(CollectGoodsPlaceStatusEnum.FREE_0.getCode()));
-            updatesourceCollectGoodsPlace.setScanWaybillNum(0);
-
+        if(!lock(sourceCollectGoodsPlace.getCreateSiteCode(),sourceCollectGoodsPlace.getCollectGoodsAreaCode())){
+            result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+            result.setMessage("此集货区繁忙，请稍后重试！");
+            return result;
         }
-        if(!collectGoodsPlaceService.updateStatus(updatesourceCollectGoodsPlace)){
-            throw new CollectException("还原源货位状态失败");
+        try{
+            //记录日志
+            operateLogOfQuerySelf(req,"异常转移，原货位"+sourceCollectGoodsPlaceCode+",新货位"+targetCollectGoodsPlaceCode);
+
+            //转移  集货明细
+            collectGoodsDetailService.transfer(sourceCollectGoodsPlaceCode,targetCollectGoodsPlaceCode,targetCollectGoodsPlaceType,req.getOperateSiteCode(),req.getPackageCode());
+
+            //还原 源货位状态
+            // 需判断是不是所有包裹都已经转移走
+
+            CollectGoodsPlace updatesourceCollectGoodsPlace = new CollectGoodsPlace();
+            updatesourceCollectGoodsPlace.setCollectGoodsPlaceCode(sourceCollectGoodsPlaceCode);
+            updatesourceCollectGoodsPlace.setCreateSiteCode(req.getOperateSiteCode());
+            //未转移全部运单
+            if(isTransferWaybill && (sourceCollectGoodsPlace.getScanWaybillNum() - 1) > 0){
+                updatesourceCollectGoodsPlace.setCollectGoodsPlaceStatus(Integer.valueOf(CollectGoodsPlaceStatusEnum.NOT_FREE_1.getCode()));
+                updatesourceCollectGoodsPlace.setScanWaybillNum(sourceCollectGoodsPlace.getScanWaybillNum() - 1);
+            }else{
+                updatesourceCollectGoodsPlace.setCollectGoodsPlaceStatus(Integer.valueOf(CollectGoodsPlaceStatusEnum.FREE_0.getCode()));
+                updatesourceCollectGoodsPlace.setScanWaybillNum(0);
+
+            }
+            if(!collectGoodsPlaceService.updateStatus(updatesourceCollectGoodsPlace)){
+                throw new CollectException("还原源货位状态失败");
+            }
+
+            //变更 目的货位状态
+            CollectGoodsPlace updateTargetCollectGoodsPlace = new CollectGoodsPlace();
+            updateTargetCollectGoodsPlace.setCollectGoodsPlaceCode(targetCollectGoodsPlaceCode);
+            updateTargetCollectGoodsPlace.setCreateSiteCode(req.getOperateSiteCode());
+            updateTargetCollectGoodsPlace.setCollectGoodsPlaceStatus(Integer.valueOf(CollectGoodsPlaceStatusEnum.NOT_FREE_1.getCode()));
+            if(!collectGoodsPlaceService.updateStatus(updateTargetCollectGoodsPlace)){
+                throw new CollectException("变更目的货位状态失败");
+            }
+        }finally {
+            unLock(sourceCollectGoodsPlace.getCreateSiteCode(),sourceCollectGoodsPlace.getCollectGoodsAreaCode());
         }
 
-        //变更 目的货位状态
-        CollectGoodsPlace updateTargetCollectGoodsPlace = new CollectGoodsPlace();
-        updateTargetCollectGoodsPlace.setCollectGoodsPlaceCode(targetCollectGoodsPlaceCode);
-        updateTargetCollectGoodsPlace.setCreateSiteCode(req.getOperateSiteCode());
-        updateTargetCollectGoodsPlace.setCollectGoodsPlaceStatus(Integer.valueOf(CollectGoodsPlaceStatusEnum.NOT_FREE_1.getCode()));
-        if(!collectGoodsPlaceService.updateStatus(updateTargetCollectGoodsPlace)){
-            throw new CollectException("变更目的货位状态失败");
-        }
 
 
         return result;
@@ -436,6 +467,20 @@ public class CollectGoodsCommonServiceImpl implements CollectGoodsCommonService{
 
         this.taskService.add(task, true);
 
+    }
+
+    private boolean lock(Integer siteCode,String areaCode){
+        CollectGoodsDTO req = new CollectGoodsDTO();
+        req.setOperateSiteCode(siteCode);
+        req.setCollectGoodsAreaCode(areaCode);
+        return lock(req);
+    }
+
+    private void unLock(Integer siteCode,String areaCode){
+        CollectGoodsDTO req = new CollectGoodsDTO();
+        req.setOperateSiteCode(siteCode);
+        req.setCollectGoodsAreaCode(areaCode);
+        unLock(req);
     }
 
     private boolean lock(CollectGoodsDTO req){

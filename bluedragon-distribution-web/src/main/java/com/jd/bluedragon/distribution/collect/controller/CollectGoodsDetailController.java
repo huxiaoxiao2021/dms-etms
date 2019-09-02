@@ -2,10 +2,12 @@ package com.jd.bluedragon.distribution.collect.controller;
 
 import java.util.List;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +49,7 @@ public class CollectGoodsDetailController {
 	 * 返回主页面
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_COLLECT_REPORT)
 	@RequestMapping(value = "/toIndex")
 	public String toIndex(Model model) {
 
@@ -72,6 +75,7 @@ public class CollectGoodsDetailController {
 	 * @param id
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_COLLECT_REPORT)
 	@RequestMapping(value = "/detail/{id}")
 	public @ResponseBody JdResponse<CollectGoodsDetail> detail(@PathVariable("id") Long id) {
 		JdResponse<CollectGoodsDetail> rest = new JdResponse<CollectGoodsDetail>();
@@ -83,6 +87,7 @@ public class CollectGoodsDetailController {
 	 * @param collectGoodsDetail
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_COLLECT_REPORT)
 	@RequestMapping(value = "/save")
 	public @ResponseBody JdResponse<Boolean> save(@RequestBody CollectGoodsDetail collectGoodsDetail) {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
@@ -99,6 +104,7 @@ public class CollectGoodsDetailController {
 	 * @param ids
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_COLLECT_REPORT)
 	@RequestMapping(value = "/deleteByIds")
 	public @ResponseBody JdResponse<Integer> deleteByIds(@RequestBody List<Long> ids) {
 		JdResponse<Integer> rest = new JdResponse<Integer>();
@@ -115,6 +121,7 @@ public class CollectGoodsDetailController {
 	 * @param collectGoodsDetailCondition
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_COLLECT_REPORT)
 	@RequestMapping(value = "/listData")
 	public @ResponseBody PagerResult<CollectGoodsDetail> listData(@RequestBody CollectGoodsDetailCondition collectGoodsDetailCondition) {
 		JdResponse<PagerResult<CollectGoodsDetail>> rest = new JdResponse<PagerResult<CollectGoodsDetail>>();
@@ -129,13 +136,14 @@ public class CollectGoodsDetailController {
 	 * @param collectGoodsDetailCondition
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_COLLECT_REPORT)
 	@RequestMapping(value = "/showViews")
 	public @ResponseBody JdResponse<List<CollectGoodsDetail>> showViews(@RequestBody CollectGoodsDetailCondition collectGoodsDetailCondition) {
 		JdResponse<List<CollectGoodsDetail>> rest = new JdResponse<>();
 		rest.setData(collectGoodsDetailService.queryByCondition(collectGoodsDetailCondition));
 		return rest;
 	}
-
+	@Authorization(Constants.DMS_WEB_COLLECT_REPORT)
 	@RequestMapping(value = "/toExport")
 	public ModelAndView toExport(CollectGoodsDetailCondition collectGoodsDetailCondition, Model model) {
 		try {

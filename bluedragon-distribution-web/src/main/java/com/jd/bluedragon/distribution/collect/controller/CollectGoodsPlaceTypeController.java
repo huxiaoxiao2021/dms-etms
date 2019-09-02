@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.collect.controller;
 
 import java.util.List;
 
+import com.jd.bluedragon.Constants;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +40,7 @@ public class CollectGoodsPlaceTypeController {
 	 * 返回主页面
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_COLLECT_SET)
 	@RequestMapping(value = "/toIndex")
 	public String toIndex() {
 		return "/collect/collectGoodsPlaceType";
@@ -47,6 +50,7 @@ public class CollectGoodsPlaceTypeController {
 	 * @param id
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_COLLECT_SET)
 	@RequestMapping(value = "/detail/{id}")
 	public @ResponseBody JdResponse<CollectGoodsPlaceType> detail(@PathVariable("id") Long id) {
 		JdResponse<CollectGoodsPlaceType> rest = new JdResponse<CollectGoodsPlaceType>();
@@ -59,6 +63,7 @@ public class CollectGoodsPlaceTypeController {
 	 * @param id
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_COLLECT_SET)
 	@RequestMapping(value = "/find/{createSiteCode}")
 	public @ResponseBody JdResponse<List<CollectGoodsPlaceType>> detail(@PathVariable("createSiteCode") Integer createSiteCode) {
 		JdResponse<List<CollectGoodsPlaceType>> rest = new JdResponse<List<CollectGoodsPlaceType>>();
@@ -73,6 +78,7 @@ public class CollectGoodsPlaceTypeController {
 	 * @param collectGoodsPlaceType
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_COLLECT_SET)
 	@RequestMapping(value = "/save")
 	public @ResponseBody JdResponse<Boolean> save(@RequestBody CollectGoodsPlaceType collectGoodsPlaceType) {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
@@ -89,6 +95,7 @@ public class CollectGoodsPlaceTypeController {
 	 * @param ids
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_COLLECT_SET)
 	@RequestMapping(value = "/deleteByIds")
 	public @ResponseBody JdResponse<Integer> deleteByIds(@RequestBody List<Long> ids) {
 		JdResponse<Integer> rest = new JdResponse<Integer>();
@@ -105,6 +112,7 @@ public class CollectGoodsPlaceTypeController {
 	 * @param collectGoodsPlaceTypeCondition
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_COLLECT_SET)
 	@RequestMapping(value = "/listData")
 	public @ResponseBody PagerResult<CollectGoodsPlaceType> listData(@RequestBody CollectGoodsPlaceTypeCondition collectGoodsPlaceTypeCondition) {
 		JdResponse<PagerResult<CollectGoodsPlaceType>> rest = new JdResponse<PagerResult<CollectGoodsPlaceType>>();

@@ -2,12 +2,14 @@ package com.jd.bluedragon.distribution.collect.controller;
 
 import java.util.List;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.collect.domain.*;
 import com.jd.bluedragon.distribution.collect.service.CollectGoodsAreaService;
 import com.jd.bluedragon.distribution.collect.service.CollectGoodsDetailService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +54,7 @@ public class CollectGoodsPlaceController {
 	 * 返回主页面
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_COLLECT_SET)
 	@RequestMapping(value = "/toIndex")
 	public String toIndex(Model model) {
 
@@ -78,6 +81,7 @@ public class CollectGoodsPlaceController {
 	 * @param id
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_COLLECT_SET)
 	@RequestMapping(value = "/detail/{id}")
 	public @ResponseBody JdResponse<CollectGoodsPlace> detail(@PathVariable("id") Long id) {
 		JdResponse<CollectGoodsPlace> rest = new JdResponse<CollectGoodsPlace>();
@@ -89,6 +93,7 @@ public class CollectGoodsPlaceController {
 	 * @param collectGoodsPlaces
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_COLLECT_SET)
 	@RequestMapping(value = "/save")
 	public @ResponseBody JdResponse<Boolean> save(@RequestBody List<CollectGoodsPlace> collectGoodsPlaces) {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
@@ -134,6 +139,7 @@ public class CollectGoodsPlaceController {
 	 * @param collectGoodsPlace
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_COLLECT_SET)
 	@RequestMapping(value = "/update")
 	public @ResponseBody JdResponse<Boolean> update(@RequestBody CollectGoodsPlace collectGoodsPlace) {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
@@ -162,7 +168,7 @@ public class CollectGoodsPlaceController {
 		}
 		return rest;
 	}
-
+	@Authorization(Constants.DMS_WEB_COLLECT_SET)
 	@RequestMapping(value = "/saveType")
 	public @ResponseBody JdResponse<Boolean> saveType(@RequestBody CollectGoodsPlaceCondition condition) {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
@@ -203,6 +209,7 @@ public class CollectGoodsPlaceController {
 	 * @param ids
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_COLLECT_SET)
 	@RequestMapping(value = "/deleteByIds")
 	public @ResponseBody JdResponse<Integer> deleteByIds(@RequestBody List<Long> ids) {
 		JdResponse<Integer> rest = new JdResponse<Integer>();
@@ -228,6 +235,7 @@ public class CollectGoodsPlaceController {
 	 * @param collectGoodsPlaceCondition
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_COLLECT_SET)
 	@RequestMapping(value = "/listData")
 	public @ResponseBody PagerResult<CollectGoodsPlace> listData(@RequestBody CollectGoodsPlaceCondition collectGoodsPlaceCondition) {
 		JdResponse<PagerResult<CollectGoodsPlace>> rest = new JdResponse<PagerResult<CollectGoodsPlace>>();
