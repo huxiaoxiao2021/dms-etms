@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
+import com.jd.bluedragon.distribution.api.response.DmsWaybillInfoResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
@@ -65,4 +66,10 @@ public interface WaybillService {
      * @return
      */
     boolean isMovingWareHouseInnerWaybill(String waybillCode);
+    /**
+     * 获取运单信息
+     * @param packageCode
+     * @return
+     */
+    DmsWaybillInfoResponse getDmsWaybillInfoResponse(String packageCode);
 }
