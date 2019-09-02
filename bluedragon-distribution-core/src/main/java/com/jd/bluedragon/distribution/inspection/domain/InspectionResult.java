@@ -15,6 +15,17 @@ public class InspectionResult implements Serializable {
     /*PDA验货提示语*/
     private String hintMessage;
 
+    /*路由下一节点*/
+    private String nextRouterSiteName;
+
+    public String getNextRouterSiteName() {
+        return nextRouterSiteName;
+    }
+
+    public void setNextRouterSiteName(String nextRouterSiteName) {
+        this.nextRouterSiteName = nextRouterSiteName;
+    }
+
     public InspectionResult(String storageCode) {
         this.storageCode = storageCode;
     }

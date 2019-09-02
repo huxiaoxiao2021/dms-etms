@@ -689,15 +689,16 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
      * @return
      */
     @Override
-    public String menuConstantAccount(String siteCode,String erp){
+    public String menuConstantAccount(String siteCode,String erp,Integer source){
         MenuPdaRequest request = new MenuPdaRequest();
         request.setOperatorErp(erp);
         request.setSiteCode(siteCode);
+        request.setSource(source);
         com.jd.bluedragon.sdk.modules.quarantine.dto.BaseResult<String> result =  commonUseMenuApi.getMenuConstantAccount(request);
         if(result!=null && result.getStatusCode() == com.jd.bluedragon.sdk.modules.quarantine.dto.BaseResult.SUCCESS_CODE) {
             return result.getData();
         }
-        return StringUtils.EMPTY;
+        return "[]";
     }
 
 

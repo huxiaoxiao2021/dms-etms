@@ -47,8 +47,6 @@ public class OrderResource {
 	private static final Integer CODE_WAYBILL_NOE_FOUND = 404;
 	private static final String MESSAGE_WAYBILL_NOE_FOUND = "运单不存在";
 
-	private static final String DEFAUIT_PACKAGE_WEIGHT = "0.0";
-
 	@Autowired
 	private BaseMajorManager baseMajorManager;
 
@@ -61,53 +59,7 @@ public class OrderResource {
 	@GET
 	@Path("/order")
 	public OrderResponse getOrderResponse(@QueryParam("packageCode") String packageCode) {
-		Boolean isIncludePackage = WaybillUtil.isWaybillCode(packageCode);
-		BigWaybillDto waybillDto = this.waybillService.getWaybill(packageCode);
-		if (waybillDto == null || waybillDto.getWaybill() == null || waybillDto.getWaybillState() == null) {
-			return new OrderResponse(OrderResource.CODE_WAYBILL_NOE_FOUND, OrderResource.MESSAGE_WAYBILL_NOE_FOUND);
-		}
-
-		Waybill waybill = waybillDto.getWaybill();
-		BaseStaffSiteOrgDto receiveSite = NumberHelper.isPositiveNumber(waybill.getOldSiteId()) ? this.baseMajorManager
-				.getBaseSiteBySiteId(waybill.getOldSiteId()) : null;
-		BaseStaffSiteOrgDto transferSite = NumberHelper.isPositiveNumber(waybill.getTransferStationId()) ? this.baseMajorManager
-				.getBaseSiteBySiteId(waybill.getTransferStationId()) : null;
-
-		OrderResponse response = new OrderResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
-		response.setAddress(waybill.getReceiverAddress());
-		response.setReassignAddress(waybill.getNewRecAddr());
-		response.setCky2(waybillDto.getWaybillState().getCky2());
-		response.setMobile(waybill.getReceiverMobile());
-		response.setPackageQuantity(waybill.getGoodNumber());
-		response.setPayment(waybill.getPayment());
-		response.setPaymentText(PaymentEnum.getNameByCode(waybill.getPayment()));
-		response.setWaybillCode(waybill.getWaybillCode());
-		response.setWaybillType(waybill.getWaybillType());
-		response.setWaybillTypeText(WaybillTypeEnum.getNameByCode(waybill.getWaybillType()));
-		response.setSendPay(waybill.getSendPay());
-		response.setSiteId(waybill.getOldSiteId());
-		response.setSiteName(receiveSite != null ? receiveSite.getSiteName() : null);
-		response.setTransferStationId(waybill.getTransferStationId());
-		response.setTransferStationName(transferSite != null ? transferSite.getSiteName() : null);
-
-		this.appendPackages(packageCode, isIncludePackage, waybillDto, response);
-        response.setMobile(StringHelper.phoneEncrypt(response.getMobile()));
-		return response;
-	}
-
-	private void appendPackages(String packageCode, Boolean isIncludePackage, BigWaybillDto waybillDto,
-			OrderResponse response) {
-		for (DeliveryPackageD waybillPackage : waybillDto.getPackageList()) {
-			if (isIncludePackage || !isIncludePackage
-					&& waybillPackage.getPackageBarcode().equalsIgnoreCase(packageCode)) {
-				OrderPackage orderPackage = new OrderPackage();
-				orderPackage.setPackageCode(waybillPackage.getPackageBarcode());
-				orderPackage
-						.setPackageWeight(waybillPackage.getAgainWeight() == null ? OrderResource.DEFAUIT_PACKAGE_WEIGHT
-								: String.valueOf(waybillPackage.getAgainWeight()));
-				response.addPackage(orderPackage);
-			}
-		}
+		return this.waybillService.getDmsWaybillInfoResponse(packageCode);
 	}
 
 	@GET

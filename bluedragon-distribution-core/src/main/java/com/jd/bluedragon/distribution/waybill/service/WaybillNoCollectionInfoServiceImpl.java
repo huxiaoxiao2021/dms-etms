@@ -102,8 +102,9 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
             for (String barCode : tcResponse.getData()) {
                 if (WaybillUtil.isPackageCode(barCode)) {
                     String waybillCode = WaybillUtil.getWaybillCode(barCode);
-                    //根据查询范围确定是否计算C网以外的运单
-                    if (queryAllWaybillType(waybillNoCollectionCondition) && isBWaybill(waybillCode)) {
+                    //根据查询范围确定是否计算不齐
+                    //如果只看B网范围，运单是不是B网运单或者是逆向单，如果不在范围里，跳过
+                    if (queryAllWaybillType(waybillNoCollectionCondition) && ! isAllowScope(waybillCode)) {
                         continue;
                     }
 
@@ -130,8 +131,9 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
                                 continue;
                             }
 
-                            //根据查询范围确定是否计算C网以外的运单
-                            if (queryAllWaybillType(waybillNoCollectionCondition) && isBWaybill(waybillCode)) {
+                            //根据查询范围确定是否计算不齐
+                            //如果只看B网范围，运单是不是B网运单或者是逆向单，如果不在范围里，跳过
+                            if (queryAllWaybillType(waybillNoCollectionCondition) && ! isAllowScope(waybillCode)) {
                                 continue;
                             }
                             waybillCodeListTemp.add(waybillCode);
@@ -237,8 +239,9 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
             //如果当前缺少的包裹结果小于阈值，进行计算添加
             if (packageCodeResultList.size() < this.noCollectionPackageMaxCount) {
 
-                //根据查询范围确定是否计算C网以外的运单
-                if (this.queryAllWaybillType(waybillNoCollectionCondition) && isBWaybill(waybillCode)) {
+                //根据查询范围确定是否计算不齐
+                //如果只看B网范围，运单是不是B网运单或者是逆向单，如果不在范围里，跳过
+                if (queryAllWaybillType(waybillNoCollectionCondition) && ! isAllowScope(waybillCode)) {
                     continue;
                 }
                 waybillCodeListTemp.add(waybillCode);
@@ -457,18 +460,37 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
 
     /*
      *
-     * 判断是否是B网运单
+     * 判断是否在查看不齐运单范围
      *
      * */
-    private boolean isBWaybill(String waybillCode) {
+    private boolean isAllowScope(String waybillCode) {
         BigWaybillDto bigWaybillDto = findWaybillAndPack(waybillCode);
         if (bigWaybillDto != null && bigWaybillDto.getWaybill() != null && StringHelper.isNotEmpty(bigWaybillDto.getWaybill().getWaybillSign())) {
             String waybillSign = bigWaybillDto.getWaybill().getWaybillSign();
-            return ! BusinessUtil.isSignInChars(waybillSign, 40, '2', '3') && ! BusinessUtil.isSignY(waybillSign, 36);
+            //如果是B网或逆向单，返回ture
+            return isBWaybill(waybillSign) || isReverseWaybill(waybillSign);
         } else {
             logger.warn("获取【" + waybillCode + "】的运单信息失败，按B网运单处理");
         }
         return true;
+    }
+
+    /*
+     *
+     * 判断是否是：快运运单：包含快运零担、仓配零担和打城配标的运单， waybill_sign40=2或3， 或waybill_sign36=1
+     *
+     * */
+    private boolean isBWaybill(String waybillSign) {
+        return BusinessUtil.isSignInChars(waybillSign, 40, '2', '3') || BusinessUtil.isSignY(waybillSign, 36);
+    }
+
+    /*
+     *
+     * 判断是否为逆向运单
+     *
+     * */
+    private boolean isReverseWaybill(String waybillSign) {
+        return BusinessUtil.isSignInChars(waybillSign, 15, '1', '2', '3', '4','5', '6') || BusinessUtil.isSignInChars(waybillSign, 61, '1', '2', '3');
     }
 
     /*

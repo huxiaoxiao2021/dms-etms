@@ -16,11 +16,15 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.jsf.dms.CancelWaybillJsfManager;
+import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.ReassignWaybillRequest;
 import com.jd.bluedragon.distribution.api.request.ReversePrintRequest;
+import com.jd.bluedragon.distribution.api.response.DmsWaybillInfoResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.JsfVerifyConfig;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.client.domain.ClientOperateRequest;
 import com.jd.bluedragon.distribution.command.JdCommand;
 import com.jd.bluedragon.distribution.command.JdCommandService;
 import com.jd.bluedragon.distribution.command.JdResult;
@@ -31,7 +35,10 @@ import com.jd.bluedragon.distribution.print.domain.TemplateGroupEnum;
 import com.jd.bluedragon.distribution.print.request.PackagePrintRequest;
 import com.jd.bluedragon.distribution.print.request.RePrintRecordRequest;
 import com.jd.bluedragon.distribution.print.service.PackagePrintService;
+import com.jd.bluedragon.distribution.reassignWaybill.service.ReassignWaybillService;
+import com.jd.bluedragon.distribution.rest.packageMake.PackageResource;
 import com.jd.bluedragon.distribution.rest.reverse.ReversePrintResource;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -65,6 +72,12 @@ public class PackagePrintServiceImpl implements PackagePrintService {
     
     @Autowired
     ReversePrintResource reversePrintResource;
+	@Autowired
+	ReassignWaybillService reassignWaybillService;
+	@Autowired
+	private WaybillService waybillService;
+	@Autowired
+	private PackageResource packageResource;
 
     /**
      * 打印JSF接口token校验开关
@@ -230,6 +243,24 @@ public class PackagePrintServiceImpl implements PackagePrintService {
         }
     }
     /**
+     * 校验基本传入参数和权限
+     * @param printRequest
+     * @return
+     */
+    private <T> JdResult<T> checkParams(JdCommand<?> request){
+    	JdResult<T> jdResult = new JdResult<T>();
+    	jdResult.toSuccess();
+		if(request == null || request.getData() == null){
+			jdResult.toFail("请求参数不能为空！");
+			return jdResult;
+		}
+        if(!this.checkVerify(request)){
+        	jdResult.toFail("权限验证失败！请检查传入参数systemCode、secretKey、businessType、operateType的值！");
+            return jdResult;
+        }
+    	return jdResult;
+    }
+    /**
      * 权限验证
      * @param printRequest
      * @return
@@ -383,5 +414,65 @@ public class PackagePrintServiceImpl implements PackagePrintService {
 			return jdResult;
 		}
 	}
-
+	@Override
+	public JdResult<String> getWaybillInfoForBackSchedule(JdCommand<String> packageCodeRequest) {
+    	JdResult<String> jdResult = this.checkParams(packageCodeRequest);
+		if(!jdResult.isSucceed()){
+			return jdResult;
+		}
+		DmsWaybillInfoResponse dmsWaybillInfoResponse = waybillService.getDmsWaybillInfoResponse(packageCodeRequest.getData());
+		if(dmsWaybillInfoResponse != null && JdResponse.CODE_OK.equals(dmsWaybillInfoResponse.getCode())){
+			jdResult.toSuccess();
+			jdResult.setData(JsonHelper.toJson(dmsWaybillInfoResponse));
+		}else if(dmsWaybillInfoResponse != null){
+			jdResult.toFail(dmsWaybillInfoResponse.getCode(),dmsWaybillInfoResponse.getMessage());
+		}else{
+			jdResult.toFail("获取运单数据为空！");
+		}
+		return jdResult;
+	}
+	/**
+	 * 现场预分拣回调处理
+	 */
+	@Override
+	public JdResult<Boolean> backScheduleAfter(JdCommand<String> reassignWaybillRequest) {
+    	JdResult<Boolean> jdResult = this.checkParams(reassignWaybillRequest);
+		if(!jdResult.isSucceed()){
+			return jdResult;
+		}
+		jdResult.setData(Boolean.FALSE);
+        ReassignWaybillRequest requestData = JsonHelper.fromJson(reassignWaybillRequest.getData(), ReassignWaybillRequest.class);
+		if(requestData != null){
+			return reassignWaybillService.backScheduleAfter(requestData);
+		}else{
+			jdResult.toFail("请求参数中data值无效！");
+			return jdResult;
+		}
+	}
+	/**
+	 * 包裹补打回调处理
+	 */
+	public JdResult<Boolean> reprintAfter(JdCommand<String> reprintAfterRequest) {
+    	JdResult<Boolean> jdResult = this.checkParams(reprintAfterRequest);
+		if(!jdResult.isSucceed()){
+			return jdResult;
+		}
+		jdResult.setData(Boolean.FALSE);
+		ClientOperateRequest requestData = JsonHelper.fromJson(reprintAfterRequest.getData(), ClientOperateRequest.class);
+		if(requestData != null){
+			JdResponse jdResponse = packageResource.packReprintAfter(requestData);
+			if(jdResponse != null && JdResponse.CODE_OK.equals(jdResponse.getCode())){
+				jdResult.toSuccess(jdResponse.getMessage());
+				jdResult.setData(Boolean.TRUE);
+			}else if(jdResponse != null){
+				jdResult.toFail(jdResponse.getCode(),jdResponse.getMessage());
+			}else{
+				jdResult.toFail("包裹补打回调处理失败！");
+			}
+			return jdResult;
+		}else{
+			jdResult.toFail("请求参数中data值无效！");
+			return jdResult;
+		}
+	}
 }
