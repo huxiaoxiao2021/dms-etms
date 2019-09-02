@@ -2,13 +2,16 @@ package com.jd.bluedragon.distribution.rest.reverse;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.RepeatPrint;
+import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.ExchangePrintRequest;
 import com.jd.bluedragon.distribution.api.request.PopPrintRequest;
 import com.jd.bluedragon.distribution.api.request.ReversePrintRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.PopPrintResponse;
 import com.jd.bluedragon.distribution.api.response.TaskResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.message.OwnReverseTransferDomain;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.rest.pop.PopPrintResource;
@@ -20,12 +23,18 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.Collections;
 import java.util.Date;
@@ -51,6 +60,10 @@ public class ReversePrintResource {
 
     @Autowired
     private PopPrintResource popPrintResource;
+
+    @Autowired
+    private WaybillCommonService waybillCommonService;
+
     /**
      * 外单逆向换单打印提交数据
      * @return JSON【{code: message: data:}】
@@ -115,6 +128,51 @@ public class ReversePrintResource {
         }catch (Throwable e){
             logger.error("[逆向换单获取新单号]",e);
             result.error(e);
+        }
+        return result;
+    }
+
+    /**
+     *  根据原单号获取对应的新单号
+     *  (此接口会更改QPL新单号包裹数量)
+     * @param request 换单打印请求对象
+     * @return
+     */
+    @POST
+    @Path("/reverse/exchange/getNewWaybillCode")
+    public JdResult<RepeatPrint> getNewWaybillCode(ExchangePrintRequest request){
+        JdResult<RepeatPrint> result=new JdResult<RepeatPrint>();
+        if(StringUtils.isEmpty(request.getOldWaybillCode())){
+            result.toFail("参数错误");
+            return result;
+        }
+        String oldWaybillCode = request.getOldWaybillCode();
+        Integer packNum = request.getPackageNumber();
+        try {
+            InvokeResult<RepeatPrint> invokeResult = reversePrintService.getNewWaybillCode1(oldWaybillCode, true);
+            result.setData(invokeResult.getData());
+            String newWaybillCode = null;
+            if(invokeResult.getCode() == InvokeResult.RESULT_SUCCESS_CODE
+                    && invokeResult.getData() != null && !StringHelper.isEmpty(invokeResult.getData().getNewWaybillCode())){
+                result.toSuccess();
+                //非QPL单号直接返回
+                if(!WaybillUtil.isQPLWaybill(oldWaybillCode)){
+                    return result;
+                }
+                newWaybillCode = invokeResult.getData().getNewWaybillCode();
+                InvokeResult updateResult = waybillCommonService.batchUpdatePackageByWaybillCode(newWaybillCode, packNum);
+                if(updateResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE){
+                    result.toFail(invokeResult.getMessage());
+                }
+            }else {
+                result.toFail(invokeResult.getMessage());
+                if(StringUtils.isEmpty(invokeResult.getMessage())){
+                    result.toFail("没有获取到新的取件单");
+                }
+            }
+        }catch (Throwable e){
+            logger.error("[逆向换单获取新单号]",e);
+            result.toFail("换单失败!");
         }
         return result;
     }

@@ -20,11 +20,6 @@ import static com.jd.bluedragon.dms.utils.DmsConstants.*;
 public class BusinessUtil {
 
     /**
-     * 提取发货批次号中站点正则
-     */
-    private static final Pattern RULE_SEND_CODE_SITE_CODE_REGEX = Pattern.compile(AO_SEND_CODE_REG);
-
-    /**
      * 是不是发货批次号
      *
      * @param sendCode
@@ -34,9 +29,25 @@ public class BusinessUtil {
         if (StringUtils.isBlank(sendCode)) {
             return false;
         }
-        return sendCode.matches(SEND_CODE_REG) || sendCode.matches(AO_SEND_CODE_REG) || isSingleBatchNo(sendCode);
+        return sendCode.matches(SEND_CODE_ALL_REG) || isSingleBatchNo(sendCode);
     }
-
+    /**
+     * 根据批次号的正则匹配始发分拣中心id和目的分拣中心id
+     *
+     * @param sendCode 批次号
+     * @return
+     */
+    public static Integer[] getSiteCodeBySendCode(String sendCode) {
+        Integer[] sites = new Integer[]{-1, -1};
+        if (StringUtils.isNotBlank(sendCode)) {
+            Matcher matcher = DmsConstants.RULE_SEND_CODE_ALL_REGEX.matcher(sendCode.trim());
+            if (matcher.matches()) {
+                sites[0] = Integer.valueOf(matcher.group(1));
+                sites[1] = Integer.valueOf(matcher.group(2));
+            }
+        }
+        return sites;
+    }
   /**
    * 是否为新批次号
    * 批次号判断批次号是否是：站点（数字）+站点（数字）+时间串（14位数字）+序号（2位数字）+模7余数
@@ -684,6 +695,16 @@ public class BusinessUtil {
         return flage;
     }
 
+    /**
+     *判断是否是冷链卡班
+     */
+    public static Boolean isColdChainKB(String waybillSign,String productType){
+        return PRODUCT_TYPE_COLD_CHAIN_KB.equals(productType)
+                || (isSignChar(waybillSign,WaybillSignConstants.POSITION_80,WaybillSignConstants.CHAR_80_7)
+                     && isSignChar(waybillSign,WaybillSignConstants.POSITION_54,WaybillSignConstants.CHAR_54_2)
+                     && isSignInChars(waybillSign,WaybillSignConstants.POSITION_40,WaybillSignConstants.CHAR_40_2,WaybillSignConstants.CHAR_40_3)
+                    );
+    }
 
     /**
      * 判断是否是B网冷链运单
@@ -772,12 +793,9 @@ public class BusinessUtil {
      * @return
      */
     public static Integer getReceiveSiteCodeFromSendCode(String sendCode) {
-        if(!isSendCode(sendCode)){
-            return null;
-        }
-        Matcher matcher = RULE_SEND_CODE_SITE_CODE_REGEX.matcher(sendCode.trim());
-        if (matcher.matches()) {
-            return Integer.parseInt(matcher.group(2));
+    	Integer[] sites = getSiteCodeBySendCode(sendCode);
+        if (sites[1]>0) {
+            return sites[1];
         }
         return null;
     }
@@ -789,12 +807,9 @@ public class BusinessUtil {
      * @return
      */
     public static Integer getCreateSiteCodeFromSendCode(String sendCode) {
-        if(!isSendCode(sendCode)){
-            return null;
-        }
-        Matcher matcher = RULE_SEND_CODE_SITE_CODE_REGEX.matcher(sendCode.trim());
-        if (matcher.matches()) {
-            return Integer.parseInt(matcher.group(1));
+    	Integer[] sites = getSiteCodeBySendCode(sendCode);
+        if (sites[0]>0) {
+            return sites[0];
         }
         return null;
     }

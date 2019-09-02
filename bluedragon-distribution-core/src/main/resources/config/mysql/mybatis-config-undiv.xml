@@ -324,5 +324,8 @@
         <mapper resource="mappers/mysql/collect/CollectGoodsPlaceMapper.xml"/>
         <mapper resource="mappers/mysql/collect/CollectGoodsPlaceTypeMapper.xml"/>
 
+        <!-- 包裹补打记录 -->
+        <mapper resource="mappers/mysql/reprint/ReprintRecordMapper.xml"/>
+
     </mappers>
 </configuration>

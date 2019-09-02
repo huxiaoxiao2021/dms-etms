@@ -73,6 +73,12 @@ public interface WaybillSignConstants {
 	char CHAR_89_2 = '2';
 
 	/**
+	 * 卡班
+	 */
+	int POSITION_80 = 80;
+	char CHAR_80_7 = '7';
+
+	/**
 	 * B网冷链
 	 */
 	int POSITION_54 = 54;
@@ -135,4 +141,14 @@ public interface WaybillSignConstants {
 	 */
 	int POSITION_106 = 106;
 	char CHAR_106_2 = '2';
+	/**
+	 * waybillsign第31位
+	 */
+	int POSITION_31 = 31;
+	char CHAR_31_9 = '9';
+	/**
+	 * waybillsign第84位定义
+	 */
+	int POSITION_84 = 84;
+	char CHAR_84_3 = '3';
 }

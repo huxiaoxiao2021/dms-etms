@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.api.request.QualityControlRequest;
 import com.jd.bluedragon.distribution.api.request.RedeliveryCheckRequest;
 import com.jd.bluedragon.distribution.api.response.QualityControlResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.qualityControl.domain.RedeliveryMode;
 import com.jd.bluedragon.distribution.qualityControl.service.QualityControlService;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -19,6 +20,8 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -139,17 +142,41 @@ public class QualityControlResource {
     }
 
     /**
-     * 协商再投状态校验
+     * 协商再投状态校验 已下架
      * @param request
      * @return
      */
     @POST
     @Path("/qualitycontrol/redeliverycheck")
+    @JProfiler(jKey = "DMSWEB.QualityControlResource.redeliveryCheck", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public InvokeResult<Boolean> redeliveryCheck(RedeliveryCheckRequest request){
         InvokeResult<Boolean> result=new InvokeResult<Boolean>();
+
+        InvokeResult<RedeliveryMode> res=redeliveryCheckNew(request);
+        result.setCode(res.getCode());
+        result.setMessage(res.getMessage());
+        result.setData(res.getData().getIsCompleted());
+
+        return result;
+    }
+
+    /**
+     * 协商再投状态校验
+     * @param request
+     * @return
+     */
+    @POST
+    @Path("/qualitycontrol/redeliverychecknew")
+    @JProfiler(jKey = "DMSWEB.QualityControlResource.redeliveryCheckNew", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public InvokeResult<RedeliveryMode> redeliveryCheckNew(RedeliveryCheckRequest request){
+        InvokeResult<RedeliveryMode> result=new InvokeResult<RedeliveryMode>();
+
+        RedeliveryMode data=new RedeliveryMode();
+        data.setIsCompleted(true);
+
         result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
         result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
-        result.setData(true);
+        result.setData(data);
 
         if(StringUtils.isEmpty(request.getCode()) || null==request.getCodeType() || request.getCodeType()<1){
             logger.error(MessageFormat.format("PDA调用协商再投状态验证接口失败-参数错误[{0}]",JsonHelper.toJson(request)));
@@ -178,20 +205,23 @@ public class QualityControlResource {
                     if (null != busID){
                         int res=qualityControlService.getRedeliveryState(waybillCode,busID);
                         if (res==0){
-                            result.setData(false);
+                            data.setIsCompleted(false);
+                            data.setWaybillCode(waybillCode);
+                            result.setData(data);
                             break;
                         }
                     }
                 }
             }
         } catch (Exception ex) {
-             logger.error("PDA调用协商再投状态验证接口失败，原因 " + ex);
-             result.setCode(InvokeResult.SERVER_ERROR_CODE);
-             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
-           }
+            logger.error("PDA调用协商再投状态验证接口失败，原因 " + ex);
+            result.setCode(InvokeResult.SERVER_ERROR_CODE);
+            result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
+        }
 
         return result;
     }
+
 
     /**
      * 根据运单号获取商家ID

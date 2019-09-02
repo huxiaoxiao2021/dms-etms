@@ -200,6 +200,14 @@ public interface WaybillCommonService {
 	InvokeResult<Integer> getPackNum(String waybillCode);
 
 	/**
+	 * 修改取件单换单后新单的包裹数
+	 * @param waybillCode 新单号
+	 * @param packNum 新单包裹数量
+	 * @return
+	 */
+	InvokeResult batchUpdatePackageByWaybillCode(String waybillCode, Integer packNum);
+
+	/**
 	 * 校验包裹是否存在
 	 * @param packCode
 	 * @return

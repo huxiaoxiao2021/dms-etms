@@ -51,4 +51,24 @@ public interface PackagePrintService {
 	 * @return
 	 */
 	JdResult<Boolean> reversePrintAfter(JdCommand<String> reversePrintAfterRequest);
+
+	/**
+	 * 现场预分拣获取展示数据接口
+	 * @param packageCode 包裹号
+	 * @return
+	 */
+	JdResult<String> getWaybillInfoForBackSchedule(JdCommand<String> packageCode);
+	/**
+	 * 现场预分拣回调处理
+	 * @param reassignWaybillRequest
+	 * @return
+	 */
+	JdResult<Boolean> backScheduleAfter(JdCommand<String> reassignWaybillRequest);
+	/**
+	 * 包裹补打回调处理
+	 * @param reprintAfterRequest
+	 * @return
+	 */
+	JdResult<Boolean> reprintAfter(JdCommand<String> reprintAfterRequest);
+
 }

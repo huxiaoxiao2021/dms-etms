@@ -7,6 +7,7 @@ import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -32,4 +33,26 @@ public interface WaybillConsumableRelationDao extends Dao<WaybillConsumableRelat
      * @return
      */
     PagerResult<WaybillConsumableDetailInfo> queryDetailInfoByPagerCondition(WaybillConsumableRelationCondition waybillConsumableRelationCondition);
+
+    /**
+     * 根据运单号批量更新打包人
+     * @param
+     * @return
+     */
+    int updatePackUserErpByWaybillCode(Map<String, Object> params);
+
+    /**
+     * 根据id批量更新打包人
+     * @param
+     * @return
+     */
+    int updatePackUserErpById(Map<String, Object> params);
+
+    /**
+     * 通过运单号查询未录入打包人ERP的耗材数
+     * @param
+     * @return
+     */
+    int getNoPackUserErpRecordCount(String waybillCode);
+
 }

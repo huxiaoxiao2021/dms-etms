@@ -14,6 +14,7 @@ import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.domain.BaseResult;
 import com.jd.ql.basic.dto.BaseDmsStoreDto;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,8 +42,14 @@ public class PickWareConsumer extends MessageBaseConsumer {
         this.logger.info("[备件库售后取件单-交接/拆包]messageContent：" + messageContent);
         PickWare pickWare = JsonHelper.fromJson(messageContent, PickWare.class);
         pickWare.setPickwareTime(DateHelper.parseDateTime(pickWare.getOperateTime()));
-       
-        pickWareService.add(pickWare);
+        if(StringUtils.isNotBlank(pickWare.getPickwareCode())){
+        	String codes = pickWare.getPickwareCode();
+			for(String pickWareCode : codes.split(",")){
+				pickWare.setPickwareCode(pickWareCode);
+				pickWareService.add(pickWare);
+			}
+		}
+
         
         //增加全程跟踪
         WaybillStatus tWaybillStatus = new WaybillStatus();
