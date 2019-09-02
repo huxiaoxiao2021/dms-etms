@@ -451,6 +451,12 @@ $(function() {
 
 			});
 
+            $("#btn_add_place_reset").click(function(){
+                collectPlaceArray = new Array();
+                $("#place-add-table").html("");
+
+            });
+
             $("#small-pack-max-num").change(function(){
                 if(checkSmallPackMaxNum()){
                     var smallPackMaxNum = $("#small-pack-max-num").val();

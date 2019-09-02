@@ -223,6 +223,7 @@
                 <div class="form-group">
                     <button id="btn_add_place" type="button" class="btn btn-primary" data-toggle="button">加入表格</button>
                 	<button id="btn_add_place_submit" type="button" class="btn btn-primary" data-toggle="button">提交</button>
+                    <button id="btn_add_place_reset" type="button" class="btn btn-primary" data-toggle="button">重置</button>
                 	<button id="btn_return" type="button" class="btn btn-primary" data-toggle="button">返回</button>
                 </div>
                 </fieldset>
