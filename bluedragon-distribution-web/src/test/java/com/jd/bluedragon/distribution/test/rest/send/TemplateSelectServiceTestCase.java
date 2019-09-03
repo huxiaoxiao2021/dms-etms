@@ -12,6 +12,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.domain.PackageTemplate;
 import com.jd.bluedragon.distribution.base.domain.ClientRunningModeConfig;
 import com.jd.bluedragon.distribution.print.domain.DmsPaperSize;
+import com.jd.bluedragon.distribution.print.waybill.handler.PdfLabelFileGenerateHandler;
 import com.jd.bluedragon.distribution.print.waybill.handler.TemplateSelectorWaybillHandler;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.distribution.testCore.base.EntityUtil;
@@ -26,7 +27,10 @@ public class TemplateSelectServiceTestCase {
 	}
     @Autowired
     private TemplateSelectorWaybillHandler templateSelectorWaybillHandler;
-    @Test
+    
+    @Autowired
+    private PdfLabelFileGenerateHandler pdfLabelFileGenerateHandler;
+//    @Test
     public void testUseNewTemplate() throws Exception{
     	//http://dmswebtest.360buy.com/sysconfig/list?pageNo=1&pageSize=10&configName=print.dmsSiteCodes.useNewTemplate
     	//测试启用新模板配置功能
@@ -53,7 +57,7 @@ public class TemplateSelectServiceTestCase {
     	ClientRunningModeConfig clientRunningModeConfig = EntityUtil.getInstance(ClientRunningModeConfig.class);
     	System.err.println(JsonHelper.toJson(clientRunningModeConfig));
     }
-    @Test
+//    @Test
     public void testC() throws Exception{
     	//测试启用新模板配置功能
     	WaybillPrintContext context = EntityUtil.getInstance(WaybillPrintContext.class);
@@ -84,5 +88,11 @@ public class TemplateSelectServiceTestCase {
 	    	}
     	}
     	Assert.assertEquals(paperSizeCodes.length * dmsBusiAliass.length, sucNum);
+    }
+    @Test
+    public void testPdfLabelFileGenerateHandler() throws Exception{
+    	//测试启用新模板配置功能
+    	WaybillPrintContext context = EntityUtil.getInstance(WaybillPrintContext.class);
+    	pdfLabelFileGenerateHandler.handle(context);
     }
 }

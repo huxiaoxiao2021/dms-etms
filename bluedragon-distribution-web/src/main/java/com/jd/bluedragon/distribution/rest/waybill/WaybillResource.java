@@ -8,17 +8,24 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
-import com.jd.bluedragon.core.base.*;
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.core.base.LDOPManager;
+import com.jd.bluedragon.core.base.OBCSManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.EditWeightRequest;
 import com.jd.bluedragon.distribution.api.request.ModifyOrderInfo;
 import com.jd.bluedragon.distribution.api.request.PopAddPackStateRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
-import com.jd.bluedragon.distribution.api.response.*;
+import com.jd.bluedragon.distribution.api.response.BaseResponse;
+import com.jd.bluedragon.distribution.api.response.SortingResponse;
+import com.jd.bluedragon.distribution.api.response.TaskResponse;
+import com.jd.bluedragon.distribution.api.response.WaybillResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
-import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.cross.domain.CrossSortingDto;
@@ -30,6 +37,7 @@ import com.jd.bluedragon.distribution.popPrint.domain.PopAddPackStateTaskBody;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
 import com.jd.bluedragon.distribution.print.request.WaybillRescheduleRequest;
+import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
 import com.jd.bluedragon.distribution.receive.service.ReceiveWeightCheckService;
 import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
 import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
@@ -38,7 +46,16 @@ import com.jd.bluedragon.distribution.saf.WaybillSafResponse;
 import com.jd.bluedragon.distribution.saf.WaybillSafService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
-import com.jd.bluedragon.distribution.waybill.domain.*;
+import com.jd.bluedragon.distribution.waybill.domain.BaseResponseIncidental;
+import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
+import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionCondition;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionException;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionQueryTypeEnum;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionRangeEnum;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionRequest;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionResult;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
 import com.jd.bluedragon.distribution.waybill.service.WaybillNoCollectionInfoService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
@@ -49,7 +66,14 @@ import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.LableType;
+import com.jd.bluedragon.utils.OriginalType;
+import com.jd.bluedragon.utils.PropertiesHelper;
+import com.jd.bluedragon.utils.RestHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageWeigh;
@@ -77,9 +101,19 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Component
 @Path(Constants.REST_URL)
@@ -165,6 +199,9 @@ public class WaybillResource {
 
 	@Autowired
 	private WaybillNoCollectionInfoService waybillNoCollectionInfoService;
+
+    @Autowired
+    private WaybillPrintService waybillPrintService;
 
     /**
      * 根据运单号获取运单包裹信息接口
@@ -703,6 +740,14 @@ public class WaybillResource {
 				}
 			}
 
+            if(scheduleSiteOrgDto != null
+                    && waybillPrintService.isCodMoneyGtZeroAndSiteThird(scheduleSiteOrgDto.getSiteType(),scheduleSiteOrgDto.getSubType(), waybill
+                    .getCodMoney())){
+                logger.warn("codMoney大于0不能分配三方站点waybillCode[{}]siteType[{}]subType[{}]codMoney[{}]",
+                        waybillCodeOrPackage,scheduleSiteOrgDto.getSiteType(),scheduleSiteOrgDto.getSubType(),waybill.getCodMoney());
+                return new WaybillResponse<>(JdResponse.CODE_CODMONAY_THIRD_SITE_ERROR, JdResponse.MESSAGE_CODMONAY_THIRD_SITE_ERROR);
+            }
+
 			//暂时下线签单返回的校验 2019年3月12日20:59:26
             /*String waybillSign = waybill.getWaybillSign();
 			if(BusinessHelper.isSignatureReturnWaybill(waybillSign) && scheduleSiteOrgDto != null
@@ -728,7 +773,7 @@ public class WaybillResource {
 
 	}
 
-	/**
+    /**
 	 * <p>
 	 *     返调度获取打印信息
 	 * </p>
@@ -2216,7 +2261,7 @@ public class WaybillResource {
 			logger.error("请求差异查询，获取站点信息失败，参数："+ JsonHelper.toJson(waybillNoCollectionRequest));
 			return result;
 		} else {
-			//始发和目的都不是快运中心或车队
+			//始发和目的有一个是车队
 			if (Constants.BASE_SITE_MOTORCADE.equals(createSiteOrgDto.getSiteType()) ||
 					Constants.BASE_SITE_MOTORCADE.equals(receiveSiteOrgDto.getSiteType())) {
 				//全部都看

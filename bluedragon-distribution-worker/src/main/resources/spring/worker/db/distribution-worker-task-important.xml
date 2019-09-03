@@ -47,6 +47,15 @@
         <property name="type" value="1260"/>
     </bean>
 
+    <bean id="sortingSuccessTask"
+          class="com.jd.bluedragon.distribution.worker.sorting.SortingSuccessTask"
+          init-method="init" depends-on="managerFactory">
+        <property name="dataSource" ref="taskDataSource"/>
+        <property name="taskType" value="SortingCoreSuccessTask"/>
+        <property name="ownSign" value="${ownSign}"/>
+        <property name="type" value="1280"/>
+    </bean>
+
     <bean id="waybillStatusTask"
           class="com.jd.bluedragon.distribution.worker.waybill.WaybillStatusTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">

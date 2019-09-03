@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jd.bluedragon.distribution.reprint.dao.ReprintRecordDao">
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.reprint.domain.ReprintRecord">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="bar_code" jdbcType="VARCHAR" property="barCode" />
+    <result column="site_code" jdbcType="INTEGER" property="siteCode" />
+    <result column="site_name" jdbcType="VARCHAR" property="siteName" />
+    <result column="operator_code" jdbcType="INTEGER" property="operatorCode" />
+    <result column="operator_name" jdbcType="VARCHAR" property="operatorName" />
+    <result column="operate_time" jdbcType="TIMESTAMP" property="operateTime" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+    <result column="ts" jdbcType="TIMESTAMP" property="ts" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    id, waybill_code, package_code, site_code, site_name, operator_code, operator_name, operate_time,
+    create_time, update_time, is_delete, ts
+  </sql>
+
+  <insert id="add" parameterType="com.jd.bluedragon.distribution.reprint.domain.ReprintRecord">
+    insert into reprint_record
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="barCode != null">
+        bar_code,
+      </if>
+      <if test="siteCode != null">
+        site_code,
+      </if>
+      <if test="siteName != null">
+        site_name,
+      </if>
+      <if test="operatorCode != null">
+        operator_code,
+      </if>
+      <if test="operatorName != null">
+        operator_name,
+      </if>
+      <if test="operateTime != null">
+        operate_time,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+        is_delete
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="barCode != null">
+        #{barCode,jdbcType=VARCHAR},
+      </if>
+      <if test="siteCode != null">
+        #{siteCode,jdbcType=INTEGER},
+      </if>
+      <if test="siteName != null">
+        #{siteName,jdbcType=VARCHAR},
+      </if>
+      <if test="operatorCode != null">
+        #{operatorCode,jdbcType=INTEGER},
+      </if>
+      <if test="operatorName != null">
+        #{operatorName,jdbcType=VARCHAR},
+      </if>
+      <if test="operateTime != null">
+        #{operateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      0
+    </trim>
+  </insert>
+
+  <select id="getCountByCondition" resultType="Integer" parameterType="java.lang.String" >
+		select
+          count(1)
+		from reprint_record
+		where is_delete = 0 and bar_code = #{barCode,jdbcType=VARCHAR}
+
+	</select>
+</mapper>

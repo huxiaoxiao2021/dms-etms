@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -49,6 +50,9 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import static com.jd.bluedragon.distribution.auto.domain.UploadData.NOT_PACKAGECODE_BOXCDOE;
+import static com.jd.bluedragon.distribution.auto.domain.UploadData.NOT_PACKAGECODE_BOXCDOE_MESSAGE;
 
 @Component
 @Path(Constants.REST_URL)
@@ -341,10 +345,13 @@ public class TaskResource {
                 result.customMessage(UploadData.BARCODE_NULL_OR_EMPTY_CODE, UploadData.BARCODE_NULL_OR_EMPTY_MESSAGE);
                 return result;
             }
-            if (domain.getBarCode().trim().length() > UploadData.MAX_BARCODE_LENGTH) {
-                result.customMessage(UploadData.MAX_BARCODE_LENGTH_CODE, UploadData.MAX_BARCODE_LENGTH_MESSAGE);
+            //非包裹号和箱号不处理
+            if (!WaybillUtil.isPackageCode(domain.getBarCode()) && !BusinessUtil.isBoxcode(domain.getBarCode())) {
+                result.customMessage(NOT_PACKAGECODE_BOXCDOE, NOT_PACKAGECODE_BOXCDOE_MESSAGE);
+                logger.info(MessageFormat.format("龙门架上传接口，包裹号{0}非法[非包裹号和箱号]", domain.getBarCode()));
                 return result;
             }
+
             //added by hanjiaxing3 2018.05.04
             Date scannerTime = new Date(DateHelper.adjustTimestampToJava(domain.getScannerTime().getTime()));
             String daysStr = PropertiesHelper.newInstance().getValue("GANTRY_CHECK_DAYS");
