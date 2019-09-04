@@ -437,6 +437,8 @@
     <!-- 转运中台-容器查询接口 -->
     <jsf:consumer id="containerQueryService" interface="com.jd.ql.shared.services.sorting.api.ContainerQueryService"
                   protocol="jsf" alias="${jsf.containerQueryService.alias}" timeout="${jsf.containerQueryService.timeout}" retries="${jsf.retries}">
+        <jsf:parameter key="appCode" value="${jsf.component.container.appName}" hide="true"></jsf:parameter>
+        <jsf:parameter key="authToken" value="${jsf.component.container.token}" hide="true"></jsf:parameter>
     </jsf:consumer>
 
     <!-- ECLP获取新的 -->
