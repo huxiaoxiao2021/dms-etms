@@ -156,8 +156,8 @@ $(function() {
         var oInit = new Object();
         oInit.init = function() {
             $('#dataEditDiv').hide();
-            /*起始时间*/ /*截止时间*/
-            $.datePicker.createNew({
+            /*/!*起始时间*!/ /!*截止时间*!/*/
+/*            $.datePicker.createNew({
                 elem: '#requirePickupTimeBegin',
                 theme: '#3f92ea',
                 type: 'datetime',
@@ -165,7 +165,7 @@ $(function() {
                 max: 0,//最近60天内
                 btns: ['now', 'confirm'],
                 done: function(value, date, endDate){
-                    /*重置表单验证状态*/
+                    /!*重置表单验证状态*!/
                 }
             });
             $.datePicker.createNew({
@@ -176,9 +176,9 @@ $(function() {
                 max: new Date().setDate(new Date().getDate() +1),//最近60天内
                 btns: ['now', 'confirm'],
                 done: function(value, date, endDate){
-                    /*重置表单验证状态*/
+                    /!*重置表单验证状态*!/
                 }
-            });
+            });*/
 
 
             $('#btn_query').click(function() {
