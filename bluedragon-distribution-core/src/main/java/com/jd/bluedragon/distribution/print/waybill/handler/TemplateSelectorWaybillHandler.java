@@ -77,7 +77,7 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
             if (needMatchTemplate) {
             	//冷链合伙人打印，指定为冷链模板
             	if(WaybillPrintOperateTypeEnum.COLD_CHAIN_PRINT.getType().equals(operateType)){
-            		templateName = TEMPlATE_NAME_B2B_COLD;
+            		templateName = TEMPlATE_NAME_B2B_MAIN;
             	}else if (TemplateGroupEnum.TEMPLATE_GROUP_CODE_TC.equals(basePrintWaybill.getTemplateGroupCode())) {
                     //TC模板
                     templateName = TEMPlATE_NAME_TC;
