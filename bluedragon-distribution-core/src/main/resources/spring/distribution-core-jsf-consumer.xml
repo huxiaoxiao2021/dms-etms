@@ -437,6 +437,15 @@
     <!-- 转运中台-容器查询接口 -->
     <jsf:consumer id="containerQueryService" interface="com.jd.ql.shared.services.sorting.api.ContainerQueryService"
                   protocol="jsf" alias="${jsf.containerQueryService.alias}" timeout="${jsf.containerQueryService.timeout}" retries="${jsf.retries}">
+        <jsf:parameter key="appCode" value="${jsf.component.container.appName}" hide="true"></jsf:parameter>
+        <jsf:parameter key="authToken" value="${jsf.component.container.token}" hide="true"></jsf:parameter>
+    </jsf:consumer>
+
+    <!-- 中台-理货 -->
+    <jsf:consumer id="sharedSortingService" interface="com.jd.ql.shared.services.sorting.api.SortingService"
+                  protocol="jsf" alias="${jsf.middleEnd.sorting.alias}" timeout="${jsf.middleEnd.sorting.timeout}" retries="${jsf.retries}">
+        <jsf:parameter key="appCode" value="${jsf.component.container.appName}" hide="true"></jsf:parameter>
+        <jsf:parameter key="authToken" value="${jsf.component.container.token}" hide="true"></jsf:parameter>
     </jsf:consumer>
 
     <!-- ECLP获取新的 -->
@@ -471,11 +480,6 @@
 
     <jsf:consumer id="commonUseMenuApi" interface="com.jd.bluedragon.sdk.modules.menu.CommonUseMenuApi" protocol="jsf"
                   alias="${common.use.menu.jsf.alias}" timeout="${common.use.menu.jsf.timeout}" retries="0">
-    </jsf:consumer>
-
-    <!-- 中台-理货 -->
-    <jsf:consumer id="sharedSortingService" interface="com.jd.ql.shared.services.sorting.api.SortingService"
-                  protocol="jsf" alias="${jsf.middleEnd.sorting.alias}" timeout="${jsf.middleEnd.sorting.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
 
 </beans>
