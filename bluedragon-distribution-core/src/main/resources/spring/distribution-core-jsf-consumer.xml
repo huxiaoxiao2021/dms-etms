@@ -480,4 +480,8 @@
                   protocol="jsf" alias="${jsf.middleEnd.sorting.alias}" timeout="${jsf.middleEnd.sorting.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
 
+    <jsf:consumer id="searchOrganizationOtherServiceJsf" interface="com.jd.ufo.saf.SearchOrganizationOtherService"
+                  protocol="jsf" alias="${jsf.ufo.SearchOrganizationOtherService.alias}" timeout="${jsf.ufo.SearchOrganizationOtherService.timeout}" retries="${jsf.retries}">
+    </jsf:consumer>
+
 </beans>
