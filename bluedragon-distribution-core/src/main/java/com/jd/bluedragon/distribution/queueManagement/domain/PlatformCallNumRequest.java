@@ -14,7 +14,7 @@ public class PlatformCallNumRequest {
     /**
      * 车型
      */
-    private int carType;
+    private String carType;
 
     /**
      * 作业类型
@@ -42,11 +42,11 @@ public class PlatformCallNumRequest {
         this.flowCode = flowCode;
     }
 
-    public int getCarType() {
+    public String getCarType() {
         return carType;
     }
 
-    public void setCarType(int carType) {
+    public void setCarType(String carType) {
         this.carType = carType;
     }
 

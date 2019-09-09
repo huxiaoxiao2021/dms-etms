@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.queueManagement.domain.PlatformWorkRequest
 import com.jd.bluedragon.distribution.queueManagement.service.QueueManagementService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
+import com.jd.intelligent.center.api.common.dto.OperatorInfo;
 import com.jd.intelligent.center.api.common.dto.PdaPlatformInfoResponseDto;
 import com.jd.intelligent.center.api.common.dto.PdaPlatformRequestDto;
 import com.jd.intelligent.center.api.common.dto.PlatformCallNumRequestRequestDto;
@@ -117,7 +118,7 @@ public class QueueManagementResource {
      * @return
      */
     @POST
-    @Path("/queuemanagement/isCoccupyPlatform")
+    @Path("/queuemanagement/iscoccupyplatform")
     @BusinessLog(sourceSys = 1,bizType = 3103)
     @JProfiler(jKey = "DMSWEB.QueueManagementResource.isCoccupyPlatform", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public InvokeResult<Boolean> isCoccupyPlatform(PlatformCallNumRequest request){
@@ -131,11 +132,13 @@ public class QueueManagementResource {
         }
         PlatformCallNumRequestRequestDto req=new PlatformCallNumRequestRequestDto();
         req.setPlatformCode(request.getPlatformCode());
-        req.getOperatorInfo().setOperatorUserErp(request.getOperatorInfo().getOperatorUserErp());
-        req.getOperatorInfo().setCurrentStationCode(request.getOperatorInfo().getCurrentStationCode());
-        req.getOperatorInfo().setResourceTypeEnum(ResourceTypeEnum.getByValue(request.getOperatorInfo().getResourceTypeEnum()));
+        OperatorInfo op=new OperatorInfo();
+        op.setOperatorUserErp(request.getOperatorInfo().getOperatorUserErp());
+        op.setCurrentStationCode(request.getOperatorInfo().getCurrentStationCode());
+        op.setResourceTypeEnum(ResourceTypeEnum.getByValue(request.getOperatorInfo().getResourceTypeEnum()));
         Date date=new Date();
-        req.getOperatorInfo().setOperatorDate(date);
+        op.setOperatorDate(date);
+        req.setOperatorInfo(op);
 
         try{
             result=queueManagementService.isCoccupyPlatform(req);
@@ -158,7 +161,7 @@ public class QueueManagementResource {
     @JProfiler(jKey = "DMSWEB.QueueManagementResource.callNum", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public InvokeResult<PlatformCallNumResponseDto> callNum(PlatformCallNumRequest request){
         InvokeResult<PlatformCallNumResponseDto> result=new InvokeResult<PlatformCallNumResponseDto>();
-        if(StringUtils.isEmpty(request.getPlatformCode()) || StringUtils.isEmpty(request.getFlowCode()) || request.getCarType()<0)
+        if(StringUtils.isEmpty(request.getPlatformCode()) || ((StringUtils.isEmpty(request.getFlowCode()) || StringUtils.isEmpty(request.getCarType())) && request.getPlatformWorkTypeEnum()==0))
         {
             logger.error(MessageFormat.format("叫号接口失败-参数错误[{0}]", JsonHelper.toJson(request)));
             result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
@@ -168,13 +171,15 @@ public class QueueManagementResource {
         PlatformCallNumRequestRequestDto req=new PlatformCallNumRequestRequestDto();
         req.setPlatformCode(request.getPlatformCode());
         req.setFlowCode(request.getFlowCode());
-        req.setCarTypeValue(String.valueOf(request.getCarType()));
+        req.setCarTypeValue(request.getCarType());
         req.setPlatformWorkTypeEnum(getWorkTypeEnum(request.getPlatformWorkTypeEnum()));
-        req.getOperatorInfo().setOperatorUserErp(request.getOperatorInfo().getOperatorUserErp());
-        req.getOperatorInfo().setCurrentStationCode(request.getOperatorInfo().getCurrentStationCode());
-        req.getOperatorInfo().setResourceTypeEnum(ResourceTypeEnum.getByValue(request.getOperatorInfo().getResourceTypeEnum()));
+        OperatorInfo op=new OperatorInfo();
+        op.setOperatorUserErp(request.getOperatorInfo().getOperatorUserErp());
+        op.setCurrentStationCode(request.getOperatorInfo().getCurrentStationCode());
+        op.setResourceTypeEnum(ResourceTypeEnum.getByValue(request.getOperatorInfo().getResourceTypeEnum()));
         Date date=new Date();
-        req.getOperatorInfo().setOperatorDate(date);
+        op.setOperatorDate(date);
+        req.setOperatorInfo(op);
 
         try{
             result=queueManagementService.callNum(req);
@@ -208,11 +213,13 @@ public class QueueManagementResource {
         req.setPlatformCode(request.getPlatformCode());
         req.setQueueTaskCode(request.getQueueTaskCode());
         req.setPlatformWorkTypeEnum(getWorkTypeEnum(request.getPlatformWorkTypeEnum()));
-        req.getOperatorInfo().setOperatorUserErp(request.getOperatorInfo().getOperatorUserErp());
-        req.getOperatorInfo().setCurrentStationCode(request.getOperatorInfo().getCurrentStationCode());
-        req.getOperatorInfo().setResourceTypeEnum(ResourceTypeEnum.getByValue(request.getOperatorInfo().getResourceTypeEnum()));
+        OperatorInfo op=new OperatorInfo();
+        op.setOperatorUserErp(request.getOperatorInfo().getOperatorUserErp());
+        op.setCurrentStationCode(request.getOperatorInfo().getCurrentStationCode());
+        op.setResourceTypeEnum(ResourceTypeEnum.getByValue(request.getOperatorInfo().getResourceTypeEnum()));
         Date date=new Date();
-        req.getOperatorInfo().setOperatorDate(date);
+        op.setOperatorDate(date);
+        req.setOperatorInfo(op);
 
         try{
             result=queueManagementService.platformWorkFeedback(req);
