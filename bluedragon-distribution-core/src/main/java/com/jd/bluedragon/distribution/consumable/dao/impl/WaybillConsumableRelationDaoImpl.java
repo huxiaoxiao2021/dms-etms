@@ -10,7 +10,9 @@ import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelatio
 import com.jd.bluedragon.distribution.consumable.dao.WaybillConsumableRelationDao;
 import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -31,5 +33,20 @@ public class WaybillConsumableRelationDaoImpl extends BaseDao<WaybillConsumableR
     @Override
     public PagerResult<WaybillConsumableDetailInfo> queryDetailInfoByPagerCondition(WaybillConsumableRelationCondition waybillConsumableRelationCondition) {
         return this.queryByPagerCondition("queryDetailInfoByPagerCondition", waybillConsumableRelationCondition);
+    }
+
+    @Override
+    public int updatePackUserErpByWaybillCode(Map<String, Object> params) {
+        return sqlSession.update(this.nameSpace+".updatePackUserErpByWaybillCode", params);
+    }
+
+    @Override
+    public int updatePackUserErpById(Map<String, Object> params) {
+        return sqlSession.update(this.nameSpace+".updatePackUserErpById", params);
+    }
+
+    @Override
+    public int getNoPackUserErpRecordCount(String waybillCode) {
+        return sqlSession.selectOne(this.nameSpace+".getNoPackUserErpRecordCount", waybillCode);
     }
 }

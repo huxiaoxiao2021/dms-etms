@@ -244,11 +244,9 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                 }
             } else {
                 this.logger.warn("通过运单号" + waybillCode + "获取运单商品明细失败!");
-                return null;
             }
         }else {
             this.logger.warn("通过运单号" + waybillCode + "获取运单信息失败!");
-            return null;
         }
         String oldWaybillCodeV1 = null; //一次换单原单号
         String oldWaybillCodeV2 = null; //二次换单原单号
@@ -280,6 +278,7 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                     inboundOrder.setSource(InboundSourceEnum.BD);
                     List<ItemInfo> itemInfos = eclpItemManager.getltemBySoNo(eclpBusiOrderCode);
                     if (itemInfos != null && itemInfos.size() > 0) {
+                        list.clear(); //清理商品信息，仓配只认ECLP主数据商品，不需要运单的商品数据
                         //原事业部ID (仓配有纯配无)
                         inboundOrder.setOriginDeptId(itemInfos.get(0).getDeptId());
                         //仓配商品信息

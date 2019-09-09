@@ -13,9 +13,9 @@ public class UploadData implements Serializable {
 
     public static final Integer MAX_BARCODE_LENGTH = 32;
 
-    public static final Integer MAX_BARCODE_LENGTH_CODE = 4003;
+    public static final Integer NOT_PACKAGECODE_BOXCDOE = 4002;
 
-    public static final String MAX_BARCODE_LENGTH_MESSAGE = "条码长度超32字符";
+    public static final String NOT_PACKAGECODE_BOXCDOE_MESSAGE = "条码非法，必须为包裹号或箱号";
 
     public static final Integer BARCODE_NULL_OR_EMPTY_CODE = 4001;
 

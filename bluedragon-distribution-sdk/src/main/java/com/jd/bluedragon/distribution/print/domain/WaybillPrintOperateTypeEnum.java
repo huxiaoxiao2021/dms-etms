@@ -20,7 +20,14 @@ public enum WaybillPrintOperateTypeEnum {
     SITE_MASTER_RESCHEDULE_PRINT(100503, "站长工作台：现场预分拣"),
     
     SMS_REVERSE_CHANGE_PRINT(100304, "终端：换单打印"),
-    SMS_REVERSE_CHANGE_REPRINT(100305, "终端：换单补打");
+    SMS_REVERSE_CHANGE_REPRINT(100305, "终端：换单补打"),
+    /**
+     * 100306-冷链合伙人打印
+     */
+    COLD_CHAIN_PRINT(100306, "冷链合伙人打印"),
+
+    SITE_3PL_MASTER_RESCHEDULE_REPRINT(100307, "终端3PL：现场预分拣"),
+    SITE_3PL_PACKAGE_AGAIN_REPRINT(100308, "终端3PL：包裹补打");
 
 
     private Integer type;//操作类型
@@ -40,6 +47,9 @@ public enum WaybillPrintOperateTypeEnum {
     public static Integer BATCH_SORT_WEIGH_PRINT_TYPE = 100107;//批量分拣称重操作类型
     public static Integer FAST_TRANSPORT_PRINT_TYPE= 100108;//快运称重打印操作类型
     public static Integer BATCH_PACKAGE_AGAIN_PRINT_TYPE = 100109;//批量包裹补打操作类型
+    public static Integer SITE_3PL_MASTER_RESCHEDULE_REPRINT_TYPE = 100307;//终端3PL现场预分拣
+    public static Integer SITE_3PL_PACKAGE_AGAIN_REPRINT_TYPE = 100308;//终端3PL包裹补打
+
     public String getName() {
         return name;
     }

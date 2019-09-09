@@ -1,6 +1,38 @@
 package com.jd.bluedragon.distribution.rest.packageMake;
 
-import java.util.Date;
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.core.redis.service.RedisManager;
+import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.ModifyOrderInfo;
+import com.jd.bluedragon.distribution.client.domain.ClientOperateRequest;
+import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
+import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
+import com.jd.bluedragon.distribution.print.domain.RePrintRecordMq;
+import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
+import com.jd.bluedragon.distribution.print.request.RePrintCallBackRequest;
+import com.jd.bluedragon.distribution.reprint.domain.ReprintRecord;
+import com.jd.bluedragon.distribution.reprint.service.ReprintRecordService;
+import com.jd.bluedragon.distribution.rest.waybill.WaybillResource;
+import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -9,34 +41,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
-
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
-import com.jd.bluedragon.core.redis.service.RedisManager;
-import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.request.ModifyOrderInfo;
-import com.jd.bluedragon.distribution.client.domain.ClientOperateRequest;
-import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
-import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
-import com.jd.bluedragon.distribution.rest.waybill.WaybillResource;
-import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.print.domain.RePrintRecordMq;
-import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
-import com.jd.bluedragon.distribution.print.request.RePrintCallBackRequest;
-import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.bluedragon.distribution.task.service.TaskService;
-import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.*;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Date;
 
 /**
  * Created by hujiping on 2018/4/4.
@@ -72,6 +77,10 @@ public class PackageResource {
     @Autowired
     private WaybillResource waybillResource;
 
+    @Autowired
+    private ReprintRecordService reprintRecordService;
+
+
     public static String RE_PRINT_PREFIX = "RE_PRINT_CODE_";
     @GET
     @Path("/packageMake/packageRePrint/{barCode}/{waybillSign}/{siteId}/{operateName}")
@@ -102,6 +111,7 @@ public class PackageResource {
 
         //1.修改客户地址补打,发送全程跟踪,用于在商城前台显示
         BaseStaffSiteOrgDto bDto = null;
+        String siteName = null;
         try{
             Integer siteType = 0;
             if(siteId != null){
@@ -109,6 +119,7 @@ public class PackageResource {
             }
             if(bDto != null){
                 siteType = bDto.getSiteType();
+                siteName = bDto.getSiteName();
             }
             if(siteType != 0 && StringHelper.isNotEmpty(waybillSign)){
                 //操作人所在机构是配送站并且waybillSign第八位是1或2或3的触发全程跟踪
@@ -135,6 +146,15 @@ public class PackageResource {
             jdResponse.setCode(400);
             jdResponse.setMessage("参数错误，不能触发包裹补打的全程跟踪!不存在的siteId："+siteId);
         }
+
+        //3.补打记录
+        ReprintRecord rePrintRecord = new ReprintRecord();
+        rePrintRecord.setBarCode(barCode);
+        rePrintRecord.setSiteCode(siteId);
+        rePrintRecord.setSiteName(siteName);
+        rePrintRecord.setOperatorCode(operatorId);
+        rePrintRecord.setOperatorName(operateName);
+        reprintRecordService.insertRePrintRecord(rePrintRecord);
 
         return jdResponse;
     }
@@ -183,6 +203,7 @@ public class PackageResource {
     }
     @GET
     @Path("/package/checkRePrint/{barCode}")
+    @JProfiler(jKey = "DMSWEB.PackageResource.checkRePrint",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = JProEnum.TP)
     public JdResponse checkRePrint(@PathParam("barCode") String barCode){
         //1. 从redis中获得补打操作的条码缓存
         JdResponse jdResponse = new JdResponse();
@@ -198,6 +219,33 @@ public class PackageResource {
         return jdResponse;
     }
 
+    @GET
+    @Path("/package/checkRePrintNew/{barCode}")
+    @JProfiler(jKey = "DMSWEB.PackageResource.checkRePrintNew",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = JProEnum.TP)
+    public JdResponse checkRePrintNew(@PathParam("barCode") String barCode){
+        JdResponse jdResponse = new JdResponse();
+        jdResponse.setCode(JdResponse.CODE_OK);
+        String waybillCode = barCode;
+        String packageCode = null;
+        //如果条码号为包裹号，重新赋值
+        if (WaybillUtil.isPackageCode(barCode)) {
+            waybillCode = WaybillUtil.getWaybillCode(barCode);
+            packageCode = barCode;
+        }
+        //优先判断运单是否被补打过
+        if (StringHelper.isNotEmpty(waybillCode) && reprintRecordService.isBarCodeRePrinted(waybillCode)) {
+            jdResponse.setCode(JdResponse.CODE_RE_PRINT_REPEAT);
+            jdResponse.setMessage(JdResponse.MESSAGE_RE_PRINT_REPEAT);
+            return jdResponse;
+        }
+        //运单没有被补打过，判断包裹号是否补打过
+        if (StringHelper.isNotEmpty(packageCode) && reprintRecordService.isBarCodeRePrinted(packageCode)) {
+            jdResponse.setCode(JdResponse.CODE_RE_PRINT_REPEAT);
+            jdResponse.setMessage(JdResponse.MESSAGE_RE_PRINT_REPEAT);
+        }
+
+        return jdResponse;
+    }
     /**
      * 1. /services/OperationLogResource/add 记录操作日志
      * 2. /services/packageMake/packageRePrint 记录全程跟踪
@@ -295,7 +343,7 @@ public class PackageResource {
 
         waybillStatus.setOperateTime(new Date());
         waybillStatus.setOperator(operateName);
-        waybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_MSGTYPE_UPDATE);
+        waybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_WAYBILL_BD);
 
         Task task = new Task();
         task.setTableName(Task.TABLE_NAME_POP);

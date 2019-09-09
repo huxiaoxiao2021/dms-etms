@@ -21,6 +21,16 @@ public class ReverseSendMQToECLP {
     /*操作人姓名*/
     private String operator;
 
+    /*
+    * 配送中心编码，天音项目增加
+    * */
+    private Integer distributeNo;
+
+    /*
+    * 库房编号，天音项目增加
+    * */
+    private Integer warehouseNo;
+
     public String getJdOrderCode() {
         return jdOrderCode;
     }
@@ -99,5 +109,21 @@ public class ReverseSendMQToECLP {
 
     public void setOperator(String operator) {
         this.operator = operator;
+    }
+
+    public Integer getDistributeNo() {
+        return distributeNo;
+    }
+
+    public void setDistributeNo(Integer distributeNo) {
+        this.distributeNo = distributeNo;
+    }
+
+    public Integer getWarehouseNo() {
+        return warehouseNo;
+    }
+
+    public void setWarehouseNo(Integer warehouseNo) {
+        this.warehouseNo = warehouseNo;
     }
 }

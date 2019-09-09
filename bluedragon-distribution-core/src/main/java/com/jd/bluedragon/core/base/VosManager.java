@@ -32,4 +32,19 @@ public interface VosManager {
      */
     SealCarDto querySealCarByBatchCode(String batchCode) throws Exception;
 
+
+    /**
+     * VOS封车业务同时生成车次任务
+     * @param sealCarDto
+     * @return
+     */
+    CommonDto<String> doSealCarWithVehicleJob(SealCarDto sealCarDto);
+
+    /**
+     * VOS校验车牌号能否封车创建车次任务
+     * @param verifyVehicleJobDto
+     * @return
+     */
+    CommonDto<String> verifyVehicleJobByVehicleNumber(VerifyVehicleJobDto  verifyVehicleJobDto);
+
 }

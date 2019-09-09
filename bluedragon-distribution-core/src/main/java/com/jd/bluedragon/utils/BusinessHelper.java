@@ -16,7 +16,6 @@ import java.util.regex.Pattern;
 public class BusinessHelper {
 
     private final static Logger logger = Logger.getLogger(BusinessHelper.class);
-    public final static String SEND_CODE_REG = "^\\d+-\\d+-\\d{15,17}$"; //批次号正则
     public static final String PACKAGE_SEPARATOR = "-";
     public static final String PACKAGE_IDENTIFIER_SUM = "S";
     public static final String PACKAGE_IDENTIFIER_NUMBER = "N";
@@ -183,11 +182,22 @@ public class BusinessHelper {
             String waybillSign = bigWaybillDto.getWaybill().getWaybillSign();
             //WaybillSign40=2或3时，并且WaybillSign25=2时（只外单快运纯配、外单快运仓配并且运费到付），需校验
             if ((BusinessUtil.isSignChar(waybillSign, 40, '2') || BusinessUtil.isSignChar(waybillSign, 40, '3'))
-                    && BusinessUtil.isSignChar(waybillSign, 25, '2')) {
+                    && BusinessUtil.isSignChar(waybillSign, 25, '2')
+                    && !reverseB2bNoInterceptFreight(waybillSign)) {
                 return NumberHelper.gt0(bigWaybillDto.getWaybill().getFreight());
             }
         }
         return true;
+    }
+
+    /**
+     * 逆向不计费运单
+     * @param waybillSign
+     * @return true 不计费，false 计费
+     */
+    private static boolean reverseB2bNoInterceptFreight(String waybillSign){
+        //waybillSign第14位等于D或E，为逆向不计费运单，不用校验运费，不用拦截;(D:原单作废，E:原单拒收因京东原因产生的逆向)
+        return BusinessUtil.isSignInChars(waybillSign,14,'D','E');
     }
 
     /**
@@ -203,7 +213,8 @@ public class BusinessHelper {
             String waybillSign = bigWaybillDto.getWaybill().getWaybillSign();
             //WaybillSign62=1时，并且WaybillSign25=3时（只外单快运纯配、外单快运仓配并且运费寄付），需校验
             if (BusinessUtil.isSignChar(waybillSign, 62, '1')
-                    && BusinessUtil.isSignChar(waybillSign, 25, '3')) {
+                    && BusinessUtil.isSignChar(waybillSign, 25, '3')
+                    && !reverseB2bNoInterceptFreight(waybillSign)) {
                 return NumberHelper.gt0(bigWaybillDto.getWaybill().getFreight());
             }
         }
@@ -346,10 +357,7 @@ public class BusinessHelper {
     }
 
     public static boolean isSendCode(String sendCode) {
-        if (sendCode == null) {
-            return false;
-        }
-        return sendCode.matches(SEND_CODE_REG);
+        return BusinessUtil.isSendCode(sendCode);
     }
 
     /**

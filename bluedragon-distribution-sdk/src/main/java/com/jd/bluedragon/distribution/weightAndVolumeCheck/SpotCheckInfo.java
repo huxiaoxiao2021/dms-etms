@@ -13,6 +13,8 @@ public class SpotCheckInfo extends DbEntity {
     private static final long serialVersionUID = 1L;
 
     /** 机构编码 */
+    private Integer orgCode;
+    /** 机构编码 */
     private Integer siteCode;
     /** 机构名称 */
     private String siteName;
@@ -22,6 +24,14 @@ public class SpotCheckInfo extends DbEntity {
     private Integer trustPackageNum;
     /** 导入人ERP */
     private String importErp;
+
+    public Integer getOrgCode() {
+        return orgCode;
+    }
+
+    public void setOrgCode(Integer orgCode) {
+        this.orgCode = orgCode;
+    }
 
     public Integer getSiteCode() {
         return siteCode;

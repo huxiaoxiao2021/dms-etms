@@ -16,6 +16,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.bluedragon.sdk.modules.menu.dto.MenuConstantAccountInfo;
+import com.jd.bluedragon.sdk.modules.menu.dto.MenuPdaRequest;
+import com.jd.bluedragon.utils.JsonHelper;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.GZIP;
@@ -35,6 +39,7 @@ import com.jd.bluedragon.distribution.api.response.BaseDatadict;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.distribution.api.response.BaseStaffResponse;
 import com.jd.bluedragon.distribution.api.response.DatadictResponse;
+import com.jd.bluedragon.distribution.api.response.LoginUserResponse;
 import com.jd.bluedragon.distribution.api.response.SysConfigResponse;
 import com.jd.bluedragon.distribution.api.response.WarehouseResponse;
 import com.jd.bluedragon.distribution.base.domain.BaseSetConfig;
@@ -44,6 +49,7 @@ import com.jd.bluedragon.distribution.base.domain.VtsBaseSetConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.base.service.UserService;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
 import com.jd.bluedragon.distribution.version.service.ClientConfigService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -68,6 +74,7 @@ import com.jd.ql.basic.domain.PsStoreInfo;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.dto.SimpleBaseSite;
 import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @Component
 @Path(Constants.REST_URL)
@@ -295,7 +302,11 @@ public class BaseResource {
 	public BaseResponse login(LoginRequest request) {
 		return userService.dmsClientLogin(request);
 	}
-
+	@POST
+	@Path("/bases/getLoginUser")
+	public JdResult<LoginUserResponse> getLoginUser(LoginRequest request) {
+		return userService.getLoginUser(request);
+	}
 	@GET
 	@Path("/bases/drivers/{orgId}")
 	public List<BaseResponse> getDrivers(@PathParam("orgId") Integer orgId) {
@@ -961,7 +972,8 @@ public class BaseResource {
 					siteCodes.add(perSiteCode);
 					//根据三方-合作站点获取三方-合作站点所属自营站点
 					if(BusinessUtil.isThreePartner(perSite.getSiteType(),perSite.getSubType())
-							|| BusinessUtil.isSchoolyard(perSite.getSiteType(),perSite.getSubType())){
+							|| BusinessUtil.isSchoolyard(perSite.getSiteType(),perSite.getSubType())
+							|| BusinessUtil.isRecovery(perSite.getSiteType(),perSite.getSubType())){
 						Integer PartnerSite =  baseMajorManager.getPartnerSiteBySiteId(perSiteCode);
 						if(PartnerSite!=null){
 							//记录大站
@@ -1536,6 +1548,63 @@ public class BaseResource {
 		logger.info("查路由接口参数为token:"+token+",startNode:"+startNode + "endNode:" +endNodeCode + ",predictSendTime:"+predictSendTime + ",routeProduct:"+routeProduct);
 		CommonDto<RecommendRouteResp> commonDto = routeComputeUtil.queryRecommendRoute(startNode, endNodeCode, predictSendTime, routeProduct);
 		return commonDto;
+	}
+
+
+	@POST
+	@Path("menu/pda/account")
+	public InvokeResult<String> menuPdaAccount(MenuPdaRequest request){
+		InvokeResult<String> result = new InvokeResult<>();
+		logger.info("pda常用菜单统计，请求参数:" + JsonHelper.toJson(request));
+
+		if(StringUtils.isEmpty(request.getSiteCode())|| StringUtils.isEmpty(request.getOperatorErp())){
+			result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+			result.setMessage(InvokeResult.PARAM_ERROR);
+			return result;
+		}
+
+		//根据机构编码及操作人erp查询
+		try{
+			String resultJsonStr = baseMajorManager.menuConstantAccount(request.getSiteCode(),request.getOperatorErp(),1);
+			result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+			result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+			result.setData(resultJsonStr);
+		}catch (Exception e){
+			result.setCode(InvokeResult.SERVER_ERROR_CODE);
+			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
+			logger.error("常用功能异常"+JsonHelper.toJson(request),e);
+		}
+
+
+		return result;
+	}
+
+	@POST
+	@Path("menu/print/account")
+	public InvokeResult<String> menuPrintAccount(MenuPdaRequest request){
+		InvokeResult<String> result = new InvokeResult<>();
+		logger.info("打印客户端常用菜单统计，请求参数:" + JsonHelper.toJson(request));
+
+		if(StringUtils.isEmpty(request.getSiteCode())|| StringUtils.isEmpty(request.getOperatorErp())){
+			result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+			result.setMessage(InvokeResult.PARAM_ERROR);
+			return result;
+		}
+
+		//根据机构编码及操作人erp查询
+		try{
+			String resultJsonStr = baseMajorManager.menuConstantAccount(request.getSiteCode(),request.getOperatorErp(),3);
+			result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+			result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+			result.setData(resultJsonStr);
+		}catch (Exception e){
+			result.setCode(InvokeResult.SERVER_ERROR_CODE);
+			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
+			logger.error("常用功能异常"+JsonHelper.toJson(request),e);
+		}
+
+
+		return result;
 	}
 }
 

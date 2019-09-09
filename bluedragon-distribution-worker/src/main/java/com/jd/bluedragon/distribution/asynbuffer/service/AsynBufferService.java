@@ -35,6 +35,14 @@ public interface AsynBufferService {
         //分拣
         public boolean sortingTaskProcess(Task task)throws Exception;
 
+        /**
+         * 分拣核心操作成功后的补充操作
+         *
+         * @param task
+         * @return
+         */
+        boolean executeSortingSuccess(Task task);
+
         //统一处理task_send入口，根据keyword1对应具体的方法
         public boolean taskSendProcess(Task task)throws Exception;
 

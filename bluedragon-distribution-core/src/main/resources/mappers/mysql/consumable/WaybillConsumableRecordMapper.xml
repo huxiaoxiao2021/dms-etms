@@ -32,7 +32,8 @@
         <result column="unit" property="unit" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="receive_quantity" property="receiveQuantity" javaType="java.lang.Double" jdbcType="DECIMAL" />
         <result column="confirm_quantity" property="confirmQuantity" javaType="java.lang.Double" jdbcType="DECIMAL" />
-        <result column="receive_user_erp" property="receiveUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="pack_user_erp" property="packUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="receive_user_erp" property="receiveUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="confirm_status" property="confirmStatus" javaType="java.lang.Integer" jdbcType="TINYINT" />
         <result column="confirm_status_str" property="confirmStatusStr" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="confirm_user_erp" property="confirmUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -324,7 +325,7 @@
 	</select>
 
 	<select id="exportInfoByWebCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="WaybillConsumableExportDto">
-        select record.waybill_code,receive_time,dms_name,type_name,name,unit,receive_quantity,confirm_quantity,receive_user_erp,confirm_status,confirm_user_erp,confirm_time,volume,volume_coefficient,specification,
+        select record.waybill_code,receive_time,dms_name,type_name,name,unit,receive_quantity,confirm_quantity,pack_user_erp,receive_user_erp,confirm_status,confirm_user_erp,confirm_time,volume,volume_coefficient,specification,
         CASE confirm_status
         WHEN 1 THEN
         '已确认'

@@ -66,6 +66,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
     /** 分拣相关　 */
     public static final Integer TASK_TYPE_SORTING = 1200; // 分拣
     public static final Integer TASK_TYPE_SORTING_SPLIT = 1260; // 分拣拆分任务
+    public static final Integer TASK_TYPE_SORTING_CORE_SUCCESS = 1280; //核心分拣操作执行成功任务
     public static final Integer TASK_TYPE_SEAL_BOX = 1210; // 分拣封箱
     public static final Integer TASK_TYPE_RETURNS = 1220;// 分拣退货
     public static final Integer TASK_TYPE_SORTING_EXCEPTION=1240; //分拣异常记录日志
@@ -509,7 +510,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
         Assert.notNull(type, "type must not be null");
         
         if (Task.TASK_TYPE_SORTING.equals(type) || Task.TASK_TYPE_SEAL_BOX.equals(type)
-                || Task.TASK_TYPE_RETURNS.equals(type) || Task.TASK_TYPE_SORTING_SPLIT.equals(type)) {
+                || Task.TASK_TYPE_RETURNS.equals(type) || Task.TASK_TYPE_SORTING_SPLIT.equals(type) || TASK_TYPE_SORTING_CORE_SUCCESS.equals(type)) {
             return Task.TABLE_NAME_SORTING;
         } else if (Task.TASK_TYPE_RECEIVE.equals(type) || Task.TASK_TYPE_INSPECTION.equals(type)
                 || Task.TASK_TYPE_SHIELDS_CAR_ERROR.equals(type)
@@ -801,6 +802,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return "SortingTaskN";
         }else if(TASK_TYPE_SORTING_SPLIT.equals(type)){
             return "SortingSplitTaskN";
+        }else if(TASK_TYPE_SORTING_CORE_SUCCESS.equals(type)){
+            return "SortingCoreSuccessTask";
         }else if(TASK_TYPE_SEAL_BOX.equals(type)){
             return "SealBoxTask";
         }else if(TASK_TYPE_RETURNS.equals(type)){

@@ -50,4 +50,18 @@ public class FileUtils {
             }
         }
     }
+
+    /**
+     * 根据文件全名获取文件扩展名
+     *
+     * @param fullFileName
+     * @return
+     */
+    public static String getFileExtName(String fullFileName) {
+        int index = fullFileName.lastIndexOf(".");
+        if (index == -1) {
+            return "";
+        }
+        return fullFileName.substring(index + 1);
+    }
 }

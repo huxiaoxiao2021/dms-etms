@@ -93,7 +93,7 @@
                 AND update_user_code = #{updateUserCode,jdbcType=INTEGER}
             </if>
             <if test="updateTime!=null">
-                AND updateTime = #{updateTime,jdbcType=TIMESTAMP}
+                AND update_time = #{updateTime,jdbcType=TIMESTAMP}
             </if>
             <if test="yn!=null">
                 AND yn = #{yn,jdbcType=INTEGER}
@@ -196,23 +196,13 @@
         </where>
     </sql>
 
-
-    <select id="queryForObject" parameterType="Inspection" resultMap="BaseResultMap">
-        SELECT
-        <include refid="Base_Column_List"/>
-        FROM inspection
-        <include refid="where_condition"/>
-        AND rownum <![CDATA[<=]]> 1
-    </select>
-
-
     <select id="selectSelective" resultMap="BaseResultMap" parameterType="Inspection">
         SELECT
         <include refid="Base_Column_List"/>
         FROM inspection
         <include refid="where_condition"/>
         <if test="limitNo!=null and startNo!=null">
-            AND rownum <![CDATA[<=]]> ${limitNo}
+            AND rownum <![CDATA[<=]]> #{limitNo}
         </if>
     </select>
 

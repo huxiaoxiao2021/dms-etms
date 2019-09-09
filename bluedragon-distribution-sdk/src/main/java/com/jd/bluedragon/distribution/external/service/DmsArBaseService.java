@@ -1,13 +1,12 @@
 package com.jd.bluedragon.distribution.external.service;
 
-import com.jd.bluedragon.distribution.api.request.ArAbnormalRequest;
-import com.jd.bluedragon.distribution.api.response.ArAbnormalResponse;
 import com.jd.ql.dms.common.domain.DictionaryInfoModel;
 
 import java.util.List;
 
 /**
  * 空铁基础服务接口
+ * 发往物流网关的接口不要在此类中加方法
  * <p>
  * Created by lixin39 on 2018/5/28.
  */

@@ -31,6 +31,13 @@ $(function () {
                         message:'数量为数字且最多三位小数'
                     }
                 }
+            },
+            packUserErp: {
+                validators: {
+                    notEmpty: {
+                        message: '打包人ERP不能为空！'
+                    }
+                }
             }
         }
     });
@@ -120,7 +127,7 @@ $(function () {
                         });
 
                     }else {
-                        $.msg.error("新增信息失败！",res.statusMessage);
+                        $.msg.error(res.message);
                     }
                 },'json',function (XMLHttpRequest, textStatus, errorThrown) {
                     $.msg.error("新增信息成功失败！","");
