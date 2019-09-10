@@ -62,6 +62,11 @@ public class ArBaseResource {
         for (BusType busType : allBusTypes) {
             result.add(new DictionaryInfoModel(busType.getBusTypeId(), busType.getBusTypeName(), ARCommonDictionaryType.BUS_TYPE.getType()));
         }
+        //货物类型
+
+        for (BusType busType : allBusTypes) {//todo 数据源获取
+            result.add(new DictionaryInfoModel(busType.getBusTypeId(), busType.getBusTypeName(), ARCommonDictionaryType.GOODS_TYPE.getType()));
+        }
 
         Collections.sort(result);
         return result;
