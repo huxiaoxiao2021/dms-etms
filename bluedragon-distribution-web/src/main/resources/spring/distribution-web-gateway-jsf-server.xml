@@ -115,4 +115,17 @@
                   alias="${dms.gateway.jsf.alias}"
                   ref="storagePutawayGatewayServiceImpl" server="dmsjsf">
     </jsf:provider>
+    <!-- 基础数据服务 -->
+    <bean id="baseDataGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.BaseDataGatewayServiceImpl"/>
+    <jsf:provider id="jsfbaseDataGatewayService" interface="com.jd.bluedragon.external.gateway.service.BaseDataGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="baseDataGatewayService"
+                  server="dmsjsf"/>
+
+    <!-- 异常处理服务 -->
+    <bean id="abnormalOrderGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.AbnormalOrderGatewayServiceImpl"/>
+    <jsf:provider id="jsfabnormalOrderGatewayService" interface="com.jd.bluedragon.external.gateway.service.AbnormalOrderGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="abnormalOrderGatewayService"
+                  server="dmsjsf"/>
 </beans>
