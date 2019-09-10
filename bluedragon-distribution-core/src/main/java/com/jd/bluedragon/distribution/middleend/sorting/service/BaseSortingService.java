@@ -208,7 +208,9 @@ public abstract class BaseSortingService {
         object.setMiddleEndSorting(middleEndSorting);
 
         //IS_LOSS FEATURE_TYPE 合并
-        if (SORTING_STATUS_FEATURE_TYPE_2.equals(dmsSorting.getFeatureType())) {
+        if(null == dmsSorting.getFeatureType() && null == dmsSorting.getIsLoss()){
+            middleEndSorting.setStatus(SortingObjectStatus.NORMAL);
+        }else if (SORTING_STATUS_FEATURE_TYPE_2.equals(dmsSorting.getFeatureType())) {
             middleEndSorting.setStatus(SortingObjectStatus.TRIPARTITE_RETURN_SPARE_WAREHOUSE);
         } else if (SORTING_STATUS_IS_LOSS_1.equals(dmsSorting.getIsLoss())) {
             middleEndSorting.setStatus(SortingObjectStatus.LOST);
