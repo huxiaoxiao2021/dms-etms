@@ -9,7 +9,7 @@ import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.middleend.manager.MiddleEndSortingManager;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.fastjson.JSON;
+import com.alibaba.fastjson.JSON;
 import com.jd.ql.shared.services.sorting.api.ApiResult;
 import com.jd.ql.shared.services.sorting.api.dto.*;
 import org.apache.commons.lang.StringUtils;
