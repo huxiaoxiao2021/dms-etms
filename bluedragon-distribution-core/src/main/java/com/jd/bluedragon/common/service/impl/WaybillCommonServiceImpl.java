@@ -972,7 +972,13 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         	target.setFreightText(TextConstants.COMMON_TEXT_NOTHING);
         	target.setGoodsPaymentText(TextConstants.COMMON_TEXT_NOTHING);
         }
-
+		if(BusinessUtil.isSopJZD(waybill.getWaybillSign())){
+			target.appendSpecialMark(TextConstants.TEXT_JZD_SPECIAL_MARK);
+		}
+        //waybill_sign第57位= 2，代表“KA运营特殊保障”，追加“KA”
+        if(BusinessUtil.isSignChar(waybill.getWaybillSign(), WaybillSignConstants.POSITION_57, WaybillSignConstants.CHAR_57_2)){
+        	target.appendSpecialMark(TextConstants.KA_FLAG);
+        }
         //设置特殊需求
         loadSpecialRequirement(target,waybill.getWaybillSign(),waybill);
 

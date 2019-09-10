@@ -606,6 +606,21 @@
             <groupId>com.jd.etms.receive</groupId>
             <artifactId>etms-receive-api</artifactId>
             <version>1.2.64-SNAPSHOT</version>
+            <exclusions>
+            	<!-- iText 5 -->
+		        <exclusion>
+		            <groupId>com.itextpdf</groupId>
+		            <artifactId>itextpdf</artifactId>
+		        </exclusion>
+		        <exclusion>
+		            <groupId>com.itextpdf</groupId>
+		            <artifactId>itext-xtra</artifactId>
+		        </exclusion>
+		        <exclusion>
+		            <groupId>com.itextpdf</groupId>
+		            <artifactId>itext-asian</artifactId>
+		        </exclusion>
+            </exclusions> 
         </dependency>
         <dependency>
             <groupId>com.jd.etms.vehicle.manager.interface</groupId>
