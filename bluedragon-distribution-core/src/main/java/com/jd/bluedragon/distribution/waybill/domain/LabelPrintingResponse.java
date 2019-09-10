@@ -24,11 +24,6 @@ public class LabelPrintingResponse extends BasePrintWaybill {
     public static final Integer CODE_EMPTY_PARMAETER = 510;
     public static final String MESSAGE_EMPTY_PARMAETER = "参数不正确";
 
-    /**订单号*/
-    public String orderCode;
-
-
-
     /**客户订单地址*/
     private String orderAddress;
 
@@ -46,26 +41,12 @@ public class LabelPrintingResponse extends BasePrintWaybill {
     /**货到付款 true*/
     private Boolean codType;
 
-    /** 时效类型 */
-    private String timeCategory;
-
-    /** 承诺信息 */
-    private String promiseText;
-
     public LabelPrintingResponse() {
         super();
     }
 
     public LabelPrintingResponse(String waybillCode) {
         super(waybillCode);
-    }
-
-    public String getOrderCode() {
-        return orderCode;
-    }
-
-    public void setOrderCode(String orderCode) {
-        this.orderCode = orderCode;
     }
 
     public String getOrderAddress() {
@@ -107,21 +88,5 @@ public class LabelPrintingResponse extends BasePrintWaybill {
 
     public void setCodType(Boolean codType) {
         this.codType = codType;
-    }
-
-    public String getTimeCategory() {
-        return timeCategory;
-    }
-
-    public void setTimeCategory(String timeCategory) {
-        this.timeCategory = timeCategory;
-    }
-
-    public String getPromiseText() {
-        return promiseText;
-    }
-
-    public void setPromiseText(String promiseText) {
-        this.promiseText = promiseText;
     }
 }
