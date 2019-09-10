@@ -517,6 +517,7 @@ public class ReverseReceiveNotifyStockService {
 			queryParam.setOther2(String.valueOf(order.getCity()));
 			queryParam.setSendPay(order.getSendPay());
 			Organization organization = searchOrganizationOtherManager.findFinancialOrg(queryParam);
+			logger.info("getKPJGID"+JsonHelper.toJson(queryParam)+"|"+JsonHelper.toJson(organization));
 			if(organization!=null && organization.getOrgId()!=null){
 				return organization.getOrgId().toString();
 			}
