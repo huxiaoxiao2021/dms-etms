@@ -551,4 +551,16 @@ public class BusinessHelper {
         		||(BusinessUtil.isSignChar(waybillSign, 40, '2')
         				&& BusinessUtil.isSignInChars(waybillSign, 80, '1' ,'2'));
     }
+
+    /**
+     * 是否是已旧换新订单
+     * @param sendPay
+     * @return
+     */
+    public static boolean isYJHX(String sendPay){
+        if (StringUtils.isBlank(sendPay)) {
+            return false;
+        }
+        return !BusinessUtil.isSignChar(sendPay, 275, '0');
+    }
 }
