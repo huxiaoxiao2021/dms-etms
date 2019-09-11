@@ -105,18 +105,6 @@
             <groupId>com.jd.jmq</groupId>
             <artifactId>jmq-client-spring</artifactId>
             <version>${jmq.version}</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>jmq-client-json</artifactId>
-					<groupId>com.jd.jmq</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
-		<dependency>
-			<groupId>com.jd.jmq</groupId>
-			<artifactId>jmq-client-json</artifactId>
-			<version>2.2.0</version>
 		</dependency>
 
         <dependency>
