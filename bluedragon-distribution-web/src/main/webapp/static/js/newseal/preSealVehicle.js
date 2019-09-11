@@ -326,70 +326,73 @@ $(function() {
 		    	// unLockPage();
 			});
 			$('#btn_submit').click(function() {
-                // if(isDoing){
-                //     return;
-                // }
-                // isDoing = true;
-                // lockPage();
-                // $('#btn_submit').disabled = true;
-			    var failedList = [];
-			    var postData = [];
-				var params = $("#dataTable").bootstrapTable('getAllSelections');
-                for ( var i = 0; i <params.length; i++){
-                    console.log(params[i]);
-                    var id  = params[i].receiveSiteCode;
-                    var pre = preData.get(id);
-                    var isOk = true;
-                    var subPre = [];
-                    var subParams = $("#" + id).bootstrapTable('getAllSelections');
-                    for ( var j = 0; j <subParams.length; j++){
-                        var vehicleNumber = subParams[j]["vehicleNumber"];
-                        if(vehicleNumber == null || vehicleNumber == undefined || vehicleNumber == ''){
-                            isOk = false;
-                            break;
-                        }else{
-                            subPre.push({"vehicleNumber":vehicleNumber, "sealDataCode":subParams[j].sealDataCode,
-                                "receiveSiteCode":subParams[j].receiveSiteCode, "sealCodes":subParams[j].sealCodes});
-                        }
-                    }
-                    if(isOk){
-                        if(subPre.length > 0){
-                            pre.sendCodes = subPre;
-                            postData.push(pre);
-                        }
-                    }else{
-                        failedList.push(params[i].receiveSiteName);
-                    }
-
-                    console.log(subParams);
-                }
-                if(failedList.length > 0){
-                    alert('以下目的地存在未选择车牌号的批次:' + failedList.toString() );
-                }else{
-                    console.log(JSON.stringify(postData));
-                    $.ajaxHelper.doPostSync(batchSealUrl,JSON.stringify(postData),function(data){
-                        if(data.code == 200){
-                            Jd.alert('操作成功');
-                            tableInit().refresh();
-                        }else if(data.code == 600){
-                            var faileddata = data.data;
-                            if(faileddata != null && faileddata.length > 0){
-                                saveData(faileddata);
-                                $('#pre_num').val(preData.size);
-                                $("#dataTable").bootstrapTable('load', faileddata);
+                !$.msg.confirm("确认执行一键封车？",function () {
+                    // if(isDoing){
+                    //     return;
+                    // }
+                    // isDoing = true;
+                    // lockPage();
+                    // $('#btn_submit').disabled = true;
+                    var failedList = [];
+                    var postData = [];
+                    var params = $("#dataTable").bootstrapTable('getAllSelections');
+                    for ( var i = 0; i <params.length; i++){
+                        console.log(params[i]);
+                        var id  = params[i].receiveSiteCode;
+                        var pre = preData.get(id);
+                        var isOk = true;
+                        var subPre = [];
+                        var subParams = $("#" + id).bootstrapTable('getAllSelections');
+                        for ( var j = 0; j <subParams.length; j++){
+                            var vehicleNumber = subParams[j]["vehicleNumber"];
+                            if(vehicleNumber == null || vehicleNumber == undefined || vehicleNumber == ''){
+                                isOk = false;
+                                break;
+                            }else{
+                                subPre.push({"vehicleNumber":vehicleNumber, "sealDataCode":subParams[j].sealDataCode,
+                                    "receiveSiteCode":subParams[j].receiveSiteCode, "sealCodes":subParams[j].sealCodes});
                             }
-                            Jd.alert(data.message);
-                        }else{
-                            $('#pre_num').val(0);
-                            $('#sel_num').val(0);
-                            Jd.alert(data.message);
-                            return [];
                         }
-                    });
-                }
-                // $('#btn_submit').disabled = false;
-                // isDoing = false;
-                // unLockPage();
+                        if(isOk){
+                            if(subPre.length > 0){
+                                pre.sendCodes = subPre;
+                                postData.push(pre);
+                            }
+                        }else{
+                            failedList.push(params[i].receiveSiteName);
+                        }
+
+                        console.log(subParams);
+                    }
+                    if(failedList.length > 0){
+                        alert('以下目的地存在未选择车牌号的批次:' + failedList.toString() );
+                    }else{
+                        console.log(JSON.stringify(postData));
+                        $.ajaxHelper.doPostSync(batchSealUrl,JSON.stringify(postData),function(data){
+                            if(data.code == 200){
+                                Jd.alert('操作成功');
+                                tableInit().refresh();
+                            }else if(data.code == 600){
+                                var faileddata = data.data;
+                                if(faileddata != null && faileddata.length > 0){
+                                    saveData(faileddata);
+                                    $('#pre_num').val(preData.size);
+                                    $("#dataTable").bootstrapTable('load', faileddata);
+                                }
+                                Jd.alert(data.message);
+                            }else{
+                                $('#pre_num').val(0);
+                                $('#sel_num').val(0);
+                                Jd.alert(data.message);
+                                return [];
+                            }
+                        });
+                    }
+                    // $('#btn_submit').disabled = false;
+                    // isDoing = false;
+                    // unLockPage();
+                },function () {});
+
             });
 
 		};
