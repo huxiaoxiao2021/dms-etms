@@ -465,7 +465,7 @@
 
     <!-- ICENTER系统 智能园区 园区叫号 何双（heshuang10）-->
     <jsf:consumer id="iPdaDispatchJsfService" interface="com.jd.intelligent.center.api.service.IPdaDispatchJsfService" protocol="jsf"
-                  alias="${icenter.jsf.alias}" serialization="hessian" timeout="${icenter.jsf.timeout}">
+                  alias="${icenter.jsf.alias}" timeout="${icenter.jsf.timeout}" retries="0">
     </jsf:consumer>
 
 
