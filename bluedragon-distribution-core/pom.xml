@@ -88,12 +88,24 @@
             <groupId>com.jd.std.ucc</groupId>
             <artifactId>confcenter-client</artifactId>
             <version>1.1.2-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 		<dependency>
 			<groupId>com.jd.etms.monitor</groupId>
 			<artifactId>ql-data-saf-api</artifactId>
 			<version>1.2.8-SNAPSHOT</version>
-		</dependency>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
 		<dependency>
 			<groupId>com.jd.tms.basic</groupId>
@@ -464,7 +476,13 @@
 			<groupId>com.jd</groupId>
 			<artifactId>jsf</artifactId>
 			<version>1.6.6-HOTFIX-T1</version>
-		</dependency>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
 		<dependency>
 		<groupId>com.jd.jq</groupId>
@@ -525,6 +543,10 @@
                 <exclusion>
                     <artifactId>fastjson</artifactId>
                     <groupId>com.alibaba</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -606,6 +628,12 @@
             <groupId>com.jd.etms.receive</groupId>
             <artifactId>etms-receive-api</artifactId>
             <version>1.2.64-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.jd.etms.vehicle.manager.interface</groupId>
@@ -666,6 +694,11 @@
 			<artifactId>tms-basic-client</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+            <groupId>com.jd.tms.ecp</groupId>
+            <artifactId>tms-ecp-client</artifactId>
+            <version>1.0-SNAPSHOT</version>
+		</dependency>
 
         <!-- cassandra -->
 		<dependency>
@@ -684,7 +717,11 @@
 					<artifactId>spring-asm</artifactId>
 					<groupId>org.springframework</groupId>
 				</exclusion>
-			</exclusions>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
 		</dependency>
 
 	    <!-- global id generator service lib. -->

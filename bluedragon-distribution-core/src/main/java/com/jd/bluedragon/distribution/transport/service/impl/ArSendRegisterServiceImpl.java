@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.transport.service.impl;
 import com.google.gson.reflect.TypeToken;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.EcpQueryWSManager;
+import com.jd.bluedragon.core.jmq.domain.RailwaySendRegistCostFxmDto;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
@@ -27,7 +29,6 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.common.util.StringUtils;
-import com.jd.jddl.executor.function.scalar.filter.In;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.City;
@@ -39,7 +40,7 @@ import com.jd.tms.basic.dto.BasicRailwayTrainDto;
 import com.jd.tms.basic.dto.CommonDto;
 import com.jd.tms.basic.ws.BasicQueryWS;
 import com.jd.tms.basic.ws.BasicSyncWS;
-import com.jd.ump.annotation.JProfiler;
+import com.jd.tms.ecp.dto.BasicRailTrainDto;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +49,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -101,6 +111,13 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
     @Qualifier("arSendReportMQ")
     @Autowired
     private DefaultJMQProducer arSendReportMQ;
+
+    @Qualifier("railwaySendRegistCostFxmMQ")
+    @Autowired
+    private DefaultJMQProducer railwaySendRegistCostFxmMQ;
+
+    @Autowired
+    private EcpQueryWSManager ecpQueryWSManager;
 
     /**
      * 分隔符 逗号
@@ -172,6 +189,9 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                         // 调用TMS BASIC订阅实时航班JSF接口
                         this.createAirFlightRealTime(arSendRegister.getTransportName(), arSendRegister.getSendDate());
                     }
+                    if(arSendRegister.getTransportType() != null && arSendRegister.getTransportType().equals(RAILWAY.getCode())){
+                        sendCostInfoToFxm(arSendRegister);
+                    }
                     return true;
                 }
             } else {
@@ -180,6 +200,40 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
 
         }
         return false;
+    }
+
+    private void sendCostInfoToFxm(ArSendRegister arSendRegister){
+        //todo 获取承运商
+
+        //todo 始发城市和目的城市（来源是调用的运输接口） 是否和获取车次信息的入参是一事
+        BasicRailTrainDto railTrainDto = ecpQueryWSManager.getRailTrainListByCondition(arSendRegister.getTransportName(),
+                arSendRegister.getStartCityId(),arSendRegister.getEndCityId());
+        if(railTrainDto == null){
+            return;
+        }
+        RailwaySendRegistCostFxmDto costFxmDto = new RailwaySendRegistCostFxmDto();
+
+        costFxmDto.setSendDate(arSendRegister.getSendDate());
+        costFxmDto.setOrderCode(arSendRegister.getOrderCode());
+        costFxmDto.setTrainNumber(arSendRegister.getTransportName());
+        costFxmDto.setTransportType(arSendRegister.getTransportType());
+        ArTransportTypeEnum transportTypeEnum = ArTransportTypeEnum.getEnum(arSendRegister.getTransportType());
+        costFxmDto.setTransportTypeName(transportTypeEnum != null?transportTypeEnum.getName():"");
+        costFxmDto.setStartStationCode(railTrainDto.getBeginNodeCode());
+        costFxmDto.setStartStationCodeName(railTrainDto.getBeginNodeName());
+        costFxmDto.setEndStationCode(railTrainDto.getEndNodeCode());
+        costFxmDto.setEndStationCodeName(railTrainDto.getEndNodeName());
+        costFxmDto.setWeight(arSendRegister.getChargedWeight());
+        costFxmDto.setGoodsType(arSendRegister.getGoodsType());
+        costFxmDto.setGoodsTypeName("");
+        costFxmDto.setSendNum(arSendRegister.getSendNum());
+        costFxmDto.setCarrierCode("");
+        costFxmDto.setCarrierName("");
+        try {
+            railwaySendRegistCostFxmMQ.send(costFxmDto.getOrderCode(),JsonHelper.toJson(costFxmDto));
+        } catch (JMQException e) {
+            logger.error("发货登记-发送计费要素信息错误ordercode[{}]",costFxmDto.getOrderCode(),e);
+        }
     }
 
     private void sendMQToRouter(ArSendRegister arSendRegister, String[] sendCodes) {
@@ -545,6 +599,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         sendRegister.setSendDate(getPDASendDate(pdaSendRegister.getBoxCode()));
         ArTransportTypeEnum transportType = this.getTransportType(pdaSendRegister.getAirNo());
         sendRegister.setTransportType(transportType.getCode());
+        sendRegister.setGoodsType(pdaSendRegister.getGoodsType());
         this.buildTransportInfo(sendRegister, transportType);
         return sendRegister;
     }

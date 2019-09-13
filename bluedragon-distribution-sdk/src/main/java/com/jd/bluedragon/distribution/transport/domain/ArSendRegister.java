@@ -212,6 +212,11 @@ public class ArSendRegister extends DbEntity {
      */
     private List<Integer> packCounts;
 
+    /**
+     * 货物类型
+     */
+    private String goodsType;
+
     public Integer getSendRouterMqType() {
         return sendRouterMqType;
     }
@@ -522,5 +527,13 @@ public class ArSendRegister extends DbEntity {
 
     public void setPackCounts(List<Integer> packCounts) {
         this.packCounts = packCounts;
+    }
+
+    public String getGoodsType() {
+        return goodsType;
+    }
+
+    public void setGoodsType(String goodsType) {
+        this.goodsType = goodsType;
     }
 }
