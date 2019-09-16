@@ -13,4 +13,13 @@ import java.util.List;
 public interface BaseDataGatewayService {
 
     JdCResponse<List<BaseDataDictDto>> getBaseDictionaryTree(int typeGroup);
+
+    /**
+     * 根据类型分组获取数据字典信息
+     *
+     * @param typeGroups
+     * @return
+     */
+    JdCResponse<List<BaseDataDictDto>> getBaseDictByTypeGroups(List<Integer> typeGroups);
+
 }
