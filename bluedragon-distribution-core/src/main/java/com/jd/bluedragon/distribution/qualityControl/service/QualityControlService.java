@@ -327,6 +327,7 @@ public class QualityControlService {
     public int getRedeliveryState(String waybillCode,Integer businessID) {
         int res = 1;
         Response<AbnormalOrderDTO> dto = abnormalOrderApi.queryByCustomerIdDeliveryIdMainTypeId(waybillCode,businessID,20);
+        logger.info("获取运单协商再投状态: 入参waybillCode="+waybillCode+" businessID="+businessID +" JSF接口返回:" +JsonHelper.toJson(dto));
         if(null!=dto && dto.getStatus()== ResponseStatus.SUCCESS && null!=dto.getResult()){
            if (null != dto.getResult().getAbnormalState()) {
                res = dto.getResult().getAbnormalState();
