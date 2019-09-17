@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.transport.service.impl;
 import com.google.gson.reflect.TypeToken;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.BasicQueryWSManager;
 import com.jd.bluedragon.core.base.EcpQueryWSManager;
 import com.jd.bluedragon.core.jmq.domain.RailwaySendRegistCostFxmDto;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -38,6 +39,7 @@ import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.tms.basic.dto.BasicAirFlightDto;
 import com.jd.tms.basic.dto.BasicRailwayTrainDto;
 import com.jd.tms.basic.dto.CommonDto;
+import com.jd.tms.basic.dto.ConfNodeCarrierDto;
 import com.jd.tms.basic.ws.BasicQueryWS;
 import com.jd.tms.basic.ws.BasicSyncWS;
 import com.jd.tms.ecp.dto.BasicRailTrainDto;
@@ -49,7 +51,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -118,6 +119,9 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
 
     @Autowired
     private EcpQueryWSManager ecpQueryWSManager;
+
+    @Autowired
+    private BasicQueryWSManager basicQueryWSManager;
 
     /**
      * 分隔符 逗号
@@ -203,16 +207,20 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
     }
 
     private void sendCostInfoToFxm(ArSendRegister arSendRegister){
-        //todo 获取承运商
-
         //todo 始发城市和目的城市（来源是调用的运输接口） 是否和获取车次信息的入参是一事
         BasicRailTrainDto railTrainDto = ecpQueryWSManager.getRailTrainListByCondition(arSendRegister.getTransportName(),
                 arSendRegister.getStartCityId(),arSendRegister.getEndCityId());
         if(railTrainDto == null){
+            logger.warn("获取列车车次信息为空orderCode[{}]trainNumber[{}]beginCityId[{}]endCityId[{}]",arSendRegister.getOrderCode(),
+                    arSendRegister.getTransportName(), arSendRegister.getStartCityId(),arSendRegister.getEndCityId());
+            return;
+        }
+        ConfNodeCarrierDto confNodeCarrierDto = basicQueryWSManager.getCarrierByNodeCode(railTrainDto.getBeginNodeCode());
+        if(confNodeCarrierDto == null){
+            logger.warn("承运商为空orderCode[{}]beginNodeCode[{}]",arSendRegister.getOrderCode(),railTrainDto.getBeginNodeCode());
             return;
         }
         RailwaySendRegistCostFxmDto costFxmDto = new RailwaySendRegistCostFxmDto();
-
         costFxmDto.setSendDate(arSendRegister.getSendDate());
         costFxmDto.setOrderCode(arSendRegister.getOrderCode());
         costFxmDto.setTrainNumber(arSendRegister.getTransportName());
