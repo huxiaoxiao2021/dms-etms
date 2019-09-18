@@ -91,7 +91,7 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
             Integer taskType = JSONObject.parseArray(body).getJSONObject(0).getInteger("taskType");
             if(Task.TASK_TYPE_SEAL_OFFLINE.equals(taskType)){
                 result = offlineSeal(body);
-            }else if (Task.TASK_TYPE_AR_SEND_REGISTER.equals(taskType)){//todo 铁路应付计费
+            }else if (Task.TASK_TYPE_AR_SEND_REGISTER.equals(taskType)){
                 result = arSendRegisterService.executeOfflineTask(body);
             }else{
                 result = offlineCore(body);

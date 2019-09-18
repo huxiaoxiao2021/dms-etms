@@ -183,7 +183,9 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         arSendRegister.setSendRouterMqType(ArSendRouterMqTypeEnum.AIR_NO_SEND.getCode());
         arSendRegister.setOperateType(ArSendRegisterEnum.AIR_INSERT.getCode());
         Map<Integer,String>  goodsTypeMap = dmsBaseDictService.queryMapKeyTypeCodeByParentId(Constants.BASEDICT_GOODS_TYPE_PARENTID);
-        arSendRegister.setGoodsTypeName(goodsTypeMap.get(arSendRegister.getGoodsType()));
+        if(goodsTypeMap != null){
+            arSendRegister.setGoodsTypeName(goodsTypeMap.get(arSendRegister.getGoodsType()));
+        }
         this.sendMQToRouter(arSendRegister, sendCodes);
         if (this.getDao().insert(arSendRegister)) {
             if (sendCodes != null && sendCodes.length > 0) {
