@@ -973,4 +973,9 @@ public class Constants {
      */
     public static final String SYS_CODE_DMS = "dms";
 
+    /**
+     * 货物类型
+     */
+    public static final int BASEDICT_GOODS_TYPE_PARENTID = 30052;
+
 }

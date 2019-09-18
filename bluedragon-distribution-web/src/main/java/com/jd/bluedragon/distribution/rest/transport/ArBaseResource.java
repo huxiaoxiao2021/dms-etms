@@ -5,6 +5,8 @@ package com.jd.bluedragon.distribution.rest.transport;
  */
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
+import com.jd.bluedragon.distribution.base.service.DmsBaseDictService;
 import com.jd.bluedragon.distribution.transport.domain.ARCommonDictionaryType;
 import com.jd.bluedragon.distribution.transport.service.ArSendRegisterService;
 import com.jd.bluedragon.distribution.transport.service.impl.BusTypeService;
@@ -39,6 +41,9 @@ public class ArBaseResource {
     @Autowired
     private BusTypeService busTypeService;
 
+    @Autowired
+    private DmsBaseDictService dmsBaseDictService;
+
     /**
      * 获取空铁项目的城市信息和车型信息
      *
@@ -63,9 +68,9 @@ public class ArBaseResource {
             result.add(new DictionaryInfoModel(busType.getBusTypeId(), busType.getBusTypeName(), ARCommonDictionaryType.BUS_TYPE.getType()));
         }
         //货物类型
-
-        for (BusType busType : allBusTypes) {//todo 数据源获取
-            result.add(new DictionaryInfoModel(busType.getBusTypeId(), busType.getBusTypeName(), ARCommonDictionaryType.GOODS_TYPE.getType()));
+        List<DmsBaseDict> dmsBaseDictList = dmsBaseDictService.queryListByParentId(Constants.BASEDICT_GOODS_TYPE_PARENTID);
+        for (DmsBaseDict dmsBaseDict : dmsBaseDictList) {
+            result.add(new DictionaryInfoModel(dmsBaseDict.getTypeCode(), dmsBaseDict.getTypeName(), ARCommonDictionaryType.GOODS_TYPE.getType()));
         }
 
         Collections.sort(result);

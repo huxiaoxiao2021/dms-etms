@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.google.common.collect.Collections2;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -85,6 +87,27 @@ public class DmsBaseDictServiceImpl extends BaseService<DmsBaseDict> implements 
         dmsBaseDictCondition.setParentId(parentId);
         return queryByCondition(dmsBaseDictCondition);
     }
+
+    /**
+     * 根据parentId 查询 解析成；<typeCode,typeName>数据结构
+     * @param parentId
+     * @return
+     */
+    @Cache(key = "dmsBaseDictService.queryMapKeyTypeCodeByParentId@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+    @Override
+    public Map<Integer,String> queryMapKeyTypeCodeByParentId(Integer parentId) {
+        List<DmsBaseDict> dmsBaseDictList = queryListByParentId(parentId);
+        if(CollectionUtils.isEmpty(dmsBaseDictList)){
+            return null;
+        }
+        Map<Integer,String> result = new HashMap<>();
+        for(DmsBaseDict item : dmsBaseDictList){
+            result.put(item.getTypeCode(),item.getTypeName());
+        }
+        return result;
+    }
+
     /**
      * 根据parentId查找所有下级节点数据,返回list
      * @param typeCode

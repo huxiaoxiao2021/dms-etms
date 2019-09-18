@@ -7,6 +7,7 @@ import com.jd.bluedragon.core.base.BasicQueryWSManager;
 import com.jd.bluedragon.core.base.EcpQueryWSManager;
 import com.jd.bluedragon.core.jmq.domain.RailwaySendRegistCostFxmDto;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.base.service.DmsBaseDictService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -123,6 +124,9 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
     @Autowired
     private BasicQueryWSManager basicQueryWSManager;
 
+    @Autowired
+    private DmsBaseDictService dmsBaseDictService;
+
     /**
      * 分隔符 逗号
      */
@@ -178,6 +182,8 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         //所有新增发货登记先把发给路由MQ类型置为1，落库
         arSendRegister.setSendRouterMqType(ArSendRouterMqTypeEnum.AIR_NO_SEND.getCode());
         arSendRegister.setOperateType(ArSendRegisterEnum.AIR_INSERT.getCode());
+        Map<Integer,String>  goodsTypeMap = dmsBaseDictService.queryMapKeyTypeCodeByParentId(Constants.BASEDICT_GOODS_TYPE_PARENTID);
+        arSendRegister.setGoodsTypeName(goodsTypeMap.get(arSendRegister.getGoodsType()));
         this.sendMQToRouter(arSendRegister, sendCodes);
         if (this.getDao().insert(arSendRegister)) {
             if (sendCodes != null && sendCodes.length > 0) {
@@ -233,10 +239,10 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         costFxmDto.setEndStationCodeName(railTrainDto.getEndNodeName());
         costFxmDto.setWeight(arSendRegister.getChargedWeight());
         costFxmDto.setGoodsType(arSendRegister.getGoodsType());
-        costFxmDto.setGoodsTypeName("");
+        costFxmDto.setGoodsTypeName(arSendRegister.getGoodsTypeName());
         costFxmDto.setSendNum(arSendRegister.getSendNum());
-        costFxmDto.setCarrierCode("");
-        costFxmDto.setCarrierName("");
+        costFxmDto.setCarrierCode(confNodeCarrierDto.getCarrierCode());
+        costFxmDto.setCarrierName(confNodeCarrierDto.getCarrierName());
         try {
             railwaySendRegistCostFxmMQ.send(costFxmDto.getOrderCode(),JsonHelper.toJson(costFxmDto));
         } catch (JMQException e) {

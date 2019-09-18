@@ -38,7 +38,7 @@ public class RailwaySendRegistCostFxmDto {
     /**
      * 货物类型
      */
-    private String goodsType;
+    private Integer goodsType;
 
     /**
      * 货物类型
@@ -180,11 +180,11 @@ public class RailwaySendRegistCostFxmDto {
         this.carrierName = carrierName;
     }
 
-    public String getGoodsType() {
+    public Integer getGoodsType() {
         return goodsType;
     }
 
-    public void setGoodsType(String goodsType) {
+    public void setGoodsType(Integer goodsType) {
         this.goodsType = goodsType;
     }
 
