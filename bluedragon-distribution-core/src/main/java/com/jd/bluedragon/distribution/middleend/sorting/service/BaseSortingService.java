@@ -285,24 +285,28 @@ public abstract class BaseSortingService {
         wChoice.setQueryWaybillC(true);
         wChoice.setQueryWaybillE(false);
         wChoice.setQueryWaybillM(false);
-        wChoice.setQueryPackList(true);
 
-        List<DeliveryPackageD> packageList = new ArrayList<>();
+        Integer goodNumber = 0;
         BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, wChoice);
-        if (baseEntity != null && baseEntity.getData() != null) {
-            packageList.addAll(baseEntity.getData().getPackageList());
+        if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null && baseEntity.getData().getWaybill().getGoodNumber() != null) {
+            goodNumber = baseEntity.getData().getWaybill().getGoodNumber();
         }
 
         //每页容量
         int pageSize = uccPropertyConfiguration.getWaybillSplitPageSize() == 0 ? WAYBILL_SPLIT_NUM : uccPropertyConfiguration.getWaybillSplitPageSize();
+        //1.按包裹理货
         if(SortingObjectType.PACKAGE.equals(sorting.getMiddleEndSorting().getObjectType())){
             sorting.setPackagePageIndex(0);
             sorting.setPackagePageSize(pageSize);
             taskService.add(sortingObjectExtend2Task(sorting));
-        }else if (packageList.size() > 0) {
+            if(goodNumber == 0){
+                logger.info("按包裹理货，运单没有包裹信息：" + JsonHelper.toJson(sorting));
+            }
+        }else if (SortingObjectType.WAYBILL.equals(sorting.getMiddleEndSorting().getObjectType()) && goodNumber > 0) {
+            //2.按运单理货且运单有包裹信息
             //计算总页数
-            int pageCount = Double.valueOf(Math.floor(packageList.size() / pageSize)).intValue();
-            if (packageList.size() % pageSize != 0) {
+            int pageCount = Double.valueOf(Math.floor(goodNumber / pageSize)).intValue();
+            if (goodNumber % pageSize != 0) {
                 pageCount++;
             }
             logger.info("AbstractSortingService.addSortingSuccessTask将大运单任务进行拆分，总页数:" + pageCount + ",每页容量:" + pageSize);
