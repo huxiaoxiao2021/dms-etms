@@ -984,7 +984,7 @@
 		<dependency>
 			<groupId>com.jd.eclp</groupId>
 			<artifactId>eclp-spare-ext-api</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.0.1-TEST-SNAPSHOT</version>
 		</dependency>
 
         <dependency>
@@ -1037,7 +1037,12 @@
 			<artifactId>ufo_saf</artifactId>
 			<version>7.5</version>
 		</dependency>
-
+		<!-- ECLP商品主数据 -->
+		<dependency>
+			<groupId>com.jd.router</groupId>
+			<artifactId>open-router-api</artifactId>
+			<version>0.0.1-TEST-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 	<build>

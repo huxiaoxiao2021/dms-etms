@@ -486,4 +486,9 @@
                   protocol="jsf" alias="${jsf.ufo.SearchOrganizationOtherService.alias}" timeout="${jsf.ufo.SearchOrganizationOtherService.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
 
+    <jsf:consumer id="eclpOpenServiceJsf" interface="com.jd.eclp.isv.service.EclpOpenService"
+                  protocol="jsf" alias="${jsf.eclpOpenServiceJsf.alias}" timeout="${jsf.eclpOpenServiceJsf.timeout}" retries="${jsf.retries}">
+    </jsf:consumer>
+
+
 </beans>

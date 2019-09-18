@@ -221,15 +221,15 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		}
 
 		//添加全称跟踪
-		if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5|| reverseReceive.getReceiveType() == 4 || reverseReceive.getReceiveType() == 6 || reverseReceive.getReceiveType() == 7 || reverseReceive.getReceiveType() == 8) {
+		if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5|| reverseReceive.getReceiveType() == 4 || reverseReceive.getReceiveType() == 6 || reverseReceive.getReceiveType() == 7 || reverseReceive.getReceiveType() == 8 || reverseReceive.getReceiveType() == 10) {
 			String sendCode = "";
 			if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5 || reverseReceive.getReceiveType() == 6) {
 				this.logger.info("逆向添加全称跟踪sendCode" + xrequest.getSendCode());
 				sendCode = xrequest.getSendCode();
-			} else if ((reverseReceive.getReceiveType() == 4 || reverseReceive.getReceiveType() == 7 || reverseReceive.getReceiveType() == 8) && jrequest != null) {
+			} else if ((reverseReceive.getReceiveType() == 4 || reverseReceive.getReceiveType() == 7 || reverseReceive.getReceiveType() == 8 || reverseReceive.getReceiveType() == 10) && jrequest != null) {
 				this.logger.info("逆向添加全称跟踪sendCode" + jrequest.getSendCode());
 				sendCode = jrequest.getSendCode();
-				if(reverseReceive.getReceiveType() == 7 || reverseReceive.getReceiveType() == 8){
+				if(reverseReceive.getReceiveType() == 7 || reverseReceive.getReceiveType() == 8  || reverseReceive.getReceiveType() == 10){
 					//ECLP退备件库时
 					reverseReceive.setOrderId(jrequest.getWaybillCode());
 				}else{
@@ -266,11 +266,11 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 
 				if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5 || reverseReceive.getReceiveType() == 6) {
 					tWaybillStatus.setSendCode(xrequest.getSendCode());
-				} else if ((reverseReceive.getReceiveType() == 4 || reverseReceive.getReceiveType() == 7 ||reverseReceive.getReceiveType() == 8) && jrequest != null ) {
+				} else if ((reverseReceive.getReceiveType() == 4 || reverseReceive.getReceiveType() == 7 ||reverseReceive.getReceiveType() == 8 || reverseReceive.getReceiveType() == 10) && jrequest != null ) {
 					tWaybillStatus.setSendCode(jrequest.getSendCode());
 				}
 
-				if(reverseReceive.getReceiveType() == 7){
+				if(reverseReceive.getReceiveType() == 7 || reverseReceive.getReceiveType() == 10){
 					//ECLP退备件库时 0 代表驳回  1代表收货 2 代表部分收货
 					if (reverseReceive.getCanReceive() == 0){
 						tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_BH);

@@ -1899,34 +1899,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
     }
 
-    /**
-     * ECLP退备件库的数据推送给ECLP（mq的形式）
-     *
-     * @param sendDetailList
-     */
-    private void pushECLPMessageToSpwms(List<SendDetail> sendDetailList) {
-        List<String> doneWaybill = new ArrayList<String>();
-        try{
-            for(SendDetail sendDetail : sendDetailList){
-                String waybillCode = sendDetail.getWaybillCode();
-                //过滤重复运单。
-                if(doneWaybill.contains(waybillCode)){
-                    continue;
-                }
-                BdInboundECLPDto bdInboundECLPDto =  reverseSpareEclp.makeEclpMessage(waybillCode,sendDetail);
-                if(bdInboundECLPDto==null){
-                    logger.error("ECLP退备件库失败"+waybillCode+"|"+sendDetail.getSendCode());
-                    continue;
-                }
-                reverseSendSpareEclpProducer.send(waybillCode,JsonHelper.toJson(bdInboundECLPDto));
-                doneWaybill.add(waybillCode);
-            }
 
-        }catch (Exception e){
-            logger.error("ECLP退备件库异常",e);
-        }
-
-    }
 
     /**
      * 退备件库给ECLP发消息改成jsf接口的形式
@@ -1942,7 +1915,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 if(doneWaybill.contains(waybillCode)){
                     continue;
                 }
-                InboundOrder inboundOrder =  reverseSpareEclp.createInboundOrder(waybillCode,sendDetail);
+                InboundOrder inboundOrder =  reverseSpareEclp.makeInboundOrder(waybillCode,sendDetail);
                 if(inboundOrder==null){
                     logger.error("ECLP退备件库失败"+waybillCode+"|"+sendDetail.getSendCode());
                     failWaybillCodes.append(waybillCode).append("|").append(sendDetail.getSendCode()).append(",");
