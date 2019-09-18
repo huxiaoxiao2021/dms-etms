@@ -295,8 +295,11 @@ public abstract class BaseSortingService {
 
         //每页容量
         int pageSize = uccPropertyConfiguration.getWaybillSplitPageSize() == 0 ? WAYBILL_SPLIT_NUM : uccPropertyConfiguration.getWaybillSplitPageSize();
-
-        if (packageList.size() > 0) {
+        if(SortingObjectType.PACKAGE.equals(sorting.getMiddleEndSorting().getObjectType())){
+            sorting.setPackagePageIndex(0);
+            sorting.setPackagePageSize(pageSize);
+            taskService.add(sortingObjectExtend2Task(sorting));
+        }else if (packageList.size() > 0) {
             //计算总页数
             int pageCount = Double.valueOf(Math.floor(packageList.size() / pageSize)).intValue();
             if (packageList.size() % pageSize != 0) {
