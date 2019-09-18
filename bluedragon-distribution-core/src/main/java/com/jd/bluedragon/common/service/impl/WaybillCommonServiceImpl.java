@@ -149,6 +149,9 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     private static final String SPECIAL_REQUIRMENT_DELIVERY_UPSTAIRS="重货上楼";
     private static final String SPECIAL_REQUIRMENT_DELIVERY_WAREHOUSE="送货入仓";
     private static final String SPECIAL_REQUIRMENT_PRICE_PROTECT_MONEY = "保价";
+    private static final String SPECIAL_REQUIRMENT_LOAD_CAR = "装车";
+    private static final String SPECIAL_REQUIRMENT_UNLOAD_CAR = "卸车";
+    private static final String SPECIAL_REQUIRMENT_LOAD_UNLOAD_CAR = "装卸车";
 
     /**
      * B网医药冷链温层
@@ -839,11 +842,14 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         if(BusinessUtil.isColdChainWaybill(waybill.getWaybillSign())){
             if(BusinessUtil.isWareHouseJDWaybill(waybill.getWaybillSign())){
                 target.appendSpecialMark1(DmsConstants.SPECIAL_MARK1_WAREHOUSE_JD);
+                target.appendSpecialMark(DmsConstants.SPECIAL_MARK1_WAREHOUSE_JD);
             }else if(BusinessUtil.isWareHouseNotJDWaybill(waybill.getWaybillSign())){
                 if(isColdChainKBAndOuterWare){
                     target.appendSpecialMark1(DmsConstants.SPECIAL_MARK1_WAREHOUSE_OUTER);
+                    target.appendSpecialMark(DmsConstants.SPECIAL_MARK1_WAREHOUSE_OUTER);
                 }else{
                     target.appendSpecialMark1(DmsConstants.SPECIAL_MARK1_WAREHOUSE_NOT_JD);
+                    target.appendSpecialMark(DmsConstants.SPECIAL_MARK1_WAREHOUSE_OUTER);
                 }
 
             }
@@ -1261,6 +1267,18 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             if(BusinessUtil.isSignChar(waybillSign,42,'1')){
                 specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_DELIVERY_WAREHOUSE + ",";
             }
+            //装车
+            if(BusinessUtil.isSignChar(waybillSign,41,'1')){
+                specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_LOAD_CAR + ",";
+            }
+            //卸车
+            if(BusinessUtil.isSignChar(waybillSign,41,'2')){
+                specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_UNLOAD_CAR + ",";
+            }
+            //装卸车
+            if(BusinessUtil.isSignChar(waybillSign,41,'3')){
+                specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_LOAD_UNLOAD_CAR + ",";
+            }
         }
         if(StringUtils.isNotBlank(specialRequirement)){
             printWaybill.setSpecialRequirement(specialRequirement.substring(0,specialRequirement.length()-1));
@@ -1335,6 +1353,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 printWaybill.setDistributTypeText(DISTRIBUTE_TYPE_FREEZING);
             }else if(BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_43,WaybillSignConstants.CHAR_43_6)){
                 printWaybill.setDistributTypeText(DISTRIBUTE_TYPE_PRECISION_COLD);
+            }
+            if(StringUtils.isNotBlank(printWaybill.getDistributTypeText())){
+                //非空时 增加 【】
+                printWaybill.setDistributTypeText("【"+printWaybill.getDistributTypeText()+"】");
             }
         }
     }
