@@ -214,7 +214,7 @@
     </bean>
 
     <!-- 空铁项目 - 发货登记 推送计费信息给FXM -->
-    <bean id="railwaySendRegistCostFxmMQ" parent="dmsWebDefaultJMQProducer">
+    <bean id="railwaySendRegistCostFxmMQ" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.railway.sendRegist.Cost.fxm}"/>
     </bean>
 
