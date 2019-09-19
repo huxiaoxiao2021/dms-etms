@@ -206,4 +206,11 @@ public interface WaybillCommonService {
 	 * @return
 	 */
 	InvokeResult batchUpdatePackageByWaybillCode(String waybillCode, Integer packNum);
+
+	/**
+	 * 校验包裹是否存在
+	 * @param packCode
+	 * @return
+	 */
+	boolean checkPackExist(String packCode);
 }
