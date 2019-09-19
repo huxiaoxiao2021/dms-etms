@@ -1235,6 +1235,29 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     }
 
     /**
+     * 校验包裹是否存在
+     *
+     * @param packCode
+     * @return
+     */
+    @Override
+    public boolean checkPackExist(String packCode) {
+        if(StringUtils.isBlank(packCode) || !WaybillUtil.isPackageCode(packCode)){
+            return false;
+        }
+
+        Waybill waybill = this.findWaybillAndPack(WaybillUtil.getWaybillCode(packCode));
+        if(waybill!=null && waybill.getPackList()!=null){
+            for(Pack pack :waybill.getPackList()){
+                if(packCode.equals(pack.getPackageCode())){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * 加载特殊要求信息
      * @param printWaybill
      */
