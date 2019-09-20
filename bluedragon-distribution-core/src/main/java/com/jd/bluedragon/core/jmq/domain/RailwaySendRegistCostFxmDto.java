@@ -26,16 +26,6 @@ public class RailwaySendRegistCostFxmDto {
     private String trainNumber;
 
     /**
-     * 运力类型
-     */
-    private Integer transportType;
-
-    /**
-     * 运力类型
-     */
-    private String transportTypeName;
-
-    /**
      * 货物类型
      */
     private Integer goodsType;
@@ -100,14 +90,6 @@ public class RailwaySendRegistCostFxmDto {
         this.trainNumber = trainNumber;
     }
 
-    public Integer getTransportType() {
-        return transportType;
-    }
-
-    public void setTransportType(Integer transportType) {
-        this.transportType = transportType;
-    }
-
     public String getStartStationCode() {
         return startStationCode;
     }
@@ -146,14 +128,6 @@ public class RailwaySendRegistCostFxmDto {
 
     public void setWeight(BigDecimal weight) {
         this.weight = weight;
-    }
-
-    public String getTransportTypeName() {
-        return transportTypeName;
-    }
-
-    public void setTransportTypeName(String transportTypeName) {
-        this.transportTypeName = transportTypeName;
     }
 
     public Integer getSendNum() {

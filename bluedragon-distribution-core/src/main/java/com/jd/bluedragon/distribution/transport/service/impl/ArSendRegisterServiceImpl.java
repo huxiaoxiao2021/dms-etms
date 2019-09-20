@@ -214,6 +214,10 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         return false;
     }
 
+    /**
+     * 铁路应付计费要素 发送给fxm
+     * @param arSendRegister
+     */
     private void sendCostInfoToFxm(ArSendRegister arSendRegister){
         //todo 始发城市和目的城市（来源是调用的运输接口） 是否和获取车次信息的入参是一事
         BasicRailTrainDto railTrainDto = ecpQueryWSManager.getRailTrainListByCondition(arSendRegister.getTransportName(),
@@ -232,9 +236,6 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         costFxmDto.setSendDate(arSendRegister.getSendDate());
         costFxmDto.setOrderCode(arSendRegister.getOrderCode());
         costFxmDto.setTrainNumber(arSendRegister.getTransportName());
-        costFxmDto.setTransportType(arSendRegister.getTransportType());
-        ArTransportTypeEnum transportTypeEnum = ArTransportTypeEnum.getEnum(arSendRegister.getTransportType());
-        costFxmDto.setTransportTypeName(transportTypeEnum != null?transportTypeEnum.getName():"");
         costFxmDto.setStartStationCode(railTrainDto.getBeginNodeCode());
         costFxmDto.setStartStationCodeName(railTrainDto.getBeginNodeName());
         costFxmDto.setEndStationCode(railTrainDto.getEndNodeCode());
