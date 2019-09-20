@@ -842,14 +842,11 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         if(BusinessUtil.isColdChainWaybill(waybill.getWaybillSign())){
             if(BusinessUtil.isWareHouseJDWaybill(waybill.getWaybillSign())){
                 target.appendSpecialMark1(DmsConstants.SPECIAL_MARK1_WAREHOUSE_JD);
-                target.appendSpecialMark(DmsConstants.SPECIAL_MARK1_WAREHOUSE_JD);
             }else if(BusinessUtil.isWareHouseNotJDWaybill(waybill.getWaybillSign())){
                 if(isColdChainKBAndOuterWare){
                     target.appendSpecialMark1(DmsConstants.SPECIAL_MARK1_WAREHOUSE_OUTER);
-                    target.appendSpecialMark(DmsConstants.SPECIAL_MARK1_WAREHOUSE_OUTER);
                 }else{
                     target.appendSpecialMark1(DmsConstants.SPECIAL_MARK1_WAREHOUSE_NOT_JD);
-                    target.appendSpecialMark(DmsConstants.SPECIAL_MARK1_WAREHOUSE_OUTER);
                 }
 
             }
