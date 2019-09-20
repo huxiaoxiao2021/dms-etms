@@ -56,6 +56,8 @@
 				<entry key="100307"  value-ref="site3PlReSchedulePrint"/>
 				<!-- 3PL包裹补打 -->
 				<entry key="100308"  value-ref="site3PlReprint"/>
+				<!-- IOT获取打印面单接口 -->
+				<entry key="100309"  value-ref="iotPackagePrint"/>
 			</map>
 		</property>
 	</bean>
@@ -253,8 +255,29 @@
 				<ref bean="pdfLocalGenerateHandler"/>
 			</list>
 		</property>
-	</bean>	
-	<!-- 换单打印-站长工作台、终端 -->
+	</bean>
+    <!-- IOT获取打印面单接口 -->
+    <bean id="iotPackagePrint" class="com.jd.bluedragon.distribution.print.waybill.handler.PlatePrintOperateHandler">
+        <property name="handlers">
+            <list>
+                <ref bean="basicWaybillPrintHandler"/>
+                <ref bean="c2cInterceptHandler"/>
+                <ref bean="duplicatePrintInterceptHandler"/>
+                <ref bean="pickWillPrintPackageInterceptHandler"/>
+                <ref bean="interceptWaybillHandler"/>
+                <ref bean="oldWaybillQueryHandler"/>
+                <ref bean="specialMarkWaybillHandler"/>
+                <ref bean="specialTextWaybillHandler"/>
+                <ref bean="promiseWaybillHandler"/>
+                <ref bean="customerAndConsignerInfoHandler"/>
+                <ref bean="mappedBasicPrintWaybillHandler"/>
+                <ref bean="remarkFieldHandler"/>
+                <ref bean="templateSelectorWaybillHandler"/>
+                <ref bean="pdfLocalGenerateHandler"/>
+            </list>
+        </property>
+    </bean>
+    <!-- 换单打印-站长工作台、终端 -->
 	<bean id="packageReverseChangePrint" class="com.jd.bluedragon.distribution.print.waybill.handler.PlatePrintOperateHandler">
 		<property name="handlers">
 			<list>
