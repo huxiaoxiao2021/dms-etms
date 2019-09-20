@@ -1,9 +1,7 @@
 package com.jd.bluedragon.distribution.worker.sorting;
 
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
-import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.framework.DBSingleScheduler;
+import com.jd.bluedragon.distribution.middleend.SortingServiceFactory;
 import com.jd.bluedragon.distribution.sorting.domain.SortingVO;
 import com.jd.bluedragon.distribution.sorting.service.SortingFactory;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
@@ -22,16 +20,21 @@ public class SortingTask extends DBSingleScheduler {
     @Autowired
     private SortingFactory sortingFactory;
 
+    @Autowired
+    SortingServiceFactory soringServiceFactory;
+
 
 	@Override
 	public boolean executeSingleTask(Task task, String ownSign) throws Exception {
 
-	    if(sortingService.useNewSorting(task.getCreateSiteCode())){
-            SortingVO sortingVO = new SortingVO(task);
-            return sortingFactory.bulid(sortingVO).execute(sortingVO);
-        }
+//	    if(sortingService.useNewSorting(task.getCreateSiteCode())){
+//            SortingVO sortingVO = new SortingVO(task);
+//            return sortingFactory.bulid(sortingVO).execute(sortingVO);
+//        }
+////
+//        return sortingService.processTaskData(task);
 
-        return sortingService.processTaskData(task);
+        return soringServiceFactory.getSortingService(task.getCreateSiteCode()).doSorting(task);
 	}
 
 

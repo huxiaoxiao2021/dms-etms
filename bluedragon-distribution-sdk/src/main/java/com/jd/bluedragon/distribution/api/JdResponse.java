@@ -70,6 +70,9 @@ public class JdResponse extends JdObject {
     public static final Integer CODE_FEATHER_LETTER_DISABLE_ERROR = 20011;
     public static final String MESSAGE_FEATHER_LETTER_DISABLE_ERROR = "鸡毛信设备不可用，请确认！";
 
+    public static final Integer CODE_CODMONAY_THIRD_SITE_ERROR = 20012;
+    public static final String MESSAGE_CODMONAY_THIRD_SITE_ERROR = "有货到付款金额，不能分配到第三方快递！";
+
     public static final Integer CODE_UNLOADBILL = 2424;
     public static final String MESSAGE_UNLOADBILL = "已经装载不允许取消";
 
@@ -183,6 +186,9 @@ public class JdResponse extends JdObject {
 
     public static final Integer CODE_REVERSE_CHANGE_PRINT_ALREADY = 30121;
     public static final String MESSAGE_REVERSE_CHANGE_PRINT_ALREADY = "该单号{0}已打印";
+
+    public static final Integer CODE_RE_PRINT_REPEAT = 30122;
+    public static final String MESSAGE_RE_PRINT_REPEAT = "此条码已操作过补打，是否再次打印？";
 
     /** 请求服务URL */
     private String request;

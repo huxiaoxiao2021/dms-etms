@@ -147,7 +147,10 @@ public class GantryAutoSendController {
         if (request.getLockStatus() == 0) {/** 解锁龙门架操作 **/
             logger.info("用户：" + userCode + "正在尝试解锁龙门架，ID为" + request.getMachineId());
             try {
-                if (gantryDeviceConfig.getLockUserErp().equals(userCode)) {//判断锁定人与解锁人是否是同一人
+                BaseStaffSiteOrgDto lastLockUser = baseMajorManager.getBaseStaffByErpNoCache(gantryDeviceConfig.getLockUserErp());
+                //锁定人erp异常 或和当前同一人
+                if (lastLockUser == null || lastLockUser.getIsResign() == null || lastLockUser.getIsResign() != 1 ||
+                        gantryDeviceConfig.getLockUserErp().equals(userCode)) {//判断锁定人与解锁人是否是同一人
                     //只更新该龙门架的锁定状态为0 解锁
                     gantryDeviceConfig.setLockStatus(request.getLockStatus());
                     gantryDeviceConfig.setEndTime(new Date());//解锁动作设置结束时间

@@ -55,6 +55,10 @@ public class DateHelper {
     public static final String DATE_FORMAT_YYYYMMDD = "yyyy-MM-dd";
 
     public static final String DATE_FORMAT_HHmmss = "HH:mm:ss";
+    /**
+     * 日期-格式yyyy-MM-dd HH:mm
+     */
+    public static final String DATE_TIME_FORMAT_YYYY_MM_DD_HH_MM = "yyyy-MM-dd HH:mm";
 
 
     public static Date add(final Date date, Integer field, Integer amount) {

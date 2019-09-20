@@ -665,7 +665,8 @@ public class Constants {
     public static final String DMS_WEB_SORTING_MACHINE_EXCEPTION="DMS-WEB-SORTING-MACHINE-EXCEPTION"; //分拣机或者龙门架异常
     public static final String DMS_WEB_NOTICE_MANAGE="DMS-WEB-NOTICE-MANAGE"; //通知栏管理
     public static final String DMS_WEB_INDEX_R="DMS_WEB_INDEX_R";  //系统主页
-
+    public static final String DMS_WEB_COLLECT_SET="DMS_WEB_COLLECT_SET";  //集货配置
+    public static final String DMS_WEB_COLLECT_REPORT="DMS_WEB_COLLECT_REPORT";  //集货报表
 
     /********************************************* 研发UIM权限资源码相关start ***********************************************/
     public static final String DMS_WEB_DEVELOP_REDIS_R ="DMS_WEB_DEVELOP_REDIS_R"; //分拣缓存查询

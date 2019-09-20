@@ -155,13 +155,13 @@ $(function () {
 
             /*起始时间*/
             /*截止时间*/
-            $.datePicker.createNew({
+/*            $.datePicker.createNew({
                 elem: '#createStartTime',
                 theme: '#3f92ea',
                 type: 'datetime',
                 btns: ['now', 'confirm'],
                 done: function(value, date, endDate){
-                    /*重置表单验证状态*/
+                    /!*重置表单验证状态*!/
 
                 }
             });
@@ -171,20 +171,20 @@ $(function () {
                 type: 'datetime',
                 btns: ['now', 'confirm'],
                 done: function(value, date, endDate){
-                    /*重置表单验证状态*/
+                    /!*重置表单验证状态*!/
 
                 }
             });
 
-            /*起始时间*/
-            /*截止时间*/
+            /!*起始时间*!/
+            /!*截止时间*!/
             $.datePicker.createNew({
                 elem: '#completeStartTime',
                 theme: '#3f92ea',
                 type: 'datetime',
                 btns: ['now', 'confirm'],
                 done: function(value, date, endDate){
-                    /*重置表单验证状态*/
+                    /!*重置表单验证状态*!/
 
                 }
             });
@@ -194,10 +194,10 @@ $(function () {
                 type: 'datetime',
                 btns: ['now', 'confirm'],
                 done: function(value, date, endDate){
-                    /*重置表单验证状态*/
+                    /!*重置表单验证状态*!/
 
                 }
-            });
+            });*/
 
             //查询
             $('#btn_query').click(function () {

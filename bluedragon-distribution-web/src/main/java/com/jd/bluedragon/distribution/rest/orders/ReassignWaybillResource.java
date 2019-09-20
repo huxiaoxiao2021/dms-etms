@@ -8,6 +8,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Controller;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.ReassignWaybillRequest;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.reassignWaybill.domain.ReassignWaybill;
 import com.jd.bluedragon.distribution.reassignWaybill.service.ReassignWaybillService;
 
@@ -32,19 +34,11 @@ public class ReassignWaybillResource {
 	@POST
 	@Path("/tagPrint/returnPack")
 	public JdResponse add(ReassignWaybillRequest request) {
-		if (request == null || StringUtils.isBlank(request.getPackageBarcode())) {
-			this.logger.warn("ReturnPackTagPrintResource add --> 传入参数非法");
-			return new JdResponse(JdResponse.CODE_PARAM_ERROR,
-					JdResponse.MESSAGE_PARAM_ERROR);
-		}
-		this.logger
-				.info("ReturnPackTagPrintResource add --> packageBarcode is ["
-						+ request.getPackageBarcode() + "]");
-		ReassignWaybill packTagPrint = ReassignWaybill.toReassignWaybill(request);
-		if (reassignWaybillService.add(packTagPrint)) {
+		JdResult<Boolean> jdResult = reassignWaybillService.backScheduleAfter(request);
+		if (jdResult.isSucceed()) {
 			return new JdResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 		} else {
-			return new JdResponse(308, "处理失败");
+			return new JdResponse(jdResult.getMessageCode(), jdResult.getMessage());
 		}
 
 	}

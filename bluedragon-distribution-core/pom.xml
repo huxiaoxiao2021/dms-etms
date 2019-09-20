@@ -26,7 +26,7 @@
 		<jddl-client.version>2.0.1-SNAPSHOT</jddl-client.version>
 		<configure-client.version>1.0.0-SNAPSHOT</configure-client.version>
 		<configure-utils.version>1.0.0-SNAPSHOT</configure-utils.version>
-		<groovy-all.version>2.4.4</groovy-all.version>
+		<groovy-all.version>2.4.8</groovy-all.version>
 		<jdbcp-pool.version>2.0.1-SNAPSHOT</jdbcp-pool.version>
 		<nv-websocket.version>2.3</nv-websocket.version>
 		<kryo.version>4.0.0</kryo.version>
@@ -34,25 +34,15 @@
 
 	<dependencies>
 		<dependency>
-			<artifactId>sorting-api</artifactId>
-			<exclusions>
-				<exclusion>
-					<artifactId>validation-api</artifactId>
-					<groupId>javax.validation</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>hibernate-validator</artifactId>
-					<groupId>org.hibernate.validator</groupId>
-				</exclusion>
-			</exclusions>
-			<groupId>com.jd.ql.shared.services</groupId>
-			<version>1.0-SNAPSHOT</version>
-		</dependency>
-
-		<dependency>
 			<groupId>ql-dms-report</groupId>
 			<artifactId>report-sdk</artifactId>
 			<version>1.1.1-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.b2b.wt</groupId>
+			<artifactId>wt-assemble-sdk</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -69,7 +59,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>1.2.58</version>
+            <version>1.2.60</version>
         </dependency>
         <dependency>
 			<groupId>com.jd.fms.ivc</groupId>
@@ -115,18 +105,6 @@
             <groupId>com.jd.jmq</groupId>
             <artifactId>jmq-client-spring</artifactId>
             <version>${jmq.version}</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>jmq-client-json</artifactId>
-					<groupId>com.jd.jmq</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
-		<dependency>
-			<groupId>com.jd.jmq</groupId>
-			<artifactId>jmq-client-json</artifactId>
-			<version>1.2.44</version>
 		</dependency>
 
         <dependency>
@@ -166,7 +144,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>1.2.23-SNAPSHOT</version>
+			<version>1.2.26-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.ldop.alpha</groupId>
@@ -176,7 +154,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-utils</artifactId>
-			<version>1.1.8-SNAPSHOT</version>
+			<version>1.1.9-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -190,7 +168,7 @@
 			<artifactId>bluedragon-distribution-saf</artifactId>
 			<version>1.0.2</version>
 		</dependency>
-        <dependency>
+		<dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>bluedragon-distribution-common-android</artifactId>
             <version>1.0.4-SNAPSHOT</version>
@@ -616,6 +594,21 @@
             <groupId>com.jd.etms.receive</groupId>
             <artifactId>etms-receive-api</artifactId>
             <version>1.2.64-SNAPSHOT</version>
+            <exclusions>
+            	<!-- iText 5 -->
+		        <exclusion>
+		            <groupId>com.itextpdf</groupId>
+		            <artifactId>itextpdf</artifactId>
+		        </exclusion>
+		        <exclusion>
+		            <groupId>com.itextpdf</groupId>
+		            <artifactId>itext-xtra</artifactId>
+		        </exclusion>
+		        <exclusion>
+		            <groupId>com.itextpdf</groupId>
+		            <artifactId>itext-asian</artifactId>
+		        </exclusion>
+            </exclusions> 
         </dependency>
         <dependency>
             <groupId>com.jd.etms.vehicle.manager.interface</groupId>
@@ -828,7 +821,7 @@
         <dependency>
             <groupId>com.jd.user.sdk</groupId>
             <artifactId>user-sdk-export</artifactId>
-            <version>1.0.6-SNAPSHOT</version>
+            <version>2.0.0-SNAPSHOT</version>
         </dependency>
 
         <!-- 主键生成服务 -->
@@ -923,13 +916,6 @@
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
 
-		<dependency>
-			<groupId>com.jd.jp.assemble</groupId>
-			<artifactId>jp-assemble-sdk</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-            <classifier>jdk16</classifier>
-        </dependency>
-
 		<!--JDDL-->
 		<dependency>
 			<groupId>jddl-utils</groupId>
@@ -991,7 +977,7 @@
         <dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>business-sdk</artifactId>
-            <version>1.0.3-SNAPSHOT</version>
+            <version>1.0.4-SNAPSHOT</version>
         </dependency>
 
 		<!--JMQ-Split组件  -->
@@ -1032,6 +1018,14 @@
 			<version>2.3.0-SNAPSHOT</version>
 		</dependency>
 
+		<!--中台-->
+		<dependency>
+			<groupId>com.jd.ql.shared.services</groupId>
+			<artifactId>sorting-api</artifactId>
+			<version>1.2-SNAPSHOT</version>
+		</dependency>
+
+
 		<dependency>
 			<groupId>com.jd.ldop.business</groupId>
 			<artifactId>ldop-business-api</artifactId>
@@ -1044,6 +1038,12 @@
 			<version>1.1.10-SNAPSHOT</version>
         </dependency>
 		<!-- 打印引擎    start-->
+		<dependency>
+			<groupId>com.jd.fms</groupId>
+			<artifactId>ufo_saf</artifactId>
+			<version>7.5</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>

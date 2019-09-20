@@ -149,6 +149,9 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     private static final String SPECIAL_REQUIRMENT_DELIVERY_UPSTAIRS="重货上楼";
     private static final String SPECIAL_REQUIRMENT_DELIVERY_WAREHOUSE="送货入仓";
     private static final String SPECIAL_REQUIRMENT_PRICE_PROTECT_MONEY = "保价";
+    private static final String SPECIAL_REQUIRMENT_LOAD_CAR = "装车";
+    private static final String SPECIAL_REQUIRMENT_UNLOAD_CAR = "卸车";
+    private static final String SPECIAL_REQUIRMENT_LOAD_UNLOAD_CAR = "装卸车";
 
     /**
      * B网医药冷链温层
@@ -423,6 +426,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         waybill.setImportantHint(waybillWS.getImportantHint());
         waybill.setOrderId(waybillWS.getVendorId());
         waybill.setBusiOrderCode(waybillWS.getBusiOrderCode());
+        waybill.setCodMoney(NumberHelper.getDoubleValue(waybillWS.getCodMoney()));
         if (isSetPack) {
         	//存放包裹的复重及打印信息
         	Map<String,PackOpeFlowDto> packOpeFlows = null;
@@ -911,6 +915,11 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             	target.appendSpecialMark(ComposeService.SPECIAL_MARK_AIRTRANSPORT);
             }
         }
+        //生鲜惠达-当waybillsign第31位=9，并且waybillsign第84位=3，则打印“航”字标
+        if(BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_9)
+        		&& BusinessUtil.isSignChar(waybill.getWaybillSign(), WaybillSignConstants.POSITION_84, WaybillSignConstants.CHAR_84_3)){
+        	target.appendSpecialMark(ComposeService.SPECIAL_MARK_AIRTRANSPORT);
+        }
         //waybill_sign标识位，第十六位为1且第三十一位为2且第五十五位为0，打同字标
         if(!BusinessUtil.isB2b(waybill.getWaybillSign()) &&
                 BusinessUtil.isSignChar(waybill.getWaybillSign(),16,'1') &&
@@ -966,7 +975,13 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         	target.setFreightText(TextConstants.COMMON_TEXT_NOTHING);
         	target.setGoodsPaymentText(TextConstants.COMMON_TEXT_NOTHING);
         }
-
+		if(BusinessUtil.isSopJZD(waybill.getWaybillSign())){
+			target.appendSpecialMark(TextConstants.TEXT_JZD_SPECIAL_MARK);
+		}
+        //waybill_sign第57位= 2，代表“KA运营特殊保障”，追加“KA”
+        if(BusinessUtil.isSignChar(waybill.getWaybillSign(), WaybillSignConstants.POSITION_57, WaybillSignConstants.CHAR_57_2)){
+        	target.appendSpecialMark(TextConstants.KA_FLAG);
+        }
         //设置特殊需求
         loadSpecialRequirement(target,waybill.getWaybillSign(),waybill);
 
@@ -1223,6 +1238,29 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     }
 
     /**
+     * 校验包裹是否存在
+     *
+     * @param packCode
+     * @return
+     */
+    @Override
+    public boolean checkPackExist(String packCode) {
+        if(StringUtils.isBlank(packCode) || !WaybillUtil.isPackageCode(packCode)){
+            return false;
+        }
+
+        Waybill waybill = this.findWaybillAndPack(WaybillUtil.getWaybillCode(packCode));
+        if(waybill!=null && waybill.getPackList()!=null){
+            for(Pack pack :waybill.getPackList()){
+                if(packCode.equals(pack.getPackageCode())){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * 加载特殊要求信息
      * @param printWaybill
      */
@@ -1248,6 +1286,18 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             //送货入仓
             if(BusinessUtil.isSignChar(waybillSign,42,'1')){
                 specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_DELIVERY_WAREHOUSE + ",";
+            }
+            //装车
+            if(BusinessUtil.isSignChar(waybillSign,41,'1')){
+                specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_LOAD_CAR + ",";
+            }
+            //卸车
+            if(BusinessUtil.isSignChar(waybillSign,41,'2')){
+                specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_UNLOAD_CAR + ",";
+            }
+            //装卸车
+            if(BusinessUtil.isSignChar(waybillSign,41,'3')){
+                specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_LOAD_UNLOAD_CAR + ",";
             }
         }
         if(StringUtils.isNotBlank(specialRequirement)){

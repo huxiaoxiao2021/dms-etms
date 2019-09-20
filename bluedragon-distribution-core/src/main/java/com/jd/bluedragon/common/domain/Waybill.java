@@ -1,10 +1,10 @@
 package com.jd.bluedragon.common.domain;
 
-import java.io.Serializable;
-import java.util.List;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.product.domain.Product;
+
+import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author zhaohc
@@ -212,6 +212,11 @@ public class Waybill implements Serializable {
 	private String orderId;
 
 	private String busiOrderCode;
+
+    /**
+     * COD代收款数
+     */
+    private Double codMoney;
 
 	public String getWaybillCode() {
 		return this.waybillCode;
@@ -789,4 +794,12 @@ public class Waybill implements Serializable {
 	public void setBusiOrderCode(String busiOrderCode) {
 		this.busiOrderCode = busiOrderCode;
 	}
+
+    public Double getCodMoney() {
+        return codMoney;
+    }
+
+    public void setCodMoney(Double codMoney) {
+        this.codMoney = codMoney;
+    }
 }

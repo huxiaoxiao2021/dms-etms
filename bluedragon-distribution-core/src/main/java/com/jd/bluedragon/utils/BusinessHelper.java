@@ -16,7 +16,6 @@ import java.util.regex.Pattern;
 public class BusinessHelper {
 
     private final static Logger logger = Logger.getLogger(BusinessHelper.class);
-    public final static String SEND_CODE_REG = "^\\d+-\\d+-\\d{15,17}$"; //批次号正则
     public static final String PACKAGE_SEPARATOR = "-";
     public static final String PACKAGE_IDENTIFIER_SUM = "S";
     public static final String PACKAGE_IDENTIFIER_NUMBER = "N";
@@ -358,10 +357,7 @@ public class BusinessHelper {
     }
 
     public static boolean isSendCode(String sendCode) {
-        if (sendCode == null) {
-            return false;
-        }
-        return sendCode.matches(SEND_CODE_REG);
+        return BusinessUtil.isSendCode(sendCode);
     }
 
     /**
@@ -554,5 +550,17 @@ public class BusinessHelper {
         return BusinessUtil.isSignChar(waybillSign, 40, '1')
         		||(BusinessUtil.isSignChar(waybillSign, 40, '2')
         				&& BusinessUtil.isSignInChars(waybillSign, 80, '1' ,'2'));
+    }
+
+    /**
+     * 是否是已旧换新订单
+     * @param sendPay
+     * @return
+     */
+    public static boolean isYJHX(String sendPay){
+        if (StringUtils.isBlank(sendPay)) {
+            return false;
+        }
+        return !BusinessUtil.isSignChar(sendPay, 275, '0');
     }
 }

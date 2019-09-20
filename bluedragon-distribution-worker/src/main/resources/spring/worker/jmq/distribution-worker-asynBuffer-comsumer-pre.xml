@@ -125,6 +125,16 @@
                     </bean>
                 </entry>
 
+
+                <!--分拣成功任务-->
+                <entry key="${jmq.task.topic.sorting.success.pre}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="asynBufferService"></constructor-arg>
+                        <constructor-arg name="methodName" value="executeSortingSuccess"></constructor-arg>
+                    </bean>
+                </entry>
+
                 <!-- 称重信息回传运单中心 -->
                 <entry key="${jmq.task.topic.weight.pre}">
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
