@@ -104,13 +104,11 @@ import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
-import com.jd.etms.waybill.common.Page;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.etms.waybill.dto.DeliveryPackageDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.alibaba.fastjson.JSON;
 import com.jd.jmq.common.exception.JMQException;
@@ -1311,7 +1309,8 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         Collections.sort(sendMList);
         //批次号封车校验，已封车不能发货
-        if (newSealVehicleService.checkSendCodeIsSealed(sendMList.get(0).getSendCode())) {
+        if (!SendBizSourceEnum.OFFLINE_OLD_SEND.equals(source)
+        		&& newSealVehicleService.checkSendCodeIsSealed(sendMList.get(0).getSendCode())) {
             return new DeliveryResponse(DeliveryResponse.CODE_SEND_CODE_ERROR, DeliveryResponse.MESSAGE_SEND_CODE_ERROR);
         }
 
@@ -4072,42 +4071,6 @@ public class DeliveryServiceImpl implements DeliveryService {
             code = code.substring(0, maxlength);
         }
         return code;
-    }
-
-    @Override
-    public DeliveryResponse autoBatchSend(List<SendM> sendMList) {
-        String rsiteCode = null;
-        for (SendM sendM : sendMList) {
-            List<SendM> sendMs = new ArrayList<SendM>();
-            SendM nsendM;
-            try {
-                String[] boxs = sendM.getBoxCode().split(",");
-                for (String boxCode : boxs) {
-                    nsendM = (SendM) sendM.clone();
-                    nsendM.setBoxCode(boxCode);
-                    sendMs.add(nsendM);
-                }
-
-                DeliveryResponse response = dellDeliveryMessage(SendBizSourceEnum.BATCH_OLD_PACKAGE_SEND, sendMs);
-                if (!response.getCode().equals(DeliveryResponse.CODE_OK)) {
-                    rsiteCode = rsiteCode + "," + String.valueOf(sendM.getReceiveSiteCode());
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                return new DeliveryResponse(
-                        DeliveryResponse.CODE_Delivery_ERROR,
-                        DeliveryResponse.MESSAGE_Delivery_ERROR);
-            }
-
-        }
-        if (rsiteCode != null) {
-            rsiteCode = rsiteCode.replaceAll("null,", "");
-            return new DeliveryResponse(DeliveryResponse.CODE_Delivery_ERROR,
-                    rsiteCode + "站点箱号"
-                            + DeliveryResponse.MESSAGE_Delivery_ERROR);
-        }
-        return new DeliveryResponse(DeliveryResponse.CODE_OK,
-                DeliveryResponse.MESSAGE_OK);
     }
 
     @Override
