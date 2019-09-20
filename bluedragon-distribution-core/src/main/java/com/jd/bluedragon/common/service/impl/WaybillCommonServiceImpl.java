@@ -149,6 +149,9 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     private static final String SPECIAL_REQUIRMENT_DELIVERY_UPSTAIRS="重货上楼";
     private static final String SPECIAL_REQUIRMENT_DELIVERY_WAREHOUSE="送货入仓";
     private static final String SPECIAL_REQUIRMENT_PRICE_PROTECT_MONEY = "保价";
+    private static final String SPECIAL_REQUIRMENT_LOAD_CAR = "装车";
+    private static final String SPECIAL_REQUIRMENT_UNLOAD_CAR = "卸车";
+    private static final String SPECIAL_REQUIRMENT_LOAD_UNLOAD_CAR = "装卸车";
 
     /**
      * B网医药冷链温层
@@ -1283,6 +1286,18 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             //送货入仓
             if(BusinessUtil.isSignChar(waybillSign,42,'1')){
                 specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_DELIVERY_WAREHOUSE + ",";
+            }
+            //装车
+            if(BusinessUtil.isSignChar(waybillSign,41,'1')){
+                specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_LOAD_CAR + ",";
+            }
+            //卸车
+            if(BusinessUtil.isSignChar(waybillSign,41,'2')){
+                specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_UNLOAD_CAR + ",";
+            }
+            //装卸车
+            if(BusinessUtil.isSignChar(waybillSign,41,'3')){
+                specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_LOAD_UNLOAD_CAR + ",";
             }
         }
         if(StringUtils.isNotBlank(specialRequirement)){
