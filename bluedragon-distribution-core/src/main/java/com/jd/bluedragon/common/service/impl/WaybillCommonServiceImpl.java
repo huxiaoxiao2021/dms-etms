@@ -1351,10 +1351,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             }else if(BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_43,WaybillSignConstants.CHAR_43_6)){
                 printWaybill.setDistributTypeText(DISTRIBUTE_TYPE_PRECISION_COLD);
             }
-            if(StringUtils.isNotBlank(printWaybill.getDistributTypeText())){
-                //非空时 增加 【】
-                printWaybill.setDistributTypeText("【"+printWaybill.getDistributTypeText()+"】");
-            }
         }
     }
 }
