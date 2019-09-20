@@ -1093,31 +1093,6 @@ public class DeliveryResource {
         return false;
     }
 
-    /**
-     * 自动化分拣发货处理，箱号字段为多个箱号
-     *
-     * @param request
-     * @return
-     */
-    @POST
-    @Path("/delivery/autoBatchSend")
-    @JProfiler(jKey = "DMSWEB.DeliveryResource.atuoBatchSend", mState = {JProEnum.TP})
-    public DeliveryResponse autoBatchSend(DeliveryBatchRequest request) {
-        this.logger.info("batchSend开始批量发货写入信息");
-        if (checkAutoBatchSend(request)) {
-            return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR,
-                    JdResponse.MESSAGE_PARAM_ERROR);
-        }
-        DeliveryResponse tDeliveryResponse = deliveryService.autoBatchSend(toAutoBatchSend(request));
-        this.logger.info("结束批量发货写入信息");
-        if (tDeliveryResponse != null) {
-            return tDeliveryResponse;
-        } else {
-            return new DeliveryResponse(JdResponse.CODE_NOT_FOUND,
-                    JdResponse.MESSAGE_SERVICE_ERROR);
-        }
-    }
-
     @GET
     @Path("/delivery/SendDifference/{sendCode}")
     @JProfiler(jKey = "DMSWEB.DeliveryResource.SendDifference", mState = {JProEnum.TP})
