@@ -152,7 +152,18 @@
 			<scope>test</scope>
 
 		</dependency>
-
+        <dependency>
+            <groupId>org.jmockit</groupId>
+            <artifactId>jmockit</artifactId>
+            <version>1.9</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>2.7.12</version>
+            <scope>test</scope>
+        </dependency>
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
@@ -433,7 +444,12 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-
+        <!--安全相关 ConfigSecSDK importants运行环境加密-->
+        <dependency>
+            <groupId>com.jd.security.configsec</groupId>
+            <artifactId>spring-configsec-sdk</artifactId>
+            <version>1.0.2.RELEASE</version>
+        </dependency>
 
 
 		<dependency>
