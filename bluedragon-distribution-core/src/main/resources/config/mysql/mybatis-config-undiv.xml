@@ -318,6 +318,11 @@
 
         <!-- 分拣复重抽检任务统计 -->
         <mapper resource="mappers/mysql/alliance/AllianceBusiDeliveryDetailMapper.xml"/>
+        <!-- 集货 -->
+        <mapper resource="mappers/mysql/collect/CollectGoodsAreaMapper.xml"/>
+        <mapper resource="mappers/mysql/collect/CollectGoodsDetailMapper.xml"/>
+        <mapper resource="mappers/mysql/collect/CollectGoodsPlaceMapper.xml"/>
+        <mapper resource="mappers/mysql/collect/CollectGoodsPlaceTypeMapper.xml"/>
 
         <!-- 包裹补打记录 -->
         <mapper resource="mappers/mysql/reprint/ReprintRecordMapper.xml"/>

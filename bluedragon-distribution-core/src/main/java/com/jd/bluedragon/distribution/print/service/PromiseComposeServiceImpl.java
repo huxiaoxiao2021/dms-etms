@@ -29,9 +29,10 @@ import java.util.Date;
 /**
  * Created by wangtingwei on 2016/1/25.
  * 
- * promise 路由将合并，因此两者对时效的处理也一并放在此处
+ * 逻辑迁移到PromiseWaybillHandler
  */
 @Service("promiseComposeService")
+@Deprecated
 public class PromiseComposeServiceImpl implements  ComposeService {
 
     private static final Log log= LogFactory.getLog(PromiseComposeServiceImpl.class);

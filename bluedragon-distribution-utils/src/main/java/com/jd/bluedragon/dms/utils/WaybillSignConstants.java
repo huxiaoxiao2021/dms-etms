@@ -151,4 +151,12 @@ public interface WaybillSignConstants {
 	 */
 	int POSITION_84 = 84;
 	char CHAR_84_3 = '3';
+	/**
+	 * waybillsign第57位定义
+	 */
+	int POSITION_57 = 57;
+	/**
+	 * 2-代表“KA运营特殊保障”
+	 */
+	char CHAR_57_2 = '2';
 }

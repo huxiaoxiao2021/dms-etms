@@ -183,6 +183,7 @@
 			<list>
 				<ref bean="sitePlateBasicHandler"/>
 				<ref bean="customerAndConsignerInfoHandler"/>
+				<ref bean="promiseWaybillHandler"/>
 				<ref bean="specialFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 			</list>
