@@ -25,6 +25,7 @@
                 <value>classpath:configured/popabnormal.properties</value>
                 <value>classpath:configured/snowflake.properties</value>
                 <value>classpath:configured/jsf.properties</value>
+                <value>classpath:configured/mq.properties</value>
             </list>
         </property>
         <property name="properties" ref="secApplicationProperties"/>
@@ -43,6 +44,7 @@
     <import resource="classpath:spring/order_service_config.xml" />
     <import resource="classpath:spring/distribution-core-redis.xml" />
     <import resource="classpath:spring/distribution-core-jsf.xml"/>
+    <import resource="classpath:spring/distribution-core-jmq.xml"/>
     <import resource="classpath:spring/distribution-core-datasource-undiv-test.xml"/>
     <context:component-scan base-package="com.jd.bluedragon.distribution.popAbnormal.helper" />
     <context:component-scan base-package="com.jd.bluedragon.distribution.*.service" />

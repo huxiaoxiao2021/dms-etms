@@ -148,6 +148,7 @@ public class ArSendRegisterServiceImplTest {
                 return "called with arguments: " + args;
             }
         }).when(arSendReportMQ).send(anyString(),anyString());
+
     }
 
     @Test
