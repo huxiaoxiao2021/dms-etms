@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.transport.service.impl;
 
+import com.google.common.base.Joiner;
 import com.google.gson.reflect.TypeToken;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -826,7 +827,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
 
             arSendReportMQ.send(arSendRegister.getTransCompanyCode(),JsonHelper.toJson(arSendRegister));
         } catch (JMQException e) {
-            logger.error("空铁发货登记报表数据发送异常"+arSendRegister.getTransCompanyCode()+e.getMessage(),e);
+            logger.error("空铁发货登记报表数据发送异常orderCode[{}]sendCodes[{}]",arSendRegister.getOrderCode(), Joiner.on(",").join(sendCodes),e);
         }
     }
 
