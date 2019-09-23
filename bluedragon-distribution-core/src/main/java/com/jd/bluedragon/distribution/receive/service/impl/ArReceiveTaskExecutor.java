@@ -15,7 +15,6 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -54,22 +53,21 @@ public class ArReceiveTaskExecutor extends BaseReceiveTaskExecutor<ArReceive>{
 			arReceive.setBoxCode(tmpNumber);
 			// 装箱类型（1 箱包装 2 单件包裹）
 			arReceive.setBoxingType(Short.parseShort("1"));
+		} else if (WaybillUtil.isSurfaceCode(tmpNumber)) {
+			// 取件单(暂不设运单号)
+			arReceive.setBoxCode(tmpNumber);
+			arReceive.setPackageBarcode(tmpNumber);
+			arReceive.setBoxingType(Short.parseShort("2"));
+		} else if (WaybillUtil.isPackageCode(tmpNumber)) {
+			// 包裹号(=箱号)
+			arReceive.setBoxCode(tmpNumber);
+			arReceive.setPackageBarcode(tmpNumber);
+			// 装箱类型（1 箱包装 2 单件包裹）
+			arReceive.setBoxingType(Short.parseShort("2"));
+			arReceive.setWaybillCode(WaybillUtil.getWaybillCode(tmpNumber));
 		} else {
-			// 包裹
-			if (WaybillUtil.isSurfaceCode(tmpNumber)) {
-				// 取件单(暂不设运单号)
-				arReceive.setBoxCode(tmpNumber);
-				arReceive.setPackageBarcode(tmpNumber);
-				arReceive.setBoxingType(Short.parseShort("2"));
-			} else {
-				// 包裹号(=箱号)
-				arReceive.setBoxCode(tmpNumber);
-				arReceive.setPackageBarcode(tmpNumber);
-				// 装箱类型（1 箱包装 2 单件包裹）
-				arReceive.setBoxingType(Short.parseShort("2"));
-				arReceive.setWaybillCode(WaybillUtil.getWaybillCode(tmpNumber));
-			}
-
+			log.warn(String.format("[空铁提货]不支持或无法识别的操作条码，packOrBox：%s", tmpNumber));
+			return null;
 		}
 		arReceive.setCarCode(arReceiveRequest.getCarCode());
 		arReceive.setShieldsCarCode(arReceiveRequest.getShieldsCarCode());
@@ -90,7 +88,6 @@ public class ArReceiveTaskExecutor extends BaseReceiveTaskExecutor<ArReceive>{
 		arReceive.setCreateSiteName(arReceiveRequest.getSiteName());
 		arReceive.setTurnoverBoxCode(arReceiveRequest.getTurnoverBoxCode());
 		arReceive.setQueueNo(arReceiveRequest.getQueueNo());
-		arReceive.setDepartureCarId(StringHelper.longParseString(arReceiveRequest.getDepartureCarId()));
 		arReceive.setShuttleBusType(arReceiveRequest.getShuttleBusType());
 		arReceive.setShuttleBusNum(arReceiveRequest.getShuttleBusNum());
 		arReceive.setRemark(arReceiveRequest.getRemark());

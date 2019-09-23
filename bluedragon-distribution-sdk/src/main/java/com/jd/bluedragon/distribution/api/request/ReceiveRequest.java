@@ -24,7 +24,8 @@ public class ReceiveRequest extends JdRequest{
     /**
      * 发车号
      */
-    private Long departureCarId;
+	@Deprecated
+    private String departureCarId;
     
     public String getQueueNo() {
 		return queueNo;
@@ -82,12 +83,11 @@ public class ReceiveRequest extends JdRequest{
 		this.carCode = carCode;
 	}
 
-	public Long getDepartureCarId() {
+	public String getDepartureCarId() {
 		return departureCarId;
 	}
 
-	public void setDepartureCarId(Long departureCarId) {
+	public void setDepartureCarId(String departureCarId) {
 		this.departureCarId = departureCarId;
 	}
-
 }
