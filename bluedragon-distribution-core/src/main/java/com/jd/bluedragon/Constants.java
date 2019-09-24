@@ -977,5 +977,5 @@ public class Constants {
     /**
      * 字典的产品类型父节点
      */
-    public static final Integer PRODUCT_PARENT_ID = 30058;
+    public static final Integer PRODUCT_PARENT_ID = 30048;
 }
