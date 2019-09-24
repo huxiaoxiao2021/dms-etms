@@ -974,4 +974,8 @@ public class Constants {
      */
     public static final String SYS_CODE_DMS = "dms";
 
+    /**
+     * 字典的产品类型父节点
+     */
+    public static final Integer PRODUCT_PARENT_ID = 30058;
 }
