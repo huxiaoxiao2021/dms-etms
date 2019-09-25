@@ -89,7 +89,7 @@ public class DmsBaseDictServiceImpl extends BaseService<DmsBaseDict> implements 
             redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
     @Override
     public List<DmsBaseDict> queryLowerLevelListByTypeCode(Integer typeCode) {
-        DmsBaseDict dmsBaseDict = this.queryRootByTypeCode(typeCode);
+        DmsBaseDict dmsBaseDict = this.queryRootOnlyByTypeCode(typeCode);
         if(dmsBaseDict == null){
             return null;
         }
@@ -114,6 +114,22 @@ public class DmsBaseDictServiceImpl extends BaseService<DmsBaseDict> implements 
             result.put(item.getTypeCode(),item.getTypeName());
         }
         return result;
+    }
+
+    /**
+     * 根据parentId查找所有下级节点数据,返回list
+     * @param typeCode
+     * @return
+     */
+    @Override
+    public DmsBaseDict queryRootOnlyByTypeCode(Integer typeCode) {
+        DmsBaseDictCondition dmsBaseDictCondition = new DmsBaseDictCondition();
+        dmsBaseDictCondition.setTypeCode(typeCode);
+        List<DmsBaseDict> nodes = queryByCondition(dmsBaseDictCondition);
+        if(nodes != null && !nodes.isEmpty()){
+            return nodes.get(0);
+        }
+        return null;
     }
 
     /**

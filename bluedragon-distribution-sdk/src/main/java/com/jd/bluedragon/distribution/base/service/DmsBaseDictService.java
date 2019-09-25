@@ -87,6 +87,8 @@ public interface DmsBaseDictService extends Service<DmsBaseDict> {
      * @return
      */
     DmsBaseDict queryRootByTypeCode(Integer typeCode);
+
+    DmsBaseDict queryRootOnlyByTypeCode(Integer typeCode);
     /**
      * 根据typeCode和parantId查询节点
      * @param typeCode
