@@ -1,18 +1,16 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
-import com.jd.bluedragon.core.base.SpmBWCompanyManager;
+import com.jd.bluedragon.core.base.EclpCustomerPinRelManager;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.spm.bwcompany.response.BwCompanyInfo;
+import com.jd.logistics.customer.center.domain.CustomerPinRel;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
  * @ClassName: EclpShoppingInterceptHandler
@@ -26,16 +24,16 @@ public class EclpShoppingInterceptHandler implements Handler<WaybillPrintContext
     private static final Log logger = LogFactory.getLog(EclpShoppingInterceptHandler.class);
 
     @Autowired
-    private SpmBWCompanyManager spmBWCompanyManager;
+    private EclpCustomerPinRelManager eclpCustomerPinRelManager;
 
     @Override
     public InterceptResult<String> handle(WaybillPrintContext context) {
-        logger.info("eclpShoppingInterceptHandler-eclp商城打印业务拦截");
+        logger.info("EclpShoppingInterceptHandler-eclp商城打印业务拦截");
         InterceptResult<String> interceptResult = context.getResult();
         // 请求的siteName传递BW码作为商家唯一编码
         String pin = context.getRequest().getSiteName();
         String waybillMemberId = context.getBigWaybillDto().getWaybill().getMemberId();
-        //商家BW码为空或者与运单不一致禁止打印
+        // 商家BW码为空或者与运单不一致禁止打印
         if (StringHelper.isEmpty(pin)) {
             interceptResult.toFail("传入参数中用户pin码标识不能为空！");
             return interceptResult;
@@ -77,9 +75,9 @@ public class EclpShoppingInterceptHandler implements Handler<WaybillPrintContext
      */
     private String getBWCodeByPin(String pin) {
         try {
-            List<BwCompanyInfo> bwCompanyInfoList = spmBWCompanyManager.getCompanyListByPin(pin);
-            if (bwCompanyInfoList != null && bwCompanyInfoList.size() > 0) {
-                return bwCompanyInfoList.get(0).getCompanyCode();
+            CustomerPinRel customerPinRel = eclpCustomerPinRelManager.getCustomerPinRelByPin(pin);
+            if (customerPinRel != null) {
+                return customerPinRel.getDisperseCustomerNo();
             }
         } catch (Exception e) {
             logger.error("[B网商家查询接口]根据pin码获取BW编号时发生异常", e);

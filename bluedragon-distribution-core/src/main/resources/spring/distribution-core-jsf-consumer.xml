@@ -463,15 +463,13 @@
                   protocol="jsf" alias="${vos.vehicleJobBusiness.jsf.alias}" timeout="${vos.vehicleJobBusiness.jsf.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
 
-
     <jsf:consumer id="allianceWaybillManagerApi" interface="com.jd.partner.waybill.api.WaybillManagerApi" protocol="jsf"
                   alias="${jsf.ldop.alpha.waybill.alias}" timeout="${jsf.ldop.alpha.waybill.timeout}" retries="0">
     </jsf:consumer>
 
-    <!--B网商家查询接口-->
-    <jsf:consumer id="bwCompanyService" interface="com.jd.spm.bwcompany.service.BWCompanyService" protocol="jsf"
-                  alias="${jsf.spm.bw.company.alias}" timeout="${jsf.spm.bw.company.timeout}" retries="0">
-        <jsf:parameter key="token" value="${jsf.spm.bw.company.token}" hide="true"/>
+    <!--ECLP开放平台 - 客户中心 - 客户跟pin关系接口-->
+    <jsf:consumer id="customerPinRelService" interface="com.jd.logistics.customer.customerPinRel.CustomerPinRelService" protocol="jsf"
+                  alias="${jsf.eclp.customerPinRel.alias}" timeout="${jsf.eclp.customerPinRel.timeout}" retries="0">
     </jsf:consumer>
 
 </beans>

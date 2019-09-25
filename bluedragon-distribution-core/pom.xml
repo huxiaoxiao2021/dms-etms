@@ -1017,10 +1017,11 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.jd.spm</groupId>
-			<artifactId>bwcompany-api</artifactId>
+			<groupId>com.jd.eclp</groupId>
+			<artifactId>customer-center-api</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
+
 	</dependencies>
 
 	<build>

@@ -88,13 +88,19 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
 			return result;
 		}
 		try {
-            Integer taskType = JSONObject.parseArray(body).getJSONObject(0).getInteger("taskType");
-            if(Task.TASK_TYPE_SEAL_OFFLINE.equals(taskType)){
-                result = offlineSeal(body);
-            }else if (Task.TASK_TYPE_AR_SEND_REGISTER.equals(taskType)){
-                result = arSendRegisterService.executeOfflineTask(body);
-            }else{
-                result = offlineCore(body);
+            JSONArray array = JSONObject.parseArray(body);
+            if (array.size() > 0) {
+                Integer taskType = array.getJSONObject(0).getInteger("taskType");
+                if (Task.TASK_TYPE_SEAL_OFFLINE.equals(taskType)) {
+                    result = offlineSeal(body);
+                } else if (Task.TASK_TYPE_AR_SEND_REGISTER.equals(taskType)) {
+                    result = arSendRegisterService.executeOfflineTask(body);
+                } else {
+                    result = offlineCore(body);
+                }
+            } else {
+                this.logger.warn(String.format("OfflineCoreTask execute --> body反序列化List的大小为空，body：【%s】", body));
+                result = true;
             }
 		} catch (Exception e) {
 			this.logger.error("OfflineCoreTask execute--> 转换body异常body【" + body + "】：", e);
