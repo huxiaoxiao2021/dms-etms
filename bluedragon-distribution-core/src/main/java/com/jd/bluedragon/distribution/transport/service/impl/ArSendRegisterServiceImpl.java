@@ -183,7 +183,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         //所有新增发货登记先把发给路由MQ类型置为1，落库
         arSendRegister.setSendRouterMqType(ArSendRouterMqTypeEnum.AIR_NO_SEND.getCode());
         arSendRegister.setOperateType(ArSendRegisterEnum.AIR_INSERT.getCode());
-        Map<Integer,String>  goodsTypeMap = dmsBaseDictService.queryMapKeyTypeCodeByParentId(Constants.BASEDICT_GOODS_TYPE_PARENTID);
+        Map<Integer,String>  goodsTypeMap = dmsBaseDictService.queryMapKeyTypeCodeByTypeCode(Constants.BASEDICT_GOODS_TYPE_TYPECODE);
         if(goodsTypeMap != null){
             arSendRegister.setGoodsTypeName(goodsTypeMap.get(arSendRegister.getGoodsType()));
         }

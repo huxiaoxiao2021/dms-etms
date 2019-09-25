@@ -20,7 +20,7 @@ public class DmsBaseDictServiceImplTest extends AbstractDaoIntegrationTest {
 
     @Test
     public void testqueryMapKeyTypeCodeByParentId(){
-        Map<Integer,String> map = dmsBaseDictService.queryMapKeyTypeCodeByParentId(Constants.BASEDICT_GOODS_TYPE_PARENTID);
+        Map<Integer,String> map = dmsBaseDictService.queryMapKeyTypeCodeByTypeCode(Constants.BASEDICT_GOODS_TYPE_TYPECODE);
         Assert.assertTrue(map.size() == 3);
     }
 }

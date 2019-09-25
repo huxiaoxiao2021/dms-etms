@@ -13,4 +13,6 @@ import java.util.List;
 public interface DmsBaseDictGatewayService {
 
     JdCResponse<List<BaseDict>> queryListByParentId(Integer parentId);
+
+    JdCResponse<List<BaseDict>> queryLowerLevelListByTypeCode(Integer typeCode);
 }

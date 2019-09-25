@@ -128,7 +128,7 @@ public class ArSendRegisterServiceImplTest {
         Map<Integer,String> goodsType = new HashMap<>();
         goodsType.put(1,"普货");
         goodsType.put(2,"生鲜");
-        when(dmsBaseDictService.queryMapKeyTypeCodeByParentId(Constants.BASEDICT_GOODS_TYPE_PARENTID)).thenReturn(goodsType);
+        when(dmsBaseDictService.queryMapKeyTypeCodeByTypeCode(Constants.BASEDICT_GOODS_TYPE_TYPECODE)).thenReturn(goodsType);
         when(arSendCodeService.batchAdd(Mockito.anyLong(),any(String[].class),Mockito.anyString())).thenReturn(Boolean.TRUE);
         BasicRailTrainDto railTrainDto = new BasicRailTrainDto();
         railTrainDto.setBeginNodeCode("12132");

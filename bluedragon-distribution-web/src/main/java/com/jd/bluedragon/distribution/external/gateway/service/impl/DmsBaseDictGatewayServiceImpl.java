@@ -47,4 +47,24 @@ public class DmsBaseDictGatewayServiceImpl implements DmsBaseDictGatewayService 
         jdCResponse.setData(data);
         return jdCResponse;
     }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsBaseDictGatewayServiceImpl.queryLowerLevelListByTypeCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<List<BaseDict>> queryLowerLevelListByTypeCode(Integer typeCode) {
+        JdCResponse<List<BaseDict>> jdCResponse = new JdCResponse<>();
+        jdCResponse.toSucceed();
+        List<DmsBaseDict> list = dmsBaseDictService.queryLowerLevelListByTypeCode(typeCode);
+        if(CollectionUtils.isEmpty(list)){
+            jdCResponse.toError("没有配置列表数据！");
+            return jdCResponse;
+        }
+        List<BaseDict> data = new ArrayList<>();
+        for(DmsBaseDict item : list){
+            BaseDict baseDict = new BaseDict();
+            BeanUtils.copyProperties(item,baseDict);
+            data.add(baseDict);
+        }
+        jdCResponse.setData(data);
+        return jdCResponse;
+    }
 }

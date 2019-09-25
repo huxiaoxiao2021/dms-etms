@@ -977,6 +977,6 @@ public class Constants {
     /**
      * 货物类型
      */
-    public static final int BASEDICT_GOODS_TYPE_PARENTID = 30052;
+    public static final int BASEDICT_GOODS_TYPE_TYPECODE = 10203;
 
 }

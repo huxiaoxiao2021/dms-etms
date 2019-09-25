@@ -68,7 +68,7 @@ public class ArBaseResource {
             result.add(new DictionaryInfoModel(busType.getBusTypeId(), busType.getBusTypeName(), ARCommonDictionaryType.BUS_TYPE.getType()));
         }
         //货物类型
-        List<DmsBaseDict> dmsBaseDictList = dmsBaseDictService.queryListByParentId(Constants.BASEDICT_GOODS_TYPE_PARENTID);
+        List<DmsBaseDict> dmsBaseDictList = dmsBaseDictService.queryLowerLevelListByTypeCode(Constants.BASEDICT_GOODS_TYPE_TYPECODE);
         for (DmsBaseDict dmsBaseDict : dmsBaseDictList) {
             result.add(new DictionaryInfoModel(dmsBaseDict.getTypeCode(), dmsBaseDict.getTypeName(), ARCommonDictionaryType.GOODS_TYPE.getType()));
         }

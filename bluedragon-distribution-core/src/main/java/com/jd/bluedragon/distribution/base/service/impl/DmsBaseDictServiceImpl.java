@@ -1,19 +1,5 @@
 package com.jd.bluedragon.distribution.base.service.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-
-import com.google.common.collect.Collections2;
-import org.apache.commons.collections.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.jd.bluedragon.distribution.base.dao.DmsBaseDictDao;
 import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
 import com.jd.bluedragon.distribution.base.domain.DmsBaseDictCondition;
@@ -23,6 +9,18 @@ import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.api.PagerCondition;
+import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  *
@@ -75,7 +73,6 @@ public class DmsBaseDictServiceImpl extends BaseService<DmsBaseDict> implements 
     /**
      * 根据parentId和typeGroup查找分拣基础数据
      * @param parentId
-     * @param typeGroup
      * @return
      */
     @Cache(key = "dmsBaseDictService.queryListByParentId@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
@@ -88,15 +85,26 @@ public class DmsBaseDictServiceImpl extends BaseService<DmsBaseDict> implements 
         return queryByCondition(dmsBaseDictCondition);
     }
 
+    @Cache(key = "dmsBaseDictService.queryLowerLevelListByTypeCode@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+    @Override
+    public List<DmsBaseDict> queryLowerLevelListByTypeCode(Integer typeCode) {
+        DmsBaseDict dmsBaseDict = this.queryRootByTypeCode(typeCode);
+        if(dmsBaseDict == null){
+            return null;
+        }
+        return this.queryListByParentId(dmsBaseDict.getId().intValue());
+    }
+
     /**
      * 根据parentId 查询 解析成；<typeCode,typeName>数据结构
      * @param parentId
      * @return
      */
-    @Cache(key = "dmsBaseDictService.queryMapKeyTypeCodeByParentId@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+    @Cache(key = "dmsBaseDictService.queryMapKeyTypeCodeByTypeCode@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
             redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
     @Override
-    public Map<Integer,String> queryMapKeyTypeCodeByParentId(Integer parentId) {
+    public Map<Integer,String> queryMapKeyTypeCodeByTypeCode(Integer parentId) {
         List<DmsBaseDict> dmsBaseDictList = queryListByParentId(parentId);
         if(CollectionUtils.isEmpty(dmsBaseDictList)){
             return null;
