@@ -470,6 +470,7 @@
     <!--ECLP开放平台 - 客户中心 - 客户跟pin关系接口-->
     <jsf:consumer id="customerPinRelService" interface="com.jd.logistics.customer.customerPinRel.CustomerPinRelService" protocol="jsf"
                   alias="${jsf.eclp.customerPinRel.alias}" timeout="${jsf.eclp.customerPinRel.timeout}" retries="0">
+        <jsf:parameter key="token" value="${jsf.eclp.customerPinRel.token}" hide="true"/>
     </jsf:consumer>
 
 </beans>
