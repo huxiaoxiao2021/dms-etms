@@ -206,6 +206,36 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         return sealCarInfo;
     }
 
+    /**
+     * 离线传摆封车
+     * @param sealCars
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.offlineFerrySeal",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+    public NewSealVehicleResponse offlineFerrySeal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars) {
+        logger.info("离线传摆封车参数："+ JsonHelper.toJson(sealCars));
+        NewSealVehicleResponse newSealVehicleResponse = null;
+        String msg = "离线传摆封车失败：";
+        try {
+            newSealVehicleResponse = this.doSealCarWithVehicleJob(sealCars);
+
+            if(newSealVehicleResponse == null) {
+                msg += "传摆封车JSF接口返回为空";
+            } else if (Constants.RESULT_SUCCESS == newSealVehicleResponse.getCode()){
+                msg = MESSAGE_OFFLINE_SEAL_SUCCESS;
+            } else {
+                msg += "["+newSealVehicleResponse.getCode()+":"+newSealVehicleResponse.getMessage()+"]";
+            }
+        } catch (Exception e){
+            this.logger.error("离线传摆封车-error", e);
+            msg += "["+ e.getMessage() +"]";
+        } finally {
+            addFerrySealSystemLog(sealCars, msg);
+        }
+        return newSealVehicleResponse;
+    }
+
   /**
    * 取消封车
    *
@@ -462,6 +492,36 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         long date = System.currentTimeMillis();
         long correctValue = 0L;
         for(SealCarDto dto : sealCars){
+            Goddess goddess = new Goddess();
+            goddess.setHead(dto.getSealSiteId() + "-" + dto.getDesealSiteId());
+            dto.setRemark(remark);
+            goddess.setBody(JsonHelper.toJson(dto));
+            goddess.setDateTime(new Date(date + correctValue));
+            if(StringUtils.isNotBlank(dto.getSealCarCode())){//解封车日志
+                goddess.setKey(dto.getSealCarCode());
+            }else if(StringUtils.isNotBlank(dto.getTransportCode())){//按运力编码封车日志
+                goddess.setKey(dto.getTransportCode());
+            }else if(StringUtils.isNotBlank(dto.getItemSimpleCode())){//按任务封车日志（key为任务简码）
+                goddess.setKey(dto.getItemSimpleCode());
+            }
+            goddessService.save(goddess);
+            correctValue++;
+        }
+    }
+
+    /**
+     * 记录传摆封车操作日志
+     * @param sealCars
+     * @param remark
+     */
+    private void addFerrySealSystemLog(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars, String remark) {
+        if(sealCars == null || sealCars.isEmpty()){
+            return;
+        }
+        /** 写入日志时间处理：cassandra主键包含时间字段，为避免写入太快前面的数据被覆盖，做此处理 */
+        long date = System.currentTimeMillis();
+        long correctValue = 0L;
+        for(com.jd.bluedragon.distribution.wss.dto.SealCarDto dto : sealCars){
             Goddess goddess = new Goddess();
             goddess.setHead(dto.getSealSiteId() + "-" + dto.getDesealSiteId());
             dto.setRemark(remark);

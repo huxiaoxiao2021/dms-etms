@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>补录体积</title>
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+##    引入公共样式和组件
+    #parse("system/common/baseImport.vm")
+    <script src="/static/js/newseal/preSealVolumeModify.js"></script>
+    <style>
+        hr{
+            padding: 0;
+            margin: 4px;
+        }
+        #add-form input{
+            height: 30px;
+        }
+    </style>
+</head>
+<body>
+<div id="main" style="margin-left: 10px;">
+    <ol class="breadcrumb">
+        <li>补录体积</li>
+    </ol>
+    <div id="add-form-wrapper">
+        <form id="add-form" class="form-inline">
+            <fieldset>
+                <div class="form-group" style="margin-left: 30px;">
+                    <label class="control-label" for="transportCode-input">运力编码 ：</label>
+                    <input type="text" id="transportCode-input" class="form-control" name="transportCode" readonly="readonly" style="display:inline;width: 250px;">
+                </div>
+                <div class="form-group" style="margin-left: 30px;">
+                    <label class="control-label" for="transWayName-input">运力类型 ：</label>
+                    <input type="text" id="transWayName-input" class="form-control" name="tansWayName" readonly="readonly" style="display:inline;width: 250px;">
+                </div>
+                <hr/>
+                <div class="form-group" style="margin-left: 31px;">
+                    <label class="control-label" for="code-select">车牌号 ：</label>
+                    <select id="code-select" name="vehicleNumber"></select>
+                </div>
+                <button id="btn_reload" type="button" class="btn btn-default" style="margin-left: 20px;">
+                    <span aria-hidden="true"></span>&nbsp;刷新
+                </button>
+                <hr/>
+                <div class="form-group" style="margin-left: 30px;">
+                    <label class="control-label" for="volume-input">体积 ：</label>
+                    <input type="text" id="volume-input" class="form-control" name="volume" style="display:inline;width: 250px;">
+                </div>
+                <div class="form-group" style="margin-left: 30px;">
+                    <label class="control-label" for="weight-input">重量 ：</label>
+                    <input type="text" id="weight-input" class="form-control" name="weight" style="display:inline;width: 250px;">
+                </div>
+                <hr/>
+            </fieldset>
+        </form>
+    </div>
+    <hr />
+
+    <div id="toolbar" class="btn-group" style="float:right;margin-right: 60px;margin-top: 25px;">
+        <button id="btn_add" type="button" class="btn btn-primary">
+            <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>&nbsp;确认添加
+        </button>
+        <button id="btn_cancel" type="button" class="btn btn-default" style="margin-left: 20px;">
+            <span aria-hidden="true"></span>&nbsp;返回
+        </button>
+
+    </div>
+</div>
+
+</body>
+</html>
