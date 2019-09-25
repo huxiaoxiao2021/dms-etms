@@ -105,7 +105,7 @@ public class DmsBaseDictServiceImpl extends BaseService<DmsBaseDict> implements 
             redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
     @Override
     public Map<Integer,String> queryMapKeyTypeCodeByTypeCode(Integer parentId) {
-        List<DmsBaseDict> dmsBaseDictList = queryListByParentId(parentId);
+        List<DmsBaseDict> dmsBaseDictList = queryLowerLevelListByTypeCode(parentId);
         if(CollectionUtils.isEmpty(dmsBaseDictList)){
             return null;
         }
