@@ -128,7 +128,7 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
     private boolean offlineSealFerry(String body){
         boolean result = false;
         NewSealVehicleResponse returnCommonDto = newsealVehicleService.offlineFerrySeal(convertSearCar(body));
-        if(returnCommonDto != null && Constants.RESULT_SUCCESS == returnCommonDto.getCode()){
+        if(returnCommonDto != null && NewSealVehicleResponse.CODE_OK.equals(returnCommonDto.getCode())){
             result = true;
         }
         return result;
