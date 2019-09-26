@@ -16,6 +16,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.eclp.isv.domain.GoodsInfo;
 import com.jd.eclp.spare.ext.api.inbound.domain.InboundOrder;
@@ -311,7 +312,10 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
             goodsInfo.setThirdCategoryNo(THIRD_CATEGORY_NO);//ECLP提供固定值 ，对接徐德凤 一级9669 二级9691 三级9694
             goodsInfo.setGoodsName(goodName);
             String goodCode = eclpOpenManager.transportGoodsInfo(goodsInfo);
-
+            if(StringUtils.isBlank(goodCode)){
+                logger.error("创建商品主数据失败"+JsonHelper.toJson(goodsInfo));
+                return false;
+            }
             //组装商品信息
             GoodsInfoItem goodsInfoItem = new GoodsInfoItem();
             goodsInfoItem.setGoodsNo(goodCode);
