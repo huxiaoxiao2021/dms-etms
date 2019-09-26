@@ -154,6 +154,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
         //封车成功的，写数据库，发送封车mq消息
         if (successSealCarList.size() > 0) {
+            logger.info("doSealCarWithVehicleJob传摆封车成功！，批次数量：" + successSealCarList.size());
             sealCarMQ(successSealCarList);
             addRedisCache(successSealCarList);
             saveSealData(successSealCarList);
@@ -222,7 +223,8 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
             if(newSealVehicleResponse == null) {
                 msg += "传摆封车JSF接口返回为空";
-            } else if (Constants.RESULT_SUCCESS == newSealVehicleResponse.getCode()){
+            } else if (NewSealVehicleResponse.CODE_OK.equals(newSealVehicleResponse.getCode())){
+                logger.info("离线传摆封车成功！");
                 msg = MESSAGE_OFFLINE_SEAL_SUCCESS;
             } else {
                 msg += "["+newSealVehicleResponse.getCode()+":"+newSealVehicleResponse.getMessage()+"]";
