@@ -172,7 +172,6 @@ $(function() {
                             $.each(vehicleNumbers,function(i,obj){
                                 if(row["vehicleNumber"] != null && row["vehicleNumber"] == obj){
                                     headOption = headOption + "<option selected value='"+obj+"'>"+obj+"</option>";
-                                    getMeasureInfo(row["vehicleNumber"], index, row.receiveSiteCode);
                                 }else{
                                     headOption = headOption + "<option value='"+obj+"'>"+obj+"</option>";
                                 }
@@ -193,7 +192,7 @@ $(function() {
                             });
                         row.vehicleNumber = valueSelected;
                         row.sealCodes = vehicleSealCodeMap[valueSelected];
-                        getMeasureInfo(valueSelected, index, row.receiveSiteCode);
+                        reloadNote(index, row.receiveSiteCode);
                         }
                     }
                 }, {
@@ -262,6 +261,7 @@ $(function() {
         }, {
             field : 'sendCodes',
             title : '批次数量',
+            width: '80px',
             formatter: function (value, row, index) {
                 return value.length;
             }
@@ -277,6 +277,7 @@ $(function() {
         }, {
             field : 'preSealSource',
             title : '来源',
+            width: '50px',
             formatter: function (value, row, index) {
                 if (value == null || value == 1) {
                     return '普通';
@@ -288,7 +289,8 @@ $(function() {
             }
         }, {
             field : 'transWayName',
-            title : '运力类型'
+            title : '运力类型',
+            width: '80px',
         }, {
             field : 'sealCodeStr',
             width: '50%',
@@ -300,7 +302,11 @@ $(function() {
             field: 'op',
             title: '操作',
             formatter : function (value, row, index) {
+                if (row.transWay != null && row.transWay == 1) {
                 return '<a class="mdinfo" href="javascript:void(0)" ><i class="glyphicon glyphicon-pencil"></i><span style="color: black;font-weight: bold;">补录体积</span></a>';
+                } else {
+                    return '';
+                }
             },
             events: {
                 'click .mdinfo': function(e, value, row, index) {
@@ -320,7 +326,9 @@ $(function() {
                             var frameWindow = $('#' + frameId)[0].contentWindow;
                             frameWindow.$('#transportCode-input').val(transportCode);
                             frameWindow.$('#transWayName-input').val(transWayName);
+                            //非公路零担不需要录体积
                             frameWindow.$("#btn_reload").click();
+
                         }
                     });
 
@@ -386,18 +394,13 @@ $(function() {
 			$('#dataTable').bootstrapTable('refresh');
 		};
 
-        function getMeasureInfo(vehicleNumber, index, receiveSiteCode) {
+        function reloadNote(index, receiveSiteCode) {
 
-            if (noVolumeMap.get(vehicleNumber) != null) {
-                noteValue = '<span style="color: red;font-weight: bold;">请补录体积</span>';
-            } else {
-                noteValue = '';
-            }
             $("#" + receiveSiteCode).bootstrapTable('updateCell',
                 {
                     index: index,
                     field: 'note',
-                    value: noteValue
+                    value: ''
                 });
         }
 

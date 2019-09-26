@@ -60,7 +60,7 @@
 
     <div id="toolbar" class="btn-group" style="float:right;margin-right: 60px;margin-top: 25px;">
         <button id="btn_add" type="button" class="btn btn-primary">
-            <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>&nbsp;确认添加
+            <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>&nbsp;保存
         </button>
         <button id="btn_cancel" type="button" class="btn btn-default" style="margin-left: 20px;">
             <span aria-hidden="true"></span>&nbsp;返回

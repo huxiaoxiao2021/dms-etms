@@ -241,6 +241,7 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
         Integer siteCode = preList.get(0).getCreateSiteCode();
         Map<String, SealTaskBody> taskBodyMap = new HashMap<>();
 
+        Map<String, SealTaskBody> taskFerrySealBodyMap = new HashMap<>();
         for(PreSealVehicle pre : preList){
             List<SealVehicles> sendCodes = pre.getSendCodes();
             if(sendCodes == null || sendCodes.isEmpty()){
@@ -278,13 +279,20 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
                 body.setWeight(vo.getWeight());
                 //车和运力多对多
                 String key = pre.getTransportCode() + vo.getVehicleNumber();
-                if(!taskBodyMap.containsKey(key)){
-                    taskBodyMap.put(key, body);
+                //普通预封车和传摆预封车，任务集合分开发
+                if (body.getTaskType().equals(Task.TASK_TYPE_FERRY_SEAL_OFFLINE)) {
+                    if(! taskFerrySealBodyMap.containsKey(key)){
+                        taskFerrySealBodyMap.put(key, body);
+                    }
+                } else {
+                    if(!taskBodyMap.containsKey(key)){
+                        taskBodyMap.put(key, body);
+                    }
                 }
+
             }
         }
         Task task = new Task();
-        task.setBody(JsonHelper.toJson(taskBodyMap.values()));
         task.setOwnSign(BusinessHelper.getOwnSign());
         task.setType(Task.TASK_TYPE_OFFLINE);
         task.setTableName(Task.getTableName(Task.TASK_TYPE_OFFLINE));
@@ -292,6 +300,11 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
         task.setKeyword1(siteCode.toString());
         task.setCreateSiteCode(siteCode);
         task.setReceiveSiteCode(siteCode);
+        //普通预封车任务
+        task.setBody(JsonHelper.toJson(taskBodyMap.values()));
+        taskService.add(task, true);
+        //传摆与封车任务
+        task.setBody(JsonHelper.toJson(taskFerrySealBodyMap.values()));
         taskService.add(task, true);
     }
 
