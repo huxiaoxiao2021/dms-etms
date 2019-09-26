@@ -300,12 +300,16 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
         task.setKeyword1(siteCode.toString());
         task.setCreateSiteCode(siteCode);
         task.setReceiveSiteCode(siteCode);
-        //普通预封车任务
-        task.setBody(JsonHelper.toJson(taskBodyMap.values()));
-        taskService.add(task, true);
-        //传摆与封车任务
-        task.setBody(JsonHelper.toJson(taskFerrySealBodyMap.values()));
-        taskService.add(task, true);
+        if (! taskBodyMap.isEmpty()) {
+            //普通预封车任务
+            task.setBody(JsonHelper.toJson(taskBodyMap.values()));
+            taskService.add(task, true);
+        }
+        if (! taskFerrySealBodyMap.isEmpty()) {
+            //传摆与封车任务
+            task.setBody(JsonHelper.toJson(taskFerrySealBodyMap.values()));
+            taskService.add(task, true);
+        }
     }
 
     @Override
