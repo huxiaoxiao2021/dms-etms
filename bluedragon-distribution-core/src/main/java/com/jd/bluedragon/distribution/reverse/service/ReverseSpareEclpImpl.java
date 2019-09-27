@@ -55,6 +55,8 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
 
     private Integer DEFAULT_GOOD_NUM = 1;
 
+    private Integer DEFAULT_SAFE_DAYS = 0;
+
     @Value("${eclp.c2c.deft.no:EBU0000000000571}")
     private String C2C_DEFT_NO ;//待定
 
@@ -311,6 +313,7 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
             goodsInfo.setBarcodes(packageD.getPackageBarcode());//包裹号
             goodsInfo.setThirdCategoryNo(THIRD_CATEGORY_NO);//ECLP提供固定值 ，对接徐德凤 一级9669 二级9691 三级9694
             goodsInfo.setGoodsName(goodName);
+            goodsInfo.setSafeDays(DEFAULT_SAFE_DAYS);
             String goodCode = eclpOpenManager.transportGoodsInfo(goodsInfo);
             if(StringUtils.isBlank(goodCode)){
                 logger.error("创建商品主数据失败"+JsonHelper.toJson(goodsInfo));
