@@ -19,7 +19,7 @@ public class EclpOpenManagerImpl implements EclpOpenManager {
     private Logger logger = LoggerFactory.getLogger(EclpOpenManagerImpl.class);
 
     @Value("${eclp.open.service.pin:jddaojia}")
-    private static String PIN ;
+    private String PIN ;
 
     @Autowired
     private EclpOpenService eclpOpenService;
