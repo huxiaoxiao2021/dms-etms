@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="GBK"?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+	<properties>
+		<property name="dialect" value="MYSQL"/>
+	</properties>
+    <settings>
+        <setting name="lazyLoadingEnabled" value="false"/>
+        <setting name="autoMappingBehavior" value="FULL"/>
+        <setting name="defaultStatementTimeout" value="30"/>
+    </settings>
+
+    <typeAliases>
+
+        <!-- 箱号与集包袋绑定 -->
+        <typeAlias type="com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation" alias="BoxMaterialRelation"/>
+    </typeAliases>
+
+    <plugins>
+        <plugin interceptor="com.jd.coo.sa.mybatis.plugins.id.AutoIncrementKeyPlugin">
+            <property name="idGen.type" value="com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor"/>
+            <property name="interceptTableSettings" value="
+                abnormal_order=systemId:system_id,
+                departure_send=departureSendId:departure_send_id,
+                fresh_waybill=id:id,
+                inspection_e_c=checkId:check_id,
+                operation_log_0=logId:log_id,
+                partner_waybill=relationId:relation_id,
+                pop_abnormal_order=id:id,
+                pop_pickup=pickupId:pickup_id,
+                pop_print=popPrintId:id,
+                pop_queue=id:id,
+                pop_signin=id:id,
+                pop_receive=systemId:system_id,
+                receive=receiveId:receive_id,
+                reverse_receive=id:system_id,
+                reverse_spare=systemId:system_id,
+                seal_box=id:system_id,
+                seal_vehicle=id:system_id,
+                sorting_ret=id:sorting_ret_id
+             "/>
+            <property name="replaceNextValue" value="true"/>
+            <property name="replaceExistsNewId" value="true"/>
+        </plugin>
+        <!--
+        	<plugin interceptor="com.jd.ql.dms.common.pager.PaginationInterceptor"/>
+         -->
+    </plugins>
+
+    <mappers>
+
+        <!-- 箱号与集包袋绑定 -->
+        <mapper resource="mappers/mysql/boxmaterialrelation/BoxMaterialRelationMapper.xml"/>
+
+
+    </mappers>
+</configuration>

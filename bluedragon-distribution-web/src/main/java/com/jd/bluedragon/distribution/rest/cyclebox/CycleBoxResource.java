@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.rest.cyclebox;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequset;
 import com.jd.bluedragon.distribution.api.request.WaybillCodeListRequest;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
@@ -89,6 +90,54 @@ public class CycleBoxResource {
         }
         try {
             result.setData(cycleBoxService.getCycleBoxByBatchCode(batchCode));
+        } catch (Exception e) {
+            result.error(InvokeResult.SERVER_ERROR_MESSAGE);
+        }
+        return result;
+    }
+
+    /**
+     * 根据箱号获取箱号与集包袋绑定关系
+     * @param boxCode
+     * @return
+     */
+    @GET
+    @Path("/cycleBox/getBoxMaterialRelation/{boxCode}")
+    @BusinessLog(sourceSys = 1,bizType = 1015,operateType = 101504)
+    public InvokeResult<String> getBoxMaterialRelation(@PathParam("boxCode") String boxCode) {
+        InvokeResult<String> result = new InvokeResult<String>();
+        result.success();
+
+        if (StringUtils.isBlank(boxCode)) {
+            result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
+            result.setMessage(InvokeResult.PARAM_ERROR);
+            return result;
+        }
+        try {
+            result.setData(cycleBoxService.getBoxMaterialRelation(boxCode));
+        } catch (Exception e) {
+            result.error(InvokeResult.SERVER_ERROR_MESSAGE);
+        }
+        return result;
+    }
+
+    @POST
+    @Path("/cycleBox/boxMaterialRelationAlter")
+    @BusinessLog(sourceSys = 1,bizType = 1015,operateType = 101505)
+    public InvokeResult boxMaterialRelationAlter(BoxMaterialRelationRequset request) {
+        InvokeResult result = new InvokeResult();
+        result.success();
+
+        try {
+            //参数校验
+            if (request == null || StringUtils.isBlank(request.getBoxCode()) || StringUtils.isBlank(request.getMaterialCode()) || request.getBindFlag() <1) {
+                result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
+                result.setMessage(InvokeResult.PARAM_ERROR);
+                return result;
+            }
+
+            //生成任务
+            cycleBoxService.addCycleBoxStatusTask(request);
         } catch (Exception e) {
             result.error(InvokeResult.SERVER_ERROR_MESSAGE);
         }

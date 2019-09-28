@@ -8,6 +8,8 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.WaybillCodeListRequest;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
 import com.jd.bluedragon.distribution.api.request.RecyclableBoxRequest;
+import com.jd.bluedragon.distribution.cyclebox.dao.BoxMaterialRelationDao;
+import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation;
 import com.jd.bluedragon.distribution.cyclebox.domain.CycleBox;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
@@ -52,6 +54,10 @@ public class CycleBoxServiceImpl implements CycleBoxService {
     @Autowired
     @Qualifier("recyclableBoxSendMQ")
     private DefaultJMQProducer recyclableBoxSendMQ;
+
+    @Autowired
+    @Qualifier("boxMaterialRelationDao")
+    private BoxMaterialRelationDao boxMaterialRelationDao;
 
     private static final String FIELD_NAME_CLEAR_BOX_NUM = "clearBoxNum";
 
@@ -279,6 +285,16 @@ public class CycleBoxServiceImpl implements CycleBoxService {
             //其他发出的正常
             pushCycleBoxStatusMQ(request);
         }
+    }
+
+    @Override
+    public String getBoxMaterialRelation(String boxCode) {
+      String res = null;
+      BoxMaterialRelation boxMaterial = boxMaterialRelationDao.getDataByBoxCode(boxCode);
+      if (boxMaterial != null) {
+         res=boxMaterial.getMaterialCode();
+      }
+      return res;
     }
 
     /**

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jd.bluedragon.distribution.cyclebox.dao.BoxMaterialRelationDao">
+    <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="box_code" jdbcType="VARCHAR" property="boxCode" />
+        <result column="material_code" jdbcType="VARCHAR" property="materialCode" />
+        <result column="operator_erp" jdbcType="VARCHAR" property="operatorErp" />
+        <result column="site_code" jdbcType="INTEGER" property="siteCode" />
+        <result column="bind_flag" jdbcType="INTEGER" property="bindFlag" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete" />
+        <result column="ts" jdbcType="TIMESTAMP" property="ts" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+       id, box_code, material_code, operator_erp, site_code, bind_flag, create_time, update_time,
+       is_delete, ts
+    </sql>
+
+    <insert id="add" parameterType="com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation">
+        insert into box_material_relation (box_code, material_code,
+        operator_erp, site_code, bind_flag,
+        create_time, update_time, is_delete)
+        values (#{boxCode,jdbcType=VARCHAR}, #{materialCode,jdbcType=VARCHAR},
+        #{operatorErp,jdbcType=VARCHAR}, #{siteCode,jdbcType=INTEGER}, 1,
+        NOW(), NOW(), 0)
+    </insert>
+
+    <update id="update" parameterType="com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation">
+        update box_material_relation
+        <set>
+            <if test="boxCode != null">
+                box_code = #{boxCode,jdbcType=VARCHAR},
+            </if>
+            <if test="materialCode != null">
+                material_code = #{materialCode,jdbcType=VARCHAR},
+            </if>
+            <if test="operatorErp != null">
+                operator_erp = #{operatorErp,jdbcType=VARCHAR},
+            </if>
+            <if test="siteCode != null">
+                site_code = #{siteCode,jdbcType=INTEGER},
+            </if>
+            <if test="bindFlag != null">
+                bind_flag = #{bindFlag,jdbcType=INTEGER},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDelete != null">
+                is_delete = #{isDelete,jdbcType=INTEGER},
+            </if>
+            <if test="ts != null">
+                ts = #{ts,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where box_code = #{boxCode,jdbcType=VARCHAR}
+    </update>
+
+    <select id="getDataByBoxCode" parameterType="String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from  box_material_relation
+        where box_code = #{boxCode} AND bind_flag = 1 AND is_delete = 0
+         limit 1
+    </select>
+
+    <select id="getDataByBean" parameterType="com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from  box_material_relation
+        where 1 = 1
+        <if test="boxCode != null" >
+            AND box_code = #{boxCode}
+        </if>
+        <if test="materialCode != null" >
+            AND material_code = #{materialCode}
+        </if>
+           AND bind_flag = 1 AND is_delete = 0
+         limit 1
+    </select>
+
+    <select id="getCountByBoxCode" parameterType="String" resultType="Integer">
+        select count(1)
+        from box_material_relation
+        WHERE box_code = #{boxCode}
+    </select>
+
+</mapper>
