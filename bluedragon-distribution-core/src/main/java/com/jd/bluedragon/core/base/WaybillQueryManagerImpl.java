@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.inventory.service.PackageStatusService;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.cache.BigWaybillPackageListCache;
+import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.api.WaybillTraceApi;
@@ -390,6 +391,16 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "dmsWeb.jsf.WaybillQueryApi.getWaybillByWaybillCode",mState={JProEnum.TP,JProEnum.FunctionError})
     public BaseEntity<Waybill> getWaybillByWaybillCode(String waybillCode) {
         return waybillQueryApi.getWaybillByWaybillCode(waybillCode);
+    }
+
+    public Waybill getOnlyWaybillByWaybillCode(String waybillCode) {
+        BaseEntity<Waybill> result = getWaybillByWaybillCode(waybillCode);
+        if(result.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && result.getData() != null){
+            return result.getData();
+        }else{
+            logger.error("根据运单号获取运单信息，接口返回异常状态码，ResultCode:" + result.getResultCode() + ",message:" + result.getMessage());
+            return null;
+        }
     }
 
     /**

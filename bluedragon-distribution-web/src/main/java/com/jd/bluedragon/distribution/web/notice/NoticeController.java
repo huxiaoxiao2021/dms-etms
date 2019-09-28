@@ -167,6 +167,7 @@ public class NoticeController {
      *
      * @return
      */
+/*
     @Authorization(Constants.DMS_WEB_NOTICE_MANAGE)
     @RequestMapping("/addView")
     public String addView(Model model) {
@@ -175,6 +176,7 @@ public class NoticeController {
         model.addAttribute("topDisplayValues", TopDisplayEnum.values());
         return "notice/add";
     }
+*/
 
     /**
      * 保存
@@ -182,7 +184,7 @@ public class NoticeController {
      * @param request
      * @return
      */
-    @Authorization(Constants.DMS_WEB_NOTICE_MANAGE)
+/*    @Authorization(Constants.DMS_WEB_NOTICE_MANAGE)
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult add(MultipartHttpServletRequest request) {
@@ -213,7 +215,7 @@ public class NoticeController {
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
         }
         return result;
-    }
+    }*/
 
     /**
      * 根据id删除通知和附件

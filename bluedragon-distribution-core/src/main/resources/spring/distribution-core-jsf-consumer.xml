@@ -482,4 +482,8 @@
                   alias="${common.use.menu.jsf.alias}" timeout="${common.use.menu.jsf.timeout}" retries="0">
     </jsf:consumer>
 
+    <jsf:consumer id="searchOrganizationOtherServiceJsf" interface="com.jd.ufo.saf.SearchOrganizationOtherService"
+                  protocol="jsf" alias="${jsf.ufo.SearchOrganizationOtherService.alias}" timeout="${jsf.ufo.SearchOrganizationOtherService.timeout}" retries="${jsf.retries}">
+    </jsf:consumer>
+
 </beans>
