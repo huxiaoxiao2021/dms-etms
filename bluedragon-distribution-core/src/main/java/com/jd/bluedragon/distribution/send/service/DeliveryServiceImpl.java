@@ -45,6 +45,7 @@ import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecord
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
+import com.jd.bluedragon.distribution.inspection.service.WaybillPackageBarcodeService;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
@@ -305,10 +306,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     private ReversePartDetailService reversePartDetailService;
 
     @Autowired
-    private WaybillService waybillService;
-
-    @Autowired
-    private WaybillPackageApi waybillPackageApi;
+    private WaybillPackageBarcodeService waybillPackageBarcodeService;
 
     @Autowired
     @Qualifier("dmsColdChainSendWaybill")
@@ -316,6 +314,18 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private ColdChainSendService coldChainSendService;
+
+
+    @Autowired
+    @Qualifier("redisClientCache")
+    private Cluster redisClientCache;
+
+    /**
+     * 自动过期时间半小时
+     */
+    private final static long REDIS_CACHE_EXPIRE_TIME = 30 * 60;
+
+    private final static String REDIS_CACHE_KEY = "PACKAGE-SEND-LOCK-";
 
     private static final int OPERATE_TYPE_REVERSE_SEND = 50;
 
@@ -1297,45 +1307,98 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     /**
+     * 生成发货数据处理（带有操作锁）
      *
      * @param source
-     * @param request
+     * @param sendMList
      * @return
      */
-    public DeliveryResponse dellDeliveryMessageByWaybillCode(SendBizSourceEnum source, List<DeliveryRequest> request){
-
-        try {
-
-        } catch (Exception e) {
-
-        } finally {
-
-            this.delCacheLock()
+    @Override
+    public DeliveryResponse dellDeliveryMessageWithLock(SendBizSourceEnum source, List<SendM> sendMList){
+        List<String> waybillCodeList = this.getCodeList(sendMList);
+        if (waybillCodeList.size() == 0) {
+            return new DeliveryResponse(JdResponse.CODE_SENDDATA_GENERATED_EMPTY, JdResponse.MESSAGE_SENDDATA_GENERATED_EMPTY);
         }
-
+        List<String> processingList = null;
+        try {
+            processingList = this.getProcessingList(waybillCodeList, sendMList.get(0).getCreateSiteCode());
+            if (processingList.size() > 0){
+                return new DeliveryResponse(JdResponse.CODE_SENDDATA_GENERATED_EMPTY, JdResponse.MESSAGE_SENDDATA_GENERATED_EMPTY);
+            }
+            return this.dellCreateSendM(source, this.sendMWaybillCodeHandler(sendMList));
+        } catch (Exception e) {
+            this.logger.error("老发货数据处理异常", e);
+            return new DeliveryResponse(DeliveryResponse.CODE_Delivery_ERROR, DeliveryResponse.MESSAGE_Delivery_ERROR);
+        } finally {
+            // 移除正在执行中的任务
+            if (processingList != null && processingList.size() > 0){
+                waybillCodeList.removeAll(processingList);
+            }
+            for (String waybillCode : waybillCodeList){
+                this.delCacheLock(waybillCode, sendMList.get(0).getCreateSiteCode());
+            }
+        }
     }
 
-    @Autowired
-    @Qualifier("redisClientCache")
-    private Cluster redisClientCache;
+    private List<SendM> sendMWaybillCodeHandler(List<SendM> sendMList) {
+        Iterator<SendM> iterator = sendMList.iterator();
+        List<SendM> packageCodeSendMList = new ArrayList<>();
 
-    /**
-     * 自动过期时间半小时
-     */
-    private final static long REDIS_CACHE_EXPIRE_TIME = 30 * 60;
+        while (iterator.hasNext()) {
+            SendM sendM = iterator.next();
+            if (WaybillUtil.isWaybillCode(sendM.getBoxCode())) {
+                // 移除按照运单发货
+                iterator.remove();
+                //生成包裹号
+                List<String> packageCodes = waybillPackageBarcodeService.getPackageCodeListByWaybillCode(sendM.getBoxCode());
+                for (String packageCode : packageCodes) {
+                    SendM packageCodeSendM = new SendM();
+                    packageCodeSendM.setBoxCode(packageCode);
+                    packageCodeSendM.setCreateSiteCode(sendM.getCreateSiteCode());
+                    packageCodeSendM.setReceiveSiteCode(sendM.getReceiveSiteCode());
+                    packageCodeSendM.setCreateUserCode(sendM.getCreateUserCode());
+                    packageCodeSendM.setSendType(sendM.getSendType());
+                    packageCodeSendM.setCreateUser(sendM.getCreateUser());
+                    packageCodeSendM.setSendCode(sendM.getSendCode());
+                    packageCodeSendM.setCreateTime(new Date());
+                    packageCodeSendM.setOperateTime(new Date());
+                    packageCodeSendM.setYn(1);
+                    packageCodeSendM.setTurnoverBoxCode(sendM.getTurnoverBoxCode());
+                    packageCodeSendM.setTransporttype(sendM.getTransporttype());
+                    packageCodeSendMList.add(packageCodeSendM);
+                }
+            }
+        }
+        sendMList.addAll(packageCodeSendMList);
+        return sendMList;
+    }
+
+    private List<String> getCodeList(List<SendM> sendMList){
+        if (sendMList == null || sendMList.size() == 0) {
+            return Collections.emptyList();
+        }
+        List<String> codeList = new ArrayList<>(sendMList.size());
+        for (SendM sendM : sendMList){
+            codeList.add(sendM.getBoxCode());
+        }
+        return codeList;
+    }
+
+    private String getRedisCacheKey(String barCode, Integer operateSiteCode) {
+        return REDIS_CACHE_KEY + operateSiteCode + Constants.SEPARATOR_HYPHEN + barCode ;
+    }
 
     /**
      * Redis缓存锁，解决同意运单在未处理完时，再次操作的问题
      *
      * @return
      */
-    private List<String> batchSetCacheLock(List<String> barCodes, Integer operateSiteCode) {
+    private List<String> getProcessingList(List<String> barCodes, Integer operateSiteCode) {
         if (barCodes == null || barCodes.size() == 0) {
             return Collections.EMPTY_LIST;
         }
 
         List<String> processingList = new ArrayList<>();
-
         try {
             for (String barCode : barCodes) {
                 String redisKey = this.getRedisCacheKey(barCode, operateSiteCode);
@@ -1348,12 +1411,6 @@ public class DeliveryServiceImpl implements DeliveryService {
             logger.error("[老发货运单处理]设置Redis并发锁时发生异常，barCodes:" + JsonHelper.toJson(barCodes), e);
         }
         return processingList;
-    }
-
-    private final static String REDIS_CACHE_KEY = "PACKAGE-SEND-LOCK-";
-
-    private String getRedisCacheKey(String barCode, Integer operateSiteCode) {
-        return REDIS_CACHE_KEY + operateSiteCode + Constants.SEPARATOR_HYPHEN + barCode ;
     }
 
     /**

@@ -408,15 +408,16 @@ public class DeliveryResource {
 
     /**
      * 老发货接口
+     *
      * @param request
      * @return
      */
     @JProfiler(jKey = "Bluedragon_dms_center.dms.method.delivery.sendPack", mState = {JProEnum.TP, JProEnum.FunctionError})
     @POST
     @Path("/delivery/send")
-    @BusinessLog(sourceSys = 1,bizType = 100,operateType = 1002)
+    @BusinessLog(sourceSys = 1, bizType = 100, operateType = 1002)
     public DeliveryResponse sendDeliveryInfo(List<DeliveryRequest> request) {
-        this.logger.info("开始写入发货信息"+JsonHelper.toJson(request));
+        this.logger.info("开始写入发货信息" + JsonHelper.toJson(request));
         if (check(request)) {
             return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR,
                     JdResponse.MESSAGE_PARAM_ERROR);
@@ -425,8 +426,14 @@ public class DeliveryResource {
 
         Integer opType = request.get(0).getOpType();
         if (KY_DELIVERY.equals(opType)) {
+            List<SendM> waybillCodeSendMList = this.assembleSendMForWaybillCode(request);
+            List<SendM> otherSendMList = this.assembleSendMWithoutWaybillCode(request);
             /** 快运发货 */
-            tDeliveryResponse = deliveryService.dellDeliveryMessage(SendBizSourceEnum.RAPID_TRANSPORT_SEND, toSendDetailList(request));
+            tDeliveryResponse = deliveryService.dellDeliveryMessageWithLock(SendBizSourceEnum.RAPID_TRANSPORT_SEND, waybillCodeSendMList);
+            if (tDeliveryResponse.getCode() == DeliveryResponse.CODE_Delivery_SEND_SUCCESS) {
+                /** 快运发货 */
+                tDeliveryResponse = deliveryService.dellDeliveryMessage(SendBizSourceEnum.RAPID_TRANSPORT_SEND, otherSendMList);
+            }
         } else {
             Integer businessType = request.get(0).getBusinessType();
             if (businessType != null && Constants.BUSSINESS_TYPE_REVERSE == businessType) {
@@ -896,6 +903,37 @@ public class DeliveryResource {
                         sendMList.addAll(deliveryRequest2SendMList(deliveryRequest));
                     }
                 } else {
+                    sendMList.add(deliveryRequest2SendM(deliveryRequest));
+                }
+            }
+        }
+        return sendMList;
+    }
+
+    protected <T extends DeliveryRequest> List<SendM> assembleSendMForWaybillCode(List<T> request) {
+        List<SendM> sendMList = new ArrayList<>();
+        if (request != null && !request.isEmpty()) {
+            for (DeliveryRequest deliveryRequest : request) {
+                if (WaybillUtil.isWaybillCode(deliveryRequest.getBoxCode())) {
+                    //B冷链快运发货支持扫运单号发货
+                    DeliveryResponse response = isValidWaybillCode(deliveryRequest);
+                    if (!JdResponse.CODE_OK.equals(response.getCode())) {
+                        logger.error("DeliveryResource--toSendDetailList出现运单号，但非冷链快运发货，siteCode:" +
+                                deliveryRequest.getSiteCode() + "，单号:" + deliveryRequest.getBoxCode());
+                        continue;
+                    }
+                    sendMList.add(deliveryRequest2SendM(deliveryRequest));
+                }
+            }
+        }
+        return sendMList;
+    }
+
+    protected <T extends DeliveryRequest> List<SendM> assembleSendMWithoutWaybillCode(List<T> request) {
+        List<SendM> sendMList = new ArrayList<>();
+        if (request != null && !request.isEmpty()) {
+            for (DeliveryRequest deliveryRequest : request) {
+                if (!WaybillUtil.isWaybillCode(deliveryRequest.getBoxCode())) {
                     sendMList.add(deliveryRequest2SendM(deliveryRequest));
                 }
             }

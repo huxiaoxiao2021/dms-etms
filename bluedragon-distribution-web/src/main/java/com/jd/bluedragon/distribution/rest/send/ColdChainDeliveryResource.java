@@ -81,6 +81,16 @@ public class ColdChainDeliveryResource extends DeliveryResource{
             }
             List<SendM> sendMList = toSendMList(request);
             response = deliveryService.dellDeliveryMessage(SendBizSourceEnum.COLD_CHAIN_SEND, sendMList);
+
+            List<SendM> waybillCodeSendMList = this.assembleSendMForWaybillCode(request);
+            List<SendM> otherSendMList = this.assembleSendMWithoutWaybillCode(request);
+            /** 快运发货 */
+            response = deliveryService.dellDeliveryMessageWithLock(SendBizSourceEnum.RAPID_TRANSPORT_SEND, waybillCodeSendMList);
+            if (response.getCode() == DeliveryResponse.CODE_Delivery_SEND_SUCCESS) {
+                /** 快运发货 */
+                response = deliveryService.dellDeliveryMessage(SendBizSourceEnum.RAPID_TRANSPORT_SEND, otherSendMList);
+            }
+
             if (JdResponse.CODE_OK.equals(response.getCode())) {
                 coldChainSendService.batchAdd(sendMList, request.get(0).getTransPlanCode());
             }
