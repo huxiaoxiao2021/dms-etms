@@ -40,6 +40,7 @@ import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
+import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationMQ;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
@@ -314,6 +315,10 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private ColdChainSendService coldChainSendService;
+
+    @Autowired
+    @Qualifier("deliverGoodsNoticeSendMQ")
+    private DefaultJMQProducer deliverGoodsNoticeSendMQ;
 
     private static final int OPERATE_TYPE_REVERSE_SEND = 50;
 
@@ -862,6 +867,8 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
         // 插入SEND_M
         this.sendMManager.insertSendM(domain);
+        //发送发货业务通知MQ
+        deliverGoodsNoticeMQ(domain);
         // 判断是按箱发货还是包裹发货
         if (!BusinessUtil.isBoxcode(domain.getBoxCode())) {
             // 按包裹 补分拣任务 大件写TASK_SORTING
@@ -1187,9 +1194,31 @@ public class DeliveryServiceImpl implements DeliveryService {
             if (!list.contains(dSendM.getBoxCode())) {
                 dSendM.setBizSource(sourceCode);
                 this.sendMManager.insertSendM(dSendM);
+                //发送发货业务通知MQ
+                deliverGoodsNoticeMQ(dSendM);
             }
         }
     }
+
+    /**
+     * 发送发货业务通知MQ 自消费
+     * @param sdm
+     */
+     private void deliverGoodsNoticeMQ(SendM sdm) {
+         String businessId = sdm.getBoxCode();
+         try {
+             BoxMaterialRelationMQ mq = new BoxMaterialRelationMQ();
+             mq.setBoxCode(businessId);
+             mq.setBusinessType(1);
+             mq.setOperatorName(sdm.getCreateUser());
+             mq.setOperatorCode(sdm.getCreateUserCode());
+             mq.setSiteCode(sdm.getCreateSiteCode().toString());
+
+             deliverGoodsNoticeSendMQ.send(businessId, JsonHelper.toJson(mq));
+         } catch (JMQException e) {
+             this.logger.error("发送发货业务通知MQ 异常", e);
+         }
+     }
 
     /***
      * 发货写入任务表

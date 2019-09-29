@@ -11,8 +11,8 @@
     <!-- business 写-->
     <bean id="dms_business_support" class="org.apache.commons.dbcp.BasicDataSource"  destroy-method="close">
         <property name="url" value="${dms.write.mysql.db.business.url}"/>
-        <property name="username" value="${dms.read.mysql.db.undiv.username}"/>
-        <property name="password" value="${dms.read.mysql.db.undiv.password}"/>
+        <property name="username" value="${dms.mysql.db.business.username}"/>
+        <property name="password" value="${dms.mysql.db.business.password}"/>
         <property name="driverClassName" value="${db.mysql.driverClassName}"/>
         <property name="defaultAutoCommit" value="true"/>
         <property name="initialSize" value="${dms.write.mysql.db.business.initialSize}"/>
@@ -41,7 +41,7 @@
 
     <bean id="businessSupportSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="dataSource" ref="dms_business_support"/>
-        <property name="configLocation" value="classpath:config/mysql/mybatis-config-business_support.xml"/>
+        <property name="configLocation" value="classpath:config/mysql/mybatis-config-business.xml"/>
     </bean>
 
     <bean id="businessSupportSqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
@@ -53,8 +53,8 @@
     <!-- dms单库读库 数据源 start -->
     <bean id="dms_read_business_support" class="org.apache.commons.dbcp.BasicDataSource"  destroy-method="close">
         <property name="url" value="${dms.read.mysql.db.business.url}"/>
-        <property name="username" value="${dms.read.mysql.db.undiv.username}"/>
-        <property name="password" value="${dms.read.mysql.db.undiv.password}"/>
+        <property name="username" value="${dms.mysql.db.business.username}"/>
+        <property name="password" value="${dms.mysql.db.business.password}"/>
         <property name="driverClassName" value="${db.mysql.driverClassName}"/>
         <property name="defaultAutoCommit" value="true"/>
         <property name="initialSize" value="${dms.read.mysql.db.business.initialSize}"/>
@@ -76,7 +76,7 @@
 
     <bean id="readBusinessSupportSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="dataSource" ref="dms_read_business_support"/>
-        <property name="configLocation" value="classpath:config/mysql/mybatis-config-read-business_support.xml"/>
+        <property name="configLocation" value="classpath:config/mysql/mybatis-config-read-business.xml"/>
     </bean>
 
     <bean id="readBusinessSupportSqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">

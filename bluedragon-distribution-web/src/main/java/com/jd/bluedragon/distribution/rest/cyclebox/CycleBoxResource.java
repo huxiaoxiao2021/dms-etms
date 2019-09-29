@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.rest.cyclebox;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequset;
+import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.api.request.WaybillCodeListRequest;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
@@ -129,13 +129,13 @@ public class CycleBoxResource {
     @POST
     @Path("/cycleBox/boxMaterialRelationAlter")
     @BusinessLog(sourceSys = 1,bizType = 1015,operateType = 101505)
-    public InvokeResult boxMaterialRelationAlter(BoxMaterialRelationRequset request) {
+    public InvokeResult boxMaterialRelationAlter(BoxMaterialRelationRequest request) {
         InvokeResult result = new InvokeResult();
         result.success();
 
         try {
             //参数校验
-            if (request == null || StringUtils.isBlank(request.getBoxCode()) || StringUtils.isBlank(request.getMaterialCode()) || request.getBindFlag() <1) {
+            if (request == null || StringUtils.isBlank(request.getBoxCode()) || StringUtils.isBlank(request.getMaterialCode()) || request.getBindFlag() <1 || request.getSiteCode()==null || request.getSiteCode()<0) {
                 result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
                 result.setMessage(InvokeResult.PARAM_ERROR);
                 return result;

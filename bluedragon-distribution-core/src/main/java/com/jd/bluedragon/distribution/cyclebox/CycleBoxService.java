@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.cyclebox;
 
-import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequset;
+import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
 import com.jd.bluedragon.distribution.api.request.RecyclableBoxRequest;
 import com.jd.bluedragon.distribution.api.request.WaybillCodeListRequest;
@@ -61,7 +61,7 @@ public interface CycleBoxService {
      * @param request
      * @return
      */
-    InvokeResult boxMaterialRelationAlter(BoxMaterialRelationRequset request);
+    InvokeResult boxMaterialRelationAlter(BoxMaterialRelationRequest request);
 
 
 }

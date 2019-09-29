@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.send.router;
 
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationMQ;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.jmq.common.exception.JMQException;
 import org.apache.commons.lang.StringUtils;
 import com.jd.bluedragon.distribution.base.dao.KvIndexDao;
@@ -12,6 +11,7 @@ import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.utils.JsonHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -25,13 +25,13 @@ import java.util.List;
  */
 public class SendMRouter extends SendMDao {
 
-
+    private final Logger logger = Logger.getLogger(SendMRouter.class);
     @Autowired
     private KvIndexDao kvIndexDao;
 
     @Autowired
-    @Qualifier("cycleMaterialHandleSendMQ")
-    private DefaultJMQProducer cycleMaterialHandleSendMQ;
+    @Qualifier("deliverGoodsNoticeSendMQ")
+    private DefaultJMQProducer deliverGoodsNoticeSendMQ;
 
     private static final Log LOGGER= LogFactory.getLog(SendMRouter.class);
 
@@ -148,22 +148,30 @@ public class SendMRouter extends SendMDao {
         }
 
         boolean res=super.insertSendM(dSendM);
+        //发送发货业务通知MQ
+        deliverGoodsNoticeMQ(dSendM);
 
-        if (StringUtils.isNotBlank(dSendM.getBoxCode()) && BusinessUtil.isBoxcode(dSendM.getBoxCode())){
-            String businessId=dSendM.getBoxCode();
-            try {
-                BoxMaterialRelationMQ mq=new BoxMaterialRelationMQ();
-                mq.setBoxCode(businessId);
-                mq.setBusinessType(1);
-                mq.setOperatorName(dSendM.getCreateUser());
-                mq.setOperatorCode(dSendM.getCreateUserCode());
-                mq.setSiteCode(dSendM.getCreateSiteCode().toString());
-                cycleMaterialHandleSendMQ.send(businessId, JsonHelper.toJson(mq));
-            }catch (JMQException e) {
-            }
-        }
         return res;
     }
 
+    /**
+     * 发送发货业务通知MQ 自消费
+     * @param sdm
+     */
+    private void deliverGoodsNoticeMQ(SendM sdm) {
+        String businessId = sdm.getBoxCode();
+        try {
+            BoxMaterialRelationMQ mq = new BoxMaterialRelationMQ();
+            mq.setBoxCode(businessId);
+            mq.setBusinessType(1);
+            mq.setOperatorName(sdm.getCreateUser());
+            mq.setOperatorCode(sdm.getCreateUserCode());
+            mq.setSiteCode(sdm.getCreateSiteCode().toString());
+
+            deliverGoodsNoticeSendMQ.send(businessId, JsonHelper.toJson(mq));
+        } catch (JMQException e) {
+            this.logger.error("发送发货业务通知MQ 异常", e);
+        }
+    }
 
 }

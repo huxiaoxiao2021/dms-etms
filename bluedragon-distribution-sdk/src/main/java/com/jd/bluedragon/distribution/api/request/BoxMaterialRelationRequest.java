@@ -5,7 +5,7 @@ import com.jd.bluedragon.distribution.api.JdRequest;
 /**
  * 箱号与集包编号绑定、删除操作请求对象
  */
-public class BoxMaterialRelationRequset  extends JdRequest {
+public class BoxMaterialRelationRequest extends JdRequest {
     private static final long serialVersionUID = 1L;
 
     /**

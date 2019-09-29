@@ -127,8 +127,8 @@
     </jmq:consumer>
 
     <!-- 消费循环集包袋处理 用于组织通知下游的MQ -->
-    <jmq:consumer id="jmq.cycleMaterialHandleConsumer" transport="jmq.BlueDragonDistribution.transport">
-        <jmq:listener topic="${jmq.topic.cb.cyclematerialhandle.info}" listener="cycleMaterialHandleConsumer"/>
+    <jmq:consumer id="jmq.deliverGoodsNoticeConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.cb.deliverGoodsNotice.info}" listener="deliverGoodsNoticeConsumer"/>
     </jmq:consumer>
 </beans>
 
