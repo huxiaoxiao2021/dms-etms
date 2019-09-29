@@ -12,6 +12,6 @@ public interface LdopWaybillUpdateManager {
      * 调用外单接口 取消运单鸡毛信服务
      * @param waybillCode 运单号
      */
-    void cancelFeatherLetterByWaybillCode(String waybillCode);
+    boolean cancelFeatherLetterByWaybillCode(String waybillCode);
 
 }

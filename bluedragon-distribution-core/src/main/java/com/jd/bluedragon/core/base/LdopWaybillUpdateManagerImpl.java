@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 /**
  * @author : xumigen
  * @date : 2019/8/20
@@ -27,11 +29,16 @@ public class LdopWaybillUpdateManagerImpl implements LdopWaybillUpdateManager{
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.LdopWaybillUpdateManagerImpl.cancelFeatherLetterByWaybillCode",mState = {JProEnum.TP, JProEnum.FunctionError})
-    public void cancelFeatherLetterByWaybillCode(String waybillCode) {
+    public boolean cancelFeatherLetterByWaybillCode(String waybillCode) {
         WaybillUpdateBeforePickupDTO pickupDTO = new WaybillUpdateBeforePickupDTO();
         pickupDTO.setWaybillCode(waybillCode);
         pickupDTO.setRelievedSend(RelievedSendEnum.SUPPORT_NOT_USE.getValue());
         ResponseDTO responseDTO = waybillUpdateApi.updateBeforePickUpWithResult(pickupDTO);
-        logger.info("取消鸡毛信服务结果responseDTO[{}]", JsonHelper.toJson(responseDTO));
+        if(responseDTO == null || !Objects.equals(responseDTO.getStatusCode(),ResponseDTO.SUCCESS_CODE)){
+            logger.error("取消鸡毛信服务失败waybillCode[{}]responseDTO[{}]",waybillCode, JsonHelper.toJson(responseDTO));
+            return Boolean.FALSE;
+        }
+
+        return Boolean.TRUE;
     }
 }

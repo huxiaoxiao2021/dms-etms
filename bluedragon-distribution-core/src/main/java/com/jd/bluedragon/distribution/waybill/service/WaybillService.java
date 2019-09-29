@@ -4,6 +4,7 @@ import com.jd.bluedragon.distribution.api.response.DmsWaybillInfoResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 
 public interface WaybillService {
@@ -72,4 +73,6 @@ public interface WaybillService {
      * @return
      */
     DmsWaybillInfoResponse getDmsWaybillInfoResponse(String packageCode);
+
+    Waybill getWaybillByWayCode(String waybillCode);
 }

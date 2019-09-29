@@ -225,18 +225,18 @@ public class PopInspectionServiceImpl implements PopInspectionService {
         String waybillCode = firstRequest.getBoxCodeNew();
         com.jd.etms.waybill.domain.Waybill  waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
         if(waybill == null){
-            logger.info("鸡毛信运单处理-查询运单信息为空waybillCode[{}]",waybillCode);
+            logger.error("鸡毛信运单处理-查询运单信息为空waybillCode[{}]firstRequest[{}]",waybillCode,JsonHelper.toJson(firstRequest));
             return;
         }
         if(!BusinessUtil.isFeatherLetter(waybill.getWaybillSign())){
             return;
         }
         if(Objects.equals(firstRequest.getCancelFeatherLetter(),Boolean.TRUE)){
-            ldopWaybillUpdateManager.cancelFeatherLetterByWaybillCode(waybillCode);
+            logger.error("鸡毛信运单处理-已经取消鸡毛信waybillCode[{}]firstRequest[{}]",waybillCode,JsonHelper.toJson(firstRequest));
             return;
         }
         if(StringUtils.isEmpty(firstRequest.getFeatherLetterDeviceNo())){
-            logger.info("鸡毛信运单处理-设备号为空waybillCode[{}]",waybillCode);
+            logger.error("鸡毛信运单处理-设备号为空waybillCode[{}]",waybillCode);
             return;
         }
         BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseStaffByStaffId(firstRequest.getUserCode());

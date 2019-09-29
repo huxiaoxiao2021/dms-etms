@@ -306,6 +306,11 @@ public class WaybillServiceImpl implements WaybillService {
         return baseEntity != null && baseEntity.getData() != null ? baseEntity.getData() : null;
     }
 
+    @Override
+    public Waybill getWaybillByWayCode(String waybillCode) {
+        return waybillQueryManager.getWaybillByWayCode(waybillCode);
+    }
+
     /**
      * 根据waybillSign获取运单类型
      * waybillSign第14位==‘5’表示是移动仓内配单

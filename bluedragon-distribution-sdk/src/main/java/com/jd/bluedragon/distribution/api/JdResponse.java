@@ -120,6 +120,7 @@ public class JdResponse extends JdObject {
     public static final String SEND_WAYBILL_NOT_FOUND="没有获取到该运单";
     public static final String SEND_BOX_NOT_FOUND="没有获取到该箱子";
     public static final String MESSAGE_EXIST_BOX_CODE="箱号已存在";
+    public static final String MESSAGE_NO_FEATHER_LETTER="非鸡毛信运单，不用取消鸡毛信服务";
 
     public static final Integer CODE_RE_PRINT_IN_ONE_HOUR = 30100;
     public static final String MESSAGE_RE_PRINT_IN_ONE_HOUR = "条码在1小时内重复打印，是否继续？";
