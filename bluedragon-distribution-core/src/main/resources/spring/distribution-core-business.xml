@@ -49,39 +49,4 @@
     </bean>
     <!-- dms单库写库 数据源 end -->
 
-
-    <!-- dms单库读库 数据源 start -->
-    <bean id="dms_read_business" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-        <property name="url" value="${dms.read.mysql.db.business.url}"/>
-        <property name="username" value="${dms.mysql.db.business.username}"/>
-        <property name="password" value="${dms.mysql.db.business.password}"/>
-        <property name="driverClassName" value="${db.mysql.driverClassName}"/>
-        <property name="defaultAutoCommit" value="true"/>
-        <property name="initialSize" value="${dms.read.mysql.db.business.initialSize}"/>
-        <property name="maxIdle" value="${dms.read.mysql.db.business.maxIdle}"/>
-        <property name="minIdle" value="${dms.read.mysql.db.business.minIdle}"/>
-        <property name="maxActive" value="${dms.read.mysql.db.business.maxActive}"/>
-        <property name="maxWait" value="${dms.read.mysql.db.business.maxWait}"/>
-        <property name="logAbandoned" value="${dms.read.mysql.db.business.logAbandoned}"/>
-        <property name="removeAbandoned" value = "${dms.read.mysql.db.business.removeAbandoned}"/>
-        <property name="removeAbandonedTimeout" value="${dms.read.mysql.db.business.removeAbandonedTimeout}" />
-        <property name= "testWhileIdle" value="${dms.read.mysql.db.business.testWhileIdle}" />
-        <property name= "testOnBorrow" value="${dms.read.mysql.db.business.testOnBorrow}" />
-        <property name= "validationQuery" value="${dms.read.mysql.db.business.validationQuery}" />
-        <property name="minEvictableIdleTimeMillis" value="${dms.read.mysql.db.business.minEvictableIdleTimeMillis}"/>
-        <property name="timeBetweenEvictionRunsMillis" value="${dms.read.mysql.db.business.timeBetweenEvictionRunsMillis}"/>
-        <property name="poolPreparedStatements" value="false" />
-        <property name="defaultReadOnly" value="true" />
-    </bean>
-
-    <bean id="readBusinessSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-        <property name="dataSource" ref="dms_read_business"/>
-        <property name="configLocation" value="classpath:config/mysql/mybatis-config-read-business.xml"/>
-    </bean>
-
-    <bean id="readBusinessSqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
-        <constructor-arg index="0" ref="readBusinessSqlSessionFactory"/>
-    </bean>
-    <!-- dms单库读库 数据源 end -->
-
 </beans>
