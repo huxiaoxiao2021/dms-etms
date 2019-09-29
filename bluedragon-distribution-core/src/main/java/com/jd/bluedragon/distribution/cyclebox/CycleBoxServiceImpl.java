@@ -335,8 +335,8 @@ public class CycleBoxServiceImpl implements CycleBoxService {
         par.setSiteCode(request.getSiteCode());
         par.setIsDelete(0);
 
-        //如果为绑定且从未绑定过
-        if (request.getBindFlag()==1 && boxMaterialRelationService.getCountByBoxCode(request.getBoxCode())<=0){
+        //如果从未绑定过
+        if (boxMaterialRelationService.getCountByBoxCode(request.getBoxCode())<=0){
             if (boxMaterialRelationService.add(par)>0){
                 return result;
             }

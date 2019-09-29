@@ -148,30 +148,8 @@ public class SendMRouter extends SendMDao {
         }
 
         boolean res=super.insertSendM(dSendM);
-        //发送发货业务通知MQ
-        deliverGoodsNoticeMQ(dSendM);
 
         return res;
-    }
-
-    /**
-     * 发送发货业务通知MQ 自消费
-     * @param sdm
-     */
-    private void deliverGoodsNoticeMQ(SendM sdm) {
-        String businessId = sdm.getBoxCode();
-        try {
-            BoxMaterialRelationMQ mq = new BoxMaterialRelationMQ();
-            mq.setBoxCode(businessId);
-            mq.setBusinessType(1);
-            mq.setOperatorName(sdm.getCreateUser());
-            mq.setOperatorCode(sdm.getCreateUserCode());
-            mq.setSiteCode(sdm.getCreateSiteCode().toString());
-
-            deliverGoodsNoticeSendMQ.send(businessId, JsonHelper.toJson(mq));
-        } catch (JMQException e) {
-            this.logger.error("发送发货业务通知MQ 异常", e);
-        }
     }
 
 }

@@ -9,7 +9,7 @@
 
 
     <!-- business 写-->
-    <bean id="dms_business_support" class="org.apache.commons.dbcp.BasicDataSource"  destroy-method="close">
+    <bean id="dms_business" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="url" value="${dms.write.mysql.db.business.url}"/>
         <property name="username" value="${dms.mysql.db.business.username}"/>
         <property name="password" value="${dms.mysql.db.business.password}"/>
@@ -31,27 +31,27 @@
         <property name="poolPreparedStatements" value="false" />
     </bean>
 
-    <bean id="transactionManager_business_support"
+    <bean id="transactionManager_business"
           class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="dms_business_support"/>
+        <property name="dataSource" ref="dms_business"/>
         <qualifier value="business_support"/>
     </bean>
 
-    <tx:annotation-driven transaction-manager="transactionManager_business_support" proxy-target-class="true"/>
+    <tx:annotation-driven transaction-manager="transactionManager_business" proxy-target-class="true"/>
 
-    <bean id="businessSupportSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-        <property name="dataSource" ref="dms_business_support"/>
+    <bean id="businessSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dms_business"/>
         <property name="configLocation" value="classpath:config/mysql/mybatis-config-business.xml"/>
     </bean>
 
-    <bean id="businessSupportSqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
-        <constructor-arg index="0" ref="businessSupportSqlSessionFactory"/>
+    <bean id="businessSqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="businessSqlSessionFactory"/>
     </bean>
     <!-- dms单库写库 数据源 end -->
 
 
     <!-- dms单库读库 数据源 start -->
-    <bean id="dms_read_business_support" class="org.apache.commons.dbcp.BasicDataSource"  destroy-method="close">
+    <bean id="dms_read_business" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="url" value="${dms.read.mysql.db.business.url}"/>
         <property name="username" value="${dms.mysql.db.business.username}"/>
         <property name="password" value="${dms.mysql.db.business.password}"/>
@@ -74,13 +74,13 @@
         <property name="defaultReadOnly" value="true" />
     </bean>
 
-    <bean id="readBusinessSupportSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-        <property name="dataSource" ref="dms_read_business_support"/>
+    <bean id="readBusinessSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dms_read_business"/>
         <property name="configLocation" value="classpath:config/mysql/mybatis-config-read-business.xml"/>
     </bean>
 
-    <bean id="readBusinessSupportSqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
-        <constructor-arg index="0" ref="readBusinessSupportSqlSessionFactory"/>
+    <bean id="readBusinessSqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="readBusinessSqlSessionFactory"/>
     </bean>
     <!-- dms单库读库 数据源 end -->
 

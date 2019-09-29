@@ -45,7 +45,7 @@ public class DeliverGoodsNoticeConsumer extends MessageBaseConsumer {
             return;
         }
         BoxMaterialRelationMQ context = JsonHelper.fromJsonUseGson(message.getText(), BoxMaterialRelationMQ.class);
-        if (StringUtils.isNotBlank(context.getBoxCode()) || BusinessUtil.isBoxcode(context.getBoxCode()) || StringUtils.isNotBlank(context.getSiteCode())){
+        if (StringUtils.isBlank(context.getBoxCode()) || !BusinessUtil.isBoxcode(context.getBoxCode()) || StringUtils.isBlank(context.getSiteCode())){
             return;
         }
         try {
