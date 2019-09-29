@@ -297,7 +297,7 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
         }
 
         //设定特殊值
-        inboundOrder.setOrderNo(oldWaybillCodeV1); //原运单号（正向第一个运单，此处需调运单接口，根据新单号查询出正向第一个单号）
+        inboundOrder.setOldWaybillNo(oldWaybillCodeV1); //原运单号（正向第一个运单，此处需调运单接口，根据新单号查询出正向第一个单号）
         inboundOrder.setWaybillNo(waybillCode);
         inboundOrder.setSource(InboundSourceEnum.SORTING_C2C);
         inboundOrder.setTargetDeptNo(C2C_DEFT_NO);//固定值 时婧提供
