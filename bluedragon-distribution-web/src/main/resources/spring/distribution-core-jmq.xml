@@ -268,7 +268,7 @@
     </bean>
 
     <!--PDA循环集包袋处理MQ 自产自消-->
-    <bean id="deliverGoodsNoticeSendMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+    <bean id="deliverGoodsNoticeSendMQ" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.cb.deliverGoodsNotice.info}"/>
         <property name="timeout" value="1000"/>
     </bean>
