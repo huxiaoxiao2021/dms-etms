@@ -1,5 +1,9 @@
 package com.jd.bluedragon.distribution.send.router;
 
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationMQ;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.jmq.common.exception.JMQException;
 import org.apache.commons.lang.StringUtils;
 import com.jd.bluedragon.distribution.base.dao.KvIndexDao;
 import com.jd.bluedragon.distribution.base.domain.KvIndex;
@@ -9,6 +13,8 @@ import com.jd.bluedragon.utils.JsonHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +28,10 @@ public class SendMRouter extends SendMDao {
 
     @Autowired
     private KvIndexDao kvIndexDao;
+
+    @Autowired
+    @Qualifier("cycleMaterialHandleSendMQ")
+    private DefaultJMQProducer cycleMaterialHandleSendMQ;
 
     private static final Log LOGGER= LogFactory.getLog(SendMRouter.class);
 
@@ -136,8 +146,23 @@ public class SendMRouter extends SendMDao {
     		index.setValue(String.valueOf(dSendM.getBoxCode()));
     		kvIndexDao.add(index);
         }
-    	
-        return super.insertSendM(dSendM);
+
+        boolean res=super.insertSendM(dSendM);
+
+        if (StringUtils.isNotBlank(dSendM.getBoxCode()) && BusinessUtil.isBoxcode(dSendM.getBoxCode())){
+            String businessId=dSendM.getBoxCode();
+            try {
+                BoxMaterialRelationMQ mq=new BoxMaterialRelationMQ();
+                mq.setBoxCode(businessId);
+                mq.setBusinessType(1);
+                mq.setOperatorName(dSendM.getCreateUser());
+                mq.setOperatorCode(dSendM.getCreateUserCode());
+                mq.setSiteCode(dSendM.getCreateSiteCode().toString());
+                cycleMaterialHandleSendMQ.send(businessId, JsonHelper.toJson(mq));
+            }catch (JMQException e) {
+            }
+        }
+        return res;
     }
 
 

@@ -16,6 +16,7 @@
 	<import resource="classpath:spring/distribution-core-datasource-task.xml" />
 	<import resource="classpath:spring/distribution-core-dao.xml" />
 	<import resource="classpath:spring/distribution-core-ws.xml" />
+	<import resource="classpath:spring/distribution-core-business_support.xml" />
 <!-- 	<import resource="classpath:spring/distribution-core-wss.xml" /> -->
 	<import resource="classpath:spring/order_service_config.xml" />
 	<import resource="classpath:spring/distribution-core-redis.xml" />

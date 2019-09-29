@@ -97,7 +97,7 @@ public class CycleBoxResource {
     }
 
     /**
-     * 根据箱号获取箱号与集包袋绑定关系
+     * 根据箱号获取箱号绑定的集包袋
      * @param boxCode
      * @return
      */
@@ -121,6 +121,11 @@ public class CycleBoxResource {
         return result;
     }
 
+    /**
+     * 绑定、删除集包袋
+     * @param request
+     * @return
+     */
     @POST
     @Path("/cycleBox/boxMaterialRelationAlter")
     @BusinessLog(sourceSys = 1,bizType = 1015,operateType = 101505)
@@ -136,8 +141,8 @@ public class CycleBoxResource {
                 return result;
             }
 
-            //生成任务
-            cycleBoxService.addCycleBoxStatusTask(request);
+            //执行数据库操作
+            result = cycleBoxService.boxMaterialRelationAlter(request);
         } catch (Exception e) {
             result.error(InvokeResult.SERVER_ERROR_MESSAGE);
         }

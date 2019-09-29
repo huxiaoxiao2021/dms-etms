@@ -15,6 +15,7 @@
     </bean>
     <import resource="classpath:spring/distribution-core-common.xml" />
     <import resource="classpath:spring/distribution-core-datasource-undiv.xml" />
+    <import resource="classpath:spring/distribution-core-business_support.xml" />
 
     <bean class="com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor" id="sequenceGenAdaptor" lazy-init="false">
         <constructor-arg index="0">

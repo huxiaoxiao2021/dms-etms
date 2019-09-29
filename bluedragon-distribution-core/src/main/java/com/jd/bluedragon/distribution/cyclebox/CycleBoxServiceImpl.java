@@ -5,12 +5,16 @@ import com.jd.bluedragon.core.base.TMSBossQueryManager;
 import com.jd.bluedragon.core.base.CycleBoxExternalManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequset;
 import com.jd.bluedragon.distribution.api.request.WaybillCodeListRequest;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
 import com.jd.bluedragon.distribution.api.request.RecyclableBoxRequest;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.cyclebox.dao.BoxMaterialRelationDao;
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation;
 import com.jd.bluedragon.distribution.cyclebox.domain.CycleBox;
+import com.jd.bluedragon.distribution.send.dao.SendMDao;
+import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -58,6 +62,9 @@ public class CycleBoxServiceImpl implements CycleBoxService {
     @Autowired
     @Qualifier("boxMaterialRelationDao")
     private BoxMaterialRelationDao boxMaterialRelationDao;
+
+    @Autowired
+    private SendMDao sendMDao;
 
     private static final String FIELD_NAME_CLEAR_BOX_NUM = "clearBoxNum";
 
@@ -287,6 +294,11 @@ public class CycleBoxServiceImpl implements CycleBoxService {
         }
     }
 
+    /**
+     * 根据箱号获取箱号绑定的集包袋
+     * @param boxCode
+     * @return
+     */
     @Override
     public String getBoxMaterialRelation(String boxCode) {
       String res = null;
@@ -295,6 +307,53 @@ public class CycleBoxServiceImpl implements CycleBoxService {
          res=boxMaterial.getMaterialCode();
       }
       return res;
+    }
+
+    /**
+     * 绑定、删除集包袋
+     * @param request
+     * @return
+     */
+    @Override
+    public InvokeResult boxMaterialRelationAlter(BoxMaterialRelationRequset request){
+        InvokeResult result = new InvokeResult();
+        result.success();
+        SendM queryPara = new SendM();
+        queryPara.setBoxCode(request.getBoxCode());
+
+        List<SendM> sendMList = sendMDao.findSendMByBoxCode(queryPara);
+        if (null != sendMList && sendMList.size() > 0) {
+            result.setCode(InvokeResult.RESULT_BOX_SENT_CODE);
+            result.setMessage(InvokeResult.RESULT_BOX_SENT_MESSAGE);
+            return result;
+        }
+
+        BoxMaterialRelation par = new BoxMaterialRelation();
+        par.setBoxCode(request.getBoxCode());
+        par.setMaterialCode(request.getMaterialCode());
+        par.setBindFlag(request.getBindFlag());
+        par.setOperatorErp(request.getOperatorERP());
+        par.setSiteCode(request.getSiteCode());
+        par.setIsDelete(0);
+
+        //如果为绑定且从未绑定过
+        if (request.getBindFlag()==1 && boxMaterialRelationDao.getCountByBoxCode(request.getBoxCode())<=0){
+            if (boxMaterialRelationDao.add(par)>0){
+                return result;
+            }
+            else {
+                result.error(InvokeResult.SERVER_ERROR_MESSAGE);
+                return result;
+            }
+        }
+
+        if (boxMaterialRelationDao.update(par)>0){
+            return result;
+        }
+        else {
+            result.error(InvokeResult.SERVER_ERROR_MESSAGE);
+            return result;
+        }
     }
 
     /**

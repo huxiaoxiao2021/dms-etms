@@ -453,7 +453,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     private SendResult doPackageSend(SendBizSourceEnum bizSource, SendM domain) {
         SendResult sendResult = new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
-        // 自动取消组板
+        // 自动取消组板F
         this.autoBoardCombinationCancel(domain);
 
         CallerInfo temp_info3 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info3", false, true);
@@ -1318,6 +1318,8 @@ public class DeliveryServiceImpl implements DeliveryService {
         List<String> list = batchQuerySendMList(sendMList);
 
         Profiler.registerInfoEnd(info1);
+
+
         // 取消发货在发货状态位回执
         this.cancelStatusReceipt(sendMList, list);
 

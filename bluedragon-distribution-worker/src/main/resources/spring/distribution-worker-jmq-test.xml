@@ -233,5 +233,10 @@
         <jmq:listener topic="${jmq.topic.dms.inventory.task.complete}" listener="inventoryTaskCompleteConsumer"/>
     </jmq:consumer>
 
+    <!-- 消费循环集包袋处理 用于组织通知下游的MQ -->
+    <jmq:consumer id="jmq.cycleMaterialHandleConsumer" transport="jmq.BlueDragonDistribution.transport">
+        <jmq:listener topic="${jmq.topic.cb.cyclematerialhandle.info}" listener="cycleMaterialHandleConsumer"/>
+    </jmq:consumer>
+
 </beans>
 

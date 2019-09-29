@@ -1,8 +1,10 @@
 package com.jd.bluedragon.distribution.cyclebox;
 
+import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequset;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
 import com.jd.bluedragon.distribution.api.request.RecyclableBoxRequest;
 import com.jd.bluedragon.distribution.api.request.WaybillCodeListRequest;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.cyclebox.domain.CycleBox;
 import com.jd.bluedragon.distribution.task.domain.Task;
 
@@ -48,9 +50,18 @@ public interface CycleBoxService {
   void recyclableBoxSend(RecyclableBoxRequest request) throws Exception;
 
     /**
-     * 根据箱号获取箱号与集包袋绑定关系
+     * 根据箱号获取箱号绑定的集包袋
      * @param boxCode
      * @return
      */
   String getBoxMaterialRelation(String boxCode);
+
+    /**
+     * 绑定、删除集包袋
+     * @param request
+     * @return
+     */
+    InvokeResult boxMaterialRelationAlter(BoxMaterialRelationRequset request);
+
+
 }
