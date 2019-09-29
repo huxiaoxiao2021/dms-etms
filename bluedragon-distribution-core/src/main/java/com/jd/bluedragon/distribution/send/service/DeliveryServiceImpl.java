@@ -131,6 +131,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -317,9 +318,9 @@ public class DeliveryServiceImpl implements DeliveryService {
     private Cluster redisClientCache;
 
     /**
-     * 自动过期时间半小时
+     * 自动过期时间 15分钟
      */
-    private final static long REDIS_CACHE_EXPIRE_TIME = 30 * 60;
+    private final static long REDIS_CACHE_EXPIRE_TIME = 15 * 60;
 
     private final static String REDIS_CACHE_KEY = "PACKAGE-SEND-LOCK-";
 
@@ -1311,33 +1312,71 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     @Override
     public DeliveryResponse dellDeliveryMessageWithLock(SendBizSourceEnum source, List<SendM> sendMList) {
-        List<String> waybillCodeList = this.getCodeList(sendMList);
-        if (waybillCodeList.size() == 0) {
+        if (sendMList == null || sendMList.size() == 0) {
             return new DeliveryResponse(JdResponse.CODE_SENDDATA_GENERATED_EMPTY, JdResponse.MESSAGE_SENDDATA_GENERATED_EMPTY);
         }
+
+        List<String> barCodeList = this.getCodeList(sendMList);
         List<String> processingList = null;
         try {
-            processingList = this.getProcessingList(waybillCodeList, sendMList.get(0).getCreateSiteCode());
-            if (processingList.size() > 0) {
-                return new DeliveryResponse(DeliveryResponse.CODE_Delivery_PART_PROCESSING, String.format(DeliveryResponse.MESSAGE_Delivery_PART_PROCESSING, JsonHelper.toJson(processingList)));
+            // 获取是否存在正在执行中的发货任务 若不存在则加锁
+            processingList = this.getProcessingListAndLock(barCodeList, sendMList.get(0).getCreateSiteCode());
+            // 不存在正在执行中的
+            if (processingList.size() == 0) {
+                // 处理发货
+                return this.dellCreateSendM(source, this.waybillCodeSendMHandler(sendMList));
             }
 
-            return this.dellCreateSendM(source, this.sendMWaybillCodeHandler(sendMList));
+            if (processingList.size() == sendMList.size()) {
+                return new DeliveryResponse(DeliveryResponse.CODE_DELIVERY_ALL_PROCESSING, DeliveryResponse.MESSAGE_DELIVERY_ALL_PROCESSING);
+            }
+
+            // 移除正在处理中的
+            this.removeProcessing(sendMList, processingList);
+            // 处理发货
+            DeliveryResponse response = this.dellCreateSendM(source, this.waybillCodeSendMHandler(sendMList));
+            if (JdResponse.CODE_OK.equals(response.getCode())) {
+                return new DeliveryResponse(DeliveryResponse.CODE_DELIVERY_EXIST_PROCESSING, MessageFormat.format(DeliveryResponse.MESSAGE_DELIVERY_EXIST_PROCESSING, processingList.size()));
+            }
+            return response;
         } catch (Exception e) {
             this.logger.error("老发货数据处理异常", e);
             return new DeliveryResponse(DeliveryResponse.CODE_Delivery_ERROR, DeliveryResponse.MESSAGE_Delivery_ERROR);
         } finally {
             // 移除正在执行中的任务
             if (processingList != null && processingList.size() > 0) {
-                waybillCodeList.removeAll(processingList);
+                barCodeList.removeAll(processingList);
             }
-            for (String waybillCode : waybillCodeList) {
+            // 解锁已经处理完成的数据
+            for (String waybillCode : barCodeList) {
                 this.delCacheLock(waybillCode, sendMList.get(0).getCreateSiteCode());
             }
         }
     }
 
-    private List<SendM> sendMWaybillCodeHandler(List<SendM> sendMList) {
+    /**
+     * 移除正在处理中的
+     *
+     * @param sendMList
+     * @param processingList
+     */
+    private void removeProcessing(List<SendM> sendMList, List<String> processingList) {
+        Iterator<SendM> iterable = sendMList.iterator();
+        while (iterable.hasNext()) {
+            SendM sendM = iterable.next();
+            if (processingList.contains(sendM.getBoxCode())) {
+                iterable.remove();
+            }
+        }
+    }
+
+    /**
+     * 处理运单号维度的SendM转换为包裹号维度
+     *
+     * @param sendMList
+     * @return
+     */
+    private List<SendM> waybillCodeSendMHandler(List<SendM> sendMList) {
         Iterator<SendM> iterator = sendMList.iterator();
         List<SendM> packageCodeSendMList = new ArrayList<>();
 
@@ -1370,31 +1409,24 @@ public class DeliveryServiceImpl implements DeliveryService {
         return sendMList;
     }
 
-    private List<String> getCodeList(List<SendM> sendMList){
-        if (sendMList == null || sendMList.size() == 0) {
-            return Collections.emptyList();
-        }
+    private List<String> getCodeList(List<SendM> sendMList) {
         List<String> codeList = new ArrayList<>(sendMList.size());
-        for (SendM sendM : sendMList){
+        for (SendM sendM : sendMList) {
             codeList.add(sendM.getBoxCode());
         }
         return codeList;
     }
 
     private String getRedisCacheKey(String barCode, Integer operateSiteCode) {
-        return REDIS_CACHE_KEY + operateSiteCode + Constants.SEPARATOR_HYPHEN + barCode ;
+        return REDIS_CACHE_KEY + operateSiteCode + Constants.SEPARATOR_HYPHEN + barCode;
     }
 
     /**
-     * Redis缓存锁，解决同意运单在未处理完时，再次操作的问题
+     * Redis缓存锁，解决同一运单在未处理完时，再次操作的问题
      *
      * @return
      */
-    private List<String> getProcessingList(List<String> barCodes, Integer operateSiteCode) {
-        if (barCodes == null || barCodes.size() == 0) {
-            return Collections.EMPTY_LIST;
-        }
-
+    private List<String> getProcessingListAndLock(List<String> barCodes, Integer operateSiteCode) {
         List<String> processingList = new ArrayList<>();
         try {
             for (String barCode : barCodes) {

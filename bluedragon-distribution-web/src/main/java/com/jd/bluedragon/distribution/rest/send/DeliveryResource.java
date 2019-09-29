@@ -430,7 +430,7 @@ public class DeliveryResource {
             List<SendM> otherSendMList = this.assembleSendMWithoutWaybillCode(request);
             /** 快运发货 */
             tDeliveryResponse = deliveryService.dellDeliveryMessageWithLock(SendBizSourceEnum.RAPID_TRANSPORT_SEND, waybillCodeSendMList);
-            if (tDeliveryResponse.getCode() == DeliveryResponse.CODE_Delivery_SEND_SUCCESS) {
+            if (JdResponse.CODE_OK.equals(tDeliveryResponse.getCode())) {
                 /** 快运发货 */
                 tDeliveryResponse = deliveryService.dellDeliveryMessage(SendBizSourceEnum.RAPID_TRANSPORT_SEND, otherSendMList);
             }
