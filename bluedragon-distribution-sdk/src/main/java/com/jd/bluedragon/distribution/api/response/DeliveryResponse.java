@@ -92,6 +92,9 @@ public class DeliveryResponse extends JdResponse {
     public static final Integer CODE_Delivery_SAVE = 30008;
     public static final String MESSAGE_Delivery_SAVE = "此单请先暂存，运单集齐后发货";
 
+    public static final Integer CODE_Delivery_PART_PROCESSING = 30009;
+    public static final String MESSAGE_Delivery_PART_PROCESSING = "存在发货单号%s已经在处理中，请剔除后重新操作";
+
     public static final Integer CODE_SCHEDULE_INCOMPLETE = 30007;
     public static final String MESSAGE_SCHEDULE_PACKAGE_INCOMPLETE = "包裹不齐是否强制发货？";
     public static final String MESSAGE_SCHEDULE_WAYBILL_INCOMPLETE = "运单不齐是否强制发货？";

@@ -18,7 +18,6 @@ import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintTrack;
 import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
-import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
@@ -67,7 +66,6 @@ import com.jd.bluedragon.distribution.send.domain.DeliveryCancelSendMQBody;
 import com.jd.bluedragon.distribution.send.domain.OrderInfo;
 import com.jd.bluedragon.distribution.send.domain.PackInfo;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.bluedragon.distribution.send.domain.SendDetailMessage;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.distribution.send.domain.SendTaskBody;
@@ -90,7 +88,6 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.transBillSchedule.service.TransBillScheduleService;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -106,7 +103,6 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
-import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -1314,7 +1310,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @return
      */
     @Override
-    public DeliveryResponse dellDeliveryMessageWithLock(SendBizSourceEnum source, List<SendM> sendMList){
+    public DeliveryResponse dellDeliveryMessageWithLock(SendBizSourceEnum source, List<SendM> sendMList) {
         List<String> waybillCodeList = this.getCodeList(sendMList);
         if (waybillCodeList.size() == 0) {
             return new DeliveryResponse(JdResponse.CODE_SENDDATA_GENERATED_EMPTY, JdResponse.MESSAGE_SENDDATA_GENERATED_EMPTY);
@@ -1322,19 +1318,20 @@ public class DeliveryServiceImpl implements DeliveryService {
         List<String> processingList = null;
         try {
             processingList = this.getProcessingList(waybillCodeList, sendMList.get(0).getCreateSiteCode());
-            if (processingList.size() > 0){
-                return new DeliveryResponse(JdResponse.CODE_SENDDATA_GENERATED_EMPTY, JdResponse.MESSAGE_SENDDATA_GENERATED_EMPTY);
+            if (processingList.size() > 0) {
+                return new DeliveryResponse(DeliveryResponse.CODE_Delivery_PART_PROCESSING, String.format(DeliveryResponse.MESSAGE_Delivery_PART_PROCESSING, JsonHelper.toJson(processingList)));
             }
+
             return this.dellCreateSendM(source, this.sendMWaybillCodeHandler(sendMList));
         } catch (Exception e) {
             this.logger.error("老发货数据处理异常", e);
             return new DeliveryResponse(DeliveryResponse.CODE_Delivery_ERROR, DeliveryResponse.MESSAGE_Delivery_ERROR);
         } finally {
             // 移除正在执行中的任务
-            if (processingList != null && processingList.size() > 0){
+            if (processingList != null && processingList.size() > 0) {
                 waybillCodeList.removeAll(processingList);
             }
-            for (String waybillCode : waybillCodeList){
+            for (String waybillCode : waybillCodeList) {
                 this.delCacheLock(waybillCode, sendMList.get(0).getCreateSiteCode());
             }
         }
