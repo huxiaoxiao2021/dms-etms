@@ -222,7 +222,7 @@ public class PopInspectionServiceImpl implements PopInspectionService {
      * @param firstRequest 驻场打印数据
      */
     private void handleFeatherLetter(InspectionPOPRequest firstRequest) {
-        String waybillCode = firstRequest.getBoxCodeNew();//todo 哪个是运单号
+        String waybillCode = firstRequest.getBoxCodeNew();
         com.jd.etms.waybill.domain.Waybill  waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
         if(waybill == null){
             logger.info("鸡毛信运单处理-查询运单信息为空waybillCode[{}]",waybillCode);
