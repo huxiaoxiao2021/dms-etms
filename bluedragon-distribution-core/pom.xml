@@ -620,6 +620,17 @@
 		    <artifactId>iwms-app-export</artifactId>
 		    <version>0.2.0-SNAPSHOT</version>
 		</dependency>
+        <!-- 国际化-库存出管 -->
+        <dependency>
+            <groupId>com.jd.stock.iwms</groupId>
+            <artifactId>iwms-app-export</artifactId>
+            <version>1.0.2-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>stock-sdk</groupId>
+            <artifactId>stock-sdk-base</artifactId>
+            <version>7.1.1-jdk6-SNAPSHOT</version>
+        </dependency>
 		<dependency>
 			<groupId>com.jd.etms.vos</groupId>
 			<artifactId>etms-vos-client</artifactId>
