@@ -426,14 +426,7 @@ public class DeliveryResource {
 
         Integer opType = request.get(0).getOpType();
         if (KY_DELIVERY.equals(opType)) {
-            List<SendM> waybillCodeSendMList = this.assembleSendMForWaybillCode(request);
-            List<SendM> otherSendMList = this.assembleSendMWithoutWaybillCode(request);
-            /** 快运发货 */
-            tDeliveryResponse = deliveryService.dellDeliveryMessageWithLock(SendBizSourceEnum.RAPID_TRANSPORT_SEND, waybillCodeSendMList);
-            if (JdResponse.CODE_OK.equals(tDeliveryResponse.getCode())) {
-                /** 快运发货 */
-                tDeliveryResponse = deliveryService.dellDeliveryMessage(SendBizSourceEnum.RAPID_TRANSPORT_SEND, otherSendMList);
-            }
+            tDeliveryResponse = this.sendDeliveryInfoForKY(request);
         } else {
             Integer businessType = request.get(0).getBusinessType();
             if (businessType != null && Constants.BUSSINESS_TYPE_REVERSE == businessType) {
@@ -453,39 +446,50 @@ public class DeliveryResource {
         }
     }
 
+    private DeliveryResponse sendDeliveryInfoForKY(List<DeliveryRequest> request){
+        List<SendM> waybillCodeSendMList = this.assembleSendMForWaybillCode(request);
+        List<SendM> otherSendMList = this.assembleSendMWithoutWaybillCode(request);
+        if (waybillCodeSendMList.size() == 0) {
+            return deliveryService.dellDeliveryMessage(SendBizSourceEnum.RAPID_TRANSPORT_SEND, otherSendMList);
+        }
+        /** 快运发货 */
+        DeliveryResponse response = deliveryService.dellDeliveryMessageWithLock(SendBizSourceEnum.RAPID_TRANSPORT_SEND, waybillCodeSendMList);
+        if (JdResponse.CODE_OK.equals(response.getCode())) {
+            return deliveryService.dellDeliveryMessage(SendBizSourceEnum.RAPID_TRANSPORT_SEND, otherSendMList);
+        }
+        return response;
+    }
+
     /**
      * 快运发货差异查询
+     *
      * @param request
      * @return
      */
-  @POST
-  @Path("/delivery/differentialQuery")
-  @JProfiler(
-    jKey = "DMSWEB.DeliveryResource.differentialQuery",
-    jAppName=Constants.UMP_APP_NAME_DMSWEB,
-    mState = {JProEnum.TP}
-  )
-  public ThreeDeliveryResponse differentialQuery(DifferentialQueryRequest request) {
-    this.logger.info("快运发货差异查询:" + JsonHelper.toJson(request));
-    try {
-      if (check(request.getSendList())) {
-        return new ThreeDeliveryResponse(
-            JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR, null);
-      }
-      Integer queryType = request.getQueryType();
-      Integer opType = request.getSendList().get(0).getOpType();
-      ThreeDeliveryResponse response = null;
-      /** 快运发货 */
-      if (KY_DELIVERY.equals(opType)) {
-        response =
-            deliveryService.differentialQuery(toSendDetailList(request.getSendList()), queryType);
-      }
-      this.logger.info("结束快运发货差异查询");
-      return response;
-    } catch (Exception ex) {
-      logger.error("快运发货差异查询", ex);
-      return new ThreeDeliveryResponse(JdResponse.CODE_INTERNAL_ERROR, ex.getMessage(), null);
-    }
+    @POST
+    @Path("/delivery/differentialQuery")
+    @JProfiler(jKey = "DMSWEB.DeliveryResource.differentialQuery", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+    public ThreeDeliveryResponse differentialQuery(DifferentialQueryRequest request) {
+        this.logger.info("快运发货差异查询:" + JsonHelper.toJson(request));
+        try {
+            if (check(request.getSendList())) {
+                return new ThreeDeliveryResponse(
+                        JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR, null);
+            }
+            Integer queryType = request.getQueryType();
+            Integer opType = request.getSendList().get(0).getOpType();
+            ThreeDeliveryResponse response = null;
+            /** 快运发货 */
+            if (KY_DELIVERY.equals(opType)) {
+                response =
+                        deliveryService.differentialQuery(toSendDetailList(request.getSendList()), queryType);
+            }
+            this.logger.info("结束快运发货差异查询");
+            return response;
+        } catch (Exception ex) {
+            logger.error("快运发货差异查询", ex);
+            return new ThreeDeliveryResponse(JdResponse.CODE_INTERNAL_ERROR, ex.getMessage(), null);
+        }
     }
 
     @POST

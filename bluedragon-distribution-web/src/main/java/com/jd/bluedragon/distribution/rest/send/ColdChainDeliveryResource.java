@@ -81,11 +81,15 @@ public class ColdChainDeliveryResource extends DeliveryResource{
             List<SendM> waybillCodeSendMList = this.assembleSendMForWaybillCode(request);
             // 组装非运单号（箱号，包裹号）维度sendM对象
             List<SendM> otherSendMList = this.assembleSendMWithoutWaybillCode(request);
-            /** 快运发货 */
-            response = deliveryService.dellDeliveryMessageWithLock(SendBizSourceEnum.COLD_CHAIN_SEND, waybillCodeSendMList);
-            if (JdResponse.CODE_OK.equals(response.getCode())) {
-                /** 快运发货 */
+
+            /** 冷链发货 */
+            if (waybillCodeSendMList.size() == 0) {
                 response = deliveryService.dellDeliveryMessage(SendBizSourceEnum.COLD_CHAIN_SEND, otherSendMList);
+            } else {
+                response = deliveryService.dellDeliveryMessageWithLock(SendBizSourceEnum.COLD_CHAIN_SEND, waybillCodeSendMList);
+                if (JdResponse.CODE_OK.equals(response.getCode())) {
+                    response = deliveryService.dellDeliveryMessage(SendBizSourceEnum.COLD_CHAIN_SEND, otherSendMList);
+                }
             }
 
             if (JdResponse.CODE_OK.equals(response.getCode())) {
