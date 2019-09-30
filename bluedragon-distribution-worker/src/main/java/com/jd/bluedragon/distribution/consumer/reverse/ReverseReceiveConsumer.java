@@ -324,7 +324,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
             if(StringUtils.isNotBlank(jrequest.getReceiveTime())){
                 date = sdf.parse(jrequest.getReceiveTime());
             }
-            if(reverseReceive.getReceiveType() == 7 || reverseReceive.getReceiveType() == 8 ){ //处理报文 操作人字段
+            if(reverseReceive.getReceiveType() == 7 || reverseReceive.getReceiveType() == 8 || reverseReceive.getReceiveType() == 10){ //处理报文 操作人字段
                 date = sdf.parse(jrequest.getOperateTime());
                 reverseReceive.setOperatorName(jrequest.getOperaterName());
                 reverseReceive.setOrderId(jrequest.getWaybillCode());
