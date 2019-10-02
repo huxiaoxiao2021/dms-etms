@@ -881,6 +881,15 @@
         </if>
     </select>
 
+	<select id="findOneByWaybillCode" resultMap="SendDetail" parameterType="SendDetail">
+		SELECT waybill_code,package_barcode ,box_code
+		FROM  send_d
+		WHERE yn=1 AND sendd_status = 1  AND is_cancel = 0
+			and waybill_code = #{waybillCode}
+			and create_site_code = #{createSiteCode}
+		limit 1
+	</select>
+
 	<select id="queryOneSendDetailByPackageCode" parameterType="SendDetail"
 			resultMap="SendDetail">
 		SELECT
