@@ -454,7 +454,7 @@ public class DeliveryResource {
         }
         /** 快运发货 */
         DeliveryResponse response = deliveryService.dellDeliveryMessageWithLock(SendBizSourceEnum.RAPID_TRANSPORT_SEND, waybillCodeSendMList);
-        if (JdResponse.CODE_OK.equals(response.getCode())) {
+        if (JdResponse.CODE_OK.equals(response.getCode()) && otherSendMList!=null && otherSendMList.size()>0) {
             return deliveryService.dellDeliveryMessage(SendBizSourceEnum.RAPID_TRANSPORT_SEND, otherSendMList);
         }
         return response;

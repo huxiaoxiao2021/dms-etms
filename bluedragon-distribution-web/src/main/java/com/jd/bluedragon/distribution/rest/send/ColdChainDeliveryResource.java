@@ -87,7 +87,8 @@ public class ColdChainDeliveryResource extends DeliveryResource{
                 response = deliveryService.dellDeliveryMessage(SendBizSourceEnum.COLD_CHAIN_SEND, otherSendMList);
             } else {
                 response = deliveryService.dellDeliveryMessageWithLock(SendBizSourceEnum.COLD_CHAIN_SEND, waybillCodeSendMList);
-                if (JdResponse.CODE_OK.equals(response.getCode())) {
+                if (JdResponse.CODE_OK.equals(response.getCode()) &&
+                        otherSendMList!=null && otherSendMList.size()>0) {
                     response = deliveryService.dellDeliveryMessage(SendBizSourceEnum.COLD_CHAIN_SEND, otherSendMList);
                 }
             }
