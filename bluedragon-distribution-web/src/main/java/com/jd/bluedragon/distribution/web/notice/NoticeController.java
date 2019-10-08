@@ -168,7 +168,7 @@ public class NoticeController {
      * @return
      */
     @Authorization(Constants.DMS_WEB_NOTICE_MANAGE)
-    //@RequestMapping("/addView")
+    @RequestMapping("/addView")
     public String addView(Model model) {
         model.addAttribute("levelValues", NoticeLevelEnum.values());
         model.addAttribute("typeValues", NoticeTypeEnum.values());
@@ -183,7 +183,7 @@ public class NoticeController {
      * @return
      */
     @Authorization(Constants.DMS_WEB_NOTICE_MANAGE)
-    //@RequestMapping(value = "/add", method = RequestMethod.POST)
+    @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult add(MultipartHttpServletRequest request) {
         InvokeResult result = new InvokeResult();
