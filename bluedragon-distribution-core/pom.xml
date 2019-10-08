@@ -984,7 +984,7 @@
 		<dependency>
 			<groupId>com.jd.eclp</groupId>
 			<artifactId>eclp-spare-ext-api</artifactId>
-			<version>0.0.1-TEST-SNAPSHOT</version>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 
         <dependency>
@@ -1041,7 +1041,7 @@
 		<dependency>
 			<groupId>com.jd.router</groupId>
 			<artifactId>open-router-api</artifactId>
-			<version>0.0.1-TEST-SNAPSHOT</version>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 
