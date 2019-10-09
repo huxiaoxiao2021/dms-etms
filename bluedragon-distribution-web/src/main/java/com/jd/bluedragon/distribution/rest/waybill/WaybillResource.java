@@ -2334,16 +2334,21 @@ public class WaybillResource {
             result.setMessage(JdResponse.MESSAGE_NO_FEATHER_LETTER);
             return result;
         }
-        if(Objects.equals(request.getCancelFeatherLetter(),Boolean.TRUE)){
-            boolean cancelFlag = ldopWaybillUpdateManager.cancelFeatherLetterByWaybillCode(request.getWaybillCode());
-            if(cancelFlag){
-                result.success();
-                result.setMessage("取消鸡毛信成功！");
-                return result;
-            }
+        if(!Objects.equals(request.getCancelFeatherLetter(),Boolean.TRUE)){
+            logger.error("鸡毛信取消接口-cancelFeatherLetter不为true不用请求取消接口，waybillCode[{}]waybillSign[{}]",request.getWaybillCode(),
+                    waybill.getWaybillSign());
+            result.success();
+            result.setMessage("不用取消鸡毛信属性");
+            return result;
+        }
+        InvokeResult<String> ldopInvokeResult = ldopWaybillUpdateManager.cancelFeatherLetterByWaybillCode(request.getWaybillCode());
+        if(ldopInvokeResult.getCode() == InvokeResult.RESULT_SUCCESS_CODE){
+            result.success();
+            result.setMessage("取消鸡毛信成功！");
+            return result;
         }
         result.setCode(JdResponse.CODE_SEE_OTHER);
-        result.setMessage("取消鸡毛信失败！");
+        result.setMessage("取消鸡毛信失败【"+ldopInvokeResult.getMessage()+"】");
         return result;
     }
 

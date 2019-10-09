@@ -1,5 +1,7 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+
 /**
  * 外单
  * 修改运单信息接口
@@ -12,6 +14,6 @@ public interface LdopWaybillUpdateManager {
      * 调用外单接口 取消运单鸡毛信服务
      * @param waybillCode 运单号
      */
-    boolean cancelFeatherLetterByWaybillCode(String waybillCode);
+    InvokeResult<String> cancelFeatherLetterByWaybillCode(String waybillCode);
 
 }
