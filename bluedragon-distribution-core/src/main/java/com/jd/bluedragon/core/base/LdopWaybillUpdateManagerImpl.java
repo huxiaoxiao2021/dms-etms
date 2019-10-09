@@ -48,6 +48,7 @@ public class LdopWaybillUpdateManagerImpl implements LdopWaybillUpdateManager{
             invokeResult.setMessage(responseDTO.getStatusMessage());
             return invokeResult;
         }
+        logger.info("取消鸡毛信服务成功waybillCode[{}]responseDTO[{}]",waybillCode, JsonHelper.toJson(responseDTO));
         invokeResult.success();
         return invokeResult;
     }
