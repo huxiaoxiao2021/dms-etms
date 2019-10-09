@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.batch.domain.BatchSend;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.printOnline.domain.PrintOnlineWaybillDTO;
 import com.jd.bluedragon.distribution.quickProduce.domain.JoinDetail;
 import com.jd.bluedragon.distribution.quickProduce.domain.QuickProduceWabill;
 import com.jd.bluedragon.distribution.quickProduce.service.QuickProduceService;
@@ -901,6 +902,14 @@ public class SendPrintServiceImpl implements SendPrintService {
             entity.setDestinationTabletrolleyCode(crossPackageTag.getDestinationTabletrolleyCode());
         }
         return entity;
+    }
+
+    @Override
+    public List<PrintOnlineWaybillDTO> queryWaybillCountBySendCode(String sendCode, Integer createSiteCode) {
+        SendDetail sendDetail = new SendDetail();
+        sendDetail.setCreateSiteCode(createSiteCode);
+        sendDetail.setSendCode(sendCode);
+        return sendDatailDao.queryWaybillCountBySendCode(sendDetail);
     }
 
     /**

@@ -486,4 +486,8 @@
                   protocol="jsf" alias="${jsf.ufo.SearchOrganizationOtherService.alias}" timeout="${jsf.ufo.SearchOrganizationOtherService.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
 
+    <jsf:consumer id="jdwlSignServiceJsf" interface="com.jdwl.bcoi.entry.api.service.JdwlService"
+                  protocol="jsf" alias="${jsf.jdwlSignService.alias}" timeout="${jsf.jdwlSignService.timeout}" retries="${jsf.retries}" >
+    </jsf:consumer>
+
 </beans>

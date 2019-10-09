@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.sendprint.service;
 
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
+import com.jd.bluedragon.distribution.printOnline.domain.PrintOnlineWaybillDTO;
 import com.jd.bluedragon.distribution.sendprint.domain.BasicQueryEntityResponse;
 import com.jd.bluedragon.distribution.sendprint.domain.BatchSendInfoResponse;
 import com.jd.bluedragon.distribution.sendprint.domain.PrintQueryCriteria;
@@ -34,4 +35,7 @@ public interface SendPrintService {
 	 * @return
 	 */
 	SendCodePrintEntity getSendCodePrintEntity(PrintQueryCriteria criteria);
+
+
+	List<PrintOnlineWaybillDTO> queryWaybillCountBySendCode(String sendCode, Integer createSiteCode);
 }

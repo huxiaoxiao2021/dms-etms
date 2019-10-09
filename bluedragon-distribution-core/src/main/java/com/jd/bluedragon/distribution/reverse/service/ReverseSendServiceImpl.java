@@ -15,6 +15,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
+import com.jd.bluedragon.distribution.printOnline.service.IPrintOnlineService;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.reverse.domain.BdInboundECLPDto;
 import com.jd.bluedragon.distribution.reverse.domain.MovingWarehouseInnerWaybill;
@@ -182,6 +183,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
     @Autowired
     private SpareSortingRecordDao spareSortingRecordDao;
 
+    @Autowired
+    private IPrintOnlineService printOnlineService;
+
     // 自营
     public static final Integer businessTypeONE = 10;
     // 退货
@@ -316,6 +320,10 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 StringBuilder sb = new StringBuilder().append(asm_type).append(",").append(wms_type).append(",").append(spwms_type).append(",");
                 this.logger.info("站点类型不在逆向处理范围(" + sb + ")内, 默认处理成功!siteCode:" + sendM.getReceiveSiteCode());
                 bl = true;
+            }
+            if(bl){
+                //推送逆向发货汇总清单数据
+                printOnlineService.reversePrintOnline(sendM.getSendCode());
             }
             //直接以bl的值做返回值
             return bl;

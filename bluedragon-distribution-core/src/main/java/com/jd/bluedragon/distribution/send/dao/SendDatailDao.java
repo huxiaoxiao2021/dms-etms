@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.send.dao;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.distribution.printOnline.domain.PrintOnlineWaybillDTO;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionCondition;
@@ -392,6 +393,14 @@ public class SendDatailDao extends BaseDao<SendDetail> {
             return null;
         }
         return this.getSqlSession().selectList(namespace + ".getScannedInfoPackageNumMoreThanOne", waybillNoCollectionCondition);
+    }
+
+    @JProfiler(jKey = "DMSWEB.SendDetailDao.queryWaybillCountBySendCode", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public List<PrintOnlineWaybillDTO> queryWaybillCountBySendCode(SendDetail sendDetail){
+        if (sendDetail.getCreateSiteCode() == null || sendDetail.getSendCode() == null) {
+            return new ArrayList<>();
+        }
+        return this.getSqlSession().selectList(namespace + ".queryWaybillCountBySendCode", sendDetail);
     }
 
 }
