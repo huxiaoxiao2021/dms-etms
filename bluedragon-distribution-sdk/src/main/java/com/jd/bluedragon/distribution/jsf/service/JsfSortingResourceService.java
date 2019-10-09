@@ -1,7 +1,10 @@
 package com.jd.bluedragon.distribution.jsf.service;
 
+import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.domain.Rule;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
+import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jsf.domain.BlockResponse;
 import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
@@ -13,24 +16,24 @@ import java.util.List;
 import java.util.Map;
 
 public interface JsfSortingResourceService {
-	public SortingJsfResponse check(SortingCheck sortingCheck);
-    public SortingJsfResponse isCancel(String packageCode);
+	SortingJsfResponse check(SortingCheck sortingCheck);
+    SortingJsfResponse isCancel(String packageCode);
     List<MixedPackageConfigResponse> getMixedConfigsBySitesAndTypes(Integer createSiteCode, Integer receiveSiteCode, Integer transportType, Integer ruleType);
-    public Integer getWaybillCancelByWaybillCode(String waybillCode);
-    public String getRouterByWaybillCode(String waybillCode);
-    public BoardCombinationJsfResponse boardCombinationCheck(BoardCombinationRequest request);
+    Integer getWaybillCancelByWaybillCode(String waybillCode);
+    String getRouterByWaybillCode(String waybillCode);
+    BoardCombinationJsfResponse boardCombinationCheck(BoardCombinationRequest request);
     /**
      * 批量查询路由
      * @param waybillCodes
      * @return
      */
-    public Map<String,String> getRouterByWaybillCodes(List<String> waybillCodes);
+    Map<String,String> getRouterByWaybillCodes(List<String> waybillCodes);
 
     /**
      * 校验滑道号
      * @return true 滑道号正确，false 不正确
      */
-    public Boolean checkPackageCrossCode(String waybillCode, String packageCode);
+    Boolean checkPackageCrossCode(String waybillCode, String packageCode);
     /**
      * 查询运单是否拦截完成
      * @param waybillCode
@@ -51,4 +54,63 @@ public interface JsfSortingResourceService {
      * @return
      */
     JdResult packageSendCheck(DeliveryRequest request);
+
+    /**
+     * 校验包裹或订单是否有称重量方
+     */
+    Boolean weightVolumeValidate(String waybillCode, String packageCode);
+
+    /**
+     * 查询分拣规则
+     * @param ruleType
+     * @param createSiteCode
+     * @return
+     */
+    Rule getSortingRule(Integer ruleType, Integer createSiteCode);
+
+    /**
+     * 查询某个分拣中心的分拣规则
+     * @param createSiteCode
+     * @return
+     */
+    Map<String, Rule> getSiteSortingRule(Integer createSiteCode);
+
+    /**
+     * 根据key获取UCC配置结果
+     * @param configureKey
+     * @return
+     */
+    Boolean getUccConfigurationByKey(String configureKey);
+
+    /**
+     * 根据key获取配置文件配置
+     * @param configureKey
+     * @return
+     */
+     String getFileConfigurationByKey(String configureKey) ;
+
+    /**
+     * 检查混装箱是否可以通过校验
+     * @param createSiteCode    建包分拣中心编码
+     * @param receiveSiteCode    目的分拣中心编码
+     * @param mixedSiteCode     可混装地区编码
+     * @param transportType     运输类型
+     * @return 通过true ，不通过false
+     */
+    Boolean checkMixedPackageConfig(Integer createSiteCode,Integer receiveSiteCode,Integer mixedSiteCode,Integer transportType,Integer ruleType);
+
+
+    /**
+     * 获取运单拦截信息
+     * @param waybillCode
+     * @return
+     */
+    JdResponse dealCancelWaybill(String waybillCode);
+
+    /**
+     * 获取运单拦截并推送拦截信息
+     * @param pdaOperateRequest
+     * @return
+     */
+    JdResponse dealCancelWaybillByRequest(PdaOperateRequest pdaOperateRequest);
 }
