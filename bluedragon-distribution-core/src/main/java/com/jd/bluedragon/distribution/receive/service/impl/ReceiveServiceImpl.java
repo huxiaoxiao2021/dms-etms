@@ -365,7 +365,6 @@ public class ReceiveServiceImpl implements ReceiveService {
 				receive.setBoxingType(Short.parseShort("2"));
 				receive.setWaybillCode(WaybillUtil.getWaybillCode(tmpNumber));
 			}
-
 		}
 		receive.setCarCode(receiveRequest.getCarCode());
 		receive.setShieldsCarCode(receiveRequest.getShieldsCarCode());
@@ -385,7 +384,7 @@ public class ReceiveServiceImpl implements ReceiveService {
 		receive.setCreateSiteName(receiveRequest.getSiteName());
 		receive.setTurnoverBoxCode(receiveRequest.getTurnoverBoxCode());
 		receive.setQueueNo(receiveRequest.getQueueNo());
-		receive.setDepartureCarId(StringHelper.longParseString(receiveRequest.getDepartureCarId()));
+
 		return receive;
 	}
 

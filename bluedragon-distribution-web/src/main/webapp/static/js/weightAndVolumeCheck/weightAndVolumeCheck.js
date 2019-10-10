@@ -86,6 +86,10 @@ $(function () {
             field: 'packageCode',
             title: '扫描条码',
             align: 'center'
+        },{
+            field: 'productTypeName',
+            title: '产品标识',
+            align: 'center'
         }, {
             field: 'busiName',
             title: '商家名称',

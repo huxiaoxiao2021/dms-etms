@@ -165,4 +165,11 @@
                   ref="dmsScannerFrameServiceImpl" server="dmsjsf">
         <jsf:parameter key="token" value="${dms.jsf.packing.consumable.provider.token}" hide="true"/>
     </jsf:provider>
+
+    <!-- 为中台提供jsf接口 -->
+    <jsf:provider id="jsfDmsForMiddleEndService"
+                  interface="com.jd.bluedragon.distribution.external.service.DmsForMiddleEndService"
+                  alias="${dms.jsf.alias}"
+                  ref="dmsForMiddleEndService" server="dmsjsf">
+    </jsf:provider>
 </beans>
