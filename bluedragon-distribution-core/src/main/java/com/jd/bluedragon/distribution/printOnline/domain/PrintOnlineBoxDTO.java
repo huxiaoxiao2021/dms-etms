@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.printOnline.domain;
 
 import java.io.Serializable;
+import java.util.Date;
 
 public class PrintOnlineBoxDTO implements Serializable {
 
@@ -12,7 +13,7 @@ public class PrintOnlineBoxDTO implements Serializable {
     private Double volume;	//体积
     private String sealCode1;	//封签号1
     private String sealCode2;	//封签号2
-    private String sealTime;	//锁时间
+    private Date sealTime;	//锁时间
 
     public String getBoxCode() {
         return boxCode;
@@ -62,11 +63,11 @@ public class PrintOnlineBoxDTO implements Serializable {
         this.sealCode2 = sealCode2;
     }
 
-    public String getSealTime() {
+    public Date getSealTime() {
         return sealTime;
     }
 
-    public void setSealTime(String sealTime) {
+    public void setSealTime(Date sealTime) {
         this.sealTime = sealTime;
     }
 }

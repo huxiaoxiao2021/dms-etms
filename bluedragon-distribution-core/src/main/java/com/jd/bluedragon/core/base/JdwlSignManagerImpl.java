@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service("jdwlSignManager")
@@ -24,22 +25,39 @@ public class JdwlSignManagerImpl implements JdwlSignManager {
     @Qualifier("jdwlSignServiceJsf")
     private JdwlService jdwlSignServiceJsf;
 
+    @Value("${print.online.ns:ERP}")
+    private String ns;
+    @Value("${print.online.app.code:NXJJ}")
+    private String appCode;
+    @Value("${print.online.template.id:NXJJD}")
+    private String templateId;
+    @Value("${print.online.oper.type:Gen}")
+    private String operType;
+    @Value("${print.online.pin.code:liuduo8}")
+    private String pinCode;
+    @Value("${print.online.token:XXXX}")
+    private String token;
+    @Value("${print.online.system.flg:JDWL_DMS}")
+    private String systemFlg;
+    @Value("${print.online.out.seqNo.begin:JDWL_DMS}")
+    private String outSeqNoBegin;
+
     @Override
     public boolean aciton(PrintOnlineModalDTO printOnlineModalDTO) {
         try{
             ActionSlimDtoRe actionSlimDtoRe = new ActionSlimDtoRe();
 
-            actionSlimDtoRe.setNs("ERP");
-            actionSlimDtoRe.setAppcode("NXJJ");
-            actionSlimDtoRe.setTemplateid("NXJJD");
-            actionSlimDtoRe.setOper_type("Gen");
-            actionSlimDtoRe.setPin_code("liuduo8");
+            actionSlimDtoRe.setNs(ns);
+            actionSlimDtoRe.setAppcode(appCode);
+            actionSlimDtoRe.setTemplateid(templateId);
+            actionSlimDtoRe.setOper_type(operType);
+            actionSlimDtoRe.setPin_code(pinCode);
 
             //系统标识
             SystemInfo systemInfo = new SystemInfo();
-            systemInfo.setToken("XXXX");
-            systemInfo.setSystemflg("JDWL_DMS");
-            systemInfo.setOut_seqno("JDWL_DMS_" + System.currentTimeMillis());
+            systemInfo.setToken(token);
+            systemInfo.setSystemflg(systemFlg);
+            systemInfo.setOut_seqno(outSeqNoBegin + printOnlineModalDTO.getSendCode());
             actionSlimDtoRe.setSystemInfo(systemInfo);
 
             //云打印结构
@@ -48,7 +66,7 @@ public class JdwlSignManagerImpl implements JdwlSignManager {
             printJobDTO.setModel(model);
             printJobDTO.setOrderNum(printOnlineModalDTO.getSendCode()); //实际业务的订单号
             printJobDTO.setTime(System.currentTimeMillis());
-            printJobDTO.setSys("JDWL_DMS");
+            printJobDTO.setSys(systemFlg);
             actionSlimDtoRe.setPrintJobDTO(printJobDTO);
             ActionSlimDtoRs actionSlimDtoRs =jdwlSignServiceJsf.action(actionSlimDtoRe);
             if(actionSlimDtoRs.getResult()){

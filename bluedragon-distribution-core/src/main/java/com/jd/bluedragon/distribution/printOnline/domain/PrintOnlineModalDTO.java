@@ -1,6 +1,9 @@
 package com.jd.bluedragon.distribution.printOnline.domain;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 public class PrintOnlineModalDTO implements Serializable {
@@ -14,10 +17,12 @@ public class PrintOnlineModalDTO implements Serializable {
     //目的地名称
     private String receiveSiteName;
     //发货时间
-    private String sendTime;
+    private Date sendTime;
     //发货箱列表
+    @JSONField(name = "PrintBoxDTO")
     private List<PrintOnlineBoxDTO> boxes;
     //发货运单维度列表
+    @JSONField(name = "PrintWaybillDTO")
     private List<PrintOnlineWaybillDTO> waybills;
     //备注描述
     private String remark;
@@ -46,11 +51,11 @@ public class PrintOnlineModalDTO implements Serializable {
         this.receiveSiteName = receiveSiteName;
     }
 
-    public String getSendTime() {
+    public Date getSendTime() {
         return sendTime;
     }
 
-    public void setSendTime(String sendTime) {
+    public void setSendTime(Date sendTime) {
         this.sendTime = sendTime;
     }
 

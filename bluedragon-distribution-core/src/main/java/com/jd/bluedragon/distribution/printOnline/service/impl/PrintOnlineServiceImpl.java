@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.printOnline.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.JdwlSignManager;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.printOnline.domain.PrintOnlineBoxDTO;
 import com.jd.bluedragon.distribution.printOnline.domain.PrintOnlineModalDTO;
 import com.jd.bluedragon.distribution.printOnline.domain.PrintOnlineWaybillDTO;
@@ -13,9 +14,13 @@ import com.jd.bluedragon.distribution.sendprint.domain.SummaryPrintResult;
 import com.jd.bluedragon.distribution.sendprint.domain.SummaryPrintResultResponse;
 import com.jd.bluedragon.distribution.sendprint.service.SendPrintService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,10 +37,16 @@ import java.util.Map;
 @Service("printOnlineService")
 public class PrintOnlineServiceImpl implements IPrintOnlineService {
 
+
+    private Logger logger = LoggerFactory.getLogger(PrintOnlineServiceImpl.class);
+
     @Autowired
     private SendPrintService sendPrintService;
     @Autowired
     private JdwlSignManager jdwlSignManager;
+
+    @Autowired
+    private SysConfigService sysConfigService;
 
     /**
      * 逆向交接清单 线上签逻辑
@@ -46,15 +57,22 @@ public class PrintOnlineServiceImpl implements IPrintOnlineService {
     @Override
     @JProfiler(jKey = "DMSWORKER.PrintOnlineServiceImpl.reversePrintOnline", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWORKER)
     public boolean reversePrintOnline(String sendCode) {
-        if(!BusinessUtil.isSendCode(sendCode)){
-            return true;
+        try{
+            if(!sysConfigService.getConfigByName("reverse.print.online.switch")){
+                return true;
+            }
+            if(!BusinessUtil.isSendCode(sendCode)){
+                return true;
+            }
+            //根据批次号获取发货数据
+            PrintOnlineModalDTO modalDTO = makeModalDTO(sendCode);
+            //推送数据
+            return jdwlSignManager.aciton(modalDTO);
+        }catch (Exception e){
+            logger.error("逆向交接清单线上签异常"+sendCode,e);
+            return false;
         }
-        //根据批次号获取发货数据
-        PrintOnlineModalDTO modalDTO = makeModalDTO(sendCode);
 
-        //推送数据
-        boolean result = jdwlSignManager.aciton(modalDTO);
-        return result;
     }
 
     /**
@@ -80,19 +98,25 @@ public class PrintOnlineServiceImpl implements IPrintOnlineService {
         if(resultResponse!=null){
             List<SummaryPrintResult> summaryPrintResults = resultResponse.getData();
             //此操作仅仅一个批次 所以summaryPrintResults只有一条记录
-            if(!summaryPrintResults.isEmpty()){
+            if(!summaryPrintResults.isEmpty()) {
                 SummaryPrintResult summaryPrintResult = summaryPrintResults.get(0);
                 //组装箱号列表信息
                 pojo.setBoxes(makeBoxsDTO(summaryPrintResult));
                 //组装运单列表信息
-                pojo.setWaybills(makeWaybillsDTO(sendCode,createSiteCode));
+                pojo.setWaybills(makeWaybillsDTO(sendCode, createSiteCode));
                 //组装其他描述信息
                 pojo.setRemark(makeRemark(summaryPrintResult));
                 //设置公共属性
                 pojo.setCreateSiteName(summaryPrintResult.getSendSiteName());
                 pojo.setReceiveSiteName(summaryPrintResult.getReceiveSiteName());
                 pojo.setSendCode(summaryPrintResult.getSendCode());
-                pojo.setSendTime(summaryPrintResult.getSendTime());
+                try {
+                    if (StringUtils.isNotBlank(summaryPrintResult.getSendTime())) {
+                        pojo.setSendTime(DateHelper.parseAllFormatDateTime(summaryPrintResult.getSendTime()));
+                    }
+                } catch (Exception e) {
+                    logger.error("线上签组装发货时间异常" + summaryPrintResult.getSendTime(), e);
+                }
             }
         }
 
@@ -146,7 +170,14 @@ public class PrintOnlineServiceImpl implements IPrintOnlineService {
                 boxDTO.setSealCode2(summaryPrintBoxEntity.getSealNo2());
                 boxDTO.setVolume(summaryPrintBoxEntity.getVolume());
                 boxDTO.setWaybillNum(summaryPrintBoxEntity.getWaybillNum());
-                boxDTO.setSealTime(summaryPrintBoxEntity.getLockTime());
+                try{
+                    if(StringUtils.isNotBlank(summaryPrintBoxEntity.getLockTime())){
+                        boxDTO.setSealTime(DateHelper.parseAllFormatDateTime(summaryPrintBoxEntity.getLockTime()));
+                    }
+                }catch (Exception e){
+                    logger.error("线上签组装锁时间异常"+summaryPrintBoxEntity.getLockTime(),e);
+                }
+
                 boxes.add(boxDTO);
             }
         }
