@@ -17,6 +17,7 @@ public class PrintOnlineModalDTO implements Serializable {
     //目的地名称
     private String receiveSiteName;
     //发货时间
+    @JSONField(format="yyyy-MM-dd HH:mm:ss")
     private Date sendTime;
     //发货箱列表
     @JSONField(name = "PrintBoxDTO")

@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.printOnline.domain;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -13,6 +14,7 @@ public class PrintOnlineBoxDTO implements Serializable {
     private Double volume;	//体积
     private String sealCode1;	//封签号1
     private String sealCode2;	//封签号2
+    @JSONField(format="yyyy-MM-dd HH:mm:ss")
     private Date sealTime;	//锁时间
 
     public String getBoxCode() {
