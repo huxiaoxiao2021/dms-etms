@@ -67,6 +67,8 @@ public class OfflineCoreRedisTask extends RedisSingleScheduler {
 			Integer taskType = JSONObject.parseArray(body).getJSONObject(0).getInteger("taskType");
 			if(Task.TASK_TYPE_SEAL_OFFLINE.equals(taskType)){
 				result = offlineSeal(body);
+			} else if (Task.TASK_TYPE_FERRY_SEAL_OFFLINE.equals(taskType)) {
+				result = offlineFerrySeal(body);
 			}else{
 				result = offlineCore(body);
 			}
@@ -90,6 +92,19 @@ public class OfflineCoreRedisTask extends RedisSingleScheduler {
 		return result;
 	}
 
+	/**
+	 * 离线传摆封车
+	 * @param body
+	 * @return
+	 */
+	private boolean offlineFerrySeal(String body){
+		boolean result = false;
+		CommonDto<String> returnCommonDto = newsealVehicleService.offlineSeal(convertSearCar(body));
+		if(returnCommonDto != null && Constants.RESULT_SUCCESS == returnCommonDto.getCode()){
+			result = true;
+		}
+		return result;
+	}
 	/**
 	 * 核心分拣相关业务离线操作
 	 * @param body

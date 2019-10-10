@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.newseal.dao.impl;
 
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicleEnum;
+import com.jd.bluedragon.distribution.newseal.domain.VehicleMeasureInfo;
 import org.springframework.stereotype.Repository;
 
 import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicle;
@@ -77,4 +78,24 @@ public class PreSealVehicleDaoImpl extends BaseDao<PreSealVehicle> implements Pr
         query.setCreateTime(startDate);
         return sqlSession.selectList(this.nameSpace+".findUsedTransports", query);
     }
+
+    @Override
+    public PreSealVehicle getPreSealVehicleInfo(String transportCode) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("transportCode", transportCode);
+        return sqlSession.selectOne(this.nameSpace+".getPreSealVehicleInfo", params);
+    }
+
+    @Override
+    public List<VehicleMeasureInfo> getVehicleMeasureInfoList(String transportCode) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("transportCode", transportCode);
+        return sqlSession.selectList(this.nameSpace+".getVehicleMeasureInfoList", params);
+    }
+
+    @Override
+    public int updatePreSealVehicleMeasureInfo(PreSealVehicle preSealVehicle) {
+        return sqlSession.update(this.nameSpace+".updatePreSealVehicleMeasureInfo", preSealVehicle);
+    }
+
 }

@@ -128,6 +128,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
      */
     public static final Integer TASK_TYPE_OFFLINE = 1800;
     public static final Integer TASK_TYPE_SEAL_OFFLINE = 1880;
+    //离线传摆封车
+    public static final Integer TASK_TYPE_FERRY_SEAL_OFFLINE = 1881;
     public static final Integer CANCEL_SORTING = 1201;
     public static final Integer CANCEL_THIRD_INSPECTION = 1131;
     

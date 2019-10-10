@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.request.OfflineLogRequest;
+import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.offline.domain.OfflineLog;
 import com.jd.bluedragon.distribution.offline.service.OfflineLogService;
 import com.jd.bluedragon.distribution.offline.service.OfflineService;
@@ -91,7 +92,10 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
             Integer taskType = JSONObject.parseArray(body).getJSONObject(0).getInteger("taskType");
             if(Task.TASK_TYPE_SEAL_OFFLINE.equals(taskType)){
                 result = offlineSeal(body);
-            }else if (Task.TASK_TYPE_AR_SEND_REGISTER.equals(taskType)){
+            }else if (Task.TASK_TYPE_FERRY_SEAL_OFFLINE
+                    .equals(taskType)){
+                result = offlineSealFerry(body);
+            } else if (Task.TASK_TYPE_AR_SEND_REGISTER.equals(taskType)){
                 result = arSendRegisterService.executeOfflineTask(body);
             }else{
                 result = offlineCore(body);
@@ -111,6 +115,20 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
         boolean result = false;
         CommonDto<String> returnCommonDto = newsealVehicleService.offlineSeal(convertSearCar(body));
         if(returnCommonDto != null && Constants.RESULT_SUCCESS == returnCommonDto.getCode()){
+            result = true;
+        }
+        return result;
+    }
+
+    /**
+     * 离线传摆封车
+     * @param body
+     * @return
+     */
+    private boolean offlineSealFerry(String body){
+        boolean result = false;
+        NewSealVehicleResponse returnCommonDto = newsealVehicleService.offlineFerrySeal(convertSearCar(body));
+        if(returnCommonDto != null && NewSealVehicleResponse.CODE_OK.equals(returnCommonDto.getCode())){
             result = true;
         }
         return result;
@@ -262,6 +280,8 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
             scDto.setSource(Constants.SEAL_SOURCE);
             scDto.setTransportCode(obj.getString("sealBoxCode"));
             scDto.setVehicleNumber(obj.getString("carCode"));
+            scDto.setVolume(obj.getDouble("volume"));
+            scDto.setWeight(obj.getDouble("weight"));
             sealCarDtos.add(scDto);
         }
 
