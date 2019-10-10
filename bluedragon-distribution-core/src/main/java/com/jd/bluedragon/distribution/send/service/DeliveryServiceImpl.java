@@ -41,6 +41,7 @@ import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
+import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationMQ;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
@@ -311,6 +312,10 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private ColdChainSendService coldChainSendService;
+
+    @Autowired
+    @Qualifier("deliverGoodsNoticeSendMQ")
+    private DefaultJMQProducer deliverGoodsNoticeSendMQ;
 
 
     @Autowired
@@ -1481,6 +1486,8 @@ public class DeliveryServiceImpl implements DeliveryService {
         List<String> deliveredList = batchQuerySendMList(sendMList);
 
         Profiler.registerInfoEnd(info1);
+
+
         // 取消发货在发货状态位回执
         this.cancelStatusReceipt(sendMList, deliveredList);
 
