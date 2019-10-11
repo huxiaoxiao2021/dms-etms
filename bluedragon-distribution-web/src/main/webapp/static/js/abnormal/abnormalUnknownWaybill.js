@@ -1,9 +1,10 @@
+var tableInit;
 $(function () {
     var saveUrl = '/abnormal/abnormalUnknownWaybill/save';
     var deleteUrl = '/abnormal/abnormalUnknownWaybill/deleteByIds';
     var detailUrl = '/abnormal/abnormalUnknownWaybill/detail/';
     var queryUrl = '/abnormal/abnormalUnknownWaybill/listData';
-    var tableInit = function () {
+    tableInit = function () {
         var oTableInit = new Object();
         oTableInit.init = function () {
             $('#dataTable').bootstrapTable({
@@ -183,7 +184,7 @@ $(function () {
                     if (res && !res.succeed) {
                         alert(res.message);
                     }else{
-                        tableInit().refresh();
+                        refreshTable();
                     }
                 });
             });
@@ -246,7 +247,7 @@ $(function () {
                     $.ajaxHelper.doPostSync(deleteUrl, JSON.stringify(params), function (res) {
                         if (res && res.succeed && res.data) {
                             alert('操作成功,删除' + res.data + '条。');
-                            tableInit().refresh();
+                            refreshTable();
                         } else {
                             alert('操作异常！');
                         }
@@ -271,7 +272,7 @@ $(function () {
                             $("#startTime").val(null);
                             $("#endTime").val(null);
                         }
-                        tableInit().refresh();
+                        refreshTable();
                         $('#dataEditDiv').hide();
                         $('#dataTableDiv').show();
                     } else if (res) {
@@ -300,7 +301,7 @@ $(function () {
                             $("#startTime").val(null);
                             $("#endTime").val(null);
                         }
-                        tableInit().refresh();
+                        refreshTable();
                         $('#dataEditDiv').hide();
                         $('#dataTableDiv').show();
                     } else if (res) {
@@ -358,7 +359,6 @@ $(function () {
 
     // initDateQuery();
     initSelect();
-    tableInit().init();
     pageInit().init();
     initExport(tableInit());
 });
@@ -408,4 +408,14 @@ function isEmptyObject(e) {
     for (t in e)
         return !1;
     return !0
+}
+
+var isLoad = false;//是否初始化过 表格框
+function refreshTable() {
+    if(isLoad){
+        tableInit().refresh();
+    }else{
+        tableInit().init();
+        isLoad = true;
+    }
 }
