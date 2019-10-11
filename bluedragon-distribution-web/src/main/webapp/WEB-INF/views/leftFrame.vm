@@ -28,9 +28,6 @@
         <dd><a href="#springUrl('/popReceive/getPopRecieveList')" target="mainFrame">平台实收查询</a></dd>
         <dt><a href="#" class="curr">分拣中心相关功能</a></dt>
 		<dd><a href="http://board.dms.jd.com" target="mainFrame">板标打印</a></dd>
-##        <dd><a href="#springUrl('/receive/toIndex')" target="mainFrame">揽收重量校验统计</a></dd>
-        <dd><a href="#springUrl('/weightAndVolumeCheck/toIndex')" target="mainFrame">重量体积抽检统计</a></dd>
-        <dd><a href="#springUrl('/reviewWeightSpotCheck/toIndex')" target="mainFrame">分拣复重抽检任务统计</a></dd>
         <dd><a href="#springUrl('/base/crossbox/index')" target="mainFrame">跨箱号中转</a></dd>
         <dd><a href="http://waybill.jd.com/waybill/trackInfo" target="mainFrame">青龙全程跟踪</a></dd>
     #*
@@ -73,6 +70,9 @@
         <dd><a href="#springUrl('/jinpeng/performance/toIndex')" target="mainFrame">加履交接单打印</a></dd>
         <dt><a href="#" class="curr">工具</a></dt>
         <dd><a href="#springUrl('/notice/manage')" target="mainFrame">通知栏管理</a></dd>
+        <dd><a href="#springUrl('/reviewWeightSpotCheck/toIndex')" target="mainFrame">复重抽检任务导入</a></dd>
+        <dd><a href="#springUrl('/weightAndVolumeCheckOfB2b/toIndex')" target="mainFrame">B网转运重量抽检</a></dd>
+        <dd><a href="#springUrl('/weightAndVolumeCheck/toIndex')" target="mainFrame">重量体积抽检统计</a></dd>
         <dd><a href="#springUrl('/newseal/preSealVehicle/toIndex')" target="mainFrame">一键封车</a></dd>
         <dd><a href="#springUrl('/newseal/preSealVehicle/unusedtransport')" target="mainFrame">未使用运力编码查询</a></dd>
         <dd><a href="#springUrl('/waybillCodeCheckForKA/toIndex')" target="mainFrame">金融客户运单号对比校验</a></dd>

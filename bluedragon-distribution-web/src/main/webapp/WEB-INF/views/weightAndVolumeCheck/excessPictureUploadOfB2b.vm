@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>超标图片上传</title>
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    #parse("system/common/baseImport.vm")
+    <style>
+        .file{  filter:alpha(opacity:0);opacity: 0;width:0px }
+    </style>
+    <script src="/static/js/weightAndVolumeCheck/excessPictureUploadOfB2b.js"></script>
+</head>
+<body>
+<input type="hidden" id="waybillCode" value="$!{waybillCode}"/>
+<input type="hidden" id="createSiteCode" value="$!{createSiteCode}"/>
+<input type="hidden" id="rowIndex" value="$!{rowIndex}"/>
+<input type="hidden" id="isWaybill" value="$!{isWaybill}"/>
+<div id="dataTableDiv" class="main">
+        <ol class="breadcrumb">
+            <li><a href="#">B网转运重量抽检</a></li>
+            <li class="active">超标图片上传</li>
+        </ol>
+
+        <div id="query-condition">
+            <form id="query-form" class="form-horizontal" enctype="multipart/form-data" method="POST">
+                <fieldset>
+
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="col-xs-6">
+                                <div class="form-group">
+                                    <label class="control-label col-xs-3" for="box-code-input"></label>
+                                    <div class=" col-xs-8">
+                                        <p id="waybillCodeStr" style="font-size: 17px">扫描条码：$!{waybillCode}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="col-xs-6">
+                                <div class="form-group">
+                                    <label class="control-label col-xs-3" for="box-code-input">重量</label>
+                                    <div class=" col-xs-5">
+                                        <input type="text" id="pictureField1" class="form-control search-param" >
+                                    </div>
+                                    <div class=" col-xs-2">
+                                        <button id="btn_browse1" type="button" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>&nbsp;浏览
+                                        </button>
+                                        <input  type="file" id="fileField1" name="fileField" class="file" size="28" onchange="document.getElementById('pictureField1').value=this.value" />
+                                    </div>
+                                    <div class="col-xs-2">
+                                        <button id="btn_upload1" type="button" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-upload" aria-hidden="true"></span>&nbsp;上传
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="form-group" >
+                                    <div class=" col-xs-5" style="display: none" id="upSuccess1">
+                                        <p style="color: #00CC33;font-size: 25px;" align="center">上传成功</p>
+                                    </div>
+                                    <div class=" col-xs-5" style="display: none" id="UpFail1">
+                                        <p style="color: #FF0040;font-size: 25px;" align="center">上传失败</p>
+                                    </div>
+                                    <div class=" col-xs-2" style="display: none">
+                                        <input id="upIsSuccessFlage1"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="col-xs-6">
+                                <div class="form-group">
+                                    <label class="control-label col-xs-3" for="box-code-input">长</label>
+                                    <div class=" col-xs-5">
+                                        <input type="text" id="pictureField2" class="form-control search-param" >
+                                    </div>
+                                    <div class=" col-xs-2">
+                                        <button id="btn_browse2" type="button" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>&nbsp;浏览
+                                        </button>
+                                        <input  type="file" id="fileField2" name="fileField" class="file" size="28" onchange="document.getElementById('pictureField2').value=this.value" />
+                                    </div>
+                                    <div class="col-xs-2">
+                                        <button id="btn_upload2" type="button" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-upload" aria-hidden="true"></span>&nbsp;上传
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="form-group" >
+                                    <div class=" col-xs-5" style="display: none" id="upSuccess2">
+                                        <p style="color: #00CC33;font-size: 25px;" align="center">上传成功</p>
+                                    </div>
+                                    <div class=" col-xs-5" style="display: none" id="UpFail2">
+                                        <p style="color: #FF0040;font-size: 25px;" align="center">上传失败</p>
+                                    </div>
+                                    <div class=" col-xs-2" style="display: none">
+                                        <input id="upIsSuccessFlage2"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="col-xs-6">
+                                <div class="form-group">
+                                    <label class="control-label col-xs-3" for="box-code-input">宽</label>
+                                    <div class=" col-xs-5">
+                                        <input type="text" id="pictureField3" class="form-control search-param" >
+                                    </div>
+                                    <div class=" col-xs-2">
+                                        <button id="btn_browse3" type="button" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>&nbsp;浏览
+                                        </button>
+                                        <input  type="file" id="fileField3" name="fileField" class="file" size="28" onchange="document.getElementById('pictureField3').value=this.value" />
+                                    </div>
+                                    <div class="col-xs-2">
+                                        <button id="btn_upload3" type="button" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-upload" aria-hidden="true"></span>&nbsp;上传
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="form-group" >
+                                    <div class=" col-xs-5" style="display: none" id="upSuccess3">
+                                        <p style="color: #00CC33;font-size: 25px;" align="center">上传成功</p>
+                                    </div>
+                                    <div class=" col-xs-5" style="display: none" id="UpFail3">
+                                        <p style="color: #FF0040;font-size: 25px;" align="center">上传失败</p>
+                                    </div>
+                                    <div class=" col-xs-2" style="display: none">
+                                        <input id="upIsSuccessFlage3"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="col-xs-6">
+                                <div class="form-group">
+                                    <label class="control-label col-xs-3" for="box-code-input">高</label>
+                                    <div class=" col-xs-5">
+                                        <input type="text" id="pictureField4" class="form-control search-param" >
+                                    </div>
+                                    <div class=" col-xs-2">
+                                        <button id="btn_browse4" type="button" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>&nbsp;浏览
+                                        </button>
+                                        <input  type="file" id="fileField4" name="fileField" class="file" size="28" onchange="document.getElementById('pictureField4').value=this.value" />
+                                    </div>
+                                    <div class="col-xs-2">
+                                        <button id="btn_upload4" type="button" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-upload" aria-hidden="true"></span>&nbsp;上传
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="form-group" >
+                                    <div class=" col-xs-5" style="display: none" id="upSuccess4">
+                                        <p style="color: #00CC33;font-size: 25px;" align="center">上传成功</p>
+                                    </div>
+                                    <div class=" col-xs-5" style="display: none" id="UpFail4">
+                                        <p style="color: #FF0040;font-size: 25px;" align="center">上传失败</p>
+                                    </div>
+                                    <div class=" col-xs-2" style="display: none">
+                                        <input id="upIsSuccessFlage4"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="col-xs-6">
+                                <div class="form-group">
+                                    <label class="control-label col-xs-3" for="box-code-input">面单</label>
+                                    <div class=" col-xs-5">
+                                        <input type="text" id="pictureField5" class="form-control search-param" >
+                                    </div>
+                                    <div class=" col-xs-2">
+                                        <button id="btn_browse5" type="button" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>&nbsp;浏览
+                                        </button>
+                                        <input  type="file" id="fileField5" name="fileField" class="file" size="28" onchange="document.getElementById('pictureField5').value=this.value" />
+                                    </div>
+                                    <div class="col-xs-2">
+                                        <button id="btn_upload5" type="button" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-upload" aria-hidden="true"></span>&nbsp;上传
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="form-group" >
+                                    <div class=" col-xs-5" style="display: none" id="upSuccess5">
+                                        <p style="color: #00CC33;font-size: 25px;" align="center">上传成功</p>
+                                    </div>
+                                    <div class=" col-xs-5" style="display: none" id="UpFail5">
+                                        <p style="color: #FF0040;font-size: 25px;" align="center">上传失败</p>
+                                    </div>
+                                    <div class=" col-xs-2" style="display: none">
+                                        <input id="upIsSuccessFlage5"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="col-xs-6">
+                                <div class="form-group">
+                                    <label class="control-label col-xs-3" for="box-code-input"></label>
+                                    <div class=" col-xs-9">
+                                        <p style="font-size: 17px ">支持.jpg .jpeg .gif .png .bmp图片格式</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-6">
+                                <div class="form-group">
+                                    <label class="control-label col-xs-2" for="box-code-input"></label>
+                                    <div class=" col-xs-2">
+                                        <button id="btn_saved" type="button" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-saved" aria-hidden="true"></span>保存
+                                        </button>
+                                    </div>
+                                    <div class=" col-xs-2">
+                                        <button id="btn_return" type="button" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-backward" aria-hidden="true"></span>返回
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </fieldset>
+            </form>
+        </div>
+</div>
+</body>
+</html>

@@ -232,5 +232,10 @@
     <jmq:consumer id="jmq.inventoryTaskCompleteConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.dms.inventory.task.complete}" listener="inventoryTaskCompleteConsumer"/>
     </jmq:consumer>
+
+    <!--抽检回传信息-->
+    <jmq:consumer id="jmq.spotCheckConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.dms.spot.check}" listener="spotCheckConsumer"/>
+    </jmq:consumer>
 </beans>
 
