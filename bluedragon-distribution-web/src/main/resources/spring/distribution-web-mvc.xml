@@ -108,16 +108,17 @@
 		all exception handler will be registered by DispatcherServlet default
 		(detectAllHandlerExceptionResolvers=true)
 	-->
+	<!--
 	<bean
 		class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
-		<property name="defaultErrorView" value="/uncaught" />
+		<property name="defaultErrorView" value="error/uncaught" />
 		<property name="exceptionMappings">
 			<props>
 				<prop key="com.jd.common.hrm.IllegalHrmPrivilegeException">error/access-denied</prop>
-                <prop key="java.lang.IllegalArgumentException">/uncaught</prop>
 			</props>
 		</property>
 	</bean>
+	-->
 
 	<bean id="conversionService"
 		  class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
