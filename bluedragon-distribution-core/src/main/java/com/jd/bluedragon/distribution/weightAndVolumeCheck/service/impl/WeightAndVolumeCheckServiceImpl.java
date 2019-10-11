@@ -1,13 +1,13 @@
 package com.jd.bluedragon.distribution.weightAndVolumeCheck.service.impl;
 
 import com.google.common.collect.Lists;
-import com.jcloud.jss.JingdongStorageService;
-import com.jcloud.jss.client.Request;
-import com.jcloud.jss.domain.ObjectListing;
-import com.jcloud.jss.domain.ObjectSummary;
-import com.jcloud.jss.http.JssInputStreamEntity;
-import com.jcloud.jss.service.BucketService;
-import com.jcloud.jss.service.ObjectService;
+import com.jd.jss.JingdongStorageService;
+import com.jd.jss.client.Request;
+import com.jd.jss.domain.ObjectListing;
+import com.jd.jss.domain.ObjectSummary;
+import com.jd.jss.http.JssInputStreamEntity;
+import com.jd.jss.service.BucketService;
+import com.jd.jss.service.ObjectService;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BusinessFinanceManager;
