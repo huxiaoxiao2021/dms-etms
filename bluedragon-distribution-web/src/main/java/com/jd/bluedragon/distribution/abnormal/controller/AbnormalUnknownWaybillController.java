@@ -16,6 +16,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,7 +42,9 @@ public class AbnormalUnknownWaybillController extends DmsBaseController{
 
     private static final Log logger = LogFactory.getLog(AbnormalUnknownWaybillController.class);
 
-    private static final int QUERY_LIMIT_DAY = 20;
+    @Value("${abnormalUnknown.queryLimitDay:20}")
+    private int queryLimitDay;
+
     @Autowired
     private AbnormalUnknownWaybillService abnormalUnknownWaybillService;
 
@@ -165,8 +168,9 @@ public class AbnormalUnknownWaybillController extends DmsBaseController{
             return rest;
         }
         if(StringUtils.isEmpty(abnormalUnknownWaybillCondition.getWaybillCode())
-                && DateHelper.daysBetween(abnormalUnknownWaybillCondition.getStartTime(),abnormalUnknownWaybillCondition.getEndTime()) > QUERY_LIMIT_DAY){
-            rest.toFail("上报时间相差不能超过"+QUERY_LIMIT_DAY+"天！");
+                && DateHelper.daysBetween(abnormalUnknownWaybillCondition.getStartTime(),abnormalUnknownWaybillCondition.getEndTime()) >
+                queryLimitDay){
+            rest.toFail("上报时间相差不能超过"+ queryLimitDay +"天！");
             return rest;
         }
         if (abnormalUnknownWaybillCondition.getWaybillCode() != null && abnormalUnknownWaybillCondition.getWaybillCode().contains(AbnormalUnknownWaybill.SEPARATOR_APPEND)) {
@@ -189,8 +193,9 @@ public class AbnormalUnknownWaybillController extends DmsBaseController{
                 return new ModelAndView("uncaught");
             }
             if(StringUtils.isEmpty(abnormalUnknownWaybillCondition.getWaybillCode())
-                    && DateHelper.daysBetween(abnormalUnknownWaybillCondition.getStartTime(),abnormalUnknownWaybillCondition.getEndTime()) > QUERY_LIMIT_DAY){
-                model.addAttribute("exception",new IllegalArgumentException("上报时间相差不能超过"+QUERY_LIMIT_DAY+"天！") );
+                    && DateHelper.daysBetween(abnormalUnknownWaybillCondition.getStartTime(),abnormalUnknownWaybillCondition.getEndTime()) >
+                    queryLimitDay){
+                model.addAttribute("exception",new IllegalArgumentException("上报时间相差不能超过"+ queryLimitDay +"天！") );
                 return new ModelAndView("uncaught");
             }
             if (abnormalUnknownWaybillCondition.getWaybillCode() != null && abnormalUnknownWaybillCondition.getWaybillCode().contains(AbnormalUnknownWaybill.SEPARATOR_APPEND)) {
