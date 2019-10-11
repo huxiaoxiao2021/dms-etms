@@ -38,7 +38,22 @@ $(function () {
                 // showFooter:true,
                 // paginationVAlign:'center',
                 // singleSelect:true,
-                columns: oTableInit.tableColums
+                columns: oTableInit.tableColums,
+                responseHandler:function (data) {
+                    if(data.code != 200){
+                        alert(data.message);
+                        return {
+                            "total":0,
+                            "rows":[]
+                        }
+                    }else{
+                        return {
+                            "total":data.data.total,
+                            "rows":data.data.rows
+                        }
+                    }
+
+                }
             });
         };
         oTableInit.getSearchParams = function (params) {
