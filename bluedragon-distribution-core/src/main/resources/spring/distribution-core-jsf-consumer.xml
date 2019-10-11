@@ -492,6 +492,7 @@
 
     <jsf:consumer id="iotDeviceWS" interface="com.jd.tms.iot.ws.IotDeviceWS" protocol="jsf"
                   alias="${jsf.iot.alias}" timeout="${jsf.iot.timeout}" retries="0">
+        <jsf:parameter key="token" value="${jsf.iot.token}" hide="true"/>
     </jsf:consumer>
 
     <jsf:consumer id="searchOrganizationOtherServiceJsf" interface="com.jd.ufo.saf.SearchOrganizationOtherService"
