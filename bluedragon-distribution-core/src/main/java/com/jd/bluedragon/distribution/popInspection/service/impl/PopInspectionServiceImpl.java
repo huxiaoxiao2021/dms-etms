@@ -237,7 +237,7 @@ public class PopInspectionServiceImpl implements PopInspectionService {
             return;
         }
         if(StringUtils.isEmpty(firstRequest.getFeatherLetterDeviceNo())){
-            logger.error("鸡毛信运单处理-设备号为空waybillCode[{}]",waybillCode);
+            logger.error("鸡毛信运单处理-设备号为空可能其他运单已经绑定过设备号waybillCode[{}]firstRequest[{}]",waybillCode,JsonHelper.toJson(firstRequest));
             return;
         }
         BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseStaffByStaffId(firstRequest.getUserCode());
