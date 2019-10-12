@@ -473,7 +473,7 @@ public class BusinessHelper {
      * waybill_sign第29位为8
      * 且 waybill_sign第25位为2或3
      */
-    public static boolean isC2cAndPayment(String waybillSign) {
+    public static boolean isC2cDFJF(String waybillSign) {
         if (StringUtils.isBlank(waybillSign)){
             return false;
         }
@@ -485,7 +485,8 @@ public class BusinessHelper {
     }
 
     /**
-     * c2c 29=8
+     * c2c
+     * waybill_sign第29位为8
      */
     public static boolean isC2c(String waybillSign) {
         if (StringUtils.isBlank(waybillSign)){
@@ -520,7 +521,7 @@ public class BusinessHelper {
         if (StringUtils.isBlank(waybillSign)){
             return false;
         }
-        return BusinessUtil.isSignChar(waybillSign, 61, '0') && isC2cAndPayment(waybillSign);
+        return BusinessUtil.isSignChar(waybillSign, 61, '0') && isC2cDFJF(waybillSign);
     }
 
     /**
