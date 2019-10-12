@@ -500,13 +500,13 @@ public class BusinessHelper {
     }
 
     /**
-     * b2c 40=C且29!=8 B2C
+     * b2c 40=0且29!=8 B2C
      */
     public static boolean isB2c(String waybillSign) {
         if (StringUtils.isBlank(waybillSign)){
             return false;
         }
-        if (BusinessUtil.isSignChar(waybillSign, 40, 'C') && !BusinessUtil.isSignChar(waybillSign, 29, '8')) {
+        if (BusinessUtil.isSignChar(waybillSign, 40, '0') && !BusinessUtil.isSignChar(waybillSign, 29, '8')) {
             return true;
         } else {
             return false;

@@ -12,6 +12,7 @@ import com.jd.tms.iot.ws.IotDeviceWS;
 import com.jd.tms.iot.ws.IotQueryWS;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +51,7 @@ public class IotServiceWSManagerImpl implements IotServiceWSManager {
     public Boolean isDeviceCodeEnable(String deviceNo){
         CommonDto<DeviceDto> commonDto = iotQueryWS.queryDeviceStatus(deviceNo);
         if(commonDto == null || commonDto.getCode() != 1){
-            logger.info("调用iot接口返回失败commonDto[{}]deviceNo[{}]", JsonHelper.toJson(commonDto),deviceNo);
+            logger.error("调用iot接口返回失败commonDto[{}]deviceNo[{}]", JsonHelper.toJson(commonDto),deviceNo);
             return Boolean.FALSE;
         }
         if(commonDto.getData() == null){
@@ -61,6 +62,30 @@ public class IotServiceWSManagerImpl implements IotServiceWSManager {
             logger.info("鸡毛信设备不可用deviceNo[{}]status",deviceNo,commonDto.getData().getStatus());
             return Boolean.FALSE;
         }
+        return Boolean.TRUE;
+    }
+
+    /**
+     * 根据绑定标识查询绑定设备
+     * @param waybillCode
+     * @return true 有绑定，false 无绑定
+     */
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.IotServiceWSManagerImpl.queryBindDevice",mState = {JProEnum.TP, JProEnum.FunctionError})
+    public boolean queryBindDevice(String waybillCode){
+        DeviceDto deviceDto = new DeviceDto();
+        deviceDto.setBindValue(waybillCode);
+        deviceDto.setBindType(IotDeviceBindTypeEnum.WAYBILL.getKey());
+        CommonDto<String> commonDto = iotQueryWS.queryBindDevice(deviceDto);
+        if(commonDto == null || commonDto.getCode() != 1){
+            logger.error("查询鸡毛信绑定状态-返回失败commonDto[{}]waybillCode[{}]", JsonHelper.toJson(commonDto),waybillCode);
+            return Boolean.FALSE;
+        }
+        if(StringUtils.isEmpty(commonDto.getData())){
+            logger.info("查询鸡毛信绑定状态-data为空waybillCode[{}]", waybillCode);
+            return Boolean.FALSE;
+        }
+        logger.info("查询鸡毛信绑定状态-waybillCode[{}]data[{}]", waybillCode,commonDto.getData());
         return Boolean.TRUE;
     }
 
@@ -80,7 +105,7 @@ public class IotServiceWSManagerImpl implements IotServiceWSManager {
         CommonDto commonDto = iotDeviceWS.bindDevice(bindDeviceDto);
         logger.info("鸡毛信运单处理-调用iot绑定鸡毛信设备bindDeviceDto[{}]",JsonHelper.toJson(bindDeviceDto));
         if(commonDto == null || commonDto.getCode() != 1){
-            logger.info("调用iot绑定鸡毛信设备接口返回失败commonDto[{}]deviceNo[{}]waybillCode[{}]",new String[]{JsonHelper.toJson(commonDto),deviceNo,waybillCode});
+            logger.error("调用iot绑定鸡毛信设备接口返回失败commonDto[{}]deviceNo[{}]waybillCode[{}]",new String[]{JsonHelper.toJson(commonDto),deviceNo,waybillCode});
             return Boolean.FALSE;
         }
         return Boolean.TRUE;

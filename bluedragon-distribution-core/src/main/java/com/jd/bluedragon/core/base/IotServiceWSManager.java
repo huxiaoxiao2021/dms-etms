@@ -10,6 +10,8 @@ public interface IotServiceWSManager {
 
     Boolean isDeviceCodeEnable(String deviceNo);
 
+    boolean queryBindDevice(String waybillCode);
+
     /**
      * https://cf.jd.com/pages/viewpage.action?pageId=174828605
      * 鸡毛信设备绑定
