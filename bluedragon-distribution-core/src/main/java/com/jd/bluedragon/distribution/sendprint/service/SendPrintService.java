@@ -15,6 +15,9 @@ public interface SendPrintService {
 	SummaryPrintResultResponse newBatchSummaryPrintQuery(PrintQueryCriteria criteria);
 
 	BasicQueryEntityResponse basicPrintQuery(PrintQueryCriteria criteria);
+
+	BasicQueryEntityResponse basicPrintQueryForPage(PrintQueryCriteria criteria)
+
 	BasicQueryEntityResponse newBasicPrintQuery(PrintQueryCriteria criteria);
 
 	BasicQueryEntityResponse sopPrintQuery(PrintQueryCriteria criteria);

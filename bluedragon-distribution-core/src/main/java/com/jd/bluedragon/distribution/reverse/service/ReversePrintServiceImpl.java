@@ -406,7 +406,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         BaseEntity<BigWaybillDto> result = null;
         try {
             result = waybillQueryManager.getDataByChoice(waybillCode,
-                    true, true, true, true, true, false, false);
+                    true, true, true, true, false, false, false);
             if(result != null && result.getData() != null && result.getData().getWaybill() != null &&
                     result.getData().getWaybill().getFirstTime() != null)
             {

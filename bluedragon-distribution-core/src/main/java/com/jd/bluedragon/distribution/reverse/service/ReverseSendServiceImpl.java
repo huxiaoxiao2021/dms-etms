@@ -839,7 +839,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill = waybillQueryManager.getWaybillByReturnWaybillCode(wayBillCode);
                 if(oldWaybill!=null && oldWaybill.getData()!=null && StringUtils.isNotBlank(oldWaybill.getData().getWaybillCode())){
 
-                    BaseEntity<BigWaybillDto> bigWaybill= waybillQueryManager.getDataByChoice(oldWaybill.getData().getWaybillCode(),true,true,true,true,true,false,false);
+                    BaseEntity<BigWaybillDto> bigWaybill= waybillQueryManager.getDataByChoice(oldWaybill.getData().getWaybillCode(),true,true,true,true,false,false,false);
                     if(bigWaybill!=null && bigWaybill.getData() != null && bigWaybill.getData().getWaybill() != null){
 
                         send.setOrderId(bigWaybill.getData().getWaybill().getBusiOrderCode());

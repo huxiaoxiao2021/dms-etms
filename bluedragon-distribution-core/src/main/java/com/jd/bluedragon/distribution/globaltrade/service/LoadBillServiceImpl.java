@@ -273,15 +273,6 @@ public class LoadBillServiceImpl implements LoadBillService {
         return lb;
     }
 
-    private String getVendorOrderId(String waybillCode) {
-        try {
-            return waybillService.getWaybill(waybillCode).getWaybill().getVendorId();
-        } catch (Exception e) {
-            logger.error(String.format("获取运单[%s]的订单号失败，原因", waybillCode), e);
-            return null;
-        }
-    }
-
     @Override
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public int updateLoadBillStatusByReport(LoadBillReport report) {

@@ -1,16 +1,5 @@
 package com.jd.bluedragon.distribution.auto.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-
-import com.jd.bluedragon.dms.utils.BusinessUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMinorManager;
@@ -27,12 +16,22 @@ import com.jd.bluedragon.distribution.sorting.domain.SortingException;
 import com.jd.bluedragon.distribution.sorting.service.SortingExceptionService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.ql.basic.domain.BaseDmsStore;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Created by wangtingwei on 2014/10/16.
@@ -69,7 +68,7 @@ public class SimpleSortingPrepareServiceImpl extends AbstractSortingPrepareServi
     @Override
     protected boolean prepareSite(Sorting entity) {
         log.info("准备获取站点:"+entity.getWaybillCode());
-        Waybill waybill=this.waybillCommonService.findWaybillAndPack(entity.getWaybillCode());
+        Waybill waybill=this.waybillCommonService.findByWaybillCode(entity.getWaybillCode());
         if(null==waybill){
             log.warn("准备分拣站点->获取不到运单信息："+entity.getWaybillCode());
             return false;

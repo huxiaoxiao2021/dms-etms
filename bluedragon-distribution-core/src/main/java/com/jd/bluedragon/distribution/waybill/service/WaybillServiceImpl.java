@@ -92,6 +92,7 @@ public class WaybillServiceImpl implements WaybillService {
 
 	private static final String DEFAUIT_PACKAGE_WEIGHT = "0.0";
 
+	@Override
     public BigWaybillDto getWaybill(String waybillCode) {
         String aWaybillCode = WaybillUtil.getWaybillCode(waybillCode);
 
@@ -106,6 +107,22 @@ public class WaybillServiceImpl implements WaybillService {
         return baseEntity != null && baseEntity.getData() != null ? baseEntity.getData() : null;
     }
 
+    @Override
+    public BigWaybillDto getWaybill(String waybillCode, boolean isPackList) {
+        String aWaybillCode = WaybillUtil.getWaybillCode(waybillCode);
+
+        WChoice wChoice = new WChoice();
+        wChoice.setQueryWaybillC(true);
+        wChoice.setQueryWaybillE(true);
+        wChoice.setQueryWaybillM(true);
+        wChoice.setQueryPackList(isPackList);
+        BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager.getDataByChoice(aWaybillCode,
+                wChoice);
+
+        return baseEntity != null && baseEntity.getData() != null ? baseEntity.getData() : null;
+    }
+
+    @Override
     public BigWaybillDto getWaybillProduct(String waybillCode) {
         String aWaybillCode = WaybillUtil.getWaybillCode(waybillCode);
 
@@ -227,7 +244,7 @@ public class WaybillServiceImpl implements WaybillService {
 
         InvokeResult<Boolean> invokeResult = new InvokeResult<Boolean>();
         //获取运单信息
-        BigWaybillDto bigWaybillDto = this.getWaybill(waybillCode);
+        BigWaybillDto bigWaybillDto = this.getWaybill(waybillCode, false);
         if(bigWaybillDto != null && bigWaybillDto.getWaybillState() != null) {
             WaybillManageDomain waybillManageDomain = bigWaybillDto.getWaybillState();
             //判断运单是否妥投
