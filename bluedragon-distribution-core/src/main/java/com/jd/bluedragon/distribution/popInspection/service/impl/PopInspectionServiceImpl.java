@@ -18,6 +18,7 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.CollectionHelper;
+import com.jd.bluedragon.utils.ConstantEnums;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -244,6 +245,12 @@ public class PopInspectionServiceImpl implements PopInspectionService {
             logger.info("鸡毛信运单处理-获取员工信息为空waybillCode[{}]userCode[{}]",waybillCode,firstRequest.getUserCode());
             return;
         }
-        iotServiceWSManager.bindDeviceWaybill(firstRequest.getFeatherLetterDeviceNo(),waybillCode,baseStaffSiteOrgDto.getAccountNumber());
+        ConstantEnums.IotBusiness iotBusiness = null;
+        if(BusinessHelper.isB2c(waybill.getWaybillSign())){
+            iotBusiness = ConstantEnums.IotBusiness.B2C;
+        }else if (BusinessHelper.isC2c(waybill.getWaybillSign())){
+            iotBusiness = ConstantEnums.IotBusiness.C2C;
+        }
+        iotServiceWSManager.bindDeviceWaybill(firstRequest.getFeatherLetterDeviceNo(),waybillCode,baseStaffSiteOrgDto.getAccountNumber(),iotBusiness);
     }
 }

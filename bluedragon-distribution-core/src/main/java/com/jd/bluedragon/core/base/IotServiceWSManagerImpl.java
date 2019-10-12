@@ -1,6 +1,7 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.utils.ConstantEnums;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.tms.iot.dto.BindDeviceDto;
 import com.jd.tms.iot.dto.CommonDto;
@@ -34,6 +35,9 @@ public class IotServiceWSManagerImpl implements IotServiceWSManager {
     @Autowired
     private IotDeviceWS iotDeviceWS;
 
+    /**
+     * 系统来源编号
+     */
     private static final Integer SYSTEM_CODE = 4;
 
     /**
@@ -62,14 +66,16 @@ public class IotServiceWSManagerImpl implements IotServiceWSManager {
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.IotServiceWSManagerImpl.isDeviceCodeEnable",mState = {JProEnum.TP, JProEnum.FunctionError})
-    public Boolean bindDeviceWaybill(String deviceNo,String waybillCode,String erp){
+    public Boolean bindDeviceWaybill(String deviceNo,String waybillCode,String erp,ConstantEnums.IotBusiness iotBusiness){
         BindDeviceDto bindDeviceDto = new BindDeviceDto();
         bindDeviceDto.setDeviceNo(deviceNo);
         bindDeviceDto.setBindValue(waybillCode);
         bindDeviceDto.setBindType(IotDeviceBindTypeEnum.WAYBILL.getKey());
         bindDeviceDto.setErp(erp);
         bindDeviceDto.setSystemCode(SYSTEM_CODE);
-
+        if(iotBusiness != null){
+            bindDeviceDto.setBusiness(iotBusiness.getType());
+        }
 
         CommonDto commonDto = iotDeviceWS.bindDevice(bindDeviceDto);
         logger.info("鸡毛信运单处理-调用iot绑定鸡毛信设备bindDeviceDto[{}]",JsonHelper.toJson(bindDeviceDto));
