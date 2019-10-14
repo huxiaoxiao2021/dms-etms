@@ -1,19 +1,23 @@
 package com.jd.bluedragon.distribution.task.domain;
 
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.task.api.TaskExecutor;
+import org.apache.log4j.Logger;
 
 
 /**
- * 
+ *
  * @ClassName: DmsTaskExecutor
  * @Description: Dms任务执行器接口-负责任务执行
  * @author: wuyoude
  * @date: 2018年1月12日 上午12:42:09
- * 
+ *
  * @param <T>
  */
 public abstract class DmsTaskExecutor<T> implements TaskExecutor<Task>{
-	
+
+	private Logger log = Logger.getLogger(DmsTaskExecutor.class);
+
 	/**
 	 * 将Task对象转换为实际需要的实体
 	 * @param task
@@ -36,9 +40,15 @@ public abstract class DmsTaskExecutor<T> implements TaskExecutor<Task>{
 	 */
 	@Override
 	public boolean execute(Task task, String ownSign){
-		TaskContext<T> taskContext = new DmsTaskContext<T>();
-		taskContext.setTask(task);
-		taskContext.setBody(parse(task, ownSign));
-		return execute(taskContext, ownSign);
+        T body = parse(task, ownSign);
+        if (body == null) {
+            log.warn(String.format("[任务执行失败]将Task对象转换为实际需要的实体失败，taskBody:%s", JsonHelper.toJson(task)));
+            return true;
+        }
+        TaskContext<T> taskContext = new DmsTaskContext<>();
+        taskContext.setTask(task);
+        taskContext.setBody(body);
+        return execute(taskContext, ownSign);
 	}
+
 }

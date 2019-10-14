@@ -337,6 +337,10 @@ public class SendDatailDao extends BaseDao<SendDetail> {
         return this.getSqlSession().selectList(namespace + ".findByWaybillCodeOrPackageCode", sendDetail);
     }
 
+    public SendDetail  findOneByWaybillCode(SendDetail sendDetail){
+        return this.getSqlSession().selectOne(namespace + ".findOneByWaybillCode", sendDetail);
+    }
+
     /**
      * 根据始发分拣中心，目的分拣中心，包裹号查询一条发货记录
      * @param sendDetail

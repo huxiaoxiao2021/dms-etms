@@ -43,6 +43,14 @@ public class SendDetailServiceImpl implements SendDetailService {
     }
 
     @Override
+    public SendDetail findOneByWaybillCode(Integer createSiteCode, String waybillCode) {
+        SendDetail sendDetail = new SendDetail();
+        sendDetail.setCreateSiteCode(createSiteCode);
+        sendDetail.setWaybillCode(waybillCode);
+        return sendDatailDao.findOneByWaybillCode(sendDetail);
+    }
+
+    @Override
     public List<SendDetail> findPageSendDetail(Map<String, Object> params) {
         logger.info("SendDetailServiceImpl.findPageSendDetail begin...");
         return sendDatailDao.findPageSendDetail(params);

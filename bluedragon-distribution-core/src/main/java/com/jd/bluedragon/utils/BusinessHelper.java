@@ -473,11 +473,26 @@ public class BusinessHelper {
      * waybill_sign第29位为8
      * 且 waybill_sign第25位为2或3
      */
+    public static boolean isC2cDFJF(String waybillSign) {
+        if (StringUtils.isBlank(waybillSign)){
+            return false;
+        }
+        if (isC2c(waybillSign) && (BusinessUtil.isSignChar(waybillSign, 25, '2') || BusinessUtil.isSignChar(waybillSign, 25, '3'))) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * c2c
+     * waybill_sign第29位为8
+     */
     public static boolean isC2c(String waybillSign) {
         if (StringUtils.isBlank(waybillSign)){
             return false;
         }
-        if (BusinessUtil.isSignChar(waybillSign, 29, '8') && (BusinessUtil.isSignChar(waybillSign, 25, '2') || BusinessUtil.isSignChar(waybillSign, 25, '3'))) {
+        if (BusinessUtil.isSignChar(waybillSign, 29, '8')) {
             return true;
         } else {
             return false;
@@ -492,7 +507,7 @@ public class BusinessHelper {
         if (StringUtils.isBlank(waybillSign)){
             return false;
         }
-        return BusinessUtil.isSignChar(waybillSign, 61, '0') && isC2c(waybillSign);
+        return BusinessUtil.isSignChar(waybillSign, 61, '0') && isC2cDFJF(waybillSign);
     }
 
     /**
@@ -550,5 +565,17 @@ public class BusinessHelper {
         return BusinessUtil.isSignChar(waybillSign, 40, '1')
         		||(BusinessUtil.isSignChar(waybillSign, 40, '2')
         				&& BusinessUtil.isSignInChars(waybillSign, 80, '1' ,'2'));
+    }
+
+    /**
+     * 是否是已旧换新订单
+     * @param sendPay
+     * @return
+     */
+    public static boolean isYJHX(String sendPay){
+        if (StringUtils.isBlank(sendPay)) {
+            return false;
+        }
+        return !BusinessUtil.isSignChar(sendPay, 275, '0');
     }
 }

@@ -1,8 +1,8 @@
 package com.jd.bluedragon.distribution.rest.transBillSchedule;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.api.response.TransBillScheduleResponse;
 import com.jd.bluedragon.distribution.transBillSchedule.domain.TransBillScheduleRequest;
-import com.jd.bluedragon.distribution.transBillSchedule.domain.TransBillScheduleResponse;
 import com.jd.bluedragon.distribution.transBillSchedule.service.TransBillScheduleService;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;

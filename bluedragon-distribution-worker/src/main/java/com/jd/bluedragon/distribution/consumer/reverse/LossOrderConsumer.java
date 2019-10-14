@@ -26,6 +26,7 @@ public class LossOrderConsumer extends MessageBaseConsumer {
 
 	private final Log logger = LogFactory.getLog(this.getClass());
 
+	@Override
 	public void consume(Message message) {
 		List<LossOrder> lossOrders = this.getLossOrders(message);
 		for (LossOrder lossOrder : lossOrders) {
@@ -56,6 +57,14 @@ public class LossOrderConsumer extends MessageBaseConsumer {
 
 			for (Map<String, Object> lossOrderDetailMap : lossOrderDetails) {
 				LossOrder lossOrder = new LossOrder();
+
+				Object orderId = lossOrderMap.get("orderId");
+				if (!NumberHelper.isNumber(String.valueOf(orderId))) {
+					logger.warn("消费逆向报损单MQ时orderId非订单号，无法入库：" + orderId + "，消息内容:" + JsonHelper.toJson(lossOrderDetailMap));
+					continue;
+				}
+				lossOrder.setOrderId(NumberHelper.getLongValue(orderId));
+
 				String productId = lossOrderDetailMap.get("productId").toString();
                 //上游给productId设的值默认是SKU，有时会把SKU和productId拼接起来，统一取SKU
                 if(!NumberHelper.isNumber(productId)){

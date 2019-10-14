@@ -267,6 +267,18 @@
         <property name="timeout" value="1000"/>
     </bean>
 
+    <!--PDA循环集包袋处理MQ 自产自消-->
+    <bean id="deliverGoodsNoticeSendMQ" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.cb.deliverGoodsNotice.info}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
+    <!--PDA循环集包袋 通知运输MQ-->
+    <bean id="cycleMaterialSendMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.cb.cyclematerial.info}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
     <!--配送员接货，打印后发送mq信息给sms-->
     <bean id="popPrintToSmsProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.dmsSmsPopPrint}"/>

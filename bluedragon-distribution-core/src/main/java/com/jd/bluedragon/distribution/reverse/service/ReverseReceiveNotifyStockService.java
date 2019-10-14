@@ -1,8 +1,10 @@
 package com.jd.bluedragon.distribution.reverse.service;
 
+import IceInternal.Ex;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.SearchOrganizationOtherManager;
 import com.jd.bluedragon.core.base.StockExportManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.exception.OrderCallTimeoutException;
@@ -17,18 +19,15 @@ import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.bluedragon.distribution.reverse.domain.ReceiveRequest;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
 import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.bluedragon.utils.StringHelper;
-import com.jd.bluedragon.utils.SystemLogContants;
-import com.jd.bluedragon.utils.SystemLogUtil;
-import com.jd.bluedragon.utils.XmlHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.common.util.StringUtils;
 import com.jd.ioms.jsf.export.domain.Order;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.stock.iwms.export.param.StockVOParam;
 import com.jd.stock.iwms.export.vo.StockDetailVO;
 import com.jd.stock.iwms.export.vo.StockExtVO;
+import com.jd.ufo.domain.ufo.Organization;
+import com.jd.ufo.domain.ufo.SendpayOrdertype;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
@@ -93,7 +92,9 @@ public class ReverseReceiveNotifyStockService {
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
-	
+	@Autowired
+    private SearchOrganizationOtherManager searchOrganizationOtherManager;
+
 	public Long receive(String message) {
 		
 		if (XmlHelper.isXml(message, ReceiveRequest.class, null)) {
@@ -143,7 +144,7 @@ public class ReverseReceiveNotifyStockService {
 		SystemLog sysLog = new SystemLog();//日志对象
 		sysLog.setKeyword1(waybillCode.toString());
 		sysLog.setType(SystemLogContants.TYPE_REVERSE_STOCK);//设置日志类型
-		
+		boolean isOldForNewType = false;
 		try{
 			Order order = this.orderWebService.getOrder(waybillCode);
 			List<Product> products = this.productService.getOrderProducts(waybillCode);
@@ -183,7 +184,7 @@ public class ReverseReceiveNotifyStockService {
 			{
 				//FIXME:======================================增加获得财务部机构名的逻辑，需要缓存的支持=================================
 			}
-			
+
 			//校验机构名称是否有效，如无效则从基础资料获得
 			if (StringUtils.isBlank(order.getIdCompanyBranchName())) {
 	            BaseOrg bo = baseMajorManager.getBaseOrgByOrgId(order.getIdCompanyBranch());
@@ -217,6 +218,9 @@ public class ReverseReceiveNotifyStockService {
 			//开始根据类型的不同推送
 			if (Waybill.TYPE_GENERAL.equals(order.getOrderType()) || Waybill.TYPE_POP_FBP.equals(order.getOrderType())) {
 				long result = 0;
+				//判断是否是已旧换新
+				isOldForNewType = BusinessHelper.isYJHX(order.getSendPay());
+
 				OrderBankResponse orderBank = orderBankService.getOrderBankResponse(String.valueOf(waybillCode));
 
 				this.logger.info("运单号：" + waybillCode + ", 使用推库管新接口");
@@ -250,8 +254,15 @@ public class ReverseReceiveNotifyStockService {
 				inWmsStock0.setQite(BigDecimal.valueOf(1));//与潘文华确认改为1，已不用区分先款先货
 				inWmsStock0.setPhdanhao(0);
 				inWmsStock0.setCgdanhao(0);
-				inWmsStock0.setLaiyuancode(order.getCustomerName());
-				inWmsStock0.setQtfs("逆向物流");
+
+				if(isOldForNewType){
+					inWmsStock0.setQtfs("trade-in");
+					//开票机构ID
+					inWmsStock0.setLaiyuancode(getKPJGID(order));
+				}else{
+					inWmsStock0.setQtfs("逆向物流");
+					inWmsStock0.setLaiyuancode(order.getCustomerName());
+				}
 				inWmsStock0.setOrgId(order.getDeliveryCenterID());
 				inWmsStock0.setSid(order.getStoreId());
 				inWmsStock0.setChuruId(isPrePay(payType) ? 1 : 2);
@@ -290,8 +301,14 @@ public class ReverseReceiveNotifyStockService {
 				outSpwmsStock0.setQite(BigDecimal.valueOf(0));
 				outSpwmsStock0.setPhdanhao(0);
 				outSpwmsStock0.setCgdanhao(0);
-				outSpwmsStock0.setLaiyuancode(order.getCustomerName());
-				outSpwmsStock0.setQtfs("逆向物流");
+				if(isOldForNewType){
+					outSpwmsStock0.setQtfs("trade-in");
+					//开票机构ID
+					outSpwmsStock0.setLaiyuancode(getKPJGID(order));
+				}else {
+					outSpwmsStock0.setLaiyuancode(order.getCustomerName());
+					outSpwmsStock0.setQtfs("逆向物流");
+				}
 				outSpwmsStock0.setOrgId(order.getDeliveryCenterID());
 				outSpwmsStock0.setSid(order.getStoreId());
 				outSpwmsStock0.setChuruId(2);
@@ -300,7 +317,7 @@ public class ReverseReceiveNotifyStockService {
 				outSpwmsStock0.setZjine(orderBank.getShouldPay());
 				outSpwmsStock0.setStockDetails(this.getStockDetailVO(products));
 				outSpwmsStock0.setStockExtVO(stockExtVO0);
-				
+
 				result = stockExportManager.insertStockVirtualIntOut(inWmsStock0, outSpwmsStock0);
 				/** 新逻辑结束 */
 				
@@ -484,6 +501,30 @@ public class ReverseReceiveNotifyStockService {
 	
 	private boolean isPrePay(Integer payType) {
 		return payType.equals(PAY_TYPE_PRE);
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	private String getKPJGID(Order order){
+		try{
+			SendpayOrdertype queryParam = new SendpayOrdertype();
+			queryParam.setDcId( order.getDeliveryCenterID());
+			queryParam.setWareERPId(order.getStoreId());
+			queryParam.setOrderType(order.getOrderType());
+			queryParam.setOther1(String.valueOf(order.getProvince()));
+			queryParam.setOther2(String.valueOf(order.getCity()));
+			queryParam.setSendPay(order.getSendPay());
+			Organization organization = searchOrganizationOtherManager.findFinancialOrg(queryParam);
+			logger.info("getKPJGID"+JsonHelper.toJson(queryParam)+"|"+JsonHelper.toJson(organization));
+			if(organization!=null && organization.getOrgId()!=null){
+				return organization.getOrgId().toString();
+			}
+		}catch (Exception e){
+			logger.error("获取开票机构ID异常"+JsonHelper.toJson(order),e);
+		}
+		return StringUtils.EMPTY;
 	}
 	
 }

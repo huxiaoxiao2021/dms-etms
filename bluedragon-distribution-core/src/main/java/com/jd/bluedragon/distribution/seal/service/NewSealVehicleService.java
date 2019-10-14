@@ -99,6 +99,14 @@ public interface NewSealVehicleService {
     public CommonDto<String> offlineSeal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars);
 
     /**
+     * 离线传摆封车
+     *
+     * @param sealCars
+     * @return
+     */
+    public NewSealVehicleResponse offlineFerrySeal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars);
+
+    /**
      * 根据任务简码查询任务信息
      *
      * @param simpleCode

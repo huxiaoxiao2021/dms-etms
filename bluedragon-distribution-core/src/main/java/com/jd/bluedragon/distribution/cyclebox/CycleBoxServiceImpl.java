@@ -5,10 +5,16 @@ import com.jd.bluedragon.core.base.TMSBossQueryManager;
 import com.jd.bluedragon.core.base.CycleBoxExternalManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.api.request.WaybillCodeListRequest;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
 import com.jd.bluedragon.distribution.api.request.RecyclableBoxRequest;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation;
 import com.jd.bluedragon.distribution.cyclebox.domain.CycleBox;
+import com.jd.bluedragon.distribution.cyclebox.service.BoxMaterialRelationService;
+import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.distribution.send.manager.SendMManager;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -52,6 +58,12 @@ public class CycleBoxServiceImpl implements CycleBoxService {
     @Autowired
     @Qualifier("recyclableBoxSendMQ")
     private DefaultJMQProducer recyclableBoxSendMQ;
+
+    @Autowired
+    BoxMaterialRelationService boxMaterialRelationService;
+
+    @Autowired
+    private SendMManager sendMManager;
 
     private static final String FIELD_NAME_CLEAR_BOX_NUM = "clearBoxNum";
 
@@ -278,6 +290,68 @@ public class CycleBoxServiceImpl implements CycleBoxService {
         }else{
             //其他发出的正常
             pushCycleBoxStatusMQ(request);
+        }
+    }
+
+    /**
+     * 根据箱号获取箱号绑定的集包袋
+     * @param boxCode
+     * @return
+     */
+    @Override
+    public String getBoxMaterialRelation(String boxCode) {
+      String res = null;
+      BoxMaterialRelation boxMaterial = boxMaterialRelationService.getDataByBoxCode(boxCode);
+      if (boxMaterial != null) {
+         res=boxMaterial.getMaterialCode();
+      }
+      return res;
+    }
+
+    /**
+     * 绑定、删除集包袋
+     * @param request
+     * @return
+     */
+    @Override
+    public InvokeResult boxMaterialRelationAlter(BoxMaterialRelationRequest request){
+        InvokeResult result = new InvokeResult();
+        result.success();
+        SendM queryPara = new SendM();
+        queryPara.setBoxCode(request.getBoxCode());
+        queryPara.setCreateSiteCode(request.getSiteCode());
+        List<SendM> sendMList = sendMManager.findSendMByBoxCode(queryPara);
+        if (null != sendMList && sendMList.size() > 0) {
+            result.setCode(InvokeResult.RESULT_BOX_SENT_CODE);
+            result.setMessage(InvokeResult.RESULT_BOX_SENT_MESSAGE);
+            return result;
+        }
+
+        BoxMaterialRelation par = new BoxMaterialRelation();
+        par.setBoxCode(request.getBoxCode());
+        par.setMaterialCode(request.getMaterialCode());
+        par.setBindFlag(request.getBindFlag());
+        par.setOperatorErp(request.getOperatorERP());
+        par.setSiteCode(request.getSiteCode());
+        par.setIsDelete(0);
+
+        //如果从未绑定过
+        if (boxMaterialRelationService.getCountByBoxCode(request.getBoxCode())<=0){
+            if (boxMaterialRelationService.add(par)>0){
+                return result;
+            }
+            else {
+                result.error(InvokeResult.SERVER_ERROR_MESSAGE);
+                return result;
+            }
+        }
+
+        if (boxMaterialRelationService.update(par)>0){
+            return result;
+        }
+        else {
+            result.error(InvokeResult.SERVER_ERROR_MESSAGE);
+            return result;
         }
     }
 

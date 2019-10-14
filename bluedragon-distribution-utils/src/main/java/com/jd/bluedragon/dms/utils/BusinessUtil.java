@@ -1,16 +1,18 @@
 package com.jd.bluedragon.dms.utils;
 
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
-
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.List;
+import java.util.regex.Matcher;
 
-import static com.jd.bluedragon.dms.utils.DmsConstants.*;
+import static com.jd.bluedragon.dms.utils.DmsConstants.PRODUCT_TYPE_COLD_CHAIN_KB;
+import static com.jd.bluedragon.dms.utils.DmsConstants.RULE_TERMINAL_SEND_CODE_ALL_REGEX;
+import static com.jd.bluedragon.dms.utils.DmsConstants.SEAL_BOX_NO;
+import static com.jd.bluedragon.dms.utils.DmsConstants.SEND_CODE_ALL_REG;
+import static com.jd.bluedragon.dms.utils.DmsConstants.SEND_CODE_NEW_REG;
 
 /**
  * @author tangchunqing
@@ -31,6 +33,21 @@ public class BusinessUtil {
         }
         return sendCode.matches(SEND_CODE_ALL_REG) || isSingleBatchNo(sendCode);
     }
+
+    /**
+     * 是不是终端批次号
+     * R开头
+     *
+     * @param sendCode
+     * @return
+     */
+    public static boolean isTerminalSendCode(String sendCode) {
+        if (StringUtils.isBlank(sendCode)) {
+            return false;
+        }
+        return RULE_TERMINAL_SEND_CODE_ALL_REGEX.matcher(sendCode).matches();
+    }
+
     /**
      * 根据批次号的正则匹配始发分拣中心id和目的分拣中心id
      *
@@ -235,6 +252,16 @@ public class BusinessUtil {
                 || isSignChar(waybillSign, 1, 'K')
                 || isSignChar(waybillSign, 1, 'Y'));
     }
+
+    /**
+     * 根据waybillSign第40位判断是否快运业务（标识为 1、2、3、4、5）
+     *
+     * @param waybillSign 运单标识位
+     * @return
+     */
+     public static boolean isFastTrans(String waybillSign){
+         return isSignInChars(waybillSign, WaybillSignConstants.POSITION_40, '1', '2', '3', '4', '5');
+     }
 
     /**
      * 判断是否B网，转网到B+未转网到C并且waybillSign第40位1、2、3、4、5
