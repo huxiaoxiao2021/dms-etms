@@ -16,7 +16,13 @@ public interface SendPrintService {
 
 	BasicQueryEntityResponse basicPrintQuery(PrintQueryCriteria criteria);
 
-	BasicQueryEntityResponse basicPrintQueryForPage(PrintQueryCriteria criteria)
+	/**
+	 * 分页查询交接清单明细
+	 *
+	 * @param criteria
+	 * @return
+	 */
+	BasicQueryEntityResponse basicPrintQueryForPage(PrintQueryCriteria criteria);
 
 	BasicQueryEntityResponse newBasicPrintQuery(PrintQueryCriteria criteria);
 

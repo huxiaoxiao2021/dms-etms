@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.sendprint.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -121,6 +122,9 @@ public class SendPrintServiceImpl implements SendPrintService {
 
     @Autowired
     private SendMService sendMService;
+
+    @Autowired
+    WaybillPackageManager waybillPackageManager;
 
     private static int PARAM_CM3_M3 = 1000000;//立方厘米和立方米的换算基数
 
@@ -985,8 +989,19 @@ public class SendPrintServiceImpl implements SendPrintService {
         return new ArrayList<>(waybillCodeSet);
     }
 
+    private List<String> getBoxCodeList(List<SendDetail> sendDetails){
+        Set<String> boxCodeSet = new HashSet<>();
+        for (SendDetail sendDetail : sendDetails){
+            if (StringUtils.isNotBlank(sendDetail.getBoxCode())) {
+                boxCodeSet.add(sendDetail.getBoxCode());
+            }
+
+        }
+        return new ArrayList<>(boxCodeSet);
+    }
+
     /**
-     * 明细打印
+     * 分页明细打印
      */
     public BasicQueryEntityResponse assembleDetailPrintQueryBySendD(List<SendDetail> sendDetails, PrintQueryCriteria criteria) {
         CallerInfo callerInfo = Profiler.registerInfo("DMSWEB.SendPrintServiceImpl.assembleDetailPrintQueryBySendD", false, true);
@@ -1031,7 +1046,6 @@ public class SendPrintServiceImpl implements SendPrintService {
                     }
                 }
 
-
                 BigWaybillDto data = waybillDtoMap.get(basicQueryEntity.getWaybill());
                 // 运单信息为空
                 if (data == null || data.getWaybill() == null) {
@@ -1048,6 +1062,7 @@ public class SendPrintServiceImpl implements SendPrintService {
                 this.assembleDmsOutVolume(basicQueryEntity, detail.getBoxCode(), detail.getCreateSiteCode());
                 this.assembleSealNo(basicQueryEntity, sealNoCache);
                 this.buildWaybillAttributes(basicQueryEntity, data, goodVolumeMap, rSiteType);
+                this.assemblePackageWeightAndVolume(basicQueryEntity, goodVolumeMap);
                 this.assembleBoardVolume(basicQueryEntity, detail);
                 resultList.add(basicQueryEntity);
             } catch (Exception e) {
@@ -1060,6 +1075,23 @@ public class SendPrintServiceImpl implements SendPrintService {
         tBasicQueryEntityResponse.setData(resultList);
         Profiler.registerInfoEnd(callerInfo);
         return tBasicQueryEntityResponse;
+    }
+
+    private void assemblePackageWeightAndVolume(BasicQueryEntity basicQueryEntity, Map<String, Double> goodVolumeMap) {
+        List<String> packageList = new ArrayList<>();
+        packageList.add(basicQueryEntity.getPackageBar());
+        BaseEntity<List<DeliveryPackageD>> baseEntity = waybillPackageManager.queryPackageListForParcodes(packageList);
+        if (baseEntity.getData() != null && baseEntity.getData().size() > 0) {
+            List<DeliveryPackageD> deliveryPackageD = baseEntity.getData();
+            basicQueryEntity.setPackageBarWeight(deliveryPackageD.get(0).getGoodWeight());
+            basicQueryEntity.setPackageBarWeight2(deliveryPackageD.get(0).getAgainWeight());
+            Double goodVolume = goodVolumeMap.get(basicQueryEntity.getPackageBar());
+            if (goodVolume != null) {
+                basicQueryEntity.setGoodVolume(goodVolume);
+            } else {
+                basicQueryEntity.setGoodVolume(0.0);
+            }
+        }
     }
 
     private void assembleBoardVolume(BasicQueryEntity basicQueryEntity, SendDetail sendDetail) throws Exception {
@@ -1076,16 +1108,17 @@ public class SendPrintServiceImpl implements SendPrintService {
                 List<String> boardCodeList = new ArrayList<>();
                 boardCodeList.add(sendM.getBoardCode());
                 List<BoardMeasureDto> boards = boardCombinationService.getBoardVolumeByBoardCode(boardCodeList);
-                if(boards != null && !boards.isEmpty()){
-                    for(BoardMeasureDto board : boards){
-                        if(NumberHelper.gt0(board.getVolume().doubleValue())){
-                            double volume = board.getVolume()/PARAM_CM3_M3;    //立方厘米转立方米
+                if (boards != null && !boards.isEmpty()) {
+                    for (BoardMeasureDto board : boards) {
+                        if (NumberHelper.gt0(board.getVolume().doubleValue())) {
+                            //立方厘米转立方米
+                            double volume = board.getVolume() / PARAM_CM3_M3;
                             basicQueryEntity.setBoardVolume(NumberHelper.doubleFormat(volume));
                         }
                     }
                 }
                 //板体积不为null或0 应付静态量方取板体积
-                if(basicQueryEntity.getBoardVolume() != null && NumberHelper.gt0(basicQueryEntity.getBoardVolume())){
+                if (basicQueryEntity.getBoardVolume() != null && NumberHelper.gt0(basicQueryEntity.getBoardVolume())) {
                     basicQueryEntity.setDmsOutVolumeStatic(basicQueryEntity.getBoardVolume());
                 }
             }
