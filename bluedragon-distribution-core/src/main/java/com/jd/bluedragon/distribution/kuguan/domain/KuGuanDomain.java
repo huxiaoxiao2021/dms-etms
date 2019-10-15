@@ -1,7 +1,5 @@
 package com.jd.bluedragon.distribution.kuguan.domain;
 
-import com.google.common.base.Objects;
-
 import java.util.List;
 
 /**
@@ -26,13 +24,23 @@ public class KuGuanDomain implements java.io.Serializable {
 	/** 库管单号 */
 	private String lKdanhao;
 
-	/** 方式 */
+    /**
+     * 方式
+     * 对应出管 Churu
+     */
 	private String lblWay;
 
 	/** 分类 */
+    /**
+     * 分类
+     * 对应出管Fenlei
+     */
 	private String lblType;
 
-	/** 其他方式 */
+    /**
+     * 其他方式
+     * 对应出管 iTaFangShi
+     */
 	private String lblOtherWay;
 
 	/** 经办人 */

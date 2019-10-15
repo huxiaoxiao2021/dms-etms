@@ -15,7 +15,8 @@ public interface ChuguanExportManager {
 
     /**
      * 出管写入接口
-     * https://cf.jd.com/pages/viewpage.action?pageId=165577134
+     * 参考新接口 https://cf.jd.com/pages/viewpage.action?pageId=165577134
+     * 与老接口属性 映射 https://cf.jd.com/pages/viewpage.action?pageId=165578101
      * @param chuguanParamList
      * @return
      */

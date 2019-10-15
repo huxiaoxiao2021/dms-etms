@@ -322,7 +322,8 @@ public class ReverseReceiveNotifyStockService {
                 ContantsEnum.ChuGuanRfType.IN,
                 chuGuanParam,
                 chuGuanTypeId,
-                chuGuanFenLei);
+                chuGuanFenLei,
+                BigDecimal.valueOf(1));
         List<ChuguanDetailVo> intChuguanDetailVoList = getInChuguanDetailVoList(products,payType);
         inChuguanParam.setChuguanDetailVoList(intChuguanDetailVoList);
 
@@ -331,7 +332,8 @@ public class ReverseReceiveNotifyStockService {
                 ContantsEnum.ChuGuanRfType.Out,
                 ContantsEnum.ChuGuanChuruId.OUT_KU,
                 ContantsEnum.ChuGuanTypeId.REVERSE_LOGISTICS_OUT,
-                ContantsEnum.ChuGuanFenLei.OTHER);
+                ContantsEnum.ChuGuanFenLei.OTHER,
+                BigDecimal.valueOf(0));
         List<ChuguanDetailVo> outChuguanDetailVoList = getOutChuguanDetailVoList(products);
         outChuguanParam.setChuguanDetailVoList(outChuguanDetailVoList);
 
@@ -342,12 +344,13 @@ public class ReverseReceiveNotifyStockService {
 
     /**
      * 拼装 写入出管的 参数 ChuguanParam
-     * 参考 https://cf.jd.com/pages/viewpage.action?pageId=165577134
+     * 参考 https://cf.jd.com/pages/viewpage.action?pageId=165577134 新接口
+     * 与老接口属性 映射 https://cf.jd.com/pages/viewpage.action?pageId=165578101
      * @return
      */
     private ChuguanParam getChuguanParam(Long waybillCode,boolean isOldForNewType, Order order, Integer payType,
                                          OrderBankResponse orderBank, ContantsEnum.ChuGuanRfType rfType, ContantsEnum.ChuGuanChuruId churu, ContantsEnum.ChuGuanTypeId typeId,
-                                         ContantsEnum.ChuGuanFenLei fenLei) {
+                                         ContantsEnum.ChuGuanFenLei fenLei,BigDecimal qiTaFeiYong) {
         ChuguanParam chuguanParam = new ChuguanParam();
         chuguanParam.setRfId(String.valueOf(waybillCode));
         chuguanParam.setRfType(rfType.getType());
@@ -389,7 +392,7 @@ public class ReverseReceiveNotifyStockService {
         chuguanParam.setQianZi(0);// 内配业务传具体值，其他业务传值0
         chuguanParam.setYunFei(order.getTotalFee());
         chuguanParam.setYouHui(orderBank.getDiscount());
-        chuguanParam.setQiTaFeiYong(BigDecimal.valueOf(1));
+        chuguanParam.setQiTaFeiYong(qiTaFeiYong);
         chuguanParam.setPeiHuoDanHao(0);
         chuguanParam.setNationalTypeId(1401);
         return chuguanParam;
@@ -641,9 +644,10 @@ public class ReverseReceiveNotifyStockService {
 			churu = domain.getLblWay();
 			feifei = domain.getLblType();
 			qite = new BigDecimal(domain.getLblOther());
-			if ("出库".equals(churu) && "放货".equals(feifei) && (new BigDecimal(0).compareTo(qite) == 0)) {
+			if (ContantsEnum.ChuGuanChuruId.OUT_KU.getText().equals(churu)
+                    && ContantsEnum.ChuGuanFenLei.PUT_GOODS.getText().equals(feifei) && (new BigDecimal(0).compareTo(qite) == 0)) {
 				result = PAY_TYPE_POST;
-			} else if ("出库".equals(churu) && "销售".equals(feifei)) {
+			} else if (ContantsEnum.ChuGuanChuruId.OUT_KU.getText().equals(churu) && ContantsEnum.ChuGuanFenLei.SALE.getText().equals(feifei)) {
 				result = PAY_TYPE_PRE;
 			}
 			// 异常情况日志记录方便定位问题
