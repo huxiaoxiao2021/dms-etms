@@ -40,6 +40,9 @@ public class ChuguanExportManagerImpl implements ChuguanExportManager{
     @Autowired
     private ChuguanExport chuguanExport;
 
+    private static final String QUERY_FIELD_WAYBILLCODE = "waybillCode";
+    private static final String QUERY_FIELD_LKDANHAO = "lKdanhao";
+
     @Override
     public long insertChuguan(List<ChuguanParam> chuguanParamList) {
         CallerInfo info = Profiler.registerInfo("DMS.BASE.ChuguanExportManagerImpl.insertChuguan", Constants.UMP_APP_NAME_DMSWEB, false, true);
@@ -116,8 +119,8 @@ public class ChuguanExportManagerImpl implements ChuguanExportManager{
 
     @Override
     public KuGuanDomain queryByParams(Map<String, Object> paramMap) {
-        String waybillCode = (String) paramMap.get("waybillCode");
-        String kdanhao = (String) paramMap.get("lKdanhao");
+        String waybillCode = (String) paramMap.get(ChuguanExportManagerImpl.QUERY_FIELD_WAYBILLCODE);
+        String kdanhao = (String) paramMap.get(ChuguanExportManagerImpl.QUERY_FIELD_LKDANHAO);
 
         //根据参数进行查询
         List<ChuguanVo> chuguanVos = getFullStockByBusiNo(waybillCode, null);
@@ -159,17 +162,13 @@ public class ChuguanExportManagerImpl implements ChuguanExportManager{
 
     @Override
     public KuGuanDomain queryByWaybillCode(String waybillCode) {
-        KuGuanDomain kuGuanDomain = new KuGuanDomain();
-        kuGuanDomain.setWaybillCode(waybillCode);
 
         KuGuanDomain result = null;
-
-        Map<String, Object> params = ObjectMapHelper
-                .makeObject2Map(kuGuanDomain);
-
+        Map<String,Object> paramMap = new HashMap<>();
+        paramMap.put(ChuguanExportManagerImpl.QUERY_FIELD_WAYBILLCODE,waybillCode);
         try {
             logger.info("根据订单号获取库管单信息参数错误-queryByParams");
-            result = this.queryByParams(params);
+            result = this.queryByParams(paramMap);
         } catch (Exception e) {
             logger.info("根据订单号获取库管单信息服务异常", e);
         }
