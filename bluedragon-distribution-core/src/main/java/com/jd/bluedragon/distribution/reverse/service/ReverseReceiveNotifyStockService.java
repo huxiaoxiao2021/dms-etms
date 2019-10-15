@@ -305,7 +305,7 @@ public class ReverseReceiveNotifyStockService {
         return insertOldChuguan(waybillCode, isOldForNewType, order, products, payType);
     }
 
-    private long insertNewChuguan(Long waybillCode, boolean isOldForNewType,Order order, List<Product> products,
+    public long insertNewChuguan(Long waybillCode, boolean isOldForNewType,Order order, List<Product> products,
                                   Integer payType){
         OrderBankResponse orderBank = orderBankService.getOrderBankResponse(String.valueOf(waybillCode));
         List<ChuguanParam> chuGuanParamList = Lists.newArrayList();// 需要放两个 一个出一个入；他们会根据 typeId 区分
@@ -317,13 +317,14 @@ public class ReverseReceiveNotifyStockService {
                 ContantsEnum.ChuGuanTypeId.REVERSE_LOGISTICS_MONEY_REJECTION;
 
         ContantsEnum.ChuGuanFenLei chuGuanFenLei = isPrePay(payType) ? ContantsEnum.ChuGuanFenLei.RETURN_GOODS : ContantsEnum.ChuGuanFenLei.PUT_GOODS;
-
+        BigDecimal zongJinE = isPrePay(payType) ? orderBank.getShouldPay() : orderBank.getShouldPay().negate();
         ChuguanParam inChuguanParam = getChuguanParam(waybillCode,isOldForNewType, order,  payType, orderBank,
                 ContantsEnum.ChuGuanRfType.IN,
                 chuGuanParam,
                 chuGuanTypeId,
                 chuGuanFenLei,
-                BigDecimal.valueOf(1));
+                BigDecimal.valueOf(1),
+                zongJinE);
         List<ChuguanDetailVo> intChuguanDetailVoList = getInChuguanDetailVoList(products,payType);
         inChuguanParam.setChuguanDetailVoList(intChuguanDetailVoList);
 
@@ -333,7 +334,8 @@ public class ReverseReceiveNotifyStockService {
                 ContantsEnum.ChuGuanChuruId.OUT_KU,
                 ContantsEnum.ChuGuanTypeId.REVERSE_LOGISTICS_OUT,
                 ContantsEnum.ChuGuanFenLei.OTHER,
-                BigDecimal.valueOf(0));
+                BigDecimal.valueOf(0),
+                orderBank.getShouldPay());
         List<ChuguanDetailVo> outChuguanDetailVoList = getOutChuguanDetailVoList(products);
         outChuguanParam.setChuguanDetailVoList(outChuguanDetailVoList);
 
@@ -350,7 +352,8 @@ public class ReverseReceiveNotifyStockService {
      */
     private ChuguanParam getChuguanParam(Long waybillCode,boolean isOldForNewType, Order order, Integer payType,
                                          OrderBankResponse orderBank, ContantsEnum.ChuGuanRfType rfType, ContantsEnum.ChuGuanChuruId churu, ContantsEnum.ChuGuanTypeId typeId,
-                                         ContantsEnum.ChuGuanFenLei fenLei,BigDecimal qiTaFeiYong) {
+                                         ContantsEnum.ChuGuanFenLei fenLei,BigDecimal qiTaFeiYong,
+                                         BigDecimal zongJinE) {
         ChuguanParam chuguanParam = new ChuguanParam();
         chuguanParam.setRfId(String.valueOf(waybillCode));
         chuguanParam.setRfType(rfType.getType());
@@ -385,7 +388,7 @@ public class ReverseReceiveNotifyStockService {
         }
         chuguanParam.setOrgId(order.getIdCompanyBranch());
         chuguanParam.setOrgName(StringHelper.substring(order.getIdCompanyBranchName(),0,19));
-        chuguanParam.setZongJinE(isPrePay(payType) ? orderBank.getShouldPay() : orderBank.getShouldPay().negate());
+        chuguanParam.setZongJinE(zongJinE);
         chuguanParam.setBusinessTime(DateHelper.formatDateTime(new Date()));
         chuguanParam.setKuanXiang(isPrePay(payType) ? "已收" : "未收");
         chuguanParam.setMoneyn(1);

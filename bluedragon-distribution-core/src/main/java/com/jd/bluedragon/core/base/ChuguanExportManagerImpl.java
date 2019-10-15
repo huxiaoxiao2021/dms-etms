@@ -264,7 +264,7 @@ public class ChuguanExportManagerImpl implements ChuguanExportManager{
 		double zj = 0;
 		int znum= 0;
 		List<KuGuanDomain> listKG = new ArrayList<KuGuanDomain>();
-		List<ChuguanDetailVo> stockDetail = nstock.getChuguanDetailVos();();
+		List<ChuguanDetailVo> stockDetail = nstock.getChuguanDetailVos();
 		for (ChuguanDetailVo sdv : stockDetail) {
 			KuGuanDomain sdvDomain = new KuGuanDomain();
 			// 财务单-列表

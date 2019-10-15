@@ -7,7 +7,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 出管接口代理
+ * 出管新接口代理
+ * 相关cf
+ * https://cf.jd.com/pages/viewpage.action?pageId=165577089
+ * https://cf.jd.com/pages/viewpage.action?pageId=165577134
+ * https://cf.jd.com/pages/viewpage.action?pageId=165578101
+ * 此接口是国际化接口，需要通过公司藏经阁审批后才能调用
+ * 藏经阁接入 https://cf.jd.com/pages/viewpage.action?pageId=180381121
  * @author : xumigen
  * @date : 2019/9/27
  */
