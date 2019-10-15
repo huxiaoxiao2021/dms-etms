@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.send.service;
 
-import com.alibaba.fastjson.JSON;
 import com.google.common.base.Strings;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Pack;
@@ -89,6 +88,7 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.transBillSchedule.service.TransBillScheduleService;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -104,6 +104,7 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
+import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -111,6 +112,7 @@ import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.alibaba.fastjson.JSON;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
@@ -120,6 +122,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -145,6 +148,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -876,6 +880,8 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
         // 插入SEND_M
         this.sendMManager.insertSendM(domain);
+        //发送发货业务通知MQ
+        deliverGoodsNoticeMQ(domain);
         // 判断是按箱发货还是包裹发货
         if (!BusinessUtil.isBoxcode(domain.getBoxCode())) {
             // 按包裹 补分拣任务 大件写TASK_SORTING
@@ -1201,9 +1207,31 @@ public class DeliveryServiceImpl implements DeliveryService {
             if (!list.contains(dSendM.getBoxCode())) {
                 dSendM.setBizSource(sourceCode);
                 this.sendMManager.insertSendM(dSendM);
+                //发送发货业务通知MQ
+                deliverGoodsNoticeMQ(dSendM);
             }
         }
     }
+
+    /**
+     * 发送发货业务通知MQ 自消费
+     * @param sdm
+     */
+     private void deliverGoodsNoticeMQ(SendM sdm) {
+         String businessId = sdm.getBoxCode();
+         try {
+             BoxMaterialRelationMQ mq = new BoxMaterialRelationMQ();
+             mq.setBoxCode(businessId);
+             mq.setBusinessType(1);
+             mq.setOperatorName(sdm.getCreateUser());
+             mq.setOperatorCode(sdm.getCreateUserCode());
+             mq.setSiteCode(sdm.getCreateSiteCode().toString());
+
+             deliverGoodsNoticeSendMQ.send(businessId, JsonHelper.toJson(mq));
+         } catch (JMQException e) {
+             this.logger.error("发送发货业务通知MQ 异常", e);
+         }
+     }
 
     /***
      * 发货写入任务表
