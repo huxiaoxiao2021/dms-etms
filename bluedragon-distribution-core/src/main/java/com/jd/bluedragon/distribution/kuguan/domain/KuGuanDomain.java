@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.kuguan.domain;
 
+import com.google.common.base.Objects;
+
 import java.util.List;
 
 /**
@@ -364,5 +366,5 @@ public class KuGuanDomain implements java.io.Serializable {
 	public void setStockDetails(List<KuGuanDomain> stockDetails) {
 		this.stockDetails = stockDetails;
 	}
-	
+
 }

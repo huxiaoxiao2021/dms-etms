@@ -1,18 +1,8 @@
 package com.jd.bluedragon.distribution.rest.reverse;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.ChuguanExportManager;
 import com.jd.bluedragon.core.base.StockExportManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.kuguan.domain.KuGuanDomain;
@@ -22,8 +12,19 @@ import com.jd.bluedragon.distribution.reverse.dao.ReverseReceiveDao;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
 import com.jd.bluedragon.distribution.reverse.service.ReverseReceiveNotifyStockService;
 import com.jd.bluedragon.distribution.reverse.service.ReverseSendPopMessageService;
-
 import com.jd.ioms.jsf.export.domain.Order;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 
 @Component
 @Path(Constants.REST_URL)
@@ -47,7 +48,14 @@ public class ReverseReceiveNotifyStockResource {
 	
     @Autowired
     private ReverseReceiveDao reverseReceiveDao;
-    
+
+
+    @Autowired
+    private ChuguanExportManager chuguanExportManager;
+
+    @Resource
+    protected UccPropertyConfiguration uccPropertyConfiguration;
+
 	/**
 	 * 使用notify方法代替
 	 * 
@@ -137,7 +145,7 @@ public class ReverseReceiveNotifyStockResource {
 		}
 
 		// 2.查询页面上的值，用于判断先后款
-		KuGuanDomain stockPageResp = stockExportManager.queryByWaybillCode(String.valueOf(waybillCode));
+		KuGuanDomain stockPageResp = queryKuguanDomainByWaybillCode(String.valueOf(waybillCode));
 
 		if (stockPageResp != null) {
 			fangshi = stockPageResp.getLblWay();
@@ -151,4 +159,11 @@ public class ReverseReceiveNotifyStockResource {
 				orderType, fangshi, fenlei, qita, qitafangshi);
 		return osi;
 	}
+
+    private KuGuanDomain queryKuguanDomainByWaybillCode(String waybillCode){
+        if(uccPropertyConfiguration.isChuguanNewInterfaceSwitch()){
+            return chuguanExportManager.queryByWaybillCode(waybillCode);
+        }
+        return stockExportManager.queryByWaybillCode(waybillCode);
+    }
 }

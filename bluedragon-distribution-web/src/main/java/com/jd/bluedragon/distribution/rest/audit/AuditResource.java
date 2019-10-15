@@ -1,22 +1,8 @@
 package com.jd.bluedragon.distribution.rest.audit;
 
-import java.util.List;
-import java.util.Map;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.jboss.resteasy.annotations.GZIP;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.ChuguanExportManager;
 import com.jd.bluedragon.core.base.StockExportManager;
 import com.jd.bluedragon.distribution.api.response.ReverseReceiveResponse;
 import com.jd.bluedragon.distribution.kuguan.domain.KuGuanDomain;
@@ -27,6 +13,21 @@ import com.jd.bluedragon.distribution.reverse.domain.ReverseSpare;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.utils.ObjectMapHelper;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.jboss.resteasy.annotations.GZIP;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import java.util.List;
+import java.util.Map;
 
 @Component
 @Path(Constants.REST_URL+"/audit")
@@ -45,6 +46,12 @@ public class AuditResource {
 
 	@Autowired
 	private StockExportManager stockExportManager;
+
+    @Autowired
+    private ChuguanExportManager chuguanExportManager;
+
+    @Resource
+    protected UccPropertyConfiguration uccPropertyConfiguration;
 	
 	private final Log logger = LogFactory.getLog(this.getClass());
 	
@@ -133,7 +140,7 @@ public class AuditResource {
 
 		try {
 			logger.error("根据订单号获取库管单信息参数错误-queryByParams");
-			kuGuanDomain = stockExportManager.queryByParams(params);
+			kuGuanDomain = this.queryByParams(params);
 		} catch (Exception e) {
 			kuGuanDomain = new KuGuanDomain(); 
 			kuGuanDomain.setDdlType(ddlType);
@@ -142,4 +149,11 @@ public class AuditResource {
 		}
 		return kuGuanDomain;
 	}
+
+    private KuGuanDomain queryByParams(Map<String, Object> params){
+        if(uccPropertyConfiguration.isChuguanNewInterfaceSwitch()){
+            return chuguanExportManager.queryByParams(params);
+        }
+        return stockExportManager.queryByParams(params);
+    }
 }

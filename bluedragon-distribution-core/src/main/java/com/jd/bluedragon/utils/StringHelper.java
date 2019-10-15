@@ -446,6 +446,13 @@ public class StringHelper {
         return newPhone;
     }
 
+    public static String substring(String value,int start,int end){
+        if(StringUtils.isEmpty(value)){
+            return value;
+        }
+        return value.substring(start,end);
+    }
+
     public static final void main(String[] args) {
         System.out.println(phoneEncrypt("18600399842"));
         System.out.println(phoneEncrypt("1860039942  d"));
