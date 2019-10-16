@@ -406,10 +406,6 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		<dependency>
-			<groupId>com.jd.lsb.component</groupId>
-			<artifactId>crossbow</artifactId>
-		</dependency>
 	</dependencies>
 	<profiles>
 		<!--测试环境  -->

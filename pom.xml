@@ -41,7 +41,6 @@
 		<!-- 用于源码tag -->
 		<maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
 		<project.scm.id>xnqlarch-gitlab</project.scm.id>
-		<crossbow.version>0.1.0-SNAPSHOT</crossbow.version>
 	</properties>
 	
 	<dependencyManagement>
@@ -144,12 +143,6 @@
 				<groupId>commons-codec</groupId>
 				<artifactId>commons-codec</artifactId>
 				<version>1.6</version>
-			</dependency>
-
-			<dependency>
-				<groupId>com.jd.lsb.component</groupId>
-				<artifactId>crossbow</artifactId>
-				<version>${crossbow.version}</version>
 			</dependency>
 
 		</dependencies>

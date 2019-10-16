@@ -30,6 +30,7 @@
 		<jdbcp-pool.version>2.0.1-SNAPSHOT</jdbcp-pool.version>
 		<nv-websocket.version>2.3</nv-websocket.version>
 		<kryo.version>4.0.0</kryo.version>
+        <crossbow.version>0.1.0-SNAPSHOT</crossbow.version>
 	</properties>
 
 	<dependencies>
