@@ -71,6 +71,10 @@ public class SealBoxServiceImpl implements SealBoxService {
 		Set<SealBoxRequest> sealBoxes = new CollectionHelper<SealBoxRequest>()
 				.toSet(array);
 		for (SealBoxRequest request : sealBoxes) {
+			if(request.getBoxCode().length() > Constants.BOX_CODE_DB_COLUMN_LENGTH_LIMIT){
+				logger.warn("封箱箱号字段超长，消息体：" + JsonHelper.toJson(request));
+				continue;
+			}
 			SealBox sealBox = SealBox.toSealBox(request);
 			this.add(sealBox);
 		}
