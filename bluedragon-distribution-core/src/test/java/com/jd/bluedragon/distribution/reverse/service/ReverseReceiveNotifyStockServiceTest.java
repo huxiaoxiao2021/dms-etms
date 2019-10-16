@@ -29,11 +29,14 @@ public class ReverseReceiveNotifyStockServiceTest {
     public void testinsertNewChuguan()throws Exception{
 //        Long waybillCode, boolean isOldForNewType,Order order, List< Product > products,
 //                Integer payType
+
+
         Order order = new Order();
         order.setDeliveryCenterID(3);//DcId 源配送中心Id	3;上海(3)
         order.setStoreId(49);//Sid 仓ID	49;49号仓(49)
         order.setIdCompanyBranch(3);//DcId 源配送中心Id	3;上海(3)
         order.setTotalFee(new BigDecimal(3333));
+        order.setIdCompanyBranchName("上海(3)");
         List<Product> products = Lists.newArrayList();
         Product product = new Product();
         product.setPrice(new BigDecimal(111));
@@ -44,8 +47,28 @@ public class ReverseReceiveNotifyStockServiceTest {
         OrderBankResponse orderBank = new OrderBankResponse();
         orderBank.setShouldPay(new BigDecimal(3333));
         orderBank.setDiscount(new BigDecimal(22333.33));
-        int result = reverseReceiveNotifyStockService.insertNewChuguan(12345555222111L,true,order,products,2,orderBank);
+        int result = reverseReceiveNotifyStockService.insertNewChuguan(444444444444555555L,true,order,products,2,orderBank);
         Assert.assertEquals(result,1);
+
+//        Order order = new Order();
+//        order.setDeliveryCenterID(3);//DcId 源配送中心Id	3;上海(3)
+//        order.setStoreId(49);//Sid 仓ID	49;49号仓(49)
+//        order.setIdCompanyBranch(3);//DcId 源配送中心Id	3;上海(3)
+//        order.setTotalFee(new BigDecimal(1111.22));
+//        order.setIdCompanyBranchName("上海(3)");
+//        List<Product> products = Lists.newArrayList();
+//        Product product = new Product();
+//        product.setPrice(new BigDecimal(111));
+//        product.setQuantity(2222);
+//        product.setProductId("1414552");
+//        products.add(product);
+//
+//        OrderBankResponse orderBank = new OrderBankResponse();
+//        orderBank.setShouldPay(new BigDecimal(2233.11));
+//        orderBank.setDiscount(new BigDecimal(123.33));
+//        int result = reverseReceiveNotifyStockService.insertNewChuguan(444444444444555555L,false,order,products,1,orderBank);
+//        Assert.assertEquals(result,1);
+
     }
 
 }

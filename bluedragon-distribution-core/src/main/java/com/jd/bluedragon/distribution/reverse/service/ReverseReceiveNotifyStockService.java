@@ -44,7 +44,6 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -327,7 +326,7 @@ public class ReverseReceiveNotifyStockService {
         ContantsEnum.ChuGuanChuruId chuGuanParam = isPrePay(payType) ? ContantsEnum.ChuGuanChuruId.IN_KU : ContantsEnum.ChuGuanChuruId.OUT_KU;
 
         ContantsEnum.ChuGuanTypeId inTypeId = isPrePay(payType) ? ContantsEnum.ChuGuanTypeId.REVERSE_LOGISTICS_MONEY_REJECTION :
-                ContantsEnum.ChuGuanTypeId.REVERSE_LOGISTICS_MONEY_REJECTION;
+                ContantsEnum.ChuGuanTypeId.REVERSE_LOGISTICS_GOODS_REJECTION;
 
         ContantsEnum.ChuGuanFenLei chuGuanFenLei = isPrePay(payType) ? ContantsEnum.ChuGuanFenLei.RETURN_GOODS : ContantsEnum.ChuGuanFenLei.PUT_GOODS;
         BigDecimal zongJinE = isPrePay(payType) ? orderBank.getShouldPay() : orderBank.getShouldPay().negate();

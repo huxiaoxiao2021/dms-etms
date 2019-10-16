@@ -84,7 +84,7 @@ public class ChuguanExportManagerImplTest {
 
     @Test
     public void testqueryByWaybillCode(){
-        KuGuanDomain result = chuguanExportManager.queryByWaybillCode("11111222444111");
+        KuGuanDomain result = chuguanExportManager.queryByWaybillCode("1111111166666666");
         Assert.assertNotNull(result);
     }
 

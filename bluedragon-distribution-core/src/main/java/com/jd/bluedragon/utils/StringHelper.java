@@ -450,6 +450,9 @@ public class StringHelper {
         if(StringUtils.isEmpty(value)){
             return value;
         }
+        if(value.length() <= end){
+            return value;
+        }
         return value.substring(start,end);
     }
 
