@@ -3525,14 +3525,6 @@ public class DeliveryServiceImpl implements DeliveryService {
         getAllList(sendMList, allList);
         if (businessType.equals(20)) {
             tDeliveryResponse = reverseComputer.compute(allList, false);
-            //退仓时 增加 支持半退逻辑
-            if(!sysConfigService.getConfigByName("reverse.part.not.check.switch")){
-                ThreeDeliveryResponse response = checkReversePartSend(tDeliveryResponse,allList);
-                if(response.getCode().equals(DeliveryResponse.CODE_Delivery_PART_SEND_ERROR) || response.getCode().equals(DeliveryResponse.CODE_Delivery_PART_SEND) ){
-                    return response;
-                }
-            }
-
         } else {
             tDeliveryResponse = forwardComputer.compute(allList, false);
         }
@@ -4364,22 +4356,18 @@ public class DeliveryServiceImpl implements DeliveryService {
       int scanCount = 0;
       int pacageSumShoudBe = 0;
       int hasDiff = 0;
+      if(list.isEmpty()){
+          return null;
+      }
+      Integer createSiteCode = list.get(0).getCreateSiteCode();
+      Integer receiveSiteCode = list.get(0).getReceiveSiteCode();
+
       List<SendThreeDetail> diffrenceList = new ArrayList<SendThreeDetail>();
       for (SendDetail item : list) { // 遍历该箱的所有包裹
         // 包含派车单且发现包裹不齐，直接退出循环（派车单校验不要明细）
         if (isScheduleRequest && hasDiff > 0) {
           break;
         }
-          //纯配外单支持缺量退备件库因此剔除
-          String waybillCode = item.getWaybillCode();
-          com.jd.bluedragon.common.domain.Waybill reverseWaybill = waybillCommonService.findByWaybillCode(waybillCode);
-          if(reverseWaybill != null && StringUtils.isNotBlank(reverseWaybill.getWaybillSign())){
-              BaseStaffSiteOrgDto site = siteService.getSite(item.getReceiveSiteCode());
-              Integer spwms_type = Integer.valueOf(PropertiesHelper.newInstance().getValue("spwms_type"));
-              if(BusinessUtil.isPurematch(reverseWaybill.getWaybillSign()) && spwms_type.equals(site.getSiteType())){
-                  break;
-              }
-          }
         SendThreeDetail diff = new SendThreeDetail();
         diff.setBoxCode(item.getBoxCode());
         diff.setPackageBarcode(item.getPackageBarcode());
@@ -4388,7 +4376,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (!item.getWaybillCode().equals(lastWaybillCode)) { // 初次验单 或 每验完一单货，下一单开始验时 进入分支
           // 1.上一单已集齐 则返回0， 并重新初始化 pacageSumShoudBe、scanCount
           // 2.上一单未集齐 则返回未扫描的包裹（即缺失包裹数）循环结束后会根据此判断是否集齐包裹
-          hasDiff += invoke(pacageSumShoudBe, scanCount, diffrenceList);
+          hasDiff += invoke(pacageSumShoudBe, scanCount, diffrenceList,receiveSiteCode);
           lastWaybillCode = item.getWaybillCode(); // 获取当前要验证的运单号
           pacageSumShoudBe =
               WaybillUtil.getPackNumByPackCode(item.getPackageBarcode()); // 根据运单中一个包裹的包裹号 获取包裹数量
@@ -4408,11 +4396,10 @@ public class DeliveryServiceImpl implements DeliveryService {
         // 获取该单的包裹（代码中该单无论缺几个，都返回该单的所有包裹）
       }
       hasDiff +=
-          invoke(pacageSumShoudBe, scanCount, diffrenceList); // 遍历完成后，对该箱最后一单的未集齐包裹做处理，如最后一单已齐返回 0
+          invoke(pacageSumShoudBe, scanCount, diffrenceList,receiveSiteCode); // 遍历完成后，对该箱最后一单的未集齐包裹做处理，如最后一单已齐返回 0
       if (hasDiff > 0) { // hasDiff>0 则未集齐 需移除所有集齐的包裹 只保留未集齐的包裹 并封装list返回pda显示
         List<SendThreeDetail> targetList = removeFullPackages(diffrenceList);
-        Integer createSiteCode = list.get(0).getCreateSiteCode();
-        Integer receiveSiteCode = list.get(0).getReceiveSiteCode();
+
         return setSortingBoxCode(createSiteCode, receiveSiteCode, targetList);
       } else {
         return null;
@@ -4497,7 +4484,7 @@ public class DeliveryServiceImpl implements DeliveryService {
       }
     }
 
-    public abstract int invoke(int counter, int scanCount, List<SendThreeDetail> diffrenceList);
+    public abstract int invoke(int counter, int scanCount, List<SendThreeDetail> diffrenceList,Integer receiveSiteCode);
 
     public static final String HAS_SCANED = "已扫描";
 
@@ -4521,7 +4508,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         private WaybillCommonService waybillCommonService;
 
         @Override
-        public int invoke(int counter, int scanCount, List<SendThreeDetail> diffrenceList) {
+        public int invoke(int counter, int scanCount, List<SendThreeDetail> diffrenceList,Integer receiveSiteCode) {
             int hasDiff = 0;
             if (counter != scanCount) {/* 有差异*/
                 com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findWaybillAndPack(SerialRuleUtil.getWaybillCode(diffrenceList.get(diffrenceList.size() - 1).getPackageBarcode()));
@@ -4572,8 +4559,11 @@ public class DeliveryServiceImpl implements DeliveryService {
         @Autowired
         private WaybillCommonService waybillCommonService;
 
+        @Autowired
+        private SiteService siteService;
+
         @Override
-        public int invoke(int counter, int scanCount, List<SendThreeDetail> diffrenceList) {
+        public int invoke(int counter, int scanCount, List<SendThreeDetail> diffrenceList,Integer receiveSiteCode) {
             int hasDiff = 0;
             if (counter != scanCount) {/* 有差异*/
 
@@ -4583,6 +4573,21 @@ public class DeliveryServiceImpl implements DeliveryService {
                     if(BusinessUtil.isSick(waybill.getWaybillSign())){//病单则直接返回0 不验证包裹是否集齐
                         return 0;
                     }
+                    if(BusinessUtil.isPartReverse(waybill.getWaybillSign())){//半退 不验证包裹是否集齐
+                        return 0;
+                    }
+                    if(receiveSiteCode!=null){
+                        BaseStaffSiteOrgDto site = siteService.getSite(receiveSiteCode);
+                        if(site!=null){
+                            Integer spwms_type = Integer.valueOf(PropertiesHelper.newInstance().getValue("spwms_type"));
+                            if(BusinessUtil.isPurematch(waybill.getWaybillSign()) && spwms_type.equals(site.getSiteType())
+                                    && !BusinessHelper.isC2c(waybill.getWaybillSign())){
+                                //纯配非C2C的可半退至备件库 不验证集齐
+                                return 0;
+                            }
+                        }
+                    }
+
                     logger.info("运单中包裹数量为" + waybill.getPackList().size());
                     geneList = new ArrayList<String>(waybill.getPackList().size());
                     for (Pack p : waybill.getPackList()) {
