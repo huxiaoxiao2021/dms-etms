@@ -10,15 +10,7 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.transport.dao.ArSendCodeDao;
 import com.jd.bluedragon.distribution.transport.dao.ArSendRegisterDao;
-import com.jd.bluedragon.distribution.transport.domain.ArPdaSendRegister;
-import com.jd.bluedragon.distribution.transport.domain.ArSendCode;
-import com.jd.bluedragon.distribution.transport.domain.ArSendRegister;
-import com.jd.bluedragon.distribution.transport.domain.ArSendRegisterCondition;
-import com.jd.bluedragon.distribution.transport.domain.ArSendRegisterEnum;
-import com.jd.bluedragon.distribution.transport.domain.ArSendRouterMqTypeEnum;
-import com.jd.bluedragon.distribution.transport.domain.ArSendStatusEnum;
-import com.jd.bluedragon.distribution.transport.domain.ArTransportInfo;
-import com.jd.bluedragon.distribution.transport.domain.ArTransportTypeEnum;
+import com.jd.bluedragon.distribution.transport.domain.*;
 import com.jd.bluedragon.distribution.transport.service.ArSendCodeService;
 import com.jd.bluedragon.distribution.transport.service.ArSendRegisterService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
@@ -27,7 +19,6 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.common.util.StringUtils;
-import com.jd.jddl.executor.function.scalar.filter.In;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.City;
@@ -39,7 +30,6 @@ import com.jd.tms.basic.dto.BasicRailwayTrainDto;
 import com.jd.tms.basic.dto.CommonDto;
 import com.jd.tms.basic.ws.BasicQueryWS;
 import com.jd.tms.basic.ws.BasicSyncWS;
-import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -511,7 +501,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                     ArSendRegister register = this.toDBDomain(pdaSendRegister);
                     this.insert(register, COMMA);
                 } catch (Exception e) {
-                    logger.error("[空铁发货登记]执行离线发货登记新增任务时发生异常", e);
+                    logger.error("[空铁发货登记]执行离线发货登记新增任务时发生异常，ArSendRegister消息体:" + body, e);
                     return false;
                 }
             }
