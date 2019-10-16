@@ -44,6 +44,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -84,6 +85,9 @@ public class ReverseReceiveNotifyStockService {
 
 	private static final List<Integer> needRetunWaybillTypes = Lists.newArrayList(11, 13, 15, 16, 18, 19, 42, 56, 61);
 
+    private static final String JING_BAN_SYSCODE = "ql.dms";
+
+    private static final String CHUGUAN_FIELD_QITAFANGSHI = "逆向物流";
 
 	@Autowired
 	private OrderWebService orderWebService;
