@@ -30,7 +30,10 @@
 		<jdbcp-pool.version>2.0.1-SNAPSHOT</jdbcp-pool.version>
 		<nv-websocket.version>2.3</nv-websocket.version>
 		<kryo.version>4.0.0</kryo.version>
-        <crossbow.version>0.1.0-SNAPSHOT</crossbow.version>
+		<crossbow.version>0.1.0-SNAPSHOT</crossbow.version>
+		<crossbow.sdk.version>0.0.1-SNAPSHOT</crossbow.sdk.version>
+		<crossbow.api.version>0.0.1-SNAPSHOT</crossbow.api.version>
+		<crossbow.component.version>0.0.4-SNAPSHOT</crossbow.component.version>
 	</properties>
 
 	<dependencies>
@@ -1052,6 +1055,21 @@
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.jd.lop</groupId>
+			<artifactId>crossbow-sdk</artifactId>
+			<version>${crossbow.sdk.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.jd.lop</groupId>
+			<artifactId>crossbow-api</artifactId>
+			<version>${crossbow.api.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.jd.lsb</groupId>
+			<artifactId>lsb-component</artifactId>
+			<version>${crossbow.component.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>com.jd.lsb.component</groupId>
 			<artifactId>crossbow</artifactId>
