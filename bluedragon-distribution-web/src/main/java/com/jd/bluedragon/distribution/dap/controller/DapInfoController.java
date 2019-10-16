@@ -16,10 +16,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -51,12 +50,19 @@ public class DapInfoController extends DmsBaseController {
 
 	@Authorization(Constants.DMS_WEB_DEVELOP_SQLKIT_R)
 	@RequestMapping(value = "/listData")
-	public @ResponseBody PagerResult<DapInfo> listData(@RequestBody BasePagerCondition basePagerCondition) {
+	public @ResponseBody PagerResult<DapInfo> listData(@RequestParam("dbId") Integer dbId) {
 
 		PagerResult<DapInfo> pagerResult = new PagerResult<>();
-		pagerResult.setRows(dapResource.getUndiv().getData());
-		pagerResult.setTotal(dapResource.getUndiv().getData().size());
-
+		List<DapInfo> list = null;
+		if (dbId == 0) {
+			list = dapResource.getUndiv().getData();
+		} else if (dbId == 1) {
+			list = dapResource.getTask().getData();
+		} else if (dbId == 2) {
+			list = dapResource.getDiv().getData();
+		}
+		pagerResult.setRows(list);
+		pagerResult.setTotal(list == null ? 0 : list.size());
 		return pagerResult;
 	}
 }

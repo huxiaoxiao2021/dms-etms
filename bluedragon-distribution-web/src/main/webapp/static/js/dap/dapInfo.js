@@ -1,12 +1,24 @@
 $(function() {
 
 	var queryUrl = '/dap/info/listData';
+
+	$.combobox.createNew('dbId',{
+		width: '150',
+		placeholder:'库名',
+		allowClear:true,
+		data:[
+			{id:'0',text:'非拆分库'},
+			{id:'1',text:'任务库'},
+			{id:'2',text:'拆分库'}
+		]
+	});
+
 	var tableInit = function() {
 		var oTableInit = new Object();
 		oTableInit.init = function() {
 			$('#dataTable').bootstrapTable({
 				url : queryUrl, // 请求后台的URL（*）
-				method : 'post', // 请求方式（*）
+				method : 'get', // 请求方式（*）
 				toolbar : '#toolbar', // 工具按钮用哪个容器
 				queryParams : oTableInit.getSearchParams, // 查询参数（*）
 				uniqueId : "ID", // 每一行的唯一标识，一般为主键列
@@ -40,13 +52,8 @@ $(function() {
 		};
 		oTableInit.getSearchParams = function(params) {
 			var temp = oTableInit.getSearchCondition();
-			if(!temp){
-				temp={};
-			}
-			temp.offset = params.offset;
-			temp.limit = params.limit;
-			// 这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
-			return temp;
+
+			return {'dbId' : temp.dbId};
 		};
 		/**
 		 * 获取查询参数
