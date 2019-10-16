@@ -1,5 +1,7 @@
 package com.jd.bluedragon.utils;
 
+import java.util.Objects;
+
 /**
  * @author : xumigen
  * @date : 2019/10/14
@@ -52,7 +54,7 @@ public class ContantsEnum {
 
         public static boolean hasTypeId(Integer typeValue){
             for(ChuGuanTypeId item : ChuGuanTypeId.values()){
-                if(item.getType().equals(typeValue)){
+                if(Objects.equals(item.getType(),typeValue)){
                     return true;
                 }
             }
