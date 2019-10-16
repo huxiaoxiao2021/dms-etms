@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.receive.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.request.ArReceiveRequest;
 import com.jd.bluedragon.distribution.receive.domain.ArReceive;
 import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
@@ -49,6 +50,10 @@ public class ArReceiveTaskExecutor extends BaseReceiveTaskExecutor<ArReceive>{
 		String tmpNumber = arReceiveRequest.getPackOrBox();
 		// 根据规则得出包裹号、箱号、运单号
 		if (BusinessHelper.isBoxcode(tmpNumber)) {
+			if(tmpNumber.length() > Constants.BOX_CODE_DB_COLUMN_LENGTH_LIMIT){
+				log.error("收货任务JSON数据非法，箱号超长，收货消息体：" + jsonReceive);
+				return null;
+			}
 			// 字母开头为箱号
 			arReceive.setBoxCode(tmpNumber);
 			// 装箱类型（1 箱包装 2 单件包裹）
