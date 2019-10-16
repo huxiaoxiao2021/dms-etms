@@ -64,9 +64,9 @@ public class DapResource {
 	@Path("/dap/info/undiv")
 	public JdResponse<List<DapInfo>> getUndiv() {
 		JdResponse<List<DapInfo>> response = new JdResponse<>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
-//		if (checkUser(response)) {
-//			return response;
-//		}
+		if (checkUser(response)) {
+			return response;
+		}
 
 		List<DapInfo> dapInfoList = getDapInfos(response, unDivTableNames, "dms_main_undiv");
 		response.setData(dapInfoList);
@@ -77,9 +77,9 @@ public class DapResource {
 	@Path("/dap/info/task")
 	public JdResponse<List<DapInfo>> getTask() {
 		JdResponse<List<DapInfo>> response = new JdResponse<>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
-//		if (checkUser(response)) {
-//			return response;
-//		}
+		if (checkUser(response)) {
+			return response;
+		}
 
 		List<DapInfo> dapInfoList = getDapInfos(response, taskTableNames, "dms_main_task");
 		response.setData(dapInfoList);
@@ -90,9 +90,9 @@ public class DapResource {
 	@Path("/dap/info/div")
 	public JdResponse<List<DapInfo>> getDiv() {
 		JdResponse<List<DapInfo>> response = new JdResponse<>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
-//		if (checkUser(response)) {
-//			return response;
-//		}
+		if (checkUser(response)) {
+			return response;
+		}
 
 		List<DapInfo> dapInfoList = getDapInfos(response, divTableNames, "jddlShardingDataSource");
 		response.setData(dapInfoList);
@@ -126,14 +126,14 @@ public class DapResource {
 		} catch (Exception e) {
 			response.setCode(JdResponse.CODE_ERROR);
 			response.setMessage(JdResponse.MESSAGE_ERROR);
-			logger.error(e);
+			logger.warn(e);
 		} finally {
 			try {
 				if (connection != null) {
 					connection.close();
 				}
 			} catch (SQLException se) {
-				this.logger.error("关闭文件流发生异常！", se);
+				this.logger.warn("关闭文件流发生异常！", se);
 			}
 		}
 		return dapInfoList;
@@ -177,21 +177,21 @@ public class DapResource {
 			}
 			return date;
 		} catch (Exception e) {
-			logger.error(e);
+			logger.warn(e);
 		} finally {
 			try {
 				if (resultSet != null) {
 					resultSet.close();
 				}
 			} catch (SQLException se) {
-				this.logger.error("关闭文件流发生异常！", se);
+				this.logger.warn("关闭文件流发生异常！", se);
 			}
 			try {
 				if (pstmt != null) {
 					pstmt.close();
 				}
 			} catch (SQLException se) {
-				this.logger.error("关闭PreparedStatement发生异常！", se);
+				this.logger.warn("关闭PreparedStatement发生异常！", se);
 			}
 		}
 		return date;
