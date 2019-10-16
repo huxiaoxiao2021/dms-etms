@@ -126,14 +126,14 @@ public class DapResource {
 		} catch (Exception e) {
 			response.setCode(JdResponse.CODE_ERROR);
 			response.setMessage(JdResponse.MESSAGE_ERROR);
-//			logger.warn(e);
+			logger.debug(e);
 		} finally {
 			try {
 				if (connection != null) {
 					connection.close();
 				}
 			} catch (SQLException se) {
-				this.logger.warn("关闭文件流发生异常！", se);
+				this.logger.debug("关闭文件流发生异常！", se);
 			}
 		}
 		return dapInfoList;
