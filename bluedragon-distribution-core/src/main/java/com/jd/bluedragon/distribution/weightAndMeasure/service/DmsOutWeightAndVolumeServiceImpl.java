@@ -64,6 +64,11 @@ public class DmsOutWeightAndVolumeServiceImpl implements DmsOutWeightAndVolumeSe
         return dmsOutWeightAndVolumeDao.queryOneByBarCode(dmsOutWeightAndVolume);
     }
 
+    @Override
+    public List<DmsOutWeightAndVolume> getListByBarCodesAndDms(List<String> barCodeList, Integer createSiteCode) {
+        return dmsOutWeightAndVolumeDao.queryListByBarCodes(barCodeList, createSiteCode);
+    }
+
     /**
      * 将数据置成无效is_delete=1
      * @param barCode
