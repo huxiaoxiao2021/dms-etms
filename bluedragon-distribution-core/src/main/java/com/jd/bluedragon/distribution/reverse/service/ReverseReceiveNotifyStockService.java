@@ -326,16 +326,16 @@ public class ReverseReceiveNotifyStockService {
         //入
         ContantsEnum.ChuGuanChuruId chuGuanParam = isPrePay(payType) ? ContantsEnum.ChuGuanChuruId.IN_KU : ContantsEnum.ChuGuanChuruId.OUT_KU;
 
-        ContantsEnum.ChuGuanTypeId chuGuanTypeId = isPrePay(payType) ? ContantsEnum.ChuGuanTypeId.REVERSE_LOGISTICS_MONEY_REJECTION :
+        ContantsEnum.ChuGuanTypeId inTypeId = isPrePay(payType) ? ContantsEnum.ChuGuanTypeId.REVERSE_LOGISTICS_MONEY_REJECTION :
                 ContantsEnum.ChuGuanTypeId.REVERSE_LOGISTICS_MONEY_REJECTION;
 
         ContantsEnum.ChuGuanFenLei chuGuanFenLei = isPrePay(payType) ? ContantsEnum.ChuGuanFenLei.RETURN_GOODS : ContantsEnum.ChuGuanFenLei.PUT_GOODS;
         BigDecimal zongJinE = isPrePay(payType) ? orderBank.getShouldPay() : orderBank.getShouldPay().negate();
         ChuguanParam inChuguanParam = getChuguanParam(waybillCode,
-                getRfid(waybillCode,ContantsEnum.ChuGuanRfId.IN),isOldForNewType, order,  payType, orderBank,
+                getRfid(waybillCode,inTypeId,ContantsEnum.ChuGuanRfId.IN),isOldForNewType, order,  payType, orderBank,
                 ContantsEnum.ChuGuanRfType.IN,
                 chuGuanParam,
-                chuGuanTypeId,
+                inTypeId,
                 chuGuanFenLei,
                 BigDecimal.valueOf(1),
                 zongJinE);
@@ -343,11 +343,12 @@ public class ReverseReceiveNotifyStockService {
         inChuguanParam.setChuguanDetailVoList(intChuguanDetailVoList);
 
         //出
+        ContantsEnum.ChuGuanTypeId outTypeId = ContantsEnum.ChuGuanTypeId.REVERSE_LOGISTICS_OUT;
         ChuguanParam outChuguanParam = getChuguanParam(waybillCode,
-                getRfid(waybillCode,ContantsEnum.ChuGuanRfId.OUT),isOldForNewType, order,  payType, orderBank,
+                getRfid(waybillCode,outTypeId,ContantsEnum.ChuGuanRfId.OUT),isOldForNewType, order,  payType, orderBank,
                 ContantsEnum.ChuGuanRfType.Out,
                 ContantsEnum.ChuGuanChuruId.OUT_KU,
-                ContantsEnum.ChuGuanTypeId.REVERSE_LOGISTICS_OUT,
+                outTypeId,
                 ContantsEnum.ChuGuanFenLei.OTHER,
                 BigDecimal.valueOf(0),
                 orderBank.getShouldPay());
@@ -359,8 +360,9 @@ public class ReverseReceiveNotifyStockService {
         return chuguanExportManager.insertChuguan(chuGuanParamList);
     }
 
-    private String getRfid(Long waybillCode,ContantsEnum.ChuGuanRfId chuGuanRfId) {
-        return JING_BAN_SYSCODE.concat("-").concat(String.valueOf(waybillCode)).concat("-").concat(chuGuanRfId.getText());
+    private String getRfid(Long waybillCode,ContantsEnum.ChuGuanTypeId typeId,ContantsEnum.ChuGuanRfId chuGuanRfId) {
+        return JING_BAN_SYSCODE.concat("-").concat(String.valueOf(waybillCode)).concat("-")
+                .concat(typeId.getType().toString()).concat("-").concat(chuGuanRfId.getText());
     }
 
     /**
