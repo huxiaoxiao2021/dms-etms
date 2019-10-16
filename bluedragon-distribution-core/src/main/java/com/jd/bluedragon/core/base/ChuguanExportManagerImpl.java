@@ -2,9 +2,9 @@ package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.kuguan.domain.KuGuanDomain;
+import com.jd.bluedragon.utils.ContantsEnum;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.stock.base.CallerParam;
 import com.jd.stock.iwms.export.ChuguanExport;
@@ -44,23 +44,24 @@ public class ChuguanExportManagerImpl implements ChuguanExportManager{
     private static final String QUERY_FIELD_LKDANHAO = "lKdanhao";
 
     @Override
-    public long insertChuguan(List<ChuguanParam> chuguanParamList) {
+    public int insertChuguan(List<ChuguanParam> chuguanParamList) {
         CallerInfo info = Profiler.registerInfo("DMS.BASE.ChuguanExportManagerImpl.insertChuguan", Constants.UMP_APP_NAME_DMSWEB, false, true);
         try{
             CallerParam callerParam = getCallerParam();
-            logger.info("新出管接口写入-chuguanParamList[{}]",JsonHelper.toJson(chuguanParamList));
             ChuguanResult result = chuguanExport.insertChuguan(chuguanParamList, callerParam);
             if(result == null){
                 logger.error("新出管接口写入返回null-chuguanParamList[{}][{}]", JsonHelper.toJson(chuguanParamList),JsonHelper.toJson(callerParam));
                 return 0;
             }
             if(result.getCode() != 1){
-                logger.error("新出管接口写入返回失败chuguanParamList[{}]result[{}]", JsonHelper.toJson(chuguanParamList),result);
+                logger.error("新出管接口写入返回失败chuguanParamList["+JsonHelper.toJson(chuguanParamList)+"]callerParam["+JsonHelper.toJson(callerParam)
+                                +"]result["+JsonHelper.toJson(result)+"]");
                 return 0;
             }
+            logger.info("新出管接口写入成功-chuguanParamList[{}]result[{}]",JsonHelper.toJson(chuguanParamList),JsonHelper.toJson(result));
             return 1;//表示推送成功
         }catch(Exception e){
-            logger.error("新出管接口写入chuguanParamList[{}]",JsonHelper.toJson(chuguanParamList),e);
+            logger.error("新出管接口写入报错chuguanParamList[{}]",JsonHelper.toJson(chuguanParamList),e);
             Profiler.functionError(info);
             return 0;
         }finally {
@@ -68,14 +69,19 @@ public class ChuguanExportManagerImpl implements ChuguanExportManager{
         }
     }
 
+    /**
+     * 出管国际化参数
+     * https://cf.jd.com/pages/viewpage.action?pageId=165577572
+     * @return
+     */
     private CallerParam getCallerParam(){
         CallerParam callerParam = new CallerParam();
-        callerParam.setBuId(303);
+        callerParam.setBuId(301);//http://git.jd.com/mall-tp/tp-csr/blob/master/docs/common_parameters.md
+        callerParam.setNationId("CN");//国家码
+        callerParam.setTimezone("GMT+8");//时区
+        callerParam.setLanguage("zh");//语言
         callerParam.setSystemName("ql.dms");
-        callerParam.setNationId("CN");
-        callerParam.setTimezone("GMT+8");
-        callerParam.setLanguage("zh");
-        callerParam.setUseDefaultTenant(1);
+        callerParam.setUseDefaultTenant(1);//1使用默认租户，不需要传递商品租户和订单租户
         try {
             callerParam.setSysIp(InetAddress.getLocalHost().getHostAddress());
         } catch (UnknownHostException e) {
@@ -88,26 +94,31 @@ public class ChuguanExportManagerImpl implements ChuguanExportManager{
     }
 
     /**
-     * 查询出管数据
-     * @param businessNo
-     * @param businessType 目前都为空，经确认可以不传
+     * 查询出管数据；查询逆向物流的数据。
+     * @param businessNo 业务单号 可能是订单号
      * @return
      */
-    private List<ChuguanVo> getFullStockByBusiNo(String businessNo, Integer businessType) {
+    private List<ChuguanVo> getFullStockByBusinNo(String businessNo) {
         CallerInfo info = Profiler.registerInfo("DMS.BASE.ChuguanExportManagerImpl.queryChuGuan", Constants.UMP_APP_NAME_DMSWEB, false, true);
         List<ChuguanVo> result = null;
             ChuguanQueryParam chuguanQueryParam = new ChuguanQueryParam();
         try{
             chuguanQueryParam.setBusiNo(businessNo);
-            chuguanQueryParam.setTypeId(businessType);
+
+            // 此字对应于com.jd.stock.iwms.export.param.ChuguanParam 的 typeId业务类型Id；
+            // 暂时用ContantsEnum.ChuGuanTypeId.REVERSE_LOGISTICS_OUT 这个是写入出管的时候 出使用typeid值。
+            // 理论上用入和出typeId字段值都能查到数据。详情参看 insertChuguan方法的调用时传入的参数
+            chuguanQueryParam.setTypeId(ContantsEnum.ChuGuanTypeId.REVERSE_LOGISTICS_OUT.getType());
             chuguanQueryParam.setNeedTransData(Boolean.TRUE);
-            logger.info("新出管接口调用chuguanQueryParam[{}]",JsonHelper.toJson(chuguanQueryParam));
             ChuguanDataResult chuguanDataResult = chuguanExport.queryChuGuan(chuguanQueryParam, getCallerParam());
             if(chuguanDataResult == null || chuguanDataResult.getCode() != 1){
-                logger.info("新出管接口调用返回失败chuguanQueryParam[{}]",JsonHelper.toJson(chuguanQueryParam));
+                logger.info("新出管接口调用返回失败chuguanQueryParam[{}]chuguanDataResult[{}]",
+                        JsonHelper.toJson(chuguanQueryParam),JsonHelper.toJson(chuguanDataResult));
                 return null;
             }
             result = chuguanDataResult.getChuguanVoList();
+            logger.info("新出管接口调用成功chuguanQueryParam[{}]chuguanDataResult[{}]",JsonHelper.toJson(chuguanQueryParam),JsonHelper.toJson
+                    (chuguanDataResult));
         }catch(Exception e){
             logger.error("新出管接口调用chuguanQueryParam[{}]",JsonHelper.toJson(chuguanQueryParam),e);
             Profiler.functionError(info);
@@ -118,36 +129,32 @@ public class ChuguanExportManagerImpl implements ChuguanExportManager{
     }
 
     @Override
-    public KuGuanDomain queryByParams(Map<String, Object> paramMap) {
-        String waybillCode = (String) paramMap.get(ChuguanExportManagerImpl.QUERY_FIELD_WAYBILLCODE);
-        String kdanhao = (String) paramMap.get(ChuguanExportManagerImpl.QUERY_FIELD_LKDANHAO);
+    public KuGuanDomain queryByOrderCode(String orderCode,String lKdanhao) {
 
         //根据参数进行查询
-        List<ChuguanVo> chuguanVos = getFullStockByBusiNo(waybillCode, null);
+        List<ChuguanVo> chuguanVos = getFullStockByBusinNo(orderCode);
         KuGuanDomain domain = null;
-        List<String> kglist = new ArrayList<String>();
         if (chuguanVos != null && !chuguanVos.isEmpty()) {
             StringBuffer buf = new StringBuffer();
             for (int i = 0; i < chuguanVos.size(); i++) {
                 ChuguanVo chuguanVo = chuguanVos.get(i);
                 String stockKudanhao = String.valueOf(chuguanVo.getKdanhao().toString());
-                kglist.add(stockKudanhao);
-                if(StringHelper.isEmpty(kdanhao)){
+                if(StringHelper.isEmpty(lKdanhao)){
                     if (i == 0) {
                         domain = convert2KuGuanDomain(chuguanVo);
                     }
                 }else{
-                    if(kdanhao.equals(stockKudanhao)){
+                    if(lKdanhao.equals(stockKudanhao)){
                         domain = convert2KuGuanDomain(chuguanVo);
                     }
                 }
 
                 //组装库管单号超链接
-                if(stockKudanhao.equals(kdanhao)){
-                    buf.append("<a href=list?waybillCode=" + waybillCode
+                if(stockKudanhao.equals(lKdanhao)){
+                    buf.append("<a href=list?waybillCode=" + orderCode
                             + "&lKdanhao="+stockKudanhao+" style='color:red;text-align:center' >" + stockKudanhao + "</a>&nbsp;");
                 }else{
-                    buf.append("<a href=list?waybillCode=" + waybillCode
+                    buf.append("<a href=list?waybillCode=" + orderCode
                             + "&lKdanhao="+stockKudanhao+" >" + stockKudanhao + "</a>&nbsp;");
                 }
             }
@@ -164,13 +171,11 @@ public class ChuguanExportManagerImpl implements ChuguanExportManager{
     public KuGuanDomain queryByWaybillCode(String waybillCode) {
 
         KuGuanDomain result = null;
-        Map<String,Object> paramMap = new HashMap<>();
-        paramMap.put(ChuguanExportManagerImpl.QUERY_FIELD_WAYBILLCODE,waybillCode);
         try {
-            logger.info("根据订单号获取库管单信息参数错误-queryByParams");
-            result = this.queryByParams(paramMap);
+            result = this.queryByOrderCode(waybillCode,null);
+            logger.info("根据订单号获取库管单信息-结束waybillCode[{}]result[{}]",waybillCode, JsonHelper.toJson(result));
         } catch (Exception e) {
-            logger.info("根据订单号获取库管单信息服务异常", e);
+            logger.error("根据订单号获取库管单信息服务异常waybillCode[{}]",waybillCode, e);
         }
         return result;
     }
@@ -185,6 +190,8 @@ public class ChuguanExportManagerImpl implements ChuguanExportManager{
         domain.setWaybillCode(nstock.getOrderId().toString());
         // 库管单号
         domain.setlKdanhao(String.valueOf(nstock.getKdanhao()));
+        //	业务类型Id
+        domain.setTypeId(nstock.getTypeId());
         // 方式
         if (nstock.getChuru() != null){
             domain.setLblWay(nstock.getChuru());
@@ -279,8 +286,9 @@ public class ChuguanExportManagerImpl implements ChuguanExportManager{
 			// 单价-列表
 			sdvDomain.setLblPrice(StringHelper.getStringValue(sdv.getJiaGe()));
 			// 商品名称-列表
-			if (sdv.getSkuName() != null)
-				sdvDomain.setLblWare(sdv.getSkuName());
+			if (sdv.getSkuName() != null){
+			    sdvDomain.setLblWare(sdv.getSkuName());
+            }
 			// 商品id-列表
 			sdvDomain.setLblWareId(StringHelper.getStringValue(sdv.getSkuId()));
 			listKG.add(sdvDomain);
@@ -288,10 +296,12 @@ public class ChuguanExportManagerImpl implements ChuguanExportManager{
 			//计算商品数量、总价
 			String jine = sdvDomain.getLbljine();
 			String num = sdvDomain.getLblNum();
-			if (jine != null && !jine.equals(""))
+			if (jine != null && !jine.equals("")){
 				zj += Double.parseDouble(jine);
-			if (num != null && !num.equals(""))
+            }
+			if (num != null && !num.equals("")){
 				znum += Integer.parseInt(num);
+            }
 		}
 		domain.setStockDetails(listKG);
 		domain.setLblstatistics("合计：" + znum

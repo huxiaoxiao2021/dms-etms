@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.reverse.dao.ReverseReceiveDao;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
 import com.jd.bluedragon.distribution.reverse.service.ReverseReceiveNotifyStockService;
 import com.jd.bluedragon.distribution.reverse.service.ReverseSendPopMessageService;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ioms.jsf.export.domain.Order;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -160,8 +161,20 @@ public class ReverseReceiveNotifyStockResource {
 		return osi;
 	}
 
+    @GET
+    @Path("/reverseReceiveNotifyStock/check/{waybillCode}")
+    public String getChuGuanInfo(@PathParam("waybillCode") String waybillCode)
+            throws Exception {
+        KuGuanDomain newKu = chuguanExportManager.queryByWaybillCode(waybillCode);
+        KuGuanDomain oldKu = stockExportManager.queryByWaybillCode(waybillCode);
+	    StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("new[").append(JsonHelper.toJson(newKu)).append("]");
+        stringBuilder.append("old[").append(JsonHelper.toJson(oldKu)).append("]");
+        return stringBuilder.toString();
+    }
+
     private KuGuanDomain queryKuguanDomainByWaybillCode(String waybillCode){
-        if(uccPropertyConfiguration.isChuguanNewInterfaceSwitch()){
+        if(uccPropertyConfiguration.isChuguanNewInterfaceQuerySwitch()){
             return chuguanExportManager.queryByWaybillCode(waybillCode);
         }
         return stockExportManager.queryByWaybillCode(waybillCode);

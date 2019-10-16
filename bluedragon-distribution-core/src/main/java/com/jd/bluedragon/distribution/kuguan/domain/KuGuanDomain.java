@@ -114,6 +114,9 @@ public class KuGuanDomain implements java.io.Serializable {
 	
 	/**总计*/
 	private String lblstatistics;
+
+	/**	业务类型Id*/
+	private Integer typeId;
 	
 	private List<KuGuanDomain> stockDetails;
 	
@@ -375,4 +378,11 @@ public class KuGuanDomain implements java.io.Serializable {
 		this.stockDetails = stockDetails;
 	}
 
+    public Integer getTypeId() {
+        return typeId;
+    }
+
+    public void setTypeId(Integer typeId) {
+        this.typeId = typeId;
+    }
 }

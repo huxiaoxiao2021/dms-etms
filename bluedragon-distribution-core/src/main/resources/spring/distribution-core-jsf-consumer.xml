@@ -487,10 +487,11 @@
     </jsf:consumer>
     
     <jsf:consumer id="chuguanExport" interface="com.jd.stock.iwms.export.ChuguanExport" alias="${jsf.chuguan.alias}">
-        <!-- 藏经阁分配的客户端名称，特别注意：藏经阁分配的客户端名称会在接入方应用英文名称前带“(J-one)”或“(J-dos)”前缀 -->
-        <jsf:parameter key="clientName" value="${jsf.chuguan.cjg.clientName}" hide="true" />
-        <!-- 藏经阁生成token，藏经阁生成token，藏经阁生成token -->
-        <jsf:parameter key="authToken" value="${jsf.chuguan.authToken}" hide="true" />
+        <!-- 藏经阁分配的客户端名称，特别注意：藏经阁分配的客户端名称会在接入方应用英文名称前带“(J-one)”或“(J-dos)”前缀 测试环境没有-->
+        <!--<jsf:parameter key="clientName" value="${jsf.chuguan.cjg.clientName}" hide="true" />-->
+        <!-- 藏经阁生成token，藏经阁生成token，藏经阁生成token 测试环境没有-->
+        <!--<jsf:parameter key="authToken" value="${jsf.chuguan.cjg.authToken}" hide="true" />-->
+        <jsf:parameter key="token" value="${jsf.chuguan.token}" hide="true" />
         <jsf:parameter key="alias" value="${jsf.chuguan.alias}" hide="true" />
     </jsf:consumer>
 

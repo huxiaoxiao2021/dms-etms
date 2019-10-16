@@ -1,8 +1,10 @@
 package com.jd.bluedragon.distribution.reverse.service;
 
 import com.google.common.collect.Lists;
+import com.jd.bluedragon.distribution.order.domain.OrderBankResponse;
+import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.ioms.jsf.export.domain.Order;
-import com.jd.bluedragon.distribution.product.domain.Product
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,10 +36,16 @@ public class ReverseReceiveNotifyStockServiceTest {
         order.setTotalFee(new BigDecimal(3333));
         List<Product> products = Lists.newArrayList();
         Product product = new Product();
-        product.setSkuId(1414552);
         product.setPrice(new BigDecimal(111));
         product.setQuantity(2222);
+        product.setProductId("1414552");
         products.add(product);
-        reverseReceiveNotifyStockService.insertNewChuguan(1111222444111L,true,order,products,2);
+
+        OrderBankResponse orderBank = new OrderBankResponse();
+        orderBank.setShouldPay(new BigDecimal(3333));
+        orderBank.setDiscount(new BigDecimal(22333.33));
+        int result = reverseReceiveNotifyStockService.insertNewChuguan(12345555222111L,true,order,products,2,orderBank);
+        Assert.assertEquals(result,1);
     }
+
 }

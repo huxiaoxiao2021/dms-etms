@@ -54,9 +54,12 @@ public class KuGuanController {
 			return "kuguan/kuguan";
 		}
 
+        String orderCode = kuGuanDomain.getWaybillCode();
+        String lKdanhao = kuGuanDomain.getlKdanhao();
+
 		try {
 			logger.info("根据订单号获取库管单信息"+params.toString());
-			kuGuanDomain = this.queryByParams(params);
+			kuGuanDomain = this.queryByOrderCode(orderCode,lKdanhao);
 			
 		} catch (Exception e) {
 			kuGuanDomain = new KuGuanDomain(); 
@@ -81,10 +84,10 @@ public class KuGuanController {
 		return queryOperateLog(kuGuanDomain, model);
 	}
 
-    private KuGuanDomain queryByParams(Map<String, Object> params){
-        if(uccPropertyConfiguration.isChuguanNewInterfaceSwitch()){
-            return chuguanExportManager.queryByParams(params);
+    private KuGuanDomain queryByOrderCode(String orderCode,String lKdanhao){
+        if(uccPropertyConfiguration.isChuguanNewInterfaceQuerySwitch()){
+            return chuguanExportManager.queryByOrderCode(orderCode,lKdanhao);
         }
-        return stockExportManager.queryByParams(params);
+        return stockExportManager.queryByOrderCode(orderCode,lKdanhao);
     }
 }

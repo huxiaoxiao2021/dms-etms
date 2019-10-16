@@ -44,7 +44,6 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -225,7 +224,7 @@ public class ReverseReceiveNotifyStockService {
 				kuguanDomain = queryKuguanDomainByWaybillCode(String.valueOf(waybillCode));
 				if(kuguanDomain==null) {
 					return Boolean.FALSE;
-				}else if("逆向物流".equals(kuguanDomain.getLblOtherWay())){
+				}else if(isReverseLogistics(kuguanDomain)){
 					return Boolean.TRUE;
 				}else{
 					payType = getPayType(kuguanDomain);
@@ -241,8 +240,8 @@ public class ReverseReceiveNotifyStockService {
 				long result = 0;
 				//判断是否是已旧换新
 				isOldForNewType = BusinessHelper.isYJHX(order.getSendPay());
-
-                result = insertChuguan(waybillCode, isOldForNewType, order, products, payType);
+                OrderBankResponse orderBank = orderBankService.getOrderBankResponse(String.valueOf(waybillCode));
+                result = insertChuguan(waybillCode, isOldForNewType, order, products, payType,orderBank);
 				/** 新逻辑结束 */
 				
 				try {
@@ -291,23 +290,33 @@ public class ReverseReceiveNotifyStockService {
 		return Boolean.TRUE;
 	}
 
-	private KuGuanDomain queryKuguanDomainByWaybillCode(String waybillCode){
-        if(uccPropertyConfiguration.isChuguanNewInterfaceSwitch()){
+    private boolean isReverseLogistics(KuGuanDomain kuguanDomain) {
+        if(CHUGUAN_FIELD_QITAFANGSHI.equals(kuguanDomain.getLblOtherWay())){
+            return Boolean.TRUE;
+        }
+        if(ContantsEnum.ChuGuanTypeId.hasTypeId(kuguanDomain.getTypeId())){
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
+
+    private KuGuanDomain queryKuguanDomainByWaybillCode(String waybillCode){
+        if(uccPropertyConfiguration.isChuguanNewInterfaceQuerySwitch()){
             return chuguanExportManager.queryByWaybillCode(waybillCode);
         }
         return stockExportManager.queryByWaybillCode(waybillCode);
     }
 
-    private long insertChuguan(Long waybillCode, boolean isOldForNewType, Order order, List<Product> products, Integer payType) {
-        if(uccPropertyConfiguration.isChuguanNewInterfaceSwitch()){
-            return insertNewChuguan(waybillCode,isOldForNewType,order,products,payType);
+    private long insertChuguan(Long waybillCode, boolean isOldForNewType, Order order, List<Product> products, Integer payType,
+                               OrderBankResponse orderBank) {
+        if(uccPropertyConfiguration.isChuguanNewInterfaceInsertSwitch()){
+            return insertNewChuguan(waybillCode,isOldForNewType,order,products,payType,orderBank);
         }
-        return insertOldChuguan(waybillCode, isOldForNewType, order, products, payType);
+        return insertOldChuguan(waybillCode, isOldForNewType, order, products, payType,orderBank);
     }
 
-    public long insertNewChuguan(Long waybillCode, boolean isOldForNewType,Order order, List<Product> products,
-                                  Integer payType){
-        OrderBankResponse orderBank = orderBankService.getOrderBankResponse(String.valueOf(waybillCode));
+    public int insertNewChuguan(Long waybillCode, boolean isOldForNewType,Order order, List<Product> products,
+                                  Integer payType,OrderBankResponse orderBank){
         List<ChuguanParam> chuGuanParamList = Lists.newArrayList();// 需要放两个 一个出一个入；他们会根据 typeId 区分
 
         //入
@@ -318,7 +327,8 @@ public class ReverseReceiveNotifyStockService {
 
         ContantsEnum.ChuGuanFenLei chuGuanFenLei = isPrePay(payType) ? ContantsEnum.ChuGuanFenLei.RETURN_GOODS : ContantsEnum.ChuGuanFenLei.PUT_GOODS;
         BigDecimal zongJinE = isPrePay(payType) ? orderBank.getShouldPay() : orderBank.getShouldPay().negate();
-        ChuguanParam inChuguanParam = getChuguanParam(waybillCode,isOldForNewType, order,  payType, orderBank,
+        ChuguanParam inChuguanParam = getChuguanParam(waybillCode,
+                getRfid(waybillCode,ContantsEnum.ChuGuanRfId.IN),isOldForNewType, order,  payType, orderBank,
                 ContantsEnum.ChuGuanRfType.IN,
                 chuGuanParam,
                 chuGuanTypeId,
@@ -329,7 +339,8 @@ public class ReverseReceiveNotifyStockService {
         inChuguanParam.setChuguanDetailVoList(intChuguanDetailVoList);
 
         //出
-        ChuguanParam outChuguanParam = getChuguanParam(waybillCode,isOldForNewType, order,  payType, orderBank,
+        ChuguanParam outChuguanParam = getChuguanParam(waybillCode,
+                getRfid(waybillCode,ContantsEnum.ChuGuanRfId.OUT),isOldForNewType, order,  payType, orderBank,
                 ContantsEnum.ChuGuanRfType.Out,
                 ContantsEnum.ChuGuanChuruId.OUT_KU,
                 ContantsEnum.ChuGuanTypeId.REVERSE_LOGISTICS_OUT,
@@ -344,18 +355,22 @@ public class ReverseReceiveNotifyStockService {
         return chuguanExportManager.insertChuguan(chuGuanParamList);
     }
 
+    private String getRfid(Long waybillCode,ContantsEnum.ChuGuanRfId chuGuanRfId) {
+        return JING_BAN_SYSCODE.concat("-").concat(String.valueOf(waybillCode)).concat("-").concat(chuGuanRfId.getText());
+    }
+
     /**
      * 拼装 写入出管的 参数 ChuguanParam
      * 参考 https://cf.jd.com/pages/viewpage.action?pageId=165577134 新接口
      * 与老接口属性 映射 https://cf.jd.com/pages/viewpage.action?pageId=165578101
      * @return
      */
-    private ChuguanParam getChuguanParam(Long waybillCode,boolean isOldForNewType, Order order, Integer payType,
+    private ChuguanParam getChuguanParam(Long waybillCode,String rfid,boolean isOldForNewType, Order order, Integer payType,
                                          OrderBankResponse orderBank, ContantsEnum.ChuGuanRfType rfType, ContantsEnum.ChuGuanChuruId churu, ContantsEnum.ChuGuanTypeId typeId,
                                          ContantsEnum.ChuGuanFenLei fenLei,BigDecimal qiTaFeiYong,
                                          BigDecimal zongJinE) {
         ChuguanParam chuguanParam = new ChuguanParam();
-        chuguanParam.setRfId(String.valueOf(waybillCode));
+        chuguanParam.setRfId(rfid);
         chuguanParam.setRfType(rfType.getType());
         chuguanParam.setChuruId(churu.getType());
         chuguanParam.setChuru(churu.getText());
@@ -364,18 +379,18 @@ public class ReverseReceiveNotifyStockService {
         chuguanParam.setBusiNo(String.valueOf(waybillCode));
         chuguanParam.setTypeId(typeId.getType());
         chuguanParam.setSubType(typeId.getText());
-        chuguanParam.setExtType("逆向物流");
+        chuguanParam.setExtType(CHUGUAN_FIELD_QITAFANGSHI);
         chuguanParam.setDcId(order.getDeliveryCenterID());
         chuguanParam.setSid(order.getStoreId());
         chuguanParam.setToDcId(0);
         chuguanParam.setToSid(0);
-        chuguanParam.setSiteId(0);
-        chuguanParam.setToSiteId(0);
+//        chuguanParam.setSiteId(0);
+//        chuguanParam.setToSiteId(0);
         chuguanParam.setIsAdjust(0);
         chuguanParam.setIsVirtual(1);
         chuguanParam.setFenLeiId(fenLei.getType());
         chuguanParam.setFenLei(fenLei.getText());
-        chuguanParam.setJingBan(JING_BAN);
+        chuguanParam.setJingBan(JING_BAN_SYSCODE);
         chuguanParam.setLaiYuan("备件库");
         if(isOldForNewType){
             //开票机构ID
@@ -384,7 +399,7 @@ public class ReverseReceiveNotifyStockService {
         }else{
 
             chuguanParam.setLaiYuanCode(order.getCustomerName());
-            chuguanParam.setQiTaFangShi("逆向物流");
+            chuguanParam.setQiTaFangShi(CHUGUAN_FIELD_QITAFANGSHI);
         }
         chuguanParam.setOrgId(order.getIdCompanyBranch());
         chuguanParam.setOrgName(StringHelper.substring(order.getIdCompanyBranchName(),0,19));
@@ -397,7 +412,7 @@ public class ReverseReceiveNotifyStockService {
         chuguanParam.setYouHui(orderBank.getDiscount());
         chuguanParam.setQiTaFeiYong(qiTaFeiYong);
         chuguanParam.setPeiHuoDanHao(0);
-        chuguanParam.setNationalTypeId(1401);
+        chuguanParam.setNationalTypeId(typeId.getType());
         return chuguanParam;
     }
 
@@ -433,8 +448,7 @@ public class ReverseReceiveNotifyStockService {
 
 
     private long insertOldChuguan(Long waybillCode, boolean isOldForNewType, Order order, List<Product> products,
-                                  Integer payType) {
-        OrderBankResponse orderBank = orderBankService.getOrderBankResponse(String.valueOf(waybillCode));
+                                  Integer payType,OrderBankResponse orderBank) {
         long result;
         this.logger.info("运单号：" + waybillCode + ", 使用推库管新接口");
         /** 新逻辑开始 */
@@ -444,7 +458,7 @@ public class ReverseReceiveNotifyStockService {
         stockExtVO0.setTypeID(isPrePay(payType) ? 1402 : 1401);//保留 原先逻辑
         stockExtVO0.setBusiType("订单退货");
         stockExtVO0.setSubType(isPrePay(payType) ? "先款拒收" : "先货拒收");
-        stockExtVO0.setExtType("逆向物流");
+        stockExtVO0.setExtType(CHUGUAN_FIELD_QITAFANGSHI);
         stockExtVO0.setBusiNo(String.valueOf(waybillCode));
         stockExtVO0.setSys("ql.dms");
         stockExtVO0.setCreatDate(creatDate);
@@ -473,7 +487,7 @@ public class ReverseReceiveNotifyStockService {
             //开票机构ID
             inWmsStock0.setLaiyuancode(getKPJGID(order));
         }else{
-            inWmsStock0.setQtfs("逆向物流");
+            inWmsStock0.setQtfs(CHUGUAN_FIELD_QITAFANGSHI);
             inWmsStock0.setLaiyuancode(order.getCustomerName());
         }
         inWmsStock0.setOrgId(order.getDeliveryCenterID());
@@ -491,7 +505,7 @@ public class ReverseReceiveNotifyStockService {
         stockExtVO1.setTypeID(1403);
         stockExtVO1.setBusiType("大库出备件库");
 //						stockExtVO1.setSubType(isPrePay(payType) ? "先款拒收" : "先货拒收");
-        stockExtVO1.setExtType("逆向物流");
+        stockExtVO1.setExtType(CHUGUAN_FIELD_QITAFANGSHI);
         stockExtVO1.setBusiNo(String.valueOf(waybillCode));
         stockExtVO1.setSys("ql.dms");
         stockExtVO1.setCreatDate(creatDate);
@@ -520,7 +534,7 @@ public class ReverseReceiveNotifyStockService {
             outSpwmsStock0.setLaiyuancode(getKPJGID(order));
         }else {
             outSpwmsStock0.setLaiyuancode(order.getCustomerName());
-            outSpwmsStock0.setQtfs("逆向物流");
+            outSpwmsStock0.setQtfs(CHUGUAN_FIELD_QITAFANGSHI);
         }
         outSpwmsStock0.setOrgId(order.getDeliveryCenterID());
         outSpwmsStock0.setSid(order.getStoreId());

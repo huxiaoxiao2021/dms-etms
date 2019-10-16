@@ -72,8 +72,8 @@ public class StockExportManagerImpl implements StockExportManager {
      * @return QueryResult
      * @author 潘文华 2015-8-17
      */
-    private QueryResult<StockVO> getFullStockByBusiNo(String businessNo, Integer businessType, Boolean isQueryHis) {
-        CallerInfo info = Profiler.registerInfo("DMS.BASE.StockExportManagerImpl.getFullStockByBusiNo", false, true);
+    private QueryResult<StockVO> getFullStockByBusinNo(String businessNo, Integer businessType, Boolean isQueryHis) {
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.StockExportManagerImpl.getFullStockByBusinNo", false, true);
         QueryResult<StockVO> result = null;
         try{
 
@@ -109,39 +109,34 @@ public class StockExportManagerImpl implements StockExportManager {
     }
 
     @Override
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.StockExportManagerImpl.queryByParams", mState = {JProEnum.TP})
-    public KuGuanDomain queryByParams(Map<String, Object> paramMap) {
-
-        String waybillCode = (String) paramMap.get("waybillCode");
-        String kdanhao = (String) paramMap.get("lKdanhao");
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.StockExportManagerImpl.queryByOrderCode", mState = {JProEnum.TP})
+    public KuGuanDomain queryByOrderCode(String orderCode,String lKdanhao) {
 
         //根据参数进行查询
-        QueryResult<StockVO> stocks = getFullStockByBusiNo(waybillCode, null, true);
+        QueryResult<StockVO> stocks = getFullStockByBusinNo(orderCode, null, true);
         KuGuanDomain domain = null;
         List<StockVO> list = stocks.getQueryList();
-        List<String> kglist = new ArrayList<String>();
         if (list != null && !list.isEmpty()) {
             StringBuffer buf = new StringBuffer();
             for (int i = 0; i < list.size(); i++) {
                 StockVO nstock = list.get(i);
                 String stockKudanhao = String.valueOf(nstock.getKdanhao().toString());
-                kglist.add(stockKudanhao);
-                if(StringHelper.isEmpty(kdanhao)){
+                if(StringHelper.isEmpty(lKdanhao)){
                     if (i == 0) {
                         domain = convert2KuGuanDomain(nstock);
                     }
                 }else{
-                    if(kdanhao.equals(stockKudanhao)){
+                    if(lKdanhao.equals(stockKudanhao)){
                         domain = convert2KuGuanDomain(nstock);
                     }
                 }
 
                 //组装库管单号超链接
-                if(stockKudanhao.equals(kdanhao)){
-                    buf.append("<a href=list?waybillCode=" + waybillCode
+                if(stockKudanhao.equals(lKdanhao)){
+                    buf.append("<a href=list?waybillCode=" + orderCode
                             + "&lKdanhao="+stockKudanhao+" style='color:red;text-align:center' >" + stockKudanhao + "</a>&nbsp;");
                 }else{
-                    buf.append("<a href=list?waybillCode=" + waybillCode
+                    buf.append("<a href=list?waybillCode=" + orderCode
                             + "&lKdanhao="+stockKudanhao+" >" + stockKudanhao + "</a>&nbsp;");
                 }
             }
@@ -156,17 +151,11 @@ public class StockExportManagerImpl implements StockExportManager {
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.StockExportManagerImpl.queryByWaybillCode", mState = {JProEnum.TP})
     public KuGuanDomain queryByWaybillCode(String waybillCode) {
-        KuGuanDomain kuGuanDomain = new KuGuanDomain();
-        kuGuanDomain.setWaybillCode(waybillCode);
-
         KuGuanDomain result = null;
-
-        Map<String, Object> params = ObjectMapHelper
-                .makeObject2Map(kuGuanDomain);
 
         try {
             logger.info("根据订单号获取库管单信息参数错误-queryByParams");
-            result = this.queryByParams(params);
+            result = this.queryByOrderCode(waybillCode,null);
         } catch (Exception e) {
             logger.info("根据订单号获取库管单信息服务异常", e);
         }

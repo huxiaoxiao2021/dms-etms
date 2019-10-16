@@ -3,15 +3,13 @@ package com.jd.bluedragon.core.base;
 import com.jd.bluedragon.distribution.kuguan.domain.KuGuanDomain;
 import com.jd.stock.iwms.export.param.StockVOParam;
 
-import java.util.Map;
-
 public interface StockExportManager{
 
 
     long insertStockVirtualIntOut(StockVOParam stockVOParam0, StockVOParam stockVOParam1);
 	
     /*******************方法扩展区*********************/
-	KuGuanDomain queryByParams(Map<String, Object> paramMap);
+	KuGuanDomain queryByOrderCode(String orderCode,String lKdanhao);
 	
 	/**
 	 * 已经做了异常处理,只以运单号做库查询条件

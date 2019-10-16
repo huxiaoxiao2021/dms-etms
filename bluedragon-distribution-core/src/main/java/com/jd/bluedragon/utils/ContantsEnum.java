@@ -34,7 +34,7 @@ public class ContantsEnum {
     }
 
     /**
-     * 国际化-写入出管数据；
+     * 出管国际业务类型映射；
      * 字段  typeId 业务类型Id	枚举
      * https://cf.jd.com/pages/viewpage.action?pageId=175378878
      */
@@ -48,6 +48,15 @@ public class ContantsEnum {
         private ChuGuanTypeId(Integer type, String text) {
             this.type = type;
             this.text = text;
+        }
+
+        public static boolean hasTypeId(Integer typeValue){
+            for(ChuGuanTypeId item : ChuGuanTypeId.values()){
+                if(item.getType().equals(typeValue)){
+                    return true;
+                }
+            }
+            return false;
         }
 
         public Integer getType() {
@@ -103,6 +112,25 @@ public class ContantsEnum {
 
         public Integer getType() {
             return type;
+        }
+
+        public String getText() {
+            return text;
+        }
+    }
+
+
+    /**
+     * 国际化-写入出管数据；
+     * 分拣自定义的枚举；用于生成 RfId，区别 入库和出库
+     */
+    public enum ChuGuanRfId{
+        IN("IN"),
+        OUT("OUT");
+        private String text;
+
+        ChuGuanRfId(String text) {
+            this.text = text;
         }
 
         public String getText() {

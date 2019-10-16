@@ -129,18 +129,21 @@ public class AuditResource {
 	@Path("/stock/{waybillCode}/{ddlType}")
 	public KuGuanDomain getStockInfo(@PathParam("waybillCode") String waybillCode, @PathParam("ddlType") String ddlType) {
 		KuGuanDomain kuGuanDomain = new KuGuanDomain();
-		
-		if(TYPE_WAYBILCODE.equals(ddlType))
-			kuGuanDomain.setWaybillCode(waybillCode);
-		else
-			kuGuanDomain.setlKdanhao(waybillCode);
-		
+		String orderCode = null;
+		String lKdanhao = null;
+		if(TYPE_WAYBILCODE.equals(ddlType)){
+            orderCode = waybillCode;
+        }
+		else{
+            lKdanhao  = waybillCode;
+        }
+
 		Map<String, Object> params = ObjectMapHelper
 				.makeObject2Map(kuGuanDomain);
 
 		try {
 			logger.error("根据订单号获取库管单信息参数错误-queryByParams");
-			kuGuanDomain = this.queryByParams(params);
+			kuGuanDomain = this.queryByOrderCode(orderCode,lKdanhao);
 		} catch (Exception e) {
 			kuGuanDomain = new KuGuanDomain(); 
 			kuGuanDomain.setDdlType(ddlType);
@@ -150,10 +153,10 @@ public class AuditResource {
 		return kuGuanDomain;
 	}
 
-    private KuGuanDomain queryByParams(Map<String, Object> params){
-        if(uccPropertyConfiguration.isChuguanNewInterfaceSwitch()){
-            return chuguanExportManager.queryByParams(params);
+    private KuGuanDomain queryByOrderCode(String orderCode,String lKdanhao){
+        if(uccPropertyConfiguration.isChuguanNewInterfaceQuerySwitch()){
+            return chuguanExportManager.queryByOrderCode(orderCode,lKdanhao);
         }
-        return stockExportManager.queryByParams(params);
+        return stockExportManager.queryByOrderCode(orderCode,lKdanhao);
     }
 }
