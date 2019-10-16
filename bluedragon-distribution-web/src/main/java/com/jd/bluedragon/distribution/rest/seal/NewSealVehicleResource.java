@@ -147,6 +147,7 @@ public class NewSealVehicleResource {
         response.setRouteType(data.getRouteType());
         response.setDriver(data.getCarrierName());
         response.setTransWay(data.getTransMode());
+        response.setTransWayName(data.getTransModeName());
         response.setCarrierType(data.getTransType());
 
         //运力校验

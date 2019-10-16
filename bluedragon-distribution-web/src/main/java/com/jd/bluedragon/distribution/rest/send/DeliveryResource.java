@@ -408,15 +408,16 @@ public class DeliveryResource {
 
     /**
      * 老发货接口
+     *
      * @param request
      * @return
      */
     @JProfiler(jKey = "Bluedragon_dms_center.dms.method.delivery.sendPack", mState = {JProEnum.TP, JProEnum.FunctionError})
     @POST
     @Path("/delivery/send")
-    @BusinessLog(sourceSys = 1,bizType = 100,operateType = 1002)
+    @BusinessLog(sourceSys = 1, bizType = 100, operateType = 1002)
     public DeliveryResponse sendDeliveryInfo(List<DeliveryRequest> request) {
-        this.logger.info("开始写入发货信息"+JsonHelper.toJson(request));
+        this.logger.info("开始写入发货信息" + JsonHelper.toJson(request));
         if (check(request)) {
             return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR,
                     JdResponse.MESSAGE_PARAM_ERROR);
@@ -425,8 +426,7 @@ public class DeliveryResource {
 
         Integer opType = request.get(0).getOpType();
         if (KY_DELIVERY.equals(opType)) {
-            /** 快运发货 */
-            tDeliveryResponse = deliveryService.dellDeliveryMessage(SendBizSourceEnum.RAPID_TRANSPORT_SEND, toSendDetailList(request));
+            tDeliveryResponse = this.sendDeliveryInfoForKY(request);
         } else {
             Integer businessType = request.get(0).getBusinessType();
             if (businessType != null && Constants.BUSSINESS_TYPE_REVERSE == businessType) {
@@ -446,39 +446,50 @@ public class DeliveryResource {
         }
     }
 
+    private DeliveryResponse sendDeliveryInfoForKY(List<DeliveryRequest> request){
+        List<SendM> waybillCodeSendMList = this.assembleSendMForWaybillCode(request);
+        List<SendM> otherSendMList = this.assembleSendMWithoutWaybillCode(request);
+        if (waybillCodeSendMList.size() == 0) {
+            return deliveryService.dellDeliveryMessage(SendBizSourceEnum.RAPID_TRANSPORT_SEND, otherSendMList);
+        }
+        /** 快运发货 */
+        DeliveryResponse response = deliveryService.dellDeliveryMessageWithLock(SendBizSourceEnum.RAPID_TRANSPORT_SEND, waybillCodeSendMList);
+        if (JdResponse.CODE_OK.equals(response.getCode()) && otherSendMList!=null && otherSendMList.size()>0) {
+            return deliveryService.dellDeliveryMessage(SendBizSourceEnum.RAPID_TRANSPORT_SEND, otherSendMList);
+        }
+        return response;
+    }
+
     /**
      * 快运发货差异查询
+     *
      * @param request
      * @return
      */
-  @POST
-  @Path("/delivery/differentialQuery")
-  @JProfiler(
-    jKey = "DMSWEB.DeliveryResource.differentialQuery",
-    jAppName=Constants.UMP_APP_NAME_DMSWEB,
-    mState = {JProEnum.TP}
-  )
-  public ThreeDeliveryResponse differentialQuery(DifferentialQueryRequest request) {
-    this.logger.info("快运发货差异查询:" + JsonHelper.toJson(request));
-    try {
-      if (check(request.getSendList())) {
-        return new ThreeDeliveryResponse(
-            JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR, null);
-      }
-      Integer queryType = request.getQueryType();
-      Integer opType = request.getSendList().get(0).getOpType();
-      ThreeDeliveryResponse response = null;
-      /** 快运发货 */
-      if (KY_DELIVERY.equals(opType)) {
-        response =
-            deliveryService.differentialQuery(toSendDetailList(request.getSendList()), queryType);
-      }
-      this.logger.info("结束快运发货差异查询");
-      return response;
-    } catch (Exception ex) {
-      logger.error("快运发货差异查询", ex);
-      return new ThreeDeliveryResponse(JdResponse.CODE_INTERNAL_ERROR, ex.getMessage(), null);
-    }
+    @POST
+    @Path("/delivery/differentialQuery")
+    @JProfiler(jKey = "DMSWEB.DeliveryResource.differentialQuery", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+    public ThreeDeliveryResponse differentialQuery(DifferentialQueryRequest request) {
+        this.logger.info("快运发货差异查询:" + JsonHelper.toJson(request));
+        try {
+            if (check(request.getSendList())) {
+                return new ThreeDeliveryResponse(
+                        JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR, null);
+            }
+            Integer queryType = request.getQueryType();
+            Integer opType = request.getSendList().get(0).getOpType();
+            ThreeDeliveryResponse response = null;
+            /** 快运发货 */
+            if (KY_DELIVERY.equals(opType)) {
+                response =
+                        deliveryService.differentialQuery(toSendDetailList(request.getSendList()), queryType);
+            }
+            this.logger.info("结束快运发货差异查询");
+            return response;
+        } catch (Exception ex) {
+            logger.error("快运发货差异查询", ex);
+            return new ThreeDeliveryResponse(JdResponse.CODE_INTERNAL_ERROR, ex.getMessage(), null);
+        }
     }
 
     @POST
@@ -896,6 +907,37 @@ public class DeliveryResource {
                         sendMList.addAll(deliveryRequest2SendMList(deliveryRequest));
                     }
                 } else {
+                    sendMList.add(deliveryRequest2SendM(deliveryRequest));
+                }
+            }
+        }
+        return sendMList;
+    }
+
+    protected <T extends DeliveryRequest> List<SendM> assembleSendMForWaybillCode(List<T> request) {
+        List<SendM> sendMList = new ArrayList<>();
+        if (request != null && !request.isEmpty()) {
+            for (DeliveryRequest deliveryRequest : request) {
+                if (WaybillUtil.isWaybillCode(deliveryRequest.getBoxCode())) {
+                    //B冷链快运发货支持扫运单号发货
+                    DeliveryResponse response = isValidWaybillCode(deliveryRequest);
+                    if (!JdResponse.CODE_OK.equals(response.getCode())) {
+                        logger.error("DeliveryResource--toSendDetailList出现运单号，但非冷链快运发货，siteCode:" +
+                                deliveryRequest.getSiteCode() + "，单号:" + deliveryRequest.getBoxCode());
+                        continue;
+                    }
+                    sendMList.add(deliveryRequest2SendM(deliveryRequest));
+                }
+            }
+        }
+        return sendMList;
+    }
+
+    protected <T extends DeliveryRequest> List<SendM> assembleSendMWithoutWaybillCode(List<T> request) {
+        List<SendM> sendMList = new ArrayList<>();
+        if (request != null && !request.isEmpty()) {
+            for (DeliveryRequest deliveryRequest : request) {
+                if (!WaybillUtil.isWaybillCode(deliveryRequest.getBoxCode())) {
                     sendMList.add(deliveryRequest2SendM(deliveryRequest));
                 }
             }

@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.transBillSchedule.domain;
+package com.jd.bluedragon.distribution.api.response;
 
 /**
  * Created by wuzuxiang on 2017/4/26.

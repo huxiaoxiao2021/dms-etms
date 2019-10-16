@@ -204,6 +204,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
     //责任主体：终端编号151
     public static final String DUTY_ZD = "151";
 
+    //责任主体：集约组编号152
+    public static final String DUTY_JY = "152";
+
     static {
         ReverseSendServiceImpl.tempMap.put("101", "1");
         ReverseSendServiceImpl.tempMap.put("102", "16");
@@ -1586,6 +1589,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 if (DUTY_ZD.equals(spareSortingRecord.getDutyCode())) {
                     //终端损标识
                     lossType = 16;
+                } else if (DUTY_JY.equals(spareSortingRecord.getDutyCode())) {
+                    //集约损标识
+                    lossType = 17;
                 }
             }
 
@@ -1899,34 +1905,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
     }
 
-    /**
-     * ECLP退备件库的数据推送给ECLP（mq的形式）
-     *
-     * @param sendDetailList
-     */
-    private void pushECLPMessageToSpwms(List<SendDetail> sendDetailList) {
-        List<String> doneWaybill = new ArrayList<String>();
-        try{
-            for(SendDetail sendDetail : sendDetailList){
-                String waybillCode = sendDetail.getWaybillCode();
-                //过滤重复运单。
-                if(doneWaybill.contains(waybillCode)){
-                    continue;
-                }
-                BdInboundECLPDto bdInboundECLPDto =  reverseSpareEclp.makeEclpMessage(waybillCode,sendDetail);
-                if(bdInboundECLPDto==null){
-                    logger.error("ECLP退备件库失败"+waybillCode+"|"+sendDetail.getSendCode());
-                    continue;
-                }
-                reverseSendSpareEclpProducer.send(waybillCode,JsonHelper.toJson(bdInboundECLPDto));
-                doneWaybill.add(waybillCode);
-            }
 
-        }catch (Exception e){
-            logger.error("ECLP退备件库异常",e);
-        }
-
-    }
 
     /**
      * 退备件库给ECLP发消息改成jsf接口的形式
@@ -1942,7 +1921,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 if(doneWaybill.contains(waybillCode)){
                     continue;
                 }
-                InboundOrder inboundOrder =  reverseSpareEclp.createInboundOrder(waybillCode,sendDetail);
+                InboundOrder inboundOrder =  reverseSpareEclp.makeInboundOrder(waybillCode,sendDetail);
                 if(inboundOrder==null){
                     logger.error("ECLP退备件库失败"+waybillCode+"|"+sendDetail.getSendCode());
                     failWaybillCodes.append(waybillCode).append("|").append(sendDetail.getSendCode()).append(",");

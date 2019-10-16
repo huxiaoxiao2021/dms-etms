@@ -24,6 +24,8 @@ public interface SendDetailService {
      */
     public List<SendDetail> findByWaybillCodeOrPackageCode(Integer createSiteCode,String waybillCode, String packageCode);
 
+    SendDetail findOneByWaybillCode(Integer createSiteCode,String waybillCode);
+
     /**分页查询发货记录*/
     public List<SendDetail> findPageSendDetail(Map<String,Object> params);
 }

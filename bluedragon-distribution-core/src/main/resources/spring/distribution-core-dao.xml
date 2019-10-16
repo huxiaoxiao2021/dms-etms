@@ -543,5 +543,9 @@
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
 
+    <!-- 箱号与集包袋绑定 -->
+    <bean id="boxMaterialRelationDao" class="com.jd.bluedragon.distribution.cyclebox.dao.BoxMaterialRelationDao">
+        <property name="sqlSession" ref="businessSqlSessionTemplate"/>
+    </bean>
 
 </beans>
