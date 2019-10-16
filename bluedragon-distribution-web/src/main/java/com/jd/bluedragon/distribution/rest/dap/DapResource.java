@@ -126,7 +126,7 @@ public class DapResource {
 		} catch (Exception e) {
 			response.setCode(JdResponse.CODE_ERROR);
 			response.setMessage(JdResponse.MESSAGE_ERROR);
-			logger.warn(e);
+//			logger.warn(e);
 		} finally {
 			try {
 				if (connection != null) {
