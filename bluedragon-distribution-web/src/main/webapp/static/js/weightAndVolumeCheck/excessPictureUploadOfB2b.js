@@ -24,35 +24,35 @@ $(function () {
         var upSuccess1 = '#upSuccess1';
         var upFail1 = '#upFail1';
         var upIsSuccessFlage1 = '#upIsSuccessFlage1';
-        uplload ($('#pictureField1').val().trim(),$('#fileField1')[0].files[0],upSuccess1,upFail1,upIsSuccessFlage1);
+        uplload ($('#pictureField1').val().trim(),$('#fileField1')[0].files[0],upSuccess1,upFail1,upIsSuccessFlage1,1);
     });
     $('#btn_upload2').click(function () {
         var upSuccess2 = '#upSuccess2';
         var upFail2 = '#upFail2';
         var upIsSuccessFlage2 = '#upIsSuccessFlage2';
-        uplload ($('#pictureField2').val().trim(),$('#fileField2')[0].files[0],upSuccess2,upFail2,upIsSuccessFlage2);
+        uplload ($('#pictureField2').val().trim(),$('#fileField2')[0].files[0],upSuccess2,upFail2,upIsSuccessFlage2,2);
     });
     $('#btn_upload3').click(function () {
         var upSuccess3 = '#upSuccess3';
         var upFail3 = '#upFail3';
         var upIsSuccessFlage3 = '#upIsSuccessFlage3';
-        uplload ($('#pictureField3').val().trim(),$('#fileField3')[0].files[0],upSuccess3,upFail3,upIsSuccessFlage3);
+        uplload ($('#pictureField3').val().trim(),$('#fileField3')[0].files[0],upSuccess3,upFail3,upIsSuccessFlage3,3);
     });
     $('#btn_upload4').click(function () {
         var upSuccess4 = '#upSuccess4';
         var upFail4 = '#upFail4';
         var upIsSuccessFlage4 = '#upIsSuccessFlage4';
-        uplload ($('#pictureField4').val().trim(),$('#fileField4')[0].files[0],upSuccess4,upFail4,upIsSuccessFlage4);
+        uplload ($('#pictureField4').val().trim(),$('#fileField4')[0].files[0],upSuccess4,upFail4,upIsSuccessFlage4,4);
     });
     $('#btn_upload5').click(function () {
         var upSuccess5 = '#upSuccess5';
         var upFail5 = '#upFail5';
         var upIsSuccessFlage5 = '#upIsSuccessFlage5';
-        uplload ($('#pictureField5').val().trim(),$('#fileField5')[0].files[0],upSuccess5,upFail5,upIsSuccessFlage5);
+        uplload ($('#pictureField5').val().trim(),$('#fileField5')[0].files[0],upSuccess5,upFail5,upIsSuccessFlage5,5);
     });
 
     //上传事件
-    function uplload (param1,param2,param3,param4,param5) {
+    function uplload (param1,param2,param3,param4,param5,param6) {
         var fileName = param1;
         var index1 = fileName.lastIndexOf(".");
         var index2 = fileName.length;
@@ -69,8 +69,11 @@ $(function () {
         debugger;
         var formData = new FormData();
         formData.append('image',param2);
-        formData.append('waybillCode',$('#waybillCode').val());
-        // formData.append('reviewDate',$('#reviewDate').val());
+        formData.append('createSiteCode',$('#createSiteCode').val());
+        formData.append('waybillOrPackageCode',$('#waybillOrPackageCode').val());
+        formData.append('isWaybill',$('#isWaybill').val());
+        formData.append('rowIndex',$('#rowIndex').val());
+        formData.append('type',param6);
 
         $.ajax({
             url : uploadUrl,

@@ -41,9 +41,21 @@ public class WeightVolumeCheckConditionB2b implements Serializable {
      * */
     private Integer createSiteCode;
     /**
+     * 操作人ERP
+     * */
+    private String loginErp;
+    /**
      * 是否超标
      * */
     private Integer isExcess;
+
+    public String getLoginErp() {
+        return loginErp;
+    }
+
+    public void setLoginErp(String loginErp) {
+        this.loginErp = loginErp;
+    }
 
     public Integer getIsWaybill() {
         return isWaybill;

@@ -4,7 +4,9 @@ import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightVolumeCheckConditionB2b;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightVolumeCheckOfB2bPackage;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightVolumeCheckOfB2bWaybill;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -56,5 +58,14 @@ public interface WeightAndVolumeCheckOfB2bService {
      * @param siteCode
      * @return
      */
-    com.jd.bluedragon.distribution.base.domain.InvokeResult<String> searchExcessPicture(String packageCode, Integer siteCode);
+    com.jd.bluedragon.distribution.base.domain.InvokeResult<List<String>> searchExcessPicture(String packageCode, Integer siteCode);
+
+    /**
+     * 上传超标图片
+     * @param image
+     * @param request
+     * @return
+     */
+    com.jd.bluedragon.distribution.base.domain.InvokeResult uploadExcessPicture(MultipartFile image, HttpServletRequest request);
+
 }

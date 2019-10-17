@@ -71,6 +71,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     private static final String STORAGE_DOMAIN_COM = "storage.jd.com";
     /**内部 访问域名 */
     private static final String STORAGE_DOMAIN_LOCAL = "storage.jd.local";
+    /** 预签名过期时间 */
+    private static final Integer SIGNATURE_TIMEOUT = 2592000;
 
     @Value("${excess.execute.times}")
     private Integer times;
@@ -144,23 +146,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
 
         InvokeResult<String> result = new InvokeResult<String>();
         try{
-            List<String> urls = new ArrayList<>();
-            ObjectListing objectListing = listObject(prefixName, null, 100);
-            if(objectListing != null && objectListing.getObjectSummaries() != null &&
-                    !objectListing.getObjectSummaries().isEmpty()){
-                for(ObjectSummary objectSummary : objectListing.getObjectSummaries()){
-                    URI uri = getURI(objectSummary.getKey());
-                    if(uri != null){
-                        String uriString = uri.toString();
-                        //将内部访问域名替换成外部访问域名
-                        uriString = uriString.replaceAll(STORAGE_DOMAIN_LOCAL,STORAGE_DOMAIN_COM);
-                        uri = URI.create(uriString);
-                        if(uri != null){
-                            urls.add(uri.toString());
-                        }
-                    }
-                }
-            }
+            List<String> urls = getPictureUrl(prefixName);
             //获取最近的对应的图片并返回
             String excessPictureUrl = getRecentUrl(urls,siteCode);
             if("".equals(excessPictureUrl)){
@@ -173,6 +159,106 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             result.parameterError("查看图片失败!"+prefixName);
         }
         return result;
+    }
+
+    @Override
+    public InvokeResult<List<String>> searchExcessPictureOfB2b(String prefixName, Integer siteCode) {
+        InvokeResult<List<String>> result = new InvokeResult<>();
+        try {
+            List<String> urls = getPictureUrl(prefixName);
+            List<String> excessPictureUrls = getAllTypePictureUrl(urls,siteCode);
+            if(excessPictureUrls.isEmpty()){
+                result.parameterError("图片未上传!"+prefixName);
+                return result;
+            }
+            result.setData(excessPictureUrls);
+        }catch (Exception e){
+            logger.error(prefixName+"|"+siteCode + "获取图片链接失败!" + e);
+            result.parameterError("查看图片失败!"+prefixName);
+        }
+
+        return result;
+    }
+
+    /**
+     * 获取所有单号前缀的图片链接
+     * @param prefixName
+     * @return
+     */
+    private List<String> getPictureUrl(String prefixName){
+        List<String> urls = new ArrayList<>();
+        ObjectListing objectListing = listObject(prefixName, null, 100);
+        if(objectListing != null && objectListing.getObjectSummaries() != null &&
+                !objectListing.getObjectSummaries().isEmpty()){
+            for(ObjectSummary objectSummary : objectListing.getObjectSummaries()){
+                URI uri = getURI(objectSummary.getKey());
+                if(uri != null){
+                    String uriString = uri.toString();
+                    //将内部访问域名替换成外部访问域名
+                    uriString = uriString.replaceAll(STORAGE_DOMAIN_LOCAL,STORAGE_DOMAIN_COM);
+                    uri = URI.create(uriString);
+                    if(uri != null){
+                        urls.add(uri.toString());
+                    }
+                }
+            }
+        }
+        return urls;
+    }
+
+    /**
+     * 获取5种类型图片链接
+     * @param urls
+     * @param siteCode
+     * @return
+     */
+    private List<String> getAllTypePictureUrl(List<String> urls, Integer siteCode) {
+        List<String> list = new ArrayList<>();
+        Map<String,Long> map1 = new HashMap<>();
+        Map<String,Long> map2 = new HashMap<>();
+        Map<String,Long> map3 = new HashMap<>();
+        Map<String,Long> map4 = new HashMap<>();
+        Map<String,Long> map5 = new HashMap<>();
+        for(String url : urls){
+            String[] packageCodeAndOperateTimes = getArrayByUrl(url);
+            String createSiteCode = packageCodeAndOperateTimes[1];
+            //图片类型 1:重量 2:长 3:宽 4:高 5:面单
+            Integer type = Integer.valueOf(packageCodeAndOperateTimes[2]);
+            String operateTime = packageCodeAndOperateTimes[3];
+            if(packageCodeAndOperateTimes.length != 4 || siteCode.equals(createSiteCode)){
+                break;
+            }
+            if(type == 1){
+                map1.put(url,Long.parseLong(operateTime));
+            }else if(type == 2){
+                map2.put(url,Long.parseLong(operateTime));
+            }else if(type == 3){
+                map3.put(url,Long.parseLong(operateTime));
+            }else if(type == 4){
+                map4.put(url,Long.parseLong(operateTime));
+            }else if(type == 5){
+                map5.put(url,Long.parseLong(operateTime));
+            }
+        }
+        list.add(getRecentUrlOfB2b(map1));
+        list.add(getRecentUrlOfB2b(map2));
+        list.add(getRecentUrlOfB2b(map3));
+        list.add(getRecentUrlOfB2b(map4));
+        list.add(getRecentUrlOfB2b(map5));
+
+        return list;
+    }
+
+    private String getRecentUrlOfB2b(Map<String,Long> map){
+        String recentUrl = "";
+        Object[] objects = map.values().toArray();
+        Arrays.sort(objects);
+        for(String url : map.keySet()){
+            if(map.get(url) == objects[objects.length-1]){
+                return url;
+            }
+        }
+        return recentUrl;
     }
 
     private String getRecentUrl(List<String> urls,Integer siteCode){
@@ -293,6 +379,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         weightVolumeCollectDto.setReviewWeight(reviewWeightStr);
         weightVolumeCollectDto.setReviewVolume(reviewVolume);
 
+        abnormalResultMq.setBusinessType(1);
         abnormalResultMq.setReviewLength(reviewLengthStr);
         abnormalResultMq.setReviewWidth(reviewWidthStr);
         abnormalResultMq.setReviewHeight(reviewHighStr);
@@ -698,8 +785,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      * 抛出异常
      */
     public URI getURI(String keyName){
-        //获得带有预签名的下载地址timeout == 10000
-        URI uri = dmsWebJingdongStorageService.bucket(bucket).object(keyName).generatePresignedUrl(10000);
+        //获得带有预签名的下载地址timeout为30天
+        URI uri = dmsWebJingdongStorageService.bucket(bucket).object(keyName).generatePresignedUrl(SIGNATURE_TIMEOUT);
         return uri;
     }
 

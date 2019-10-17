@@ -13,7 +13,7 @@
     <script src="/static/js/weightAndVolumeCheck/excessPictureUploadOfB2b.js"></script>
 </head>
 <body>
-<input type="hidden" id="waybillCode" value="$!{waybillCode}"/>
+<input type="hidden" id="waybillOrPackageCode" value="$!{waybillOrPackageCode}"/>
 <input type="hidden" id="createSiteCode" value="$!{createSiteCode}"/>
 <input type="hidden" id="rowIndex" value="$!{rowIndex}"/>
 <input type="hidden" id="isWaybill" value="$!{isWaybill}"/>
@@ -33,7 +33,7 @@
                                 <div class="form-group">
                                     <label class="control-label col-xs-3" for="box-code-input"></label>
                                     <div class=" col-xs-8">
-                                        <p id="waybillCodeStr" style="font-size: 17px">扫描条码：$!{waybillCode}</p>
+                                        <p id="waybillCodeStr" style="font-size: 17px">单号：$!{waybillOrPackageCode}</p>
                                     </div>
                                 </div>
                             </div>

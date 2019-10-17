@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.weightAndVolumeCheck.controller;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
@@ -42,13 +41,6 @@ public class WeightAndVolumeCheckOfB2bController extends DmsBaseController {
     @Autowired
     private WeightAndVolumeCheckOfB2bService weightAndVolumeCheckOfB2bService;
 
-    /**
-     * 单张图片最大限制
-     * */
-    private static final int SINGLE_IMAGE_SIZE_LIMIT = 1024000;
-
-    @Autowired
-    private BaseMajorManager baseMajorManager;
 
     /**
      * 返回主页面
@@ -62,7 +54,9 @@ public class WeightAndVolumeCheckOfB2bController extends DmsBaseController {
         if(loginUser != null && loginUser.getSiteType() == 64){
             createSiteCode = loginUser.getSiteCode();
         }
+        String loginErp = loginUser.getUserErp();
         model.addAttribute("createSiteCode",createSiteCode);
+        model.addAttribute("loginErp",loginErp);
         return "/weightAndVolumeCheck/weightAndVolumeCheckOfB2b";
     }
 
@@ -149,12 +143,12 @@ public class WeightAndVolumeCheckOfB2bController extends DmsBaseController {
      */
     @Authorization(Constants.DMS_WEB_SORTING_WEIGHTANDVOLUMECHECKOFB2B_R)
     @RequestMapping("/toUpload")
-    public String toUpload(@QueryParam("waybillCode")String waybillCode,
+    public String toUpload(@QueryParam("waybillOrPackageCode")String waybillOrPackageCode,
                            @QueryParam("createSiteCode")Integer createSiteCode,
                            @QueryParam("rowIndex")Integer rowIndex,
                            @QueryParam("isWaybill")Integer isWaybill,
                            Model model) {
-        model.addAttribute("waybillCode",waybillCode);
+        model.addAttribute("waybillOrPackageCode",waybillOrPackageCode);
         model.addAttribute("createSiteCode",createSiteCode);
         model.addAttribute("rowIndex",rowIndex);
         model.addAttribute("isWaybill",isWaybill);
@@ -168,9 +162,9 @@ public class WeightAndVolumeCheckOfB2bController extends DmsBaseController {
     @Authorization(Constants.DMS_WEB_SORTING_WEIGHTANDVOLUMECHECKOFB2B_R)
     @RequestMapping(value = "/searchExcessPicture", method = RequestMethod.GET)
     @ResponseBody
-    public com.jd.bluedragon.distribution.base.domain.InvokeResult<String> searchExcessPicture(@QueryParam("packageCode")String packageCode,
+    public com.jd.bluedragon.distribution.base.domain.InvokeResult<List<String>> searchExcessPicture(@QueryParam("waybillOrPackageCode")String waybillOrPackageCode,
                                                                                                @QueryParam("siteCode")Integer siteCode) {
-        return weightAndVolumeCheckOfB2bService.searchExcessPicture(packageCode,siteCode);
+        return weightAndVolumeCheckOfB2bService.searchExcessPicture(waybillOrPackageCode,siteCode);
     }
 
 
@@ -181,69 +175,8 @@ public class WeightAndVolumeCheckOfB2bController extends DmsBaseController {
     @Authorization(Constants.DMS_WEB_SORTING_WEIGHTANDVOLUMECHECKOFB2B_R)
     @RequestMapping(value = "/uploadExcessPicture", method = RequestMethod.POST)
     @ResponseBody
-    public com.jd.bluedragon.distribution.base.domain.InvokeResult uploadExcessPicture(@RequestParam("image") MultipartFile image, HttpServletRequest request) {
-
-        com.jd.bluedragon.distribution.base.domain.InvokeResult result = new com.jd.bluedragon.distribution.base.domain.InvokeResult();
-
-        /*ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-//        String importErpCode = erpUser.getUserCode();
-        String importErpCode = "bjxings";
-        Integer siteCode = -1;
-        try{
-            BaseStaffSiteOrgDto baseDto = baseMajorManager.getBaseStaffByErpNoCache(importErpCode);
-            if(baseDto != null){
-                siteCode = baseDto.getSiteCode();
-            }
-        }catch (Exception e){
-            logger.error("通过登陆人erp获取所属分拣中心异常!"+importErpCode);
-        }
-
-        long imageSize = image.getSize();
-        String imageName = image.getOriginalFilename();
-        String[] strArray = imageName.split("\\.");
-        String suffixName = strArray[strArray.length - 1];
-        String[] defualtSuffixName = new String[] {"jpg","jpeg","gif","png","bmp"};
-        try{
-            if(!Arrays.asList(defualtSuffixName).contains(suffixName)){
-                result.parameterError("文件格式不正确!"+suffixName);
-                logger.error("文件格式不正确!"+suffixName);
-                return result;
-            }
-            if(imageSize > SINGLE_IMAGE_SIZE_LIMIT){
-                result.parameterError(MessageFormat.format("图片{0}的大小为{1}byte,超出单个图片最大限制{2}byte",
-                        imageName, imageSize, SINGLE_IMAGE_SIZE_LIMIT));
-                logger.warn("单个图片超出限制大小");
-                return result;
-            }
-            //校验文件名称中的特殊字符
-            ValidateValue.validateObjectKey(imageName);
-        }catch (Exception e){
-            String formatMsg = MessageFormat.format("文件名只能是由字母、数字、中划线(-)及点号(.)组成，该文件名称校验失败{0}",imageName );
-            result.parameterError(formatMsg);
-            logger.warn(formatMsg,e);
-            return result;
-        }
-        Long uploadTime  = new Date().getTime();
-        String packageCode = request.getParameter("waybillCode");
-        String reviewDate = new Date().toString();
-        try {
-            String operateTimeForm = DateHelper.formatDate(new Date(),DateHelper.DATE_FORMAT_YYYYMMDDHHmmss);
-            imageName = packageCode + "_" + siteCode + "_" + operateTimeForm + "." + suffixName;
-            //上传到jss
-            weightAndVolumeCheckService.uploadExcessPicture(imageName,imageSize,image.getInputStream());
-        }catch (Exception e){
-            e.printStackTrace();
-            String formatMsg = MessageFormat.format("图片上传失败!该文件名称{0}",imageName );
-            result.parameterError(formatMsg);
-            logger.error(formatMsg,e);
-            return result;
-        }
-        if(result.getCode() == com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_CODE){
-            //上传成功后给判责系统发消息并更新es数据
-            weightAndVolumeCheckService.sendMqAndUpdate(packageCode,siteCode,uploadTime,reviewDate);
-        }*/
-
-        return result;
-
+    public com.jd.bluedragon.distribution.base.domain.InvokeResult uploadExcessPicture(@RequestParam("image") MultipartFile image,
+                                                                                       HttpServletRequest request) {
+        return weightAndVolumeCheckOfB2bService.uploadExcessPicture(image,request);
     }
 }

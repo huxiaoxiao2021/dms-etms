@@ -71,6 +71,7 @@
 </head>
 <body>
 <input type="hidden" id="createSiteCode" value="$!{createSiteCode}"/>
+<input type="hidden" id="loginErp" value="$!{loginErp}"/>
 <div id="dataTableDiv" class="main">
         <ol class="breadcrumb">
             <li><a href="#">分拣中心</a></li>

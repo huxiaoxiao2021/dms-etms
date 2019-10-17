@@ -185,7 +185,6 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
             //上传到jss
             weightAndVolumeCheckService.uploadExcessPicture(imageName,imageSize,image.getInputStream());
         }catch (Exception e){
-            e.printStackTrace();
             String formatMsg = MessageFormat.format("图片上传失败!该文件名称{0}",imageName );
             result.parameterError(formatMsg);
             logger.error(formatMsg,e);

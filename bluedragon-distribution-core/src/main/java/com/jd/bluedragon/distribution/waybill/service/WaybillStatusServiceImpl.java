@@ -1,33 +1,40 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
-import java.text.MessageFormat;
-import java.util.*;
-
-import com.jd.bluedragon.common.domain.RepeatPrint;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
-import com.jd.bluedragon.distribution.inventory.service.PackageStatusService;
-import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
-import com.jd.bluedragon.distribution.sorting.domain.Sorting;
-import com.jd.bluedragon.distribution.sorting.service.SortingService;
-import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.distribution.half.domain.PackageHalf;
 import com.jd.bluedragon.distribution.half.domain.PackageHalfDetail;
 import com.jd.bluedragon.distribution.half.domain.PackageHalfReasonTypeEnum;
 import com.jd.bluedragon.distribution.half.domain.PackageHalfResultTypeEnum;
+import com.jd.bluedragon.distribution.inventory.service.PackageStatusService;
+import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
+import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.sorting.domain.Sorting;
+import com.jd.bluedragon.distribution.sorting.service.SortingService;
+import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
+import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.PropertiesHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.api.WaybillSyncApi;
+import com.jd.etms.waybill.common.Result;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.WaybillParameter;
+import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.etms.waybill.dto.OrderShipsDto;
 import com.jd.etms.waybill.handler.PackageSyncPartParameter;
+import com.jd.etms.waybill.handler.WaybillSyncParameter;
+import com.jd.etms.waybill.handler.WaybillSyncParameterExtend;
 import com.jd.etms.waybill.handler.WaybillSyncPartParameter;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
@@ -36,21 +43,14 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
-import com.jd.bluedragon.distribution.base.service.SiteService;
-import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
-import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.bluedragon.distribution.task.service.TaskService;
-import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.StringHelper;
-import com.jd.etms.waybill.common.Result;
-import com.jd.etms.waybill.dto.BdTraceDto;
-import com.jd.etms.waybill.handler.WaybillSyncParameter;
-import com.jd.etms.waybill.handler.WaybillSyncParameterExtend;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Service("waybillStatusService")
 public class WaybillStatusServiceImpl implements WaybillStatusService {
@@ -776,6 +776,17 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			 */
 			if (null != task.getKeyword2() &&
 					(String.valueOf(WaybillStatus.WAYBILL_TRACK_WAYBILL_TRANSFER).equals(task.getKeyword2()))) {
+				toWaybillStatus(tWaybillStatus, bdTraceDto);
+				bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
+				waybillQueryManager.sendBdTrace(bdTraceDto);
+				task.setYn(0);
+			}
+
+			/**
+			 * 重复抽检
+			 */
+			if (null != task.getKeyword2() &&
+					(String.valueOf(WaybillStatus.WAYBILL_STATUS_WEIGHT_VOLUME_SPOT_CHECK).equals(task.getKeyword2()))) {
 				toWaybillStatus(tWaybillStatus, bdTraceDto);
 				bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
 				waybillQueryManager.sendBdTrace(bdTraceDto);

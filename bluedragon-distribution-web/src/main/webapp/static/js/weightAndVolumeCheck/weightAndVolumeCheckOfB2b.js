@@ -71,7 +71,7 @@ $(function () {
                         maxmin: true,
                         shadeClose: false,
                         area: ['1000px', '600px'],
-                        content: toUploadUrl + "?waybillCode=" + row.waybillCode
+                        content: toUploadUrl + "?waybillOrPackageCode=" + row.waybillCode
                             + "&createSiteCode=" + $('#createSiteCode').val() + "&rowIndex=" + rowIndex + "&isWaybill=" + 1,
                         success: function(layero, index){
                         }
@@ -86,22 +86,19 @@ $(function () {
                     };
                     $.ajax({
                         type : "get",
-                        url : searchExcessPictureUrl + "?packageCode=" + row.packageCode + "&siteCode=" + $('#createSiteCode').val(),
+                        url : searchExcessPictureUrl + "?waybillOrPackageCode=" + row.waybillCode + "&siteCode=" + $('#createSiteCode').val(),
                         data : {},
                         async : false,
                         success : function (data) {
                             if(data && data.code == 200){
-                                layer.open({
-                                    type: 2,
-                                    title: "",
-                                    shadeClose: true,
-                                    shade: 0.5,
-                                    area: ['500px','400px'],
-                                    content: data.data,
-                                    success: function(layero, index) {
-                                        layer.iframeAuto(index);
+                                //在新窗口展示所有图片
+                                var list = data.data;
+                                for(var i=0;i<list.length;i++){
+                                    if(list[i] == null || list[i] == ""){
+                                        break;
                                     }
-                                });
+                                    window.open(list[i]);
+                                }
                             }else{
                                 Jd.alert(data.message);
                             }
@@ -293,12 +290,13 @@ $(function () {
                 param.isExcess = waybillData[i].isExcess;
                 param.upLoadNum = uploadNum;
                 param.createSiteCode = $('#createSiteCode').val();
+                param.loginErp = $('#loginErp').val();
                 params.push(param);
             }
 
             jQuery.ajax({
                 type: 'post',
-                url: '/weightAndVolumeCheckOfB2b/waybillSubmitUrl',
+                url: waybillSubmitUrl,
                 dataType: "json",//必须json
                 contentType: "application/json", // 指定这个协议很重要
                 data: JSON.stringify(params),
@@ -331,6 +329,7 @@ $(function () {
             var params = [];
             $.each(allTableData,function(i,e){
                 var param = {};
+                param.loginErp = $('#loginErp').val();
                 param.createSiteCode = $('#createSiteCode').val();
                 param.isWaybill = 0;
                 param.packageCode = e.packageCode;
@@ -571,7 +570,7 @@ function showAllPackage(){
                         maxmin: true,
                         shadeClose: false,
                         area: ['1000px', '600px'],
-                        content: toUploadUrl + "?waybillCode=" + row.packageCode
+                        content: toUploadUrl + "?waybillOrPackageCode=" + row.packageCode
                             + "&createSiteCode=" + $('#createSiteCode').val() + "&rowIndex=" + rowIndex + "&isWaybill=" + 0,
                         success: function(layero, index){
                         }
@@ -590,22 +589,19 @@ function showAllPackage(){
                     };
                     $.ajax({
                         type : "get",
-                        url : searchExcessPictureUrl + "?packageCode=" + row.packageCode + "&siteCode=" + $('#createSiteCode').val(),
+                        url : searchExcessPictureUrl + "?waybillOrPackageCode=" + row.packageCode + "&siteCode=" + $('#createSiteCode').val(),
                         data : {},
                         async : false,
                         success : function (data) {
                             if(data && data.code == 200){
-                                layer.open({
-                                    type: 2,
-                                    title: "",
-                                    shadeClose: true,
-                                    shade: 0.5,
-                                    area: ['500px','400px'],
-                                    content: data.data,
-                                    success: function(layero, index) {
-                                        layer.iframeAuto(index);
+                                //在新窗口展示所有图片
+                                var list = data.data;
+                                for(var i=0;i<list.length;i++){
+                                    if(list[i] == null || list[i] == ""){
+                                        break;
                                     }
-                                });
+                                    window.open(list[i]);
+                                }
                             }else{
                                 Jd.alert(data.message);
                             }

@@ -12,6 +12,7 @@ public class WeightVolumeCheckOfB2bPackage implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    private String loginErp;
     private Integer createSiteCode;
     private Integer isWaybill;
     private String packageCode;
@@ -21,6 +22,32 @@ public class WeightVolumeCheckOfB2bPackage implements Serializable {
     private Double height;
     private Integer isExcess;
     private Integer upLoadNum;
+    private Double totalWeight;
+    private Double totalVolume;
+
+    public Double getTotalWeight() {
+        return totalWeight;
+    }
+
+    public void setTotalWeight(Double totalWeight) {
+        this.totalWeight = totalWeight;
+    }
+
+    public Double getTotalVolume() {
+        return totalVolume;
+    }
+
+    public void setTotalVolume(Double totalVolume) {
+        this.totalVolume = totalVolume;
+    }
+
+    public String getLoginErp() {
+        return loginErp;
+    }
+
+    public void setLoginErp(String loginErp) {
+        this.loginErp = loginErp;
+    }
 
     public Integer getCreateSiteCode() {
         return createSiteCode;
