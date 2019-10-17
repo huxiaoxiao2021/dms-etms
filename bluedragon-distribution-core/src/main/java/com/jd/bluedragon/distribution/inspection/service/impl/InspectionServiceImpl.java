@@ -565,7 +565,7 @@ public class InspectionServiceImpl implements InspectionService {
      */
     private BigWaybillDto getWaybill(String waybillCode)
     {
-        BigWaybillDto bigWaybillDto=waybillService.getWaybill(waybillCode);
+        BigWaybillDto bigWaybillDto=waybillService.getWaybill(waybillCode, false);
         if(bigWaybillDto==null || bigWaybillDto.getWaybill()==null){
             this.logger.error(" 获取运单：【 " + waybillCode + " 】数据为空");
             return null;
@@ -710,7 +710,7 @@ public class InspectionServiceImpl implements InspectionService {
 		String hintMessage = "";
 		Integer preSiteCode = null;
 		Integer destinationDmsId = null;
-		com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findWaybillAndPack(waybillCode);
+		com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findByWaybillCode(waybillCode);
 		if(waybill != null && waybill.getWaybillSign() != null){
 			//是否是金鹏订单
 			if(BusinessUtil.isPerformanceOrder(waybill.getWaybillSign())){

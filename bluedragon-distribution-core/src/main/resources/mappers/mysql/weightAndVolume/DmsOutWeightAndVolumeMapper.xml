@@ -209,4 +209,19 @@
 		order by create_time DESC
 		limit 1
 	</select>
+
+	<select id="queryListByBarCodes" parameterType="java.util.Map" resultMap="DmsOutWeightAndVolume">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		dms_out_weight_volume
+		where is_delete = 0
+		and barcode in
+		<foreach collection="barCodeList" item="item" index="index" open="(" separator="," close=")">
+			#{item,jdbcType=VARCHAR}
+		</foreach>
+		and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		order by create_time DESC
+	</select>
+
 </mapper>

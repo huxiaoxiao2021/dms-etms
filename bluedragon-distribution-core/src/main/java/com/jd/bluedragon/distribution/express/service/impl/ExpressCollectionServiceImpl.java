@@ -91,7 +91,7 @@ public class ExpressCollectionServiceImpl implements ExpressCollectionService {
     @Override
     public ExpressBoxDetailsResponse findExpressBoxDetails(ExpressBoxDetailsResponse expressBoxDetailsResponse, Integer createSiteCode ,String waybillCode, String statusQueryCode) {
         //获取运单信息
-        Waybill waybill = waybillCommonService.findWaybillAndPack(waybillCode);
+        Waybill waybill = waybillCommonService.findByWaybillCode(waybillCode);
 
         //判断运单信息是否为空，为空则提示运单号不存在
         if (null == waybill) {
@@ -101,11 +101,11 @@ public class ExpressCollectionServiceImpl implements ExpressCollectionService {
         }
 
         //获取全部包裹
-        List<Pack> packList = waybill.getPackList();
+        Integer quantity = waybill.getQuantity();
 
         Map<String, List<String>> boxCodesMap = new HashMap<String, List<String>>();
 
-        if (null != packList && packList.size() > 0) {
+        if (null != quantity && quantity > 0) {
             //获取已扫描箱号以及包裹号
             findScanPackagesByWaybillAndStatus(createSiteCode,waybillCode, statusQueryCode, boxCodesMap);
         }

@@ -6,7 +6,13 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.exception.StorageException;
 import com.jd.bluedragon.distribution.storage.dao.StoragePackageDDao;
-import com.jd.bluedragon.distribution.storage.domain.*;
+import com.jd.bluedragon.distribution.storage.dao.StoragePackageMDao;
+import com.jd.bluedragon.distribution.storage.domain.PutawayDTO;
+import com.jd.bluedragon.distribution.storage.domain.StoragePackageD;
+import com.jd.bluedragon.distribution.storage.domain.StoragePackageM;
+import com.jd.bluedragon.distribution.storage.domain.StoragePackageMCondition;
+import com.jd.bluedragon.distribution.storage.domain.StoragePackageMStatusEnum;
+import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
@@ -20,25 +26,25 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.BaseService;
-
+import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.api.PagerCondition;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
-import com.sun.xml.bind.v2.TODO;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
-import com.jd.bluedragon.distribution.storage.dao.StoragePackageMDao;
-import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -151,12 +157,12 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 		//初始成0
 		storagePackageM.setPutawayPackageSum(0L);
 
-		BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(needInitWaybillCode, true,true, true, true);
+		BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(needInitWaybillCode, true,true, true, false);
 		BigWaybillDto bigWaybillDto = baseEntity.getData();
 
 		storagePackageM.setPerformanceCode(performanceCode);
 		storagePackageM.setPlanDeliveryTime(bigWaybillDto.getWaybill().getRequireTime());
-		storagePackageM.setPackageSum(Long.valueOf(bigWaybillDto.getPackageList().size()));
+		storagePackageM.setPackageSum(Long.valueOf(bigWaybillDto.getWaybill().getGoodNumber()));
 		storagePackageM.setStatus(Integer.valueOf(StoragePackageMStatusEnum.FORCE_SEND_3.getCode()));
 
 		makeStoragePackageMBase(storagePackageM,putawayDTO);

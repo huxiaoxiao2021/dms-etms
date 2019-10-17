@@ -16,6 +16,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 @Service("sealBoxService")
@@ -53,6 +55,15 @@ public class SealBoxServiceImpl implements SealBoxService {
 	public SealBox findByBoxCode(String boxCode) {
 		Assert.notNull(boxCode, "boxCode must not be null");
 		return this.sealBoxDao.findByBoxCode(boxCode);
+	}
+
+	@Override
+	public List<SealBox> findListByBoxCodes(List<String> boxCodeList) {
+		Assert.notNull(boxCodeList, "boxCodeList must not be null");
+		if (boxCodeList.size() == 0) {
+			return Collections.EMPTY_LIST;
+		}
+		return this.sealBoxDao.findListByBoxCodes(boxCodeList);
 	}
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
