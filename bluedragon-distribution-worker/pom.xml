@@ -193,13 +193,6 @@
 			<version>2.3</version>
 		</dependency>
 
-		<!--安全相关 ConfigSecSDK importants运行环境加密-->
-		<dependency>
-			<groupId>com.jd.security.configsec</groupId>
-			<artifactId>spring-configsec-sdk</artifactId>
-			<version>1.0.2.RELEASE</version>
-		</dependency>
-
 		<!--京东安全禁止jsp直接访问-开始-->
 		<dependency>
 			<groupId>com.jd.security</groupId>

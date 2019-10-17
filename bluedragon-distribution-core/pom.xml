@@ -620,6 +620,17 @@
 		    <artifactId>iwms-app-export</artifactId>
 		    <version>0.2.0-SNAPSHOT</version>
 		</dependency>
+        <!-- 国际化-库存出管 -->
+        <dependency>
+            <groupId>com.jd.stock.iwms</groupId>
+            <artifactId>iwms-app-export</artifactId>
+            <version>1.0.2-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>stock-sdk</groupId>
+            <artifactId>stock-sdk-base</artifactId>
+            <version>7.1.1-jdk6-SNAPSHOT</version>
+        </dependency>
 		<dependency>
 			<groupId>com.jd.etms.vos</groupId>
 			<artifactId>etms-vos-client</artifactId>
@@ -810,6 +821,13 @@
 			<artifactId>jss-sdk-java</artifactId>
 			<version>1.3.0</version>
 		</dependency>
+
+        <!--安全相关 ConfigSecSDK importants运行环境加密-->
+        <dependency>
+            <groupId>com.jd.security.configsec</groupId>
+            <artifactId>spring-configsec-sdk</artifactId>
+            <version>1.0.2.RELEASE</version>
+        </dependency>
 
         <!-- 用户组接口 -->
         <dependency>

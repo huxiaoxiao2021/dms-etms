@@ -50,6 +50,8 @@
                 <value>uccPropertyConfiguration.workerFetchWithoutFailedTable</value>
 				<value>uccPropertyConfiguration.waybillSplitPageSize</value>
                 <value>uccPropertyConfiguration.sortingServiceMode</value>
+                <value>uccPropertyConfiguration.chuguanNewInterfaceSwitch</value>
+                <value>uccPropertyConfiguration.chuguanNewInterfaceQuerySwitch</value>
 			</list>
 		</property>
 	</bean>
