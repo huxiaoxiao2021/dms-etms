@@ -9,19 +9,16 @@ import com.jd.ioms.jsf.export.domain.ExportResult;
 import com.jd.ioms.jsf.export.domain.Order;
 import com.jd.ioms.jsf.export.domain.OrderDetail;
 import com.jd.ql.basic.domain.Assort;
-
 import jd.oom.client.core.OrderLoadFlag;
 import jd.oom.client.orderfile.OrderArchiveInfo;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
 
-@Lazy
 @Service("orderWebService")
 public class OrderWebService {
 

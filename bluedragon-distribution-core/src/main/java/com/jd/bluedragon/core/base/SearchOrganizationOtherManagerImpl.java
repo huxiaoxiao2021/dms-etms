@@ -1,10 +1,13 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ufo.common.utility.ResponseObject;
 import com.jd.ufo.domain.ufo.Organization;
 import com.jd.ufo.domain.ufo.SendpayOrdertype;
 import com.jd.ufo.saf.SearchOrganizationOtherService;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +28,7 @@ public class SearchOrganizationOtherManagerImpl implements SearchOrganizationOth
 
 
     @Override
+    @JProfiler(jKey = "DMS.BASE.SearchOrganizationOtherManagerImpl.findFinancialOrg", mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
     public Organization findFinancialOrg(SendpayOrdertype var1) {
 
         try{
