@@ -99,6 +99,32 @@ public class DapResource {
 		return response;
 	}
 
+    @GET
+    @Path("/table/row/undiv")
+    public JdResponse<List<DapInfo>> getUndivTableRows() {
+        JdResponse<List<DapInfo>> response = new JdResponse<>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
+//        if (checkUser(response)) {
+//            return response;
+//        }
+
+        List<DapInfo> dapInfoList = getTableRowInfo(response, "dms_main_undiv");
+        response.setData(dapInfoList);
+        return response;
+    }
+
+    @GET
+    @Path("/table/row/task")
+    public JdResponse<List<DapInfo>> getTaskTableRows() {
+        JdResponse<List<DapInfo>> response = new JdResponse<>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
+        if (checkUser(response)) {
+            return response;
+        }
+
+        List<DapInfo> dapInfoList = getTableRowInfo(response, "dms_main_task");
+        response.setData(dapInfoList);
+        return response;
+    }
+
 	private List<DapInfo> getDapInfos(JdResponse<List<DapInfo>> response, List<String> unDivTableNames, String dbBeanName) {
 		Connection connection = null;
 
@@ -139,7 +165,7 @@ public class DapResource {
 		return dapInfoList;
 	}
 
-	private boolean checkUser(JdResponse<List<DapInfo>> response) {
+	private boolean checkUser(JdResponse response) {
 		ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
 		if (erpUser == null) {
 			response.setCode(JdResponse.CODE_ERROR);
@@ -175,7 +201,6 @@ public class DapResource {
 			if (resultSet.next()) {
 				date = (Date) resultSet.getObject(columnName);
 			}
-			return date;
 		} catch (Exception e) {
 			logger.warn(e);
 		} finally {
@@ -196,4 +221,56 @@ public class DapResource {
 		}
 		return date;
 	}
+
+    private List<DapInfo> getTableRowInfo(JdResponse<List<DapInfo>> response, String dbBeanName) {
+        Connection connection = null;
+        PreparedStatement pstmt = null;
+        ResultSet resultSet = null;
+        List<DapInfo> dapInfoList = new ArrayList<>();
+
+        try {
+            this.dataSource = (DataSource) SpringHelper.getBean(dbBeanName);
+            connection = this.dataSource.getConnection();
+            String sql = "select table_name,table_rows from information_schema.tables  where table_schema='bd_dms_core' order by table_rows desc";
+            pstmt = connection.prepareStatement(sql);
+            pstmt.setQueryTimeout(StringHelper.isEmpty(DapResource.STATEMENT_TIME_OUT)?30:Integer.valueOf(DapResource.STATEMENT_TIME_OUT));
+            resultSet = pstmt.executeQuery();
+            DapInfo dapInfo = null;
+            while (resultSet != null && resultSet.next()) {
+                dapInfo = new DapInfo();
+                dapInfo.setTableName(resultSet.getObject("table_name").toString());
+                dapInfo.setRowCount(resultSet.getObject("table_rows").toString());
+
+                dapInfoList.add(dapInfo);
+            }
+        } catch (Exception e) {
+            response.setCode(JdResponse.CODE_ERROR);
+            response.setMessage(JdResponse.MESSAGE_ERROR);
+            logger.debug(e);
+        } finally {
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException se) {
+                this.logger.debug("关闭文件流发生异常！", se);
+            }
+            try {
+                if (resultSet != null) {
+                    resultSet.close();
+                }
+            } catch (SQLException se) {
+                this.logger.warn("关闭文件流发生异常！", se);
+            }
+            try {
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+            } catch (SQLException se) {
+                this.logger.warn("关闭PreparedStatement发生异常！", se);
+            }
+        }
+        return dapInfoList;
+    }
+
 }

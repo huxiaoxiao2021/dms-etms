@@ -19,6 +19,8 @@ public class DapInfo implements Serializable {
 
     private Integer updateDateGap;
 
+    private String rowCount;
+
     public String getTableName() {
         return tableName;
     }
@@ -74,5 +76,13 @@ public class DapInfo implements Serializable {
 
     public void setUpdateDateGap(Integer updateDateGap) {
         this.updateDateGap = updateDateGap;
+    }
+
+    public String getRowCount() {
+        return rowCount;
+    }
+
+    public void setRowCount(String rowCount) {
+        this.rowCount = rowCount;
     }
 }
