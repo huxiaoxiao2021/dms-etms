@@ -80,7 +80,7 @@ public class DapInfoController extends DmsBaseController {
 		if (dbId == 1) {
 			list = dapResource.getUndivTableRows().getData();
 		} else if (dbId == 2) {
-			list = dapResource.getUndivTableRows().getData();
+			list = dapResource.getTaskTableRows().getData();
 		}
 		pagerResult.setRows(list);
 		pagerResult.setTotal(list == null ? 0 : list.size());
