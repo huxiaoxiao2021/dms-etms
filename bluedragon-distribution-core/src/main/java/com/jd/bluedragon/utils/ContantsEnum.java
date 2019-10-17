@@ -17,7 +17,7 @@ public class ContantsEnum {
         PUT_GOODS(1,"放货"),
         RETURN_GOODS(2,"退货"),
         SALE(3,"销售"),
-        OTHER(6,"其它");//todo
+        OTHER(6,"其它");
         private Integer type;
         private String text;
 

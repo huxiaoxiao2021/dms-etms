@@ -89,6 +89,9 @@ public class ReverseReceiveNotifyStockService {
 
     private static final String CHUGUAN_FIELD_QITAFANGSHI = "逆向物流";
 
+    //出管 其他方式字段值，依旧换新 需要传此值
+    private static final String CHUGUAN_FIELD_STILL_NEW_QTFS = "trade-in";
+
 	@Autowired
 	private OrderWebService orderWebService;
 
@@ -401,7 +404,7 @@ public class ReverseReceiveNotifyStockService {
         if(isOldForNewType){
             //开票机构ID
             chuguanParam.setLaiYuanCode(getKPJGID(order));
-            chuguanParam.setQiTaFangShi("trade-in");
+            chuguanParam.setQiTaFangShi(CHUGUAN_FIELD_STILL_NEW_QTFS);
         }else{
 
             chuguanParam.setLaiYuanCode(order.getCustomerName());
@@ -489,7 +492,7 @@ public class ReverseReceiveNotifyStockService {
         inWmsStock0.setCgdanhao(0);
 
         if(isOldForNewType){
-            inWmsStock0.setQtfs("trade-in");
+            inWmsStock0.setQtfs(CHUGUAN_FIELD_STILL_NEW_QTFS);
             //开票机构ID
             inWmsStock0.setLaiyuancode(getKPJGID(order));
         }else{
@@ -535,7 +538,7 @@ public class ReverseReceiveNotifyStockService {
         outSpwmsStock0.setPhdanhao(0);
         outSpwmsStock0.setCgdanhao(0);
         if(isOldForNewType){
-            outSpwmsStock0.setQtfs("trade-in");
+            outSpwmsStock0.setQtfs(CHUGUAN_FIELD_STILL_NEW_QTFS);
             //开票机构ID
             outSpwmsStock0.setLaiyuancode(getKPJGID(order));
         }else {
