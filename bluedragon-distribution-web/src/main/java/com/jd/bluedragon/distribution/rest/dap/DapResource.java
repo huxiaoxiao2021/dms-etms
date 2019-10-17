@@ -41,9 +41,7 @@ public class DapResource {
 	private static final String UN_DIV_TABLE_NAMES = "undivTableNames";
 	private static final String TASK_TABLE_NAMES = "taskTableNames";
 	private static final String DIV_TABLE_NAMES = "divTableNames";
-	private static final String ALLOW_USERS = "queryUsers";
 
-	private static final List<String> queryUsers;
 	private static final List<String> unDivTableNames;
 	private static final List<String> taskTableNames;
 	private static final List<String> divTableNames;
@@ -52,7 +50,6 @@ public class DapResource {
 	private DataSource dataSource = null;
 
 	static {
-		queryUsers = Arrays.asList(PropertiesHelper.newInstance().getValue(DapResource.ALLOW_USERS).split(Constants.SEPARATOR_COMMA));
 		unDivTableNames = Arrays.asList(PropertiesHelper.newInstance().getValue(DapResource.UN_DIV_TABLE_NAMES).split(Constants.SEPARATOR_COMMA));
 		taskTableNames = Arrays.asList(PropertiesHelper.newInstance().getValue(DapResource.TASK_TABLE_NAMES).split(Constants.SEPARATOR_COMMA));
 		divTableNames = Arrays.asList(PropertiesHelper.newInstance().getValue(DapResource.DIV_TABLE_NAMES).split(Constants.SEPARATOR_COMMA));
@@ -64,10 +61,6 @@ public class DapResource {
 	@Path("/dap/info/undiv")
 	public JdResponse<List<DapInfo>> getUndiv() {
 		JdResponse<List<DapInfo>> response = new JdResponse<>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
-		if (checkUser(response)) {
-			return response;
-		}
-
 		List<DapInfo> dapInfoList = getDapInfos(response, unDivTableNames, "dms_main_undiv");
 		response.setData(dapInfoList);
 		return response;
@@ -77,10 +70,6 @@ public class DapResource {
 	@Path("/dap/info/task")
 	public JdResponse<List<DapInfo>> getTask() {
 		JdResponse<List<DapInfo>> response = new JdResponse<>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
-		if (checkUser(response)) {
-			return response;
-		}
-
 		List<DapInfo> dapInfoList = getDapInfos(response, taskTableNames, "dms_main_task");
 		response.setData(dapInfoList);
 		return response;
@@ -90,10 +79,6 @@ public class DapResource {
 	@Path("/dap/info/div")
 	public JdResponse<List<DapInfo>> getDiv() {
 		JdResponse<List<DapInfo>> response = new JdResponse<>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
-		if (checkUser(response)) {
-			return response;
-		}
-
 		List<DapInfo> dapInfoList = getDapInfos(response, divTableNames, "jddlShardingDataSource");
 		response.setData(dapInfoList);
 		return response;
@@ -103,10 +88,6 @@ public class DapResource {
     @Path("/table/row/undiv")
     public JdResponse<List<DapInfo>> getUndivTableRows() {
         JdResponse<List<DapInfo>> response = new JdResponse<>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
-//        if (checkUser(response)) {
-//            return response;
-//        }
-
         List<DapInfo> dapInfoList = getTableRowInfo(response, "dms_main_undiv");
         response.setData(dapInfoList);
         return response;
@@ -116,10 +97,6 @@ public class DapResource {
     @Path("/table/row/task")
     public JdResponse<List<DapInfo>> getTaskTableRows() {
         JdResponse<List<DapInfo>> response = new JdResponse<>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
-        if (checkUser(response)) {
-            return response;
-        }
-
         List<DapInfo> dapInfoList = getTableRowInfo(response, "dms_main_task");
         response.setData(dapInfoList);
         return response;
@@ -163,22 +140,6 @@ public class DapResource {
 			}
 		}
 		return dapInfoList;
-	}
-
-	private boolean checkUser(JdResponse response) {
-		ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-		if (erpUser == null) {
-			response.setCode(JdResponse.CODE_ERROR);
-			response.setMessage("登录信息有误");
-			return true;
-		}
-		if (!DapResource.queryUsers.contains(erpUser.getUserCode().toLowerCase())) {
-			logger.info("用户erp账号：" + erpUser.getUserCode() + "不在查询用户列表中！");
-			response.setCode(JdResponse.CODE_FAIL);
-			response.setMessage("用户erp账号：" + erpUser.getUserCode() + "不在查询用户列表中！");
-			return true;
-		}
-		return false;
 	}
 
 	private Integer differentDaysByMillisecond(Date date1, Date date2) {

@@ -48,18 +48,39 @@ public class DapInfoController extends DmsBaseController {
 		return "/dap/dapInfo";
 	}
 
+	@RequestMapping(value = "/toTableRowIndex")
+	public String toTableRowIndex() {
+		return "/dap/tableRowInfo";
+	}
+
 	@Authorization(Constants.DMS_WEB_DEVELOP_SQLKIT_R)
 	@RequestMapping(value = "/listData")
 	public @ResponseBody PagerResult<DapInfo> listData(@RequestParam("dbId") Integer dbId) {
 
 		PagerResult<DapInfo> pagerResult = new PagerResult<>();
 		List<DapInfo> list = null;
-		if (dbId == 0) {
+		if (dbId == 1) {
 			list = dapResource.getUndiv().getData();
-		} else if (dbId == 1) {
-			list = dapResource.getTask().getData();
 		} else if (dbId == 2) {
+			list = dapResource.getTask().getData();
+		} else if (dbId == 3) {
 			list = dapResource.getDiv().getData();
+		}
+		pagerResult.setRows(list);
+		pagerResult.setTotal(list == null ? 0 : list.size());
+		return pagerResult;
+	}
+
+	@Authorization(Constants.DMS_WEB_DEVELOP_SQLKIT_R)
+	@RequestMapping(value = "/listTableRowData")
+	public @ResponseBody PagerResult<DapInfo> listTableRowData(@RequestParam("dbId") Integer dbId) {
+
+		PagerResult<DapInfo> pagerResult = new PagerResult<>();
+		List<DapInfo> list = null;
+		if (dbId == 1) {
+			list = dapResource.getUndivTableRows().getData();
+		} else if (dbId == 2) {
+			list = dapResource.getUndivTableRows().getData();
 		}
 		pagerResult.setRows(list);
 		pagerResult.setTotal(list == null ? 0 : list.size());

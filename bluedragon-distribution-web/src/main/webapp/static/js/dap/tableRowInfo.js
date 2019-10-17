@@ -1,14 +1,13 @@
 $(function() {
 
-	var queryUrl = '/dap/info/listData';
+	var queryUrl = '/dap/info/listTableRowData';
 
 	$.combobox.createNew('dbId',{
 		width: '150',
 		placeholder:'请选择',
 		data:[
-			{id:'1',text:'非拆分库'},
-			{id:'2',text:'任务库'},
-			{id:'3',text:'拆分库'}
+			{id:'0',text:'非拆分库'},
+			{id:'1',text:'任务库'}
 		]
 	});
 
@@ -55,7 +54,6 @@ $(function() {
 				return {'dbId' : data[0].id};
 			}
 			return {'dbId' : 0};
-
 		};
 
 		oTableInit.tableColums = [
@@ -64,57 +62,21 @@ $(function() {
 				formatter: function(value, row, index) {
 					// 显示行号
 					return index + 1;
-				}
+				},
+				align : "center",
+				width: '80px',
 			},
 			{
 				field: 'tableName',
-				title: '表名'
+				title: '表名',
+				align : "center",
+				width: '250px',
 			},
 			{
-				field: 'createTime',
-				title: 'createTime',
-				formatter : function (value, row, index) {
-					if(value == null){
-						return null;
-					}else {
-						return $.dateHelper.formatDateTime(new Date(value));
-					}
-				}
-			},
-			{
-				field: 'createTimeGap',
-				title: 'createTime与今天相隔天数'
-			},
-			{
-				field: 'ts',
-				title: 'ts',
-				formatter : function (value, row, index) {
-					if(value == null){
-						return null;
-					}else {
-						return $.dateHelper.formatDateTime(new Date(value));
-					}
-				}
-			},
-			{
-				field: 'tsGap',
-				title: 'ts与今天相隔天数'
-			},
-			{
-				field: 'updateTime',
-				title: 'updateTime',
-				formatter : function (value, row, index) {
-					if(value == null){
-						return null;
-					}else {
-						return $.dateHelper.formatDateTime(new Date(value));
-					}
-				}
-			},
-			{
-				field: 'updateTimeGap',
-				title: 'updateTime与今天相隔天数'
-			}];
+				field: 'rowCount',
+				title: '行数'
+			}
+			];
 		oTableInit.refresh = function() {
 			$('#dataTable').bootstrapTable('refresh');
 		};
@@ -135,6 +97,5 @@ $(function() {
 
 	pageInit().init();
 	tableInit().init();
-
 
 });
