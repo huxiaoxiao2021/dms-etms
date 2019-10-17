@@ -1,5 +1,6 @@
 package com.jd.bluedragon.dms.utils;
 
+import com.jd.etms.waybill.constant.WaybillCodePattern;
 import com.jd.etms.waybill.util.UniformValidateUtil;
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
 import org.apache.commons.lang.StringUtils;
@@ -314,6 +315,15 @@ public class WaybillUtil {
             return matcher.group(6);
         }
         return null;
+    }
+
+    /**
+     * 根据单号判断是否是拼多多运单单号
+     * @param waybillCode 单号
+     * @return 是拼多多则返回true 否则返回false
+     */
+    public static boolean isPDDWaybillCode(String waybillCode) {
+        return UniformValidateUtil.isWaybillCodeMatchType(waybillCode, WaybillCodePattern.PDD_WAYBILL_CODE);
     }
 
 

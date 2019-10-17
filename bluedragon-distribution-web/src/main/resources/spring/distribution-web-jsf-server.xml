@@ -172,4 +172,11 @@
                   alias="${dms.jsf.alias}"
                   ref="dmsForMiddleEndService" server="dmsjsf">
     </jsf:provider>
+
+    <!-- 为外单提供jsf接口，获取拼多多的面单打印收寄件人信息 -->
+    <jsf:provider id="pddExternalJSFService"
+                  interface="com.jd.bluedragon.distribution.external.pdd.DMSExternalInPDDService"
+                  alias="${dms.jsf.alias}"
+                  ref="dmsExternalInPDDService" server="dmsjsf">
+    </jsf:provider>
 </beans>
