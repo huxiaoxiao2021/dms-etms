@@ -44,15 +44,13 @@ public class PDDExternalJSFServiceImpl implements DMSExternalInPDDService {
             }
             BaseEntity<PDDWaybillPrintInfoDto> baseEntity = new BaseEntity<>(BaseEntity.CODE_SUCCESS, BaseEntity.MESSAGE_SUCCESS);
             PDDWaybillPrintInfoDto pddWaybillPrintInfoDto = new PDDWaybillPrintInfoDto();
-            pddWaybillDetailDto.setWaybillCode(waybillCode);
-            pddWaybillDetailDto.setSenderName(pddWaybillDetailDto.getSenderName());
-            pddWaybillDetailDto.setSenderMobile(pddWaybillDetailDto.getSenderMobile());
-            pddWaybillDetailDto.setSenderPhone(pddWaybillDetailDto.getSenderPhone());
-            pddWaybillDetailDto.setSenderAddress(pddWaybillDetailDto.getSenderAddress());
-            pddWaybillDetailDto.setConsigneeName(pddWaybillDetailDto.getConsigneeName());
-            pddWaybillDetailDto.setConsigneeMobile(pddWaybillDetailDto.getConsigneeMobile());
-            pddWaybillDetailDto.setConsigneePhone(pddWaybillDetailDto.getConsigneePhone());
-            pddWaybillDetailDto.setConsigneeAddress(pddWaybillDetailDto.getConsigneeAddress());
+            pddWaybillPrintInfoDto.setWaybillCode(waybillCode);
+            pddWaybillPrintInfoDto.setSenderName(pddWaybillDetailDto.getSenderName());
+            pddWaybillPrintInfoDto.setSenderMobile(pddWaybillDetailDto.getSenderMobile());
+            pddWaybillPrintInfoDto.setSenderPhone(pddWaybillDetailDto.getSenderPhone());
+            pddWaybillPrintInfoDto.setConsigneeName(pddWaybillDetailDto.getConsigneeName());
+            pddWaybillPrintInfoDto.setConsigneeMobile(pddWaybillDetailDto.getConsigneeMobile());
+            pddWaybillPrintInfoDto.setConsigneePhone(pddWaybillDetailDto.getConsigneePhone());
             baseEntity.setData(pddWaybillPrintInfoDto);
             return baseEntity;
         } catch (Exception e) {
