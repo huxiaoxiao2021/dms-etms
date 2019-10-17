@@ -14,6 +14,8 @@ import com.jd.bluedragon.distribution.reverse.service.ReverseReceiveNotifyStockS
 import com.jd.bluedragon.distribution.reverse.service.ReverseSendPopMessageService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ioms.jsf.export.domain.Order;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,6 +68,7 @@ public class ReverseReceiveNotifyStockResource {
 	 */
 	@GET
 	@Path("/reverse/stock/nodify/{waybillCode}")
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.WEB.ReverseReceiveNotifyStockResource.sendMessage", mState = JProEnum.TP)
 	public String sendMessage(@PathParam("waybillCode") Long waybillCode)
 			throws Exception {
 		this.reverseReceiveNotifyStockService.nodifyStock(waybillCode);
@@ -82,6 +85,7 @@ public class ReverseReceiveNotifyStockResource {
 	
 	@GET
 	@Path("/reverseReceiveNotifyStock/notify/{waybillCode}")
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.WEB.ReverseReceiveNotifyStockResource.notify", mState = JProEnum.TP)
 	public String notify(@PathParam("waybillCode") Long waybillCode)
 			throws Exception {
 		String resultStr = check(waybillCode);
