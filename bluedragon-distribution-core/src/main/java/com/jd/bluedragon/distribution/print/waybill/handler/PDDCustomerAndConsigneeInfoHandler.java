@@ -5,6 +5,8 @@ import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.crossbow.pdd.domain.PDDWaybillDetailDto;
 import com.jd.bluedragon.external.crossbow.pdd.service.PDDService;
+import com.jd.bluedragon.utils.StringHelper;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,8 @@ import org.springframework.stereotype.Service;
 public class PDDCustomerAndConsigneeInfoHandler implements Handler<WaybillPrintContext, JdResult<String>> {
 
     private static final Logger logger = LoggerFactory.getLogger(PDDCustomerAndConsigneeInfoHandler.class);
+
+    private static final int PHONE_HIGHLIGHT_NUMBER = 4;
 
     @Autowired
     private PDDService pddService;
@@ -40,10 +44,43 @@ public class PDDCustomerAndConsigneeInfoHandler implements Handler<WaybillPrintC
         context.getBasePrintWaybill().setConsigner(pddWaybillDetailDto.getSenderName());
         context.getBasePrintWaybill().setConsignerMobile(pddWaybillDetailDto.getSenderMobile());
         context.getBasePrintWaybill().setConsignerTel(pddWaybillDetailDto.getSenderPhone());
+        context.getBasePrintWaybill().setConsignerTelText(StringHelper.isEmpty(pddWaybillDetailDto.getSenderPhone())?
+                pddWaybillDetailDto.getSenderMobile() : pddWaybillDetailDto.getSenderPhone());
+
         context.getBasePrintWaybill().setCustomerName(pddWaybillDetailDto.getConsigneeName());
-        context.getBasePrintWaybill().setCustomerContacts(pddWaybillDetailDto.getConsigneeMobile());
-        context.getBasePrintWaybill().setCustomerPhoneText(pddWaybillDetailDto.getConsigneePhone());
+        context.getBasePrintWaybill().setCustomerPhoneText(StringHelper.isEmpty(pddWaybillDetailDto.getConsigneeMobile())?
+                pddWaybillDetailDto.getConsigneePhone() : pddWaybillDetailDto.getConsigneeMobile());
+
+        //设置前四位和后四位
+        context.getBasePrintWaybill().setCustomerContacts(concatPhone(pddWaybillDetailDto.getConsigneeMobile(),pddWaybillDetailDto.getConsigneePhone()));
+        String mobile = pddWaybillDetailDto.getConsigneeMobile();
+        String tel = pddWaybillDetailDto.getSenderPhone();
+        if (StringUtils.isNotBlank(mobile) && mobile.length() >= StringHelper.PHONE_HIGHLIGHT_NUMBER) {
+            String firstMobile = mobile.substring(0, mobile.length() - StringHelper.PHONE_HIGHLIGHT_NUMBER);
+            context.getBasePrintWaybill().setMobileFirst(firstMobile);
+            context.getBasePrintWaybill().setMobileLast(mobile.substring(mobile.length() - StringHelper.PHONE_HIGHLIGHT_NUMBER));
+        }
+        if (StringUtils.isNotBlank(tel) && tel.length() >= StringHelper.PHONE_HIGHLIGHT_NUMBER) {
+            String firstTel = tel.substring(0, tel.length() - StringHelper.PHONE_HIGHLIGHT_NUMBER);
+            context.getBasePrintWaybill().setTelFirst(firstTel);
+            context.getBasePrintWaybill().setTelLast(tel.substring(tel.length() - StringHelper.PHONE_HIGHLIGHT_NUMBER));
+        }
 
         return context.getResult();
+    }
+
+    private final String concatPhone(String mobile,String phone){
+        StringBuilder sb=new StringBuilder();
+        if(StringHelper.isNotEmpty(mobile)){
+            sb.append(mobile);
+        }
+
+        if( StringHelper.isNotEmpty(phone)){
+            if(StringHelper.isNotEmpty(mobile)) {
+                sb.append(",");
+            }
+            sb.append(phone);
+        }
+        return sb.toString();
     }
 }
