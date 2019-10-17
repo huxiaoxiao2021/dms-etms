@@ -525,7 +525,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         sendRegister.setRemark(pdaSendRegister.getDemo());
         sendRegister.setShuttleBusType(pdaSendRegister.getOperateType());
         String carCode = pdaSendRegister.getCarCode();
-        if(carCode.length() > Constants.CAR_CODE_DB_COLUMN_LENGTH_LIMIT){
+        if(StringUtils.isNotEmpty(carCode) && carCode.length() > Constants.CAR_CODE_DB_COLUMN_LENGTH_LIMIT){
             carCode = carCode.substring(0, Constants.CAR_CODE_DB_COLUMN_LENGTH_LIMIT);
         }
         sendRegister.setShuttleBusNum(carCode);
