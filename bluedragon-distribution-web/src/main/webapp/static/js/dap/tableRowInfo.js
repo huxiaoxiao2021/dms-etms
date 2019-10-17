@@ -6,8 +6,8 @@ $(function() {
 		width: '150',
 		placeholder:'请选择',
 		data:[
-			{id:'0',text:'非拆分库'},
-			{id:'1',text:'任务库'}
+			{id:'1',text:'非拆分库'},
+			{id:'2',text:'任务库'}
 		]
 	});
 
