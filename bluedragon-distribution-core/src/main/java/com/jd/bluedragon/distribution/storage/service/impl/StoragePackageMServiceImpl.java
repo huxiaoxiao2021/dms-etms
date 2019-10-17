@@ -157,7 +157,7 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 		//初始成0
 		storagePackageM.setPutawayPackageSum(0L);
 
-		BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(needInitWaybillCode, true,true, true, true);
+		BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(needInitWaybillCode, true,true, true, false);
 		BigWaybillDto bigWaybillDto = baseEntity.getData();
 
 		storagePackageM.setPerformanceCode(performanceCode);

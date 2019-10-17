@@ -1017,8 +1017,12 @@ public class SendPrintServiceImpl implements SendPrintService {
 
     /**
      * 分页明细打印
+     *
+     * @param sendDetails
+     * @param criteria
+     * @return
      */
-    public BasicQueryEntityResponse assembleDetailPrintQueryBySendD(List<SendDetail> sendDetails, PrintQueryCriteria criteria) {
+    private BasicQueryEntityResponse assembleDetailPrintQueryBySendD(List<SendDetail> sendDetails, PrintQueryCriteria criteria) {
         CallerInfo callerInfo = Profiler.registerInfo("DMSWEB.SendPrintServiceImpl.assembleDetailPrintQueryBySendD", false, true);
 
         BasicQueryEntityResponse tBasicQueryEntityResponse = new BasicQueryEntityResponse();
@@ -1039,9 +1043,10 @@ public class SendPrintServiceImpl implements SendPrintService {
         // 预加载运单信息 批量获取不包含包裹信息的运单信息对象
         HashMap<String, BigWaybillDto> waybillDtoMap = this.getBigWaybillDtoMap(waybillCodes, false);
         // 批量获取包裹称重上传信息
-        Map<String, PackageWeight> packageWeightMap = getWaybillPackageWeight(packageCodes);
+        Map<String, PackageWeight> packageWeightMap = this.getWaybillPackageWeight(packageCodes);
         // 批量获取应付体积信息
-        Map<String, DmsOutWeightAndVolume> dmsOutWeightAndVolumeMap = getDmsOutVolume(boxCodes, criteria.getSiteCode());
+        Map<String, DmsOutWeightAndVolume> dmsOutWeightAndVolumeMap = this.getDmsOutVolume(boxCodes, criteria.getSiteCode());
+
         // 批量获取封签号
         Map<String, String> sealNoCache = this.getSealNoMap(boxCodes);
 
@@ -1074,11 +1079,7 @@ public class SendPrintServiceImpl implements SendPrintService {
                     continue;
                 }
 
-                // 按照运单信息过滤结果数据
-                if (!this.filterByWaybillDto(criteria, data)) {
-                    continue;
-                }
-
+                this.assembleBySendPay(basicQueryEntity, data.getWaybill().getSendPay());
                 // 组装应付体积信息
                 this.assembleDmsOutVolume(basicQueryEntity, dmsOutWeightAndVolumeMap.get(basicQueryEntity.getBoxCode()));
                 // 组装封签号
@@ -1103,6 +1104,7 @@ public class SendPrintServiceImpl implements SendPrintService {
     }
 
     private Map<String, Double> getBoxCodeBoardVolumeByParam(PrintQueryCriteria criteria, List<String> boxCodeList) {
+        CallerInfo callerInfo = Profiler.registerInfo("DMSWEB.SendPrintServiceImpl.assembleDetailPrintQueryBySendD.getBoxCodeBoardVolumeByParam", false, true);
         Map<String, Double> result = new HashMap<>();
         List<SendM> sendMList = this.getBoardSendMByParam(criteria, boxCodeList);
         if (sendMList.size() > 0) {
@@ -1112,6 +1114,7 @@ public class SendPrintServiceImpl implements SendPrintService {
                 result.put(sendM.getBoxCode(), boardVolume.get(sendM.getBoardCode()));
             }
         }
+        Profiler.registerInfoEnd(callerInfo);
         return result;
     }
 
@@ -1171,7 +1174,8 @@ public class SendPrintServiceImpl implements SendPrintService {
      * @return
      */
     private Map<String, PackageWeight> getWaybillPackageWeight(List<String> packageCodeList) {
-        Map<String, PackageWeight> result = new HashMap<>();
+        CallerInfo callerInfo = Profiler.registerInfo("DMSWEB.SendPrintServiceImpl.assembleDetailPrintQueryBySendD.getWaybillPackageWeight", false, true);
+        Map<String, PackageWeight> result = new HashMap<>(packageCodeList.size());
         if (packageCodeList != null && packageCodeList.size() > 0) {
             BaseEntity<List<DeliveryPackageD>> baseEntity = waybillPackageManager.queryPackageListForParcodes(packageCodeList);
             if (baseEntity.getData() != null && baseEntity.getData().size() > 0) {
@@ -1184,6 +1188,7 @@ public class SendPrintServiceImpl implements SendPrintService {
                 }
             }
         }
+        Profiler.registerInfoEnd(callerInfo);
         return result;
     }
 
@@ -1210,20 +1215,12 @@ public class SendPrintServiceImpl implements SendPrintService {
         }
     }
 
-    private Boolean filterByWaybillDto(PrintQueryCriteria criteria, BigWaybillDto data) {
-        WaybillManageDomain waybillState = data.getWaybillState();
-        // 按照库别 查询过滤
-        if (waybillState != null && waybillState.getStoreId() != null) {
-            if (criteria.getFc() != null && !criteria.getFc().equals(0) && !criteria.getFc().equals(waybillState.getStoreId())) {
-                return false;
-            }
+    private void assembleBySendPay(BasicQueryEntity basicQueryEntity, String sendPay) {
+        if (BusinessHelper.is211(sendPay)) {
+            basicQueryEntity.setIs211(1);
+        } else {
+            basicQueryEntity.setIs211(0);
         }
-        // 按照是否211查询条件过滤
-        String sendPay = data.getWaybill().getSendPay();
-        if (criteria.isIs211() && (sendPay != null && !"1".equals(sendPay.substring(0, 1)))) {
-            return false;
-        }
-        return true;
     }
 
     /**
@@ -1304,6 +1301,7 @@ public class SendPrintServiceImpl implements SendPrintService {
      * @return
      */
     private Map<String, DmsOutWeightAndVolume> getDmsOutVolume(List<String> boxCodeList, Integer createSiteCode) {
+        CallerInfo callerInfo = Profiler.registerInfo("DMSWEB.SendPrintServiceImpl.assembleDetailPrintQueryBySendD.getDmsOutVolume", false, true);
         Map<String, DmsOutWeightAndVolume> resultMap = new HashMap<>();
         if (boxCodeList != null && boxCodeList.size() > 0 && createSiteCode != null) {
             List<DmsOutWeightAndVolume> outList = dmsOutWeightAndVolumeService.getListByBarCodesAndDms(boxCodeList, createSiteCode);
@@ -1312,6 +1310,7 @@ public class SendPrintServiceImpl implements SendPrintService {
                 resultMap.put(weightAndVolume.getBarCode(), weightAndVolume);
             }
         }
+        Profiler.registerInfoEnd(callerInfo);
         return resultMap;
     }
 

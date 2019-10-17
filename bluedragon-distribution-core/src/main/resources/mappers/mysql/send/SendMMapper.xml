@@ -120,9 +120,7 @@
 		from send_m
 		<where>
 			yn = 1
-		    <if test="createSiteCode!=null">
-				and create_site_code = #{createSiteCode,jdbcType=INTEGER}
-			</if>
+			and create_site_code = #{createSiteCode,jdbcType=INTEGER}
 			<if test="receiveSiteCode!=null">
 				and receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
 			</if>

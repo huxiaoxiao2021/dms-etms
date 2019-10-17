@@ -138,6 +138,11 @@ public class BasicQueryEntity implements Serializable{
      */
 	private String sealTime;
 
+	/**
+	 * 是否是211时效订单 0：否，1：是
+	 */
+	private Integer is211;
+
 	public Double getGoodWeight2() {
 		return goodWeight2;
 	}
@@ -464,5 +469,13 @@ public class BasicQueryEntity implements Serializable{
 
 	public void setSealTime(String sealTime) {
 		this.sealTime = sealTime;
+	}
+
+	public Integer getIs211() {
+		return is211;
+	}
+
+	public void setIs211(Integer is211) {
+		this.is211 = is211;
 	}
 }
