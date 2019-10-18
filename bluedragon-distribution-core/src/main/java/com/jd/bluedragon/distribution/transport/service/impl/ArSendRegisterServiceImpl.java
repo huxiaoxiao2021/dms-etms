@@ -212,7 +212,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
      * @param arSendRegister
      */
     private void sendCostInfoToFxm(ArSendRegister arSendRegister){
-        //todo 始发城市和目的城市（来源是调用的运输接口） 是否和获取车次信息的入参是一事
+
         BasicRailTrainDto railTrainDto = ecpQueryWSManager.getRailTrainListByCondition(arSendRegister.getTransportName(),
                 arSendRegister.getStartCityId(),arSendRegister.getEndCityId());
         if(railTrainDto == null){
