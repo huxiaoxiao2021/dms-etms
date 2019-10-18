@@ -11,8 +11,7 @@ public class DMSExternalDto {
 
     /**
      * 系统标识
-     *
-     *
+     * @see
      */
     protected String systemFlag;
 

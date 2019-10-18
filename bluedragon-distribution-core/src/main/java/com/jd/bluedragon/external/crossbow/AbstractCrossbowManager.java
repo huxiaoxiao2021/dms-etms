@@ -15,6 +15,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+
 /**
  * <p>
  *     实现对crossbow组件的调用封装，所有需要调用外部三方公司的接口都应该继承该类，成为该类的子类。
@@ -47,7 +50,7 @@ public abstract class AbstractCrossbowManager<P,R> implements InitializingBean {
      * @return
      */
     public R doRestInterface(Object condition){
-        return executor(getMyRequestBody(condition), new TypeReference<R>(){});
+        return executor(condition);
     }
 
     /**
@@ -60,15 +63,18 @@ public abstract class AbstractCrossbowManager<P,R> implements InitializingBean {
     /**
      * 调用物流基础组件crossbow的执行器
      * @param condition 三方公司的接口请求体
-     * @param typeReference 三方公司的接口返回类型引用
      * @return 返回 R类型
      */
-    private R executor(Object condition, TypeReference<R> typeReference) {
+    private R executor(Object condition) {
         CallerInfo callerInfo = Profiler.registerInfo("dms.core.AbstractCrossbowManager.pddExecutor",
                 Constants.UMP_APP_NAME_DMSWEB, false, false);
         try {
+            /* 获取具体实现类的返回值泛型 对应的R */
+            Type superClass = this.getClass().getGenericSuperclass();
+            Type type = ((ParameterizedType)superClass).getActualTypeArguments()[1];
+
             P parameter = getMyRequestBody(condition);
-            return dmsCrossbowClient.executor(crossbowConfig, JsonHelper.toJson(parameter), typeReference);
+            return dmsCrossbowClient.executor(crossbowConfig, JsonHelper.toJson(parameter), type);
         } catch (RuntimeException e) {
             Profiler.functionError(callerInfo);
             logger.warn("调用物流网关crossBow组件执行调用拼多多的接口异常:", e);

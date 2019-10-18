@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.NotNull;
+import java.lang.reflect.Type;
 
 /**
  * <p>
@@ -35,7 +36,7 @@ public class DMSCrossbowClient {
     private CrossbowService crossbowService;
 
     /***
-     * 调用crossbow组件客户端的执行方法
+     * 调用crossbow组件客户端的执行方法 目前不涉及加密，如果有需要对接加密的请完善该接口
      * @param crossBowConfig 需要的配置参数
      * @param parameterStr 三方的公司需要用的请求的体body
      * @param typeReference 三方公司提供的接口返回值的类型
@@ -44,7 +45,7 @@ public class DMSCrossbowClient {
      * @throws RuntimeException 如果crossbow调用失败则抛出相应的异常由调用方处理
      */
     @JProfiler(jKey = "dms.core.DMSCrossBowClient.executor", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public <R> R executor(@NotNull CrossbowConfig crossBowConfig, String parameterStr, TypeReference<R> typeReference) throws RuntimeException {
+    public <R> R executor(@NotNull CrossbowConfig crossBowConfig, String parameterStr, Type typeReference) throws RuntimeException {
         LopRequest request = new LopRequest();
         request.setDomain(crossBowConfig.getDomain());
         request.setCustomerId(crossBowConfig.getCustomerId());

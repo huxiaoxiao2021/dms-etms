@@ -47,7 +47,9 @@ public class PDDExternalJSFServiceImpl implements DMSExternalInPDDService {
     public BaseEntity<PDDWaybillPrintInfoDto> queryPDDWaybillByWaybillCode(String waybillCode) {
         try {
             /* 调用拼多多的接口 */
-            PDDResponse<PDDWaybillDetailDto> response = pddWaybillQueryManager.doRestInterface(waybillCode);
+            PDDWaybillQueryDto condition = new PDDWaybillQueryDto();
+            condition.setWaybillCode(waybillCode);
+            PDDResponse<PDDWaybillDetailDto> response = pddWaybillQueryManager.doRestInterface(condition);
             if (null == response) {
                 return new BaseEntity<>(BaseEntity.CODE_SUCCESS_NO, BaseEntity.MESSAGE_SUCCESS_NO);
             }
