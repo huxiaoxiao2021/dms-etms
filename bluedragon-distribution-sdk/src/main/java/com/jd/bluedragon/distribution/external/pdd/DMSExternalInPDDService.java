@@ -32,5 +32,5 @@ public interface DMSExternalInPDDService {
      * @param request 电子面单号 和 系统标识
      * @return 返回拼多多运单信息
      */
-    BaseEntity<PDDWaybillPrintInfoDto> queryPDDWaybillByWaybillCode(PDDWaybillPrintInfoRequest request);
+    BaseEntity<PDDWaybillPrintInfoDto> queryWaybillByWaybillCode(PDDWaybillPrintInfoRequest request);
 }

@@ -64,11 +64,11 @@ public class PDDExternalJSFServiceImpl implements DMSExternalInPDDService {
     }
 
     @Override
-    public BaseEntity<PDDWaybillPrintInfoDto> queryPDDWaybillByWaybillCode(PDDWaybillPrintInfoRequest request) {
+    public BaseEntity<PDDWaybillPrintInfoDto> queryWaybillByWaybillCode(PDDWaybillPrintInfoRequest request) {
         if (null == request || StringHelper.isEmpty(request.getWaybillCode()) || StringHelper.isEmpty(request.getSystemFlag())) {
             return new BaseEntity<>(BaseEntity.CODE_PARAM_ERROR, BaseEntity.MESSAGE_PARAM_ERROR);
         }
-        CallerInfo callerInfo = Profiler.registerInfo("dms.web." + request.getSystemFlag() + ".PDDExternalJSFServiceImpl.queryPDDWaybillByWaybillCode",
+        CallerInfo callerInfo = Profiler.registerInfo("dms.web." + request.getSystemFlag() + ".PDDExternalJSFServiceImpl.queryWaybillByWaybillCode",
                 Constants.UMP_APP_NAME_DMSWEB, false, true);
         BaseEntity<PDDWaybillPrintInfoDto> result = queryPDDWaybillByWaybillCode(request.getWaybillCode());
         Profiler.registerInfoEnd(callerInfo);
