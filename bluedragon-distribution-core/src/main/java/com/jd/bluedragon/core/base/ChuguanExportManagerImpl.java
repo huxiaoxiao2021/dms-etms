@@ -98,7 +98,7 @@ public class ChuguanExportManagerImpl implements ChuguanExportManager{
      * @param businessNo 业务单号 可能是订单号
      * @return
      */
-    private List<ChuguanVo> getFullStockByBusinNo(String businessNo) {
+    private List<ChuguanVo> getFullStockByBusinNo(String businessNo,ContantsEnum.ChuGuanTypeId chuGuanTypeId) {
         CallerInfo info = Profiler.registerInfo("DMS.BASE.ChuguanExportManagerImpl.queryChuGuan", Constants.UMP_APP_NAME_DMSWEB, false, true);
         List<ChuguanVo> result = null;
             ChuguanQueryParam chuguanQueryParam = new ChuguanQueryParam();
@@ -108,7 +108,7 @@ public class ChuguanExportManagerImpl implements ChuguanExportManager{
             // 此字对应于com.jd.stock.iwms.export.param.ChuguanParam 的 typeId业务类型Id；
             // 暂时用ContantsEnum.ChuGuanTypeId.REVERSE_LOGISTICS_OUT 这个是写入出管的时候 出使用typeid值。
             // 理论上用入和出typeId字段值都能查到数据。详情参看 insertChuguan方法的调用时传入的参数
-            chuguanQueryParam.setTypeId(ContantsEnum.ChuGuanTypeId.REVERSE_LOGISTICS_OUT.getType());
+            chuguanQueryParam.setTypeId(chuGuanTypeId.getType());
             chuguanQueryParam.setNeedTransData(Boolean.TRUE);
             ChuguanDataResult chuguanDataResult = chuguanExport.queryChuGuan(chuguanQueryParam, getCallerParam());
             if(chuguanDataResult == null || chuguanDataResult.getCode() != 1){
@@ -131,8 +131,11 @@ public class ChuguanExportManagerImpl implements ChuguanExportManager{
     @Override
     public KuGuanDomain queryByOrderCode(String orderCode,String lKdanhao) {
 
-        //根据参数进行查询
-        List<ChuguanVo> chuguanVos = getFullStockByBusinNo(orderCode);
+        //由于库管限制了 typeId业务类型Id。如果需要查询逆向物流场景的数据，那就把所有的typeId 枚举的场景都查询一遍。因为不确定 写入库管 的TypeId 是什么
+        List<ChuguanVo> chuguanVos = getFullStockByBusinNo(orderCode,ContantsEnum.ChuGuanTypeId.REVERSE_LOGISTICS_GOODS_REJECTION);
+        if(chuguanVos == null){
+            chuguanVos = getFullStockByBusinNo(orderCode,ContantsEnum.ChuGuanTypeId.REVERSE_LOGISTICS_MONEY_REJECTION);
+        }
         KuGuanDomain domain = null;
         if (chuguanVos != null && !chuguanVos.isEmpty()) {
             StringBuffer buf = new StringBuffer();
