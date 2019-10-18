@@ -120,9 +120,7 @@
 		from send_m
 		<where>
 			yn = 1
-		    <if test="createSiteCode!=null">
-				and create_site_code = #{createSiteCode,jdbcType=INTEGER}
-			</if>
+			and create_site_code = #{createSiteCode,jdbcType=INTEGER}
 			<if test="receiveSiteCode!=null">
 				and receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
 			</if>
@@ -140,6 +138,12 @@
 			</if>
 			<if test="updateTime!=null">
 				and operate_time <![CDATA[<=]]> str_to_date(date_format(#{updateTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
+			</if>
+			<if test="boxCodeList != null and boxCodeList.size() > 0">
+				and box_code in
+				<foreach collection="boxCodeList" item="item" index="index" open="(" separator="," close=")">
+					#{item,jdbcType=VARCHAR}
+				</foreach>
 			</if>
 			order by operate_time desc
 		</where>

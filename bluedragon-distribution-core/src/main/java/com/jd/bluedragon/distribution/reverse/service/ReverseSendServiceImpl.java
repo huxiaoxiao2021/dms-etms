@@ -204,6 +204,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
     //责任主体：终端编号151
     public static final String DUTY_ZD = "151";
 
+    //责任主体：集约组编号152
+    public static final String DUTY_JY = "152";
+
     static {
         ReverseSendServiceImpl.tempMap.put("101", "1");
         ReverseSendServiceImpl.tempMap.put("102", "16");
@@ -839,7 +842,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill = waybillQueryManager.getWaybillByReturnWaybillCode(wayBillCode);
                 if(oldWaybill!=null && oldWaybill.getData()!=null && StringUtils.isNotBlank(oldWaybill.getData().getWaybillCode())){
 
-                    BaseEntity<BigWaybillDto> bigWaybill= waybillQueryManager.getDataByChoice(oldWaybill.getData().getWaybillCode(),true,true,true,true,true,false,false);
+                    BaseEntity<BigWaybillDto> bigWaybill= waybillQueryManager.getDataByChoice(oldWaybill.getData().getWaybillCode(),true,true,true,true,false,false,false);
                     if(bigWaybill!=null && bigWaybill.getData() != null && bigWaybill.getData().getWaybill() != null){
 
                         send.setOrderId(bigWaybill.getData().getWaybill().getBusiOrderCode());
@@ -1586,6 +1589,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 if (DUTY_ZD.equals(spareSortingRecord.getDutyCode())) {
                     //终端损标识
                     lossType = 16;
+                } else if (DUTY_JY.equals(spareSortingRecord.getDutyCode())) {
+                    //集约损标识
+                    lossType = 17;
                 }
             }
 

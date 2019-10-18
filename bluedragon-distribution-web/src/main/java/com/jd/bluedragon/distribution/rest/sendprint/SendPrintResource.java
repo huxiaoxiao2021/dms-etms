@@ -268,6 +268,19 @@ public class SendPrintResource {
 		}
 		return sendPrintService.basicPrintQuery(criteria);
 	}
+
+    @POST
+    @GZIP
+    @Path("/sendprint/basicPrintQueryForPage")
+    public BasicQueryEntityResponse basicPrintQueryForPage(PrintQueryCriteria criteria) {
+        if (checkForPage(criteria)) {
+            BasicQueryEntityResponse response = new BasicQueryEntityResponse();
+            response.setCode(JdResponse.CODE_NOT_FOUND);
+            response.setMessage("查询参数不全");
+            return response;
+        }
+        return sendPrintService.basicPrintQueryForPage(criteria);
+    }
 	
 	@POST
 	@GZIP
@@ -298,13 +311,35 @@ public class SendPrintResource {
 		return sendPrintService.sopPrintQuery(criteria);
 	}
 
-	private boolean check(PrintQueryCriteria criteria) {
-        if(criteria!=null &&criteria.getSiteCode()!=null && criteria.getReceiveSiteCode()!=null
-        			&& criteria.getStartTime()!=null && criteria.getEndTime()!=null){
-        	return false;
+    /**
+     * 参数检查 true - 未通过；false - 通过
+     *
+     * @param criteria
+     * @return
+     */
+    private boolean check(PrintQueryCriteria criteria) {
+        if (criteria != null && criteria.getSiteCode() != null && criteria.getReceiveSiteCode() != null
+                && criteria.getStartTime() != null && criteria.getEndTime() != null) {
+            return false;
         }
-       return true;
-   }
+        return true;
+    }
+
+    /**
+     * 分页参数检查 true - 未通过；false - 通过
+     *
+     * @param criteria
+     * @return
+     */
+    private boolean checkForPage(PrintQueryCriteria criteria) {
+	    if (this.check(criteria)) {
+	        return true;
+        }
+        if (criteria.getPageNo() != null && criteria.getPageSize() != null) {
+            return false;
+        }
+        return true;
+    }
 
 	@POST
 	@GZIP

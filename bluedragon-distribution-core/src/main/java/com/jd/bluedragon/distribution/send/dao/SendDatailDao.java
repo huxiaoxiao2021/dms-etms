@@ -398,4 +398,14 @@ public class SendDatailDao extends BaseDao<SendDetail> {
         return this.getSqlSession().selectList(namespace + ".getScannedInfoPackageNumMoreThanOne", waybillNoCollectionCondition);
     }
 
+    /**
+     * 根据条件分页获取已发货明细记录
+     *
+     * @param params
+     * @return
+     */
+    public List<SendDetail> findSendPageByParams(SendDetailDto params) {
+        return this.getSqlSession().selectList(namespace + ".findSendPageByParams", params);
+    }
+
 }
