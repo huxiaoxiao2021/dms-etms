@@ -11,7 +11,8 @@ public class DMSExternalDto {
 
     /**
      * 系统标识
-     * @see
+     * MCSS 客服部
+     * LDOP 外单
      */
     protected String systemFlag;
 
