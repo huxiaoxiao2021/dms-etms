@@ -45,13 +45,19 @@
         </constructor-arg>
     </bean>
 
-    <bean id="pddManager" class="com.jd.bluedragon.external.crossbow.pdd.manager.PDDManagerImpl">
+    <!--  拼多多面单打印信息获取接口  -->
+    <bean id="pddWaybillQueryManager" class="com.jd.bluedragon.external.crossbow.pdd.manager.PDDBusinessManager">
             <property name="wpCode" value="${dms.external.pdd.wpCode}" />
             <property name="secret" value="${dms.external.pdd.secret}" />
-            <property name="domain" value="${dms.external.pdd.domain}" />
-            <property name="api" value="${dms.external.pdd.api}" />
-            <property name="appKey" value="${dms.external.pdd.appKey}" />
-            <property name="customerId" value="${dms.external.pdd.customerId}" />
+            <property name="crossbowConfig">
+                <bean class="com.jd.bluedragon.core.crossbow.CrossbowConfig">
+                    <property name="domain" value="${dms.external.pdd.domain}" />
+                    <property name="api" value="${dms.external.pdd.api}" />
+                    <property name="appKey" value="${dms.external.pdd.appKey}" />
+                    <property name="appSecret" value="${dms.external.pdd.appSecre}" />
+                    <property name="customerId" value="${dms.external.pdd.customerId}" />
+                </bean>
+            </property>
     </bean>
 
 </beans>
