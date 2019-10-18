@@ -28,4 +28,5 @@ public interface SendDetailService {
 
     /**分页查询发货记录*/
     public List<SendDetail> findPageSendDetail(Map<String,Object> params);
+    public Integer querySendDCountBySendCode(String sendCode);
 }
