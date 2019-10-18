@@ -1,7 +1,9 @@
 package com.jd.bluedragon.external.crossbow.pdd;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.external.pdd.DMSExternalInPDDService;
 import com.jd.bluedragon.distribution.external.pdd.domain.PDDWaybillPrintInfoDto;
+import com.jd.bluedragon.distribution.external.pdd.domain.PDDWaybillPrintInfoRequest;
 import com.jd.bluedragon.distribution.wss.dto.BaseEntity;
 import com.jd.bluedragon.external.crossbow.pdd.domain.PDDRequest;
 import com.jd.bluedragon.external.crossbow.pdd.domain.PDDWaybillDetailDto;
@@ -9,6 +11,9 @@ import com.jd.bluedragon.external.crossbow.pdd.domain.PDDWaybillQueryDto;
 import com.jd.bluedragon.external.crossbow.pdd.service.PDDService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.Charsets;
 import org.slf4j.Logger;
@@ -56,5 +61,17 @@ public class PDDExternalJSFServiceImpl implements DMSExternalInPDDService {
         } catch (Exception e) {
             return new BaseEntity<>(BaseEntity.CODE_SERVICE_ERROR, BaseEntity.MESSAGE_SERVICE_ERROR);
         }
+    }
+
+    @Override
+    public BaseEntity<PDDWaybillPrintInfoDto> queryPDDWaybillByWaybillCode(PDDWaybillPrintInfoRequest request) {
+        if (null == request || StringHelper.isEmpty(request.getWaybillCode()) || StringHelper.isEmpty(request.getSystemFlag())) {
+            return new BaseEntity<>(BaseEntity.CODE_PARAM_ERROR, BaseEntity.MESSAGE_PARAM_ERROR);
+        }
+        CallerInfo callerInfo = Profiler.registerInfo("dms.web." + request.getSystemFlag() + ".PDDExternalJSFServiceImpl.queryPDDWaybillByWaybillCode",
+                Constants.UMP_APP_NAME_DMSWEB, false, true);
+        BaseEntity<PDDWaybillPrintInfoDto> result = queryPDDWaybillByWaybillCode(request.getWaybillCode());
+        Profiler.registerInfoEnd(callerInfo);
+        return result;
     }
 }
