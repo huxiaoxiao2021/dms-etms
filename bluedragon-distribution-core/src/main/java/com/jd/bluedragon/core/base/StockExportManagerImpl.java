@@ -3,7 +3,6 @@ package com.jd.bluedragon.core.base;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.kuguan.domain.KuGuanDomain;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.stock.iwms.export.StockExportService;
 import com.jd.stock.iwms.export.param.CallerParam;
@@ -15,19 +14,17 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Service("stockExportManager")
 public class StockExportManagerImpl implements StockExportManager {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final static org.slf4j.Logger logger = LoggerFactory.getLogger(StockExportManagerImpl.class);
 
     @Autowired
     private StockExportService stockExportService;
@@ -41,21 +38,24 @@ public class StockExportManagerImpl implements StockExportManager {
 
             if(result!=null){
                 if(!result.isResultFlag()){
-                    this.logger.error("调用库管接口stockExportManager.insertStockVirtualIntOut异常：result:"+result.getMessage());
+                    this.logger.error("调用库管接口stockExportManager.insertStockVirtualIntOut异常：result[{}]stockVOParam0[{}]",JsonHelper.toJson(result),
+                            JsonHelper.toJson(stockVOParam0));
                     Profiler.functionError(info);
                     return 0;
                 }else{
-                    this.logger.info("调用库管接口stockExportManager.insertStockVirtualIntOut成功：resultCode:"+result.getResultCode()+" resultMessage:"+result.getMessage());
+                    this.logger.info("调用库管接口stockExportManager.insertStockVirtualIntOut成功：result[{}]stockVOParam0[{}]",JsonHelper.toJson(result),
+                            JsonHelper.toJson(stockVOParam0));
                     return 1;//表示推送成功
                 }
             }else{
-                this.logger.error("调用库管接口stockExportManager.insertStockVirtualIntOut异常: result为空!");
+                this.logger.error("调用库管接口stockExportManager.insertStockVirtualIntOut异常: result[{}]stockVOParam0[{}]",JsonHelper.toJson(result),
+                        JsonHelper.toJson(stockVOParam0));
                 Profiler.functionError(info);
                 return 0;
             }
 
         }catch(Exception e){
-            logger.error("调用库管接口stockExportManager.insertStockVirtualIntOut异常", e);
+            logger.error("调用库管接口stockExportManager.insertStockVirtualIntOut异常stockVOParam0[{}]", JsonHelper.toJson(stockVOParam0), e);
             Profiler.functionError(info);
             return 0;
         }finally {
