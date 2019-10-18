@@ -92,12 +92,24 @@
             <groupId>com.jd.std.ucc</groupId>
             <artifactId>confcenter-client</artifactId>
             <version>1.1.2-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 		<dependency>
 			<groupId>com.jd.etms.monitor</groupId>
 			<artifactId>ql-data-saf-api</artifactId>
 			<version>1.2.8-SNAPSHOT</version>
-		</dependency>
+            <exclusions>
+                <exclusion>
+				<artifactId>slf4j-api</artifactId>
+				<groupId>org.slf4j</groupId>
+			</exclusion>
+            </exclusions>
+        </dependency>
 
 		<dependency>
 			<groupId>com.jd.tms.basic</groupId>
@@ -144,7 +156,18 @@
 			<scope>test</scope>
 
 		</dependency>
-
+        <dependency>
+            <groupId>org.jmockit</groupId>
+            <artifactId>jmockit</artifactId>
+            <version>1.9</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>2.7.12</version>
+            <scope>test</scope>
+        </dependency>
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
@@ -425,7 +448,12 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-
+        <!--安全相关 ConfigSecSDK importants运行环境加密-->
+        <dependency>
+            <groupId>com.jd.security.configsec</groupId>
+            <artifactId>spring-configsec-sdk</artifactId>
+            <version>1.0.2.RELEASE</version>
+        </dependency>
 
 
 		<dependency>
@@ -456,7 +484,13 @@
 			<groupId>com.jd</groupId>
 			<artifactId>jsf</artifactId>
 			<version>1.6.6-HOTFIX-T1</version>
-		</dependency>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
 		<dependency>
 		<groupId>com.jd.jq</groupId>
@@ -517,6 +551,10 @@
                 <exclusion>
                     <artifactId>fastjson</artifactId>
                     <groupId>com.alibaba</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -599,6 +637,10 @@
             <artifactId>etms-receive-api</artifactId>
             <version>1.2.64-SNAPSHOT</version>
             <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
             	<!-- iText 5 -->
 		        <exclusion>
 		            <groupId>com.itextpdf</groupId>
@@ -612,7 +654,7 @@
 		            <groupId>com.itextpdf</groupId>
 		            <artifactId>itext-asian</artifactId>
 		        </exclusion>
-            </exclusions> 
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.jd.etms.vehicle.manager.interface</groupId>
@@ -684,6 +726,11 @@
 			<artifactId>tms-basic-client</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+            <groupId>com.jd.tms.ecp</groupId>
+            <artifactId>tms-ecp-client</artifactId>
+            <version>1.0-SNAPSHOT</version>
+		</dependency>
 
         <!-- cassandra -->
 		<dependency>
@@ -702,7 +749,11 @@
 					<artifactId>spring-asm</artifactId>
 					<groupId>org.springframework</groupId>
 				</exclusion>
-			</exclusions>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
 		</dependency>
 
 	    <!-- global id generator service lib. -->
@@ -825,14 +876,6 @@
 			<artifactId>jss-sdk-java</artifactId>
 			<version>1.3.0</version>
 		</dependency>
-
-        <!--安全相关 ConfigSecSDK importants运行环境加密-->
-        <dependency>
-            <groupId>com.jd.security.configsec</groupId>
-            <artifactId>spring-configsec-sdk</artifactId>
-            <version>1.0.2.RELEASE</version>
-        </dependency>
-
         <!-- 用户组接口 -->
         <dependency>
             <groupId>com.jd.user.sdk</groupId>
