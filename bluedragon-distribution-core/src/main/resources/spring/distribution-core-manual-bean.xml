@@ -54,7 +54,7 @@
                     <property name="domain" value="${dms.external.pdd.domain}" />
                     <property name="api" value="${dms.external.pdd.api}" />
                     <property name="appKey" value="${dms.external.pdd.appKey}" />
-                    <property name="appSecret" value="${dms.external.pdd.appSecre}" />
+                    <property name="appSecret" value="${dms.external.pdd.appSecret}" />
                     <property name="customerId" value="${dms.external.pdd.customerId}" />
                 </bean>
             </property>
