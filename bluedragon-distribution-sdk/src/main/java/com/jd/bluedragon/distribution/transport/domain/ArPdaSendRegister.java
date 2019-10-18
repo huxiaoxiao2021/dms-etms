@@ -110,6 +110,11 @@ public class ArPdaSendRegister {
 
     private Date operateTime;
 
+    /**
+     * 货物类型
+     */
+    private Integer goodsType;
+
     public Integer getTaskType() {
         return taskType;
     }
@@ -324,5 +329,13 @@ public class ArPdaSendRegister {
 
     public void setOperateTime(Date operateTime) {
         this.operateTime = operateTime;
+    }
+
+    public Integer getGoodsType() {
+        return goodsType;
+    }
+
+    public void setGoodsType(Integer goodsType) {
+        this.goodsType = goodsType;
     }
 }

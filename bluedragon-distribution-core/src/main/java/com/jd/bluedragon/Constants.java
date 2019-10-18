@@ -982,4 +982,9 @@ public class Constants {
      * 字典的产品类型父节点
      */
     public static final Integer PRODUCT_PARENT_ID = 30048;
+    /**
+     * 货物类型
+     */
+    public static final int BASEDICT_GOODS_TYPE_TYPECODE = 10203;
+
 }

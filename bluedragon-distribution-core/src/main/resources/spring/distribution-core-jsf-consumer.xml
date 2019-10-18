@@ -499,4 +499,6 @@
     </jsf:consumer>
 
 
+    <jsf:consumer id="ecpQueryWS" interface="com.jd.tms.ecp.ws.EcpQueryWS" protocol="jsf" alias="${tms.ecp.jsf.alias}" timeout="${tms.ecp.jsf.timeout}" retries="1"/>
+
 </beans>
