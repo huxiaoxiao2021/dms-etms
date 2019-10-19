@@ -3,12 +3,15 @@ package com.jd.bluedragon.core.base;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.WaybillFlowDetail;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.etms.cache.util.EnumBusiCode;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.common.Page;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
+import com.jd.etms.waybill.domain.PackFlowDetail;
 import com.jd.etms.waybill.dto.DeliveryPackageDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -21,11 +24,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
+/**
+ *
+ */
 @Service("waybillPackageManager")
 public class WaybillPackageManagerImpl implements WaybillPackageManager {
 
@@ -246,5 +253,109 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
             }
         }
         return false;
+    }
+
+
+    /**
+     1、取运单号相关的所有称重量方记录（包裹和运单维度的都要）
+     2、剔除重量体积均为0（注意，只剔除都是0的）的无意义的称重量方记录（多为系统卡控需要，实际并未称重）
+     3、按时间先后顺序，找到最早称重量方的人ERP
+     4、筛选出该ERP操作的所有称重量方记录
+     5、若既有整单录入又有包裹录入，以该ERP最后一次重量体积录入时的形式为准
+     6、若是整单，则取最后一次整单录入的重量体积为对比对象
+     7、若是包裹，则筛选出所有包裹维度称重量方的记录，然后以包裹维度进行去重，仅保留时间靠后的那条，最后汇总得到的重量体积为对比对象
+     */
+    @JProfiler(jKey = "DMS.BASE.WaybillPackageManagerImpl.getFirstWeightAndVolumeDetail", jAppName = Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Cache(key = "DMS.BASE.WaybillPackageManagerImpl.getFirstWeightAndVolumeDetail@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
+    public WaybillFlowDetail getFirstWeightAndVolumeDetail(String waybillCode){
+
+        Page<PackFlowDetail> page = new Page<>();
+        page.setPageSize(1000);
+        BaseEntity<Page<PackFlowDetail>>  baseEntity = waybillPackageApi.getOpeDetailByCode(waybillCode,page);
+        if(baseEntity != null && baseEntity.getData() != null
+                && !CollectionUtils.isEmpty(baseEntity.getData().getResult())){
+            List<PackFlowDetail> list = baseEntity.getData().getResult();
+            List<PackFlowDetail> timeSortList = new ArrayList<>();
+            //排除重量体积均为0;为空情况
+            for(PackFlowDetail detail : list){
+                if(detail==null ||
+                        ((detail.getpWeight()==null||detail.getpWeight()==0)
+                                && ((detail.getpLength()==0&&detail.getpWidth()==0&&detail.getpHigh()==0)
+                                    ||(detail.getpLength()==null&&detail.getpWidth()==null&&detail.getpHigh()==null)))){
+                    continue;
+                }
+                timeSortList.add(detail);
+            }
+            if(CollectionUtils.isEmpty(timeSortList)){
+                return null;
+            }
+            //按操作时间从小到大排序
+            Collections.sort(timeSortList, new Comparator<PackFlowDetail>() {
+                @Override
+                public int compare(PackFlowDetail o1, PackFlowDetail o2) {
+                    if(o1.getWeighTime() == null || o2.getWeighTime() == null){
+                        return 0;
+                    }
+                    return o1.getWeighTime().compareTo(o2.getWeighTime());
+                }
+            });
+            WaybillFlowDetail waybillFlowDetail = new WaybillFlowDetail();
+            PackFlowDetail packFlowDetail = timeSortList.get(0);
+            String operateErp = packFlowDetail.getWeighUserErp();
+            if(StringUtils.isEmpty(operateErp)){
+                operateErp = packFlowDetail.getMeasureUserErp();
+                if(StringUtils.isEmpty(operateErp)){
+                    return null;
+                }
+            }
+            waybillFlowDetail.setOperateErp(operateErp);
+            waybillFlowDetail.setOperateSiteCode(packFlowDetail.getOperatorSiteId());
+            waybillFlowDetail.setOperateSiteName(packFlowDetail.getOperatorSite());
+            waybillFlowDetail.setOperateTime(packFlowDetail.getWeighTime());
+            //获取最早称重erp的所有称重记录
+            List<PackFlowDetail> realList = new ArrayList<>();
+            for(PackFlowDetail detail : timeSortList){
+                if(operateErp.equals(detail.getWeighUserErp())){
+                    realList.add(detail);
+                }
+            }
+            //获取总重量体积并设置
+            Map<String,PackFlowDetail> map1 = new HashMap<>();
+            Map<String,PackFlowDetail> map2 = new HashMap<>();
+            for(PackFlowDetail detail : realList){
+                if(WaybillUtil.isWaybillCode(detail.getPackageCode())){
+                    map2.put(detail.getPackageCode(),detail);
+                }
+                map1.put(detail.getPackageCode(),detail);
+            }
+            if(map1.size() > map2.size()){
+                if(map2.size() != 0){
+                    //既有整单又有包裹
+                    PackFlowDetail flowDetail = map1.get(map1.size() - 1);
+                    waybillFlowDetail.setTotalWeight(flowDetail.getpWeight());
+                    waybillFlowDetail.setTotalWeight(flowDetail.getpLength()*flowDetail.getpWidth()*flowDetail.getpHigh());
+                }else {
+                    //包裹
+                    Double totalWeight = 0.00;
+                    Double totalVolume = 0.00;
+                    for(String packageCode : map1.keySet()){
+                        PackFlowDetail flowDetail = map1.get(packageCode);
+                        totalWeight = totalWeight + flowDetail.getpWeight();
+                        totalVolume = totalVolume + (flowDetail.getpLength()*flowDetail.getpWidth()*flowDetail.getpHigh());
+                    }
+                    waybillFlowDetail.setTotalWeight(totalWeight);
+                    waybillFlowDetail.setTotalWeight(totalVolume);
+                }
+            }else {
+                //整单
+                PackFlowDetail flowDetail = map1.get(map1.size() - 1);
+                waybillFlowDetail.setTotalWeight(flowDetail.getpWeight());
+                waybillFlowDetail.setTotalWeight(flowDetail.getpLength()*flowDetail.getpWidth()*flowDetail.getpHigh());
+            }
+            return waybillFlowDetail;
+        }
+        return null;
     }
 }

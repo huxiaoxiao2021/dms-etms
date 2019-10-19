@@ -1,5 +1,6 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.WaybillFlowDetail;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 
@@ -58,4 +59,11 @@ public interface WaybillPackageManager {
      * @return
      */
     boolean isGetPackageByPageOpen();
+
+    /**
+     * 获取第一次称重量方记录（只适用于B网抽检）
+     *
+     * @return
+     */
+    WaybillFlowDetail getFirstWeightAndVolumeDetail(String waybillCode);
 }
