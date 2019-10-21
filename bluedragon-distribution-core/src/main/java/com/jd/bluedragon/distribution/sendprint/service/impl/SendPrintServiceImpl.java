@@ -145,6 +145,7 @@ public class SendPrintServiceImpl implements SendPrintService {
      * 批次汇总&&批次汇总打印
      */
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+    @Override
     public SummaryPrintResultResponse batchSummaryPrintQuery(PrintQueryCriteria criteria) {
         SummaryPrintResultResponse tSummaryPrintResultResponse = new SummaryPrintResultResponse();
         List<SummaryPrintResult> results = new ArrayList<SummaryPrintResult>();
@@ -284,22 +285,23 @@ public class SendPrintServiceImpl implements SendPrintService {
             logger.info("打印交接清单-批次单独批次开始" + DateHelper.formatDate(startDate1));
             Set<String> packageBarcodeSet = new HashSet<String>();
             Set<String> waybillCodeSet = new HashSet<String>();
-            SendDetail tSendDatail = new SendDetail();
-            tSendDatail.setCreateSiteCode(sendM.getCreateSiteCode());
-            tSendDatail.setBoxCode(sendM.getBoxCode());
-            tSendDatail.setReceiveSiteCode(sendM.getReceiveSiteCode());
-            tSendDatail.setIsCancel(0);
+            SendDetail tSendDetail = new SendDetail();
+            tSendDetail.setCreateSiteCode(sendM.getCreateSiteCode());
+            tSendDetail.setBoxCode(sendM.getBoxCode());
+            tSendDetail.setReceiveSiteCode(sendM.getReceiveSiteCode());
+            tSendDetail.setSendCode(sendM.getSendCode());
+            tSendDetail.setIsCancel(0);
             logger.info("打印交接清单-批次汇总箱子信息" + sendM.getBoxCode());
-            List<SendDetail> sendDetails = this.sendDatailDao.querySendDatailsBySelective(tSendDatail);
+            List<SendDetail> sendDetails = this.sendDatailDao.querySendDatailsBySelective(tSendDetail);
             sendDetails = selectUniquesSendDetails(sendDetails);//create by wuzuxiang 2016年11月24日 T单、原单去重
 //		    if(sendDetails!=null && !sendDetails.isEmpty()){ 使打印交接汇总清单时带出空箱，之前不打印空箱
-            for (SendDetail sendDatail : sendDetails) {
-                String packageBarcode = sendDatail.getPackageBarcode();
+            for (SendDetail sendDetail : sendDetails) {
+                String packageBarcode = sendDetail.getPackageBarcode();
                 if (criteria.getPackageBarcode() != null && !"".equals(criteria.getPackageBarcode()) &&
                         !criteria.getPackageBarcode().equals(packageBarcode)) {
                     continue;
                 }
-                String waybillCode = sendDatail.getWaybillCode();
+                String waybillCode = sendDetail.getWaybillCode();
                 packageBarcodeSet.add(packageBarcode);
                 waybillCodeSet.add(waybillCode);
                 //取第一条运单号，用于获取本批次的路区号
