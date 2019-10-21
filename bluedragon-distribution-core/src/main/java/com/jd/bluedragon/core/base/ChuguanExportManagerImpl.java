@@ -117,8 +117,13 @@ public class ChuguanExportManagerImpl implements ChuguanExportManager{
                 return null;
             }
             result = chuguanDataResult.getChuguanVoList();
-            logger.info("新出管接口调用成功chuguanQueryParam[{}]chuguanDataResult[{}]",JsonHelper.toJson(chuguanQueryParam),JsonHelper.toJson
-                    (chuguanDataResult));
+            if(result != null){
+                logger.info("新出管接口调用成功-有数据chuguanQueryParam[{}]chuguanDataResult[{}]",JsonHelper.toJson(chuguanQueryParam),JsonHelper.toJson
+                        (chuguanDataResult));
+            }else {
+                logger.info("新出管接口调用成功-无返回数据chuguanQueryParam[{}]chuguanDataResult[{}]",JsonHelper.toJson(chuguanQueryParam));
+            }
+
         }catch(Exception e){
             logger.error("新出管接口调用chuguanQueryParam[{}]",JsonHelper.toJson(chuguanQueryParam),e);
             Profiler.functionError(info);
