@@ -24,13 +24,23 @@ public class KuGuanDomain implements java.io.Serializable {
 	/** 库管单号 */
 	private String lKdanhao;
 
-	/** 方式 */
+    /**
+     * 方式
+     * 对应出管 Churu
+     */
 	private String lblWay;
 
 	/** 分类 */
+    /**
+     * 分类
+     * 对应出管Fenlei
+     */
 	private String lblType;
 
-	/** 其他方式 */
+    /**
+     * 其他方式
+     * 对应出管 iTaFangShi
+     */
 	private String lblOtherWay;
 
 	/** 经办人 */
@@ -104,6 +114,9 @@ public class KuGuanDomain implements java.io.Serializable {
 	
 	/**总计*/
 	private String lblstatistics;
+
+	/**	业务类型Id*/
+	private Integer typeId;
 	
 	private List<KuGuanDomain> stockDetails;
 	
@@ -364,5 +377,12 @@ public class KuGuanDomain implements java.io.Serializable {
 	public void setStockDetails(List<KuGuanDomain> stockDetails) {
 		this.stockDetails = stockDetails;
 	}
-	
+
+    public Integer getTypeId() {
+        return typeId;
+    }
+
+    public void setTypeId(Integer typeId) {
+        this.typeId = typeId;
+    }
 }

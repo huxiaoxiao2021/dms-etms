@@ -4,46 +4,86 @@
     http://code.jd.com/schema/jmq/jmq-1.1.xsd"
        xmlns:jmq="http://code.jd.com/schema/jmq"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns="http://www.springframework.org/schema/beans">
-    <jmq:transport id="jmq.BlueDragonDistribution.transport" channelMaxIdleTime="10000" epoll="false"
-                   app="${jmq.BlueDragonDistribution.producer.app}"
-                   password="${jmq.BlueDragonDistribution.password}"
-                   user="${jmq.BlueDragonDistribution.user}"
-                   address="${jmq.BlueDragonDistribution.address}" />
+       xmlns="http://www.springframework.org/schema/beans" default-lazy-init="true">
+
+    <!--BlueDragonDistribution生产者配置 该生产者禁用，请使用dmsWebProducer-->
     <jmq:producer id="jmqProducer" transport="jmq.BlueDragonDistribution.transport" retryTimes="3" />
+
+    <jmq:transport id="jmq.BlueDragonDistribution.transport"
+                   address="${jmq.BlueDragonDistribution.address}" user="${jmq.BlueDragonDistribution.user}"
+                   password="${jmq.BlueDragonDistribution.password}" app="${jmq.BlueDragonDistribution.app}" />
+    <!--dmsWork mq应用-->
+    <jmq:transport id="jmq.dmsWorker.transport" address="${jmq.dmsWorker.address}" user="${jmq.dmsWorker.user}"
+                   password="${jmq.dmsWorker.password}" app="${jmq.dmsWorker.producer.app}"/>
+
+    <!--UAT特殊配置  uatDmsWeb mq应用-->
+    <jmq:transport id="jmq.uatDmsWeb.transport"
+                   address="${jmq.uatDmsWeb.address}" user="${jmq.uatDmsWeb.user}"
+                   password="${jmq.uatDmsWeb.password}" app="${jmq.uatDmsWeb.app}" />
+    <!--dmsWeb mq应用-->
+    <jmq:transport id="jmq.dmsWeb.transport"
+                   address="${jmq.dmsWeb.address}" user="${jmq.dmsWeb.user}"
+                   password="${jmq.dmsWeb.password}" app="${jmq.dmsWeb.app}" />
+
+    <!--dmsweb生产者配置-->
+    <jmq:producer id="dmsWebProducer" transport="jmq.dmsWeb.transport" retryTimes="3" />
+    <bean id="dmsWebDefaultJMQProducer" abstract="true" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="timeout" value="1000"/>
+        <property name="jmqProducer" ref="dmsWebProducerSplit"/>
+    </bean>
+
+    <!--dmsWorker生产者配置-->
+    <jmq:producer id="workerProducer" retryTimes="3" transport="jmq.dmsWorker.transport"/>
+    <bean id="dmsWorkerDefaultJMQProducer" abstract="true" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="timeout" value="1000"/>
+        <property name="jmqProducer" ref="workerProducerSplit"/>
+    </bean>
+
+    <!--BlueDragonDistribution生产者配置 该生产者禁用，请使用dmsWebProducer， 适配JMQ分离组件-->
+    <bean id="jmqProducerSpilt" class="com.jd.jspliter.jmq.producer.EnvMessageProducer" parent="jmqProducer">
+        <property name="uat" value="${jmq.split.uat.switch:false}"/>
+    </bean>
+
+    <!--dmsweb生产者配置，适配JMQ分离组件-->
+    <bean id="dmsWebProducerSplit" class="com.jd.jspliter.jmq.producer.EnvMessageProducer" parent="dmsWebProducer">
+        <property name="uat" value="${jmq.split.uat.switch:false}"/>
+    </bean>
+
+    <!--dmsWorker生产者配置，适配JMQ分离组件-->
+    <bean id="workerProducerSplit" class="com.jd.jspliter.jmq.producer.EnvMessageProducer" parent="workerProducer">
+        <property name="uat" value="${jmq.split.uat.switch:false}"/>
+    </bean>
+
     <!--下述BEAN用来去除DBS事务拦截-->
     <bean class="com.jd.coo.sa.mybatis.plugins.event.mq.MQPluginContext"/>
-    <bean id="bdMonitorMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="timeout" value="1000"/>
-        <property name="topic" value="bd_monitor"/>
-    </bean>
+
     <bean id="ownWaybillTransformMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="timeout" value="1000"/>
-        <property name="topic" value="ownWaybillTransform"/>
+        <property name="topic" value="${jmq.topic.ownWaybillTransform}"/>
     </bean>
 
     <bean id="inspectionDataSyncMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="inspection"/>
+        <property name="topic" value="${jmq.topic.inspection}"/>
         <property name="timeout" value="1000"/>
     </bean>
 
     <bean id="receiveArteryInfoMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="receive_artery_info"/>
+        <property name="topic" value="${jmq.topic.receive.artery.info}"/>
         <property name="timeout" value="1000"/>
         <!--receive_artery_info", "收货发送给财务计费系统运输信息-->
     </bean>
     <bean id="wmsStockChuGuanMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="wms_stock_chuguanmsg"/>
+        <property name="topic" value="${jmq.topic.wms.stock.chuguanmsg}"/>
         <property name="timeout" value="1000"/>
         <!---->
     </bean>
     <bean id="bdBlockerCompleteMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="bd_blocker_complete"/>
+        <property name="topic" value="${jmq.topic.bd.blocker.complete}"/>
         <property name="timeout" value="1000"/>
         <!---->
     </bean>
     <bean id="blockerComOrbrefundRqMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="blockerComOrbrefundRq"/>
+        <property name="topic" value="${jmq.topic.blockerComOrbrefundRq}"/>
         <property name="timeout" value="1000"/>
         <!---->
     </bean>
@@ -53,169 +93,321 @@
         <property name="timeout" value="1000"/>
     </bean> -->
     <bean id="bdDmsReverseSendEclp" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="bd_dms_reverse_send_eclp"/>
+        <property name="topic" value="${jmq.topic.bd.dms.reverse.send.eclp}"/>
+        <property name="timeout" value="1000"/>
+        <!--已认证worker配置文件-->
+    </bean>
+
+    <bean id="bdDmsReverseSendCLPS" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.bd.dms.reverse.send.clps}"/>
         <property name="timeout" value="1000"/>
         <!--已认证worker配置文件-->
     </bean>
 
     <bean id="bdPopReceivecountMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="bd_pop_receivecount"/>
+        <property name="topic" value="${jmq.topic.bd.pop.receivecount}"/>
         <property name="timeout" value="1000"/>
         <!--未找到-->
     </bean>
     <bean id="dmsAbnormalSendMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="bd_abnormal_send"/>
+        <property name="topic" value="${jmq.topic.bd.abnormal.send}"/>
         <property name="timeout" value="1000"/>
         <!--已修改topic-->
     </bean>
     <bean id="receiveBdAbnormalSendMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="dms_abnormal_send"/>
+        <property name="topic" value="${jmq.topic.dms.abnormal.send}"/>
         <property name="timeout" value="1000"/>
         <!--已修改主题-->
     </bean>
     <bean id="pop1MQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="20_90"/>
+        <property name="topic" value="${jmq.topic.20.90}"/>
         <property name="timeout" value="1000"/>
         <!--已修改主题-->
     </bean>
     <bean id="turnoverBoxMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="bd_monitor_turnover_report"/>
+        <property name="topic" value="${jmq.topic.bd.monitor.turnover.report}"/>
         <property name="timeout" value="1000"/>
         <!--已修改主题-->
     </bean>
     <bean id="pickwarePushMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="pickware_push"/>
+        <property name="topic" value="${jmq.topic.pickware.push}"/>
         <property name="timeout" value="1000"/>
         <!--未找到-->
     </bean>
     <bean id="bdExceptionToQcMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="bd_exception_to_qc"/>
+        <property name="topic" value="${jmq.topic.bd.exception.to.qc}"/>
         <property name="timeout" value="1000"/>
         <!---->
     </bean>
     <bean id="dmsRouterMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="dms_router"/>
+        <property name="topic" value="${jmq.topic.dms.router}"/>
         <property name="timeout" value="1000"/>
         <!--未找到-->
     </bean>
     <bean id="logisticsCompensationMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="bd_return_stock"/>
+        <property name="topic" value="${jmq.topic.bd.return.stock}"/>
         <property name="timeout" value="1000"/>
         <!--已修改主题-->
     </bean>
     <bean id="dmsSendLossMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="bd_dms_reverse_loss"/>
+        <property name="topic" value="${jmq.topic.bd.dms.reverse.loss}"/>
         <property name="timeout" value="1000"/>
         <!--已修改主题-->
     </bean>
     <bean id="pushFXMMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="bd_dms_abnormal_order"/>
+        <property name="topic" value="${jmq.topic.bd.dms.abnormal.order}"/>
         <property name="timeout" value="1000"/>
         <!--已修改主题-->
     </bean>
     <bean id="orbrefundRqMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="orbrefundRq"/>
+        <property name="topic" value="${jmq.topic.orbrefundRq}"/>
         <property name="timeout" value="1000"/>
         <!---->
     </bean>
     <bean id="packageMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="bd_order_package"/>
+        <property name="topic" value="${jmq.topic.bd.order.package}"/>
         <property name="timeout" value="1000"/>
         <!--已修改主题-->
     </bean>
     <bean id="dmsPopPickupMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="dms_pop_pickup"/>
+        <property name="topic" value="${jmq.topic.dms.pop.pickup}"/>
         <property name="timeout" value="1000"/>
         <!---->
     </bean>
     <bean id="bdDmsAbnormalOrderToQcMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="bd_dms_abnormal_order_to_qc"/>
+        <property name="topic" value="${jmq.topic.bd.dms.abnormal.order.to.qc}"/>
         <property name="timeout" value="1000"/>
         <!---->
     </bean>
     <bean id="q20_50MQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="20_50"/>
+        <property name="topic" value="${jmq.topic.20.50}"/>
         <property name="timeout" value="1000"/>
         <!---->
     </bean>
     <bean id="q20_20MQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="20_20"/>
+        <property name="topic" value="${jmq.topic.20.20}"/>
         <property name="timeout" value="1000"/>
         <!---->
     </bean>
     <bean id="dmsModifyOrderInfoMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="dms_modify_order_info"/>
+        <property name="topic" value="${jmq.topic.dms.modify.order.info}"/>
         <property name="timeout" value="1000"/>
         <!---->
     </bean>
     <bean id="bdDmsReverseSendMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="bd_dms_reverse_send"/>
+        <property name="topic" value="${jmq.topic.bd.dms.reverse.send}"/>
         <property name="timeout" value="1000"/>
         <!---->
     </bean>
     <!--worker发送mq失败之后 重新通过通用worker发送mq-->
     <bean id="dmsWorkSendDetailMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="dmsWorkSendDetail"/>
+        <property name="topic" value="${jmq.topic.dmsWorkSendDetail}"/>
         <property name="timeout" value="1000"/>
         <!---->
     </bean>
+    <!--非城配运单，发车队通知调度系统发送MQ-->
+    <bean id="dmsToVendor" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dmsToVendor}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
     <!--包裹称重信息发送mq-->
     <bean id="dmsWeightSendMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="dmsWeightSendMQ"/>
+        <property name="topic" value="${jmq.topic.dmsWeightSendMQ}"/>
         <property name="timeout" value="1000"/>
         <!---->
     </bean>
 
     <!--在操作现场预分拣即返调度之后 发送mq 下发数据给自动分拣机 added by zhanglei-->
     <bean id="reassignWaybillMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="bd_reassign_waybill"/>
+        <property name="topic" value="${jmq.topic.bd.reassign.waybill}"/>
         <property name="timeout" value="1000"/>
     </bean>
 
     <!--在操作换单打印之后 发送mq 下发数据给自动分拣机 added by zhanglei-->
     <bean id="reverseChangeWaybillCodeMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="bd_reverse_change_waybillCode"/>
+        <property name="topic" value="${jmq.topic.bd.reverse.change.waybillCode}"/>
         <property name="timeout" value="1000"/>
     </bean>
 
     <!--在龙门架扫描写任务之后发出一条mq消息出来，用于车辆调度计算龙门架流速 added by zhanglei 20170310-->
     <bean id="gantryScanPackageMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="bd_gantry_scan_package"/>
+        <property name="topic" value="${jmq.topic.bd.gantry.scan.package}"/>
         <property name="timeout" value="1000"/>
     </bean>
 
     <!--武汉邮政 发送mq 自消费 added by wzx-->
     <bean id="whSmsSendMq" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="bd_dms_whSms_mq"/>
+        <property name="topic" value="${jmq.topic.bd.dms.whSms.mq}"/>
         <property name="timeout" value="1000"/>
     </bean>
 
     <!--全国邮政 发送mq 自消费 added by wzx-->
     <bean id="emsSendMq" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="bd_dms_ems_mq"/>
-        <property name="timeout" value="1000"/>
-    </bean>
-    
-    <!-- 智配中心分拣给终端系统发送mq -->
-    <bean id="zhipeiSortingMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="zhipei_sorting_client"/>
+        <property name="topic" value="${jmq.topic.bd.dms.ems.mq}"/>
         <property name="timeout" value="1000"/>
     </bean>
 
-    <!-- 第三方发货推财务mq -->
+    <!-- 智配中心分拣给终端系统发送mq -->
+    <bean id="zhipeiSortingMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.zhipei.sorting.client}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
+    <!-- 第三方发货数据推财务发送mq -->
     <bean id="deliveryToFinanceMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="delivery_to_finance"/>
+        <property name="topic" value="${jmq.topic.delivery.to.finance}"/>
         <property name="timeout" value="1000"/>
     </bean>
 
     <!-- 北京bcr实现粗分，将本地的分拣方案主表和明细表发送给DTC系统 created by wzx -->
     <bean id="sortSchemeSendDtcMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="bd_sortscheme_send_DTC"/>
+        <property name="topic" value="${jmq.topic.bd.sortscheme.send.DTC}"/>
         <property name="timeout" value="1000"/>
     </bean>
 
-    <jmq:transport id="jmq.dmsWorker.transport" address="${jmq.dmsWorker.address}" user="${jmq.dmsWorker.user}"
-                   password="${jmq.dmsWorker.password}" app="${jmq.dmsWorker.producer.app}"/>
+    <!-- 空铁项目 - 航空起飞降落运单维度MQ 推送路由 -->
+    <bean id="arAirWaybillStatusMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.bd.ar.air.waybill.status}"/>
+        <property name="timeout" value="1000"/>
+        <!--已修改主题-->
+    </bean>
 
-    <jmq:producer id="workerProducer" retryTimes="3" transport="jmq.dmsWorker.transport"/>
+    <!-- 空铁项目 - 发货登记 推送路由MQ -->
+    <bean id="arSendRegisterMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.bd.ar.air.sendRegister}"/>
+        <property name="timeout" value="1000"/>
+        <!--已修改主题-->
+    </bean>
+
+    <!-- 空铁项目 - 发货登记 推送报表MQ -->
+    <bean id="arSendReportMQ" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.bd.ar.air.arSendReport}"/>
+    </bean>
+
+    <!--运单称重mq 整单量方称重信息 发送给运单系统 added by luyue-->
+    <bean id="weighByWaybillProducer" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dms.waybill.weight}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
+    <!--PDA操作取消发货MQ-->
+    <bean id="deliveryCancelSendMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.bd.dms.delivery.cancel.send}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
+    <!--PDA循环箱收发箱MQ-->
+    <bean id="recyclableBoxSendMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.cb.circulation.info}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
+    <!--封车mq-->
+    <bean id="sealCarProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.sealCar}"/>
+    </bean>
+
+    <!--解封车mq-->
+    <bean id="unsealCarProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.unsealCar}"/>
+    </bean>
+    <!--纯外单 中小件 二次预分拣MQ 发送给运单系统 added by shipeilin-->
+    <bean id="waybillSiteChangeProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dmsWaybillPrepareSiteChange}"/>
+    </bean>
+    <!-- 发货明细MQ，根据source 区分具体发货操作类型 -->
+    <bean id="arSendDetailProducer" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dmsArSendDetail}"/>
+        <property name="timeout" value="10000"/>
+    </bean>
+    <!-- 库房拒收 发送外呼-->
+    <bean id="abnormalEclpSendProducer" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="timeout" value="10000"/>
+        <property name="topic" value="${jmq.topic.abnormalEclpSend}"/>
+    </bean>
+    <!-- 三无寄托物核实申请-->
+    <bean id="abnormalUnknownSendProducer" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="timeout" value="10000"/>
+        <property name="topic" value="${jmq.topic.abnormalUnknownSend}"/>
+    </bean>
+    <!--验货/发货提示语追踪mq，记录提示的分拣中心和提示环节-->
+    <bean id="operateHintTrackMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.operateHint.track}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+    <!-- B网包装耗材确认消息推送运单-->
+    <bean id="waybillConsumableProducer" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="timeout" value="10000"/>
+        <property name="topic" value="${jmq.topic.waybillConsumable}"/>
+    </bean>
+    <!-- 签单返回合单mq，提供新单号和旧单号列表 -->
+    <bean id="mergeWaybillReturnMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.mergeWaybillReturn.track}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+    <!--驻厂打印面单成功，打印后发送mq信息给终端-->
+    <bean id="zhuchangPrintToTerminalProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.zhuchangPrintFinish}"/>
+    </bean>
+
+    <!--空铁转陆运 提报异常 -->
+    <bean id="arAbnormalProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.arAbnormal}"/>
+    </bean>
+
+    <!--空铁转陆运 提报外呼异常 发路由和质控 -->
+    <bean id="arTransportModeChangeProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.ar.transportModeChange}"/>
+    </bean>
+
+    <!-- ECLP退备件库-->
+    <bean id="reverseSendSpareEclpProducer" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="timeout" value="10000"/>
+        <property name="topic" value="${jmq.topic.reverseSendSpareEclp}"/>
+    </bean>
+
+    <!-- 空铁项目 - 航空起飞降落运单维度MQ 推送路由 -->
+    <bean id="arRailwayWaybillStatusMQ" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.bd.ar.railway.waybill.status}"/>
+    </bean>
+
+    <!-- 冷链发货 -->
+    <bean id="dmsColdChainSendWaybill" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dmsColdChainSendWaybill}"/>
+    </bean>
+
+    <!-- 超标mq，提供给fxm系统 -->
+    <bean id="dmsWeightVolumeExcess" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.weightVolume.excess}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+    <!-- 超标mq，提供给判责系统 -->
+    <bean id="dmsWeightVolumeAbnormal" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.weightVolume.abnormal}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
+    <!-- 包裹状态MQ，提供给分拣报表系统，供清场需求使用 -->
+    <bean id="dmsPackageStatusMQProducer" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dms.package.status}"/>
+    </bean>
+
+    <!--盘点任务完成发送mq消息 -->
+    <bean id="inventoryTaskCompleteProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dms.inventory.task.complete}"/>
+    </bean>
+
+    <!--新称重mq消息 区分揽收派送称重类型 -->
+    <bean id="opeWeightProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.opeWeight}"/>
+    </bean>
+    <!--交接称重转发终端和分拣机使用 -->
+    <bean id="handOverWeightProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.handOverWeight}"/>
+    </bean>
+
+    <!-- 空铁项目 - 发货登记 推送计费信息给FXM -->
+    <bean id="railwaySendRegistCostFxmMQ" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.railway.sendRegist.Cost.fxm}"/>
+    </bean>
 </beans>
