@@ -393,6 +393,14 @@ public class InventoryInfoServiceImpl implements InventoryInfoService {
         InventoryQueryRequest inventoryQueryRequest = new InventoryQueryRequest();
         inventoryQueryRequest.setCreateSiteCode(inventoryBaseRequest.getCreateSiteCode());
         inventoryQueryRequest.setDirectionCodeList(inventoryBaseRequest.getDirectionCodeList());
+        //获取任务要求的查询待盘包裹的起始时间范围
+        InventoryTask inventoryTask = inventoryTaskDao.getInventoryTaskInfo(inventoryBaseRequest.getInventoryTaskId());
+
+        if (inventoryTask != null && inventoryTask.getCreateTime() != null && inventoryTask.getHourRangeTime() != null) {
+            inventoryQueryRequest.setStartTime(inventoryTask.getHourRangeTime());
+            inventoryQueryRequest.setEndTime(inventoryTask.getCreateTime());
+        }
+
         String barCode = inventoryBaseRequest.getBarCode();
         if (WaybillUtil.isWaybillCode(barCode)) {
             inventoryQueryRequest.setWaybillCode(barCode);
