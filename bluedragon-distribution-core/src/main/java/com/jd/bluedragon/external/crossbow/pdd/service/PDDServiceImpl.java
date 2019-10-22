@@ -79,7 +79,7 @@ public class PDDServiceImpl implements PDDService {
             String redisValue = jimdbCacheService.get(redisKey);
             if (StringHelper.isNotEmpty(redisValue)) {
                 /* 如果從redis中可以獲取到value值，則直接反序列化，不走pdd接口 */
-                logger.debug("拼多多訂單redis命中緩存，waybillCode:{}，返回值：{}",waybillCode,redisValue);
+                logger.info("拼多多訂單redis命中緩存，waybillCode:{}，返回值：{}",waybillCode,redisValue);
                 redisObj = JsonHelper.fromJsonUseGson(redisValue, PDDWaybillDetailDto.class);
                 response.setResult(redisObj);
                 return response;

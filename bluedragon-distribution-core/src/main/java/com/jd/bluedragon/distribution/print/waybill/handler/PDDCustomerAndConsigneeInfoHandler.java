@@ -36,7 +36,7 @@ public class PDDCustomerAndConsigneeInfoHandler implements Handler<WaybillPrintC
             return context.getResult();
         }
         PDDResponse<PDDWaybillDetailDto> pddWaybillDetailDtoPDDResponse = pddService.queryPDDWaybillByWaybillCode(waybillCode);
-        if (pddWaybillDetailDtoPDDResponse == null || Boolean.FALSE.equals(pddWaybillDetailDtoPDDResponse.getSuccess())
+        if (pddWaybillDetailDtoPDDResponse == null || !Boolean.TRUE.equals(pddWaybillDetailDtoPDDResponse.getSuccess())
                 || pddWaybillDetailDtoPDDResponse.getResult() == null) {
             logger.warn("拼多多订单信息获取失败:{}",waybillCode);
             return context.getResult();
