@@ -152,6 +152,11 @@ public class Constants {
     public static final Integer BUSINESS_LOG_OPERATE_TYPE_SLOW_SEND=2003001;
 
     /**
+     * 操作日志线上签记录
+     */
+    public static final Integer BUSINESS_LOG_OPERATE_TYPE_ONLINE_PRINT=2003002;
+
+    /**
      * 操作日志业务编码-航空转陆运
      */
     public static final Integer BUSINESS_LOG_OPERATE_TYPE_ARABNORMAL=101401;

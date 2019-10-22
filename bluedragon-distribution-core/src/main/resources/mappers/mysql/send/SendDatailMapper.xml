@@ -995,4 +995,12 @@
 		</if>
 		ORDER BY operate_time DESC limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
 	</select>
+
+	<select id="queryWaybillCountBySendCode" parameterType="SendDetail" resultType="com.jd.bluedragon.distribution.printOnline.domain.PrintOnlineWaybillDTO">
+
+		select WAYBILL_CODE as waybillCode,count(1) as packageNum from send_d where is_cancel = 0
+		and CREATE_SITE_CODE = #{createSiteCode} and send_code = #{sendCode}
+		group by WAYBILL_CODE
+
+	</select>
 </mapper>
