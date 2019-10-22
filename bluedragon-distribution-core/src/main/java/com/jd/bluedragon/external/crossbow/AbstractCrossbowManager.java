@@ -1,11 +1,8 @@
 package com.jd.bluedragon.external.crossbow;
 
-import com.alibaba.fastjson.TypeReference;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.crossbow.CrossbowConfig;
 import com.jd.bluedragon.core.crossbow.DMSCrossbowClient;
-import com.jd.bluedragon.external.crossbow.pdd.domain.PDDResponse;
-import com.jd.bluedragon.external.crossbow.pdd.domain.PDDWaybillDetailDto;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ump.profiler.CallerInfo;

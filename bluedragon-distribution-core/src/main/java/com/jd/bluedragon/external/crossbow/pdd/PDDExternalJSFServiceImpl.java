@@ -14,6 +14,8 @@ import com.jd.bluedragon.external.crossbow.pdd.service.PDDService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.codec.binary.Base64;
@@ -44,6 +46,7 @@ public class PDDExternalJSFServiceImpl implements DMSExternalInPDDService {
     private PDDBusinessManager pddWaybillQueryManager;
 
     @Override
+    @JProfiler(jKey = "dms.core.PDDExternalJSFServiceImpl.queryPDDWaybillByWaybillCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
     public BaseEntity<PDDWaybillPrintInfoDto> queryPDDWaybillByWaybillCode(String waybillCode) {
         try {
             /* 调用拼多多的接口 */
