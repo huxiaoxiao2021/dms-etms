@@ -60,8 +60,8 @@ public class SysConfigServiceImpl implements SysConfigService {
 	}
 
 	@Override
-	@Cache(key = "SysConfigServiceImpl.getCachedList@args0", memoryEnable = true, memoryExpiredTime = 30 * 60 * 1000
-			,redisEnable = true, redisExpiredTime = 30 * 60 * 1000)
+	@Cache(key = "SysConfigServiceImpl.getCachedList@args0", memoryEnable = true, memoryExpiredTime = 2 * 60 * 1000
+			,redisEnable = true, redisExpiredTime = 2 * 60 * 1000)
 	public List<SysConfig> getCachedList(String conName) {
 		return this.sysConfigDao.getListByConName(conName);
 	}
@@ -83,9 +83,9 @@ public class SysConfigServiceImpl implements SysConfigService {
         return size;
     }
     /**
-     * 通过配置名获取配置列表信息，并缓存10分钟
+     * 通过配置名获取配置列表信息，并缓存2分钟
      */
-    @Cache(key = "SysConfigServiceImpl.getListByConfigName@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,redisEnable = false)
+    @Cache(key = "SysConfigServiceImpl.getListByConfigName@args0", memoryEnable = true, memoryExpiredTime = 2 * 60 * 1000,redisEnable = false)
 	@Override
 	public List<SysConfig> getListByConfigName(String configName) {
 		SysConfig config = new SysConfig();
@@ -97,7 +97,7 @@ public class SysConfigServiceImpl implements SysConfigService {
 	 * 从sysconfig表里查出来内容为json格式的配置
 	 * @return
 	 */
-	@Cache(key = "SiteServiceImpl.getSysConfigJsonContent@args0",memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,redisEnable = false)
+	@Cache(key = "SiteServiceImpl.getSysConfigJsonContent@args0",memoryEnable = true, memoryExpiredTime = 2 * 60 * 1000,redisEnable = false)
 	@Override
 	public SysConfigContent getSysConfigJsonContent(String key){
 		List<SysConfig> sysConfigs = getListByConfigName(key);
@@ -116,7 +116,7 @@ public class SysConfigServiceImpl implements SysConfigService {
 	 * @param configName
 	 * @return
 	 */
-	@Cache(key = "sysConfigService.getConfigByName@args0",memoryEnable = true, memoryExpiredTime = 3 * 60 * 1000,redisEnable = false)
+	@Cache(key = "sysConfigService.getConfigByName@args0",memoryEnable = true, memoryExpiredTime = 2 * 60 * 1000,redisEnable = false)
 	@Override
 	public boolean getConfigByName(String configName) {
 		try {

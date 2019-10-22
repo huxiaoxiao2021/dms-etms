@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.send.dao.SendDatailReadDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,5 +64,9 @@ public class SendDetailServiceImpl implements SendDetailService {
             return sendDatailDao.findSendPageByParams(params);
         }
         return null;
+    }
+    @Override
+    public Integer querySendDCountBySendCode(String sendCode) {
+        return sendDatailDao.querySendDCountBySendCode(sendCode);
     }
 }

@@ -247,6 +247,7 @@ public class ContainerManagerImpl implements ContainerManager{
             //设置箱子类型
 
             box.setType(container.getAttributes().getContainerBusinessType().type());
+            box.setPackageNum(container.getObjectCount());
         }
 
         return box;

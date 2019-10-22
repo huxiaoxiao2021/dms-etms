@@ -458,6 +458,7 @@ public class BoxResource {
             response.setRouterText(box.getRouterName().replace("--","-"));
         }
         response.setMixBoxType(box.getMixBoxType());
+        response.setPackageNum(box.getPackageNum());
         return response;
     }
 
