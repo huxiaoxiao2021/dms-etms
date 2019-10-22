@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.send.service;
 
-import com.alibaba.fastjson.JSON;
 import com.google.common.base.Strings;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Pack;
@@ -89,6 +88,7 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.transBillSchedule.service.TransBillScheduleService;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -104,6 +104,7 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
+import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -111,6 +112,7 @@ import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.alibaba.fastjson.JSON;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
@@ -120,6 +122,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -145,6 +148,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -876,6 +880,8 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
         // 插入SEND_M
         this.sendMManager.insertSendM(domain);
+        //发送发货业务通知MQ
+        deliverGoodsNoticeMQ(domain);
         // 判断是按箱发货还是包裹发货
         if (!BusinessUtil.isBoxcode(domain.getBoxCode())) {
             // 按包裹 补分拣任务 大件写TASK_SORTING
@@ -1201,9 +1207,31 @@ public class DeliveryServiceImpl implements DeliveryService {
             if (!list.contains(dSendM.getBoxCode())) {
                 dSendM.setBizSource(sourceCode);
                 this.sendMManager.insertSendM(dSendM);
+                //发送发货业务通知MQ
+                deliverGoodsNoticeMQ(dSendM);
             }
         }
     }
+
+    /**
+     * 发送发货业务通知MQ 自消费
+     * @param sdm
+     */
+     private void deliverGoodsNoticeMQ(SendM sdm) {
+         String businessId = sdm.getBoxCode();
+         try {
+             BoxMaterialRelationMQ mq = new BoxMaterialRelationMQ();
+             mq.setBoxCode(businessId);
+             mq.setBusinessType(1);
+             mq.setOperatorName(sdm.getCreateUser());
+             mq.setOperatorCode(sdm.getCreateUserCode());
+             mq.setSiteCode(sdm.getCreateSiteCode().toString());
+
+             deliverGoodsNoticeSendMQ.send(businessId, JsonHelper.toJson(mq));
+         } catch (JMQException e) {
+             this.logger.error("发送发货业务通知MQ 异常", e);
+         }
+     }
 
     /***
      * 发货写入任务表
@@ -3497,14 +3525,6 @@ public class DeliveryServiceImpl implements DeliveryService {
         getAllList(sendMList, allList);
         if (businessType.equals(20)) {
             tDeliveryResponse = reverseComputer.compute(allList, false);
-            //退仓时 增加 支持半退逻辑
-            if(!sysConfigService.getConfigByName("reverse.part.not.check.switch")){
-                ThreeDeliveryResponse response = checkReversePartSend(tDeliveryResponse,allList);
-                if(response.getCode().equals(DeliveryResponse.CODE_Delivery_PART_SEND_ERROR) || response.getCode().equals(DeliveryResponse.CODE_Delivery_PART_SEND) ){
-                    return response;
-                }
-            }
-
         } else {
             tDeliveryResponse = forwardComputer.compute(allList, false);
         }
@@ -4336,22 +4356,18 @@ public class DeliveryServiceImpl implements DeliveryService {
       int scanCount = 0;
       int pacageSumShoudBe = 0;
       int hasDiff = 0;
+      if(list.isEmpty()){
+          return null;
+      }
+      Integer createSiteCode = list.get(0).getCreateSiteCode();
+      Integer receiveSiteCode = list.get(0).getReceiveSiteCode();
+
       List<SendThreeDetail> diffrenceList = new ArrayList<SendThreeDetail>();
       for (SendDetail item : list) { // 遍历该箱的所有包裹
         // 包含派车单且发现包裹不齐，直接退出循环（派车单校验不要明细）
         if (isScheduleRequest && hasDiff > 0) {
           break;
         }
-          //纯配外单支持缺量退备件库因此剔除
-          String waybillCode = item.getWaybillCode();
-          com.jd.bluedragon.common.domain.Waybill reverseWaybill = waybillCommonService.findByWaybillCode(waybillCode);
-          if(reverseWaybill != null && StringUtils.isNotBlank(reverseWaybill.getWaybillSign())){
-              BaseStaffSiteOrgDto site = siteService.getSite(item.getReceiveSiteCode());
-              Integer spwms_type = Integer.valueOf(PropertiesHelper.newInstance().getValue("spwms_type"));
-              if(BusinessUtil.isPurematch(reverseWaybill.getWaybillSign()) && spwms_type.equals(site.getSiteType())){
-                  break;
-              }
-          }
         SendThreeDetail diff = new SendThreeDetail();
         diff.setBoxCode(item.getBoxCode());
         diff.setPackageBarcode(item.getPackageBarcode());
@@ -4360,7 +4376,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (!item.getWaybillCode().equals(lastWaybillCode)) { // 初次验单 或 每验完一单货，下一单开始验时 进入分支
           // 1.上一单已集齐 则返回0， 并重新初始化 pacageSumShoudBe、scanCount
           // 2.上一单未集齐 则返回未扫描的包裹（即缺失包裹数）循环结束后会根据此判断是否集齐包裹
-          hasDiff += invoke(pacageSumShoudBe, scanCount, diffrenceList);
+          hasDiff += invoke(pacageSumShoudBe, scanCount, diffrenceList,receiveSiteCode);
           lastWaybillCode = item.getWaybillCode(); // 获取当前要验证的运单号
           pacageSumShoudBe =
               WaybillUtil.getPackNumByPackCode(item.getPackageBarcode()); // 根据运单中一个包裹的包裹号 获取包裹数量
@@ -4380,11 +4396,10 @@ public class DeliveryServiceImpl implements DeliveryService {
         // 获取该单的包裹（代码中该单无论缺几个，都返回该单的所有包裹）
       }
       hasDiff +=
-          invoke(pacageSumShoudBe, scanCount, diffrenceList); // 遍历完成后，对该箱最后一单的未集齐包裹做处理，如最后一单已齐返回 0
+          invoke(pacageSumShoudBe, scanCount, diffrenceList,receiveSiteCode); // 遍历完成后，对该箱最后一单的未集齐包裹做处理，如最后一单已齐返回 0
       if (hasDiff > 0) { // hasDiff>0 则未集齐 需移除所有集齐的包裹 只保留未集齐的包裹 并封装list返回pda显示
         List<SendThreeDetail> targetList = removeFullPackages(diffrenceList);
-        Integer createSiteCode = list.get(0).getCreateSiteCode();
-        Integer receiveSiteCode = list.get(0).getReceiveSiteCode();
+
         return setSortingBoxCode(createSiteCode, receiveSiteCode, targetList);
       } else {
         return null;
@@ -4469,7 +4484,7 @@ public class DeliveryServiceImpl implements DeliveryService {
       }
     }
 
-    public abstract int invoke(int counter, int scanCount, List<SendThreeDetail> diffrenceList);
+    public abstract int invoke(int counter, int scanCount, List<SendThreeDetail> diffrenceList,Integer receiveSiteCode);
 
     public static final String HAS_SCANED = "已扫描";
 
@@ -4493,7 +4508,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         private WaybillCommonService waybillCommonService;
 
         @Override
-        public int invoke(int counter, int scanCount, List<SendThreeDetail> diffrenceList) {
+        public int invoke(int counter, int scanCount, List<SendThreeDetail> diffrenceList,Integer receiveSiteCode) {
             int hasDiff = 0;
             if (counter != scanCount) {/* 有差异*/
                 com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findWaybillAndPack(SerialRuleUtil.getWaybillCode(diffrenceList.get(diffrenceList.size() - 1).getPackageBarcode()));
@@ -4544,8 +4559,11 @@ public class DeliveryServiceImpl implements DeliveryService {
         @Autowired
         private WaybillCommonService waybillCommonService;
 
+        @Autowired
+        private SiteService siteService;
+
         @Override
-        public int invoke(int counter, int scanCount, List<SendThreeDetail> diffrenceList) {
+        public int invoke(int counter, int scanCount, List<SendThreeDetail> diffrenceList,Integer receiveSiteCode) {
             int hasDiff = 0;
             if (counter != scanCount) {/* 有差异*/
 
@@ -4555,6 +4573,21 @@ public class DeliveryServiceImpl implements DeliveryService {
                     if(BusinessUtil.isSick(waybill.getWaybillSign())){//病单则直接返回0 不验证包裹是否集齐
                         return 0;
                     }
+                    if(BusinessUtil.isPartReverse(waybill.getWaybillSign())){//半退 不验证包裹是否集齐
+                        return 0;
+                    }
+                    if(receiveSiteCode!=null){
+                        BaseStaffSiteOrgDto site = siteService.getSite(receiveSiteCode);
+                        if(site!=null){
+                            Integer spwms_type = Integer.valueOf(PropertiesHelper.newInstance().getValue("spwms_type"));
+                            if(BusinessUtil.isPurematch(waybill.getWaybillSign()) && spwms_type.equals(site.getSiteType())
+                                    && !BusinessHelper.isC2c(waybill.getWaybillSign())){
+                                //纯配非C2C的可半退至备件库 不验证集齐
+                                return 0;
+                            }
+                        }
+                    }
+
                     logger.info("运单中包裹数量为" + waybill.getPackList().size());
                     geneList = new ArrayList<String>(waybill.getPackList().size());
                     for (Pack p : waybill.getPackList()) {
@@ -4913,7 +4946,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
         Integer preSiteCode = null;
         Integer destinationDmsId = null;
-        com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findWaybillAndPack(waybillCode);
+        com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findByWaybillCode(waybillCode);
         if(waybill != null && waybill.getWaybillSign() != null){
             //是否是金鹏订单
             if(BusinessUtil.isPerformanceOrder(waybill.getWaybillSign())){

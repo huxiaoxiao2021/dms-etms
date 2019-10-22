@@ -254,7 +254,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         	isNew = true;
         }else{
 	        /**查询运单*/
-	        BaseEntity<BigWaybillDto> entity = waybillQueryManager.getWaybillDataForPrint(request.getWaybillCode());
+            BaseEntity<BigWaybillDto> entity = waybillQueryManager.getWaybillDataForPrint(request.getWaybillCode());
 	        if(entity==null || entity.getData()==null){
 	            log.warn(LOG_PREFIX+" 没有获取运单数据(BaseEntity<BigWaybillDto>)"+request.getWaybillCode());
 	            return null;

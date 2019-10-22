@@ -1155,15 +1155,6 @@ public class SortingServiceImpl implements SortingService {
 		}
 	}
 
-	public BigWaybillDto queryWaybillByCode(String waybillCode){
-		BigWaybillDto dto = waybillService.getWaybill(waybillCode);
-		if(dto!=null){
-			return dto;
-		}else{
-			return null;
-		}
-	}
-
 	public String refundMessage(String waybillCode, String operateTime) {
 		StringBuilder message = new StringBuilder();
 		message.append("<?xml version=\"1.0\" encoding=\"utf-16\"?>");

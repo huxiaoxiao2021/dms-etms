@@ -672,13 +672,13 @@ public class BusinessUtil {
 
 
     /**
-     * 纯配外单判断 【waybillSign第1为为2、3、6、9、K、Y且第53位为2】
+     * 纯配外单判断 【waybillSign第1为为2、3、6、9、K、Y且第53位为2、0】
      * */
     public static Boolean isPurematch(String waybillSign){
         if(waybillSign == null){
             return Boolean.FALSE;
         }
-        if(isSignChar(waybillSign,53,'2')
+        if(isSignInChars(waybillSign,53,'2','0')
                 && isSignInChars(waybillSign,1,'2','3','6','9','K','Y')){
             return Boolean.TRUE;
         }

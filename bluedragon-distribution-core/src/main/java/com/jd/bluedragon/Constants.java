@@ -964,6 +964,10 @@ public class Constants {
      * 数据库箱号最大长度限制，由于无法保证与数据库同步更新，此常量不属于权威定义
      */
     public static final int BOX_CODE_DB_COLUMN_LENGTH_LIMIT = 50;
+    /**
+     * 数据库车牌长度最大长度限制，由于无法保证与数据库同步更新，此常量不属于权威定义
+     */
+    public static final int CAR_CODE_DB_COLUMN_LENGTH_LIMIT = 32;
 
     /**
      * EMG条码前缀
@@ -978,4 +982,9 @@ public class Constants {
      * 字典的产品类型父节点
      */
     public static final Integer PRODUCT_PARENT_ID = 30048;
+    /**
+     * 货物类型
+     */
+    public static final int BASEDICT_GOODS_TYPE_TYPECODE = 10203;
+
 }

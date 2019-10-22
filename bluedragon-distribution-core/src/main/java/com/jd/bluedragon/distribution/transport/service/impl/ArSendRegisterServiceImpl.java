@@ -1,24 +1,21 @@
 package com.jd.bluedragon.distribution.transport.service.impl;
 
+import com.google.common.base.Joiner;
 import com.google.gson.reflect.TypeToken;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.BasicQueryWSManager;
+import com.jd.bluedragon.core.base.EcpQueryWSManager;
+import com.jd.bluedragon.core.jmq.domain.RailwaySendRegistCostFxmDto;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.base.service.DmsBaseDictService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.transport.dao.ArSendCodeDao;
 import com.jd.bluedragon.distribution.transport.dao.ArSendRegisterDao;
-import com.jd.bluedragon.distribution.transport.domain.ArPdaSendRegister;
-import com.jd.bluedragon.distribution.transport.domain.ArSendCode;
-import com.jd.bluedragon.distribution.transport.domain.ArSendRegister;
-import com.jd.bluedragon.distribution.transport.domain.ArSendRegisterCondition;
-import com.jd.bluedragon.distribution.transport.domain.ArSendRegisterEnum;
-import com.jd.bluedragon.distribution.transport.domain.ArSendRouterMqTypeEnum;
-import com.jd.bluedragon.distribution.transport.domain.ArSendStatusEnum;
-import com.jd.bluedragon.distribution.transport.domain.ArTransportInfo;
-import com.jd.bluedragon.distribution.transport.domain.ArTransportTypeEnum;
+import com.jd.bluedragon.distribution.transport.domain.*;
 import com.jd.bluedragon.distribution.transport.service.ArSendCodeService;
 import com.jd.bluedragon.distribution.transport.service.ArSendRegisterService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
@@ -27,7 +24,6 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.common.util.StringUtils;
-import com.jd.jddl.executor.function.scalar.filter.In;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.City;
@@ -37,9 +33,10 @@ import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.tms.basic.dto.BasicAirFlightDto;
 import com.jd.tms.basic.dto.BasicRailwayTrainDto;
 import com.jd.tms.basic.dto.CommonDto;
+import com.jd.tms.basic.dto.ConfNodeCarrierDto;
 import com.jd.tms.basic.ws.BasicQueryWS;
 import com.jd.tms.basic.ws.BasicSyncWS;
-import com.jd.ump.annotation.JProfiler;
+import com.jd.tms.ecp.dto.BasicRailTrainDto;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +45,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -101,6 +106,19 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
     @Qualifier("arSendReportMQ")
     @Autowired
     private DefaultJMQProducer arSendReportMQ;
+
+    @Qualifier("railwaySendRegistCostFxmMQ")
+    @Autowired
+    private DefaultJMQProducer railwaySendRegistCostFxmMQ;
+
+    @Autowired
+    private EcpQueryWSManager ecpQueryWSManager;
+
+    @Autowired
+    private BasicQueryWSManager basicQueryWSManager;
+
+    @Autowired
+    private DmsBaseDictService dmsBaseDictService;
 
     /**
      * 分隔符 逗号
@@ -157,6 +175,10 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         //所有新增发货登记先把发给路由MQ类型置为1，落库
         arSendRegister.setSendRouterMqType(ArSendRouterMqTypeEnum.AIR_NO_SEND.getCode());
         arSendRegister.setOperateType(ArSendRegisterEnum.AIR_INSERT.getCode());
+        Map<Integer,String>  goodsTypeMap = dmsBaseDictService.queryMapKeyTypeCodeByTypeCode(Constants.BASEDICT_GOODS_TYPE_TYPECODE);
+        if(goodsTypeMap != null){
+            arSendRegister.setGoodsTypeName(goodsTypeMap.get(arSendRegister.getGoodsType()));
+        }
         this.sendMQToRouter(arSendRegister, sendCodes);
         if (this.getDao().insert(arSendRegister)) {
             if (sendCodes != null && sendCodes.length > 0) {
@@ -172,6 +194,9 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                         // 调用TMS BASIC订阅实时航班JSF接口
                         this.createAirFlightRealTime(arSendRegister.getTransportName(), arSendRegister.getSendDate());
                     }
+                    if(arSendRegister.getTransportType() != null && arSendRegister.getTransportType().equals(RAILWAY.getCode())){
+                        sendCostInfoToFxm(arSendRegister);
+                    }
                     return true;
                 }
             } else {
@@ -180,6 +205,45 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
 
         }
         return false;
+    }
+
+    /**
+     * 铁路应付计费要素 发送给fxm
+     * @param arSendRegister
+     */
+    private void sendCostInfoToFxm(ArSendRegister arSendRegister){
+
+        BasicRailTrainDto railTrainDto = ecpQueryWSManager.getRailTrainListByCondition(arSendRegister.getTransportName(),
+                arSendRegister.getStartCityId(),arSendRegister.getEndCityId());
+        if(railTrainDto == null){
+            logger.warn("获取列车车次信息为空orderCode[{}]trainNumber[{}]beginCityId[{}]endCityId[{}]",arSendRegister.getOrderCode(),
+                    arSendRegister.getTransportName(), arSendRegister.getStartCityId(),arSendRegister.getEndCityId());
+            return;
+        }
+        ConfNodeCarrierDto confNodeCarrierDto = basicQueryWSManager.getCarrierByNodeCode(railTrainDto.getBeginNodeCode());
+        if(confNodeCarrierDto == null){
+            logger.warn("承运商为空orderCode[{}]beginNodeCode[{}]",arSendRegister.getOrderCode(),railTrainDto.getBeginNodeCode());
+            return;
+        }
+        RailwaySendRegistCostFxmDto costFxmDto = new RailwaySendRegistCostFxmDto();
+        costFxmDto.setSendDate(arSendRegister.getSendDate());
+        costFxmDto.setOrderCode(arSendRegister.getOrderCode());
+        costFxmDto.setTrainNumber(arSendRegister.getTransportName());
+        costFxmDto.setStartStationCode(railTrainDto.getBeginNodeCode());
+        costFxmDto.setStartStationCodeName(railTrainDto.getBeginNodeName());
+        costFxmDto.setEndStationCode(railTrainDto.getEndNodeCode());
+        costFxmDto.setEndStationCodeName(railTrainDto.getEndNodeName());
+        costFxmDto.setWeight(arSendRegister.getChargedWeight());
+        costFxmDto.setGoodsType(arSendRegister.getGoodsType());
+        costFxmDto.setGoodsTypeName(arSendRegister.getGoodsTypeName());
+        costFxmDto.setSendNum(arSendRegister.getSendNum());
+        costFxmDto.setCarrierCode(confNodeCarrierDto.getCarrierCode());
+        costFxmDto.setCarrierName(confNodeCarrierDto.getCarrierName());
+        try {
+            railwaySendRegistCostFxmMQ.send(costFxmDto.getOrderCode(),JsonHelper.toJson(costFxmDto));
+        } catch (JMQException e) {
+            logger.error("发货登记-发送计费要素信息错误ordercode[{}]",costFxmDto.getOrderCode(),e);
+        }
     }
 
     private void sendMQToRouter(ArSendRegister arSendRegister, String[] sendCodes) {
@@ -511,7 +575,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                     ArSendRegister register = this.toDBDomain(pdaSendRegister);
                     this.insert(register, COMMA);
                 } catch (Exception e) {
-                    logger.error("[空铁发货登记]执行离线发货登记新增任务时发生异常", e);
+                    logger.error("[空铁发货登记]执行离线发货登记新增任务时发生异常，ArSendRegister消息体:" + body, e);
                     return false;
                 }
             }
@@ -534,7 +598,11 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         sendRegister.setChargedWeight(pdaSendRegister.getWeight());
         sendRegister.setRemark(pdaSendRegister.getDemo());
         sendRegister.setShuttleBusType(pdaSendRegister.getOperateType());
-        sendRegister.setShuttleBusNum(pdaSendRegister.getCarCode());
+        String carCode = pdaSendRegister.getCarCode();
+        if(StringUtils.isNotEmpty(carCode) && carCode.length() > Constants.CAR_CODE_DB_COLUMN_LENGTH_LIMIT){
+            carCode = carCode.substring(0, Constants.CAR_CODE_DB_COLUMN_LENGTH_LIMIT);
+        }
+        sendRegister.setShuttleBusNum(carCode);
         sendRegister.setOperatorErp(pdaSendRegister.getSendUserCode());
         sendRegister.setOperatorName(pdaSendRegister.getUserName());
         sendRegister.setOperatorId(pdaSendRegister.getUserCode());
@@ -545,6 +613,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         sendRegister.setSendDate(getPDASendDate(pdaSendRegister.getBoxCode()));
         ArTransportTypeEnum transportType = this.getTransportType(pdaSendRegister.getAirNo());
         sendRegister.setTransportType(transportType.getCode());
+        sendRegister.setGoodsType(pdaSendRegister.getGoodsType());
         this.buildTransportInfo(sendRegister, transportType);
         return sendRegister;
     }
@@ -754,7 +823,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
 
             arSendReportMQ.send(arSendRegister.getTransCompanyCode(),JsonHelper.toJson(arSendRegister));
         } catch (JMQException e) {
-            logger.error("空铁发货登记报表数据发送异常"+arSendRegister.getTransCompanyCode()+e.getMessage(),e);
+            logger.error("空铁发货登记报表数据发送异常orderCode[{}]sendCodes[{}]",arSendRegister.getOrderCode(), Joiner.on(",").join(sendCodes),e);
         }
     }
 

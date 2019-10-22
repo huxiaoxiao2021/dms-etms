@@ -46,21 +46,21 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
      */
     @Autowired
     @Qualifier("boxResource")
-    BoxResource boxResource;
+    private BoxResource boxResource;
 
     /**
      * 运单resource
      */
     @Autowired
     @Qualifier("waybillResource")
-    WaybillResource waybillResource;
+    private WaybillResource waybillResource;
 
     /**
      * 发货resource
      */
     @Autowired
     @Qualifier("deliveryResource")
-    DeliveryResource deliveryResource;
+    private DeliveryResource deliveryResource;
 
     /**
      * 处理批量一车一单发货参数校验
