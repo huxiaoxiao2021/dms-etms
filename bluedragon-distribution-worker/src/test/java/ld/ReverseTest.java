@@ -50,12 +50,12 @@ public class ReverseTest {
 
         Task tTask = new Task();
 
-        String sendCode = "910-14178-20190223165014011";
+        String sendCode = "910-11252-20190926180416014";
         tTask.setBoxCode(sendCode);
         tTask.setBody(sendCode);
         tTask.setCreateSiteCode(910);
         tTask.setKeyword2("20");
-        tTask.setReceiveSiteCode(14178);
+        tTask.setReceiveSiteCode(11252);
         tTask.setType(Task.TASK_TYPE_SEND_DELIVERY);
         tTask.setTableName(Task.getTableName(Task.TASK_TYPE_SEND_DELIVERY));
         tTask.setSequenceName(Task.getSequenceName(Task.TABLE_NAME_SEND));

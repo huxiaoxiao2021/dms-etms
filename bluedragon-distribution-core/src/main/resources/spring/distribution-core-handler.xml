@@ -56,6 +56,8 @@
 				<entry key="100307"  value-ref="site3PlReSchedulePrint"/>
 				<!-- 3PL包裹补打 -->
 				<entry key="100308"  value-ref="site3PlReprint"/>
+				<!-- 终端包裹打印 -->
+				<entry key="100310"  value-ref="getBasicPrintInfo"/>
 			</map>
 		</property>
 	</bean>
@@ -215,6 +217,7 @@
 				<ref bean="specialTextWaybillHandler"/>
 				<ref bean="promiseWaybillHandler"/>
 				<ref bean="customerAndConsignerInfoHandler"/>
+				<ref bean="specialFieldHandler"/>
 				<ref bean="mappedBasicPrintWaybillHandler"/>
 				<ref bean="remarkFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
@@ -326,7 +329,27 @@
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
             </list>
         </property>
-    </bean>    
+    </bean>
+	<!-- 获取包裹标签数据 -->
+	<bean id="getBasicPrintInfo" class="com.jd.bluedragon.distribution.print.waybill.handler.PlatePrintOperateHandler">
+		<property name="handlers">
+			<list>
+				<ref bean="basicWaybillPrintHandler"/>
+				<ref bean="pickWillPrintPackageInterceptHandler"/>
+				<ref bean="interceptWaybillHandler"/>
+				<ref bean="oldWaybillQueryHandler"/>
+				<ref bean="specialMarkWaybillHandler"/>
+				<ref bean="specialTextWaybillHandler"/>
+				<ref bean="promiseWaybillHandler"/>
+				<ref bean="customerAndConsignerInfoHandler"/>
+				<ref bean="specialFieldHandler"/>
+				<ref bean="mappedBasicPrintWaybillHandler"/>
+				<ref bean="remarkFieldHandler"/>
+				<ref bean="templateSelectorWaybillHandler"/>
+				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
+			</list>
+		</property>
+	</bean>        
     <!-- pdf调用云打印生成handler配置 -->
 	<bean id="pdfJdCloudGenerateHandler" class="com.jd.bluedragon.distribution.print.waybill.handler.PdfLabelFileGenerateHandler">
 		<property name="jdCloudPrintService" ref="jdCloudPrintService"/>
