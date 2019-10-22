@@ -2,6 +2,7 @@ package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.kuguan.domain.KuGuanDomain;
+import com.jd.bluedragon.distribution.reverse.service.ReverseReceiveNotifyStockService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.stock.iwms.export.StockExportService;
@@ -92,7 +93,7 @@ public class StockExportManagerImpl implements StockExportManager {
                     Profiler.functionError(info);
                     result = null;
                 }else{
-                    this.logger.info("调用库管接口stockExportManager.getFullStockByBusiNo queryStockData()成功: resultMessage:"+result.getMessage());
+                    this.logger.info("调用库管接口stockExportManager.getFullStockByBusiNo queryStockData()成功businessNo[{}]",businessNo);
                 }
             }else{
                 this.logger.error("调用库管接口stockExportManager.getFullStockByBusiNo queryStockData()异常: result为空!");
@@ -130,7 +131,9 @@ public class StockExportManagerImpl implements StockExportManager {
                         domain = convert2KuGuanDomain(nstock);
                     }
                 }
-
+                if(ReverseReceiveNotifyStockService.CHUGUAN_FIELD_QITAFANGSHI.equals(nstock.getQtfs())){
+                    logger.info("调用库管接口-返回了逆向物流数据orderCode[{}]lKdanhao[{}]nstock[{}]",orderCode,lKdanhao,JsonHelper.toJson(nstock));
+                }
                 //组装库管单号超链接
                 if(stockKudanhao.equals(lKdanhao)){
                     buf.append("<a href=list?waybillCode=" + orderCode

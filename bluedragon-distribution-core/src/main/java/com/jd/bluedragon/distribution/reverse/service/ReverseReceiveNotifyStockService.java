@@ -87,7 +87,7 @@ public class ReverseReceiveNotifyStockService {
 
     private static final String JING_BAN_SYSCODE = "ql.dms";
 
-    private static final String CHUGUAN_FIELD_QITAFANGSHI = "逆向物流";
+    public static final String CHUGUAN_FIELD_QITAFANGSHI = "逆向物流";
 
     //出管 其他方式字段值，依旧换新 需要传此值
     private static final String CHUGUAN_FIELD_STILL_NEW_QTFS = "trade-in";
