@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.print.waybill.handler;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.external.crossbow.pdd.domain.PDDResponse;
 import com.jd.bluedragon.external.crossbow.pdd.domain.PDDWaybillDetailDto;
 import com.jd.bluedragon.external.crossbow.pdd.service.PDDService;
 import com.jd.bluedragon.utils.StringHelper;
@@ -24,8 +25,6 @@ public class PDDCustomerAndConsigneeInfoHandler implements Handler<WaybillPrintC
 
     private static final Logger logger = LoggerFactory.getLogger(PDDCustomerAndConsigneeInfoHandler.class);
 
-    private static final int PHONE_HIGHLIGHT_NUMBER = 4;
-
     @Autowired
     private PDDService pddService;
 
@@ -36,11 +35,15 @@ public class PDDCustomerAndConsigneeInfoHandler implements Handler<WaybillPrintC
             logger.debug("该单不是拼多多单，不需要从拼多多接口中获取收寄件人信息：{}", waybillCode);
             return context.getResult();
         }
-        PDDWaybillDetailDto pddWaybillDetailDto = pddService.queryWaybillDetailByWaybillCode(waybillCode);
-        if (pddWaybillDetailDto == null) {
+        PDDResponse<PDDWaybillDetailDto> pddWaybillDetailDtoPDDResponse = pddService.queryPDDWaybillByWaybillCode(waybillCode);
+        if (pddWaybillDetailDtoPDDResponse == null || Boolean.FALSE.equals(pddWaybillDetailDtoPDDResponse.getSuccess())
+                || pddWaybillDetailDtoPDDResponse.getResult() == null) {
             logger.warn("拼多多订单信息获取失败:{}",waybillCode);
             return context.getResult();
         }
+
+        PDDWaybillDetailDto pddWaybillDetailDto = pddWaybillDetailDtoPDDResponse.getResult();
+
         context.getBasePrintWaybill().setConsigner(pddWaybillDetailDto.getSenderName());
         context.getBasePrintWaybill().setConsignerMobile(pddWaybillDetailDto.getSenderMobile());
         context.getBasePrintWaybill().setConsignerTel(pddWaybillDetailDto.getSenderPhone());
