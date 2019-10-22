@@ -130,6 +130,14 @@ $(function () {
             title: '盘点人ERP',
             align: 'center'
         },{
+            field: 'hourRange',
+            title: '时间范围',
+            align: 'center',
+            formatter: function (value, row, index) {
+                if (value != null )
+                    return value + "小时";
+            }
+        },{
             field: 'createTime',
             title: '创建时间',
             align: 'center',

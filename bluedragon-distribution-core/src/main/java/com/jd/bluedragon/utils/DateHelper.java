@@ -344,6 +344,24 @@ public class DateHelper {
     }
 
     /**
+     * 获取当前时间前rangeHours小时的时间
+     *
+     * @param date
+     * @param rangeHours
+     * @return
+     */
+    public static Date newTimeRangeHoursAgo(final Date date, Integer rangeHours) {
+        if (date == null) {
+            return null;
+        }
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.HOUR_OF_DAY, - rangeHours);
+
+        return calendar.getTime();
+    }
+
+    /**
      * 计算两个日期相差的天数
      * @param start
      * @param end
