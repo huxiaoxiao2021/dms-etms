@@ -41,6 +41,12 @@ public class UccPropertyConfiguration {
     /** 分拣动作选取的service DMS、MIDDLEEND、FAILOVER**/
     private String sortingServiceMode;
 
+    /** 出管新接口-写入方法开关 true 调用新接口，false 调用老接口**/
+    private boolean chuguanNewInterfaceInsertSwitch;
+
+    /** 出管新接口-查询方法开关 true 调用新接口，false 调用老接口**/
+    private boolean chuguanNewInterfaceQuerySwitch;
+
     public String getAsynbufferEnabledTaskType() {
         return asynbufferEnabledTaskType;
     }
@@ -119,5 +125,21 @@ public class UccPropertyConfiguration {
 
     public void setSortingServiceMode(String sortingServiceMode) {
         this.sortingServiceMode = sortingServiceMode;
+    }
+
+    public boolean isChuguanNewInterfaceInsertSwitch() {
+        return chuguanNewInterfaceInsertSwitch;
+    }
+
+    public void setChuguanNewInterfaceInsertSwitch(boolean chuguanNewInterfaceInsertSwitch) {
+        this.chuguanNewInterfaceInsertSwitch = chuguanNewInterfaceInsertSwitch;
+    }
+
+    public boolean isChuguanNewInterfaceQuerySwitch() {
+        return chuguanNewInterfaceQuerySwitch;
+    }
+
+    public void setChuguanNewInterfaceQuerySwitch(boolean chuguanNewInterfaceQuerySwitch) {
+        this.chuguanNewInterfaceQuerySwitch = chuguanNewInterfaceQuerySwitch;
     }
 }

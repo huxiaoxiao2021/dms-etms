@@ -151,6 +151,16 @@ public class SendDetailDto implements PagerCondition{
      */
     private Integer bizSource;
 
+    /**
+     * 时间范围 - 开始时间
+     */
+    private Date startTime;
+
+    /**
+     * 时间范围 - 结束时间
+     */
+    private Date endTime;
+
     private Integer offset;
 
     private Integer limit;
@@ -403,5 +413,21 @@ public class SendDetailDto implements PagerCondition{
 
     public void setBizSource(Integer bizSource) {
         this.bizSource = bizSource;
+    }
+
+    public Date getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(Date startTime) {
+        this.startTime = startTime;
+    }
+
+    public Date getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Date endTime) {
+        this.endTime = endTime;
     }
 }

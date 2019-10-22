@@ -254,6 +254,16 @@ public class BusinessUtil {
     }
 
     /**
+     * 根据waybillSign第40位判断是否快运业务（标识为 1、2、3、4、5）
+     *
+     * @param waybillSign 运单标识位
+     * @return
+     */
+     public static boolean isFastTrans(String waybillSign){
+         return isSignInChars(waybillSign, WaybillSignConstants.POSITION_40, '1', '2', '3', '4', '5');
+     }
+
+    /**
      * 判断是否B网，转网到B+未转网到C并且waybillSign第40位1、2、3、4、5
      *
      * @param waybillSign
@@ -662,13 +672,13 @@ public class BusinessUtil {
 
 
     /**
-     * 纯配外单判断 【waybillSign第1为为2、3、6、9、K、Y且第53位为2】
+     * 纯配外单判断 【waybillSign第1为为2、3、6、9、K、Y且第53位为2、0】
      * */
     public static Boolean isPurematch(String waybillSign){
         if(waybillSign == null){
             return Boolean.FALSE;
         }
-        if(isSignChar(waybillSign,53,'2')
+        if(isSignInChars(waybillSign,53,'2','0')
                 && isSignInChars(waybillSign,1,'2','3','6','9','K','Y')){
             return Boolean.TRUE;
         }

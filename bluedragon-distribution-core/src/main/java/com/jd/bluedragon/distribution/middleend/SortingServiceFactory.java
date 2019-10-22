@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.Set;
 
 @Service
 public class SortingServiceFactory {
@@ -43,7 +44,9 @@ public class SortingServiceFactory {
         }
 
         if(serviceMode.equals(SORTING_SERVICE_MODE_FAILOVER)){
-            if (createSiteCode == null || !siteService.getSiteCodesFromSysConfig(SYSTEM_CONFIG_MIDDLE_END_SORTING_OPEN).contains(createSiteCode)) {
+            Set<Integer> siteSet = siteService.getSiteCodesFromSysConfig(SYSTEM_CONFIG_MIDDLE_END_SORTING_OPEN);
+            //站点set为空即代表全部场地开启
+            if (!siteSet.isEmpty() && (createSiteCode == null || !siteSet.contains(createSiteCode))) {
                 serviceMode = SORTING_SERVICE_MODE_DMS;
             }
         }

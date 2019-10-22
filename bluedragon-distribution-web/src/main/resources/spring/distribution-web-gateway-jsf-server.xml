@@ -115,4 +115,12 @@
                   alias="${dms.gateway.jsf.alias}"
                   ref="storagePutawayGatewayServiceImpl" server="dmsjsf">
     </jsf:provider>
+
+    <!-- 暂存上架服务 -->
+    <bean id="dmsBaseDictGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.DmsBaseDictGatewayServiceImpl"/>
+    <jsf:provider id="jsfdmsBaseDictGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.DmsBaseDictGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="dmsBaseDictGatewayService" server="dmsjsf">
+    </jsf:provider>
 </beans>

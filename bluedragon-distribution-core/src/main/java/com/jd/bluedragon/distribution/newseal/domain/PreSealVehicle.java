@@ -77,6 +77,25 @@ public class PreSealVehicle extends DbEntity {
 
     /** 车牌号:封签号Map */
     private Map<String, String> vehicleSealCodeMap;
+
+	/** 封车来源 */
+	private Integer preSealSource;
+
+	/** 运输类型 */
+	private Integer transWay;
+
+	/** 运输类型名称 */
+	private String transWayName;
+
+	/** 重量 */
+	private Double weight;
+
+	/** 体积 */
+	private Double volume;
+
+	/** 车牌号:封签号Map */
+	private Map<String, VehicleMeasureInfo> vehicleMeasureMap;
+
 	/**
 	 * The set method for preSealUuid.
 	 * @param preSealUuid
@@ -385,4 +404,55 @@ public class PreSealVehicle extends DbEntity {
         }
         this.vehicleSealCodeMap.put(vehicleNumber, sealCodes);
     }
+
+	public Integer getPreSealSource() {
+		return preSealSource;
+	}
+
+	public void setPreSealSource(Integer preSealSource) {
+		this.preSealSource = preSealSource;
+	}
+
+	public Integer getTransWay() {
+		return transWay;
+	}
+
+	public void setTransWay(Integer transWay) {
+		this.transWay = transWay;
+	}
+
+	public String getTransWayName() {
+		return transWayName;
+	}
+
+	public void setTransWayName(String transWayName) {
+		this.transWayName = transWayName;
+	}
+
+	public Double getWeight() {
+		return weight;
+	}
+
+	public void setWeight(Double weight) {
+		this.weight = weight;
+	}
+
+	public Double getVolume() {
+		return volume;
+	}
+
+	public void setVolume(Double volume) {
+		this.volume = volume;
+	}
+
+	public Map<String, VehicleMeasureInfo> getVehicleMeasureMap() {
+		if(this.vehicleMeasureMap == null){
+			this.vehicleMeasureMap = new HashMap<>();
+		}
+		return vehicleMeasureMap;
+	}
+
+	public void setVehicleMeasureMap(Map<String, VehicleMeasureInfo> vehicleMeasureMap) {
+		this.vehicleMeasureMap = vehicleMeasureMap;
+	}
 }

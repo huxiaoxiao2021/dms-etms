@@ -309,9 +309,9 @@ public class PackageStatusServiceImpl implements PackageStatusService {
         Integer receiveSiteCode = null;
         //1.查send_d表
         if (createSiteCode != null && createSiteCode > 0) {
-            List<SendDetail> sendDetailList = sendDetailService.findByWaybillCodeOrPackageCode(createSiteCode, waybillCode, null);
-            if (sendDetailList != null && sendDetailList.size() > 0) {
-                receiveSiteCode = sendDetailList.get(0).getReceiveSiteCode();
+            SendDetail sendDetaiFirst = sendDetailService.findOneByWaybillCode(createSiteCode, waybillCode);
+            if (sendDetaiFirst != null) {
+                receiveSiteCode = sendDetaiFirst.getReceiveSiteCode();
             }
         }
 

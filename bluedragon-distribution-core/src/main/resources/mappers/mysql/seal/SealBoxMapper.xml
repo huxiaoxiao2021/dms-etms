@@ -112,4 +112,14 @@
 		 LIMIT 1
 	</select>
 
+	<select id="findListByBoxCodes" resultMap="sealBox">
+		SELECT seal_code,create_time
+		FROM seal_box
+		WHERE box_code in
+		<foreach collection="list" item="item" index="index" separator="," open="(" close=")">
+			#{item,jdbcType=VARCHAR}
+		</foreach>
+		order by create_time desc
+	</select>
+
 </mapper>

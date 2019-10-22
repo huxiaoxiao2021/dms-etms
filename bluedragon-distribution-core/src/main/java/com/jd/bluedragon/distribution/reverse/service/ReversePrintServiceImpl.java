@@ -368,6 +368,10 @@ public class ReversePrintServiceImpl implements ReversePrintService {
                         && !BusinessUtil.isPurematch(waybill.getWaybillSign())){
                     return;
                 }
+                //c2c 直接返回
+                if(BusinessHelper.isC2c(waybill.getWaybillSign())){
+                    return;
+                }
                 //3.有商品信息直接返回
                 if(baseEntity.getData().getGoodsList() != null
                         && baseEntity.getData().getGoodsList().size() > 0){
@@ -406,7 +410,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         BaseEntity<BigWaybillDto> result = null;
         try {
             result = waybillQueryManager.getDataByChoice(waybillCode,
-                    true, true, true, true, true, false, false);
+                    true, true, true, true, false, false, false);
             if(result != null && result.getData() != null && result.getData().getWaybill() != null &&
                     result.getData().getWaybill().getFirstTime() != null)
             {

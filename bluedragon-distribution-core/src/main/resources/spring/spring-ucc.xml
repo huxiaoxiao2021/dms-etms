@@ -33,6 +33,8 @@
 		<property name="workerFetchWithoutFailedTable" value="${worker.fetch.without.failed.table}"/>
 		<property name="waybillSplitPageSize" value="${waybill.split.page.size}"/>
 		<property name="sortingServiceMode" value="${sorting.service.mode}"/>
+		<property name="chuguanNewInterfaceInsertSwitch" value="${chuguanNewInterfaceInsertSwitch:false}"/>
+		<property name="chuguanNewInterfaceQuerySwitch" value="${chuguanNewInterfaceQuerySwitch:false}"/>
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -50,6 +52,8 @@
                 <value>uccPropertyConfiguration.workerFetchWithoutFailedTable</value>
 				<value>uccPropertyConfiguration.waybillSplitPageSize</value>
                 <value>uccPropertyConfiguration.sortingServiceMode</value>
+                <value>uccPropertyConfiguration.chuguanNewInterfaceInsertSwitch</value>
+                <value>uccPropertyConfiguration.chuguanNewInterfaceQuerySwitch</value>
 			</list>
 		</property>
 	</bean>

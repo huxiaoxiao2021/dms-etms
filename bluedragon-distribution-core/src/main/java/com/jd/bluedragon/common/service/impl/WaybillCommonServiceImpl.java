@@ -149,6 +149,9 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     private static final String SPECIAL_REQUIRMENT_DELIVERY_UPSTAIRS="重货上楼";
     private static final String SPECIAL_REQUIRMENT_DELIVERY_WAREHOUSE="送货入仓";
     private static final String SPECIAL_REQUIRMENT_PRICE_PROTECT_MONEY = "保价";
+    private static final String SPECIAL_REQUIRMENT_LOAD_CAR = "装车";
+    private static final String SPECIAL_REQUIRMENT_UNLOAD_CAR = "卸车";
+    private static final String SPECIAL_REQUIRMENT_LOAD_UNLOAD_CAR = "装卸车";
 
     /**
      * B网医药冷链温层
@@ -162,6 +165,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 
     private static final String STORE_TYPE_WMS = "wms";
 
+    @Override
     public Waybill findByWaybillCode(String waybillCode) {
         Waybill waybill = null;
 
@@ -170,21 +174,17 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             wChoice.setQueryWaybillC(true);
             wChoice.setQueryWaybillE(true);
             wChoice.setQueryWaybillM(true);
-            BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager.getDataByChoice(
-                    waybillCode, wChoice);
+            BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager.getDataByChoice(waybillCode, wChoice);
             if (baseEntity != null && baseEntity.getData() != null) {
                 waybill = this.convWaybillWS(baseEntity.getData(), false, false);
             }
-            this.logger.info("运单号【 " + waybillCode + "】调用运单WSS数据成功，运单【" + waybill + "】");
+            this.logger.info("运单号【 " + waybillCode + "】调用运单getDataByChoice()接口数据成功，运单【" + waybill + "】");
         } catch (Exception e) {
-            this.logger.error("运单号【 " + waybillCode + "】调用运单WSS异常：", e);
+            this.logger.error("运单号【 " + waybillCode + "】调用运单getDataByChoice()接口异常：", e);
         }
         if (waybill == null) {
             // 无数据
-            //this.logger.info("运单号【 " + waybillCode + "】的调用运单WSS数据为空，调用订单中间件开始");
-            //waybill = this.getWaybillFromOrderService(waybillCode);
-            this.logger
-                    .info("运单号【 " + waybillCode + "】的调用运单WSS数据为空，调用订单中间件结束，返回值【" + waybill + "】");
+            this.logger.info("运单号【 " + waybillCode + "】的调用运单getDataByChoice()接口数据为空");
         }
         return waybill;
     }
@@ -1183,12 +1183,15 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         /**
          * 1.waybill_sign第80位等于1时，产品类型为“特惠运”--TB1
          * 2.waybill_sign第80位等于2时，产品类型为“特准运”--TB2
+         * 3.waybill_sign第80位等于7时，产品类型为“冷链卡板”--TLL1
          */
 
         if(BusinessUtil.isSignChar(waybillSign,80,'1')){
             routeProduct = RouteProductEnum.TB1;
         }else if(BusinessUtil.isSignChar(waybillSign,80,'2')){
             routeProduct = RouteProductEnum.TB2;
+        }else if(BusinessUtil.isSignChar(waybillSign,80,'7')){
+            routeProduct = RouteProductEnum.TLL1;
         }
 
 
@@ -1235,6 +1238,29 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     }
 
     /**
+     * 校验包裹是否存在
+     *
+     * @param packCode
+     * @return
+     */
+    @Override
+    public boolean checkPackExist(String packCode) {
+        if(StringUtils.isBlank(packCode) || !WaybillUtil.isPackageCode(packCode)){
+            return false;
+        }
+
+        Waybill waybill = this.findWaybillAndPack(WaybillUtil.getWaybillCode(packCode));
+        if(waybill!=null && waybill.getPackList()!=null){
+            for(Pack pack :waybill.getPackList()){
+                if(packCode.equals(pack.getPackageCode())){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * 加载特殊要求信息
      * @param printWaybill
      */
@@ -1260,6 +1286,18 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             //送货入仓
             if(BusinessUtil.isSignChar(waybillSign,42,'1')){
                 specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_DELIVERY_WAREHOUSE + ",";
+            }
+            //装车
+            if(BusinessUtil.isSignChar(waybillSign,41,'1')){
+                specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_LOAD_CAR + ",";
+            }
+            //卸车
+            if(BusinessUtil.isSignChar(waybillSign,41,'2')){
+                specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_UNLOAD_CAR + ",";
+            }
+            //装卸车
+            if(BusinessUtil.isSignChar(waybillSign,41,'3')){
+                specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_LOAD_UNLOAD_CAR + ",";
             }
         }
         if(StringUtils.isNotBlank(specialRequirement)){

@@ -337,6 +337,10 @@ public class SendDatailDao extends BaseDao<SendDetail> {
         return this.getSqlSession().selectList(namespace + ".findByWaybillCodeOrPackageCode", sendDetail);
     }
 
+    public SendDetail  findOneByWaybillCode(SendDetail sendDetail){
+        return this.getSqlSession().selectOne(namespace + ".findOneByWaybillCode", sendDetail);
+    }
+
     /**
      * 根据始发分拣中心，目的分拣中心，包裹号查询一条发货记录
      * @param sendDetail
@@ -392,6 +396,16 @@ public class SendDatailDao extends BaseDao<SendDetail> {
             return null;
         }
         return this.getSqlSession().selectList(namespace + ".getScannedInfoPackageNumMoreThanOne", waybillNoCollectionCondition);
+    }
+
+    /**
+     * 根据条件分页获取已发货明细记录
+     *
+     * @param params
+     * @return
+     */
+    public List<SendDetail> findSendPageByParams(SendDetailDto params) {
+        return this.getSqlSession().selectList(namespace + ".findSendPageByParams", params);
     }
 
 }

@@ -22,9 +22,9 @@
         <button id="btn_query" type="button" class="btn btn-default">
             <span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;查询&nbsp;
         </button>
-#*        <button id="btn_add" type="button" class="btn btn-default">
+        <button id="btn_add" type="button" class="btn btn-default">
             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp;新增&nbsp;
-        </button>*#
+        </button>
         <button id="btn_delete" type="button" class="btn btn-default">
             <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>&nbsp;删除&nbsp;
         </button>

@@ -1,15 +1,5 @@
 package com.jd.bluedragon.distribution.fastRefund.service;
 
-import java.util.Date;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.FastRefundRequest;
 import com.jd.bluedragon.distribution.fastRefund.domain.FastRefund;
@@ -32,6 +22,15 @@ import com.jd.fa.refundService.ValidRequest;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Date;
 
 @Service
 public class FastRefundServiceImpl implements FastRefundService{
@@ -275,7 +274,7 @@ public class FastRefundServiceImpl implements FastRefundService{
 	}
 
     public BigWaybillDto queryWaybillByCode(String waybillCode){
-		BigWaybillDto dto = waybillService.getWaybill(waybillCode);
+		BigWaybillDto dto = waybillService.getWaybill(waybillCode, false);
 		if(dto!=null){
 			return dto;
 		}else{

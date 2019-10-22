@@ -10,6 +10,8 @@ public interface WaybillService {
 
     BigWaybillDto getWaybill(String waybillCode);
 
+    BigWaybillDto getWaybill(String waybillCode, boolean isPackList);
+
     BigWaybillDto getWaybillProduct(String waybillCode);
 
     /**
