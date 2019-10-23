@@ -421,6 +421,10 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 		try {
 			if (targetSiteId != null && originalDmsId != null) {
 				BaseStaffSiteOrgDto receiveSiteDto = baseMajorManager.getBaseSiteBySiteId(targetSiteId);
+				if(receiveSiteDto == null){
+					log.error("[箱号/批次号打印]获取基础资料信息,根据targetSiteId+"+targetSiteId+"未获得到站点信息");
+					return null;
+				}
 				if (!Constants.DMS_SITE_TYPE.equals(receiveSiteDto.getSiteType()) && !Constants.FINANCIAL_SPECIAL_SITE_TYPE.equals(receiveSiteDto.getSiteType())) {
 					BaseDmsStore baseDmsStore = new BaseDmsStore();
 					JdResult<CrossPackageTagNew> result = queryCrossPackageTagForPrint(baseDmsStore, targetSiteId, originalDmsId, Constants.ORIGINAL_CROSS_TYPE_GENERAL);
