@@ -77,7 +77,7 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 				logger.error("发送预分拣站点变更mq消息失败(现场预分拣)："+JsonHelper.toJsonUseGson(siteChangeMqDto), e);
 			}finally{
 				SystemLogUtil.log(siteChangeMqDto.getWaybillCode(), String.valueOf(siteChangeMqDto.getOperatorId()), waybillSiteChangeProducer.getTopic(),
-						siteChangeMqDto.getOperatorSiteId().longValue(), JsonHelper.toJsonUseGson(siteChangeMqDto), SystemLogContants.TYPE_SITE_CHANGE_MQ_OF_OTHER);
+						siteChangeMqDto.getOperatorSiteId()==null?0:siteChangeMqDto.getOperatorSiteId().longValue(), JsonHelper.toJsonUseGson(siteChangeMqDto), SystemLogContants.TYPE_SITE_CHANGE_MQ_OF_OTHER);
 			}
 
 		}

@@ -5,25 +5,17 @@ import com.jd.bluedragon.distribution.external.pdd.DMSExternalInPDDService;
 import com.jd.bluedragon.distribution.external.pdd.domain.PDDWaybillPrintInfoDto;
 import com.jd.bluedragon.distribution.external.pdd.domain.PDDWaybillPrintInfoRequest;
 import com.jd.bluedragon.distribution.wss.dto.BaseEntity;
-import com.jd.bluedragon.external.crossbow.pdd.domain.PDDRequest;
 import com.jd.bluedragon.external.crossbow.pdd.domain.PDDResponse;
 import com.jd.bluedragon.external.crossbow.pdd.domain.PDDWaybillDetailDto;
 import com.jd.bluedragon.external.crossbow.pdd.domain.PDDWaybillQueryDto;
-import com.jd.bluedragon.external.crossbow.pdd.manager.PDDBusinessManager;
 import com.jd.bluedragon.external.crossbow.pdd.service.PDDService;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.Charsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
@@ -42,17 +34,15 @@ public class PDDExternalJSFServiceImpl implements DMSExternalInPDDService {
     private static final Logger logger = LoggerFactory.getLogger(PDDExternalJSFServiceImpl.class);
 
     @Autowired
-    @Qualifier("pddWaybillQueryManager")
-    private PDDBusinessManager pddWaybillQueryManager;
+    private PDDService pddService;
 
     @Override
-    @JProfiler(jKey = "dms.core.PDDExternalJSFServiceImpl.queryPDDWaybillByWaybillCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
     public BaseEntity<PDDWaybillPrintInfoDto> queryPDDWaybillByWaybillCode(String waybillCode) {
         try {
             /* 调用拼多多的接口 */
             PDDWaybillQueryDto condition = new PDDWaybillQueryDto();
             condition.setWaybillCode(waybillCode);
-            PDDResponse<PDDWaybillDetailDto> response = pddWaybillQueryManager.doRestInterface(condition);
+            PDDResponse<PDDWaybillDetailDto> response = pddService.queryPDDWaybillByWaybillCode(waybillCode);
             if (null == response) {
                 return new BaseEntity<>(BaseEntity.CODE_SUCCESS_NO, BaseEntity.MESSAGE_SUCCESS_NO);
             }
