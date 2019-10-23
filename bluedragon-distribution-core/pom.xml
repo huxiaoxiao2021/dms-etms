@@ -789,7 +789,7 @@
         <dependency>
             <groupId>com.jd.tms.iot</groupId>
             <artifactId>tms-iot-client</artifactId>
-            <version>1.0-UAT-SNAPSHOT</version>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
 
 		<!--增加订单中间件接口 使用jsf-->
