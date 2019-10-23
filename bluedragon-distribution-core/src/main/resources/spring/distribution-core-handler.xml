@@ -180,8 +180,8 @@
 				<ref bean="customerAndConsignerInfoHandler"/>
 				<ref bean="remarkFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
-				<ref bean="pdfJdCloudGenerateHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
+				<ref bean="pdfJdCloudGenerateHandler"/>
 			</list>
 		</property>
 	</bean>			
@@ -242,8 +242,8 @@
 				<ref bean="mappedBasicPrintWaybillHandler"/>
 				<ref bean="remarkFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
-				<ref bean="pdfLocalGenerateHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
+				<ref bean="pdfLocalGenerateHandler"/>				
 			</list>
 		</property>
 	</bean>	
@@ -325,8 +325,8 @@
 				<ref bean="mappedBasicPrintWaybillHandler"/>
 				<ref bean="remarkFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
-				<ref bean="pdfLocalGenerateHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
+				<ref bean="pdfLocalGenerateHandler"/>
             </list>
         </property>
     </bean>
