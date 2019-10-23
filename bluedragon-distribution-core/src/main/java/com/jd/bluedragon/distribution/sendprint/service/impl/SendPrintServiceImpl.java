@@ -138,6 +138,11 @@ public class SendPrintServiceImpl implements SendPrintService {
     private final static int QUERY_WAYBILL_SIZE = 50;
 
     /**
+     * 一次批量查询包裹数据的大小
+     */
+    private final static int QUERY_PACKAGE_SIZE = 50;
+
+    /**
      * 一次批量查询SENDM的大小
      */
     private final static int QUERY_SENDM_SIZE = 500;
@@ -1188,14 +1193,27 @@ public class SendPrintServiceImpl implements SendPrintService {
         CallerInfo callerInfo = Profiler.registerInfo("DMSWEB.SendPrintServiceImpl.assembleDetailPrintQueryBySendD.getWaybillPackageWeight", false, true);
         Map<String, PackageWeight> result = new HashMap<>(packageCodeList.size());
         if (packageCodeList != null && packageCodeList.size() > 0) {
-            BaseEntity<List<DeliveryPackageD>> baseEntity = waybillPackageManager.queryPackageListForParcodes(packageCodeList);
-            if (baseEntity.getData() != null && baseEntity.getData().size() > 0) {
-                for (DeliveryPackageD deliveryPackageD : baseEntity.getData()) {
-                    PackageWeight packageWeight = new PackageWeight();
-                    packageWeight.setPackageCode(deliveryPackageD.getPackageBarcode());
-                    packageWeight.setGoodWeight(deliveryPackageD.getGoodWeight());
-                    packageWeight.setAgainWeight(deliveryPackageD.getAgainWeight());
-                    result.put(deliveryPackageD.getPackageBarcode(), packageWeight);
+            int totalSize = packageCodeList.size();
+            int times = totalSize / QUERY_PACKAGE_SIZE;
+            int mod = totalSize % QUERY_PACKAGE_SIZE;
+            if (mod > 0) {
+                times++;
+            }
+            for (int i = 0; i < times; i++) {
+                int start = i * QUERY_PACKAGE_SIZE;
+                int end = start + QUERY_PACKAGE_SIZE;
+                if (end > totalSize) {
+                    end = totalSize;
+                }
+                BaseEntity<List<DeliveryPackageD>> baseEntity = waybillPackageManager.queryPackageListForParcodes(packageCodeList.subList(start, end));
+                if (baseEntity.getData() != null && baseEntity.getData().size() > 0) {
+                    for (DeliveryPackageD deliveryPackageD : baseEntity.getData()) {
+                        PackageWeight packageWeight = new PackageWeight();
+                        packageWeight.setPackageCode(deliveryPackageD.getPackageBarcode());
+                        packageWeight.setGoodWeight(deliveryPackageD.getGoodWeight());
+                        packageWeight.setAgainWeight(deliveryPackageD.getAgainWeight());
+                        result.put(deliveryPackageD.getPackageBarcode(), packageWeight);
+                    }
                 }
             }
         }
