@@ -47,6 +47,11 @@ public class UccPropertyConfiguration {
     /** 出管新接口-查询方法开关 true 调用新接口，false 调用老接口**/
     private boolean chuguanNewInterfaceQuerySwitch;
 
+    /**
+     * 驻场打印 是否开启校验 鸡毛信必输设备号；true 开启,false 不开启
+     */
+    private boolean stationPrintFeatherLetterCheck;
+
     public String getAsynbufferEnabledTaskType() {
         return asynbufferEnabledTaskType;
     }
@@ -141,5 +146,13 @@ public class UccPropertyConfiguration {
 
     public void setChuguanNewInterfaceQuerySwitch(boolean chuguanNewInterfaceQuerySwitch) {
         this.chuguanNewInterfaceQuerySwitch = chuguanNewInterfaceQuerySwitch;
+    }
+
+    public boolean isStationPrintFeatherLetterCheck() {
+        return stationPrintFeatherLetterCheck;
+    }
+
+    public void setStationPrintFeatherLetterCheck(boolean stationPrintFeatherLetterCheck) {
+        this.stationPrintFeatherLetterCheck = stationPrintFeatherLetterCheck;
     }
 }
