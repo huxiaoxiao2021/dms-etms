@@ -1,20 +1,34 @@
 package com.jd.bluedragon.distribution.gantry.service.impl;
 
 import com.jd.bluedragon.core.redis.service.impl.RedisCommonUtil;
+import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.gantry.dao.GantryDeviceDao;
+import com.jd.bluedragon.distribution.gantry.domain.GantryBatchSendResult;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDevice;
 import com.jd.bluedragon.distribution.gantry.service.GantryDeviceService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.GantryPackageUtil;
+import com.jd.etms.waybill.api.WaybillPackageApi;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author dudong
@@ -32,6 +46,12 @@ public class GantryDeviceServiceImpl implements GantryDeviceService{
 
     @Autowired
     private RedisCommonUtil redisCommonUtil;
+
+    @Autowired
+    private BoxService boxService;
+
+    @Autowired
+    private WaybillPackageApi waybillPackageApi;
 
     @Override
     public List<GantryDevice> getGantryByDmsCode(Integer dmsCode) {
@@ -91,6 +111,118 @@ public class GantryDeviceServiceImpl implements GantryDeviceService{
     public List<SendDetail> queryBoxCodeBySendCode(String sendCode) {
         List<SendDetail> list = sendDatailDao.queryBoxCodeBySendCode(sendCode);
         return list;
+    }
+
+    @Override
+    public GantryBatchSendResult getSummaryVolumeBySendCode(String sendCode) {
+        GantryBatchSendResult sendCodeSum = new GantryBatchSendResult();
+        List<SendDetail> sendDetailList = this.queryBoxCodeBySendCode(sendCode);
+        sendCodeSum.setSendCode(sendCode);
+        sendCodeSum.setPackageSum(sendDetailList.size());
+        sendCodeSum.setVolumeSum(0.0);
+        List<String> boxCodeList = this.boxCodeListFilter(sendDetailList);
+        this.buildBoxVolume(boxCodeList, sendCodeSum);
+        Map<String, List<String>> waybillPackageMap = this.getWaybillPackageMap(sendDetailList);
+        this.buildPackageVolume(waybillPackageMap, sendCodeSum);
+        return sendCodeSum;
+    }
+
+    private void buildPackageVolume(Map<String, List<String>> waybillPackageMap, GantryBatchSendResult sendCodeSum) {
+        for (Map.Entry<String, List<String>> entry : waybillPackageMap.entrySet()) {
+            BaseEntity<List<PackOpeFlowDto>> dtoList = waybillPackageApi.getPackOpeByWaybillCode(entry.getKey());
+            Double volumeSum = 0.0;
+            if (dtoList != null && dtoList.getResultCode() == 1) {
+                List<PackOpeFlowDto> dto = dtoList.getData();
+                if (dto != null && !dto.isEmpty()) {
+                    for (PackOpeFlowDto pack : dto) {
+                        if (entry.getValue().contains(pack.getPackageCode())) {
+                            double volume = null == pack.getpLength() || null == pack.getpWidth() || null == pack.getpHigh() ?
+                                    0.00 : pack.getpLength() * pack.getpWidth() * pack.getpHigh();
+                            volumeSum += volume;
+                        }
+                    }
+                }
+            }
+            //四舍五入;保留两位有效数字
+            BigDecimal bg = new BigDecimal(volumeSum).setScale(2, RoundingMode.UP);
+            sendCodeSum.setVolumeSum(sendCodeSum.getVolumeSum() + bg.doubleValue());
+        }
+    }
+
+    private void buildBoxVolume(List<String> boxCodeList, GantryBatchSendResult sendCodeSum) {
+        if (boxCodeList != null && boxCodeList.size() > 0) {
+            Double volumeSum = 0.0;
+            for (String boxCode : boxCodeList) {
+                Box box = boxService.findBoxByCode(boxCode);
+                if (box == null) {
+                    continue;
+                }
+                double length = box.getLength() == null ? 0 : box.getLength();
+                double width = box.getWidth() == null ? 0 : box.getWidth();
+                double height = box.getHeight() == null ? 0 : box.getWidth();
+                volumeSum += length * width * height;
+            }
+            //四舍五入;保留两位有效数字
+            BigDecimal bg = new BigDecimal(volumeSum).setScale(2, RoundingMode.UP);
+            sendCodeSum.setVolumeSum(bg.doubleValue());
+        }
+    }
+
+    /**
+     * 过滤出按箱号发货的列表
+     *
+     * @param sendDetailList
+     * @return
+     */
+    private List<String> boxCodeListFilter(List<SendDetail> sendDetailList) {
+        Set<String> boxCodeSet = new HashSet<>();
+        if (sendDetailList.size() > 0) {
+            Iterator<SendDetail> iterator = sendDetailList.iterator();
+            while (iterator.hasNext()) {
+                SendDetail sendDetail = iterator.next();
+                if (BusinessHelper.isBoxcode(sendDetail.getBoxCode())) {
+                    boxCodeSet.add(sendDetail.getBoxCode());
+                    iterator.remove();
+                }
+            }
+        }
+        return new ArrayList<>(boxCodeSet);
+    }
+
+    /**
+     * 运单包裹关系列表
+     *
+     * @param sendDetailList
+     * @return
+     */
+    private Map<String, List<String>> getWaybillPackageMap(List<SendDetail> sendDetailList) {
+        Collections.sort(sendDetailList, new Comparator<SendDetail>() {
+            @Override
+            public int compare(SendDetail o1, SendDetail o2) {
+                if (o1.getPackageBarcode() == null && o2.getPackageBarcode() == null) {
+                    return 0;
+                }
+                if (o1.getPackageBarcode() == null && o2.getPackageBarcode() != null) {
+                    return -1;
+                }
+                if (o1.getPackageBarcode() != null && o2.getPackageBarcode() == null) {
+                    return 1;
+                }
+                return o1.getPackageBarcode().compareTo(o2.getPackageBarcode());
+            }
+        });
+
+        Map<String, List<String>> resultMap = new HashMap<>();
+        for (SendDetail sendDetail : sendDetailList) {
+            if (resultMap.containsKey(sendDetail.getWaybillCode())) {
+                resultMap.get(sendDetail.getWaybillCode()).add(sendDetail.getPackageBarcode());
+            } else {
+                List<String> packageBarCodeList = new ArrayList<>();
+                packageBarCodeList.add(sendDetail.getPackageBarcode());
+                resultMap.put(sendDetail.getWaybillCode(), packageBarCodeList);
+            }
+        }
+        return resultMap;
     }
 
     @Override

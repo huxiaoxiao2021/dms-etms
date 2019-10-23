@@ -20,8 +20,6 @@ import com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig;
 import com.jd.bluedragon.distribution.gantry.service.GantryDeviceConfigService;
 import com.jd.bluedragon.distribution.gantry.service.GantryDeviceService;
 import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
-import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.PropertiesHelper;
@@ -35,11 +33,17 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by wuzuxiang on 2016/12/7.
@@ -261,7 +265,7 @@ public class GantryAutoSendController {
         result.setCode(400);
         result.setMessage("服务调用异常");
         result.setData(null);
-        this.logger.debug("龙门架自动发货获取数据 --> getCurrentSplitPageList");
+        logger.debug("龙门架自动发货获取数据 --> getCurrentSplitPageList");
         if (request.getMachineId() == null) {
             return result;
         }
@@ -297,37 +301,12 @@ public class GantryAutoSendController {
         result.setCode(500);
         result.setMessage("服务器处理异常");
         if (sendCode != null) {
-//            List<SendDetail> ls = gantryDeviceService.queryWaybillsBySendCode(sendCode);
-            List<SendDetail> sendDetailList = gantryDeviceService.queryBoxCodeBySendCode(sendCode);
-            GantryBatchSendResult sendBoxSum = new GantryBatchSendResult();
-            Integer packageSum = 0;//批次总包裹数量
-            Double volumeSum = 0.00;//取分拣体积
-            if (sendDetailList != null && sendDetailList.size() > 0) {
-                HashSet<String> sendDByBoxCode = new HashSet<String>();
-                for (SendDetail sendD : sendDetailList) {
-                    //根据sendD的boxCode去重
-                    try {
-                        if (sendDByBoxCode.contains(sendD.getBoxCode())) {
-                            continue;
-                        }
-                        sendDByBoxCode.add(sendD.getBoxCode());
-                        WaybillPackageDTO waybillPackageDTO = waybillService.getWaybillPackage(sendD.getBoxCode());
-                        if (waybillPackageDTO == null) {
-                            continue;
-                        }
-                        volumeSum += waybillPackageDTO.getVolume() == 0 ? waybillPackageDTO.getOriginalVolume() : waybillPackageDTO.getVolume();
-                    } catch (Exception e) {
-                        logger.error("获取批次的总数量和总体积失败：批次号为" + sendCode, e);
-                    }
-                }
-                packageSum = sendDetailList.size();//获取包裹的数量
+            try {
+                result.setData(gantryDeviceService.getSummaryVolumeBySendCode(sendCode));
+            } catch (Exception e) {
+                logger.error("获取批次的总数量和总体积失败：批次号为" + sendCode, e);
             }
-            BigDecimal bg = new BigDecimal(volumeSum).setScale(2, RoundingMode.UP);//四舍五入;保留两位有效数字
-            sendBoxSum.setSendCode(sendCode);
-            sendBoxSum.setPackageSum(packageSum);
-            sendBoxSum.setVolumeSum(bg.doubleValue());
             result.setCode(200);
-            result.setData(sendBoxSum);
             result.setMessage("获取批次号的总数量和总体积成功");
         } else {
             logger.error("获取参数批次的总体积和总数量失败：批次号为空");
@@ -342,7 +321,7 @@ public class GantryAutoSendController {
     @RequestMapping(value = "/generateSendCode", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult<Integer> generateSendCode(@RequestBody ScannerFrameBatchSend[] lists) {
-        this.logger.debug("龙门架自动换批次 --> changeSendCode");
+        logger.debug("龙门架自动换批次 --> changeSendCode");
         InvokeResult<Integer> result = new InvokeResult<Integer>();
         result.setCode(400);
         result.setMessage("服务器处理异常，换批次失败！");
