@@ -91,14 +91,14 @@ public class DmsPackingConsumableServiceImpl implements DmsPackingConsumableServ
             logger.error("获取耗材信息失败：通过基础资料获取分拣中心信息为空！", e);
         }
 
-        if (dto == null || dto.getDmsId() == null) {
+        if (dto == null || dto.getSiteCode() == null) {
             logger.warn("获取耗材信息失败：通过基础资料获取分拣中心信息为空！");
             jdResponse.setCode(JdResponse.CODE_FAIL);
             jdResponse.setMessage("获取耗材信息失败：通过基础资料获取分拣中心信息为空！");
             return jdResponse;
         }
 
-        return getPackingConsumableInfoByDmsId(dto.getDmsId());
+        return getPackingConsumableInfoByDmsId(dto.getSiteCode());
     }
 
     @Override
