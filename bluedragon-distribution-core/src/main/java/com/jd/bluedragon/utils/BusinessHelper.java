@@ -500,6 +500,20 @@ public class BusinessHelper {
     }
 
     /**
+     * b2c 40=0且29!=8 B2C
+     */
+    public static boolean isB2c(String waybillSign) {
+        if (StringUtils.isBlank(waybillSign)){
+            return false;
+        }
+        if (BusinessUtil.isSignChar(waybillSign, 40, '0') && !BusinessUtil.isSignChar(waybillSign, 29, '8')) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * c2c 且为到付或寄付，且为正向
      * waybill_sign第61位为0标记正向
      */
