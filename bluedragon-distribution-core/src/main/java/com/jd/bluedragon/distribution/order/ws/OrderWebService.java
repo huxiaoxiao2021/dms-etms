@@ -9,7 +9,6 @@ import com.jd.ioms.jsf.export.domain.ExportResult;
 import com.jd.ioms.jsf.export.domain.Order;
 import com.jd.ioms.jsf.export.domain.OrderDetail;
 import com.jd.ql.basic.domain.Assort;
-
 import jd.oom.client.core.OrderLoadFlag;
 import jd.oom.client.orderfile.OrderArchiveInfo;
 import org.apache.commons.logging.Log;

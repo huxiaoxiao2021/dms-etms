@@ -20,6 +20,8 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.bluedragon.utils.XmlHelper;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -86,7 +88,8 @@ public class ReverseWssServiceImpl implements ReverseWssService {
 		this.logger.info("逆向收货回传POP消息【" + message + "】" + result);
 		return result;
 	}
-	
+
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.WEB.ReverseWssServiceImpl.addReceiveStockMessage", mState = JProEnum.TP)
 	public Boolean addReceiveStockMessage(String message) throws Exception {
 		this.logger.info("逆向收货回传库存消息：" + message);
 		

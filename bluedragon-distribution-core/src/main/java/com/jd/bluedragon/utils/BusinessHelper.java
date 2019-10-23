@@ -578,4 +578,16 @@ public class BusinessHelper {
         }
         return !BusinessUtil.isSignChar(sendPay, 275, '0');
     }
+
+    /**
+     * 是否是211订单送货时效
+     * @param sendPay
+     * @return
+     */
+    public static boolean is211(String sendPay){
+        if (StringUtils.isBlank(sendPay)) {
+            return false;
+        }
+        return BusinessUtil.isSignChar(sendPay, 1, '1');
+    }
 }

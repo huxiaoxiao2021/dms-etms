@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.send.service;
 
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 
 import java.util.List;
 import java.util.Map;
@@ -28,4 +29,13 @@ public interface SendDetailService {
 
     /**分页查询发货记录*/
     public List<SendDetail> findPageSendDetail(Map<String,Object> params);
+
+    /**
+     * 根据条件分页获取已发货明细记录
+     *
+     * @param params
+     * @return
+     */
+    List<SendDetail> findSendPageByParams(SendDetailDto params);
+    public Integer querySendDCountBySendCode(String sendCode);
 }

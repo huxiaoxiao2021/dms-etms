@@ -23,6 +23,14 @@ public class DeliveryRequest extends JdRequest {
 
     /** 运输类型（默认老发货：0，快运发货：1）*/
     private Integer opType;
+    /**
+     * 已发货的包裹数量
+     */
+    private Integer hasSendPackageNum;
+    /**
+     * 已扫描的包裹数,老发货\快运需要先扫描后一起发货
+     */
+    private Integer scannedPackageNum;
     
     public Integer getTransporttype() {
 		return transporttype;
@@ -78,5 +86,32 @@ public class DeliveryRequest extends JdRequest {
                 + this.boxCode + ", sendCode=" + this.sendCode + ", toString()=" + super.toString()
                 + "]";
     }
-    
+
+	/**
+	 * @return the hasSendPackageNum
+	 */
+	public Integer getHasSendPackageNum() {
+		return hasSendPackageNum;
+	}
+
+	/**
+	 * @param hasSendPackageNum the hasSendPackageNum to set
+	 */
+	public void setHasSendPackageNum(Integer hasSendPackageNum) {
+		this.hasSendPackageNum = hasSendPackageNum;
+	}
+
+	/**
+	 * @return the scannedPackageNum
+	 */
+	public Integer getScannedPackageNum() {
+		return scannedPackageNum;
+	}
+
+	/**
+	 * @param scannedPackageNum the scannedPackageNum to set
+	 */
+	public void setScannedPackageNum(Integer scannedPackageNum) {
+		this.scannedPackageNum = scannedPackageNum;
+	}
 }

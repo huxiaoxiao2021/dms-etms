@@ -4,6 +4,7 @@ import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.weightAndMeasure.domain.DmsOutWeightAndVolume;
 import com.jd.common.util.StringUtils;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -54,4 +55,23 @@ public class DmsOutWeightAndVolumeDao extends BaseDao<DmsOutWeightAndVolume>{
         }
         return this.getSqlSession().selectOne(namespace + ".queryOneByBarCode", dmsOutWeightAndVolume);
     }
+
+    /**
+     * 批量查询分拣中心对该箱号/包裹的记录
+     *
+     * @param barCodeList
+     * @param createSiteCode
+     * @return
+     */
+    public List<DmsOutWeightAndVolume> queryListByBarCodes(List<String> barCodeList, Integer createSiteCode) {
+        if (barCodeList == null || barCodeList.size() == 0 || createSiteCode == null) {
+            throw new IllegalArgumentException("站点和barCodeList不能为空。");
+        }
+
+        Map<String, Object> parameter = new HashMap<>(2);
+        parameter.put("barCodeList", barCodeList);
+        parameter.put("createSiteCode", createSiteCode);
+        return this.getSqlSession().selectList(namespace + ".queryListByBarCodes", parameter);
+    }
+
 }

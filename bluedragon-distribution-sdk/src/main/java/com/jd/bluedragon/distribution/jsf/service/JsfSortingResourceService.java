@@ -1,9 +1,13 @@
 package com.jd.bluedragon.distribution.jsf.service;
 
+import java.util.List;
+import java.util.Map;
+
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.domain.Rule;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
+import com.jd.bluedragon.distribution.api.response.CheckBeforeSendResponse;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jsf.domain.BlockResponse;
@@ -11,9 +15,6 @@ import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
 import com.jd.bluedragon.distribution.jsf.domain.MixedPackageConfigResponse;
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
-
-import java.util.List;
-import java.util.Map;
 
 public interface JsfSortingResourceService {
 	SortingJsfResponse check(SortingCheck sortingCheck);
@@ -54,6 +55,12 @@ public interface JsfSortingResourceService {
      * @return
      */
     JdResult packageSendCheck(DeliveryRequest request);
+    /**
+     * 发货前扫单校验，适用于老发货、快运发货
+     * @param request
+     * @return
+     */
+    JdResult<CheckBeforeSendResponse> checkBeforeSend(DeliveryRequest request);
 
     /**
      * 校验包裹或订单是否有称重量方

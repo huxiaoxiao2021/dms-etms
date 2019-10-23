@@ -4946,7 +4946,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
         Integer preSiteCode = null;
         Integer destinationDmsId = null;
-        com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findWaybillAndPack(waybillCode);
+        com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findByWaybillCode(waybillCode);
         if(waybill != null && waybill.getWaybillSign() != null){
             //是否是金鹏订单
             if(BusinessUtil.isPerformanceOrder(waybill.getWaybillSign())){

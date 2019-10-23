@@ -16,6 +16,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 @Service("sealBoxService")
@@ -55,6 +57,15 @@ public class SealBoxServiceImpl implements SealBoxService {
 		return this.sealBoxDao.findByBoxCode(boxCode);
 	}
 
+	@Override
+	public List<SealBox> findListByBoxCodes(List<String> boxCodeList) {
+		Assert.notNull(boxCodeList, "boxCodeList must not be null");
+		if (boxCodeList.size() == 0) {
+			return Collections.EMPTY_LIST;
+		}
+		return this.sealBoxDao.findListByBoxCodes(boxCodeList);
+	}
+
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void doSealBox(Task task) {
 		this.taskToSealBox(task);
@@ -71,6 +82,10 @@ public class SealBoxServiceImpl implements SealBoxService {
 		Set<SealBoxRequest> sealBoxes = new CollectionHelper<SealBoxRequest>()
 				.toSet(array);
 		for (SealBoxRequest request : sealBoxes) {
+			if(request.getBoxCode().length() > Constants.BOX_CODE_DB_COLUMN_LENGTH_LIMIT){
+				logger.warn("封箱箱号字段超长，消息体：" + JsonHelper.toJson(request));
+				continue;
+			}
 			SealBox sealBox = SealBox.toSealBox(request);
 			this.add(sealBox);
 		}
