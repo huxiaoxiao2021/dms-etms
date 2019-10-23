@@ -263,8 +263,8 @@
 				<ref bean="mappedBasicPrintWaybillHandler"/>
 				<ref bean="remarkFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
-				<ref bean="pdfLocalGenerateHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
+				<ref bean="pdfLocalGenerateHandler"/>
 			</list>
 		</property>
 	</bean>

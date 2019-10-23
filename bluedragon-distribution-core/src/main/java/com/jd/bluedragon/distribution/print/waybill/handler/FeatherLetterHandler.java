@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.IotServiceWSManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
@@ -13,6 +14,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.Objects;
 
 /**
@@ -25,10 +27,16 @@ public class FeatherLetterHandler implements Handler<WaybillPrintContext,JdResul
     @Autowired
     private IotServiceWSManager iotServiceWSManager;
 
+    @Resource
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
     @Override
     public InterceptResult<String> handle(WaybillPrintContext context) {
         InterceptResult<String> result = new InterceptResult<String>();
         result.toSuccess();
+        if(!uccPropertyConfiguration.isStationPrintFeatherLetterCheck()){
+            return result;
+        }
         String waybillSign = context.getWaybill().getWaybillSign();
         if(!BusinessUtil.isFeatherLetter(waybillSign)){
             context.getResponse().setFeatherLetterWaybill(Boolean.FALSE);
