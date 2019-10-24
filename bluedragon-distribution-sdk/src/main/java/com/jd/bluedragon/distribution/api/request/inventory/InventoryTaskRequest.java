@@ -33,6 +33,11 @@ public class InventoryTaskRequest extends JdRequest {
      */
     private String userErp;
 
+    /**
+     * 时间范围，小时
+     */
+    private Integer hourRange;
+
     public List<SiteEntity> getDirectionList() {
         return directionList;
     }
@@ -71,5 +76,13 @@ public class InventoryTaskRequest extends JdRequest {
 
     public void setUserErp(String userErp) {
         this.userErp = userErp;
+    }
+
+    public Integer getHourRange() {
+        return hourRange;
+    }
+
+    public void setHourRange(Integer hourRange) {
+        this.hourRange = hourRange;
     }
 }

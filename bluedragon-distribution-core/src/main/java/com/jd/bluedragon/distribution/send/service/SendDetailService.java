@@ -37,4 +37,5 @@ public interface SendDetailService {
      * @return
      */
     List<SendDetail> findSendPageByParams(SendDetailDto params);
+    public Integer querySendDCountBySendCode(String sendCode);
 }

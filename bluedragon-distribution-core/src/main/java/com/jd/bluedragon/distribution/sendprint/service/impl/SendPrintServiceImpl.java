@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.batch.domain.BatchSend;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.printOnline.domain.PrintOnlineWaybillDTO;
 import com.jd.bluedragon.distribution.quickProduce.domain.JoinDetail;
 import com.jd.bluedragon.distribution.quickProduce.domain.QuickProduceWabill;
 import com.jd.bluedragon.distribution.quickProduce.service.QuickProduceService;
@@ -135,6 +136,11 @@ public class SendPrintServiceImpl implements SendPrintService {
      * 一次批量查询运单数据的大小
      */
     private final static int QUERY_WAYBILL_SIZE = 50;
+
+    /**
+     * 一次批量查询包裹数据的大小
+     */
+    private final static int QUERY_PACKAGE_SIZE = 50;
 
     /**
      * 一次批量查询SENDM的大小
@@ -923,6 +929,14 @@ public class SendPrintServiceImpl implements SendPrintService {
         return entity;
     }
 
+    @Override
+    public List<PrintOnlineWaybillDTO> queryWaybillCountBySendCode(String sendCode, Integer createSiteCode) {
+        SendDetail sendDetail = new SendDetail();
+        sendDetail.setCreateSiteCode(createSiteCode);
+        sendDetail.setSendCode(sendCode);
+        return sendDatailDao.queryWaybillCountBySendCode(sendDetail);
+    }
+
     /**
      * 基本查询
      */
@@ -1179,14 +1193,27 @@ public class SendPrintServiceImpl implements SendPrintService {
         CallerInfo callerInfo = Profiler.registerInfo("DMSWEB.SendPrintServiceImpl.assembleDetailPrintQueryBySendD.getWaybillPackageWeight", false, true);
         Map<String, PackageWeight> result = new HashMap<>(packageCodeList.size());
         if (packageCodeList != null && packageCodeList.size() > 0) {
-            BaseEntity<List<DeliveryPackageD>> baseEntity = waybillPackageManager.queryPackageListForParcodes(packageCodeList);
-            if (baseEntity.getData() != null && baseEntity.getData().size() > 0) {
-                for (DeliveryPackageD deliveryPackageD : baseEntity.getData()) {
-                    PackageWeight packageWeight = new PackageWeight();
-                    packageWeight.setPackageCode(deliveryPackageD.getPackageBarcode());
-                    packageWeight.setGoodWeight(deliveryPackageD.getGoodWeight());
-                    packageWeight.setAgainWeight(deliveryPackageD.getAgainWeight());
-                    result.put(deliveryPackageD.getPackageBarcode(), packageWeight);
+            int totalSize = packageCodeList.size();
+            int times = totalSize / QUERY_PACKAGE_SIZE;
+            int mod = totalSize % QUERY_PACKAGE_SIZE;
+            if (mod > 0) {
+                times++;
+            }
+            for (int i = 0; i < times; i++) {
+                int start = i * QUERY_PACKAGE_SIZE;
+                int end = start + QUERY_PACKAGE_SIZE;
+                if (end > totalSize) {
+                    end = totalSize;
+                }
+                BaseEntity<List<DeliveryPackageD>> baseEntity = waybillPackageManager.queryPackageListForParcodes(packageCodeList.subList(start, end));
+                if (baseEntity.getData() != null && baseEntity.getData().size() > 0) {
+                    for (DeliveryPackageD deliveryPackageD : baseEntity.getData()) {
+                        PackageWeight packageWeight = new PackageWeight();
+                        packageWeight.setPackageCode(deliveryPackageD.getPackageBarcode());
+                        packageWeight.setGoodWeight(deliveryPackageD.getGoodWeight());
+                        packageWeight.setAgainWeight(deliveryPackageD.getAgainWeight());
+                        result.put(deliveryPackageD.getPackageBarcode(), packageWeight);
+                    }
                 }
             }
         }

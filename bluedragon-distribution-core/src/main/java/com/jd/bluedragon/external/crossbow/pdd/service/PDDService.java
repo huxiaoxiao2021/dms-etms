@@ -1,5 +1,6 @@
 package com.jd.bluedragon.external.crossbow.pdd.service;
 
+import com.jd.bluedragon.external.crossbow.pdd.domain.PDDResponse;
 import com.jd.bluedragon.external.crossbow.pdd.domain.PDDWaybillDetailDto;
 
 /**
@@ -22,4 +23,11 @@ public interface PDDService {
      * @return 返回拼多多电子面单处理对象
      */
     PDDWaybillDetailDto queryWaybillDetailByWaybillCode(String waybillCode);
+
+    /**
+     * 拼多多面单打印接口的逻辑处理类,包含pdd返回值
+     * @param waybillCode 拼多多电子面单号
+     * @return 返回拼多多电子面单处理对象
+     */
+    PDDResponse<PDDWaybillDetailDto> queryPDDWaybillByWaybillCode(String waybillCode);
 }

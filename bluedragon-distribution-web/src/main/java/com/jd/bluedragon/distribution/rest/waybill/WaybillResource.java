@@ -11,6 +11,7 @@ import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.LDOPManager;
+import com.jd.bluedragon.core.base.LdopWaybillUpdateManager;
 import com.jd.bluedragon.core.base.OBCSManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -48,6 +49,7 @@ import com.jd.bluedragon.distribution.saf.WaybillSafService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.BaseResponseIncidental;
+import com.jd.bluedragon.distribution.waybill.domain.CancelFeatherLetterRequest;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionCondition;
@@ -115,6 +117,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 @Component
@@ -204,6 +207,9 @@ public class WaybillResource {
 
     @Autowired
     private WaybillPrintService waybillPrintService;
+
+    @Autowired
+    private LdopWaybillUpdateManager ldopWaybillUpdateManager;
 
     /**
      * 根据运单号获取运单包裹信息接口
@@ -2307,17 +2313,45 @@ public class WaybillResource {
 		return result;
 	}
 
-
-
-	@Autowired
-	private WaybillPackageManager waybillPackageManager;
-
-	@GET
-	@Path("/waybill/getFirstWeightAndVolumeDetail")
-	public void getFirstWeightAndVolumeDetail(){
-		String waybillCode = "JDVA00024243668";
-		WaybillFlowDetail detail = waybillPackageManager.getFirstWeightAndVolumeDetail(waybillCode);
-		detail.getTotalWeight();
-	}
+    @POST
+    @Path("/waybill/cancelFeatherLetter")
+	public InvokeResult<String> cancelFeatherLetter(CancelFeatherLetterRequest request){
+        InvokeResult<String> result = new InvokeResult<>();
+        result.success();
+        if(StringUtils.isEmpty(request.getWaybillCode()) || request.getCancelFeatherLetter() == null){
+            result.setCode(JdResponse.CODE_PARAM_ERROR);
+            result.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
+            return result;
+        }
+        com.jd.etms.waybill.domain.Waybill  waybill = waybillService.getWaybillByWayCode(request.getWaybillCode());
+        if(waybill == null){
+            logger.error("鸡毛信取消接口-查询运单信息为空waybillCode[{}]",request.getWaybillCode());
+            result.setCode(JdResponse.CODE_SEE_OTHER);
+            result.setMessage(JdResponse.MESSAGE_NOT_EXIST_WAYBILL);
+            return result;
+        }
+        if(!BusinessUtil.isFeatherLetter(waybill.getWaybillSign())){
+            logger.error("鸡毛信取消接口-非鸡毛信运单waybillCode[{}]waybillSign[{}]",request.getWaybillCode(),waybill.getWaybillSign());
+            result.setCode(JdResponse.CODE_SEE_OTHER);
+            result.setMessage(JdResponse.MESSAGE_NO_FEATHER_LETTER);
+            return result;
+        }
+        if(!Objects.equals(request.getCancelFeatherLetter(),Boolean.TRUE)){
+            logger.error("鸡毛信取消接口-cancelFeatherLetter不为true不用请求取消接口，waybillCode[{}]waybillSign[{}]",request.getWaybillCode(),
+                    waybill.getWaybillSign());
+            result.success();
+            result.setMessage("不用取消鸡毛信属性");
+            return result;
+        }
+        InvokeResult<String> ldopInvokeResult = ldopWaybillUpdateManager.cancelFeatherLetterByWaybillCode(request.getWaybillCode());
+        if(ldopInvokeResult.getCode() == InvokeResult.RESULT_SUCCESS_CODE){
+            result.success();
+            result.setMessage("取消鸡毛信成功！");
+            return result;
+        }
+        result.setCode(JdResponse.CODE_SEE_OTHER);
+        result.setMessage("取消鸡毛信失败【"+ldopInvokeResult.getMessage()+"】");
+        return result;
+    }
 
 }

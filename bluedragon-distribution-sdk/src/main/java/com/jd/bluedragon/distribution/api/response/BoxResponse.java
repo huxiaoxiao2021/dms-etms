@@ -109,6 +109,8 @@ public class BoxResponse extends JdResponse {
      * 目的笼车号
      **/
     private String destinationTabletrolleyCode;
+    
+    private Integer packageNum;
 
     public String getRouterText() {
         return routerText;
@@ -261,4 +263,18 @@ public class BoxResponse extends JdResponse {
     public void setDestinationTabletrolleyCode(String destinationTabletrolleyCode) {
         this.destinationTabletrolleyCode = destinationTabletrolleyCode;
     }
+
+	/**
+	 * @return the packageNum
+	 */
+	public Integer getPackageNum() {
+		return packageNum;
+	}
+
+	/**
+	 * @param packageNum the packageNum to set
+	 */
+	public void setPackageNum(Integer packageNum) {
+		this.packageNum = packageNum;
+	}
 }
