@@ -128,6 +128,19 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-xs-4">
+                                <div class="form-group" >
+                                    <label class="control-label col-xs-4" for="box-code-input">业务类型 ：</label>
+                                    <div class="col-xs-6 ">
+                                        <select type="text" class="form-control" id="spotCheckTypeSelect" name="spotCheckTypeSelect">
+                                            <option value="2">全部</option>
+                                            <option value="0" selected>C网</option>
+                                            <option value="1">B网</option>
+                                        </select>
+                                        <input type="hidden" id="isExcess" class="form-control  search-param " name="spotCheckType">
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </fieldset>

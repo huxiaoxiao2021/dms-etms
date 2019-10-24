@@ -28,6 +28,16 @@ public interface WeightAndVolumeCheckService {
     void uploadExcessPicture(String imageName, long imageSize, InputStream inputStream) throws Exception;
 
     /**
+     * 查看
+     * @param packageCode
+     * @param siteCode
+     * @param spotCheckType
+     * @param isWaybillSpotCheck
+     * @return
+     */
+    InvokeResult<List<String>> searchPicture(String packageCode,Integer siteCode,Integer spotCheckType,Integer isWaybillSpotCheck);
+
+    /**
      * 查看超标图片（C网）
      * @param packageCode
      * @param siteCode

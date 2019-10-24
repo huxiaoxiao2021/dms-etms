@@ -87,8 +87,19 @@ $(function () {
             title: '扫描条码',
             align: 'center'
         },{
+            field: 'spotCheckType',
+            title: '业务类型',
+            align: 'center',
+            formatter: function (value, row, index) {
+                return (value != null && value == "1") ? "B网" : "C网";
+            }
+        },{
             field: 'productTypeName',
             title: '产品标识',
+            align: 'center'
+        }, {
+            field: 'busiCode',
+            title: '商家编码',
             align: 'center'
         }, {
             field: 'busiName',
@@ -232,24 +243,34 @@ $(function () {
                     });
                 },
                 'click .search': function(e, value, row, index) {
+                    var spotCheckType = row.spotCheckType==null?0:row.spotCheckType;
+                    var isWaybillSpotCheck = row.isWaybillSpotCheck==null?-1:row.spotCheckType;
                     $.ajax({
                         type : "get",
-                        url : searchExcessPictureUrl + "?packageCode=" + row.packageCode + "&siteCode=" +row.reviewSiteCode,
+                        url : searchExcessPictureUrl + "?packageCode=" + row.packageCode + "&siteCode=" +row.reviewSiteCode
+                            + "&spotCheckType=" + spotCheckType + "&isWaybillSpotCheck=" + isWaybillSpotCheck,
                         data : {},
                         async : false,
                         success : function (data) {
                             if(data && data.code == 200){
-                                layer.open({
-                                    type: 2,
-                                    title: "",
-                                    shadeClose: true,
-                                    shade: 0.5,
-                                    area: ['500px','400px'],
-                                    content: data.data,
-                                    success: function(layero, index) {
-                                        layer.iframeAuto(index);
-                                    }
-                                });
+                                if(row.spotCheckType!=null && row.spotCheckType==1){
+                                    //B网 TODO 待定
+
+                                }else{
+                                    //C网
+                                    var url = data.data[0];
+                                    layer.open({
+                                        type: 2,
+                                        title: "",
+                                        shadeClose: true,
+                                        shade: 0.5,
+                                        area: ['500px','400px'],
+                                        content: url,
+                                        success: function(layero, index) {
+                                            layer.iframeAuto(index);
+                                        }
+                                    });
+                                }
                             }else{
                                 Jd.alert(data.message);
                             }
@@ -356,6 +377,17 @@ function initSelect() {
             $("#query-form #isExcess").val(v);
         } else {
             $("#query-form #isExcess").val(null);
+        }
+    });
+
+    defualt = $("#query-form #spotCheckTypeSelect").val();
+    $("#query-form #spotCheckType").val(defualt);
+    $("#query-form #spotCheckTypeSelect").on('change', function (e) {
+        var v = $("#query-form #spotCheckTypeSelect").val();
+        if (v == 0 || v == 1) {
+            $("#query-form #spotCheckType").val(v);
+        } else {
+            $("#query-form #spotCheckType").val(null);
         }
     });
 }

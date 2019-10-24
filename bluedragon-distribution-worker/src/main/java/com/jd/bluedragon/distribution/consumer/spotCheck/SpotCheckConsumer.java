@@ -38,7 +38,6 @@ public class SpotCheckConsumer extends MessageBaseConsumer {
     public void consume(Message message) throws Exception {
 
         //主动认责的将此运单号对应的总重量、总体积 写入运单系统
-        //1160的称重任务
         try {
             if (!JsonHelper.isJsonString(message.getText())) {
                 logger.error(MessageFormat.format("抽检回传消息体非JSON格式，内容为【{0}】", message.getText()));
@@ -60,9 +59,6 @@ public class SpotCheckConsumer extends MessageBaseConsumer {
                 OpeObject obj = new OpeObject();
                 obj.setOpeSiteId(pictureInfoMq.getReviewSecondLevelId());
                 obj.setOpeSiteName(pictureInfoMq.getSecondLevelName());
-                obj.setpWidth(pictureInfoMq.getReviewWidth()==null?null:pictureInfoMq.getReviewWidth().floatValue());
-                obj.setpLength(pictureInfoMq.getReviewLength()==null?null:pictureInfoMq.getReviewLength().floatValue());
-                obj.setpHigh(pictureInfoMq.getReviewHeight()==null?null:pictureInfoMq.getReviewHeight().floatValue());
                 obj.setpWeight(pictureInfoMq.getReviewWeight()==null?null:pictureInfoMq.getReviewWeight().floatValue());
                 obj.setPackageCode(pictureInfoMq.getBillCode());
 //            obj.setOpeUserId();
@@ -77,7 +73,6 @@ public class SpotCheckConsumer extends MessageBaseConsumer {
                 task.setCreateSiteCode(opeEntity.getOpeDetails().get(0).getOpeSiteId());
                 task.setKeyword1(String.valueOf(opeEntity.getOpeDetails().get(0).getOpeSiteId()));
                 task.setKeyword2("上传长宽高、重量");
-                task.setBody(body);
                 task.setSequenceName(Task.getSequenceName(task.getTableName()));
                 task.setReceiveSiteCode(opeEntity.getOpeDetails().get(0).getOpeSiteId());
                 task.setOwnSign(BusinessHelper.getOwnSign());
@@ -151,35 +146,6 @@ public class SpotCheckConsumer extends MessageBaseConsumer {
         private Double blameWeight;
         private Integer blameType;
         private Integer businessType;
-
-        //新增 TODO
-        private Double reviewLength;
-        private Double reviewWidth;
-        private Double reviewHeight;
-
-        public Double getReviewLength() {
-            return reviewLength;
-        }
-
-        public void setReviewLength(Double reviewLength) {
-            this.reviewLength = reviewLength;
-        }
-
-        public Double getReviewWidth() {
-            return reviewWidth;
-        }
-
-        public void setReviewWidth(Double reviewWidth) {
-            this.reviewWidth = reviewWidth;
-        }
-
-        public Double getReviewHeight() {
-            return reviewHeight;
-        }
-
-        public void setReviewHeight(Double reviewHeight) {
-            this.reviewHeight = reviewHeight;
-        }
 
         public String getFrom() {
             return from;

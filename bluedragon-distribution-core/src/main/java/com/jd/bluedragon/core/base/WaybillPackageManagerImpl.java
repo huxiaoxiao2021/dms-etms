@@ -271,6 +271,7 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
             redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
     public WaybillFlowDetail getFirstWeightAndVolumeDetail(String waybillCode){
 
+        WaybillFlowDetail waybillFlowDetail = new WaybillFlowDetail();
         Page<PackFlowDetail> page = new Page<>();
         page.setPageSize(1000);
         BaseEntity<Page<PackFlowDetail>>  baseEntity = waybillPackageApi.getOpeDetailByCode(waybillCode,page);
@@ -281,15 +282,13 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
             //排除重量体积均为0;为空情况
             for(PackFlowDetail detail : list){
                 if(detail==null ||
-                        ((detail.getpWeight()==null||detail.getpWeight()==0)
-                                && ((detail.getpLength()==0&&detail.getpWidth()==0&&detail.getpHigh()==0)
-                                    ||(detail.getpLength()==null&&detail.getpWidth()==null&&detail.getpHigh()==null)))){
+                        (detail.getpWeight()==0 && (detail.getpLength()==0&&detail.getpWidth()==0&&detail.getpHigh()==0))){
                     continue;
                 }
                 timeSortList.add(detail);
             }
             if(CollectionUtils.isEmpty(timeSortList)){
-                return null;
+                return waybillFlowDetail;
             }
             //按操作时间从小到大排序
             Collections.sort(timeSortList, new Comparator<PackFlowDetail>() {
@@ -301,13 +300,12 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
                     return o1.getWeighTime().compareTo(o2.getWeighTime());
                 }
             });
-            WaybillFlowDetail waybillFlowDetail = new WaybillFlowDetail();
             PackFlowDetail packFlowDetail = timeSortList.get(0);
             String operateErp = packFlowDetail.getWeighUserErp();
             if(StringUtils.isEmpty(operateErp)){
                 operateErp = packFlowDetail.getMeasureUserErp();
                 if(StringUtils.isEmpty(operateErp)){
-                    return null;
+                    return waybillFlowDetail;
                 }
             }
             waybillFlowDetail.setOperateErp(operateErp);
@@ -356,6 +354,6 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
             }
             return waybillFlowDetail;
         }
-        return null;
+        return waybillFlowDetail;
     }
 }

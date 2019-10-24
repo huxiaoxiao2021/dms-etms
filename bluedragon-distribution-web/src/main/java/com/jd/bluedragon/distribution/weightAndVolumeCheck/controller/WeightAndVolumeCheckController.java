@@ -206,10 +206,12 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
     @Authorization(Constants.DMS_WEB_SORTING_WEIGHTANDVOLUMECHECK_R)
     @RequestMapping(value = "/searchExcessPicture", method = RequestMethod.GET)
     @ResponseBody
-    public InvokeResult<String> searchExcessPicture(@QueryParam("packageCode")String packageCode,
-                                            @QueryParam("siteCode")Integer siteCode) {
+    public InvokeResult<List<String>> searchExcessPicture(@QueryParam("packageCode")String packageCode,
+                                                          @QueryParam("siteCode")Integer siteCode,
+                                                          @QueryParam("spotCheckType")Integer spotCheckType,
+                                                          @QueryParam("isWaybillSpotCheck")Integer isWaybillSpotCheck) {
 
-        return weightAndVolumeCheckService.searchExcessPicture(packageCode,siteCode);
+        return weightAndVolumeCheckService.searchPicture(packageCode,siteCode,spotCheckType,isWaybillSpotCheck);
     }
 
 }

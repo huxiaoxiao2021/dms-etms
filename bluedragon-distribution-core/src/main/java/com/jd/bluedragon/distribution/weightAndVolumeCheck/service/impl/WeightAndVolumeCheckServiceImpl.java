@@ -28,9 +28,10 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.finance.dto.BizDutyDTO;
 import com.jd.etms.finance.util.ResponseDTO;
+import com.jd.etms.waybill.domain.DeliveryPackageD;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
@@ -39,6 +40,7 @@ import com.jd.ql.dms.report.domain.BaseEntity;
 import com.jd.ql.dms.report.domain.Pager;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import com.jd.ql.dms.report.domain.WeightVolumeQueryCondition;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.log4j.Logger;
@@ -140,6 +142,42 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 logger.error("关闭输入流再异常：",ioe);
             }
         }
+    }
+
+    @Override
+    public InvokeResult<List<String>> searchPicture(String packageCode,Integer siteCode,Integer spotCheckType,Integer isWaybillSpotCheck){
+        InvokeResult<List<String>> result = new InvokeResult<>();
+        if(spotCheckType!=null && spotCheckType==1){
+            if(isWaybillSpotCheck!=null&&isWaybillSpotCheck==1){
+                //B网运单维度
+                result = searchExcessPictureOfB2b(packageCode, siteCode);
+            }else{
+                //B网包裹维度
+                List<String> totalList = new ArrayList<>();
+                com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> dataByChoice
+                        = waybillQueryManager.getDataByChoice(packageCode, false, false, false, true);
+                if(dataByChoice!=null && dataByChoice.getData()!=null
+                        && CollectionUtils.isEmpty(dataByChoice.getData().getPackageList())){
+                    List<DeliveryPackageD> packageList = dataByChoice.getData().getPackageList();
+                    for(DeliveryPackageD deliveryPackageD : packageList){
+                        InvokeResult<List<String>> invokeResult = searchExcessPictureOfB2b(deliveryPackageD.getPackageBarcode(), siteCode);
+                        if(invokeResult != null && CollectionUtils.isEmpty(invokeResult.getData())){
+                            totalList.addAll(invokeResult.getData());
+                        }
+                    }
+                }
+                result.setData(totalList);
+            }
+        }else {
+            //C网
+            InvokeResult<String> resultOfB2c = searchExcessPicture(packageCode, siteCode);
+            List<String> list = new ArrayList<>();
+            list.add(resultOfB2c.getData());
+            result.setCode(resultOfB2c.getCode());
+            result.setMessage(resultOfB2c.getMessage());
+            result.setData(list);
+        }
+        return result;
     }
 
     /**
@@ -548,6 +586,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      * @param weightVolumeCollectDto
      */
     private void assemble(PackWeightVO packWeightVO, WeightVolumeCollectDto weightVolumeCollectDto) {
+        weightVolumeCollectDto.setSpotCheckType(0);//C网
         weightVolumeCollectDto.setReviewDate(new Date());
         weightVolumeCollectDto.setReviewLWH(packWeightVO.getLength()+"*"+packWeightVO.getWidth()+"*"+packWeightVO.getHigh());
         weightVolumeCollectDto.setReviewWeight(packWeightVO.getWeight());
@@ -764,6 +803,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         newCondition.setBusiName(condition.getBusiName());
         newCondition.setReviewErp(condition.getReviewErp());
         newCondition.setBillingErp(condition.getBillingErp());
+        newCondition.setSpotCheckType(condition.getSpotCheckType());
         return newCondition;
     }
 
