@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.print.waybill.handler;
 
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
+import com.jd.bluedragon.distribution.print.domain.DmsPaperSize;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.crossbow.pdd.domain.PDDResponse;
 import com.jd.bluedragon.external.crossbow.pdd.domain.PDDWaybillDetailDto;
@@ -32,9 +33,15 @@ public class PDDCustomerAndConsigneeInfoHandler implements Handler<WaybillPrintC
     public JdResult<String> handle(WaybillPrintContext context) {
         String waybillCode = WaybillUtil.getWaybillCode(context.getRequest().getBarCode());
         if (!WaybillUtil.isPDDWaybillCode(waybillCode)) {
-            logger.debug("该单不是拼多多单，不需要从拼多多接口中获取收寄件人信息：{}", waybillCode);
+            logger.info("该单不是拼多多单，不需要从拼多多接口中获取收寄件人信息：{}", waybillCode);
             return context.getResult();
         }
+
+        if (DmsPaperSize.PAPER_SIZE_CODE_1005.equals(context.getRequest().getPaperSizeCode())) {
+            logger.info("该单打印的是10*5面单，不需要从拼多多接口中获取收寄件人信息：{}", waybillCode);
+            return context.getResult();
+        }
+
         PDDResponse<PDDWaybillDetailDto> pddWaybillDetailDtoPDDResponse = pddService.queryPDDWaybillByWaybillCode(waybillCode);
         if (pddWaybillDetailDtoPDDResponse == null || !Boolean.TRUE.equals(pddWaybillDetailDtoPDDResponse.getSuccess())
                 || pddWaybillDetailDtoPDDResponse.getResult() == null) {
