@@ -129,13 +129,13 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
                 spotCheckOfPackageDetail.setImgList(invokeResult==null?null:invokeResult.getData());
                 detailList.add(spotCheckOfPackageDetail);
             }
-            //发运单维度匿名全程跟踪
-            sendWaybillTrace(nowWeight,nowVolume,waybillCode,params.get(0).getCreateSiteCode());
             //数据落入es
             WeightVolumeCollectDto dto = new WeightVolumeCollectDto();
             assembleDataOfPackage(params,dto,abnormalResultMq);
             weightAndVolumeCheckService.setProductType(dto);
             reportExternalService.insertOrUpdateForWeightVolume(dto);
+            //发运单维度匿名全程跟踪
+            sendWaybillTrace(dto);
             //超标则给FXM发mq
             if(params.get(0).getIsExcess()==1){
                 sendMqToFXM(dto,abnormalResultMq);
@@ -191,13 +191,13 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         return result;
     }
 
-    private void sendWaybillTrace(Double nowWeight,Double nowVolume,String waybillCode,Integer createSiteCode) {
+    private void sendWaybillTrace(WeightVolumeCollectDto dto) {
 
         Task tTask = new Task();
-        tTask.setKeyword1(waybillCode);
+        tTask.setKeyword1(dto.getWaybillCode());
         tTask.setKeyword2(String.valueOf(WaybillStatus.WAYBILL_STATUS_WEIGHT_VOLUME_SPOT_CHECK));
-        tTask.setCreateSiteCode(createSiteCode);
-        tTask.setCreateTime(new Date());
+        tTask.setCreateSiteCode(dto.getReviewSiteCode());
+        tTask.setCreateTime(dto.getReviewDate());
         tTask.setType(Task.TASK_TYPE_WAYBILL_TRACK);
         tTask.setTableName(Task.getTableName(Task.TASK_TYPE_WAYBILL_TRACK));
         tTask.setSequenceName(Task.getSequenceName(Task.TABLE_NAME_POP));
@@ -206,11 +206,12 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
 
         WaybillStatus status=new WaybillStatus();
         status.setOperateType(WaybillStatus.WAYBILL_STATUS_WEIGHT_VOLUME_SPOT_CHECK);
-        status.setWaybillCode(waybillCode);
-        status.setPackageCode(waybillCode);
-        status.setOperateTime(new Date());
-        status.setRemark("重量体积抽检：重量"+nowWeight+"公斤，体积"+nowVolume+"立方厘米");
-        status.setCreateSiteCode(createSiteCode);
+        status.setWaybillCode(dto.getWaybillCode());
+        status.setPackageCode(dto.getWaybillCode());
+        status.setOperateTime(dto.getReviewDate());
+        status.setOperator(dto.getReviewErp());
+        status.setRemark("重量体积抽检：重量"+dto.getReviewWeight()+"公斤，体积"+dto.getReviewVolume()+"立方厘米");
+        status.setCreateSiteCode(dto.getReviewSiteCode());
         tTask.setBody(JsonHelper.toJson(status));
         taskService.add(tTask);
 
@@ -321,7 +322,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             }
         }
         dto.setReviewWeight(param.getWaybillWeight());
-        dto.setReviewVolume(param.getWaybillVolume());
+        dto.setReviewVolume(param.getWaybillVolume()==null?0:param.getWaybillVolume()*1000000);
 
         dto.setReviewVolumeWeight(keeTwoDecimals(dto.getReviewVolume()/8000));
         dto.setBillingVolumeWeight(keeTwoDecimals(dto.getBillingVolume()/8000));
@@ -597,13 +598,13 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
                     result.customMessage(600,"运单"+waybillCode+"已经进行过抽检，请勿重复操作!");
                     return result;
                 }
-                //发运单维度全程跟踪
-                sendWaybillTrace(param.getWaybillWeight(),param.getWaybillVolume()*1000000,waybillCode,param.getCreateSiteCode());
                 //组装数据落入es
                 WeightVolumeCollectDto dto = new WeightVolumeCollectDto();
                 assembleDataOfWaybill(param,dto,abnormalResultMq);
                 weightAndVolumeCheckService.setProductType(dto);
                 reportExternalService.insertOrUpdateForWeightVolume(dto);
+                //发运单维度全程跟踪
+                sendWaybillTrace(dto);
                 //超标给fxm发mq
                 if(param.getIsExcess() == 1){
                     sendMqToFXM(dto,abnormalResultMq);
