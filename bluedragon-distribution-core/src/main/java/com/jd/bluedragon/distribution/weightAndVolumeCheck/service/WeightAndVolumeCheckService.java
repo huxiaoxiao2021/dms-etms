@@ -82,4 +82,6 @@ public interface WeightAndVolumeCheckService {
      * @param result
      */
     InvokeResult<Boolean> insertAndSendMq(PackWeightVO packWeightVO,WeightVolumeCollectDto weightVolumeCollectDto, InvokeResult<Boolean> result);
+
+    void setProductType(WeightVolumeCollectDto weightVolumeCollectDto);
 }

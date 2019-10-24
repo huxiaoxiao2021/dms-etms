@@ -137,7 +137,7 @@
                                             <option value="0" selected>C网</option>
                                             <option value="1">B网</option>
                                         </select>
-                                        <input type="hidden" id="isExcess" class="form-control  search-param " name="spotCheckType">
+                                        <input type="hidden" id="spotCheckType" class="form-control  search-param " name="spotCheckType">
                                     </div>
                                 </div>
                             </div>

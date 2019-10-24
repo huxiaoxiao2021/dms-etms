@@ -184,6 +184,27 @@ $(function () {
     $('#btn_check').click(function(){
         if($('#checkOfWaybill').attr("checked")){
             //运单维度
+            var weight = $('#waybillWeight').val();
+            var volume = $('#waybillVolume').val();
+            if(isNaN(weight) || isNaN(volume)){
+                Jd.alert('请输入正确的重量/体积!');
+                return;
+            }
+            if(weight <= 0 || volume <= 0){
+                Jd.alert('请输入正确的重量/体积!');
+                return;
+            }
+            var reg = /^(-?\d+)(\.\d{1,2})?$/;
+            if(!reg.test(weight)){
+                Jd.alert('重量最多两位小数!');
+                return;
+            }
+            reg = /^(-?\d+)(\.\d{1,6})?$/;
+            if(!reg.test(volume)){
+                Jd.alert('体积最多六位小数!');
+                return;
+            }
+
             var param = {};
             param.isWaybill = 1;
             param.waybillOrPackageCode = $('#waybillOrPackageCode').val();
@@ -264,7 +285,6 @@ $(function () {
 
         //运单维度
         if($('#checkOfWaybill').attr("checked")){
-            debugger;
             var waybillData = $('#waybillDataTable').bootstrapTable('getSelections');
             if(waybillData.length == 0){
                 Jd.alert('请选中在提交!');
@@ -309,8 +329,7 @@ $(function () {
                     }
                 }
             });
-
-
+            resetOfWaybbill();
         }else {
             //包裹维度
             var allTableData = $('#packageDataTable').bootstrapTable('getData');

@@ -843,6 +843,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      * 当waybillSign的40为0时，根据waybillSign的31位的值填入产品类型
      *当waybillSign的40为1-5时，根据waybillSign的80位的值填入产品类型
      */
+    @Override
     public void setProductType(WeightVolumeCollectDto weightVolumeCollectDto) {
         List<DmsBaseDict> list = dmsBaseDictService.queryListByParentId(Constants.PRODUCT_PARENT_ID);
         HashMap<String, DmsBaseDict> map = new HashMap<String, DmsBaseDict>();

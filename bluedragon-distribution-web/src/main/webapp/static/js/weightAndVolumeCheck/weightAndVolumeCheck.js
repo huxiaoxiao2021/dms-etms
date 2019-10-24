@@ -98,10 +98,6 @@ $(function () {
             title: '产品标识',
             align: 'center'
         }, {
-            field: 'busiCode',
-            title: '商家编码',
-            align: 'center'
-        }, {
             field: 'busiName',
             title: '商家名称',
             align: 'center'
