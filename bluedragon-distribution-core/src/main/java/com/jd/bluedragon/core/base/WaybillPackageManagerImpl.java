@@ -281,8 +281,8 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
             List<PackFlowDetail> timeSortList = new ArrayList<>();
             //排除重量体积均为0;为空情况
             for(PackFlowDetail detail : list){
-                if(detail==null ||
-                        (detail.getpWeight()==0 && (detail.getpLength()==0&&detail.getpWidth()==0&&detail.getpHigh()==0))){
+                if(detail==null || ((detail.getpWeight()!=null&&detail.getpWeight()==0)
+                    && (detail.getpLength()!=null&&detail.getpLength()==0&&detail.getpWidth()!=null&&detail.getpWidth()==0&&detail.getpHigh()!=null&&detail.getpHigh()==0))){
                     continue;
                 }
                 timeSortList.add(detail);
@@ -318,6 +318,9 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
                 if(operateErp.equals(detail.getWeighUserErp())){
                     realList.add(detail);
                 }
+            }
+            if(CollectionUtils.isEmpty(realList)){
+                return waybillFlowDetail;
             }
             //获取总重量体积并设置
             Map<String,PackFlowDetail> map1 = new HashMap<>();
