@@ -119,16 +119,15 @@ $(function() {
 			$('#dataTable').bootstrapTable('refresh');
 		};
 
-		$('#btn_query').click(function() {
-			tableInit().refresh();
-		});
-
 		return oTableInit;
 	};
 	var pageInit = function() {
 		var oInit = new Object();
 		oInit.init = function() {
 			$.combobox.clearAllSelected('dbId');
+			$('#btn_query').click(function() {
+				tableInit().refresh();
+			});
 		};
 		return oInit;
 	};

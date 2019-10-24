@@ -1,13 +1,19 @@
 $(function() {
 
-	var queryUrl = '/dap/info/listTableRowData';
+	var queryUrl = '/dap/info/listPddReprintData';
+	var exportUrl = '/dap/info/toPddReprintExport';
 
-	$.combobox.createNew('dbId',{
+	$.combobox.createNew('dateGap',{
 		width: '150',
 		placeholder:'请选择',
 		data:[
-			{id:'1',text:'非拆分库'},
-			{id:'2',text:'任务库'}
+			{id:'0',text:'今天'},
+			{id:'1',text:'昨天'},
+			{id:'2',text:'前天'},
+			{id:'3',text:'3天前'},
+			{id:'4',text:'4天前'},
+			{id:'5',text:'5天前'},
+			{id:'6',text:'6天前'}
 		]
 	});
 
@@ -49,11 +55,11 @@ $(function() {
 			});
 		};
 		oTableInit.getSearchParams = function(params) {
-			var data = $.combobox.getSelected('dbId');
+			var data = $.combobox.getSelected('dateGap');
 			if (data != null && data.length > 0) {
-				return {'dbId' : data[0].id};
+				return {'dateGap' : data[0].id};
 			}
-			return {'dbId' : 0};
+			return {'dateGap' : -1};
 		};
 
 		oTableInit.tableColums = [
@@ -67,17 +73,23 @@ $(function() {
 				width: '80px',
 			},
 			{
-				field: 'tableName',
-				title: '表名',
-				align : "center",
-				width: '250px',
+				field: 'space1',
+				title: '补打条码'
 			},
 			{
-				field: 'rowCount',
-				title: '行数'
+				field: 'space2',
+				title: '操作单位'
+			},{
+				field: 'space3',
+				title: '操作人'
+			},
+			{
+				field: 'space4',
+				title: '操作时间'
 			}
 			];
-		oTableInit.refresh = function() {
+
+		oTableInit.refresh = function () {
 			$('#dataTable').bootstrapTable('refresh');
 		};
 
@@ -86,7 +98,8 @@ $(function() {
 	var pageInit = function() {
 		var oInit = new Object();
 		oInit.init = function() {
-			$.combobox.clearAllSelected('dbId');
+			$.combobox.clearAllSelected('dateGap');
+
 			$('#btn_query').click(function() {
 				tableInit().refresh();
 			});
@@ -94,7 +107,28 @@ $(function() {
 		return oInit;
 	};
 
+	//导出
+	function initExport(tableInit) {
+		$('#btn_export').click(function () {
+			var params = tableInit.getSearchParams();
+			var form = $("<form method='post'></form>"),
+				input;
+			form.attr({"action": exportUrl});
+
+			$.each(params, function (key, value) {
+				input = $("<input type='hidden' class='search-param'>");
+				input.attr({"name": key});
+				input.val(value);
+				form.append(input);
+			});
+			form.appendTo(document.body);
+			form.submit();
+			document.body.removeChild(form[0]);
+		});
+	}
+
 	pageInit().init();
 	tableInit().init();
+	initExport(tableInit());
 
 });

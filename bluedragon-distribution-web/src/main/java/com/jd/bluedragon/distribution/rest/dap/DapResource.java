@@ -15,18 +15,18 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.sql.DataSource;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.sql.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.*;
 
@@ -101,6 +101,16 @@ public class DapResource {
         response.setData(dapInfoList);
         return response;
     }
+
+	@GET
+	@Path("/pdd/reprint/info/{dateGap}")
+	public JdResponse<List<DapInfo>> getPddReprintInfo(@PathParam("dateGap") Integer dateGap) {
+		JdResponse<List<DapInfo>> response = new JdResponse<>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
+
+		List<DapInfo> dapInfoList = getPddInfo(response, DateToStringBeginOrEnd(dateGap, true), DateToStringBeginOrEnd(dateGap, false));
+		response.setData(dapInfoList);
+		return response;
+	}
 
 	private List<DapInfo> getDapInfos(JdResponse<List<DapInfo>> response, List<String> unDivTableNames, String dbBeanName) {
 		Connection connection = null;
@@ -234,4 +244,86 @@ public class DapResource {
         return dapInfoList;
     }
 
+
+	private List<DapInfo> getPddInfo(JdResponse<List<DapInfo>> response, String startTime, String endTime) {
+		Connection connection = null;
+		PreparedStatement pstmt = null;
+		ResultSet resultSet = null;
+		List<DapInfo> dapInfoList = new ArrayList<>();
+
+		if (startTime == null || endTime == null) {
+			return dapInfoList;
+		}
+		try {
+			this.dataSource = (DataSource) SpringHelper.getBean("dms_main_undiv");
+			connection = this.dataSource.getConnection();
+			String sql = "select * from reprint_record where operate_time > '" + startTime + "' and operate_time < '" + endTime  + "' and bar_code like 'JDAP%' order by site_code";
+			pstmt = connection.prepareStatement(sql);
+			pstmt.setQueryTimeout(StringHelper.isEmpty(DapResource.STATEMENT_TIME_OUT)?30:Integer.valueOf(DapResource.STATEMENT_TIME_OUT));
+			resultSet = pstmt.executeQuery();
+			DapInfo dapInfo = null;
+			while (resultSet != null && resultSet.next()) {
+				dapInfo = new DapInfo();
+				dapInfo.setSpace1(resultSet.getObject("bar_code").toString());
+				dapInfo.setSpace2(resultSet.getObject("site_name").toString());
+				dapInfo.setSpace3(resultSet.getObject("operator_name").toString());
+				dapInfo.setSpace4(resultSet.getObject("operate_time").toString());
+				dapInfoList.add(dapInfo);
+			}
+		} catch (Exception e) {
+			response.setCode(JdResponse.CODE_ERROR);
+			response.setMessage(JdResponse.MESSAGE_ERROR);
+			logger.debug(e);
+		} finally {
+			try {
+				if (connection != null) {
+					connection.close();
+				}
+			} catch (SQLException se) {
+				this.logger.debug("关闭文件流发生异常！", se);
+			}
+			try {
+				if (resultSet != null) {
+					resultSet.close();
+				}
+			} catch (SQLException se) {
+				this.logger.warn("关闭文件流发生异常！", se);
+			}
+			try {
+				if (pstmt != null) {
+					pstmt.close();
+				}
+			} catch (SQLException se) {
+				this.logger.warn("关闭PreparedStatement发生异常！", se);
+			}
+		}
+		return dapInfoList;
+	}
+
+	public String DateToStringBeginOrEnd(Integer dateGap, Boolean flag) {
+		String time = null;
+		SimpleDateFormat dateformat1 = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		Calendar calendar1 = Calendar.getInstance();
+		Date now = new Date();
+		long dateLong = now.getTime() - 1000*3600*24*dateGap;
+
+		Date date = new Date(dateLong);
+		//获取某一天的0点0分0秒 或者 23点59分59秒
+		if (flag) {
+			calendar1.setTime(date);
+			calendar1.set(calendar1.get(Calendar.YEAR), calendar1.get(Calendar.MONTH), calendar1.get(Calendar.DAY_OF_MONTH),
+					0, 0, 0);
+			Date beginOfDate = calendar1.getTime();
+			time = dateformat1.format(beginOfDate);
+		}else{
+			Calendar calendar2 = Calendar.getInstance();
+			calendar2.setTime(date);
+			calendar1.set(calendar2.get(Calendar.YEAR), calendar2.get(Calendar.MONTH), calendar2.get(Calendar.DAY_OF_MONTH),
+					23, 59, 59);
+			Date endOfDate = calendar1.getTime();
+			time = dateformat1.format(endOfDate);
+		}
+
+		return time;
+	}
 }
