@@ -143,8 +143,8 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
     }
 
     @Override
-    @JProfiler(jKey = "DMSWEB.SendCodeGateWayServiceImpl.checkSealThenReturnSendCodeInfo",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public JdCResponse<SendCodeInfoDto> checkSealThenReturnSendCodeInfo(String sendCode) {
+    @JProfiler(jKey = "DMSWEB.SendCodeGateWayServiceImpl.checkSendCodeForPickupRegister",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<SendCodeInfoDto> checkSendCodeForPickupRegister(String sendCode) {
         JdCResponse<SendCodeInfoDto> jdCResponse = new JdCResponse<>();
         if(StringUtils.isEmpty(sendCode)){
             jdCResponse.toError("请输入批次号！");

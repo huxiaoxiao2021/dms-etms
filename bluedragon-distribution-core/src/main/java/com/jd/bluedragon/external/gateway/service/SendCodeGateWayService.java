@@ -42,5 +42,5 @@ public interface SendCodeGateWayService {
      * @param sendCode
      * @return
      */
-    JdCResponse<SendCodeInfoDto> checkSealThenReturnSendCodeInfo(String sendCode);
+    JdCResponse<SendCodeInfoDto> checkSendCodeForPickupRegister(String sendCode);
 }
