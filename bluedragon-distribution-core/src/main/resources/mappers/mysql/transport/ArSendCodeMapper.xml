@@ -135,7 +135,6 @@
         ar_send_code
         where 1 = 1
         <include refid="Base_Condition_Sql"/>
-        ·
     </select>
 
     <select id="getBySendRegisterId" parameterType="Long" resultMap="ArSendCode">
