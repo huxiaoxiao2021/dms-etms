@@ -29,13 +29,12 @@ public interface WeightAndVolumeCheckService {
 
     /**
      * 查看
-     * @param packageCode
+     * @param waybillCode
      * @param siteCode
-     * @param spotCheckType
      * @param isWaybillSpotCheck
      * @return
      */
-    InvokeResult<List<String>> searchPicture(String packageCode,Integer siteCode,Integer spotCheckType,Integer isWaybillSpotCheck);
+    InvokeResult<String> searchPicture(String waybillCode,Integer siteCode,Integer isWaybillSpotCheck);
 
     /**
      * 查看超标图片（C网）

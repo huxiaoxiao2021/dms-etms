@@ -241,37 +241,36 @@ $(function () {
                 'click .search': function(e, value, row, index) {
                     var spotCheckType = row.spotCheckType==null?0:row.spotCheckType;
                     var isWaybillSpotCheck = row.isWaybillSpotCheck==null?-1:row.spotCheckType;
-                    $.ajax({
-                        type : "get",
-                        url : searchExcessPictureUrl + "?packageCode=" + row.packageCode + "&siteCode=" +row.reviewSiteCode
-                            + "&spotCheckType=" + spotCheckType + "&isWaybillSpotCheck=" + isWaybillSpotCheck,
-                        data : {},
-                        async : false,
-                        success : function (data) {
-                            if(data && data.code == 200){
-                                if(row.spotCheckType!=null && row.spotCheckType==1){
-                                    //B网 TODO 待定
-
-                                }else{
-                                    //C网
-                                    var url = data.data[0];
+                    if(spotCheckType == 1){
+                        //B网
+                        window.open("/weightAndVolumeCheck/toSearchB2bExcessPicture/?waybillCode="+row.packageCode
+                            +"&siteCode="+row.reviewSiteCode +"&isWaybillSpotCheck="+isWaybillSpotCheck);
+                    }else {
+                        //C网
+                        $.ajax({
+                            type : "get",
+                            url : searchExcessPictureUrl + "?packageCode=" + row.packageCode + "&siteCode=" +row.reviewSiteCode,
+                            data : {},
+                            async : false,
+                            success : function (data) {
+                                if(data && data.code == 200){
                                     layer.open({
                                         type: 2,
                                         title: "",
                                         shadeClose: true,
                                         shade: 0.5,
                                         area: ['500px','400px'],
-                                        content: url,
+                                        content: data.data,
                                         success: function(layero, index) {
                                             layer.iframeAuto(index);
                                         }
                                     });
+                                }else{
+                                    Jd.alert(data.message);
                                 }
-                            }else{
-                                Jd.alert(data.message);
                             }
-                        }
-                    });
+                        });
+                    }
                 }
             }
         }];

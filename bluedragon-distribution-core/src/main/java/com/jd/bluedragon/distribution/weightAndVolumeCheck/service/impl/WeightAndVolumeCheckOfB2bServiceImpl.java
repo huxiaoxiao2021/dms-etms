@@ -110,13 +110,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
                 result.customMessage(600,"请勿重复提交!");
                 return result;
             }
-            Double nowWeight = 0.00;
-            Double nowVolume = 0.00;
             for(WeightVolumeCheckOfB2bPackage param : params){
-                nowWeight = keeTwoDecimals(nowWeight + param.getWeight());
-                nowVolume = keeTwoDecimals(nowVolume + param.getLength() * param.getWidth() * param.getHeight());//厘米
-                param.setTotalWeight(nowWeight);
-                param.setTotalVolume(nowVolume);
                 SpotCheckOfPackageDetail spotCheckOfPackageDetail = new SpotCheckOfPackageDetail();
                 spotCheckOfPackageDetail.setWaybillCode(waybillCode);
                 spotCheckOfPackageDetail.setPackageCode(param.getPackageCode());
@@ -372,8 +366,14 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
                 dto.setReviewErp(reviewErp);
             }
         }
-        dto.setReviewWeight(params.get(0).getTotalWeight());
-        dto.setReviewVolume(params.get(0).getTotalVolume());
+        Double totalWeight = 0.00;
+        Double totalVolume = 0.00;
+        for(WeightVolumeCheckOfB2bPackage param : params){
+            totalWeight = keeTwoDecimals(totalWeight + param.getWeight());
+            totalVolume = keeTwoDecimals(totalVolume + param.getLength() * param.getWidth() * param.getHeight());
+        }
+        dto.setReviewWeight(totalWeight);
+        dto.setReviewVolume(totalVolume);
         dto.setBillingWeight(waybillFlowDetail.getTotalWeight()==null?0.00:waybillFlowDetail.getTotalWeight());
         dto.setBillingVolume(waybillFlowDetail.getTotalVolume()==null?0.00:waybillFlowDetail.getTotalVolume());
         dto.setReviewVolumeWeight(keeTwoDecimals(dto.getReviewVolume()/8000));
@@ -532,16 +532,18 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         try {
 
             abnormalResultMq.setFrom(SystemEnum.DMS.getCode().toString());
-            if(abnormalResultMq.getDutyType()==2 || abnormalResultMq.getDutyType()==6
-                    || (abnormalResultMq.getDutyType()==3&&StringUtils.isEmpty(abnormalResultMq.getDutyErp()))){
-                //责任为分拣或车队或站点无erp
-                abnormalResultMq.setTo(SystemEnum.ZHIKONG.getCode().toString());
-            }else if(abnormalResultMq.getDutyType()==3 && !StringUtils.isEmpty(abnormalResultMq.getDutyErp())){
-                //责任为站点有erp
-                abnormalResultMq.setTo(SystemEnum.TMS.getCode().toString());
-            }else if(abnormalResultMq.getDutyType() == 4){
-                //责任为信任商家
-                abnormalResultMq.setTo(SystemEnum.PANZE.getCode().toString());
+            if(abnormalResultMq.getDutyType() != null){
+                if(abnormalResultMq.getDutyType()==2 || abnormalResultMq.getDutyType()==6
+                        || (abnormalResultMq.getDutyType()==3&&StringUtils.isEmpty(abnormalResultMq.getDutyErp()))){
+                    //责任为分拣或车队或站点无erp
+                    abnormalResultMq.setTo(SystemEnum.ZHIKONG.getCode().toString());
+                }else if(abnormalResultMq.getDutyType()==3 && !StringUtils.isEmpty(abnormalResultMq.getDutyErp())){
+                    //责任为站点有erp
+                    abnormalResultMq.setTo(SystemEnum.TMS.getCode().toString());
+                }else if(abnormalResultMq.getDutyType() == 4){
+                    //责任为信任商家
+                    abnormalResultMq.setTo(SystemEnum.PANZE.getCode().toString());
+                }
             }
 
             abnormalResultMq.setBillCode(dto.getWaybillCode());

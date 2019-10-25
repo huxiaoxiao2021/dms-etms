@@ -206,12 +206,42 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
     @Authorization(Constants.DMS_WEB_SORTING_WEIGHTANDVOLUMECHECK_R)
     @RequestMapping(value = "/searchExcessPicture", method = RequestMethod.GET)
     @ResponseBody
-    public InvokeResult<List<String>> searchExcessPicture(@QueryParam("packageCode")String packageCode,
-                                                          @QueryParam("siteCode")Integer siteCode,
-                                                          @QueryParam("spotCheckType")Integer spotCheckType,
-                                                          @QueryParam("isWaybillSpotCheck")Integer isWaybillSpotCheck) {
+    public InvokeResult<String> searchExcessPicture(@QueryParam("packageCode")String packageCode,
+                                            @QueryParam("siteCode")Integer siteCode) {
 
-        return weightAndVolumeCheckService.searchPicture(packageCode,siteCode,spotCheckType,isWaybillSpotCheck);
+        return weightAndVolumeCheckService.searchExcessPicture(packageCode,siteCode);
     }
 
+    /**
+     * 跳转到B网超标图片页面
+     * @param waybillCode
+     * @param isWaybillSpotCheck
+     * @return
+     */
+    @Authorization(Constants.DMS_WEB_SORTING_WEIGHTANDVOLUMECHECK_R)
+    @RequestMapping(value = "/toSearchB2bExcessPicture")
+    public String toSearchB2bExcessPicture(@QueryParam("waybillCode")String waybillCode,
+                                           @QueryParam("siteCode")Integer siteCode,
+                                           @QueryParam("isWaybillSpotCheck")Integer isWaybillSpotCheck,Model model){
+        model.addAttribute("siteCode",siteCode);
+        model.addAttribute("waybillCode",waybillCode);
+        model.addAttribute("isWaybillSpotCheck",isWaybillSpotCheck);
+        return "/weightAndVolumeCheck/b2bExcessPicture";
+    }
+
+    /**
+     * 显示B网超标图片链接
+     * @param waybillCode
+     * @param siteCode
+     * @param isWaybillSpotCheck
+     * @return
+     */
+    @Authorization(Constants.DMS_WEB_SORTING_WEIGHTANDVOLUMECHECK_R)
+    @RequestMapping(value = "/searchB2bExcessPicture", method = RequestMethod.GET)
+    @ResponseBody
+    public InvokeResult<String> searchB2bExcessPicture(@QueryParam("waybillCode")String waybillCode,
+                                                       @QueryParam("siteCode")Integer siteCode,
+                                                       @QueryParam("isWaybillSpotCheck")Integer isWaybillSpotCheck){
+        return weightAndVolumeCheckService.searchPicture(waybillCode,siteCode,isWaybillSpotCheck);
+    }
 }

@@ -145,37 +145,33 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     }
 
     @Override
-    public InvokeResult<List<String>> searchPicture(String packageCode,Integer siteCode,Integer spotCheckType,Integer isWaybillSpotCheck){
-        InvokeResult<List<String>> result = new InvokeResult<>();
-        if(spotCheckType!=null && spotCheckType==1){
-            if(isWaybillSpotCheck!=null&&isWaybillSpotCheck==1){
-                //B网运单维度
-                result = searchExcessPictureOfB2b(packageCode, siteCode);
-            }else{
-                //B网包裹维度
-                List<String> totalList = new ArrayList<>();
-                com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> dataByChoice
-                        = waybillQueryManager.getDataByChoice(packageCode, false, false, false, true);
-                if(dataByChoice!=null && dataByChoice.getData()!=null
-                        && CollectionUtils.isEmpty(dataByChoice.getData().getPackageList())){
-                    List<DeliveryPackageD> packageList = dataByChoice.getData().getPackageList();
-                    for(DeliveryPackageD deliveryPackageD : packageList){
-                        InvokeResult<List<String>> invokeResult = searchExcessPictureOfB2b(deliveryPackageD.getPackageBarcode(), siteCode);
-                        if(invokeResult != null && CollectionUtils.isEmpty(invokeResult.getData())){
-                            totalList.addAll(invokeResult.getData());
-                        }
+    public InvokeResult<String> searchPicture(String waybillCode,Integer siteCode,Integer isWaybillSpotCheck){
+        InvokeResult<String> result = new InvokeResult<>();
+        Map<String,List<String>> map = new HashMap<>();
+        if(isWaybillSpotCheck!=null && isWaybillSpotCheck==1){
+            //B网运单维度
+            InvokeResult<List<String>> invokeResult = searchExcessPictureOfB2b(waybillCode, siteCode);
+            if(invokeResult != null && !CollectionUtils.isEmpty(invokeResult.getData())){
+                map.put(waybillCode,invokeResult.getData());
+            }
+            result.setCode(invokeResult.getCode());
+            result.setMessage(invokeResult.getMessage());
+            result.setData(JsonHelper.toJson(map));
+        }else {
+            //B网包裹维度
+            com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> dataByChoice
+                    = waybillQueryManager.getDataByChoice(waybillCode, false, false, false, true);
+            if(dataByChoice!=null && dataByChoice.getData()!=null
+                    && CollectionUtils.isEmpty(dataByChoice.getData().getPackageList())){
+                List<DeliveryPackageD> packageList = dataByChoice.getData().getPackageList();
+                for(DeliveryPackageD deliveryPackageD : packageList){
+                    InvokeResult<List<String>> invokeResult = searchExcessPictureOfB2b(deliveryPackageD.getPackageBarcode(), siteCode);
+                    if(invokeResult != null && CollectionUtils.isEmpty(invokeResult.getData())){
+                        map.put(deliveryPackageD.getPackageBarcode(),invokeResult.getData());
                     }
                 }
-                result.setData(totalList);
             }
-        }else {
-            //C网
-            InvokeResult<String> resultOfB2c = searchExcessPicture(packageCode, siteCode);
-            List<String> list = new ArrayList<>();
-            list.add(resultOfB2c.getData());
-            result.setCode(resultOfB2c.getCode());
-            result.setMessage(resultOfB2c.getMessage());
-            result.setData(list);
+            result.setData(JsonHelper.toJson(map));
         }
         return result;
     }
