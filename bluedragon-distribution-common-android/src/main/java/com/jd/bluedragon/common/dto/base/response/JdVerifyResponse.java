@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * 只用于后台服务与android 相关业务交互使用
+ * android 端使用gradle 依赖
  * @author lixin39
  * @ClassName JdVerifyResponse
  * @date 2019/6/17
