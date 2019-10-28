@@ -98,7 +98,7 @@ $(function () {
             title: '产品标识',
             align: 'center'
         }, {
-            field: 'busiId',
+            field: 'busiCode',
             title: '商家ID',
             align: 'center'
         }, {

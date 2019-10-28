@@ -779,17 +779,15 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             }
             //获取最早操作人的所有称重、量方记录
             List<PackFlowDetail> realListOfWeight = new ArrayList<>();
-            realListOfWeight.add(packFlowDetail);
             List<PackFlowDetail> realListOfVolume = new ArrayList<>();
-            realListOfWeight.add(packFlowDetail);
             for(PackFlowDetail detail : finalList){
                 if(operateErp.equals(detail.getWeighUserErp())){
                     realListOfWeight.add(detail);
-                }else if(operateErp.equals(detail.getMeasureUserErp())){
+                }
+                if(operateErp.equals(detail.getMeasureUserErp())){
                     realListOfVolume.add(detail);
                 }
             }
-
             //获取总重量体积并设置
             Double totalWeight = getWeightOrVolume(realListOfWeight, 1);
             Double totalVolume = getWeightOrVolume(realListOfVolume, 0);
@@ -813,6 +811,9 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
     private Double getWeightOrVolume(List<PackFlowDetail> realList,Integer type){
         Double totalWeight = 0.00;
         Double totalVolume = 0.00;
+        if(realList.size() == 0){
+            return 0.00;
+        }
         Map<String,PackFlowDetail> map1 = new LinkedHashMap<>();
         Map<String,PackFlowDetail> map2 = new LinkedHashMap<>();
         for(PackFlowDetail detail : realList){
