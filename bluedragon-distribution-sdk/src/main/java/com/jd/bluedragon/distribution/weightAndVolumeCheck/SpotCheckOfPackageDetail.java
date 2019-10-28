@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.weightAndVolumeCheck;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述信息
@@ -14,13 +15,9 @@ public class SpotCheckOfPackageDetail implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 运单号
+     * 运单号/包裹号
      * */
-    private String waybillCode;
-    /**
-     * 包裹号
-     * */
-    private String packageCode;
+    private String billCode;
     /**
      * 长
      * */
@@ -40,22 +37,14 @@ public class SpotCheckOfPackageDetail implements Serializable {
     /**
      * 包裹维度超标图片
      * */
-    private List<String> imgList;
+    private List<Map<String,String>> imgList;
 
-    public String getWaybillCode() {
-        return waybillCode;
+    public String getBillCode() {
+        return billCode;
     }
 
-    public void setWaybillCode(String waybillCode) {
-        this.waybillCode = waybillCode;
-    }
-
-    public String getPackageCode() {
-        return packageCode;
-    }
-
-    public void setPackageCode(String packageCode) {
-        this.packageCode = packageCode;
+    public void setBillCode(String billCode) {
+        this.billCode = billCode;
     }
 
     public Double getLength() {
@@ -90,11 +79,11 @@ public class SpotCheckOfPackageDetail implements Serializable {
         this.weight = weight;
     }
 
-    public List<String> getImgList() {
+    public List<Map<String, String>> getImgList() {
         return imgList;
     }
 
-    public void setImgList(List<String> imgList) {
+    public void setImgList(List<Map<String, String>> imgList) {
         this.imgList = imgList;
     }
 }

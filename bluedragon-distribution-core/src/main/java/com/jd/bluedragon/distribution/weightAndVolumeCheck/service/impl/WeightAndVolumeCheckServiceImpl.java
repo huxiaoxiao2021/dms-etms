@@ -162,11 +162,11 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> dataByChoice
                     = waybillQueryManager.getDataByChoice(waybillCode, false, false, false, true);
             if(dataByChoice!=null && dataByChoice.getData()!=null
-                    && CollectionUtils.isEmpty(dataByChoice.getData().getPackageList())){
+                    && !CollectionUtils.isEmpty(dataByChoice.getData().getPackageList())){
                 List<DeliveryPackageD> packageList = dataByChoice.getData().getPackageList();
                 for(DeliveryPackageD deliveryPackageD : packageList){
                     InvokeResult<List<String>> invokeResult = searchExcessPictureOfB2b(deliveryPackageD.getPackageBarcode(), siteCode);
-                    if(invokeResult != null && CollectionUtils.isEmpty(invokeResult.getData())){
+                    if(invokeResult != null && !CollectionUtils.isEmpty(invokeResult.getData())){
                         map.put(deliveryPackageD.getPackageBarcode(),invokeResult.getData());
                     }
                 }

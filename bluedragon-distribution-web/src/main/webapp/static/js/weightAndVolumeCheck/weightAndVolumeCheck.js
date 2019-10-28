@@ -98,6 +98,10 @@ $(function () {
             title: '产品标识',
             align: 'center'
         }, {
+            field: 'busiId',
+            title: '商家ID',
+            align: 'center'
+        }, {
             field: 'busiName',
             title: '商家名称',
             align: 'center'
@@ -240,7 +244,7 @@ $(function () {
                 },
                 'click .search': function(e, value, row, index) {
                     var spotCheckType = row.spotCheckType==null?0:row.spotCheckType;
-                    var isWaybillSpotCheck = row.isWaybillSpotCheck==null?-1:row.spotCheckType;
+                    var isWaybillSpotCheck = row.isWaybillSpotCheck==null?-1:row.isWaybillSpotCheck;
                     if(spotCheckType == 1){
                         //B网
                         window.open("/weightAndVolumeCheck/toSearchB2bExcessPicture/?waybillCode="+row.packageCode

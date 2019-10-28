@@ -1,8 +1,10 @@
 package com.jd.bluedragon.distribution.weightAndVolumeCheck.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -22,7 +24,10 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.waybill.common.Page;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
+import com.jd.etms.waybill.domain.PackFlowDetail;
+import com.jd.etms.waybill.domain.PackageState;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
@@ -31,6 +36,7 @@ import com.jd.ql.dms.report.ReportExternalService;
 import com.jd.ql.dms.report.domain.BaseEntity;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import com.jd.ql.dms.report.domain.WeightVolumeQueryCondition;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,8 +50,13 @@ import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述信息
@@ -90,6 +101,9 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
     @Autowired
     private WaybillPackageManager waybillPackageManager;
 
+    @Autowired
+    private WaybillTraceManager waybillTraceManager;
+
 
     @Override
     public InvokeResult<String> dealExcessDataOfPackage(List<WeightVolumeCheckOfB2bPackage> params) {
@@ -112,15 +126,23 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             }
             for(WeightVolumeCheckOfB2bPackage param : params){
                 SpotCheckOfPackageDetail spotCheckOfPackageDetail = new SpotCheckOfPackageDetail();
-                spotCheckOfPackageDetail.setWaybillCode(waybillCode);
-                spotCheckOfPackageDetail.setPackageCode(param.getPackageCode());
+                spotCheckOfPackageDetail.setBillCode(param.getPackageCode());
                 spotCheckOfPackageDetail.setWeight(param.getWeight());
                 spotCheckOfPackageDetail.setLength(param.getLength());
                 spotCheckOfPackageDetail.setWidth(param.getWidth());
                 spotCheckOfPackageDetail.setHeight(param.getHeight());
+                List<Map<String,String>> imgList = new ArrayList<>();
+                spotCheckOfPackageDetail.setImgList(imgList);
                 com.jd.bluedragon.distribution.base.domain.InvokeResult<List<String>> invokeResult
                         = searchExcessPicture(param.getPackageCode(), param.getCreateSiteCode());
-                spotCheckOfPackageDetail.setImgList(invokeResult==null?null:invokeResult.getData());
+                Map<String,String> map = new HashMap<>();
+                if(invokeResult != null && !CollectionUtils.isEmpty(invokeResult.getData())){
+                    for(String url : invokeResult.getData()){
+                        map.put(url,param.getPackageCode()+"_"+new Date().getTime());
+                        imgList.add(map);
+                    }
+                }
+
                 detailList.add(spotCheckOfPackageDetail);
             }
             //数据落入es
@@ -222,7 +244,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
 
         //查询运单称重流水
         String waybillCode = WaybillUtil.getWaybillCode(param.getWaybillOrPackageCode());
-        WaybillFlowDetail waybillFlowDetail = waybillPackageManager.getFirstWeightAndVolumeDetail(waybillCode);
+        WaybillFlowDetail waybillFlowDetail = getFirstWeightAndVolumeDetail(waybillCode);
 
         abnormalResultMq.setDutyErp(waybillFlowDetail.getOperateErp());
 
@@ -275,16 +297,18 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             List<SpotCheckOfPackageDetail> detailList = new ArrayList<>();
             abnormalResultMq.setDetailList(detailList);
             SpotCheckOfPackageDetail detail = new SpotCheckOfPackageDetail();
-            detail.setWaybillCode(waybillCode);
-            detail.setPackageCode(waybillCode);
-            detail.setImgList(invokeResult==null?null:invokeResult.getData());
-            detailList.add(detail);
-
-            StringBuilder excessPictureUrls = new StringBuilder();
-            for(String url : invokeResult.getData()){
-                excessPictureUrls.append(url).append(";");
+            detail.setBillCode(waybillCode);
+            detail.setLength(dto.getBillingVolume());
+            List<Map<String,String>> imgList = new ArrayList<>();
+            detail.setImgList(imgList);
+            if(invokeResult != null && !CollectionUtils.isEmpty(invokeResult.getData())){
+                for(String url : invokeResult.getData()){
+                    Map<String,String> map = new HashMap<>();
+                    map.put(url,waybillCode+"_"+new Date().getTime());
+                    imgList.add(map);
+                }
             }
-            dto.setPictureAddress(excessPictureUrls.toString());
+            detailList.add(detail);
         }
         dto.setReviewDate(new Date());
         dto.setWaybillCode(waybillCode);
@@ -298,9 +322,11 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             if(BusinessUtil.isSignChar(baseEntity.getData().getWaybill().getWaybillSign(),56,'1')){
                 //信任商家
                 dto.setIsTrustBusi(1);
+                abnormalResultMq.setIsTrustMerchant(1);
             }else if(BusinessUtil.isSignInChars(baseEntity.getData().getWaybill().getWaybillSign(),56,'0','2','3')) {
                 //普通商家
                 dto.setIsTrustBusi(0);
+                abnormalResultMq.setIsTrustMerchant(0);
             }
         }
         String reviewErp = param.getLoginErp();
@@ -334,7 +360,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
 
         //查询运单称重流水
         String waybillCode = WaybillUtil.getWaybillCode(params.get(0).getPackageCode());
-        WaybillFlowDetail waybillFlowDetail = waybillPackageManager.getFirstWeightAndVolumeDetail(waybillCode);
+        WaybillFlowDetail waybillFlowDetail = getFirstWeightAndVolumeDetail(waybillCode);
         dto.setIsWaybillSpotCheck(0);
         dto.setSpotCheckType(1);
         dto.setReviewDate(new Date());
@@ -349,9 +375,11 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             if(BusinessUtil.isSignChar(baseEntity.getData().getWaybill().getWaybillSign(),56,'1')){
                 //信任商家
                 dto.setIsTrustBusi(1);
+                abnormalResultMq.setIsTrustMerchant(1);
             }else if(BusinessUtil.isSignInChars(baseEntity.getData().getWaybill().getWaybillSign(),56,'0','2','3')) {
                 //普通商家
                 dto.setIsTrustBusi(0);
+                abnormalResultMq.setIsTrustMerchant(0);
             }
         }
         String reviewErp = params.get(0).getLoginErp();
@@ -418,18 +446,6 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         dto.setBillingErp(waybillFlowDetail.getOperateErp());
         dto.setIsExcess(params.get(0).getIsExcess());
         dto.setIsHasPicture(params.get(0).getIsExcess());
-        if(params.get(0).getIsExcess() == 1){
-            //查询图片地址
-            StringBuilder excessPictureUrls = new StringBuilder();
-            for(WeightVolumeCheckOfB2bPackage param : params){
-                com.jd.bluedragon.distribution.base.domain.InvokeResult<List<String>> invokeResult
-                        = searchExcessPicture(param.getPackageCode(), params.get(0).getCreateSiteCode());
-                for(String url : invokeResult.getData()){
-                    excessPictureUrls.append(url).append(";");
-                }
-            }
-            dto.setPictureAddress(excessPictureUrls.toString());
-        }
     }
 
     @Override
@@ -482,7 +498,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         //判断是否超标
         Double nowWeight = condition.getWaybillWeight();
         Double nowVolume = condition.getWaybillVolume();
-        WaybillFlowDetail waybillFlowDetail = waybillPackageManager.getFirstWeightAndVolumeDetail(waybillCode);
+        WaybillFlowDetail waybillFlowDetail = getFirstWeightAndVolumeDetail(waybillCode);
         Double beforeWeight = waybillFlowDetail.getTotalWeight()==null?0.00:waybillFlowDetail.getTotalWeight();
         Double beforeVolume = waybillFlowDetail.getTotalVolume()==null?0.00:waybillFlowDetail.getTotalVolume();
         Boolean sign = isExcess(nowWeight,beforeWeight,1000000*nowVolume,beforeVolume);
@@ -504,7 +520,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         }
         String waybillCode = WaybillUtil.getWaybillCode(params.get(0).getPackageCode());
         //获取运单中的体积和重量
-        WaybillFlowDetail waybillFlowDetail = waybillPackageManager.getFirstWeightAndVolumeDetail(waybillCode);
+        WaybillFlowDetail waybillFlowDetail = getFirstWeightAndVolumeDetail(waybillCode);
         Double beforeWeight = waybillFlowDetail.getTotalWeight()==null?0.00:waybillFlowDetail.getTotalWeight();
         Double beforeVolume = waybillFlowDetail.getTotalVolume()==null?0.00:waybillFlowDetail.getTotalVolume();
         //判断是否超标
@@ -672,6 +688,188 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         }
 
         return result;
+    }
+
+
+    /**
+     1、取运单号相关的所有称重量方记录（包裹和运单维度的都要）
+     2、剔除重量体积均为0（注意，只剔除都是0的）的无意义的称重量方记录（多为系统卡控需要，实际并未称重）
+     3、按时间先后顺序，找到最早称重量方的人ERP
+     4、筛选出该ERP操作的所有称重量方记录
+     5、若既有整单录入又有包裹录入，以该ERP最后一次重量体积录入时的形式为准
+     6、若是整单，则取最后一次整单录入的重量体积为对比对象
+     7、若是包裹，则筛选出所有包裹维度称重量方的记录，然后以包裹维度进行去重，仅保留时间靠后的那条，最后汇总得到的重量体积为对比对象
+     */
+//    @Cache(key = "DMS.BASE.WaybillPackageManagerImpl.getFirstWeightAndVolumeDetail@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
+//            redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
+    public WaybillFlowDetail getFirstWeightAndVolumeDetail(String waybillCode){
+
+        WaybillFlowDetail waybillFlowDetail = new WaybillFlowDetail();
+        Page<PackFlowDetail> page = new Page<>();
+        page.setPageSize(1000);
+        com.jd.etms.waybill.domain.BaseEntity<Page<PackFlowDetail>> baseEntity = waybillPackageManager.getOpeDetailByCode(waybillCode,page);
+        if(baseEntity != null && baseEntity.getData() != null
+                && !CollectionUtils.isEmpty(baseEntity.getData().getResult())){
+            List<PackFlowDetail> list = baseEntity.getData().getResult();
+            List<PackFlowDetail> timeSortList = new ArrayList<>();
+            //排除重量体积均为0的情况(系统卡控)
+            for(PackFlowDetail detail : list){
+                if(detail==null || ((detail.getpWeight()!=null&&detail.getpWeight()==0)
+                        && (detail.getpLength()!=null&&detail.getpLength()==0&&detail.getpWidth()!=null&&detail.getpWidth()==0&&detail.getpHigh()!=null&&detail.getpHigh()==0))){
+                    continue;
+                }
+                timeSortList.add(detail);
+            }
+            if(CollectionUtils.isEmpty(timeSortList)){
+                return getWaybillFlowDetail(waybillCode,waybillFlowDetail);
+            }
+
+            List<PackFlowDetail> weightTimeSortList = new ArrayList<>();
+            List<PackFlowDetail> volumeTimeSortList = new ArrayList<>();
+            List<PackFlowDetail> finalList = new ArrayList<>();
+            //按称重时间从小到大排序
+            Collections.sort(timeSortList, new Comparator<PackFlowDetail>() {
+                @Override
+                public int compare(PackFlowDetail o1, PackFlowDetail o2) {
+                    if(o1.getWeighTime() == null || o2.getWeighTime() == null){
+                        return 0;
+                    }
+                    return o1.getWeighTime().compareTo(o2.getWeighTime());
+                }
+            });
+            weightTimeSortList.addAll(timeSortList);
+            //按量方时间从小到大排序
+            Collections.sort(timeSortList, new Comparator<PackFlowDetail>() {
+                @Override
+                public int compare(PackFlowDetail o1, PackFlowDetail o2) {
+                    if(o1.getMeasureTime() == null || o2.getMeasureTime() == null){
+                        return 0;
+                    }
+                    return o1.getMeasureTime().compareTo(o2.getMeasureTime());
+                }
+            });
+            volumeTimeSortList.addAll(timeSortList);
+            PackFlowDetail packFlowDetail = null;
+            String operateErp = null;
+            Date operatTime = null;
+            Date weightTime = weightTimeSortList.get(0).getWeighTime();
+            Date volumeTime = volumeTimeSortList.get(0).getWeighTime();
+            if(volumeTime == null
+                    || (weightTime!=null&&volumeTime!=null&&weightTime.getTime()>=volumeTime.getTime())){
+                finalList = weightTimeSortList;
+                packFlowDetail = weightTimeSortList.get(0);
+                operateErp = packFlowDetail.getWeighUserErp();
+                operatTime = packFlowDetail.getWeighTime();
+
+            }else if(weightTime == null
+                    || (weightTime!=null&&volumeTime!=null&&volumeTime.getTime()>=weightTime.getTime())){
+                finalList = volumeTimeSortList;
+                packFlowDetail = volumeTimeSortList.get(0);
+                operateErp = packFlowDetail.getMeasureUserErp();
+                operatTime = packFlowDetail.getMeasureTime();
+            }else {
+                return waybillFlowDetail;
+            }
+            waybillFlowDetail.setOperateErp(operateErp);
+            waybillFlowDetail.setOperateTime(operatTime);
+            waybillFlowDetail.setOperateSiteCode(packFlowDetail.getOperatorSiteId());
+            waybillFlowDetail.setOperateSiteName(packFlowDetail.getOperatorSite());
+            if(StringUtils.isEmpty(operateErp)){
+                return waybillFlowDetail;
+            }
+            //获取最早操作人的所有称重、量方记录
+            List<PackFlowDetail> realListOfWeight = new ArrayList<>();
+            realListOfWeight.add(packFlowDetail);
+            List<PackFlowDetail> realListOfVolume = new ArrayList<>();
+            realListOfWeight.add(packFlowDetail);
+            for(PackFlowDetail detail : finalList){
+                if(operateErp.equals(detail.getWeighUserErp())){
+                    realListOfWeight.add(detail);
+                }else if(operateErp.equals(detail.getMeasureUserErp())){
+                    realListOfVolume.add(detail);
+                }
+            }
+
+            //获取总重量体积并设置
+            Double totalWeight = getWeightOrVolume(realListOfWeight, 1);
+            Double totalVolume = getWeightOrVolume(realListOfVolume, 0);
+            waybillFlowDetail.setTotalWeight(totalWeight);
+            waybillFlowDetail.setTotalVolume(totalVolume);
+            return waybillFlowDetail;
+        }else {
+            logger.info("未获取到运单号"+waybillCode+"的称重流水");
+            getWaybillFlowDetail(waybillCode,waybillFlowDetail);
+        }
+        return waybillFlowDetail;
+    }
+
+    /**
+     * 获取重量或体积
+     * @param realList 流水记录
+     * @param type 1:获取重量
+     *             0:获取体积
+     * @return
+     */
+    private Double getWeightOrVolume(List<PackFlowDetail> realList,Integer type){
+        Double totalWeight = 0.00;
+        Double totalVolume = 0.00;
+        Map<String,PackFlowDetail> map1 = new LinkedHashMap<>();
+        Map<String,PackFlowDetail> map2 = new LinkedHashMap<>();
+        for(PackFlowDetail detail : realList){
+            if(WaybillUtil.isWaybillCode(detail.getPackageCode())){
+                map2.put(detail.getPackageCode(),detail);
+            }
+            map1.put(detail.getPackageCode(),detail);
+        }
+        if(map1.size() > map2.size()){
+            if(map2.size() != 0){
+                //既有整单又有包裹
+                List<PackFlowDetail> list = (List<PackFlowDetail>)map1.values();
+                PackFlowDetail flowDetail = list.get(list.size()-1);
+                totalWeight = flowDetail.getpWeight();
+                totalVolume = flowDetail.getpLength()*flowDetail.getpWidth()*flowDetail.getpHigh();
+            }else {
+                //包裹
+                for(String packageCode : map1.keySet()){
+                    PackFlowDetail flowDetail = map1.get(packageCode);
+                    totalWeight = totalWeight + flowDetail.getpWeight();
+                    totalVolume = totalVolume + (flowDetail.getpLength()*flowDetail.getpWidth()*flowDetail.getpHigh());
+                }
+            }
+        }else {
+            //整单
+            List<PackFlowDetail> list = (List<PackFlowDetail>)map1.values();
+            PackFlowDetail flowDetail = list.get(list.size()-1);
+            totalWeight = flowDetail.getpWeight();
+            totalVolume = flowDetail.getpLength()*flowDetail.getpWidth()*flowDetail.getpHigh();
+        }
+        if(type == 1){
+            return totalWeight;
+        }else {
+            return totalVolume;
+        }
+    }
+
+    /**
+     * 获取揽收单位信息
+     * @param waybillCode
+     * @return
+     */
+    private WaybillFlowDetail getWaybillFlowDetail(String waybillCode,WaybillFlowDetail waybillFlowDetail){
+        List<PackageState> list
+                = waybillTraceManager.getPkStateByWCodeAndState(waybillCode, Constants.WAYBILL_TRACE_STATE_COLLECT_COMPLETE);
+        if(list.size() > 0){
+            PackageState packageState = list.get(0);
+            waybillFlowDetail.setTotalWeight(0.00);
+            waybillFlowDetail.setTotalVolume(0.00);
+            waybillFlowDetail.setOperateSiteCode(packageState.getOperatorSiteId());
+            waybillFlowDetail.setOperateSiteName(packageState.getOperatorSite());
+            waybillFlowDetail.setOperateErp(packageState.getOperatorUserErp());
+            waybillFlowDetail.setOperateTime(packageState.getCreateTime());
+        }else {
+            logger.error("运单"+waybillCode+"没有揽收记录");
+        }
+        return waybillFlowDetail;
     }
 
 

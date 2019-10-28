@@ -20,9 +20,7 @@ $(function() {
 
                 var data = JSON.parse(result.data);
                 for(var packageCode in data){
-                    temp += "<tr><td rowspan='5' style='font-size: 20px'>"
-                        +packageCode+
-                        "</a></td>";
+                    temp += "<tr><td rowspan='5' style='font-size: 20px'>"+packageCode+"</a></td>";
                     var excessPictureUrl = data[packageCode][0];
                     temp += "<td><a href="+excessPictureUrl+" target='_blank'>"+excessPictureUrl+"</a></td>";
                     temp += "</tr>";
