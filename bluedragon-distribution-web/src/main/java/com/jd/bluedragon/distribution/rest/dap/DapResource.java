@@ -265,8 +265,8 @@ public class DapResource {
 			while (resultSet != null && resultSet.next()) {
 				dapInfo = new DapInfo();
 				dapInfo.setSpace1(resultSet.getObject("bar_code").toString());
-				dapInfo.setSpace2(resultSet.getObject("site_name").toString());
-				dapInfo.setSpace3(resultSet.getObject("operator_name").toString());
+				dapInfo.setSpace2(resultSet.getObject("site_name") == null ? "" : resultSet.getObject("site_name").toString());
+				dapInfo.setSpace3(resultSet.getObject("operator_name") == null ? "" : resultSet.getObject("operator_name").toString());
 				dapInfo.setSpace4(resultSet.getObject("operate_time").toString());
 				dapInfoList.add(dapInfo);
 			}
