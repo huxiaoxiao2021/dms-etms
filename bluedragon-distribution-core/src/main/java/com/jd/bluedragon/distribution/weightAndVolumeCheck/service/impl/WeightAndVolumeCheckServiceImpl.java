@@ -58,6 +58,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -147,7 +148,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     @Override
     public InvokeResult<String> searchPicture(String waybillCode,Integer siteCode,Integer isWaybillSpotCheck){
         InvokeResult<String> result = new InvokeResult<>();
-        Map<String,List<String>> map = new HashMap<>();
+        Map<String,List<String>> map = new LinkedHashMap<>();
         if(isWaybillSpotCheck!=null && isWaybillSpotCheck==1){
             //B网运单维度
             InvokeResult<List<String>> invokeResult = searchExcessPictureOfB2b(waybillCode, siteCode);

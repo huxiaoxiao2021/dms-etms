@@ -221,7 +221,19 @@ $(function () {
                 async: true,
                 success: function (data) {
                     if (data.code == 200) {
-                        $('#waybillDataTable').bootstrapTable('append', data.data);
+                        var sign = false;
+                        var allTableData = $('#waybillDataTable').bootstrapTable('getData');
+                        var result = data.data;
+                        $.each(allTableData,function(i,e){
+                            if(result[0].waybillCode == e.waybillCode){
+                                Jd.alert("运单号"+e.waybillCode+"已扫描请勿重复扫描!");
+                                sign = true;
+                                return;
+                            }
+                        });
+                        if(!sign){
+                            $('#waybillDataTable').bootstrapTable('append', data.data);
+                        }
                     }else {
                         Jd.alert(data.message);
                     }
@@ -232,7 +244,6 @@ $(function () {
 
         }else {
             //包裹维度组装表格数据
-            debugger;
             var allTableData = $('#packageDataTable').bootstrapTable('getData');
             var params = [];
             var flage = 0;

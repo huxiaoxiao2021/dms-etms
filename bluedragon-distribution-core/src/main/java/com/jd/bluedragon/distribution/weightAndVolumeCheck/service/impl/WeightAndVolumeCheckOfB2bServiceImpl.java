@@ -136,7 +136,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
                 spotCheckOfPackageDetail.setImgList(imgList);
                 com.jd.bluedragon.distribution.base.domain.InvokeResult<List<String>> invokeResult
                         = searchExcessPicture(param.getPackageCode(), param.getCreateSiteCode());
-                Map<String,String> map = new HashMap<>();
+                Map<String,String> map = new LinkedHashMap<>();
                 if(invokeResult != null && !CollectionUtils.isEmpty(invokeResult.getData())){
                     for(String url : invokeResult.getData()){
                         map.put(url,"");
@@ -476,6 +476,12 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             result.parameterError("运单数据为空!");
             return result;
         }
+        //是否妥投
+        boolean finished = waybillTraceManager.isWaybillFinished(waybillCode);
+        if(finished){
+            result.parameterError("此运单已经妥投、请勿操作!");
+            return result;
+        }
         //是否操作过抽检
         WeightVolumeQueryCondition weightVolumeQueryCondition = new WeightVolumeQueryCondition();
         weightVolumeQueryCondition.setPackageCode(waybillCode);
@@ -659,6 +665,10 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         if(baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null){
             if(!BusinessUtil.isB2b(baseEntity.getData().getWaybill().getWaybillSign())){
                 result.parameterError("此功能只支持B网运单抽检!");
+                return result;
+            }
+            if(waybillTraceManager.isWaybillFinished(waybillCode)){
+                result.parameterError("此运单已经妥投、请勿操作!");
                 return result;
             }
             //一单一检
