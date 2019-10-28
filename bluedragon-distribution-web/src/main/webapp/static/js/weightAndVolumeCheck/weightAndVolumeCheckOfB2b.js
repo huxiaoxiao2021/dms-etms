@@ -232,6 +232,7 @@ $(function () {
 
         }else {
             //包裹维度组装表格数据
+            debugger;
             var allTableData = $('#packageDataTable').bootstrapTable('getData');
             var params = [];
             var flage = 0;
@@ -240,6 +241,7 @@ $(function () {
                     flage = 1;
                 };
                 var param = {};
+                param.packageCode = e.packageCode;
                 param.weight = e.weight;
                 param.length = e.length;
                 param.width = e.width;

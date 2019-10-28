@@ -24,6 +24,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.waybill.common.Page;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.PackFlowDetail;
@@ -138,7 +139,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
                 Map<String,String> map = new HashMap<>();
                 if(invokeResult != null && !CollectionUtils.isEmpty(invokeResult.getData())){
                     for(String url : invokeResult.getData()){
-                        map.put(url,param.getPackageCode()+"_"+new Date().getTime());
+                        map.put(url,"");
                         imgList.add(map);
                     }
                 }
@@ -304,7 +305,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             if(invokeResult != null && !CollectionUtils.isEmpty(invokeResult.getData())){
                 for(String url : invokeResult.getData()){
                     Map<String,String> map = new HashMap<>();
-                    map.put(url,waybillCode+"_"+new Date().getTime());
+                    map.put(url,"");
                     imgList.add(map);
                 }
             }
@@ -568,6 +569,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
 
             abnormalResultMq.setWeight(BigDecimal.valueOf(dto.getBillingWeight()));
             abnormalResultMq.setVolume(BigDecimal.valueOf(dto.getBillingVolume()));
+            abnormalResultMq.setId(dto.getPackageCode() + "_" +dto.getReviewDate().getTime());
             abnormalResultMq.setAbnormalId(dto.getPackageCode() + "_" +dto.getReviewDate().getTime());
             abnormalResultMq.setReviewDate(dto.getReviewDate());
             abnormalResultMq.setReviewDutyType(2);
@@ -700,8 +702,8 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
      6、若是整单，则取最后一次整单录入的重量体积为对比对象
      7、若是包裹，则筛选出所有包裹维度称重量方的记录，然后以包裹维度进行去重，仅保留时间靠后的那条，最后汇总得到的重量体积为对比对象
      */
-//    @Cache(key = "DMS.BASE.WaybillPackageManagerImpl.getFirstWeightAndVolumeDetail@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
-//            redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
+    @Cache(key = "DMS.BASE.WaybillPackageManagerImpl.getFirstWeightAndVolumeDetail@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
     public WaybillFlowDetail getFirstWeightAndVolumeDetail(String waybillCode){
 
         WaybillFlowDetail waybillFlowDetail = new WaybillFlowDetail();
@@ -825,10 +827,17 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         if(map1.size() > map2.size()){
             if(map2.size() != 0){
                 //既有整单又有包裹
-                List<PackFlowDetail> list = (List<PackFlowDetail>)map1.values();
-                PackFlowDetail flowDetail = list.get(list.size()-1);
+                PackFlowDetail flowDetail = new PackFlowDetail();
+                for(String packageCode : map1.keySet()){
+                    flowDetail = map1.get(packageCode);
+                }
                 totalWeight = flowDetail.getpWeight();
-                totalVolume = flowDetail.getpLength()*flowDetail.getpWidth()*flowDetail.getpHigh();
+                if(flowDetail.getpLength()==null
+                        || flowDetail.getpWidth()==null || flowDetail.getpHigh()==null){
+                    totalVolume = 0.00;
+                }else {
+                    totalVolume = flowDetail.getpLength()*flowDetail.getpWidth()*flowDetail.getpHigh();
+                }
             }else {
                 //包裹
                 for(String packageCode : map1.keySet()){
@@ -839,10 +848,17 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             }
         }else {
             //整单
-            List<PackFlowDetail> list = (List<PackFlowDetail>)map1.values();
-            PackFlowDetail flowDetail = list.get(list.size()-1);
+            PackFlowDetail flowDetail = new PackFlowDetail();
+            for(String packageCode : map1.keySet()){
+                flowDetail = map1.get(packageCode);
+            }
             totalWeight = flowDetail.getpWeight();
-            totalVolume = flowDetail.getpLength()*flowDetail.getpWidth()*flowDetail.getpHigh();
+            if(flowDetail.getpLength()==null
+                    || flowDetail.getpWidth()==null || flowDetail.getpHigh()==null){
+                totalVolume = 0.00;
+            }else {
+                totalVolume = flowDetail.getpLength()*flowDetail.getpWidth()*flowDetail.getpHigh();
+            }
         }
         if(type == 1){
             return totalWeight;
