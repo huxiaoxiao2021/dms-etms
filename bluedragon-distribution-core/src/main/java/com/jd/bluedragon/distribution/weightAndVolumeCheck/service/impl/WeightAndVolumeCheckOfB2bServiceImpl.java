@@ -250,8 +250,6 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         String waybillCode = WaybillUtil.getWaybillCode(param.getWaybillOrPackageCode());
         WaybillFlowDetail waybillFlowDetail = getFirstWeightAndVolumeDetail(waybillCode);
 
-        abnormalResultMq.setDutyErp(waybillFlowDetail.getOperateErp());
-
         dto.setSpotCheckType(1);
         dto.setIsWaybillSpotCheck(1);
         dto.setBillingWeight(waybillFlowDetail.getTotalWeight()==null?0.00:waybillFlowDetail.getTotalWeight());
@@ -283,6 +281,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
                 abnormalResultMq.setSecondLevelName(baseStaffSiteOrgDto.getAreaName());
                 abnormalResultMq.setThreeLevelId(baseStaffSiteOrgDto.getSiteCode().toString());
                 abnormalResultMq.setThreeLevelName(baseStaffSiteOrgDto.getSiteName());
+                abnormalResultMq.setCarCaptionErp(waybillFlowDetail.getOperateErp());
             }else {
                 abnormalResultMq.setDutyType(5);
             }
@@ -446,6 +445,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
                 abnormalResultMq.setSecondLevelName(baseSiteInfoDto.getAreaName());
                 abnormalResultMq.setThreeLevelId(baseSiteInfoDto.getSiteCode().toString());
                 abnormalResultMq.setThreeLevelName(baseSiteInfoDto.getSiteName());
+                abnormalResultMq.setCarCaptionErp(waybillFlowDetail.getOperateErp());
             }else {
                 abnormalResultMq.setDutyType(5);
             }
@@ -601,7 +601,8 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             //默认值:不认责判责
             abnormalResultMq.setIsAccusation(1);
             abnormalResultMq.setIsNeedBlame(0);
-            abnormalResultMq.setOperateTime(dto.getReviewDate());
+            abnormalResultMq.setDutyErp(dto.getBillingErp());
+            abnormalResultMq.setReviewDutyErp(dto.getReviewErp());
             abnormalResultMq.setReviewErp(dto.getReviewErp());
             abnormalResultMq.setBusinessType(2);
 
