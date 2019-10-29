@@ -148,9 +148,9 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
 
                 detailList.add(spotCheckOfPackageDetail);
             }
-            abnormalResultMq.setPictureAddress(excessPictureUrl.toString());
             //数据落入es
             WeightVolumeCollectDto dto = new WeightVolumeCollectDto();
+            dto.setPictureAddress(excessPictureUrl.toString());
             assembleDataOfPackage(params,dto,abnormalResultMq);
             weightAndVolumeCheckService.setProductType(dto);
             reportExternalService.insertOrUpdateForWeightVolume(dto);
