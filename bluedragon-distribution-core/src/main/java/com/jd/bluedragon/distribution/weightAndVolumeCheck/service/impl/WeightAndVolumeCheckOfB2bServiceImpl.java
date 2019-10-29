@@ -125,6 +125,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
                 result.customMessage(600,"请勿重复提交!");
                 return result;
             }
+            StringBuilder excessPictureUrl = new StringBuilder();
             for(WeightVolumeCheckOfB2bPackage param : params){
                 SpotCheckOfPackageDetail spotCheckOfPackageDetail = new SpotCheckOfPackageDetail();
                 spotCheckOfPackageDetail.setBillCode(param.getPackageCode());
@@ -141,11 +142,13 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
                         Map<String,String> map = new LinkedHashMap<>();
                         map.put(url,"");
                         imgList.add(map);
+                        excessPictureUrl.append(url).append(";");
                     }
                 }
 
                 detailList.add(spotCheckOfPackageDetail);
             }
+            abnormalResultMq.setPictureAddress(excessPictureUrl.toString());
             //数据落入es
             WeightVolumeCollectDto dto = new WeightVolumeCollectDto();
             assembleDataOfPackage(params,dto,abnormalResultMq);
@@ -291,6 +294,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         }
         dto.setIsExcess(param.getIsExcess());
         dto.setIsHasPicture(param.getIsExcess());
+        StringBuilder excessPictureUrl = new StringBuilder();
         if(param.getIsExcess()==1){
             //查询图片地址
             com.jd.bluedragon.distribution.base.domain.InvokeResult<List<String>> invokeResult
@@ -307,10 +311,12 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
                     Map<String,String> map = new HashMap<>();
                     map.put(url,"");
                     imgList.add(map);
+                    excessPictureUrl.append(url).append(";");
                 }
             }
             detailList.add(detail);
         }
+        dto.setPictureAddress(excessPictureUrl.toString());
         dto.setReviewDate(new Date());
         dto.setWaybillCode(waybillCode);
         dto.setPackageCode(waybillCode);
