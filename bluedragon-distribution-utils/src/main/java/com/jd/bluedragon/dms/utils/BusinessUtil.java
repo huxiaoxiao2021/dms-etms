@@ -1010,4 +1010,14 @@ public class BusinessUtil {
     public static boolean isTrustBusi(String waybillSign){
         return isSignChar(waybillSign,WaybillSignConstants.POSITION_56,WaybillSignConstants.CHAR_56_1);
     }
+
+    /**
+     * 是否重货网运单
+     * @param waybillSign
+     * @return true 是，false 不是
+     */
+    public static boolean isHeavyCargo(String waybillSign){
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_36, WaybillSignConstants.CHAR_36_4);
+    }
+
 }

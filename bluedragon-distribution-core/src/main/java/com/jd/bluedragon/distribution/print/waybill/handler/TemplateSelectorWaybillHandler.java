@@ -23,10 +23,8 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintContext,JdResult<String>>{
 	private static final Log logger= LogFactory.getLog(TemplateSelectorWaybillHandler.class);
     
-    /**B网专用面单 **/
-    private static final String TEMPlATE_NAME_B2B_MAIN = "dms-b2b-new";
-    /** B网冷链面单 **/
-    private static final String TEMPlATE_NAME_B2B_COLD = "dms-b2b-cold";
+    /**B网统一面单 **/
+    private static final String TEMPlATE_NAME_B2B_MAIN = "dms-b2b-unite";
     /** TC面单 **/
     private static final String TEMPlATE_NAME_TC = "dms-b2b-m";
     /** C网统一面单-10*11 **/
@@ -86,9 +84,6 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
                 }else if (TemplateGroupEnum.TEMPLATE_GROUP_CODE_B.equals(basePrintWaybill.getTemplateGroupCode())) {
                     //waybillSign54位是2的普通冷链运单，54位为4的是冷链医药运单
                     if(BusinessUtil.isColdChainWaybill(waybillSign) || BusinessUtil.isBMedicine(waybillSign)){
-                        //冷链模板
-                        templateName = TEMPlATE_NAME_B2B_COLD;
-                    }else {
                         templateName = TEMPlATE_NAME_B2B_MAIN;
                     }
 
