@@ -64,7 +64,8 @@ public class PDDExternalJSFServiceImpl implements DMSExternalInPDDService {
             com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> waybillDtoBaseEntity = waybillQueryManager.getDataByChoice(waybillCode, wChoice);
 
             //如果运单中收件人电话或收件都是密文，则调用拼多多接口，否则直接返回运单数据
-            if(waybillDtoBaseEntity!=null&&waybillDtoBaseEntity.getData()!=null&&waybillDtoBaseEntity.getData().getWaybill()!=null) {
+            if(waybillDtoBaseEntity != null && Constants.RESULT_SUCCESS == waybillDtoBaseEntity.getResultCode()
+                    && waybillDtoBaseEntity.getData()!=null && waybillDtoBaseEntity.getData().getWaybill() != null) {
                 Waybill waybill = waybillDtoBaseEntity.getData().getWaybill();
 
                 if ((StringUtils.isNotBlank(waybill.getReceiverMobile())
