@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.print.waybill.handler;
 
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
+import com.jd.bluedragon.distribution.handler.InterceptHandler;
+import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.DmsPaperSize;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.crossbow.pdd.domain.PDDResponse;
@@ -14,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.MessageFormat;
+
 /**
  * <p>
  *     拼多多收寄件人的姓名和联系方式的处理，需要从拼多多的外部接口中获取，如果获取失败，则用原字符（来自运单加密字符）
@@ -22,7 +26,7 @@ import org.springframework.stereotype.Service;
  * @since 2019/10/16
  **/
 @Service("pddCustomerAndConsigneeInfoHandler")
-public class PDDCustomerAndConsigneeInfoHandler implements Handler<WaybillPrintContext, JdResult<String>> {
+public class PDDCustomerAndConsigneeInfoHandler implements InterceptHandler<WaybillPrintContext, String> {
 
     private static final Logger logger = LoggerFactory.getLogger(PDDCustomerAndConsigneeInfoHandler.class);
 
@@ -30,23 +34,32 @@ public class PDDCustomerAndConsigneeInfoHandler implements Handler<WaybillPrintC
     private PDDService pddService;
 
     @Override
-    public JdResult<String> handle(WaybillPrintContext context) {
+    public InterceptResult<String> handle(WaybillPrintContext context) {
+        InterceptResult<String> result = new InterceptResult<>();
+        result.toSuccess();//初始状态成功
+
         String waybillCode = WaybillUtil.getWaybillCode(context.getRequest().getBarCode());
+        /* 非拼多多订单不走获取拼多多数据逻辑 */
         if (!WaybillUtil.isPDDWaybillCode(waybillCode)) {
             logger.info("该单不是拼多多单，不需要从拼多多接口中获取收寄件人信息：{}", waybillCode);
-            return context.getResult();
+            return result;
         }
 
+        /* 10*5的面单无需获取拼多多面单联系人逻辑 */
         if (DmsPaperSize.PAPER_SIZE_CODE_1005.equals(context.getRequest().getPaperSizeCode())) {
             logger.info("该单打印的是10*5面单，不需要从拼多多接口中获取收寄件人信息：{}", waybillCode);
-            return context.getResult();
+            return result;
         }
+
+        /* todo 如果运单那边有联系人的联系方式则不调用拼多多的数据接口 */
+        /* todo 如果是分拣中心则不调用拼多多的数据接口 */
 
         PDDResponse<PDDWaybillDetailDto> pddWaybillDetailDtoPDDResponse = pddService.queryPDDWaybillByWaybillCode(waybillCode);
         if (pddWaybillDetailDtoPDDResponse == null || !Boolean.TRUE.equals(pddWaybillDetailDtoPDDResponse.getSuccess())
                 || pddWaybillDetailDtoPDDResponse.getResult() == null) {
             logger.warn("拼多多订单信息获取失败:{}",waybillCode);
-            return context.getResult();
+            result.toWeakSuccess(MessageFormat.format("该单【{0}】为拼多多订单，获取联系人信息失败", waybillCode));
+            return result;
         }
 
         PDDWaybillDetailDto pddWaybillDetailDto = pddWaybillDetailDtoPDDResponse.getResult();
