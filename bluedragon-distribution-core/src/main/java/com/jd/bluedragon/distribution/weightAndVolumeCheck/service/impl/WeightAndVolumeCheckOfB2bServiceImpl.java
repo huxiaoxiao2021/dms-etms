@@ -136,9 +136,9 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
                 spotCheckOfPackageDetail.setImgList(imgList);
                 com.jd.bluedragon.distribution.base.domain.InvokeResult<List<String>> invokeResult
                         = searchExcessPicture(param.getPackageCode(), param.getCreateSiteCode());
-                Map<String,String> map = new LinkedHashMap<>();
                 if(invokeResult != null && !CollectionUtils.isEmpty(invokeResult.getData())){
                     for(String url : invokeResult.getData()){
+                        Map<String,String> map = new LinkedHashMap<>();
                         map.put(url,"");
                         imgList.add(map);
                     }
