@@ -1,6 +1,7 @@
 package com.jd.bluedragon.external.crossbow.pdd;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.external.pdd.DMSExternalInPDDService;
 import com.jd.bluedragon.distribution.external.pdd.domain.PDDWaybillPrintInfoDto;
 import com.jd.bluedragon.distribution.external.pdd.domain.PDDWaybillPrintInfoRequest;
@@ -11,8 +12,12 @@ import com.jd.bluedragon.external.crossbow.pdd.domain.PDDWaybillQueryDto;
 import com.jd.bluedragon.external.crossbow.pdd.service.PDDService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,9 +41,52 @@ public class PDDExternalJSFServiceImpl implements DMSExternalInPDDService {
     @Autowired
     private PDDService pddService;
 
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
+
     @Override
+    /**
+     * 获取拼多多运单数据
+     * 如果运单中电话或手机非密文 则返回运单数据，否则调用拼多多接口返回数据
+     */
     public BaseEntity<PDDWaybillPrintInfoDto> queryPDDWaybillByWaybillCode(String waybillCode) {
         try {
+            BaseEntity<PDDWaybillPrintInfoDto> baseEntity = new BaseEntity<>(BaseEntity.CODE_SUCCESS, BaseEntity.MESSAGE_SUCCESS);
+
+            //初始化运单数据
+            WChoice wChoice = new WChoice();
+            wChoice.setQueryWaybillC(Boolean.TRUE);
+            wChoice.setQueryWaybillE(Boolean.TRUE);
+            wChoice.setQueryWaybillM(Boolean.TRUE);
+            wChoice.setQueryWaybillExtend(Boolean.TRUE);
+            wChoice.setQueryWaybillP(Boolean.TRUE);
+
+            com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> waybillDtoBaseEntity = waybillQueryManager.getDataByChoice(waybillCode, wChoice);
+
+            //如果运单中收件人电话或收件都是密文，则调用拼多多接口，否则直接返回运单数据
+            if(waybillDtoBaseEntity!=null&&waybillDtoBaseEntity.getData()!=null&&waybillDtoBaseEntity.getData().getWaybill()!=null) {
+                Waybill waybill = waybillDtoBaseEntity.getData().getWaybill();
+
+                if ((StringUtils.isNotBlank(waybill.getReceiverMobile())
+                        && waybill.getReceiverMobile().indexOf('*') == -1)
+                        || (StringUtils.isNotBlank(waybill.getReceiverTel())
+                        && waybill.getReceiverTel().indexOf('*') == -1)) {
+
+                    /* 对运单接口接口返回内容进行重新组装返回 */
+                    PDDWaybillPrintInfoDto pddWaybillPrintInfoDto = new PDDWaybillPrintInfoDto();
+                    pddWaybillPrintInfoDto.setWaybillCode(waybillCode);
+                    pddWaybillPrintInfoDto.setSenderName(waybill.getConsigner());
+                    pddWaybillPrintInfoDto.setSenderMobile(waybill.getConsignerMobile());
+                    pddWaybillPrintInfoDto.setSenderPhone(waybill.getConsignerTel());
+                    pddWaybillPrintInfoDto.setConsigneeName(waybill.getReceiverName());
+                    pddWaybillPrintInfoDto.setConsigneeMobile(waybill.getReceiverMobile());
+                    pddWaybillPrintInfoDto.setConsigneePhone(waybill.getReceiverTel());
+                    baseEntity.setData(pddWaybillPrintInfoDto);
+                    return baseEntity;
+
+                }
+            }
+
             /* 调用拼多多的接口 */
             PDDWaybillQueryDto condition = new PDDWaybillQueryDto();
             condition.setWaybillCode(waybillCode);
@@ -53,7 +101,6 @@ public class PDDExternalJSFServiceImpl implements DMSExternalInPDDService {
             }
             /* 对拼多多接口返回内容进行重新组装返回 */
             PDDWaybillDetailDto pddWaybillDetailDto = response.getResult();
-            BaseEntity<PDDWaybillPrintInfoDto> baseEntity = new BaseEntity<>(BaseEntity.CODE_SUCCESS, BaseEntity.MESSAGE_SUCCESS);
             PDDWaybillPrintInfoDto pddWaybillPrintInfoDto = new PDDWaybillPrintInfoDto();
             pddWaybillPrintInfoDto.setWaybillCode(waybillCode);
             pddWaybillPrintInfoDto.setSenderName(pddWaybillDetailDto.getSenderName());
@@ -78,6 +125,7 @@ public class PDDExternalJSFServiceImpl implements DMSExternalInPDDService {
         CallerInfo callerInfo = Profiler.registerInfo("dms.web." + request.getSystemFlag() + ".PDDExternalJSFServiceImpl.queryWaybillByWaybillCode",
                 Constants.UMP_APP_NAME_DMSWEB, false, true);
         BaseEntity<PDDWaybillPrintInfoDto> result = queryPDDWaybillByWaybillCode(request.getWaybillCode());
+        logger.info(MessageFormat.format("JsfService.pdd.queryWaybillByWaybillCode,req:{0},resp:{1}", JsonHelper.toJson(request),JsonHelper.toJson(result)));
         Profiler.registerInfoEnd(callerInfo);
         return result;
     }

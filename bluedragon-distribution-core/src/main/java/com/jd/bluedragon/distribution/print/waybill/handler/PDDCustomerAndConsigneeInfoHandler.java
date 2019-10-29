@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
-import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.handler.Handler;
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.DmsPaperSize;
@@ -10,6 +12,7 @@ import com.jd.bluedragon.external.crossbow.pdd.domain.PDDResponse;
 import com.jd.bluedragon.external.crossbow.pdd.domain.PDDWaybillDetailDto;
 import com.jd.bluedragon.external.crossbow.pdd.service.PDDService;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
+import java.util.List;
 
 /**
  * <p>
@@ -33,11 +37,15 @@ public class PDDCustomerAndConsigneeInfoHandler implements InterceptHandler<Wayb
     @Autowired
     private PDDService pddService;
 
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    private SysConfigService sysConfigService;
+
     @Override
     public InterceptResult<String> handle(WaybillPrintContext context) {
-        InterceptResult<String> result = new InterceptResult<>();
-        result.toSuccess();//初始状态成功
-
+        InterceptResult<String> result = context.getResult();
         String waybillCode = WaybillUtil.getWaybillCode(context.getRequest().getBarCode());
         /* 非拼多多订单不走获取拼多多数据逻辑 */
         if (!WaybillUtil.isPDDWaybillCode(waybillCode)) {
@@ -51,8 +59,25 @@ public class PDDCustomerAndConsigneeInfoHandler implements InterceptHandler<Wayb
             return result;
         }
 
-        /* todo 如果运单那边有联系人的联系方式则不调用拼多多的数据接口 */
-        /* todo 如果是分拣中心则不调用拼多多的数据接口 */
+        //获取操作人所属站点匹配是否为分拣中心，当时分拣中心并且操作的是包裹补打的时候需提示只能补打10*5面单
+        //开关
+        BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByStaffId(context.getRequest().getUserCode());
+        if(dto!=null && Integer.valueOf(64).equals(dto.getSiteType())){
+            if(notNeedPddOfPrintType(context.getRequest().getOperateType())){
+                result.toFail(MessageFormat.format("该单【{0}】为拼多多订单，请补打标签尺寸为10*5的包裹签", waybillCode));
+                logger.info(result.getMessage());
+                return result;
+            }
+        }
+
+        //判断运单中的收件人手机号或电话号都为非密文，则直接返回不需要调用拼多多
+        if( (StringUtils.isNotBlank(context.getBigWaybillDto().getWaybill().getReceiverMobile())
+                && context.getBigWaybillDto().getWaybill().getReceiverMobile().indexOf('*') == -1)
+            || (StringUtils.isNotBlank(context.getBigWaybillDto().getWaybill().getReceiverTel())
+                && context.getBigWaybillDto().getWaybill().getReceiverTel().indexOf('*') ==-1)){
+            logger.info(MessageFormat.format("该单【{0}】为拼多多订单，运单中的手机号或电话号非密文，不调用拼多多接口", waybillCode));
+            return result;
+        }
 
         PDDResponse<PDDWaybillDetailDto> pddWaybillDetailDtoPDDResponse = pddService.queryPDDWaybillByWaybillCode(waybillCode);
         if (pddWaybillDetailDtoPDDResponse == null || !Boolean.TRUE.equals(pddWaybillDetailDtoPDDResponse.getSuccess())
@@ -89,7 +114,17 @@ public class PDDCustomerAndConsigneeInfoHandler implements InterceptHandler<Wayb
             context.getBasePrintWaybill().setTelLast(tel.substring(tel.length() - StringHelper.PHONE_HIGHLIGHT_NUMBER));
         }
 
-        return context.getResult();
+        return result;
+    }
+
+    private boolean notNeedPddOfPrintType(Integer printType){
+        SysConfigContent content = sysConfigService.getSysConfigJsonContent(Constants.SYS_CONFIG_PDD_PRINT_TYPE_NOT_USE);
+        if (content != null) {
+            if (content.getMasterSwitch() || content.getKeyCodes().contains(printType.toString())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private final String concatPhone(String mobile,String phone){

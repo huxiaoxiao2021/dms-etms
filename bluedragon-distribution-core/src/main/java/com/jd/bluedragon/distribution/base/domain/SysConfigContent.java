@@ -12,6 +12,8 @@ public class SysConfigContent implements Serializable {
 
     private Boolean masterSwitch;
     private List<Integer> siteCodes;
+    private List<String> keyCodes;
+
 
     public Boolean getMasterSwitch() {
         return masterSwitch;
@@ -27,6 +29,14 @@ public class SysConfigContent implements Serializable {
 
     public void setSiteCodes(List<Integer> siteCodes) {
         this.siteCodes = siteCodes;
+    }
+
+    public List<String> getKeyCodes() {
+        return keyCodes;
+    }
+
+    public void setKeyCodes(List<String> keyCodes) {
+        this.keyCodes = keyCodes;
     }
 
     public String toString(){
