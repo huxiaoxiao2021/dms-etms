@@ -140,7 +140,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
                 if(invokeResult != null && !CollectionUtils.isEmpty(invokeResult.getData())){
                     for(String url : invokeResult.getData()){
                         Map<String,String> map = new LinkedHashMap<>();
-                        map.put(url,"");
+                        map.put("url",url);
                         imgList.add(map);
                         excessPictureUrl.append(url).append(";");
                     }
@@ -309,7 +309,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             if(invokeResult != null && !CollectionUtils.isEmpty(invokeResult.getData())){
                 for(String url : invokeResult.getData()){
                     Map<String,String> map = new HashMap<>();
-                    map.put(url,"");
+                    map.put("url",url);
                     imgList.add(map);
                     excessPictureUrl.append(url).append(";");
                 }
