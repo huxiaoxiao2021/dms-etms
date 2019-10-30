@@ -31,7 +31,6 @@ import com.jd.etms.waybill.domain.PackFlowDetail;
 import com.jd.etms.waybill.domain.PackageState;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.report.ReportExternalService;
 import com.jd.ql.dms.report.domain.BaseEntity;
@@ -302,7 +301,8 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             abnormalResultMq.setDetailList(detailList);
             SpotCheckOfPackageDetail detail = new SpotCheckOfPackageDetail();
             detail.setBillCode(waybillCode);
-            detail.setLength(dto.getBillingVolume());
+            detail.setWeight(param.getWaybillWeight());
+            detail.setLength(param.getWaybillVolume()==null?0:param.getWaybillVolume()*1000000);
             List<Map<String,String>> imgList = new ArrayList<>();
             detail.setImgList(imgList);
             if(invokeResult != null && !CollectionUtils.isEmpty(invokeResult.getData())){
@@ -415,7 +415,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         dto.setWeightDiff(new DecimalFormat("#0.00").format(dto.getReviewWeight() - dto.getBillingWeight()));
         dto.setVolumeWeightDiff(new DecimalFormat("#0.00").format(dto.getReviewVolumeWeight() - dto.getBillingVolumeWeight()));
 
-        BaseSiteInfoDto baseSiteInfoDto = baseMajorManager.getBaseSiteInfoBySiteId(waybillFlowDetail.getOperateSiteCode());
+        BaseStaffSiteOrgDto baseSiteInfoDto = baseMajorManager.getBaseSiteBySiteId(waybillFlowDetail.getOperateSiteCode());
         if(baseSiteInfoDto != null){
             dto.setBillingOrgCode(baseSiteInfoDto.getOrgId());
             dto.setBillingOrgName(baseSiteInfoDto.getOrgName());
@@ -561,6 +561,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         try {
 
             abnormalResultMq.setFrom(SystemEnum.DMS.getCode().toString());
+            abnormalResultMq.setDutyErp(dto.getBillingErp());
             if(abnormalResultMq.getDutyType() != null){
                 if(abnormalResultMq.getDutyType()==2 || abnormalResultMq.getDutyType()==6
                         || (abnormalResultMq.getDutyType()==3&&StringUtils.isEmpty(abnormalResultMq.getDutyErp()))){
@@ -597,11 +598,9 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             abnormalResultMq.setVolumeDiff(Double.parseDouble(dto.getVolumeWeightDiff()));
             abnormalResultMq.setDiffStandard(dto.getDiffStandard());
             abnormalResultMq.setIsExcess(dto.getIsExcess());
-            abnormalResultMq.setPictureAddress(dto.getPictureAddress());
             //默认值:不认责判责
             abnormalResultMq.setIsAccusation(1);
             abnormalResultMq.setIsNeedBlame(0);
-            abnormalResultMq.setDutyErp(dto.getBillingErp());
             abnormalResultMq.setReviewDutyErp(dto.getReviewErp());
             abnormalResultMq.setReviewErp(dto.getReviewErp());
             abnormalResultMq.setBusinessType(2);
