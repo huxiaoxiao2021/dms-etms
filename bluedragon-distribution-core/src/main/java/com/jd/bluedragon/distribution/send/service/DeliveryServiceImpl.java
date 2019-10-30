@@ -117,7 +117,9 @@ import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.transboard.api.dto.OperatorInfo;
 import com.jd.transboard.api.dto.Response;
+import com.jd.transboard.api.service.GroupBoardService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -136,20 +138,8 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @Service("deliveryService")
@@ -252,6 +242,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private BaseService baseService;
+
+    @Autowired
+    private GroupBoardService groupBoardService;
 
     @Autowired
     @Qualifier("turnoverBoxMQ")
@@ -1844,6 +1837,14 @@ public class DeliveryServiceImpl implements DeliveryService {
                 }
                 //生产一个按板号取消发货的任务
                 pushBoardSendTask(tSendM,Task.TASK_TYPE_BOARD_SEND_CANCEL);
+                //将板由“关闭”状态变为“组板中”的状态
+                OperatorInfo operatorInfo = new OperatorInfo();
+                operatorInfo.setOperatorErp(Integer.toString(tSendM.getUpdateUserCode()));
+                operatorInfo.setOperatorName(tSendM.getUpdaterUser());
+                operatorInfo.setSiteCode(tSendM.getCreateSiteCode());
+                List<String> boardList = new ArrayList<>();
+                boardList.add(tSendM.getBoardCode());
+                groupBoardService.resuseBoards(boardList,operatorInfo);
                 return new ThreeDeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, null);
             } else if (BusinessHelper.isSendCode(tSendM.getSendCode()) && tSendM.getCreateSiteCode() != null) {
                 CallerInfo callerInfo = Profiler.registerInfo("DMS.WEB.deliveryService.cancelBySendCode",Constants.SYSTEM_CODE_WEB,false,true);
@@ -1857,12 +1858,16 @@ public class DeliveryServiceImpl implements DeliveryService {
                     return new ThreeDeliveryResponse(DeliveryResponse.CODE_Delivery_NO_MESAGE,
                             DeliveryResponse.MESSAGE_DELIVERY_NO_SENDCODE, null);
                 }
+                Set<String> boardSet = new TreeSet<>();
                 /* 循环处理明细数据，分包裹和箱号两种，按批次号取消的场景大循环需要注意 */
                 for (SendM sendMItem : sendMList) {
                     sendMItem.setOperateTime(tSendM.getOperateTime());
                     sendMItem.setUpdateTime(tSendM.getUpdateTime());
                     sendMItem.setUpdaterUser(tSendM.getUpdaterUser());
                     sendMItem.setUpdateUserCode(tSendM.getUpdateUserCode());
+
+                    //将板号添加到板号集合中
+                    boardSet.add(sendMItem.getBoardCode());
 
                     /* 根据sendM组装sendD请求条件 */
                     SendDetail mSendDetail = new SendDetail();
@@ -1905,6 +1910,17 @@ public class DeliveryServiceImpl implements DeliveryService {
                     sendMessage(tlist, sendMItem, needSendMQ);
                     delDeliveryFromRedis(sendMItem);//取消发货成功，删除redis缓存的发货数据 根据boxCode和createSiteCode
                 }
+                //将板号的集合转换成String类型的列表
+                List<String> boardList = new ArrayList<>();
+                for (String boardCode : boardSet) {
+                    boardList.add(boardCode);
+                }
+                OperatorInfo operatorInfo = new OperatorInfo();
+                operatorInfo.setOperatorErp(Integer.toString(tSendM.getUpdateUserCode()));
+                operatorInfo.setOperatorName(tSendM.getUpdaterUser());
+                operatorInfo.setSiteCode(tSendM.getCreateSiteCode());
+                //取消板号的关闭状态
+                groupBoardService.resuseBoards(boardList,operatorInfo);
                 Profiler.registerInfoEnd(callerInfo);
                 return new ThreeDeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, null);
             }
