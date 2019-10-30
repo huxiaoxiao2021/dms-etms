@@ -9,8 +9,11 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ldop.utils.Assert;
 import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.transboard.api.dto.AddBoardRequest;
 import com.jd.transboard.api.dto.Board;
+import com.jd.transboard.api.dto.OperatorInfo;
 import com.jd.transboard.api.dto.Response;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -198,6 +201,18 @@ public class BoardCombinationResource {
         }
 
         return result;
+    }
+
+    @GET
+    @Path("/boardLablePrint/createBoard")
+    public Response<List<Board>> createBoard(AddBoardRequest request){
+
+        Assert.notNull(request,"request must not be null");
+        Assert.notNull(request.getDestination(),"request destination must not be null");
+        Assert.notNull(request.getDestinationId(),"request destinationId must not be null");
+        Assert.notNull(request.getBoardCount(),"request boardCount must not be null");
+        this.logger.info("AddBoardRequest's " + request.toString());
+        return boardCombinationService.createBoard(request);
     }
 
     /**

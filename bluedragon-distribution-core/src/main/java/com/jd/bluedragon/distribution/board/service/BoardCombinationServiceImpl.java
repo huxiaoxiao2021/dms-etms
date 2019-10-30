@@ -1,9 +1,6 @@
 package com.jd.bluedragon.distribution.board.service;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.domain.Pack;
-import com.jd.bluedragon.common.domain.Waybill;
-import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -30,10 +27,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
-import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.etms.waybill.dto.WChoice;
 import com.alibaba.fastjson.JSON;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.transboard.api.dto.*;
@@ -632,6 +626,17 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.BoardCombinationServiceImpl.getBoardCodeByBoxCode", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Response<Board> getBoardByBoxCode(Integer siteCode, String boxCode) {
         return groupBoardService.getBoardByBoxCode(boxCode, siteCode);
+    }
+
+    /**
+     *创建新的板号
+     *
+     * @return
+     */
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.BoardCombinationServiceImpl.createBoard", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Response<List<Board>> createBoard(AddBoardRequest request){
+        return  groupBoardService.createBoards(request);
     }
 
     /**
