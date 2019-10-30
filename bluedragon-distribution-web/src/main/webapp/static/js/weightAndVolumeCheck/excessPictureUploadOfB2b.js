@@ -93,6 +93,7 @@ $(function () {
                 }else{
                     $(param4).css("display","block");
                     $(param5).val(0);
+                    Jd.alert(data.message);
                 }
             }
         });

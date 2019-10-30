@@ -46,10 +46,10 @@ public class SpotCheckConsumer extends MessageBaseConsumer {
             SpotCheckConsumer.AbnormalMqOfB2bSpotCheck pictureInfoMq = JsonHelper.fromJsonUseGson(message.getText(), SpotCheckConsumer.AbnormalMqOfB2bSpotCheck.class);
 
             //来源分拣、主动认责、B2b抽检
-            Integer source = pictureInfoMq.getSource();
+            String to = pictureInfoMq.getTo();
             Integer blameType = pictureInfoMq.getBlameType();
             Integer businessType = pictureInfoMq.getBusinessType();
-            if(source!=null&&source==2
+            if(to!=null&&to.equals("2")
                     &&businessType!=null&&businessType==2
                     &&blameType!=null&&blameType==1){
                 //B网抽检且主动认责

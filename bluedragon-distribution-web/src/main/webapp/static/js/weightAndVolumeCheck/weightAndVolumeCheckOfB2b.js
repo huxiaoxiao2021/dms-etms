@@ -80,10 +80,10 @@ $(function () {
                 'click .search': function(e, value, row, index) {
                     var rowIndex = this.parentNode.parentNode.rowIndex;
                     var count = $('#waybillDataTable')[0].rows[rowIndex].cells[6].innerHTML;
-                    if(count == 0){
-                        Jd.alert("请先上传超标图片!");
-                        return;
-                    };
+                    // if(count == 0){
+                    //     Jd.alert("请先上传超标图片!");
+                    //     return;
+                    // };
                     $.ajax({
                         type : "get",
                         url : searchExcessPictureUrl + "?waybillOrPackageCode=" + row.waybillCode + "&siteCode=" + $('#createSiteCode').val(),
