@@ -251,7 +251,7 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
             wChoice.setQueryGoodList(true);
             wChoice.setQueryPackList(true);
             BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoiceNoCache(waybillCode,wChoice);//根据新单号获取运单信息
-            if (baseEntity != null && baseEntity.getData() != null ) {
+            if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null ) {
                 if(BusinessHelper.isC2c(baseEntity.getData().getWaybill().getWaybillSign())){
                     //C2C纯配  C2C纯配满足纯配的标所以优先判断
                     makeOtherSuccess = makeC2cOther(baseEntity,waybillCode, inboundOrder);
@@ -286,7 +286,10 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
     private boolean makeC2cOther(BaseEntity<BigWaybillDto> baseEntity,String waybillCode, InboundOrder inboundOrder) {
         //获取依赖数据
         List<DeliveryPackageD> packageDList = baseEntity.getData().getPackageList();
-        String goodName = baseEntity.getData().getWaybill().getGoodName();
+        String goodName = StringUtils.EMPTY;
+        if(baseEntity.getData().getWaybill().getWaybillExt()!=null){
+            goodName = baseEntity.getData().getWaybill().getWaybillExt().getConsignWare();
+        }
         String oldWaybillCodeV1;
         BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill1 = waybillQueryManager.getWaybillByReturnWaybillCode(waybillCode);
         if (oldWaybill1 != null && oldWaybill1.getData() != null && oldWaybill1.getData().getBusiOrderCode() != null) {
