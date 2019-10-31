@@ -4,7 +4,7 @@ package com.jd.bluedragon.distribution.api.dto;
  * @author lijie
  * @date 2019/10/31 13:55
  */
-public class Board {
+public class BoardDto {
 
     private String code;
     private String destination;

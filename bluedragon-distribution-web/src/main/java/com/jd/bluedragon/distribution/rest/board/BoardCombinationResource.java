@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.rest.board;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.api.dto.BoardDto;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
@@ -205,7 +206,7 @@ public class BoardCombinationResource {
 
     @GET
     @Path("/boardLablePrint/createBoard")
-    public JdResponse<List<com.jd.bluedragon.distribution.api.dto.Board>> createBoard(AddBoardRequest request){
+    public JdResponse<List<BoardDto>> createBoard(AddBoardRequest request){
 
         Assert.notNull(request,"request must not be null");
         Assert.notNull(request.getDestination(),"request destination must not be null");

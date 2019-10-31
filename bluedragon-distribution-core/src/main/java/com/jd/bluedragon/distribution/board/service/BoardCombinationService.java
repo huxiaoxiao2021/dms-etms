@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.board.service;
 
+import com.jd.bluedragon.distribution.api.dto.BoardDto;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.send.domain.SendM;
@@ -61,7 +62,7 @@ public interface BoardCombinationService {
      * @param request
      * @return
      */
-    public JdResponse<List<com.jd.bluedragon.distribution.api.dto.Board>> createBoard(AddBoardRequest request);
+    public JdResponse<List<BoardDto>> createBoard(AddBoardRequest request);
 
     /**
      * 清除组板时加的板号缓存
