@@ -1842,6 +1842,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                 operatorInfo.setOperatorErp(Integer.toString(tSendM.getUpdateUserCode()));
                 operatorInfo.setOperatorName(tSendM.getUpdaterUser());
                 operatorInfo.setSiteCode(tSendM.getCreateSiteCode());
+                operatorInfo.setSiteName(baseMajorManager.getBaseSiteBySiteId(tSendM.getCreateSiteCode()).getSiteName());
                 List<String> boardList = new ArrayList<>();
                 boardList.add(tSendM.getBoardCode());
                 groupBoardService.resuseBoards(boardList,operatorInfo);
@@ -1919,6 +1920,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                 operatorInfo.setOperatorErp(Integer.toString(tSendM.getUpdateUserCode()));
                 operatorInfo.setOperatorName(tSendM.getUpdaterUser());
                 operatorInfo.setSiteCode(tSendM.getCreateSiteCode());
+                operatorInfo.setSiteName(baseMajorManager.getBaseSiteBySiteId(tSendM.getCreateSiteCode()).getSiteName());
                 //取消板号的关闭状态
                 groupBoardService.resuseBoards(boardList,operatorInfo);
                 Profiler.registerInfoEnd(callerInfo);
