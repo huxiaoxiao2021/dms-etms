@@ -1937,6 +1937,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 }
                 this.logger.info("eclp退备件库报文："+JsonHelper.toJson(inboundOrder));
                 OrderResponse orderResponse = eclpItemManager.createInboundOrder(inboundOrder);
+                pushInboundOrderToSpwmsLog(sendDetail,inboundOrder,orderResponse);
                 if(orderResponse != null && orderResponse.getResCode() != 200){
                     this.logger.error("ECLP退备件库失败,运单号:"+waybillCode+",原因：" + orderResponse.getMessage());
                 }
@@ -1947,6 +1948,26 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             }
         }catch (Exception e){
             logger.error("ECLP退备件库异常",e);
+        }
+    }
+
+    private void pushInboundOrderToSpwmsLog(SendDetail sendDetail,InboundOrder inboundOrder,OrderResponse orderResponse){
+        try{
+            //增加系统日志
+            SystemLog sLogDetail = new SystemLog();
+            sLogDetail.setKeyword1(sendDetail.getWaybillCode());
+            sLogDetail.setKeyword2(sendDetail.getSendCode());
+            sLogDetail.setKeyword3("ECLPSpwms");
+            if(orderResponse == null){
+                sLogDetail.setKeyword4(Long.valueOf(Constants.RESULT_ERROR));
+            }else{
+                sLogDetail.setKeyword4(Long.valueOf(orderResponse.getResCode()));
+            }
+            sLogDetail.setType(Long.valueOf(12004));
+            sLogDetail.setContent(JsonHelper.toJson(inboundOrder));
+            SystemLogUtil.log(sLogDetail);
+        }catch (Exception e){
+            logger.error("pushInboundOrderToSpwmsLogError",e);
         }
     }
 

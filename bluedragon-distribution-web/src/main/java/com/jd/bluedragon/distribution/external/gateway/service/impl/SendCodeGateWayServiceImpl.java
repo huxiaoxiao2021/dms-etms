@@ -1,14 +1,20 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.ServiceMessage;
+import com.jd.bluedragon.common.domain.ServiceResultEnum;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
-import com.jd.bluedragon.common.dto.sendcode.response.SendCodeCheckDto;
 import com.jd.bluedragon.common.dto.sendcode.response.BatchSendCarInfoDto;
+import com.jd.bluedragon.common.dto.sendcode.response.SendCodeCheckDto;
+import com.jd.bluedragon.common.dto.sendcode.response.SendCodeInfoDto;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.base.domain.CreateAndReceiveSiteInfo;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
+import com.jd.bluedragon.distribution.departure.service.DepartureService;
+import com.jd.bluedragon.distribution.rest.base.SiteResource;
 import com.jd.bluedragon.distribution.rest.send.DeliveryResource;
 import com.jd.bluedragon.distribution.rest.sendprint.SendPrintResource;
 import com.jd.bluedragon.distribution.sendprint.domain.BatchSendInfoResponse;
@@ -19,6 +25,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -43,6 +50,13 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
     @Autowired
     @Qualifier("deliveryResource")
     private DeliveryResource deliveryResource;
+
+    @Autowired
+    private DepartureService departureService;
+
+    @Autowired
+    @Qualifier("siteResource")
+    private SiteResource siteResource;
 
     @Override
     @JProfiler(jKey = "DMSWEB.SendCodeGateWayServiceImpl.carrySendCarInfoNew",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -126,5 +140,37 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
             jdVerifyResponse.addPromptBox(0,"派送至加盟商请复重！");
         }
         return jdVerifyResponse;
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.SendCodeGateWayServiceImpl.checkSendCodeForPickupRegister",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<SendCodeInfoDto> checkSendCodeForPickupRegister(String sendCode) {
+        JdCResponse<SendCodeInfoDto> jdCResponse = new JdCResponse<>();
+        if(StringUtils.isEmpty(sendCode)){
+            jdCResponse.toError("请输入批次号！");
+            return jdCResponse;
+        }
+        ServiceMessage<Boolean> sendCodeCheck = departureService.checkSendStatusFromVOS(sendCode);
+        if(!ServiceResultEnum.SUCCESS.equals(sendCodeCheck.getResult())){//已经封车
+            jdCResponse.toError("批次号已经封车，请更换批次！");
+            return jdCResponse;
+        }
+        InvokeResult<CreateAndReceiveSiteInfo> invokeResult = siteResource.getSitesInfoBySendCode(sendCode);
+        if(invokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE || invokeResult.getData() == null){
+            jdCResponse.toError(invokeResult.getMessage());
+            return jdCResponse;
+        }
+        jdCResponse.toSucceed();
+        SendCodeInfoDto sendCodeInfoDto = new SendCodeInfoDto();
+        sendCodeInfoDto.setCreateSiteCode(invokeResult.getData().getCreateSiteCode());
+        sendCodeInfoDto.setCreateSiteName(invokeResult.getData().getCreateSiteName());
+        sendCodeInfoDto.setCreateSiteSubType(invokeResult.getData().getCreateSiteSubType());
+        sendCodeInfoDto.setCreateSiteType(invokeResult.getData().getCreateSiteType());
+        sendCodeInfoDto.setReceiveSiteCode(invokeResult.getData().getReceiveSiteCode());
+        sendCodeInfoDto.setReceiveSiteName(invokeResult.getData().getReceiveSiteName());
+        sendCodeInfoDto.setReceiveSiteSubType(invokeResult.getData().getReceiveSiteSubType());
+        sendCodeInfoDto.setReceiveSiteType(invokeResult.getData().getReceiveSiteType());
+        jdCResponse.setData(sendCodeInfoDto);
+        return jdCResponse;
     }
 }

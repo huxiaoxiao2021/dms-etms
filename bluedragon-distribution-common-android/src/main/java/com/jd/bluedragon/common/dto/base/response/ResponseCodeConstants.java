@@ -8,7 +8,7 @@ package com.jd.bluedragon.common.dto.base.response;
 public class ResponseCodeConstants {
 
     /**
-     * com.jd.bluedragon.common.dto.base.response.JdVerifyResponse.MsgBox code 定义
+     * 用于定义com.jd.bluedragon.common.dto.base.response.JdVerifyResponse.MsgBox code
      */
     public enum JdVerifyResponseMsgBox{
         CANCEL_LAST_SEND(4001,"是否取消上次发货"),

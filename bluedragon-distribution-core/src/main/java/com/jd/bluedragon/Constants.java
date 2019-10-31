@@ -718,6 +718,12 @@ public class Constants {
      * 配置信息-客户端检查配置sys.config.client.check
      */
     public static final String SYS_CONFIG_LOGIN_CHECK = "sys.config.login.check";
+
+    /**
+     * 配置信息-拼多多不允许获取接口的打印类型 pdd.print.type.not.use;
+     */
+    public static final String SYS_CONFIG_PDD_PRINT_TYPE_NOT_USE = "pdd.print.type.not.use";
+
     /**
 	  * 配置信息-客户端运行环境配置前缀 sys.config.client.runningMode.
 	  */

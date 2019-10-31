@@ -112,6 +112,7 @@
                 <ref bean="specialFieldHandler"/>
                 <ref bean="remarkFieldHandler"/>
                 <ref bean="templateSelectorWaybillHandler"/>
+				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
             </list>
         </property>
     </bean>
