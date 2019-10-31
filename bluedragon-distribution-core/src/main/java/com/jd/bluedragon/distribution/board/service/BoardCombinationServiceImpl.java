@@ -43,6 +43,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -635,8 +636,28 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
      */
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.BoardCombinationServiceImpl.createBoard", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public Response<List<Board>> createBoard(AddBoardRequest request){
-        return  groupBoardService.createBoards(request);
+    public JdResponse<List<com.jd.bluedragon.distribution.api.dto.Board>> createBoard(AddBoardRequest request){
+
+        JdResponse<List<com.jd.bluedragon.distribution.api.dto.Board>> response = new JdResponse<>();
+        com.jd.bluedragon.distribution.api.dto.Board board = new com.jd.bluedragon.distribution.api.dto.Board();
+        Response<List<Board>> tcResponse = groupBoardService.createBoards(request);
+        if(tcResponse == null || tcResponse.getData() == null || tcResponse.getData().size() <= 0){
+            logger.error("创建板号失败");
+            return new JdResponse<List<com.jd.bluedragon.distribution.api.dto.Board>>(JdResponse.CODE_FAIL, JdResponse.MESSAGE_FAIL);
+        }
+        for(int j = 0; j < tcResponse.getData().size();j++){
+            Date tcDate = tcResponse.getData().get(j).getCreateTime();
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            board.setDate(formatter.format(tcDate));
+            formatter = new SimpleDateFormat("HH:mm:ss");
+            board.setTime(formatter.format(tcDate));
+            board.setCode(tcResponse.getData().get(j).getCode());
+            board.setDestination(tcResponse.getData().get(j).getDestination());
+            board.setDestinationId(tcResponse.getData().get(j).getDestinationId());
+            board.setStatus(tcResponse.getData().get(j).getStatus());
+            response.getData().add(board);
+        }
+        return  response;
     }
 
     /**

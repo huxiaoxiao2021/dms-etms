@@ -205,7 +205,7 @@ public class BoardCombinationResource {
 
     @GET
     @Path("/boardLablePrint/createBoard")
-    public Response<List<Board>> createBoard(AddBoardRequest request){
+    public JdResponse<List<com.jd.bluedragon.distribution.api.dto.Board>> createBoard(AddBoardRequest request){
 
         Assert.notNull(request,"request must not be null");
         Assert.notNull(request.getDestination(),"request destination must not be null");
