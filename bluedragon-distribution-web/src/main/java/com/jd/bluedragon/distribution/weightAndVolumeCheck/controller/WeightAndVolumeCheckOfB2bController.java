@@ -115,14 +115,14 @@ public class WeightAndVolumeCheckOfB2bController extends DmsBaseController {
 
     /**
      * 运单维度提交
-     * @param params
+     * @param param
      * @return
      */
     @Authorization(Constants.DMS_WEB_SORTING_WEIGHTANDVOLUMECHECKOFB2B_R)
     @RequestMapping(value = "/waybillSubmitUrl", method = RequestMethod.POST)
     @ResponseBody
-    public InvokeResult<String> waybillSubmit(@RequestBody List<WeightVolumeCheckConditionB2b> params){
-        return weightAndVolumeCheckOfB2bService.dealExcessDataOfWaybill(params);
+    public InvokeResult<String> waybillSubmit(@RequestBody WeightVolumeCheckConditionB2b param){
+        return weightAndVolumeCheckOfB2bService.dealExcessDataOfWaybill(param);
     }
 
     /**

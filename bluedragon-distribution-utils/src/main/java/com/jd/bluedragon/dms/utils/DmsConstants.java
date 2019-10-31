@@ -88,6 +88,22 @@ public class DmsConstants {
      * 站点类型-B商家
      */
     public static final Integer SITE_TYPE_BIZ = 1024;
+    /**
+     * 站点类型-仓
+     */
+    public static final Integer SITE_TYPE_WMS = 900;
+    /**
+     * 站点类型-分拣中心
+     */
+    public static final Integer SITE_TYPE_DMS = 64;
+    /**
+     * 站点类型-站点
+     */
+    public static final Integer SITE_TYPE_SITE = 4;
+    /**
+     * 站点类型-车队
+     */
+    public static final Integer SITE_TYPE_FLEET = 96;
 
     /**
      * 买卖宝 的标识

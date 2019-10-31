@@ -11,6 +11,8 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.AbnormalResultMq;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.DutyTypeEnum;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckData;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckOfPackageDetail;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.SystemEnum;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WaybillFlowDetail;
@@ -53,7 +55,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,6 +79,36 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
      * 单张图片最大限制
      * */
     private static final int SINGLE_IMAGE_SIZE_LIMIT = 1024000;
+
+    /**
+     * 立方米转换立方厘米
+     * */
+    private static final int M3_TRANS_TO_CM3 = 1000000;
+    /**
+     * 重量阈值
+     * */
+    private static final double WEIGHT_THRESHOLD = 25;
+    /**
+     * 重量误差标准值
+     * */
+    private static final double WEIGHT_STANDARD_UP = 1;
+    /**
+     * 重量误差标准值
+     * */
+    private static final double WEIGHT_STANDARD_LOW = 0.04;
+    /**
+     * 体积阈值
+     * */
+    private static final double VOLUME_THRESHOLD = 100000;
+    /**
+     * 体积误差标准值
+     * */
+    private static final double VOLUME_STANDARD_LOW = 0.1;
+    /**
+     * 重泡比
+     * */
+    private static final int VOLUME_RATIO = 8000;
+
 
     @Autowired
     private ReportExternalService reportExternalService;
@@ -108,10 +139,6 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
     @Override
     public InvokeResult<String> dealExcessDataOfPackage(List<WeightVolumeCheckOfB2bPackage> params) {
         InvokeResult<String> result = new InvokeResult<String>();
-        AbnormalResultMq abnormalResultMq = new AbnormalResultMq();
-        abnormalResultMq.setInputMode(2);
-        List<SpotCheckOfPackageDetail> detailList = new ArrayList<>();
-        abnormalResultMq.setDetailList(detailList);
         try{
             //查es防止二次提交
             String waybillCode = WaybillUtil.getWaybillCode(params.get(0).getPackageCode());
@@ -119,33 +146,11 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
                 result.customMessage(600,"请勿重复提交!");
                 return result;
             }
-            StringBuilder excessPictureUrl = new StringBuilder();
-            for(WeightVolumeCheckOfB2bPackage param : params){
-                SpotCheckOfPackageDetail spotCheckOfPackageDetail = new SpotCheckOfPackageDetail();
-                spotCheckOfPackageDetail.setBillCode(param.getPackageCode());
-                spotCheckOfPackageDetail.setWeight(param.getWeight());
-                spotCheckOfPackageDetail.setLength(param.getLength());
-                spotCheckOfPackageDetail.setWidth(param.getWidth());
-                spotCheckOfPackageDetail.setHeight(param.getHeight());
-                List<Map<String,String>> imgList = new ArrayList<>();
-                spotCheckOfPackageDetail.setImgList(imgList);
-                com.jd.bluedragon.distribution.base.domain.InvokeResult<List<String>> invokeResult
-                        = searchExcessPicture(param.getPackageCode(), param.getCreateSiteCode());
-                if(invokeResult != null && !CollectionUtils.isEmpty(invokeResult.getData())){
-                    for(String url : invokeResult.getData()){
-                        Map<String,String> map = new LinkedHashMap<>();
-                        map.put("url",url);
-                        imgList.add(map);
-                        excessPictureUrl.append(url).append(";");
-                    }
-                }
-
-                detailList.add(spotCheckOfPackageDetail);
-            }
-            //数据落入es
+            //组装数据
+            SpotCheckData spotCheckData = trans2SpotCheckDataOfPackage(params);
             WeightVolumeCollectDto dto = new WeightVolumeCollectDto();
-            dto.setPictureAddress(excessPictureUrl.toString());
-            assembleDataOfPackage(params,dto,abnormalResultMq);
+            AbnormalResultMq abnormalResultMq = new AbnormalResultMq();
+            assembleData(spotCheckData,dto,abnormalResultMq);
             weightAndVolumeCheckService.setProductType(dto);
             reportExternalService.insertOrUpdateForWeightVolume(dto);
             //发运单维度匿名全程跟踪
@@ -160,6 +165,40 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         }
 
         return result;
+    }
+
+    /**
+     * 转成公共实体
+     * @param params
+     * @return
+     */
+    private SpotCheckData trans2SpotCheckDataOfPackage(List<WeightVolumeCheckOfB2bPackage> params) {
+        SpotCheckData spotCheckData = new SpotCheckData();
+        spotCheckData.setWaybillCode(WaybillUtil.getWaybillCode(params.get(0).getPackageCode()));
+        Double totalWeight = 0.00;
+        Double totalVolume = 0.00;
+        for(WeightVolumeCheckOfB2bPackage param : params){
+            totalWeight = keeTwoDecimals(totalWeight + param.getWeight());
+            totalVolume = keeTwoDecimals(totalVolume + param.getLength() * param.getWidth() * param.getHeight());
+        }
+        spotCheckData.setTotalWeight(totalWeight);
+        spotCheckData.setTotalVolume(totalVolume);
+        spotCheckData.setCreateSiteCode(params.get(0).getCreateSiteCode());
+        spotCheckData.setLoginErp(params.get(0).getLoginErp());
+        spotCheckData.setIsExcess(params.get(0).getIsExcess());
+        spotCheckData.setIsWaybillSpotCheck(2);
+        List<SpotCheckData.packageData> packageDataList = new ArrayList<>();
+        spotCheckData.setPackageDataList(packageDataList);
+        for(WeightVolumeCheckOfB2bPackage WeightVolumeCheckOfB2bPackage : params){
+            SpotCheckData.packageData packageData = new SpotCheckData.packageData();
+            packageData.setPackageCode(WeightVolumeCheckOfB2bPackage.getPackageCode());
+            packageData.setWeight(WeightVolumeCheckOfB2bPackage.getWeight());
+            packageData.setLength(WeightVolumeCheckOfB2bPackage.getLength());
+            packageData.setWidth(WeightVolumeCheckOfB2bPackage.getWidth());
+            packageData.setHeight(WeightVolumeCheckOfB2bPackage.getHeight());
+            packageDataList.add(packageData);
+        }
+        return spotCheckData;
     }
 
     @Override
@@ -238,23 +277,24 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
     }
 
     /**
-     * 运单维度组装数据
-     * @param param
+     * 组装数据
+     * @param spotCheckData
      * @param dto
      * @param abnormalResultMq
      * @return
      */
-    private void assembleDataOfWaybill(WeightVolumeCheckConditionB2b param, WeightVolumeCollectDto dto, AbnormalResultMq abnormalResultMq) {
+    private void assembleData(SpotCheckData spotCheckData, WeightVolumeCollectDto dto, AbnormalResultMq abnormalResultMq) {
 
+        abnormalResultMq.setInputMode(spotCheckData.getIsWaybillSpotCheck());
         //查询运单称重流水
-        String waybillCode = WaybillUtil.getWaybillCode(param.getWaybillOrPackageCode());
-        WaybillFlowDetail waybillFlowDetail = getFirstWeightAndVolumeDetail(waybillCode);
-
-        dto.setSpotCheckType(1);
-        dto.setIsWaybillSpotCheck(1);
+        WaybillFlowDetail waybillFlowDetail = getFirstWeightAndVolumeDetail(spotCheckData.getWaybillCode());
         dto.setBillingWeight(waybillFlowDetail.getTotalWeight()==null?0.00:waybillFlowDetail.getTotalWeight());
         dto.setBillingVolume(waybillFlowDetail.getTotalVolume()==null?0.00:waybillFlowDetail.getTotalVolume());
         dto.setBillingErp(waybillFlowDetail.getOperateErp());
+        dto.setSpotCheckType(1);
+        dto.setIsWaybillSpotCheck(spotCheckData.getIsWaybillSpotCheck());
+        dto.setIsExcess(spotCheckData.getIsExcess());
+        dto.setIsHasPicture(spotCheckData.getIsExcess());
         Integer siteId = waybillFlowDetail.getOperateSiteCode();
         BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(siteId);
         if(baseStaffSiteOrgDto != null){
@@ -262,28 +302,28 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             abnormalResultMq.setFirstLevelName(baseStaffSiteOrgDto.getOrgName());
             abnormalResultMq.setSecondLevelId(baseStaffSiteOrgDto.getSiteCode().toString());
             abnormalResultMq.setSecondLevelName(baseStaffSiteOrgDto.getSiteName());
-            if(baseStaffSiteOrgDto.getSiteType() == 900){
+            if(BusinessUtil.isWmsSite(baseStaffSiteOrgDto.getSiteType())){
                 //责任类型仓
-                abnormalResultMq.setDutyType(1);
-            }else if(baseStaffSiteOrgDto.getSiteType() == 64){
+                abnormalResultMq.setDutyType(DutyTypeEnum.WMS.getCode());
+            }else if(BusinessUtil.isDistrubutionCenter(baseStaffSiteOrgDto.getSiteType())){
                 //责任类型分拣
-                abnormalResultMq.setDutyType(2);
-            }else if(baseStaffSiteOrgDto.getSiteType() == 4){
+                abnormalResultMq.setDutyType(DutyTypeEnum.DMS.getCode());
+            }else if(BusinessUtil.isSite(baseStaffSiteOrgDto.getSiteType())){
                 //责任类型为站点
-                abnormalResultMq.setDutyType(3);
-            }else if(baseStaffSiteOrgDto.getSiteType() == 1024){
+                abnormalResultMq.setDutyType(DutyTypeEnum.SITE.getCode());
+            }else if(BusinessUtil.isBizSite(baseStaffSiteOrgDto.getSiteType())){
                 //责任类型为B商家
-                abnormalResultMq.setDutyType(4);
-            }else if(baseStaffSiteOrgDto.getSiteType() == 96){
+            }else if(BusinessUtil.isFleet(baseStaffSiteOrgDto.getSiteType())){
+                abnormalResultMq.setDutyType(DutyTypeEnum.BIZ.getCode());
                 //责任类型为车队
-                abnormalResultMq.setDutyType(6);
+                abnormalResultMq.setDutyType(DutyTypeEnum.FLEET.getCode());
                 abnormalResultMq.setSecondLevelId(baseStaffSiteOrgDto.getAreaCode());
                 abnormalResultMq.setSecondLevelName(baseStaffSiteOrgDto.getAreaName());
                 abnormalResultMq.setThreeLevelId(baseStaffSiteOrgDto.getSiteCode().toString());
                 abnormalResultMq.setThreeLevelName(baseStaffSiteOrgDto.getSiteName());
                 abnormalResultMq.setCarCaptionErp(waybillFlowDetail.getOperateErp());
             }else {
-                abnormalResultMq.setDutyType(5);
+                abnormalResultMq.setDutyType(DutyTypeEnum.OTHER.getCode());
             }
             dto.setBillingOrgCode(baseStaffSiteOrgDto.getOrgId());
             dto.setBillingOrgName(baseStaffSiteOrgDto.getOrgName());
@@ -291,52 +331,59 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             dto.setBillingDeptName(baseStaffSiteOrgDto.getSiteName());
             dto.setBillingCompany(baseStaffSiteOrgDto.getSiteName());
         }
-        dto.setIsExcess(param.getIsExcess());
-        dto.setIsHasPicture(param.getIsExcess());
+        List<SpotCheckOfPackageDetail> detailList = new ArrayList<>();
+        abnormalResultMq.setDetailList(detailList);
         StringBuilder excessPictureUrl = new StringBuilder();
-        if(param.getIsExcess()==1){
-            //查询图片地址
-            com.jd.bluedragon.distribution.base.domain.InvokeResult<List<String>> invokeResult
-                    = searchExcessPicture(waybillCode, param.getCreateSiteCode());
-            List<SpotCheckOfPackageDetail> detailList = new ArrayList<>();
-            abnormalResultMq.setDetailList(detailList);
-            SpotCheckOfPackageDetail detail = new SpotCheckOfPackageDetail();
-            detail.setBillCode(waybillCode);
-            detail.setWeight(param.getWaybillWeight());
-            detail.setLength(param.getWaybillVolume()==null?0:param.getWaybillVolume()*1000000);
-            List<Map<String,String>> imgList = new ArrayList<>();
-            detail.setImgList(imgList);
-            if(invokeResult != null && !CollectionUtils.isEmpty(invokeResult.getData())){
-                for(String url : invokeResult.getData()){
-                    Map<String,String> map = new HashMap<>();
-                    map.put("url",url);
-                    imgList.add(map);
-                    excessPictureUrl.append(url).append(";");
+
+        if(spotCheckData.getIsWaybillSpotCheck() == 1){
+            //运单维度
+            if(spotCheckData.getIsExcess()==1){
+                SpotCheckOfPackageDetail detail = new SpotCheckOfPackageDetail();
+                detail.setBillCode(spotCheckData.getWaybillCode());
+                detail.setWeight(spotCheckData.getTotalWeight());
+                detail.setLength(spotCheckData.getTotalVolume()*M3_TRANS_TO_CM3);
+                List<Map<String,String>> imgList = new ArrayList<>();
+                detail.setImgList(imgList);
+                detailList.add(detail);
+                getExcessPictureAddress(excessPictureUrl,imgList,spotCheckData.getWaybillCode(),spotCheckData.getCreateSiteCode());
+            }
+            dto.setReviewVolume(spotCheckData.getTotalVolume()*M3_TRANS_TO_CM3);
+        }else{
+            //包裹维度
+            if(spotCheckData.getIsExcess()==1) {
+                for (SpotCheckData.packageData packageData : spotCheckData.getPackageDataList()) {
+                    SpotCheckOfPackageDetail spotCheckOfPackageDetail = new SpotCheckOfPackageDetail();
+                    spotCheckOfPackageDetail.setBillCode(packageData.getPackageCode());
+                    spotCheckOfPackageDetail.setWeight(packageData.getWeight());
+                    spotCheckOfPackageDetail.setLength(packageData.getLength());
+                    spotCheckOfPackageDetail.setWidth(packageData.getWidth());
+                    spotCheckOfPackageDetail.setHeight(packageData.getHeight());
+                    List<Map<String, String>> imgList = new ArrayList<>();
+                    spotCheckOfPackageDetail.setImgList(imgList);
+                    detailList.add(spotCheckOfPackageDetail);
+                    getExcessPictureAddress(excessPictureUrl,imgList,spotCheckData.getWaybillCode(),spotCheckData.getCreateSiteCode());
                 }
             }
-            detailList.add(detail);
+            dto.setReviewVolume(spotCheckData.getTotalVolume());
         }
         dto.setPictureAddress(excessPictureUrl.toString());
-        dto.setReviewDate(new Date());
-        dto.setWaybillCode(waybillCode);
-        dto.setPackageCode(waybillCode);
-        com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,
-                true, false, false, false);
+        com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> baseEntity
+                = waybillQueryManager.getWaybillAndPackByWaybillCode(spotCheckData.getWaybillCode());
         if(baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null){
             Waybill waybill = baseEntity.getData().getWaybill();
             dto.setBusiCode(waybill.getBusiId());
             dto.setBusiName(baseEntity.getData().getWaybill().getBusiName());
-            if(BusinessUtil.isSignChar(baseEntity.getData().getWaybill().getWaybillSign(),56,'1')){
+            if(BusinessUtil.isTrustBusi(baseEntity.getData().getWaybill().getWaybillSign())){
                 //信任商家
                 dto.setIsTrustBusi(1);
                 abnormalResultMq.setIsTrustMerchant(1);
-            }else if(BusinessUtil.isSignInChars(baseEntity.getData().getWaybill().getWaybillSign(),56,'0','2','3')) {
+            }else {
                 //普通商家
                 dto.setIsTrustBusi(0);
                 abnormalResultMq.setIsTrustMerchant(0);
             }
         }
-        String reviewErp = param.getLoginErp();
+        String reviewErp = spotCheckData.getLoginErp();
         if(!StringUtils.isEmpty(reviewErp)){
             BaseStaffSiteOrgDto baseSiteByDmsCode = baseMajorManager.getBaseStaffByErpNoCache(reviewErp);
             if(baseSiteByDmsCode != null){
@@ -345,115 +392,32 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
                 dto.setReviewSiteCode(baseSiteByDmsCode.getSiteCode());
                 dto.setReviewSiteName(baseSiteByDmsCode.getSiteName());
                 dto.setReviewSubType(baseSiteByDmsCode.getSubType());
-                dto.setReviewErp(param.getLoginErp());
+                dto.setReviewErp(spotCheckData.getLoginErp());
             }
         }
-        dto.setReviewWeight(param.getWaybillWeight());
-        dto.setReviewVolume(param.getWaybillVolume()==null?0:param.getWaybillVolume()*1000000);
-
-        dto.setReviewVolumeWeight(keeTwoDecimals(dto.getReviewVolume()/8000));
-        dto.setBillingVolumeWeight(keeTwoDecimals(dto.getBillingVolume()/8000));
+        dto.setReviewDate(new Date());
+        dto.setWaybillCode(spotCheckData.getWaybillCode());
+        dto.setPackageCode(spotCheckData.getWaybillCode());
+        dto.setReviewWeight(spotCheckData.getTotalWeight());
+        dto.setReviewVolumeWeight(keeTwoDecimals(dto.getReviewVolume()/VOLUME_RATIO));
+        dto.setBillingVolumeWeight(keeTwoDecimals(dto.getBillingVolume()/VOLUME_RATIO));
         dto.setWeightDiff(new DecimalFormat("#0.00").format(dto.getReviewWeight()-dto.getBillingWeight()));
         dto.setVolumeWeightDiff(new DecimalFormat("#0.00").format(dto.getReviewVolumeWeight()-dto.getBillingVolumeWeight()));
 
     }
 
-    /**
-     * 包裹维度组装数据称重数据
-     * @param params
-     * @return
-     */
-    private void assembleDataOfPackage(List<WeightVolumeCheckOfB2bPackage> params, WeightVolumeCollectDto dto, AbnormalResultMq abnormalResultMq) {
-
-        //查询运单称重流水
-        String waybillCode = WaybillUtil.getWaybillCode(params.get(0).getPackageCode());
-        WaybillFlowDetail waybillFlowDetail = getFirstWeightAndVolumeDetail(waybillCode);
-        dto.setIsWaybillSpotCheck(0);
-        dto.setSpotCheckType(1);
-        dto.setReviewDate(new Date());
-        dto.setWaybillCode(waybillCode);
-        dto.setPackageCode(waybillCode);
-        com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,
-                true, false, false, false);
-        if(baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null){
-            Waybill waybill = baseEntity.getData().getWaybill();
-            dto.setBusiCode(waybill.getBusiId());
-            dto.setBusiName(baseEntity.getData().getWaybill().getBusiName());
-            if(BusinessUtil.isSignChar(baseEntity.getData().getWaybill().getWaybillSign(),56,'1')){
-                //信任商家
-                dto.setIsTrustBusi(1);
-                abnormalResultMq.setIsTrustMerchant(1);
-            }else if(BusinessUtil.isSignInChars(baseEntity.getData().getWaybill().getWaybillSign(),56,'0','2','3')) {
-                //普通商家
-                dto.setIsTrustBusi(0);
-                abnormalResultMq.setIsTrustMerchant(0);
+    private void getExcessPictureAddress(StringBuilder excessPictureUrl,List<Map<String, String>> imgList,
+                                         String waybillCode,Integer siteCode){
+        com.jd.bluedragon.distribution.base.domain.InvokeResult<List<String>> invokeResult
+                = searchExcessPicture(waybillCode, siteCode);
+        if (invokeResult != null && !CollectionUtils.isEmpty(invokeResult.getData())) {
+            for (String url : invokeResult.getData()) {
+                Map<String, String> map = new LinkedHashMap<>();
+                map.put("url", url);
+                imgList.add(map);
+                excessPictureUrl.append(url).append(";");
             }
         }
-        String reviewErp = params.get(0).getLoginErp();
-        if(!StringUtils.isEmpty(reviewErp)){
-            BaseStaffSiteOrgDto baseSiteByDmsCode = baseMajorManager.getBaseStaffByErpNoCache(reviewErp);
-            if(baseSiteByDmsCode != null){
-                dto.setReviewOrgCode(baseSiteByDmsCode.getOrgId());
-                dto.setReviewOrgName(baseSiteByDmsCode.getOrgName());
-                dto.setReviewSiteCode(baseSiteByDmsCode.getSiteCode());
-                dto.setReviewSiteName(baseSiteByDmsCode.getSiteName());
-                dto.setReviewSubType(baseSiteByDmsCode.getSubType());
-                dto.setReviewErp(reviewErp);
-            }
-        }
-        Double totalWeight = 0.00;
-        Double totalVolume = 0.00;
-        for(WeightVolumeCheckOfB2bPackage param : params){
-            totalWeight = keeTwoDecimals(totalWeight + param.getWeight());
-            totalVolume = keeTwoDecimals(totalVolume + param.getLength() * param.getWidth() * param.getHeight());
-        }
-        dto.setReviewWeight(totalWeight);
-        dto.setReviewVolume(totalVolume);
-        dto.setBillingWeight(waybillFlowDetail.getTotalWeight()==null?0.00:waybillFlowDetail.getTotalWeight());
-        dto.setBillingVolume(waybillFlowDetail.getTotalVolume()==null?0.00:waybillFlowDetail.getTotalVolume());
-        dto.setReviewVolumeWeight(keeTwoDecimals(dto.getReviewVolume()/8000));
-        dto.setBillingVolumeWeight(keeTwoDecimals(dto.getBillingVolume()/8000));
-        dto.setWeightDiff(new DecimalFormat("#0.00").format(dto.getReviewWeight() - dto.getBillingWeight()));
-        dto.setVolumeWeightDiff(new DecimalFormat("#0.00").format(dto.getReviewVolumeWeight() - dto.getBillingVolumeWeight()));
-
-        BaseStaffSiteOrgDto baseSiteInfoDto = baseMajorManager.getBaseSiteBySiteId(waybillFlowDetail.getOperateSiteCode());
-        if(baseSiteInfoDto != null){
-            dto.setBillingOrgCode(baseSiteInfoDto.getOrgId());
-            dto.setBillingOrgName(baseSiteInfoDto.getOrgName());
-            dto.setBillingDeptCode(baseSiteInfoDto.getSiteCode());
-            dto.setBillingDeptName(baseSiteInfoDto.getSiteName());
-            dto.setBillingCompany(baseSiteInfoDto.getSiteName());
-            abnormalResultMq.setFirstLevelId(baseSiteInfoDto.getOrgId().toString());
-            abnormalResultMq.setFirstLevelName(baseSiteInfoDto.getOrgName());
-            abnormalResultMq.setSecondLevelId(baseSiteInfoDto.getSiteCode().toString());
-            abnormalResultMq.setSecondLevelName(baseSiteInfoDto.getSiteName());
-            if(baseSiteInfoDto.getSiteType() == 900){
-                //责任类型仓
-                abnormalResultMq.setDutyType(1);
-            }else if(baseSiteInfoDto.getSiteType() == 64){
-                //责任类型分拣
-                abnormalResultMq.setDutyType(2);
-            }else if(baseSiteInfoDto.getSiteType() == 4){
-                //责任类型为站点
-                abnormalResultMq.setDutyType(3);
-            }else if(baseSiteInfoDto.getSiteType() == 1024){
-                //责任类型为B商家
-                abnormalResultMq.setDutyType(4);
-            }else if(baseSiteInfoDto.getSiteType() == 96){
-                //责任类型为车队
-                abnormalResultMq.setDutyType(6);
-                abnormalResultMq.setSecondLevelId(baseSiteInfoDto.getAreaCode());
-                abnormalResultMq.setSecondLevelName(baseSiteInfoDto.getAreaName());
-                abnormalResultMq.setThreeLevelId(baseSiteInfoDto.getSiteCode().toString());
-                abnormalResultMq.setThreeLevelName(baseSiteInfoDto.getSiteName());
-                abnormalResultMq.setCarCaptionErp(waybillFlowDetail.getOperateErp());
-            }else {
-                abnormalResultMq.setDutyType(5);
-            }
-        }
-        dto.setBillingErp(waybillFlowDetail.getOperateErp());
-        dto.setIsExcess(params.get(0).getIsExcess());
-        dto.setIsHasPicture(params.get(0).getIsExcess());
     }
 
     @Override
@@ -473,7 +437,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         }
         String waybillCode = WaybillUtil.getWaybillCode(condition.getWaybillOrPackageCode());
         com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> baseEntity
-                = waybillQueryManager.getDataByChoice(waybillCode, true, false, false, true);
+                = waybillQueryManager.getWaybillAndPackByWaybillCode(waybillCode);
         if(baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null){
             if(!BusinessUtil.isB2b(baseEntity.getData().getWaybill().getWaybillSign())){
                 result.parameterError("此功能只支持B网运单抽检!");
@@ -510,7 +474,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         WaybillFlowDetail waybillFlowDetail = getFirstWeightAndVolumeDetail(waybillCode);
         Double beforeWeight = waybillFlowDetail.getTotalWeight()==null?0.00:waybillFlowDetail.getTotalWeight();
         Double beforeVolume = waybillFlowDetail.getTotalVolume()==null?0.00:waybillFlowDetail.getTotalVolume();
-        Boolean sign = isExcess(nowWeight,beforeWeight,1000000*nowVolume,beforeVolume);
+        Boolean sign = isExcess(nowWeight,beforeWeight,M3_TRANS_TO_CM3*nowVolume,beforeVolume);
         weightVolumeCheckOfB2bWaybill.setIsExcess(sign?1:0);
 
         return result;
@@ -539,15 +503,28 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         return result;
     }
 
+    /**
+     * 1、重量超标校验：
+     *      录入重量<25kg,允许误差值(+-)1kg(含)
+     *      录入重量>=25kg,允许误差值(+-)4%(含)
+     * 2、体积超标校验：
+     *      录入体积<0.1方,允许误差值(+-)0.1方(含)
+     *      录入体积>=0.1方,允许误差值(+-)10%(含)
+     * @param nowWeight 录入重量
+     * @param beforeWeight 运单重量
+     * @param nowVolume 录入体积
+     * @param beforeVolume 运单体积
+     * @return
+     */
     private Boolean isExcess(Double nowWeight,Double beforeWeight,Double nowVolume,Double beforeVolume){
         Boolean sign = Boolean.FALSE;
-        if((nowWeight < 25 && Math.abs(nowWeight - beforeWeight) > 1)
-                || (nowWeight >= 25 && Math.abs(nowWeight - beforeWeight) > 0.04 * nowWeight)){
+        if((nowWeight < WEIGHT_THRESHOLD && Math.abs(nowWeight - beforeWeight) > WEIGHT_STANDARD_UP)
+                || (nowWeight >= WEIGHT_THRESHOLD && Math.abs(nowWeight - beforeWeight) > WEIGHT_STANDARD_LOW * nowWeight)){
             sign = Boolean.TRUE;
             return sign;
         }
-        if((nowVolume < 100000 && Math.abs(nowVolume - beforeVolume) > 100000)
-                || (nowVolume >= 100000 && Math.abs(nowVolume - beforeVolume) > 0.1 * nowVolume)){
+        if((nowVolume < VOLUME_THRESHOLD && Math.abs(nowVolume - beforeVolume) > VOLUME_THRESHOLD)
+                || (nowVolume >= VOLUME_THRESHOLD && Math.abs(nowVolume - beforeVolume) > VOLUME_STANDARD_LOW * nowVolume)){
             sign = Boolean.TRUE;
         }
         return sign;
@@ -559,14 +536,19 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             abnormalResultMq.setFrom(SystemEnum.DMS.getCode().toString());
             abnormalResultMq.setDutyErp(dto.getBillingErp());
             if(abnormalResultMq.getDutyType() != null){
-                if(abnormalResultMq.getDutyType()==2 || abnormalResultMq.getDutyType()==6
-                        || (abnormalResultMq.getDutyType()==3&&StringUtils.isEmpty(abnormalResultMq.getDutyErp()))){
+                if(abnormalResultMq.getDutyType()==DutyTypeEnum.DMS.getCode()
+                        || abnormalResultMq.getDutyType()==DutyTypeEnum.FLEET.getCode()
+                        || (abnormalResultMq.getDutyType()==DutyTypeEnum.SITE.getCode()
+                        &&StringUtils.isEmpty(abnormalResultMq.getDutyErp()))){
                     //责任为分拣或车队或站点无erp
                     abnormalResultMq.setTo(SystemEnum.ZHIKONG.getCode().toString());
-                }else if(abnormalResultMq.getDutyType()==3 && !StringUtils.isEmpty(abnormalResultMq.getDutyErp())){
+                }else if(abnormalResultMq.getDutyType()==DutyTypeEnum.SITE.getCode()
+                        && !StringUtils.isEmpty(abnormalResultMq.getDutyErp())){
                     //责任为站点有erp
-                    abnormalResultMq.setTo(SystemEnum.TMS.getCode().toString());
-                }else if(abnormalResultMq.getDutyType() == 4){
+                    StringBuilder to = new StringBuilder();
+                    to.append(SystemEnum.TMS.getCode()).append(",").append(SystemEnum.ZHIKONG.getCode());
+                    abnormalResultMq.setTo(to.toString());
+                }else if(abnormalResultMq.getDutyType() == DutyTypeEnum.BIZ.getCode()){
                     //责任为信任商家
                     abnormalResultMq.setTo(SystemEnum.PANZE.getCode().toString());
                 }
@@ -609,36 +591,50 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
     }
 
     @Override
-    public InvokeResult<String> dealExcessDataOfWaybill(List<WeightVolumeCheckConditionB2b> params) {
+    public InvokeResult<String> dealExcessDataOfWaybill(WeightVolumeCheckConditionB2b param) {
         InvokeResult<String> result = new InvokeResult<>();
-        AbnormalResultMq abnormalResultMq = new AbnormalResultMq();
-        abnormalResultMq.setInputMode(1);
         try{
-            for(WeightVolumeCheckConditionB2b param : params){
-                //防止二次提交
-                String waybillCode = WaybillUtil.getWaybillCode(param.getWaybillOrPackageCode());
-                if(isSpotCheck(waybillCode,param.getCreateSiteCode())){
-                    result.customMessage(600,"运单"+waybillCode+"已经进行过抽检，请勿重复操作!");
-                    return result;
-                }
-                //组装数据落入es
-                WeightVolumeCollectDto dto = new WeightVolumeCollectDto();
-                assembleDataOfWaybill(param,dto,abnormalResultMq);
-                weightAndVolumeCheckService.setProductType(dto);
-                reportExternalService.insertOrUpdateForWeightVolume(dto);
-                //发运单维度全程跟踪
-                sendWaybillTrace(dto);
-                //超标给fxm发mq
-                if(param.getIsExcess() == 1){
-                    sendMqToFXM(dto,abnormalResultMq);
-                }
+            //防止二次提交
+            String waybillCode = WaybillUtil.getWaybillCode(param.getWaybillOrPackageCode());
+            if(isSpotCheck(waybillCode,param.getCreateSiteCode())){
+                result.customMessage(600,"运单"+waybillCode+"已经进行过抽检，请勿重复操作!");
+                return result;
+            }
+            //组装数据
+            SpotCheckData spotCheckData = trans2SpotCheckDataOfWaybill(param);
+            AbnormalResultMq abnormalResultMq = new AbnormalResultMq();
+            WeightVolumeCollectDto dto = new WeightVolumeCollectDto();
+            assembleData(spotCheckData,dto,abnormalResultMq);
+            weightAndVolumeCheckService.setProductType(dto);
+            reportExternalService.insertOrUpdateForWeightVolume(dto);
+            //发运单维度全程跟踪
+            sendWaybillTrace(dto);
+            //超标给fxm发mq
+            if(param.getIsExcess() == 1){
+                sendMqToFXM(dto,abnormalResultMq);
             }
         }catch (Exception e){
             logger.error("B网按运单抽检失败",e);
             result.customMessage(600,"B网按运单抽检失败!");
         }
-
         return result;
+    }
+
+    /**
+     * 转换成公共实体
+     * @param param
+     * @return
+     */
+    private SpotCheckData trans2SpotCheckDataOfWaybill(WeightVolumeCheckConditionB2b param) {
+        SpotCheckData spotCheckData = new SpotCheckData();
+        spotCheckData.setWaybillCode(WaybillUtil.getWaybillCode(param.getWaybillOrPackageCode()));
+        spotCheckData.setTotalWeight(param.getWaybillWeight());
+        spotCheckData.setTotalVolume(param.getWaybillVolume());
+        spotCheckData.setCreateSiteCode(param.getCreateSiteCode());
+        spotCheckData.setLoginErp(param.getLoginErp());
+        spotCheckData.setIsExcess(param.getIsExcess());
+        spotCheckData.setIsWaybillSpotCheck(1);
+        return spotCheckData;
     }
 
     @Override
@@ -658,7 +654,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         waybillCode = WaybillUtil.getWaybillCode(waybillCode);
         //禁止非B网运单抽检
         com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> baseEntity
-                = waybillQueryManager.getDataByChoice(waybillCode, true, false, false, true);
+                = waybillQueryManager.getWaybillAndPackByWaybillCode(waybillCode);
         if(baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null){
             if(!BusinessUtil.isB2b(baseEntity.getData().getWaybill().getWaybillSign())){
                 result.parameterError("此功能只支持B网运单抽检!");
@@ -712,6 +708,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         WaybillFlowDetail waybillFlowDetail = new WaybillFlowDetail();
         Page<PackFlowDetail> page = new Page<>();
         page.setPageSize(1000);
+        //TODO 放在manager中
         com.jd.etms.waybill.domain.BaseEntity<Page<PackFlowDetail>> baseEntity = waybillPackageManager.getOpeDetailByCode(waybillCode,page);
         if(baseEntity != null && baseEntity.getData() != null
                 && !CollectionUtils.isEmpty(baseEntity.getData().getResult())){
@@ -720,7 +717,9 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             //排除重量体积均为0的情况(系统卡控)
             for(PackFlowDetail detail : list){
                 if(detail==null || ((detail.getpWeight()!=null&&detail.getpWeight()==0)
-                        && (detail.getpLength()!=null&&detail.getpLength()==0&&detail.getpWidth()!=null&&detail.getpWidth()==0&&detail.getpHigh()!=null&&detail.getpHigh()==0))){
+                        && (detail.getpLength()!=null&&detail.getpLength()==0
+                        &&detail.getpWidth()!=null&&detail.getpWidth()==0
+                        &&detail.getpHigh()!=null&&detail.getpHigh()==0))){
                     continue;
                 }
                 timeSortList.add(detail);
@@ -736,6 +735,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             Collections.sort(timeSortList, new Comparator<PackFlowDetail>() {
                 @Override
                 public int compare(PackFlowDetail o1, PackFlowDetail o2) {
+                    //TODO
                     if(o1.getWeighTime() == null || o2.getWeighTime() == null){
                         return 0;
                     }
@@ -758,7 +758,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             String operateErp = null;
             Date operatTime = null;
             Date weightTime = weightTimeSortList.get(0).getWeighTime();
-            Date volumeTime = volumeTimeSortList.get(0).getWeighTime();
+            Date volumeTime = volumeTimeSortList.get(0).getMeasureTime();
             if(volumeTime == null
                     || (weightTime!=null&&volumeTime!=null&&weightTime.getTime()>=volumeTime.getTime())){
                 finalList = weightTimeSortList;
@@ -830,10 +830,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         if(map1.size() > map2.size()){
             if(map2.size() != 0){
                 //既有整单又有包裹
-                PackFlowDetail flowDetail = new PackFlowDetail();
-                for(String packageCode : map1.keySet()){
-                    flowDetail = map1.get(packageCode);
-                }
+                PackFlowDetail flowDetail = realList.get(realList.size()-1);
                 totalWeight = flowDetail.getpWeight();
                 if(flowDetail.getpLength()==null
                         || flowDetail.getpWidth()==null || flowDetail.getpHigh()==null){
@@ -851,10 +848,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             }
         }else {
             //整单
-            PackFlowDetail flowDetail = new PackFlowDetail();
-            for(String packageCode : map1.keySet()){
-                flowDetail = map1.get(packageCode);
-            }
+            PackFlowDetail flowDetail = realList.get(realList.size()-1);
             totalWeight = flowDetail.getpWeight();
             if(flowDetail.getpLength()==null
                     || flowDetail.getpWidth()==null || flowDetail.getpHigh()==null){

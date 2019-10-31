@@ -1,6 +1,9 @@
 package com.jd.bluedragon.distribution.consumer.spotCheck;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
+import com.jd.bluedragon.distribution.kuaiyun.weight.service.WeighByWaybillService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.weight.domain.OpeEntity;
@@ -8,6 +11,8 @@ import com.jd.bluedragon.distribution.weight.domain.OpeObject;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +23,8 @@ import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * 消费抽检回传消息（fxm）
@@ -29,6 +36,22 @@ import java.util.ArrayList;
 public class SpotCheckConsumer extends MessageBaseConsumer {
 
     private final Log logger = LogFactory.getLog(SpotCheckConsumer.class);
+
+    /**
+     * 责任类型：认责
+     * */
+    private static final Integer BLAME_TYPE = 1;
+    /**
+     * 业务类型：B网抽检
+     * */
+    private static final Integer BUSINESS_TYPE = 2;
+    /**
+     * 来源:分拣
+     * */
+    private static final String TO = "2";
+
+    @Autowired
+    private WeighByWaybillService weighByWaybillService;
 
     @Autowired
     private TaskService taskService;
@@ -47,45 +70,74 @@ public class SpotCheckConsumer extends MessageBaseConsumer {
 
             //来源分拣、主动认责、B2b抽检
             String to = pictureInfoMq.getTo();
+            List<String> tos = Arrays.asList(StringUtils.split(to, Constants.SEPARATOR_COMMA));
+            if(CollectionUtils.isEmpty(tos)){
+                return;
+            }
             Integer blameType = pictureInfoMq.getBlameType();
             Integer businessType = pictureInfoMq.getBusinessType();
-            if(to!=null&&to.equals("2")
-                    &&businessType!=null&&businessType==2
-                    &&blameType!=null&&blameType==1){
-                //B网抽检且主动认责
-                OpeEntity opeEntity = new OpeEntity();
-                opeEntity.setOpeType(1);//分拣中心称重、长宽高
-                opeEntity.setWaybillCode(pictureInfoMq.getBillCode());
-                opeEntity.setOpeDetails(new ArrayList<OpeObject>());
+            if(tos.contains(TO)
+                    &&businessType!=null&&businessType==BUSINESS_TYPE
+                    &&blameType!=null&&blameType==BLAME_TYPE){
+                Integer inputMode = pictureInfoMq.getInputMode();
+                if(inputMode==null){
+                    logger.error("运单号"+pictureInfoMq.getBillCode()+"抽检类型为空");
+                    return;
+                }
+                if(inputMode == 2){
+                    //包裹维度抽检
+                    OpeEntity opeEntity = new OpeEntity();
+                    opeEntity.setOpeType(1);//分拣中心称重、长宽高
+                    opeEntity.setWaybillCode(pictureInfoMq.getBillCode());
+                    opeEntity.setOpeDetails(new ArrayList<OpeObject>());
+                    List<PackSpotCheckResult> detailList = pictureInfoMq.getDetailList();
+                    for(PackSpotCheckResult result : detailList){
+                        OpeObject obj = new OpeObject();
+                        obj.setOpeSiteId(pictureInfoMq.getReviewSecondLevelId());
+                        obj.setOpeSiteName(pictureInfoMq.getReviewSecondLevelName());
+                        obj.setPackageCode(result.getBillCode());
+                        obj.setpWeight(result.getWeight().floatValue());
+                        obj.setpLength(result.getLength().floatValue());
+                        obj.setpWidth(result.getWidth().floatValue());
+                        obj.setpHigh(result.getHeight().floatValue());
+//                        obj.setOpeUserId();
+                        obj.setOpeUserName(pictureInfoMq.getReviewErp());
+                        obj.setOpeTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(pictureInfoMq.getReviewDate()));
+                        opeEntity.getOpeDetails().add(obj);
+                    }
+                    String body = "[" + JsonHelper.toJson(opeEntity) + "]";
+                    Task task = new Task();
+                    task.setBody(body);
+                    task.setType(Task.TASK_TYPE_WEIGHT);
+                    task.setTableName(Task.getTableName(Task.TASK_TYPE_WEIGHT));
+                    task.setCreateSiteCode(opeEntity.getOpeDetails().get(0).getOpeSiteId());
+                    task.setKeyword1(String.valueOf(opeEntity.getOpeDetails().get(0).getOpeSiteId()));
+                    task.setKeyword2("上传长宽高、重量");
+                    task.setSequenceName(Task.getSequenceName(task.getTableName()));
+                    task.setReceiveSiteCode(opeEntity.getOpeDetails().get(0).getOpeSiteId());
+                    task.setOwnSign(BusinessHelper.getOwnSign());
+                    taskService.add(task);
 
-                OpeObject obj = new OpeObject();
-                obj.setOpeSiteId(pictureInfoMq.getReviewSecondLevelId());
-                obj.setOpeSiteName(pictureInfoMq.getReviewSecondLevelName());
-                obj.setpWeight(pictureInfoMq.getReviewWeight()==null?null:pictureInfoMq.getReviewWeight().floatValue());
-                obj.setPackageCode(pictureInfoMq.getBillCode());
-//            obj.setOpeUserId();
-                obj.setOpeUserName(pictureInfoMq.getReviewErp());
-                obj.setOpeTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(pictureInfoMq.getReviewDate()));
-                opeEntity.getOpeDetails().add(obj);
-                String body = "[" + JsonHelper.toJson(opeEntity) + "]";
-                Task task = new Task();
-                task.setBody(body);
-                task.setType(Task.TASK_TYPE_WEIGHT);
-                task.setTableName(Task.getTableName(Task.TASK_TYPE_WEIGHT));
-                task.setCreateSiteCode(opeEntity.getOpeDetails().get(0).getOpeSiteId());
-                task.setKeyword1(String.valueOf(opeEntity.getOpeDetails().get(0).getOpeSiteId()));
-                task.setKeyword2("上传长宽高、重量");
-                task.setSequenceName(Task.getSequenceName(task.getTableName()));
-                task.setReceiveSiteCode(opeEntity.getOpeDetails().get(0).getOpeSiteId());
-                task.setOwnSign(BusinessHelper.getOwnSign());
-                taskService.add(task);
+                }else if(inputMode == 1){
+                    //运单维度抽检
+                    WaybillWeightVO vo = new WaybillWeightVO();
+                    vo.setCodeStr(pictureInfoMq.getBillCode());
+                    vo.setWeight(pictureInfoMq.getReviewWeight());
+                    vo.setVolume(pictureInfoMq.getReviewVolume());
+                    vo.setOperatorName(pictureInfoMq.getReviewErp());
+                    vo.setOperatorSiteCode(pictureInfoMq.getReviewSecondLevelId());
+                    vo.setOperatorSiteName(pictureInfoMq.getReviewSecondLevelName());
+                    vo.setStatus(10);
+                    weighByWaybillService.insertWaybillWeightEntry(vo);
+                }
+
             }
         }catch (Exception e){
             logger.error("转换异常：" + message.getText(),e);
         }
     }
 
-    public class AbnormalMqOfB2bSpotCheck implements Serializable {
+    class AbnormalMqOfB2bSpotCheck implements Serializable {
         private static final long serialVersionUID = 1L;
         private String from;
         private String to;
@@ -106,6 +158,25 @@ public class SpotCheckConsumer extends MessageBaseConsumer {
         private Integer isExcess;
         private Integer blameType;
         private Integer businessType;
+
+        private Integer inputMode;
+        private List<PackSpotCheckResult> detailList;
+
+        public Integer getInputMode() {
+            return inputMode;
+        }
+
+        public void setInputMode(Integer inputMode) {
+            this.inputMode = inputMode;
+        }
+
+        public List<PackSpotCheckResult> getDetailList() {
+            return detailList;
+        }
+
+        public void setDetailList(List<PackSpotCheckResult> detailList) {
+            this.detailList = detailList;
+        }
 
         public String getFrom() {
             return from;
@@ -257,6 +328,54 @@ public class SpotCheckConsumer extends MessageBaseConsumer {
 
         public void setBusinessType(Integer businessType) {
             this.businessType = businessType;
+        }
+    }
+
+    class PackSpotCheckResult {
+        private String billCode;
+        private Double weight;
+        private Double length;
+        private Double width;
+        private Double height;
+
+        public String getBillCode() {
+            return billCode;
+        }
+
+        public void setBillCode(String billCode) {
+            this.billCode = billCode;
+        }
+
+        public Double getWeight() {
+            return weight;
+        }
+
+        public void setWeight(Double weight) {
+            this.weight = weight;
+        }
+
+        public Double getLength() {
+            return length;
+        }
+
+        public void setLength(Double length) {
+            this.length = length;
+        }
+
+        public Double getWidth() {
+            return width;
+        }
+
+        public void setWidth(Double width) {
+            this.width = width;
+        }
+
+        public Double getHeight() {
+            return height;
+        }
+
+        public void setHeight(Double height) {
+            this.height = height;
         }
     }
 

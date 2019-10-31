@@ -303,18 +303,17 @@ $(function () {
                 Jd.alert('请选中在提交!');
                 return;
             }
-            if(waybillData.length > 100){
-                Jd.alert('数据不能超过100条，请分批提交!');
+            if(waybillData.length > 1){
+                Jd.alert('请选中一条记录提交!');
                 return;
             }
-            var params = [];
+            var param = {};
             for(var i=0;i<waybillData.length;i++){
                 var uploadNum = $('#waybillDataTable')[0].rows[i+1].cells[6].innerHTML;
                 if(waybillData[i].isExcess == 1 && uploadNum != 5){
                     Jd.alert('请先上传'+waybillData[i].waybillCode+'的超标图片!');
                     return;
                 }
-                var param = {};
                 param.isWaybill = 1;
                 param.waybillOrPackageCode = waybillData[i].waybillCode;
                 param.packNum = waybillData[i].packNum;
@@ -324,7 +323,6 @@ $(function () {
                 param.upLoadNum = uploadNum;
                 param.createSiteCode = $('#createSiteCode').val();
                 param.loginErp = $('#loginErp').val();
-                params.push(param);
             }
 
             jQuery.ajax({
@@ -332,7 +330,7 @@ $(function () {
                 url: waybillSubmitUrl,
                 dataType: "json",//必须json
                 contentType: "application/json", // 指定这个协议很重要
-                data: JSON.stringify(params),
+                data: JSON.stringify(param),
                 async: true,
                 success: function (result) {
                     if(result && result.code == 200){

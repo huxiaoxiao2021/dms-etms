@@ -40,10 +40,10 @@ public interface WeightAndVolumeCheckOfB2bService {
 
     /**
      * 处理超标数据（运单维度）
-     * @param params
+     * @param param
      * @return
      */
-    InvokeResult<String> dealExcessDataOfWaybill(List<WeightVolumeCheckConditionB2b> params);
+    InvokeResult<String> dealExcessDataOfWaybill(WeightVolumeCheckConditionB2b param);
 
     /**
      * 处理超标数据（包裹维度）

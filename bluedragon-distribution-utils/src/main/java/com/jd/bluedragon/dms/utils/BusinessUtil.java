@@ -483,19 +483,36 @@ public class BusinessUtil {
     /**
      * 是否为商家类型
      */
-    public static boolean isBizSite(String sReceiveSiteType) {
+    public static boolean isBizSite(Integer siteType) {
+        return DmsConstants.SITE_TYPE_BIZ.equals(siteType);
+    }
 
-        Integer receiveSiteType;
-        try {
-            receiveSiteType = Integer.parseInt(sReceiveSiteType);
-        } catch (Exception e) {
-            return Boolean.FALSE;
-        }
+    /**
+     * 是否为仓类型
+     */
+    public static boolean isWmsSite(Integer siteType) {
+        return DmsConstants.SITE_TYPE_WMS.equals(siteType);
+    }
 
-        if (DmsConstants.SITE_TYPE_BIZ.equals(receiveSiteType)) {
-            return Boolean.TRUE;
-        }
-        return Boolean.FALSE;
+    /**
+     * 是否为分拣中心类型
+     */
+    public static boolean isDistrubutionCenter(Integer siteType) {
+        return DmsConstants.SITE_TYPE_DMS.equals(siteType);
+    }
+
+    /**
+     * 是否为站点类型
+     */
+    public static boolean isSite(Integer siteType) {
+        return DmsConstants.SITE_TYPE_SITE.equals(siteType);
+    }
+
+    /**
+     * 是否为车队类型
+     */
+    public static boolean isFleet(Integer siteType) {
+        return DmsConstants.SITE_TYPE_FLEET.equals(siteType);
     }
 
     /**
@@ -976,5 +993,14 @@ public class BusinessUtil {
      */
     public static boolean isFeatherLetter(String waybillSign){
         return isSignInChars(waybillSign, WaybillSignConstants.POSITION_92, WaybillSignConstants.CHAR_92_2,WaybillSignConstants.CHAR_92_3);
+    }
+
+    /**
+     * 是否是信任商家
+     * @param waybillSign
+     * @return true 是，false 不是
+     */
+    public static boolean isTrustBusi(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_56,WaybillSignConstants.CHAR_56_1);
     }
 }
