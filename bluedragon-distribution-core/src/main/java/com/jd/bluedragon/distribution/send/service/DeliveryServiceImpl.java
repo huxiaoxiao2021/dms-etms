@@ -12,6 +12,7 @@ import com.jd.bluedragon.core.base.DmsInterturnManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintTrack;
 import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
@@ -296,6 +297,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private DmsInterturnManager dmsInterturnManager;
+
+    @Autowired
+    private GroupBoardManager groupBoardManager;
 
     @Autowired
     private ReversePartDetailService reversePartDetailService;
@@ -1838,14 +1842,9 @@ public class DeliveryServiceImpl implements DeliveryService {
                 //生产一个按板号取消发货的任务
                 pushBoardSendTask(tSendM,Task.TASK_TYPE_BOARD_SEND_CANCEL);
                 //将板由“关闭”状态变为“组板中”的状态
-                OperatorInfo operatorInfo = new OperatorInfo();
-                operatorInfo.setOperatorErp(Integer.toString(tSendM.getUpdateUserCode()));
-                operatorInfo.setOperatorName(tSendM.getUpdaterUser());
-                operatorInfo.setSiteCode(tSendM.getCreateSiteCode());
-                operatorInfo.setSiteName(baseMajorManager.getBaseSiteBySiteId(tSendM.getCreateSiteCode()).getSiteName());
                 List<String> boardList = new ArrayList<>();
                 boardList.add(tSendM.getBoardCode());
-                groupBoardService.resuseBoards(boardList,operatorInfo);
+                changeBoardStatus(tSendM,boardList);
                 return new ThreeDeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, null);
             } else if (BusinessHelper.isSendCode(tSendM.getSendCode()) && tSendM.getCreateSiteCode() != null) {
                 CallerInfo callerInfo = Profiler.registerInfo("DMS.WEB.deliveryService.cancelBySendCode",Constants.SYSTEM_CODE_WEB,false,true);
@@ -1916,13 +1915,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                 for (String boardCode : boardSet) {
                     boardList.add(boardCode);
                 }
-                OperatorInfo operatorInfo = new OperatorInfo();
-                operatorInfo.setOperatorErp(Integer.toString(tSendM.getUpdateUserCode()));
-                operatorInfo.setOperatorName(tSendM.getUpdaterUser());
-                operatorInfo.setSiteCode(tSendM.getCreateSiteCode());
-                operatorInfo.setSiteName(baseMajorManager.getBaseSiteBySiteId(tSendM.getCreateSiteCode()).getSiteName());
-                //取消板号的关闭状态
-                groupBoardService.resuseBoards(boardList,operatorInfo);
+                changeBoardStatus(tSendM,boardList);
                 Profiler.registerInfoEnd(callerInfo);
                 return new ThreeDeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, null);
             }
@@ -1937,8 +1930,21 @@ public class DeliveryServiceImpl implements DeliveryService {
                 DeliveryResponse.MESSAGE_Delivery_NO_REQUEST, null);
     }
 
+    //将板号由“关闭”状态变更未“组板中”状态
+    public void changeBoardStatus(SendM tSendM,List<String> boardList){
+        OperatorInfo operatorInfo = new OperatorInfo();
+        operatorInfo.setOperatorErp(Integer.toString(tSendM.getUpdateUserCode()));
+        operatorInfo.setOperatorName(tSendM.getUpdaterUser());
+        operatorInfo.setSiteCode(tSendM.getCreateSiteCode());
+        BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(tSendM.getCreateSiteCode());
+        if(baseStaffSiteOrgDto != null){
+            operatorInfo.setSiteName(baseMajorManager.getBaseSiteBySiteId(tSendM.getCreateSiteCode()).getSiteName());
+        }
+        //取消板号的关闭状态
+        groupBoardManager.resuseBoards(boardList,operatorInfo);
+    }
 
-    private void delDeliveryFromRedis(SendM sendM) {
+   private void delDeliveryFromRedis(SendM sendM) {
         Long result = redisManager.del(
                 CacheKeyConstants.REDIS_KEY_IS_DELIVERY
                         + sendM.getCreateSiteCode()
