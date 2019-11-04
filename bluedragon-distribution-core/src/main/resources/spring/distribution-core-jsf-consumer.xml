@@ -523,4 +523,8 @@
                   protocol="jsf" alias="${jsf.jdwlSignService.alias}" timeout="${jsf.jdwlSignService.timeout}" retries="${jsf.retries}" >
     </jsf:consumer>
 
+    <jsf:consumer id="ecpAirWS" interface="com.jd.tms.ecp.ws.EcpAirWS" protocol="jsf" alias="${tms.ecp.jsf.alias}" timeout="${tms.ecp.jsf.timeout}"
+                  retries="1"/>
+
+
 </beans>
