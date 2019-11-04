@@ -839,11 +839,13 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
                             *(lastFlowDetail.getpWidth()==null?0.00:lastFlowDetail.getpWidth())
                             *(lastFlowDetail.getpHigh()==null?0.00:lastFlowDetail.getpHigh());
                 }else{
-                    getTotalWeightAndVolume(packageMap,totalWeight,totalVolume);
+                    totalWeight = getTotalWeightAndVolume(packageMap,1);
+                    totalVolume = getTotalWeightAndVolume(packageMap,0);
                 }
             }else {
                 //包裹
-                getTotalWeightAndVolume(waybillAndPackMap,totalWeight,totalVolume);
+                totalWeight = getTotalWeightAndVolume(waybillAndPackMap,1);
+                totalVolume = getTotalWeightAndVolume(waybillAndPackMap,0);
             }
         }else {
             //整单
@@ -868,16 +870,22 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
     /**
      * 设置总重量总体积
      * @param map
-     * @param totalWeight
-     * @param totalVolume
+     * @param type 1:重量 0:体积
      */
-    private void getTotalWeightAndVolume(Map<String, PackFlowDetail> map, Double totalWeight, Double totalVolume) {
+    private Double getTotalWeightAndVolume(Map<String, PackFlowDetail> map, Integer type) {
+        Double totalWeight = 0.00;
+        Double totalVolume = 0.00;
         for(String packageCode : map.keySet()){
             PackFlowDetail flowDetail = map.get(packageCode);
             totalWeight = totalWeight + (flowDetail.getpWeight()==null?0.00:flowDetail.getpWeight());
             totalVolume = totalVolume + ((flowDetail.getpLength()==null?0.00:flowDetail.getpLength())
                     *(flowDetail.getpWidth()==null?0.00:flowDetail.getpWidth())
                     *(flowDetail.getpHigh()==null?0.00:flowDetail.getpHigh()));
+        }
+        if(type==1){
+            return totalWeight;
+        }else {
+            return totalVolume;
         }
     }
 
