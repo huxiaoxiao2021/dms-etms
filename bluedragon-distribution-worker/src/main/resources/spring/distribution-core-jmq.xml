@@ -269,9 +269,8 @@
     </bean>
 
     <!--运单称重mq 整单量方称重信息 发送给运单系统 added by luyue-->
-    <bean id="weighByWaybillProducer" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+    <bean id="weighByWaybillProducer" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.dms.waybill.weight}"/>
-        <property name="timeout" value="1000"/>
     </bean>
 
     <!--PDA操作取消发货MQ-->

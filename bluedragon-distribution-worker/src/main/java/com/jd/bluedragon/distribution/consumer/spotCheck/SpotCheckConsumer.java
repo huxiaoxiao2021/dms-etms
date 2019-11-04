@@ -84,6 +84,7 @@ public class SpotCheckConsumer extends MessageBaseConsumer {
                     logger.error("运单号"+pictureInfoMq.getBillCode()+"抽检类型为空");
                     return;
                 }
+                logger.info("运单号"+pictureInfoMq.getBillCode()+"的抽检回传消息："+message.getText());
                 if(inputMode == 2){
                     //包裹维度抽检
                     OpeEntity opeEntity = new OpeEntity();

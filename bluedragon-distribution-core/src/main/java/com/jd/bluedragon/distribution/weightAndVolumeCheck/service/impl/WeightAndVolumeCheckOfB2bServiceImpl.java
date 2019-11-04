@@ -708,11 +708,9 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         WaybillFlowDetail waybillFlowDetail = new WaybillFlowDetail();
         Page<PackFlowDetail> page = new Page<>();
         page.setPageSize(1000);
-        //TODO 放在manager中
-        com.jd.etms.waybill.domain.BaseEntity<Page<PackFlowDetail>> baseEntity = waybillPackageManager.getOpeDetailByCode(waybillCode,page);
-        if(baseEntity != null && baseEntity.getData() != null
-                && !CollectionUtils.isEmpty(baseEntity.getData().getResult())){
-            List<PackFlowDetail> list = baseEntity.getData().getResult();
+        Page<PackFlowDetail> result = waybillPackageManager.getOpeDetailByCode(waybillCode, page);
+        if(result != null && !CollectionUtils.isEmpty(result.getResult())){
+            List<PackFlowDetail> list = result.getResult();
             List<PackFlowDetail> timeSortList = new ArrayList<>();
             //排除重量体积均为0的情况(系统卡控)
             for(PackFlowDetail detail : list){
@@ -735,9 +733,8 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             Collections.sort(timeSortList, new Comparator<PackFlowDetail>() {
                 @Override
                 public int compare(PackFlowDetail o1, PackFlowDetail o2) {
-                    //TODO
                     if(o1.getWeighTime() == null || o2.getWeighTime() == null){
-                        return 0;
+                        return -1;
                     }
                     return o1.getWeighTime().compareTo(o2.getWeighTime());
                 }
@@ -748,7 +745,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
                 @Override
                 public int compare(PackFlowDetail o1, PackFlowDetail o2) {
                     if(o1.getMeasureTime() == null || o2.getMeasureTime() == null){
-                        return 0;
+                        return -1;
                     }
                     return o1.getMeasureTime().compareTo(o2.getMeasureTime());
                 }
@@ -819,32 +816,34 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         if(realList.size() == 0){
             return 0.00;
         }
-        Map<String,PackFlowDetail> map1 = new LinkedHashMap<>();
-        Map<String,PackFlowDetail> map2 = new LinkedHashMap<>();
+        Map<String,PackFlowDetail> waybillAndPackMap = new LinkedHashMap<>();
+        Map<String,PackFlowDetail> waybillMap = new LinkedHashMap<>();
+        Map<String,PackFlowDetail> packageMap = new LinkedHashMap<>();
         for(PackFlowDetail detail : realList){
             if(WaybillUtil.isWaybillCode(detail.getPackageCode())){
-                map2.put(detail.getPackageCode(),detail);
+                waybillMap.put(detail.getPackageCode(),detail);
+            }else {
+                packageMap.put(detail.getPackageCode(),detail);
             }
-            map1.put(detail.getPackageCode(),detail);
+            waybillAndPackMap.put(detail.getPackageCode(),detail);
         }
-        if(map1.size() > map2.size()){
-            if(map2.size() != 0){
+        if(waybillAndPackMap.size() > waybillMap.size()){
+            if(waybillMap.size() != 0){
                 //既有整单又有包裹
-                PackFlowDetail flowDetail = realList.get(realList.size()-1);
-                totalWeight = flowDetail.getpWeight();
-                if(flowDetail.getpLength()==null
-                        || flowDetail.getpWidth()==null || flowDetail.getpHigh()==null){
-                    totalVolume = 0.00;
-                }else {
-                    totalVolume = flowDetail.getpLength()*flowDetail.getpWidth()*flowDetail.getpHigh();
+                PackFlowDetail lastFlowDetail = realList.get(realList.size() - 1);
+                String waybillCode = lastFlowDetail.getWaybillCode();
+                //最后一次是运单则取运单，否则取包裹总和
+                if(WaybillUtil.isWaybillCode(waybillCode)){
+                    totalWeight = lastFlowDetail.getpWeight();
+                    totalVolume = (lastFlowDetail.getpLength()==null?0.00:lastFlowDetail.getpLength())
+                            *(lastFlowDetail.getpWidth()==null?0.00:lastFlowDetail.getpWidth())
+                            *(lastFlowDetail.getpHigh()==null?0.00:lastFlowDetail.getpHigh());
+                }else{
+                    getTotalWeightAndVolume(packageMap,totalWeight,totalVolume);
                 }
             }else {
                 //包裹
-                for(String packageCode : map1.keySet()){
-                    PackFlowDetail flowDetail = map1.get(packageCode);
-                    totalWeight = totalWeight + flowDetail.getpWeight();
-                    totalVolume = totalVolume + (flowDetail.getpLength()*flowDetail.getpWidth()*flowDetail.getpHigh());
-                }
+                getTotalWeightAndVolume(waybillAndPackMap,totalWeight,totalVolume);
             }
         }else {
             //整单
@@ -854,13 +853,31 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
                     || flowDetail.getpWidth()==null || flowDetail.getpHigh()==null){
                 totalVolume = 0.00;
             }else {
-                totalVolume = flowDetail.getpLength()*flowDetail.getpWidth()*flowDetail.getpHigh();
+                totalVolume = (flowDetail.getpLength()==null?0.00:flowDetail.getpLength())
+                        *(flowDetail.getpWidth()==null?0.00:flowDetail.getpWidth())
+                        *(flowDetail.getpHigh()==null?0.00:flowDetail.getpHigh());
             }
         }
         if(type == 1){
             return totalWeight;
         }else {
             return totalVolume;
+        }
+    }
+
+    /**
+     * 设置总重量总体积
+     * @param map
+     * @param totalWeight
+     * @param totalVolume
+     */
+    private void getTotalWeightAndVolume(Map<String, PackFlowDetail> map, Double totalWeight, Double totalVolume) {
+        for(String packageCode : map.keySet()){
+            PackFlowDetail flowDetail = map.get(packageCode);
+            totalWeight = totalWeight + (flowDetail.getpWeight()==null?0.00:flowDetail.getpWeight());
+            totalVolume = totalVolume + ((flowDetail.getpLength()==null?0.00:flowDetail.getpLength())
+                    *(flowDetail.getpWidth()==null?0.00:flowDetail.getpWidth())
+                    *(flowDetail.getpHigh()==null?0.00:flowDetail.getpHigh()));
         }
     }
 

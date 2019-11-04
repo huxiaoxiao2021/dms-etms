@@ -67,5 +67,5 @@ public interface WaybillPackageManager {
      * @param page
      * @return
      */
-    BaseEntity<Page<PackFlowDetail>> getOpeDetailByCode(String waybillCode,Page<PackFlowDetail> page);
+    Page<PackFlowDetail> getOpeDetailByCode(String waybillCode,Page<PackFlowDetail> page);
 }

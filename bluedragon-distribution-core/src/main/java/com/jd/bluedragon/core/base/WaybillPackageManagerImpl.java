@@ -248,7 +248,14 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
     @JProfiler(jKey = "DMS.BASE.WaybillPackageManagerImpl.getOpeDetailByCode", jAppName = Constants.UMP_APP_NAME_DMSWEB,
             mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
-    public BaseEntity<Page<PackFlowDetail>> getOpeDetailByCode(String waybillCode,Page<PackFlowDetail> page) {
-        return waybillPackageApi.getOpeDetailByCode(waybillCode,page);
+    public Page<PackFlowDetail> getOpeDetailByCode(String waybillCode,Page<PackFlowDetail> page) {
+        BaseEntity<Page<PackFlowDetail>> baseEntity = waybillPackageApi.getOpeDetailByCode(waybillCode, page);
+        if(baseEntity != null
+                && baseEntity.getResultCode() == 1 && baseEntity.getData() != null){
+            return baseEntity.getData();
+        }else {
+            logger.error("根据运单"+waybillCode+"查询运单称重流水数据失败!");
+            return null;
+        }
     }
 }
