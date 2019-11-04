@@ -831,7 +831,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             if(waybillMap.size() != 0){
                 //既有整单又有包裹
                 PackFlowDetail lastFlowDetail = realList.get(realList.size() - 1);
-                String waybillCode = lastFlowDetail.getWaybillCode();
+                String waybillCode = lastFlowDetail.getPackageCode();
                 //最后一次是运单则取运单，否则取包裹总和
                 if(WaybillUtil.isWaybillCode(waybillCode)){
                     totalWeight = lastFlowDetail.getpWeight();
