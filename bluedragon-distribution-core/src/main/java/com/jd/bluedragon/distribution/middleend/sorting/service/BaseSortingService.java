@@ -29,8 +29,8 @@ import com.jd.ql.shared.services.sorting.api.dto.SortingDirection;
 import com.jd.ql.shared.services.sorting.api.dto.SortingObject;
 import com.jd.ql.shared.services.sorting.api.dto.SortingObjectStatus;
 import com.jd.ql.shared.services.sorting.api.dto.SortingObjectType;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,8 +80,8 @@ public abstract class BaseSortingService {
      * @param sortingTask
      * @return
      */
-    @JProfiler(jKey = "DMSWORKER.BaseSortingService.doSorting", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWORKER)
     public boolean doSorting(Task sortingTask) {
+        CallerInfo info = Profiler.registerInfo("DMSWORKER.BaseSortingService.doSorting", Constants.UMP_APP_NAME_DMSWORKER, false, true);
         String fingerPrintKey = "";
         try {
             //验重
@@ -100,9 +100,11 @@ public abstract class BaseSortingService {
             return true;
         } catch (Exception e) {
             logger.error("分拣操作异常.参数:" + JSON.toJSONString(sortingTask) + ",异常原因:", e);
+            Profiler.functionError(info);
             return false;
         } finally {
             delCache(fingerPrintKey);
+            Profiler.registerInfoEnd(info);
         }
     }
 
