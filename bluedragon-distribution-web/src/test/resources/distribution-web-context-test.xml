@@ -43,7 +43,6 @@
 <!--	<context:component-scan base-package="com.jd.bluedragon.distribution.rest" />-->
 	<context:component-scan base-package="com.jd.bluedragon.distribution.external" />
 	<context:component-scan base-package="com.jd.common.authorization"/>
-	<import resource="classpath:spring/distribution-core-jsf-consumer.xml"/>
     <import resource="classpath:spring/distribution-core-redis.xml" />
     <import resource="classpath:spring/mysql/jddl/distribution-core-common-jddl.xml" />
 
