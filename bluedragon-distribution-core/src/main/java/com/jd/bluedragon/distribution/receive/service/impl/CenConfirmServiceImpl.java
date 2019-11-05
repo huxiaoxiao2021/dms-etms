@@ -22,7 +22,8 @@ import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +33,7 @@ import java.util.List;
 @Service("cenConfirmService")
 public class CenConfirmServiceImpl implements CenConfirmService {
 
-	private Logger log = Logger.getLogger(CenConfirmServiceImpl.class);
+	private Logger log = LoggerFactory.getLogger(CenConfirmServiceImpl.class);
 
 	@Autowired
 	private CenConfirmDao cenConfirmDao;
@@ -85,7 +86,7 @@ public class CenConfirmServiceImpl implements CenConfirmService {
              */
             inspectionNotifyService.send(inspectionMQBody);
         }catch (Throwable throwable){
-            log.error("推送验货MQ异常",throwable);
+            log.error("推送验货MQ异常,WaybillCode:{}",inspectionMQBody.getWaybillCode(),throwable);
         }
 		if (Constants.BUSSINESS_TYPE_POSITIVE == cenConfirm.getType()
 				|| Constants.BUSSINESS_TYPE_REVERSE == cenConfirm.getType()) {
@@ -209,19 +210,16 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 				String waybillCode = ptask.getOldWaybillCode();
 				cenConfirm.setPickupCode(pickupCode);
 				cenConfirm.setWaybillCode(waybillCode);
-				log.info("调用获取取件单号接口成功:取件单序列号=["
-						+ cenConfirm.getPackageBarcode() + "]取件单号=["
-						+ pickupCode + "]运单号=[" + waybillCode + "]:"
-						+ baseEntity.getMessage());
+				log.info("调用获取取件单号接口成功:取件单序列号={}取件单号={}运单号={}",
+						cenConfirm.getPackageBarcode(),pickupCode,waybillCode,baseEntity.getMessage());
 				return cenConfirm;
 			} else {
-				log.error("调用获取取件单号接口失败(返回data=null):取件单序列号=["
-						+ cenConfirm.getPackageBarcode() + "]:"
-						+ baseEntity.getMessage());
+				log.warn("调用获取取件单号接口失败(返回data=null):取件单序列号={}:{}",
+						cenConfirm.getPackageBarcode(), baseEntity.getMessage());
 			}
 		} else {
-			log.error("获取[取件单号]接口失败:取件单序列号=[" + cenConfirm.getPackageBarcode()
-					+ "]:" + baseEntity.getMessage());
+			log.warn("获取[取件单号]接口失败:取件单序列号={}:{}",
+					cenConfirm.getPackageBarcode(), baseEntity.getMessage());
 		}
 		return cenConfirm;
 	}
@@ -229,7 +227,7 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 	@Override
 	public List<CenConfirm> queryHandoverInfo(CenConfirm cenConfirm) {
 		if(cenConfirm.getCreateSiteCode()==null){
-			log.error("[CenConfirmServiceImpl.queryHandoverInfo]create_site_code为null");
+			log.warn("[CenConfirmServiceImpl.queryHandoverInfo]create_site_code为null");
 			return null;
 		}
 		return cenConfirmDao.queryHandoverInfo(cenConfirm);
@@ -246,16 +244,14 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 		Integer cenConfirmSiteCode = cenConfirm.getCreateSiteCode();
 		BaseStaffSiteOrgDto bDto = baseService.getSiteBySiteID(cenConfirmSiteCode);
 		if (bDto == null) {
-			log.warn("fillOperateType------>根据[SiteCode="
-					+ cenConfirmSiteCode
-					+ "]获取基础资料[站点类型]baseService.getSiteBySiteID返回null");
+			log.warn("fillOperateType------>根据[SiteCode={}]获取基础资料[站点类型]baseService.getSiteBySiteID返回null",cenConfirmSiteCode);
 			cenConfirm.setOperateType(-3);// 失败(根据目的站点调用基础资料获取站点类型返回null)
 			return cenConfirm;
 		} else {
 			if (bDto.getSiteType() != null) {
 				return setOperateTypeByWaybill(cenConfirm, bDto.getSiteType());
 			} else {
-				log.warn("fillOperateType------>baseService.getSiteBySiteID返回对象bDto.getSiteType()=null");
+				log.warn("fillOperateType------>[SiteCode={}]获取基础资料baseService.getSiteBySiteID返回对象bDto.getSiteType()=null",cenConfirmSiteCode);
 				cenConfirm.setOperateType(-4);// 失败(根据目的站点调用基础资料获取站点类型返回对象bDto.getSiteType()=null)
 				return cenConfirm;
 			}
@@ -278,8 +274,7 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 				&& cenConfirm.getType().intValue() == Constants.BUSSINESS_TYPE_POSITIVE) {
 			cenConfirm.setOperateType(Constants.TRANS_SORTING_OPERATE_TYPE);// 跨分拣中心收货
 		} else {
-			log.error("[收货确认ID=" + cenConfirm.getConfirmId()
-					+ "]的数据设置[OPERATE_TYPE]失败");
+			log.warn("[收货确认ID={}]的数据设置[OPERATE_TYPE]失败", cenConfirm.getConfirmId());
 			// 设置默认值
 			cenConfirm.setOperateType(-1);// 根据站点类型匹配异常
 		}
@@ -294,9 +289,8 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 			rDto = baseService.getSiteBySiteID(cenConfirm.getReceiveSiteCode());
 		}
 		if (bDto == null) {
-			log.error("[PackageBarcode=" + cenConfirm.getPackageBarcode()
-					+ "]根据[siteCode=" + cenConfirm.getCreateSiteCode()
-					+ "]获取基础资料站点信息[getSiteBySiteID]返回null,不再插入"+message);
+			log.warn("[PackageBarcode={}]根据[siteCode={}]获取基础资料站点信息[getSiteBySiteID]返回null,不再插入{}",
+					cenConfirm.getPackageBarcode(),cenConfirm.getCreateSiteCode(),message);
 		} else {
 			WaybillStatus tWaybillStatus = createWaybillStatus(cenConfirm,
 					bDto, rDto);
@@ -304,9 +298,8 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 				// 添加到task表
 				taskService.add(this.toTask(tWaybillStatus, cenConfirm.getOperateType()));
 			} else {
-				log.error("[PackageCode=" + tWaybillStatus.getPackageCode()
-						+ " WaybillCode=" + tWaybillStatus.getWaybillCode()
-						+ "][参数信息不全],不再插入"+message);
+				log.warn("[PackageCode={} WaybillCode={}][参数信息不全],不再插入{}",
+						tWaybillStatus.getPackageCode(), tWaybillStatus.getWaybillCode(), message);
 			}
 
 		}
@@ -434,38 +427,30 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 				&& (tWaybillStatus.getPackageCode() == null
 						|| "".equals(tWaybillStatus.getPackageCode()) || "-1"
 							.equals(tWaybillStatus.getPackageCode()))) {
-            LogHelper.errorUseCurrentStackTrace(log,"CenConfirmServiceImpl.checkFormat[PackageCode]return false");
+			log.warn("CenConfirmServiceImpl.checkFormat[PackageCode]return false");
 			return Boolean.FALSE;
 		} else if (tWaybillStatus.getCreateSiteCode() == null) {
-            log.error("CenConfirmServiceImpl.checkFormat[CreateSiteCode]return false");
-            LogHelper.errorUseCurrentStackTrace(log, "");
+            log.warn("CenConfirmServiceImpl.checkFormat[CreateSiteCode]return false");
 			return Boolean.FALSE;
 		} else if (tWaybillStatus.getCreateSiteName() == null
 				|| "".equals(tWaybillStatus.getCreateSiteName())) {
-			log.error("CenConfirmServiceImpl.checkFormat[CreateSiteName]return false");
-            LogHelper.errorUseCurrentStackTrace(log, "");
+			log.warn("CenConfirmServiceImpl.checkFormat[CreateSiteName]return false");
 			return Boolean.FALSE;
 		} else if (tWaybillStatus.getCreateSiteType() == null) {
-            LogHelper.errorUseCurrentStackTrace(log, "");
-			log.error("CenConfirmServiceImpl.checkFormat[CreateSiteType]return false");
-            LogHelper.errorUseCurrentStackTrace(log, "");
+			log.warn("CenConfirmServiceImpl.checkFormat[CreateSiteType]return false");
 			return Boolean.FALSE;
 		} else if (tWaybillStatus.getOperatorId() == null) {
-			log.error("CenConfirmServiceImpl.checkFormat[OperatorId]return false");
-            LogHelper.errorUseCurrentStackTrace(log, "");
+			log.warn("CenConfirmServiceImpl.checkFormat[OperatorId]return false");
 			return Boolean.FALSE;
 		} else if (tWaybillStatus.getOperator() == null
 				|| "".equals(tWaybillStatus.getOperator())) {
-			log.error("CenConfirmServiceImpl.checkFormat[Operator]return false");
-            LogHelper.errorUseCurrentStackTrace(log, "");
+			log.warn("CenConfirmServiceImpl.checkFormat[Operator]return false");
 			return Boolean.FALSE;
 		} else if (tWaybillStatus.getOperateTime() == null) {
-			log.error("CenConfirmServiceImpl.checkFormat[OperateTime]return false");
-            LogHelper.errorUseCurrentStackTrace(log, "");
+			log.warn("CenConfirmServiceImpl.checkFormat[OperateTime]return false");
 			return Boolean.FALSE;
 		} else if (tWaybillStatus.getOrgId() == null) {
-			log.error("CenConfirmServiceImpl.checkFormat[OrgId]return false");
-            LogHelper.errorUseCurrentStackTrace(log, "");
+			log.warn("CenConfirmServiceImpl.checkFormat[OrgId]return false");
 			return Boolean.FALSE;
 		} else {
 			return Boolean.TRUE;

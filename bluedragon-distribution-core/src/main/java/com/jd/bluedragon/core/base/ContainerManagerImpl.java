@@ -14,8 +14,8 @@ import com.jd.ql.shared.services.sorting.api.dto.*;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +31,7 @@ import java.util.*;
 @Service("containerManager")
 public class ContainerManagerImpl implements ContainerManager{
 
-    private Log log = LogFactory.getLog(ContainerManagerImpl.class);
+    private Logger log = LoggerFactory.getLogger(ContainerManagerImpl.class);
 
     @Autowired
     private ContainerService containerService;
@@ -63,7 +63,7 @@ public class ContainerManagerImpl implements ContainerManager{
         log.info("中台创建容器结果：" + JsonHelper.toJson(apiResult));
 
         if(ApiResult.OK_CODE != apiResult.getCode()){
-            log.warn("通过中台创建箱号失败：" + JsonHelper.toJson(apiResult));
+            log.warn("通过中台创建箱号失败：{}" + apiResult.getMessage());
             throw new Exception("通过中台创建箱号失败：" + apiResult.getMessage());
         }
         List<Container> containers = apiResult.getData();
@@ -97,7 +97,7 @@ public class ContainerManagerImpl implements ContainerManager{
                                                Double length, Double width, Double height) throws Exception{
         //体积为0不用更新直接返回成功
         if(length == null || width == null || height == null){
-            log.warn("箱号体积为0，不再更新中台容器体积：" + boxCode);
+            log.warn("箱号体积为0，不再更新中台容器体积：{}" , boxCode);
             return true;
         }
         log.info("中台更新容器体积：" + boxCode);
@@ -109,7 +109,7 @@ public class ContainerManagerImpl implements ContainerManager{
         log.info("中台更新体积结果：" + JsonHelper.toJson(apiResult));
 
         if(ApiResult.OK_CODE != apiResult.getCode()){
-            log.warn("通过中台更新箱号体积失败：" + JsonHelper.toJson(apiResult));
+            log.warn("通过中台更新箱号体积失败：{}" , apiResult.getMessage());
             throw new Exception("通过中台更新箱号体积失败：" + apiResult.getMessage());
         }
         return true;
@@ -125,7 +125,7 @@ public class ContainerManagerImpl implements ContainerManager{
         log.info("中台更新容器状态为发货结果：" + JsonHelper.toJson(apiResult));
 
         if(ApiResult.OK_CODE != apiResult.getCode()){
-            log.warn("通过中台更新箱号发货状态失败：" + JsonHelper.toJson(apiResult));
+            log.warn("通过中台更新箱号发货状态失败：{}" , apiResult.getMessage());
             throw new Exception("通过中台更新箱号发货状态失败：" + apiResult.getMessage());
         }
         return true;
@@ -141,7 +141,7 @@ public class ContainerManagerImpl implements ContainerManager{
         log.info("中台更新容器状态为取消发货结果：" + JsonHelper.toJson(apiResult));
 
         if(ApiResult.OK_CODE != apiResult.getCode()){
-            log.warn("通过中台更新箱号发货状态失败：" + JsonHelper.toJson(apiResult));
+            log.warn("通过中台更新箱号发货状态失败：{}" , apiResult.getMessage());
             throw new Exception("通过中台更新箱号发货状态失败：" + apiResult.getMessage());
         }
         return true;
@@ -159,7 +159,7 @@ public class ContainerManagerImpl implements ContainerManager{
         if(ApiResult.OK_CODE == apiResult.getCode()){
             box = container2Box(apiResult.getData());
         }else{
-            log.warn("通过中台查询箱号失败：" + JsonHelper.toJson(apiResult));
+            log.warn("通过中台查询箱号失败：{}" , apiResult.getMessage());
             throw new Exception("通过中台查询箱号失败：" + apiResult.getMessage());
         }
         return box;
@@ -185,7 +185,7 @@ public class ContainerManagerImpl implements ContainerManager{
             if(ApiResult.OK_CODE == apiResult.getCode() && Boolean.TRUE.equals(apiResult.getData())){
                 result = true;
             }else{
-                log.warn("分组信息写入中台失败：" + JsonHelper.toJson(apiResult));
+                log.warn("分组信息写入中台失败：{}" , apiResult.getMessage());
             }
         }catch (Exception e){
             log.error("分组信息写入中台异常：" + JsonHelper.toJson(groupList), e);

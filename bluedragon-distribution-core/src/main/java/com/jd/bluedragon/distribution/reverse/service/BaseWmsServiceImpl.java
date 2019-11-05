@@ -7,7 +7,8 @@ import java.util.List;
 import java.util.Set;
 
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +30,7 @@ import com.jd.wms.packExchange.domains.packExchange.dto.BlueLongDTO;
 public class BaseWmsServiceImpl implements BaseWmsService {
 	
 	/** 日志 */
-	private Logger log = Logger.getLogger(BaseWmsServiceImpl.class);
+	private Logger log = LoggerFactory.getLogger(BaseWmsServiceImpl.class);
 	
 	private String packExchangeBizTokenJasonAsia;
 	
@@ -50,7 +51,7 @@ public class BaseWmsServiceImpl implements BaseWmsService {
 		reverseSendWms.setStoreId(site.getStoreId());
 		
 		if (reverseSendWms.getProList()==null||reverseSendWms.getProList().size()==0) {
-			log.info("BaseWmsServiceImpl 订单号： " + orderCode + " 获得商品数据为空");
+			log.info("BaseWmsServiceImpl 订单号： {} 获得商品数据为空", orderCode);
 		}
 		return reverseSendWms;
 	}

@@ -37,7 +37,7 @@ public class RedisTaskHelper {
 	public boolean validateQueueKey(QueueKeyInfo queueKeyInfo){
 		boolean result = false;
 		if(redisClient==null){
-			log.error("RedisTaskHelper.redisClient 为空, 请检查redis服务器是否存活、系统启动有无异常!");
+			log.warn("RedisTaskHelper.redisClient 为空, 请检查redis服务器是否存活、系统启动有无异常!");
 			return result;//如果redis客户端注入不成功，则直接返回false
 		}
 		
@@ -81,7 +81,7 @@ public class RedisTaskHelper {
     @JProfiler(jKey = "RedisTaskHelper.getQueueMap", mState = {JProEnum.TP})
 	public Map<String, ScheduleQueue> getQueueMap(QueueKeyInfo queueKeyInfo) {
 		if(redisClient==null){
-			log.error("RedisTaskHelper.redisClient 为空, 请检查redis服务器是否存活、系统启动有无异常!");
+			log.warn("RedisTaskHelper.redisClient 为空, 请检查redis服务器是否存活、系统启动有无异常!");
 			return null;//如果redis客户端注入不成功，则直接返回null
 		}
 		

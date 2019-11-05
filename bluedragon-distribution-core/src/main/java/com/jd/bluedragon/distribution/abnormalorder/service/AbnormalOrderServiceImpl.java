@@ -21,7 +21,8 @@ import com.jd.etms.waybill.handler.WaybillSyncParameterExtend;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -41,7 +42,7 @@ public class AbnormalOrderServiceImpl implements AbnormalOrderService {
 	
 	private static final Integer SITE_CENTER_CODE = 64;
 
-	private Logger log = Logger.getLogger(AbnormalOrderServiceImpl.class);
+	private Logger log = LoggerFactory.getLogger(AbnormalOrderServiceImpl.class);
 
     @Autowired
     @Qualifier("pushFXMMQ")
@@ -127,7 +128,7 @@ public class AbnormalOrderServiceImpl implements AbnormalOrderService {
 
 			/** 发质控和全程跟踪 */
 			try {
-				log.warn("分拣中心外呼申请发质控和全程跟踪开始。运单号" + abnormalOrder.getOrderId());
+				log.warn("分拣中心外呼申请发质控和全程跟踪开始。运单号{}" , abnormalOrder.getOrderId());
 				toWaybillTraceWS(abnormalOrder);  // 推全程跟踪
 				toQualityControlMQ(abnormalOrder);  // 推质控
 			} catch (Exception ex) {
@@ -147,7 +148,7 @@ public class AbnormalOrderServiceImpl implements AbnormalOrderService {
 
 
 	public void toQualityControlMQ(AbnormalOrder abnormalOrder){
-		log.warn("分拣中心外呼申请发质控转换之前数据为" + JsonHelper.toJson(abnormalOrder));
+		log.warn("分拣中心外呼申请发质控转换之前数据为{}",JsonHelper.toJson(abnormalOrder));
 		QualityControl qualityControl = new QualityControl();
 		qualityControl.setBlameDept(abnormalOrder.getCreateSiteCode());
 		qualityControl.setBlameDeptName(abnormalOrder.getCreateSiteName());
@@ -162,7 +163,6 @@ public class AbnormalOrderServiceImpl implements AbnormalOrderService {
 		qualityControl.setSystemName(QualityControl.SYSTEM_NAME);
 		qualityControl.setExtraCode(abnormalOrder.getFingerprint());
 		qualityControl.setReturnState("null");
-		log.warn("分拣中心外呼申请发质控消息为" + JsonHelper.toJson(qualityControl));
 		//messageClient.sendMessage(MessageDestinationConstant.QualityControlFXMMQ.getName(), JsonHelper.toJson(qualityControl),abnormalOrder.getOrderId());
         bdDmsAbnormalOrderToQcMQ.sendOnFailPersistent(abnormalOrder.getOrderId(),JsonHelper.toJson(qualityControl));
     }

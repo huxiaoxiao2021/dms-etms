@@ -13,6 +13,8 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -30,7 +32,7 @@ import java.util.List;
 @Service
 public class ReverseSendPopMessageServiceImpl implements ReverseSendPopMessageService {
 
-    private static Log log = LogFactory.getLog(ReverseSendPopMessageServiceImpl.class);
+    private static Logger log = LoggerFactory.getLogger(ReverseSendPopMessageServiceImpl.class);
 
     private static Log messageLog = LogFactory.getLog("com.jd.etms.message");
 
@@ -88,7 +90,7 @@ public class ReverseSendPopMessageServiceImpl implements ReverseSendPopMessageSe
             if (StringUtils.isNotEmpty(messageType)) {
                 popMessage.setMessageType(messageType);
             } else {
-                log.warn("【运单号:" + waybillCode + "】是非POP订单");
+                log.warn("【运单号:{}】是非POP订单",waybillCode);
                 return false;
             }
 

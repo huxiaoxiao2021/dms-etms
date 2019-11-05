@@ -17,8 +17,8 @@ import com.jd.fce.dos.service.contract.OrderMarkingService;
 import com.jd.fce.dos.service.domain.OrderMarkingForeignRequest;
 import com.jd.fce.dos.service.domain.OrderMarkingForeignResponse;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -35,7 +35,7 @@ import java.util.Date;
 @Deprecated
 public class PromiseComposeServiceImpl implements  ComposeService {
 
-    private static final Log log= LogFactory.getLog(PromiseComposeServiceImpl.class);
+    private static final Logger log= LoggerFactory.getLogger(PromiseComposeServiceImpl.class);
 
     
     
@@ -136,9 +136,9 @@ public class PromiseComposeServiceImpl implements  ComposeService {
                     waybill.setPromiseText(orderMarkingForeignResponse.getPromiseMsg());
                     waybill.setTimeCategory(orderMarkingForeignResponse.getSendpayDesc());
                 } else {
-                    log.warn("调用promise接口获取外单时效失败：" + JsonHelper.toJson(orderMarkingForeignResponse));
+                    log.warn("调用promise接口获取外单时效失败：{}" , JsonHelper.toJson(orderMarkingForeignResponse));
                 }
-                log.debug("调用promise获取外单时效返回数据"  + JsonHelper.toJson(orderMarkingForeignResponse));
+                log.debug("调用promise获取外单时效返回数据{}"  , JsonHelper.toJson(orderMarkingForeignResponse));
 
                 //C2C面单预计送达时间从运单获取REQUIRE_TIME
                 if(BusinessUtil.isSignChar(waybill.getWaybillSign(),29,'8')){

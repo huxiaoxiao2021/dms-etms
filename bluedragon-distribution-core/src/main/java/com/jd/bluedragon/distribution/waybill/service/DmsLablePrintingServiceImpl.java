@@ -5,7 +5,6 @@ package com.jd.bluedragon.distribution.waybill.service;
  */
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
@@ -19,8 +18,8 @@ import com.jd.fce.dos.service.contract.OrderMarkingService;
 import com.jd.fce.dos.service.domain.OrderMarkingForeignRequest;
 import com.jd.fce.dos.service.domain.OrderMarkingForeignResponse;
 import com.jd.ql.basic.domain.BaseDmsStore;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,7 +34,7 @@ import java.util.Date;
 @Service("dmsLablePrintingService")
 public class DmsLablePrintingServiceImpl extends AbstractLabelPrintingServiceTemplate {
 
-    public static final Log log = LogFactory.getLog(DmsLablePrintingServiceImpl.class);
+    public static final Logger log = LoggerFactory.getLogger(DmsLablePrintingServiceImpl.class);
 
     public static final String LOG_PREFIX="包裹标签打印-分拣[DmsLablePrintingServiceImpl] ";
 
@@ -74,7 +73,7 @@ public class DmsLablePrintingServiceImpl extends AbstractLabelPrintingServiceTem
         }
 
         //自提订单---打提字，并且地址不显示
-        log.debug(new StringBuilder(LOG_PREFIX).append("waybill---distanceType").append(waybill.getDistanceType()).append("sendpay ").append(waybill.getSendPay()));
+        log.debug(LOG_PREFIX + "waybill---distanceType:{},sendpay{}",waybill.getDistanceType(),waybill.getSendPay());
         if(waybill.getDistributeType()!=null && waybill.getDistributeType().equals(LabelPrintingService.ARAYACAK_SIGN) && waybill.getSendPay().length()>=50){
             if(waybill.getSendPay().charAt(21)!='5'){
                 labelPrinting.setPrintAddress("");
@@ -157,9 +156,9 @@ public class DmsLablePrintingServiceImpl extends AbstractLabelPrintingServiceTem
 	                    labelPrinting.setPromiseText(orderMarkingForeignResponse.getPromiseMsg());
 	                    labelPrinting.setTimeCategory(orderMarkingForeignResponse.getSendpayDesc());
 	                } else {
-	                    log.warn("调用promise接口获取外单时效失败，返回结果：" + JsonHelper.toJson(orderMarkingForeignResponse));
+	                    log.warn("调用promise接口获取外单时效失败，返回结果：{}" , JsonHelper.toJson(orderMarkingForeignResponse));
 	                }
-	                log.debug("调用promise获取外单时效返回数据" + JsonHelper.toJson(orderMarkingForeignResponse));
+	                log.debug("调用promise获取外单时效返回数据{}" , JsonHelper.toJson(orderMarkingForeignResponse));
 	
 	                //C2C面单预计送达时间从运单获取REQUIRE_TIME
 	                if(BusinessUtil.isSignChar(waybill.getWaybillSign(),29,'8')){

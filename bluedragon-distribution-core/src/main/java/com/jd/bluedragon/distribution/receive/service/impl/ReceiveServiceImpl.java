@@ -39,7 +39,8 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -54,7 +55,7 @@ import java.util.Map;
 @Service("receiveService")
 public class ReceiveServiceImpl implements ReceiveService {
 
-	private Logger log = Logger.getLogger(ReceiveServiceImpl.class);
+	private Logger log = LoggerFactory.getLogger(ReceiveServiceImpl.class);
 
     public static final String CARCODE_MARK = "0";  // 按车次号查询
     public static final String BOXCODE_MARK = "1";  // 按箱号查询
@@ -553,8 +554,8 @@ public class ReceiveServiceImpl implements ReceiveService {
 		departureLog.setFingerPrint(Md5Helper.encode(departureLog.getDistributeCode()
                                                     + "_" + departureLog.getDepartureCarID()));
 		if(departureLogDao.findByFingerPrint(departureLog.getFingerPrint()) > 0){
-            log.warn("监控报表加发车记录重复，分拣中心[" + departureLog.getDistributeCode()
-                    + "],发车批次号[" + departureLog.getDepartureCarID() + "]");
+            log.warn("监控报表加发车记录重复，分拣中心[{}],发车批次号[{}]",
+					departureLog.getDistributeCode(),departureLog.getDepartureCarID());
         }else{
             departureLogDao.insert(departureLog);
         }
