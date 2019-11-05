@@ -150,7 +150,6 @@ public class DmsLablePrintingServiceImpl extends AbstractLabelPrintingServiceTem
 	                orderMarkingRequest.setTownId(waybill.getTownId()==null?Constants.DEFALUT_PROVINCE_CITY_COUNTRY_TOWN_VALUE:waybill.getTownId());//镇
 	                orderMarkingRequest.setCurrentDate(new Date());//当前时间
 	//                }
-	                log.debug("调用promise获取外单时效传入参数" + orderMarkingRequest == null ? "" : JsonHelper.toJson(orderMarkingRequest));
 	                OrderMarkingForeignResponse orderMarkingForeignResponse = orderMarkingService.orderMarkingServiceForForeign(orderMarkingRequest);
 	                if (orderMarkingForeignResponse != null && orderMarkingForeignResponse.getResultCode() >= 1) {
 	                    labelPrinting.setPromiseText(orderMarkingForeignResponse.getPromiseMsg());

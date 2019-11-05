@@ -130,7 +130,7 @@ public class PromiseComposeServiceImpl implements  ComposeService {
                 orderMarkingRequest.setTownId(Constants.DEFALUT_PROVINCE_CITY_COUNTRY_TOWN_VALUE);//镇
                 orderMarkingRequest.setCurrentDate(new Date());//当前时间
 
-                log.debug("调用promise获取外单时效传入参数" +JsonHelper.toJson(orderMarkingRequest));
+                log.debug("调用promise获取外单时效传入参数{}" ,JsonHelper.toJson(orderMarkingRequest));
                 OrderMarkingForeignResponse orderMarkingForeignResponse = orderMarkingService.orderMarkingServiceForForeign(orderMarkingRequest);
                 if (orderMarkingForeignResponse != null && orderMarkingForeignResponse.getResultCode() >= 1) {
                     waybill.setPromiseText(orderMarkingForeignResponse.getPromiseMsg());
