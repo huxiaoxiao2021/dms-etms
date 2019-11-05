@@ -3,23 +3,31 @@ package com.jd.bluedragon.distribution.send.service;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.transboard.api.service.GroupBoardService;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by xumigen on 2019/4/12.
  */
+@WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration( {"classpath:distribution-web-context-test.xml"})
 public class DeliveryServiceTest {
 
     @Autowired
     private DeliveryServiceImpl deliveryService;
+
+    @Autowired
+    private GroupBoardService groupBoardService;
 
     @Test
     public void testdeliveryService(){
@@ -75,5 +83,16 @@ public class DeliveryServiceTest {
         sdList.add(sendDetail2);
         List<String> list = Lists.newArrayList();
 //        deliveryService.cancelStatusReceipt(sdList,list);
+    }
+
+    @Test
+    public void changeBoardStatusTest(){
+        SendM sendM = new SendM();
+        sendM.setUpdaterUser("jubingtao");
+        sendM.setCreateSiteCode(100);
+        List<String> list = new ArrayList<>();
+        list.add("B19103000000034");
+        deliveryService.changeBoardStatus(sendM,list);
+        //Assert.assertEquals(new Integer(1),groupBoardService.getBoardByCode("B19103000000034").getData().getStatus());
     }
 }
