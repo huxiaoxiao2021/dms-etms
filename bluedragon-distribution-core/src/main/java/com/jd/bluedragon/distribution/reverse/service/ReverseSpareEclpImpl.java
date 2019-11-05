@@ -53,6 +53,8 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
 
     private String THIRD_CATEGORY_NO = "9694"; //商品三级编码
 
+    private String DEFAULT_GOODS_NAME = "其他"; //默认商品名称
+
     private Integer DEFAULT_GOOD_NUM = 1;
 
     private Integer DEFAULT_SAFE_DAYS = 0;
@@ -286,9 +288,11 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
     private boolean makeC2cOther(BaseEntity<BigWaybillDto> baseEntity,String waybillCode, InboundOrder inboundOrder) {
         //获取依赖数据
         List<DeliveryPackageD> packageDList = baseEntity.getData().getPackageList();
-        String goodName = StringUtils.EMPTY;
-        if(baseEntity.getData().getWaybill().getWaybillExt()!=null){
+        String goodName = DEFAULT_GOODS_NAME;
+        if(baseEntity.getData().getWaybill().getWaybillExt()!=null && StringUtils.isNotBlank(baseEntity.getData().getWaybill().getWaybillExt().getConsignWare())){
             goodName = baseEntity.getData().getWaybill().getWaybillExt().getConsignWare();
+        }else{
+            logger.error("C2C退配件库未获取到托寄物名称，使用默认名称"+waybillCode);
         }
         String oldWaybillCodeV1;
         BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill1 = waybillQueryManager.getWaybillByReturnWaybillCode(waybillCode);
