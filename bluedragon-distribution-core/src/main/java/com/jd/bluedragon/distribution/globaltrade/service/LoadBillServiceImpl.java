@@ -118,6 +118,7 @@ public class LoadBillServiceImpl implements LoadBillService {
 
             LoadBillConfig loadBillConfig = loadBillConfigMap.get(dto.getSiteCode());
             if (loadBillConfig != null) {
+                logger.info("[全球购]初始化-LoadBillServiceImpl.initialLoadBill操作批次号：" + sendCode + "，操作人：" + userCode);
                 Map<String, Object> params = new HashMap<String, Object>();
                 params.put("sendCodeList", StringHelper.parseList(sendCode, ","));
                 params.put("dmsList", new Integer[]{dto.getSiteCode()});
