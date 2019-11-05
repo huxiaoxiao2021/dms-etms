@@ -517,14 +517,15 @@
     </jsf:consumer>
 
 
-    <jsf:consumer id="ecpQueryWS" interface="com.jd.tms.ecp.ws.EcpQueryWS" protocol="jsf" alias="${tms.ecp.jsf.alias}" timeout="${tms.ecp.jsf.timeout}" retries="1"/>
+    <jsf:consumer id="ecpQueryWS" interface="com.jd.tms.ecp.ws.EcpQueryWS" serialization="hessian"  protocol="jsf" alias="${tms.ecp.jsf.alias}"
+                  timeout="${tms.ecp.jsf.timeout}" retries="1"/>
 
     <jsf:consumer id="jdwlSignServiceJsf" interface="com.jdwl.bcoi.entry.api.service.JdwlService"
                   protocol="jsf" alias="${jsf.jdwlSignService.alias}" timeout="${jsf.jdwlSignService.timeout}" retries="${jsf.retries}" >
     </jsf:consumer>
 
     <jsf:consumer id="ecpAirWS" interface="com.jd.tms.ecp.ws.EcpAirWS" protocol="jsf" alias="${tms.ecp.jsf.alias}" timeout="${tms.ecp.jsf.timeout}"
-                  retries="1"/>
+                  retries="1" serialization="hessian" />
 
 
 </beans>

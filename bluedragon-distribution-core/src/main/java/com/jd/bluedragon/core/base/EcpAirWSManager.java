@@ -1,5 +1,6 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.tms.ecp.dto.AirDepartInfoDto;
 
 /**
@@ -14,12 +15,12 @@ public interface EcpAirWSManager {
      * @param param
      * @return
      */
-    boolean submitSortAirDepartInfo(AirDepartInfoDto param) ;
+    InvokeResult<String> submitSortAirDepartInfo(AirDepartInfoDto param) ;
 
     /**
      * 分拣发货登记补交提交接口
      * @param param
      * @return
      */
-    boolean supplementSortAirDepartInfo(AirDepartInfoDto param) ;
+    InvokeResult<String> supplementSortAirDepartInfo(AirDepartInfoDto param) ;
 }

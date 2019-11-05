@@ -13,6 +13,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.core.base.BasicQueryWSManager;
 import com.jd.bluedragon.core.base.EcpAirWSManager;
 import com.jd.bluedragon.core.base.EcpQueryWSManager;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.external.gateway.service.AirNewPickupRegisterGateWayService;
 import com.jd.tms.basic.dto.BasicDictDto;
 import com.jd.tms.ecp.dto.AirDepartInfoDto;
@@ -117,9 +118,9 @@ public class AirNewPickupRegisterGateWayServiceImpl implements AirNewPickupRegis
         param.setOperateUserName(airDepartRequest.getOperateUserName());
         param.setFlightDate(airDepartRequest.getFlightDate());
         param.setOperateTime(airDepartRequest.getOperateTime());
-        boolean isSucc = ecpAirWSManager.submitSortAirDepartInfo(param);
-        if(!isSucc){
-            jdCResponse.toError("提交错误，请重试！");
+        InvokeResult<String> invokeResult = ecpAirWSManager.submitSortAirDepartInfo(param);
+        if(invokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE){
+            jdCResponse.toError(invokeResult.getMessage());
             return jdCResponse;
         }
         jdCResponse.toSucceed("操作成功！");
@@ -138,9 +139,9 @@ public class AirNewPickupRegisterGateWayServiceImpl implements AirNewPickupRegis
         param.setOperateUserCode(airDepartRequest.getOperateUserCode());
         param.setOperateUserName(airDepartRequest.getOperateUserName());
         param.setOperateTime(airDepartRequest.getOperateTime());
-        boolean isSucc = ecpAirWSManager.supplementSortAirDepartInfo(param);
-        if(!isSucc){
-            jdCResponse.toError("提交错误，请重试！");
+        InvokeResult<String> invokeResult = ecpAirWSManager.supplementSortAirDepartInfo(param);
+        if(invokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE){
+            jdCResponse.toError(invokeResult.getMessage());
             return jdCResponse;
         }
         jdCResponse.toSucceed("操作成功！");
