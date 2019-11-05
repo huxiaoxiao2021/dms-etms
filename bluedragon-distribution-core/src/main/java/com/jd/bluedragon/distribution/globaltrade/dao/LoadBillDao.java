@@ -97,7 +97,9 @@ public class LoadBillDao extends BaseDao<LoadBill> {
 				batchSession.commit();
 				batchSession.clearCache();
 			} catch (Exception e) {
-				batchSession.rollback();
+				if (batchSession != null) {
+					batchSession.rollback();
+				}
 				logger.error("[全球购]批量新增LoadBill时发生异常", e);
 				throw e;
 			} finally {
