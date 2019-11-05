@@ -30,4 +30,11 @@ public interface PDDService {
      * @return 返回拼多多电子面单处理对象
      */
     PDDResponse<PDDWaybillDetailDto> queryPDDWaybillByWaybillCode(String waybillCode);
+
+    /**
+     * 刷新缓存,包含pdd返回值
+     * @param waybillCode 拼多多电子面单号
+     * @return 返回拼多多电子面单处理对象
+     */
+    PDDResponse<PDDWaybillDetailDto> refreshPDDWaybillByWaybillCode(String waybillCode);
 }

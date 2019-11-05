@@ -19,7 +19,11 @@ import com.jd.etms.waybill.domain.PackageState;
 import com.jd.etms.waybill.domain.SkuSn;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillExtPro;
-import com.jd.etms.waybill.dto.*;
+import com.jd.etms.waybill.dto.BdTraceDto;
+import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.OrderParentChildDto;
+import com.jd.etms.waybill.dto.SkuPackRelationDto;
+import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.trace.api.WaybillTraceBusinessQueryApi;
 import com.jd.ql.trace.api.core.APIResultDTO;
 import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
@@ -27,21 +31,20 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 @Service("waybillQueryManager")
 public class WaybillQueryManagerImpl implements WaybillQueryManager {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private WaybillQueryApi waybillQueryApi;
@@ -391,6 +394,22 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "dmsWeb.jsf.WaybillQueryApi.getWaybillByWaybillCode",mState={JProEnum.TP,JProEnum.FunctionError})
     public BaseEntity<Waybill> getWaybillByWaybillCode(String waybillCode) {
         return waybillQueryApi.getWaybillByWaybillCode(waybillCode);
+    }
+
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "dmsWeb.jsf.WaybillQueryApi.getWaybillByWayCode",mState={JProEnum.TP,JProEnum.FunctionError})
+    public Waybill getWaybillByWayCode(String waybillCode) {
+        BaseEntity<Waybill> baseEntity = waybillQueryApi.getWaybillByWaybillCode(waybillCode);
+        if(baseEntity == null){
+            logger.info("查询运单信息接口返回空waybillCode[{}]",waybillCode);
+            return null;
+        }
+        if(baseEntity.getResultCode() != EnumBusiCode.BUSI_SUCCESS.getCode() || baseEntity.getData() == null){
+            logger.info("查询运单信息接口失败waybillCode[{}]code[{}]",waybillCode,baseEntity.getResultCode());
+            return null;
+        }
+
+        return baseEntity.getData();
     }
 
     public Waybill getOnlyWaybillByWaybillCode(String waybillCode) {

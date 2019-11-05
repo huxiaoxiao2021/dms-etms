@@ -329,6 +329,10 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
                 reverseReceive.setOperatorName(jrequest.getOperaterName());
                 reverseReceive.setOrderId(jrequest.getWaybillCode());
                 reverseReceive.setPackageCode(jrequest.getWaybillCode());
+                //临时方案 ECLP退备件库回传消息中的SEND_CDOE是  批次号+，+运单号
+                String sendCode = jrequest.getSendCode().indexOf(",")!=-1?jrequest.getSendCode().split(",")[0]:jrequest.getSendCode();
+				reverseReceive.setSendCode(sendCode);
+				jrequest.setSendCode(sendCode);
             }
             reverseReceive.setReceiveTime(date);
         } catch (Exception e) {

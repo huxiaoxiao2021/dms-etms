@@ -63,8 +63,8 @@ public abstract class AbstractCrossbowManager<P,R> implements InitializingBean {
      * @return 返回 R类型
      */
     private R executor(Object condition) {
-        CallerInfo callerInfo = Profiler.registerInfo("dms.core.AbstractCrossbowManager.pddExecutor",
-                Constants.UMP_APP_NAME_DMSWEB, false, false);
+        String umpKey = "dms.core." + this.getClass().getSimpleName() + ".executor";
+        CallerInfo callerInfo = Profiler.registerInfo(umpKey, Constants.UMP_APP_NAME_DMSWEB,false,true);
         try {
             /* 获取具体实现类的返回值泛型 对应的R */
             Type superClass = this.getClass().getGenericSuperclass();

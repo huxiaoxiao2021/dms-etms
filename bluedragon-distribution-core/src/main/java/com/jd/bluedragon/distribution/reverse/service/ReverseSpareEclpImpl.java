@@ -502,7 +502,8 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
      * @return
      */
     private InboundOrder makeCommonInboundOrder(String waybillCode, SendDetail sendDetail, InboundOrder inboundOrder) {
-        inboundOrder.setOrderNo(sendDetail.getSendCode());
+        String orderNo = sendDetail.getSendCode()+","+waybillCode;
+        inboundOrder.setOrderNo(orderNo);
         inboundOrder.setWaybillNo(waybillCode);
         inboundOrder.setOperatorName(sendDetail.getCreateUser());
         inboundOrder.setOperateTime(sendDetail.getOperateTime());
