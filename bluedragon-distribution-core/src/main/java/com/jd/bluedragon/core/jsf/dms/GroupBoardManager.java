@@ -16,4 +16,11 @@ public interface GroupBoardManager {
      * @return 新板号（一个或者多个）
      */
     List<BoardDto> createBoards(AddBoardRequest var1);
+
+    /**
+     * 根据板号获取板信息
+     * @param boardCode 板号
+     * @return 板的所有信息
+     */
+    BoardDto getBoard(String boardCode);
 }

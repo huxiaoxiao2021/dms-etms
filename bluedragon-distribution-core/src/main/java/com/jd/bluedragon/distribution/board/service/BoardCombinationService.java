@@ -65,6 +65,13 @@ public interface BoardCombinationService {
     public JdResponse<List<BoardDto>> createBoard(AddBoardRequest request);
 
     /**
+     * 根据板号获取板信息
+     * @param boardCode 板号
+     * @return 板信息
+     */
+    public JdResponse<BoardDto> getBoard(String boardCode);
+
+    /**
      * 清除组板时加的板号缓存
      * @param boardCode
      * @return

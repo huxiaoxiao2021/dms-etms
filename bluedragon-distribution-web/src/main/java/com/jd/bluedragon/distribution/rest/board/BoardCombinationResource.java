@@ -204,16 +204,26 @@ public class BoardCombinationResource {
         return result;
     }
 
-    @GET
+    @POST
     @Path("/boardLablePrint/createBoard")
     public JdResponse<List<BoardDto>> createBoard(AddBoardRequest request){
 
-        Assert.notNull(request,"request must not be null");
-        Assert.notNull(request.getDestination(),"request destination must not be null");
-        Assert.notNull(request.getDestinationId(),"request destinationId must not be null");
-        Assert.notNull(request.getBoardCount(),"request boardCount must not be null");
+        if(request == null || request.getDestination() == null || request.getDestinationId() == null || request.getBoardCount() == null){
+            return new JdResponse<>(JdResponse.CODE_FAIL, JdResponse.MESSAGE_FAIL);
+        }
         this.logger.info("AddBoardRequest's " + request.toString());
         return boardCombinationService.createBoard(request);
+    }
+
+    @GET
+    @Path("/boardLablePrint/getBoard/{boardCode}")
+    public JdResponse<BoardDto> getBoard(@PathParam("boardCode") String boardCode){
+        if(boardCode == null){
+            this.logger.info("请求的板号为空！");
+        }
+        this.logger.info("请求的板号为：" + boardCode);
+        return boardCombinationService.getBoard(boardCode);
+
     }
 
     /**

@@ -645,10 +645,28 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.BoardCombinationServiceImpl.createBoard", mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResponse<List<BoardDto>> createBoard(AddBoardRequest request){
         if(groupBoardManager.createBoards(request) == null || groupBoardManager.createBoards(request).size() <= 0){
+            this.logger.warn("新建板号返回信息为空！");
             return new JdResponse<>(JdResponse.CODE_FAIL, JdResponse.MESSAGE_FAIL);
         }
         JdResponse<List<BoardDto>> response = new JdResponse<>(JdResponse.CODE_SUCCESS,JdResponse.MESSAGE_SUCCESS);
         response.setData(groupBoardManager.createBoards(request));
+        return response;
+    }
+
+    /**
+     *根据板号获取板信息
+     *
+     * @return
+     */
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.BoardCombinationServiceImpl.getBoard", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdResponse<BoardDto> getBoard(String boardCode){
+        if(groupBoardManager.getBoard(boardCode) == null){
+            this.logger.info("查询到的板信息为空");
+            return new JdResponse<>(JdResponse.CODE_FAIL, JdResponse.MESSAGE_FAIL);
+        }
+        JdResponse<BoardDto> response = new JdResponse<>(JdResponse.CODE_SUCCESS,JdResponse.MESSAGE_SUCCESS);
+        response.setData(groupBoardManager.getBoard(boardCode));
         return response;
     }
 
