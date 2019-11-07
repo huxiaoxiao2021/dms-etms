@@ -1,8 +1,8 @@
 package com.jd.bluedragon.core.crossbow;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.TypeReference;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.crossbow.security.CrossbowSecurityProcessorSelector;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SpringHelper;
 import com.jd.lop.crossbow.dto.LopRequest;
@@ -46,6 +46,8 @@ public class DMSCrossbowClient {
      */
     @JProfiler(jKey = "dms.core.DMSCrossBowClient.executor", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public <R> R executor(@NotNull CrossbowConfig crossBowConfig, String parameterStr, Type typeReference) throws RuntimeException {
+
+        /* 1. 组装基本参数 */
         LopRequest request = new LopRequest();
         request.setDomain(crossBowConfig.getDomain());
         request.setCustomerId(crossBowConfig.getCustomerId());
@@ -53,6 +55,11 @@ public class DMSCrossbowClient {
         request.setAppKey(crossBowConfig.getAppKey());
         request.setBody(parameterStr);
         try {
+            /* 2. 设置安全插件对应的内容 */
+            request = CrossbowSecurityProcessorSelector.getProcessor(crossBowConfig.getSecurityEnum())
+                    .handleSecurityContent(request, crossBowConfig);
+
+            /* 3. 请求物流网关代理，调用外部接口 */
             crossbowService = getCrossbowService();
             LopResponse response = crossbowService.execute(request);
             if (response.getStatusCode() != 200) {
