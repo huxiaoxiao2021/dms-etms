@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.api.dto.BoardDto;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
@@ -28,6 +29,7 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.alibaba.fastjson.JSON;
@@ -643,14 +645,42 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
      */
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.BoardCombinationServiceImpl.createBoard", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public JdResponse<List<BoardDto>> createBoard(AddBoardRequest request){
-        if(groupBoardManager.createBoards(request) == null || groupBoardManager.createBoards(request).size() <= 0){
-            this.logger.warn("新建板号返回信息为空！");
-            return new JdResponse<>(JdResponse.CODE_FAIL, JdResponse.MESSAGE_FAIL);
+    public InvokeResult<List<BoardDto>> createBoard(AddBoardRequest request){
+
+        InvokeResult<List<BoardDto>> result = new InvokeResult<>();
+        List<BoardDto> boardDtoList = new ArrayList<>();
+        result.setData(new ArrayList<BoardDto>());
+        Response<List<Board>> tcResponse = groupBoardManager.createBoards(request);
+        if(tcResponse == null){
+            this.logger.error("建板失败，板号的目的地编号destinationId:"+ request.getDestinationId() +
+                    ",建板数量boardCount："+ request.getBoardCount() +",操作人operatorErp："+request.getOperatorErp());
+            result.parameterError("服务器异常！");
+            return result;
         }
-        JdResponse<List<BoardDto>> response = new JdResponse<>(JdResponse.CODE_SUCCESS,JdResponse.MESSAGE_SUCCESS);
-        response.setData(groupBoardManager.createBoards(request));
-        return response;
+        if(tcResponse.getCode() == 200 && tcResponse.getData() != null){
+            result.setMessage(tcResponse.getMesseage());
+            for(int j=0;j<tcResponse.getData().size();j++){
+                boardDtoList.add(boardToBoardDto(tcResponse.getData().get(j)));
+            }
+            this.logger.info("建板成功，板号的目的地编号destinationId:"+ request.getDestinationId() +
+                    ",建板数量boardCount："+ request.getBoardCount() +",操作人operatorErp："+request.getOperatorErp());
+            result.setData(boardDtoList);
+            return result;
+        }
+        this.logger.error("建板失败，板号的目的地编号destinationId:"+ request.getDestinationId() +
+                ",建板数量boardCount："+ request.getBoardCount() +",操作人operatorErp："+request.getOperatorErp());
+        return result;
+    }
+
+    public BoardDto boardToBoardDto(Board board){
+        BoardDto boardDto = new BoardDto();
+        boardDto.setDate(DateHelper.formatDate(board.getCreateTime(),"yyyy-MM-dd"));
+        boardDto.setTime(DateHelper.formatDate(board.getCreateTime(),"HH:mm:ss"));
+        boardDto.setCode(board.getCode());
+        boardDto.setDestination(board.getDestination());
+        boardDto.setDestinationId(board.getDestinationId());
+        boardDto.setStatus(board.getStatus());
+        return boardDto;
     }
 
     /**
@@ -660,14 +690,26 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
      */
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.BoardCombinationServiceImpl.getBoard", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public JdResponse<BoardDto> getBoard(String boardCode){
-        if(groupBoardManager.getBoard(boardCode) == null){
-            this.logger.info("查询到的板信息为空");
-            return new JdResponse<>(JdResponse.CODE_FAIL, JdResponse.MESSAGE_FAIL);
+    public InvokeResult<BoardDto> getBoard(String boardCode){
+
+        InvokeResult<BoardDto> invokeResult = new InvokeResult<>();
+        Response<Board> tcResponse = groupBoardManager.getBoard(boardCode);
+
+        if(tcResponse == null){
+            this.logger.error("获取板信息失败，boardCode:" + boardCode);
+            invokeResult.parameterError("服务器异常");
+            return invokeResult;
         }
-        JdResponse<BoardDto> response = new JdResponse<>(JdResponse.CODE_SUCCESS,JdResponse.MESSAGE_SUCCESS);
-        response.setData(groupBoardManager.getBoard(boardCode));
-        return response;
+        if(tcResponse != null && tcResponse.getCode() == 200 &&tcResponse.getData() != null){
+            this.logger.info("获取板信息成功，boardCode:" + boardCode);
+            invokeResult.setMessage(tcResponse.getMesseage());
+            invokeResult.setData(boardToBoardDto(tcResponse.getData()));
+            return invokeResult;
+        }
+        this.logger.error("获取板信息失败，boardCode:" + boardCode);
+        invokeResult.setCode(tcResponse.getCode());
+        invokeResult.setMessage(tcResponse.getMesseage());
+        return invokeResult;
     }
 
     /**

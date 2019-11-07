@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.dto.BoardDto;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -206,22 +207,26 @@ public class BoardCombinationResource {
 
     @POST
     @Path("/boardLablePrint/createBoard")
-    public JdResponse<List<BoardDto>> createBoard(AddBoardRequest request){
+    public InvokeResult<List<BoardDto>> createBoard(AddBoardRequest request){
 
+        InvokeResult<List<BoardDto>> invokeResult = new InvokeResult<>();
         if(request == null || request.getDestination() == null || request.getDestinationId() == null || request.getBoardCount() == null){
-            return new JdResponse<>(JdResponse.CODE_FAIL, JdResponse.MESSAGE_FAIL);
+            invokeResult.parameterError("填写参数错误");
+            this.logger.error("建板请求的参数有误");
+            return invokeResult;
         }
-        this.logger.info("AddBoardRequest's " + request.toString());
+        this.logger.info("建板请求的板号： " + request.getBoardCount() + ",场站sitecode:" + request.getSiteCode()
+                            + "目的地destinationId:" + request.getDestinationId());
         return boardCombinationService.createBoard(request);
     }
 
     @GET
     @Path("/boardLablePrint/getBoard/{boardCode}")
-    public JdResponse<BoardDto> getBoard(@PathParam("boardCode") String boardCode){
+    public InvokeResult<BoardDto> getBoard(@PathParam("boardCode") String boardCode){
         if(boardCode == null){
-            this.logger.info("请求的板号为空！");
+            this.logger.info("请求的板号为空");
         }
-        this.logger.info("请求的板号为：" + boardCode);
+        this.logger.info("请求板信息的板号为：" + boardCode);
         return boardCombinationService.getBoard(boardCode);
 
     }

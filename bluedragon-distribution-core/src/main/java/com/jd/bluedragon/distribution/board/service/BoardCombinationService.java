@@ -3,8 +3,8 @@ package com.jd.bluedragon.distribution.board.service;
 import com.jd.bluedragon.distribution.api.dto.BoardDto;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.send.domain.SendM;
-import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.transboard.api.dto.*;
 
 import java.util.List;
@@ -62,14 +62,14 @@ public interface BoardCombinationService {
      * @param request
      * @return
      */
-    public JdResponse<List<BoardDto>> createBoard(AddBoardRequest request);
+    public InvokeResult<List<BoardDto>> createBoard(AddBoardRequest request);
 
     /**
      * 根据板号获取板信息
      * @param boardCode 板号
      * @return 板信息
      */
-    public JdResponse<BoardDto> getBoard(String boardCode);
+    public InvokeResult<BoardDto> getBoard(String boardCode);
 
     /**
      * 清除组板时加的板号缓存
