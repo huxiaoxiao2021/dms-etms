@@ -149,6 +149,16 @@ public interface WaybillSignConstants {
     int POSITION_92 = 92;
     char CHAR_92_2 = '2';
     char CHAR_92_3 = '3';
+
+	/**
+	 * 时效
+	 * 2 同城
+	 * 3 次晨
+	 */
+	int POSITION_116 = 116;
+	char CHAR_116_2 = '2';
+	char CHAR_116_3 = '3';
+
 	/**
 	 * waybillsign第31位
 	 */

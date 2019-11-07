@@ -377,7 +377,7 @@ public class BusinessHelper {
      * waybill_sign
      * 第55位等于0 （表示非生鲜专送）
      * 且第16位等于1 （表示当日达）
-     * 且第31位等于2 （表示同城配送）
+     * 且第31位等于2 （表示同城配送） 2019、11、7变更 116等于2代表同城配送
      * 且第63位等于1 （中心站网络）
      *
      * @param waybillSign
@@ -386,7 +386,7 @@ public class BusinessHelper {
     public static boolean isSameCityOneDay(String waybillSign) {
         return BusinessUtil.isSignChar(waybillSign, 55, '0') &&
                 BusinessUtil.isSignChar(waybillSign, 16, '1') &&
-                BusinessUtil.isSignChar(waybillSign, 31, '2') &&
+                (BusinessUtil.isSignChar(waybillSign, 31, '2')||BusinessUtil.isSameCity(waybillSign)) &&
                 BusinessUtil.isSignChar(waybillSign, 63, '1');
     }
 

@@ -23,6 +23,10 @@ public interface ComposeService {
     String PREPARE_SITE_NAME_SAMECITY_ARRIVE = "同城当日达";
     String PREPARE_SITE_NAME_SMALL_PACKAGE = "微小件";
 
+    //时效
+    String SPECIAL_MARK_SAME_CITY = "同城";
+    String SPECIAL_MARK_NEXT_DAY = "次晨";
+
     String SPECIAL_MARK_C ="C";
     String SPECIAL_MARK_AIRTRANSPORT ="航";
     String SPECIAL_MARK_SENIOR ="尊";

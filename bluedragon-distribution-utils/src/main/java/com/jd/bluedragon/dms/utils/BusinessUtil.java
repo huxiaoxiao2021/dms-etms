@@ -977,4 +977,22 @@ public class BusinessUtil {
     public static boolean isFeatherLetter(String waybillSign){
         return isSignInChars(waybillSign, WaybillSignConstants.POSITION_92, WaybillSignConstants.CHAR_92_2,WaybillSignConstants.CHAR_92_3);
     }
+
+    /**
+     * 是否是同城
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isSameCity(String waybillSign){
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_2);
+    }
+
+    /**
+     * 是否是次晨
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isNextMorning(String waybillSign){
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_3);
+    }
 }
