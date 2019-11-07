@@ -93,6 +93,6 @@ public class DeliveryServiceTest {
         List<String> list = new ArrayList<>();
         list.add("B19103000000034");
         deliveryService.changeBoardStatus(sendM,list);
-        //Assert.assertEquals(new Integer(1),groupBoardService.getBoardByCode("B19103000000034").getData().getStatus());
+        Assert.assertEquals(new Integer(1),groupBoardService.getBoardByCode("B19103000000034").getData().getStatus());
     }
 }
