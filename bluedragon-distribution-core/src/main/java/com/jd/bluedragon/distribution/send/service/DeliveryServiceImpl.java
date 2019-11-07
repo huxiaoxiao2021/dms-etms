@@ -1911,10 +1911,11 @@ public class DeliveryServiceImpl implements DeliveryService {
                     delDeliveryFromRedis(sendMItem);//取消发货成功，删除redis缓存的发货数据 根据boxCode和createSiteCode
                 }
                 //将板号的集合转换成String类型的列表
-                List<String> boardList = new ArrayList<>();
+                List<String> boardList = new CollectionHelper<String>().toList(boardSet);
+/*                List<String> boardList = new ArrayList<>();
                 for (String boardCode : boardSet) {
                     boardList.add(boardCode);
-                }
+                }*/
                 changeBoardStatus(tSendM,boardList);
                 Profiler.registerInfoEnd(callerInfo);
                 return new ThreeDeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, null);

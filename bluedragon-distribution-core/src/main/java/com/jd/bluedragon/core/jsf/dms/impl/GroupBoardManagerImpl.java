@@ -30,14 +30,12 @@ public class GroupBoardManagerImpl implements GroupBoardManager {
 
     @JProfiler(jKey = "dmsWeb.jsf.dmsver.groupBoardService.resuseBoards",jAppName= Constants.UMP_APP_NAME_DMSWEB,
             mState = {JProEnum.TP, JProEnum.FunctionError})
-    public String resuseBoards(List<String> boardList, OperatorInfo operatorInfo) {
+    public void resuseBoards(List<String> boardList, OperatorInfo operatorInfo) {
 
         Response<String> response = groupBoardService.resuseBoards(boardList,operatorInfo);
         if(response != null && response.getCode() == 200 ){
-            return response.getData();
-        }else{
-            logger.warn("groupBoardService.resuseBoards调用TC板接口失败");
-            return new String();
+            logger.info("取消板关闭状态成功，板号分别为：" + boardList.toString() + ",操作人的ERP为：" + operatorInfo.getOperatorErp());
         }
+        logger.error("取消板关闭状态失败，板号分别为：" + boardList.toString() + ",操作人的ERP为：" + operatorInfo.getOperatorErp());
     }
 }
