@@ -3,12 +3,13 @@ package com.jd.bluedragon.distribution.abnormalorder.service;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import org.apache.log4j.Logger;
 
 import com.jd.bluedragon.distribution.api.response.RefundReason;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.ql.basic.domain.BaseDataDict;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AbnormalOrderUtil {
     
@@ -19,13 +20,13 @@ public class AbnormalOrderUtil {
 	private static RefundReason[] refundReason = null;
 	
     public synchronized static void init(BaseService baseService){
-    	Logger log = Logger.getLogger(AbnormalOrderServiceImpl.class);
+    	Logger log = LoggerFactory.getLogger(AbnormalOrderServiceImpl.class);
     	Integer[] refundReasonCode = null;
     	/************************* 处理基础参数  ************************/    	
     	log.info("AbnormalOrderUtil.init refunReasonSysconfigList = baseService.queryConfigByKey(SYSCONFIG_REFUNDREASONCODEKEY_KEY)");
     	List<SysConfig> refunReasonSysconfigList = baseService.queryConfigByKey(SYSCONFIG_REFUNDREASONCODEKEY_KEY);
     	if(refunReasonSysconfigList!=null){
-    		log.info("AbnormalOrderUtil.init refunReasonSysconfigList size:" + refunReasonSysconfigList.size());
+    		log.info("AbnormalOrderUtil.init refunReasonSysconfigList size:{}" , refunReasonSysconfigList.size());
     		SysConfig[] refunReasonSysconfigs = refunReasonSysconfigList.toArray(new SysConfig[0]);
 	    	Arrays.sort(refunReasonSysconfigs, new Comparator<SysConfig>() {
 	
@@ -39,7 +40,7 @@ public class AbnormalOrderUtil {
 	    	refundReasonCode = new Integer[refunReasonSysconfigs.length];
 	    	
 	    	for(int i = 0;i<refunReasonSysconfigs.length;i++){
-	    		log.info("AbnormalOrderUtil.init refunReasonSysconfigList[" + i + "]=" + refunReasonSysconfigs[i].getConfigContent() );
+	    		log.info("AbnormalOrderUtil.init refunReasonSysconfigList[{}]={}" ,i, refunReasonSysconfigs[i].getConfigContent() );
 	    		refundReasonCode[i] = Integer.parseInt(refunReasonSysconfigs[i].getConfigContent());
 	    	}
     	}else{
@@ -73,7 +74,7 @@ public class AbnormalOrderUtil {
 				}
 			}
 		}
-		log.info("AbnormalOrderUtil.init refundReasons.size:" + refundReasons.length);
+		log.info("AbnormalOrderUtil.init refundReasons.size:{}" , refundReasons.length);
 		refundReason = refundReasons;
     }
     

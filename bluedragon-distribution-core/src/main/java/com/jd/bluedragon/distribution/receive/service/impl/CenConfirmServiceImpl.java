@@ -211,7 +211,7 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 				cenConfirm.setPickupCode(pickupCode);
 				cenConfirm.setWaybillCode(waybillCode);
 				log.info("调用获取取件单号接口成功:取件单序列号={}取件单号={}运单号={}",
-						cenConfirm.getPackageBarcode(),pickupCode,waybillCode,baseEntity.getMessage());
+						cenConfirm.getPackageBarcode(),pickupCode,waybillCode);
 				return cenConfirm;
 			} else {
 				log.warn("调用获取取件单号接口失败(返回data=null):取件单序列号={}:{}",

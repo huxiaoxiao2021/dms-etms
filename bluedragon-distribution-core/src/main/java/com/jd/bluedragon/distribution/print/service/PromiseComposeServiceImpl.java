@@ -79,7 +79,7 @@ public class PromiseComposeServiceImpl implements  ComposeService {
         }
 
         try {
-        	log.info("获取时效信息3"+PropertiesHelper.newInstance().getValue("isRoutePredictDateEnabled"));
+        	log.info("获取时效信息3:{}",PropertiesHelper.newInstance().getValue("isRoutePredictDateEnabled"));
         	//如果是B网订单取路由时效数据,否则取promise数据
         	//40位不为0是快运0默认、1整车、2是纯配快运零担
         	//http://cf.jd.com/pages/viewpage.action?pageId=31916460

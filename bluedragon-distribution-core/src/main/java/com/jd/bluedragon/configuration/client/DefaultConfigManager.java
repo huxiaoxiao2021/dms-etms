@@ -20,10 +20,10 @@ public class DefaultConfigManager {
 
 	public synchronized static DefaultConfigManager getInstance() {
 		if (instance == null) {
-			log.info("实例化配置管理类...");
+			log.debug("实例化配置管理类...");
 			instance = new DefaultConfigManager();
 			instance.init();
-			log.info("实例化配置管理类完成...");				
+			log.debug("实例化配置管理类完成...");
 		}
 		return instance;
 	}

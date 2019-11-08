@@ -367,7 +367,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
      * @return
      */
     private String getBaseSite(Integer prepareSiteCode) {
-        log.info(LOG_PREFIX+"查询基础资料获取站点名称接口");
+        log.info(LOG_PREFIX+"查询基础资料获取站点名称接口:{}",prepareSiteCode);
 
         BaseStaffSiteOrgDto baseStaffSite =baseMajorManager.getBaseSiteBySiteId(prepareSiteCode);
 //        BaseStaffSiteOrgDto baseStaffSite = commonBasicFacade.getBaseSiteBySiteId(prepareSiteCode);

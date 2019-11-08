@@ -264,7 +264,7 @@ public class ReceiveServiceImpl implements ReceiveService {
 	}
 
 	private void pushPickware(Receive receive,String packageCode,String pickwareCode) {
-		log.info("面单号：["+packageCode+"]取件单号：["+pickwareCode+"]");
+		log.info("面单号：[{}]取件单号：[{}]",packageCode,pickwareCode);
 		PickWare pickWare = new PickWare();
 		pickWare.setBoxCode(receive.getBoxCode());
 		pickWare.setPackageCode(packageCode);
@@ -278,7 +278,7 @@ public class ReceiveServiceImpl implements ReceiveService {
 				.getCreateTime()));
 		try {
 		    String json=JsonHelper.toJson(pickWare);
-		    log.info("分拣中心收货推送MQ[备件库-取件单]json:["+json+"]");
+		    log.info("分拣中心收货推送MQ[备件库-取件单]json:[{}]",json);
 			//messageClient.sendMessage("pickware_push",json, receive.getBoxCode());
             pickwarePushMQ.send(receive.getBoxCode(),json);
 		} catch (Exception e) {
@@ -338,10 +338,10 @@ public class ReceiveServiceImpl implements ReceiveService {
 
 	public Receive taskToRecieve(Task task) {
 		String jsonReceive = task.getBody();
-		log.info("收货json数据：" + jsonReceive);
+		log.info("收货json数据：{}" , jsonReceive);
 		List<ReceiveRequest> receiveRequests = Arrays.asList(JsonHelper
 				.jsonToArray(jsonReceive, ReceiveRequest[].class));
-		log.info("收货json数据转化后：" + receiveRequests);
+		log.info("收货json数据转化后：{}" , receiveRequests);
 		Receive receive = new Receive();
 		ReceiveRequest receiveRequest = receiveRequests.get(0);
 		String tmpNumber = receiveRequest.getPackOrBox();
@@ -426,7 +426,7 @@ public class ReceiveServiceImpl implements ReceiveService {
 			turnoverBoxInfo.setFlowFlag("30");
 		}
 		try {
-		    log.info("分拣中心推送监控MQ[空周转箱]信息："+JsonHelper.toJson(turnoverBoxInfo));
+		    log.info("分拣中心推送监控MQ[空周转箱]信息：{}",JsonHelper.toJson(turnoverBoxInfo));
 			//messageClient.sendMessage("turnover_box",JsonHelper.toJson(turnoverBoxInfo),turnoverBoxInfo.getTurnoverBoxCode());
             turnoverBoxMQ.send(turnoverBoxInfo.getTurnoverBoxCode(),JsonHelper.toJson(turnoverBoxInfo));
 		} catch (Exception e) {

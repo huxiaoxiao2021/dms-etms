@@ -97,11 +97,12 @@ public class AbnormalOrderServiceImpl implements AbnormalOrderService {
 			boolean isHave = tmpvo!=null;
 			String waybillcode = abnormalOrder.getOrderId();
 			
-			log.info("AbnormalOrderServiceImpl.pushNewDataFromPDA waybillcode:" + waybillcode + "\t isHave:" + isHave);
+			log.info("AbnormalOrderServiceImpl.pushNewDataFromPDA waybillcode:{}\t isHave:{}" ,waybillcode, isHave);
 			if(isHave ){
 				if(tmpvo.getIsCancel().equals(AbnormalOrder.CANCEL) || tmpvo.getIsCancel().equals(AbnormalOrder.WAIT)){
 					/*已取消或在等待结果*/
-					log.info("AbnormalOrderServiceImpl.pushNewDataFromPDA waybillcode:" + waybillcode + "\t IsCancel:" + tmpvo.getIsCancel() + "\t已取消或在等待结果");
+					log.info("AbnormalOrderServiceImpl.pushNewDataFromPDA waybillcode:{}\t IsCancel:{}\t已取消或在等待结果"
+					,waybillcode,tmpvo.getIsCancel());
 					result.put(waybillcode, tmpvo.getIsCancel());
 					continue;	
 				}else if(tmpvo.getIsCancel().equals(AbnormalOrder.NOTCANCEL)){
@@ -120,7 +121,7 @@ public class AbnormalOrderServiceImpl implements AbnormalOrderService {
             }
 
 			int tmpresult = isHave?abnormalOrderDao.updateSome(abnormalOrder):abnormalOrderDao.insert(abnormalOrder);
-			log.info("AbnormalOrderServiceImpl.pushNewDataFromPDA waybillcode:" + waybillcode + "\t 数据库操作结果:" + tmpresult);
+			log.info("AbnormalOrderServiceImpl.pushNewDataFromPDA waybillcode:{}\t 数据库操作结果:{}" ,waybillcode, tmpresult);
 			result.put(waybillcode, isHave?AbnormalOrder.NOTCANCEL:AbnormalOrder.NEW);
 			
 			mqList.add(tmpmq);
@@ -136,10 +137,10 @@ public class AbnormalOrderServiceImpl implements AbnormalOrderService {
 			}
 		}
 		/*推送MQ*/
-		log.info("AbnormalOrderServiceImpl.pushNewDataFromPDA pushMq... :" + mqList.size());
+		log.info("AbnormalOrderServiceImpl.pushNewDataFromPDA pushMq... :{}" , mqList.size());
 		pushMq(mqList);
 		/*更新运单信息*/
-		log.info("AbnormalOrderServiceImpl.pushNewDataFromPDA pushWaybill... :" + waybillList.size());
+		log.info("AbnormalOrderServiceImpl.pushNewDataFromPDA pushWaybill... :{}" , waybillList.size());
 		pushWaybill(waybillList);
 
 		log.info("AbnormalOrderServiceImpl.pushNewDataFromPDA success");

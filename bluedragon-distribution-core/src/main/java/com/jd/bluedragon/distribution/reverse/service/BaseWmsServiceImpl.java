@@ -100,7 +100,7 @@ public class BaseWmsServiceImpl implements BaseWmsService {
 		//3.判断是否是异地退货，也就是他仓退;默认非本仓
 		boolean isOtherStore = true;
 		if(send==null){
-			log.info("该订单号逆向发货不齐全，调用出库明细：" + orderCode);
+			log.info("该订单号逆向发货不齐全，调用出库明细：{}" , orderCode);
 			isOtherStore = false;//运单获得不了数据，那么从仓储接口试试
 		}else if (site.getCky2().equals(send.getCky2())
 				&& site.getOrgId().equals(send.getOrgId())
@@ -110,7 +110,7 @@ public class BaseWmsServiceImpl implements BaseWmsService {
 		
 		//3.1 齐全订单或者异地退货使用运单中明细
 		if (isPackagedFull||isOtherStore) {
-			log.info("该订单号逆向发货齐全或为异地退上海亚一：" + orderCode);
+			log.info("该订单号逆向发货齐全或为异地退上海亚一：{}" , orderCode);
 			List<Product> result = new ArrayList<Product>();
 			if (send != null) {
 				List<Product> resultRaw = send.getProList();
@@ -121,13 +121,13 @@ public class BaseWmsServiceImpl implements BaseWmsService {
 			}
 			return result;
 		}
-		log.info("该订单号逆向发货不齐全，调用出库明细：" + orderCode);
+		log.info("该订单号逆向发货不齐全，调用出库明细：{}" , orderCode);
 		
 		// 4.需要取上海亚一明细的
 		try {
 			String bizBody = JsonHelper.toJson(reportDto);
-			this.log.info("亚一通过包裹获取出库明细packExchangeBizTokenJasonAsia的值"+packExchangeBizTokenJasonAsia);
-			this.log.info("亚一通过包裹获取出库明细bizBody的值"+bizBody);
+			this.log.info("亚一通过包裹获取出库明细packExchangeBizTokenJasonAsia的值:{}",packExchangeBizTokenJasonAsia);
+			this.log.info("亚一通过包裹获取出库明细bizBody的值:{}",bizBody);
 			Result result = packExchangeServiceManager.queryWs(
 					packExchangeBizTokenJasonAsia, bizBody);
 
