@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jd.bluedragon.distribution.merchantWeightAndVolume.dao.MerchantWeightAndVolumeWhiteListDao">
+
+	<resultMap id="merchantResultMap"
+			   type="com.jd.bluedragon.distribution.merchantWeightAndVolume.domain.MerchantWeightAndVolumeDetail" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="merchant_id" property="merchantId" javaType="java.lang.Integer" jdbcType="BIGINT" />
+		<result column="merchant_code" property="merchantCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="merchant_name" property="merchantName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="operate_org_code" property="operateOrgCode" javaType="java.lang.Integer" jdbcType="BIGINT" />
+		<result column="operate_org_name" property="operateOrgName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="operate_site_code" property="operateSiteCode" javaType="java.lang.Integer" jdbcType="BIGINT" />
+		<result column="operate_site_name" property="operateSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_erp" property="createErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_user_name" property="createUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		id,merchant_id,merchant_code,merchant_name,operate_org_code,operate_org_name,operate_site_code,operate_site_name,
+		create_erp,create_user_name,create_time,update_time,is_delete,ts
+	</sql>
+
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.merchantWeightAndVolume.domain.MerchantWeightAndVolumeDetail">
+		insert into merchant_weight_white_list
+		(
+		<trim suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="merchantId != null">
+				merchant_id,
+			</if>
+			<if test="merchantCode != null">
+				merchant_code,
+			</if>
+			<if test="merchantName != null">
+				merchant_name,
+			</if>
+			<if test="operateOrgCode != null">
+				operate_org_code,
+			</if>
+			<if test="operateOrgName != null">
+				operate_org_name,
+			</if>
+			<if test="operateSiteCode != null">
+				operate_site_code,
+			</if>
+			<if test="operateSiteName != null">
+				operate_site_name,
+			</if>
+			<if test="createErp != null">
+				create_erp,
+			</if>
+			<if test="createUserName != null">
+				create_user_name,
+			</if>
+			create_time,
+			updateTime,
+			is_delete,
+			ts
+		</trim>
+		)
+		values
+		(
+		<trim suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=BIGINT},
+			</if>
+			<if test="merchantId != null">
+				#{merchantId,jdbcType=BIGINT},
+			</if>
+			<if test="merchantCode != null">
+				#{merchantCode,jdbcType=VARCHAR},
+			</if>
+			<if test="merchantName != null">
+				#{merchantName,jdbcType=VARCHAR},
+			</if>
+			<if test="operateOrgCode != null">
+				#{operateOrgCode,jdbcType=BIGINT},
+			</if>
+			<if test="operateOrgName != null">
+				#{operateOrgName,jdbcType=VARCHAR},
+			</if>
+			<if test="operateSiteCode != null">
+				#{operateSiteCode,jdbcType=BIGINT},
+			</if>
+			<if test="operateSiteName != null">
+				#{operateSiteName,jdbcType=VARCHAR},
+			</if>
+			<if test="createErp != null">
+				#{createErp,jdbcType=VARCHAR},
+			</if>
+			<if test="createUserName != null">
+				#{createUserName,jdbcType=VARCHAR},
+			</if>
+			now(),
+			now(),
+			0,
+			now()
+		</trim>
+		)
+	</insert>
+
+	<insert id="batchInsert" parameterType="List">
+		insert into merchant_weight_white_list
+		(
+		merchant_id,merchant_code,merchant_name,operate_org_code,operate_org_name,operate_site_code,operate_site_name,
+		create_erp,create_user_name,create_time,update_time,is_delete,ts
+		)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(
+			#{item.merchantId,jdbcType=BIGINT},
+			#{item.merchantCode,jdbcType=VARCHAR},
+			#{item.merchantName,jdbcType=VARCHAR},
+			#{item.operateOrgCode,jdbcType=BIGINT},
+			#{item.operateOrgName,jdbcType=VARCHAR},
+			#{item.operateSiteCode,jdbcType=BIGINT},
+			#{item.operateSiteName,jdbcType=VARCHAR},
+			#{item.createErp,jdbcType=VARCHAR},
+			#{item.createUserName,jdbcType=VARCHAR},
+			now(),
+			now(),
+			0,
+			now()
+			)
+		</foreach>
+	</insert>
+
+	<sql id="Base_Condition_Sql" >
+			and is_delete=0
+	</sql>
+
+	<sql id="Query_Params_Condition_Sql">
+		<if test="merchantId != null">
+			and merchant_id = #{merchantId,jdbcType=BIGINT}
+		</if>
+		<if test="merchantCode != null">
+			and merchant_code = #{merchantCode,jdbcType=VARCHAR}
+		</if>
+		<if test="merchantName != null">
+			and merchant_name like concat('%',#{merchantName,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="orgCode != null">
+			and operate_org_code = #{orgCode,jdbcType=BIGINT}
+		</if>
+		<if test="siteCode != null">
+			and operate_site_code = #{siteCode,jdbcType=BIGINT}
+		</if>
+		<if test="siteCode == null">
+			<if test="inputSiteCode != null">
+				and operate_site_code = #{inputSiteCode,jdbcType=BIGINT}
+			</if>
+		</if>
+		<if test="merchantCode == null">
+			<if test="inputMerchantCode != null">
+				and merchant_code = #{inputMerchantCode,jdbcType=VARCHAR}
+			</if>
+		</if>
+	</sql>
+
+	<select id="getAllMerchantAndSite" resultMap="merchantResultMap">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		merchant_weight_white_list
+		where 1=1
+		<include refid="Base_Condition_Sql"/>
+		limit 5000
+	</select>
+
+	<select id="queryByCondition" parameterType="com.jd.bluedragon.distribution.merchantWeightAndVolume.domain.MerchantWeightAndVolumeCondition" resultMap="merchantResultMap">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		merchant_weight_white_list
+		where 1=1
+		<include refid="Query_Params_Condition_Sql"/>
+
+		<include refid="Base_Condition_Sql"/>
+		<if test="limit != -1">
+			limit #{offset,jdbcType=BIGINT},#{limit,jdbcType=BIGINT}
+		</if>
+	</select>
+
+	<select id="queryCountByCondition" parameterType="com.jd.bluedragon.distribution.merchantWeightAndVolume.domain.MerchantWeightAndVolumeCondition"
+			resultType="Integer">
+		select
+		count(1) as num
+		from
+		merchant_weight_white_list
+		where 1=1
+		<include refid="Query_Params_Condition_Sql"/>
+		<include refid="Base_Condition_Sql"/>
+	</select>
+
+	<select id="exportByCondition" parameterType="com.jd.bluedragon.distribution.merchantWeightAndVolume.domain.MerchantWeightAndVolumeCondition"
+			resultMap="merchantResultMap">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		merchant_weight_white_list
+		where 1=1
+		<include refid="Query_Params_Condition_Sql"/>
+		<include refid="Base_Condition_Sql"/>
+		<if test="limit != -1">
+			limit #{limit,jdbcType=BIGINT}
+		</if>
+	</select>
+
+	<select id="queryByMerchantCodeAndSiteCode"
+			parameterType="com.jd.bluedragon.distribution.merchantWeightAndVolume.domain.MerchantWeightAndVolumeDetail" resultMap="merchantResultMap">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		merchant_weight_white_list
+		where 1=1
+		AND
+		<if test="operateSiteCode == null">
+			and operate_site_code = #{operateSiteCode,jdbcType=BIGINT}
+		</if>
+		<if test="merchantCode == null">
+			and merchant_code = #{merchantCode,jdbcType=VARCHAR}
+		</if>
+		<include refid="Base_Condition_Sql"/>
+		limit 1
+	</select>
+
+	<delete id="delete" parameterType="com.jd.bluedragon.distribution.merchantWeightAndVolume.domain.MerchantWeightAndVolumeDetail">
+		delete from
+	 	merchant_weight_white_list
+	 	where
+	 	merchant_code = #{merchantCode,jdbcType=VARCHAR}
+	 	and
+	 	operate_site_code = #{operateSiteCode,jdbcType=BIGINT}
+	</delete>
+</mapper>

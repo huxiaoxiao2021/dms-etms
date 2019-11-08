@@ -209,6 +209,11 @@ public class PrintWaybill extends BasePrintWaybill {
      */
     private boolean featherLetterWaybill;
 
+    /**
+     * 是否需要打印
+     * */
+    private Boolean needPrintFlag = Boolean.TRUE;
+
     public PrintWaybill(){
         this.isAir=false;
         this.isSelfService=false;
@@ -502,5 +507,13 @@ public class PrintWaybill extends BasePrintWaybill {
 
     public void setFeatherLetterWaybill(boolean featherLetterWaybill) {
         this.featherLetterWaybill = featherLetterWaybill;
+    }
+
+    public Boolean getNeedPrintFlag() {
+        return needPrintFlag;
+    }
+
+    public void setNeedPrintFlag(Boolean needPrintFlag) {
+        this.needPrintFlag = needPrintFlag;
     }
 }
