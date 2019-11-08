@@ -61,4 +61,18 @@
             </property>
     </bean>
 
+    <!--  拼多多面单打印信息获取接口  -->
+    <bean id="globalTradeBusinessManager" class="com.jd.bluedragon.external.crossbow.globalTrade.manager.GlobalTradeBusinessManager">
+        <property name="crossbowConfig">
+            <bean class="com.jd.bluedragon.core.crossbow.CrossbowConfig">
+                <property name="domain" value="${dms.external.global.trade.domain}" />
+                <property name="api" value="${dms.external.global.trade.api}" />
+                <property name="appKey" value="${dms.external.global.trade.appKey}" />
+                <property name="appSecret" value="${dms.external.global.trade.appSecret}" />
+                <property name="customerId" value="${dms.external.global.trade.customerId}" />
+                <property name="securityEnum" value="message_sign" />
+            </bean>
+        </property>
+    </bean>
+
 </beans>

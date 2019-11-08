@@ -26,6 +26,8 @@ import java.lang.reflect.Type;
  *
  * @link http://lft.jd.com/docCenter?docId=2967 组件crossbow对接流程
  * @see DMSCrossbowClient
+ * @param <P> 请求参数对象
+ * @param <R> 接口返回对象
  * @author wuzuxiang
  * @since 2019/10/17
  **/
