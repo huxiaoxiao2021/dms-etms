@@ -82,11 +82,8 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
                     //TC模板
                     templateName = TEMPlATE_NAME_TC;
                 }else if (TemplateGroupEnum.TEMPLATE_GROUP_CODE_B.equals(basePrintWaybill.getTemplateGroupCode())) {
-                    //waybillSign54位是2的普通冷链运单，54位为4的是冷链医药运单
-                    if(BusinessUtil.isColdChainWaybill(waybillSign) || BusinessUtil.isBMedicine(waybillSign)){
-                        templateName = TEMPlATE_NAME_B2B_MAIN;
-                    }
-
+                    //B网面单统一
+                    templateName = TEMPlATE_NAME_B2B_MAIN;
                 } else {
                     //C网面单
                     //一号店模板
