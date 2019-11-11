@@ -290,14 +290,6 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
 //                String str = StringUtils.isNotBlank(tmsWaybill.getImportantHint())? tmsWaybill.getImportantHint():"";
                 commonWaybill.appendRemark(scheduleCode);
             }
-            //物品名称
-            if(tmsWaybill.getWaybillExt()!=null && StringUtils.isNotBlank(tmsWaybill.getWaybillExt().getConsignWare())){
-                commonWaybill.setGoodsName(tmsWaybill.getWaybillExt().getConsignWare());
-            }
-            //大件路区
-            if(BusinessUtil.isHeavyCargo(tmsWaybill.getWaybillSign())){
-                commonWaybill.setBackupRoadCode(tmsWaybill.getRoadCode());
-            }
             //sendpay的第153位为“1”，remark追加【合并送】
             if(BusinessUtil.isSignY(commonWaybill.getSendPay(), 153)){
                 commonWaybill.appendRemark(TextConstants.REMARK_SEND_GATHER_TOGETHER);

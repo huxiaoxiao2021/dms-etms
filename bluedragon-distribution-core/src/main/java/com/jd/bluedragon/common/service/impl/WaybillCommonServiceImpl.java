@@ -939,6 +939,16 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 
         //处理特殊的distributTypeText
         processSpecialDistributTypeText(target,waybill.getWaybillSign());
+
+        //物品名称
+        if(waybill.getWaybillExt()!=null && StringUtils.isNotBlank(waybill.getWaybillExt().getConsignWare())){
+            target.setGoodsName(waybill.getWaybillExt().getConsignWare());
+        }
+        //大件路区
+        if(BusinessUtil.isHeavyCargo(waybill.getWaybillSign())){
+            target.setBackupRoadCode(waybill.getRoadCode());
+        }
+
         return target;
     }
 
