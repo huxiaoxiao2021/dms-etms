@@ -124,7 +124,7 @@ import java.util.Set;
 @Produces({ MediaType.APPLICATION_JSON })
 public class WaybillResource {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
 	private WaybillCommonService waybillCommonService;
@@ -221,7 +221,7 @@ public class WaybillResource {
     		@PathParam("waybillCode") String waybillCode) {
         // 判断传入参数
         if (startDmsCode == null || startDmsCode.equals(0) || StringUtils.isEmpty(waybillCode)) {
-            this.logger.error("根据初始分拣中心-运单号【" + startDmsCode + "-" + waybillCode + "】获取运单包裹信息接口 --> 传入参数非法");
+            this.log.warn("根据初始分拣中心-运单号【{}-{}】获取运单包裹信息接口 --> 传入参数非法",startDmsCode,waybillCode);
             return new WaybillResponse<Waybill>(JdResponse.CODE_PARAM_ERROR,
 					JdResponse.MESSAGE_PARAM_ERROR);
         }
@@ -230,7 +230,7 @@ public class WaybillResource {
             Waybill waybill = this.waybillCommonService.findWaybillAndPack(waybillCode);
 
             if (waybill == null) {
-                this.logger.info("运单号【" + waybillCode + "】调用根据运单号获取运单包裹信息接口成功, 无数据");
+                this.log.warn("运单号【{}】调用根据运单号获取运单包裹信息接口成功, 无数据",waybillCode);
                 return new WaybillResponse<Waybill>(JdResponse.CODE_OK_NULL,
     					JdResponse.MESSAGE_OK_NULL);
             }
@@ -244,7 +244,9 @@ public class WaybillResource {
 				} catch (Exception e) {
 					// dms db may be unconnected
 				}
-                this.logger.info("根据运单号【" + waybillCode + "】获取运单包裹信息接口 --> 获取该运单号的打印记录，popPrint：" + popPrint);
+            	if(log.isDebugEnabled()){
+                    this.log.debug("根据运单号【{}】获取运单包裹信息接口 --> 获取该运单号的打印记录，popPrint：{}" ,waybillCode, JsonHelper.toJson(popPrint));
+                }
                 if (popPrint != null) {
                     // 设置是否打印包裹
                     if (popPrint.getPrintPackCode() != null
@@ -262,8 +264,7 @@ public class WaybillResource {
 							: popPrint.getPrintCount());
                 }
             } catch (Exception e) {
-                this.logger
-                        .error("根据运单号【" + waybillCode + "】获取运单包裹信息接口 --> 调用该运单号的打印记录(数据库)异常：", e);
+                this.log.error("根据运单号【{}】获取运单包裹信息接口 --> 调用该运单号的打印记录(数据库)异常",waybillCode, e);
             }
 
             this.setWaybillStatus(waybill);
@@ -273,13 +274,13 @@ public class WaybillResource {
             // 设置航空标识
             this.setAirSigns(waybill, startDmsCode);
 
-            this.logger.info("运单号【" + waybillCode + "】调用根据运单号获取运单包裹信息接口成功");
+            this.log.debug("运单号【{}】调用根据运单号获取运单包裹信息接口成功", waybillCode);
             return new WaybillResponse<Waybill>(JdResponse.CODE_OK,
 					JdResponse.MESSAGE_OK, waybill);
 
         } catch (Exception e) {
             // 调用服务异常
-            this.logger.error("根据运单号【" + waybillCode + "】 获取运单包裹信息接口 --> 异常", e);
+            this.log.error("根据运单号【{}】 获取运单包裹信息接口 --> 异常",waybillCode, e);
             return new WaybillResponse<Waybill>(JdResponse.CODE_SERVICE_ERROR,
 					JdResponse.MESSAGE_SERVICE_ERROR);
         }
@@ -298,7 +299,7 @@ public class WaybillResource {
     		@PathParam("waybillCodeOrPackage") String waybillCodeOrPackage) {
         // 判断传入参数
         if (startDmsCode == null || startDmsCode.equals(0) || StringUtils.isEmpty(waybillCodeOrPackage)) {
-            this.logger.error("根据初始分拣中心-运单号/包裹号【" + startDmsCode + "-" + waybillCodeOrPackage + "】获取运单包裹信息接口 --> 传入参数非法");
+            this.log.warn("根据初始分拣中心-运单号/包裹号【{}-{}】获取运单包裹信息接口 --> 传入参数非法",startDmsCode,waybillCodeOrPackage);
             return new WaybillResponse<Waybill>(JdResponse.CODE_PARAM_ERROR,
 					JdResponse.MESSAGE_PARAM_ERROR);
         }
@@ -311,7 +312,7 @@ public class WaybillResource {
             Waybill waybill = this.waybillCommonService.findWaybillAndPack(waybillCode);
 
             if (waybill == null) {
-                this.logger.info("运单号【" + waybillCode + "】调用根据运单号获取运单包裹信息接口成功, 无数据");
+                this.log.warn("运单号【{}】调用根据运单号获取运单包裹信息接口成功, 无数据",waybillCode);
                 return new WaybillResponse<Waybill>(JdResponse.CODE_OK_NULL,
     					JdResponse.MESSAGE_OK_NULL);
             }
@@ -338,14 +339,15 @@ public class WaybillResource {
 	            				waybill.setIsPrintInvoice(Waybill.IS_PRINT_INVOICE);
 	            			}
 	            		}
-	            		this.logger.info("根据运单号【" + waybillCode + "】获取运单包裹信息接口 --> 获取该运单号的打印记录，popPrintList：" + popPrintList);
-            		} else {
-            			this.logger.error("根据运单号【" + waybillCode + "】获取运单包裹信息接口 --> 获取该运单号的打印记录 运单包裹数大于限定值");
+	            		if(log.isDebugEnabled()){
+                            this.log.debug("根据运单号【{}】获取运单包裹信息接口 --> 获取该运单号的打印记录，popPrintList：{}" ,waybillCode, JsonHelper.toJson(popPrintList));
+                        }
+                    } else {
+            			this.log.warn("根据运单号【{}】获取运单包裹信息接口 --> 获取该运单号的打印记录 运单包裹数大于限定值", waybillCode);
             		}
             	}
             } catch (Exception e) {
-                this.logger
-                        .error("根据运单号【" + waybillCode + "】获取运单包裹信息接口 --> 调用该运单号的打印记录(数据库)异常：", e);
+                this.log.error("根据运单号【{}】获取运单包裹信息接口 --> 调用该运单号的打印记录(数据库)异常",waybillCode, e);
             }
 
             // 增加SOP订单EMS全国直发
@@ -359,13 +361,13 @@ public class WaybillResource {
 
             this.setAirSigns(waybill, startDmsCode);
 
-            this.logger.info("运单号【" + waybillCode + "】调用根据运单号获取运单包裹信息接口成功");
+            this.log.debug("运单号【{}】调用根据运单号获取运单包裹信息接口成功",waybillCode );
             return new WaybillResponse<Waybill>(JdResponse.CODE_OK,
 					JdResponse.MESSAGE_OK, waybill);
 
         } catch (Exception e) {
             // 调用服务异常
-            this.logger.error("根据运单号【" + waybillCode + "】 获取运单包裹信息接口 --> 异常", e);
+            this.log.error("根据运单号【{}】 获取运单包裹信息接口 --> 异常",waybillCode, e);
             return new WaybillResponse<Waybill>(JdResponse.CODE_SERVICE_ERROR,
 					JdResponse.MESSAGE_SERVICE_ERROR);
         }
@@ -378,15 +380,13 @@ public class WaybillResource {
 
     	// 设置航空标识
 		if (waybill.getBusiId() != null && !waybill.getBusiId().equals(0)) {
-			this.logger.info("B商家ID-初始分拣中心-目的站点【" + waybill.getBusiId()
-					+ "-" + startDmsCode + "-" + waybill.getSiteCode()
-					+ "】根据基础资料调用设置航空标识开始");
+			this.log.debug("B商家ID-初始分拣中心-目的站点【{}-{}-{}】根据基础资料调用设置航空标识开始"
+                            ,waybill.getBusiId(),startDmsCode,waybill.getSiteCode());
 			waybill.setAirSigns(this.airTransportService.getAirConfig(
 					waybill.getBusiId(), startDmsCode,
 					waybill.getSiteCode()));
-			this.logger.info("B商家ID-初始分拣中心-目的站点【" + waybill.getBusiId()
-					+ "-" + startDmsCode + "-" + waybill.getSiteCode()
-					+ "】根据基础资料调用设置航空标识结束【" + waybill.getAirSigns() + "】");
+            this.log.debug("B商家ID-初始分拣中心-目的站点【{}-{}-{}】根据基础资料调用设置航空标识结束"
+                    ,waybill.getBusiId(),startDmsCode,waybill.getSiteCode());
 		}
     }
 
@@ -408,7 +408,7 @@ public class WaybillResource {
 		try {
 			cancelWaybill = WaybillCancelClient.getWaybillResponse(waybill.getWaybillCode());
 		} catch (Exception e) {
-			this.logger.error("WaybillResource --> setWaybillStatus get cancelWaybill Error:", e);
+			this.log.error("WaybillResource --> setWaybillStatus get cancelWaybill Error:{}", waybill.getWaybillCode(), e);
 		}
 
 		if (cancelWaybill != null) {
@@ -447,14 +447,12 @@ public class WaybillResource {
 		// 设置航空标识
 		boolean signs = false;
 		if (waybill.getBusiId() != null && !waybill.getBusiId().equals(0)) {
-			this.logger.info("B商家ID-初始分拣中心-目的站点【" + waybill.getBusiId() + "-"
-					+ "-" + waybill.getSiteCode()
-					+ "】根据基础资料调用设置航空标识开始");
+			this.log.debug("B商家ID-初始分拣中心-目的站点【{}-{}】根据基础资料调用设置航空标识开始",
+                    waybill.getBusiId() ,waybill.getSiteCode());
 			signs = this.airTransportService.getAirSigns(
 					waybill.getBusiId());
-			this.logger.info("B商家ID-初始分拣中心-目的站点【" + waybill.getBusiId() + "-"
-					 + "-" + waybill.getSiteCode()
-					+ "】根据基础资料调用设置航空标识结束【" + waybill.getAirSigns() + "】");
+            this.log.debug("B商家ID-初始分拣中心-目的站点【{}-{}】根据基础资料调用设置航空标识结束",
+                    waybill.getBusiId() ,waybill.getSiteCode());
 		}
 		return signs;
 	}
@@ -502,14 +500,15 @@ public class WaybillResource {
 			    			}
 		    			}
 		    		}
-		    		this.logger.info("根据运单号【" + waybillCode + "】获取运单包裹信息接口 --> 获取该运单号的打印记录，popPrintList：" + popPrintList);
-				} else {
-					this.logger.error("根据运单号【" + waybillCode + "】获取运单包裹信息接口 --> 获取该运单号的打印记录 运单包裹数大于限定值");
+		    		if(log.isDebugEnabled()){
+                        this.log.debug("根据运单号【{}】获取运单包裹信息接口 --> 获取该运单号的打印记录，popPrintList：{}" ,waybillCode,JsonHelper.toJson(popPrintList) );
+                    }
+                } else {
+					this.log.error("根据运单号【{}】获取运单包裹信息接口 --> 获取该运单号的打印记录 运单包裹数大于限定值", waybillCode);
 				}
 			}
 		} catch (Exception e) {
-		    this.logger
-		            .error("根据运单号【" + waybillCode + "】获取运单包裹信息接口 --> 调用该运单号的打印记录(数据库)异常：", e);
+		    this.log.error("根据运单号【{}】获取运单包裹信息接口 --> 调用该运单号的打印记录(数据库)异常",waybillCode, e);
 		}
 
 		// 增加SOP订单EMS全国直发
@@ -535,8 +534,7 @@ public class WaybillResource {
 		// 判断传入参数
 		if (startDmsCode == null || startDmsCode.equals(0)
 				|| StringUtils.isEmpty(waybillCodeOrPackage)) {
-			this.logger.error("根据初始分拣中心-运单号/包裹号【" + startDmsCode + "-"
-					+ waybillCodeOrPackage + "】获取运单包裹信息接口 --> 传入参数非法");
+			this.log.warn("根据初始分拣中心-运单号/包裹号【{}-{}】获取运单包裹信息接口 --> 传入参数非法",startDmsCode,waybillCodeOrPackage);
 			return new WaybillResponse<Waybill>(JdResponse.CODE_PARAM_ERROR,
 					JdResponse.MESSAGE_PARAM_ERROR);
 		}
@@ -550,23 +548,21 @@ public class WaybillResource {
 			Waybill waybill = findWaybillMessage(waybillCode,Constants.INTEGER_FLG_FALSE);
 
 			if (waybill == null) {
-				this.logger.info("运单号【" + waybillCode
-						+ "】调用根据运单号获取运单包裹信息接口成功, 无数据");
+				this.log.info("运单号【{}】调用根据运单号获取运单包裹信息接口成功, 无数据", waybillCode);
 				return new WaybillResponse<Waybill>(JdResponse.CODE_OK_NULL,
 						JdResponse.MESSAGE_OK_NULL);
 			}
 			//调用分拣接口获得基础资料信息
 			this.setBasicMessageByDistribution(waybill, startDmsCode, localSchedule, paperless,null);
 
-			this.logger.info("运单号【" + waybillCode + "】调用根据运单号获取运单包裹信息接口成功");
+			this.log.debug("运单号【{}】调用根据运单号获取运单包裹信息接口成功",waybillCode);
 			return new WaybillResponse<Waybill>(JdResponse.CODE_OK,
 					JdResponse.MESSAGE_OK, waybill);
 
 		} catch (Exception e) {
 			Profiler.functionError(info);
 			// 调用服务异常
-			this.logger
-					.error("根据运单号【" + waybillCode + "】 获取运单包裹信息接口 --> 异常", e);
+			this.log.error("根据运单号【{}】 获取运单包裹信息接口 --> 异常",waybillCode, e);
 			return new WaybillResponse<Waybill>(JdResponse.CODE_SERVICE_ERROR,
 					JdResponse.MESSAGE_SERVICE_ERROR);
 		}finally {
@@ -616,15 +612,13 @@ public class WaybillResource {
 
 			if(response==null || response.getData()==null){
 				//
-				this.logger.error("根据运单号【" + waybill.getWaybillCode()
-						+ "】 获取预分拣的包裹打印信息为空response对象");
+				this.log.warn("根据运单号【{}】 获取预分拣的包裹打印信息为空response对象", waybill.getWaybillCode());
 				return;
 			}
 
 			LabelPrintingResponse labelPrinting = response.getData();
 			if(labelPrinting==null){
-				this.logger.error("根据运单号【" + waybill.getWaybillCode()
-						+ "】 获取预分拣的包裹打印信息为空labelPrinting对象");
+				this.log.warn("根据运单号【{}】 获取预分拣的包裹打印信息为空labelPrinting对象", waybill.getWaybillCode());
 				return;
 			}
 
@@ -644,15 +638,12 @@ public class WaybillResource {
 			waybill.setRoad(labelPrinting.getRoad());
 
 			if(labelPrinting.getRoad()==null|| labelPrinting.getRoad().isEmpty()){
-				this.logger.error("根据运单号【" + waybill.getWaybillCode()
-						+ "】 获取预分拣的包裹打印路区信息为空");
+				this.log.warn("根据运单号【{}】 获取预分拣的包裹打印路区信息为空", waybill.getWaybillCode());
 			}
 		} catch (Exception e) {
-			this.logger.error("根据运单号【" + waybill.getWaybillCode()
-					+ "】 获取预分拣的包裹打印信息接口 --> 异常", e);
+			this.log.error("根据运单号【{}】 获取预分拣的包裹打印信息接口 --> 异常",waybill.getWaybillCode(), e);
 		} catch(Throwable ee) {
-			this.logger.error("根据运单号【" + waybill.getWaybillCode()
-					+ "】 获取预分拣的包裹打印信息接口 --> 异常", ee);
+			this.log.error("根据运单号【{}】 获取预分拣的包裹打印信息接口 --> 异常",waybill.getWaybillCode(), ee);
 		}
 	}
 	/**
@@ -686,8 +677,6 @@ public class WaybillResource {
 			, @PathParam("paperless") Integer paperless, @PathParam("startSiteType") Integer startSiteType, @PathParam("packOpeFlowFlg") Integer packOpeFlowFlg) {
 		// 判断传入参数
 		if (startDmsCode == null || startDmsCode.equals(0) || StringUtils.isEmpty(waybillCodeOrPackage)) {
-			this.logger.error("根据初始分拣中心-运单号/包裹号【" + startDmsCode + "-"
-					+ waybillCodeOrPackage + "】获取运单包裹信息接口 --> 传入参数非法");
 			return new WaybillResponse<Waybill>(JdResponse.CODE_PARAM_ERROR,
 					JdResponse.MESSAGE_PARAM_ERROR);
 		}
@@ -712,7 +701,7 @@ public class WaybillResource {
 				}
 			}
 		} catch (Exception e) {
-			logger.error("现场预分拣获取返调度目的地信息出错：" + waybillCodeOrPackage, e);
+			log.error("现场预分拣获取返调度目的地信息出错：{}" , waybillCodeOrPackage, e);
 			return new WaybillResponse<Waybill>(JdResponse.CODE_SERVICE_ERROR, "查询返调度目的地信息失败!");
 		}
 
@@ -722,8 +711,7 @@ public class WaybillResource {
 		try {
 			Waybill waybill = findWaybillMessage(waybillCode, packOpeFlowFlg);
 			if (waybill == null) {
-				this.logger.info("运单号【" + waybillCode
-						+ "】调用根据运单号获取运单包裹信息接口成功, 无数据");
+				this.log.warn("运单号【{}】调用根据运单号获取运单包裹信息接口成功, 无数据", waybillCode);
 				return new WaybillResponse<Waybill>(JdResponse.CODE_OK_NULL,
 						JdResponse.MESSAGE_OK_NULL);
 			}
@@ -741,7 +729,7 @@ public class WaybillResource {
 				BasicTraderInfoDTO traderDto = baseMinorManager.getBaseTraderById(waybill.getBusiId());
 				//不支持转三方时，给前端提示
 				if (traderDto != null && !BusinessHelper.canThreePLSchedule(traderDto.getTraderSign())) {
-					logger.warn("商家不支持转3方配送，返调度到3方站点失败：" + waybillCodeOrPackage);
+					log.warn("商家不支持转3方配送，返调度到3方站点失败：{}" ,waybillCodeOrPackage);
 					return new WaybillResponse<Waybill>(JdResponse.CODE_THREEPL_SCHEDULE_ERROR, JdResponse.MESSAGE_THREEPL_SCHEDULE_ERROR);
 				}
 			}
@@ -749,7 +737,7 @@ public class WaybillResource {
             if(scheduleSiteOrgDto != null
                     && waybillPrintService.isCodMoneyGtZeroAndSiteThird(scheduleSiteOrgDto.getSiteType(),scheduleSiteOrgDto.getSubType(), waybill
                     .getCodMoney())){
-                logger.warn("codMoney大于0不能分配三方站点waybillCode[{}]siteType[{}]subType[{}]codMoney[{}]",
+                log.warn("codMoney大于0不能分配三方站点waybillCode[{}]siteType[{}]subType[{}]codMoney[{}]",
                         waybillCodeOrPackage,scheduleSiteOrgDto.getSiteType(),scheduleSiteOrgDto.getSubType(),waybill.getCodMoney());
                 return new WaybillResponse<>(JdResponse.CODE_CODMONAY_THIRD_SITE_ERROR, JdResponse.MESSAGE_CODMONAY_THIRD_SITE_ERROR);
             }
@@ -758,21 +746,19 @@ public class WaybillResource {
             /*String waybillSign = waybill.getWaybillSign();
 			if(BusinessHelper.isSignatureReturnWaybill(waybillSign) && scheduleSiteOrgDto != null
                     && !Integer.valueOf(Constants.BASE_SITE_SITE).equals(scheduleSiteOrgDto.getSiteType())){
-                logger.warn("此运单要求签单返回，只能分配至自营站点：" + waybillCodeOrPackage);
+                log.warn("此运单要求签单返回，只能分配至自营站点：" + waybillCodeOrPackage);
                 return new WaybillResponse<Waybill>(JdResponse.CODE_SITE_SIGNRE_ERROR, JdResponse.MESSAGE_SITE_SIGNRE_ERROR);
             }*/
 
 			//调用分拣接口获得基础资料信息
 			this.setBasicMessageByDistribution(waybill, startDmsCode, localSchedule, paperless, startSiteType);
 
-			this.logger.info("运单号【" + waybillCode + "】调用根据运单号获取运单包裹信息接口成功");
 			return new WaybillResponse<Waybill>(JdResponse.CODE_OK,
 					JdResponse.MESSAGE_OK, waybill);
 
 		} catch (Exception e) {
             // 调用服务异常
-			this.logger
-					.error("根据运单号【" + waybillCode + "】 获取运单包裹信息接口 --> 异常", e);
+			this.log.error("根据运单号【{}】 获取运单包裹信息接口 --> 异常",waybillCode, e);
 			return new WaybillResponse<Waybill>(JdResponse.CODE_SERVICE_ERROR,
 					JdResponse.MESSAGE_SERVICE_ERROR);
 		}
@@ -798,7 +784,7 @@ public class WaybillResource {
         /* 校验单号是否正确 */
 		String barCode = request.getBarCode();/* 调度单号 */
 		if (StringHelper.isEmpty(barCode) || !WaybillUtil.isPackageCode(barCode) || !WaybillUtil.isWaybillCode(barCode)) {
-			logger.warn("WaybillResource.PackageReschedule-->输入的单号不正确：{}",request.toString());
+			log.warn("WaybillResource.PackageReschedule-->输入的单号不正确：{}",request.toString());
 			response.setCode(WaybillResponse.CODE_PARAM_ERROR);
 			response.setMessage(WaybillResponse.MESSAGE_PARAM_ERROR);
 			return response;
@@ -833,7 +819,7 @@ public class WaybillResource {
 					+ "/services/waybills/cancel" + "?packageCode=" + waybillCode;
 			JdResponse waybillCancelResponse = RestHelper.jsonGetForEntity(waybillcancelCheckUrl,JdResponse.class);
 			if (null != waybillCancelResponse && !JdResponse.CODE_OK.equals(waybillCancelResponse.getCode())) {
-				logger.warn("WaybillResource.PackageReschedule-->此单{}属于拦截订单,无法进行返调度",waybillCode);
+				log.warn("WaybillResource.PackageReschedule-->此单{}属于拦截订单,无法进行返调度",waybillCode);
 				response.setCode(waybillCancelResponse.getCode());
 				response.setMessage(waybillCancelResponse.getMessage());
 				return response;
@@ -843,7 +829,7 @@ public class WaybillResource {
 			response = this.getwaybillPack(request.getStartDmsCode(),barCode,
 					request.getRescheduleSiteCode(),request.getPaperless(),request.getStartSiteType());
 			if (null == response) {
-				logger.warn("WaybillResource.PackageReschedule-->获取调度打印信息失败:{}",request.toString());
+				log.warn("WaybillResource.PackageReschedule-->获取调度打印信息失败:{}",request.toString());
 				response = new WaybillResponse<>(JdResponse.CODE_SERVICE_ERROR,JdResponse.MESSAGE_SERVICE_ERROR);
 				return response;
 			}
@@ -877,7 +863,7 @@ public class WaybillResource {
 			entity.setSiteName(request.getRescheduleSiteName());
 
 		} catch (Exception e) {
-			logger.error("WaybillResource.PackageReschedule-->返调度操作失败，发生异常",e);
+			log.error("WaybillResource.PackageReschedule-->返调度操作失败，发生异常:{}",JsonHelper.toJson(request), e);
 			response = new WaybillResponse<>(JdResponse.CODE_SERVICE_ERROR,JdResponse.MESSAGE_SERVICE_ERROR);
 		}
 
@@ -954,7 +940,7 @@ public class WaybillResource {
 					return result;
 				}
 			} catch (Exception e){
-				logger.error("调用运单JSF接口-根据配送中心ID和仓ID查询是否强制换单-发生异常", e);
+				log.error("调用运单JSF接口-根据配送中心ID和仓ID查询是否强制换单-发生异常:cky2= {},storeId={}",cky2,storeId, e);
 				throw e;
 			}
 		}
@@ -1010,7 +996,7 @@ public class WaybillResource {
     @GET
     @Path("/fbackwaybill/{fbackwaybillcode}")
     public InvokeResult<Waybill> getFBackWaybill(@PathParam("fbackwaybillcode") String fwaybillcode){
-        this.logger.info("获取F返单商家信息"+fwaybillcode);
+        this.log.info("获取F返单商家信息:{}",fwaybillcode);
         InvokeResult<Waybill> result=new InvokeResult<Waybill>();
         Waybill waybill =null;
         try{
@@ -1019,7 +1005,7 @@ public class WaybillResource {
             result.setCode(JdResponse.CODE_OK);
             result.setMessage(JdResponse.MESSAGE_OK);
         }catch (Exception e){
-            this.logger.error("根据运单号【" + fwaybillcode + "】 获取运单包裹信息接口",e);
+            this.log.error("根据运单号【{}】 获取运单包裹信息接口",fwaybillcode,e);
             result.setCode(JdResponse.CODE_SERVICE_ERROR);
             result.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
         }
@@ -1064,7 +1050,7 @@ public class WaybillResource {
     		BaseStaffSiteOrgDto  br = this.baseMajorManager.getBaseSiteBySiteId(siteCode);
     		if(br!=null) response.setSiteCode(br.getDmsId());
     	}catch(Exception e){
-    		this.logger.error("根据运单号【" + startDmsCode + "-" + siteCode + "】 获取目的分拣中心信息接口", e);
+    		this.log.error("根据运单号【{}-{}】 获取目的分拣中心信息接口",startDmsCode , siteCode, e);
     	}
     	return response;
     }
@@ -1092,7 +1078,7 @@ public class WaybillResource {
     			}
     		}
     	}catch(Exception e){
-    		this.logger.error("getBuildPackageRule根据运单号【" + startDmsCode +"-"+ siteCode + "】 获取目的分拣中心信息接口",e);
+    		this.log.error("getBuildPackageRule根据运单号【{}-{}】 获取目的分拣中心信息接口", startDmsCode , siteCode,e);
     	}
     	return response;
     }
@@ -1108,11 +1094,11 @@ public class WaybillResource {
             dmsModifyOrderInfoMQ.send(modifyOrderInfo.getOrderId(),json);
 			jdResponse.setCode(200);
 			jdResponse.setMessage("成功");
-			logger.info("dms_modify_order_info执行订单修改电话或者地址发MQ成功 " + modifyOrderInfo.getOrderId());
+			log.info("dms_modify_order_info执行订单修改电话或者地址发MQ成功:{} " , modifyOrderInfo.getOrderId());
 		}catch (Exception e){
 			jdResponse.setCode(1000);
 			jdResponse.setMessage("执行订单修改MQ消息失败");
-			logger.error("dms_modify_order_info执行订单修改电话或者地址MQ失败" + modifyOrderInfo.getOrderId() + "，失败原因 " + e);
+			log.error("dms_modify_order_info执行订单修改电话或者地址MQ失败:{}" , modifyOrderInfo.getOrderId(), e);
 		}
 		return  jdResponse;
 	}
@@ -1123,7 +1109,7 @@ public class WaybillResource {
 		JdResponse jdResponse=new JdResponse();
 		try {
 			Assert.notNull(request, "request must not be null");
-			logger.info(request.getSiteCode()+"站点标签打印"+request.getKeyword2());
+			log.info("{}站点标签打印{}",request.getSiteCode(),request.getKeyword2());
 			TaskResponse response = null;
 			if (StringUtils.isBlank(request.getBody())) {
 				response = new TaskResponse(JdResponse.CODE_PARAM_ERROR,
@@ -1131,7 +1117,7 @@ public class WaybillResource {
 				return response;
 			}
 			String eachJson = request.getBody();
-			logger.warn("[" + request.getType() + "]" + eachJson);
+			log.warn("sendBtTrace:[{}]{}" ,request.getType(), eachJson);
 			Task tTask = new Task();
 			tTask.setKeyword1(request.getKeyword1());
 			tTask.setCreateSiteCode(request.getSiteCode());
@@ -1148,7 +1134,7 @@ public class WaybillResource {
 			jdResponse.setMessage(JdResponse.MESSAGE_OK);
 			jdResponse.setCode(JdResponse.CODE_OK);
 		}catch (Exception ex) {
-			logger.error("站点标签打印失败,参数:" + JsonHelper.toJson(request), ex);
+			log.error("站点标签打印失败,参数:{}" , JsonHelper.toJson(request), ex);
 			return new TaskResponse(JdResponse.CODE_SERVICE_ERROR,
 					JdResponse.MESSAGE_SERVICE_ERROR);
 		}
@@ -1171,7 +1157,7 @@ public class WaybillResource {
 			com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager.getDataByChoice(
 					waybillCode, wChoice);
 			if(null == baseEntity || baseEntity.getData() == null){
-				logger.error("根据运单号获取SKU信息接口为空");
+				log.warn("根据运单号获取SKU信息接口为空:{}", waybillCode);
 				waybillResponse.setCode(JdResponse.CODE_OK_NULL);
 				waybillResponse.setMessage(JdResponse.MESSAGE_OK_NULL);
 				return waybillResponse;
@@ -1182,7 +1168,7 @@ public class WaybillResource {
 			waybillResponse.setData(baseEntity.getData());
 			return waybillResponse;
 		}catch (Throwable ex){
-			logger.error("根据运单号获取SKU信息接口失败",ex);
+			log.error("根据运单号获取SKU信息接口失败:{}",waybillCode,ex);
 			waybillResponse.setCode(JdResponse.CODE_INTERNAL_ERROR);
 			waybillResponse.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
 			return waybillResponse;
@@ -1218,10 +1204,10 @@ public class WaybillResource {
 
 			result = this.waybillCommonService.getPackListByCode(waybillCode);
 
-			logger.info("/waybill/queryPackcode success waybillCode--> "+waybillCode);
+			log.info("/waybill/queryPackcode success waybillCode-->{} ",waybillCode);
 		}catch (Exception e){
 
-			logger.error("/waybill/queryPackcode  waybillCode--> "+waybillCode+" | "+e.getMessage());
+			log.error("/waybill/queryPackcode  waybillCode--> {} ",waybillCode,e);
 
 			result.setCode(InvokeResult.SERVER_ERROR_CODE);
 			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
@@ -1254,7 +1240,7 @@ public class WaybillResource {
 		result.setData(true);
 		try{
 			if(!WaybillStatus.WAYBILL_TRACK_POP_PRINT_STATE.equals(req.getState()) || StringUtils.isBlank(req.getRemark())){
-				logger.warn("/waybill/addPackState warn context--> " +JsonHelper.toJson(req));
+				log.warn("/waybill/addPackState warn context--> {}" ,JsonHelper.toJson(req));
 				return result;
 			}
 			PopAddPackStateTaskBody popAddPackStateTaskBody = new PopAddPackStateTaskBody();
@@ -1285,11 +1271,12 @@ public class WaybillResource {
 
 			taskService.add(task,true);  //直接创建task对象。因为taskService.toTask
 
-
-			logger.info("/waybill/addPackState success context--> " +JsonHelper.toJson(req));
+			if(log.isDebugEnabled()){
+				log.debug("/waybill/addPackState success context--> {}" ,JsonHelper.toJson(req));
+			}
 		}catch (Exception e){
 
-			logger.error("/waybill/addPackState  context-->" +JsonHelper.toJson(req)+"  "+e.getMessage());
+			log.error("/waybill/addPackState  context-->{}" ,JsonHelper.toJson(req), e);
 
 			result.setCode(InvokeResult.SERVER_ERROR_CODE);
 			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
@@ -1368,11 +1355,12 @@ public class WaybillResource {
 				result.setMessage(InvokeResult.PARAM_ERROR);
 				result.setData(false);
 			}
-
-			logger.info("/waybill/editWeight success context--> " +JsonHelper.toJson(req));
+			if(log.isDebugEnabled()){
+				log.debug("/waybill/editWeight success context--> {}" ,JsonHelper.toJson(req));
+			}
 		}catch (Exception e){
 
-			logger.error("/waybill/editWeight  context-->" +JsonHelper.toJson(req)+"  "+e.getMessage());
+			log.error("/waybill/editWeight  context-->{}" ,JsonHelper.toJson(req), e);
 
 			result.setCode(InvokeResult.SERVER_ERROR_CODE);
 			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
@@ -1457,7 +1445,7 @@ public class WaybillResource {
 				return invokeResult;
 			}
 		}catch (Exception e){
-			this.logger.error("批量一车一单发货获取预分拣站点或路由信息异常" + packageCode,e);
+			this.log.error("批量一车一单发货获取预分拣站点或路由信息异常:{}" , packageCode,e);
 		}
 		if(preSortingSiteCode == null){
 			invokeResult.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
@@ -1501,14 +1489,13 @@ public class WaybillResource {
 		/* 检查参数的有效性 */
 		if (null == request || StringHelper.isEmpty(request.getPackageCode())
 				|| StringHelper.isEmpty(request.getOperateTime()) || null == request.getCreateSiteCode()) {
-			logger.error("WaybillResource.getBarCodeAllRouters-->参数错误：{" + JsonHelper.toJson(request) + "}");
 			result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
 			result.setMessage(InvokeResult.PARAM_ERROR);
 			return result;
 		}
 		/* 校验单号是否是运单号或者是包裹号 */
 		if (!WaybillUtil.isWaybillCode(request.getPackageCode()) && !WaybillUtil.isPackageCode(request.getPackageCode())) {
-			logger.error("WaybillResource.getBarCodeAllRouters-->参数错误：{" + JsonHelper.toJson(request) + "}，单号不是京东单号");
+			log.warn("WaybillResource.getBarCodeAllRouters-->参数错误：{}，单号不是京东单号", request.getPackageCode());
 			result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
 			result.setMessage("单号不正确，未通过京东单号规则校验");
 			return result;
@@ -1527,7 +1514,7 @@ public class WaybillResource {
 					false,false,false);
 			/* 判断运单信息准确性 */
 			if (null == waybill || null == waybill.getSiteCode() || waybill.getSiteCode() < 0) {
-				logger.error("WaybillResource.getBarCodeAllRouters-->运单:{" + barCode + "}信息为空或者预分拣站点信息为空");
+                log.warn("WaybillResource.getBarCodeAllRouters-->运单:{}信息为空或者预分拣站点信息为空", barCode);
 				result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
 				result.setMessage("运单信息为空");
 				return result;
@@ -1535,7 +1522,7 @@ public class WaybillResource {
 			/* 预分拣站点 */
 			siteCode = waybill.getSiteCode();
 		} catch (Exception e) {
-			logger.error("WaybillResource.getBarCodeAllRouters-->运单接口调用异常,单号为：" + waybillCode,e);
+			log.error("WaybillResource.getBarCodeAllRouters-->运单接口调用异常,单号为：{}" , waybillCode,e);
 			result.setCode(InvokeResult.SERVER_ERROR_CODE);
 			result.setMessage("调用运单接口异常");
 			return result;
@@ -1579,7 +1566,7 @@ public class WaybillResource {
 				}
 			}
 		} catch (Exception e) {
-			logger.error("WaybillResource.getBarCodeAllRouters-->路由接口调用异常,单号为：" + waybillCode,e);
+			log.error("WaybillResource.getBarCodeAllRouters-->路由接口调用异常,单号为：{}" , waybillCode,e);
 			result.setCode(InvokeResult.SERVER_ERROR_CODE);
 			result.setMessage("调用路由接口异常");
 			return result;
@@ -1605,7 +1592,7 @@ public class WaybillResource {
 			jsfResponse = areaDestJsfService.findAreaDest(jsfRequest);
 		} catch (Exception e) {
 			Profiler.functionError(info);
-			logger.error("WaybillResource.getBarCodeAllRouters-->配置接口调用异常,单号为：" + waybillCode,e);
+			log.error("WaybillResource.getBarCodeAllRouters-->配置接口调用异常,单号为：{}" , waybillCode,e);
 			result.setCode(InvokeResult.SERVER_ERROR_CODE);
 			result.setMessage("发货配置接口异常");
 			return result;
@@ -1615,9 +1602,9 @@ public class WaybillResource {
 
 		if (null == jsfResponse || jsfResponse.getStatusCode() != BaseDmsAutoJsfResponse.SUCCESS_CODE
 				|| jsfResponse.getData() == null) {
-			if (logger.isWarnEnabled()) {
-				logger.warn("WaybillResource.getBarCodeAllRouters-->从分拣的发货配置关系中没有获取到有效的路由配置，返回值为:"
-						+ JsonHelper.toJson(jsfResponse));
+			if (log.isWarnEnabled()) {
+				log.warn("WaybillResource.getBarCodeAllRouters-->从分拣的发货配置关系中没有获取到有效的路由配置，返回值为:{}"
+						, JsonHelper.toJson(jsfResponse));
 			}
 			result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
 			result.setMessage("未配置发货关系");
@@ -1625,7 +1612,7 @@ public class WaybillResource {
 		}
 		for (AreaDestJsfVo areaDestJsfVo : jsfResponse.getData()) {
 			if (!operateSiteCode.equals(areaDestJsfVo.getCreateSiteCode())) {
-				logger.error("WaybillResource.getBarCodeAllRouters-->areaDestJsfService接口数据获取错误");
+				log.warn("WaybillResource.getBarCodeAllRouters-->areaDestJsfService接口数据获取错误");
 				continue;
 			}
 				/*
@@ -1671,7 +1658,7 @@ public class WaybillResource {
 			invokeResult.setCode(InvokeResult.RESULT_SUCCESS_CODE);
 			invokeResult.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
 		}catch (Exception e){
-			logger.error("判断理赔完成拦截运单异常",e);
+			log.error("判断理赔完成拦截运单异常:{}",waybillCode,e);
 			invokeResult.setCode(InvokeResult.SERVER_ERROR_CODE);
 			invokeResult.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
 		}
@@ -1697,8 +1684,8 @@ public class WaybillResource {
 													  @PathParam("operateTime")String operateTime , @PathParam("packageCount")Integer packageCount, @PathParam("orgId")Integer orgId, @PathParam("createSiteCode")Integer createSiteCode, @PathParam("isTotal")boolean isTotal) {
 		InvokeResult invokeResult =new InvokeResult();
 
-		logger.debug("外单新换单接口入参：waybillCode:"+waybillCode+" operatorId:"+operatorId+" operatorName:"+operatorName+" operateTime:"+operateTime+" packageCount:"+packageCount+" orgId:"+orgId+" createSiteCode:"
-				+createSiteCode+" isTotal:"+isTotal);
+		log.debug("外单新换单接口入参：waybillCode:{} operatorId:{} operatorName:{} operateTime:{} packageCount:{} orgId:{} createSiteCode:{} isTotal:{}"
+                ,waybillCode,operatorId,operatorName,operateTime,packageCount,orgId,createSiteCode,isTotal);
 
 		try {
 			WaybillReverseDTO waybillReverseDTO = ldopManager.makeWaybillReverseDTO( waybillCode,  operatorId,  operatorName,  DateHelper.parseDateTime(operateTime) ,  packageCount,  orgId,  createSiteCode,  isTotal);
@@ -1714,8 +1701,8 @@ public class WaybillResource {
 			}
 
 		}catch (Exception e){
-			logger.error("外单逆向换单接口异常,接口入参：waybillCode:"+waybillCode+" operatorId:"+operatorId+" operatorName:"+operatorName+" operateTime:"+operateTime+" packageCount:"+packageCount+" orgId:"+orgId+" createSiteCode:"
-					+createSiteCode+" isTotal:"+isTotal,e);
+			log.error("外单逆向换单接口异常,接口入参：waybillCode:{} operatorId:{} operatorName:{} operateTime:{} packageCount:{} orgId:{} createSiteCode:{} isTotal:{}"
+                    ,waybillCode,operatorId,operatorName,operateTime,packageCount,orgId,createSiteCode,isTotal,e);
 			invokeResult.setCode(InvokeResult.SERVER_ERROR_CODE);
 			invokeResult.setMessage("系统异常");
 		}
@@ -1742,8 +1729,8 @@ public class WaybillResource {
 																   @PathParam("operateTime")String operateTime , @PathParam("packageCount")Integer packageCount, @PathParam("orgId")Integer orgId, @PathParam("createSiteCode")Integer createSiteCode, @PathParam("isTotal")boolean isTotal) {
 		InvokeResult invokeResult =new InvokeResult();
 
-		logger.debug("换单前获取信息接口入参：waybillCode:"+waybillCode+" operatorId:"+operatorId+" operatorName:"+operatorName+" operateTime:"+operateTime+" packageCount:"+packageCount+" orgId:"+orgId+" createSiteCode:"
-				+createSiteCode+" isTotal:"+isTotal);
+		log.debug("换单前获取信息接口入参：waybillCode:{} operatorId:{} operatorName:{} operateTime:{} packageCount:{} orgId:{} createSiteCode:{} isTotal:{}"
+                ,waybillCode,operatorId,operatorName,operateTime,packageCount,orgId,createSiteCode,isTotal);
 
 		try {
 			WaybillReverseDTO waybillReverseDTO = ldopManager.makeWaybillReverseDTO( waybillCode,  operatorId,  operatorName,  DateHelper.parseDateTime(operateTime) ,  packageCount,  orgId,  createSiteCode,  isTotal);
@@ -1759,8 +1746,8 @@ public class WaybillResource {
 			}
 
 		}catch (Exception e){
-			logger.error("换单前获取信息接口异常,接口入参：waybillCode:"+waybillCode+" operatorId:"+operatorId+" operatorName:"+operatorName+" operateTime:"+operateTime+" packageCount:"+packageCount+" orgId:"+orgId+" createSiteCode:"
-					+createSiteCode+" isTotal:"+isTotal,e);
+			log.error("换单前获取信息接口异常,接口入参：waybillCode:{} operatorId:{} operatorName:{} operateTime:{} packageCount:{} orgId:{} createSiteCode:{} isTotal:{}"
+                    ,waybillCode,operatorId,operatorName,operateTime,packageCount,orgId,createSiteCode,isTotal,e);
 			invokeResult.setCode(InvokeResult.SERVER_ERROR_CODE);
 			invokeResult.setMessage("系统异常");
 		}
@@ -1777,7 +1764,9 @@ public class WaybillResource {
 	public InvokeResult<WaybillReverseResult> createReturnsWaybillNew(ExchangeWaybillDto request) {
 		InvokeResult invokeResult =new InvokeResult();
 
-		logger.debug("换单前获取信息接口入参："+JsonHelper.toJson(request));
+		if(log.isDebugEnabled()){
+            log.debug("换单前获取信息接口入参：{}",JsonHelper.toJson(request));
+        }
 
 		try {
 			WaybillReverseDTO waybillReverseDTO = ldopManager.makeWaybillReverseDTOCanTwiceExchange(request);
@@ -1793,7 +1782,7 @@ public class WaybillResource {
 			}
 
 		}catch (Exception e){
-			logger.error("换单前获取信息接口入参："+JsonHelper.toJson(request),e);
+			log.error("换单前获取信息接口入参：{}",JsonHelper.toJson(request),e);
 			invokeResult.setCode(InvokeResult.SERVER_ERROR_CODE);
 			invokeResult.setMessage("系统异常");
 		}
@@ -1812,7 +1801,9 @@ public class WaybillResource {
 	public InvokeResult<WaybillReverseResponseDTO> getOldOrderMessageNew(ExchangeWaybillDto request) {
 		InvokeResult invokeResult =new InvokeResult();
 
-		logger.debug("换单前获取信息接口入参："+JsonHelper.toJson(request));
+        if(log.isDebugEnabled()){
+            log.debug("换单前获取信息接口入参：{}",JsonHelper.toJson(request));
+        }
 
 		try {
 			WaybillReverseDTO waybillReverseDTO = ldopManager.makeWaybillReverseDTOCanTwiceExchange(request);
@@ -1828,7 +1819,7 @@ public class WaybillResource {
 			}
 
 		}catch (Exception e){
-			logger.error("换单前获取信息接口入参："+JsonHelper.toJson(request),e);
+			log.error("换单前获取信息接口入参：{}",JsonHelper.toJson(request),e);
 			invokeResult.setCode(InvokeResult.SERVER_ERROR_CODE);
 			invokeResult.setMessage("系统异常");
 		}
@@ -1911,7 +1902,7 @@ public class WaybillResource {
 			invokeResult.setCode(InvokeResult.SERVER_ERROR_CODE);
 			invokeResult.setData(false);
 			invokeResult.setMessage("系统异常");
-			logger.error("备件库分拣检查异常"+waybillCode,e);
+			log.error("备件库分拣检查异常:{}",waybillCode,e);
 		}
 
 		return invokeResult;
@@ -1931,7 +1922,7 @@ public class WaybillResource {
 		try{
 			result = ldopManager.findWaybillCodeByBusiIdAndBusiCode(busiId,busiCode);
 		}catch (Exception e){
-			logger.error("根据商家ID和商家单号获取运单号异常"+busiId+" "+busiCode,e);
+			log.error("根据商家ID和商家单号获取运单号异常:{}-{} ",busiId,busiCode,e);
 			result.setCode(InvokeResult.SERVER_ERROR_CODE);
 			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
 		}
@@ -1982,7 +1973,7 @@ public class WaybillResource {
 			return result;
 
 		}catch (Exception e){
-			logger.error("根据包裹号获取揽收重量信息异常"+packageCode,e);
+			log.error("根据包裹号获取揽收重量信息异常:{}",packageCode,e);
 			result.setCode(InvokeResult.SERVER_ERROR_CODE);
 			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
 		}
@@ -2021,7 +2012,7 @@ public class WaybillResource {
 			result.setMessage(message.toString());
 			result.setData(false);
 		}catch (Exception e){
-			logger.error("上传包裹称重信息异常"+JsonHelper.toJson(packWeightVO),e);
+			log.error("上传包裹称重信息异常:{}",JsonHelper.toJson(packWeightVO),e);
 			result.setData(false);
 			result.setCode(InvokeResult.SERVER_ERROR_CODE);
 			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
@@ -2088,14 +2079,14 @@ public class WaybillResource {
 			//判断运单是否存在
 			BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,choice);
 			if(baseEntity == null){
-				logger.error("调用运单获取运单数据失败，waybillCode:"+waybillCode);
+				log.warn("调用运单获取运单数据失败，waybillCode:{}",waybillCode);
 				result.setData(false);
 				result.setCode(InvokeResult.RESULT_NULL_CODE);
 				result.setMessage("调用运单接口获取运单信息异常");
 				return result;
 			}
 			if(baseEntity.getData() == null || baseEntity.getData().getWaybill() == null){
-				logger.info("调用运单获取运单信息为空，waybillCode:"+waybillCode);
+				log.warn("调用运单获取运单信息为空，waybillCode:{}",waybillCode);
 				result.setData(false);
 				result.setCode(InvokeResult.RESULT_NULL_CODE);
 				result.setMessage("运单信息为空，请联系IT人员处理");
@@ -2103,7 +2094,7 @@ public class WaybillResource {
 			}
 			//判断运单是否妥投
 			if(waybillTraceManager.isWaybillFinished(waybillCode)){
-				logger.warn("运单已经妥投，waybillCode:"+waybillCode);
+				log.warn("运单已经妥投，waybillCode:{}",waybillCode);
 				result.setData(false);
 				result.setCode(InvokeResult.RESULT_NULL_CODE);
 				result.setMessage("此运单为妥投状态，禁止操作此功能，请检查单号是否正确");
@@ -2114,7 +2105,7 @@ public class WaybillResource {
 			return result;
 
 		}catch (Exception e){
-			logger.error("判断运单是否存在是否妥投异常，barCode"+barCode,e);
+			log.error("判断运单是否存在是否妥投异常，barCode={}",barCode,e);
 			result.setCode(InvokeResult.SERVER_ERROR_CODE);
 			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
 		}
@@ -2146,7 +2137,6 @@ public class WaybillResource {
 		InvokeResult<Integer> result = new InvokeResult<Integer>();
 		result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
 		if(StringUtils.isBlank(waybillCode)){
-			this.logger.error("运单号不能为空!");
 			result.setData(0);
 			result.setMessage("运单号不能为空!");
 			return result;
@@ -2173,7 +2163,7 @@ public class WaybillResource {
                 isPurematchOrWarehouse(result, waybillCode,busiOrderCode);
             }
 		}catch (Exception e){
-			this.logger.error("通过运单号："+waybillCode+"查询运单信息失败!");
+			this.log.error("通过运单号：{}查询运单信息失败!", waybillCode);
 			result.setMessage("服务异常!");
 			result.setData(5);
 		}
@@ -2204,7 +2194,7 @@ public class WaybillResource {
                 result.setData(3);//既不是纯配也不是仓配
             }
         }else{
-            this.logger.error("通过运单号查询运单为空!");
+            this.log.error("通过运单号查询运单为空:{}",waybillCode);
             result.setMessage("运单号："+waybillCode+"数据为空!");
             result.setData(4);
         }
@@ -2244,7 +2234,7 @@ public class WaybillResource {
 		Integer receiveSiteCode = waybillNoCollectionRequest.getReceiveSiteCode();
 
 		if (StringHelper.isEmpty(queryCode) || ! WaybillNoCollectionQueryTypeEnum.isCorrectType(queryType) || createSiteCode == null || receiveSiteCode == null) {
-			logger.error("请求差异查询信息参数有误，参数："+ JsonHelper.toJson(waybillNoCollectionRequest));
+			log.warn("请求差异查询信息参数有误，参数：{}", JsonHelper.toJson(waybillNoCollectionRequest));
 			result.parameterError("请求参数有误，请检查参数！");
 			return result;
 		}
@@ -2256,7 +2246,7 @@ public class WaybillResource {
 			createSiteOrgDto = siteService.getSite(createSiteCode);
 			receiveSiteOrgDto = siteService.getSite(receiveSiteCode);
 		} catch (Exception e) {
-			logger.error("请求差异查询，获取站点信息失败，参数："+ JsonHelper.toJson(waybillNoCollectionRequest), e);
+			log.error("请求差异查询，获取站点信息失败，参数：{}", JsonHelper.toJson(waybillNoCollectionRequest), e);
 		}
 
 		//默认只看B网
@@ -2264,7 +2254,7 @@ public class WaybillResource {
 		if (createSiteOrgDto == null || receiveSiteOrgDto == null) {
 			result.setCode(JdResponse.CODE_NO_SITE);
 			result.setMessage("获取始发或目的站点信息失败！");
-			logger.error("请求差异查询，获取站点信息失败，参数："+ JsonHelper.toJson(waybillNoCollectionRequest));
+			log.warn("请求差异查询，获取站点信息失败，参数：{}", JsonHelper.toJson(waybillNoCollectionRequest));
 			return result;
 		} else {
 			//始发和目的有一个是车队
@@ -2300,11 +2290,11 @@ public class WaybillResource {
 		} catch (WaybillNoCollectionException waybillEx) {
 			result.setCode(JdResponse.CODE_SERVICE_ERROR);
 			result.setMessage(waybillEx.getMessage());
-			logger.error(waybillEx.getMessage());
+			log.error(waybillEx.getMessage());
 		} catch (DataAccessException e) {
 			result.setCode(JdResponse.CODE_SERVICE_ERROR);
 			result.setMessage("服务端数据库查询异常，请稍后再试！");
-			logger.error("获取差异查询信息失败，参数："+ JsonHelper.toJson(waybillNoCollectionRequest) + e);
+			log.error("获取差异查询信息失败，参数：{}", JsonHelper.toJson(waybillNoCollectionRequest) + e);
 		}
 
 		result.setData(waybillNoCollectionResult);
@@ -2323,19 +2313,19 @@ public class WaybillResource {
         }
         com.jd.etms.waybill.domain.Waybill  waybill = waybillService.getWaybillByWayCode(request.getWaybillCode());
         if(waybill == null){
-            logger.error("鸡毛信取消接口-查询运单信息为空waybillCode[{}]",request.getWaybillCode());
+            log.warn("鸡毛信取消接口-查询运单信息为空waybillCode[{}]",request.getWaybillCode());
             result.setCode(JdResponse.CODE_SEE_OTHER);
             result.setMessage(JdResponse.MESSAGE_NOT_EXIST_WAYBILL);
             return result;
         }
         if(!BusinessUtil.isFeatherLetter(waybill.getWaybillSign())){
-            logger.error("鸡毛信取消接口-非鸡毛信运单waybillCode[{}]waybillSign[{}]",request.getWaybillCode(),waybill.getWaybillSign());
+            log.warn("鸡毛信取消接口-非鸡毛信运单waybillCode[{}]waybillSign[{}]",request.getWaybillCode(),waybill.getWaybillSign());
             result.setCode(JdResponse.CODE_SEE_OTHER);
             result.setMessage(JdResponse.MESSAGE_NO_FEATHER_LETTER);
             return result;
         }
         if(!Objects.equals(request.getCancelFeatherLetter(),Boolean.TRUE)){
-            logger.error("鸡毛信取消接口-cancelFeatherLetter不为true不用请求取消接口，waybillCode[{}]waybillSign[{}]",request.getWaybillCode(),
+            log.warn("鸡毛信取消接口-cancelFeatherLetter不为true不用请求取消接口，waybillCode[{}]waybillSign[{}]",request.getWaybillCode(),
                     waybill.getWaybillSign());
             result.success();
             result.setMessage("不用取消鸡毛信属性");
