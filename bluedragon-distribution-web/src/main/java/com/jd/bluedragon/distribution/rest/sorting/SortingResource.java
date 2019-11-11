@@ -27,8 +27,8 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -48,7 +48,7 @@ import java.util.concurrent.TimeUnit;
 @Produces({ MediaType.APPLICATION_JSON })
 public class SortingResource {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private TaskService taskService;
@@ -79,7 +79,9 @@ public class SortingResource {
 	@BusinessLog(sourceSys = 1,bizType = 2002)
 	@JProfiler(jKey = "DMSWEB.SortingResource.cancelPackage", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
 	public SortingResponse cancelPackage(SortingRequest request) {
-		this.logger.info("取消分拣参数：" + JsonHelper.toJson(request));
+		if(log.isDebugEnabled()){
+			this.log.debug("取消分拣参数：{}" , JsonHelper.toJson(request));
+		}
 		if (StringHelper.isEmpty(request.getPackageCode())) {
 			return SortingResponse.paramIsNull();
 		}
@@ -102,11 +104,11 @@ public class SortingResource {
             isSuccess = cacheService.setNx(fingerPrintKey, "1", 5*60*1000, TimeUnit.SECONDS);
 			//说明key存在
 			if (! isSuccess) {
-				this.logger.warn(request.getPackageCode() + "正在执行取消分拣任务！");
+				this.log.warn("{}正在执行取消分拣任务！",request.getPackageCode() );
 				return SortingResponse.waitingCancelProcess();
 			}
         } catch (Exception e) {
-            this.logger.error(request.getPackageCode() + "获取取消发货任务缓存失败！", e);
+            this.log.error("{}获取取消发货任务缓存失败！", request.getPackageCode(), e);
         }
 
 		Sorting sorting = Sorting.toSorting2(request);
@@ -114,7 +116,7 @@ public class SortingResource {
 		try {
 			return sortingServiceFactory.getSortingService(sorting.getCreateSiteCode()).cancelSorting(sorting);
 		} catch (Exception e) {
-			logger.error(request.getPackageCode() + "取消分拣服务异常", e);
+			log.error("{}取消分拣服务异常",request.getPackageCode(), e);
 		} finally {
 			if (isSuccess) {
 				cacheService.del(fingerPrintKey);
@@ -183,7 +185,7 @@ public class SortingResource {
 			}
 			return new SortingResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, results);
 		} catch (Throwable e) {
-			this.logger.error("取消分拣异常", e);
+			this.log.error("取消分拣异常:{}",JsonHelper.toJson(sortingRequest), e);
 			return new SortingResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
 		}
 	}
@@ -205,8 +207,8 @@ public class SortingResource {
 	@Path("/sorting/box")
 	public List<SortingResponse> queryPackages(@QueryParam("boxCode") String boxCode,
 			@QueryParam("siteCode") Integer siteCode) {
-		this.logger.info("boxCode is " + boxCode);
-		this.logger.info("siteCode is " + siteCode);
+		this.log.debug("boxCode is {}" , boxCode);
+		this.log.debug("siteCode is {}" , siteCode);
 
 		Sorting sorting = new Sorting();
 		sorting.setBoxCode(boxCode);
@@ -214,7 +216,7 @@ public class SortingResource {
 
 		List<Sorting> sortingPackages = this.sortingService.findByBoxCode(sorting);
 
-		this.logger.info("sortingPackages's size : " + sortingPackages.size());
+		this.log.debug("sortingPackages's size : {}" , sortingPackages.size());
 		List<SortingResponse> sortingResponses = new ArrayList<SortingResponse>();
 		for (Sorting waybillPackage : sortingPackages) {
 			sortingResponses.add(this.toSortingResponse(waybillPackage));
@@ -232,13 +234,13 @@ public class SortingResource {
 	// @POST
 	// @Path("/sorting/return")
 	public SortingResponse dealReturn(ReturnsRequest request) {
-		this.logger.info("packagecode is " + request.getPackageCode());
-		this.logger.info("开始进行分拣退货");
+		this.log.debug("packagecode is {}" , request.getPackageCode());
+		this.log.debug("开始进行分拣退货");
 		SortingReturn returns = SortingReturn.parse(request);
 
 		try {
 			Integer result = this.returnsService.doAddReturn(returns);
-			this.logger.info("分拣退货处理结果返回 ：" + result);
+			this.log.debug("分拣退货处理结果返回 ：{}" , result);
 			if (this.returnsService.ADDRETURN_OK.equals(result)) {
 				/** 操作成功 */
 				SortingResponse response = new SortingResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
@@ -260,7 +262,7 @@ public class SortingResource {
 				return response;
 			}
 		} catch (Exception e) {
-			this.logger.error("调用ReturnsService服务异常", e);
+			this.log.error("调用ReturnsService服务异常:{}",JsonHelper.toJson(request), e);
 			/** 服务异常 */
 			SortingResponse response = new SortingResponse(JdResponse.CODE_SERVICE_ERROR,
 					JdResponse.MESSAGE_SERVICE_ERROR);
@@ -277,20 +279,20 @@ public class SortingResource {
 	@Path("/sortingRet/haveSortingRet")
 	public SortingResponse isSortingRet(@QueryParam("packageCode") String packageCodeOrWaybillCode) {
 		try {
-			this.logger.info("调用SortingResource.haveSortingRet 判断是否已经操作分拣退货[" + packageCodeOrWaybillCode + "]");
+			this.log.debug("调用SortingResource.haveSortingRet 判断是否已经操作分拣退货[{}]", packageCodeOrWaybillCode);
 			Boolean result = returnsService.exists(packageCodeOrWaybillCode);
 			SortingResponse response = null;
 			if (!result) {
-				this.logger.info("调用SortingResource.haveSortingRet 未操作分拣退货[" + packageCodeOrWaybillCode + "]");
+				this.log.warn("调用SortingResource.haveSortingRet 未操作分拣退货[{}]", packageCodeOrWaybillCode);
 				response = new SortingResponse(SortingResponse.CODE_NOT_EXIST_SORTINGRET,
 						SortingResponse.MESSAGE_NOT_EXIST_SORTINGRET);
 			} else {
-				this.logger.info("调用SortingResource.haveSortingRet 已操作分拣退货[" + packageCodeOrWaybillCode + "]");
+				this.log.warn("调用SortingResource.haveSortingRet 已操作分拣退货[{}]", packageCodeOrWaybillCode);
 				response = SortingResponse.ok();
 			}
 			return response;
 		} catch (Exception e) {
-			logger.error("SortingResource.isSortingRet", e);
+			log.error("SortingResource.isSortingRet:packageCodeOrWaybillCode={}",packageCodeOrWaybillCode, e);
 			SortingResponse response = new SortingResponse(SortingResponse.CODE_SERVICE_ERROR,
 					SortingResponse.MESSAGE_SERVICE_ERROR);
 			return response;
@@ -307,23 +309,23 @@ public class SortingResource {
 	@Path("/sortingRet/checkReDispatch")
 	public SortingResponse checkReDispatch(@QueryParam("packageCode") String packageCode) {
 		try {
-			this.logger.info("调用SortingResource.checkReDispatch 判断是否已经操作站点反调度[" + packageCode + "]");
+			this.log.debug("调用SortingResource.checkReDispatch 判断是否已经操作站点反调度[{}]", packageCode);
 			Integer result = returnsService.checkReDispatch(packageCode);
 			SortingResponse response = null;
 			if (result.equals(WaybillQueryManager.REDISPATCH_ERROR)) {
-				this.logger.info("调用SortingResource.checkReDispatch WSS接口操作失败[" + packageCode + "]");
+				this.log.warn("调用SortingResource.checkReDispatch WSS接口操作失败[{}]", packageCode);
 				response = new SortingResponse(SortingResponse.CODE_SERVICE_ERROR,
 						SortingResponse.MESSAGE_SERVICE_ERROR);
 			} else if (result.equals(WaybillQueryManager.REDISPATCH_NO)) {
-				this.logger.info("调用SortingResource.checkReDispatch 未操作站点反调度[" + packageCode + "]");
+				this.log.warn("调用SortingResource.checkReDispatch 未操作站点反调度[{}]", packageCode);
 				response = SortingResponse.ok();
 			} else {
-				this.logger.info("调用SortingResource.checkReDispatch 已操作站点反调度[" + packageCode + "]");
+				this.log.warn("调用SortingResource.checkReDispatch 已操作站点反调度[{}]", packageCode);
 				response = new SortingResponse(SortingResponse.CODE_REDISPATCH, SortingResponse.MESSAGE_REDISPATCH);
 			}
 			return response;
 		} catch (Exception e) {
-			logger.error("SortingResource.checkReDispatch", e);
+			log.error("SortingResource.checkReDispatch:packageCode={}",packageCode, e);
 			SortingResponse response = new SortingResponse(SortingResponse.CODE_SERVICE_ERROR,
 					SortingResponse.MESSAGE_SERVICE_ERROR);
 			return response;
@@ -361,7 +363,7 @@ public class SortingResource {
 	@Path("/sorting/getWaybillCodes/{boxCode}")
 	public InvokeResult<List<String>> getWaybillCodes(@PathParam("boxCode") String boxCode) {
 		Assert.notNull(boxCode, "boxCode must not be null");
-		this.logger.info("box code's " + boxCode);
+		this.log.debug("box code's {}" , boxCode);
 		InvokeResult result = new InvokeResult();
 		List<String> waybillList = sortingService.getWaybillCodeListByBoxCode(boxCode);
 		if (waybillList == null) {
