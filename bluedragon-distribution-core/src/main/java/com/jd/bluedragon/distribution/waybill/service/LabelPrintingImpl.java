@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 @Service("labelPrinting")
 public class  LabelPrintingImpl implements LabelPrinting {
 
-    private static final Logger log = LoggerFactory.getLogger(LabelPrintingImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(LabelPrintingImpl.class);
 
     public static final String LOG_PREFIX="包裹标签打印[LabelPrintingWSImpl] ";
 
@@ -35,13 +35,13 @@ public class  LabelPrintingImpl implements LabelPrinting {
     public BaseResponseIncidental<LabelPrintingResponse> dmsPrint(LabelPrintingRequest request) {
         try {
             if(request==null){
-                log.error(LOG_PREFIX+"分拣中心打印，参数为空");
+                logger.error(LOG_PREFIX+"分拣中心打印，参数为空");
                 return new BaseResponseIncidental<LabelPrintingResponse>(LabelPrintingResponse.CODE_EMPTY_PARMAETER,LabelPrintingResponse.MESSAGE_EMPTY_PARMAETER);
             }
-            log.info(LOG_PREFIX + "分拣中心打印，参数:{}",request.toString());
+            logger.info(LOG_PREFIX + "分拣中心打印，参数:{}",request.toString());
             return dmsLablePrintingService.packageLabelPrint(request);
         } catch (Exception e) {
-            log.error(LOG_PREFIX+"分拣中心打印接口异常，错误信息：{}",e.getMessage(), e);
+            logger.error(LOG_PREFIX+"分拣中心打印接口异常，错误信息：{}",e.getMessage(), e);
             return new BaseResponseIncidental<LabelPrintingResponse>(JdResponse.CODE_SERVICE_ERROR,JdResponse.MESSAGE_SERVICE_ERROR);
         }
     }
@@ -52,13 +52,13 @@ public class  LabelPrintingImpl implements LabelPrinting {
     public BaseResponseIncidental<LabelPrintingResponse> dmsPrint(LabelPrintingRequest request, WaybillPrintContext context) {
         try {
             if(request==null){
-                log.error(LOG_PREFIX+"分拣中心打印，参数为空");
+                logger.error(LOG_PREFIX+"分拣中心打印，参数为空");
                 return new BaseResponseIncidental<LabelPrintingResponse>(LabelPrintingResponse.CODE_EMPTY_PARMAETER,LabelPrintingResponse.MESSAGE_EMPTY_PARMAETER);
             }
-            log.info(LOG_PREFIX + "分拣中心打印，参数:{}",request.toString());
+            logger.info(LOG_PREFIX + "分拣中心打印，参数:{}",request.toString());
             return dmsLablePrintingService.packageLabelPrint(request, context);
         } catch (Exception e) {
-            log.error(LOG_PREFIX+"分拣中心打印接口异常，错误信息：{}",e.getMessage(), e);
+            logger.error(LOG_PREFIX+"分拣中心打印接口异常，错误信息：{}",e.getMessage(), e);
             return new BaseResponseIncidental<LabelPrintingResponse>(JdResponse.CODE_SERVICE_ERROR,JdResponse.MESSAGE_SERVICE_ERROR);
         }
     }
@@ -70,14 +70,14 @@ public class  LabelPrintingImpl implements LabelPrinting {
 //    public BaseResponseIncidental<LabelPrintingResponse> spwmsPrint(LabelPrintingRequest request) {
 //        try {
 //            if(request==null){
-//                log.error(LOG_PREFIX+"备件库打印，参数为空");
+//                logger.error(LOG_PREFIX+"备件库打印，参数为空");
 //                return new BaseResponseIncidental<LabelPrintingResponse>(LabelPrintingResponse.CODE_EMPTY_PARMAETER,LabelPrintingResponse.MESSAGE_EMPTY_PARMAETER);
 //            }
-//            log.info(new StringBuilder(LOG_PREFIX).append("备件库打印，参数").append(request.toString()).toString());
+//            logger.info(new StringBuilder(LOG_PREFIX).append("备件库打印，参数").append(request.toString()).toString());
 //
 //            return sepwmsLabelPrintingService.packageLabelPrint(request);
 //        } catch (Exception e) {
-//            log.error(LOG_PREFIX+"备件库打印接口异常，错误信息："+e.getMessage(), e);
+//            logger.error(LOG_PREFIX+"备件库打印接口异常，错误信息："+e.getMessage(), e);
 //            return new BaseResponseIncidental<LabelPrintingResponse>(BaseResponse.CODE_SOMETHING_ERROR,BaseResponse.MESSAGE_SOMETHING_ERROR);
 //        }
 //    }

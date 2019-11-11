@@ -27,7 +27,7 @@ public class DefaultDataSubscriber implements DataSubscriber {
 		log.info("配置管理从本地缓存获取值为{}:{}" ,key, value);
 		if (value == null) {
 			value = getKeyFromRedis(key);
-			log.error("配置管理从redis获取值为{}:{}" ,key, value);
+			log.warn("配置管理从redis获取值为{}:{}" ,key, value);
 			if (value != null) {
 				cache.put(key, value);
 			}
@@ -66,7 +66,9 @@ public class DefaultDataSubscriber implements DataSubscriber {
 
 			}
 		}
-		log.debug("初始化系统配置未从redis中拿到缓存...");
+		if(log.isDebugEnabled()){
+			log.debug("初始化系统配置未从redis中拿到缓存...");
+		}
 		BaseService baseService = getBaseService();
 		if (baseService == null) {
 			throw new RuntimeException("Spring 上下文未加载baseService对象...");
@@ -81,7 +83,7 @@ public class DefaultDataSubscriber implements DataSubscriber {
 			}
 
 		} else {
-			log.error("数据库未配置数据...");
+			log.warn("数据库未配置数据...");
 		}
 
 	}
@@ -92,8 +94,7 @@ public class DefaultDataSubscriber implements DataSubscriber {
 		try {
 			value = redisManager.hget(this.CONFIGURATION_REDIS_QUEUE_NAME, key);
 		} catch (Exception e) {
-			log.error("开关读取redis异常...", e);
-			e.printStackTrace();
+			log.error("开关读取redis异常:{}",key, e);
 		}
 
 		return value;

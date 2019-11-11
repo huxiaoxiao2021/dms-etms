@@ -39,7 +39,7 @@ import java.util.List;
 @Service("SortingPrepareService")
 public class SimpleSortingPrepareServiceImpl extends AbstractSortingPrepareService {
 
-    private static final Logger log= LoggerFactory.getLogger(SimpleSortingPrepareServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(SimpleSortingPrepareServiceImpl.class);
 
     private static final String AUTO_SORTING_WHITE_PAPER_PREFIX="auto.sorting.whitepaper.";
 
@@ -69,7 +69,7 @@ public class SimpleSortingPrepareServiceImpl extends AbstractSortingPrepareServi
     protected boolean prepareSite(Sorting entity) {
         Waybill waybill=this.waybillCommonService.findByWaybillCode(entity.getWaybillCode());
         if(null==waybill){
-            log.warn("准备分拣站点->获取不到运单信息：{}",entity.getWaybillCode());
+            logger.warn("准备分拣站点->获取不到运单信息：{}",entity.getWaybillCode());
             return false;
         }else {
             entity.setReceiveSiteCode(waybill.getSiteCode());
@@ -106,14 +106,14 @@ public class SimpleSortingPrepareServiceImpl extends AbstractSortingPrepareServi
      */
     @Override
     protected boolean prepareSorting(Sorting entity) {
-        log.debug("准备获取波次信息{}",entity.getWaybillCode());
+        logger.debug("准备获取波次信息{}",entity.getWaybillCode());
         BatchSend send=batchSendService.readAndGenerateIfNotExist(entity.getCreateSiteCode(),entity.getOperateTime(),entity.getReceiveSiteCode());
         if(null==send){
-            log.warn("获取波次信息失败->站点：{}|操作时间:{}|接收站点:{}",
+            logger.warn("获取波次信息失败->站点：{}|操作时间:{}|接收站点:{}",
                     entity.getCreateSiteCode(),DateHelper.formatDateTime(entity.getOperateTime()),entity.getReceiveSiteCode());
             return false;
         }else {
-            log.debug("获取波次信息成功:{}",entity.getWaybillCode());
+            logger.debug("获取波次信息成功:{}",entity.getWaybillCode());
             entity.setBoxCode(send.getSendCode());
             entity.setSpareReason(send.getBatchCode());
             return true;
@@ -127,9 +127,9 @@ public class SimpleSortingPrepareServiceImpl extends AbstractSortingPrepareServi
      */
     @Override
     protected boolean intercept(Sorting entity) {
-        log.info("开始插入分拣拦截日志：{}",entity.getWaybillCode());
+        logger.info("开始插入分拣拦截日志：{}",entity.getWaybillCode());
         BoxResponse response= WaybillCancelClient.checkAutoSorting(entity.getCreateSiteCode(),entity.getPackageCode(),entity.getReceiveSiteCode());
-        log.info("拦截状态为：{}",response.getCode());
+        logger.info("拦截状态为：{}",response.getCode());
         if(!response.getCode().equals(Integer.valueOf(200))){
             SortingException exception=new SortingException();
             exception.setBoxCode(entity.getSpareReason());
@@ -144,7 +144,7 @@ public class SimpleSortingPrepareServiceImpl extends AbstractSortingPrepareServi
             exception.setExceptionCode(response.getCode());
             exception.setExceptionMessage(response.getMessage());
             sortingExceptionService.add(exception);
-            log.info("分拣拦截日志插入成功：{}",exception.toString());
+            logger.info("分拣拦截日志插入成功：{}",exception.toString());
         }
         return true;
     }
@@ -194,7 +194,7 @@ public class SimpleSortingPrepareServiceImpl extends AbstractSortingPrepareServi
         list.add(request);
         task.setOwnSign(BusinessHelper.getOwnSign()); //fix 增加ownsign避免直接写库没有ownsign问题
         task.setBody(JsonHelper.toJson(list));
-        log.info("插入分拣任务为：{}",task.toString());
+        logger.info("插入分拣任务为：{}",task.toString());
         return taskService.add(task,true)>0?true:false;
 
     }
@@ -210,11 +210,11 @@ public class SimpleSortingPrepareServiceImpl extends AbstractSortingPrepareServi
         if(configs!=null&&configs.size()>0&& configs.get(0).getConfigContent()!=null&&configs.get(0).getConfigContent().trim().length()>0){
             List<String> whiteList= Arrays.asList(configs.get(0).getConfigContent().split(","));
             if(!whiteList.contains(String.valueOf(entity.getReceiveSiteCode()))){
-                log.warn("sorting-filter:true={}",entity.getWaybillCode());
+                logger.warn("sorting-filter:true={}",entity.getWaybillCode());
                 return true;
             }
         }
-        log.warn("sorting-filter:false={}",entity.getWaybillCode());
+        logger.warn("sorting-filter:false={}",entity.getWaybillCode());
         return false;
     }
 

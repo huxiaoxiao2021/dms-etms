@@ -73,7 +73,9 @@ public class DmsLablePrintingServiceImpl extends AbstractLabelPrintingServiceTem
         }
 
         //自提订单---打提字，并且地址不显示
-        log.debug(LOG_PREFIX + "waybill---distanceType:{},sendpay{}",waybill.getDistanceType(),waybill.getSendPay());
+        if(log.isDebugEnabled()){
+            log.debug(LOG_PREFIX + "waybill---distanceType:{},sendpay{}",waybill.getDistanceType(),waybill.getSendPay());
+        }
         if(waybill.getDistributeType()!=null && waybill.getDistributeType().equals(LabelPrintingService.ARAYACAK_SIGN) && waybill.getSendPay().length()>=50){
             if(waybill.getSendPay().charAt(21)!='5'){
                 labelPrinting.setPrintAddress("");
@@ -127,9 +129,11 @@ public class DmsLablePrintingServiceImpl extends AbstractLabelPrintingServiceTem
 	                    && waybill != null && StringHelper.isNotEmpty(request.getWaybillCode())
 	                    && WaybillUtil.isBusiWaybillCode(request.getWaybillCode())
 	                    && ((!BusinessUtil.isSignChar(waybill.getWaybillSign(),2,Constants.WAYBILL_SIGN_B)&& NumberHelper.isNumber(waybill.getVendorId()))||BusinessUtil.isSignChar(waybill.getWaybillSign(),1,Constants.WAYBILL_SIGN_B))) {
-	
-	                log.debug("调用promise获取外单时效开始");
-	
+
+                    if(log.isDebugEnabled()){
+                        log.debug("调用promise获取外单时效开始");
+                    }
+
 	                OrderMarkingForeignRequest orderMarkingRequest = new OrderMarkingForeignRequest();
 	                if (Constants.WAYBILL_SIGN_B==waybill.getWaybillSign().charAt(0))
 	                    orderMarkingRequest.setOrderId(Constants.ORDER_TYPE_B_ORDERNUMBER);//纯外单订单号设置为0
@@ -157,8 +161,10 @@ public class DmsLablePrintingServiceImpl extends AbstractLabelPrintingServiceTem
 	                } else {
 	                    log.warn("调用promise接口获取外单时效失败，返回结果：{}" , JsonHelper.toJson(orderMarkingForeignResponse));
 	                }
-	                log.debug("调用promise获取外单时效返回数据{}" , JsonHelper.toJson(orderMarkingForeignResponse));
-	
+                    if(log.isDebugEnabled()){
+                        log.debug("调用promise获取外单时效返回数据：{}" , JsonHelper.toJson(orderMarkingForeignResponse));
+                    }
+
 	                //C2C面单预计送达时间从运单获取REQUIRE_TIME
 	                if(BusinessUtil.isSignChar(waybill.getWaybillSign(),29,'8')){
 	                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -170,7 +176,7 @@ public class DmsLablePrintingServiceImpl extends AbstractLabelPrintingServiceTem
 	                }
 	            }//外单增加promise时效代码逻辑,包裹标签业务是核心业务，如果promise接口异常，仍要保证包裹标签业务。
 	        }catch (Exception e){
-	            log.error("外单调用promise接口异常" + e.toString() + (request == null ? "" : JsonHelper.toJson(request)),e);
+	            log.error("外单调用promise接口异常,请求参数:{}" ,(request == null ? "" : JsonHelper.toJson(request)),e);
 	        }
         }
         //加promise调用获取时效具体信息

@@ -17,7 +17,9 @@ public class PopQueueServiceImpl implements PopQueueService {
 	private PopQueueDao popQueueDao;
 	@Override
 	public int getCurrentWaitNo(Integer createSiteCode) {
-		log.debug("分拣中心编号{}取当前最大排队号",createSiteCode);
+		if(log.isDebugEnabled()){
+			log.debug("分拣中心编号{}取当前最大排队号",createSiteCode);
+		}
 		return this.popQueueDao.getCurrentWaitNo(createSiteCode);
 	}
 	@Override

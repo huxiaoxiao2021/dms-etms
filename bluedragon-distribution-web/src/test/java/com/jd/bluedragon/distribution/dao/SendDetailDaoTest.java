@@ -67,7 +67,7 @@ public class SendDetailDaoTest {
                 "170171648-16-22-\n";
         for(String waybill : waybills.split("\n")){
             List<SendDetail> sendDetails = sendDatailDao.queryWaybillsByPackCode(waybill);
-            log.error(StringHelper.join(sendDetails, "getWaybillCode", ","));
+            log.info(StringHelper.join(sendDetails, "getWaybillCode", ","));
         }
     }
 
@@ -101,7 +101,7 @@ public class SendDetailDaoTest {
 
         for(String box : boxs.split("\n")){
             List<SendDetail> sendDetails = sendDatailDao.queryWaybillsByBoxCode(box);
-            log.error(StringHelper.join(sendDetails, "getWaybillCode", ","));
+            log.info(StringHelper.join(sendDetails, "getWaybillCode", ","));
         }
     }
 
@@ -140,7 +140,7 @@ public class SendDetailDaoTest {
 
         for(String sc : sendCodes.split("\n")){
             List<SendDetail> sendDetails = sendDatailDao.queryWaybillsBySendCode(sc);
-            log.error(StringHelper.join(sendDetails, "getWaybillCode", ","));
+            log.info(StringHelper.join(sendDetails, "getWaybillCode", ","));
         }
     }
 
@@ -180,7 +180,7 @@ public class SendDetailDaoTest {
                     sendDetails.addAll(temp);
                 }
             }
-            log.error(StringHelper.join(sendDetails,"getWaybillCode",","));
+            log.info(StringHelper.join(sendDetails,"getWaybillCode",","));
         }
     }
 }

@@ -16,13 +16,15 @@ import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
  * 格式化对象和反序列化xml 转换类，该类只能转换Tms收货对象
  */
 public class ShouHuoConverter implements Converter {
-    private static final Log log = LogFactory.getLog(ShouHuoConverter.class);
+    private static final Logger log = LoggerFactory.getLogger(ShouHuoConverter.class);
     
     @SuppressWarnings("rawtypes")
     public boolean canConvert(Class clazz) {
@@ -77,7 +79,7 @@ public class ShouHuoConverter implements Converter {
                     reader.moveUp();
                     continue;
                 } catch (ParseException e) {
-                    log.error("ShouHuoConverter 日期转换错误！日期格式：" + reader.getValue());
+                    log.error("ShouHuoConverter 日期转换错误！日期格式：{}" , reader.getValue(),e);
                 }
             }
             // 判断节点名称是否是remark（描述）

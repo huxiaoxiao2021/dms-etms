@@ -1,9 +1,11 @@
 package com.jd.bluedragon.utils;
 
-import org.apache.log4j.Logger;
 import org.apache.poi.hssf.record.formula.functions.T;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.hssf.util.HSSFColor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.servlet.http.HttpServletResponse;
 import java.beans.PropertyDescriptor;
 import java.io.File;
@@ -23,7 +25,7 @@ import java.util.List;
  */
 public class ExportExcel {
 
-    private static final Logger log = Logger.getLogger(ExportExcel.class);
+    private static final Logger log = LoggerFactory.getLogger(ExportExcel.class);
 
     private static String PARAM_TITLE = "文件标题不能为空";
     private static String PARAM_FIELDNAMES = "列表列名不能为空";
@@ -70,14 +72,14 @@ public class ExportExcel {
                 fis = new FileInputStream(tmpFile);
                 CsvExportUtil.writeResponse(fis, response.getOutputStream());
             }catch (Exception e){
-                log.error("导出CSV文件失败：" + e.getMessage(), e);
+                log.error("导出CSV文件失败：{}" ,fileName, e);
             }finally {
                 try{
                     if(fis != null){
                         fis.close();
                     }
                 }catch (Exception e1){
-                    log.error("生成CSV时输入流关闭失败:" + e1.getMessage(), e1);
+                    log.error("生成CSV时输入流关闭失败:{}" ,fileName , e1);
                 }
             }
         }else{ //
@@ -146,7 +148,6 @@ public class ExportExcel {
                      rowCount++;
                  }
              } catch (Exception e) {
-             	e.printStackTrace();
                  log.error("导出excel创建单元格是出现异常",e);
              }
 		}

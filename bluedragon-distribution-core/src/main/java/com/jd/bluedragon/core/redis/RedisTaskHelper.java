@@ -1,13 +1,14 @@
 package com.jd.bluedragon.core.redis;
 
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.jim.cli.Cluster;
 import com.jd.tbschedule.dto.ScheduleQueue;
 import com.jd.tbschedule.redis.CacheEntry;
 import com.jd.tbschedule.redis.QueueCacheEntry;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
@@ -22,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class RedisTaskHelper {
 	
-	private static Log log = LogFactory.getLog(RedisTaskHelper.class);
+	private static Logger log = LoggerFactory.getLogger(RedisTaskHelper.class);
 	private Cluster redisClient;
 	private String queuePrefix;//任务列表key前缀，用于如：WORKER_QUEUE_JSONSealBoxRedisTask， WORKER_QUEUE_JSON就是任务列表key前缀
 	private static ConcurrentHashMap<String, Map<String, ScheduleQueue>> taskListMap = new ConcurrentHashMap<String, Map<String, ScheduleQueue>>();//用于记录所有的任务列表与任务类型的对应关系
@@ -110,7 +111,7 @@ public class RedisTaskHelper {
 			}
 			
 		} catch (Exception e) {
-			log.error("initQueueList:",e);
+			log.error("initQueueList:{}", JsonHelper.toJson(queueKeyInfo),e);
 		}
 		return queueMap;
 	}

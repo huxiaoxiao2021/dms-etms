@@ -46,7 +46,9 @@ public class ContainerManagerImpl implements ContainerManager{
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.ContainerManagerImpl.createContainers", mState = {JProEnum.TP})
     public List<Box> createContainers(Box param, BoxSystemTypeEnum systemType) throws Exception{
-        log.debug("中台创建容器入参：{}" , JsonHelper.toJson(param));
+        if(log.isDebugEnabled()){
+            log.debug("中台创建容器入参：{}" , JsonHelper.toJson(param));
+        }
 
         UserEnv userEnv = buildUserEnv(param.getCreateUser(), param.getCreateUser(), param.getCreateSiteCode());
         Flow flow = buildFlow(param);
@@ -60,10 +62,12 @@ public class ContainerManagerImpl implements ContainerManager{
         int count = param.getQuantity();
 
         ApiResult<List<Container>> apiResult = containerService.createContainers(flow, attributes, count, userEnv);
-        log.debug("中台创建容器结果：{}" , apiResult.getMessage());
+        if(log.isDebugEnabled()){
+            log.debug("中台创建容器结果：{}" , apiResult.getMessage());
+        }
 
         if(ApiResult.OK_CODE != apiResult.getCode()){
-            log.warn("通过中台创建箱号失败：{}" + apiResult.getMessage());
+            log.warn("通过中台创建箱号失败：param={},原因={}" ,JsonHelper.toJson(param), apiResult.getMessage());
             throw new Exception("通过中台创建箱号失败：" + apiResult.getMessage());
         }
         List<Container> containers = apiResult.getData();
@@ -100,16 +104,20 @@ public class ContainerManagerImpl implements ContainerManager{
             log.warn("箱号体积为0，不再更新中台容器体积：{}" , boxCode);
             return true;
         }
-        log.debug("中台更新容器体积：{}" , boxCode);
+        if(log.isDebugEnabled()){
+            log.debug("中台更新容器体积：{}" , boxCode);
+        }
         UserEnv userEnv = buildUserEnv(userErp, userName, createSiteCode);
 
         Volume volume = Volume.builder().length(BigDecimal.valueOf(length)).width(BigDecimal.valueOf(width))
                 .height(BigDecimal.valueOf(height)).unit(VolumeUnit.CM3).volume(BigDecimal.valueOf(length * width * height)).build();
         ApiResult<Void> apiResult = containerService.measure(volume, null, userEnv, boxCode);
-        log.debug("中台更新体积结果：{}" + apiResult.getMessage());
+        if(log.isDebugEnabled()){
+            log.debug("中台更新体积结果：{}" , apiResult.getMessage());
+        }
 
         if(ApiResult.OK_CODE != apiResult.getCode()){
-            log.warn("通过中台更新箱号体积失败：{}" , apiResult.getMessage());
+            log.warn("通过中台更新箱号体积失败：boxCode={},原因={}" ,boxCode, apiResult.getMessage());
             throw new Exception("通过中台更新箱号体积失败：" + apiResult.getMessage());
         }
         return true;
@@ -118,14 +126,18 @@ public class ContainerManagerImpl implements ContainerManager{
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.ContainerManagerImpl.updateBoxSend", mState = {JProEnum.TP})
     public Boolean updateBoxSend(String boxCode, String userErp, String userName, Integer createSiteCode) throws Exception{
-        log.debug("中台更新容器状态为发货：{}" , boxCode);
+        if(log.isDebugEnabled()){
+            log.debug("中台更新容器状态为发货：{}" , boxCode);
+        }
 
         UserEnv userEnv = buildUserEnv(userErp, userName, createSiteCode);
         ApiResult<Void> apiResult = containerService.send(userEnv, boxCode);
-        log.debug("中台更新容器状态为发货结果：{}" , apiResult.getMessage());
+        if(log.isDebugEnabled()){
+            log.debug("中台更新容器状态为发货结果：{}" , apiResult.getMessage());
+        }
 
         if(ApiResult.OK_CODE != apiResult.getCode()){
-            log.warn("通过中台更新箱号发货状态失败：{}" , apiResult.getMessage());
+            log.warn("通过中台更新箱号发货状态失败：boxCode={},原因={}" ,boxCode, apiResult.getMessage());
             throw new Exception("通过中台更新箱号发货状态失败：" + apiResult.getMessage());
         }
         return true;
@@ -134,14 +146,18 @@ public class ContainerManagerImpl implements ContainerManager{
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.ContainerManagerImpl.updateBoxCancelSend", mState = {JProEnum.TP})
     public Boolean updateBoxCancelSend(String boxCode, String userErp, String userName, Integer createSiteCode) throws Exception{
-        log.debug("中台更新容器状态为取消发货：{}" , boxCode);
+        if(log.isDebugEnabled()){
+            log.debug("中台更新容器状态为取消发货：{}" , boxCode);
+        }
 
         UserEnv userEnv = buildUserEnv(userErp, userName, createSiteCode);
         ApiResult<Void> apiResult = containerService.reopenContainer(boxCode, userEnv);
-        log.debug("中台更新容器状态为取消发货结果：{}" + apiResult.getMessage());
+        if(log.isDebugEnabled()){
+            log.debug("中台更新容器状态为取消发货结果：{}" , apiResult.getMessage());
+        }
 
         if(ApiResult.OK_CODE != apiResult.getCode()){
-            log.warn("通过中台更新箱号发货状态失败：{}" , apiResult.getMessage());
+            log.warn("通过中台更新箱号发货状态失败：boxCode={},原因={}" ,boxCode, apiResult.getMessage());
             throw new Exception("通过中台更新箱号发货状态失败：" + apiResult.getMessage());
         }
         return true;
@@ -150,16 +166,20 @@ public class ContainerManagerImpl implements ContainerManager{
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.ContainerManagerImpl.findBoxByCode", mState = {JProEnum.TP})
     public Box findBoxByCode(String boxCode) throws Exception{
-        log.debug("中台查询容器入参：{}" , boxCode);
+        if(log.isDebugEnabled()){
+            log.debug("中台查询容器入参：{}" , boxCode);
+        }
 
         Box box = null;
         ApiResult<Container> apiResult = containerQueryService.getContainerByCode(tenantCode, boxCode);
-        log.debug("中台查询容器结果：{}" , apiResult.getMessage());
+        if(log.isDebugEnabled()){
+            log.debug("中台查询容器结果：{}" , apiResult.getMessage());
+        }
 
         if(ApiResult.OK_CODE == apiResult.getCode()){
             box = container2Box(apiResult.getData());
         }else{
-            log.warn("通过中台查询箱号失败：{}" , apiResult.getMessage());
+            log.warn("通过中台查询箱号失败：boxCode={},原因={}" , boxCode,apiResult.getMessage());
             throw new Exception("通过中台查询箱号失败：" + apiResult.getMessage());
         }
         return box;
@@ -169,7 +189,9 @@ public class ContainerManagerImpl implements ContainerManager{
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.ContainerManagerImpl.updateContainerGroup", mState = {JProEnum.TP})
     public Boolean updateContainerGroup(List<Box> groupList) {
         Boolean result = false;
-        log.debug("同步分拣分组信息到中台入参：{}" , JsonHelper.toJson(groupList));
+        if(log.isDebugEnabled()){
+            log.debug("同步分拣分组信息到中台入参：{}" , JsonHelper.toJson(groupList));
+        }
         try{
             String groupName = groupList.get(0).getGroupName();
             String groupId = groupList.get(0).getGroupSendCode();
@@ -181,14 +203,16 @@ public class ContainerManagerImpl implements ContainerManager{
 
             //组信息写入中台
             ApiResult<Boolean> apiResult = containerService.updateContainerGroup(codes, groupName, groupId, userEnv);
-            log.debug("中台查询容器结果：{}" , apiResult.getMessage());
+            if(log.isDebugEnabled()){
+                log.debug("中台查询容器结果：{}" , apiResult.getMessage());
+            }
             if(ApiResult.OK_CODE == apiResult.getCode() && Boolean.TRUE.equals(apiResult.getData())){
                 result = true;
             }else{
-                log.warn("分组信息写入中台失败：{}" , apiResult.getMessage());
+                log.warn("分组信息写入中台失败，原因：{}，数据：{}" , apiResult.getMessage(),JsonHelper.toJson(groupList));
             }
         }catch (Exception e){
-            log.error("分组信息写入中台异常：" + JsonHelper.toJson(groupList), e);
+            log.error("分组信息写入中台异常：{}" , JsonHelper.toJson(groupList), e);
         }
 
         return result;

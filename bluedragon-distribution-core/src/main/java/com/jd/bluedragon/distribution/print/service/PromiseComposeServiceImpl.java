@@ -130,7 +130,9 @@ public class PromiseComposeServiceImpl implements  ComposeService {
                 orderMarkingRequest.setTownId(Constants.DEFALUT_PROVINCE_CITY_COUNTRY_TOWN_VALUE);//镇
                 orderMarkingRequest.setCurrentDate(new Date());//当前时间
 
-                log.debug("调用promise获取外单时效传入参数{}" ,JsonHelper.toJson(orderMarkingRequest));
+                if(log.isDebugEnabled()){
+                    log.debug("调用promise获取外单时效传入参数{}" ,JsonHelper.toJson(orderMarkingRequest));
+                }
                 OrderMarkingForeignResponse orderMarkingForeignResponse = orderMarkingService.orderMarkingServiceForForeign(orderMarkingRequest);
                 if (orderMarkingForeignResponse != null && orderMarkingForeignResponse.getResultCode() >= 1) {
                     waybill.setPromiseText(orderMarkingForeignResponse.getPromiseMsg());
@@ -138,7 +140,9 @@ public class PromiseComposeServiceImpl implements  ComposeService {
                 } else {
                     log.warn("调用promise接口获取外单时效失败：{}" , JsonHelper.toJson(orderMarkingForeignResponse));
                 }
-                log.debug("调用promise获取外单时效返回数据{}"  , JsonHelper.toJson(orderMarkingForeignResponse));
+                if(log.isDebugEnabled()){
+                    log.debug("调用promise获取外单时效返回数据{}"  , JsonHelper.toJson(orderMarkingForeignResponse));
+                }
 
                 //C2C面单预计送达时间从运单获取REQUIRE_TIME
                 if(BusinessUtil.isSignChar(waybill.getWaybillSign(),29,'8')){
@@ -153,7 +157,7 @@ public class PromiseComposeServiceImpl implements  ComposeService {
                 }
             }//外单增加promise时效代码逻辑,包裹标签业务是核心业务，如果promise接口异常，仍要保证包裹标签业务。
         }catch (Exception e){
-            log.error("外单调用promise接口异常" +waybill.getWaybillCode(),e);
+            log.error("外单调用promise接口异常{}" ,waybill.getWaybillCode(),e);
         }
     }
 }

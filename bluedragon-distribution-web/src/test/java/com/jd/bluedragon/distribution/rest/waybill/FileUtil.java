@@ -32,7 +32,7 @@ public class FileUtil {
 				dirPath.mkdir();
 			}
 		} catch (Exception e) {
-			log.error("Creat dir fail: " + e.getMessage());
+			log.error("Creat dir fail,dir={}",dir,e);
 		}
 	}
 	
@@ -46,12 +46,15 @@ public class FileUtil {
 	 * @return File[] 找到的文件
 	 */
 	public static ArrayList<File> getFiles(String dir, String fileNamePattern) {
-		log.debug("start getFiles get files from:{} where file name like {}",dir, fileNamePattern);
+		if(log.isDebugEnabled()){
+			log.debug("start getFiles get files from:{} where file name like {}",dir, fileNamePattern);
+		}
 		ArrayList<File> list = new ArrayList<File>();
 		// 开始的文件夹
 		File file = new File(dir);
-
-		log.debug(fileNamePattern);
+		if(log.isDebugEnabled()){
+			log.debug(fileNamePattern);
+		}
 		Pattern p = Pattern.compile(fileNamePattern);
 
 		// 是从文件夹中找，如果源不是文件夹，那么不用找了
@@ -69,7 +72,9 @@ public class FileUtil {
 				}
 			}
 		}
-		log.debug("end getFiles get files from:{} where file name like {}",dir, fileNamePattern);
+		if(log.isDebugEnabled()){
+			log.debug("end getFiles get files from:{} where file name like {}",dir, fileNamePattern);
+		}
 		// 即使为空，也返回一个空的列表，方便判断
 		return list;
 	}
@@ -82,7 +87,9 @@ public class FileUtil {
 	 * @return ArrayList<String>  每行文件内容
 	 */
 	public static ArrayList<String> getFileContent(File file) {
-		log.debug("start getFileContent read file:{}",file.getAbsolutePath());
+		if(log.isDebugEnabled()){
+			log.debug("start getFileContent read file:{}",file.getAbsolutePath());
+		}
 		ArrayList<String> list = new ArrayList<String>();
 		if (file.isFile()) {//读取文件内容并保存到ArrayList中
 			BufferedReader reader = null;
@@ -96,21 +103,23 @@ public class FileUtil {
 	            }
 	            reader.close();
 	        } catch (IOException e) {
-	            log.error("Get file :"+file.getAbsolutePath()+" content fail!\n"+e);
+	            log.error("Get file :{} content fail!\n",file.getAbsolutePath(),e);
 	        } finally {
 	            if (reader != null) {
 	                try {
 	                    reader.close();
 	                } catch (IOException e) {
-	                	log.error("Close file:"+file.getAbsolutePath()+" fail!\n"+e);
+	                	log.error("Close file:{} fail!\n",file.getAbsolutePath(),e);
 	                	e.printStackTrace();
 	                }
 	            }
 	        }
-		}else{
+		}else if(log.isDebugEnabled()){
 			log.debug("Argument is a dir not file!");
 		}
-		log.debug("end getFileContent read file:{}",file.getAbsolutePath());
+		if(log.isDebugEnabled()){
+			log.debug("end getFileContent read file:{}",file.getAbsolutePath());
+		}
 		return list;
 	}
 

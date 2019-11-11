@@ -19,7 +19,6 @@ import com.jd.bluedragon.distribution.reverse.domain.ReverseSendAsiaWms;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
 import com.jd.bluedragon.distribution.reverse.domain.WmsSite;
 import com.jd.bluedragon.external.service.PackExchangeServiceManager;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.wms.packExchange.Result;
@@ -30,7 +29,7 @@ import com.jd.wms.packExchange.domains.packExchange.dto.BlueLongDTO;
 public class BaseWmsServiceImpl implements BaseWmsService {
 	
 	/** 日志 */
-	private Logger log = LoggerFactory.getLogger(BaseWmsServiceImpl.class);
+	private Logger logger = LoggerFactory.getLogger(BaseWmsServiceImpl.class);
 	
 	private String packExchangeBizTokenJasonAsia;
 	
@@ -51,7 +50,7 @@ public class BaseWmsServiceImpl implements BaseWmsService {
 		reverseSendWms.setStoreId(site.getStoreId());
 		
 		if (reverseSendWms.getProList()==null||reverseSendWms.getProList().size()==0) {
-			log.info("BaseWmsServiceImpl 订单号： {} 获得商品数据为空", orderCode);
+			logger.info("BaseWmsServiceImpl 订单号： {} 获得商品数据为空", orderCode);
 		}
 		return reverseSendWms;
 	}
@@ -65,7 +64,7 @@ public class BaseWmsServiceImpl implements BaseWmsService {
 	 * @return 商品明细，如果是异地退取运单中商品明细，反之从上海亚一仓储接口取得商品明细
 	 */
 	public List<Product> getOrderProducts(String orderCode,String packcodes, WmsSite site,boolean falge) {
-		this.log.info("亚一通过包裹获取出库明细getOrderProducts");
+		this.logger.info("亚一通过包裹获取出库明细getOrderProducts");
 		if (packExchangeBizTokenJasonAsia == null) {
 			initPackExchangeBizTokenAsia();
 		}
@@ -100,7 +99,7 @@ public class BaseWmsServiceImpl implements BaseWmsService {
 		//3.判断是否是异地退货，也就是他仓退;默认非本仓
 		boolean isOtherStore = true;
 		if(send==null){
-			log.info("该订单号逆向发货不齐全，调用出库明细：{}" , orderCode);
+			logger.info("该订单号逆向发货不齐全，调用出库明细：{}" , orderCode);
 			isOtherStore = false;//运单获得不了数据，那么从仓储接口试试
 		}else if (site.getCky2().equals(send.getCky2())
 				&& site.getOrgId().equals(send.getOrgId())
@@ -110,7 +109,7 @@ public class BaseWmsServiceImpl implements BaseWmsService {
 		
 		//3.1 齐全订单或者异地退货使用运单中明细
 		if (isPackagedFull||isOtherStore) {
-			log.info("该订单号逆向发货齐全或为异地退上海亚一：{}" , orderCode);
+			logger.info("该订单号逆向发货齐全或为异地退上海亚一：{}" , orderCode);
 			List<Product> result = new ArrayList<Product>();
 			if (send != null) {
 				List<Product> resultRaw = send.getProList();
@@ -121,13 +120,13 @@ public class BaseWmsServiceImpl implements BaseWmsService {
 			}
 			return result;
 		}
-		log.info("该订单号逆向发货不齐全，调用出库明细：{}" , orderCode);
+		logger.info("该订单号逆向发货不齐全，调用出库明细：{}" , orderCode);
 		
 		// 4.需要取上海亚一明细的
 		try {
 			String bizBody = JsonHelper.toJson(reportDto);
-			this.log.info("亚一通过包裹获取出库明细packExchangeBizTokenJasonAsia的值:{}",packExchangeBizTokenJasonAsia);
-			this.log.info("亚一通过包裹获取出库明细bizBody的值:{}",bizBody);
+			this.logger.info("亚一通过包裹获取出库明细packExchangeBizTokenJasonAsia的值:{}",packExchangeBizTokenJasonAsia);
+			this.logger.info("亚一通过包裹获取出库明细bizBody的值:{}",bizBody);
 			Result result = packExchangeServiceManager.queryWs(
 					packExchangeBizTokenJasonAsia, bizBody);
 
@@ -138,17 +137,17 @@ public class BaseWmsServiceImpl implements BaseWmsService {
 						.jsonToArrayWithDateFormatOne(value, PePackage[].class));
 				return toAsiaProduct(reportResults);
 			} else {
-				log.error("亚一call wms packExchangeWebService failed, result code:"
+				logger.error("亚一call wms packExchangeWebService failed, result code:"
 						+ resultCode);
 			}
 		} catch (Exception e) {
-			log.error("亚一getProductsByWms failed", e);
+			logger.error("亚一getProductsByWms failed", e);
 		}
 		return null;
 	}
 	
 	private List<Product> toAsiaProduct(List<PePackage> reportResults) {
-		this.log.info("亚一通过包裹获取出库明细toAsiaProduct");
+		this.logger.info("亚一通过包裹获取出库明细toAsiaProduct");
 		if (reportResults == null || reportResults.isEmpty()) {
 			return null;
 		}
@@ -190,7 +189,7 @@ public class BaseWmsServiceImpl implements BaseWmsService {
 			token.setUuid(uuid);
 			packExchangeBizTokenJasonAsia = JsonHelper.toJson(token);
 		} catch (Exception e) {
-			log.error("packExchangeBizTokenJason failed", e);
+			logger.error("packExchangeBizTokenJason failed", e);
 		}
 	}
 	

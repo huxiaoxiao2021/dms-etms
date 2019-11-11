@@ -248,7 +248,7 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 					map.put("receiveSiteCode", recieveSite.getSiteCode());
 					map.put("receiveSiteName", recieveSite.getSiteName());
 				} else {
-					log.error("离线分拣,{}站点不存在",request.getReceiveSiteCode());
+					log.warn("离线分拣,{}站点不存在",request.getReceiveSiteCode());
 					return null;
 				}
 				task.setReceiveSiteCode(request.getReceiveSiteCode());
@@ -261,7 +261,7 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 				map.put("receiveSiteName", box.getReceiveSiteName());
 				task.setReceiveSiteCode(box.getReceiveSiteCode());
 			} else {
-				log.error("离线分拣，{}箱号不存在.", request.getBoxCode());
+				log.warn("离线分拣，{}箱号不存在.", request.getBoxCode());
 				return null;
 			}
 		}
@@ -281,7 +281,7 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 		if (staff != null) {
 			map.put("userName", staff.getStaffName());
 		} else {
-			log.error("离线分拣,{}用户ID不存在.",request.getUserCode());
+			log.warn("离线分拣,{}用户ID不存在.",request.getUserCode());
 			return null;
 		}
 
@@ -381,7 +381,7 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 		String waybillCode = request.getWaybillCode();
 		if (StringUtils.isEmpty(packageCode)
 				&& StringUtils.isEmpty(waybillCode)) {
-			log.error("离线超区退回传入参数不正确:{}", request);
+			log.warn("离线超区退回传入参数不正确:{}", request);
 			return false;
 		}
 		return true;
