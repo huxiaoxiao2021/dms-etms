@@ -6,6 +6,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageState;
+import com.jd.etms.waybill.dto.PackageStateDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
@@ -37,13 +38,14 @@ public class WaybillTraceManagerImpl implements WaybillTraceManager {
      * @return
      */
     @Override
-    @JProfiler(jKey = "DMS.BASE.WaybillTraceManagerImpl.getPkStateByWCodeAndState", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public List<PackageState> getPkStateByWCodeAndState(String waybillCode, String state) {
-        BaseEntity<List<PackageState>> baseEntity = waybillTraceApi.getPkStateByWCodeAndState(waybillCode, state);
+    @JProfiler(jKey = "DMS.BASE.WaybillTraceManagerImpl.getPkStateDtoByWCodeAndState",jAppName=Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public List<PackageStateDto> getPkStateDtoByWCodeAndState(String waybillCode, String state) {
+        BaseEntity<List<PackageStateDto>> baseEntity = waybillTraceApi.getPkStateDtoByWCodeAndState(waybillCode, state);
         if (baseEntity != null && baseEntity.getResultCode() == RESULT_SUCCESS && baseEntity.getData() != null ) {
             return baseEntity.getData();
         } else {
-            logger.warn("WaybillTraceManagerImpl.getPkStateByWCodeAndState无揽收全程跟踪，baseEntity："+JsonHelper.toJson(baseEntity)+",waybillCode:"+waybillCode);
+            logger.warn("WaybillTraceManagerImpl.getPkStateDtoByWCodeAndState无揽收全程跟踪，baseEntity："+JsonHelper.toJson(baseEntity)+",waybillCode:"+waybillCode);
             return Lists.newArrayList();
         }
     }
@@ -54,7 +56,7 @@ public class WaybillTraceManagerImpl implements WaybillTraceManager {
      * @return true表示已经妥投，false表示还没有妥投
      */
     public boolean isWaybillFinished(String waybillCode){
-        List<PackageState> list = getPkStateByWCodeAndState(waybillCode, WAYBILLTRACE_FINISHED);
+        List<PackageStateDto> list = getPkStateDtoByWCodeAndState(waybillCode, WAYBILLTRACE_FINISHED);
         if(list != null && list.size() > 0 ){
             return true;
         }
@@ -68,7 +70,7 @@ public class WaybillTraceManagerImpl implements WaybillTraceManager {
      */
     @Override
     public boolean isWaybillRejected(String waybillCode) {
-        List<PackageState> list = getPkStateByWCodeAndState(waybillCode, Constants.WAYBILL_TRACE_STATE_REJECTED);
+        List<PackageStateDto> list = getPkStateDtoByWCodeAndState(waybillCode, Constants.WAYBILL_TRACE_STATE_REJECTED);
         if(list != null && list.size() > 0 ){
             return true;
         }

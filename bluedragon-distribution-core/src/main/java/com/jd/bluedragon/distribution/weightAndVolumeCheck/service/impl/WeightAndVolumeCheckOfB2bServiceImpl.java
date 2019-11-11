@@ -30,9 +30,9 @@ import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.waybill.common.Page;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.PackFlowDetail;
-import com.jd.etms.waybill.domain.PackageState;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.PackageStateDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.report.ReportExternalService;
 import com.jd.ql.dms.report.domain.BaseEntity;
@@ -895,15 +895,23 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
      * @return
      */
     private WaybillFlowDetail getWaybillFlowDetail(String waybillCode,WaybillFlowDetail waybillFlowDetail){
-        List<PackageState> list
-                = waybillTraceManager.getPkStateByWCodeAndState(waybillCode, Constants.WAYBILL_TRACE_STATE_COLLECT_COMPLETE);
+        List<PackageStateDto> list
+                = waybillTraceManager.getPkStateDtoByWCodeAndState(waybillCode, Constants.WAYBILL_TRACE_STATE_COLLECT_COMPLETE);
         if(list.size() > 0){
-            PackageState packageState = list.get(0);
+            PackageStateDto packageState = list.get(0);
             waybillFlowDetail.setTotalWeight(0.00);
             waybillFlowDetail.setTotalVolume(0.00);
             waybillFlowDetail.setOperateSiteCode(packageState.getOperatorSiteId());
             waybillFlowDetail.setOperateSiteName(packageState.getOperatorSite());
-            waybillFlowDetail.setOperateErp(packageState.getOperatorUserErp());
+            String operatorUserErp = null;
+            Integer operatorUserId = packageState.getOperatorUserId();
+            if(operatorUserId != null){
+                BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByStaffIdNoCache(operatorUserId);
+                if(dto != null){
+                    operatorUserErp = dto.getAccountNumber();
+                }
+            }
+            waybillFlowDetail.setOperateErp(operatorUserErp);
             waybillFlowDetail.setOperateTime(packageState.getCreateTime());
         }else {
             logger.error("运单"+waybillCode+"没有揽收记录");
