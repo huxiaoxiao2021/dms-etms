@@ -54,7 +54,7 @@ import java.util.Map;
 @Service("receiveService")
 public class ReceiveServiceImpl implements ReceiveService {
 
-	private Logger logger = LoggerFactory.getLogger(ReceiveServiceImpl.class);
+	private Logger log = LoggerFactory.getLogger(ReceiveServiceImpl.class);
 
     public static final String CARCODE_MARK = "0";  // 按车次号查询
     public static final String BOXCODE_MARK = "1";  // 按箱号查询
@@ -137,7 +137,7 @@ public class ReceiveServiceImpl implements ReceiveService {
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-				logger.error("收货的时候回传车辆到达全称跟踪异常");
+				log.error("收货的时候回传车辆到达全称跟踪异常");
 			}*/
 			//取件单推送mq
 			if(WaybillUtil.isSurfaceCode(receive.getBoxCode())){
@@ -145,7 +145,7 @@ public class ReceiveServiceImpl implements ReceiveService {
 				try {
 				pickup = this.waybillPickupTaskApi.getDataBySfCode(receive.getBoxCode());
 				} catch (Exception e) {
-                    logger.error("分拣中心收货[备件库-取件单]:调用取件单号信息ws接口异常["+receive.getBoxCode()+"]",e);
+                    log.error("分拣中心收货[备件库-取件单]:调用取件单号信息ws接口异常[{}]",receive.getBoxCode(), e);
                 }
               if(pickup != null && pickup.getData()!=null) {
 					 pushPickware(receive,receive.getBoxCode(),pickup.getData().getPickupCode());
@@ -154,8 +154,7 @@ public class ReceiveServiceImpl implements ReceiveService {
 		}else{
 			List<SendDetail> sendDetails=deliveryService.getCancelSendByBox(receive.getBoxCode());
 			if (sendDetails == null || sendDetails.isEmpty()){
-				logger.error("根据[boxCode=" + receive.getBoxCode()
-						+ "]获取包裹信息[deliveryService.getSendByBox(boxCode)]返回null或空,[收货]不能回传全程跟踪");
+				log.warn("根据[boxCode={}]获取包裹信息[deliveryService.getSendByBox(boxCode)]返回null或空,[收货]不能回传全程跟踪",receive.getBoxCode());
 			}else{
 				CenConfirm cenConfirm = paseCenConfirm(receive);
 				for(SendDetail  sendDetail:sendDetails){
@@ -172,7 +171,7 @@ public class ReceiveServiceImpl implements ReceiveService {
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
-						logger.error("收货的时候回传车辆到达全称跟踪异常");
+						log.error("收货的时候回传车辆到达全称跟踪异常");
 					}*/
 
 					//取件单推送mq
@@ -202,9 +201,8 @@ public class ReceiveServiceImpl implements ReceiveService {
 		BaseStaffSiteOrgDto bDto = baseService.getSiteBySiteID(cenConfirm
 				.getCreateSiteCode());
 		if (bDto == null) {
-			logger.error("[PackageBarcode=" + cenConfirm.getPackageBarcode()+"][boxCode="+cenConfirm.getBoxCode()
-					+ "]根据[siteCode=" + cenConfirm.getCreateSiteCode()
-					+ "]获取基础资料站点信息[getSiteBySiteID]返回null,[收货]不能回传全程跟踪");
+			log.warn("[PackageBarcode={}][boxCode={}]根据[siteCode={}]获取基础资料站点信息[getSiteBySiteID]返回null,[收货]不能回传全程跟踪",
+					cenConfirm.getPackageBarcode(), cenConfirm.getBoxCode(),cenConfirm.getCreateSiteCode());
 		}else{
 		    WaybillStatus waybillStatus=cenConfirmService.createBasicWaybillStatus(cenConfirm, bDto, null);
 		    if(Constants.BUSSINESS_TYPE_POSITIVE == cenConfirm.getType().intValue()||Constants.BUSSINESS_TYPE_SITE==cenConfirm.getType()){
@@ -216,8 +214,7 @@ public class ReceiveServiceImpl implements ReceiveService {
 				// 添加到task表
 				taskService.add(cenConfirmService.toTask(waybillStatus, Constants.OPERATE_TYPE_SH));
 			} else {
-				logger.error("[PackageCode=" + waybillStatus.getPackageCode()+"][boxCode=" + waybillStatus.getBoxCode()
-						+ "][参数信息不全],[收货]不能回传全程跟踪");
+				log.warn("[PackageCode={}][boxCode={}][参数信息不全],[收货]不能回传全程跟踪",waybillStatus.getPackageCode(),waybillStatus.getBoxCode());
 			}
 
 		}
@@ -258,12 +255,12 @@ public class ReceiveServiceImpl implements ReceiveService {
 			//messageClient.sendMessage("turnover_box",JsonHelper.toJson(turnoverBoxInfo), receive.getBoxCode());
             turnoverBoxMQ.send(receive.getBoxCode(),JsonHelper.toJson(turnoverBoxInfo));
 		} catch (Exception e) {
-			logger.error("分拣中心收货推送MQ[周转箱]信息失败：" + e.getMessage(), e);
+			log.error("分拣中心收货推送MQ[周转箱]信息失败：{}" ,JsonHelper.toJson(receive), e);
 		}
 	}
 
 	private void pushPickware(Receive receive,String packageCode,String pickwareCode) {
-		logger.info("面单号：[{}]取件单号：[{}]",packageCode,pickwareCode);
+		log.info("面单号：[{}]取件单号：[{}]",packageCode,pickwareCode);
 		PickWare pickWare = new PickWare();
 		pickWare.setBoxCode(receive.getBoxCode());
 		pickWare.setPackageCode(packageCode);
@@ -277,11 +274,11 @@ public class ReceiveServiceImpl implements ReceiveService {
 				.getCreateTime()));
 		try {
 		    String json=JsonHelper.toJson(pickWare);
-		    logger.info("分拣中心收货推送MQ[备件库-取件单]json:[{}]",json);
+		    log.info("分拣中心收货推送MQ[备件库-取件单]json:[{}]",json);
 			//messageClient.sendMessage("pickware_push",json, receive.getBoxCode());
             pickwarePushMQ.send(receive.getBoxCode(),json);
 		} catch (Exception e) {
-			logger.error("分拣中心收货推送MQ[备件库-取件单]信息失败["+receive.getBoxCode()+"]:" + e.getMessage(), e);
+			log.error("分拣中心收货推送MQ[备件库-取件单]信息失败[{}]" ,receive.getBoxCode(), e);
 		}
 	}
 
@@ -337,17 +334,17 @@ public class ReceiveServiceImpl implements ReceiveService {
 
 	public Receive taskToRecieve(Task task) {
 		String jsonReceive = task.getBody();
-		logger.info("收货json数据：{}" , jsonReceive);
+		log.info("收货json数据：{}" , jsonReceive);
 		List<ReceiveRequest> receiveRequests = Arrays.asList(JsonHelper
 				.jsonToArray(jsonReceive, ReceiveRequest[].class));
-		logger.info("收货json数据转化后：{}" , receiveRequests);
+		log.info("收货json数据转化后：{}" , receiveRequests);
 		Receive receive = new Receive();
 		ReceiveRequest receiveRequest = receiveRequests.get(0);
 		String tmpNumber = receiveRequest.getPackOrBox();
 		// 根据规则得出包裹号、箱号、运单号
 		if (BusinessHelper.isBoxcode(tmpNumber)) {
 			if(tmpNumber.length() > Constants.BOX_CODE_DB_COLUMN_LENGTH_LIMIT){
-				logger.error("收货任务JSON数据非法，箱号超长，收货消息体：" + jsonReceive);
+				log.warn("收货任务JSON数据非法，箱号超长，收货消息体：{}" , jsonReceive);
 				return null;
 			}
 			// 字母开头为箱号
@@ -369,7 +366,7 @@ public class ReceiveServiceImpl implements ReceiveService {
 				receive.setBoxingType(Short.parseShort("2"));
 				receive.setWaybillCode(WaybillUtil.getWaybillCode(tmpNumber));
 			}else {
-				logger.error("收货任务JSON数据非法，无法识别的扫描单号，收货消息体：" + jsonReceive);
+				log.warn("收货任务JSON数据非法，无法识别的扫描单号，收货消息体：{}" , jsonReceive);
 				return null;
 			}
 		}
@@ -425,11 +422,13 @@ public class ReceiveServiceImpl implements ReceiveService {
 			turnoverBoxInfo.setFlowFlag("30");
 		}
 		try {
-		    logger.info("分拣中心推送监控MQ[空周转箱]信息：{}",JsonHelper.toJson(turnoverBoxInfo));
+			if(log.isDebugEnabled()){
+				log.debug("分拣中心推送监控MQ[空周转箱]信息：{}",JsonHelper.toJson(turnoverBoxInfo));
+			}
 			//messageClient.sendMessage("turnover_box",JsonHelper.toJson(turnoverBoxInfo),turnoverBoxInfo.getTurnoverBoxCode());
             turnoverBoxMQ.send(turnoverBoxInfo.getTurnoverBoxCode(),JsonHelper.toJson(turnoverBoxInfo));
 		} catch (Exception e) {
-			logger.error("分拣中心推送监控MQ[空周转箱]信息失败：" + e.getMessage(), e);
+			log.error("分拣中心推送监控MQ[空周转箱]信息失败：{}" ,JsonHelper.toJson(turnoverBoxInfo), e);
 		}
 	}
 
@@ -459,7 +458,7 @@ public class ReceiveServiceImpl implements ReceiveService {
             try{
                 departureCarID = Long.parseLong(code);
             }catch(NumberFormatException e){
-                logger.error("车次号获取干线计费信息失败，车次号不符合要求。车次号 " + code);
+                log.error("车次号获取干线计费信息失败，车次号不符合要求。车次号 " + code);
                 departurePrintResponse.setCode(DeparturePrintResponse.CODE_PARAM_ERROR);
                 departurePrintResponse.setMessage(DeparturePrintResponse.MESSAGE_PARAM_ERROR);
                 return departurePrintResponse;
@@ -469,10 +468,10 @@ public class ReceiveServiceImpl implements ReceiveService {
             departureInfo = departureService.queryArteryBillingInfoByBoxCode(code);
         }
 
-        logger.info("车次号或者运单号[ " + code + " ]获取干线计费信息为 " + JsonHelper.toJson(departureInfo));
+        log.info("车次号或者运单号[ " + code + " ]获取干线计费信息为 " + JsonHelper.toJson(departureInfo));
 
         if(null == departureInfo){
-            logger.warn("获取干线计费信息失败，获取干线计费信息为空");
+            log.warn("获取干线计费信息失败，获取干线计费信息为空");
             departurePrintResponse.setCode(DeparturePrintResponse.CODE_OK_NULL);
             departurePrintResponse.setMessage(DeparturePrintResponse.MESSAGE_OK_NULL);
             return departurePrintResponse;
@@ -484,13 +483,13 @@ public class ReceiveServiceImpl implements ReceiveService {
 
 		// 不是干线的数据，不需要传给计费系统
 		if(departureInfo.getRouteType() != DepartureCar.TYPE_TRUNK_LINE){
-			logger.warn("获取运输信息不是干线的，不发送计费系统");
+			log.warn("获取运输信息不是干线的，不发送计费系统");
 			departurePrintResponse.setCode(DeparturePrintResponse.CODE_UNEXCEPT_RESULT);
 			departurePrintResponse.setMessage(DeparturePrintResponse.MESSAGE_UNEXCEPT_RESULT);
 			try{
 				addMq2ArteryBillingSys(key, code, null, message);
 			} catch(Throwable e){
-				logger.error("获取干线计费信息推送MQ失败，添加任务失败 " + e);
+				log.error("获取干线计费信息推送MQ失败，添加任务失败 " + e);
 				departurePrintResponse.setCode(DeparturePrintResponse.CODE_SERVICE_ERROR);
 				departurePrintResponse.setMessage(DeparturePrintResponse.MESSAGE_SERVICE_ERROR);
 				return departurePrintResponse;
@@ -501,7 +500,7 @@ public class ReceiveServiceImpl implements ReceiveService {
         try{
             addMq2ArteryBillingSys(key,code,departureInfo ,message);
         }catch(Throwable e){
-            logger.error("获取干线计费信息推送MQ失败，添加任务失败 " + e);
+            log.error("获取干线计费信息推送MQ失败，添加任务失败 " + e);
             departurePrintResponse.setCode(DeparturePrintResponse.CODE_SERVICE_ERROR);
             departurePrintResponse.setMessage(DeparturePrintResponse.MESSAGE_SERVICE_ERROR);
             return departurePrintResponse;
@@ -553,7 +552,7 @@ public class ReceiveServiceImpl implements ReceiveService {
 		departureLog.setFingerPrint(Md5Helper.encode(departureLog.getDistributeCode()
                                                     + "_" + departureLog.getDepartureCarID()));
 		if(departureLogDao.findByFingerPrint(departureLog.getFingerPrint()) > 0){
-            logger.warn("监控报表加发车记录重复，分拣中心[{}],发车批次号[{}]",
+            log.warn("监控报表加发车记录重复，分拣中心[{}],发车批次号[{}]",
 					departureLog.getDistributeCode(),departureLog.getDepartureCarID());
         }else{
             departureLogDao.insert(departureLog);
