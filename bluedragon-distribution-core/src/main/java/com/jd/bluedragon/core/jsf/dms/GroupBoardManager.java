@@ -10,5 +10,5 @@ import java.util.List;
  */
 public interface GroupBoardManager {
 
-    void resuseBoards(List<String> var1, OperatorInfo var2);
+    void resuseBoards(List<String> boardList, OperatorInfo operatorInfo);
 }
