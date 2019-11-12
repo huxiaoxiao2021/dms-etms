@@ -711,6 +711,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         Page<PackFlowDetail> result = waybillPackageManager.getOpeDetailByCode(waybillCode, page);
         if(result != null && !CollectionUtils.isEmpty(result.getResult())){
             List<PackFlowDetail> list = result.getResult();
+            logger.info("运单号"+waybillCode+"的称重量方流水记录："+JsonHelper.toJson(list));
             List<PackFlowDetail> timeSortList = new ArrayList<>();
             //排除重量体积均为0的情况(系统卡控)
             for(PackFlowDetail detail : list){
