@@ -33,8 +33,8 @@ import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -50,7 +50,7 @@ import java.util.Set;
 @Service("boxService")
 public class BoxServiceImpl implements BoxService {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private static final String separator = "$";
 
@@ -126,7 +126,7 @@ public class BoxServiceImpl implements BoxService {
 				redisManager.setex(box.getCode(), timeout,
 						JsonHelper.toJson(box));
 			} catch (Exception e) {
-				this.logger.error("打印箱号写入缓存失败",e);
+				this.logger.error("打印箱号写入缓存失败：{}",box.getCode(),e);
 			}
         }
 
@@ -164,7 +164,7 @@ public class BoxServiceImpl implements BoxService {
                 }
             }catch (Exception e){
                 Profiler.functionError(callerInfoFromSSC);
-                logger.error("通过中台创建箱号失败" + JsonHelper.toJson(param), e);
+                logger.error("通过中台创建箱号失败{}" , JsonHelper.toJson(param), e);
             }finally {
                 Profiler.registerInfoEnd(callerInfoFromSSC);
             }
@@ -281,7 +281,7 @@ public class BoxServiceImpl implements BoxService {
                 }
             }
         }catch (Exception e){
-            logger.error("通过中台生产箱号失败：" + JsonHelper.toJson(param), e);
+            logger.error("通过中台生产箱号失败：{}" , JsonHelper.toJson(param), e);
         }
 
         return boxes;
@@ -340,13 +340,11 @@ public class BoxServiceImpl implements BoxService {
 			BasicTraderInfoDTO dto = baseMinorManager.getBaseTraderById(box
 					.getCreateSiteCode());
 			if (dto == null || dto.getTraderCode() == null) {
-				this.logger.error("创建站点或接收站点信息为空.-始发站商家接口"
-						+ box.getCreateSiteCode());
+				this.logger.warn("创建站点或接收站点信息为空.-始发站商家接口:{}", box.getCreateSiteCode());
 				BaseStaffSiteOrgDto createSite = this.baseMajorManager
 						.getBaseSiteBySiteId(box.getCreateSiteCode());
 				if (createSite == null || createSite.getDmsSiteCode() == null) {
-					this.logger.error("创建站点或接收站点信息为空.-始发站站点接口"
-							+ box.getCreateSiteCode());
+					this.logger.warn("创建站点或接收站点信息为空.-始发站站点接口:{}", box.getCreateSiteCode());
 					return null;
 				} else
 					createSiteDms = createSite.getDmsSiteCode();
@@ -358,8 +356,7 @@ public class BoxServiceImpl implements BoxService {
 			BaseStaffSiteOrgDto createSite = this.baseMajorManager
 					.getBaseSiteBySiteId(box.getCreateSiteCode());
 			if (createSite == null || createSite.getDmsSiteCode() == null) {
-				this.logger.error("创建站点或接收站点信息为空.-始发站站点接口"
-						+ box.getCreateSiteCode());
+				this.logger.warn("创建站点或接收站点信息为空.-始发站站点接口:{}",box.getCreateSiteCode());
 				return null;
 			} else
 				createSiteDms = createSite.getDmsSiteCode();
@@ -371,13 +368,11 @@ public class BoxServiceImpl implements BoxService {
 			BasicTraderInfoDTO dto = baseMinorManager.getBaseTraderById(box
 					.getReceiveSiteCode());
 			if (dto == null || dto.getTraderCode() == null) {
-				this.logger.error("创建站点或接收站点信息为空.-目的站商家接口"
-						+ box.getReceiveSiteCode());
+				this.logger.warn("创建站点或接收站点信息为空.-目的站商家接口:{}", box.getReceiveSiteCode());
 				BaseStaffSiteOrgDto receiveSite = this.baseMajorManager
 						.getBaseSiteBySiteId(box.getReceiveSiteCode());
 				if (receiveSite == null || receiveSite.getDmsSiteCode() == null) {
-					this.logger.error("创建站点或接收站点信息为空.-始发站站点接口"
-							+ box.getReceiveSiteCode());
+					this.logger.warn("创建站点或接收站点信息为空.-始发站站点接口:{}", box.getReceiveSiteCode());
 					return null;
 				} else
 					receiveSiteDms = receiveSite.getDmsSiteCode();
@@ -388,8 +383,7 @@ public class BoxServiceImpl implements BoxService {
 			BaseStaffSiteOrgDto receiveSite = this.baseMajorManager
 					.getBaseSiteBySiteId(box.getReceiveSiteCode());
 			if (receiveSite == null || receiveSite.getDmsSiteCode() == null) {
-				this.logger.error("创建站点或接收站点信息为空.-始发站站点接口"
-						+ box.getReceiveSiteCode());
+				this.logger.warn("创建站点或接收站点信息为空.-始发站站点接口:{}", box.getReceiveSiteCode());
 				return null;
 			} else
 				receiveSiteDms = receiveSite.getDmsSiteCode();
@@ -397,8 +391,7 @@ public class BoxServiceImpl implements BoxService {
 		box.setUpdateUser(null);
 		box.setStatuses(null);
 		if (createSiteDms == null || receiveSiteDms == null) {
-			this.logger.error("创建站点或接收站点信息为空.-站点接口" + box.getReceiveSiteCode()
-					+ "and" + box.getCreateSiteCode());
+			this.logger.warn("创建站点或接收站点信息为空.-站点接口{} and {}", box.getReceiveSiteCode(), box.getCreateSiteCode());
 			return null;
 		}
 
@@ -427,7 +420,7 @@ public class BoxServiceImpl implements BoxService {
             try{
                 box = containerManager.findBoxByCode(code);
             }catch (Exception e){
-                logger.error("通过中台查询箱号失败：" + code, e);
+                logger.error("通过中台查询箱号失败：{}" , code, e);
             }
         }
 
@@ -451,28 +444,28 @@ public class BoxServiceImpl implements BoxService {
 			if (boxJson != null && !boxJson.isEmpty()) {
 				box = JsonHelper.fromJson(boxJson, Box.class);
 				if (box != null) {
-					this.logger.info("findBoxByCode缓存命中箱号为" + code);
+					this.logger.info("findBoxByCode缓存命中箱号为:{}" , code);
 					//如果箱号 目的地 始发地不为空的时候
 					if (box.getCode() != null && box.getCreateSiteCode() != null
 							&& box.getReceiveSiteCode() != null) {
-						this.logger.info("通过redis缓存获取箱号信息成功(userRedisQueryBox),箱号信息为："+JsonHelper.toJson(box));
+						this.logger.info("通过redis缓存获取箱号信息成功(userRedisQueryBox),箱号信息为：{}",box.getCode());
 						return box;
 					}
 				} else {
-					this.logger.info("findBoxByCode没有缓存命中箱号为" + code);
+					this.logger.info("findBoxByCode没有缓存命中箱号为:{}" , code);
 				}
 			} else {
-				this.logger.info("findBoxByCode缓存命中,但是消息为null,箱号为" + code);
+				this.logger.info("findBoxByCode缓存命中,但是消息为null,箱号为:{}" , code);
 			}
 
 
 		} catch (Exception e) {
-			this.logger.error("findBoxByCode获取缓存箱号失败，箱号为" + code, e);
+			this.logger.error("findBoxByCode获取缓存箱号失败，箱号为:{}" , code, e);
 		}
 
 		Box box = this.boxDao.findBoxByCode(code);
 		if(box != null){
-			this.logger.info("通过数据库获取箱号信息成功(userMysqlQueryBox),箱号信息为："+JsonHelper.toJson(box));
+			this.logger.info("通过数据库获取箱号信息成功(userMysqlQueryBox),箱号信息为：{}",JsonHelper.toJson(box));
 		}
 
 		return box;
@@ -505,7 +498,7 @@ public class BoxServiceImpl implements BoxService {
 			if (boxJson != null && !boxJson.isEmpty()) {
 				box = JsonHelper.fromJson(boxJson, Box.class);
 				if (box != null) {
-					this.logger.info("findBoxByCode缓存命中箱号为" + boxCode);
+					this.logger.info("findBoxByCode缓存命中箱号为:{}" , boxCode);
 					if (box.getCode() != null && box.getCreateSiteCode() != null
 							&& box.getReceiveSiteCode() != null) {
 						return box;
@@ -514,7 +507,7 @@ public class BoxServiceImpl implements BoxService {
 			}
 
 		} catch (Exception e) {
-			this.logger.error("findBoxByCode获取缓存箱号失败，箱号为" + boxCode, e);
+			this.logger.error("findBoxByCode获取缓存箱号失败，箱号为:{}" , boxCode, e);
 		}
 
 		return null;
@@ -526,7 +519,7 @@ public class BoxServiceImpl implements BoxService {
 		try {
 			resulte = redisManager.del(boxCode);
 		} catch (Exception e) {
-			this.logger.error("delboxCodeCache删除缓存失败，箱号为" + boxCode, e);
+			this.logger.error("delboxCodeCache删除缓存失败，箱号为:{}" , boxCode, e);
 		}
 		return resulte;
 	}
@@ -543,13 +536,13 @@ public class BoxServiceImpl implements BoxService {
 				//更新缓存，缓存两小时
 				result = jimdbCacheService.setEx(redisKey, boxStatus, 2 * Constants.TIME_SECONDS_ONE_HOUR);
 				if (result) {
-					logger.info(MessageFormat.format("箱号：{0}更新状态成功，操作站点编号：{1}, 状态为：{2}", boxCode, operateSiteCode, BoxStatusEnum.getEnumMap().get(boxStatus)));
+					logger.info("箱号：{}更新状态成功，操作站点编号：{}, 状态为：{}", boxCode, operateSiteCode, BoxStatusEnum.getEnumMap().get(boxStatus));
 				} else {
-					logger.warn(MessageFormat.format("箱号：{0}更新状态失败，操作站点编号：{1}, 状态为：{2}", boxCode, operateSiteCode, BoxStatusEnum.getEnumMap().get(boxStatus)));
+					logger.warn("箱号：{}更新状态失败，操作站点编号：{}, 状态为：{}", boxCode, operateSiteCode, BoxStatusEnum.getEnumMap().get(boxStatus));
 				}
 			} catch (Exception e) {
 				Profiler.functionError(info);
-				logger.error(MessageFormat.format("箱号：{0}，操作站点编号：{1}，更新箱号状态缓存失败！", boxCode, operateSiteCode), e);
+				logger.error("箱号：{}，操作站点编号：{}，更新箱号状态缓存失败！", boxCode, operateSiteCode, e);
 			}
 			finally {
 				Profiler.registerInfoEnd(info);
@@ -589,7 +582,7 @@ public class BoxServiceImpl implements BoxService {
             }else if(boxStatus == BoxStatusEnum.CANCELED_STATUS.getCode()){
                 msg = "取消发货";
             }
-            logger.error("更新中台容器状态为" + msg + "异常：" + boxCode, e);
+            logger.error("更新中台容器状态为{}异常：{}" ,msg, boxCode, e);
         }
 
     }
@@ -604,14 +597,14 @@ public class BoxServiceImpl implements BoxService {
                 String value = jimdbCacheService.get(redisKey);
                 if (StringHelper.isNotEmpty(value)) {
 					result = Integer.parseInt(value);
-					logger.info(MessageFormat.format("箱号状态缓存命中，箱号：{0}，操作站点编号：{1}，状态为：{2}", boxCode, operateSiteCode, BoxStatusEnum.getEnumMap().get(result)));
+					logger.info("箱号状态缓存命中，箱号：{}，操作站点编号：{}，状态为：{}", boxCode, operateSiteCode, BoxStatusEnum.getEnumMap().get(result));
 				} else {
-					logger.info(MessageFormat.format("箱号状态缓存未命中，箱号：{0}，操作站点编号：{1}，需查库确认！", boxCode, operateSiteCode));
+					logger.info("箱号状态缓存未命中，箱号：{}，操作站点编号：{}，需查库确认！", boxCode, operateSiteCode);
 				}
 			}
 		} catch (Exception e) {
             Profiler.functionError(info);
-			logger.error(MessageFormat.format("箱号：{0}，操作站点编号：{1}，获取箱号状态缓存失败！", boxCode, operateSiteCode), e);
+			logger.error("箱号：{}，操作站点编号：{}，获取箱号状态缓存失败！", boxCode, operateSiteCode, e);
 		}finally {
             Profiler.registerInfoEnd(info);
         }
@@ -629,7 +622,7 @@ public class BoxServiceImpl implements BoxService {
 			}
 			if (boxStatus != null) {
 				if (BoxStatusEnum.SENT_STATUS.getCode().equals(boxStatus)) {
-					logger.info(MessageFormat.format("箱号状态缓存命中，箱号：{0} 在站点编号为：{1}时已发货！", boxCode, operateSiteCode));
+					logger.info("箱号状态缓存命中，箱号：{} 在站点编号为：{}时已发货！", boxCode, operateSiteCode);
 					result = true;
 				}
 			} else {
@@ -640,12 +633,12 @@ public class BoxServiceImpl implements BoxService {
 
 				//sendm不为空，说明已发货，否则视为初始状态
 				if (sendMList != null && ! sendMList.isEmpty()) {
-					logger.info(MessageFormat.format("查询SendM表成功，箱号：{0} 在站点编号为：{1}时已发货！", boxCode, operateSiteCode));
+					logger.info("查询SendM表成功，箱号：{} 在站点编号为：{}时已发货！", boxCode, operateSiteCode);
 					//更新箱号状态缓存为已发货
 					this.updateBoxStatusRedis(sendM.getBoxCode(), sendM.getCreateSiteCode(), BoxStatusEnum.SENT_STATUS.getCode(), sendMList.get(0).getCreateUser());
 					result = true;
 				} else {
-					logger.info(MessageFormat.format("查询SendM表成功，箱号：{0} 在站点编号为：{1}时未发货！", boxCode, operateSiteCode));
+					logger.info("查询SendM表成功，箱号：{} 在站点编号为：{}时未发货！", boxCode, operateSiteCode);
 					//更新箱号状态缓存为初始状态
 					this.updateBoxStatusRedis(sendM.getBoxCode(), sendM.getCreateSiteCode(), BoxStatusEnum.INIT_STATUS.getCode(), null);
 				}
@@ -653,7 +646,7 @@ public class BoxServiceImpl implements BoxService {
 		} catch (Exception e) {
             Profiler.functionError(info);
 			result = null;
-			logger.error(MessageFormat.format("箱号：{0}，操作站点编号：{1}，获取箱号校验箱号是否发货失败！", boxCode, operateSiteCode), e);
+			logger.error("箱号：{}，操作站点编号：{}，获取箱号校验箱号是否发货失败！", boxCode, operateSiteCode, e);
 		}finally {
             Profiler.registerInfoEnd(info);
         }

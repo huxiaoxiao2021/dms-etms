@@ -12,7 +12,7 @@ import java.util.*;
 
 public class BaseCassandraDao{
 
-    private static final Logger logger = LoggerFactory.getLogger(BaseCassandraDao.class);
+    private static final Logger log = LoggerFactory.getLogger(BaseCassandraDao.class);
 
     @Value("${cassandra.consistencyLevel.default}")
     protected ConsistencyLevel  consistencyLevel;
@@ -24,7 +24,7 @@ public class BaseCassandraDao{
 
 	public void close(){
         if(this.session.isClosed()){
-            logger.error("BaseCassandraDao to close a closed session");
+            log.warn("BaseCassandraDao to close a closed session");
             return;
         }
         this.session.close();
@@ -39,14 +39,14 @@ public class BaseCassandraDao{
 		}
 		batch.setConsistencyLevel(consistencyLevel);
 		session.executeAsync(batch);
-		logger.info("cassandra batchInsert execute success cost:"+(System.currentTimeMillis()-startTime)+"ms");
+		log.info("cassandra batchInsert execute success cost:{}ms",(System.currentTimeMillis()-startTime));
 	}
 	
 	@JProfiler(jKey = "baseCassandra.preparedSelectBycode", mState = { JProEnum.TP,JProEnum.Heartbeat, JProEnum.FunctionError })
     public ResultSet preparedSelectBycode(BoundStatement bs) throws Exception{
 		long startTime = System.currentTimeMillis();
 		ResultSet set = session.execute(bs); 
-        logger.info("cassandra preparedSelectBycode execute success cost:"+(System.currentTimeMillis()-startTime)+"ms");
+        log.info("cassandra preparedSelectBycode execute success cost:{}ms",(System.currentTimeMillis()-startTime));
         return set;
 	}
     
@@ -92,7 +92,7 @@ public class BaseCassandraDao{
         BoundStatement bounded = session.prepare(toPrepare).bind(args);
 
         ResultSet result = session.execute(bounded);
-        logger.info("cassandra insert execute success cost:"+(System.currentTimeMillis()-startTime)+"ms");
+        log.info("cassandra insert execute success cost:{}ms",(System.currentTimeMillis()-startTime));
 
     }
     @JProfiler(jKey = "baseCassandra.select", mState = { JProEnum.TP,JProEnum.Heartbeat, JProEnum.FunctionError })
@@ -131,7 +131,7 @@ public class BaseCassandraDao{
          if(null!=result){
              returnResult=transferRowToMap(result.all());
          }
-        logger.info("cassandra select execute success cost:"+(System.currentTimeMillis()-startTime)+"ms");
+        log.info("cassandra select execute success cost:{}ms",(System.currentTimeMillis()-startTime));
 
         return returnResult;
     }
@@ -216,7 +216,7 @@ public class BaseCassandraDao{
         }else{
            session.execute(toPrepare);
         }
-        logger.info("cassandra insertByCql execute success cost:"+(System.currentTimeMillis()-startTime)+"ms");
+        log.info("cassandra insertByCql execute success cost:{}ms",(System.currentTimeMillis()-startTime));
 
     }
     
@@ -241,7 +241,7 @@ public class BaseCassandraDao{
         if(null!=result){
             returnResult=transferRowToMap(result.all());
         }
-        logger.info("cassandra selectByCql execute success cost:"+(System.currentTimeMillis()-startTime)+"ms");
+        log.info("cassandra selectByCql execute success cost:{}ms",(System.currentTimeMillis()-startTime));
 
         return returnResult;
     }
@@ -267,7 +267,7 @@ public class BaseCassandraDao{
         if(null!=result){
             returnResult=transferRowToBean(result.all(),c);
         }
-        logger.info("cassandra selectByCqlReturnBean execute success cost:"+(System.currentTimeMillis()-startTime)+"ms");
+        log.info("cassandra selectByCqlReturnBean execute success cost:{}ms",(System.currentTimeMillis()-startTime));
 
         return returnResult;
     }
@@ -288,7 +288,7 @@ public class BaseCassandraDao{
             result = session.execute(toPrepare);
         }
 
-        logger.info("cassandra executeByCql execute success cost:"+(System.currentTimeMillis()-startTime)+"ms");
+        log.info("cassandra executeByCql execute success cost:{}ms",(System.currentTimeMillis()-startTime));
 
         return result;
     }
