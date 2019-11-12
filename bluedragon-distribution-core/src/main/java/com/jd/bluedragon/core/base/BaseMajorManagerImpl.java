@@ -1,6 +1,5 @@
 package com.jd.bluedragon.core.base;
 
-import com.google.common.base.Strings;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.UmpConstants;
@@ -29,11 +28,10 @@ import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -45,7 +43,7 @@ import java.util.*;
 @Service("baseMajorManager")
 public class BaseMajorManagerImpl implements BaseMajorManager {
 
-    private Log logger = LogFactory.getLog(BaseMajorManagerImpl.class);
+    private Logger log = LoggerFactory.getLogger(BaseMajorManagerImpl.class);
     private static final String PROTOCOL = PropertiesHelper.newInstance().getValue("DMSVER_ADDRESS") + "/services/bases/siteString/";
     /**
      * 监控key的前缀
@@ -254,11 +252,10 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
             if (0 == storeInfoResult.getResultCode()) {
                 return storeInfoResult.getData();
             } else {
-                logger.warn("根据cky2获取仓库信息失败，接口返回code "
-                        + storeInfoResult.getResultCode() + ", message " + storeInfoResult.getMessage());
+                log.warn("根据cky2获取仓库信息失败，接口返回code={}，message ={}",storeInfoResult.getResultCode(),  storeInfoResult.getMessage());
             }
         } catch (Exception ex) {
-            logger.warn("根据cky2获取仓库信息失败", ex);
+            log.error("根据cky2获取仓库信息失败：cky2={}，storeID={}",cky2,storeID, ex);
             Profiler.functionError(info);
             return null;
         } finally {
@@ -361,8 +358,8 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
             ClientResponse<JdResponse> response = request.get(JdResponse.class);
             if (200 == response.getStatus()) {
                 JdResponse base = response.getEntity();
-                if (logger.isInfoEnabled()) {
-                    logger.debug(com.jd.bluedragon.utils.JsonHelper.toJson(base));
+                if (log.isInfoEnabled()) {
+                    log.debug(com.jd.bluedragon.utils.JsonHelper.toJson(base));
                 }
                 if (base != null && JdResponse.CODE_OK.equals(base.getCode())) {
                     SiteEntity site = com.jd.bluedragon.utils.JsonHelper.fromJsonUseGson(base.getRequest(), SiteEntity.class);
@@ -373,12 +370,12 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
                 }
             }
         } catch (Exception e) {
-            logger.error("dmsver获取站点[" + siteCode + "]信息失败，异常为：", e);
+            log.error("dmsver获取站点[{}]信息失败，异常为",siteCode, e);
             Profiler.functionError(info);
         } finally {
             Profiler.registerInfoEnd(info);
         }
-        logger.error("dmsver获取站点[" + siteCode + "]信息失败");
+        log.warn("dmsver获取站点[{}]信息失败",siteCode);
         return null;
     }
 
@@ -576,7 +573,7 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     }
 
     private List<BasicTraderInfoDTO> getBaseAllTrader() {
-        logger.info("基础资料客户端--getBaseAllTrader获取所有商家，开始调用分页接口获取数据");
+        log.debug("基础资料客户端--getBaseAllTrader获取所有商家，开始调用分页接口获取数据");
         List<BasicTraderInfoDTO> traderList = new ArrayList();
         int count = 0;
         long startTime = System.currentTimeMillis();
@@ -592,11 +589,11 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
                 traderList.addAll((Collection)this.basicTraderAPI.getTraderListByPage(i).getResult().getData());
             }
         } else {
-            logger.error("getBaseAllTrader获取数据为空");
+            log.warn("getBaseAllTrader获取数据为空");
         }
 
-        logger.info("getBaseAllTrader获取数据count[" + count + "]");
-        logger.info("getBaseAllTrader获取数据耗时[" + (System.currentTimeMillis() - startTime) + "]");
+        log.info("getBaseAllTrader获取数据count[{}]",count);
+        log.info("getBaseAllTrader获取数据耗时[{}]",(System.currentTimeMillis() - startTime));
         return traderList;
     }
 
@@ -676,7 +673,7 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         if(resultData!=null && ResultData.SUCCESS_CODE.equals(resultData.getResultCode())){
             return true;
         }else{
-            logger.info("加盟商预付款返回失败或不充足"+allianceBusiId+"|"+(resultData != null?resultData.getResultMsg():""));
+            log.warn("加盟商预付款返回失败或不充足:{}|{}",allianceBusiId,(resultData != null?resultData.getResultMsg():""));
             return false;
         }
 
