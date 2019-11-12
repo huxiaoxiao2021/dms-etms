@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+    PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+
+	<settings>
+		<setting name="lazyLoadingEnabled" value="false" />
+		<setting name="autoMappingBehavior" value="FULL"/>
+		<setting name="defaultStatementTimeout" value="30"/>
+	</settings>
+	
+	<typeAliases>
+<!--	    <typeAlias type="com.jd.bluedragon.distribution.domain.Box" alias="box" />-->
+<!--	    <typeAlias type="com.jd.bluedragon.distribution.domain.LocalBox" alias="localbox" />-->
+<!--	    <typeAlias type="com.jd.bluedragon.distribution.domain.Airtransport" alias="airtransport" />-->
+<!--	    <typeAlias type="com.jd.bluedragon.distribution.domain.Site" alias="site" />-->
+	    <typeAlias type="com.jd.bluedragon.distribution.rule.domain.Rule" alias="rule" />
+<!--	    <typeAlias type="com.jd.bluedragon.distribution.domain.CancelWaybill" alias="cancelWaybill" />-->
+<!--	    <typeAlias type="com.jd.bluedragon.distribution.base.domain.PackageTag" alias="PackageTag"/>-->
+<!--		<typeAlias type="com.jd.bluedragon.distribution.domain.BaseDatadict" alias="BaseDatadict" />-->
+<!--		<typeAlias type="com.jd.bluedragon.distribution.domain.SortDistRelation" alias="SortDistRelation" />-->
+<!--		<typeAlias type="com.jd.bluedragon.distribution.domain.MixedPackageConfig" alias="mixedPackageConfig" />-->
+<!--		<typeAlias type="com.jd.bluedragon.distribution.domain.PsStoreinfo" alias="psStoreInfo" />-->
+<!--		<typeAlias type="com.jd.bluedragon.distribution.domain.BaseDmsStore" alias="baseStoreInfo" />-->
+<!--		<typeAlias type="com.jd.bluedragon.distribution.domain.DeviceConfig" alias="deviceConfig" />-->
+<!--		<typeAlias type="com.jd.bluedragon.distribution.domain.BaseCrossPackageTag" alias="BaseCrossPackageTag" />-->
+	</typeAliases>
+	
+	<mappers>
+<!--		<mapper resource="mappers/box/BoxMapper.xml"/>-->
+<!--		<mapper resource="mappers/baseDmsStore/BaseDmsStoreMapper.xml" />-->
+<!--		<mapper resource="mappers/posStoreInfo/PsStoreInfoMapper.xml" />-->
+<!--		<mapper resource="mappers/box/LocalBoxMapper.xml"/>-->
+<!--		<mapper resource="mappers/air/AirtransportMapper.xml"/>-->
+<!--		<mapper resource="mappers/site/SiteMapper.xml"/>-->
+		<mapper resource="mappers/mysql/rule/RuleMapper.xml"/>
+<!--		<mapper resource="mappers/waybill/CancelWaybillMapper.xml"/>-->
+<!--		<mapper resource="mappers/package/PackageTagMapper.xml"/>-->
+<!--		<mapper resource="mappers/datadict/DatadictMapper.xml"/>-->
+<!--		<mapper resource="mappers/sortdist/SortDistRelationMapper.xml"/>-->
+<!--		<mapper resource="mappers/mixedPackageConfig/MixedPackageConfigMapper.xml"/>-->
+<!--		<mapper resource="mappers/devConfig/DeviceConfigMapper.xml"/>-->
+<!--		<mapper resource="mappers/package/BaseCrossPackageTagMapper.xml"/>-->
+<!--		<mapper resource="mappers/waybill/AllianceBusiDeliveryDetailMapper.xml"/>-->
+	</mappers>
+	
+</configuration>

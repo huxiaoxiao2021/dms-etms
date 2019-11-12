@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.rule.dao.RuleMapper">
+
+    <resultMap id="rule" type="com.jd.bluedragon.distribution.rule.domain.Rule">
+        <result column="rule_type" property="type"/>
+        <result column="content" property="content"/>
+        <result column="in_out" property="inOut"/>
+        <result column="rule_id" property="ruleId"/>
+        <result column="site_code" property="siteCode"/>
+        <result column="memo" property="memo"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="create_user" property="createUser"/>
+        <result column="update_user" property="updateUser"/>
+        <result column="ts" property="ts"/>
+        <result column="yn" property="yn"/>
+    </resultMap>
+
+    <select id="get" resultMap="rule" parameterType="java.util.Map">
+        SELECT rule_id, rule_type, content, in_out, site_code, memo, create_time, update_time, ts
+        FROM Rules
+        WHERE yn = 1
+        <if test="siteCode != null">
+            AND site_code = #{siteCode}
+        </if>
+        <if test="type != null">
+            AND rule_type = #{type}
+        </if>
+        LIMIT 1
+    </select>
+
+    <select id="queryById" resultMap="rule" parameterType="Long">
+		SELECT rule_id, rule_type, content, in_out, site_code, memo, create_time, update_time, ts
+		FROM Rules
+		WHERE rule_id = #{id} and yn = 1
+	</select>
+
+    <select id="queryByParamNoPage" resultMap="rule" parameterType="java.util.Map">
+        SELECT rule_id, rule_type, content, in_out, site_code, memo, create_time, update_time, ts
+        FROM Rules
+        WHERE yn = 1
+        <if test="siteCode != null">
+            AND site_code = #{siteCode}
+        </if>
+        <if test="type != null">
+            AND rule_type = #{type}
+        </if>
+        ORDER BY site_code, rule_type
+    </select>
+
+    <select id="queryByParam" resultMap="rule" parameterType="java.util.Map">
+        SELECT rule_id, rule_type, content, in_out, site_code, memo, create_time, update_time, ts, update_user
+        FROM Rules
+        WHERE yn = 1
+        <if test="siteCode != null">
+            AND site_code = #{siteCode}
+        </if>
+        <if test="type != null">
+            AND rule_type = #{type}
+        </if>
+        ORDER BY site_code, rule_type
+        LIMIT #{startIndex, jdbcType=INTEGER},#{pageSize, jdbcType=INTEGER}
+    </select>
+
+    <select id="queryAllSize" resultType="java.lang.Integer" parameterType="java.util.Map">
+        SELECT count(1)
+        FROM Rules
+        <if test="siteCode != null">
+            WHERE site_code = #{siteCode} AND yn = 1
+        </if>
+    </select>
+
+    <insert id="add" parameterType="rule">
+		INSERT INTO Rules (site_code,
+							rule_type,
+							content,
+							in_out,
+							memo,
+							create_time,
+							update_time,
+							create_user,
+							update_user,
+							ts,
+							yn)
+		VALUES(#{siteCode,jdbcType=INTEGER},
+				#{type,jdbcType=INTEGER},				
+				#{content,jdbcType=VARCHAR},
+				#{inOut,jdbcType=VARCHAR},
+				#{memo,jdbcType=VARCHAR},
+				now(),
+				now(),
+				#{createUser, jdbcType=VARCHAR},
+				#{updateUser, jdbcType=VARCHAR},
+				#{ts,jdbcType=BIGINT},
+				1)
+	</insert>
+
+    <update id="logicDelete" parameterType="rule">
+        UPDATE Rules
+        SET yn = 0,
+        update_time = now(),
+        ts = #{ts,jdbcType=BIGINT}
+        WHERE rule_id = #{ruleId, jdbcType=BIGINT} AND yn = 1
+    </update>
+
+    <update id="update" parameterType="rule">
+		UPDATE Rules
+			SET site_code = #{siteCode,jdbcType=INTEGER},
+				rule_type = #{type,jdbcType=INTEGER},
+				content = #{content,jdbcType=VARCHAR},
+				in_out = #{inOut,jdbcType=VARCHAR},
+				memo = #{memo,jdbcType=VARCHAR},
+				update_time = now(),
+				update_user = #{updateUser, jdbcType=VARCHAR},
+				ts = #{ts,jdbcType=BIGINT}
+		WHERE rule_id = #{ruleId, jdbcType=BIGINT} AND yn = 1
+	</update>
+
+    <insert id="addRuleByReferSite" parameterType="java.util.Map">
+        INSERT INTO Rules(site_code,rule_type,content,in_out,memo,create_time,update_time,ts,yn)
+		SELECT #{siteCode, jdbcType=INTEGER},rule_type,content,in_out,memo,now(),now() AS n,#{ts, jdbcType=BIGINT},yn
+		FROM rules
+		WHERE site_code=#{referSiteCode, jdbcType=INTEGER} AND yn = 1
+    </insert>
+</mapper>
