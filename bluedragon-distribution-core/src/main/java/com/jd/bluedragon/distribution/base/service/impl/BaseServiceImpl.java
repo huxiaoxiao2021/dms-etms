@@ -60,7 +60,7 @@ import java.util.*;
 public class BaseServiceImpl implements BaseService {
 
 	/** 日志 */
-	private Logger logger = LoggerFactory.getLogger(BaseServiceImpl.class);
+	private Logger log = LoggerFactory.getLogger(BaseServiceImpl.class);
 
 	@Autowired
 	private BaseMajorManager baseMajorManager;
@@ -107,8 +107,8 @@ public class BaseServiceImpl implements BaseService {
     @Override
     public BasePdaUserDto pdaUserLogin(String userid, String password,ClientInfo clientInfo) {
         BasePdaUserDto basePdaUserDto = new BasePdaUserDto();
-        if (logger.isInfoEnabled()){
-            logger.info("用户登录新接口，用户名 {}" , userid);
+        if (log.isInfoEnabled()){
+            log.info("用户登录新接口，用户名 {}" , userid);
         }
 
         if (StringHelper.isEmpty(userid) || StringHelper.isEmpty(password)) {
@@ -159,7 +159,7 @@ public class BaseServiceImpl implements BaseService {
                 }
             }
         } catch (Exception e) {
-            logger.error("user login error {}" , userid, e);
+            log.error("user login error {}" , userid, e);
 			basePdaUserDto.setErrorCode(Constants.PDA_USER_ABNORMAL);
 			basePdaUserDto.setMessage(Constants.PDA_USER_ABNORMAL_MSG);
         }
@@ -193,7 +193,7 @@ public class BaseServiceImpl implements BaseService {
 		try {
 			pdadata = pdaUserLogin(erpcode, password,clientInfo);
 		} catch (Exception e) {
-			logger.error("调用baseMinorServiceProxy.pdaUserLogin接口出现异常！erpcode:{}",erpcode, e);
+			log.error("调用baseMinorServiceProxy.pdaUserLogin接口出现异常！erpcode:{}",erpcode, e);
 		}
 		if(pdadata == null){
             /** 返回空数据 */
@@ -288,7 +288,7 @@ public class BaseServiceImpl implements BaseService {
 				return resultal.toArray(new BaseStaffSiteOrgDto[0]);
 			}
 		} catch (Exception e) {
-			logger.error("调用basicMajorServiceProxy.getBaseStaffByOrgId(id, 2)异常", e);
+			log.error("调用basicMajorServiceProxy.getBaseStaffByOrgId(id, 2)异常", e);
 		}
 		return null;
 	}
@@ -312,7 +312,7 @@ public class BaseServiceImpl implements BaseService {
 	redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
 	public BaseStaffSiteOrgDto[] querySiteByOrgID(Integer orgid) {
 		/** 查询所有站点的信息 */
-		logger.info("调用basicMajorServiceProxy.getBaseSiteAllByOrgId({})接口",orgid);
+		log.info("调用basicMajorServiceProxy.getBaseSiteAllByOrgId({})接口",orgid);
 		try {
 			/** 不包括库房的信息 */
 			// return (List<T>)basicMajorServiceProxy.getBaseSiteAllByOrgId(id);
@@ -335,7 +335,7 @@ public class BaseServiceImpl implements BaseService {
 				return resultal.toArray(new BaseStaffSiteOrgDto[0]);
 			}
 		} catch (Exception e) {
-			logger.error("调用basicMajorServiceProxy.getBaseSiteAllByOrgId({})异常",orgid, e);
+			log.error("调用basicMajorServiceProxy.getBaseSiteAllByOrgId({})异常",orgid, e);
 		}
 		return null;
 	}
@@ -343,12 +343,12 @@ public class BaseServiceImpl implements BaseService {
 	@Override
 	public BaseStaffSiteOrgDto getSiteBySiteID(Integer siteid) {
 		/** 根据站点ID查询站点信息，因为返回的数据是 单一数据为了结构统一，统一使用List */
-		logger.info("调用basicMajorServiceProxy.getBaseSiteBySiteId({})接口",siteid);
+		log.info("调用basicMajorServiceProxy.getBaseSiteBySiteId({})接口",siteid);
 		try {
 			BaseStaffSiteOrgDto sitedto = baseMajorManager.getBaseSiteBySiteId(siteid);
 			return sitedto;
 		} catch (Exception e) {
-			logger.error("调用basicMajorServiceProxy.getBaseSiteBySiteId({})异常",siteid, e);
+			log.error("调用basicMajorServiceProxy.getBaseSiteBySiteId({})异常",siteid, e);
 		}
 		return null;
 	}
@@ -356,7 +356,7 @@ public class BaseServiceImpl implements BaseService {
 	@Override
 	public BaseDataDict[] getBaseDataDictListByDate(Integer typeGroup) {
 		/** 查询错误信息列表 */
-		logger.info("调用basicMajorServiceProxy.getBaseDataDictList({},2, {})接口",typeGroup,typeGroup);
+		log.info("调用basicMajorServiceProxy.getBaseDataDictList({},2, {})接口",typeGroup,typeGroup);
 		try {
 			List<BaseDataDict> resultal = baseMajorManager
 			        .getBaseDataDictList(typeGroup, 2, typeGroup);
@@ -364,7 +364,7 @@ public class BaseServiceImpl implements BaseService {
 				return resultal.toArray(new BaseDataDict[0]);
 			}
 		} catch (Exception e) {
-			logger.error("调用basicMajorServiceProxy.getBaseDataDictList({},2, {})接口",typeGroup,typeGroup, e);
+			log.error("调用basicMajorServiceProxy.getBaseDataDictList({},2, {})接口",typeGroup,typeGroup, e);
 		}
 		return null;
 	}
@@ -404,7 +404,7 @@ public class BaseServiceImpl implements BaseService {
 		try {
 			ArrayList<BaseDataDict> resultal = new ArrayList<BaseDataDict>();
 			for (Integer typeGroup : typeGroups) {
-				logger.info("调用basicMajorServiceProxy.getBaseDataDictList({},2, {})接口",typeGroup,typeGroup);
+				log.info("调用basicMajorServiceProxy.getBaseDataDictList({},2, {})接口",typeGroup,typeGroup);
 				List<BaseDataDict> tmpal = baseMajorManager.getBaseDataDictList(
 						typeGroup, 2, typeGroup);
 				if (tmpal != null && tmpal.size() > 0) {
@@ -422,7 +422,7 @@ public class BaseServiceImpl implements BaseService {
 			String stypeGroup = sb.toString();
 			stypeGroup = typeGroups.size() > 0 ? stypeGroup.substring(0, stypeGroup.length() - 1)
 			        : stypeGroup;
-			logger.error("调用basicMajorServiceProxy.getBaseDataDictList()异常，待查询类型为：{}" , stypeGroup, e);
+			log.error("调用basicMajorServiceProxy.getBaseDataDictList()异常，待查询类型为：{}" , stypeGroup, e);
 		}
 		return null;
 	}
@@ -438,7 +438,7 @@ public class BaseServiceImpl implements BaseService {
 		try {
 			ArrayList<DictDto> resultal = new ArrayList<DictDto>();
 			for (Integer typeGroup : typeGroups) {
-				logger.info("调用vtsQueryWS.getDictList({},2, {})接口",typeGroup,typeGroup);
+				log.info("调用vtsQueryWS.getDictList({},2, {})接口",typeGroup,typeGroup);
 				List<DictDto> dictDtoList = new ArrayList<DictDto>();
 				String typeGroupStr = String.valueOf(typeGroup);
 				CommonDto<List<DictDto>> commonDtoList = vtsQueryWS.getDictList(typeGroupStr, 2, typeGroupStr);
@@ -446,7 +446,7 @@ public class BaseServiceImpl implements BaseService {
 				if (dictDtoList != null && dictDtoList.size() > 0) {
 					resultal.addAll(dictDtoList);
 				}else{
-					logger.info("请求vtsQueryWS.getDictList()接口服务成功，获取字典数据为空！");
+					log.info("请求vtsQueryWS.getDictList()接口服务成功，获取字典数据为空！");
 				}
 			}
 			return resultal.toArray(new DictDto[0]);
@@ -459,7 +459,7 @@ public class BaseServiceImpl implements BaseService {
 			String stypeGroup = sb.toString();
 			stypeGroup = typeGroups.size() > 0 ? stypeGroup.substring(0, stypeGroup.length() - 1)
 			        : stypeGroup;
-			logger.error("调用vtsQueryWS.getDictList()异常，待查询类型为：{}" , stypeGroup, e);
+			log.error("调用vtsQueryWS.getDictList()异常，待查询类型为：{}" , stypeGroup, e);
 		}
 		return null;
 	}
@@ -476,10 +476,10 @@ public class BaseServiceImpl implements BaseService {
 			if (carrierInfoList != null && carrierInfoList.size() > 0) {
 				return carrierInfoList;
 			}else{
-				logger.warn("请求vtsQueryWS.getDictList()接口服务成功，获取字典数据为空！carrierParamDto={}", JsonHelper.toJson(carrierParamDto));
+				log.warn("请求vtsQueryWS.getDictList()接口服务成功，获取字典数据为空！carrierParamDto={}", JsonHelper.toJson(carrierParamDto));
 			}
 		}catch(Exception e){
-			logger.error("调用vtsQueryWS.getCarrierInfoList()承运商列表异常，carrierParamDto={}", JsonHelper.toJson(carrierParamDto), e);
+			log.error("调用vtsQueryWS.getCarrierInfoList()承运商列表异常，carrierParamDto={}", JsonHelper.toJson(carrierParamDto), e);
 		}
 		return null;
 	}
@@ -501,7 +501,7 @@ public class BaseServiceImpl implements BaseService {
 			return orgal;
 		} catch (Exception e) {
 			Profiler.functionError(info);
-			logger.error("调用basicMajorServiceProxy.getBaseOrgAll()异常", e);
+			log.error("调用basicMajorServiceProxy.getBaseOrgAll()异常", e);
 			return null;
 		}finally {
 			Profiler.registerInfoEnd(info);
@@ -514,7 +514,7 @@ public class BaseServiceImpl implements BaseService {
 			BaseStaffSiteOrgDto staffdto = baseMajorManager.getBaseStaffByStaffId(drivercode);
 			return staffdto;
 		} catch (Exception e) {
-			logger.error("调用basicMajorServiceProxy.getBaseStaffByStaffId(drivercode)异常,drivercode={}",drivercode, e);
+			log.error("调用basicMajorServiceProxy.getBaseStaffByStaffId(drivercode)异常,drivercode={}",drivercode, e);
 			return null;
 		}
 	}
@@ -541,7 +541,7 @@ public class BaseServiceImpl implements BaseService {
 
 			if (null != defaultSiteType
 			        && (Constants.DMS_SITE_TYPE.equals(defaultSiteType) || Constants.TRANS_SORTING_SITE_TYPE_SECOND == defaultSiteType)) {
-				logger.debug("初始化查询条件-->员工信息 属于分拣中心");
+				log.debug("初始化查询条件-->员工信息 属于分拣中心");
 				// 分拣中心
 				baseStaffSiteOrgList.add(baseStaffSiteOrgDto);
 			}
@@ -567,7 +567,7 @@ public class BaseServiceImpl implements BaseService {
 		ReverseSendWms reverseSendWms = null;
 		try {
 			// 调用运单接口
-			logger.info("调用运单接口, 订单号为： {}" , orderCode);
+			log.info("调用运单接口, 订单号为： {}" , orderCode);
 			WChoice wChoice = new WChoice();
 			wChoice.setQueryWaybillC(true);
 			wChoice.setQueryWaybillE(true);
@@ -579,13 +579,13 @@ public class BaseServiceImpl implements BaseService {
 				reverseSendWms = convWaybill(baseEntity.getData());
 				if (reverseSendWms == null) {
 					// 无数据
-					logger.info("BaseServiceImpl 调用运单接口, 订单号为： {} 调用运单WSS数据为空", orderCode);
+					log.info("BaseServiceImpl 调用运单接口, 订单号为： {} 调用运单WSS数据为空", orderCode);
 				}else if (reverseSendWms.getProList()==null||reverseSendWms.getProList().size()==0) {
-					logger.info("BaseServiceImpl 调用运单接口, 订单号为： {} 调用运单WSS商品数据为空", orderCode);
+					log.info("BaseServiceImpl 调用运单接口, 订单号为： {} 调用运单WSS商品数据为空", orderCode);
 				}
 			}
 		} catch (Exception e) {
-			logger.error("BaseServiceImpl --> getWaybillByOrderCode, 调用运单接口异常：{}",orderCode, e);
+			log.error("BaseServiceImpl --> getWaybillByOrderCode, 调用运单接口异常：{}",orderCode, e);
 			return null;
 		}
 		return reverseSendWms;
@@ -599,12 +599,12 @@ public class BaseServiceImpl implements BaseService {
 	 */
 	private ReverseSendWms convWaybill(BigWaybillDto bigWaybillDto) {
 		if (bigWaybillDto == null) {
-			logger.info("BaseServiceImpl 转换运单基本信息 --> 原始运单数据bigWaybillDto为空");
+			log.info("BaseServiceImpl 转换运单基本信息 --> 原始运单数据bigWaybillDto为空");
 			return null;
 		}
 		com.jd.etms.waybill.domain.Waybill waybillWS = bigWaybillDto.getWaybill();
 		if (waybillWS == null) {
-			logger.info("BaseServiceImpl 转换运单基本信息 --> 原始运单数据集waybillWS为空");
+			log.info("BaseServiceImpl 转换运单基本信息 --> 原始运单数据集waybillWS为空");
 			return null;
 		}
 		ReverseSendWms reverseSendWms = new ReverseSendWms();
@@ -635,7 +635,7 @@ public class BaseServiceImpl implements BaseService {
 		}else{
 			//快生项目：从订单中间件获得商品明细
 			try{
-				logger.info("运单商品明细为空, 改调用订单接口");
+				log.info("运单商品明细为空, 改调用订单接口");
 				//自营的订单才可以调用此接口
 				if(SerialRuleUtil.isMatchNumeric(waybillWS.getWaybillCode())){
 					List<com.jd.bluedragon.distribution.product.domain.Product> productList = this.productService.getOrderProducts(Long.valueOf(waybillWS.getVendorId()));
@@ -650,7 +650,7 @@ public class BaseServiceImpl implements BaseService {
 					}
 				}
 			} catch (Exception e) {
-				logger.error("BaseServiceImpl --> convWaybill, 调用订单接口获得商品明细异常：{}",waybillWS.getVendorId(), e);
+				log.error("BaseServiceImpl --> convWaybill, 调用订单接口获得商品明细异常：{}",waybillWS.getVendorId(), e);
 			}
 			
 		}
@@ -673,7 +673,7 @@ public class BaseServiceImpl implements BaseService {
         /*
 		 * WaybillManageDomain manageDomain = bigWaybillDto.getWaybillState();
 		 * if (manageDomain == null) {
-		 * this.logger.info("转换运单基本信息 --> 原始运单数据集manageDomain为空"); return null;
+		 * this.log.info("转换运单基本信息 --> 原始运单数据集manageDomain为空"); return null;
 		 * }
 		 */
 		return reverseSendWms;
@@ -719,7 +719,7 @@ public class BaseServiceImpl implements BaseService {
 			BaseStaffSiteOrgDto results = baseMajorManager.getBaseStaffByStaffId(staffId);
 			return results;
 		} catch (Exception e) {
-			logger.error("调用basicMajorServiceProxy.getBaseStaffByStaffId()异常,staffId={}",staffId, e);
+			log.error("调用basicMajorServiceProxy.getBaseStaffByStaffId()异常,staffId={}",staffId, e);
 			return null;
 		}
 	}
@@ -770,7 +770,7 @@ public class BaseServiceImpl implements BaseService {
 				taskMode = PropertiesHelper.newInstance().getValue(Constants.TASK_MODE_KEY);
 				taskModeNum = Integer.parseInt(taskMode);
 			} catch (Exception e) {
-				logger.error("getWorkerTaskMode 获得key值失败 ", e);
+				log.error("getWorkerTaskMode 获得key值失败 ", e);
 			}
 			if (StringHelper.isEmpty(taskMode) || (taskModeNum == null)) {
 				return TaskMode.DB;
@@ -787,7 +787,7 @@ public class BaseServiceImpl implements BaseService {
 			}
 
 		} catch (Exception e) {
-			logger.error("getWorkerTaskMode 失败 ", e);
+			log.error("getWorkerTaskMode 失败 ", e);
 		}
 
 		//3.根据取回的基础资料标识值，返回源类型
