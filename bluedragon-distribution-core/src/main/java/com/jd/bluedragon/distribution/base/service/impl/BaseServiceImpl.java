@@ -17,10 +17,7 @@ import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.bluedragon.distribution.reverse.domain.Product;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
 import com.jd.bluedragon.distribution.sysloginlog.domain.ClientInfo;
-import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.vts.dto.CarrierInfo;
 import com.jd.etms.vts.dto.CarrierParamDto;
@@ -479,10 +476,10 @@ public class BaseServiceImpl implements BaseService {
 			if (carrierInfoList != null && carrierInfoList.size() > 0) {
 				return carrierInfoList;
 			}else{
-				logger.info("请求vtsQueryWS.getDictList()接口服务成功，获取字典数据为空！");
+				logger.warn("请求vtsQueryWS.getDictList()接口服务成功，获取字典数据为空！carrierParamDto={}", JsonHelper.toJson(carrierParamDto));
 			}
 		}catch(Exception e){
-			logger.error("调用vtsQueryWS.getCarrierInfoList()承运商列表异常", e);
+			logger.error("调用vtsQueryWS.getCarrierInfoList()承运商列表异常，carrierParamDto={}", JsonHelper.toJson(carrierParamDto), e);
 		}
 		return null;
 	}
@@ -653,7 +650,7 @@ public class BaseServiceImpl implements BaseService {
 					}
 				}
 			} catch (Exception e) {
-				logger.error("BaseServiceImpl --> convWaybill, 调用订单接口获得商品明细异常：", e);
+				logger.error("BaseServiceImpl --> convWaybill, 调用订单接口获得商品明细异常：{}",waybillWS.getVendorId(), e);
 			}
 			
 		}
