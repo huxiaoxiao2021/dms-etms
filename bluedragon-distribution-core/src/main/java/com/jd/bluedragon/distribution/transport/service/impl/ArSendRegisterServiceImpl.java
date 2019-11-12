@@ -39,6 +39,8 @@ import com.jd.tms.basic.ws.BasicSyncWS;
 import com.jd.tms.ecp.dto.BasicRailTrainDto;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -68,6 +70,8 @@ import static com.jd.bluedragon.distribution.transport.domain.ArTransportTypeEnu
  */
 @Service("arSendRegisterService")
 public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> implements ArSendRegisterService {
+
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     @Qualifier("arSendRegisterDao")
@@ -216,13 +220,13 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         BasicRailTrainDto railTrainDto = ecpQueryWSManager.getRailTrainListByCondition(arSendRegister.getTransportName(),
                 arSendRegister.getStartCityId(),arSendRegister.getEndCityId());
         if(railTrainDto == null){
-            logger.warn("获取列车车次信息为空orderCode[{}]trainNumber[{}]beginCityId[{}]endCityId[{}]",arSendRegister.getOrderCode(),
+            log.warn("获取列车车次信息为空orderCode[{}]trainNumber[{}]beginCityId[{}]endCityId[{}]",arSendRegister.getOrderCode(),
                     arSendRegister.getTransportName(), arSendRegister.getStartCityId(),arSendRegister.getEndCityId());
             return;
         }
         ConfNodeCarrierDto confNodeCarrierDto = basicQueryWSManager.getCarrierByNodeCode(railTrainDto.getBeginNodeCode());
         if(confNodeCarrierDto == null){
-            logger.warn("承运商为空orderCode[{}]beginNodeCode[{}]",arSendRegister.getOrderCode(),railTrainDto.getBeginNodeCode());
+            log.warn("承运商为空orderCode[{}]beginNodeCode[{}]",arSendRegister.getOrderCode(),railTrainDto.getBeginNodeCode());
             return;
         }
         RailwaySendRegistCostFxmDto costFxmDto = new RailwaySendRegistCostFxmDto();
@@ -242,7 +246,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         try {
             railwaySendRegistCostFxmMQ.send(costFxmDto.getOrderCode(),JsonHelper.toJson(costFxmDto));
         } catch (JMQException e) {
-            logger.error("发货登记-发送计费要素信息错误ordercode[{}]",costFxmDto.getOrderCode(),e);
+            log.error("发货登记-发送计费要素信息错误ordercode[{}]",costFxmDto.getOrderCode(),e);
         }
     }
 
@@ -263,10 +267,10 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                     if (!arSendRegister.getTransportName().equals(arSendRegisterExits.getTransportName())) {
                         this.mqToRouterDetailByUpdate(arSendRegisterExits, arSendRegister, new String[]{sendCode});
                     } else {
-                        logger.warn("[空铁项目]重复添加批次号是：" + arSendCode + "的航班：" + arSendRegisterExits.getTransportName());
+                        log.warn("[空铁项目]重复添加批次号是：{} 的航班：{}" ,arSendCode, arSendRegisterExits.getTransportName());
                     }
                 } else {
-                    logger.warn("[空铁项目]根据批次号表的sendRegisterId：" + arSendCode.getSendRegisterId() + "查询不到对应的发货登记记录");
+                    log.warn("[空铁项目]根据批次号表的sendRegisterId：{} 查询不到对应的发货登记记录",arSendCode.getSendRegisterId());
                 }
             } else {
                 //新增之前没有该批次号，向路由发MQ
@@ -287,12 +291,12 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
             CommonDto<String> commonDto = basicSyncWS.createAirFlightRealtime(transportName, sendDate);
             if (commonDto != null) {
                 if (commonDto.getCode() != 1) {
-                    logger.warn("[空铁项目-发货登记]调用TMS-BASIC订阅实时航班JSF接口失败，返回[状态码：" + commonDto.getCode() + "][消息：" + commonDto.getMessage() + "]！");
+                    log.warn("[空铁项目-发货登记]调用TMS-BASIC订阅实时航班JSF接口失败，返回[状态码：{}][消息：{}]！",commonDto.getCode(),commonDto.getMessage());
                 }
             }
         } catch (Exception e) {
             Profiler.functionError(info);
-            logger.error("[空铁项目-发货登记]调用TMS-BASIC订阅实时航班JSF接口异常！", e);
+            log.error("[空铁项目-发货登记]调用TMS-BASIC订阅实时航班JSF接口异常！transportName={}",transportName, e);
         } finally {
             Profiler.registerInfoEnd(info);
         }
@@ -330,7 +334,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                     this.mqToRouterDetailByUpdate(resource, arSendRegister, sendCodes);
                 }
             } else {
-                logger.warn("空铁---发货登记记录为空或者批次号列表为空");
+                log.warn("空铁---发货登记记录为空或者批次号列表为空:{}",arSendRegister.getId());
             }
         }
         return true;
@@ -357,17 +361,17 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                             arSendRegister.setSendCode(arSendCode);
                             // 发送MQ
                             arSendRegisterMQ.send(arSendRegister.getWaybillCode(), JsonHelper.toJson(arSendRegister));
-                            logger.info("[空铁项目]新增或修改发货登记推送路由MQ消息成功，消息体：" + JsonHelper.toJson(arSendRegister));
+                            log.info("[空铁项目]新增或修改发货登记推送路由MQ消息成功，消息体：{}" , JsonHelper.toJson(arSendRegister));
                         }
                     } else {
-                        logger.warn("空铁推路由MQ---根据批次号获取发货明细为空，批次号：" + arSendCode);
+                        log.warn("空铁推路由MQ---根据批次号获取发货明细为空，批次号：{}" , arSendCode);
                     }
                 }
             } else {
-                logger.warn("空铁推路由MQ---获取批次号列表为空");
+                log.warn("空铁推路由MQ---获取批次号列表为空");
             }
         } catch (Exception e) {
-            logger.error("[空铁项目]发货登记消息体发送给路由时发生异常，航班/车次号:" + arSendRegister.getTransportName() + "，单号:" + arSendRegister.getOrderCode(), e);
+            log.error("[空铁项目]发货登记消息体发送给路由时发生异常，航班/车次号:{}，单号:{}" ,arSendRegister.getTransportName(), arSendRegister.getOrderCode(), e);
         }
     }
 
@@ -401,7 +405,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
             //再次更新发货登记表，把operateType字段落进去
             this.getDao().update(arSendRegister);
         } else {
-            logger.warn("空铁推路由MQ---查不到该航班号发货登记记录，航班号：" + resource.getTransportName());
+            log.warn("空铁推路由MQ---查不到该航班号发货登记记录，航班号：{}" , resource.getTransportName());
         }
     }
 
@@ -457,15 +461,14 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         List<ArSendRegister> arSendRegisters = arSendRegisterDao.queryStartCityInfo();
         List<City> cities = new ArrayList<City>();
         if (arSendRegisters == null) {
-            logger.warn("从发货登记表找查询到的始发城市信息为空！");
+            log.warn("从发货登记表找查询到的始发城市信息为空！");
             return null;
         }
 
         for (ArSendRegister arSendRegister : arSendRegisters) {
             //如果城市的id和name有一个为空，则无法对应，直接舍弃该条记录
             if (arSendRegister.getStartCityId() == null || StringHelper.isEmpty(arSendRegister.getStartCityName())) {
-                logger.warn("发货登记表中的始发城市信息城市id或者城市名称为空，不组装，城市id:" + arSendRegister.getStartCityId() +
-                        "，城市名称：" + arSendRegister.getStartCityName());
+                log.warn("发货登记表中的始发城市信息城市id或者城市名称为空，不组装，城市id:{}，城市名称：{}" ,arSendRegister.getStartCityId(), arSendRegister.getStartCityName());
                 continue;
             }
             cities.add(new City(arSendRegister.getStartCityId(), arSendRegister.getStartCityName()));
@@ -484,15 +487,14 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         List<ArSendRegister> arSendRegisters = arSendRegisterDao.queryEndCityInfo();
         List<City> cities = new ArrayList<City>();
         if (arSendRegisters == null) {
-            logger.warn("从发货登记表找查询到的目的城市信息为空！");
+            log.warn("从发货登记表找查询到的目的城市信息为空！");
             return null;
         }
 
         for (ArSendRegister arSendRegister : arSendRegisters) {
             //如果城市的id和name有一个为空，则无法对应，直接舍弃该条记录
             if (arSendRegister.getEndCityId() == null || StringHelper.isEmpty(arSendRegister.getEndCityName())) {
-                logger.warn("发货登记表中的目的城市信息城市id或者城市名称为空，不组装，城市id:" + arSendRegister.getEndCityId() +
-                        "，城市名称：" + arSendRegister.getEndCityName());
+                log.warn("发货登记表中的目的城市信息城市id或者城市名称为空，不组装，城市id:{}，城市名称：{}" ,arSendRegister.getEndCityId(), arSendRegister.getEndCityName());
                 continue;
             }
             cities.add(new City(arSendRegister.getEndCityId(), arSendRegister.getEndCityName()));
@@ -560,7 +562,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                 }
             }
         } catch (Exception e) {
-            logger.error("[空铁]调用TMS运输接口获取航班信息/铁路信息出现异常", e);
+            log.error("[空铁]调用TMS运输接口获取航班信息/铁路信息出现异常", e);
         }
         return null;
     }
@@ -575,7 +577,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                     ArSendRegister register = this.toDBDomain(pdaSendRegister);
                     this.insert(register, COMMA);
                 } catch (Exception e) {
-                    logger.error("[空铁发货登记]执行离线发货登记新增任务时发生异常，ArSendRegister消息体:" + body, e);
+                    log.error("[空铁发货登记]执行离线发货登记新增任务时发生异常，ArSendRegister消息体:{}" , body, e);
                     return false;
                 }
             }
@@ -636,10 +638,11 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                 sendRegister.setPlanStartTime(getPlanDate(sendRegister.getSendDate(), arTransportInfo.getPlanStartTime(), 0));
                 sendRegister.setPlanEndTime(getPlanDate(sendRegister.getSendDate(), arTransportInfo.getPlanEndTime(), arTransportInfo.getAging()));
             } else {
-                logger.warn("[空铁发货登记]调用TMS运输接口获取航班信息/铁路信息为空，航班号/车次号:" + sendRegister.getTransportName() + "，主单号:" + sendRegister.getOrderCode() + "，发货日期:" + DateHelper.formatDate(sendRegister.getSendDate()));
+                log.warn("[空铁发货登记]调用TMS运输接口获取航班信息/铁路信息为空，航班号/车次号:{}，主单号:{}，发货日期:{}"
+                ,sendRegister.getTransportName(),sendRegister.getOrderCode(),DateHelper.formatDate(sendRegister.getSendDate()));
             }
         } catch (Exception e) {
-            logger.error("[空铁发货登记]调用TMS运输接口获取运输信息时发生异常", e);
+            log.error("[空铁发货登记]调用TMS运输接口获取运输信息时发生异常：{}",JsonHelper.toJson(sendRegister), e);
         }
     }
 
@@ -682,7 +685,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                     return calendar.getTime();
                 }
             }
-            logger.warn("[空铁发货登记]获取预计出发/抵达时间异常，发车时间格式错误");
+            log.warn("[空铁发货登记]获取预计出发/抵达时间异常，发车时间格式错误:{}",time);
         }
         return null;
     }
@@ -720,7 +723,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
             if (dateStr.indexOf(DATE_SEPARATOR) > 0) {
                 return DateHelper.parseDate(dateStr, "yyyy-MM-dd");
             }
-            logger.warn("[空铁发货登记]离线worker获取PDA起飞/发车时间格式错误");
+            log.warn("[空铁发货登记]离线worker获取PDA起飞/发车时间格式错误:{}",dateStr);
         }
         return null;
     }
@@ -735,10 +738,9 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         try {
             BaseStaffSiteOrgDto siteDto = baseMajorManager.getBaseSiteBySiteId(arSendRegister.getOperationDeptCode());
             if (siteDto == null) {
-                logger.warn("[运输类型=" + ArTransportTypeEnum.getEnum(arSendRegister.getTransportType())
-                        + "][运力名称=" + arSendRegister.getTransportName() + "][航空单号=" + arSendRegister.getOrderCode()
-                        + "][铁路站序=" + arSendRegister.getSiteOrder() + "]根据[siteCode=" + arSendRegister.getOperationDeptCode()
-                        + "]获取基础资料站点信息[getBaseSiteBySiteId]返回null,[空铁发货登记]不能回传全程跟踪");
+                log.warn("[运输类型={}][运力名称={}][航空单号={}][铁路站序={}]根据[siteCode={}]获取基础资料站点信息[getBaseSiteBySiteId]返回null,[空铁发货登记]不能回传全程跟踪"
+                        ,ArTransportTypeEnum.getEnum(arSendRegister.getTransportType()),arSendRegister.getTransportName(),arSendRegister.getOrderCode()
+                        ,arSendRegister.getSiteOrder(),arSendRegister.getOperationDeptCode());
             } else {
                 for (String sendCode : sendCodes) {
                     try {
@@ -749,16 +751,15 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                         // 添加到task表
                         taskService.add(toTask(waybillStatus));
                     } catch (Exception e) {
-                        logger.error("[SendCode=" + sendCode + "][TransportName=" + arSendRegister.getTransportName()
-                                + "][空铁发货登记]回传全程跟踪出现异常");
+                        log.error("[SendCode={}][TransportName={}][空铁发货登记]回传全程跟踪出现异常"
+                            ,sendCode,arSendRegister.getTransportName());
                     }
                 }
             }
         } catch (Exception e) {
-            logger.error("[运输类型=" + ArTransportTypeEnum.getEnum(arSendRegister.getTransportType())
-                    + "][运力名称=" + arSendRegister.getTransportName() + "][航空单号=" + arSendRegister.getOrderCode()
-                    + "][铁路站序=" + arSendRegister.getSiteOrder() + "]根据[siteCode=" + arSendRegister.getOperationDeptCode()
-                    + "][空铁发货登记]回传全程跟踪出现异常");
+            log.error("[运输类型={}][运力名称={}][航空单号={}][铁路站序={}]根据[siteCode={}][空铁发货登记]回传全程跟踪出现异常\""
+                    ,ArTransportTypeEnum.getEnum(arSendRegister.getTransportType()),arSendRegister.getTransportName(),arSendRegister.getOrderCode()
+                    ,arSendRegister.getSiteOrder(),arSendRegister.getOperationDeptCode(),e);
         }
     }
 
@@ -823,13 +824,13 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
 
             arSendReportMQ.send(arSendRegister.getTransCompanyCode(),JsonHelper.toJson(arSendRegister));
         } catch (JMQException e) {
-            logger.error("空铁发货登记报表数据发送异常orderCode[{}]sendCodes[{}]",arSendRegister.getOrderCode(), Joiner.on(",").join(sendCodes),e);
+            log.error("空铁发货登记报表数据发送异常orderCode[{}]sendCodes[{}]",arSendRegister.getOrderCode(), Joiner.on(",").join(sendCodes),e);
         }
     }
 
     private void sendDetailMQTask(ArSendRegister arSendRegister, String[] sendCodes) {
         if (sendCodes.length == 0) {
-            logger.error("空铁发货登记批次号为空");
+            log.warn("空铁发货登记批次号为空");
             return;
         }
         Task tTask = new Task();
