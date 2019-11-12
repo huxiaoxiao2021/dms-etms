@@ -385,4 +385,11 @@
         and is_delete = 0
     </select>
 
+	<select id="findCollectGoodsDetailByPackageCode" parameterType="java.lang.String" resultMap="CollectGoodsDetail">
+		select
+		<include refid="Base_Column_List"/>
+		from collect_goods_detail
+		where
+		package_code = #{packageCode,jdbcType=VARCHAR}
+	</select>
 </mapper>
