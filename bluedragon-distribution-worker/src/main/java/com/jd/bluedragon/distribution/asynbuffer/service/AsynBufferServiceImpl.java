@@ -32,8 +32,8 @@ import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -45,7 +45,7 @@ import java.util.List;
  * Created by xumei3 on 2017/4/17.
  */
 public class AsynBufferServiceImpl implements AsynBufferService {
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private static final String SPLIT_CHAR = "$";
     private static final Type LIST_INSPECTIONREQUEST_TYPE =
@@ -64,9 +64,7 @@ public class AsynBufferServiceImpl implements AsynBufferService {
         try {
         	return receiveTaskExecutor.execute(task, task.getOwnSign());
         } catch (Exception e) {
-            logger.error(
-                    "处理收货任务失败[taskId=" + task.getId() + "]异常信息为："
-                            + e.getMessage(), e);
+            log.error("处理收货任务失败[taskId={}]异常",task.getId(), e);
             return false;
         }
     }
@@ -80,7 +78,7 @@ public class AsynBufferServiceImpl implements AsynBufferService {
 		CallerInfo callerInfo = ProfilerHelper.registerInfo("DmsWorker.Task.InspectionTask.execute",
 				Constants.UMP_APP_NAME_DMSWORKER);
         try {
-            logger.info("验货work开始，task_id: " + task.getId());
+            log.info("验货work开始，task_id: {}" , task.getId());
             if (task == null || StringUtils.isBlank(task.getBody())) {
                 return true;
             }
@@ -101,7 +99,7 @@ public class AsynBufferServiceImpl implements AsynBufferService {
             sb.append(SPLIT_CHAR).append(task.getBoxCode());
             sb.append(SPLIT_CHAR).append(task.getKeyword1());
             sb.append(SPLIT_CHAR).append(task.getKeyword2());
-            logger.warn(sb.toString());
+            log.warn(sb.toString());
 
             return false;
         }catch (WayBillCodeIllegalException wayBillCodeIllegalEx){
@@ -110,11 +108,11 @@ public class AsynBufferServiceImpl implements AsynBufferService {
             sb.append(SPLIT_CHAR).append(task.getBoxCode());
             sb.append(SPLIT_CHAR).append(task.getKeyword1());
             sb.append(SPLIT_CHAR).append(task.getKeyword2());
-            logger.warn(sb.toString());
+            log.warn(sb.toString());
             return false;
         }catch (Exception e) {
         	Profiler.functionError(callerInfo);
-            logger.error("验货worker失败, task id: " + task.getId() + ". 异常信息: " + e.getMessage(), e);
+            log.error("验货worker失败, task id: {}. 异常" ,task.getId() , e);
             return false;
         }finally{
         	Profiler.registerInfoEnd(callerInfo);
@@ -160,7 +158,7 @@ public class AsynBufferServiceImpl implements AsynBufferService {
         try {
             partnerWaybillService.doWayBillCodesProcessed(taskList);
         } catch (Exception e) {
-            logger.error("处理运单号关联包裹数据时发生异常", e);
+            log.error("处理运单号关联包裹数据时发生异常:{}",JsonHelper.toJson(task), e);
             return false;
         }
         return true;
@@ -251,11 +249,10 @@ public class AsynBufferServiceImpl implements AsynBufferService {
     public boolean weightTaskProcess(Task task) throws Exception{
         boolean result = Boolean.FALSE;
         try {
-            this.logger.info("task id is " + task.getId());
+            this.log.info("task id is {}" , task.getId());
             result = this.weightService.doWeightTrack(task);
         } catch (Exception e) {
-            this.logger.error("task id is" + task.getId());
-            this.logger.error("处理称重回传任务发生异常，异常信息为：" + e.getMessage(), e);
+            this.log.error("处理称重回传任务发生异常：{}" ,task.getId(), e);
             return Boolean.FALSE;
         }
         return result;
@@ -293,14 +290,14 @@ public class AsynBufferServiceImpl implements AsynBufferService {
                 return deliveryService.doBoardDelivery(task);
             }else {
                 //没有找到对应的方法，提供报错信息
-                this.logger.error("task id is " + task.getId()+"can not find process method");
+                this.log.error("task id is {} can not find process method",task.getId());
             }
             return false;
 
         }finally {
             Long runTime = System.currentTimeMillis() - startTime;
             if(runTime>3000){
-                //logger.error("send"+keyword1+":"+runTime+"ms|"+task.getBody());
+                //log.error("send"+keyword1+":"+runTime+"ms|"+task.getBody());
                 //写入自定义日志
                 BusinessLogProfiler businessLogProfiler = new BusinessLogProfiler();
                 businessLogProfiler.setSourceSys(Constants.BUSINESS_LOG_SOURCE_SYS_DMSWORKER);
@@ -332,7 +329,7 @@ public class AsynBufferServiceImpl implements AsynBufferService {
         try {
            return offlineCoreTaskExecutor.execute(task, task.getOwnSign());
         } catch (Exception e) {
-            logger.error("处理离线任务[offline]失败[taskId=" + task.getId() + "]异常信息为：" + e.getMessage(), e);
+            log.error("处理离线任务[offline]失败[taskId={}]",task.getId(), e);
             return false;
         }
     }
@@ -356,11 +353,10 @@ public class AsynBufferServiceImpl implements AsynBufferService {
     //平台打印补验货数据
     public boolean popPrintInspection(Task task) throws Exception{
         try {
-            this.logger.info("task id&type is " + task.getId()+"&"+task.getType());
+            this.log.info("task id&type is {} & {} ",task.getId(),task.getType());
             this.inspectionService.popPrintInspection(task,task.getOwnSign());
         } catch (Exception e) {
-            this.logger.error("task id is" + task.getId());
-            this.logger.error("平台打印补验货数据，异常信息为：" + e.getMessage(), e);
+            this.log.error("平台打印补验货数据异常：{}" ,task.getId(), e);
             return Boolean.FALSE;
         }
         return Boolean.TRUE;
