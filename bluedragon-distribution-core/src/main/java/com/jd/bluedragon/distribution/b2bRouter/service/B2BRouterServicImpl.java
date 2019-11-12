@@ -149,7 +149,7 @@ public class  B2BRouterServicImpl implements B2BRouterService{
                 list = b2bRouterDao.queryByCondition(params);
             }
         }catch (Exception e){
-            logger.error("根据查询条件获取路由信息失败.",e);
+            logger.error("根据查询B2BRouter信息失败.",e);
             throw e;
         }
         return list;
