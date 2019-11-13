@@ -6,6 +6,7 @@ import com.jd.bluedragon.external.crossbow.AbstractCrossbowManager;
 
 /**
  * <p>
+ *     全球购业务，调用卓志的预装载接口实现类
  *
  * @author wuzuxiang
  * @since 2019/11/8
