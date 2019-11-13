@@ -648,13 +648,14 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
     public InvokeResult<List<BoardDto>> createBoard(AddBoardRequest request){
 
         InvokeResult<List<BoardDto>> result = new InvokeResult<>();
+        result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+        result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
         List<BoardDto> boardDtoList = new ArrayList<>();
-        result.setData(new ArrayList<BoardDto>());
         Response<List<Board>> tcResponse = groupBoardManager.createBoards(request);
         if(tcResponse == null){
-            this.logger.error("建板失败，板号的目的地编号destinationId:"+ request.getDestinationId() +
-                    ",建板数量boardCount："+ request.getBoardCount() +",操作人operatorErp："+request.getOperatorErp());
-            result.parameterError("服务器异常！");
+            this.logger.error("建板失败,板号的目的地编号destinationId:"+ request.getDestinationId() +
+                    ",建板数量boardCount:"+ request.getBoardCount() +",操作人operatorErp:"+request.getOperatorErp());
+            result.parameterError("服务器异常");
             return result;
         }
         if(tcResponse.getCode() == 200 && tcResponse.getData() != null){
@@ -662,13 +663,15 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
             for(int j=0;j<tcResponse.getData().size();j++){
                 boardDtoList.add(boardToBoardDto(tcResponse.getData().get(j)));
             }
-            this.logger.info("建板成功，板号的目的地编号destinationId:"+ request.getDestinationId() +
-                    ",建板数量boardCount："+ request.getBoardCount() +",操作人operatorErp："+request.getOperatorErp());
+            this.logger.info("建板成功,板号的目的地编号destinationId:"+ request.getDestinationId() +
+                    ",建板数量boardCount:"+ request.getBoardCount() +",操作人operatorErp:"+request.getOperatorErp());
             result.setData(boardDtoList);
             return result;
         }
-        this.logger.error("建板失败，板号的目的地编号destinationId:"+ request.getDestinationId() +
-                ",建板数量boardCount："+ request.getBoardCount() +",操作人operatorErp："+request.getOperatorErp());
+        this.logger.error("建板失败,板号的目的地编号destinationId:"+ request.getDestinationId() +
+                ",建板数量boardCount:"+ request.getBoardCount() +",操作人operatorErp:"+request.getOperatorErp());
+        result.setCode(InvokeResult.SERVER_ERROR_CODE);
+        result.parameterError("服务器异常");
         return result;
     }
 
@@ -693,21 +696,24 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
     public InvokeResult<BoardDto> getBoard(String boardCode){
 
         InvokeResult<BoardDto> invokeResult = new InvokeResult<>();
+        invokeResult.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+        invokeResult.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
         Response<Board> tcResponse = groupBoardManager.getBoard(boardCode);
 
         if(tcResponse == null){
             this.logger.error("获取板信息失败，boardCode:" + boardCode);
+            invokeResult.setCode(InvokeResult.SERVER_ERROR_CODE);
             invokeResult.parameterError("服务器异常");
             return invokeResult;
         }
-        if(tcResponse != null && tcResponse.getCode() == 200 &&tcResponse.getData() != null){
+        if(tcResponse.getCode() == 200 &&tcResponse.getData() != null){
             this.logger.info("获取板信息成功，boardCode:" + boardCode);
             invokeResult.setMessage(tcResponse.getMesseage());
             invokeResult.setData(boardToBoardDto(tcResponse.getData()));
             return invokeResult;
         }
         this.logger.error("获取板信息失败，boardCode:" + boardCode);
-        invokeResult.setCode(tcResponse.getCode());
+        invokeResult.setCode(InvokeResult.SERVER_ERROR_CODE);
         invokeResult.setMessage(tcResponse.getMesseage());
         return invokeResult;
     }

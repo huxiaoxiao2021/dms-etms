@@ -211,12 +211,13 @@ public class BoardCombinationResource {
 
         InvokeResult<List<BoardDto>> invokeResult = new InvokeResult<>();
         if(request == null || request.getDestination() == null || request.getDestinationId() == null || request.getBoardCount() == null){
-            invokeResult.parameterError("填写参数错误");
+            invokeResult.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+            invokeResult.setMessage(InvokeResult.PARAM_ERROR);
             this.logger.error("建板请求的参数有误");
             return invokeResult;
         }
-        this.logger.info("建板请求的板号： " + request.getBoardCount() + ",场站sitecode:" + request.getSiteCode()
-                            + "目的地destinationId:" + request.getDestinationId());
+        this.logger.info("建板请求的板号数量:" + request.getBoardCount() + ",场站sitecode:" + request.getSiteCode()
+                            + ",目的地destinationId:" + request.getDestinationId());
         return boardCombinationService.createBoard(request);
     }
 
@@ -224,7 +225,11 @@ public class BoardCombinationResource {
     @Path("/boardLablePrint/getBoard/{boardCode}")
     public InvokeResult<BoardDto> getBoard(@PathParam("boardCode") String boardCode){
         if(boardCode == null){
-            this.logger.info("请求的板号为空");
+            this.logger.error("请求的板号为空");
+            InvokeResult<BoardDto> invokeResult = new InvokeResult<>();
+            invokeResult.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+            invokeResult.setMessage(InvokeResult.PARAM_ERROR);
+            return invokeResult;
         }
         this.logger.info("请求板信息的板号为：" + boardCode);
         return boardCombinationService.getBoard(boardCode);
