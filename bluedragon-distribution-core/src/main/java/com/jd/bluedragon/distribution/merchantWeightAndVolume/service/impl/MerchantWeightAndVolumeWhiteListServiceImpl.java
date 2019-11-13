@@ -22,7 +22,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述信息
@@ -35,11 +37,17 @@ public class MerchantWeightAndVolumeWhiteListServiceImpl implements MerchantWeig
 
     private final Logger logger = Logger.getLogger(this.getClass());
 
+    @Value("${merchant.whiteList.import.maxNum:1000}")
+    private Integer importMaxNum;
+
     @Value("${merchant.whiteList.export.maxNum:5000}")
     private Integer exportMaxNum;
 
-    private static final Integer INPORT_MAX_NUM = 1000;
-    private static final Integer MERCHANT_WHITELIST_MAX_NUM = 5000;
+    /**
+     * 导入导出最大值
+     * */
+    private static final Integer MERCHANT_WHITELIST_IMPORT_MAX_NUM = 1000;
+    private static final Integer MERCHANT_WHITELIST_EXPORT_MAX_NUM = 5000;
 
     @Autowired
     private SiteService siteService;
@@ -89,8 +97,9 @@ public class MerchantWeightAndVolumeWhiteListServiceImpl implements MerchantWeig
         String errorMessage = null;
         try {
             if(dataList != null && dataList.size() > 0){
-                if(dataList.size() > INPORT_MAX_NUM){
-                    errorMessage = "导入数据超出1000条";
+                if(dataList.size() >
+                        (importMaxNum==null?MERCHANT_WHITELIST_IMPORT_MAX_NUM:importMaxNum)){
+                    errorMessage = "导入数据超出"+importMaxNum+"条";
                     return errorMessage;
                 }
                 String createUserName = null;
@@ -100,6 +109,7 @@ public class MerchantWeightAndVolumeWhiteListServiceImpl implements MerchantWeig
                         createUserName = basestaffDto.getStaffName();
                     }
                 }
+                Map<String,MerchantWeightAndVolumeDetail> map = new HashMap<>();
                 int rowIndex = 1;
                 for(MerchantWeightAndVolumeDetail detail : dataList){
                     BaseStaffSiteOrgDto site = siteService.getSite(detail.getOperateSiteCode());
@@ -109,7 +119,7 @@ public class MerchantWeightAndVolumeWhiteListServiceImpl implements MerchantWeig
                     }else{
                         //商家判断
                         if(!merchantCheck(detail)){
-                            errorMessage = "第"+ rowIndex +"商家信息配置不正确!";
+                            errorMessage = "第"+ rowIndex +"行商家信息配置不正确!";
                             return errorMessage;
                         }
                         //站点判断
@@ -131,8 +141,12 @@ public class MerchantWeightAndVolumeWhiteListServiceImpl implements MerchantWeig
                     detail.setCreateErp(importErpCode);
                     detail.setCreateUserName(createUserName);
                     rowIndex ++;
+                    String uniqueKey = detail.getMerchantId() + "|" + detail.getOperateSiteCode();
+                    map.put(uniqueKey,detail);
                 }
-                merchantWeightAndVolumeWhiteListDao.batchInsert(dataList);
+                List<MerchantWeightAndVolumeDetail> realList = new ArrayList<>(map.size());
+                realList.addAll(map.values());
+                merchantWeightAndVolumeWhiteListDao.batchInsert(realList);
             }
         }catch (Exception e){
             logger.error("导入失败!",e);
@@ -156,7 +170,7 @@ public class MerchantWeightAndVolumeWhiteListServiceImpl implements MerchantWeig
         heads.add("创建人");
         heads.add("创建时间");
         resList.add(heads);
-        condition.setLimit(exportMaxNum==null?MERCHANT_WHITELIST_MAX_NUM:exportMaxNum);
+        condition.setLimit(exportMaxNum==null?MERCHANT_WHITELIST_EXPORT_MAX_NUM:exportMaxNum);
         List<MerchantWeightAndVolumeDetail> dataList = merchantWeightAndVolumeWhiteListDao.exportByCondition(condition);
         if(dataList != null && dataList.size() > 0){
             //表格信息

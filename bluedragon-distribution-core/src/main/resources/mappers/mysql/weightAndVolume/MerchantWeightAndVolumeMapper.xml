@@ -151,6 +151,9 @@
 		</if>
 		<if test="siteCode != null">
 			and operate_site_code = #{siteCode,jdbcType=BIGINT}
+			<if test="inputSiteCode != null">
+				or operate_site_code = #{inputSiteCode,jdbcType=BIGINT}
+			</if>
 		</if>
 		<if test="siteCode == null">
 			<if test="inputSiteCode != null">
