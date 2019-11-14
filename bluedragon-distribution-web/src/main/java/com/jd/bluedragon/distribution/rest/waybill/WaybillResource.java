@@ -1956,7 +1956,13 @@ public class WaybillResource {
 	public InvokeResult<String> findPackByBusiIdAndBusiCode(@PathParam("busiId") Integer busiId,@PathParam("busiCode") String busiCode){
 		InvokeResult<String> result = new InvokeResult<String>();
 		try{
-			result.setData(eclpPackageApiService.queryPackage(busiId,busiCode));
+			String packCode = eclpPackageApiService.queryPackage(busiId,busiCode);
+			if(StringUtils.isBlank(packCode)){
+				result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
+				result.setMessage("未获取到运单数据。请确认商家ID和商家单号是否正确！");
+			}else{
+				result.setData(eclpPackageApiService.queryPackage(busiId,busiCode));
+			}
 		}catch (Exception e){
 			logger.error(MessageFormat.format("根据商家ID和商家单号获取包裹号异常{0}|{1}",busiId,busiCode),e);
 			result.setCode(InvokeResult.SERVER_ERROR_CODE);
