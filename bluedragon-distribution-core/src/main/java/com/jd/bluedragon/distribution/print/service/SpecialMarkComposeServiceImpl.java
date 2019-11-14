@@ -124,5 +124,8 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
                 && BusinessUtil.isSignInChars(waybill.getSendPay(),108,'1','2','3')) {
             waybill.appendSpecialMark(SPECIAL_MARK_SOLD_INTO_PACKAGE);
         }
+        if(BusinessUtil.isC2CJZD(waybill.getWaybillSign())){
+            waybill.appendSpecialMark(TextConstants.TEXT_JZD_SPECIAL_MARK);
+        }
     }
 }
