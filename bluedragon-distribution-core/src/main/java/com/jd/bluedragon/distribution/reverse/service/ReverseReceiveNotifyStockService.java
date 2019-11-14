@@ -21,7 +21,7 @@ import com.jd.bluedragon.distribution.reverse.domain.ReceiveRequest;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
 import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.ContantsEnum;
+import com.jd.bluedragon.utils.ConstantEnums;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -301,7 +301,7 @@ public class ReverseReceiveNotifyStockService {
         if(CHUGUAN_FIELD_QITAFANGSHI.equals(kuguanDomain.getLblOtherWay())){
             return Boolean.TRUE;
         }
-        if(ContantsEnum.ChuGuanTypeId.hasTypeId(kuguanDomain.getTypeId())){
+        if(ConstantEnums.ChuGuanTypeId.hasTypeId(kuguanDomain.getTypeId())){
             return Boolean.TRUE;
         }
         return Boolean.FALSE;
@@ -327,16 +327,16 @@ public class ReverseReceiveNotifyStockService {
         List<ChuguanParam> chuGuanParamList = Lists.newArrayList();// 需要放两个 一个出一个入；他们会根据 typeId 区分
 
         //入
-        ContantsEnum.ChuGuanChuruId chuGuanParam = isPrePay(payType) ? ContantsEnum.ChuGuanChuruId.IN_KU : ContantsEnum.ChuGuanChuruId.OUT_KU;
+        ConstantEnums.ChuGuanChuruId chuGuanParam = isPrePay(payType) ? ConstantEnums.ChuGuanChuruId.IN_KU : ConstantEnums.ChuGuanChuruId.OUT_KU;
 
-        ContantsEnum.ChuGuanTypeId inTypeId = isPrePay(payType) ? ContantsEnum.ChuGuanTypeId.REVERSE_LOGISTICS_MONEY_REJECTION :
-                ContantsEnum.ChuGuanTypeId.REVERSE_LOGISTICS_GOODS_REJECTION;
+        ConstantEnums.ChuGuanTypeId inTypeId = isPrePay(payType) ? ConstantEnums.ChuGuanTypeId.REVERSE_LOGISTICS_MONEY_REJECTION :
+                ConstantEnums.ChuGuanTypeId.REVERSE_LOGISTICS_GOODS_REJECTION;
 
-        ContantsEnum.ChuGuanFenLei chuGuanFenLei = isPrePay(payType) ? ContantsEnum.ChuGuanFenLei.RETURN_GOODS : ContantsEnum.ChuGuanFenLei.PUT_GOODS;
+        ConstantEnums.ChuGuanFenLei chuGuanFenLei = isPrePay(payType) ? ConstantEnums.ChuGuanFenLei.RETURN_GOODS : ConstantEnums.ChuGuanFenLei.PUT_GOODS;
         BigDecimal zongJinE = isPrePay(payType) ? orderBank.getShouldPay() : orderBank.getShouldPay().negate();
         ChuguanParam inChuguanParam = getChuguanParam(waybillCode,
-                getRfid(waybillCode,inTypeId,ContantsEnum.ChuGuanRfId.IN),isOldForNewType, order,  payType, orderBank,
-                ContantsEnum.ChuGuanRfType.IN,
+                getRfid(waybillCode,inTypeId,ConstantEnums.ChuGuanRfId.IN),isOldForNewType, order,  payType, orderBank,
+                ConstantEnums.ChuGuanRfType.IN,
                 chuGuanParam,
                 inTypeId,
                 chuGuanFenLei,
@@ -346,13 +346,13 @@ public class ReverseReceiveNotifyStockService {
         inChuguanParam.setChuguanDetailVoList(intChuguanDetailVoList);
 
         //出
-        ContantsEnum.ChuGuanTypeId outTypeId = ContantsEnum.ChuGuanTypeId.REVERSE_LOGISTICS_OUT;
+        ConstantEnums.ChuGuanTypeId outTypeId = ConstantEnums.ChuGuanTypeId.REVERSE_LOGISTICS_OUT;
         ChuguanParam outChuguanParam = getChuguanParam(waybillCode,
-                getRfid(waybillCode,outTypeId,ContantsEnum.ChuGuanRfId.OUT),isOldForNewType, order,  payType, orderBank,
-                ContantsEnum.ChuGuanRfType.Out,
-                ContantsEnum.ChuGuanChuruId.OUT_KU,
+                getRfid(waybillCode,outTypeId,ConstantEnums.ChuGuanRfId.OUT),isOldForNewType, order,  payType, orderBank,
+                ConstantEnums.ChuGuanRfType.Out,
+                ConstantEnums.ChuGuanChuruId.OUT_KU,
                 outTypeId,
-                ContantsEnum.ChuGuanFenLei.OTHER,
+                ConstantEnums.ChuGuanFenLei.OTHER,
                 BigDecimal.valueOf(0),
                 orderBank.getShouldPay());
         List<ChuguanDetailVo> outChuguanDetailVoList = getOutChuguanDetailVoList(products);
@@ -363,7 +363,7 @@ public class ReverseReceiveNotifyStockService {
         return chuguanExportManager.insertChuguan(chuGuanParamList);
     }
 
-    private String getRfid(Long waybillCode,ContantsEnum.ChuGuanTypeId typeId,ContantsEnum.ChuGuanRfId chuGuanRfId) {
+    private String getRfid(Long waybillCode,ConstantEnums.ChuGuanTypeId typeId,ConstantEnums.ChuGuanRfId chuGuanRfId) {
         return JING_BAN_SYSCODE.concat("-").concat(String.valueOf(waybillCode)).concat("-")
                 .concat(typeId.getType().toString()).concat("-").concat(chuGuanRfId.getText());
     }
@@ -375,8 +375,8 @@ public class ReverseReceiveNotifyStockService {
      * @return
      */
     private ChuguanParam getChuguanParam(Long waybillCode,String rfid,boolean isOldForNewType, Order order, Integer payType,
-                                         OrderBankResponse orderBank, ContantsEnum.ChuGuanRfType rfType, ContantsEnum.ChuGuanChuruId churu, ContantsEnum.ChuGuanTypeId typeId,
-                                         ContantsEnum.ChuGuanFenLei fenLei,BigDecimal qiTaFeiYong,
+                                         OrderBankResponse orderBank, ConstantEnums.ChuGuanRfType rfType, ConstantEnums.ChuGuanChuruId churu, ConstantEnums.ChuGuanTypeId typeId,
+                                         ConstantEnums.ChuGuanFenLei fenLei,BigDecimal qiTaFeiYong,
                                          BigDecimal zongJinE) {
         ChuguanParam chuguanParam = new ChuguanParam();
         chuguanParam.setRfId(rfid);
@@ -670,10 +670,10 @@ public class ReverseReceiveNotifyStockService {
 			churu = domain.getLblWay();
 			feifei = domain.getLblType();
 			qite = new BigDecimal(domain.getLblOther());
-			if (ContantsEnum.ChuGuanChuruId.OUT_KU.getText().equals(churu)
-                    && ContantsEnum.ChuGuanFenLei.PUT_GOODS.getText().equals(feifei) && (new BigDecimal(0).compareTo(qite) == 0)) {
+			if (ConstantEnums.ChuGuanChuruId.OUT_KU.getText().equals(churu)
+                    && ConstantEnums.ChuGuanFenLei.PUT_GOODS.getText().equals(feifei) && (new BigDecimal(0).compareTo(qite) == 0)) {
 				result = PAY_TYPE_POST;
-			} else if (ContantsEnum.ChuGuanChuruId.OUT_KU.getText().equals(churu) && ContantsEnum.ChuGuanFenLei.SALE.getText().equals(feifei)) {
+			} else if (ConstantEnums.ChuGuanChuruId.OUT_KU.getText().equals(churu) && ConstantEnums.ChuGuanFenLei.SALE.getText().equals(feifei)) {
 				result = PAY_TYPE_PRE;
 			}
 			// 异常情况日志记录方便定位问题

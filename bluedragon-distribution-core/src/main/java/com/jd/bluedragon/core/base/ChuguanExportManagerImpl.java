@@ -2,6 +2,7 @@ package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.kuguan.domain.KuGuanDomain;
+import com.jd.bluedragon.utils.ConstantEnums;
 import com.jd.bluedragon.utils.ContantsEnum;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -98,7 +99,7 @@ public class ChuguanExportManagerImpl implements ChuguanExportManager{
      * @param businessNo 业务单号 可能是订单号
      * @return
      */
-    private List<ChuguanVo> getFullStockByBusinNo(String businessNo,ContantsEnum.ChuGuanTypeId chuGuanTypeId) {
+    private List<ChuguanVo> getFullStockByBusinNo(String businessNo,ConstantEnums.ChuGuanTypeId chuGuanTypeId) {
         CallerInfo info = Profiler.registerInfo("DMS.BASE.ChuguanExportManagerImpl.queryChuGuan", Constants.UMP_APP_NAME_DMSWEB, false, true);
         List<ChuguanVo> result = null;
             ChuguanQueryParam chuguanQueryParam = new ChuguanQueryParam();
@@ -137,9 +138,9 @@ public class ChuguanExportManagerImpl implements ChuguanExportManager{
     public KuGuanDomain queryByOrderCode(String orderCode,String lKdanhao) {
 
         //由于库管限制了 typeId业务类型Id。如果需要查询逆向物流场景的数据，那就把所有的typeId 枚举的场景都查询一遍。因为不确定 写入库管 的TypeId 是什么
-        List<ChuguanVo> chuguanVos = getFullStockByBusinNo(orderCode,ContantsEnum.ChuGuanTypeId.REVERSE_LOGISTICS_GOODS_REJECTION);
+        List<ChuguanVo> chuguanVos = getFullStockByBusinNo(orderCode,ConstantEnums.ChuGuanTypeId.REVERSE_LOGISTICS_GOODS_REJECTION);
         if(chuguanVos == null){
-            chuguanVos = getFullStockByBusinNo(orderCode,ContantsEnum.ChuGuanTypeId.REVERSE_LOGISTICS_MONEY_REJECTION);
+            chuguanVos = getFullStockByBusinNo(orderCode,ConstantEnums.ChuGuanTypeId.REVERSE_LOGISTICS_MONEY_REJECTION);
         }
         KuGuanDomain domain = null;
         if (chuguanVos != null && !chuguanVos.isEmpty()) {
