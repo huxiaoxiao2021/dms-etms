@@ -61,7 +61,7 @@
             </property>
     </bean>
 
-    <!--  拼多多面单打印信息获取接口  -->
+    <!--  卓志全球购业务的预装载接口  -->
     <bean id="globalTradeBusinessManager" class="com.jd.bluedragon.external.crossbow.globalTrade.manager.GlobalTradeBusinessManager">
         <property name="crossbowConfig">
             <bean class="com.jd.bluedragon.core.crossbow.CrossbowConfig">
