@@ -1160,6 +1160,12 @@
 			<version>1.0.1-SNAPSHOT</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.jd.ldop.oms</groupId>
+			<artifactId>ldop-oms-api</artifactId>
+			<version>1.0.39-SNAPSHOT</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>

@@ -31,6 +31,7 @@ import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.cross.domain.CrossSortingDto;
 import com.jd.bluedragon.distribution.cross.service.CrossSortingService;
+import com.jd.bluedragon.distribution.eclpPackage.service.EclpPackageApiService;
 import com.jd.bluedragon.distribution.fastRefund.service.WaybillCancelClient;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
@@ -110,6 +111,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -172,6 +174,9 @@ public class WaybillResource {
 	@Autowired
 	@Qualifier("ldopManager")
 	private LDOPManager ldopManager;
+
+	@Autowired
+	private EclpPackageApiService eclpPackageApiService;
 
     @Autowired
     private WaybillService waybillService;
@@ -1926,12 +1931,34 @@ public class WaybillResource {
 	 */
 	@GET
 	@Path("/waybill/findByBusiCode/{busiId}/{busiCode}")
+	@Deprecated
 	public InvokeResult<String> findWaybillByBusiIdAndBusiCode(@PathParam("busiId") String busiId,@PathParam("busiCode") String busiCode){
 		InvokeResult<String> result = new InvokeResult<String>();
 		try{
 			result = ldopManager.findWaybillCodeByBusiIdAndBusiCode(busiId,busiCode);
 		}catch (Exception e){
 			logger.error("根据商家ID和商家单号获取运单号异常"+busiId+" "+busiCode,e);
+			result.setCode(InvokeResult.SERVER_ERROR_CODE);
+			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
+		}
+		return result;
+	}
+
+	/**
+	 * 根据商家ID和商家单号 获取包裹号
+	 * @param busiId 商家ID
+	 * @param busiCode 商家单号
+	 *
+	 * @return 运单号
+	 */
+	@GET
+	@Path("/waybill/findPackByBusiCode/{busiId}/{busiCode}")
+	public InvokeResult<String> findPackByBusiIdAndBusiCode(@PathParam("busiId") Integer busiId,@PathParam("busiCode") String busiCode){
+		InvokeResult<String> result = new InvokeResult<String>();
+		try{
+			result.setData(eclpPackageApiService.queryPackage(busiId,busiCode));
+		}catch (Exception e){
+			logger.error(MessageFormat.format("根据商家ID和商家单号获取包裹号异常{0}|{1}",busiId,busiCode),e);
 			result.setCode(InvokeResult.SERVER_ERROR_CODE);
 			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
 		}
