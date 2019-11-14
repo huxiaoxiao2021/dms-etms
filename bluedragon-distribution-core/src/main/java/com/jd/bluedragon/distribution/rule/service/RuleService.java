@@ -22,5 +22,4 @@ public interface RuleService {
     List<Rule>  queryByParamNoPage(Map map);
 
     Integer addRuleByReferSite(Integer siteCode, Integer referSiteCode);
-
 }

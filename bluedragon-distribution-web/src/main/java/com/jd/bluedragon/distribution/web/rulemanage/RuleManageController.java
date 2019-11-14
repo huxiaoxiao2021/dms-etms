@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
 @Controller
 @RequestMapping("/ruleManage")
 public class RuleManageController {
@@ -26,7 +27,7 @@ public class RuleManageController {
 	
 	@Autowired
 	private RuleService ruleService;
-	
+
 	/**
 	 * 
 	 * @return
@@ -47,7 +48,7 @@ public class RuleManageController {
 			checkId(rule);
 			logger.info("编辑规则-准备调用服务进行查询 id = " + rule.getRuleId());
 			Rule result = ruleService.queryById(rule.getRuleId());
-			logger.info("查询规则数据");			
+			logger.info("查询规则数据");
 			model.addAttribute("rulemanagequeryDto",result);
 		}catch (Exception e) {
 			logger.error("查询规则数据失败",e);
@@ -70,7 +71,7 @@ public class RuleManageController {
 			ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
 			rule.setUpdateUser(erpUser == null ? StringUtils.EMPTY : erpUser.getUserName());
 			ruleService.update(rule);
-			logger.info("更新规则成功");	
+			logger.info("更新规则成功");
 			model.addAttribute("successmsg","规则更新成功，请重新查询");
 			return "ruleManage/rule_list";
 		}catch (Exception e) {
