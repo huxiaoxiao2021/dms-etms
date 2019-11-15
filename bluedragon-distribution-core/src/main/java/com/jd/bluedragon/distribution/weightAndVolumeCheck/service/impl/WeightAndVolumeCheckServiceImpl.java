@@ -421,6 +421,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         weightVolumeCollectDto.setReviewWeight(reviewWeightStr);
         weightVolumeCollectDto.setReviewVolume(reviewVolume);
 
+        abnormalResultMq.setSource(SystemEnum.DMS.getCode());
         abnormalResultMq.setBusinessType(1);
         abnormalResultMq.setReviewLength(reviewLengthStr);
         abnormalResultMq.setReviewWidth(reviewWidthStr);

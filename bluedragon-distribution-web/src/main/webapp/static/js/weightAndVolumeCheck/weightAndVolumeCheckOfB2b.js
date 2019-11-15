@@ -491,6 +491,9 @@ function showAllPackage(){
             field: 'weight',
             title: '重量/公斤',
             align: 'center',
+            formatter: function (value, row, index) {
+                return value = "待录入";
+            },
             editable: {
                 type: 'text',
                 validate: function (value) {
@@ -510,6 +513,9 @@ function showAllPackage(){
             field: 'length',
             title: '长/厘米',
             align: 'center',
+            formatter: function (value, row, index) {
+                return value = "待录入";
+            },
             editable: {
                 type: 'text',
                 validate: function (value) {
@@ -529,6 +535,9 @@ function showAllPackage(){
             field: 'width',
             title: '宽/厘米',
             align: 'center',
+            formatter: function (value, row, index) {
+                return value = "待录入";
+            },
             editable: {
                 type: 'text',
                 validate: function (value) {
@@ -548,6 +557,9 @@ function showAllPackage(){
             field: 'height',
             title: '高/厘米',
             align: 'center',
+            formatter: function (value, row, index) {
+                return value = "待录入";
+            },
             editable: {
                 type: 'text',
                 validate: function (value) {
