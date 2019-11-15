@@ -4,6 +4,9 @@ import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.mybatis.spring.SqlSessionTemplate;
 
 import java.util.HashMap;
 import java.util.List;
@@ -14,6 +17,16 @@ public class LoadBillDao extends BaseDao<LoadBill> {
 	private final Log logger = LogFactory.getLog(this.getClass());
 
 	private static final String namespace = LoadBillDao.class.getName();
+
+	private SqlSessionTemplate sqlSessionTemplate;
+
+	public SqlSessionTemplate getSqlSessionTemplate() {
+		return sqlSessionTemplate;
+	}
+
+	public void setSqlSessionTemplate(SqlSessionTemplate sqlSessionTemplate) {
+		this.sqlSessionTemplate = sqlSessionTemplate;
+	}
 
 	public int updateLoadBillStatus(Map<String, Object> loadBillStatusMap) {
 		logger.info("LoadBillDao.updateLoadBillStatus loadId is " + loadBillStatusMap.get("loadIdList").toString());
@@ -73,10 +86,29 @@ public class LoadBillDao extends BaseDao<LoadBill> {
 	}
 
 	public int batchAdd(List<LoadBill> loadBills) {
+		int result = 0;
 		if (loadBills != null && loadBills.size() > 0) {
-			return this.getSqlSession().insert(LoadBillDao.namespace + ".batchAdd", loadBills);
+			SqlSession batchSession = null;
+			try {
+				batchSession = getSqlSessionTemplate().getSqlSessionFactory().openSession(ExecutorType.BATCH, false);
+				for (int i = 0; i < loadBills.size(); i++) {
+					result += batchSession.insert(LoadBillDao.namespace + ".add", loadBills.get(i));
+				}
+				batchSession.commit();
+				batchSession.clearCache();
+			} catch (Exception e) {
+				if (batchSession != null) {
+					batchSession.rollback();
+				}
+				logger.error("[全球购]批量新增LoadBill时发生异常", e);
+				throw e;
+			} finally {
+				if (batchSession != null) {
+					batchSession.close();
+				}
+			}
 		}
-		return 0;
+		return result;
 	}
 
 	public int update(LoadBill lb) {
