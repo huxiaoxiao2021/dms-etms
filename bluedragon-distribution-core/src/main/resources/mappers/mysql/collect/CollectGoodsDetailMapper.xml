@@ -391,5 +391,6 @@
 		from collect_goods_detail
 		where
 		package_code = #{packageCode,jdbcType=VARCHAR}
+		and is_delete = 0
 	</select>
 </mapper>
