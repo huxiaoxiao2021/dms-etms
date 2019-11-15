@@ -147,6 +147,8 @@ public class MerchantWeightAndVolumeWhiteListServiceImpl implements MerchantWeig
                 List<MerchantWeightAndVolumeDetail> realList = new ArrayList<>(map.size());
                 realList.addAll(map.values());
                 merchantWeightAndVolumeWhiteListDao.batchInsert(realList);
+            }else {
+                errorMessage = "导入条数大于1000条,请重新上传数据导入!";
             }
         }catch (Exception e){
             logger.error("导入失败!",e);

@@ -8,9 +8,8 @@
     <meta http-equiv="expires" content="0">
     #parse("system/common/baseImport.vm")
     <link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/jquery.autocomplete.css" />
-##    <script type="text/javascript" src="#springUrl('/static/js/plugins/jquery.blockUI.js')"></script>
     <script type="text/javascript" src="#springUrl('')/static/js/jquery-plugins/jquery.autocomplete.js"></script>
-    <script src="/static/js/busiWeightAndVolume/merchantWeightAndVolumeWhiteList.js"></script>
+    <script src="/static/js/merchantWeightAndVolume/merchantWeightAndVolumeWhiteList.js"></script>
 </head>
 <body>
 <input type="hidden" id="loginUserOrgId" value="$!{orgId}"/>

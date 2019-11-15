@@ -195,7 +195,6 @@ $(function () {
         });
     }
     initOrg();
-    // initMerchant();
     tableInit().init();
     pageInit().init();
     initExport(tableInit());
@@ -252,7 +251,7 @@ function initOrg() {
                 var orgId = $("#org-select").val();
                 if (orgId) {
                     var siteListUrl = '/services/bases/dms/' + orgId;
-                    findSite("#site-select", siteListUrl, "#query-form #createSiteCode");
+                    findSite("#site-select", siteListUrl, "#query-form #siteCode");
                 }
             });
             $("#site-select").on("change", function (e) {
@@ -305,32 +304,6 @@ function findSite(selectId,siteListUrl,initIdSelectId){
                 }
             }
             initLogin = false;
-        }
-    });
-}
-
-//加载商家下拉框
-function initMerchant() {
-    var url = "/merchantWeightAndVolume/whiteList/getAllMerchant?merchantName=" + $('#merchantName').val();
-    $.ajax({
-        type: 'GET',
-        contentType : 'application/json',
-        url : url,
-        dataType : 'json',
-        async : true,
-        success : function(result) {
-            if(result.code == 200){
-                debugger;
-                var list = result.data;
-                var params = [];
-                for(var i in list){
-                    var param = {};
-                    param.merchantCode = list[i]['code'];
-                    param.merchantName = list[i]['value'];
-                    params.push(param);
-                }
-                $('#merchantName').autocomplete('option', params);
-            }
         }
     });
 }
