@@ -11,6 +11,7 @@ import com.jcloud.jss.service.ObjectService;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BusinessFinanceManager;
+import com.jd.bluedragon.core.base.QuoteCustomerApiServiceManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
@@ -110,6 +111,9 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     @Autowired
     @Qualifier("dmsWeightVolumeExcess")
     private DefaultJMQProducer dmsWeightVolumeExcess;
+
+    @Autowired
+    private QuoteCustomerApiServiceManager quoteCustomerApiServiceManager;
 
 
     /**
@@ -339,7 +343,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 weightVolumeCollectDto.setBillingVolume(billingVolume);
             }
 
-            //复核重泡比
+/*            //复核重泡比
             Double reviewVolumeWeight =  keeTwoDecimals(reviewVolume/8000);
             if(reviewWeightStr > reviewVolumeWeight){
                 if(billingWeight == 0){
@@ -386,7 +390,49 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                         weightVolumeCollectDto.setVolumeWeightIsExcess(1);
                     }
                 }
+            }*/
+
+            //复核重泡比
+            Integer volumeRate = quoteCustomerApiServiceManager.queryVolumeRateByCustomerId(123);
+            if(volumeRate == null){
+                volumeRate = 8000;
             }
+            Double reviewVolumeWeight =  keeTwoDecimals(reviewVolume/volumeRate);
+            //maxReviewWeight为抽检重量与抽检体积重量中较大的
+            Double maxReviewWeight = reviewWeightStr > reviewVolumeWeight ? reviewWeightStr : reviewVolumeWeight;
+            if(billingWeight == 0 || billingVolume == 0){
+                result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+                result.setData(false);
+                result.setMessage("计费重量/体积为0或空，无法进行校验");
+                weightVolumeCollectDto.setIsExcess(1);
+            }else{
+                Double billVolumeWeight = keeTwoDecimals(billingVolume/volumeRate);
+                // maxBillingWeight为计费重量与计费体积重量中较大的。
+                Double maxBillingWeight = billingWeight > billingVolume ? billingWeight : billVolumeWeight;
+                // diffOfWeight为抽检中的较大质量与计费中的较大质量之间的差异
+                double diffOfWeight = Math.abs(keeTwoDecimals(maxReviewWeight - maxBillingWeight));
+                if((maxReviewWeight <= 5 && diffOfWeight> 0.3) || (maxReviewWeight > 5 && maxReviewWeight <= 20 && diffOfWeight> 0.5)
+                        || (maxReviewWeight > 20 && maxReviewWeight <= 50 && diffOfWeight> 1)
+                        || (maxReviewWeight > 50 && diffOfWeight > maxReviewWeight * 0.02)){
+                    result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+                    result.setData(false);
+                    result.setMessage("此次操作重量为"+maxReviewWeight+"kg,计费重量为"+billingWeight+"kg，"
+                            +"经校验误差值"+diffOfWeight+"kg已超出规定"+ (maxReviewWeight <=5 ? "0.3":maxReviewWeight<=20 ? "0.5":maxReviewWeight<=50 ? "1" : maxReviewWeight * 0.02)+"kg！");
+                    weightVolumeCollectDto.setIsExcess(1);
+                }
+            }
+
+            //判断体积重量是否超标
+            if(billingVolume == 0) weightVolumeCollectDto.setVolumeWeightIsExcess(1);
+            double diff = Math.abs(keeTwoDecimals(reviewVolume - billingVolume));
+            double diffOfVolume = diff==0.00 ? 0.01 : diff;
+            if((reviewVolume/volumeRate <= 5 && diffOfVolume/volumeRate> 0.3)
+                    || (reviewVolume/volumeRate > 5 && reviewVolume/volumeRate <= 20  && diffOfVolume/volumeRate > 0.5)
+                    || (reviewVolume/volumeRate > 20 && reviewVolume/volumeRate <= 50  && diffOfVolume/volumeRate > 1)
+                    || (reviewVolume/volumeRate > 50 && diffOfVolume/volumeRate > reviewVolume*0.02/volumeRate)){
+                weightVolumeCollectDto.setVolumeWeightIsExcess(1);
+            }
+
 
             weightVolumeCollectDto.setWeightDiff(new DecimalFormat("#0.00").format(reviewWeightStr - billingWeight));
             StringBuilder diffStandardOfWeight = new StringBuilder("");
@@ -400,19 +446,19 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 diffStandardOfWeight.append("重量:2%");
             }
 
-            weightVolumeCollectDto.setReviewVolumeWeight(getVolumeAndWeight(reviewVolume/8000));
-            weightVolumeCollectDto.setBillingVolumeWeight(getVolumeAndWeight(billingVolume/8000));
-            if(reviewVolume/8000 <= 5){
+            weightVolumeCollectDto.setReviewVolumeWeight(getVolumeAndWeight(reviewVolume/volumeRate));
+            weightVolumeCollectDto.setBillingVolumeWeight(getVolumeAndWeight(billingVolume/volumeRate));
+            if(reviewVolume/volumeRate <= 5){
                 diffStandardOfWeight.append("体积重量:0.3");
-            }else if(reviewVolume/8000 > 5 && reviewVolume/8000 <= 20){
+            }else if(reviewVolume/volumeRate > 5 && reviewVolume/volumeRate <= 20){
                 diffStandardOfWeight.append("体积重量:0.5");
-            }else if(reviewVolume/8000 > 20 && reviewVolume/8000 <= 50){
+            }else if(reviewVolume/volumeRate > 20 && reviewVolume/volumeRate <= 50){
                 diffStandardOfWeight.append("体积重量:1");
-            }else if(reviewVolume/8000 > 50){
+            }else if(reviewVolume/volumeRate > 50){
                 diffStandardOfWeight.append("体积重量:2%");
             }
             weightVolumeCollectDto.setDiffStandard(diffStandardOfWeight.toString());
-            weightVolumeCollectDto.setVolumeWeightDiff(new DecimalFormat("#0.00").format(reviewVolume/8000 - billingVolume/8000));
+            weightVolumeCollectDto.setVolumeWeightDiff(new DecimalFormat("#0.00").format(reviewVolume/volumeRate - billingVolume/volumeRate));
             setProductType(weightVolumeCollectDto);
             //将重量体积实体存入es中
             reportExternalService.insertOrUpdateForWeightVolume(weightVolumeCollectDto);

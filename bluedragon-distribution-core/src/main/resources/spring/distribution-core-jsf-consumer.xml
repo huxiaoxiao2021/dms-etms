@@ -523,4 +523,9 @@
                   protocol="jsf" alias="${jsf.jdwlSignService.alias}" timeout="${jsf.jdwlSignService.timeout}" retries="${jsf.retries}" >
     </jsf:consumer>
 
+    <jsf:consumer id="quoteCustomerApiService" interface="com.jd.etms.quote.api.QuoteCustomerApi"
+                  alias="${jsf.quoteCustomerApi.alias}" timeout="3000" protocol="jsf" serialization="hessian">
+        <jsf:parameter key="token" value="${jsf.quoteCustomerApi.token}" hide="true"/>
+    </jsf:consumer>
+
 </beans>
