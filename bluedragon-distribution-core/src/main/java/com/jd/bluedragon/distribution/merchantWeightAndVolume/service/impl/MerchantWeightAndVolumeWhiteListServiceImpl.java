@@ -94,6 +94,11 @@ public class MerchantWeightAndVolumeWhiteListServiceImpl implements MerchantWeig
         int delete = -1;
         try {
             delete = merchantWeightAndVolumeWhiteListDao.delete(detail);
+            if(delete == 1){
+                String redisKey
+                        = MessageFormat.format(CacheKeyConstants.CACHE_KEY_PRINT_BUSI_SITE,detail.getMerchantId(),detail.getOperateSiteCode());
+                jimdbCacheService.del(redisKey);
+            }
         }catch (Exception e){
             logger.error("删除失败"+ JsonHelper.toJson(delete),e);
         }
