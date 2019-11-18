@@ -151,6 +151,15 @@ public interface DeliveryService {
     DeliveryResponse dellDeliveryMessage(SendBizSourceEnum source, List<SendM> sendMList);
 
     /**
+     * 生成发货数据处理（带有操作锁）
+     *
+     * @param source    发货源
+     * @param sendMList 发货相关数据
+     * @return
+     */
+    DeliveryResponse dellDeliveryMessageWithLock(SendBizSourceEnum source, List<SendM> sendMList);
+
+    /**
      * 电子标签批量发货处理
      *
      * @param sendM 发货相关数据
@@ -350,13 +359,6 @@ public interface DeliveryService {
     List<SendDetail> queryBySendCodeAndSendType(String sendCode, Integer sendType);
 
     Integer cancelDelivery(SendDetail sendDetail);
-
-    /**
-     * 自动分拣批量发货处理
-     *
-     * @param sendMList 发货相关数据
-     */
-    DeliveryResponse autoBatchSend(List<SendM> sendMList);
 
     /**
      * 发送dms_send_detail发货明细MQ

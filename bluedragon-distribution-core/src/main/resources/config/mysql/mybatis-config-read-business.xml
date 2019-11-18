@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="GBK"?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+
+    <settings>
+        <setting name="lazyLoadingEnabled" value="false"/>
+        <setting name="autoMappingBehavior" value="FULL"/>
+        <!-- 默认全局超时都设置成30秒 -->
+        <setting name="defaultStatementTimeout" value="100"/>
+    </settings>
+
+    <typeAliases>
+
+    </typeAliases>
+
+    <mappers>
+
+    </mappers>
+
+</configuration>

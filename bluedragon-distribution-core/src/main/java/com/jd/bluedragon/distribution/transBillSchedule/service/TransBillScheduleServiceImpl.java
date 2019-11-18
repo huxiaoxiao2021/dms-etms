@@ -1,8 +1,8 @@
 package com.jd.bluedragon.distribution.transBillSchedule.service;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.distribution.api.response.TransBillScheduleResponse;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.distribution.transBillSchedule.domain.TransBillScheduleRequest;
 import com.jd.bluedragon.distribution.urban.domain.TransbillM;
@@ -138,5 +138,21 @@ public class TransBillScheduleServiceImpl implements TransBillScheduleService {
     @Override
     public boolean delete(String boxCode) {
         return redisClientCache.del(TRANSBILL_PREFIX + boxCode) > 0;
+    }
+
+    /**
+     * 获取派车单信息
+     * @param request
+     * @return
+     */
+    public TransBillScheduleResponse checkScheduleBill(TransBillScheduleRequest request){
+        TransBillScheduleResponse response = new TransBillScheduleResponse();
+        response.setBoxCode(request.getBoxCode());
+        response.setWaybillCode(request.getWaybillCode());
+        response.setScheduleCode(queryScheduleCode(request.getWaybillCode()));
+        response.setSameScheduleBill(checkSameScheduleBill(request));
+        response.setRoadCode(queryTruckSpotByWaybillCode(request.getWaybillCode()));
+
+        return response;
     }
 }

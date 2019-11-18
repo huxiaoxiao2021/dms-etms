@@ -301,7 +301,9 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         if(oldWaybillCode.toUpperCase().startsWith("Q")) {
             BaseEntity<PickupTask> result = waybillCommonService.getPickupTask(oldWaybillCode);
             if(null!=result&&null!=result.getData()&&StringHelper.isNotEmpty(result.getData().getSurfaceCode())) {
-                if(isPickUpFinished && !PICKUP_FINISHED_STATUS.equals(result.getData().getStatus())){
+                if(isPickUpFinished && !StringHelper.isEmpty(result.getData().getQplCode())){
+                    targetResult.customMessage(-1,"请使用"+result.getData().getQplCode()+"操作换单!");
+                }else if(isPickUpFinished && !PICKUP_FINISHED_STATUS.equals(result.getData().getStatus())){
                     targetResult.customMessage(-1,"未操作取件完成无法打印面单");
                 }else{
                     StringBuilder errorMessage = new StringBuilder();
@@ -366,6 +368,10 @@ public class ReversePrintServiceImpl implements ReversePrintService {
                         && !BusinessUtil.isPurematch(waybill.getWaybillSign())){
                     return;
                 }
+                //c2c 直接返回
+                if(BusinessHelper.isC2c(waybill.getWaybillSign())){
+                    return;
+                }
                 //3.有商品信息直接返回
                 if(baseEntity.getData().getGoodsList() != null
                         && baseEntity.getData().getGoodsList().size() > 0){
@@ -404,7 +410,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         BaseEntity<BigWaybillDto> result = null;
         try {
             result = waybillQueryManager.getDataByChoice(waybillCode,
-                    true, true, true, true, true, false, false);
+                    true, true, true, true, false, false, false);
             if(result != null && result.getData() != null && result.getData().getWaybill() != null &&
                     result.getData().getWaybill().getFirstTime() != null)
             {

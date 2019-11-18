@@ -122,8 +122,13 @@
     </jmq:consumer>
 
     <!--盘点任务完成-->
-    <jmq:consumer id="jmq.inventoryTaskCompleteConsumer" transport="jmq.dmsWorker.transport">
+    <jmq:consumer id="jmq.inventoryTaskCompleteConsumer" transport="jmq.uatDmsWeb.transport">
         <jmq:listener topic="${jmq.topic.dms.inventory.task.complete}" listener="inventoryTaskCompleteConsumer"/>
+    </jmq:consumer>
+
+    <!-- 消费循环集包袋处理 用于组织通知下游的MQ -->
+    <jmq:consumer id="jmq.deliverGoodsNoticeConsumer" transport="jmq.uatDmsWeb.transport">
+        <jmq:listener topic="${jmq.topic.cb.deliverGoodsNotice.info}" listener="deliverGoodsNoticeConsumer"/>
     </jmq:consumer>
 </beans>
 

@@ -13,7 +13,9 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BusinessFinanceManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.service.DmsBaseDictService;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.AbnormalPictureMq;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.AbnormalResultMq;
@@ -21,10 +23,12 @@ import com.jd.bluedragon.distribution.weightAndVolumeCheck.SystemEnum;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.finance.dto.BizDutyDTO;
 import com.jd.etms.finance.util.ResponseDTO;
 import com.jd.etms.waybill.dto.BigWaybillDto;
@@ -86,6 +90,9 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
 
     @Autowired
     private ReportExternalService reportExternalService;
+
+    @Autowired
+    DmsBaseDictService dmsBaseDictService;
 
     @Autowired
     private BusinessFinanceManager businessFinanceManager;
@@ -406,6 +413,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             }
             weightVolumeCollectDto.setDiffStandard(diffStandardOfWeight.toString());
             weightVolumeCollectDto.setVolumeWeightDiff(new DecimalFormat("#0.00").format(reviewVolume/8000 - billingVolume/8000));
+            setProductType(weightVolumeCollectDto);
             //将重量体积实体存入es中
             reportExternalService.insertOrUpdateForWeightVolume(weightVolumeCollectDto);
         }catch (Exception e){
@@ -703,5 +711,37 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         return uri;
     }
 
+    /**
+     * 根据运单号查询waybillSign，
+     * 当waybillSign的40为0时，根据waybillSign的31位的值填入产品类型
+     *当waybillSign的40为1-5时，根据waybillSign的80位的值填入产品类型
+     */
+    public void setProductType(WeightVolumeCollectDto weightVolumeCollectDto) {
+        List<DmsBaseDict> list = dmsBaseDictService.queryListByParentId(Constants.PRODUCT_PARENT_ID);
+        HashMap<String, DmsBaseDict> map = new HashMap<String, DmsBaseDict>();
+        for (int i = 0; i < list.size(); i++) {
+            map.put(list.get(i).getTypeName(), list.get(i));
+        }
+        Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(weightVolumeCollectDto.getWaybillCode());
+        if (waybill != null) {
+            String waybillSign = waybill.getWaybillSign();
+            DmsBaseDict dmsBaseDict = null;
+            //当waybillSign的40位为0时，根据waybillSign的31位值判断产品类型
+            if (BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_40, '0')) {
+                dmsBaseDict = map.get("31" + "-" + waybillSign.charAt(30));
+                if (dmsBaseDict != null) {
+                    weightVolumeCollectDto.setProductTypeCode(dmsBaseDict.getTypeCode());
+                    weightVolumeCollectDto.setProductTypeName(dmsBaseDict.getMemo());
+                }
+                //当waybillSign的40位为1，2，3，4，5时，根据waybillSign的80位值判断产品类型
+            } else if (BusinessUtil.isFastTrans(waybillSign)) {
+                dmsBaseDict = map.get("80" + "-" + waybillSign.charAt(79));
+                if (dmsBaseDict != null) {
+                    weightVolumeCollectDto.setProductTypeCode(dmsBaseDict.getTypeCode());
+                    weightVolumeCollectDto.setProductTypeName(dmsBaseDict.getMemo());
+                }
+            }
+        }
 
+    }
 }

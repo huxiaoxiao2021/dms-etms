@@ -3,7 +3,7 @@ package com.jd.bluedragon.core.base;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.domain.BoxSystemTypeEnum;
-import com.jd.bluedragon.utils.BaseContants;
+import com.jd.bluedragon.distribution.middleend.sorting.domain.DmsCustomSite;
 import com.jd.bluedragon.utils.BeanHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -247,6 +247,7 @@ public class ContainerManagerImpl implements ContainerManager{
             //设置箱子类型
 
             box.setType(container.getAttributes().getContainerBusinessType().type());
+            box.setPackageNum(container.getObjectCount());
         }
 
         return box;
@@ -281,24 +282,19 @@ public class ContainerManagerImpl implements ContainerManager{
      * @return Flow
      */
     private Flow buildFlow(Box box){
-        BaseStaffSiteOrgDto fromSite = baseMajorManager.getBaseSiteBySiteId(box.getCreateSiteCode());
-        BaseStaffSiteOrgDto toSite = baseMajorManager.getBaseSiteBySiteId(box.getReceiveSiteCode());
-        Flow flow = new Flow();
-        flow.setFromSiteId(box.getCreateSiteCode());
-        flow.setFromSiteCode(fromSite.getDmsSiteCode());
-        if(BaseContants.BASIC_B_TRADER_SITE_TYPE == fromSite.getSiteType()){
-            flow.setFromSiteType(SiteType.B_ENTERPRISE);
-        }else{
-            flow.setFromSiteType(SiteType.SITE);
+        DmsCustomSite fromSite = baseMajorManager.getDmsCustomSiteBySiteId(box.getCreateSiteCode());
+        DmsCustomSite toSite = baseMajorManager.getDmsCustomSiteBySiteId(box.getReceiveSiteCode());
 
-        }
+        Flow flow = new Flow();
+
+        flow.setFromSiteId(box.getCreateSiteCode());
+        flow.setFromSiteCode(fromSite.getSiteCode());
+        flow.setFromSiteType(SiteType.getEunmByType(fromSite.getCustomSiteType()));
+
         flow.setToSiteId(box.getReceiveSiteCode());
-        flow.setToSiteCode(toSite.getDmsSiteCode());
-        if(BaseContants.BASIC_B_TRADER_SITE_TYPE == toSite.getSiteType()){
-            flow.setToSiteType(SiteType.B_ENTERPRISE);
-        }else{
-            flow.setToSiteType(SiteType.SITE);
-        }
+        flow.setToSiteCode(toSite.getSiteCode());
+        flow.setToSiteType(SiteType.getEunmByType(toSite.getCustomSiteType()));
+
         flow.setSimpleRouteCodes(box.getRouter());
         flow.setSimpleRouteNames(box.getRouterName());
         return flow;

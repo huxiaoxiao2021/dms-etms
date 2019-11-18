@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.gantry.service;
 
+import com.jd.bluedragon.distribution.gantry.domain.GantryBatchSendResult;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDevice;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 
@@ -77,6 +78,14 @@ public interface GantryDeviceService {
      * 通过批次号 获取sendD 箱号的列表
      */
     public List<SendDetail> queryBoxCodeBySendCode(String sendCode);
+
+    /**
+     * 根据批次号查询该批次下的体积汇总
+     *
+     * @param sendCode
+     * @return
+     */
+    GantryBatchSendResult getSummaryVolumeBySendCode(String sendCode);
 
     /**
      * 根据批次号获取包裹总数

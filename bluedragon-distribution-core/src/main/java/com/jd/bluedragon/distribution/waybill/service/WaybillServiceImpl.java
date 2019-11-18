@@ -1,39 +1,52 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
-import com.jd.bluedragon.core.base.WaybillQueryManager;
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
-import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
-import com.jd.bluedragon.distribution.api.response.SortingResponse;
-import com.jd.bluedragon.distribution.api.utils.JsonHelper;
-import com.jd.bluedragon.distribution.base.service.SysConfigService;
-import com.jd.bluedragon.distribution.box.domain.Box;
-import com.jd.bluedragon.distribution.box.service.BoxService;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
-import com.jd.bluedragon.distribution.reverse.service.ReverseReceiveService;
-import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
-import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.external.service.LossServiceManager;
-import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.etms.waybill.api.WaybillPackageApi;
-import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.domain.WaybillManageDomain;
-import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.etms.waybill.dto.PackOpeFlowDto;
-import com.jd.etms.waybill.dto.WChoice;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
+import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
+import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.response.DmsWaybillInfoResponse;
+import com.jd.bluedragon.distribution.api.response.OrderPackage;
+import com.jd.bluedragon.distribution.api.response.OrderResponse;
+import com.jd.bluedragon.distribution.api.response.SortingResponse;
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
+import com.jd.bluedragon.distribution.reverse.service.ReverseReceiveService;
+import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.waybill.domain.PaymentEnum;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillTypeEnum;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.external.service.LossServiceManager;
+import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.waybill.api.WaybillPackageApi;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.DeliveryPackageD;
+import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.domain.WaybillManageDomain;
+import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.PackOpeFlowDto;
+import com.jd.etms.waybill.dto.WChoice;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 @Service
 public class WaybillServiceImpl implements WaybillService {
@@ -61,6 +74,8 @@ public class WaybillServiceImpl implements WaybillService {
 
     @Autowired
     private ReverseReceiveService reverseReceiveService;
+	@Autowired
+	private BaseMajorManager baseMajorManager;
 
     /**
      * 普通运单类型（非移动仓内配）
@@ -72,9 +87,12 @@ public class WaybillServiceImpl implements WaybillService {
      **/
     private static final Integer WAYBILL_TYPE_MOVING_WAREHOUSE_INNER = 2;
 
-//    @Autowired
-//    private WaybillPackageDao waybillPackageDao;
+	private static final Integer CODE_WAYBILL_NOE_FOUND = 404;
+	private static final String MESSAGE_WAYBILL_NOE_FOUND = "运单不存在";
 
+	private static final String DEFAUIT_PACKAGE_WEIGHT = "0.0";
+
+	@Override
     public BigWaybillDto getWaybill(String waybillCode) {
         String aWaybillCode = WaybillUtil.getWaybillCode(waybillCode);
 
@@ -89,6 +107,22 @@ public class WaybillServiceImpl implements WaybillService {
         return baseEntity != null && baseEntity.getData() != null ? baseEntity.getData() : null;
     }
 
+    @Override
+    public BigWaybillDto getWaybill(String waybillCode, boolean isPackList) {
+        String aWaybillCode = WaybillUtil.getWaybillCode(waybillCode);
+
+        WChoice wChoice = new WChoice();
+        wChoice.setQueryWaybillC(true);
+        wChoice.setQueryWaybillE(true);
+        wChoice.setQueryWaybillM(true);
+        wChoice.setQueryPackList(isPackList);
+        BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager.getDataByChoice(aWaybillCode,
+                wChoice);
+
+        return baseEntity != null && baseEntity.getData() != null ? baseEntity.getData() : null;
+    }
+
+    @Override
     public BigWaybillDto getWaybillProduct(String waybillCode) {
         String aWaybillCode = WaybillUtil.getWaybillCode(waybillCode);
 
@@ -210,7 +244,7 @@ public class WaybillServiceImpl implements WaybillService {
 
         InvokeResult<Boolean> invokeResult = new InvokeResult<Boolean>();
         //获取运单信息
-        BigWaybillDto bigWaybillDto = this.getWaybill(waybillCode);
+        BigWaybillDto bigWaybillDto = this.getWaybill(waybillCode, false);
         if(bigWaybillDto != null && bigWaybillDto.getWaybillState() != null) {
             WaybillManageDomain waybillManageDomain = bigWaybillDto.getWaybillState();
             //判断运单是否妥投
@@ -289,6 +323,11 @@ public class WaybillServiceImpl implements WaybillService {
         return baseEntity != null && baseEntity.getData() != null ? baseEntity.getData() : null;
     }
 
+    @Override
+    public Waybill getWaybillByWayCode(String waybillCode) {
+        return waybillQueryManager.getWaybillByWayCode(waybillCode);
+    }
+
     /**
      * 根据waybillSign获取运单类型
      * waybillSign第14位==‘5’表示是移动仓内配单
@@ -316,6 +355,56 @@ public class WaybillServiceImpl implements WaybillService {
     public boolean isMovingWareHouseInnerWaybill(String waybillCode){
         return WAYBILL_TYPE_MOVING_WAREHOUSE_INNER.equals(getWaybillTypeByWaybillSign(waybillCode));
     }
+    /**
+     * 根据包裹号或者运单号获取运单相关信息
+     */
+	public DmsWaybillInfoResponse getDmsWaybillInfoResponse(String packageCode) {
+		Boolean isIncludePackage = WaybillUtil.isWaybillCode(packageCode);
+		BigWaybillDto waybillDto = this.getWaybill(packageCode);
+		if (waybillDto == null || waybillDto.getWaybill() == null || waybillDto.getWaybillState() == null) {
+			return new DmsWaybillInfoResponse(CODE_WAYBILL_NOE_FOUND, MESSAGE_WAYBILL_NOE_FOUND);
+		}
 
+		Waybill waybill = waybillDto.getWaybill();
+		BaseStaffSiteOrgDto receiveSite = NumberHelper.isPositiveNumber(waybill.getOldSiteId()) ? this.baseMajorManager
+				.getBaseSiteBySiteId(waybill.getOldSiteId()) : null;
+		BaseStaffSiteOrgDto transferSite = NumberHelper.isPositiveNumber(waybill.getTransferStationId()) ? this.baseMajorManager
+				.getBaseSiteBySiteId(waybill.getTransferStationId()) : null;
 
+		DmsWaybillInfoResponse response = new DmsWaybillInfoResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+		response.setAddress(waybill.getReceiverAddress());
+		response.setReassignAddress(waybill.getNewRecAddr());
+		response.setCky2(waybillDto.getWaybillState().getCky2());
+		response.setMobile(waybill.getReceiverMobile());
+		response.setPackageQuantity(waybill.getGoodNumber());
+		response.setPayment(waybill.getPayment());
+		response.setPaymentText(PaymentEnum.getNameByCode(waybill.getPayment()));
+		response.setWaybillCode(waybill.getWaybillCode());
+		response.setWaybillType(waybill.getWaybillType());
+		response.setWaybillTypeText(WaybillTypeEnum.getNameByCode(waybill.getWaybillType()));
+		response.setSendPay(waybill.getSendPay());
+		response.setSiteId(waybill.getOldSiteId());
+		response.setSiteName(receiveSite != null ? receiveSite.getSiteName() : null);
+		response.setTransferStationId(waybill.getTransferStationId());
+		response.setTransferStationName(transferSite != null ? transferSite.getSiteName() : null);
+
+		this.appendPackages(packageCode, isIncludePackage, waybillDto, response);
+        response.setMobile(StringHelper.phoneEncrypt(response.getMobile()));
+		return response;
+	}
+
+	private void appendPackages(String packageCode, Boolean isIncludePackage, BigWaybillDto waybillDto,
+			DmsWaybillInfoResponse response) {
+		for (DeliveryPackageD waybillPackage : waybillDto.getPackageList()) {
+			if (isIncludePackage || !isIncludePackage
+					&& waybillPackage.getPackageBarcode().equalsIgnoreCase(packageCode)) {
+				OrderPackage orderPackage = new OrderPackage();
+				orderPackage.setPackageCode(waybillPackage.getPackageBarcode());
+				orderPackage
+						.setPackageWeight(waybillPackage.getAgainWeight() == null ? DEFAUIT_PACKAGE_WEIGHT
+								: String.valueOf(waybillPackage.getAgainWeight()));
+				response.addPackage(orderPackage);
+			}
+		}
+	}
 }

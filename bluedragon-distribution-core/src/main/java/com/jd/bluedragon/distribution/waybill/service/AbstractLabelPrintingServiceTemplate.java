@@ -73,7 +73,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
      */
     public abstract LabelPrintingResponse waybillExtensional(
             LabelPrintingRequest request, LabelPrintingResponse labelPrinting,
-            Waybill waybill);
+            Waybill waybill,boolean isNew);
 
     /**
      * 打印主要方法
@@ -246,12 +246,15 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
      */
     public LabelPrintingResponse initWaybillInfo(LabelPrintingRequest request, WaybillPrintContext context){
     	BigWaybillDto bigWaybillDto = null;
+    	boolean isNew = false;
+    	//旧打印逻辑，context为null
     	//先从context不为空，先context中获取原运单数据，否则调取运单接口
         if(context != null){
         	bigWaybillDto = context.getBigWaybillDto();
+        	isNew = true;
         }else{
 	        /**查询运单*/
-	        BaseEntity<BigWaybillDto> entity = waybillQueryManager.getWaybillDataForPrint(request.getWaybillCode());
+            BaseEntity<BigWaybillDto> entity = waybillQueryManager.getWaybillDataForPrint(request.getWaybillCode());
 	        if(entity==null || entity.getData()==null){
 	            log.warn(LOG_PREFIX+" 没有获取运单数据(BaseEntity<BigWaybillDto>)"+request.getWaybillCode());
 	            return null;
@@ -294,7 +297,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         labelPrinting.setOriginalDmsName(request.getDmsName());
         labelPrinting.setOriginalCrossType(BusinessUtil.getOriginalCrossType(waybill.getWaybillSign(), waybill.getSendPay()));
         //扩展追加字段方法
-        labelPrinting = waybillExtensional(request,labelPrinting,waybill);
+        labelPrinting = waybillExtensional(request,labelPrinting,waybill,isNew);
 
         //超区
         if (LabelPrintingService.PREPARE_SITE_CODE_OVER_AREA.equals(labelPrinting.getPrepareSiteCode())) {

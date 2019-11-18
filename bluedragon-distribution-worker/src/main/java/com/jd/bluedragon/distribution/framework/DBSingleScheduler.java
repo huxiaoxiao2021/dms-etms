@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.framework;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.jd.bluedragon.utils.JsonHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -59,7 +60,7 @@ public abstract class DBSingleScheduler extends AbstractScheduleTask {
 			}
 		} catch (Throwable e) {
 			taskHanlder.handleError(task);
-			logger.error("处理任务TaskId:"+task.getId()+"失败! "+e.getMessage(), e);
+			logger.error("处理任务TaskId:"+task.getId()+"失败!消息体："+ JsonHelper.toJson(task), e);
 		}
 		return result;
 	}

@@ -13,8 +13,8 @@
             </list>
         </property>
     </bean>
-    <import resource="classpath:spring/distribution-core-common.xml" />
-    <import resource="classpath:spring/distribution-core-datasource-undiv.xml" />
+    <!--<import resource="classpath:spring/distribution-core-common.xml" />-->
+    <!--<import resource="classpath:spring/distribution-core-datasource-undiv.xml" />-->
 
     <bean class="com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor" id="sequenceGenAdaptor" lazy-init="false">
         <constructor-arg index="0">
@@ -409,20 +409,20 @@
     </bean>
     <!--空铁基础字典表 -->
     <bean id="dmsBaseDictDao" parent="unDivBaseDao"
-    	class="com.jd.bluedragon.distribution.base.dao.impl.DmsBaseDictDaoImpl"/>
+          class="com.jd.bluedragon.distribution.base.dao.impl.DmsBaseDictDaoImpl"/>
     <bean id="dmsStorageAreaDao" parent="unDivBaseDao"
-    	class="com.jd.bluedragon.distribution.base.dao.impl.DmsStorageAreaDaoImpl"/>
+          class="com.jd.bluedragon.distribution.base.dao.impl.DmsStorageAreaDaoImpl"/>
     <!-- 空铁业务表Dao配置 -->
     <bean id="arBookingSpaceDao" parent="unDivBaseDao"
-    	class="com.jd.bluedragon.distribution.transport.dao.impl.ArBookingSpaceDaoImpl"/>
+          class="com.jd.bluedragon.distribution.transport.dao.impl.ArBookingSpaceDaoImpl"/>
     <bean id="arExcpRegisterDao" parent="unDivBaseDao"
-    	class="com.jd.bluedragon.distribution.transport.dao.impl.ArExcpRegisterDaoImpl"/>
+          class="com.jd.bluedragon.distribution.transport.dao.impl.ArExcpRegisterDaoImpl"/>
     <bean id="arSendCodeDao" parent="unDivBaseDao"
-    	class="com.jd.bluedragon.distribution.transport.dao.impl.ArSendCodeDaoImpl"/>
+          class="com.jd.bluedragon.distribution.transport.dao.impl.ArSendCodeDaoImpl"/>
     <bean id="arSendRegisterDao" parent="unDivBaseDao"
-    	class="com.jd.bluedragon.distribution.transport.dao.impl.ArSendRegisterDaoImpl"/>
+          class="com.jd.bluedragon.distribution.transport.dao.impl.ArSendRegisterDaoImpl"/>
     <bean id="arReceiveDao" parent="unDivBaseDao"
-    	class="com.jd.bluedragon.distribution.receive.dao.ArReceiveDaoImpl"/>
+          class="com.jd.bluedragon.distribution.receive.dao.ArReceiveDaoImpl"/>
 
     <bean id="b2bRouterDao" class = "com.jd.bluedragon.distribution.b2bRouter.dao.B2BRouterDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
@@ -434,7 +434,7 @@
         <property name="sqlSessionRead" ref="unDivSqlSessionTemplate"/>
     </bean>
     <bean id="dmsWeightFlowDao" parent="unDivBaseDao"
-    	class="com.jd.bluedragon.distribution.weight.dao.impl.DmsWeightFlowDaoImpl"/>
+          class="com.jd.bluedragon.distribution.weight.dao.impl.DmsWeightFlowDaoImpl"/>
 
     <bean id="dmsOperateHintDao" parent="unDivBaseDao"
           class="com.jd.bluedragon.distribution.abnormal.dao.impl.DmsOperateHintDaoImpl"/>

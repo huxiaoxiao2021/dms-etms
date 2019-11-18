@@ -64,6 +64,15 @@ public class JdResponse extends JdObject {
     public static final Integer CODE_SITE_SIGNRE_ERROR = 20009;
     public static final String MESSAGE_SITE_SIGNRE_ERROR = "此运单要求签单返回，只能分配至自营站点!";
 
+    public static final Integer CODE_FEATHER_LETTER_ERROR = 20010;
+    public static final String MESSAGE_FEATHER_LETTER_ERROR = "此单为鸡毛信运单请输入设备号或取消鸡毛信复选框！";
+
+    public static final Integer CODE_FEATHER_LETTER_DISABLE_ERROR = 20011;
+    public static final String MESSAGE_FEATHER_LETTER_DISABLE_ERROR = "鸡毛信设备不可用，请确认！";
+
+    public static final Integer CODE_CODMONAY_THIRD_SITE_ERROR = 20012;
+    public static final String MESSAGE_CODMONAY_THIRD_SITE_ERROR = "有货到付款金额，不能分配到第三方快递！";
+
     public static final Integer CODE_UNLOADBILL = 2424;
     public static final String MESSAGE_UNLOADBILL = "已经装载不允许取消";
 
@@ -111,6 +120,7 @@ public class JdResponse extends JdObject {
     public static final String SEND_WAYBILL_NOT_FOUND="没有获取到该运单";
     public static final String SEND_BOX_NOT_FOUND="没有获取到该箱子";
     public static final String MESSAGE_EXIST_BOX_CODE="箱号已存在";
+    public static final String MESSAGE_NO_FEATHER_LETTER="非鸡毛信运单，不用取消鸡毛信服务";
 
     public static final Integer CODE_RE_PRINT_IN_ONE_HOUR = 30100;
     public static final String MESSAGE_RE_PRINT_IN_ONE_HOUR = "条码在1小时内重复打印，是否继续？";
@@ -177,6 +187,9 @@ public class JdResponse extends JdObject {
 
     public static final Integer CODE_REVERSE_CHANGE_PRINT_ALREADY = 30121;
     public static final String MESSAGE_REVERSE_CHANGE_PRINT_ALREADY = "该单号{0}已打印";
+
+    public static final Integer CODE_RE_PRINT_REPEAT = 30122;
+    public static final String MESSAGE_RE_PRINT_REPEAT = "此条码已操作过补打，是否再次打印？";
 
     /** 请求服务URL */
     private String request;

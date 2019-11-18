@@ -1,5 +1,6 @@
 package com.jd.bluedragon.dms.utils;
 
+import com.jd.etms.waybill.constant.WaybillCodePattern;
 import com.jd.etms.waybill.util.UniformValidateUtil;
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
 import org.apache.commons.lang.StringUtils;
@@ -241,6 +242,34 @@ public class WaybillUtil {
     }
 
     /**
+     * 根据运单号、包裹数量生成所有包裹号
+     * */
+    public static List<String> generateAllPackageCodesByPackNum(String waybillCode,Integer packNum){
+        List<String> list = new ArrayList<String>();
+        if(WaybillUtil.isWaybillCode(waybillCode) && packNum != null && packNum > 0){
+            for(int i = 1; i <= packNum; i++){
+                String packageCode = waybillCode + "-" + i + "-" + packNum + "-";
+                list.add(packageCode);
+            }
+            return list;
+        }
+        return list;
+    }
+
+    /**
+     * 判断是否是QPL单号
+     * */
+    public static boolean isQPLWaybill(String waybillCode){
+        if(StringUtils.isEmpty(waybillCode)){
+            return Boolean.FALSE;
+        }
+        if(waybillCode.startsWith("QPL")){
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
+
+    /**
      * 获取包裹序列号
      */
     public static String getPackageIndex(String packageCode) {
@@ -286,6 +315,15 @@ public class WaybillUtil {
             return matcher.group(6);
         }
         return null;
+    }
+
+    /**
+     * 根据单号判断是否是拼多多运单单号
+     * @param waybillCode 单号
+     * @return 是拼多多则返回true 否则返回false
+     */
+    public static boolean isPDDWaybillCode(String waybillCode) {
+        return UniformValidateUtil.isWaybillCodeMatchType(waybillCode, WaybillCodePattern.PDD_WAYBILL_CODE);
     }
 
 

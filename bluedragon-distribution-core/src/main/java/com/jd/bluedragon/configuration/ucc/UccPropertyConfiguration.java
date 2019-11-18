@@ -37,6 +37,21 @@ public class UccPropertyConfiguration {
     /** 分拣拆分任务 每页执行的包裹数**/
     private int waybillSplitPageSize;
 
+
+    /** 分拣动作选取的service DMS、MIDDLEEND、FAILOVER**/
+    private String sortingServiceMode;
+
+    /** 出管新接口-写入方法开关 true 调用新接口，false 调用老接口**/
+    private boolean chuguanNewInterfaceInsertSwitch;
+
+    /** 出管新接口-查询方法开关 true 调用新接口，false 调用老接口**/
+    private boolean chuguanNewInterfaceQuerySwitch;
+
+    /**
+     * 驻场打印 是否开启校验 鸡毛信必输设备号；true 开启,false 不开启
+     */
+    private boolean stationPrintFeatherLetterCheck;
+
     public String getAsynbufferEnabledTaskType() {
         return asynbufferEnabledTaskType;
     }
@@ -107,5 +122,37 @@ public class UccPropertyConfiguration {
 
     public void setWaybillSplitPageSize(int waybillSplitPageSize) {
         this.waybillSplitPageSize = waybillSplitPageSize;
+    }
+
+    public String getSortingServiceMode() {
+        return sortingServiceMode;
+    }
+
+    public void setSortingServiceMode(String sortingServiceMode) {
+        this.sortingServiceMode = sortingServiceMode;
+    }
+
+    public boolean isChuguanNewInterfaceInsertSwitch() {
+        return chuguanNewInterfaceInsertSwitch;
+    }
+
+    public void setChuguanNewInterfaceInsertSwitch(boolean chuguanNewInterfaceInsertSwitch) {
+        this.chuguanNewInterfaceInsertSwitch = chuguanNewInterfaceInsertSwitch;
+    }
+
+    public boolean isChuguanNewInterfaceQuerySwitch() {
+        return chuguanNewInterfaceQuerySwitch;
+    }
+
+    public void setChuguanNewInterfaceQuerySwitch(boolean chuguanNewInterfaceQuerySwitch) {
+        this.chuguanNewInterfaceQuerySwitch = chuguanNewInterfaceQuerySwitch;
+    }
+
+    public boolean isStationPrintFeatherLetterCheck() {
+        return stationPrintFeatherLetterCheck;
+    }
+
+    public void setStationPrintFeatherLetterCheck(boolean stationPrintFeatherLetterCheck) {
+        this.stationPrintFeatherLetterCheck = stationPrintFeatherLetterCheck;
     }
 }

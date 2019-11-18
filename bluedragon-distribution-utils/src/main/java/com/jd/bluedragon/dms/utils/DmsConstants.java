@@ -126,14 +126,18 @@ public class DmsConstants {
     public static final Pattern RULE_REVERSE_BOXCODE_REGEX = Pattern.compile("^[T|G][C|S|X|W]10[0-9]{18}[0-3][0-9]$");
 
     /**
-     * 批次号正则
+     * 分拣批次号正则（含亚一）
      */
-    public static final String SEND_CODE_REG = "^(\\d+)-(\\d+)-(\\d{15,17})$"; //批次号正则
+    public static final String SEND_CODE_ALL_REG = "^[Y|y]?([1-9][0-9]{0,8})-([1-9][0-9]{0,8})-([0-9]{15,17})$";
+    /**
+     * 分拣批次号正则（含亚一）
+     */
+    public static final Pattern RULE_SEND_CODE_ALL_REGEX = Pattern.compile(SEND_CODE_ALL_REG);
 
     /**
-     * 亚一批次号正则
+     * 终端批次号
      */
-    public static final String AO_SEND_CODE_REG = "^[Y|y]?(\\d+)-(\\d+)-(\\d{15,17})$";
+    public static final Pattern RULE_TERMINAL_SEND_CODE_ALL_REGEX = Pattern.compile("^R+[0-9]{8,}$");
 
     /**
      * 新批次号正则;
@@ -141,7 +145,7 @@ public class DmsConstants {
      * 模7余数：对 站点第一位+站点第一位+时间串+序列号 取模
      * 必须是17位（时间14位+序号2位+模7余数1位）
      */
-    public static final String SEND_CODE_NEW_REG = "^(\\d+)-(\\d+)-(\\d{17})$";
+    public static final String SEND_CODE_NEW_REG = "^([1-9][0-9]{0,8})-([1-9][0-9]{0,8})-([0-9]{17})$";
 
     /**
      * 滑道号正则表达式

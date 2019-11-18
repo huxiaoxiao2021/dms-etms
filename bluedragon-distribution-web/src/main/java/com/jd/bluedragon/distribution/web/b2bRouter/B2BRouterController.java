@@ -178,7 +178,7 @@ public class B2BRouterController {
             logger.error("根据查询条件获取路由信息失败.",e);
             b2bRouterResponse.setCode(B2BRouterResponse.CODE_EXCEPTION);
             b2bRouterResponse.setData(null);
-            b2bRouterResponse.setMessage("根据查询条件获取路由信息失败："+e.getMessage());
+            b2bRouterResponse.setMessage("获取信息失败："+e.getMessage());
         }
         return b2bRouterResponse;
     }

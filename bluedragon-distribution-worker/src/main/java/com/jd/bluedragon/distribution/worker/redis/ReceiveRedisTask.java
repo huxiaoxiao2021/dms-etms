@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.worker.redis;
 
+import com.jd.bluedragon.distribution.receive.domain.Receive;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,10 @@ public class ReceiveRedisTask extends RedisSingleScheduler {
 			throws Exception {
 
 		try {
-			receiveService.doReceiveing(receiveService.taskToRecieve(task));
+			Receive receive = receiveService.taskToRecieve(task);
+			if(receive != null){
+				receiveService.doReceiveing(receive);
+			}
 		} catch (Exception e) {
 			logger.error(
 					"处理收货任务失败[taskId=" + task.getId() + "]异常信息为："

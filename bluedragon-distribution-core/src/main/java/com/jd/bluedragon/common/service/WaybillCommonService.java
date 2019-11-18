@@ -22,8 +22,7 @@ import java.util.Map;
  */
 public interface WaybillCommonService {
 	/**
-     * 根据运单号查询运单明细
-     * 	先调用运单，运单获取不到数据，调用订单中间件
+     * 根据运单号查询运单明细（不包括包裹信息）
      * 
      * @param waybillCode
      * @return
@@ -198,4 +197,19 @@ public interface WaybillCommonService {
 	 * @return
 	 */
 	InvokeResult<Integer> getPackNum(String waybillCode);
+
+	/**
+	 * 修改取件单换单后新单的包裹数
+	 * @param waybillCode 新单号
+	 * @param packNum 新单包裹数量
+	 * @return
+	 */
+	InvokeResult batchUpdatePackageByWaybillCode(String waybillCode, Integer packNum);
+
+	/**
+	 * 校验包裹是否存在
+	 * @param packCode
+	 * @return
+	 */
+	boolean checkPackExist(String packCode);
 }

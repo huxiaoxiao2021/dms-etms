@@ -15,6 +15,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
+import com.jd.bluedragon.distribution.printOnline.service.IPrintOnlineService;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.reverse.domain.BdInboundECLPDto;
 import com.jd.bluedragon.distribution.reverse.domain.MovingWarehouseInnerWaybill;
@@ -182,6 +183,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
     @Autowired
     private SpareSortingRecordDao spareSortingRecordDao;
 
+    @Autowired
+    private IPrintOnlineService printOnlineService;
+
     // 自营
     public static final Integer businessTypeONE = 10;
     // 退货
@@ -203,6 +207,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
     //责任主体：终端编号151
     public static final String DUTY_ZD = "151";
+
+    //责任主体：集约组编号152
+    public static final String DUTY_JY = "152";
 
     static {
         ReverseSendServiceImpl.tempMap.put("101", "1");
@@ -316,6 +323,10 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 StringBuilder sb = new StringBuilder().append(asm_type).append(",").append(wms_type).append(",").append(spwms_type).append(",");
                 this.logger.info("站点类型不在逆向处理范围(" + sb + ")内, 默认处理成功!siteCode:" + sendM.getReceiveSiteCode());
                 bl = true;
+            }
+            if(bl){
+                //推送逆向发货汇总清单数据
+                printOnlineService.reversePrintOnline(sendM.getSendCode());
             }
             //直接以bl的值做返回值
             return bl;
@@ -839,7 +850,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill = waybillQueryManager.getWaybillByReturnWaybillCode(wayBillCode);
                 if(oldWaybill!=null && oldWaybill.getData()!=null && StringUtils.isNotBlank(oldWaybill.getData().getWaybillCode())){
 
-                    BaseEntity<BigWaybillDto> bigWaybill= waybillQueryManager.getDataByChoice(oldWaybill.getData().getWaybillCode(),true,true,true,true,true,false,false);
+                    BaseEntity<BigWaybillDto> bigWaybill= waybillQueryManager.getDataByChoice(oldWaybill.getData().getWaybillCode(),true,true,true,true,false,false,false);
                     if(bigWaybill!=null && bigWaybill.getData() != null && bigWaybill.getData().getWaybill() != null){
 
                         send.setOrderId(bigWaybill.getData().getWaybill().getBusiOrderCode());
@@ -1586,6 +1597,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 if (DUTY_ZD.equals(spareSortingRecord.getDutyCode())) {
                     //终端损标识
                     lossType = 16;
+                } else if (DUTY_JY.equals(spareSortingRecord.getDutyCode())) {
+                    //集约损标识
+                    lossType = 17;
                 }
             }
 
@@ -1899,34 +1913,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
     }
 
-    /**
-     * ECLP退备件库的数据推送给ECLP（mq的形式）
-     *
-     * @param sendDetailList
-     */
-    private void pushECLPMessageToSpwms(List<SendDetail> sendDetailList) {
-        List<String> doneWaybill = new ArrayList<String>();
-        try{
-            for(SendDetail sendDetail : sendDetailList){
-                String waybillCode = sendDetail.getWaybillCode();
-                //过滤重复运单。
-                if(doneWaybill.contains(waybillCode)){
-                    continue;
-                }
-                BdInboundECLPDto bdInboundECLPDto =  reverseSpareEclp.makeEclpMessage(waybillCode,sendDetail);
-                if(bdInboundECLPDto==null){
-                    logger.error("ECLP退备件库失败"+waybillCode+"|"+sendDetail.getSendCode());
-                    continue;
-                }
-                reverseSendSpareEclpProducer.send(waybillCode,JsonHelper.toJson(bdInboundECLPDto));
-                doneWaybill.add(waybillCode);
-            }
 
-        }catch (Exception e){
-            logger.error("ECLP退备件库异常",e);
-        }
-
-    }
 
     /**
      * 退备件库给ECLP发消息改成jsf接口的形式
@@ -1942,7 +1929,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 if(doneWaybill.contains(waybillCode)){
                     continue;
                 }
-                InboundOrder inboundOrder =  reverseSpareEclp.createInboundOrder(waybillCode,sendDetail);
+                InboundOrder inboundOrder =  reverseSpareEclp.makeInboundOrder(waybillCode,sendDetail);
                 if(inboundOrder==null){
                     logger.error("ECLP退备件库失败"+waybillCode+"|"+sendDetail.getSendCode());
                     failWaybillCodes.append(waybillCode).append("|").append(sendDetail.getSendCode()).append(",");
@@ -1950,6 +1937,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 }
                 this.logger.info("eclp退备件库报文："+JsonHelper.toJson(inboundOrder));
                 OrderResponse orderResponse = eclpItemManager.createInboundOrder(inboundOrder);
+                pushInboundOrderToSpwmsLog(sendDetail,inboundOrder,orderResponse);
                 if(orderResponse != null && orderResponse.getResCode() != 200){
                     this.logger.error("ECLP退备件库失败,运单号:"+waybillCode+",原因：" + orderResponse.getMessage());
                 }
@@ -1960,6 +1948,26 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             }
         }catch (Exception e){
             logger.error("ECLP退备件库异常",e);
+        }
+    }
+
+    private void pushInboundOrderToSpwmsLog(SendDetail sendDetail,InboundOrder inboundOrder,OrderResponse orderResponse){
+        try{
+            //增加系统日志
+            SystemLog sLogDetail = new SystemLog();
+            sLogDetail.setKeyword1(sendDetail.getWaybillCode());
+            sLogDetail.setKeyword2(sendDetail.getSendCode());
+            sLogDetail.setKeyword3("ECLPSpwms");
+            if(orderResponse == null){
+                sLogDetail.setKeyword4(Long.valueOf(Constants.RESULT_ERROR));
+            }else{
+                sLogDetail.setKeyword4(Long.valueOf(orderResponse.getResCode()));
+            }
+            sLogDetail.setType(Long.valueOf(12004));
+            sLogDetail.setContent(JsonHelper.toJson(inboundOrder));
+            SystemLogUtil.log(sLogDetail);
+        }catch (Exception e){
+            logger.error("pushInboundOrderToSpwmsLogError",e);
         }
     }
 

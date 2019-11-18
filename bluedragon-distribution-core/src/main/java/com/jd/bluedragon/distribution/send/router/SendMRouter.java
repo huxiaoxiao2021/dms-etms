@@ -1,5 +1,8 @@
 package com.jd.bluedragon.distribution.send.router;
 
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationMQ;
+import com.jd.jmq.common.exception.JMQException;
 import org.apache.commons.lang.StringUtils;
 import com.jd.bluedragon.distribution.base.dao.KvIndexDao;
 import com.jd.bluedragon.distribution.base.domain.KvIndex;
@@ -8,7 +11,10 @@ import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.utils.JsonHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,9 +25,13 @@ import java.util.List;
  */
 public class SendMRouter extends SendMDao {
 
-
+    private final Logger logger = Logger.getLogger(SendMRouter.class);
     @Autowired
     private KvIndexDao kvIndexDao;
+
+    @Autowired
+    @Qualifier("deliverGoodsNoticeSendMQ")
+    private DefaultJMQProducer deliverGoodsNoticeSendMQ;
 
     private static final Log LOGGER= LogFactory.getLog(SendMRouter.class);
 
@@ -136,9 +146,10 @@ public class SendMRouter extends SendMDao {
     		index.setValue(String.valueOf(dSendM.getBoxCode()));
     		kvIndexDao.add(index);
         }
-    	
-        return super.insertSendM(dSendM);
-    }
 
+        boolean res=super.insertSendM(dSendM);
+
+        return res;
+    }
 
 }

@@ -80,18 +80,9 @@ public class PrintWaybill extends BasePrintWaybill {
     private String userLevel;
 
     /**
-    * 承诺配送信息
-    */
-    private String promiseText ;
-
-    /**
     * 打包信息
     */
     private String packText;
-    /**
-    * 时效
-    */
-    private String timeCategory ;
 
     /**
     * 库房号
@@ -140,10 +131,6 @@ public class PrintWaybill extends BasePrintWaybill {
 
     private String comment ;
 
-    /**
-    * 订单号
-    */
-    private String orderCode;
     /**
     * 新用记标识
     */
@@ -217,13 +204,16 @@ public class PrintWaybill extends BasePrintWaybill {
      */
     private String receivable;
 
-
+    /**
+     * 是否是鸡毛信运单
+     */
+    private boolean featherLetterWaybill;
 
     public PrintWaybill(){
         this.isAir=false;
         this.isSelfService=false;
         this.isPrintInvoice=false;
-
+        this.featherLetterWaybill = false;
     }
 
     public String getNewAddress() {
@@ -313,13 +303,6 @@ public class PrintWaybill extends BasePrintWaybill {
     public void setNormalText(String normalText) {
         this.normalText = normalText;
     }
-    public String getPromiseText() {
-        return promiseText;
-    }
-
-    public void setPromiseText(String promiseText) {
-        this.promiseText = promiseText;
-    }
 
     public String getPackText() {
         return packText;
@@ -327,14 +310,6 @@ public class PrintWaybill extends BasePrintWaybill {
 
     public void setPackText(String packText) {
         this.packText = packText;
-    }
-
-    public String getTimeCategory() {
-        return timeCategory;
-    }
-
-    public void setTimeCategory(String timeCategory) {
-        this.timeCategory = timeCategory;
     }
 
     public String getWarehouseText() {
@@ -367,14 +342,6 @@ public class PrintWaybill extends BasePrintWaybill {
 
     public void setComment(String comment) {
         this.comment = comment;
-    }
-
-    public String getOrderCode() {
-        return orderCode;
-    }
-
-    public void setOrderCode(String orderCode) {
-        this.orderCode = orderCode;
     }
 
     public String getNewCustomerText() {
@@ -527,5 +494,13 @@ public class PrintWaybill extends BasePrintWaybill {
 
     public void setReceivable(String receivable) {
         this.receivable = receivable;
+    }
+
+    public boolean isFeatherLetterWaybill() {
+        return featherLetterWaybill;
+    }
+
+    public void setFeatherLetterWaybill(boolean featherLetterWaybill) {
+        this.featherLetterWaybill = featherLetterWaybill;
     }
 }

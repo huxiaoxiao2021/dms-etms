@@ -1,16 +1,18 @@
 package com.jd.bluedragon.dms.utils;
 
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
-
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.List;
+import java.util.regex.Matcher;
 
-import static com.jd.bluedragon.dms.utils.DmsConstants.*;
+import static com.jd.bluedragon.dms.utils.DmsConstants.PRODUCT_TYPE_COLD_CHAIN_KB;
+import static com.jd.bluedragon.dms.utils.DmsConstants.RULE_TERMINAL_SEND_CODE_ALL_REGEX;
+import static com.jd.bluedragon.dms.utils.DmsConstants.SEAL_BOX_NO;
+import static com.jd.bluedragon.dms.utils.DmsConstants.SEND_CODE_ALL_REG;
+import static com.jd.bluedragon.dms.utils.DmsConstants.SEND_CODE_NEW_REG;
 
 /**
  * @author tangchunqing
@@ -18,11 +20,6 @@ import static com.jd.bluedragon.dms.utils.DmsConstants.*;
  * @date 2018年10月12日 18时:15分
  */
 public class BusinessUtil {
-
-    /**
-     * 提取发货批次号中站点正则
-     */
-    private static final Pattern RULE_SEND_CODE_SITE_CODE_REGEX = Pattern.compile(AO_SEND_CODE_REG);
 
     /**
      * 是不是发货批次号
@@ -34,9 +31,40 @@ public class BusinessUtil {
         if (StringUtils.isBlank(sendCode)) {
             return false;
         }
-        return sendCode.matches(SEND_CODE_REG) || sendCode.matches(AO_SEND_CODE_REG) || isSingleBatchNo(sendCode);
+        return sendCode.matches(SEND_CODE_ALL_REG) || isSingleBatchNo(sendCode);
     }
 
+    /**
+     * 是不是终端批次号
+     * R开头
+     *
+     * @param sendCode
+     * @return
+     */
+    public static boolean isTerminalSendCode(String sendCode) {
+        if (StringUtils.isBlank(sendCode)) {
+            return false;
+        }
+        return RULE_TERMINAL_SEND_CODE_ALL_REGEX.matcher(sendCode).matches();
+    }
+
+    /**
+     * 根据批次号的正则匹配始发分拣中心id和目的分拣中心id
+     *
+     * @param sendCode 批次号
+     * @return
+     */
+    public static Integer[] getSiteCodeBySendCode(String sendCode) {
+        Integer[] sites = new Integer[]{-1, -1};
+        if (StringUtils.isNotBlank(sendCode)) {
+            Matcher matcher = DmsConstants.RULE_SEND_CODE_ALL_REGEX.matcher(sendCode.trim());
+            if (matcher.matches()) {
+                sites[0] = Integer.valueOf(matcher.group(1));
+                sites[1] = Integer.valueOf(matcher.group(2));
+            }
+        }
+        return sites;
+    }
   /**
    * 是否为新批次号
    * 批次号判断批次号是否是：站点（数字）+站点（数字）+时间串（14位数字）+序号（2位数字）+模7余数
@@ -224,6 +252,16 @@ public class BusinessUtil {
                 || isSignChar(waybillSign, 1, 'K')
                 || isSignChar(waybillSign, 1, 'Y'));
     }
+
+    /**
+     * 根据waybillSign第40位判断是否快运业务（标识为 1、2、3、4、5）
+     *
+     * @param waybillSign 运单标识位
+     * @return
+     */
+     public static boolean isFastTrans(String waybillSign){
+         return isSignInChars(waybillSign, WaybillSignConstants.POSITION_40, '1', '2', '3', '4', '5');
+     }
 
     /**
      * 判断是否B网，转网到B+未转网到C并且waybillSign第40位1、2、3、4、5
@@ -634,13 +672,13 @@ public class BusinessUtil {
 
 
     /**
-     * 纯配外单判断 【waybillSign第1为为2、3、6、9、K、Y且第53位为2】
+     * 纯配外单判断 【waybillSign第1为为2、3、6、9、K、Y且第53位为2、0】
      * */
     public static Boolean isPurematch(String waybillSign){
         if(waybillSign == null){
             return Boolean.FALSE;
         }
-        if(isSignChar(waybillSign,53,'2')
+        if(isSignInChars(waybillSign,53,'2','0')
                 && isSignInChars(waybillSign,1,'2','3','6','9','K','Y')){
             return Boolean.TRUE;
         }
@@ -782,12 +820,9 @@ public class BusinessUtil {
      * @return
      */
     public static Integer getReceiveSiteCodeFromSendCode(String sendCode) {
-        if(!isSendCode(sendCode)){
-            return null;
-        }
-        Matcher matcher = RULE_SEND_CODE_SITE_CODE_REGEX.matcher(sendCode.trim());
-        if (matcher.matches()) {
-            return Integer.parseInt(matcher.group(2));
+    	Integer[] sites = getSiteCodeBySendCode(sendCode);
+        if (sites[1]>0) {
+            return sites[1];
         }
         return null;
     }
@@ -799,12 +834,9 @@ public class BusinessUtil {
      * @return
      */
     public static Integer getCreateSiteCodeFromSendCode(String sendCode) {
-        if(!isSendCode(sendCode)){
-            return null;
-        }
-        Matcher matcher = RULE_SEND_CODE_SITE_CODE_REGEX.matcher(sendCode.trim());
-        if (matcher.matches()) {
-            return Integer.parseInt(matcher.group(1));
+    	Integer[] sites = getSiteCodeBySendCode(sendCode);
+        if (sites[0]>0) {
+            return sites[0];
         }
         return null;
     }
@@ -936,4 +968,13 @@ public class BusinessUtil {
        return input.matches(SEAL_BOX_NO);
     }
 
+
+    /**
+     * 是否是鸡毛信运单
+     * @param waybillSign
+     * @return true 是，false 不是
+     */
+    public static boolean isFeatherLetter(String waybillSign){
+        return isSignInChars(waybillSign, WaybillSignConstants.POSITION_92, WaybillSignConstants.CHAR_92_2,WaybillSignConstants.CHAR_92_3);
+    }
 }

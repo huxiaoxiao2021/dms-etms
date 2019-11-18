@@ -169,6 +169,15 @@ public interface WaybillQueryManager{
 	 */
 	BaseEntity<Waybill> getWaybillByWaybillCode(String waybillCode);
 
+    Waybill getWaybillByWayCode(String waybillCode);
+
+    /**
+	 * 根据运单号获取运单信息
+	 * @param waybillCode
+	 * @return
+	 */
+	Waybill getOnlyWaybillByWaybillCode(String waybillCode);
+
 	/**
 	 * 根据运单号查询运单sn码和69码
 	 *
@@ -234,6 +243,13 @@ public interface WaybillQueryManager{
      */
 	BaseEntity<SkuPackRelationDto> getSkuPackRelation(String sku);
 
+	/**
+	 * 修改包裹数量
+	 * @param waybillCode
+	 * @param list
+	 * @return
+	 */
+	BaseEntity<Boolean> batchUpdatePackageByWaybillCode(String waybillCode,List list);
     /*
      *
      * 查询运单接口获取包裹列表

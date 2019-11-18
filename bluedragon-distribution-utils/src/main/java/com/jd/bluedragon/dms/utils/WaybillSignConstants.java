@@ -141,4 +141,30 @@ public interface WaybillSignConstants {
 	 */
 	int POSITION_106 = 106;
 	char CHAR_106_2 = '2';
+
+    /**
+     * 鸡毛信
+     * 2或者3
+     */
+    int POSITION_92 = 92;
+    char CHAR_92_2 = '2';
+    char CHAR_92_3 = '3';
+	/**
+	 * waybillsign第31位
+	 */
+	int POSITION_31 = 31;
+	char CHAR_31_9 = '9';
+	/**
+	 * waybillsign第84位定义
+	 */
+	int POSITION_84 = 84;
+	char CHAR_84_3 = '3';
+	/**
+	 * waybillsign第57位定义
+	 */
+	int POSITION_57 = 57;
+	/**
+	 * 2-代表“KA运营特殊保障”
+	 */
+	char CHAR_57_2 = '2';
 }

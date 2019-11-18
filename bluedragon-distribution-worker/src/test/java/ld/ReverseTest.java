@@ -4,6 +4,7 @@ import com.google.gson.reflect.TypeToken;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
+import com.jd.bluedragon.distribution.consumer.reverse.PickWareConsumer;
 import com.jd.bluedragon.distribution.consumer.reverse.ReversePopConsumer;
 import com.jd.bluedragon.distribution.consumer.reverse.ReverseReceiveConsumer;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
@@ -49,12 +50,12 @@ public class ReverseTest {
 
         Task tTask = new Task();
 
-        String sendCode = "910-14178-20190223165014011";
+        String sendCode = "910-11252-20190926180416014";
         tTask.setBoxCode(sendCode);
         tTask.setBody(sendCode);
         tTask.setCreateSiteCode(910);
         tTask.setKeyword2("20");
-        tTask.setReceiveSiteCode(14178);
+        tTask.setReceiveSiteCode(11252);
         tTask.setType(Task.TASK_TYPE_SEND_DELIVERY);
         tTask.setTableName(Task.getTableName(Task.TASK_TYPE_SEND_DELIVERY));
         tTask.setSequenceName(Task.getSequenceName(Task.TABLE_NAME_SEND));
@@ -182,11 +183,13 @@ public class ReverseTest {
 
     @Autowired
     private DepartureService departureService;
+    @Autowired
+    private PickWareConsumer pickWareConsumer;
 
     @Test
     public void testMQ(){
         Message message = new Message();
-        message.setText("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+        /*message.setText("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<ReceiveRequest>\n" +
                 "  <sendCode>910-25016-20190518121903014-JDT000000072283</sendCode>\n" +
                 "  <orderId>62341634627</orderId>\n" +
@@ -195,10 +198,16 @@ public class ReverseTest {
                 "  <userName>liuduo|</userName>\n" +
                 "  <receiveType>3</receiveType>\n" +
                 "  <canReceive>1</canReceive>\n" +
-                "</ReceiveRequest>");
+                "</ReceiveRequest>");*/
+        message.setText("{\"canReceive\":1,\"operateTime\":\"2019-08-26 09:32:19\",\"operateType\":1,\"operator\":\"冯硕|fengshuo9\",\"o" +
+                "rderId\":101662618300,\"orgId\":611,\"packageCode\":\"WA1165522865029517316\"," +
+                "\"pickwareCode\":\"Q566247436\"}");
+        /*{"canReceive":1,"operateTime":"2019-08-26 09:32:19","operateType":1,"operator":"冯硕|fengshuo9","o
+            rderId":101662618300,"orgId":611,"packageCode":"WA1165522865029517312",
+            "pickwareCode":"Q566247436,Q566247437,Q566247439,Q566247440,Q566247441"}*/
         //reverseReceiveConsumer.consume(message);
         try {
-            reversePopConsumer.consume(message);
+            pickWareConsumer.consume(message);
         } catch (Exception e) {
             e.printStackTrace();
         }

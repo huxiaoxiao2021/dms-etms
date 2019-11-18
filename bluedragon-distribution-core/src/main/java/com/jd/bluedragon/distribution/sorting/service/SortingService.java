@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.sorting.service;
 
+import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -158,4 +159,31 @@ public interface SortingService {
      */
     List<String> getWaybillCodeListByBoxCode(String boxCode);
 
+    void saveOrUpdate(Sorting sorting);
+
+    void notifyBlocker(Sorting sorting);
+
+    void backwardSendMQ(Sorting sorting);
+
+    /**
+     * B网建箱自动触发验货全程跟踪
+     * @param sorting
+     */
+    void b2bPushInspection(Sorting sorting);
+
+    void saveOrUpdateInspectionEC(Sorting sorting);
+
+    SortingResponse doCancelSorting(Sorting sorting);
+
+    SortingResponse getSortingRecords(Sorting sorting,List<Sorting> sortingRecords);
+
+    Boolean canCancelInspectionEC(Sorting sorting);
+
+    /**
+     * 分拣核心操作成功后的补充操作
+     *
+     * @param task
+     * @return
+     */
+    boolean executeSortingSuccess(Task task);
 }

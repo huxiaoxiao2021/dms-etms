@@ -346,6 +346,10 @@ public class ReceiveServiceImpl implements ReceiveService {
 		String tmpNumber = receiveRequest.getPackOrBox();
 		// 根据规则得出包裹号、箱号、运单号
 		if (BusinessHelper.isBoxcode(tmpNumber)) {
+			if(tmpNumber.length() > Constants.BOX_CODE_DB_COLUMN_LENGTH_LIMIT){
+				log.error("收货任务JSON数据非法，箱号超长，收货消息体：" + jsonReceive);
+				return null;
+			}
 			// 字母开头为箱号
 			receive.setBoxCode(tmpNumber);
 			// 装箱类型（1 箱包装 2 单件包裹）
@@ -357,15 +361,17 @@ public class ReceiveServiceImpl implements ReceiveService {
 				receive.setBoxCode(tmpNumber);
 				receive.setPackageBarcode(tmpNumber);
 				receive.setBoxingType(Short.parseShort("2"));
-			} else {
+			} else if(WaybillUtil.isPackageCode(tmpNumber) || WaybillUtil.isWaybillCode(tmpNumber)){
 				// 包裹号(=箱号)
 				receive.setBoxCode(tmpNumber);
 				receive.setPackageBarcode(tmpNumber);
 				// 装箱类型（1 箱包装 2 单件包裹）
 				receive.setBoxingType(Short.parseShort("2"));
 				receive.setWaybillCode(WaybillUtil.getWaybillCode(tmpNumber));
+			}else {
+				log.error("收货任务JSON数据非法，无法识别的扫描单号，收货消息体：" + jsonReceive);
+				return null;
 			}
-
 		}
 		receive.setCarCode(receiveRequest.getCarCode());
 		receive.setShieldsCarCode(receiveRequest.getShieldsCarCode());
@@ -385,7 +391,7 @@ public class ReceiveServiceImpl implements ReceiveService {
 		receive.setCreateSiteName(receiveRequest.getSiteName());
 		receive.setTurnoverBoxCode(receiveRequest.getTurnoverBoxCode());
 		receive.setQueueNo(receiveRequest.getQueueNo());
-		receive.setDepartureCarId(StringHelper.longParseString(receiveRequest.getDepartureCarId()));
+
 		return receive;
 	}
 

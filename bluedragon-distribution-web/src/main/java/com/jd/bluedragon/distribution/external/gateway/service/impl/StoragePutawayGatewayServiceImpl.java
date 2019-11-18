@@ -23,7 +23,7 @@ import java.util.List;
 public class StoragePutawayGatewayServiceImpl implements StoragePutawayGatewayService {
 
     @Autowired
-    StorageResource storageResource;
+    private StorageResource storageResource;
 
     /**
      * 获取储位信息

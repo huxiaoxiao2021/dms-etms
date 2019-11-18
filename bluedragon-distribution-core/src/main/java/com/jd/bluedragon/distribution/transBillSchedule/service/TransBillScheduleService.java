@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.transBillSchedule.service;
 
+import com.jd.bluedragon.distribution.api.response.TransBillScheduleResponse;
 import com.jd.bluedragon.distribution.transBillSchedule.domain.TransBillScheduleRequest;
 
 /**
@@ -55,5 +56,12 @@ public interface TransBillScheduleService {
      * @return
      */
     public boolean delete(String boxCode);
+
+    /**
+     * 获取派车单信息
+     * @param request
+     * @return
+     */
+    TransBillScheduleResponse checkScheduleBill(TransBillScheduleRequest request);
 
 }
