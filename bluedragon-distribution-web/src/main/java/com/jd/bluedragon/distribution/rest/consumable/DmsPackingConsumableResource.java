@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.rest.consumable;
 import IceInternal.Ex;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.distribution.consumable.domain.DmsConsumableRelation;
 import com.jd.bluedragon.distribution.consumable.domain.DmsConsumableRelationCondition;
 import com.jd.bluedragon.distribution.consumable.domain.DmsConsumableRelationDetailInfo;
@@ -10,6 +11,7 @@ import com.jd.bluedragon.distribution.consumable.service.DmsConsumableRelationSe
 import com.jd.bluedragon.distribution.consumable.service.PackingConsumableInfoService;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.external.service.DmsPackingConsumableService;
+import com.jd.bluedragon.external.gateway.service.AbnormalReportingGatewayService;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.apache.commons.logging.Log;
@@ -38,34 +40,21 @@ public class DmsPackingConsumableResource {
     @Autowired
     private DmsConsumableRelationService dmsConsumableRelationService;
 
+    @Autowired
+    private AbnormalReportingGatewayService abnormalReportingGatewayService;
+
     @GET
     @Path("/packing/info/{dmsId}")
-    public JdResponse getInfoByDmsId(@PathParam("dmsId") Integer dmsId) {
-        JdResponse jdResponse = dmsPackingConsumableService.getPackingConsumableInfoByDmsId(dmsId);
-
-        DmsConsumableRelationCondition dmsConsumableRelationCondition = new DmsConsumableRelationCondition();
-        dmsConsumableRelationCondition.setDmsId(910);
-        try {
-            PagerResult<DmsConsumableRelationDetailInfo> pager = dmsConsumableRelationService.queryDetailInfoByPagerCondition(dmsConsumableRelationCondition);
-        } catch (Exception e) {
-            logger.error(e);
-        }
+    public JdCResponse getInfoByDmsId(@PathParam("dmsId") Integer dmsId) {
+        JdCResponse jdResponse = abnormalReportingGatewayService.getDutyDepartment("JDVA00049183927-2-2-");
         return jdResponse;
     }
 
     @GET
     @Path("/packing/detail/{code}")
-    public JdResponse getInfoByCode(@PathParam("code") String code) {
+    public JdCResponse getInfoByCode(@PathParam("code") String code) {
 
-        JdResponse jdResponse = dmsPackingConsumableService.getPackingConsumableInfoByCode(code);
-
-//        DmsConsumableRelationCondition dmsConsumableRelationCondition = new DmsConsumableRelationCondition();
-//        dmsConsumableRelationCondition.setDmsId(910);
-//        try {
-//            PagerResult<DmsConsumableRelationDetailInfo> pager = dmsConsumableRelationService.queryDetailInfoByPagerCondition(dmsConsumableRelationCondition);
-//        } catch (Exception e) {
-//            logger.error(e);
-//        }
+        JdCResponse jdResponse = abnormalReportingGatewayService.getAllAbnormalReason("bjxings");
         return jdResponse;
     }
 }

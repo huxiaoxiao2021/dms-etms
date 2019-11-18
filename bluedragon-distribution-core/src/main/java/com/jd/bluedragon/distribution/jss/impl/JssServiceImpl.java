@@ -9,10 +9,12 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.text.MessageFormat;
+import java.util.UUID;
 
 /**
  * @author lixin39
@@ -103,4 +105,24 @@ public class JssServiceImpl implements JssService {
         return "http://" + jssStorageClient.getEndpoint() + "/" + bucket + "/" + keyName;
     }
 
+    @Override
+    public String uploadImage(String bucket, byte[] bytes) {
+        if (bytes == null) {
+            logger.info("上传的参数为空");
+            return null;
+        }
+        ByteArrayInputStream inStream = new ByteArrayInputStream(bytes);
+        try {
+            String key = UUID.randomUUID().toString() + ".jpg";
+            JingdongStorageService jss = jssStorageClient.getStorageService();
+
+            jss.bucket(bucket).object(key).entity(bytes.length, inStream).put();
+            inStream.close();
+            URI uri = jss.bucket(bucket).object(key).generatePresignedUrl(315360000);
+            return uri.toString();
+        }catch (Exception e){
+            logger.error("异常上行处理异常:", e);
+        }
+        return null;
+    }
 }
