@@ -1153,13 +1153,6 @@
 			<artifactId>icenter-api</artifactId>
 			<version>1.1.0-SNAPSHOT</version>
 		</dependency>
-
-		<!--<dependency>-->
-			<!--<groupId>com.jd.intelligent.center</groupId>-->
-			<!--<artifactId>icenter-api-common</artifactId>-->
-			<!--<version>1.0.1-SNAPSHOT</version>-->
-		<!--</dependency>-->
-
 	</dependencies>
 
 	<build>
