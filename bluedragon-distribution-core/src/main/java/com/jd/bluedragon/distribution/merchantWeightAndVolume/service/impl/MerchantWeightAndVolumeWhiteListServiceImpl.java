@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.merchantWeightAndVolume.service.impl;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
@@ -13,14 +14,19 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,6 +54,15 @@ public class MerchantWeightAndVolumeWhiteListServiceImpl implements MerchantWeig
      * */
     private static final Integer MERCHANT_WHITELIST_IMPORT_MAX_NUM = 1000;
     private static final Integer MERCHANT_WHITELIST_EXPORT_MAX_NUM = 5000;
+
+    /**
+     * 批量入库分批数量
+     * */
+    private static final Integer BATCH_INSERT_COUNT = 100;
+
+    @Autowired
+    @Qualifier("jimdbCacheService")
+    private CacheService jimdbCacheService;
 
     @Autowired
     private SiteService siteService;
@@ -107,7 +122,13 @@ public class MerchantWeightAndVolumeWhiteListServiceImpl implements MerchantWeig
                     BaseStaffSiteOrgDto basestaffDto = baseMajorManager.getBaseStaffIgnoreIsResignByErp(importErpCode);
                     if(basestaffDto != null && !StringUtils.isEmpty(basestaffDto.getStaffName())){
                         createUserName = basestaffDto.getStaffName();
+                    }else {
+                        errorMessage = "登录人不存在!";
+                        return errorMessage;
                     }
+                }else {
+                    errorMessage = "请重新登录!";
+                    return errorMessage;
                 }
                 Map<String,MerchantWeightAndVolumeDetail> map = new HashMap<>();
                 int rowIndex = 1;
@@ -146,7 +167,7 @@ public class MerchantWeightAndVolumeWhiteListServiceImpl implements MerchantWeig
                 }
                 List<MerchantWeightAndVolumeDetail> realList = new ArrayList<>(map.size());
                 realList.addAll(map.values());
-                merchantWeightAndVolumeWhiteListDao.batchInsert(realList);
+                batchInsert(realList);
             }else {
                 errorMessage = "导入条数大于1000条,请重新上传数据导入!";
             }
@@ -216,6 +237,22 @@ public class MerchantWeightAndVolumeWhiteListServiceImpl implements MerchantWeig
         return isExist;
     }
 
+    @Override
+    public Boolean isExist(Integer busiId, Integer dmsCode) {
+        Boolean isExist = Boolean.FALSE;
+        try {
+            MerchantWeightAndVolumeDetail detail = new MerchantWeightAndVolumeDetail();
+            detail.setMerchantId(busiId);
+            detail.setOperateSiteCode(dmsCode);
+            isExist = isExist(detail);
+            String redisKey = MessageFormat.format(CacheKeyConstants.CACHE_KEY_PRINT_BUSI_SITE,busiId,dmsCode);
+            jimdbCacheService.setEx(redisKey, isExist, 1 * Constants.TIME_SECONDS_ONE_HOUR);
+        }catch (Exception e){
+            logger.error("服务异常!");
+        }
+        return isExist;
+    }
+
     /**
      * 商家校验
      * @param detail
@@ -234,5 +271,34 @@ public class MerchantWeightAndVolumeWhiteListServiceImpl implements MerchantWeig
             logger.error("通过商家ID"+detail.getMerchantId()+"查询商家信息异常!",e);
         }
         return merchantCheck;
+    }
+
+
+    /**
+     * 批量分批入库
+     * @param list
+     * @return
+     */
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+    public void batchInsert(List<MerchantWeightAndVolumeDetail> list) {
+        int batchCount = BATCH_INSERT_COUNT; //每批插入数目
+        int batchLastIndex = batchCount;
+        List<List<MerchantWeightAndVolumeDetail>> shareList = new ArrayList<>();
+        for (int index = 0; index < list.size(); ) {
+            if (batchLastIndex >= list.size()) {
+                shareList.add(list.subList(index, list.size()));
+                break;
+            } else {
+                shareList.add(list.subList(index, batchLastIndex));
+                index = batchLastIndex;// 设置下一批下标
+                batchLastIndex = index + batchCount;
+            }
+        }
+        if (CollectionUtils.isNotEmpty(shareList)) {
+            for (List<MerchantWeightAndVolumeDetail> subList : shareList) {
+                //循环插入数据
+                merchantWeightAndVolumeWhiteListDao.batchInsert(subList);
+            }
+        }
     }
 }

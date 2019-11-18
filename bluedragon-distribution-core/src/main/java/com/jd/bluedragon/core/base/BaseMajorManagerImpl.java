@@ -750,6 +750,8 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     }
 
     @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseTraderNeccesaryInfoById", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Cache(key = "DMS.BASE.BaseMajorManagerImpl.getBaseTraderNeccesaryInfoById@args0", memoryEnable = true, memoryExpiredTime = 1 * 60 * 1000,
+            redisEnable = false, redisExpiredTime = 2 * 60 * 1000)
     public BasicTraderNeccesaryInfoDTO getBaseTraderNeccesaryInfoById(Integer merchantId) {
         ResponseDTO<BasicTraderNeccesaryInfoDTO> responseDTO
                 = basicTraderAPI.getBaseTraderNeccesaryInfoById(merchantId);

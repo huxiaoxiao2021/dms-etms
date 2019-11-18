@@ -47,4 +47,12 @@ public interface MerchantWeightAndVolumeWhiteListService {
      * @return
      */
     Boolean isExist(MerchantWeightAndVolumeDetail detail);
+
+    /**
+     * 根据商家ID、站点ID判断是否存在
+     * @param busiId
+     * @param dmsCode
+     * @return
+     */
+    Boolean isExist(Integer busiId, Integer dmsCode);
 }

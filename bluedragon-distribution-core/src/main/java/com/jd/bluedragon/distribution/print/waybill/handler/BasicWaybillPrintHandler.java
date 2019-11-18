@@ -11,8 +11,6 @@ import com.jd.bluedragon.distribution.base.service.AirTransportService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
-import com.jd.bluedragon.distribution.merchantWeightAndVolume.domain.MerchantWeightAndVolumeDetail;
-import com.jd.bluedragon.distribution.merchantWeightAndVolume.service.MerchantWeightAndVolumeWhiteListService;
 import com.jd.bluedragon.distribution.print.domain.PrintPackage;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
@@ -68,9 +66,6 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
 
     @Autowired
     private BaseMinorManager baseMinorManager;
-
-    @Autowired
-    private MerchantWeightAndVolumeWhiteListService merchantWeightAndVolumeWhiteListService;
 
     /**
      * 奢侈品订单打标位起始值
@@ -205,15 +200,6 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             commonWaybill.setPopSupName(tmsWaybill.getConsigner());
             commonWaybill.setBusiId(tmsWaybill.getBusiId());
             commonWaybill.setBusiName(tmsWaybill.getBusiName());
-
-            //自动识别包裹标签打印标识
-            Boolean discernFlag = context.getRequest().getDiscernFlag();
-            if(discernFlag){
-                MerchantWeightAndVolumeDetail detail = new MerchantWeightAndVolumeDetail();
-                detail.setMerchantId(tmsWaybill.getBusiId());
-                detail.setOperateSiteCode(dmsCode);
-                commonWaybill.setNeedPrintFlag(!merchantWeightAndVolumeWhiteListService.isExist(detail));
-            }
 
             commonWaybill.setOriginalCrossType(BusinessUtil.getOriginalCrossType(tmsWaybill.getWaybillSign(), tmsWaybill.getSendPay()));
             //调用外单接口，根据商家id获取商家编码

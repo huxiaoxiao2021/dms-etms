@@ -33,4 +33,8 @@ public class CacheKeyConstants {
 	 * 箱号状态缓存redis的key
 	 */
 	public static final String CACHE_KEY_BOX_STATUS = "BoxStatus";
+	/**
+	 * 平台打印是否需要打印的缓存key
+	 * */
+	public static final String CACHE_KEY_PRINT_BUSI_SITE = "isNeedPrint.{0}.{1}";
 }
