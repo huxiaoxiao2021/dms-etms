@@ -8,15 +8,15 @@ import com.jd.bluedragon.distribution.queueManagement.domain.PlatformWorkRequest
 import com.jd.bluedragon.distribution.queueManagement.service.QueueManagementService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
-import com.jd.intelligent.center.api.common.dto.OperatorInfo;
 import com.jd.intelligent.center.api.common.dto.PdaPlatformInfoResponseDto;
 import com.jd.intelligent.center.api.common.dto.PdaPlatformRequestDto;
-import com.jd.intelligent.center.api.common.dto.PlatformCallNumRequestRequestDto;
+import com.jd.intelligent.center.api.common.dto.PlatformCallNumRequestDto;
 import com.jd.intelligent.center.api.common.dto.PlatformCallNumResponseDto;
 import com.jd.intelligent.center.api.common.dto.PlatformQueueTaskResponseDto;
 import com.jd.intelligent.center.api.common.dto.PlatformWorkRequestDto;
 import com.jd.intelligent.center.api.common.enums.PlatformWorkTypeEnum;
-import com.jd.intelligent.center.api.common.enums.ResourceTypeEnum;
+import com.jd.intelligent.common.model.dto.OperatorInfo;
+import com.jd.intelligent.common.model.enums.ResourceTypeEnum;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang3.StringUtils;
@@ -130,7 +130,7 @@ public class QueueManagementResource {
             result.setMessage("请选择月台");
             return result;
         }
-        PlatformCallNumRequestRequestDto req=new PlatformCallNumRequestRequestDto();
+        PlatformCallNumRequestDto req=new PlatformCallNumRequestDto();
         req.setPlatformCode(request.getPlatformCode());
         OperatorInfo op=new OperatorInfo();
         op.setOperatorUserErp(request.getOperatorInfo().getOperatorUserErp());
@@ -168,7 +168,7 @@ public class QueueManagementResource {
             result.setMessage(InvokeResult.PARAM_ERROR);
             return result;
         }
-        PlatformCallNumRequestRequestDto req=new PlatformCallNumRequestRequestDto();
+        PlatformCallNumRequestDto req=new PlatformCallNumRequestDto();
         req.setPlatformCode(request.getPlatformCode());
         req.setFlowCode(request.getFlowCode());
         req.setCarTypeValue(request.getCarType());

@@ -4,12 +4,12 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.intelligent.center.api.common.dto.PdaPlatformInfoResponseDto;
 import com.jd.intelligent.center.api.common.dto.PdaPlatformRequestDto;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.intelligent.center.api.common.dto.PlatformCallNumRequestRequestDto;
+import com.jd.intelligent.center.api.common.dto.PlatformCallNumRequestDto;
 import com.jd.intelligent.center.api.common.dto.PlatformCallNumResponseDto;
 import com.jd.intelligent.center.api.common.dto.PlatformQueueTaskResponseDto;
 import com.jd.intelligent.center.api.common.dto.PlatformWorkRequestDto;
-import com.jd.intelligent.center.api.common.model.WebResult;
 import com.jd.intelligent.center.api.service.IPdaDispatchJsfService;
+import com.jd.intelligent.common.model.vo.WebResult;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,7 +96,7 @@ public class QueueManagementService {
      * @param request
      * @return
      */
-    public InvokeResult<PlatformCallNumResponseDto> callNum(PlatformCallNumRequestRequestDto request)
+    public InvokeResult<PlatformCallNumResponseDto> callNum(PlatformCallNumRequestDto request)
     {
         InvokeResult<PlatformCallNumResponseDto> res = new InvokeResult<PlatformCallNumResponseDto>();
 
@@ -129,7 +129,7 @@ public class QueueManagementService {
      * @param request
      * @return
      */
-    public InvokeResult<Boolean> isCoccupyPlatform(PlatformCallNumRequestRequestDto request)
+    public InvokeResult<Boolean> isCoccupyPlatform(PlatformCallNumRequestDto request)
     {
         InvokeResult<Boolean> res = new InvokeResult<Boolean>();
 
