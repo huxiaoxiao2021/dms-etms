@@ -22,10 +22,10 @@ public class inventoryTaskCompleteConsumer extends MessageBaseConsumer {
     @Override
     public void consume(Message message) throws Exception {
         // 处理消息体
-        this.log.debug("inventoryTaskCompleteConsumer consume --> 消息Body为【{}】",message.getText());
+        log.debug("inventoryTaskCompleteConsumer consume --> 消息Body为【{}】",message.getText());
 
         if (StringHelper.isEmpty(message.getText())) {
-            this.log.warn("inventoryTaskCompleteConsumer consume --> 消息为空");
+            log.warn("inventoryTaskCompleteConsumer consume --> 消息为空");
             return;
         }
         if (! JsonHelper.isJsonString(message.getText())) {
@@ -34,7 +34,7 @@ public class inventoryTaskCompleteConsumer extends MessageBaseConsumer {
         }
         InventoryBaseRequest inventoryBaseRequest = JsonHelper.fromJson(message.getText(), InventoryBaseRequest.class);
         if (inventoryBaseRequest == null) {
-            this.log.warn("inventoryTaskCompleteConsumer consume --> 消息转换对象失败：{}" , message.getText());
+            log.warn("inventoryTaskCompleteConsumer consume --> 消息转换对象失败：{}" , message.getText());
             return;
         }
         inventoryExceptionService.generateInventoryException(inventoryBaseRequest);
