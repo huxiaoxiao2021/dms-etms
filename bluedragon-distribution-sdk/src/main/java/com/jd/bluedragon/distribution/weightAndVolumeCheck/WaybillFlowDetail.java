@@ -37,9 +37,21 @@ public class WaybillFlowDetail implements Serializable {
      * */
     private String operateSiteName;
     /**
+     * 是否信任商家
+     * */
+    private Boolean isTrustBusi = Boolean.FALSE;
+    /**
      * 操作时间
      * */
     private Date operateTime;
+
+    public Boolean getTrustBusi() {
+        return isTrustBusi;
+    }
+
+    public void setTrustBusi(Boolean trustBusi) {
+        isTrustBusi = trustBusi;
+    }
 
     public Double getTotalWeight() {
         return totalWeight;
