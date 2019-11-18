@@ -12,13 +12,12 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Resource;
@@ -34,7 +33,7 @@ import java.util.Set;
 public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExecuteContext> {
 
 
-    private static final Log logger= LogFactory.getLog(InspectionTaskExecute.class);
+    private static final Logger log = LoggerFactory.getLogger(InspectionTaskExecute.class);
 
     @Autowired
     private InspectionService inspectionService;
@@ -51,8 +50,8 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
         context.setPassCheck(true);
         InspectionRequest request= JsonHelper.fromJsonUseGson(domain.getBody(),InspectionRequest.class);
         if(null==request){
-            if(logger.isWarnEnabled()){
-                logger.warn(MessageFormat.format("验货JSON解析后对象为空{0}",domain.getBody()));
+            if(log.isWarnEnabled()){
+                log.warn("验货JSON解析后对象为空{}",domain.getBody());
             }
             context.setPassCheck(false);
             return context;
@@ -69,7 +68,7 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
             request.setWaybillCode(code);
         } else {
             String errorMsg = "验货条码不符合规则:" + code;
-            logger.warn(errorMsg);
+            log.warn(errorMsg);
             throw new WayBillCodeIllegalException(errorMsg);
         }
 
@@ -154,9 +153,7 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
         BigWaybillDto bigWaybillDto=context.getBigWaybillDto();
         if (StringUtils.isNotBlank(request.getWaybillCode())) {
             if (null == bigWaybillDto||null==bigWaybillDto.getPackageList()||bigWaybillDto.getPackageList().size()==0) {
-                if(logger.isErrorEnabled()){
-                    logger.warn(MessageFormat.format("验货包裹信息为空{0}",context.getBusinessKey()));
-                }
+                log.warn("验货包裹信息为空{}",context.getBusinessKey());
                 context.setPassCheck(false);
                 return;
             }
@@ -176,8 +173,8 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
         }
         Collections.sort(inspectionList);
         context.setInspectionList(inspectionList);
-        if(logger.isInfoEnabled()){
-            logger.info(MessageFormat.format("验货明细为{0}",JsonHelper.toJson(inspectionList)));
+        if(log.isInfoEnabled()){
+            log.info("验货明细为{}",JsonHelper.toJson(inspectionList));
         }
     }
 

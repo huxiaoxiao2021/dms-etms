@@ -17,14 +17,13 @@ import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -40,7 +39,7 @@ import java.util.Set;
 @Service("arCreTransportBillTraceConsumer")
 public class ArCreTransportBillTraceConsumer extends MessageBaseConsumer {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private ArSendRegisterService arSendRegisterService;
@@ -64,14 +63,14 @@ public class ArCreTransportBillTraceConsumer extends MessageBaseConsumer {
     @Override
     public void consume(Message message) throws Exception {
         if (!JsonHelper.isJsonString(message.getText())) {
-            logger.warn(MessageFormat.format("[空铁项目]TMS铁路主运单号、实际发车/到达时间MQ消费-消息体非JSON格式，内容为【{0}】", message.getText()));
+            log.warn("[空铁项目]TMS铁路主运单号、实际发车/到达时间MQ消费-消息体非JSON格式，内容为【{}】", message.getText());
             return;
         }
         try {
             ArCreTransportBillTrace creTransportBillTrace = JsonHelper.fromJsonUseGson(message.getText(), ArCreTransportBillTrace.class);
             this.doConsume(creTransportBillTrace);
         } catch (Exception e) {
-            logger.error("[空铁项目]消费TMS铁路运输订单信息MQ时发生异常", e);
+            log.error("[空铁项目]消费TMS铁路运输订单信息MQ时发生异常,内容为【{}】", message.getText(), e);
             throw new RuntimeException(e);
         }
     }
@@ -79,7 +78,7 @@ public class ArCreTransportBillTraceConsumer extends MessageBaseConsumer {
     private void doConsume(ArCreTransportBillTrace creTransportBillTrace) throws Exception {
         String creTransBillCode = creTransportBillTrace.getCreTransbillCode();
         if (StringUtils.isEmpty(creTransBillCode)) {
-            logger.warn("[空铁项目]消费TMS铁路运输订单信息MQ-中铁运单号为null");
+            log.warn("[空铁项目]消费TMS铁路运输订单信息MQ-中铁运单号为null");
             return;
         }
         List<ArSendRegister> sendRegisterList = arSendRegisterService.getRailwayListByTransParam(creTransBillCode);
@@ -92,10 +91,10 @@ public class ArCreTransportBillTraceConsumer extends MessageBaseConsumer {
                     this.buildRailwayWaybillAndSendMQ(sendCode, creTransportBillTrace, sealCarDto);
                 }
             } else {
-                logger.warn("[空铁项目]消费TMS铁路运输订单信息MQ-根据发货登记信息ID(" + sendRegisterIds.toString() + ")获取批次号列表为空或null");
+                log.warn("[空铁项目]消费TMS铁路运输订单信息MQ-根据发货登记信息ID({})获取批次号列表为空或null",sendRegisterIds.toString() );
             }
         } else {
-            logger.warn("[空铁项目]消费TMS铁路运输订单信息MQ-根据中铁运单号(" + creTransBillCode + ")获取发货登记信息为null");
+            log.warn("[空铁项目]消费TMS铁路运输订单信息MQ-根据中铁运单号({})获取发货登记信息为null",creTransBillCode);
         }
     }
 
@@ -160,7 +159,7 @@ public class ArCreTransportBillTraceConsumer extends MessageBaseConsumer {
             /* 路由线路编码 */
             railwayWaybillStatus.setRouteLineCode(sealCarDto.getRouteLineCode());
         } else {
-            logger.warn("调用运输接口[vosQueryWS.querySealCarByBatchCode()]根据批次号(" + sendCode + ")获取封车信息为null");
+            log.warn("调用运输接口[vosQueryWS.querySealCarByBatchCode()]根据批次号({})获取封车信息为null",sendCode);
         }
         this.doSendMQ(sendCode, railwayWaybillStatus);
     }
@@ -184,7 +183,7 @@ public class ArCreTransportBillTraceConsumer extends MessageBaseConsumer {
                 arRailwayWaybillStatusMQ.send(railwayWaybillStatus.getWayBillCode(), JsonHelper.toJson(railwayWaybillStatus));
             }
         } else {
-            logger.warn("[空铁项目]消费航班起飞降落实时MQ-根据批次号获取发货明细为空，批次号：" + sendCode);
+            log.warn("[空铁项目]消费航班起飞降落实时MQ-根据批次号获取发货明细为空，批次号：{}" , sendCode);
         }
     }
 

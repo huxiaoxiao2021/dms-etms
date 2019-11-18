@@ -87,7 +87,6 @@ public class InvokeResult<T> implements Serializable {
     public void error(Throwable ex){
         this.code=SERVER_ERROR_CODE;
         this.message= SERVER_ERROR_MESSAGE;
-        //logger.error(ex);
     }
 
 
@@ -98,7 +97,6 @@ public class InvokeResult<T> implements Serializable {
     public void error(String message){
         this.code=SERVER_ERROR_CODE;
         this.message= message;
-        //logger.error(ex);
     }
 
     /**
