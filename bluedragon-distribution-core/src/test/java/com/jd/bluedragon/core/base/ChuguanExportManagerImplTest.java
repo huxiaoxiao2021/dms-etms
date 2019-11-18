@@ -2,7 +2,7 @@ package com.jd.bluedragon.core.base;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.distribution.kuguan.domain.KuGuanDomain;
-import com.jd.bluedragon.utils.ContantsEnum;
+import com.jd.bluedragon.utils.ConstantEnums;
 import com.jd.stock.iwms.export.param.ChuguanParam;
 import org.junit.Assert;
 import org.junit.Test;
@@ -30,8 +30,8 @@ public class ChuguanExportManagerImplTest {
         List<ChuguanParam> chuguanParamList = Lists.newArrayList();
         ChuguanParam in = new ChuguanParam();
         in.setRfId("1122343333333333");
-        in.setRfType(ContantsEnum.ChuGuanRfType.IN.getType());
-        in.setChuruId(ContantsEnum.ChuGuanChuruId.IN_KU.getType());
+        in.setRfType(ConstantEnums.ChuGuanRfType.IN.getType());
+        in.setChuruId(ConstantEnums.ChuGuanChuruId.IN_KU.getType());
         in.setChuru("");
         in.setOrderId(0L);
         in.setYuanDanHao(0);

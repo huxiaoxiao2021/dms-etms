@@ -102,7 +102,7 @@ public class PDDCustomerAndConsigneeInfoHandler implements InterceptHandler<Wayb
         //设置前四位和后四位
         context.getBasePrintWaybill().setCustomerContacts(concatPhone(pddWaybillDetailDto.getConsigneeMobile(),pddWaybillDetailDto.getConsigneePhone()));
         String mobile = pddWaybillDetailDto.getConsigneeMobile();
-        String tel = pddWaybillDetailDto.getSenderPhone();
+        String tel = pddWaybillDetailDto.getConsigneePhone();
         if (StringUtils.isNotBlank(mobile) && mobile.length() >= StringHelper.PHONE_HIGHLIGHT_NUMBER) {
             String firstMobile = mobile.substring(0, mobile.length() - StringHelper.PHONE_HIGHLIGHT_NUMBER);
             context.getBasePrintWaybill().setMobileFirst(firstMobile);

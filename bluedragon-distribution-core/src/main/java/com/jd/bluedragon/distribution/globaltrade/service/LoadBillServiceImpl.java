@@ -118,6 +118,7 @@ public class LoadBillServiceImpl implements LoadBillService {
 
             LoadBillConfig loadBillConfig = loadBillConfigMap.get(dto.getSiteCode());
             if (loadBillConfig != null) {
+                logger.info("[全球购]初始化-LoadBillServiceImpl.initialLoadBill操作批次号：" + sendCode + "，操作人：" + userCode);
                 Map<String, Object> params = new HashMap<String, Object>();
                 params.put("sendCodeList", StringHelper.parseList(sendCode, ","));
                 params.put("dmsList", new Integer[]{dto.getSiteCode()});
@@ -169,7 +170,7 @@ public class LoadBillServiceImpl implements LoadBillService {
     private int doInitial(List<SendDetail> sendDetailList, LoadBillConfig loadBillConfig, Integer userId, String userName) {
         CallerInfo info = Profiler.registerInfo("DMSWEB.LoadBillServiceImpl.doInitial", false, true);
         long start = System.currentTimeMillis();
-        List<LoadBill> addList = new ArrayList<LoadBill>();
+        List<LoadBill> addList = new ArrayList<LoadBill>(sendDetailList.size());
         // 站点信息缓存Cache
         Map<Integer, String> dmsCacheMap = new HashMap<Integer, String>();
         // 预装载信息缓存运单号Cache
