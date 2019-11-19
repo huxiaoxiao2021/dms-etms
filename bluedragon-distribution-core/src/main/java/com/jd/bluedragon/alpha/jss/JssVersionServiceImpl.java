@@ -6,8 +6,8 @@ import com.jcloud.jss.JingdongStorageService;
 import com.jcloud.jss.client.ClientConfig;
 import com.jcloud.jss.domain.ObjectListing;
 import com.jcloud.jss.domain.ObjectSummary;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,7 +20,7 @@ import java.util.List;
  */
 public class JssVersionServiceImpl implements JssVersionService {
 
-    private static final Log logger = LogFactory.getLog(JssVersionServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(JssVersionServiceImpl.class);
 
     /**存储数据的最基本的单元*/
     private String bucket;
@@ -64,12 +64,12 @@ public class JssVersionServiceImpl implements JssVersionService {
             jss.bucket(bucket).object(keyName).entity(length,inputStream).put();
             inputStream.close();
         } catch(IOException e){
-            logger.error("关闭输入流失败：",e);
+            log.error("关闭输入流失败：",e);
         } finally {
             try {
                 inputStream.close();
             } catch (IOException ioe){
-                logger.error("关闭输入流再失败：",ioe);
+                log.error("关闭输入流再失败：",ioe);
             }
         }
     }
