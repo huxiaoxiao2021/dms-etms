@@ -47,10 +47,10 @@ public class EclpPackageApiManagerImpl implements EclpPackageApiManager {
                     && responseDTO.getData()!=null && !responseDTO.getData().isEmpty()){
                 return responseDTO.getData().get(0).getPackageCode();
             }else{
-                logger.error(MessageFormat.format("根据商家ID和商家单号获取一个包裹失败{0}|{1}|{2}",busiId,busiOrderCode, JsonHelper.toJson(responseDTO)));
+                logger.error("根据商家ID{}和商家单号{}获取一个包裹失败,原因{}",busiId,busiOrderCode,responseDTO.getStatusMessage());
             }
         }catch (Exception e){
-            logger.error(MessageFormat.format("根据商家ID和商家单号获取一个包裹异常{0}|{1}",busiId,busiOrderCode),e);
+            logger.error("根据商家ID{}和商家单号{}获取一个包裹异常",busiId,busiOrderCode,e);
         }
 
         return StringUtils.EMPTY;

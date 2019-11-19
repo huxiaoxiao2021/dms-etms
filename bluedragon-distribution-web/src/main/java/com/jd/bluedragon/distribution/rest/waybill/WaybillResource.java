@@ -1964,7 +1964,7 @@ public class WaybillResource {
 				result.setData(eclpPackageApiService.queryPackage(busiId,busiCode));
 			}
 		}catch (Exception e){
-			logger.error(MessageFormat.format("根据商家ID和商家单号获取包裹号异常{0}|{1}",busiId,busiCode),e);
+		    logger.error("根据商家ID{}和商家单号{}获取包裹号异常{}",busiId,busiCode,e.getMessage(),e);
 			result.setCode(InvokeResult.SERVER_ERROR_CODE);
 			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
 		}
