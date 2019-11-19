@@ -9,8 +9,8 @@ import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightVolumeCheckOfB2
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightVolumeCheckOfB2bWaybill;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckOfB2bService;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -36,7 +36,7 @@ import java.util.List;
 @RequestMapping("weightAndVolumeCheckOfB2b")
 public class WeightAndVolumeCheckOfB2bController extends DmsBaseController {
 
-    private static final Log logger = LogFactory.getLog(WeightAndVolumeCheckOfB2bController.class);
+    private static final Logger logger = LoggerFactory.getLogger(WeightAndVolumeCheckOfB2bController.class);
 
     @Autowired
     private WeightAndVolumeCheckOfB2bService weightAndVolumeCheckOfB2bService;

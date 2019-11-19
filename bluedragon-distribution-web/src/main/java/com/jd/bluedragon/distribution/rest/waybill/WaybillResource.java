@@ -13,7 +13,6 @@ import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.LDOPManager;
 import com.jd.bluedragon.core.base.LdopWaybillUpdateManager;
 import com.jd.bluedragon.core.base.OBCSManager;
-import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -66,7 +65,6 @@ import com.jd.bluedragon.distribution.web.kuaiyun.weight.WeighByWaybillControlle
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDetail;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDto;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.WaybillFlowDetail;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;

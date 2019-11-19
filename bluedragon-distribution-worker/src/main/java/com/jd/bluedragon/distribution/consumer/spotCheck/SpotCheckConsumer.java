@@ -13,14 +13,13 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,7 +34,7 @@ import java.util.List;
 @Service("spotCheckConsumer")
 public class SpotCheckConsumer extends MessageBaseConsumer {
 
-    private final Log logger = LogFactory.getLog(SpotCheckConsumer.class);
+    private static final Logger logger = LoggerFactory.getLogger(SpotCheckConsumer.class);
 
     /**
      * 责任类型：认责
@@ -62,7 +61,7 @@ public class SpotCheckConsumer extends MessageBaseConsumer {
         //主动认责的将此运单号对应的总重量、总体积 写入运单系统
         try {
             if (!JsonHelper.isJsonString(message.getText())) {
-                logger.error(MessageFormat.format("抽检回传消息体非JSON格式，内容为【{0}】", message.getText()));
+                logger.error("参数:{}, 异常信息:{}", message.getText() , "抽检回传消息体非JSON格式");
                 return;
             }
 
@@ -81,10 +80,10 @@ public class SpotCheckConsumer extends MessageBaseConsumer {
                     &&blameType!=null&&blameType==BLAME_TYPE){
                 Integer inputMode = pictureInfoMq.getInputMode();
                 if(inputMode==null){
-                    logger.error("运单号"+pictureInfoMq.getBillCode()+"抽检类型为空");
+                    logger.error("参数:{}, 异常信息:{}", pictureInfoMq.getBillCode() , "运单号抽检类型为空");
                     return;
                 }
-                logger.info("运单号"+pictureInfoMq.getBillCode()+"的抽检回传消息："+message.getText());
+                logger.info("运单号：{}的抽检回传消息：{}",pictureInfoMq.getBillCode(),message.getText());
                 if(inputMode == 2){
                     //包裹维度抽检
                     OpeEntity opeEntity = new OpeEntity();
@@ -134,7 +133,7 @@ public class SpotCheckConsumer extends MessageBaseConsumer {
 
             }
         }catch (Exception e){
-            logger.error("转换异常：" + message.getText(),e);
+            logger.error("参数:{}, 异常信息:{}", message.getText() , e.getMessage(), e);
         }
     }
 
