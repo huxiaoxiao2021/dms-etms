@@ -36,7 +36,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.*;
 
-@Service("abnormalReportingGatewayService")
 public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGatewayService {
 
     @Value("${qc.abnormal.reason.type:920002312}")
