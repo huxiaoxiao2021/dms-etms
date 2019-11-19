@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.rule.service;
 
-import com.jd.bluedragon.distribution.rule.dao.RuleMapper;
+import com.jd.bluedragon.distribution.rule.dao.RuleDao;
 import com.jd.bluedragon.distribution.rule.domain.Rule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,43 +15,40 @@ import java.util.Map;
 public class RuleServiceImpl implements RuleService {
 
     @Autowired
-    private RuleMapper ruleMapper;
+    private RuleDao ruleDao;
 
     public Rule queryById(long id) {
-        return this.ruleMapper.queryById(id);
+        return this.ruleDao.queryById(id);
     }
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public void add(Rule rule) {
         rule.setTs(System.currentTimeMillis());
-        ruleMapper.add(rule);
+        ruleDao.add(rule);
     }
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public void update(Rule rule) {
         rule.setTs(System.currentTimeMillis());
-        ruleMapper.update(rule);
+        ruleDao.update(rule);
     }
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public void del(long id) {
         Rule rule = new Rule();
         rule.setTs(System.currentTimeMillis());
         rule.setRuleId(id);
-        ruleMapper.logicDelete(rule);
+        ruleDao.logicDelete(rule);
     }
 
     public Integer queryAllSize(Map map) {
-        return ruleMapper.queryAllSize(map);
+        return ruleDao.queryAllSize(map);
     }
 
     public List<Rule> queryByParamNoPage(Map map) {
-        return ruleMapper.queryByParamNoPage(map);
+        return ruleDao.queryByParamNoPage(map);
     }
 
     @Override
     public List<Rule> select(Map map) {
-        return ruleMapper.queryByParam(map);
+        return ruleDao.queryByParam(map);
     }
 
     @Override
@@ -60,6 +57,6 @@ public class RuleServiceImpl implements RuleService {
         param.put("siteCode", siteCode);
         param.put("referSiteCode", referSiteCode);
         param.put("ts", System.currentTimeMillis());
-        return ruleMapper.addRuleByReferSite(param);
+        return ruleDao.addRuleByReferSite(param);
     }
 }
