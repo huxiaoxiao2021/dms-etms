@@ -635,7 +635,7 @@
 		<dependency>
 			<groupId>com.jdwl.bcoi.entry</groupId>
 			<artifactId>bcoi-entry-api-16</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.0.2-SNAPSHOT</version>
 		</dependency>
         <dependency>
             <groupId>com.jd.etms.receive</groupId>
