@@ -15,7 +15,6 @@ import com.jd.bluedragon.distribution.jss.JssService;
 import com.jd.bluedragon.distribution.qualityControl.service.QualityControlService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.AbnormalReportingGatewayService;
-import com.jd.bluedragon.utils.HttpParser;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -71,8 +70,6 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
     @Value("${jss.pda.image.bucket}")
     private String bucket;
 
-    private HttpParser httpParser = new HttpParser();
-
     private static final int PACKAGE_CODE_TYPE = 1;
 
     private static final int WAYBILL_CODE_TYPE = 2;
@@ -103,40 +100,40 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
 
     @Override
     public byte[] uploadExceptionImage(HttpServletRequest request, HttpServletResponse response) {
-        String result="";
-        response.setContentType("application/zip");
-        try{
-            JdCResponse<String> jdCResponse = new JdCResponse<>(JdCResponse.CODE_SUCCESS, JdCResponse.MESSAGE_SUCCESS);
-
-            ByteArrayOutputStream swapStream = new ByteArrayOutputStream();
-            String uuid = request.getHeader("uuid");
-            logger.info("uploadExceptionImage上传uuid:" + uuid);
-            InputStream inStream = request.getInputStream();
-            byte[] buff = new byte[100];
-            int rc = 0;
-            while ((rc = inStream.read(buff, 0, 100)) > 0) {
-                swapStream.write(buff, 0, rc);
-            }
-            byte[] in2b = swapStream.toByteArray();
-            inStream.close();
-            swapStream.close();
-            String url = jssService.uploadImage(bucket, in2b);
-            if (StringUtils.isNotBlank(url)) {
-
-//                if(StringUtils.isNotEmpty(uuid)){
-//                    jimClientProxy.setEx(uuid, url, 10, TimeUnit.MINUTES);
-//                }
-                jdCResponse.setData(url);
-            } else {
-                jdCResponse.setCode(JdCResponse.CODE_FAIL);
-                jdCResponse.setMessage("上传失败，请重新上传！");
-            }
-            result = JSON.toJSONString(jdCResponse);
-        }catch(Exception e){
-            logger.error("uploadExceptionImage error",e);
-        }
-        logger.info("uploadExceptionImage:result[" + result + "]");
-        return httpParser.gZip(result, response);
+//        String result="";
+//        response.setContentType("application/zip");
+//        try{
+//            JdCResponse<String> jdCResponse = new JdCResponse<>(JdCResponse.CODE_SUCCESS, JdCResponse.MESSAGE_SUCCESS);
+//
+//            ByteArrayOutputStream swapStream = new ByteArrayOutputStream();
+//            String uuid = request.getHeader("uuid");
+//            logger.info("uploadExceptionImage上传uuid:" + uuid);
+//            InputStream inStream = request.getInputStream();
+//            byte[] buff = new byte[100];
+//            int rc = 0;
+//            while ((rc = inStream.read(buff, 0, 100)) > 0) {
+//                swapStream.write(buff, 0, rc);
+//            }
+//            byte[] in2b = swapStream.toByteArray();
+//            inStream.close();
+//            swapStream.close();
+//            String url = jssService.uploadImage(bucket, in2b);
+//            if (StringUtils.isNotBlank(url)) {
+//
+////                if(StringUtils.isNotEmpty(uuid)){
+////                    jimClientProxy.setEx(uuid, url, 10, TimeUnit.MINUTES);
+////                }
+//                jdCResponse.setData(url);
+//            } else {
+//                jdCResponse.setCode(JdCResponse.CODE_FAIL);
+//                jdCResponse.setMessage("上传失败，请重新上传！");
+//            }
+//            result = JSON.toJSONString(jdCResponse);
+//        }catch(Exception e){
+//            logger.error("uploadExceptionImage error",e);
+//        }
+//        logger.info("uploadExceptionImage:result[" + result + "]");
+        return null;
     }
 
     @Override
