@@ -115,6 +115,10 @@ public class TextConstants {
      */
     public static final String	TEXT_JZD_SPECIAL_MARK="准";
     /**
+     * 京准达字符-‘京准达’
+     */
+    public static final String TEXT_JZD="京准达";
+    /**
      * KA标识
      */
     public static final String KA_FLAG = "KA";

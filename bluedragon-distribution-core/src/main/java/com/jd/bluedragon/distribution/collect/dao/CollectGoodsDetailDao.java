@@ -25,4 +25,6 @@ public interface CollectGoodsDetailDao extends Dao<CollectGoodsDetail> {
     List<CollectGoodsDetailCondition> findSacnWaybill(CollectGoodsDetail collectGoodsDetail);
 
     List<CollectGoodsDetail> queryByCondition(CollectGoodsDetailCondition collectGoodsDetailCondition);
+
+    CollectGoodsDetail findCollectGoodsDetailByPackageCode(String packageCode);
 }
