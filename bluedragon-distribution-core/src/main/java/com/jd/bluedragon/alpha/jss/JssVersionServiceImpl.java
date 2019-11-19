@@ -1,11 +1,11 @@
 package com.jd.bluedragon.alpha.jss;
 
 
-import com.jcloud.jss.Credential;
-import com.jcloud.jss.JingdongStorageService;
-import com.jcloud.jss.client.ClientConfig;
-import com.jcloud.jss.domain.ObjectListing;
-import com.jcloud.jss.domain.ObjectSummary;
+import com.jd.jss.Credential;
+import com.jd.jss.JingdongStorageService;
+import com.jd.jss.client.ClientConfig;
+import com.jd.jss.domain.ObjectListing;
+import com.jd.jss.domain.ObjectSummary;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

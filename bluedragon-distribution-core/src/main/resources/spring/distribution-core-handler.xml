@@ -397,16 +397,16 @@
 		<property name="bucket" value = "${print.out.config.jss.pdfBucket}"/>
 		<property name="socketTimeout" value = "${print.out.config.jss.socketTimeout}"/>
 	</bean>
-	<bean id="pdfOutJssClientConfig" class="com.jcloud.jss.client.ClientConfig">
+	<bean id="pdfOutJssClientConfig" class="com.jd.jss.client.ClientConfig">
         <property name="connectionTimeout" value="${jss.connectionTimeout}"/>
         <property name="socketTimeout" value="${print.out.config.jss.socketTimeout}"/>
         <property name="endpoint" value="${print.out.config.jss.endpoint}"/>
     </bean>
-	<bean id="pdfOutJssCredential" class="com.jcloud.jss.Credential">
+	<bean id="pdfOutJssCredential" class="com.jd.jss.Credential">
         <constructor-arg index="0" value="${print.out.config.jss.accessKey}"/>
         <constructor-arg index="1" value="${print.out.config.jss.secretKey}"/>
     </bean>
-    <bean id="pdfOutJssStorage" class="com.jcloud.jss.JingdongStorageService" depends-on="pdfOutJssCredential,pdfOutJssClientConfig">
+    <bean id="pdfOutJssStorage" class="com.jd.jss.JingdongStorageService" depends-on="pdfOutJssCredential,pdfOutJssClientConfig">
         <constructor-arg index="0" ref="pdfOutJssCredential" />
         <constructor-arg index="1" ref="pdfOutJssClientConfig" />
     </bean> 

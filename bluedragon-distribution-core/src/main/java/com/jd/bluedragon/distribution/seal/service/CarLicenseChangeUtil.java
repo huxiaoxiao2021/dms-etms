@@ -1,17 +1,15 @@
 package com.jd.bluedragon.distribution.seal.service;
 
-import java.util.List;
-
-
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.ql.basic.domain.BaseDataDict;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-
-import com.jd.ql.basic.domain.BaseDataDict;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * @description 编码转换工具

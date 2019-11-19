@@ -53,6 +53,8 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
 
     private String THIRD_CATEGORY_NO = "9694"; //商品三级编码
 
+    private String DEFAULT_GOODS_NAME = "其他"; //默认商品名称
+
     private Integer DEFAULT_GOOD_NUM = 1;
 
     private Integer DEFAULT_SAFE_DAYS = 0;
@@ -251,7 +253,7 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
             wChoice.setQueryGoodList(true);
             wChoice.setQueryPackList(true);
             BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoiceNoCache(waybillCode,wChoice);//根据新单号获取运单信息
-            if (baseEntity != null && baseEntity.getData() != null ) {
+            if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null ) {
                 if(BusinessHelper.isC2c(baseEntity.getData().getWaybill().getWaybillSign())){
                     //C2C纯配  C2C纯配满足纯配的标所以优先判断
                     makeOtherSuccess = makeC2cOther(baseEntity,waybillCode, inboundOrder);
@@ -286,7 +288,12 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
     private boolean makeC2cOther(BaseEntity<BigWaybillDto> baseEntity,String waybillCode, InboundOrder inboundOrder) {
         //获取依赖数据
         List<DeliveryPackageD> packageDList = baseEntity.getData().getPackageList();
-        String goodName = baseEntity.getData().getWaybill().getGoodName();
+        String goodName = DEFAULT_GOODS_NAME;
+        if(baseEntity.getData().getWaybill().getWaybillExt()!=null && StringUtils.isNotBlank(baseEntity.getData().getWaybill().getWaybillExt().getConsignWare())){
+            goodName = baseEntity.getData().getWaybill().getWaybillExt().getConsignWare();
+        }else{
+            logger.error("C2C退配件库未获取到托寄物名称，使用默认名称"+waybillCode);
+        }
         String oldWaybillCodeV1;
         BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill1 = waybillQueryManager.getWaybillByReturnWaybillCode(waybillCode);
         if (oldWaybill1 != null && oldWaybill1.getData() != null && oldWaybill1.getData().getBusiOrderCode() != null) {

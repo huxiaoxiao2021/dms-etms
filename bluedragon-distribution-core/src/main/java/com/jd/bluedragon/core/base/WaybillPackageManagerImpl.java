@@ -17,6 +17,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +31,7 @@ import java.util.Objects;
 @Service("waybillPackageManager")
 public class WaybillPackageManagerImpl implements WaybillPackageManager {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     WaybillPackageApi waybillPackageApi;
@@ -159,19 +161,22 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
         //调用运单分页接口
         BaseEntity<Page<DeliveryPackageDto>> baseEntity = waybillPackageApi.getPackageByParam(waybillCode, pageParam);
 
+        if (null == baseEntity) {
+            logger.error("调用运单接口【waybillPackageApi.getPackageByParam()】获取包裹列表失败，接口异常，参数为：{}", waybillCode);
+            Profiler.businessAlarm("dms ask PRC rest failed [waybillPackageApi.getPackageByParam]", waybillCode);
+            return new BaseEntity<List<DeliveryPackageD>>(EnumBusiCode.BUSI_FAIL.getCode(),EnumBusiCode.BUSI_FAIL.getDesc());
+        }
+
         //调用接口异常，添加自定义报警
-        if (null == baseEntity || baseEntity.getResultCode() != 1) {
+        if (baseEntity.getResultCode() != 1) {
             String alarmInfo = "调用运单接口getPackageByParam失败.waybillCode:" + waybillCode;
-            if (null != baseEntity) {
-                alarmInfo = alarmInfo + ",resultCode:" + baseEntity.getResultCode() + "-" + baseEntity.getMessage();
-            }
+            alarmInfo = alarmInfo + ",resultCode:" + baseEntity.getResultCode() + "-" + baseEntity.getMessage();
             logger.error(alarmInfo);
-            Profiler.businessAlarm("调用运单接口getPackageByParam失败", alarmInfo);
-            return null;
+            return new BaseEntity<List<DeliveryPackageD>>(baseEntity.getResultCode(),baseEntity.getMessage());
         }
 
         //有包裹数据，则分页读取
-        if (null != baseEntity && null != baseEntity.getData() &&
+        if (null != baseEntity.getData() &&
                 null != baseEntity.getData().getResult() && baseEntity.getData().getResult().size() > 0) {
 
             packageList.addAll(changeToDeliveryPackageDBatch(baseEntity.getData().getResult()));
