@@ -505,7 +505,7 @@ public class NewSealVehicleResource {
                 String ChineseVehicleNumber = carLicenseChangeUtil.formateLicense2Chinese(request.getVehicleNumber());
 
                 //增加车牌号的条件
-                sealCarDto.setVehicleNumber(ChineseVehicleNumber);
+                sealCarDto.setVehicleNumber(StringUtils.isEmpty(ChineseVehicleNumber)?request.getVehicleNumber():ChineseVehicleNumber);
             }
 
 
