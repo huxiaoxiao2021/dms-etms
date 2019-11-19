@@ -1,17 +1,15 @@
 package com.jd.bluedragon.distribution.seal.service;
 
-import java.util.List;
-
-
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.ql.basic.domain.BaseDataDict;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-
-import com.jd.ql.basic.domain.BaseDataDict;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * @description 编码转换工具
@@ -64,15 +62,26 @@ public class CarLicenseChangeUtil {
 			return carCode;
 		}
 		List<BaseDataDict> provinceShortName = baseMajorManager.getBaseDataDictList(112, 2, 112);
-		if (CollectionUtils.isNotEmpty(provinceShortName)) {
-			for (BaseDataDict baseDataDict : provinceShortName) {
-				String typeCode = String.valueOf(baseDataDict.getTypeCode());
-				if (carCode.substring(0, 3).equals(typeCode) || (carCode.startsWith("0") && carCode.substring(1, 3).equals(typeCode))) {
-					return baseDataDict.getTypeName() + carCode.substring(3);
-				}
-			}
-		}
+		if (CollectionUtils.isEmpty(provinceShortName)) {
+		    return carCode;
+        }
+        for (BaseDataDict baseDataDict : provinceShortName) {
+            String typeCode = String.valueOf(baseDataDict.getTypeCode());
+            if (isCarCodeMatchTypeCode(carCode, typeCode) && StringUtils.isNotEmpty(baseDataDict.getTypeName())) {
+                return baseDataDict.getTypeName().concat(carCode.substring(3));
+            }
+        }
+
 		return carCode;
 	}
 
+    /**
+     *  车辆编码 与 typeCode 是否匹配
+     * @param carCode 车辆编码
+     * @param typeCode
+     * @return true 匹配，false 不匹配
+     */
+    private boolean isCarCodeMatchTypeCode(String carCode, String typeCode) {
+        return carCode.substring(0, 3).equals(typeCode) || (carCode.startsWith("0") && carCode.substring(1, 3).equals(typeCode));
+    }
 }
