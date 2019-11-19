@@ -523,4 +523,9 @@
                   protocol="jsf" alias="${jsf.jdwlSignService.alias}" timeout="${jsf.jdwlSignService.timeout}" retries="${jsf.retries}" >
     </jsf:consumer>
 
+    <!--ECLP 箱号-包裹信息api-->
+    <jsf:consumer id="eclpPackageApi" interface="com.jd.ldop.oms.api.order.PackageApi"
+                  protocol="jsf" alias="${jsf.eclpPackageApi.alias}" timeout="${jsf.eclpPackageApi.timeout}">
+    </jsf:consumer>
+
 </beans>
