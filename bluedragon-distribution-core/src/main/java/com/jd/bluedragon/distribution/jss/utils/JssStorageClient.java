@@ -1,8 +1,8 @@
 package com.jd.bluedragon.distribution.jss.utils;
 
-import com.jcloud.jss.Credential;
-import com.jcloud.jss.JingdongStorageService;
-import com.jcloud.jss.client.ClientConfig;
+import com.jd.jss.Credential;
+import com.jd.jss.JingdongStorageService;
+import com.jd.jss.client.ClientConfig;
 import org.apache.log4j.Logger;
 
 import java.util.concurrent.locks.Lock;

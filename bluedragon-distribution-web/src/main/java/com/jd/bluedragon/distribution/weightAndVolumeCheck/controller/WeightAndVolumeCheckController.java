@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.weightAndVolumeCheck.controller;
 
-import com.jcloud.jss.util.ValidateValue;
+import com.jd.jss.util.ValidateValue;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
