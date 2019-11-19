@@ -686,6 +686,7 @@ public class Constants {
     public static final String DMS_WEB_DEVELOP_WORKER_SETTING_R ="DMS_WEB_DEVELOP_WORKER_SETTING_R"; //分拣任务配置
     public static final String DMS_WEB_DEVELOP_OPERATE_R ="DMS_WEB_DEVELOP_OPERATE_R"; //分拣实操查询
     public static final String DMS_WEB_DEVELOP_DICT_R ="DMS_WEB_DEVELOP_DICT_R"; //分拣数据字典
+    public static final String DMS_WEB_DEVELOP_RULE_CONFIG_R ="DMS_WEB_DEVELOP_RULE_CONFIG_R"; //规则管理
 
     /********************************************* 研发UIM权限资源码相关end ***********************************************/
     public static final String DMS_WEB_COMMON_R ="DMS_WEB_COMMON_R"; //通用权限

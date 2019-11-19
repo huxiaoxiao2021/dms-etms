@@ -24,6 +24,7 @@ import java.util.Map;
 @Controller
 @RequestMapping("/ruleManage")
 public class RuleManageController {
+
 	private final Log logger = LogFactory.getLog(this.getClass());
 	
 	@Autowired
@@ -33,14 +34,14 @@ public class RuleManageController {
 	 * 
 	 * @return
 	 */
-	@Authorization(Constants.DMS_WEB_COMMON_R)
+	@Authorization(Constants.DMS_WEB_DEVELOP_RULE_CONFIG_R)
 	@RequestMapping(value = "/goListPage", method = RequestMethod.GET)
 	public String goListPage() {
 		logger.debug("跳转到查询规则列表页面");
 		return "ruleManage/rule_list";
 	}
 
-	@Authorization(Constants.DMS_WEB_COMMON_R)
+	@Authorization(Constants.DMS_WEB_DEVELOP_RULE_CONFIG_R)
 	@RequestMapping(value = "/edit", method = RequestMethod.GET)
 	public String edit(Rule rule, Pager pager, Model model){
 		try{
@@ -58,7 +59,7 @@ public class RuleManageController {
 		return "ruleManage/rule_edit";
 	}
 
-	@Authorization(Constants.DMS_WEB_COMMON_R)
+	@Authorization(Constants.DMS_WEB_DEVELOP_RULE_CONFIG_R)
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	public String update(Rule rule,Pager pager, Model model){
 		try{
@@ -83,7 +84,7 @@ public class RuleManageController {
 		}		
 	}
 
-	@Authorization(Constants.DMS_WEB_COMMON_R)
+	@Authorization(Constants.DMS_WEB_DEVELOP_RULE_CONFIG_R)
 	@RequestMapping(value = "/del", method = RequestMethod.GET)
 	public String del(Rule rule,Pager pager, Model model){
 		try{
@@ -101,7 +102,7 @@ public class RuleManageController {
 		return "ruleManage/rule_list";
 	}
 
-	@Authorization(Constants.DMS_WEB_COMMON_R)
+	@Authorization(Constants.DMS_WEB_DEVELOP_RULE_CONFIG_R)
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	public String list(Rule rule,Pager pager, Model model){
 		logger.debug("按条件查询规则页面");
@@ -132,7 +133,7 @@ public class RuleManageController {
 		return "ruleManage/rule_list";
 	}
 
-	@Authorization(Constants.DMS_WEB_COMMON_R)
+	@Authorization(Constants.DMS_WEB_DEVELOP_RULE_CONFIG_R)
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	public String add(Rule rule,Pager pager, Model model) {
 		try{
@@ -153,7 +154,7 @@ public class RuleManageController {
 		return "ruleManage/rule_list";
 	}
 
-	@Authorization(Constants.DMS_WEB_COMMON_R)
+	@Authorization(Constants.DMS_WEB_DEVELOP_RULE_CONFIG_R)
 	@RequestMapping(value = "/goAddPage", method = RequestMethod.GET)
 	public String goAddPage() {
 		logger.debug("跳转到增加规则页面");
