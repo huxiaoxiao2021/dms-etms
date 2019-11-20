@@ -69,7 +69,7 @@
 
 	<filter>
 		<filter-name>dmsAuthorizationFilter</filter-name>
-		<filter-class>com.jd.bd.dms.automatic.marshal.filter.DmsAuthorizationFilter</filter-class>
+		<filter-class>com.jd.bd.dms.automatic.marshal.filter.DmsOAuthInterceptFilter</filter-class>
 	</filter>
 
 	<filter-mapping>
