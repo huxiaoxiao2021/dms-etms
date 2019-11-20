@@ -256,6 +256,7 @@ public class SortingServiceImpl implements SortingService {
 		sendDetail.setCreateSiteCode(sorting.getCreateSiteCode());
 		sendDetail.setPackageBarcode(sorting.getPackageCode());
 		sendDetail.setWaybillCode(sorting.getWaybillCode());
+		sendDetail.setReceiveSiteCode(sorting.getReceiveSiteCode());
 		if (StringUtils.isNotBlank(sorting.getBoxCode())) {
 			sendDetail.setBoxCode(sorting.getBoxCode());
 		}
