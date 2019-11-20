@@ -25,9 +25,4 @@
         <property name="pathAdaptor" ref="pathAdaptor"></property>
     </bean>
 
-    <!-- 注解方式实现的拦截：该配置对所有的@AutomaticInterceptor生效 -->
-    <bean class="com.jd.bd.dms.automatic.marshal.filter.DmsOAuthInterceptFilter">
-        <property name="filterContext" ref="filterContext" />
-    </bean>
-
 </beans>
