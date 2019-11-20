@@ -49,7 +49,7 @@ public class IsNeedPrintHandler implements InterceptHandler<WaybillPrintContext,
                 String redisKey = MessageFormat.format(CacheKeyConstants.CACHE_KEY_PRINT_BUSI_SITE,waybill.getBusiId(),dmsCode);
                 String redisValue = jimdbCacheService.get(redisKey);
                 if (StringHelper.isNotEmpty(redisValue)) {
-                    commonWaybill.setNeedPrintFlag(Boolean.valueOf(redisValue));
+                    commonWaybill.setNeedPrintFlag(!Boolean.valueOf(redisValue));
                 }else {
                     commonWaybill.setNeedPrintFlag(!merchantWeightAndVolumeWhiteListService.isExist(waybill.getBusiId(),dmsCode));
                 }
