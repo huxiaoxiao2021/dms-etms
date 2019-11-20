@@ -79,6 +79,11 @@ $(function () {
         oTableInit.tableColums = [{
             checkbox: true
         }, {
+            field: 'merchantId',
+            title: '商家配送ID',
+            align: 'center',
+            visible: false
+        }, {
             field: 'merchantCode',
             title: '商家配送编码',
             align: 'center'
@@ -129,6 +134,7 @@ $(function () {
                 'click .delete': function (e, value, row, index) {
                     confirm('确定删除此商家？',function () {
                         var param = {};
+                        param.merchantId = row.merchantId;
                         param.merchantCode = row.merchantCode;
                         param.operateSiteCode = row.operateSiteCode;
                         param.createErp = row.createErp;
