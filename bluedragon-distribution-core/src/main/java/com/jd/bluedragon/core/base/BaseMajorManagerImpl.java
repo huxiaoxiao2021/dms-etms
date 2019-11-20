@@ -1,26 +1,34 @@
 package com.jd.bluedragon.core.base;
 
-import com.google.common.base.Strings;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.domain.SiteEntity;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
+import com.jd.bluedragon.distribution.middleend.sorting.domain.DmsCustomSite;
 import com.jd.bluedragon.sdk.modules.menu.CommonUseMenuApi;
 import com.jd.bluedragon.sdk.modules.menu.dto.MenuPdaRequest;
-import com.jd.bluedragon.distribution.middleend.sorting.domain.DmsCustomSite;
 import com.jd.bluedragon.utils.BaseContants;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ldop.basic.api.BasicTraderAPI;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
+import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
 import com.jd.ldop.basic.dto.PageDTO;
 import com.jd.ldop.basic.dto.ResponseDTO;
 import com.jd.partner.waybill.api.WaybillManagerApi;
 import com.jd.partner.waybill.api.dto.response.ResultData;
-import com.jd.ql.basic.domain.*;
-import com.jd.ql.basic.dto.*;
+import com.jd.ql.basic.domain.BaseDataDict;
+import com.jd.ql.basic.domain.BaseOrg;
+import com.jd.ql.basic.domain.BaseResult;
+import com.jd.ql.basic.domain.PsStoreInfo;
+import com.jd.ql.basic.domain.SiteExtensionDTO;
+import com.jd.ql.basic.dto.BaseSiteInfoDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.dto.BaseStoreInfoDto;
+import com.jd.ql.basic.dto.PageDto;
+import com.jd.ql.basic.dto.SimpleBaseSite;
 import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ql.basic.ws.BasicSiteQueryWS;
@@ -28,8 +36,6 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.client.ClientRequest;
@@ -39,8 +45,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.ws.rs.core.MediaType;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service("baseMajorManager")
 public class BaseMajorManagerImpl implements BaseMajorManager {
@@ -738,5 +747,19 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         }
 
         return dmsCustomSite;
+    }
+
+    @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseTraderNeccesaryInfoById", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Cache(key = "DMS.BASE.BaseMajorManagerImpl.getBaseTraderNeccesaryInfoById@args0", memoryEnable = true, memoryExpiredTime = 1 * 60 * 1000,
+            redisEnable = false, redisExpiredTime = 2 * 60 * 1000)
+    public BasicTraderNeccesaryInfoDTO getBaseTraderNeccesaryInfoById(Integer merchantId) {
+        ResponseDTO<BasicTraderNeccesaryInfoDTO> responseDTO
+                = basicTraderAPI.getBaseTraderNeccesaryInfoById(merchantId);
+        if(responseDTO != null && responseDTO.isSuccess()){
+            return responseDTO.getResult();
+        }else {
+            logger.error("通过商家ID"+merchantId+"查询商家信息失败!");
+            return null;
+        }
     }
 }

@@ -3,6 +3,7 @@ package com.jd.bluedragon.core.base;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
 import com.jd.bluedragon.distribution.middleend.sorting.domain.DmsCustomSite;
+import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.domain.PsStoreInfo;
@@ -150,4 +151,11 @@ public interface BaseMajorManager {
 	 * @return
 	 */
 	DmsCustomSite getDmsCustomSiteBySiteId(Integer paramInteger);
+
+	/**
+	 * 根据商家Id查询
+	 * @param merchantId
+	 * @return
+	 */
+	BasicTraderNeccesaryInfoDTO getBaseTraderNeccesaryInfoById(Integer merchantId);
 }

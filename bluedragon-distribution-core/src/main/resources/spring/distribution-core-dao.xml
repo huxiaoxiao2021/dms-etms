@@ -549,4 +549,9 @@
         <property name="sqlSession" ref="businessSqlSessionTemplate"/>
     </bean>
 
+    <!-- 商家称重量方白名单 -->
+    <bean id="merchantWeightAndVolumeWhiteListDao" class="com.jd.bluedragon.distribution.merchantWeightAndVolume.dao.MerchantWeightAndVolumeWhiteListDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
 </beans>
