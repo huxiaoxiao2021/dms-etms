@@ -1,6 +1,9 @@
 package com.jd.bd.dms.automatic.marshal.filter;
 
 import com.jd.bd.dms.automatic.marshal.GodHeader;
+import com.jd.bluedragon.utils.PropertiesHelper;
+import com.jd.bluedragon.utils.ServletRequestHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,10 +28,21 @@ public class DmsOAuthInterceptFilter extends DmsAuthorizationFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DmsOAuthInterceptFilter.class);
 
+    private static final String secretKey = "dms.rest.interceptor.protected.code";
+
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
-        if (StringUtils.isBlank(httpServletRequest.getHeader(GodHeader.AUTHORIZATION))) {
-            LOGGER.warn("该客户端未进行rest加密鉴权,如果过渡期已过，将进行强制拦截，客户端IP:{}", httpServletRequest.getLocalAddr());
+
+        String opCode = httpServletRequest.getHeader(GodHeader.OP_CODE);
+        String authorization = httpServletRequest.getHeader(GodHeader.AUTHORIZATION);
+        boolean secretBool = StringHelper.isNotEmpty(opCode) && opCode.equals(PropertiesHelper.newInstance().getValue(secretKey));/* 内部后门 */
+        boolean temporaryBool = StringHelper.isEmpty(authorization);/* 过渡期的临时保护 */
+        /* 过渡期间对传空的的进行保护处理，和内部后门JD-opCode的特殊值进行保护处理 */
+        if (temporaryBool) {
+            LOGGER.warn("该客户端本次调用未进行rest加密鉴权,如果过渡期已过，将进行强制拦截，客户端IP:{}", ServletRequestHelper.getRealIpAddress(httpServletRequest));
+            filterChain.doFilter(httpServletRequest,httpServletResponse);
+        } else if (secretBool) {
+            LOGGER.info("内部调用，未拦截，客户端IP:{}", ServletRequestHelper.getRealIpAddress(httpServletRequest));
             filterChain.doFilter(httpServletRequest,httpServletResponse);
         } else {
             super.doFilterInternal(httpServletRequest, httpServletResponse, filterChain);
