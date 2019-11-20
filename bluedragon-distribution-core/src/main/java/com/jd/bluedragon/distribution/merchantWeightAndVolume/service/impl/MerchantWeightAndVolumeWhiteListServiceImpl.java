@@ -49,6 +49,8 @@ public class MerchantWeightAndVolumeWhiteListServiceImpl implements MerchantWeig
     @Value("${merchant.whiteList.export.maxNum:5000}")
     private Integer exportMaxNum;
 
+    private static final int REDIS_INVALID_TIME = 300;
+
     /**
      * 导入导出最大值
      * */
@@ -251,7 +253,7 @@ public class MerchantWeightAndVolumeWhiteListServiceImpl implements MerchantWeig
             detail.setOperateSiteCode(dmsCode);
             isExist = isExist(detail);
             String redisKey = MessageFormat.format(CacheKeyConstants.CACHE_KEY_PRINT_BUSI_SITE,busiId,dmsCode);
-            jimdbCacheService.setEx(redisKey, isExist, 1 * Constants.TIME_SECONDS_ONE_HOUR);
+            jimdbCacheService.setEx(redisKey, isExist, REDIS_INVALID_TIME);
         }catch (Exception e){
             logger.error("服务异常!");
         }
