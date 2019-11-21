@@ -335,7 +335,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
                     List<Map<String, String>> imgList = new ArrayList<>();
                     spotCheckOfPackageDetail.setImgList(imgList);
                     detailList.add(spotCheckOfPackageDetail);
-                    getExcessPictureAddress(excessPictureUrl,imgList,spotCheckData.getWaybillCode(),spotCheckData.getCreateSiteCode());
+                    getExcessPictureAddress(excessPictureUrl,imgList,packageData.getPackageCode(),spotCheckData.getCreateSiteCode());
                 }
             }
             dto.setReviewVolume(spotCheckData.getTotalVolume());
