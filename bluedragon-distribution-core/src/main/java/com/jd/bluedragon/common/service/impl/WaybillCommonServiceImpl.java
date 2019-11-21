@@ -280,7 +280,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                     return result;
                 }*/
             }
-            log.debug("运单号【{}】调用运单JSF数据成功",oldWaybillCode);
         } catch (Throwable e) {
             Profiler.functionError(info);
             this.log.error("运单号【{}】调用运单JSF异常",oldWaybillCode, e);
@@ -309,7 +308,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             this.log.warn("通过运单号调用非运单接口获取运单数据，运单号:{}未获取对应订单号,立即返回NULL",waybillCode);
             return null;
         }
-        this.log.debug("通过运单号调用非运单接口获取运单数据，调用运单中间件开始");
         Waybill waybill = this.orderWebService.getWaybillByOrderId(orderId);
         List<Product> products = this.productService.getOrderProducts(orderId);
 
@@ -329,7 +327,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             return null;
         }
 
-        this.log.debug("通过运单号调用非运单接口获取运单数据，调用运单中间件开始");
 
         Waybill waybill = this.findByWaybillCode(waybillCode);
 
@@ -488,7 +485,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         Integer siteCode = waybill.getSiteCode();
         String waybillCode = waybill.getWaybillCode();
         // 调用获取站点接口
-        this.log.debug("运单号为【{}】 调用接口设置站点名称开始",waybillCode);
         if (siteCode != null) {
             waybill.setSiteCode(siteCode);
             // 根据站点ID获取站点Name
@@ -502,7 +498,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             }
         }
 
-        this.log.debug("运单号为【{}】 调用接口设置中转站站点名称开始",waybillCode);
         // 设置中转站站点名称
         Integer transferStationId = waybill.getTransferStationId();
         if (transferStationId != null) {
@@ -512,7 +507,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                     .getBaseSiteBySiteId(transferStationId);
             if (baseStaffSiteOrgDto != null) {
                 waybill.setTransferStationName(baseStaffSiteOrgDto.getSiteName());
-                this.log.debug("运单号为【{}】 调用接口设置中转站站点名称成功【{}-{}】" ,waybillCode,transferStationId,waybill.getTransferStationName());
             } else {
                 this.log.warn("运单号为【{}】  查找不到中转站站点【{}】 相关信息" ,waybillCode, transferStationId );
             }
@@ -541,7 +535,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                     return null;
                 }
 
-                log.debug("获取运单StoreId");
                 if (baseEntity.getData().getWaybillState() != null && baseEntity.getData().getWaybillState().getStoreId() != null) {
                     this.log.warn("获取运单StoreId失败");
                     waybill.setStoreId(baseEntity.getData().getWaybillState().getStoreId());
@@ -563,7 +556,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 
                 waybill.setProList(products);
             }
-            this.log.debug("运单号【{}】调用运单数据成功，运单【{}】" ,waybillCode,waybill);
         } catch (Exception e) {
             this.log.error("运单号【{}】调用运单异常",waybillCode, e);
         }
@@ -627,7 +619,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     	if(target==null||waybill==null){
     		return target;
     	}
-		log.debug("包裹标签打印-waybillSign及sendPay打标处理");
 		waybillPrintService.dealSignTexts(waybill.getWaybillSign(), target, Constants.DIC_NAME_WAYBILL_SIGN_CONFIG);
 		waybillPrintService.dealSignTexts(waybill.getSendPay(), target, Constants.DIC_NAME_SEND_PAY_CONFIG);
 
@@ -986,7 +977,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             }
 
         }catch(Exception e){
-            log.error("异常getPackListByCode :{}", e.getMessage(),e);
+            log.error("异常getPackListByCode",e);
             Profiler.functionError(info);
         }finally{
             Profiler.registerInfoEnd(info);
@@ -1319,6 +1310,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             }
         }catch (Exception e){
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
+            log.error("batchUpdatePackageByWaybillCode异常",e);
         }
         return result;
     }

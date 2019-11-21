@@ -87,7 +87,7 @@ public class ChuguanExportManagerImpl implements ChuguanExportManager{
         try {
             callerParam.setSysIp(InetAddress.getLocalHost().getHostAddress());
         } catch (UnknownHostException e) {
-           log.error("获取ip错误");
+           log.error("获取ip错误",e);
         }
         Map<String , String> extMap = new HashMap<>();
         extMap.put("currency","CNY");

@@ -573,7 +573,6 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     }
 
     private List<BasicTraderInfoDTO> getBaseAllTrader() {
-        log.debug("基础资料客户端--getBaseAllTrader获取所有商家，开始调用分页接口获取数据");
         List<BasicTraderInfoDTO> traderList = new ArrayList();
         int count = 0;
         long startTime = System.currentTimeMillis();

@@ -430,7 +430,7 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 					if (result.isSucceed()) {
 						return result.getData();
 					} else {
-						log.warn("[箱号/批次号打印]获取基础资料信息！Message:{}" + result.getMessage());
+						log.warn("[箱号/批次号打印]获取基础资料信息！Message:{}" , result.getMessage());
 					}
 				}
 			}

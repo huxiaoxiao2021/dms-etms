@@ -18,9 +18,11 @@ public class AbnormalOrderUtil {
 	private static AbnormalOrderUtil abnormalOrderUtil = new AbnormalOrderUtil();
 	
 	private static RefundReason[] refundReason = null;
-	
+
+	private static final Logger logger = LoggerFactory.getLogger(AbnormalOrderUtil.class);
+
     public synchronized static void init(BaseService baseService){
-    	Logger logger = LoggerFactory.getLogger(AbnormalOrderServiceImpl.class);
+
     	Integer[] refundReasonCode = null;
     	/************************* 处理基础参数  ************************/    	
     	logger.info("AbnormalOrderUtil.init refunReasonSysconfigList = baseService.queryConfigByKey(SYSCONFIG_REFUNDREASONCODEKEY_KEY)");

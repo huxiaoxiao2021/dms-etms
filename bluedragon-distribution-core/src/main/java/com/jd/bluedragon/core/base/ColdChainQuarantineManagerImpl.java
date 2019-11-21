@@ -26,7 +26,6 @@ public class ColdChainQuarantineManagerImpl implements  ColdChainQuarantineManag
      * @return
      */
     public Boolean isWaybillNeedAddQuarantine(String waybillCode, Integer siteCode) {
-        log.debug("查询是否需要录入检疫证票号...");
         CallerInfo info = Profiler.registerInfo("ColdChainQuarantineManagerImpl.isWaybillNeedAddQuarantine", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             if (StringUtils.isBlank(waybillCode) || siteCode == null) {

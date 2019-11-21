@@ -1,21 +1,16 @@
 package com.jd.bluedragon.distribution.reverse.service;
 
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
-import com.jd.bluedragon.distribution.reverse.domain.BdInboundECLPDetail;
-import com.jd.bluedragon.distribution.reverse.domain.BdInboundECLPDto;
 import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.eclp.isv.domain.GoodsInfo;
@@ -32,8 +27,8 @@ import com.jd.etms.waybill.dto.WChoice;
 import com.jd.kom.ext.service.domain.response.ItemInfo;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,7 +44,7 @@ import java.util.List;
 @Service("reverseSpareEclp")
 public class ReverseSpareEclpImpl implements ReverseSpareEclp {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private String THIRD_CATEGORY_NO = "9694"; //商品三级编码
 
@@ -155,10 +150,10 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                     }
                 }
             } else {
-                this.logger.warn("通过运单号" + waybillCode + "获取运单商品明细失败!");
+                this.log.warn("通过运单号{}获取运单商品明细失败!",waybillCode);
             }
         }else {
-            this.logger.warn("通过运单号" + waybillCode + "获取运单信息失败!");
+            this.log.warn("通过运单号{}获取运单信息失败!",waybillCode);
         }
         String oldWaybillCodeV1 = null; //一次换单原单号
         String oldWaybillCodeV2 = null; //二次换单原单号
@@ -180,7 +175,7 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                     String deptNo = eclpItemManager.getDeptBySettlementOuId(claimInfoRespDTO.getSettleSubjectCode());
                     inboundOrder.setTargetDeptNo(deptNo);//目的事业部编码
                 } else {
-                    logger.warn("组装逆向退备件库运单集合时出现异常数据,理赔接口异常:"+oldWaybillCodeV2);
+                    log.warn("组装逆向退备件库运单集合时出现异常数据,理赔接口异常:{}",oldWaybillCodeV2);
                     return null;
                 }
                 if(WaybillUtil.isECLPByBusiOrderCode(eclpBusiOrderCode)) {
@@ -211,7 +206,7 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                             list.add(goodsInfoItem);
                         }
                     } else {
-                        logger.warn("通过:"+eclpBusiOrderCode+"获取原事业部信息为空!");
+                        log.warn("通过:{}获取原事业部信息为空!",eclpBusiOrderCode);
                         return null;
                     }
                 }
@@ -224,15 +219,15 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                     String deptNo = eclpItemManager.getDeptBySettlementOuId(claimInfoRespDTO.getSettleSubjectCode());
                     inboundOrder.setTargetDeptNo(deptNo);//目的事业部编码
                 }else{
-                    logger.warn("组装逆向退备件库运单集合时出现异常数据,理赔接口异常:"+oldWaybillCodeV1);
+                    log.warn("组装逆向退备件库运单集合时出现异常数据,理赔接口异常:{}",oldWaybillCodeV1);
                     return null;
                 }
             }else {
-                logger.warn("组装逆向退备件库运单集合时出现异常数据，原单不符合规则");
+                log.warn("组装逆向退备件库运单集合时出现异常数据，原单不符合规则");
                 return null;
             }
         }else {
-            logger.warn("组装逆向退备件库运单集合时出现异常数据，原单不符合规则");
+            log.warn("组装逆向退备件库运单集合时出现异常数据，原单不符合规则");
             return null;
         }
         return inboundOrder;
@@ -266,12 +261,12 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                    return null;
                 }
             }else {
-                logger.error("ECLP退备件库组装入库单对象未获取到运单信息"+waybillCode);
+                log.warn("ECLP退备件库组装入库单对象未获取到运单信息:{}",waybillCode);
                 return null;
             }
             return inboundOrder;
         }catch (Exception e){
-            logger.error("组装ECLP退备件库对象异常"+waybillCode,e);
+            log.error("组装ECLP退备件库对象异常:{}",waybillCode,e);
             return null;
         }
 
@@ -292,7 +287,7 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
         if (oldWaybill1 != null && oldWaybill1.getData() != null && oldWaybill1.getData().getBusiOrderCode() != null) {
             oldWaybillCodeV1 = oldWaybill1.getData().getWaybillCode();
         }else{
-            logger.error("C2C退配件库未获取到原单信息"+waybillCode);
+            log.warn("C2C退配件库未获取到原单信息:{}",waybillCode);
             return false;
         }
 
@@ -316,7 +311,7 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
             goodsInfo.setSafeDays(DEFAULT_SAFE_DAYS);
             String goodCode = eclpOpenManager.transportGoodsInfo(goodsInfo);
             if(StringUtils.isBlank(goodCode)){
-                logger.error("创建商品主数据失败"+JsonHelper.toJson(goodsInfo));
+                log.warn("创建商品主数据失败:{}",JsonHelper.toJson(goodsInfo));
                 return false;
             }
             //组装商品信息
@@ -385,19 +380,19 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                             goodsInfoItems.add(goodsInfoItem);
                         }
                     } else {
-                        logger.warn("通过:"+eclpBusiOrderCode+"获取原事业部信息为空!");
+                        log.warn("通过:{} 获取原事业部信息为空!",eclpBusiOrderCode);
                         return false;
                     }
                 }else{
-                    logger.error("仓配获取数据失败 原单的商家单号非ESL开头!"+oldWaybillCodeV2 + "|" +oldWaybillCodeV1);
+                    log.warn("仓配获取数据失败 原单的商家单号非ESL开头!{}|{}" ,oldWaybillCodeV2,oldWaybillCodeV1);
                     return false;
                 }
             }else {
-                logger.warn("组装逆向退备件库运单集合时出现异常数据，原单不符合规则");
+                log.warn("组装逆向退备件库运单集合时出现异常数据，原单不符合规则");
                 return false;
             }
         }else {
-            logger.warn("组装逆向退备件库运单集合时出现异常数据，原单不符合规则");
+            log.warn("组装逆向退备件库运单集合时出现异常数据，原单不符合规则");
             return false;
         }
         return true;
@@ -448,7 +443,7 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                     }
                 }
             } else {
-                this.logger.warn("通过运单号" + waybillCode + "获取运单商品明细失败!");
+                this.log.warn("通过运单号{}获取运单商品明细失败!",waybillCode);
                 return false;
             }
             String oldWaybillCodeV1 = null; //一次换单原单号
@@ -464,7 +459,7 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
 
 
         }else {
-            this.logger.warn("通过运单号" + waybillCode + "获取运单信息失败!");
+            this.log.warn("通过运单号{}获取运单信息失败!",waybillCode);
             return false;
         }
         return true;
@@ -488,7 +483,7 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
             String deptNo = eclpItemManager.getDeptBySettlementOuId(claimInfoRespDTO.getSettleSubjectCode());
             inboundOrder.setTargetDeptNo(deptNo);//目的事业部编码
         }else{
-            logger.warn("组装逆向退备件库运单集合时出现异常数据,理赔接口异常:"+waybillCode);
+            log.warn("组装逆向退备件库运单集合时出现异常数据,理赔接口异常:{}",waybillCode);
             return false;
         }
         return true;
@@ -580,7 +575,7 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
             }
 
         }catch (Exception e){
-            logger.error("判断纯配外单是否可逆向换单（理赔完成且物权归京东）异常"+waybillCode+"|"+waybillSign,e);
+            log.error("判断纯配外单是否可逆向换单（理赔完成且物权归京东）异常{}|{}",waybillCode,waybillSign,e);
         }
 
         return result.getData();

@@ -3,11 +3,7 @@ package com.jd.bluedragon.distribution.reverse.service;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.ChuguanExportManager;
-import com.jd.bluedragon.core.base.SearchOrganizationOtherManager;
-import com.jd.bluedragon.core.base.StockExportManager;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.exception.OrderCallTimeoutException;
 import com.jd.bluedragon.core.exception.StockCallPayTypeException;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -20,15 +16,7 @@ import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.bluedragon.distribution.reverse.domain.ReceiveRequest;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
 import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.ContantsEnum;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.bluedragon.utils.StringHelper;
-import com.jd.bluedragon.utils.SystemLogContants;
-import com.jd.bluedragon.utils.SystemLogUtil;
-import com.jd.bluedragon.utils.XmlHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.common.util.StringUtils;
 import com.jd.ioms.jsf.export.domain.Order;
 import com.jd.ql.basic.domain.BaseOrg;
@@ -41,8 +29,8 @@ import com.jd.ufo.domain.ufo.Organization;
 import com.jd.ufo.domain.ufo.SendpayOrdertype;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -51,11 +39,7 @@ import org.springframework.util.Assert;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -66,7 +50,7 @@ import java.util.Map;
 @Service("reverseReceiveNotifyStockService")
 public class ReverseReceiveNotifyStockService {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	// 先款支付类型
 	private static final Integer PAY_TYPE_PRE = 1;
@@ -129,12 +113,12 @@ public class ReverseReceiveNotifyStockService {
 					ReceiveRequest.class);
 
 			if (request == null) {
-				this.logger.warn("消息序列化出现异常, 消息：" + message);
+				this.log.warn("消息序列化出现异常, 消息：{}" , message);
 			} else if (ReverseReceive.RECEIVE_TYPE_SPWMS.toString().equals(request.getReceiveType())
 					&& ReverseReceive.RECEIVE.toString().equals(request.getCanReceive())) {
 				return getCompatibleOrderId(request.getOrderId());
 			} else {
-				this.logger.info("消息来源：" + request.getReceiveType());
+				this.log.info("消息来源：{}" , request.getReceiveType());
 			}
 		}
 		return -1L;
@@ -154,7 +138,7 @@ public class ReverseReceiveNotifyStockService {
         }
         String orderId = waybillQueryManager.getOrderCodeByWaybillCode(code,true);
         if(!NumberUtils.isDigits(orderId)){
-            logger.info(MessageFormat.format("根据运单号查询的订单号是非数字code[{0}]orderId[{1}]",code,orderId));
+            log.warn("根据运单号查询的订单号是非数字code[{}]orderId[{}]",code,orderId);
             return -1L;
         }
         return Long.valueOf(orderId);
@@ -162,10 +146,10 @@ public class ReverseReceiveNotifyStockService {
 
 
 	public Boolean nodifyStock(Long waybillCode) throws Exception {
-		this.logger.info("运单号：" + waybillCode);
+		this.log.debug("运单号：{}" , waybillCode);
 
 		if (!NumberHelper.isPositiveNumber(waybillCode)) {
-			this.logger.warn("运单号非法, 运单号 为：" + waybillCode);
+			this.log.warn("运单号非法, 运单号 为：{}" , waybillCode);
 			return Boolean.TRUE;
 		}
 		SystemLog sysLog = new SystemLog();//日志对象
@@ -179,15 +163,15 @@ public class ReverseReceiveNotifyStockService {
 			//修改逻辑当order获取不到时，取归档历史信息。
 			//原抛异常逻辑if(order==null || products==null) 即有一项为空即抛出，更改后的逻辑等价于if( (order==null&&hisOrder==null) || products==null )
 			if (products.size() == 0) {
-				this.logger.warn("无商品信息!");
+				this.log.warn("无商品信息!");
 				sysLog.setContent("无商品信息");
 				throw new OrderCallTimeoutException("order has no products.");
 			}else if(order == null){//为空时，取一下历史的订单信息
-				this.logger.info("订单可能转历史，获取历史订单, 运单号 为：" + waybillCode);
+				this.log.debug("订单可能转历史，获取历史订单, 运单号 为：{}" , waybillCode);
 				jd.oom.client.orderfile.Order hisOrder = this.orderWebService.getHistoryOrder(waybillCode);
 				
 				if (hisOrder == null) {
-					this.logger.warn("运单信息为空!订单号:"+waybillCode);
+					this.log.warn("运单信息为空!订单号:{}", waybillCode);
 					sysLog.setContent("运单信息为空");
 					throw new OrderCallTimeoutException("order is not exist.");
 				}else {//如果历史订单信息不为空，则拷贝属性值
@@ -200,12 +184,10 @@ public class ReverseReceiveNotifyStockService {
 					order.setDeliveryCenterID(hisOrder.getDeliveryCenterID());
 					order.setStoreId(hisOrder.getStoreId());
 					order.setOrderType(hisOrder.getOrderType());
-					
-					this.logger.info("历史订单信息orderId："+waybillCode+", IdCompanyBranchName:"+order.getIdCompanyBranchName()+
-							",IdCompanyBranch:"+order.getIdCompanyBranch()+",CustomerName:"+order.getCustomerName()+
-							",DeliveryCenterID:"+order.getDeliveryCenterID()+",StoreId:"+order.getStoreId()+
-							",OrderType:"+order.getOrderType()+",TotalFee:"+order.getTotalFee());
-				}
+					if(log.isDebugEnabled()){
+                        this.log.debug("历史订单信息orderId：{}.order:{}"+waybillCode,JsonHelper.toJson(order));
+                    }
+                }
 			}
 			
 			{
@@ -218,7 +200,7 @@ public class ReverseReceiveNotifyStockService {
 	            if (bo != null) {
 	            	order.setIdCompanyBranchName(bo.getOrgName());//需要调用基本资料接口根据机构ID获取机构Name
 	            }
-	            this.logger.info("原机构名为空，从基础资料重新获得订单"+waybillCode+"机构名 IdCompanyBranchName:"+order.getIdCompanyBranchName());
+	            this.log.info("原机构名为空，从基础资料重新获得订单{}机构名 IdCompanyBranchName:{}",waybillCode,order.getIdCompanyBranchName());
 	        }
 			
 			sysLog.setKeyword2(String.valueOf(order.getOrderType()));//设置订单的类型
@@ -238,7 +220,7 @@ public class ReverseReceiveNotifyStockService {
 				}
 			} else {
 				sysLog.setContent("订单类型不需要回传库存中间件"+order.getOrderType());
-				this.logger.info("运单号：" + waybillCode + ", 不需要回传库存中间件。");
+				this.log.warn("运单号：{}, 不需要回传库存中间件。",waybillCode);
 				return Boolean.TRUE;
 			}
 			
@@ -257,10 +239,10 @@ public class ReverseReceiveNotifyStockService {
 					data.put("orderId", waybillCode.toString());
 					Profiler.bizNode("Reverse_mq_dms2stock", data);
 				} catch (Exception e) {
-					this.logger.error("推送UMP发生异常.", e);
+					this.log.error("推送UMP发生异常.", e);
 				}
 				
-				this.logger.info("运单号：" + waybillCode + ", 库存中间件返回结果：" + result);
+				this.log.debug("运单号：{}, 库存中间件返回结果：{}" ,waybillCode, result);
 				
 				sysLog.setKeyword3("WEBSERVICE");
 				sysLog.setKeyword4(result);
@@ -285,7 +267,7 @@ public class ReverseReceiveNotifyStockService {
 			}
 			
 		}catch(Exception e){
-			this.logger.error("运单号：" + waybillCode + ", 推出管失败。", e);
+			this.log.error("运单号：{}, 推出管失败。",waybillCode, e);
 			if(StringHelper.isEmpty(sysLog.getContent())){
 				sysLog.setContent(e.getMessage());
 			}
@@ -459,7 +441,7 @@ public class ReverseReceiveNotifyStockService {
     private long insertOldChuguan(Long waybillCode, boolean isOldForNewType, Order order, List<Product> products,
                                   Integer payType,OrderBankResponse orderBank) {
         long result;
-        this.logger.info("运单号：" + waybillCode + ", 使用推库管新接口");
+        this.log.debug("运单号：{}, 使用推库管新接口",waybillCode);
         /** 新逻辑开始 */
         Date creatDate = new Date();//给扩展属性使用的创建时间
         //设置扩展属性
@@ -677,15 +659,13 @@ public class ReverseReceiveNotifyStockService {
 				result = PAY_TYPE_PRE;
 			}
 			// 异常情况日志记录方便定位问题
-			logger.info("getPayType waybillCode:" + waybillCode + "detail: churu: " + churu + ",feifei" + feifei
-					+ ",qite" + qite);
+			log.debug("getPayType waybillCode:{}detail: churu:{},feifei:{},qite:{}" ,waybillCode,churu,feifei,qite);
 		}
 		
 		if (result.equals(PAY_TYPE_UNKNOWN)) {
 			// 异常情况日志记录方便定位问题
-			logger.error("getPayType waybillCode:" + waybillCode + "detail: churu: " + churu + ",feifei" + feifei
-					+ ",qite" + qite);
-			logger.error("不能判断订单是先款还是后款: " + waybillCode);
+            log.warn("getPayType waybillCode:{}detail: churu:{},feifei:{},qite:{}" ,waybillCode,churu,feifei,qite);
+            log.warn("不能判断订单是先款还是后款:{} " , waybillCode);
 			throw new StockCallPayTypeException("不能判断订单是先款还是后款: " + waybillCode);
 		}
 		return result;
@@ -709,12 +689,11 @@ public class ReverseReceiveNotifyStockService {
 			queryParam.setOther2(String.valueOf(order.getCity()));
 			queryParam.setSendPay(order.getSendPay());
 			Organization organization = searchOrganizationOtherManager.findFinancialOrg(queryParam);
-			logger.info("getKPJGID"+JsonHelper.toJson(queryParam)+"|"+JsonHelper.toJson(organization));
 			if(organization!=null && organization.getOrgId()!=null){
 				return organization.getOrgId().toString();
 			}
 		}catch (Exception e){
-			logger.error("获取开票机构ID异常"+JsonHelper.toJson(order),e);
+			log.error("获取开票机构ID异常:{}",JsonHelper.toJson(order),e);
 		}
 		return StringUtils.EMPTY;
 	}

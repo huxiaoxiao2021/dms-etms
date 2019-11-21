@@ -5,15 +5,14 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.type.JavaType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
 import java.lang.reflect.Type;
@@ -23,7 +22,7 @@ import java.util.Map;
 
 public class JsonHelper {
     
-    private final static Log logger = LogFactory.getLog(JsonHelper.class);
+    private final static Logger log = LoggerFactory.getLogger(JsonHelper.class);
     private static final String DATE_FORMAT_MS = "yyyy-MM-dd HH:mm:ss.SSS";
     private static ObjectMapper mapper = new ObjectMapper();
     private static ObjectMapper dfOneJson2ListMapper = new ObjectMapper();
@@ -72,11 +71,11 @@ public class JsonHelper {
 
             return JsonHelper.mapper.readValue(json, responseType);
         } catch (Exception e) {
-            JsonHelper.logger.warn("Jackson反序列化JSON发生异常，将使用GSON重试");
+            JsonHelper.log.warn("Jackson反序列化JSON发生异常，将使用GSON重试");
             try{
                 return  GSON_COMMON.fromJson(json,responseType);
             }catch (Exception ex){
-                JsonHelper.logger.error("GSON-反序列化JSON发生异常， 异常信息为：" +ex.getMessage(), ex);
+                JsonHelper.log.error("GSON-反序列化JSON发生异常", ex);
             }
         }
         return null;
@@ -93,7 +92,7 @@ public class JsonHelper {
         try {
             return objectMapperMs.writeValueAsString(obj);
         } catch (Exception e) {
-            JsonHelper.logger.error("序列化JSON发生异常， 异常信息为：" + e.getMessage(), e);
+            JsonHelper.log.error("序列化JSON发生异常", e);
         }
         return null;
     }
@@ -110,11 +109,11 @@ public class JsonHelper {
         try {
             return objectMapperMs.readValue(json, responseType);
         } catch (Exception e) {
-            JsonHelper.logger.warn("objectMapperMs-Jackson反序列化异常，将使用GSON重试");
+            JsonHelper.log.warn("objectMapperMs-Jackson反序列化异常，将使用GSON重试");
             try{
                 return  gsonParserMs.fromJson(json,responseType);
             }catch (Exception ex){
-                JsonHelper.logger.error("GSON-反序列化JSON发生异常， 异常信息为：" +ex.getMessage(), ex);
+                JsonHelper.log.error("GSON-反序列化JSON发生异常", ex);
             }
         }
         return null;
@@ -133,11 +132,11 @@ public class JsonHelper {
                     JsonSerialize.Inclusion.NON_NULL);
             return JsonHelper.dfOneJson2ListMapper.readValue(json, responseType);
         } catch (Exception e) {
-            JsonHelper.logger.warn("Jackson反序列化JSON发生异常，将使用GSON重试");
+            JsonHelper.log.warn("Jackson反序列化JSON发生异常，将使用GSON重试");
             try{
                 return  GSON_COMMON.fromJson(json,responseType);
             }catch (Exception ex){
-                JsonHelper.logger.error("GSON-反序列化JSON发生异常， 异常信息为：" + ex.getMessage(), ex);
+                JsonHelper.log.error("GSON-反序列化JSON发生异常", ex);
             }
         }
         
@@ -155,11 +154,11 @@ public class JsonHelper {
             mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return JsonHelper.mapper.readValue(json, responseType);
         } catch (Exception e) {
-            JsonHelper.logger.warn("Jackson反序列化JSON发生异常，将使用GSON重试");
+            JsonHelper.log.warn("Jackson反序列化JSON发生异常，将使用GSON重试");
             try{
                 return  GSON_COMMON.fromJson(json,responseType);
             }catch (Exception ex){
-                JsonHelper.logger.error("GSON-反序列化JSON发生异常， 异常信息为：" + ex.getMessage(), ex);
+                JsonHelper.log.error("GSON-反序列化JSON发生异常", ex);
             }
         }
         
@@ -170,8 +169,7 @@ public class JsonHelper {
             try{
                 return  GSON_COMMON.fromJson(json,responseType);
             }catch (Exception ex){
-            	System.out.println("GSON-反序列化JSON发生异常， 异常信息为：" + ex.getMessage());
-                JsonHelper.logger.error("GSON-反序列化JSON发生异常， 异常信息为：" + ex.getMessage(), ex);
+                JsonHelper.log.error("GSON-反序列化JSON发生异常", ex);
             }
         return null;
     }
@@ -180,11 +178,11 @@ public class JsonHelper {
         try {
             return JsonHelper.dfOneJson2ListMapper.readValue(json, responseType);
         } catch (Exception e) {
-            JsonHelper.logger.warn("Jackson反序列化JSON发生异常，将使用GSON重试");
+            JsonHelper.log.warn("Jackson反序列化JSON发生异常，将使用GSON重试");
             try{
                 return  GSON_COMMON.fromJson(json,responseType);
             }catch (Exception ex){
-                JsonHelper.logger.error("GSON-反序列化JSON发生异常， 异常信息为：" + ex.getMessage(), ex);
+                JsonHelper.log.error("GSON-反序列化JSON发生异常", ex);
             }
         }
         return null;
@@ -205,13 +203,13 @@ public class JsonHelper {
             writer.close();
             return writer.getBuffer().toString();
         } catch (Exception e) {
-            JsonHelper.logger.error("序列化JSON发生异常， 异常信息为：" + e.getMessage(), e);
+            JsonHelper.log.error("序列化JSON发生异常", e);
         }finally {
             if(generator != null){
                 try{
                     generator.close();
                 }catch (Exception e){
-                    logger.error("generator关闭失败:" + e.getMessage(), e);
+                    log.error("generator关闭失败", e);
                 }
             }
         }
@@ -265,7 +263,7 @@ public class JsonHelper {
             GSON_PARSER.parse(json);
             return true;
         } catch (JsonParseException e) {
-            logger.error("bad json: " + json);
+            log.error("bad json: {}" , json,e);
             return false;
         }
     }
@@ -285,7 +283,7 @@ public class JsonHelper {
             Map<String, Object> maps = JsonHelper.mapper.readValue(jsonVal, Map.class);
             return maps;
         } catch (Exception e) {
-            logger.error("bad json: " + jsonVal,e);
+            log.error("bad json: {}" , jsonVal,e);
             return null;
         }
     }
@@ -299,7 +297,7 @@ public class JsonHelper {
         try {
             return JSONObject.parseArray(json, elementClasses);
         } catch (Exception e) {
-        	logger.error("GSON-反序列化JSON发生异常， 异常信息为：" + e.getMessage(), e);
+        	log.error("GSON-反序列化JSON发生异常", e);
         }
         return null;
     }

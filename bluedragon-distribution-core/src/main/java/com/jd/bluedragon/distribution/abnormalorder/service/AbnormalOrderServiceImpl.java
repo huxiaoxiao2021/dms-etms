@@ -82,8 +82,7 @@ public class AbnormalOrderServiceImpl implements AbnormalOrderService {
 		HashMap<String/*运单号*/,Integer/*操作结果*/> result = new HashMap<String, Integer>();
 		ArrayList<AbnormalOrderMq> mqList = new ArrayList<AbnormalOrderMq>();
 		List<WaybillSyncParameter> waybillList = new ArrayList<WaybillSyncParameter>();
-		logger.info("AbnormalOrderServiceImpl.pushNewDataFromPDA 配送外呼处理开始");
-		
+
 		for(AbnormalOrder abnormalOrder: abnormalOrders){
 			AbnormalOrder tmpvo = abnormalOrderDao.query(abnormalOrder.getOrderId());
 			WaybillSyncParameter tmpWaybill = dealWaybillSyncParameter(abnormalOrder);
@@ -130,7 +129,7 @@ public class AbnormalOrderServiceImpl implements AbnormalOrderService {
 				toWaybillTraceWS(abnormalOrder);  // 推全程跟踪
 				toQualityControlMQ(abnormalOrder);  // 推质控
 			} catch (Exception ex) {
-				logger.error("分拣中心异常节点配送外呼推全程跟踪、质控发生异常。" + ex);
+				logger.error("分拣中心异常节点配送外呼推全程跟踪、质控发生异常。" , ex);
 			}
 		}
 		/*推送MQ*/
