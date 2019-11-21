@@ -181,7 +181,7 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 				return baseResult.getData();
 			}else{
 				log.warn("获取三方站点超限配置为空，siteCode：{},返回结果：{}",
-						siteCode, baseResult.getMessage());
+						siteCode, JsonHelper.toJson(baseResult));
 			}
 		} catch (Exception e) {
             Profiler.functionError(info);
