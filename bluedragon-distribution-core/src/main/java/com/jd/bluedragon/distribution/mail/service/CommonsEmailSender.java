@@ -23,10 +23,11 @@ import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
 import org.apache.commons.mail.SimpleEmail;
-import org.apache.log4j.Logger;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.mail.dto.ImageMailDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -36,7 +37,7 @@ import com.jd.bluedragon.distribution.mail.dto.ImageMailDto;
 
 public class CommonsEmailSender implements IMailSender {
 
-    private final static Logger log = Logger.getLogger(CommonsEmailSender.class);
+    private final static Logger log = LoggerFactory.getLogger(CommonsEmailSender.class);
 
     private String hostName;
     private String charset;
@@ -72,7 +73,7 @@ public class CommonsEmailSender implements IMailSender {
             }
             mimeMessage = email.send();
         } catch (EmailException e) {
-            log.error("邮件发送异常邮件地址" + toEmailAddressList, e);
+            log.error("邮件发送异常邮件地址,toEmailAddressList:{}",toEmailAddressList, e);
             throw new RuntimeException(e.getMessage());
         }
 
@@ -114,7 +115,7 @@ public class CommonsEmailSender implements IMailSender {
             }
             mimeMessage = email.send();
         } catch (EmailException e) {
-            log.error("邮件发送异常邮件地址" + toEmailAddressList, e);
+            log.error("邮件发送异常邮件地址{}" , toEmailAddressList, e);
             throw new RuntimeException(e.getMessage());
         }
 
@@ -174,7 +175,7 @@ public class CommonsEmailSender implements IMailSender {
             Transport.send(mimeMessage);
             return true;
         } catch (Exception e) {
-            log.error("邮件发送异常邮件地址" + toEmailAddressList, e);
+            log.error("邮件发送异常邮件地址{}" , toEmailAddressList, e);
             throw new RuntimeException(e);
         }
 

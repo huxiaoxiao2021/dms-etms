@@ -5,7 +5,6 @@ import com.jd.bluedragon.core.base.SearchOrganizationOtherManager;
 import com.jd.bluedragon.core.base.StockExportManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
-import com.jd.bluedragon.distribution.kuguan.domain.KuGuanDomain;
 import com.jd.bluedragon.distribution.order.domain.OrderBankResponse;
 import com.jd.bluedragon.distribution.order.service.OrderBankService;
 import com.jd.bluedragon.distribution.order.ws.OrderWebService;
@@ -44,7 +43,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class StockYJHXTest {
 
-    private Logger logger = LoggerFactory.getLogger(StockYJHXTest.class);
+    private Logger log = LoggerFactory.getLogger(StockYJHXTest.class);
 
     @InjectMocks
     private ReverseReceiveNotifyStockService reverseReceiveNotifyStockService;
@@ -137,7 +136,7 @@ public class StockYJHXTest {
             Assert.isTrue(result);
 
         } catch (Exception e) {
-            logger.error("nodifyStockTest fail",e);
+            log.error("nodifyStockTest fail",e);
         }
 
     }

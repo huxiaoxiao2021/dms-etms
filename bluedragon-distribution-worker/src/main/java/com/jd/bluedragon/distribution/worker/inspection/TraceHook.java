@@ -8,8 +8,8 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class TraceHook implements TaskHook<InspectionTaskExecuteContext> {
 
-    private static final Log log= LogFactory.getLog(TraceHook.class);
+    private static final Logger log= LoggerFactory.getLogger(TraceHook.class);
 
     @Autowired
     private CenConfirmService cenConfirmService;
@@ -37,9 +37,8 @@ public class TraceHook implements TaskHook<InspectionTaskExecuteContext> {
                 rDto = context.getReceiveSite();
             }
             if (bDto == null) {
-                log.error("[PackageBarcode=" + cenConfirm.getPackageBarcode()
-                        + "]根据[siteCode=" + cenConfirm.getCreateSiteCode()
-                        + "]获取基础资料站点信息[getSiteBySiteID]返回null,不再插入"+message);
+                log.warn("[PackageBarcode={}]根据[siteCode={}]获取基础资料站点信息[getSiteBySiteID]返回null,不再插入{}",
+                        cenConfirm.getPackageBarcode(),cenConfirm.getCreateSiteCode(),message);
             } else {
                 WaybillStatus tWaybillStatus =cenConfirmService.createWaybillStatus(cenConfirm,
                         bDto, rDto);
@@ -47,9 +46,8 @@ public class TraceHook implements TaskHook<InspectionTaskExecuteContext> {
                     // 添加到task表
                     taskService.add(cenConfirmService.toTask(tWaybillStatus, cenConfirm.getOperateType()));
                 } else {
-                    log.error("[PackageCode=" + tWaybillStatus.getPackageCode()
-                            + " WaybillCode=" + tWaybillStatus.getWaybillCode()
-                            + "][参数信息不全],不再插入"+message);
+                    log.warn("[PackageCode={} WaybillCode={}][参数信息不全],不再插入{}",
+                            tWaybillStatus.getPackageCode(),tWaybillStatus.getWaybillCode(),message);
                 }
 
             }

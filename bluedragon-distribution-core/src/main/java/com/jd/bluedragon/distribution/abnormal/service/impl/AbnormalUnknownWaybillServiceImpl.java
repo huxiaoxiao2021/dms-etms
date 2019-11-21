@@ -37,16 +37,13 @@ import com.jd.ql.dms.common.web.mvc.BaseService;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author wuyoude
@@ -56,6 +53,8 @@ import java.util.Set;
  */
 @Service("abnormalUnknownWaybillService")
 public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnknownWaybill> implements AbnormalUnknownWaybillService {
+
+    private final Logger log = LoggerFactory.getLogger(AbnormalUnknownWaybillServiceImpl.class);
 
     @Autowired
     BaseMinorManager baseMinorManager;
@@ -190,17 +189,17 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
         }
         if (notWaybillCodes.length() > 0) {
             rest.toFail("以下运单号/包裹号不合法:" + notWaybillCodes + "请检查！");
-            logger.warn("以下运单号/包裹号不合法:" + notWaybillCodes + "请检查！");
+            log.warn(rest.getMessage());
             return rest;
         }
         if (noTraderWaybills.length() > 0) {
             rest.toFail("以下运单号/包裹号未找到商家:" + noTraderWaybills + "请检查！");
-            logger.warn("以下运单号/包裹号未找到商家" + noTraderWaybills + "请检查！");
+            log.warn(rest.getMessage());
             return rest;
         }
         if (noExistsWaybills.length() > 0) {
             rest.toFail("以下运单号/包裹号不存在:" + noExistsWaybills + "请检查！");
-            logger.warn("以下运单号/包裹号不存在:" + noExistsWaybills + "请检查！");
+            log.warn(rest.getMessage());
             return rest;
         }
         if (waybillList.size() == 0) {
@@ -228,19 +227,19 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
             BaseStaffSiteOrgDto org = baseMajorManager.getBaseSiteBySiteId(userDto.getSiteCode());
             if (org == null) {
                 rest.toFail("所在站点未找到：" + userDto.getSiteName());
-                logger.warn("所在站点未找到：" + userDto.getSiteName());
+                log.warn(rest.getMessage());
                 return rest;
             }
             ProvinceNode province = AreaHelper.getProvince(Integer.parseInt(Long.valueOf(org.getProvinceId()).toString()));
             if (province == null) {
                 rest.toFail("站点所在省份获取失败：" + org.getProvinceId());
-                logger.warn("站点所在省份获取失败：" + org.getProvinceId());
+                log.warn(rest.getMessage());
                 return rest;
             }
             AreaNode areaNode = AreaHelper.getAreaByProvinceId(province.getId());
             if (areaNode == null) {
                 rest.toFail("站点所在区域获取失败：" + province.getId());
-                logger.warn("站点所在区域获取失败：" + province.getId());
+                log.warn(rest.getMessage());
                 return rest;
             }
             for (String waybillCode : noDetails) {
@@ -276,7 +275,7 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
             buildWaybillDetails(abnormalUnknownWaybill, waybillDetail, bigWaybillDto.getGoodsList());
             addList.add(abnormalUnknownWaybill);//后面将插入表中
             hasDetailWaybillCodes.add(waybillCode);//前台用
-            logger.info(waybillCode + "三无托寄物核实，运单查到了");
+            log.info("三无托寄物核实，运单查到了:{}",waybillCode);
             return;
         }
         //第二步 查eclp
@@ -288,12 +287,12 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
                 queryEclpDetails(itemInfos, abnormalUnknownWaybill, waybillDetail);
                 addList.add(abnormalUnknownWaybill);//后面将插入表中
                 hasDetailWaybillCodes.add(waybillCode);//前台用
-                logger.info(waybillCode + "三无托寄物核实，eclp查到了");
+                log.info("三无托寄物核实，eclp查到了：{}",waybillCode);
                 return;
             }
-            logger.info(waybillCode + "三无托寄物核实，eclp没查到");
+            log.info("三无托寄物核实，eclp没查到：{}",waybillCode);
         } else {
-            logger.info(waybillCode + "不是eclp运单");
+            log.info("不是eclp运单：{}",waybillCode);
         }
         //第三步 查运单的托寄物
 //        BaseEntity<BigWaybillDto> entity = waybillQueryManager.getDataByChoice(waybillCode, true, true, false, false);
@@ -308,17 +307,17 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
                 buildWaybillDetailsByConsignWare(abnormalUnknownWaybill, waybillDetail, waybill.getWaybillExt());
                 addList.add(abnormalUnknownWaybill);//后面将插入表中
                 hasDetailWaybillCodes.add(waybillCode);//前台用
-                logger.info(waybillCode + "三无托寄物核实，运单查到了");
+                log.info("三无托寄物核实，运单查到了：{}",waybillCode);
                 return;
             }
         }
-        logger.info(waybillCode + "三无托寄物核实，运单没查到");
+        log.info("三无托寄物核实，运单没查到：{}",waybillCode);
         //第三步 发B商家请求
         //查询运单
         if (AbnormalUnknownWaybill.REPORT_YES.equals(request.getIsReport())) {
             //是否是妥投订单
             if (deliveredWaybillCodesSet.contains(waybillCode)) {
-                logger.info(waybillCode + "为妥投订单，无需上报！");
+                log.info("为妥投订单，无需上报:{}",waybillCode);
             } else {
                 queryDetailForB(waybillCode, abnormalUnknownWaybill, AbnormalUnknownWaybill.ORDERNUMBER_1, bigWaybillDto.getWaybill());
                 addList.add(abnormalUnknownWaybill);//后面将插入表中
@@ -345,7 +344,7 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
         abnormalUnknownWaybillRequest.setTraderName(waybill.getBusiName());
         abnormalUnknownWaybillRequest.setTraderId(waybill.getBusiId());
         abnormalEclpSendProducer.sendOnFailPersistent(waybillCode, JsonHelper.toJson(abnormalUnknownWaybillRequest));
-        logger.info("三无寄托物核实B商家申请：" + JsonHelper.toJson(abnormalUnknownWaybillRequest));
+        log.info("三无寄托物核实B商家申请：{}" , waybillCode);
         abnormalUnknownWaybill1Report.setIsReceipt(AbnormalUnknownWaybill.ISRECEIPT_NO);
         abnormalUnknownWaybill1Report.setReceiptFrom(AbnormalUnknownWaybill.RECEIPT_FROM_B);
         abnormalUnknownWaybill1Report.setOrderNumber(times);
@@ -474,7 +473,7 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
             try {
                 return Integer.parseInt(contents);
             } catch (Exception e) {
-                logger.warn("系统配置abnormal.unknown.report.times内容不合法：" + contents);
+                log.warn("系统配置abnormal.unknown.report.times内容不合法：{}" , contents);
                 return defaultTimes;
             }
         }
@@ -497,7 +496,7 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
             try {
                 return Integer.parseInt(contents);
             } catch (Exception e) {
-                logger.warn("系统配置abnormal.unknown.report.waybill.max内容不合法：" + contents);
+                log.warn("系统配置abnormal.unknown.report.waybill.max内容不合法：{}" , contents);
                 return defaultTimes;
             }
         }
@@ -511,23 +510,23 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
             AbnormalUnknownWaybill abnormalUnknownWaybill = abnormalUnknownWaybillDao.findLastReportByWaybillCode(waybillCode);
             if (abnormalUnknownWaybill == null) {
                 rest.toFail(waybillCode + "该运单还未上报过");
-                logger.warn(waybillCode + "该运单还未上报过");
+                log.warn(rest.getMessage());
                 return rest;
             }
             if (abnormalUnknownWaybill.getOrderNumber() == AbnormalUnknownWaybill.ORDERNUMBER_0) {
                 rest.toFail(waybillCode + "已由系统回复，不允许上报");
-                logger.warn(waybillCode + "已由系统回复，不允许上报");
+                log.warn(rest.getMessage());
                 return rest;
             }
             if (abnormalUnknownWaybill.getIsReceipt() == AbnormalUnknownWaybill.ISRECEIPT_NO) {
                 rest.toFail(waybillCode + "第" + abnormalUnknownWaybill.getOrderNumber() + "次上报还未回复，不允许再次上报");
-                logger.warn(waybillCode + "第" + abnormalUnknownWaybill.getOrderNumber() + "次上报还未回复，不允许再次上报");
+                log.warn(rest.getMessage());
                 return rest;
             }
             int maxTime = getReportTimes();
             if (abnormalUnknownWaybill.getOrderNumber() >= maxTime) {
                 rest.toFail(waybillCode + "上报次数已超过上限" + maxTime + "次，不允许再次上报");
-                logger.warn(waybillCode + "上报次数已超过上限" + maxTime + "次，不允许再次上报");
+                log.warn(rest.getMessage());
                 return rest;
             }
             //获取用户信息
@@ -537,19 +536,19 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
             BaseStaffSiteOrgDto org = baseMajorManager.getBaseSiteBySiteId(userDto.getSiteCode());
             if (org == null) {
                 rest.toFail("所在站点未找到：" + userDto.getSiteName());
-                logger.warn("所在站点未找到：" + userDto.getSiteName());
+                log.warn(rest.getMessage());
                 return rest;
             }
             ProvinceNode province = AreaHelper.getProvince(Integer.parseInt(Long.valueOf(org.getProvinceId()).toString()));
             if (province == null) {
                 rest.toFail("站点所在省份获取失败：" + org.getProvinceId());
-                logger.warn("站点所在省份获取失败：" + org.getProvinceId());
+                log.warn(rest.getMessage());
                 return rest;
             }
             AreaNode areaNode = AreaHelper.getAreaByProvinceId(province.getId());
             if (areaNode == null) {
                 rest.toFail("站点所在区域获取失败：" + province.getId());
-                logger.warn("站点所在区域获取失败：" + province.getId());
+                log.warn(rest.getMessage());
                 return rest;
             }
             //查运单
@@ -565,14 +564,14 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
                 return rest;
             } else {
                 rest.toFail("服务异常");
-                logger.warn("插入上报失败" + waybillCode);
+                log.warn("插入上报失败:{}" , waybillCode);
                 return rest;
             }
 
 
         } else {
             rest.toFail("非法操作");
-            logger.warn("非法操作二次上报" + waybillCode);
+            log.warn("非法操作二次上报:{}" , waybillCode);
             return rest;
         }
     }

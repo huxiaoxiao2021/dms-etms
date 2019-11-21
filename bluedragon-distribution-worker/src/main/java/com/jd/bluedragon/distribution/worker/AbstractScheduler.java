@@ -1,23 +1,21 @@
 package com.jd.bluedragon.distribution.worker;
 
+import com.jd.bluedragon.distribution.task.domain.Task;
+import com.taobao.pamirs.schedule.IScheduleTaskDealMulti;
+import com.taobao.pamirs.schedule.TBScheduleManagerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import javax.sql.DataSource;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.sql.DataSource;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import com.jd.bluedragon.distribution.task.domain.Task;
-import com.taobao.pamirs.schedule.IScheduleTaskDealMulti;
-import com.taobao.pamirs.schedule.TBScheduleManagerFactory;
-
 public abstract class AbstractScheduler<T> implements IScheduleTaskDealMulti<T> {
     
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
     
     @Autowired
     private TBScheduleManagerFactory managerFactory;
@@ -34,7 +32,7 @@ public abstract class AbstractScheduler<T> implements IScheduleTaskDealMulti<T> 
     	if(open){
     		this.managerFactory.createTBScheduleManager(this.taskType, this.ownSign);
     	}else{
-    		logger.warn("task["+ownSign+"-"+taskType+"] is not open!");
+    		log.warn("task[{}-{}] is not open!",ownSign,taskType);
     	}
     }
     
@@ -116,7 +114,7 @@ public abstract class AbstractScheduler<T> implements IScheduleTaskDealMulti<T> 
                     assigns.add(t);
                 }
             } catch (Exception e) {
-                this.logger.error("error!", e);
+                this.log.error("error!", e);
                 continue;
             }
         }

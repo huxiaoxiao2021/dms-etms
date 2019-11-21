@@ -61,8 +61,8 @@ import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
@@ -120,7 +120,7 @@ public class DeliveryResource {
      */
     private static final Integer KY_DELIVERY = 1;
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
     
     @Autowired
     private SendMDao sendMDao;
@@ -170,8 +170,8 @@ public class DeliveryResource {
     @Path("/delivery/newpackagesend")
     @BusinessLog(sourceSys = 1, bizType = 100, operateType = 1001)
     public InvokeResult<SendResult> newPackageSend(PackageSendRequest request) {
-        if (logger.isInfoEnabled()) {
-            logger.info(JsonHelper.toJsonUseGson(request));
+        if (log.isInfoEnabled()) {
+            log.info(JsonHelper.toJson(request));
         }
         CallerInfo info = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.newPackageSend", Constants.UMP_APP_NAME_DMSWEB,false, true);
         SendM domain = this.toSendMDomain(request);
@@ -180,7 +180,7 @@ public class DeliveryResource {
             if (BusinessUtil.isBoardCode(request.getBoxCode())) {
                 // 一车一单下的组板发货
                 domain.setBoardCode(request.getBoxCode());
-                logger.warn("组板发货newpackagesend：" + JsonHelper.toJson(request));
+                log.warn("组板发货newpackagesend：{}" , JsonHelper.toJson(request));
                 result.setData(deliveryService.boardSend(domain, request.getIsForceSend()));
             } else {
                 SendBizSourceEnum bizSource = SendBizSourceEnum.getEnum(request.getBizSource());
@@ -195,12 +195,12 @@ public class DeliveryResource {
         } catch (Exception ex) {
             Profiler.functionError(info);
             result.error(ex);
-            logger.error("一车一单发货", ex);
+            log.error("一车一单发货{}",JsonHelper.toJson(request), ex);
         }finally {
             Profiler.registerInfoEnd(info);
         }
-        if (logger.isInfoEnabled()) {
-            logger.info(JsonHelper.toJsonUseGson(result));
+        if (log.isInfoEnabled()) {
+            log.info(JsonHelper.toJson(result));
         }
         return result;
     }
@@ -257,7 +257,7 @@ public class DeliveryResource {
                 }
             } catch (Exception ex) {
                 result.error(ex);
-                logger.error("发货校验批次号异常：", ex);
+                log.error("发货校验批次号异常：{}",sendCode, ex);
             }
         }
         return result;
@@ -274,7 +274,7 @@ public class DeliveryResource {
         try {
             bDto = this.baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
         } catch (Exception e) {
-            this.logger.error("一车一单发货通过站点ID获取基础资料失败:"+receiveSiteCode,e);
+            this.log.error("一车一单发货通过站点ID获取基础资料失败:{}",receiveSiteCode,e);
             return false;
         }
         Integer siteType=0;
@@ -289,7 +289,7 @@ public class DeliveryResource {
                 return true;
             }
         }else{
-            this.logger.warn("一车一单发获取站点信息为空：" + receiveSiteCode);
+            this.log.warn("一车一单发获取站点信息为空：{}" , receiveSiteCode);
         }
         return false;
     }
@@ -298,8 +298,9 @@ public class DeliveryResource {
     @Path("/delivery/cancel")
     @BusinessLog(sourceSys = 1,bizType = 100,operateType = 1003)
     public ThreeDeliveryResponse cancelDeliveryInfo(DeliveryRequest request) {
-        logger.info("取消发货JSON" + JsonHelper.toJsonUseGson(request));
-        this.logger.info("开始写入取消发货信息");
+        if(log.isDebugEnabled()){
+            log.debug("取消发货JSON" + JsonHelper.toJson(request));
+        }
         if (request.getBoxCode() == null || request.getSiteCode() == null) {
             return new ThreeDeliveryResponse(JdResponse.CODE_PARAM_ERROR,
                     JdResponse.MESSAGE_PARAM_ERROR, null);
@@ -316,9 +317,8 @@ public class DeliveryResource {
         try {
             tDeliveryResponse = deliveryService.dellCancelDeliveryMessage(toSendM(request), true);
         } catch (Exception e) {
-            this.logger.error("写入取消发货信息失败", e);
+            this.log.error("写入取消发货信息失败：{}",JsonHelper.toJson(request), e);
         }
-        this.logger.info("结束写入取消发货信息");
         if (tDeliveryResponse != null) {
             return tDeliveryResponse;
         } else {
@@ -331,7 +331,9 @@ public class DeliveryResource {
     @Path("/delivery/cancel/last")
     @BusinessLog(sourceSys = 1,bizType = 100,operateType = 1004)
     public ThreeDeliveryResponse cancelLastDeliveryInfo(DeliveryRequest request) {
-        logger.info("取消最近的一次发货JSON" + JsonHelper.toJsonUseGson(request));
+        if(log.isDebugEnabled()){
+            log.debug("取消最近的一次发货JSON" , JsonHelper.toJson(request));
+        }
 
         //参数校验
         if (StringHelper.isEmpty(request.getBoxCode()) == null || request.getSiteCode() == null || StringHelper.isEmpty(request.getOperateTime())) {
@@ -342,7 +344,7 @@ public class DeliveryResource {
         try {
             tDeliveryResponse = deliveryService.cancelLastSend(toSendM(request));
         } catch (Exception e) {
-            this.logger.error("写入取消最近的一次发货信息失败", e);
+            this.log.error("写入取消最近的一次发货信息失败：{}",JsonHelper.toJson(request), e);
         }
 
         if (tDeliveryResponse != null) {
@@ -357,13 +359,12 @@ public class DeliveryResource {
     public InvokeResult recyclableBoxSend(RecyclableBoxRequest request) {
         InvokeResult result = new InvokeResult();
         try {
-            if (logger.isInfoEnabled()) {
-                logger.info("循环箱MQ-JSON：" + JsonHelper.toJsonUseGson(request));
+            if (log.isDebugEnabled()) {
+                log.debug("循环箱MQ-JSON：" , JsonHelper.toJson(request));
             }
             cycleBoxService.recyclableBoxSend(request);
-            logger.info("结束循环箱发MQ");
         }catch (Exception e){
-            logger.error("循环箱发送MQ异常.",e);
+            log.error("循环箱发送MQ异常:{}",JsonHelper.toJson(request),e);
             result.error(InvokeResult.SERVER_ERROR_MESSAGE);
         }
         return result;
@@ -374,7 +375,6 @@ public class DeliveryResource {
      */
     private DeliveryResponse sendLoadBillCheck(DeliveryRequest request) {
         if (request.getBoxCode() == null || request.getSiteCode() == null) {
-            this.logger.error("sendLoadBillCheck 参数错误");
             return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR,
                     JdResponse.MESSAGE_PARAM_ERROR);
         }
@@ -384,7 +384,7 @@ public class DeliveryResource {
         } else {
             loadBillReport.setWaybillCode(request.getBoxCode());
         }
-        this.logger.info("开始获取 装载数据");
+        this.log.debug("开始获取 装载数据");
         try {
             List<LoadBill> loadBillList = loadBillService.findWaybillInLoadBill(loadBillReport);
 
@@ -403,7 +403,7 @@ public class DeliveryResource {
                         JdResponse.MESSAGE_OK);
             }
         } catch (Exception e) {
-            this.logger.error("开始获取 装载数据 失败 findWaybillInLoadBill" + e);
+            this.log.error("开始获取 装载数据 失败 findWaybillInLoadBill:{}",JsonHelper.toJson(request), e);
         }
 
         return new DeliveryResponse(JdResponse.CODE_UNLOADBILL,
@@ -421,7 +421,9 @@ public class DeliveryResource {
     @Path("/delivery/send")
     @BusinessLog(sourceSys = 1, bizType = 100, operateType = 1002)
     public DeliveryResponse sendDeliveryInfo(List<DeliveryRequest> request) {
-        this.logger.info("开始写入发货信息" + JsonHelper.toJson(request));
+        if(log.isDebugEnabled()){
+            this.log.debug("开始写入发货信息:{}" , JsonHelper.toJson(request));
+        }
         if (check(request)) {
             return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR,
                     JdResponse.MESSAGE_PARAM_ERROR);
@@ -441,7 +443,7 @@ public class DeliveryResource {
                 tDeliveryResponse = deliveryService.dellDeliveryMessage(SendBizSourceEnum.OLD_PACKAGE_SEND, toSendDetailList(request));
             }
         }
-        this.logger.info("结束写入发货信息");
+        this.log.debug("结束写入发货信息");
         if (tDeliveryResponse != null) {
             return tDeliveryResponse;
         } else {
@@ -474,7 +476,9 @@ public class DeliveryResource {
     @Path("/delivery/differentialQuery")
     @JProfiler(jKey = "DMSWEB.DeliveryResource.differentialQuery", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
     public ThreeDeliveryResponse differentialQuery(DifferentialQueryRequest request) {
-        this.logger.info("快运发货差异查询:" + JsonHelper.toJson(request));
+        if(log.isDebugEnabled()){
+            this.log.debug("快运发货差异查询:{}" , JsonHelper.toJson(request));
+        }
         try {
             if (check(request.getSendList())) {
                 return new ThreeDeliveryResponse(
@@ -488,10 +492,10 @@ public class DeliveryResource {
                 response =
                         deliveryService.differentialQuery(toSendDetailList(request.getSendList()), queryType);
             }
-            this.logger.info("结束快运发货差异查询");
+            this.log.debug("结束快运发货差异查询");
             return response;
         } catch (Exception ex) {
-            logger.error("快运发货差异查询", ex);
+            log.error("快运发货差异查询:{}",JsonHelper.toJson(request), ex);
             return new ThreeDeliveryResponse(JdResponse.CODE_INTERNAL_ERROR, ex.getMessage(), null);
         }
     }
@@ -500,7 +504,9 @@ public class DeliveryResource {
     @Path("/delivery/verification")
     @JProfiler(jKey = "DMSWEB.DeliveryResource.verification", mState = {JProEnum.TP})
     public ThreeDeliveryResponse checkThreeDelivery(List<DeliveryRequest> request) {
-        this.logger.info("开始三方发货不全验证:"+JsonHelper.toJson(request));
+        if(log.isDebugEnabled()){
+            this.log.debug("开始三方发货不全验证:{}",JsonHelper.toJson(request));
+        }
         try {
             if (check(request)) {
                 return new ThreeDeliveryResponse(JdResponse.CODE_PARAM_ERROR,
@@ -513,10 +519,10 @@ public class DeliveryResource {
             }else{
                 response =  deliveryService.checkThreePackage(toSendDetailList(request));
             }
-            this.logger.info("结束三方发货不全验证");
+            this.log.debug("结束三方发货不全验证");
             return response;
         } catch (Exception ex) {
-            logger.error("发货不全验证", ex);
+            log.error("发货不全验证异常：{}",JsonHelper.toJson(request), ex);
             return new ThreeDeliveryResponse(JdResponse.CODE_INTERNAL_ERROR, ex.getMessage(), null);
         }
     }
@@ -554,7 +560,7 @@ public class DeliveryResource {
             }
             //校验滑道号
             if(WaybillUtil.isPackageCode(request.getBoxCode()) && !checkPackageCrossCodeSucc(request.getBoxCode())){
-                this.logger.info(String.format("滑道号不正确[%s]",request.getBoxCode()));
+                log.warn("滑道号不正确[{}]",request.getBoxCode());
                 return new DeliveryResponse(DeliveryResponse.CODE_CROSS_CODE_ERROR, DeliveryResponse.MESSAGE_CROSS_CODE_ERROR);
             }
 
@@ -566,7 +572,7 @@ public class DeliveryResource {
                 if (isWaybillCode(request.getBoxCode())) {
                     List<String> waybillCodeList = waybillPackageBarcodeService.getPackageCodeListByWaybillCode(request.getBoxCode());
                     if(waybillCodeList == null || waybillCodeList.size() < 1){
-                        logger.error("快运发货扫运单号，根据运单号[" + request.getBoxCode() + "]生成包裹号失败.没有运单/包裹信息");
+                        log.warn("快运发货扫运单号，根据运单号[{}]生成包裹号失败.没有运单/包裹信息",request.getBoxCode());
                         response.setCode(JdResponse.CODE_CAN_NOT_GENERATE_PACKAGECODE);
                         response.setMessage(MessageFormat.format(JdResponse.MESSAGE_CAN_NOT_GENERATE_PACKAGECODE,request.getBoxCode()));
                         return response;
@@ -577,7 +583,7 @@ public class DeliveryResource {
             }
             return response;
         } catch (Exception ex) {
-            logger.error("快运发货路由验证出错：", ex);
+            log.error("快运发货路由验证出错：{}", JsonHelper.toJson(request),ex);
             return new DeliveryResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         }
     }
@@ -617,7 +623,7 @@ public class DeliveryResource {
             }
             return response;
         } catch (Exception ex) {
-            logger.error("快运发货金鹏订单拦截出错：", ex);
+            log.error("快运发货金鹏订单拦截出错：{}",JsonHelper.toJson(request), ex);
             return new DeliveryResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         }
     }
@@ -668,9 +674,7 @@ public class DeliveryResource {
         String boxCode = request.getBoxCode();
         Integer createSiteCode = request.getSiteCode();
         Integer receiveSiteCode = request.getReceiveSiteCode();
-        this.logger.info("开始一单多件包裹不全验证,createSiteCode[" + createSiteCode
-                + "],receiveSiteCode[" + receiveSiteCode + "],boxCode["
-                + boxCode + "]");
+        this.log.debug("开始一单多件包裹不全验证,createSiteCode[{}],receiveSiteCode[{}],boxCode[{}]",createSiteCode,receiveSiteCode,boxCode);
 
         if (boxCode == null || boxCode.trim().equals("")
                 || createSiteCode == null || receiveSiteCode == null) {
@@ -681,9 +685,9 @@ public class DeliveryResource {
         List<SendThreeDetail> tDeliveryResponse = null;
         try {
             tDeliveryResponse = deliveryService.checkSortingDiff(boxCode, createSiteCode, receiveSiteCode);
-            this.logger.info("结束一单多件包裹不全验证");
+            this.log.debug("结束一单多件包裹不全验证");
         } catch (Exception e) {
-            this.logger.error("一单多件包裹不全验证异常", e);
+            this.log.error("一单多件包裹不全验证异常:{}",JsonHelper.toJson(request), e);
         }
         if (tDeliveryResponse != null && !tDeliveryResponse.isEmpty()) {
             return new ThreeDeliveryResponse(
@@ -700,16 +704,14 @@ public class DeliveryResource {
     @Path("/delivery/appendpackagenum")
     public DeliveryResponse appendPackageNum(@QueryParam("createSiteCode") Integer createSiteCode,
                                              @QueryParam("receiveSiteCode") Integer receiveSiteCode, @QueryParam("boxCode") String boxCode) {
-        this.logger.info("开始补全发货明细表包裹数量,createSiteCode[" + createSiteCode
-                + "],receiveSiteCode[" + receiveSiteCode + "],boxCode["
-                + boxCode + "]");
+        this.log.debug("开始补全发货明细表包裹数量,,createSiteCode[{}],receiveSiteCode[{}],boxCode[{}]",createSiteCode,receiveSiteCode,boxCode);
         Integer updatedNum = 0;
         String msg;
 
         long startTime = System.currentTimeMillis();
         try {
             updatedNum = deliveryService.appendPackageNum(boxCode, createSiteCode, receiveSiteCode);
-            this.logger.info("结束补全发货明细表包裹数量");
+            this.log.debug("结束补全发货明细表包裹数量");
         } catch (Exception e) {
             msg = "补全发货明细表包裹数量失败";
             return new DeliveryResponse(JdResponse.CODE_OK, msg);
@@ -734,11 +736,6 @@ public class DeliveryResource {
                                               @QueryParam("siteCode") String siteCode,
                                               @QueryParam("receiveSiteCode") String receiveSiteCode,
                                               @QueryParam("businessType") String businessType) {
-        this.logger.info("开始验证箱号信息");
-        this.logger.info("boxCode is " + boxCode);
-        this.logger.info("siteCode is " + siteCode);
-        this.logger.info("receiveSiteCode is " + receiveSiteCode);
-        this.logger.info("businessType is " + businessType);
         if (boxCode == null || siteCode == null || businessType == null || receiveSiteCode == null) {
             return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
         }
@@ -766,7 +763,7 @@ public class DeliveryResource {
         try {
             boolean isTransferSend = deliveryService.isTransferSend(tSendM);
             DeliveryResponse tDeliveryResponse = deliveryService.findSendMByBoxCode(tSendM, isTransferSend);
-            this.logger.info("结束验证箱号信息");
+            this.log.debug("结束验证箱号信息");
             if (tDeliveryResponse != null) {
                 //设置运单类型
                 String waybillCodeToJudgeType = null;
@@ -807,16 +804,16 @@ public class DeliveryResource {
                                 }else{
                                     //校验滑道号
                                     if(!checkPackageCrossCodeSucc(boxCode)){
-                                        this.logger.info(String.format("滑道号不正确[%s]",boxCode));
+                                        this.log.warn("滑道号不正确[{}]",boxCode);
                                         return new DeliveryResponse(DeliveryResponse.CODE_CROSS_CODE_ERROR, DeliveryResponse.MESSAGE_CROSS_CODE_ERROR);
                                     }
                                 }
                             } else{
-                                this.logger.warn("发货校验获取站点信息为空：" + receiveSiteCode);
+                                this.log.warn("发货校验获取站点信息为空：{}" , receiveSiteCode);
                             }
                         } catch (Exception e) {
                             Profiler.functionError(reverseCheckInfo);
-                            this.logger.error("发货校验获取站点信息失败，站点编号:" + receiveSiteCode, e);
+                            this.log.error("发货校验获取站点信息失败，站点编号:{}" , receiveSiteCode, e);
                         }finally {
                             Profiler.registerInfoEnd(reverseCheckInfo);
                         }
@@ -832,7 +829,7 @@ public class DeliveryResource {
             }
         } catch (Exception e) {
             Profiler.functionError(info);
-            logger.error("发货校验异常", e);
+            log.error("发货校验异常:{}",JsonHelper.toJson(tSendM), e);
             return new DeliveryResponse(JdResponse.CODE_NOT_FOUND, JdResponse.MESSAGE_SERVICE_ERROR);
         }finally {
             Profiler.registerInfoEnd(info);
@@ -844,7 +841,7 @@ public class DeliveryResource {
     @JProfiler(jKey = "DMSWEB.DeliveryResource.getWhemsWaybill", mState = {JProEnum.TP})
     public WhemsWaybillResponse getWhemsWaybill(List<String> request, @Context HttpServletRequest servletRequest) {
 
-        this.logger.error("servletRequest.getHeader()" + servletRequest.getHeader("X-Forwarded-For"));
+        this.log.warn("servletRequest.getHeader()={}" , servletRequest.getHeader("X-Forwarded-For"));
         String realIP = servletRequest.getHeader("X-Forwarded-For");
         String emsIp = PropertiesHelper.newInstance().getValue("EMSIP");
         if (realIP != null && !realIP.contains(emsIp)) {
@@ -925,8 +922,8 @@ public class DeliveryResource {
                     //B冷链快运发货支持扫运单号发货
                     DeliveryResponse response = isValidWaybillCode(deliveryRequest);
                     if (!JdResponse.CODE_OK.equals(response.getCode())) {
-                        logger.error("DeliveryResource--toSendDatailList出现运单号，但非冷链快运发货,siteCode:" +
-                                deliveryRequest.getSiteCode() + ",单号:" + deliveryRequest.getBoxCode());
+                        log.warn("DeliveryResource--toSendDatailList出现运单号，但非冷链快运发货,siteCode:{},单号:{}",
+                                deliveryRequest.getSiteCode() , deliveryRequest.getBoxCode());
                     } else {
                         sendMList.addAll(deliveryRequest2SendMList(deliveryRequest));
                     }
@@ -946,8 +943,8 @@ public class DeliveryResource {
                     //B冷链快运发货支持扫运单号发货
                     DeliveryResponse response = isValidWaybillCode(deliveryRequest);
                     if (!JdResponse.CODE_OK.equals(response.getCode())) {
-                        logger.error("DeliveryResource--toSendDetailList出现运单号，但非冷链快运发货，siteCode:" +
-                                deliveryRequest.getSiteCode() + "，单号:" + deliveryRequest.getBoxCode());
+                        log.warn("DeliveryResource--toSendDetailList出现运单号，但非冷链快运发货，siteCode:{},单号:{}",
+                                deliveryRequest.getSiteCode() , deliveryRequest.getBoxCode());
                         continue;
                     }
                     sendMList.add(deliveryRequest2SendM(deliveryRequest));
@@ -1063,10 +1060,10 @@ public class DeliveryResource {
                 this.deliveryService.updateWaybillStatus(sendDetails);
                 result = JsonHelper.toJsonUseGson(sendDetails);
             } else {
-                logger.error("findWaybillStatus查询无符合条件");
+                log.warn("findWaybillStatus查询无符合条件:{}",id);
             }
         } catch (Exception e) {
-            this.logger.error("web补全包裹运单信息异常：", e);
+            this.log.error("web补全包裹运单信息异常：{}",id, e);
         }
 
         return result;
@@ -1094,16 +1091,14 @@ public class DeliveryResource {
             } else{
                 result.setCode(result.CODE_OK_NULL);
                 result.setMessage("未查到符合条件的sendd数据");
-                logger.error(MessageFormat.format("queryBySendCodeAndSiteCode查询无符合条件的数据" +
-                                "sendCode[{0}],createSiteCode[{1}],receiveSiteCode[{2}],senddStatus[{3}]",
-                        sendCode, createSiteCode, receiveSiteCode, senddStatus));
+                log.warn("queryBySendCodeAndSiteCode查询无符合条件的数据 sendCode[{}],createSiteCode[{}],receiveSiteCode[{}],senddStatus[{}]",
+                        sendCode, createSiteCode, receiveSiteCode, senddStatus);
             }
         } catch (Exception e) {
             result.setCode(result.CODE_SERVICE_ERROR);
             result.setMessage("根据批次号补运单状态全程跟踪异常！");
-            this.logger.error(MessageFormat.format("queryBySendCodeAndSiteCode查询无sendd补运单信息异常" +
-                            "sendCode[{0}],createSiteCode[{1}],receiveSiteCode[{2}],senddStatus[{3}]",
-                    sendCode, createSiteCode, receiveSiteCode, senddStatus), e);
+            this.log.error("queryBySendCodeAndSiteCode查询无sendd补运单信息异常 sendCode[{}],createSiteCode[{}],receiveSiteCode[{}],senddStatus[{}]",
+                    sendCode, createSiteCode, receiveSiteCode, senddStatus, e);
         }
         return result;
     }
@@ -1111,13 +1106,13 @@ public class DeliveryResource {
     @Path("/delivery/sendBatch")
     @JProfiler(jKey = "DMSWEB.DeliveryResource.sendBatch", mState = {JProEnum.TP})
     public DeliveryResponse sendBatch(DeliveryRequest request) {
-        this.logger.info("开始批量发货写入信息");
+        this.log.debug("开始批量发货写入信息");
         if (check(request)) {
             return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR,
                     JdResponse.MESSAGE_PARAM_ERROR);
         }
         DeliveryResponse tDeliveryResponse = deliveryService.dealWithSendBatch(toSendDatail(request));
-        this.logger.info("结束批量发货写入信息");
+        this.log.debug("结束批量发货写入信息");
         if (tDeliveryResponse != null) {
             return tDeliveryResponse;
         } else {
@@ -1171,7 +1166,7 @@ public class DeliveryResource {
             sendDifference = sendQueryService.querySendDifference(sendCode);
             return sendDifference;
         } catch (Exception ex) {
-            this.logger.error("调用监控-发货运输差异仓查询异常：", ex);
+            this.log.error("调用监控-发货运输差异仓查询异常：{}",sendCode, ex);
             return new SendDifference(JdResponse.CODE_SERVICESEND_ERROR, JdResponse.MESSAGE_SERVICESEND_ERROR);
         }
 
@@ -1187,7 +1182,7 @@ public class DeliveryResource {
     @Path("/delivery/handAchieveSendCode")
     @JProfiler(jKey = "DMSWEB.DeliveryResource.handAchieveSendCode", mState = {JProEnum.TP})
     public ScannerFrameBatchSendResponse handAchieveSendCode(SendGantryDeviceConfig config) {
-        this.logger.info("手动获取设备对应的批次号");
+        this.log.debug("手动获取设备对应的批次号");
         ScannerFrameBatchSend scannerFrameBatchSend = scannerFrameBatchSendService.getOrGenerate(config.getOperateTime(), config.getReceiveSiteCode(), config.getConfig(),"");
         
         if (scannerFrameBatchSend != null) {
@@ -1290,7 +1285,7 @@ public class DeliveryResource {
 
             result.success();
         }catch (Exception e){
-            logger.error("原包分拣发货异常，",e);
+            log.error("原包分拣发货异常:{}",JsonHelper.toJson(request), e);
             result.error("原包分拣发货异常");
         }
 
@@ -1364,7 +1359,7 @@ public class DeliveryResource {
                 return false;
             }
         } catch (Exception e) {
-            this.logger.error("分拣开放平台调分拣发货接口校验参数，检查站点信息，调用站点信息异常！", e);
+            this.log.error("分拣开放平台调分拣发货接口校验参数，检查站点信息，调用站点信息异常:{}",JsonHelper.toJson(request), e);
         }finally {
             Profiler.registerInfoEnd(info);
         }
@@ -1433,13 +1428,14 @@ public class DeliveryResource {
 
         try {
             JdResult result = jsfSortingResourceService.packageSendCheck(deliveryRequest);
-
-            logger.info("调用verjsf进行老发货校验拦截,返回值:" + JSON.toJSONString(result));
+            if(log.isDebugEnabled()){
+                log.debug("调用verjsf进行老发货校验拦截,返回值:{}" , JSON.toJSONString(result));
+            }
             response.setCode(result.getCode());
             response.setMessage(result.getMessage());
             return response;
         }catch (Exception e){
-            logger.error("调用ver接口进行老发货验证异常.",e);
+            log.error("调用ver接口进行老发货验证异常:{}" , JSON.toJSONString(deliveryRequest),e);
             response.setCode(JdResponse.CODE_NOT_FOUND);
             response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
         }
@@ -1504,10 +1500,12 @@ public class DeliveryResource {
             	}
             	checkResponse.setPackageNum(verCheckResult.getData().getPackageNum());
             }
-        	logger.info("调用verjsf进行老发货校验拦截,返回值:" + JSON.toJSONString(result));
+            if(log.isDebugEnabled()){
+                log.debug("调用verjsf进行老发货校验拦截,返回值:{}" , JSON.toJSONString(result));
+            }
             return result;
         }catch (Exception e){
-            logger.error("调用ver接口进行老发货验证异常.",e);
+            log.error("调用ver接口进行老发货验证异常:{}" ,JSON.toJSONString(deliveryRequest),e);
             result.toError("调用ver接口进行老发货验证异常.");
         }
         return result;

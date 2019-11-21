@@ -9,8 +9,8 @@ import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -43,7 +43,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
  */
 @Service
 public class OfflineSortingServiceImpl implements OfflineSortingService {
-	private static Log log = LogFactory.getLog(OfflineSortingServiceImpl.class);
+	private static Logger log = LoggerFactory.getLogger(OfflineSortingServiceImpl.class);
 	@Autowired
 	private BaseService baseService;
 	@Autowired
@@ -90,23 +90,23 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 					}
 
 				}else{
-					log.error("离线分拣：根据运单号获取包裹，结果为空，运单号："+waybillCode);
+					log.warn("离线分拣：根据运单号获取包裹，结果为空，运单号{}", waybillCode);
 				}
 			} else {
-				log.error("离线分拣数据处理失败，通过运单查询包裹信息为空;" + request);
+				log.warn("离线分拣数据处理失败，通过运单查询包裹信息为空,运单号{}", waybillCode);
 				return 0;
 			}
 
 		} else {
 			Task task = this.toTask(request);
 			if (task == null) {
-				log.error("离线分拣数据转task失败:"+request);
+				log.warn("离线分拣数据转task失败:{}",request);
 				return 0;
 			}
 			n = this.taskService.add(task);
 			addOperationLog(request);    //添加离线分拣操作日志
 			if(n==0){
-				log.error("离线分拣:执行新增task返回结果为0.");
+				log.warn("离线分拣:执行新增task返回结果为0");
 			}
 
 		}
@@ -161,7 +161,7 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 	public int cancelThirdInspection(OfflineLogRequest request){
 		Box box = boxService.findBoxByCode(request.getBoxCode());
 		if (box == null) {
-			log.error("根据箱号获取不到箱子对象："+request);
+			log.warn("根据箱号获取不到箱子对象{}", request.getBoxCode());
 			return 0;
 		}
 		Inspection inspection = new Inspection();
@@ -248,8 +248,7 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 					map.put("receiveSiteCode", recieveSite.getSiteCode());
 					map.put("receiveSiteName", recieveSite.getSiteName());
 				} else {
-					log.error("离线分拣:"+request.getReceiveSiteCode() + "站点不存在."+request);
-//					log.error(arg0);
+					log.warn("离线分拣,{}站点不存在",request.getReceiveSiteCode());
 					return null;
 				}
 				task.setReceiveSiteCode(request.getReceiveSiteCode());
@@ -262,7 +261,7 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 				map.put("receiveSiteName", box.getReceiveSiteName());
 				task.setReceiveSiteCode(box.getReceiveSiteCode());
 			} else {
-				log.error("离线分拣:"+request.getBoxCode() + "箱号不存在."+request);
+				log.warn("离线分拣，{}箱号不存在.", request.getBoxCode());
 				return null;
 			}
 		}
@@ -282,7 +281,7 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 		if (staff != null) {
 			map.put("userName", staff.getStaffName());
 		} else {
-			log.error("离线分拣:"+request.getUserCode() + "用户ID不存在."+request);
+			log.warn("离线分拣,{}用户ID不存在.",request.getUserCode());
 			return null;
 		}
 
@@ -382,7 +381,7 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 		String waybillCode = request.getWaybillCode();
 		if (StringUtils.isEmpty(packageCode)
 				&& StringUtils.isEmpty(waybillCode)) {
-			log.error("离线超区退回传入参数不正确：" + request);
+			log.warn("离线超区退回传入参数不正确:{}", request);
 			return false;
 		}
 		return true;

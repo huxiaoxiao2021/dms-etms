@@ -3,10 +3,10 @@ package com.jd.bluedragon.distribution.fastRefund.service;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.fastRefund.domain.WaybillResponse;
 import com.jd.bluedragon.utils.PropertiesHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.core.MediaType;
@@ -15,7 +15,7 @@ import java.text.MessageFormat;
 @Component
 public class WaybillCancelClient {
 
-    private static final Log logger = LogFactory.getLog(WaybillCancelClient.class);
+    private static final Logger log = LoggerFactory.getLogger(WaybillCancelClient.class);
 	/**
 	 * DMSVER_ADDRESS,查询取消订单地址
 	 */
@@ -42,7 +42,7 @@ public class WaybillCancelClient {
             }
             return false;
         } catch (Exception e) {
-            logger.error("获取取消订单状态[" + waybillCode + "]信息失败,默认返回为true，异常为：", e);
+            log.error("获取取消订单状态[{}]信息失败,默认返回为true",waybillCode, e);
             return true;
         }
     }
@@ -67,7 +67,7 @@ public class WaybillCancelClient {
             	
             }
         } catch (Exception e) {
-            logger.error("获取运单是否取消锁定相关信息【" + waybillCode + "】信息失败,异常为：", e);
+            log.error("获取运单是否取消锁定相关信息【{}】信息失败,异常为：",waybillCode, e);
         }
         return null;
     }
@@ -85,7 +85,7 @@ public class WaybillCancelClient {
         String requestUrl= MessageFormat.format(SORTING_URL, String.valueOf(createSiteCode), String.valueOf(receiveSiteCode), packageCode, packageCode);
         ClientRequest request = new ClientRequest(requestUrl);
 
-        logger.info(requestUrl);
+        log.debug(requestUrl);
         request.accept(MediaType.APPLICATION_JSON);
 
         ClientResponse<BoxResponse> response =null;

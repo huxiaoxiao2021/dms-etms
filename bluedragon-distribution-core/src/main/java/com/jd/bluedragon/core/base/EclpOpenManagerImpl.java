@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 @Service("eclpOpenManager")
 public class EclpOpenManagerImpl implements EclpOpenManager {
 
-    private Logger logger = LoggerFactory.getLogger(EclpOpenManagerImpl.class);
+    private Logger log = LoggerFactory.getLogger(EclpOpenManagerImpl.class);
 
     @Value("${eclp.open.service.pin:jddaojia}")
     private String PIN ;
@@ -38,7 +38,7 @@ public class EclpOpenManagerImpl implements EclpOpenManager {
                 return result;
             }
         }catch (Exception e){
-            logger.error("创建商品主数据失败"+ JsonHelper.toJson(goodsInfo)+"|"+PIN,e);
+            log.error("创建商品主数据失败{}|{}",JsonHelper.toJson(goodsInfo),PIN,e);
         }
         return null;
     }

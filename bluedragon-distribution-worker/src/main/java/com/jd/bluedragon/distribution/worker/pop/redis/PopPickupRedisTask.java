@@ -15,11 +15,10 @@ public class PopPickupRedisTask extends RedisSingleScheduler {
 	public boolean executeSingleTask(Task task, String ownSign)
 			throws Exception {
 		try {
-			this.logger.info("task id&type is " + task.getId()+"&"+task.getType());
+			this.log.info("task id&type is {}&{}",task.getId(),task.getType());
 			this.popPickupService.doPickup(task);
 		} catch (Exception e) {
-			this.logger.error("task id is" + task.getId());
-			this.logger.error("处理分拣任务发生异常，异常信息为：" + e.getMessage(), e);
+			this.log.error("处理分拣任务发生异常,task id is {}" , task.getId(),e);
 			return Boolean.FALSE;
 		}
 		return Boolean.TRUE;

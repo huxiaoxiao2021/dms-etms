@@ -2,7 +2,8 @@ package com.jd.bluedragon.distribution.task.domain;
 
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.task.api.TaskExecutor;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -16,7 +17,7 @@ import org.apache.log4j.Logger;
  */
 public abstract class DmsTaskExecutor<T> implements TaskExecutor<Task>{
 
-	private Logger log = Logger.getLogger(DmsTaskExecutor.class);
+	private Logger log = LoggerFactory.getLogger(DmsTaskExecutor.class);
 
 	/**
 	 * 将Task对象转换为实际需要的实体
@@ -42,7 +43,7 @@ public abstract class DmsTaskExecutor<T> implements TaskExecutor<Task>{
 	public boolean execute(Task task, String ownSign){
         T body = parse(task, ownSign);
         if (body == null) {
-            log.warn(String.format("[任务执行失败]将Task对象转换为实际需要的实体失败，taskBody:%s", JsonHelper.toJson(task)));
+            log.warn("[任务执行失败]将Task对象转换为实际需要的实体失败，taskBody:{}", JsonHelper.toJson(task));
             return true;
         }
         TaskContext<T> taskContext = new DmsTaskContext<>();

@@ -22,7 +22,7 @@ import java.util.List;
 @Service("ecpQueryWSManager")
 public class EcpQueryWSManagerImpl implements EcpQueryWSManager {
 
-    private static final Logger logger = LoggerFactory.getLogger(EcpQueryWSManagerImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(EcpQueryWSManagerImpl.class);
 
     @Autowired
     private EcpQueryWS ecpQueryWS;
@@ -36,17 +36,19 @@ public class EcpQueryWSManagerImpl implements EcpQueryWSManager {
         basicRailTrainDto.setEndCityId(endCityId);
         CommonDto<List<BasicRailTrainDto>> commonDto = ecpQueryWS.getRailTrainListByCondition(basicRailTrainDto);
         if(commonDto == null || CommonDto.CODE_SUCCESS != commonDto.getCode() ){
-            logger.warn("获取列车车次信息失败trainNumber[{}]beginCityId[{}]endCityId[{}]",trainNumber,beginCityId,endCityId);
+            log.warn("获取列车车次信息失败trainNumber[{}]beginCityId[{}]endCityId[{}]",trainNumber,beginCityId,endCityId);
             return null;
         }
         List<BasicRailTrainDto> list = commonDto.getData();
         if(CollectionUtils.isEmpty(list)){
-            logger.warn("获取列车车次信息列表为空trainNumber[{}]beginCityId[{}]endCityId[{}]",trainNumber,beginCityId,endCityId);
+            log.warn("获取列车车次信息列表为空trainNumber[{}]beginCityId[{}]endCityId[{}]",trainNumber,beginCityId,endCityId);
             return null;
         }
         BasicRailTrainDto trainDto = list.get(0);
-        logger.info("获取列车车次信息结果trainNumber[{}]beginCityId[{}]endCityId[{}]trainDto[{}]",trainNumber,beginCityId,endCityId,
-                JsonHelper.toJson(trainDto));
+        if(log.isInfoEnabled()){
+            log.info("获取列车车次信息结果trainNumber[{}]beginCityId[{}]endCityId[{}]trainDto[{}]",trainNumber,beginCityId,endCityId,
+                    JsonHelper.toJson(trainDto));
+        }
         return trainDto;
     }
 }

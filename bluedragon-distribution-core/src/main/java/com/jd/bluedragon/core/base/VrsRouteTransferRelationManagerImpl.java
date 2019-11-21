@@ -22,12 +22,16 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 路由系统的jsf接口，查询路由信息
@@ -39,7 +43,7 @@ import java.util.*;
  */
 @Service("vrsRouteTransferRelationManager")
 public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRelationManager {
-    private static final Logger logger = Logger.getLogger(VrsRouteTransferRelationManagerImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(VrsRouteTransferRelationManagerImpl.class);
 
     private static final Integer ROUTE_INTER_NODE_TYPE_CHENG_SHI_BIAN_MA = 0;
 
@@ -69,16 +73,19 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
         try {
             CommonDto<RecommendRouteResp> commonDto = routeComputeUtil.queryRecommendRoute(startNode, endNodeCode, predictSendTime, routeProduct);
             if (commonDto == null || commonDto.getCode() != 1 || commonDto.getData() == null || StringHelper.isEmpty(commonDto.getData().getRecommendRouting())) {
-                logger.warn("查询远程路由中转信息失败,参数列表：startNode:" + startNode + ",endNodeCode:" + endNodeCode + ",predictSendTime:" + predictSendTime.getTime() + ",routeProduct:" + routeProduct);
-                logger.warn("查询远程路由中转信息失败，返回消息：" + JsonHelper.toJson(commonDto));
+                log.warn("查询远程路由中转信息失败,参数列表：startNode:{},endNodeCode:{},predictSendTime:{},routeProduct:{}"
+                        ,startNode,endNodeCode,predictSendTime.getTime(),routeProduct);
+                log.warn("查询远程路由中转信息失败，返回消息：{}" , JsonHelper.toJson(commonDto));
                 return null;
             } else {
-                logger.warn("查询远程路由成功：" + commonDto.getData().getRecommendRouting() + ",参数：startNode:" + startNode + ",endNodeCode:" + endNodeCode + ",predictSendTime:" + predictSendTime.getTime() + ",routeProduct:" + routeProduct);
+                log.debug("查询远程路由成功：{},参数：startNode:{},endNodeCode:{},predictSendTime:{},routeProduct:{}"
+                        ,commonDto.getData().getRecommendRouting(),startNode,endNodeCode,predictSendTime.getTime(), routeProduct);
                 return commonDto.getData().getRecommendRouting();
             }
         } catch (Exception e) {
             Profiler.functionError(info);
-            logger.error("查询远程路由中转信息异常." , e);
+            log.error("查询远程路由中转信息异常,参数列表：startNode:{},endNodeCode:{},predictSendTime:{},routeProduct:{}"
+                    ,startNode,endNodeCode,predictSendTime.getTime(),routeProduct,e);
             return null;
         }finally {
             Profiler.registerInfoEnd(info);
@@ -114,11 +121,13 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
             bnetPerFormanceConfigJsfReq.setPickUpEndTime(pickUpEndTime);
             CommonDto<String> commonDto = vrsBNetQueryApi.queryPerformanceTime(baseDto, bnetPerFormanceConfigJsfReq);
             if (commonDto == null || commonDto.getCode() != 1 || commonDto.getData() == null || StringHelper.isEmpty(commonDto.getData())) {
-                logger.warn("查询远程路由时效信息失败,参数列表：configType:" + configType + ",bizzType:" + bizzType + ",startSiteNode:" + startSiteNode + ",toSiteNode:" + toSiteNode);
-                logger.warn("查询远程路由时效信息失败，返回消息：" + JsonHelper.toJson(commonDto));
+                log.warn("查询远程路由时效信息失败,参数列表：configType:{},bizzType:{},startSiteNode:{},toSiteNode:{}"
+                        ,configType,bizzType,startSiteNode, toSiteNode);
+                log.warn("查询远程路由时效信息失败，返回消息：{}" , JsonHelper.toJson(commonDto));
                 return null;
             } else {
-                logger.debug("查询远程路由时效成功：" + commonDto.getData() + ",参数：configType:" + configType + ",bizzType:" + bizzType + ",startSiteNode:" + startSiteNode + ",toSiteNode:" + toSiteNode);
+                log.debug("查询远程路由时效成功：{},参数configType:{},bizzType:{},startSiteNode:{},toSiteNode:{}"
+                        ,commonDto.getData(),configType,bizzType,startSiteNode, toSiteNode);
                 if (StringHelper.isNotEmpty(commonDto.getData())) {
                     Date tempDate = PerformanceTimeUtil.parseToFormatDateMinute(pickUpEndTime, commonDto.getData());
                     resultDate = PerformanceTimeUtil.format(tempDate, PerformanceTimeUtil.FORMAT_DATE);
@@ -127,7 +136,8 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
             }
         } catch (Exception e) {
             Profiler.functionError(info);
-            logger.error("查询订单路由时效失败：" + e);
+            log.error("查询远程路由时效信息异常,参数列表：configType:{},bizzType:{},startSiteNode:{},toSiteNode:{}"
+                    ,configType,bizzType,startSiteNode, toSiteNode,e);
             return null;
         }finally {
             Profiler.registerInfoEnd(info);
@@ -150,16 +160,18 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
             CommonDto<PageDto<TransferWaveMonitorResp>> commonDto = transferWaveMonitorAPI.noSendAndArrivedButNoCheckSum(baseDto, page, parameter);
 //            CommonDto<PageDto<TransferWaveMonitorResp>> commonDto =testGetMain(baseDto, page, parameter);
             if (commonDto == null || commonDto.getCode() != 1 || commonDto.getData() == null) {
-                logger.warn("批次清零异常统计失败,参数列表：page:" + JsonHelper.toJson(page) + ",parameter:" + JsonHelper.toJson(parameter));
-                logger.warn("批次清零异常统计失败，返回消息：" + (commonDto == null ? "commonDto=null" : commonDto.getMessage()));
+                log.warn("批次清零异常统计失败,参数列表：page:{},parameter:{}" ,JsonHelper.toJson(page), JsonHelper.toJson(parameter));
+                log.warn("批次清零异常统计失败，返回消息：{}",JsonHelper.toJson(commonDto));
                 return null;
             } else {
-                logger.debug("批次清零异常统计成功：page：" + JsonHelper.toJson(page) + ",parameter:" + JsonHelper.toJson(parameter));
+                if(log.isDebugEnabled()){
+                    log.debug("批次清零异常统计成功：page：{},parameter:{}" ,JsonHelper.toJson(page), JsonHelper.toJson(parameter));
+                }
                 return commonDto.getData();
             }
         } catch (Exception e) {
             Profiler.functionError(info);
-            logger.error("批次清零异常统计失败：" + e);
+            log.error("批次清零异常统计异常,参数列表：page:{},parameter:{}" ,JsonHelper.toJson(page), JsonHelper.toJson(parameter),e);
             return null;
         }finally {
             Profiler.registerInfoEnd(info);
@@ -183,16 +195,18 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
             CommonDto<PageDto<TransferWaveMonitorDetailResp>> commonDto = transferWaveMonitorAPI.getNoSendDetail(baseDto, page, waveBusinessId);
 //            CommonDto<PageDto<TransferWaveMonitorDetailResp>> commonDto = testGetInspection(baseDto, page, waveBusinessId);
             if (commonDto == null || commonDto.getCode() != 1 || commonDto.getData() == null) {
-                logger.warn("批次清零异常未发货明细统计失败,参数列表：page:" + JsonHelper.toJson(page) + ",waveBusinessId:" + waveBusinessId);
-                logger.warn("批次清零异常未发货明细统计失败，返回消息：" + (commonDto == null ? "commonDto=null" : commonDto.getMessage()));
+                log.warn("批次清零异常未发货明细统计失败,参数列表：page:{},waveBusinessId:{}" ,JsonHelper.toJson(page), waveBusinessId);
+                log.warn("批次清零异常未发货明细统计失败，返回消息：{}",JsonHelper.toJson(commonDto));
                 return null;
             } else {
-                logger.debug("批次清零异常未发货明统计成功：page：" + JsonHelper.toJson(page) + ",waveBusinessId:" + waveBusinessId);
+                if(log.isDebugEnabled()){
+                    log.debug("批次清零异常未发货明统计成功：page：{},waveBusinessId:{}" ,JsonHelper.toJson(page), waveBusinessId);
+                }
                 return commonDto.getData();
             }
         } catch (Exception e) {
             Profiler.functionError(info);
-            logger.error("批次清零异常未发货明统计失败：" + e);
+            log.error("批次清零异常未发货明细统计异常,参数列表：page:{},waveBusinessId:{}" ,JsonHelper.toJson(page), waveBusinessId,e);
             return null;
         }finally {
             Profiler.registerInfoEnd(info);
@@ -215,16 +229,18 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
             CommonDto<PageDto<TransferWaveMonitorDetailResp>> commonDto = transferWaveMonitorAPI.getMayNoArriveDetail(baseDto, page, waveBusinessId);
 //            CommonDto<PageDto<TransferWaveMonitorDetailResp>> commonDto = testGetInspection(baseDto, page, waveBusinessId);
             if (commonDto == null || commonDto.getCode() != 1 || commonDto.getData() == null) {
-                logger.warn("批次清零异常未验明细统计失败,参数列表：page:" + JsonHelper.toJson(page) + ",waveBusinessId:" + waveBusinessId);
-                logger.warn("批次清零异常未验明细细统计失败，返回消息：" + (commonDto == null ? "commonDto=null" : commonDto.getMessage()));
+                log.warn("批次清零异常未验明细统计失败,参数列表：page:{},waveBusinessId:{}" ,JsonHelper.toJson(page), waveBusinessId);
+                log.warn("批次清零异常未验明细细统计失败，返回消息：{}", JsonHelper.toJson(commonDto));
                 return null;
             } else {
-                logger.debug("批次清零异常未验明细统计成功：page：" + JsonHelper.toJson(page) + ",waveBusinessId:" + waveBusinessId);
+                if(log.isDebugEnabled()){
+                    log.debug("批次清零异常未验明细统计成功：page：{},waveBusinessId:{}" ,JsonHelper.toJson(page) , waveBusinessId);
+                }
                 return commonDto.getData();
             }
         } catch (Exception e) {
             Profiler.functionError(info);
-            logger.error("批次清零异常未验明细统计失败：" + e);
+            log.error("批次清零异常未验明细统计异常,参数列表：page:{},waveBusinessId:{}" ,JsonHelper.toJson(page), waveBusinessId,e);
             return null;
         }finally {
             Profiler.registerInfoEnd(info);
@@ -252,23 +268,23 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
         try {
             CommonDto<Map<String, List<String>>> commonDto = vrsWaybillQueryAPI.queryWaveInfoByWaybillCodeAndNodeCode(baseDto, waybillCode, org.getDmsSiteCode());
             if (commonDto == null || commonDto.getCode() != 1 || commonDto.getData() == null) {
-                logger.warn("查询班次失败,参数列表：waybillCode:" + waybillCode + ",nodeCode:" + nodeCode);
-                logger.warn("查询班次失败，返回消息：" + (commonDto == null ? "commonDto=null" : commonDto.getMessage()));
+                log.warn("查询班次失败,参数列表：waybillCode:{},nodeCode:{}" ,waybillCode, nodeCode);
+                log.warn("查询班次失败，返回消息：{}",JsonHelper.toJson(commonDto));
                 return null;
             } else {
-                logger.debug("查询班次失败成功：waybillCode:" + waybillCode + ",nodeCode:" + nodeCode);
+                log.debug("查询班次失败成功：waybillCode:{},nodeCode:{}" ,waybillCode, nodeCode);
                 Map<String, List<String>> map = commonDto.getData();
                 List<String> list = map.get("realWaves");//planWaves，realWaves
                 if (list != null && list.size() > 0) {
                     return list.get(list.size() - 1);//取最后一个
                 } else {
-                    logger.warn("查询班次为空,参数列表：waybillCode:" + waybillCode + ",nodeCode:" + nodeCode);
+                    log.warn("查询班次为空,参数列表：waybillCode:{},nodeCode:{}" ,waybillCode, nodeCode);
                     return null;
                 }
             }
         } catch (Exception e) {
             Profiler.functionError(info);
-            logger.error("查询班次失败" + e);
+            log.error("查询班次异常,参数列表：waybillCode:{},nodeCode:{}" ,waybillCode, nodeCode,e);
             return null;
         }finally {
             Profiler.registerInfoEnd(info);
