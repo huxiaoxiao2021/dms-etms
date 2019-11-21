@@ -54,5 +54,5 @@ public interface MerchantWeightAndVolumeWhiteListService {
      * @param dmsCode
      * @return
      */
-    Boolean isExist(Integer busiId, Integer dmsCode);
+    Boolean isExistWithCache(Integer busiId, Integer dmsCode);
 }

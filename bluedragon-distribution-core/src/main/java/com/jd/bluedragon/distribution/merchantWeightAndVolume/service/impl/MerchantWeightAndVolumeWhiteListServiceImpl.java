@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.merchantWeightAndVolume.service.impl;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
@@ -12,21 +11,19 @@ import com.jd.bluedragon.distribution.merchantWeightAndVolume.domain.MerchantWei
 import com.jd.bluedragon.distribution.merchantWeightAndVolume.service.MerchantWeightAndVolumeWhiteListService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,8 +46,6 @@ public class MerchantWeightAndVolumeWhiteListServiceImpl implements MerchantWeig
     @Value("${merchant.whiteList.export.maxNum:5000}")
     private Integer exportMaxNum;
 
-    private static final int REDIS_INVALID_TIME = 300;
-
     /**
      * 导入导出最大值
      * */
@@ -62,9 +57,6 @@ public class MerchantWeightAndVolumeWhiteListServiceImpl implements MerchantWeig
      * */
     private static final Integer BATCH_INSERT_COUNT = 100;
 
-    @Autowired
-    @Qualifier("jimdbCacheService")
-    private CacheService jimdbCacheService;
 
     @Autowired
     private SiteService siteService;
@@ -96,11 +88,6 @@ public class MerchantWeightAndVolumeWhiteListServiceImpl implements MerchantWeig
         int delete = -1;
         try {
             delete = merchantWeightAndVolumeWhiteListDao.delete(detail);
-            if(delete == 1){
-                String redisKey
-                        = MessageFormat.format(CacheKeyConstants.CACHE_KEY_PRINT_BUSI_SITE,detail.getMerchantId(),detail.getOperateSiteCode());
-                jimdbCacheService.del(redisKey);
-            }
         }catch (Exception e){
             logger.error("删除失败"+ JsonHelper.toJson(delete),e);
         }
@@ -227,37 +214,20 @@ public class MerchantWeightAndVolumeWhiteListServiceImpl implements MerchantWeig
      * @return
      */
     public Boolean isExist(MerchantWeightAndVolumeDetail detail) {
-        Boolean isExist = Boolean.FALSE;
-        try {
-            MerchantWeightAndVolumeCondition condition = new MerchantWeightAndVolumeCondition();
-            condition.setSiteCode(detail.getOperateSiteCode());
-            condition.setMerchantId(detail.getMerchantId());
-            condition.setMerchantCode(detail.getMerchantCode());
-            List<MerchantWeightAndVolumeDetail> list = merchantWeightAndVolumeWhiteListDao.queryByCondition(condition);
-            if(!CollectionUtils.isEmpty(list)){
-                isExist = Boolean.TRUE;
-            }
-        }catch (Exception e){
-            logger.error("根据站点、商家编码查询异常!",e);
-            isExist = Boolean.TRUE;
+        if(detail.getMerchantId() == null || detail.getOperateSiteCode() == null){
+            return Boolean.FALSE;
         }
-        return isExist;
+        return merchantWeightAndVolumeWhiteListDao.queryByMerchantIdAndDmsCode(detail) > 0;
     }
 
     @Override
-    public Boolean isExist(Integer busiId, Integer dmsCode) {
-        Boolean isExist = Boolean.FALSE;
-        try {
-            MerchantWeightAndVolumeDetail detail = new MerchantWeightAndVolumeDetail();
-            detail.setMerchantId(busiId);
-            detail.setOperateSiteCode(dmsCode);
-            isExist = isExist(detail);
-            String redisKey = MessageFormat.format(CacheKeyConstants.CACHE_KEY_PRINT_BUSI_SITE,busiId,dmsCode);
-            jimdbCacheService.setEx(redisKey, isExist, REDIS_INVALID_TIME);
-        }catch (Exception e){
-            logger.error("服务异常!");
-        }
-        return isExist;
+    @Cache(key = "DMS.MerchantWeightAndVolumeWhiteListServiceImpl.isExistWithCache@args0@args1", memoryEnable = true, memoryExpiredTime = 1 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 2 * 60 * 1000)
+    public Boolean isExistWithCache(Integer busiId, Integer dmsCode) {
+        MerchantWeightAndVolumeDetail detail = new MerchantWeightAndVolumeDetail();
+        detail.setMerchantId(busiId);
+        detail.setOperateSiteCode(dmsCode);
+        return isExist(detail);
     }
 
     /**

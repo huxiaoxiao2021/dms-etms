@@ -80,4 +80,12 @@ public class MerchantWeightAndVolumeWhiteListDao extends BaseDao<MerchantWeightA
         return this.getSqlSession().insert(namespace + ".delete",detail);
     }
 
+    /**
+     * 商家ID、站点是否存在
+     * @param detail
+     * @return*/
+    public int queryByMerchantIdAndDmsCode(MerchantWeightAndVolumeDetail detail) {
+        return this.getSqlSession().selectOne(namespace + ".queryByMerchantIdAndDmsCode",detail);
+    }
+
 }
