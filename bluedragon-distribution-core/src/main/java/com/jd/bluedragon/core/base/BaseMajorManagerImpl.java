@@ -746,7 +746,7 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         if(responseDTO != null && responseDTO.isSuccess()){
             return responseDTO.getResult();
         }else {
-            logger.error("通过商家ID"+merchantId+"查询商家信息失败!");
+            log.warn("通过商家ID{}查询商家信息失败!",merchantId);
             return null;
         }
     }

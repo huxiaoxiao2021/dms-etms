@@ -287,7 +287,7 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
         if(baseEntity.getData().getWaybill().getWaybillExt()!=null && StringUtils.isNotBlank(baseEntity.getData().getWaybill().getWaybillExt().getConsignWare())){
             goodName = baseEntity.getData().getWaybill().getWaybillExt().getConsignWare();
         }else{
-            logger.error("C2C退配件库未获取到托寄物名称，使用默认名称"+waybillCode);
+            log.error("C2C退配件库未获取到托寄物名称，使用默认名称:{}",waybillCode);
         }
         String oldWaybillCodeV1;
         BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill1 = waybillQueryManager.getWaybillByReturnWaybillCode(waybillCode);
