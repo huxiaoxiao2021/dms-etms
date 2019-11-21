@@ -257,7 +257,7 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
                 && baseEntity.getResultCode() == 1 && baseEntity.getData() != null){
             return baseEntity.getData();
         }else {
-            logger.error("根据运单"+waybillCode+"查询运单称重流水数据失败!");
+            log.error("根据运单"+waybillCode+"查询运单称重流水数据失败!");
             return null;
         }
     }
