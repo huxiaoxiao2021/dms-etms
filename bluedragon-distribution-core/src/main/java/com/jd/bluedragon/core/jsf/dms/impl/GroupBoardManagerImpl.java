@@ -9,6 +9,15 @@ import org.apache.commons.logging.LogFactory;
 import com.jd.transboard.api.service.GroupBoardService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.bluedragon.distribution.board.service.BoardCombinationServiceImpl;
+import com.jd.transboard.api.dto.AddBoardRequest;
+import com.jd.transboard.api.dto.Board;
+import com.jd.transboard.api.dto.Response;
+import com.jd.transboard.api.service.GroupBoardService;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -38,4 +47,18 @@ public class GroupBoardManagerImpl implements GroupBoardManager {
         }
         logger.error("取消板关闭状态失败，板号分别为：" + boardList.toString() + ",操作人的ERP为：" + operatorInfo.getOperatorErp());
     }
+    @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.createBoards",jAppName= Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Response<List<Board>> createBoards(AddBoardRequest addBoardRequest){
+
+        return groupBoardService.createBoards(addBoardRequest);
+    }
+
+    @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.getBoard",jAppName= Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Response<Board> getBoard(String boardCode) {
+
+        return groupBoardService.getBoardByCode(boardCode);
+    }
+
 }
