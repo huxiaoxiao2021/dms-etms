@@ -15,15 +15,15 @@ import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.domain.BaseResult;
 import com.jd.ql.basic.dto.BaseDmsStoreDto;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service("pickWareConsumer")
 public class PickWareConsumer extends MessageBaseConsumer {  
 	 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	
 	@Autowired
 	PickWareService pickWareService;
@@ -39,7 +39,7 @@ public class PickWareConsumer extends MessageBaseConsumer {
 			return;
 		}
 		String messageContent = message.getText();
-        this.logger.info("[备件库售后取件单-交接/拆包]messageContent：" + messageContent);
+        this.log.debug("[备件库售后取件单-交接/拆包]messageContent：{}" , messageContent);
         PickWare pickWare = JsonHelper.fromJson(messageContent, PickWare.class);
         pickWare.setPickwareTime(DateHelper.parseDateTime(pickWare.getOperateTime()));
         if(StringUtils.isNotBlank(pickWare.getPickwareCode())){

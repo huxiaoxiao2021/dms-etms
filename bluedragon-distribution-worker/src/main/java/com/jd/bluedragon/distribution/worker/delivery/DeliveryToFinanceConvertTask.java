@@ -10,8 +10,8 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -22,7 +22,7 @@ import java.util.List;
  * Created by xumei3 on 2017/7/3.
  */
 public class DeliveryToFinanceConvertTask extends DBSingleScheduler {
-    private static final Log logger= LogFactory.getLog(com.jd.bluedragon.distribution.worker.delivery.DeliveryToFinanceConvertTask.class);
+    private static final Logger log = LoggerFactory.getLogger(com.jd.bluedragon.distribution.worker.delivery.DeliveryToFinanceConvertTask.class);
 
     @Autowired
     private SendDatailReadDao sendDatailReadDao;
@@ -44,7 +44,7 @@ public class DeliveryToFinanceConvertTask extends DBSingleScheduler {
             }else if(busiType.equals(BUSINESS_TYPE_THR)){
                 sendDetailList = sendDatailReadDao.querySendDetailBySendCodes_3PL(sendCodeList);
             }else{
-                logger.error("[DeliveryToFinanceConvertTak]匹配businessType失败,读取的busiType = "+busiType);
+                log.warn("[DeliveryToFinanceConvertTak]匹配businessType失败,读取的busiType = {}", busiType);
             }
             if(sendDetailList == null || sendDetailList.size()<1){
                 CallerInfo info = Profiler.registerInfo("delivery_to_finance_convert_task.execute_single_task", false, false);
@@ -83,8 +83,7 @@ public class DeliveryToFinanceConvertTask extends DBSingleScheduler {
                 taskService.add(task_to_finance);
             }
         } catch (Exception e) {
-            logger.error("task id is" + task.getId()+"task type is"+task.getType());
-            logger.error("DeliveryToFinanceConvert任务转换失败：" + e.getMessage(), e);
+            log.error("DeliveryToFinanceConvert任务转换失败：task id is {} task type is {}",task.getId(),task.getType(),e);
             return Boolean.FALSE;
         }
         return true;
@@ -110,7 +109,7 @@ public class DeliveryToFinanceConvertTask extends DBSingleScheduler {
                 tasks.add(task);
             }
         } catch (Exception e) {
-            this.logger.error("出现异常， 异常信息为：" + e.getMessage(), e);
+            this.log.error("出现异常， 异常信息为：{}" , e.getMessage(), e);
         }
         return tasks;
     }

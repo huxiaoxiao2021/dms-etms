@@ -1,26 +1,25 @@
 package com.jd.bluedragon.core.base;
 
-import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.preseparate.jsf.BatchExpressTransferHandleAPI;
-import com.jd.preseparate.vo.*;
-import com.jd.preseparate.vo.external.AnalysisAddressResult;
-import com.jd.preseparate.vo.external.PreSeparateAddressInfo;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.preseparate.jsf.BatchExpressTransferHandleAPI;
 import com.jd.bluedragon.preseparate.jsf.CommonOrderServiceJSF;
 import com.jd.bluedragon.preseparate.jsf.PresortMediumStationAPI;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.preseparate.vo.*;
+import com.jd.preseparate.vo.external.AnalysisAddressResult;
 import com.jd.preseparate.vo.external.ExternalOrderDto;
+import com.jd.preseparate.vo.external.PreSeparateAddressInfo;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 /**
  * Created by wangtingwei on 2015/10/28.
@@ -28,7 +27,7 @@ import com.jd.ump.profiler.proxy.Profiler;
 @Service("preseparateWaybillManager")
 public class PreseparateWaybillManagerImpl implements PreseparateWaybillManager {
 
-    private static final Log logger= LogFactory.getLog(PreseparateWaybillManagerImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(PreseparateWaybillManagerImpl.class);
 
     @Autowired
     @Qualifier("preseparateOrderService")
@@ -76,16 +75,16 @@ public class PreseparateWaybillManagerImpl implements PreseparateWaybillManager 
         if(WaybillUtil.isJDWaybillCode(waybillCode)){
             PsOrderSeparateVo domain= getPreSeparateOrderByOrderId(waybillCode.trim());
             if(null!=domain){
-                if(logger.isDebugEnabled()){
-                    logger.debug(JsonHelper.toJson(domain));
+                if(log.isDebugEnabled()){
+                    log.debug(JsonHelper.toJson(domain));
                 }
                 siteId=domain.getPartnerId();
             }
         }else {
             ExternalOrderDto domain = getPreSeparateExternalByOrderId(waybillCode.trim());
             if(null!=domain){
-                if(logger.isDebugEnabled()){
-                    logger.debug(JsonHelper.toJson(domain));
+                if(log.isDebugEnabled()){
+                    log.debug(JsonHelper.toJson(domain));
                 }
                 siteId=domain.getPartnerId();
             }
@@ -104,19 +103,23 @@ public class PreseparateWaybillManagerImpl implements PreseparateWaybillManager 
 		try {
 			//设置默认传递的系统标识码
 			originalOrderInfo.setSystemCode(Constants.SYSTEM_CODE_OWON);
-			logger.info("调用中小件二次预分拣JSF接口参数："+JsonHelper.toJsonUseGson(originalOrderInfo));
+			if(log.isDebugEnabled()){
+				log.debug("调用中小件二次预分拣JSF接口参数：{}",JsonHelper.toJsonUseGson(originalOrderInfo));
+			}
 			BaseResponseIncidental<MediumStationOrderInfo> apiResult = presortMediumStation.getMediumStation(originalOrderInfo);
-            logger.info("调用中小件二次预分拣JSF接口返回结果："+JsonHelper.toJsonUseGson(apiResult));
+            if(log.isDebugEnabled()){
+				log.debug("调用中小件二次预分拣JSF接口返回结果：{}",JsonHelper.toJsonUseGson(apiResult));
+			}
 			if(apiResult != null && CODE_SUC.equals(apiResult.getCode())){
 				result.toSuccess();
 				result.setData(apiResult);
 			}else{
-				logger.warn("中小件-调用外部接口获取预分拣站点数据为空！");
+				log.warn("中小件-调用外部接口获取预分拣站点数据为空:{}",JsonHelper.toJson(originalOrderInfo));
 				result.toFail(JdResult.CODE_FAIL, "中小件-调用外部接口获取预分拣站点数据为空！");
 			}
         }catch (Throwable throwable){
         	result.toFail(JdResult.CODE_ERROR, "调用外部接口获取预分拣站点异常:"+throwable.getMessage());
-        	logger.error("中小件-调用JSF-PresortMediumStationAPI.getMediumStation获取预分拣站点异常", throwable);
+        	log.error("中小件-调用JSF-PresortMediumStationAPI.getMediumStation获取预分拣站点异常:{}",JsonHelper.toJson(originalOrderInfo), throwable);
 			Profiler.functionError(monitor);
 		}finally{
 			Profiler.registerInfoEnd(monitor);

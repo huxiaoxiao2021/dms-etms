@@ -37,7 +37,8 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -54,8 +55,7 @@ import java.util.*;
 @Service("reversedeliveryService")
 public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 
-	private final Logger logger = Logger
-			.getLogger(ReverseDeliveryServiceImpl.class);
+	private final Logger log = LoggerFactory.getLogger(ReverseDeliveryServiceImpl.class);
 
 	@Autowired
 	private SendMDao sendMDao;
@@ -126,13 +126,13 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 			}else if (task.getReceiveSiteCode() == 452
 					|| task.getReceiveSiteCode() == 1376
 					|| task.getReceiveSiteCode() == 2228) {
-				this.logger.info("batchProcessOrderInfo2DSF武汉邮政推送批次号："+task.getBoxCode());
+				this.log.warn("batchProcessOrderInfo2DSF武汉邮政推送批次号：{}",task.getBoxCode());
 				batchProcessOrderInfo2DSF(tSendM);
 			}else{
 				List<SysConfig> configs=baseService.queryConfigByKeyWithCache(EMS_SITE);
 				for(SysConfig sys : configs){
 					if(StringHelper.matchSiteRule(sys.getConfigContent(), task.getReceiveSiteCode().toString())){
-						this.logger.error("全国邮政推送批次号："+task.getBoxCode());
+						this.log.warn("全国邮政推送批次号：{}",task.getBoxCode());
 						batchProcesstoEmsServer(tSendM);
 					}
 				}
@@ -226,8 +226,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 
 		List<SendDetail> sendList = new ArrayList<SendDetail>();
 		deliveryService.getAllList(tSendMList, sendList);
-		this.logger.info("batchProcessOrderInfo2DSF武汉邮政推送接口sendList长度:"
-				+ sendList.size());
+		this.log.info("batchProcessOrderInfo2DSF武汉邮政推送接口sendList长度:{}", sendList.size());
 		if (sendList != null && !sendList.isEmpty()) {
 			Set<String> waybillset = new HashSet<String>();
 			for (SendDetail dSendDatail : sendList) {
@@ -237,7 +236,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 					.toList(waybillset);
 			boolean bool = sendMqToWhsmsServer(waybillList);
 			if(!bool){
-				this.logger.error("武汉邮政推送自消费类型的MQ失败：" + waybillList.toString());
+				this.log.warn("武汉邮政推送自消费类型的MQ失败：{}" , waybillList.toString());
 			}
 		}
 	}
@@ -246,8 +245,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 
 		List<SendDetail> sendList = new ArrayList<SendDetail>();
 		deliveryService.getAllList(tSendMList, sendList);
-		this.logger.info("batchProcesstoEmsServer邮政推送接口sendList长度:"
-				+ sendList.size());
+		this.log.info("batchProcesstoEmsServer邮政推送接口sendList长度:{}", sendList.size());
 		if (sendList != null && !sendList.isEmpty()) {
 			Set<String> waybillset = new HashSet<String>();
 			for (SendDetail dSendDatail : sendList) {
@@ -260,11 +258,10 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 	}
 
 	public void batchProcessOrderInfo3PL(List<SendM> tSendMList,Integer siteCode,String siteName) {
-		this.logger.info("batchProcessOrderInfo3PL推送数据");
+		this.log.info("batchProcessOrderInfo3PL推送数据");
 		List<SendDetail> slist = new ArrayList<SendDetail>();
 		deliveryService.getAllList(tSendMList, slist);
-		this.logger.info("batchProcessOrderInfo3PL推送接口sendList长度:"
-				+ slist.size());
+		this.log.info("batchProcessOrderInfo3PL推送接口sendList长度:{}", slist.size());
 		if (slist != null && !slist.isEmpty()) {
 			Set<String> waybillset = new HashSet<String>();
 			for (SendDetail dSendDatail : slist) {
@@ -282,7 +279,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 	 */
 	private void dataTo3PlServer(List<String> waybillList ,Integer siteCode,String siteName) {
 		if (waybillList != null && !waybillList.isEmpty()) {
-			this.logger.info("dataTo3PlServer处理任务数据"+ waybillList.size());
+			this.log.info("dataTo3PlServer处理任务数据:{}", waybillList.size());
 			List<String>[] splitListResultAl = splitList(waybillList);
 			for (List<String> wlist : splitListResultAl) {
 				List<OrderShipsReturnDto> returnDtoList = new ArrayList<OrderShipsReturnDto>();
@@ -291,7 +288,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 					OrderShipsReturnDto returnDto = new OrderShipsReturnDto();
 					returnDto.setClearOld(0);
 
-					this.logger.info("调用运单接口, 订单号为： " + waybillCode);
+					this.log.info("调用运单接口, 订单号为： {}" , waybillCode);
 					WChoice wChoice = new WChoice();
 					wChoice.setQueryWaybillC(true);
 					wChoice.setQueryWaybillE(true);
@@ -319,7 +316,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 				}
 				BaseResult<List<OrderShipsReturnDto>>  baseResult = thirdPartyLogisticManager.insertOrderShips(returnDtoList, encryptData);
 				if(baseResult!=null && baseResult.getCallState()==0){
-					this.logger.info("调用接口返回状态失败, 信息： " + baseResult.getMessage());
+					this.log.info("调用接口返回状态失败, 信息： {}" , baseResult.getMessage());
 				}
 			}
 		}
@@ -352,7 +349,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 
 				StringBuffer buffer = new StringBuffer();
 				if (tWaybillList != null && !tWaybillList.isEmpty()) {
-					/*this.logger
+					/*this.log
 							.info("batchProcessOrderInfo2DSF武汉邮政推送接口-调用运单接口不为空");*/
 					for (BigWaybillDto tWaybill : tWaybillList) {
 						if (tWaybill != null && tWaybill.getWaybill() != null) {
@@ -473,7 +470,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 					String body = "<PlaintextData><OrderShipList>"
 							+ buffer.toString()
 							+ "</OrderShipList></PlaintextData>";
-					this.logger.info("数据报文：" + body);
+					this.log.warn("数据报文：{}" , body);
 					String businessId = wlist.get(0);//改为逐条发送的话，只有一条运单数据
 					whSmsSendMq.sendOnFailPersistent(businessId,body);
 					resultBool = true;
@@ -732,7 +729,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 				body = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
 						+ "<XMLInfo><sysAccount>"+sysAccount+"</sysAccount><passWord>e10adc3949ba59abbe56e057f20f883e</passWord><printKind>2</printKind><printDatas>"
 						+ body + "</printDatas></XMLInfo>";
-				this.logger.error("ems数据报文：" + body);
+				this.log.warn("ems数据报文：{}" , body);
 				String businessId = waybillCode;
                 emsSendMq.sendOnFailPersistent(businessId,body);// 改为一条一条的发送的话，busineId为运单号
 			}
@@ -875,7 +872,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 				}
 			}
 		} else {
-			logger.error("JOS获取订单信息,订单接口返回空信息" + waybillCode);
+			log.warn("JOS获取订单信息,订单接口返回空信息:{}" , waybillCode);
 			return null;
 		}
 		return list;
@@ -883,16 +880,16 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 
 	public WaybillInfoResponse getEmsWaybillInfo(String waybillCode) {
 
-		logger.error("JOS获取订单信息,订单号为" + waybillCode);
+		log.info("JOS获取订单信息,订单号为{}" , waybillCode);
 		List<WaybillInfo> list = null;
 		try {
 			list = getWaybillInfo(waybillCode);
 			if (list==null || list.isEmpty()) {
-				logger.error("JOS获取订单信息,订单没有发货记录" + waybillCode);
+				log.warn("JOS获取订单信息,订单没有发货记录:{}" , waybillCode);
 				return new WaybillInfoResponse(JdResponse.CODE_OK_NULL,JdResponse.MESSAGE_OK_NULL);
 			}
 		} catch (Exception e) {
-			logger.error("JOS获取订单信息失败：信息为",e);
+			log.error("JOS获取订单信息失败：waybillCode={}",waybillCode,e);
 			return new WaybillInfoResponse(JdResponse.CODE_SERVICE_ERROR,JdResponse.MESSAGE_SERVICE_ERROR);
 		}
 		return new WaybillInfoResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK,JsonHelper.toJson(list));

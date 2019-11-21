@@ -6,7 +6,8 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.omc.jsf.OmcGoodsService;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,7 @@ import java.util.List;
  */
 @Service("omcGoodManager")
 public class OmcGoodManagerImpl implements OmcGoodManager {
-    private static final Logger logger = Logger.getLogger(OmcGoodManagerImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(OmcGoodManagerImpl.class);
     public static String BASEATTR = "baseAttr";
     public static String SKUID = "skuId";
     public static String NAME = "name";
@@ -52,20 +53,20 @@ public class OmcGoodManagerImpl implements OmcGoodManager {
                                 dmsBarCode.setProductName(baseAttr.getString(NAME));
                                 list.add(dmsBarCode);
                             } else {
-                                logger.error("69码查询失败,基本信息有问题2,code=" + code + ",goodStr=" + goodStr);
+                                log.warn("69码查询失败,基本信息有问题2,code= {},goodStr={}" ,code, goodStr);
                             }
                         }
                     } else {
-                        logger.warn("69码查询无结果,基本信息有问题1,code=" + code + ",goodStr=" + goodStr);
+                        log.warn("69码查询无结果,基本信息有问题1,code={},goodStr={}" ,code, goodStr);
                     }
                 } else {
-                    logger.error("69码查询失败,明细解析有问题,code=" + code + ",goodStr=" + goodStr);
+                    log.warn("69码查询失败,明细解析有问题,code={},goodStr={}" ,code, goodStr);
                 }
             } else {
-                logger.error("69码查询失败,未查到商品,code=" + code);
+                log.warn("69码查询失败,未查到商品,code={}" , code);
             }
         } catch (Exception e) {
-            logger.error("69码查询失败,code=" + code, e);
+            log.error("69码查询失败,code={}" , code, e);
         }
         if (list.isEmpty()){
             DmsBarCode dmsBarCode = new DmsBarCode();

@@ -5,8 +5,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.zip.DataFormatException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.hssf.util.HSSFCellUtil;
 import org.apache.poi.ss.usermodel.Cell;
@@ -14,8 +12,9 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -25,7 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @Time：上午09:54:17 类说明:使用POI导出数据
  */
 public class ExportByPOIUtil {
-    private final static Log log = LogFactory.getLog(ExportByPOIUtil.class);
+    private final static Logger log = LoggerFactory.getLogger(ExportByPOIUtil.class);
 
     public final static int DEFAULT_ROW_HEIGHT = 0;
 
@@ -45,16 +44,16 @@ public class ExportByPOIUtil {
             fos = new FileOutputStream(fileName);
             wb.write(fos);
         } catch (FileNotFoundException e) {
-            log.error(new StringBuffer("[").append(e.getMessage()).append("]").append(e.getCause()));
+            log.error("ExportByPOIUtil.writeWorkbook.FileNotFoundException:{}", fileName, e);
         } catch (IOException e) {
-            log.error(new StringBuffer("[").append(e.getMessage()).append("]").append(e.getCause()));
+            log.error("ExportByPOIUtil.writeWorkbook.IOException:{}", fileName, e);
         } finally {
             try {
                 if (fos != null) {
                     fos.close();
                 }
             } catch (IOException e) {
-                log.error(new StringBuffer("[").append(e.getMessage()).append("]").append(e.getCause()));
+                log.error("ExportByPOIUtil.writeWorkbook.finally.IOException:{}", fileName, e);
             }
         }
     }

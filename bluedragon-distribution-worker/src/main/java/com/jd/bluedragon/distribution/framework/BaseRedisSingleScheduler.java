@@ -1,13 +1,13 @@
 package com.jd.bluedragon.distribution.framework;
 
-import org.apache.log4j.Logger;
-import org.apache.poi.hssf.record.formula.functions.T;
-
 import com.jd.bluedragon.distribution.task.domain.DmsTaskExecutor;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import org.apache.poi.hssf.record.formula.functions.T;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BaseRedisSingleScheduler extends RedisSingleScheduler {
-	private Logger logger = Logger.getLogger(BaseRedisSingleScheduler.class);
+	private Logger log = LoggerFactory.getLogger(BaseRedisSingleScheduler.class);
     /**
      * 任务开关，默认开启
      */
@@ -26,7 +26,7 @@ public class BaseRedisSingleScheduler extends RedisSingleScheduler {
     	if(open){
     		super.init();
     	}else{
-    		logger.warn("task["+ownSign+"-"+taskType+"] is not open!");
+    		log.warn("task[{}-{}] is not open!",ownSign,taskType);
     	}
 	}
 	@Override
@@ -35,8 +35,7 @@ public class BaseRedisSingleScheduler extends RedisSingleScheduler {
 		try {
 			return dmsTaskExecutor.execute(task,ownSign);
 		} catch (Exception e) {
-			logger.error("["+taskType+"]处理任务失败[taskId=" + task.getId() + "]异常信息为："
-							+ e.getMessage(), e);
+			log.error("[{}]处理任务失败[taskId={}]异常信息为：",taskType,task.getId(), e);
 			return false;
 		}
 	}

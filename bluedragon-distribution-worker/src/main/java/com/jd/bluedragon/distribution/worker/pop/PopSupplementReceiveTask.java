@@ -11,8 +11,9 @@ import javax.sql.DataSource;
 
 import com.jd.bluedragon.distribution.popPrint.dao.PopPrintDao;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.jd.bluedragon.utils.JsonHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.jd.bluedragon.Constants;
@@ -22,7 +23,6 @@ import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
 import com.jd.bluedragon.distribution.popReveice.service.TaskPopRecieveCountService;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.taobao.pamirs.schedule.IScheduleTaskDealMulti;
 import com.taobao.pamirs.schedule.TBScheduleManagerFactory;
 
@@ -35,7 +35,7 @@ import com.taobao.pamirs.schedule.TBScheduleManagerFactory;
  */
 public class PopSupplementReceiveTask implements
 		IScheduleTaskDealMulti<PopPrint> {
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	protected DataSource dataSource;
 	protected String taskType;
@@ -60,17 +60,15 @@ public class PopSupplementReceiveTask implements
 	@Override
 	public boolean execute(Object[] objs, String arg1) throws Exception {
 		if (objs == null || objs.length == 0) {
-			logger.info("平台订单已打印未收货处理 --> 平台订单已打印未收货处理 任务为空");
+			log.warn("平台订单已打印未收货处理 --> 平台订单已打印未收货处理 任务为空");
 			return false;
 		}
 
 		for (Object taskObj : objs) {
 			PopPrint popPrint = (PopPrint) taskObj;
 			if (!WaybillUtil.isWaybillCode(popPrint.getWaybillCode())) {
-				logger.info("平台订单已打印未收货处理 --> 打印单号【" + popPrint.getPopPrintId()
-						+ "】，运单号【" + popPrint.getWaybillCode()
-						+ "】， 操作人SiteCode【" + popPrint.getCreateSiteCode()
-						+ "】，为非平台订单");
+				log.warn("平台订单已打印未收货处理 --> 打印单号【{}】，运单号【{}】， 操作人SiteCode【{}】，为非平台订单"
+						,popPrint.getPopPrintId(),popPrint.getWaybillCode(),popPrint.getCreateSiteCode());
 				continue;
 			}
 			
@@ -80,27 +78,19 @@ public class PopSupplementReceiveTask implements
 				try {
 					this.taskPopRecieveCountService
 							.insert(popPrintToInspection(popPrint));
-					this.logger.info("平台订单已打印未收货处理 --> 分拣中心-运单【"
-							+ popPrint.getCreateSiteCode() + "-"
-							+ popPrint.getWaybillCode() + "】收货补全回传POP成功");
+					this.log.info("平台订单已打印未收货处理 --> 分拣中心-运单【{}-{}】收货补全回传POP成功",popPrint.getCreateSiteCode(),popPrint.getWaybillCode());
 				} catch (Exception e) {
-					this.logger
-							.error("平台订单已打印未收货处理 --> 分拣中心-运单【"
-									+ popPrint.getCreateSiteCode() + "-"
-									+ popPrint.getWaybillCode()
-									+ "】 收货补全回传POP，补全异常", e);
+					this.log.error("平台订单已打印未收货处理 --> 分拣中心-运单【{}-{}】收货补全回传POP,补全异常",popPrint.getCreateSiteCode(),popPrint.getWaybillCode(),e);
 				}
 			}
 			try {
 				this.inspectionService
 						.addInspectionPop(popPrintToInspection(popPrint));
-				this.logger.info("平台订单已打印未收货处理 --> 分拣中心-运单【"
-						+ popPrint.getCreateSiteCode() + "-"
-						+ popPrint.getWaybillCode() + "】 收货信息不存在，补全成功");
+				this.log.info("平台订单已打印未收货处理 --> 分拣中心-运单【{}-{}】 收货信息不存在，补全成功"
+						,popPrint.getCreateSiteCode(),popPrint.getWaybillCode());
 			} catch (Exception e) {
-				this.logger.error("平台订单已打印未收货处理 --> 分拣中心-运单【"
-						+ popPrint.getCreateSiteCode() + "-"
-						+ popPrint.getWaybillCode() + "】 收货信息不存在，补全异常", e);
+				this.log.error("平台订单已打印未收货处理 --> 分拣中心-运单【{}-{}】 收货信息不存在，补全异常"
+						,popPrint.getCreateSiteCode() ,popPrint.getWaybillCode() , e);
 			}
 		}
 		return true;
@@ -169,7 +159,7 @@ public class PopSupplementReceiveTask implements
 			
 			return inspection;
 		} catch (Exception e) {
-			logger.error("平台订单已打印未收货处理 --> 转换打印信息异常：", e);
+			log.error("平台订单已打印未收货处理 --> 转换打印信息异常：{}", JsonHelper.toJson(popPrint), e);
 			return null;
 		}
 	}
@@ -204,7 +194,7 @@ public class PopSupplementReceiveTask implements
 
             return popPrintService.findLimitListNoReceive(popPrints, paramMap);
 		} catch (Exception e) {
-            this.logger.error("出现异常， 异常信息为：" + e.getMessage(), e);
+            this.log.error("出现异常， 异常信息为：{}" , e.getMessage(), e);
         }
         return popPrints;
     }

@@ -28,8 +28,8 @@ import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -47,7 +47,7 @@ import java.util.Random;
 @Service("taskService")
 public class TaskServiceImpl implements TaskService {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private static final String REDIS_SWITCH = "redis.switch";
 	private static final String REDIS_SWITCH_ON = "1";
@@ -148,7 +148,7 @@ public class TaskServiceImpl implements TaskService {
     public Integer doAddTask(Task task, boolean ifCheckTaskMode) {
         TaskDao routerDao = taskDao;
         if(Task.TASK_TYPE_PDA.equals(task.getType()) ){
-            logger.info(" pda logs , box_code: "+task.getBoxCode()+" [body]: "+task.getBody());
+            log.warn(" pda logs , box_code: {} [body]: {}",task.getBoxCode(),task.getBody());
             return 0;
         }
 
@@ -163,7 +163,7 @@ public class TaskServiceImpl implements TaskService {
                         isRedisSucc = true;
                     }
                 } catch (Exception e) {
-                    logger.error("保存任务失败：" + task.toString());
+                    log.error("保存任务失败：{}" , task.toString());
                 }
                 if (isRedisSucc) {
                     return 1;
@@ -184,7 +184,7 @@ public class TaskServiceImpl implements TaskService {
             if(!this.has(task)){
                 return routerDao.add(TaskDao.namespace, task);
             }else{
-                logger.warn(" Duplicate task: "+task.getBody());
+                log.warn(" Duplicate task: {}",task.getBody());
             }
         }else{
             return routerDao.add(TaskDao.namespace, task);
@@ -569,7 +569,6 @@ public class TaskServiceImpl implements TaskService {
 		task.setExecuteCount(0);
 		task.setOwnSign(BusinessHelper.getOwnSign());
 		task.setStatus(Task.TASK_STATUS_UNHANDLED);
-		this.logger.info("总部接口把接收到的交接数据存入 交接 Task");
 
 		add(task);
 
@@ -580,12 +579,12 @@ public class TaskServiceImpl implements TaskService {
 			uPackage.setTimeStamp(addOneSecond(uPackage.getTimeStamp()));
 			task.setBody(JsonHelper.toJson(uPackage));
 		}catch(Throwable e){
-			logger.warn("分拣任务全程跟踪乱序加一秒钟失败，原因" + e);
+			log.warn("分拣任务全程跟踪乱序加一秒钟失败，原因:" , e);
 		}
 		fringerprint = uPackage.getSortCenterNo() + "_" + uPackage.getBarcode()
 				+ "_" + uPackage.getTimeStamp() + "_" + task.getType();
 		task.setFingerprint(Md5Helper.encode(fringerprint));
-		this.logger.info("总部接口把接收到的交接数据存入 分拣 Task");
+		this.log.info("总部接口把接收到的交接数据存入 分拣 Task");
 
 		add(task);
 	}

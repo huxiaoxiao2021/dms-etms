@@ -25,6 +25,8 @@ import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -39,6 +41,8 @@ import java.util.Date;
  */
 @Service("dmsAbnormalEclpService")
 public class DmsAbnormalEclpServiceImpl extends BaseService<DmsAbnormalEclp> implements DmsAbnormalEclpService {
+
+    private final Logger log = LoggerFactory.getLogger(DmsAbnormalEclpServiceImpl.class);
 
     @Autowired
     @Qualifier("dmsAbnormalEclpDao")
@@ -88,26 +92,26 @@ public class DmsAbnormalEclpServiceImpl extends BaseService<DmsAbnormalEclp> imp
         BaseEntity<Waybill> waybillRes = waybillQueryManager.getWaybillByWaybillCode(dmsAbnormalEclp.getWaybillCode());
         if (waybillRes == null || waybillRes.getResultCode() != 1 || waybillRes.getData() == null) {
             rest.toFail("运单不存在。");
-            logger.warn("运单不存在：" + JsonHelper.toJson(dmsAbnormalEclp));
+            log.warn("运单不存在：{}" , JsonHelper.toJson(dmsAbnormalEclp));
             return rest;
         }
         Waybill waybill1 = waybillRes.getData();
         if (waybill1.getBusiId() == null) {
             rest.toFail("商家信息没找到");
-            logger.warn("商家信息没找到" + JsonHelper.toJson(dmsAbnormalEclp));
+            log.warn("商家信息没找到:{}" , JsonHelper.toJson(dmsAbnormalEclp));
             return rest;
         }
         //获取运单中的商家信息
         BasicTraderInfoDTO trader = this.baseMinorManager.getBaseTraderById(waybill1.getBusiId());
         if (trader == null) {
             rest.toFail("运单未找到商家");
-            logger.warn("运单" + waybill1.getWaybillCode() + "未找到商家" + waybill1.getBusiId() + "：" + JsonHelper.toJson(dmsAbnormalEclp));
+            log.warn("运单 {} 未找到商家 {}：{}",waybill1.getWaybillCode(),waybill1.getBusiId(),JsonHelper.toJson(dmsAbnormalEclp));
             return rest;
         }
         //判断商家的联系方式
         if (StringHelper.isEmpty(trader.getTelephone()) && StringHelper.isEmpty(trader.getContactMobile())) {
             rest.toFail("未查到商家联系方式");
-            logger.warn("未查到商家联系方式：" + JsonHelper.toJson(trader));
+            log.warn("未查到商家联系方式：{}" , JsonHelper.toJson(trader));
             return rest;
         }
         //转换成mp的格式
@@ -116,36 +120,38 @@ public class DmsAbnormalEclpServiceImpl extends BaseService<DmsAbnormalEclp> imp
         BaseStaffSiteOrgDto org = baseMajorManager.getBaseSiteBySiteId(userDto.getSiteCode());
         if (org == null) {
             rest.toFail("所在站点未找到：" + userDto.getSiteName());
-            logger.warn("所在站点未找到：" + userDto.getSiteName());
+            log.warn("所在站点未找到：{}" , userDto.getSiteName());
             return rest;
         }
         try {
             ProvinceNode province = AreaHelper.getProvince(Integer.parseInt(Long.valueOf(org.getProvinceId()).toString()));
             if (province == null) {
                 rest.toFail("站点所在省份获取失败：" + org.getProvinceId());
-                logger.warn("站点所在省份获取失败：" + org.getProvinceId());
+                log.warn("站点所在省份获取失败：{}" , org.getProvinceId());
                 return rest;
             }
             AreaNode areaNode = AreaHelper.getAreaByProvinceId(province.getId());
             if (areaNode == null) {
                 rest.toFail("站点所在区域获取失败：" + province.getId());
-                logger.warn("站点所在区域获取失败：" + province.getId());
+                log.warn("站点所在区域获取失败：{}" , province.getId());
                 return rest;
             }
             dmsAbnormalEclpRequest.setOrgNo(areaNode.getId().toString());
         } catch (Exception e) {
             rest.toFail("站点所在区域获取失败：" + org.getAreaId());
-            logger.warn("站点所在区域获取失败：" + org.getAreaId(), e);
+            log.warn("站点所在区域获取失败：{}" , org.getAreaId(), e);
             return rest;
         }
         if (!saveOrUpdate(dmsAbnormalEclp)) {
             rest.toFail("保存外呼申请失败，请重试。");
-            logger.error("保存外呼申请失败：" + JsonHelper.toJson(dmsAbnormalEclp));
+            log.warn("保存外呼申请失败：{}" , JsonHelper.toJson(dmsAbnormalEclp));
             return rest;
         }
         //发mq 给异常系统
         abnormalEclpSendProducer.sendOnFailPersistent(dmsAbnormalEclp.getWaybillCode(), JsonHelper.toJson(dmsAbnormalEclpRequest));
-        logger.debug("库房拒收申请：" + JsonHelper.toJson(dmsAbnormalEclpRequest));
+        if(log.isDebugEnabled()){
+            log.debug("库房拒收申请：{}" , JsonHelper.toJson(dmsAbnormalEclpRequest));
+        }
         rest.toSucceed();
         return rest;
     }
@@ -173,8 +179,8 @@ public class DmsAbnormalEclpServiceImpl extends BaseService<DmsAbnormalEclp> imp
     @Override
     public int updateResult(DmsAbnormalEclp dmsAbnormalEclp) {
         int i = dmsAbnormalEclpDao.updateResult(dmsAbnormalEclp);
-        if (i > 0) {
-            logger.info("外呼结果写入完成：" + JsonHelper.toJson(dmsAbnormalEclp));
+        if (i > 0 && log.isDebugEnabled()) {
+            log.debug("外呼结果写入完成：{}" , JsonHelper.toJson(dmsAbnormalEclp));
         }
         return i;
     }

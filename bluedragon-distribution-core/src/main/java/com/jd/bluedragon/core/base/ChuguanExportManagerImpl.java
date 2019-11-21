@@ -35,7 +35,7 @@ import java.util.Map;
 @Service("chuguanExportManager")
 public class ChuguanExportManagerImpl implements ChuguanExportManager{
 
-    private final static Logger logger = LoggerFactory.getLogger(StockExportManagerImpl.class);
+    private final static Logger log = LoggerFactory.getLogger(StockExportManagerImpl.class);
 
     @Autowired
     private ChuguanExport chuguanExport;
@@ -50,18 +50,20 @@ public class ChuguanExportManagerImpl implements ChuguanExportManager{
             CallerParam callerParam = getCallerParam();
             ChuguanResult result = chuguanExport.insertChuguan(chuguanParamList, callerParam);
             if(result == null){
-                logger.error("新出管接口写入返回null-chuguanParamList[{}][{}]", JsonHelper.toJson(chuguanParamList),JsonHelper.toJson(callerParam));
+                log.warn("新出管接口写入返回null-chuguanParamList[{}][{}]", JsonHelper.toJson(chuguanParamList),JsonHelper.toJson(callerParam));
                 return 0;
             }
             if(result.getCode() != 1){
-                logger.error("新出管接口写入返回失败chuguanParamList["+JsonHelper.toJson(chuguanParamList)+"]callerParam["+JsonHelper.toJson(callerParam)
-                                +"]result["+JsonHelper.toJson(result)+"]");
+                log.warn("新出管接口写入返回失败chuguanParamList[{}]callerParam[{}]result[{}]"
+                        ,JsonHelper.toJson(chuguanParamList),JsonHelper.toJson(callerParam),JsonHelper.toJson(result));
                 return 0;
             }
-            logger.info("新出管接口写入成功-chuguanParamList[{}]result[{}]",JsonHelper.toJson(chuguanParamList),JsonHelper.toJson(result));
+            if(log.isDebugEnabled()){
+                log.debug("新出管接口写入成功-chuguanParamList[{}]result[{}]",JsonHelper.toJson(chuguanParamList),JsonHelper.toJson(result));
+            }
             return 1;//表示推送成功
         }catch(Exception e){
-            logger.error("新出管接口写入报错chuguanParamList[{}]",JsonHelper.toJson(chuguanParamList),e);
+            log.error("新出管接口写入报错chuguanParamList[{}]",JsonHelper.toJson(chuguanParamList),e);
             Profiler.functionError(info);
             return 0;
         }finally {
@@ -85,7 +87,7 @@ public class ChuguanExportManagerImpl implements ChuguanExportManager{
         try {
             callerParam.setSysIp(InetAddress.getLocalHost().getHostAddress());
         } catch (UnknownHostException e) {
-           logger.error("获取ip错误");
+           log.error("获取ip错误",e);
         }
         Map<String , String> extMap = new HashMap<>();
         extMap.put("currency","CNY");
@@ -112,20 +114,20 @@ public class ChuguanExportManagerImpl implements ChuguanExportManager{
             chuguanQueryParam.setNeedTransData(Boolean.TRUE);
             ChuguanDataResult chuguanDataResult = chuguanExport.queryChuGuan(chuguanQueryParam, getCallerParam());
             if(chuguanDataResult == null || chuguanDataResult.getCode() != 1){
-                logger.info("新出管接口调用返回失败chuguanQueryParam[{}]chuguanDataResult[{}]",
+                log.warn("新出管接口调用返回失败chuguanQueryParam[{}]chuguanDataResult[{}]",
                         JsonHelper.toJson(chuguanQueryParam),JsonHelper.toJson(chuguanDataResult));
                 return null;
             }
             result = chuguanDataResult.getChuguanVoList();
             if(result != null){
-                logger.info("新出管接口调用成功-有数据chuguanQueryParam[{}]chuguanDataResult[{}]",JsonHelper.toJson(chuguanQueryParam),JsonHelper.toJson
-                        (chuguanDataResult));
+                log.warn("新出管接口调用成功-有数据chuguanQueryParam[{}]chuguanDataResult[{}]"
+                        ,JsonHelper.toJson(chuguanQueryParam),JsonHelper.toJson(chuguanDataResult));
             }else {
-                logger.info("新出管接口调用成功-无返回数据chuguanQueryParam[{}]chuguanDataResult[{}]",JsonHelper.toJson(chuguanQueryParam));
+                log.warn("新出管接口调用成功-无返回数据chuguanQueryParam[{}]",JsonHelper.toJson(chuguanQueryParam));
             }
 
         }catch(Exception e){
-            logger.error("新出管接口调用chuguanQueryParam[{}]",JsonHelper.toJson(chuguanQueryParam),e);
+            log.error("新出管接口调用chuguanQueryParam[{}]",JsonHelper.toJson(chuguanQueryParam),e);
             Profiler.functionError(info);
         }finally {
             Profiler.registerInfoEnd(info);
@@ -181,9 +183,11 @@ public class ChuguanExportManagerImpl implements ChuguanExportManager{
         KuGuanDomain result = null;
         try {
             result = this.queryByOrderCode(waybillCode,null);
-            logger.info("根据订单号获取库管单信息-结束waybillCode[{}]result[{}]",waybillCode, JsonHelper.toJson(result));
+            if(log.isDebugEnabled()){
+                log.debug("根据订单号获取库管单信息-结束waybillCode[{}]result[{}]",waybillCode, JsonHelper.toJson(result));
+            }
         } catch (Exception e) {
-            logger.error("根据订单号获取库管单信息服务异常waybillCode[{}]",waybillCode, e);
+            log.error("根据订单号获取库管单信息服务异常waybillCode[{}]",waybillCode, e);
         }
         return result;
     }

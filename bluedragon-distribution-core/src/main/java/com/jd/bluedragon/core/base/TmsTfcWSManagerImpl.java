@@ -11,8 +11,8 @@ import com.jd.tms.tfc.ws.TfcSelectWS;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +28,7 @@ import java.util.List;
 @Service("tmsTfcWSManager")
 public class TmsTfcWSManagerImpl implements TmsTfcWSManager {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private TfcQueryWS tfcQueryWS;
@@ -47,7 +47,8 @@ public class TmsTfcWSManagerImpl implements TmsTfcWSManager {
                 // 查询失败 状态码2 表示查询数据为空
                 return Collections.EMPTY_LIST;
             } else {
-                logger.error("[调用TMS-TFC-JSF接口]根据条件查询运输计划信息接口返回状态失败，调用参数: " + JsonHelper.toJson(cargoSimpleDto) + ", 接口返回code:" + commonDto.getCode() + ", message:" + commonDto.getMessage());
+                log.warn("[调用TMS-TFC-JSF接口]根据条件查询运输计划信息接口返回状态失败，调用参数: {}, 接口返回code:{}, message:{}"
+                        ,JsonHelper.toJson(cargoSimpleDto),commonDto.getCode(),commonDto.getMessage());
             }
         }
         return null;
@@ -60,7 +61,8 @@ public class TmsTfcWSManagerImpl implements TmsTfcWSManager {
             if (commonDto.getCode() == 1) {
                 return commonDto.getData();
             } else {
-                logger.error("[调用TMS-TFC-JSF接口]根据派车任务明细简码获取派车任务明细接口返回状态失败，调用参数: " + simpleCode + ", 接口返回code:" + commonDto.getCode() + ", message:" + commonDto.getMessage());
+                log.warn("[调用TMS-TFC-JSF接口]根据派车任务明细简码获取派车任务明细接口返回状态失败，调用参数: {}, 接口返回code:{}, message:{}"
+                        ,simpleCode, commonDto.getCode(), commonDto.getMessage());
             }
         }
         return null;
