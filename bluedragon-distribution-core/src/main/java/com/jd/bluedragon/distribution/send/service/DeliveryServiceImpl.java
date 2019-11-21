@@ -120,7 +120,6 @@ import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.transboard.api.dto.OperatorInfo;
 import com.jd.transboard.api.dto.Response;
-import com.jd.transboard.api.service.GroupBoardService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -243,9 +242,6 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private BaseService baseService;
-
-    @Autowired
-    private GroupBoardService groupBoardService;
 
     @Autowired
     @Qualifier("turnoverBoxMQ")
@@ -1912,10 +1908,6 @@ public class DeliveryServiceImpl implements DeliveryService {
                 }
                 //将板号的集合转换成String类型的列表
                 List<String> boardList = new CollectionHelper<String>().toList(boardSet);
-/*                List<String> boardList = new ArrayList<>();
-                for (String boardCode : boardSet) {
-                    boardList.add(boardCode);
-                }*/
                 changeBoardStatus(tSendM,boardList);
                 Profiler.registerInfoEnd(callerInfo);
                 return new ThreeDeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, null);
