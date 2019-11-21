@@ -193,6 +193,7 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 			cenConfirm.setOperateTime(receive.getCreateTime());
 			cenConfirm.setOperateUser(receive.getCreateUser());
 			cenConfirm.setOperateUserCode(receive.getCreateUserCode());
+			cenConfirm.setInspectionTime(receive.getCreateTime());
 		}
 		return cenConfirm;
 	}

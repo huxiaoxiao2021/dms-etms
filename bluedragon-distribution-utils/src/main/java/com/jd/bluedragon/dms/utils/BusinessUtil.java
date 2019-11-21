@@ -606,6 +606,13 @@ public class BusinessUtil {
     }
 
     /**
+     * 判断是否C2C京准达，waybill_sign 第113位等于2
+     */
+    public static Boolean isC2CJZD(String waybillSign){
+        return isSignChar(waybillSign,113,'2');
+    }
+
+    /**
      * 是否为三方-合作站点
      * @param type
      * @return

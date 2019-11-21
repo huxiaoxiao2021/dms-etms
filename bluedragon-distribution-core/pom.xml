@@ -635,7 +635,7 @@
 		<dependency>
 			<groupId>com.jdwl.bcoi.entry</groupId>
 			<artifactId>bcoi-entry-api-16</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.0.2-SNAPSHOT</version>
 		</dependency>
         <dependency>
             <groupId>com.jd.etms.receive</groupId>
@@ -883,9 +883,9 @@
 
 		<!-- 增加JSS的依赖包 -->
 		<dependency>
-			<groupId>com.ipd</groupId>
-			<artifactId>jss-sdk-java</artifactId>
-			<version>1.3.0</version>
+		    <groupId>com.jd.jss</groupId>
+		    <artifactId>jss-sdk-java</artifactId>
+		    <version>1.4.2-SNAPSHOT</version>
 		</dependency>
         <!-- 用户组接口 -->
         <dependency>
@@ -1105,7 +1105,7 @@
         <dependency>
 			<groupId>com.jd.ql.dms.print</groupId>
 			<artifactId>label-print-engine</artifactId>
-			<version>1.1.10-SNAPSHOT</version>
+			<version>1.2.2-RELEASE</version>
         </dependency>
 		<!-- 打印引擎    start-->
 		<dependency>
@@ -1125,6 +1125,12 @@
 			<groupId>com.jd.router</groupId>
 			<artifactId>open-router-api</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>jss-sdk-java</artifactId>
+					<groupId>com.jcloud</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -1158,6 +1164,12 @@
 			<groupId>com.jd.intelligent.center</groupId>
 			<artifactId>icenter-api-common</artifactId>
 			<version>1.0.1-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.ldop.oms</groupId>
+			<artifactId>ldop-oms-api</artifactId>
+			<version>1.0.39-SNAPSHOT</version>
 		</dependency>
 
 	</dependencies>

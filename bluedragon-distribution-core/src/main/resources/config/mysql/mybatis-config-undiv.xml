@@ -327,5 +327,8 @@
         <!-- 包裹补打记录 -->
         <mapper resource="mappers/mysql/reprint/ReprintRecordMapper.xml"/>
 
+        <!-- 商家称重量方白名单 -->
+        <mapper resource="mappers/mysql/weightAndVolume/MerchantWeightAndVolumeMapper.xml"/>
+
     </mappers>
 </configuration>

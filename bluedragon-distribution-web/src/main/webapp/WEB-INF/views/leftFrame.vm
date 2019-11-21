@@ -51,6 +51,7 @@
         <dd><a href="#springUrl('/goodsPrint/toIndex')" target="mainFrame">托寄物品名打印</a></dd>
         <dd><a href="#springUrl('/reverse/part/reversePartDetail/toIndex')" target="mainFrame">半退明细查询</a></dd>
         <dd><a href="http://tfc.tms.jd.com/tfc/trans-book-abnormal/index" target="mainFrame">异常签收审批</a></dd>
+        <dd><a href="#springUrl('/merchantWeightAndVolume/whiteList/toIndex')" target="mainFrame">商家称重量方白名单</a></dd>
 
         <dt><a href="#" class="curr">快运中心相关功能</a></dt>
         <dd><a href="#springUrl('/inventoryTask/toIndex')" target="mainFrame">转运清场任务查询</a></dd>

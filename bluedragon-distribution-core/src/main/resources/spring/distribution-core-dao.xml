@@ -274,6 +274,7 @@
 
     <bean id="loadBillDao" class="com.jd.bluedragon.distribution.globaltrade.dao.LoadBillDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+        <property name="sqlSessionTemplate" ref="unDivSqlSessionTemplate"/>
     </bean>
 
     <bean id="loadBillReadDao" class="com.jd.bluedragon.distribution.globaltrade.dao.LoadBillReadDao">
@@ -546,6 +547,11 @@
     <!-- 箱号与集包袋绑定 -->
     <bean id="boxMaterialRelationDao" class="com.jd.bluedragon.distribution.cyclebox.dao.BoxMaterialRelationDao">
         <property name="sqlSession" ref="businessSqlSessionTemplate"/>
+    </bean>
+
+    <!-- 商家称重量方白名单 -->
+    <bean id="merchantWeightAndVolumeWhiteListDao" class="com.jd.bluedragon.distribution.merchantWeightAndVolume.dao.MerchantWeightAndVolumeWhiteListDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
 
 </beans>
