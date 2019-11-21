@@ -242,4 +242,15 @@
 	 	and
 	 	operate_site_code = #{operateSiteCode,jdbcType=BIGINT}
 	</delete>
+
+	<select id="queryByMerchantIdAndDmsCode" parameterType="com.jd.bluedragon.distribution.merchantWeightAndVolume.domain.MerchantWeightAndVolumeDetail"
+			resultType="Integer">
+		select
+		count(1) as num
+		from
+	 	merchant_weight_white_list
+	 	where is_delete=0
+		and merchant_id = #{merchantId,jdbcType=BIGINT}
+		and operate_site_code = #{operateSiteCode,jdbcType=BIGINT}
+	</select>
 </mapper>
