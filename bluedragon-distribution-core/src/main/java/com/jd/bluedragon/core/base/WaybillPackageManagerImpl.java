@@ -27,7 +27,7 @@ import java.util.Map;
 @Service("waybillPackageManager")
 public class WaybillPackageManagerImpl implements WaybillPackageManager {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     WaybillPackageApi waybillPackageApi;
@@ -75,7 +75,7 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
             if (null != baseEntity) {
                 alarmInfo = alarmInfo + ",resultCode:" + baseEntity.getResultCode() + "-" + baseEntity.getMessage();
             }
-            logger.error(alarmInfo);
+            log.warn(alarmInfo);
             Profiler.businessAlarm("调用运单接口getPackageByParam失败", alarmInfo);
             return null;
         }
@@ -86,7 +86,7 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
 
             packageList.addAll(changeToDeliveryPackageDBatch(baseEntity.getData().getResult()));
 
-            logger.info("getPackageByWaybillCode获取包裹数据共" + packageList.size() + "条.waybillCode:" + waybillCode);
+            log.debug("getPackageByWaybillCode获取包裹数据共{}条.waybillCode:{}" ,packageList.size(), waybillCode);
         }
 
         return result;
@@ -144,7 +144,7 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
             mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public BaseEntity<List<DeliveryPackageD>> getPackageByWaybillCode(String waybillCode) {
-        logger.info("调用运单接口getPackageByParam,分页获取包裹数据,运单号:" + waybillCode);
+        log.debug("调用运单接口getPackageByParam,分页获取包裹数据,运单号:{}" , waybillCode);
         BaseEntity<List<DeliveryPackageD>> result = new BaseEntity<List<DeliveryPackageD>>();
         List<DeliveryPackageD> packageList = new ArrayList<DeliveryPackageD>();
         result.setData(packageList);
@@ -158,7 +158,7 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
         BaseEntity<Page<DeliveryPackageDto>> baseEntity = waybillPackageApi.getPackageByParam(waybillCode, pageParam);
 
         if (null == baseEntity) {
-            logger.error("调用运单接口【waybillPackageApi.getPackageByParam()】获取包裹列表失败，接口异常，参数为：{}", waybillCode);
+            log.warn("调用运单接口【waybillPackageApi.getPackageByParam()】获取包裹列表失败，接口异常，参数为：{}", waybillCode);
             Profiler.businessAlarm("dms ask PRC rest failed [waybillPackageApi.getPackageByParam]", waybillCode);
             return new BaseEntity<List<DeliveryPackageD>>(EnumBusiCode.BUSI_FAIL.getCode(),EnumBusiCode.BUSI_FAIL.getDesc());
         }
@@ -167,7 +167,7 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
         if (baseEntity.getResultCode() != 1) {
             String alarmInfo = "调用运单接口getPackageByParam失败.waybillCode:" + waybillCode;
             alarmInfo = alarmInfo + ",resultCode:" + baseEntity.getResultCode() + "-" + baseEntity.getMessage();
-            logger.error(alarmInfo);
+            log.warn(alarmInfo);
             return new BaseEntity<List<DeliveryPackageD>>(baseEntity.getResultCode(),baseEntity.getMessage());
         }
 
@@ -177,9 +177,8 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
 
             packageList.addAll(changeToDeliveryPackageDBatch(baseEntity.getData().getResult()));
 
-            logger.info("调用运单接口getPackageByParam,waybillCode:" + waybillCode + ",每次请求数:" +
-                    PACKAGE_NUM_ONCE_QUERY + ".返回包裹总数:" + baseEntity.getData().getTotalRow() +
-                    ",总页数:" + baseEntity.getData().getTotalPage());
+            log.debug("调用运单接口getPackageByParam,waybillCode:{},每次请求数:{}.返回包裹总数:{}，总页数:{}"
+                    ,waybillCode,PACKAGE_NUM_ONCE_QUERY,baseEntity.getData().getTotalRow(), baseEntity.getData().getTotalPage());
 
             //读取分页数
             int totalPage = baseEntity.getData().getTotalPage();
@@ -190,7 +189,7 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
                 List<DeliveryPackageDto> dtoList = waybillPackageApi.getPackageByParam(waybillCode, pageParam).getData().getResult();
                 packageList.addAll(changeToDeliveryPackageDBatch(dtoList));
             }
-            logger.info("getPackageByWaybillCode获取包裹数据共" + packageList.size() + "条.waybillCode:" + waybillCode);
+            log.debug("getPackageByWaybillCode获取包裹数据共{}条.waybillCode:{}" ,packageList.size(), waybillCode);
         }
 
         return result;

@@ -9,11 +9,10 @@ import com.jd.ql.dispatch.dto.DmsVendorRequest;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.text.MessageFormat;
 
 /**
  * 内部实物网络（C、B、TC）互转服务
@@ -24,7 +23,7 @@ import java.text.MessageFormat;
 @Service("dmsInterturnManager")
 public class DmsInterturnManagerImpl implements DmsInterturnManager{
 
-    private final Logger logger = Logger.getLogger(DmsInterturnManagerImpl.class);
+    private final Logger log = LoggerFactory.getLogger(DmsInterturnManagerImpl.class);
 
     @Autowired
     private DmsToVendorDispatchService dmsToVendorDispatchService;
@@ -41,10 +40,12 @@ public class DmsInterturnManagerImpl implements DmsInterturnManager{
         request.setDmsId(siteCode);
         request.setVendorId(vendorId);
         request.setWaybillSign(waybillSign);
-        logger.info("C网转B网校验请求参数：" + JsonHelper.toJson(request));
+        if(log.isDebugEnabled()){
+            log.debug("C网转B网校验请求参数：{}" , JsonHelper.toJson(request));
+        }
         BaseResponse<Boolean> dmsToVendor =  dmsToVendorDispatchService.dispatchToExpress(request);
         if(dmsToVendor.getCode() != BaseResponse.OK_CODE || dmsToVendor.getData() ==null || dmsToVendor.getData().booleanValue() == false) {
-            logger.error(MessageFormat.format("C网转B网校验不通过，参数：{0}；结果：{1}",JsonHelper.toJson(request), JsonHelper.toJson(dmsToVendor)));
+            log.warn("C网转B网校验不通过，参数：{}；结果：{}",JsonHelper.toJson(request), JsonHelper.toJson(dmsToVendor));
         }
         result.setCode(dmsToVendor.getCode());
         result.setMessage(dmsToVendor.getMessage());

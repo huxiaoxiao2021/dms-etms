@@ -5,8 +5,8 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.uad.api.claim.facade.claim.ClaimListByClueInfoQueryAPI;
 import com.jd.uad.api.claim.facade.claim.resp.ClaimInfoRespDTO;
 import com.jd.uad.api.core.APIResultDTO;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +16,7 @@ import java.util.List;
 @Service("obcsManager")
 public class OBCSManagerImpl implements OBCSManager{
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private ClaimListByClueInfoQueryAPI claimListByClueInfoQueryAPI;
@@ -70,13 +70,13 @@ public class OBCSManagerImpl implements OBCSManager{
                 respDTO.setPaymentRealMoney(paymentRealMoney);
                 respDTO.setStatusDesc(statusDesc);
             }else{
-                logger.error("理赔接口失败"+clueValue+" 原因："+apiResultDTO.getMessage());
+                log.warn("理赔接口失败 {} 原因：{}",clueValue,apiResultDTO.getMessage());
                 return null;
             }
 
 
         }catch (Exception e){
-            logger.error("理赔接口异常"+clueValue+" 原因：",e);
+            log.error("理赔接口异常 {} ",clueValue,e);
             return null;
         }
 

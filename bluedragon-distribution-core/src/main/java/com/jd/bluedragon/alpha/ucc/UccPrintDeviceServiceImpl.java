@@ -5,8 +5,8 @@ import com.jd.bluedragon.alpha.domain.PrintDevice;
 import com.jd.bluedragon.alpha.domain.Version;
 import com.jd.std.ucc.client.ConfClient;
 import com.jd.std.ucc.client.client.ConfClientFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -15,7 +15,7 @@ import java.util.*;
  */
 public class UccPrintDeviceServiceImpl implements UccPrintDeviceService{
 
-    private static final Log logger = LogFactory.getLog(UccPrintDeviceServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(UccPrintDeviceServiceImpl.class);
 
     ConfClient confClient = ConfClientFactory.getConfClient();
 
@@ -40,7 +40,7 @@ public class UccPrintDeviceServiceImpl implements UccPrintDeviceService{
         try {
             KeyMap = confClient.getPathValues(uccPath,uccReadToken);
         } catch (Exception e){
-            logger.error("ucc-connection error",e);
+            log.error("ucc-connection error",e);
         }
         if (KeyMap != null){
             for (String value : KeyMap.values()){
@@ -61,7 +61,7 @@ public class UccPrintDeviceServiceImpl implements UccPrintDeviceService{
             try {
                 str = confClient.getConfValue(uccPath,uccReadToken,printDeviceId);
             } catch (Exception e){
-                logger.error("ucc-connection error!!" ,e);
+                log.error("ucc-connection error!!" ,e);
                 return Collections.emptyList();
             }
             PrintDevice printDevice = gson.fromJson(str,PrintDevice.class);

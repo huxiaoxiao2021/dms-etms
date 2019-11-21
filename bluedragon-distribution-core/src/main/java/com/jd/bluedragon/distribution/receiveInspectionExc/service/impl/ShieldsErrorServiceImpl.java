@@ -8,7 +8,8 @@ import com.jd.bluedragon.distribution.receiveInspectionExc.service.ShieldsErrorS
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -19,7 +20,7 @@ import java.util.List;
 
 @Service("shieldsErrorService")
 public class ShieldsErrorServiceImpl implements ShieldsErrorService {
-	private Logger log = Logger.getLogger(ShieldsErrorServiceImpl.class);
+	private Logger logger = LoggerFactory.getLogger(ShieldsErrorServiceImpl.class);
 	@Autowired
 	private ShieldsErrorDao shieldsErrorDao;
 
@@ -39,11 +40,11 @@ public class ShieldsErrorServiceImpl implements ShieldsErrorService {
 	 */
 	public ShieldsError doParseShieldsCar(Task task) {
 		String jsonShieldsError = task.getBody();
-		log.info("封签异常json数据：" + jsonShieldsError);
+		logger.info("封签异常json数据：{}" , jsonShieldsError);
 		List<ShieldsCarErrorRequest> shieldsErrorRequest = Arrays
 				.asList(JsonHelper.jsonToArray(jsonShieldsError,
 						ShieldsCarErrorRequest[].class));
-		log.info("封签异常json数据转化后：" + shieldsErrorRequest);
+		logger.info("封签异常json数据转化后：{}" , shieldsErrorRequest);
 		ShieldsError shieldsError = new ShieldsError();
 		ShieldsCarErrorRequest sh = shieldsErrorRequest.get(0);
 		shieldsError.setCarCode(sh.getCarCode());
@@ -67,11 +68,11 @@ public class ShieldsErrorServiceImpl implements ShieldsErrorService {
 	 * */
 	public ShieldsError doParseShieldsBox(Task task) {
 		String jsonShieldsError = task.getBody();
-		log.info("封签异常json数据：" + jsonShieldsError);
+		logger.info("封签异常json数据：{}" , jsonShieldsError);
 		List<ShieldsBoxErrorRequest> shieldsErrorRequest = Arrays
 				.asList(JsonHelper.jsonToArray(jsonShieldsError,
 						ShieldsBoxErrorRequest[].class));
-		log.info("封签异常json数据转化后：" + shieldsErrorRequest);
+		logger.info("封签异常json数据转化后：{}" , shieldsErrorRequest);
 		ShieldsError shieldsError = new ShieldsError();
 		ShieldsBoxErrorRequest sh = shieldsErrorRequest.get(0);
 		shieldsError.setBoxCode(sh.getBoxCode());

@@ -1,19 +1,16 @@
 package com.jd.bluedragon.distribution.consumer.reverse;
 
-import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.reverse.domain.ReceiveRequest;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
 import com.jd.bluedragon.distribution.reverse.service.ReverseSendPopMessageService;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.jmq.common.message.Message;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,7 +37,7 @@ import org.springframework.stereotype.Service;
  */
 @Service("reversePopConsumer")
 public class ReversePopConsumer extends MessageBaseConsumer {
-	private static Log logger= LogFactory.getLog(ReversePopConsumer.class);
+	private static Logger log = LoggerFactory.getLogger(ReversePopConsumer.class);
 	@Autowired
 	private ReverseSendPopMessageService reverseSendPopMessageService;
     @Autowired
@@ -53,11 +50,11 @@ public class ReversePopConsumer extends MessageBaseConsumer {
         	request = (ReceiveRequest) XmlHelper.toObject(message.getText(),
         			ReceiveRequest.class);
         }else{
-        	this.logger.info("非xml的消息格式，直接返回");
+        	this.log.warn("非xml的消息格式，直接返回:{}",message.getText());
         	return ;
         }
         if (request == null) {
-            this.logger.info("消息序列化出现异常。消息：" + message);
+            this.log.warn("消息序列化出现异常。消息：{}" , message);
             return ;
         } else if (ReverseReceive.RECEIVE_TYPE_SPWMS.toString().equals(request.getReceiveType())
                 && ReverseReceive.RECEIVE.toString().equals(request.getCanReceive())) {
@@ -69,20 +66,20 @@ public class ReversePopConsumer extends MessageBaseConsumer {
                     waybillCode = oldWaybill1.getData().getWaybillCode();
                 }
             }else{
-                logger.error("reversePopConsumer备件库回传收货消息格式不正确，未获取到对应运单号"+message.getText());
+                log.warn("reversePopConsumer备件库回传收货消息格式不正确，未获取到对应运单号:{}",message.getText());
                 return;
             }
         } else {
-            this.logger.info("消息来源：" + request.getReceiveType());
+            this.log.warn("消息来源：{}" , request.getReceiveType());
             return ;
         }
         
         if(StringUtils.isEmpty(waybillCode)){
-        	 this.logger.info("运单号为空：");
+        	 this.log.warn("运单号为空：{}",message.getText());
         	return ;
         }
         boolean result = this.reverseSendPopMessageService.sendPopMessage(waybillCode);
-        this.logger.info("逆向收货回传POP消息【" + message + "】" + result);
+        this.log.debug("逆向收货回传POP消息【{}】{}" , message, result);
         if(!result) throw new Exception("逆向收货回传POP消息失败"+waybillCode);
     }
     

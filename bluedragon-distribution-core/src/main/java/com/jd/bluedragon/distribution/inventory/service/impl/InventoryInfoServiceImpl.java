@@ -12,7 +12,6 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.ql.dms.report.domain.BaseEntity;
 import com.jd.ql.dms.report.domain.Pager;
-import com.jd.ql.dms.report.inventory.InventoryJsfService;
 import com.jd.ql.dms.report.inventory.domain.InventoryPackage;
 import com.jd.ql.dms.report.inventory.domain.InventoryWaybillSummary;
 import com.jd.ql.dms.report.inventory.request.InventoryQueryRequest;
@@ -28,7 +27,7 @@ import java.util.*;
 @Service
 public class InventoryInfoServiceImpl implements InventoryInfoService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private final int pageSize = 1000;
 
@@ -102,7 +101,7 @@ public class InventoryInfoServiceImpl implements InventoryInfoService {
             String packageCode = inventoryPackage.getPackageCode();
             String waybillCode = inventoryPackage.getWaybillCode();
             if (StringHelper.isEmpty(packageCode) || StringHelper.isEmpty(waybillCode)) {
-                logger.error("【syncCurrInventoryWaybillInfo】包裹号或运单号为空，对象值：" + JsonHelper.toJson(inventoryPackage));
+                log.warn("【syncCurrInventoryWaybillInfo】包裹号或运单号为空，对象值：{}" ,JsonHelper.toJson(inventoryPackage));
                 continue;
             }
             //更新待盘包裹号集合
@@ -141,7 +140,7 @@ public class InventoryInfoServiceImpl implements InventoryInfoService {
                         //更新运单下包裹最新的扫描时间
                         inventoryWaybillInfoTemp.setOperateTimeNew(scanTime);
                     } else {
-                        logger.warn("包裹号：" + scanPackageCode + "存在待盘信息，但是运单集合不存在，请检查代码逻辑");
+                        log.warn("包裹号：{}存在待盘信息，但是运单集合不存在，请检查代码逻辑",scanPackageCode);
                     }
                 } else {
                     //扫描包裹不存在与待盘集合中，说明扫描未多货情况，此时在统计集合中新增一条统计记录，后续再有同运单的包裹扫描记录直接从集合中获取
@@ -158,7 +157,7 @@ public class InventoryInfoServiceImpl implements InventoryInfoService {
                 }
             }
         } else {
-            logger.warn("盘点任务号：" + inventoryTaskId + "查询扫描记录数据为空");
+            log.warn("盘点任务号：{}查询扫描记录数据为空",inventoryTaskId);
         }
         //遍历运单信息集合统计数据
         waybillSum = inventoryWaybillInfoMap.size();
@@ -203,17 +202,17 @@ public class InventoryInfoServiceImpl implements InventoryInfoService {
                             inventoryWaybillSummaryListTemp = pagerBaseEntity.getData().getData();
                             inventoryWaybillSummaryList.addAll(inventoryWaybillSummaryListTemp);
                         } else {
-                            logger.warn("获取待盘运单统计数据第【" + i + "】页数据为空，共【" + totalPageNum + "】页，JSF方法【queryNeedInventoryWaybillSummaryList】");
+                            log.warn("获取待盘运单统计数据第【{}】页数据为空，共【{}】页，JSF方法【queryNeedInventoryWaybillSummaryList】",i,totalPageNum);
                         }
                     }
                 } else {
-                    logger.warn("获取待盘运单统计数据为空！JSF方法【queryNeedInventoryWaybillSummaryList】");
+                    log.warn("获取待盘运单统计数据为空！JSF方法【queryNeedInventoryWaybillSummaryList】");
                 }
             } else {
-                logger.warn("获取待盘运单统计数据为空！JSF方法【queryNeedInventoryWaybillSummaryList】");
+                log.warn("获取待盘运单统计数据为空！JSF方法【queryNeedInventoryWaybillSummaryList】");
             }
         } catch (Exception e) {
-            logger.error("获取待盘运单统计数据失败！JSF方法【queryNeedInventoryWaybillSummaryList】", e);
+            log.error("获取待盘运单统计数据失败！JSF方法【queryNeedInventoryWaybillSummaryList】inventoryBaseRequest={}",JsonHelper.toJson(inventoryBaseRequest), e);
         }
 
         return inventoryWaybillSummaryList;
@@ -242,17 +241,17 @@ public class InventoryInfoServiceImpl implements InventoryInfoService {
                             InventoryPackageTemp = pagerBaseEntity.getData().getData();
                             inventoryPackageList.addAll(InventoryPackageTemp);
                         } else {
-                            logger.warn("获取待盘包裹明细数据第【" + i + "】页数据为空，共【" + totalPageNum + "】页，JSF方法【queryNeedInventoryPackageList】");
+                            log.warn("获取待盘包裹明细数据第【{}】页数据为空，共【{}】页，JSF方法【queryNeedInventoryPackageList】",i,totalPageNum);
                         }
                     }
                 } else {
-                    logger.warn("获取待盘包裹明细数据为空！JSF方法【queryNeedInventoryPackageList】");
+                    log.warn("获取待盘包裹明细数据为空！JSF方法【queryNeedInventoryPackageList】");
                 }
             } else {
-                logger.warn("获取待盘包裹明细数据为空！JSF方法【queryNeedInventoryPackageList】");
+                log.warn("获取待盘包裹明细数据为空！JSF方法【queryNeedInventoryPackageList】");
             }
         } catch (Exception e) {
-            logger.error("获取待盘包裹明细数据失败！JSF方法【queryNeedInventoryPackageList】", e);
+            log.error("获取待盘包裹明细数据失败！JSF方法【queryNeedInventoryPackageList】inventoryBaseRequest={}",JsonHelper.toJson(inventoryBaseRequest), e);
         }
 
         return inventoryPackageList;
@@ -264,17 +263,19 @@ public class InventoryInfoServiceImpl implements InventoryInfoService {
         InventoryQueryRequest inventoryQueryRequest = new InventoryQueryRequest();
         inventoryQueryRequest.setPackageCodeList(packageCodeList);
         inventoryQueryRequest.setCreateSiteCode(inventoryBaseRequest.getCreateSiteCode());
-        logger.info("queryPackageStatusList请求参数：" + JsonHelper.toJson(inventoryQueryRequest));
+        if(log.isDebugEnabled()){
+            log.debug("queryPackageStatusList请求参数：{}" , JsonHelper.toJson(inventoryQueryRequest));
+        }
         try {
             //es中获取包裹列表中状态信息
             BaseEntity<List<InventoryPackage>> baseEntity = inventoryJsfManager.queryPackageStatusList(inventoryQueryRequest);
             if (baseEntity != null && baseEntity.getCode() == 200 && baseEntity.getData() != null) {
                 inventoryPackageList = baseEntity.getData();
             } else {
-                logger.warn("获取待盘包裹状态据为空！JSF方法【queryPackageStatusList】，参数：" + JsonHelper.toJson(inventoryQueryRequest));
+                log.warn("获取待盘包裹状态据为空！JSF方法【queryPackageStatusList】，参数：{}" , JsonHelper.toJson(inventoryQueryRequest));
             }
         } catch (Exception e) {
-            logger.error("获取待盘包裹状态据失败！JSF方法【queryPackageStatusList】，参数：" + JsonHelper.toJson(inventoryQueryRequest));
+            log.error("获取待盘包裹状态据失败！JSF方法【queryPackageStatusList】，参数：{}" , JsonHelper.toJson(inventoryQueryRequest));
         }
 
 
@@ -295,7 +296,7 @@ public class InventoryInfoServiceImpl implements InventoryInfoService {
         if (scanPackageCodeList.size() > 0) {
             scanPackageCodeSet = new HashSet<>(scanPackageCodeList);
         } else {
-            logger.warn("获取运单【" + waybillCode + "】扫描数据为空，任务编号：" + inventoryTaskId);
+            log.warn("获取运单【{}】扫描数据为空，任务编号：{}" ,waybillCode, inventoryTaskId);
         }
 
         //es获取该运单的待盘信息
@@ -305,7 +306,7 @@ public class InventoryInfoServiceImpl implements InventoryInfoService {
             InventoryWaybillDetail inventoryWaybillDetail = new InventoryWaybillDetail();
             String packageCode = inventoryPackage.getPackageCode();
             if (StringHelper.isEmpty(packageCode)) {
-                logger.error("包裹号为空，对象值：" + JsonHelper.toJson(inventoryPackage));
+                log.warn("包裹号为空，对象值：{}" , JsonHelper.toJson(inventoryPackage));
                 continue;
             }
             inventoryWaybillDetail.setPackageCode(packageCode);
@@ -348,7 +349,7 @@ public class InventoryInfoServiceImpl implements InventoryInfoService {
             }
             return scannedWaybillDetailList;
         } else {
-            logger.error("type值为：" + type + "不在方法处理范围，type值只能为1或2");
+            log.warn("type值为：{}不在方法处理范围，type值只能为1或2",type);
             return new ArrayList<>();
         }
     }
@@ -372,10 +373,10 @@ public class InventoryInfoServiceImpl implements InventoryInfoService {
             try {
                 inventoryTaskCompleteProducer.send(inventoryTask.getInventoryTaskId(), body);
             } catch (JMQException e) {
-                logger.error("发送盘点任务完成MQ消息失败，消息体：" + body);
+                log.error("发送盘点任务完成MQ消息失败，消息体：{}" , body);
             }
         } else {
-            logger.warn("更新任务状态失败，参数：" + JsonHelper.toJson(inventoryTask));
+            log.warn("更新任务状态失败，参数：{}" , JsonHelper.toJson(inventoryTask));
         }
     }
 

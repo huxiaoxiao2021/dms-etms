@@ -6,8 +6,8 @@ import com.jd.mrd.delivery.rpc.sdk.dto.RpcResultDto;
 import com.jd.mrd.delivery.rpc.sdk.feedback.MrdFeedbackRpcService;
 import com.jd.mrd.delivery.rpc.sdk.feedback.dto.UserFeedbackContent;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ import java.util.Map;
 @Service("mrdFeedbackManager")
 public class MrdFeedbackManagerImpl implements MrdFeedbackManager {
 
-    private Log log = LogFactory.getLog(MrdFeedbackManagerImpl.class);
+    private Logger log = LoggerFactory.getLogger(MrdFeedbackManagerImpl.class);
 
     @Autowired
     @Qualifier("mrdFeedbackRpcService")
@@ -37,7 +37,7 @@ public class MrdFeedbackManagerImpl implements MrdFeedbackManager {
             if (resultDto.getCode() == 0) {
                 return true;
             } else {
-                log.warn("提交意见反馈信息失败，失败状态:" + resultDto.getCode() + "，失败信息:" + resultDto.getMsg());
+                log.warn("提交意见反馈信息失败，失败状态:{}，失败信息:{}", resultDto.getCode(), resultDto.getMsg());
             }
         }
         return false;
@@ -52,7 +52,7 @@ public class MrdFeedbackManagerImpl implements MrdFeedbackManager {
                 });
                 return typeMap;
             } else {
-                log.warn("根据包名获取反馈类型失败，失败状态:" + resultDto.getCode() + "，失败信息:" + resultDto.getMsg());
+                log.warn("根据包名获取反馈类型失败，失败状态:{}，失败信息:{}" ,resultDto.getCode(), resultDto.getMsg());
             }
         }
         return null;
@@ -67,7 +67,7 @@ public class MrdFeedbackManagerImpl implements MrdFeedbackManager {
                 });
                 return typeMap;
             } else {
-                log.warn("根据包名和物流权限码获取反馈类型信息失败，失败状态:" + resultDto.getCode() + "，失败信息:" + resultDto.getMsg());
+                log.warn("根据包名和物流权限码获取反馈类型信息失败，失败状态:{}，失败信息:{}" ,resultDto.getCode(), resultDto.getMsg());
             }
         }
         return null;

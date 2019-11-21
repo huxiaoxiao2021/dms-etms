@@ -1,11 +1,10 @@
 package com.jd.bluedragon.distribution.worker.departure;
 
-import com.jd.bluedragon.distribution.auto.service.SortingPrepareService;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.framework.DBSingleScheduler;
 import com.jd.bluedragon.distribution.task.domain.Task;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -17,7 +16,7 @@ import java.util.List;
  */
 public class BatchSendCarTask extends DBSingleScheduler {
 
-    private static final Log logger= LogFactory.getLog(BatchSendCarTask.class);
+    private static final Logger log = LoggerFactory.getLogger(BatchSendCarTask.class);
 
     @Autowired
     private DepartureService   departureService;
@@ -27,11 +26,10 @@ public class BatchSendCarTask extends DBSingleScheduler {
         boolean result=false;
 
         try {
-            logger.info("task id is " + task.getId()+"task type is"+task.getType());
+            log.info("task id is {} task type is {}",task.getId(),task.getType());
             result = departureService.dealDepartureTmpToSend(task);
         } catch (Exception e) {
-            logger.error("task id is" + task.getId()+"task type is"+task.getType());
-            logger.error("批量发车执行失败，异常信息为：" + e.getMessage(), e);
+            log.error("批量发车执行失败,task id is {} task type is {}",task.getId(),task.getType(),e);
             return Boolean.FALSE;
         }
         return result;
@@ -58,7 +56,7 @@ public class BatchSendCarTask extends DBSingleScheduler {
                 tasks.add(task);
             }
         } catch (Exception e) {
-            this.logger.error("出现异常， 异常信息为：" + e.getMessage(), e);
+            this.log.error("出现异常， 异常信息为：{}" , e.getMessage(), e);
         }
         return tasks;
     }

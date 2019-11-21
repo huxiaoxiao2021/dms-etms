@@ -16,12 +16,7 @@ import com.jd.bluedragon.distribution.popPrint.service.PopSigninService;
 import com.jd.bluedragon.distribution.popReveice.service.TaskPopRecieveCountService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.CollectionHelper;
-import com.jd.bluedragon.utils.ConstantEnums;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -29,11 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author zhaohc 
@@ -45,7 +36,7 @@ import java.util.Set;
 @Service("popInspectionService")
 public class PopInspectionServiceImpl implements PopInspectionService {
 	
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	
 	@Autowired
 	private InspectionService inspectionService;
@@ -82,14 +73,12 @@ public class PopInspectionServiceImpl implements PopInspectionService {
 			popRequests = JsonHelper.jsonToArray(task.getBody(),
 					InspectionPOPRequest[].class);
 			if (popRequests == null) {
-				this.logger.info("PopInspectionServiceImpl 任务task ID: " + task.getId()
-						+ ", 主体数据为空");
+				this.log.warn("PopInspectionServiceImpl 任务task ID: {}, 主体数据为空",task.getId());
 				return false;
 			}
 			// 处理数据
 			if (!BusinessHelper.checkIntNumRange(popRequests.length)) {
-                this.logger.error("PopInspectionServiceImpl 任务task ID: 【" + task.getId()
-                        + "】，主体数组长度大于限定值");
+                this.log.warn("PopInspectionServiceImpl 任务task ID: 【{}】，主体数组长度大于限定值",task.getId());
                 return false;
             }
             handleFeatherLetter(popRequests[0]);
@@ -98,17 +87,12 @@ public class PopInspectionServiceImpl implements PopInspectionService {
                 try {
                     if (Constants.POP_QUEUE_EXPRESS.equals(popRequest
                             .getQueueType())) {
-                        this.logger.info("PopInspectionServiceImpl 托寄处理开始");
+                        this.log.debug("PopInspectionServiceImpl 托寄处理开始");
                         this.popSigninService.insert(popRequest);
                     } else {
                         if (StringUtils.isBlank(popRequest.getBoxCodeNew())) {
-                            this.logger.info("操作人Code："
-                                    + popRequest.getUserCode()
-                                    + "， 操作人SiteCode："
-                                    + popRequest.getSiteCode()
-                                    + ", 操作BusinessType"
-                                    + popRequest.getBusinessType()
-                                    + ", 参数非法");
+                            this.log.warn("操作人Code：{}， 操作人SiteCode：{}, 操作BusinessType{}, 参数非法"
+                                    ,popRequest.getUserCode(),popRequest.getSiteCode(),popRequest.getBusinessType());
                             continue;
                         }
 
@@ -137,7 +121,7 @@ public class PopInspectionServiceImpl implements PopInspectionService {
                         ip.setWaybillType(popRequest.getType());
                         if(StringHelper.isNotEmpty(popRequest.getQueueNo()) && popRequest.getQueueNo().length() > Constants.QUEUE_NO_LEGNTH){
                             ip.setQueueNo("OverLengthQueueNo");
-                            logger.error("POP收货：QueueNo字段超长，异常值为： " + popRequest.getQueueNo());
+                            log.warn("POP收货：QueueNo字段超长，异常值为： {}", popRequest.getQueueNo());
                         }else {
                             ip.setQueueNo(popRequest.getQueueNo());
                         }
@@ -159,8 +143,7 @@ public class PopInspectionServiceImpl implements PopInspectionService {
                                                 .getExpressName());
                                     }
                                 } catch (Exception e) {
-                                    this.logger.error(
-                                            "处理POP收货数据 根据排队号查询排队信息 异常：", e);
+                                    this.log.error("处理POP收货数据 根据排队号查询排队信息 异常：{}",popRequest.getQueueNo(), e);
                                 }
                             }
                         }
@@ -176,13 +159,12 @@ public class PopInspectionServiceImpl implements PopInspectionService {
                         inspectionPOPs.add(ip);
                     }
                 } catch (Exception e) {
-                    this.logger.error("处理POP收货数据异常：", e);
+                    this.log.error("处理POP收货数据异常：{}",JsonHelper.toJson(popRequest), e);
                 }
             }
 
 		} catch (Exception e) {
-			this.logger.error("PopInspectionServiceImpl 任务task ID: " + task.getId()
-					+ " 异常, 主体数据非法", e);
+			this.log.error("PopInspectionServiceImpl 任务task ID: {} 异常, 主体数据非法",task.getId(), e);
 			return false;
 		}
 		if (!inspectionPOPs.isEmpty()) {
@@ -197,23 +179,17 @@ public class PopInspectionServiceImpl implements PopInspectionService {
 						resultRecieveCount += this.taskPopRecieveCountService
 								.insert(pop);
 					} catch (Exception e) {
-						this.logger.error(
-								"PopInspectionServiceImpl 任务task ID: "
-										+ task.getId() + " 推送回传MQ数据异常：", e);
+						this.log.error("PopInspectionServiceImpl 任务task ID:{}  推送回传MQ数据异常：",task.getId(), e);
 					}
 				}
 			}
-			this.logger.info("批量增加POP收货数据条数为：" + pops.size() + ", 成功处理条数为："
-					+ resultCount);
-			this.logger.info("批量增加POP实收数据条数为：" + pops.size() + ", 成功处理条数为："
-					+ resultRecieveCount);
+			this.log.debug("批量增加POP收货数据条数为：{}, 成功处理条数为：{}",pops.size(), resultCount);
+			this.log.debug("批量增加POP实收数据条数为：{}, 成功处理条数为：{}", pops.size(), resultRecieveCount);
 
 		} else {
-			this.logger.info("PopInspectionServiceImpl 任务task ID 【 " + task.getId()
-					+ "】, 转换后数据 inspectionService 为空");
+			this.log.warn("PopInspectionServiceImpl 任务task ID 【{}】, 转换后数据 inspectionService 为空",task.getId());
 		}
-		this.logger
-				.info("PopInspectionServiceImpl 任务task ID: " + task.getId() + ", 处理成功");
+		this.log.debug("PopInspectionServiceImpl 任务task ID: {}, 处理成功",task.getId());
 		
 		return true;
 	}
@@ -226,23 +202,23 @@ public class PopInspectionServiceImpl implements PopInspectionService {
         String waybillCode = firstRequest.getBoxCodeNew();
         com.jd.etms.waybill.domain.Waybill  waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
         if(waybill == null){
-            logger.error("鸡毛信运单处理-查询运单信息为空waybillCode[{}]firstRequest[{}]",waybillCode,JsonHelper.toJson(firstRequest));
+            log.warn("鸡毛信运单处理-查询运单信息为空waybillCode[{}]firstRequest[{}]",waybillCode,JsonHelper.toJson(firstRequest));
             return;
         }
         if(!BusinessUtil.isFeatherLetter(waybill.getWaybillSign())){
             return;
         }
         if(Objects.equals(firstRequest.getCancelFeatherLetter(),Boolean.TRUE)){
-            logger.error("鸡毛信运单处理-已经取消鸡毛信waybillCode[{}]firstRequest[{}]",waybillCode,JsonHelper.toJson(firstRequest));
+            log.warn("鸡毛信运单处理-已经取消鸡毛信waybillCode[{}]firstRequest[{}]",waybillCode,JsonHelper.toJson(firstRequest));
             return;
         }
         if(StringUtils.isEmpty(firstRequest.getFeatherLetterDeviceNo())){
-            logger.error("鸡毛信运单处理-设备号为空可能其他运单已经绑定过设备号waybillCode[{}]firstRequest[{}]",waybillCode,JsonHelper.toJson(firstRequest));
+            log.warn("鸡毛信运单处理-设备号为空可能其他运单已经绑定过设备号waybillCode[{}]firstRequest[{}]",waybillCode,JsonHelper.toJson(firstRequest));
             return;
         }
         BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseStaffByStaffId(firstRequest.getUserCode());
         if(baseStaffSiteOrgDto == null){
-            logger.info("鸡毛信运单处理-获取员工信息为空waybillCode[{}]userCode[{}]",waybillCode,firstRequest.getUserCode());
+            log.warn("鸡毛信运单处理-获取员工信息为空waybillCode[{}]userCode[{}]",waybillCode,firstRequest.getUserCode());
             return;
         }
         ConstantEnums.IotBusiness iotBusiness = null;

@@ -32,7 +32,7 @@ import java.util.List;
  */
 @Service("siteRetakeManager")
 public class SiteRetakeManagerImpl implements SiteRetakeManager {
-    private static final Logger logger = LoggerFactory.getLogger(SiteRetakeManagerImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(SiteRetakeManagerImpl.class);
     @Autowired
     private BasicTraderInfoQueryApi basicTraderInfoQueryApi;
     @Autowired
@@ -49,15 +49,15 @@ public class SiteRetakeManagerImpl implements SiteRetakeManager {
             if (baseResult != null && baseResult.getStatusCode() == 0 && baseResult.getData() != null && baseResult.getData().size() > 0) {
                 return baseResult.getData();
             } else if (baseResult != null && baseResult.getStatusCode() == 1) {
-                logger.warn("SiteRetakeManagerImpl-queryBasicTraderInfoByKey 查询失败，key:" + key + ",返回结果：" + baseResult.getStatusMessage());
+                log.warn("SiteRetakeManagerImpl-queryBasicTraderInfoByKey 查询失败，key:{},返回结果：{}" ,key, baseResult.getStatusMessage());
                 return new ArrayList();
             } else {
-                logger.warn("SiteRetakeManagerImpl-queryBasicTraderInfoByKey 查询失败，key:" + key);
+                log.warn("SiteRetakeManagerImpl-queryBasicTraderInfoByKey 查询失败，key:{}" , key);
                 return new ArrayList();
             }
         } catch (Exception e) {
             Profiler.functionError(info);
-            logger.error("SiteRetakeManagerImpl-queryBasicTraderInfoByKey 查询失败，key:" + key, e);
+            log.error("SiteRetakeManagerImpl-queryBasicTraderInfoByKey 查询失败，key:{}" , key, e);
             return new ArrayList();
         }finally {
             Profiler.registerInfoEnd(info);
@@ -71,13 +71,13 @@ public class SiteRetakeManagerImpl implements SiteRetakeManager {
         CommonDto<Page<VendorOrder>> result = vendorOrderJsfService.selectVendorOrderList(vendorOrder, page);
 //        CommonDto<Page<VendorOrder>> result = testQueryOrder();
         if (result == null) {
-            logger.error("SiteRetakeManagerImpl.selectVendorOrderList 查询异常，vendorOrder:" + JsonHelper.toJson(vendorOrder) + ",page：" + JsonHelper.toJson(page));
+            log.warn("SiteRetakeManagerImpl.selectVendorOrderList 查询异常，vendorOrder:{},page：{}" ,JsonHelper.toJson(vendorOrder), JsonHelper.toJson(page));
             page.setTotalRow(0);
             return page;
         }
         if (result.getCode() != 1) {
-            logger.error(result.getMessage());
-            logger.error("SiteRetakeManagerImpl.selectVendorOrderList 查询失败，vendorOrder:" + JsonHelper.toJson(vendorOrder) + ",page：" + JsonHelper.toJson(page) + ",code:" + result.getCode());
+            log.warn("SiteRetakeManagerImpl.selectVendorOrderList 查询失败，vendorOrder:{},page：{},code:{},msg:{}"
+                    , JsonHelper.toJson(vendorOrder),JsonHelper.toJson(page),result.getCode(),result.getMessage());
             page.setTotalRow(0);
             return page;
         }
@@ -108,21 +108,23 @@ public class SiteRetakeManagerImpl implements SiteRetakeManager {
         InvokeResult<String> invokeResult = new InvokeResult<String>();
         CommonDto<Boolean> result = vendorOrderJsfService.updateCommonOrderStatus(vendorOrder);
         if (result == null) {
-            logger.error("SiteRetakeManagerImpl.updateCommonOrderStatus异常，vendorOrder:" + JsonHelper.toJson(vendorOrder));
+            log.warn("SiteRetakeManagerImpl.updateCommonOrderStatus异常，vendorOrder:{}" , JsonHelper.toJson(vendorOrder));
             invokeResult.customMessage(500, "服务器错误");
             return invokeResult;
         }
         if (result.getCode() != 1) {
-            logger.error(result.getMessage());
-            logger.error("SiteRetakeManagerImpl.updateCommonOrderStatus失败，vendorOrder:" + JsonHelper.toJson(vendorOrder) + ",code:" + result.getCode());
+            log.warn(result.getMessage());
+            log.warn("SiteRetakeManagerImpl.updateCommonOrderStatus失败，vendorOrder:{},code:{}" ,JsonHelper.toJson(vendorOrder), result.getCode());
             invokeResult.customMessage(501, result.getMessage());
             return invokeResult;
         }
         if (result.getData() == Boolean.FALSE) {
-            logger.error(result.getMessage());
-            logger.error("SiteRetakeManagerImpl.updateCommonOrderStatus失败1，vendorOrder:" + JsonHelper.toJson(vendorOrder) + ",code:" + result.getCode());
+            log.warn(result.getMessage());
+            log.warn("SiteRetakeManagerImpl.updateCommonOrderStatus失败1，vendorOrder:{},code:{}" ,JsonHelper.toJson(vendorOrder), result.getCode());
         }
-        logger.info("SiteRetakeManagerImpl.updateCommonOrderStatus成功，vendorOrder:" + JsonHelper.toJson(vendorOrder));
+        if(log.isDebugEnabled()){
+            log.debug("SiteRetakeManagerImpl.updateCommonOrderStatus成功，vendorOrder:{}", JsonHelper.toJson(vendorOrder));
+        }
         return invokeResult;
     }
 }

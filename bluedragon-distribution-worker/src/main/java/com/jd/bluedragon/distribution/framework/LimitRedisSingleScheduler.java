@@ -3,7 +3,8 @@ package com.jd.bluedragon.distribution.framework;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -13,8 +14,7 @@ import com.jd.tbschedule.redis.template.TaskEntry;
 
 public abstract class LimitRedisSingleScheduler extends RedisSingleScheduler {
 
-	private final static Logger log = Logger
-			.getLogger(LimitRedisSingleScheduler.class);
+	private final static org.slf4j.Logger log = LoggerFactory.getLogger(LimitRedisSingleScheduler.class);
 
 	@Autowired
 	protected TaskService taskService;
@@ -49,8 +49,7 @@ public abstract class LimitRedisSingleScheduler extends RedisSingleScheduler {
 						removeRedis(taskEntity, queueNumberMap);
 					}
 				} catch (Throwable e) {
-					log.error(desc + "执行saveDBTasks异常" + e.getMessage(),
-							e);
+					log.error(desc + "执行saveDBTasks异常:{}", JsonHelper.toJson(taskEntity),e);
 				}
 			}
 		}

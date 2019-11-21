@@ -5,8 +5,8 @@ import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.worker.AbstractScheduler;
 import com.jd.bluedragon.utils.LongHelper;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -16,7 +16,7 @@ import java.util.List;
 @Deprecated
 public class ToSendwaybillTask extends AbstractScheduler<SendDetail> {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private DeliveryService deliveryService;
@@ -32,7 +32,7 @@ public class ToSendwaybillTask extends AbstractScheduler<SendDetail> {
         try {
             this.deliveryService.updateWaybillStatus(sendDetails);
         } catch (Exception e) {
-            this.logger.error("异常信息为：" + e.getMessage(), e);
+            this.log.error("异常信息为：{}" , e.getMessage(), e);
         }
 
         return Boolean.TRUE;
@@ -57,7 +57,7 @@ public class ToSendwaybillTask extends AbstractScheduler<SendDetail> {
                 }
             }
         } catch (Exception e) {
-            this.logger.error("查询未处理的分拣退货信息出现异常， 异常信息为：" + e.getMessage(), e);
+            this.log.error("查询未处理的分拣退货信息出现异常， 异常信息为：{}" , e.getMessage(), e);
         }
         return sendDetails;
     }

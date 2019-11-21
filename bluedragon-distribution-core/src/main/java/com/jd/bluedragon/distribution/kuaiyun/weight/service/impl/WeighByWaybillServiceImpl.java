@@ -22,7 +22,6 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.weight.domain.DmsWeightFlow;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
@@ -36,8 +35,8 @@ import com.jd.preseparate.util.*;
 import com.jd.preseparate.vo.*;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -58,7 +57,7 @@ import java.util.List;
  */
 @Service
 public class WeighByWaybillServiceImpl implements WeighByWaybillService {
-    private static final Log logger = LogFactory.getLog(WeighByWaybillServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(WeighByWaybillServiceImpl.class);
 
     private final Integer VALID_EXISTS_STATUS_CODE = 10;
     private final Integer VALID_NOT_EXISTS_STATUS_CODE = 20;
@@ -161,7 +160,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
     public String convertToWaybillCode(String codeStr) throws WeighByWaybillExcpetion {
 
         String waybillCode = null;
-        logger.info("单号或包裹号正则校验"+codeStr);
+        log.debug("单号或包裹号正则校验:{}",codeStr);
 
         if (WaybillUtil.isPackageCode(codeStr))
         {
@@ -171,14 +170,14 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
             waybillCode = codeStr;
         } else
         {
-            logger.warn("所输入的编码格式有误：既不符合运单号也不符合包裹号编码规则"+codeStr);
+            log.warn("所输入的编码格式有误：既不符合运单号也不符合包裹号编码规则:{}",codeStr);
 
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.UnknownCodeException);
         }
 
         if (null == waybillCode)
         {
-            logger.warn("所输入的编码格式有误：既不符合运单号也不符合包裹号编码规则"+codeStr);
+            log.warn("所输入的编码格式有误：既不符合运单号也不符合包裹号编码规则:{}",codeStr);
 
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.UnknownCodeException);
         }
@@ -200,7 +199,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
         try {
             waybillBaseEntity = waybillQueryManager.getWaybillByWaybillCode(waybillCode);
         } catch (Exception e) {
-            logger.error(e);
+            log.error("waybillQueryManager.getWaybillByWaybillCode 异常：{}",waybillCode,e);
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillServiceNotAvailableException);
         }
 
@@ -280,7 +279,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
         try {
             weighByWaybillProducer.send(dto.getWaybillCode(), JsonHelper.toJson(dto));
         } catch (Exception e) {
-            logger.error(e);
+            log.error("weighByWaybillProducer.send 异常：{}",dto.getWaybillCode(),e);
 
             /*如mq服务不可用，将转为message_task进行消息发送重试*/
             Task task = new Task();
@@ -313,7 +312,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
 
             goddessService.save(goddess);
         } catch (Exception e) {
-            logger.error("运单称重：cassandra操作日志记录失败：" + e);
+            log.error("运单称重：cassandra操作日志记录失败：{}" ,dto.getWaybillCode(), e);
         }
     }
 
@@ -335,7 +334,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
 
             goddessService.save(goddess);
         } catch (Exception e) {
-            logger.error("运单称重：cassandra操作日志记录失败：" + e);
+            log.error("运单称重：cassandra操作日志记录失败：{}" ,JsonHelper.toJson(dto), e);
         }
     }
 
@@ -387,11 +386,11 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
             //调用运单接口获取waybillSign
             BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, false);
             if(baseEntity == null || baseEntity.getResultCode() != 1){
-                logger.error("获取运单信息失败,运单号:" + waybillCode + ".返回值:" + JSON.toJSONString(baseEntity));
+                log.warn("获取运单信息失败,运单号:{}.返回值:{}" ,waybillCode, JSON.toJSONString(baseEntity));
                 return false;
             }
             if(baseEntity.getData() == null || baseEntity.getData().getWaybill() == null){
-                logger.error("获取运单信息为空,运单号:" + waybillCode + ".返回值:" + JSON.toJSONString(baseEntity));
+                log.warn("获取运单信息为空,运单号:{}.返回值:{}" ,waybillCode, JSON.toJSONString(baseEntity));
                 return false;
             }
 
@@ -402,15 +401,19 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
                 BatchTransferRequest batchTransferRequest = buildTransferRequest(vo,waybillCode,waybillSign);
                 BaseResponseIncidental<BatchTransferResult> baseResponse = new BaseResponseIncidental<BatchTransferResult>();
                 try {
-                    logger.info("调用预分拣批量转网接口参数：" + JSON.toJSONString(batchTransferRequest));
+                    if(log.isDebugEnabled()){
+                        log.debug("调用预分拣批量转网接口参数：{}" , JSON.toJSONString(batchTransferRequest));
+                    }
                     baseResponse= preseparateWaybillManager.batchTransfer(batchTransferRequest);
-                    logger.info("调用预分拣批量转网接口返回值:" + JSON.toJSONString(baseResponse));
+                    if(log.isDebugEnabled()){
+                        log.debug("调用预分拣批量转网接口返回值:{}" , JSON.toJSONString(baseResponse));
+                    }
                     if (baseResponse == null || !baseResponse.getCode().equals(BaseResponse.CODE_OK)) {
-                        logger.error("调用预分拣批量转网接口失败,参数:" + JSON.toJSONString(batchTransferRequest) + ",返回值:" + baseResponse);
+                        log.warn("调用预分拣批量转网接口失败,参数:{},返回值:{}" , JSON.toJSONString(batchTransferRequest), JsonHelper.toJson(baseResponse));
                         return false;
                     }
                 }catch(Exception e){
-                    logger.error("调用预分拣批量转网接口异常.运单号:" + waybillCode,e);
+                    log.error("调用预分拣批量转网接口异常.运单号:{}" , waybillCode,e);
                     return false;
                 }
 
@@ -446,7 +449,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
         String userErp = "";
         BaseStaffSiteOrgDto staffdto = baseMajorManager.getBaseStaffByStaffId(operatorId);
         if (staffdto == null || StringUtils.isBlank(staffdto.getErp())) {
-            logger.error("根据操作人id:" + operatorId + "获取操作人erp失败.返回值:" + JSON.toJSONString(staffdto));
+            log.warn("根据操作人id:{} 获取操作人erp失败.返回值:{}",operatorId,JSON.toJSONString(staffdto));
         } else {
             userErp = staffdto.getErp();
             if(operateSiteCode == null || operateSiteCode <= 0){
@@ -492,7 +495,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
             taskService.add(toTask(waybillStatus));
 
         } catch (Exception e) {
-            logger.error("B网转C网全称跟踪发送失败.", e);
+            log.error("B网转C网全称跟踪发送失败:{}",JsonHelper.toJson(vo), e);
         }
     }
 
@@ -565,7 +568,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
                 return true;
             }
         }
-        logger.info("不满足转网条件，不能进行转网.运单号:" + waybillCode + ",重量:" + weight);
+        log.warn("不满足转网条件，不能进行转网.运单号:{},重量:{}" ,waybillCode, weight);
         return false;
     }
 }

@@ -84,7 +84,7 @@ public class SendDetailToFinanceTask implements IScheduleTaskDealMulti<SendDetai
 		// }
 		// Map<String,Object> param = new HashMap<String, Object>();
 		// param.put("fetchNum", fetchNum);
-		// logger.info("调用 failQueueService.querySendDatail fetchNum:" +
+		// log.info("调用 failQueueService.querySendDatail fetchNum:" +
 		// fetchNum);
 		// List<SendDetail> records = failQueueService.querySendDatail(param);
 		// if (records != null) {
@@ -111,7 +111,7 @@ public class SendDetailToFinanceTask implements IScheduleTaskDealMulti<SendDetai
 		// SendDetail sendDatail = (SendDetail)obj;
 		// sendDatailList.add(sendDatail);
 		// }
-		// logger.info("调用 failQueueService.sendDatailNewData(sendDatailList) 数据量:"
+		// log.info("调用 failQueueService.sendDatailNewData(sendDatailList) 数据量:"
 		// + sendDatailList.size());
 		// failQueueService.sendDatailNewData(sendDatailList);
 		return false;
