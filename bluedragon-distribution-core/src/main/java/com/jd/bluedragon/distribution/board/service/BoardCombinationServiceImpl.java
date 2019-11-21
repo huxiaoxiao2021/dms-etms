@@ -5,10 +5,13 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.core.redis.service.impl.RedisCommonUtil;
+import com.jd.bluedragon.distribution.api.dto.BoardDto;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
@@ -27,8 +30,10 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
+import com.alibaba.fastjson.JSON;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.transboard.api.dto.*;
 import com.jd.transboard.api.service.BoardMeasureService;
@@ -40,6 +45,7 @@ import com.jd.ump.profiler.proxy.Profiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -88,6 +94,10 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
+
+    @Autowired
+    @Qualifier("groupBoardManager")
+    private GroupBoardManager groupBoardManager;
 
     private static final Integer STATUS_BOARD_CLOSED = 2;
 
@@ -624,6 +634,86 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.BoardCombinationServiceImpl.getBoardCodeByBoxCode", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Response<Board> getBoardByBoxCode(Integer siteCode, String boxCode) {
         return groupBoardService.getBoardByBoxCode(boxCode, siteCode);
+    }
+
+    /**
+     *创建新的板号
+     *
+     * @return
+     */
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.BoardCombinationServiceImpl.createBoard", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<List<BoardDto>> createBoard(AddBoardRequest request){
+
+        InvokeResult<List<BoardDto>> result = new InvokeResult<>();
+        result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+        result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+        List<BoardDto> boardDtoList = new ArrayList<>();
+        Response<List<Board>> tcResponse = groupBoardManager.createBoards(request);
+        if(tcResponse == null){
+            log.error("建板失败,板号的目的地编号destinationId:{},建板数量boardCount:{},操作人operatorErp:{}",request.getDestinationId(),
+                    request.getBoardCount(),request.getOperatorErp());
+            result.parameterError("服务器异常");
+            return result;
+        }
+        if(tcResponse.getCode() == 200 && tcResponse.getData() != null){
+            result.setMessage(tcResponse.getMesseage());
+            for(int j=0;j<tcResponse.getData().size();j++){
+                boardDtoList.add(boardToBoardDto(tcResponse.getData().get(j)));
+            }
+            log.info("建板成功,板号的目的地编号destinationId:{},建板数量boardCount:{},操作人operatorErp:{}",request.getDestinationId(),
+                    request.getBoardCount(),request.getOperatorErp());
+            result.setData(boardDtoList);
+            return result;
+        }
+        log.error("建板失败,板号的目的地编号destinationId:{},建板数量boardCount:{},操作人operatorErp:{}",request.getDestinationId(),
+                request.getBoardCount(),request.getOperatorErp());
+        result.setCode(InvokeResult.SERVER_ERROR_CODE);
+        result.parameterError("服务器异常");
+        return result;
+    }
+
+    public BoardDto boardToBoardDto(Board board){
+        BoardDto boardDto = new BoardDto();
+        boardDto.setDate(DateHelper.formatDate(board.getCreateTime(),"yyyy-MM-dd"));
+        boardDto.setTime(DateHelper.formatDate(board.getCreateTime(),"HH:mm:ss"));
+        boardDto.setCode(board.getCode());
+        boardDto.setDestination(board.getDestination());
+        boardDto.setDestinationId(board.getDestinationId());
+        boardDto.setStatus(board.getStatus());
+        return boardDto;
+    }
+
+    /**
+     *根据板号获取板信息
+     *
+     * @return
+     */
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.BoardCombinationServiceImpl.getBoard", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<BoardDto> getBoard(String boardCode){
+
+        InvokeResult<BoardDto> invokeResult = new InvokeResult<>();
+        invokeResult.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+        invokeResult.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+        Response<Board> tcResponse = groupBoardManager.getBoard(boardCode);
+
+        if(tcResponse == null){
+            log.error("获取板信息失败，boardCode:{}",boardCode);
+            invokeResult.setCode(InvokeResult.SERVER_ERROR_CODE);
+            invokeResult.parameterError("服务器异常");
+            return invokeResult;
+        }
+        if(tcResponse.getCode() == 200 &&tcResponse.getData() != null){
+            log.info("获取板信息成功，boardCode:{}",boardCode);
+            invokeResult.setMessage(tcResponse.getMesseage());
+            invokeResult.setData(boardToBoardDto(tcResponse.getData()));
+            return invokeResult;
+        }
+        log.error("获取板信息失败，boardCode:{}",boardCode);
+        invokeResult.setCode(InvokeResult.SERVER_ERROR_CODE);
+        invokeResult.setMessage(tcResponse.getMesseage());
+        return invokeResult;
     }
 
     /**
