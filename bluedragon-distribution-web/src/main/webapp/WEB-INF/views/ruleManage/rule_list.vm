@@ -124,7 +124,7 @@ function edit(ruleid){
     </div>
     <!--[if !ie]>tbl-list<![endif]-->
     <div class="tbl-n">
-		#pageBar("#springUrl('')/ruleManage/list?siteCode=$!rulemanagequeryDto.siteCode" $pager.totalSize $pager.pageNo $pager.totalNo)
+		#pageBar("#springUrl('')/ruleManage/list?siteCode=$!rulemanagequeryDto.siteCode&ts=$!ts" $pager.totalSize $pager.pageNo $pager.totalNo)
     </div>
   </div>
   <!--opening end-->

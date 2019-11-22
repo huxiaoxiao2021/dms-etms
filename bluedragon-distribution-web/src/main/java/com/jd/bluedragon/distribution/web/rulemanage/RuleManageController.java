@@ -129,6 +129,7 @@ public class RuleManageController {
 		model.addAttribute("ruleal",ruleal);
 		model.addAttribute("rulemanagequeryDto",rule);
 		model.addAttribute("pager", pager);
+		model.addAttribute("ts", System.currentTimeMillis());
 		
 		return "ruleManage/rule_list";
 	}
