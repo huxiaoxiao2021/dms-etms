@@ -12,6 +12,7 @@ import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.api.request.QualityControlRequest;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.jss.JssService;
+import com.jd.bluedragon.distribution.qualityControl.QcVersionFlagEnum;
 import com.jd.bluedragon.distribution.qualityControl.service.QualityControlService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.AbnormalReportingGatewayService;
@@ -201,11 +202,10 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
                 return jdCResponse;
             }
 
+            //返回 5-全部成功 4-重复提交 3-部分成功 2-信息不全
             if (pdaResult.getCode() == 5) {
-                QualityControlRequest qualityControlRequest = covert2BaseQualityControlRequest(abnormalReportingRequest);
-                //同步运单状态
-                List<String> waybillList = this.getWaybillList(abnormalReportingRequest.getBarCodes());
-                qualityControlService.toNewQualityControlWaybillTrace(qualityControlRequest, waybillList);
+                //生成异常处理的异步任务，与老质控逻辑保持一致
+                this.genQcTask(abnormalReportingRequest, abnormalReportingRequest.getBarCodes(), QcVersionFlagEnum.NEW_QUALITY_CONTROL_SYSTEM.getType());
             } else if (pdaResult.getCode() == 4) {
                 jdCResponse.setMessage("上传信息已提交质控系统！");
                 //已报备，不发MQ
@@ -218,61 +218,29 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
                 for (String failBarCode : failBarCodeList) {
                     barCodeSet.remove(failBarCode);
                 }
-                List<String> waybillList = this.getWaybillList(new ArrayList<>(barCodeSet));
-                QualityControlRequest qualityControlRequest = covert2BaseQualityControlRequest(abnormalReportingRequest);
-                //同步运单状态
-                qualityControlService.toNewQualityControlWaybillTrace(qualityControlRequest, waybillList);
+                this.genQcTask(abnormalReportingRequest, new ArrayList<>(barCodeSet), QcVersionFlagEnum.NEW_QUALITY_CONTROL_SYSTEM.getType());
                 jdCResponse.setCode(JdCResponse.CODE_ERROR);
-                jdCResponse.setMessage("部分信息提交质控系统成功！");
-                jdCResponse.setData(failBarCodes);
-                return jdCResponse;
+                jdCResponse.setMessage("部分信息提交质控系统成功！未成功条码：" + failBarCodes);
             } else if (pdaResult.getCode() == 2) {
                 jdCResponse.setCode(JdCResponse.CODE_ERROR);
                 jdCResponse.setMessage("上报信息不全，请检查必填信息！");
+            } else if (pdaResult.getCode() == 1) {
+                jdCResponse.setCode(JdCResponse.CODE_ERROR);
+                jdCResponse.setMessage("信息不全，上报人员未配置，请联系IT运营人员核实质控系统权限！");
+            } else if (pdaResult.getCode() == 0) {
+                jdCResponse.setCode(JdCResponse.CODE_ERROR);
+                jdCResponse.setMessage("质控系统接口异常，请稍后再试！");
+                logger.error("质控系统接口异常：" + pdaResult.getMsg());
             } else {
                 jdCResponse.setCode(JdCResponse.CODE_ERROR);
                 jdCResponse.setMessage("信息提交失败，请联系IT运营人员核实质控系统权限！");
             }
         } else {
             //组装信息走老的异常提交流程
-            this.convertThenAddTask(abnormalReportingRequest);
+            this.genQcTask(abnormalReportingRequest, abnormalReportingRequest.getBarCodes(), QcVersionFlagEnum.OLD_QUALITY_CONTROL_SYSTEM.getType());
         }
 
         return jdCResponse;
-    }
-
-    /*
-    * 获取不重复的运单集合
-    * */
-    private List<String> getWaybillList(List<String> barCodeList) {
-        Set<String> waybillSet = new HashSet<>();
-        for (String barCode : barCodeList) {
-            String waybillCode = WaybillUtil.getWaybillCode(barCode);
-            waybillSet.add(waybillCode);
-        }
-        return new ArrayList<>(waybillSet);
-    }
-
-    private WpAbnormalRecordPda convert2WpAbnormalRecordPda(AbnormalReportingRequest abnormalReportingRequest) {
-        WpAbnormalRecordPda wpAbnormalRecordPda = new WpAbnormalRecordPda();
-        DmsAbnormalReasonDto dmsAbnormalReasonDto = abnormalReportingRequest.getDmsAbnormalReasonDto();
-        wpAbnormalRecordPda.setOrders(StringUtils.join(abnormalReportingRequest.getBarCodes().toArray(), ','));
-        wpAbnormalRecordPda.setAbnormalSecondId(dmsAbnormalReasonDto.getParentId());
-        wpAbnormalRecordPda.setAbnormalSecondName(dmsAbnormalReasonDto.getParentName());
-        wpAbnormalRecordPda.setAbnormalThirdId(dmsAbnormalReasonDto.getReasonId());
-        wpAbnormalRecordPda.setAbnormalThirdName(dmsAbnormalReasonDto.getReasonName());
-        wpAbnormalRecordPda.setDealDept(abnormalReportingRequest.getDealDeptCode().toString());
-        wpAbnormalRecordPda.setDealDeptName(abnormalReportingRequest.getDealDeptName());
-        wpAbnormalRecordPda.setOutCallStatus(dmsAbnormalReasonDto.getIsOutCallType().toString());
-        wpAbnormalRecordPda.setRemark(abnormalReportingRequest.getRemark());
-        wpAbnormalRecordPda.setCreateDept(abnormalReportingRequest.getSiteCode().toString());
-        wpAbnormalRecordPda.setCreateDeptName(abnormalReportingRequest.getSiteName());
-        wpAbnormalRecordPda.setCreateTimeStr(abnormalReportingRequest.getOperateTime().toString());
-        wpAbnormalRecordPda.setCreateUser(abnormalReportingRequest.getUserErp());
-        wpAbnormalRecordPda.setProofUrls(StringUtils.join(abnormalReportingRequest.getImgUrls().toArray(), ','));
-        wpAbnormalRecordPda.setStoreType("0");
-
-        return wpAbnormalRecordPda;
     }
 
 
@@ -287,36 +255,38 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
                 continue;
             }
             Integer level = baseDataDict.getNodeLevel();
-            Integer typeCode = baseDataDict.getTypeCode();
-            String key = level + "-" + typeCode;
             DmsAbnormalReasonDto dmsAbnormalReasonDto;
-            Long parentId;
-            String parentName;
+
             if (source.equals(AbnormalReasonSourceEnum.QUALITY_CONTROL_SYSTEM)) {
+                String key = level + "-" + baseDataDict.getTypeCode();
                 AbnormalReasonDto abnormalReasonDto = abnormalReasonDtoMap.get(key);
                 if (abnormalReasonDto == null) {
-                    logger.warn("编号：【" + typeCode + "】的原因不存在于质控系统中");
+                    logger.warn("编号：【" + baseDataDict.getTypeCode() + "】的原因不存在于质控系统中");
                     continue;
                 }
                 dmsAbnormalReasonDto = convertDmsAbnormalReasonDto(abnormalReasonDto);
-                parentId = abnormalReasonDto.getFid();
             } else {
                 dmsAbnormalReasonDto = convertDmsAbnormalReasonDto(baseDataDict);
-                parentId = baseDataDict.getParentId().longValue();
+
             }
+
+            dmsAbnormalReasonDto.setReasonId(baseDataDict.getId());
+            dmsAbnormalReasonDto.setReasonCode(baseDataDict.getTypeCode().longValue());
             dmsAbnormalReasonDto.setSourceType(source.getType());
 
             if (level == 2) {
-                dmsAbnormalReasonDtoMap.put(key, dmsAbnormalReasonDto);
+                String parentKey = level + "-" + baseDataDict.getTypeCode();
+                dmsAbnormalReasonDtoMap.put(parentKey, dmsAbnormalReasonDto);
             } else if (level == 3) {
-                String parentKey = "2-" + parentId.toString();
+                String parentKey = (level - 1) + "-" + baseDataDict.getParentId();
                 DmsAbnormalReasonDto parentDmsAbnormalReasonDto = dmsAbnormalReasonDtoMap.get(parentKey);
                 if (parentDmsAbnormalReasonDto == null) {
-                    logger.warn("编号：【" + typeCode + "】的父节点【" + parentId + "】原因不存在！");
+                    logger.warn("编号：【" + dmsAbnormalReasonDto.getReasonId() + "】的父节点【" + parentKey + "】原因不存在！");
                     continue;
                 }
                 dmsAbnormalReasonDto.setParentName(parentDmsAbnormalReasonDto.getReasonName());
-                dmsAbnormalReasonDto.setParentId(parentId);
+                dmsAbnormalReasonDto.setParentCode(parentDmsAbnormalReasonDto.getReasonCode());
+                dmsAbnormalReasonDto.setParentId(parentDmsAbnormalReasonDto.getReasonId());
                 List<DmsAbnormalReasonDto> childList = parentDmsAbnormalReasonDto.getChildReasonList();
                 childList.add(dmsAbnormalReasonDto);
             }
@@ -331,7 +301,6 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
     private DmsAbnormalReasonDto convertDmsAbnormalReasonDto(AbnormalReasonDto abnormalReasonDto) {
         DmsAbnormalReasonDto dmsAbnormalReasonDto = new DmsAbnormalReasonDto();
         dmsAbnormalReasonDto.setLevel(Integer.parseInt(abnormalReasonDto.getAbnormalLevel()));
-        dmsAbnormalReasonDto.setReasonId(abnormalReasonDto.getId());
         dmsAbnormalReasonDto.setReasonName(abnormalReasonDto.getAbnormalName());
         dmsAbnormalReasonDto.setIsOutCallType(abnormalReasonDto.getOutCall() == null ? 0 : Integer.parseInt(abnormalReasonDto.getOutCall()));
         dmsAbnormalReasonDto.setIsUploadImgType(abnormalReasonDto.getUploadImg() == null ? 0 : Integer.parseInt(abnormalReasonDto.getUploadImg()));
@@ -347,7 +316,6 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
     private DmsAbnormalReasonDto convertDmsAbnormalReasonDto(BaseDataDict baseDataDict) {
         DmsAbnormalReasonDto dmsAbnormalReasonDto = new DmsAbnormalReasonDto();
         dmsAbnormalReasonDto.setLevel(baseDataDict.getNodeLevel());
-        dmsAbnormalReasonDto.setReasonId(baseDataDict.getId().longValue());
         dmsAbnormalReasonDto.setReasonName(baseDataDict.getTypeName());
         dmsAbnormalReasonDto.setRemark(baseDataDict.getMemo());
         dmsAbnormalReasonDto.setChildReasonList(new ArrayList<DmsAbnormalReasonDto>());
@@ -355,11 +323,14 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
     }
 
     /*
-    * 转换请求走老质控任务逻辑
-    * */
-    private void convertThenAddTask(AbnormalReportingRequest abnormalReportingRequest) {
+     * 生成异常处理任务
+     * */
+    private void genQcTask(AbnormalReportingRequest abnormalReportingRequest, List<String> successBarCodeList, Integer qcVersionFlag) {
+
         QualityControlRequest qualityControlRequest = covert2BaseQualityControlRequest(abnormalReportingRequest);
-        for (String barCode : abnormalReportingRequest.getBarCodes()) {
+        qualityControlRequest.setQcVersionFlag(qcVersionFlag);
+
+        for (String barCode : successBarCodeList) {
             qualityControlRequest.setQcValue(barCode);
             if (WaybillUtil.isWaybillCode(barCode)) {
                 qualityControlRequest.setQcType(PACKAGE_CODE_TYPE);
@@ -369,6 +340,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
                 logger.warn("【" + barCode + "】既不是包裹号也不是运单号！");
                 continue;
             }
+
             try {
                 this.qualityControlService.convertThenAddTask(qualityControlRequest);
             } catch (Exception e) {
@@ -386,9 +358,10 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
         qualityControlRequest.setDistCenterID(abnormalReportingRequest.getSiteCode());
         qualityControlRequest.setDistCenterName(abnormalReportingRequest.getSiteName());
         qualityControlRequest.setOperateTime(abnormalReportingRequest.getOperateTime());
-        qualityControlRequest.setQcCode(dmsAbnormalReasonDto.getReasonId().intValue());
+        qualityControlRequest.setQcCode(dmsAbnormalReasonDto.getReasonId());
         qualityControlRequest.setQcName(dmsAbnormalReasonDto.getReasonName());
-        //预留qualityControlRequest.setIsSortingReturn();
+        //对接新质控的分拣退货任务都是false
+        qualityControlRequest.setIsSortingReturn(false);
         qualityControlRequest.setTrackContent("订单扫描异常【" + dmsAbnormalReasonDto.getReasonName() +"】");
         return qualityControlRequest;
     }
@@ -410,4 +383,26 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
         return true;
     }
 
+
+    private WpAbnormalRecordPda convert2WpAbnormalRecordPda(AbnormalReportingRequest abnormalReportingRequest) {
+        WpAbnormalRecordPda wpAbnormalRecordPda = new WpAbnormalRecordPda();
+        DmsAbnormalReasonDto dmsAbnormalReasonDto = abnormalReportingRequest.getDmsAbnormalReasonDto();
+        wpAbnormalRecordPda.setOrders(StringUtils.join(abnormalReportingRequest.getBarCodes().toArray(), ','));
+        wpAbnormalRecordPda.setAbnormalSecondId(dmsAbnormalReasonDto.getParentCode());
+        wpAbnormalRecordPda.setAbnormalSecondName(dmsAbnormalReasonDto.getParentName());
+        wpAbnormalRecordPda.setAbnormalThirdId(dmsAbnormalReasonDto.getReasonCode());
+        wpAbnormalRecordPda.setAbnormalThirdName(dmsAbnormalReasonDto.getReasonName());
+        wpAbnormalRecordPda.setDealDept(abnormalReportingRequest.getDealDeptCode().toString());
+        wpAbnormalRecordPda.setDealDeptName(abnormalReportingRequest.getDealDeptName());
+        wpAbnormalRecordPda.setOutCallStatus(dmsAbnormalReasonDto.getIsOutCallType().toString());
+        wpAbnormalRecordPda.setRemark(abnormalReportingRequest.getRemark());
+        wpAbnormalRecordPda.setCreateDept(abnormalReportingRequest.getSiteCode().toString());
+        wpAbnormalRecordPda.setCreateDeptName(abnormalReportingRequest.getSiteName());
+        wpAbnormalRecordPda.setCreateTimeStr(abnormalReportingRequest.getOperateTime().toString());
+        wpAbnormalRecordPda.setCreateUser(abnormalReportingRequest.getUserErp());
+        wpAbnormalRecordPda.setProofUrls(StringUtils.join(abnormalReportingRequest.getImgUrls().toArray(), ','));
+        wpAbnormalRecordPda.setStoreType("0");
+
+        return wpAbnormalRecordPda;
+    }
 }

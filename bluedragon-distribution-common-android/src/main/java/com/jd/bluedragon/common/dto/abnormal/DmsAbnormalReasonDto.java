@@ -8,9 +8,14 @@ public class DmsAbnormalReasonDto implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /*
-    * 异常原因id
-    * */
-    private Long reasonId;
+     * 异常原因id，对应基础资料的id
+     * */
+    private Integer reasonId;
+
+    /*
+     * 异常原因，对应基础资料的typeCode
+     * */
+    private Long reasonCode;
 
     /*
      * 异常原因名称
@@ -18,9 +23,15 @@ public class DmsAbnormalReasonDto implements Serializable {
     private String reasonName;
 
     /*
-     * 父原因id
+     * 父原因id，对应基础资料的id
      * */
-    private Long parentId;
+    private Integer parentId;
+
+    /*
+     * 父原因Code，对应基础资料的typeCode
+     * */
+    private Long parentCode;
+
 
     /*
      * 父原因id
@@ -61,19 +72,19 @@ public class DmsAbnormalReasonDto implements Serializable {
      * */
     private List<DmsAbnormalReasonDto> childReasonList;
 
-    public Long getReasonId() {
+    public Integer getReasonId() {
         return reasonId;
     }
 
-    public void setReasonId(Long reasonId) {
+    public void setReasonId(Integer reasonId) {
         this.reasonId = reasonId;
     }
 
-    public Long getParentId() {
+    public Integer getParentId() {
         return parentId;
     }
 
-    public void setParentId(Long parentId) {
+    public void setParentId(Integer parentId) {
         this.parentId = parentId;
     }
 
@@ -147,5 +158,22 @@ public class DmsAbnormalReasonDto implements Serializable {
 
     public void setChildReasonList(List<DmsAbnormalReasonDto> childReasonList) {
         this.childReasonList = childReasonList;
+    }
+
+
+    public Long getReasonCode() {
+        return reasonCode;
+    }
+
+    public void setReasonCode(Long reasonCode) {
+        this.reasonCode = reasonCode;
+    }
+
+    public Long getParentCode() {
+        return parentCode;
+    }
+
+    public void setParentCode(Long parentCode) {
+        this.parentCode = parentCode;
     }
 }

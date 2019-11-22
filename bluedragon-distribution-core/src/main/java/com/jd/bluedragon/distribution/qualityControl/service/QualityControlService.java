@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillSer
 import com.jd.bluedragon.distribution.api.request.QualityControlRequest;
 import com.jd.bluedragon.distribution.api.request.ReturnsRequest;
 import com.jd.bluedragon.distribution.message.OwnReverseTransferDomain;
+import com.jd.bluedragon.distribution.qualityControl.QcVersionFlagEnum;
 import com.jd.bluedragon.distribution.qualityControl.domain.QualityControl;
 import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
@@ -57,12 +58,6 @@ public class QualityControlService {
     @Autowired
     @Qualifier("bdExceptionToQcMQ")
     private DefaultJMQProducer bdExceptionToQcMQ;
-
-    @Autowired
-	private WaybillTraceApi waybillTraceApi;
-
-    @Autowired
-    private WaybillSyncApi waybillSyncApi;
 
     @Autowired
     private BaseMajorManager baseMajorManager;
@@ -127,7 +122,12 @@ public class QualityControlService {
         }
 
         try {
-            toQualityControlAndWaybillTrace(sendDetails, request, boxCode);  // 推质控和全程跟踪
+            //如果是对接新质控系统，走新逻辑
+            if (request.getQcVersionFlag() != null && request.getQcVersionFlag() == QcVersionFlagEnum.NEW_QUALITY_CONTROL_SYSTEM.getType()) {
+                toNewQualityControlWaybillTrace(sendDetails, request);
+            } else {
+                toQualityControlAndWaybillTrace(sendDetails, request, boxCode);  // 推质控和全程跟踪
+            }
             abnormalWayBillService.insertBatchAbnormalWayBill(convert2AbnormalWayBills(sendDetails, request));
         } catch (Exception ex) {
             logger.error("分拣中心异常节点推全程跟踪、质控发生异常。" + ex);
@@ -146,24 +146,19 @@ public class QualityControlService {
 
         //过滤数据，按运单维度处理
         //已经处理过的运单
-        List<String> doWaybillCodes = new ArrayList<String>();
+        Set<String> set = new HashSet<>();
 
         for(SendDetail sendDetail : sendDetails){
-
             //过滤数据，按运单维度处理
-            if(doWaybillCodes.contains(sendDetail.getWaybillCode())){
+            if(set.contains(sendDetail.getWaybillCode())){
                 continue;
             }
-            doWaybillCodes.add(sendDetail.getWaybillCode());
+            set.add(sendDetail.getWaybillCode());
 
-
-            //BdTraceDto bdTraceDto = convert2WaybillTrace(sendDetail, request);
             QualityControl qualityControl = convert2QualityControl(sendDetail.getWaybillCode(), request, boxCode);
             logger.info("分拣中心异常页面发质控和全程跟踪开始，消息体：" + JsonHelper.toJson(qualityControl));
-            //waybillTraceApi.sendBdTrace(bdTraceDto);
             // 更新运单状态
             updateWaybillStatus(sendDetail.getWaybillCode(), request, operateSite, sendDetail.getBoxCode());
-            //messageClient.sendMessage(MessageDestinationConstant.QualityControlMQ.getName(), JsonHelper.toJson(qualityControl),request.getQcValue());   // 推质控
             bdExceptionToQcMQ.sendOnFailPersistent(request.getQcValue(), JsonHelper.toJson(qualityControl));
 
             //异常处理 节点发MQ 换新单   2016年8月16日18:18:40   by guoyongzhi  逆向整合之：3.2.6	拦截订单，触发新单
@@ -179,11 +174,19 @@ public class QualityControlService {
      * 对接新质控系统，只变更运单状态和触发换新单
      *
      * */
-    public void toNewQualityControlWaybillTrace(QualityControlRequest request, List<String> waybillCodeList){
+    public void toNewQualityControlWaybillTrace(List<SendDetail> sendDetails, QualityControlRequest request){
         //获取 同步运单状态接口需要的额外参数
         BaseStaffSiteOrgDto operateSite =  baseMajorManager.getBaseSiteBySiteId(request.getDistCenterID());
 
-        for(String waybillCode : waybillCodeList){
+        Set<String> set = new HashSet<>();
+        for (SendDetail sendDetail : sendDetails) {
+            String waybillCode = sendDetail.getWaybillCode();
+            //过滤数据，按运单维度处理
+            if (set.contains(waybillCode)) {
+                continue;
+            }
+            set.add(sendDetail.getWaybillCode());
+
             QualityControl qualityControl = convert2QualityControl(waybillCode, request, null);
             logger.info("分拣中心新异常提交结果同步运单状态开始，消息体：" + JsonHelper.toJson(qualityControl));
             // 更新运单状态
@@ -209,21 +212,6 @@ public class QualityControlService {
         ownReverseTransferDomain.setUserRealName(request.getUserName());
         ownReverseTransferDomain.setSiteName(request.getDistCenterName());
         return ownReverseTransferDomain;
-    }
-
-    public BdTraceDto convert2WaybillTrace(SendDetail sendDetail, QualityControlRequest request){
-        BdTraceDto bdTraceDto = new BdTraceDto();
-        bdTraceDto.setOperateType(WaybillStatus.WAYBILL_TRACK_QC);
-        bdTraceDto.setOperatorSiteId(request.getDistCenterID());
-        bdTraceDto.setOperatorSiteName(request.getDistCenterName());
-        bdTraceDto.setOperatorTime(request.getOperateTime());
-        bdTraceDto.setOperatorUserId(request.getUserID());
-        bdTraceDto.setOperatorUserName(request.getUserName());
-        bdTraceDto.setPackageBarCode(sendDetail.getPackageBarcode());
-        bdTraceDto.setWaybillCode(sendDetail.getWaybillCode());
-//        bdTraceDto.setOperatorDesp("包裹记录【" + request.getQcName() + "】异常");
-        bdTraceDto.setOperatorDesp(request.getTrackContent());
-        return bdTraceDto;
     }
 
     /**
