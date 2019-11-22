@@ -393,7 +393,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             }*/
 
             //复核重泡比
-            Integer volumeRate = quoteCustomerApiServiceManager.queryVolumeRateByCustomerId(123);
+            Integer volumeRate = quoteCustomerApiServiceManager.queryVolumeRateByCustomerId(weightVolumeCollectDto.getBusiCode());
             if(volumeRate == null){
                 volumeRate = 8000;
             }
@@ -408,7 +408,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             }else{
                 Double billVolumeWeight = keeTwoDecimals(billingVolume/volumeRate);
                 // maxBillingWeight为计费重量与计费体积重量中较大的。
-                Double maxBillingWeight = billingWeight > billingVolume ? billingWeight : billVolumeWeight;
+                Double maxBillingWeight = billingWeight > billVolumeWeight ? billingWeight : billVolumeWeight;
                 // diffOfWeight为抽检中的较大质量与计费中的较大质量之间的差异
                 double diffOfWeight = Math.abs(keeTwoDecimals(maxReviewWeight - maxBillingWeight));
                 if((maxReviewWeight <= 5 && diffOfWeight> 0.3) || (maxReviewWeight > 5 && maxReviewWeight <= 20 && diffOfWeight> 0.5)
@@ -514,6 +514,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 true, false, false, false);
         if(baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null){
             weightVolumeCollectDto.setBusiName(baseEntity.getData().getWaybill().getBusiName());
+            weightVolumeCollectDto.setBusiCode(baseEntity.getData().getWaybill().getBusiId());
             if(BusinessUtil.isSignChar(baseEntity.getData().getWaybill().getWaybillSign(),56,'1')){
                 //信任商家
                 weightVolumeCollectDto.setIsTrustBusi(1);
