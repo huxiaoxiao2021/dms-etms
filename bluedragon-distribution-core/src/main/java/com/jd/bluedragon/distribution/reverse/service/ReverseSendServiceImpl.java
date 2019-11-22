@@ -836,9 +836,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
         send.setSickWaybill(isSickWaybill);
 
-        //一盘货变更订单号获取来源
-        if(BusinessUtil.isYiPanHuoOrder(send.getWaybillSign())){
-            send.setOrderId(send.getSpareColumn3());
+        //一盘货变更订单号获取来源 从新单获取
+        if(sendTwaybill!=null && BusinessUtil.isYiPanHuoOrder(sendTwaybill.getWaybillSign())){
+            send.setOrderId(sendTwaybill.getSpareColumn3());
         }
 
 
