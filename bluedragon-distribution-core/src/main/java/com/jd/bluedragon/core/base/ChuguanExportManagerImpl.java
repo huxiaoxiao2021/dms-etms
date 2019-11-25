@@ -35,7 +35,7 @@ import java.util.Map;
 @Service("chuguanExportManager")
 public class ChuguanExportManagerImpl implements ChuguanExportManager{
 
-    private final static Logger log = LoggerFactory.getLogger(StockExportManagerImpl.class);
+    private final static Logger log = LoggerFactory.getLogger(ChuguanExportManagerImpl.class);
 
     @Autowired
     private ChuguanExport chuguanExport;
