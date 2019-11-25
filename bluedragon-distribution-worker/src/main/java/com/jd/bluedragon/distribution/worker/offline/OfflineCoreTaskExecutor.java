@@ -19,8 +19,8 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.vos.dto.CommonDto;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,7 +42,7 @@ import java.util.List;
 @Service("offlineCoreTaskExecutor")
 public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private OfflineLogService offlineLogService;
@@ -101,7 +101,7 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
                 result = offlineCore(body);
             }
 		} catch (Exception e) {
-			this.logger.error("OfflineCoreTask execute--> 转换body异常body【" + body + "】：", e);
+			this.log.error("OfflineCoreTask execute--> 转换body异常body【{}】：",body, e);
 		}
 		return result;
 	}
@@ -193,7 +193,7 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
                     continue;
                 }
             } catch (Exception e) {
-                this.logger.error("OfflineCoreTask--> 服务处理异常：【" + body + "】：", e);
+                this.log.error("OfflineCoreTask--> 服务处理异常：【{}】",body, e);
                 resultCode = 0;
             }
 
@@ -206,12 +206,12 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
                     offlineLog.setStatus(Constants.RESULT_FAIL);
                 }
                 if (offlineLog.getBoxCode() != null && offlineLog.getBoxCode().length() > Constants.BOX_CODE_DB_COLUMN_LENGTH_LIMIT) {
-                    this.logger.warn("箱号超长，OfflineCoreTask插入日志失败：【" + body + "】：");
+                    this.log.warn("箱号超长，OfflineCoreTask插入日志失败：【{}】",body);
                 } else {
                     this.offlineLogService.addOfflineLog(offlineLog);
                 }
             } catch (Exception e) {
-                this.logger.error("OfflineCoreTask--> 插入日志异常：【" + body + "】：", e);
+                this.log.error("OfflineCoreTask--> 插入日志异常：【{}】",body, e);
             }
             if (resultCode == Constants.RESULT_FAIL){
                 return false;

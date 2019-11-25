@@ -10,8 +10,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -35,7 +35,7 @@ import com.jd.common.util.StringUtils;
 @Consumes({ MediaType.APPLICATION_JSON })
 @Produces({ MediaType.APPLICATION_JSON })
 public class PopSigninResource {
-	private static Log log = LogFactory.getLog(PopSigninResource.class);
+	private static Logger log = LoggerFactory.getLogger(PopSigninResource.class);
 	@Autowired
 	private PopSigninService popSigninService;
 

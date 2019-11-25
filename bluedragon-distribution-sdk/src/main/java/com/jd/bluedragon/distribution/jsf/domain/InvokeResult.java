@@ -63,7 +63,6 @@ public class InvokeResult<T> implements Serializable {
     public void error(Throwable ex){
         this.code=500;
         this.message= SERVER_ERROR_MESSAGE;
-        //logger.error(ex);
     }
 
     /**

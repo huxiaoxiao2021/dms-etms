@@ -237,5 +237,10 @@
     <jmq:consumer id="jmq.deliverGoodsNoticeConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.cb.deliverGoodsNotice.info}" listener="deliverGoodsNoticeConsumer"/>
     </jmq:consumer>
+
+    <!--抽检回传信息-->
+    <jmq:consumer id="jmq.spotCheckConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.dms.spot.check}" listener="spotCheckConsumer"/>
+    </jmq:consumer>
 </beans>
 

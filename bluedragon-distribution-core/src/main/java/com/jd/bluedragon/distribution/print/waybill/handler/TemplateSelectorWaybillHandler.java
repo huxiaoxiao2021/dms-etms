@@ -37,6 +37,8 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
     private static final String TEMPlATE_NAME_C_BUSINESS = "dms-unite-business-m";
     /** 一号店面单 10*10 **/
     private static final String TEMPlATE_NAME_C1010_BUSINESS = "dms-unite1010-business-m";
+    /** C2C京准达面单 **/
+    private static final String TEMPlATE_NAME_C_2_C = "dms-c2c-m";
     /** 招商银行面单**/
     private static final String TEMPlATE_NAME_C_CMBC = "dms-nopaperyhd-m";
 
@@ -102,7 +104,10 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
                     } else if (Constants.BUSINESS_ALIAS_CMBC.equals(context.getBasePrintWaybill().getDmsBusiAlias())) {
                         //招商银行使用老模板
                         templateName = TEMPlATE_NAME_C_CMBC;
-                    } else {
+                    } else if(BusinessUtil.isC2CJZD(waybillSign)){
+                        templateName = TEMPlATE_NAME_C_2_C;
+                    }
+                    else {
                         //C网统一模板
                         templateName = TEMPlATE_NAME_C_MAIN;
                         //10*10模板

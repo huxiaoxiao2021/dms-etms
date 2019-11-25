@@ -7,14 +7,14 @@ import com.jd.bluedragon.sdk.modules.quarantine.dto.BaseResult;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service("coldChainQuarantineManager")
 public class ColdChainQuarantineManagerImpl implements  ColdChainQuarantineManager{
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private ColdChainQuarantineJsfService coldChainQuarantineJsfService;
@@ -26,7 +26,6 @@ public class ColdChainQuarantineManagerImpl implements  ColdChainQuarantineManag
      * @return
      */
     public Boolean isWaybillNeedAddQuarantine(String waybillCode, Integer siteCode) {
-        logger.info("查询是否需要录入检疫证票号...");
         CallerInfo info = Profiler.registerInfo("ColdChainQuarantineManagerImpl.isWaybillNeedAddQuarantine", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             if (StringUtils.isBlank(waybillCode) || siteCode == null) {
@@ -34,11 +33,13 @@ public class ColdChainQuarantineManagerImpl implements  ColdChainQuarantineManag
             }
             //调jsf
             BaseResult<Boolean> result = coldChainQuarantineJsfService.isWaybillNeedAddQuarantine(waybillCode, siteCode);
-            logger.info("查询是否需要录入检疫证票号.waybillCode:" + waybillCode + ",siteCode:" + siteCode + ".结果为:" + JSON.toJSONString(result));
+            if(log.isDebugEnabled()){
+                log.debug("查询是否需要录入检疫证票号.waybillCode:{},siteCode:{}.结果为:{}" ,waybillCode,siteCode, JSON.toJSONString(result));
+            }
             return result.getData();
         } catch (Exception e) {
             Profiler.functionError(info);
-            logger.error("查询是否需要录入检疫证票号异常，waybillCode：" + waybillCode + ",siteCode:" + siteCode, e);
+            log.error("查询是否需要录入检疫证票号异常，waybillCode：{},siteCode:{}" ,waybillCode, siteCode, e);
         }finally {
             Profiler.registerInfoEnd(info);
         }

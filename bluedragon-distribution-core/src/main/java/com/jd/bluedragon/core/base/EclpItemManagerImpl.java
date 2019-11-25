@@ -15,7 +15,8 @@ import com.jd.kom.ext.service.domain.response.KomResponse;
 import com.jd.kom.ext.service.domain.response.SoNoItemResponse;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +30,7 @@ import java.util.List;
  */
 @Service("eclpItemManager")
 public class EclpItemManagerImpl implements EclpItemManager {
-    private static final Logger logger = Logger.getLogger(EclpItemManagerImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(EclpItemManagerImpl.class);
     @Autowired
     OrderExtendService orderExtendService;
 
@@ -49,11 +50,11 @@ public class EclpItemManagerImpl implements EclpItemManager {
         try {
             komResponse = orderExtendService.getItemBySoNo(soNoItemRequest);
         } catch (Exception e) {
-            logger.error("EclpItemManagerImpl-getltemBySoNo 调用失败", e);
+            log.error("EclpItemManagerImpl-getltemBySoNo 调用失败:{}",soNo, e);
             return null;
         }
         if (komResponse == null || komResponse.getResultCode() < 1 || komResponse.getData() == null) {
-            logger.warn("EclpItemManagerImpl-getltemBySoNo 查询失败，查询结果：" + JsonHelper.toJson(komResponse) + ",参数：" + JsonHelper.toJson(soNoItemRequest));
+            log.warn("EclpItemManagerImpl-getltemBySoNo 查询失败，查询结果：{},参数：{}" ,JsonHelper.toJson(komResponse), JsonHelper.toJson(soNoItemRequest));
             return null;
         }
         return komResponse.getData().getItemInfoList();
@@ -69,10 +70,10 @@ public class EclpItemManagerImpl implements EclpItemManager {
             if(apiResponse != null && apiResponse.getCode() == 1 && apiResponse.getData() != null){
                 return apiResponse.getData().getDeptNo();
             }else{
-                logger.warn("通过结算主体获取目的事业部失败!"+ouId);
+                log.warn("通过结算主体获取目的事业部失败!:{}",ouId);
             }
         }catch (Exception e){
-            logger.error("EclpItemManagerImpl-getDeptBySettlementOuId 调用失败", e);
+            log.error("EclpItemManagerImpl-getDeptBySettlementOuId 调用失败:{}",ouId, e);
         }
         return null;
     }
@@ -86,7 +87,7 @@ public class EclpItemManagerImpl implements EclpItemManager {
             OrderResponse response = inboundOrderService.createInboundOrder(inboundOrder);
             return response;
         }catch (Exception e){
-            logger.error("EclpItemManagerImpl-createInboundOrder 调用失败", e);
+            log.error("EclpItemManagerImpl-createInboundOrder 调用失败：{}",JsonHelper.toJson(inboundOrder), e);
         }
         return null;
     }

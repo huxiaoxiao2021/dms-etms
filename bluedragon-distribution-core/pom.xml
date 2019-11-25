@@ -22,7 +22,7 @@
 		<slf4j.version>1.6.4</slf4j.version>
 		<aspectj.version>1.6.11</aspectj.version>
 		<jmq.version>2.2.0</jmq.version>
-		<etms.waybill.agent.version>4.2.101</etms.waybill.agent.version>
+		<etms.waybill.agent.version>4.2.125</etms.waybill.agent.version>
 		<jddl-client.version>2.0.1-SNAPSHOT</jddl-client.version>
 		<configure-client.version>1.0.0-SNAPSHOT</configure-client.version>
 		<configure-utils.version>1.0.0-SNAPSHOT</configure-utils.version>
@@ -38,9 +38,25 @@
 
 	<dependencies>
 		<dependency>
+			<artifactId>sorting-api</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>validation-api</artifactId>
+					<groupId>javax.validation</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>hibernate-validator</artifactId>
+					<groupId>org.hibernate.validator</groupId>
+				</exclusion>
+			</exclusions>
+			<groupId>com.jd.ql.shared.services</groupId>
+			<version>1.2-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
 			<groupId>ql-dms-report</groupId>
 			<artifactId>report-sdk</artifactId>
-			<version>1.1.2-SNAPSHOT</version>
+			<version>1.1.3-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -933,7 +949,7 @@
 		<dependency>
 			<groupId>com.jd.transboard</groupId>
 			<artifactId>transboard-api</artifactId>
-			<version>1.0.2-SNAPSHOT</version>
+			<version>1.0.3-SNAPSHOT</version>
 		</dependency>
 
 		<!--路由系统-->

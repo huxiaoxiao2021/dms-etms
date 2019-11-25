@@ -165,23 +165,6 @@
 			AND create_time <![CDATA[<=]]> #{updateTime,jdbcType=TIMESTAMP}
 		</if>
 	</select>
-	<select id="findOrder" resultMap="sorting" parameterType="sorting">
-		SELECT package_code
-		FROM Sorting
-		WHERE yn=1 AND is_cancel = 0
-		<if test="boxCode != null">
-			AND box_code = #{boxCode}
-		</if>
-		<if test="createSiteCode != null">
-			AND create_site_code = #{createSiteCode}
-		</if>
-		<if test="receiveSiteCode != null">
-			AND receive_site_code = #{receiveSiteCode}
-		</if>
-		<if test="createTime != null">
-			AND create_time >= #{createTime,jdbcType=TIMESTAMP}
-		</if>
-	</select>
 	<update id="canCancelFuzzy" parameterType="sorting">
 		UPDATE Sorting 
 		SET is_cancel = 1, update_user_code = #{updateUserCode,jdbcType=INTEGER},

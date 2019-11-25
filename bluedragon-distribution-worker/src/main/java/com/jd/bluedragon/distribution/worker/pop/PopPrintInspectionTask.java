@@ -1,17 +1,10 @@
 package com.jd.bluedragon.distribution.worker.pop;
 
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.domain.Waybill;
-import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.framework.DBSingleScheduler;
-import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
-import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
-import com.jd.bluedragon.distribution.popReveice.service.TaskPopRecieveCountService;
 import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.bluedragon.utils.BusinessHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -20,18 +13,17 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @date 2018年05月21日 21时:05分
  */
 public class PopPrintInspectionTask extends DBSingleScheduler {
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
     @Autowired
     private InspectionService inspectionService;
 
     @Override
     protected boolean executeSingleTask(Task task, String ownSign) throws Exception {
         try {
-            this.logger.info("task id&type is " + task.getId()+"&"+task.getType());
+            this.log.info("task id&type is {}&{}" , task.getId(),task.getType());
             this.inspectionService.popPrintInspection(task,ownSign);
         } catch (Exception e) {
-            this.logger.error("task id is" + task.getId());
-            this.logger.error("平台打印补验货数据，异常信息为：" + e.getMessage(), e);
+            this.log.error("平台打印补验货数据异常，task id is {}" , task.getId(), e);
             return Boolean.FALSE;
         }
         return Boolean.TRUE;

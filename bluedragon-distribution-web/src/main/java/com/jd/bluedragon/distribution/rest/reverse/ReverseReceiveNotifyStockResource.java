@@ -166,7 +166,7 @@ public class ReverseReceiveNotifyStockResource {
 	}
 
     @GET
-    @Path("/reverseReceiveNotifyStock/check/{waybillCode}")
+    @Path("/reverseReceiveNotifyStock/getChuGuanInfo/{waybillCode}")
     public String getChuGuanInfo(@PathParam("waybillCode") String waybillCode)
             throws Exception {
         KuGuanDomain newKu = chuguanExportManager.queryByWaybillCode(waybillCode);

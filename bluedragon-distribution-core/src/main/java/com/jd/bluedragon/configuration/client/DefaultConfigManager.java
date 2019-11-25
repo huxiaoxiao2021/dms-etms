@@ -1,7 +1,7 @@
 package com.jd.bluedragon.configuration.client;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 配置开关类，一个JVM只能有一个实例
@@ -10,7 +10,7 @@ import org.apache.commons.logging.LogFactory;
  * 
  */
 public class DefaultConfigManager {
-	private static Log log = LogFactory.getLog(DefaultConfigManager.class);
+	private static Logger log = LoggerFactory.getLogger(DefaultConfigManager.class);
 	private static DefaultConfigManager instance = null;
 	private DataSubscriber dataSubscriber;
 
@@ -20,10 +20,14 @@ public class DefaultConfigManager {
 
 	public synchronized static DefaultConfigManager getInstance() {
 		if (instance == null) {
-			log.info("实例化配置管理类...");
+			if(log.isDebugEnabled()){
+				log.debug("实例化配置管理类...");
+			}
 			instance = new DefaultConfigManager();
 			instance.init();
-			log.info("实例化配置管理类完成...");				
+			if(log.isDebugEnabled()){
+				log.debug("实例化配置管理类完成...");
+			}
 		}
 		return instance;
 	}

@@ -167,7 +167,7 @@ public class PromiseWaybillHandler implements Handler<WaybillPrintContext,JdResu
         }catch (Exception e){
             logger.error("外单调用promise接口异常" +basePrintWaybill.getWaybillCode(),e);
         }
-        this.dealSopJZD(waybillSign, waybillData, basePrintWaybill);
+        this.dealJZD(waybillSign, waybillData, basePrintWaybill);
     }
 	/**
 	 * 处理sop京准达时效信息
@@ -175,9 +175,9 @@ public class PromiseWaybillHandler implements Handler<WaybillPrintContext,JdResu
 	 * @param waybillData
 	 * @param basePrintWaybill
 	 */
-	public void dealSopJZD(String waybillSign,Waybill waybillData,BasePrintWaybill basePrintWaybill){
+	public void dealJZD(String waybillSign,Waybill waybillData,BasePrintWaybill basePrintWaybill){
         //waybill_sign  第31位等于6时，打印【准】字,预计送达时间字段读取运单系统的预计送达时段,时效显示： 预计送达时段为开始时间+终止时间
-		if(BusinessUtil.isSopJZD(waybillSign)){
+		if(BusinessUtil.isSopJZD(waybillSign)||BusinessUtil.isC2CJZD(waybillSign)){
 			//promiseText临时变量
 			String promiseText = null;
 			String startTimeStr = null;
@@ -198,7 +198,12 @@ public class PromiseWaybillHandler implements Handler<WaybillPrintContext,JdResu
 				}
 			}
 			if(promiseText != null){
-				basePrintWaybill.setPromiseText(promiseText);
+			    if(BusinessUtil.isSopJZD(waybillSign)) {
+                    basePrintWaybill.setPromiseText(promiseText);
+                }
+			    if(BusinessUtil.isC2CJZD(waybillSign)){
+                    basePrintWaybill.setPromiseText(TextConstants.TEXT_JZD + promiseText);
+                }
 			}
 		}
 	}

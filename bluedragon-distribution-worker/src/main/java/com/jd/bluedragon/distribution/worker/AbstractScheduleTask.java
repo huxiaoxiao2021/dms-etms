@@ -1,20 +1,19 @@
 package com.jd.bluedragon.distribution.worker;
 
+import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.task.service.TaskService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.bluedragon.distribution.task.service.TaskService;
-
 public abstract class AbstractScheduleTask extends AbstractScheduler<Task>{
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     protected TaskService taskService;
@@ -24,8 +23,8 @@ public abstract class AbstractScheduleTask extends AbstractScheduler<Task>{
      */
 	public List<Task> selectTasks(String arg0, int queueNum,
 			List<String> queryCondition, int fetchNum) throws Exception {
-        if(logger.isInfoEnabled()){
-            logger.info("任务执行fetchNum is"+fetchNum);
+        if(log.isInfoEnabled()){
+            log.info("任务执行fetchNum is {}",fetchNum);
         }
         if (queryCondition.size() == 0) {
             return Collections.emptyList();
@@ -46,7 +45,7 @@ public abstract class AbstractScheduleTask extends AbstractScheduler<Task>{
                 tasks.add(task);
             }
         } catch (Exception e) {
-            this.logger.error("出现异常， 异常信息为：" + e.getMessage(), e);
+            this.log.error("出现异常， 异常信息为：{}" , e.getMessage(), e);
         }
         return tasks;
     }

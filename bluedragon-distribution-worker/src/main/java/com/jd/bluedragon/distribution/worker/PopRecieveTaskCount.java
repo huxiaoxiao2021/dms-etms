@@ -1,17 +1,16 @@
 package com.jd.bluedragon.distribution.worker;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.jd.bluedragon.distribution.popReveice.domain.TaskPopRecieveCount;
 import com.jd.bluedragon.distribution.popReveice.service.TaskPopRecieveCountService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * 
@@ -21,7 +20,7 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 * 创建时间： 2013-3-1 下午1:19:18
  */
 public class PopRecieveTaskCount extends AbstractScheduler<TaskPopRecieveCount> {
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	@Autowired
 	private TaskPopRecieveCountService taskPopRecieveCountService;
 	@Autowired
@@ -36,7 +35,7 @@ public class PopRecieveTaskCount extends AbstractScheduler<TaskPopRecieveCount> 
 				tasks.add((TaskPopRecieveCount) task);
 			}
 		}
-		this.logger.info("tasks size is " + tasks.size());
+		this.log.info("tasks size is {}" , tasks.size());
 		List<TaskPopRecieveCount> messageList = new ArrayList<TaskPopRecieveCount>();
 		for (TaskPopRecieveCount task : tasks) {
 			Task oldTask = new Task();
@@ -47,7 +46,7 @@ public class PopRecieveTaskCount extends AbstractScheduler<TaskPopRecieveCount> 
 			oldTask.setYn(task.getYn());
 			oldTask.setExecuteTime(task.getExecuteTime());
 			try {
-				this.logger.info("task id is " + task.getTaskId());
+				this.log.info("task id is {}" , task.getTaskId());
 				this.taskService.doLock(oldTask);
 				messageList.add(task);
 				oldTask.setExecuteCount(task.getExecuteCount());
@@ -59,8 +58,7 @@ public class PopRecieveTaskCount extends AbstractScheduler<TaskPopRecieveCount> 
 			} catch (Exception e) {
 				oldTask.setExecuteCount(task.getExecuteCount());
 				oldTask.setExecuteTime(task.getExecuteTime());
-				this.logger.error("task id is" + task.getTaskId());
-				this.logger.error("处理分拣任务发生异常，异常信息为：" + e.getMessage(), e);
+				this.log.error("处理分拣任务发生异常，task id is {}" , task.getTaskId(), e);
 				this.taskService.doError(oldTask);
 			}
 		}
@@ -85,8 +83,7 @@ public class PopRecieveTaskCount extends AbstractScheduler<TaskPopRecieveCount> 
 			this.taskPopRecieveCountService.sendMessage(messageList);
 			messageList.clear();
 		} catch (Exception e) {
-			logger.error("向POP发送消息失败。",e);
-			e.printStackTrace();
+			log.error("向POP发送消息失败。",e);
 		}
 	}
 
@@ -117,7 +114,7 @@ public class PopRecieveTaskCount extends AbstractScheduler<TaskPopRecieveCount> 
 				}
 			}
 		} catch (Exception e) {
-			this.logger.error("查询未处理的分拣退货信息出现异常， 异常信息为：" + e.getMessage(), e);
+			this.log.error("查询未处理的分拣退货信息出现异常， 异常信息为：{}" , e.getMessage(), e);
 		}
 		return taskLists;
 

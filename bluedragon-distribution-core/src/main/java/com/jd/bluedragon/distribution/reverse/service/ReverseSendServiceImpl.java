@@ -1385,6 +1385,8 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
                 //调用备货仓 jsf 接口 distributionReceiveJsfService
                 MessageResult msgResult = distributionReceiveJsfService.createIn(order);
+                //记录日志
+                pushOrderToSpwmsLog(sendDetail,order,msgResult);
                 if(null == msgResult ){
                     this.logger.warn("distributionReceiveJsfService接口返回 msgResult 为空");
                     continue;
@@ -1968,6 +1970,26 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             SystemLogUtil.log(sLogDetail);
         }catch (Exception e){
             logger.error("pushInboundOrderToSpwmsLogError",e);
+        }
+    }
+
+    private void pushOrderToSpwmsLog(SendDetail sendDetail,InOrderDto order,MessageResult msgResult){
+        try{
+            //增加系统日志
+            SystemLog sLogDetail = new SystemLog();
+            sLogDetail.setKeyword1(sendDetail.getWaybillCode());
+            sLogDetail.setKeyword2(sendDetail.getSendCode());
+            sLogDetail.setKeyword3("Spwms");
+            if(msgResult == null){
+                sLogDetail.setKeyword4(Long.valueOf(Constants.RESULT_ERROR));
+            }else{
+                sLogDetail.setKeyword4(Long.valueOf(msgResult.getReturnFlag()));
+            }
+            sLogDetail.setType(Long.valueOf(12004));
+            sLogDetail.setContent(JsonHelper.toJson(order));
+            SystemLogUtil.log(sLogDetail);
+        }catch (Exception e){
+            logger.error("pushOrderToSpwmsLogLogError",e);
         }
     }
 

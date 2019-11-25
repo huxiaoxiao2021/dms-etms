@@ -33,7 +33,7 @@ import java.util.List;
 
 /**
  * @ClassName: ReviewWeightSpotCheckController
- * @Description: 分拣复重抽检任务Controller
+ * @Description: 复重抽检任务导入Controller
  * @author: hujiping
  * @date: 2019/4/17 15:47
  */
@@ -82,7 +82,7 @@ public class ReviewWeightSpotCheckController extends DmsBaseController {
      * 导入
      * @return
      */
-    @Authorization(Constants.DMS_WEB_SORTING_REVIEWWEIGHTSPOTCHECK_R)
+    @Authorization(Constants.DMS_WEB_SORTING_REVIEWWEIGHTSPOTCHECK_SPECIAL_R)
     @RequestMapping(value = "/toImport", method = RequestMethod.POST)
     @ResponseBody
     public JdResponse toImport(@RequestParam("importExcelFile") MultipartFile file) {

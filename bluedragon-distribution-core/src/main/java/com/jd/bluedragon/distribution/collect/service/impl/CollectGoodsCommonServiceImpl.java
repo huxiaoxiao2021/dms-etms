@@ -118,7 +118,13 @@ public class CollectGoodsCommonServiceImpl implements CollectGoodsCommonService{
         //校验包裹是否已操作过
         if(collectGoodsDetailService.checkExist(req.getPackageCode(),null
                 ,null,req.getOperateSiteCode())){
-            result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+            CollectGoodsDetail collectGoodsDetail1 = collectGoodsDetailService.findCollectGoodsDetailByPackageCode(req.getPackageCode());
+            if(collectGoodsDetail1 != null){
+                CollectGoodsDTO collectGoodsDTO = new CollectGoodsDTO();
+                collectGoodsDTO.setCollectGoodsPlaceCode(collectGoodsDetail1.getCollectGoodsPlaceCode());
+                result.setData(collectGoodsDTO);
+            }
+            result.setCode(COLLECT_NOT_TIP_CODE);
             result.setMessage("此包裹已操作集货！");
             return result;
         }

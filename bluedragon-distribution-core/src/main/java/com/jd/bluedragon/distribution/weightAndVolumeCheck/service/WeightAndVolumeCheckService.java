@@ -28,12 +28,29 @@ public interface WeightAndVolumeCheckService {
     void uploadExcessPicture(String imageName, long imageSize, InputStream inputStream) throws Exception;
 
     /**
-     * 查看超标图片
+     * 查看
+     * @param waybillCode
+     * @param siteCode
+     * @param isWaybillSpotCheck
+     * @return
+     */
+    InvokeResult<String> searchPicture(String waybillCode,Integer siteCode,Integer isWaybillSpotCheck);
+
+    /**
+     * 查看超标图片（C网）
      * @param packageCode
      * @param siteCode
      * @return
      */
     InvokeResult<String> searchExcessPicture(String packageCode,Integer siteCode);
+
+    /**
+     * 查看超标图片（B网）
+     * @param packageCode
+     * @param siteCode
+     * @return
+     */
+    InvokeResult<List<String>> searchExcessPictureOfB2b(String packageCode, Integer siteCode);
 
     /**
      * 根据条件查询
@@ -64,4 +81,6 @@ public interface WeightAndVolumeCheckService {
      * @param result
      */
     InvokeResult<Boolean> insertAndSendMq(PackWeightVO packWeightVO,WeightVolumeCollectDto weightVolumeCollectDto, InvokeResult<Boolean> result);
+
+    void setProductType(WeightVolumeCollectDto weightVolumeCollectDto);
 }

@@ -4,20 +4,22 @@ import com.jd.bluedragon.distribution.api.request.PopQueueQuery;
 import com.jd.bluedragon.distribution.popPrint.dao.PopQueueDao;
 import com.jd.bluedragon.distribution.popPrint.domain.PopQueue;
 import com.jd.bluedragon.distribution.popPrint.service.PopQueueService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 @Service
 public class PopQueueServiceImpl implements PopQueueService {
-	private static final Log log = LogFactory.getLog(PopQueueServiceImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(PopQueueServiceImpl.class);
 	@Autowired
 	private PopQueueDao popQueueDao;
 	@Override
 	public int getCurrentWaitNo(Integer createSiteCode) {
-		log.debug("分拣中心编号"+createSiteCode+"取当前最大排队号");
+		if(log.isDebugEnabled()){
+			log.debug("分拣中心编号{}取当前最大排队号",createSiteCode);
+		}
 		return this.popQueueDao.getCurrentWaitNo(createSiteCode);
 	}
 	@Override

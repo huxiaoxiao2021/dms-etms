@@ -10,8 +10,8 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +25,7 @@ import java.util.ArrayList;
 @Service("measureHook")
 public class MeasureHook implements TaskHook<InspectionTaskExecuteContext> {
 
-    private static final Log logger= LogFactory.getLog(MeasureHook.class);
+    private static final Logger log = LoggerFactory.getLogger(MeasureHook.class);
 
     @Autowired
     private TaskService taskService;
@@ -37,7 +37,9 @@ public class MeasureHook implements TaskHook<InspectionTaskExecuteContext> {
                 if ((inspection.getLength() != null && inspection.getLength() > 0)
                         || (inspection.getWidth() != null && inspection.getWidth() > 0)
                         || (inspection.getHigh() != null && inspection.getHigh() > 0)) {
-                    logger.info("龙门架:" + JsonHelper.toJson(inspection));
+                    if(log.isDebugEnabled()){
+                        log.debug("龙门架:{}" , JsonHelper.toJson(inspection));
+                    }
                     OpeEntity opeEntity = new OpeEntity();
                     opeEntity.setOpeType(1);//分拣中心称重
                     opeEntity.setWaybillCode(inspection.getWaybillCode());

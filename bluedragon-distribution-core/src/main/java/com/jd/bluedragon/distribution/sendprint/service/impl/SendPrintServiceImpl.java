@@ -25,34 +25,16 @@ import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.send.service.SendMService;
-import com.jd.bluedragon.distribution.sendprint.domain.BasicQueryEntity;
-import com.jd.bluedragon.distribution.sendprint.domain.BasicQueryEntityResponse;
-import com.jd.bluedragon.distribution.sendprint.domain.BatchSendInfoResponse;
-import com.jd.bluedragon.distribution.sendprint.domain.BatchSendResult;
-import com.jd.bluedragon.distribution.sendprint.domain.PrintQueryCriteria;
-import com.jd.bluedragon.distribution.sendprint.domain.SendCodePrintEntity;
-import com.jd.bluedragon.distribution.sendprint.domain.SummaryPrintBoxEntity;
-import com.jd.bluedragon.distribution.sendprint.domain.SummaryPrintResult;
-import com.jd.bluedragon.distribution.sendprint.domain.SummaryPrintResultResponse;
+import com.jd.bluedragon.distribution.sendprint.domain.*;
 import com.jd.bluedragon.distribution.sendprint.service.SendPrintService;
 import com.jd.bluedragon.distribution.sendprint.utils.SendPrintConstants;
 import com.jd.bluedragon.distribution.weightAndMeasure.domain.DmsOutWeightAndVolume;
 import com.jd.bluedragon.distribution.weightAndMeasure.service.DmsOutWeightAndVolumeService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BigDecimalHelper;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
-import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.domain.DeliveryPackageD;
-import com.jd.etms.waybill.domain.PickupTask;
-import com.jd.etms.waybill.domain.Waybill;
-import com.jd.etms.waybill.domain.WaybillManageDomain;
+import com.jd.etms.waybill.domain.*;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
@@ -63,20 +45,14 @@ import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Service("sendPrintService")
 public class SendPrintServiceImpl implements SendPrintService {
@@ -108,7 +84,7 @@ public class SendPrintServiceImpl implements SendPrintService {
     @Autowired
     private BaseMinorManager baseMinorManager;
 
-    private final Logger logger = Logger.getLogger(SendPrintServiceImpl.class);
+    private final Logger log = LoggerFactory.getLogger(SendPrintServiceImpl.class);
 
     @Autowired
     private QuickProduceService quickProduceService;
@@ -160,21 +136,21 @@ public class SendPrintServiceImpl implements SendPrintService {
         try {
             SendM nSendM = tosendM(criteria);
             Date startDate = new Date();
-            logger.info("打印交接清单-批次汇总开始" + DateHelper.formatDate(startDate));
+            log.debug("打印交接清单-批次汇总开始:{}" , DateHelper.formatDate(startDate));
             //满足条件的所有箱号
             List<SendM> sendMs = this.selectUniquesSendMs(nSendM); //this.sendMDao.selectBySendSiteCode(nSendM);
             if (sendMs != null && !sendMs.isEmpty()) {
-                logger.info("打印交接清单-批次汇总数目" + sendMs.size());
+                log.debug("打印交接清单-批次汇总数目:{}" , sendMs.size());
                 results = this.summaryPrintResultToList(sendMs, criteria);
             }
             tSummaryPrintResultResponse.setCode(JdResponse.CODE_OK);
             tSummaryPrintResultResponse.setMessage(JdResponse.MESSAGE_OK);
             tSummaryPrintResultResponse.setData(results);
             Date endDate = new Date();
-            logger.info("打印交接清单-批次汇总结束-" + (startDate.getTime() - endDate.getTime()));
+            log.debug("打印交接清单-批次汇总结束-{}" , (startDate.getTime() - endDate.getTime()));
         } catch (Exception e) {
             Profiler.functionError(info);
-            logger.error("批次汇总&&批次汇总打印异常", e);
+            log.error("批次汇总&&批次汇总打印异常", e);
             tSummaryPrintResultResponse.setCode(JdResponse.CODE_NOT_FOUND);
             tSummaryPrintResultResponse.setMessage("批次汇总打印异常");
             tSummaryPrintResultResponse.setData(results);
@@ -267,14 +243,14 @@ public class SendPrintServiceImpl implements SendPrintService {
          * 用于记录waybillCodeList的个数
          */
         int cn = 0;
-        logger.info("打印交接清单-summaryPrintQuery开始" + DateHelper.formatDate(startDate));
+        log.debug("打印交接清单-summaryPrintQuery开始:{}" , DateHelper.formatDate(startDate));
         SummaryPrintResult result = new SummaryPrintResult();
         List<SummaryPrintBoxEntity> details = new ArrayList<SummaryPrintBoxEntity>();
         result.setSendCode(oriSendM.getSendCode());
         result.setReceiveSiteName(toSiteName(criteria.getReceiveSiteCode()));
         result.setSendSiteName(toSiteName(criteria.getSiteCode()));
         result.setSendTime(DateHelper.formatDateTime(oriSendM.getOperateTime()));
-        logger.info("打印交接清单-批次汇总箱子数量" + sendMList.size());
+        log.debug("打印交接清单-批次汇总箱子数量:{}" , sendMList.size());
 
         Double totalBoardVolume = Constants.DOUBLE_ZERO;  //批次下板号的总体积
         Integer totalBoxNum = 0; //批次下合计箱个数
@@ -288,7 +264,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         Set<String> dealedBoardCodes = new HashSet<String>();
         for (SendM sendM : sendMList) {
             Date startDate1 = new Date();
-            logger.info("打印交接清单-批次单独批次开始" + DateHelper.formatDate(startDate1));
+            log.debug("打印交接清单-批次单独批次开始:{}" , DateHelper.formatDate(startDate1));
             Set<String> packageBarcodeSet = new HashSet<String>();
             Set<String> waybillCodeSet = new HashSet<String>();
             SendDetail tSendDetail = new SendDetail();
@@ -297,7 +273,7 @@ public class SendPrintServiceImpl implements SendPrintService {
             tSendDetail.setReceiveSiteCode(sendM.getReceiveSiteCode());
             tSendDetail.setSendCode(sendM.getSendCode());
             tSendDetail.setIsCancel(0);
-            logger.info("打印交接清单-批次汇总箱子信息" + sendM.getBoxCode());
+            log.debug("打印交接清单-批次汇总箱子信息:{}" , sendM.getBoxCode());
             List<SendDetail> sendDetails = this.sendDatailDao.querySendDatailsBySelective(tSendDetail);
             sendDetails = selectUniquesSendDetails(sendDetails);//create by wuzuxiang 2016年11月24日 T单、原单去重
 //		    if(sendDetails!=null && !sendDetails.isEmpty()){ 使打印交接汇总清单时带出空箱，之前不打印空箱
@@ -331,8 +307,7 @@ public class SendPrintServiceImpl implements SendPrintService {
                 try {
                     box = boxService.findBoxByCode(sendM.getBoxCode());
                 } catch (Exception e) {
-                    logger.error("打印交接清单获取箱号失败", e);
-                    logger.error(JsonHelper.toJson(sendM));
+                    log.error("打印交接清单获取箱号失败：{}",JsonHelper.toJson(sendM), e);
                 }
                 if (null != box && null != box.getLength() && null != box.getWidth() && null != box.getHeight()
                         && box.getLength() > 0 && box.getWidth() > 0 && box.getHeight() > 0) {
@@ -391,7 +366,7 @@ public class SendPrintServiceImpl implements SendPrintService {
 
 //		    }
             Date endDate1 = new Date();
-            logger.info("打印交接清单-批次单独批次结束-" + (startDate1.getTime() - endDate1.getTime()));
+            log.debug("打印交接清单-批次单独批次结束-{}" , (startDate1.getTime() - endDate1.getTime()));
         }
         /**
          * 加载本批次的路区信息
@@ -420,7 +395,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         result.setTotalInVolume(totalInVolume);
 
         Date endDate = new Date();
-        logger.info("打印交接清单-summaryPrintQuery结束-" + (startDate.getTime() - endDate.getTime()));
+        log.debug("打印交接清单-summaryPrintQuery结束-{}" , (startDate.getTime() - endDate.getTime()));
         return result;
     }
 
@@ -434,7 +409,7 @@ public class SendPrintServiceImpl implements SendPrintService {
                 }
             }
         } catch (Exception e) {
-            logger.error("获取包裹量方信息接口失败，原因", e);
+            log.error("获取包裹量方信息接口失败，{}",packageCode, e);
         }
         return null;
     }
@@ -478,7 +453,7 @@ public class SendPrintServiceImpl implements SendPrintService {
                     }
                 }
             }catch (Exception e){
-                logger.error("发货清单打印查询托盘体积异常，不再打印托盘体积。板号数据：" + boardCodeList.toString(), e);
+                log.error("发货清单打印查询托盘体积异常，不再打印托盘体积。板号数据：{}" , boardCodeList.toString(), e);
             }
         }
         return boardMap;
@@ -500,7 +475,7 @@ public class SendPrintServiceImpl implements SendPrintService {
                         }
                     }
                 } catch (Exception e) {
-                    logger.error("获取包裹量方信息接口失败，原因", e);
+                    log.error("获取包裹量方信息接口失败，waybillCodes={}",waybillCode, e);
                 }
             }
         }
@@ -563,11 +538,11 @@ public class SendPrintServiceImpl implements SendPrintService {
                     }
                 } else {
                     message = "打印交接清单-取件单基础信息调用失败，运单号：" + dBasicQueryEntity.getWaybill() + "；取件单接口获取取件单信息结果：" + JsonHelper.toJson(tPickupTask);
-                    logger.warn(message);
+                    log.warn(message);
                 }
             } catch (Exception e) {
                 message = "打印交接清单-取件单基础信息调用发生异常" + dBasicQueryEntity.getWaybill();
-                logger.error(message, e);
+                log.error(message, e);
             }
         }
         return message;
@@ -721,7 +696,7 @@ public class SendPrintServiceImpl implements SendPrintService {
                     }
                 }
             }catch(Exception e){
-                logger.error("发货交接清单打印-明细打印-获取出分拣中心体积异常.",e);
+                log.error("发货交接清单打印-明细打印-获取出分拣中心体积异常.sendM={}", JsonHelper.toJson(sendM), e);
                 Profiler.functionError(info);
             }finally{
                 Profiler.registerInfoEnd(info);
@@ -773,7 +748,7 @@ public class SendPrintServiceImpl implements SendPrintService {
                         }
                         // 判断运单号是否为空
                         if (StringUtils.isEmpty(dBasicQueryEntity.getWaybill())) {
-                            logger.info("打印交接清单-如果运单号为空直接加入list返回");
+                            log.warn("打印交接清单-如果运单号为空直接加入list返回");
                             continue;
                         }
 
@@ -804,7 +779,7 @@ public class SendPrintServiceImpl implements SendPrintService {
                     }
                 } catch (Exception e) {
                     message = "同步运单基本信息异常错误原因为" + e.getMessage();
-                    logger.error(message, e);
+                    log.error(message, e);
                 }
             }
             if (tList != null && !tList.isEmpty()) {
@@ -945,7 +920,7 @@ public class SendPrintServiceImpl implements SendPrintService {
     public BasicQueryEntityResponse basicPrintQuery(PrintQueryCriteria criteria) {
         CallerInfo info = Profiler.registerInfo("DMSWEB.SendPrintServiceImpl.basicPrintQuery", Constants.UMP_APP_NAME_DMSWEB, false, true);
         Date startDate = new Date();
-        logger.info("打印交接清单-基本信息查询开始" + DateHelper.formatDate(startDate));
+        log.debug("打印交接清单-基本信息查询开始:{}" , DateHelper.formatDate(startDate));
         BasicQueryEntityResponse tBasicQueryEntityResponse = new BasicQueryEntityResponse();
         try {
             SendM qSendM = tosendM(criteria);
@@ -955,7 +930,7 @@ public class SendPrintServiceImpl implements SendPrintService {
             }
         } catch (Exception e) {
             Profiler.functionError(info);
-            logger.error("打印明细基本查询异常", e);
+            log.error("打印明细基本查询异常:{}",JsonHelper.toJson(criteria), e);
             tBasicQueryEntityResponse.setCode(JdResponse.CODE_NOT_FOUND);
             tBasicQueryEntityResponse.setMessage("打印明细基本查询异常");
             return tBasicQueryEntityResponse;
@@ -963,7 +938,7 @@ public class SendPrintServiceImpl implements SendPrintService {
             Profiler.registerInfoEnd(info);
         }
         Date endDate = new Date();
-        logger.info("打印交接清单-基本信息查询结束-" + (startDate.getTime() - endDate.getTime()));
+        log.debug("打印交接清单-基本信息查询结束-{}" , (startDate.getTime() - endDate.getTime()));
         return tBasicQueryEntityResponse;
     }
 
@@ -987,14 +962,14 @@ public class SendPrintServiceImpl implements SendPrintService {
             }
         } catch (Exception e) {
             Profiler.functionError(info);
-            logger.error("打印明细基本查询异常", e);
+            log.error("打印明细基本查询异常:{}",JsonHelper.toJson(criteria), e);
             tBasicQueryEntityResponse.setCode(JdResponse.CODE_NOT_FOUND);
             tBasicQueryEntityResponse.setMessage("打印明细基本查询异常");
             return tBasicQueryEntityResponse;
         } finally {
             Profiler.registerInfoEnd(info);
         }
-        logger.info("打印交接清单-分页-基本信息查询结束-" + (startTime - System.currentTimeMillis()));
+        log.debug("打印交接清单-分页-基本信息查询结束-{}" , (startTime - System.currentTimeMillis()));
         return tBasicQueryEntityResponse;
     }
 
@@ -1077,7 +1052,7 @@ public class SendPrintServiceImpl implements SendPrintService {
                 // 判断运单号是否为空
                 if (StringUtils.isEmpty(basicQueryEntity.getWaybill())) {
                     resultList.add(basicQueryEntity);
-                    logger.info("打印交接清单-如果运单号为空直接加入list返回");
+                    log.warn("打印交接清单-如果运单号为空直接加入list返回");
                     continue;
                 }
 
@@ -1109,7 +1084,7 @@ public class SendPrintServiceImpl implements SendPrintService {
                 resultList.add(basicQueryEntity);
             } catch (Exception e) {
                 message = "同步运单基本信息异常错误原因为" + e.getMessage();
-                logger.error(message, e);
+                log.error(message, e);
             }
         }
         tBasicQueryEntityResponse.setCode(JdResponse.CODE_OK);
@@ -1365,7 +1340,7 @@ public class SendPrintServiceImpl implements SendPrintService {
                 }
             }
         } catch (Exception e) {
-            logger.error(String.format("发货交接清单打印-明细打印-查询分拣中心[%s]操作对该箱号/包裹[%s]的体积.", tBasicQueryEntity.getBoxCode(), tBasicQueryEntity.getSiteCode()), e);
+            log.error("发货交接清单打印-明细打印-查询分拣中心[{}]操作对该箱号/包裹[{}]的体积.", tBasicQueryEntity.getBoxCode(), tBasicQueryEntity.getSiteCode(), e);
         }
         tBasicQueryEntity.setDmsOutVolumeDynamic(outVolumeDynamic);
         tBasicQueryEntity.setDmsOutVolumeStatic(outVolumeStatic);
@@ -1439,7 +1414,7 @@ public class SendPrintServiceImpl implements SendPrintService {
                 tBasicQueryEntityResponse = detailPrintQuerySop(sendMs, criteria);
             }
         } catch (Exception e) {
-            logger.error("打印明细基本查询异常");
+            log.error("打印明细基本查询异常:{}",JsonHelper.toJson(criteria));
             tBasicQueryEntityResponse.setCode(JdResponse.CODE_NOT_FOUND);
             tBasicQueryEntityResponse.setMessage("打印明细基本查询异常");
             return tBasicQueryEntityResponse;
@@ -1511,7 +1486,7 @@ public class SendPrintServiceImpl implements SendPrintService {
      * 明细打印
      */
     public BasicQueryEntityResponse detailPrintQuerySop(List<SendM> sendMs, PrintQueryCriteria criteria) {
-        logger.info("SOP打印交接清单-detailPrintQuerySop开始");
+        log.debug("SOP打印交接清单-detailPrintQuerySop开始");
         BasicQueryEntityResponse tBasicQueryEntityResponse = new BasicQueryEntityResponse();
         List<BasicQueryEntity> fzList = new ArrayList<BasicQueryEntity>();
         String rsiteName = toSiteName(criteria.getReceiveSiteCode());
@@ -1558,7 +1533,7 @@ public class SendPrintServiceImpl implements SendPrintService {
 
     @Override
     public BatchSendInfoResponse selectBoxBySendCode(List<BatchSend> batchSends) {
-        logger.info("获取发货批次下的原包及箱子信息-selectBoxBySendCode");
+        log.debug("获取发货批次下的原包及箱子信息-selectBoxBySendCode");
         BatchSendInfoResponse batchSendInfoResponse = new BatchSendInfoResponse();
         try {
             Map<String, String> boxes = new HashMap<String, String>();// 存放箱号用于计算箱子数量
@@ -1588,7 +1563,7 @@ public class SendPrintServiceImpl implements SendPrintService {
             batchSendInfoResponse.setCode(JdResponse.CODE_OK);
             batchSendInfoResponse.setMessage(JdResponse.MESSAGE_OK);
         } catch (Throwable e) {
-            logger.error("查询发货原包数量与箱子数量", e);
+            log.error("查询发货原包数量与箱子数量", e);
             batchSendInfoResponse.setCode(InvokeResult.SERVER_ERROR_CODE);
             batchSendInfoResponse.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
         }
@@ -1602,7 +1577,7 @@ public class SendPrintServiceImpl implements SendPrintService {
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public BasicQueryEntityResponse basicPrintQueryOffline(PrintQueryCriteria criteria) {
         Date startDate = new Date();
-        logger.info("打印交接清单-基本信息查询开始" + DateHelper.formatDate(startDate));
+        log.debug("打印交接清单-基本信息查询开始:{}" , DateHelper.formatDate(startDate));
         BasicQueryEntityResponse tBasicQueryEntityResponse = new BasicQueryEntityResponse();
         try {
             SendM qSendM = tosendM(criteria);
@@ -1611,13 +1586,13 @@ public class SendPrintServiceImpl implements SendPrintService {
                 tBasicQueryEntityResponse = detailPrintQueryOffline(sendMs, criteria);
             }
         } catch (Exception e) {
-            logger.error("打印明细基本查询异常");
+            log.error("打印明细基本查询异常");
             tBasicQueryEntityResponse.setCode(JdResponse.CODE_NOT_FOUND);
             tBasicQueryEntityResponse.setMessage("打印明细基本查询异常");
             return tBasicQueryEntityResponse;
         }
         Date endDate = new Date();
-        logger.info("打印交接清单-基本信息查询结束-" + (startDate.getTime() - endDate.getTime()));
+        log.debug("打印交接清单-基本信息查询结束-{}" , (startDate.getTime() - endDate.getTime()));
         return tBasicQueryEntityResponse;
     }
 
@@ -1626,7 +1601,7 @@ public class SendPrintServiceImpl implements SendPrintService {
      */
     public BasicQueryEntityResponse detailPrintQueryOffline(List<SendM> sendMs, PrintQueryCriteria criteria) {
         Date startDate = new Date();
-        logger.info("打印交接清单-detailPrintQuery开始" + DateHelper.formatDate(startDate));
+        log.debug("打印交接清单-detailPrintQuery开始:{}" , DateHelper.formatDate(startDate));
 
         BasicQueryEntityResponse tBasicQueryEntityResponse = new BasicQueryEntityResponse();
         List<BasicQueryEntity> tList = new ArrayList<BasicQueryEntity>();
@@ -1674,13 +1649,13 @@ public class SendPrintServiceImpl implements SendPrintService {
                                 QuickProduceWabill tQuickProduceWabill = quickProduceService
                                         .getQuickProduceWabill(dSendDatail.getWaybillCode());
                                 if (tQuickProduceWabill == null) {
-                                    logger.info("打印交接清单-tQuickProduceWabill为空");
+                                    log.warn("打印交接清单-tQuickProduceWabill为空");
                                     tList.add(tBasicQueryEntity);
                                     continue;
                                 }
                                 JoinDetail tJoinDetail = tQuickProduceWabill.getJoinDetail();
                                 if (tJoinDetail == null) {
-                                    logger.info("打印交接清单-tJoinDetail为空");
+                                    log.warn("打印交接清单-tJoinDetail为空");
                                     tList.add(tBasicQueryEntity);
                                     continue;
                                 }
@@ -1752,7 +1727,7 @@ public class SendPrintServiceImpl implements SendPrintService {
                     }
                 } catch (Exception e) {
                     message = "同步运单基本信息异常错误原因为" + e.getMessage();
-                    logger.error("同步运单基本信息异常错误原因为" + e.getMessage());
+                    log.error("同步运单基本信息异常错误原因为:" ,e);
                 }
             }
         }
@@ -1760,27 +1735,27 @@ public class SendPrintServiceImpl implements SendPrintService {
         tBasicQueryEntityResponse.setMessage(message);
         tBasicQueryEntityResponse.setData(tList);
         Date endDate = new Date();
-        logger.info("打印交接清单-detailPrintQuery结束-" + (startDate.getTime() - endDate.getTime()));
+        log.debug("打印交接清单-detailPrintQuery结束-{}" , (startDate.getTime() - endDate.getTime()));
         return tBasicQueryEntityResponse;
     }
 
 
     public BasicQueryEntityResponse newBasicPrintQuery(PrintQueryCriteria criteria){
         Date startDate = new Date();
-        logger.info("打印交接清单-基本信息查询开始" + DateHelper.formatDate(startDate));
+        log.debug("打印交接清单-基本信息查询开始:{}" , DateHelper.formatDate(startDate));
         BasicQueryEntityResponse tBasicQueryEntityResponse = new BasicQueryEntityResponse();
         try {
             List<BasicQueryEntity> data = new ArrayList<BasicQueryEntity>();//
             // TODO: 2018/9/18 查es接口获取值
             tBasicQueryEntityResponse.setData(data);
         } catch (Exception e) {
-            logger.error("打印明细基本查询异常", e);
+            log.error("打印明细基本查询异常:{}",JsonHelper.toJson(criteria), e);
             tBasicQueryEntityResponse.setCode(JdResponse.CODE_NOT_FOUND);
             tBasicQueryEntityResponse.setMessage("打印明细基本查询异常");
             return tBasicQueryEntityResponse;
         }
         Date endDate = new Date();
-        logger.info("打印交接清单-基本信息查询结束-" + (startDate.getTime() - endDate.getTime()));
+        log.debug("打印交接清单-基本信息查询结束-{}" , (startDate.getTime() - endDate.getTime()));
         return tBasicQueryEntityResponse;
     }
     /**
@@ -1890,7 +1865,7 @@ public class SendPrintServiceImpl implements SendPrintService {
                     try {
                         box = boxService.findBoxByCode(basicQueryEntity.getBoxCode());
                     } catch (Exception e) {
-                        logger.error("打印交接清单获取箱号失败", e);
+                        log.error("打印交接清单获取箱号失败：{}",basicQueryEntity.getBoxCode(), e);
                     }
                     if (null != box && null != box.getLength() && null != box.getWidth() && null != box.getHeight()
                             && box.getLength() > 0 && box.getWidth() > 0 && box.getHeight() > 0) {

@@ -17,8 +17,8 @@ import com.jd.fce.dos.service.contract.OrderMarkingService;
 import com.jd.fce.dos.service.domain.OrderMarkingForeignRequest;
 import com.jd.fce.dos.service.domain.OrderMarkingForeignResponse;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -35,7 +35,7 @@ import java.util.Date;
 @Deprecated
 public class PromiseComposeServiceImpl implements  ComposeService {
 
-    private static final Log log= LogFactory.getLog(PromiseComposeServiceImpl.class);
+    private static final Logger log= LoggerFactory.getLogger(PromiseComposeServiceImpl.class);
 
     
     
@@ -79,7 +79,7 @@ public class PromiseComposeServiceImpl implements  ComposeService {
         }
 
         try {
-        	log.info("获取时效信息3"+PropertiesHelper.newInstance().getValue("isRoutePredictDateEnabled"));
+        	log.info("获取时效信息3:{}",PropertiesHelper.newInstance().getValue("isRoutePredictDateEnabled"));
         	//如果是B网订单取路由时效数据,否则取promise数据
         	//40位不为0是快运0默认、1整车、2是纯配快运零担
         	//http://cf.jd.com/pages/viewpage.action?pageId=31916460
@@ -130,15 +130,19 @@ public class PromiseComposeServiceImpl implements  ComposeService {
                 orderMarkingRequest.setTownId(Constants.DEFALUT_PROVINCE_CITY_COUNTRY_TOWN_VALUE);//镇
                 orderMarkingRequest.setCurrentDate(new Date());//当前时间
 
-                log.debug("调用promise获取外单时效传入参数" +JsonHelper.toJson(orderMarkingRequest));
+                if(log.isDebugEnabled()){
+                    log.debug("调用promise获取外单时效传入参数{}" ,JsonHelper.toJson(orderMarkingRequest));
+                }
                 OrderMarkingForeignResponse orderMarkingForeignResponse = orderMarkingService.orderMarkingServiceForForeign(orderMarkingRequest);
                 if (orderMarkingForeignResponse != null && orderMarkingForeignResponse.getResultCode() >= 1) {
                     waybill.setPromiseText(orderMarkingForeignResponse.getPromiseMsg());
                     waybill.setTimeCategory(orderMarkingForeignResponse.getSendpayDesc());
                 } else {
-                    log.warn("调用promise接口获取外单时效失败：" + JsonHelper.toJson(orderMarkingForeignResponse));
+                    log.warn("调用promise接口获取外单时效失败：{}" , JsonHelper.toJson(orderMarkingForeignResponse));
                 }
-                log.debug("调用promise获取外单时效返回数据"  + JsonHelper.toJson(orderMarkingForeignResponse));
+                if(log.isDebugEnabled()){
+                    log.debug("调用promise获取外单时效返回数据{}"  , JsonHelper.toJson(orderMarkingForeignResponse));
+                }
 
                 //C2C面单预计送达时间从运单获取REQUIRE_TIME
                 if(BusinessUtil.isSignChar(waybill.getWaybillSign(),29,'8')){
@@ -153,7 +157,7 @@ public class PromiseComposeServiceImpl implements  ComposeService {
                 }
             }//外单增加promise时效代码逻辑,包裹标签业务是核心业务，如果promise接口异常，仍要保证包裹标签业务。
         }catch (Exception e){
-            log.error("外单调用promise接口异常" +waybill.getWaybillCode(),e);
+            log.error("外单调用promise接口异常{}" ,waybill.getWaybillCode(),e);
         }
     }
 }
