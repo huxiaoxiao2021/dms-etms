@@ -35,9 +35,6 @@ public interface SortingService {
     /** 通过操作站点编号、箱号，查询对应分拣信息dms报表 */
     List<Sorting> findOrderDetail(Sorting sorting);
     
-    /** 通过操作站点编号、箱号，查询对应分拣信息dms报表 */
-    List<Sorting> findOrder(Sorting sorting);
-
     /**
      * 根据箱号获取包裹信息
      * @param boxCode

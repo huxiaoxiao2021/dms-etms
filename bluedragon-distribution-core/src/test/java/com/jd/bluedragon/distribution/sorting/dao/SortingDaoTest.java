@@ -19,17 +19,6 @@ public class SortingDaoTest extends AbstractDaoIntegrationTest {
     @Autowired
     private SortingDao sortingDao;
 
-
-    @Test
-    public void testFindOrder() {
-        Sorting parameter = new Sorting();
-        parameter.setBoxCode("Mary");
-        parameter.setCreateSiteCode(620);
-        parameter.setReceiveSiteCode(748);
-        parameter.setCreateTime(new Date());
-        sortingDao.findOrder(parameter);
-    }
-
     @Test
     public void testFindPackCount() {
         HashMap parameter = new HashMap();

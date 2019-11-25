@@ -49,12 +49,12 @@ public class MiddleEndSortingDao implements ISortingDao {
             List<com.jd.ql.shared.services.sorting.api.dto.Sorting> middleEndSortingList = apiResult.getData();
             if(middleEndSortingList == null){
                 logger.error("调用中台接口findByBoxCode返回data为空.sorting:" + JSON.toJSONString(sorting) + ",返回值为:" + JSON.toJSONString(apiResult));
-                return null;
+                return Collections.EMPTY_LIST;
             }
             return middleEndSorting2DmsSortingBatch(middleEndSortingList);
         } else {
             logger.error("调用中台接口queryByContainerAndFlow失败.sorting:" + JSON.toJSONString(sorting) + ",返回值为:" + JSON.toJSONString(apiResult));
-            return null;
+            return Collections.EMPTY_LIST;
         }
     }
 
@@ -68,10 +68,10 @@ public class MiddleEndSortingDao implements ISortingDao {
     public Boolean existSortingByPackageCode(Sorting sorting) {
         ApiResult<Boolean> apiResult = sharedSortingQueryManager.existSortingByPackageCode(sorting.getCreateSiteCode(), sorting.getPackageCode());
         if (apiResult != null && ApiResult.OK_CODE == apiResult.getCode()) {
-            return apiResult.getData();
+            return Boolean.TRUE.equals(apiResult.getData());
         } else {
             logger.error("调用中台接口existSortingByPackageCode失败.sorting:" + JSON.toJSONString(sorting) + ",返回值为:" + JSON.toJSONString(apiResult));
-            return null;
+            return false;
         }
     }
 
@@ -85,11 +85,11 @@ public class MiddleEndSortingDao implements ISortingDao {
      */
     public Integer findPackCount(Integer createSiteCode, String boxCode) {
         ApiResult<Integer> apiResult = sharedSortingQueryManager.queryContainerPackNum(createSiteCode, boxCode);
-        if (apiResult != null && ApiResult.OK_CODE == apiResult.getCode()) {
+        if (apiResult != null && ApiResult.OK_CODE == apiResult.getCode() && apiResult.getData() != null) {
             return apiResult.getData();
         } else {
             logger.error("调用中台接口queryContainerPackNum失败.createSiteCode:" + createSiteCode + ",boxCode" + boxCode + ",返回值为:" + JSON.toJSONString(apiResult));
-            return null;
+            return 0;
         }
     }
 
@@ -187,12 +187,12 @@ public class MiddleEndSortingDao implements ISortingDao {
             if (apiResult != null && ApiResult.OK_CODE == apiResult.getCode()) {
                 if(apiResult.getData() == null){
                     logger.error("调用中台接口findBoxDescSite返回data为空.sorting:" + JSON.toJSONString(sorting) +",返回值为:" + JSON.toJSONString(apiResult));
-                    return null;
+                    return Collections.EMPTY_LIST;
                 }
                 return middleEndSorting2DmsSortingBatch(apiResult.getData());
             } else {
                 logger.error("调用中台接口queryBySiteCodeAndPackage失败.sorting:" + JSON.toJSONString(sorting) + ",返回值为:" + JSON.toJSONString(apiResult));
-                return null;
+                return Collections.EMPTY_LIST;
             }
         }
     }
@@ -245,7 +245,7 @@ public class MiddleEndSortingDao implements ISortingDao {
             return sortingList;
         } else {
             logger.error("调用中台接口queryByBatchCode失败.sorting:" + JSON.toJSONString(sorting) + ",返回值为:" + JSON.toJSONString(apiResult));
-            return null;
+            return Collections.EMPTY_LIST;
         }
     }
 
@@ -272,12 +272,12 @@ public class MiddleEndSortingDao implements ISortingDao {
         if (apiResult != null && ApiResult.OK_CODE == apiResult.getCode()) {
             if(apiResult.getData() == null){
                 logger.error("调用中台接口queryByContainerCodeAndFetchNum返回data为空.sorting:" +boxCode + ",createSiteCode:" + createSiteCode + ",fetchNum:" + fetchNum  +",返回值为:" + JSON.toJSONString(apiResult));
-                return null;
+                return Collections.EMPTY_LIST;
             }
             return middleEndSorting2DmsSortingBatch(apiResult.getData());
         } else {
             logger.error("调用中台接口queryByBatchCode失败.boxCode:" + boxCode + ",createSiteCode:" + createSiteCode + ",fetchNum:" + fetchNum + ",返回值为:" + JSON.toJSONString(apiResult));
-            return null;
+            return Collections.EMPTY_LIST;
         }
     }
 

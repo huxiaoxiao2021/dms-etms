@@ -67,6 +67,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1036,9 +1037,6 @@ public class SortingServiceImpl implements SortingService {
 	public List<Sorting> findOrderDetail(Sorting sorting) {
 		return this.sortingDao.findOrderDetail(sorting);
 	}
-	public List<Sorting> findOrder(Sorting sorting) {
-		return this.sortingDao.findOrder(sorting);
-	}
 
 	@Override
 	public int findBoxPack(Integer createSiteCode, String boxCode) {
@@ -1206,7 +1204,7 @@ public class SortingServiceImpl implements SortingService {
 	 */
 	public Sorting getOneSortingByPackageCode(String packageCode,Integer createSiteCode) {
         List<Sorting> sortingList = findByPackageCode(createSiteCode, packageCode);
-        if (sortingList != null) {
+        if (CollectionUtils.isNotEmpty(sortingList)) {
             return sortingList.get(0);
         }
 

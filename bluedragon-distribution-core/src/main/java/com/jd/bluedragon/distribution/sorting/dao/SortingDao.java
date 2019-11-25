@@ -50,10 +50,6 @@ public class SortingDao extends BaseDao<Sorting>  implements ISortingDao {
     public List<Sorting> findOrderDetail(Sorting sorting) {
         return this.getSqlSession().selectList(namespace + ".findOrderDetail", sorting);
     }
-    @SuppressWarnings("unchecked")
-    public List<Sorting> findOrder(Sorting sorting) {
-        return this.getSqlSession().selectList(namespace + ".findOrder", sorting);
-    }
 
     public Integer findPackCount(Integer createSiteCode, String boxCode) {
     	Map<String, Object> paramMap = new HashMap<String, Object>();
