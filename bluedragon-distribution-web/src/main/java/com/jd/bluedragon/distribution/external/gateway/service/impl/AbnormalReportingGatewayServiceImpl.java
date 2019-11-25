@@ -201,7 +201,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
                 jdCResponse.setMessage("上报质控系统失败，请稍后重试！");
                 return jdCResponse;
             }
-
+            logger.info("上报质控系统返回结果，code：" + pdaResult.getCode() + "，message：" + pdaResult.getMsg());
             //返回 5-全部成功 4-重复提交 3-部分成功 2-信息不全
             if (pdaResult.getCode() == 5) {
                 //生成异常处理的异步任务，与老质控逻辑保持一致
@@ -400,7 +400,9 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
         wpAbnormalRecordPda.setCreateDeptName(abnormalReportingRequest.getSiteName());
         wpAbnormalRecordPda.setCreateTimeStr(abnormalReportingRequest.getOperateTime().toString());
         wpAbnormalRecordPda.setCreateUser(abnormalReportingRequest.getUserErp());
-        wpAbnormalRecordPda.setProofUrls(StringUtils.join(abnormalReportingRequest.getImgUrls().toArray(), ','));
+        if (abnormalReportingRequest.getImgUrls() != null && abnormalReportingRequest.getImgUrls().size() > 0) {
+            wpAbnormalRecordPda.setProofUrls(StringUtils.join(abnormalReportingRequest.getImgUrls().toArray(), ','));
+        }
         wpAbnormalRecordPda.setStoreType("0");
 
         return wpAbnormalRecordPda;
