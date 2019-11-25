@@ -111,7 +111,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -2374,5 +2373,55 @@ public class WaybillResource {
         result.setMessage("取消鸡毛信失败【"+ldopInvokeResult.getMessage()+"】");
         return result;
     }
+
+	@POST
+	@Path("/waybill/isOverLength")
+	public JdResponse isOverLength(PackWeightVO packWeightVO){
+		JdResponse result = new JdResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
+		try {
+			String waybillCode = packWeightVO.getCodeStr();
+			Double length = packWeightVO.getLength();
+			Double height = packWeightVO.getHigh();
+			Double width = packWeightVO.getWidth();
+			if(!WaybillUtil.isWaybillCode(packWeightVO.getCodeStr())
+					|| length == null || width == null || height == null){
+				result.setCode(JdResponse.CODE_PARAM_ERROR);
+				result.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
+				return result;
+			}
+			if(length <= 100 && width <= 100 && height <= 100){
+				return result;
+			}
+			com.jd.etms.waybill.domain.Waybill waybill = waybillService.getWaybillByWayCode(waybillCode);
+			if(waybill != null
+					&& StringUtils.isNotBlank(waybill.getWaybillSign())
+					&& waybill.getBusiId() != null){
+				String waybillSign = waybill.getWaybillSign();
+				BasicTraderInfoDTO dto = baseMinorManager.getBaseTraderById(waybill.getBusiId());
+				if(dto != null && StringUtils.isNotBlank(dto.getTraderSign())){
+					if(BusinessUtil.isOverLength(dto.getTraderSign())
+							&& BusinessUtil.isB2CPureMatch(waybillSign)
+							&& BusinessUtil.isMonthFinish(waybillSign) &&
+							(BusinessUtil.isPreferentialSend(waybillSign)
+									|| BusinessUtil.isNextMorning(waybillSign)
+									|| BusinessUtil.isSameCityArrived(waybillSign))){
+						result.setCode(JdResponse.CODE_PACKAGE_OVER_LENGTH);
+						result.setMessage(JdResponse.MESSAGE_PACKAGE_OVER_LENGTH);
+					}
+				}else {
+					result.setCode(600);
+					result.setMessage("商家信息不存在!");
+				}
+			}else {
+				result.setCode(600);
+				result.setMessage("运单数据不存在!");
+			}
+		}catch (Exception e){
+			log.error("参数:{},异常信息:{}",JsonHelper.toJson(packWeightVO),e.getMessage(),e);
+			result.setCode(JdResponse.CODE_SERVICE_ERROR);
+			result.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+		}
+		return result;
+	}
 
 }

@@ -1010,4 +1010,63 @@ public class BusinessUtil {
     public static boolean isTrustBusi(String waybillSign){
         return isSignChar(waybillSign,WaybillSignConstants.POSITION_56,WaybillSignConstants.CHAR_56_1);
     }
+
+    /**
+     * 商家是否开通超长服务
+     * @param traderSign
+     * @return true 是，false 不是
+     */
+    public static boolean isOverLength(String traderSign){
+        return isSignChar(traderSign, TraderSignConstants.POSITION_92, TraderSignConstants.CHAR_91_2);
+    }
+
+    /**
+     * 是否是B2C纯配订单
+     * @param waybillSign
+     * @return true 是，false 不是
+     */
+    public static boolean isB2CPureMatch(String waybillSign){
+        return isSignInChars(waybillSign, WaybillSignConstants.POSITION_1,
+                WaybillSignConstants.CHAR_1_3,WaybillSignConstants.CHAR_1_6,WaybillSignConstants.CHAR_1_9,WaybillSignConstants.CHAR_1_K,WaybillSignConstants.CHAR_1_Y)
+                && isSignChar(waybillSign, WaybillSignConstants.POSITION_28, WaybillSignConstants.CHAR_28_0);
+    }
+
+    /**
+     * 是否是月结运单
+     * @param waybillSign
+     * @return true 是，false 不是
+     */
+    public static boolean isMonthFinish(String waybillSign){
+        return isSignInChars(waybillSign, WaybillSignConstants.POSITION_25,
+                WaybillSignConstants.CHAR_25_0,WaybillSignConstants.CHAR_25_5);
+    }
+
+    /**
+     * 是否是特惠送
+     * @param waybillSign
+     * @return true 是，false 不是
+     */
+    public static boolean isPreferentialSend(String waybillSign){
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_0);
+    }
+
+    /**
+     * 是否是次晨达
+     * @param waybillSign
+     * @return true 是，false 不是
+     */
+    public static boolean isNextMorning(String waybillSign){
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_4);
+    }
+
+    /**
+     * 是否是同城当日达
+     * @param waybillSign
+     * @return true 是，false 不是
+     */
+    public static boolean isSameCityArrived(String waybillSign){
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_2)
+                && isSignChar(waybillSign, WaybillSignConstants.POSITION_16, WaybillSignConstants.CHAR_16_1);
+    }
+
 }
