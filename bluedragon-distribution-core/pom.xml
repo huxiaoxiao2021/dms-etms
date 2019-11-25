@@ -38,6 +38,22 @@
 
 	<dependencies>
 		<dependency>
+			<artifactId>sorting-api</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>validation-api</artifactId>
+					<groupId>javax.validation</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>hibernate-validator</artifactId>
+					<groupId>org.hibernate.validator</groupId>
+				</exclusion>
+			</exclusions>
+			<groupId>com.jd.ql.shared.services</groupId>
+			<version>1.2-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
 			<groupId>ql-dms-report</groupId>
 			<artifactId>report-sdk</artifactId>
 			<version>1.1.3-SNAPSHOT</version>
