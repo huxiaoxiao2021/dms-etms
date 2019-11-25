@@ -531,6 +531,8 @@
     <!-- 中台-理货查询 -->
     <jsf:consumer id="sharedSortingQueryService" interface="com.jd.ql.shared.services.sorting.api.SortingQueryService"
                   protocol="jsf" alias="${jsf.middleEnd.sorting.query.alias}" timeout="${jsf.middleEnd.sorting.query.timeout}" retries="${jsf.retries}">
+        <jsf:parameter key="appCode" value="${jsf.component.container.appName}" hide="true"></jsf:parameter>
+        <jsf:parameter key="authToken" value="${jsf.component.container.token}" hide="true"></jsf:parameter>
     </jsf:consumer>
 
 </beans>
