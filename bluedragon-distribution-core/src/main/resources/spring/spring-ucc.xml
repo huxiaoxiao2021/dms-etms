@@ -36,6 +36,7 @@
 		<property name="chuguanNewInterfaceInsertSwitch" value="${chuguanNewInterfaceInsertSwitch:false}"/>
 		<property name="chuguanNewInterfaceQuerySwitch" value="${chuguanNewInterfaceQuerySwitch:false}"/>
 		<property name="stationPrintFeatherLetterCheck" value="${stationPrintFeatherLetterCheck:true}"/>
+		<property name="sortingQueryMode" value="${sorting.query.mode}"/>
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -56,6 +57,7 @@
                 <value>uccPropertyConfiguration.chuguanNewInterfaceInsertSwitch</value>
                 <value>uccPropertyConfiguration.chuguanNewInterfaceQuerySwitch</value>
                 <value>uccPropertyConfiguration.stationPrintFeatherLetterCheck</value>
+				<value>uccPropertyConfiguration.sortingQueryMode</value>
 			</list>
 		</property>
 	</bean>

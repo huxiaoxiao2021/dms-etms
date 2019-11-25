@@ -554,4 +554,12 @@
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
 
+    <!-- 中台过渡 -->
+    <bean id="middleEndSortingQueryDao" class="com.jd.bluedragon.distribution.middleend.sorting.dao.MiddleEndSortingDao"></bean>
+    <bean id="failoverSortingQueryDao" class="com.jd.bluedragon.distribution.middleend.sorting.dao.FailoverSortingDao"></bean>
+    <bean id="dynamicSortingQueryDao" class="com.jd.bluedragon.distribution.middleend.sorting.dao.DynamicSortingQueryDao">
+        <property name="sortingDao" ref="sortingDao"></property>
+        <property name="middleEndSortingDao" ref="middleEndSortingQueryDao"></property>
+        <property name="failoverSortingDao" ref="failoverSortingQueryDao"></property>
+    </bean>
 </beans>
