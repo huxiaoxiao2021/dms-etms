@@ -80,13 +80,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service("sortingService")
@@ -158,9 +152,6 @@ public class SortingServiceImpl implements SortingService {
 
 	@Autowired
 	private InspectionService inspectionService;
-
-	@Autowired
-	private SendMDao sendMDao;
 
 	@Autowired
 	private WaybillPackageManager waybillPackageManager;
@@ -1230,12 +1221,6 @@ public class SortingServiceImpl implements SortingService {
 
         return null;
     }
-	@Override
-	public List<Sorting> findPageSorting(Map<String, Object> params) {
-		log.debug("SortingServiceImpl.findPageSorting begin...");
-		return sortingDao.findPageSorting(params);
-	}
-
 
 	public final static String TASK_SORTING_FINGERPRINT_1200_5S = "TASK_1200_FP_5S_"; //5前缀
 

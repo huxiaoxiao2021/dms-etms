@@ -736,45 +736,6 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         return "[]";
     }
 
-
-    @Cache(key = "baseMajorManagerImpl.getDmsCustomSiteBySiteId@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
-    @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getDmsCustomSiteBySiteId", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public DmsCustomSite getDmsCustomSiteBySiteId(Integer paramInteger) {
-        DmsCustomSite dmsCustomSite = new DmsCustomSite();
-
-        BaseStaffSiteOrgDto dtoStaff = basicPrimaryWS.getBaseSiteBySiteId(paramInteger);
-        ResponseDTO<BasicTraderInfoDTO> responseDTO = null;
-        if(dtoStaff != null) {
-            dmsCustomSite.setCustomSiteType(DmsCustomSite.CUSTOM_SITE_TYPE_SITE);
-        }
-
-        if(dtoStaff == null){
-            dtoStaff = basicPrimaryWS.getBaseStoreByDmsSiteId(paramInteger);
-            if(dtoStaff != null) {
-                dmsCustomSite.setCustomSiteType(DmsCustomSite.CUSTOM_SITE_TYPE_WMS);
-            }
-        }
-        if(dtoStaff == null){
-            responseDTO = basicTraderAPI.getBasicTraderById(paramInteger);
-            if(responseDTO != null&& responseDTO.getResult() != null){
-                dtoStaff = getBaseStaffSiteOrgDtoFromTrader(responseDTO.getResult());
-            }
-            if(dtoStaff != null) {
-                dmsCustomSite.setCustomSiteType(DmsCustomSite.CUSTOM_SITE_TYPE_B_ENTERPRISE);
-            }
-        }
-        if(dtoStaff != null) {
-
-            dmsCustomSite.setSiteId(dtoStaff.getSiteCode());
-            dmsCustomSite.setSiteCode(dtoStaff.getDmsSiteCode());
-            dmsCustomSite.setSiteName(dtoStaff.getSiteName());
-            dmsCustomSite.setSiteType(dtoStaff.getSiteType());
-            dmsCustomSite.setSubType(dtoStaff.getSubType());
-        }
-
-        return dmsCustomSite;
-    }
-
     @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseTraderNeccesaryInfoById", mState = {JProEnum.TP, JProEnum.FunctionError})
     @Cache(key = "DMS.BASE.BaseMajorManagerImpl.getBaseTraderNeccesaryInfoById@args0", memoryEnable = true, memoryExpiredTime = 1 * 60 * 1000,
             redisEnable = false, redisExpiredTime = 2 * 60 * 1000)
