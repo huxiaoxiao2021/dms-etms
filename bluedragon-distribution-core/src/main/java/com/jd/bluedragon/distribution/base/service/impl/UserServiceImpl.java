@@ -2,10 +2,14 @@ package com.jd.bluedragon.distribution.base.service.impl;
 
 import java.util.List;
 
+import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.ql.basic.ws.BasicPrimaryWS;
+import com.jd.ql.shared.services.sorting.api.dto.SiteType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -85,6 +89,11 @@ public class UserServiceImpl implements UserService{
 	private ClientConfigService clientConfigService;
 	@Autowired
 	private BaseMajorManager baseMajorManager;
+
+	@Autowired
+	@Qualifier("basicPrimaryWS")
+	private BasicPrimaryWS basicPrimaryWS;
+
 	/**
 	 * 分拣客户端登录服务
 	 * @param request
@@ -131,7 +140,7 @@ public class UserServiceImpl implements UserService{
 		}
 		clientInfo.setLoginUserErp(erpAccount);
 		/** 进行登录验证 */
-		PdaStaff loginResult = baseService.login(erpAccount, erpAccountPwd,clientInfo);
+		PdaStaff loginResult = baseService.login(erpAccount, erpAccountPwd, clientInfo, request.getLoginVersion());
 
 		// 处理返回结果
 		if (loginResult.isError()) {
@@ -201,10 +210,29 @@ public class UserServiceImpl implements UserService{
 
 			// dmscode
 			response.setDmsCode(loginResult.getDmsCod());
+
+			if (null != request.getLoginVersion() && request.getLoginVersion() == 1) {
+				this.bindSite2LoginUser(response);
+			}
+
 			// 返回结果
 			return response;
 		}
 	}
+
+	private void bindSite2LoginUser(BaseResponse response) {
+		if (null != response && null != response.getSiteCode()) {
+			// 非分拣中心类型的站点查询分拣中心ID和名称，兼容打印客户端登录后再查询站点的逻辑
+			if (response.getSiteType() != Constants.DMS_SITE_TYPE) {
+				BaseStaffSiteOrgDto dtoStaff = basicPrimaryWS.getBaseSiteBySiteId(Integer.valueOf(response.getSiteCode()));
+				if (null != dtoStaff && dtoStaff.getDmsId() != null && dtoStaff.getDmsId() > 0) {
+					response.setDmsId(dtoStaff.getDmsId());
+					response.setDmsName(dtoStaff.getDmsName());
+				}
+			}
+		}
+	}
+
 	/**
 	 * 检查客户端版本信息
 	 * @param clientInfo 上传的客户端信息

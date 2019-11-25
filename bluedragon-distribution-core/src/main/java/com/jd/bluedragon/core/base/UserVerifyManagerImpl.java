@@ -65,9 +65,9 @@ public class UserVerifyManagerImpl implements UserVerifyManager {
      * @return
      */
     @Override
-    public InvokeResult<UserInfo> baseVerify(String name, String password) {
+    public InvokeResult<UserInfo> baseVerify(String name, String password, Byte loginVersion) {
         try {
-            InvokeResult<UserInfo> result = newDeptWebService.verify(name, password);
+            InvokeResult<UserInfo> result = newDeptWebService.verify(name, password, loginVersion);
             return result;
         } catch (Exception ex) {
             logger.error("deptWebService verify error", ex);
@@ -84,10 +84,13 @@ public class UserVerifyManagerImpl implements UserVerifyManager {
      * @return
      */
     @Override
-    public BasePdaUserDto passportVerify(String pin, String password, ClientInfo clientInfo) {
+    public BasePdaUserDto passportVerify(String pin, String password, ClientInfo clientInfo, Byte loginVersion) {
         BasePdaUserDto basePdaUserDto = new BasePdaUserDto();
         try {
             String md5Pwd = DigestUtils.md5Hex(password);
+            if (null != loginVersion && loginVersion == 1) {
+                md5Pwd = password;
+            }
             String remoteIp = InetAddress.getLocalHost().getHostAddress();
             LoginParam loginParam = new LoginParam();
             loginParam.setSource(SOURCE);

@@ -107,7 +107,7 @@ public class BaseServiceImpl implements BaseService {
 	private VtsQueryWS vtsQueryWS;
 
     @Override
-    public BasePdaUserDto pdaUserLogin(String userid, String password,ClientInfo clientInfo) {
+    public BasePdaUserDto pdaUserLogin(String userid, String password, ClientInfo clientInfo, Byte loginVersion) {
         BasePdaUserDto basePdaUserDto = new BasePdaUserDto();
         if (log.isInfoEnabled()){
             log.info("用户登录新接口，用户名 " + userid);
@@ -125,7 +125,7 @@ public class BaseServiceImpl implements BaseService {
             if (userid.contains(Constants.PDA_THIRDPL_TYPE)) {
                 String thirdUserId = userid.replaceAll(Constants.PDA_THIRDPL_TYPE, "");
                 // 京东用户组接口验证
-				BasePdaUserDto basePdaUserDtoNew = userVerifyManager.passportVerify(thirdUserId, password, clientInfo);
+				BasePdaUserDto basePdaUserDtoNew = userVerifyManager.passportVerify(thirdUserId, password, clientInfo, loginVersion);
 				if (basePdaUserDtoNew.getErrorCode().equals(Constants.PDA_USER_GETINFO_SUCCESS)) {
 					// 用户组接口验证通过后，从基础资料获取具体信息
 					BaseStaffSiteOrgDto baseStaffDto = baseMajorManager.getThirdStaffByJdAccountNoCache(thirdUserId);
@@ -144,7 +144,7 @@ public class BaseServiceImpl implements BaseService {
                 // 调用人事接口验证用户
                 //User user = userVerifyManager.baseVerify(userid, password);
             	//调用sso的SsoService验证用户
-				InvokeResult<UserInfo> result = userVerifyManager.baseVerify(userid, password);
+				InvokeResult<UserInfo> result = userVerifyManager.baseVerify(userid, password, loginVersion);
                 if (result != null && result.getCode() != InvokeResult.RESULT_SUCCESS_CODE) {
                     basePdaUserDto.setErrorCode(Constants.PDA_USER_LOGIN_FAILUE);
                     basePdaUserDto.setMessage(result.getMessage());
@@ -185,7 +185,7 @@ public class BaseServiceImpl implements BaseService {
     }
 
     @Override
-	public PdaStaff login(String erpcode, String password, ClientInfo clientInfo) {
+	public PdaStaff login(String erpcode, String password, ClientInfo clientInfo, Byte loginVersion) {
 		// TODO Auto-generated method stub
 		/** 验证结果 */
 		PdaStaff result = new PdaStaff();
@@ -193,7 +193,7 @@ public class BaseServiceImpl implements BaseService {
 		// 测试接口代码 baseMinorServiceProxy.getServerDate() 取服务器时间
 		BasePdaUserDto pdadata = null;
 		try {
-			pdadata = pdaUserLogin(erpcode, password,clientInfo);
+			pdadata = pdaUserLogin(erpcode, password, clientInfo, loginVersion);
 		} catch (Exception e) {
 			log.error("调用baseMinorServiceProxy.pdaUserLogin接口出现异常！", e);
 		}

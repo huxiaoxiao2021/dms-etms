@@ -302,6 +302,13 @@ public class BaseResource {
 	public BaseResponse login(LoginRequest request) {
 		return userService.dmsClientLogin(request);
 	}
+
+	@POST
+	@Path("/bases/newLogin")
+	public BaseResponse newLogin(LoginRequest request) {
+		return userService.dmsClientLogin(request);
+	}
+
 	@POST
 	@Path("/bases/getLoginUser")
 	public JdResult<LoginUserResponse> getLoginUser(LoginRequest request) {
