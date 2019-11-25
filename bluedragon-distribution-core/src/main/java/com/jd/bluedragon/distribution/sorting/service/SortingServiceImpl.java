@@ -129,9 +129,6 @@ public class SortingServiceImpl implements SortingService {
 	private InspectionECDao inspectionECDao;
 
 	@Autowired
-	private SendMDao sendMDao;
-
-	@Autowired
 	private RedisManager redisManager;
 
 	@Autowired
@@ -152,6 +149,9 @@ public class SortingServiceImpl implements SortingService {
 
 	@Autowired
 	private InspectionService inspectionService;
+
+	@Autowired
+	private SendMDao sendMDao;
 
 	@Autowired
 	private WaybillPackageManager waybillPackageManager;
@@ -1136,15 +1136,6 @@ public class SortingServiceImpl implements SortingService {
 			}catch (Exception ex){
 				log.error("退款100分MQ消息推送记录日志失败：{}",sorting.getWaybillCode(), ex);
 			}
-		}
-	}
-
-	public BigWaybillDto queryWaybillByCode(String waybillCode){
-		BigWaybillDto dto = waybillService.getWaybill(waybillCode);
-		if(dto!=null){
-			return dto;
-		}else{
-			return null;
 		}
 	}
 

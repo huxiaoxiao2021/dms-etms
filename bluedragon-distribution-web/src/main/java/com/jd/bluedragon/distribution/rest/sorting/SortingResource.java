@@ -8,12 +8,6 @@ import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.inspection.domain.Inspection;
-import com.jd.bluedragon.distribution.inspection.domain.InspectionEC;
-import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
-import com.jd.bluedragon.distribution.inspection.service.InspectionService;
-import com.jd.bluedragon.distribution.middleend.sorting.dao.DynamicSortingQueryDao;
-import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.middleend.SortingServiceFactory;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
@@ -23,7 +17,6 @@ import com.jd.bluedragon.distribution.sorting.service.SortingReturnService;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
-import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -67,16 +60,7 @@ public class SortingResource {
 	private SortingReturnService returnsService;
 
 	@Autowired
-	private InspectionExceptionService inspectionExcpetionService;
-
-	@Autowired
-	private InspectionService inspectionService;
-
-	@Autowired
 	private SendMDao sendMDao;
-
-	@Autowired
-	private DynamicSortingQueryDao dynamicSortingQueryDao;
 
     @Autowired
     @Qualifier("jimdbCacheService")

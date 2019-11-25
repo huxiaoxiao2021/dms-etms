@@ -1,6 +1,5 @@
 package com.jd.bluedragon.core.base;
 
-import com.github.pagehelper.PageInfo;
 import com.jd.ql.shared.services.sorting.api.ApiResult;
 import com.jd.ql.shared.services.sorting.api.dto.Flow;
 import com.jd.ql.shared.services.sorting.api.dto.PageBean;

@@ -7,9 +7,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class FailoverSortingDao implements ISortingDao {
     private final Logger logger = Logger.getLogger(FailoverSortingDao.class);
