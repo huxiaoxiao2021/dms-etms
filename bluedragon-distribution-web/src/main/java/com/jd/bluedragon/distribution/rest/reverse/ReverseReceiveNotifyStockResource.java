@@ -105,6 +105,7 @@ public class ReverseReceiveNotifyStockResource {
 
 	@GET
 	@Path("/reverseReceiveNotifyStock/check/{waybillCode}")
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.ReverseReceiveNotifyStockResource.check", mState = {JProEnum.TP})
 	public String check(@PathParam("waybillCode") Long waybillCode)
 			throws Exception {
 		OrderStockInfo osi = null;

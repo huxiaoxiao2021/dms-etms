@@ -13,6 +13,8 @@ import com.jd.bluedragon.distribution.reverse.domain.ReverseSpare;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.utils.ObjectMapHelper;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.GZIP;
@@ -127,6 +129,7 @@ public class AuditResource {
 	@GET
 	@GZIP
 	@Path("/stock/{waybillCode}/{ddlType}")
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.AuditResource.getStockInfo", mState = {JProEnum.TP})
 	public KuGuanDomain getStockInfo(@PathParam("waybillCode") String waybillCode, @PathParam("ddlType") String ddlType) {
 		KuGuanDomain kuGuanDomain = new KuGuanDomain();
 		String orderCode = null;
