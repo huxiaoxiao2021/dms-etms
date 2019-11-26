@@ -119,6 +119,11 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
      * */
     private static final int IS_VOLUME_TYPE = 0;
 
+    /**
+     * 重泡比标准值
+     * */
+    private static final int WEIGHT_VOLUME_RATIO = 7800;
+
 
     @Autowired
     private ReportExternalService reportExternalService;
@@ -470,6 +475,20 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         }
         if(isSpotCheck(waybillCode,null)){
             result.customMessage(600,"运单"+waybillCode+"已经进行过抽检，请勿重复操作!");
+            return result;
+        }
+        //重泡比校验
+        if(condition.getWaybillWeight()/condition.getWaybillVolume() > WEIGHT_VOLUME_RATIO){
+            result.customMessage(600,"当前运单:"+waybillCode+"重泡比超过"+WEIGHT_VOLUME_RATIO+",请核实后重新录入!");
+            return result;
+        }
+        int packNum = baseEntity.getData().getPackageList().size();
+        if(condition.getWaybillWeight()/packNum > 5000){
+            result.customMessage(600,"当前运单平均单个包裹重量超过5000KG，请核实后重新录入!");
+            return result;
+        }
+        if(condition.getWaybillVolume()/packNum > 5){
+            result.customMessage(600,"当前运单平均单个包裹体积超过5m³，请核实后重新录入!");
             return result;
         }
 

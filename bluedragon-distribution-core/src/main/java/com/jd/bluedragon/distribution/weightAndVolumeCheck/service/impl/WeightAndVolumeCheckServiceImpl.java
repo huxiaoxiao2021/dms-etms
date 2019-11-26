@@ -591,6 +591,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(WaybillUtil.getWaybillCode(packWeightVO.getCodeStr()),
                 true, false, false, false);
         if(baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null){
+            weightVolumeCollectDto.setBusiCode(baseEntity.getData().getWaybill().getBusiId());
             weightVolumeCollectDto.setBusiName(baseEntity.getData().getWaybill().getBusiName());
             if(BusinessUtil.isSignChar(baseEntity.getData().getWaybill().getWaybillSign(),56,'1')){
                 //信任商家
@@ -718,6 +719,9 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         heads.add("复核日期");
         heads.add("运单号");
         heads.add("扫描条码");
+        heads.add("业务类型");
+        heads.add("产品标识");
+        heads.add("商家ID");
         heads.add("商家名称");
         heads.add("信任商家");
         heads.add("复核区域");
@@ -728,7 +732,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         heads.add("复核长宽高cm");
         heads.add("复核体积重量");
         heads.add("计费操作区域");
-        heads.add("计费操作机构");
+        heads.add("计费操作片区");
         heads.add("计费操作单位");
         heads.add("计费操作人ERP");
         heads.add("计费重量kg");
@@ -752,6 +756,9 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 body.add(weightVolumeCollectDto.getReviewDate() == null ? null : DateHelper.formatDate(weightVolumeCollectDto.getReviewDate(), Constants.DATE_TIME_FORMAT));
                 body.add(weightVolumeCollectDto.getWaybillCode());
                 body.add(weightVolumeCollectDto.getPackageCode());
+                body.add(weightVolumeCollectDto.getSpotCheckType()==1?"B网":"C网");
+                body.add(weightVolumeCollectDto.getProductTypeName());
+                body.add(weightVolumeCollectDto.getBusiCode());
                 body.add(weightVolumeCollectDto.getBusiName());
                 body.add(weightVolumeCollectDto.getIsTrustBusi()==null?"":weightVolumeCollectDto.getIsTrustBusi()==1?"是":"否");
                 body.add(weightVolumeCollectDto.getReviewOrgName());
