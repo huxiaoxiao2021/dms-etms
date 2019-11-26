@@ -15,6 +15,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,6 +94,9 @@ public class StockExportManagerImpl implements StockExportManager {
                     this.log.warn("调用库管接口stockExportManager.getFullStockByBusiNo queryStockData()异常：result:{}",result.getMessage());
                     Profiler.functionError(info);
                     result = null;
+                }else if(CollectionUtils.isNotEmpty(result.getQueryList())){
+                    this.log.info("调用库管接口stockExportManager.getFullStockByBusiNo queryStockData()成功并且有数据businessNo[{}]queryList[{}]",businessNo,
+                            JsonHelper.toJson(result.getQueryList()));
                 }else{
                     this.log.info("调用库管接口stockExportManager.getFullStockByBusiNo queryStockData()成功businessNo[{}]",businessNo);
                 }
