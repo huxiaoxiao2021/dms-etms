@@ -49,4 +49,26 @@
     </bean>
     <!-- dms单库写库 数据源 end -->
 
+    <!--  base数据源    -->
+    <bean id="dataSourceBase" parent="parentDataSource">
+        <property name="url" value="${base.cache.db.url}"/>
+        <property name="username" value="${base.cache.db.username}"/>
+        <property name="password" value="${base.cache.db.password}"/>
+    </bean>
+
+    <bean id="transactionManagerBase" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSourceBase"/>
+    </bean>
+
+    <bean id="sqlSessionFactoryBase" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="configLocation" value="classpath:config/mysql/mybatis-config-base.xml"/>
+        <property name="dataSource" ref="dataSourceBase"/>
+    </bean>
+
+    <bean id="sessionTemplateBase" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="sqlSessionFactoryBase"/>
+    </bean>
+
+    <tx:annotation-driven transaction-manager="transactionManagerBase"/>
+
 </beans>
