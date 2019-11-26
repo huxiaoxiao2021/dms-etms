@@ -56,7 +56,7 @@ public class KuGuanController {
 			return "kuguan/kuguan";
 		}
         ErpUserClient.ErpUser user = ErpUserClient.getCurrUser();
-		logger.info("库管单查询-queryOperateLog-user[]", JsonHelper.toJson(user));
+		logger.info("库管单查询-queryOperateLog-user[{}]", JsonHelper.toJson(user));
         String orderCode = kuGuanDomain.getWaybillCode();
         String lKdanhao = kuGuanDomain.getlKdanhao();
 
