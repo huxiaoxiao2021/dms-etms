@@ -5,12 +5,14 @@ import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.ChuguanExportManager;
 import com.jd.bluedragon.core.base.StockExportManager;
 import com.jd.bluedragon.distribution.kuguan.domain.KuGuanDomain;
+import com.jd.bluedragon.distribution.web.ErpUserClient;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.uim.annotation.Authorization;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,7 +26,7 @@ import java.util.Map;
 @RequestMapping("/kuGuan")
 public class KuGuanController {
 	
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger logger = LoggerFactory.getLogger(KuGuanController.class);
 	
 	@Autowired
 	private StockExportManager stockExportManager;
@@ -53,7 +55,8 @@ public class KuGuanController {
 			logger.error("根据订单号获取库管单信息参数错误");
 			return "kuguan/kuguan";
 		}
-
+        ErpUserClient.ErpUser user = ErpUserClient.getCurrUser();
+		logger.info("库管单查询-queryOperateLog-user[]", JsonHelper.toJson(user));
         String orderCode = kuGuanDomain.getWaybillCode();
         String lKdanhao = kuGuanDomain.getlKdanhao();
 
