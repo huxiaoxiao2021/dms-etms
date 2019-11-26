@@ -69,6 +69,13 @@ public class ReverseReceiveNotifyStockService {
 
 	private static final List<Integer> needRetunWaybillTypes = Lists.newArrayList(11, 13, 15, 16, 18, 19, 42, 56, 61);
 
+    //waybill_type=0 && sendpay 252位=3,4,5,6,7 电信行业合约订单也需要推送出管数据
+	private static final List<String> TELECOM_WAYBILL_SEND_PAYS = Lists.newArrayList("3","4","5","6","7");
+
+	private static final int TELECOM_WAYBILL_SEND_PAY_INDEX = 251;
+
+	private static final Integer TELECOM_WAYBILL_TYPE = 0;
+
     private static final String JING_BAN_SYSCODE = "ql.dms";
 
     public static final String CHUGUAN_FIELD_QITAFANGSHI = "逆向物流";
@@ -209,7 +216,8 @@ public class ReverseReceiveNotifyStockService {
 			//此区域:符合主动推送的条件的单子判断是否推送过,获得支付类型
 			KuGuanDomain kuguanDomain = null;
 			Integer payType = PAY_TYPE_UNKNOWN;
-			if (Waybill.TYPE_GENERAL.equals(order.getOrderType()) || Waybill.TYPE_POP_FBP.equals(order.getOrderType())||needRetunWaybillTypes.contains(Integer.valueOf(order.getOrderType()))){
+			if (Waybill.TYPE_GENERAL.equals(order.getOrderType()) || Waybill.TYPE_POP_FBP.equals(order.getOrderType())
+                    ||needRetunWaybillTypes.contains(Integer.valueOf(order.getOrderType())) || isTelecomOrder(order.getOrderType(),order.getSendPay())){
 				kuguanDomain = queryKuguanDomainByWaybillCode(String.valueOf(waybillCode));
 				if(kuguanDomain==null) {
 					return Boolean.FALSE;
@@ -225,34 +233,7 @@ public class ReverseReceiveNotifyStockService {
 			}
 			
 			//开始根据类型的不同推送
-			if (Waybill.TYPE_GENERAL.equals(order.getOrderType()) || Waybill.TYPE_POP_FBP.equals(order.getOrderType())) {
-				long result = 0;
-				//判断是否是已旧换新
-				isOldForNewType = BusinessHelper.isYJHX(order.getSendPay());
-                OrderBankResponse orderBank = orderBankService.getOrderBankResponse(String.valueOf(waybillCode));
-                result = insertChuguan(waybillCode, isOldForNewType, order, products, payType,orderBank);
-				/** 新逻辑结束 */
-				
-				try {
-					//业务流程监控, 备件库埋点
-					Map<String, String> data = new HashMap<String, String>();
-					data.put("orderId", waybillCode.toString());
-					Profiler.bizNode("Reverse_mq_dms2stock", data);
-				} catch (Exception e) {
-					this.log.error("推送UMP发生异常.", e);
-				}
-				
-				this.log.debug("运单号：{}, 库存中间件返回结果：{}" ,waybillCode, result);
-				
-				sysLog.setKeyword3("WEBSERVICE");
-				sysLog.setKeyword4(result);
-				if(result!=0)
-					sysLog.setContent("推出管成功!");
-				else{
-					sysLog.setContent("推出管失败!");
-					return Boolean.FALSE;
-				}
-			} else if (needRetunWaybillTypes.contains(Integer.valueOf(order.getOrderType()))) {
+			if (needRetunWaybillTypes.contains(Integer.valueOf(order.getOrderType())) || isTelecomOrder(order.getOrderType(),order.getSendPay())) {
 				if (isPrePay(payType)) {
 
 					this.wmsStockChuGuanMQ.send(String.valueOf(waybillCode),this.stockMessage(order, products, STOCK_TYPE_1602, payType));
@@ -264,9 +245,36 @@ public class ReverseReceiveNotifyStockService {
 				
 				sysLog.setKeyword3("MQ");
 				sysLog.setContent("推出管成功!");
-			}
-			
-		}catch(Exception e){
+			}else if (Waybill.TYPE_GENERAL.equals(order.getOrderType()) || Waybill.TYPE_POP_FBP.equals(order.getOrderType())) {
+                long result = 0;
+                //判断是否是已旧换新
+                isOldForNewType = BusinessHelper.isYJHX(order.getSendPay());
+                OrderBankResponse orderBank = orderBankService.getOrderBankResponse(String.valueOf(waybillCode));
+                result = insertChuguan(waybillCode, isOldForNewType, order, products, payType,orderBank);
+                /** 新逻辑结束 */
+
+                try {
+                    //业务流程监控, 备件库埋点
+                    Map<String, String> data = new HashMap<String, String>();
+                    data.put("orderId", waybillCode.toString());
+                    Profiler.bizNode("Reverse_mq_dms2stock", data);
+                } catch (Exception e) {
+                    this.log.error("推送UMP发生异常.", e);
+                }
+
+                this.log.debug("运单号：{}, 库存中间件返回结果：{}" ,waybillCode, result);
+
+                sysLog.setKeyword3("WEBSERVICE");
+                sysLog.setKeyword4(result);
+                if(result!=0)
+                    sysLog.setContent("推出管成功!");
+                else{
+                    sysLog.setContent("推出管失败!");
+                    return Boolean.FALSE;
+                }
+            }
+
+        }catch(Exception e){
 			this.log.error("运单号：{}, 推出管失败。",waybillCode, e);
 			if(StringHelper.isEmpty(sysLog.getContent())){
 				sysLog.setContent(e.getMessage());
@@ -697,5 +705,24 @@ public class ReverseReceiveNotifyStockService {
 		}
 		return StringUtils.EMPTY;
 	}
-	
+
+    /**
+     * 判断是否是新电信行业合约订单
+     * 【waybill_type=0 && sendpay 252位=3,4,5,6,7】
+     * @param waybillType
+     * @param sendPay
+     * @return
+     */
+	private boolean isTelecomOrder(Integer waybillType,String sendPay){
+
+	    if(waybillType == null || StringUtils.isBlank(sendPay) || sendPay.length() <= TELECOM_WAYBILL_SEND_PAY_INDEX){
+	        return false;
+        }
+
+        String sendPay252 = String.valueOf(sendPay.charAt(TELECOM_WAYBILL_SEND_PAY_INDEX));
+
+	    return TELECOM_WAYBILL_TYPE.equals(waybillType) && TELECOM_WAYBILL_SEND_PAYS.contains(sendPay252);
+
+    }
+
 }
