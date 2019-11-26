@@ -178,6 +178,6 @@
                   interface="com.jd.bluedragon.distribution.external.pdd.DMSExternalInPDDService"
                   alias="${dms.jsf.pdd.external.alias}"
                   ref="dmsExternalInPDDService" server="dmsjsf">
-        <jsf:parameter key="token" value="${dms.jsf.pdd.external.token}"/>
+        <jsf:parameter key="token" value="${dms.jsf.pdd.external.token}" hide="true"/>
     </jsf:provider>
 </beans>
