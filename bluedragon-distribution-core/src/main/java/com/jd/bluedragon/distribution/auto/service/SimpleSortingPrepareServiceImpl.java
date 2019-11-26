@@ -1,16 +1,5 @@
 package com.jd.bluedragon.distribution.auto.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-
-import com.jd.bluedragon.dms.utils.BusinessUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMinorManager;
@@ -27,12 +16,22 @@ import com.jd.bluedragon.distribution.sorting.domain.SortingException;
 import com.jd.bluedragon.distribution.sorting.service.SortingExceptionService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.ql.basic.domain.BaseDmsStore;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Created by wangtingwei on 2014/10/16.
@@ -40,7 +39,7 @@ import com.jd.ql.basic.domain.CrossPackageTagNew;
 @Service("SortingPrepareService")
 public class SimpleSortingPrepareServiceImpl extends AbstractSortingPrepareService {
 
-    private static final Log log= LogFactory.getLog(SimpleSortingPrepareServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(SimpleSortingPrepareServiceImpl.class);
 
     private static final String AUTO_SORTING_WHITE_PAPER_PREFIX="auto.sorting.whitepaper.";
 
@@ -68,22 +67,18 @@ public class SimpleSortingPrepareServiceImpl extends AbstractSortingPrepareServi
      */
     @Override
     protected boolean prepareSite(Sorting entity) {
-        log.info("准备获取站点:"+entity.getWaybillCode());
-        Waybill waybill=this.waybillCommonService.findWaybillAndPack(entity.getWaybillCode());
+        Waybill waybill=this.waybillCommonService.findByWaybillCode(entity.getWaybillCode());
         if(null==waybill){
-            log.warn("准备分拣站点->获取不到运单信息："+entity.getWaybillCode());
+            log.warn("准备分拣站点->获取不到运单信息：{}",entity.getWaybillCode());
             return false;
         }else {
-            log.info("获取站点成功："+waybill.getWaybillCode()+"站点ID："+String.valueOf(waybill.getSiteCode()));
             entity.setReceiveSiteCode(waybill.getSiteCode());
             entity.setReceiveSiteName(waybill.getSiteName());
 
         }
-        log.info("自动分拣sendPay"+waybill.getSendPay());
         char zitiSign = waybill.getSendPay().charAt(21);    //自提柜、合作代收，便民自提
         if('5' == zitiSign || '6' == zitiSign || '7' == zitiSign){
             Integer destinctSiteCode = baseService.getSiteSelfDBySiteCode(entity.getReceiveSiteCode());
-            log.info("自动分拣：自提订单获取目的站点为【"+destinctSiteCode+"】");
             if(null!=destinctSiteCode&&destinctSiteCode>0){
                 entity.setReceiveSiteCode(destinctSiteCode);
                 entity.setReceiveSiteName(baseService.getSiteNameBySiteID(destinctSiteCode));
@@ -93,14 +88,12 @@ public class SimpleSortingPrepareServiceImpl extends AbstractSortingPrepareServi
         BaseDmsStore bds = new BaseDmsStore();
         Integer originalCrossType = BusinessUtil.getOriginalCrossType(waybill.getWaybillSign(), waybill.getSendPay());
         JdResult<CrossPackageTagNew> br = baseMinorManager.queryCrossPackageTag(bds, entity.getReceiveSiteCode(), entity.getCreateSiteCode(),originalCrossType);
-        log.info("自动分拣：获取目的分拣中心"+(null==br?"获取目的分拣中心对象为NULL":JsonHelper.toJson(br)));
         if(br!= null && br.isSucceed() && br.getData()!=null
                 &&br.getData().getDestinationDmsId()!=null
                 &&br.getData().getDestinationDmsId()>0
                 &&!br.getData().getDestinationDmsId().equals(entity.getCreateSiteCode())){
             entity.setReceiveSiteCode(br.getData().getDestinationDmsId());
             entity.setReceiveSiteName(br.getData().getDestinationDmsName());
-            log.info("自动分拣：获取目的分拣中心【"+br.getData().getDestinationDmsId()+"】");
         }
 
         return true;
@@ -113,13 +106,14 @@ public class SimpleSortingPrepareServiceImpl extends AbstractSortingPrepareServi
      */
     @Override
     protected boolean prepareSorting(Sorting entity) {
-        log.info("准备获取波次信息"+entity.getWaybillCode());
+        log.debug("准备获取波次信息{}",entity.getWaybillCode());
         BatchSend send=batchSendService.readAndGenerateIfNotExist(entity.getCreateSiteCode(),entity.getOperateTime(),entity.getReceiveSiteCode());
         if(null==send){
-            log.info("获取波次信息失败->站点："+String.valueOf(entity.getCreateSiteCode())+"|操作时间:"+ DateHelper.formatDateTime(entity.getOperateTime())+"|接收站点:"+String.valueOf(entity.getReceiveSiteCode()));
+            log.warn("获取波次信息失败->站点：{}|操作时间:{}|接收站点:{}",
+                    entity.getCreateSiteCode(),DateHelper.formatDateTime(entity.getOperateTime()),entity.getReceiveSiteCode());
             return false;
         }else {
-            log.info("获取波次信息成功:"+entity.getWaybillCode());
+            log.debug("获取波次信息成功:{}",entity.getWaybillCode());
             entity.setBoxCode(send.getSendCode());
             entity.setSpareReason(send.getBatchCode());
             return true;
@@ -133,9 +127,9 @@ public class SimpleSortingPrepareServiceImpl extends AbstractSortingPrepareServi
      */
     @Override
     protected boolean intercept(Sorting entity) {
-        log.info("开始插入分拣拦截日志："+entity.getWaybillCode());
+        log.info("开始插入分拣拦截日志：{}",entity.getWaybillCode());
         BoxResponse response= WaybillCancelClient.checkAutoSorting(entity.getCreateSiteCode(),entity.getPackageCode(),entity.getReceiveSiteCode());
-        log.info("拦截状态为："+response.getCode());
+        log.info("拦截状态为：{}",response.getCode());
         if(!response.getCode().equals(Integer.valueOf(200))){
             SortingException exception=new SortingException();
             exception.setBoxCode(entity.getSpareReason());
@@ -150,7 +144,7 @@ public class SimpleSortingPrepareServiceImpl extends AbstractSortingPrepareServi
             exception.setExceptionCode(response.getCode());
             exception.setExceptionMessage(response.getMessage());
             sortingExceptionService.add(exception);
-            log.info("分拣拦截日志插入成功："+exception.toString());
+            log.info("分拣拦截日志插入成功：{}",exception.toString());
         }
         return true;
     }
@@ -200,7 +194,7 @@ public class SimpleSortingPrepareServiceImpl extends AbstractSortingPrepareServi
         list.add(request);
         task.setOwnSign(BusinessHelper.getOwnSign()); //fix 增加ownsign避免直接写库没有ownsign问题
         task.setBody(JsonHelper.toJson(list));
-        log.info("插入分拣任务为："+task.toString());
+        log.info("插入分拣任务为：{}",task.toString());
         return taskService.add(task,true)>0?true:false;
 
     }
@@ -213,15 +207,14 @@ public class SimpleSortingPrepareServiceImpl extends AbstractSortingPrepareServi
     @Override
     protected boolean filter(Sorting entity){
         List<SysConfig> configs=baseService.queryConfigByKeyWithCache(AUTO_SORTING_WHITE_PAPER_PREFIX+String.valueOf(entity.getCreateSiteCode()));
-        log.warn("sorting-filter:"+JsonHelper.toJson(configs)+"createSiteCode:"+entity.getCreateSiteCode()+"receiveSiteCode"+entity.getReceiveSiteCode());
         if(configs!=null&&configs.size()>0&& configs.get(0).getConfigContent()!=null&&configs.get(0).getConfigContent().trim().length()>0){
             List<String> whiteList= Arrays.asList(configs.get(0).getConfigContent().split(","));
             if(!whiteList.contains(String.valueOf(entity.getReceiveSiteCode()))){
-                log.warn("sorting-filter:false"+entity.getWaybillCode());
+                log.warn("sorting-filter:true={}",entity.getWaybillCode());
                 return true;
             }
         }
-        log.warn("sorting-filter:false"+entity.getWaybillCode());
+        log.warn("sorting-filter:false={}",entity.getWaybillCode());
         return false;
     }
 

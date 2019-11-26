@@ -11,12 +11,11 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.text.MessageFormat;
 import java.util.List;
 
 /**
@@ -29,30 +28,29 @@ import java.util.List;
  */
 @Service("dmsAbnormalEclpConsumer")
 public class DmsAbnormalEclpConsumer extends MessageBaseConsumer {
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
     @Autowired
     private DmsAbnormalEclpService dmsAbnormalEclpService;
 
     @Override
     public void consume(Message message) throws Exception {
         // 处理消息体
-        this.logger.debug("DmsAbnormalEclpConsumer consume --> 消息Body为【"
-                + message.getText() + "】");
+        this.log.debug("DmsAbnormalEclpConsumer consume --> 消息Body为【{}】",message.getText());
         if (message == null || "".equals(message.getText()) || null == message.getText()) {
-            this.logger.warn("DmsAbnormalEclpConsumer consume -->消息为空");
+            this.log.warn("DmsAbnormalEclpConsumer consume -->消息为空");
             return;
         }
         if (!JsonHelper.isJsonString(message.getText())) {
-            logger.warn(MessageFormat.format("DmsAbnormalEclpConsumer consume -->消息体非JSON格式，内容为【{0}】", message.getText()));
+            log.warn("DmsAbnormalEclpConsumer consume -->消息体非JSON格式，内容为【{}】", message.getText());
             return;
         }
         DmsAbnormalEclpResponse dmsAbnormalEclpResponse = JsonHelper.fromJson(message.getText(), DmsAbnormalEclpResponse.class);
         if (dmsAbnormalEclpResponse == null) {
-            this.logger.error("DmsAbnormalEclpConsumer consume -->消息转换对象失败：" + message.getText());
+            this.log.warn("DmsAbnormalEclpConsumer consume -->消息转换对象失败：{}" , message.getText());
             return;
         }
         if (dmsAbnormalEclpResponse.getWaybillCode() == null) {
-            this.logger.warn("DmsAbnormalEclpConsumer consume : 运单号为空！");
+            this.log.warn("DmsAbnormalEclpConsumer consume : 运单号为空！消息：{}" , message.getText());
             return;
         }
         //查出要回写的外呼申请
@@ -61,7 +59,7 @@ public class DmsAbnormalEclpConsumer extends MessageBaseConsumer {
         condition.setIsReceipt(DmsAbnormalEclp.DMSABNORMALECLP_RECEIPT_NO);
         PagerResult result = dmsAbnormalEclpService.queryByPagerCondition(condition);
         if (result.getTotal() == 0) {
-            this.logger.warn("DmsAbnormalEclpConsumer consume : 未查到外呼申请！运单号：" + dmsAbnormalEclpResponse.getWaybillCode());
+            this.log.warn("DmsAbnormalEclpConsumer consume : 未查到外呼申请！运单号：{}" , dmsAbnormalEclpResponse.getWaybillCode());
             return;
         }
         List<DmsAbnormalEclp> dmsAbnormalEclps = result.getRows();
@@ -74,7 +72,7 @@ public class DmsAbnormalEclpConsumer extends MessageBaseConsumer {
                 dmsAbnormalEclp.setReceiptValue(dmsAbnormalEclpResponse.getReceiptValue());
                 dmsAbnormalEclpService.updateResult(dmsAbnormalEclp);
             } catch (Exception e) {
-                logger.error("DmsAbnormalEclpConsumer consume :保存失败：" + JsonHelper.toJson(dmsAbnormalEclp), e);
+                log.error("DmsAbnormalEclpConsumer consume :保存失败：{}" , JsonHelper.toJson(dmsAbnormalEclp), e);
             }
         }
     }

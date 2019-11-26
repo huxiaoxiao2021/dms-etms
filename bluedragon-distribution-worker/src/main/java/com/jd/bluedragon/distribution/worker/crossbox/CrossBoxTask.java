@@ -1,17 +1,16 @@
 package com.jd.bluedragon.distribution.worker.crossbox;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.jd.bluedragon.distribution.crossbox.service.CrossBoxService;
 import com.jd.bluedragon.distribution.framework.DBSingleScheduler;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * 跨箱号中转维护中导入功能中，数据的定时激活和失效处理
@@ -21,7 +20,7 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
  */
 public class CrossBoxTask extends DBSingleScheduler {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private TaskService taskService;
@@ -30,8 +29,8 @@ public class CrossBoxTask extends DBSingleScheduler {
 	private CrossBoxService crossBoxService;
 
 	public List<Task> selectTasks(String arg0, int queueNum, List<String> queryCondition, int fetchNum) throws Exception {
-		if (logger.isInfoEnabled()) {
-			logger.info("任务执行fetchNum is" + fetchNum);
+		if (log.isInfoEnabled()) {
+			log.info("任务执行fetchNum is {}" , fetchNum);
 		}
 		if (queryCondition.size() == 0) {
 			return Collections.emptyList();
@@ -53,7 +52,7 @@ public class CrossBoxTask extends DBSingleScheduler {
 				tasks.add(task);
 			}
 		} catch (Exception e) {
-			this.logger.error("出现异常， 异常信息为：" + e.getMessage(), e);
+			this.log.error("出现异常， 异常信息为：{}" , e.getMessage(), e);
 		}
 		return tasks;
 	}
@@ -66,7 +65,7 @@ public class CrossBoxTask extends DBSingleScheduler {
 				tasks.add((Task) task);
 			}
 		}
-		logger.info(getWorkerDescPrefix() + "抓取到[" + tasks.size() + "]条任务待处理");
+		log.info("{}抓取到[{}]条任务待处理",getWorkerDescPrefix(),tasks.size());
 
 		int dealDataFail = 0;
 		for (Task task : tasks) {
@@ -76,7 +75,7 @@ public class CrossBoxTask extends DBSingleScheduler {
 			}
 		}
 		if (dealDataFail > 0) {
-			logger.error(getWorkerDescPrefix() + "抓取" + tasks.size() + "条任务，" + dealDataFail + "条数据执行失败！");
+			log.warn("{}抓取到[{}]条任务,{}条数据执行失败！",getWorkerDescPrefix(),tasks.size(),dealDataFail );
 			return false;
 		} else {
 			return true;

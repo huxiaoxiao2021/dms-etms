@@ -1,10 +1,10 @@
 package com.jd.bluedragon.distribution.worker.sorting.redis;
 
-import com.jd.bluedragon.distribution.framework.RedisSingleScheduler;
 import com.jd.bluedragon.distribution.auto.service.SortingPrepareService;
+import com.jd.bluedragon.distribution.framework.RedisSingleScheduler;
 import com.jd.bluedragon.distribution.task.domain.Task;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class SortingPrepareRedisTask extends RedisSingleScheduler {
 
-    private static final Log logger= LogFactory.getLog(SortingPrepareRedisTask.class);
+    private static final Logger log = LoggerFactory.getLogger(SortingPrepareRedisTask.class);
 
     @Autowired
     private SortingPrepareService sortingPrepareService;
@@ -22,11 +22,10 @@ public class SortingPrepareRedisTask extends RedisSingleScheduler {
         boolean result=false;
 
         try {
-            logger.info("task id is " + task.getId());
+            log.info("task id is {}" , task.getId());
             result = this.sortingPrepareService.handler(task);
         } catch (Exception e) {
-            logger.error("task id is" + task.getId());
-            logger.error("自动分拣准备任务，异常信息为：" + e.getMessage(), e);
+            log.error("自动分拣准备任务异常，task id is {}" , task.getId(),e);
             return Boolean.FALSE;
         }
         return result;

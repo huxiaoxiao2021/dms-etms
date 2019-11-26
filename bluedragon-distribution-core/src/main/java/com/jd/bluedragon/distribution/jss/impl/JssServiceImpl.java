@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.jss.impl;
 
-import com.jcloud.jss.JingdongStorageService;
-import com.jcloud.jss.service.ObjectService;
+import com.jd.jss.JingdongStorageService;
+import com.jd.jss.service.ObjectService;
 import com.jd.bluedragon.distribution.exception.jss.JssStorageException;
 import com.jd.bluedragon.distribution.jss.JssService;
 import com.jd.bluedragon.distribution.jss.utils.JssStorageClient;

@@ -24,4 +24,11 @@ public interface SendMManager {
      */
     boolean insertSendM(SendM dSendM);
 
+    /**
+     * 通过箱号和始发地获取发货数据
+     * @param sendM
+     * @return
+     */
+    List<SendM> findSendMByBoxCode(SendM sendM);
+
 }

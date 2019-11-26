@@ -1,11 +1,14 @@
 package com.jd.bluedragon.distribution.middleend.sorting.service;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.domain.SortingVO;
 import com.jd.bluedragon.distribution.sorting.service.SortingFactory;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -27,6 +30,8 @@ public class DmsSortingServiceImpl implements ISortingService {
      * @param sortingTask
      * @return
      */
+    @JProfiler(jKey = "DMSWORKER.DmsSortingServiceImpl.doSorting", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWORKER)
+    @Override
     public boolean doSorting(Task sortingTask) {
         if (dmsSortingService.useNewSorting(sortingTask.getCreateSiteCode())) {
             SortingVO sortingVO = new SortingVO(sortingTask);
@@ -36,6 +41,7 @@ public class DmsSortingServiceImpl implements ISortingService {
         return dmsSortingService.processTaskData(sortingTask);
     }
 
+    @Override
     public SortingResponse cancelSorting(Sorting sorting) {
         return dmsSortingService.doCancelSorting(sorting);
     }

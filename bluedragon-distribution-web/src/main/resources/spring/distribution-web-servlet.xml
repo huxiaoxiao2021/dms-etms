@@ -37,11 +37,13 @@
     </bean>
 	
 	<bean id="exceptionResolver" class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+        <property name="defaultErrorView" value="/uncaught" />
         <property name="exceptionMappings">
             <props>
                 <prop key="jang.lang.Exception">/index</prop>
                 <prop key="java.lang.RuntimeException">/wss</prop>
                 <prop key="com.jd.common.hrm.IllegalHrmPrivilegeException">/401</prop>
+                <prop key="java.lang.IllegalArgumentException">/uncaught</prop>
             </props>
         </property>
     </bean>

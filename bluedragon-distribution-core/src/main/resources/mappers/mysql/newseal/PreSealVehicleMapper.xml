@@ -21,6 +21,11 @@
 		<result column="update_user_name" property="updateUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="source" property="source" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="pre_seal_source" property="preSealSource" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="trans_way" property="transWay" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="trans_way_name" property="transWayName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="weight" property="weight" javaType="java.lang.Double" jdbcType="DOUBLE" />
+		<result column="volume" property="volume" javaType="java.lang.Double" jdbcType="DOUBLE" />
 		<result column="operate_time" property="operateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
 		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
@@ -30,11 +35,17 @@
 
     </resultMap>
 
+	<resultMap id="VehicleMeasureInfo" type="com.jd.bluedragon.distribution.newseal.domain.VehicleMeasureInfo" >
+		<result column="vehicle_number" property="vehicleNumber" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="weight" property="weight" javaType="java.lang.Double" jdbcType="DOUBLE" />
+		<result column="volume" property="volume" javaType="java.lang.Double" jdbcType="DOUBLE" />
+	</resultMap>
+
 	<sql id="Base_Column_List" >
 		id,pre_seal_uuid,create_site_code,create_site_name,receive_site_code,receive_site_name,
 		transport_code,vehicle_number,seal_codes,send_car_time,status,
 		create_user_erp,create_user_name,create_time,update_user_erp,update_user_name,
-		update_time,source,operate_time
+		update_time,source,pre_seal_source,trans_way,trans_way_name,weight,volume,operate_time
 	</sql>
 
 	<insert id="insert" parameterType="com.jd.bluedragon.distribution.newseal.domain.PreSealVehicle">
@@ -65,6 +76,21 @@
 				</if>
 					create_time,
 					source,
+				<if test="preSealSource != null">
+					pre_seal_source,
+				</if>
+				<if test="transWay != null">
+					trans_way,
+				</if>
+				<if test="transWayName != null">
+					trans_way_name,
+				</if>
+				<if test="weight != null">
+					weight,
+				</if>
+				<if test="volume != null">
+					volume,
+				</if>
 				<if test="operateTime != null">
 					operate_time,
 				</if>
@@ -99,6 +125,21 @@
 				</if>
 					#{createTime,jdbcType=TIMESTAMP},
 					#{source,jdbcType=VARCHAR},
+				<if test="preSealSource != null">
+					#{preSealSource,jdbcType=TINYINT},
+				</if>
+				<if test="transWay != null">
+					#{transWay,jdbcType=TINYINT},
+				</if>
+				<if test="transWayName != null">
+					#{transWayName,jdbcType=VARCHAR},
+				</if>
+				<if test="weight != null">
+					#{weight,jdbcType=DOUBLE},
+				</if>
+				<if test="volume != null">
+					#{volume,jdbcType=DOUBLE},
+				</if>
 				<if test="operateTime != null">
 					#{operateTime,jdbcType=TIMESTAMP},
 				</if>
@@ -113,7 +154,8 @@
 			(
 				pre_seal_uuid,create_site_code,create_site_name,receive_site_code,
 				receive_site_name,transport_code,vehicle_number,seal_codes,send_car_time,
-				status,create_user_erp,create_user_name,create_time,source,operate_time,is_delete,ts
+				status,create_user_erp,create_user_name,create_time,source,pre_seal_source,trans_way,trans_way_name,weight,volume,
+				operate_time,is_delete,ts
 			)
 			values
 			<foreach collection="list" item="item" index="index" separator=",">
@@ -132,6 +174,11 @@
 					#{item.createUserName,jdbcType=VARCHAR},
 					#{item.createTime,jdbcType=TIMESTAMP},
 					#{item.source,jdbcType=VARCHAR},
+					#{item.preSealSource,jdbcType=TINYINT},
+					#{item.transWay,jdbcType=TINYINT},
+					#{item.transWayName,jdbcType=VARCHAR},
+					#{item.weight,jdbcType=DOUBLE},
+					#{item.volume,jdbcType=DOUBLE},
 					#{item.operateTime,jdbcType=TIMESTAMP},
 					0,
 					now()
@@ -168,6 +215,21 @@
 				</if>
 				<if test="source != null">
 					source = #{source,jdbcType=VARCHAR},
+				</if>
+				<if test="preSealSource != null">
+					pre_seal_source = #{preSealSource,jdbcType=TINYINT},
+				</if>
+				<if test="transWay != null">
+					trans_way = #{transWay,jdbcType=TINYINT},
+				</if>
+				<if test="transWayName != null">
+					trans_way_name = #{transWayName,jdbcType=VARCHAR},
+				</if>
+				<if test="weight != null">
+					weight = #{weight,jdbcType=DOUBLE},
+				</if>
+				<if test="volume != null">
+					volume = #{volume,jdbcType=DOUBLE},
 				</if>
 				<if test="operateTime != null">
 					operate_time = #{operateTime,jdbcType=TIMESTAMP}
@@ -329,4 +391,33 @@
 		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
 	</select>
 
+	<select id="getVehicleMeasureInfoList" parameterType="java.util.Map" resultMap="VehicleMeasureInfo">
+        select
+        vehicle_number,weight,volume
+        from
+        pre_seal_vehicle
+        where transport_code = #{transportCode,jdbcType=VARCHAR}
+        and is_delete = 0 and status = 0
+    </select>
+
+	<select id="getPreSealVehicleInfo" parameterType="java.util.Map" resultMap="PreSealVehicle">
+        select
+		<include refid="Base_Column_List"/>
+        from
+        pre_seal_vehicle
+        where transport_code = #{transportCode,jdbcType=VARCHAR}
+        and is_delete = 0 and status = 0 limit 1
+    </select>
+
+	<update id="updatePreSealVehicleMeasureInfo" parameterType="com.jd.bluedragon.distribution.newseal.domain.PreSealVehicle">
+		update pre_seal_vehicle
+		<set>
+			<if test="weight != null">
+				weight = #{weight,jdbcType=DOUBLE},
+			</if>
+			volume = #{volume,jdbcType=DOUBLE}
+		</set>
+		where transport_code = #{transportCode,jdbcType=VARCHAR} and vehicle_number = #{vehicleNumber,jdbcType=VARCHAR}
+		and is_delete = 0 and status = 0
+	</update>
 </mapper>

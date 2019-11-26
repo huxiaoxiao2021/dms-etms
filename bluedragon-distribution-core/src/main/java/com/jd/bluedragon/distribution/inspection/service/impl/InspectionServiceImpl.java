@@ -33,12 +33,7 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.CollectionHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.bluedragon.utils.PropertiesHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
@@ -49,23 +44,15 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 验货Service
@@ -76,7 +63,7 @@ import java.util.Set;
 @Service
 public class InspectionServiceImpl implements InspectionService {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private final String PERFORMANCE_DMSSITECODE_SWITCH = "performance.dmsSiteCode.switch";
 
@@ -153,10 +140,8 @@ public class InspectionServiceImpl implements InspectionService {
                 BigWaybillDto bigWaybillDto = getWaybill(waybillCode);
                 if (bigWaybillDto != null && bigWaybillDto.getWaybill()!=null) {
 
-                    logger.info("包裹交接50 订单号: " + requestBean.getPackageBarOrWaybillCode() +
-                            "  waybillType:" + bigWaybillDto.getWaybill().getWaybillType() +
-                            "  StoreID:" + bigWaybillDto.getWaybillState().getStoreId() +
-                            " task id: " + task.getId());
+                    log.debug("包裹交接50 订单号:{} waybillType:{} StoreID:{} task id:{} "
+							,requestBean.getPackageBarOrWaybillCode() ,bigWaybillDto.getWaybill().getWaybillType() , bigWaybillDto.getWaybillState().getStoreId() , task.getId());
 
                     if (bigWaybillDto.getWaybill().getWaybillType() == Constants.BUSSINESS_TYPE_DBD_ORDERTYPE) { //夺宝岛交接 51 : 2
                         requestBean.setBusinessType(Constants.BUSSINESS_TYPE_BDB);
@@ -178,8 +163,7 @@ public class InspectionServiceImpl implements InspectionService {
 			} else if (WaybillUtil.isWaybillCode(code)) {// 否则为运单号
 				requestBean.setWaybillCode(code);
 			} else {
-				logger.error("验货executeInspectionWorker，数据错误，非正常包裹号、取件单号或运单号，code: "
-						+ code + " task id: " + task.getId());
+				log.warn("验货executeInspectionWorker，数据错误，非正常包裹号、取件单号或运单号，code: {} task id: {}" ,code, task.getId());
 				continue;
 			}
 			inspections.addAll(prepareInspection(requestBean));
@@ -225,7 +209,7 @@ public class InspectionServiceImpl implements InspectionService {
 	
 	public void inspectionCore(List<Inspection> inspections) throws Exception {
 		if (null == inspections) {
-			logger.info(" 验货 inspectionCore 参数为空 : collection of inspection is null ");
+			log.warn(" 验货 inspectionCore 参数为空 : collection of inspection is null ");
 			throw new InspectionException(" 验货 inspectionCore 参数为空 ");
 		}
 		for (Inspection inspection : inspections) {
@@ -258,8 +242,7 @@ public class InspectionServiceImpl implements InspectionService {
 		if (!preInspectionEC.isEmpty()
 				&& InspectionEC.INSPECTION_EXCEPTION_STATUS_HANDLED <= preInspectionEC
 						.get(0).getStatus()) {
-			logger.info("包裹已经异常比较，再次分拣时不操作三方异常比对记录，包裹号："
-					+ inspection.getPackageBarcode());
+			log.warn("包裹已经异常比较，再次分拣时不操作三方异常比对记录，包裹号：{}", inspection.getPackageBarcode());
 			return;
 		}
 
@@ -336,7 +319,7 @@ public class InspectionServiceImpl implements InspectionService {
 							.getPackageBarcode()));
 			inspections.add(Inspection.toInspection(requestBean));
 		} else {
-			logger.info(" 验货prepareInspection，没有对应的包裹号或者箱号 ");
+			log.warn(" 验货prepareInspection，没有对应的包裹号或者箱号 ");
 		}
 		CollectionHelper<Inspection> helper = new CollectionHelper<Inspection>();
 		return helper.toList(inspections);
@@ -354,21 +337,12 @@ public class InspectionServiceImpl implements InspectionService {
 						&& baseEntity.getData().getDistributeStoreId() != null) {
 					requestBean.setReceiveSiteCode(baseEntity.getData()
 							.getDistributeStoreId());// 库房编号
-					this.logger
-							.info("返仓交接:运单号【 "
-									+ waybillCode
-									+ "】调用运单WSS获取[库房编号]=["
-									+ baseEntity.getData()
-											.getDistributeStoreId() + "]");
+					this.log.warn("返仓交接:运单号【{}】调用运单WSS获取[库房编号]=[{}]"	,waybillCode, baseEntity.getData().getDistributeStoreId());
 				} else {
-					this.logger
-							.error("返仓交接:运单号【 "
-									+ waybillCode
-									+ "】调用运单WSS获取[库房编号]异常:[baseEntity=null||baseEntity.getData()=null||baseEntity.getData().getDistributeStoreId()=null]");
+					this.log.warn("返仓交接:运单号【{}】调用运单WSS获取[库房编号]异常:[baseEntity=null||baseEntity.getData()=null||baseEntity.getData().getDistributeStoreId()=null]",waybillCode);
 				}
 			} catch (Exception ex) {
-				this.logger.error("返仓交接:运单号【 " + waybillCode
-						+ "】调用运单WSS获取[库房编号]异常：", ex);
+				this.log.error("返仓交接:运单号【{}】调用运单WSS获取[库房编号]异常：",waybillCode, ex);
 			}
 		}
 		return requestBean;
@@ -409,9 +383,7 @@ public class InspectionServiceImpl implements InspectionService {
 		int result = inspectionDao.updatePop(inspectionPop);
 		if (Constants.NO_MATCH_DATA == result) {
 			result = inspectionDao.add(InspectionDao.namespace, inspectionPop);
-			this.logger.info("POP 运单号为【" + inspectionPop.getWaybillCode()
-					+ "】【" + inspectionPop.getCreateSiteCode()
-					+ "】的验货数据为空，插入成功");
+			this.log.warn("POP 运单号为【{}】【{}】的验货数据为空，插入成功",inspectionPop.getWaybillCode(),inspectionPop.getCreateSiteCode());
 			// //!!!!!!!!!!!!!!!!!!!!! be careful !!!!!!!!!!!!!!!!!!!!!////
 			// 目前POP收货没有包裹号，目前将运单号设置为包裹号
 			// inspectionPop.setPackageBarcode(inspectionPop.getWaybillCode());
@@ -420,9 +392,7 @@ public class InspectionServiceImpl implements InspectionService {
 			cenConfirmService.saveOrUpdateCenConfirm(cenConfirmService
 					.createCenConfirmByInspection(inspectionPop));
 		} else {
-			this.logger.info("POP 运单号为【" + inspectionPop.getWaybillCode()
-					+ "】【" + inspectionPop.getCreateSiteCode()
-					+ "】的验货数据存在，更新成功");
+			this.log.debug("POP 运单号为【{}】【{}】的验货数据存在，更新成功",inspectionPop.getWaybillCode(),inspectionPop.getCreateSiteCode());
 		}
 
 		addOperationLog(inspectionPop);
@@ -461,7 +431,7 @@ public class InspectionServiceImpl implements InspectionService {
 
             String orderId = waybillQueryManager.getOrderCodeByWaybillCode(inspection.getWaybillCode(),true);
             if(!NumberUtils.isDigits(orderId)){
-                logger.error(MessageFormat.format("pushOEMToWMS根据运单号查询的订单号是非数字code[{0}]orderId[{1}]",inspection.getWaybillCode(),orderId));
+                log.warn("pushOEMToWMS根据运单号查询的订单号是非数字code[{}]orderId[{}]",inspection.getWaybillCode(),orderId);
                 return;
             }
 			Order order = orderWebService.getOrder(Long.parseLong(orderId));
@@ -494,11 +464,11 @@ public class InspectionServiceImpl implements InspectionService {
 			dmsRouter.setType(80);
 			String json = JsonHelper.toJson(dmsRouter);
 
-			this.logger.info("分拣中心OEM收货推送WMS:MQ[" + json + "]");
+			this.log.debug("分拣中心OEM收货推送WMS:MQ[{}]",json);
 			//messageClient.sendMessage("dms_router", json,inspection.getWaybillCode());
             dmsRouterMQ.send(inspection.getWaybillCode(),json);
 		} catch (Exception e) {
-			this.logger.error("分拣中心OEM收货推送WMS失败[" + JsonHelper.toJson(dmsRouter) + "]:" + e.getMessage(), e);
+			this.log.error("分拣中心OEM收货推送WMS失败[{}]",JsonHelper.toJson(dmsRouter), e);
 		}
 	}
 
@@ -511,7 +481,9 @@ public class InspectionServiceImpl implements InspectionService {
 
 	@Override
 	public boolean dealHandoverPackages(Task task) {
-		this.logger.info("自动分拣开始处理插入 task_inspection 任务 task = " + JsonHelper.toJson(task));
+		if(log.isDebugEnabled()){
+			this.log.debug("自动分拣开始处理插入 task_inspection 任务 task = {}" , JsonHelper.toJson(task));
+		}
 		UploadedPackage uPackage = JsonHelper.fromJson(task.getBody(), UploadedPackage.class);
 		try {
 			Task taskInsp = new Task();
@@ -533,10 +505,10 @@ public class InspectionServiceImpl implements InspectionService {
 					.append("_").append(DateHelper.formatDateTimeMs(task.getOperateTime()))
 					.append("_").append(task.getOperateType());
 			taskInsp.setFingerprint(Md5Helper.encode(fingerprint.toString()));
-			this.logger.info("从任务表里面抓取自动分拣机交接的包裹数据存入 task_inspection 表 ");
+			this.log.debug("从任务表里面抓取自动分拣机交接的包裹数据存入 task_inspection 表 ");
 			taskService.add(taskInsp);
 		} catch (Exception ex) {
-			this.logger.error("从任务表里面抓取自动分拣机交接的包裹数据存入 task_inspection 表失败。原因 " + ex);
+			this.log.error("从任务表里面抓取自动分拣机交接的包裹数据存入 task_inspection 表失败。任务 task = {}" , JsonHelper.toJson(task) , ex);
 			return false;
 		}
 		return true;
@@ -565,9 +537,9 @@ public class InspectionServiceImpl implements InspectionService {
      */
     private BigWaybillDto getWaybill(String waybillCode)
     {
-        BigWaybillDto bigWaybillDto=waybillService.getWaybill(waybillCode);
+        BigWaybillDto bigWaybillDto=waybillService.getWaybill(waybillCode, false);
         if(bigWaybillDto==null || bigWaybillDto.getWaybill()==null){
-            this.logger.error(" 获取运单：【 " + waybillCode + " 】数据为空");
+            this.log.warn(" 获取运单：【{}】数据为空",waybillCode);
             return null;
         }
         return bigWaybillDto;
@@ -596,7 +568,7 @@ public class InspectionServiceImpl implements InspectionService {
 				return new InspectionResult("");
 			}
 		}else{
-			this.logger.warn("通过运单号获取运单信息失败：" + waybillCode);
+			this.log.warn("通过运单号获取运单信息失败：{}" , waybillCode);
 			return new InspectionResult("");
 		}
 	}
@@ -620,10 +592,8 @@ public class InspectionServiceImpl implements InspectionService {
 		String body = task.getBody().substring(1, task.getBody().length() - 1);
 		PopPrint popPrint = com.jd.bluedragon.distribution.api.utils.JsonHelper.fromJson(body, PopPrint.class);
 		if (!WaybillUtil.isWaybillCode(popPrint.getWaybillCode())) {
-			logger.info("平台订单已打印未收货处理 --> 打印单号【" + popPrint.getPopPrintId()
-					+ "】，运单号【" + popPrint.getWaybillCode()
-					+ "】， 操作人SiteCode【" + popPrint.getCreateSiteCode()
-					+ "】，为非平台订单");
+			log.warn("平台订单已打印未收货处理 --> 打印单号【{}】，运单号【{}】， 操作人SiteCode【{}】，为非平台订单"
+					,popPrint.getPopPrintId(),popPrint.getWaybillCode(), popPrint.getCreateSiteCode());
 			return true;
 		}
 
@@ -632,25 +602,16 @@ public class InspectionServiceImpl implements InspectionService {
 				&& !Constants.POP_QUEUE_EXPRESS.equals(popPrint.getPopReceiveType())) {
 			try {
 				this.taskPopRecieveCountService.insert(inspection);
-				this.logger.info("平台订单已打印未收货处理 --> 分拣中心-运单【"
-						+ popPrint.getCreateSiteCode() + "-"
-						+ popPrint.getWaybillCode() + "】收货补全回传POP成功");
+				this.log.debug("平台订单已打印未收货处理 --> 分拣中心-运单【{}-{}】收货补全回传POP成功",popPrint.getCreateSiteCode(),popPrint.getWaybillCode());
 			} catch (Exception e) {
-				this.logger.error("平台订单已打印未收货处理 --> 分拣中心-运单【"
-						+ popPrint.getCreateSiteCode() + "-"
-						+ popPrint.getWaybillCode()
-						+ "】 收货补全回传POP，补全异常", e);
+				this.log.error("平台订单已打印未收货处理 --> 分拣中心-运单【{}-{}】 收货补全回传POP，补全异常", popPrint.getCreateSiteCode(),popPrint.getWaybillCode(),e);
 			}
 		}
 		try {
 			this.addInspectionPop(inspection);
-			this.logger.info("平台订单已打印未收货处理 --> 分拣中心-运单【"
-					+ popPrint.getCreateSiteCode() + "-"
-					+ popPrint.getWaybillCode() + "】 收货信息不存在，补全成功");
+			this.log.debug("平台订单已打印未收货处理 --> 分拣中心-运单【{}-{}】 收货信息不存在，补全成功",popPrint.getCreateSiteCode(),popPrint.getWaybillCode());
 		} catch (Exception e) {
-			this.logger.error("平台订单已打印未收货处理 --> 分拣中心-运单【"
-					+ popPrint.getCreateSiteCode() + "-"
-					+ popPrint.getWaybillCode() + "】 收货信息不存在，补全异常", e);
+			this.log.error("平台订单已打印未收货处理 --> 分拣中心-运单【{}-{}】 收货信息不存在，补全异常",popPrint.getCreateSiteCode(),popPrint.getWaybillCode(), e);
 		}
 		return true;
 	}
@@ -699,7 +660,7 @@ public class InspectionServiceImpl implements InspectionService {
 
 			return inspection;
 		} catch (Exception e) {
-			logger.error("平台订单已打印未收货处理 --> 转换打印信息异常：", e);
+			log.error("平台订单已打印未收货处理 --> 转换打印信息异常：popPrint={}",JsonHelper.toJson(popPrint), e);
 			return null;
 		}
 	}
@@ -710,7 +671,7 @@ public class InspectionServiceImpl implements InspectionService {
 		String hintMessage = "";
 		Integer preSiteCode = null;
 		Integer destinationDmsId = null;
-		com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findWaybillAndPack(waybillCode);
+		com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findByWaybillCode(waybillCode);
 		if(waybill != null && waybill.getWaybillSign() != null){
 			//是否是金鹏订单
 			if(BusinessUtil.isPerformanceOrder(waybill.getWaybillSign())){
@@ -743,7 +704,7 @@ public class InspectionServiceImpl implements InspectionService {
 
 	@Override
 	public List<Inspection> findPageInspection(Map<String, Object> params) {
-		logger.info("InspectionServiceImpl.findPageInspection begin...");
+		log.debug("InspectionServiceImpl.findPageInspection begin...");
 		return inspectionDao.findPageInspection(params);
 	}
 

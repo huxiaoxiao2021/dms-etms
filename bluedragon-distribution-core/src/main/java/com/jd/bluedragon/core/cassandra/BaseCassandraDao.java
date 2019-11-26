@@ -5,14 +5,11 @@ import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+
 import java.util.*;
 
 public class BaseCassandraDao{
-
-    private static final Logger logger = LoggerFactory.getLogger(BaseCassandraDao.class);
 
     @Value("${cassandra.consistencyLevel.default}")
     protected ConsistencyLevel  consistencyLevel;
@@ -24,7 +21,6 @@ public class BaseCassandraDao{
 
 	public void close(){
         if(this.session.isClosed()){
-            logger.error("BaseCassandraDao to close a closed session");
             return;
         }
         this.session.close();
@@ -32,27 +28,22 @@ public class BaseCassandraDao{
     
 	@JProfiler(jKey = "baseCassandra.batchInsert", mState = { JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError })
 	public void batchInsert(List<BoundStatement> bstatementList, Map<String, Object> values) throws Exception {
-		long startTime = System.currentTimeMillis();
 		BatchStatement batch = new BatchStatement();
 		for (BoundStatement statement : bstatementList) {
 			batch.add(statement);
 		}
 		batch.setConsistencyLevel(consistencyLevel);
 		session.executeAsync(batch);
-		logger.info("cassandra batchInsert execute success cost:"+(System.currentTimeMillis()-startTime)+"ms");
 	}
 	
 	@JProfiler(jKey = "baseCassandra.preparedSelectBycode", mState = { JProEnum.TP,JProEnum.Heartbeat, JProEnum.FunctionError })
     public ResultSet preparedSelectBycode(BoundStatement bs) throws Exception{
-		long startTime = System.currentTimeMillis();
-		ResultSet set = session.execute(bs); 
-        logger.info("cassandra preparedSelectBycode execute success cost:"+(System.currentTimeMillis()-startTime)+"ms");
+		ResultSet set = session.execute(bs);
         return set;
 	}
     
     @JProfiler(jKey = "baseCassandra.insert", mState = { JProEnum.TP,JProEnum.Heartbeat, JProEnum.FunctionError })
     public void insert(String tableName,Map<String,Object> values) throws Exception{
-        long startTime=System.currentTimeMillis();
         if(StringUtils.isBlank(tableName)){
             throw new Exception("cassandra insert tableName must be not empty");
         }
@@ -92,12 +83,10 @@ public class BaseCassandraDao{
         BoundStatement bounded = session.prepare(toPrepare).bind(args);
 
         ResultSet result = session.execute(bounded);
-        logger.info("cassandra insert execute success cost:"+(System.currentTimeMillis()-startTime)+"ms");
 
     }
     @JProfiler(jKey = "baseCassandra.select", mState = { JProEnum.TP,JProEnum.Heartbeat, JProEnum.FunctionError })
     public List<Map<String,Object>> select(String tableName,Map<String,Object> params) throws Exception{
-         long startTime=System.currentTimeMillis();
         if(StringUtils.isBlank(tableName)){
             throw new Exception("cassandra select tableName must be not empty");
         }
@@ -131,7 +120,6 @@ public class BaseCassandraDao{
          if(null!=result){
              returnResult=transferRowToMap(result.all());
          }
-        logger.info("cassandra select execute success cost:"+(System.currentTimeMillis()-startTime)+"ms");
 
         return returnResult;
     }
@@ -197,7 +185,6 @@ public class BaseCassandraDao{
 
     @JProfiler(jKey = "baseCassandra.insertByCql", mState = { JProEnum.TP,JProEnum.Heartbeat, JProEnum.FunctionError })
     public void insertByCql(String cql,Object[] args) throws Exception{
-        long startTime=System.currentTimeMillis();
         if(StringUtils.isBlank(cql)){
             throw new Exception("cassandra insertByCql cql must be not empty");
         }
@@ -216,13 +203,11 @@ public class BaseCassandraDao{
         }else{
            session.execute(toPrepare);
         }
-        logger.info("cassandra insertByCql execute success cost:"+(System.currentTimeMillis()-startTime)+"ms");
 
     }
     
     @JProfiler(jKey = "baseCassandra.selectByCql", mState = { JProEnum.TP,JProEnum.Heartbeat, JProEnum.FunctionError })
     public List<Map<String,Object>> selectByCql(String cql,Object[] args) throws Exception{
-        long startTime=System.currentTimeMillis();
         if(StringUtils.isBlank(cql)){
             throw new Exception("cassandra selectByCql cql must be not empty");
         }
@@ -241,14 +226,12 @@ public class BaseCassandraDao{
         if(null!=result){
             returnResult=transferRowToMap(result.all());
         }
-        logger.info("cassandra selectByCql execute success cost:"+(System.currentTimeMillis()-startTime)+"ms");
 
         return returnResult;
     }
     
     @JProfiler(jKey = "baseCassandra.selectByCqlReturnBean", mState = { JProEnum.TP,JProEnum.Heartbeat, JProEnum.FunctionError })
     public List<? extends Object> selectByCqlReturnBean(String cql,Object[] args,Class c) throws Exception{
-        long startTime=System.currentTimeMillis();
         if(StringUtils.isBlank(cql)){
             throw new Exception("cassandra selectByCqlReturnBean cql must be not empty");
         }
@@ -267,14 +250,12 @@ public class BaseCassandraDao{
         if(null!=result){
             returnResult=transferRowToBean(result.all(),c);
         }
-        logger.info("cassandra selectByCqlReturnBean execute success cost:"+(System.currentTimeMillis()-startTime)+"ms");
 
         return returnResult;
     }
     
     @JProfiler(jKey = "baseCassandra.executeByCql", mState = { JProEnum.TP,JProEnum.Heartbeat, JProEnum.FunctionError })
     public ResultSet executeByCql(String cql,Object[] args) throws Exception{
-        long startTime=System.currentTimeMillis();
         if(StringUtils.isBlank(cql)){
             throw new Exception("cassandra executeByCql cql must be not empty");
         }
@@ -287,9 +268,6 @@ public class BaseCassandraDao{
         }else{
             result = session.execute(toPrepare);
         }
-
-        logger.info("cassandra executeByCql execute success cost:"+(System.currentTimeMillis()-startTime)+"ms");
-
         return result;
     }
 

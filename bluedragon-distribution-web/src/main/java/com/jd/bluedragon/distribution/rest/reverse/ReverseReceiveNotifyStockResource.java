@@ -1,18 +1,8 @@
 package com.jd.bluedragon.distribution.rest.reverse;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.ChuguanExportManager;
 import com.jd.bluedragon.core.base.StockExportManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.kuguan.domain.KuGuanDomain;
@@ -22,8 +12,22 @@ import com.jd.bluedragon.distribution.reverse.dao.ReverseReceiveDao;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
 import com.jd.bluedragon.distribution.reverse.service.ReverseReceiveNotifyStockService;
 import com.jd.bluedragon.distribution.reverse.service.ReverseSendPopMessageService;
-
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ioms.jsf.export.domain.Order;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 
 @Component
 @Path(Constants.REST_URL)
@@ -47,7 +51,14 @@ public class ReverseReceiveNotifyStockResource {
 	
     @Autowired
     private ReverseReceiveDao reverseReceiveDao;
-    
+
+
+    @Autowired
+    private ChuguanExportManager chuguanExportManager;
+
+    @Resource
+    protected UccPropertyConfiguration uccPropertyConfiguration;
+
 	/**
 	 * 使用notify方法代替
 	 * 
@@ -57,6 +68,7 @@ public class ReverseReceiveNotifyStockResource {
 	 */
 	@GET
 	@Path("/reverse/stock/nodify/{waybillCode}")
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.WEB.ReverseReceiveNotifyStockResource.sendMessage", mState = JProEnum.TP)
 	public String sendMessage(@PathParam("waybillCode") Long waybillCode)
 			throws Exception {
 		this.reverseReceiveNotifyStockService.nodifyStock(waybillCode);
@@ -73,6 +85,7 @@ public class ReverseReceiveNotifyStockResource {
 	
 	@GET
 	@Path("/reverseReceiveNotifyStock/notify/{waybillCode}")
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.WEB.ReverseReceiveNotifyStockResource.notify", mState = JProEnum.TP)
 	public String notify(@PathParam("waybillCode") Long waybillCode)
 			throws Exception {
 		String resultStr = check(waybillCode);
@@ -137,7 +150,7 @@ public class ReverseReceiveNotifyStockResource {
 		}
 
 		// 2.查询页面上的值，用于判断先后款
-		KuGuanDomain stockPageResp = stockExportManager.queryByWaybillCode(String.valueOf(waybillCode));
+		KuGuanDomain stockPageResp = queryKuguanDomainByWaybillCode(String.valueOf(waybillCode));
 
 		if (stockPageResp != null) {
 			fangshi = stockPageResp.getLblWay();
@@ -151,4 +164,23 @@ public class ReverseReceiveNotifyStockResource {
 				orderType, fangshi, fenlei, qita, qitafangshi);
 		return osi;
 	}
+
+    @GET
+    @Path("/reverseReceiveNotifyStock/getChuGuanInfo/{waybillCode}")
+    public String getChuGuanInfo(@PathParam("waybillCode") String waybillCode)
+            throws Exception {
+        KuGuanDomain newKu = chuguanExportManager.queryByWaybillCode(waybillCode);
+        KuGuanDomain oldKu = stockExportManager.queryByWaybillCode(waybillCode);
+	    StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("new[").append(JsonHelper.toJson(newKu)).append("]");
+        stringBuilder.append("old[").append(JsonHelper.toJson(oldKu)).append("]");
+        return stringBuilder.toString();
+    }
+
+    private KuGuanDomain queryKuguanDomainByWaybillCode(String waybillCode){
+        if(uccPropertyConfiguration.isChuguanNewInterfaceQuerySwitch()){
+            return chuguanExportManager.queryByWaybillCode(waybillCode);
+        }
+        return stockExportManager.queryByWaybillCode(waybillCode);
+    }
 }

@@ -152,6 +152,11 @@ public class Constants {
     public static final Integer BUSINESS_LOG_OPERATE_TYPE_SLOW_SEND=2003001;
 
     /**
+     * 操作日志线上签记录
+     */
+    public static final Integer BUSINESS_LOG_OPERATE_TYPE_ONLINE_PRINT=2003002;
+
+    /**
      * 操作日志业务编码-航空转陆运
      */
     public static final Integer BUSINESS_LOG_OPERATE_TYPE_ARABNORMAL=101401;
@@ -604,7 +609,9 @@ public class Constants {
     public static final String DMS_WEB_PTORDER_RECEIVE_R="DMS-WEB-PTORDER-RECEIVE-R"; //平台实收查询
     public static final String DMS_WEB_SORTING_RECEIVEWEIGHTCHECK_R="DMS-WEB-SORTING-RECEIVEWEIGHTCHECK-R"; //揽收重量校验统计
     public static final String DMS_WEB_SORTING_WEIGHTANDVOLUMECHECK_R="DMS-WEB-SORTING-WEIGHTANDVOLUMECHECK-R"; //重量体积抽验统计
-    public static final String DMS_WEB_SORTING_REVIEWWEIGHTSPOTCHECK_R="DMS-WEB-SORTING-REVIEWWEIGHTSPOTCHECK-R"; //分拣复重抽检任务统计
+    public static final String DMS_WEB_SORTING_WEIGHTANDVOLUMECHECKOFB2B_R="DMS-WEB-SORTING-WEIGHTANDVOLUMECHECKOFB2B-R"; //B网转运重量抽检
+    public static final String DMS_WEB_SORTING_REVIEWWEIGHTSPOTCHECK_R="DMS-WEB-SORTING-REVIEWWEIGHTSPOTCHECK-R"; //复重抽检任务导入
+    public static final String DMS_WEB_SORTING_REVIEWWEIGHTSPOTCHECK_SPECIAL_R="DMS-WEB-SORTING-REVIEWWEIGHTSPOTCHECK-SPECIAL-R"; //复重抽检任务的导入功能（单独申请权限）
     public static final String DMS_WEB_SORTING_INVENTORYTASK_R="DMS_WEB_SORTING_INVENTORYTASK_R"; //转运清场任务
     public static final String DMS_WEB_SORTING_INVENTORYEXCEPTION_R="DMS_WEB_SORTING_INVENTORYEXCEPTION_R"; //转运清场异常
     public static final String DMS_WEB_SORTING_CROSSBOX_R ="DMS-WEB-SORTING-CROSSBOX-R"; //跨箱号中转
@@ -626,6 +633,7 @@ public class Constants {
     public static final String DMS_WEB_SORTING_TMSPROXY_R="DMS-WEB-SORTING-TMSPROXY-R";//运输委托书打印
     public static final String DMS_WEB_SORTING_GOODSPRINT_R="DMS_WEB_SORTING_GOODSPRINT_R";//托寄物品名打印
     public static final String DMS_WEB_SORTING_REVERSEPARTDETAIL_CHECK_R="DMS-WEB-SORTING-REVERSEPARTDETAIL-CHECK-R";//半退明细查询
+    public static final String DMS_WEB_TOOL_BUSIWEIGHTANDVOLUMEWHITELIST_R="DMS-WEB-TOOL-MERCHANTWEIGHTANDVOLUMEWHITELIST-R";//商家称重量方白名单
     public static final String DMS_WEB_EXPRESS_QUARANTINELICENSE_R="DMS-WEB-EXPRESS-QUARANTINELICENSE-R";//冷链卡班检疫证票号管理
     public static final String DMS_WEB_EXPRESS_B2BROUTER_R="DMS-WEB-EXPRESS-B2BROUTER-R";//B网路由配置表
     public static final String DMS_WEB_EXPRESS_DMSSTORAGEAREA_R="DMS-WEB-EXPRESS-DMSSTORAGEAREA-R";//流向库位配置表
@@ -711,6 +719,12 @@ public class Constants {
      * 配置信息-客户端检查配置sys.config.client.check
      */
     public static final String SYS_CONFIG_LOGIN_CHECK = "sys.config.login.check";
+
+    /**
+     * 配置信息-拼多多不允许获取接口的打印类型 pdd.print.type.not.use;
+     */
+    public static final String SYS_CONFIG_PDD_PRINT_TYPE_NOT_USE = "pdd.print.type.not.use";
+
     /**
 	  * 配置信息-客户端运行环境配置前缀 sys.config.client.runningMode.
 	  */
@@ -964,6 +978,10 @@ public class Constants {
      * 数据库箱号最大长度限制，由于无法保证与数据库同步更新，此常量不属于权威定义
      */
     public static final int BOX_CODE_DB_COLUMN_LENGTH_LIMIT = 50;
+    /**
+     * 数据库车牌长度最大长度限制，由于无法保证与数据库同步更新，此常量不属于权威定义
+     */
+    public static final int CAR_CODE_DB_COLUMN_LENGTH_LIMIT = 32;
 
     /**
      * EMG条码前缀
@@ -978,4 +996,9 @@ public class Constants {
      * 字典的产品类型父节点
      */
     public static final Integer PRODUCT_PARENT_ID = 30048;
+    /**
+     * 货物类型
+     */
+    public static final int BASEDICT_GOODS_TYPE_TYPECODE = 10203;
+
 }

@@ -169,5 +169,9 @@ public class CollectGoodsDetailServiceImpl extends BaseService<CollectGoodsDetai
 		return resList;
 	}
 
+	@Override
+	public CollectGoodsDetail findCollectGoodsDetailByPackageCode(String packageCode){
+		return collectGoodsDetailDao.findCollectGoodsDetailByPackageCode(packageCode);
+	}
 
 }

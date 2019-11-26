@@ -20,6 +20,11 @@ public interface DmsPackingConsumableService {
     JdResponse<DmsPackingConsumableInfo> getPackingConsumableInfoByDmsId(Integer dmsId);
 
     /*
+     * 获取快运中心支持的耗材信息
+     */
+    JdResponse<DmsPackingConsumableInfo> getPackingConsumableInfoByDmsCode(String dmsCode);
+
+    /*
     * 获取编号对应的耗材信息
     */
     JdResponse<PackingConsumableBaseInfo> getPackingConsumableInfoByCode(String consumableCode);

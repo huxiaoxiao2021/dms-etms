@@ -48,6 +48,12 @@ public class SealTaskBody implements Serializable{
     /** 车牌号 */
     private String carCode;
 
+    /** 重量 */
+    private Double weight;
+
+    /** 体积 */
+    private Double volume;
+
     public Integer getTaskType() {
         return taskType;
     }
@@ -146,5 +152,21 @@ public class SealTaskBody implements Serializable{
 
     public void setCarCode(String carCode) {
         this.carCode = carCode;
+    }
+
+    public Double getWeight() {
+        return weight;
+    }
+
+    public void setWeight(Double weight) {
+        this.weight = weight;
+    }
+
+    public Double getVolume() {
+        return volume;
+    }
+
+    public void setVolume(Double volume) {
+        this.volume = volume;
     }
 }

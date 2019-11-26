@@ -2,8 +2,8 @@ package com.jd.bluedragon.alpha.service.impl;
 
 import com.jd.bluedragon.alpha.jss.JssVersionService;
 import com.jd.bluedragon.alpha.service.VersionInfoInJssService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +21,7 @@ import java.util.List;
 @Service("versionInfoInJssService")
 public class VersionInfoInJssServiceImpl implements VersionInfoInJssService{
 
-    private static final Log logger = LogFactory.getLog(PrintDeviceServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(PrintDeviceServiceImpl.class);
     @Autowired
     JssVersionService jssVersionService;
 
@@ -38,7 +38,7 @@ public class VersionInfoInJssServiceImpl implements VersionInfoInJssService{
         try{
             inputStream.close();
         }catch (IOException e){
-            logger.error("输入流关闭失败",e);
+            log.error("输入流关闭失败",e);
         }
         return 1;//上传成功
     }
@@ -54,7 +54,7 @@ public class VersionInfoInJssServiceImpl implements VersionInfoInJssService{
             jssVersionService.addVersion(keyName,length,inputStream);//添加新版本
             return 1;//更新完成
         }catch(Exception e){
-            logger.error("版本更新失败：",e);
+            log.error("版本更新失败：",e);
             return -1;//更新失败
         }
     }
@@ -76,7 +76,7 @@ public class VersionInfoInJssServiceImpl implements VersionInfoInJssService{
             uri = jssVersionService.downloadVersion(versionId);
 
         }catch(Exception e){
-            logger.error("版本下载失败：",e);
+            log.error("版本下载失败：",e);
         }
         if(uri == null){
             return null;

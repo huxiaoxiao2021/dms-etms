@@ -16,6 +16,7 @@
 	<import resource="classpath:spring/distribution-core-datasource-task.xml" />
 	<import resource="classpath:spring/distribution-core-dao.xml" />
 	<import resource="classpath:spring/distribution-core-ws.xml" />
+	<import resource="classpath:spring/distribution-core-business.xml" />
 <!-- 	<import resource="classpath:spring/distribution-core-wss.xml" /> -->
 	<import resource="classpath:spring/order_service_config.xml" />
 	<import resource="classpath:spring/distribution-core-redis.xml" />
@@ -31,6 +32,7 @@
 	<import resource="classpath:spring/spring-ucc.xml" />
 	<import resource="classpath:spring/distribution-core-handler.xml" />
 	<import resource="classpath:spring/distribution-core-sequence-gen-redis.xml" />
+	<import resource="classpath*:cdf/crossbow.comp" />
 
 	<context:component-scan base-package="com.jd.bluedragon.distribution.popAbnormal.helper" />
 	<context:component-scan base-package="com.jd.bluedragon.distribution.*.dao" />
@@ -45,6 +47,7 @@
 	<context:component-scan base-package="com.jd.bluedragon.alpha.jss" />
 	<context:component-scan base-package="com.jd.bluedragon.alpha.service" />
 	<context:component-scan base-package="com.jd.bluedragon.alpha.ucc" />
+	<context:component-scan base-package="com.jd.lsb" />
 
 	<bean id="springHelper" class="com.jd.bluedragon.utils.SpringHelper"></bean>
 	<bean id="cacheAspect" class="com.jd.etms.framework.utils.cache.spring.CacheAspect">

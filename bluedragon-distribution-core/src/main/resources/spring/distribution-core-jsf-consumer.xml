@@ -314,6 +314,10 @@
     <jsf:consumer id="waybillReverseApi" interface="com.jd.ldop.center.api.reverse.WaybillReverseApi"
                   protocol="jsf" alias="${jsf.waybillReverseApi.alias}" timeout="${jsf.waybillReverseApi.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
+    <!-- 外单 修改运单信息接口-->
+    <jsf:consumer id="waybillUpdateApi" interface="com.jd.ldop.center.api.update.WaybillUpdateApi"
+                  protocol="jsf" alias="${jsf.waybillUpdateApi.alias}" timeout="${jsf.waybillUpdateApi.timeout}" retries="${jsf.retries}">
+    </jsf:consumer>
     <!-- 外单签单返回合单接口-->
     <jsf:consumer id="waybillReturnSignatureApi" interface="com.jd.ldop.center.api.reverse.WaybillReturnSignatureApi"
                   protocol="jsf" alias="${jsf.WaybillReturnSignatureApi.alias}" timeout="${jsf.WaybillReturnSignatureApi.timeout}" retries="${jsf.retries}">
@@ -473,6 +477,11 @@
                   protocol="jsf" alias="${vos.vehicleJobBusiness.jsf.alias}" timeout="${vos.vehicleJobBusiness.jsf.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
 
+    <!-- ICENTER系统 智能园区 园区叫号 何双（heshuang10）-->
+    <jsf:consumer id="iPdaDispatchJsfService" interface="com.jd.intelligent.center.api.service.IPdaDispatchJsfService" protocol="jsf"
+                  alias="${icenter.jsf.alias}" timeout="${icenter.jsf.timeout}" retries="0">
+    </jsf:consumer>
+
 
     <jsf:consumer id="allianceWaybillManagerApi" interface="com.jd.partner.waybill.api.WaybillManagerApi" protocol="jsf"
                   alias="${jsf.ldop.alpha.waybill.alias}" timeout="${jsf.ldop.alpha.waybill.timeout}" retries="0">
@@ -482,8 +491,48 @@
                   alias="${common.use.menu.jsf.alias}" timeout="${common.use.menu.jsf.timeout}" retries="0">
     </jsf:consumer>
 
+    <jsf:consumer id="iotQueryWS" interface="com.jd.tms.iot.ws.IotQueryWS" protocol="jsf"
+                  alias="${jsf.iot.alias}" timeout="${jsf.iot.timeout}" retries="0">
+    </jsf:consumer>
+
+    <jsf:consumer id="iotDeviceWS" interface="com.jd.tms.iot.ws.IotDeviceWS" protocol="jsf"
+                  alias="${jsf.iot.alias}" timeout="${jsf.iot.timeout}" retries="0">
+        <jsf:parameter key="token" value="${jsf.iot.token}" hide="true"/>
+    </jsf:consumer>
+
     <jsf:consumer id="searchOrganizationOtherServiceJsf" interface="com.jd.ufo.saf.SearchOrganizationOtherService"
                   protocol="jsf" alias="${jsf.ufo.SearchOrganizationOtherService.alias}" timeout="${jsf.ufo.SearchOrganizationOtherService.timeout}" retries="${jsf.retries}">
+    </jsf:consumer>
+
+    <jsf:consumer id="chuguanExport" interface="com.jd.stock.iwms.export.ChuguanExport" alias="${jsf.chuguan.alias}">
+        <!-- 藏经阁分配的客户端名称，特别注意：藏经阁分配的客户端名称会在接入方应用英文名称前带“(J-one)”或“(J-dos)”前缀 测试环境没有-->
+        <jsf:parameter key="clientName" value="${jsf.chuguan.cjg.clientName}" hide="true" />
+        <!-- 藏经阁生成token，藏经阁生成token，藏经阁生成token 测试环境没有-->
+        <jsf:parameter key="authToken" value="${jsf.chuguan.cjg.authToken}" hide="true" />
+        <jsf:parameter key="alias" value="${jsf.chuguan.alias}" hide="true" />
+    </jsf:consumer>
+
+    <jsf:consumer id="eclpOpenServiceJsf" interface="com.jd.eclp.isv.service.EclpOpenService"
+                  protocol="jsf" alias="${jsf.eclpOpenServiceJsf.alias}" timeout="${jsf.eclpOpenServiceJsf.timeout}" retries="${jsf.retries}">
+    </jsf:consumer>
+
+
+    <jsf:consumer id="ecpQueryWS" interface="com.jd.tms.ecp.ws.EcpQueryWS" protocol="jsf" alias="${tms.ecp.jsf.alias}" timeout="${tms.ecp.jsf.timeout}" retries="1"/>
+
+    <jsf:consumer id="jdwlSignServiceJsf" interface="com.jdwl.bcoi.entry.api.service.JdwlService"
+                  protocol="jsf" alias="${jsf.jdwlSignService.alias}" timeout="${jsf.jdwlSignService.timeout}" retries="${jsf.retries}" >
+    </jsf:consumer>
+
+    <!--ECLP 箱号-包裹信息api-->
+    <jsf:consumer id="eclpPackageApi" interface="com.jd.ldop.oms.api.order.PackageApi"
+                  protocol="jsf" alias="${jsf.eclpPackageApi.alias}" timeout="${jsf.eclpPackageApi.timeout}">
+    </jsf:consumer>
+
+    <!-- 中台-理货查询 -->
+    <jsf:consumer id="sharedSortingQueryService" interface="com.jd.ql.shared.services.sorting.api.SortingQueryService"
+                  protocol="jsf" alias="${jsf.middleEnd.sorting.query.alias}" timeout="${jsf.middleEnd.sorting.query.timeout}" retries="${jsf.retries}">
+        <jsf:parameter key="appCode" value="${jsf.component.container.appName}" hide="true"></jsf:parameter>
+        <jsf:parameter key="authToken" value="${jsf.component.container.token}" hide="true"></jsf:parameter>
     </jsf:consumer>
 
 </beans>

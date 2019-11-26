@@ -4,8 +4,8 @@ import com.jd.bluedragon.alpha.domain.PrintDevice;
 import com.jd.bluedragon.alpha.service.PrintDeviceService;
 import com.jd.bluedragon.alpha.ucc.UccPrintDeviceService;
 import com.jd.bluedragon.utils.DateHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +18,7 @@ import java.util.List;
 @Service("printDeviceService")
 public class PrintDeviceServiceImpl implements PrintDeviceService {
 
-    private static final Log logger = LogFactory.getLog(PrintDeviceServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(PrintDeviceServiceImpl.class);
 
     @Autowired
     UccPrintDeviceService uccPrintDeviceService;
@@ -78,7 +78,7 @@ public class PrintDeviceServiceImpl implements PrintDeviceService {
         try {
             versionId = uccPrintDeviceService.searchVersionIdByPrintDeviceId(printDeviceId);
         } catch(Exception e){
-            logger.error("获取打印机设备的版本号失败，设备编号：" + printDeviceId ,e);
+            log.error("获取打印机设备的版本号失败，设备编号：{}" , printDeviceId ,e);
         }
         return versionId;
     }
@@ -89,7 +89,7 @@ public class PrintDeviceServiceImpl implements PrintDeviceService {
         try{
             bool = uccPrintDeviceService.printDeviceState(printDeviceId);
         } catch (Exception e){
-            logger.error("获取打印机设备信息失败，设备ID：" + printDeviceId,e);
+            log.error("获取打印机设备信息失败，设备ID：{}" , printDeviceId,e);
         }
         return bool;
     }

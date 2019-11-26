@@ -2,8 +2,8 @@ package com.jd.bluedragon.distribution.sorting.dao;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 
+import com.jd.bluedragon.distribution.middleend.sorting.dao.DynamicSortingQueryDao;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,25 +14,17 @@ import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 public class SortingDaoTest extends AbstractDaoIntegrationTest {
 
     @Autowired
+    private DynamicSortingQueryDao dynamicSortingQueryDao;
+
+    @Autowired
     private SortingDao sortingDao;
-
-
-    @Test
-    public void testFindOrder() {
-        Sorting parameter = new Sorting();
-        parameter.setBoxCode("Mary");
-        parameter.setCreateSiteCode(620);
-        parameter.setReceiveSiteCode(748);
-        parameter.setCreateTime(new Date());
-        sortingDao.findOrder(parameter);
-    }
 
     @Test
     public void testFindPackCount() {
         HashMap parameter = new HashMap();
         // parameter.put("createSiteCode", new Object());
         // parameter.put("boxCode", new Object());
-        sortingDao.findPackCount(11, "boxCode");
+        dynamicSortingQueryDao.findPackCount(11, "boxCode");
     }
 
     @Test
@@ -65,7 +57,7 @@ public class SortingDaoTest extends AbstractDaoIntegrationTest {
         HashMap parameter = new HashMap();
         // parameter.put("boxCode", new Object());
         // parameter.put("createSiteCode", new Object());
-        Sorting sorting = sortingDao.findBoxDescSite(910, "James");
+        Sorting sorting = dynamicSortingQueryDao.findBoxDescSite(910, "James");
 //        Assert.assertTrue(sorting != null);
     }
 
@@ -90,17 +82,6 @@ public class SortingDaoTest extends AbstractDaoIntegrationTest {
         sortingDao.update(SortingDao.namespace, parameter);
     }
 
-    @Test
-    public void testFindSortingPackages() {
-        Sorting parameter = new Sorting();
-        parameter.setType(1120);
-        parameter.setBoxCodes("'James'");
-        parameter.setCreateSiteCode(910);
-        parameter.setPackageCode("James");
-        parameter.setWaybillCode("James");
-        List<Sorting> list = sortingDao.findSortingPackages(parameter);
-//        Assert.assertTrue(list != null && list.size() > 0);
-    }
 
     @Test
     public void testFindByBoxCode() {
@@ -109,7 +90,7 @@ public class SortingDaoTest extends AbstractDaoIntegrationTest {
         parameter.setCreateSiteCode(910);
         parameter.setReceiveSiteCode(910);
         parameter.setType(1120);
-        sortingDao.findByBoxCode(parameter);
+        dynamicSortingQueryDao.findByBoxCode(parameter);
     }
 
     @Test
@@ -117,7 +98,7 @@ public class SortingDaoTest extends AbstractDaoIntegrationTest {
         Sorting parameter = new Sorting();
         parameter.setBsendCode("James");
         parameter.setCreateSiteCode(910);
-        sortingDao.findByBsendCode(parameter);
+        dynamicSortingQueryDao.findByBsendCode(parameter);
     }
 
     @Test
@@ -139,7 +120,7 @@ public class SortingDaoTest extends AbstractDaoIntegrationTest {
         Sorting parameter = new Sorting();
         parameter.setPackageCode("James");
         parameter.setCreateSiteCode(910);
-        sortingDao.existSortingByPackageCode(parameter);
+        dynamicSortingQueryDao.existSortingByPackageCode(parameter);
     }
 
     @Test
@@ -149,7 +130,7 @@ public class SortingDaoTest extends AbstractDaoIntegrationTest {
         parameter.setType(1120);
         parameter.setWaybillCode("James");
         parameter.setPackageCode("James");
-        sortingDao.findBoxPackList(parameter);
+        dynamicSortingQueryDao.findBoxPackList(parameter);
     }
 
     @Test
@@ -159,7 +140,7 @@ public class SortingDaoTest extends AbstractDaoIntegrationTest {
         parameter.setType(1120);
         parameter.setWaybillCode("James");
         parameter.setPackageCode("James");
-        sortingDao.queryByCode(parameter);
+        dynamicSortingQueryDao.queryByCode(parameter);
     }
 
     @Test

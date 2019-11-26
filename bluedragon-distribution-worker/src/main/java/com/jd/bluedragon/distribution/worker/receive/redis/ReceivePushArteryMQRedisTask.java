@@ -16,10 +16,10 @@ public class ReceivePushArteryMQRedisTask extends RedisSingleScheduler{
     @Override
     protected boolean executeSingleTask(Task task, String ownSign) throws Exception {
         try{
-            this.logger.info("开始执行推送财务干线计费信息 Redis Task id = " + task.getId());
+            this.log.info("开始执行推送财务干线计费信息 Redis Task id = {}" , task.getId());
             return departureService.pushMQ2ArteryBillingSysByTask(task);
         }catch(Exception e){
-            this.logger.error("推送财务干线计费信息 Redis Task 失败 Task id =" + task.getId() + ", 原因 " + e);
+            this.log.error("推送财务干线计费信息 Redis Task 失败 Task id ={}" , task.getId() , e);
             return false;
         }
     }

@@ -78,4 +78,8 @@ public interface CollectGoodsDetailService extends Service<CollectGoodsDetail> {
      */
     public List<List<Object>> getExportData(CollectGoodsDetailCondition CollectGoodsDetailCondition);
 
+    /**
+     * 根据包裹号获取包裹的集货信息
+     */
+    CollectGoodsDetail findCollectGoodsDetailByPackageCode(String packageCode);
 }

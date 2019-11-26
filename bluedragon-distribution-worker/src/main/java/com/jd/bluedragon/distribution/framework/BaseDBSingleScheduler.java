@@ -1,13 +1,12 @@
 package com.jd.bluedragon.distribution.framework;
 
-import org.apache.log4j.Logger;
-
 import com.jd.bluedragon.distribution.task.domain.DmsTaskExecutor;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BaseDBSingleScheduler<T> extends DBSingleScheduler {
-	private static Logger logger = Logger
-			.getLogger(BaseDBSingleScheduler.class);
+	private static Logger log = LoggerFactory.getLogger(BaseDBSingleScheduler.class);
 	/**
 	 * 任务执行器-负责任务执行操作
 	 */
@@ -19,8 +18,7 @@ public class BaseDBSingleScheduler<T> extends DBSingleScheduler {
 		try {
 			return dmsTaskExecutor.execute(task,ownSign);
 		} catch (Exception e) {
-			logger.error("["+taskType+"]处理任务失败[taskId=" + task.getId() + "]异常信息为："
-							+ e.getMessage(), e);
+			log.error("[{}]处理任务失败[taskId={}]异常信息为：",taskType,task.getId(), e);
 			return false;
 		}
 	}

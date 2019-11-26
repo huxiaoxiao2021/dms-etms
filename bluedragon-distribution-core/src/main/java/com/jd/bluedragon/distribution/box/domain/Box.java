@@ -121,6 +121,10 @@ public class Box {
 	private String groupName;
 
 	private String groupSendCode;
+	/**
+	 * 包裹数
+	 */
+	private Integer packageNum = 0;
 
 	public String getGroupSendCode() {
 		return groupSendCode;
@@ -382,6 +386,20 @@ public class Box {
 	@Override
 	public int hashCode() {
 		return 360 + this.code.hashCode();
+	}
+
+	/**
+	 * @return the packageNum
+	 */
+	public Integer getPackageNum() {
+		return packageNum;
+	}
+
+	/**
+	 * @param packageNum the packageNum to set
+	 */
+	public void setPackageNum(Integer packageNum) {
+		this.packageNum = packageNum;
 	}
 
 }

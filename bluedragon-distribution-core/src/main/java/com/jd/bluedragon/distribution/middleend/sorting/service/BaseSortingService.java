@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.middleend.sorting.service;
 
+import com.alibaba.fastjson.JSON;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -18,20 +20,23 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.alibaba.fastjson.JSON;
 import com.jd.ql.dms.common.cache.CacheService;
-import com.jd.ql.shared.services.sorting.api.dto.*;
+import com.jd.ql.shared.services.sorting.api.dto.Flow;
+import com.jd.ql.shared.services.sorting.api.dto.SiteType;
+import com.jd.ql.shared.services.sorting.api.dto.SortingDirection;
+import com.jd.ql.shared.services.sorting.api.dto.SortingObject;
+import com.jd.ql.shared.services.sorting.api.dto.SortingObjectStatus;
+import com.jd.ql.shared.services.sorting.api.dto.SortingObjectType;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public abstract class BaseSortingService {
@@ -76,6 +81,7 @@ public abstract class BaseSortingService {
      * @return
      */
     public boolean doSorting(Task sortingTask) {
+        CallerInfo info = Profiler.registerInfo("DMSWORKER.BaseSortingService.doSorting", Constants.UMP_APP_NAME_DMSWORKER, false, true);
         String fingerPrintKey = "";
         try {
             //验重
@@ -94,9 +100,11 @@ public abstract class BaseSortingService {
             return true;
         } catch (Exception e) {
             logger.error("分拣操作异常.参数:" + JSON.toJSONString(sortingTask) + ",异常原因:", e);
+            Profiler.functionError(info);
             return false;
         } finally {
             delCache(fingerPrintKey);
+            Profiler.registerInfoEnd(info);
         }
     }
 

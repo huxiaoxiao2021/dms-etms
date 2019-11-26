@@ -483,19 +483,36 @@ public class BusinessUtil {
     /**
      * 是否为商家类型
      */
-    public static boolean isBizSite(String sReceiveSiteType) {
+    public static boolean isBizSite(Integer siteType) {
+        return DmsConstants.SITE_TYPE_BIZ.equals(siteType);
+    }
 
-        Integer receiveSiteType;
-        try {
-            receiveSiteType = Integer.parseInt(sReceiveSiteType);
-        } catch (Exception e) {
-            return Boolean.FALSE;
-        }
+    /**
+     * 是否为仓类型
+     */
+    public static boolean isWmsSite(Integer siteType) {
+        return DmsConstants.SITE_TYPE_WMS.equals(siteType);
+    }
 
-        if (DmsConstants.SITE_TYPE_BIZ.equals(receiveSiteType)) {
-            return Boolean.TRUE;
-        }
-        return Boolean.FALSE;
+    /**
+     * 是否为分拣中心类型
+     */
+    public static boolean isDistrubutionCenter(Integer siteType) {
+        return DmsConstants.SITE_TYPE_DMS.equals(siteType);
+    }
+
+    /**
+     * 是否为站点类型
+     */
+    public static boolean isSite(Integer siteType) {
+        return DmsConstants.SITE_TYPE_SITE.equals(siteType);
+    }
+
+    /**
+     * 是否为车队类型
+     */
+    public static boolean isFleet(Integer siteType) {
+        return DmsConstants.SITE_TYPE_FLEET.equals(siteType);
     }
 
     /**
@@ -589,6 +606,13 @@ public class BusinessUtil {
     }
 
     /**
+     * 判断是否C2C京准达，waybill_sign 第113位等于2
+     */
+    public static Boolean isC2CJZD(String waybillSign){
+        return isSignChar(waybillSign,113,'2');
+    }
+
+    /**
      * 是否为三方-合作站点
      * @param type
      * @return
@@ -672,13 +696,13 @@ public class BusinessUtil {
 
 
     /**
-     * 纯配外单判断 【waybillSign第1为为2、3、6、9、K、Y且第53位为2】
+     * 纯配外单判断 【waybillSign第1为为2、3、6、9、K、Y且第53位为2、0】
      * */
     public static Boolean isPurematch(String waybillSign){
         if(waybillSign == null){
             return Boolean.FALSE;
         }
-        if(isSignChar(waybillSign,53,'2')
+        if(isSignInChars(waybillSign,53,'2','0')
                 && isSignInChars(waybillSign,1,'2','3','6','9','K','Y')){
             return Boolean.TRUE;
         }
@@ -968,4 +992,22 @@ public class BusinessUtil {
        return input.matches(SEAL_BOX_NO);
     }
 
+
+    /**
+     * 是否是鸡毛信运单
+     * @param waybillSign
+     * @return true 是，false 不是
+     */
+    public static boolean isFeatherLetter(String waybillSign){
+        return isSignInChars(waybillSign, WaybillSignConstants.POSITION_92, WaybillSignConstants.CHAR_92_2,WaybillSignConstants.CHAR_92_3);
+    }
+
+    /**
+     * 是否是信任商家
+     * @param waybillSign
+     * @return true 是，false 不是
+     */
+    public static boolean isTrustBusi(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_56,WaybillSignConstants.CHAR_56_1);
+    }
 }

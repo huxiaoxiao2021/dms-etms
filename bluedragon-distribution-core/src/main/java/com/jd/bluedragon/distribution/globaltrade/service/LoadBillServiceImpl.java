@@ -34,10 +34,10 @@ import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -52,7 +52,7 @@ import java.util.regex.Pattern;
 @Service("loadBillService")
 public class LoadBillServiceImpl implements LoadBillService {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private static final int SUCCESS = 1; // report的status,1为成功,2为失败
 
@@ -107,7 +107,7 @@ public class LoadBillServiceImpl implements LoadBillService {
     public int initialLoadBill(String sendCode, Integer userId, String userCode, String userName) {
         String loadBillConfigStr = PropertiesHelper.newInstance().getValue(LOAD_BILL_CONFIG);
         if (StringUtils.isBlank(loadBillConfigStr)) {
-            logger.error("LoadBillServiceImpl initialLoadBill with loadBillConfig is null");
+            log.warn("LoadBillServiceImpl initialLoadBill with loadBillConfig is null");
             return 0;
         }
 
@@ -118,12 +118,13 @@ public class LoadBillServiceImpl implements LoadBillService {
 
             LoadBillConfig loadBillConfig = loadBillConfigMap.get(dto.getSiteCode());
             if (loadBillConfig != null) {
+                log.info("[全球购]初始化-LoadBillServiceImpl.initialLoadBill操作批次号：{}，操作人：{}" ,sendCode, userCode);
                 Map<String, Object> params = new HashMap<String, Object>();
                 params.put("sendCodeList", StringHelper.parseList(sendCode, ","));
                 params.put("dmsList", new Integer[]{dto.getSiteCode()});
                 List<SendDetail> sendDetailList = sendDatailReadDao.findBySendCodeAndDmsCode(params);
                 if (sendDetailList == null || sendDetailList.size() < 1) {
-                    logger.info("[全球购]初始化-LoadBillServiceImpl initialLoadBill with the num of SendDetail is 0");
+                    log.warn("[全球购]初始化-LoadBillServiceImpl initialLoadBill with the num of SendDetail is 0");
                     return 0;
                 }
                 return this.doInitial(sendDetailList, loadBillConfig, userId, userName);
@@ -169,7 +170,7 @@ public class LoadBillServiceImpl implements LoadBillService {
     private int doInitial(List<SendDetail> sendDetailList, LoadBillConfig loadBillConfig, Integer userId, String userName) {
         CallerInfo info = Profiler.registerInfo("DMSWEB.LoadBillServiceImpl.doInitial", false, true);
         long start = System.currentTimeMillis();
-        List<LoadBill> addList = new ArrayList<LoadBill>();
+        List<LoadBill> addList = new ArrayList<LoadBill>(sendDetailList.size());
         // 站点信息缓存Cache
         Map<Integer, String> dmsCacheMap = new HashMap<Integer, String>();
         // 预装载信息缓存运单号Cache
@@ -198,10 +199,10 @@ public class LoadBillServiceImpl implements LoadBillService {
                 }
             }
         }
-        logger.info("[全球购]-[初始化]-构建可新增loadBill对象共" + sendDetailList.size() + "条，耗时:" + (System.currentTimeMillis() - start));
+        log.debug("[全球购]-[初始化]-构建可新增loadBill对象共{}条，耗时:{}",sendDetailList.size(), (System.currentTimeMillis() - start));
         start = System.currentTimeMillis();
         this.batchAdd(addList);
-        logger.info("[全球购]-[初始化]-执行入库共" + addList.size() + "条，耗时:" + (System.currentTimeMillis() - start));
+        log.debug("[全球购]-[初始化]-执行入库共{}条，耗时:{}",addList.size(), (System.currentTimeMillis() - start));
         Profiler.registerInfoEnd(info);
         return addList.size();
     }
@@ -273,19 +274,10 @@ public class LoadBillServiceImpl implements LoadBillService {
         return lb;
     }
 
-    private String getVendorOrderId(String waybillCode) {
-        try {
-            return waybillService.getWaybill(waybillCode).getWaybill().getVendorId();
-        } catch (Exception e) {
-            logger.error(String.format("获取运单[%s]的订单号失败，原因", waybillCode), e);
-            return null;
-        }
-    }
-
     @Override
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public int updateLoadBillStatusByReport(LoadBillReport report) {
-        logger.info("更新装载单状态 reportId is " + report.getReportId() + ", waybillCode is " + report.getWaybillCode());
+        log.debug("更新装载单状态 reportId is {}, waybillCode is {}",report.getReportId(), report.getWaybillCode());
         //将waybillCode分割,长度不超过500
         List<LoadBillReport> reportList = new ArrayList<LoadBillReport>();
         List<String> waybillCodeList = new ArrayList<String>();
@@ -320,7 +312,7 @@ public class LoadBillServiceImpl implements LoadBillService {
     public Integer preLoadBill(List<Long> id, String userCode, String trunkNo) throws Exception {
         String loadBillConfigStr = PropertiesHelper.newInstance().getValue(LOAD_BILL_CONFIG);
         if (StringUtils.isBlank(loadBillConfigStr)) {
-            logger.error("LoadBillServiceImpl preLoadBill with loadBillConfig is null");
+            log.warn("LoadBillServiceImpl preLoadBill with loadBillConfig is null");
             return 0;
         }
 
@@ -335,7 +327,7 @@ public class LoadBillServiceImpl implements LoadBillService {
                 try {
                     loadBIlls = selectLoadbillById(id); //每次取#{SQL_IN_EXPRESS_LIMIT}
                 } catch (Exception ex) {
-                    logger.error("获取预装载数据失败", ex);
+                    log.error("获取预装载数据失败:{}",id, ex);
                     Profiler.businessAlarm("DMSCORE.LoadBillServiceImpl.selectLoadBillAlarm", "selectLoadBillById出错");
                     Profiler.functionError(info);
                     throw new GlobalTradeException("获取预装载数据失败，系统异常");
@@ -361,26 +353,28 @@ public class LoadBillServiceImpl implements LoadBillService {
                 String preLoadBillId = String.valueOf(genObjectId.getObjectId(LoadBill.class.getName()));
                 PreLoadBill preLoadBill = toPreLoadBill(loadBIlls, loadBillConfig, trunkNo, preLoadBillId);
 
-                logger.error("调用卓志预装载接口数据" + JsonHelper.toJson(preLoadBill));
+                if(log.isDebugEnabled()){
+                    log.debug("调用卓志预装载接口数据{}" , JsonHelper.toJson(preLoadBill));
+                }
 
                 ClientResponse<String> response = getResponse(preLoadBill);
                 CallerInfo info1 = Profiler.registerInfo("DMSCORE.LoadBillServiceImpl.updateLoadBillStatus", false, true);
                 if (response.getStatus() == HttpStatus.SC_OK) {
                     LoadBillReportResponse response1 = JsonHelper.fromJson(response.getEntity(), LoadBillReportResponse.class);
                     if (SUCCESS == response1.getStatus().intValue()) {
-                        logger.error("调用卓志接口预装载成功");
+                        log.debug("调用卓志接口预装载成功");
                         try {
                             this.updateLoadBillStatusByWaybillCodes(new ArrayList(waybillCodeSet), trunkNo, preLoadBillId, LoadBill.APPLIED);
                         } catch (Exception ex) {
-                            logger.error("预装载更新车牌号和装载单ID失败，原因", ex);
+                            log.error("预装载更新车牌号和装载单ID失败，原因", ex);
                             throw new GlobalTradeException("预装载操作失败，系统异常");
                         }
                     } else {
-                        logger.error("调用卓志接口预装载失败原因" + response1.getNotes());
+                        log.warn("调用卓志接口预装载失败原因{}" , response1.getNotes());
                         throw new GlobalTradeException("调用卓志接口预装载失败" + response1.getNotes());
                     }
                 } else {
-                    logger.error("调用卓志预装载接口失败" + response.getStatus());
+                    log.warn("调用卓志预装载接口失败:{}", response.getStatus());
                     Profiler.businessAlarm("DMSCORE.LoadBillServiceImpl.updateLoadBillStatusAlarm", "调用卓志预装载接口出错");
                     throw new GlobalTradeException("调用卓志预装载接口失败" + response.getStatus());
                 }
@@ -458,21 +452,21 @@ public class LoadBillServiceImpl implements LoadBillService {
             if (response.getStatusCode().value() == 200) {
                 LoadBillReportResponse response1 = response.getBody();
                 if (1 == response1.getStatus().intValue()) {
-                    logger.info("调用卓志接口预装载成功");
+                    log.debug("调用卓志接口预装载成功");
                     Map<String, Object> loadBillStatusMap = new HashMap<String, Object>();
                     loadBillStatusMap.put("orderId", loadBill.getLoadId());
                     loadBillStatusMap.put("approvalCode", LoadBill.APPLIED);
                     loadBillDao.updateLoadBillStatus(loadBillStatusMap);
                 } else if (2 == response1.getStatus().intValue()) {
-                    logger.info("调用卓志接口预装载失败原因" + response1.getNotes());
+                    log.warn("调用卓志接口预装载失败原因:{}" , response1.getNotes());
                     return TaskResult.REPEAT;
                 }
             } else {
-                logger.error("调用卓志预装载接口失败" + response.getStatusCode());
+                log.warn("调用卓志预装载接口失败:{}" , response.getStatusCode());
                 return TaskResult.REPEAT;
             }
         } catch (Exception ex) {
-            logger.error("调用卓志预装载接口失败", ex);
+            log.error("调用卓志预装载接口失败:{}",JsonHelper.toJson(task), ex);
             return TaskResult.REPEAT;
         }
 
@@ -532,7 +526,7 @@ public class LoadBillServiceImpl implements LoadBillService {
             }
         } catch (Exception e) {
             // TODO Auto-generated catch block
-            logger.error("取消装载单处理异常", e);
+            log.error("取消装载单处理异常", e);
             return new JdResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         }
         return new JdResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
@@ -614,7 +608,7 @@ public class LoadBillServiceImpl implements LoadBillService {
         Map<String, Object> loadBillStatusMap = new HashMap<String, Object>();
         loadBillStatusMap.put("waybillCode", WaybillUtil.getWaybillCode(report.getWaybillCode()));
         loadBillStatusMap.put("boxCode", report.getBoxCode());
-        this.logger.info("findWaybillInLoadBill 查询数据库预装在信息 状态");
+        this.log.debug("findWaybillInLoadBill 查询数据库预装在信息 状态");
         List<LoadBill> loadBillList = loadBillReadDao.findWaybillInLoadBill(loadBillStatusMap);
         return loadBillList;
     }

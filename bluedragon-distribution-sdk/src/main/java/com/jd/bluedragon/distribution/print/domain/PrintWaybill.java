@@ -204,13 +204,21 @@ public class PrintWaybill extends BasePrintWaybill {
      */
     private String receivable;
 
+    /**
+     * 是否是鸡毛信运单
+     */
+    private boolean featherLetterWaybill;
 
+    /**
+     * 是否需要打印
+     * */
+    private Boolean needPrintFlag = Boolean.TRUE;
 
     public PrintWaybill(){
         this.isAir=false;
         this.isSelfService=false;
         this.isPrintInvoice=false;
-
+        this.featherLetterWaybill = false;
     }
 
     public String getNewAddress() {
@@ -491,5 +499,21 @@ public class PrintWaybill extends BasePrintWaybill {
 
     public void setReceivable(String receivable) {
         this.receivable = receivable;
+    }
+
+    public boolean isFeatherLetterWaybill() {
+        return featherLetterWaybill;
+    }
+
+    public void setFeatherLetterWaybill(boolean featherLetterWaybill) {
+        this.featherLetterWaybill = featherLetterWaybill;
+    }
+
+    public Boolean getNeedPrintFlag() {
+        return needPrintFlag;
+    }
+
+    public void setNeedPrintFlag(Boolean needPrintFlag) {
+        this.needPrintFlag = needPrintFlag;
     }
 }

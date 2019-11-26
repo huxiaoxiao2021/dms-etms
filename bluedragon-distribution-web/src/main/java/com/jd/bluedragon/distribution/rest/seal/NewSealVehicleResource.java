@@ -147,6 +147,7 @@ public class NewSealVehicleResource {
         response.setRouteType(data.getRouteType());
         response.setDriver(data.getCarrierName());
         response.setTransWay(data.getTransMode());
+        response.setTransWayName(data.getTransModeName());
         response.setCarrierType(data.getTransType());
 
         //运力校验
@@ -476,7 +477,7 @@ public class NewSealVehicleResource {
      */
     @POST
     @Path("/new/vehicle/findSealInfo")
-    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 101202)
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1012 ,operateType = 101202)
     public NewSealVehicleResponse findSealInfo(NewSealVehicleRequest request) {
 
         NewSealVehicleResponse<List<SealCarDto>> sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
@@ -504,7 +505,7 @@ public class NewSealVehicleResource {
                 String ChineseVehicleNumber = carLicenseChangeUtil.formateLicense2Chinese(request.getVehicleNumber());
 
                 //增加车牌号的条件
-                sealCarDto.setVehicleNumber(ChineseVehicleNumber);
+                sealCarDto.setVehicleNumber(StringUtils.isEmpty(ChineseVehicleNumber)?request.getVehicleNumber():ChineseVehicleNumber);
             }
 
 
@@ -557,7 +558,7 @@ public class NewSealVehicleResource {
      */
     @POST
     @Path("/new/vehicle/unseal/check")
-    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 101201)
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1012,operateType = 101201)
     public NewSealVehicleResponse unsealCheck(NewSealVehicleRequest request) {
         NewSealVehicleResponse<String> sealVehicleResponse = new NewSealVehicleResponse<String>(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
         try {

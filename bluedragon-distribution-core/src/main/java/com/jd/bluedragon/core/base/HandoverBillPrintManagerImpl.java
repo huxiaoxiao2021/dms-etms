@@ -8,8 +8,8 @@ import com.jd.b2b.wt.assemble.sdk.service.HandoverBillProvider;
 import com.jd.bluedragon.Constants;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +22,7 @@ import java.util.List;
 @Service("handoverBillPrintManager")
 public class HandoverBillPrintManagerImpl implements HandoverBillPrintManager{
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private HandoverBillProvider handoverBillProvider;
@@ -35,7 +35,7 @@ public class HandoverBillPrintManagerImpl implements HandoverBillPrintManager{
         if (rpcResult != null && rpcResult.getSuccess()) {
             return rpcResult.getValue();
         }
-        this.logger.warn("通过履约单号查询履约单信息为空"+handoverBillPrintReq.getFulfillmentOrderId());
+        this.log.warn("通过履约单号查询履约单信息为空:{}",handoverBillPrintReq.getFulfillmentOrderId());
         return null;
     }
 
@@ -47,7 +47,7 @@ public class HandoverBillPrintManagerImpl implements HandoverBillPrintManager{
         if(rpcResult != null && rpcResult.getSuccess()){
             return rpcResult.getValue().getCanPrint();
         }
-        this.logger.warn("通过履约单号查询能否打印信息为空"+handoverBillPrintReq.getFulfillmentOrderId());
+        log.warn("通过履约单号查询能否打印信息为空:{}",handoverBillPrintReq.getFulfillmentOrderId());
         return false;
 
     }
@@ -60,7 +60,7 @@ public class HandoverBillPrintManagerImpl implements HandoverBillPrintManager{
         try {
             result = handoverBillProvider.dismantlePrint(handoverBillPrintReq);
         }catch (Exception e){
-            this.logger.error("通过履约单号" + handoverBillPrintReq.getFulfillmentOrderId() + "获得加履单详情失败",e);
+            log.error("通过履约单号{}获得加履单详情失败",handoverBillPrintReq.getFulfillmentOrderId(),e);
             return null;
         }
         if(result != null){

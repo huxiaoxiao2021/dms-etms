@@ -4,12 +4,14 @@ import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.tbschedule.dto.ScheduleQueue;
 import com.jd.tbschedule.redis.template.TBRedisWorkerMultiTemplate;
 import com.jd.tbschedule.redis.template.TaskEntry;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -19,7 +21,7 @@ import java.util.List;
 public abstract class RedisSingleScheduler extends
 		TBRedisWorkerMultiTemplate<Task> {
 
-	protected final Logger logger = Logger.getLogger(this.getClass());
+	protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	protected String desc;
 
@@ -41,7 +43,7 @@ public abstract class RedisSingleScheduler extends
 				super.init();
 				initFinished=true;
 			}catch(Exception e){
-				logger.error(e.getMessage(), e);
+				log.error("RedisSingleScheduler.init error", e);
 			}
 		}
 	}
@@ -76,8 +78,7 @@ public abstract class RedisSingleScheduler extends
 
 	public boolean handleTask(List<TaskEntry<Task>> tasks, String ownSign)
 			throws Exception {
-		logger.info("[" + desc + "]worker 抓取到[" + tasks.size()
-				+ "]条任务待处理");
+		log.info("[{}]worker 抓取到[{}]条任务待处理",desc,tasks.size());
 
 		int dealDataFail = 0;
 		for (TaskEntry<Task> task : tasks) {
@@ -88,10 +89,9 @@ public abstract class RedisSingleScheduler extends
 			super.removeRedis(task, super.queueNumberMap);
 		}
 
-		logger.info("[" + desc + "]worker 执行[" + tasks.size() + "]条任务完毕！");
+		log.info("[{}]worker 执行[{}]条任务完毕！",desc,tasks.size());
 		if (dealDataFail > 0) {
-			logger.info("[" + desc + "]worker 抓取" + tasks.size() + "条任务，"
-					+ tasks.size() + "条数据执行失败]！");
+			log.warn("[{}]worker 抓取{}条任务，{}条数据执行失败]！",desc,tasks.size(),dealDataFail);
 			return false;
 		} else {
 			return true;
@@ -112,7 +112,7 @@ public abstract class RedisSingleScheduler extends
 				try {
 					result = executeSingleTask(task, ownSign);
 				} catch (Exception e) {
-					logger.error("Redis任务执行失败!"+e.getMessage(), e);
+					log.error("Redis任务执行失败:{}", JsonHelper.toJson(task), e);
 				}
 
 				//3. 根据任务处理结果进行数据落地，标明任务的执行状态(成功、失败)
@@ -135,9 +135,9 @@ public abstract class RedisSingleScheduler extends
 			 * 2. result = false 说明处理失败，且redisTaskHanlder.handleError(task);数据落地失败。那么说明落地时异常，对于此部分数据进行日志保存。
 			 */
 			if(result){
-				logger.error("Redis任务数据处理成功, 落地失败, 数据可以丢弃!"+e.getMessage(), e);
+				log.error("Redis任务数据处理成功, 落地失败, 数据可以丢弃!异常:{}",e.getMessage(), e);
 			}else{
-				logger.error("Redis任务数据处理失败, 落地失败，数据存入System_Log表!"+e.getMessage(), e);
+				log.error("Redis任务数据处理失败, 落地失败，数据存入System_Log表!异常:{}",e.getMessage(), e);
 				//说明处理失败后落地又失败，这种情况需要记录日志，择日再执行了
 				SystemLog systemLog = new SystemLog();
 				systemLog.setKeyword1(task.getKeyword1());
@@ -149,7 +149,7 @@ public abstract class RedisSingleScheduler extends
 				
 				int count = SystemLogUtil.log(systemLog);
 				if(count<1){//说明此时数据库有异常，存不进去。向上抛出异常，防止redis 删除数据。
-					logger.error("Redis任务数据存入System_Log表失败, 数据库可能存在异常!");
+					log.error("Redis任务数据存入System_Log表失败, 数据库可能存在异常!");
 					throw(e);
 				}
 			}

@@ -108,6 +108,24 @@ public class WaybillPrintRequest extends JdRequest{
      */
 	private String oldBarCode;
 
+    /**
+     * 是否取消鸡毛信服务；
+     * 根据waybillsign确认是鸡毛信运单 才有用
+     * true 取消，false 不取消
+     */
+	private boolean cancelFeatherLetter;
+
+    /**
+     * 鸡毛信设备号
+     * 根据waybillsign确认是鸡毛信运单 才有用
+     */
+	private String featherLetterDeviceNo;
+
+	/**
+	 * 自动识别包裹标签打印标识
+	 * */
+	private Boolean discernFlag = false;
+
 	public Boolean getTrustBusinessFlag() {
 		return trustBusinessFlag;
 	}
@@ -322,5 +340,29 @@ public class WaybillPrintRequest extends JdRequest{
 
 	public void setOldBarCode(String oldBarCode) {
 		this.oldBarCode = oldBarCode;
+	}
+
+    public boolean isCancelFeatherLetter() {
+        return cancelFeatherLetter;
+    }
+
+    public void setCancelFeatherLetter(boolean cancelFeatherLetter) {
+        this.cancelFeatherLetter = cancelFeatherLetter;
+    }
+
+    public String getFeatherLetterDeviceNo() {
+        return featherLetterDeviceNo;
+    }
+
+    public void setFeatherLetterDeviceNo(String featherLetterDeviceNo) {
+        this.featherLetterDeviceNo = featherLetterDeviceNo;
+    }
+
+	public Boolean getDiscernFlag() {
+		return discernFlag;
+	}
+
+	public void setDiscernFlag(Boolean discernFlag) {
+		this.discernFlag = discernFlag;
 	}
 }

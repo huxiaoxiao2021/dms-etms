@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.inventory.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.domain.SiteEntity;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.service.SiteService;
@@ -25,8 +24,8 @@ import com.jd.etms.waybill.handler.WaybillSyncParameter;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -38,7 +37,7 @@ import java.util.List;
 @Service("packageStatusService")
 public class PackageStatusServiceImpl implements PackageStatusService {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private SendDetailService sendDetailService;
@@ -100,8 +99,8 @@ public class PackageStatusServiceImpl implements PackageStatusService {
         //包裹状态发送JMQ消息
         List<Message> messageList = new ArrayList<>();
         for (PackageStatus packageStatus : packageStatusLis) {
-            if (logger.isInfoEnabled()) {
-                logger.info("发送包裹状态消息-" + packageStatus.getPackageCode() + ":" + JsonHelper.toJson(packageStatus));
+            if (log.isDebugEnabled()) {
+                log.debug("发送包裹状态消息-{}：{}",packageStatus.getPackageCode(), JsonHelper.toJson(packageStatus));
             }
             messageList.add(new Message(dmsPackageStatusMQProducer.getTopic(),JSON.toJSONString(packageStatus),packageStatus.getPackageCode()));
 
@@ -118,13 +117,13 @@ public class PackageStatusServiceImpl implements PackageStatusService {
      * @return
      */
     private List<PackageStatus> waybillSyncParam2PackageStatus(List<WaybillSyncParameter> parameters) {
-        if (logger.isInfoEnabled()) {
-            logger.info("同步运单状态对象转换为包裹状态对象.参数:" + JSON.toJSONString(parameters));
+        if (log.isDebugEnabled()) {
+            log.debug("同步运单状态对象转换为包裹状态对象.参数:{}" , JSON.toJSONString(parameters));
         }
         List<PackageStatus> packageStatusesList = new ArrayList<>();
         for (WaybillSyncParameter parameter : parameters) {
             if (parameter.getWaybillSyncParameterExtend() == null || parameter.getWaybillSyncParameterExtend().getOperateType() == null) {
-                logger.warn("同步运单状态对象转换为包裹状态参数中扩展对象为空，无法获取操作节点，不进行处理." + JSON.toJSONString(parameter));
+                log.warn("同步运单状态对象转换为包裹状态参数中扩展对象为空，无法获取操作节点，不进行处理:{}", JSON.toJSONString(parameter));
                 continue;
             }
 
@@ -179,8 +178,8 @@ public class PackageStatusServiceImpl implements PackageStatusService {
      * @return
      */
     private List<PackageStatus> bdTraceDto2PackageStatus(BdTraceDto bdTraceDto) {
-        if (logger.isInfoEnabled()) {
-            logger.info("发送全称跟踪对象转换成包裹状态对象.参数:" + JSON.toJSONString(bdTraceDto));
+        if (log.isDebugEnabled()) {
+            log.debug("发送全称跟踪对象转换成包裹状态对象.参数:{}",JSON.toJSONString(bdTraceDto));
         }
 
         List<PackageStatus> packageStatusesList = new ArrayList<>();
@@ -309,9 +308,9 @@ public class PackageStatusServiceImpl implements PackageStatusService {
         Integer receiveSiteCode = null;
         //1.查send_d表
         if (createSiteCode != null && createSiteCode > 0) {
-            List<SendDetail> sendDetailList = sendDetailService.findByWaybillCodeOrPackageCode(createSiteCode, waybillCode, null);
-            if (sendDetailList != null && sendDetailList.size() > 0) {
-                receiveSiteCode = sendDetailList.get(0).getReceiveSiteCode();
+            SendDetail sendDetaiFirst = sendDetailService.findOneByWaybillCode(createSiteCode, waybillCode);
+            if (sendDetaiFirst != null) {
+                receiveSiteCode = sendDetaiFirst.getReceiveSiteCode();
             }
         }
 
@@ -395,26 +394,26 @@ public class PackageStatusServiceImpl implements PackageStatusService {
 
         //运单号包裹号至少有一个
         if (StringUtils.isBlank(waybillCode) && StringUtils.isBlank(packageCode)) {
-            logger.warn("没有有效的运单号和包裹号." + JSON.toJSONString(parameter) + ";" + JSON.toJSONString(bdTraceDto));
+            log.warn("没有有效的运单号和包裹号:{}={}",JSON.toJSONString(parameter), JSON.toJSONString(bdTraceDto));
             return false;
         }
         if (createSiteCode == null || createSiteCode <= 0) {
-            logger.warn("操作站点无效." + JSON.toJSONString(parameter) + ";" + JSON.toJSONString(bdTraceDto));
+            log.warn("操作站点无效:{}-{}",JSON.toJSONString(parameter), JSON.toJSONString(bdTraceDto));
             return false;
         }
         if (!isB2bSite(createSiteCode)) {
-            logger.warn("非B网的分拣中心操作." + JSON.toJSONString(parameter) + ";" + JSON.toJSONString(bdTraceDto));
+            log.warn("非B网的分拣中心操作:{}-{}",JSON.toJSONString(parameter), JSON.toJSONString(bdTraceDto));
             return false;
         }
 
         if (operateType == null) {
-            logger.warn("没有全称跟踪节点." + JSON.toJSONString(parameter) + ";" + JSON.toJSONString(bdTraceDto));
+            log.warn("没有全称跟踪节点:{}-{}",JSON.toJSONString(parameter), JSON.toJSONString(bdTraceDto));
             return false;
         }
         //物流状态不在列表内的不记录
         PackStatusEnum statusEnum = getStatusInfo(operateType);
         if (statusEnum == null) {
-            logger.warn("全称跟踪节点不在列表内." + JSON.toJSONString(parameter) + ";" + JSON.toJSONString(bdTraceDto));
+            log.warn("全称跟踪节点不在列表内:{}-{}",JSON.toJSONString(parameter), JSON.toJSONString(bdTraceDto));
             return false;
         }
 

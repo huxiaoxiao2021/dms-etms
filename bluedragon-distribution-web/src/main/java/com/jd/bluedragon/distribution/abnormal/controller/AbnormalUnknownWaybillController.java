@@ -7,13 +7,16 @@ import com.jd.bluedragon.distribution.abnormal.service.AbnormalUnknownWaybillSer
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,6 +41,9 @@ import java.util.List;
 public class AbnormalUnknownWaybillController extends DmsBaseController{
 
     private static final Log logger = LogFactory.getLog(AbnormalUnknownWaybillController.class);
+
+    @Value("${abnormalUnknown.queryLimitDay:20}")
+    private int queryLimitDay;
 
     @Autowired
     private AbnormalUnknownWaybillService abnormalUnknownWaybillService;
@@ -154,20 +160,44 @@ public class AbnormalUnknownWaybillController extends DmsBaseController{
     @Authorization(Constants.DMS_WEB_SORTING_UNKNOWNWAYBILL_R)
     @RequestMapping(value = "/listData")
     public @ResponseBody
-    PagerResult<AbnormalUnknownWaybill> listData(@RequestBody AbnormalUnknownWaybillCondition abnormalUnknownWaybillCondition) {
-        JdResponse<PagerResult<AbnormalUnknownWaybill>> rest = new JdResponse<PagerResult<AbnormalUnknownWaybill>>();
+    JdResponse<PagerResult<AbnormalUnknownWaybill>> listData(@RequestBody AbnormalUnknownWaybillCondition abnormalUnknownWaybillCondition) {
+        JdResponse<PagerResult<AbnormalUnknownWaybill>> rest = new JdResponse<>();
+        if(StringUtils.isEmpty(abnormalUnknownWaybillCondition.getWaybillCode())
+                && (abnormalUnknownWaybillCondition.getStartTime() == null || abnormalUnknownWaybillCondition.getEndTime() == null)){
+            rest.toFail("运单号和上报时间条件不能同时为空！");
+            return rest;
+        }
+        if(StringUtils.isEmpty(abnormalUnknownWaybillCondition.getWaybillCode())
+                && DateHelper.daysBetween(abnormalUnknownWaybillCondition.getStartTime(),abnormalUnknownWaybillCondition.getEndTime()) >
+                queryLimitDay){
+            rest.toFail("上报时间相差不能超过"+ queryLimitDay +"天！");
+            return rest;
+        }
         if (abnormalUnknownWaybillCondition.getWaybillCode() != null && abnormalUnknownWaybillCondition.getWaybillCode().contains(AbnormalUnknownWaybill.SEPARATOR_APPEND)) {
             String[] waybillcodes = abnormalUnknownWaybillCondition.getWaybillCode().split(AbnormalUnknownWaybill.SEPARATOR_APPEND);
             abnormalUnknownWaybillCondition.setWaybillCodes(Arrays.asList(waybillcodes));
             abnormalUnknownWaybillCondition.setWaybillCode(null);
         }
+        rest.toSucceed();
         rest.setData(abnormalUnknownWaybillService.queryByPagerCondition(abnormalUnknownWaybillCondition));
-        return rest.getData();
+        return rest;
     }
+
     @Authorization(Constants.DMS_WEB_SORTING_UNKNOWNWAYBILL_R)
     @RequestMapping(value = "/toExport")
     public ModelAndView toExport(AbnormalUnknownWaybillCondition abnormalUnknownWaybillCondition, Model model) {
         try {
+            if(StringUtils.isEmpty(abnormalUnknownWaybillCondition.getWaybillCode())
+                    && (abnormalUnknownWaybillCondition.getStartTime() == null || abnormalUnknownWaybillCondition.getEndTime() == null)){
+                model.addAttribute("exception",new IllegalArgumentException("运单号和上报时间条件不能同时为空！") );
+                return new ModelAndView("uncaught");
+            }
+            if(StringUtils.isEmpty(abnormalUnknownWaybillCondition.getWaybillCode())
+                    && DateHelper.daysBetween(abnormalUnknownWaybillCondition.getStartTime(),abnormalUnknownWaybillCondition.getEndTime()) >
+                    queryLimitDay){
+                model.addAttribute("exception",new IllegalArgumentException("上报时间相差不能超过"+ queryLimitDay +"天！") );
+                return new ModelAndView("uncaught");
+            }
             if (abnormalUnknownWaybillCondition.getWaybillCode() != null && abnormalUnknownWaybillCondition.getWaybillCode().contains(AbnormalUnknownWaybill.SEPARATOR_APPEND)) {
                 String[] waybillcodes = abnormalUnknownWaybillCondition.getWaybillCode().split(AbnormalUnknownWaybill.SEPARATOR_APPEND);
                 abnormalUnknownWaybillCondition.setWaybillCodes(Arrays.asList(waybillcodes));
