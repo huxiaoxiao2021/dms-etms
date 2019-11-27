@@ -142,4 +142,12 @@
                   alias="${dms.gateway.jsf.alias}"
                   ref="reverseWarehouseGateWayService"
                   server="dmsjsf"/>
+
+    <!-- 异常提交 -->
+    <bean id="exceptionHandleGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.ExceptionHandleGatewayServiceImpl"/>
+    <jsf:provider id="jsfExceptionHandleGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.ExceptionHandleGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="exceptionHandleGatewayService" server="dmsjsf">
+    </jsf:provider>
 </beans>
