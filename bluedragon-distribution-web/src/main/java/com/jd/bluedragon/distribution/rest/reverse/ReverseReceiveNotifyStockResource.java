@@ -69,6 +69,7 @@ public class ReverseReceiveNotifyStockResource {
 	@GET
 	@Path("/reverse/stock/nodify/{waybillCode}")
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.WEB.ReverseReceiveNotifyStockResource.sendMessage", mState = JProEnum.TP)
+    @Deprecated
 	public String sendMessage(@PathParam("waybillCode") Long waybillCode)
 			throws Exception {
 		this.reverseReceiveNotifyStockService.nodifyStock(waybillCode);
@@ -86,6 +87,7 @@ public class ReverseReceiveNotifyStockResource {
 	@GET
 	@Path("/reverseReceiveNotifyStock/notify/{waybillCode}")
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.WEB.ReverseReceiveNotifyStockResource.notify", mState = JProEnum.TP)
+    @Deprecated
 	public String notify(@PathParam("waybillCode") Long waybillCode)
 			throws Exception {
 		String resultStr = check(waybillCode);
@@ -105,6 +107,7 @@ public class ReverseReceiveNotifyStockResource {
 
 	@GET
 	@Path("/reverseReceiveNotifyStock/check/{waybillCode}")
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.ReverseReceiveNotifyStockResource.check", mState = {JProEnum.TP})
 	public String check(@PathParam("waybillCode") Long waybillCode)
 			throws Exception {
 		OrderStockInfo osi = null;

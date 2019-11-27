@@ -562,4 +562,10 @@
         <property name="middleEndSortingDao" ref="middleEndSortingQueryDao"></property>
         <property name="failoverSortingDao" ref="failoverSortingQueryDao"></property>
     </bean>
+
+    <!-- 规则管理 -->
+    <bean id="ruleDao" class="com.jd.bluedragon.distribution.rule.dao.RuleDao">
+        <property name="sqlSession" ref="sessionTemplateBase" />
+    </bean>
+
 </beans>
