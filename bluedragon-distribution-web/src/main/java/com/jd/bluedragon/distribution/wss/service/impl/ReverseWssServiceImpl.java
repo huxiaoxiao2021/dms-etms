@@ -88,17 +88,6 @@ public class ReverseWssServiceImpl implements ReverseWssService {
 		this.logger.info("逆向收货回传POP消息【" + message + "】" + result);
 		return result;
 	}
-
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.WEB.ReverseWssServiceImpl.addReceiveStockMessage", mState = JProEnum.TP)
-    @Deprecated
-	public Boolean addReceiveStockMessage(String message) throws Exception {
-		this.logger.info("逆向收货回传库存消息：" + message);
-		
-		Long waybillCode = this.reverseReceiveNotifyStockService.receive(message);
-		this.reverseReceiveNotifyStockService.nodifyStock(waybillCode);
-		
-		return Boolean.TRUE;
-	}
 	
 	public Boolean addSaleMessage(String message) {
 		this.logger.info("addSaleMessage --> 逆向接收配送损商品销售信息：" + message);

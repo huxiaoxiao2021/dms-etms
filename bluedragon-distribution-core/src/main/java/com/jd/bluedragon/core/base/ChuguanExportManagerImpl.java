@@ -138,10 +138,14 @@ public class ChuguanExportManagerImpl implements ChuguanExportManager{
     @Override
     public KuGuanDomain queryByOrderCode(String orderCode,String lKdanhao) {
 
-        //由于库管限制了 typeId业务类型Id。如果需要查询逆向物流场景的数据，那就把所有的typeId 枚举的场景都查询一遍。因为不确定 写入库管 的TypeId 是什么
+        //由于出管限制了 typeId业务类型Id。如果需要查询逆向物流场景的数据，那就把所有的typeId 枚举的场景都查询一遍。因为不确定 写入出管 的TypeId 是什么
         List<ChuguanVo> chuguanVos = getFullStockByBusinNo(orderCode,ConstantEnums.ChuGuanTypeId.REVERSE_LOGISTICS_GOODS_REJECTION);
         if(chuguanVos == null){
             chuguanVos = getFullStockByBusinNo(orderCode,ConstantEnums.ChuGuanTypeId.REVERSE_LOGISTICS_MONEY_REJECTION);
+        }
+
+        if(chuguanVos == null){//如果逆向物流的业务类型没有数据，那就查询 内配出库的数据
+            chuguanVos = getFullStockByBusinNo(orderCode,ConstantEnums.ChuGuanTypeId.NEIPEI_OUT);
         }
         KuGuanDomain domain = null;
         if (chuguanVos != null && !chuguanVos.isEmpty()) {
