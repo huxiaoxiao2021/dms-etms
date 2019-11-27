@@ -44,7 +44,6 @@ public class KuGuanController {
 		return "kuguan/kuguan";
 	}
 
-	@Deprecated
 	@Authorization(Constants.DMS_WEB_QUERY_KUGUANLIST)
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.WEB.KuGuanController.queryOperateLog", mState = JProEnum.TP)
