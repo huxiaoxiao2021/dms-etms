@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 @Service("searchOrganizationOtherManager")
 public class SearchOrganizationOtherManagerImpl implements SearchOrganizationOtherManager {
 
-    private Logger logger = LoggerFactory.getLogger(SearchOrganizationOtherManagerImpl.class);
+    private Logger log = LoggerFactory.getLogger(SearchOrganizationOtherManagerImpl.class);
 
     @Autowired
     @Qualifier("searchOrganizationOtherServiceJsf")
@@ -36,12 +36,12 @@ public class SearchOrganizationOtherManagerImpl implements SearchOrganizationOth
             if(responseObject.isSuccess()){
                 return (Organization)responseObject.getObject();
             }else{
-                logger.error("获取发票机构ID失败"+ JsonHelper.toJson(var1)+" "+JsonHelper.toJson(responseObject));
+                log.warn("获取发票机构ID失败：{}-{}",JsonHelper.toJson(var1),JsonHelper.toJson(responseObject));
                 return null;
             }
 
         }catch (Exception e){
-            logger.error("获取发票机构ID异常"+ JsonHelper.toJson(var1),e);
+            log.error("获取发票机构ID异常:{}", JsonHelper.toJson(var1),e);
             return null;
         }
 

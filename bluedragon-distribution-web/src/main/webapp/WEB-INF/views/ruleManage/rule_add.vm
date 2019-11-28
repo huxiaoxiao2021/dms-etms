@@ -1,0 +1,79 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>规则管理UI</title>
+<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+<script type="text/javascript" src="#springUrl('/static/js/jquery-1.js')"></script>
+<SCRIPT type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></SCRIPT>
+<script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
+<script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+</head>
+<script type="text/javascript">
+$(document).ready(function() {
+	// 提交查询
+	$("#save").click(function() {
+		$("#addRule").attr("action", '#springUrl("/ruleManage/add")');
+		$("#addRule").attr("method", "POST");
+		$("#addRule").submit();
+	});
+});
+</script>
+
+<body>
+<div id="breadcrumb">
+  <p><a href="#springUrl('/ruleManage/list')">基础资料管理</a>&nbsp;&gt;&nbsp;<a href="#springUrl('/ruleManage/list')">规则管理UI</a></p>
+</div>
+<!--[if !ie]>breadcrumb<![endif]-->
+<div id="content">
+  <div style="color:red;"> $!errormsg $!successmsg</div>
+  <div class="m">
+    <div class="tbl-n">
+      <form id="addRule" name="addRule" action="#springUrl('/ruleManage/add')" method="POST">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tbody>
+			<tr>
+				<th align="right">站点编码：</th>
+				<td>
+					<input id="sitecode" name="siteCode" type="text" class="textField28"/>
+    			</td>
+			</tr>
+			<tr>
+				<th align="right">包含关系：</th>
+				<td>
+					<input id="inOut" name="inOut" type="text" class="textField28"/>
+				</td>
+			</tr>
+			<tr>
+				<th align="right">规则内容：</th>
+				<td>
+					<input id="rule_content" name="content" type="text" class="textField28"/>
+				</td>
+			</tr>
+			<tr>
+				<th align="right">规则类型：</th>
+				<td>
+					<input id="type" name="type" type="text" class="textField28"/>
+				</td>
+			</tr>
+			<tr>
+				<th align="right">备注内容：</th>
+				<td>
+					<input id="memo" name="memo" type="text" class="textField28"/>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<input id="save" type="button" value="保存" class="btn_c"/>
+				</td>
+            </tr>
+          </tbody>
+        </table>
+      </form>
+    </div>
+  </div>
+  <!--opening end-->
+</div>
+</body>
+</html>

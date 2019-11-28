@@ -21,7 +21,7 @@ import com.jd.bluedragon.distribution.reverse.domain.ReceiveRequest;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
 import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.ContantsEnum;
+import com.jd.bluedragon.utils.ConstantEnums;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -41,8 +41,8 @@ import com.jd.ufo.domain.ufo.Organization;
 import com.jd.ufo.domain.ufo.SendpayOrdertype;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -50,7 +50,6 @@ import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -66,7 +65,7 @@ import java.util.Map;
 @Service("reverseReceiveNotifyStockService")
 public class ReverseReceiveNotifyStockService {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	// 先款支付类型
 	private static final Integer PAY_TYPE_PRE = 1;
@@ -84,6 +83,13 @@ public class ReverseReceiveNotifyStockService {
     private static final String JING_BAN = "ql.dms";
 
 	private static final List<Integer> needRetunWaybillTypes = Lists.newArrayList(11, 13, 15, 16, 18, 19, 42, 56, 61);
+
+    //waybill_type=0 && sendpay 252位=3,4,5,6,7 电信行业合约订单也需要推送出管数据
+	private static final List<String> TELECOM_WAYBILL_SEND_PAYS = Lists.newArrayList("3","4","5","6","7");
+
+	private static final int TELECOM_WAYBILL_SEND_PAY_INDEX = 251;
+
+	private static final Integer TELECOM_WAYBILL_TYPE = 0;
 
     private static final String JING_BAN_SYSCODE = "ql.dms";
 
@@ -129,12 +135,12 @@ public class ReverseReceiveNotifyStockService {
 					ReceiveRequest.class);
 
 			if (request == null) {
-				this.logger.warn("消息序列化出现异常, 消息：" + message);
+				this.log.warn("消息序列化出现异常, 消息：{}" , message);
 			} else if (ReverseReceive.RECEIVE_TYPE_SPWMS.toString().equals(request.getReceiveType())
 					&& ReverseReceive.RECEIVE.toString().equals(request.getCanReceive())) {
 				return getCompatibleOrderId(request.getOrderId());
 			} else {
-				this.logger.info("消息来源：" + request.getReceiveType());
+				this.log.info("消息来源：{}" , request.getReceiveType());
 			}
 		}
 		return -1L;
@@ -154,7 +160,7 @@ public class ReverseReceiveNotifyStockService {
         }
         String orderId = waybillQueryManager.getOrderCodeByWaybillCode(code,true);
         if(!NumberUtils.isDigits(orderId)){
-            logger.info(MessageFormat.format("根据运单号查询的订单号是非数字code[{0}]orderId[{1}]",code,orderId));
+            log.warn("根据运单号查询的订单号是非数字code[{}]orderId[{}]",code,orderId);
             return -1L;
         }
         return Long.valueOf(orderId);
@@ -162,10 +168,10 @@ public class ReverseReceiveNotifyStockService {
 
 
 	public Boolean nodifyStock(Long waybillCode) throws Exception {
-		this.logger.info("运单号：" + waybillCode);
+		this.log.debug("运单号：{}" , waybillCode);
 
 		if (!NumberHelper.isPositiveNumber(waybillCode)) {
-			this.logger.warn("运单号非法, 运单号 为：" + waybillCode);
+			this.log.warn("运单号非法, 运单号 为：{}" , waybillCode);
 			return Boolean.TRUE;
 		}
 		SystemLog sysLog = new SystemLog();//日志对象
@@ -179,15 +185,15 @@ public class ReverseReceiveNotifyStockService {
 			//修改逻辑当order获取不到时，取归档历史信息。
 			//原抛异常逻辑if(order==null || products==null) 即有一项为空即抛出，更改后的逻辑等价于if( (order==null&&hisOrder==null) || products==null )
 			if (products.size() == 0) {
-				this.logger.warn("无商品信息!");
+				this.log.warn("无商品信息!");
 				sysLog.setContent("无商品信息");
 				throw new OrderCallTimeoutException("order has no products.");
 			}else if(order == null){//为空时，取一下历史的订单信息
-				this.logger.info("订单可能转历史，获取历史订单, 运单号 为：" + waybillCode);
+				this.log.debug("订单可能转历史，获取历史订单, 运单号 为：{}" , waybillCode);
 				jd.oom.client.orderfile.Order hisOrder = this.orderWebService.getHistoryOrder(waybillCode);
 				
 				if (hisOrder == null) {
-					this.logger.warn("运单信息为空!订单号:"+waybillCode);
+					this.log.warn("运单信息为空!订单号:{}", waybillCode);
 					sysLog.setContent("运单信息为空");
 					throw new OrderCallTimeoutException("order is not exist.");
 				}else {//如果历史订单信息不为空，则拷贝属性值
@@ -200,12 +206,10 @@ public class ReverseReceiveNotifyStockService {
 					order.setDeliveryCenterID(hisOrder.getDeliveryCenterID());
 					order.setStoreId(hisOrder.getStoreId());
 					order.setOrderType(hisOrder.getOrderType());
-					
-					this.logger.info("历史订单信息orderId："+waybillCode+", IdCompanyBranchName:"+order.getIdCompanyBranchName()+
-							",IdCompanyBranch:"+order.getIdCompanyBranch()+",CustomerName:"+order.getCustomerName()+
-							",DeliveryCenterID:"+order.getDeliveryCenterID()+",StoreId:"+order.getStoreId()+
-							",OrderType:"+order.getOrderType()+",TotalFee:"+order.getTotalFee());
-				}
+					if(log.isDebugEnabled()){
+                        this.log.debug("历史订单信息orderId：{}.order:{}"+waybillCode,JsonHelper.toJson(order));
+                    }
+                }
 			}
 			
 			{
@@ -218,7 +222,7 @@ public class ReverseReceiveNotifyStockService {
 	            if (bo != null) {
 	            	order.setIdCompanyBranchName(bo.getOrgName());//需要调用基本资料接口根据机构ID获取机构Name
 	            }
-	            this.logger.info("原机构名为空，从基础资料重新获得订单"+waybillCode+"机构名 IdCompanyBranchName:"+order.getIdCompanyBranchName());
+	            this.log.info("原机构名为空，从基础资料重新获得订单{}机构名 IdCompanyBranchName:{}",waybillCode,order.getIdCompanyBranchName());
 	        }
 			
 			sysLog.setKeyword2(String.valueOf(order.getOrderType()));//设置订单的类型
@@ -227,7 +231,8 @@ public class ReverseReceiveNotifyStockService {
 			//此区域:符合主动推送的条件的单子判断是否推送过,获得支付类型
 			KuGuanDomain kuguanDomain = null;
 			Integer payType = PAY_TYPE_UNKNOWN;
-			if (Waybill.TYPE_GENERAL.equals(order.getOrderType()) || Waybill.TYPE_POP_FBP.equals(order.getOrderType())||needRetunWaybillTypes.contains(Integer.valueOf(order.getOrderType()))){
+			if (Waybill.TYPE_GENERAL.equals(order.getOrderType()) || Waybill.TYPE_POP_FBP.equals(order.getOrderType())
+                    ||needRetunWaybillTypes.contains(Integer.valueOf(order.getOrderType())) || isTelecomOrder(order.getOrderType(),order.getSendPay())){
 				kuguanDomain = queryKuguanDomainByWaybillCode(String.valueOf(waybillCode));
 				if(kuguanDomain==null) {
 					return Boolean.FALSE;
@@ -238,39 +243,12 @@ public class ReverseReceiveNotifyStockService {
 				}
 			} else {
 				sysLog.setContent("订单类型不需要回传库存中间件"+order.getOrderType());
-				this.logger.info("运单号：" + waybillCode + ", 不需要回传库存中间件。");
+				this.log.warn("运单号：{}, 不需要回传库存中间件。",waybillCode);
 				return Boolean.TRUE;
 			}
 			
 			//开始根据类型的不同推送
-			if (Waybill.TYPE_GENERAL.equals(order.getOrderType()) || Waybill.TYPE_POP_FBP.equals(order.getOrderType())) {
-				long result = 0;
-				//判断是否是已旧换新
-				isOldForNewType = BusinessHelper.isYJHX(order.getSendPay());
-                OrderBankResponse orderBank = orderBankService.getOrderBankResponse(String.valueOf(waybillCode));
-                result = insertChuguan(waybillCode, isOldForNewType, order, products, payType,orderBank);
-				/** 新逻辑结束 */
-				
-				try {
-					//业务流程监控, 备件库埋点
-					Map<String, String> data = new HashMap<String, String>();
-					data.put("orderId", waybillCode.toString());
-					Profiler.bizNode("Reverse_mq_dms2stock", data);
-				} catch (Exception e) {
-					this.logger.error("推送UMP发生异常.", e);
-				}
-				
-				this.logger.info("运单号：" + waybillCode + ", 库存中间件返回结果：" + result);
-				
-				sysLog.setKeyword3("WEBSERVICE");
-				sysLog.setKeyword4(result);
-				if(result!=0)
-					sysLog.setContent("推出管成功!");
-				else{
-					sysLog.setContent("推出管失败!");
-					return Boolean.FALSE;
-				}
-			} else if (needRetunWaybillTypes.contains(Integer.valueOf(order.getOrderType()))) {
+			if (needRetunWaybillTypes.contains(Integer.valueOf(order.getOrderType())) || isTelecomOrder(order.getOrderType(),order.getSendPay())) {
 				if (isPrePay(payType)) {
 
 					this.wmsStockChuGuanMQ.send(String.valueOf(waybillCode),this.stockMessage(order, products, STOCK_TYPE_1602, payType));
@@ -282,10 +260,37 @@ public class ReverseReceiveNotifyStockService {
 				
 				sysLog.setKeyword3("MQ");
 				sysLog.setContent("推出管成功!");
-			}
-			
-		}catch(Exception e){
-			this.logger.error("运单号：" + waybillCode + ", 推出管失败。", e);
+			}else if (Waybill.TYPE_GENERAL.equals(order.getOrderType()) || Waybill.TYPE_POP_FBP.equals(order.getOrderType())) {
+                long result = 0;
+                //判断是否是已旧换新
+                isOldForNewType = BusinessHelper.isYJHX(order.getSendPay());
+                OrderBankResponse orderBank = orderBankService.getOrderBankResponse(String.valueOf(waybillCode));
+                result = insertChuguan(waybillCode, isOldForNewType, order, products, payType,orderBank);
+                /** 新逻辑结束 */
+
+                try {
+                    //业务流程监控, 备件库埋点
+                    Map<String, String> data = new HashMap<String, String>();
+                    data.put("orderId", waybillCode.toString());
+                    Profiler.bizNode("Reverse_mq_dms2stock", data);
+                } catch (Exception e) {
+                    this.log.error("推送UMP发生异常.", e);
+                }
+
+                this.log.debug("运单号：{}, 库存中间件返回结果：{}" ,waybillCode, result);
+
+                sysLog.setKeyword3("WEBSERVICE");
+                sysLog.setKeyword4(result);
+                if(result!=0)
+                    sysLog.setContent("推出管成功!");
+                else{
+                    sysLog.setContent("推出管失败!");
+                    return Boolean.FALSE;
+                }
+            }
+
+        }catch(Exception e){
+			this.log.error("运单号：{}, 推出管失败。",waybillCode, e);
 			if(StringHelper.isEmpty(sysLog.getContent())){
 				sysLog.setContent(e.getMessage());
 			}
@@ -301,7 +306,7 @@ public class ReverseReceiveNotifyStockService {
         if(CHUGUAN_FIELD_QITAFANGSHI.equals(kuguanDomain.getLblOtherWay())){
             return Boolean.TRUE;
         }
-        if(ContantsEnum.ChuGuanTypeId.hasTypeId(kuguanDomain.getTypeId())){
+        if(ConstantEnums.ChuGuanTypeId.hasTypeId(kuguanDomain.getTypeId())){
             return Boolean.TRUE;
         }
         return Boolean.FALSE;
@@ -327,16 +332,16 @@ public class ReverseReceiveNotifyStockService {
         List<ChuguanParam> chuGuanParamList = Lists.newArrayList();// 需要放两个 一个出一个入；他们会根据 typeId 区分
 
         //入
-        ContantsEnum.ChuGuanChuruId chuGuanParam = isPrePay(payType) ? ContantsEnum.ChuGuanChuruId.IN_KU : ContantsEnum.ChuGuanChuruId.OUT_KU;
+        ConstantEnums.ChuGuanChuruId chuGuanParam = isPrePay(payType) ? ConstantEnums.ChuGuanChuruId.IN_KU : ConstantEnums.ChuGuanChuruId.OUT_KU;
 
-        ContantsEnum.ChuGuanTypeId inTypeId = isPrePay(payType) ? ContantsEnum.ChuGuanTypeId.REVERSE_LOGISTICS_MONEY_REJECTION :
-                ContantsEnum.ChuGuanTypeId.REVERSE_LOGISTICS_GOODS_REJECTION;
+        ConstantEnums.ChuGuanTypeId inTypeId = isPrePay(payType) ? ConstantEnums.ChuGuanTypeId.REVERSE_LOGISTICS_MONEY_REJECTION :
+                ConstantEnums.ChuGuanTypeId.REVERSE_LOGISTICS_GOODS_REJECTION;
 
-        ContantsEnum.ChuGuanFenLei chuGuanFenLei = isPrePay(payType) ? ContantsEnum.ChuGuanFenLei.RETURN_GOODS : ContantsEnum.ChuGuanFenLei.PUT_GOODS;
+        ConstantEnums.ChuGuanFenLei chuGuanFenLei = isPrePay(payType) ? ConstantEnums.ChuGuanFenLei.RETURN_GOODS : ConstantEnums.ChuGuanFenLei.PUT_GOODS;
         BigDecimal zongJinE = isPrePay(payType) ? orderBank.getShouldPay() : orderBank.getShouldPay().negate();
         ChuguanParam inChuguanParam = getChuguanParam(waybillCode,
-                getRfid(waybillCode,inTypeId,ContantsEnum.ChuGuanRfId.IN),isOldForNewType, order,  payType, orderBank,
-                ContantsEnum.ChuGuanRfType.IN,
+                getRfid(waybillCode,inTypeId,ConstantEnums.ChuGuanRfId.IN),isOldForNewType, order,  payType, orderBank,
+                ConstantEnums.ChuGuanRfType.IN,
                 chuGuanParam,
                 inTypeId,
                 chuGuanFenLei,
@@ -346,13 +351,13 @@ public class ReverseReceiveNotifyStockService {
         inChuguanParam.setChuguanDetailVoList(intChuguanDetailVoList);
 
         //出
-        ContantsEnum.ChuGuanTypeId outTypeId = ContantsEnum.ChuGuanTypeId.REVERSE_LOGISTICS_OUT;
+        ConstantEnums.ChuGuanTypeId outTypeId = ConstantEnums.ChuGuanTypeId.REVERSE_LOGISTICS_OUT;
         ChuguanParam outChuguanParam = getChuguanParam(waybillCode,
-                getRfid(waybillCode,outTypeId,ContantsEnum.ChuGuanRfId.OUT),isOldForNewType, order,  payType, orderBank,
-                ContantsEnum.ChuGuanRfType.Out,
-                ContantsEnum.ChuGuanChuruId.OUT_KU,
+                getRfid(waybillCode,outTypeId,ConstantEnums.ChuGuanRfId.OUT),isOldForNewType, order,  payType, orderBank,
+                ConstantEnums.ChuGuanRfType.Out,
+                ConstantEnums.ChuGuanChuruId.OUT_KU,
                 outTypeId,
-                ContantsEnum.ChuGuanFenLei.OTHER,
+                ConstantEnums.ChuGuanFenLei.OTHER,
                 BigDecimal.valueOf(0),
                 orderBank.getShouldPay());
         List<ChuguanDetailVo> outChuguanDetailVoList = getOutChuguanDetailVoList(products);
@@ -363,7 +368,7 @@ public class ReverseReceiveNotifyStockService {
         return chuguanExportManager.insertChuguan(chuGuanParamList);
     }
 
-    private String getRfid(Long waybillCode,ContantsEnum.ChuGuanTypeId typeId,ContantsEnum.ChuGuanRfId chuGuanRfId) {
+    private String getRfid(Long waybillCode,ConstantEnums.ChuGuanTypeId typeId,ConstantEnums.ChuGuanRfId chuGuanRfId) {
         return JING_BAN_SYSCODE.concat("-").concat(String.valueOf(waybillCode)).concat("-")
                 .concat(typeId.getType().toString()).concat("-").concat(chuGuanRfId.getText());
     }
@@ -375,8 +380,8 @@ public class ReverseReceiveNotifyStockService {
      * @return
      */
     private ChuguanParam getChuguanParam(Long waybillCode,String rfid,boolean isOldForNewType, Order order, Integer payType,
-                                         OrderBankResponse orderBank, ContantsEnum.ChuGuanRfType rfType, ContantsEnum.ChuGuanChuruId churu, ContantsEnum.ChuGuanTypeId typeId,
-                                         ContantsEnum.ChuGuanFenLei fenLei,BigDecimal qiTaFeiYong,
+                                         OrderBankResponse orderBank, ConstantEnums.ChuGuanRfType rfType, ConstantEnums.ChuGuanChuruId churu, ConstantEnums.ChuGuanTypeId typeId,
+                                         ConstantEnums.ChuGuanFenLei fenLei,BigDecimal qiTaFeiYong,
                                          BigDecimal zongJinE) {
         ChuguanParam chuguanParam = new ChuguanParam();
         chuguanParam.setRfId(rfid);
@@ -459,7 +464,7 @@ public class ReverseReceiveNotifyStockService {
     private long insertOldChuguan(Long waybillCode, boolean isOldForNewType, Order order, List<Product> products,
                                   Integer payType,OrderBankResponse orderBank) {
         long result;
-        this.logger.info("运单号：" + waybillCode + ", 使用推库管新接口");
+        this.log.debug("运单号：{}, 使用推库管新接口",waybillCode);
         /** 新逻辑开始 */
         Date creatDate = new Date();//给扩展属性使用的创建时间
         //设置扩展属性
@@ -670,22 +675,20 @@ public class ReverseReceiveNotifyStockService {
 			churu = domain.getLblWay();
 			feifei = domain.getLblType();
 			qite = new BigDecimal(domain.getLblOther());
-			if (ContantsEnum.ChuGuanChuruId.OUT_KU.getText().equals(churu)
-                    && ContantsEnum.ChuGuanFenLei.PUT_GOODS.getText().equals(feifei) && (new BigDecimal(0).compareTo(qite) == 0)) {
+			if (ConstantEnums.ChuGuanChuruId.OUT_KU.getText().equals(churu)
+                    && ConstantEnums.ChuGuanFenLei.PUT_GOODS.getText().equals(feifei) && (new BigDecimal(0).compareTo(qite) == 0)) {
 				result = PAY_TYPE_POST;
-			} else if (ContantsEnum.ChuGuanChuruId.OUT_KU.getText().equals(churu) && ContantsEnum.ChuGuanFenLei.SALE.getText().equals(feifei)) {
+			} else if (ConstantEnums.ChuGuanChuruId.OUT_KU.getText().equals(churu) && ConstantEnums.ChuGuanFenLei.SALE.getText().equals(feifei)) {
 				result = PAY_TYPE_PRE;
 			}
 			// 异常情况日志记录方便定位问题
-			logger.info("getPayType waybillCode:" + waybillCode + "detail: churu: " + churu + ",feifei" + feifei
-					+ ",qite" + qite);
+			log.info("getPayType waybillCode:{}detail: churu:{},feifei:{},qite:{}" ,waybillCode,churu,feifei,qite);
 		}
 		
 		if (result.equals(PAY_TYPE_UNKNOWN)) {
 			// 异常情况日志记录方便定位问题
-			logger.error("getPayType waybillCode:" + waybillCode + "detail: churu: " + churu + ",feifei" + feifei
-					+ ",qite" + qite);
-			logger.error("不能判断订单是先款还是后款: " + waybillCode);
+            log.warn("getPayType waybillCode:{}detail: churu:{},feifei:{},qite:{}" ,waybillCode,churu,feifei,qite);
+            log.warn("不能判断订单是先款还是后款:{} " , waybillCode);
 			throw new StockCallPayTypeException("不能判断订单是先款还是后款: " + waybillCode);
 		}
 		return result;
@@ -709,14 +712,32 @@ public class ReverseReceiveNotifyStockService {
 			queryParam.setOther2(String.valueOf(order.getCity()));
 			queryParam.setSendPay(order.getSendPay());
 			Organization organization = searchOrganizationOtherManager.findFinancialOrg(queryParam);
-			logger.info("getKPJGID"+JsonHelper.toJson(queryParam)+"|"+JsonHelper.toJson(organization));
 			if(organization!=null && organization.getOrgId()!=null){
 				return organization.getOrgId().toString();
 			}
 		}catch (Exception e){
-			logger.error("获取开票机构ID异常"+JsonHelper.toJson(order),e);
+			log.error("获取开票机构ID异常:{}",JsonHelper.toJson(order),e);
 		}
 		return StringUtils.EMPTY;
 	}
-	
+
+    /**
+     * 判断是否是新电信行业合约订单
+     * 【waybill_type=0 && sendpay 252位=3,4,5,6,7】
+     * @param waybillType
+     * @param sendPay
+     * @return
+     */
+	private boolean isTelecomOrder(Integer waybillType,String sendPay){
+
+	    if(waybillType == null || StringUtils.isBlank(sendPay) || sendPay.length() <= TELECOM_WAYBILL_SEND_PAY_INDEX){
+	        return false;
+        }
+
+        String sendPay252 = String.valueOf(sendPay.charAt(TELECOM_WAYBILL_SEND_PAY_INDEX));
+
+	    return TELECOM_WAYBILL_TYPE.equals(waybillType) && TELECOM_WAYBILL_SEND_PAYS.contains(sendPay252);
+
+    }
+
 }

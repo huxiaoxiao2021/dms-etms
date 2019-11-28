@@ -1,19 +1,18 @@
 package com.jd.bluedragon.distribution.framework;
 
+import com.jd.bluedragon.distribution.task.domain.Task;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.jd.bluedragon.distribution.task.domain.Task;
-
 public abstract class SendDBSingleScheduler extends DBSingleScheduler {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	
 	protected String keyType;
 
@@ -46,7 +45,7 @@ public abstract class SendDBSingleScheduler extends DBSingleScheduler {
                 tasks.add(task);
             }
         } catch (Exception e) {
-            this.logger.error("出现异常， 异常信息为：" + e.getMessage(), e);
+            this.log.error("出现异常， 异常信息为：{}" , e.getMessage(), e);
         }
         return tasks;
     }

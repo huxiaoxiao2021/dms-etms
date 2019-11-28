@@ -13,6 +13,8 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -30,7 +32,7 @@ import java.util.List;
 @Service
 public class ReverseSendPopMessageServiceImpl implements ReverseSendPopMessageService {
 
-    private static Log log = LogFactory.getLog(ReverseSendPopMessageServiceImpl.class);
+    private static Logger log = LoggerFactory.getLogger(ReverseSendPopMessageServiceImpl.class);
 
     private static Log messageLog = LogFactory.getLog("com.jd.etms.message");
 
@@ -59,7 +61,7 @@ public class ReverseSendPopMessageServiceImpl implements ReverseSendPopMessageSe
             messageLog.info("逆向回传POP发送的消息体：【 " + xmlMessage + "】，发送成功");
             return true;
         } catch (Exception e) {
-            log.error("处理失败，运单号：" + waybillCode, e);
+            log.error("处理失败，运单号{}" , waybillCode, e);
             return false;
         }
 
@@ -76,19 +78,19 @@ public class ReverseSendPopMessageServiceImpl implements ReverseSendPopMessageSe
         if (baseEntity != null && baseEntity.getData() != null) {
             Waybill waybill = baseEntity.getData().getWaybill();
             if (waybill == null) {
-                log.error("【运单号:" + waybillCode + "】未获取到运单对象");
+                log.warn("【运单号:{}】未获取到运单对象",waybillCode);
                 throw new RuntimeException("【运单号:" + waybillCode + "】未获取到运单对象");
             }
             Integer type = waybill.getWaybillType();
             if (type == null) {
-                log.error("【运单号:" + waybillCode + "】运单类型为空");
+                log.warn("【运单号:{}】运单类型为空",waybillCode);
                 throw new RuntimeException("【运单号:" + waybillCode + "】运单类型为空");
             }
             String messageType = this.getMessageTypeByType(type);
             if (StringUtils.isNotEmpty(messageType)) {
                 popMessage.setMessageType(messageType);
             } else {
-                log.warn("【运单号:" + waybillCode + "】是非POP订单");
+                log.warn("【运单号:{}】是非POP订单",waybillCode);
                 return false;
             }
 
@@ -99,7 +101,7 @@ public class ReverseSendPopMessageServiceImpl implements ReverseSendPopMessageSe
 
             this.buildOrderItem(popMessage, baseEntity.getData().getGoodsList());
         } else {
-            log.error("【运单号:" + waybillCode + "】调用运单接口返回baseEntity为null");
+            log.warn("【运单号:{}】调用运单接口返回baseEntity为null", waybillCode);
             throw new RuntimeException("【运单号:" + waybillCode + "】调用运单接口返回baseEntity为null");
         }
         return true;
@@ -156,21 +158,21 @@ public class ReverseSendPopMessageServiceImpl implements ReverseSendPopMessageSe
             BaseEntity<BigWaybillDto> baseEntity = this.getWaybillDataByChoice(waybillCode);
             result.append("call back waybill service success.\r\n ");
             if (baseEntity == null || baseEntity.getData() == null) {
-                log.error("【" + waybillCode + "】调用运单接口返回baseEntity为null");
+                log.warn("【{}】调用运单接口返回baseEntity为null", waybillCode);
                 result.append(waybillCode).append("调用运单接口返回baseEntity为null.\r\n");
                 throw new RuntimeException("【" + waybillCode + "】调用运单接口返回baseEntity为null");
             }
 
             Waybill waybill = baseEntity.getData().getWaybill();
             if (waybill == null) {
-                log.error("【" + waybillCode + "】未获取到运单对象");
+                log.warn("【{}】未获取到运单对象",waybillCode);
                 result.append(waybillCode).append("获取到运单对象为null.\r\n");
                 throw new RuntimeException(waybillCode + "未获取到运单对象.");
             }
 
             Integer type = waybill.getWaybillType();
             if (type == null) {
-                log.error("【" + waybillCode + "】号类型为空");
+                log.warn("【{}】号类型为空", waybillCode);
                 result.append(waybillCode).append("获取到运单对象的type为null.\r\n");
                 throw new RuntimeException("运单类型为空");
             }
@@ -188,7 +190,7 @@ public class ReverseSendPopMessageServiceImpl implements ReverseSendPopMessageSe
                 result.append("waybill type is 25,it's sopl.\r\n ");
                 popMessage.setMessageType(PopMessage.MESSAGE_TYPE_20_20);
             } else {
-                log.error("【" + waybillCode + "】号是非POP订单");
+                log.warn("【{}】号是非POP订单", waybillCode);
                 result.append(waybillCode).append("号是非POP订单,订单类型为").append(type).append(".");
                 return result.toString();
             }
@@ -212,7 +214,7 @@ public class ReverseSendPopMessageServiceImpl implements ReverseSendPopMessageSe
             return result.toString();
         } catch (Exception e) {
             result.append(e).append("\r\n");
-            log.error("处理失败，运单号：" + waybillCode, e);
+            log.error("处理失败，运单号：{}" , waybillCode, e);
             return result.toString();
         }
 
@@ -234,7 +236,7 @@ public class ReverseSendPopMessageServiceImpl implements ReverseSendPopMessageSe
             result.append(popMessage.getMessageType());
         } catch (Exception e) {
             result.append(e).append("\r\n");
-            log.error("处理失败，运单号：" + waybillCode, e);
+            log.error("处理失败，运单号：{}" , waybillCode, e);
         }
         return result.toString();
     }

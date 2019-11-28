@@ -167,4 +167,10 @@ public interface WaybillSignConstants {
 	 * 2-代表“KA运营特殊保障”
 	 */
 	char CHAR_57_2 = '2';
+
+	/**
+	 * 信任商家 1
+	 */
+	int POSITION_56 = 56;
+	char CHAR_56_1 = '1';
 }

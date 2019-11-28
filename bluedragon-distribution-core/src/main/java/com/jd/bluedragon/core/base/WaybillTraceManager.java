@@ -2,6 +2,7 @@ package com.jd.bluedragon.core.base;
 
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageState;
+import com.jd.etms.waybill.dto.PackageStateDto;
 
 import java.util.List;
 
@@ -17,7 +18,7 @@ public interface WaybillTraceManager {
      * @param state
      * @return
      */
-    List<PackageState> getPkStateByWCodeAndState(String waybillCode, String state);
+    List<PackageStateDto> getPkStateDtoByWCodeAndState(String waybillCode, String state);
 
     /**
      * 判断运单是否已经妥投

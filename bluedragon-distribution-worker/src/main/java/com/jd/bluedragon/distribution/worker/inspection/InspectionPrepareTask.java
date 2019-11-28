@@ -1,11 +1,10 @@
 package com.jd.bluedragon.distribution.worker.inspection;
 
-import com.jd.bluedragon.distribution.auto.service.SortingPrepareService;
 import com.jd.bluedragon.distribution.framework.DBSingleScheduler;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.task.domain.Task;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -16,7 +15,7 @@ import java.util.List;
  * Created by dudong on 2014/10/18.
  */
 public class InspectionPrepareTask extends DBSingleScheduler {
-    private static final Log logger= LogFactory.getLog(InspectionPrepareTask.class);
+    private static final Logger log = LoggerFactory.getLogger(InspectionPrepareTask.class);
 
     @Autowired
     private InspectionService inspectionService;
@@ -26,12 +25,10 @@ public class InspectionPrepareTask extends DBSingleScheduler {
         boolean result=false;
 
         try {
-            logger.info("自动分拣写入交接表DB 任务, task id is " + task.getId());
+            log.info("自动分拣写入交接表DB 任务, task id is {}" , task.getId());
             result = inspectionService.dealHandoverPackages(task);
         } catch (Exception e) {
-            logger.error("自动分拣写入交接表DB任务执行失败，task id is" + task.getId());
-            logger.error("自动分拣写入交接表DB任务执行失败，异常信息为：" + e.getMessage(), e);
-
+            log.error("自动分拣写入交接表DB任务执行失败，task id is {}" , task.getId(),e);
             return Boolean.FALSE;
         }
         return result;
@@ -59,7 +56,7 @@ public class InspectionPrepareTask extends DBSingleScheduler {
                 tasks.add(task);
             }
         } catch (Exception e) {
-            this.logger.error("出现异常， 异常信息为：" + e.getMessage(), e);
+            this.log.error("出现异常， 异常信息为：{}" , e.getMessage(), e);
         }
         return tasks;
     }

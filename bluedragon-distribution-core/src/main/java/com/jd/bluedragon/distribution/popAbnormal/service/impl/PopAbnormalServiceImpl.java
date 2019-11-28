@@ -7,7 +7,6 @@ import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.popAbnormal.dao.PopAbnormalDao;
 import com.jd.bluedragon.distribution.popAbnormal.domain.PopAbnormal;
-import com.jd.bluedragon.distribution.popAbnormal.rest.client.UpdateCacheWaybillClient;
 import com.jd.bluedragon.distribution.popAbnormal.service.PopAbnormalService;
 import com.jd.bluedragon.distribution.popAbnormal.ws.client.AbnormalResult;
 import com.jd.bluedragon.distribution.popAbnormal.ws.client.PopAbnormalOrderPackageWebService;
@@ -24,8 +23,8 @@ import com.jd.etms.waybill.dto.WChoice;
 import com.jd.etms.waybill.dto.WaybillPOPDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -43,7 +42,7 @@ import java.util.*;
 @Service("popAbnormalService")
 public class PopAbnormalServiceImpl implements PopAbnormalService {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private BaseMajorManager baseMajorManager;
@@ -71,29 +70,27 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 
 	@Override
 	public Map<String, Object> getBaseStaffByStaffId(Integer staffId) {
-		logger.info("根据员工编号获取员工信息，staffId:" + staffId);
+		log.debug("根据员工编号获取员工信息，staffId:{}" , staffId);
 		if (staffId == null) {
-			logger.info("根据员工编号获取员工信息 --> getBaseStaffByStaffId 传入参数为空");
+			log.warn("根据员工编号获取员工信息 --> getBaseStaffByStaffId 传入参数为空");
 			return Collections.emptyMap();
 		}
 		try {
 			// 调用运单接口
-			this.logger.info("根据员工编号获取员工信息（调用基础资料接口）开始，员工编号： " + staffId);
+			this.log.debug("根据员工编号获取员工信息（调用基础资料接口）开始，员工编号：{}" , staffId);
 			BaseStaffSiteOrgDto user = baseMajorManager
 					.getBaseStaffByStaffId(staffId);
 			if (user == null) {
-				logger.info("根据员工编号获取员工信息（调用基础资料接口）为空，staffId:" + staffId);
+				log.warn("根据员工编号获取员工信息（调用基础资料接口）为空，staffId:{}" ,staffId);
 			} else {
-				logger.info("根据员工编号获取员工信息（调用基础资料接口）为:" + user + "，staffId:"
-						+ staffId);
+				log.debug("根据员工编号获取员工信息（调用基础资料接口）为:{}，staffId:{}",user, staffId);
 				Map<String, Object> paramMap = new HashMap<String, Object>();
 				paramMap.put("createSiteCode", user.getSiteCode());
 				paramMap.put("createSiteName", user.getSiteName());
 				return paramMap;
 			}
 		} catch (Exception e) {
-			logger.error("根据员工编号“" + staffId + "”获取员工信息（调用基础资料接口） 异常："
-					+ e.getMessage());
+			log.error("根据员工编号{}获取员工信息（调用基础资料接口） 异常：",staffId,e);
 		}
 		return Collections.emptyMap();
 	}
@@ -101,13 +98,13 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 	@Override
 	@Deprecated
 	public int findTotalCount(Map<String, Object> paramMap) {
-		logger.info("按条件查询POP差异订单信息，paramMap:" + paramMap);
+		log.debug("按条件查询POP差异订单信息，paramMap:{}" , paramMap);
 		return popAbnormalDao.findTotalCount(paramMap);
 	}
 
 	@Override
 	public List<PopAbnormal> findList(Map<String, Object> paramMap) {
-		logger.info("按条件查询POP差异订单信息，paramMap:" + paramMap);
+		log.debug("按条件查询POP差异订单信息，paramMap:{}" , paramMap);
 		return popAbnormalDao.findList(paramMap);
 	}
 
@@ -116,7 +113,7 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 		PopAbnormal popAbnormal = null;
 		try {
 			// 调用运单接口
-			this.logger.info("调用运单接口, 订单号为： " + orderCode);
+			this.log.debug("调用运单接口, 订单号为：{} " , orderCode);
 			WChoice wChoice = new WChoice();
 			wChoice.setQueryWaybillC(true);
 			wChoice.setQueryWaybillE(true);
@@ -127,15 +124,11 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 				popAbnormal = this.convWaybill(baseEntity.getData());
 				if (popAbnormal == null) {
 					// 无数据
-					this.logger.info("调用运单接口, 订单号为： " + orderCode
-							+ " 调用运单WSS数据为空");
+					this.log.warn("调用运单接口, 订单号为：{} 调用运单WSS数据为空",orderCode);
 				}
 			}
 		} catch (Exception e) {
-			this.logger
-					.error(
-							"PopAbnormalServiceImpl --> getWaybillByOrderCode, 调用运单接口异常：",
-							e);
+			this.log.error("PopAbnormalServiceImpl --> getWaybillByOrderCode, 调用运单接口异常：{}",orderCode,e);
 			return null;
 		}
 		return popAbnormal;
@@ -144,7 +137,7 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 	@Override
 	public PopAbnormal checkByMap(Map<String, String> paramMap) {
 		if (paramMap == null || paramMap.isEmpty()) {
-			logger.info("POP差异订单Service --> checkByMap 传入验证参数为空");
+			log.warn("POP差异订单Service --> checkByMap 传入验证参数为空");
 			return null;
 		}
 		return popAbnormalDao.checkByMap(paramMap);
@@ -155,40 +148,34 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 	public int add(PopAbnormal popAbnormal) {
 		int flag = 0;
 		if (popAbnormal == null) {
-			logger.info("POP差异订单Service --> add 传入对象为空");
+			log.warn("POP差异订单Service --> add 传入对象为空");
 			return (flag - 1);
 		}
 		// 调用POP插入数据接口,成功后 flag 为 1
 		try {
-			this.logger.info("POP差异订单Service，增加POP差异反馈单，调用POP接口 开始，运单号："
-					+ popAbnormal.getWaybillCode());
+			this.log.debug("POP差异订单Service，增加POP差异反馈单，调用POP接口 开始，运单号：{}",popAbnormal.getWaybillCode());
 			AbnormalResult abnormalResult = popAbnormalOrderPackageWebService
 					.savePopAbnormalOrderPackage(convPopAbnormalVo(popAbnormal));
 			if (abnormalResult.isSuccess()) {
-				this.logger.info("POP差异订单Service，增加POP差异反馈单，调用POP接口 成功，运单号："
-						+ popAbnormal.getWaybillCode());
+				this.log.debug("POP差异订单Service，增加POP差异反馈单，调用POP接口 成功，运单号：{}", popAbnormal.getWaybillCode());
 				flag++;
 			} else {
-				this.logger.info("POP差异订单Service，增加POP差异反馈单，调用POP接口 失败，运单号："
-						+ popAbnormal.getWaybillCode() + ", POP返回消息："
-						+ abnormalResult.getMessage());
+				this.log.warn("POP差异订单Service，增加POP差异反馈单，调用POP接口 失败，运单号：{}, POP返回消息：{}",popAbnormal.getWaybillCode(),abnormalResult.getMessage());
 				return flag;
 			}
 
 		} catch (Exception e) {
-			this.logger.error("POP差异订单Service，增加POP差异反馈单，调用POP接口 异常：", e);
+			this.log.error("POP差异订单Service，增加POP差异反馈单，调用POP接口 异常：{}",JsonHelper.toJson(popAbnormal), e);
 			return flag;
 		}
 
 		// 插入本地数据库,成功后 flag 为 2
 		try {
 			popAbnormalDao.add(popAbnormal);
-			this.logger.info("POP差异订单Service，增加POP差异反馈单 成功，ID："
-					+ popAbnormal.getId());
+			this.log.debug("POP差异订单Service，增加POP差异反馈单 成功，ID：{}", popAbnormal.getId());
 			flag++;
 		} catch (Exception e) {
-			logger.error("POP差异订单Service，插入本地数据（运单号："
-					+ popAbnormal.getWaybillCode() + "）异常：", e);
+			log.error("POP差异订单Service，插入本地数据（运单号：{}）异常：",popAbnormal.getWaybillCode(), e);
 			return flag;
 		}
 		return flag;
@@ -201,7 +188,7 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 		int flag = 0;
 		if (popAbnormal == null || popAbnormal.getId() == null
 				|| popAbnormal.getId() <= 0) {
-			this.logger.info("updatePopPackNum，更新商家确认时间，传入参数有误！");
+			this.log.warn("updatePopPackNum，更新商家确认时间，传入参数有误！");
 			return (flag - 1);
 		}
 		// 更新运单包裹数量,更新成功后 flag 为 1
@@ -209,9 +196,7 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 		com.jd.bluedragon.distribution.popAbnormal.ws.client.waybill.BaseEntity baseEntity = this.waybillService.sendPopOrders(convPopOrderList(popAbnormal));
 		long endTime = System.currentTimeMillis();
 		
-		this.logger.info("updatePopPackNum，更新商家确认时间，更新运单包裹数量 结束参数：运单号【"
-				+ popAbnormal.getWaybillCode() + "】，调用时间【"
-				+ (endTime - startTime) + "】");
+		this.log.debug("updatePopPackNum，更新商家确认时间，更新运单包裹数量 结束参数：运单号【{}】，调用时间【{}】" ,popAbnormal.getWaybillCode(),(endTime - startTime));
 		
 		if (baseEntity != null && Constants.RESULT_SUCCESS == baseEntity.getResultCode()) {
 			Map<String, Boolean> resultMap = JsonHelper.fromJson((String) baseEntity.getData(), Map.class);
@@ -221,16 +206,13 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 		}
 		
 		if (flag < 1) {
-			this.logger.info("updatePopPackNum，更新商家确认时间，更新运单包裹数量 失败，运单号："
-					+ popAbnormal.getWaybillCode() + ", 包裹数："
-					+ popAbnormal.getConfirmNum());
+			this.log.warn("updatePopPackNum，更新商家确认时间，更新运单包裹数量 失败，运单号：{}, 包裹数：{}",popAbnormal.getWaybillCode(), popAbnormal.getConfirmNum());
 			return flag;
 		}
 		// 更新验货表包裹数量
 		int resultInt = this.inspectionDao
 				.updatePop(convToInsepection(popAbnormal));
-		this.logger.info("updatePopPackNum，更新商家确认时间，更新申请单 成功，ID："
-				+ popAbnormal.getId());
+		this.log.debug("updatePopPackNum，更新商家确认时间，更新申请单 成功，ID：{}", popAbnormal.getId());
 		if (resultInt <= 0) {
 			// 更新包裹标签打印表数据
 			this.popPrintDao.updateByWaybillCode(convToPopPrint(popAbnormal));
@@ -239,8 +221,7 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 
 		// 更新申请单状态,更新成功后 flag 为 3
 		popAbnormalDao.updateById(popAbnormal);
-		this.logger.info("updatePopPackNum，更新商家确认时间，更新申请单 成功，ID："
-				+ popAbnormal.getId());
+		this.log.debug("updatePopPackNum，更新商家确认时间，更新申请单 成功，ID：{}",popAbnormal.getId());
 		flag++;
 		return flag;
 	}
@@ -251,7 +232,7 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 		int flag = 0;
 		if (popAbnormal == null || popAbnormal.getId() == null
 				|| popAbnormal.getId() <= 0) {
-			this.logger.info("POP差异订单Service，更新商家确认时间，传入参数有误！");
+			this.log.info("POP差异订单Service，更新商家确认时间，传入参数有误！");
 			return (flag - 1);
 		}
 		// 更新Cache缓存包裹数量,更新成功后 flag 为 1
@@ -259,24 +240,24 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 		int resultCode = UpdateCacheWaybillClient.updateConfirmNum(popAbnormal
 				.getWaybillCode(), popAbnormal.getConfirmNum());
 		long endTime = System.currentTimeMillis();
-		this.logger.info("POP差异订单Service，更新商家确认时间，更新Cache缓存包裹数量，参数：运单号【"
+		this.log.info("POP差异订单Service，更新商家确认时间，更新Cache缓存包裹数量，参数：运单号【"
 				+ popAbnormal.getWaybillCode() + "】，调用时间【"
 				+ (endTime - startTime) + "】");
 		if (resultCode == 200 || resultCode == 404) {
 			flag++;
 		} else {
-			this.logger.error("POP差异订单Service，更新商家确认时间，更新Cache缓存包裹数量失败："
+			this.log.error("POP差异订单Service，更新商家确认时间，更新Cache缓存包裹数量失败："
 					+ resultCode);
 			return flag;
 		}
 		// 更新运单包裹数量,更新成功后 flag 为 2
-		this.logger.info("POP差异订单Service，更新商家确认时间，更新运单包裹数量 开始，运单号："
+		this.log.info("POP差异订单Service，更新商家确认时间，更新运单包裹数量 开始，运单号："
 				+ popAbnormal.getWaybillCode());
 		startTime = System.currentTimeMillis();
 		BaseEntity<List<String>> baseEntity = waybillUpdateApi
 				.batchUpdataForPOP(convPopList(popAbnormal));
 		endTime = System.currentTimeMillis();
-		this.logger.info("POP差异订单Service，更新商家确认时间，更新运单包裹数量 结束参数：运单号【"
+		this.log.info("POP差异订单Service，更新商家确认时间，更新运单包裹数量 结束参数：运单号【"
 				+ popAbnormal.getWaybillCode() + "】，调用时间【"
 				+ (endTime - startTime) + "】");
 
@@ -284,14 +265,14 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 			List<String> resultStrList = baseEntity.getData();
 			if (resultStrList != null && resultStrList.size() > 0
 					&& resultStrList.contains(popAbnormal.getWaybillCode())) {
-				this.logger.info("POP差异订单Service，更新商家确认时间，更新运单包裹数量 成功，运单号："
+				this.log.info("POP差异订单Service，更新商家确认时间，更新运单包裹数量 成功，运单号："
 						+ popAbnormal.getWaybillCode() + ", 包裹数："
 						+ popAbnormal.getConfirmNum());
 				flag++;
 			}
 		}
 		if (flag < 2) {
-			this.logger.info("POP差异订单Service，更新商家确认时间，更新运单包裹数量 失败，运单号："
+			this.log.info("POP差异订单Service，更新商家确认时间，更新运单包裹数量 失败，运单号："
 					+ popAbnormal.getWaybillCode() + ", 包裹数："
 					+ popAbnormal.getConfirmNum());
 			return flag;
@@ -300,7 +281,7 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 		// 更新验货表包裹数量
 		int resultInt = this.inspectionDao
 				.updatePop(convToInsepection(popAbnormal));
-		this.logger.info("POP差异订单Service，更新商家确认时间，更新申请单 成功，ID："
+		this.log.info("POP差异订单Service，更新商家确认时间，更新申请单 成功，ID："
 				+ popAbnormal.getId());
 		if (resultInt <= 0) {
 			// 更新包裹标签打印表数据
@@ -310,7 +291,7 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 
 		// 更新申请单状态,更新成功后 flag 为 4
 		popAbnormalDao.updateById(popAbnormal);
-		this.logger.info("POP差异订单Service，更新商家确认时间，更新申请单 成功，ID："
+		this.log.info("POP差异订单Service，更新商家确认时间，更新申请单 成功，ID："
 				+ popAbnormal.getId());
 		flag++;
 		return flag;
@@ -319,24 +300,24 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 	/**
 	 * 转换运单基本信息
 	 * 
-	 * @param waybillWS
+	 * @param bigWaybillDto
 	 * @return
 	 */
 	public PopAbnormal convWaybill(BigWaybillDto bigWaybillDto) {
 		if (bigWaybillDto == null) {
-			this.logger.info("转换运单基本信息 --> 原始运单数据bigWaybillDto为空");
+			this.log.warn("转换运单基本信息 --> 原始运单数据bigWaybillDto为空:{}",JsonHelper.toJson(bigWaybillDto));
 			return null;
 		}
 		com.jd.etms.waybill.domain.Waybill waybillWS = bigWaybillDto
 				.getWaybill();
 		if (waybillWS == null) {
-			this.logger.info("转换运单基本信息 --> 原始运单数据集waybillWS为空");
+			this.log.warn("转换运单基本信息 --> 原始运单数据集waybillWS为空:{}",JsonHelper.toJson(bigWaybillDto));
 			return null;
 		}
 		/*
 		 * WaybillManageDomain manageDomain = bigWaybillDto.getWaybillState();
 		 * if (manageDomain == null) {
-		 * this.logger.info("转换运单基本信息 --> 原始运单数据集manageDomain为空"); return null;
+		 * this.log.info("转换运单基本信息 --> 原始运单数据集manageDomain为空"); return null;
 		 * }
 		 */
 		PopAbnormal popAbnormal = new PopAbnormal();
@@ -356,7 +337,7 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 	 */
 	public PopAbnormalOrderVo convPopAbnormalVo(PopAbnormal popAbnormal) {
 		if (popAbnormal == null) {
-			this.logger.info("转换popAbnormal为JQ对象 --> 原始运单数据popAbnormal为空");
+			this.log.warn("转换popAbnormal为JQ对象 --> 原始运单数据popAbnormal为空:{}",JsonHelper.toJson(popAbnormal));
 			return null;
 		}
 		PopAbnormalOrderVo vo = new PopAbnormalOrderVo();
@@ -379,7 +360,7 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 	 */
 	public List<WaybillPOPDto> convPopList(PopAbnormal popAbnormal) {
 		if (popAbnormal == null) {
-			this.logger.info("转换popAbnormal为更新运单对象 --> 原始运单数据popAbnormal为空");
+			this.log.warn("转换popAbnormal为更新运单对象 --> 原始运单数据popAbnormal为空:{}",JsonHelper.toJson(popAbnormal));
 			return null;
 		}
 		List<WaybillPOPDto> waybillPOPDtoList = new ArrayList<WaybillPOPDto>();
@@ -400,7 +381,7 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 	 */
 	public List<PopOrderDto> convPopOrderList(PopAbnormal popAbnormal) {
 		if (popAbnormal == null) {
-			this.logger.info("转换popAbnormal为更新运单对象 --> 原始运单数据popAbnormal为空");
+			this.log.warn("转换popAbnormal为更新运单对象 --> 原始运单数据popAbnormal为空:{}",JsonHelper.toJson(popAbnormal));
 			return null;
 		}
 		List<PopOrderDto> popOrderDtos = new ArrayList<PopOrderDto>();
@@ -426,8 +407,8 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 				|| popAbnormal.getCreateSiteCode().equals(0)
 				|| !BusinessHelper
 						.checkIntNumRange(popAbnormal.getConfirmNum())) {
-			this.logger
-					.info("转换popAbnormal 为 Inspection对象 --> 原始数据popAbnormal为空或必要参数有误");
+			this.log
+					.warn("转换popAbnormal 为 Inspection对象 --> 原始数据popAbnormal为空或必要参数有误:{}",JsonHelper.toJson(popAbnormal));
 			return null;
 		}
 		Inspection inspection = new Inspection();
@@ -448,8 +429,8 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 				|| StringUtils.isBlank(popAbnormal.getWaybillCode())
 				|| !BusinessHelper
 						.checkIntNumRange(popAbnormal.getConfirmNum())) {
-			this.logger
-					.info("转换popAbnormal 为打印对象 --> 原始数据popAbnormal为空或必要参数有误");
+			this.log
+					.warn("转换popAbnormal 为打印对象 --> 原始数据popAbnormal为空或必要参数有误:{}",JsonHelper.toJson(popAbnormal));
 			return null;
 		}
 		PopPrint popPrint = new PopPrint();

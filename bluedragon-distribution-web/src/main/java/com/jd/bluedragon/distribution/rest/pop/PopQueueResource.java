@@ -12,8 +12,11 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.bluedragon.utils.JsonHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -42,7 +45,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 @Consumes({ MediaType.APPLICATION_JSON })
 @Produces({ MediaType.APPLICATION_JSON })
 public class PopQueueResource {
-	private static Log log = LogFactory.getLog(PopQueueResource.class);
+	private static Logger log = LoggerFactory.getLogger(PopQueueResource.class);
 //	public final static SimpleDateFormat SimpleDateFormat_Short = new SimpleDateFormat("yyyyMMdd");
 	@Autowired
 	private BaseService baseService;
@@ -125,7 +128,7 @@ public class PopQueueResource {
 			response.setOperateTime(DateHelper.formatDate(operateTime, "yyyy-MM-dd HH:mm"));
 			response.setQueueType(popQueueRequest.getQueueType());
 		} catch (Exception e) {
-			log.error("打印排队号出错了:" + popQueueRequest, e);
+			log.error("打印排队号出错了:{}" , JsonHelper.toJson(popQueueRequest), e);
 			response.setCode(response.CODE_INTERNAL_ERROR);
 			response.setMessage(response.MESSAGE_SERVICE_ERROR);
 		}
@@ -181,7 +184,7 @@ public class PopQueueResource {
 			response.setMessage("");
 			response.setQueueNo(queueNo);
 		} catch (Exception e) {
-			log.error("更新排队号开始收货时间出错了：:" + queueNo, e);
+			log.error("更新排队号开始收货时间出错了：{}" , queueNo, e);
 			response.setCode(PopQueueResponse.CODE_INTERNAL_ERROR);
 			response.setMessage(response.MESSAGE_SERVICE_ERROR);
 		}
@@ -232,7 +235,7 @@ public class PopQueueResource {
 			response.setCode(PopQueueResponse.CODE_OK);
 			response.setMessage("");
 		} catch (Exception e) {
-			log.error("更新排队号开始收货时间出错了：:" + queueNo, e);
+			log.error("更新排队号开始收货时间出错了：{}" , queueNo, e);
 			response.setCode(PopQueueResponse.CODE_INTERNAL_ERROR);
 			response.setMessage(response.MESSAGE_SERVICE_ERROR);
 		}

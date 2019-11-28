@@ -13,13 +13,12 @@ import com.jd.ql.dms.report.ReportExternalService;
 import com.jd.ql.dms.report.domain.BaseEntity;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import com.jd.ql.dms.report.domain.WeightVolumeQueryCondition;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -32,7 +31,7 @@ import java.util.List;
 @Service("syncPictureInfoConsumer")
 public class SyncPictureInfoConsumer extends MessageBaseConsumer {
 
-    private final Log logger = LogFactory.getLog(SyncPictureInfoConsumer.class);
+    private final Logger log = LoggerFactory.getLogger(SyncPictureInfoConsumer.class);
 
     @Autowired
     private ReportExternalService reportExternalService;
@@ -49,21 +48,21 @@ public class SyncPictureInfoConsumer extends MessageBaseConsumer {
     public void consume(Message message) throws Exception {
 
         if (!JsonHelper.isJsonString(message.getText())) {
-            logger.error(MessageFormat.format("auto下发消息体非JSON格式，内容为【{0}】", message.getText()));
+            log.warn("auto下发消息体非JSON格式，内容为【{}】", message.getText());
             return;
         }
 
         SyncPictureInfoConsumer.PictureInfoMq pictureInfoMq = JsonHelper.fromJsonUseGson(message.getText(), SyncPictureInfoConsumer.PictureInfoMq.class);
 
         if(pictureInfoMq == null) {
-            logger.warn(MessageFormat.format("auto下发消息体转换失败，内容为【{0}】", message.getText()));
+            log.warn("auto下发消息体转换失败，内容为【{}】", message.getText());
             return;
         }
 
         //1.运单号/包裹号校验
         String packageCode = pictureInfoMq.getWaybillOrPackCode();
         if(!WaybillUtil.isWaybillCode(packageCode) && !WaybillUtil.isPackageCode(packageCode)){
-            logger.warn("运单号/包裹号"+packageCode+"不符合规则!");
+            log.warn("运单号/包裹号{}不符合规则!",packageCode);
             return;
         }
         Integer siteCode = pictureInfoMq.getSiteCode();
@@ -104,12 +103,12 @@ public class SyncPictureInfoConsumer extends MessageBaseConsumer {
                 abnormalPictureMq.setWaybillCode(packageCode);
                 abnormalPictureMq.setUploadTime(pictureInfoMq.getUpLoadTime());
                 abnormalPictureMq.setExcessPictureAddress(pictureAddress);
-                this.logger.info("发送MQ[" + dmsWeightVolumeAbnormal.getTopic() + "],业务ID[" + abnormalPictureMq.getWaybillCode() + "],消息主题: " + JsonHelper.toJson(abnormalPictureMq));
+                this.log.info("发送MQ[{}],业务ID[{}]",dmsWeightVolumeAbnormal.getTopic(),abnormalPictureMq.getWaybillCode());
                 dmsWeightVolumeAbnormal.send(abnormalPictureMq.getAbnormalId(),JsonHelper.toJson(abnormalPictureMq));
             }
 
         }catch (Exception e){
-            logger.error("服务异常! "+packageCode+"|"+siteCode,e);
+            log.error("服务异常! {}|{}",packageCode,siteCode,e);
         }
 
     }

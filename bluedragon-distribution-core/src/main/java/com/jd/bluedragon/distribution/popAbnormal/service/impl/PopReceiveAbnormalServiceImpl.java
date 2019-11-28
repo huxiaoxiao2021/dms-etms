@@ -24,8 +24,8 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -46,7 +46,7 @@ import java.util.Map;
 @Service("popReceiveAbnormalService")
 public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	WaybillQueryManager waybillQueryManager;
@@ -76,20 +76,20 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 
 	@Override
 	public int findTotalCount(Map<String, Object> paramMap) {
-		logger.info("按条件查询POP差异订单信息，paramMap:" + paramMap);
+		log.info("按条件查询POP差异订单信息，paramMap:{}" , paramMap);
 		return popReceiveAbnormalDao.findTotalCount(paramMap);
 	}
 
 	@Override
 	public List<PopReceiveAbnormal> findList(Map<String, Object> paramMap) {
-		logger.info("按条件查询POP差异订单信息，paramMap:" + paramMap);
+		log.info("按条件查询POP差异订单信息，paramMap:{}" , paramMap);
 		return this.popReceiveAbnormalDao.findList(paramMap);
 	}
 
 	@Override
 	public PopReceiveAbnormal findByMap(Map<String, String> paramMap) {
 		if (paramMap == null || paramMap.isEmpty()) {
-			logger.info("POP差异订单Service --> findByMap 传入验证参数为空");
+			log.info("POP差异订单Service --> findByMap 传入验证参数为空");
 			return null;
 		}
 		return this.popReceiveAbnormalDao.findByMap(paramMap);
@@ -98,7 +98,7 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 	@Override
 	public PopReceiveAbnormal findByObj(PopReceiveAbnormal popReceiveAbnormal) {
 		if (popReceiveAbnormal == null) {
-			logger.info("POP差异订单Service --> findByObj 传入验证参数为空");
+			log.info("POP差异订单Service --> findByObj 传入验证参数为空");
 			return null;
 		}
 		return this.popReceiveAbnormalDao.findByObj(popReceiveAbnormal);
@@ -130,7 +130,7 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 				this.popAbnormalDetailService.add(popAbnormalDetail);
 			}
 		} else {
-			this.logger.info("popReceiveAbnormalService add 主表插入不成功，直接返回");
+			this.log.info("popReceiveAbnormalService add 主表插入不成功，直接返回");
 			return Constants.RESULT_FAIL;
 		}
 
@@ -159,7 +159,7 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 			this.pushMqToPop(popReceiveAbnormal, popAbnormalDetail,
 					PopAbnormalSendVO.FIRST_SEND);
 		}else{
-			logger.error("POP差异订单处理，订单的类型不符合"+JsonHelper.toJson(popReceiveAbnormal));
+			log.warn("POP差异订单处理，订单的类型不符合:{}",JsonHelper.toJson(popReceiveAbnormal));
 		}
 
 		return Constants.RESULT_SUCCESS;
@@ -183,7 +183,7 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 				this.popAbnormalDetailService.add(popAbnormalDetail);
 			}
 		} else {
-			this.logger.info("popReceiveAbnormalService update 主表无记录，直接返回");
+			this.log.info("popReceiveAbnormalService update 主表无记录，直接返回");
 			return Constants.RESULT_FAIL;
 		}
 
@@ -191,14 +191,14 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 		//之前逻辑POP组会收到多余类型的订单信息无法处理
 		//添加类型判断
 		if (isSendPop) {
-			this.logger.info("popReceiveAbnormalService --> 第二次给POP或B商家发送信息");
+			this.log.info("popReceiveAbnormalService --> 第二次给POP或B商家发送信息");
 			if (Waybill.isOrderTypeBWaybill(popReceiveAbnormal.getWaybillType())) {
 				this.pushMqToReceive(popReceiveAbnormal, popAbnormalDetail, PopAbnormalSendVO.SECOND_SEND);
 			} else if (Waybill.isPopType(popReceiveAbnormal.getWaybillType())){
 				this.pushMqToPop(popReceiveAbnormal, popAbnormalDetail,
 						PopAbnormalSendVO.SECOND_SEND);
 			}else{
-				logger.error("POP差异订单处理，订单的类型不符合"+JsonHelper.toJson(popReceiveAbnormal));
+				log.warn("POP差异订单处理，订单的类型不符合:{}"+JsonHelper.toJson(popReceiveAbnormal));
 			}
 		} else {
 			if (popReceiveAbnormal.getMainType().equals(5)
@@ -214,9 +214,7 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 						.sendPopOrders(convPopOrderList(popReceiveAbnormal));
 				long endTime = System.currentTimeMillis();
 
-				this.logger.info("update，更新商家确认时间，更新运单包裹数量 结束参数：运单号【"
-						+ popReceiveAbnormal.getWaybillCode() + "】，调用时间【"
-						+ (endTime - startTime) + "】");
+				this.log.info("update，更新商家确认时间，更新运单包裹数量 结束参数：运单号【{}】，调用时间【{}】",popReceiveAbnormal.getWaybillCode(), (endTime - startTime));
 
 				if (baseEntity != null
 						&& Constants.RESULT_SUCCESS == baseEntity
@@ -226,8 +224,7 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 					if (resultMap != null
 							&& resultMap.get(popReceiveAbnormal
 									.getWaybillCode())) {
-						this.logger.info("update，更新商家确认时间，更新运单包裹数量 成功，ID："
-								+ popReceiveAbnormal.getAbnormalId());
+						this.log.info("update，更新商家确认时间，更新运单包裹数量 成功，ID：{}",popReceiveAbnormal.getAbnormalId());
 					}
 				}
 
@@ -235,16 +232,14 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 				int resultInt = this.inspectionDao
 						.updatePop(convToInsepection(popReceiveAbnormal));
 				if (resultInt > 0) {
-					this.logger.info("update，更新商家确认时间，更新验货表包裹数量 成功，ID："
-							+ popReceiveAbnormal.getAbnormalId());
+					this.log.info("update，更新商家确认时间，更新验货表包裹数量 成功，ID：{}",popReceiveAbnormal.getAbnormalId());
 				}
 
 				// 更新包裹标签打印表数据
 				resultInt = this.popPrintDao
 						.updateByWaybillCode(convToPopPrint(popReceiveAbnormal));
 				if (resultInt > 0) {
-					this.logger.info("update，更新商家确认时间，更新打印表包裹数量、打印次数 成功，ID："
-							+ popReceiveAbnormal.getAbnormalId());
+					this.log.info("update，更新商家确认时间，更新打印表包裹数量、打印次数 成功，ID：{}",popReceiveAbnormal.getAbnormalId());
 				}
 			}
 		}
@@ -258,7 +253,7 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 		PopReceiveAbnormal popReceiveAbnormal = null;
 		try {
 			// 调用运单接口
-			this.logger.info("调用运单接口, 订单号为： " + waybillCode);
+			this.log.info("调用运单接口, 订单号为：{} " , waybillCode);
 			WChoice wChoice = new WChoice();
 			wChoice.setQueryWaybillC(true);
 			wChoice.setQueryWaybillE(true);
@@ -269,15 +264,11 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 				popReceiveAbnormal = this.convWaybill(baseEntity.getData());
 				if (popReceiveAbnormal == null) {
 					// 无数据
-					this.logger.info("调用运单接口, 订单号为： " + waybillCode
-							+ " 调用运单WSS数据为空");
+					this.log.info("调用运单接口, 订单号为： {} 调用运单WSS数据为空", waybillCode);
 				}
 			}
 		} catch (Exception e) {
-			this.logger
-					.error(
-							"PopReceiveAbnormalServiceImpl --> getWaybillByWaybillCode, 调用运单接口异常：",
-							e);
+			this.log.error("PopReceiveAbnormalServiceImpl --> getWaybillByWaybillCode, 调用运单接口异常：{}",waybillCode,e);
 			return null;
 		}
 		return popReceiveAbnormal;
@@ -311,7 +302,7 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 		popAbnormalSend.setAttr2(popReceiveAbnormal.getAttr2());
 		popAbnormalSend.setRetType(retType);
 		
-		this.logger.info("pushMqToPop" + JsonHelper.toJson(popAbnormalSend));
+		this.log.info("pushMqToPop.OrderCode={}" , popAbnormalSend.getOrderCode());
 		this.dmsAbnormalSendMQ.sendOnFailPersistent(String.valueOf(popAbnormalSend
                 .getSerialNumber())
                 + "_" + String.valueOf(popAbnormalSend.getRetType()),JsonHelper
@@ -337,7 +328,7 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 		popAbnormalSend.setRetType(retType);
 		
 		
-		this.logger.info("pushMqToReceive" + JsonHelper.toJson(popAbnormalSend));
+		this.log.info("pushMqToReceive:OrderCode={},WaybillCode={}" ,popAbnormalSend.getOrderCode(),popAbnormalSend.getWaybillCode());
 
         this.receiveBdAbnormalSendMQ.sendOnFailPersistent(String.valueOf(popAbnormalSend
 .getSerialNumber())
@@ -354,19 +345,19 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 	 */
 	public PopReceiveAbnormal convWaybill(BigWaybillDto bigWaybillDto) {
 		if (bigWaybillDto == null) {
-			this.logger.info("转换运单基本信息 --> 原始运单数据bigWaybillDto为空");
+			this.log.info("转换运单基本信息 --> 原始运单数据bigWaybillDto为空");
 			return null;
 		}
 		com.jd.etms.waybill.domain.Waybill waybillWS = bigWaybillDto
 				.getWaybill();
 		if (waybillWS == null) {
-			this.logger.info("转换运单基本信息 --> 原始运单数据集waybillWS为空");
+			this.log.info("转换运单基本信息 --> 原始运单数据集waybillWS为空");
 			return null;
 		}
 		/*
 		 * WaybillManageDomain manageDomain = bigWaybillDto.getWaybillState();
 		 * if (manageDomain == null) {
-		 * this.logger.info("转换运单基本信息 --> 原始运单数据集manageDomain为空"); return null;
+		 * this.log.info("转换运单基本信息 --> 原始运单数据集manageDomain为空"); return null;
 		 * }
 		 */
 
@@ -405,8 +396,7 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 	public List<PopOrderDto> convPopOrderList(
 			PopReceiveAbnormal popReceiveAbnormal) {
 		if (popReceiveAbnormal == null) {
-			this.logger
-					.info("转换popReceiveAbnormal为更新运单对象 --> 原始运单数据popReceiveAbnormal为空");
+			this.log.info("转换popReceiveAbnormal为更新运单对象 --> 原始运单数据popReceiveAbnormal为空");
 			return null;
 		}
 		List<PopOrderDto> popOrderDtos = new ArrayList<PopOrderDto>();
@@ -439,8 +429,7 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 				|| StringUtils.isBlank(popAbnormal.getAttr3())
 				|| BusinessHelper.checkIntNumNotInRange(Integer
 						.parseInt(popAbnormal.getAttr3()))) {
-			this.logger
-					.info("转换popAbnormal 为 Inspection对象 --> 原始数据popAbnormal为空或必要参数有误");
+			this.log.info("转换popAbnormal 为 Inspection对象 --> 原始数据popAbnormal为空或必要参数有误");
 			return null;
 		}
 		Inspection inspection = new Inspection();
@@ -462,8 +451,7 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 				|| StringUtils.isBlank(popAbnormal.getAttr3())
 				|| BusinessHelper.checkIntNumNotInRange(Integer
 						.parseInt(popAbnormal.getAttr3()))) {
-			this.logger
-					.info("转换popAbnormal 为打印对象 --> 原始数据popAbnormal为空或必要参数有误");
+			this.log.info("转换popAbnormal 为打印对象 --> 原始数据popAbnormal为空或必要参数有误");
 			return null;
 		}
 		PopPrint popPrint = new PopPrint();

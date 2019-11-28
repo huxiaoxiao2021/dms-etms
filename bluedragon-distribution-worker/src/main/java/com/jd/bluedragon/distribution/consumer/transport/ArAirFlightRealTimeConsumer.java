@@ -18,13 +18,12 @@ import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.text.MessageFormat;
 import java.util.*;
 
 /**
@@ -36,7 +35,7 @@ import java.util.*;
 @Service("arAirFlightRealTimeConsumer")
 public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private VosManager vosManager;
@@ -62,7 +61,7 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
     @Override
     public void consume(Message message) throws Exception {
         if (!JsonHelper.isJsonString(message.getText())) {
-            logger.warn(MessageFormat.format("[空铁项目]消费航班起飞降落实时MQ-消息体非JSON格式，内容为【{0}】", message.getText()));
+            log.warn("[空铁项目]消费航班起飞降落实时MQ-消息体非JSON格式，内容为【{}】", message.getText());
             return;
         }
         ArAirFlightRealTimeStatus realTimeStatus = JsonHelper.fromJsonUseGson(message.getText(), ArAirFlightRealTimeStatus.class);
@@ -93,17 +92,18 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
                         sealCarDto = vosManager.querySealCarByBatchCode(sendCode);
                         this.buildAirWaybillAndSendMQ(sendCode, realTimeStatus, sealCarDto);
                     } catch (Exception e) {
-                        logger.error("[空铁项目]消费航班起飞降落实时MQ-批次号(" + sendCode + ")-根据批次号封装运单维度消息体并发送给路由时发生异常", e);
+                        log.error("[空铁项目]消费航班起飞降落实时MQ-批次号({})-根据批次号封装运单维度消息体并发送给路由时发生异常", sendCode,e);
                         SystemLogUtil.log(sendCode, realTimeStatus.getFlightNumber(), sealCarDto == null ? "" : sealCarDto.getTransportCode(), null,
                                 message.getText(), SystemLogContants.TYPE_AR_AIR_FLIGHT_REAL_TIME);
                         throw e;
                     }
                 }
             } else {
-                logger.warn("[空铁项目]消费航班起飞降落实时MQ-根据发货登记信息ID(" + sendRegisterIds.toString() + ")获取批次号列表为空或null");
+                log.warn("[空铁项目]消费航班起飞降落实时MQ-根据发货登记信息ID({})获取批次号列表为空或null",sendRegisterIds.toString());
             }
         } else {
-            logger.warn("[空铁项目]消费航班起飞降落实时MQ-根据航班号(" + realTimeStatus.getFlightNumber() + ")和飞行日期(" + DateHelper.formatDate(realTimeStatus.getFlightDate()) + ")获取发货登记信息为null");
+            log.warn("[空铁项目]消费航班起飞降落实时MQ-根据航班号({})和飞行日期({})获取发货登记信息为null",
+                    realTimeStatus.getFlightNumber(),DateHelper.formatDate(realTimeStatus.getFlightDate()));
         }
     }
 
@@ -166,7 +166,7 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
             /* 路由线路编码 */
             airWaybillStatus.setRouteLineCode(sealCarDto.getRouteLineCode());
         } else {
-            logger.warn("调用运输接口[vosQueryWS.querySealCarByBatchCode()]根据批次号(" + sendCode + ")获取封车信息为null");
+            log.warn("调用运输接口[vosQueryWS.querySealCarByBatchCode()]根据批次号({})获取封车信息为null",sendCode);
         }
         this.doSendMQ(sendCode, airWaybillStatus);
     }
@@ -189,7 +189,7 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
                 this.sendMQ(airWaybillStatus);
             }
         } else {
-            logger.warn("[空铁项目]消费航班起飞降落实时MQ-根据批次号获取发货明细为空，批次号：" + sendCode);
+            log.warn("[空铁项目]消费航班起飞降落实时MQ-根据批次号获取发货明细为空，批次号：{}" , sendCode);
         }
     }
 
@@ -201,7 +201,7 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
      */
     private void sendMQ(ArAirWaybillStatus arAirWaybillStatus) throws JMQException {
         arAirWaybillStatusMQ.send(arAirWaybillStatus.getWayBillCode(), JsonHelper.toJson(arAirWaybillStatus));
-        logger.info("[空铁项目]消费航班起飞降落实时MQ-发送运单维度消息成功，消息体：" + JsonHelper.toJson(arAirWaybillStatus));
+        log.info("[空铁项目]消费航班起飞降落实时MQ-发送运单维度消息成功，id：{}" , arAirWaybillStatus.getWayBillCode());
     }
 
 }

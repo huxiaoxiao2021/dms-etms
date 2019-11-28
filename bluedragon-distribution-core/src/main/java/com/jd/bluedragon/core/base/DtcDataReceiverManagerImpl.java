@@ -1,21 +1,18 @@
 package com.jd.bluedragon.core.base;
 
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
+import com.jd.staig.receiver.rpc.DataReceiver;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import com.jd.staig.receiver.rpc.DataReceiver;
-
 @Service("dtcDataReceiverManager")
 public class DtcDataReceiverManagerImpl implements DtcDataReceiverManager {
 
-	private Log logger = LogFactory.getLog(DtcDataReceiverManagerImpl.class);
+	private Logger log = LoggerFactory.getLogger(DtcDataReceiverManagerImpl.class);
 	
 	private static final int PRIORITY = 2;
 
@@ -31,7 +28,7 @@ public class DtcDataReceiverManagerImpl implements DtcDataReceiverManager {
 			return dtcDataReceiver.downStreamHandle(target, methodName, outboundType, priority, messageValue, messageMd5Value,
 					source, outboundNo);
 		}catch (Exception e){
-			logger.error("调用DTC接口异常",e);
+			log.error("调用DTC接口异常",e);
 			Profiler.functionError(info);
 			throw e;
 		}finally {

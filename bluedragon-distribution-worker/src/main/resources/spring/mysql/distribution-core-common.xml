@@ -245,5 +245,4 @@
        <property name="systemKey" value="Bluedragon_dms_center.system.common"></property>
     </bean-->
     <!-- ump monitor end common-->
-
 </beans>

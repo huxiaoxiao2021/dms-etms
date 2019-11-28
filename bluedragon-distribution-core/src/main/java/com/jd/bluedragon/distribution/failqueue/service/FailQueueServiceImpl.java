@@ -17,8 +17,8 @@ import com.jd.etms.finance.wss.WaybillDataServiceWS;
 import com.jd.etms.finance.wss.pojo.ResponseMessage;
 import com.jd.etms.finance.wss.pojo.SortingCar;
 import com.jd.etms.finance.wss.pojo.SortingOrder;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -31,7 +31,7 @@ public class FailQueueServiceImpl implements IFailQueueService {
 
     private final static String PART = "/";
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     WaybillDataServiceWS waybillDataServiceWS;
@@ -63,7 +63,7 @@ public class FailQueueServiceImpl implements IFailQueueService {
             sendCodeAl.add(sendCode);
         }
         sendCodeNewData(sendCodeAl, IFailQueueService.DMS_SEND_SELF);
-        logger.info("发车对应的发货数据，准备推送财务，SendCode：" + sortBatchNosb.toString());
+        log.info("发车对应的发货数据，准备推送财务，SendCode：{}" , sortBatchNosb.toString());
         if (!pushDeparture) {
             /**
              * 如果不需要推发车就返回
@@ -115,8 +115,7 @@ public class FailQueueServiceImpl implements IFailQueueService {
                     IFailQueueService.DEPARTURE_TYPE_3PL)) {
                 departure3Pl.add(task);
             } else {
-                logger.error("TaskFailQueue错误的类型数据 ID:" + task.getFailqueueId()
-                        + " buistype:" + task.getBusiType());
+                log.warn("TaskFailQueue错误的类型数据 ID:{},buistype:{}" , task.getFailqueueId(),task.getBusiType());
             }
         }
 
@@ -136,7 +135,7 @@ public class FailQueueServiceImpl implements IFailQueueService {
             return;
         }
         try {
-            logger.info("支线三方发车数据推送财务");
+            log.debug("支线三方发车数据推送财务");
 
             Set<Long> failList = new HashSet<Long>();
             //发送数据到3PL
@@ -161,18 +160,18 @@ public class FailQueueServiceImpl implements IFailQueueService {
                 }
             }
 
-            logger.info("处理成功数据 数据量:" + dealResult_Success.size() + " 类型:" + IFailQueueService.DEPARTURE_TYPE);
+            log.debug("处理成功数据 数据量:{} 类型:{}" ,dealResult_Success.size(), IFailQueueService.DEPARTURE_TYPE);
             udpateSuccessOrFail_TaskFailQueue(dealResult_Success, true);
-            logger.info("处理失败数据 数据量:" + dealResult_Fail.size() + " 类型:" + IFailQueueService.DEPARTURE_TYPE);
+            log.debug("处理失败数据 数据量:{} 类型:{}" ,dealResult_Fail.size(), IFailQueueService.DEPARTURE_TYPE);
             udpateSuccessOrFail_TaskFailQueue(dealResult_Fail, false);
 
         } catch (Exception e) {
-            logger.error("发送支线发车三方承运商发车数据到3PL状态异常", e);
+            log.error("发送支线发车三方承运商发车数据到3PL状态异常", e);
             udpateSuccessOrFail_TaskFailQueue(list, false);
             return;
         }
 
-        logger.info("处理完毕");
+        log.debug("处理完毕");
     }
 
     private void departureFailData(List<TaskFailQueue> list) {
@@ -181,11 +180,11 @@ public class FailQueueServiceImpl implements IFailQueueService {
             return;
         }
         try {
-            logger.info("失败队列发货数据推送财务");
-            logger.info("TaskFailQueue 预转换  DealData");
+            log.debug("失败队列发货数据推送财务");
+            log.debug("TaskFailQueue 预转换  DealData");
             List<DealData_Departure> dealal = DataTranTool
                     .transTaskFailQueueToDealData_Departure(list);
-            logger.info("DealData 预转换 sortingCarAl ");
+            log.debug("DealData 预转换 sortingCarAl ");
             List<com.jd.etms.finance.wss.pojo.SortingCar> sortingCarAl = DataTranTool
                     .transDealDataDepartureToFinanceData(dealal);
 
@@ -193,7 +192,7 @@ public class FailQueueServiceImpl implements IFailQueueService {
             try {
                 failList = pushDepartureWss(sortingCarAl);
             } catch (Exception e) {
-                logger.error("调用waybillDataServiceWS.sendSortingOrder", e);
+                log.error("调用waybillDataServiceWS.sendSortingOrder", e);
                 udpateSuccessOrFail_TaskFailQueue(list, false);
                 return;
             }
@@ -210,18 +209,16 @@ public class FailQueueServiceImpl implements IFailQueueService {
                 }
             }
 
-            logger.info("处理成功数据 数据量:" + dealResult_Success.size() + " 类型:"
-                    + IFailQueueService.DEPARTURE_TYPE);
+            log.debug("处理成功数据 数据量:{} 类型:{}",dealResult_Success.size(), IFailQueueService.DEPARTURE_TYPE);
             udpateSuccessOrFail_TaskFailQueue(dealResult_Success, true);
-            logger.info("处理失败数据 数据量:" + dealResult_Fail.size() + " 类型:"
-                    + IFailQueueService.DEPARTURE_TYPE);
+            log.debug("处理失败数据 数据量:{} 类型:{}",dealResult_Fail.size(), IFailQueueService.DEPARTURE_TYPE);
             udpateSuccessOrFail_TaskFailQueue(dealResult_Fail, false);
         } catch (Exception e) {
-            logger.error("处理失败队列数据状态异常", e);
+            log.error("处理失败队列数据状态异常", e);
             udpateSuccessOrFail_TaskFailQueue(list, false);
             return;
         }
-        logger.info("处理完毕");
+        log.debug("处理完毕");
     }
 
     private void sendDatailFailData(List<TaskFailQueue> list) {
@@ -230,11 +227,11 @@ public class FailQueueServiceImpl implements IFailQueueService {
             return;
         }
         try {
-            logger.info("失败队列发货数据推送财务");
-            logger.info("TaskFailQueue 预转换  DealData");
+            log.debug("失败队列发货数据推送财务");
+            log.debug("TaskFailQueue 预转换  DealData");
             List<DealData_SendDatail> dealal = DataTranTool
                     .transTaskFailQueueToDealData_SendDatail(list);
-            logger.info("DealData 预转换 SortingOrder");
+            log.debug("DealData 预转换 SortingOrder");
             ArrayList<com.jd.etms.finance.wss.pojo.SortingOrder> sendDataAl = DataTranTool
                     .transDealDataSendDatailToFinanceData(dealal);
 
@@ -243,7 +240,7 @@ public class FailQueueServiceImpl implements IFailQueueService {
                 failList = pushSendDatailhWss(sendDataAl);
             } catch (Exception e) {
                 udpateSuccessOrFail_TaskFailQueue(list, false);
-                logger.error("调用waybillDataServiceWS.sendSortingOrder", e);
+                log.error("调用waybillDataServiceWS.sendSortingOrder", e);
                 return;
             }
 
@@ -251,7 +248,7 @@ public class FailQueueServiceImpl implements IFailQueueService {
             List<TaskFailQueue> dealResult_Success = new ArrayList<TaskFailQueue>();
             List<TaskFailQueue> dealResult_Fail = new ArrayList<TaskFailQueue>();
             HashMap<Long, TaskFailQueue> failmap = new HashMap<Long, TaskFailQueue>();
-            logger.info("准备区分成功数据和失败数据");
+            log.debug("准备区分成功数据和失败数据");
 
             for (TaskFailQueue taskFailQueue : list) {
                 failmap.put(taskFailQueue.getBusiId(), taskFailQueue);
@@ -266,39 +263,37 @@ public class FailQueueServiceImpl implements IFailQueueService {
                             .add(failmap.get(dealData.getPrimaryKey()));
                 }
             }
-            logger.info("处理成功数据 数据量:" + dealResult_Success.size());
+            log.debug("处理成功数据 数据量:{}" , dealResult_Success.size());
             udpateSuccessOrFail_TaskFailQueue(dealResult_Success, true);
-            logger.info("处理失败数据 数据量:" + dealResult_Fail.size());
+            log.debug("处理失败数据 数据量:{}" , dealResult_Fail.size());
             udpateSuccessOrFail_TaskFailQueue(dealResult_Fail, false);
         } catch (Exception e) {
-            logger.error("处理失败队列数据状态异常", e);
+            log.error("处理失败队列数据状态异常", e);
             udpateSuccessOrFail_TaskFailQueue(list, false);
             return;
         }
-        logger.info("处理完毕");
+        log.debug("处理完毕");
     }
 
     private List<String> pushDepartureWss(List<SortingCar> sortingCarAl)
             throws Exception {
         /* 推送WSS */
-        logger.info("调用waybillDataServiceWS.sendSortingCar推送数据");
+        log.debug("调用waybillDataServiceWS.sendSortingCar推送数据");
         ResponseMessage responseMessage = waybillDataServiceWS
                 .sendSortingCar(sortingCarAl);
         /* 处理返回数据 */
-        logger.info("获得WSS执行结果处理状态,WSS结果 result="
-                + responseMessage.getIsSuccess());
+        log.debug("获得WSS执行结果处理状态,WSS结果 result={}", responseMessage.getIsSuccess());
         return responseMessage.getWbcList();
     }
 
     private List<String> pushSendDatailhWss(ArrayList<SortingOrder> sendDataAl)
             throws Exception {
         /* 推送WSS */
-        logger.info("调用waybillDataServiceWS.sendSortingOrder推送数据");
+        log.debug("调用waybillDataServiceWS.sendSortingOrder推送数据");
         ResponseMessage responseMessage = waybillDataServiceWS
                 .sendSortingOrder(sendDataAl);
         /* 处理返回数据 */
-        logger.info("获得WSS执行结果处理状态,WSS结果 result="
-                + responseMessage.getIsSuccess());
+        log.debug("获得WSS执行结果处理状态,WSS结果 result={}", responseMessage.getIsSuccess());
         return responseMessage.getWbcList();
     }
 
@@ -369,9 +364,7 @@ public class FailQueueServiceImpl implements IFailQueueService {
                 TaskFailQueue tmp = DataTranTool
                         .transSendDataToDealDate(datail);
                 if (tmp.getBusiType().equals(IFailQueueService.ERROR_TYPE)) {
-                    logger.error("错误的SendDatail sendType:"
-                            + datail.getSendType() + " [" + datail.getSendDId()
-                            + "]");
+                    log.warn("错误的SendDatail sendType:{} [{}]",datail.getSendType(),datail.getSendDId());
                 } else {
                     if (!allExist.contains(datail.getSendDId())) {
                         taskFailQueueDao.add(TaskFailQueueDao.namespace, tmp);
@@ -380,7 +373,7 @@ public class FailQueueServiceImpl implements IFailQueueService {
             }
             udpateSuccessOrFail_TaskFailQueue(sendDatailAl_batch, true);
         } catch (Exception e) {
-            logger.error("处理批次号队列数据状态异常", e);
+            log.error("处理批次号队列数据状态异常", e);
             udpateSuccessOrFail_TaskFailQueue(sendDatailAl_batch, false);
         }
     }

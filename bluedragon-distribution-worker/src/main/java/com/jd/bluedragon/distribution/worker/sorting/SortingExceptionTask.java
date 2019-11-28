@@ -3,8 +3,8 @@ package com.jd.bluedragon.distribution.worker.sorting;
 import com.jd.bluedragon.distribution.framework.DBSingleScheduler;
 import com.jd.bluedragon.distribution.sortexception.service.SortExceptionLogService;
 import com.jd.bluedragon.distribution.task.domain.Task;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class SortingExceptionTask extends DBSingleScheduler {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private SortExceptionLogService sortExceptionLogService;
@@ -22,12 +22,11 @@ public class SortingExceptionTask extends DBSingleScheduler {
     protected boolean executeSingleTask(Task task, String ownSign) throws Exception {
         boolean result = false;
         try {
-            logger.info("db task id is " + task.getId());
+            log.info("db task id is {}" , task.getId());
             result = this.sortExceptionLogService.addExpectionLog(task);
 
         } catch (Exception e) {
-            logger.info("task id is " + task.getId());
-            this.logger.error("处理分拣任务发生异常，异常信息为：" + e.getMessage(), e);
+            log.error("处理分拣任务发生异常,task id is {}" , task.getId(),e);
             return Boolean.FALSE;
         }
         return result;

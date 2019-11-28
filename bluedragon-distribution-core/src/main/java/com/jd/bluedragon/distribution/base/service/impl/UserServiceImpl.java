@@ -62,6 +62,12 @@ public class UserServiceImpl implements UserService{
 	 *  程序类型-jsf登录接口
 	 */
 	private static final Integer JSF_LOGIN_PROGRAM_TYPE = 50;
+
+	/**
+	 *  程序类型-安卓登录接口
+	 */
+	private static final Integer ANDROID_LOGIN_PROGRAM_TYPE = 60;
+
 	/**
 	 *  默认版本号-jsf登录接口
 	 */
@@ -267,7 +273,13 @@ public class UserServiceImpl implements UserService{
     						}
     					}
     					if(!versionIsMatch){
-    						checkResult.toFail("线上版本【"+versionOnline+"】，请退出重新登录/联系运维重新安装！");
+    						if(ANDROID_LOGIN_PROGRAM_TYPE.equals(clientInfo.getProgramType()) || JSF_LOGIN_PROGRAM_TYPE.equals(clientInfo.getProgramType())){
+								//安卓升级提示语
+    							checkResult.toFail("版本过低！线上版本【"+versionOnline+"】，请点击左上角【检查新版本】按钮升级！");
+							}else{
+								//非安卓升级提示语
+								checkResult.toFail("线上版本【"+versionOnline+"】，请退出重新登录/联系运维重新安装！");
+							}
     					}
     				}
     			}

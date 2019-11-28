@@ -23,7 +23,7 @@ import java.util.Objects;
 @Service("ldopWaybillUpdateManager")
 public class LdopWaybillUpdateManagerImpl implements LdopWaybillUpdateManager{
 
-    private static final Logger logger = LoggerFactory.getLogger(LdopWaybillUpdateManagerImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(LdopWaybillUpdateManagerImpl.class);
 
     @Autowired
     private WaybillUpdateApi waybillUpdateApi;
@@ -37,18 +37,18 @@ public class LdopWaybillUpdateManagerImpl implements LdopWaybillUpdateManager{
         pickupDTO.setRelievedSend(RelievedSendEnum.SUPPORT_NOT_USE.getValue());
         ResponseDTO responseDTO = waybillUpdateApi.updateBeforePickUpWithResult(pickupDTO);
         if(responseDTO == null){
-            logger.error("取消鸡毛信服务失败-接口返回空waybillCode[{}]",waybillCode);
+            log.warn("取消鸡毛信服务失败-接口返回空waybillCode[{}]",waybillCode);
             invokeResult.setCode(InvokeResult.SERVER_ERROR_CODE);
             invokeResult.setMessage("取消鸡毛信失败,请求返回空！");
             return invokeResult;
         }
         if(!Objects.equals(responseDTO.getStatusCode(),ResponseDTO.SUCCESS_CODE)){
-            logger.error("取消鸡毛信服务失败waybillCode[{}]responseDTO[{}]",waybillCode, JsonHelper.toJson(responseDTO));
+            log.warn("取消鸡毛信服务失败waybillCode[{}]responseDTO[{}]",waybillCode, JsonHelper.toJson(responseDTO));
             invokeResult.setCode(InvokeResult.SERVER_ERROR_CODE);
             invokeResult.setMessage(responseDTO.getStatusMessage());
             return invokeResult;
         }
-        logger.info("取消鸡毛信服务成功waybillCode[{}]responseDTO[{}]",waybillCode, JsonHelper.toJson(responseDTO));
+        log.debug("取消鸡毛信服务成功waybillCode[{}]responseDTO[{}]",waybillCode, JsonHelper.toJson(responseDTO));
         invokeResult.success();
         return invokeResult;
     }

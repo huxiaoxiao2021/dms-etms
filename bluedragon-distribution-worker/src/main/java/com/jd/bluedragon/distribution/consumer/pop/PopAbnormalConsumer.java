@@ -8,8 +8,8 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.jmq.common.message.Message;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +19,7 @@ import java.util.Map;
 @Service("popAbnormalConsumer")
 public class PopAbnormalConsumer extends MessageBaseConsumer {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private PopAbnormalService popAbnormalService;
@@ -34,12 +34,9 @@ public class PopAbnormalConsumer extends MessageBaseConsumer {
 
 		try {
 			// 2 处理消息体
-			this.logger
-					.info("PopAbnormalMessageConsumer updatePopPackNum --> 消息Body为【"
-							+ popAbnormalXml + "】");
+			log.debug("PopAbnormalMessageConsumer updatePopPackNum --> 消息Body为【{}】",popAbnormalXml);
 			if (StringUtils.isBlank(popAbnormalXml)) {
-				this.logger
-						.info("PopAbnormalMessageConsumer updatePopPackNum --> 获取MQ数据内容为空，直接commit MQ");
+				log.warn("PopAbnormalMessageConsumer updatePopPackNum --> 获取MQ数据内容为空，直接commit MQ");
 				isCommit = Boolean.TRUE;
 			} else {
 				popAbnormal = XmlHelper.xmlToObject(popAbnormalXml,
@@ -51,24 +48,18 @@ public class PopAbnormalConsumer extends MessageBaseConsumer {
 						|| !BusinessHelper.checkIntNumRange(popAbnormal
 								.getConfirmNum())) {
 					if (popAbnormal != null) {
-						this.logger
-								.info("PopAbnormalMessageConsumer updatePopPackNum --> 商家确认运单号-包裹数量为【"
-										+ popAbnormal.getOrderCode()
-										+ "-"
-										+ popAbnormal.getConfirmNum()
-										+ "】，不合要求，直接commit MQ");
+						log.warn("PopAbnormalMessageConsumer updatePopPackNum --> 商家确认运单号-包裹数量为【{}-{}】，不合要求，直接commit MQ"
+								,popAbnormal.getOrderCode(),popAbnormal.getConfirmNum());
 					} else {
-						this.logger
-								.info("PopAbnormalMessageConsumer updatePopPackNum --> popAbnormal为空，不合要求，直接commit MQ");
+						log.warn("PopAbnormalMessageConsumer updatePopPackNum --> popAbnormal为空，不合要求，直接commit MQ,消息Body为【{}】"
+								,popAbnormalXml);
 					}
 					isCommit = Boolean.TRUE;
 				}
 			}
 
 		} catch (Exception e) {
-			this.logger.error(
-					"PopAbnormalMessageConsumer updatePopPackNum --> 获取MQ数据内容转换对象，内容【"
-							+ popAbnormalXml + "】，直接提交MQ， 异常：", e);
+			this.log.error("PopAbnormalMessageConsumer updatePopPackNum --> 获取MQ数据内容转换对象，内容【{}】，直接提交MQ",popAbnormalXml, e);
 			isCommit = Boolean.TRUE;
 		}
 
@@ -77,37 +68,29 @@ public class PopAbnormalConsumer extends MessageBaseConsumer {
 			Map<String, String> paramMap = new HashMap<String, String>();
 			paramMap.put("serialNumber", popAbnormal.getSerialNumber());
 			paramMap.put("orderCode", popAbnormal.getOrderCode());
-			this.logger
-					.info("PopAbnormalMessageConsumer updatePopPackNum --> 验证数据，参数："
-							+ paramMap);
+			log.warn("PopAbnormalMessageConsumer updatePopPackNum --> 验证数据，参数：{}",paramMap);
 			order = this.popAbnormalService.checkByMap(paramMap);
 			if (order == null) {
-				this.logger
-						.info("PopAbnormalMessageConsumer updatePopPackNum --> 验证本地数据不存在，直接commit MQ，参数："
-								+ paramMap);
+				log.warn("PopAbnormalMessageConsumer updatePopPackNum --> 验证本地数据不存在，直接commit MQ，参数：{}",paramMap);
 				isCommit = Boolean.TRUE;
 			} else {
 				// 组装需要提交的参数
 				order.setConfirmNum(popAbnormal.getConfirmNum());
 				order.setConfirmTime(popAbnormal.getConfirmTime());
 
-				this.logger
-						.info("PopAbnormalMessageConsumer updatePopPackNum --> 验证数据成功，更新数据，订单号【"
-								+ order.getOrderCode()
-								+ "】，数量【"
-								+ order.getConfirmNum() + "】");
+				log.warn("PopAbnormalMessageConsumer updatePopPackNum --> 验证数据成功，更新数据，订单号【{}】，数量【{}】"
+						,order.getOrderCode(),order.getConfirmNum());
 
 				int uptCount = this.popAbnormalService.updatePopPackNum(order);
 				if (uptCount == 3) {
 					// 3 提交消息
 					isCommit = Boolean.TRUE;
 				} else {
-					this.logger.info("更新ID为“" + order.getId() + "”的数据失败,返回状态为:"
-							+ uptCount);
+					log.warn("更新ID为{}的数据失败,返回状态为:{}",order.getId(),uptCount);
 				}
 			}
 		}
 
-		this.logger.info("Id:" + message.getBusinessId() + ", 处理结果：" + isCommit);
+		log.info("Id:{}, 处理结果：{}" ,message.getBusinessId(), isCommit);
 	}
 }

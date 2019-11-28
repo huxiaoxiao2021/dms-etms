@@ -20,13 +20,12 @@ import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.report.domain.GoodsPrintDto;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.text.MessageFormat;
 import java.util.Date;
 
 /**
@@ -36,7 +35,7 @@ import java.util.Date;
  */
 @Service("sendDetailGoodsPrintConsumer")
 public class SendDetailGoodsPrintConsumer extends MessageBaseConsumer {
-    private static final Log logger = LogFactory.getLog(SendDetailGoodsPrintConsumer.class);
+    private static final Logger log = LoggerFactory.getLogger(SendDetailGoodsPrintConsumer.class);
     @Autowired
     private WaybillQueryManager waybillQueryManager;
 
@@ -56,21 +55,22 @@ public class SendDetailGoodsPrintConsumer extends MessageBaseConsumer {
     @Override
     public void consume(Message message) throws Exception {
         if (!JsonHelper.isJsonString(message.getText())) {
-            logger.warn(MessageFormat.format("[SendDetailGoodsPrintConsumer消费]MQ-消息体非JSON格式，内容为【{0}】", message.getText()));
+            log.warn("[SendDetailGoodsPrintConsumer消费]MQ-消息体非JSON格式，内容为【{}】", message.getText());
             return;
         }
         SendDetailMessage sendDetail = JsonHelper.fromJsonUseGson(message.getText(), SendDetailMessage.class);
 
         String packageBarCode = sendDetail.getPackageBarcode();
         if (!SerialRuleUtil.isWaybillOrPackageNo(packageBarCode)) {
-            logger.warn("[SendDetailGoodsPrintConsumer消费]无效的运单号/包裹号，packageBarCode:" + packageBarCode + ",boxCode:" + sendDetail.getBoxCode());
+            log.warn("[SendDetailGoodsPrintConsumer消费]无效的运单号/包裹号，packageBarCode:{},boxCode:{}" ,packageBarCode, sendDetail.getBoxCode());
             return;
         }
 
         String waybillCode = WaybillUtil.getWaybillCode(packageBarCode);
         BaseEntity<BigWaybillDto> baseEntity = getWaybillBaseEntity(waybillCode);
         if (baseEntity == null || baseEntity.getData().getWaybill() == null) {
-            logger.error("[SendDetailGoodsPrintConsumer消费]根据运单号获取运单信息为空，packageBarCode:" + packageBarCode + ",boxCode:" + sendDetail.getBoxCode()+",waybillCode:"+waybillCode);
+            log.warn("[SendDetailGoodsPrintConsumer消费]根据运单号获取运单信息为空，packageBarCode:{},boxCode:{},waybillCode:{}"
+                    ,packageBarCode,sendDetail.getBoxCode(),waybillCode);
             return;
         }
         Waybill waybill = baseEntity.getData().getWaybill();

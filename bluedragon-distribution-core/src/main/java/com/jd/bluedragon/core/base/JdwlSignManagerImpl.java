@@ -1,6 +1,5 @@
 package com.jd.bluedragon.core.base;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.distribution.printOnline.domain.PrintOnlineModalDTO;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -19,7 +18,7 @@ import org.springframework.stereotype.Service;
 @Service("jdwlSignManager")
 public class JdwlSignManagerImpl implements JdwlSignManager {
 
-    private Logger logger = LoggerFactory.getLogger(JdwlSignManagerImpl.class);
+    private Logger log = LoggerFactory.getLogger(JdwlSignManagerImpl.class);
 
     @Autowired
     @Qualifier("jdwlSignServiceJsf")
@@ -72,12 +71,12 @@ public class JdwlSignManagerImpl implements JdwlSignManager {
             if(actionSlimDtoRs.getResult()){
                 return true;
             }else{
-                logger.error("调用线上签传输数据接口失败"+ JsonHelper.toJson(printOnlineModalDTO)+" 返回结果："+JsonHelper.toJson(actionSlimDtoRs));
+                log.warn("调用线上签传输数据接口失败{} 返回结果：{}",JsonHelper.toJson(printOnlineModalDTO),JsonHelper.toJson(actionSlimDtoRs));
                 return false;
             }
 
         }catch (Exception e){
-            logger.error("调用线上签传输数据接口异常"+ JsonHelper.toJson(printOnlineModalDTO),e);
+            log.error("调用线上签传输数据接口异常:{}", JsonHelper.toJson(printOnlineModalDTO),e);
             return false;
         }
 

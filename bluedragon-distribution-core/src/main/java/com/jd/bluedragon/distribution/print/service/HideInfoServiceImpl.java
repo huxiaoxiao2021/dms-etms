@@ -3,14 +3,14 @@ package com.jd.bluedragon.distribution.print.service;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.utils.StringHelper;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service("hideInfoService")
 public class HideInfoServiceImpl implements HideInfoService{
 
-    private static final Log log = LogFactory.getLog(HideInfoServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(HideInfoServiceImpl.class);
 
     private static final int ADDRESS_SHOW_LENGTH = 9; //地址信息需要显示的前几位，超过部分用微笑符号替代
 
@@ -71,7 +71,7 @@ public class HideInfoServiceImpl implements HideInfoService{
                 hideCustomerAddress(waybill);
                 break;
             default:
-                log.info("运单的waybillSign第37位标识非法：" + waybill.getWaybillCode());
+                log.info("运单的waybillSign第37位标识非法：{}" , waybill.getWaybillCode());
         }
     }
 
@@ -117,7 +117,7 @@ public class HideInfoServiceImpl implements HideInfoService{
                 hideConsignerAddress(waybill);
                 break;
             default:
-                log.info("运单的waybillSign第37位标识非法：" + waybill.getWaybillCode());
+                log.info("运单的waybillSign第37位标识非法：{}" , waybill.getWaybillCode());
         }
     }
 
@@ -212,7 +212,7 @@ public class HideInfoServiceImpl implements HideInfoService{
                 firstTel = StringUtils.trimToEmpty(waybill.getTelFirst());
                 lastTel = StringUtils.trimToEmpty(waybill.getTelLast());
             }else{
-                log.error("微笑面单手机号错误，运单号：" + waybill.getWaybillCode() + ";手机号：" + waybill.getCustomerContacts());
+                log.warn("微笑面单手机号错误，运单号：{};手机号：{}",waybill.getWaybillCode(),waybill.getCustomerContacts());
                 return;
             }
         }

@@ -29,13 +29,12 @@ import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.text.MessageFormat;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -47,7 +46,7 @@ import java.util.concurrent.TimeUnit;
 @Service("sendDetailConsumer")
 public class SendDetailConsumer extends MessageBaseConsumer {
 
-    private final Log logger = LogFactory.getLog(SendDetailConsumer.class);
+    private final Logger log = LoggerFactory.getLogger(SendDetailConsumer.class);
 
     @Autowired
     private RmaHandOverWaybillService rmaHandOverWaybillService;
@@ -95,7 +94,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
     @Override
     public void consume(Message message) {
         if (!JsonHelper.isJsonString(message.getText())) {
-            logger.warn(MessageFormat.format("[dmsWorkSendDetail消费]MQ-消息体非JSON格式，内容为【{0}】", message.getText()));
+            log.warn("[dmsWorkSendDetail消费]MQ-消息体非JSON格式，内容为【{}】", message.getText());
             return;
         }
         SendDetailMessage context = JsonHelper.fromJsonUseGson(message.getText(), SendDetailMessage.class);
@@ -115,17 +114,17 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                         throw new MessageException("[dmsWorkSendDetail消费]该任务已被锁定，抛出异常进行重试，MQ message body:" + message.getText());
                     } else {
                         // 无效
-                        logger.warn("[dmsWorkSendDetail消费]无效发货明细消息，重复操作，MQ message body:" + message.getText());
+                        log.warn("[dmsWorkSendDetail消费]无效发货明细消息，重复操作，MQ message body:{}" , message.getText());
                         return;
                     }
                 }
             } else {
-                logger.warn("[dmsWorkSendDetail消费]无效发货明细消息，包裹号或者操作时间错误，MQ message body:" + message.getText());
+                log.warn("[dmsWorkSendDetail消费]无效发货明细消息，包裹号或者操作时间错误，MQ message body:{}" , message.getText());
             }
         }catch (MessageException e){
             throw new RuntimeException(e.getMessage() + "，MQ message body:" + message.getText(), e);
         }catch (Exception e) {
-            logger.error("[dmsWorkSendDetail消费]消费异常" + "，MQ message body:" + message.getText(), e);
+            log.error("[dmsWorkSendDetail消费]消费异常，MQ message body:{}" , message.getText(), e);
             throw new RuntimeException(e.getMessage() + "，MQ message body:" + message.getText(), e);
         } finally {
             if (isLock) {
@@ -150,7 +149,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                 return redisClientCache.get(redisKey);
             }
         } catch (Exception e) {
-            logger.error("[dmsWorkSendDetail消费]设置Redis并发锁时发生异常，redisKey:" + redisKey, e);
+            log.error("[dmsWorkSendDetail消费]设置Redis并发锁时发生异常，redisKey:{}" , redisKey, e);
         }
         return null;
     }
@@ -165,7 +164,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         try {
             redisClientCache.del(redisKey);
         } catch (Exception e) {
-            logger.error("[dmsWorkSendDetail消费]删除Redis并发锁时发生异常，redisKey:" + redisKey, e);
+            log.error("[dmsWorkSendDetail消费]删除Redis并发锁时发生异常，redisKey:{}" , redisKey, e);
         }
     }
 
@@ -197,10 +196,10 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                 // 龙门架、分拣机发货更新发货异常状态
                 this.updateGantryExceptionStatus(sendDetail);
             } else {
-                logger.warn("[dmsWorkSendDetail消费]根据运单号获取运单信息为空，packageBarCode:" + packageBarCode + ",boxCode:" + sendDetail.getBoxCode());
+                log.warn("[dmsWorkSendDetail消费]根据运单号获取运单信息为空，packageBarCode:{},boxCode:{}" ,packageBarCode, sendDetail.getBoxCode());
             }
         } else {
-            logger.warn("[dmsWorkSendDetail消费]无效的运单号/包裹号，packageBarCode:" + packageBarCode + ",boxCode:" + sendDetail.getBoxCode());
+            log.warn("[dmsWorkSendDetail消费]无效的运单号/包裹号，packageBarCode:{},boxCode:{}" ,packageBarCode, sendDetail.getBoxCode());
         }
     }
 
@@ -229,7 +228,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         // 发货目的地是车队，且是非城配运单，要通知调度系统
         if (waybill != null && Constants.BASE_SITE_MOTORCADE.equals(receiveSiteDto.getSiteType()) && !BusinessHelper.isDmsToVendor(waybill.getWaybillSign(), waybill.getSendPay())) {
             Message message = parseSendDetailToMessageOfDispatch(sendDetail, waybill, receiveSiteDto, dmsToVendor.getTopic(), Constants.SEND_DETAIL_SOUCRE_NORMAL);
-            this.logger.info("非城配运单，发车队通知调度系统发送MQ[" + message.getTopic() + "],业务ID[" + message.getBusinessId() + "],消息主题: " + message.getText());
+            this.log.debug("非城配运单，发车队通知调度系统发送MQ[{}],业务ID[{}],消息主题: {}" ,message.getTopic(),message.getBusinessId(), message.getText());
             dmsToVendor.sendOnFailPersistent(message.getBusinessId(), message.getText());
         }
     }
@@ -275,7 +274,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         try {
             baseSiteDto = this.baseMajorManager.getBaseSiteBySiteId(siteCode);
         } catch (Exception e) {
-            this.logger.error("发货全程跟踪调用站点信息异常", e);
+            this.log.error("发货全程跟踪调用站点信息异常,siteCode={}",siteCode, e);
         }
 
         if (baseSiteDto == null) {
@@ -332,7 +331,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                     dto.setPreSiteName(preSiteDto.getSiteName());
                 }
             } catch (Exception e) {
-                logger.error("非城配运单，发车队通知调度系统构建MQ时查询预分拣站点信息异常，MQ不在发送预分拣站点名称：" + sendDetail.getPackageBarcode(), e);
+                log.error("非城配运单，发车队通知调度系统构建MQ时查询预分拣站点信息异常，MQ不在发送预分拣站点名称：{}" , sendDetail.getPackageBarcode(), e);
             }
             message.setTopic(topic);
             message.setText(JSON.toJSONString(dto));
@@ -351,7 +350,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         SendBizSourceEnum bizSource = SendBizSourceEnum.getEnum(sendDetail.getBizSource());
         if (bizSource == null || bizSource == SendBizSourceEnum.SCANNER_FRAME_SEND || bizSource == SendBizSourceEnum.SORT_MACHINE_SEND) {
             gantryExceptionService.updateSendStatus(sendDetail.getBoxCode(), Long.valueOf(sendDetail.getCreateSiteCode()));
-            this.logger.info("更新异常信息发货状态，箱号：" + sendDetail.getBoxCode());
+            this.log.debug("更新异常信息发货状态，箱号：{}" , sendDetail.getBoxCode());
         }
     }
 

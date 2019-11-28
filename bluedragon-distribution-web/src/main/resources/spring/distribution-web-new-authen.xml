@@ -45,6 +45,7 @@
 		    <bean id="springAuthorizationInterceptor" class="com.jd.common.authorization.DmsUimAuthorizationInterceptor">
 		        <property name="hrmPrivilegeHelper" ref="hrmPrivilegeHelper"/>
                 <property name="excludePath" value="${uim.exclude.code}"/>
+				<property name="excludeUsers" value="${auth.exclude.user}"/>
 		    </bean>
         </mvc:interceptor>
 		<mvc:interceptor>

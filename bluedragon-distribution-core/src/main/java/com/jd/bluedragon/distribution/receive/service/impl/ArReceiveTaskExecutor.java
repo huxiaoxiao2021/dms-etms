@@ -18,7 +18,8 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +29,7 @@ import java.util.List;
 
 @Service("arReceiveTaskExecutor")
 public class ArReceiveTaskExecutor extends BaseReceiveTaskExecutor<ArReceive>{
-	private static Logger log = Logger.getLogger(ArReceiveTaskExecutor.class);
+	private static Logger log = LoggerFactory.getLogger(ArReceiveTaskExecutor.class);
 	private static final String TRAC_MESSAGE_FORMAT ="货物已提出，%s — %s";
 	private static final String KEY_DATA_AR_SEND_REGISTER ="arSendRegister";
 	
@@ -41,17 +42,16 @@ public class ArReceiveTaskExecutor extends BaseReceiveTaskExecutor<ArReceive>{
 	@Override
 	public ArReceive parse(Task task, String ownSign) {
 		String jsonReceive = task.getBody();
-		log.info("空铁提货json数据：" + jsonReceive);
+		log.info("空铁提货json数据：{}" , jsonReceive);
 		List<ArReceiveRequest> arReceiveRequests = Arrays.asList(JsonHelper
 				.jsonToArray(jsonReceive, ArReceiveRequest[].class));
-		log.info("空铁提货json数据转化后：" + arReceiveRequests);
 		ArReceive arReceive = new ArReceive();
 		ArReceiveRequest arReceiveRequest = arReceiveRequests.get(0);
 		String tmpNumber = arReceiveRequest.getPackOrBox();
 		// 根据规则得出包裹号、箱号、运单号
 		if (BusinessHelper.isBoxcode(tmpNumber)) {
 			if(tmpNumber.length() > Constants.BOX_CODE_DB_COLUMN_LENGTH_LIMIT){
-				log.error("收货任务JSON数据非法，箱号超长，收货消息体：" + jsonReceive);
+				log.warn("收货任务JSON数据非法，箱号超长，收货消息体：{}" , jsonReceive);
 				return null;
 			}
 			// 字母开头为箱号
@@ -71,7 +71,7 @@ public class ArReceiveTaskExecutor extends BaseReceiveTaskExecutor<ArReceive>{
 			arReceive.setBoxingType(Short.parseShort("2"));
 			arReceive.setWaybillCode(WaybillUtil.getWaybillCode(tmpNumber));
 		} else {
-			log.warn(String.format("[空铁提货]不支持或无法识别的操作条码，packOrBox：%s", tmpNumber));
+			log.warn("[空铁提货]不支持或无法识别的操作条码，packOrBox：{}", tmpNumber);
 			return null;
 		}
 		arReceive.setCarCode(arReceiveRequest.getCarCode());
@@ -130,10 +130,8 @@ public class ArReceiveTaskExecutor extends BaseReceiveTaskExecutor<ArReceive>{
 		BaseStaffSiteOrgDto bDto = baseService.getSiteBySiteID(cenConfirm
 				.getCreateSiteCode());
 		if (bDto == null) {
-			log.error("[PackageBarcode=" + cenConfirm.getPackageBarcode()
-					+ "][boxCode=" + cenConfirm.getBoxCode() + "]根据[siteCode="
-					+ cenConfirm.getCreateSiteCode()
-					+ "]获取基础资料站点信息[getSiteBySiteID]返回null,[空铁提货]不能回传全程跟踪");
+			log.warn("[PackageBarcode={}][boxCode={}]根据[siteCode={}]获取基础资料站点信息[getSiteBySiteID]返回null,[空铁提货]不能回传全程跟踪",
+					cenConfirm.getPackageBarcode(), cenConfirm.getBoxCode(),cenConfirm.getCreateSiteCode());
 		} else {
 			WaybillStatus waybillStatus = cenConfirmService
 					.createBasicWaybillStatus(cenConfirm, bDto, null);
@@ -156,9 +154,8 @@ public class ArReceiveTaskExecutor extends BaseReceiveTaskExecutor<ArReceive>{
 				// 添加到task表
 				taskService.add(toTask(waybillStatus));
 			} else {
-				log.error("[PackageCode=" + waybillStatus.getPackageCode()
-						+ "][boxCode=" + waybillStatus.getBoxCode()
-						+ "][参数信息不全],[空铁提货]不能回传全程跟踪");
+				log.warn("[PackageCode={}][boxCode={}][参数信息不全],[空铁提货]不能回传全程跟踪",
+						waybillStatus.getPackageCode(), waybillStatus.getBoxCode());
 			}
 
 		}
