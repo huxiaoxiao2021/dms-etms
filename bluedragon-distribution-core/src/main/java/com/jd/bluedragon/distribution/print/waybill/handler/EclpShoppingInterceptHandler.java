@@ -28,7 +28,6 @@ public class EclpShoppingInterceptHandler implements Handler<WaybillPrintContext
 
     @Override
     public InterceptResult<String> handle(WaybillPrintContext context) {
-        log.info("EclpShoppingInterceptHandler-eclp商城打印业务拦截");
         InterceptResult<String> interceptResult = context.getResult();
         // 请求的siteName传递BW码作为商家唯一编码
         String pin = context.getRequest().getSiteName();
@@ -80,7 +79,7 @@ public class EclpShoppingInterceptHandler implements Handler<WaybillPrintContext
                 return customerPinRel.getDisperseCustomerNo();
             }
         } catch (Exception e) {
-            log.error("[B网商家查询接口]根据pin码获取BW编号时发生异常", e);
+            log.error("[B网商家查询接口]根据pin码获取BW编号时发生异常，参数:{}, 异常信息:{}", pin, e.getMessage(), e);
         }
         return null;
     }
