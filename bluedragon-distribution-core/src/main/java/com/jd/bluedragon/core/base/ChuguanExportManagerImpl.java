@@ -144,8 +144,8 @@ public class ChuguanExportManagerImpl implements ChuguanExportManager{
             chuguanVos = getFullStockByBusinNo(orderCode,ConstantEnums.ChuGuanTypeId.REVERSE_LOGISTICS_MONEY_REJECTION);
         }
 
-        if(chuguanVos == null){//如果逆向物流的业务类型没有数据，那就查询 内配出库的数据
-            chuguanVos = getFullStockByBusinNo(orderCode,ConstantEnums.ChuGuanTypeId.NEIPEI_OUT);
+        if(chuguanVos == null){//如果逆向物流的业务类型没有数据，那就查询 订单出库
+            chuguanVos = getFullStockByBusinNo(orderCode,ConstantEnums.ChuGuanTypeId.ORDER_MONEY_OUT);
         }
         KuGuanDomain domain = null;
         if (chuguanVos != null && !chuguanVos.isEmpty()) {

@@ -62,7 +62,7 @@ public class ConstantEnums {
         REVERSE_LOGISTICS_GOODS_REJECTION(1401,"逆向物流-先货拒收(虚入"),
         REVERSE_LOGISTICS_MONEY_REJECTION(1402,"逆向物流-先款拒收(虚入"),
         REVERSE_LOGISTICS_OUT(1403,"逆向物流-虚出"),
-        NEIPEI_OUT(402,"内配出库");
+        ORDER_MONEY_OUT(202,"订单出库-先款");
         private Integer type;
         private String text;
 
