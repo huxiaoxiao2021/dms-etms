@@ -7,8 +7,8 @@ import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.logistics.customer.center.domain.CustomerPinRel;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,14 +21,14 @@ import org.springframework.stereotype.Service;
 @Service("eclpShoppingInterceptHandler")
 public class EclpShoppingInterceptHandler implements Handler<WaybillPrintContext, JdResult<String>> {
 
-    private static final Log logger = LogFactory.getLog(EclpShoppingInterceptHandler.class);
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private EclpCustomerPinRelManager eclpCustomerPinRelManager;
 
     @Override
     public InterceptResult<String> handle(WaybillPrintContext context) {
-        logger.info("EclpShoppingInterceptHandler-eclp商城打印业务拦截");
+        log.info("EclpShoppingInterceptHandler-eclp商城打印业务拦截");
         InterceptResult<String> interceptResult = context.getResult();
         // 请求的siteName传递BW码作为商家唯一编码
         String pin = context.getRequest().getSiteName();
@@ -80,7 +80,7 @@ public class EclpShoppingInterceptHandler implements Handler<WaybillPrintContext
                 return customerPinRel.getDisperseCustomerNo();
             }
         } catch (Exception e) {
-            logger.error("[B网商家查询接口]根据pin码获取BW编号时发生异常", e);
+            log.error("[B网商家查询接口]根据pin码获取BW编号时发生异常", e);
         }
         return null;
     }
