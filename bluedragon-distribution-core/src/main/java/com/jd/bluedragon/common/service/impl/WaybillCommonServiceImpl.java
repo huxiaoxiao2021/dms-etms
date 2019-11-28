@@ -825,17 +825,15 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             target.setBusiOrderCode("");
         }
         /**
-         * 当waybill_sign第62位等于1时，确定为B网营业厅运单:
          * 1.waybill_sign第80位等于1时，面单打印“特惠运”
          * 2.waybill_sign第80位等于2时，面单打标“特准运”
          */
-        if(BusinessUtil.isSignChar(waybill.getWaybillSign(),62,'1')){
-            if(BusinessUtil.isSignChar(waybill.getWaybillSign(),80,'1')){
-                target.setjZDFlag(TextConstants.B2B_CHEAP_TRANSPORT);
-            }else if(BusinessUtil.isSignChar(waybill.getWaybillSign(),80,'2')){
-                target.setjZDFlag(TextConstants.B2B_TIMELY_TRANSPORT);
-            }
+        if(BusinessUtil.isSignChar(waybill.getWaybillSign(),80,'1')){
+            target.setjZDFlag(TextConstants.B2B_CHEAP_TRANSPORT);
+        }else if(BusinessUtil.isSignChar(waybill.getWaybillSign(),80,'2')){
+            target.setjZDFlag(TextConstants.B2B_TIMELY_TRANSPORT);
         }
+        
         //sendpay167位不等于0时，面单模板打印【京准达快递到车】
 	    if(StringHelper.isNotEmpty(waybill.getSendPay())
 	    		&& waybill.getSendPay().length() >= 167
