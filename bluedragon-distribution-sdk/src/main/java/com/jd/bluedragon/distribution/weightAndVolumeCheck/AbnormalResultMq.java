@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.weightAndVolumeCheck;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @ClassName: AbnormalResultMq
@@ -269,6 +270,69 @@ public class AbnormalResultMq implements Serializable {
      * 复核人erp
      * */
     private String reviewErp;
+
+    /**
+     * 是否信任商家 1:是 0:否
+     * */
+    private Integer isTrustMerchant;
+
+    /**
+     * 车队长erp
+     * */
+    private String carCaptionErp;
+
+    /**
+     * 录入模式 1-运单维度 2-包裹维度
+     * */
+    private Integer inputMode;
+    /**
+     * 抽检业务类型 1- B2C 2-B2B
+     * */
+    private Integer businessType;
+    /**
+     * 包裹抽检明细
+     * */
+    private List<SpotCheckOfPackageDetail> detailList;
+
+    public String getCarCaptionErp() {
+        return carCaptionErp;
+    }
+
+    public void setCarCaptionErp(String carCaptionErp) {
+        this.carCaptionErp = carCaptionErp;
+    }
+
+    public Integer getIsTrustMerchant() {
+        return isTrustMerchant;
+    }
+
+    public void setIsTrustMerchant(Integer isTrustMerchant) {
+        this.isTrustMerchant = isTrustMerchant;
+    }
+
+    public Integer getInputMode() {
+        return inputMode;
+    }
+
+    public void setInputMode(Integer inputMode) {
+        this.inputMode = inputMode;
+    }
+
+    public Integer getBusinessType() {
+        return businessType;
+    }
+
+    public void setBusinessType(Integer businessType) {
+        this.businessType = businessType;
+    }
+
+    public List<SpotCheckOfPackageDetail> getDetailList() {
+        return detailList;
+    }
+
+    public void setDetailList(List<SpotCheckOfPackageDetail> detailList) {
+        this.detailList = detailList;
+    }
 
     public String getReviewErp() {
         return reviewErp;

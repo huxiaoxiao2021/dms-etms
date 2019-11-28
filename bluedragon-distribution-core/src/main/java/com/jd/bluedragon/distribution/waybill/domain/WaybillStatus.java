@@ -215,6 +215,11 @@ public class WaybillStatus {
      */
     public static final Integer WAYBILL_TRACK_SEND_HANDOVERS = 14400;
 
+    /**
+     *  重量体积抽检(匿名)
+     * */
+    public static final Integer WAYBILL_STATUS_WEIGHT_VOLUME_SPOT_CHECK = 13800;
+
     private Long id;
 
     private String sendCode;

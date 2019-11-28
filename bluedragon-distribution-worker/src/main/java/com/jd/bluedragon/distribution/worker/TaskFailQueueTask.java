@@ -1,24 +1,19 @@
 package com.jd.bluedragon.distribution.worker;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.sql.DataSource;
-
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.jd.bluedragon.distribution.failqueue.domain.TaskFailQueue;
 import com.jd.bluedragon.distribution.failqueue.service.IFailQueueService;
 import com.taobao.pamirs.schedule.IScheduleTaskDealMulti;
 import com.taobao.pamirs.schedule.TBScheduleManagerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import javax.sql.DataSource;
+import java.util.*;
 
 public class TaskFailQueueTask implements IScheduleTaskDealMulti<TaskFailQueue>{
 
-	private final static Logger logger = Logger.getLogger(SendDetailToFinanceTask.class);
+	private final static Logger log = LoggerFactory.getLogger(SendDetailToFinanceTask.class);
 
 	@Autowired
 	IFailQueueService failQueueService;
@@ -92,7 +87,7 @@ public class TaskFailQueueTask implements IScheduleTaskDealMulti<TaskFailQueue>{
 			param.put("fetchNum", fetchNum);
 			List<TaskFailQueue> records = failQueueService.query(param);			
 			if (records != null) {
-				logger.info("调用 failQueueService.query fetchNum:" + fetchNum + " records.size:" + records.size());
+				log.info("调用 failQueueService.query fetchNum:{} records.size:{}" ,fetchNum, records.size());
 				for (TaskFailQueue record : records) {
 					if (!isMyTask(queueNum,record.getFailqueueId(), queryCondition)) {
 						continue;
@@ -100,7 +95,7 @@ public class TaskFailQueueTask implements IScheduleTaskDealMulti<TaskFailQueue>{
 					results.add(record);
 				}
 			}else{
-				logger.info("调用 failQueueService.query fetchNum:" + fetchNum + " records is null");
+				log.info("调用 failQueueService.query fetchNum:{} records is null",fetchNum);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

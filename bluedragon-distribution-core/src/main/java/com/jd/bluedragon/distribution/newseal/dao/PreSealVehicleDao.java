@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.newseal.dao;
 
 import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicle;
+import com.jd.bluedragon.distribution.newseal.domain.VehicleMeasureInfo;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 
 import java.util.Date;
@@ -66,4 +67,25 @@ public interface PreSealVehicleDao extends Dao<PreSealVehicle> {
      * @return
      */
     List<String> findUsedTransports(Integer createSiteCode, Date startDate);
+
+    /**
+     * 根据运力编码查询预封车信息
+     * @param transportCode
+     * @return
+     */
+    PreSealVehicle getPreSealVehicleInfo(String transportCode);
+
+    /**
+     * 根据运力编码查询预封车体积重量信息
+     * @param transportCode
+     * @return
+     */
+    List<VehicleMeasureInfo> getVehicleMeasureInfoList(String transportCode);
+
+    /**
+     * 更新预封车体积重量信息
+     * @param preSealVehicle
+     * @return
+     */
+    int updatePreSealVehicleMeasureInfo(PreSealVehicle preSealVehicle);
 }

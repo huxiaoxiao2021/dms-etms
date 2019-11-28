@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.newseal.service;
 
 import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicle;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicleEnum;
+import com.jd.bluedragon.distribution.newseal.domain.VehicleMeasureInfo;
 import com.jd.ql.dms.common.web.mvc.api.Service;
 
 import java.util.Date;
@@ -92,4 +93,25 @@ public interface PreSealVehicleService extends Service<PreSealVehicle> {
      * @throws Exception
      */
     boolean batchSeal(List<PreSealVehicle> preList, Integer updateUserCode, String updateUserErp, String updateUserName, Date operateTime ) throws Exception;
+
+    /**
+     * 根据运力编码获取预封车信息
+     * @param transportCode
+     * @return
+     */
+    PreSealVehicle getPreSealVehicleInfo(String transportCode);
+
+    /**
+     * 根据运力编码获取预封车体积重量信息
+     * @param transportCode
+     * @return
+     */
+    List<VehicleMeasureInfo> getVehicleMeasureInfoList(String transportCode);
+
+    /**
+     * 更新预封车体积重量信息
+     * @param preSealVehicle
+     * @return
+     */
+    boolean updatePreSealVehicleMeasureInfo(PreSealVehicle preSealVehicle);
 }

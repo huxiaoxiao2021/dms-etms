@@ -2,6 +2,8 @@ package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
+import com.jd.bluedragon.distribution.middleend.sorting.domain.DmsCustomSite;
+import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.domain.PsStoreInfo;
@@ -133,4 +135,27 @@ public interface BaseMajorManager {
 	 * @return
 	 */
 	boolean allianceBusiMoneyEnough(String allianceBusiId);
+
+	/**
+	 * 获取常用功能菜单
+	 * @param siteCode
+	 * @param erp
+	 * 所属系统 1：WinCE版分拣系统 2：安卓版分拣系统 3：青龙分拣打印系统 4：青龙分拣WEB
+	 * @return
+	 */
+	String menuConstantAccount(String siteCode,String erp,Integer source);
+
+	/**
+	 * 获取分拣中心自定义站点
+	 * @param paramInteger
+	 * @return
+	 */
+	DmsCustomSite getDmsCustomSiteBySiteId(Integer paramInteger);
+
+	/**
+	 * 根据商家Id查询
+	 * @param merchantId
+	 * @return
+	 */
+	BasicTraderNeccesaryInfoDTO getBaseTraderNeccesaryInfoById(Integer merchantId);
 }

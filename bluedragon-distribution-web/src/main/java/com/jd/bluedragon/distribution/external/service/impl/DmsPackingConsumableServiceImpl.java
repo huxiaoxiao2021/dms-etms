@@ -1,12 +1,18 @@
 package com.jd.bluedragon.distribution.external.service.impl;
 
+import IceInternal.Ex;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.consumable.service.DmsConsumableRelationService;
 import com.jd.bluedragon.distribution.consumable.service.PackingConsumableInfoService;
 import com.jd.bluedragon.distribution.external.service.DmsPackingConsumableService;
 import com.jd.bluedragon.distribution.packingconsumable.domain.DmsPackingConsumableInfo;
 import com.jd.bluedragon.distribution.packingconsumable.domain.PackingConsumableBaseInfo;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +34,11 @@ public class DmsPackingConsumableServiceImpl implements DmsPackingConsumableServ
     @Autowired
     private PackingConsumableInfoService packingConsumableInfoService;
 
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+
     @Override
+    @JProfiler(jKey = "DMSWEB.DmsPackingConsumableServiceImpl.getPackingConsumableInfoByDmsId", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public JdResponse<DmsPackingConsumableInfo> getPackingConsumableInfoByDmsId(Integer dmsId) {
 
         JdResponse<DmsPackingConsumableInfo> jdResponse = new JdResponse<DmsPackingConsumableInfo>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
@@ -62,6 +72,37 @@ public class DmsPackingConsumableServiceImpl implements DmsPackingConsumableServ
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.DmsPackingConsumableServiceImpl.getPackingConsumableInfoByDmsCode", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public JdResponse<DmsPackingConsumableInfo> getPackingConsumableInfoByDmsCode(String dmsCode) {
+
+        JdResponse<DmsPackingConsumableInfo> jdResponse = new JdResponse<DmsPackingConsumableInfo>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
+
+        if (StringHelper.isEmpty(dmsCode)) {
+            logger.warn("获取耗材信息失败：分拣中心编号不能为空");
+            jdResponse.setCode(JdResponse.CODE_FAIL);
+            jdResponse.setMessage("获取耗材信息失败：分拣中心编号不能为空");
+            return jdResponse;
+        }
+
+        BaseStaffSiteOrgDto dto = null;
+        try {
+            dto = baseMajorManager.getBaseSiteByDmsCode(dmsCode);
+        } catch (Exception e) {
+            logger.error("获取耗材信息失败：通过基础资料获取分拣中心信息为空！", e);
+        }
+
+        if (dto == null || dto.getSiteCode() == null) {
+            logger.warn("获取耗材信息失败：通过基础资料获取分拣中心信息为空！");
+            jdResponse.setCode(JdResponse.CODE_FAIL);
+            jdResponse.setMessage("获取耗材信息失败：通过基础资料获取分拣中心信息为空！");
+            return jdResponse;
+        }
+
+        return getPackingConsumableInfoByDmsId(dto.getSiteCode());
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsPackingConsumableServiceImpl.getPackingConsumableInfoByCode", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public JdResponse<PackingConsumableBaseInfo> getPackingConsumableInfoByCode(String consumableCode) {
         JdResponse<PackingConsumableBaseInfo> jdResponse = new JdResponse<PackingConsumableBaseInfo>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
 

@@ -3,6 +3,7 @@ package com.jd.bluedragon.core.base;
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ham.cb.domain.external.CycleBoxDTO;
 import com.jd.ham.cb.domain.external.CycleBoxQueryDTO;
 import com.jd.ham.cb.domain.external.CycleBoxResultDTO;
@@ -10,8 +11,8 @@ import com.jd.ham.cb.service.CycleBoxExternalService;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +23,7 @@ import java.util.List;
 public class CycleBoxExternalManagerImpl implements CycleBoxExternalManager {
     @Autowired
     private CycleBoxExternalService cycleBoxExternalService;
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     /**
      * 调用运单接口获取青流箱明细
@@ -37,19 +38,17 @@ public class CycleBoxExternalManagerImpl implements CycleBoxExternalManager {
             CycleBoxResultDTO resultDto = cycleBoxExternalService.getCycleBoxInfo(dto);
 
             if(resultDto == null){
-                logger.error("调运单接口获取青流箱明细失败.dto:" + JSON.toJSONString(dto));
+                log.warn("调运单接口获取青流箱明细失败.dto:{}" , JSON.toJSONString(dto));
                 return null;
             }
             if(resultDto.getResultCode() != 1){
-                logger.error("调运单接口获取青流箱明细失败.dto:" + JSON.toJSONString(dto) +
-                        ".返回值code:" + resultDto.getResultCode() +
-                        ",message" + resultDto.getResultMessage());
+                log.warn("调运单接口获取青流箱明细失败.dto:{}.返回值code:{},message:{}", JSON.toJSONString(dto),resultDto.getResultCode(), resultDto.getResultMessage());
                 return null;
             }
             return (List<CycleBoxDTO>)resultDto.getResultData();
         }catch (Exception e){
             Profiler.functionError(callerInfo);
-            logger.error("根据运单号获取青流箱明细异常.",e);
+            log.error("根据运单号获取青流箱明细异常:{}", JsonHelper.toJson(dto),e);
             throw e;
         } finally {
             Profiler.registerInfoEnd(callerInfo);
@@ -77,7 +76,7 @@ public class CycleBoxExternalManagerImpl implements CycleBoxExternalManager {
                 }
             }
         }catch (Exception e){
-            logger.error("根据运单号调用运单接口获取青流箱明细异常.",e);
+            log.error("根据运单号调用运单接口获取青流箱明细异常:{}",waybillCode,e);
         }
         return cbUniqueNoList;
     }

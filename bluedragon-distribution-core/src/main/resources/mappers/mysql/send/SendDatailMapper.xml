@@ -881,6 +881,15 @@
         </if>
     </select>
 
+	<select id="findOneByWaybillCode" resultMap="SendDetail" parameterType="SendDetail">
+		SELECT *
+		FROM  send_d
+		WHERE yn=1 AND sendd_status = 1  AND is_cancel = 0
+			and waybill_code = #{waybillCode}
+			and create_site_code = #{createSiteCode}
+		limit 1
+	</select>
+
 	<select id="queryOneSendDetailByPackageCode" parameterType="SendDetail"
 			resultMap="SendDetail">
 		SELECT
@@ -953,6 +962,45 @@
 		</if>
 		group by package_barcode
 
+
+	</select>
+
+	<select id="findSendPageByParams" resultMap="SendDetail">
+		SELECT
+		<include refid="Base_Column_List"/>
+		FROM send_d
+		WHERE yn = 1
+		AND sendd_status = 1
+		AND is_cancel = 0
+		AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		AND receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
+		AND send_code IS NOT NULL
+		<if test="sendCode != null">
+			AND send_code = #{sendCode,jdbcType=VARCHAR}
+		</if>
+		<if test="boxCode != null">
+			AND box_code = #{boxCode,jdbcType=VARCHAR}
+		</if>
+		<if test="packageBarcode != null">
+			AND package_barcode = #{packageBarcode,jdbcType=VARCHAR}
+		</if>
+		<if test="createUserCode != null">
+			AND create_user_code = #{createUserCode,jdbcType=INTEGER}
+		</if>
+		<if test="startTime != null">
+			AND operate_time <![CDATA[>=]]> str_to_date(date_format(#{startTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="endTime != null">
+			AND operate_time <![CDATA[<=]]> str_to_date(date_format(#{endTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
+		</if>
+		ORDER BY operate_time DESC limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+	</select>
+
+	<select id="queryWaybillCountBySendCode" parameterType="SendDetail" resultType="com.jd.bluedragon.distribution.printOnline.domain.PrintOnlineWaybillDTO">
+
+		select WAYBILL_CODE as waybillCode,count(1) as packageNum from send_d where is_cancel = 0
+		and CREATE_SITE_CODE = #{createSiteCode} and send_code = #{sendCode}
+		group by WAYBILL_CODE
 
 	</select>
 </mapper>

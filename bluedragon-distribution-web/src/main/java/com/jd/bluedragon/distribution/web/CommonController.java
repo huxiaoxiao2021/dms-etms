@@ -10,8 +10,8 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.uim.annotation.Authorization;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +24,7 @@ import java.util.List;
 @RequestMapping("/common")
 public class CommonController {
 
-    private static final Log log = LogFactory.getLog(CommonController.class);
+    private static final Logger log = LoggerFactory.getLogger(CommonController.class);
 
     /**
      * 基础资料接口
@@ -70,9 +70,9 @@ public class CommonController {
                 if (list != null) {
                     break;
                 }
-                CommonController.log.error("第" + m + "次获取机构下站点信息失败");
+                CommonController.log.error("第{}次获取机构下站点信息失败",m);
             } catch (Exception e) {
-                CommonController.log.error("调用基础资料发生异常！", e);
+                CommonController.log.error("调用基础资料发生异常,orgCode={}",orgCode, e);
             }
         }
         return list;

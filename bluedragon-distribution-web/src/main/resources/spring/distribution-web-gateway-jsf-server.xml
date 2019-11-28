@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jsf="http://jsf.jd.com/schema/jsf"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://jsf.jd.com/schema/jsf http://jsf.jd.com/schema/jsf/jsf.xsd">
+
+    <!-- 分拣 -->
+    <bean id="sortingGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.SortingGatewayServiceImpl"/>
+    <jsf:provider id="jsfSortingService"
+                  interface="com.jd.bluedragon.external.gateway.service.SortingGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="sortingGatewayService" server="dmsjsf">
+    </jsf:provider>
+
+    <bean id="inspectionGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.InspectionGatewayServiceImpl"/>
+    <jsf:provider id="jsfInspectionGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.InspectionGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="inspectionGatewayService" server="dmsjsf">
+    </jsf:provider>
+
+    <bean id="recycleMaterialGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.RecycleMaterialGatewayServiceImpl"/>
+    <jsf:provider id="jsfRecycleMaterialGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.RecycleMaterialGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="recycleMaterialGatewayService" server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 批量一车一单发货校验 -->
+    <bean id="batchSingleSendService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.BatchSingleSendServiceImpl"/>
+    <jsf:provider id="jsfBatchSingleSendService"
+                  interface="com.jd.bluedragon.external.gateway.service.BatchSingleSendGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="batchSingleSendService" server="dmsjsf">
+    </jsf:provider>
+    <bean id="boxGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.BoxGatewayServiceImpl"/>
+    <jsf:provider id="jsfBoxGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.BoxGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="boxGatewayService" server="dmsjsf">
+    </jsf:provider>
+    <bean id="taskGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.TaskGatewayServiceImpl"/>
+    <jsf:provider id="jsfTaskGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.TaskGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="taskGatewayService" server="dmsjsf">
+    </jsf:provider>
+    <bean id="waybillGateWayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.WaybillGateWayServiceImpl"/>
+    <jsf:provider id="jsfWaybillGateWayService"
+                  interface="com.jd.bluedragon.external.gateway.service.WaybillGateWayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="waybillGateWayService" server="dmsjsf">
+    </jsf:provider>
+
+    <bean id="batchForwardGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.BatchForwardGatewayServiceImpl"/>
+    <jsf:provider id="jsfBatchForwardGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.BatchForwardGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="batchForwardGatewayService" server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 封车 -->
+    <bean id="newSealVehicleGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.NewSealVehicleGatewayServiceImpl"/>
+    <jsf:provider id="jsfNewSealVehicleGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.NewSealVehicleGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="newSealVehicleGatewayService" server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 差异查询 -->
+    <bean id="differentialQueryGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.DifferentialQueryGatewayServiceImpl"/>
+    <jsf:provider id="jsfDifferentialQueryService"
+                  interface="com.jd.bluedragon.external.gateway.service.DifferentialQueryGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="differentialQueryGatewayService" server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 组板服务 -->
+    <bean id="sortBoardGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.SortBoardGatewayServiceImpl"/>
+    <jsf:provider id="jsfSortBoardGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.SortBoardGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="sortBoardGatewayServiceImpl" server="dmsjsf">
+    </jsf:provider>
+
+
+    <!-- 发货服务 -->
+    <bean id="sendGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.SendGatewayServiceImpl"/>
+    <jsf:provider id="jsfSendGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.SendGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="sendGatewayService" server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 批次服务 -->
+    <bean id="sendCodeGateWayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.SendCodeGateWayServiceImpl"/>
+    <jsf:provider id="jsfsendCodeGateWayService"
+                  interface="com.jd.bluedragon.external.gateway.service.SendCodeGateWayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="sendCodeGateWayService" server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 加盟商服务 -->
+    <bean id="allianceBusiGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.AllianceBusiGatewayServiceImpl"/>
+    <jsf:provider id="jsfallianceBusiGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.AllianceBusiGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="allianceBusiGatewayService" server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 暂存上架服务 -->
+    <bean id="storagePutawayGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.StoragePutawayGatewayServiceImpl"/>
+    <jsf:provider id="jsfStoragePutawayGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.StoragePutawayGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="storagePutawayGatewayServiceImpl" server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 暂存上架服务 -->
+    <bean id="dmsBaseDictGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.DmsBaseDictGatewayServiceImpl"/>
+    <jsf:provider id="jsfdmsBaseDictGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.DmsBaseDictGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="dmsBaseDictGatewayService" server="dmsjsf">
+    </jsf:provider>
+    <!-- 基础数据服务 -->
+    <bean id="baseDataGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.BaseDataGatewayServiceImpl"/>
+    <jsf:provider id="jsfbaseDataGatewayService" interface="com.jd.bluedragon.external.gateway.service.BaseDataGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="baseDataGatewayService"
+                  server="dmsjsf"/>
+
+    <!-- 异常处理服务 -->
+    <bean id="abnormalOrderGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.AbnormalOrderGatewayServiceImpl"/>
+    <jsf:provider id="jsfabnormalOrderGatewayService" interface="com.jd.bluedragon.external.gateway.service.AbnormalOrderGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="abnormalOrderGatewayService"
+                  server="dmsjsf"/>
+    <!-- 逆向退仓 -->
+    <bean id="reverseWarehouseGateWayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.ReverseWarehouseGateWayServiceImpl"/>
+    <jsf:provider id="jsfreverseWarehouseGateWayService" interface="com.jd.bluedragon.external.gateway.service.ReverseWarehouseGateWayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="reverseWarehouseGateWayService"
+                  server="dmsjsf"/>
+
+    <!-- 异常提交 -->
+    <bean id="exceptionHandleGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.ExceptionHandleGatewayServiceImpl"/>
+    <jsf:provider id="jsfExceptionHandleGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.ExceptionHandleGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="exceptionHandleGatewayService" server="dmsjsf">
+    </jsf:provider>
+</beans>

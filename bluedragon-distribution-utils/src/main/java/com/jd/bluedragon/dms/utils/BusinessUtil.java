@@ -1,14 +1,18 @@
 package com.jd.bluedragon.dms.utils;
 
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
-
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
 
-import static com.jd.bluedragon.dms.utils.DmsConstants.SEND_CODE_REG;
+import static com.jd.bluedragon.dms.utils.DmsConstants.PRODUCT_TYPE_COLD_CHAIN_KB;
+import static com.jd.bluedragon.dms.utils.DmsConstants.RULE_TERMINAL_SEND_CODE_ALL_REGEX;
+import static com.jd.bluedragon.dms.utils.DmsConstants.SEAL_BOX_NO;
+import static com.jd.bluedragon.dms.utils.DmsConstants.SEND_CODE_ALL_REG;
+import static com.jd.bluedragon.dms.utils.DmsConstants.SEND_CODE_NEW_REG;
 
 /**
  * @author tangchunqing
@@ -16,6 +20,7 @@ import static com.jd.bluedragon.dms.utils.DmsConstants.SEND_CODE_REG;
  * @date 2018年10月12日 18时:15分
  */
 public class BusinessUtil {
+
     /**
      * 是不是发货批次号
      *
@@ -26,8 +31,64 @@ public class BusinessUtil {
         if (StringUtils.isBlank(sendCode)) {
             return false;
         }
-        return sendCode.matches(SEND_CODE_REG);
+        return sendCode.matches(SEND_CODE_ALL_REG) || isSingleBatchNo(sendCode);
     }
+
+    /**
+     * 是不是终端批次号
+     * R开头
+     *
+     * @param sendCode
+     * @return
+     */
+    public static boolean isTerminalSendCode(String sendCode) {
+        if (StringUtils.isBlank(sendCode)) {
+            return false;
+        }
+        return RULE_TERMINAL_SEND_CODE_ALL_REGEX.matcher(sendCode).matches();
+    }
+
+    /**
+     * 根据批次号的正则匹配始发分拣中心id和目的分拣中心id
+     *
+     * @param sendCode 批次号
+     * @return
+     */
+    public static Integer[] getSiteCodeBySendCode(String sendCode) {
+        Integer[] sites = new Integer[]{-1, -1};
+        if (StringUtils.isNotBlank(sendCode)) {
+            Matcher matcher = DmsConstants.RULE_SEND_CODE_ALL_REGEX.matcher(sendCode.trim());
+            if (matcher.matches()) {
+                sites[0] = Integer.valueOf(matcher.group(1));
+                sites[1] = Integer.valueOf(matcher.group(2));
+            }
+        }
+        return sites;
+    }
+  /**
+   * 是否为新批次号
+   * 批次号判断批次号是否是：站点（数字）+站点（数字）+时间串（14位数字）+序号（2位数字）+模7余数
+   * 模7余数：对 站点第一位+站点第一位+时间串+序列号 取模
+   * 必须是17位（时间14位+序号2位+模7余数1位）
+   * @param input
+   * @return
+   */
+  public static boolean isSingleBatchNo(String input) {
+      if (StringUtils.isBlank(input)) {
+          return false;
+      }
+      if (input.matches(SEND_CODE_NEW_REG)) {
+          String[] tempStr = input.split("-");
+          String startSiteCode = tempStr[0];
+          String desSiteCode = tempStr[1];
+          String timeString = tempStr[2];
+          long mod = Long.valueOf(startSiteCode.substring(0, 1) + desSiteCode.substring(0, 1) + timeString.substring(0, timeString.length() - 1)) % 7L;
+          long tail = Long.valueOf(timeString.substring(timeString.length() - 1));
+          return mod == tail;
+      }
+
+      return false;
+  }
 
     /**
      * 判断输入字符串是否为箱号. 箱号规则： 箱号： B(T,G) C(S) 010F001 010F002 12345678 。
@@ -191,6 +252,16 @@ public class BusinessUtil {
                 || isSignChar(waybillSign, 1, 'K')
                 || isSignChar(waybillSign, 1, 'Y'));
     }
+
+    /**
+     * 根据waybillSign第40位判断是否快运业务（标识为 1、2、3、4、5）
+     *
+     * @param waybillSign 运单标识位
+     * @return
+     */
+     public static boolean isFastTrans(String waybillSign){
+         return isSignInChars(waybillSign, WaybillSignConstants.POSITION_40, '1', '2', '3', '4', '5');
+     }
 
     /**
      * 判断是否B网，转网到B+未转网到C并且waybillSign第40位1、2、3、4、5
@@ -412,19 +483,36 @@ public class BusinessUtil {
     /**
      * 是否为商家类型
      */
-    public static boolean isBizSite(String sReceiveSiteType) {
+    public static boolean isBizSite(Integer siteType) {
+        return DmsConstants.SITE_TYPE_BIZ.equals(siteType);
+    }
 
-        Integer receiveSiteType;
-        try {
-            receiveSiteType = Integer.parseInt(sReceiveSiteType);
-        } catch (Exception e) {
-            return Boolean.FALSE;
-        }
+    /**
+     * 是否为仓类型
+     */
+    public static boolean isWmsSite(Integer siteType) {
+        return DmsConstants.SITE_TYPE_WMS.equals(siteType);
+    }
 
-        if (DmsConstants.SITE_TYPE_BIZ.equals(receiveSiteType)) {
-            return Boolean.TRUE;
-        }
-        return Boolean.FALSE;
+    /**
+     * 是否为分拣中心类型
+     */
+    public static boolean isDistrubutionCenter(Integer siteType) {
+        return DmsConstants.SITE_TYPE_DMS.equals(siteType);
+    }
+
+    /**
+     * 是否为站点类型
+     */
+    public static boolean isSite(Integer siteType) {
+        return DmsConstants.SITE_TYPE_SITE.equals(siteType);
+    }
+
+    /**
+     * 是否为车队类型
+     */
+    public static boolean isFleet(Integer siteType) {
+        return DmsConstants.SITE_TYPE_FLEET.equals(siteType);
     }
 
     /**
@@ -518,6 +606,13 @@ public class BusinessUtil {
     }
 
     /**
+     * 判断是否C2C京准达，waybill_sign 第113位等于2
+     */
+    public static Boolean isC2CJZD(String waybillSign){
+        return isSignChar(waybillSign,113,'2');
+    }
+
+    /**
      * 是否为三方-合作站点
      * @param type
      * @return
@@ -601,13 +696,13 @@ public class BusinessUtil {
 
 
     /**
-     * 纯配外单判断 【waybillSign第1为为2、3、6、9、K、Y且第53位为2】
+     * 纯配外单判断 【waybillSign第1为为2、3、6、9、K、Y且第53位为2、0】
      * */
     public static Boolean isPurematch(String waybillSign){
         if(waybillSign == null){
             return Boolean.FALSE;
         }
-        if(isSignChar(waybillSign,53,'2')
+        if(isSignInChars(waybillSign,53,'2','0')
                 && isSignInChars(waybillSign,1,'2','3','6','9','K','Y')){
             return Boolean.TRUE;
         }
@@ -651,6 +746,16 @@ public class BusinessUtil {
         return flage;
     }
 
+    /**
+     *判断是否是冷链卡班
+     */
+    public static Boolean isColdChainKB(String waybillSign,String productType){
+        return PRODUCT_TYPE_COLD_CHAIN_KB.equals(productType)
+                || (isSignChar(waybillSign,WaybillSignConstants.POSITION_80,WaybillSignConstants.CHAR_80_7)
+                     && isSignChar(waybillSign,WaybillSignConstants.POSITION_54,WaybillSignConstants.CHAR_54_2)
+                     && isSignInChars(waybillSign,WaybillSignConstants.POSITION_40,WaybillSignConstants.CHAR_40_2,WaybillSignConstants.CHAR_40_3)
+                    );
+    }
 
     /**
      * 判断是否是B网冷链运单
@@ -731,6 +836,34 @@ public class BusinessUtil {
         return siteType.equals(96);
     }
 
+
+    /**
+     * 通过批次号获取目的站点
+     *
+     * @param sendCode 发货批次号
+     * @return
+     */
+    public static Integer getReceiveSiteCodeFromSendCode(String sendCode) {
+    	Integer[] sites = getSiteCodeBySendCode(sendCode);
+        if (sites[1]>0) {
+            return sites[1];
+        }
+        return null;
+    }
+
+    /**
+     * 通过批次号获取始发站点
+     *
+     * @param sendCode 发货批次号
+     * @return
+     */
+    public static Integer getCreateSiteCodeFromSendCode(String sendCode) {
+    	Integer[] sites = getSiteCodeBySendCode(sendCode);
+        if (sites[0]>0) {
+            return sites[0];
+        }
+        return null;
+    }
 
     /**
      * 是否是营业厅
@@ -833,5 +966,48 @@ public class BusinessUtil {
      */
     public static boolean isInternationalWaybill(String sendPay){
         return isSignChar(sendPay,SendPayConstants.POSITION_124,SendPayConstants.CHAR_124_7);
+    }
+
+    /**
+     * 判断是否是加盟商站点
+     * @param siteType
+     * @param subSiteType
+     * @return
+     */
+    public static boolean isAllianceBusiSite(Integer siteType, Integer subSiteType) {
+        if(siteType == null || subSiteType == null){
+            return Boolean.FALSE;
+        }
+        return siteType == 16 && subSiteType == 88;
+    }
+
+    /**
+     * 判断是否为正确的封箱号
+     */
+    public static boolean isSealBoxNo(String input){
+        if (StringUtils.isEmpty(input)) {
+            return Boolean.FALSE;
+        }
+
+       return input.matches(SEAL_BOX_NO);
+    }
+
+
+    /**
+     * 是否是鸡毛信运单
+     * @param waybillSign
+     * @return true 是，false 不是
+     */
+    public static boolean isFeatherLetter(String waybillSign){
+        return isSignInChars(waybillSign, WaybillSignConstants.POSITION_92, WaybillSignConstants.CHAR_92_2,WaybillSignConstants.CHAR_92_3);
+    }
+
+    /**
+     * 是否是信任商家
+     * @param waybillSign
+     * @return true 是，false 不是
+     */
+    public static boolean isTrustBusi(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_56,WaybillSignConstants.CHAR_56_1);
     }
 }

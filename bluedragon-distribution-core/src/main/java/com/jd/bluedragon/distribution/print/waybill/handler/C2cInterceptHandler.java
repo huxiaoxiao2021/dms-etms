@@ -7,7 +7,7 @@ import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.etms.waybill.domain.PackageState;
+import com.jd.etms.waybill.dto.PackageStateDto;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,9 +58,9 @@ public class C2cInterceptHandler implements Handler<WaybillPrintContext, JdResul
                 || WaybillPrintOperateTypeEnum.SITE_MASTER_PACKAGE_REPRINT.getType().equals(context.getRequest().getOperateType()))
                 && BusinessHelper.isC2cForward(context.getWaybill().getWaybillSign())) {
             //查询揽收完成（-640）全程跟踪结果
-            List<PackageState> collectCompleteResult = waybillTraceManager.getPkStateByWCodeAndState(context.getWaybill().getWaybillCode(), Constants.WAYBILL_TRACE_STATE_COLLECT_COMPLETE);
+            List<PackageStateDto> collectCompleteResult = waybillTraceManager.getPkStateDtoByWCodeAndState(context.getWaybill().getWaybillCode(), Constants.WAYBILL_TRACE_STATE_COLLECT_COMPLETE);
             //揽收交接完成（-1300）全程跟踪结果
-            List<PackageState> collectHandoverCompleteResult = waybillTraceManager.getPkStateByWCodeAndState(context.getWaybill().getWaybillCode(), Constants.WAYBILL_TRACE_STATE_BMZT_COLLECT_HANDOVER_COMPLETE);
+            List<PackageStateDto> collectHandoverCompleteResult = waybillTraceManager.getPkStateDtoByWCodeAndState(context.getWaybill().getWaybillCode(), Constants.WAYBILL_TRACE_STATE_BMZT_COLLECT_HANDOVER_COMPLETE);
             //存在揽收完成或交接完成的全程跟踪，都可以进行打印，反之，进行拦截提示，禁止打印
             if (! (collectCompleteResult.size() != 0 || collectHandoverCompleteResult.size() != 0)) {
                 interceptResult.toFail(InterceptResult.STATUS_NO_PASSED, WaybillPrintMessages.MESSAGE_NEED_RECEIVE);

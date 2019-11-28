@@ -1,0 +1,6 @@
+#if($!exception)
+    <div style="color:red">
+    $exception.printStackTrace()
+    提示：  $!exception.message
+    </div>
+#end

@@ -10,6 +10,7 @@
 		<result column="confirm_quantity" property="confirmQuantity" javaType="java.lang.Double" jdbcType="DECIMAL" />
 		<result column="operate_user_code" property="operateUserCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="operate_user_erp" property="operateUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="pack_user_erp" property="packUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="operate_time" property="operateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
@@ -32,6 +33,7 @@
 		<result column="unit" property="unit" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="operate_user_code" property="operateUserCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="operate_user_erp" property="operateUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="pack_user_erp" property="packUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="operate_time" property="operateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
@@ -41,7 +43,7 @@
 
 	<sql id="Base_Column_List" >
 		id,waybill_code,consumable_code,receive_quantity,confirm_quantity,operate_user_code,
-		operate_user_erp,operate_time,create_time,update_time,is_delete,
+		operate_user_erp,pack_user_erp,operate_time,create_time,update_time,is_delete,
 		ts
 	</sql>
 
@@ -69,6 +71,9 @@
 				</if>
 				<if test="operateUserErp != null">
 					operate_user_erp,
+				</if>
+				<if test="packUserErp != null">
+					pack_user_erp,
 				</if>
 				<if test="operateTime != null">
 					operate_time,
@@ -110,6 +115,9 @@
 				</if>
 				<if test="operateUserErp != null">
 					#{operateUserErp,jdbcType=VARCHAR},
+				</if>
+				<if test="packUserErp != null">
+					#{packUserErp,jdbcType=VARCHAR},
 				</if>
 				<if test="operateTime != null">
 					#{operateTime,jdbcType=TIMESTAMP},
@@ -173,6 +181,9 @@
 				<if test="operateUserErp != null">
 					operate_user_erp = #{operateUserErp,jdbcType=VARCHAR},
 				</if>
+				<if test="packUserErp != null">
+					pack_user_erp = #{packUserErp,jdbcType=VARCHAR},
+				</if>
 				<if test="operateTime != null">
 					operate_time = #{operateTime,jdbcType=TIMESTAMP},
 				</if>
@@ -208,7 +219,7 @@
 	</update>
 
     <select id="queryByWaybillCodes" parameterType="List" resultMap="WaybillConsumableDetailInfo">
-        select waybill_code,receive_quantity,confirm_quantity,consumable_code,name,type,type_name,volume,volume_coefficient,specification,unit
+        select waybill_code,receive_quantity,confirm_quantity,pack_user_erp,consumable_code,name,type,type_name,volume,volume_coefficient,specification,unit
         from waybill_consumable_relation wcr left join packing_consumable_info pci on wcr.consumable_code = pci.code
 		where wcr.is_delete = 0 and  wcr.waybill_code in
 		<foreach collection="list" item="item" index="index" open="(" separator="," close=")">
@@ -267,11 +278,44 @@
 	</select>
 
 	<select id="queryDetailInfoByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="WaybillConsumableDetailInfo">
-		select wcr.id,waybill_code,receive_quantity,confirm_quantity,consumable_code,name,type,type_name,volume,volume_coefficient,specification,unit,wcr.operate_time,wcr.operate_user_code,wcr.operate_user_erp,wcr.create_time,wcr.update_time,wcr.is_delete
+		select wcr.id,waybill_code,receive_quantity,confirm_quantity,pack_user_erp,consumable_code,name,type,type_name,volume,volume_coefficient,specification,unit,wcr.operate_time,wcr.operate_user_code,wcr.operate_user_erp,wcr.create_time,wcr.update_time,wcr.is_delete
 			from packing_consumable_info pci
 			inner join waybill_consumable_relation wcr
 			on pci.code = wcr.consumable_code
 			where pci.is_delete = 0 and wcr.is_delete = 0 and waybill_code = #{waybillCode,jdbcType=VARCHAR}
 		limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+	</select>
+
+	<update id="updatePackUserErpByWaybillCode" parameterType="map">
+		update waybill_consumable_relation
+		set pack_user_erp = #{packUserErp,jdbcType=VARCHAR},
+		operate_user_code = #{operateUserCode,jdbcType=VARCHAR},
+		operate_user_erp = #{operateUserErp,jdbcType=VARCHAR},
+		update_time = #{updateTime,jdbcType=TIMESTAMP},
+		operate_time = #{operateTime,jdbcType=TIMESTAMP}
+		where waybill_code in
+		<foreach collection="waybillCodeList" item="item" index="index" open="(" separator="," close=")">
+			#{item,jdbcType=VARCHAR}
+		</foreach>
+	</update>
+
+	<update id="updatePackUserErpById" parameterType="map">
+		update waybill_consumable_relation
+		set pack_user_erp = #{packUserErp,jdbcType=VARCHAR},
+		operate_user_code = #{operateUserCode,jdbcType=VARCHAR},
+		operate_user_erp = #{operateUserErp,jdbcType=VARCHAR},
+		update_time = #{updateTime,jdbcType=TIMESTAMP},
+		operate_time = #{operateTime,jdbcType=TIMESTAMP}
+		where id in
+		<foreach collection="ids" item="item" index="index" open="(" separator="," close=")">
+			#{item,jdbcType=BIGINT}
+		</foreach>
+	</update>
+
+	<select id="getNoPackUserErpRecordCount" parameterType="String" resultType="Integer">
+		select
+		count(1)
+		from waybill_consumable_relation
+			where pack_user_erp is null and is_delete = 0 and waybill_code = #{waybillCode,jdbcType=VARCHAR}
 	</select>
 </mapper>

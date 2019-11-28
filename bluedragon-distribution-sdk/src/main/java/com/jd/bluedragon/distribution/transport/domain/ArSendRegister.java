@@ -1,10 +1,10 @@
 package com.jd.bluedragon.distribution.transport.domain;
 
-import java.util.Date;
-import java.math.BigDecimal;
-import java.util.List;
-
 import com.jd.ql.dms.common.web.mvc.api.DbEntity;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author wuyoude
@@ -211,6 +211,13 @@ public class ArSendRegister extends DbEntity {
      * 批次号对应发货包裹数列表
      */
     private List<Integer> packCounts;
+
+    /**
+     * 货物类型
+     */
+    private Integer goodsType;
+
+    private String goodsTypeName;
 
     public Integer getSendRouterMqType() {
         return sendRouterMqType;
@@ -522,5 +529,21 @@ public class ArSendRegister extends DbEntity {
 
     public void setPackCounts(List<Integer> packCounts) {
         this.packCounts = packCounts;
+    }
+
+    public Integer getGoodsType() {
+        return goodsType;
+    }
+
+    public void setGoodsType(Integer goodsType) {
+        this.goodsType = goodsType;
+    }
+
+    public String getGoodsTypeName() {
+        return goodsTypeName;
+    }
+
+    public void setGoodsTypeName(String goodsTypeName) {
+        this.goodsTypeName = goodsTypeName;
     }
 }

@@ -17,8 +17,8 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Resource;
@@ -30,7 +30,7 @@ import java.util.List;
 @Deprecated
 public class OfflineCoreRedisTask extends RedisSingleScheduler {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private OfflineLogService offlineLogService;
@@ -67,11 +67,13 @@ public class OfflineCoreRedisTask extends RedisSingleScheduler {
 			Integer taskType = JSONObject.parseArray(body).getJSONObject(0).getInteger("taskType");
 			if(Task.TASK_TYPE_SEAL_OFFLINE.equals(taskType)){
 				result = offlineSeal(body);
+			} else if (Task.TASK_TYPE_FERRY_SEAL_OFFLINE.equals(taskType)) {
+				result = offlineFerrySeal(body);
 			}else{
 				result = offlineCore(body);
 			}
 		} catch (Exception e) {
-			this.logger.error("OfflineCoreTask execute--> 转换body异常body【" + body + "】：", e);
+			this.log.error("OfflineCoreTask execute--> 转换body异常body【{}】",body, e);
 		}
 		return result;
 	}
@@ -90,6 +92,19 @@ public class OfflineCoreRedisTask extends RedisSingleScheduler {
 		return result;
 	}
 
+	/**
+	 * 离线传摆封车
+	 * @param body
+	 * @return
+	 */
+	private boolean offlineFerrySeal(String body){
+		boolean result = false;
+		CommonDto<String> returnCommonDto = newsealVehicleService.offlineSeal(convertSearCar(body));
+		if(returnCommonDto != null && Constants.RESULT_SUCCESS == returnCommonDto.getCode()){
+			result = true;
+		}
+		return result;
+	}
 	/**
 	 * 核心分拣相关业务离线操作
 	 * @param body
@@ -140,7 +155,7 @@ public class OfflineCoreRedisTask extends RedisSingleScheduler {
 					continue;
 				}
 			} catch (Exception e) {
-				this.logger.error("OfflineCoreTask--> 服务处理异常：【" + body + "】：", e);
+				this.log.error("OfflineCoreTask--> 服务处理异常：【{}】",body, e);
 				resultCode = 0;
 			}
 
@@ -154,7 +169,7 @@ public class OfflineCoreRedisTask extends RedisSingleScheduler {
 				}
 				this.offlineLogService.addOfflineLog(offlineLog);
 			} catch (Exception e) {
-				this.logger.error("OfflineCoreTask--> 插入日志异常：【" + body + "】：", e);
+				this.log.error("OfflineCoreTask--> 插入日志异常：【{}】",body, e);
 			}
 		}
 		return true;

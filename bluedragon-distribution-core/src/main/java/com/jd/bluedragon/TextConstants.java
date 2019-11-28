@@ -110,5 +110,16 @@ public class TextConstants {
      * waybill_sign第54位等于4 且 第40位等于2或3
      */
     public static final String COMMON_TEXT_MEDICINE_SCATTERED ="医药零担";
-
+    /**
+     * 京准达-标识-‘准’
+     */
+    public static final String	TEXT_JZD_SPECIAL_MARK="准";
+    /**
+     * 京准达字符-‘京准达’
+     */
+    public static final String TEXT_JZD="京准达";
+    /**
+     * KA标识
+     */
+    public static final String KA_FLAG = "KA";
 }

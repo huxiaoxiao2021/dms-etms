@@ -1,11 +1,5 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
-import com.jd.bluedragon.distribution.print.domain.DmsPaperSize;
-import com.jd.bluedragon.distribution.print.domain.TemplateGroupEnum;
-import com.jd.bluedragon.distribution.print.service.TemplateSelectService;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -13,10 +7,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
+import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
+import com.jd.bluedragon.distribution.print.domain.DmsPaperSize;
+import com.jd.bluedragon.distribution.print.domain.LabelTemplate;
+import com.jd.bluedragon.distribution.print.domain.TemplateGroupEnum;
+import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
+import com.jd.bluedragon.distribution.print.service.TemplateSelectService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 @Service
 public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintContext,JdResult<String>>{
@@ -25,7 +26,7 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
     /**B网专用面单 **/
     private static final String TEMPlATE_NAME_B2B_MAIN = "dms-b2b-new";
     /** B网冷链面单 **/
-    private static final String TEMPlATE_NAME_B2B_COLD = "dms-b2b-m";
+    private static final String TEMPlATE_NAME_B2B_COLD = "dms-b2b-cold";
     /** TC面单 **/
     private static final String TEMPlATE_NAME_TC = "dms-b2b-m";
     /** C网统一面单-10*11 **/
@@ -36,6 +37,8 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
     private static final String TEMPlATE_NAME_C_BUSINESS = "dms-unite-business-m";
     /** 一号店面单 10*10 **/
     private static final String TEMPlATE_NAME_C1010_BUSINESS = "dms-unite1010-business-m";
+    /** C2C京准达面单 **/
+    private static final String TEMPlATE_NAME_C_2_C = "dms-c2c-m";
     /** 招商银行面单**/
     private static final String TEMPlATE_NAME_C_CMBC = "dms-nopaperyhd-m";
 
@@ -58,6 +61,7 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
          */
         boolean needMatchTemplate = StringUtils.isBlank(templateName);
         Integer siteCode = context.getRequest().getSiteCode();
+        Integer operateType = context.getRequest().getOperateType();
         String waybillSign = context.getWaybill().getWaybillSign();
         String paperSizeCode = context.getRequest().getPaperSizeCode();
         BasePrintWaybill basePrintWaybill = context.getBasePrintWaybill();
@@ -73,7 +77,10 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
             templateName = TEMPLATE_NAME_10_5;
         }else{
             if (needMatchTemplate) {
-                if (TemplateGroupEnum.TEMPLATE_GROUP_CODE_TC.equals(basePrintWaybill.getTemplateGroupCode())) {
+            	//冷链合伙人打印，指定为冷链模板
+            	if(WaybillPrintOperateTypeEnum.COLD_CHAIN_PRINT.getType().equals(operateType)){
+            		templateName = TEMPlATE_NAME_B2B_MAIN;
+            	}else if (TemplateGroupEnum.TEMPLATE_GROUP_CODE_TC.equals(basePrintWaybill.getTemplateGroupCode())) {
                     //TC模板
                     templateName = TEMPlATE_NAME_TC;
                 }else if (TemplateGroupEnum.TEMPLATE_GROUP_CODE_B.equals(basePrintWaybill.getTemplateGroupCode())) {
@@ -84,6 +91,7 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
                     }else {
                         templateName = TEMPlATE_NAME_B2B_MAIN;
                     }
+
                 } else {
                     //C网面单
                     //一号店模板
@@ -96,7 +104,10 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
                     } else if (Constants.BUSINESS_ALIAS_CMBC.equals(context.getBasePrintWaybill().getDmsBusiAlias())) {
                         //招商银行使用老模板
                         templateName = TEMPlATE_NAME_C_CMBC;
-                    } else {
+                    } else if(BusinessUtil.isC2CJZD(waybillSign)){
+                        templateName = TEMPlATE_NAME_C_2_C;
+                    }
+                    else {
                         //C网统一模板
                         templateName = TEMPlATE_NAME_C_MAIN;
                         //10*10模板
@@ -119,9 +130,12 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
         //得到业务模板
         //根据key查config
         if (needMatchTemplate && siteCode != null) {
-            String temporaryTemplateName = templateSelectService.getMatchTemplate(templateName, siteCode);
-            if (StringUtils.isNotBlank(temporaryTemplateName)) {
-                templateName = temporaryTemplateName;
+        	LabelTemplate matchedTemplate = templateSelectService.getMatchLabelTemplate(templateName, siteCode);
+            if (matchedTemplate != null && StringUtils.isNotBlank(matchedTemplate.getTemplateName())) {
+                templateName = matchedTemplate.getTemplateName();
+                if(matchedTemplate.getTemplateVersion() != null){
+                	basePrintWaybill.setTemplateVersionStr(matchedTemplate.getTemplateVersion().toString());
+                }
             }
         }
         basePrintWaybill.setTemplateName(templateName);

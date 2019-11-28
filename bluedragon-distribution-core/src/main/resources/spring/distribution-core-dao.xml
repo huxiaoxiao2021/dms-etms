@@ -274,6 +274,7 @@
 
     <bean id="loadBillDao" class="com.jd.bluedragon.distribution.globaltrade.dao.LoadBillDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+        <property name="sqlSessionTemplate" ref="unDivSqlSessionTemplate"/>
     </bean>
 
     <bean id="loadBillReadDao" class="com.jd.bluedragon.distribution.globaltrade.dao.LoadBillReadDao">
@@ -522,6 +523,49 @@
     <!-- 交接 -->
     <bean id="allianceBusiDeliveryDetailDao" class="com.jd.bluedragon.distribution.alliance.dao.impl.AllianceBusiDeliveryDetailDaoImpl">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
+    <!-- 包裹补打记录 -->
+    <bean id="rePrintRecord" class="com.jd.bluedragon.distribution.reprint.dao.ReprintRecordDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
+    <!-- 转运集货 -->
+    <bean id="collectGoodsAreaDao" class="com.jd.bluedragon.distribution.collect.dao.impl.CollectGoodsAreaDaoImpl">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+    <bean id="collectGoodsPlaceDao" class="com.jd.bluedragon.distribution.collect.dao.impl.CollectGoodsPlaceDaoImpl">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+    <bean id="collectGoodsPlaceTypeDao" class="com.jd.bluedragon.distribution.collect.dao.impl.CollectGoodsPlaceTypeDaoImpl">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+    <bean id="collectGoodsDetailDao" class="com.jd.bluedragon.distribution.collect.dao.impl.CollectGoodsDetailDaoImpl">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
+    <!-- 箱号与集包袋绑定 -->
+    <bean id="boxMaterialRelationDao" class="com.jd.bluedragon.distribution.cyclebox.dao.BoxMaterialRelationDao">
+        <property name="sqlSession" ref="businessSqlSessionTemplate"/>
+    </bean>
+
+    <!-- 商家称重量方白名单 -->
+    <bean id="merchantWeightAndVolumeWhiteListDao" class="com.jd.bluedragon.distribution.merchantWeightAndVolume.dao.MerchantWeightAndVolumeWhiteListDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
+    <!-- 中台过渡 -->
+    <bean id="middleEndSortingQueryDao" class="com.jd.bluedragon.distribution.middleend.sorting.dao.MiddleEndSortingDao"></bean>
+    <bean id="failoverSortingQueryDao" class="com.jd.bluedragon.distribution.middleend.sorting.dao.FailoverSortingDao"></bean>
+    <bean id="dynamicSortingQueryDao" class="com.jd.bluedragon.distribution.middleend.sorting.dao.DynamicSortingQueryDao">
+        <property name="sortingDao" ref="sortingDao"></property>
+        <property name="middleEndSortingDao" ref="middleEndSortingQueryDao"></property>
+        <property name="failoverSortingDao" ref="failoverSortingQueryDao"></property>
+    </bean>
+
+    <!-- 规则管理 -->
+    <bean id="ruleDao" class="com.jd.bluedragon.distribution.rule.dao.RuleDao">
+        <property name="sqlSession" ref="sessionTemplateBase" />
     </bean>
 
 </beans>

@@ -1,22 +1,5 @@
 package com.jd.bluedragon.distribution.print.service;
 
-import java.lang.reflect.Field;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
-
-import com.jd.ump.profiler.CallerInfo;
-import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.common.service.WaybillCommonService;
@@ -35,6 +18,7 @@ import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
 import com.jd.bluedragon.distribution.print.domain.SignConfig;
 import com.jd.bluedragon.distribution.urban.domain.TransbillM;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -42,9 +26,24 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.domain.BaseDmsStore;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.lang.reflect.Field;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Created by wangtingwei on 2015/12/23.
@@ -482,4 +481,18 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
 			}
 		}
 	}
+
+    /**
+     * COD_MONEY 大于0的运单，不允许发送给三方站点（第三方-》第三方快递）
+     * @param siteType 站点类型
+     * @param subType 站点子类型
+     * @param codMoney 货款金额
+     * @return true 不能发送第三方快递,false 可以发送
+     */
+    @Override
+    public boolean isCodMoneyGtZeroAndSiteThird(Integer siteType,Integer subType,Double codMoney) {
+        //三方站点（第三方-》第三方快递）
+        return NumberHelper.gt0(codMoney) && Objects.equals(Constants.THIRD_SITE_TYPE, siteType)
+                && Objects.equals(Constants.THIRD_SITE_SUB_TYPE, subType);
+    }
 }

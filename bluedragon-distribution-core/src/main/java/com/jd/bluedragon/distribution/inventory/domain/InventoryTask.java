@@ -83,6 +83,16 @@ public class InventoryTask extends DbEntity {
 
     private Integer inventoryScope;
 
+    /**
+     * 盘点时间范围
+     */
+    private Integer hourRange;
+
+    /**
+     * 根据范围计算出的起始时间
+     */
+    private Date hourRangeTime;
+
     public String getInventoryTaskId() {
         return inventoryTaskId;
     }
@@ -227,5 +237,21 @@ public class InventoryTask extends DbEntity {
 
     public void setInventoryScope(Integer inventoryScope) {
         this.inventoryScope = inventoryScope;
+    }
+
+    public Integer getHourRange() {
+        return hourRange;
+    }
+
+    public void setHourRange(Integer hourRange) {
+        this.hourRange = hourRange;
+    }
+
+    public Date getHourRangeTime() {
+        return hourRangeTime;
+    }
+
+    public void setHourRangeTime(Date hourRangeTime) {
+        this.hourRangeTime = hourRangeTime;
     }
 }

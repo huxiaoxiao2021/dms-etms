@@ -40,8 +40,8 @@ public interface ComposeService {
     String SPECIAL_MARK_HELP_DELIVERY="代";
     String SPECIAL_MARK_TRANSFER="传";
     String SPECIAL_MARK_PART_REVERSE = "半退";
-    String SPECIAL_MARK_BOX = "箱";
-    String SPECIAL_MARK_UTENSIL = "器";
+    String SPECIAL_MARK_BOX = "鸡毛信箱";
+    String SPECIAL_MARK_UTENSIL = "鸡毛信器";
     /**
      * 全球售合包订单标识
      * 当sendpay第108位为1或2或3且senpay第124位为4时，
@@ -89,12 +89,6 @@ public interface ComposeService {
      * 位置标识-146
      */
     int POSITION_146 = 146;
-
-    /**
-     * specialMark1的常量
-     */
-    String SPECIAL_MARK1_WAREHOUSE_JD = "京仓";
-    String SPECIAL_MARK1_WAREHOUSE_NOT_JD = "非京仓";
 
     /**
      * waybill_sign第54位等于4 且 第40位等于2或3

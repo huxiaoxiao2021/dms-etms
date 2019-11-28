@@ -19,8 +19,8 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -32,7 +32,7 @@ import java.util.*;
 @Service("sealVehicleService")
 public class SealVehicleServiceImpl implements SealVehicleService {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	
 	private static final int SEAL_CODE_SAME = 10; 
 	private static final int SEAL_CODE_UNSAME = 20;
@@ -121,12 +121,12 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 		if (sealVehicle == null || StringUtils.isBlank(sealVehicle.getCode())
 				|| StringUtils.isBlank(sealVehicle.getVehicleCode())
 				|| sealVehicle.getCreateSiteCode() == null) {
-			this.logger
+			this.log
 					.error("SealVehicleServiceImpl addSealVehicle -->增加封车信息验证参数有误");
 			return result;
 		}
 
-		this.logger
+		this.log
 				.info("SealVehicleServiceImpl addSealVehicle -->增加封车信息开始，封车号【"
 						+ sealVehicle.getCode() + "】");
 
@@ -154,24 +154,20 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 
 		
 		if (sealVehicleTemp == null) {
-			this.logger.info("SealVehicleServiceImpl addSealVehicle -->不存在封车号【"
-					+ sealVehicle.getCode() + "】，直接增加，增加成功后，返回成功；");
+			this.log.warn("SealVehicleServiceImpl addSealVehicle -->不存在封车号【{}】，直接增加，增加成功后，返回成功；",sealVehicle.getCode());
 			this.sealVehicleDao.add(SealVehicleDao.namespace, sealVehicle);
 			result = Constants.RESULT_SUCCESS;
 		} else {
-			this.logger.info("SealVehicleServiceImpl addSealVehicle -->存在封车号【"
-					+ sealVehicle.getCode() + "】，返回失败的提示，进行后续操作");
+			this.log.warn("SealVehicleServiceImpl addSealVehicle -->存在封车号【{}】，返回失败的提示，进行后续操作",sealVehicle.getCode());
 //			if (sealVehicle.getCreateSiteCode().equals(
 //					sealVehicleTemp.getCreateSiteCode())) {
-//				this.logger
+//				this.log
 //						.info("SealVehicleServiceImpl addSealVehicle -->同一站点重复封车，封车号【"
 //								+ sealVehicle.getCode() + "】");
 //				this.sealVehicleDao.updateDisable(sealVehicleTemp);
 //				result = Constants.RESULT_SUCCESS;
 //			} else {
-				this.logger
-						.info("SealVehicleServiceImpl addSealVehicle -->不同站点重复封车，封车号【"
-								+ sealVehicle.getCode() + "】");
+				this.log.warn("SealVehicleServiceImpl addSealVehicle -->不同站点重复封车，封车号【{}】",sealVehicle.getCode());
 				sealVehicle.setYn(Constants.YN_NO);
 //			}
 			this.sealVehicleDao.add(SealVehicleDao.namespace, sealVehicle);
@@ -198,12 +194,11 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 				|| StringUtils.isBlank(sealVehicle.getVehicleCode())
 				|| sealVehicle.getCreateSiteCode() == null
 				|| StringUtils.isBlank(sealVehicle.getSendCode())) {
-			this.logger.error("SealVehicleServiceImpl addSealVehicle -->增加封车信息验证参数有误");
+			this.log.warn("SealVehicleServiceImpl addSealVehicle -->增加封车信息验证参数有误");
 			return result;
 		}
 
-		this.logger.info("SealVehicleServiceImpl addSealVehicle -->增加封车信息开始，封车号【"
-				+ sealVehicle.getCode() + "】");
+		this.log.debug("SealVehicleServiceImpl addSealVehicle -->增加封车信息开始，封车号【{}】",sealVehicle.getCode());
 
 		// 验证参数，去掉更新时间、更新人相关字段
 		if (sealVehicle.getCreateTime() == null) {
@@ -227,8 +222,7 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 		SealVehicle sealVehicleTemp = this.sealVehicleReadDao.findBySealCodeFromRead(sealVehicle.getCode());
 
 		if (sealVehicleTemp == null) {
-			this.logger.info("SealVehicleServiceImpl addSealVehicle -->不存在封车号【"
-					+ sealVehicle.getCode() + "】，直接增加，增加成功后，返回成功；");
+			this.log.warn("SealVehicleServiceImpl addSealVehicle -->不存在封车号【{}】，直接增加，增加成功后，返回成功；",sealVehicle.getCode());
 			this.sealVehicleDao.add2(SealVehicleDao.namespace, sealVehicle);
 			
 			//将全程跟踪消息插入任务表
@@ -236,10 +230,8 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 			
 			result = Constants.RESULT_SUCCESS;
 		} else {
-			this.logger.info("SealVehicleServiceImpl addSealVehicle -->存在封车号【"
-					+ sealVehicle.getCode() + "】，返回失败的提示，进行后续操作");
-			this.logger.info("SealVehicleServiceImpl addSealVehicle -->不同站点重复封车，封车号【"
-					+ sealVehicle.getCode() + "】");
+			this.log.warn("SealVehicleServiceImpl addSealVehicle -->存在封车号【{}】，返回失败的提示，进行后续操作",sealVehicle.getCode());
+			this.log.warn("SealVehicleServiceImpl addSealVehicle -->不同站点重复封车，封车号【{}】",sealVehicle.getCode());
 			sealVehicle.setYn(Constants.YN_NO);
 			this.sealVehicleDao.add2(SealVehicleDao.namespace, sealVehicle);
 		}
@@ -290,7 +282,7 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 		if (sealVehicle == null || StringUtils.isBlank(sealVehicle.getCode())
 				|| StringUtils.isBlank(sealVehicle.getVehicleCode())
 				|| sealVehicle.getReceiveSiteCode() == null) {
-			this.logger
+			this.log
 					.error("SealVehicleServiceImpl updateSealVehicle -->增加解封车信息验证参数有误");
 			return Constants.RESULT_FAIL;
 		}
@@ -312,7 +304,7 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 			sealVehicle.setCreateSiteCode(null);
 		}
 
-		this.logger
+		this.log
 				.info("SealVehicleServiceImpl updateSealVehicle-->增加解封车信息开始，先执行更新操作，封车号【"
 						+ sealVehicle.getCode()
 						+ "】，车牌号【"
@@ -320,7 +312,7 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 		int tempUpdateCount = this.sealVehicleDao
 				.updateSealVehicle(sealVehicle);
 		if (tempUpdateCount <= 0) {
-			this.logger
+			this.log
 					.info("SealVehicleServiceImpl updateSealVehicle-->解封车信息更新不存在，直接插入一条无效数据，封车号【"
 							+ sealVehicle.getCode()
 							+ "】，车牌号【"
@@ -329,7 +321,7 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 			this.sealVehicleDao.add(SealVehicleDao.namespace, sealVehicle);
 			return Constants.RESULT_FAIL;
 		} else {
-			this.logger
+			this.log
 					.info("SealVehicleServiceImpl updateSealVehicle-->增加解封车信息成功，封车号【"
 							+ sealVehicle.getCode()
 							+ "】，车牌号【"
@@ -348,7 +340,7 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 		if (sealVehicle == null || StringUtils.isBlank(sealVehicle.getCode())
 				|| StringUtils.isBlank(sealVehicle.getVehicleCode())
 				|| sealVehicle.getReceiveSiteCode() == null) {
-			this.logger
+			this.log
 					.error("SealVehicleServiceImpl updateSealVehicle -->增加解封车信息验证参数有误");
 			return Constants.RESULT_FAIL;
 		}
@@ -375,17 +367,13 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 			sealVehicle.setCreateSiteCode(null);
 		}
 
-		this.logger.info("SealVehicleServiceImpl updateSealVehicle-->增加解封车信息开始，先执行更新操作，封车号【"
-						+ sealVehicle.getCode()
-						+ "】，车牌号【"
-						+ sealVehicle.getVehicleCode() + "】");
+		this.log.debug("SealVehicleServiceImpl updateSealVehicle-->增加解封车信息开始，先执行更新操作，封车号【{}】，车牌号【{}】"
+				,sealVehicle.getCode(),sealVehicle.getVehicleCode());
 		int tempUpdateCount = this.sealVehicleDao.updateSealVehicle2(sealVehicle);
 		taskService.add(this.toTask(sealVehicle,sealVehicleList,result)); //将全程跟踪消息插入任务表
 		if (tempUpdateCount <= 0) {
-			this.logger.info("SealVehicleServiceImpl updateSealVehicle-->解封车信息更新不存在，直接插入一条无效数据，封车号【"
-							+ sealVehicle.getCode()
-							+ "】，车牌号【"
-							+ sealVehicle.getVehicleCode() + "】");
+			this.log.warn("SealVehicleServiceImpl updateSealVehicle-->解封车信息更新不存在，直接插入一条无效数据，封车号【{}】，车牌号【{}】"
+					,sealVehicle.getCode(),sealVehicle.getVehicleCode());
 			sealVehicle.setYn(Constants.YN_NO);
 			this.sealVehicleDao.add2(SealVehicleDao.namespace, sealVehicle);
 			if(result != SealVehicleServiceImpl.SEAL_CODE_SAME){
@@ -394,10 +382,8 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 				return Constants.RESULT_FAIL;
 			}
 		} else {
-			this.logger.info("SealVehicleServiceImpl updateSealVehicle-->增加解封车信息成功，封车号【"
-							+ sealVehicle.getCode()
-							+ "】，车牌号【"
-							+ sealVehicle.getVehicleCode() + "】");
+			this.log.debug("SealVehicleServiceImpl updateSealVehicle-->增加解封车信息成功，封车号【{}】，车牌号【{}】"
+					,sealVehicle.getCode(),sealVehicle.getVehicleCode());
 			return Constants.RESULT_SUCCESS;
 		}
 	}
@@ -479,7 +465,7 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 					|| StringUtils.isBlank(sealVehicle.getVehicleCode())
 					|| sealVehicle.getCreateSiteCode() == null
 					|| StringUtils.isBlank(sealVehicle.getSendCode())) {
-				this.logger.error("SealVehicleServiceImpl addSealVehicle --> 增加封车信息验证参数有误");
+				this.log.warn("SealVehicleServiceImpl addSealVehicle --> 增加封车信息验证参数有误");
 				return false;
 			}
 			
@@ -503,13 +489,11 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 		}
 
 		String sealCodes = getSealCodes(sealVehicleList);
-		this.logger.info("SealVehicleServiceImpl addSealVehicle -->增加封车信息开始，封车号【"
-					+ sealCodes + "】");
+		this.log.debug("SealVehicleServiceImpl addSealVehicle -->增加封车信息开始，封车号【{}】",sealCodes);
 		
 		List<SealVehicle> sealVehicleTempList = this.sealVehicleReadDao.findBySealCodes(sealVehicleList);
 		if(sealVehicleTempList == null || sealVehicleTempList.size() < 1){
-			this.logger.info("SealVehicleServiceImpl addSealVehicle -->不存在封车号【"
-					+ sealCodes + "】，直接增加，增加成功后，返回成功；");
+			this.log.warn("SealVehicleServiceImpl addSealVehicle -->不存在封车号【{}】，直接增加，增加成功后，返回成功；",sealCodes);
 			
 			this.sealVehicleDao.addBatch(sealVehicleList);
 			
@@ -528,7 +512,7 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 				|| StringUtils.isBlank(sealVehicle.getVehicleCode())
 				|| sealVehicle.getReceiveSiteCode() == null
 				|| StringUtils.isBlank(sealCodes)) {
-			this.logger.error("SealVehicleServiceImpl updateSealVehicle -->增加解封车信息验证参数有误");
+			this.log.warn("SealVehicleServiceImpl updateSealVehicle -->增加解封车信息验证参数有误");
 			return false;
 		}			
 		// 验证参数，去掉创建时间、创建人相关字段
@@ -551,30 +535,21 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 		// 根据车牌号,查询有效的批次号
 		List<SealVehicle> sealVehicleDBList = this.sealVehicleReadDao.findByVehicleCode(sealVehicle.getVehicleCode());
 		if(sealVehicleDBList == null || sealVehicleDBList.size() < 1){
-			this.logger.info("根据车牌号" + sealVehicle.getVehicleCode() + ", 查询的消息为空");
+			this.log.warn("根据车牌号{}, 查询的消息为空",sealVehicle.getVehicleCode());
 			return false;
 		}
 		Map<String, Object> logMap = getLog(sealVehicleDBList, sealCodes);
-		this.logger.info("SealVehicleServiceImpl updateSealVehicle-->增加解封车信息开始，先执行更新操作，车牌号为["
-						+ sealVehicleDBList.get(0).getVehicleCode()
-						+ "]，有效封车号为" + logMap.get("valid") 
-						+ "，异常封车号为" + logMap.get("invalid") 
-						+ "，原始封车号为" + logMap.get("original"));
+		this.log.debug("SealVehicleServiceImpl updateSealVehicle-->增加解封车信息开始，先执行更新操作，车牌号为[{}]，有效封车号为{}，异常封车号为{}，原始封车号为{}"
+				,sealVehicleDBList.get(0).getVehicleCode(),logMap.get("valid"),logMap.get("invalid"),logMap.get("original"));
 		int updateCount = this.sealVehicleDao.updateBatch(sealVehicle);
 		if (updateCount == sealVehicleDBList.size()) {
-			this.logger.info("SealVehicleServiceImpl updateSealVehicle-->增加解封车信息成功，车牌号为["
-					+ sealVehicleDBList.get(0).getVehicleCode()
-					+ "]，有效封车号为" + logMap.get("valid") 
-					+ "，异常封车号为" + logMap.get("invalid") 
-					+ "，原始封车号为" + logMap.get("original"));
+			this.log.debug("SealVehicleServiceImpl updateSealVehicle-->增加解封车信息开始，先执行更新操作，车牌号为[{}]，有效封车号为{}，异常封车号为{}，原始封车号为{}"
+					,sealVehicleDBList.get(0).getVehicleCode(),logMap.get("valid"),logMap.get("invalid"),logMap.get("original"));
 			taskService.add(this.toUnSealTask(sealVehicleDBList, sealVehicle)); //将全程跟踪消息插入任务表
 			return true;
 		} else {
-			this.logger.info("SealVehicleServiceImpl updateSealVehicle-->增加解封车信息失败，车牌号为["
-					+ sealVehicleDBList.get(0).getVehicleCode()
-					+ "]，有效封车号为" + logMap.get("valid") 
-					+ "，异常封车号为" + logMap.get("invalid") 
-					+ "，原始封车号为" + logMap.get("original"));
+			this.log.warn("SealVehicleServiceImpl updateSealVehicle-->增加解封车信息失败，车牌号为[{}]，有效封车号为{}，异常封车号为{}，原始封车号为{}"
+					,sealVehicleDBList.get(0).getVehicleCode(),logMap.get("valid"),logMap.get("invalid"),logMap.get("original"));
 			return false;
 		}
 	}
@@ -707,7 +682,7 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 
 	@Override
 	public List<SealVehicle> findByVehicleCode(String vehicleCode) {
-		logger.info("SealVehicleServiceImpl.findByVehicleCode begin...");
+		log.debug("SealVehicleServiceImpl.findByVehicleCode begin...{}",vehicleCode);
 		return sealVehicleReadDao.findByVehicleCode(vehicleCode);
 	}
 

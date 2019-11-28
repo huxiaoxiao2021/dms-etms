@@ -8,8 +8,10 @@ public enum ARCommonDictionaryType {
     CITY(10),
 
     //车型
-    BUS_TYPE(20);
+    BUS_TYPE(20),
 
+    //货物类型
+    GOODS_TYPE(30);
 
     // 枚举对象的type,表示通用字典中属性的类型
     private int type;

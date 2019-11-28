@@ -5,12 +5,10 @@ import com.jd.bluedragon.distribution.batch.service.BatchSendService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.text.MessageFormat;
 
 
 /**
@@ -20,7 +18,7 @@ import java.text.MessageFormat;
 @Service("sendCarConsumer")
 public class SendCarConsumer extends MessageBaseConsumer {
 
-    private static final Log logger= LogFactory.getLog(SendCarConsumer.class);
+    private static final Logger log = LoggerFactory.getLogger(SendCarConsumer.class);
 
     @Autowired
     private BatchSendService batchSendService;
@@ -28,13 +26,13 @@ public class SendCarConsumer extends MessageBaseConsumer {
     @Override
     public void consume(Message message) {
         if(!JsonHelper.isJsonString(message.getText())){
-            logger.warn(MessageFormat.format("运单推送发车MQ-消息体非JSON格式，内容为【{0}】",message.getText()));
+            log.warn("运单推送发车MQ-消息体非JSON格式，内容为【{}】",message.getText());
             return;
         }
         SendCarContext context=null;
         context= JsonHelper.fromJsonUseGson(message.getText(),SendCarContext.class);
         if(null==context.getBatchType()||!context.getBatchType().equals("1")){
-            logger.info(MessageFormat.format("运单推送非批次发车信息，分拣中心抛弃，内容为【{0}】",message.getText()));
+            log.warn("运单推送非批次发车信息，分拣中心抛弃，内容为【{}】",message.getText());
             return;
         }
         batchSendService.sendCar(context.getBatchCode(), DateHelper.parseDateTime(context.getOpeTime()));

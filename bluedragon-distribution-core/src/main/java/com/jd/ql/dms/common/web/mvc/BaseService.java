@@ -1,17 +1,16 @@
 package com.jd.ql.dms.common.web.mvc;
 
-import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.api.Entity;
 import com.jd.ql.dms.common.web.mvc.api.PagerCondition;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.common.web.mvc.api.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * 
@@ -27,7 +26,7 @@ public abstract class BaseService<E extends Entity> implements Service<E> {
 	/**
 	 * 公共logger
 	 */
-	protected final Log logger = LogFactory.getLog(this.getClass());
+	protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 	/**
 	 * 获取数据操作实体类
 	 * 

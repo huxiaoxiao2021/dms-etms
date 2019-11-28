@@ -149,6 +149,10 @@ public class BasePrintWaybill implements Serializable {
 	 */
 	private Integer templateVersion = 0;
 	/**
+	 * 模板版本字符串-默认为1，云打印用
+	 */
+	private String templateVersionStr = "1";
+	/**
 	 * 运费
 	 */
 	private String freightText;
@@ -373,6 +377,24 @@ public class BasePrintWaybill implements Serializable {
 	 * 目的分拣中心-城市编码
 	 */
 	private String destinationCityDmsCode;
+	/**
+	 * 标签文件类型（pdf）
+	 */
+	private Integer labelFileType;
+	/**
+	 * 标签文件Url（下载地址）
+	 */
+	private String labelFileUrl;
+    /**订单号*/
+	private String orderCode;
+    /**
+    * 承诺配送信息
+    */
+    private String promiseText ;
+    /**
+    * 时效
+    */
+    private String timeCategory ;
 
 	public String getAdditionalComment() {
 		return additionalComment;
@@ -1386,5 +1408,77 @@ public class BasePrintWaybill implements Serializable {
 	 */
 	public void setPurposefulTableTrolley(String purposefulTableTrolley) {
 		this.purposefulTableTrolley = purposefulTableTrolley;
+	}
+	/**
+	 * @return the labelFileType
+	 */
+	public Integer getLabelFileType() {
+		return labelFileType;
+	}
+	/**
+	 * @param labelFileType the labelFileType to set
+	 */
+	public void setLabelFileType(Integer labelFileType) {
+		this.labelFileType = labelFileType;
+	}
+	/**
+	 * @return the labelFileUrl
+	 */
+	public String getLabelFileUrl() {
+		return labelFileUrl;
+	}
+	/**
+	 * @param labelFileUrl the labelFileUrl to set
+	 */
+	public void setLabelFileUrl(String labelFileUrl) {
+		this.labelFileUrl = labelFileUrl;
+	}
+	/**
+	 * @return the templateVersionStr
+	 */
+	public String getTemplateVersionStr() {
+		return templateVersionStr;
+	}
+	/**
+	 * @param templateVersionStr the templateVersionStr to set
+	 */
+	public void setTemplateVersionStr(String templateVersionStr) {
+		this.templateVersionStr = templateVersionStr;
+	}
+	/**
+	 * @return the promiseText
+	 */
+	public String getPromiseText() {
+		return promiseText;
+	}
+	/**
+	 * @param promiseText the promiseText to set
+	 */
+	public void setPromiseText(String promiseText) {
+		this.promiseText = promiseText;
+	}
+	/**
+	 * @return the timeCategory
+	 */
+	public String getTimeCategory() {
+		return timeCategory;
+	}
+	/**
+	 * @param timeCategory the timeCategory to set
+	 */
+	public void setTimeCategory(String timeCategory) {
+		this.timeCategory = timeCategory;
+	}
+	/**
+	 * @return the orderCode
+	 */
+	public String getOrderCode() {
+		return orderCode;
+	}
+	/**
+	 * @param orderCode the orderCode to set
+	 */
+	public void setOrderCode(String orderCode) {
+		this.orderCode = orderCode;
 	}
 }

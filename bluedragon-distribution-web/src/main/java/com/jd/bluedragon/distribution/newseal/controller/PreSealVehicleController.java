@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.departure.domain.CapacityDomain;
 import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicle;
 import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicleCondition;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicles;
+import com.jd.bluedragon.distribution.newseal.domain.VehicleMeasureInfo;
 import com.jd.bluedragon.distribution.newseal.service.PreSealVehicleService;
 import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
@@ -160,10 +161,12 @@ public class PreSealVehicleController extends DmsBaseController{
                     temp.getVehicleNumbers().add(vo.getVehicleNumber());
                     temp.appendSealCodeStr("车辆-" + vo.getVehicleNumber() + Constants.SEPARATOR_COLON + "封签-" + vo.getSealCodes());
                     temp.putVehicleSealCode(vo.getVehicleNumber(), vo.getSealCodes());
+                    temp.getVehicleMeasureMap().put(vo.getVehicleNumber(), new VehicleMeasureInfo(vo.getVehicleNumber(), vo.getVolume(), vo.getWeight()));
                 }else{
                     vo.getVehicleNumbers().add(vo.getVehicleNumber());
                     vo.appendSealCodeStr("车辆-" + vo.getVehicleNumber() + Constants.SEPARATOR_COLON + "封签-" + vo.getSealCodes());
                     vo.putVehicleSealCode(vo.getVehicleNumber(), vo.getSealCodes());
+                    vo.getVehicleMeasureMap().put(vo.getVehicleNumber(), new VehicleMeasureInfo(vo.getVehicleNumber(), vo.getVolume(), vo.getWeight()));
                     preMap.put(vo.getReceiveSiteCode(), vo);
                 }
             }
@@ -346,6 +349,12 @@ public class PreSealVehicleController extends DmsBaseController{
         }
 
         return rest;
+    }
+
+    @Authorization(Constants.DMS_WEB_PRE_SEALVEHICLE_R)
+    @RequestMapping("/getModifyVolumePage")
+    public String getModifyVolumePage() {
+        return "/newseal/preSealVolumeModify";
     }
 
 	/**

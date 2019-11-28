@@ -1,19 +1,17 @@
 package com.jd.bluedragon.distribution.performance.service.impl;
 
+import com.jd.b2b.wt.assemble.sdk.req.HandoverBillPrintReq;
+import com.jd.b2b.wt.assemble.sdk.resp.HandoverBillResp;
+import com.jd.b2b.wt.assemble.sdk.resp.HandoverDetailResp;
 import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.core.base.HandoverBillPrintManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.performance.domain.Commodity;
 import com.jd.bluedragon.distribution.performance.domain.Performance;
 import com.jd.bluedragon.distribution.performance.domain.PerformanceCondition;
 import com.jd.bluedragon.distribution.performance.service.PerformanceService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.jp.assemble.sdk.GenericResult;
-import com.jd.jp.assemble.sdk.HandoverBillResource;
-import com.jd.jp.assemble.sdk.dto.HandoverBillDto;
-import com.jd.jp.assemble.sdk.dto.HandoverBillPrint;
-import com.jd.jp.assemble.sdk.dto.HandoverDetailDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -37,7 +35,8 @@ public class PerformanceServiceImpl implements PerformanceService {
     private final Logger logger = Logger.getLogger(this.getClass());
 
     @Autowired
-    private HandoverBillResource handoverBillResource;
+    private HandoverBillPrintManager handoverBillPrintManager;
+
     @Autowired
     private WaybillCommonService waybillCommonService;
 
@@ -53,7 +52,7 @@ public class PerformanceServiceImpl implements PerformanceService {
         pagerResult.setRows(list);
         pagerResult.setTotal(0);
 
-        HandoverBillPrint handoverBillPrint = new HandoverBillPrint();
+        HandoverBillPrintReq handoverBillPrintReq = new HandoverBillPrintReq();
         String performanceCode = performanceCondition.getPerformanceCode();
         if(StringUtils.isEmpty(performanceCondition.getPerformanceCode()) &&
                 StringUtils.isEmpty(performanceCondition.getWaybillorPackCode())) {
@@ -72,34 +71,34 @@ public class PerformanceServiceImpl implements PerformanceService {
                     this.logger.error("通过运单号" + waybillCode + "获得履约单号失败");
                     return pagerResult;
                 }
-                handoverBillPrint.setFulfillmentOrderId(performanceCode);
+                handoverBillPrintReq.setFulfillmentOrderId(performanceCode);
             }catch (Exception e){
                 this.logger.error("通过运单号获得履约单号失败" + waybillCode,e);
             }
 
         }else {
-            handoverBillPrint.setFulfillmentOrderId(performanceCondition.getPerformanceCode());
+            handoverBillPrintReq.setFulfillmentOrderId(performanceCondition.getPerformanceCode());
         }
-        handoverBillPrint.setPageNo(performanceCondition.getOffset()/performanceCondition.getLimit()+1);
-        handoverBillPrint.setPageSize(performanceCondition.getLimit());
+        handoverBillPrintReq.setPageNo(performanceCondition.getOffset()/performanceCondition.getLimit()+1);
+        handoverBillPrintReq.setPageSize(performanceCondition.getLimit());
         try {
-            HandoverBillDto handoverBillDto = handoverBillResource.searchDetail(handoverBillPrint);
-            if(handoverBillDto != null && handoverBillDto.getSuccess()){
-                List<HandoverDetailDto> dtoList = handoverBillDto.getDtoList();
-                for(HandoverDetailDto handoverDetailDto: dtoList){
-                    Performance performance =new Performance();
+            HandoverBillResp handoverBillResp = handoverBillPrintManager.searchHandoverDetail(handoverBillPrintReq);
+            if (handoverBillResp != null) {
+                List<HandoverDetailResp> respsList = handoverBillResp.getHandoverDetailResps();
+                for (HandoverDetailResp handoverDetailResp : respsList) {
+                    Performance performance = new Performance();
                     performance.setPerformanceCode(performanceCode);
-                    performance.setPoNo(handoverDetailDto.getPoNo());
-                    performance.setWaybillCode(handoverDetailDto.getDeliveryOrderId());
-                    performance.setGoodName(handoverDetailDto.getSkuName());
-                    performance.setGoodNumber(handoverDetailDto.getSkuNum());
-                    performance.setPackageCode(handoverDetailDto.getContainerId());
+                    performance.setPoNo(handoverDetailResp.getPoNo());
+                    performance.setWaybillCode(handoverDetailResp.getDeliveryOrderId());
+                    performance.setGoodName(handoverDetailResp.getSkuName());
+                    performance.setGoodNumber(handoverDetailResp.getSkuNum());
+                    performance.setPackageCode(handoverDetailResp.getContainerId());
                     list.add(performance);
                 }
-                pagerResult.setTotal(handoverBillDto.getCountDetail());
+                pagerResult.setTotal(handoverBillResp.getCountDetail());
                 pagerResult.setRows(list);
             }else {
-                this.logger.warn("通过履约单号查询履约单信息为空"+performanceCode);
+                this.logger.error("通过履约单号查询履约单信息失败" + performanceCode);
             }
         }catch (Exception e){
             this.logger.error("通过履约单号查询履约单信息失败" + performanceCode,e);
@@ -118,7 +117,7 @@ public class PerformanceServiceImpl implements PerformanceService {
         InvokeResult<String> invokeResult = new InvokeResult<String>();
         invokeResult.customMessage(400,"打印失败");
 
-        HandoverBillPrint handoverBillPrint = new HandoverBillPrint();
+        HandoverBillPrintReq handoverBillPrintReq = new HandoverBillPrintReq();
         if(StringUtils.isEmpty(performanceCode) || StringUtils.isEmpty(performanceCode.trim())) {
             String waybillCode = waybillorPackCode;
             if (WaybillUtil.isPackageCode(waybillorPackCode)) {
@@ -136,15 +135,10 @@ public class PerformanceServiceImpl implements PerformanceService {
             }
         }
 
-        GenericResult<List<HandoverDetailDto>> result = null;
-        try {
-            handoverBillPrint.setFulfillmentOrderId(performanceCode);
-            result = handoverBillResource.dismantlePrint(handoverBillPrint);
-        }catch (Exception e){
-            this.logger.error("通过履约单号" + performanceCode + "获得加履单详情失败",e);
-            return JsonHelper.toJson(invokeResult);
-        }
-        if(result != null && result.getValue() != null && result.getValue().size() > 0){
+
+        handoverBillPrintReq.setFulfillmentOrderId(performanceCode);
+        List<HandoverDetailResp> handoverDetailRespList = handoverBillPrintManager.dismantlePrint(handoverBillPrintReq);
+        if(handoverDetailRespList != null){
 
             //-----------------封装数据start-----------------
             //key:箱号，value:该箱号下所有的商品
@@ -153,24 +147,24 @@ public class PerformanceServiceImpl implements PerformanceService {
             Map<String,Map<String,List<Commodity>>> waybillMap = new LinkedHashMap<String,Map<String,List<Commodity>>>();
             //key:履约单号，value:该履约单号下所有运单号
             Map<String,Map<String,Map<String,List<Commodity>>>> performanceMap = new LinkedHashMap<String,Map<String,Map<String,List<Commodity>>>>();
-            for(HandoverDetailDto dto : result.getValue()){
+            for(HandoverDetailResp resp : handoverDetailRespList){
                 Commodity commodity = new Commodity();
-                commodity.setPoNo(dto.getPoNo());
-                commodity.setSkuNum(dto.getSkuNum());
-                commodity.setSkuName(dto.getSkuName());
-                commodity.setSkuId(dto.getSkuId());
-                commodity.setBoxCode(dto.getContainerId());
-                commodity.setWaybillCode(dto.getDeliveryOrderId());
-                commodity.setMap(dto.getOrderMap());
+                commodity.setPoNo(resp.getPoNo());
+                commodity.setSkuNum(resp.getSkuNum());
+                commodity.setSkuName(resp.getSkuName());
+                commodity.setSkuId(resp.getSkuId());
+                commodity.setBoxCode(resp.getContainerId());
+                commodity.setWaybillCode(resp.getDeliveryOrderId());
+                commodity.setMap(resp.getOrderMap());
                 //箱号不包含就添加进去
-                if(!boxMap.containsKey(dto.getContainerId())){
+                if(!boxMap.containsKey(resp.getContainerId())){
                     List<Commodity> skuList =new ArrayList<Commodity>();
                     skuList.add(commodity);
-                    boxMap.put(dto.getContainerId(),skuList);
+                    boxMap.put(resp.getContainerId(),skuList);
                 }else {//包含就将对象添加到list中
-                    List<Commodity> skuList = boxMap.get(dto.getContainerId());
+                    List<Commodity> skuList = boxMap.get(resp.getContainerId());
                     skuList.add(commodity);
-                    boxMap.put(dto.getContainerId(),skuList);
+                    boxMap.put(resp.getContainerId(),skuList);
                 }
             }
             for(String boxCode : boxMap.keySet()){
@@ -202,7 +196,8 @@ public class PerformanceServiceImpl implements PerformanceService {
     @Override
     public Integer getIsPrint(PerformanceCondition performanceCondition) {
 
-        HandoverBillPrint handoverBillPrint = new HandoverBillPrint();
+
+        HandoverBillPrintReq handoverBillPrintReq = new HandoverBillPrintReq();
         String performanceCode = performanceCondition.getPerformanceCode();
         if(StringUtils.isEmpty(performanceCondition.getPerformanceCode()) &&
                 StringUtils.isEmpty(performanceCondition.getWaybillorPackCode())) {
@@ -221,26 +216,23 @@ public class PerformanceServiceImpl implements PerformanceService {
                     this.logger.error("通过运单号" + waybillCode + "获得履约单号失败");
                     return 3;
                 }
-                handoverBillPrint.setFulfillmentOrderId(performanceCode);
+                handoverBillPrintReq.setFulfillmentOrderId(performanceCode);
             }catch (Exception e){
                 this.logger.error("通过运单号获得履约单号失败" + waybillCode,e);
             }
 
         }else {
-            handoverBillPrint.setFulfillmentOrderId(performanceCondition.getPerformanceCode());
+            handoverBillPrintReq.setFulfillmentOrderId(performanceCondition.getPerformanceCode());
         }
-        handoverBillPrint.setPageNo(1);
-        handoverBillPrint.setPageSize(10);
+        handoverBillPrintReq.setPageNo(1);
+        handoverBillPrintReq.setPageSize(10);
         try {
-            HandoverBillDto handoverBillDto = handoverBillResource.searchDetail(handoverBillPrint);
-            if(handoverBillDto != null && handoverBillDto.getSuccess()) {
-                if(handoverBillDto.getCanPrint()){
-                    return 1;
-                }
-                return 2;
+            if(handoverBillPrintManager.searchHandoverisCanPrint(handoverBillPrintReq)) {
+                return 1;
             }
+            return 2;
         }catch (Exception e){
-
+            this.logger.error("通过运单号获得打印信息失败" + performanceCode);
         }
         return 3;
     }

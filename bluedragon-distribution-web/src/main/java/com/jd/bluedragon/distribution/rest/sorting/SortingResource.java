@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.rest.sorting;
 
-import IceInternal.Ex;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -9,24 +8,17 @@ import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.inspection.domain.Inspection;
-import com.jd.bluedragon.distribution.inspection.domain.InspectionEC;
-import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
-import com.jd.bluedragon.distribution.inspection.service.InspectionService;
-import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
+import com.jd.bluedragon.distribution.middleend.SortingServiceFactory;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
-import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.domain.SortingReturn;
 import com.jd.bluedragon.distribution.sorting.service.SortingReturnService;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
-import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
@@ -35,8 +27,8 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -56,7 +48,7 @@ import java.util.concurrent.TimeUnit;
 @Produces({ MediaType.APPLICATION_JSON })
 public class SortingResource {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private TaskService taskService;
@@ -68,20 +60,14 @@ public class SortingResource {
 	private SortingReturnService returnsService;
 
 	@Autowired
-	private InspectionExceptionService inspectionExcpetionService;
-
-	@Autowired
-	private InspectionService inspectionService;
-
-	@Autowired
 	private SendMDao sendMDao;
-
-	@Autowired
-	private SortingDao sortingDao;
 
     @Autowired
     @Qualifier("jimdbCacheService")
     private CacheService cacheService;
+
+    @Autowired
+	private SortingServiceFactory sortingServiceFactory;
 	/**
 	 * 取消分拣
 	 * 
@@ -93,20 +79,22 @@ public class SortingResource {
 	@BusinessLog(sourceSys = 1,bizType = 2002)
 	@JProfiler(jKey = "DMSWEB.SortingResource.cancelPackage", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
 	public SortingResponse cancelPackage(SortingRequest request) {
-		this.logger.info("取消分拣参数：" + JsonHelper.toJson(request));
+		if(log.isDebugEnabled()){
+			this.log.debug("取消分拣参数：{}" , JsonHelper.toJson(request));
+		}
 		if (StringHelper.isEmpty(request.getPackageCode())) {
-			return this.paramIsNull();
+			return SortingResponse.paramIsNull();
 		}
 		if (!WaybillUtil.isPackageCode(request.getPackageCode())
 				&& !WaybillUtil.isWaybillCode(request.getPackageCode())
 				&& !BusinessHelper.isBoxcode(request.getBoxCode())
 				&& !BusinessHelper.isBoxcode(request.getPackageCode())) {
-			return this.paramIsError();
+			return SortingResponse.paramIsError();
 		}
 
 		List<Task> tasks = this.findWaitingProcessSortingTasks(request);
 		if (!tasks.isEmpty()) {
-			return this.waitingProcess();
+			return SortingResponse.waitingProcess();
 		}
 
 		boolean isSuccess = false;
@@ -116,93 +104,26 @@ public class SortingResource {
             isSuccess = cacheService.setNx(fingerPrintKey, "1", 5*60*1000, TimeUnit.SECONDS);
 			//说明key存在
 			if (! isSuccess) {
-				this.logger.warn(request.getPackageCode() + "正在执行取消分拣任务！");
-				return this.waitingCancelProcess();
+				this.log.warn("{}正在执行取消分拣任务！",request.getPackageCode() );
+				return SortingResponse.waitingCancelProcess();
 			}
         } catch (Exception e) {
-            this.logger.error(request.getPackageCode() + "获取取消发货任务缓存失败！", e);
+            this.log.error("{}获取取消发货任务缓存失败！", request.getPackageCode(), e);
         }
 
 		Sorting sorting = Sorting.toSorting2(request);
-        List<Sorting> sortingRecords;
+
 		try {
-			//如果箱号不为null，说明按箱取消分拣
-			if (StringUtils.isNotBlank(sorting.getBoxCode())) {
-				// 校验是否发货，如果已经发货，则提示不能取消分拣
-				SendM sendM = new SendM();
-				sendM.setBoxCode(sorting.getBoxCode());
-				sendM.setCreateSiteCode(sorting.getCreateSiteCode());
-				List<SendM> sendMList = sendMDao.findSendMByBoxCode2(sendM);
-				if (null != sendMList && !sendMList.isEmpty()) {
-					return this.sortingSended();
-				}
-				// 若三方分拣，校验是否验货，若已经验货，则提示不能取消
-				if (sorting.getType() == Constants.BUSSINESS_TYPE_THIRD_PARTY) {
-					Inspection inspection = new Inspection.Builder(null, sorting.getCreateSiteCode())
-							.boxCode(sorting.getBoxCode()).inspectionType(sorting.getType()).build();
-					int inspectionCount = inspectionService.inspectionCount(inspection);
-					if (inspectionCount > 0) {
-						return this.sortingInspected();
-					}
-				}
-				sortingRecords = sortingDao.findByBoxCode(sorting);
-				if (sortingRecords != null && sortingRecords.size() > DmsConstants.MAX_NUMBER) {
-					logger.warn(request.getPackageCode() + "的包裹数：" + sortingRecords.size() + "，大于两万，已反馈现场提报IT");
-					return this.packageNumLimit();
-				}
-			} else {
-				sortingRecords = sortingService.queryByCode2(sorting);
-				if (sortingRecords == null || sortingRecords.isEmpty()) {
-					logger.warn("取消分拣--->包裹已经发货");
-					sortingService.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING_CANCEL, "包裹已经发货");
-					return this.sortingSended();
-				} else if (sortingRecords.size() > DmsConstants.MAX_NUMBER) {
-					logger.warn(request.getPackageCode() + "的包裹数：" + sortingRecords.size() + "，大于两万，已反馈现场提报IT");
-					return this.packageNumLimit();
-				}
-
-				if (Constants.BUSSINESS_TYPE_THIRD_PARTY == sorting.getType()) {
-					int unfilledOrdersCount = 0;
-					for (Sorting eachSorting : sortingRecords) {
-						// 如果已经验货，则exception_status为0，则不能取消分拣，需要在异常处理里进行少验取消的操作
-						InspectionEC inspectionEC = new InspectionEC.Builder(eachSorting.getPackageCode(),
-								eachSorting.getCreateSiteCode()).waybillCode(eachSorting.getWaybillCode())
-								.boxCode(eachSorting.getBoxCode()).receiveSiteCode(eachSorting.getReceiveSiteCode())
-								.inspectionType(eachSorting.getType()).inspectionECType(InspectionEC.INSPECTIONEC_TYPE_MORE)
-								.yn(1).build();
-						Integer inspectionCount = inspectionExcpetionService.inspectionCount(inspectionEC);
-
-						if (inspectionCount > 0) {
-							unfilledOrdersCount++;
-							sortingService.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING_CANCEL, "已经三方验货或者差异处理");
-						}
-					}
-					if (unfilledOrdersCount == sortingRecords.size()) {
-						return this.sortingInspected();
-					}
-				}
-			}
-			Boolean canCancel = false;
-			if (sortingRecords != null) {
-				for (Sorting eachSorting : sortingRecords) {
-					eachSorting.setOperateTime(sorting.getOperateTime());
-					eachSorting.setUpdateUserCode(sorting.getUpdateUserCode());
-					eachSorting.setUpdateUser(sorting.getUpdateUser());
-					canCancel |= this.sortingService.canCancel2(eachSorting);
-				}
-			}
-			if (canCancel) {
-				return this.ok();
-			}
+			return sortingServiceFactory.getSortingService(sorting.getCreateSiteCode()).cancelSorting(sorting);
 		} catch (Exception e) {
-			logger.error(request.getPackageCode() + "取消分拣服务异常", e);
+			log.error("{}取消分拣服务异常",request.getPackageCode(), e);
 		} finally {
 			if (isSuccess) {
 				cacheService.del(fingerPrintKey);
 			}
 		}
 
-		return this.sortingNotFund();
+		return SortingResponse.sortingNotFund();
 	}
 
 	/**
@@ -218,7 +139,7 @@ public class SortingResource {
 		Map<String, Integer> results = new HashMap<String, Integer>();
 
 		if (sortingRequest.getPackages() == null || sortingRequest.getPackages().isEmpty()) {
-			return this.paramIsNull();
+			return SortingResponse.paramIsNull();
 		}
 
 		try {
@@ -264,7 +185,7 @@ public class SortingResource {
 			}
 			return new SortingResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, results);
 		} catch (Throwable e) {
-			this.logger.error("取消分拣异常", e);
+			this.log.error("取消分拣异常:{}",JsonHelper.toJson(sortingRequest), e);
 			return new SortingResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
 		}
 	}
@@ -281,47 +202,13 @@ public class SortingResource {
 		return this.taskService.findTasks(task);
 	}
 
-	private SortingResponse sortingSended() {
-		return new SortingResponse(SortingResponse.CODE_SORTING_SENDED, SortingResponse.MESSAGE_SORTING_SENDED);
-	}
-
-	private SortingResponse sortingInspected() {
-		return new SortingResponse(SortingResponse.CODE_SORTING_INSPECTED, SortingResponse.MESSAGE_SORTING_INSPECTED);
-	}
-
-	private SortingResponse waitingProcess() {
-		return new SortingResponse(SortingResponse.CODE_SORTING_WAITING_PROCESS,
-				SortingResponse.MESSAGE_SORTING_WAITING_PROCESS);
-	}
-
-	private SortingResponse sortingNotFund() {
-		return new SortingResponse(SortingResponse.CODE_SORTING_RECORD_NOT_FOUND,
-				SortingResponse.MESSAGE_SORTING_RECORD_NOT_FOUND);
-	}
-
-	private SortingResponse paramIsNull() {
-		return new SortingResponse(SortingResponse.CODE_PARAM_IS_NULL, SortingResponse.MESSAGE_PARAM_IS_NULL);
-	}
-
-	private SortingResponse paramIsError() {
-		return new SortingResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
-	}
-
-    private SortingResponse waitingCancelProcess() {
-        return new SortingResponse(SortingResponse.CODE_SORTING_CANCEL_PROCESS, SortingResponse.MESSAGE_SORTING_CANCEL_PROCESS);
-    }
-
-	private SortingResponse packageNumLimit() {
-		return new SortingResponse(SortingResponse.CODE_PACKAGE_NUM_LIMIT, SortingResponse.MESSAGE_PACKAGE_NUM_LIMIT);
-	}
-
 
 	@GET
 	@Path("/sorting/box")
 	public List<SortingResponse> queryPackages(@QueryParam("boxCode") String boxCode,
 			@QueryParam("siteCode") Integer siteCode) {
-		this.logger.info("boxCode is " + boxCode);
-		this.logger.info("siteCode is " + siteCode);
+		this.log.debug("boxCode is {}" , boxCode);
+		this.log.debug("siteCode is {}" , siteCode);
 
 		Sorting sorting = new Sorting();
 		sorting.setBoxCode(boxCode);
@@ -329,7 +216,7 @@ public class SortingResource {
 
 		List<Sorting> sortingPackages = this.sortingService.findByBoxCode(sorting);
 
-		this.logger.info("sortingPackages's size : " + sortingPackages.size());
+		this.log.debug("sortingPackages's size : {}" , sortingPackages.size());
 		List<SortingResponse> sortingResponses = new ArrayList<SortingResponse>();
 		for (Sorting waybillPackage : sortingPackages) {
 			sortingResponses.add(this.toSortingResponse(waybillPackage));
@@ -347,13 +234,13 @@ public class SortingResource {
 	// @POST
 	// @Path("/sorting/return")
 	public SortingResponse dealReturn(ReturnsRequest request) {
-		this.logger.info("packagecode is " + request.getPackageCode());
-		this.logger.info("开始进行分拣退货");
+		this.log.debug("packagecode is {}" , request.getPackageCode());
+		this.log.debug("开始进行分拣退货");
 		SortingReturn returns = SortingReturn.parse(request);
 
 		try {
 			Integer result = this.returnsService.doAddReturn(returns);
-			this.logger.info("分拣退货处理结果返回 ：" + result);
+			this.log.debug("分拣退货处理结果返回 ：{}" , result);
 			if (this.returnsService.ADDRETURN_OK.equals(result)) {
 				/** 操作成功 */
 				SortingResponse response = new SortingResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
@@ -375,7 +262,7 @@ public class SortingResource {
 				return response;
 			}
 		} catch (Exception e) {
-			this.logger.error("调用ReturnsService服务异常", e);
+			this.log.error("调用ReturnsService服务异常:{}",JsonHelper.toJson(request), e);
 			/** 服务异常 */
 			SortingResponse response = new SortingResponse(JdResponse.CODE_SERVICE_ERROR,
 					JdResponse.MESSAGE_SERVICE_ERROR);
@@ -392,20 +279,20 @@ public class SortingResource {
 	@Path("/sortingRet/haveSortingRet")
 	public SortingResponse isSortingRet(@QueryParam("packageCode") String packageCodeOrWaybillCode) {
 		try {
-			this.logger.info("调用SortingResource.haveSortingRet 判断是否已经操作分拣退货[" + packageCodeOrWaybillCode + "]");
+			this.log.debug("调用SortingResource.haveSortingRet 判断是否已经操作分拣退货[{}]", packageCodeOrWaybillCode);
 			Boolean result = returnsService.exists(packageCodeOrWaybillCode);
 			SortingResponse response = null;
 			if (!result) {
-				this.logger.info("调用SortingResource.haveSortingRet 未操作分拣退货[" + packageCodeOrWaybillCode + "]");
+				this.log.warn("调用SortingResource.haveSortingRet 未操作分拣退货[{}]", packageCodeOrWaybillCode);
 				response = new SortingResponse(SortingResponse.CODE_NOT_EXIST_SORTINGRET,
 						SortingResponse.MESSAGE_NOT_EXIST_SORTINGRET);
 			} else {
-				this.logger.info("调用SortingResource.haveSortingRet 已操作分拣退货[" + packageCodeOrWaybillCode + "]");
-				response = this.ok();
+				this.log.warn("调用SortingResource.haveSortingRet 已操作分拣退货[{}]", packageCodeOrWaybillCode);
+				response = SortingResponse.ok();
 			}
 			return response;
 		} catch (Exception e) {
-			logger.error("SortingResource.isSortingRet", e);
+			log.error("SortingResource.isSortingRet:packageCodeOrWaybillCode={}",packageCodeOrWaybillCode, e);
 			SortingResponse response = new SortingResponse(SortingResponse.CODE_SERVICE_ERROR,
 					SortingResponse.MESSAGE_SERVICE_ERROR);
 			return response;
@@ -422,23 +309,23 @@ public class SortingResource {
 	@Path("/sortingRet/checkReDispatch")
 	public SortingResponse checkReDispatch(@QueryParam("packageCode") String packageCode) {
 		try {
-			this.logger.info("调用SortingResource.checkReDispatch 判断是否已经操作站点反调度[" + packageCode + "]");
+			this.log.debug("调用SortingResource.checkReDispatch 判断是否已经操作站点反调度[{}]", packageCode);
 			Integer result = returnsService.checkReDispatch(packageCode);
 			SortingResponse response = null;
 			if (result.equals(WaybillQueryManager.REDISPATCH_ERROR)) {
-				this.logger.info("调用SortingResource.checkReDispatch WSS接口操作失败[" + packageCode + "]");
+				this.log.warn("调用SortingResource.checkReDispatch WSS接口操作失败[{}]", packageCode);
 				response = new SortingResponse(SortingResponse.CODE_SERVICE_ERROR,
 						SortingResponse.MESSAGE_SERVICE_ERROR);
 			} else if (result.equals(WaybillQueryManager.REDISPATCH_NO)) {
-				this.logger.info("调用SortingResource.checkReDispatch 未操作站点反调度[" + packageCode + "]");
-				response = this.ok();
+				this.log.warn("调用SortingResource.checkReDispatch 未操作站点反调度[{}]", packageCode);
+				response = SortingResponse.ok();
 			} else {
-				this.logger.info("调用SortingResource.checkReDispatch 已操作站点反调度[" + packageCode + "]");
+				this.log.warn("调用SortingResource.checkReDispatch 已操作站点反调度[{}]", packageCode);
 				response = new SortingResponse(SortingResponse.CODE_REDISPATCH, SortingResponse.MESSAGE_REDISPATCH);
 			}
 			return response;
 		} catch (Exception e) {
-			logger.error("SortingResource.checkReDispatch", e);
+			log.error("SortingResource.checkReDispatch:packageCode={}",packageCode, e);
 			SortingResponse response = new SortingResponse(SortingResponse.CODE_SERVICE_ERROR,
 					SortingResponse.MESSAGE_SERVICE_ERROR);
 			return response;
@@ -446,7 +333,7 @@ public class SortingResource {
 	}
 
 	private SortingResponse toSortingResponse(Sorting sorting) {
-		SortingResponse response = this.ok();
+		SortingResponse response = SortingResponse.ok();
 		response.setBoxCode(sorting.getBoxCode());
 		response.setCreateSiteCode(sorting.getCreateSiteCode());
 		response.setCreateTime(sorting.getCreateTime());
@@ -457,9 +344,6 @@ public class SortingResource {
 		return response;
 	}
 
-	private SortingResponse ok() {
-		return new SortingResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
-	}
 
     @POST
     @Path("/sorting/pushStatusTask")
@@ -479,7 +363,7 @@ public class SortingResource {
 	@Path("/sorting/getWaybillCodes/{boxCode}")
 	public InvokeResult<List<String>> getWaybillCodes(@PathParam("boxCode") String boxCode) {
 		Assert.notNull(boxCode, "boxCode must not be null");
-		this.logger.info("box code's " + boxCode);
+		this.log.debug("box code's {}" , boxCode);
 		InvokeResult result = new InvokeResult();
 		List<String> waybillList = sortingService.getWaybillCodeListByBoxCode(boxCode);
 		if (waybillList == null) {

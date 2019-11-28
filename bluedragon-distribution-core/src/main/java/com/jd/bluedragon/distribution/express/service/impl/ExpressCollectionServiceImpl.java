@@ -14,8 +14,8 @@ import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
+import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -38,7 +38,7 @@ public class ExpressCollectionServiceImpl implements ExpressCollectionService {
     private InspectionDao inspectionDao;
 
     @Resource
-    private SortingDao sortingDao;
+    private SortingService sortingService;
     @Resource
     private SendDatailDao sendDatailDao;
 
@@ -91,7 +91,7 @@ public class ExpressCollectionServiceImpl implements ExpressCollectionService {
     @Override
     public ExpressBoxDetailsResponse findExpressBoxDetails(ExpressBoxDetailsResponse expressBoxDetailsResponse, Integer createSiteCode ,String waybillCode, String statusQueryCode) {
         //获取运单信息
-        Waybill waybill = waybillCommonService.findWaybillAndPack(waybillCode);
+        Waybill waybill = waybillCommonService.findByWaybillCode(waybillCode);
 
         //判断运单信息是否为空，为空则提示运单号不存在
         if (null == waybill) {
@@ -101,11 +101,11 @@ public class ExpressCollectionServiceImpl implements ExpressCollectionService {
         }
 
         //获取全部包裹
-        List<Pack> packList = waybill.getPackList();
+        Integer quantity = waybill.getQuantity();
 
         Map<String, List<String>> boxCodesMap = new HashMap<String, List<String>>();
 
-        if (null != packList && packList.size() > 0) {
+        if (null != quantity && quantity > 0) {
             //获取已扫描箱号以及包裹号
             findScanPackagesByWaybillAndStatus(createSiteCode,waybillCode, statusQueryCode, boxCodesMap);
         }
@@ -162,7 +162,7 @@ public class ExpressCollectionServiceImpl implements ExpressCollectionService {
         Sorting sortingQuery = new Sorting();
         sortingQuery.setCreateSiteCode(createSiteCode);
         sortingQuery.setWaybillCode(waybillCode);
-        List<Sorting> sortingList = sortingDao.findPackageCodesByWaybillCode(sortingQuery);
+        List<Sorting> sortingList = sortingService.findPackageCodesByWaybillCode(sortingQuery);
         for (Sorting sorting : sortingList) {
             getBoxCodesMap(boxCodesMap, sorting.getBoxCode(), sorting.getPackageCode());
         }

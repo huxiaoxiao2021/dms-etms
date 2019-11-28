@@ -32,7 +32,7 @@ public class PickWareServiceImpl implements PickWareService {
 	
 	private void initFingerPrint(PickWare pickWare){
 		StringBuilder fingerprint = new StringBuilder("");
-		fingerprint.append(pickWare.getPackageCode()).append("_")
+		fingerprint.append(pickWare.getPackageCode()).append("_").append(pickWare.getPickwareCode())
 		.append(pickWare.getOrgId()).append("_").append(pickWare.getCanReceive())
 		.append("_").append(pickWare.getOperateType()).append("_").append(pickWare.getOperateTime())
 		.append("_").append(pickWare.getOperator());

@@ -1,17 +1,17 @@
 package com.jd.bluedragon.distribution.framework;
 
+import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.worker.AbstractScheduleTask;
+import com.jd.bluedragon.utils.JsonHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.bluedragon.distribution.worker.AbstractScheduleTask;
-
 public abstract class DBSingleScheduler extends AbstractScheduleTask {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private String desc;
 
@@ -24,7 +24,7 @@ public abstract class DBSingleScheduler extends AbstractScheduleTask {
 				tasks.add((Task) task);
 			}
 		}
-		logger.info(getWorkerDescPrefix() + "抓取到[" + tasks.size() + "]条任务待处理");
+		log.info("{}抓取到[{}]条任务待处理",getWorkerDescPrefix(),tasks.size());
 
 		int dealDataFail = 0;
 		for (Task task : tasks) {
@@ -34,8 +34,7 @@ public abstract class DBSingleScheduler extends AbstractScheduleTask {
 			}
 		}
 		if (dealDataFail > 0) {
-			logger.error(getWorkerDescPrefix() + "抓取" + tasks.size() + "条任务，"
-					+ dealDataFail + "条数据执行失败！");
+			log.warn("{}抓取到[{}]条任务,{}条数据执行失败！",getWorkerDescPrefix(),tasks.size(),dealDataFail);
 			return false;
 		} else {
 			return true;
@@ -59,7 +58,7 @@ public abstract class DBSingleScheduler extends AbstractScheduleTask {
 			}
 		} catch (Throwable e) {
 			taskHanlder.handleError(task);
-			logger.error("处理任务TaskId:"+task.getId()+"失败! "+e.getMessage(), e);
+			log.error("处理任务TaskId:{}失败!消息体：{}",task.getId(), JsonHelper.toJson(task), e);
 		}
 		return result;
 	}

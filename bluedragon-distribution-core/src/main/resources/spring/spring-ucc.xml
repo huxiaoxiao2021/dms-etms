@@ -32,6 +32,11 @@
 		<property name="migrationDbBackupReplicateEnable" value="${migration.db.backup.replicate.enable}"/>
 		<property name="workerFetchWithoutFailedTable" value="${worker.fetch.without.failed.table}"/>
 		<property name="waybillSplitPageSize" value="${waybill.split.page.size}"/>
+		<property name="sortingServiceMode" value="${sorting.service.mode}"/>
+		<property name="chuguanNewInterfaceInsertSwitch" value="${chuguanNewInterfaceInsertSwitch:false}"/>
+		<property name="chuguanNewInterfaceQuerySwitch" value="${chuguanNewInterfaceQuerySwitch:false}"/>
+		<property name="stationPrintFeatherLetterCheck" value="${stationPrintFeatherLetterCheck:true}"/>
+		<property name="sortingQueryMode" value="${sorting.query.mode}"/>
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -48,6 +53,11 @@
                 <value>uccPropertyConfiguration.migrationDbBackupReplicateEnable</value>
                 <value>uccPropertyConfiguration.workerFetchWithoutFailedTable</value>
 				<value>uccPropertyConfiguration.waybillSplitPageSize</value>
+                <value>uccPropertyConfiguration.sortingServiceMode</value>
+                <value>uccPropertyConfiguration.chuguanNewInterfaceInsertSwitch</value>
+                <value>uccPropertyConfiguration.chuguanNewInterfaceQuerySwitch</value>
+                <value>uccPropertyConfiguration.stationPrintFeatherLetterCheck</value>
+				<value>uccPropertyConfiguration.sortingQueryMode</value>
 			</list>
 		</property>
 	</bean>

@@ -15,7 +15,6 @@ import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -30,8 +29,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -79,10 +76,26 @@ public class ColdChainDeliveryResource extends DeliveryResource{
             if (response != null) {
                 return response;
             }
-            List<SendM> sendMList = toSendMList(request);
-            response = deliveryService.dellDeliveryMessage(SendBizSourceEnum.COLD_CHAIN_SEND, sendMList);
+
+            // 组装运单号维度sendM对象
+            List<SendM> waybillCodeSendMList = this.assembleSendMForWaybillCode(request);
+            // 组装非运单号（箱号，包裹号）维度sendM对象
+            List<SendM> otherSendMList = this.assembleSendMWithoutWaybillCode(request);
+
+            /** 冷链发货 */
+            if (waybillCodeSendMList.size() == 0) {
+                response = deliveryService.dellDeliveryMessage(SendBizSourceEnum.COLD_CHAIN_SEND, otherSendMList);
+            } else {
+                response = deliveryService.dellDeliveryMessageWithLock(SendBizSourceEnum.COLD_CHAIN_SEND, waybillCodeSendMList);
+                if (JdResponse.CODE_OK.equals(response.getCode()) &&
+                        otherSendMList!=null && otherSendMList.size()>0) {
+                    response = deliveryService.dellDeliveryMessage(SendBizSourceEnum.COLD_CHAIN_SEND, otherSendMList);
+                }
+            }
+
             if (JdResponse.CODE_OK.equals(response.getCode())) {
-                coldChainSendService.batchAdd(sendMList, request.get(0).getTransPlanCode());
+                coldChainSendService.batchAdd(waybillCodeSendMList, request.get(0).getTransPlanCode());
+                coldChainSendService.batchAdd(otherSendMList, request.get(0).getTransPlanCode());
             }
             return response;
         } catch (Exception e) {
@@ -114,39 +127,6 @@ public class ColdChainDeliveryResource extends DeliveryResource{
             return null;
         }
         return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
-    }
-
-    private List<SendM> toSendMList(List<ColdChainDeliveryRequest> request) {
-        if (request != null && !request.isEmpty()) {
-            List<SendM> sendMList = new ArrayList<>();
-            for (DeliveryRequest deliveryRequest : request) {
-                if (WaybillUtil.isWaybillCode(deliveryRequest.getBoxCode())) {
-                    sendMList.addAll(this.request2SendMByWaybillCode(deliveryRequest));
-                } else {
-                    sendMList.add(this.deliveryRequest2SendM(deliveryRequest));
-                }
-            }
-            return sendMList;
-        }
-        return Collections.EMPTY_LIST;
-    }
-
-    /**
-     * 根据DeliveryRequest对象转成SendM列表
-     * 注意：DeliveryRequest中的boxCode对应运单号
-     *
-     * @param deliveryRequest
-     * @return
-     */
-    private List<SendM> request2SendMByWaybillCode(DeliveryRequest deliveryRequest) {
-        List<SendM> sendMList = new ArrayList<SendM>();
-        //生成包裹号
-        List<String> packageCodes = waybillPackageBarcodeService.getPackageCodeListByWaybillCode(deliveryRequest.getBoxCode());
-        for (String packageCode : packageCodes) {
-            deliveryRequest.setBoxCode(packageCode);
-            sendMList.add(this.deliveryRequest2SendM(deliveryRequest));
-        }
-        return sendMList;
     }
 
     /**

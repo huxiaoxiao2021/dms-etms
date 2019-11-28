@@ -8,16 +8,22 @@ import com.jd.bluedragon.distribution.inventory.service.PackageStatusService;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.cache.BigWaybillPackageListCache;
+import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.api.WaybillTraceApi;
+import com.jd.etms.waybill.api.WaybillUpdateApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.PackageState;
 import com.jd.etms.waybill.domain.SkuSn;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillExtPro;
-import com.jd.etms.waybill.dto.*;
+import com.jd.etms.waybill.dto.BdTraceDto;
+import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.OrderParentChildDto;
+import com.jd.etms.waybill.dto.SkuPackRelationDto;
+import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.trace.api.WaybillTraceBusinessQueryApi;
 import com.jd.ql.trace.api.core.APIResultDTO;
 import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
@@ -25,21 +31,20 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 @Service("waybillQueryManager")
 public class WaybillQueryManagerImpl implements WaybillQueryManager {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private WaybillQueryApi waybillQueryApi;
@@ -60,6 +65,9 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 
     @Autowired
     private PackageStatusService packageStatusService;
+
+    @Autowired
+    private WaybillUpdateApi waybillUpdateApi;
 
     /**
      * 大包裹运单缓存开关
@@ -138,7 +146,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
             this.revertWChoiceSettingAndData(isQueryPackList, isQueryWaybillC, wChoice, result);
             return true;
         } catch (Exception e) {
-            logger.error("[大包裹运单缓存]获取包裹信息时发生异常，运单号:" + waybillCode, e);
+            log.error("[大包裹运单缓存]获取包裹信息时发生异常，运单号:{}" , waybillCode, e);
         }
         return false;
     }
@@ -227,17 +235,17 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
                     //此种情况为运单数据库或redis异常，系统异常级别，非业务级别
                     throw new RuntimeException(baseEntity.getMessage());
                 }else if (baseEntity.getResultCode() != 1) {
-                    this.logger.warn(JsonHelper.toJson(bdTraceDto));
-                    this.logger.warn(bdTraceDto.getWaybillCode());
-                    this.logger.warn("分拣数据回传全程跟踪sendBdTrace异常：" + baseEntity.getMessage());
+                    this.log.warn(JsonHelper.toJson(bdTraceDto));
+                    this.log.warn(bdTraceDto.getWaybillCode());
+                    this.log.warn("分拣数据回传全程跟踪sendBdTrace异常：{}" , baseEntity.getMessage());
                     return false;
                 }
             } else {
-                this.logger.warn("分拣数据回传全程跟踪接口sendBdTrace异常" + bdTraceDto.getWaybillCode());
+                this.log.warn("分拣数据回传全程跟踪接口sendBdTrace异常:{}" , bdTraceDto.getWaybillCode());
                 return false;
             }
         } catch (Exception e) {
-            logger.error("分拣数据回传全程跟踪sendBdTrace异常：" + bdTraceDto.getWaybillCode(), e);
+            log.error("分拣数据回传全程跟踪sendBdTrace异常：{}" , bdTraceDto.getWaybillCode(), e);
             Profiler.functionError(info);
             throw new RuntimeException(e.getMessage(),e);
         } finally {
@@ -246,7 +254,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
         try{
             packageStatusService.recordPackageStatus(null,bdTraceDto);
         }catch (Exception e){
-            logger.error("包裹状态发送MQ消息异常." + JSON.toJSONString(bdTraceDto)+".",e);
+            log.error("包裹状态发送MQ消息异常.{}" , JSON.toJSONString(bdTraceDto),e);
         }
         return true;
     }
@@ -261,8 +269,8 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
             baseEntity = waybillTraceApi.getPkStateByWCodeAndState(waybillCode, WAYBILL_STATUS_REDISPATCH);
             if (baseEntity != null) {
                 if (baseEntity.getResultCode() != 1) {
-                    this.logger.warn("检查是否反调度WaybillQueryManagerImpl.checkReDispatch异常：" + waybillCode + ","
-                            + baseEntity.getResultCode() + "," + baseEntity.getMessage());
+                    this.log.warn("检查是否反调度WaybillQueryManagerImpl.checkReDispatch异常：{},{},{}"
+                            ,waybillCode,baseEntity.getResultCode() ,baseEntity.getMessage());
                     result = REDISPATCH_ERROR;
                 } else {
                     if (baseEntity.getData() != null && baseEntity.getData().size() > 0) {
@@ -272,12 +280,12 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
                     }
                 }
             } else {
-                this.logger.warn("检查是否反调度WaybillQueryManagerImpl.checkReDispatch返回空：" + waybillCode);
+                this.log.warn("检查是否反调度WaybillQueryManagerImpl.checkReDispatch返回空：{}" , waybillCode);
                 result = REDISPATCH_ERROR;
             }
         } catch (Exception e) {
             Profiler.functionError(info);
-            this.logger.error("检查是否反调度WaybillQueryManagerImpl.checkReDispatch异常：" + waybillCode, e);
+            this.log.error("检查是否反调度WaybillQueryManagerImpl.checkReDispatch异常：{}" , waybillCode, e);
             result = REDISPATCH_ERROR;
         } finally {
             Profiler.registerInfoEnd(info);
@@ -297,17 +305,17 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
             baseEntity = waybillPickupTaskApi.batchQuerySurfaceCodes(waybillCodes);
             if (baseEntity != null) {
                 if (baseEntity.getResultCode() != 1) {
-                    this.logger.warn("获取取件单对应的面单号W单号waybillTraceApi.getPkStateByWCodeAndState异常：" + oldWaybillCode + ","
-                            + baseEntity.getResultCode() + "," + baseEntity.getMessage());
+                    this.log.warn("获取取件单对应的面单号W单号waybillTraceApi.getPkStateByWCodeAndState异常：{},{},{}"
+                            ,oldWaybillCode,baseEntity.getResultCode() , baseEntity.getMessage());
                 } else if (baseEntity.getData() != null && baseEntity.getData().size() > 0) {
                     changedWaybillCode = baseEntity.getData().get(oldWaybillCode);
                 }
             } else {
-                this.logger.warn("获取取件单对应的面单号W单号waybillTraceApi.getPkStateByWCodeAndState返回空：" + oldWaybillCode);
+                this.log.warn("获取取件单对应的面单号W单号waybillTraceApi.getPkStateByWCodeAndState返回空：{}" , oldWaybillCode);
             }
         } catch (Exception e) {
             Profiler.functionError(info);
-            this.logger.error("获取取件单对应的面单号W单号WaybillQueryManagerImpl.checkReDispatch异常：" + oldWaybillCode, e);
+            this.log.error("获取取件单对应的面单号W单号WaybillQueryManagerImpl.checkReDispatch异常：{}" , oldWaybillCode, e);
         } finally {
             Profiler.registerInfoEnd(info);
         }
@@ -386,6 +394,32 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "dmsWeb.jsf.WaybillQueryApi.getWaybillByWaybillCode",mState={JProEnum.TP,JProEnum.FunctionError})
     public BaseEntity<Waybill> getWaybillByWaybillCode(String waybillCode) {
         return waybillQueryApi.getWaybillByWaybillCode(waybillCode);
+    }
+
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "dmsWeb.jsf.WaybillQueryApi.getWaybillByWayCode",mState={JProEnum.TP,JProEnum.FunctionError})
+    public Waybill getWaybillByWayCode(String waybillCode) {
+        BaseEntity<Waybill> baseEntity = waybillQueryApi.getWaybillByWaybillCode(waybillCode);
+        if(baseEntity == null){
+            log.warn("查询运单信息接口返回空waybillCode[{}]",waybillCode);
+            return null;
+        }
+        if(baseEntity.getResultCode() != EnumBusiCode.BUSI_SUCCESS.getCode() || baseEntity.getData() == null){
+            log.warn("查询运单信息接口失败waybillCode[{}]code[{}]",waybillCode,baseEntity.getResultCode());
+            return null;
+        }
+
+        return baseEntity.getData();
+    }
+
+    public Waybill getOnlyWaybillByWaybillCode(String waybillCode) {
+        BaseEntity<Waybill> result = getWaybillByWaybillCode(waybillCode);
+        if(result.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && result.getData() != null){
+            return result.getData();
+        }else{
+            log.warn("根据运单号获取运单信息，接口返回异常状态码，ResultCode:{},message:{}" ,result.getResultCode(), result.getMessage());
+            return null;
+        }
     }
 
     /**
@@ -489,7 +523,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
                 waybillCodes.add(orderParentChildDto.getOrderId());
             }
         } else {
-            logger.error(" 根据父订单号查询父单对应的所有子订单号失败！parentWaybillCode=" + parentWaybillCode);
+            log.warn(" 根据父订单号查询父单对应的所有子订单号失败！parentWaybillCode={}" , parentWaybillCode);
         }
         return waybillCodes;
     }
@@ -510,14 +544,14 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
             callerInfo = ProfilerHelper.registerInfo("DMS.BASE.WaybillQueryManagerImpl.getOrderCodeByWaybillCode", Constants.UMP_APP_NAME_DMSWEB);
             BaseEntity<String> baseEntity = waybillQueryApi.getOrderCodeByWaybillCode(waybillCode, source);
             if (baseEntity.getResultCode() != 1) {
-                logger.error("根据运单号调用运单接口获取订单号失败.waybillCode:" + waybillCode + ",source:" + source +
-                        ".返回值code:" + baseEntity.getResultCode() + ",message" + baseEntity.getMessage());
+                log.warn("根据运单号调用运单接口获取订单号失败.waybillCode:{},source:{}.返回值code:{},message：{}"
+                        ,waybillCode,source,baseEntity.getResultCode(), baseEntity.getMessage());
                 return null;
             }
             return baseEntity.getData();
         } catch (Exception e) {
             Profiler.functionError(callerInfo);
-            logger.error("根据运单号调用运单接口获取订单号异常.", e);
+            log.error("根据运单号调用运单接口获取订单号异常.waybillCode:{},source:{}" ,waybillCode,source,e);
             return null;
         } finally {
             Profiler.registerInfoEnd(callerInfo);
@@ -537,17 +571,15 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
             callerInfo = ProfilerHelper.registerInfo("DMS.BASE.WaybillQueryManagerImpl.getWaybillExtByProperties", Constants.UMP_APP_NAME_DMSWEB);
             BaseEntity<List<WaybillExtPro>> baseEntity = waybillQueryApi.getWaybillExtByProperties(waybillCodes, properties);
             if (baseEntity.getResultCode() != 1) {
-                logger.error("根据运单号调用运单接口运单扩展信息失败.waybillCodes:" +
-                        JsonHelper.toJson(waybillCodes) +
-                        ",properties:" + JsonHelper.toJson(properties) +
-                        ".返回值code:" + baseEntity.getResultCode() +
-                        ",message" + baseEntity.getMessage());
+                log.warn("根据运单号调用运单接口运单扩展信息失败.waybillCodes:{},properties:{}.返回值code:{},message：{}"
+                        ,JsonHelper.toJson(waybillCodes),JsonHelper.toJson(properties),baseEntity.getResultCode(), baseEntity.getMessage());
                 return null;
             }
             return baseEntity.getData();
         } catch (Exception e) {
             Profiler.functionError(callerInfo);
-            logger.error("根据运单号调用运单接口获取扩展信息异常.", e);
+            log.error("根据运单号调用运单接口获取扩展信息异常.waybillCodes:{},properties:{}"
+                    ,JsonHelper.toJson(waybillCodes),JsonHelper.toJson(properties), e);
             return null;
         } finally {
             Profiler.registerInfoEnd(callerInfo);
@@ -562,7 +594,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
         if (baseEntity.getResultCode() == 1) {
             return baseEntity.getData();
         } else {
-            logger.warn("根据配送中心ID和仓ID查询是否强制换单，接口返回异常状态码，ResultCode:" + baseEntity.getResultCode() + ",message:" + baseEntity.getMessage());
+            log.warn("根据配送中心ID和仓ID查询是否强制换单，接口返回异常状态码，ResultCode:{},message:{}" ,baseEntity.getResultCode(), baseEntity.getMessage());
         }
         return null;
     }
@@ -598,6 +630,19 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
         return waybillQueryApi.getSkuPackRelation(sku);
     }
 
+    /**
+     * 修改包裹数量
+     * @param waybillCode
+     * @param list
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMS.BASE.waybillQueryApi.batchUpdatePackageByWaybillCode", jAppName = Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public BaseEntity<Boolean> batchUpdatePackageByWaybillCode(String waybillCode,List list){
+        return waybillUpdateApi.batchUpdatePackageByWaybillCode(waybillCode, list);
+    }
+
     /*
      *
      * 查询运单接口获取包裹列表
@@ -618,7 +663,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 
         } catch (Exception e) {
             Profiler.functionError(info);
-            logger.error("运单号【 " + waybillCode + "】调用运单WSS异常：", e);
+            log.error("运单号【{}】调用运单WSS异常",waybillCode, e);
         } finally {
             Profiler.registerInfoEnd(info);
         }

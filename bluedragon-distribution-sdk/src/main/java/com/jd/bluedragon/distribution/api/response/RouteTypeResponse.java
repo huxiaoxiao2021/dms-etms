@@ -22,6 +22,7 @@ public class RouteTypeResponse extends BaseResponse {
      10     铁路零担 */
     private Integer transWay;
 
+    private String transWayName;
 
     /** 承运商类型 1 京东自营，2 第三方 */
     private Integer carrierType;
@@ -40,6 +41,14 @@ public class RouteTypeResponse extends BaseResponse {
 
     public void setTransWay(Integer transWay) {
         this.transWay = transWay;
+    }
+
+    public String getTransWayName() {
+        return transWayName;
+    }
+
+    public void setTransWayName(String transWayName) {
+        this.transWayName = transWayName;
     }
 
     public Integer getCarrierType() {

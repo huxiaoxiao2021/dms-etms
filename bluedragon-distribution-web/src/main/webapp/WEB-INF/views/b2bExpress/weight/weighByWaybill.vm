@@ -88,7 +88,7 @@
          data-options="title:'批量导入',buttons:'#waybill-weight-improt-btn-group-wrapper',modal:true">
         <form id="waybill-weight-import-form" method="post" enctype="multipart/form-data" >
             <div>
-                <input class="easyui-validatebox" type="file" name="importExcelFile" data-options="required:true" style="height: 22px"/>
+                <input class="easyui-validatebox" type="file" id="importExcelFile" name="importExcelFile" data-options="required:true" style="height: 22px"/>
             </div>
             <div>
                 <p style="color: red;">请用规定模板填写，请误变更模板单元格格式，所有单元格格式采用文本模式</p>

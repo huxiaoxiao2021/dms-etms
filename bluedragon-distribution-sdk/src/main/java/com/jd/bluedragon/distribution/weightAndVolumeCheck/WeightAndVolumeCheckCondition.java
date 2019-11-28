@@ -45,6 +45,17 @@ public class WeightAndVolumeCheckCondition extends BasePagerCondition {
     /** 计费人ERP */
     private String billingErp;
 
+    /** 抽检类型 */
+    private Integer spotCheckType;
+
+    public Integer getSpotCheckType() {
+        return spotCheckType;
+    }
+
+    public void setSpotCheckType(Integer spotCheckType) {
+        this.spotCheckType = spotCheckType;
+    }
+
     public String getWaybillOrPackCode() {
         return waybillOrPackCode;
     }

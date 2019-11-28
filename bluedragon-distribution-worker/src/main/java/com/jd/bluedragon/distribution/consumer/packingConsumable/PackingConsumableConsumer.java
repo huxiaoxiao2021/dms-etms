@@ -17,12 +17,11 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -35,7 +34,7 @@ import java.util.List;
 @Service("packingConsumableConsumer")
 public class PackingConsumableConsumer extends MessageBaseConsumer {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     WaybillConsumableRecordService waybillConsumableRecordService;
@@ -49,27 +48,31 @@ public class PackingConsumableConsumer extends MessageBaseConsumer {
     @JProfiler(jKey = "PackingConsumableConsumer.consume", jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public void consume(Message message) throws Exception {
-        logger.debug("PackingConsumableConsumer consume --> 消息Body为【" + message.getText() + "】");
+        log.debug("PackingConsumableConsumer consume --> 消息Body为【{}】",message.getText());
         if (message == null || "".equals(message.getText()) || null == message.getText()) {
-            this.logger.warn("PackingConsumableConsumer consume -->消息为空");
+            this.log.warn("PackingConsumableConsumer consume -->消息为空");
             return;
         }
         if (!JsonHelper.isJsonString(message.getText())) {
-            logger.warn(MessageFormat.format("PackingConsumableConsumer consume -->消息体非JSON格式，内容为【{0}】", message.getText()));
+            log.warn("PackingConsumableConsumer consume -->消息体非JSON格式，内容为【{}】", message.getText());
             return;
         }
         WaybillConsumableDto packingConsumable = JsonHelper.fromJson(message.getText(), WaybillConsumableDto.class);
         if (packingConsumable == null) {
-            this.logger.error("PackingConsumableConsumer consume -->消息转换对象失败：" + message.getText());
+            this.log.warn("PackingConsumableConsumer consume -->消息转换对象失败：{}" , message.getText());
             return;
         }
         if(StringHelper.isEmpty(packingConsumable.getWaybillCode())){
-            this.logger.error("PackingConsumableConsumer consume -->消息中没有运单号：" + message.getText());
+            this.log.warn("PackingConsumableConsumer consume -->消息中没有运单号：{}" , message.getText());
+            return;
+        }
+        if(packingConsumable.getDmsCode() == null){
+            this.log.warn("PackingConsumableConsumer consume -->消息中没有站点编号：{}" , message.getText());
             return;
         }
         WaybillConsumableRecord oldRecord = waybillConsumableRecordService.queryOneByWaybillCode(packingConsumable.getWaybillCode());
         if(oldRecord != null && oldRecord.getId() != null){
-            logger.warn("B网包装耗材，重复的运单号：" + message.getText());
+            log.warn("B网包装耗材，重复的运单号：{}" , message.getText());
         }else{
             WaybillConsumableRecord waybillConsumableRecord = convert2WaybillConsumableRecord(packingConsumable);
             //新增主表
@@ -78,7 +81,7 @@ public class PackingConsumableConsumer extends MessageBaseConsumer {
             List<WaybillConsumableRelation> waybillConsumableRelationLst = convert2WaybillConsumableRelation(packingConsumable);
             waybillConsumableRelationService.batchAdd(waybillConsumableRelationLst);
         }
-        logger.debug("PackingConsumableConsumer consume --> 消息消费完成，Body为【" + message.getText() + "】");
+        log.debug("PackingConsumableConsumer consume --> 消息消费完成，Body为【{}】",message.getText());
     }
 
     /**
@@ -92,7 +95,7 @@ public class PackingConsumableConsumer extends MessageBaseConsumer {
         waybillConsumableRecord.setWaybillCode(packingConsumable.getWaybillCode());
         //根据 packingConsumable.getDmsCode() 查询分拣中心信息
         Integer siteCode = packingConsumable.getDmsCode();
-        BaseStaffSiteOrgDto  dto = baseMajorManager.getBaseSiteBySiteId(siteCode);
+        BaseStaffSiteOrgDto dto = baseMajorManager.getBaseSiteBySiteId(siteCode);
         waybillConsumableRecord.setDmsId(dto.getSiteCode());
         waybillConsumableRecord.setDmsName(dto.getSiteName());
 

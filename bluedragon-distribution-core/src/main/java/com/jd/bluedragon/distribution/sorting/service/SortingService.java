@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.sorting.service;
 
+import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -34,9 +35,6 @@ public interface SortingService {
     /** 通过操作站点编号、箱号，查询对应分拣信息dms报表 */
     List<Sorting> findOrderDetail(Sorting sorting);
     
-    /** 通过操作站点编号、箱号，查询对应分拣信息dms报表 */
-    List<Sorting> findOrder(Sorting sorting);
-
     /**
      * 根据箱号获取包裹信息
      * @param boxCode
@@ -132,8 +130,13 @@ public interface SortingService {
      */
     public List<Sorting> findByWaybillCodeOrPackageCode(Integer createSiteCode,String waybillCode, String packageCode);
 
-    /**分页查询分拣任务*/
-    public List<Sorting> findPageSorting(Map<String,Object> params);
+    /**
+     * 根据包裹号查询一条sorting记录
+     * @param packageCode
+     * @param createSiteCode
+     * @return
+     */
+    public Sorting getOneSortingByPackageCode(String packageCode,Integer createSiteCode);
 
     /**
      * 处理任务数据
@@ -157,5 +160,38 @@ public interface SortingService {
      * @return
      */
     List<String> getWaybillCodeListByBoxCode(String boxCode);
+    /**
+     * 根据运单号，查询所有包裹号
+     * @param sorting 运单号
+     * @return
+     */
+    List<Sorting>  findPackageCodesByWaybillCode(Sorting sorting);
 
+    void saveOrUpdate(Sorting sorting);
+
+    void notifyBlocker(Sorting sorting);
+
+    void backwardSendMQ(Sorting sorting);
+
+    /**
+     * B网建箱自动触发验货全程跟踪
+     * @param sorting
+     */
+    void b2bPushInspection(Sorting sorting);
+
+    void saveOrUpdateInspectionEC(Sorting sorting);
+
+    SortingResponse doCancelSorting(Sorting sorting);
+
+    SortingResponse getSortingRecords(Sorting sorting,List<Sorting> sortingRecords);
+
+    Boolean canCancelInspectionEC(Sorting sorting);
+
+    /**
+     * 分拣核心操作成功后的补充操作
+     *
+     * @param task
+     * @return
+     */
+    boolean executeSortingSuccess(Task task);
 }

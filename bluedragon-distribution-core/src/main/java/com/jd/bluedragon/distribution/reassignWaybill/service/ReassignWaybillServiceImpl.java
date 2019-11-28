@@ -3,15 +3,18 @@ package com.jd.bluedragon.distribution.reassignWaybill.service;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.jmq.domain.SiteChangeMqDto;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
-import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.ReassignWaybillRequest;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.reassignWaybill.dao.ReassignWaybillDao;
 import com.jd.bluedragon.distribution.reassignWaybill.domain.ReassignWaybill;
 import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
 import com.jd.bluedragon.distribution.receive.service.CenConfirmService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProfiler;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,8 +41,7 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 	private DefaultJMQProducer waybillSiteChangeProducer;
 
 
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-	public Boolean add(ReassignWaybill packTagPrint) {
+	private Boolean add(ReassignWaybill packTagPrint) {
 		Assert.notNull(packTagPrint, "packTagPrint must not be null");
 		CenConfirm cenConfirm=new CenConfirm();
 		cenConfirm.setWaybillCode(packTagPrint.getWaybillCode());
@@ -75,7 +77,7 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 				logger.error("发送预分拣站点变更mq消息失败(现场预分拣)："+JsonHelper.toJsonUseGson(siteChangeMqDto), e);
 			}finally{
 				SystemLogUtil.log(siteChangeMqDto.getWaybillCode(), String.valueOf(siteChangeMqDto.getOperatorId()), waybillSiteChangeProducer.getTopic(),
-						siteChangeMqDto.getOperatorSiteId().longValue(), JsonHelper.toJsonUseGson(siteChangeMqDto), SystemLogContants.TYPE_SITE_CHANGE_MQ_OF_OTHER);
+						siteChangeMqDto.getOperatorSiteId()==null?0:siteChangeMqDto.getOperatorSiteId().longValue(), JsonHelper.toJsonUseGson(siteChangeMqDto), SystemLogContants.TYPE_SITE_CHANGE_MQ_OF_OTHER);
 			}
 
 		}
@@ -110,5 +112,28 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 	public ReassignWaybill queryByWaybillCode(String waybillCode) {
 		 Assert.notNull(waybillCode, "waybillCode must not be null");
 	        return reassignWaybillDao.queryByWaybillCode(waybillCode);
+	}
+
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	public JdResult<Boolean> backScheduleAfter(ReassignWaybillRequest reassignWaybillRequest) {
+    	JdResult<Boolean> jdResult = new JdResult<Boolean>();
+		jdResult.setData(Boolean.FALSE);
+		jdResult.toFail();
+		if (reassignWaybillRequest == null || StringUtils.isBlank(reassignWaybillRequest.getPackageBarcode())) {
+			logger.warn("backScheduleAfter --> 传入参数非法");
+			jdResult.toFail(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
+			return jdResult;
+		}
+		logger.info("backScheduleAfter--> packageBarcode is ["
+						+ reassignWaybillRequest.getPackageBarcode() + "]");
+		ReassignWaybill packTagPrint = ReassignWaybill.toReassignWaybill(reassignWaybillRequest);
+		if (add(packTagPrint)) {
+			jdResult.toSuccess();
+			jdResult.setData(Boolean.TRUE);
+		} else {
+			jdResult.toFail(308, "处理失败");
+		}
+		return jdResult;
 	}
 }

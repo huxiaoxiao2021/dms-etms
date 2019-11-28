@@ -10,12 +10,14 @@ import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.CapacityCodeRequest;
 import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
+import com.jd.bluedragon.distribution.base.domain.CreateAndReceiveSiteInfo;
 import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.departure.domain.CapacityCodeResponse;
 import com.jd.bluedragon.distribution.departure.domain.CapacityDomain;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.vts.dto.CommonDto;
@@ -25,22 +27,16 @@ import com.jd.etms.vts.ws.VtsQueryWS;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 
 @Service("siteService")
 public class SiteServiceImpl implements SiteService {
-    /**
-     * 批次号正则
-     */
-    private static final Pattern RULE_SEND_CODE_REGEX = Pattern.compile("^[Y|y]?(\\d+)-(\\d+)-([0-9]{14,})$");
     private final Log logger = LogFactory.getLog(this.getClass());
     @Autowired
     RedisManager redisManager;
@@ -219,23 +215,29 @@ public class SiteServiceImpl implements SiteService {
 
     }
 
-    /**
-     * 根据批次号的正则匹配始发分拣中心id和目的分拣中心id
-     *
-     * @param sendCode 批次号
-     * @return
-     */
     @Override
-    public Integer[] getSiteCodeBySendCode(String sendCode) {
-        Integer[] sites = new Integer[]{-1, -1};
-        if (StringHelper.isNotEmpty(sendCode)) {
-            Matcher matcher = RULE_SEND_CODE_REGEX.matcher(sendCode.trim());
-            if (matcher.matches()) {
-                sites[0] = Integer.valueOf(matcher.group(1));
-                sites[1] = Integer.valueOf(matcher.group(2));
-            }
+    public CreateAndReceiveSiteInfo getCreateAndReceiveSiteBySendCode(String sendCode) {
+        Integer[] siteCodes = BusinessUtil.getSiteCodeBySendCode(sendCode);
+        if (siteCodes[0] == -1 || siteCodes[1] == -1) {
+            return null;
         }
-        return sites;
+        CreateAndReceiveSiteInfo createAndReceiveSite = new CreateAndReceiveSiteInfo();
+        BaseStaffSiteOrgDto createSite = this.getSite(siteCodes[0]);
+        BaseStaffSiteOrgDto receiveSite = this.getSite(siteCodes[1]);
+        if(createSite != null){
+            createAndReceiveSite.setCreateSiteCode(createSite.getSiteCode());
+            createAndReceiveSite.setCreateSiteName(createSite.getSiteName());
+            createAndReceiveSite.setCreateSiteType(createSite.getSiteType());
+            createAndReceiveSite.setCreateSiteSubType(createSite.getSubType());
+        }
+
+        if(receiveSite != null){
+            createAndReceiveSite.setReceiveSiteCode(receiveSite.getSiteCode());
+            createAndReceiveSite.setReceiveSiteName(receiveSite.getSiteName());
+            createAndReceiveSite.setReceiveSiteType(receiveSite.getSiteType());
+            createAndReceiveSite.setReceiveSiteSubType(receiveSite.getSubType());
+        }
+        return createAndReceiveSite;
     }
 
     /**

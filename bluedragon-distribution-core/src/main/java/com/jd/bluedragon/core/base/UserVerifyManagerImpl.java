@@ -10,8 +10,8 @@ import com.jd.user.sdk.export.constant.Constants;
 import com.jd.user.sdk.export.domain.passport.LoginParam;
 import com.jd.user.sdk.export.domain.passport.LoginResult;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +26,7 @@ import java.util.Map;
  */
 @Service("userVerifyManager")
 public class UserVerifyManagerImpl implements UserVerifyManager {
-    private static final Log logger = LogFactory.getLog(UserVerifyManagerImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(UserVerifyManagerImpl.class);
 
     private static final String NONE = "NONE";
     private static final String SOURCE = "ql_dms";
@@ -70,7 +70,7 @@ public class UserVerifyManagerImpl implements UserVerifyManager {
             InvokeResult<UserInfo> result = newDeptWebService.verify(name, password);
             return result;
         } catch (Exception ex) {
-            logger.error("deptWebService verify error", ex);
+            log.error("deptWebService verify error", ex);
             return null;
         }
     }
@@ -125,7 +125,7 @@ public class UserVerifyManagerImpl implements UserVerifyManager {
             if(loginResult.getResultCode().equals(com.jd.bluedragon.Constants.PDA_USER_GETINFO_SUCCESS)){
                 basePdaUserDto.setErrorCode(com.jd.bluedragon.Constants.PDA_USER_GETINFO_SUCCESS);
                 basePdaUserDto.setMessage(com.jd.bluedragon.Constants.PDA_USER_GETINFO_SUCCESS_MSG);
-                logger.warn("3pl登录验证成功");
+                log.debug("3pl登录验证成功");
             } else if (loginResult.getResultCode().equals(com.jd.bluedragon.Constants.PDA_USER_NO_EXIT)) {
                 basePdaUserDto.setErrorCode(com.jd.bluedragon.Constants.PDA_USER_NO_EXIT);
                 basePdaUserDto.setMessage(com.jd.bluedragon.Constants.PDA_USER_NO_EXIT_MSG);
@@ -159,11 +159,11 @@ public class UserVerifyManagerImpl implements UserVerifyManager {
             } else {
                 basePdaUserDto.setErrorCode(com.jd.bluedragon.Constants.PDA_USER_LOGIN_FAILUE);
                 basePdaUserDto.setMessage(com.jd.bluedragon.Constants.PDA_USER_LOGIN_FAILUE_MSG);
-                logger.warn("3pl登录验证未知原因导致失败");
+                log.warn("3pl登录验证未知原因导致失败");
             }
             return basePdaUserDto;
         } catch (Exception ex) {
-            logger.error("passportVerify verify error", ex);
+            log.error("passportVerify verify error", ex);
             basePdaUserDto.setErrorCode(com.jd.bluedragon.Constants.PDA_USER_ABNORMAL);
             basePdaUserDto.setMessage(com.jd.bluedragon.Constants.PDA_USER_ABNORMAL_MSG);
             return basePdaUserDto;

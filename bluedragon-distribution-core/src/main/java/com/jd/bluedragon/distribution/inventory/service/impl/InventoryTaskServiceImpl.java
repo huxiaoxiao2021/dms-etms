@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.inventory.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -10,17 +11,19 @@ import com.jd.bluedragon.distribution.api.response.inventory.InventoryTaskRespon
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.inventory.dao.InventoryTaskDao;
-import com.jd.bluedragon.distribution.inventory.domain.*;
+import com.jd.bluedragon.distribution.inventory.domain.CooperateTypeEnum;
+import com.jd.bluedragon.distribution.inventory.domain.InventoryScopeEnum;
+import com.jd.bluedragon.distribution.inventory.domain.InventoryTask;
+import com.jd.bluedragon.distribution.inventory.domain.InventoryTaskCondition;
+import com.jd.bluedragon.distribution.inventory.domain.InventoryTaskStatusEnum;
 import com.jd.bluedragon.distribution.inventory.service.InventoryTaskService;
 import com.jd.bluedragon.utils.BeanHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.alibaba.fastjson.JSON;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.report.domain.BaseEntity;
-import com.jd.ql.dms.report.inventory.InventoryJsfService;
 import com.jd.ql.dms.report.inventory.domain.InventoryDirection;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -91,6 +94,7 @@ public class InventoryTaskServiceImpl extends BaseService<InventoryTask> impleme
         heads.add("包裹数");
         heads.add("差异数");
         heads.add("盘点erp");
+        heads.add("时间范围（小时）");
         heads.add("创建时间");
         heads.add("完成时间");
 
@@ -109,6 +113,7 @@ public class InventoryTaskServiceImpl extends BaseService<InventoryTask> impleme
                 body.add(inventoryTask.getPackageSum());
                 body.add(inventoryTask.getExceptionSum());
                 body.add((inventoryTask.getCreateUserErp()));
+                body.add((inventoryTask.getHourRange()));
                 body.add(DateHelper.formatDate(inventoryTask.getCreateTime(), Constants.DATE_TIME_FORMAT));
                 body.add(DateHelper.formatDate(inventoryTask.getEndTime(), Constants.DATE_TIME_FORMAT));
                 resList.add(body);
@@ -188,7 +193,7 @@ public class InventoryTaskServiceImpl extends BaseService<InventoryTask> impleme
 
         //先完同一操作人的校验
         result = getUserDoingInventoryTask(request);
-        if (result != null && InvokeResult.RESULT_SUCCESS_CODE != result.getCode()) {
+        if (InvokeResult.RESULT_SUCCESS_CODE != result.getCode()) {
             return result;
         }
 
@@ -231,6 +236,11 @@ public class InventoryTaskServiceImpl extends BaseService<InventoryTask> impleme
             return result;
         }
 
+//        if (request.getHourRange() == null || request.getHourRange() <= 0) {
+//            result.toError("盘点时间范围必须大于0");
+//            return result;
+//        }
+
         List<InventoryTask> inventoryTaskList = null;
         InventoryTaskResponse response = new InventoryTaskResponse();
 
@@ -252,8 +262,6 @@ public class InventoryTaskServiceImpl extends BaseService<InventoryTask> impleme
                     task.setCreateUserErp(request.getUserErp());
                     task.setCreateUserName(request.getUserName());
                     task.setCooperateType(request.getCooperateType());
-                    task.setCreateTime(new Date());
-
                     directionList.add(new SiteEntity(task.getDirectionCode(), task.getDirectionName()));
 
                     //如果当前人对当前任务有过协助，则更新updateTime，否则写入
@@ -277,11 +285,11 @@ public class InventoryTaskServiceImpl extends BaseService<InventoryTask> impleme
 
         //2.没有任务号先完成校验--（1）同一操作人的校验；（2）相同流向的校验
         result = getUserDoingInventoryTask(request);
-        if (result != null && InvokeResult.RESULT_SUCCESS_CODE != result.getCode()) {
+        if (InvokeResult.RESULT_SUCCESS_CODE != result.getCode()) {
             return result;
         }
         result = directionVerify(request);
-        if (result != null && InvokeResult.RESULT_SUCCESS_CODE != result.getCode()) {
+        if (InvokeResult.RESULT_SUCCESS_CODE != result.getCode()) {
             return result;
         }
 
@@ -306,8 +314,12 @@ public class InventoryTaskServiceImpl extends BaseService<InventoryTask> impleme
         inventoryTaskBasic.setCreateUserCode(request.getUserCode());
         inventoryTaskBasic.setCreateUserErp(request.getUserErp());
         inventoryTaskBasic.setCreateUserName(request.getUserName());
-        inventoryTaskBasic.setCreateTime(new Date());
-        inventoryTaskBasic.setUpdateTime(inventoryTaskBasic.getCreateTime());
+        Date date = new Date();
+        if (request.getHourRange() != null && request.getHourRange() > 0) {
+            inventoryTaskBasic.setHourRange(request.getHourRange());
+            inventoryTaskBasic.setHourRangeTime(DateHelper.newTimeRangeHoursAgo(date, request.getHourRange()));
+        }
+        inventoryTaskBasic.setCreateTime(date);
         inventoryTaskBasic.setCooperateType(request.getCooperateType());
         inventoryTaskBasic.setInventoryScope(request.getInventoryScope());
         inventoryTaskBasic.setStatus(InventoryTaskStatusEnum.DOING.getStatusCode());

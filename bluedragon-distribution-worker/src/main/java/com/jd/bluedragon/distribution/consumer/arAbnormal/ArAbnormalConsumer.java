@@ -12,12 +12,11 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jmq.common.message.Message;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.text.MessageFormat;
 import java.util.Date;
 
 /**
@@ -27,7 +26,7 @@ import java.util.Date;
  */
 @Service("arAbnormalConsumer")
 public class ArAbnormalConsumer extends MessageBaseConsumer {
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private ArAbnormalService arAbnormalService;
@@ -38,14 +37,14 @@ public class ArAbnormalConsumer extends MessageBaseConsumer {
     @Override
     public void consume(Message message) throws Exception {
         if (!JsonHelper.isJsonString(message.getText())) {
-            logger.warn(MessageFormat.format("ArAbnormalConsumer-消息体非JSON格式，内容为【{0}】", message.getText()));
+            log.warn("ArAbnormalConsumer-消息体非JSON格式，内容为【{}】", message.getText());
             return;
         }
 
         /**将mq消息体转换成SendDetail对象**/
         ArAbnormalRequest arAbnormalRequest = JsonHelper.fromJsonUseGson(message.getText(), ArAbnormalRequest.class);
         if (arAbnormalRequest == null || StringHelper.isEmpty(arAbnormalRequest.getPackageCode())) {
-            logger.error("ArAbnormalConsumer[" + message.getText() + "]转换实体失败或没有合法的扫描码");
+            log.warn("ArAbnormalConsumer[{}]转换实体失败或没有合法的扫描码",message.getText());
             return;
         }
         /* 触发运输方式变更逻辑 */
@@ -66,7 +65,7 @@ public class ArAbnormalConsumer extends MessageBaseConsumer {
             } else if (WaybillUtil.isWaybillCode(arAbnormalRequest.getPackageCode()) || WaybillUtil.isPackageCode(arAbnormalRequest.getPackageCode())) {
                 sendMr.setBoxCode(arAbnormalRequest.getPackageCode());
             } else {
-                logger.warn("航空转陆运触发取消发货，单号{" + arAbnormalRequest.getPackageCode() + "}类型不正确，方法退出。");
+                log.warn("航空转陆运触发取消发货，单号{}类型不正确，方法退出。",arAbnormalRequest.getPackageCode());
                 return;
             }
             sendMr.setCreateSiteCode(arAbnormalRequest.getSiteCode());
@@ -79,7 +78,7 @@ public class ArAbnormalConsumer extends MessageBaseConsumer {
             //senMr不加receiveSiteCode 和 businessType 因为入口在kongtieChange.cs，这两个值无法确认
             deliveryService.dellCancelDeliveryMessage(sendMr, true);
         } catch (Exception e) {
-            logger.error("运输方式变更触发取消发货处理异常，消息体为：" + message.getText(), e);
+            log.error("运输方式变更触发取消发货处理异常，消息体为：{}" , message.getText(), e);
         }
     }
 }

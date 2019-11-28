@@ -10,6 +10,7 @@ import com.jd.ql.dms.common.domain.JdResponse;
  * 包装耗材项目JSF接口
  *
  * 调用方：运输、财务
+ * 发往物流网关的接口不要在此类中加方法
  */
 public interface DmsPackingConsumableService {
 
@@ -17,6 +18,11 @@ public interface DmsPackingConsumableService {
     * 获取快运中心支持的耗材信息
     */
     JdResponse<DmsPackingConsumableInfo> getPackingConsumableInfoByDmsId(Integer dmsId);
+
+    /*
+     * 获取快运中心支持的耗材信息
+     */
+    JdResponse<DmsPackingConsumableInfo> getPackingConsumableInfoByDmsCode(String dmsCode);
 
     /*
     * 获取编号对应的耗材信息

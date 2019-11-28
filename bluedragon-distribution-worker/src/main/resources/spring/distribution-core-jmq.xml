@@ -269,9 +269,8 @@
     </bean>
 
     <!--运单称重mq 整单量方称重信息 发送给运单系统 added by luyue-->
-    <bean id="weighByWaybillProducer" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+    <bean id="weighByWaybillProducer" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.dms.waybill.weight}"/>
-        <property name="timeout" value="1000"/>
     </bean>
 
     <!--PDA操作取消发货MQ-->
@@ -283,6 +282,18 @@
     <!--PDA循环箱收发箱MQ-->
     <bean id="recyclableBoxSendMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="topic" value="${jmq.topic.cb.circulation.info}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
+    <!--PDA循环集包袋处理MQ 自产自消-->
+    <bean id="deliverGoodsNoticeSendMQ" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.cb.deliverGoodsNotice.info}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
+    <!--PDA循环集包袋 通知运输MQ-->
+    <bean id="cycleMaterialSendMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.cb.cyclematerial.info}"/>
         <property name="timeout" value="1000"/>
     </bean>
 
@@ -388,5 +399,10 @@
     <!--交接称重转发终端和分拣机使用 -->
     <bean id="handOverWeightProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.handOverWeight}"/>
+    </bean>
+
+    <!-- 空铁项目 - 发货登记 推送计费信息给FXM -->
+    <bean id="railwaySendRegistCostFxmMQ" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.railway.sendRegist.Cost.fxm}"/>
     </bean>
 </beans>

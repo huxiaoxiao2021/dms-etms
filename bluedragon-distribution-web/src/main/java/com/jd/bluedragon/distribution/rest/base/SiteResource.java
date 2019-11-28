@@ -12,11 +12,13 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.departure.domain.CapacityCodeResponse;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.GZIP;
@@ -25,6 +27,7 @@ import org.springframework.stereotype.Component;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -168,7 +171,7 @@ public class SiteResource {
 		}
 		try{
 			//解析批次号，获取始发分拣中心id和目的分拣中心id，0是始发，1是目的
-			Integer[] siteCodes = this.siteService.getSiteCodeBySendCode(sendCode);
+			Integer[] siteCodes = BusinessUtil.getSiteCodeBySendCode(sendCode);
 			if (siteCodes[0] == -1 || siteCodes[1] == -1) {
 				logger.error("根据批次号获取始发和目的分拣信息失败，批次号:" + sendCode + "始发分拣code:" + siteCodes[0] + ",目的分拣Code:" + siteCodes[1]);
 				result.error("根据批次号获取始发和目的分拣信息失败，批次号：" + "始发分拣code:" + siteCodes[0] + ",目的分拣Code:" + siteCodes[1]);
@@ -200,7 +203,7 @@ public class SiteResource {
 			result.setData(createAndReceiveSite);
 		}catch (Exception e){
 			logger.error("根据批次号获取始发和目的分拣信息失败，批次号：" + sendCode);
-			result.error("根据批次号获取始发和目的分拣信息出现异常，请联系孔春飞");
+			result.error("根据批次号获取始发和目的分拣信息出现异常，请联系配送系统运营(xnpsxt)");
 		}
 
 		return result;

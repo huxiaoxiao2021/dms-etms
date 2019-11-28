@@ -7,7 +7,8 @@ import com.jd.ql.dms.report.domain.BaseEntity;
 import com.jd.ql.dms.report.domain.GoodsPrintDto;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +22,7 @@ import java.util.List;
  */
 @Service("goodsPrintEsManager")
 public class GoodsPrintEsManagerImpl implements GoodsPrintEsManager {
-    private static final Logger logger = Logger.getLogger(GoodsPrintEsManagerImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(GoodsPrintEsManagerImpl.class);
     @Autowired
     ReportExternalService reportExternalService;
 
@@ -29,17 +30,19 @@ public class GoodsPrintEsManagerImpl implements GoodsPrintEsManager {
     public boolean insertOrUpdate(GoodsPrintDto goodsPrintDto) {
         CallerInfo info = Profiler.registerInfo("DMS.BASE.GoodsPrintEsManagerImpl.insertOrUpdate", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
-            logger.info("GoodsPrintEsManagerImpl.insertOrUpdate插入或修改："+JsonHelper.toJson(goodsPrintDto));
+            if(log.isDebugEnabled()){
+                log.debug("GoodsPrintEsManagerImpl.insertOrUpdate插入或修改：{}",JsonHelper.toJson(goodsPrintDto));
+            }
             BaseEntity<Boolean> booleanBaseEntity= reportExternalService.insertOrUpdate(goodsPrintDto);
             if (booleanBaseEntity.isSuccess()){
                 return booleanBaseEntity.getData();
             }else{
-                logger.warn("GoodsPrintEsManagerImpl.insertOrUpdate失败，"+JsonHelper.toJson(goodsPrintDto)+booleanBaseEntity.getMessage());
+                log.warn("GoodsPrintEsManagerImpl.insertOrUpdate失败，{}-{}",JsonHelper.toJson(goodsPrintDto),booleanBaseEntity.getMessage());
                 return false;
             }
         }catch (Exception e){
             Profiler.functionError(info);
-            logger.error("GoodsPrintEsManagerImpl.insertOrUpdate错误，",e);
+            log.error("GoodsPrintEsManagerImpl.insertOrUpdate错误：{}",JsonHelper.toJson(goodsPrintDto),e);
         }finally {
             Profiler.registerInfoEnd(info);
         }
@@ -54,12 +57,12 @@ public class GoodsPrintEsManagerImpl implements GoodsPrintEsManager {
             if (baseEntity.isSuccess()){
                 return baseEntity.getData();
             }else {
-                logger.warn("GoodsPrintEsManagerImpl.findGoodsPrintBySendCodeAndWaybillCode："+baseEntity.getMessage());
+                log.warn("GoodsPrintEsManagerImpl.findGoodsPrintBySendCodeAndWaybillCode：{}-{}-{}",sendCode,waybillCode,baseEntity.getMessage());
                 return null;
             }
         }catch (Exception e){
             Profiler.functionError(info);
-            logger.error("GoodsPrintEsManagerImpl.findGoodsPrintBySendCodeAndWaybillCode错误，",e);
+            log.error("GoodsPrintEsManagerImpl.findGoodsPrintBySendCodeAndWaybillCode错误：{}-{}",sendCode,waybillCode,e);
         }finally {
             Profiler.registerInfoEnd(info);
         }
@@ -74,12 +77,12 @@ public class GoodsPrintEsManagerImpl implements GoodsPrintEsManager {
             if (baseEntity.isSuccess()){
                 return baseEntity.getData();
             }else {
-                logger.warn("GoodsPrintEsManagerImpl.findGoodsPrintBySendCode："+baseEntity.getMessage());
+                log.warn("GoodsPrintEsManagerImpl.findGoodsPrintBySendCode：{}-{}",sendCode,baseEntity.getMessage());
                 return new ArrayList<GoodsPrintDto>();
             }
         }catch (Exception e){
             Profiler.functionError(info);
-            logger.error("GoodsPrintEsManagerImpl.findGoodsPrintBySendCode错误，",e);
+            log.error("GoodsPrintEsManagerImpl.findGoodsPrintBySendCode错误:{}",sendCode,e);
         }finally {
             Profiler.registerInfoEnd(info);
         }
@@ -94,12 +97,12 @@ public class GoodsPrintEsManagerImpl implements GoodsPrintEsManager {
             if (baseEntity.isSuccess()){
                 return baseEntity.getData();
             }else {
-                logger.warn("GoodsPrintEsManagerImpl.findGoodsPrintBySendCodeOfPage："+baseEntity.getMessage());
+                log.warn("GoodsPrintEsManagerImpl.findGoodsPrintBySendCodeOfPage：{}-{}",sendCode,baseEntity.getMessage());
                 return new ArrayList<GoodsPrintDto>();
             }
         }catch (Exception e){
             Profiler.functionError(info);
-            logger.error("GoodsPrintEsManagerImpl.findGoodsPrintBySendCodeOfPage，",e);
+            log.error("GoodsPrintEsManagerImpl.findGoodsPrintBySendCodeOfPage:{}",sendCode,e);
         }finally {
             Profiler.registerInfoEnd(info);
         }
@@ -115,12 +118,12 @@ public class GoodsPrintEsManagerImpl implements GoodsPrintEsManager {
             if (baseEntity.isSuccess()){
                 return baseEntity.getData();
             }else {
-                logger.warn("GoodsPrintEsManagerImpl.findGoodsPrintBySendCodeCount："+baseEntity.getMessage()+",sendCode:"+sendCode);
+                log.warn("GoodsPrintEsManagerImpl.findGoodsPrintBySendCodeCount：{}-{}",sendCode,baseEntity.getMessage());
                 return 0L;
             }
         }catch (Exception e){
             Profiler.functionError(info);
-            logger.error("GoodsPrintEsManagerImpl.findGoodsPrintBySendCodeCount，"+",sendCode:"+sendCode,e);
+            log.error("GoodsPrintEsManagerImpl.findGoodsPrintBySendCodeCount:{}",sendCode,e);
         }finally {
             Profiler.registerInfoEnd(info);
         }

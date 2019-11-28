@@ -11,8 +11,8 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -29,7 +29,7 @@ import java.util.List;
 @Service("dmsLocalServerManager")
 public class DmsLocalServerManagerImpl implements DmsLocalServerManager {
 
-    private final static Log logger = LogFactory.getLog(DmsLocalServerManagerImpl.class);
+    private final static Logger log = LoggerFactory.getLogger(DmsLocalServerManagerImpl.class);
 
     @Autowired
     @Qualifier("dmsLocalServerInfoJsfService")
@@ -53,7 +53,7 @@ public class DmsLocalServerManagerImpl implements DmsLocalServerManager {
             return this.getDataListByResponse(dmsLocalServerInfoJsfService.getVipListByDmsId(dmsId));
         } catch (Exception e) {
             Profiler.functionError(info);
-            logger.error("[JSF接口调用异常]调用自动化JSF接口getVipListByDmsId()获取分拣中心本地服务器VIP地址出现异常", e);
+            log.error("[JSF接口调用异常]调用自动化JSF接口getVipListByDmsId()获取分拣中心本地服务器VIP地址出现异常：{}",dmsId, e);
         }finally {
             Profiler.registerInfoEnd(info);
         }
@@ -67,7 +67,7 @@ public class DmsLocalServerManagerImpl implements DmsLocalServerManager {
             return this.getDataListByResponse(dmsLocalServerInfoJsfService.getAllVipList());
         } catch (Exception e) {
             Profiler.functionError(info);
-            logger.error("[JSF接口调用异常]调用自动化JSF接口getAllVipList()获取分拣中心本地服务器VIP地址出现异常", e);
+            log.error("[JSF接口调用异常]调用自动化JSF接口getAllVipList()获取分拣中心本地服务器VIP地址出现异常", e);
         }finally {
             Profiler.registerInfoEnd(info);
         }
@@ -88,11 +88,11 @@ public class DmsLocalServerManagerImpl implements DmsLocalServerManager {
                     result.add(pojo.getCode());
                 }
             }else{
-                logger.error("[JSF接口调用失败]调用自动化JSF接口getPositionBySite  "+ JsonHelper.toJson(param)+"  "+baseDmsAutoJsfResponse.getStatusMessage());
+                log.warn("[JSF接口调用失败]调用自动化JSF接口getPositionBySite  {}-{}",JsonHelper.toJson(param),baseDmsAutoJsfResponse.getStatusMessage());
             }
         } catch (Exception e) {
             Profiler.functionError(info);
-            logger.error("[JSF接口调用异常]调用自动化JSF接口getPositionBySite "+ JsonHelper.toJson(param), e);
+            log.error("[JSF接口调用异常]调用自动化JSF接口getPositionBySite:{} ", JsonHelper.toJson(param), e);
         }finally {
             Profiler.registerInfoEnd(info);
         }
@@ -108,12 +108,12 @@ public class DmsLocalServerManagerImpl implements DmsLocalServerManager {
             if (response != null && response.getStatusCode() == BaseDmsAutoJsfResponse.SUCCESS_CODE){
                 return response.getData();
             }else {
-                logger.error("[JSF接口调用失败]调用自动化JSF接口getVerAppUrlBySiteCode  "+ JsonHelper.toJson(siteCode)+",返回结果：" + JsonHelper.toJson(response));
+                log.warn("[JSF接口调用失败]调用自动化JSF接口getVerAppUrlBySiteCode  {},返回结果：{}" ,JsonHelper.toJson(siteCode), JsonHelper.toJson(response));
             }
 
         } catch (Exception e) {
             Profiler.functionError(info);
-            logger.error("[JSF接口调用异常]调用自动化JSF接口getVerAppUrlBySiteCode获取分拣中心本地服务器地址出现异常", e);
+            log.error("[JSF接口调用异常]调用自动化JSF接口getVerAppUrlBySiteCode获取分拣中心本地服务器地址出现异常:{}",siteCode, e);
         }finally {
             Profiler.registerInfoEnd(info);
         }
@@ -139,11 +139,11 @@ public class DmsLocalServerManagerImpl implements DmsLocalServerManager {
                 }
 
             }else{
-                logger.error("[JSF接口调用失败]调用自动化JSF接口getPositionBySiteAndCode  "+ JsonHelper.toJson(param)+"  "+baseDmsAutoJsfResponse.getStatusMessage());
+                log.warn("[JSF接口调用失败]调用自动化JSF接口getPositionBySiteAndCode {}-{}  ",JsonHelper.toJson(param),baseDmsAutoJsfResponse.getStatusMessage());
             }
         } catch (Exception e) {
             Profiler.functionError(info);
-            logger.error("[JSF接口调用异常]调用自动化JSF接口getPositionBySiteAndCode "+ JsonHelper.toJson(param), e);
+            log.error("[JSF接口调用异常]调用自动化JSF接口getPositionBySiteAndCode :{}",JsonHelper.toJson(param), e);
         }finally {
             Profiler.registerInfoEnd(info);
         }

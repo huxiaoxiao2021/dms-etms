@@ -37,4 +37,13 @@ public class SendMServiceImpl implements SendMService{
     public List<SendM> findAllSendCodesWithStartTime(Integer createSiteCode, Integer receiveSiteCode, Date startDate) {
         return sendMDao.findAllSendCodesWithStartTime(createSiteCode, receiveSiteCode, startDate);
     }
+
+    @Override
+    public List<SendM> findByParams(SendM params) {
+        if (params == null || StringUtils.isEmpty(params.getBoxCode()) || params.getCreateSiteCode() == null) {
+            return Collections.emptyList();
+        }
+        //查询箱子发货记录
+        return sendMDao.selectBySendSiteCode(params);
+    }
 }

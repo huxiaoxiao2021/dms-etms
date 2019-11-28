@@ -2,9 +2,7 @@ package com.jd.bluedragon.distribution.newseal.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.redis.service.RedisManager;
-import com.jd.bluedragon.distribution.newseal.domain.SealTaskBody;
-import com.jd.bluedragon.distribution.newseal.domain.SealVehicleEnum;
-import com.jd.bluedragon.distribution.newseal.domain.SealVehicles;
+import com.jd.bluedragon.distribution.newseal.domain.*;
 import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -22,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicle;
 import com.jd.bluedragon.distribution.newseal.dao.PreSealVehicleDao;
 import com.jd.bluedragon.distribution.newseal.service.PreSealVehicleService;
 import org.springframework.transaction.annotation.Propagation;
@@ -244,6 +241,7 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
         Integer siteCode = preList.get(0).getCreateSiteCode();
         Map<String, SealTaskBody> taskBodyMap = new HashMap<>();
 
+        Map<String, SealTaskBody> taskFerrySealBodyMap = new HashMap<>();
         for(PreSealVehicle pre : preList){
             List<SealVehicles> sendCodes = pre.getSendCodes();
             if(sendCodes == null || sendCodes.isEmpty()){
@@ -252,7 +250,11 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
             Map<String, SealTaskBody> carMap = new HashMap<>();
             for(String vehicleNumber : pre.getVehicleNumbers()){
                 SealTaskBody body = new SealTaskBody();
-                body.setTaskType(Task.TASK_TYPE_SEAL_OFFLINE);
+                if (PreSealVehicleSourceEnum.FERRY_PRE_SEAL.getCode() == pre.getPreSealSource()) {
+                    body.setTaskType(Task.TASK_TYPE_FERRY_SEAL_OFFLINE);
+                } else {
+                    body.setTaskType(Task.TASK_TYPE_SEAL_OFFLINE);
+                }
                 body.setSiteCode(pre.getCreateSiteCode());
                 body.setReceiveSiteCode(pre.getCreateSiteCode());
                 body.setSiteName(pre.getCreateSiteName());
@@ -273,15 +275,24 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
                 SealTaskBody body = carMap.get(vo.getVehicleNumber());
                 body.setShieldsCarCode(vo.getSealCodes());
                 body.appendBatchCode(vo.getSealDataCode());
+                body.setVolume(vo.getVolume());
+                body.setWeight(vo.getWeight());
                 //车和运力多对多
                 String key = pre.getTransportCode() + vo.getVehicleNumber();
-                if(!taskBodyMap.containsKey(key)){
-                    taskBodyMap.put(key, body);
+                //普通预封车和传摆预封车，任务集合分开发
+                if (body.getTaskType().equals(Task.TASK_TYPE_FERRY_SEAL_OFFLINE)) {
+                    if(! taskFerrySealBodyMap.containsKey(key)){
+                        taskFerrySealBodyMap.put(key, body);
+                    }
+                } else {
+                    if(!taskBodyMap.containsKey(key)){
+                        taskBodyMap.put(key, body);
+                    }
                 }
+
             }
         }
         Task task = new Task();
-        task.setBody(JsonHelper.toJson(taskBodyMap.values()));
         task.setOwnSign(BusinessHelper.getOwnSign());
         task.setType(Task.TASK_TYPE_OFFLINE);
         task.setTableName(Task.getTableName(Task.TASK_TYPE_OFFLINE));
@@ -289,6 +300,33 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
         task.setKeyword1(siteCode.toString());
         task.setCreateSiteCode(siteCode);
         task.setReceiveSiteCode(siteCode);
-        taskService.add(task, true);
+        if (! taskBodyMap.isEmpty()) {
+            //普通预封车任务
+            task.setBody(JsonHelper.toJson(taskBodyMap.values()));
+            taskService.add(task, true);
+        }
+        if (! taskFerrySealBodyMap.isEmpty()) {
+            //传摆与封车任务
+            task.setBody(JsonHelper.toJson(taskFerrySealBodyMap.values()));
+            taskService.add(task, true);
+        }
     }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.PreSealVehicleServiceImpl.getVehicleMeasureInfoList", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
+    public PreSealVehicle getPreSealVehicleInfo(String transportCode) {
+        return preSealVehicleDao.getPreSealVehicleInfo(transportCode);
+    }
+    @Override
+    @JProfiler(jKey = "DMSWEB.PreSealVehicleServiceImpl.getVehicleMeasureInfoList", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
+    public List<VehicleMeasureInfo> getVehicleMeasureInfoList(String transportCode) {
+        return preSealVehicleDao.getVehicleMeasureInfoList(transportCode);
+    }
+
+    @Override
+    public boolean updatePreSealVehicleMeasureInfo(PreSealVehicle preSealVehicle) {
+        return preSealVehicleDao.updatePreSealVehicleMeasureInfo(preSealVehicle) > 0;
+    }
+
+
 }

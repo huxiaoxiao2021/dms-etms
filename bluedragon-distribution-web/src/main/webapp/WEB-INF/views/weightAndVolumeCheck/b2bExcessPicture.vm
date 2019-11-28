@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>B网抽检超标图片</title>
+    <meta http-equiv="pragma" content="no-cache"/>
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    #parse("system/common/baseImport.vm")
+    <style type="text/css">
+
+        table{ /* 表格整体样式 */
+            margin:20px;  /* 外边距50px */
+            border-collapse:collapse; /* 合并为单一的边框线 */
+            border:5px;
+            mso-cellspacing: 0px;
+            margin-top: 50px;
+            margin-left: 10px;
+            margin-right: 10px;
+            background-color: lightgrey;
+        }
+        /* 设置tr的表格样式 */
+        table td{
+            padding:10px;
+            border:1px
+            solid black;
+            text-align: center;
+            font-size: 15px;
+            word-wrap:break-word;
+            word-break:break-all;
+        }
+    </style>
+    <script src="/static/js/weightAndVolumeCheck/b2bExcessPicture.js"></script>
+</head>
+<body class="container-fluid" >
+<input style="display: none" id="waybillCode" value="${waybillCode}" />
+<input style="display: none" id="siteCode" value="${siteCode}" />
+<input style="display: none" id="isWaybillSpotCheck" value="${isWaybillSpotCheck}" />
+<table id="b2bExcessPicture" width="100%" ></table>
+</body>
+</html>

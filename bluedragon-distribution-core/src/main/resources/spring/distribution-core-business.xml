@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+    http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd">
+
+
+
+    <!-- business 写-->
+    <bean id="dms_business" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="url" value="${dms.write.mysql.db.business.url}"/>
+        <property name="username" value="${dms.mysql.db.business.username}"/>
+        <property name="password" value="${dms.mysql.db.business.password}"/>
+        <property name="driverClassName" value="${db.mysql.driverClassName}"/>
+        <property name="defaultAutoCommit" value="true"/>
+        <property name="initialSize" value="${dms.write.mysql.db.business.initialSize}"/>
+        <property name="maxIdle" value="${dms.write.mysql.db.business.maxIdle}"/>
+        <property name="minIdle" value="${dms.write.mysql.db.business.minIdle}"/>
+        <property name="maxActive" value="${dms.write.mysql.db.business.maxActive}"/>
+        <property name="maxWait" value="${dms.write.mysql.db.business.maxWait}"/>
+        <property name="logAbandoned" value="${dms.write.mysql.db.business.logAbandoned}"/>
+        <property name="removeAbandoned" value = "${dms.write.mysql.db.business.removeAbandoned}"/>
+        <property name="removeAbandonedTimeout" value="${dms.write.mysql.db.business.removeAbandonedTimeout}" />
+        <property name= "testWhileIdle" value="${dms.write.mysql.db.business.testWhileIdle}" />
+        <property name= "testOnBorrow" value="${dms.write.mysql.db.business.testOnBorrow}" />
+        <property name= "validationQuery" value="${dms.write.mysql.db.business.validationQuery}" />
+        <property name="minEvictableIdleTimeMillis" value="${dms.write.mysql.db.business.minEvictableIdleTimeMillis}"/>
+        <property name="timeBetweenEvictionRunsMillis" value="${dms.write.mysql.db.business.timeBetweenEvictionRunsMillis}"/>
+        <property name="poolPreparedStatements" value="false" />
+    </bean>
+
+    <bean id="transactionManager_business"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dms_business"/>
+        <qualifier value="business_support"/>
+    </bean>
+
+    <tx:annotation-driven transaction-manager="transactionManager_business" proxy-target-class="true"/>
+
+    <bean id="businessSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dms_business"/>
+        <property name="configLocation" value="classpath:config/mysql/mybatis-config-business.xml"/>
+    </bean>
+
+    <bean id="businessSqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="businessSqlSessionFactory"/>
+    </bean>
+    <!-- dms单库写库 数据源 end -->
+
+    <!--  base数据源    -->
+    <bean id="dataSourceBase" parent="parentDataSource">
+        <property name="url" value="${base.cache.db.url}"/>
+        <property name="username" value="${base.cache.db.username}"/>
+        <property name="password" value="${base.cache.db.password}"/>
+    </bean>
+
+    <bean id="transactionManagerBase" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSourceBase"/>
+    </bean>
+
+    <bean id="sqlSessionFactoryBase" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="configLocation" value="classpath:config/mysql/mybatis-config-base.xml"/>
+        <property name="dataSource" ref="dataSourceBase"/>
+    </bean>
+
+    <bean id="sessionTemplateBase" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="sqlSessionFactoryBase"/>
+    </bean>
+
+    <tx:annotation-driven transaction-manager="transactionManagerBase"/>
+
+</beans>

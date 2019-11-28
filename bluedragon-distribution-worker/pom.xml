@@ -21,6 +21,18 @@
 
     <dependencies>
 		<dependency>
+			<groupId>org.jmockit</groupId>
+			<artifactId>jmockit</artifactId>
+			<version>1.9</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>2.7.12</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.8.2</version>
@@ -179,13 +191,6 @@
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-slf4j-impl</artifactId>
 			<version>2.3</version>
-		</dependency>
-
-		<!--安全相关 ConfigSecSDK importants运行环境加密-->
-		<dependency>
-			<groupId>com.jd.security.configsec</groupId>
-			<artifactId>spring-configsec-sdk</artifactId>
-			<version>1.0.2.RELEASE</version>
 		</dependency>
 
 		<!--京东安全禁止jsp直接访问-开始-->

@@ -45,8 +45,6 @@ public interface LabelPrintingService {
     //自提点标示
     static int ARAYACAK_SIGN = 64;
 
-    String SPECIAL_MARK1_WAREHOUSE_JD = "京仓";
-    String SPECIAL_MARK1_WAREHOUSE_NOT_JD = "非京仓";
 
     String CITY_DISTRIBUTION_CHENG="B";
 

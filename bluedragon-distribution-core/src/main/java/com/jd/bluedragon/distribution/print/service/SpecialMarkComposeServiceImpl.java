@@ -124,25 +124,8 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
                 && BusinessUtil.isSignInChars(waybill.getSendPay(),108,'1','2','3')) {
             waybill.appendSpecialMark(SPECIAL_MARK_SOLD_INTO_PACKAGE);
         }
-
-        //处理specialMark1的逻辑
-        specialMark1Handle(waybill);
-    }
-
-    /**
-     * specialMark1的处理逻辑
-     * @param waybill
-     */
-    private void specialMark1Handle(PrintWaybill waybill){
-        String waybillSign = waybill.getWaybillSign();
-        //1.waybill_sign 第89位等于3时，打印 【京仓】;第89位等于4时，打印 【非京仓】
-        if(BusinessUtil.isColdChainWaybill(waybillSign)){
-            if(BusinessUtil.isWareHouseJDWaybill(waybillSign)){
-                waybill.appendSpecialMark1(SPECIAL_MARK1_WAREHOUSE_JD);
-            }else if(BusinessUtil.isWareHouseNotJDWaybill(waybillSign)){
-                waybill.appendSpecialMark1(SPECIAL_MARK1_WAREHOUSE_NOT_JD);
-            }
+        if(BusinessUtil.isC2CJZD(waybill.getWaybillSign())){
+            waybill.appendSpecialMark(TextConstants.TEXT_JZD_SPECIAL_MARK);
         }
-
     }
 }

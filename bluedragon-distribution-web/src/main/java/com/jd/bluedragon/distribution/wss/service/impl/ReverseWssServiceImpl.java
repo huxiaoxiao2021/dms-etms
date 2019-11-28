@@ -87,15 +87,6 @@ public class ReverseWssServiceImpl implements ReverseWssService {
 		return result;
 	}
 	
-	public Boolean addReceiveStockMessage(String message) throws Exception {
-		this.logger.info("逆向收货回传库存消息：" + message);
-		
-		Long waybillCode = this.reverseReceiveNotifyStockService.receive(message);
-		this.reverseReceiveNotifyStockService.nodifyStock(waybillCode);
-		
-		return Boolean.TRUE;
-	}
-	
 	public Boolean addSaleMessage(String message) {
 		this.logger.info("addSaleMessage --> 逆向接收配送损商品销售信息：" + message);
 		SpareSaleRequest spareSaleRequest = JsonHelper.fromJson(message, SpareSaleRequest.class);
