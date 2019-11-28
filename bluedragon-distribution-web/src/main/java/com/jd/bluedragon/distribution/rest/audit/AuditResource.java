@@ -5,16 +5,12 @@ import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.ChuguanExportManager;
 import com.jd.bluedragon.core.base.StockExportManager;
 import com.jd.bluedragon.distribution.api.response.ReverseReceiveResponse;
-import com.jd.bluedragon.distribution.kuguan.domain.KuGuanDomain;
 import com.jd.bluedragon.distribution.reverse.dao.ReverseReceiveDao;
 import com.jd.bluedragon.distribution.reverse.dao.ReverseSpareDao;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSpare;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.bluedragon.utils.ObjectMapHelper;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.GZIP;
@@ -29,7 +25,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
-import java.util.Map;
 
 @Component
 @Path(Constants.REST_URL+"/audit")
@@ -125,41 +120,5 @@ public class AuditResource {
 		querySendDetail.setWaybillCode(waybillCode);
 		return this.sendDatailDao.querySendDatailsBySelective(querySendDetail);//FIXME:无create_site_code有跨节点风险
 	}
-	
-	@GET
-	@GZIP
-	@Path("/stock/{waybillCode}/{ddlType}")
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.AuditResource.getStockInfo", mState = {JProEnum.TP})
-	public KuGuanDomain getStockInfo(@PathParam("waybillCode") String waybillCode, @PathParam("ddlType") String ddlType) {
-		KuGuanDomain kuGuanDomain = new KuGuanDomain();
-		String orderCode = null;
-		String lKdanhao = null;
-		if(TYPE_WAYBILCODE.equals(ddlType)){
-            orderCode = waybillCode;
-        }
-		else{
-            lKdanhao  = waybillCode;
-        }
 
-		Map<String, Object> params = ObjectMapHelper
-				.makeObject2Map(kuGuanDomain);
-
-		try {
-			logger.error("根据订单号获取库管单信息参数错误-queryByParams");
-			kuGuanDomain = this.queryByOrderCode(orderCode,lKdanhao);
-		} catch (Exception e) {
-			kuGuanDomain = new KuGuanDomain(); 
-			kuGuanDomain.setDdlType(ddlType);
-			kuGuanDomain.setWaybillCode(null);
-			logger.error("根据订单号获取库管单信息服务异常"+e);
-		}
-		return kuGuanDomain;
-	}
-
-    private KuGuanDomain queryByOrderCode(String orderCode,String lKdanhao){
-        if(uccPropertyConfiguration.isChuguanNewInterfaceQuerySwitch()){
-            return chuguanExportManager.queryByOrderCode(orderCode,lKdanhao);
-        }
-        return stockExportManager.queryByOrderCode(orderCode,lKdanhao);
-    }
 }
