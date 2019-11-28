@@ -535,4 +535,9 @@
         <jsf:parameter key="authToken" value="${jsf.component.container.token}" hide="true"></jsf:parameter>
     </jsf:consumer>
 
+    <jsf:consumer id="deviceConfigInfoJsfService" interface="com.jd.bd.dms.automatic.sdk.modules.device.DeviceConfigInfoJsfService"
+                  protocol="jsf" alias="${jsf.automatic.alias}" timeout="${jsf.automatic.timeout}" retries="${jsf.retries}">
+        <jsf:parameter key="token" value="${jsf.automatic.token}" hide="true"/>
+    </jsf:consumer>
+
 </beans>
