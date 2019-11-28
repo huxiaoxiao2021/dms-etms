@@ -34,6 +34,8 @@
 				<entry key="100107"  value-ref="sitePlatePrint"/>
 				<entry key="100108"  value-ref="basicPrint"/>
 				<entry key="100109"  value-ref="basicPrint"/>
+				<!-- 收纳暂存打印 -->
+				<entry key="100110"  value-ref="basicPrint"/>
 			</map>
 		</property>
 	</bean>
