@@ -36,7 +36,7 @@ public class KuGuanController {
 
     @Resource
     private UccPropertyConfiguration uccPropertyConfiguration;
-	
+
 	@Authorization(Constants.DMS_WEB_QUERY_KUGUANINIT)
 	@RequestMapping(value = "/goListPage", method = RequestMethod.GET)
 	public String goListpage(Model model) {
@@ -55,8 +55,13 @@ public class KuGuanController {
 			logger.error("根据订单号获取库管单信息参数错误");
 			return "kuguan/kuguan";
 		}
-        ErpUserClient.ErpUser user = ErpUserClient.getCurrUser();
-		logger.info("库管单查询-queryOperateLog-user[{}]", JsonHelper.toJson(user));
+        ErpUserClient.ErpUser user = null;
+        try {
+            user = ErpUserClient.getCurrUser();
+            logger.info("库管单查询-queryOperateLog-user[{}]kuGuanDomain[{}]", JsonHelper.toJson(user), JsonHelper.toJson(kuGuanDomain));
+        } catch (Exception e) {
+            logger.error("库管单查询-queryOperateLog-kuGuanDomain[{}]",JsonHelper.toJson(kuGuanDomain),e);
+        }
         String orderCode = kuGuanDomain.getWaybillCode();
         String lKdanhao = kuGuanDomain.getlKdanhao();
 
