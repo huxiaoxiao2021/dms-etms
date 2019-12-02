@@ -16,6 +16,22 @@
     </bean>
 
     <!-- DMS主库（拆分库）JDDL 工厂类 -->
+    <bean id="sqlSessionShardingSlaveFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="jddlShardingDataSource" />
+        <property name="configLocation" value="classpath:config/mysql/mybatis-config.xml" />
+    </bean>
+
+    <!-- DMS主库（拆分库）JDDL 模板类 -->
+    <bean id="sqlSessionSlaveShardingTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg ref="sqlSessionShardingSlaveFactory"/>
+    </bean>
+
+    <!-- DMS主库（拆分库）JDDL 事务管理器 -->
+    <bean id="transactionShardingSlaveManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="jddlShardingDataSource" />
+        <property name="rollbackOnCommitFailure" value="true"></property>
+    </bean>
+    <!-- DMS主库（拆分库）JDDL 工厂类 -->
     <bean id="mainSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="dataSource" ref="jddlShardingDataSource" />
         <property name="configLocation" value="classpath:config/mysql/mybatis-config.xml" />

@@ -6,8 +6,6 @@
     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd">
 
-    <tx:annotation-driven transaction-manager="transactionManager"/>
-
     <!-- DMS数据源父类  -start-->
     <bean id="parentDataSource" class="org.apache.commons.dbcp.BasicDataSource" abstract="true">
         <property name="driverClassName" value="${db.mysql.driverClassName}"/>
