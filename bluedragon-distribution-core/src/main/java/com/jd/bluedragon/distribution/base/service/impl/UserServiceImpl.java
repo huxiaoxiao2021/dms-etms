@@ -223,8 +223,8 @@ public class UserServiceImpl implements UserService{
 	private void bindSite2LoginUser(BaseResponse response) {
 		if (null != response && null != response.getSiteCode()) {
 			// 非分拣中心类型的站点查询分拣中心ID和名称，兼容打印客户端登录后再查询站点的逻辑
-			if (response.getSiteType() != Constants.DMS_SITE_TYPE) {
-				BaseStaffSiteOrgDto dtoStaff = basicPrimaryWS.getBaseSiteBySiteId(Integer.valueOf(response.getSiteCode()));
+			if (!Constants.DMS_SITE_TYPE.equals(response.getSiteType())) {
+				BaseStaffSiteOrgDto dtoStaff = basicPrimaryWS.getBaseSiteBySiteId(response.getSiteCode());
 				if (null != dtoStaff && dtoStaff.getDmsId() != null && dtoStaff.getDmsId() > 0) {
 					response.setDmsId(dtoStaff.getDmsId());
 					response.setDmsName(dtoStaff.getDmsName());
