@@ -27,6 +27,9 @@ import com.jd.ldop.center.api.reverse.dto.WaybillReverseDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseResponseDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseResult;
 import com.jd.ldop.center.api.update.dto.WaybillAddress;
+import com.jd.ldop.center.api.waybill.GeneralWaybillQueryApi;
+import com.jd.ldop.center.api.waybill.dto.OrderInfoDTO;
+import com.jd.ldop.center.api.waybill.dto.WaybillQueryByOrderIdDTO;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.receive.api.dto.OrderInfoPrintDTO;
 import com.jd.ql.dms.receive.api.dto.OrderInfoQueryDTO;
@@ -37,7 +40,8 @@ import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -75,6 +79,9 @@ public class LDOPManagerImpl implements LDOPManager {
     private OrderInfoServiceJsf orderInfoServiceJsf ;
 
     @Autowired
+    private GeneralWaybillQueryApi generalWaybillQueryApi;
+
+    @Autowired
     private ReverseSpareEclp reverseSpareEclp;
 
     /*用于记录操作日志*/
@@ -88,7 +95,7 @@ public class LDOPManagerImpl implements LDOPManager {
     @Autowired
     private WaybillQueryManager waybillQueryManager;
 
-    private final Logger logger = Logger.getLogger(LDOPManagerImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(LDOPManagerImpl.class);
     /**
      * 触发外单逆向换单接口
      * @param waybillReverseDTO
@@ -360,6 +367,32 @@ public class LDOPManagerImpl implements LDOPManager {
             result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
         }
         return result;
+    }
+
+    /**
+     * 根据商家ID和商家单号获取运单号
+     *
+     * @param busiId   商家ID
+     * @param busiCode 商家单号
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMS.BASE.LDOPManagerImpl.queryWaybillCodeByOrderIdAndCustomerCode",
+            mState = {JProEnum.TP, JProEnum.FunctionError},jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public String queryWaybillCodeByOrderIdAndCustomerCode(Integer busiId, String busiCode) {
+        try{
+            WaybillQueryByOrderIdDTO queryByOrderIdDTO = new WaybillQueryByOrderIdDTO();
+            queryByOrderIdDTO.setOrderId(busiCode);
+            queryByOrderIdDTO.setCustomerId(busiId);
+
+            ResponseDTO<OrderInfoDTO> responseDTO = generalWaybillQueryApi.queryOrderInfoByOrderIdAndCustomerCode(queryByOrderIdDTO);
+            if(responseDTO != null && ResponseDTO.SUCCESS_CODE.equals(responseDTO.getStatusCode()) && responseDTO.getData()!=null){
+                return responseDTO.getData().getDeliveryId();
+            }
+        }catch (Exception e){
+           logger.error("根据商家ID和商家单号获取运单号异常!req:{},{}",busiId,busiCode,e);
+        }
+        return StringUtils.EMPTY;
     }
 
     /**

@@ -946,7 +946,7 @@
 		<dependency>
 			<groupId>com.jd.ldop.center</groupId>
 			<artifactId>ldop-center-api</artifactId>
-			<version>1.4.51-SNAPSHOT</version>
+			<version>1.4.98-SNAPSHOT</version>
 		</dependency>
 		<!-- 理赔系统接口 -->
 		<dependency>

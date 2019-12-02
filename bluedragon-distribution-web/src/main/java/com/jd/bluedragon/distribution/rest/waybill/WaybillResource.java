@@ -1952,19 +1952,30 @@ public class WaybillResource {
 	 * @return 运单号
 	 */
 	@GET
-	@Path("/waybill/findPackByBusiCode/{busiId}/{busiCode}")
-	public InvokeResult<String> findPackByBusiIdAndBusiCode(@PathParam("busiId") Integer busiId,@PathParam("busiCode") String busiCode){
+	@Path("/waybill/findByBusiCode/{busiId}/{busiCode}/{isBusiBoxCode}")
+	public InvokeResult<String> findByBusiIdAndBusiCode(@PathParam("busiId") Integer busiId,@PathParam("busiCode") String busiCode,@PathParam("isBusiBoxCode") boolean isBusiBoxCode){
 		InvokeResult<String> result = new InvokeResult<String>();
 		try{
-			String packCode = eclpPackageApiService.queryPackage(busiId,busiCode);
-			if(StringUtils.isBlank(packCode)){
-				result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
-				result.setMessage("未获取到运单数据。请确认商家ID和商家单号是否正确！");
+			String barCode;
+			if(isBusiBoxCode){
+				barCode = eclpPackageApiService.queryPackage(busiId,busiCode);
 			}else{
-				result.setData(eclpPackageApiService.queryPackage(busiId,busiCode));
+				barCode = ldopManager.queryWaybillCodeByOrderIdAndCustomerCode(busiId,busiCode);
+			}
+
+			if(StringUtils.isBlank(barCode)){
+				result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
+				if(isBusiBoxCode){
+					result.setMessage("未获取到运单数据。请确认【商家ID】和【商家箱号】是否正确！或尝试选择【商家订单号】");
+				}else{
+					result.setMessage("未获取到运单数据。请确认【商家ID】和【商家订单号】是否正确！或尝试选择【商家箱号】");
+				}
+
+			}else{
+				result.setData(barCode);
 			}
 		}catch (Exception e){
-		    logger.error("根据商家ID{}和商家单号{}获取包裹号异常{}",busiId,busiCode,e.getMessage(),e);
+		    logger.error("根据商家ID{}和商家编码{}获取包裹号异常{}",busiId,busiCode,e.getMessage(),e);
 			result.setCode(InvokeResult.SERVER_ERROR_CODE);
 			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
 		}
