@@ -225,9 +225,13 @@ public class UserServiceImpl implements UserService{
 			// 非分拣中心类型的站点查询分拣中心ID和名称，兼容打印客户端登录后再查询站点的逻辑
 			if (!Constants.DMS_SITE_TYPE.equals(response.getSiteType())) {
 				BaseStaffSiteOrgDto dtoStaff = basicPrimaryWS.getBaseSiteBySiteId(response.getSiteCode());
-				if (null != dtoStaff && dtoStaff.getDmsId() != null && dtoStaff.getDmsId() > 0) {
-					response.setDmsId(dtoStaff.getDmsId());
-					response.setDmsName(dtoStaff.getDmsName());
+				if (null != dtoStaff) {
+					response.setSiteType(dtoStaff.getSiteType());
+					response.setSubType(dtoStaff.getSubType());
+					if (!dtoStaff.getDmsId().equals(dtoStaff.getSiteCode()) && dtoStaff.getDmsId() > 0) {
+						response.setDmsId(dtoStaff.getDmsId());
+						response.setDmsName(dtoStaff.getDmsName());
+					}
 				}
 			}
 		}
