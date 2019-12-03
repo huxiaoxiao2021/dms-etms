@@ -137,7 +137,7 @@
     </jmq:consumer>
 
     <!--线上签推送数据-->
-    <jmq:consumer id="jmq.printOnlineConsumer" transport="jmq.dmsWorker.transport">
+    <jmq:consumer id="jmq.printOnlineConsumer" transport="jmq.uatDmsWeb.transport">
         <jmq:listener topic="${jmq.topic.print.online}" listener="printOnlineConsumer"/>
     </jmq:consumer>
 </beans>
