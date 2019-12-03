@@ -16,6 +16,7 @@ import com.jd.bluedragon.distribution.qualityControl.QcVersionFlagEnum;
 import com.jd.bluedragon.distribution.qualityControl.service.QualityControlService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.AbnormalReportingGatewayService;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -399,7 +400,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
         wpAbnormalRecordPda.setRemark(abnormalReportingRequest.getRemark());
         wpAbnormalRecordPda.setCreateDept(abnormalReportingRequest.getSiteCode().toString());
         wpAbnormalRecordPda.setCreateDeptName(abnormalReportingRequest.getSiteName());
-        wpAbnormalRecordPda.setCreateTimeStr(abnormalReportingRequest.getOperateTime().toString());
+        wpAbnormalRecordPda.setCreateTimeStr(DateHelper.formatDate(abnormalReportingRequest.getOperateTime(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2));
         wpAbnormalRecordPda.setCreateUser(abnormalReportingRequest.getUserErp());
         if (abnormalReportingRequest.getImgUrls() != null && abnormalReportingRequest.getImgUrls().size() > 0) {
             wpAbnormalRecordPda.setProofUrls(StringUtils.join(abnormalReportingRequest.getImgUrls().toArray(), ','));
