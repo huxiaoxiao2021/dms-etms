@@ -123,4 +123,31 @@
                   alias="${dms.gateway.jsf.alias}"
                   ref="dmsBaseDictGatewayService" server="dmsjsf">
     </jsf:provider>
+    <!-- 基础数据服务 -->
+    <bean id="baseDataGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.BaseDataGatewayServiceImpl"/>
+    <jsf:provider id="jsfbaseDataGatewayService" interface="com.jd.bluedragon.external.gateway.service.BaseDataGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="baseDataGatewayService"
+                  server="dmsjsf"/>
+
+    <!-- 异常处理服务 -->
+    <bean id="abnormalOrderGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.AbnormalOrderGatewayServiceImpl"/>
+    <jsf:provider id="jsfabnormalOrderGatewayService" interface="com.jd.bluedragon.external.gateway.service.AbnormalOrderGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="abnormalOrderGatewayService"
+                  server="dmsjsf"/>
+    <!-- 逆向退仓 -->
+    <bean id="reverseWarehouseGateWayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.ReverseWarehouseGateWayServiceImpl"/>
+    <jsf:provider id="jsfreverseWarehouseGateWayService" interface="com.jd.bluedragon.external.gateway.service.ReverseWarehouseGateWayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="reverseWarehouseGateWayService"
+                  server="dmsjsf"/>
+
+    <!-- 异常提交 -->
+    <bean id="exceptionHandleGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.ExceptionHandleGatewayServiceImpl"/>
+    <jsf:provider id="jsfExceptionHandleGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.ExceptionHandleGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="exceptionHandleGatewayService" server="dmsjsf">
+    </jsf:provider>
 </beans>
