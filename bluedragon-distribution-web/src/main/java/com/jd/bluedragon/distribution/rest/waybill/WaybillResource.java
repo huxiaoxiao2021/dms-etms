@@ -2403,7 +2403,7 @@ public class WaybillResource {
 							&& BusinessUtil.isB2CPureMatch(waybillSign)
 							&& BusinessUtil.isMonthFinish(waybillSign) &&
 							(BusinessUtil.isPreferentialSend(waybillSign)
-									|| BusinessUtil.isNextMorning(waybillSign)
+									|| BusinessUtil.isNextMorningArrived(waybillSign)
 									|| BusinessUtil.isSameCityArrived(waybillSign))){
 						result.setCode(JdResponse.CODE_PACKAGE_OVER_LENGTH);
 						result.setMessage(JdResponse.MESSAGE_PACKAGE_OVER_LENGTH);

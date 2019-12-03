@@ -1055,7 +1055,7 @@ public class BusinessUtil {
      * @param waybillSign
      * @return true 是，false 不是
      */
-    public static boolean isNextMorning(String waybillSign){
+    public static boolean isNextMorningArrived(String waybillSign){
         return isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_4);
     }
 
