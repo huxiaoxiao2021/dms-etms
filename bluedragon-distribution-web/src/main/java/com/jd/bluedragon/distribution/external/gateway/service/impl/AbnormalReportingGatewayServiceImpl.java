@@ -187,13 +187,14 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
 
     @Override
     public JdCResponse<String> saveAbnormalReportingInfo(AbnormalReportingRequest abnormalReportingRequest) {
-
+        logger.info("AbnormalReportingRequest：" + JsonHelper.toJson(abnormalReportingRequest));
         JdCResponse<String> jdCResponse = new JdCResponse<>(JdCResponse.CODE_SUCCESS, JdCResponse.MESSAGE_SUCCESS);
         DmsAbnormalReasonDto dmsAbnormalReasonDto = abnormalReportingRequest.getDmsAbnormalReasonDto();
         //判断是不是质控
         Integer sourceType = dmsAbnormalReasonDto.getSourceType();
         if (sourceType == AbnormalReasonSourceEnum.QUALITY_CONTROL_SYSTEM.getType()) {
             WpAbnormalRecordPda wpAbnormalRecordPda = this.convert2WpAbnormalRecordPda(abnormalReportingRequest);
+            logger.info("WpAbnormalRecordPda参数：" + JsonHelper.toJson(wpAbnormalRecordPda));
             PdaResult pdaResult = iAbnPdaAPIManager.report(wpAbnormalRecordPda);
 
             if (pdaResult == null) {
