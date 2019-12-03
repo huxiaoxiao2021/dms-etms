@@ -137,8 +137,6 @@ public class BaseResponse extends JdResponse {
 	/** 站点业务类型 */
 	private Integer siteBusinessType;
 
-	private Integer dmsId;
-
 	public Integer getSiteBusinessType() {
 		return siteBusinessType;
 	}
@@ -526,13 +524,5 @@ public class BaseResponse extends JdResponse {
 
 	public void setSubType(Integer subType) {
 		this.subType = subType;
-	}
-
-	public Integer getDmsId() {
-		return dmsId;
-	}
-
-	public void setDmsId(Integer dmsId) {
-		this.dmsId = dmsId;
 	}
 }

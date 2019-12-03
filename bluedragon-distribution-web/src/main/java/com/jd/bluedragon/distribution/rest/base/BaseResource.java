@@ -289,11 +289,11 @@ public class BaseResource {
 
 	@POST
 	@Path("/bases/newLogin")
-	public BaseResponse newLogin(LoginRequest request) {
+	public LoginUserResponse newLogin(LoginRequest request) {
 		if (logger.isInfoEnabled()) {
 			logger.info("login from new rest service.[{}]", JsonHelper.toJson(request));
 		}
-		return userService.dmsClientLogin(request);
+		return userService.clientLoginIn(request);
 	}
 
 	@POST
