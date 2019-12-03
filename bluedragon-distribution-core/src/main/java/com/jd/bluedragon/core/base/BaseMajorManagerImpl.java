@@ -80,22 +80,29 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
      */
     @Cache(key = "baseMajorManagerImpl.getBaseSiteBySiteId@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
             redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
-    @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseSiteBySiteId", mState = {JProEnum.TP, JProEnum.FunctionError})
     public BaseStaffSiteOrgDto getBaseSiteBySiteId(Integer paramInteger) {
-        BaseStaffSiteOrgDto dtoStaff = basicPrimaryWS.getBaseSiteBySiteId(paramInteger);
-        ResponseDTO<BasicTraderInfoDTO> responseDTO = null;
-        if (dtoStaff != null)
-            return dtoStaff;
-        else
-            dtoStaff = basicPrimaryWS.getBaseStoreByDmsSiteId(paramInteger);
-        if (dtoStaff != null)
-            return dtoStaff;
-        else
-            responseDTO = basicTraderAPI.getBasicTraderById(paramInteger);
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.BaseMajorManagerImpl.getBaseSiteBySiteId", Constants.UMP_APP_NAME_DMSWEB, false, true);
+        try{
+            BaseStaffSiteOrgDto dtoStaff = basicPrimaryWS.getBaseSiteBySiteId(paramInteger);
+            ResponseDTO<BasicTraderInfoDTO> responseDTO = null;
+            if (dtoStaff != null)
+                return dtoStaff;
+            else
+                dtoStaff = basicPrimaryWS.getBaseStoreByDmsSiteId(paramInteger);
+            if (dtoStaff != null)
+                return dtoStaff;
+            else
+                responseDTO = basicTraderAPI.getBasicTraderById(paramInteger);
 
-        if (responseDTO != null && responseDTO.getResult() != null)
-            dtoStaff = getBaseStaffSiteOrgDtoFromTrader(responseDTO.getResult());
-        return dtoStaff;
+            if (responseDTO != null && responseDTO.getResult() != null)
+                dtoStaff = getBaseStaffSiteOrgDtoFromTrader(responseDTO.getResult());
+            return dtoStaff;
+        }catch (Exception e){
+            Profiler.functionError(info);
+            throw e;
+        }finally {
+            Profiler.registerInfoEnd(info);
+        }
     }
 
     @Cache(key = "baseMajorManagerImpl.getBaseDataDictList@args0@args1@args2", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,

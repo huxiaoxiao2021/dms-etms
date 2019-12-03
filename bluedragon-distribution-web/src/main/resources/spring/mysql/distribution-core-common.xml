@@ -22,7 +22,7 @@
         <property name="removeAbandonedTimeout" value="${db.removeAbandonedTimeout}" />
         <property name= "testWhileIdle" value="${db.testWhileIdle}" />
         <property name= "testOnBorrow" value="${db.testOnBorrow}" />
-		<property name= "validationQuery" value="${db.validationQuery}" />
+        <property name= "validationQuery" value="${db.validationQuery}" />
         <property name="minEvictableIdleTimeMillis" value="${db.minEvictableIdleTimeMillis}"/>
         <property name="timeBetweenEvictionRunsMillis" value="${db.timeBetweenEvictionRunsMillis}"/>
         <property name="poolPreparedStatements" value="false" />
@@ -70,40 +70,40 @@
         <property name="removeAbandonedTimeout" value="${jproxy.read.db.removeAbandonedTimeout}" />
         <property name= "testWhileIdle" value="${jproxy.read.db.testWhileIdle}" />
         <property name= "testOnBorrow" value="${jproxy.read.db.testOnBorrow}" />
-		<property name= "validationQuery" value="${jproxy.read.db.validationQuery}" />
+        <property name= "validationQuery" value="${jproxy.read.db.validationQuery}" />
         <property name="minEvictableIdleTimeMillis" value="${jproxy.read.db.minEvictableIdleTimeMillis}" />
         <property name="timeBetweenEvictionRunsMillis" value="${jproxy.read.db.timeBetweenEvictionRunsMillis}" />
         <property name="defaultReadOnly" value="true" />
     </bean>
 
     <!--<bean id="dmsWaybillDataSource" class="org.apache.commons.dbcp.BasicDataSource"-->
-          <!--destroy-method="close">-->
-        <!--<property name="driverClassName" value="${dms.waybill.mysql.db.driverClassName}"/>-->
-        <!--<property name="url" value="${dms.waybill.mysql.db.url}"/>-->
-        <!--<property name="username" value="${dms.waybill.mysql.db.username}"/>-->
-        <!--<property name="password" value="${dms.waybill.mysql.db.password}"/>-->
-        <!--<property name="defaultAutoCommit" value="${dms.waybill.db.defaultAutoCommit}" />-->
-        <!--<property name="maxActive" value="${dms.waybill.db.maxActive}" />-->
-        <!--<property name="maxIdle" value="${dms.waybill.db.maxIdle}" />-->
-        <!--<property name="maxWait" value="${dms.waybill.db.maxWait}" />-->
-        <!--<property name="initialSize" value="${dms.waybill.db.initialSize}" />-->
-        <!--<property name="minIdle" value="${dms.waybill.db.minIdle}" />-->
-        <!--<property name="minEvictableIdleTimeMillis" value="${dms.waybill.db.minEvictableIdleTimeMillis}" />-->
-        <!--<property name="timeBetweenEvictionRunsMillis" value="${dms.waybill.db.timeBetweenEvictionRunsMillis}" />-->
+    <!--destroy-method="close">-->
+    <!--<property name="driverClassName" value="${dms.waybill.mysql.db.driverClassName}"/>-->
+    <!--<property name="url" value="${dms.waybill.mysql.db.url}"/>-->
+    <!--<property name="username" value="${dms.waybill.mysql.db.username}"/>-->
+    <!--<property name="password" value="${dms.waybill.mysql.db.password}"/>-->
+    <!--<property name="defaultAutoCommit" value="${dms.waybill.db.defaultAutoCommit}" />-->
+    <!--<property name="maxActive" value="${dms.waybill.db.maxActive}" />-->
+    <!--<property name="maxIdle" value="${dms.waybill.db.maxIdle}" />-->
+    <!--<property name="maxWait" value="${dms.waybill.db.maxWait}" />-->
+    <!--<property name="initialSize" value="${dms.waybill.db.initialSize}" />-->
+    <!--<property name="minIdle" value="${dms.waybill.db.minIdle}" />-->
+    <!--<property name="minEvictableIdleTimeMillis" value="${dms.waybill.db.minEvictableIdleTimeMillis}" />-->
+    <!--<property name="timeBetweenEvictionRunsMillis" value="${dms.waybill.db.timeBetweenEvictionRunsMillis}" />-->
     <!--</bean>-->
 
     <!-- DMS主库（拆分库）工厂类 -->
     <bean id="mainSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-        <property name="dataSource" ref="dms_main" />
-        <!--<property name="dataSource" ref="dms_rw_split" />-->
+        <!--<property name="dataSource" ref="dms_main" />-->
+        <property name="dataSource" ref="jddlShardingDataSource" />
         <property name="configLocation" value="classpath:config/mysql/mybatis-config.xml" />
     </bean>
 
     <!-- DMS主库（拆分库）事务管理器 -->
     <bean id="transactionManager"
           class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="dms_main" />
-        <!--<property name="dataSource" ref="dms_rw_split" />-->
+        <!--<property name="dataSource" ref="dms_main" />-->
+        <property name="dataSource" ref="jddlShardingDataSource" />
         <qualifier value="main"></qualifier>
     </bean>
 
@@ -114,7 +114,8 @@
 
     <!-- DMS从库（拆分库）工厂类  -start-->
     <bean id="slaveSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-        <property name="dataSource" ref="dmsReadDataSource" />
+        <!--<property name="dataSource" ref="dmsReadDataSource" />-->
+        <property name="dataSource" ref="jddlShardingDataSource" />
         <property name="configLocation" value="classpath:config/mysql/mybatis-config-read.xml" />
     </bean>
 
@@ -142,12 +143,12 @@
 
     <!-- 运单库 jproxy数据源 added by zhanglei 2016.12.15 start-->
     <!--<bean id="sqlSessionFactory_waybill" class="org.mybatis.spring.SqlSessionFactoryBean">-->
-        <!--<property name="configLocation" value="classpath:config/mysql/mybatis-config-waybill.xml" />-->
-        <!--<property name="dataSource" ref="dmsWaybillDataSource" />-->
+    <!--<property name="configLocation" value="classpath:config/mysql/mybatis-config-waybill.xml" />-->
+    <!--<property name="dataSource" ref="dmsWaybillDataSource" />-->
     <!--</bean>-->
 
     <!--<bean id="sessionTemplate_waybill" class="org.mybatis.spring.SqlSessionTemplate">-->
-        <!--<constructor-arg index="0" ref="sqlSessionFactory_waybill" />-->
+    <!--<constructor-arg index="0" ref="sqlSessionFactory_waybill" />-->
     <!--</bean>-->
 
     <!-- worker配置数据源    -start-->
