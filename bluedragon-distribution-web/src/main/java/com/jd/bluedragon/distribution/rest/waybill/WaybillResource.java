@@ -1591,6 +1591,7 @@ public class WaybillResource {
 		jsfRequest.setDestinationSiteCode(destinationSiteCode);
 		jsfRequest.setOperateTime(operateTime);
 		jsfRequest.setMachineId(machineCode);
+		jsfRequest.setDeviceType("GANTRY");
 		BaseDmsAutoJsfResponse<List<AreaDestJsfVo>> jsfResponse;
 
 		CallerInfo info = Profiler.registerInfo("DMSWEB.jsf.areaDestJsfService.findAreaDest", Constants.UMP_APP_NAME_DMSWEB,false, true);
