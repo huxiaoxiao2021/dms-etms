@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.device.service;
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
 import com.jd.bd.dms.automatic.sdk.modules.device.DeviceConfigInfoJsfService;
 import com.jd.bd.dms.automatic.sdk.modules.device.dto.DeviceConfigDto;
-import com.jd.bluedragon.distribution.device.dto.DeviceInfoDto;
+import com.jd.bluedragon.common.dto.device.response.DeviceInfoDto;
 import com.jd.bluedragon.utils.JsonHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

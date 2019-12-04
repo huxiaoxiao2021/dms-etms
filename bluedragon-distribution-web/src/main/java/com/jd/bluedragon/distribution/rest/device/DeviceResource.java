@@ -1,8 +1,8 @@
 package com.jd.bluedragon.distribution.rest.device;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.device.response.DeviceInfoDto;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.device.dto.DeviceInfoDto;
 import com.jd.bluedragon.distribution.device.service.DeviceInfoService;
 import com.jd.bluedragon.utils.StringHelper;
 import org.springframework.beans.factory.annotation.Autowired;

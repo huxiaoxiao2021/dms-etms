@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.device.service;
 
-import com.jd.bluedragon.distribution.device.dto.DeviceInfoDto;
+
+import com.jd.bluedragon.common.dto.device.response.DeviceInfoDto;
 
 import java.util.List;
 
