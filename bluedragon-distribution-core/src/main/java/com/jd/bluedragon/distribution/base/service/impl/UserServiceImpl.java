@@ -118,11 +118,12 @@ public class UserServiceImpl implements UserService{
 
 	@JProfiler(jKey = "DMS.BASE.UserServiceImpl.clientLoginIn", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
 	public LoginUserResponse clientLoginIn(LoginRequest request) {
+    	if (null != request) {
+    		request.setLoginVersion((byte)1);
+		}
     	LoginUserResponse response = this.login(request, LOGIN_TYPE_DMS_CLIENT);
-		if (null != request.getLoginVersion() && request.getLoginVersion() == 1) {
-			if (response.getCode().equals(JdResponse.CODE_OK)) {
-				this.bindSite2LoginUser(response);
-			}
+		if (response.getCode().equals(JdResponse.CODE_OK)) {
+			this.bindSite2LoginUser(response);
 		}
 		return response;
 	}
