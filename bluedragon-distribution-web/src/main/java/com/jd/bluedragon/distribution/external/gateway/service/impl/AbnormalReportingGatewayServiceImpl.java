@@ -335,9 +335,9 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
         for (String barCode : successBarCodeList) {
             qualityControlRequest.setQcValue(barCode);
             if (WaybillUtil.isWaybillCode(barCode)) {
-                qualityControlRequest.setQcType(PACKAGE_CODE_TYPE);
-            } else if (WaybillUtil.isPackageCode(barCode)) {
                 qualityControlRequest.setQcType(WAYBILL_CODE_TYPE);
+            } else if (WaybillUtil.isPackageCode(barCode)) {
+                qualityControlRequest.setQcType(PACKAGE_CODE_TYPE);
             } else {
                 logger.warn("【" + barCode + "】既不是包裹号也不是运单号！");
                 continue;

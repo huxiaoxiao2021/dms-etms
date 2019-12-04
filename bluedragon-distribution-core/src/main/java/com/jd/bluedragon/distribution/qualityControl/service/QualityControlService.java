@@ -251,10 +251,15 @@ public class QualityControlService {
 
         //组装异常原因
         String qcName = request.getQcName();
-        if(StringUtils.isNotBlank(qcName) && qcName.indexOf('-') != -1 && qcName.split("-").length == 2){
+        if(StringUtils.isNotBlank(qcName)){
+            if (qcName.indexOf('-') != -1 && qcName.split("-").length == 2) {
+                tWaybillStatus.setReasonId(Integer.valueOf(qcName.split("-")[0]));
+                tWaybillStatus.setRemark(qcName.split("-")[1]);
+            } else {
+                tWaybillStatus.setReasonId(request.getQcCode());
+                tWaybillStatus.setRemark(qcName);
+            }
 
-            tWaybillStatus.setReasonId(Integer.valueOf(qcName.split("-")[0]));
-            tWaybillStatus.setRemark(qcName.split("-")[1]);
 
         }
 
@@ -377,7 +382,7 @@ public class QualityControlService {
         return list;
     }
 
-    public void convertThenAddTask(QualityControlRequest request) throws Exception{
+    public void convertThenAddTask(QualityControlRequest request) throws Exception {
 
         Task qcTask = new Task();
         qcTask.setKeyword1(request.getQcType() + "");
