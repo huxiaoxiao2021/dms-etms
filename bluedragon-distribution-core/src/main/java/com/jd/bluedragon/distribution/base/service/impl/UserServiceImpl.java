@@ -102,7 +102,7 @@ public class UserServiceImpl implements UserService{
             mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
 	public BaseResponse dmsClientLogin(LoginRequest request){
     	LoginUserResponse loginResponse = this.login(request, LOGIN_TYPE_DMS_CLIENT);
-		return loginResponse.toSuccessBaseResponse();
+		return loginResponse.toOldLoginResponse();
 	}
 	/**
 	 * 通过jsf调用登录服务
@@ -113,7 +113,7 @@ public class UserServiceImpl implements UserService{
             mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
 	public BaseResponse jsfLogin(LoginRequest request){
 		LoginUserResponse loginResponse = this.login(request, LOGIN_TYPE_DMS_CLIENT);
-		return loginResponse.toSuccessBaseResponse();
+		return loginResponse.toOldLoginResponse();
 	}
 
 	@JProfiler(jKey = "DMS.BASE.UserServiceImpl.clientLoginIn", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)

@@ -230,21 +230,21 @@ public class LoginUserResponse extends JdResponse {
 		this.dmsId = dmsId;
 	}
 
-	public BaseResponse toSuccessBaseResponse() {
-		BaseResponse baseResponse = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
-
+	public BaseResponse toOldLoginResponse() {
+		BaseResponse baseResponse = new BaseResponse(super.getCode(), super.getMessage());
 		baseResponse.setErpAccount(this.erpAccount);
 		baseResponse.setPassword(this.password);
-		baseResponse.setSiteCode(this.siteCode);
-		baseResponse.setSiteName(this.siteName);
-		baseResponse.setStaffId(this.staffId);
-		baseResponse.setStaffName(this.staffName);
-		baseResponse.setOrgId(this.orgId);
-		baseResponse.setOrgName(this.orgName);
-		baseResponse.setSiteType(this.siteType);
-		baseResponse.setSubType(this.subType);
-		baseResponse.setDmsCode(this.dmsCode);
-
+		if (baseResponse.getCode().equals(JdResponse.CODE_OK)) {
+			baseResponse.setSiteCode(this.siteCode);
+			baseResponse.setSiteName(this.siteName);
+			baseResponse.setStaffId(this.staffId);
+			baseResponse.setStaffName(this.staffName);
+			baseResponse.setOrgId(this.orgId);
+			baseResponse.setOrgName(this.orgName);
+			baseResponse.setSiteType(this.siteType);
+			baseResponse.setSubType(this.subType);
+			baseResponse.setDmsCode(this.dmsCode);
+		}
 		return baseResponse;
 	}
 
