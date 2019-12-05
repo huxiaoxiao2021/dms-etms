@@ -339,6 +339,14 @@ public class BoxResource {
         Assert.notNull(request.getQuantity(), "request quantity must not be null");
         this.logger.info("BoxRequest's " + request.toString());
 
+        //排除非法箱号类型
+        if(request.getType().length() > 2){
+            com.jd.bluedragon.distribution.jsf.domain.InvokeResult<AutoSortingBoxResult> result
+                    = new com.jd.bluedragon.distribution.jsf.domain.InvokeResult<AutoSortingBoxResult>();
+            result.customMessage(600,"箱号类型不合法!");
+            return result;
+        }
+
         List<Box> availableBoxes;
         if(isNew){
             availableBoxes = this.boxService.batchAddNew(this.toBox(request),systemType);
