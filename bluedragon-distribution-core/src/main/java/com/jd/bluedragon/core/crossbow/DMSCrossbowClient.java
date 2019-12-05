@@ -1,7 +1,6 @@
 package com.jd.bluedragon.core.crossbow;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.TypeReference;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SpringHelper;
@@ -31,7 +30,7 @@ import java.lang.reflect.Type;
 @Component("dmsCrossbowClient")
 public class DMSCrossbowClient {
 
-    private static final Logger logger = LoggerFactory.getLogger(DMSCrossbowClient.class);
+    private static final Logger log = LoggerFactory.getLogger(DMSCrossbowClient.class);
 
     private CrossbowService crossbowService;
 
@@ -56,12 +55,12 @@ public class DMSCrossbowClient {
             crossbowService = getCrossbowService();
             LopResponse response = crossbowService.execute(request);
             if (response.getStatusCode() != 200) {
-                logger.error("调用物流网关crossBow组件失败，参数为：{}, 返回值为: {}", JsonHelper.toJson(request), JsonHelper.toJson(response));
+                log.warn("调用物流网关crossBow组件失败，参数为：{}, 返回值为: {}", JsonHelper.toJson(request), JsonHelper.toJson(response));
                 throw new RuntimeException("调用物流网关crossBow组件失败,返回值：" + JsonHelper.toJson(response));
             }
             return JSON.parseObject(response.getBody(), typeReference);
         } catch (ExecErrorException e) {
-            logger.error("调用物流网关的接口异常，请求参数: " + JsonHelper.toJson(parameterStr), e);
+            log.error("调用物流网关的接口异常，请求参数: {}" , JsonHelper.toJson(parameterStr), e);
             throw new RuntimeException("物流网关crossBow组件调用异常", e);
         }
     }

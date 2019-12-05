@@ -173,7 +173,7 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
 //            for (int i = 0;i<sortSchemes.length;i++){
 //            DmsSortSchemeRouter dmsSortSchemeRouter = new DmsSortSchemeRouter();
 //            Map<String,String> mapMq = new HashMap<String, String>();
-//            logger.info("分拣方案主表的数据消息体转化");
+//            log.info("分拣方案主表的数据消息体转化");
 //
 //            StringBuffer jsonBuffer = new StringBuffer();
 //            jsonBuffer.append("{\"machineCode\":").append(sortSchemes[i].getMachineCode())

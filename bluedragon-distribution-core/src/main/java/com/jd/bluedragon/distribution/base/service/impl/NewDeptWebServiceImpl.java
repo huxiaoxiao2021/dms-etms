@@ -6,15 +6,15 @@ import com.jd.common.hrm.UimHelper;
 import com.jd.ssa.domain.UserInfo;
 import com.jd.ssa.exception.SsoException;
 import com.jd.ssa.service.SsoService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 public class NewDeptWebServiceImpl implements NewDeptWebService{
 	
-	private static final Log logger = LogFactory.getLog(NewDeptWebServiceImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(NewDeptWebServiceImpl.class);
 	
 	private SsoService ssoService;
 	
@@ -32,11 +32,11 @@ public class NewDeptWebServiceImpl implements NewDeptWebService{
             UserInfo userInfo = ssoService.verify(username, pwd, remoteIp);
             result.setData(userInfo);
 		}catch(SsoException e){
-            logger.error("SsoException verify error,认证失败",e);
+            log.error("SsoException verify error,认证失败",e);
             result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
             result.setMessage(e.getMessage());
 		}catch (UnknownHostException e) {
-			logger.error("获取本地ip异常",e);
+			log.error("获取本地ip异常",e);
 			result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
 			result.setMessage("验证失败!");
 		}

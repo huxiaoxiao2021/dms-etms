@@ -7,7 +7,6 @@ import com.jd.bluedragon.distribution.reverse.part.domain.ReversePartDetailCondi
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -97,7 +96,7 @@ public class ReversePartDetailServiceImpl extends BaseService<ReversePartDetail>
 		BaseEntity<BigWaybillDto> baseEntity =  waybillQueryManager.getDataByChoice(waybillCode,false,false,false,true);
 
 		if(baseEntity.getData()==null || baseEntity.getData().getPackageList()==null ||  baseEntity.getData().getPackageList().size() == 0){
-			logger.error("获取包裹数据为空"+waybillCode);
+			log.warn("获取包裹数据为空:{}",waybillCode);
 			return null;
 		}
 
@@ -295,7 +294,7 @@ public class ReversePartDetailServiceImpl extends BaseService<ReversePartDetail>
 			}
 
 		}catch (Exception e){
-			logger.error("取消发货更新半退明细异常"+ JsonHelper.toJson(tSendM),e);
+			log.error("取消发货更新半退明细异常:{}", JsonHelper.toJson(tSendM),e);
 		}
 		return  true;
 	}

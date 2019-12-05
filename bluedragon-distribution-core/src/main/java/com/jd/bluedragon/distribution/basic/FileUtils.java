@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.basic;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,7 +15,7 @@ import java.io.OutputStream;
  */
 public class FileUtils {
 
-    private static final Logger logger = Logger.getLogger(FileUtils.class);
+    private static final Logger log = LoggerFactory.getLogger(FileUtils.class);
 
     /**
      * 输入输出流写入
@@ -31,14 +32,14 @@ public class FileUtils {
             }
             os.flush();
         } catch (Exception e) {
-            logger.error("文件写入时发生异常", e);
+            log.error("文件写入时发生异常", e);
         } finally {
             try {
                 if (is != null) {
                     is.close();
                 }
             } catch (IOException e) {
-                logger.error("InputStream文件输入流关闭异常", e);
+                log.error("InputStream文件输入流关闭异常", e);
             }
 
             try {
@@ -46,7 +47,7 @@ public class FileUtils {
                     os.close();
                 }
             } catch (IOException e) {
-                logger.error("OutputStream文件输出流关闭异常", e);
+                log.error("OutputStream文件输出流关闭异常", e);
             }
         }
     }

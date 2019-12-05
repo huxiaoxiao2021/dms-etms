@@ -2,8 +2,8 @@ package com.jd.bluedragon.core.redis.service;
 
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jim.cli.Cluster;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
@@ -17,7 +17,7 @@ import static com.google.common.base.Charsets.UTF_8;
  *
  */
 public abstract class RedisCommonAbstractUtil<T> {
-    protected static Log logger = LogFactory.getLog(RedisCommonAbstractUtil.class);
+    protected static Logger log = LoggerFactory.getLogger(RedisCommonAbstractUtil.class);
 
     protected Cluster redisClient;
 
@@ -32,7 +32,7 @@ public abstract class RedisCommonAbstractUtil<T> {
             redisClient.set((key).getBytes(), JsonHelper.toJsonUseGson(data).getBytes(UTF_8));
             return true;
         }catch (Exception e){
-            logger.error("缓存数据出错,key = "+key+" 错误信息为："+e.getMessage());
+            log.error("缓存数据出错,key = {} ",key,e);
             return false;
         }
     };
@@ -49,7 +49,7 @@ public abstract class RedisCommonAbstractUtil<T> {
             redisClient.setEx(key.getBytes(), JsonHelper.toJsonUseGson(data).getBytes(UTF_8),expireTime, TimeUnit.MILLISECONDS);
             return true;
         }catch (Exception e){
-            logger.error("缓存数据出错,key = "+key+" 错误信息为："+e.getMessage());
+            log.error("缓存数据出错,key ={}",key,e);
             return false;
         }
     }
@@ -66,7 +66,7 @@ public abstract class RedisCommonAbstractUtil<T> {
             redisClient.setEx(key.getBytes(), data.getBytes(UTF_8), expireTime, TimeUnit.MILLISECONDS);
             return true;
         }catch (Exception e){
-            logger.error("缓存数据出错,key = "+key+" 错误信息为："+e.getMessage());
+            log.error("缓存数据出错,key = {}",key,e);
             return false;
         }
     }
@@ -81,7 +81,7 @@ public abstract class RedisCommonAbstractUtil<T> {
             redisClient.decr(key.getBytes());
             return true;
         }catch (Exception e){
-            logger.error("缓存数据减一出错,key = "+key+" 错误信息为："+e.getMessage());
+            log.error("缓存数据减一出错,key = {}",key,e);
             return false;
         }
     }
@@ -96,7 +96,7 @@ public abstract class RedisCommonAbstractUtil<T> {
             redisClient.incr(key.getBytes());
             return true;
         }catch (Exception e){
-            logger.error("缓存数据加一出错,key = "+key+" 错误信息为："+e.getMessage());
+            log.error("缓存数据加一出错,key = {}",key,e);
             return false;
         }
     }

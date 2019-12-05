@@ -70,14 +70,14 @@ public class  LabelPrintingImpl implements LabelPrinting {
 //    public BaseResponseIncidental<LabelPrintingResponse> spwmsPrint(LabelPrintingRequest request) {
 //        try {
 //            if(request==null){
-//                logger.error(LOG_PREFIX+"备件库打印，参数为空");
+//                log.error(LOG_PREFIX+"备件库打印，参数为空");
 //                return new BaseResponseIncidental<LabelPrintingResponse>(LabelPrintingResponse.CODE_EMPTY_PARMAETER,LabelPrintingResponse.MESSAGE_EMPTY_PARMAETER);
 //            }
-//            logger.info(new StringBuilder(LOG_PREFIX).append("备件库打印，参数").append(request.toString()).toString());
+//            log.info(new StringBuilder(LOG_PREFIX).append("备件库打印，参数").append(request.toString()).toString());
 //
 //            return sepwmsLabelPrintingService.packageLabelPrint(request);
 //        } catch (Exception e) {
-//            logger.error(LOG_PREFIX+"备件库打印接口异常，错误信息："+e.getMessage(), e);
+//            log.error(LOG_PREFIX+"备件库打印接口异常，错误信息："+e.getMessage(), e);
 //            return new BaseResponseIncidental<LabelPrintingResponse>(BaseResponse.CODE_SOMETHING_ERROR,BaseResponse.MESSAGE_SOMETHING_ERROR);
 //        }
 //    }

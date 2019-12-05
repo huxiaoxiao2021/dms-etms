@@ -195,7 +195,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
          * 新外单添加全程跟踪
          */
         taskService.add(tTask);
-//        this.logger.info(REVERSE_PRINT_MQ_TOPIC+createMqBody(domain.getOldCode())+domain.getOldCode());
+//        this.log.info(REVERSE_PRINT_MQ_TOPIC+createMqBody(domain.getOldCode())+domain.getOldCode());
         //pushMqService.pubshMq(REVERSE_PRINT_MQ_TOPIC, createMqBody(domain.getOldCode()), domain.getOldCode());
         //  这里将要下掉  modified by zhanglei 20161025
 //        bdBlockerCompleteMQ.sendOnFailPersistent(domain.getOldCode(),createMqBody(domain.getOldCode()));
