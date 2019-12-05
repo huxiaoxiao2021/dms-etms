@@ -31,4 +31,12 @@ public interface AbnormalWayBillService {
      */
     int insertBatchAbnormalWayBill(List<AbnormalWayBill> wayBillList);
 
+    /**
+     * 根据提报异常的条码号和站点获取信息
+     * @param createSiteCode
+     * @param qcValue
+     * @return
+     */
+    AbnormalWayBill getAbnormalWayBillByQcValue(Integer createSiteCode, String qcValue);
+
 }
