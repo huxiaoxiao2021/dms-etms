@@ -180,6 +180,10 @@ public class ReverseSendServiceImpl implements ReverseSendService {
     @Qualifier("eclpItemManager")
     private EclpItemManager eclpItemManager;
 
+    @Qualifier("printOnlineProducer")
+    @Autowired
+    private DefaultJMQProducer printOnlineProducer;
+
     @Autowired
     private SpareSortingRecordDao spareSortingRecordDao;
 
@@ -326,7 +330,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             }
             if(bl){
                 //推送逆向发货汇总清单数据
-                printOnlineService.reversePrintOnline(sendM.getSendCode());
+                printOnlineProducer.sendOnFailPersistent(sendM.getSendCode(),sendM.getSendCode());
             }
             //直接以bl的值做返回值
             return bl;
