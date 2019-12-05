@@ -1,21 +1,16 @@
 package com.jd.bluedragon.distribution.seal.dao;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.seal.domain.SealVehicle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 public class SealVehicleReadDao extends BaseDao<SealVehicle> {
 	public static final String namespace = SealVehicleReadDao.class.getName();
-	private final Log logger = LogFactory.getLog(SealVehicleReadDao.class);
+	private final Logger log = LoggerFactory.getLogger(SealVehicleReadDao.class);
 
 	/**
 	 * 根据封车号及有效性查询封车信息 (从读库中获取数据)
@@ -24,7 +19,7 @@ public class SealVehicleReadDao extends BaseDao<SealVehicle> {
 	 * @return
 	 */
 	public SealVehicle findBySealCodeFromRead(String sealCode) {
-		logger.info("SealVehicleReadDao.findBySealCodeFromRead begin...");
+		log.info("SealVehicleReadDao.findBySealCodeFromRead begin...");
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("sealCode", sealCode);
 		Object obj = this.getSqlSessionRead().selectOne(SealVehicleReadDao.namespace + ".findBySealCode", params);
@@ -40,7 +35,7 @@ public class SealVehicleReadDao extends BaseDao<SealVehicle> {
 	 */
 	@SuppressWarnings("unchecked")
 	public List<SealVehicle> findBySendCode(String sendCode) {
-		logger.info("SealVehicleReadDao.findBySendCode begin...");
+		log.info("SealVehicleReadDao.findBySendCode begin...");
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("sendCode", sendCode);
 		Object obj = this.getSqlSessionRead().selectList(SealVehicleReadDao.namespace + ".findBySendCode", params);
@@ -55,7 +50,7 @@ public class SealVehicleReadDao extends BaseDao<SealVehicle> {
 	 */
 	@SuppressWarnings("unchecked")
 	public List<SealVehicle> findBySealCodes(List<SealVehicle> sealVehicleList) {
-		logger.info("SealVehicleReadDao.findBySealCodes begin...");
+		log.info("SealVehicleReadDao.findBySealCodes begin...");
 		Set<String> sealCodeSet = new HashSet<String>();
 		for (SealVehicle sv : sealVehicleList) {
 			sealCodeSet.add(sv.getCode());
@@ -67,7 +62,7 @@ public class SealVehicleReadDao extends BaseDao<SealVehicle> {
 
 	@SuppressWarnings("unchecked")
 	public List<SealVehicle> findByVehicleCode(String vehicleCode) {
-		logger.info("SealVehicleReadDao.findByVehicleCode begin...");
+		log.info("SealVehicleReadDao.findByVehicleCode begin...");
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("vehicleCode", vehicleCode);
 		Object obj = this.getSqlSessionRead().selectList(SealVehicleReadDao.namespace + ".findByVehicleCode", params);

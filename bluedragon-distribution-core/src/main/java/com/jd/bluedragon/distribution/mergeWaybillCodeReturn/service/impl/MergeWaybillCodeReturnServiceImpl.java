@@ -32,13 +32,11 @@ import com.jd.ldop.center.api.reverse.dto.WaybillReturnSignatureDTO;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -54,7 +52,7 @@ import java.util.List;
 @Service("MergeWaybillCodeReturnService")
 public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturnService{
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private TaskService taskService;
@@ -132,13 +130,13 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
                     //数据落库
                     insert(mergeWaybillCodeReturnRequest, newWaybillCode);
                     //给运单发mq
-                    this.logger.info("发送MQ[" + mergeWaybillReturnMQ.getTopic() + "],业务ID[" + newWaybillCode + "],消息主题: " + JSON.toJSONString(message));
+                    this.log.info("发送MQ[{}],业务ID[{}],消息主题: {}", mergeWaybillReturnMQ.getTopic(), newWaybillCode, JSON.toJSONString(message));
                     mergeWaybillReturnMQ.sendOnFailPersistent(newWaybillCode, JSON.toJSONString(message));
                     //发全程跟踪
                     sendTrace(message);
                 }
             }else{
-                this.logger.error(returnDto.getStatusMessage());
+                this.log.error(returnDto.getStatusMessage());
                 result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
                 result.setMessage(returnDto.getStatusMessage());
             }

@@ -9,8 +9,8 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 import java.util.Date;
@@ -19,7 +19,7 @@ import java.util.Map;
 
 public class Task implements java.io.Serializable, TaskModeAware{
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
     /**
 	 * 
 	 */
@@ -908,7 +908,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
         }
 
         //抛异常
-        logger.error("获取任务类型异常 "+allToString());
+        log.warn("获取任务类型异常:{} ",allToString());
         String errorMessage ="task type not found taskType:"+type;
         Profiler.businessAlarm("Task.getTaskNameByTaskType", System.currentTimeMillis(), errorMessage);
         return null;
@@ -930,7 +930,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
             }
         }catch (Exception e){
             Profiler.functionError(info);
-            logger.error("获取任务队列数异常 "+e.getMessage());
+            log.error("获取任务队列数异常 {}",e.getMessage());
         }finally {
             Profiler.registerInfoEnd(info);
         }

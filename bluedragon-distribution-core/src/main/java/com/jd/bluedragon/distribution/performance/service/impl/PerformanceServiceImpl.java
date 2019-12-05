@@ -14,14 +14,12 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
 
 /**
  * @ClassName: PerformanceServiceImpl
@@ -32,7 +30,7 @@ import java.util.Map;
 @Service("performanceService")
 public class PerformanceServiceImpl implements PerformanceService {
 
-    private final Logger logger = Logger.getLogger(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private HandoverBillPrintManager handoverBillPrintManager;
@@ -68,12 +66,12 @@ public class PerformanceServiceImpl implements PerformanceService {
             try {
                 performanceCode = waybillCommonService.getPerformanceCode(waybillCode);
                 if(performanceCode == null){
-                    this.logger.error("通过运单号" + waybillCode + "获得履约单号失败");
+                    this.log.warn("通过运单号{}获得履约单号失败",waybillCode);
                     return pagerResult;
                 }
                 handoverBillPrintReq.setFulfillmentOrderId(performanceCode);
             }catch (Exception e){
-                this.logger.error("通过运单号获得履约单号失败" + waybillCode,e);
+                this.log.error("通过运单号获得履约单号失败:{}" , waybillCode,e);
             }
 
         }else {
@@ -98,10 +96,10 @@ public class PerformanceServiceImpl implements PerformanceService {
                 pagerResult.setTotal(handoverBillResp.getCountDetail());
                 pagerResult.setRows(list);
             }else {
-                this.logger.error("通过履约单号查询履约单信息失败" + performanceCode);
+                this.log.warn("通过履约单号查询履约单信息失败:{}" , performanceCode);
             }
         }catch (Exception e){
-            this.logger.error("通过履约单号查询履约单信息失败" + performanceCode,e);
+            this.log.error("通过履约单号查询履约单信息失败:{}" , performanceCode,e);
         }
 
         return pagerResult;
@@ -126,11 +124,11 @@ public class PerformanceServiceImpl implements PerformanceService {
             try {
                 performanceCode = waybillCommonService.getPerformanceCode(waybillCode);
                 if(performanceCode == null){
-                    this.logger.error("通过运单号" + waybillCode + "获得履约单号为空");
+                    this.log.warn("通过运单号{}获得履约单号为空",waybillCode);
                     return JsonHelper.toJson(invokeResult);
                 }
             } catch (Exception e) {
-                this.logger.error("通过运单号获得运单信息失败" + waybillCode, e);
+                this.log.error("通过运单号获得运单信息失败:{}" , waybillCode, e);
                 return JsonHelper.toJson(invokeResult);
             }
         }
@@ -213,12 +211,12 @@ public class PerformanceServiceImpl implements PerformanceService {
             try {
                 performanceCode = waybillCommonService.getPerformanceCode(waybillCode);
                 if(performanceCode == null){
-                    this.logger.error("通过运单号" + waybillCode + "获得履约单号失败");
+                    this.log.warn("通过运单号{}获得履约单号失败",waybillCode);
                     return 3;
                 }
                 handoverBillPrintReq.setFulfillmentOrderId(performanceCode);
             }catch (Exception e){
-                this.logger.error("通过运单号获得履约单号失败" + waybillCode,e);
+                this.log.error("通过运单号获得履约单号失败:{}" , waybillCode,e);
             }
 
         }else {
@@ -232,7 +230,7 @@ public class PerformanceServiceImpl implements PerformanceService {
             }
             return 2;
         }catch (Exception e){
-            this.logger.error("通过运单号获得打印信息失败" + performanceCode);
+            this.log.error("通过运单号获得打印信息失败:{}" , performanceCode,e);
         }
         return 3;
     }
