@@ -3,7 +3,6 @@ package com.jd.bluedragon.distribution.collect.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.service.WaybillCommonService;
-import com.jd.bluedragon.common.service.impl.WaybillCommonServiceImpl;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -44,7 +43,7 @@ import java.util.concurrent.TimeUnit;
 public class CollectGoodsCommonServiceImpl implements CollectGoodsCommonService{
 
 
-    private Logger logger = LoggerFactory.getLogger(CollectGoodsCommonServiceImpl.class);
+    private Logger log = LoggerFactory.getLogger(CollectGoodsCommonServiceImpl.class);
 
     public static final int COLLECT_ALL_TIP_CODE = 201;
 
@@ -497,7 +496,7 @@ public class CollectGoodsCommonServiceImpl implements CollectGoodsCommonService{
                 return cacheService.setNx(lockKey,StringUtils.EMPTY,60, TimeUnit.SECONDS);
             }
         }catch (Exception e){
-            logger.error("集货lock异常"+JsonHelper.toJson(req),e);
+            log.error("集货lock异常:{}",JsonHelper.toJson(req),e);
         }
         return true;
     }
@@ -507,7 +506,7 @@ public class CollectGoodsCommonServiceImpl implements CollectGoodsCommonService{
             String lockKey = COLLECT_LOCK_BEGIN+req.getOperateSiteCode()+"_"+req.getCollectGoodsAreaCode();
             cacheService.del(lockKey);
         }catch (Exception e){
-            logger.error("集货unLock异常"+JsonHelper.toJson(req),e);
+            log.error("集货unLock异常:{}",JsonHelper.toJson(req),e);
         }
 
     }
