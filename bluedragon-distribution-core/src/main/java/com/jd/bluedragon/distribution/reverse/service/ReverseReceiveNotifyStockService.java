@@ -3,7 +3,11 @@ package com.jd.bluedragon.distribution.reverse.service;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
-import com.jd.bluedragon.core.base.*;
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.ChuguanExportManager;
+import com.jd.bluedragon.core.base.SearchOrganizationOtherManager;
+import com.jd.bluedragon.core.base.StockExportManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.exception.OrderCallTimeoutException;
 import com.jd.bluedragon.core.exception.StockCallPayTypeException;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -16,7 +20,15 @@ import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.bluedragon.distribution.reverse.domain.ReceiveRequest;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
 import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.ConstantEnums;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.SystemLogContants;
+import com.jd.bluedragon.utils.SystemLogUtil;
+import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.ioms.jsf.export.domain.Order;
 import com.jd.ql.basic.domain.BaseOrg;
@@ -38,8 +50,11 @@ import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -68,6 +83,13 @@ public class ReverseReceiveNotifyStockService {
     private static final String JING_BAN = "ql.dms";
 
 	private static final List<Integer> needRetunWaybillTypes = Lists.newArrayList(11, 13, 15, 16, 18, 19, 42, 56, 61);
+
+    //waybill_type=0 && sendpay 252位=3,4,5,6,7 电信行业合约订单也需要推送出管数据
+	private static final List<String> TELECOM_WAYBILL_SEND_PAYS = Lists.newArrayList("3","4","5","6","7");
+
+	private static final int TELECOM_WAYBILL_SEND_PAY_INDEX = 251;
+
+	private static final Integer TELECOM_WAYBILL_TYPE = 0;
 
     private static final String JING_BAN_SYSCODE = "ql.dms";
 
@@ -209,7 +231,8 @@ public class ReverseReceiveNotifyStockService {
 			//此区域:符合主动推送的条件的单子判断是否推送过,获得支付类型
 			KuGuanDomain kuguanDomain = null;
 			Integer payType = PAY_TYPE_UNKNOWN;
-			if (Waybill.TYPE_GENERAL.equals(order.getOrderType()) || Waybill.TYPE_POP_FBP.equals(order.getOrderType())||needRetunWaybillTypes.contains(Integer.valueOf(order.getOrderType()))){
+			if (Waybill.TYPE_GENERAL.equals(order.getOrderType()) || Waybill.TYPE_POP_FBP.equals(order.getOrderType())
+                    ||needRetunWaybillTypes.contains(Integer.valueOf(order.getOrderType())) || isTelecomOrder(order.getOrderType(),order.getSendPay())){
 				kuguanDomain = queryKuguanDomainByWaybillCode(String.valueOf(waybillCode));
 				if(kuguanDomain==null) {
 					return Boolean.FALSE;
@@ -225,34 +248,7 @@ public class ReverseReceiveNotifyStockService {
 			}
 			
 			//开始根据类型的不同推送
-			if (Waybill.TYPE_GENERAL.equals(order.getOrderType()) || Waybill.TYPE_POP_FBP.equals(order.getOrderType())) {
-				long result = 0;
-				//判断是否是已旧换新
-				isOldForNewType = BusinessHelper.isYJHX(order.getSendPay());
-                OrderBankResponse orderBank = orderBankService.getOrderBankResponse(String.valueOf(waybillCode));
-                result = insertChuguan(waybillCode, isOldForNewType, order, products, payType,orderBank);
-				/** 新逻辑结束 */
-				
-				try {
-					//业务流程监控, 备件库埋点
-					Map<String, String> data = new HashMap<String, String>();
-					data.put("orderId", waybillCode.toString());
-					Profiler.bizNode("Reverse_mq_dms2stock", data);
-				} catch (Exception e) {
-					this.log.error("推送UMP发生异常.", e);
-				}
-				
-				this.log.debug("运单号：{}, 库存中间件返回结果：{}" ,waybillCode, result);
-				
-				sysLog.setKeyword3("WEBSERVICE");
-				sysLog.setKeyword4(result);
-				if(result!=0)
-					sysLog.setContent("推出管成功!");
-				else{
-					sysLog.setContent("推出管失败!");
-					return Boolean.FALSE;
-				}
-			} else if (needRetunWaybillTypes.contains(Integer.valueOf(order.getOrderType()))) {
+			if (needRetunWaybillTypes.contains(Integer.valueOf(order.getOrderType())) || isTelecomOrder(order.getOrderType(),order.getSendPay())) {
 				if (isPrePay(payType)) {
 
 					this.wmsStockChuGuanMQ.send(String.valueOf(waybillCode),this.stockMessage(order, products, STOCK_TYPE_1602, payType));
@@ -264,9 +260,36 @@ public class ReverseReceiveNotifyStockService {
 				
 				sysLog.setKeyword3("MQ");
 				sysLog.setContent("推出管成功!");
-			}
-			
-		}catch(Exception e){
+			}else if (Waybill.TYPE_GENERAL.equals(order.getOrderType()) || Waybill.TYPE_POP_FBP.equals(order.getOrderType())) {
+                long result = 0;
+                //判断是否是已旧换新
+                isOldForNewType = BusinessHelper.isYJHX(order.getSendPay());
+                OrderBankResponse orderBank = orderBankService.getOrderBankResponse(String.valueOf(waybillCode));
+                result = insertChuguan(waybillCode, isOldForNewType, order, products, payType,orderBank);
+                /** 新逻辑结束 */
+
+                try {
+                    //业务流程监控, 备件库埋点
+                    Map<String, String> data = new HashMap<String, String>();
+                    data.put("orderId", waybillCode.toString());
+                    Profiler.bizNode("Reverse_mq_dms2stock", data);
+                } catch (Exception e) {
+                    this.log.error("推送UMP发生异常.", e);
+                }
+
+                this.log.debug("运单号：{}, 库存中间件返回结果：{}" ,waybillCode, result);
+
+                sysLog.setKeyword3("WEBSERVICE");
+                sysLog.setKeyword4(result);
+                if(result!=0)
+                    sysLog.setContent("推出管成功!");
+                else{
+                    sysLog.setContent("推出管失败!");
+                    return Boolean.FALSE;
+                }
+            }
+
+        }catch(Exception e){
 			this.log.error("运单号：{}, 推出管失败。",waybillCode, e);
 			if(StringHelper.isEmpty(sysLog.getContent())){
 				sysLog.setContent(e.getMessage());
@@ -659,7 +682,7 @@ public class ReverseReceiveNotifyStockService {
 				result = PAY_TYPE_PRE;
 			}
 			// 异常情况日志记录方便定位问题
-			log.debug("getPayType waybillCode:{}detail: churu:{},feifei:{},qite:{}" ,waybillCode,churu,feifei,qite);
+			log.info("getPayType waybillCode:{}detail: churu:{},feifei:{},qite:{}" ,waybillCode,churu,feifei,qite);
 		}
 		
 		if (result.equals(PAY_TYPE_UNKNOWN)) {
@@ -697,5 +720,24 @@ public class ReverseReceiveNotifyStockService {
 		}
 		return StringUtils.EMPTY;
 	}
-	
+
+    /**
+     * 判断是否是新电信行业合约订单
+     * 【waybill_type=0 && sendpay 252位=3,4,5,6,7】
+     * @param waybillType
+     * @param sendPay
+     * @return
+     */
+	private boolean isTelecomOrder(Integer waybillType,String sendPay){
+
+	    if(waybillType == null || StringUtils.isBlank(sendPay) || sendPay.length() <= TELECOM_WAYBILL_SEND_PAY_INDEX){
+	        return false;
+        }
+
+        String sendPay252 = String.valueOf(sendPay.charAt(TELECOM_WAYBILL_SEND_PAY_INDEX));
+
+	    return TELECOM_WAYBILL_TYPE.equals(waybillType) && TELECOM_WAYBILL_SEND_PAYS.contains(sendPay252);
+
+    }
+
 }

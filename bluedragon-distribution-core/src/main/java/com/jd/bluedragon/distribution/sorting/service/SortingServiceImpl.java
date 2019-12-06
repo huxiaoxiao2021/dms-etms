@@ -27,6 +27,7 @@ import com.jd.bluedragon.distribution.inspection.domain.InspectionEC;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.middleend.sorting.domain.SortingObjectExtend;
+import com.jd.bluedragon.distribution.middleend.sorting.dao.DynamicSortingQueryDao;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
@@ -66,6 +67,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,14 +81,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service("sortingService")
@@ -97,6 +92,10 @@ public class SortingServiceImpl implements SortingService {
 	private final static Integer DELIVERY_INFO_EXPIRE_SCONDS = 30 * 60; //半小时
 
 	public static final int TASK_1200_EX_TIME_5_S = 5;//1200分拣任务防重复提交执行，10秒时间
+
+	@Autowired
+	private DynamicSortingQueryDao dynamicSortingQueryDao;
+
 	@Autowired
 	private SortingDao sortingDao;
 
@@ -175,15 +174,11 @@ public class SortingServiceImpl implements SortingService {
 	}
 
 	public boolean existSortingByPackageCode(Sorting sorting) {
-		if (this.sortingDao.existSortingByPackageCode(sorting) > 0) {
-			return true;
-		} else {
-			return false;
-		}
+		return dynamicSortingQueryDao.existSortingByPackageCode(sorting);
 	}
 
 	public List<Sorting> findByBoxCode(Sorting sorting) {
-		return this.sortingDao.findByBoxCode(sorting);
+		return this.dynamicSortingQueryDao.findByBoxCode(sorting);
 	}
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
@@ -255,6 +250,7 @@ public class SortingServiceImpl implements SortingService {
 		sendDetail.setCreateSiteCode(sorting.getCreateSiteCode());
 		sendDetail.setPackageBarcode(sorting.getPackageCode());
 		sendDetail.setWaybillCode(sorting.getWaybillCode());
+		sendDetail.setReceiveSiteCode(sorting.getReceiveSiteCode());
 		if (StringUtils.isNotBlank(sorting.getBoxCode())) {
 			sendDetail.setBoxCode(sorting.getBoxCode());
 		}
@@ -1043,26 +1039,22 @@ public class SortingServiceImpl implements SortingService {
 		return this.sortingDao.findOrderDetail(sorting);
 	}
 
-	public List<Sorting> findOrder(Sorting sorting) {
-		return this.sortingDao.findOrder(sorting);
-	}
-
 	@Override
 	public int findBoxPack(Integer createSiteCode, String boxCode) {
 		this.log.debug("根据箱号获取包裹信息 --> 开始获取包裹总数");
-		return this.sortingDao.findPackCount(createSiteCode, boxCode);
+		return this.dynamicSortingQueryDao.findPackCount(createSiteCode, boxCode);
 	}
 
 	@Override
 	public Sorting findBoxDescSite(Integer createSiteCode, String boxCode) {
 		this.log.debug("根据箱号获取包裹信息 --> 根据箱号获取包裹分拣目的站点信息");
-		return this.sortingDao.findBoxDescSite(createSiteCode, boxCode);
+		return this.dynamicSortingQueryDao.findBoxDescSite(createSiteCode, boxCode);
 	}
 
 	@Override
 	public List<Sorting> findBoxPackList(Sorting sorting) {
 		this.log.debug("获取包裹信息 --> 根据订单号或包裹号查询箱号包裹信息");
-		return this.sortingDao.findBoxPackList(sorting);
+		return this.dynamicSortingQueryDao.findBoxPackList(sorting);
 	}
 
 	/**
@@ -1073,7 +1065,7 @@ public class SortingServiceImpl implements SortingService {
 	 */
 	public List<Sorting> queryByCode(Sorting sorting) {
 		this.log.debug("获取包裹信息 --> 根据订单号或包裹号查询箱号、创建站点、接收站点");
-		return this.sortingDao.queryByCode(sorting);
+		return this.dynamicSortingQueryDao.queryByCode(sorting);
 	}
 
 	/**
@@ -1084,7 +1076,7 @@ public class SortingServiceImpl implements SortingService {
 	 */
 	public List<Sorting> queryByCode2(Sorting sorting) {
 		this.log.debug("获取包裹信息 --> 根据订单号或包裹号查询箱号、创建站点、接收站点");
-		return this.sortingDao.queryByCode2(sorting);
+		return this.dynamicSortingQueryDao.queryByCode2(sorting);
 	}
 
 	/**
@@ -1162,7 +1154,7 @@ public class SortingServiceImpl implements SortingService {
 	@Override
 	public List<Sorting> findByBsendCode(Sorting sorting) {
 		// TODO Auto-generated method stub
-		return this.sortingDao.findByBsendCode(sorting);
+		return this.dynamicSortingQueryDao.findByBsendCode(sorting);
 	}
 
     /**
@@ -1176,7 +1168,7 @@ public class SortingServiceImpl implements SortingService {
 	    Sorting sorting = new Sorting();
 	    sorting.setPackageCode(packageCode);
 	    sorting.setCreateSiteCode(createSiteCode);
-	    return sortingDao.findByPackageCode(sorting);
+	    return dynamicSortingQueryDao.findByPackageCode(sorting);
     }
 
 	/**
@@ -1190,7 +1182,7 @@ public class SortingServiceImpl implements SortingService {
         if (boxCode == null || boxCode.isEmpty() || createSiteCode <= 0 || fetchNum <=0){
             return null;
         }
-	    return sortingDao.findByBoxCodeAndFetchNum(boxCode,createSiteCode,fetchNum);
+	    return dynamicSortingQueryDao.findByBoxCodeAndFetchNum(boxCode,createSiteCode,fetchNum);
     }
 
     @Override
@@ -1200,17 +1192,25 @@ public class SortingServiceImpl implements SortingService {
 	        sorting.setCreateSiteCode(createSiteCode);
 	        sorting.setPackageCode(packageCode);
 	        sorting.setWaybillCode(waybillCode);
-	        return sortingDao.findByWaybillCodeOrPackageCode(sorting);
+	        return dynamicSortingQueryDao.findByWaybillCodeOrPackageCode(sorting);
         }
         return null;
     }
 
-	@Override
-	public List<Sorting> findPageSorting(Map<String, Object> params) {
-		log.debug("SortingServiceImpl.findPageSorting begin...");
-		return sortingDao.findPageSorting(params);
-	}
+	/**
+	 * 根据包裹号查询一条sorting记录
+	 * @param packageCode
+	 * @param createSiteCode
+	 * @return
+	 */
+	public Sorting getOneSortingByPackageCode(String packageCode,Integer createSiteCode) {
+        List<Sorting> sortingList = findByPackageCode(createSiteCode, packageCode);
+        if (CollectionUtils.isNotEmpty(sortingList)) {
+            return sortingList.get(0);
+        }
 
+        return null;
+    }
 
 	public final static String TASK_SORTING_FINGERPRINT_1200_5S = "TASK_1200_FP_5S_"; //5前缀
 
@@ -1492,5 +1492,9 @@ public class SortingServiceImpl implements SortingService {
 		sendDList.add(addSendDetail(sorting));
 		//补发货
 		fixSendDAndSendTrack(sorting, sendDList);
+	}
+	@Override
+	public List<Sorting> findPackageCodesByWaybillCode(Sorting sorting) {
+		return dynamicSortingQueryDao.findPackageCodesByWaybillCode(sorting);
 	}
 }

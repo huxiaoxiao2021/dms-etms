@@ -52,6 +52,9 @@ public class UccPropertyConfiguration {
      */
     private boolean stationPrintFeatherLetterCheck;
 
+    /** 分拣查询的模式配置，支持DMS、MIDDLEEND、FAILOVER三个值 **/
+    private String sortingQueryMode;
+
     public String getAsynbufferEnabledTaskType() {
         return asynbufferEnabledTaskType;
     }
@@ -154,5 +157,13 @@ public class UccPropertyConfiguration {
 
     public void setStationPrintFeatherLetterCheck(boolean stationPrintFeatherLetterCheck) {
         this.stationPrintFeatherLetterCheck = stationPrintFeatherLetterCheck;
+    }
+
+    public String getSortingQueryMode() {
+        return sortingQueryMode;
+    }
+
+    public void setSortingQueryMode(String sortingQueryMode) {
+        this.sortingQueryMode = sortingQueryMode;
     }
 }

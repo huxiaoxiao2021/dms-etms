@@ -32,4 +32,12 @@ public interface UserService {
 	 * @return
 	 */
 	public JdResult<LoginUserResponse> getLoginUser(LoginRequest request);
+
+	/**
+	 * 新登录接口，同时返回用户的站点和分拣中心
+	 *
+	 * @param request
+	 * @return
+	 */
+	LoginUserResponse clientLoginIn(LoginRequest request);
 }

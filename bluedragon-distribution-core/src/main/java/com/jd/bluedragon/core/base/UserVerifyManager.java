@@ -15,16 +15,18 @@ public interface UserVerifyManager {
      * 自营校验
      * @param name
      * @param password
+     * @param loginVersion
      * @return
      */
-    InvokeResult<UserInfo> baseVerify(String name, String password);
+    InvokeResult<UserInfo> baseVerify(String name, String password, Byte loginVersion);
 
     /**
      * 三方校验
      * @param pin
      * @param password
      * @param clientInfo
+     * @param loginVersion
      * @return
      */
-    BasePdaUserDto passportVerify(String pin, String password, ClientInfo clientInfo);
+    BasePdaUserDto passportVerify(String pin, String password, ClientInfo clientInfo, Byte loginVersion);
 }

@@ -17,6 +17,7 @@ import java.text.MessageFormat;
  *
  */
 @Service("reverseStockConsumer")
+@Deprecated
 public class ReverseStockConsumer extends MessageBaseConsumer {
 	
 	private final Log logger = LogFactory.getLog(this.getClass());

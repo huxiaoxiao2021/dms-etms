@@ -22,12 +22,16 @@ public class NewDeptWebServiceImpl implements NewDeptWebService{
 	 * 校验用户密码 调用ssa服务的SsoService
 	 * @param username 用户名
 	 * @param password 密码
+	 * @param loginVersion 客户端登录接口的版本
 	 */
-	public InvokeResult<UserInfo> verify(String username, String password) {
+	public InvokeResult<UserInfo> verify(String username, String password, Byte loginVersion) {
         InvokeResult<UserInfo> result = new InvokeResult<>();
         result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
 		try {
 			String pwd = UimHelper.md5(password);
+			if (null != loginVersion && loginVersion == 1) {
+				pwd = password;
+			}
 			String remoteIp = InetAddress.getLocalHost().getHostAddress();
             UserInfo userInfo = ssoService.verify(username, pwd, remoteIp);
             result.setData(userInfo);
@@ -55,7 +59,7 @@ public class NewDeptWebServiceImpl implements NewDeptWebService{
 
 	public static void main(String args[]){
 		NewDeptWebServiceImpl impl = new NewDeptWebServiceImpl();
-        InvokeResult<UserInfo> result = impl.verify("bjadmin","xinxibu456");
+        InvokeResult<UserInfo> result = impl.verify("bjadmin","xinxibu456", (byte)1);
 		System.out.println(result);
 	}
 }

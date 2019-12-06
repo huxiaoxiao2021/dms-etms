@@ -1147,39 +1147,6 @@ public class WaybillResource {
 		return  jdResponse;
 	}
 
-
-	@GET
-	@GZIP
-	@Path("/waybill/suk/{waybillCode}")
-	public WaybillResponse<BigWaybillDto> getWaybillSku(@PathParam("waybillCode") String waybillCode){
-		WaybillResponse<BigWaybillDto> waybillResponse = new WaybillResponse<BigWaybillDto>();
-		try{
-			WChoice wChoice = new WChoice();
-			wChoice.setQueryWaybillC(true);
-			wChoice.setQueryWaybillE(true);
-			wChoice.setQueryWaybillM(true);
-			wChoice.setQueryGoodList(true);
-			com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager.getDataByChoice(
-					waybillCode, wChoice);
-			if(null == baseEntity || baseEntity.getData() == null){
-				log.warn("根据运单号获取SKU信息接口为空:{}", waybillCode);
-				waybillResponse.setCode(JdResponse.CODE_OK_NULL);
-				waybillResponse.setMessage(JdResponse.MESSAGE_OK_NULL);
-				return waybillResponse;
-			}
-
-			waybillResponse.setCode(JdResponse.CODE_OK);
-			waybillResponse.setMessage(JdResponse.MESSAGE_OK);
-			waybillResponse.setData(baseEntity.getData());
-			return waybillResponse;
-		}catch (Throwable ex){
-			log.error("根据运单号获取SKU信息接口失败:{}",waybillCode,ex);
-			waybillResponse.setCode(JdResponse.CODE_INTERNAL_ERROR);
-			waybillResponse.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
-			return waybillResponse;
-		}
-	}
-
 	/**
 	 * 获取运单称重数据queryPackcode
 	 *
