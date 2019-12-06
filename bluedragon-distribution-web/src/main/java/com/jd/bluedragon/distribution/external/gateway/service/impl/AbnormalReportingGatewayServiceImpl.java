@@ -30,9 +30,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -103,38 +102,40 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
     }
 
     @Override
-    public JdCResponse<String> uploadExceptionImage(HttpServletRequest request, HttpServletResponse response) {
-        response.setContentType("application/zip");
-        JdCResponse<String> jdCResponse = new JdCResponse<>(JdCResponse.CODE_SUCCESS, JdCResponse.MESSAGE_SUCCESS);
+    public String uploadExceptionImage(InputStream inStream) {
+        String url = null;
+        ByteArrayOutputStream swapStream = null;
         try {
-            ByteArrayOutputStream swapStream = new ByteArrayOutputStream();
-            String uuid = request.getHeader("uuid");
-            logger.info("uploadExceptionImage上传uuid:" + uuid);
-            InputStream inStream = request.getInputStream();
-            byte[] buff = new byte[100];
-            int rc = 0;
-            while ((rc = inStream.read(buff, 0, 100)) > 0) {
+            swapStream = new ByteArrayOutputStream();
+            byte[] buff = new byte[1024];
+            int rc;
+            while ((rc = inStream.read(buff, 0, 1024)) > 0) {
                 swapStream.write(buff, 0, rc);
             }
             byte[] in2b = swapStream.toByteArray();
             inStream.close();
             swapStream.close();
-            String url = jssService.uploadImage(bucket, in2b);
-            if (StringUtils.isNotBlank(url)) {
-//                if(StringUtils.isNotEmpty(uuid)){
-//                    jimClientProxy.setEx(uuid, url, 10, TimeUnit.MINUTES);
-//                }
-                jdCResponse.setData(url);
-            } else {
-                jdCResponse.setCode(JdCResponse.CODE_FAIL);
-                jdCResponse.setMessage("上传失败，请重新上传！");
-            }
+            url = jssService.uploadImage(bucket, in2b);
+            logger.info("[新-异常提报-图片上传]uploadExceptionImage上传成功 : url[" + url + "]");
         } catch (Exception e) {
-            logger.error("uploadExceptionImage error", e);
-            jdCResponse.toError("图片上传时发生异常");
+            logger.error("[新-异常提报-图片上传]uploadExceptionImage图片上传时发生异常", e);
+        } finally {
+            if (inStream != null) {
+                try {
+                    inStream.close();
+                } catch (IOException e) {
+                    logger.error("[新-异常提报-图片上传]uploadExceptionImage 输入流关闭异常", e);
+                }
+            }
+            if (swapStream != null) {
+                try {
+                    swapStream.close();
+                } catch (IOException e) {
+                    logger.error("[新-异常提报-图片上传]uploadExceptionImage 输出流关闭异常", e);
+                }
+            }
         }
-        logger.info("uploadExceptionImage:result[" + jdCResponse.getData() + "]");
-        return jdCResponse;
+        return url;
     }
 
     @Override
