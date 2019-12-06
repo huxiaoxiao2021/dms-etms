@@ -405,4 +405,8 @@
     <bean id="railwaySendRegistCostFxmMQ" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.railway.sendRegist.Cost.fxm}"/>
     </bean>
+    <!-- 线上签 - 异步+重试处理推送线上签数据 -->
+    <bean id="printOnlineProducer" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.print.online}"/>
+    </bean>
 </beans>
