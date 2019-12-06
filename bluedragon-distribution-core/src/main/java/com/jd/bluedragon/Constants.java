@@ -723,6 +723,11 @@ public class Constants {
     public static final String SYS_CONFIG_PDD_PRINT_TYPE_NOT_USE = "pdd.print.type.not.use";
 
     /**
+     * 配置信息-生成分拣中心退货任务的异常原因id列表 abnormal.reason.id.generate.sorting_return_task;
+     */
+    public static final String SYS_CONFIG_ABNORMAL_REASON_ID_GENERATE_SORTING_RETURN_TASK = "abnormal.reason.id.generate.sorting_return_task";
+
+    /**
 	  * 配置信息-客户端运行环境配置前缀 sys.config.client.runningMode.
 	  */
     public static final String SYS_CONFIG_CLIENT_RUNNING_MODE_PRE = "sys.config.client.runningMode.";    

@@ -8,6 +8,8 @@ import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
 import com.jd.bluedragon.distribution.api.request.QualityControlRequest;
 import com.jd.bluedragon.distribution.api.request.ReturnsRequest;
+import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.message.OwnReverseTransferDomain;
 import com.jd.bluedragon.distribution.qualityControl.QcVersionFlagEnum;
 import com.jd.bluedragon.distribution.qualityControl.domain.QualityControl;
@@ -76,6 +78,9 @@ public class QualityControlService {
 
     @Autowired
     private AbnormalOrderApi abnormalOrderApi;
+
+    @Autowired
+    private SysConfigService sysConfigService;
 
     public TaskResult dealQualityControlTask(Task task) {
         QualityControlRequest request = null;
@@ -401,6 +406,61 @@ public class QualityControlService {
         qcTask.setFingerprint(Md5Helper.encode(fringerprint.toString()));
 
         taskService.add(qcTask);
+    }
+
+    /*
+    * 根据站点和条码判断是否生成分拣退货任务
+    * */
+    public void generateSortingReturnTask(Integer siteCode, String barCode) {
+        AbnormalWayBill abnormalWayBill = null;
+        try {
+            if (StringHelper.isNotEmpty(barCode)) {
+                abnormalWayBill = this.abnormalWayBillService.getAbnormalWayBillByQcValue(siteCode, barCode);
+            }
+        } catch (Exception e) {
+            logger.error("获取异常提报记录信息失败，参数:" + siteCode + "," + barCode, e);
+        }
+
+        if (abnormalWayBill != null && this.isGenerateSortingReturnTask(abnormalWayBill.getQcCode())) {
+            ReturnsRequest sortingReturn = new ReturnsRequest();
+            sortingReturn.setSiteCode(abnormalWayBill.getCreateSiteCode());
+            sortingReturn.setSiteName(abnormalWayBill.getCreateSiteName());
+            sortingReturn.setUserCode(abnormalWayBill.getCreateUserCode());
+            sortingReturn.setUserName(abnormalWayBill.getCreateUser());
+            sortingReturn.setPackageCode(abnormalWayBill.getQcValue());
+            sortingReturn.setBusinessType(10);
+            sortingReturn.setOperateTime(DateHelper.formatDateTime(abnormalWayBill.getOperateTime()));
+            sortingReturn.setShieldsError(abnormalWayBill.getQcName());
+            Task task = new Task();
+            task.setKeyword1(abnormalWayBill.getCreateSiteCode() + "");
+            task.setKeyword2(abnormalWayBill.getQcValue());
+            task.setCreateSiteCode(abnormalWayBill.getCreateSiteCode());
+            task.setReceiveSiteCode(abnormalWayBill.getCreateSiteCode());
+            task.setOwnSign(BusinessHelper.getOwnSign());
+            task.setType(Task.TASK_TYPE_RETURNS);
+            task.setTableName(Task.getTableName(task.getType()));
+            task.setSequenceName(Task.getSequenceName(task.getTableName()));
+            task.setFingerprint(Md5Helper.encode(task.getKeyword1() + "_" + task.getKeyword2() + "_" + task.getCreateSiteCode()));
+            task.setBody(Constants.PUNCTUATION_OPEN_BRACKET + JsonHelper.toJson(sortingReturn) + Constants.PUNCTUATION_CLOSE_BRACKET);
+
+            try{
+                taskService.add(task);
+            }catch(Exception e){
+                logger.error("质控异常生成分拣退货数据异常:"+JsonHelper.toJson(task));
+                logger.error("质控异常生成分拣退货数据异常，原因 " + e);
+            }
+        }
+    }
+
+    /*
+    * 从配置中获取需要发送分拣退货任务的原因列表
+    * */
+    private boolean isGenerateSortingReturnTask(Integer reasonId){
+        SysConfigContent content = sysConfigService.getSysConfigJsonContent(Constants.SYS_CONFIG_ABNORMAL_REASON_ID_GENERATE_SORTING_RETURN_TASK);
+        if (content != null && content.getKeyCodes() != null && ! content.getKeyCodes().isEmpty()) {
+            return content.getKeyCodes().contains(reasonId.toString());
+    }
+        return false;
     }
 
 }
