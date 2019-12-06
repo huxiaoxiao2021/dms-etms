@@ -194,6 +194,9 @@ $(function () {
             Jd.alert('请选中一条记录校验!');
             return;
         }
+        var num = $('#packageDataTable tbody .selected').attr("data-index");
+        var index = parseInt(num) + 1;
+        $('#packageDataTable')[0].rows[index].cells[8].innerHTML = '×';
         var weight = packageData[0].weight;
         var length = packageData[0].length;
         var width = packageData[0].width;
@@ -220,15 +223,14 @@ $(function () {
             var messageBodyStr = '重泡比超过正常范围168:1到330:1，请确认是否强制录入？';
             confirm(messageBodyStr,
                 function () {
-                    var num = $('#packageDataTable tbody .selected').attr("data-index");
-                    var index = parseInt(num) + 1;
                     $('#packageDataTable')[0].rows[index].cells[8].innerHTML = '√';
                 },
                 function () {
                     return;
                 });
+        }else {
+            $('#packageDataTable')[0].rows[index].cells[8].innerHTML = '√';
         }
-
     });
 
     //检查
@@ -253,6 +255,12 @@ $(function () {
             reg = /^(-?\d+)(\.\d{1,6})?$/;
             if(!reg.test(volume)){
                 Jd.alert('体积最多六位小数!');
+                return;
+            }
+
+            //重泡比强校验
+            if(weight/volume > 7800){
+                Jd.alert('当前运单重泡比超过7800,请核实后重新录入!');
                 return;
             }
 

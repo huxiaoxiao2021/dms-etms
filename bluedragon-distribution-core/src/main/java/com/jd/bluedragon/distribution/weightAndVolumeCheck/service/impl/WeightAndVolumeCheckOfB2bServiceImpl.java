@@ -123,7 +123,14 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
      * 重泡比标准值
      * */
     private static final int WEIGHT_VOLUME_RATIO = 7800;
-
+    /**
+     * 重量限额，5000KG
+     * */
+    private static final int WEIGHT_MAX_RATIO = 5000;
+    /**
+     * 体积限额,5m³
+     * */
+    private static final int VOLUME_MAX_RATIO = 5;
 
     @Autowired
     private ReportExternalService reportExternalService;
@@ -483,12 +490,12 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             return result;
         }
         int packNum = baseEntity.getData().getPackageList().size();
-        if(condition.getWaybillWeight()/packNum > 5000){
-            result.customMessage(600,"当前运单平均单个包裹重量超过5000KG，请核实后重新录入!");
+        if(condition.getWaybillWeight()/packNum > WEIGHT_MAX_RATIO){
+            result.customMessage(600,"当前运单平均单个包裹重量超过"+WEIGHT_MAX_RATIO+"KG，请核实后重新录入!");
             return result;
         }
-        if(condition.getWaybillVolume()/packNum > 5){
-            result.customMessage(600,"当前运单平均单个包裹体积超过5m³，请核实后重新录入!");
+        if(condition.getWaybillVolume()/packNum > VOLUME_MAX_RATIO){
+            result.customMessage(600,"当前运单平均单个包裹体积超过"+VOLUME_MAX_RATIO+"m³，请核实后重新录入!");
             return result;
         }
 
@@ -517,11 +524,26 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
     @Override
     public InvokeResult<Integer> checkIsExcessOfPackage(List<WeightVolumeCheckOfB2bPackage> params) {
         InvokeResult<Integer> result = new InvokeResult<Integer>();
-
         //计算总体积总重量
         Double nowWeight = 0.00;
         Double nowVolume = 0.00;
         for(WeightVolumeCheckOfB2bPackage param : params){
+
+            //重泡比校验
+            Double volume = param.getLength() * param.getWidth() * param.getHeight()/M3_TRANS_TO_CM3;
+            if(param.getWeight()/volume > WEIGHT_VOLUME_RATIO){
+                result.customMessage(600,"当前包裹号:"+param.getPackageCode()+"重泡比超过"+WEIGHT_VOLUME_RATIO+",请核实后重新录入!");
+                return result;
+            }
+            if(param.getWeight() > WEIGHT_MAX_RATIO){
+                result.customMessage(600,"当前包裹号:"+param.getPackageCode()+"重量超过"+WEIGHT_MAX_RATIO+"KG,请核实后重新录入!");
+                return result;
+            }
+            if(volume > VOLUME_MAX_RATIO){
+                result.customMessage(600,"当前包裹号:"+param.getPackageCode()+"体积超过"+VOLUME_MAX_RATIO+"m³,请核实后重新录入!");
+                return result;
+            }
+
             nowWeight = keeTwoDecimals(nowWeight + param.getWeight());
             nowVolume = keeTwoDecimals(nowVolume + param.getLength() * param.getWidth() * param.getHeight());//厘米
         }
