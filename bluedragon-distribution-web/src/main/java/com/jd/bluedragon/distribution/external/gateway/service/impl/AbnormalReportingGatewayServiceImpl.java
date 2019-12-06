@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.common.domain.SiteEntity;
 import com.jd.bluedragon.common.dto.abnormal.AbnormalReasonSourceEnum;
 import com.jd.bluedragon.common.dto.abnormal.DmsAbnormalReasonDto;
@@ -30,13 +29,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGatewayService {
 
@@ -100,41 +103,38 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
     }
 
     @Override
-    public byte[] uploadExceptionImage(HttpServletRequest request, HttpServletResponse response) {
-//        String result="";
-//        response.setContentType("application/zip");
-//        try{
-//            JdCResponse<String> jdCResponse = new JdCResponse<>(JdCResponse.CODE_SUCCESS, JdCResponse.MESSAGE_SUCCESS);
-//
-//            ByteArrayOutputStream swapStream = new ByteArrayOutputStream();
-//            String uuid = request.getHeader("uuid");
-//            logger.info("uploadExceptionImage上传uuid:" + uuid);
-//            InputStream inStream = request.getInputStream();
-//            byte[] buff = new byte[100];
-//            int rc = 0;
-//            while ((rc = inStream.read(buff, 0, 100)) > 0) {
-//                swapStream.write(buff, 0, rc);
-//            }
-//            byte[] in2b = swapStream.toByteArray();
-//            inStream.close();
-//            swapStream.close();
-//            String url = jssService.uploadImage(bucket, in2b);
-//            if (StringUtils.isNotBlank(url)) {
-//
-////                if(StringUtils.isNotEmpty(uuid)){
-////                    jimClientProxy.setEx(uuid, url, 10, TimeUnit.MINUTES);
-////                }
-//                jdCResponse.setData(url);
-//            } else {
-//                jdCResponse.setCode(JdCResponse.CODE_FAIL);
-//                jdCResponse.setMessage("上传失败，请重新上传！");
-//            }
-//            result = JSON.toJSONString(jdCResponse);
-//        }catch(Exception e){
-//            logger.error("uploadExceptionImage error",e);
-//        }
-//        logger.info("uploadExceptionImage:result[" + result + "]");
-        return null;
+    public JdCResponse<String> uploadExceptionImage(HttpServletRequest request, HttpServletResponse response) {
+        response.setContentType("application/zip");
+        JdCResponse<String> jdCResponse = new JdCResponse<>(JdCResponse.CODE_SUCCESS, JdCResponse.MESSAGE_SUCCESS);
+        try {
+            ByteArrayOutputStream swapStream = new ByteArrayOutputStream();
+            String uuid = request.getHeader("uuid");
+            logger.info("uploadExceptionImage上传uuid:" + uuid);
+            InputStream inStream = request.getInputStream();
+            byte[] buff = new byte[100];
+            int rc = 0;
+            while ((rc = inStream.read(buff, 0, 100)) > 0) {
+                swapStream.write(buff, 0, rc);
+            }
+            byte[] in2b = swapStream.toByteArray();
+            inStream.close();
+            swapStream.close();
+            String url = jssService.uploadImage(bucket, in2b);
+            if (StringUtils.isNotBlank(url)) {
+//                if(StringUtils.isNotEmpty(uuid)){
+//                    jimClientProxy.setEx(uuid, url, 10, TimeUnit.MINUTES);
+//                }
+                jdCResponse.setData(url);
+            } else {
+                jdCResponse.setCode(JdCResponse.CODE_FAIL);
+                jdCResponse.setMessage("上传失败，请重新上传！");
+            }
+        } catch (Exception e) {
+            logger.error("uploadExceptionImage error", e);
+            jdCResponse.toError("图片上传时发生异常");
+        }
+        logger.info("uploadExceptionImage:result[" + jdCResponse.getData() + "]");
+        return jdCResponse;
     }
 
     @Override

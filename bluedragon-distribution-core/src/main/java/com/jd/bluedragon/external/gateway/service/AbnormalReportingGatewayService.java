@@ -13,7 +13,7 @@ public interface AbnormalReportingGatewayService {
 
     JdCResponse<List<DmsAbnormalReasonDto>> getAllAbnormalReason(String userErp);
 
-    byte[] uploadExceptionImage(HttpServletRequest request, HttpServletResponse response);
+    JdCResponse<String> uploadExceptionImage(HttpServletRequest request, HttpServletResponse response);
 
     JdCResponse<List<SiteEntity>> getDutyDepartment(String barCode);
 
