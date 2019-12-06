@@ -5,7 +5,7 @@ import com.jd.ssa.domain.UserInfo;
 
 public interface NewDeptWebService {
 	
-	public InvokeResult<UserInfo> verify(String username, String password);
+	public InvokeResult<UserInfo> verify(String username, String password, Byte loginVersion);
 
 	
 }
