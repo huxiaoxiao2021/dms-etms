@@ -9,9 +9,8 @@ import com.jd.bluedragon.distribution.spare.dao.SpareDao;
 import com.jd.bluedragon.distribution.spare.domain.Spare;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -25,7 +24,7 @@ import java.util.List;
 @Service("spareService")
 public class SpareServiceImpl implements SpareService {
 	
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	
 	private static final String separator = "$";
     @Autowired
@@ -55,7 +54,7 @@ public class SpareServiceImpl implements SpareService {
 		List<Spare> spares = new ArrayList<Spare>();
 		String spareCodePrefix = this.generateSpareCodePrefix(spare);
 		
-		this.logger.info("备件条码前缀为：" + spareCodePrefix);
+		this.log.info("备件条码前缀为：{}", spareCodePrefix);
 
 		for (Integer loop = 0; loop < spare.getQuantity(); loop++) {
 			String spareCodeSuffix = StringHelper.padZero(this.genObjectId.getObjectId(this
@@ -120,7 +119,7 @@ public class SpareServiceImpl implements SpareService {
         	spare.setType(storeTag.getData());
         }else{
         	spare.setType(Constants.SPARE_CODE_PREFIX_DEFAULT);
-        	logger.warn("备件库条码前缀获取为空，设置默认值为‘null’"+storeTag.getMessage());
+        	log.warn("备件库条码前缀获取为空，设置默认值为‘null’：{}", storeTag.getMessage());
         }
         List<Spare> spareCodes = this.batchAdd(spare);
         rest.setData(spareCodes);

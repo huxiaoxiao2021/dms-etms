@@ -5,9 +5,8 @@ import com.jd.bluedragon.distribution.send.dao.SendDatailReadDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +16,7 @@ import java.util.Map;
 @Service("sendDetailService")
 public class SendDetailServiceImpl implements SendDetailService {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private SendDatailReadDao sendDatailReadDao;
@@ -54,7 +53,7 @@ public class SendDetailServiceImpl implements SendDetailService {
 
     @Override
     public List<SendDetail> findPageSendDetail(Map<String, Object> params) {
-        logger.info("SendDetailServiceImpl.findPageSendDetail begin...");
+        log.debug("SendDetailServiceImpl.findPageSendDetail begin...");
         return sendDatailDao.findPageSendDetail(params);
     }
 

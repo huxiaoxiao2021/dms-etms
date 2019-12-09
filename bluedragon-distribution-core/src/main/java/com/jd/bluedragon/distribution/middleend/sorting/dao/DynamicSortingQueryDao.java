@@ -4,7 +4,8 @@ import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Resource;
@@ -12,7 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 public class DynamicSortingQueryDao implements ISortingDao{
-    private final Logger logger = Logger.getLogger(DynamicSortingQueryDao.class);
+    private final Logger log = LoggerFactory.getLogger(DynamicSortingQueryDao.class);
 
     @Resource
     private UccPropertyConfiguration uccPropertyConfiguration;
@@ -43,25 +44,25 @@ public class DynamicSortingQueryDao implements ISortingDao{
      */
     public ISortingDao selectDao(Integer createSiteCode) {
         String sortingQueryMode = uccPropertyConfiguration.getSortingQueryMode();
-        logger.info("sortingQueryMode:" + sortingQueryMode);
+        log.info("sortingQueryMode:{}" , sortingQueryMode);
         if(SORTING_QUERY_MODE_DMS.equals(sortingQueryMode)){
-            logger.info("站点:" + createSiteCode +"使用sortingDao进行查询");
+            log.info("站点:{}使用sortingDao进行查询",createSiteCode);
             return sortingDao;
         }else if(SORTING_QUERY_MODE_MIDDLEEND.equals(sortingQueryMode)){
-            logger.info("站点:" + createSiteCode +"使用middleEndSortingDao进行查询");
+            log.info("站点:{}使用middleEndSortingDao进行查询",createSiteCode);
             return middleEndSortingDao;
         }else if(SORTING_QUERY_MODE_FAILOVER.equals(sortingQueryMode)){
             //配置列表里有
             Set<Integer> siteCodeSet = siteService.getSiteCodesFromSysConfig(SYSTEM_CONFIG_KEY_SORTING_QUERY_OPEN);
             if(siteCodeSet!=null && siteCodeSet.contains(createSiteCode)){
-                logger.info("站点:" + createSiteCode +"使用failoverSortingDao进行查询");
+                log.info("站点:{}使用failoverSortingDao进行查询",createSiteCode);
                 return failoverSortingDao;
             }else{
-                logger.info("站点:" + createSiteCode +"使用sortingDao进行查询");
+                log.info("站点:{}使用sortingDao进行查询",createSiteCode);
                 return sortingDao;
             }
         }
-        logger.info("站点:" + createSiteCode +"使用sortingDao进行查询");
+        log.info("站点:{}使用sortingDao进行查询",createSiteCode);
         return  sortingDao;
     }
 

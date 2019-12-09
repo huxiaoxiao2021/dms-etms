@@ -23,8 +23,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.text.MessageFormat;
-
 /**
  * <p>
  *     拼多多运单面单信息的获取实现类 jsf接口实现类，工程内的调用请使用 PDDService
@@ -36,7 +34,7 @@ import java.text.MessageFormat;
 @Service("dmsExternalInPDDService")
 public class PDDExternalJSFServiceImpl implements DMSExternalInPDDService {
 
-    private static final Logger logger = LoggerFactory.getLogger(PDDExternalJSFServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(PDDExternalJSFServiceImpl.class);
 
     @Autowired
     private PDDService pddService;
@@ -97,7 +95,7 @@ public class PDDExternalJSFServiceImpl implements DMSExternalInPDDService {
             }
             /* 接口调用失败，则返回具体信息 */
             if (!response.getSuccess()) {
-                logger.warn("拼多多接口调用失败，返回值：{}",JsonHelper.toJson(response));
+                log.warn("拼多多接口调用失败，返回值：{}",JsonHelper.toJson(response));
                 return new BaseEntity<>(BaseEntity.CODE_SUCCESS_NO, response.getErrorMsg());
             }
             /* 对拼多多接口返回内容进行重新组装返回 */
@@ -113,7 +111,7 @@ public class PDDExternalJSFServiceImpl implements DMSExternalInPDDService {
             baseEntity.setData(pddWaybillPrintInfoDto);
             return baseEntity;
         } catch (RuntimeException e) {
-            logger.error(MessageFormat.format("拼多多接口调用发生异常，请求参数：{0}", waybillCode), e);
+            log.error("拼多多接口调用发生异常，请求参数：{}", waybillCode, e);
             return new BaseEntity<>(BaseEntity.CODE_SERVICE_ERROR, BaseEntity.MESSAGE_SERVICE_ERROR);
         }
     }
@@ -126,7 +124,9 @@ public class PDDExternalJSFServiceImpl implements DMSExternalInPDDService {
         CallerInfo callerInfo = Profiler.registerInfo("dms.web." + request.getSystemFlag() + ".PDDExternalJSFServiceImpl.queryWaybillByWaybillCode",
                 Constants.UMP_APP_NAME_DMSWEB, false, true);
         BaseEntity<PDDWaybillPrintInfoDto> result = queryPDDWaybillByWaybillCode(request.getWaybillCode());
-        logger.info(MessageFormat.format("JsfService.pdd.queryWaybillByWaybillCode,req:{0},resp:{1}", JsonHelper.toJson(request),JsonHelper.toJson(result)));
+        if(log.isInfoEnabled()){
+            log.info("JsfService.pdd.queryWaybillByWaybillCode,req:{},resp:{}", JsonHelper.toJson(request),JsonHelper.toJson(result));
+        }
         Profiler.registerInfoEnd(callerInfo);
         return result;
     }

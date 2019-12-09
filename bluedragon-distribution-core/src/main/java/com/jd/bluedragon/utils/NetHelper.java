@@ -1,6 +1,7 @@
 package com.jd.bluedragon.utils;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -15,7 +16,7 @@ import java.util.List;
  */
 public class NetHelper {
 
-    private static Logger logger = Logger.getLogger(NetHelper.class);
+    private static Logger log = LoggerFactory.getLogger(NetHelper.class);
 
     public static String EXCLUDE_IP = "10.";
     public static String NET_INTERFACE;
@@ -46,7 +47,7 @@ public class NetHelper {
                 }
             }
         } catch (Exception e) {
-            logger.warn(MessageFormat.format("获取当前主机的局域网IP失败: {0}", e));
+            log.error("获取当前主机的局域网IP失败", e);
         }
         return result;
     }

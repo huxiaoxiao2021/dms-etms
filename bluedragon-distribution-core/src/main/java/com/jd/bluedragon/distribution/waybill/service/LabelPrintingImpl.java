@@ -3,8 +3,8 @@ package com.jd.bluedragon.distribution.waybill.service;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.distribution.waybill.domain.BaseResponseIncidental;
-import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
+import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 @Service("labelPrinting")
 public class  LabelPrintingImpl implements LabelPrinting {
 
-    private static final Logger logger = LoggerFactory.getLogger(LabelPrintingImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(LabelPrintingImpl.class);
 
     public static final String LOG_PREFIX="包裹标签打印[LabelPrintingWSImpl] ";
 
@@ -35,13 +35,13 @@ public class  LabelPrintingImpl implements LabelPrinting {
     public BaseResponseIncidental<LabelPrintingResponse> dmsPrint(LabelPrintingRequest request) {
         try {
             if(request==null){
-                logger.error(LOG_PREFIX+"分拣中心打印，参数为空");
+                log.warn("{}分拣中心打印，参数为空",LOG_PREFIX);
                 return new BaseResponseIncidental<LabelPrintingResponse>(LabelPrintingResponse.CODE_EMPTY_PARMAETER,LabelPrintingResponse.MESSAGE_EMPTY_PARMAETER);
             }
-            logger.info(LOG_PREFIX + "分拣中心打印，参数:{}",request.toString());
+            log.info("{}分拣中心打印，参数:{}",LOG_PREFIX,request.toString());
             return dmsLablePrintingService.packageLabelPrint(request);
         } catch (Exception e) {
-            logger.error(LOG_PREFIX+"分拣中心打印接口异常，错误信息：{}",e.getMessage(), e);
+            log.error(LOG_PREFIX+"分拣中心打印接口异常，错误信息：{}",e.getMessage(), e);
             return new BaseResponseIncidental<LabelPrintingResponse>(JdResponse.CODE_SERVICE_ERROR,JdResponse.MESSAGE_SERVICE_ERROR);
         }
     }
@@ -52,13 +52,13 @@ public class  LabelPrintingImpl implements LabelPrinting {
     public BaseResponseIncidental<LabelPrintingResponse> dmsPrint(LabelPrintingRequest request, WaybillPrintContext context) {
         try {
             if(request==null){
-                logger.error(LOG_PREFIX+"分拣中心打印，参数为空");
+                log.warn("{}分拣中心打印，参数为空",LOG_PREFIX);
                 return new BaseResponseIncidental<LabelPrintingResponse>(LabelPrintingResponse.CODE_EMPTY_PARMAETER,LabelPrintingResponse.MESSAGE_EMPTY_PARMAETER);
             }
-            logger.info(LOG_PREFIX + "分拣中心打印，参数:{}",request.toString());
+            log.info("{}分拣中心打印，参数:{}",LOG_PREFIX,request.toString());
             return dmsLablePrintingService.packageLabelPrint(request, context);
         } catch (Exception e) {
-            logger.error(LOG_PREFIX+"分拣中心打印接口异常，错误信息：{}",e.getMessage(), e);
+            log.error(LOG_PREFIX+"分拣中心打印接口异常，错误信息：{}",e.getMessage(), e);
             return new BaseResponseIncidental<LabelPrintingResponse>(JdResponse.CODE_SERVICE_ERROR,JdResponse.MESSAGE_SERVICE_ERROR);
         }
     }
