@@ -205,7 +205,7 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 			turnoverBoxMQ.send(receive.getBoxCode(),
 					JsonHelper.toJson(turnoverBoxInfo));
 		} catch (Exception e) {
-			log.error("分拣中心收货推送MQ[周转箱]信息失败：{}" + receive.getBoxCode(), e);
+			log.error("分拣中心收货推送MQ[周转箱]信息失败：{}" , receive.getBoxCode(), e);
 		}
 	}
 

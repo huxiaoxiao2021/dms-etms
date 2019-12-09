@@ -130,7 +130,7 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
                     //数据落库
                     insert(mergeWaybillCodeReturnRequest, newWaybillCode);
                     //给运单发mq
-                    this.log.info("发送MQ[{}],业务ID[{}],消息主题: {}", mergeWaybillReturnMQ.getTopic(), newWaybillCode, JSON.toJSONString(message));
+                    this.log.info("发送MQ[{}],业务ID[{}]", mergeWaybillReturnMQ.getTopic(), newWaybillCode);
                     mergeWaybillReturnMQ.sendOnFailPersistent(newWaybillCode, JSON.toJSONString(message));
                     //发全程跟踪
                     sendTrace(message);

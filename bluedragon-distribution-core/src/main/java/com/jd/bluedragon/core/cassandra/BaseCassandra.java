@@ -37,7 +37,6 @@ public class BaseCassandra {
                 .build();
 
         log.info("cluster name:{}",cluster.getClusterName());
-        //log.info("{}",cluster.getMetadata().exportSchemaAsString());
     }
     public BaseCassandra() {
     }
@@ -58,7 +57,6 @@ public class BaseCassandra {
                 .build();
 
         log.info("cluster name:{}",cluster.getClusterName());
-        //log.info("{}",cluster.getMetadata().exportSchemaAsString());
     }
 
     public Session getSession(String keyspace){
