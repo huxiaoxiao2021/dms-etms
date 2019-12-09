@@ -76,9 +76,7 @@ public class dmsAbnormalUnknownConsumer extends MessageBaseConsumer {
             abnormalUnknownWaybill.setIsReceipt(1);
             abnormalUnknownWaybill.setReceiptContent(abnormalUnknownWaybillResponse.getContent());
             try {
-                if(abnormalUnknownWaybillService.checkIsOverLength(abnormalUnknownWaybill.getReceiptContent())){
-                    return;
-                }
+                abnormalUnknownWaybillService.dealReceiptContent(abnormalUnknownWaybill);
                 abnormalUnknownWaybillService.updateReceive(abnormalUnknownWaybill);
             } catch (Exception e) {
                 log.error("dmsAbnormalUnknownConsumer回写失败:{}",JsonHelper.toJson(abnormalUnknownWaybill), e);

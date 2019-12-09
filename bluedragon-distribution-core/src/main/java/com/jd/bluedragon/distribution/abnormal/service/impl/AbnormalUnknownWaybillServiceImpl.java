@@ -278,9 +278,7 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
         //如果运单有商品信息
         if (bigWaybillDto != null && bigWaybillDto.getGoodsList() != null && bigWaybillDto.getGoodsList().size() > 0) {
             buildWaybillDetails(abnormalUnknownWaybill, waybillDetail, bigWaybillDto.getGoodsList());
-            if(checkIsOverLength(abnormalUnknownWaybill.getReceiptContent())){
-                return;
-            }
+            dealReceiptContent(abnormalUnknownWaybill);
             addList.add(abnormalUnknownWaybill);//后面将插入表中
             hasDetailWaybillCodes.add(waybillCode);//前台用
             log.info("三无托寄物核实，运单查到了:{}",waybillCode);
@@ -293,9 +291,7 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
             List<ItemInfo> itemInfos = eclpItemManager.getltemBySoNo(busiOrderCode);
             if (itemInfos != null && itemInfos.size() > 0) {
                 queryEclpDetails(itemInfos, abnormalUnknownWaybill, waybillDetail);
-                if(checkIsOverLength(abnormalUnknownWaybill.getReceiptContent())){
-                    return;
-                }
+                dealReceiptContent(abnormalUnknownWaybill);
                 addList.add(abnormalUnknownWaybill);//后面将插入表中
                 hasDetailWaybillCodes.add(waybillCode);//前台用
                 log.info("三无托寄物核实，eclp查到了：{}",waybillCode);
@@ -316,9 +312,7 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
             if(waybill.getWaybillExt() != null &&
                     waybill.getWaybillExt().getConsignWare() != null) {
                 buildWaybillDetailsByConsignWare(abnormalUnknownWaybill, waybillDetail, waybill.getWaybillExt());
-                if(checkIsOverLength(abnormalUnknownWaybill.getReceiptContent())){
-                    return;
-                }
+                dealReceiptContent(abnormalUnknownWaybill);
                 addList.add(abnormalUnknownWaybill);//后面将插入表中
                 hasDetailWaybillCodes.add(waybillCode);//前台用
                 log.info("三无托寄物核实，运单查到了：{}",waybillCode);
@@ -342,12 +336,12 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
 
     }
 
-    @Override
-    public Boolean checkIsOverLength(String receiptContent) {
-        if(StringUtils.isNotBlank(receiptContent)){
-            return receiptContent.length() > RECEIPT_CONTENT_MAX_LENGTH;
+    public void dealReceiptContent(AbnormalUnknownWaybill abnormalUnknownWaybill) {
+        String receiptContent = abnormalUnknownWaybill.getReceiptContent();
+        if(StringUtils.isNotBlank(receiptContent)
+                && receiptContent.length() > RECEIPT_CONTENT_MAX_LENGTH){
+            abnormalUnknownWaybill.setReceiptContent(receiptContent.substring(0,RECEIPT_CONTENT_MAX_LENGTH));
         }
-        return Boolean.FALSE;
     }
 
     /**

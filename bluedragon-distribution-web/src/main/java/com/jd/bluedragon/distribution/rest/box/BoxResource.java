@@ -49,6 +49,11 @@ public class BoxResource {
 
     private final Log logger = LogFactory.getLog(this.getClass());
 
+    /**
+     * 箱号类型字符长度，默认2
+     * */
+    private static final int BOX_TYPE_LENGTH = 2;
+
     @Autowired
     private BoxService boxService;
 
@@ -340,7 +345,7 @@ public class BoxResource {
         this.logger.info("BoxRequest's " + request.toString());
 
         //排除非法箱号类型
-        if(request.getType().length() > 2){
+        if(request.getType().length() > BOX_TYPE_LENGTH){
             com.jd.bluedragon.distribution.jsf.domain.InvokeResult<AutoSortingBoxResult> result
                     = new com.jd.bluedragon.distribution.jsf.domain.InvokeResult<AutoSortingBoxResult>();
             result.customMessage(600,"箱号类型不合法!");

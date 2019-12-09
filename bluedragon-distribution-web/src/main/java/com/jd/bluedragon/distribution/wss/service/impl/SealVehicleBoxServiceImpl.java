@@ -9,7 +9,6 @@ import com.jd.bluedragon.distribution.wss.dto.BaseEntity;
 import com.jd.bluedragon.distribution.wss.dto.SealBoxDto;
 import com.jd.bluedragon.distribution.wss.dto.SealVehicleDto;
 import com.jd.bluedragon.distribution.wss.service.SealVehicleBoxService;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectMapHelper;
@@ -33,6 +32,11 @@ import java.util.Map;
 public class SealVehicleBoxServiceImpl implements SealVehicleBoxService {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
+
+	/**
+	 * 封箱中箱号默认最大长度
+	 * */
+	private static final int BOX_CODE_LENGTH_MAX = 32;
 
 	@Autowired
 	private SealVehicleService sealVehicleService;
@@ -256,7 +260,8 @@ public class SealVehicleBoxServiceImpl implements SealVehicleBoxService {
 			return false;
 		}
 		if (StringUtils.isBlank(sealBox.getCode())
-				|| !BusinessUtil.isBoxcode(sealBox.getBoxCode())
+				|| StringUtils.isBlank(sealBox.getBoxCode())
+				|| sealBox.getBoxCode().length() > BOX_CODE_LENGTH_MAX
 				|| sealBox.getCreateSiteCode() == null
 				|| sealBox.getCreateUserCode() == null
 				|| StringUtils.isBlank(sealBox.getCreateUser())) {
