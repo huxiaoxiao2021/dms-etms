@@ -1,21 +1,16 @@
 package com.jd.bluedragon.utils;
 
 import com.jd.bluedragon.distribution.send.domain.SendM;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class CollectionHelper<E> {
 
-    private static Logger logger = Logger.getLogger(CollectionHelper.class);
+    private static Logger log = LoggerFactory.getLogger(CollectionHelper.class);
 
     public Set<E> toSet(List<E> list) {
         if (list == null) {
@@ -71,11 +66,11 @@ public class CollectionHelper<E> {
                 }
                 result.add(value);
             } catch (NoSuchMethodException e) {
-                logger.error("joinToList错误",e);
+                log.error("joinToList错误",e);
             } catch (IllegalAccessException e) {
-                logger.error("joinToList错误",e);
+                log.error("joinToList错误",e);
             } catch (InvocationTargetException e) {
-                logger.error("joinToList错误",e);
+                log.error("joinToList错误",e);
             }
         }
         return result;

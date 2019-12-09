@@ -1,9 +1,8 @@
 package com.jd.bluedragon.core.cassandra;
 
 import com.datastax.driver.core.Session;
-import com.datastax.driver.core.exceptions.NoHostAvailableException;
-import com.jd.bluedragon.distribution.send.service.DeliveryServiceImpl;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.FactoryBean;
 
 /**
@@ -14,7 +13,7 @@ public class CassandraSessionFactory implements FactoryBean<Session> {
 	
     private BaseCassandra baseCassandra;
     private String keyspace;
-    private final Logger logger = Logger.getLogger(DeliveryServiceImpl.class);
+    private final Logger log = LoggerFactory.getLogger(CassandraSessionFactory.class);
 
     public CassandraSessionFactory(BaseCassandra baseCassandra, String keyspace) {
         this.baseCassandra = baseCassandra;
@@ -26,7 +25,7 @@ public class CassandraSessionFactory implements FactoryBean<Session> {
         try {
             return this.baseCassandra.getSession(this.keyspace);
         } catch (Exception e) {
-            logger.error("cassandra 没有可用的host", e);
+            log.error("cassandra 没有可用的host", e);
             return null;
         }
     }

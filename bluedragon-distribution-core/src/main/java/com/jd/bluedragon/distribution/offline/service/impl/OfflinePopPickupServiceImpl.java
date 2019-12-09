@@ -1,10 +1,5 @@
 package com.jd.bluedragon.distribution.offline.service.impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
@@ -15,9 +10,13 @@ import com.jd.bluedragon.distribution.offline.service.OfflineService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.JsonHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 @Service("offlinePopPickupService")
 public class OfflinePopPickupServiceImpl implements OfflineService {
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	@Autowired
 	private TaskService taskService;
 	
@@ -28,7 +27,7 @@ public class OfflinePopPickupServiceImpl implements OfflineService {
 		// 验证运单号
 		Waybill waybill = waybillCommonService.findByWaybillCode(offlineLogRequest.getWaybillCode());
 		if (waybill == null || waybill.getPopSupId()==null || waybill.getQuantity()==null) {
-			this.logger.error("OfflinePopPickupServiceImpl--> 根据运单号【" + offlineLogRequest.getWaybillCode() + "】验证pop商家ID和数量失败");
+			this.log.warn("OfflinePopPickupServiceImpl--> 根据运单号【{}】验证pop商家ID和数量失败",offlineLogRequest.getWaybillCode());
 			return Constants.RESULT_FAIL;
 		}
 		PopPickupRequest popPickupRequest =new PopPickupRequest();

@@ -40,7 +40,7 @@ import javax.annotation.Resource;
 import java.util.concurrent.TimeUnit;
 
 public abstract class BaseSortingService {
-    protected Logger logger = LoggerFactory.getLogger(BaseSortingService.class);
+    protected Logger log = LoggerFactory.getLogger(BaseSortingService.class);
 
     @Autowired
     @Qualifier("jimdbCacheService")
@@ -89,7 +89,9 @@ public abstract class BaseSortingService {
             if (check(fingerPrintKey)) {
                 //转换成extend对象
                 SortingObjectExtend sorting = prepareSorting(sortingTask);
-                logger.info("sorting任务转换成中台理货扩展对象:" + JSON.toJSONString(sorting));
+                if(log.isInfoEnabled()){
+                    log.info("sorting任务转换成中台理货扩展对象:{}" , JSON.toJSONString(sorting));
+                }
 
                 //进行核心的分拣操作：1写sorting表；2发分拣的全称跟踪；3逆向的发送退货一百分和快退MQ
                 if (coreSorting(sorting)) {
@@ -99,7 +101,7 @@ public abstract class BaseSortingService {
             }
             return true;
         } catch (Exception e) {
-            logger.error("分拣操作异常.参数:" + JSON.toJSONString(sortingTask) + ",异常原因:", e);
+            log.error("分拣操作异常.参数:{}" , JSON.toJSONString(sortingTask) , e);
             Profiler.functionError(info);
             return false;
         } finally {
@@ -119,11 +121,11 @@ public abstract class BaseSortingService {
         try {
             Boolean isSuccess = cacheService.setNx(fingerPrintKey, "1", TASK_1200_EX_TIME_5_S, TimeUnit.SECONDS);
             if (!isSuccess) {//说明有重复任务
-                this.logger.warn("分拣任务重复：" + fingerPrintKey);
+                this.log.warn("分拣任务重复：{}" , fingerPrintKey);
                 return false;
             }
         } catch (Exception e) {
-            this.logger.error("获得分拣任务指纹失败" + fingerPrintKey, e);
+            this.log.error("获得分拣任务指纹失败:{}" , fingerPrintKey, e);
         }
         return true;
     }
@@ -159,7 +161,7 @@ public abstract class BaseSortingService {
                 createSite = baseMajorManager.getDmsCustomSiteBySiteId(dmsSorting.getCreateSiteCode());
             }
         } catch (Exception e) {
-            this.logger.error("AbstractSortingService.prepareSorting处理始发分拣异常.createSiteCode:" + dmsSorting.getCreateSiteCode(), e);
+            this.log.error("AbstractSortingService.prepareSorting处理始发分拣异常.createSiteCode:{}" , dmsSorting.getCreateSiteCode(), e);
         }
         extendObject.setCreateSite(createSite);
 
@@ -177,7 +179,7 @@ public abstract class BaseSortingService {
                 receiveSite = baseMajorManager.getDmsCustomSiteBySiteId(dmsSorting.getReceiveSiteCode());
             }
         } catch (Exception e) {
-            this.logger.error("AbstractSortingService.prepareSorting处理目的分拣异常.receiveSiteCode:" + dmsSorting.getReceiveSiteCode(), e);
+            this.log.error("AbstractSortingService.prepareSorting处理目的分拣异常.receiveSiteCode:{}" , dmsSorting.getReceiveSiteCode(), e);
         }
         extendObject.setReceiveSite(receiveSite);
 
@@ -308,7 +310,7 @@ public abstract class BaseSortingService {
             sorting.setPackagePageSize(pageSize);
             taskService.add(sortingObjectExtend2Task(sorting));
             if(goodNumber == 0){
-                logger.info("按包裹理货，运单没有包裹信息：" + JsonHelper.toJson(sorting));
+                log.warn("按包裹理货，运单没有包裹信息：{}", JsonHelper.toJson(sorting));
             }
         }else if (SortingObjectType.WAYBILL.equals(sorting.getMiddleEndSorting().getObjectType()) && goodNumber > 0) {
             //2.按运单理货且运单有包裹信息
@@ -317,7 +319,7 @@ public abstract class BaseSortingService {
             if (goodNumber % pageSize != 0) {
                 pageCount++;
             }
-            logger.info("AbstractSortingService.addSortingSuccessTask将大运单任务进行拆分，总页数:" + pageCount + ",每页容量:" + pageSize);
+            log.info("AbstractSortingService.addSortingSuccessTask将大运单任务进行拆分，总页数:{},每页容量:{}" ,pageCount, pageSize);
             for (int i = 0; i < pageCount; i++) {
                 //发送拆分任务
                 sorting.setPackagePageIndex(i + 1);
@@ -325,7 +327,7 @@ public abstract class BaseSortingService {
                 taskService.add(sortingObjectExtend2Task(sorting));
             }
         } else {
-            logger.error("运单分拣包裹数据为空" + JsonHelper.toJson(sorting));
+            log.warn("运单分拣包裹数据为空:{}" , JsonHelper.toJson(sorting));
         }
     }
 

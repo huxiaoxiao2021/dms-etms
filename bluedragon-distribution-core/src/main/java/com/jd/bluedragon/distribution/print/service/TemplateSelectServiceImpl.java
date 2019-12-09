@@ -1,12 +1,5 @@
 package com.jd.bluedragon.distribution.print.service;
 
-import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.distribution.api.domain.PackageTemplate;
 import com.jd.bluedragon.distribution.api.domain.TemporaryPackageTemplate;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
@@ -14,11 +7,18 @@ import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.print.domain.LabelTemplate;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 
 @Service("templateSelectService")
 public class TemplateSelectServiceImpl implements TemplateSelectService {
-    private final Logger logger = Logger.getLogger(TemplateSelectServiceImpl.class);
+    private final Logger log = LoggerFactory.getLogger(TemplateSelectServiceImpl.class);
 
     @Autowired
     SysConfigService sysConfigService;
@@ -72,7 +72,7 @@ public class TemplateSelectServiceImpl implements TemplateSelectService {
         if(!matched){
         	matchedTemplate.setTemplateName(templateKey);
         }
-        logger.info("包裹标签模板选择，根据业务模板:" + templateKey + ",站点ID:" + siteCode + "获取到的模板名称为:" + JsonHelper.toJson(matchedTemplate));
+        log.info("包裹标签模板选择，根据业务模板:{},站点ID:{}获取到的模板名称为:{}",templateKey,siteCode, JsonHelper.toJson(matchedTemplate));
         return matchedTemplate;
     }
 }

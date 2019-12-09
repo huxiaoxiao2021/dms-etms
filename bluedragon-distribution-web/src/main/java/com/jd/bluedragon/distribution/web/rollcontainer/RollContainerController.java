@@ -26,12 +26,12 @@ public class RollContainerController {
 	
 	/*@RequestMapping(value = "/index", method = RequestMethod.GET)
     public String index(Model model) {
-        this.logger.debug("周转箱 --> index");
+        this.log.debug("周转箱 --> index");
         try {
         	Map<String, Object> param = new HashMap<String, Object>();
         	List<RollContainer> list = rollContainerService.getRollContainer(param);
         } catch (Exception e) {
-            logger.error("周转箱index失败",e);
+            log.error("周转箱index失败",e);
         }
         return "rollcontainer/rollContainerIndex";
     }*/

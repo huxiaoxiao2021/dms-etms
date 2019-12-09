@@ -1,16 +1,5 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
@@ -23,6 +12,11 @@ import com.jd.bluedragon.distribution.print.domain.PrintPackage;
 import com.jd.bluedragon.distribution.print.service.JdCloudPrintService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.ObjectHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Field;
+import java.util.*;
 
 /**
  * 
@@ -33,7 +27,7 @@ import com.jd.bluedragon.utils.ObjectHelper;
  *
  */
 public class PdfLabelFileGenerateHandler implements Handler<WaybillPrintContext, JdResult<String>> {
-    private static final Log logger = LogFactory.getLog(PdfLabelFileGenerateHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(PdfLabelFileGenerateHandler.class);
     /**
      * 云打印输出文件oss配置
      */
@@ -49,7 +43,7 @@ public class PdfLabelFileGenerateHandler implements Handler<WaybillPrintContext,
     private static final String FIELD_NAME_PACKLIST = "packList";
     @Override
     public InterceptResult<String> handle(WaybillPrintContext context) {
-        logger.info("PdfLabelFileGenerateHandler-pdf标签文件生成处理");
+        log.debug("PdfLabelFileGenerateHandler-pdf标签文件生成处理");
         InterceptResult<String> interceptResult = context.getResult();
         WaybillPrintRequest waybillPrintRequest = context.getRequest();
         BasePrintWaybill basePrintWaybill = context.getBasePrintWaybill();
@@ -145,9 +139,9 @@ public class PdfLabelFileGenerateHandler implements Handler<WaybillPrintContext,
 						map.put(key, "");
 					}
 				} catch (IllegalArgumentException e) {
-					logger.error("ObjectHelper.getValue异常！"+key, e);
+					log.error("ObjectHelper.getValue异常：{}",key, e);
 				} catch (IllegalAccessException e) {
-					logger.error("ObjectHelper.getValue异常！"+key, e);
+					log.error("ObjectHelper.getValue异常:{}", key, e);
 				}
     		}
     	}

@@ -6,10 +6,10 @@ import com.jd.bluedragon.distribution.operationLog.dao.OperationLogReadDao;
 import com.jd.bluedragon.distribution.operationLog.dao.OperationlogCassandra;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
-import com.jd.ql.dcam.config.ConfigManager;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +20,7 @@ import java.util.Map;
 @Service
 public class OperationLogServiceImpl implements OperationLogService {
 
-	private final static Logger logger = Logger.getLogger(OperationLogServiceImpl.class);
+	private final static Logger log = LoggerFactory.getLogger(OperationLogServiceImpl.class);
 
 	@Autowired
 	private OperationlogCassandra logCassandra;
@@ -45,7 +45,7 @@ public class OperationLogServiceImpl implements OperationLogService {
 				logCassandra.batchInsert(operationLog);
 			}
 		} catch (Throwable e) {
-			logger.error("插入操作日志失败，失败信息为：" + e.getMessage(), e);
+			log.error("插入操作日志失败，失败信息为：{}" , e.getMessage(), e);
 			Profiler.functionError(info);
 		}finally {
 			Profiler.registerInfoEnd(info);

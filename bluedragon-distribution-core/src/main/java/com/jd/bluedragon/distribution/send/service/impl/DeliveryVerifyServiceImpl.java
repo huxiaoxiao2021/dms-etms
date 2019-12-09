@@ -14,8 +14,8 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +29,7 @@ import java.util.List;
 @Service("deliveryVerifyService")
 public class DeliveryVerifyServiceImpl implements DeliveryVerifyService {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private BoxService boxService;
@@ -79,7 +79,7 @@ public class DeliveryVerifyServiceImpl implements DeliveryVerifyService {
                 }
             }
         } catch (Exception e) {
-            logger.error("[一车一单发货]按箱发货校验异常，请求参数：" + JsonHelper.toJson(request), e);
+            log.error("[一车一单发货]按箱发货校验异常，请求参数：{}" , JsonHelper.toJson(request), e);
             response.toError();
         }
         return response;

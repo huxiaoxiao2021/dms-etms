@@ -9,10 +9,9 @@ import com.jd.bluedragon.distribution.urban.domain.TransbillM;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jim.cli.Cluster;
-
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 @Service("transBillScheduleService")
 public class TransBillScheduleServiceImpl implements TransBillScheduleService {
 
-    private static final Log logger = LogFactory.getLog(TransBillScheduleServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(TransBillScheduleServiceImpl.class);
 
     private static final String TRANSBILL_PREFIX = "schedule_transBill_";
 
@@ -53,7 +52,7 @@ public class TransBillScheduleServiceImpl implements TransBillScheduleService {
             String oldScheduleBillCode = this.getKey(request.getBoxCode());
             String newScheduleBillCode = this.queryScheduleCode(request.getWaybillCode());
 
-            this.logger.info("oldScheduleBillCode:" + oldScheduleBillCode + ",newScheduleBillCode:" + newScheduleBillCode);
+            this.log.info("oldScheduleBillCode:{},newScheduleBillCode:{}",oldScheduleBillCode, newScheduleBillCode);
             if (oldScheduleBillCode.equals(newScheduleBillCode)){
                 bool = Boolean.TRUE;
             }
@@ -86,7 +85,7 @@ public class TransBillScheduleServiceImpl implements TransBillScheduleService {
                 	result = "卡位号:"+transbillM.getTruckSpot();
                 }
             }catch(Exception e){
-                this.logger.info("运单号{" + waybillCode + "}获取roadCode失败",e);
+                this.log.error("运单号{}获取roadCode失败",waybillCode,e);
             }
         }
         return result;

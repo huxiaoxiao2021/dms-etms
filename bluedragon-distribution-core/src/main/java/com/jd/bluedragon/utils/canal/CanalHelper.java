@@ -1,22 +1,21 @@
 package com.jd.bluedragon.utils.canal;
 
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.ObjectHelper;
+import com.jd.bluedragon.utils.StringHelper;
+import org.apache.commons.lang.time.DateUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.time.DateUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.ObjectHelper;
-import com.jd.bluedragon.utils.StringHelper;
-
 public class CanalHelper {
-    private final static Log logger = LogFactory.getLog(CanalHelper.class);
+    private final static Logger log = LoggerFactory.getLogger(CanalHelper.class);
     /**
      * 将canal消息转换为CanalEvent
      * @param canalMsg
@@ -105,8 +104,7 @@ public class CanalHelper {
 						} else if (fieldType.equals(java.sql.Timestamp.class)) {
 						}
 					} else {
-						logger.warn("数据转换失败：name:" + columnName + "->"
-								+ fieldName + " val:" + columnValue);
+						log.warn("数据转换失败：name:{}->{} val:{}",columnName,fieldName, columnValue);
 					}
 					if (fieldValue != null) {
 						field.setAccessible(true);

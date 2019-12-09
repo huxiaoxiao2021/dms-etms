@@ -5,7 +5,8 @@ import com.jd.bluedragon.distribution.offline.dao.OfflineDao;
 import com.jd.bluedragon.distribution.offline.domain.OfflineLog;
 import com.jd.bluedragon.distribution.offline.service.OfflineLogService;
 import com.jd.bluedragon.utils.JsonHelper;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -16,7 +17,7 @@ import java.util.Map;
 @Service("offlineLogService")
 public class OfflineLogServiceImpl implements OfflineLogService{
 
-	private final Logger logger = Logger.getLogger(OfflineLogServiceImpl.class);
+	private final Logger log = LoggerFactory.getLogger(OfflineLogServiceImpl.class);
 
 	@Autowired
 	private OfflineDao offlineDao;
@@ -25,7 +26,7 @@ public class OfflineLogServiceImpl implements OfflineLogService{
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Integer addOfflineLog(OfflineLog offlineLog) {
 		if (offlineLog.getBoxCode() != null && offlineLog.getBoxCode().length() > Constants.BOX_CODE_DB_COLUMN_LENGTH_LIMIT) {
-			logger.warn("箱号超长，无法插入任务，参数：" + JsonHelper.toJson(offlineLog));
+			log.warn("箱号超长，无法插入任务，参数：{}" , JsonHelper.toJson(offlineLog));
 			return -1;
 		}
 		return offlineDao.add(OfflineDao.namespace, offlineLog);

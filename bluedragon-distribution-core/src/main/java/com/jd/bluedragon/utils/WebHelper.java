@@ -1,16 +1,16 @@
 package com.jd.bluedragon.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.log4j.Logger;
-
 public class WebHelper {
     
-    private static Logger logger = Logger.getLogger(Logger.class);
+    private static Logger log = LoggerFactory.getLogger(Logger.class);
     
     public static String encodeURI(String uri) {
         try {
@@ -30,7 +30,7 @@ public class WebHelper {
         try {
             sendData(response, action.process());
         } catch (final Exception e) {
-            logger.error("Error occurred.", e);
+            log.error("Error occurred.", e);
             sendData(response, exceptionResult);
         }
     }
@@ -41,12 +41,12 @@ public class WebHelper {
             response.setCharacterEncoding("utf-8");
             response.getWriter().print(data);
         } catch (Exception e) {
-            logger.error("Error occurred.", e);
+            log.error("Error occurred.", e);
         } finally {
             try {
                 response.getWriter().close();
             } catch (IOException e) {
-            	logger.error("Error occurred.", e);
+            	log.error("Error occurred.", e);
             }
         }
     }

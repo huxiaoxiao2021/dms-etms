@@ -1,5 +1,14 @@
 package com.jd.bluedragon.distribution.basic;
 
+import com.jd.ql.dms.common.domain.JdResponse;
+import org.apache.commons.lang.StringUtils;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -7,19 +16,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.jd.ql.dms.common.domain.JdResponse;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-
 
 public abstract class AbstractExcelDataResolver implements DataResolver{
 
-	private static final Logger logger = Logger
-			.getLogger(AbstractExcelDataResolver.class);
+	private static final Logger log = LoggerFactory.getLogger(AbstractExcelDataResolver.class);
 	
 	@Override
 	public <T> List<T> resolver(InputStream in, Class<T> cls, MetaDataFactory metaDataFactory) throws Exception {
@@ -31,13 +31,13 @@ public abstract class AbstractExcelDataResolver implements DataResolver{
 		long startTime = System.currentTimeMillis();
 		Workbook workbook = this.createWorkbook(in);
 		int sheets = workbook.getNumberOfSheets();
-		logger.debug("workbook.getNumberOfSheets()=" + sheets);
+		log.debug("workbook.getNumberOfSheets()={}" , sheets);
 
 		if (sheets <= 0) {
 			throw new IllegalArgumentException("excel没有sheet");
 		}
 		Sheet sheet = workbook.getSheetAt(0);
-		logger.debug("sheet.getLastRowNum()=" + sheet.getLastRowNum());
+		log.debug("sheet.getLastRowNum()={}" , sheet.getLastRowNum());
 		ExcelConfig excelConfig = metaDataFactory.getExcelConfig();
 		if(excelConfig == null){
 			throw new IllegalArgumentException("ExcelConfig对象为Null");
@@ -77,7 +77,7 @@ public abstract class AbstractExcelDataResolver implements DataResolver{
 			}
 		}
 		long endTime = System.currentTimeMillis();
-		logger.info("解析excel耗时:" + (endTime - startTime));
+		log.info("解析excel耗时:{}" , (endTime - startTime));
 		return ret;
 	}
 
@@ -129,10 +129,10 @@ public abstract class AbstractExcelDataResolver implements DataResolver{
 		try {
 			field.set(t, value);
 		} catch (IllegalArgumentException e) {
-			logger.error("设置Field错误", e);
+			log.error("设置Field错误", e);
 			throw new IllegalArgumentException("设置Field错误", e);
 		} catch (IllegalAccessException e) {
-			logger.error("设置Field错误", e);
+			log.error("设置Field错误", e);
 			throw new IllegalArgumentException("设置Field错误", e);
 		}
 	}
@@ -153,7 +153,7 @@ public abstract class AbstractExcelDataResolver implements DataResolver{
 				cls = cls.getSuperclass();
 			}
 		} catch (SecurityException e) {
-			logger.error("获得Field错误", e);
+			log.error("获得Field错误", e);
 			throw new IllegalArgumentException("获得Field错误", e);
 		}
 		return ret;
@@ -163,10 +163,10 @@ public abstract class AbstractExcelDataResolver implements DataResolver{
 		try {
 			return cls.newInstance();
 		} catch (InstantiationException e) {
-			logger.error("实例化" + cls.getSimpleName() + "错误", e);
+			log.error("实例化{}错误",cls.getSimpleName(), e);
 			throw new IllegalArgumentException("实例化" + cls.getSimpleName() + "错误", e);
 		} catch (IllegalAccessException e) {
-			logger.error("不合法的访问" + cls.getSimpleName() + "错误", e);
+			log.error("不合法的访问{}错误",cls.getSimpleName(), e);
 			throw new IllegalArgumentException("实例化" + cls.getSimpleName() + "错误", e);
 		}
 	}

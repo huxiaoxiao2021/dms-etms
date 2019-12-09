@@ -22,7 +22,7 @@ import com.jd.ql.basic.ws.BasicSecondaryWS;
 
 @Service("provinceAndCityService")
 public class ProvinceAndCityServiceImpl implements ProvinceAndCityService {
-    private Logger logger = LoggerFactory.getLogger(ProvinceAndCityServiceImpl.class);
+    private Logger log = LoggerFactory.getLogger(ProvinceAndCityServiceImpl.class);
 
     @Autowired
     private BasicSecondaryWS basicSecondaryWS;
@@ -44,12 +44,11 @@ public class ProvinceAndCityServiceImpl implements ProvinceAndCityService {
                     cityList.add(new ProvinceAndCity(assort.getAssId().toString(),assort.getAssDis()));
                 }
             }else{
-                logger.info("ProvinceAndCityServiceImpl.getCityByProvince根据省ID："
-                        +provinceId+"调用基础资料接口获取的城市信息为空");
+                log.info("ProvinceAndCityServiceImpl.getCityByProvince根据省ID：{}调用基础资料接口获取的城市信息为空",provinceId);
             }
 
         }catch (Exception e){
-            logger.error("ProvinceAndCityServiceImpl.getCityByProvince根据省ID调用基础资料接口获取城市错误，错误信息为："+e.getMessage(),e);
+            log.error("ProvinceAndCityServiceImpl.getCityByProvince根据省ID调用基础资料接口获取城市错误",e);
         }
 
         return cityList;

@@ -1,27 +1,22 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
-import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
-import com.jd.bluedragon.distribution.print.domain.DmsPaperSize;
-import com.jd.bluedragon.distribution.print.domain.LabelTemplate;
-import com.jd.bluedragon.distribution.print.domain.TemplateGroupEnum;
-import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
+import com.jd.bluedragon.distribution.print.domain.*;
 import com.jd.bluedragon.distribution.print.service.TemplateSelectService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 @Service
 public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintContext,JdResult<String>>{
-	private static final Log logger= LogFactory.getLog(TemplateSelectorWaybillHandler.class);
+	private static final Logger log = LoggerFactory.getLogger(TemplateSelectorWaybillHandler.class);
     
     /**B网专用面单 **/
     private static final String TEMPlATE_NAME_B2B_MAIN = "dms-b2b-new";
@@ -54,7 +49,7 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
 
 	@Override
 	public JdResult<String> handle(WaybillPrintContext context) {
-		logger.info("标签打印-计算包裹标签模板及版本");
+		log.debug("标签打印-计算包裹标签模板及版本");
         String templateName = context.getRequest().getTemplateName();
         /**
          * 标识是否需求匹配模板

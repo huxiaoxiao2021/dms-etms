@@ -31,7 +31,7 @@ import java.lang.reflect.Type;
  **/
 public abstract class AbstractCrossbowManager<P,R> implements InitializingBean {
 
-    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
     /**
      * 调用crossbow组件需要用到的配置，在物流网关中配置，见： 物流网关 -> 外部服务域
@@ -74,7 +74,7 @@ public abstract class AbstractCrossbowManager<P,R> implements InitializingBean {
             return dmsCrossbowClient.executor(crossbowConfig, JsonHelper.toJson(parameter), type);
         } catch (RuntimeException e) {
             Profiler.functionError(callerInfo);
-            logger.warn("调用物流网关crossBow组件执行调用拼多多的接口异常:", e);
+            log.warn("调用物流网关crossBow组件执行调用拼多多的接口异常:", e);
             return null;
         } finally {
             Profiler.registerInfoEnd(callerInfo);

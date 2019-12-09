@@ -654,7 +654,7 @@ public class SortMachineAutoSendController {
 //                        }
 //                        volumeSum += waybillPackageDTO.getVolume() == 0 ? waybillPackageDTO.getOriginalVolume() : waybillPackageDTO.getVolume();
 //                    } catch (Exception e) {
-//                        logger.error("获取批次的总数量和总体积失败：批次号为" + sendCode, e);
+//                        log.error("获取批次的总数量和总体积失败：批次号为" + sendCode, e);
 //                    }
 //                }
 //                packageSum = sendDetailList.size();//获取包裹的数量
