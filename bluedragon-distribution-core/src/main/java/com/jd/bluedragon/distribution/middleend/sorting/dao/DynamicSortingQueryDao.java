@@ -4,6 +4,7 @@ import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -53,7 +54,8 @@ public class DynamicSortingQueryDao implements ISortingDao{
         }else if(SORTING_QUERY_MODE_FAILOVER.equals(sortingQueryMode)){
             //配置列表里有
             Set<Integer> siteCodeSet = siteService.getSiteCodesFromSysConfig(SYSTEM_CONFIG_KEY_SORTING_QUERY_OPEN);
-            if(siteCodeSet!=null && siteCodeSet.contains(createSiteCode)){
+            //配置为空代表开启全国
+            if(CollectionUtils.isEmpty(siteCodeSet) || siteCodeSet.contains(createSiteCode)){
                 logger.info("站点:" + createSiteCode +"使用failoverSortingDao进行查询");
                 return failoverSortingDao;
             }else{
