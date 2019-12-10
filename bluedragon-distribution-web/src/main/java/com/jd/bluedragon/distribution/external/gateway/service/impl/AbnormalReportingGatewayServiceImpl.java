@@ -33,12 +33,7 @@ import org.springframework.beans.factory.annotation.Value;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGatewayService {
 
@@ -161,7 +156,8 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
         }
 
         BaseEntity<List<PackageState>> resultDTO = waybillTraceManager.getAllOperations(barCode);
-        Map<Integer, SiteEntity> siteEntityMap = new HashMap<>();
+        Set<Integer> set = new HashSet<>();
+        List<SiteEntity> siteEntities = new ArrayList<>();
         if (resultDTO != null && resultDTO.getData() != null) {
             List<PackageState> packageStateList = resultDTO.getData();
             if (packageStateList != null && ! packageStateList.isEmpty()) {
@@ -169,12 +165,15 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
                     Integer operateSiteId = packageState.getOperatorSiteId();
                     String operateSiteName = packageState.getOperatorSite();
                     if (operateSiteId != null && StringHelper.isNotEmpty(operateSiteName)) {
-                        SiteEntity siteEntity = new SiteEntity();
-                        siteEntity.setCode(operateSiteId);
-                        siteEntity.setName(operateSiteName);
-                        siteEntityMap.put(operateSiteId, siteEntity);
+                        //此处需要保留原有的全程跟踪顺序，所以不能用map，再获取信息即map的value集合
+                        if (! set.contains(operateSiteId)) {
+                            SiteEntity siteEntity = new SiteEntity();
+                            siteEntity.setCode(operateSiteId);
+                            siteEntity.setName(operateSiteName);
+                            siteEntities.add(siteEntity);
+                        }
+                        set.add(operateSiteId);
                     }
-
                 }
             } else {
                 logger.warn("条码【" + barCode + "】的无全程跟踪操作，无法获取处理部门！");
@@ -183,7 +182,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
             logger.warn("查询条码【" + barCode + "】的全程跟踪记录为空，无法获取处理部门！");
         }
 
-        jdCResponse.setData(new ArrayList<>(siteEntityMap.values()));
+        jdCResponse.setData(siteEntities);
         return jdCResponse;
     }
 
