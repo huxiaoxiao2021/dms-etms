@@ -1,10 +1,5 @@
 package com.jd.bluedragon;
 
-import com.jd.bluedragon.utils.LogHelper;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.impl.SimpleLog;
-
 public class Constants {
     public static final char WAYBILL_SIGN_B='3';
     public static final String MAX_PACK_NUM = "MAX_PACK_NUM";

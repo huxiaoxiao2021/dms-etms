@@ -31,7 +31,7 @@ public class SortingWaybillServiceImpl extends SortingCommonSerivce{
     public boolean doSorting(SortingVO sorting) {
         if (sorting.getIsCancel().equals(getSortingService().SORTING_CANCEL_NORMAL)) {
             if( StringUtils.isBlank(sorting.getWaybillCode())){
-                logger.warn("运单分拣运单号为空"+JsonHelper.toJson(sorting));
+                log.warn("运单分拣运单号为空:{}", JsonHelper.toJson(sorting));
                 return true;
             }
             //补验货 提前 防止拆分任务也去补验货任务
@@ -72,7 +72,7 @@ public class SortingWaybillServiceImpl extends SortingCommonSerivce{
                     splitSorting(sortingTurnBody);
                 }
             }else{
-                logger.error("运单分拣包裹数据为空"+JsonHelper.toJson(sorting));
+                log.warn("运单分拣包裹数据为空:{}", JsonHelper.toJson(sorting));
             }
 
 
@@ -105,7 +105,7 @@ public class SortingWaybillServiceImpl extends SortingCommonSerivce{
                 return false;
             }else if(sorting.getPackageListSize() > inspectionList.intValue()){
                 //验货不全 本次不补，通过运单转包裹的拆分任务去补
-                logger.warn("运单分拣时部分包裹存在验货"+sorting.getWaybillCode());
+                log.warn("运单分拣时部分包裹存在验货:{}", sorting.getWaybillCode());
                 return false;
             }
         }

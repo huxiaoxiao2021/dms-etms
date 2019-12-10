@@ -39,7 +39,7 @@ public class AbnormalOrderServiceImpl implements AbnormalOrderService {
 	
 	private static final Integer SITE_CENTER_CODE = 64;
 
-	private Logger logger = LoggerFactory.getLogger(AbnormalOrderServiceImpl.class);
+	private Logger log = LoggerFactory.getLogger(AbnormalOrderServiceImpl.class);
 
     @Autowired
     @Qualifier("pushFXMMQ")
@@ -93,11 +93,11 @@ public class AbnormalOrderServiceImpl implements AbnormalOrderService {
 			boolean isHave = tmpvo!=null;
 			String waybillcode = abnormalOrder.getOrderId();
 			
-			logger.info("AbnormalOrderServiceImpl.pushNewDataFromPDA waybillcode:{}\t isHave:{}" ,waybillcode, isHave);
+			log.info("AbnormalOrderServiceImpl.pushNewDataFromPDA waybillcode:{}\t isHave:{}" ,waybillcode, isHave);
 			if(isHave ){
 				if(tmpvo.getIsCancel().equals(AbnormalOrder.CANCEL) || tmpvo.getIsCancel().equals(AbnormalOrder.WAIT)){
 					/*已取消或在等待结果*/
-					logger.info("AbnormalOrderServiceImpl.pushNewDataFromPDA waybillcode:{}\t IsCancel:{}\t已取消或在等待结果"
+					log.info("AbnormalOrderServiceImpl.pushNewDataFromPDA waybillcode:{}\t IsCancel:{}\t已取消或在等待结果"
 					,waybillcode,tmpvo.getIsCancel());
 					result.put(waybillcode, tmpvo.getIsCancel());
 					continue;	
@@ -117,7 +117,7 @@ public class AbnormalOrderServiceImpl implements AbnormalOrderService {
             }
 
 			int tmpresult = isHave?abnormalOrderDao.updateSome(abnormalOrder):abnormalOrderDao.insert(abnormalOrder);
-			logger.info("AbnormalOrderServiceImpl.pushNewDataFromPDA waybillcode:{}\t 数据库操作结果:{}" ,waybillcode, tmpresult);
+			log.info("AbnormalOrderServiceImpl.pushNewDataFromPDA waybillcode:{}\t 数据库操作结果:{}" ,waybillcode, tmpresult);
 			result.put(waybillcode, isHave?AbnormalOrder.NOTCANCEL:AbnormalOrder.NEW);
 			
 			mqList.add(tmpmq);
@@ -125,27 +125,27 @@ public class AbnormalOrderServiceImpl implements AbnormalOrderService {
 
 			/** 发质控和全程跟踪 */
 			try {
-				logger.warn("分拣中心外呼申请发质控和全程跟踪开始。运单号{}" , abnormalOrder.getOrderId());
+				log.warn("分拣中心外呼申请发质控和全程跟踪开始。运单号{}" , abnormalOrder.getOrderId());
 				toWaybillTraceWS(abnormalOrder);  // 推全程跟踪
 				toQualityControlMQ(abnormalOrder);  // 推质控
 			} catch (Exception ex) {
-				logger.error("分拣中心异常节点配送外呼推全程跟踪、质控发生异常。" , ex);
+				log.error("分拣中心异常节点配送外呼推全程跟踪、质控发生异常。" , ex);
 			}
 		}
 		/*推送MQ*/
-		logger.info("AbnormalOrderServiceImpl.pushNewDataFromPDA pushMq... :{}" , mqList.size());
+		log.info("AbnormalOrderServiceImpl.pushNewDataFromPDA pushMq... :{}" , mqList.size());
 		pushMq(mqList);
 		/*更新运单信息*/
-		logger.info("AbnormalOrderServiceImpl.pushNewDataFromPDA pushWaybill... :{}" , waybillList.size());
+		log.info("AbnormalOrderServiceImpl.pushNewDataFromPDA pushWaybill... :{}" , waybillList.size());
 		pushWaybill(waybillList);
 
-		logger.info("AbnormalOrderServiceImpl.pushNewDataFromPDA success");
+		log.info("AbnormalOrderServiceImpl.pushNewDataFromPDA success");
 		return result;
 	}
 
 
 	public void toQualityControlMQ(AbnormalOrder abnormalOrder){
-		logger.warn("分拣中心外呼申请发质控转换之前数据为{}",JsonHelper.toJson(abnormalOrder));
+		log.warn("分拣中心外呼申请发质控转换之前数据为{}",JsonHelper.toJson(abnormalOrder));
 		QualityControl qualityControl = new QualityControl();
 		qualityControl.setBlameDept(abnormalOrder.getCreateSiteCode());
 		qualityControl.setBlameDeptName(abnormalOrder.getCreateSiteName());

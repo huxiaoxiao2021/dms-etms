@@ -15,7 +15,8 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +30,7 @@ import java.util.List;
 @Service("batchForwardService")
 public class BatchForwardServiceImpl implements BatchForwardService {
 
-    private final Logger logger = Logger.getLogger(BatchForwardServiceImpl.class);
+    private final Logger log = LoggerFactory.getLogger(BatchForwardServiceImpl.class);
 
     @Autowired
     private TaskService taskService;
@@ -63,7 +64,9 @@ public class BatchForwardServiceImpl implements BatchForwardService {
     // TODO: 2019/3/27 此处若发货批次量较大，在操作整批转发时，存在潜在风险
     @Override
     public boolean dealBatchForwardTask(Task task) {
-        this.logger.info("批次转发开始：" + JsonHelper.toJson(task));
+        if(log.isDebugEnabled()){
+            this.log.debug("批次转发开始：{}" , JsonHelper.toJson(task));
+        }
         BatchForwardRequest request = JsonHelper.fromJson(task.getBody(), BatchForwardRequest.class);
         //获得旧批次号下的所有sendM
         String oldSendCode = request.getOldSendCode();
@@ -132,7 +135,9 @@ public class BatchForwardServiceImpl implements BatchForwardService {
 
         task.setBody(JsonHelper.toJson(request));
         taskService.add(task, true);
-        logger.info("批次转发插入task_send" + JsonHelper.toJson(task));
+        if(log.isDebugEnabled()){
+            log.debug("批次转发插入task_send : {}" , JsonHelper.toJson(task));
+        }
     }
 
 }

@@ -661,14 +661,18 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             target.setPopularizeMatrixCode(popularizeMatrixCode);
             target.setAdditionalComment(additionalComment);
         }
+        target.setBusiOrderCode(waybill.getBusiOrderCode());
 
         //Waybillsign的15位打了3的取件单，并且订单号非“QWD”开头的单子getSpareColumn3  ----产品：luochengyi  2017年8月29日16:37:21
-        if(BusinessUtil.isSignChar(waybill.getWaybillSign(),15,'3'))
-        {
-            target.setBusiOrderCode(waybill.getSpareColumn3());
-        }
-        else{
-            target.setBusiOrderCode(waybill.getBusiOrderCode());
+        //B网面单busiOrderCode字段调整为spareColumn3，若spareColumn3为null则该字段不显示
+        if(BusinessUtil.isSignChar(waybill.getWaybillSign(),15,'3')
+                || BusinessUtil.isB2b(waybill.getWaybillSign())){
+            String spareColumn3 = waybill.getSpareColumn3();
+            if(spareColumn3 !=null){
+                target.setBusiOrderCode(waybill.getSpareColumn3());
+            }else{
+                target.setBusiOrderCode("");
+            }
         }
 
         //面单打印新增寄件人、电话、手机号、地址信息

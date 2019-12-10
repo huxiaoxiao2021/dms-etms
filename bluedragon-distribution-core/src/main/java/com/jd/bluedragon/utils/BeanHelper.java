@@ -3,20 +3,16 @@ package com.jd.bluedragon.utils;
 import com.jd.bluedragon.utils.converter.LocalDateConverter;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.ConvertUtils;
-import org.apache.commons.beanutils.converters.BigDecimalConverter;
-import org.apache.commons.beanutils.converters.DoubleConverter;
-import org.apache.commons.beanutils.converters.IntegerConverter;
-import org.apache.commons.beanutils.converters.LongConverter;
-import org.apache.commons.beanutils.converters.ShortConverter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.beanutils.converters.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.util.Date;
 
 public class BeanHelper extends BeanUtils {
 
-    private static final Log logger = LogFactory.getLog(BeanHelper.class);
+    private static final Logger log = LoggerFactory.getLogger(BeanHelper.class);
 
     public static void copyProperties(Object dest, Object orig) {
         //ConvertUtils.register(new StringToDateConverter(), Date.class);
@@ -29,7 +25,7 @@ public class BeanHelper extends BeanUtils {
         try {
             BeanUtils.copyProperties(dest, orig);
         } catch (Exception e) {
-            logger.error("BeanHelper.copyProperties()在进行对象属性复制时出现异常", e);
+            log.error("BeanHelper.copyProperties()在进行对象属性复制时出现异常", e);
         }
     }
 

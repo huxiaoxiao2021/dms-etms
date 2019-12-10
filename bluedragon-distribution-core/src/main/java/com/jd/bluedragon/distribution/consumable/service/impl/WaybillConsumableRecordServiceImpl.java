@@ -78,7 +78,7 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public boolean updateByCondition(WaybillConsumableRecord record) {
         if(record == null || (record.getId() == null && StringUtils.isEmpty(record.getWaybillCode()))){
-            logger.info("Bw网耗材数据更新失败，参数非法：" + JsonHelper.toJson(record));
+            log.info("Bw网耗材数据更新失败，参数非法：{}" , JsonHelper.toJson(record));
             return false;
         }
 	    return waybillConsumableRecordDao.update(record);
@@ -103,7 +103,7 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
             return 0;
         }
         if(confirmRecords.size() > MAX_ROWS){
-	        logger.warn("批量确认数据超过最大支持量，数据总数：" + confirmRecords.size());
+	        log.warn("批量确认数据超过最大支持量，数据总数：{}" , confirmRecords.size());
             throw new IllegalArgumentException("批量确认最大支持数量：" + MAX_ROWS);
         }
 
@@ -145,12 +145,12 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
     public Boolean isConfirmed(String waybillCode) {
         WaybillConsumableRecord record = queryOneByWaybillCode(waybillCode);
         if (record != null) {
-            logger.info("运单号" + waybillCode + "确认耗材服务结果【0：未确认，1：确认】：" + record.getConfirmStatus());
+            log.info("运单号{}确认耗材服务结果【0：未确认，1：确认】：{}" ,waybillCode, record.getConfirmStatus());
             return TREATED_STATE.equals(record.getConfirmStatus());
         }
         //added by hanjiaxing3 2019.04.12 业务方确认取不到包装服务任务的，也进行拦截
         else {
-            logger.warn("运单号" + waybillCode + "需要使用包装耗材服务，但是不存在包装耗材服务任务，需对TOPIC：【bd_pack_sync_waybill】查询归档");
+            log.warn("运单号{}需要使用包装耗材服务，但是不存在包装耗材服务任务，需对TOPIC：【bd_pack_sync_waybill】查询归档",waybillCode);
             return false;
         }
         //edited by hanjiaxing3 2019.04.12 业务方确认取不到包装服务任务的，也进行拦截
@@ -199,7 +199,7 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
                 try {
                     waybillConsumableProducer.sendOnFailPersistent(dto.getWaybillCode(), JSON.toJSONString(dto));
                 }catch (Exception e){
-                    logger.error("B网包装耗材确认明细发送运单失败：" + JSON.toJSONString(dto), e);
+                    log.error("B网包装耗材确认明细发送运单失败：{}" , JSON.toJSONString(dto), e);
                 }
             }
         }

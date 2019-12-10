@@ -8,8 +8,8 @@ import com.jd.invoice.domain.InvoiceTemplate;
 import com.jd.invoice.service.jsf.PrintTableJsfService;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -23,7 +23,7 @@ import java.text.MessageFormat;
 @Service("invoicePrintService")
 public class DefaultInvoicePrintServiceImpl implements InvoicePrintService {
 
-    private static final Log logger= LogFactory.getLog(DefaultInvoicePrintServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(DefaultInvoicePrintServiceImpl.class);
 
     private static final String INVOICE_SUCCESS=String.valueOf(1);
 
@@ -37,8 +37,8 @@ public class DefaultInvoicePrintServiceImpl implements InvoicePrintService {
         InvokeResult<String> result=new InvokeResult<String>();
         try {
             InvoiceTemplate templte= invoiceJsfService.getInvoiceTemplateAndPrintNew(parameters.getOrderId(),parameters.getCky2(),parameters.getStoreId(), parameters.getErpAccount(),parameters.getRealName());
-            if(logger.isInfoEnabled()){
-                logger.info(MessageFormat.format("发票结果:{0}",JsonHelper.toJson(templte)));
+            if(log.isInfoEnabled()){
+                log.info("发票结果:{}",JsonHelper.toJson(templte));
             }
             if(INVOICE_SUCCESS.equals(templte.getResultCode())){
                 result.success();
@@ -48,7 +48,7 @@ public class DefaultInvoicePrintServiceImpl implements InvoicePrintService {
             }
         }catch (Throwable e){
             result.error(e);
-            logger.error("生成发票",e);
+            log.error("生成发票",e);
             Profiler.functionError(info);
         }finally {
             Profiler.registerInfoEnd(info);

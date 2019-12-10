@@ -11,10 +11,10 @@ import com.jd.tbschedule.dto.ScheduleQueue;
 import com.jd.tbschedule.redis.utils.JsonUtil;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 @Service("redisManager")
 public class RedisManagerImpl implements RedisManager {
 
-	private static final Logger logger = Logger.getLogger(RedisManagerImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(RedisManagerImpl.class);
 	
 	/**
 	 * redis-worker专用
@@ -91,11 +91,10 @@ public class RedisManagerImpl implements RedisManager {
 			JProEnum.Heartbeat, JProEnum.FunctionError })
 	public long llen(String key) throws Exception{
 		if(key==null || key.length() < 1){
-			logger.warn("llen: parameter is empty,return 0!");
+			log.warn("llen: parameter is empty,return 0!");
 			return 0;
 		}
 		Long count = redisClient.lLen(key);
-		logger.info("llen: key["+key+"],count["+count+"]");
 		return count==null ? 0 : count.longValue();
 	}
 	
@@ -103,7 +102,7 @@ public class RedisManagerImpl implements RedisManager {
 			JProEnum.Heartbeat, JProEnum.FunctionError })
 	public List<String> lrange(String key, long start, long end) throws Exception{
 		if(key==null || key.length() < 1){
-			logger.warn("llen: parameter is empty,return 0!");
+			log.warn("llen: parameter is empty,return 0!");
 			return null;
 		}
 		List<String> list = redisClient.lRange(key, start, end);
@@ -114,7 +113,7 @@ public class RedisManagerImpl implements RedisManager {
 			JProEnum.Heartbeat, JProEnum.FunctionError })
 	public String lpop(String key) throws Exception{
 		if(key==null || key.length() < 1){
-			logger.warn("lpop: parameter is empty,return null!");
+			log.warn("lpop: parameter is empty,return null!");
 			return null;
 		}
 		String result = redisClient.lPop(key);
@@ -134,7 +133,7 @@ public class RedisManagerImpl implements RedisManager {
         CallerInfo info = Profiler.registerInfo("erp.RedisClientProxy.queryRedisQueueCount", Constants.UMP_APP_NAME_DMSWEB,false, true);
 		Map<String,Long> result = new HashMap<String,Long>();
 		try {
-			logger.info("queryRedisQueueCount: " + list);
+			log.info("queryRedisQueueCount: {}" , list);
 			long count = 0;
 			for (String item : list) {
 				if(item == null || item.length() < 1){
@@ -145,7 +144,7 @@ public class RedisManagerImpl implements RedisManager {
 			}
 		} catch (Exception e) {
 			Profiler.functionError(info);
-			logger.error("queryRedisQueueCount-error", e);
+			log.error("queryRedisQueueCount-error", e);
 		}finally {
 			Profiler.registerInfoEnd(info);
 		}
@@ -249,7 +248,7 @@ public class RedisManagerImpl implements RedisManager {
 	@Deprecated
 	public List<String> lrangeCache(String key, long start, long end) throws Exception {
 		if(key==null || key.length() < 1){
-			logger.warn("lrangeCache: parameter is empty,return 0!");
+			log.warn("lrangeCache: parameter is empty,return 0!");
 			return null;
 		}
 		List<String> list = redisClientCache.lRange(key, start, end);

@@ -7,7 +7,8 @@ import com.jd.bluedragon.distribution.notice.domain.AttachmentDownloadDto;
 import com.jd.bluedragon.distribution.notice.domain.NoticeAttachment;
 import com.jd.bluedragon.distribution.notice.service.NoticeAttachmentService;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,7 @@ import java.util.Map;
 @Service
 public class NoticeAttachmentServiceImpl implements NoticeAttachmentService {
 
-    private final Logger logger = Logger.getLogger(NoticeAttachmentServiceImpl.class);
+    private final Logger log = LoggerFactory.getLogger(NoticeAttachmentServiceImpl.class);
 
     @Autowired
     private NoticeAttachmentDao noticeAttachmentDao;
@@ -85,7 +86,7 @@ public class NoticeAttachmentServiceImpl implements NoticeAttachmentService {
                         try {
                             jssService.deleteFile(bucket, attachment.getKeyName());
                         } catch (JssStorageException e) {
-                            logger.error("调用JSS服务删除附件失败", e);
+                            log.error("调用JSS服务删除附件失败", e);
                         }
                     }
                 }

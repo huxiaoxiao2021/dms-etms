@@ -12,7 +12,7 @@ import org.springframework.util.Assert;
 @Service("spareSaleService")
 public class SpareSaleServiceImpl implements SpareSaleService {
     
-//    private final Log logger = LogFactory.getLog(this.getClass());
+//    private final Log log = LogFactory.getLog(this.getClass());
     
     @Autowired
     private SpareSaleDao spareSaleDao;

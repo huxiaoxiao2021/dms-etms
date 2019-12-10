@@ -14,7 +14,8 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +38,7 @@ public class WaybillPackageBarcodeServiceImpl implements WaybillPackageBarcodeSe
 	@Autowired
 	WaybillPackageManager waybillPackageManager;
 	
-	private final static Logger logger = Logger.getLogger(WaybillPackageBarcodeServiceImpl.class);
+	private final static Logger log = LoggerFactory.getLogger(WaybillPackageBarcodeServiceImpl.class);
 	
 	/**
 	 * 调用wss调用运单接口核心类
@@ -51,16 +52,16 @@ public class WaybillPackageBarcodeServiceImpl implements WaybillPackageBarcodeSe
 		BaseEntity<com.jd.etms.waybill.dto.BigWaybillDto> entity = waybillQueryManager.getDataByChoice(waybillCode, wChoice);
 		
 		if(null==entity){
-			logger.info(" Waybill wss: 运单接口waybillQueryWSProxy.getDataByChoice ,调用返回空，运单不存在， waybillCode: "+waybillCode);
+			log.info(" Waybill wss: 运单接口waybillQueryWSProxy.getDataByChoice ,调用返回空，运单不存在， waybillCode: {}",waybillCode);
 			return null;
 		}
 		if(entity.getResultCode()!=1){
-			logger.info(" Waybill wss: 运单接口waybillQueryWSProxy.getDataByChoice ,调用返回失败, waybillCode: "+waybillCode+". resultCode code: "+entity.getResultCode()
-					+"\n error message: "+entity.getMessage());//print stack trace
+			log.info(" Waybill wss: 运单接口waybillQueryWSProxy.getDataByChoice ,调用返回失败, waybillCode:{}. resultCode code:{} error message: {}"
+					,waybillCode,entity.getResultCode(),entity.getMessage());//print stack trace
 			return null;
 		}
 		if(null==entity.getData() || null==entity.getData().getPackageList()){
-			logger.warn(" Waybill wss: 运单接口waybillQueryWSProxy.getDataByChoice , 运单: "+waybillCode + " 无包裹数据");
+			log.warn(" Waybill wss: 运单接口waybillQueryWSProxy.getDataByChoice , 运单: {} 无包裹数据",waybillCode);
 			return null;
 		}
 		return entity;
@@ -100,7 +101,7 @@ public class WaybillPackageBarcodeServiceImpl implements WaybillPackageBarcodeSe
 
 			waybillResponse = this.getWaybillAndPackByWaybillCode(waybillResponse,code,siteCode,receiveSiteCode);
 		}else{
-			logger.error("  getWaybillPackageBarcode 失败，因为参数code无法解析, code: "+code);
+			log.error("  getWaybillPackageBarcode 失败，因为参数code无法解析, code: {}",code);
 		}
 		return waybillResponse;
 	}
@@ -120,7 +121,7 @@ public class WaybillPackageBarcodeServiceImpl implements WaybillPackageBarcodeSe
 		Waybill waybill = entity.getData().getWaybill();
 		List<DeliveryPackageD> packages = entity.getData().getPackageList();
 		if( null==waybill || StringUtils.isBlank(waybill.getReceiverAddress())){
-			logger.error(" Waybill wss:  waybillWSInfoProxy.getWaybillAndPackByWaybillCode(code) fail, address of waybill is empty , code: "+code);
+			log.warn(" Waybill wss:  waybillWSInfoProxy.getWaybillAndPackByWaybillCode(code) fail, address of waybill is empty , code: {}",code);
 			waybillResponse.setCode(WaybillResponse.CODE_NO_WAYBILL);
 			waybillResponse.setMessage(WaybillResponse.MESSAGE_NO_WAYBILL);
 		}
@@ -155,12 +156,12 @@ public class WaybillPackageBarcodeServiceImpl implements WaybillPackageBarcodeSe
 	private WaybillResponse wssGetWaybillByPackCode(WaybillResponse waybillResponse,String code, Integer siteCode, Integer receiveSiteCode) {
 		BaseEntity<Waybill> entity = waybillQueryManager.getWaybillByPackCode(code);
 		if(null==entity){
-			logger.error(" Waybill wss: waybillWSInfoProxy.getWaybillByPackCode(code) fail that entity is null . package barcode: "+code);
+			log.warn(" Waybill wss: waybillWSInfoProxy.getWaybillByPackCode(code) fail that entity is null . package barcode: {}",code);
 			return waybillResponse;
 		}
 		if(entity.getResultCode()!=1){
-			logger.error(" Waybill wss: waybillWSInfoProxy.getWaybillByPackCode(code) fail, code: "+code+". resultCode code: "+entity.getResultCode()
-					+"\n error message: "+entity.getMessage());//print stack trace
+			log.warn(" Waybill wss: waybillWSInfoProxy.getWaybillByPackCode(code) fail, code:{}. resultCode code: {} error message:{} "
+					,code,entity.getResultCode(),entity.getMessage());//print stack trace
 			return waybillResponse;
 		}
 		Waybill waybill = entity.getData();
@@ -168,7 +169,7 @@ public class WaybillPackageBarcodeServiceImpl implements WaybillPackageBarcodeSe
 		PackageResponse pack = null;
 		
 		if( null==waybill || StringUtils.isBlank(waybill.getWaybillCode()) ){
-			logger.error(" Waybill wss: waybillWSInfoProxy.getWaybillByPackCode(code) error. waybill is null,package barcode: "+code);
+			log.warn(" Waybill wss: waybillWSInfoProxy.getWaybillByPackCode(code) error. waybill is null,package barcode:{} ",code);
 			pack =new PackageResponse(WaybillUtil.getWaybillCode(code), code, null, null);
 			List<PackageResponse> responseList = new ArrayList<PackageResponse>();
 			responseList.add(pack);
@@ -177,7 +178,7 @@ public class WaybillPackageBarcodeServiceImpl implements WaybillPackageBarcodeSe
 			waybillResponse.setMessage(WaybillResponse.MESSAGE_NO_WAYBILL);
 			return waybillResponse;
 		}else if(StringUtils.isBlank(waybill.getReceiverAddress())){
-			logger.error(" Waybill wss: waybillWSInfoProxy.getWaybillByPackCode(code) error. waybill's address is null,package barcode: "+code);
+			log.warn(" Waybill wss: waybillWSInfoProxy.getWaybillByPackCode(code) error. waybill's address is null,package barcode: {}",code);
 		}
 		
 		/*//调用治澎接口通过包裹号获得箱号、接收站点、创建站点

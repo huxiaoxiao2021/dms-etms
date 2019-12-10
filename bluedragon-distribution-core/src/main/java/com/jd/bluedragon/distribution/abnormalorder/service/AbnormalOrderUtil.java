@@ -19,16 +19,16 @@ public class AbnormalOrderUtil {
 	
 	private static RefundReason[] refundReason = null;
 
-	private static final Logger logger = LoggerFactory.getLogger(AbnormalOrderUtil.class);
+	private static final Logger log = LoggerFactory.getLogger(AbnormalOrderUtil.class);
 
     public synchronized static void init(BaseService baseService){
 
     	Integer[] refundReasonCode = null;
     	/************************* 处理基础参数  ************************/    	
-    	logger.info("AbnormalOrderUtil.init refunReasonSysconfigList = baseService.queryConfigByKey(SYSCONFIG_REFUNDREASONCODEKEY_KEY)");
+    	log.info("AbnormalOrderUtil.init refunReasonSysconfigList = baseService.queryConfigByKey(SYSCONFIG_REFUNDREASONCODEKEY_KEY)");
     	List<SysConfig> refunReasonSysconfigList = baseService.queryConfigByKey(SYSCONFIG_REFUNDREASONCODEKEY_KEY);
     	if(refunReasonSysconfigList!=null){
-    		logger.info("AbnormalOrderUtil.init refunReasonSysconfigList size:{}" , refunReasonSysconfigList.size());
+    		log.info("AbnormalOrderUtil.init refunReasonSysconfigList size:{}" , refunReasonSysconfigList.size());
     		SysConfig[] refunReasonSysconfigs = refunReasonSysconfigList.toArray(new SysConfig[0]);
 	    	Arrays.sort(refunReasonSysconfigs, new Comparator<SysConfig>() {
 	
@@ -42,25 +42,25 @@ public class AbnormalOrderUtil {
 	    	refundReasonCode = new Integer[refunReasonSysconfigs.length];
 	    	
 	    	for(int i = 0;i<refunReasonSysconfigs.length;i++){
-	    		logger.info("AbnormalOrderUtil.init refunReasonSysconfigList[{}]={}" ,i, refunReasonSysconfigs[i].getConfigContent() );
+	    		log.info("AbnormalOrderUtil.init refunReasonSysconfigList[{}]={}" ,i, refunReasonSysconfigs[i].getConfigContent() );
 	    		refundReasonCode[i] = Integer.parseInt(refunReasonSysconfigs[i].getConfigContent());
 	    	}
     	}else{
-    		logger.info("AbnormalOrderUtil.init refunReasonSysconfigList is null");
+    		log.info("AbnormalOrderUtil.init refunReasonSysconfigList is null");
     		refundReasonCode = new Integer[0];
     	}
     	
     	/************************* 处理退货类型  ************************/
     	List<Integer> codeAl = Arrays.asList(refundReasonCode);
 		RefundReason[] refundReasons = new RefundReason[refundReasonCode.length];
-		logger.info("AbnormalOrderUtil.init 分拣退货类型查询  baseService.getBaseDataDictList(?,3,5003)");
+		log.info("AbnormalOrderUtil.init 分拣退货类型查询  baseService.getBaseDataDictList(?,3,5003)");
 		List<BaseDataDict> resultal = baseService.getBaseDataDictList(5003,2,5003);
 		
 		if(codeAl.size()==0){
 			refundReason = new RefundReason[0];
 		}
 		
-		logger.info("AbnormalOrderUtil.init refundReasons根据refunReasonSysconfigList进行处理");
+		log.info("AbnormalOrderUtil.init refundReasons根据refunReasonSysconfigList进行处理");
 		for(BaseDataDict data : resultal){
 			int index = codeAl.indexOf(data.getTypeCode());
 			if(index>=0){
@@ -76,7 +76,7 @@ public class AbnormalOrderUtil {
 				}
 			}
 		}
-		logger.info("AbnormalOrderUtil.init refundReasons.size:{}" , refundReasons.length);
+		log.info("AbnormalOrderUtil.init refundReasons.size:{}" , refundReasons.length);
 		refundReason = refundReasons;
     }
     

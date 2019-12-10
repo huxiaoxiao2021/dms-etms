@@ -34,7 +34,7 @@ import java.util.List;
 @Service("spotCheckConsumer")
 public class SpotCheckConsumer extends MessageBaseConsumer {
 
-    private static final Logger logger = LoggerFactory.getLogger(SpotCheckConsumer.class);
+    private static final Logger log = LoggerFactory.getLogger(SpotCheckConsumer.class);
 
     /**
      * 责任类型：认责
@@ -61,7 +61,7 @@ public class SpotCheckConsumer extends MessageBaseConsumer {
         //主动认责的将此运单号对应的总重量、总体积 写入运单系统
         try {
             if (!JsonHelper.isJsonString(message.getText())) {
-                logger.error("参数:{}, 异常信息:{}", message.getText() , "抽检回传消息体非JSON格式");
+                log.warn("参数:{}, 异常信息:抽检回传消息体非JSON格式", message.getText());
                 return;
             }
 
@@ -80,10 +80,10 @@ public class SpotCheckConsumer extends MessageBaseConsumer {
                     &&blameType!=null&&blameType==BLAME_TYPE){
                 Integer inputMode = pictureInfoMq.getInputMode();
                 if(inputMode==null){
-                    logger.error("参数:{}, 异常信息:{}", pictureInfoMq.getBillCode() , "运单号抽检类型为空");
+                    log.warn("参数:{}, 异常信息:运单号抽检类型为空", pictureInfoMq.getBillCode());
                     return;
                 }
-                logger.info("运单号：{}的抽检回传消息：{}",pictureInfoMq.getBillCode(),message.getText());
+                log.info("运单号：{}的抽检回传消息：{}",pictureInfoMq.getBillCode(),message.getText());
                 if(inputMode == 2){
                     //包裹维度抽检
                     OpeEntity opeEntity = new OpeEntity();
@@ -133,7 +133,7 @@ public class SpotCheckConsumer extends MessageBaseConsumer {
 
             }
         }catch (Exception e){
-            logger.error("参数:{}, 异常信息:{}", message.getText() , e.getMessage(), e);
+            log.error("参数:{}, 异常信息:{}", message.getText() , e.getMessage(), e);
         }
     }
 

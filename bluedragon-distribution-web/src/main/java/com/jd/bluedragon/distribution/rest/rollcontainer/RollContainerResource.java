@@ -104,12 +104,12 @@ public class RollContainerResource {
 //				if(boxCode == null || "".equals(boxCode)){
 //					response.setCode(JdResponse.CODE_OK_NULL);
 //					response.setMessage("异常提示：上游未将周转箱号与箱号绑定！");
-//					logger.error("周转箱"+containerCode+"对应的箱号为空，请确认！");
+//					log.error("周转箱"+containerCode+"对应的箱号为空，请确认！");
 //				}
 //			}else{
 //				response.setCode(JdResponse.CODE_OK_NULL);
 //				response.setMessage("异常提示：上游未将周转箱号与箱号绑定！");
-//				logger.error("周转箱"+containerCode+"对应的发货信息sendm数据为空，请确认！");
+//				log.error("周转箱"+containerCode+"对应的发货信息sendm数据为空，请确认！");
 //			}
 			//kvindex里根据rfid获取箱号
 			String boxCode = containerRelationService.getBoxCodeByContainerCode(containerCode);
@@ -291,7 +291,7 @@ public class RollContainerResource {
 //        }catch(Exception e){
 //        	response.setCode(JdResponse.CODE_INTERNAL_ERROR);
 //        	response.setMessage("内部错误");
-//        	logger.error("内部错误",e);
+//        	log.error("内部错误",e);
 //        }
 //		
 //        return response;

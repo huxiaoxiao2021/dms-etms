@@ -6,16 +6,15 @@ import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 @Service("sysConfigService")
 public class SysConfigServiceImpl implements SysConfigService {
-    private static final Log logger= LogFactory.getLog(SysConfigServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(SysConfigServiceImpl.class);
     private static final String REDIS_LIMIT_SIZE_KEY="redisTaskQueueSize";
 	@Autowired
 	private SysConfigDao sysConfigDao;
@@ -78,7 +77,7 @@ public class SysConfigServiceImpl implements SysConfigService {
                 size=Long.parseLong(config.getConfigContent());
             }
         }catch (Exception ex){
-            logger.error("重新加载redisTaskQueueSize",ex);
+            log.error("重新加载redisTaskQueueSize",ex);
         }
         return size;
     }
