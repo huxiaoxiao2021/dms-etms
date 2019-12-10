@@ -2,7 +2,8 @@ package com.jd.bluedragon.distribution.areadest.service;
 
 import com.jd.bluedragon.distribution.areadest.dao.AreaDestPlanDetailDao;
 import com.jd.bluedragon.distribution.areadest.domain.AreaDestPlanDetail;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +17,7 @@ import java.util.Map;
 @Service("areaDestPlanDetailService")
 public class AreaDestPlanDetailServiceImpl implements AreaDestPlanDetailService {
 
-    private final Logger logger = Logger.getLogger(AreaDestPlanDetailServiceImpl.class);
+    private final Logger log = LoggerFactory.getLogger(AreaDestPlanDetailServiceImpl.class);
 
     @Autowired
     private AreaDestPlanDetailDao areaDestPlanDetailDao;
@@ -28,7 +29,7 @@ public class AreaDestPlanDetailServiceImpl implements AreaDestPlanDetailService 
                 return true;
             }
         } catch (Exception e) {
-            logger.error("龙门架发货关系方案操作流水新增失败", e);
+            log.error("龙门架发货关系方案操作流水新增失败", e);
         }
         return false;
     }
@@ -42,7 +43,7 @@ public class AreaDestPlanDetailServiceImpl implements AreaDestPlanDetailService 
             parameters.put("scannerTime", scannerTime);
             return areaDestPlanDetailDao.getByScannerTime(parameters);
         } catch (Exception e) {
-            logger.error("根据龙门架扫描时间获取方案启动记录失败", e);
+            log.error("根据龙门架扫描时间获取方案启动记录失败", e);
         }
         return null;
     }

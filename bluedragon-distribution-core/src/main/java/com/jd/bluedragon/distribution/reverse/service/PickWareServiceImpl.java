@@ -5,8 +5,8 @@ import com.jd.bluedragon.distribution.reverse.domain.PickWare;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.StringHelper;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -17,7 +17,7 @@ public class PickWareServiceImpl implements PickWareService {
 
 	@Autowired
 	private PickWareDao pickWareDao;
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Integer add(PickWare pickWare) {
@@ -25,7 +25,7 @@ public class PickWareServiceImpl implements PickWareService {
 		if (!this.has(pickWare)) {
 			return this.pickWareDao.add(PickWareDao.namespace, pickWare);
 		} else {
-			this.logger.error(" Duplicate pickWare: " + pickWare.toString());
+			this.log.warn(" Duplicate pickWare: {}", pickWare.toString());
 		}
 		return 0;
 	}

@@ -1,17 +1,16 @@
 package com.jd.bluedragon.utils;
 
+import com.jd.bluedragon.Constants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.jd.bluedragon.Constants;
-
 public class PropertiesHelper {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private static PropertiesHelper propertiesHelper = null;
 
@@ -45,14 +44,14 @@ public class PropertiesHelper {
 			this.properties.load(importantInputiStream);
 			this.properties.load(dmsIpMappingInputiStream);
 		} catch (IOException ioe) {
-			this.logger.error("加载配置文件发生异常！", ioe);
+			this.log.error("加载配置文件发生异常！", ioe);
 		} finally {
 			try {
 				if (mainFileInputStream != null) {
 					mainFileInputStream.close();
 				}
 			} catch (IOException ioe) {
-				this.logger.error("关闭文件流发生异常！", ioe);
+				this.log.error("关闭文件流发生异常！", ioe);
 			}
 
 			try {
@@ -60,7 +59,7 @@ public class PropertiesHelper {
 					importantInputiStream.close();
 				}
 			} catch (IOException ioe) {
-				this.logger.error("关闭文件流发生异常！", ioe);
+				this.log.error("关闭文件流发生异常！", ioe);
 			}
 
 			try {
@@ -68,7 +67,7 @@ public class PropertiesHelper {
 					dmsIpMappingInputiStream.close();
 				}
 			} catch (IOException ioe) {
-				this.logger.error("关闭文件流发生异常！", ioe);
+				this.log.error("关闭文件流发生异常！", ioe);
 			}
 		}
 	}

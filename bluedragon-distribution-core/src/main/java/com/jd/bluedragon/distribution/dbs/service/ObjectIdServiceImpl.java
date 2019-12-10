@@ -1,9 +1,8 @@
 package com.jd.bluedragon.distribution.dbs.service;
 
 import com.jd.bluedragon.distribution.dbs.dao.ObjectIdDao;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -14,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service("objectIdService")
 public class ObjectIdServiceImpl implements ObjectIdService{
-	private static final Log logger = LogFactory.getLog(ObjectIdServiceImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(ObjectIdServiceImpl.class);
     @Autowired
     private ObjectIdDao objectIdDao;
     /**
@@ -48,7 +47,7 @@ public class ObjectIdServiceImpl implements ObjectIdService{
 	    		try {
 					updateRows = objectIdDao.insertObjectId(objectName, 1);
 				} catch (Exception e) {
-					logger.error(failMsg, e);
+					log.error(failMsg, e);
 				}
 	    		if(updateRows == 1){
 	    			currId = 0;

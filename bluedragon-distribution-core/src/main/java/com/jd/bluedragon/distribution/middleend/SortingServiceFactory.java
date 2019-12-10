@@ -13,7 +13,7 @@ import java.util.Set;
 
 @Service
 public class SortingServiceFactory {
-    protected Logger logger = LoggerFactory.getLogger(SortingServiceFactory.class);
+    protected Logger log = LoggerFactory.getLogger(SortingServiceFactory.class);
 
     @Autowired
     private SiteService siteService;
@@ -40,7 +40,7 @@ public class SortingServiceFactory {
         try {
             serviceMode = uccPropertyConfiguration.getSortingServiceMode();
         } catch (Exception e) {
-            logger.error("ucc获取分拣serviceType异常.", e);
+            log.error("ucc获取分拣serviceType异常.", e);
         }
 
         if(serviceMode.equals(SORTING_SERVICE_MODE_FAILOVER)){
@@ -51,13 +51,13 @@ public class SortingServiceFactory {
             }
         }
         if (serviceMode.equals(SORTING_SERVICE_MODE_DMS)) {
-            logger.info("站点[" + createSiteCode + "]使用DMS模式执行分拣流程");
+            log.info("站点[{}]使用DMS模式执行分拣流程",createSiteCode);
             return dmsSortingService;
         } else if (serviceMode.equals(SORTING_SERVICE_MODE_MIDDLEEND)) {
-            logger.info("站点[" + createSiteCode + "]使用MIDDLEEND模式执行分拣流程");
+            log.info("站点[{}]使用MIDDLEEND模式执行分拣流程",createSiteCode);
             return middleEndSortingService;
         } else if (serviceMode.equals(SORTING_SERVICE_MODE_FAILOVER)) {
-            logger.info("站点[" + createSiteCode + "]使用FAILOVER模式执行分拣流程");
+            log.info("站点[{}]使用FAILOVER模式执行分拣流程",createSiteCode);
             return failOverSortingService;
         }
 

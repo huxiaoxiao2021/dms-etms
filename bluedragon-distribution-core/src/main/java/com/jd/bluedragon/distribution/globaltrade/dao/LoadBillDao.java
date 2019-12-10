@@ -2,11 +2,11 @@ package com.jd.bluedragon.distribution.globaltrade.dao;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.mybatis.spring.SqlSessionTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class LoadBillDao extends BaseDao<LoadBill> {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private static final String namespace = LoadBillDao.class.getName();
 
@@ -29,7 +29,7 @@ public class LoadBillDao extends BaseDao<LoadBill> {
 	}
 
 	public int updateLoadBillStatus(Map<String, Object> loadBillStatusMap) {
-		logger.info("LoadBillDao.updateLoadBillStatus loadId is " + loadBillStatusMap.get("loadIdList").toString());
+		log.info("LoadBillDao.updateLoadBillStatus loadId is {}" , loadBillStatusMap.get("loadIdList").toString());
 		return this.getSqlSession().update(LoadBillDao.namespace + ".updateLoadBillStatus", loadBillStatusMap);
 	}
 
@@ -77,7 +77,7 @@ public class LoadBillDao extends BaseDao<LoadBill> {
 	}
 
 	public LoadBill findByPackageBarcode(String packageBarcode) {
-		logger.info("LoadBillDao.findByPackageBarcode with packageBarcode is " + packageBarcode);
+		log.info("LoadBillDao.findByPackageBarcode with packageBarcode is {}" , packageBarcode);
 		return (LoadBill) this.getSqlSession().selectOne(LoadBillDao.namespace + ".findByPackageBarcode", packageBarcode);
 	}
 
@@ -100,7 +100,7 @@ public class LoadBillDao extends BaseDao<LoadBill> {
 				if (batchSession != null) {
 					batchSession.rollback();
 				}
-				logger.error("[全球购]批量新增LoadBill时发生异常", e);
+				log.error("[全球购]批量新增LoadBill时发生异常", e);
 				throw e;
 			} finally {
 				if (batchSession != null) {

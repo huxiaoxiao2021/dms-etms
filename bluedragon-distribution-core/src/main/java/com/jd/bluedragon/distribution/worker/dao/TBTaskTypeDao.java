@@ -3,9 +3,9 @@ package com.jd.bluedragon.distribution.worker.dao;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.worker.domain.TBTaskType;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.mybatis.spring.SqlSessionTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class TBTaskTypeDao  {
 
-    private static final Log logger= LogFactory.getLog(TBTaskTypeDao.class);
+    private static final Logger log = LoggerFactory.getLogger(TBTaskTypeDao.class);
 
     private static final String namespace=TBTaskTypeDao.class.getName();
 
@@ -45,8 +45,8 @@ public class TBTaskTypeDao  {
      * @return
      */
     public List<TBTaskType> selectByNameUsePager(Pager<String> pager){
-        if(logger.isInfoEnabled()) {
-            logger.info(JsonHelper.toJson(pager));
+        if(log.isInfoEnabled()) {
+            log.info(JsonHelper.toJson(pager));
         }
         return sqlSessionTemplate.selectList(selectByNameUsePagerSQL, pager);
     }

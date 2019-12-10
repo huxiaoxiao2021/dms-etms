@@ -3,9 +3,8 @@ package com.jd.bluedragon.distribution.print.service;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +14,7 @@ import org.springframework.stereotype.Service;
 @Service("specialSiteComposeService")
 public class SpecialSiteComposeServiceImpl implements ComposeService {
 
-    private static final Log logger = LogFactory.getLog(SpecialSiteComposeServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(SpecialSiteComposeServiceImpl.class);
 
     private static Integer PREPARE_SITE_CODE_NOTHING = 0;
     private static String PREPARE_SITE_NAME_NOTHING = "未定位门店";
@@ -43,7 +42,7 @@ public class SpecialSiteComposeServiceImpl implements ComposeService {
             waybill.setPrepareSiteCode(PREPARE_SITE_CODE_OVER_AREA);
             waybill.setPrepareSiteName(PREPARE_SITE_NAME_OVER_AREA);
             waybill.setPrintSiteName(PREPARE_SITE_NAME_OVER_AREA);
-            logger.warn(" 没有获取预分拣站点(-2超区),"+waybill.getWaybillCode());
+            log.warn(" 没有获取预分拣站点(-2超区):{}",waybill.getWaybillCode());
             //未定位门店
         } else if(waybill.getPrepareSiteCode()==null
                 || (waybill.getPrepareSiteCode()<=PREPARE_SITE_CODE_NOTHING
@@ -52,14 +51,14 @@ public class SpecialSiteComposeServiceImpl implements ComposeService {
             waybill.setPrepareSiteCode(PREPARE_SITE_CODE_NOTHING);
             waybill.setPrepareSiteName(PREPARE_SITE_NAME_NOTHING);
             waybill.setPrintSiteName(PREPARE_SITE_NAME_NOTHING);
-            logger.warn(" 没有获取预分拣站点(未定位门店),"+waybill.getWaybillCode());
+            log.warn(" 没有获取预分拣站点(未定位门店):{}",waybill.getWaybillCode());
         } else if(waybill.getPrepareSiteCode() !=null
                 && waybill.getPrepareSiteCode().intValue() < PREPARE_SITE_CODE_OVER_LINE){
             //新细分超区
 //            waybill.setPrepareSiteCode(waybill.getPrepareSiteCode());
             waybill.setPrepareSiteName(PREPARE_SITE_NAME_OVER_AREA);
             waybill.setPrintSiteName(PREPARE_SITE_NAME_OVER_AREA);
-            logger.warn(" 没有获取预分拣站点(细分超区)," + waybill.getPrepareSiteCode() + ","+waybill.getWaybillCode());
+            log.warn(" 没有获取预分拣站点(细分超区):{}-{}" , waybill.getPrepareSiteCode() , waybill.getWaybillCode());
         }
 
         //EMS全国直发

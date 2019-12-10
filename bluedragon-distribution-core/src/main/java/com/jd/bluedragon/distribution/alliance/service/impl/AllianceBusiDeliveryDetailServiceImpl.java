@@ -89,7 +89,9 @@ public class AllianceBusiDeliveryDetailServiceImpl extends BaseService<AllianceB
 			mState = {JProEnum.TP, JProEnum.FunctionError},jAppName = Constants.UMP_APP_NAME_DMSWEB)
 	@BusinessLog(sourceSys = 1,bizType = 1905,operateType = 190501)
 	public BaseEntity<List<AllianceBusiFailDetailDto>> allianceBusiDelivery(AllianceBusiDeliveryDto dto) {
-		logger.debug("加盟商交接环节入参:"+JsonHelper.toJson(dto));
+		if(log.isDebugEnabled()){
+			log.debug("加盟商交接环节入参:{}",JsonHelper.toJson(dto));
+		}
 		//校验入参
 		BaseEntity<List<AllianceBusiFailDetailDto>> result = checkParam(dto);
 		if(result.getCode()!= BaseEntity.CODE_SUCCESS  && dto.getDatas().isEmpty()){
@@ -473,7 +475,7 @@ public class AllianceBusiDeliveryDetailServiceImpl extends BaseService<AllianceB
 				return baseEntity.getData().getWaybill().getWaybillExt().getPartnerId();
 			}
 		}else{
-			logger.warn("获取加盟商ID失败"+waybillCode+"|"+JsonHelper.toJson(baseEntity));
+			log.warn("获取加盟商ID失败{}|{}",waybillCode,JsonHelper.toJson(baseEntity));
 		}
 		return null;
 	}

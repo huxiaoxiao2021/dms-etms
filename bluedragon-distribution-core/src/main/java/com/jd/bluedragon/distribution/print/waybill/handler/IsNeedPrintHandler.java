@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class IsNeedPrintHandler implements InterceptHandler<WaybillPrintContext,String> {
 
-    private static final Logger logger = LoggerFactory.getLogger(IsNeedPrintHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(IsNeedPrintHandler.class);
 
 
     @Autowired
@@ -40,7 +40,7 @@ public class IsNeedPrintHandler implements InterceptHandler<WaybillPrintContext,
                 commonWaybill.setNeedPrintFlag(!merchantWeightAndVolumeWhiteListService.isExistWithCache(waybill.getBusiId(),dmsCode));
             }
         }catch (Exception e){
-            logger.error("查询商家、站点对应白名单异常!");
+            log.error("查询商家、站点对应白名单异常!");
         }
         return interceptResult;
     }

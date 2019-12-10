@@ -1,29 +1,9 @@
 package com.jd.bluedragon.distribution.weight.service;
 
-import java.lang.reflect.Type;
-import java.text.MessageFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Resource;
-
-import com.jd.bluedragon.core.base.WaybillPackageManager;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.codehaus.jackson.type.JavaType;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
 import com.google.gson.reflect.TypeToken;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
+import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.domain.WeightOperFlow;
 import com.jd.bluedragon.distribution.api.response.WeightResponse;
@@ -41,11 +21,25 @@ import com.jd.jmq.common.exception.JMQException;
 import com.jd.ql.dms.common.cache.CacheKeyGenerator;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.lang.StringUtils;
+import org.codehaus.jackson.type.JavaType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.lang.reflect.Type;
+import java.text.MessageFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Service("weightService")
 public class WeightServiceImpl implements WeightService {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
     /**
      * 存放待上传重量的json数据
      */
@@ -80,7 +74,7 @@ public class WeightServiceImpl implements WeightService {
         try {
              taskBody = task.getBody();
             if (!StringUtils.isNotBlank(taskBody)) {
-                logger.error("向运单回传包裹称重信息失败，称重信息为空");
+                log.warn("向运单回传包裹称重信息失败，称重信息为空");
                 return false;
             }
             JdResult<Map<String,Object>> weightInfo = dealMinusVolume(taskBody);
@@ -90,17 +84,17 @@ public class WeightServiceImpl implements WeightService {
             	weightJsonData = (String)weightInfo.getData().get(KEY_JSON_FOR_UPLOAD_WEIGHT);
             	//无效的称重数据，不需要重跑worker，直接返回true
                 if(weightJsonData == null){
-                	logger.warn("doWeightTrack-warn:无效的称重数据，消息体："+taskBody);
+                	log.warn("doWeightTrack-warn:无效的称重数据，消息体：{}", taskBody);
                 	return true;
                 }
                 weightFlowList = (List<WeightOperFlow>)weightInfo.getData().get(KEY_LIST_WEIGHT_OBJECT_FOR_SAVE);
                 try {
 					batchSaveDmsWeight(weightFlowList);
 				} catch (Exception e) {
-					logger.error("doWeightTrack-fail:保存运单称重记录到redis失败！"+weightInfo.getMessage()+"消息体："+taskBody,e);
+					log.error("doWeightTrack-fail:保存运单称重记录到redis失败:{}消息体：{}",weightInfo.getMessage(),taskBody,e);
 				}
             }else{
-            	logger.error("doWeightTrack-fail:"+weightInfo.getMessage()+"消息体："+taskBody);
+            	log.warn("doWeightTrack-fail:{}消息体：{}",weightInfo.getMessage(),taskBody);
             	return false;
             }
             Map<String, Object> map = waybillPackageManager.uploadOpe(weightJsonData.substring(1, weightJsonData.length() - 1));
@@ -108,17 +102,19 @@ public class WeightServiceImpl implements WeightService {
             this.sendMQ(weightJsonData);
 
             if (map != null && map.containsKey("code") && WeightResponse.WEIGHT_TRACK_OK == Integer.parseInt(map.get("code").toString())) {
-                this.logger.info("向运单系统回传包裹称重信息：\n" + taskBody);
-                this.logger.info("向运单系统回传包裹称重信息成功：" + JsonHelper.toJson(map));
+                if(log.isInfoEnabled()){
+                    this.log.info("向运单系统回传包裹称重信息：{}", taskBody);
+                    this.log.info("向运单系统回传包裹称重信息成功：{}" , JsonHelper.toJson(map));
+                }
                 return true;
             } else {
-                this.logger.info("向运单系统回传包裹称重信息：\n" + taskBody);
-                this.logger.error("向运单系统回传包裹称重信息失败： " + (null != map ? JsonHelper.toJson(map) : " result null"));
+                this.log.info("向运单系统回传包裹称重信息：{}", taskBody);
+                this.log.warn("向运单系统回传包裹称重信息失败： {}", JsonHelper.toJson(map));
                 return false;
             }
         } catch (Exception e) {
-            this.logger.info("向运单系统回传包裹称重信息：\n" + taskBody);
-            this.logger.error("处理称重回传任务发生异常，异常信息为：", e);
+            this.log.info("向运单系统回传包裹称重信息：{}" , taskBody);
+            this.log.error("处理称重回传任务发生异常，异常信息为：", e);
             goddess.setHead(MessageFormat.format("提交称重至运单:异常为{0}",e.getMessage()));
         }finally {
             goddessService.save(goddess);
@@ -158,7 +154,7 @@ public class WeightServiceImpl implements WeightService {
             }
         } catch (Exception e) {
             Profiler.businessAlarm("DmsWorker.send_weight_mq_error",(new Date()).getTime(),"向分拣中心监控报表系统发送称重MQ消息失败，异常信息为：" + e.getMessage());
-                this.logger.error("向分拣中心监控报表系统发送称重MQ消息失败，异常信息为：", e);
+                this.log.error("向分拣中心监控报表系统发送称重MQ消息失败，异常信息为：", e);
         }
     }
     /**
@@ -191,7 +187,7 @@ public class WeightServiceImpl implements WeightService {
                 	}else{
                 		//重量值<=0则记为无效，对象设置为null
                 		ope.setpWeight(null);
-                		logger.warn("doWeightTrack-weight:称重上传重量值无效，设置为null，packageCode="+ope.getPackageCode());
+                		log.warn("doWeightTrack-weight:称重上传重量值无效，设置为null，packageCode={}", ope.getPackageCode());
                 	}
                 	if(NumberHelper.gt0(ope.getpLength())
                 		&&NumberHelper.gt0(ope.getpWidth())
@@ -202,7 +198,7 @@ public class WeightServiceImpl implements WeightService {
                 		ope.setpLength(null);
                 		ope.setpWidth(null);
                 		ope.setpHigh(null);
-                		logger.warn("doWeightTrack-volume:称重上传体积无效，设置为null，packageCode="+ope.getPackageCode());
+                		log.warn("doWeightTrack-volume:称重上传体积无效，设置为null，packageCode={}", ope.getPackageCode());
                 	}
                 	//重量或体积有一个有效,加入到newOpeDetails中
                 	if(weightIsEffect || volumeIsEffect){
@@ -232,7 +228,7 @@ public class WeightServiceImpl implements WeightService {
                 }
             }
         }catch (Exception e){
-            this.logger.error("处理称重数据异常", e);
+            this.log.error("处理称重数据异常", e);
             result.toError("处理称重数据异常"+e.getMessage());
         }
         return result;
@@ -249,7 +245,7 @@ public class WeightServiceImpl implements WeightService {
                 Date date = format.parse(dateStr);
                 return date.getTime();
             } catch (ParseException e) {
-                this.logger.error("无效的日期格式：" + dateStr, e);
+                this.log.error("无效的日期格式：{}" , dateStr, e);
                 return null;
             }
         }
@@ -267,7 +263,7 @@ public class WeightServiceImpl implements WeightService {
                 }
             }
         }catch (Throwable throwable){
-            logger.error("称重JSON解析失败",throwable);
+            log.error("称重JSON解析失败",throwable);
         }
         return domain;
     }

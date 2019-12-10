@@ -1,18 +1,17 @@
 package com.jd.bluedragon.distribution.popAbnormal.service.impl;
 
-import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.popAbnormal.dao.PopAbnormalDetailDao;
+import com.jd.bluedragon.distribution.popAbnormal.domain.PopAbnormalDetail;
+import com.jd.bluedragon.distribution.popAbnormal.service.PopAbnormalDetailService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.popAbnormal.dao.PopAbnormalDetailDao;
-import com.jd.bluedragon.distribution.popAbnormal.domain.PopAbnormalDetail;
-import com.jd.bluedragon.distribution.popAbnormal.service.PopAbnormalDetailService;
+import java.util.List;
 
 /**
  * @author zhaohc
@@ -24,7 +23,7 @@ import com.jd.bluedragon.distribution.popAbnormal.service.PopAbnormalDetailServi
 @Service("popAbnormalDetailService")
 public class PopAbnormalDetailServiceImpl implements PopAbnormalDetailService {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private PopAbnormalDetailDao popAbnormalDetailDao;
@@ -32,7 +31,7 @@ public class PopAbnormalDetailServiceImpl implements PopAbnormalDetailService {
 	@Override
 	public PopAbnormalDetail findByObj(PopAbnormalDetail popAbnormalDetail) {
 		if (popAbnormalDetail == null) {
-			this.logger.info("POP差异明细Service --> findByObj 传入验证参数为空");
+			this.log.info("POP差异明细Service --> findByObj 传入验证参数为空");
 			return null;
 		}
 		return this.popAbnormalDetailDao.findByObj(popAbnormalDetail);
@@ -40,7 +39,7 @@ public class PopAbnormalDetailServiceImpl implements PopAbnormalDetailService {
 
 	@Override
 	public List<PopAbnormalDetail> findListByAbnormalId(Long abnormalId) {
-		this.logger.info("POP差异明细Service --> findListByAbnormalId 传入验证参数为空");
+		this.log.info("POP差异明细Service --> findListByAbnormalId 传入验证参数为空");
 		return this.popAbnormalDetailDao.findListByAbnormalId(abnormalId);
 	}
 
@@ -48,7 +47,7 @@ public class PopAbnormalDetailServiceImpl implements PopAbnormalDetailService {
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int add(PopAbnormalDetail popAbnormalDetail) {
 		if (popAbnormalDetail == null) {
-			this.logger.info("POP差异明细Service --> add 传入验证参数为空");
+			this.log.info("POP差异明细Service --> add 传入验证参数为空");
 			return Constants.RESULT_FAIL;
 		}
 		this.popAbnormalDetailDao.add(PopAbnormalDetailDao.NAME_SPACE,

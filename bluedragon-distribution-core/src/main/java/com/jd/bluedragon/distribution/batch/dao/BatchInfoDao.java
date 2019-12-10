@@ -2,8 +2,8 @@ package com.jd.bluedragon.distribution.batch.dao;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.batch.domain.BatchInfo;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -14,7 +14,7 @@ public class BatchInfoDao extends BaseDao<BatchInfo> {
 
     public static final String namespace = BatchInfoDao.class.getName();
 
-    private static final Log logger= LogFactory.getLog(BatchInfoDao.namespace);
+    private static final Logger log = LoggerFactory.getLogger(BatchInfoDao.namespace);
 
     public BatchInfo findBatchInfoByCode(String code) {
         return (BatchInfo) super.getSqlSession().selectOne(BatchInfoDao.namespace + ".findBatchInfoByCode", code);
@@ -71,7 +71,7 @@ public class BatchInfoDao extends BaseDao<BatchInfo> {
         map.put("createSiteCode",sortingCenterId);
         map.put("operateTime",operateTime);
         map.put("minTime",new Date(0));
-        logger.info("查寻当前波次->查寻参数值为：createSitecode&operateTime");
+        log.info("查寻当前波次->查寻参数值为：createSitecode&operateTime");
         return (BatchInfo)super.getSqlSession().selectOne(BatchInfoDao.namespace+".findCurrent",map);
     }
 

@@ -20,7 +20,8 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -34,7 +35,7 @@ import java.util.Map;
 @Service("crossBoxService")
 public class CrossBoxServiceImpl implements CrossBoxService {
 
-    private static final Logger logger = Logger.getLogger(CrossBoxServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(CrossBoxServiceImpl.class);
 
     @Autowired
     private TaskService taskService;
@@ -283,7 +284,7 @@ public class CrossBoxServiceImpl implements CrossBoxService {
         int resUpdate = crossBoxDao.updateYnCrossBoxById(updateBox);
         if (resUpdate <= 0) {
             res = 3;
-            logger.error("执行updateCrossDmsBoxById失败,OriginalDmsId[" + crossDmsBox.getOriginalDmsId() + "]");
+            log.warn("执行updateCrossDmsBoxById失败,OriginalDmsId[{}]",crossDmsBox.getOriginalDmsId());
         }
         return res;
     }
@@ -356,7 +357,7 @@ public class CrossBoxServiceImpl implements CrossBoxService {
             result.setData(null);
             result.setResultCode(result.FAIL);
             result.setMessage("调用接口异常：" + e);
-            logger.error("根据始发和目的分拣中心ID获取路线信息:", e);
+            log.error("根据始发和目的分拣中心ID获取路线信息:", e);
         }finally {
             Profiler.registerInfoEnd(info);
         }
@@ -398,7 +399,7 @@ public class CrossBoxServiceImpl implements CrossBoxService {
             result.setData(null);
             result.setResultCode(result.FAIL);
             result.setMessage("调用接口异常：" + e);
-            logger.error("根据始发和目的分拣中心ID获取路线信息:", e);
+            log.error("根据始发和目的分拣中心ID获取路线信息:", e);
         }finally {
             Profiler.registerInfoEnd(info);
         }
@@ -516,7 +517,8 @@ public class CrossBoxServiceImpl implements CrossBoxService {
                 result.setData(null);
                 result.setResultCode(result.FAIL);
                 result.setMessage("远程接口返回异常：站点【"+siteArr[i]+"】不存在" );
-                logger.warn("路由系统返回的站点路由发现未存在站点："+ siteArr[i]+",参数列表：originalDms.getDmsSiteCode():"+originalDms.getDmsSiteCode()+",destinationDms.getDmsSiteCode():"+destinationDms.getDmsSiteCode()+",predictSendTime:"+predictSendTime.getTime()+",routeProduct:"+routeProduct);
+                log.warn("路由系统返回的站点路由发现未存在站点：{},参数列表：originalDms.getDmsSiteCode():{},destinationDms.getDmsSiteCode():{},predictSendTime:{},routeProduct:{}"
+                        ,siteArr[i],originalDms.getDmsSiteCode(),destinationDms.getDmsSiteCode(),predictSendTime.getTime(),routeProduct);
                 return false;
             }
             if (i!=0){

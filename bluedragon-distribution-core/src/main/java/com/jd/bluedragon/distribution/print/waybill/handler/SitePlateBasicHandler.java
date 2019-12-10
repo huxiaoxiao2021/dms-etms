@@ -1,19 +1,11 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.PreseparateWaybillManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
-import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
@@ -34,6 +26,12 @@ import com.jd.bluedragon.utils.LableType;
 import com.jd.bluedragon.utils.OriginalType;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 /**
  * 
  * @ClassName: SitePlateBasicHandler
@@ -44,7 +42,7 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
  */
 @Service("sitePlateBasicHandler")
 public class SitePlateBasicHandler implements Handler<WaybillPrintContext,JdResult<String>> {
-    private static final Log logger= LogFactory.getLog(SitePlateBasicHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(SitePlateBasicHandler.class);
 
     @Autowired
     private WaybillCommonService waybillCommonService;
@@ -81,7 +79,7 @@ public class SitePlateBasicHandler implements Handler<WaybillPrintContext,JdResu
         Integer packOpeFlowFlg = context.getRequest().getPackOpeFlowFlg();
         // 判断传入参数
         if (startDmsCode == null || startDmsCode.equals(0) || StringUtils.isEmpty(barCode)) {
-            logger.error("根据初始分拣中心-运单号/包裹号【" + startDmsCode + "-" + barCode + "】获取运单包裹信息接口 --> 传入参数非法");
+            log.warn("根据初始分拣中心-运单号/包裹号【{}-{}】获取运单包裹信息接口 --> 传入参数非法",startDmsCode , barCode );
             result.toError(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
             return result;
         }
@@ -92,7 +90,7 @@ public class SitePlateBasicHandler implements Handler<WaybillPrintContext,JdResu
             Waybill waybill = loadBasicWaybillInfo(context,waybillCode,packOpeFlowFlg);
             if (waybill == null) {
             	result.toFail(WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.getMsgCode(), WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.formatMsg());
-        		logger.warn("调用运单接口获取运单数据为空，waybillCode："+waybillCode);
+        		log.warn("调用运单接口获取运单数据为空，waybillCode：{}",waybillCode);
         		return result;
             }else{
                 //调用分拣接口获得基础资料信息
@@ -113,11 +111,11 @@ public class SitePlateBasicHandler implements Handler<WaybillPrintContext,JdResu
                 if(temp.getStatus() > result.getStatus()){
                     result = temp;
                 }
-                logger.info("运单号【" + waybillCode + "】调用根据运单号获取运单包裹信息接口成功");
+                log.info("运单号【{}】调用根据运单号获取运单包裹信息接口成功",waybillCode);
             }
         } catch (Exception e) {
             // 调用服务异常
-            logger.error("根据运单号【" + waybillCode + "】 获取运单包裹信息接口 --> 异常", e);
+            log.error("根据运单号【{}】 获取运单包裹信息接口 --> 异常",waybillCode, e);
             result.toError(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         }
         return result;
@@ -192,14 +190,14 @@ public class SitePlateBasicHandler implements Handler<WaybillPrintContext,JdResu
 
             BaseResponseIncidental<LabelPrintingResponse> response = labelPrinting.dmsPrint(request,context);
             if(response==null || response.getData()==null){
-                logger.error("根据运单号【" + waybill.getWaybillCode() + "】 获取预分拣的包裹打印信息为空response对象");
+                log.warn("根据运单号【{}】 获取预分拣的包裹打印信息为空response对象",waybill.getWaybillCode());
                 result.toError(JdResponse.CODE_PARAM_ERROR, "根据运单号【" + waybill.getWaybillCode() + "】 获取预分拣的包裹打印信息为空response对象");
                 return result;
             }
 
             LabelPrintingResponse labelPrinting = response.getData();
             if(labelPrinting==null){
-                logger.error("根据运单号【" + waybill.getWaybillCode() + "】 获取预分拣的包裹打印信息为空labelPrinting对象");
+                log.warn("根据运单号【{}】 获取预分拣的包裹打印信息为空labelPrinting对象",waybill.getWaybillCode());
                 result.toError(JdResponse.CODE_PARAM_ERROR, "根据运单号【" + waybill.getWaybillCode() + "】 获取预分拣的包裹打印信息为空labelPrinting对象");
                 return result;
             }
@@ -218,7 +216,7 @@ public class SitePlateBasicHandler implements Handler<WaybillPrintContext,JdResu
                 result.toSuccess();
             }
         } catch (Throwable e) {
-            logger.error("根据运单号【" + waybill.getWaybillCode() + "】 获取包裹打印信息接口 --> 异常", e);
+            log.error("根据运单号【{}】 获取包裹打印信息接口 --> 异常",waybill.getWaybillCode(), e);
             result.toError(JdResponse.CODE_SERVICE_ERROR, "根据运单号【" + waybill.getWaybillCode() + "】 获取预分拣的包裹打印信息接口异常");
         }
         return result;
@@ -245,7 +243,7 @@ public class SitePlateBasicHandler implements Handler<WaybillPrintContext,JdResu
         try {
             cancelWaybill = WaybillCancelClient.getWaybillResponse(waybill.getWaybillCode());
         } catch (Exception e) {
-            logger.error("WaybillResource --> setWaybillStatus get cancelWaybill Error:", e);
+            log.error("WaybillResource --> setWaybillStatus get cancelWaybill Error:{}",waybill.getWaybillCode(), e);
         }
 
         if (cancelWaybill != null) {
@@ -282,7 +280,7 @@ public class SitePlateBasicHandler implements Handler<WaybillPrintContext,JdResu
         // 设置航空标识
         boolean signs = false;
         if (waybill.getBusiId() != null && !waybill.getBusiId().equals(0)) {
-            logger.info("B商家ID-初始分拣中心-目的站点【" + waybill.getBusiId() + "-" + "-" + waybill.getSiteCode() + "】根据基础资料调用设置航空标识");
+            log.debug("B商家ID-初始分拣中心-目的站点【{}-{}】根据基础资料调用设置航空标识",waybill.getBusiId(), waybill.getSiteCode());
             signs = this.airTransportService.getAirSigns(waybill.getBusiId());
         }
         return signs;

@@ -1,21 +1,21 @@
 package com.jd.bluedragon.distribution.reverse.service;
 
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.reverse.domain.WmsSite;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.distribution.reverse.domain.WmsSite;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-
 @Component
 public class WmsSiteCacheManager {
 
-	private final Logger logger = Logger.getLogger(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private static Map<Integer, WmsSite> siteCaches = Collections
 			.synchronizedMap(new HashMap<Integer, WmsSite>());
@@ -47,7 +47,7 @@ public class WmsSiteCacheManager {
 				site.setLastModifiedTime(System.currentTimeMillis());
 				siteCaches.put(siteCode, site);
 				if (siteCaches.size() > CACHE_NUM_THRESHOLD) {
-					logger.warn("siteCaches缓存对象超过" + CACHE_NUM_THRESHOLD);
+					log.warn("siteCaches缓存对象超过:{}", CACHE_NUM_THRESHOLD);
 				}
 			}
 		}
@@ -64,8 +64,7 @@ public class WmsSiteCacheManager {
 					.getBaseSiteBySiteId(code);
 			return result;
 		} catch (Exception e) {
-			logger.error(
-					"调用basicMajorServiceProxy.getDmsBaseSiteByCode(code)异常", e);
+			log.error("调用basicMajorServiceProxy.getDmsBaseSiteByCode(code)异常", e);
 			return null;
 		}
 	}
@@ -84,7 +83,7 @@ public class WmsSiteCacheManager {
 			site.setCky2(cky2);
 			site.setStoreId(storeId);
 		} catch (Exception e) {
-			logger.error("调用toWmsSite", e);
+			log.error("调用toWmsSite", e);
 			return null;
 		}
 		return site;

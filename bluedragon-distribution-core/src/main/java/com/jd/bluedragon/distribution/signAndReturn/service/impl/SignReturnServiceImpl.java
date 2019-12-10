@@ -10,8 +10,9 @@ import com.jd.bluedragon.distribution.signReturn.SignReturnCondition;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.ExportExcelDownFee;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
-import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +33,7 @@ import java.util.List;
 @Service("signReturnService")
 public class SignReturnServiceImpl implements SignReturnService {
 
-    private final Logger logger = Logger.getLogger(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private SignReturnDao signReturnDao;
@@ -113,7 +114,7 @@ public class SignReturnServiceImpl implements SignReturnService {
             workbook.write(out);
             out.close();
         } catch (Exception e) {
-            this.logger.error("根据运单号导出excel失败!");
+            this.log.error("根据运单号导出excel失败!");
         }
 
     }

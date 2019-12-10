@@ -1,30 +1,25 @@
 package com.jd.bluedragon.distribution.urban.service.impl;
 
-import java.util.List;
-
 import com.jd.bluedragon.core.base.WaybillQueryManager;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.ql.framework.asynBuffer.producer.jmq.BusinessIdGen;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.jd.bluedragon.distribution.urban.dao.TransbillMDao;
 import com.jd.bluedragon.distribution.urban.domain.TransbillM;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
-
-import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.etms.waybill.dto.WChoice;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.WChoice;
 import com.jd.etms.waybill.dto.WaybillScheduleDto;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * 城配运单M表--Service接口实现
@@ -38,7 +33,7 @@ import com.jd.etms.waybill.dto.WaybillScheduleDto;
 @SuppressWarnings("all")
 public class TransbillMServiceImpl implements TransbillMService {
 
-    private static final Log logger = LogFactory.getLog(TransbillMServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(TransbillMServiceImpl.class);
 
     @Autowired
     private TransbillMDao transbillMDao;
@@ -66,14 +61,14 @@ public class TransbillMServiceImpl implements TransbillMService {
                 if (transbillM.getTsM() >= oldData.getTsM()) {
                     rs = transbillMDao.updateBySelective(transbillM);
                 } else {
-                    logger.warn("本次数据ts_m小于数据库当前ts_m，抛弃本次数据！transbillM:" + JsonHelper.toJson(transbillM));
+                    log.warn("本次数据ts_m小于数据库当前ts_m，抛弃本次数据！transbillM:{}" , JsonHelper.toJson(transbillM));
                 }
             } else {
                 rs = transbillMDao.insert(transbillM);
             }
             return rs == 1;
         } else {
-            logger.warn("城配运单transbillM保存失败！transbillM:" + (transbillM == null ? "对象为空" : JsonHelper.toJson(transbillM)));
+            log.warn("城配运单transbillM保存失败！transbillM:{}" , JsonHelper.toJson(transbillM));
         }
         return false;
     }
@@ -132,13 +127,13 @@ public class TransbillMServiceImpl implements TransbillMService {
             if (baseEntity != null && baseEntity.getData() != null) {
                 waybillScheduleDto = baseEntity.getData().getWaybillSchedule();
             }
-            this.logger.info("运单号【 " + waybillCode + "】调用调度信息成功");
+            this.log.info("运单号【{}】调用调度信息成功", waybillCode);
         } catch (Exception e) {
-            this.logger.error("运单号【 " + waybillCode + "】调用调度信息异常：", e);
+            this.log.error("运单号【{}】调用调度信息异常：",waybillCode, e);
         }
         if (waybillScheduleDto == null) {
             // 无数据
-            this.logger.warn("运单号【 " + waybillCode + "】的调用调度信息为空");
+            this.log.warn("运单号【{}】的调用调度信息为空",waybillCode);
         }
         return waybillScheduleDto;
 
@@ -154,13 +149,15 @@ public class TransbillMServiceImpl implements TransbillMService {
             if (baseEntity != null && baseEntity.getData() != null) {
                 waybill = baseEntity.getData().getWaybill();
             }
-            this.logger.info("运单号【 " + waybillCode + "】调用运单数据成功，运单【" + waybill + "】");
+            if(log.isInfoEnabled()){
+                this.log.info("运单号【{}】调用运单数据成功，运单【{}】",waybillCode,waybill);
+            }
         } catch (Exception e) {
-            this.logger.error("运单号【 " + waybillCode + "】调用运单异常：", e);
+            this.log.error("运单号【{}】调用运单异常：",waybillCode, e);
         }
         if (waybill == null) {
             // 无数据
-            logger.warn(waybillCode + "对应的运单信息为空！");
+            log.warn("{}对应的运单信息为空！",waybillCode);
         }
         return waybill;
     }

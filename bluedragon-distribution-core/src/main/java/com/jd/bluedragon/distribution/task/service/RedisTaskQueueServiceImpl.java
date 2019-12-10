@@ -2,8 +2,8 @@ package com.jd.bluedragon.distribution.task.service;
 
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 @Service("RedisTaskQueueService")
 public class RedisTaskQueueServiceImpl implements RedisTaskQueueService {
 
-    private static final Log logger= LogFactory.getLog(RedisTaskQueueServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(RedisTaskQueueServiceImpl.class);
 
     @Autowired
     RedisManager redisManager;
@@ -24,8 +24,8 @@ public class RedisTaskQueueServiceImpl implements RedisTaskQueueService {
         try {
             return redisManager.llen(queueName);
         }catch (Exception ex){
-            if(logger.isErrorEnabled()){
-                logger.error("获取队列长度"+queueName,ex);
+            if(log.isErrorEnabled()){
+                log.error("获取队列长度：{}", queueName,ex);
             }
         }
         return 0;

@@ -3,9 +3,8 @@ package com.jd.bluedragon.distribution.print.service;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.fastRefund.service.WaybillCancelClient;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /**
@@ -15,7 +14,7 @@ import org.springframework.stereotype.Service;
 @Service("interceptComposeService")
 public class InterceptComposeServiceImpl implements ComposeService {
 
-    private static final Log logger= LogFactory.getLog(InterceptComposeServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(InterceptComposeServiceImpl.class);
 
     @Override
     public void handle(final PrintWaybill waybill, Integer dmsCode, Integer targetSiteCode) {
@@ -31,7 +30,7 @@ public class InterceptComposeServiceImpl implements ComposeService {
         try {
             cancelWaybill = WaybillCancelClient.getWaybillResponse(waybill.getWaybillCode());
         } catch (Exception e) {
-            this.logger.error("WaybillResource --> setWaybillStatus get cancelWaybill Error:", e);
+            this.log.error("WaybillResource --> setWaybillStatus get cancelWaybill Error:", e);
         }
 
         if (cancelWaybill != null) {

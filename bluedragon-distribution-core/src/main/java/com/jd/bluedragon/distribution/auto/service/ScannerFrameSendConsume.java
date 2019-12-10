@@ -8,12 +8,11 @@ import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.text.MessageFormat;
 import java.util.Date;
 
 /**
@@ -23,7 +22,7 @@ import java.util.Date;
 @Service("scannerFrameSendConsume")
 public class ScannerFrameSendConsume implements ScannerFrameConsume {
 
-    private static final Log logger = LogFactory.getLog(ScannerFrameSendConsume.class);
+    private static final Logger log = LoggerFactory.getLogger(ScannerFrameSendConsume.class);
 
     @Resource
     private DeliveryService deliveryService;
@@ -33,13 +32,13 @@ public class ScannerFrameSendConsume implements ScannerFrameConsume {
 
         SendM domain = new SendM();
         if (StringHelper.isEmpty(config.getSendCode())) {
-            logger.error(MessageFormat.format("龙门架发货批次号为空机器号：{0},发货站点：{1},操作号：{2}", config.getMachineId(), config.getCreateSiteName(), config.getId()));
+            log.warn("龙门架发货批次号为空机器号：{},发货站点：{},操作号：{}", config.getMachineId(), config.getCreateSiteName(), config.getId());
             return false;
         }
 
         domain.setReceiveSiteCode(SerialRuleUtil.getReceiveSiteCodeFromSendCode(config.getSendCode()));
         if (null == domain.getReceiveSiteCode()) {
-            logger.error(MessageFormat.format("从批次号{0}获取目的站点为空", config.getSendCode()));
+            log.warn("从批次号{}获取目的站点为空", config.getSendCode());
             return false;
         }
         domain.setSendCode(config.getSendCode());

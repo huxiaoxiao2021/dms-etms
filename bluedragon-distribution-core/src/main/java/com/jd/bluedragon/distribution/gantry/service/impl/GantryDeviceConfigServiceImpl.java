@@ -3,8 +3,8 @@ package com.jd.bluedragon.distribution.gantry.service.impl;
 import com.jd.bluedragon.distribution.gantry.dao.GantryDeviceConfigDao;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig;
 import com.jd.bluedragon.distribution.gantry.service.GantryDeviceConfigService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +28,7 @@ import java.util.List;
 @Service("gantryDeviceConfigService")
 public class GantryDeviceConfigServiceImpl implements GantryDeviceConfigService {
 
-    private static final Log logger = LogFactory.getLog(GantryDeviceConfigServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(GantryDeviceConfigServiceImpl.class);
 
     @Autowired
     GantryDeviceConfigDao gantryDeviceConfigDao;
@@ -40,14 +40,14 @@ public class GantryDeviceConfigServiceImpl implements GantryDeviceConfigService 
      */
     @Override
     public GantryDeviceConfig findGantryDeviceConfigByOperateTime(Integer machineId, Date packageOperateTime) {
-        if (logger.isInfoEnabled()) {
-            logger.debug("龙门架编号:" + machineId + "包裹操作时间:" + packageOperateTime);
+        if (log.isInfoEnabled()) {
+            log.debug("龙门架编号:{}包裹操作时间:{}" ,machineId, packageOperateTime);
         }
         if (packageOperateTime == null) {
-            if (logger.isWarnEnabled()) {
+            if (log.isWarnEnabled()) {
                 StringBuilder sb = new StringBuilder(50);
                 sb.append("龙门架编号:").append(machineId).append("包裹操作时间:").append(packageOperateTime);
-                logger.warn(sb);
+                log.warn(sb.toString());
             }
             return null;
         }
@@ -69,13 +69,13 @@ public class GantryDeviceConfigServiceImpl implements GantryDeviceConfigService 
 
     @Override
     public GantryDeviceConfig findMaxStartTimeGantryDeviceConfigByMachineId(Integer machineId) {
-        logger.debug("龙门架编号:" + machineId);
+        log.debug("龙门架编号:{}" , machineId);
 
         GantryDeviceConfig gantryDeviceConfig = gantryDeviceConfigDao.findMaxStartTimeGantryDeviceConfigByMachineId(machineId);
         if (gantryDeviceConfig == null) {
             StringBuilder sb = new StringBuilder(50);
             sb.append("龙门架编号:").append(machineId);
-            logger.info(sb);
+            log.info(sb.toString());
             return null;
         }
         return gantryDeviceConfig;
