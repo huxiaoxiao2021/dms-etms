@@ -34,9 +34,6 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.httpclient.HttpStatus;
-import org.jboss.resteasy.client.ClientRequest;
-import org.jboss.resteasy.client.ClientResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -347,23 +344,23 @@ public class LoadBillServiceImpl implements LoadBillService {
                 String preLoadBillId = String.valueOf(genObjectId.getObjectId(LoadBill.class.getName()));
                 PreLoadBill preLoadBill = toPreLoadBill(loadBIlls, loadBillConfig, trunkNo, preLoadBillId);
 
-                logger.info("调用卓志预装载接口数据" + JsonHelper.toJson(preLoadBill));
+                log.info("调用卓志预装载接口数据{}",JsonHelper.toJson(preLoadBill));
                 LoadBillReportResponse reportResponse = globalTradeBusinessManager.doRestInterface(preLoadBill);
                 if (null == reportResponse) {
-                    logger.error("调用卓志预装载接口失败,请求参数：" + JsonHelper.toJson(preLoadBill));
+                    log.error("调用卓志预装载接口失败,请求参数：{}", JsonHelper.toJson(preLoadBill));
                     throw new GlobalTradeException("调用卓志预装载接口失败, preLoadBillId：" + preLoadBillId);
                 }
 
                 if (SUCCESS == reportResponse.getStatus()) {
-                    logger.info("调用卓志接口预装载成功");
+                    log.info("调用卓志接口预装载成功");
                     try {
                         this.updateLoadBillStatusByWaybillCodes(new ArrayList(waybillCodeSet), trunkNo, preLoadBillId, LoadBill.APPLIED);
                     } catch (Exception ex) {
-                        logger.error("预装载更新车牌号和装载单ID失败，原因", ex);
+                        log.error("预装载更新车牌号和装载单ID失败，原因", ex);
                         throw new GlobalTradeException("预装载操作失败，系统异常");
                     }
                 } else {
-                    logger.error("调用卓志接口预装载失败原因" + reportResponse.getNotes());
+                    log.error("调用卓志接口预装载失败原因{}", reportResponse.getNotes());
                     throw new GlobalTradeException("调用卓志接口预装载失败" + reportResponse.getNotes());
                 }
                 return loadBIlls.size();
