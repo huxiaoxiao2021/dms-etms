@@ -26,6 +26,7 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.external.crossbow.globalTrade.manager.GlobalTradeBusinessManager;
 import com.jd.bluedragon.utils.*;
 import com.jd.common.util.StringUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -39,6 +40,7 @@ import org.jboss.resteasy.client.ClientResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -101,6 +103,10 @@ public class LoadBillServiceImpl implements LoadBillService {
     @Autowired
     private BaseMajorManager baseMajorManager;
 
+    @Autowired
+    @Qualifier("globalTradeBusinessManager")
+    private GlobalTradeBusinessManager globalTradeBusinessManager;
+
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     @JProfiler(jKey = "DMSWEB.LoadBillServiceImpl.initialLoadBill",mState = JProEnum.TP)
@@ -132,18 +138,6 @@ public class LoadBillServiceImpl implements LoadBillService {
         }
         return 0;
     }
-
-//    @Override
-//    public LoadBill getSuccessPreByOrderId(String orderId) {
-//        Map<String, Object> parameter = new HashMap<String, Object>();
-//        List<Integer> approvalCodes = new ArrayList<Integer>();
-//        approvalCodes.add(LoadBill.APPLIED);
-//        approvalCodes.add(LoadBill.GREENLIGHT);
-//        approvalCodes.add(LoadBill.REDLIGHT);
-//        parameter.put("approvalCodes", approvalCodes);
-//        parameter.put("orderId", orderId);
-//        return loadBillDao.findOneByParameter(parameter);
-//    }
 
 
     public LoadBill getSuccessPreByWaybillCode(String waybillCode) {
@@ -353,53 +347,29 @@ public class LoadBillServiceImpl implements LoadBillService {
                 String preLoadBillId = String.valueOf(genObjectId.getObjectId(LoadBill.class.getName()));
                 PreLoadBill preLoadBill = toPreLoadBill(loadBIlls, loadBillConfig, trunkNo, preLoadBillId);
 
-                if(log.isDebugEnabled()){
-                    log.debug("调用卓志预装载接口数据{}" , JsonHelper.toJson(preLoadBill));
+                logger.info("调用卓志预装载接口数据" + JsonHelper.toJson(preLoadBill));
+                LoadBillReportResponse reportResponse = globalTradeBusinessManager.doRestInterface(preLoadBill);
+                if (null == reportResponse) {
+                    logger.error("调用卓志预装载接口失败,请求参数：" + JsonHelper.toJson(preLoadBill));
+                    throw new GlobalTradeException("调用卓志预装载接口失败, preLoadBillId：" + preLoadBillId);
                 }
 
-                ClientResponse<String> response = getResponse(preLoadBill);
-                CallerInfo info1 = Profiler.registerInfo("DMSCORE.LoadBillServiceImpl.updateLoadBillStatus", false, true);
-                if (response.getStatus() == HttpStatus.SC_OK) {
-                    LoadBillReportResponse response1 = JsonHelper.fromJson(response.getEntity(), LoadBillReportResponse.class);
-                    if (SUCCESS == response1.getStatus().intValue()) {
-                        log.debug("调用卓志接口预装载成功");
-                        try {
-                            this.updateLoadBillStatusByWaybillCodes(new ArrayList(waybillCodeSet), trunkNo, preLoadBillId, LoadBill.APPLIED);
-                        } catch (Exception ex) {
-                            log.error("预装载更新车牌号和装载单ID失败，原因", ex);
-                            throw new GlobalTradeException("预装载操作失败，系统异常");
-                        }
-                    } else {
-                        log.warn("调用卓志接口预装载失败原因{}" , response1.getNotes());
-                        throw new GlobalTradeException("调用卓志接口预装载失败" + response1.getNotes());
+                if (SUCCESS == reportResponse.getStatus()) {
+                    logger.info("调用卓志接口预装载成功");
+                    try {
+                        this.updateLoadBillStatusByWaybillCodes(new ArrayList(waybillCodeSet), trunkNo, preLoadBillId, LoadBill.APPLIED);
+                    } catch (Exception ex) {
+                        logger.error("预装载更新车牌号和装载单ID失败，原因", ex);
+                        throw new GlobalTradeException("预装载操作失败，系统异常");
                     }
                 } else {
-                    log.warn("调用卓志预装载接口失败:{}", response.getStatus());
-                    Profiler.businessAlarm("DMSCORE.LoadBillServiceImpl.updateLoadBillStatusAlarm", "调用卓志预装载接口出错");
-                    throw new GlobalTradeException("调用卓志预装载接口失败" + response.getStatus());
+                    logger.error("调用卓志接口预装载失败原因" + reportResponse.getNotes());
+                    throw new GlobalTradeException("调用卓志接口预装载失败" + reportResponse.getNotes());
                 }
-                Profiler.registerInfoEnd(info1);
                 return loadBIlls.size();
             }
         }
         return 0;
-    }
-
-    public ClientResponse<String> getResponse(PreLoadBill preLoadBill) {
-        CallerInfo info = Profiler.registerInfo("DMSCORE.LoadBillServiceImpl.getResponse", false, true);
-        ClientRequest request = new ClientRequest(ZHUOZHI_PRELOAD_URL);
-        request.accept(javax.ws.rs.core.MediaType.APPLICATION_JSON);
-        request.body(javax.ws.rs.core.MediaType.TEXT_PLAIN_TYPE, JsonHelper.toJson(preLoadBill));
-        ClientResponse<String> response = null;
-        try {
-            response = request.post(String.class);
-        } catch (Exception e) {
-            Profiler.functionError(info);
-            e.printStackTrace();
-        } finally {
-            Profiler.registerInfoEnd(info);
-        }
-        return response;
     }
 
     public PreLoadBill toPreLoadBill(List<LoadBill> loadBills, LoadBillConfig loadBillConfig, String trunkNo, String preLoadBillId) {
