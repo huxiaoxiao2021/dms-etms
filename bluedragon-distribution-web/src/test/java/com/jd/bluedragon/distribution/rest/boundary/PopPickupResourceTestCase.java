@@ -4,19 +4,18 @@
  */
 package com.jd.bluedragon.distribution.rest.boundary;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.jd.bluedragon.distribution.api.request.PopPickupRequest;
+import com.jd.bluedragon.utils.SendMailUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
 
-import com.jd.bluedragon.distribution.api.request.PopPickupRequest;
-import com.jd.bluedragon.utils.SendMailUtil;
+import java.util.ArrayList;
+import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:spring/distribution-core-context.xml" })
@@ -25,12 +24,11 @@ public class PopPickupResourceTestCase {
 	// String urlRoot = "http://192.168.226.157:8080/services";
 
 	// String urlRoot = "http://dms1.etms.360buy.com/services";
-	private static final Log logger = LogFactory
-			.getLog(PopPickupResourceTestCase.class);
+	private static final Logger log = LoggerFactory.getLogger(PopPickupResourceTestCase.class);
 
 	@Test
 	public void testSendMail() {
-		logger.info("测试开始发送邮件...");
+		log.info("测试开始发送邮件...");
 		
 		List<String> users = new ArrayList<String>();
 		users.add("zhangsan@jd.com");
@@ -49,7 +47,7 @@ public class PopPickupResourceTestCase {
 		SendMailUtil.sendSimpleEmail("title", "content", users2);
 		SendMailUtil.sendSimpleEmail(null, null, null);
 		
-		logger.info("测试发送邮件结束...");
+		log.info("测试发送邮件结束...");
 	}
 
 	@Test

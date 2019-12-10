@@ -11,8 +11,8 @@ import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -32,7 +32,7 @@ import java.util.ArrayList;
 @RequestMapping("abnormalDispose/abnormalDispose")
 public class AbnormalDisposeController extends DmsBaseController {
 
-    private static final Log logger = LogFactory.getLog(AbnormalDisposeController.class);
+    private static final Logger log = LoggerFactory.getLogger(AbnormalDisposeController.class);
 
     @Autowired
     AbnormalDisposeService abnormalDisposeService;
@@ -115,7 +115,7 @@ public class AbnormalDisposeController extends DmsBaseController {
 
             return new ModelAndView(new DefaultExcelView(), model.asMap());
         } catch (Exception e) {
-            logger.error("abnormal/AbnormalDisposeCondition--toExport:" + e.getMessage(), e);
+            log.error("abnormal/AbnormalDisposeCondition--toExport:", e);
             return null;
         }
     }
@@ -130,7 +130,7 @@ public class AbnormalDisposeController extends DmsBaseController {
 
             return new ModelAndView(new DefaultExcelView(), model.asMap());
         } catch (Exception e) {
-            logger.error("abnormal/AbnormalDisposeCondition--toExport:" + e.getMessage(), e);
+            log.error("abnormal/AbnormalDisposeCondition--toExport:", e);
             return null;
         }
     }
@@ -140,7 +140,7 @@ public class AbnormalDisposeController extends DmsBaseController {
     public @ResponseBody
     JdResponse<String> saveQcCode(@RequestBody AbnormalDisposeInspection abnormalDisposeInspection) {
         if (abnormalDisposeInspection.getWaveBusinessId() == null || abnormalDisposeInspection.getWaybillCode() == null || abnormalDisposeInspection.getQcCode() == null) {
-            logger.error("保存质控编码 --> 传入参数非法");
+            log.warn("保存质控编码 --> 传入参数非法");
             return new JdResponse<String>(JdResponse.CODE_FAIL, JdResponse.MESSAGE_FAIL);
         }
 

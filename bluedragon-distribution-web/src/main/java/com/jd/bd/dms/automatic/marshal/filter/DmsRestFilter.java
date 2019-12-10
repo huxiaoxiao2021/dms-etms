@@ -30,7 +30,7 @@ import java.util.List;
  */
 public class DmsRestFilter extends OncePerRequestFilter {
 
-    private Logger logger = LoggerFactory.getLogger(DmsRestFilter.class);
+    private Logger log = LoggerFactory.getLogger(DmsRestFilter.class);
     private static List<String> restUrlList;
     private static final String RESTURL = "DMS_REST_URL";
 
@@ -69,7 +69,7 @@ public class DmsRestFilter extends OncePerRequestFilter {
                     filterChain.doFilter(request,response);
                     return;
                 }
-                this.logger.error("该登陆用户:" + erpCode + "未在青龙基础资料中维护！");
+                this.log.error("该登陆用户:{}未在青龙基础资料中维护！",erpCode);
                 JdResponse jdResponse = new JdResponse(JdResponse.CODE_RESIGNATION,JdResponse.MESSAGE_RESIGNATION);
                 showMessage(response,jdResponse);
             }else {
@@ -78,7 +78,7 @@ public class DmsRestFilter extends OncePerRequestFilter {
             }
         }catch (Exception e){
             e.printStackTrace();
-            this.logger.error("通过" + erpCode + "调用基础资料接口失败！");
+            this.log.error("通过{}调用基础资料接口失败！",erpCode,e);
             JdResponse jdResponse = new JdResponse(JdResponse.CODE_SERVICE_ERROR,JdResponse.MESSAGE_SERVICE_ERROR);
             showMessage(response,jdResponse);
         }
