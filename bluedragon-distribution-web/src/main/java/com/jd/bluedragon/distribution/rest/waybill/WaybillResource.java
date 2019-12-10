@@ -7,6 +7,7 @@ import com.jd.bd.dms.automatic.sdk.modules.areadest.dto.AreaDestJsfVo;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
+import com.jd.bluedragon.common.dto.device.enums.DeviceTypeEnum;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
@@ -1591,7 +1592,7 @@ public class WaybillResource {
 		jsfRequest.setDestinationSiteCode(destinationSiteCode);
 		jsfRequest.setOperateTime(operateTime);
 		jsfRequest.setMachineId(machineCode);
-		jsfRequest.setDeviceType("GANTRY");
+		jsfRequest.setDeviceType(DeviceTypeEnum.GANTRY.getTypeCode());
 		BaseDmsAutoJsfResponse<List<AreaDestJsfVo>> jsfResponse;
 
 		CallerInfo info = Profiler.registerInfo("DMSWEB.jsf.areaDestJsfService.findAreaDest", Constants.UMP_APP_NAME_DMSWEB,false, true);
