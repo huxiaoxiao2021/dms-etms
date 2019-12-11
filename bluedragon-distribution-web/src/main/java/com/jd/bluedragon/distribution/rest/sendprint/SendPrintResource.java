@@ -5,28 +5,20 @@ import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
-import com.jd.bluedragon.distribution.sendprint.domain.BasicQueryEntityResponse;
-import com.jd.bluedragon.distribution.sendprint.domain.BatchSendInfoResponse;
-import com.jd.bluedragon.distribution.sendprint.domain.PrintQueryCriteria;
-import com.jd.bluedragon.distribution.sendprint.domain.SendCodePrintEntity;
-import com.jd.bluedragon.distribution.sendprint.domain.SummaryPrintResultResponse;
+import com.jd.bluedragon.distribution.sendprint.domain.*;
 import com.jd.bluedragon.distribution.sendprint.service.SendPrintService;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.jsf.gd.msg.ResponseFuture;
 import com.jd.jsf.gd.util.RpcContext;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.GZIP;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,7 +31,7 @@ import java.util.Map;
 @Produces({ MediaType.APPLICATION_JSON })
 public class SendPrintResource {
 
-    private static final Log logger= LogFactory.getLog(SendPrintResource.class);
+    private static final Logger log = LoggerFactory.getLogger(SendPrintResource.class);
 	@Autowired
 	private SendPrintService sendPrintService;
 
@@ -238,7 +230,7 @@ public class SendPrintResource {
                     result.put(parameters.get(index),baseEntity.getData());
                 }
             }catch (Throwable throwable){
-                logger.error(throwable.getMessage(),throwable);
+                log.error(throwable.getMessage(),throwable);
                 result.put(parameters.get(index),null);
                 errorNumber++;
             }
