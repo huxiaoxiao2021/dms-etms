@@ -45,4 +45,9 @@ public class WaybillPrintMessages{
 	 * 站点操作发货
 	 * */
 	public static final String MESSAGE_WAYBILL_STATE_SEND_BY_SITE = "此箱号已经操作站点发货，无法继续使用，请更换箱号";
+
+	/**
+	 * 超长包裹
+	 * */
+	public static final String MESSAGE_PACKAGE_OVER_LENGTH_REMIND = "此包裹最长边超过100厘米，为超长揽收包裹";
 }

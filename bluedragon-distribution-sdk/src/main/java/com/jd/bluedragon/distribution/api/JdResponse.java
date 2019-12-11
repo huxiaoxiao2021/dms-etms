@@ -191,9 +191,6 @@ public class JdResponse extends JdObject {
     public static final Integer CODE_RE_PRINT_REPEAT = 30122;
     public static final String MESSAGE_RE_PRINT_REPEAT = "此条码已操作过补打，是否再次打印？";
 
-    public static final Integer CODE_PACKAGE_OVER_LENGTH = 30123;
-    public static final String MESSAGE_PACKAGE_OVER_LENGTH = "此包裹最长边超过100厘米,为超长揽收包裹";
-
     /** 请求服务URL */
     private String request;
     

@@ -130,6 +130,11 @@ public class WaybillPrintRequest extends JdRequest{
 	 * */
 	private Boolean discernFlag = false;
 
+	/**
+	 * 长包裹校验标识
+	 * */
+	private Boolean longPackCheckFlag = false;
+
 	public Boolean getTrustBusinessFlag() {
 		return trustBusinessFlag;
 	}
@@ -381,5 +386,13 @@ public class WaybillPrintRequest extends JdRequest{
 
 	public void setDiscernFlag(Boolean discernFlag) {
 		this.discernFlag = discernFlag;
+	}
+
+	public Boolean getLongPackCheckFlag() {
+		return longPackCheckFlag;
+	}
+
+	public void setLongPackCheckFlag(Boolean longPackCheckFlag) {
+		this.longPackCheckFlag = longPackCheckFlag;
 	}
 }
