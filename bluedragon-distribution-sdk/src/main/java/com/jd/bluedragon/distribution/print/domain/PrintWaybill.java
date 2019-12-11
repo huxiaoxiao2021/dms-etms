@@ -217,7 +217,7 @@ public class PrintWaybill extends BasePrintWaybill {
     /**
      * 是否是长包裹
      * */
-    private Boolean isLongPack = Boolean.FALSE;
+    private Boolean longPack = Boolean.FALSE;
 
     public PrintWaybill(){
         this.isAir=false;
@@ -523,10 +523,10 @@ public class PrintWaybill extends BasePrintWaybill {
     }
 
     public Boolean getLongPack() {
-        return isLongPack;
+        return longPack;
     }
 
     public void setLongPack(Boolean longPack) {
-        isLongPack = longPack;
+        this.longPack = longPack;
     }
 }
