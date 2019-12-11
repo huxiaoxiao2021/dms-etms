@@ -281,13 +281,13 @@ $(function () {
                 success: function (data) {
                     if (data.code == 200) {
                         //重泡比弱拦截
+                        var sign = false;
+                        var allTableData = $('#waybillDataTable').bootstrapTable('getData');
+                        var result = data.data;
                         if(weight/volume < 168 || weight/volume > 330){
                             var messageBodyStr = '重泡比超过正常范围168:1到330:1，请确认是否强制录入？';
                             confirm(messageBodyStr,
                                 function () {
-                                    var sign = false;
-                                    var allTableData = $('#waybillDataTable').bootstrapTable('getData');
-                                    var result = data.data;
                                     $.each(allTableData,function(i,e){
                                         if(result[0].waybillCode == e.waybillCode){
                                             Jd.alert("运单号"+e.waybillCode+"已扫描请勿重复扫描!");
@@ -302,6 +302,17 @@ $(function () {
                                 function () {
                                     return;
                                 });
+                        }else {
+                            $.each(allTableData,function(i,e){
+                                if(result[0].waybillCode == e.waybillCode){
+                                    Jd.alert("运单号"+e.waybillCode+"已扫描请勿重复扫描!");
+                                    sign = true;
+                                    return;
+                                }
+                            });
+                            if(!sign){
+                                $('#waybillDataTable').bootstrapTable('append', data.data);
+                            }
                         }
                     }else {
                         Jd.alert(data.message);
