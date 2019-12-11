@@ -1,25 +1,19 @@
 package com.jd.bluedragon.distribution.rest.consumable;
 
-import IceInternal.Ex;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.Pager;
-import com.jd.bluedragon.distribution.consumable.domain.DmsConsumableRelation;
 import com.jd.bluedragon.distribution.consumable.domain.DmsConsumableRelationCondition;
 import com.jd.bluedragon.distribution.consumable.domain.DmsConsumableRelationDetailInfo;
 import com.jd.bluedragon.distribution.consumable.service.DmsConsumableRelationService;
-import com.jd.bluedragon.distribution.consumable.service.PackingConsumableInfoService;
-import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.external.service.DmsPackingConsumableService;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.util.List;
 
 /**
  * Created by hanjiaxing1 on 2018/8/16.
@@ -30,7 +24,7 @@ import java.util.List;
 @Produces({ MediaType.APPLICATION_JSON })
 public class DmsPackingConsumableResource {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private DmsPackingConsumableService dmsPackingConsumableService;
@@ -48,7 +42,7 @@ public class DmsPackingConsumableResource {
         try {
             PagerResult<DmsConsumableRelationDetailInfo> pager = dmsConsumableRelationService.queryDetailInfoByPagerCondition(dmsConsumableRelationCondition);
         } catch (Exception e) {
-            logger.error(e);
+            log.error("getInfoByDmsId:{}",dmsId,e);
         }
         return jdResponse;
     }
@@ -64,7 +58,7 @@ public class DmsPackingConsumableResource {
 //        try {
 //            PagerResult<DmsConsumableRelationDetailInfo> pager = dmsConsumableRelationService.queryDetailInfoByPagerCondition(dmsConsumableRelationCondition);
 //        } catch (Exception e) {
-//            logger.error(e);
+//            log.error(e);
 //        }
         return jdResponse;
     }

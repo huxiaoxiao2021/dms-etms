@@ -3,7 +3,8 @@ package com.jd.bluedragon.utils;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.io.xml.DomDriver;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 import javax.xml.bind.JAXBContext;
@@ -20,7 +21,7 @@ import java.io.StringWriter;
 
 public class XmlHelper {
 
-    private final static Logger logger = Logger.getLogger(XmlHelper.class);
+    private final static Logger log = LoggerFactory.getLogger(XmlHelper.class);
 
     public static Object toObject(String request, Class<?> clazz) {
         try {
@@ -29,7 +30,7 @@ public class XmlHelper {
             StringReader reader = new StringReader(request);
             return unmarshaller.unmarshal(reader);
         } catch (Exception e) {
-            XmlHelper.logger.error("反序列化XML发生异常， 异常信息为：" + e.getMessage(), e);
+            XmlHelper.log.error("反序列化XML发生异常， 异常信息为：{}" , e.getMessage(), e);
         }
 
         return null;
@@ -67,7 +68,7 @@ public class XmlHelper {
 
             return writer.toString();
         } catch (Exception e) {
-            XmlHelper.logger.error("序列化XML发生异常， 异常信息为：" + e.getMessage(), e);
+            XmlHelper.log.error("序列化XML发生异常， 异常信息为：{}", e.getMessage(), e);
         }
 
         return null;
@@ -127,7 +128,7 @@ public class XmlHelper {
                 return Boolean.TRUE;
             }
         } catch (Exception e) {
-            XmlHelper.logger.warn("序列化XML发生异常， 异常信息为：" + e.getMessage(), e);
+            XmlHelper.log.error("序列化XML发生异常， 异常信息为：{}" , e.getMessage(), e);
         }
 
         return Boolean.FALSE;

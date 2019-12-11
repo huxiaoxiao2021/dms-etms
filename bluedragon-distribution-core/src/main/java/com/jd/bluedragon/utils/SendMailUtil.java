@@ -1,22 +1,22 @@
 package com.jd.bluedragon.utils;
 
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.mail.MailProxy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.mail.MailProxy;
-
 public class SendMailUtil {
-    private static final Log logger = LogFactory.getLog(SendMailUtil.class);
+    private static final Logger log = LoggerFactory.getLogger(SendMailUtil.class);
 
     public static void sendSimpleEmail(String subject, String content, List<String> users) {
         if (StringHelper.isEmpty(subject) || StringHelper.isEmpty(content) || null == users
                 || users.isEmpty()) {
-			if (logger.isInfoEnabled()) {
-				logger.info("邮件结构不完整，取消发送。邮件主题 [" + subject + "], 邮件内容 [" + content + "], 收件人列表 [" + users + "]");
+			if (log.isInfoEnabled()) {
+				log.info("邮件结构不完整，取消发送。邮件主题 [{}], 邮件内容 [{}], 收件人列表 [{}]"
+						,subject,content,users);
 			}
             return;
         }
@@ -29,7 +29,8 @@ public class SendMailUtil {
 			int index = 0;
 			for (String user : users) {
 				if (StringHelper.isEmpty(user)) {
-					logger.info("邮件收件人为空，取消发送。邮件主题 [" + subject + "], 邮件内容[" + content + "], 收件人[" + user + "]");
+					log.info("邮件收件人为空，取消发送。邮件主题 [{}], 邮件内容 [{}], 收件人列表 [{}]"
+							,subject,content,users);
 					continue;
 				}
 				index++;
@@ -46,8 +47,8 @@ public class SendMailUtil {
 			if(index>0)
 				mailProxy.sendSimpleEmail(subject, content, batchUsers);
 		} catch (Exception e) {
-			logger.error("邮件接口在 [" + currentTime + "], 发送邮件 [" + subject + "], 内容 [" + content + "], 到收件人 [" + users
-					+ "] 失败。", e);
+			log.error("邮件接口在 [{}], 发送邮件 邮件主题 [{}], 邮件内容 [{}], 收件人列表 [{}]"
+					,currentTime,subject,content,users,e);
 		}
     }
 }

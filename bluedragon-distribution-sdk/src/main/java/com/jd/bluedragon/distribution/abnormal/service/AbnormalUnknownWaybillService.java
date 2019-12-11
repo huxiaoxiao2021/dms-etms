@@ -63,4 +63,10 @@ public interface AbnormalUnknownWaybillService extends Service<AbnormalUnknownWa
      * @return
      */
     public JdResponse<String> queryByWaybillCode(List<String> waybillCodes);
+
+    /**
+     * 截取超长字段receipt_content
+     * @param abnormalUnknownWaybill
+     */
+    public void dealReceiptContent(AbnormalUnknownWaybill abnormalUnknownWaybill);
 }

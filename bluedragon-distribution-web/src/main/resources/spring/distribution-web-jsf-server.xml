@@ -176,7 +176,8 @@
     <!-- 为外单提供jsf接口，获取拼多多的面单打印收寄件人信息 -->
     <jsf:provider id="pddExternalJSFService"
                   interface="com.jd.bluedragon.distribution.external.pdd.DMSExternalInPDDService"
-                  alias="${dms.jsf.alias}"
+                  alias="${dms.jsf.pdd.external.alias}"
                   ref="dmsExternalInPDDService" server="dmsjsf">
+        <jsf:parameter key="token" value="${dms.jsf.pdd.external.token}" hide="true"/>
     </jsf:provider>
 </beans>

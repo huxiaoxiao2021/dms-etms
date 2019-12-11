@@ -56,8 +56,23 @@
                     <property name="appKey" value="${dms.external.pdd.appKey}" />
                     <property name="appSecret" value="${dms.external.pdd.appSecret}" />
                     <property name="customerId" value="${dms.external.pdd.customerId}" />
+                    <property name="securityEnum" value="message_sign" />
                 </bean>
             </property>
+    </bean>
+
+    <!--  卓志全球购业务的预装载接口  -->
+    <bean id="globalTradeBusinessManager" class="com.jd.bluedragon.external.crossbow.globalTrade.manager.GlobalTradeBusinessManager">
+        <property name="crossbowConfig">
+            <bean class="com.jd.bluedragon.core.crossbow.CrossbowConfig">
+                <property name="domain" value="${dms.external.global.trade.domain}" />
+                <property name="api" value="${dms.external.global.trade.api}" />
+                <property name="appKey" value="${dms.external.global.trade.appKey}" />
+                <property name="appSecret" value="${dms.external.global.trade.appSecret}" />
+                <property name="customerId" value="${dms.external.global.trade.customerId}" />
+                <property name="securityEnum" value="message_sign" />
+            </bean>
+        </property>
     </bean>
 
 </beans>

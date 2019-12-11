@@ -9,12 +9,11 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.text.MessageFormat;
 /**
  * 龙门架验货消费接口
  * Created by wangtingwei on 2016/3/14.
@@ -22,7 +21,7 @@ import java.text.MessageFormat;
 @Service("scannerFrameInspectionConsume")
 public class ScannerFrameInspectionConsume implements ScannerFrameConsume {
 
-    private static final Log logger= LogFactory.getLog(ScannerFrameInspectionConsume.class);
+    private static final Logger log = LoggerFactory.getLogger(ScannerFrameInspectionConsume.class);
 
     @Autowired
     private TaskService taskService;
@@ -54,8 +53,8 @@ public class ScannerFrameInspectionConsume implements ScannerFrameConsume {
                 + JsonHelper.toJson(inspection)
                 + Constants.PUNCTUATION_CLOSE_BRACKET;
         Task task=this.taskService.toTask(request, eachJson);
-        if(logger.isDebugEnabled()){
-            logger.debug(MessageFormat.format("验货任务插入{0}", JsonHelper.toJson(task)));
+        if(log.isDebugEnabled()){
+            log.debug("验货任务插入{}", JsonHelper.toJson(task));
         }
         int result= this.taskService.add(task, true);
         return result>0;

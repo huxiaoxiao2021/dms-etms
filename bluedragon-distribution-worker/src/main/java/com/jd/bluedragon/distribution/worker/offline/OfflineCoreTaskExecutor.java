@@ -184,8 +184,9 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
                     //空铁提货并发货
                     offlineArReceiveService.parseToTask(offlineLogRequest);
                     Date operateTime = DateHelper.parseAllFormatDateTime(offlineLogRequest.getOperateTime());
-                    // 发货操作时间 +30
-                    offlineLogRequest.setOperateTime(DateHelper.formatDate(DateHelper.add(operateTime, Calendar.SECOND, delaySeconds), Constants.DATE_TIME_MS_FORMAT));
+                    // 发货操作时间 +30 -> +5
+                    offlineLogRequest.setOperateTime(DateHelper.formatDate(DateHelper.add(operateTime,
+                            Calendar.MILLISECOND, Constants.DELIVERY_DELAY_TIME), Constants.DATE_TIME_MS_FORMAT));
                     resultCode = this.offlineAcarAbillDeliveryService.parseToTask(offlineLogRequest);
                 }
                 if ((Task.TASK_TYPE_SEND_DELIVERY.equals(offlineLogRequest.getTaskType()) || Task.TASK_TYPE_ACARABILL_SEND_DELIVERY.equals(offlineLogRequest.getTaskType())) && resultCode > 0) {

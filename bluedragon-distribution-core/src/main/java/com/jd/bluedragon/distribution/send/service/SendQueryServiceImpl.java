@@ -4,17 +4,13 @@ import com.jd.bluedragon.core.base.MonitorManager;
 import com.jd.bluedragon.distribution.send.dao.SendQueryDao;
 import com.jd.bluedragon.distribution.send.domain.SendDifference;
 import com.jd.bluedragon.distribution.send.domain.SendQuery;
-import com.jd.etms.monitor.dto.vos.DifferenceType;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-import com.jd.etms.monitor.jsf.VosScanCodeDifferenceQuery;
 import com.jd.etms.monitor.dto.vos.ScanDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by wangtingwei on 2014/12/5.
@@ -22,7 +18,7 @@ import java.util.Set;
 @Service("SendQueryService")
 public class SendQueryServiceImpl implements SendQueryService {
 
-    private final Logger logger = Logger.getLogger(SendQueryServiceImpl.class);
+    private final Logger log = LoggerFactory.getLogger(SendQueryServiceImpl.class);
 
 
 
@@ -51,7 +47,7 @@ public class SendQueryServiceImpl implements SendQueryService {
         sendDifference.setTmsReceiveNums((scanDto.getReceiveNum()));
         sendDifference.setSendCode(sendCode);
         sendDifference.setPackageDifferences(scanDto.getScanCodes());
-        logger.info(sendDifference.toString());
+        log.info(sendDifference.toString());
 
        // sendDifference.setPackageDifferences(scanDto.getScanCodes());
 

@@ -64,10 +64,10 @@ public class SysconfigController {
 //				return "index";
 //			}
 //			
-//			logger.info("访问sqlkit/toView用户erp账号：[" + erpUser.getUserCode() + "]");
+//			log.info("访问sqlkit/toView用户erp账号：[" + erpUser.getUserCode() + "]");
 //
 //			if (!SysconfigController.modifyUsers.contains(erpUser.getUserCode().toLowerCase())) {
-//				logger.info("用户erp账号：" + erpUser.getUserCode() + "不在查询用户列表中,跳转到/index");
+//				log.info("用户erp账号：" + erpUser.getUserCode() + "不在查询用户列表中,跳转到/index");
 //				return "index";
 //			}
 

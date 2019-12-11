@@ -4,14 +4,15 @@ import com.google.common.collect.Maps;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
 
 public class InspectionDao extends BaseDao<Inspection>{
 
-	private final static Logger logger = Logger.getLogger(InspectionDao.class);
+	private final static Logger log = LoggerFactory.getLogger(InspectionDao.class);
 
 	public static final String namespace = InspectionDao.class.getName();
 	
@@ -23,7 +24,7 @@ public class InspectionDao extends BaseDao<Inspection>{
 	 */
 	public int updatePop(Inspection inspection) {
 		if(inspection == null || StringUtils.isBlank(inspection.getWaybillCode())){
-			logger.info("更新POP验货 参数为空");
+			log.info("更新POP验货 参数为空");
 			return 0;
 		}
 		return this.getSqlSession().update(namespace + ".updatePop", inspection);

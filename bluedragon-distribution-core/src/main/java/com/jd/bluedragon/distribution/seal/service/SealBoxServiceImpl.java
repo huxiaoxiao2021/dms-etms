@@ -8,8 +8,8 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.utils.CollectionHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -23,7 +23,7 @@ import java.util.Set;
 @Service("sealBoxService")
 public class SealBoxServiceImpl implements SealBoxService {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private SealBoxDao sealBoxDao;
@@ -83,7 +83,7 @@ public class SealBoxServiceImpl implements SealBoxService {
 				.toSet(array);
 		for (SealBoxRequest request : sealBoxes) {
 			if(request.getBoxCode().length() > Constants.BOX_CODE_DB_COLUMN_LENGTH_LIMIT){
-				logger.warn("封箱箱号字段超长，消息体：" + JsonHelper.toJson(request));
+				log.warn("封箱箱号字段超长，消息体：{}" , JsonHelper.toJson(request));
 				continue;
 			}
 			SealBox sealBox = SealBox.toSealBox(request);
@@ -95,13 +95,13 @@ public class SealBoxServiceImpl implements SealBoxService {
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int addSealBox(SealBox sealBox) {
-		this.logger.info("封箱服务-->增加封箱信息，先执行更新操作，封箱号【" + sealBox.getCode() + "】");
+		this.log.info("封箱服务-->增加封箱信息，先执行更新操作，封箱号【{}】",sealBox.getCode());
 		int tempUpdateCount = this.sealBoxDao.updateSealBox(sealBox);
 		if (tempUpdateCount <= 0) {
 			this.sealBoxDao.addSealBox(sealBox);
-			this.logger.info("封箱服务-->增加封箱信息，更新无数据，执行新增操作成功，封箱号【" + sealBox.getCode() + "】");
+			this.log.info("封箱服务-->增加封箱信息，更新无数据，执行新增操作成功，封箱号【{}】",sealBox.getCode());
 		} else {
-			this.logger.info("封箱服务-->增加封箱信息，执行更新成功，封箱号【" + sealBox.getCode() + "】");
+			this.log.info("封箱服务-->增加封箱信息，执行更新成功，封箱号【】",sealBox.getCode());
 		}
 		return 1;
 	}
