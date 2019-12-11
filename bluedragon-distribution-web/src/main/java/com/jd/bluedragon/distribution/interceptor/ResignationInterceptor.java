@@ -4,7 +4,8 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.common.web.LoginContext;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -17,7 +18,7 @@ import java.util.List;
 
 public class ResignationInterceptor implements HandlerInterceptor {
 
-    private final Logger logger = Logger.getLogger(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
     private String excludePath;
     private List<String> excludePathCache;
 
@@ -49,12 +50,12 @@ public class ResignationInterceptor implements HandlerInterceptor {
                 if(basestaffDto != null && basestaffDto.getIsResign() != null &&  basestaffDto.getIsResign() == 1){
                     return true;
                 }
-                this.logger.error("该登陆用户:" + loginContext.getPin() + "已离职！");
+                this.log.warn("该登陆用户:{}已离职！",loginContext.getPin());
                 //跳转到提示页面
                 this.sendErrorMessage(request, response);
             }
         }catch (Exception e){
-            this.logger.error("通过" + loginContext.getPin() + "调用基础资料接口失败！");
+            this.log.error("通过{}调用基础资料接口失败！",loginContext.getPin(),e);
         }
         return false;
     }

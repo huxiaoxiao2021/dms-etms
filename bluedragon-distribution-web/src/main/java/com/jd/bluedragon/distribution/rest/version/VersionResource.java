@@ -1,23 +1,18 @@
 package com.jd.bluedragon.distribution.rest.version;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.VersionResponse;
 import com.jd.bluedragon.distribution.version.domain.VersionEntity;
 import com.jd.bluedragon.distribution.version.service.ClientConfigService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 
 @Component
 @Path(Constants.REST_URL)
@@ -25,7 +20,7 @@ import com.jd.bluedragon.distribution.version.service.ClientConfigService;
 @Produces({ MediaType.APPLICATION_JSON })
 public class VersionResource {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	
     @Autowired
     private ClientConfigService clientConfigService;
@@ -43,8 +38,8 @@ public class VersionResource {
         Assert.notNull(siteCode, "siteCode must not be null");
         Assert.notNull(programType, "programType must not be null");
 
-        this.logger.info("siteCode " + siteCode);
-        this.logger.info("programType " + programType);
+        this.log.info("siteCode {}", siteCode);
+        this.log.info("programType {}", programType);
 
         VersionEntity versionEntity=new VersionEntity(siteCode,programType);
         VersionEntity entity = this.clientConfigService.getVersionEntity(versionEntity);

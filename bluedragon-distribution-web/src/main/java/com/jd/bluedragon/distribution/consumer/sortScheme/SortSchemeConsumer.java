@@ -6,8 +6,8 @@ import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.sortscheme.service.SortSchemeSyncService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.text.MessageFormat;
@@ -19,7 +19,7 @@ import java.util.Map;
  * Created by wuzuxiang on 2017/1/13.
  */
 public class SortSchemeConsumer extends MessageBaseConsumer{
-    private static final Log logger = LogFactory.getLog(SortSchemeConsumer.class);
+    private static final Logger log = LoggerFactory.getLogger(SortSchemeConsumer.class);
 
     private List<String> stores ;
 
@@ -32,15 +32,13 @@ public class SortSchemeConsumer extends MessageBaseConsumer{
     @Override
     public void consume(Message message) throws Exception {
         if(!JsonHelper.isJsonString(message.getText())){
-            if(this.logger.isDebugEnabled()){
-                logger.warn(MessageFormat.format("分拣方案推送DTC消息——非JSON格式，消息体内容为{0}",message.getText()));
-            }
+            log.warn("分拣方案推送DTC消息——非JSON格式，消息体内容为{}",message.getText());
             return;
         }
         Map schemeMq = JsonHelper.json2Map(message.getText());
         DmsSortSchemeRouter dmsSortScheme = JsonHelper.fromJson(schemeMq.get("messageValue").toString(),DmsSortSchemeRouter.class);
         if(null == dmsSortScheme.getType() && !"SortScheme".equalsIgnoreCase(dmsSortScheme.getType()) && !"SortSchemeDetail".equalsIgnoreCase(dmsSortScheme.getType())){
-            logger.info(MessageFormat.format("分拣中心推送DTC分拣方案消息抛弃，内容为：{0}",dmsSortScheme.toString()));
+            log.warn("分拣中心推送DTC分拣方案消息抛弃，内容为：{}",dmsSortScheme.toString());
             return;
         }
 
@@ -59,17 +57,17 @@ public class SortSchemeConsumer extends MessageBaseConsumer{
                 try{
                     com.jd.staig.receiver.rpc.Result result = this.dtcDataReceiverManager.downStreamHandle(target,outboundType, messageValue, source, outboundNo);
 
-                    this.logger.info("[分拣中心分拣方案推送DTC]:接口访问成功，result.getResultCode()=" + result.getResultCode());
-                    this.logger.info("[分拣中心分拣方案推送DTC]:接口访问成功，result.getResultMessage()=" + result.getResultMessage());
-                    this.logger.info("[分拣中心分拣方案推送DTC]:接口访问成功，result.getResultValue()=" + result.getResultValue());
+                    this.log.info("[分拣中心分拣方案推送DTC]:接口访问成功，result.getResultCode()={}", result.getResultCode());
+                    this.log.info("[分拣中心分拣方案推送DTC]:接口访问成功，result.getResultMessage()={}", result.getResultMessage());
+                    this.log.info("[分拣中心分拣方案推送DTC]:接口访问成功，result.getResultValue()={}", result.getResultValue());
                     if (result.getResultCode()!= 1) {
-                        this.logger.error("[分拣中心分拣方案推送DTC]消息失败，消息体为" + messageValue);
+                        this.log.warn("[分拣中心分拣方案推送DTC]消息失败，消息体为:{}", messageValue);
                     }
                 }catch(Exception e){
-                    this.logger.error("[分拣中心分拣方案推送DTC]:接口访问异常，消息体为" + messageValue);
+                    this.log.error("[分拣中心分拣方案推送DTC]:接口访问异常，消息体为:{}", messageValue, e);
                 }
             }else{
-                this.logger.info("分拣方案推送失败：对应的target信息不符"+target+"{"+ stores +"}");
+                this.log.warn("分拣方案推送失败：对应的target信息不符：{}-{}",target,stores );
             }
         }
     }
