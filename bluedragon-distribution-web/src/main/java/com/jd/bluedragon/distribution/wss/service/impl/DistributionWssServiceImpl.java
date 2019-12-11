@@ -7,30 +7,20 @@ import com.jd.bluedragon.distribution.seal.domain.SealVehicle;
 import com.jd.bluedragon.distribution.seal.service.SealVehicleService;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
-import com.jd.bluedragon.distribution.wss.dto.BoxSummaryDto;
-import com.jd.bluedragon.distribution.wss.dto.DepartureWaybillDto;
-import com.jd.bluedragon.distribution.wss.dto.PackageSummaryDto;
-import com.jd.bluedragon.distribution.wss.dto.SealVehicleSummaryDto;
-import com.jd.bluedragon.distribution.wss.dto.WaybillCodeSummatyDto;
+import com.jd.bluedragon.distribution.wss.dto.*;
 import com.jd.bluedragon.distribution.wss.service.DistributionWssService;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class DistributionWssServiceImpl implements DistributionWssService {
 
-	private final static Logger logger = Logger.getLogger(DistributionWssServiceImpl.class);
+	private final static Logger log = LoggerFactory.getLogger(DistributionWssServiceImpl.class);
 
 	@Autowired
 	DepartureService departureService;
@@ -99,7 +89,7 @@ public class DistributionWssServiceImpl implements DistributionWssService {
 				}
 			}
 		} catch (Exception e) {
-			DistributionWssServiceImpl.logger.error("获得箱子列表时失败【getBoxSummary】: " + e);
+			DistributionWssServiceImpl.log.error("获得箱子列表时失败【getBoxSummary】: " + e);
 		}
 		return dtos;
 	}
@@ -129,7 +119,7 @@ public class DistributionWssServiceImpl implements DistributionWssService {
 				}
 			}
 		} catch (Exception e) {
-			DistributionWssServiceImpl.logger.error("获得包裹列表时失败【PackageSummaryDto】: " + e);
+			DistributionWssServiceImpl.log.error("获得包裹列表时失败【PackageSummaryDto】: " + e);
 		}
 		return dtos;
 	}
@@ -166,12 +156,12 @@ public class DistributionWssServiceImpl implements DistributionWssService {
 		List<DepartureWaybillDto> dtos = new ArrayList<DepartureWaybillDto>();
 
 		if (StringHelper.isEmpty(code) || (type == null)) {
-			logger.error("查询参数不正确：code" + code + ",type" + type);
+			log.warn("查询参数不正确：code {},type {}",code, type);
 			return dtos;
 		}
 
 		if (type != 1 && type != 2) {
-			logger.error("查询类型不支持:" + type);
+			log.warn("查询类型不支持:{}", type);
 			return dtos;
 		}
 
@@ -188,7 +178,7 @@ public class DistributionWssServiceImpl implements DistributionWssService {
 				}
 			}
 		} catch (Exception e) {
-			logger.error("根据发车号或者三方运单号查询明细失败: " + e);
+			log.error("根据发车号或者三方运单号查询明细失败: ", e);
 		}
 		return dtos;
 	}
@@ -215,8 +205,8 @@ public class DistributionWssServiceImpl implements DistributionWssService {
 		try {
 			return toSealCodeSummary(sealVehicleService.findBySealCode(sealCode));
 		} catch (Exception e) {
-			DistributionWssServiceImpl.logger.error(
-			        "获取解封车信息失败【SealVehicleSummaryDto】：" + e.getMessage(), e);
+			DistributionWssServiceImpl.log.error(
+			        "获取解封车信息失败【SealVehicleSummaryDto】：" , e);
 			return new SealVehicleSummaryDto();
 		}
 	}

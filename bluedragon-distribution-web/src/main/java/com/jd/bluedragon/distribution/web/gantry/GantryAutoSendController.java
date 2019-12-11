@@ -28,8 +28,8 @@ import com.jd.bluedragon.utils.UsingState;
 import com.jd.common.util.StringUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -52,7 +52,7 @@ import java.util.Map;
 @RequestMapping("/gantryAutoSend")
 public class GantryAutoSendController {
 
-    private static final Log logger = LogFactory.getLog(GantryAutoSendController.class);
+    private static final Logger log = LoggerFactory.getLogger(GantryAutoSendController.class);
 
     private final static String PREFIX_VER_URL = "DMSVER_ADDRESS";
 
@@ -92,7 +92,7 @@ public class GantryAutoSendController {
     @Authorization(Constants.DMS_WEB_SORTING_GANTRYAUTOSEND_R)
     @RequestMapping(value = "/index", method = RequestMethod.GET)
     public String index(Model model) {
-        this.logger.debug("龙门架自动发货 --> index");
+        this.log.debug("龙门架自动发货 --> index");
         try {
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
 
@@ -114,7 +114,7 @@ public class GantryAutoSendController {
                 model.addAttribute("userNameAndCode", userName + "||" + userCode);
             }
         } catch (Exception e) {
-            logger.info("没有维护分拣中心，初始化加载失败");
+            log.info("没有维护分拣中心，初始化加载失败");
         }
         return "gantry/gantryAutoSendIndex";
     }
@@ -138,18 +138,18 @@ public class GantryAutoSendController {
                 userName = erpUser.getUserName() == null ? null : erpUser.getUserName();
                 userId = erpUser.getStaffNo() == null ? null : erpUser.getStaffNo();
             }
-            logger.debug(userName + "试图修改或插入龙门架的状态 --> UpsertGantryDeviceBusinessOrStatus ");
+            log.debug(userName + "试图修改或插入龙门架的状态 --> UpsertGantryDeviceBusinessOrStatus ");
         } catch (Exception e) {
-            logger.info("无法从cookie中获取登录人的信息");
+            log.info("无法从cookie中获取登录人的信息");
         }
         if (null == request || request.getMachineId() == null) {
-            logger.error("没有需要修改的龙门架设备信息");
+            log.error("没有需要修改的龙门架设备信息");
             return null;
         }
         GantryDeviceConfig gantryDeviceConfig = null;
         gantryDeviceConfig = gantryDeviceConfigService.findMaxStartTimeGantryDeviceConfigByMachineId(request.getMachineId());
         if (request.getLockStatus() == 0) {/** 解锁龙门架操作 **/
-            logger.info("用户：" + userCode + "正在尝试解锁龙门架，ID为" + request.getMachineId());
+            log.info("用户：" + userCode + "正在尝试解锁龙门架，ID为" + request.getMachineId());
             try {
                 BaseStaffSiteOrgDto lastLockUser = baseMajorManager.getBaseStaffByErpNoCache(gantryDeviceConfig.getLockUserErp());
                 //锁定人erp异常 或和当前同一人
@@ -181,19 +181,19 @@ public class GantryAutoSendController {
                         result.setData(gantryDeviceConfig);
                     }
                 } else {
-                    logger.info("此用户无法解锁由别人锁定的龙门架设备；解锁人" + userName + "锁定人" + gantryDeviceConfig.getLockUserName());
+                    log.info("此用户无法解锁由别人锁定的龙门架设备；解锁人" + userName + "锁定人" + gantryDeviceConfig.getLockUserName());
                     result.setCode(1000);
                     result.setMessage("解锁失败，请联系锁定人" + gantryDeviceConfig.getLockUserErp() + "解锁");
                     result.setData(gantryDeviceConfig);
                 }
             } catch (Exception e) {
-                logger.error("服务器处理异常：", e);
+                log.error("服务器处理异常：", e);
             }
         } else if (request.getLockStatus() == 1) {/** 锁定龙门架操作 **/
             gantryDeviceConfig = new GantryDeviceConfig();
             /**  config表中没有数据说明此龙门架是第一次添加，需要进行初始化所有字段数据数据 **/
-            if (logger.isInfoEnabled()) {
-                logger.info("用户" + userName + "正在尝试第一次配置该龙门架设备ID：" + request.getMachineId());
+            if (log.isInfoEnabled()) {
+                log.info("用户" + userName + "正在尝试第一次配置该龙门架设备ID：" + request.getMachineId());
             }
             gantryDeviceConfig.setMachineId(request.getMachineId().toString());
             gantryDeviceConfig.setCreateSiteCode(request.getCreateSiteCode());
@@ -232,21 +232,21 @@ public class GantryAutoSendController {
                             areaDestPlanService.updateUsingState(Integer.valueOf(planId.toString()), UsingState.USING);
                         }
                     } else {
-                        this.logger.error("锁定龙门架的方案失败");
+                        this.log.error("锁定龙门架的方案失败");
                     }
                 }
 
 
             } catch (Exception e) {
-                logger.error("锁定龙门架操作失败..", e);
+                log.error("锁定龙门架操作失败..", e);
             }
             if (count >= 1) {
-                logger.error("用户正在尝试的启用龙门架操作状态成功，龙门架ID：" + request.getMachineId() + " 操作人：" + userName);
+                log.error("用户正在尝试的启用龙门架操作状态成功，龙门架ID：" + request.getMachineId() + " 操作人：" + userName);
                 result.setCode(200);
                 result.setMessage("用户锁定龙门架操作成功");
                 result.setData(gantryDeviceConfig);
             } else {
-                logger.error("用户正在尝试的启用龙门架操作状态异常失败，龙门架ID：" + request.getMachineId() + " 操作人：" + userName);
+                log.error("用户正在尝试的启用龙门架操作状态异常失败，龙门架ID：" + request.getMachineId() + " 操作人：" + userName);
                 result.setCode(400);
                 result.setMessage("用户锁定龙门架失败");
                 result.setData(null);
@@ -265,7 +265,7 @@ public class GantryAutoSendController {
         result.setCode(400);
         result.setMessage("服务调用异常");
         result.setData(null);
-        logger.debug("龙门架自动发货获取数据 --> getCurrentSplitPageList");
+        log.debug("龙门架自动发货获取数据 --> getCurrentSplitPageList");
         if (request.getMachineId() == null) {
             return result;
         }
@@ -288,7 +288,7 @@ public class GantryAutoSendController {
             result.setMessage("服务器调用处理成功");
             result.setData(pagerResult);
         } catch (Exception e) {
-            logger.error("处理请求数据失败！", e);
+            log.error("处理请求数据失败！", e);
         }
         return result;
     }
@@ -304,12 +304,12 @@ public class GantryAutoSendController {
             try {
                 result.setData(gantryDeviceService.getSummaryVolumeBySendCode(sendCode));
             } catch (Exception e) {
-                logger.error("获取批次的总数量和总体积失败：批次号为" + sendCode, e);
+                log.error("获取批次的总数量和总体积失败：批次号为:{}", sendCode, e);
             }
             result.setCode(200);
             result.setMessage("获取批次号的总数量和总体积成功");
         } else {
-            logger.error("获取参数批次的总体积和总数量失败：批次号为空");
+            log.error("获取参数批次的总体积和总数量失败：批次号为空");
             result.setCode(400);
             result.setMessage("参数错误");
             result.setData(null);
@@ -321,7 +321,7 @@ public class GantryAutoSendController {
     @RequestMapping(value = "/generateSendCode", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult<Integer> generateSendCode(@RequestBody ScannerFrameBatchSend[] lists) {
-        logger.debug("龙门架自动换批次 --> changeSendCode");
+        log.debug("龙门架自动换批次 --> changeSendCode");
         InvokeResult<Integer> result = new InvokeResult<Integer>();
         result.setCode(400);
         result.setMessage("服务器处理异常，换批次失败！");
@@ -355,7 +355,7 @@ public class GantryAutoSendController {
                 scannerFrameBatchSend.setReceiveSiteCode(item.getReceiveSiteCode());
                 BaseStaffSiteOrgDto site =  siteService.getSite((int) item.getReceiveSiteCode());//理论上会存在溢出的风险，但是实际站点没有那么大的，故可以忽略
                 if (null == site) {
-                    logger.warn("该站点已经失效：" + item.getReceiveSiteCode());
+                    log.warn("该站点已经失效：{}", item.getReceiveSiteCode());
                     continue;
                 }
                 scannerFrameBatchSend.setReceiveSiteName(site.getSiteName());//通过基础资料获取站点名称
@@ -380,7 +380,7 @@ public class GantryAutoSendController {
                 }
             }
         } catch (Exception e) {
-            logger.error("生产新的批次号失败", e);
+            log.error("生产新的批次号失败", e);
         }
         return result;
     }
@@ -389,11 +389,11 @@ public class GantryAutoSendController {
     @RequestMapping(value = "/queryExceptionNum", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult<Integer> queryExceptionNum(SendExceptionRequest request) {
-        logger.debug("获取龙门架异常信息 --> queryExceptionNum");
+        log.debug("获取龙门架异常信息 --> queryExceptionNum");
         InvokeResult<Integer> result = new InvokeResult<Integer>();
         result.setData(0);
         if (null == request || StringUtils.isBlank(request.getMachineId())) {
-            logger.error("龙门架参数异常，获取异常数据失败");
+            log.error("龙门架参数异常，获取异常数据失败");
             result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
             result.setMessage(InvokeResult.PARAM_ERROR);
             return result;
@@ -404,7 +404,7 @@ public class GantryAutoSendController {
             result.setMessage("龙门架异常数据获取成功");
             result.setData(count);
         } catch (Exception e) {
-            logger.error("获取龙门架自动发货异常数据失败，龙门架ID为：" + request.getMachineId());
+            log.error("获取龙门架自动发货异常数据失败，龙门架ID为：{}", request.getMachineId());
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
         }
@@ -417,7 +417,7 @@ public class GantryAutoSendController {
     @ResponseBody
     public InvokeResult<List<BatchSendPrintImageResponse>> sendEndAndPrint(@RequestBody ScannerFrameBatchSendPrint[] requests) {
         InvokeResult<List<BatchSendPrintImageResponse>> result = new InvokeResult<List<BatchSendPrintImageResponse>>();
-        logger.info("已打印并完结批次动作开始-->打印的龙门架ID为：" + requests[0].getMachineId());
+        log.info("已打印并完结批次动作开始-->打印的龙门架ID为：{}", requests[0].getMachineId());
         result.setCode(400);
         result.setMessage("服务调用成功，数据为空");
         result.setData(null);
@@ -440,7 +440,7 @@ public class GantryAutoSendController {
                 userId = erpUser.getStaffNo() == null ? 0 : erpUser.getStaffNo();
                 userName = erpUser.getUserName() == null ? "none" : erpUser.getUserName();
             } catch (Exception e) {
-                logger.info("没有在基础资料中维护此erp信息");
+                log.info("没有在基础资料中维护此erp信息");
                 result.setCode(500);
                 result.setMessage("没有在基础资料中维护您的登录信息");
                 result.setData(null);
@@ -459,7 +459,7 @@ public class GantryAutoSendController {
             List<ScannerFrameBatchSend> dataRequestOld = pagerResult.getData();//取所有批次信息
             List<ScannerFrameBatchSend> dataRequest = new ArrayList<ScannerFrameBatchSend>();//取所有批次信息
             if (requests.length > 1) {
-                logger.info("本次提交的打印事件不是默认全选事件，需要对选中事件进行打印，选中的条数为：" + (requests.length - 1));
+                log.info("本次提交的打印事件不是默认全选事件，需要对选中事件进行打印，选中的条数为：{}",  (requests.length - 1));
                 /** ==============通过request判断是否有选中打印事件=============== **/
                 for (ScannerFrameBatchSend data : dataRequestOld) {
                     long itemReceiveSiteCode = data.getReceiveSiteCode();
@@ -478,19 +478,19 @@ public class GantryAutoSendController {
             } else {
                 dataRequest = dataRequestOld;
             }
-            logger.info("需要执行该打印并完结批次的条数为：" + dataRequest.size());
+            log.info("需要执行该打印并完结批次的条数为：{}", dataRequest.size());
             List<BatchSendPrintImageResponse> results = new ArrayList<BatchSendPrintImageResponse>();
             String urlBatchPrint = PropertiesHelper.newInstance().getValue(PREFIX_VER_URL) + "/batchSendPrint/print";
             String urlSummaryPrint = PropertiesHelper.newInstance().getValue(PREFIX_VER_URL) + "/batchSendPrint/summaryPrint";
             for (ScannerFrameBatchSend item : dataRequest) {
                 if (item.getReceiveSiteCode() == 0) {
                     //没有目的站点，自动退出循环
-                    logger.error("检测出该条数据没有目的站点：本条数据丢弃，本次循环退出。");
+                    log.error("检测出该条数据没有目的站点：本条数据丢弃，本次循环退出。");
                     continue;
                 }
                 /** ===============1.执行换批次动作================== **/
                 ScannerFrameBatchSend itemtoEndSend = new ScannerFrameBatchSend();
-                logger.info("打印并完结批次-->执行换批次操作：" + item.toString());
+                log.info("打印并完结批次-->执行换批次操作：{}", item.toString());
                 itemtoEndSend.setMachineId(item.getMachineId());
                 itemtoEndSend.setCreateSiteCode(item.getCreateSiteCode());
                 itemtoEndSend.setCreateSiteName(item.getCreateSiteName());
@@ -508,33 +508,33 @@ public class GantryAutoSendController {
                 itemtoEndSend.setSendCode(SerialRuleUtil.generateSendCode(itemtoEndSend.getCreateSiteCode(), itemtoEndSend.getReceiveSiteCode(), itemtoEndSend.getCreateTime()));
                 boolean bool = scannerFrameBatchSendService.generateSend(itemtoEndSend);
                 if (!bool) {
-                    logger.error("换批次动作失败：打印跳过该批次：" + item.toString());
+                    log.error("换批次动作失败：打印跳过该批次：{}", item.toString());
                     continue;
                 }
                 result.setCode(300);
                 result.setMessage("服务调用成功,换批次成功，打印失败");
                 result.setData(results);
-                logger.info("换批次动作实心成功，执行打印获取base64。");
+                log.info("换批次动作实心成功，执行打印获取base64。");
                 /** ==================换批次动作执行完毕================ **/
                 if ((printType & 1) == 1) {//批次打印逻辑
-                    logger.info("龙门架自动发货页面--批次打印开始");
+                    log.info("龙门架自动发货页面--批次打印开始");
                     BatchSendPrintImageResponse itemSendCodeResponse = scannerFrameBatchSendService.batchPrint(urlBatchPrint, item, userId, userName);
                     itemSendCodeResponse.setPrintType(SENDCODE_PRINT_TYPE);//批次打印单
                     results.add(itemSendCodeResponse);
                 }
                 if ((printType & 2) == 2) {//汇总打印逻辑
-                    logger.info("龙门架自动发货页面-打印汇总单开始");
+                    log.info("龙门架自动发货页面-打印汇总单开始");
                     BatchSendPrintImageResponse itemSummaryResponse = scannerFrameBatchSendService.summaryPrint(urlSummaryPrint, item, userId, userName);
                     itemSummaryResponse.setPrintType(SUMMARY_PRINT_TYPE);//汇总打印单
                     results.add(itemSummaryResponse);
                 }
-                logger.info("本次打印结束，获取的图片个数为：" + results.size());
+                log.info("本次打印结束，获取的图片个数为：{}", results.size());
             }
             result.setCode(200);
             result.setMessage("服务调用成功");
             result.setData(results);
         } catch (Exception e) {
-            logger.error("获取数据异常");
+            log.error("获取数据异常");
             result.setCode(500);
             result.setMessage("服务调用异常");
         }

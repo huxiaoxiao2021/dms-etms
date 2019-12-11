@@ -13,8 +13,8 @@ import com.jd.ql.dms.common.domain.BusType;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -40,7 +40,7 @@ import java.util.List;
 @RequestMapping("transport/arSendRegister")
 public class ArSendRegisterController {
 
-    private static final Log logger = LogFactory.getLog(ArSendRegisterController.class);
+    private static final Logger log = LoggerFactory.getLogger(ArSendRegisterController.class);
 
     @Autowired
     ArSendRegisterService arSendRegisterService;
@@ -88,7 +88,7 @@ public class ArSendRegisterController {
         try {
             response.setData(busTypeService.getNeedsBusType());
         } catch (Exception e) {
-            logger.error("fail to getAllBusType！" + e.getMessage(), e);
+            log.error("fail to getAllBusType！", e);
             response.toError("获取所有车辆信息异常！");
         }
         return response;
@@ -136,7 +136,7 @@ public class ArSendRegisterController {
                 response.toFail("新增失败，获取ERP信息失败，请重新登录后再操作！");
             }
         } catch (Exception e) {
-            logger.error("fail to insert！" + e.getMessage(), e);
+            log.error("fail to insert！", e);
             response.toError("新增失败，服务异常！");
         }
         return response;
@@ -167,7 +167,7 @@ public class ArSendRegisterController {
                 response.toFail("更新失败，获取ERP信息失败，请重新登录后再操作！");
             }
         } catch (Exception e) {
-            logger.error("fail to update！" + e.getMessage(), e);
+            log.error("fail to update！", e);
             response.toError("更新失败，服务异常！");
         }
         return response;
@@ -199,7 +199,7 @@ public class ArSendRegisterController {
                 response.toFail("删除失败，获取ERP信息失败，请重新登录后再操作！");
             }
         } catch (Exception e) {
-            logger.error("fail to delete！" + e.getMessage(), e);
+            log.error("fail to delete！", e);
             response.toError("删除失败，服务异常！");
         }
         return response;
@@ -252,7 +252,7 @@ public class ArSendRegisterController {
                 }
             }
         } catch (Exception e) {
-            logger.error("根据航班号/车次号获取运输信息异常", e);
+            log.error("根据航班号/车次号获取运输信息异常", e);
             response.toError("根据航班号/车次号获取运输信息异常");
         }
         return response;

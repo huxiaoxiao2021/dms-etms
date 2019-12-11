@@ -7,8 +7,8 @@ import com.jd.bluedragon.distribution.rule.service.RuleService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.uim.annotation.Authorization;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,7 +25,7 @@ import java.util.Map;
 @RequestMapping("/ruleManage")
 public class RuleManageController {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	
 	@Autowired
 	private RuleService ruleService;
@@ -37,7 +37,7 @@ public class RuleManageController {
 	@Authorization(Constants.DMS_WEB_DEVELOP_RULE_CONFIG_R)
 	@RequestMapping(value = "/goListPage", method = RequestMethod.GET)
 	public String goListPage() {
-		logger.debug("跳转到查询规则列表页面");
+		log.debug("跳转到查询规则列表页面");
 		return "ruleManage/rule_list";
 	}
 
@@ -45,15 +45,15 @@ public class RuleManageController {
 	@RequestMapping(value = "/edit", method = RequestMethod.GET)
 	public String edit(Rule rule, Pager pager, Model model){
 		try{
-			logger.info("编辑规则-验证主键");
+			log.info("编辑规则-验证主键");
 			/**验证主键*/
 			checkId(rule);
-			logger.info("编辑规则-准备调用服务进行查询 id = " + rule.getRuleId());
+			log.info("编辑规则-准备调用服务进行查询 id = {}", rule.getRuleId());
 			Rule result = ruleService.queryById(rule.getRuleId());
-			logger.info("查询规则数据");
+			log.info("查询规则数据");
 			model.addAttribute("rulemanagequeryDto",result);
 		}catch (Exception e) {
-			logger.error("查询规则数据失败",e);
+			log.error("查询规则数据失败",e);
 			model.addAttribute("errormsg","规则删除失败：" + e.getMessage());
 		}
 		return "ruleManage/rule_edit";
@@ -63,21 +63,21 @@ public class RuleManageController {
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
 	public String update(Rule rule,Pager pager, Model model){
 		try{
-			logger.info("更新规则-验证必输项");
+			log.info("更新规则-验证必输项");
 			/**验证必输项*/
 			checkRule(rule);
-			logger.info("更新规则-验证主键");
+			log.info("更新规则-验证主键");
 			/**验证主键*/
 			checkId(rule);
-			logger.info("更新规则-准备调用服务进行更新 id = " + rule.getRuleId());
+			log.info("更新规则-准备调用服务进行更新 id = {}", rule.getRuleId());
 			ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
 			rule.setUpdateUser(erpUser == null ? StringUtils.EMPTY : erpUser.getUserName());
 			ruleService.update(rule);
-			logger.info("更新规则成功");
+			log.info("更新规则成功");
 			model.addAttribute("successmsg","规则更新成功，请重新查询");
 			return "ruleManage/rule_list";
 		}catch (Exception e) {
-			logger.error("查询规则数据失败",e);
+			log.error("查询规则数据失败",e);
 			model.addAttribute("errormsg","规则删除失败：" + e.getMessage());
 			model.addAttribute("rulemanagequeryDto",rule);
 			return "ruleManage/rule_list";
@@ -88,15 +88,15 @@ public class RuleManageController {
 	@RequestMapping(value = "/del", method = RequestMethod.GET)
 	public String del(Rule rule,Pager pager, Model model){
 		try{
-			logger.info("删除规则-验证主键");
+			log.info("删除规则-验证主键");
 			/**验证主键*/
 			checkId(rule);
-			logger.info("删除规则-准备调用服务进行删除 id = " + rule.getRuleId());
+			log.info("删除规则-准备调用服务进行删除 id = {}", rule.getRuleId());
 			ruleService.del(rule.getRuleId());
-			logger.info("规则删除成功");
+			log.info("规则删除成功");
 			model.addAttribute("successmsg","规则删除成功，请重新查询");
 		}catch (Exception e) {
-			logger.error("规则删除失败",e);
+			log.error("规则删除失败",e);
 			model.addAttribute("errormsg","规则删除失败：" + e.getMessage());
 		}
 		return "ruleManage/rule_list";
@@ -105,7 +105,7 @@ public class RuleManageController {
 	@Authorization(Constants.DMS_WEB_DEVELOP_RULE_CONFIG_R)
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	public String list(Rule rule,Pager pager, Model model){
-		logger.debug("按条件查询规则页面");
+		log.debug("按条件查询规则页面");
 	    Map<String, Object> paramMap = makeObject2Map(rule);
 
 	    // 设置分页对象
@@ -121,10 +121,10 @@ public class RuleManageController {
 			// 获取总数量
 			int totalsize = ruleService.queryAllSize(paramMap);
 			pager.setTotalSize(totalsize);
-			logger.info("查询符合条件的规则数量：" + totalsize);
+			log.info("查询符合条件的规则数量：{}", totalsize);
 			ruleal = ruleService.select(paramMap);
 		} catch (Exception e) {
-			logger.error("根据条件查询规则数据异常：", e);
+			log.error("根据条件查询规则数据异常：", e);
 		}
 		model.addAttribute("ruleal",ruleal);
 		model.addAttribute("rulemanagequeryDto",rule);
@@ -138,18 +138,18 @@ public class RuleManageController {
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	public String add(Rule rule,Pager pager, Model model) {
 		try{
-			logger.info("增加规则-验证必输项");
+			log.info("增加规则-验证必输项");
 			checkRule(rule);
-			logger.info("增加规则-准备调用服务进行增加");
+			log.info("增加规则-准备调用服务进行增加");
 			ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
 			String userName = erpUser == null ? StringUtils.EMPTY : erpUser.getUserName();
 			rule.setCreateUser(userName);
 			rule.setUpdateUser(userName);
 			ruleService.add(rule);
-			logger.info("规则增加成功");
+			log.info("规则增加成功");
 			model.addAttribute("successmsg","规则增加成功，请重新查询");
 		}catch (Exception e) {
-			logger.error("规则增加失败",e);
+			log.error("规则增加失败",e);
 			model.addAttribute("errormsg","规则增加失败：" + e.getMessage());
 		}
 		return "ruleManage/rule_list";
@@ -158,7 +158,7 @@ public class RuleManageController {
 	@Authorization(Constants.DMS_WEB_DEVELOP_RULE_CONFIG_R)
 	@RequestMapping(value = "/goAddPage", method = RequestMethod.GET)
 	public String goAddPage() {
-		logger.debug("跳转到增加规则页面");
+		log.debug("跳转到增加规则页面");
 		return "ruleManage/rule_add";
 	}
 	
@@ -198,7 +198,7 @@ public class RuleManageController {
 	private Map<String, Object> makeObject2Map(Object obj) {
 		Map<String, Object> paramMap = new HashMap<String, Object>();
 		if (obj == null) {
-			logger.debug("转换对象为空");
+			log.debug("转换对象为空");
 			return paramMap;
 		}
 		try {
@@ -211,13 +211,13 @@ public class RuleManageController {
 					if (targetValueObj != null) {
 						if (targetValueObj instanceof Integer) {
 							if ((Integer) targetValueObj < 0) {
-								logger.debug("方法名：" + methodName + " 的值小于0");
+								log.debug("方法名：{} 的值小于0",methodName);
 								continue;
 							}
 						} else if (targetValueObj instanceof String &&
 								"".equals(targetValueObj.toString())) {
 							//if ("".equals(targetValueObj.toString())) {
-								logger.debug("方法名：" + methodName + " 的值为空");
+								log.debug("方法名：{} 的值为空", methodName);
 								continue;
 							//}
 						}
@@ -227,7 +227,7 @@ public class RuleManageController {
 				}
 			}
 		} catch (Exception e) {
-			logger.error("将对象转换为Map异常：", e);
+			log.error("将对象转换为Map异常：", e);
 		}
 		return paramMap;
 	}

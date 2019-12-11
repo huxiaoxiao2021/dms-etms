@@ -1,36 +1,9 @@
 package com.jd.bluedragon.distribution.web.popAbnormal;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletResponse;
-
-import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.utils.*;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.propertyeditors.CustomDateEditor;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.LossProductResponse;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.popAbnormal.domain.PopAbnormalDetail;
@@ -44,11 +17,28 @@ import com.jd.bluedragon.distribution.rest.product.LossProductResource;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.JsonResult;
 import com.jd.bluedragon.external.service.SortCenterServiceManager;
+import com.jd.bluedragon.utils.*;
 import com.jd.pop.sortcenter.ws.VenderOperInfoResult;
 import com.jd.pop.sortcenter.ws.VenderOperateInfo;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.uim.annotation.Authorization;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * @author zhaohc
@@ -60,7 +50,7 @@ import com.jd.uim.annotation.Authorization;
 @Controller
 @RequestMapping("/popReceiveAbnormal")
 public class PopReceiveAbnormalController {
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private BaseService baseService;
@@ -91,7 +81,7 @@ public class PopReceiveAbnormalController {
 	@Authorization(Constants.DMS_WEB_PTORDER_DIFF_R)
 	@RequestMapping(value = "/goListPage", method = RequestMethod.GET)
 	public String goListPage(Model model) {
-		this.logger
+		this.log
 				.info("PopReceiveAbnormalController --> goListPage 跳转到查询平台订单差异列表页面");
 		initSelectObject(null, model);
 		initReasons(null, model);
@@ -108,7 +98,7 @@ public class PopReceiveAbnormalController {
     @Authorization(Constants.DMS_WEB_PTORDER_DIFF_R)
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	public String list(PopAbnormalQuery popAbnormalQuery, Model model) {
-		this.logger
+		this.log
 				.info("PopReceiveAbnormalController --> list 按条件查询平台订单差异订单数据集合");
 
 		Boolean checkParamOK = Boolean.TRUE;
@@ -162,7 +152,7 @@ public class PopReceiveAbnormalController {
 					// 获取总数量
 					int totalSize = this.popReceiveAbnormalService
 							.findTotalCount(paramMap);
-					this.logger
+					this.log
 							.info("PopReceiveAbnormalController list --> 获取总数量为："
 									+ totalSize);
 					if (totalSize > 0) {
@@ -171,19 +161,17 @@ public class PopReceiveAbnormalController {
 								.findList(paramMap);
 						pager.setData(popReceiveAbnormals);
 					} else {
-						this.logger
+						this.log
 								.info("PopReceiveAbnormalController list --> paramMap："
 										+ paramMap + ", 调用服务成功，数据为空");
 					}
 				}
 			} catch (Exception e) {
-				this.logger.error(
-						"PopReceiveAbnormalController list SERVER ERROR:", e);
+				this.log.error("PopReceiveAbnormalController list SERVER ERROR:", e);
 			}
 
 		} else {
-			this.logger
-					.error("PopReceiveAbnormalController list PARAM ERROR --> 传入参数非法");
+			this.log.warn("PopReceiveAbnormalController list PARAM ERROR --> 传入参数非法");
 		}
 
 		model.addAttribute("popAbnormalQuery", popAbnormalQuery);
@@ -198,8 +186,7 @@ public class PopReceiveAbnormalController {
     @Authorization(Constants.DMS_WEB_PTORDER_DIFF_R)
 	@RequestMapping(value = "/addOrDetail", method = RequestMethod.GET)
 	public String addOrDetail(Model model, Long abnormalId) {
-		this.logger
-				.info("PopReceiveAbnormalController addOrDetail --> 进入反馈或显示页面");
+		this.log.debug("PopReceiveAbnormalController addOrDetail --> 进入反馈或显示页面");
 		initSelectObject(null, model);
 		initReasons(null, model);
 
@@ -215,8 +202,7 @@ public class PopReceiveAbnormalController {
 						this.popAbnormalDetailService
 								.findListByAbnormalId(abnormalId));
 			} catch (Exception e) {
-				this.logger.error(
-						"PopReceiveAbnormalController detail --> 异常：", e);
+				this.log.error("PopReceiveAbnormalController detail --> 异常：", e);
 			}
 		}
 
@@ -234,13 +220,15 @@ public class PopReceiveAbnormalController {
 	@ResponseBody
 	public JsonResult getWaybillByOrderCode(
 			@RequestBody Map<String, String> paramMap) {
-		logger.info("PopReceiveAbnormalController getWaybillByOrderCode --> 根据订单号获取运单信息");
+		log.debug("PopReceiveAbnormalController getWaybillByOrderCode --> 根据订单号获取运单信息");
 		String resultMsg = "";
 		String waybillCode = "";
 		// 验证传入参数
 		if (paramMap == null || StringUtils.isBlank(paramMap.get("waybillCode"))) {
-			logger.info("PopReceiveAbnormalController getWaybillByOrderCode --> 传入参数:" + JsonHelper.toJson(paramMap));
-            return new JsonResult(false, JdResponse.MESSAGE_PARAM_ERROR);
+			if(log.isInfoEnabled()){
+				log.info("PopReceiveAbnormalController getWaybillByOrderCode --> 传入参数:{}", JsonHelper.toJson(paramMap));
+			}
+			return new JsonResult(false, JdResponse.MESSAGE_PARAM_ERROR);
 		} else {
 			waybillCode = paramMap.get("waybillCode");
 		}
@@ -249,11 +237,11 @@ public class PopReceiveAbnormalController {
 			PopReceiveAbnormal tempAbnormal = this.popReceiveAbnormalService
 					.findByMap(paramMap);
 			if (tempAbnormal != null) {
-				logger.info("根据订单号获取运单信息，" + paramMap + " 运单号正在处理中，返回");
+				log.info("根据订单号获取运单信息，{} 运单号正在处理中，返回",paramMap);
 				resultMsg = "此订单号 " + waybillCode + " 正在处理中，未处理完成！";
 			}
 			if (StringUtils.isNotBlank(resultMsg)) {
-				logger.info("根据订单号获取运单信息，" + resultMsg + " 返回");
+				log.info("根据订单号获取运单信息，{} 返回",resultMsg);
 				return new JsonResult(false, resultMsg);
 			}
 
@@ -275,11 +263,10 @@ public class PopReceiveAbnormalController {
 					if(NumberHelper.isNumber(waybillCode)){
 						venderOperInfoResult = this.sortCenterManager.searchInfoForByOrderId(Long.valueOf(waybillCode));
 					}else{
-						this.logger.warn("录入的订单号不是数字类型：【" + waybillCode + "】 ");
+						this.log.warn("录入的订单号不是数字类型：【{}】 " , waybillCode);
 					}
 					if (venderOperInfoResult == null) {
-						this.logger.warn("根据订单号【" + waybillCode
-								+ "】 获取POP相关信息为空");
+						this.log.warn("根据订单号【{}】 获取POP相关信息为空", waybillCode);
 					} else {
 						if ("10100000".equals(venderOperInfoResult
 								.getResultCode())
@@ -300,16 +287,11 @@ public class PopReceiveAbnormalController {
 											+ venderOperateInfo
 													.getOperatorTel());
 						} else {
-							this.logger.info("根据订单号【" + waybillCode
-									+ "】 获取无POP相关信息："
-									+ venderOperInfoResult.getResultCode()
-									+ ", "
-									+ venderOperInfoResult.getResultDescrib());
+							this.log.info("根据订单号【{}】 获取无POP相关信息：{}-{}",waybillCode, venderOperInfoResult.getResultCode(), venderOperInfoResult.getResultDescrib());
 						}
 					}
 				} catch (Exception e) {
-					this.logger.error(
-							"根据订单号【" + waybillCode + "】 获取POP相关信息异常：", e);
+					this.log.error("根据订单号【{}】 获取POP相关信息异常：",waybillCode, e);
 				}
 				if (StringUtils.isBlank(popAbnormal.getAttr1())) {
 					popAbnormal.setAttr1("无");
@@ -320,7 +302,7 @@ public class PopReceiveAbnormalController {
 			}
 
 			if (popAbnormal == null) {
-				this.logger.info("根据订单号：" + waybillCode + " 获取运单信息为空");
+				this.log.info("根据订单号：{} 获取运单信息为空",waybillCode);
 				return new JsonResult(false, "不存在此订单号：" + waybillCode);
 			} else {
 				if ("6".equals(paramMap.get("mainType"))) {
@@ -338,8 +320,7 @@ public class PopReceiveAbnormalController {
 									.getActualQuantity());
 						}
 					} catch (Exception e) {
-						this.logger.error(
-								"根据订单号：" + waybillCode + " 获取商品数量异常：", e);
+						this.log.error("根据订单号：{} 获取商品数量异常：",waybillCode, e);
 					}
 					if (StringUtils.isBlank(attr1) || "null".equals(attr1)) {
 						attr1 = "";
@@ -355,12 +336,11 @@ public class PopReceiveAbnormalController {
 					popAbnormal.setOrderCode(popAbnormal.getWaybillCode());
 				}
 				
-				this.logger.info("根据订单号：" + waybillCode + " 获取运单信息为："
-						+ popAbnormal);
+				this.log.info("根据订单号：{} 获取运单信息为：{}",waybillCode, popAbnormal);
 				return new JsonResult(true, popAbnormal);
 			}
 		} catch (Exception e) {
-			this.logger.error("根据订单号获取运单信息:“" + paramMap + "” 异常：", e);
+			this.log.error("根据订单号获取运单信息:{}",paramMap, e);
 			return new JsonResult(false, "服务器异常，请稍后重试！");
 		}
 	}
@@ -377,25 +357,24 @@ public class PopReceiveAbnormalController {
 	public JsonResult savePopReceiveAbnormal(
 			PopReceiveAbnormal popReceiveAbnormal,
 			PopAbnormalDetail popAbnormalDetail) {
-		this.logger.info("savePopReceiveAbnormal --> 保存差异订单保存差异订单 开始");
+		this.log.info("savePopReceiveAbnormal --> 保存差异订单保存差异订单 开始");
 		// 验证传入参数
 		if (popReceiveAbnormal == null
 				|| popReceiveAbnormal.getOrgCode() == null
 				|| popReceiveAbnormal.getCreateSiteCode() == null) {
-			this.logger.info("savePopReceiveAbnormal --> 传入参数有误！");
+			this.log.info("savePopReceiveAbnormal --> 传入参数有误！");
 			return new JsonResult(false, "传入参数有误！");
 		}
 		if (popAbnormalDetail != null
 				&& StringUtils.isNotBlank(popAbnormalDetail.getRemark())
 				&& popAbnormalDetail.getRemark().length() > 256) {
-			this.logger.info("savePopReceiveAbnormal --> 传入Remark字段太长！");
+			this.log.info("savePopReceiveAbnormal --> 传入Remark字段太长！");
 			return new JsonResult(false, "输入备注长度不能大于256个字符，请减短！");
 		}
 		try {
 			if (popReceiveAbnormal.getAbnormalId() != null
 					&& popReceiveAbnormal.getAbnormalId() > 0) {
-				this.logger.info("savePopReceiveAbnormal --> 第二次提交 ["
-						+ popReceiveAbnormal.getAbnormalId() + "]，执行更新、插入");
+				this.log.info("savePopReceiveAbnormal --> 第二次提交 [{}]，执行更新、插入",popReceiveAbnormal.getAbnormalId());
 				popReceiveAbnormal
 						.setAbnormalStatus(PopReceiveAbnormal.IS_FINISH);
 				int addCount = this.popReceiveAbnormalService.update(
@@ -410,8 +389,7 @@ public class PopReceiveAbnormalController {
 						|| popReceiveAbnormal.getMainType().equals(3) 
 						|| popReceiveAbnormal.getMainType().equals(4)) {
 					if (popReceiveAbnormal.getSubType() == null) {
-						this.logger
-								.info("savePopReceiveAbnormal --> 子类型不能为空，请选择！");
+						this.log.info("savePopReceiveAbnormal --> 子类型不能为空，请选择！");
 						return new JsonResult(false, "子类型不能为空，请选择！");
 					}
 				} else if (popReceiveAbnormal.getMainType().equals(5)
@@ -420,8 +398,7 @@ public class PopReceiveAbnormalController {
 								.getSubType().equals(402))) {
 					if (!BusinessHelper.checkIntNumRange(Integer
 							.valueOf(popReceiveAbnormal.getAttr2()))) {
-						this.logger
-								.info("savePopReceiveAbnormal --> 传入实际数量不大于0或大于2000！");
+						this.log.info("savePopReceiveAbnormal --> 传入实际数量不大于0或大于2000！");
 						return new JsonResult(false, "传入实际数量不大于0或大于2000");
 					}
 				}
@@ -444,9 +421,7 @@ public class PopReceiveAbnormalController {
 							.findByMap(paramMap);
 				}
 				if (tempAbnormal == null) {
-					this.logger.info("savePopReceiveAbnormal --> 根据运单号["
-							+ popReceiveAbnormal.getWaybillCode()
-							+ "]验证为空，执行插入");
+					this.log.info("savePopReceiveAbnormal --> 根据运单号[{}]验证为空，执行插入",popReceiveAbnormal.getWaybillCode());
 
 					if (StringUtils.isBlank(popReceiveAbnormal.getPopSupNo())) {
 						popReceiveAbnormal.setPopSupNo(null);
@@ -477,32 +452,25 @@ public class PopReceiveAbnormalController {
 							}
 						}
 					} catch (Exception e) {
-						this.logger.error("savePopReceiveAbnormal --> 运单号["
-								+ popReceiveAbnormal.getWaybillCode()
-								+ "] 补全POP商家信息异常：", e);
+						this.log.error("savePopReceiveAbnormal --> 运单号[{}] 补全POP商家信息异常：",popReceiveAbnormal.getWaybillCode(), e);
 					}
 
 					int addCount = this.popReceiveAbnormalService.add(
 							popReceiveAbnormal, popAbnormalDetail);
 					if (addCount == Constants.RESULT_SUCCESS) {
-						this.logger.info("savePopReceiveAbnormal --> 根据运单号["
-								+ popReceiveAbnormal.getWaybillCode() + "]成功");
+						this.log.info("savePopReceiveAbnormal --> 根据运单号[{}]成功",popReceiveAbnormal.getWaybillCode());
 						return new JsonResult(true, "提交成功");
 					} else {
-						this.logger.info("savePopReceiveAbnormal --> 根据运单号“"
-								+ popReceiveAbnormal.getWaybillCode() + "”失败");
+						this.log.info("savePopReceiveAbnormal --> 根据运单号{}失败",popReceiveAbnormal.getWaybillCode());
 						return new JsonResult(false, "提交失败，请稍后重试！");
 					}
 				} else {
-					this.logger.info("savePopReceiveAbnormal --> 根据运单号“"
-							+ popReceiveAbnormal.getWaybillCode()
-							+ "”验证不为空，不执行插入");
+					this.log.info("savePopReceiveAbnormal --> 根据运单号{}验证不为空，不执行插入",popReceiveAbnormal.getWaybillCode());
 					return new JsonResult(false, "此订单号已提交过，且未审核通过！");
 				}
 			}
 		} catch (Exception e) {
-			this.logger.error("savePopReceiveAbnormal --> 运单号["
-					+ popReceiveAbnormal.getWaybillCode() + "] 异常：", e);
+			this.log.error("savePopReceiveAbnormal --> 运单号[{}] 异常：",popReceiveAbnormal.getWaybillCode(), e);
 			return new JsonResult(false, "服务器异常，请稍后重试！");
 		}
 	}
@@ -516,11 +484,11 @@ public class PopReceiveAbnormalController {
 	@RequestMapping(value = "/cancelPopReceiveAbnormal", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult cancelPopReceiveAbnormal(@RequestBody Map<String, String> paramMap) {
-		this.logger.info("cancelPopReceiveAbnormal --> 取消差异订单 开始");
+		this.log.info("cancelPopReceiveAbnormal --> 取消差异订单 开始");
 		
 		ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
 		if (erpUser == null || !erpUser.getUserId().equals(24779)) {
-			this.logger.info("cancelPopReceiveAbnormal --> 无权限！");
+			this.log.info("cancelPopReceiveAbnormal --> 无权限！");
 			return new JsonResult(false, "无权限，请联系相关人员进行操作！");
 		}
 		
@@ -537,24 +505,22 @@ public class PopReceiveAbnormalController {
 			}
 			
 			if (checkParamOK) {
-				this.logger.info("cancelPopReceiveAbnormal --> 传入参数有误！");
+				this.log.info("cancelPopReceiveAbnormal --> 传入参数有误！");
 				return new JsonResult(false, "传入参数有误！");
 			}
 		
 			int resultCode = this.popReceiveAbnormalService.delete(abnormalId);
 			
 			if (resultCode == Constants.RESULT_SUCCESS) {
-				this.logger.info("cancelPopReceiveAbnormal --> 根据主键["
-						+ abnormalId + "]取消成功");
+				this.log.info("cancelPopReceiveAbnormal --> 根据主键[{}]取消成功",abnormalId);
 				return new JsonResult(true, "取消成功");
 			} else {
-				this.logger.info("cancelPopReceiveAbnormal --> 根据主键【"
-						+ abnormalId + "】取消失败");
+				this.log.info("cancelPopReceiveAbnormal --> 根据主键【{}】取消失败",abnormalId);
 				return new JsonResult(false, "取消失败，请确认是否存在相应数据！");
 			}
 			
 		} catch (Exception e) {
-			this.logger.error("cancelPopReceiveAbnormal --> 取消差异订单 异常：", e);
+			this.log.error("cancelPopReceiveAbnormal --> 取消差异订单 异常：", e);
 			return new JsonResult(false, "服务器异常，请稍后重试！");
 		}
 	}
@@ -569,7 +535,7 @@ public class PopReceiveAbnormalController {
 	@RequestMapping(value = "/exportPopAbnormal", method = RequestMethod.POST)
 	public String exportPopReceiveAbnormal(PopAbnormalQuery popAbnormalQuery,
 			HttpServletResponse response) {
-		this.logger.info("导出平台差异订单数据");
+		this.log.info("导出平台差异订单数据");
 
 		Boolean checkParamOK = Boolean.TRUE;
 		Map<String, Object> paramMap = new HashMap<String, Object>();
@@ -594,7 +560,7 @@ public class PopReceiveAbnormalController {
 								.findList(paramMap);
 					}
 				} catch (Exception e) {
-					this.logger.error("根据条件查询平台差异订单处理集合异常：", e);
+					this.log.error("根据条件查询平台差异订单处理集合异常：", e);
 				}
 				os = response.getOutputStream();
 				String filename = "平台收货差异订单数据"
@@ -643,19 +609,18 @@ public class PopReceiveAbnormalController {
 
 				os.flush();
 			} catch (IOException e) {
-				this.logger.error("根据条件查询平台差异订单导出数据异常：", e);
+				this.log.error("根据条件查询平台差异订单导出数据异常：", e);
 			} finally {
 				try {
 					if (os != null) {
 						os.close();
 					}
 				} catch (IOException e) {
-					this.logger.error("关闭数据流 ERROR", e);
+					this.log.error("关闭数据流 ERROR", e);
 				}
 			}
 		} else {
-			this.logger
-					.error("PopReceiveAbnormalController exportPopReceiveAbnormal PARAM ERROR --> 传入参数非法");
+			this.log.warn("PopReceiveAbnormalController exportPopReceiveAbnormal PARAM ERROR --> 传入参数非法");
 		}
 		return null;
 	}
@@ -665,20 +630,17 @@ public class PopReceiveAbnormalController {
 	@ResponseBody
 	public JsonResult getSubReasonsByMainType(
 			@RequestBody Map<String, String> paramMap) {
-		this.logger.info("PopReceiveAbnormalController getSubReasons");
+		this.log.info("PopReceiveAbnormalController getSubReasons");
 		String resultMsg = "";
 		Integer mainType = 0;
 		// 验证传入参数
 		if (paramMap == null) {
-			logger
-					.info("PopReceiveAbnormalController getSubReasons --> 传入参数为空!");
+			log.info("PopReceiveAbnormalController getSubReasons --> 传入参数为空!");
 			resultMsg = "传入参数为空!";
 		} else {
 			mainType = Integer.parseInt(paramMap.get("mainType"));
 			if (mainType == null || mainType.equals(0)) {
-				logger
-						.info("PopReceiveAbnormalController getSubReasons --> 传入参数有误："
-								+ paramMap);
+				log.info("PopReceiveAbnormalController getSubReasons --> 传入参数有误：{}",paramMap);
 				resultMsg = "传入参数有误！";
 			}
 		}
@@ -705,7 +667,7 @@ public class PopReceiveAbnormalController {
 		model.addAttribute("erpUser", erpUser);
 
 		try {
-			this.logger.info("初始化查询条件-->调用基础资料获取某个员工信息开始");
+			this.log.info("初始化查询条件-->调用基础资料获取某个员工信息开始");
 			BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseService
 					.getBaseStaffByStaffId(erpUser.getUserId());
 
@@ -720,7 +682,7 @@ public class PopReceiveAbnormalController {
 
 				if (defaultSiteCode != null
 						&& Constants.DMS_SITE_TYPE.equals(defaultSiteType)) {
-					this.logger.info("初始化查询条件-->员工信息 属于分拣中心");
+					this.log.info("初始化查询条件-->员工信息 属于分拣中心");
 					if (paramMap != null) {
 						paramMap.put("createSiteCode", defaultSiteCode);
 					}
@@ -735,7 +697,7 @@ public class PopReceiveAbnormalController {
 					orgList.add(baseOrg);
 				}
 			} else {
-				this.logger.info("初始化查询条件-->调用基础资料获取某个员工信息 为空");
+				this.log.info("初始化查询条件-->调用基础资料获取某个员工信息 为空");
 				orgList = baseService.getAllOrg();
 			}
 
@@ -755,7 +717,7 @@ public class PopReceiveAbnormalController {
 			}
 			model.addAttribute("siteList", siteList);
 		} catch (Exception e) {
-			this.logger.error("初始化查询条件异常", e);
+			this.log.error("初始化查询条件异常", e);
 		}
 	}
 
