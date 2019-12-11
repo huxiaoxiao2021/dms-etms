@@ -949,6 +949,21 @@ public class BusinessUtil {
         return Boolean.FALSE;
     }
 
+    /**
+     * 判断否属于新增大小站类型（除校园派、爱回收等情况）
+     * 1.一级为自提点siteType=8;
+     * 2.一级营业部siteType=4；二级为营业部subType=4
+     */
+    public static Boolean isNewBigSmallSite(Integer type ,Integer subType) {
+
+        if (type != null) {
+            if (subType != null) {
+                return type == 8 || (type == 4 && subType == 4);
+            }
+            return type == 8;
+        }
+        return false;
+    }
 
     /**
      * 判断是否是加盟商运单 106=2
