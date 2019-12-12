@@ -16,7 +16,7 @@ public interface AbnormalReportingGatewayService {
 
     String uploadExceptionImage(InputStream inStream) throws IOException;
 
-    JdCResponse<List<DutyDepartmentInfo>> getDutyDepartment(String barCode);
+    JdCResponse<List<DutyDepartmentInfo>> getDutyDepartment(String barCode, Integer siteCode, String siteName);
 
     JdCResponse saveAbnormalReportingInfo(AbnormalReportingRequest abnormalReportingRequest);
 }

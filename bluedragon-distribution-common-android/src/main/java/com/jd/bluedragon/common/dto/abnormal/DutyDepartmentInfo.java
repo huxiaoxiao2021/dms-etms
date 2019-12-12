@@ -12,6 +12,15 @@ public class DutyDepartmentInfo {
 
     private Integer type;
 
+    public DutyDepartmentInfo() {
+    }
+
+    public DutyDepartmentInfo(String code, String name, Integer type) {
+        this.code = code;
+        this.name = name;
+        this.type = type;
+    }
+
     public String getCode() {
         return code;
     }

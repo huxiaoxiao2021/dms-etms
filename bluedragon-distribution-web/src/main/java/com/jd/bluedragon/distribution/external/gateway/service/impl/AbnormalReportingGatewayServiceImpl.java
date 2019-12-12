@@ -137,7 +137,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
     }
 
     @Override
-    public JdCResponse<List<DutyDepartmentInfo>> getDutyDepartment(String barCode) {
+    public JdCResponse<List<DutyDepartmentInfo>> getDutyDepartment(String barCode, Integer siteCode, String siteName) {
 
         JdCResponse<List<DutyDepartmentInfo>> jdCResponse = new JdCResponse<>(JdCResponse.CODE_SUCCESS, JdCResponse.MESSAGE_SUCCESS);
         //判断barCode是不是运单或者包裹号
@@ -170,11 +170,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
                     if (operateSiteId != null && StringHelper.isNotEmpty(operateSiteName)) {
                         //此处需要保留原有的全程跟踪顺序，所以不能用map，再获取信息即map的value集合
                         if (! set.contains(operateSiteId)) {
-                            DutyDepartmentInfo departmentInfo = new DutyDepartmentInfo();
-                            departmentInfo.setCode(operateSiteId.toString());
-                            departmentInfo.setName(operateSiteName);
-                            departmentInfo.setType(DutyDepartmentTypeEnum.DISTRIBUTION_SITE.getType());
-                            dutyDepartmentInfos.add(departmentInfo);
+                            dutyDepartmentInfos.add(new DutyDepartmentInfo(operateSiteId.toString(), operateSiteName, DutyDepartmentTypeEnum.DISTRIBUTION_SITE.getType()));
                         }
                         set.add(operateSiteId);
                     }
@@ -185,19 +181,21 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
         } else {
             logger.warn("查询条码【" + barCode + "】的全程跟踪记录为空，无法获取处理部门！");
         }
+        //添加当前操作单位信息
+        if (! set.contains(siteCode)) {
+            dutyDepartmentInfos.add(new DutyDepartmentInfo(siteCode.toString(), siteName, DutyDepartmentTypeEnum.DISTRIBUTION_SITE.getType()));
+        }
 
         String waybillCode = WaybillUtil.getWaybillCode(barCode);
+        //获取库房信息
         BaseEntity<BigPackageStateDto> baseEntity = waybillTraceManager.getPkStateByCodeAndChoice(waybillCode, false, false, true, false);
 
         if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getStoreInfoDto() != null) {
             StoreInfoDto storeInfoDto = baseEntity.getData().getStoreInfoDto();
             if (storeInfoDto != null) {
                 logger.info("异常处理获取条码：" + barCode + "的StoreInfoDto信息：" + JsonHelper.toJson(storeInfoDto));
-                DutyDepartmentInfo departmentInfo = new DutyDepartmentInfo();
-                departmentInfo.setCode(storeInfoDto.getCky2() + "|" + storeInfoDto.getStoreId());
-                departmentInfo.setName(storeInfoDto.getStoreName());
-                departmentInfo.setType(DutyDepartmentTypeEnum.WAREHOUSE.getType());
-                dutyDepartmentInfos.add(departmentInfo);
+                String storeCode = storeInfoDto.getCky2() + "|" + storeInfoDto.getStoreId();
+                dutyDepartmentInfos.add(new DutyDepartmentInfo(storeCode, storeInfoDto.getStoreName(), DutyDepartmentTypeEnum.WAREHOUSE.getType()));
             }
         } else {
             logger.warn("条码【" + barCode + "】的无库房信息！");
