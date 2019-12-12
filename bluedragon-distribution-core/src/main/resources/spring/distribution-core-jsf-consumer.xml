@@ -541,4 +541,10 @@
         <jsf:parameter key="token" value="${jsf.eclp.customerPinRel.token}" hide="true"/>
     </jsf:consumer>
 
+    <!--外单新 商家订单号-运单号信息api-->
+    <jsf:consumer id="generalWaybillQueryApi" interface="com.jd.ldop.center.api.waybill.GeneralWaybillQueryApi"
+                  protocol="jsf" alias="${jsf.generalWaybillQueryApi.alias}" timeout="${jsf.generalWaybillQueryApi.timeout}">
+    </jsf:consumer>
+
+
 </beans>

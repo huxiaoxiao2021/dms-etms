@@ -991,4 +991,9 @@ public class Constants {
      */
     public static final int BASEDICT_GOODS_TYPE_TYPECODE = 10203;
 
+    /**
+     * 箱号类型校验开关key
+     */
+    public static final String BOX_TYPE_CHECK_SWITCH = "BOX_TYPE_CHECK_SWITCH";
+
 }
