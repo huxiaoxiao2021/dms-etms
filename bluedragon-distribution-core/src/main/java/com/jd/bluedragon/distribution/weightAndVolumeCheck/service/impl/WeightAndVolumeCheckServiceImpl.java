@@ -756,7 +756,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 body.add(weightVolumeCollectDto.getReviewDate() == null ? null : DateHelper.formatDate(weightVolumeCollectDto.getReviewDate(), Constants.DATE_TIME_FORMAT));
                 body.add(weightVolumeCollectDto.getWaybillCode());
                 body.add(weightVolumeCollectDto.getPackageCode());
-                body.add(weightVolumeCollectDto.getSpotCheckType()==1?"B网":"C网");
+                body.add(weightVolumeCollectDto.getSpotCheckType()==null?"C网":(weightVolumeCollectDto.getSpotCheckType()==1?"B网":"C网"));
                 body.add(weightVolumeCollectDto.getProductTypeName());
                 body.add(weightVolumeCollectDto.getBusiCode());
                 body.add(weightVolumeCollectDto.getBusiName());
