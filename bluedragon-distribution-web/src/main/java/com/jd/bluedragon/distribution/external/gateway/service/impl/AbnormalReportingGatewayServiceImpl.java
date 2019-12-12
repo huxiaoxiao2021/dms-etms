@@ -1,8 +1,9 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
-import com.jd.bluedragon.common.domain.SiteEntity;
 import com.jd.bluedragon.common.dto.abnormal.AbnormalReasonSourceEnum;
 import com.jd.bluedragon.common.dto.abnormal.DmsAbnormalReasonDto;
+import com.jd.bluedragon.common.dto.abnormal.DutyDepartmentInfo;
+import com.jd.bluedragon.common.dto.abnormal.DutyDepartmentTypeEnum;
 import com.jd.bluedragon.common.dto.abnormal.request.AbnormalReportingRequest;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.core.base.IAbnPdaAPIManager;
@@ -20,6 +21,8 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageState;
+import com.jd.etms.waybill.dto.BigPackageStateDto;
+import com.jd.etms.waybill.dto.StoreInfoDto;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.AbnormalReasonDto;
 import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.PdaResult;
@@ -134,9 +137,9 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
     }
 
     @Override
-    public JdCResponse<List<SiteEntity>> getDutyDepartment(String barCode) {
+    public JdCResponse<List<DutyDepartmentInfo>> getDutyDepartment(String barCode) {
 
-        JdCResponse<List<SiteEntity>> jdCResponse = new JdCResponse<>(JdCResponse.CODE_SUCCESS, JdCResponse.MESSAGE_SUCCESS);
+        JdCResponse<List<DutyDepartmentInfo>> jdCResponse = new JdCResponse<>(JdCResponse.CODE_SUCCESS, JdCResponse.MESSAGE_SUCCESS);
         //判断barCode是不是运单或者包裹号
         if (StringHelper.isEmpty(barCode)) {
             jdCResponse.setCode(JdCResponse.CODE_ERROR);
@@ -157,7 +160,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
 
         BaseEntity<List<PackageState>> resultDTO = waybillTraceManager.getAllOperations(barCode);
         Set<Integer> set = new HashSet<>();
-        List<SiteEntity> siteEntities = new ArrayList<>();
+        List<DutyDepartmentInfo> dutyDepartmentInfos = new ArrayList<>();
         if (resultDTO != null && resultDTO.getData() != null) {
             List<PackageState> packageStateList = resultDTO.getData();
             if (packageStateList != null && ! packageStateList.isEmpty()) {
@@ -167,10 +170,11 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
                     if (operateSiteId != null && StringHelper.isNotEmpty(operateSiteName)) {
                         //此处需要保留原有的全程跟踪顺序，所以不能用map，再获取信息即map的value集合
                         if (! set.contains(operateSiteId)) {
-                            SiteEntity siteEntity = new SiteEntity();
-                            siteEntity.setCode(operateSiteId);
-                            siteEntity.setName(operateSiteName);
-                            siteEntities.add(siteEntity);
+                            DutyDepartmentInfo departmentInfo = new DutyDepartmentInfo();
+                            departmentInfo.setCode(operateSiteId.toString());
+                            departmentInfo.setName(operateSiteName);
+                            departmentInfo.setType(DutyDepartmentTypeEnum.DISTRIBUTION_SITE.getType());
+                            dutyDepartmentInfos.add(departmentInfo);
                         }
                         set.add(operateSiteId);
                     }
@@ -182,7 +186,24 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
             logger.warn("查询条码【" + barCode + "】的全程跟踪记录为空，无法获取处理部门！");
         }
 
-        jdCResponse.setData(siteEntities);
+        String waybillCode = WaybillUtil.getWaybillCode(barCode);
+        BaseEntity<BigPackageStateDto> baseEntity = waybillTraceManager.getPkStateByCodeAndChoice(waybillCode, false, false, true, false);
+
+        if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getStoreInfoDto() != null) {
+            StoreInfoDto storeInfoDto = baseEntity.getData().getStoreInfoDto();
+            if (storeInfoDto != null) {
+                logger.info("异常处理获取条码：" + barCode + "的StoreInfoDto信息：" + JsonHelper.toJson(storeInfoDto));
+                DutyDepartmentInfo departmentInfo = new DutyDepartmentInfo();
+                departmentInfo.setCode(storeInfoDto.getCky2() + "|" + storeInfoDto.getStoreId());
+                departmentInfo.setName(storeInfoDto.getStoreName());
+                departmentInfo.setType(DutyDepartmentTypeEnum.WAREHOUSE.getType());
+                dutyDepartmentInfos.add(departmentInfo);
+            }
+        } else {
+            logger.warn("条码【" + barCode + "】的无库房信息！");
+        }
+
+        jdCResponse.setData(dutyDepartmentInfos);
         return jdCResponse;
     }
 
@@ -394,7 +415,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
         wpAbnormalRecordPda.setAbnormalSecondName(dmsAbnormalReasonDto.getParentName());
         wpAbnormalRecordPda.setAbnormalThirdId(dmsAbnormalReasonDto.getReasonCode());
         wpAbnormalRecordPda.setAbnormalThirdName(dmsAbnormalReasonDto.getReasonName());
-        wpAbnormalRecordPda.setDealDept(abnormalReportingRequest.getDealDeptCode().toString());
+        wpAbnormalRecordPda.setDealDept(abnormalReportingRequest.getDealDeptCode());
         wpAbnormalRecordPda.setDealDeptName(abnormalReportingRequest.getDealDeptName());
         wpAbnormalRecordPda.setOutCallStatus(dmsAbnormalReasonDto.getIsOutCallType().toString());
         wpAbnormalRecordPda.setRemark(abnormalReportingRequest.getRemark());
@@ -405,7 +426,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
         if (abnormalReportingRequest.getImgUrls() != null && abnormalReportingRequest.getImgUrls().size() > 0) {
             wpAbnormalRecordPda.setProofUrls(StringUtils.join(abnormalReportingRequest.getImgUrls().toArray(), ','));
         }
-        wpAbnormalRecordPda.setStoreType("0");
+        wpAbnormalRecordPda.setStoreType(abnormalReportingRequest.getDealDeptType().toString());
 
         return wpAbnormalRecordPda;
     }

@@ -28,7 +28,7 @@ public class AbnormalReportingRequest implements Serializable {
     /*
      * 处理部门编号
      * */
-    private Integer dealDeptCode;
+    private String dealDeptCode;
 
     /*
      * 处理部门名称
@@ -70,6 +70,11 @@ public class AbnormalReportingRequest implements Serializable {
      * */
     private Date operateTime;
 
+    /*
+     * 站点类型
+     * */
+    private Integer dealDeptType;
+
     public List<String> getBarCodes() {
         return barCodes;
     }
@@ -94,11 +99,11 @@ public class AbnormalReportingRequest implements Serializable {
         this.imgUrls = imgUrls;
     }
 
-    public Integer getDealDeptCode() {
+    public String getDealDeptCode() {
         return dealDeptCode;
     }
 
-    public void setDealDeptCode(Integer dealDeptCode) {
+    public void setDealDeptCode(String dealDeptCode) {
         this.dealDeptCode = dealDeptCode;
     }
 
@@ -164,5 +169,13 @@ public class AbnormalReportingRequest implements Serializable {
 
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+
+    public Integer getDealDeptType() {
+        return dealDeptType;
+    }
+
+    public void setDealDeptType(Integer dealDeptType) {
+        this.dealDeptType = dealDeptType;
     }
 }

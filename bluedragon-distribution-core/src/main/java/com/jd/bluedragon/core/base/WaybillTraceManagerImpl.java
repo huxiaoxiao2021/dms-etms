@@ -6,6 +6,8 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageState;
+import com.jd.etms.waybill.dto.BigPackageStateDto;
+import com.jd.etms.waybill.dto.DChoice;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
@@ -101,4 +103,27 @@ public class WaybillTraceManagerImpl implements WaybillTraceManager {
         return null;
     }
 
+    /**
+     * 获取运单的全程跟踪的部门信息
+     * @param waybillCode 运单号
+     * @param queryPickInfo 是否查询揽收信息
+     * @param queryDeliveryInfo 是否查询配送信息
+     * @param queryStoreInfo 是否查询计划仓信息
+     * @param querySortingInfo 是否查询分拣中心信息
+     * @return
+     */
+    @Override
+    public BaseEntity<BigPackageStateDto> getPkStateByCodeAndChoice(String waybillCode, Boolean queryPickInfo, Boolean queryDeliveryInfo, Boolean queryStoreInfo, Boolean querySortingInfo) {
+        try {
+            DChoice dChoice = new DChoice();
+            dChoice.setQueryDeliveryInfo(queryPickInfo);
+            dChoice.setQueryPickInfo(queryDeliveryInfo);
+            dChoice.setQueryStoreInfo(queryStoreInfo);
+            dChoice.setQuerySortingInfo(querySortingInfo);
+            return waybillTraceApi.getPkStateByCodeAndChoice(waybillCode, dChoice);
+        } catch (Exception e) {
+            logger.error("获取运单号" + waybillCode + "状态列表失败", e);
+        }
+        return null;
+    }
 }
