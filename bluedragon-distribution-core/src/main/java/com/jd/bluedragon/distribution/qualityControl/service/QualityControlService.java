@@ -193,11 +193,11 @@ public class QualityControlService {
             set.add(sendDetail.getWaybillCode());
 
             QualityControl qualityControl = convert2QualityControl(waybillCode, request, null);
-            logger.info("分拣中心新异常提交结果同步运单状态开始，消息体：" + JsonHelper.toJson(qualityControl));
+            log.info("分拣中心新异常提交结果同步运单状态开始，消息体：{}", JsonHelper.toJson(qualityControl));
             // 更新运单状态
             updateWaybillStatus(waybillCode, request, operateSite, null);
             //异常处理 节点发MQ 换新单
-            logger.info("执行自营换新单 convert2ExchangeNewWaybill exchangeOwnWaybill ");
+            log.info("执行自营换新单 convert2ExchangeNewWaybill exchangeOwnWaybill ");
             OwnReverseTransferDomain domain = convert2ExchangeNewWaybill(waybillCode, request);
             reversePrintService.exchangeOwnWaybill(domain);
         }
@@ -419,7 +419,7 @@ public class QualityControlService {
                 abnormalWayBill = this.abnormalWayBillService.getAbnormalWayBillByQcValue(siteCode, barCode);
             }
         } catch (Exception e) {
-            logger.error("获取异常提报记录信息失败，参数:" + siteCode + "," + barCode, e);
+            log.error("获取异常提报记录信息失败，参数:{}, {}", siteCode, barCode, e);
         }
 
         if (abnormalWayBill != null && this.isGenerateSortingReturnTask(abnormalWayBill.getQcCode())) {
@@ -447,8 +447,7 @@ public class QualityControlService {
             try{
                 taskService.add(task);
             }catch(Exception e){
-                logger.error("质控异常生成分拣退货数据异常:"+JsonHelper.toJson(task));
-                logger.error("质控异常生成分拣退货数据异常，原因 " + e);
+                log.error("质控异常生成分拣退货数据异常:{}", JsonHelper.toJson(task), e);
             }
         }
     }

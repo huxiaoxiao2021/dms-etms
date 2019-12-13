@@ -124,7 +124,7 @@ public class WaybillTraceManagerImpl implements WaybillTraceManager {
             dChoice.setQuerySortingInfo(querySortingInfo);
             return waybillTraceApi.getPkStateByCodeAndChoice(waybillCode, dChoice);
         } catch (Exception e) {
-            logger.error("获取运单号" + waybillCode + "状态列表失败", e);
+            log.error("获取运单号{}状态列表失败", waybillCode, e);
         }
         return null;
     }

@@ -108,7 +108,7 @@ public class JssServiceImpl implements JssService {
     @Override
     public String uploadImage(String bucket, byte[] bytes) {
         if (bytes == null) {
-            logger.info("上传的参数为空");
+            log.info("上传的参数为空");
             return null;
         }
         ByteArrayInputStream inStream = new ByteArrayInputStream(bytes);
@@ -121,7 +121,7 @@ public class JssServiceImpl implements JssService {
             URI uri = jss.bucket(bucket).object(key).generatePresignedUrl(315360000);
             return uri.toString();
         }catch (Exception e){
-            logger.error("异常上行处理异常:", e);
+            log.error("异常上行处理异常:", e);
         }
         return null;
     }

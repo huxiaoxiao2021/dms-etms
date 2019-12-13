@@ -48,7 +48,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
 
     private Map<String, AbnormalReasonDto> abnormalReasonDtoMap;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private IAbnPdaAPIManager iAbnPdaAPIManager;
@@ -114,22 +114,22 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
             inStream.close();
             swapStream.close();
             url = jssService.uploadImage(bucket, in2b);
-            logger.info("[新-异常提报-图片上传]uploadExceptionImage上传成功 : url[" + url + "]");
+            log.info("[新-异常提报-图片上传]uploadExceptionImage上传成功 : url[{}]", url);
         } catch (Exception e) {
-            logger.error("[新-异常提报-图片上传]uploadExceptionImage图片上传时发生异常", e);
+            log.error("[新-异常提报-图片上传]uploadExceptionImage图片上传时发生异常", e);
         } finally {
             if (inStream != null) {
                 try {
                     inStream.close();
                 } catch (IOException e) {
-                    logger.error("[新-异常提报-图片上传]uploadExceptionImage 输入流关闭异常", e);
+                    log.error("[新-异常提报-图片上传]uploadExceptionImage 输入流关闭异常", e);
                 }
             }
             if (swapStream != null) {
                 try {
                     swapStream.close();
                 } catch (IOException e) {
-                    logger.error("[新-异常提报-图片上传]uploadExceptionImage 输出流关闭异常", e);
+                    log.error("[新-异常提报-图片上传]uploadExceptionImage 输出流关闭异常", e);
                 }
             }
         }
@@ -176,10 +176,10 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
                     }
                 }
             } else {
-                logger.warn("条码【" + barCode + "】的无全程跟踪操作，无法获取处理部门！");
+                log.warn("条码【{}】的无全程跟踪操作，无法获取处理部门！", barCode);
             }
         } else {
-            logger.warn("查询条码【" + barCode + "】的全程跟踪记录为空，无法获取处理部门！");
+            log.warn("查询条码【{}】的全程跟踪记录为空，无法获取处理部门！", barCode);
         }
         //添加当前操作单位信息
         if (! set.contains(siteCode)) {
@@ -193,12 +193,12 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
         if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getStoreInfoDto() != null) {
             StoreInfoDto storeInfoDto = baseEntity.getData().getStoreInfoDto();
             if (storeInfoDto != null) {
-                logger.info("异常处理获取条码：" + barCode + "的StoreInfoDto信息：" + JsonHelper.toJson(storeInfoDto));
+                log.info("异常处理获取条码：{}的StoreInfoDto信息：{}", barCode, JsonHelper.toJson(storeInfoDto));
                 String storeCode = storeInfoDto.getCky2() + "|" + storeInfoDto.getStoreId();
                 dutyDepartmentInfos.add(new DutyDepartmentInfo(storeCode, storeInfoDto.getStoreName(), DutyDepartmentTypeEnum.WAREHOUSE.getType()));
             }
         } else {
-            logger.warn("条码【" + barCode + "】的无库房信息！");
+            log.warn("条码【{}】的无库房信息！", barCode);
         }
 
         jdCResponse.setData(dutyDepartmentInfos);
@@ -207,14 +207,14 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
 
     @Override
     public JdCResponse<String> saveAbnormalReportingInfo(AbnormalReportingRequest abnormalReportingRequest) {
-        logger.info("AbnormalReportingRequest：" + JsonHelper.toJson(abnormalReportingRequest));
+        log.info("AbnormalReportingRequest：{}", JsonHelper.toJson(abnormalReportingRequest));
         JdCResponse<String> jdCResponse = new JdCResponse<>(JdCResponse.CODE_SUCCESS, JdCResponse.MESSAGE_SUCCESS);
         DmsAbnormalReasonDto dmsAbnormalReasonDto = abnormalReportingRequest.getDmsAbnormalReasonDto();
         //判断是不是质控
         Integer sourceType = dmsAbnormalReasonDto.getSourceType();
         if (sourceType == AbnormalReasonSourceEnum.QUALITY_CONTROL_SYSTEM.getType()) {
             WpAbnormalRecordPda wpAbnormalRecordPda = this.convert2WpAbnormalRecordPda(abnormalReportingRequest);
-            logger.info("WpAbnormalRecordPda参数：" + JsonHelper.toJson(wpAbnormalRecordPda));
+            log.info("WpAbnormalRecordPda参数：{}", JsonHelper.toJson(wpAbnormalRecordPda));
             PdaResult pdaResult = iAbnPdaAPIManager.report(wpAbnormalRecordPda);
 
             if (pdaResult == null) {
@@ -222,7 +222,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
                 jdCResponse.setMessage("上报质控系统失败，请稍后重试！");
                 return jdCResponse;
             }
-            logger.info("上报质控系统返回结果，code：" + pdaResult.getCode() + "，message：" + pdaResult.getMsg());
+            log.info("上报质控系统返回结果，code：{}，message：{}", pdaResult.getCode(), pdaResult.getMsg());
             //返回 5-全部成功 4-重复提交 3-部分成功 2-信息不全
             if (pdaResult.getCode() == 5) {
                 //生成异常处理的异步任务，与老质控逻辑保持一致
@@ -251,7 +251,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
             } else if (pdaResult.getCode() == 0) {
                 jdCResponse.setCode(JdCResponse.CODE_ERROR);
                 jdCResponse.setMessage("质控系统接口异常，请稍后再试！");
-                logger.error("质控系统接口异常：" + pdaResult.getMsg());
+                log.error("质控系统接口异常：{}", pdaResult.getMsg());
             } else {
                 jdCResponse.setCode(JdCResponse.CODE_ERROR);
                 jdCResponse.setMessage("信息提交失败，请联系IT运营人员核实质控系统权限！");
@@ -282,7 +282,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
                 String key = level + "-" + baseDataDict.getTypeCode();
                 AbnormalReasonDto abnormalReasonDto = abnormalReasonDtoMap.get(key);
                 if (abnormalReasonDto == null) {
-                    logger.warn("编号：【" + baseDataDict.getTypeCode() + "】的原因不存在于质控系统中");
+                    log.warn("编号：【{}】的原因不存在于质控系统中", baseDataDict.getTypeCode());
                     continue;
                 }
                 dmsAbnormalReasonDto = convertDmsAbnormalReasonDto(abnormalReasonDto);
@@ -302,7 +302,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
                 String parentKey = (level - 1) + "-" + baseDataDict.getParentId();
                 DmsAbnormalReasonDto parentDmsAbnormalReasonDto = dmsAbnormalReasonDtoMap.get(parentKey);
                 if (parentDmsAbnormalReasonDto == null) {
-                    logger.warn("编号：【" + dmsAbnormalReasonDto.getReasonId() + "】的父节点【" + parentKey + "】原因不存在！");
+                    log.warn("编号：【{}】的父节点【{}】原因不存在！", dmsAbnormalReasonDto.getReasonId(), parentKey);
                     continue;
                 }
                 dmsAbnormalReasonDto.setParentName(parentDmsAbnormalReasonDto.getReasonName());
@@ -358,14 +358,14 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
             } else if (WaybillUtil.isPackageCode(barCode)) {
                 qualityControlRequest.setQcType(PACKAGE_CODE_TYPE);
             } else {
-                logger.warn("【" + barCode + "】既不是包裹号也不是运单号！");
+                log.warn("【{}】既不是包裹号也不是运单号！", barCode);
                 continue;
             }
 
             try {
                 this.qualityControlService.convertThenAddTask(qualityControlRequest);
             } catch (Exception e) {
-                logger.error("异常配送接口插入质控任务表失败，请求："  + JsonHelper.toJson(qualityControlRequest), e);
+                log.error("异常配送接口插入质控任务表失败，请求：{}", JsonHelper.toJson(qualityControlRequest), e);
             }
         }
     }
@@ -399,7 +399,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
                 return qualityControlService.getRedeliveryState(waybillCode, busID) == 0;
             }
         } catch (Exception ex) {
-            logger.error("调用协商再投状态验证接口失败，原因 " + ex);
+            log.error("调用协商再投状态验证接口失败，订单号", ex);
         }
         return true;
     }
