@@ -1,17 +1,17 @@
 package com.jd.bluedragon.utils;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.CharUtils;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.CharUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * @author zhaohc 
@@ -22,7 +22,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class ObjectMapHelper {
 	
-	private final static Log logger = LogFactory.getLog(ObjectMapHelper.class);
+	private final static Logger log = LoggerFactory.getLogger(ObjectMapHelper.class);
 	
 	/**
 	 * 将对象转换为Map
@@ -34,7 +34,7 @@ public class ObjectMapHelper {
 	public static Map<String, Object> makeObject2Map(Object obj) {
 		Map<String, Object> paramMap = new HashMap<String, Object>();
 		if (obj == null) {
-			logger.info("转换对象为空");
+			log.info("转换对象为空");
 			return paramMap;
 		}
 		try {
@@ -47,13 +47,13 @@ public class ObjectMapHelper {
 					if (targetValueObj != null) {
 						if (targetValueObj instanceof Integer) {
 							if ((Integer) targetValueObj < 0) {
-								logger.info("方法名：" + methodName + " 的值小于0");
+								log.info("方法名：{} 的值小于0",methodName);
 								continue;
 							}
 						} else if (targetValueObj instanceof String 
 								&& "".equals(targetValueObj.toString())) {
 							//if ("".equals(targetValueObj.toString())) {
-								logger.info("方法名：" + methodName + " 的值为空");
+								log.info("方法名：{} 的值为空",methodName);
 								continue;
 							//}
 						}
@@ -63,7 +63,7 @@ public class ObjectMapHelper {
 				}
 			}
 		} catch (Exception e) {
-			logger.error("将对象转换为Map异常：", e);
+			log.error("将对象转换为Map异常：", e);
 		}
 		return paramMap;
 	}
@@ -75,7 +75,7 @@ public class ObjectMapHelper {
 	public static Map<String, Object> convertObject2Map(Object obj) {
 		Map<String, Object> paramMap = new HashMap<String, Object>();
 		if (obj == null) {
-			logger.info("转换对象为空");
+			log.info("转换对象为空");
 			return paramMap;
 		}
 		try {
@@ -95,13 +95,13 @@ public class ObjectMapHelper {
 					if (targetValueObj != null) {
 						if (targetValueObj instanceof Integer) {
 							if ((Integer) targetValueObj < 0) {
-								logger.info("方法名：" + methodName + " 的值小于0");
+								log.info("方法名：{} 的值小于0",methodName);
 								continue;
 							}
 						} else if (targetValueObj instanceof String
 								&& "".equals(targetValueObj.toString())) {
 							//if ("".equals(targetValueObj.toString())) {
-							logger.info("方法名：" + methodName + " 的值为空");
+							log.info("方法名：{} 的值为空",methodName);
 							continue;
 							//}
 						}
@@ -111,7 +111,7 @@ public class ObjectMapHelper {
 				}
 			}
 		} catch (Exception e) {
-			logger.error("将对象转换为Map异常：", e);
+			log.error("将对象转换为Map异常：", e);
 		}
 		return paramMap;
 	}
@@ -139,7 +139,7 @@ public class ObjectMapHelper {
             }
 
         } catch (Exception e) {
-            System.out.println("transMap2Bean Error " + e);
+			log.error("transMap2Bean Error：", e);
         }
         return obj;
 

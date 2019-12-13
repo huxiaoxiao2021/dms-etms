@@ -7,15 +7,14 @@ import com.jd.bluedragon.distribution.weightAndMeasure.service.DmsOutWeightAndVo
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BigDecimalHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-
 import java.math.BigDecimal;
 import java.util.Date;
+
 import static com.jd.bluedragon.Constants.DMS_OUT_MEASURE_BARCODE_TYPE_BOXCODE;
 import static com.jd.bluedragon.Constants.DMS_OUT_MEASURE_BARCODE_TYPE_PACKAGECODE;
 import static com.jd.bluedragon.distribution.weightAndMeasure.domain.DmsOutWeightAndVolume.OPERATE_TYPE_DYNAMIC;
@@ -30,7 +29,7 @@ public class ScannerFrameDynamicVolumeConsume implements ScannerFrameConsume{
     @Autowired
     DmsOutWeightAndVolumeService dmsOutWeightAndVolumeService;
 
-    private static final Log logger= LogFactory.getLog(ScannerFrameDynamicVolumeConsume.class);
+    private static final Logger log = LoggerFactory.getLogger(ScannerFrameDynamicVolumeConsume.class);
     @Override
     public boolean onMessage(UploadData uploadData, GantryDeviceConfig config) {
         DmsOutWeightAndVolume dmsOutWeightAndVolume = toDmsOutWeightAndVolume(uploadData, config);
@@ -55,7 +54,7 @@ public class ScannerFrameDynamicVolumeConsume implements ScannerFrameConsume{
             //箱号
             barCodeType = DMS_OUT_MEASURE_BARCODE_TYPE_BOXCODE;
         }else { //不是包裹号和箱号不处理
-            logger.warn("应付动态量方扫描的非包裹号和箱号");
+            log.warn("应付动态量方扫描的非包裹号和箱号");
             return null;
         }
         dmsOutWeightAndVolume.setBarCodeType(barCodeType);

@@ -1,15 +1,15 @@
 package com.jd.bluedragon.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 public class NumberHelper {
-	private static final Log logger= LogFactory.getLog(NumberHelper.class);
+	private static final Logger log = LoggerFactory.getLogger(NumberHelper.class);
 	
     public static DecimalFormat doubleFormat = new DecimalFormat("#.00");    //保留两位小数
     public static Double getDoubleValue(Object object) {
@@ -188,7 +188,7 @@ public class NumberHelper {
             try {
 				return Integer.valueOf(str);
 			} catch (NumberFormatException e) {
-				logger.warn("fail to convertToInteger! input:" + str);
+				log.warn("fail to convertToInteger! input:{}", str);
 			}
         }
         return defaultVal;

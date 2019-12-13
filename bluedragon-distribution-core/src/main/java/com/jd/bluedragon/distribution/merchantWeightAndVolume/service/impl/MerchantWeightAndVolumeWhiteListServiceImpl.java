@@ -17,7 +17,8 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -38,7 +39,7 @@ import java.util.Map;
 @Service("merchantWeightAndVolumeWhiteListService")
 public class MerchantWeightAndVolumeWhiteListServiceImpl implements MerchantWeightAndVolumeWhiteListService {
 
-    private final Logger logger = Logger.getLogger(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Value("${merchant.whiteList.import.maxNum:1000}")
     private Integer importMaxNum;
@@ -77,7 +78,7 @@ public class MerchantWeightAndVolumeWhiteListServiceImpl implements MerchantWeig
             pagerResult.setTotal(count);
             pagerResult.setRows(list);
         }catch (Exception e){
-            logger.error("查询失败!",e);
+            log.error("查询失败!",e);
         }
         return pagerResult;
     }
@@ -89,7 +90,7 @@ public class MerchantWeightAndVolumeWhiteListServiceImpl implements MerchantWeig
         try {
             delete = merchantWeightAndVolumeWhiteListDao.delete(detail);
         }catch (Exception e){
-            logger.error("删除失败"+ JsonHelper.toJson(delete),e);
+            log.error("删除失败:{}", JsonHelper.toJson(delete),e);
         }
         result.setData(delete);
         return result;
@@ -166,7 +167,7 @@ public class MerchantWeightAndVolumeWhiteListServiceImpl implements MerchantWeig
                 errorMessage = "导入条数大于1000条,请重新上传数据导入!";
             }
         }catch (Exception e){
-            logger.error("导入失败!",e);
+            log.error("导入失败!",e);
             errorMessage = "导入失败!";
         }
         return errorMessage;
@@ -245,7 +246,7 @@ public class MerchantWeightAndVolumeWhiteListServiceImpl implements MerchantWeig
                 merchantCheck = Boolean.TRUE;
             }
         }catch (Exception e){
-            logger.error("通过商家ID"+detail.getMerchantId()+"查询商家信息异常!",e);
+            log.error("通过商家ID {} 查询商家信息异常!",detail.getMerchantId(),e);
         }
         return merchantCheck;
     }

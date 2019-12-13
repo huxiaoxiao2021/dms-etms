@@ -26,7 +26,7 @@ public abstract class BaseService<E extends Entity> implements Service<E> {
 	/**
 	 * 公共logger
 	 */
-	protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+	protected final Logger log = LoggerFactory.getLogger(this.getClass());
 	/**
 	 * 获取数据操作实体类
 	 * 

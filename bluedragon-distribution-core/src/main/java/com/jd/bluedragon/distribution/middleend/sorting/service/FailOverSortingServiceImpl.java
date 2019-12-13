@@ -56,7 +56,7 @@ public class FailOverSortingServiceImpl extends BaseSortingService implements IS
             }
             return true;
         }catch (Exception e){
-            logger.error("FailOverSortingServiceImpl.coreSorting异常.参数:" + JSON.toJSONString(sorting),e);
+            log.error("FailOverSortingServiceImpl.coreSorting异常.参数:{}", JSON.toJSONString(sorting),e);
             return false;
         }
     }

@@ -29,8 +29,8 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -44,7 +44,7 @@ import java.util.*;
 @Service("scannerFrameDispatchService")
 public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispatchService {
 
-    private static final Log logger = LogFactory.getLog(SimpleScannerFrameDispatchServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(SimpleScannerFrameDispatchServiceImpl.class);
 
     @Autowired
     private GantryDeviceConfigService gantryDeviceConfigService;
@@ -238,8 +238,8 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
      * @param arguments
      */
     private void printWarnLog(String pattern, Object... arguments) {
-        if (logger.isWarnEnabled()) {
-            logger.warn(MessageFormat.format(pattern, arguments));
+        if (log.isWarnEnabled()) {
+            log.warn(MessageFormat.format(pattern, arguments));
         }
     }
 
@@ -250,8 +250,8 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
      * @param arguments
      */
     private void printInfoLog(String pattern, Object... arguments) {
-        if (logger.isInfoEnabled()) {
-            logger.info(MessageFormat.format(pattern, arguments));
+        if (log.isInfoEnabled()) {
+            log.info(MessageFormat.format(pattern, arguments));
         }
     }
 
@@ -543,8 +543,8 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
             gantryExceptionService.addGantryException(gantryException);
             return;
         }
-        if (logger.isWarnEnabled()) {
-            logger.warn(MessageFormat.format("龙门架自动发货,存储异常信息registerNo={0},operateTime={1},barCode={2},machineId={3}|存储异常信息失败", domain.getRegisterNo(), domain.getScannerTime(), barCode, machineId));
+        if (log.isWarnEnabled()) {
+            log.warn("龙门架自动发货,存储异常信息registerNo={},operateTime={},barCode={},machineId={}|存储异常信息失败", domain.getRegisterNo(), domain.getScannerTime(), barCode, machineId);
         }
     }
 

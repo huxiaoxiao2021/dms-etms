@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.sendprint.service.impl;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
@@ -11,10 +10,9 @@ import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sendprint.domain.ExpressInfo;
 import com.jd.bluedragon.distribution.sendprint.service.ThirdExpressPrintService;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +27,7 @@ import java.util.List;
 @Service("thirdExpressPrintService")
 public class ThirdExpressPrintServiceImpl implements ThirdExpressPrintService {
 
-    private static final Log logger= LogFactory.getLog(ThirdExpressPrintServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(ThirdExpressPrintServiceImpl.class);
 
     private static final String WAYBILL_NOT_SEND="该运单没有发货至三方站点";
 
@@ -52,8 +50,8 @@ public class ThirdExpressPrintServiceImpl implements ThirdExpressPrintService {
     @Override
 
     public InvokeResult<ExpressInfo> getThirdExpress(String packageCode) {
-        if(logger.isInfoEnabled()){
-            logger.info("调用获取三方面单接口，包裹号为["+packageCode+"]");
+        if(log.isInfoEnabled()){
+            log.info("调用获取三方面单接口，包裹号为[{}]",packageCode);
         }
         InvokeResult<ExpressInfo> result=new InvokeResult<ExpressInfo>();
         SendDetail queryPara=new SendDetail();
@@ -81,16 +79,16 @@ public class ThirdExpressPrintServiceImpl implements ThirdExpressPrintService {
         ExpressInfo data=new ExpressInfo();
         data.setSiteName(baseService.getSiteNameBySiteID(targetSend.getReceiveSiteCode()));
         data.setSiteId(targetSend.getReceiveSiteCode());
-        if(logger.isInfoEnabled()){
-            logger.info("获取站点为ID["+data.getSiteId()+"]名称["+data.getSiteName()+"]");
+        if(log.isInfoEnabled()){
+            log.info("获取站点为ID[{}]名称[{}]",data.getSiteId(),data.getSiteName());
         }
         QuickProduceWabill waybill=quickProduceService.getQuickProduceWabill(SerialRuleUtil.getWaybillCode(packageCode));
         if(null==waybill||null==waybill.getWaybill()){
             result.customMessage(0,WAYBILL_NOT_FOUND);
             return result;
         }
-        if(logger.isInfoEnabled()){
-            logger.info("调用中间件及台账信息为："+ JsonHelper.toJson(waybill));
+        if(log.isInfoEnabled()){
+            log.info("调用中间件及台账信息为：{}", JsonHelper.toJson(waybill));
         }
         data.setRecMoney(waybill.getWaybill().getRecMoney());
         data.setDistributeStoreId(waybill.getWaybill().getDistributeStoreId());

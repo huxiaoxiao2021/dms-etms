@@ -14,8 +14,8 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -30,7 +30,7 @@ import java.util.List;
 @Service("fBarCodeService")
 class FBarCodeServiceImpl implements FBarCodeService  {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private static final int timeout = 172800;
 
@@ -75,7 +75,7 @@ class FBarCodeServiceImpl implements FBarCodeService  {
                 redisManager.setex(fBarCode.getCode(), timeout,
                         JsonHelper.toJson(fBarCode));
             } catch (Exception e) {
-                this.logger.error("打印F条码写入缓存失败",e);
+                this.log.error("打印F条码写入缓存失败",e);
             }
         }
 
@@ -104,22 +104,22 @@ class FBarCodeServiceImpl implements FBarCodeService  {
             if (fBarCodeJson != null && !fBarCodeJson.isEmpty()) {
                 fBarCode = JsonHelper.fromJson(fBarCodeJson, FBarCode.class);
                 if (fBarCode != null) {
-                    this.logger.info("findFBarCodeByCode缓存命中F条码为" + code);
+                    this.log.info("findFBarCodeByCode缓存命中F条码为:{}" , code);
                     //如果F条码 目的地 始发地不为空的时候
                     if (fBarCode.getCode() != null && fBarCode.getCreateSiteCode() != null) {
                         return fBarCode;
                     }
                 } else {
-                    this.logger.info("findFBarCodeByCode没有缓存命中F条码为" + code);
+                    this.log.info("findFBarCodeByCode没有缓存命中F条码为:{}" , code);
                 }
             } else {
-                this.logger.info("findFBarCodeByCode缓存命中,但是消息为null,F条码为" + code);
+                this.log.info("findFBarCodeByCode缓存命中,但是消息为null,F条码为:{}" , code);
             }
 
 
         } catch (Exception e) {
             Profiler.functionError(info);
-            this.logger.error("findFBarCodeByCode获取缓存F条码失败，F条码为" + code, e);
+            this.log.error("findFBarCodeByCode获取缓存F条码失败，F条码为:{}" , code, e);
         }finally {
             Profiler.registerInfoEnd(info);
         }
@@ -172,7 +172,7 @@ class FBarCodeServiceImpl implements FBarCodeService  {
             if (fBarCodeJson != null && !fBarCodeJson.isEmpty()) {
                 fBarCode = JsonHelper.fromJson(fBarCodeJson, FBarCode.class);
                 if (fBarCode != null) {
-                    this.logger.info("findFBarCodeByCode缓存命中F条码为" + fBarCodeCode);
+                    this.log.info("findFBarCodeByCode缓存命中F条码为:{}" , fBarCodeCode);
                     if (fBarCode.getCode() != null && fBarCode.getCreateSiteCode() != null) {
                         return fBarCode;
                     }
@@ -180,7 +180,7 @@ class FBarCodeServiceImpl implements FBarCodeService  {
             }
 
         } catch (Exception e) {
-            this.logger.error("findFBarCodeByCode获取缓存F条码失败，F条码为" + fBarCodeCode, e);
+            this.log.error("findFBarCodeByCode获取缓存F条码失败，F条码为:{}" , fBarCodeCode, e);
         }
 
         return null;
@@ -192,7 +192,7 @@ class FBarCodeServiceImpl implements FBarCodeService  {
         try {
             resulte = redisManager.del(fBarCodeCode);
         } catch (Exception e) {
-            this.logger.error("delfBarCodeCodeCache删除缓存失败，F条码为" + fBarCodeCode, e);
+            this.log.error("delfBarCodeCodeCache删除缓存失败，F条码为:{}" , fBarCodeCode, e);
         }
         return resulte;
     }

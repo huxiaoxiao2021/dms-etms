@@ -7,7 +7,9 @@ import com.jd.bluedragon.distribution.api.request.BoxRequest;
 import com.jd.bluedragon.distribution.api.response.AutoSortingBoxResult;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.domain.BoxSystemTypeEnum;
 import com.jd.bluedragon.distribution.box.service.BoxService;
@@ -48,6 +50,14 @@ import java.util.UUID;
 public class BoxResource {
 
     private final Log logger = LogFactory.getLog(this.getClass());
+
+    /**
+     * 箱号类型字符长度，默认2
+     * */
+    private static final int BOX_TYPE_LENGTH = 2;
+
+    @Autowired
+    private SysConfigService sysConfigService;
 
     @Autowired
     private BoxService boxService;
@@ -339,6 +349,14 @@ public class BoxResource {
         Assert.notNull(request.getQuantity(), "request quantity must not be null");
         this.logger.info("BoxRequest's " + request.toString());
 
+        //排除非法箱号类型
+        if(boxTypeCheckSwitchOn() && request.getType().length() > BOX_TYPE_LENGTH){
+            com.jd.bluedragon.distribution.jsf.domain.InvokeResult<AutoSortingBoxResult> result
+                    = new com.jd.bluedragon.distribution.jsf.domain.InvokeResult<AutoSortingBoxResult>();
+            result.customMessage(600,"箱号类型不合法!");
+            return result;
+        }
+
         List<Box> availableBoxes;
         if(isNew){
             availableBoxes = this.boxService.batchAddNew(this.toBox(request),systemType);
@@ -574,5 +592,22 @@ public class BoxResource {
         }
 
         return invokeResult;
+    }
+
+    /**
+     * 箱号类型校验开关
+     * @return
+     */
+    private Boolean boxTypeCheckSwitchOn(){
+        Boolean sign = Boolean.FALSE;
+        try {
+            SysConfig config = sysConfigService.findConfigContentByConfigName(Constants.BOX_TYPE_CHECK_SWITCH);
+            if(config != null && Constants.STRING_FLG_TRUE.equals(config.getConfigContent())){
+                sign = true;
+            }
+        }catch (Exception e){
+            logger.error("获取箱号类型开关异常",e);
+        }
+        return sign;
     }
 }

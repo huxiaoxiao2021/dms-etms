@@ -1,16 +1,15 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.core.base.ReceiveManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.waybill.domain.FWaybillArgs;
 import com.jd.bluedragon.distribution.waybill.domain.FWaybillResult;
 import com.jd.etms.receive.api.request.GrossReturnRequest;
 import com.jd.etms.receive.api.response.GrossReturnResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 
 /**
@@ -19,7 +18,7 @@ import com.jd.etms.receive.api.response.GrossReturnResponse;
 @Service("FWaybillExchangeService")
 public class FWaybillExchangeServiceImpl implements FWaybillExchangeService {
 
-    private final Log logger= LogFactory.getLog(FWaybillExchangeServiceImpl.class);
+    private final Logger log = LoggerFactory.getLogger(FWaybillExchangeServiceImpl.class);
 
     /**
      * 接货中心换单接口
@@ -56,7 +55,7 @@ public class FWaybillExchangeServiceImpl implements FWaybillExchangeService {
                 result.getData().setReceiveName(response.getReceiveName());
             }
         }catch (Exception ex){
-            this.logger.error("返单换单",ex);
+            this.log.error("返单换单",ex);
             result.setCode(522);
             result.setMessage("调用其它系统接口出现异常");
             result.setData(null);

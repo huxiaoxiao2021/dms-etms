@@ -6,12 +6,11 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -22,7 +21,7 @@ import java.util.List;
  */
 public class DefaultJMQProducer {
 
-    private static final Log logger = LogFactory.getLog(DefaultJMQProducer.class);
+    private static final Logger log = LoggerFactory.getLogger(DefaultJMQProducer.class);
 
     @Autowired
     @Qualifier("jmqProducerSpilt")
@@ -54,8 +53,8 @@ public class DefaultJMQProducer {
      * @throws JMQException
      */
     public void send(String businessId, String body) throws JMQException {
-        if (logger.isInfoEnabled()) {
-            logger.info(MessageFormat.format("推送MQ数据为topic:{0}->body:{1}", this.topic, body));
+        if (log.isDebugEnabled()) {
+            log.debug("推送MQ数据为topic:{}->body:{}", this.topic, body);
         }
         Message message = new Message(this.topic, body, businessId);
         jmqProducer.send(message, this.timeout);
@@ -65,7 +64,7 @@ public class DefaultJMQProducer {
         try {
             send(businessId, body);
         } catch (Throwable ex) {
-            logger.error("MQ发送失败，将进行消息队列持久化", ex);
+            log.error("MQ发送失败，将进行消息队列持久化:{}",businessId, ex);
             persistent(businessId, body);
         }
     }
@@ -85,7 +84,7 @@ public class DefaultJMQProducer {
             task.setCreateSiteCode(Integer.valueOf(0));
             taskService.add(task, true);
         } catch (Throwable throwable) {
-            logger.error("消息队列持久化", throwable);
+            log.error("消息队列持久化:{}",businessId, throwable);
         }
     }
 
@@ -127,7 +126,7 @@ public class DefaultJMQProducer {
         try {
             this.batchSend(messages);
         } catch (Throwable ex) {
-            logger.error("批量MQ发送失败，将进行消息队列持久化", ex);
+            log.error("批量MQ发送失败，将进行消息队列持久化", ex);
             this.batchPersistent(messages);
         }
     }
@@ -151,7 +150,7 @@ public class DefaultJMQProducer {
             }
             taskService.addBatch(tasks, true);
         } catch (Throwable throwable) {
-            logger.error("消息队列持久化", throwable);
+            log.error("消息队列持久化", throwable);
         }
     }
 

@@ -1,13 +1,6 @@
 package com.jd.bluedragon.distribution.weightAndVolumeCheck.service.impl;
 
 import com.google.common.collect.Lists;
-import com.jd.jss.JingdongStorageService;
-import com.jd.jss.client.Request;
-import com.jd.jss.domain.ObjectListing;
-import com.jd.jss.domain.ObjectSummary;
-import com.jd.jss.http.JssInputStreamEntity;
-import com.jd.jss.service.BucketService;
-import com.jd.jss.service.ObjectService;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BusinessFinanceManager;
@@ -33,6 +26,13 @@ import com.jd.etms.finance.util.ResponseDTO;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.jss.JingdongStorageService;
+import com.jd.jss.client.Request;
+import com.jd.jss.domain.ObjectListing;
+import com.jd.jss.domain.ObjectSummary;
+import com.jd.jss.http.JssInputStreamEntity;
+import com.jd.jss.service.BucketService;
+import com.jd.jss.service.ObjectService;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.report.ReportExternalService;
@@ -43,7 +43,8 @@ import com.jd.ql.dms.report.domain.WeightVolumeQueryCondition;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,13 +55,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @ClassName: WeightAndVolumeCheckServiceImpl
@@ -71,7 +66,7 @@ import java.util.Map;
 @Service("weightAndVolumeCheckService")
 public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckService {
 
-    private final Logger logger = Logger.getLogger(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     /** 对象存储 **/
     /**外部 访问域名 */
@@ -133,14 +128,14 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             builder.entity(entity);
             objectService.put();
             inputStream.close();
-            logger.info(MessageFormat.format("上传文件成功imageName:{0},imageSize:{1}", imageName, imageSize));
+            log.info("上传文件成功imageName:{},imageSize:{}", imageName, imageSize);
         }finally {
             try {
                 if(inputStream != null){
                     inputStream.close();
                 }
             } catch (IOException ioe){
-                logger.error("关闭输入流再异常：",ioe);
+                log.error("关闭输入流再异常：",ioe);
             }
         }
     }
@@ -197,7 +192,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             }
             result.setData(excessPictureUrl);
         }catch (Exception e){
-            logger.error(prefixName+"|"+siteCode + "获取图片链接失败!" + e);
+            log.error("{}|{}获取图片链接失败!",prefixName, siteCode, e);
             result.parameterError("查看图片失败!"+prefixName);
         }
         return result;
@@ -215,7 +210,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             }
             result.setData(excessPictureUrls);
         }catch (Exception e){
-            logger.error(prefixName+"|"+siteCode + "获取图片链接失败!" + e);
+            log.error("{}|{}获取图片链接失败!",prefixName, siteCode, e);
             result.parameterError("查看图片失败!"+prefixName);
         }
 
@@ -344,7 +339,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 return recentUrl;
             }
         }catch (Exception e){
-            logger.error("获取图片路径异常!");
+            log.error("获取图片路径异常!");
             return recentUrl;
         }
 
@@ -379,7 +374,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             if(result != null && result.getCode() == InvokeResult.RESULT_SUCCESS_CODE){
                 pictureAddress= result.getData();
             }else{
-                logger.warn((result != null ?result.getMessage() : "查看超标图片查询为空-") + abnormalPictureMq.getWaybillCode()+"|"+siteCode);
+                log.warn("查看超标图片查询异常:{}|{}，异常信息：{}",abnormalPictureMq.getWaybillCode(),siteCode,JsonHelper.toJson(result));
                 return;
             }
             //更新es数据
@@ -391,12 +386,12 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             reportExternalService.updateForWeightVolume(dto);
             if(!StringHelper.isEmpty(pictureAddress)){
                 abnormalPictureMq.setExcessPictureAddress(pictureAddress);
-                this.logger.info("发送MQ[" + dmsWeightVolumeAbnormal.getTopic() + "],业务ID[" + abnormalPictureMq.getWaybillCode() + "],消息主题: " + JsonHelper.toJson(abnormalPictureMq));
+                this.log.info("发送MQ[{}],业务ID[{}] ",dmsWeightVolumeAbnormal.getTopic(),abnormalPictureMq.getWaybillCode());
                 dmsWeightVolumeAbnormal.send(abnormalPictureMq.getAbnormalId(), JsonHelper.toJson(abnormalPictureMq));
             }
 
         }catch (Exception e){
-            logger.error("异常消息发送失败!"+abnormalPictureMq.getWaybillCode() + "失败原因:"+ e.getMessage());
+            log.error("异常消息发送失败{}",abnormalPictureMq.getWaybillCode(), e);
         }
     }
 
@@ -540,7 +535,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             //将重量体积实体存入es中
             reportExternalService.insertOrUpdateForWeightVolume(weightVolumeCollectDto);
         }catch (Exception e){
-            logger.error("包裹称重提示警告信息异常"+JsonHelper.toJson(packWeightVO),e);
+            log.error("包裹称重提示警告信息异常:{}", JsonHelper.toJson(packWeightVO),e);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
         }
@@ -667,10 +662,10 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
 
             abnormalResultMq.setOperateTime(weightVolumeCollectDto.getReviewDate());
 
-            this.logger.info("发送MQ[" + dmsWeightVolumeExcess.getTopic() + "],业务ID[" + abnormalResultMq.getBillCode() + "],消息主题: " + JsonHelper.toJson(abnormalResultMq));
+            this.log.info("发送MQ[{}],业务ID[{}]",dmsWeightVolumeExcess.getTopic(),abnormalResultMq.getBillCode());
             dmsWeightVolumeExcess.send(abnormalResultMq.getAbnormalId(),JsonHelper.toJson(abnormalResultMq));
         }catch (Exception e){
-            this.logger.error("发送超标异常mq给fxm失败" + weightVolumeCollectDto.getPackageCode() + "失败原因：" + e);
+            this.log.error("发送超标异常mq给fxm失败:{}", weightVolumeCollectDto.getPackageCode() , e);
         }
     }
 
@@ -695,12 +690,12 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 result.setTotal(baseEntity.getData().getTotal().intValue());
                 result.setRows(baseEntity.getData().getData());
             }else{
-                logger.warn(JsonHelper.toJson(condition)+"根据查询条件查询es失败,失败原因:"+baseEntity.getMessage());
+                log.warn("{}根据查询条件查询es失败,失败原因:{}",JsonHelper.toJson(condition),baseEntity.getMessage());
                 result.setTotal(0);
                 result.setRows(new ArrayList<WeightVolumeCollectDto>());
             }
         }catch (Exception e){
-            logger.error("服务异常,根据查询条件查询es失败!"+JsonHelper.toJson(condition));
+            log.error("服务异常,根据查询条件查询es失败:{}",JsonHelper.toJson(condition),e);
         }
 
         return result;

@@ -52,7 +52,7 @@ import com.jd.ump.profiler.proxy.Profiler;
 @Service
 public class UserServiceImpl implements UserService{
 
-	private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
 	/**
 	 *	登录方式-分拣客户端（PDA、打印、标签设计器）
 	 */
@@ -151,8 +151,8 @@ public class UserServiceImpl implements UserService{
 					response.setDmsId(dtoStaff.getDmsId());
 					response.setDmsName(dtoStaff.getDmsName());
 				}
-				if (logger.isInfoEnabled()) {
-					logger.info("set sortingCenter and type, response:[{}]", response.toString());
+				if (log.isInfoEnabled()) {
+					log.info("set sortingCenter and type, response:[{}]", response.toString());
 				}
 			}
 		}
@@ -165,7 +165,7 @@ public class UserServiceImpl implements UserService{
 	 * @return
 	 */
 	private LoginUserResponse login(LoginRequest request,Integer loginType) {
-		logger.info("erpAccount is " + request.getErpAccount());
+		log.info("erpAccount is {}" , request.getErpAccount());
 
 		String erpAccount = request.getErpAccount();
 		String erpAccountPwd = request.getPassword();
@@ -189,8 +189,7 @@ public class UserServiceImpl implements UserService{
 		// 处理返回结果
 		if (loginResult.isError()) {
 			// 异常处理-验证失败，返回错误信息
-			logger.info("erpAccount is " + erpAccount + " 验证失败，错误信息[" + loginResult.getErrormsg()
-			        + "]");
+			log.info("erpAccount is {} 验证失败，错误信息[{}]",erpAccount, loginResult.getErrormsg());
 			// 结果设置
 			LoginUserResponse response = new LoginUserResponse(JdResponse.CODE_INTERNAL_ERROR,
 			        loginResult.getErrormsg());
@@ -202,14 +201,14 @@ public class UserServiceImpl implements UserService{
 			return response;
 		} else {
 			// 验证完成，返回相关信息
-			logger.info("erpAccount is " + erpAccount + " 验证成功");
+			log.info("erpAccount is {} 验证成功",erpAccount);
 			try{
 				//检查客户端版本信息，版本不一致，不允许登录
 	            JdResult<String> checkResult = checkClientInfo(clientInfo,loginResult);
 	            if(!checkResult.isSucceed()){
 	            	clientInfo.setMatchFlag(SysLoginLog.MATCHFLAG_LOGIN_FAIL);
 	            	sysLoginLogService.insert(loginResult, clientInfo);
-	            	logger.warn("login-fail:params="+JsonHelper.toJson(request)+",msg="+checkResult.getMessage());
+	            	log.warn("login-fail:params={},msg={}", JsonHelper.toJson(request), checkResult.getMessage());
 					LoginUserResponse response = new LoginUserResponse(JdResponse.CODE_INTERNAL_ERROR,
 							checkResult.getMessage());
 					// ERP账号
@@ -222,7 +221,7 @@ public class UserServiceImpl implements UserService{
 					sysLoginLogService.insert(loginResult, clientInfo);
 				}
 	        }catch (Exception e){
-	            logger.error("用户登录保存日志失败：" + erpAccount, e);
+	            log.error("用户登录保存日志失败：{}", erpAccount, e);
 	        }
 			if (null == loginResult.getSiteId()) {
 				return new LoginUserResponse(JdResponse.CODE_SITE_ERROR, JdResponse.MESSAGE_SITE_ERROR);

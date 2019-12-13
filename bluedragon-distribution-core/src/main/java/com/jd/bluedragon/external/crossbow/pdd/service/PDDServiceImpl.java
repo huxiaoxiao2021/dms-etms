@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class PDDServiceImpl implements PDDService {
 
-    private static final Logger logger = LoggerFactory.getLogger(PDDServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(PDDServiceImpl.class);
 
     private static final long EXPIRED_TIME = 30;//30天
 
@@ -51,13 +51,15 @@ public class PDDServiceImpl implements PDDService {
         pddWaybillQueryDto.setWaybillCode(waybillCode);
 
         PDDResponse<PDDWaybillDetailDto> response = pddWaybillQueryManager.doRestInterface(pddWaybillQueryDto);
-        logger.debug("获取拼多多的电子面单处理信息，参数为：{}，返回结果为：{}",waybillCode, JsonHelper.toJson(response));
+        if(log.isDebugEnabled()){
+            log.debug("获取拼多多的电子面单处理信息，参数为：{}，返回结果为：{}",waybillCode, JsonHelper.toJson(response));
+        }
         if (response == null) {
-            logger.error("获取拼多多电子面信息失败，信息获取为空,{}",waybillCode);
+            log.error("获取拼多多电子面信息失败，信息获取为空,{}",waybillCode);
             return null;
         }
         if (!response.getSuccess()) {
-            logger.warn("获取拼多多电子面单信息失败，单号为：{}, 原因：{}",waybillCode,response.getErrorMsg());
+            log.warn("获取拼多多电子面单信息失败，单号为：{}, 原因：{}",waybillCode,response.getErrorMsg());
             return null;
         }
         return response.getResult();
@@ -93,12 +95,12 @@ public class PDDServiceImpl implements PDDService {
                 String redisValue = jimdbCacheService.get(redisKey);
                 if (StringHelper.isNotEmpty(redisValue)) {
                     /* 如果從redis中可以獲取到value值，則直接反序列化，不走pdd接口 */
-                    logger.info("拼多多订单redis命中缓存，waybillCode:{}，返回值：{}", waybillCode, redisValue);
+                    log.info("拼多多订单redis命中缓存，waybillCode:{}，返回值：{}", waybillCode, redisValue);
                     response.setResult(JsonHelper.fromJsonUseGson(redisValue, PDDWaybillDetailDto.class));
                     return response;
                 }
             } catch (Exception e) {
-                logger.error(MessageFormat.format("拼多多获取缓存发生异常，请求参数：{0}", waybillCode), e);
+                log.error("拼多多获取缓存发生异常，请求参数：{}", waybillCode, e);
             }
         }
 
@@ -108,9 +110,11 @@ public class PDDServiceImpl implements PDDService {
             PDDWaybillQueryDto condition = new PDDWaybillQueryDto();
             condition.setWaybillCode(waybillCode);
             response = pddWaybillQueryManager.doRestInterface(condition);
-            logger.info(MessageFormat.format("PddService.queryPDDWaybillByWaybillCode,req:{0},resp:{1}", waybillCode,JsonHelper.toJson(response)));
+            if(log.isInfoEnabled()){
+                log.info("PddService.queryPDDWaybillByWaybillCode,req:{},resp:{}", waybillCode,JsonHelper.toJson(response));
+            }
         } catch (RuntimeException e) {
-            logger.error(MessageFormat.format("拼多多接口调用发生异常，请求参数：{0}", waybillCode), e);
+            log.error("拼多多接口调用发生异常，请求参数：{}", waybillCode, e);
             response.setSuccess(Boolean.FALSE);
             response.setErrorCode(String.valueOf(JdResponse.CODE_ERROR));
             response.setErrorMsg(JdResponse.MESSAGE_ERROR);
@@ -124,7 +128,7 @@ public class PDDServiceImpl implements PDDService {
                 jimdbCacheService.setEx(redisKey, JsonHelper.toJson(response.getResult()), EXPIRED_TIME, TimeUnit.DAYS);
             }
         }catch (Exception e){
-            logger.error(MessageFormat.format("拼多多缓存发生异常，请求参数：{0}", waybillCode), e);
+            log.error("拼多多缓存发生异常，请求参数：{}", waybillCode, e);
         }
 
         return response;

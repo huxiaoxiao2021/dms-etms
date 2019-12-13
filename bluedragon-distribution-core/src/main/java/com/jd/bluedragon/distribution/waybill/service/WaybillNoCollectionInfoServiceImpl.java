@@ -19,8 +19,8 @@ import com.jd.transboard.api.dto.Response;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -33,7 +33,7 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
     @Value("${no.collection.package.max.count:50}")
     private int noCollectionPackageMaxCount;
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private SendDatailDao sendDatailDao;
@@ -94,7 +94,7 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
         try {
             tcResponse = boardCombinationService.getBoxesByBoardCode(boardCode);
         } catch (Exception e) {
-            logger.error("通过TC的getBoxesByBoardCode接口获取板号【" + boardCode +"】的信息失败！", e);
+            log.error("通过TC的getBoxesByBoardCode接口获取板号【{}】的信息失败！",boardCode, e);
         }
         List<String> scannedPackageMoreThanOneList = new ArrayList<>();
 
@@ -148,7 +148,7 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
                                     } else {
                                         //查询失败
                                         String message = "板号：" + barCode + "上的包裹以及箱内包裹总数大于2W，无法计算差异！";
-                                        logger.error(message);
+                                        log.error(message);
                                         throw new WaybillNoCollectionException(message);
                                     }
                                 }
@@ -159,13 +159,13 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
 
                 } else {
                     //有可能扫的是运单号，扫运单号认为是齐的，同时也排除脏数据干扰
-                    logger.warn("遍历板号：" + barCode + "上的数据，" + barCode + "既不是包裹号，也不是箱号！");
+                    log.warn("遍历板号：{}上的数据，{}既不是包裹号，也不是箱号！",boardCode,barCode);
                 }
             }
         } else {
             //查询失败
             String message = "通过TC系统的接口获取板号【" + boardCode +"】的信息为空！";
-            logger.error(message);
+            log.error(message);
             throw new WaybillNoCollectionException(message);
         }
 
@@ -183,7 +183,7 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
                 String packageCode = entry.getValue();
                 int packageNum = WaybillUtil.getPackNumByPackCode(packageCode);
                 if (packageNum < 0) {
-                    logger.warn("无法计算出包裹数，请检查包裹号【" + packageCode + "】是否有误！");
+                    log.warn("无法计算出包裹数，请检查包裹号【{}】是否有误！",packageCode);
                     continue;
                 }
                 for (int i = 1; i <= packageNum; i++) {
@@ -256,7 +256,7 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
                         //计算这一批不齐的运单，packageCodeResultList作为入参，方法结束后内容可能会被改变
                         generateNoCollectionPackageList(scannedPackageList, waybillNoCollectionInfoListTemp, packageCodeResultList);
                     } else {
-                        logger.warn("运单信息：" + JsonHelper.toJson(waybillNoCollectionInfo) + "，此时已补齐！");
+                        log.warn("运单信息：{}，此时已补齐！" ,JsonHelper.toJson(waybillNoCollectionInfo));
                     }
 
                     waybillNoCollectionInfoListTemp.clear();
@@ -335,7 +335,7 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
             int packageNum = WaybillUtil.getPackNumByPackCode(currPackageCode);
 
             if (packageNum < 0) {
-                logger.warn("无法计算出包裹数，请检查包裹号【" + currPackageCode + "】是否有误！");
+                log.warn("无法计算出包裹数，请检查包裹号【{}】是否有误！",currPackageCode);
                 continue;
             }
 
@@ -402,7 +402,7 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
             lexicalOrder = this.getLexicalOrder(packageNum);
         }
         if(lexicalOrder.size() <= desireIndex){
-            logger.warn("lexicalOrder.size() <= desireIndex；packageNum：【" + packageNum + "】，请检查包裹号【" + currPackageCode + "】是否有误！");
+            log.warn("lexicalOrder.size() <= desireIndex；packageNum：【{}】，请检查包裹号【{}】是否有误！",packageNum,currPackageCode);
             return -1;
         }
         //从字典序数组中取出真正的字典序下的值，是一个期望值
@@ -411,7 +411,7 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
         int currLexicalOrderIndex = WaybillUtil.getCurrentPackageNum(currPackageCode);
         //如果该包裹的序号比包裹数还大，说明包裹号有问题，返回-1
         if (currLexicalOrderIndex > packageNum) {
-            logger.warn("计算出包裹序号大于包裹数【" + packageNum + "】，请检查包裹号【" + currPackageCode + "】是否有误！");
+            log.warn("计算出包裹序号大于包裹数【{}】，请检查包裹号【{}】是否有误！",packageNum,currPackageCode);
             return -1;
         }
         //如果当前包裹数字与期望值不同，期望值对应的包裹到当前包裹数字之间的包裹，都是没有被扫描到的包裹
@@ -470,7 +470,7 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
             //如果是B网或逆向单，返回ture
             return isBWaybill(waybillSign) || isReverseWaybill(waybillSign);
         } else {
-            logger.warn("获取【" + waybillCode + "】的运单信息失败，按B网运单处理");
+            log.warn("获取【{}】的运单信息失败，按B网运单处理",waybillCode);
         }
         return true;
     }
@@ -521,7 +521,7 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
             }
 
         } catch (Exception e) {
-            this.logger.error("运单号【 " + waybillCode + "】调用运单WSS异常：", e);
+            this.log.error("运单号【{}】调用运单WSS异常：",waybillCode, e);
         }
 
         return bigWaybillDto;
@@ -566,7 +566,7 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
         } else if (packageCodeTemplate.contains("-")) {
             newPackageCode = packageCodeTemplate.replaceFirst("-\\d+-", "-" + index + "-");
         } else {
-            logger.warn("根据包裹号【" + packageCodeTemplate + "】，无法计算出新包裹，请检查包裹号是否符合包裹号标准！");
+            log.warn("根据包裹号【{}】，无法计算出新包裹，请检查包裹号是否符合包裹号标准！", packageCodeTemplate);
         }
         return newPackageCode;
     }

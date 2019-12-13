@@ -1,17 +1,12 @@
 package com.jd.bluedragon.distribution.queueManagement.service;
 
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.intelligent.center.api.common.dto.PdaPlatformInfoResponseDto;
-import com.jd.intelligent.center.api.common.dto.PdaPlatformRequestDto;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.intelligent.center.api.common.dto.PlatformCallNumRequestDto;
-import com.jd.intelligent.center.api.common.dto.PlatformCallNumResponseDto;
-import com.jd.intelligent.center.api.common.dto.PlatformQueueTaskResponseDto;
-import com.jd.intelligent.center.api.common.dto.PlatformWorkRequestDto;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.intelligent.center.api.common.dto.*;
 import com.jd.intelligent.center.api.service.IPdaDispatchJsfService;
 import com.jd.intelligent.common.model.vo.WebResult;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +15,7 @@ import java.util.List;
 /** 只能园区业务实现类 */
 @Service
 public class QueueManagementService {
-  private final Log logger = LogFactory.getLog(this.getClass());
+  private final Logger log = LoggerFactory.getLogger(this.getClass());
 
   @Autowired
   private IPdaDispatchJsfService pdaDispatchJsfService;
@@ -51,7 +46,7 @@ public class QueueManagementService {
             }
         }
     } catch (Exception ex) {
-      logger.error("获取月台、流向、车型信息接口失败，原因 " + ex + "JSF入参 " + JsonHelper.toJson(request));
+      log.error("获取月台、流向、车型信息接口失败，JSF入参 {}" , JsonHelper.toJson(request),ex);
       res.setCode(InvokeResult.SERVER_ERROR_CODE);
       res.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
     }
@@ -84,7 +79,7 @@ public class QueueManagementService {
         }
       }
     } catch (Exception ex) {
-      logger.error("获取排队任务信息列表接口失败，原因 " + ex + "JSF入参 " + JsonHelper.toJson(request));
+      log.error("获取排队任务信息列表接口失败，JSF入参 {}" , JsonHelper.toJson(request), ex);
       res.setCode(InvokeResult.SERVER_ERROR_CODE);
       res.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
     }
@@ -117,7 +112,7 @@ public class QueueManagementService {
                 }
             }
         } catch (Exception ex) {
-            logger.error("叫号接口失败，原因 " + ex + "JSF入参 " + JsonHelper.toJson(request));
+            log.error("叫号接口失败，JSF入参 {}" ,JsonHelper.toJson(request),ex);
             res.setCode(InvokeResult.SERVER_ERROR_CODE);
             res.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
         }
@@ -150,7 +145,7 @@ public class QueueManagementService {
                 }
             }
         } catch (Exception ex) {
-            logger.error("校验月台是否空闲接口失败，原因 " + ex + "JSF入参 " + JsonHelper.toJson(request));
+            log.error("校验月台是否空闲接口失败,JSF入参 {}",JsonHelper.toJson(request), ex);
             res.setCode(InvokeResult.SERVER_ERROR_CODE);
             res.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
         }
@@ -181,7 +176,7 @@ public class QueueManagementService {
                 }
             }
         } catch (Exception ex) {
-            logger.error("作业状态修改接口失败，原因 " + ex + "JSF入参 " + JsonHelper.toJson(request));
+            log.error("作业状态修改接口失败，JSF入参 {}" , JsonHelper.toJson(request), ex);
             res.setCode(InvokeResult.SERVER_ERROR_CODE);
             res.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
         }

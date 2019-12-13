@@ -1,16 +1,5 @@
 package com.jd.bluedragon.distribution.product.service;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import jd.oom.client.clientbean.OrderDetail;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import com.jd.bluedragon.distribution.order.ws.OrderWebService;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
@@ -23,11 +12,19 @@ import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.loss.client.BlueDragonWebService;
 import com.jd.loss.client.LossProduct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @Service("productService")
 public class ProductService {
 	
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	
 	@Autowired
 	private OrderWebService orderWebService;
@@ -78,7 +75,7 @@ public class ProductService {
 			if(orderDetail.getSkuId() != null){
 				product.setSkuId(orderDetail.getSkuId());
 			}
-			this.logger.info("订单号：" + orderId + ", 商品详情：" + product.toString());
+			this.log.info("订单号：{}, 商品详情：{}" ,orderId, product.toString());
 			
 			products.add(product);
 		}
@@ -143,7 +140,7 @@ public class ProductService {
 		
 		products.add(product0);
 		
-		this.logger.info("取件单面单号：" + code + ", 商品详情：" + product0.toString());
+		this.log.info("取件单面单号：{}, 商品详情：{}" ,code, product0.toString());
 		
 		if (StringHelper.isNotEmpty(pickware.getData().getAttaches())) {
 			Product product1 = new Product(); // 取件单内商品附件
@@ -153,7 +150,7 @@ public class ProductService {
 			product1.setProductId(Product.DEFAULT_PRODUCT_ACCESSORY_ID);
 			products.add(product1);
 			
-			this.logger.info("取件单面单号：" + code + ", 商品附件详情：" + product1.toString());
+			this.log.info("取件单面单号：{}, 商品附件详情：{}" ,code, product1.toString());
 		}
 		
 		return products;
@@ -176,7 +173,7 @@ public class ProductService {
 			product.setProductId(String.valueOf(lossProduct.getSku()));
 			product.setPrice(lossProduct.getPrice());
 			
-			this.logger.info("订单号：" + orderId + ", 商品详情：" + product.toString());
+			this.log.info("订单号：{}, 商品详情：{}" ,orderId, product.toString());
 			
 			products.add(product);
 		}

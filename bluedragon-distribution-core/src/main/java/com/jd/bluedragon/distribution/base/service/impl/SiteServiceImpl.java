@@ -27,9 +27,8 @@ import com.jd.etms.vts.ws.VtsQueryWS;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +36,7 @@ import java.util.*;
 
 @Service("siteService")
 public class SiteServiceImpl implements SiteService {
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
     @Autowired
     RedisManager redisManager;
     @Autowired
@@ -91,8 +90,7 @@ public class SiteServiceImpl implements SiteService {
         } else { //服务出错或者出异常，打日志
             base.setCode(JdResponse.CODE_SERVICE_ERROR);
             base.setMessage("查询运力信息出错！");
-            logger.error("查询运力信息出错,出错原因:" + vtsDto.getMessage());
-            logger.error("查询运力信息出错,运力编码:" + capacityCode);
+            log.warn("查询运力信息出错,运力编码:{}，出错原因:{}",capacityCode, vtsDto.getMessage());
         }
         return base;
     }

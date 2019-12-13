@@ -10,15 +10,7 @@ import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.AbnormalResultMq;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.DutyTypeEnum;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckData;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckOfPackageDetail;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.SystemEnum;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.WaybillFlowDetail;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightVolumeCheckConditionB2b;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightVolumeCheckOfB2bPackage;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightVolumeCheckOfB2bWaybill;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.*;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckOfB2bService;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -52,14 +44,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 类描述信息
@@ -70,7 +55,7 @@ import java.util.Map;
 @Service("weightAndVolumeCheckOfB2bService")
 public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeCheckOfB2bService {
 
-    private static final Logger logger = LoggerFactory.getLogger(WeightAndVolumeCheckOfB2bServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(WeightAndVolumeCheckOfB2bServiceImpl.class);
 
     /**
      * 包裹维度抽检支持的最大包裹数
@@ -182,7 +167,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
                 sendMqToFXM(dto,abnormalResultMq);
             }
         }catch (Exception e){
-            logger.error("包裹维度B网抽检失败, 异常信息:{}" , e.getMessage(), e);
+            log.error("包裹维度B网抽检失败, 异常信息:{}" , e.getMessage(), e);
             result.customMessage(600,"包裹维度B网抽检失败!");
         }
 
@@ -244,13 +229,13 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             String[] defualtSuffixName = new String[] {"jpg","jpeg","gif","png","bmp"};
             if(!Arrays.asList(defualtSuffixName).contains(suffixName)){
                 result.customMessage(600,"文件格式不正确!"+suffixName);
-                logger.error("参数:{}, 异常信息:{}", suffixName,"文件格式不正确!");
+                log.warn("参数:{}, 异常信息:{}", suffixName,"文件格式不正确!");
                 return result;
             }
             if(imageSize > SINGLE_IMAGE_SIZE_LIMIT){
                 result.customMessage(600, MessageFormat.format("图片{0}的大小为{1}byte,超出单个图片最大限制{2}byte",
                         imageName, imageSize, SINGLE_IMAGE_SIZE_LIMIT));
-                logger.error("参数:{}, 异常信息:{}", waybillOrPackageCode, "上传的超标图片失败,单个图片超出限制大小");
+                log.warn("参数:{}, 异常信息:{}", waybillOrPackageCode, "上传的超标图片失败,单个图片超出限制大小");
                 return result;
             }
             //是否操作过抽检
@@ -266,7 +251,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         }catch (Exception e){
             String formatMsg = MessageFormat.format("图片上传失败!该文件名称{0}",imageName );
             result.customMessage(600,formatMsg);
-            logger.error("参数:{}, 异常信息:{}", imageName , e.getMessage(), e);
+            log.error("参数:{}, 异常信息:{}", imageName , e.getMessage(), e);
         }
 
         return result;
@@ -640,12 +625,12 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             abnormalResultMq.setReviewErp(dto.getReviewErp());
             abnormalResultMq.setBusinessType(2);
 
-            if(logger.isDebugEnabled()){
-                logger.debug("发送MQ成功topic：{},businessId：{}，msgContent：{}", dmsWeightVolumeExcess.getTopic(), abnormalResultMq.getBillCode(), JsonHelper.toJson(abnormalResultMq));
+            if(log.isDebugEnabled()){
+                log.debug("发送MQ成功topic：{},businessId：{}，msgContent：{}", dmsWeightVolumeExcess.getTopic(), abnormalResultMq.getBillCode(), JsonHelper.toJson(abnormalResultMq));
             }
             dmsWeightVolumeExcess.send(abnormalResultMq.getAbnormalId(),JsonHelper.toJson(abnormalResultMq));
         }catch (Exception e){
-            logger.error("参数:{}, 异常信息:{}", dto.getWaybillCode() , e.getMessage(), e);
+            log.error("参数:{}, 异常信息:{}", dto.getWaybillCode() , e.getMessage(), e);
         }
     }
 
@@ -673,7 +658,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
                 sendMqToFXM(dto,abnormalResultMq);
             }
         }catch (Exception e){
-            logger.error("参数:{}, 异常信息:{}", JsonHelper.toJson(param) , e.getMessage(), e);
+            log.error("参数:{}, 异常信息:{}", JsonHelper.toJson(param) , e.getMessage(), e);
             result.customMessage(600,"B网按运单抽检失败!");
         }
         return result;
@@ -776,7 +761,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
                 return waybillFlowDetail;
             }
         }else {
-            logger.error("参数:{}, 异常信息:{}", waybillCode , "通过运单号获取运单信息失败!");
+            log.error("参数:{}, 异常信息:{}", waybillCode , "通过运单号获取运单信息失败!");
             return waybillFlowDetail;
         }
         Page<PackFlowDetail> page = new Page<>();
@@ -784,7 +769,9 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         Page<PackFlowDetail> result = waybillPackageManager.getOpeDetailByCode(waybillCode, page);
         if(result != null && !CollectionUtils.isEmpty(result.getResult())){
             List<PackFlowDetail> list = result.getResult();
-            logger.info("运单号:{}的称重量方流水记录:{}", waybillCode , JsonHelper.toJson(list));
+            if(log.isInfoEnabled()){
+                log.info("运单号:{}的称重量方流水记录:{}", waybillCode , JsonHelper.toJson(list));
+            }
             List<PackFlowDetail> timeSortList = new ArrayList<>();
             //排除重量体积均为0的情况(系统卡控)
             for(PackFlowDetail detail : list){
@@ -871,7 +858,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             waybillFlowDetail.setTotalVolume(totalVolume);
             return waybillFlowDetail;
         }else {
-            logger.error("参数:{}, 异常信息:{}", waybillCode , "未获取到运单号的称重流水");
+            log.error("参数:{}, 异常信息:{}", waybillCode , "未获取到运单号的称重流水");
             getWaybillFlowDetail(waybillCode,waybillFlowDetail);
         }
         return waybillFlowDetail;
@@ -988,7 +975,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             waybillFlowDetail.setOperateErp(operatorUserErp);
             waybillFlowDetail.setOperateTime(packageState.getCreateTime());
         }else {
-            logger.error("参数:{}, 异常信息:{}", waybillCode , "运单没有揽收记录");
+            log.error("参数:{}, 异常信息:{}", waybillCode , "运单没有揽收记录");
         }
         return waybillFlowDetail;
     }
