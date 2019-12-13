@@ -87,8 +87,19 @@ $(function () {
             title: '扫描条码',
             align: 'center'
         },{
+            field: 'spotCheckType',
+            title: '业务类型',
+            align: 'center',
+            formatter: function (value, row, index) {
+                return (value != null && value == "1") ? "B网" : "C网";
+            }
+        },{
             field: 'productTypeName',
             title: '产品标识',
+            align: 'center'
+        }, {
+            field: 'busiCode',
+            title: '商家ID',
             align: 'center'
         }, {
             field: 'busiName',
@@ -232,29 +243,38 @@ $(function () {
                     });
                 },
                 'click .search': function(e, value, row, index) {
-                    $.ajax({
-                        type : "get",
-                        url : searchExcessPictureUrl + "?packageCode=" + row.packageCode + "&siteCode=" +row.reviewSiteCode,
-                        data : {},
-                        async : false,
-                        success : function (data) {
-                            if(data && data.code == 200){
-                                layer.open({
-                                    type: 2,
-                                    title: "",
-                                    shadeClose: true,
-                                    shade: 0.5,
-                                    area: ['500px','400px'],
-                                    content: data.data,
-                                    success: function(layero, index) {
-                                        layer.iframeAuto(index);
-                                    }
-                                });
-                            }else{
-                                Jd.alert(data.message);
+                    var spotCheckType = row.spotCheckType==null?0:row.spotCheckType;
+                    var isWaybillSpotCheck = row.isWaybillSpotCheck==null?-1:row.isWaybillSpotCheck;
+                    if(spotCheckType == 1){
+                        //B网
+                        window.open("/weightAndVolumeCheck/toSearchB2bExcessPicture/?waybillCode="+row.packageCode
+                            +"&siteCode="+row.reviewSiteCode +"&isWaybillSpotCheck="+isWaybillSpotCheck);
+                    }else {
+                        //C网
+                        $.ajax({
+                            type : "get",
+                            url : searchExcessPictureUrl + "?packageCode=" + row.packageCode + "&siteCode=" +row.reviewSiteCode,
+                            data : {},
+                            async : false,
+                            success : function (data) {
+                                if(data && data.code == 200){
+                                    layer.open({
+                                        type: 2,
+                                        title: "",
+                                        shadeClose: true,
+                                        shade: 0.5,
+                                        area: ['500px','400px'],
+                                        content: data.data,
+                                        success: function(layero, index) {
+                                            layer.iframeAuto(index);
+                                        }
+                                    });
+                                }else{
+                                    Jd.alert(data.message);
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
                 }
             }
         }];
@@ -356,6 +376,17 @@ function initSelect() {
             $("#query-form #isExcess").val(v);
         } else {
             $("#query-form #isExcess").val(null);
+        }
+    });
+
+    defualt = $("#query-form #spotCheckTypeSelect").val();
+    $("#query-form #spotCheckType").val(defualt);
+    $("#query-form #spotCheckTypeSelect").on('change', function (e) {
+        var v = $("#query-form #spotCheckTypeSelect").val();
+        if (v == 0 || v == 1) {
+            $("#query-form #spotCheckType").val(v);
+        } else {
+            $("#query-form #spotCheckType").val(null);
         }
     });
 }

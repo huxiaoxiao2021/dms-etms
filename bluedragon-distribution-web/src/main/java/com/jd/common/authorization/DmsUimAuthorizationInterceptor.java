@@ -1,24 +1,35 @@
 package com.jd.common.authorization;
 
 import com.jd.common.springmvc.interceptor.SpringAuthorizationInterceptor;
+import com.jd.common.web.LoginContext;
 import com.jd.uim.annotation.Authorization;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.method.HandlerMethod;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * Created by shipeilin on 2018/1/25.
  */
 public class DmsUimAuthorizationInterceptor extends SpringAuthorizationInterceptor {
-    private static final Log LOG = LogFactory.getLog(DmsUimAuthorizationInterceptor.class);
+
+    private static final Logger LOG = LoggerFactory.getLogger(DmsUimAuthorizationInterceptor.class);
     private String excludePath;
     private List<String> excludePathCache;
+
+    /**
+     * 忽略auth权限校验的人员，逗号分隔
+     */
+    private String excludeUsers;
+
+    private List<String> ignoreAuthUsers;
 
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         Authorization annotation = null;
@@ -29,6 +40,10 @@ public class DmsUimAuthorizationInterceptor extends SpringAuthorizationIntercept
                 if(annotation != null) {
                     String e = annotation.value();
                     if(StringUtils.isBlank(e) || isExclude(e)) {
+                        return true;
+                    }
+
+                    if (curUserIgnoreAuth()) {
                         return true;
                     }
 
@@ -85,5 +100,35 @@ public class DmsUimAuthorizationInterceptor extends SpringAuthorizationIntercept
             return true;
         }
         return false;
+    }
+
+    public void setExcludeUsers(String excludeUsers) {
+        this.excludeUsers = excludeUsers;
+        if (!StringUtils.isEmpty(excludeUsers)) {
+            try {
+                ignoreAuthUsers = Arrays.asList(StringUtils.split(excludeUsers, ","));
+            }
+            catch (Exception e) {
+                LOG.error("Failed to parse auth exclude users.{}", excludeUsers, e);
+            }
+        }
+    }
+
+    /**
+     * 当前登录人是否忽略权限校验
+     * @return
+     */
+    private boolean curUserIgnoreAuth() {
+        boolean ignored = false;
+        LoginContext loginContext = LoginContext.getLoginContext();
+        if (loginContext != null) {
+            ignored = !CollectionUtils.isEmpty(this.ignoreAuthUsers) && this.ignoreAuthUsers.contains(loginContext.getPin());
+            if (ignored) {
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Erp User:{} ignore auth validation.", loginContext.getPin());
+                }
+            }
+        }
+        return ignored;
     }
 }

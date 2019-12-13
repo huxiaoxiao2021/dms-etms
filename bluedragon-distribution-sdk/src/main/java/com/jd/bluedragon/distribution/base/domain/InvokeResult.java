@@ -32,6 +32,9 @@ public class InvokeResult<T> implements Serializable {
     public static final int RESULT_BOX_SENT_CODE=301;
     public static final String RESULT_BOX_SENT_MESSAGE = "该箱号已发货，不能再绑定集包袋";
 
+    public static final int RESULT_NULL_WAYBILLCODE_CODE=201;
+    public static final String RESULT_NULL_WAYBILLCODE_MESSAGE = "无运单数据";
+
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }
@@ -87,7 +90,6 @@ public class InvokeResult<T> implements Serializable {
     public void error(Throwable ex){
         this.code=SERVER_ERROR_CODE;
         this.message= SERVER_ERROR_MESSAGE;
-        //logger.error(ex);
     }
 
 
@@ -98,7 +100,6 @@ public class InvokeResult<T> implements Serializable {
     public void error(String message){
         this.code=SERVER_ERROR_CODE;
         this.message= message;
-        //logger.error(ex);
     }
 
     /**

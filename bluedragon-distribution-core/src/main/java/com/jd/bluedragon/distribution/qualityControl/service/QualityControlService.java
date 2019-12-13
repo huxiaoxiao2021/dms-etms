@@ -25,17 +25,17 @@ import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.api.WaybillSyncApi;
 import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.dto.BdTraceDto;
+import com.jd.ldop.business.api.AbnormalOrderApi;
 import com.jd.ldop.business.api.dto.request.AbnormalOrderDTO;
+import com.jd.ldop.business.api.dto.response.Response;
 import com.jd.ldop.business.api.dto.response.ResponseStatus;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import com.jd.ldop.business.api.AbnormalOrderApi;
-import com.jd.ldop.business.api.dto.response.Response;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -47,7 +47,7 @@ import java.util.*;
  */
 @Service
 public class QualityControlService {
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private static final int PACKAGE_CODE_TYPE = 1;
     private static final int WAYBILL_CODE_TYPE = 2;
@@ -117,12 +117,12 @@ public class QualityControlService {
                     break;
             }
         } catch (Exception ex) {
-            logger.error("调用异常配送接口获取包裹信息失败,发生异常。" + ex);
+            log.error("调用异常配送接口获取包裹信息失败,发生异常。" , ex);
             return TaskResult.FAILED;
         }
 
         if (null == sendDetails || sendDetails.size() <= 0) {
-            logger.error("调用异常配送接口获取包裹信息失败,数据为空。" + JsonHelper.toJson(request));
+            log.warn("调用异常配送接口获取包裹信息失败,数据为空:{}" , JsonHelper.toJson(request));
             return TaskResult.FAILED;
         }
 
@@ -135,7 +135,7 @@ public class QualityControlService {
             }
             abnormalWayBillService.insertBatchAbnormalWayBill(convert2AbnormalWayBills(sendDetails, request));
         } catch (Exception ex) {
-            logger.error("分拣中心异常节点推全程跟踪、质控发生异常。" + ex);
+            log.error("分拣中心异常节点推全程跟踪、质控发生异常。" , ex);
             return TaskResult.REPEAT;
         }
 
@@ -161,13 +161,13 @@ public class QualityControlService {
             set.add(sendDetail.getWaybillCode());
 
             QualityControl qualityControl = convert2QualityControl(sendDetail.getWaybillCode(), request, boxCode);
-            logger.info("分拣中心异常页面发质控和全程跟踪开始，消息体：" + JsonHelper.toJson(qualityControl));
+            log.info("分拣中心异常页面发质控和全程跟踪开始，消息体：{}" , JsonHelper.toJson(qualityControl));
             // 更新运单状态
             updateWaybillStatus(sendDetail.getWaybillCode(), request, operateSite, sendDetail.getBoxCode());
             bdExceptionToQcMQ.sendOnFailPersistent(request.getQcValue(), JsonHelper.toJson(qualityControl));
 
             //异常处理 节点发MQ 换新单   2016年8月16日18:18:40   by guoyongzhi  逆向整合之：3.2.6	拦截订单，触发新单
-            logger.info("执行自营换新单  convert2ExchangeNewWaybill exchangeOwnWaybill ");
+            log.info("执行自营换新单  convert2ExchangeNewWaybill exchangeOwnWaybill ");
             OwnReverseTransferDomain domain=convert2ExchangeNewWaybill(sendDetail.getWaybillCode(), request);
             reversePrintService.exchangeOwnWaybill(domain);
 
@@ -328,8 +328,8 @@ public class QualityControlService {
                 task.setBody(Constants.PUNCTUATION_OPEN_BRACKET + JsonHelper.toJson(sortingReturn) + Constants.PUNCTUATION_CLOSE_BRACKET);
                 taskService.add(task);
             }catch(Exception e){
-                logger.error("质控异常生成分拣退货数据异常:"+JsonHelper.toJson(request));
-                logger.error("质控异常生成分拣退货数据异常，原因 " + e);
+                log.error("质控异常生成分拣退货数据异常:{}",JsonHelper.toJson(request));
+                log.error("质控异常生成分拣退货数据异常，原因 " , e);
             }
         }
     }
@@ -343,7 +343,8 @@ public class QualityControlService {
     public int getRedeliveryState(String waybillCode,Integer businessID) {
         int res = 1;
         Response<AbnormalOrderDTO> dto = abnormalOrderApi.queryByCustomerIdDeliveryIdMainTypeId(waybillCode,businessID,20);
-        logger.info("获取运单协商再投状态: 入参waybillCode="+waybillCode+" businessID="+businessID +" JSF接口返回:" +JsonHelper.toJson(dto));
+        log.info("获取运单协商再投状态: 入参waybillCode={} businessID={} JSF接口返回:{}"
+                ,waybillCode,businessID,JsonHelper.toJson(dto));
         if(null!=dto && dto.getStatus()== ResponseStatus.SUCCESS && null!=dto.getResult()){
            if (null != dto.getResult().getAbnormalState()) {
                res = dto.getResult().getAbnormalState();

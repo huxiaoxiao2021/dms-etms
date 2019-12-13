@@ -10,7 +10,8 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -34,7 +35,7 @@ import java.util.Date;
 @Produces({ MediaType.APPLICATION_JSON })
 public class BasicSystemResource {
 
-    private Logger log = Logger.getLogger(BasicSystemResource.class);
+    private Logger log = LoggerFactory.getLogger(BasicSystemResource.class);
 
     private static final String DEFAULTTIME = "BasicSystemResource.defaultTime";
 
@@ -45,7 +46,6 @@ public class BasicSystemResource {
     @Path("/getSystemMessage")
     public InvokeResult<BaseSystemResponse> getSystemMessage(BaseSystemRequest request){
 
-        this.log.info("参数不能为空");
         InvokeResult result = new InvokeResult();
         BaseSystemResponse baseResponse = new BaseSystemResponse();
         Date systemTime = new Date();
@@ -55,7 +55,6 @@ public class BasicSystemResource {
         result.setData(baseResponse);
         if(request.getOperateTime() == null || StringHelper.isEmpty(request.getPdaVersion()) ||
                 StringHelper.isEmpty(request.getErpCode()) ){
-            this.log.error("参数为空");
             result.setCode(JdResponse.CODE_PARAM_ERROR);
             result.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
             return result;
@@ -77,7 +76,7 @@ public class BasicSystemResource {
             }
 
         }catch (Exception e){
-            this.log.error("通过" + request.getErpCode() + "查询基础资料失败!");
+            this.log.error("通过{}查询基础资料失败!", request.getErpCode(), e);
             result.setCode(JdResponse.CODE_SERVICE_ERROR);
             result.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
         }

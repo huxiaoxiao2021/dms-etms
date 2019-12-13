@@ -7,10 +7,11 @@ import com.jd.bluedragon.distribution.areadest.dao.AreaDestDao;
 import com.jd.bluedragon.distribution.areadest.domain.AreaDest;
 import com.jd.bluedragon.utils.RouteType;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import org.apache.log4j.Logger;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -27,7 +28,7 @@ import java.util.zip.DataFormatException;
 @Service("areaDestService")
 public class AreaDestServiceImpl implements AreaDestService {
 
-    private final Logger logger = Logger.getLogger(AreaDestServiceImpl.class);
+    private final Logger log = LoggerFactory.getLogger(AreaDestServiceImpl.class);
 
     @Autowired
     private AreaDestDao areaDestDao;
@@ -42,7 +43,7 @@ public class AreaDestServiceImpl implements AreaDestService {
                 return true;
             }
         } catch (Exception e) {
-            logger.error("龙门架发货路线关系新增失败！", e);
+            log.error("龙门架发货路线关系新增失败！", e);
         }
         return false;
     }
@@ -52,7 +53,7 @@ public class AreaDestServiceImpl implements AreaDestService {
         try {
             return areaDestDao.addBatch(areaDests);
         } catch (Exception e) {
-            logger.error("龙门架发货路线关系批量新增失败！", e);
+            log.error("龙门架发货路线关系批量新增失败！", e);
         }
         return 0;
     }
@@ -93,7 +94,7 @@ public class AreaDestServiceImpl implements AreaDestService {
                 return addBatch(areaDestList);
             }
         } catch (Exception e) {
-            logger.error("龙门架发货路线关系批量新增时发生异常！", e);
+            log.error("龙门架发货路线关系批量新增时发生异常！", e);
             throw e;
         }
         return 0;
@@ -105,7 +106,7 @@ public class AreaDestServiceImpl implements AreaDestService {
             areaDestDao.update(areaDest);
             return true;
         } catch (Exception e) {
-            logger.error("龙门架发货路线关系更新时发生异常！", e);
+            log.error("龙门架发货路线关系更新时发生异常！", e);
         }
         return false;
     }
@@ -120,7 +121,7 @@ public class AreaDestServiceImpl implements AreaDestService {
             areaDestDao.disableByPlanId(params);
             return true;
         } catch (Exception e) {
-            logger.error("龙门架发货路线关系批量更新无效时发生异常！", e);
+            log.error("龙门架发货路线关系批量更新无效时发生异常！", e);
         }
         return false;
     }
@@ -145,7 +146,7 @@ public class AreaDestServiceImpl implements AreaDestService {
                 return true;
             }
         } catch (Exception e) {
-            logger.error("龙门架发货路线关系更新无效时发生异常！", e);
+            log.error("龙门架发货路线关系更新无效时发生异常！", e);
         }
         return false;
     }
@@ -160,7 +161,7 @@ public class AreaDestServiceImpl implements AreaDestService {
             areaDestDao.enableById(params);
             return true;
         } catch (Exception e) {
-            logger.error("龙门架发货路线关系设置为有效失败！", e);
+            log.error("龙门架发货路线关系设置为有效失败！", e);
         }
         return false;
     }
@@ -198,7 +199,7 @@ public class AreaDestServiceImpl implements AreaDestService {
                 return areaDestDao.getList(parameter);
             }
         } catch (Exception e) {
-            logger.error("获取龙门架发货路线关系列表异常！", e);
+            log.error("获取龙门架发货路线关系列表异常！", e);
         }
         return null;
     }
@@ -215,7 +216,7 @@ public class AreaDestServiceImpl implements AreaDestService {
             }
             return areaDestDao.getList(parameter);
         } catch (Exception e) {
-            logger.error("获取龙门架发货路线关系列表异常！", e);
+            log.error("获取龙门架发货路线关系列表异常！", e);
         }
         return null;
     }
@@ -229,7 +230,7 @@ public class AreaDestServiceImpl implements AreaDestService {
             parameter.put("receiveSiteCode", receiveSiteCode);
             return areaDestDao.getList(parameter);
         } catch (Exception e) {
-            logger.error("获取龙门架发货路线关系列表异常！", e);
+            log.error("获取龙门架发货路线关系列表异常！", e);
         }
         return null;
     }
@@ -246,7 +247,7 @@ public class AreaDestServiceImpl implements AreaDestService {
             }
             return areaDestDao.getCount(parameter);
         } catch (Exception e) {
-            logger.error("根据方案编号、线路类型获取龙门架发货关系数量异常！", e);
+            log.error("根据方案编号、线路类型获取龙门架发货关系数量异常！", e);
         }
         return null;
     }
@@ -260,7 +261,7 @@ public class AreaDestServiceImpl implements AreaDestService {
             parameter.put("receiveSiteCode", receiveSiteCode);
             return areaDestDao.getCount(parameter);
         } catch (Exception e) {
-            logger.error("获取龙门架发货关系数量时发生异常！", e);
+            log.error("获取龙门架发货关系数量时发生异常！", e);
         }
         return null;
     }

@@ -1,6 +1,5 @@
 package com.jd.bluedragon.core.base;
 
-import com.google.common.base.Strings;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.UmpConstants;
@@ -15,6 +14,7 @@ import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ldop.basic.api.BasicTraderAPI;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
+import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
 import com.jd.ldop.basic.dto.PageDTO;
 import com.jd.ldop.basic.dto.ResponseDTO;
 import com.jd.partner.waybill.api.WaybillManagerApi;
@@ -29,11 +29,10 @@ import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -45,7 +44,7 @@ import java.util.*;
 @Service("baseMajorManager")
 public class BaseMajorManagerImpl implements BaseMajorManager {
 
-    private Log logger = LogFactory.getLog(BaseMajorManagerImpl.class);
+    private Logger log = LoggerFactory.getLogger(BaseMajorManagerImpl.class);
     private static final String PROTOCOL = PropertiesHelper.newInstance().getValue("DMSVER_ADDRESS") + "/services/bases/siteString/";
     /**
      * 监控key的前缀
@@ -81,22 +80,29 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
      */
     @Cache(key = "baseMajorManagerImpl.getBaseSiteBySiteId@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
             redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
-    @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseSiteBySiteId", mState = {JProEnum.TP, JProEnum.FunctionError})
     public BaseStaffSiteOrgDto getBaseSiteBySiteId(Integer paramInteger) {
-        BaseStaffSiteOrgDto dtoStaff = basicPrimaryWS.getBaseSiteBySiteId(paramInteger);
-        ResponseDTO<BasicTraderInfoDTO> responseDTO = null;
-        if (dtoStaff != null)
-            return dtoStaff;
-        else
-            dtoStaff = basicPrimaryWS.getBaseStoreByDmsSiteId(paramInteger);
-        if (dtoStaff != null)
-            return dtoStaff;
-        else
-            responseDTO = basicTraderAPI.getBasicTraderById(paramInteger);
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.BaseMajorManagerImpl.getBaseSiteBySiteId", Constants.UMP_APP_NAME_DMSWEB, false, true);
+        try{
+            BaseStaffSiteOrgDto dtoStaff = basicPrimaryWS.getBaseSiteBySiteId(paramInteger);
+            ResponseDTO<BasicTraderInfoDTO> responseDTO = null;
+            if (dtoStaff != null)
+                return dtoStaff;
+            else
+                dtoStaff = basicPrimaryWS.getBaseStoreByDmsSiteId(paramInteger);
+            if (dtoStaff != null)
+                return dtoStaff;
+            else
+                responseDTO = basicTraderAPI.getBasicTraderById(paramInteger);
 
-        if (responseDTO != null && responseDTO.getResult() != null)
-            dtoStaff = getBaseStaffSiteOrgDtoFromTrader(responseDTO.getResult());
-        return dtoStaff;
+            if (responseDTO != null && responseDTO.getResult() != null)
+                dtoStaff = getBaseStaffSiteOrgDtoFromTrader(responseDTO.getResult());
+            return dtoStaff;
+        }catch (Exception e){
+            Profiler.functionError(info);
+            throw e;
+        }finally {
+            Profiler.registerInfoEnd(info);
+        }
     }
 
     @Cache(key = "baseMajorManagerImpl.getBaseDataDictList@args0@args1@args2", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
@@ -254,11 +260,10 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
             if (0 == storeInfoResult.getResultCode()) {
                 return storeInfoResult.getData();
             } else {
-                logger.warn("根据cky2获取仓库信息失败，接口返回code "
-                        + storeInfoResult.getResultCode() + ", message " + storeInfoResult.getMessage());
+                log.warn("根据cky2获取仓库信息失败，接口返回code={}，message ={}",storeInfoResult.getResultCode(),  storeInfoResult.getMessage());
             }
         } catch (Exception ex) {
-            logger.warn("根据cky2获取仓库信息失败", ex);
+            log.error("根据cky2获取仓库信息失败：cky2={}，storeID={}",cky2,storeID, ex);
             Profiler.functionError(info);
             return null;
         } finally {
@@ -361,8 +366,8 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
             ClientResponse<JdResponse> response = request.get(JdResponse.class);
             if (200 == response.getStatus()) {
                 JdResponse base = response.getEntity();
-                if (logger.isInfoEnabled()) {
-                    logger.debug(com.jd.bluedragon.utils.JsonHelper.toJson(base));
+                if (log.isInfoEnabled()) {
+                    log.debug(com.jd.bluedragon.utils.JsonHelper.toJson(base));
                 }
                 if (base != null && JdResponse.CODE_OK.equals(base.getCode())) {
                     SiteEntity site = com.jd.bluedragon.utils.JsonHelper.fromJsonUseGson(base.getRequest(), SiteEntity.class);
@@ -373,12 +378,12 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
                 }
             }
         } catch (Exception e) {
-            logger.error("dmsver获取站点[" + siteCode + "]信息失败，异常为：", e);
+            log.error("dmsver获取站点[{}]信息失败，异常为",siteCode, e);
             Profiler.functionError(info);
         } finally {
             Profiler.registerInfoEnd(info);
         }
-        logger.error("dmsver获取站点[" + siteCode + "]信息失败");
+        log.warn("dmsver获取站点[{}]信息失败",siteCode);
         return null;
     }
 
@@ -576,7 +581,6 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     }
 
     private List<BasicTraderInfoDTO> getBaseAllTrader() {
-        logger.info("基础资料客户端--getBaseAllTrader获取所有商家，开始调用分页接口获取数据");
         List<BasicTraderInfoDTO> traderList = new ArrayList();
         int count = 0;
         long startTime = System.currentTimeMillis();
@@ -592,11 +596,11 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
                 traderList.addAll((Collection)this.basicTraderAPI.getTraderListByPage(i).getResult().getData());
             }
         } else {
-            logger.error("getBaseAllTrader获取数据为空");
+            log.warn("getBaseAllTrader获取数据为空");
         }
 
-        logger.info("getBaseAllTrader获取数据count[" + count + "]");
-        logger.info("getBaseAllTrader获取数据耗时[" + (System.currentTimeMillis() - startTime) + "]");
+        log.info("getBaseAllTrader获取数据count[{}]",count);
+        log.info("getBaseAllTrader获取数据耗时[{}]",(System.currentTimeMillis() - startTime));
         return traderList;
     }
 
@@ -676,7 +680,7 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         if(resultData!=null && ResultData.SUCCESS_CODE.equals(resultData.getResultCode())){
             return true;
         }else{
-            logger.info("加盟商预付款返回失败或不充足"+allianceBusiId+"|"+(resultData != null?resultData.getResultMsg():""));
+            log.warn("加盟商预付款返回失败或不充足:{}|{}",allianceBusiId,(resultData != null?resultData.getResultMsg():""));
             return false;
         }
 
@@ -738,5 +742,19 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         }
 
         return dmsCustomSite;
+    }
+
+    @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseTraderNeccesaryInfoById", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Cache(key = "DMS.BASE.BaseMajorManagerImpl.getBaseTraderNeccesaryInfoById@args0", memoryEnable = true, memoryExpiredTime = 1 * 60 * 1000,
+            redisEnable = false, redisExpiredTime = 2 * 60 * 1000)
+    public BasicTraderNeccesaryInfoDTO getBaseTraderNeccesaryInfoById(Integer merchantId) {
+        ResponseDTO<BasicTraderNeccesaryInfoDTO> responseDTO
+                = basicTraderAPI.getBaseTraderNeccesaryInfoById(merchantId);
+        if(responseDTO != null && responseDTO.isSuccess()){
+            return responseDTO.getResult();
+        }else {
+            log.warn("通过商家ID{}查询商家信息失败!",merchantId);
+            return null;
+        }
     }
 }

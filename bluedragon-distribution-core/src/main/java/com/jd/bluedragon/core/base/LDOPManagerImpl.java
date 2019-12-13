@@ -20,13 +20,11 @@ import com.jd.ldop.center.api.print.dto.WaybillPrintDataDTO;
 import com.jd.ldop.center.api.print.dto.WaybillPrintRequestDTO;
 import com.jd.ldop.center.api.reverse.WaybillReturnSignatureApi;
 import com.jd.ldop.center.api.reverse.WaybillReverseApi;
-import com.jd.ldop.center.api.reverse.dto.ReturnSignatureMessageDTO;
-import com.jd.ldop.center.api.reverse.dto.ReturnSignatureResult;
-import com.jd.ldop.center.api.reverse.dto.WaybillReturnSignatureDTO;
-import com.jd.ldop.center.api.reverse.dto.WaybillReverseDTO;
-import com.jd.ldop.center.api.reverse.dto.WaybillReverseResponseDTO;
-import com.jd.ldop.center.api.reverse.dto.WaybillReverseResult;
+import com.jd.ldop.center.api.reverse.dto.*;
 import com.jd.ldop.center.api.update.dto.WaybillAddress;
+import com.jd.ldop.center.api.waybill.GeneralWaybillQueryApi;
+import com.jd.ldop.center.api.waybill.dto.OrderInfoDTO;
+import com.jd.ldop.center.api.waybill.dto.WaybillQueryByOrderIdDTO;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.receive.api.dto.OrderInfoPrintDTO;
 import com.jd.ql.dms.receive.api.dto.OrderInfoQueryDTO;
@@ -37,7 +35,8 @@ import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -75,6 +74,9 @@ public class LDOPManagerImpl implements LDOPManager {
     private OrderInfoServiceJsf orderInfoServiceJsf ;
 
     @Autowired
+    private GeneralWaybillQueryApi generalWaybillQueryApi;
+
+    @Autowired
     private ReverseSpareEclp reverseSpareEclp;
 
     /*用于记录操作日志*/
@@ -88,7 +90,7 @@ public class LDOPManagerImpl implements LDOPManager {
     @Autowired
     private WaybillQueryManager waybillQueryManager;
 
-    private final Logger logger = Logger.getLogger(LDOPManagerImpl.class);
+    private final Logger log = LoggerFactory.getLogger(LDOPManagerImpl.class);
     /**
      * 触发外单逆向换单接口
      * @param waybillReverseDTO
@@ -105,13 +107,13 @@ public class LDOPManagerImpl implements LDOPManager {
             if(!responseDTO.getStatusCode().equals(ResponseDTO.SUCCESS_CODE)){
                 //失败
                 rest.setMessage("外单自动换单接口失败 "+responseDTO.getStatusMessage());
-                logger.error("触发逆向换单失败,入参："+ JsonHelper.toJson(waybillReverseDTO)+"  失败原因："+responseDTO.getStatusMessage());
+                log.warn("触发逆向换单失败,入参：{}  失败原因：{}", JsonHelper.toJson(waybillReverseDTO),responseDTO.getStatusMessage());
                 return false;
             }
 
             return true;
         }catch (Exception e){
-            logger.error("触发逆向换单失败,入参："+ JsonHelper.toJson(waybillReverseDTO)+"  失败原因："+e.getMessage());
+            log.error("触发逆向换单失败,入参：{}  失败原因：{}",JsonHelper.toJson(waybillReverseDTO),e.getMessage(),e);
             Profiler.functionError(info);
             return false;
         }finally{
@@ -134,11 +136,11 @@ public class LDOPManagerImpl implements LDOPManager {
             }else {
                 //失败
                 errorMessage.append("外单自动换单接口失败 "+responseDTO.getStatusMessage());
-                logger.error("触发逆向换单失败,入参："+ JsonHelper.toJson(waybillReverseDTO)+"  失败原因："+responseDTO.getStatusMessage());
+                log.warn("触发逆向换单失败,入参：{}  失败原因：{}",JsonHelper.toJson(waybillReverseDTO),responseDTO.getStatusMessage());
             }
             return null;
         }catch (Exception e){
-            logger.error("触发逆向换单失败,入参："+ JsonHelper.toJson(waybillReverseDTO)+"  失败原因："+e.getMessage());
+            log.error("触发逆向换单失败,入参：{}  失败原因：",JsonHelper.toJson(waybillReverseDTO),e.getMessage(),e);
             Profiler.functionError(info);
             return null;
         }finally{
@@ -195,11 +197,11 @@ public class LDOPManagerImpl implements LDOPManager {
             }else {
                 //失败
                 errorMessage.append("换单前获取外单信息接口失败 "+responseDTO.getStatusMessage());
-                logger.info("换单前获取外单信息失败,入参："+ JsonHelper.toJson(waybillReverseDTO)+"  失败原因："+responseDTO.getStatusMessage());
+                log.info("换单前获取外单信息失败,入参：{}  失败原因：{}",JsonHelper.toJson(waybillReverseDTO),responseDTO.getStatusMessage());
             }
             return null;
         }catch (Exception e){
-            logger.error("换单前获取外单信息失败,入参："+ JsonHelper.toJson(waybillReverseDTO)+"  失败原因："+e.getMessage());
+            log.error("换单前获取外单信息失败,入参：{}  失败原因：{}",JsonHelper.toJson(waybillReverseDTO),e.getMessage(),e);
             Profiler.functionError(info);
             return null;
         }finally{
@@ -225,16 +227,17 @@ public class LDOPManagerImpl implements LDOPManager {
             PrintResultDTO printResultDto= waybillPrintApi.getPrintDataForCityOrder(waybillPrintRequestDTO);
 
             if(printResultDto == null){
-                logger.warn("根据商家编码和运单号调用外单接口获取打印信息为空.商家编码:" + customerCode + ", 运单号:" + waybillCode + ",返回值:" + printResultDto);
+                log.warn("根据商家编码和运单号调用外单接口获取打印信息为空.商家编码:{}, 运单号:{}", customerCode , waybillCode);
                 return Collections.emptyList();
             }
             if(printResultDto.getData() == null){
-                logger.warn("根据商家编码和运单号调用外单接口获取打印信息为空.商家编码:" + customerCode + ", 运单号:" + waybillCode + ",返回值:" + printResultDto.getStatusCode()+"-"+ printResultDto.getStatusMessage());
+                log.warn("根据商家编码和运单号调用外单接口获取打印信息为空.商家编码:{}, 运单号:{},返回值:{}-{}"
+                        , customerCode ,waybillCode , printResultDto.getStatusCode(), printResultDto.getStatusMessage());
                 return Collections.emptyList();
             }
             return printResultDto.getData();
         }catch (Exception e){
-            logger.error("根据商家编码和运单号调用外单接口获取打印信息异常.",e);
+            log.error("根据商家编码和运单号调用外单接口获取打印信息异常.商家编码:{}, 运单号:{}", customerCode , waybillCode,e);
             Profiler.functionError(info);
         } finally {
             Profiler.registerInfoEnd(info);
@@ -349,7 +352,7 @@ public class LDOPManagerImpl implements LDOPManager {
             if(datas==null || datas.size()!=1 || StringUtils.isBlank(datas.get(0).getDeliveryId())){
                 result.setMessage("外单接口数据返回异常。请联系运营处理！");
                 result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
-                logger.error("根据商家ID和商家单号获取运单号失败"+busiId+"|"+busiCode+"|"+JsonHelper.toJson(jsfResult));
+                log.warn("根据商家ID和商家单号获取运单号失败:{}|{}|{}",busiId,busiCode,JsonHelper.toJson(jsfResult));
             }else {
                 //返回运单号
                 result.setData(datas.get(0).getDeliveryId());
@@ -360,6 +363,32 @@ public class LDOPManagerImpl implements LDOPManager {
             result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
         }
         return result;
+    }
+
+    /**
+     * 根据商家ID和商家单号获取运单号
+     *
+     * @param busiId   商家ID
+     * @param busiCode 商家单号
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMS.BASE.LDOPManagerImpl.queryWaybillCodeByOrderIdAndCustomerCode",
+            mState = {JProEnum.TP, JProEnum.FunctionError},jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public String queryWaybillCodeByOrderIdAndCustomerCode(Integer busiId, String busiCode) {
+        try{
+            WaybillQueryByOrderIdDTO queryByOrderIdDTO = new WaybillQueryByOrderIdDTO();
+            queryByOrderIdDTO.setOrderId(busiCode);
+            queryByOrderIdDTO.setCustomerId(busiId);
+
+            ResponseDTO<OrderInfoDTO> responseDTO = generalWaybillQueryApi.queryOrderInfoByOrderIdAndCustomerCode(queryByOrderIdDTO);
+            if(responseDTO != null && ResponseDTO.SUCCESS_CODE.equals(responseDTO.getStatusCode()) && responseDTO.getData()!=null){
+                return responseDTO.getData().getDeliveryId();
+            }
+        }catch (Exception e){
+           log.error("根据商家ID和商家单号获取运单号异常!req:{},{}",busiId,busiCode,e);
+        }
+        return StringUtils.EMPTY;
     }
 
     /**
@@ -400,7 +429,7 @@ public class LDOPManagerImpl implements LDOPManager {
             goddess.setHead("reverse_waybill");
             goddessService.save(goddess);
         } catch (Exception e) {
-            logger.error("逆向换单：cassandra操作日志记录失败：" + e);
+            log.error("逆向换单：cassandra操作日志记录失败：" ,e);
         }
     }
 

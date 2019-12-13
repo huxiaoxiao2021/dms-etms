@@ -10,8 +10,8 @@ import com.jd.bluedragon.distribution.batch.domain.BatchSendRequest;
 import com.jd.bluedragon.distribution.batch.domain.BatchSendResponse;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ import java.util.List;
 @Service("BatchSendService")
 public class BatchSendServiceImpl implements BatchSendService {
 
-    private static final Log logger= LogFactory.getLog(BatchSendServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(BatchSendServiceImpl.class);
 
     @Autowired
     private RedisManager redisManager;
@@ -51,7 +51,7 @@ public class BatchSendServiceImpl implements BatchSendService {
         send.setCreateUser(batchInfo.getCreateUser());
         send.setCreateUserCode(batchInfo.getCreateUserCode());
         Date current=new Date(System.currentTimeMillis());
-        logger.info("时间格式为"+DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS);
+        log.info("时间格式为：{}",DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS);
         send.setSendCode(String.valueOf(batchInfo.getCreateSiteCode())+"-"+String.valueOf(siteCode)+"-"+ DateHelper.formatDate(current, DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS));
         send.setYn(1);
         send.setSendStatus(0);
@@ -59,7 +59,7 @@ public class BatchSendServiceImpl implements BatchSendService {
         try{
 			result = batchSendDao.insert(send) > 0;
 		} catch (Exception ex) {
-			logger.error("INSERTBATCHSEND", ex);
+			log.error("INSERTBATCHSEND", ex);
 			result = false;
 		}
 		return result;
@@ -71,7 +71,7 @@ public class BatchSendServiceImpl implements BatchSendService {
         try{
             result=batchSendDao.insert(batchSend);
         } catch (Exception ex){
-            logger.error("INSERTLABLEPRINTBATCHSEND",ex);
+            log.error("INSERTLABLEPRINTBATCHSEND",ex);
         }
         return result;
     }
@@ -104,7 +104,7 @@ public class BatchSendServiceImpl implements BatchSendService {
     public BatchSend readAndGenerateIfNotExist(Integer sortingCenterId, Date operateTime, Integer siteCode) {
         BatchInfo batchInfo=this.batchInfoService.findCurrentBatchInfo(sortingCenterId,operateTime);
         if(null==batchInfo){
-            logger.info("获取肖前波次号为空"+String.valueOf(sortingCenterId)+"--"+DateHelper.formatDateTime(operateTime));
+            log.info("获取肖前波次号为空{}--{}",sortingCenterId,DateHelper.formatDateTime(operateTime));
             return null;
         }
         BatchSend batchSend=this.readFromCache(batchInfo.getBatchCode(),siteCode);
@@ -131,7 +131,7 @@ public class BatchSendServiceImpl implements BatchSendService {
     public BatchSend read(String batchCode, Integer siteCode) {
         BatchSend send=this.batchSendDao.read(batchCode,siteCode);
         if(null==send){
-            logger.info("读取波次发货批次信息为NULL"+batchCode+"----"+String.valueOf(siteCode));
+            log.info("读取波次发货批次信息为NULL{}----{}",batchCode,siteCode);
         }
         return send;
     }
@@ -166,8 +166,8 @@ public class BatchSendServiceImpl implements BatchSendService {
             send.setSendCode(sendCode);
             send.setSendCarState(state);
             send.setSendCarOperateTime(operateTime);
-            if(logger.isInfoEnabled()) {
-                logger.info("发车批次状态修改参数" + JsonHelper.toJson(send));
+            if(log.isInfoEnabled()) {
+                log.info("发车批次状态修改参数:{}" , JsonHelper.toJson(send));
             }
             batchSendDao.updateSendCarState(send);
             redisManager.del("BatchSend.readBySendCode"+sendCode);

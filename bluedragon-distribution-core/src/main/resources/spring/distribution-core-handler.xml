@@ -34,6 +34,8 @@
 				<entry key="100107"  value-ref="sitePlatePrint"/>
 				<entry key="100108"  value-ref="basicPrint"/>
 				<entry key="100109"  value-ref="basicPrint"/>
+				<!-- 收纳暂存打印 -->
+				<entry key="100110"  value-ref="basicPrint"/>
 			</map>
 		</property>
 	</bean>
@@ -60,6 +62,8 @@
                 <entry key="100309"  value-ref="generatePdfPackagePrint"/>
 				<!-- 终端包裹打印 -->
 				<entry key="100310"  value-ref="getBasicPrintInfo"/>
+				<!-- 终端函速达包裹打印 -同站长工作台-->
+				<entry key="100311"  value-ref="packageReprint"/>				
 			</map>
 		</property>
 	</bean>
@@ -121,6 +125,7 @@
 		<property name="handlers">
 			<list>
 				<ref bean="basicWaybillPrintHandler"/>
+				<ref bean="isNeedPrintHandler"/>
 				<ref bean="c2cInterceptHandler"/>
 				<!-- 三方超限拦截 -->
 				<ref bean="thirdOverRunInterceptHandler"/>
@@ -397,16 +402,16 @@
 		<property name="bucket" value = "${print.out.config.jss.pdfBucket}"/>
 		<property name="socketTimeout" value = "${print.out.config.jss.socketTimeout}"/>
 	</bean>
-	<bean id="pdfOutJssClientConfig" class="com.jcloud.jss.client.ClientConfig">
+	<bean id="pdfOutJssClientConfig" class="com.jd.jss.client.ClientConfig">
         <property name="connectionTimeout" value="${jss.connectionTimeout}"/>
         <property name="socketTimeout" value="${print.out.config.jss.socketTimeout}"/>
         <property name="endpoint" value="${print.out.config.jss.endpoint}"/>
     </bean>
-	<bean id="pdfOutJssCredential" class="com.jcloud.jss.Credential">
+	<bean id="pdfOutJssCredential" class="com.jd.jss.Credential">
         <constructor-arg index="0" value="${print.out.config.jss.accessKey}"/>
         <constructor-arg index="1" value="${print.out.config.jss.secretKey}"/>
     </bean>
-    <bean id="pdfOutJssStorage" class="com.jcloud.jss.JingdongStorageService" depends-on="pdfOutJssCredential,pdfOutJssClientConfig">
+    <bean id="pdfOutJssStorage" class="com.jd.jss.JingdongStorageService" depends-on="pdfOutJssCredential,pdfOutJssClientConfig">
         <constructor-arg index="0" ref="pdfOutJssCredential" />
         <constructor-arg index="1" ref="pdfOutJssClientConfig" />
     </bean> 

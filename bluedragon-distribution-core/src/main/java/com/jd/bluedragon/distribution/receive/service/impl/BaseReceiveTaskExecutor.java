@@ -8,7 +8,8 @@ import com.jd.bluedragon.distribution.inspection.service.InspectionNotifyService
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.common.util.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Propagation;
@@ -48,7 +49,7 @@ import com.jd.ump.annotation.JProfiler;
 
 public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTaskExecutor<T> {
 
-	private static Logger log = Logger.getLogger(BaseReceiveTaskExecutor.class);
+	private static Logger log = LoggerFactory.getLogger(BaseReceiveTaskExecutor.class);
 
 	@Autowired
 	ReceiveService receiveService;
@@ -161,10 +162,8 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 		BaseStaffSiteOrgDto bDto = baseService.getSiteBySiteID(cenConfirm
 				.getCreateSiteCode());
 		if (bDto == null) {
-			log.error("[PackageBarcode=" + cenConfirm.getPackageBarcode()
-					+ "][boxCode=" + cenConfirm.getBoxCode() + "]根据[siteCode="
-					+ cenConfirm.getCreateSiteCode()
-					+ "]获取基础资料站点信息[getSiteBySiteID]返回null,[收货]不能回传全程跟踪");
+			log.warn("[PackageBarcode={}][boxCode={}]根据[siteCode={}]获取基础资料站点信息[getSiteBySiteID]返回null,[收货]不能回传全程跟踪",
+					cenConfirm.getPackageBarcode(), cenConfirm.getBoxCode(),cenConfirm.getCreateSiteCode());
 		} else {
 			WaybillStatus waybillStatus = cenConfirmService
 					.createBasicWaybillStatus(cenConfirm, bDto, null);
@@ -182,9 +181,8 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 				taskService.add(cenConfirmService.toTask(waybillStatus,
 						Constants.OPERATE_TYPE_SH));
 			} else {
-				log.error("[PackageCode=" + waybillStatus.getPackageCode()
-						+ "][boxCode=" + waybillStatus.getBoxCode()
-						+ "][参数信息不全],[收货]不能回传全程跟踪");
+				log.warn("[PackageCode={}][boxCode={}][参数信息不全],[收货]不能回传全程跟踪",
+						waybillStatus.getPackageCode(), waybillStatus.getBoxCode());
 			}
 
 		}
@@ -207,7 +205,7 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 			turnoverBoxMQ.send(receive.getBoxCode(),
 					JsonHelper.toJson(turnoverBoxInfo));
 		} catch (Exception e) {
-			log.error("分拣中心收货推送MQ[周转箱]信息失败：" + e.getMessage(), e);
+			log.error("分拣中心收货推送MQ[周转箱]信息失败：{}" , receive.getBoxCode(), e);
 		}
 	}
 
@@ -223,7 +221,7 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 		for (CenConfirm cenConfirm:cenConfirmList) {
 			if(StringUtils.isBlank(cenConfirm.getWaybillCode()) || cenConfirm.getCreateSiteCode() == null || cenConfirm.getCreateSiteCode() <=0
 					||sendInspectionKey.contains(cenConfirm.getWaybillCode())){
-				log.warn("没有有效的运单号或者操作站点或已发送，不发送验货消息" + "," + JSON.toJSONString(cenConfirm));
+				log.warn("没有有效的运单号或者操作站点或已发送，不发送验货消息，cenConfirm={}",JSON.toJSONString(cenConfirm));
 				continue;
 			}
 			sendInspectionKey.add(cenConfirm.getWaybillCode());
@@ -241,7 +239,7 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 
 	protected void pushPickware(T receive, String packageCode,
 			String pickwareCode) {
-		log.info("面单号：[" + packageCode + "]取件单号：[" + pickwareCode + "]");
+		log.debug("面单号：[{}]取件单号：[{}]",packageCode, pickwareCode);
 		PickWare pickWare = new PickWare();
 		pickWare.setBoxCode(receive.getBoxCode());
 		pickWare.setPackageCode(packageCode);
@@ -256,13 +254,12 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 				.getCreateTime()));
 		try {
 			String json = JsonHelper.toJson(pickWare);
-			log.info("分拣中心收货推送MQ[备件库-取件单]json:[" + json + "]");
+			log.info("分拣中心收货推送MQ[备件库-取件单]json:[{}]",json);
 			// messageClient.sendMessage("pickware_push",json,
 			// receive.getBoxCode());
 			pickwarePushMQ.send(receive.getBoxCode(), json);
 		} catch (Exception e) {
-			log.error("分拣中心收货推送MQ[备件库-取件单]信息失败[" + receive.getBoxCode() + "]:"
-					+ e.getMessage(), e);
+			log.error("分拣中心收货推送MQ[备件库-取件单]信息失败[{}]",receive.getBoxCode(), e);
 		}
 	}
 
@@ -360,9 +357,7 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 				pickup = this.waybillPickupTaskApi.getDataBySfCode(receive
 						.getBoxCode());
 			} catch (Exception e) {
-				log.error(
-						"分拣中心收货[备件库-取件单]:调用取件单号信息ws接口异常["
-								+ receive.getBoxCode() + "]", e);
+				log.error("分拣中心收货[备件库-取件单]:调用取件单号信息ws接口异常[{}]",receive.getBoxCode(), e);
 			}
 			if (pickup != null && pickup.getData() != null) {
 				pushPickware(receive, receive.getBoxCode(), pickup.getData()
@@ -387,9 +382,7 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 		List<SendDetail> sendDetails = deliveryService.getCancelSendByBox(receive
 				.getBoxCode());
 		if (sendDetails == null || sendDetails.isEmpty()) {
-			log.error("根据[boxCode="
-					+ receive.getBoxCode()
-					+ "]获取包裹信息[deliveryService.getSendByBox(boxCode)]返回null或空,[收货]不能回传全程跟踪");
+			log.warn("根据[boxCode={}]获取包裹信息[deliveryService.getSendByBox(boxCode)]返回null或空,[收货]不能回传全程跟踪",receive.getBoxCode());
 		} else {
 			for (SendDetail sendDetail : sendDetails) {
 				CenConfirm cenConfirm = paseCenConfirm(taskContext);

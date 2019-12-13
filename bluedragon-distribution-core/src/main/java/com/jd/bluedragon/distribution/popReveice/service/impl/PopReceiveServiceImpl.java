@@ -9,8 +9,8 @@ import com.jd.bluedragon.distribution.popReveice.dao.PopReceiveDao;
 import com.jd.bluedragon.distribution.popReveice.domain.PopReceive;
 import com.jd.bluedragon.distribution.popReveice.service.PopReceiveService;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -29,7 +29,7 @@ import java.util.Map;
 @Service("popReceiveService")
 public class PopReceiveServiceImpl implements PopReceiveService {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	
 	@Autowired
 	private PopPrintDao popPrintDao;
@@ -43,20 +43,20 @@ public class PopReceiveServiceImpl implements PopReceiveService {
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
 	public int saveRecevie(Inspection inspection) {
-		this.logger.info("补全订单收货信息，inspection:" + inspection);
+		this.log.info("补全订单收货信息，inspection:{}" , inspection);
 		return inspectionService.addInspectionPop(inspection);
 	}
 
 	@Override
 	public PopPrint findPopPrint(String waybillCode) {
-		this.logger.info("根据运单号查询打印信息，waybillCode:" + waybillCode);
+		this.log.info("根据运单号查询打印信息，waybillCode:{}" , waybillCode);
 		return popPrintDao.findByWaybillCode(waybillCode);
 	}
 	
 
 	@Override
 	public List<PopReceive> findListByParamMap(Map<String, Object> paramMap) {
-		this.logger.info("findListByParamMap --> paramMap:" + paramMap);
+		this.log.info("findListByParamMap --> paramMap:{}" , paramMap);
 		if (paramMap == null || paramMap.isEmpty()) {
 			return null;
 		}
@@ -65,7 +65,7 @@ public class PopReceiveServiceImpl implements PopReceiveService {
 	
 	@Override
 	public PopReceive findByFingerPrint(String fingerPrint) {
-		this.logger.info("findByFingerPrint --> fingerPrint:" + fingerPrint);
+		this.log.info("findByFingerPrint --> fingerPrint:{}" , fingerPrint);
 		if (StringUtils.isBlank(fingerPrint)) {
 			return null;
 		}
@@ -75,7 +75,7 @@ public class PopReceiveServiceImpl implements PopReceiveService {
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
 	public int addReceive(PopReceive popReceive) {
-		this.logger.info("addReceive --> popReceive:" + popReceive);
+		this.log.info("addReceive --> popReceive:{}" , popReceive);
 		this.popReceiveDao.add(PopReceiveDao.namespace, popReceive);
 		return Constants.RESULT_SUCCESS;
 	}

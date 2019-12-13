@@ -1,35 +1,26 @@
 package com.jd.bluedragon.distribution.reverse.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import com.jd.bluedragon.dms.utils.WaybillUtil;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.distribution.base.service.BaseService;
-import com.jd.bluedragon.distribution.reverse.domain.BizToken;
-import com.jd.bluedragon.distribution.reverse.domain.Product;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseSendAsiaWms;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
-import com.jd.bluedragon.distribution.reverse.domain.WmsSite;
+import com.jd.bluedragon.distribution.reverse.domain.*;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.service.PackExchangeServiceManager;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.wms.packExchange.Result;
 import com.jd.wms.packExchange.domains.packExchange.PePackage;
 import com.jd.wms.packExchange.domains.packExchange.dto.BlueLongDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
 
 @Service("baseWmsService")
 public class BaseWmsServiceImpl implements BaseWmsService {
 	
 	/** 日志 */
-	private Logger log = Logger.getLogger(BaseWmsServiceImpl.class);
+	private Logger log = LoggerFactory.getLogger(BaseWmsServiceImpl.class);
 	
 	private String packExchangeBizTokenJasonAsia;
 	
@@ -50,7 +41,7 @@ public class BaseWmsServiceImpl implements BaseWmsService {
 		reverseSendWms.setStoreId(site.getStoreId());
 		
 		if (reverseSendWms.getProList()==null||reverseSendWms.getProList().size()==0) {
-			log.info("BaseWmsServiceImpl 订单号： " + orderCode + " 获得商品数据为空");
+			log.info("BaseWmsServiceImpl 订单号： {} 获得商品数据为空", orderCode);
 		}
 		return reverseSendWms;
 	}
@@ -99,7 +90,7 @@ public class BaseWmsServiceImpl implements BaseWmsService {
 		//3.判断是否是异地退货，也就是他仓退;默认非本仓
 		boolean isOtherStore = true;
 		if(send==null){
-			log.info("该订单号逆向发货不齐全，调用出库明细：" + orderCode);
+			log.info("该订单号逆向发货不齐全，调用出库明细：{}" , orderCode);
 			isOtherStore = false;//运单获得不了数据，那么从仓储接口试试
 		}else if (site.getCky2().equals(send.getCky2())
 				&& site.getOrgId().equals(send.getOrgId())
@@ -109,7 +100,7 @@ public class BaseWmsServiceImpl implements BaseWmsService {
 		
 		//3.1 齐全订单或者异地退货使用运单中明细
 		if (isPackagedFull||isOtherStore) {
-			log.info("该订单号逆向发货齐全或为异地退上海亚一：" + orderCode);
+			log.info("该订单号逆向发货齐全或为异地退上海亚一：{}" , orderCode);
 			List<Product> result = new ArrayList<Product>();
 			if (send != null) {
 				List<Product> resultRaw = send.getProList();
@@ -120,13 +111,13 @@ public class BaseWmsServiceImpl implements BaseWmsService {
 			}
 			return result;
 		}
-		log.info("该订单号逆向发货不齐全，调用出库明细：" + orderCode);
+		log.info("该订单号逆向发货不齐全，调用出库明细：{}" , orderCode);
 		
 		// 4.需要取上海亚一明细的
 		try {
 			String bizBody = JsonHelper.toJson(reportDto);
-			this.log.info("亚一通过包裹获取出库明细packExchangeBizTokenJasonAsia的值"+packExchangeBizTokenJasonAsia);
-			this.log.info("亚一通过包裹获取出库明细bizBody的值"+bizBody);
+			this.log.info("亚一通过包裹获取出库明细packExchangeBizTokenJasonAsia的值:{}",packExchangeBizTokenJasonAsia);
+			this.log.info("亚一通过包裹获取出库明细bizBody的值:{}",bizBody);
 			Result result = packExchangeServiceManager.queryWs(
 					packExchangeBizTokenJasonAsia, bizBody);
 
@@ -137,8 +128,7 @@ public class BaseWmsServiceImpl implements BaseWmsService {
 						.jsonToArrayWithDateFormatOne(value, PePackage[].class));
 				return toAsiaProduct(reportResults);
 			} else {
-				log.error("亚一call wms packExchangeWebService failed, result code:"
-						+ resultCode);
+				log.warn("亚一call wms packExchangeWebService failed, result code:{}", resultCode);
 			}
 		} catch (Exception e) {
 			log.error("亚一getProductsByWms failed", e);

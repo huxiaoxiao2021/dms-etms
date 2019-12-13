@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.sorting.service;
 
-import IceInternal.Ex;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -15,7 +14,6 @@ import com.jd.bluedragon.distribution.fastRefund.domain.FastRefundBlockerComplet
 import com.jd.bluedragon.distribution.fastRefund.service.FastRefundService;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
-import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.domain.SortingVO;
@@ -30,12 +28,10 @@ import com.jd.dms.logger.aop.BusinessLogWriter;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
-import com.jd.etms.waybill.common.Page;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.etms.waybill.dto.DeliveryPackageDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
@@ -58,7 +54,7 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class SortingCommonSerivce {
 
-    protected Logger logger = LoggerFactory.getLogger(SortingCommonSerivce.class);
+    protected Logger log = LoggerFactory.getLogger(SortingCommonSerivce.class);
 
     public final static String TASK_SORTING_FINGERPRINT_SORTING_5S = "TASK_SORTING_FP_5S_"; //5前缀
 
@@ -134,20 +130,17 @@ public abstract class SortingCommonSerivce {
         try {
             fingerPrintKey = TASK_SORTING_FINGERPRINT_SORTING_5S + sorting.getCreateSiteCode() +"|"+ sorting.getBoxCode()
                     +"|"+sorting.getWaybillCode()+"|"+sorting.getPackageCode()+"|"+ sorting.getPageNo()+"|"+sorting.getPageSize();
-            long startTime = System.currentTimeMillis();
             if(check(sorting,fingerPrintKey)){
                 before(sorting);
                 if(doSorting(sorting)){
                     after(sorting);
                 }else{
-                    logger.debug(this.getClass().getName()+".execute:"+(System.currentTimeMillis()-startTime)+"ms"+sorting.getWaybillCode()+"|"+sorting.getPackageCode());
                     return false;
                 }
             }
-            logger.debug(this.getClass().getName()+".execute:"+(System.currentTimeMillis()-startTime)+"ms"+sorting.getWaybillCode()+"|"+sorting.getPackageCode());
             return true;
         }catch (Exception e){
-            logger.error("分拣任务执行异常"+sorting.getWaybillCode()+"|"+sorting.getPackageCode(),e);
+            log.error("分拣任务执行异常:{}|{}",sorting.getWaybillCode(), sorting.getPackageCode(),e);
             Profiler.functionError(sendMonitor);
             return false;
         }finally {
@@ -171,11 +164,11 @@ public abstract class SortingCommonSerivce {
             // 立刻置失败，转到下一次执行。只使用key存不存在做防重
             Boolean isSucdess = cacheService.setNx(fingerPrintKey, "1", TASK_1200_EX_TIME_5_S, TimeUnit.SECONDS);
             if(!isSucdess){//说明有重复任务
-                this.logger.warn("分拣任务重复："+JsonHelper.toJson(sorting));
+                this.log.warn("分拣任务重复：{}", JsonHelper.toJson(sorting));
                 return false;
             }
         }catch(Exception e){
-            this.logger.error("获得分拣任务指纹失败"+JsonHelper.toJson(sorting), e);
+            this.log.error("获得分拣任务指纹失败:{}", JsonHelper.toJson(sorting), e);
         }
         return true;
     }
@@ -206,7 +199,7 @@ public abstract class SortingCommonSerivce {
         try {
             createSite = this.baseMajorManager.getBaseSiteBySiteId(sorting.getCreateSiteCode());
         } catch (Exception e) {
-            this.logger.error("sortingServiceImpl.pushInspection"+e.getMessage(), e);
+            this.log.error("sortingServiceImpl.pushInspection.初始化当前操作分拣中心：{}",sorting.getCreateSiteCode(), e);
         }
         sorting.setCreateSite(createSite);
 
@@ -281,8 +274,8 @@ public abstract class SortingCommonSerivce {
         Task task=this.taskService.toTask(request, eachJson);
 
         int result= this.taskService.add(task, true);
-        if(logger.isDebugEnabled()){
-            logger.debug("B网建箱自动触发验货全程跟踪-验货任务插入条数:"+result+"条,请求参数:"+JsonHelper.toJson(task));
+        if(log.isDebugEnabled()){
+            log.debug("B网建箱自动触发验货全程跟踪-验货任务插入条数:{}条,请求参数:{}", result, JsonHelper.toJson(task));
         }
         addBusinessLog(sorting,task);
     }
@@ -300,7 +293,7 @@ public abstract class SortingCommonSerivce {
                         if (waybillsign != null && waybillsign.length() > 0) {
                             if(BusinessUtil.isSick(waybill.getWaybillSign())){
                                 //TODO 上线观察一段时间 可删除该log
-                                this.logger.error("分拣中心逆向病单屏蔽退款100分MQ,运单号：" + waybill.getWaybillCode());
+                                this.log.warn("分拣中心逆向病单屏蔽退款100分MQ,运单号：{}", waybill.getWaybillCode());
                                 return;
                             }
                         }
@@ -308,21 +301,21 @@ public abstract class SortingCommonSerivce {
                                 DateHelper.formatDateTimeMs(sorting.getOperateTime()));
                         //bd_blocker_complete的MQ
                         this.bdBlockerCompleteMQ.send( sorting.getWaybillCode(),refundMessage);
-                        this.logger.info("退款100分MQ消息推送成功,运单号：" + waybill.getWaybillCode());
+                        this.log.info("退款100分MQ消息推送成功,运单号：{}", waybill.getWaybillCode());
                         //【逆向分拣理货】增加orbrefundRqMQ  add by lhc  2016.8.17
                         //这里需要暂时注释掉 逆向取件单不应该发送快退的mq,属于售后的范围  modified by zhanglei 20161025
                         //fastRefundService.execRefund(sorting);
                     }else{
-                        logger.info(wayBillCode + "对应的运单信息为空！");
+                        log.info("{}对应的运单信息为空！",wayBillCode);
                     }
                 }
             }
         } catch (Exception e) {
-            this.logger.error("回传退款100分逆向分拣信息失败，运单号：" + sorting.getWaybillCode(), e);
+            this.log.error("回传退款100分逆向分拣信息失败，运单号：{}", sorting.getWaybillCode(), e);
             try{
                 SystemLogUtil.log(sorting.getWaybillCode(),"BLOCKER_QUEUE_DMS","",sorting.getType(),e.getMessage(),Long.valueOf(12201));
             }catch (Exception ex){
-                logger.error("退款100分MQ消息推送记录日志失败", ex);
+                log.error("退款100分MQ消息推送记录日志失败", ex);
             }
         }
     }
@@ -349,24 +342,24 @@ public abstract class SortingCommonSerivce {
                         if((waybill.getWaybillSign().charAt(0)=='T' || waybill.getWaybillSign().charAt(14)=='6')){
                             if(BusinessUtil.isSick(waybill.getWaybillSign())){
                                 //TODO 上线观察一段时间 可删除该log
-                                this.logger.error("分拣中心逆向病单屏蔽快退MQ,运单号：" + waybill.getWaybillCode());
+                                this.log.warn("分拣中心逆向病单屏蔽快退MQ,运单号：{}", waybill.getWaybillCode());
                                 return;
                             }
                             //组装FastRefundBlockerComplete
                             FastRefundBlockerComplete frbc = toMakeFastRefundBlockerComplete(sorting);
                             String json = JsonHelper.toJson(frbc);
-                            this.logger.info("分拣中心逆向订单快退:MQ[" + json + "]");
+                            this.log.info("分拣中心逆向订单快退:运单号[{}]",wayBillCode);
                             try {
                                 blockerComOrbrefundRqMQ.send(wayBillCode,json);
                             } catch (Exception e) {
-                                this.logger.error("分拣中心逆向订单快退MQ失败[" + json + "]:" + e.getMessage(), e);
+                                this.log.error("分拣中心逆向订单快退MQ失败[{}]",json , e);
                             }
                         }else{
-                            logger.info(waybillsign + "对应的订单为非逆向订单！");
+                            log.info("{}对应的订单为非逆向订单！",waybillsign);
                         }
                     }
                 }else{
-                    logger.info(wayBillCode + "对应的运单信息为空！");
+                    log.info("{}对应的运单信息为空！",wayBillCode);
                 }
             }
         }
@@ -389,7 +382,7 @@ public abstract class SortingCommonSerivce {
                 frbc.setOrderId("0");
             }
         }catch(Exception e){
-            this.logger.error("发送blockerComOrbrefundRq的MQ时新运单号获取老运单号失败,waybillcode:[" + sorting.getWaybillCode() + "]:" + e.getMessage(), e);
+            this.log.error("发送blockerComOrbrefundRq的MQ时新运单号获取老运单号失败,waybillcode:[{}]",sorting.getWaybillCode(), e);
         }
         frbc.setWaybillcode(sorting.getWaybillCode());
         frbc.setApplyReason("分拣中心快速退款");

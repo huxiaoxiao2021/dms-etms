@@ -7,8 +7,8 @@ import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.utils.JsonUtil;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +17,7 @@ import java.util.Date;
 @Service("redisTaskService")
 public class RedisTaskServiceImpl implements RedisTaskService {
 	
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	RedisTaskHelper redisTaskHelper;
@@ -55,19 +55,19 @@ public class RedisTaskServiceImpl implements RedisTaskService {
 			} else {
 				// redis list name找不到的时候报警
 				String warnStr = "Redis List名" + queueKey + "不存在";
-				logger.warn(warnStr);
+				log.warn(warnStr);
 				//进行报警
 				pushAlert(REDIS_ERROR_UMP_ALERT_KEY, warnStr);
 			}
 			
 		} catch (Exception e) {
-			logger.error("保存任务到redis失败：", e);
+			log.error("保存任务到redis失败：", e);
 		}
 		return false;
 	}
 
 	private void pushAlert(String key, String msg) {
-		logger.info("RedisTaskService.pushAlert ");
+		log.debug("RedisTaskService.pushAlert ");
 		Profiler.businessAlarm(key, new Date().getTime(), msg);
 	}
 }

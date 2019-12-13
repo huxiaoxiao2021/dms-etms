@@ -8,8 +8,8 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jmq.common.message.Message;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +24,7 @@ public class LossOrderConsumer extends MessageBaseConsumer {
 	@Autowired
 	private LossOrderService lossOrderService;
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Override
 	public void consume(Message message) {
@@ -60,7 +60,7 @@ public class LossOrderConsumer extends MessageBaseConsumer {
 
 				Object orderId = lossOrderMap.get("orderId");
 				if (!NumberHelper.isNumber(String.valueOf(orderId))) {
-					logger.warn("消费逆向报损单MQ时orderId非订单号，无法入库：" + orderId + "，消息内容:" + JsonHelper.toJson(lossOrderDetailMap));
+					log.warn("消费逆向报损单MQ时orderId非订单号，无法入库：{}，消息内容:{}" ,orderId, JsonHelper.toJson(lossOrderDetailMap));
 					continue;
 				}
 				lossOrder.setOrderId(NumberHelper.getLongValue(orderId));
@@ -68,7 +68,7 @@ public class LossOrderConsumer extends MessageBaseConsumer {
 				String productId = lossOrderDetailMap.get("productId").toString();
                 //上游给productId设的值默认是SKU，有时会把SKU和productId拼接起来，统一取SKU
                 if(!NumberHelper.isNumber(productId)){
-                    logger.error("消费逆向报损单MQ时productId非法：" + productId);
+                    log.warn("消费逆向报损单MQ时productId非法：{}" , productId);
                     if(productId.contains("_")){
                         productId = productId.split("_")[0];
                     }else {

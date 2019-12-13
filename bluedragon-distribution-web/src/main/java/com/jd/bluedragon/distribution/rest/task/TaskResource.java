@@ -30,7 +30,8 @@ import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.time.DateUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -45,7 +46,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -60,7 +60,7 @@ import static com.jd.bluedragon.distribution.auto.domain.UploadData.NOT_PACKAGEC
 @Produces({MediaType.APPLICATION_JSON})
 public class TaskResource {
 
-    private final Logger logger = Logger.getLogger(TaskResource.class);
+    private final Logger log = LoggerFactory.getLogger(TaskResource.class);
 
     @Autowired
     private TaskService taskService;
@@ -102,8 +102,8 @@ public class TaskResource {
         CallerInfo info = Profiler.registerInfo("Bluedragon_dms_center.dms.method.task.add", false, true);
 
         Assert.notNull(request, "request must not be null");
-        if (logger.isInfoEnabled()) {
-            logger.info("TaskRequest [" + JsonHelper.toJson(request) + "]");
+        if (log.isInfoEnabled()) {
+            log.info("TaskRequest [{}]",JsonHelper.toJson(request));
         }
 
         TaskResponse response = null;
@@ -152,10 +152,10 @@ public class TaskResource {
     }
 
     private void taskAssemblingAndSave(TaskRequest request, String jsonStr) {
-        logger.warn("[" + request.getType() + "]" + jsonStr);
+        log.info("taskAssemblingAndSave:[{}]{}" ,request.getType(), jsonStr);
         Task task = this.taskService.toTask(request, jsonStr);
         if (task.getBoxCode() != null && task.getBoxCode().length() > Constants.BOX_CODE_DB_COLUMN_LENGTH_LIMIT) {
-            logger.warn("箱号超长，无法插入任务，参数：" + JsonHelper.toJson(task));
+            log.warn("箱号超长，无法插入任务，参数：{}" , JsonHelper.toJson(task));
         } else {
             this.taskService.add(task, true);
         }
@@ -255,7 +255,9 @@ public class TaskResource {
         Assert.notNull(request, "autosorting task request must not be null");
         //加入监控，开始
         CallerInfo info = Profiler.registerInfo("Bluedragon_dms_center.dms.method.astask.add", false, true);
-        this.logger.info("总部接口接收到自动分拣机传来的交接数据,数据 ：" + JsonHelper.toJson(request));
+        if(log.isInfoEnabled()){
+            this.log.info("总部接口接收到自动分拣机传来的交接数据,数据 ：{}" , JsonHelper.toJson(request));
+        }
         TaskResponse response = null;
         if (StringUtils.isBlank(request.getBody())) {
             response = new TaskResponse(JdResponse.CODE_PARAM_ERROR,
@@ -266,7 +268,7 @@ public class TaskResource {
             taskService.addInspectSortingTask(request);
         } catch (Exception ex) {
             Profiler.functionError(info);
-            logger.error("总部接口接收到自动分拣机传来的交接数据插入分拣交接数据失败。原因 " + ex);
+            log.error("总部接口接收到自动分拣机传来的交接数据插入分拣交接数据失败：{}" , JsonHelper.toJson(request), ex);
             response = new TaskResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
             return response;
         }finally {
@@ -291,7 +293,7 @@ public class TaskResource {
             taskService.addInspectSortingTaskDirectly(packageDtos);
         } catch (Exception e) {
             Profiler.functionError(info);
-            logger.warn("智能分拣线插入交接、分拣任务失败，原因"+JsonHelper.toJson(packageDtos), e);
+            log.error("智能分拣线插入交接、分拣任务失败，原因:{}",JsonHelper.toJson(packageDtos), e);
             return new TaskResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         }finally {
             Profiler.registerInfoEnd(info);
@@ -348,7 +350,7 @@ public class TaskResource {
             //非包裹号和箱号不处理
             if (!WaybillUtil.isPackageCode(domain.getBarCode()) && !BusinessUtil.isBoxcode(domain.getBarCode())) {
                 result.customMessage(NOT_PACKAGECODE_BOXCDOE, NOT_PACKAGECODE_BOXCDOE_MESSAGE);
-                logger.info(MessageFormat.format("龙门架上传接口，包裹号{0}非法[非包裹号和箱号]", domain.getBarCode()));
+                log.warn("龙门架上传接口，包裹号{}非法[非包裹号和箱号]", domain.getBarCode());
                 return result;
             }
 
@@ -361,7 +363,7 @@ public class TaskResource {
                     days = Integer.parseInt(daysStr);
                 }
                 catch (Exception e) {
-                    logger.error("验货时间校验常量转换失败！daysStr:" + daysStr, e);
+                    log.error("验货时间校验常量转换失败！daysStr:{}" , daysStr, e);
                 }
 
             }
@@ -370,7 +372,7 @@ public class TaskResource {
                 scannerTime = new Date();
                 GantryException gantryException = this.convert2GantryException(domain);
                 gantryExceptionService.addGantryException(gantryException);
-                logger.warn("验货时间早于调整后的时间！时间调整数为：" + days.toString() + JsonHelper.toJsonUseGson(domain));
+                log.warn("验货时间早于调整后的时间！时间调整数为：{},domain={}" , days.toString() , JsonHelper.toJson(domain));
             }else {
                 scannerTime = correctScannerTimeHeaderDate(scannerTime, date, registerNo);
             }
@@ -388,7 +390,7 @@ public class TaskResource {
             gantryScanPackageMQ.sendOnFailPersistent(domain.getBarCode(), JsonHelper.toJsonUseGson(domain));
 
         } catch (Throwable throwable) {
-            logger.error("龙门架自动发货任务上传", throwable);
+            log.error("龙门架自动发货任务上传异常:{}", JsonHelper.toJson(domain), throwable);
             result.error(throwable);
         }
         return result;
@@ -415,23 +417,22 @@ public class TaskResource {
             Date gantryDate = null;
             gantryDate = DateHelper.parseDateTime(headerDate);
             if(gantryDate == null){
-                logger.info("headerDate 转 date 失败headerDate:" + headerDate);
+                log.warn("headerDate 转 date 失败headerDate:{}" , headerDate);
                 return scannerTime;
             }
             long deviationMillSecond = System.currentTimeMillis() - gantryDate.getTime();
             int deviationSecond = (int)deviationMillSecond/1000;
             Date scannerTimeAfterCorrect = DateUtils.addSeconds(scannerTime, deviationSecond);
-            logger.info(MessageFormat.format("registerNo:{0} 扫描时间：{1},校准为:{2}", registerNo,
+            log.info("registerNo:{} 扫描时间：{},校准为:{}", registerNo,
                     DateHelper.formatDateTimeMs(scannerTime),
-                    DateHelper.formatDateTimeMs(scannerTimeAfterCorrect)
-            ));
+                    DateHelper.formatDateTimeMs(scannerTimeAfterCorrect));
             if(scannerTimeAfterCorrect.getTime() > System.currentTimeMillis()){
                 return new Date();
             }
             return scannerTimeAfterCorrect;
         }catch (Exception e){
-            logger.error(MessageFormat.format("校准龙门架时间时异常：scannerTime：{0} headerDate：{1}, registerNo:{2}",
-                    DateHelper.formatDateTimeMs(scannerTime), headerDate, registerNo),e);
+            log.error("校准龙门架时间时异常：scannerTime：{} headerDate：{}, registerNo:{}",
+                    DateHelper.formatDateTimeMs(scannerTime), headerDate, registerNo,e);
         }
         return scannerTime;
 
@@ -450,7 +451,7 @@ public class TaskResource {
                 result.customMessage(0, "保存数据失败");
             }
         } catch (Throwable throwable) {
-            logger.error("分拣机自动发货任务上传", throwable);
+            log.error("分拣机自动发货任务上传：{}",JsonHelper.toJson(domain), throwable);
             result.error(throwable);
         }
         return result;

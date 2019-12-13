@@ -1,0 +1,133 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>规则管理UI</title>
+<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+<script type="text/javascript" src="#springUrl('/static/js/jquery-1.js')"></script>
+<SCRIPT type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></SCRIPT>
+<script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
+<script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+</head>
+<script type="text/javascript">
+$(document).ready(function() {
+	if ("$!rulemanagequeryDto" != "") {
+		// 初始化查询条件
+		$("#siteCode").val("$!rulemanagequeryDto.siteCode");
+		if ("$!pager" != "") {
+			$("#pageNo").val($!pager.pageNo);
+			$("#pageSize").val($!pager.pageSize);
+		}
+	}
+	// 提交查询
+	$("#search").click(function() {
+		$("#sitecode").blur();
+		$("#selectRuleList").attr("action", '#springUrl("/ruleManage/list")');
+		$("#selectRuleList").attr("method", "GET");
+		$("#selectRuleList").submit();
+	});
+	
+	$("#add").click(function() {
+		location.href = "#springUrl('/ruleManage/goAddPage')";
+	});
+	
+});
+
+function del(ruleid){
+	location.href = "#springUrl('/ruleManage/del')" + "?ruleId=" + ruleid;
+}
+
+function edit(ruleid){
+	location.href = "#springUrl('/ruleManage/edit')" + "?ruleId=" + ruleid;
+}
+</script>
+
+<body>
+<div id="breadcrumb">
+  <p><a href="#springUrl('/ruleManage/list')">基础资料管理</a>&nbsp;&gt;&nbsp;<a href="#springUrl('/ruleManage/list')">规则管理UI</a></p>
+</div>
+<!--[if !ie]>breadcrumb<![endif]-->
+<div id="content">
+  <div style="color:red;"> $!errormsg $!successmsg</div>
+  <div class="m">
+    <div class="tbl-n">
+      <form id="selectRuleList" name="selectRuleList" action="#springUrl('/ruleManage/list')" method="GET">
+		<input type="hidden" id="pageNo" name="pageNo" />
+		<input type="hidden" id="pageSize" name="pageSize" />
+        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+          <tbody>
+            <tr>
+              <th align="right">站点编码：</th>
+              <td>
+				<input id="siteCode" name="siteCode" type="text" class="textField28"/>
+			  </td>
+              <th align="right" >&nbsp;</th>
+              <td>&nbsp;</td>
+              <th colspan="3">
+				<input id="search" type="button" value="查询" class="btn_c"/>
+				<input id="add" type="button" value="增加" class="btn_c"/>
+			  </th>
+            </tr>
+          </tbody>
+        </table>
+      </form>
+    </div>
+  </div>
+  <!--[if !ie]>tbl-n<![endif]-->
+  <div id="opening">
+    <div class="tbl-list">
+      <div class="tbl-bg">
+        <table cellspacing=0 cellpadding=0 width="100%" class="tb-x1">
+          <thead>
+            <tr>
+			  <th>序号</th>
+			  <th>站点编码</th>
+              <th>规则类型</th>
+              <th>规则内容</th>
+              <th>包含关系</th>              
+              <th>创建时间</th>
+              <th>操作人</th>
+              <th>更新时间</th>
+			  <th>备注</th>
+			  <th></th>
+			  <th></th>
+            </tr>
+          </thead>
+          <tbody>
+			#if($null.isNull($!ruleal) || $!ruleal.size() == 0)
+				<tr class="a2" style="">
+					<td colspan="16" align="left">
+						无数据！
+                    </td>
+                </tr>
+			#else
+				#foreach($rule in $!ruleal)
+				<tr class="a2" style="">
+                  <td>$velocityCount</td>
+				  <td>$!rule.siteCode</td>
+                  <td>$!rule.type</td>
+                  <td>$!rule.content</td>
+				  <td>$!rule.inOut</td>
+				  <td>$!dateTool.format("yyyy-MM-dd HH:mm:ss", $!rule.createTime)</td>
+                  <td>$!rule.updateUser</td>
+				  <td>$!dateTool.format("yyyy-MM-dd HH:mm:ss", $!rule.updateTime)</td>
+				  <td>$!rule.memo</td>
+				  <td><input id="edit" type="button" value="修改" onclick="edit($rule.ruleId)" class="btn_c"/></td>
+				  <td><input id="del" type="button" value="删除" onclick="del($rule.ruleId)" class="btn_c"/></td>
+                </tr>
+				#end
+			#end
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!--[if !ie]>tbl-list<![endif]-->
+    <div class="tbl-n">
+		#pageBar("#springUrl('')/ruleManage/list?siteCode=$!rulemanagequeryDto.siteCode&ts=$!ts" $pager.totalSize $pager.pageNo $pager.totalNo)
+    </div>
+  </div>
+  <!--opening end-->
+</div>
+</body>
+</html>

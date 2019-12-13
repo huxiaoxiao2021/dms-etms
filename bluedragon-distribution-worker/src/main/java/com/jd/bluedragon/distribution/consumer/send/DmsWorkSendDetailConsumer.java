@@ -36,12 +36,11 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,7 +49,7 @@ import java.util.List;
  */
 @Service("dmsWorkSendDetailConsumer")
 public class DmsWorkSendDetailConsumer extends MessageBaseConsumer {
-    private static final Log logger = LogFactory.getLog(DmsWorkSendDetailConsumer.class);
+    private static final Logger log = LoggerFactory.getLogger(DmsWorkSendDetailConsumer.class);
     @Autowired
     private SendDatailDao sendDatailDao;
 
@@ -91,29 +90,26 @@ public class DmsWorkSendDetailConsumer extends MessageBaseConsumer {
         try {
             info = Profiler.registerInfo( "DMSWORKER.DmsWorkSendDetailConsumer.buildBasicQueryEntity",false, true);
             if (!JsonHelper.isJsonString(message.getText())) {
-                logger.warn(MessageFormat.format("发货明细消息MQDmsWorkSendDetail-消息体非JSON格式，内容为【{0}】", message.getText()));
+                log.warn("发货明细消息MQDmsWorkSendDetail-消息体非JSON格式，内容为【{}】", message.getText());
                 return;
             }
 
             /**将mq消息体转换成SendDetail对象**/
             SendDetail sendDetailMQ = JsonHelper.fromJson(message.getText(), SendDetail.class);
             if (sendDetailMQ == null || StringHelper.isEmpty(sendDetailMQ.getPackageBarcode())) {
-                logger.error("DmsWorkSendDetailConsumer:消息体[" + message.getText() + "]转换实体失败或没有合法的包裹号");
+                log.warn("DmsWorkSendDetailConsumer:消息体[{}]转换实体失败或没有合法的包裹号",message.getText());
                 return;
             }
 
             /**组装baicQueryEntity对象，写入es**/
             BasicQueryEntity basicQueryEntity = buildBasicQueryEntity(sendDetailMQ);
         }catch(Exception e){
-            logger.error("消费发货消息转换成BasicQueryEntity失败.",e);
+            log.error("消费发货消息转换成BasicQueryEntity失败:{}",message.getText(),e);
             Profiler.functionError(info);
             throw e;
         }finally {
             Profiler.registerInfoEnd(info);
         }
-        // TODO: 2018/9/15  写入es
-
-
     }
 
 
@@ -144,7 +140,7 @@ public class DmsWorkSendDetailConsumer extends MessageBaseConsumer {
         SendDetail sendDetail = sendDatailDao.queryOneSendDetailByPackageCode(querySendDetail);
 
         if(sendDetail == null){
-            logger.error("未找到符合条件的发货记录.createSiteCode:"+createSiteCode +",receiveSiteCode："+receiveSiteCode + ",packageBarCode:"+packageCode);
+            log.warn("未找到符合条件的发货记录.createSiteCode:{},receiveSiteCode：{},packageBarCode:{}",createSiteCode,receiveSiteCode,packageCode);
             return null ;
         }
 
@@ -159,7 +155,7 @@ public class DmsWorkSendDetailConsumer extends MessageBaseConsumer {
         /**调运单接口，获取基本信息**/
         BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice (sendDetail.getWaybillCode(), true, true, true, true);
         if(baseEntity == null || baseEntity.getData() == null){
-            logger.error("调运单接口，获取运单信息为空.waybillCode:"+sendDetail.getWaybillCode());
+            log.warn("调运单接口，获取运单信息为空.waybillCode:{}",sendDetail.getWaybillCode());
             return null;
         }
 
@@ -243,10 +239,10 @@ public class DmsWorkSendDetailConsumer extends MessageBaseConsumer {
                             basicQueryEntity.setIsnew(SendPrintConstants.TEXT_YES);
                     }
                 } else {
-                    logger.warn("打印交接清单-取件单基础信息调用失败，运单号：" + basicQueryEntity.getWaybill() + "，查询结果：" + JsonHelper.toJson(tPickupTask));
+                    log.warn("打印交接清单-取件单基础信息调用失败，运单号：{}，查询结果：{}" ,basicQueryEntity.getWaybill(), JsonHelper.toJson(tPickupTask));
                 }
             } catch (Exception e) {
-                logger.error("打印交接清单-取件单基础信息调用发生异常" + basicQueryEntity.getWaybill(), e);
+                log.error("打印交接清单-取件单基础信息调用发生异常:{}" , basicQueryEntity.getWaybill(), e);
             }
         }
     }
@@ -353,7 +349,7 @@ public class DmsWorkSendDetailConsumer extends MessageBaseConsumer {
                             }
                         }
                     } catch (Exception e) {
-                        logger.error("获取包裹量方信息接口失败，原因", e);
+                        log.error("获取包裹量方信息接口失败:{}",basicQueryEntity.getWaybill(), e);
                     }
 
                     //如果获取到的称重流水不为空，则设置体积

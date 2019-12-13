@@ -21,8 +21,8 @@ import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -44,7 +44,7 @@ import java.util.List;
 @Service("reverseSpareService")
 public class ReverseSpareServiceImpl implements ReverseSpareService {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private SortingService sortingService;
@@ -70,7 +70,7 @@ public class ReverseSpareServiceImpl implements ReverseSpareService {
 	public int batchAddSorting(List<Sorting> sortings,
 			List<ReverseSpare> reverseSpares) {
 		if (sortings == null || sortings.size() <= 0) {
-			this.logger
+			this.log
 					.info("ReverseSpareServiceImpl batchAddSorting --> 传入参数不合法");
 			return Constants.RESULT_FAIL;
 		}
@@ -87,7 +87,7 @@ public class ReverseSpareServiceImpl implements ReverseSpareService {
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int batchAddOrUpdate(List<ReverseSpare> reverseSpares) {
 		if (reverseSpares == null || reverseSpares.size() <= 0) {
-			this.logger
+			this.log
 					.info("ReverseSpareServiceImpl batchAddOrUpdate --> 传入参数不合法");
 			return Constants.RESULT_FAIL;
 		}
@@ -143,7 +143,7 @@ public class ReverseSpareServiceImpl implements ReverseSpareService {
         for (ReverseSpareRequest request : requests) {
             Sorting sortingTemp = this.toSorting(request);
             if (sortingTemp == null) {
-                this.logger
+                this.log
                         .info("ReverseRejectSpareTask toDataMap--> sortingTemp对象为空，继续后面的");
                 continue;
             }
@@ -168,10 +168,10 @@ public class ReverseSpareServiceImpl implements ReverseSpareService {
             sendDetail.setWaybillCode(request.getWaybillCode());
 
             try {
-                logger.warn("分拣中心异常节点备件库推全程跟踪、质控开始。运单号" + request.getWaybillCode());
+                log.warn("分拣中心异常节点备件库推全程跟踪、质控开始。运单号:{}", request.getWaybillCode());
                 toQualityControlAndWaybillTrace(sendDetail, request);  // 推全程跟踪和质控
             } catch (Exception ex) {
-                logger.error("分拣中心异常节点备件库推全程跟踪、质控发生异常。" + ex);
+                log.error("分拣中心异常节点备件库推全程跟踪、质控发生异常。", ex);
             }
         }
 
@@ -180,8 +180,7 @@ public class ReverseSpareServiceImpl implements ReverseSpareService {
                 this.batchAddSorting(sortings,
                         reverseSpares);
             } catch (Exception e) {
-                this.logger.error("ReverseRejectSpareTask--> 服务处理异常：【" + body
-                        + "】：", e);
+                this.log.error("ReverseRejectSpareTask--> 服务处理异常：【{}",body, e);
                 return false;
             }
         }
@@ -191,10 +190,11 @@ public class ReverseSpareServiceImpl implements ReverseSpareService {
     public void toQualityControlAndWaybillTrace(SendDetail sendDetail, ReverseSpareRequest request){
         BdTraceDto bdTraceDto = convert2WaybillTrace(sendDetail, request);
         QualityControl qualityControl = convert2QualityControl(request);
-        logger.warn("分拣中心备件库分拣发质控和全程跟踪开始，消息体：" + JsonHelper.toJson(qualityControl));
+        String body = JsonHelper.toJson(qualityControl);
+        log.warn("分拣中心备件库分拣发质控和全程跟踪开始，消息体：{}", body);
         waybillTraceApi.sendBdTrace(bdTraceDto);   // 推全程跟踪
         //messageClient.sendMessage(MessageDestinationConstant.QualityControlMQ.getName(), JsonHelper.toJson(qualityControl), request.getBoxCode() != null ? request.getBoxCode() : request.getWaybillCode());   // 推质控
-        bdExceptionToQcMQ.sendOnFailPersistent(request.getBoxCode() != null ? request.getBoxCode() : request.getWaybillCode(), JsonHelper.toJson(qualityControl));
+        bdExceptionToQcMQ.sendOnFailPersistent(request.getBoxCode() != null ? request.getBoxCode() : request.getWaybillCode(), body);
 
     }
 
@@ -230,10 +230,10 @@ public class ReverseSpareServiceImpl implements ReverseSpareService {
                 }
                 qualityControl.setCreateUserErp(userErp);
             }else{
-                logger.warn("逆向备件库任务推质控查询用户为空,userCode："+request.getUserCode());
+                log.warn("逆向备件库任务推质控查询用户为空,userCode：{}", request.getUserCode());
             }
         }catch (Exception e){
-            logger.warn("逆向备件库任务推质控查询用户erp异常,userCode："+request.getUserCode()+"，异常原因："+e.getMessage());
+            log.error("逆向备件库任务推质控查询用户erp异常,userCode：{}",request.getUserCode(),e);
         }
         qualityControl.setCreateUserName(request.getUserName());
         qualityControl.setMessageType(QualityControl.QC_SPARE);
@@ -254,8 +254,7 @@ public class ReverseSpareServiceImpl implements ReverseSpareService {
         String aBoxCode = request.getBoxCode();
         String aWaybillCode = request.getWaybillCode();
         if (StringUtils.isBlank(aBoxCode) || StringUtils.isBlank(aWaybillCode)) {
-            this.logger
-                    .debug("ReverseRejectSpareTask toSorting--> 传入箱号或运单号为空");
+            this.log.debug("ReverseRejectSpareTask toSorting--> 传入箱号或运单号为空");
             return null;
         }
 
@@ -283,8 +282,7 @@ public class ReverseSpareServiceImpl implements ReverseSpareService {
 
     private ReverseSpare toReverseSpare(ReverseSpareDto spareDto) {
         if (spareDto == null || StringUtils.isBlank(spareDto.getSpareCode())) {
-            this.logger
-                    .debug("ReverseRejectSpareTask toReverseSpare-->传入对象或备件条码为空");
+            this.log.debug("ReverseRejectSpareTask toReverseSpare-->传入对象或备件条码为空");
             return null;
         }
         ReverseSpare reverseSpare = new ReverseSpare();
@@ -325,7 +323,7 @@ public class ReverseSpareServiceImpl implements ReverseSpareService {
             spareSortingRecord.setCreateTime(new Date());
             spareSortingRecordDao.insert(spareSortingRecord);
         } catch (Exception e) {
-            logger.error("保存备件库分拣记录失败！" + JsonHelper.toJson(spareSortingRecord), e);
+            log.error("保存备件库分拣记录失败：{}", JsonHelper.toJson(spareSortingRecord), e);
         }
 
     }

@@ -11,8 +11,8 @@ import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.report.domain.GoodsPrintDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Service("goodsPrintService")
 public class GoodsPrintServiceImpl implements GoodsPrintService {
-    private static final Log logger = LogFactory.getLog(GoodsPrintServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(GoodsPrintServiceImpl.class);
 
     @Autowired
     @Qualifier("redisClientCache")
@@ -148,10 +148,10 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
             if (valueBytes == null) {
                 return false;
             }
-            logger.info("[getWaybillFromEsOperator]从Redis中命中："+key);
+            log.info("[getWaybillFromEsOperator]从Redis中命中：{}",key);
             return true;
         } catch (Exception e) {
-            logger.error("[getWaybillFromEsOperator]从Redis中获取信息出错,key = " + key + " 错误信息为:" + e.getMessage());
+            log.error("[getWaybillFromEsOperator]从Redis中获取信息出错,key = {} 错误信息为:{}" ,key, e.getMessage());
             return false;
         }
     }
@@ -165,10 +165,10 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
     public boolean setWaybillFromEsOperator(String key) {
         try {
             redisClientCache.setEx(key, "1", 600L, TimeUnit.SECONDS);
-            logger.info("[getWaybillFromEsOperator]缓存数据key:"+key);
+            log.info("[getWaybillFromEsOperator]缓存数据key:{}",key);
             return true;
         } catch (Exception e) {
-            logger.error("[getWaybillFromEsOperator]缓存数据出错,key = " + key + " 错误信息为：" + e.getMessage());
+            log.error("[getWaybillFromEsOperator]缓存数据出错,key = {} 错误信息为：{}" ,key, e.getMessage());
             return false;
         }
     }
@@ -183,7 +183,7 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
         try {
             redisClientCache.del(key);
         } catch (Exception e) {
-            logger.error("[getWaybillFromEsOperator]删除数据出错,key = " + key + " 错误信息为：" + e.getMessage());
+            log.error("[getWaybillFromEsOperator]删除数据出错,key = {} 错误信息为：{}", key, e.getMessage());
         }
     }
 }

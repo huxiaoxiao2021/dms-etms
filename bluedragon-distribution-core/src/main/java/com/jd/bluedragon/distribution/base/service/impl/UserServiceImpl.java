@@ -2,10 +2,12 @@ package com.jd.bluedragon.distribution.base.service.impl;
 
 import java.util.List;
 
+import com.jd.ql.basic.ws.BasicPrimaryWS;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -49,7 +51,8 @@ import com.jd.ump.profiler.proxy.Profiler;
  */
 @Service
 public class UserServiceImpl implements UserService{
-	private static final Log logger = LogFactory.getLog(UserServiceImpl.class);
+
+	private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
 	/**
 	 *	登录方式-分拣客户端（PDA、打印、标签设计器）
 	 */
@@ -62,6 +65,12 @@ public class UserServiceImpl implements UserService{
 	 *  程序类型-jsf登录接口
 	 */
 	private static final Integer JSF_LOGIN_PROGRAM_TYPE = 50;
+
+	/**
+	 *  程序类型-安卓登录接口
+	 */
+	private static final Integer ANDROID_LOGIN_PROGRAM_TYPE = 60;
+
 	/**
 	 *  默认版本号-jsf登录接口
 	 */
@@ -85,6 +94,11 @@ public class UserServiceImpl implements UserService{
 	private ClientConfigService clientConfigService;
 	@Autowired
 	private BaseMajorManager baseMajorManager;
+
+	@Autowired
+	@Qualifier("basicPrimaryWS")
+	private BasicPrimaryWS basicPrimaryWS;
+
 	/**
 	 * 分拣客户端登录服务
 	 * @param request
@@ -93,7 +107,8 @@ public class UserServiceImpl implements UserService{
     @JProfiler(jKey = "DMS.BASE.UserServiceImpl.dmsClientLogin",
             mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
 	public BaseResponse dmsClientLogin(LoginRequest request){
-		return this.login(request, LOGIN_TYPE_DMS_CLIENT);
+    	LoginUserResponse loginResponse = this.login(request, LOGIN_TYPE_DMS_CLIENT);
+		return loginResponse.toOldLoginResponse();
 	}
 	/**
 	 * 通过jsf调用登录服务
@@ -103,16 +118,54 @@ public class UserServiceImpl implements UserService{
     @JProfiler(jKey = "DMS.BASE.UserServiceImpl.jsfLogin",
             mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
 	public BaseResponse jsfLogin(LoginRequest request){
-		return this.login(request, LOGIN_TYPE_JSF);
+		LoginUserResponse loginResponse = this.login(request, LOGIN_TYPE_DMS_CLIENT);
+		return loginResponse.toOldLoginResponse();
 	}
+
+	@JProfiler(jKey = "DMS.BASE.UserServiceImpl.clientLoginIn", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+	public LoginUserResponse clientLoginIn(LoginRequest request) {
+    	if (null != request) {
+    		request.setLoginVersion((byte)1);
+		}
+    	LoginUserResponse response = this.login(request, LOGIN_TYPE_DMS_CLIENT);
+		if (response.getCode().equals(JdResponse.CODE_OK)) {
+			this.bindSite2LoginUser(response);
+		}
+		return response;
+	}
+
+	/**
+	 *
+	 * @param response
+	 */
+	private void bindSite2LoginUser(LoginUserResponse response) {
+		response.setDmsId(response.getSiteCode());
+		response.setDmsName(response.getSiteName());
+		// 非分拣中心类型的站点查询分拣中心ID和名称，兼容打印客户端登录后再查询站点的逻辑
+		if (!Constants.DMS_SITE_TYPE.equals(response.getSiteType())) {
+			BaseStaffSiteOrgDto dtoStaff = basicPrimaryWS.getBaseSiteBySiteId(response.getSiteCode());
+			if (null != dtoStaff) {
+				response.setSiteType(dtoStaff.getSiteType());
+				response.setSubType(dtoStaff.getSubType());
+				if (!dtoStaff.getDmsId().equals(dtoStaff.getSiteCode()) && dtoStaff.getDmsId() > 0) {
+					response.setDmsId(dtoStaff.getDmsId());
+					response.setDmsName(dtoStaff.getDmsName());
+				}
+				if (log.isInfoEnabled()) {
+					log.info("set sortingCenter and type, response:[{}]", response.toString());
+				}
+			}
+		}
+	}
+
 	/**
 	 * 分拣客户端登录入口
 	 * @param request 登录请求
 	 * @param loginType 登录方式
 	 * @return
 	 */
-	private BaseResponse login(LoginRequest request,Integer loginType) {
-		logger.info("erpAccount is " + request.getErpAccount());
+	private LoginUserResponse login(LoginRequest request,Integer loginType) {
+		log.info("erpAccount is {}" , request.getErpAccount());
 
 		String erpAccount = request.getErpAccount();
 		String erpAccountPwd = request.getPassword();
@@ -131,15 +184,14 @@ public class UserServiceImpl implements UserService{
 		}
 		clientInfo.setLoginUserErp(erpAccount);
 		/** 进行登录验证 */
-		PdaStaff loginResult = baseService.login(erpAccount, erpAccountPwd,clientInfo);
+		PdaStaff loginResult = baseService.login(erpAccount, erpAccountPwd, clientInfo, request.getLoginVersion());
 
 		// 处理返回结果
 		if (loginResult.isError()) {
 			// 异常处理-验证失败，返回错误信息
-			logger.info("erpAccount is " + erpAccount + " 验证失败，错误信息[" + loginResult.getErrormsg()
-			        + "]");
+			log.info("erpAccount is {} 验证失败，错误信息[{}]",erpAccount, loginResult.getErrormsg());
 			// 结果设置
-			BaseResponse response = new BaseResponse(JdResponse.CODE_INTERNAL_ERROR,
+			LoginUserResponse response = new LoginUserResponse(JdResponse.CODE_INTERNAL_ERROR,
 			        loginResult.getErrormsg());
 			// ERP账号
 			response.setErpAccount(erpAccount);
@@ -149,15 +201,15 @@ public class UserServiceImpl implements UserService{
 			return response;
 		} else {
 			// 验证完成，返回相关信息
-			logger.info("erpAccount is " + erpAccount + " 验证成功");
+			log.info("erpAccount is {} 验证成功",erpAccount);
 			try{
 				//检查客户端版本信息，版本不一致，不允许登录
 	            JdResult<String> checkResult = checkClientInfo(clientInfo,loginResult);
 	            if(!checkResult.isSucceed()){
 	            	clientInfo.setMatchFlag(SysLoginLog.MATCHFLAG_LOGIN_FAIL);
 	            	sysLoginLogService.insert(loginResult, clientInfo);
-	            	logger.warn("login-fail:params="+JsonHelper.toJson(request)+",msg="+checkResult.getMessage());
-					BaseResponse response = new BaseResponse(JdResponse.CODE_INTERNAL_ERROR,
+	            	log.warn("login-fail:params={},msg={}", JsonHelper.toJson(request), checkResult.getMessage());
+					LoginUserResponse response = new LoginUserResponse(JdResponse.CODE_INTERNAL_ERROR,
 							checkResult.getMessage());
 					// ERP账号
 					response.setErpAccount(erpAccount);
@@ -169,16 +221,14 @@ public class UserServiceImpl implements UserService{
 					sysLoginLogService.insert(loginResult, clientInfo);
 				}
 	        }catch (Exception e){
-	            logger.error("用户登录保存日志失败：" + erpAccount, e);
+	            log.error("用户登录保存日志失败：{}", erpAccount, e);
 	        }
 			if (null == loginResult.getSiteId()) {
-				BaseResponse response = new BaseResponse(JdResponse.CODE_SITE_ERROR,
-				        JdResponse.MESSAGE_SITE_ERROR);
-				return response;
+				return new LoginUserResponse(JdResponse.CODE_SITE_ERROR, JdResponse.MESSAGE_SITE_ERROR);
 			}
 
 			// 结果设置
-			BaseResponse response = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+			LoginUserResponse response = new LoginUserResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 			// ERP账号
 			response.setErpAccount(erpAccount);
 			// ERP密码
@@ -201,10 +251,12 @@ public class UserServiceImpl implements UserService{
 
 			// dmscode
 			response.setDmsCode(loginResult.getDmsCod());
+
 			// 返回结果
 			return response;
 		}
 	}
+
 	/**
 	 * 检查客户端版本信息
 	 * @param clientInfo 上传的客户端信息
@@ -267,7 +319,13 @@ public class UserServiceImpl implements UserService{
     						}
     					}
     					if(!versionIsMatch){
-    						checkResult.toFail("线上版本【"+versionOnline+"】，请退出重新登录/联系运维重新安装！");
+    						if(ANDROID_LOGIN_PROGRAM_TYPE.equals(clientInfo.getProgramType()) || JSF_LOGIN_PROGRAM_TYPE.equals(clientInfo.getProgramType())){
+								//安卓升级提示语
+    							checkResult.toFail("版本过低！线上版本【"+versionOnline+"】，请点击左上角【检查新版本】按钮升级！");
+							}else{
+								//非安卓升级提示语
+								checkResult.toFail("线上版本【"+versionOnline+"】，请退出重新登录/联系运维重新安装！");
+							}
     					}
     				}
     			}

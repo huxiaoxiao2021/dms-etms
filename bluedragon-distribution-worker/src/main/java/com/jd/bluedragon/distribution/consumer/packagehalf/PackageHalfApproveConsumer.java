@@ -13,19 +13,18 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service("packageHalfApproveConsumer")
 public class PackageHalfApproveConsumer extends MessageBaseConsumer {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private BaseMajorManager baseMajorManager;
@@ -37,20 +36,20 @@ public class PackageHalfApproveConsumer extends MessageBaseConsumer {
     @Override
     public void consume(Message message) throws Exception {
         if (!JsonHelper.isJsonString(message.getText())) {
-            logger.warn(MessageFormat.format("[B网半收]消费协商再投MQ-消息体非JSON格式，内容为【{0}】", message.getText()));
+            log.warn("[B网半收]消费协商再投MQ-消息体非JSON格式，内容为【{}】", message.getText());
             return;
         }
-        logger.info("[B网半收]消费终端提交的协商再投MQ-消息体：" + message.getText());
+        log.info("[B网半收]消费终端提交的协商再投MQ-消息体：{}" , message.getText());
         PackageHalfApproveDto dto = JSON.parseObject(message.getText(), PackageHalfApproveDto.class);
         List<PackageHalfApproveDetailDto> packageList = dto.getPackagePartMsgDTOList();
         if(packageList == null || packageList.isEmpty()){
-            logger.warn("[B网半收]消费终端提交的协商再投MQ-包裹明细为空：" + message.getText());
+            log.warn("[B网半收]消费终端提交的协商再投MQ-包裹明细为空：{}" , message.getText());
             return;
         }
-        logger.warn("[B网半收]消费终端提交的协商再投MQ-包裹数量：" + packageList.size()+"；运单号：" + dto.getWaybillCode());
+        log.warn("[B网半收]消费终端提交的协商再投MQ-包裹数量：{}；运单号：{}" ,packageList.size(), dto.getWaybillCode());
         //ModelType为空的数据也保留，兼容老数据
         if(dto.getModelType() != null && !Constants.PACKAGE_APPROVE_TYPE.equals(dto.getModelType())){
-            logger.warn("[B网半收]消费终端提交的协商再投MQ-非按包裹审核类型，执行丢弃：" + message.getText());
+            log.warn("[B网半收]消费终端提交的协商再投MQ-非按包裹审核类型，执行丢弃：{}" , message.getText());
             return;
         }
         BaseStaffSiteOrgDto user = baseMajorManager.getBaseStaffByStaffId(dto.getOperatorId());

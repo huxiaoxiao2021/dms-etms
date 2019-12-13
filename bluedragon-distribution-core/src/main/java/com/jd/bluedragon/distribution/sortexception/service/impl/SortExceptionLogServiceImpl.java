@@ -7,8 +7,8 @@ import com.jd.bluedragon.distribution.sorting.service.SortingExceptionService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -27,7 +27,7 @@ public class SortExceptionLogServiceImpl implements SortExceptionLogService {
     @Qualifier("sortingExceptionDao")
     private SortingExceptionDao sortingExceptionDao;
 
-    private static final Log logger = LogFactory.getLog(SortExceptionLogServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(SortExceptionLogServiceImpl.class);
 
     /**
      * 分拣异常数据插入 sorting—EC表中
@@ -37,14 +37,14 @@ public class SortExceptionLogServiceImpl implements SortExceptionLogService {
      */
     @Override
     public boolean addExpectionLog(Task task) {
-        logger.info("分拣异常日志 29302，29303 插入Sorting_EC表开始 " + task);
+        log.debug("分拣异常日志 29302，29303 插入Sorting_EC表开始 ：{}" , task);
         SortingException sortingExceptionList = this.prepareSortEC(task);
         if(sortingExceptionList!=null) {
             sortingExceptionList.setYn(1);
             sortingExceptionDao.add(sortingExceptionList);
             return true;
 		} else {
-            logger.info("addExpectionLog 29302，29303 SortingException 对象是NULL" + task);
+            log.info("addExpectionLog 29302，29303 SortingException 对象是NULL:{}" , task);
             return false;
         }
     }

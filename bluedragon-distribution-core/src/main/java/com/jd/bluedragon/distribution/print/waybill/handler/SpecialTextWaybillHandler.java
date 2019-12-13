@@ -1,22 +1,19 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
 import com.jd.bluedragon.core.base.LDOPManager;
-import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.StringHelper;
-import com.jd.ldop.center.api.print.dto.WaybillPrintDataDTO;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ldop.center.api.print.dto.WaybillPrintDataDTO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -30,7 +27,7 @@ import java.util.List;
  */
 @Service
 public class SpecialTextWaybillHandler implements Handler<WaybillPrintContext,JdResult<String>>{
-	private static final Log logger= LogFactory.getLog(SpecialTextWaybillHandler.class);
+	private static final Logger log = LoggerFactory.getLogger(SpecialTextWaybillHandler.class);
     /**
      * 预分拣站点编码-未定位门店(0)
      */
@@ -67,7 +64,7 @@ public class SpecialTextWaybillHandler implements Handler<WaybillPrintContext,Jd
     private LDOPManager ldopManager;
 	@Override
 	public JdResult<String> handle(WaybillPrintContext context) {
-		logger.info("包裹标签打印-站点名称显示处理");
+		log.debug("包裹标签打印-站点名称显示处理");
 		Integer targetSiteCode = context.getRequest().getTargetSiteCode();
 		WaybillPrintResponse printInfo = context.getResponse();
 		//预分拣站点
@@ -88,14 +85,14 @@ public class SpecialTextWaybillHandler implements Handler<WaybillPrintContext,Jd
         	printInfo.setPrepareSiteCode(PREPARE_SITE_CODE_NOTHING);
         	printInfo.setPrepareSiteName(PREPARE_SITE_NAME_NOTHING);
         	printInfo.setPrintSiteName(PREPARE_SITE_NAME_NOTHING);
-            logger.warn(" 没有获取预分拣站点(未定位门店),"+printInfo.getWaybillCode());
+            log.warn(" 没有获取预分拣站点(未定位门店):{}", printInfo.getWaybillCode());
             // -2或者<-100 超区
         }else if(PREPARE_SITE_CODE_OVER_AREA.equals(printInfo.getPrepareSiteCode())
                 || printInfo.getPrepareSiteCode().intValue() < PREPARE_SITE_CODE_OVER_LINE.intValue()){
 //        	printInfo.setPrepareSiteCode(printInfo.getPrepareSiteCode());
         	printInfo.setPrepareSiteName(PREPARE_SITE_NAME_OVER_AREA);
         	printInfo.setPrintSiteName(PREPARE_SITE_NAME_OVER_AREA);
-            logger.warn(" 没有获取预分拣站点(细分超区)," + printInfo.getPrepareSiteCode() + ","+printInfo.getWaybillCode());
+            log.warn(" 没有获取预分拣站点(细分超区):{}-{}", printInfo.getPrepareSiteCode() , printInfo.getWaybillCode());
         }
         //设置预分拣站点名称
         if(null == printInfo.getPrepareSiteName() && null != prepareSiteCode){
@@ -117,7 +114,7 @@ public class SpecialTextWaybillHandler implements Handler<WaybillPrintContext,Jd
         //获取waybillSign
         String waybillSign = printInfo.getWaybillSign();
         if(StringHelper.isEmpty(waybillSign)){
-            logger.error("SpecialTextWaybillHandler-->获取waybillSign为空,无法判断是否是同城单日达面单.");
+            log.warn("SpecialTextWaybillHandler-->获取waybillSign为空,无法判断是否是同城单日达面单.");
         } else {
             //根据waybill_sign判断同城当日达 第55位等于0 （表示非生鲜专送）且第16位等于1 （表示当日达）且第31位等于2 （表示同城配送）且第63位等于1 （中心站网络）
             if(BusinessHelper.isSameCityOneDay(waybillSign)){

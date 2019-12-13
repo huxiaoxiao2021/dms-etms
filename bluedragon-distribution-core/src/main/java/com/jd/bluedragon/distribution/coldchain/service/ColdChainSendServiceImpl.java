@@ -14,8 +14,8 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.tms.tfc.dto.ScheduleCargoSimpleDto;
 import com.jd.tms.tfc.dto.TransPlanScheduleCargoDto;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +30,7 @@ import java.util.*;
 @Service
 public class ColdChainSendServiceImpl implements ColdChainSendService {
 
-    private final static Log logger = LogFactory.getLog(ColdChainSendServiceImpl.class);
+    private final static Logger log = LoggerFactory.getLogger(ColdChainSendServiceImpl.class);
 
     @Autowired
     private ColdChainSendDao coldChainSendDao;
@@ -81,7 +81,7 @@ public class ColdChainSendServiceImpl implements ColdChainSendService {
                         }
                     }
                 } else {
-                    logger.warn("[冷链发货]无法识别的扫描编号，boxCode:" + boxCode);
+                    log.warn("[冷链发货]无法识别的扫描编号，boxCode:{}" , boxCode);
                 }
             }
             return this.batchAdd(coldChainSends);

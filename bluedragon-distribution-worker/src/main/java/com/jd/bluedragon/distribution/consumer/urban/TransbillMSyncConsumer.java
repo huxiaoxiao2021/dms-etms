@@ -11,8 +11,8 @@ import com.jd.jmq.common.message.Message;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +29,7 @@ import java.text.MessageFormat;
  */
 @Service("transbillMSyncConsumer")
 public class TransbillMSyncConsumer extends MessageBaseConsumer{
-    private static final Log logger= LogFactory.getLog(TransbillMSyncConsumer.class);
+    private static final Logger log = LoggerFactory.getLogger(TransbillMSyncConsumer.class);
 
     @Autowired
     private TransbillMService transbillMService;
@@ -59,7 +59,7 @@ public class TransbillMSyncConsumer extends MessageBaseConsumer{
         	transbillM.setScheduleBillCode(null);
         }
         if(!transbillMService.saveOrUpdate(transbillM)){
-        	logger.warn(MessageFormat.format("城配运单推送MQ-消息同步失败，内容为【{0}】", message.getText()));
+        	log.warn("城配运单推送MQ-消息同步失败，内容为【{}】", message.getText());
         }
     }
 }

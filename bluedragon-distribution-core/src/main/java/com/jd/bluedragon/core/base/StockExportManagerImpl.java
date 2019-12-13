@@ -15,6 +15,8 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections4.CollectionUtils;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,7 +27,7 @@ import java.util.List;
 @Service("stockExportManager")
 public class StockExportManagerImpl implements StockExportManager {
 
-    private final static org.slf4j.Logger logger = LoggerFactory.getLogger(StockExportManagerImpl.class);
+    private final static Logger log = LoggerFactory.getLogger(StockExportManagerImpl.class);
 
     @Autowired
     private StockExportService stockExportService;
@@ -39,24 +41,24 @@ public class StockExportManagerImpl implements StockExportManager {
 
             if(result!=null){
                 if(!result.isResultFlag()){
-                    this.logger.error("调用库管接口stockExportManager.insertStockVirtualIntOut异常：result[{}]stockVOParam0[{}]",JsonHelper.toJson(result),
+                    this.log.warn("调用库管接口stockExportManager.insertStockVirtualIntOut异常：result[{}]stockVOParam0[{}]",JsonHelper.toJson(result),
                             JsonHelper.toJson(stockVOParam0));
                     Profiler.functionError(info);
                     return 0;
                 }else{
-                    this.logger.info("调用库管接口stockExportManager.insertStockVirtualIntOut成功：result[{}]stockVOParam0[{}]",JsonHelper.toJson(result),
+                    this.log.info("调用库管接口stockExportManager.insertStockVirtualIntOut成功：result[{}]stockVOParam0[{}]",JsonHelper.toJson(result),
                             JsonHelper.toJson(stockVOParam0));
                     return 1;//表示推送成功
                 }
             }else{
-                this.logger.error("调用库管接口stockExportManager.insertStockVirtualIntOut异常: result[{}]stockVOParam0[{}]",JsonHelper.toJson(result),
+                this.log.warn("调用库管接口stockExportManager.insertStockVirtualIntOut异常: result[{}]stockVOParam0[{}]",JsonHelper.toJson(result),
                         JsonHelper.toJson(stockVOParam0));
                 Profiler.functionError(info);
                 return 0;
             }
 
         }catch(Exception e){
-            logger.error("调用库管接口stockExportManager.insertStockVirtualIntOut异常stockVOParam0[{}]", JsonHelper.toJson(stockVOParam0), e);
+            log.error("调用库管接口stockExportManager.insertStockVirtualIntOut异常stockVOParam0[{}]", JsonHelper.toJson(stockVOParam0), e);
             Profiler.functionError(info);
             return 0;
         }finally {
@@ -83,25 +85,28 @@ public class StockExportManagerImpl implements StockExportManager {
             result = stockExportService.queryStockData(callerParam, businessNo, businessType);
 
             if(result==null||result.getQueryList()==null||result.getQueryList().isEmpty()){
-                this.logger.info("调用库管接口stockExportManager.getFullStockByBusiNo queryStockData未获得数据,改调用queryStockHisData方法,本次查询结果:"+ JsonHelper.toJson(result));
+                this.log.warn("调用库管接口stockExportManager.getFullStockByBusiNo queryStockData未获得数据,改调用queryStockHisData方法,本次查询结果:{}", JsonHelper.toJson(result));
                 result = stockExportService.queryStockHisData(callerParam, businessNo, businessType);
             }
 
             if(result!=null){
                 if(!result.isResultFlag()){
-                    this.logger.error("调用库管接口stockExportManager.getFullStockByBusiNo queryStockData()异常：result:"+result.getMessage());
+                    this.log.warn("调用库管接口stockExportManager.getFullStockByBusiNo queryStockData()异常：result:{}",result.getMessage());
                     Profiler.functionError(info);
                     result = null;
+                }else if(CollectionUtils.isNotEmpty(result.getQueryList())){
+                    this.log.info("调用库管接口stockExportManager.getFullStockByBusiNo queryStockData()成功并且有数据businessNo[{}]queryList[{}]",businessNo,
+                            JsonHelper.toJson(result.getQueryList()));
                 }else{
-                    this.logger.info("调用库管接口stockExportManager.getFullStockByBusiNo queryStockData()成功businessNo[{}]",businessNo);
+                    this.log.info("调用库管接口stockExportManager.getFullStockByBusiNo queryStockData()成功businessNo[{}]",businessNo);
                 }
             }else{
-                this.logger.error("调用库管接口stockExportManager.getFullStockByBusiNo queryStockData()异常: result为空!");
+                this.log.warn("调用库管接口stockExportManager.getFullStockByBusiNo queryStockData()异常: result为空!,businessNo={}",businessNo);
                 Profiler.functionError(info);
             }
 
         }catch(Exception e){
-            logger.error("调用库管接口stockExportManager.getFullStockByBusiNo queryStockData()异常", e);
+            log.error("调用库管接口stockExportManager.getFullStockByBusiNo queryStockData()异常,businessNo={}",businessNo, e);
             Profiler.functionError(info);
         }finally {
             Profiler.registerInfoEnd(info);
@@ -132,7 +137,7 @@ public class StockExportManagerImpl implements StockExportManager {
                     }
                 }
                 if(ReverseReceiveNotifyStockService.CHUGUAN_FIELD_QITAFANGSHI.equals(nstock.getQtfs())){
-                    logger.info("调用库管接口-返回了逆向物流数据orderCode[{}]lKdanhao[{}]nstock[{}]",orderCode,lKdanhao,JsonHelper.toJson(nstock));
+                    log.info("调用库管接口-返回了逆向物流数据orderCode[{}]lKdanhao[{}]nstock[{}]",orderCode,lKdanhao,JsonHelper.toJson(nstock));
                 }
                 //组装库管单号超链接
                 if(stockKudanhao.equals(lKdanhao)){
@@ -157,10 +162,10 @@ public class StockExportManagerImpl implements StockExportManager {
         KuGuanDomain result = null;
 
         try {
-            logger.info("根据订单号获取库管单信息参数错误-queryByParams");
+            log.info("根据订单号获取库管单信息参数错误-waybillCode:{}",waybillCode);
             result = this.queryByOrderCode(waybillCode,null);
         } catch (Exception e) {
-            logger.info("根据订单号获取库管单信息服务异常", e);
+            log.error("根据订单号获取库管单信息服务异常，waybillCode:{}",waybillCode, e);
         }
         return result;
     }

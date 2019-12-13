@@ -81,8 +81,6 @@ public class VideoResource {
         String packageCode = videoRequest.getPackageCode();
         //返回验货记录
         List<Inspection> inspectionList = null;
-        //返回分拣记录
-        List<Sorting> sortingList = null;
         //返回发货记录
         List<SendDetail> sendDetailList = null;
         Map<String,Object> params = new HashMap<String, Object>();
@@ -107,12 +105,11 @@ public class VideoResource {
             }
             if(operateType.equals(sortingType)){
                 logger.info("开始查询包裹号为"+ packageCode +"的分拣业务记录!");
-                sortingList = sortingService.findPageSorting(params);
-                if(sortingList!=null && !sortingList.isEmpty()){
-                    Sorting sorting = sortingList.get(0);
-                    OperateInfo operateInfo = new OperateInfo(sorting.getCreateUserCode(),sorting.getCreateUser(),sorting.getOperateTime());
+                Sorting sorting = sortingService.getOneSortingByPackageCode(packageCode,videoRequest.getSiteNo());
+                if(sorting!=null){
+                    OperateInfo operateInfo = new OperateInfo(sorting.getCreateUserCode(), sorting.getCreateUser(), sorting.getOperateTime());
                     response.setData(JsonHelper.toJson(operateInfo));
-                    logger.info("查询包裹号为："+ packageCode +"的分拣记录成功！");
+                    logger.info("查询包裹号为：" + packageCode + "的分拣记录成功！");
                 }else{
                     response.toFail("包裹号"+ packageCode +"没有对应的分拣记录！");
                     logger.error("根据包裹号为："+ packageCode +"查询分拣记录失败！");

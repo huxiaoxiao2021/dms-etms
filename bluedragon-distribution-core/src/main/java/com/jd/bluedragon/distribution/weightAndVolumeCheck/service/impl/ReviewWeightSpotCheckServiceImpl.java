@@ -10,7 +10,6 @@ import com.jd.bluedragon.distribution.weightAndVolumeCheck.dao.ReviewWeightSpotC
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.ReviewWeightSpotCheckService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.IntegerHelper;
-import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.report.ReportExternalService;
@@ -18,14 +17,13 @@ import com.jd.ql.dms.report.domain.BaseEntity;
 import com.jd.ql.dms.report.domain.ReviewSpotCheckDto;
 import com.jd.ql.dms.report.domain.SpotCheckQueryCondition;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
-import com.jd.ql.dms.report.domain.WeightVolumeQueryCondition;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,7 +40,7 @@ import java.util.Set;
 @Service("reviewWeightSpotCheckService")
 public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckService {
 
-    private Logger logger = Logger.getLogger(ReviewWeightSpotCheckServiceImpl.class);
+    private Logger log = LoggerFactory.getLogger(ReviewWeightSpotCheckServiceImpl.class);
 
     @Autowired
     private ReviewWeightSpotCheckDao reviewWeightSpotCheckDao;
@@ -141,20 +139,6 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
     }
 
     /**
-     * 查询条件转换
-     * */
-    private WeightVolumeQueryCondition transform(WeightAndVolumeCheckCondition condition) {
-        WeightVolumeQueryCondition newCondition = new WeightVolumeQueryCondition();
-        newCondition.setStartTime(DateHelper.parseDateTime(condition.getStartTime()));
-        newCondition.setEndTime(DateHelper.parseDateTime(condition.getEndTime()));
-        newCondition.setReviewOrgCode(condition.getReviewOrgCode()==null?null:condition.getReviewOrgCode().intValue());
-        newCondition.setReviewSiteCode(condition.getCreateSiteCode()==null?null:condition.getCreateSiteCode().intValue());
-        newCondition.setIsExcess(condition.getIsExcess());
-        return newCondition;
-    }
-
-
-    /**
      * 校验模板数据
      * @param dataList
      * @return
@@ -250,102 +234,6 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
     /**
      * 根据条件查询
      * @param condition
-     * @param type 0:查询 1:导出
-     * @return
-     */
-    @Override
-    public PagerResult<ReviewWeightSpotCheck> listData(WeightAndVolumeCheckCondition condition,int type) {
-
-        PagerResult<ReviewWeightSpotCheck>  result = new PagerResult<>();
-        List<ReviewWeightSpotCheck> list = new ArrayList<>();
-
-        //1.从es中获取所有数据
-        List<WeightVolumeCollectDto> data = Collections.EMPTY_LIST;
-        WeightVolumeQueryCondition transform = transform(condition);
-        try{
-            BaseEntity<List<WeightVolumeCollectDto>> baseEntity = reportExternalService.getByParamForWeightVolume(transform);
-            if(baseEntity != null && baseEntity.getData() != null && baseEntity.getData().size() > 0){
-                data = baseEntity.getData();
-            }
-        }catch (Exception e){
-            logger.error("查询es获取数据失败，"+ JsonHelper.toJson(condition));
-        }
-
-
-        //2.根据复核日期、站点分组（复核日期转换成yyyy-mm-dd）
-        Map<Date,Map<Integer,List<WeightVolumeCollectDto>>> map = convertAndGroup(data);
-
-        //3.将步骤1的数据和步骤2的数据结合生成result返回给前台
-        if(map != null && map.size() > 0){
-
-            for(Date date : map.keySet()){
-
-                Map<Integer, List<WeightVolumeCollectDto>> mapOfSite = map.get(date);
-                for(Integer siteCode : mapOfSite.keySet()){
-
-                    //站点对应的复核总记录
-                    List<WeightVolumeCollectDto> weightVolumeCollectDtos = mapOfSite.get(siteCode);
-                    //查询站点的抽查任务数据
-                    SpotCheckInfo spotCheckInfo = reviewWeightSpotCheckDao.queryBySiteCode(siteCode);
-
-                    WeightVolumeCollectDto weightVolumeCollectDto = weightVolumeCollectDtos.get(0);
-                    Integer trustNumOfActual = getPackageNumOfSpotCheck(weightVolumeCollectDtos,1);//信任商家实际抽查包裹数量
-                    Integer normalNumOfActual = getPackageNumOfSpotCheck(weightVolumeCollectDtos,0);//普通商家实际抽查包裹数量
-                    Integer trustNumOfShould = spotCheckInfo==null?null:spotCheckInfo.getTrustPackageNum();              //信任商家应抽查包裹数
-                    Integer normalNumOfShould = spotCheckInfo==null?null:spotCheckInfo.getNormalPackageNum();            //普通应抽查包裹数
-                    Integer trustNumOfExcess = getPackageNumOfExcess(weightVolumeCollectDtos,1);     //信任商家超标数
-                    Integer normalNumOfExcess = getPackageNumOfExcess(weightVolumeCollectDtos,0);    //普通商家超标数
-
-                    ReviewWeightSpotCheck reviewWeightSpotCheck = new ReviewWeightSpotCheck();
-                    reviewWeightSpotCheck.setReviewDate(date);
-                    reviewWeightSpotCheck.setReviewOrgName(weightVolumeCollectDto.getReviewOrgName());//复核区域
-                    reviewWeightSpotCheck.setReviewMechanismType(weightVolumeCollectDto.getReviewSubType());//机构类型
-                    reviewWeightSpotCheck.setReviewSiteCode(weightVolumeCollectDto.getReviewSiteCode());//机构名称
-                    reviewWeightSpotCheck.setReviewSiteName(weightVolumeCollectDto.getReviewSiteName());//机构名称
-                    reviewWeightSpotCheck.setNormalPackageNum(normalNumOfShould);                          //普通应抽查包裹数
-                    reviewWeightSpotCheck.setNormalPackageNumOfActual(normalNumOfActual);                  //普通实际抽查包裹数
-                    reviewWeightSpotCheck.setNormalCheckRate(normalNumOfShould==null?null:convertPercentage(normalNumOfActual,normalNumOfShould));        //普通抽查率
-                    reviewWeightSpotCheck.setNormalPackageNumOfDiff(normalNumOfExcess);                    //普通抽查差异包裹数(超标)
-                    reviewWeightSpotCheck.setNormalCheckRateOfDiff(convertPercentage(normalNumOfExcess,normalNumOfActual));   //普通抽查差异率
-                    reviewWeightSpotCheck.setTrustPackageNum(trustNumOfShould);                            //信任商家应抽查包裹数
-                    reviewWeightSpotCheck.setTrustPackageNumOfActual(trustNumOfActual);                    //信任商家实际抽查包裹数
-                    reviewWeightSpotCheck.setTrustCheckRate(trustNumOfShould==null?null:convertPercentage(trustNumOfActual,trustNumOfShould));            //信任商家抽查率
-                    reviewWeightSpotCheck.setTrustPackageNumOfDiff(trustNumOfExcess);                      //信任商家抽查差异包裹数(超标数)
-                    reviewWeightSpotCheck.setTrustCheckRateOfDiff(convertPercentage(trustNumOfExcess,trustNumOfActual));      //信任商家抽查差异率
-                    reviewWeightSpotCheck.setTotalCheckRate(spotCheckInfo==null?null:convertPercentage((trustNumOfActual+normalNumOfActual),
-                            ((trustNumOfShould == null?0:trustNumOfShould)+normalNumOfShould)));                 //总抽查率
-
-                    list.add(reviewWeightSpotCheck);
-
-                }
-
-            }
-
-        }
-
-        if(type == 0){
-            //分页查询
-            List<ReviewWeightSpotCheck> listOfReturn = new ArrayList<>();
-            int limit = condition.getLimit();
-            int offset = condition.getOffset();
-            int start = offset;
-            int end = limit+offset;
-            for (int i = start; i < (list.size()<end?list.size():end); i++) {
-                listOfReturn.add(list.get(i));
-            }
-            result.setRows(listOfReturn);
-        }else{
-            //导出
-            result.setRows(list);
-        }
-        result.setTotal(list.size());
-
-        return result;
-    }
-
-    /**
-     * 根据条件查询
-     * @param condition
      * @return
      */
     @Override
@@ -356,7 +244,7 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
         try {
             List<SpotCheckInfo> spotCheckInfos = reviewWeightSpotCheckDao.queryByCondition(condition);
             if(spotCheckInfos.size() == 0){
-                logger.warn("未导入抽查任务!");
+                log.warn("未导入抽查任务!");
                 result.setRows(new ArrayList<ReviewWeightSpotCheck>());
                 result.setTotal(0);
                 return result;
@@ -413,7 +301,7 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
             result.setTotal(list.size());
 
         }catch (Exception e){
-            logger.error("查询失败!",e);
+            log.error("查询失败!",e);
             result.setRows(new ArrayList<ReviewWeightSpotCheck>());
             result.setTotal(0);
         }

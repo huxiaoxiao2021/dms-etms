@@ -1,14 +1,14 @@
 package com.jd.bluedragon.distribution.cyclebox;
 
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.TMSBossQueryManager;
 import com.jd.bluedragon.core.base.CycleBoxExternalManager;
+import com.jd.bluedragon.core.base.TMSBossQueryManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
-import com.jd.bluedragon.distribution.api.request.WaybillCodeListRequest;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
 import com.jd.bluedragon.distribution.api.request.RecyclableBoxRequest;
+import com.jd.bluedragon.distribution.api.request.WaybillCodeListRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation;
 import com.jd.bluedragon.distribution.cyclebox.domain.CycleBox;
@@ -27,16 +27,20 @@ import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.waybill.domain.WaybillExtPro;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Service("cycleBoxService")
 public class CycleBoxServiceImpl implements CycleBoxService {
-    private final Logger logger = Logger.getLogger(CycleBoxServiceImpl.class);
+    private final Logger log = LoggerFactory.getLogger(CycleBoxServiceImpl.class);
     @Autowired
     private SortingService tSortingService;
 
@@ -97,7 +101,7 @@ public class CycleBoxServiceImpl implements CycleBoxService {
                     if(NumberHelper.isNumber(boxNumStr)){
                         boxNum = Integer.parseInt(boxNumStr);
                     }
-                    logger.info("根据运单号:" + extPro.getWaybillCode() + "获取到的青流箱数量为:"+boxNumStr);
+                    log.info("根据运单号:{}获取到的青流箱数量为:{}",extPro.getWaybillCode(),boxNumStr);
                     clearBoxNum += boxNum;
                 }
             }
@@ -171,7 +175,9 @@ public class CycleBoxServiceImpl implements CycleBoxService {
      * @param task
      */
     public boolean pushCycleBoxStatus(Task task) {
-        logger.info("同步青流箱状态：" + JsonHelper.toJson(task));
+        if(log.isDebugEnabled()){
+            log.debug("同步青流箱状态：{}" , JsonHelper.toJson(task));
+        }
 
         boolean isSuccess = true;
         try {
@@ -182,7 +188,9 @@ public class CycleBoxServiceImpl implements CycleBoxService {
             if (StringUtils.isNotBlank(waybillCode)) {
                 //根据运单号获取青流箱箱号列表
                 List<String> cycleBoxList = cycleBoxExternalManager.getCbUniqueNoByWaybillCode(waybillCode);
-                logger.info("同步青流箱状态，根据运单号" + waybillCode + "获取到的青流箱号列表为:" + JsonHelper.toJson(cycleBoxList));
+                if(log.isDebugEnabled()){
+                    log.debug("同步青流箱状态，根据运单号{}获取到的青流箱号列表为:{}" ,waybillCode, JsonHelper.toJson(cycleBoxList));
+                }
                 //清流箱号不为空，发送MQ
                 if (cycleBoxList != null && cycleBoxList.size() > 0) {
                     request.setUniqueCode(cycleBoxList); //设置青流箱号列表
@@ -196,14 +204,14 @@ public class CycleBoxServiceImpl implements CycleBoxService {
                                 request.setOperator(staffdto.getErp());
                             }
                         } catch (Exception e) {
-                            logger.error("同步青流箱，根据操作人编码获取操作人erp异常.", e);
+                            log.error("同步青流箱，根据操作人编码获取操作人erp异常.", e);
                         }
                     }
                     recyclableBoxSend(request);
                 }
             }
         }catch (Exception e){
-            logger.error("处理同步青流箱任务异常.",e);
+            log.error("处理同步青流箱任务异常.",e);
             isSuccess = false;
         }
 
@@ -228,7 +236,7 @@ public class CycleBoxServiceImpl implements CycleBoxService {
                     }
                 } else if (BusinessUtil.isBoxcode(deliveryRequest.getBoxCode())) {
                     if (deliveryRequest.getSiteCode() == null) {
-                        logger.error("根据发货请求获取运单号列表,发货请求中站点信息为空" + JsonHelper.toJson(deliveryRequest));
+                        log.error("根据发货请求获取运单号列表,发货请求中站点信息为空：{}" , JsonHelper.toJson(deliveryRequest));
                         continue;
                     }
                     //扫描的是箱号，查sorting表，获取运单号列表

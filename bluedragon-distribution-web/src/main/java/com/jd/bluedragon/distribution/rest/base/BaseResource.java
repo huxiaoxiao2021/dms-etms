@@ -1,32 +1,5 @@
 package com.jd.bluedragon.distribution.rest.base;
 
-import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-
-import com.jd.bluedragon.sdk.modules.menu.dto.MenuConstantAccountInfo;
-import com.jd.bluedragon.sdk.modules.menu.dto.MenuPdaRequest;
-import com.jd.bluedragon.utils.JsonHelper;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.jboss.resteasy.annotations.GZIP;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
-
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -35,13 +8,7 @@ import com.jd.bluedragon.core.base.VmsManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
-import com.jd.bluedragon.distribution.api.response.BaseDatadict;
-import com.jd.bluedragon.distribution.api.response.BaseResponse;
-import com.jd.bluedragon.distribution.api.response.BaseStaffResponse;
-import com.jd.bluedragon.distribution.api.response.DatadictResponse;
-import com.jd.bluedragon.distribution.api.response.LoginUserResponse;
-import com.jd.bluedragon.distribution.api.response.SysConfigResponse;
-import com.jd.bluedragon.distribution.api.response.WarehouseResponse;
+import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.base.domain.BaseSetConfig;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
@@ -53,7 +20,9 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
 import com.jd.bluedragon.distribution.version.service.ClientConfigService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.sdk.modules.menu.dto.MenuPdaRequest;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.api.common.dto.CommonDto;
 import com.jd.etms.api.common.enums.RouteProductEnum;
@@ -74,7 +43,22 @@ import com.jd.ql.basic.domain.PsStoreInfo;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.dto.SimpleBaseSite;
 import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.apache.commons.lang.StringUtils;
+import org.jboss.resteasy.annotations.GZIP;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
 
 @Component
 @Path(Constants.REST_URL)
@@ -82,7 +66,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 @Produces({ MediaType.APPLICATION_JSON })
 public class BaseResource {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	private final String DMS = "dms";
 
 	private static final Integer parentGroup = 70550731;
@@ -134,14 +118,14 @@ public class BaseResource {
 	@GET
 	@Path("/bases/driver/{driverCode}")
 	public BaseResponse getDriver(@PathParam("driverCode") String driverCode) {
-		this.logger.info("driverCode is " + driverCode);
+		this.log.debug("driverCode is {}" , driverCode);
         BaseStaffSiteOrgDto driver = null;
         Integer tmpdriverCode = null;
 
 		try {
 			tmpdriverCode = Integer.valueOf(driverCode);
 		} catch (Exception e) {
-			logger.error("司机编码转换失败 " + driverCode + "无法转换成 Integer", e);
+			log.error("司机编码转换失败 {}无法转换成 Integer",driverCode, e);
 			BaseResponse response = new BaseResponse(JdResponse.CODE_PARAM_ERROR,
 			        JdResponse.MESSAGE_PARAM_ERROR);
 			return response;
@@ -150,14 +134,14 @@ public class BaseResource {
 		try {
 			driver = baseService.queryDriverByDriverCode(tmpdriverCode);
 		} catch (Exception e) {
-			logger.error("获取司机失败", e);
+			log.error("获取司机失败：driverCode={}",driverCode, e);
 			BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
 			        JdResponse.MESSAGE_SERVICE_ERROR);
 			return response;
 		}
 
 		if (null == driver) {
-			logger.warn("没有对应司机");
+			log.warn("没有对应司机：driverCode={}",driverCode);
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_DRIVERS_EMPTY);
 			return response;
@@ -176,7 +160,7 @@ public class BaseResource {
 	@Path("/bases/saf/vehicle/")
 	public BaseResponse getSafVehicle(@QueryParam("vehicleCode") String vehicleCode,
 			@QueryParam("barCode") String barCode) {
-		this.logger.info("Saf vehicleCode is " + vehicleCode + " and barCode is " + barCode);
+		this.log.debug("Saf vehicleCode is {} and barCode is {}" ,vehicleCode, barCode);
 
         try {
             Vehicle temp = null;
@@ -197,13 +181,13 @@ public class BaseResource {
 				response.setLicense(temp.getVehicleNumber() );
 				return response;
 			} else {
-				this.logger.warn("没有对应车辆");
+				this.log.warn("没有对应车辆:vehicleCode={}",vehicleCode);
 				BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 				        JdResponse.MESSAGE_VEHICLES_EMPTY);
 				return response;
 			}
 		} catch (Exception e) {
-			this.logger.error("Saf 获取车辆失败", e);
+			this.log.error("Saf 获取车辆失败:vehicleCode={}",vehicleCode, e);
 			BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
 					JdResponse.MESSAGE_SERVICE_ERROR);
 			return response;
@@ -213,12 +197,12 @@ public class BaseResource {
 	@GET
 	@Path("/bases/sortingcenter/{code}")
 	public BaseResponse getSortingCenter(@PathParam("code") String code) {
-		logger.info("sortingcentercode is " + code);
+		log.debug("sortingcentercode is {}" , code);
 		try {
 			BaseStaffSiteOrgDto dto = baseService.queryDmsBaseSiteByCode(code);
-			logger.info("获取站点信息成功");
+			log.debug("获取站点信息成功");
 			if (dto == null) {
-				logger.warn("没有对应站点");
+				log.warn("没有对应站点:code={}" , code);
 				BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 				        JdResponse.MESSAGE_SITE_EMPTY);
 				return response;
@@ -228,7 +212,7 @@ public class BaseResource {
 			/** 分拣中心64，二级分拣中心256 */
 			if (Constants.BASE_SITE_DISTRIBUTION_CENTER.equals(dto.getSiteType())
 			        || Constants.BASE_SITE_DISTRIBUTION_SUBSIDIARY_CENTER.equals(dto.getSiteType())) {
-				logger.info("站点类型:" + dto.getSiteType() + " 为分拣中心类型");
+				log.info("站点类型:{} 为分拣中心类型",dto.getSiteType());
 				BaseResponse response = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 				/** 获取数据 */
 				Integer partnerId = dto.getSiteCode();
@@ -241,7 +225,7 @@ public class BaseResource {
 				/** 返回结果 */
 				return response;
 			} else {
-				logger.info("站点类型:" + dto.getSiteType() + " 非分拣中心类型");
+				log.info("站点类型:{} 非分拣中心类型",dto.getSiteType());
 				BaseResponse response = new BaseResponse(JdResponse.CODE_PARAM_ERROR,
 				        JdResponse.MESSAGE_SORTINGCENTER_ERROR);
 				/** 获取数据 */
@@ -256,7 +240,7 @@ public class BaseResource {
 				return response;
 			}
 		} catch (Exception e) {
-			logger.error("获取站点名称失败", e);
+			log.error("获取站点名称失败:code={}" , code, e);
 			BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
 			        JdResponse.MESSAGE_SERVICE_ERROR);
 			return response;
@@ -266,20 +250,20 @@ public class BaseResource {
 	@GET
 	@Path("/bases/site/{code}")
 	public BaseResponse getSite(@PathParam("code") String code) {
-		this.logger.info("sitecode is " + code);
+		this.log.debug("sitecode is {}" , code);
 
         BaseStaffSiteOrgDto dto=null;
 		try {
 			dto = baseService.queryDmsBaseSiteByCode(code);
 		} catch (Exception e) {
-			logger.error("获取站点名称失败", e);
+			log.error("获取站点名称失败:code={}" , code, e);
 			BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
 			        JdResponse.MESSAGE_SERVICE_ERROR);
 			return response;
 		}
 
 		if (null == dto) {
-			logger.warn("没有对应站点");
+			log.warn("没有对应站点:code={}" , code);
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_SITE_EMPTY);
 			return response;
@@ -302,6 +286,16 @@ public class BaseResource {
 	public BaseResponse login(LoginRequest request) {
 		return userService.dmsClientLogin(request);
 	}
+
+	@POST
+	@Path("/bases/newLogin")
+	public LoginUserResponse newLogin(LoginRequest request) {
+		if (log.isInfoEnabled()) {
+			log.info("login from new rest service.[{}]", JsonHelper.toJson(request));
+		}
+		return userService.clientLoginIn(request);
+	}
+
 	@POST
 	@Path("/bases/getLoginUser")
 	public JdResult<LoginUserResponse> getLoginUser(LoginRequest request) {
@@ -311,8 +305,8 @@ public class BaseResource {
 	@Path("/bases/drivers/{orgId}")
 	public List<BaseResponse> getDrivers(@PathParam("orgId") Integer orgId) {
 		// 根据机构ID获取对应的司机信息列表
-		this.logger.info("orgId is " + orgId);
-		this.logger.info("获取司机信息开始");
+		this.log.debug("orgId is {}" , orgId);
+		this.log.debug("获取司机信息开始");
 
 		List<BaseResponse> ll = new ArrayList<BaseResponse>();
 
@@ -320,7 +314,7 @@ public class BaseResource {
 		try {
 			result = baseService.queryDriverByOrgId(orgId);
 		} catch (Exception e) {
-			logger.error("获取司机信息失败", e);
+			log.error("获取司机信息失败:orgId={}",orgId, e);
 			BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
 			        JdResponse.MESSAGE_SERVICE_ERROR);
 			ll.add(response);
@@ -328,7 +322,7 @@ public class BaseResource {
 		}
 
 		if (null == result) {
-			logger.warn("获取司机信息失败");
+			log.warn("获取司机信息失败:orgId={}",orgId);
 			BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
 			        JdResponse.MESSAGE_SERVICE_ERROR);
 			ll.add(response);
@@ -336,7 +330,7 @@ public class BaseResource {
 		}
 
 		if (result.length == 0) {
-			logger.warn("获取司机信息为空");
+			log.warn("获取司机信息为空:orgId={}",orgId);
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_DRIVERS_EMPTY);
 			ll.add(response);
@@ -358,7 +352,7 @@ public class BaseResource {
 	@GET
 	@Path("/bases/allorgs/")
 	public List<BaseResponse> getAllOrgs() {
-		this.logger.info("获取全部机构信息开始");
+		this.log.debug("获取全部机构信息开始");
 
 		List<BaseResponse> ll = new ArrayList<BaseResponse>();
 
@@ -367,7 +361,7 @@ public class BaseResource {
 		try {
 			result = baseService.getAllOrg();
 		} catch (Exception e) {
-			logger.error("获取全部机构信信息失败", e);
+			log.error("获取全部机构信信息失败", e);
 			BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
 			        JdResponse.MESSAGE_SERVICE_ERROR);
 			ll.add(response);
@@ -375,7 +369,7 @@ public class BaseResource {
 		}
 
 		if (null == result || result.size() == 0) {
-			logger.warn("获取全部机构信息为空");
+			log.warn("获取全部机构信息为空");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_ALLORGS_EMPTY);
 			ll.add(response);
@@ -412,8 +406,8 @@ public class BaseResource {
 	@GZIP
 	public List<BaseResponse> getSites(@PathParam("orgId") Integer orgCode) {
 		// 根据机构ID获取对应的站点信息列表
-		this.logger.info("orgCode is " + orgCode);
-		this.logger.info("获取站点信息开始");
+		this.log.debug("orgCode is {}" , orgCode);
+		this.log.debug("获取站点信息开始");
 
 		List<BaseResponse> ll = new ArrayList<BaseResponse>();
 
@@ -421,7 +415,7 @@ public class BaseResource {
 		try {
 			result = baseService.querySiteByOrgID(orgCode);
 		} catch (Exception e) {
-			logger.error("获取站点信息失败", e);
+			log.error("获取站点信息失败:orgCode={}",orgCode, e);
 			BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
 			        JdResponse.MESSAGE_SERVICE_ERROR);
 			ll.add(response);
@@ -429,7 +423,7 @@ public class BaseResource {
 		}
 
 		if (null == result || result.length == 0) {
-			logger.warn("获取站点信息为空");
+			log.warn("获取站点信息为空:orgCode={}",orgCode);
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_SITES_EMPTY);
 			ll.add(response);
@@ -485,14 +479,14 @@ public class BaseResource {
 	@Path("/bases/errorlist/")
 	public List<BaseResponse> getErrorList() {
 
-		this.logger.info("获取所有错误信息列表");
+		this.log.debug("获取所有错误信息列表");
 
 		List<BaseResponse> ll = new ArrayList<BaseResponse>();
 		BaseDataDict[] result = null;
 		try {
 			result = baseService.getBaseDataDictListByDate(baseSetConfig.getErroral());
 		} catch (Exception e) {
-			logger.error("获取错误信息列表失败");
+			log.error("获取错误信息列表失败");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
 			        JdResponse.MESSAGE_SERVICE_ERROR);
 			ll.add(response);
@@ -500,7 +494,7 @@ public class BaseResource {
 		}
 
 		if (null == result || result.length == 0) {
-			logger.warn("获取错误信息为空");
+			log.warn("获取错误信息为空");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_ERROR_EMPTY);
 			ll.add(response);
@@ -539,7 +533,7 @@ public class BaseResource {
 				result.setData(baseService.getBaseDictionaryTree(Integer.parseInt(typeGroups)));
 			}
         }catch (Exception ex){
-            logger.error(ex.getMessage(),ex);
+            log.error("getBaseDictionaryTreeMulti.typeGroups={}",typeGroups,ex);
             result.error(ex);
         }
         return result;
@@ -552,7 +546,7 @@ public class BaseResource {
 		try{
 			result.setData(baseService.getBaseDictionaryTree(typeGroup));
 		}catch (Exception ex){
-			logger.error(ex.getMessage(),ex);
+			log.error("getBaseDictionaryTree:typeGroup={}",typeGroup,ex);
 			result.error(ex);
 		}
 		return result;
@@ -561,15 +555,15 @@ public class BaseResource {
 	@Path("/bases/error/{typeGroup}")
 	public List<BaseResponse> getErrorList(@PathParam("typeGroup") Integer typeGroup) {
 
-		this.logger.info("typeGroup is " + typeGroup);
-		this.logger.info("获取错误信息列表");
+		this.log.debug("typeGroup is {}" , typeGroup);
+		this.log.debug("获取错误信息列表");
 
 		List<BaseResponse> ll = new ArrayList<BaseResponse>();
 		BaseDataDict[] result = null;
 		try {
 			result = baseService.getBaseDataDictListByDate(typeGroup);
 		} catch (Exception e) {
-			logger.error("获取错误信息列表失败");
+			log.error("获取错误信息列表失败:typeGroup={}",typeGroup);
 			BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
 			        JdResponse.MESSAGE_SERVICE_ERROR);
 			ll.add(response);
@@ -577,7 +571,7 @@ public class BaseResource {
 		}
 
 		if (null == result || result.length == 0) {
-			logger.warn("获取错误信息为空");
+			log.warn("获取错误信息为空:typeGroup={}",typeGroup);
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_ERROR_EMPTY);
 			ll.add(response);
@@ -602,14 +596,14 @@ public class BaseResource {
 	@GET
 	@Path("/bases/sitetype/")
 	public List<BaseResponse> getSiteTypeList() {
-		this.logger.info("获取站点类型信息列表");
+		this.log.debug("获取站点类型信息列表");
 
 		List<BaseResponse> ll = new ArrayList<BaseResponse>();
 		BaseDataDict[] result = null;
 		try {
 			result = baseService.getBaseDataDictListByDate(baseSetConfig.getSitetype());
 		} catch (Exception e) {
-			logger.error("获取站点类型列表失败", e);
+			log.error("获取站点类型列表失败", e);
 			BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
 			        JdResponse.MESSAGE_SERVICE_ERROR);
 			ll.add(response);
@@ -617,7 +611,7 @@ public class BaseResource {
 		}
 
 		if (null == result || result.length == 0) {
-			logger.warn("获取站点类型信息为空");
+			log.warn("获取站点类型信息为空");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_SITETYPE_EMPTY);
 			ll.add(response);
@@ -655,8 +649,8 @@ public class BaseResource {
 	@GZIP
 	public List<BaseResponse> getSites_New(@PathParam("orgId") Integer orgCode) {
 		// 根据机构ID获取对应的站点信息列表
-		this.logger.info("orgCode is " + orgCode);
-		this.logger.info("获取站点信息开始");
+		this.log.debug("orgCode is {}" , orgCode);
+		this.log.debug("获取站点信息开始");
 
 		List<BaseResponse> ll = new ArrayList<BaseResponse>();
 
@@ -669,7 +663,7 @@ public class BaseResource {
 			 */
 			result = baseService.querySiteByOrgID(orgCode);
 		} catch (Exception e) {
-			logger.error("获取站点信息失败", e);
+			log.error("获取站点信息失败:orgCode={}",orgCode, e);
 			BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
 			        JdResponse.MESSAGE_SERVICE_ERROR);
 			ll.add(response);
@@ -677,7 +671,7 @@ public class BaseResource {
 		}
 
 		if (null == result || result.length == 0) {
-			logger.warn("获取站点信息为空");
+			log.warn("获取站点信息为空:orgCode={}",orgCode);
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_SITES_EMPTY);
 			ll.add(response);
@@ -729,7 +723,7 @@ public class BaseResource {
 	@GET
 	@Path("/newbases/site/{code}")
 	public BaseResponse getSite_New(@PathParam("code") String code) {
-		this.logger.info("sitecode is " + code);
+		this.log.info("sitecode is {}" , code);
 
 		String siteName;
 		Integer siteCode;
@@ -742,14 +736,14 @@ public class BaseResource {
 			new BaseStaffSiteOrgDto();
 			/*
 			 * if(NumberHelper.isStringNumber(code)){
-			 * this.logger.info("code is siteCode" + code);
+			 * this.log.info("code is siteCode" + code);
 			 * param.setSiteCode(NumberHelper.getIntegerValue(code)); }else{
-			 * this.logger.info("code is dmsCode" + code);
+			 * this.log.info("code is dmsCode" + code);
 			 * param.setDmsSiteCode(code); }
 			 *
 			 * BaseStaffSiteOrgDto[] result =
 			 * baseService.selectSiteByPara(param);
-			 * this.logger.info("result have" + result.length);
+			 * this.log.info("result have" + result.length);
 			 * BaseStaffSiteOrgDto dto = result.length>0?result[0]:null;
 			 */
 			BaseStaffSiteOrgDto dto = baseService.queryDmsBaseSiteByCode(code);
@@ -763,14 +757,14 @@ public class BaseResource {
 			parentSiteName = dto != null && dto.getParentSiteName() != null ? dto
 			        .getParentSiteName() : null;
 		} catch (Exception e) {
-			logger.error("获取站点名称失败", e);
+			log.error("获取站点名称失败:code={}",code, e);
 			BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
 			        JdResponse.MESSAGE_SERVICE_ERROR);
 			return response;
 		}
 
 		if (null == siteName) {
-			logger.warn("没有对应站点");
+			log.warn("没有对应站点:code={}",code);
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_SITE_EMPTY);
 			return response;
@@ -789,13 +783,13 @@ public class BaseResource {
 	@GET
 	@Path("/bases/sysconfig/")
 	public List<SysConfigResponse> getConfigByKey(@QueryParam("key") String key) {
-		this.logger.info("key is " + key);
+		this.log.debug("key is {}" , key);
 		List<SysConfig> configs = baseService.queryConfigByKey(key+"%");
 
 		List<SysConfigResponse> result = new ArrayList<SysConfigResponse>();
 
 		if (configs == null) {
-			logger.warn("没有对应参数配置");
+			log.warn("没有对应参数配置:key={}",key);
 			return result;
 		} else {
 			for (SysConfig config : configs) {
@@ -819,7 +813,7 @@ public class BaseResource {
 	@GET
 	@Path("/base/getBaseSite/{code}")
 	public void getBaseSite(@PathParam("code") String code) {
-		this.logger.info("sitecode is " + code);
+		this.log.debug("sitecode is {}" , code);
 
 		BaseStaffSiteOrgDto bDto = null;
 		try {
@@ -832,11 +826,11 @@ public class BaseResource {
 			Integer orderType = bDto.getSiteType();
 			Integer baseOrgId = bDto.getOrgId();
 			String baseStoreId = bDto.getStoreCode();
-			this.logger.info("站点类型为" + orderType);
-			this.logger.info("baseOrgId" + baseOrgId);
-			this.logger.info("baseStoreId" + baseStoreId);
+			this.log.info("站点类型为 {}" , orderType);
+			this.log.info("baseOrgId {}" , baseOrgId);
+			this.log.info("baseStoreId {}" , baseStoreId);
 		} else {
-			this.logger.info("site is empty");
+			this.log.info("site is empty");
 		}
 	}
 
@@ -915,7 +909,7 @@ public class BaseResource {
 	@GET
 	@Path("/bases/selfD/{code}")
 	public BaseResponse getselfD(@PathParam("code") Integer code) {
-		this.logger.info("sitecode is " + code);
+		this.log.debug("sitecode is {}" , code);
 
 		Integer sitecode = baseService.getSiteSelfDBySiteCode(code);
 		BaseResponse response = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
@@ -932,7 +926,7 @@ public class BaseResource {
 	@GET
 	@Path("/bases/threePartner/{code}")
 	public BaseResponse getThreePartnerD(@PathParam("code") Integer code) {
-		this.logger.info("sitecode is " + code);
+		this.log.debug("sitecode is {}" , code);
 
 		Integer sitecode = baseMajorManager.getPartnerSiteBySiteId(code);
 		BaseResponse response = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
@@ -973,7 +967,8 @@ public class BaseResource {
 					//根据三方-合作站点获取三方-合作站点所属自营站点
 					if(BusinessUtil.isThreePartner(perSite.getSiteType(),perSite.getSubType())
 							|| BusinessUtil.isSchoolyard(perSite.getSiteType(),perSite.getSubType())
-							|| BusinessUtil.isRecovery(perSite.getSiteType(),perSite.getSubType())){
+							|| BusinessUtil.isRecovery(perSite.getSiteType(),perSite.getSubType())
+							|| BusinessUtil.isNewBigSmallSite(perSite.getSiteType(),perSite.getSubType())) {
 						Integer PartnerSite =  baseMajorManager.getPartnerSiteBySiteId(perSiteCode);
 						if(PartnerSite!=null){
 							//记录大站
@@ -997,7 +992,7 @@ public class BaseResource {
 				result.setMessage("未获取到运单信息");
 			}
 		}catch (Exception e){
-			logger.error("bases/perAndSelfSite error!"+waybillCode,e);
+			log.error("bases/perAndSelfSite error:{}",waybillCode,e);
 			result.setCode(InvokeResult.SERVER_ERROR_CODE);
 			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
 		}
@@ -1042,7 +1037,7 @@ public class BaseResource {
 		//(7030,2,7030) //线路类型
 		//(7031,2,7031) //运力类型
 		//(7032,2,7032) //运输方式
-		this.logger.info("获取运力的线路类型、运力类型、运输方式 ");
+		this.log.info("获取运力的线路类型、运力类型、运输方式 ");
 
 		List<BaseResponse> responseList = new ArrayList<BaseResponse>();
 		BaseDataDict[] result = null;
@@ -1051,7 +1046,7 @@ public class BaseResource {
 			result = baseService.getBaseDataDictListByDate(baseSetConfig.getCapacityType());
 		} catch (Exception e) {
 			//如果异常直接返回
-			logger.error("获取获取运力信息列表失败");
+			log.error("获取获取运力信息列表失败");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
 			        JdResponse.MESSAGE_SERVICE_ERROR);
 			responseList.add(response);
@@ -1059,7 +1054,7 @@ public class BaseResource {
 		}
 
 		if (null == result || result.length == 0) {
-			logger.warn("获取运力信息为空");
+			log.warn("获取运力信息为空");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_ERROR_EMPTY);
 			responseList.add(response);
@@ -1100,7 +1095,7 @@ public class BaseResource {
 		//(1011,2,1011) //线路类型：运输类型
 		//(1004,2,1004) //运力类型：承运商类型
 		//(1001,2,1001) //运输方式 :运输方式
-		this.logger.info("获取运力的线路类型、运力类型、运输方式 ");
+		this.log.debug("获取运力的线路类型、运力类型、运输方式 ");
 
 		List<BaseResponse> responseList = new ArrayList<BaseResponse>();
 		DictDto[] result = null;
@@ -1109,7 +1104,7 @@ public class BaseResource {
 			result = baseService.getDictListByGroupType(vtsbaseSetConfig.getCapacityType());
 		} catch (Exception e) {
 			//如果异常直接返回
-			logger.error("获取获取运力信息列表失败");
+			log.error("获取获取运力信息列表失败");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
 			        JdResponse.MESSAGE_SERVICE_ERROR);
 			responseList.add(response);
@@ -1117,7 +1112,7 @@ public class BaseResource {
 		}
 
 		if (null == result || result.length == 0) {
-			logger.warn("获取运力信息为空");
+			log.warn("获取运力信息为空");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_ERROR_EMPTY);
 			responseList.add(response);
@@ -1213,8 +1208,8 @@ public class BaseResource {
 	public DatadictResponse getOrignalBackBusIds(@PathParam("parentGroup")Integer parentGroup
 												,@PathParam("nodeLevel") Integer nodeLevel
 												,@PathParam("typeGroup") Integer typeGroup){
-		logger.info(MessageFormat.format("获取原退商家ID,parentGroup={0} nodeLevel={1} typeGroup={2}"
-                , parentGroup, nodeLevel, typeGroup));
+		log.debug("获取原退商家ID,parentGroup={} nodeLevel={} typeGroup={}"
+				, parentGroup, nodeLevel, typeGroup);
 		DatadictResponse datadictResponse = null;
 		try{
 			List<BaseDataDict> baseDataDicts = baseMajorManager.getValidBaseDataDictList(
@@ -1233,11 +1228,13 @@ public class BaseResource {
 			datadictResponse.setDatadicts(bdds);
 			return datadictResponse;
 		}catch (Exception ex){
-			logger.error(MessageFormat.format("获取原退商家ID失败，原因{0},堆栈{1}",ex.getMessage(),ex));
+			log.error("获取原退商家ID失败:parentGroup={} nodeLevel={} typeGroup={}"
+					, parentGroup, nodeLevel, typeGroup,ex);
 			datadictResponse = new DatadictResponse(JdResponse.CODE_INTERNAL_ERROR,JdResponse.MESSAGE_SERVICE_ERROR);
 			return datadictResponse;
 		}catch (Throwable te){
-			logger.error(MessageFormat.format("获取原退商家ID失败，原因{0},堆栈{1}", te.getMessage(), te));
+			log.error("获取原退商家ID失败:parentGroup={} nodeLevel={} typeGroup={}"
+					, parentGroup, nodeLevel, typeGroup,te);
 			datadictResponse = new DatadictResponse(JdResponse.CODE_INTERNAL_ERROR,JdResponse.MESSAGE_SERVICE_ERROR);
 			return datadictResponse;
 		}
@@ -1298,7 +1295,7 @@ public class BaseResource {
 		try{
 			sysConfigs = sysConfigService.getCachedList(conName);
 		}catch(Exception ex){
-			logger.error("获取开关信息失败", ex);
+			log.error("获取开关信息失败:conName={}",conName, ex);
 			response.setCode(JdResponse.CODE_SERVICE_ERROR);
 			response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
 			return response;
@@ -1324,20 +1321,20 @@ public class BaseResource {
 	@GZIP
 	@Path("/bases/dms/{orgId}")
 	public List<BaseResponse> getDmsByOrgId(@PathParam("orgId") Integer orgId){
-		this.logger.info("根据orgId获取分拣中心列表,orgId为" + orgId);
+		this.log.debug("根据orgId获取分拣中心列表,orgId为:{}" , orgId);
 		List<BaseResponse> ll = new ArrayList<BaseResponse>();
 		List<SimpleBaseSite> dmsList = new ArrayList<SimpleBaseSite>();
 		try{
 			dmsList = baseMajorManager.getDmsListByOrgId(orgId);
 		}catch(Exception e){
-			logger.error("根据orgId获取分拣中心列表失败", e);
+			log.error("根据orgId获取分拣中心列表失败:orgId={}",orgId, e);
 			BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
 			        JdResponse.MESSAGE_SERVICE_ERROR);
 			ll.add(response);
 			return ll;
 		}
 		if(null == dmsList || dmsList.size() == 0){
-			logger.warn("根据orgId获取分拣中心列表为空");
+			log.warn("根据orgId获取分拣中心列表为空:orgId={}",orgId);
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_SITES_EMPTY);
 			ll.add(response);
@@ -1356,20 +1353,20 @@ public class BaseResource {
 	@GZIP
 	@Path("/bases/dms")
 	public List<BaseResponse> getDmsAll(){
-		this.logger.info("获取所有的分拣中心");
+		this.log.debug("获取所有的分拣中心");
 		List<BaseResponse> ll = new ArrayList<BaseResponse>();
 		List<BaseStaffSiteOrgDto> baseSiteList = new ArrayList<BaseStaffSiteOrgDto>();
 		try{
 			baseSiteList = basicPrimaryWSProxy.getBaseSiteByOrgIdSiteType(null,64);
 		}catch(Exception e){
-			logger.error("获取所有的分拣中心失败", e);
+			log.error("获取所有的分拣中心失败", e);
 			BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
 			        JdResponse.MESSAGE_SERVICE_ERROR);
 			ll.add(response);
 			return ll;
 		}
 		if(null == baseSiteList || baseSiteList.size() == 0){
-			logger.warn("获取所有的分拣中心为空");
+			log.warn("获取所有的分拣中心为空");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_SITES_EMPTY);
 			ll.add(response);
@@ -1393,17 +1390,17 @@ public class BaseResource {
 	@GZIP
 	@Path("/bases/getB2BSiteAll/{subTypes}")
 	public List<BaseResponse> getB2BSiteAll(@PathParam("subTypes") String subTypes){
-		this.logger.info("获取全国所有的转运中心，站点类型：" + subTypes);
+		this.log.debug("获取全国所有的转运中心，站点类型：{}" , subTypes);
 		List<BaseResponse> result = new ArrayList<BaseResponse>();
 
 		String [] subTypeArray = subTypes.split(",");
 
 		List<BaseOrg> allOrgs = null;
 		try {
-			logger.info("获取全国所有的转运中心-加载全国所有机构");
+			log.info("获取全国所有的转运中心-加载全国所有机构");
 			allOrgs = baseService.getAllOrg();
 		}catch (Exception e){
-			logger.error("获取全国所有的转运中心失败-加载全国所有机构失败",e);
+			log.error("获取全国所有的转运中心失败-加载全国所有机构失败",e);
 
 			BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
 					JdResponse.MESSAGE_SERVICE_ERROR);
@@ -1418,20 +1415,20 @@ public class BaseResource {
 			try {
 				subType = Integer.parseInt(subTypeStr);
 			}catch (Exception e){
-				logger.error("获取全国所有的转运中心失败"+subTypeStr +"无法转换成Integer类型");
+				log.error("获取全国所有的转运中心失败{}无法转换成Integer类型",subTypeStr);
 
 				BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
 						JdResponse.MESSAGE_SERVICE_ERROR);
 				result.add(response);
 				return result;
 			}
-			logger.info("获取站点类型为：" + subType +"的站点");
+			log.info("获取站点类型为：{} 的站点", subType);
 			try {
 				for (BaseOrg baseOrg : allOrgs) {
 					siteList.addAll(baseMajorManager.getBaseSiteByOrgIdSubType(baseOrg.getOrgId(), subType));
 				}
 			}catch (Exception e){
-				logger.error("获取全国所有的转运中心失败",e);
+				log.error("获取全国所有的转运中心失败:subType={}",subType, e);
 
 				BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
 						JdResponse.MESSAGE_SERVICE_ERROR);
@@ -1441,7 +1438,7 @@ public class BaseResource {
 		}
 
 		if(siteList == null || siteList.size() <1){
-			logger.error("获取全国所有的转运中心列表为空");
+			log.warn("获取全国所有的转运中心列表为空:subTypes={}",subTypes);
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 					JdResponse.MESSAGE_SITES_EMPTY);
 			result.add(response);
@@ -1466,13 +1463,13 @@ public class BaseResource {
 	@GZIP
 	@Path("/bases/getBaseAllStore/")
 	public List<BaseResponse> getBaseAllStore(){
-		this.logger.info("调用基础资料接口获取全国所有库房信息");
+		this.log.debug("调用基础资料接口获取全国所有库房信息");
 		List<BaseResponse> result = new ArrayList<BaseResponse>();
 
 		try {
 			List<BaseStaffSiteOrgDto> storeList = baseMajorManager.getBaseAllStore();
 			if(storeList == null || storeList.size()<1){
-				logger.error("调用基础资料接口获取全国所有库房为空");
+				log.warn("调用基础资料接口获取全国所有库房为空");
 				BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 						JdResponse.MESSAGE_SITES_EMPTY);
 				result.add(response);
@@ -1487,7 +1484,7 @@ public class BaseResource {
 			}
 
 		}catch (Exception  e){
-			logger.error("调用基础资料接口获取全国所有库房信息",e);
+			log.error("调用基础资料接口获取全国所有库房信息",e);
 			BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
 					JdResponse.MESSAGE_SERVICE_ERROR);
 			result.add(response);
@@ -1545,7 +1542,6 @@ public class BaseResource {
 				routeProduct = RouteProductEnum.TB2;
 			}
 		}
-		logger.info("查路由接口参数为token:"+token+",startNode:"+startNode + "endNode:" +endNodeCode + ",predictSendTime:"+predictSendTime + ",routeProduct:"+routeProduct);
 		CommonDto<RecommendRouteResp> commonDto = routeComputeUtil.queryRecommendRoute(startNode, endNodeCode, predictSendTime, routeProduct);
 		return commonDto;
 	}
@@ -1555,7 +1551,9 @@ public class BaseResource {
 	@Path("menu/pda/account")
 	public InvokeResult<String> menuPdaAccount(MenuPdaRequest request){
 		InvokeResult<String> result = new InvokeResult<>();
-		logger.info("pda常用菜单统计，请求参数:" + JsonHelper.toJson(request));
+		if(log.isDebugEnabled()){
+			log.debug("pda常用菜单统计，请求参数:{}" , JsonHelper.toJson(request));
+		}
 
 		if(StringUtils.isEmpty(request.getSiteCode())|| StringUtils.isEmpty(request.getOperatorErp())){
 			result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
@@ -1572,7 +1570,7 @@ public class BaseResource {
 		}catch (Exception e){
 			result.setCode(InvokeResult.SERVER_ERROR_CODE);
 			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
-			logger.error("常用功能异常"+JsonHelper.toJson(request),e);
+			log.error("常用功能异常:{}",JsonHelper.toJson(request),e);
 		}
 
 
@@ -1583,7 +1581,9 @@ public class BaseResource {
 	@Path("menu/print/account")
 	public InvokeResult<String> menuPrintAccount(MenuPdaRequest request){
 		InvokeResult<String> result = new InvokeResult<>();
-		logger.info("打印客户端常用菜单统计，请求参数:" + JsonHelper.toJson(request));
+		if(log.isDebugEnabled()){
+			log.debug("打印客户端常用菜单统计，请求参数:{}" , JsonHelper.toJson(request));
+		}
 
 		if(StringUtils.isEmpty(request.getSiteCode())|| StringUtils.isEmpty(request.getOperatorErp())){
 			result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
@@ -1600,7 +1600,7 @@ public class BaseResource {
 		}catch (Exception e){
 			result.setCode(InvokeResult.SERVER_ERROR_CODE);
 			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
-			logger.error("常用功能异常"+JsonHelper.toJson(request),e);
+			log.error("常用功能异常:{}",JsonHelper.toJson(request),e);
 		}
 
 

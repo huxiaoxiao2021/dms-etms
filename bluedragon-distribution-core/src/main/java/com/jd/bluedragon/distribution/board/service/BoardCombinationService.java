@@ -1,12 +1,11 @@
 package com.jd.bluedragon.distribution.board.service;
 
+import com.jd.bluedragon.distribution.api.dto.BoardDto;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.send.domain.SendM;
-import com.jd.transboard.api.dto.Board;
-import com.jd.transboard.api.dto.BoardMeasureDto;
-import com.jd.transboard.api.dto.BoardMeasureRequest;
-import com.jd.transboard.api.dto.Response;
+import com.jd.transboard.api.dto.*;
 
 import java.util.List;
 
@@ -57,6 +56,20 @@ public interface BoardCombinationService {
      * @return
      */
     public Response<Board> getBoardByBoxCode(Integer siteCode, String boxCode);
+
+    /**
+     * 创建新的板号
+     * @param request
+     * @return
+     */
+    public InvokeResult<List<BoardDto>> createBoard(AddBoardRequest request);
+
+    /**
+     * 根据板号获取板信息
+     * @param boardCode 板号
+     * @return 板信息
+     */
+    public InvokeResult<BoardDto> getBoard(String boardCode);
 
     /**
      * 清除组板时加的板号缓存

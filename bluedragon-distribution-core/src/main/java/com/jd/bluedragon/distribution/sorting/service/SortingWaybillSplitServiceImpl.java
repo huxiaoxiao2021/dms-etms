@@ -29,7 +29,7 @@ public class SortingWaybillSplitServiceImpl extends SortingPackServiceImpl{
                 super.doSorting(sortingTarget);
             }
         }else{
-            logger.error("运单转换拆分分拣业务包裹列表为空"+sorting.getWaybillCode());
+            log.warn("运单转换拆分分拣业务包裹列表为空:{}", sorting.getWaybillCode());
         }
         return true;
     }

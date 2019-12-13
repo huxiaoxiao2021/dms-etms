@@ -1,17 +1,16 @@
 package com.jd.bluedragon.distribution.seal.service;
 
-import java.util.List;
-
-
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.ql.basic.domain.BaseDataDict;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-
-import com.jd.ql.basic.domain.BaseDataDict;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * @description 编码转换工具
@@ -20,7 +19,7 @@ import org.springframework.stereotype.Service;
  */
 @Service("carLicenseChangeUtil")
 public class CarLicenseChangeUtil {
-	protected final static Logger logger = Logger.getLogger(CarLicenseChangeUtil.class);
+	protected final static Logger log = LoggerFactory.getLogger(CarLicenseChangeUtil.class);
 
 	@Autowired
 	@Qualifier("baseMajorManager")
@@ -47,7 +46,7 @@ public class CarLicenseChangeUtil {
 			}
 			return carCodeToLicense(carLicense);
 		} catch (Exception e) {
-			logger.error("formateLicense2Chinese-error:carLicense：" + carLicense, e);
+			log.error("formateLicense2Chinese-error:carLicense：{}" , carLicense, e);
 			return carLicense;
 		}
 	}

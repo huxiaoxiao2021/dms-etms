@@ -19,7 +19,7 @@ import java.util.*;
  * Created by wangtingwei on 2017/2/17.
  */
 public class GoddessDao {
-    private static final Logger logger = LoggerFactory.getLogger(GoddessDao.class);
+    private static final Logger log = LoggerFactory.getLogger(GoddessDao.class);
 
     @Value("${cassandra.consistencyLevel.default}")
     protected ConsistencyLevel consistencyLevel;
@@ -63,12 +63,12 @@ public class GoddessDao {
                     JsonHelper.toJson(log), operateTime);
             bstatementList.add(bStatement);
             baseCassandraDao.batchInsert(bstatementList, values);
-            if (logger.isInfoEnabled()) {
-                logger.info("OperationlogCassandra batchInsert execute success cost:"
-                        + (System.currentTimeMillis() - startTime) + "ms");
+            if (GoddessDao.log.isInfoEnabled()) {
+                GoddessDao.log.info("OperationlogCassandra batchInsert execute success cost:{}ms"
+                        , (System.currentTimeMillis() - startTime) );
             }
         } catch (Throwable e) {
-            logger.error("保存全程跟踪", e);
+            GoddessDao.log.error("保存全程跟踪", e);
         }
     }
 
@@ -118,12 +118,11 @@ public class GoddessDao {
                 }
             }
             result.setData(rsToList(rs, new RowToOrder()));
-            if (logger.isInfoEnabled()) {
-                logger.info("OperationlogCassandra getPage execute success cost:" + (System.currentTimeMillis() - startTime)
-                        + "ms");
+            if (log.isInfoEnabled()) {
+                log.info("OperationlogCassandra getPage execute success cost:{}ms" , (System.currentTimeMillis() - startTime));
             }
         } catch (Throwable e) {
-            logger.error("查询操作日志异常 异常原因：", e);
+            log.error("查询操作日志异常 异常原因：", e);
         }
 
         return result;

@@ -1,22 +1,22 @@
 package com.jd.bluedragon.distribution.send.dao;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 public  class SendMDao extends BaseDao<SendM>  {
 	
 	public static final String namespace = SendMDao.class.getName();
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	public SendM selectOneBySiteAndSendCode(Integer createSiteCode, String sendCode) {
 		SendM querySendM = new SendM();
@@ -31,9 +31,8 @@ public  class SendMDao extends BaseDao<SendM>  {
 		//如果传进来的参数createSiteCode不为空则还会进行一次查询
 
 		if(null == querySendM.getCreateSiteCode()){
-			logger.info("selectOneBySiteAndSendCode-->参数createSiteCode："
-					+ createSiteCode+";sendCode:"+sendCode);
-			logger.info("createSiteCode = null");
+			log.info("selectOneBySiteAndSendCode-->参数createSiteCode：{};sendCode:{}",createSiteCode,sendCode);
+			log.info("createSiteCode = null");
 			return null;
 		}
 
@@ -77,7 +76,9 @@ public  class SendMDao extends BaseDao<SendM>  {
 	
 	@SuppressWarnings("unchecked")
 	public List<SendM> selectBySendSiteCode(SendM sendM) {
-		logger.info("selectBySendSiteCode-->参数sendM：" + JsonHelper.toJson(sendM));
+		if(log.isInfoEnabled()){
+			log.info("selectBySendSiteCode-->参数sendM：{}" , JsonHelper.toJson(sendM));
+		}
 		if(sendM == null){
             return Collections.emptyList();
         }
@@ -85,7 +86,7 @@ public  class SendMDao extends BaseDao<SendM>  {
 			sendM.setCreateSiteCode(SerialRuleUtil.getCreateSiteCodeFromSendCode(sendM.getSendCode()));
 		}
 		if(null == sendM.getCreateSiteCode()){
-			logger.info("createSiteCode = null");
+			log.info("createSiteCode = null");
 			return Collections.emptyList();
 		}
 		return getSqlSession().selectList(SendMDao.namespace + ".selectBySendSiteCode", sendM);

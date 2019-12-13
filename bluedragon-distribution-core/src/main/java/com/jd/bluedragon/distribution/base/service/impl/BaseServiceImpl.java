@@ -17,10 +17,7 @@ import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.bluedragon.distribution.reverse.domain.Product;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
 import com.jd.bluedragon.distribution.sysloginlog.domain.ClientInfo;
-import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.vts.dto.CarrierInfo;
 import com.jd.etms.vts.dto.CarrierParamDto;
@@ -50,7 +47,8 @@ import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -62,7 +60,7 @@ import java.util.*;
 public class BaseServiceImpl implements BaseService {
 
 	/** 日志 */
-	private Logger log = Logger.getLogger(BaseServiceImpl.class);
+	private Logger log = LoggerFactory.getLogger(BaseServiceImpl.class);
 
 	@Autowired
 	private BaseMajorManager baseMajorManager;
@@ -107,10 +105,10 @@ public class BaseServiceImpl implements BaseService {
 	private VtsQueryWS vtsQueryWS;
 
     @Override
-    public BasePdaUserDto pdaUserLogin(String userid, String password,ClientInfo clientInfo) {
+    public BasePdaUserDto pdaUserLogin(String userid, String password, ClientInfo clientInfo, Byte loginVersion) {
         BasePdaUserDto basePdaUserDto = new BasePdaUserDto();
         if (log.isInfoEnabled()){
-            log.info("用户登录新接口，用户名 " + userid);
+            log.info("用户登录新接口，用户名 {}" , userid);
         }
 
         if (StringHelper.isEmpty(userid) || StringHelper.isEmpty(password)) {
@@ -125,7 +123,7 @@ public class BaseServiceImpl implements BaseService {
             if (userid.contains(Constants.PDA_THIRDPL_TYPE)) {
                 String thirdUserId = userid.replaceAll(Constants.PDA_THIRDPL_TYPE, "");
                 // 京东用户组接口验证
-				BasePdaUserDto basePdaUserDtoNew = userVerifyManager.passportVerify(thirdUserId, password, clientInfo);
+				BasePdaUserDto basePdaUserDtoNew = userVerifyManager.passportVerify(thirdUserId, password, clientInfo, loginVersion);
 				if (basePdaUserDtoNew.getErrorCode().equals(Constants.PDA_USER_GETINFO_SUCCESS)) {
 					// 用户组接口验证通过后，从基础资料获取具体信息
 					BaseStaffSiteOrgDto baseStaffDto = baseMajorManager.getThirdStaffByJdAccountNoCache(thirdUserId);
@@ -144,7 +142,7 @@ public class BaseServiceImpl implements BaseService {
                 // 调用人事接口验证用户
                 //User user = userVerifyManager.baseVerify(userid, password);
             	//调用sso的SsoService验证用户
-				InvokeResult<UserInfo> result = userVerifyManager.baseVerify(userid, password);
+				InvokeResult<UserInfo> result = userVerifyManager.baseVerify(userid, password, loginVersion);
                 if (result != null && result.getCode() != InvokeResult.RESULT_SUCCESS_CODE) {
                     basePdaUserDto.setErrorCode(Constants.PDA_USER_LOGIN_FAILUE);
                     basePdaUserDto.setMessage(result.getMessage());
@@ -161,7 +159,7 @@ public class BaseServiceImpl implements BaseService {
                 }
             }
         } catch (Exception e) {
-            log.error("user login error " + userid, e);
+            log.error("user login error {}" , userid, e);
 			basePdaUserDto.setErrorCode(Constants.PDA_USER_ABNORMAL);
 			basePdaUserDto.setMessage(Constants.PDA_USER_ABNORMAL_MSG);
         }
@@ -185,7 +183,7 @@ public class BaseServiceImpl implements BaseService {
     }
 
     @Override
-	public PdaStaff login(String erpcode, String password, ClientInfo clientInfo) {
+	public PdaStaff login(String erpcode, String password, ClientInfo clientInfo, Byte loginVersion) {
 		// TODO Auto-generated method stub
 		/** 验证结果 */
 		PdaStaff result = new PdaStaff();
@@ -193,9 +191,9 @@ public class BaseServiceImpl implements BaseService {
 		// 测试接口代码 baseMinorServiceProxy.getServerDate() 取服务器时间
 		BasePdaUserDto pdadata = null;
 		try {
-			pdadata = pdaUserLogin(erpcode, password,clientInfo);
+			pdadata = pdaUserLogin(erpcode, password, clientInfo, loginVersion);
 		} catch (Exception e) {
-			log.error("调用baseMinorServiceProxy.pdaUserLogin接口出现异常！", e);
+			log.error("调用baseMinorServiceProxy.pdaUserLogin接口出现异常！erpcode:{}",erpcode, e);
 		}
 		if(pdadata == null){
             /** 返回空数据 */
@@ -277,14 +275,12 @@ public class BaseServiceImpl implements BaseService {
             redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
     public List<SysConfig> queryConfigByKeyWithCache(String key){
         List<SysConfig> lst=  queryConfigByKey(key);
-        log.info("sysconfig.cache."+key);
         return lst;
     }
 
 	public BaseStaffSiteOrgDto[] queryDriverByOrgId(Integer orgid) {
 		/** 查询司机信息 */
 		/** 获取某个机构下的角色为staffRole员工信息 staff：2 司机 */
-		log.info("调用basicMajorServiceProxy.getBaseStaffByOrgId(id, 2)接口");
 		try {
 			List<BaseStaffSiteOrgDto> resultal = baseMajorManager.getBaseStaffListByOrgId(orgid,
 			        2);
@@ -316,7 +312,7 @@ public class BaseServiceImpl implements BaseService {
 	redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
 	public BaseStaffSiteOrgDto[] querySiteByOrgID(Integer orgid) {
 		/** 查询所有站点的信息 */
-		log.info("调用basicMajorServiceProxy.getBaseSiteAllByOrgId(id)接口");
+		log.info("调用basicMajorServiceProxy.getBaseSiteAllByOrgId({})接口",orgid);
 		try {
 			/** 不包括库房的信息 */
 			// return (List<T>)basicMajorServiceProxy.getBaseSiteAllByOrgId(id);
@@ -339,7 +335,7 @@ public class BaseServiceImpl implements BaseService {
 				return resultal.toArray(new BaseStaffSiteOrgDto[0]);
 			}
 		} catch (Exception e) {
-			log.error("调用basicMajorServiceProxy.getBaseSiteAllByOrgId(id)异常", e);
+			log.error("调用basicMajorServiceProxy.getBaseSiteAllByOrgId({})异常",orgid, e);
 		}
 		return null;
 	}
@@ -347,12 +343,12 @@ public class BaseServiceImpl implements BaseService {
 	@Override
 	public BaseStaffSiteOrgDto getSiteBySiteID(Integer siteid) {
 		/** 根据站点ID查询站点信息，因为返回的数据是 单一数据为了结构统一，统一使用List */
-		log.info("调用basicMajorServiceProxy.getBaseSiteBySiteId(id)接口");
+		log.info("调用basicMajorServiceProxy.getBaseSiteBySiteId({})接口",siteid);
 		try {
 			BaseStaffSiteOrgDto sitedto = baseMajorManager.getBaseSiteBySiteId(siteid);
 			return sitedto;
 		} catch (Exception e) {
-			log.error("调用basicMajorServiceProxy.getBaseSiteBySiteId(id)异常", e);
+			log.error("调用basicMajorServiceProxy.getBaseSiteBySiteId({})异常",siteid, e);
 		}
 		return null;
 	}
@@ -360,8 +356,7 @@ public class BaseServiceImpl implements BaseService {
 	@Override
 	public BaseDataDict[] getBaseDataDictListByDate(Integer typeGroup) {
 		/** 查询错误信息列表 */
-		log.info("调用basicMajorServiceProxy.getBaseDataDictList(" + typeGroup + ",2, " + typeGroup
-		        + ")接口");
+		log.info("调用basicMajorServiceProxy.getBaseDataDictList({},2, {})接口",typeGroup,typeGroup);
 		try {
 			List<BaseDataDict> resultal = baseMajorManager
 			        .getBaseDataDictList(typeGroup, 2, typeGroup);
@@ -369,8 +364,7 @@ public class BaseServiceImpl implements BaseService {
 				return resultal.toArray(new BaseDataDict[0]);
 			}
 		} catch (Exception e) {
-			log.error("调用basicMajorServiceProxy.getBaseDataDictList(" + typeGroup + ",2, "
-			        + typeGroup + ")异常", e);
+			log.error("调用basicMajorServiceProxy.getBaseDataDictList({},2, {})接口",typeGroup,typeGroup, e);
 		}
 		return null;
 	}
@@ -410,8 +404,7 @@ public class BaseServiceImpl implements BaseService {
 		try {
 			ArrayList<BaseDataDict> resultal = new ArrayList<BaseDataDict>();
 			for (Integer typeGroup : typeGroups) {
-				log.info("调用basicMajorServiceProxy.getBaseDataDictList(" + typeGroup + ",2, "
-				        + typeGroup + ")接口");
+				log.info("调用basicMajorServiceProxy.getBaseDataDictList({},2, {})接口",typeGroup,typeGroup);
 				List<BaseDataDict> tmpal = baseMajorManager.getBaseDataDictList(
 						typeGroup, 2, typeGroup);
 				if (tmpal != null && tmpal.size() > 0) {
@@ -429,7 +422,7 @@ public class BaseServiceImpl implements BaseService {
 			String stypeGroup = sb.toString();
 			stypeGroup = typeGroups.size() > 0 ? stypeGroup.substring(0, stypeGroup.length() - 1)
 			        : stypeGroup;
-			log.error("调用basicMajorServiceProxy.getBaseDataDictList()异常，待查询类型为：" + stypeGroup, e);
+			log.error("调用basicMajorServiceProxy.getBaseDataDictList()异常，待查询类型为：{}" , stypeGroup, e);
 		}
 		return null;
 	}
@@ -445,7 +438,7 @@ public class BaseServiceImpl implements BaseService {
 		try {
 			ArrayList<DictDto> resultal = new ArrayList<DictDto>();
 			for (Integer typeGroup : typeGroups) {
-				log.info("调用vtsQueryWS.getDictList(" + typeGroup + ",2, "+ typeGroup + ")接口");
+				log.info("调用vtsQueryWS.getDictList({},2, {})接口",typeGroup,typeGroup);
 				List<DictDto> dictDtoList = new ArrayList<DictDto>();
 				String typeGroupStr = String.valueOf(typeGroup);
 				CommonDto<List<DictDto>> commonDtoList = vtsQueryWS.getDictList(typeGroupStr, 2, typeGroupStr);
@@ -466,7 +459,7 @@ public class BaseServiceImpl implements BaseService {
 			String stypeGroup = sb.toString();
 			stypeGroup = typeGroups.size() > 0 ? stypeGroup.substring(0, stypeGroup.length() - 1)
 			        : stypeGroup;
-			log.error("调用vtsQueryWS.getDictList()异常，待查询类型为：" + stypeGroup, e);
+			log.error("调用vtsQueryWS.getDictList()异常，待查询类型为：{}" , stypeGroup, e);
 		}
 		return null;
 	}
@@ -483,10 +476,10 @@ public class BaseServiceImpl implements BaseService {
 			if (carrierInfoList != null && carrierInfoList.size() > 0) {
 				return carrierInfoList;
 			}else{
-				log.info("请求vtsQueryWS.getDictList()接口服务成功，获取字典数据为空！");
+				log.warn("请求vtsQueryWS.getDictList()接口服务成功，获取字典数据为空！carrierParamDto={}", JsonHelper.toJson(carrierParamDto));
 			}
 		}catch(Exception e){
-			log.error("调用vtsQueryWS.getCarrierInfoList()承运商列表异常", e);
+			log.error("调用vtsQueryWS.getCarrierInfoList()承运商列表异常，carrierParamDto={}", JsonHelper.toJson(carrierParamDto), e);
 		}
 		return null;
 	}
@@ -521,7 +514,7 @@ public class BaseServiceImpl implements BaseService {
 			BaseStaffSiteOrgDto staffdto = baseMajorManager.getBaseStaffByStaffId(drivercode);
 			return staffdto;
 		} catch (Exception e) {
-			log.error("调用basicMajorServiceProxy.getBaseStaffByStaffId(drivercode)异常", e);
+			log.error("调用basicMajorServiceProxy.getBaseStaffByStaffId(drivercode)异常,drivercode={}",drivercode, e);
 			return null;
 		}
 	}
@@ -574,7 +567,7 @@ public class BaseServiceImpl implements BaseService {
 		ReverseSendWms reverseSendWms = null;
 		try {
 			// 调用运单接口
-			this.log.info("调用运单接口, 订单号为： " + orderCode);
+			log.info("调用运单接口, 订单号为： {}" , orderCode);
 			WChoice wChoice = new WChoice();
 			wChoice.setQueryWaybillC(true);
 			wChoice.setQueryWaybillE(true);
@@ -586,13 +579,13 @@ public class BaseServiceImpl implements BaseService {
 				reverseSendWms = convWaybill(baseEntity.getData());
 				if (reverseSendWms == null) {
 					// 无数据
-					log.info("BaseServiceImpl 调用运单接口, 订单号为： " + orderCode + " 调用运单WSS数据为空");
+					log.info("BaseServiceImpl 调用运单接口, 订单号为： {} 调用运单WSS数据为空", orderCode);
 				}else if (reverseSendWms.getProList()==null||reverseSendWms.getProList().size()==0) {
-					log.info("BaseServiceImpl 调用运单接口, 订单号为： " + orderCode + " 调用运单WSS商品数据为空");
+					log.info("BaseServiceImpl 调用运单接口, 订单号为： {} 调用运单WSS商品数据为空", orderCode);
 				}
 			}
 		} catch (Exception e) {
-			log.error("BaseServiceImpl --> getWaybillByOrderCode, 调用运单接口异常：", e);
+			log.error("BaseServiceImpl --> getWaybillByOrderCode, 调用运单接口异常：{}",orderCode, e);
 			return null;
 		}
 		return reverseSendWms;
@@ -657,7 +650,7 @@ public class BaseServiceImpl implements BaseService {
 					}
 				}
 			} catch (Exception e) {
-				log.error("BaseServiceImpl --> convWaybill, 调用订单接口获得商品明细异常：", e);
+				log.error("BaseServiceImpl --> convWaybill, 调用订单接口获得商品明细异常：{}",waybillWS.getVendorId(), e);
 			}
 			
 		}
@@ -680,7 +673,7 @@ public class BaseServiceImpl implements BaseService {
         /*
 		 * WaybillManageDomain manageDomain = bigWaybillDto.getWaybillState();
 		 * if (manageDomain == null) {
-		 * this.logger.info("转换运单基本信息 --> 原始运单数据集manageDomain为空"); return null;
+		 * this.log.info("转换运单基本信息 --> 原始运单数据集manageDomain为空"); return null;
 		 * }
 		 */
 		return reverseSendWms;
@@ -726,7 +719,7 @@ public class BaseServiceImpl implements BaseService {
 			BaseStaffSiteOrgDto results = baseMajorManager.getBaseStaffByStaffId(staffId);
 			return results;
 		} catch (Exception e) {
-			log.error("调用basicMajorServiceProxy.getBaseStaffByStaffId()异常", e);
+			log.error("调用basicMajorServiceProxy.getBaseStaffByStaffId()异常,staffId={}",staffId, e);
 			return null;
 		}
 	}

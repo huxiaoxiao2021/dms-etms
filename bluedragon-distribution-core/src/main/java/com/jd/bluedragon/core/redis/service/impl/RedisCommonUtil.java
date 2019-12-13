@@ -1,8 +1,8 @@
 package com.jd.bluedragon.core.redis.service.impl;
 
 import com.jd.bluedragon.core.redis.service.RedisCommonAbstractUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
  *
  */
 public class RedisCommonUtil extends RedisCommonAbstractUtil<Integer> {
-    private static Log logger = LogFactory.getLog(RedisCommonUtil.class);
+    private static Logger log = LoggerFactory.getLogger(RedisCommonUtil.class);
 
     /**
      * 缓存数据
@@ -28,7 +28,7 @@ public class RedisCommonUtil extends RedisCommonAbstractUtil<Integer> {
             redisClient.setEx(key,data.toString(),expireTime,TimeUnit.MILLISECONDS);
             return true;
         }catch (Exception e){
-            logger.error("缓存数据出错,key = "+key+" 错误信息为："+e.getMessage());
+            log.error("缓存数据出错,key = {}",key,e);
             return false;
         }
     }
@@ -46,7 +46,7 @@ public class RedisCommonUtil extends RedisCommonAbstractUtil<Integer> {
             }
             return Integer.parseInt(value);
         } catch (Exception e) {
-            logger.error("从Redis中获取信息出错,key = "+key+" 错误信息为:"+e.getMessage());
+            log.error("从Redis中获取信息出错,key = {}",key,e);
             return null;
         }
     }
@@ -60,7 +60,7 @@ public class RedisCommonUtil extends RedisCommonAbstractUtil<Integer> {
         try {
             redisClient.del(key);
         } catch (Exception e) {
-            logger.error("从Redis中删除数据出错,key = "+key+" 错误信息为:"+e.getMessage());
+            log.error("从Redis中删除数据出错,key = {}",key,e);
         }
     }
 }

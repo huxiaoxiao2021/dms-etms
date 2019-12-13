@@ -14,7 +14,8 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.ThridPackageDto;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -25,8 +26,7 @@ import java.util.*;
 @Service("partnerWaybillService")
 public class PartnerWaybillServiceImpl implements PartnerWaybillService {
 
-	private final Logger logger = Logger
-			.getLogger(PartnerWaybillServiceImpl.class);
+	private final Logger log = LoggerFactory.getLogger(PartnerWaybillServiceImpl.class);
 
 	@Autowired
 	private PartnerWaybillDao partnerWaybillDao;
@@ -77,7 +77,7 @@ public class PartnerWaybillServiceImpl implements PartnerWaybillService {
 	 * @return
 	 */
 	public boolean doWayBillCodesProcessed(List<Task> taskList) {
-		this.logger.info("开始处理运单号关联包裹数据");
+		this.log.info("开始处理运单号关联包裹数据");
 		// 接口参数
 		List<ThridPackageDto> params = new ArrayList<ThridPackageDto>();
 		Map<Long, Task> taskMap = new HashMap<Long, Task>();
@@ -95,8 +95,7 @@ public class PartnerWaybillServiceImpl implements PartnerWaybillService {
 				taskMap.put(task.getId(), task);
 			} catch (Exception e) {
 				this.taskService.doError(task);
-				this.logger.error("处理收货任务失败[taskId=" + task.getId() + "]异常信息为："
-						+ e.getMessage(), e);
+				this.log.error("处理收货任务失败[taskId={}]异常信息为：{}",task.getId(), e.getMessage(), e);
 				continue;
 			}
 		}
@@ -116,19 +115,17 @@ public class PartnerWaybillServiceImpl implements PartnerWaybillService {
 						if (bl) {
 							this.taskService.doDone(task);
 						} else {
-							this.logger.error("接口处理失败:data.get(taskId)=false"
-									+ baseEntity.getMessage());
+							this.log.warn("接口处理失败:data.get(taskId)=false:{}", baseEntity.getMessage());
 							this.taskService.doRevert(task);
 						}
 					}
-					this.logger.info("处理运单号关联包裹数据完成");
+					this.log.info("处理运单号关联包裹数据完成");
 				} else {
-					this.logger.error("调用接口失败:resultCode!=1"
-							+ baseEntity.getMessage());
+					this.log.warn("调用接口失败:resultCode!=1:{}", baseEntity.getMessage());
 					this.unLockTask(taskMap);
 				}
 			} catch (Exception e) {
-				this.logger.error("调用接口异常:" + e.getMessage(), e);
+				this.log.error("调用接口异常:{}" , e.getMessage(), e);
 				this.unLockTask(taskMap);
 			}
 		}
@@ -149,11 +146,11 @@ public class PartnerWaybillServiceImpl implements PartnerWaybillService {
 	 */
 	public PartnerWaybill doParse(Task task) {
 		String jsonReceive = task.getBody();
-		this.logger.info("运单号关联包裹json数据：" + jsonReceive);
+		this.log.info("运单号关联包裹json数据：{}" , jsonReceive);
 		List<WayBillCodeRequest> wayBillCodeRequests = Arrays.asList(JsonHelper
 				.jsonToArray(jsonReceive, WayBillCodeRequest[].class));
 		WayBillCodeRequest way = wayBillCodeRequests.get(0);
-		this.logger.info("运单号关联包裹json数据转化后：" + way);
+		this.log.info("运单号关联包裹json数据转化后：{}" , way);
 		PartnerWaybill wayBillCode = new PartnerWaybill();
 		// 第三方运单号
 		wayBillCode.setPartnerWaybillCode(way.getWaybillCode() == null ? ""

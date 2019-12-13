@@ -16,6 +16,8 @@ public class User implements Serializable {
      */
     private String userName;
 
+    private String userErp;
+
     public User() {
     }
 
@@ -40,4 +42,11 @@ public class User implements Serializable {
         this.userName = userName;
     }
 
+    public String getUserErp() {
+        return userErp;
+    }
+
+    public void setUserErp(String userErp) {
+        this.userErp = userErp;
+    }
 }

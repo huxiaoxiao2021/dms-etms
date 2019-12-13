@@ -1,15 +1,16 @@
 package com.jd.bluedragon.core.jmq.asynBuffer;
 
-import java.util.List;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.ql.framework.asynBuffer.comsumer.BeanProxyTaskProcessor;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.annotation.Resource;
+import java.util.List;
 
 
 /**
@@ -24,7 +25,7 @@ public class PostStoredBeanProxyTaskProcessor extends BeanProxyTaskProcessor<Tas
 	@Resource
 	private UccPropertyConfiguration uccPropertyConfiguration;
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	public void setTaskService(TaskService taskService) {
 		this.taskService = taskService;
@@ -102,13 +103,13 @@ public class PostStoredBeanProxyTaskProcessor extends BeanProxyTaskProcessor<Tas
 	}
 
 	protected boolean saveConsumerFailedTask(Task task) {
-		logger.info("【异步缓冲组件】消费消息失败，执行落库,消息内容："+task);
+		log.info("【异步缓冲组件】消费消息失败，执行落库,消息内容：{}",task);
 		task.setStatus(Task.TASK_STATUS_UNHANDLED);
 		task.setExecuteCount(0);
 		try {
 			taskService.doAddTask(task, false);
 		}catch (Exception e){
-			logger.error("消费消息失败，落库失败，数据存入System_Log表!"+e.getMessage(), e);
+			log.error("消费消息失败，落库失败，数据存入System_Log表!", e);
 			SystemLog systemLog = new SystemLog();
 			systemLog.setKeyword1(task.getKeyword1());
 			systemLog.setKeyword2(task.getKeyword2());

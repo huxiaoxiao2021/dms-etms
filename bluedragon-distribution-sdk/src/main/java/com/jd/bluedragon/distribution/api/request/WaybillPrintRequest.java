@@ -37,6 +37,10 @@ public class WaybillPrintRequest extends JdRequest{
 	 */
 	private Integer dmsSiteCode;
 	/**
+	 * 青龙业主号
+	 */
+	private String customerCode;
+	/**
 	 * 包裹号/运单号
 	 */
 	private String barCode;
@@ -121,6 +125,11 @@ public class WaybillPrintRequest extends JdRequest{
      */
 	private String featherLetterDeviceNo;
 
+	/**
+	 * 自动识别包裹标签打印标识
+	 * */
+	private Boolean discernFlag = false;
+
 	public Boolean getTrustBusinessFlag() {
 		return trustBusinessFlag;
 	}
@@ -177,6 +186,19 @@ public class WaybillPrintRequest extends JdRequest{
 	public void setDmsSiteCode(Integer dmsSiteCode) {
 		this.dmsSiteCode = dmsSiteCode;
 	}
+	/**
+	 * @return the customerCode
+	 */
+	public String getCustomerCode() {
+		return customerCode;
+	}
+	/**
+	 * @param customerCode the customerCode to set
+	 */
+	public void setCustomerCode(String customerCode) {
+		this.customerCode = customerCode;
+	}
+
 	/**
 	 * @return the barCode
 	 */
@@ -352,4 +374,12 @@ public class WaybillPrintRequest extends JdRequest{
     public void setFeatherLetterDeviceNo(String featherLetterDeviceNo) {
         this.featherLetterDeviceNo = featherLetterDeviceNo;
     }
+
+	public Boolean getDiscernFlag() {
+		return discernFlag;
+	}
+
+	public void setDiscernFlag(Boolean discernFlag) {
+		this.discernFlag = discernFlag;
+	}
 }

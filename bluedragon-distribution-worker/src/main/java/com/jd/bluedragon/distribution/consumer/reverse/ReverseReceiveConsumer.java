@@ -26,14 +26,7 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BeanHelper;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.bluedragon.utils.StringHelper;
-import com.jd.bluedragon.utils.XmlHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Goods;
 import com.jd.etms.waybill.domain.SparsModel;
@@ -47,22 +40,18 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service("reverseReceiveConsumer")
 public class ReverseReceiveConsumer extends MessageBaseConsumer {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	/** 0拒收 1全收 2半收 -1表示此次没回传 */
     private static final Integer TYPE_RECEIVE_DEFAULT = -1;
@@ -121,7 +110,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 	public void consume(Message message) {
 
 		String messageContent = message.getText();
-		this.logger.info("逆向收货消息messageContent：" + messageContent);
+		this.log.debug("逆向收货消息messageContent：{}" , messageContent);
 
 		ReverseReceiveRequest jrequest = null;
 		ReceiveRequest xrequest = null;
@@ -129,7 +118,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 
 		if (XmlHelper.isXml(messageContent, ReceiveRequest.class, null)) {
 			xrequest = (ReceiveRequest) XmlHelper.toObject(messageContent, ReceiveRequest.class);
-			this.logger.info("逆向收货消息ReverseReceiveRequest：" + xrequest.toString());
+			this.log.debug("逆向收货消息ReverseReceiveRequest：{}" , xrequest.toString());
 			reverseReceive.setSendCode(xrequest.getSendCode());
 			if(StringUtils.isNotBlank(xrequest.getWaybillCode())){
 				//运单号字段非空  用运单号处理
@@ -152,7 +141,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 
 		} else if (JsonHelper.isJson(messageContent, ReverseReceiveRequest.class)) {
 			jrequest = JsonHelper.fromJson(messageContent, ReverseReceiveRequest.class);
-			this.logger.info("逆向收货消息ReverseReceiveRequest：" + jrequest.toString());
+			this.log.debug("逆向收货消息ReverseReceiveRequest：{}" , jrequest.toString());
             reverseReceive = getReverseReceiveFromJson(jrequest);
 		}
 
@@ -161,7 +150,9 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 
 		//如果是移动仓内配单需要推送终端
 		if(reverseReceive.getReceiveType() == 1 && waybillService.isMovingWareHouseInnerWaybill(WaybillUtil.getWaybillCode(reverseReceive.getOrderId()))) {
-			logger.info("wms回传移动仓内配单需要调终端接口操作妥投,reverseReceive:"+JSON.toJSONString(reverseReceive));
+			if(log.isInfoEnabled()){
+				log.info("wms回传移动仓内配单需要调终端接口操作妥投,reverseReceive:{}",JSON.toJSONString(reverseReceive));
+			}
 			movingWareHoseInnerWaybillFinish(reverseReceive);
 		}
 
@@ -174,7 +165,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 				reverseReceive.setOrderId(reverseReceive.getSendCode().split("-")[3]);
 				reverseReceive.setPackageCode(reverseReceive.getOrderId());
 			}else{
-				logger.error("备件库回传收货消息格式不正确，未获取到对应运单号"+messageContent);
+				log.warn("备件库回传收货消息格式不正确，未获取到对应运单号:{}",messageContent);
 				return;
 			}
 		}else{
@@ -224,10 +215,10 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5|| reverseReceive.getReceiveType() == 4 || reverseReceive.getReceiveType() == 6 || reverseReceive.getReceiveType() == 7 || reverseReceive.getReceiveType() == 8 || reverseReceive.getReceiveType() == 10) {
 			String sendCode = "";
 			if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5 || reverseReceive.getReceiveType() == 6) {
-				this.logger.info("逆向添加全称跟踪sendCode" + xrequest.getSendCode());
+				this.log.info("逆向添加全称跟踪sendCode:{}" , xrequest.getSendCode());
 				sendCode = xrequest.getSendCode();
 			} else if ((reverseReceive.getReceiveType() == 4 || reverseReceive.getReceiveType() == 7 || reverseReceive.getReceiveType() == 8 || reverseReceive.getReceiveType() == 10) && jrequest != null) {
-				this.logger.info("逆向添加全称跟踪sendCode" + jrequest.getSendCode());
+				this.log.info("逆向添加全称跟踪sendCode:{}" , jrequest.getSendCode());
 				sendCode = jrequest.getSendCode();
 				if(reverseReceive.getReceiveType() == 7 || reverseReceive.getReceiveType() == 8  || reverseReceive.getReceiveType() == 10){
 					//ECLP退备件库时
@@ -336,7 +327,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
             }
             reverseReceive.setReceiveTime(date);
         } catch (Exception e) {
-            this.logger.error("逆向收货消息转换失败：" + e);
+            this.log.error("逆向收货消息转换失败：{}" ,JsonHelper.toJson(jrequest), e);
         }
         return reverseReceive;
     }
@@ -361,7 +352,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
                 Profiler.bizNode("Reverse_mq_ams2dms", data);
             }
         } catch (Exception e) {
-            this.logger.error("推送UMP发生异常.", e);
+            this.log.error("推送UMP发生异常:{}",JsonHelper.toJson(reverseReceive), e);
         }
     }
 
@@ -510,7 +501,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 	private void movingWareHoseInnerWaybillFinish(ReverseReceive reverseReceive){
 		String waybillCode = WaybillUtil.getWaybillCode(reverseReceive.getOrderId());
 		if(StringUtils.isBlank(waybillCode)){
-			logger.error("移动仓内配单调终端接口操作妥投，接收到的wms回传报文无法获取运单号.reverseReceive: "+JSON.toJSONString(reverseReceive));
+			log.warn("移动仓内配单调终端接口操作妥投，接收到的wms回传报文无法获取运单号.reverseReceive: {}", JSON.toJSONString(reverseReceive));
 			return;
 		}
 		String sendCode = reverseReceive.getSendCode();
@@ -525,7 +516,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 
 		SendM sendM = sendMDao.selectBySendCode(sendCode);
 		if(sendM == null){
-			logger.error("移动仓内配单调终端接口操作妥投,根据批次号查sendM数据为空.sendCode:" + sendCode);
+			log.warn("移动仓内配单调终端接口操作妥投,根据批次号查sendM数据为空.sendCode:{}" , sendCode);
 			return ;
 
 		}
@@ -561,12 +552,14 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		task.setOrderDeliverBodys(Arrays.asList(body));
 
 		try {
-			logger.info("移动仓内配单调用终端接口操作妥投." + JSON.toJSONString(task));
+			if(log.isDebugEnabled()){
+				log.debug("移动仓内配单调用终端接口操作妥投:{}" , JSON.toJSONString(task));
+			}
 			if(!workTaskServiceManager.orderDeliverWorkTaskEntry(task)){
-				logger.error("移动仓内配单调用终端接口操作妥投失败，返回值为false." + JSON.toJSONString(task));
+				log.warn("移动仓内配单调用终端接口操作妥投失败，返回值为false:{}" , JSON.toJSONString(task));
 			}
 		}catch (Exception e){
-			logger.error("移动仓内配单调用终端接口操作妥投异常." + JSON.toJSONString(task),e);
+			log.error("移动仓内配单调用终端接口操作妥投异常:{}" , JSON.toJSONString(task),e);
 		}
 	}
 }

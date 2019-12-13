@@ -6,12 +6,11 @@ import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.text.MessageFormat;
 import java.util.List;
 
 /**
@@ -20,7 +19,7 @@ import java.util.List;
 @Service("performanceAddConsumer")
 public class PerformanceAddConsumer extends MessageBaseConsumer {
 
-    private final Log logger = LogFactory.getLog(PerformanceAddConsumer.class);
+    private final Logger log = LoggerFactory.getLogger(PerformanceAddConsumer.class);
 
     @Autowired
     private StoragePackageMService storagePackageMService;
@@ -28,7 +27,7 @@ public class PerformanceAddConsumer extends MessageBaseConsumer {
     @Override
     public void consume(Message message) throws Exception {
         if (!JsonHelper.isJsonString(message.getText())) {
-            logger.error(MessageFormat.format("[金鹏]消费履约单运单下发-消息体非JSON格式，内容为【{0}】", message.getText()));
+            log.warn("[金鹏]消费履约单运单下发-消息体非JSON格式，内容为【{}】", message.getText());
             return;
         }
 
@@ -41,7 +40,7 @@ public class PerformanceAddConsumer extends MessageBaseConsumer {
                 storagePackageMService.updateStoragePackageMStatusForSendOfParentOrderId(dto.getFulfillmentOrderId());
 
             }else{
-                logger.error(MessageFormat.format("[金鹏]消费履约单运单下发-履约单为空，内容为【{0}】", message.getText()));
+                log.warn("[金鹏]消费履约单运单下发-履约单为空，内容为【{}】", message.getText());
             }
         }
 

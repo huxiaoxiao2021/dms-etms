@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
  */
 @Service("basicQueryWSManager")
 public class BasicQueryWSManagerImpl implements BasicQueryWSManager {
-    private final static Logger logger = LoggerFactory.getLogger(BasicQueryWSManagerImpl.class);
+    private final static Logger log = LoggerFactory.getLogger(BasicQueryWSManagerImpl.class);
 
     @Autowired
     private BasicQueryWS basicQueryWS;
@@ -24,12 +24,12 @@ public class BasicQueryWSManagerImpl implements BasicQueryWSManager {
         try {
             CommonDto<ConfNodeCarrierDto> commonDto = basicQueryWS.getCarrierByNodeCode(nodeCode);
             if(commonDto == null || commonDto.getCode() != CommonDto.CODE_SUCCESS){
-                logger.warn("查询承运商编码为空nodeCode[{}]",nodeCode);
+                log.warn("查询承运商编码为空nodeCode[{}]",nodeCode);
                 return null;
             }
             return commonDto.getData();
         } catch (Exception e) {
-            logger.error("查询承运商编码报错nodeCode[{}]",nodeCode,e);
+            log.error("查询承运商编码报错nodeCode[{}]",nodeCode,e);
         }
         return null;
     }

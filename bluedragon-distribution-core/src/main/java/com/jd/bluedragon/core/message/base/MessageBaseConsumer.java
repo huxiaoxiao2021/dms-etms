@@ -1,16 +1,15 @@
 package com.jd.bluedragon.core.message.base;
 
-import java.util.List;
-
-import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.jmq.common.message.Message;
 import com.jd.jspliter.jmq.consumer.EnvMessageListener;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.util.List;
+
 public abstract class MessageBaseConsumer extends EnvMessageListener {
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	
 	public abstract void consume(Message message) throws Exception;
 
@@ -35,7 +34,7 @@ public abstract class MessageBaseConsumer extends EnvMessageListener {
 			message.setContent(jmqMsg.getText());
 			message.setDestinationCode(jmqMsg.getTopic());
 			*/
-			logger.debug(jmqMsg.getText());
+			log.debug(jmqMsg.getText());
 
 			consume(jmqMsg);
 		}
