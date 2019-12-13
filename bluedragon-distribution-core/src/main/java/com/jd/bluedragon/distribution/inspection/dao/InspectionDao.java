@@ -7,6 +7,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -178,5 +179,19 @@ public class InspectionDao extends BaseDao<Inspection>{
 	/**分页查询验货记录*/
 	public List<Inspection> findPageInspection(Map<String,Object> params){
 		return this.getSqlSession().selectList(namespace + ".findPageInspection",params);
+	}
+
+	/**
+	 * 查询运单的验货记录
+	 *
+	 * @param waybillCode
+	 * @param createSiteCode
+	 * @return
+	 */
+	public List<Inspection> listInspectionByWaybillCode(String waybillCode, Integer createSiteCode) {
+		Map<String, Object> paramMap = new HashMap<>();
+		paramMap.put("createSiteCode", createSiteCode);
+		paramMap.put("waybillCode", waybillCode);
+		return this.getSqlSession().selectList(namespace + ".listInspectionByWaybillCode", paramMap);
 	}
 }

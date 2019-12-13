@@ -2,9 +2,7 @@ package com.jd.bluedragon.distribution.rest.inspection;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
-import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintTrack;
 import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -12,16 +10,13 @@ import com.jd.bluedragon.distribution.api.request.InspectionECRequest;
 import com.jd.bluedragon.distribution.api.request.InspectionFCRequest;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.request.TurnoverBoxRequest;
-import com.jd.bluedragon.distribution.api.response.HandoverDetailResponse;
-import com.jd.bluedragon.distribution.api.response.HandoverResponse;
-import com.jd.bluedragon.distribution.api.response.InspectionECResponse;
-import com.jd.bluedragon.distribution.api.response.PackageResponse;
-import com.jd.bluedragon.distribution.api.response.WaybillResponse;
+import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.base.domain.DmsStorageArea;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
-import com.jd.bluedragon.distribution.base.service.DmsStorageAreaService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.inspection.domain.InspectionPackProgress;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionEC;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
@@ -38,6 +33,8 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,13 +42,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -88,17 +79,8 @@ public class InspectionResource {
 	@Autowired
 	ReceiveService receiveService;
 
-	@Autowired
-	private DmsStorageAreaService dmsStorageAreaService;
-
-	@Autowired
-	private WaybillQueryManager waybillQueryManager;
-
     @Autowired
     private DmsOperateHintService dmsOperateHintService;
-
-	@Autowired
-	private RedisManager redisManager;
 
 	@Autowired
 	private InspectionService inspectionService;
@@ -591,4 +573,29 @@ public class InspectionResource {
 		return jdResponse;
 	}
 
+	@GET
+	@Path("/inspection/checkProgress/{packageOrWaybillCode}/{siteCode}")
+	@JProfiler(jKey = "DMS.BASE.InspectionResource.getWaybillCheckPackDetail", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+	public InvokeResult<InspectionPackProgress> getWaybillCheckPackDetail(
+			@PathParam("packageOrWaybillCode") String packageOrWaybillCode,
+			@PathParam("siteCode") Integer siteCode) {
+		InvokeResult<InspectionPackProgress> result = new InvokeResult<>();
+		if (StringUtils.isBlank(packageOrWaybillCode)) {
+			result.parameterError("运单号/包裹号为空！");
+			return result;
+		}
+		try {
+			String waybillCode = packageOrWaybillCode;
+			if (WaybillUtil.isPackageCode(packageOrWaybillCode)) {
+				waybillCode = WaybillUtil.getWaybillCode(packageOrWaybillCode);
+			}
+			result.setData(inspectionService.getWaybillCheckProgress(waybillCode, siteCode));
+		}
+		catch (Exception e) {
+			result.error(e);
+			logger.error("Failed to get package check progress rate.[" + packageOrWaybillCode + "].", e);
+		}
+
+		return result;
+	}
 }

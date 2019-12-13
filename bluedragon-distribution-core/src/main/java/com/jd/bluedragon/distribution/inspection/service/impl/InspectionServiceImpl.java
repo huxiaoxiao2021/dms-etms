@@ -13,10 +13,7 @@ import com.jd.bluedragon.distribution.base.service.DmsStorageAreaService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
-import com.jd.bluedragon.distribution.inspection.domain.Inspection;
-import com.jd.bluedragon.distribution.inspection.domain.InspectionAS;
-import com.jd.bluedragon.distribution.inspection.domain.InspectionEC;
-import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
+import com.jd.bluedragon.distribution.inspection.domain.*;
 import com.jd.bluedragon.distribution.inspection.exception.InspectionException;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
@@ -42,6 +39,7 @@ import com.jd.ioms.jsf.export.domain.Order;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
@@ -708,4 +706,50 @@ public class InspectionServiceImpl implements InspectionService {
 		return inspectionDao.findPageInspection(params);
 	}
 
+	@Override
+	public InspectionPackProgress getWaybillCheckProgress(String waybillCode, Integer createSiteCode) {
+        if (StringUtils.isBlank(waybillCode))
+            return null;
+        BaseEntity<BigWaybillDto> waybillDto = waybillQueryManager.getDataByChoice(waybillCode, true, false, false, true);
+		if (null == waybillDto ||
+            null == waybillDto.getData() ||
+            null == waybillDto.getData().getWaybill() ||
+            CollectionUtils.isEmpty(waybillDto.getData().getPackageList())
+        )
+		    return null;
+        List<Inspection> inspections = inspectionDao.listInspectionByWaybillCode(waybillCode, createSiteCode);
+        List<String> inspectedPackNos = new ArrayList<>();
+        List<InspectionPackProgress.CheckPack> checkedPacks = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(inspections)) {
+            for (Inspection inspection : inspections) {
+                InspectionPackProgress.CheckPack checkPack = new InspectionPackProgress.CheckPack();
+                checkPack.setPackNo(inspection.getPackageBarcode());
+                checkedPacks.add(checkPack);
+                inspectedPackNos.add(inspection.getPackageBarcode());
+            }
+        }
+
+        List<DeliveryPackageD> packageList = waybillDto.getData().getPackageList();
+        List<String> totalPackNos = new ArrayList<>(packageList.size());
+        for (DeliveryPackageD deliveryPackageD : packageList) {
+            totalPackNos.add(deliveryPackageD.getPackageBarcode());
+        }
+        List<InspectionPackProgress.CheckPack> unCheckedPacks = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(inspectedPackNos)) {
+	        totalPackNos.removeAll(inspectedPackNos);
+        }
+        if (!CollectionUtils.isEmpty(totalPackNos)) {
+            for (String packNo : totalPackNos) {
+                InspectionPackProgress.CheckPack checkPack = new InspectionPackProgress.CheckPack();
+                checkPack.setPackNo(packNo);
+                unCheckedPacks.add(checkPack);
+            }
+        }
+
+        InspectionPackProgress result = new InspectionPackProgress();
+        result.setWaybillCode(waybillCode);
+        result.setCheckedPackNos(checkedPacks);
+        result.setUnCheckedPackNos(unCheckedPacks);
+        return result;
+	}
 }

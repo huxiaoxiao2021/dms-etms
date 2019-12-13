@@ -550,4 +550,13 @@
             limit #{startIndex},#{pageSize}
     </select>
 
+    <select id="listInspectionByWaybillCode" resultMap="BaseResultMap" parameterType="java.util.Map">
+        SELECT
+            WAYBILL_CODE, PACKAGE_BARCODE
+        FROM inspection
+        WHERE
+        WAYBILL_CODE = #{waybillCode, jdbcType=VARCHAR}
+        AND CREATE_SITE_CODE = #{createSiteCode, jdbcType=BIGINT}
+        AND YN = 1
+    </select>
 </mapper>
