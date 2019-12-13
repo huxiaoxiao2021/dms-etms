@@ -150,4 +150,11 @@
                   alias="${dms.gateway.jsf.alias}"
                   ref="exceptionHandleGatewayService" server="dmsjsf">
     </jsf:provider>
+
+    <!--  自动化设备查询接口：网关使用  -->
+    <bean id="deviceGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.DeviceGatewayServiceImpl" />
+    <jsf:provider id="jsfDeviceGatewayService" interface="com.jd.bluedragon.external.gateway.service.DeviceGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="deviceGatewayService"
+                  server="dmsjsf"/>
 </beans>
