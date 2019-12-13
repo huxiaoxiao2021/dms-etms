@@ -45,7 +45,7 @@ public class OverLengthRemindHandler implements InterceptHandler<WaybillPrintCon
                         || BusinessUtil.isNextMorningArrived(waybillSign)
                         || BusinessUtil.isSameCityArrived(waybillSign))){
             context.getResponse().setLongPack(Boolean.TRUE);
-            interceptResult.toWeakSuccess(JdResult.CODE_SUC, String.format(String.valueOf(MAX_LENGTH),WaybillPrintMessages.MESSAGE_PACKAGE_OVER_LENGTH_REMIND));
+            interceptResult.toWeakSuccess(JdResult.CODE_SUC, String.format(WaybillPrintMessages.MESSAGE_PACKAGE_OVER_LENGTH_REMIND,String.valueOf(MAX_LENGTH)));
         }
         return interceptResult;
     }
