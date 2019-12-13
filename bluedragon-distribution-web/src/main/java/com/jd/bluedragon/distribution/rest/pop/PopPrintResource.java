@@ -20,11 +20,14 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.JsonUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -41,7 +44,7 @@ import java.util.Map;
 @Produces( { MediaType.APPLICATION_JSON })
 public class PopPrintResource {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	
 	@Autowired
 	private WaybillCommonService waybillCommonService;
@@ -83,7 +86,7 @@ public class PopPrintResource {
 	public PopPrintResponse findByWaybillCode(
 			@PathParam("waybillCode") String waybillCode) {
 		if (!WaybillUtil.isWaybillCode(waybillCode)) {
-			this.logger.error("根据运单号“" + waybillCode + "”获取POP打印信息 --> 传入参数非法");
+			this.log.warn("根据运单号{}获取POP打印信息 --> 传入参数非法",waybillCode);
 			return new PopPrintResponse(JdResponse.CODE_PARAM_ERROR,
 					JdResponse.MESSAGE_PARAM_ERROR);
 		}
@@ -91,8 +94,7 @@ public class PopPrintResource {
 			PopPrint popPrint = this.popPrintService
 					.findByWaybillCode(waybillCode);
 			if (popPrint == null) {
-				this.logger.info("根据运单号获取POP打印信息 --> 运单号：" + waybillCode
-						+ ", 调用服务成功，数据为空");
+				this.log.info("根据运单号获取POP打印信息 --> 运单号：{}, 调用服务成功，数据为空",waybillCode);
 				return new PopPrintResponse(PopPrintResponse.CODE_OK_NULL,
 						PopPrintResponse.MESSAGE_OK_NULL);
 			}
@@ -102,7 +104,7 @@ public class PopPrintResource {
 			BeanUtils.copyProperties(popPrint, popPrintResponse);
 			return popPrintResponse;
 		} catch (Exception e) {
-			this.logger.error("根据运单号“" + waybillCode + "”获取POP打印信息 --> 调用服务异常：", e);
+			this.log.error("根据运单号{}获取POP打印信息 --> 调用服务异常：",waybillCode, e);
 			return new PopPrintResponse(JdResponse.CODE_SERVICE_ERROR,
 					JdResponse.MESSAGE_SERVICE_ERROR);
 		}
@@ -123,7 +125,7 @@ public class PopPrintResource {
 				|| popPrintRequest.getOperateSiteCode() == null || popPrintRequest.getOperateSiteCode() == 0
 				|| popPrintRequest.getOperatorCode() == null
 				|| popPrintRequest.getOperateType() == null || popPrintRequest.getOperateType() == 0) {
-			this.logger.error("保存POP打印信息savePopPrint --> 传入参数非法");
+			this.log.warn("保存POP打印信息savePopPrint --> 传入参数非法");
 			return new PopPrintResponse(JdResponse.CODE_PARAM_ERROR,
 					JdResponse.MESSAGE_PARAM_ERROR);
 		}
@@ -135,7 +137,7 @@ public class PopPrintResource {
 			// 验证运单号
 			Waybill waybill = this.waybillCommonService.findByWaybillCode(popPrintRequest.getWaybillCode());
 			if (waybill == null) {
-				this.logger.error("保存POP打印信息savePopPrint --> 运单【" + popPrintRequest.getWaybillCode() + "】不存在");
+				this.log.warn("保存POP打印信息savePopPrint --> 运单【{}】不存在",popPrintRequest.getWaybillCode());
 				return new PopPrintResponse(JdResponse.CODE_NO_POP_WAYBILL,
 						JdResponse.MESSAGE_NO_POP_WAYBILL);
 			}
@@ -145,9 +147,7 @@ public class PopPrintResource {
 			try {
 				uptCount = this.popPrintService.updateByWaybillOrPack(popPrint);
 			} catch (Exception e) {
-				this.logger.info(
-						"updateByWaybillOrPack失败" + popPrint == null ? null
-								: popPrint.getWaybillCode(), e);
+				this.log.error("updateByWaybillOrPack失败", e);
 			}
 			boolean savePopPrintToRedis = false;
 			if (uptCount <= 0) {
@@ -170,14 +170,14 @@ public class PopPrintResource {
 				if (PopPrintRequest.PRINT_PACK_TYPE.equals(popPrint.getOperateType())) {
 					popPrintService.pushInspection(popPrint);
 				}
-				this.logger.info("插入POP打印信息savePopPrint成功，运单号【" + popPrint.getWaybillCode() + "】");
+				this.log.info("插入POP打印信息savePopPrint成功，运单号【{}】",popPrint.getWaybillCode());
 				if (isPrintPack) {
 					if (!savePopPrintToRedis) {
 						this.operationLogService.add(parseOperationLog(popPrintRequest, "新增打印"));
 					}
 				}
 			} else {
-				this.logger.info("更新POP打印信息savePopPrint，运单号【" + popPrint.getWaybillCode() + "】");
+				this.log.info("更新POP打印信息savePopPrint，运单号【{}】",popPrint.getWaybillCode());
 				if (isPrintPack) {
 					if (!savePopPrintToRedis) {
 						this.operationLogService.add(parseOperationLog(popPrintRequest, "更新打印"));
@@ -207,18 +207,18 @@ public class PopPrintResource {
 				try {
 					bDto = this.baseMajorManager.getBaseSiteBySiteId(popPrintRequest.getOperateSiteCode());
 				} catch (Exception e) {
-					logger.error("驻厂打印时获取站点失败 站点编号："+popPrintRequest.getOperateSiteCode()+"  "+e.getMessage());
+					log.error("驻厂打印时获取站点失败 站点编号：{}", popPrintRequest.getOperateSiteCode(), e);
 				}
 				try {
 					userDto=baseMajorManager.getBaseStaffByStaffId(popPrintRequest.getOperatorCode());
 				} catch (Exception e) {
-					logger.error("获取操作人资料失败："+popPrintRequest.getOperatorCode()+"  "+e.getMessage());
+					log.error("获取操作人资料失败：{}", popPrintRequest.getOperatorCode(), e);
 				}
 
 				if(bDto==null){
-					logger.error("驻厂打印时获取站点为空 站点编号："+popPrintRequest.getOperateSiteCode());
+					log.warn("驻厂打印时获取站点为空 站点编号：{}", popPrintRequest.getOperateSiteCode());
 				}else if (userDto==null){
-					logger.error("获取操作人资料为空 id："+popPrintRequest.getOperatorCode());
+					log.warn("获取操作人资料为空 id：{}", popPrintRequest.getOperatorCode());
 				}else{
 					if(BusinessHelper.isSiteType(bDto.getSiteType())){
 						Date operatorTime=new Date(System.currentTimeMillis()-30000L);
@@ -250,7 +250,7 @@ public class PopPrintResource {
 			BeanUtils.copyProperties(popPrint, popPrintResponse);
 			return popPrintResponse;
 		} catch (Exception e) {
-			this.logger.error("保存POP打印信息savePopPrint --> 调用服务异常：", e);
+			this.log.error("保存POP打印信息savePopPrint --> 调用服务异常：", e);
 			return new PopPrintResponse(JdResponse.CODE_SERVICE_ERROR,
 					e.getMessage());
 		}
@@ -269,7 +269,7 @@ public class PopPrintResource {
 				|| popPrintRequest.getOperateSiteCode() == null || popPrintRequest.getOperateSiteCode() == 0
 				|| popPrintRequest.getOperatorCode() == null
 				|| popPrintRequest.getOperateType() == null || popPrintRequest.getOperateType() == 0) {
-			this.logger.error("保存POP打印信息 --> 传入参数非法");
+			this.log.warn("保存POP打印信息 --> 传入参数非法");
 			return new PopPrintResponse(JdResponse.CODE_PARAM_ERROR,
 					JdResponse.MESSAGE_PARAM_ERROR);
 		}
@@ -277,7 +277,7 @@ public class PopPrintResource {
 			// 验证运单号
 			Waybill waybill = waybillCommonService.findByWaybillCode(popPrintRequest.getWaybillCode());
 			if (waybill == null || !(Constants.POP_LBP.equals(waybill.getType()) || Constants.POP_SOPL.equals(waybill.getType()))) {
-				this.logger.error("保存POP打印信息 --> 运单【" + popPrintRequest.getWaybillCode() + "】不存在或者为非POP");
+				this.log.warn("保存POP打印信息 --> 运单【{}】不存在或者为非POP",popPrintRequest.getWaybillCode());
 				return new PopPrintResponse(JdResponse.CODE_NO_POP_WAYBILL,
 						JdResponse.MESSAGE_NO_POP_WAYBILL);
 			}
@@ -287,9 +287,7 @@ public class PopPrintResource {
 			try{
 				uptCount = popPrintService.updateByWaybillCode(popPrint);
 			} catch (Exception e) {
-				this.logger.info(
-						"updateByWaybillOrPack失败" + popPrint == null ? null
-								: popPrint.getWaybillCode(), e);
+				this.log.error("updateByWaybillOrPack失败", e);
 				// still keep uptCount default 0 
 			}
 			boolean savePopPrintToRedis = false;
@@ -314,14 +312,14 @@ public class PopPrintResource {
 				if (PopPrintRequest.PRINT_PACK_TYPE.equals(popPrintRequest.getOperateType())) {
 					popPrintService.pushInspection(popPrint);
 				}
-				this.logger.info("插入POP打印信息成功，运单号【" + popPrint.getWaybillCode() + "】");
+				this.log.info("插入POP打印信息成功，运单号【{}】",popPrint.getWaybillCode());
 				if (PopPrintRequest.PRINT_PACK_TYPE.equals(popPrintRequest.getOperateType())) {
 					if (!savePopPrintToRedis) {
 						this.operationLogService.add(parseOperationLog(popPrintRequest, "新增打印"));
 					}
 				}
 			} else {
-				this.logger.info("更新POP打印信息，运单号【" + popPrint.getWaybillCode() + "】");
+				this.log.info("更新POP打印信息，运单号【{}】",popPrint.getWaybillCode());
 				if (PopPrintRequest.PRINT_PACK_TYPE.equals(popPrintRequest.getOperateType())) {
 					if (!savePopPrintToRedis) {
 						this.operationLogService.add(parseOperationLog(popPrintRequest, "更新打印"));
@@ -334,7 +332,7 @@ public class PopPrintResource {
 			BeanUtils.copyProperties(popPrint, popPrintResponse);
 			return popPrintResponse;
 		} catch (Exception e) {
-			this.logger.error("保存POP打印信息 --> 调用服务异常：", e);
+			this.log.error("保存POP打印信息 --> 调用服务异常：", e);
 			return new PopPrintResponse(JdResponse.CODE_SERVICE_ERROR,
 					e.getMessage());
 		}
@@ -345,7 +343,7 @@ public class PopPrintResource {
 				CacheKeyConstants.POP_PRINT_BACKUP_KEY, JsonUtil.getInstance()
 						.object2Json(popPrint));
 		if (result < 0) {
-			logger.error("savePopPrintToRedis failed:" + JsonHelper.toJson(popPrint));
+			log.warn("savePopPrintToRedis failed:{}", JsonHelper.toJson(popPrint));
 		}
 	}
 	
@@ -357,7 +355,7 @@ public class PopPrintResource {
 				|| popPrintRequest.getOperateSiteCode() == null || popPrintRequest.getOperateSiteCode() == 0
 				|| popPrintRequest.getOperatorCode() == null
 				|| popPrintRequest.getOperateType() == null || popPrintRequest.getOperateType() == 0) {
-			this.logger.error("保存POP打印信息 --> 传入参数非法--");
+			this.log.warn("保存POP打印信息 --> 传入参数非法--");
 			return new PopPrintResponse(JdResponse.CODE_PARAM_ERROR,
 					JdResponse.MESSAGE_PARAM_ERROR);
 		}
@@ -365,7 +363,7 @@ public class PopPrintResource {
 			// 验证运单号
 			Waybill waybill = waybillCommonService.findByWaybillCode(popPrintRequest.getWaybillCode());
 			if (waybill == null || !(Constants.POP_LBP.equals(waybill.getType()) || Constants.POP_SOPL.equals(waybill.getType()))) {
-				this.logger.error("保存POP打印信息 --> 运单【" + popPrintRequest.getWaybillCode() + "】不存在或者为非POP--");
+				this.log.warn("保存POP打印信息 --> 运单【{}】不存在或者为非POP--",popPrintRequest.getWaybillCode());
 				return new PopPrintResponse(JdResponse.CODE_NO_POP_WAYBILL,
 						JdResponse.MESSAGE_NO_POP_WAYBILL);
 			}
@@ -381,9 +379,9 @@ public class PopPrintResource {
 				if (PopPrintRequest.PRINT_PACK_TYPE.equals(popPrintRequest.getOperateType())) {
 					popPrintService.pushInspection(popPrint);
 				}
-				this.logger.info("插入POP打印信息成功，运单号【" + popPrint.getWaybillCode() + "】--");
+				this.log.info("插入POP打印信息成功，运单号【{}】--", popPrint.getWaybillCode());
 			} else {
-				this.logger.info("更新POP打印信息，运单号【" + popPrint.getWaybillCode() + "】--");
+				this.log.info("更新POP打印信息，运单号【{}】--", popPrint.getWaybillCode());
 			}
 
 			PopPrintResponse popPrintResponse = new PopPrintResponse(
@@ -391,7 +389,7 @@ public class PopPrintResource {
 			BeanUtils.copyProperties(popPrint, popPrintResponse);
 			return popPrintResponse;
 		} catch (Exception e) {
-			this.logger.error("保存POP打印信息 --> 调用服务异常：--", e);
+			this.log.error("保存POP打印信息 --> 调用服务异常：--", e);
 			return new PopPrintResponse(JdResponse.CODE_SERVICE_ERROR,
 					e.getMessage());
 		}
@@ -438,7 +436,7 @@ public class PopPrintResource {
 				return "Redis中没有数据，无需移动";
 			}
 		} catch (Exception e) {
-			logger.error("moveRedisToDB failed", e);
+			log.error("moveRedisToDB failed", e);
 			return "Failed";
 		}
 		return "Success";
@@ -452,7 +450,7 @@ public class PopPrintResource {
 					.llen(CacheKeyConstants.POP_PRINT_BACKUP_KEY);
 			return String.valueOf(len);
 		} catch (Exception e) {
-			logger.error("moveRedisToDB failed", e);
+			log.error("moveRedisToDB failed", e);
 			return "Failed";
 		}
 	}
@@ -487,12 +485,10 @@ public class PopPrintResource {
 		popPrint.setInterfaceType(request.getInterfaceType());
 
 		if (PopPrintRequest.PRINT_PACK_TYPE.equals(request.getOperateType())) {
-			this.logger.info("--保存POP打印信息 -->  打印包裹：waybillCode: " + request.getWaybillCode() + ", 操作人：" + request.getOperatorCode() + ", 操作时间：" + request.getOperateTime());
 			popPrint.setPrintPackCode(request.getOperatorCode());
 			popPrint.setPrintPackTime(DateHelper.parseDate(request.getOperateTime(), Constants.DATE_TIME_FORMAT));
 			popPrint.setPrintPackUser(request.getOperatorName());
 		} else if (PopPrintRequest.PRINT_INVOICE_TYPE.equals(request.getOperateType())) {
-			this.logger.info("--保存POP打印信息 --> 打印发票：waybillCode: " + request.getWaybillCode() + ", 操作人：" + request.getOperatorCode() + ", 操作时间：" + request.getOperateTime());
 			popPrint.setPrintInvoiceCode(request.getOperatorCode());
 			popPrint.setPrintInvoiceTime(DateHelper.parseDate(request.getOperateTime(), Constants.DATE_TIME_FORMAT));
 			popPrint.setPrintInvoiceUser(request.getOperatorName());
@@ -534,12 +530,10 @@ public class PopPrintResource {
 		popPrint.setCategoryName(request.getCategoryName());
 
 		if (PopPrintRequest.PRINT_PACK_TYPE.equals(request.getOperateType())) {
-			logger.info("保存POP打印信息 -->  打印包裹：waybillCode: " + request.getWaybillCode() + ", 操作人：" + request.getOperatorCode() + ", 操作时间：" + request.getOperateTime());
 			popPrint.setPrintPackCode(request.getOperatorCode());
 			popPrint.setPrintPackTime(DateHelper.getSeverTime(request.getOperateTime()));
 			popPrint.setPrintPackUser(request.getOperatorName());
 		} else if (PopPrintRequest.PRINT_INVOICE_TYPE.equals(request.getOperateType())) {
-			logger.info("保存POP打印信息 --> 打印发票：waybillCode: " + request.getWaybillCode() + ", 操作人：" + request.getOperatorCode() + ", 操作时间：" + request.getOperateTime());
 			popPrint.setPrintInvoiceCode(request.getOperatorCode());
 			popPrint.setPrintInvoiceTime(DateHelper.getSeverTime(request.getOperateTime()));
 			popPrint.setPrintInvoiceUser(request.getOperatorName());
