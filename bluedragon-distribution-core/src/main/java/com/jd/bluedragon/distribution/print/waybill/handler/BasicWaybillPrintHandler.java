@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -207,6 +206,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             if(basicTraderInfoDTO != null){
                 commonWaybill.setBusiCode(basicTraderInfoDTO.getTraderCode());
                 context.setBusiCode(basicTraderInfoDTO.getTraderCode());
+                context.setTraderSign(basicTraderInfoDTO.getTraderSign());
             }
             commonWaybill.setQuantity(tmsWaybill.getGoodNumber());
             commonWaybill.setOrderCode(tmsWaybill.getVendorId());
