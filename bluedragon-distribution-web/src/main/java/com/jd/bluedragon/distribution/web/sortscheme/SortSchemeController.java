@@ -695,7 +695,7 @@ public class SortSchemeController {
         if (matcher.find()) {
             return matcher.group(0);
         }
-        log.error("getSiteNameParam()方法执行异常。。。");
+        log.warn("getSiteNameParam()方法执行异常。。。");
         return str;
     }
 

@@ -61,7 +61,7 @@ public class ReceiveResource {
 		}
 
 		if (Boolean.TRUE.equals(checkParam)) {
-			this.log.error("按条件查询POP收货交接清单 --> 传入参数非法");
+			this.log.warn("按条件查询POP收货交接清单 --> 传入参数非法");
 			return new PopJoinResponse(JdResponse.CODE_PARAM_ERROR,
 					JdResponse.MESSAGE_PARAM_ERROR, receiveJoinQuery);
 		}

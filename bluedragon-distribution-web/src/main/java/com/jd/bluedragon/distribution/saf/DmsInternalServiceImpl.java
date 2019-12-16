@@ -138,7 +138,7 @@ public class DmsInternalServiceImpl implements DmsInternalService {
         try {
             return waybillConsumableRecordService.isConfirmed(waybillCode);
         } catch (Exception e) {
-            log.error("isConsumableConfirmed error:" + waybillCode, e);
+            log.error("isConsumableConfirmed error:{}", waybillCode, e);
             return null;
         }
 

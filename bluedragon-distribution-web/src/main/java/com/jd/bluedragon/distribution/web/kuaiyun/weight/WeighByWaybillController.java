@@ -234,15 +234,15 @@ public class WeighByWaybillController {
             if (exceptionType.shouldBeThrowToTop) {
                 if (exceptionType.equals(WeightByWaybillExceptionTypeEnum.WaybillServiceNotAvailableException)) {
                     result.setCode(InvokeResult.SERVER_ERROR_CODE);
-                    log.error("运单称重：{}", exceptionType.exceptionMessage);
+                    log.warn("运单称重：{}", exceptionType.exceptionMessage);
                 }else if(exceptionType.equals(WeightByWaybillExceptionTypeEnum.WaybillNoNeedWeightException)){
                     //不称重
                     result.setCode(NO_NEED_WEIGHT);
-                    log.debug("运单称重：{}-{} " ,codeStr, exceptionType.exceptionMessage);
+                    log.warn("运单称重：{}-{} " ,codeStr, exceptionType.exceptionMessage);
                 }else if(exceptionType.equals(WeightByWaybillExceptionTypeEnum.WaybillFinishedException)){
                     //运单已经妥投，不允许录入
                     result.setCode(WAYBILL_STATE_FINISHED);
-                    log.debug("运单称重:{}-{} ", codeStr, exceptionType.exceptionMessage);
+                    log.warn("运单称重:{}-{} ", codeStr, exceptionType.exceptionMessage);
                 }
                 result.setData(false);
                 result.setMessage(exceptionType.exceptionMessage);

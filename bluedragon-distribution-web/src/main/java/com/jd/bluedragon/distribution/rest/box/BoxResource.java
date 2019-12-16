@@ -599,7 +599,7 @@ public class BoxResource {
                 sign = true;
             }
         }catch (Exception e){
-            logger.error("获取箱号类型开关异常",e);
+            log.error("获取箱号类型开关异常",e);
         }
         return sign;
     }

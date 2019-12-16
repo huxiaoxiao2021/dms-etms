@@ -114,7 +114,7 @@ public class GantryAutoSendController {
                 model.addAttribute("userNameAndCode", userName + "||" + userCode);
             }
         } catch (Exception e) {
-            log.info("没有维护分拣中心，初始化加载失败");
+            log.error("没有维护分拣中心，初始化加载失败",e);
         }
         return "gantry/gantryAutoSendIndex";
     }
@@ -140,16 +140,16 @@ public class GantryAutoSendController {
             }
             log.debug(userName + "试图修改或插入龙门架的状态 --> UpsertGantryDeviceBusinessOrStatus ");
         } catch (Exception e) {
-            log.info("无法从cookie中获取登录人的信息");
+            log.error("无法从cookie中获取登录人的信息",e);
         }
         if (null == request || request.getMachineId() == null) {
-            log.error("没有需要修改的龙门架设备信息");
+            log.warn("没有需要修改的龙门架设备信息");
             return null;
         }
         GantryDeviceConfig gantryDeviceConfig = null;
         gantryDeviceConfig = gantryDeviceConfigService.findMaxStartTimeGantryDeviceConfigByMachineId(request.getMachineId());
         if (request.getLockStatus() == 0) {/** 解锁龙门架操作 **/
-            log.info("用户：" + userCode + "正在尝试解锁龙门架，ID为" + request.getMachineId());
+            log.info("用户：{}正在尝试解锁龙门架，ID为{}",userCode, request.getMachineId());
             try {
                 BaseStaffSiteOrgDto lastLockUser = baseMajorManager.getBaseStaffByErpNoCache(gantryDeviceConfig.getLockUserErp());
                 //锁定人erp异常 或和当前同一人
@@ -181,7 +181,7 @@ public class GantryAutoSendController {
                         result.setData(gantryDeviceConfig);
                     }
                 } else {
-                    log.info("此用户无法解锁由别人锁定的龙门架设备；解锁人" + userName + "锁定人" + gantryDeviceConfig.getLockUserName());
+                    log.info("此用户无法解锁由别人锁定的龙门架设备；解锁人{}锁定人{}",userName, gantryDeviceConfig.getLockUserName());
                     result.setCode(1000);
                     result.setMessage("解锁失败，请联系锁定人" + gantryDeviceConfig.getLockUserErp() + "解锁");
                     result.setData(gantryDeviceConfig);
@@ -193,7 +193,7 @@ public class GantryAutoSendController {
             gantryDeviceConfig = new GantryDeviceConfig();
             /**  config表中没有数据说明此龙门架是第一次添加，需要进行初始化所有字段数据数据 **/
             if (log.isInfoEnabled()) {
-                log.info("用户" + userName + "正在尝试第一次配置该龙门架设备ID：" + request.getMachineId());
+                log.info("用户{}正在尝试第一次配置该龙门架设备ID：{}",userName, request.getMachineId());
             }
             gantryDeviceConfig.setMachineId(request.getMachineId().toString());
             gantryDeviceConfig.setCreateSiteCode(request.getCreateSiteCode());
@@ -232,7 +232,7 @@ public class GantryAutoSendController {
                             areaDestPlanService.updateUsingState(Integer.valueOf(planId.toString()), UsingState.USING);
                         }
                     } else {
-                        this.log.error("锁定龙门架的方案失败");
+                        this.log.warn("锁定龙门架的方案失败");
                     }
                 }
 
@@ -241,12 +241,12 @@ public class GantryAutoSendController {
                 log.error("锁定龙门架操作失败..", e);
             }
             if (count >= 1) {
-                log.error("用户正在尝试的启用龙门架操作状态成功，龙门架ID：" + request.getMachineId() + " 操作人：" + userName);
+                log.warn("用户正在尝试的启用龙门架操作状态成功，龙门架ID：{} 操作人：{}" ,request.getMachineId(), userName);
                 result.setCode(200);
                 result.setMessage("用户锁定龙门架操作成功");
                 result.setData(gantryDeviceConfig);
             } else {
-                log.error("用户正在尝试的启用龙门架操作状态异常失败，龙门架ID：" + request.getMachineId() + " 操作人：" + userName);
+                log.warn("用户正在尝试的启用龙门架操作状态异常失败，龙门架ID：{} 操作人：{}",request.getMachineId(), userName);
                 result.setCode(400);
                 result.setMessage("用户锁定龙门架失败");
                 result.setData(null);
@@ -393,7 +393,7 @@ public class GantryAutoSendController {
         InvokeResult<Integer> result = new InvokeResult<Integer>();
         result.setData(0);
         if (null == request || StringUtils.isBlank(request.getMachineId())) {
-            log.error("龙门架参数异常，获取异常数据失败");
+            log.warn("龙门架参数异常，获取异常数据失败");
             result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
             result.setMessage(InvokeResult.PARAM_ERROR);
             return result;
@@ -485,7 +485,7 @@ public class GantryAutoSendController {
             for (ScannerFrameBatchSend item : dataRequest) {
                 if (item.getReceiveSiteCode() == 0) {
                     //没有目的站点，自动退出循环
-                    log.error("检测出该条数据没有目的站点：本条数据丢弃，本次循环退出。");
+                    log.warn("检测出该条数据没有目的站点：本条数据丢弃，本次循环退出。");
                     continue;
                 }
                 /** ===============1.执行换批次动作================== **/
@@ -508,7 +508,7 @@ public class GantryAutoSendController {
                 itemtoEndSend.setSendCode(SerialRuleUtil.generateSendCode(itemtoEndSend.getCreateSiteCode(), itemtoEndSend.getReceiveSiteCode(), itemtoEndSend.getCreateTime()));
                 boolean bool = scannerFrameBatchSendService.generateSend(itemtoEndSend);
                 if (!bool) {
-                    log.error("换批次动作失败：打印跳过该批次：{}", item.toString());
+                    log.warn("换批次动作失败：打印跳过该批次：{}", item.toString());
                     continue;
                 }
                 result.setCode(300);

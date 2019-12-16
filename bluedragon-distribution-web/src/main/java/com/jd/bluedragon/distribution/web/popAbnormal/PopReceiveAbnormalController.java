@@ -81,8 +81,7 @@ public class PopReceiveAbnormalController {
 	@Authorization(Constants.DMS_WEB_PTORDER_DIFF_R)
 	@RequestMapping(value = "/goListPage", method = RequestMethod.GET)
 	public String goListPage(Model model) {
-		this.log
-				.info("PopReceiveAbnormalController --> goListPage 跳转到查询平台订单差异列表页面");
+		this.log.info("PopReceiveAbnormalController --> goListPage 跳转到查询平台订单差异列表页面");
 		initSelectObject(null, model);
 		initReasons(null, model);
 		return "popReceiveAbnormal/pop_abnormal_list";
@@ -98,8 +97,7 @@ public class PopReceiveAbnormalController {
     @Authorization(Constants.DMS_WEB_PTORDER_DIFF_R)
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	public String list(PopAbnormalQuery popAbnormalQuery, Model model) {
-		this.log
-				.info("PopReceiveAbnormalController --> list 按条件查询平台订单差异订单数据集合");
+		this.log.info("PopReceiveAbnormalController --> list 按条件查询平台订单差异订单数据集合");
 
 		Boolean checkParamOK = Boolean.TRUE;
 		Map<String, Object> paramMap = new HashMap<String, Object>();
@@ -152,18 +150,14 @@ public class PopReceiveAbnormalController {
 					// 获取总数量
 					int totalSize = this.popReceiveAbnormalService
 							.findTotalCount(paramMap);
-					this.log
-							.info("PopReceiveAbnormalController list --> 获取总数量为："
-									+ totalSize);
+					this.log.info("PopReceiveAbnormalController list --> 获取总数量为：{}",totalSize);
 					if (totalSize > 0) {
 						pager.setTotalSize(totalSize);
 						popReceiveAbnormals = this.popReceiveAbnormalService
 								.findList(paramMap);
 						pager.setData(popReceiveAbnormals);
 					} else {
-						this.log
-								.info("PopReceiveAbnormalController list --> paramMap："
-										+ paramMap + ", 调用服务成功，数据为空");
+						this.log.info("PopReceiveAbnormalController list --> paramMap：{}, 调用服务成功，数据为空",paramMap);
 					}
 				}
 			} catch (Exception e) {

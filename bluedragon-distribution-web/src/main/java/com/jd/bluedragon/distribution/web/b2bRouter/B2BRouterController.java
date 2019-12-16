@@ -297,7 +297,6 @@ public class B2BRouterController {
                 }
             }
         } catch (Exception e) {
-            log.error("删除时异常：", e);
             b2bRouterResponse.setCode(B2BRouterResponse.CODE_EXCEPTION);
             b2bRouterResponse.setMessage("删除时异常，请检查数据是否选择正确");
             log.error("执行删除B网路由操作异常：", e);
@@ -380,7 +379,7 @@ public class B2BRouterController {
                 if (e instanceof IllegalArgumentException) {
                     errorString = e.getMessage();
                 } else {
-                    log.warn("导入异常信息：", e);
+                    log.error("导入异常信息：", e);
                     errorString = "导入出现异常";
                 }
                 model.addAttribute("excelFile", errorString);

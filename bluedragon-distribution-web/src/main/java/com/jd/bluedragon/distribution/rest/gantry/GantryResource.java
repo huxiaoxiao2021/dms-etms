@@ -50,7 +50,7 @@ public class GantryResource {
             response.setData(this.ok(list));
         } catch (Throwable ex) {
             String message = "获取龙门架设备异常" + request.toString() + ex.toString();
-            log.error(message);
+            log.error(message,ex);
             response.setCode(JdResponse.CODE_INTERNAL_ERROR);
             response.setMessage(message);
         }
@@ -91,7 +91,7 @@ public class GantryResource {
             response.setVelocity(velocity);
         } catch (Throwable ex) {
             String message = "获取龙门架设备异常" + request.toString() + ex.toString();
-            log.error(message);
+            log.error(message, ex);
             response.setCode(JdResponse.CODE_INTERNAL_ERROR);
             response.setMessage(message);
         }

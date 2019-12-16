@@ -717,7 +717,7 @@ public class SortMachineAutoSendController {
             for (ScannerFrameBatchSendPrint item : requests) {
                 if (item.getReceiveSiteCode() == 0 || "".equals(item.getSendCode()) || item.getCreateSiteCode() == 0) {
                     //没有目的站点，自动退出循环
-                    log.error("检测出该条数据参数不完全：本条数据丢弃，本次循环退出。");
+                    log.warn("检测出该条数据参数不完全：本条数据丢弃，本次循环退出。");
                     continue;
                 }
                 /** 2. ==================获取打印图片================= **/

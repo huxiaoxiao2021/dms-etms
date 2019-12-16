@@ -125,7 +125,7 @@ public class QualityControlResource {
             try{
                 convertThenAddTask(request);
             }catch(Exception ex){
-                log.error("PDA调用异常配送接口插入质控任务表失败，原因 " + ex);
+                log.error("PDA调用异常配送接口插入质控任务表失败，原因 ", ex);
                 hasError=true;
             }
         }

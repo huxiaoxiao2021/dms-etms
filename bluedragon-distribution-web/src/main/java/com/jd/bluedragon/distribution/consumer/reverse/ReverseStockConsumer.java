@@ -8,8 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.text.MessageFormat;
-
 /**
  * 逆向备件库收货推出管0, 21类型通过接口调用推送
  * 11, 13, 15, 16, 18, 19, 42, 56, 61通过mq发送

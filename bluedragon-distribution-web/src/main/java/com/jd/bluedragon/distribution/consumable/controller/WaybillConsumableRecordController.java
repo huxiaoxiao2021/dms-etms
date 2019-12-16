@@ -201,7 +201,7 @@ public class WaybillConsumableRecordController extends DmsBaseController{
 			rest.setData(waybillConsumableRecordService.queryByPagerCondition(waybillConsumableRecordCondition));
 
 		} catch (Exception e) {
-			log.warn("调用getBaseSiteInfoBySiteId获取站点所属分拣中心信息异常，siteCode:{}", getLoginUser().getSiteCode());
+			log.error("调用getBaseSiteInfoBySiteId获取站点所属分拣中心信息异常，siteCode:{}", getLoginUser().getSiteCode(),e);
 		}
 
 		return rest.getData();

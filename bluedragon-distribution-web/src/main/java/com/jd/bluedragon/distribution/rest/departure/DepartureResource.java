@@ -359,8 +359,7 @@ public class DepartureResource {
 			BaseStaffSiteOrgDto site =this.baseService.getSiteBySiteID(createSiteCode);
 			String createSiteName = site.getSiteName();
 			if (createSiteName == null) {
-				this.log
-						.error("发车打印根据始发站点编号" + createSiteCode + "获取的站点名称为空");
+				this.log.warn("发车打印根据始发站点编号{}获取的站点名称为空",createSiteCode);
 			} else {
 				response.setCreateSite(createSiteName);
 			}

@@ -89,7 +89,7 @@ public class DistributionWssServiceImpl implements DistributionWssService {
 				}
 			}
 		} catch (Exception e) {
-			DistributionWssServiceImpl.log.error("获得箱子列表时失败【getBoxSummary】: " + e);
+			DistributionWssServiceImpl.log.error("获得箱子列表时失败【getBoxSummary】: ", e);
 		}
 		return dtos;
 	}
@@ -119,7 +119,7 @@ public class DistributionWssServiceImpl implements DistributionWssService {
 				}
 			}
 		} catch (Exception e) {
-			DistributionWssServiceImpl.log.error("获得包裹列表时失败【PackageSummaryDto】: " + e);
+			DistributionWssServiceImpl.log.error("获得包裹列表时失败【PackageSummaryDto】: ", e);
 		}
 		return dtos;
 	}

@@ -73,7 +73,7 @@ public class AreaDestPlanController {
                 model.addAttribute("currentSiteCode", dto.getSiteCode());
                 model.addAttribute("currentSiteName", dto.getSiteName());
             } else {
-                log.error("获取erp用户信息失败，结果为null");
+                log.warn("获取erp用户信息失败，结果为null");
             }
         } catch (Exception e) {
             log.error("获取始发分拣中心信息发生异常", e);
@@ -167,7 +167,7 @@ public class AreaDestPlanController {
                 model.addAttribute("currentSiteCode", dto.getSiteCode());
                 model.addAttribute("currentSiteName", dto.getSiteName());
             } else {
-                log.error("根据Erp用户信息获取基础信息失败，结果为null");
+                log.warn("根据Erp用户信息获取基础信息失败，结果为null");
             }
         } else {
             log.error("获取Erp用户信息失败，结果为null");
