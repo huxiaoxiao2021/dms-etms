@@ -1,21 +1,16 @@
 package com.jd.bluedragon.distribution.rest.collect;
 
-import IceInternal.Ex;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.api.request.PopPrintRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.collect.domain.*;
 import com.jd.bluedragon.distribution.collect.service.CollectGoodsAreaService;
 import com.jd.bluedragon.distribution.collect.service.CollectGoodsCommonService;
 import com.jd.bluedragon.distribution.collect.service.CollectGoodsDetailService;
 import com.jd.bluedragon.distribution.collect.service.CollectGoodsPlaceService;
-import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.jddl.executor.function.scalar.filter.In;
 import org.apache.commons.lang.StringUtils;
-import org.codehaus.jra.Post;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +19,6 @@ import org.springframework.stereotype.Component;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -38,7 +32,7 @@ import java.util.List;
 @Produces({ MediaType.APPLICATION_JSON })
 public class CollectGoodsResource {
 
-    private Logger logger = LoggerFactory.getLogger(CollectGoodsResource.class);
+    private Logger log = LoggerFactory.getLogger(CollectGoodsResource.class);
 
     @Autowired
     private CollectGoodsDetailService collectGoodsDetailService;
@@ -80,7 +74,7 @@ public class CollectGoodsResource {
             }
             result.setData(collectGoodsDTOS);
         }catch (Exception e){
-            logger.error("获取某个分拣中心下的所有集货区异常"+siteCode,e);
+            log.error("获取某个分拣中心下的所有集货区异常:{}", siteCode,e);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
         }
@@ -105,11 +99,11 @@ public class CollectGoodsResource {
             result = collectGoodsCommonService.put(req);
 
         }catch (CollectException e){
-            logger.warn("/collect/clean"+ JsonHelper.toJson(req),e);
+            log.error("/collect/clean:{}", JsonHelper.toJson(req),e);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(e.getMessage());
         }catch (Exception e){
-            logger.error("/collect/put"+ JsonHelper.toJson(req),e);
+            log.error("/collect/put:{}", JsonHelper.toJson(req),e);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
         }
@@ -161,7 +155,7 @@ public class CollectGoodsResource {
             }
             result.setMessage(message.toString());
         }catch (Exception e){
-            logger.error("/collect/find"+JsonHelper.toJson(req),e);
+            log.error("/collect/find:{}", JsonHelper.toJson(req),e);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
         }
@@ -184,11 +178,11 @@ public class CollectGoodsResource {
             result = collectGoodsCommonService.clean(req);
 
         }catch (CollectException e){
-            logger.error("/collect/clean"+ JsonHelper.toJson(req),e);
+            log.error("/collect/clean:{}", JsonHelper.toJson(req),e);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(e.getMessage());
         }catch (Exception e){
-            logger.error("/collect/clean"+ JsonHelper.toJson(req),e);
+            log.error("/collect/clean:{}", JsonHelper.toJson(req),e);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
         }
@@ -212,11 +206,11 @@ public class CollectGoodsResource {
             result = collectGoodsCommonService.transfer(req);
 
         }catch (CollectException e){
-            logger.error("/collect/clean"+ JsonHelper.toJson(req),e);
+            log.error("/collect/clean:{}", JsonHelper.toJson(req),e);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(e.getMessage());
         }catch (Exception e){
-            logger.error("/collect/transfer"+ JsonHelper.toJson(req),e);
+            log.error("/collect/transfer:{}", JsonHelper.toJson(req),e);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
         }

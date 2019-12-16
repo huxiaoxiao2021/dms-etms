@@ -19,8 +19,8 @@ import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.RestHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -40,7 +40,7 @@ import java.util.List;
 @Controller
 @RequestMapping("/GantryBatchSendReplenishPrint")
 public class GantryBatchSendReplenishPrintController {
-    private static final Log logger = LogFactory.getLog(GantryBatchSendReplenishPrintController.class);
+    private static final Logger log = LoggerFactory.getLogger(GantryBatchSendReplenishPrintController.class);
 
     private final static String HTTP = "http://";
 
@@ -64,7 +64,7 @@ public class GantryBatchSendReplenishPrintController {
             try {
                 model.addAttribute("createSiteName", URLDecoder.decode(createSiteName, "UTF-8"));
             } catch (UnsupportedEncodingException e) {
-                logger.info("补打界面跳转参数解码异常", e);
+                log.error("补打界面跳转参数解码异常", e);
                 model.addAttribute("createSiteName", "未知分拣中心");
             }
             model.addAttribute("startTime", startTime);
@@ -77,7 +77,7 @@ public class GantryBatchSendReplenishPrintController {
     @RequestMapping(value = "/query", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult<Pager<List<ScannerFrameBatchSend>>> query(ScannerFrameBatchSendSearchArgument request, Pager<List<ScannerFrameBatchSend>> pager) {
-        logger.debug("获取补打印数据 --> ");
+        log.debug("获取补打印数据 --> ");
         InvokeResult<Pager<List<ScannerFrameBatchSend>>> result = new InvokeResult<Pager<List<ScannerFrameBatchSend>>>();
         result.setCode(400);
         result.setMessage("服务器处理信息异常，查询补打印数据失败!!");
@@ -98,7 +98,7 @@ public class GantryBatchSendReplenishPrintController {
                 result.setCode(500);
                 result.setMessage("服务调用异常");
                 result.setData(null);
-                logger.error("补打数据获取失败..", e);
+                log.error("补打数据获取失败..", e);
             }
         }
         return result;
@@ -122,7 +122,7 @@ public class GantryBatchSendReplenishPrintController {
             result.setMessage("获取龙门架的目的站点成功");
         } catch (Exception e) {
             result.setMessage("获取龙门架的目的站点失败");
-            logger.error("加载龙门架的目的站点失败。。", e);
+            log.error("加载龙门架的目的站点失败。。", e);
         }
         return result;
     }
@@ -134,7 +134,7 @@ public class GantryBatchSendReplenishPrintController {
     @RequestMapping(value = "/sendCodePrint", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult<List<BatchSendPrintImageResponse>> printSendCode(@RequestBody ScannerFrameBatchSendPrint[] requests) {
-        this.logger.info("龙门架补打印数据开始-->需要打印的龙门架ID为" + requests[0].getMachineId());
+        this.log.info("龙门架补打印数据开始-->需要打印的龙门架ID为:{}" , requests[0].getMachineId());
         InvokeResult<List<BatchSendPrintImageResponse>> result = new InvokeResult<List<BatchSendPrintImageResponse>>();
         result.setCode(400);
         result.setMessage("服务调用成功，数据为空");
@@ -161,13 +161,13 @@ public class GantryBatchSendReplenishPrintController {
         argumentPager.setPageSize(500);//最多一次打印500条
         argumentPager.setData(sfbssa);
         try {
-            logger.info("需要执行该打印并完结批次的条数为：" + requests.length);
+            log.info("需要执行该打印并完结批次的条数为：{}", requests.length);
             List<BatchSendPrintImageResponse> results = new ArrayList<BatchSendPrintImageResponse>();
             String url = HTTP + PropertiesHelper.newInstance().getValue(prefixKey) + "/batchSendPrint/print";
             for (ScannerFrameBatchSendPrint item : requests) {
                 if (item.getReceiveSiteCode() == 0 || "".equals(item.getSendCode()) || item.getCreateSiteCode() == 0) {
                     //没有目的站点，自动退出循环
-                    logger.error("检测出该条数据参数不完全：本条数据丢弃，本次循环退出。");
+                    log.warn("检测出该条数据参数不完全：本条数据丢弃，本次循环退出。");
                     continue;
                 }
                 /** 2. ==================获取打印图片================= **/
@@ -192,18 +192,18 @@ public class GantryBatchSendReplenishPrintController {
                 BatchSendPrintImageResponse itemResponse = RestHelper.jsonPostForEntity(url, itemRequest, new TypeReference<BatchSendPrintImageResponse>() {
                 });
                 results.add(itemResponse);
-                logger.info("获取图片的base64结束。");
+                log.info("获取图片的base64结束。");
                 /** ===================获取打印图片获取base64图片码结束================= **/
                 /** =======================3.更新scanner_frame_batch_send表打印时间，打印次数开始================== **/
 //                scannerFrameBatchSendService.submitPrint(item.getId(),userId,userName);
                 // TODO: 2016/12/26 打印次数加一，最后一次打印时间更新
-                logger.info("更新打印时间次数结束。返回结果");
+                log.info("更新打印时间次数结束。返回结果");
                 result.setCode(200);
                 result.setMessage("服务调用成功");
                 result.setData(results);
             }
         } catch (Exception e) {
-            logger.error("获取数据异常");
+            log.error("获取数据异常");
             result.setCode(500);
             result.setMessage("服务调用异常");
         }

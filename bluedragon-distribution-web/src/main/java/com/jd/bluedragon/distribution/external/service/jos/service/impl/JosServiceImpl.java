@@ -10,7 +10,8 @@ import com.jd.bluedragon.distribution.globaltrade.service.LoadBillService;
 import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +21,7 @@ import org.springframework.stereotype.Service;
 @Service("josService")
 public class JosServiceImpl implements JosService {
 
-    private final Logger logger = Logger.getLogger(JosServiceImpl.class);
+    private final Logger log = LoggerFactory.getLogger(JosServiceImpl.class);
 
     @Autowired
     private LoadBillService loadBillService;
@@ -28,7 +29,7 @@ public class JosServiceImpl implements JosService {
     @Override
     public LoadBillReportResponse updateLoadBillStatus(LoadBillReportRequest request) {
         if(request != null) {
-            logger.info("全球购更新配载单状态获取到的appKey:" + request.getAppKey());
+            log.info("全球购更新配载单状态获取到的appKey:{}", request.getAppKey());
         }
         LoadBillReportResponse response = new LoadBillReportResponse(1, JdResponse.MESSAGE_OK);
         CallerInfo info = Profiler.registerInfo("DMSWEB.JosServiceImpl.updateLoadBillStatus", Constants.UMP_APP_NAME_DMSWEB,false, true);
@@ -45,7 +46,7 @@ public class JosServiceImpl implements JosService {
         } catch (Exception e) {
             Profiler.functionError(info);
             response = new LoadBillReportResponse(2, "操作异常");
-            logger.error("GlobalTradeController 发生异常,异常信息 : ", e);
+            log.error("GlobalTradeController 发生异常,异常信息 : ", e);
         }finally {
             Profiler.registerInfoEnd(info);
         }

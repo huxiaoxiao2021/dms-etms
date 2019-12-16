@@ -20,11 +20,7 @@ import com.jd.bluedragon.distribution.send.domain.SendDSimple;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.DeliveryServiceImpl;
 import com.jd.bluedragon.distribution.sorting.domain.OrderDetailEntityResponse;
-import com.jd.bluedragon.distribution.wss.dto.BoxSummaryDto;
-import com.jd.bluedragon.distribution.wss.dto.DepartureWaybillDto;
-import com.jd.bluedragon.distribution.wss.dto.PackageSummaryDto;
-import com.jd.bluedragon.distribution.wss.dto.SealVehicleSummaryDto;
-import com.jd.bluedragon.distribution.wss.dto.WaybillCodeSummatyDto;
+import com.jd.bluedragon.distribution.wss.dto.*;
 import com.jd.bluedragon.distribution.wss.service.DistributionWssService;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
@@ -33,22 +29,18 @@ import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service("dmsExternalReadService")
 public class DmsExternalReadServiceImpl implements DmsExternalReadService {
 	
-	private final Logger logger = Logger.getLogger(DeliveryServiceImpl.class);
+	private final Logger log = LoggerFactory.getLogger(DeliveryServiceImpl.class);
 	
 	@Autowired
 	private SendDatailReadDao sendDatailReadDao;
@@ -91,7 +83,7 @@ public class DmsExternalReadServiceImpl implements DmsExternalReadService {
             }
         } catch (Exception e) {
             Profiler.functionError(info);
-            this.logger.error("根据箱号获得运单号异常boxCode:" + boxCode, e);
+            this.log.error("根据箱号获得运单号异常boxCode:{}", boxCode, e);
         }finally {
             Profiler.registerInfoEnd(info);
         }
@@ -108,7 +100,7 @@ public class DmsExternalReadServiceImpl implements DmsExternalReadService {
 			sendBoxList = sendDatailReadDao.findSendBoxByWaybillCode(waybillCode);
 		} catch (Exception e) {
             Profiler.functionError(info);
-			this.logger.error("根据箱号获得批次号,箱号,包裹号异常 waybillCode:"+waybillCode, e);
+			this.log.error("根据箱号获得批次号,箱号,包裹号异常 waybillCode:{}", waybillCode, e);
 		}finally {
             Profiler.registerInfoEnd(info);
         }
@@ -215,7 +207,7 @@ public class DmsExternalReadServiceImpl implements DmsExternalReadService {
 				invokeResult.setData(result.getData());
 			}
 		} catch (Throwable e) {
-			logger.error("[分拣中心外部JSF服务][逆向换单获取新单号]，旧单号：" + oldWaybillCode, e);
+			log.error("[分拣中心外部JSF服务][逆向换单获取新单号]，旧单号：{}", oldWaybillCode, e);
 			invokeResult.error(e);
 		}
 		return invokeResult;
@@ -229,8 +221,8 @@ public class DmsExternalReadServiceImpl implements DmsExternalReadService {
 	 */
 	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey="DMSWEB.DmsExternalReadServiceImpl.getSendDSimpleBySendCodes", mState = {JProEnum.TP})
 	public DmsBaseResponse<Map<String,List<SendDSimple>>> getSendDSimpleBySendCodes(List<String>sendCodes){
-		if(logger.isInfoEnabled()) {
-			logger.info("根据批次号列表获取发货明细的简单信息，参数：" + JSON.toJSONString(sendCodes));
+		if(log.isInfoEnabled()) {
+			log.info("根据批次号列表获取发货明细的简单信息，参数：{}", JSON.toJSONString(sendCodes));
 		}
 		DmsBaseResponse<Map<String,List<SendDSimple>>> response = new DmsBaseResponse<Map<String, List<SendDSimple>>>(DmsBaseResponse.CODE_SUCCESS,DmsBaseResponse.MESSAGE_SUCCESS);
 		Map<String,List<SendDSimple>> data = new HashMap<String, List<SendDSimple>>();
@@ -248,7 +240,7 @@ public class DmsExternalReadServiceImpl implements DmsExternalReadService {
 			Integer createSiteCode = SerialRuleUtil.getCreateSiteCodeFromSendCode(sendCode);
 			//如果无法解析始发站点，放入一个空的列表，返回
 			if(createSiteCode == null){
-				logger.debug("根据批次号列表获取发货明细的简单信息,无法根据批次号获取始发分拣中心.sendCode:" + sendCode);
+				log.debug("根据批次号列表获取发货明细的简单信息,无法根据批次号获取始发分拣中心.sendCode:{}", sendCode);
 				data.put(sendCode,sendDSimpleList);
 				continue;
 			}

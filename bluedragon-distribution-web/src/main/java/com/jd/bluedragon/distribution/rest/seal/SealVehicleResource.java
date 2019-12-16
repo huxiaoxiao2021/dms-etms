@@ -1,30 +1,22 @@
 package com.jd.bluedragon.distribution.rest.seal;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.SealVehicleRequest;
 import com.jd.bluedragon.distribution.api.response.SealVehicleResponse;
 import com.jd.bluedragon.distribution.seal.domain.SealVehicle;
 import com.jd.bluedragon.distribution.seal.service.SealVehicleService;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Component
 @Path(Constants.REST_URL)
@@ -32,7 +24,7 @@ import com.jd.bluedragon.distribution.seal.service.SealVehicleService;
 @Produces({ MediaType.APPLICATION_JSON })
 public class SealVehicleResource {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private static final int SEAL_CODE_UNSAME = 20; 
 	
@@ -44,28 +36,23 @@ public class SealVehicleResource {
 	public SealVehicleResponse findSealByCode(
 			@PathParam("sealCode") String sealCode) {
 		if (StringUtils.isBlank(sealCode)) {
-			this.logger.error("SealVehicleResponse findSealByCode --> 传入参数非法");
+			this.log.warn("SealVehicleResponse findSealByCode --> 传入参数非法");
 			return new SealVehicleResponse(JdResponse.CODE_PARAM_ERROR,
 					JdResponse.MESSAGE_PARAM_ERROR);
 		}
 		try {
-			this.logger
-					.info("SealVehicleResponse findSealByCode --> sealCode is "
-							+ sealCode);
+			this.log.info("SealVehicleResponse findSealByCode --> sealCode is {}", sealCode);
 			SealVehicle sealVehicle = this.sealVehicleService
 					.findBySealCode(sealCode);
 			if (sealVehicle != null) {
 				return SealVehicle.toSealVehicleResponse(sealVehicle);
 			} else {
-				this.logger
-						.info("SealVehicleResponse findSealByCode --> 根据封车号【 "
-								+ sealCode + "】查询无数据！");
+				this.log.info("SealVehicleResponse findSealByCode --> 根据封车号【{}】查询无数据！",sealCode);
 				return new SealVehicleResponse(JdResponse.CODE_OK_NULL,
 						JdResponse.MESSAGE_OK_NULL);
 			}
 		} catch (Exception e) {
-			this.logger.error("SealVehicleResponse findSealByCode --> 根据封车号【"
-					+ sealCode + "】获取封车信息 --> 调用服务异常：", e);
+			this.log.error("SealVehicleResponse findSealByCode --> 根据封车号【{}】获取封车信息 --> 调用服务异常：",sealCode, e);
 			return new SealVehicleResponse(JdResponse.CODE_SERVICE_ERROR,
 					JdResponse.MESSAGE_SERVICE_ERROR);
 		}
@@ -79,13 +66,11 @@ public class SealVehicleResource {
 				|| request.getSiteCode() == null
 				|| request.getUserCode() == null
 				|| StringUtils.isBlank(request.getUserName())) {
-			this.logger.error("SealVehicleResource add --> 传入参数非法");
+			this.log.warn("SealVehicleResource add --> 传入参数非法");
 			return new SealVehicleResponse(JdResponse.CODE_PARAM_ERROR,
 					JdResponse.MESSAGE_PARAM_ERROR);
 		}
-		this.logger.info("SealVehicleResource add --> sealCode is ["
-				+ request.getSealCode() + "] vehicleCode is["
-				+ request.getVehicleCode() + "]");
+		this.log.info("SealVehicleResource add --> sealCode is [{}] vehicleCode is[{}]",request.getSealCode(), request.getVehicleCode());
 		SealVehicle sealVehicle = SealVehicle.toSealVehicle(request);
 		if (Constants.RESULT_SUCCESS == this.sealVehicleService
 				.addSealVehicle(sealVehicle)) {
@@ -112,13 +97,9 @@ public class SealVehicleResource {
 					|| request.getUserCode() == null
 					|| StringUtils.isBlank(request.getUserName())
 					|| StringUtils.isBlank(request.getSendCode())) {
-				logger.error("SealVehicleResource add --> 传入参数非法");
+				log.warn("SealVehicleResource add --> 传入参数非法");
 				return new SealVehicleResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
 			}
-			this.logger.info("SealVehicleResource add --> sealCode is ["
-					+ request.getSealCode() + "] vehicleCode is["
-					+ request.getVehicleCode() + "] sendCode is[" 
-					+ request.getSendCode() + "]");
 			SealVehicle sealVehicle = SealVehicle.toSealVehicle3(request);
 			if (Constants.RESULT_SUCCESS == this.sealVehicleService.addSealVehicle2(sealVehicle)) {
 				sealVehicleResponse = new SealVehicleResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
@@ -126,7 +107,7 @@ public class SealVehicleResource {
 				sealVehicleResponse = new SealVehicleResponse(2006, "请使用新封签");
 			}
 		}catch(Exception e){
-			this.logger.error("SealVehicleResource.add2-error", e);
+			this.log.error("SealVehicleResource.add2-error", e);
 		}
 		return sealVehicleResponse;
 	}
@@ -139,13 +120,10 @@ public class SealVehicleResource {
 				|| request.getSiteCode() == null
 				|| request.getUserCode() == null
 				|| StringUtils.isBlank(request.getUserName())) {
-			this.logger.error("SealVehicleResource update --> 传入参数非法");
+			this.log.warn("SealVehicleResource update --> 传入参数非法");
 			return new SealVehicleResponse(JdResponse.CODE_PARAM_ERROR,
 					JdResponse.MESSAGE_PARAM_ERROR);
 		}
-		this.logger.info("SealVehicleResource update --> sealCode is ["
-				+ request.getSealCode() + "] vehicleCode is["
-				+ request.getVehicleCode() + "]");
 		SealVehicle sealVehicle = SealVehicle.toSealVehicle2(request);
 		if (Constants.RESULT_SUCCESS == this.sealVehicleService
 				.updateSealVehicle(sealVehicle)) {
@@ -168,13 +146,9 @@ public class SealVehicleResource {
 					|| request.getUserCode() == null
 					|| StringUtils.isBlank(request.getUserName())
 					|| StringUtils.isBlank(request.getSendCode())) {
-				this.logger.error("SealVehicleResource update --> 传入参数非法");
+				this.log.warn("SealVehicleResource update --> 传入参数非法");
 				return new SealVehicleResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
 			}
-			this.logger.info("SealVehicleResource add --> sealCode is ["
-					+ request.getSealCode() + "] vehicleCode is["
-					+ request.getVehicleCode() + "] sendCode is[" 
-					+ request.getSendCode() + "]");
 			SealVehicle sealVehicle = SealVehicle.toSealVehicle4(request);
 			int result = this.sealVehicleService.updateSealVehicle2(sealVehicle);
 			if (Constants.RESULT_SUCCESS == result) {
@@ -185,7 +159,7 @@ public class SealVehicleResource {
 				return new SealVehicleResponse(2006, "此封签异常,请核实");
 			}
 		}catch(Exception e){
-			this.logger.error("SealVehicleResource.update2-error", e);
+			this.log.error("SealVehicleResource.update2-error", e);
 		}
 		return sealVehicleResponse;
 	}
@@ -206,13 +180,9 @@ public class SealVehicleResource {
 					|| request.getSiteCode() == null
 					|| request.getUserCode() == null
 					|| StringUtils.isBlank(request.getUserName())) {
-				this.logger.error("SealVehicleResource add --> 传入参数非法");
+				this.log.warn("SealVehicleResource add --> 传入参数非法");
 				return new SealVehicleResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
 			}
-			this.logger.info("SealVehicleResource add --> sealCode is ["
-					+ request.getSealCodes() + "] vehicleCode is["
-					+ request.getVehicleCode() + "] sendCode is[" 
-					+ request.getSendCodes() + "]");
 			List<SealVehicle> sealVehicleList = SealVehicle.toSomeSealVehicle(request);
 			if (this.sealVehicleService.addSealVehicle3(sealVehicleList)) {
 				sealVehicleResponse = new SealVehicleResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
@@ -220,7 +190,7 @@ public class SealVehicleResource {
 				sealVehicleResponse = new SealVehicleResponse(2006, "请使用新封签");
 			}
 		}catch(Exception e){
-			this.logger.error("SealVehicleResource.add3-error", e);
+			this.log.error("SealVehicleResource.add3-error", e);
 		}
 		return sealVehicleResponse;
 	}
@@ -235,7 +205,7 @@ public class SealVehicleResource {
 					|| request.getSiteCode() == null
 					|| request.getUserCode() == null
 					|| StringUtils.isBlank(request.getUserName())) {
-				this.logger.error("SealVehicleResource update --> 传入参数非法");
+				this.log.warn("SealVehicleResource update --> 传入参数非法");
 				return new SealVehicleResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
 			}
 			SealVehicle sealVehicle = SealVehicle.toSealVehicle4(request);   
@@ -245,7 +215,7 @@ public class SealVehicleResource {
 				return new SealVehicleResponse(2006, "车牌号或封签异常,请核实");
 			}
 		}catch(Exception e){
-			this.logger.error("SealVehicleResource.update3-error", e);
+			this.log.error("SealVehicleResource.update3-error", e);
 		}
 		return sealVehicleResponse;
 	}
@@ -255,7 +225,7 @@ public class SealVehicleResource {
 	public SealVehicleResponse findByVehicleCode(@PathParam("vehicleCode") String vehicleCode) {
 		SealVehicleResponse sealVehicleResponse = new SealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
 		if (StringUtils.isBlank(vehicleCode)) {
-			this.logger.error("SealVehicleResponse findByVehicleCode --> 传入参数非法");
+			this.log.warn("SealVehicleResponse findByVehicleCode --> 传入参数非法");
 			return new SealVehicleResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
 		}
 		try{
@@ -267,7 +237,7 @@ public class SealVehicleResource {
 			sealVehicleResponse.setCode(JdResponse.CODE_OK);
 			sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
 		}catch(Exception e){
-			this.logger.error("SealVehicleResource.findByVehicleCode-error", e);
+			this.log.error("SealVehicleResource.findByVehicleCode-error", e);
 		}
 		return sealVehicleResponse;
 	}
@@ -301,7 +271,7 @@ public class SealVehicleResource {
 					|| StringUtils.isBlank(request.getVehicleCode())
 					|| request.getSealCode() == null
 					|| request.getSendCode() == null) {
-				this.logger.error("SealVehicleResource cancel --> 传入参数非法");
+				this.log.warn("SealVehicleResource cancel --> 传入参数非法");
 				return new SealVehicleResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
 			}
 			SealVehicle sealVehicle = SealVehicle.toSealVehicle3(request); 
@@ -310,7 +280,7 @@ public class SealVehicleResource {
 			
 			return response;
 		}catch(Exception e){
-			this.logger.error("SealVehicleResource.cancel-error", e);
+			this.log.error("SealVehicleResource.cancel-error", e);
 		}
 		return sealVehicleResponse;
 	}

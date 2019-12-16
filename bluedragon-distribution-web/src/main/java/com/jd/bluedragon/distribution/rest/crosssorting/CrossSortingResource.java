@@ -11,8 +11,8 @@ import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.mixedPackageConfig.enums.RuleTypeEnum;
 import com.jd.bluedragon.distribution.mixedPackageConfig.enums.YNEnum;
 import com.jd.bluedragon.utils.JsonHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -37,7 +37,7 @@ import java.util.Map;
 @Produces({MediaType.APPLICATION_JSON})
 public class CrossSortingResource {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
     @Autowired
     private CrossSortingService crossSortingService;
 
@@ -50,7 +50,9 @@ public class CrossSortingResource {
     @POST
     @Path("/crosssorting/queryMixBoxSite")
     public CrossSortingResponse queryMixBoxSite(CrossSortingRequest request) {
-        logger.info("查询建包发货规则" + JsonHelper.toJson(request));
+        if(log.isInfoEnabled()){
+            log.info("查询建包发货规则:{}", JsonHelper.toJson(request));
+        }
         CrossSortingResponse response = new CrossSortingResponse();
         List<CrossSorting> mixDmsList;
         try {
@@ -60,13 +62,13 @@ public class CrossSortingResource {
                     || request.getDestinationDmsCode() < 1
                     || null == request.getType()
                     || request.getType() < 1) {
-                logger.error(JsonHelper.toJson(request));
+                log.warn(JsonHelper.toJson(request));
                 response.setCode(JdResponse.CODE_PARAM_ERROR);
                 response.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
                 return response;
             }
             //如果使用新混装规则，则走新的混装规则
-            logger.info("是否使用新混装规则："+useNewMixedConfig);
+            log.info("是否使用新混装规则：{}", useNewMixedConfig);
             if (YNEnum.Y.getCode().equals(useNewMixedConfig)) {
                 mixDmsList = getMixedConfigsBySitesAndTypes(request.getCreateDmsCode(), request.getDestinationDmsCode(), request.getTransportType(), RuleTypeEnum.BUILD_PACKAGE.getCode());
             } else {
@@ -80,7 +82,7 @@ public class CrossSortingResource {
             response.setMessage(JdResponse.MESSAGE_OK);
             response.setData(mixDmsList);
         } catch (Exception e) {
-            logger.error("查询建包规则" + JsonHelper.toJson(request) + e.toString());
+            log.error("查询建包规则:{}" , JsonHelper.toJson(request), e);
             response.setCode(JdResponse.CODE_PARAM_ERROR);
             response.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
         }

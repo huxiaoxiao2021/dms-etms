@@ -9,8 +9,8 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.framework.utils.cache.memory.MemoryCache;
 import com.jd.uim.annotation.Authorization;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -37,7 +37,7 @@ import java.util.Map;
 @RequestMapping("/admin/memory")
 public class MemoryController {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private final static String PREFIX = "http://";
     private final static String SUFFIX_COUNT = ":1601/admin/memory/count";
@@ -165,7 +165,7 @@ public class MemoryController {
             }
             return dto;
         } catch (Exception e) {
-            logger.warn(MessageFormat.format("获取远程内存缓存信息失败, url:{0}, 异常信息:{1}", url, e));
+            log.error("获取远程内存缓存信息失败, url:{}", url, e);
         }
         return new MemoryCacheDto(ip, "3.value is null");
     }

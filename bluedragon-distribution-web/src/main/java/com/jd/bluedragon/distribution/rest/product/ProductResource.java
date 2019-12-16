@@ -7,12 +7,8 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.ProductResponse;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.bluedragon.utils.StringHelper;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -28,7 +24,7 @@ import java.util.List;
 @Produces({ MediaType.APPLICATION_JSON })
 public class ProductResource {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private ProductService productService;
@@ -43,7 +39,7 @@ public class ProductResource {
             return this.paramError();
         }
 
-        this.logger.info("调用运单接口获取订单商品明细, 订单号：" + orderId);
+        this.log.info("调用运单接口获取订单商品明细, 订单号：{}", orderId);
 
         Waybill waybill = waybillCommonService.findWaybillAndGoods(orderId);
         if(waybill == null){
@@ -68,7 +64,7 @@ public class ProductResource {
         if(orderId == null){
             return paramError();
         }
-        this.logger.info("获取订单商品详情, 订单号：" + orderId);
+        this.log.info("获取订单商品详情, 订单号：{}", orderId);
 
         List<Product> products = this.productService.getOrderProducts(orderId);
         if (products == null || products.isEmpty()) {
@@ -85,7 +81,7 @@ public class ProductResource {
             return this.paramError();
         }
 
-        this.logger.info("获取取件单商品详情, 取件单面单号：" + code);
+        this.log.info("获取取件单商品详情, 取件单面单号：{}", code);
 
         List<Product> products = this.productService.getPickwareProductds(code);
         if (products == null || products.isEmpty()) {

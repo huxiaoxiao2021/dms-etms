@@ -13,15 +13,13 @@ import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRelati
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.ExportExcel;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.StringHelper;
-import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -46,7 +44,7 @@ import java.util.List;
 @RequestMapping("consumable/waybillConsumableRecord")
 public class WaybillConsumableRecordController extends DmsBaseController{
 
-	private static final Log logger = LogFactory.getLog(WaybillConsumableRecordController.class);
+	private static final Logger log = LoggerFactory.getLogger(WaybillConsumableRecordController.class);
 
 	@Autowired
 	private WaybillConsumableRecordService waybillConsumableRecordService;
@@ -91,7 +89,7 @@ public class WaybillConsumableRecordController extends DmsBaseController{
 		try {
 			rest.setData(waybillConsumableRecordService.saveOrUpdate(waybillConsumableRecord));
 	} catch (Exception e) {
-            logger.error("B网耗材保存失败："+e.getMessage(),e);
+            log.error("B网耗材保存失败：",e);
 			rest.toError("保存失败，服务异常！");
 		}
 		return rest;
@@ -108,7 +106,7 @@ public class WaybillConsumableRecordController extends DmsBaseController{
 		try {
 			rest.setData(waybillConsumableRecordService.canModify(waybillConsumableRecordCondition.getWaybillCode()));
 		} catch (Exception e) {
-			logger.error("校验该运单是否支持修改异常："+e.getMessage(),e);
+			log.error("校验该运单是否支持修改异常：",e);
 			rest.toError("校验失败，服务异常！");
 		}
 		return rest;
@@ -125,7 +123,7 @@ public class WaybillConsumableRecordController extends DmsBaseController{
 		try {
 			rest.setData(waybillConsumableRecordService.deleteByIds(ids));
 		} catch (Exception e) {
-			logger.error("fail to delete！"+e.getMessage(),e);
+			log.error("fail to delete！",e);
 			rest.toError("删除失败，服务异常！");
 		}
 		return rest;
@@ -148,7 +146,7 @@ public class WaybillConsumableRecordController extends DmsBaseController{
                 String waybillCode = data.getWaybillCode();
                 int count = waybillConsumableRelationService.getNoPackUserErpRecordCount(waybillCode);
                 if (count > 0) {
-                	logger.warn(waybillCode + "相关耗材未完成录入打包人，无法确认！");
+                	log.warn("{}相关耗材未完成录入打包人，无法确认！",waybillCode);
                 	if (noPackUserErpWaybillBuilder.length() == 0) {
 						noPackUserErpWaybillBuilder.append(waybillCode);
 					} else {
@@ -171,10 +169,10 @@ public class WaybillConsumableRecordController extends DmsBaseController{
 			}
 
 		} catch (IllegalArgumentException e) {
-			logger.error("B网耗材批量确认失败，参数异常："+e.getMessage(),e);
+			log.error("B网耗材批量确认失败，参数异常：",e);
 			rest.toError(e.getMessage());
 		} catch (Exception e) {
-			logger.error("B网耗材批量确认失败："+e.getMessage(),e);
+			log.error("B网耗材批量确认失败：",e);
 			rest.toError("确认失败，服务异常！");
 		}
 		return rest;
@@ -196,14 +194,14 @@ public class WaybillConsumableRecordController extends DmsBaseController{
 				if (baseStaffSiteOrgDto != null && baseStaffSiteOrgDto.getDmsId() != null) {
 					siteCode = baseStaffSiteOrgDto.getDmsId();
 				} else {
-					logger.warn("调用getBaseSiteInfoBySiteId获取站点所属分拣中心信息为空，siteCode:"+ getLoginUser().getSiteCode());
+					log.warn("调用getBaseSiteInfoBySiteId获取站点所属分拣中心信息为空，siteCode:{}", getLoginUser().getSiteCode());
 				}
 			}
 			waybillConsumableRecordCondition.setDmsId(siteCode);
 			rest.setData(waybillConsumableRecordService.queryByPagerCondition(waybillConsumableRecordCondition));
 
 		} catch (Exception e) {
-			logger.warn("调用getBaseSiteInfoBySiteId获取站点所属分拣中心信息异常，siteCode:"+ getLoginUser().getSiteCode());
+			log.error("调用getBaseSiteInfoBySiteId获取站点所属分拣中心信息异常，siteCode:{}", getLoginUser().getSiteCode(),e);
 		}
 
 		return rest.getData();
@@ -249,7 +247,7 @@ public class WaybillConsumableRecordController extends DmsBaseController{
                     WaybillConsumableExportCol.TITLES,
                     rows, ExportExcel.EXPORT_TYPE_EXCEL);
         }catch (Exception e){
-            logger.error("B网耗材明细导出失败：,导出条件：" + JsonHelper.toJson(condition) , e);
+            log.error("B网耗材明细导出失败：,导出条件：{}", JsonHelper.toJson(condition) , e);
             rest.toFail("导出失败，服务异常！");
             return rest;
         }

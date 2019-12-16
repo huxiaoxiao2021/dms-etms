@@ -1,22 +1,12 @@
 package com.jd.bluedragon.distribution.external.service.impl;
 
 import com.jd.bluedragon.Constants;
-import java.util.List;
-import java.util.Map;
-
 import com.jd.bluedragon.distribution.alliance.AllianceBusiDeliveryDto;
 import com.jd.bluedragon.distribution.alliance.AllianceBusiFailDetailDto;
 import com.jd.bluedragon.distribution.alliance.service.AllianceBusiDeliveryDetailService;
 import com.jd.bluedragon.distribution.api.request.ArAbnormalRequest;
 import com.jd.bluedragon.distribution.api.response.ArAbnormalResponse;
 import com.jd.bluedragon.distribution.arAbnormal.ArAbnormalService;
-import com.jd.bluedragon.utils.JsonHelper;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
-import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.command.JdCommandService;
 import com.jd.bluedragon.distribution.external.service.DmsExternalService;
 import com.jd.bluedragon.distribution.send.service.DeliveryServiceImpl;
@@ -25,9 +15,11 @@ import com.jd.bluedragon.distribution.wss.dto.SealBoxDto;
 import com.jd.bluedragon.distribution.wss.dto.SealVehicleDto;
 import com.jd.bluedragon.distribution.wss.service.PopAbnormalWssService;
 import com.jd.bluedragon.distribution.wss.service.SealVehicleBoxService;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -38,7 +30,7 @@ import java.util.Map;
 @Service("dmsExternalService")
 public class DmsExternalServiceImpl implements DmsExternalService {
 
-    private final Logger logger = Logger.getLogger(DeliveryServiceImpl.class);
+    private final Logger log = LoggerFactory.getLogger(DeliveryServiceImpl.class);
 
 
     @Autowired
@@ -117,7 +109,7 @@ public class DmsExternalServiceImpl implements DmsExternalService {
         try{
             result = allianceBusiDeliveryDetailService.allianceBusiDelivery(dto);
         }catch (Exception e){
-            logger.error("加盟商交接交接异常,入参:"+ JsonHelper.toJson(dto),e);
+            log.error("加盟商交接交接异常,入参:{}", JsonHelper.toJson(dto),e);
             result.setCode(BaseEntity.CODE_SERVICE_ERROR);
             result.setMessage(BaseEntity.MESSAGE_SERVICE_ERROR);
         }

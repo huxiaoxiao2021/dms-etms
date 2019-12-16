@@ -9,7 +9,8 @@ import java.util.Set;
 
 import com.jd.bluedragon.Constants;
 import com.jd.uim.annotation.Authorization;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -33,7 +34,7 @@ import com.jd.etms.erp.service.dto.CommonDto;
 @RequestMapping("/admin/system-monitor")
 public class SysremMonitorController {
 	
-	private static final Logger logger = Logger.getLogger(SysremMonitorController.class);
+	private static final Logger log = LoggerFactory.getLogger(SysremMonitorController.class);
 	
 	@Autowired
 	private SystemMonitorService systemMonitorService;
@@ -48,7 +49,7 @@ public class SysremMonitorController {
 			ErpUser erpUser = ErpUserClient.getCurrUser();
 	    	model.addAttribute("erpUser", erpUser);
 	    } catch (Exception e) {
-			logger.error("index error!", e);
+			log.error("index error!", e);
 		}
         return "admin/system-monitor/system-monitor-index";
     }
@@ -71,7 +72,7 @@ public class SysremMonitorController {
     	
     	CommonDto<List<Map<String,Object>>> cdto = new CommonDto<List<Map<String,Object>>>();
     	try {
-    		logger.debug("doQueryRedisQueueCount begin...");
+    		log.debug("doQueryRedisQueueCount begin...");
     		if(qName == null || qName.length() < 1){
     			cdto.setCode(CommonDto.CODE_WARN);
     			cdto.setMessage("参数队列名[qName]不能为空！");
@@ -111,7 +112,7 @@ public class SysremMonitorController {
         	cdto.setCode(CommonDto.CODE_NORMAL);
     		cdto.setData(list);
     	} catch (Exception e) {
-			logger.error("doQueryRedisQueueCount-error!", e);
+			log.error("doQueryRedisQueueCount-error!", e);
 			cdto.setCode(CommonDto.CODE_EXCEPTION);
 			cdto.setData(null);
 			cdto.setMessage(e.getMessage());
@@ -137,7 +138,7 @@ public class SysremMonitorController {
     	
     	CommonDto<List<String>> cdto = new CommonDto<List<String>>();
     	try {
-    		logger.debug("doQueryRedisQueueDetail begin...");
+    		log.debug("doQueryRedisQueueDetail begin...");
     		if(queueKey == null || queueKey.length() < 1){
     			cdto.setCode(CommonDto.CODE_WARN);
     			cdto.setMessage("参数队列名[queueKey]不能为空！");
@@ -163,7 +164,7 @@ public class SysremMonitorController {
         	cdto.setCode(CommonDto.CODE_NORMAL);
     		cdto.setData(list);
     	} catch (Exception e) {
-			logger.error("doQueryRedisQueueCount-error!", e);
+			log.error("doQueryRedisQueueCount-error!", e);
 			cdto.setCode(CommonDto.CODE_EXCEPTION);
 			cdto.setData(null);
 			cdto.setMessage(e.getMessage());
@@ -190,7 +191,7 @@ public class SysremMonitorController {
     	
     	CommonDto<List<Map<String,Object>>> cdto = new CommonDto<List<Map<String,Object>>>();
     	try {
-    		logger.debug("doQueryRedisQueueCount begin...");
+    		log.debug("doQueryRedisQueueCount begin...");
     		if(qName == null || qName.length() < 1){
     			cdto.setCode(CommonDto.CODE_WARN);
     			cdto.setMessage("参数队列名[qName]不能为空！");
@@ -210,7 +211,7 @@ public class SysremMonitorController {
     		cdto.setCode(CommonDto.CODE_NORMAL);
     		cdto.setMessage("将任务"+qName+"$"+qSign+"数据"+count+"条移动到DB!");
     	} catch (Exception e) {
-			logger.error("doMoveRedisQueueDataToDB-error!", e);
+			log.error("doMoveRedisQueueDataToDB-error!", e);
 			cdto.setCode(CommonDto.CODE_EXCEPTION);
 			cdto.setMessage(e.getMessage());
 		}

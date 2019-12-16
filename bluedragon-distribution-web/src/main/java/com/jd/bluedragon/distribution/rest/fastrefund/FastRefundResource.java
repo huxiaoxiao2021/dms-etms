@@ -4,8 +4,8 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.FastRefundRequest;
 import com.jd.bluedragon.distribution.fastRefund.service.FastRefundService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
@@ -18,7 +18,7 @@ import javax.ws.rs.core.MediaType;
 @Produces({ MediaType.APPLICATION_JSON })
 public class FastRefundResource {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	
 	@Autowired
 	FastRefundService fastRefundService;
@@ -48,7 +48,7 @@ public class FastRefundResource {
 				}
 			}
 		}catch(Exception e){
-			logger.error("FastRefundResource.fastRefund error",e);
+			log.error("FastRefundResource.fastRefund error",e);
 			return msg("服务异常：" + e.getMessage());
 		}
 	}
@@ -79,7 +79,7 @@ public class FastRefundResource {
 				}
 			}
 		}catch(Exception e){
-			logger.error("FastRefundResource.fastRefund error",e);
+			log.error("FastRefundResource.fastRefund error",e);
 			return msg("服务异常：" + e.getMessage());
 		}
 	}

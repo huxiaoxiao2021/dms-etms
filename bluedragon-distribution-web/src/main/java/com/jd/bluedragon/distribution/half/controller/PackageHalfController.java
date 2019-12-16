@@ -11,8 +11,8 @@ import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.uim.annotation.Authorization;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,7 +36,7 @@ import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 @RequestMapping("half/packageHalf")
 public class PackageHalfController {
 
-	private static final Log logger = LogFactory.getLog(PackageHalfController.class);
+	private static final Logger log = LoggerFactory.getLogger(PackageHalfController.class);
 
 	@Autowired
 	private PackageHalfService packageHalfService;
@@ -111,14 +111,14 @@ public class PackageHalfController {
 			rest.setData(saveResult);
 			if(!saveResult){
 				//保存失败
-				logger.error("half/packageHalf/save  fail to save！"+rest.getMessage());
+				log.warn("half/packageHalf/save  fail to save！：{}", rest.getMessage());
 				//packageHalfService.deleteOfSaveFail(packageHalfVO.getWaybillCode());
 				rest.toError("保存失败！失败原因:"+rest.getMessage());
 			}
 
 
 		} catch (Exception e) {
-			logger.error("half/packageHalf/save  fail to save！"+e.getMessage());
+			log.error("half/packageHalf/save  fail to save！",e);
 			//packageHalfService.deleteOfSaveFail(packageHalfVO.getWaybillCode());
 			rest.toError("保存失败，服务异常！");
 		}
@@ -166,7 +166,7 @@ public class PackageHalfController {
 		try {
 			rest.setData(packageHalfService.deleteByIds(ids));
 		} catch (Exception e) {
-			logger.error("fail to delete！"+e.getMessage(),e);
+			log.error("fail to delete！",e);
 			rest.toError("删除失败，服务异常！");
 		}
 		return rest;

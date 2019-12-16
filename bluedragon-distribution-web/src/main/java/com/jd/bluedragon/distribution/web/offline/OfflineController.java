@@ -1,22 +1,5 @@
 package com.jd.bluedragon.distribution.web.offline;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Resource;
-
-import com.jd.uim.annotation.Authorization;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -32,13 +15,26 @@ import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.JsonResult;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.ObjectMapHelper;
-import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.uim.annotation.Authorization;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/offline")
 public class OfflineController {
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	
 	@Autowired
 	private BaseService baseService;
@@ -94,7 +90,7 @@ public class OfflineController {
 		int totalsize = offlineLogService.totalSizeByParams(params);
 		pager.setTotalSize(totalsize);
 
-		logger.info("查询符合条件的规则数量：" + totalsize);
+		log.info("查询符合条件的规则数量：{}", totalsize);
 
 		model.addAttribute("offlinelogs",
 				offlineLogService.queryByParams(params));
@@ -117,7 +113,7 @@ public class OfflineController {
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult save(OfflineLog offlineLog) {
-		this.logger.info("saveOfflineLog --> 保存 开始");
+		this.log.info("saveOfflineLog --> 保存 开始");
 		try {
 			int result=Constants.RESULT_FAIL;
 			offlineLog.setStatus(Constants.RESULT_SUCCESS);
@@ -164,7 +160,7 @@ public class OfflineController {
 			}
 			
 	     } catch (Exception e) {
-			this.logger.error("saveOfflineLog异常：", e);
+			this.log.error("saveOfflineLog异常：", e);
 			offlineLog.setStatus(Constants.RESULT_FAIL);
 			offlineLogService.update(offlineLog);
 			return new JsonResult(false, "服务器执行异常");
@@ -221,7 +217,7 @@ public class OfflineController {
             }
 			model.addAttribute("siteList", siteList);
 		} catch (Exception e) {
-			this.logger.error("初始化查询条件异常", e);
+			this.log.error("初始化查询条件异常", e);
 		}
 	}
 }

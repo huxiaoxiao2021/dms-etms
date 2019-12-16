@@ -8,16 +8,12 @@ import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintMessages
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageState;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
@@ -27,7 +23,7 @@ import java.util.List;
 @Produces({ MediaType.APPLICATION_JSON })
 public class ResidentResource {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private WaybillTraceManager waybillTraceManager;
@@ -69,7 +65,7 @@ public class ResidentResource {
                 }
             }
         }catch (Exception e){
-            this.logger.error("查询箱号"+boxCode+"是否操作站点发货服务异常!");
+            this.log.error("查询箱号{}是否操作站点发货服务异常!",boxCode);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
             result.setData(InvokeResult.SERVER_ERROR_MESSAGE);

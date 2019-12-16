@@ -22,16 +22,12 @@ import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
@@ -45,7 +41,7 @@ import java.util.List;
 @RequestMapping("base/dmsStorageArea")
 public class DmsStorageAreaController extends DmsBaseController{
 
-    private static final Log logger = LogFactory.getLog(DmsStorageAreaController.class);
+    private static final Logger log = LoggerFactory.getLogger(DmsStorageAreaController.class);
 
     @Autowired
     private DmsStorageAreaService dmsStorageAreaService;
@@ -84,12 +80,12 @@ public class DmsStorageAreaController extends DmsBaseController{
     @RequestMapping("/getProvinceList")
     @ResponseBody
     public List getProvince() {
-        logger.info("获取所有的省份");
+        log.debug("获取所有的省份");
         List<ProvinceNode> provinces = new ArrayList<ProvinceNode>();
         try {
             provinces.addAll(AreaHelper.getAllProvince());
         } catch (Exception e) {
-            logger.warn("获取所有的省份失败", e);
+            log.warn("获取所有的省份失败", e);
         }
         return provinces;
     }
@@ -104,12 +100,12 @@ public class DmsStorageAreaController extends DmsBaseController{
     @RequestMapping("/getCityList")
     @ResponseBody
     public List getCity(Integer provinceId) {
-        logger.info("获取对应省下的所有城市");
+        log.debug("获取对应省下的所有城市");
         List<ProvinceAndCity> cities = new ArrayList<ProvinceAndCity>();
         try {
             cities = provinceAndCityService.getCityByProvince(provinceId);
         } catch (Exception e) {
-            logger.warn("根据省份Id获取城市失败：" + provinceId, e);
+            log.warn("根据省份Id获取城市失败：{}", provinceId, e);
         }
         return cities;
     }
@@ -240,7 +236,7 @@ public class DmsStorageAreaController extends DmsBaseController{
                 }
             }
         } catch (Exception e) {
-            logger.error("加载站点失败areaId：" + areaId + "provinceId:" + provinceId + "cityId:" + cityId, e);
+            log.error("加载站点失败areaId：{}，provinceId:{}，cityId:{}",areaId,provinceId, cityId, e);
         }
         return allDms;
     }
@@ -257,7 +253,7 @@ public class DmsStorageAreaController extends DmsBaseController{
         try {
             allDms.addAll(siteService.getAllDmsSite());
         } catch (Exception e) {
-            logger.error("加载站点失败：", e);
+            log.error("加载站点失败：", e);
         }
         return allDms;
     }
@@ -276,7 +272,7 @@ public class DmsStorageAreaController extends DmsBaseController{
         try {
             rest.setData(dmsStorageAreaService.findById(id));
         } catch (Exception e) {
-            logger.warn("通过id查询失败：" + id, e);
+            log.warn("通过id查询失败：{}", id, e);
             rest.setCode(JdResponse.CODE_FAIL);
         }
         return rest;
@@ -336,7 +332,7 @@ public class DmsStorageAreaController extends DmsBaseController{
                 dmsStorageArea.setUpdateUserName(erpUser.getUserName());
             }
         } catch (Exception e) {
-            logger.warn("获取信息失败", e);
+            log.warn("获取信息失败", e);
             rest.setCode(JdResponse.CODE_FAIL);
             rest.setMessage("获取信息失败");
             return rest;
@@ -345,7 +341,7 @@ public class DmsStorageAreaController extends DmsBaseController{
             rest.setData(dmsStorageAreaService.saveOrUpdate(dmsStorageArea));
             rest.setCode(JdResponse.CODE_SUCCESS);
         } catch (Exception e) {
-            logger.error("fail to save！" + e.getMessage(), e);
+            log.error("fail to save！" , e);
             rest.setCode(JdResponse.CODE_FAIL);
             rest.setMessage("保存失败，服务异常！");
         }
@@ -381,7 +377,7 @@ public class DmsStorageAreaController extends DmsBaseController{
         try {
             rest.setData(dmsStorageAreaService.deleteByIds(ids));
         } catch (Exception e) {
-            logger.error("fail to delete！" + e.getMessage(), e);
+            log.error("fail to delete！", e);
             rest.toError("删除失败，服务异常！");
         }
         return rest;
@@ -401,7 +397,7 @@ public class DmsStorageAreaController extends DmsBaseController{
         try {
             rest.setData(dmsStorageAreaService.queryByPagerCondition(dmsStorageAreaCondition));
         } catch (Exception e) {
-            logger.error("服务异常查询失败！");
+            log.error("服务异常查询失败！");
         }
         return rest.getData();
     }
@@ -416,7 +412,7 @@ public class DmsStorageAreaController extends DmsBaseController{
     @RequestMapping("/uploadExcel")
     @ResponseBody
     public JdResponse uploadExcel(@RequestParam("importExcelFile") MultipartFile file) {
-        logger.debug("uploadExcelFile begin...");
+        log.debug("uploadExcelFile begin...");
         String errorString = "";
         try {
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
@@ -435,7 +431,7 @@ public class DmsStorageAreaController extends DmsBaseController{
             dmsSiteCode = bssod.getSiteCode();
             Integer siteType = bssod.getSiteType();
             if (siteType != 64) {
-                logger.warn("该操作机构不是分拣中心");
+                log.warn("该操作机构不是分拣中心");
                 errorString = "该操作机构不是分拣中心！";
                 return new JdResponse(JdResponse.CODE_FAIL, errorString);
             }
@@ -476,7 +472,7 @@ public class DmsStorageAreaController extends DmsBaseController{
             if (e instanceof IllegalArgumentException) {
                 errorString = e.getMessage();
             } else {
-                logger.error("导入异常信息：", e);
+                log.error("导入异常信息：", e);
                 errorString = "导入出现异常";
             }
             return new JdResponse(JdResponse.CODE_FAIL, errorString);

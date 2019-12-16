@@ -1,34 +1,26 @@
 package com.jd.bluedragon.distribution.rest.abnormalorder;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.common.web.LoginContext;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.abnormalorder.domain.AbnormalOrder;
 import com.jd.bluedragon.distribution.abnormalorder.service.AbnormalOrderService;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.AbnormalOrderRequest;
 import com.jd.bluedragon.distribution.api.response.AbnormalOrderResponse;
 import com.jd.bluedragon.distribution.api.response.RefundReasonResponse;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
 
 @Component
 @Path(Constants.REST_URL)
@@ -59,7 +51,7 @@ public class AbnormalOrderResource {
 	 */
 	static final Integer TYPE_DEAL = 1;
 	
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	
 	@Autowired
 	AbnormalOrderService abnormalOrderService;
@@ -77,7 +69,7 @@ public class AbnormalOrderResource {
 			response.setMessage(JdResponse.MESSAGE_OK);
 			return response;
 		}catch (Exception e) {
-			logger.error("AbnormalOrderResource.queryRefundReason操作出现异常", e);
+			log.error("AbnormalOrderResource.queryRefundReason操作出现异常", e);
 			RefundReasonResponse response = new RefundReasonResponse();
 			response.setCode(JdResponse.CODE_SERVICE_ERROR);
 			response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);			
@@ -121,7 +113,7 @@ public class AbnormalOrderResource {
 			}
 			return response;
 		}catch (Exception e) {
-			logger.error("AbnormalOrderResource.queryAbnormalorder操作出现异常", e);
+			log.error("AbnormalOrderResource.queryAbnormalorder操作出现异常", e);
 			response.setCode(JdResponse.CODE_SERVICE_ERROR);
 			response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);			
 			return response;
@@ -149,7 +141,7 @@ public class AbnormalOrderResource {
 				response.setMessage(IS_WAIT);
 			}
 		}catch (Exception e) {
-			logger.error("AbnormalOrderResource.pushAbnormalOrder操作出现异常", e);
+			log.error("AbnormalOrderResource.pushAbnormalOrder操作出现异常", e);
 			response.setCode(JdResponse.CODE_SERVICE_ERROR);
 			response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);			
 		}
