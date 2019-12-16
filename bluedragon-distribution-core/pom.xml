@@ -1188,6 +1188,12 @@
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.jd.etms.contract</groupId>
+			<artifactId>etms-contract-api</artifactId>
+			<version>1.0.8.7-SNAPSHOT</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
