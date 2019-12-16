@@ -69,7 +69,7 @@ public class EcpQueryWSManagerImpl implements EcpQueryWSManager {
     public List<AirPortDto> getAirPortListByFlightNumber(String flightNumber){
         CommonDto<List<AirPortDto>> commonDto = ecpQueryWS.getAirPortListByFlightNumber(flightNumber);
         if(commonDto == null || CommonDto.CODE_SUCCESS != commonDto.getCode() ){
-            logger.warn("根据航班号查起末机场列表失败flightNumber[{}]beginCityId[{}]endCityId[{}]",flightNumber,JsonHelper.toJson(commonDto));
+            log.warn("根据航班号查起末机场列表失败flightNumber[{}]beginCityId[{}]endCityId[{}]",flightNumber,JsonHelper.toJson(commonDto));
             return null;
         }
         return commonDto.getData();
@@ -85,7 +85,7 @@ public class EcpQueryWSManagerImpl implements EcpQueryWSManager {
         param.setCarrierType(carrierType);
         CommonDto<AirTplBillDto> commonDto = ecpQueryWS.getAirTplBillDetailInfo(param);
         if(commonDto == null || CommonDto.CODE_SUCCESS != commonDto.getCode() ){
-            logger.warn("根据主运单号查询主运单详情失败billCode[{}]endCityId[{}]",billCode,JsonHelper.toJson(commonDto));
+            log.warn("根据主运单号查询主运单详情失败billCode[{}]endCityId[{}]",billCode,JsonHelper.toJson(commonDto));
             return null;
         }
         return commonDto.getData();
