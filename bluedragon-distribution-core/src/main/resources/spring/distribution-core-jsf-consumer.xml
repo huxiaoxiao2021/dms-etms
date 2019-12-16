@@ -552,4 +552,9 @@
         <jsf:parameter key="token" value="${jsf.automatic.token}" hide="true"/>
     </jsf:consumer>
 
+    <jsf:consumer id="erpCommonCollectApi" interface="com.jd.ql.erp.jsf.vendor.CommonCollectApi" protocol="jsf"
+                  alias="${jsf.erpCommonCollectApi.alias}" timeout="${jsf.erpCommonCollectApi.timeout}"  retries="${jsf.retries}">
+
+    </jsf:consumer>
+
 </beans>
