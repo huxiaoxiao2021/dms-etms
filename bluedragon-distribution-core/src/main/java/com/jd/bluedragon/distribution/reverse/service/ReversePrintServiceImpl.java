@@ -216,8 +216,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         operationLogService.add(operationLog);
 
         //换单打印判断是否发起分拣中心退货任务
-        qualityControlService.generateSortingReturnTask(domain.getSiteCode(), domain.getOldCode());
-
+        qualityControlService.generateSortingReturnTask(domain.getSiteCode(), domain.getOldCode(), domain.getNewPackageCode(), new Date(domain.getOperateUnixTime()));
 
         return true;
     }

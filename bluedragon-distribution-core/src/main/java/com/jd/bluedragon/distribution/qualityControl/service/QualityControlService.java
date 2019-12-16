@@ -412,14 +412,30 @@ public class QualityControlService {
     /*
     * 根据站点和条码判断是否生成分拣退货任务
     * */
-    public void generateSortingReturnTask(Integer siteCode, String barCode) {
+    public void generateSortingReturnTask(Integer siteCode, String oldWaybillCode, String newPackageCode, Date operateTime) {
+        if (StringHelper.isEmpty(oldWaybillCode) || StringHelper.isEmpty(newPackageCode)) {
+            return;
+        }
         AbnormalWayBill abnormalWayBill = null;
+        String oldPackageCode = null;
+        //根据新单组装包裹号
+        String index = WaybillUtil.getPackageSuffix(newPackageCode);
+        if (StringHelper.isNotEmpty(index)) {
+            oldPackageCode = oldWaybillCode + index;
+        }
+
         try {
-            if (StringHelper.isNotEmpty(barCode)) {
-                abnormalWayBill = this.abnormalWayBillService.getAbnormalWayBillByQcValue(siteCode, barCode);
+            if (StringHelper.isNotEmpty(oldPackageCode)) {
+                //先用包裹号查询abnormal_waybill表
+                abnormalWayBill = this.abnormalWayBillService.getAbnormalWayBillByQcValue(siteCode, oldPackageCode);
             }
+            //如果包裹维度没有，查询运单维度
+            if (abnormalWayBill == null) {
+                abnormalWayBill = this.abnormalWayBillService.getAbnormalWayBillByQcValue(siteCode, oldWaybillCode);
+            }
+
         } catch (Exception e) {
-            log.error("获取异常提报记录信息失败，参数:{}, {}", siteCode, barCode, e);
+            log.error("获取异常提报记录信息失败，参数:{}, {}, {}", siteCode, oldWaybillCode, newPackageCode, e);
         }
 
         if (abnormalWayBill != null && this.isGenerateSortingReturnTask(abnormalWayBill.getQcCode())) {
@@ -428,9 +444,14 @@ public class QualityControlService {
             sortingReturn.setSiteName(abnormalWayBill.getCreateSiteName());
             sortingReturn.setUserCode(abnormalWayBill.getCreateUserCode());
             sortingReturn.setUserName(abnormalWayBill.getCreateUser());
-            sortingReturn.setPackageCode(abnormalWayBill.getQcValue());
+
+            if (StringHelper.isNotEmpty(oldPackageCode) && WaybillUtil.isPackageCode(oldPackageCode)) {
+                sortingReturn.setPackageCode(oldPackageCode);
+            } else {
+                sortingReturn.setPackageCode(oldWaybillCode);
+            }
             sortingReturn.setBusinessType(10);
-            sortingReturn.setOperateTime(DateHelper.formatDateTime(abnormalWayBill.getOperateTime()));
+            sortingReturn.setOperateTime(DateHelper.formatDateTime(operateTime));
             sortingReturn.setShieldsError(abnormalWayBill.getQcName());
             Task task = new Task();
             task.setKeyword1(abnormalWayBill.getCreateSiteCode() + "");

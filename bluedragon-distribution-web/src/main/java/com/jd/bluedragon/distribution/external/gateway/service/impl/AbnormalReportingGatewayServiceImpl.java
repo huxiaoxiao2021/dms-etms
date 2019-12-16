@@ -167,7 +167,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
                 for (PackageState packageState : packageStateList) {
                     Integer operateSiteId = packageState.getOperatorSiteId();
                     String operateSiteName = packageState.getOperatorSite();
-                    if (operateSiteId != null && StringHelper.isNotEmpty(operateSiteName)) {
+                    if (operateSiteId != null && operateSiteId > 0 && StringHelper.isNotEmpty(operateSiteName)) {
                         //此处需要保留原有的全程跟踪顺序，所以不能用map，再获取信息即map的value集合
                         if (! set.contains(operateSiteId)) {
                             dutyDepartmentInfos.add(new DutyDepartmentInfo(operateSiteId.toString(), operateSiteName, DutyDepartmentTypeEnum.DISTRIBUTION_SITE.getType()));
