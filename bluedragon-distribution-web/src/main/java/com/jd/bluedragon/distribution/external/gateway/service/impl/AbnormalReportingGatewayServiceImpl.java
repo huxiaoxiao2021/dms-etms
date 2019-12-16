@@ -186,20 +186,21 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
             dutyDepartmentInfos.add(new DutyDepartmentInfo(siteCode.toString(), siteName, DutyDepartmentTypeEnum.DISTRIBUTION_SITE.getType()));
         }
 
-        String waybillCode = WaybillUtil.getWaybillCode(barCode);
-        //获取库房信息
-        BaseEntity<BigPackageStateDto> baseEntity = waybillTraceManager.getPkStateByCodeAndChoice(waybillCode, false, false, true, false);
-
-        if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getStoreInfoDto() != null) {
-            StoreInfoDto storeInfoDto = baseEntity.getData().getStoreInfoDto();
-            if (storeInfoDto != null) {
-                log.info("异常处理获取条码：{}的StoreInfoDto信息：{}", barCode, JsonHelper.toJson(storeInfoDto));
-                String storeCode = storeInfoDto.getCky2() + "|" + storeInfoDto.getStoreId();
-                dutyDepartmentInfos.add(new DutyDepartmentInfo(storeCode, storeInfoDto.getStoreName(), DutyDepartmentTypeEnum.WAREHOUSE.getType()));
-            }
-        } else {
-            log.warn("条码【{}】的无库房信息！", barCode);
-        }
+        //质控暂时不支持，代码注释掉
+//        String waybillCode = WaybillUtil.getWaybillCode(barCode);
+//        //获取库房信息
+//        BaseEntity<BigPackageStateDto> baseEntity = waybillTraceManager.getPkStateByCodeAndChoice(waybillCode, false, false, true, false);
+//
+//        if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getStoreInfoDto() != null) {
+//            StoreInfoDto storeInfoDto = baseEntity.getData().getStoreInfoDto();
+//            if (storeInfoDto != null) {
+//                log.info("异常处理获取条码：{}的StoreInfoDto信息：{}", barCode, JsonHelper.toJson(storeInfoDto));
+//                String storeCode = storeInfoDto.getCky2() + "|" + storeInfoDto.getStoreId();
+//                dutyDepartmentInfos.add(new DutyDepartmentInfo(storeCode, storeInfoDto.getStoreName(), DutyDepartmentTypeEnum.WAREHOUSE.getType()));
+//            }
+//        } else {
+//            log.warn("条码【{}】的无库房信息！", barCode);
+//        }
 
         jdCResponse.setData(dutyDepartmentInfos);
         return jdCResponse;
