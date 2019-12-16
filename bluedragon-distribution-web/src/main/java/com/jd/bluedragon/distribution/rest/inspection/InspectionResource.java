@@ -579,11 +579,13 @@ public class InspectionResource {
 	public InvokeResult<InspectionPackProgress> getWaybillCheckPackDetail(
 			@PathParam("packageOrWaybillCode") String packageOrWaybillCode,
 			@PathParam("siteCode") Integer siteCode) {
+
 		InvokeResult<InspectionPackProgress> result = new InvokeResult<>();
 		if (StringUtils.isBlank(packageOrWaybillCode)) {
 			result.parameterError("运单号/包裹号为空！");
 			return result;
 		}
+
 		try {
 			String waybillCode = packageOrWaybillCode;
 			if (WaybillUtil.isPackageCode(packageOrWaybillCode)) {

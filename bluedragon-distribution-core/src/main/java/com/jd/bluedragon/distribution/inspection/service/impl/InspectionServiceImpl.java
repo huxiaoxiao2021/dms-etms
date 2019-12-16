@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.DmsRouter;
 import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
@@ -31,6 +32,7 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
@@ -116,6 +118,9 @@ public class InspectionServiceImpl implements InspectionService {
 
 	@Autowired
 	private SiteService siteService;
+
+	@Autowired
+    private WaybillPackageManager waybillPackageManager;
 
 	public List<Inspection> parseInspections(Task task) {
 		if (task == null || StringUtils.isBlank(task.getBody())) {
@@ -710,14 +715,15 @@ public class InspectionServiceImpl implements InspectionService {
 	public InspectionPackProgress getWaybillCheckProgress(String waybillCode, Integer createSiteCode) {
         if (StringUtils.isBlank(waybillCode))
             return null;
-        BaseEntity<BigWaybillDto> waybillDto = waybillQueryManager.getDataByChoice(waybillCode, true, false, false, true);
-		if (null == waybillDto ||
-            null == waybillDto.getData() ||
-            null == waybillDto.getData().getWaybill() ||
-            CollectionUtils.isEmpty(waybillDto.getData().getPackageList())
+
+		BaseEntity<List<DeliveryPackageD>> packageListRet = waybillPackageManager.getPackListByWaybillCode(waybillCode);
+        if (null == packageListRet ||
+            EnumBusiCode.BUSI_SUCCESS.getCode() != packageListRet.getResultCode() ||
+            CollectionUtils.isEmpty(packageListRet.getData())
         )
-		    return null;
-        List<Inspection> inspections = inspectionDao.listInspectionByWaybillCode(waybillCode, createSiteCode);
+            return null;
+
+		List<Inspection> inspections = inspectionDao.listInspectionByWaybillCode(waybillCode, createSiteCode);
         List<String> inspectedPackNos = new ArrayList<>();
         List<InspectionPackProgress.CheckPack> checkedPacks = new ArrayList<>();
         if (!CollectionUtils.isEmpty(inspections)) {
@@ -729,7 +735,7 @@ public class InspectionServiceImpl implements InspectionService {
             }
         }
 
-        List<DeliveryPackageD> packageList = waybillDto.getData().getPackageList();
+        List<DeliveryPackageD> packageList = packageListRet.getData();
         List<String> totalPackNos = new ArrayList<>(packageList.size());
         for (DeliveryPackageD deliveryPackageD : packageList) {
             totalPackNos.add(deliveryPackageD.getPackageBarcode());
