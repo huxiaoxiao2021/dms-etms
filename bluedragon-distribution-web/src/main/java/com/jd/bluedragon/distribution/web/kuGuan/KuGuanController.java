@@ -93,7 +93,7 @@ public class KuGuanController {
 	}
 
     private KuGuanDomain queryByOrderCode(String orderCode,String lKdanhao){
-        if(uccPropertyConfiguration.isChuguanNewInterfaceQuerySwitch()){
+        if(uccPropertyConfiguration.isChuguanNewPageQuerySwitch()){
             return chuguanExportManager.queryByOrderCode(orderCode,lKdanhao);
         }
         return stockExportManager.queryByOrderCode(orderCode,lKdanhao);
