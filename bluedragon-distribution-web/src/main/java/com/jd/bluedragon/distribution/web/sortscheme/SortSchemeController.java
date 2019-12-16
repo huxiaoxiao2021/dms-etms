@@ -26,10 +26,10 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -58,7 +58,7 @@ import java.util.zip.DataFormatException;
 @RequestMapping("/autosorting/sortScheme")
 public class SortSchemeController {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private final static String HTTP = "http://";
 
@@ -99,24 +99,24 @@ public class SortSchemeController {
 
         if(null == siteName || "".equals(siteName)){
             /** 该字段为空，需要从登陆用户的ERP信息中查找分拣中心的信息 **/
-            logger.info("开始获取当前登录用户的ERP信息......");
+            log.info("开始获取当前登录用户的ERP信息......");
             try{
                 ErpUserClient.ErpUser user = ErpUserClient.getCurrUser();
-                logger.info("获取用户ERP："+ user.getUserCode());
+                log.info("获取用户ERP：{}", user.getUserCode());
                 BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(user.getUserCode());
                 if(bssod.getSiteType() == 64){/** 站点类型为64的时候为分拣中心 **/
                     siteCode = bssod.getSiteCode();
                     siteName = bssod.getSiteName();
                 }
             }catch(Exception e){
-                logger.error("用户分拣中心初始化失败：",e);
+                log.error("用户分拣中心初始化失败：",e);
             }
         }else{
             try{
                 siteName = getSiteNameParam(URLDecoder.decode(siteName,"UTF-8"));//需要截取字段
 
             }catch(UnsupportedEncodingException e){
-                logger.error("分拣中心参数解码异常：",e);
+                log.error("分拣中心参数解码异常：",e);
             }
         }
 
@@ -144,7 +144,7 @@ public class SortSchemeController {
                 model.addAttribute("sortScheme", remoteResponse.getData());
             }
         } catch (Exception e) {
-            logger.error("SortSchemeController.goDetail error!", e);
+            log.error("SortSchemeController.goDetail error!", e);
         }
         return "sortscheme/sort-scheme-detail-index";
     }
@@ -158,7 +158,7 @@ public class SortSchemeController {
             model.addAttribute("siteCode", siteCode);
             model.addAttribute("siteName", siteName);
         } catch (UnsupportedEncodingException e) {
-            logger.error("分拣中心参数解码异常：", e);
+            log.error("分拣中心参数解码异常：", e);
         }
         return "sortscheme/sort-scheme-add";
     }
@@ -207,7 +207,7 @@ public class SortSchemeController {
             }
             writeAndClose(pw, JsonHelper.toJson(new JdResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK)));
         } catch (Exception e) {
-            logger.error("导入分拣计划明细失败", e);
+            log.error("导入分拣计划明细失败", e);
             if(pw != null){
                 if (e instanceof IOException) {
                     writeAndClose(pw, JsonHelper.toJson(new JdResponse(701, e.getMessage())));
@@ -269,7 +269,7 @@ public class SortSchemeController {
             ouputStream.flush();
             ouputStream.close();
         } catch (Exception ex) {
-            logger.error("导出分拣计划明细异常", ex);
+            log.error("导出分拣计划明细异常", ex);
         }
     }
 
@@ -296,18 +296,17 @@ public class SortSchemeController {
                 response.setData(remoteResponse.getData());
             }else {
                 if(remoteResponse == null){
-                    logger.error("请求分拣中心本地获取分拣计划时remoteResponse为null,request:" + JsonHelper.toJson(request)
-                    + "请求的url：" + HTTP + url + "/autosorting/sortScheme/list");
+                    log.warn("请求分拣中心本地获取分拣计划时remoteResponse为null,request:{}请求的url：{}{}/autosorting/sortScheme/list"
+                    ,JsonHelper.toJson(request),HTTP , url);
                 }else {
                     response.setCode(remoteResponse.getCode());
                     response.setMessage(remoteResponse.getMessage());
-                    logger.error("请求分拣中心本地获取分拣计划失败request：" + JsonHelper.toJson(request) +
-                    "remoteResponse:" + JsonHelper.toJson(remoteResponse)
-                            + "请求的url：" + HTTP + url + "/autosorting/sortScheme/list");
+                    log.warn("请求分拣中心本地获取分拣计划失败request：{}remoteResponse:{}请求的url：{}{}/autosorting/sortScheme/list"
+                            ,JsonHelper.toJson(request),JsonHelper.toJson(remoteResponse),HTTP , url);
                 }
             }
         } catch (Exception e) {
-            logger.error("SortSchemeController.pageQuerySortScheme-error!", e);
+            log.error("SortSchemeController.pageQuerySortScheme-error!", e);
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
             response.setData(null);
             response.setMessage(e.getMessage());
@@ -353,7 +352,7 @@ public class SortSchemeController {
                 response.setMessage("查找本次删除的缓存成功!");
             }
         } catch (Exception e) {
-            logger.error("findPageCacheClean-error!", e);
+            log.error("findPageCacheClean-error!", e);
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
             response.setData(null);
             response.setMessage(e.getMessage());
@@ -399,7 +398,7 @@ public class SortSchemeController {
                 response.setMessage("删除缓存成功!");
             }
         } catch (Exception e) {
-            logger.error("cacheClean-error!", e);
+            log.error("cacheClean-error!", e);
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
             response.setData(null);
             response.setMessage(e.getMessage());
@@ -432,16 +431,15 @@ public class SortSchemeController {
                 response.setMessage("分拣计划添加成功!");
             }else {
                 if(remoteResponse == null){
-                    logger.error("请求分拣中心本地添加分拣计划失败remoteResponse为null,request:" + JsonHelper.toJson(request));
+                    log.warn("请求分拣中心本地添加分拣计划失败remoteResponse为null,request:{}", JsonHelper.toJson(request));
                 }else {
                     response.setCode(remoteResponse.getCode());
                     response.setMessage(remoteResponse.getMessage());
-                    logger.error("请求分拣中心本地添加分拣计划失败request：" + JsonHelper.toJson(request) +
-                            "remoteResponse:" + JsonHelper.toJson(remoteResponse));
+                    log.warn("请求分拣中心本地添加分拣计划失败request：{}remoteResponse:{}", JsonHelper.toJson(request), JsonHelper.toJson(remoteResponse));
                 }
             }
         } catch (Exception e) {
-            logger.error("SortSchemeResource.addSortScheme-error!", e);
+            log.error("SortSchemeResource.addSortScheme-error!", e);
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
             response.setData(null);
             response.setMessage(e.getMessage());
@@ -472,7 +470,7 @@ public class SortSchemeController {
                 response.setMessage("分拣计划删除成功!");
             }
         } catch (Exception e) {
-            logger.error("SortSchemeResource.deleteSortSchemeById-error!", e);
+            log.error("SortSchemeResource.deleteSortSchemeById-error!", e);
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
             response.setData(null);
             response.setMessage(e.getMessage());
@@ -503,7 +501,7 @@ public class SortSchemeController {
                 response.setMessage("分拣计划禁用成功!");
             }
         } catch (Exception e) {
-            logger.error("SortSchemeResource.deleteSortSchemeById-error!", e);
+            log.error("SortSchemeResource.deleteSortSchemeById-error!", e);
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
             response.setData(null);
             response.setMessage(e.getMessage());
@@ -521,14 +519,14 @@ public class SortSchemeController {
         try{
             ErpUserClient.ErpUser user = ErpUserClient.getCurrUser();
 
-            logger.info("获取用户ERP："+ user.getUserCode());
+            log.info("获取用户ERP：{}", user.getUserCode());
             BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(user.getUserCode());
             if(bssod.getSiteType() == 64){/** 站点类型为64的时候为分拣中心 **/
                 siteCode = bssod.getSiteCode();
                 siteName = bssod.getSiteName();
             }
         }catch(Exception e){
-            logger.error("登录人没有维护基础资料信息");
+            log.error("登录人没有维护基础资料信息");
         }
         try {
 
@@ -556,7 +554,7 @@ public class SortSchemeController {
 
             }
         } catch (Exception e) {
-            logger.error("SortSchemeResource.deleteSortSchemeById-error!", e);
+            log.error("SortSchemeResource.deleteSortSchemeById-error!", e);
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
             response.setData(null);
             response.setMessage(e.getMessage());
@@ -593,7 +591,7 @@ public class SortSchemeController {
                 response.setMessage("分拣计划自动发货开启成功!");
             }
         } catch (Exception e) {
-            logger.error("SortSchemeResource.ableAutoSendById-error!", e);
+            log.error("SortSchemeResource.ableAutoSendById-error!", e);
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
             response.setData(null);
             response.setMessage(e.getMessage());
@@ -630,7 +628,7 @@ public class SortSchemeController {
                 response.setMessage("分拣计划自动发货关闭成功!");
             }
         } catch (Exception e) {
-            logger.error("SortSchemeResource.disableAutoSendById-error!", e);
+            log.error("SortSchemeResource.disableAutoSendById-error!", e);
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
             response.setData(null);
             response.setMessage(e.getMessage());
@@ -649,7 +647,7 @@ public class SortSchemeController {
     @ResponseBody
     public JdResponse cleanBoxCache(@RequestBody CleanBoxCacheRequest request) {
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-        logger.info("获取用户ERP：" + erpUser.getUserCode());
+        log.info("获取用户ERP：{}", erpUser.getUserCode());
 
         JdResponse response = new JdResponse();
         try {
@@ -678,7 +676,7 @@ public class SortSchemeController {
                 addSystemLog(erpUser,request.getCreateSiteCode());
             }
         } catch (Exception e) {
-            logger.error("SortSchemeResource.disableAutoSendById-error!", e);
+            log.error("SortSchemeResource.disableAutoSendById-error!", e);
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
             response.setMessage(e.getMessage());
         }
@@ -693,11 +691,11 @@ public class SortSchemeController {
         String regEX = "[\\u4e00-\\u9fa5]+";
         Pattern pattern = Pattern.compile(regEX);
         Matcher matcher = pattern.matcher(str);
-        logger.info("分拣中心参数截取......");
+        log.info("分拣中心参数截取......");
         if (matcher.find()) {
             return matcher.group(0);
         }
-        logger.error("getSiteNameParam()方法执行异常。。。");
+        log.error("getSiteNameParam()方法执行异常。。。");
         return str;
     }
 

@@ -12,7 +12,8 @@ import com.jd.bluedragon.distribution.basic.PropertiesMetaDataFactory;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.uim.annotation.Authorization;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -33,7 +34,7 @@ import java.util.List;
 @Controller
 @RequestMapping("/b2bRouter")
 public class B2BRouterController {
-    private static final Logger logger = Logger.getLogger(B2BRouterController.class);
+    private static final Logger log = LoggerFactory.getLogger(B2BRouterController.class);
 
     /**
      * 路由线路中网点最多个数
@@ -91,7 +92,7 @@ public class B2BRouterController {
         } catch (Exception e) {
             b2bRouterResponse.setCode(B2BRouterResponse.CODE_EXCEPTION);
             b2bRouterResponse.setMessage("检查是否存在异常，请检查数据是否选择正确");
-            logger.error("执行B网路由配置检查是否存在操作异常：", e);
+            log.error("执行B网路由配置检查是否存在操作异常：", e);
         }
         return b2bRouterResponse;
     }
@@ -130,16 +131,16 @@ public class B2BRouterController {
             router.setUpdateTime(new Date());
 
             if(b2bRouterService.addRouter(router)) {
-                logger.info("用户帐号【" + userAccount + "】，姓名【" + userName + "】执行添加B网路由操作");
+                log.info("用户帐号【{}】，姓名【{}】执行添加B网路由操作",userAccount,userName);
             }else{
-                logger.error("执行B网路由添加操作失败");
+                log.warn("执行B网路由添加操作失败");
                 b2bRouterResponse.setCode(B2BRouterResponse.CODE_EXCEPTION);
                 b2bRouterResponse.setMessage("执行B网路由添加操作失败");
             }
         } catch (Exception e) {
             b2bRouterResponse.setCode(B2BRouterResponse.CODE_EXCEPTION);
             b2bRouterResponse.setMessage("添加时异常，请检查数据是否选择正确");
-            logger.error("执行B网路由添加操作异常：", e);
+            log.error("执行B网路由添加操作异常：", e);
         }
         return b2bRouterResponse;
     }
@@ -175,7 +176,7 @@ public class B2BRouterController {
             b2bRouterResponse.setCode(B2BRouterResponse.CODE_NORMAL);
 
         } catch (Exception e) {
-            logger.error("根据查询条件获取路由信息失败.",e);
+            log.error("根据查询条件获取路由信息失败.",e);
             b2bRouterResponse.setCode(B2BRouterResponse.CODE_EXCEPTION);
             b2bRouterResponse.setData(null);
             b2bRouterResponse.setMessage("获取信息失败："+e.getMessage());
@@ -232,7 +233,7 @@ public class B2BRouterController {
                 }
             }
         } catch (Exception e) {
-            logger.error("进入B网路由配置修改页面异常：", e);
+            log.error("进入B网路由配置修改页面异常：", e);
         }
         return "b2bRouter/add";
     }
@@ -259,11 +260,11 @@ public class B2BRouterController {
 
             //更新表数据
             b2bRouterService.updateRouter(router);
-            logger.info("用户帐号【" + userAccount + "】，姓名【" + userName + "】执行修改B网路由操作");
+            log.info("用户帐号【{}】，姓名【{}】执行修改B网路由操作",userAccount, userName);
         } catch (Exception e) {
             b2bRouterResponse.setCode(B2BRouterResponse.CODE_EXCEPTION);
             b2bRouterResponse.setMessage("添加时异常，请检查数据是否选择正确");
-            logger.error("执行修改B网路由操作异常：", e);
+            log.error("执行修改B网路由操作异常：", e);
         }
         return b2bRouterResponse;
     }
@@ -296,10 +297,10 @@ public class B2BRouterController {
                 }
             }
         } catch (Exception e) {
-            logger.error("删除时异常：", e);
+            log.error("删除时异常：", e);
             b2bRouterResponse.setCode(B2BRouterResponse.CODE_EXCEPTION);
             b2bRouterResponse.setMessage("删除时异常，请检查数据是否选择正确");
-            logger.error("执行删除B网路由操作异常：", e);
+            log.error("执行删除B网路由操作异常：", e);
         }
         return b2bRouterResponse;
     }
@@ -313,7 +314,7 @@ public class B2BRouterController {
     @Authorization(Constants.DMS_WEB_EXPRESS_B2BROUTER_R)
     @RequestMapping(value = "/uploadExcel", method = RequestMethod.POST)
     public String uploadExcel(Model model, MultipartHttpServletRequest request) {
-        logger.debug("uploadExcelFile begin...");
+        log.debug("uploadExcelFile begin...");
         try {
             String userAccount = "demo";
             String userName = "demo";
@@ -379,14 +380,14 @@ public class B2BRouterController {
                 if (e instanceof IllegalArgumentException) {
                     errorString = e.getMessage();
                 } else {
-                    logger.error("导入异常信息：", e);
+                    log.warn("导入异常信息：", e);
                     errorString = "导入出现异常";
                 }
                 model.addAttribute("excelFile", errorString);
                 return "b2bRouter/import_data";
             }
         } catch (Exception e) {
-            logger.error("执行uploadExcelFile异常" + e.getMessage(), e);
+            log.error("执行uploadExcelFile异常", e);
             throw new RuntimeException(e.getMessage());
         }
         return "b2bRouter/import_data";

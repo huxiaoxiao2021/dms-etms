@@ -25,8 +25,8 @@ import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -34,16 +34,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  *
@@ -57,7 +48,7 @@ import java.util.Set;
 @RequestMapping("newseal/preSealVehicle")
 public class PreSealVehicleController extends DmsBaseController{
 
-	private static final Log logger = LogFactory.getLog(PreSealVehicleController.class);
+	private static final Logger log = LoggerFactory.getLogger(PreSealVehicleController.class);
 
 	@Autowired
 	private PreSealVehicleService preSealVehicleService;
@@ -120,7 +111,9 @@ public class PreSealVehicleController extends DmsBaseController{
         try{
             List<PreSealVehicle> preSealVehicleList = preSealVehicleService.queryBySiteCode(createSiteCode);
             Map<Integer, PreSealVehicle> preMap = convertMap(preSealVehicleList);
-            logger.debug("查询预封车信息为：" + JsonHelper.toJson(preMap));
+            if(log.isDebugEnabled()){
+                log.debug("查询预封车信息为：{}", JsonHelper.toJson(preMap));
+            }
             if(preMap == null || preMap.isEmpty()){
                 rest.setData(new ArrayList<PreSealVehicle>());
             }else{
@@ -135,7 +128,7 @@ public class PreSealVehicleController extends DmsBaseController{
             }
         }catch (Exception e){
             Profiler.functionError(info);
-            logger.error("查询预封车数据信息失败，查询条件：" + JsonHelper.toJson(condition), e);
+            log.error("查询预封车数据信息失败，查询条件：{}", JsonHelper.toJson(condition), e);
             rest.setCode(JdResponse.CODE_ERROR);
             rest.setMessage("服务异常，查询预封车数据信息失败!");
         }finally {
@@ -300,7 +293,9 @@ public class PreSealVehicleController extends DmsBaseController{
     @JProfiler(jKey = "DMSWEB.PreSealVehicleController.batchSeal", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP})
     public @ResponseBody JdResponse<List<PreSealVehicle>>  batchSeal(@RequestBody List<PreSealVehicle> data) {
         JdResponse<List<PreSealVehicle>> rest = new JdResponse<List<PreSealVehicle>>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
-        logger.info("一键封车请求参数：" + JsonHelper.toJson(data));
+        if(log.isDebugEnabled()){
+            log.debug("一键封车请求参数：{}", JsonHelper.toJson(data));
+        }
         if(data == null || data.isEmpty()){
             rest.setCode(JdResponse.CODE_FAIL);
             rest.setMessage("请选择封车数据!");
@@ -339,7 +334,7 @@ public class PreSealVehicleController extends DmsBaseController{
                 preSealVehicleService.batchSeal(partList, userCode, userErp, usetName, operateTime);
             }catch (Exception e){
                 failedList.addAll(partList);
-                logger.error("批量封车异常：" + JsonHelper.toJson(partList), e);
+                log.error("批量封车异常：{}", JsonHelper.toJson(partList), e);
             }
         }
         if(!failedList.isEmpty()){
@@ -377,7 +372,7 @@ public class PreSealVehicleController extends DmsBaseController{
             rest.setData(getRemainTransportCodes(createSiteCode));
         }catch (Exception e){
             Profiler.functionError(info);
-		    logger.error("查询当前场地未使用的运力编码失败，场地ID：" + createSiteCode, e);
+		    log.error("查询当前场地未使用的运力编码失败，场地ID：{}", createSiteCode, e);
             rest.setCode(JdResponse.CODE_ERROR);
             rest.setMessage("服务异常，查询当前场地未使用的运力编码失败!");
         }finally {

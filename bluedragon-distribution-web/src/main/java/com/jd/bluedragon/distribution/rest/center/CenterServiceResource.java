@@ -12,7 +12,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import com.jd.bluedragon.core.base.*;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -21,9 +20,9 @@ import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ldop.center.api.print.WaybillPrintApi;
 import com.jd.ldop.center.api.print.dto.PrintResultDTO;
 import com.jd.ldop.center.api.print.dto.WaybillPrintRequestDTO;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.GZIP;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -41,7 +40,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 @Produces({ MediaType.APPLICATION_JSON })
 public class CenterServiceResource {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private BaseMajorManager baseMajorManager;
@@ -76,7 +75,7 @@ public class CenterServiceResource {
 		try {
 			result = baseMajorManager.getBaseSiteBySiteId(siteId);
 		} catch (Exception e) {
-			logger.error("中心服务调用基础资料getBaseSiteBySiteId出错 siteId=" + siteId, e);
+			log.error("中心服务调用基础资料getBaseSiteBySiteId出错 siteId={}", siteId, e);
 		}
 		return result;
 	}
@@ -99,7 +98,7 @@ public class CenterServiceResource {
             }
 
 		} catch (Exception e) {
-			logger.error("中心服务调用基础资料getBaseStaffByErpNoCache出错 userCode=" + userCode, e);
+			log.error("中心服务调用基础资料getBaseStaffByErpNoCache出错 userCode={}", userCode, e);
 		}
 		return result;
 	}
@@ -113,7 +112,7 @@ public class CenterServiceResource {
 		try {
 			result = baseService.queryDmsBaseSiteByCode(siteCode);
 		} catch (Exception e) {
-			logger.error("中心服务调用基础资料getDmsBaseSiteByCode出错 siteId=" + siteCode, e);
+			log.error("中心服务调用基础资料getDmsBaseSiteByCode出错 siteId={}", siteCode, e);
 		}
 		return result;
 	}
@@ -159,7 +158,7 @@ public class CenterServiceResource {
 					.append(isWaybillC).append("isWaybillE").append(isWaybillE)
 					.append("isWaybillM").append(isWaybillM)
 					.append("isPackList").append(isPackList);
-			logger.error(errorMsg, e);
+			log.error(errorMsg.toString(), e);
 		}
 		return result;
 	}
@@ -191,7 +190,7 @@ public class CenterServiceResource {
 		try {
 			result = waybillQueryManager.getDataByChoice(waybillCode,choice);
 		} catch (Exception e) {
-			logger.error("中心服务调用运单getDataByChoice出错", e);
+			log.error("中心服务调用运单getDataByChoice出错", e);
 		}
 		return result;
 	}
@@ -240,7 +239,7 @@ public class CenterServiceResource {
 		try {
 			result = waybillPackageManager.getPackageByWaybillCode(waybillCode);
 		} catch (Exception e) {
-			logger.error("中心服务调用运单getDataByChoice出错", e);
+			log.error("中心服务调用运单getDataByChoice出错", e);
 		}
 		return result;
 	}

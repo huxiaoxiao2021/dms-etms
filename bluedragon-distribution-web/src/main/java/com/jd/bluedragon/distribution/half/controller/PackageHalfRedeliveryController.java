@@ -1,17 +1,17 @@
 package com.jd.bluedragon.distribution.half.controller;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.half.domain.*;
+import com.jd.bluedragon.distribution.half.domain.PackageHalfApprove;
+import com.jd.bluedragon.distribution.half.domain.PackageHalfRedelivery;
+import com.jd.bluedragon.distribution.half.domain.PackageHalfRedeliveryCondition;
 import com.jd.bluedragon.distribution.half.service.PackageHalfApproveService;
+import com.jd.bluedragon.distribution.half.service.PackageHalfRedeliveryService;
+import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,9 +19,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.jd.bluedragon.distribution.half.service.PackageHalfRedeliveryService;
-import com.jd.ql.dms.common.domain.JdResponse;
-import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -35,7 +36,7 @@ import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 @RequestMapping("half/packageHalfRedelivery")
 public class PackageHalfRedeliveryController {
 
-	private static final Log logger = LogFactory.getLog(PackageHalfRedeliveryController.class);
+	private static final Logger log = LoggerFactory.getLogger(PackageHalfRedeliveryController.class);
 
 	@Autowired
 	private PackageHalfRedeliveryService packageHalfRedeliveryService;
@@ -76,7 +77,7 @@ public class PackageHalfRedeliveryController {
 		try {
 			rest.setData(packageHalfRedeliveryService.saveOrUpdate(packageHalfRedelivery));
 	} catch (Exception e) {
-			logger.error("fail to save！"+e.getMessage(),e);
+			log.error("fail to save！",e);
 			rest.toError("保存失败，服务异常！");
 		}
 		return rest;
@@ -93,7 +94,7 @@ public class PackageHalfRedeliveryController {
 		try {
 			rest.setData(packageHalfRedeliveryService.deleteByIds(ids));
 		} catch (Exception e) {
-			logger.error("fail to delete！"+e.getMessage(),e);
+			log.error("fail to delete！",e);
 			rest.toError("删除失败，服务异常！");
 		}
 		return rest;

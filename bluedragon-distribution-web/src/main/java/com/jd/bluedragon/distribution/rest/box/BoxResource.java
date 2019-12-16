@@ -22,25 +22,15 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 
 @Component
@@ -49,7 +39,7 @@ import java.util.UUID;
 @Produces({MediaType.APPLICATION_JSON})
 public class BoxResource {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     /**
      * 箱号类型字符长度，默认2
@@ -81,7 +71,7 @@ public class BoxResource {
     @Path("/boxes/{boxCode}")
     public BoxResponse get(@PathParam("boxCode") String boxCode) {
         Assert.notNull(boxCode, "boxCode must not be null");
-        this.logger.info("box code's " + boxCode);
+        this.log.info("box code's {}", boxCode);
 
         Box box = this.boxService.findBoxByCode(boxCode);
         if (box == null) {
@@ -98,7 +88,8 @@ public class BoxResource {
         try {
             //  BaseResult<String> routInfoRes = this.basicSafInterfaceManager.getCrossDmsBox(box.getCreateSiteCode(), box.getReceiveSiteCode());
             CrossBoxResult<String[]> routInfoRes = crossBoxService.getBoxRouter(box.getCreateSiteCode(), box.getReceiveSiteCode(), box.getPredictSendTime(), box.getTransportType());
-            this.logger.info("BasicSaf getCrossDmsBox Routerinfo:" + routInfoRes.getData() + " ResultCode:" + routInfoRes.getResultCode() + " Message:" + routInfoRes.getMessage());
+            this.log.info("BasicSaf getCrossDmsBox Routerinfo:{} ResultCode:{} Message:{}"
+                    ,routInfoRes.getData(),routInfoRes.getResultCode(), routInfoRes.getMessage());
 
             if (CrossBoxResult.SUCCESS == routInfoRes.getResultCode() && routInfoRes.getData() != null && routInfoRes.getData().length == 2) {
                 //没超过5个站点，用这个选择模板打印
@@ -107,7 +98,7 @@ public class BoxResource {
                 response.setRouterText(routInfoRes.getData()[0].replace("--", "-"));
             }
         } catch (Exception e) {
-            this.logger.error("获得站点路由信息失败： ", e);
+            this.log.error("获得站点路由信息失败： ", e);
         }
         this.buildBoxPrintInfo(box.getCreateSiteCode(), box.getReceiveSiteCode(), response);
         return response;
@@ -123,7 +114,7 @@ public class BoxResource {
     public BoxResponse getBoxByBoxCode(BoxRequest request) {
 
 		Assert.notNull(request.getBoxCode(), "BoxRequest's code must not be null");
-        this.logger.info("BoxRequest's " + request);
+        this.log.info("BoxRequest's {}", request);
         String boxCode = request.getBoxCode();
         Box box = this.boxService.findBoxByCode(boxCode);
         if (box == null) {
@@ -139,7 +130,7 @@ public class BoxResource {
     @Path("/boxes/reprint")
     public BoxResponse reprint(BoxRequest request) {
         Assert.notNull(request.getBoxCode(), "BoxRequest's code must not be null");
-        this.logger.info("BoxRequest's " + request);
+        this.log.info("BoxRequest's {}", request);
         this.boxService.reprint(this.toBox2(request));
         return this.ok();
     }
@@ -150,8 +141,8 @@ public class BoxResource {
         Assert.notNull(boxCode, "boxCode must not be null");
         Assert.notNull(operateType, "operateType must not be null");
 
-        this.logger.info("boxCode's " + boxCode);
-        this.logger.info("operateType's " + operateType);
+        this.log.info("boxCode's {}", boxCode);
+        this.log.info("operateType's {}", operateType);
         Integer siteCodeType = 0;
 
         Box box = this.boxService.findBoxByCode(boxCode);
@@ -174,18 +165,18 @@ public class BoxResource {
                 try{
                 BaseStaffSiteOrgDto dto = baseService.queryDmsBaseSiteByCode(box.getReceiveSiteCode().toString());
                 if (dto == null) {
-                    logger.info("boxes/validation :"+box.getReceiveSiteCode().toString() +" baseService.queryDmsBaseSiteByCode 获取目的地信息 NULL");
+                    log.info("boxes/validation :{} baseService.queryDmsBaseSiteByCode 获取目的地信息 NULL",box.getReceiveSiteCode().toString());
                     return this.paramSiteError();
                 } else {
                     siteCodeType = dto != null && dto.getSiteType() != null ? dto.getSiteType() : null;
                     box.setSiteType(siteCodeType);
-                    logger.info("boxes = "+boxCode+ " 目的地："+box.getReceiveSiteCode().toString() +" siteType="+siteCodeType);
+                    log.info("boxes = {} 目的地：{} siteType={}",boxCode,box.getReceiveSiteCode().toString(),siteCodeType);
                 }
 
                 return this.toBoxResponse(box);
                 }
                 catch (Exception ex){
-                    logger.error(ex);
+                    log.error("validation:{}",boxCode, ex);
                 }
             }
         }
@@ -220,7 +211,7 @@ public class BoxResource {
         if (Box.BOX_TRANSPORT_TYPE_CITY.equals(request.getTransportType())) {
             Assert.notNull(request.getPredictSendTime(), "request predictSendTime must not be null");
         }
-        this.logger.info("BoxRequest's " + request.toString());
+        this.log.info("BoxRequest's {}", request.toString());
         BoxResponse response = this.ok();
         // 先生成路由信息
         // 获得路由信息创建站点与目的站点之间，用于标签打印，方便站点人员确认下一站发往哪
@@ -228,9 +219,10 @@ public class BoxResource {
         try {
             routInfoRes = crossBoxService.getBoxRouter(request.getCreateSiteCode(), request.getReceiveSiteCode(), request.getPredictSendTime(), request.getTransportType());
             if (routInfoRes != null) {
-                this.logger.info("BasicSaf getCrossDmsBox RouterInfo:" + routInfoRes.getData() + " ResultCode:" + routInfoRes.getResultCode() + " Message:" + routInfoRes.getMessage());
-                if (logger.isInfoEnabled()) {
-                    this.logger.info("调用跨箱号中转获取箱号路由" + JsonHelper.toJson(routInfoRes));
+                this.log.info("BasicSaf getCrossDmsBox RouterInfo:{} ResultCode:{} Message:{}"
+                        ,routInfoRes.getData(), routInfoRes.getResultCode(), routInfoRes.getMessage());
+                if (log.isInfoEnabled()) {
+                    this.log.info("调用跨箱号中转获取箱号路由:{}", JsonHelper.toJson(routInfoRes));
                 }
                 if (CrossBoxResult.SUCCESS == routInfoRes.getResultCode() && routInfoRes.getData() != null && routInfoRes.getData().length == 2) {
                     // 没超过5个站点，用这个选择模板打印
@@ -239,10 +231,10 @@ public class BoxResource {
                     response.setRouterText(routInfoRes.getData()[0].replace("--", "-"));
                 }
             } else {
-                logger.warn("获得站点路由信息结果为空,参数信息：" + JsonHelper.toJson(request));
+                log.warn("获得站点路由信息结果为空,参数信息：{}", JsonHelper.toJson(request));
             }
         } catch (Exception e) {
-            this.logger.error("获得站点路由信息失败： ", e);
+            this.log.error("获得站点路由信息失败： ", e);
         }
         // 生成箱号
         List<Box> availableBoxes;
@@ -302,7 +294,7 @@ public class BoxResource {
     @Path("/groupBoxes/getAllGroupBoxes/{boxCode}")
     public InvokeResult<List<String>> getAllGroupBoxes(@PathParam("boxCode") String boxCode) {
 
-        this.logger.info("boxCode is " + boxCode);
+        this.log.info("boxCode is {}", boxCode);
         InvokeResult<List<String>> result = new InvokeResult<List<String>>();
         result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
         result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
@@ -347,7 +339,7 @@ public class BoxResource {
         Assert.notNull(request.getReceiveSiteCode(), "request receiveSiteCode must not be null");
         Assert.notNull(request.getCreateSiteCode(), "request createSiteCode must not be null");
         Assert.notNull(request.getQuantity(), "request quantity must not be null");
-        this.logger.info("BoxRequest's " + request.toString());
+        this.log.info("BoxRequest's {}", request.toString());
 
         //排除非法箱号类型
         if(boxTypeCheckSwitchOn() && request.getType().length() > BOX_TYPE_LENGTH){
@@ -378,8 +370,8 @@ public class BoxResource {
             try {
                 //BaseResult<CrossDmsBox> resData = this.basicSafInterfaceManager.getCrossDmsBoxByOriAndDes(request.getCreateSiteCode(), request.getReceiveSiteCode());
                 CrossBoxResult<CrossBox> resData = crossBoxService.getCrossDmsBoxByOriAndDes(request.getCreateSiteCode(), request.getReceiveSiteCode());
-                if (logger.isInfoEnabled()) {
-                    this.logger.info("调用跨箱号中转获取箱号路由" + JsonHelper.toJson(resData));
+                if (log.isInfoEnabled()) {
+                    this.log.info("调用跨箱号中转获取箱号路由:{}", JsonHelper.toJson(resData));
                 }
                 List<Map.Entry<Integer, String>> router = new ArrayList<Map.Entry<Integer, String>>();
                 if (null != resData.getData()) {
@@ -400,7 +392,7 @@ public class BoxResource {
                 }
                 boxResult.setRouterInfo(router);
             } catch (Exception e) {
-                this.logger.error("获得站点路由信息失败： ", e);
+                this.log.error("获得站点路由信息失败： ", e);
             }
         }
 
@@ -413,7 +405,7 @@ public class BoxResource {
         Assert.notNull(request, "request must not be null");
         Assert.notNull(request.getReceiveSiteCode(), "request receiveSiteCode must not be null");
         Assert.notNull(request.getCreateSiteCode(), "request createSiteCode must not be null");
-        this.logger.info("getRouterInfo BoxRequest's " + request);
+        this.log.info("getRouterInfo BoxRequest's {}", request);
 
         BoxResponse response = this.ok();
         if (request.getTransportType() != null && request.getTransportType() == 2) {//只有公路运输的支持路由信息查询2014.3.10
@@ -421,14 +413,15 @@ public class BoxResource {
             try {
                 CrossBoxResult<String> routInfoRes = crossBoxService.getCrossDmsBox(request.getCreateSiteCode(), request.getReceiveSiteCode());
                // BaseResult<String> routInfoRes = basicSafInterfaceManager.getCrossDmsBox(request.getCreateSiteCode(),request.getReceiveSiteCode());
-                this.logger.info("BasicSaf getCrossDmsBox Routerinfo:" + routInfoRes.getData() + " ResultCode:" + routInfoRes.getResultCode() + " Message:" + routInfoRes.getMessage());
+                this.log.info("BasicSaf getCrossDmsBox Routerinfo:{} ResultCode:{} Message:{}"
+                        ,routInfoRes.getData(), routInfoRes.getResultCode(), routInfoRes.getMessage());
 
                 if (StringHelper.isNotEmpty(routInfoRes.getData())) {
                     response.setRouterInfo(routInfoRes.getData().split("\\-\\-"));
                 }
 
             } catch (Exception e) {
-                this.logger.error("获得站点路由信息失败： ", e);
+                this.log.error("获得站点路由信息失败： ", e);
             }
         }
 
@@ -549,7 +542,7 @@ public class BoxResource {
     @Path("/boxes/cache/{boxCode}")
     public BoxResponse getboxCodeCache(@PathParam("boxCode") String boxCode) {
         Assert.notNull(boxCode, "boxCode must not be null");
-        this.logger.info("box code's " + boxCode);
+        this.log.info("box code's {}", boxCode);
 
         Box box = this.boxService.findBoxCacheByCode(boxCode);
         if (box == null) {
@@ -565,7 +558,7 @@ public class BoxResource {
     @Path("/boxes/delcache/{boxCode}")
     public Long delboxCodeCache(@PathParam("boxCode") String boxCode) {
         Assert.notNull(boxCode, "boxCode must not be null");
-        this.logger.info("box code's " + boxCode);
+        this.log.info("box code's {}", boxCode);
 
         Long resulte = this.boxService.delboxCodeCache(boxCode);
 
@@ -576,7 +569,7 @@ public class BoxResource {
     @Path("/boxes/availability/{boxCode}")
     public InvokeResult<Boolean> statusValidation(@PathParam("boxCode") String boxCode) {
         Assert.notNull(boxCode, "boxCode must not be null");
-        this.logger.info("boxCode's " + boxCode);
+        this.log.info("boxCode's {}", boxCode);
 
         InvokeResult<Boolean> invokeResult = new InvokeResult<Boolean>();
         invokeResult.success();

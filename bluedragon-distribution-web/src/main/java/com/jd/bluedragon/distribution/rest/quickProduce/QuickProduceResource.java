@@ -10,8 +10,8 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.preseparate.util.LableType;
 import com.jd.preseparate.util.OriginalType;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -28,7 +28,7 @@ import javax.ws.rs.core.MediaType;
 @Produces({MediaType.APPLICATION_JSON})
 public class QuickProduceResource {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     QuickProduceService quickProduceService;
@@ -61,14 +61,12 @@ public class QuickProduceResource {
 
             QuickProduceWabill quickProduceWabill =quickProduceService.getQuickProduceWabill(waybillCode);
             if(quickProduceWabill==null){
-                this.logger.info("运单号【" + waybillCode
-                        + "】调用订单中间键获取运单包裹信息接口成功, 无数据");
+                this.log.warn("运单号【{}】调用订单中间键获取运单包裹信息接口成功, 无数据",waybillCode);
                 return new Waybill();
             }
             Waybill waybill = quickProduceWabill.getWaybill();
             if (waybill == null) {
-                this.logger.info("运单号【" + waybillCode
-                        + "】调用根据运单号获取运单包裹信息接口成功, 无数据");
+                this.log.warn("运单号【{}】调用根据运单号获取运单包裹信息接口成功, 无数据",waybillCode);
                 return new Waybill();
             }
 
@@ -76,21 +74,19 @@ public class QuickProduceResource {
                 // 判断传入参数
                 if (startDmsCode == null || startDmsCode.equals(0)
                         || StringUtils.isEmpty(waybillCodeOrPackage)) {
-                    this.logger.error("根据初始分拣中心-运单号/包裹号【" + startDmsCode + "-"
-                            + waybillCodeOrPackage + "】获取运单包裹信息接口 --> 传入参数非法");
+                    this.log.warn("根据初始分拣中心-运单号/包裹号【{}-{}】获取运单包裹信息接口 --> 传入参数非法",startDmsCode, waybillCodeOrPackage);
                     return new Waybill();
                 }
                 //调用预分拣接口获得基础资料信息
                 this.setBasicMessageByDistribution(waybill, startDmsCode, localSchedule, paperless,1);//1：分拣中心； 2：站点；3：商家
             }
 
-            this.logger.info("运单号【" + waybillCode + "】调用根据运单号获取运单包裹信息接口成功");
+            this.log.info("运单号【{}】调用根据运单号获取运单包裹信息接口成功", waybillCode);
             return waybill;
 
         } catch (Exception e) {
             // 调用服务异常
-            this.logger
-                    .error("根据运单号【" + waybillCode + "】 获取运单包裹信息接口 --> 异常", e);
+            this.log.error("根据运单号【{}】 获取运单包裹信息接口 --> 异常",waybillCode, e);
             return new Waybill();
         }
     }
@@ -137,15 +133,13 @@ public class QuickProduceResource {
 
             if(response==null || response.getData()==null){
                 //
-                this.logger.error("根据运单号【" + waybill.getWaybillCode()
-                        + "】 获取预分拣的包裹打印信息为空response对象");
+                this.log.warn("根据运单号【{}】 获取预分拣的包裹打印信息为空response对象",waybill.getWaybillCode());
                 return;
             }
 
             com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse labelPrinting = response.getData();
             if(labelPrinting==null){
-                this.logger.error("根据运单号【" + waybill.getWaybillCode()
-                        + "】 获取预分拣的包裹打印信息为空labelPrinting对象");
+                this.log.warn("根据运单号【{}】 获取预分拣的包裹打印信息为空labelPrinting对象",waybill.getWaybillCode());
                 return;
             }
 
@@ -165,15 +159,12 @@ public class QuickProduceResource {
             waybill.setRoad(labelPrinting.getRoad());
 
             if(labelPrinting.getRoad()==null|| labelPrinting.getRoad().isEmpty()){
-                this.logger.error("根据运单号【" + waybill.getWaybillCode()
-                        + "】 获取预分拣的包裹打印路区信息为空");
+                this.log.warn("根据运单号【{}】 获取预分拣的包裹打印路区信息为空",waybill.getWaybillCode());
             }
         } catch (Exception e) {
-            this.logger.error("根据运单号【" + waybill.getWaybillCode()
-                    + "】 获取预分拣的包裹打印信息接口 --> 异常", e);
+            this.log.error("根据运单号【{}】 获取预分拣的包裹打印信息接口 --> 异常",waybill.getWaybillCode(), e);
         } catch(Throwable ee) {
-            this.logger.error("根据运单号【" + waybill.getWaybillCode()
-                    + "】 获取预分拣的包裹打印信息接口 --> 异常", ee);
+            this.log.error("根据运单号【{}】 获取预分拣的包裹打印信息接口 --> 异常",waybill.getWaybillCode(), ee);
         }
     }
 
@@ -182,14 +173,11 @@ public class QuickProduceResource {
         // 设置航空标识
         boolean signs = false;
         if (waybill.getBusiId() != null && !waybill.getBusiId().equals(0)) {
-            this.logger.info("B商家ID-初始分拣中心-目的站点【" + waybill.getBusiId() + "-"
-                    + "-" + waybill.getSiteCode()
-                    + "】根据基础资料调用设置航空标识开始");
+            this.log.info("B商家ID-初始分拣中心-目的站点【{}-{}】根据基础资料调用设置航空标识开始",waybill.getBusiId() , waybill.getSiteCode());
             signs = this.airTransportService.getAirSigns(
                     waybill.getBusiId());
-            this.logger.info("B商家ID-初始分拣中心-目的站点【" + waybill.getBusiId() + "-"
-                    + "-" + waybill.getSiteCode()
-                    + "】根据基础资料调用设置航空标识结束【" + waybill.getAirSigns() + "】");
+            this.log.info("B商家ID-初始分拣中心-目的站点【{}-{}】根据基础资料调用设置航空标识结束【{}】"
+                    ,waybill.getBusiId() , waybill.getSiteCode(), waybill.getAirSigns() );
         }
         return signs;
     }

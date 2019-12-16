@@ -1,17 +1,23 @@
 package com.jd.bluedragon.distribution.web.sysconfig;
 
-import java.util.*;
-import java.util.regex.Pattern;
-
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.configuration.client.DefaultDataSubscriber;
+import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.SysConfigContentResponse;
 import com.jd.bluedragon.distribution.base.dao.SysConfigDao;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.utils.ObjectMapHelper;
+import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.uim.annotation.Authorization;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,22 +25,15 @@ import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.Pager;
-import com.jd.bluedragon.configuration.client.DefaultDataSubscriber;
-import com.jd.bluedragon.core.redis.service.RedisManager;
-import com.jd.bluedragon.distribution.base.domain.SysConfig;
-import com.jd.bluedragon.distribution.base.service.BaseService;
-import com.jd.bluedragon.distribution.base.service.SysConfigService;
-import com.jd.bluedragon.utils.ObjectMapHelper;
-import com.jd.bluedragon.utils.PropertiesHelper;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.*;
+import java.util.regex.Pattern;
 
 @Controller
 @RequestMapping("/sysconfig")
 public class SysconfigController {
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private static final String MODIFY_USERS = "modifyUsers";
     private static final List<String> modifyUsers;
@@ -56,7 +55,7 @@ public class SysconfigController {
     @Authorization(Constants.DMS_WEB_DEVELOP_SYSCONFIG_R)
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public String querySysconfig(SysConfig sysConfig, Pager<SysConfig> pager, Model model) {
-        logger.debug("基础设置查询");
+        log.debug("基础设置查询");
         try {
 
 //			ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
@@ -95,7 +94,7 @@ public class SysconfigController {
             model.addAttribute("sysConfigDto", sysConfig);
             model.addAttribute("pager", pager);
         } catch (Exception e) {
-            logger.error("基础设置查询异常：", e);
+            log.error("基础设置查询异常：", e);
             model.addAttribute("errormsg", "基础设置查询异常：" + e.getMessage());
         }
         return "sysconfig/sysconfig_list";
@@ -169,7 +168,7 @@ public class SysconfigController {
         try {
             baseService.insertSysConfig(sysConfig);
         } catch (Exception e) {
-            logger.error("规则增加失败", e);
+            log.error("规则增加失败", e);
             model.addAttribute("errormsg", "规则增加失败：" + e.getMessage());
         }
         return querySysconfig(null, null, model);
@@ -186,7 +185,7 @@ public class SysconfigController {
     @ResponseBody
     public SysConfigContentResponse findConfigContentByConfigName(@PathVariable String configName) {
         Assert.notNull(configName, "configName must not be null");
-        this.logger.info("configName's " + configName);
+        this.log.info("configName's {}", configName);
         SysConfigContentResponse response = new SysConfigContentResponse();
         SysConfig config = sysConfigService.findConfigContentByConfigName(configName);
         if (config == null) {
@@ -203,7 +202,7 @@ public class SysconfigController {
     @Authorization(Constants.DMS_WEB_DEVELOP_SYSCONFIG_R)
     @RequestMapping(value = "/goAddPage", method = RequestMethod.GET)
     public String goAddPage() {
-        logger.debug("跳转到增加规则页面");
+        log.debug("跳转到增加规则页面");
         return "sysconfig/sysconfig_add";
     }
 
@@ -223,7 +222,7 @@ public class SysconfigController {
         try {
             baseService.updateSysConfig(sysConfig);
         } catch (Exception e) {
-            logger.error("规则增加更新", e);
+            log.error("规则增加更新", e);
             model.addAttribute("errormsg", "规则增加更新：" + e.getMessage());
         }
         return querySysconfig(null, null, model);
@@ -264,7 +263,7 @@ public class SysconfigController {
             }
             sysConfigDao.update(SysConfigDao.namespace, sysConfig);
         } catch (Exception e) {
-            logger.error(e);
+            log.error("配置黑白名单系统异常",e);
             return new JdResponse(500, "系统异常，请稍后重试");
         }
 

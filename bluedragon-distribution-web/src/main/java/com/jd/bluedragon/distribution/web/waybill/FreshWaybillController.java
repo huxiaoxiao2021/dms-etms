@@ -12,8 +12,8 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -33,7 +33,7 @@ import java.util.Map;
 @Controller
 @RequestMapping("/fresh")
 public class FreshWaybillController {
-    private static final Log logger = LogFactory.getLog(FreshWaybillController.class);
+    private static final Logger log = LoggerFactory.getLogger(FreshWaybillController.class);
 
     private static final Integer RECORD_IS_EXISTED = 700;
     private static final String  RECODE_IS_EXISTED_MESSAGE = "此包裹数据已存在，请修改";
@@ -97,7 +97,7 @@ public class FreshWaybillController {
         int totalsize = freshWaybillDao.getFreshWaybillCountByCode(freshWaybill);
         pager.setTotalSize(totalsize);
 
-        logger.info("查询符合条件的规则数量：" + totalsize);
+        log.info("查询符合条件的规则数量：{}", totalsize);
 
         model.addAttribute("freshWaybills", freshWaybillDao.getFreshWaybillPage(params));
         model.addAttribute("freshWaybillDto", freshWaybill);
@@ -128,7 +128,7 @@ public class FreshWaybillController {
             fillUserInfo(freshWaybill);
             Integer effectCount = freshWaybillDao.addFreshWaybill(freshWaybill);
         } catch (Exception ex) {
-            logger.error("增加生鲜温度失败",ex);
+            log.error("增加生鲜温度失败",ex);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
             return result;
@@ -157,7 +157,7 @@ public class FreshWaybillController {
             fillUserInfo(freshWaybill);
             freshWaybillService.updateFreshWaybill(freshWaybill);
         } catch (Exception e) {
-            logger.error(e);
+            log.error("doUpddateFreshWaybill:异常",e);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
             return result;
@@ -171,7 +171,9 @@ public class FreshWaybillController {
 
     private void fillUserInfo(FreshWaybill freshWaybill) {
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-        logger.error("生鲜温度录入用户信息" + JsonHelper.toJson(erpUser));
+        if(log.isDebugEnabled()){
+            log.debug("生鲜温度录入用户信息：{}", JsonHelper.toJson(erpUser));
+        }
 //        ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
 //        erpUser.setUserId(11535);
         BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());

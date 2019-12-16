@@ -19,8 +19,8 @@ import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
@@ -44,7 +44,7 @@ import java.util.List;
 @Produces({MediaType.APPLICATION_JSON})
 public class ColdChainDeliveryResource extends DeliveryResource{
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private DeliveryService deliveryService;
@@ -69,7 +69,9 @@ public class ColdChainDeliveryResource extends DeliveryResource{
     @Path("/delivery/coldChain/send")
     @BusinessLog(sourceSys = 1, bizType = 100, operateType = 1003)
     public DeliveryResponse coldChainSendDelivery(List<ColdChainDeliveryRequest> request) {
-        this.logger.info("冷链发货 - 开始:" + JsonHelper.toJson(request));
+        if(log.isInfoEnabled()){
+            this.log.info("冷链发货 - 开始:{}", JsonHelper.toJson(request));
+        }
         DeliveryResponse response;
         try {
             response = this.coldChainSendCheckAndFixSendCode(request);
@@ -99,7 +101,7 @@ public class ColdChainDeliveryResource extends DeliveryResource{
             }
             return response;
         } catch (Exception e) {
-            logger.error("B网冷链发货时发生异常", e);
+            log.error("B网冷链发货时发生异常", e);
             return new DeliveryResponse(DeliveryResponse.CODE_Delivery_ERROR, DeliveryResponse.MESSAGE_Delivery_ERROR);
         }
     }
@@ -149,7 +151,7 @@ public class ColdChainDeliveryResource extends DeliveryResource{
                     return new ColdChainSendResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
                 }
             } catch (Exception e) {
-                logger.error("[冷链发货]根据始发分拣中心和目的分拣中心编号获取当日的运输计划明细信息时发生异常", e);
+                log.error("[冷链发货]根据始发分拣中心和目的分拣中心编号获取当日的运输计划明细信息时发生异常", e);
                 return new ColdChainSendResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
             }
         }

@@ -9,7 +9,8 @@ import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.uim.annotation.Authorization;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -31,7 +32,7 @@ import java.util.List;
 @RequestMapping("/feedback")
 public class FeedbackController {
 
-    private final Logger logger = Logger.getLogger(FeedbackController.class);
+    private final Logger log = LoggerFactory.getLogger(FeedbackController.class);
 
     @Autowired
     private FeedbackService feedbackService;
@@ -44,7 +45,7 @@ public class FeedbackController {
         try {
             model.addAttribute("typeMaps", feedbackService.getFeedbackType(APP_PACKAGE_NAME));
         } catch (Exception e) {
-            logger.error("获取意见反馈类型时发生异常", e);
+            log.error("获取意见反馈类型时发生异常", e);
         }
         return "feedback/add";
     }
@@ -77,11 +78,11 @@ public class FeedbackController {
                 result.setMessage(InvokeResult.PARAM_ERROR);
             }
         } catch (JssStorageException je) {
-            logger.error("调用JSS服务进行附件存储时发生异常", je);
+            log.error("调用JSS服务进行附件存储时发生异常", je);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage("调用JSS服务进行附件存储时发生异常");
         } catch (Exception e) {
-            logger.error("提交意见反馈时发生异常", e);
+            log.error("提交意见反馈时发生异常", e);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
         }

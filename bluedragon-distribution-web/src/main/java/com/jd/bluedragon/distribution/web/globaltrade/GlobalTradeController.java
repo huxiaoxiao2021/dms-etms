@@ -6,17 +6,13 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.LoadBillReportRequest;
 import com.jd.bluedragon.distribution.api.request.LoadBillRequest;
 import com.jd.bluedragon.distribution.api.response.LoadBillReportResponse;
-import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBillReport;
 import com.jd.bluedragon.distribution.globaltrade.service.GlobalTradeException;
 import com.jd.bluedragon.distribution.globaltrade.service.LoadBillService;
-import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.ErpUserClient.ErpUser;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.erp.service.dto.CommonDto;
@@ -24,8 +20,8 @@ import com.jd.jsf.gd.util.StringUtils;
 import com.jd.uim.annotation.Authorization;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -43,7 +39,7 @@ import java.util.regex.Pattern;
 @RequestMapping("/globalTrade")
 public class GlobalTradeController {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
     private static final String CARCODE_REG = "[A-Za-z0-9\u4e00-\u9fa5]+";
 
     private static final String ZHUOZHI_PRELOAD_URL = "http://121.33.205.117:18080/customs/rest/custjson/postwmspredata.do";
@@ -86,7 +82,7 @@ public class GlobalTradeController {
                 return new LoadBillReportResponse(5000, "预装载操作失败,获取ERP信息失败,请重新登录后重试");
             }
         } catch (Exception ex) {
-            logger.error("预装载操作失败，原因", ex);
+            log.error("预装载操作失败，原因", ex);
             if (ex instanceof NumberFormatException) {
                 return new LoadBillReportResponse(3000, "预装载操作失败,数据不合法");
             } else if (ex instanceof GlobalTradeException) {
@@ -105,7 +101,7 @@ public class GlobalTradeController {
             ErpUser erpUser = ErpUserClient.getCurrUser();
             model.addAttribute("erpUser", erpUser);
         } catch (Exception e) {
-            logger.error("index error!", e);
+            log.error("index error!", e);
         }
         return "globaltrade/global-trade-index";
     }
@@ -138,7 +134,7 @@ public class GlobalTradeController {
             loadBillService.cancelPreloaded(loadBillList);
         } catch (Exception e) {
             response = new LoadBillReportResponse(2, "操作异常");
-            logger.error("GlobalTradeController 发生异常,异常信息 : ", e);
+            log.error("GlobalTradeController 发生异常,异常信息 : ", e);
         }
         return response;
     }
@@ -148,7 +144,7 @@ public class GlobalTradeController {
     public CommonDto<Pager<List<LoadBill>>> doQueryLoadBill(LoadBillRequest request, Pager<List<LoadBill>> pager) {
         CommonDto<Pager<List<LoadBill>>> cdto = new CommonDto<Pager<List<LoadBill>>>();
         try {
-            logger.info("GlobalTradeController doQueryLoadBill begin...");
+            log.info("GlobalTradeController doQueryLoadBill begin...");
             if (null == request) {
                 cdto.setCode(CommonDto.CODE_WARN);
                 cdto.setMessage("参数不能为空！");
@@ -167,12 +163,12 @@ public class GlobalTradeController {
             Integer totalSize = loadBillService.findCountLoadBill(params);
             pager.setTotalSize(totalSize);
             pager.setData(loadBillList);
-            logger.info("查询符合条件的规则数量：" + totalSize);
+            log.info("查询符合条件的规则数量：{}", totalSize);
 
             cdto.setData(pager);
             cdto.setCode(CommonDto.CODE_NORMAL);
         } catch (Exception e) {
-            logger.error("doQueryLoadBill-error!", e);
+            log.error("doQueryLoadBill-error!", e);
             cdto.setCode(CommonDto.CODE_EXCEPTION);
             cdto.setData(null);
             cdto.setMessage(e.getMessage());
@@ -211,7 +207,7 @@ public class GlobalTradeController {
     public CommonDto<String> initialLoadBill(LoadBillRequest request) {
         CommonDto<String> cdto = new CommonDto<String>();
         try {
-            logger.info("GlobalTradeController initialLoadBill begin with sendCode is " + request.getSendCode());
+            log.info("GlobalTradeController initialLoadBill begin with sendCode is {}", request.getSendCode());
             if (null == request || StringUtils.isBlank(request.getSendCode())) {
                 cdto.setCode(CommonDto.CODE_WARN);
                 cdto.setMessage("参数不能为空！");
@@ -233,7 +229,7 @@ public class GlobalTradeController {
 
             cdto.setCode(CommonDto.CODE_NORMAL);
         } catch (Exception e) {
-            logger.error("initialLoadBill-error!", e);
+            log.error("initialLoadBill-error!", e);
             cdto.setCode(CommonDto.CODE_EXCEPTION);
             cdto.setData(null);
             cdto.setMessage(e.getMessage());
@@ -259,7 +255,7 @@ public class GlobalTradeController {
             loadBillService.updateLoadBillStatusByReport(resolveLoadBillReport(request));
         } catch (Exception e) {
             response = new LoadBillReportResponse(2, "操作异常");
-            logger.error("GlobalTradeController 发生异常,异常信息 : ", e);
+            log.error("GlobalTradeController 发生异常,异常信息 : ", e);
         }
         return response;
     }

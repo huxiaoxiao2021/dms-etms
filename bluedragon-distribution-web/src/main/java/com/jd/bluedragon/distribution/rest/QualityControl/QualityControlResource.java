@@ -46,7 +46,7 @@ import java.util.List;
 @Consumes({MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_JSON})
 public class QualityControlResource {
-    private final Logger logger = LoggerFactory.getLogger(QualityControlResource.class);
+    private final Logger log = LoggerFactory.getLogger(QualityControlResource.class);
 
     @Autowired
     private TaskService taskService;
@@ -66,10 +66,9 @@ public class QualityControlResource {
     @POST
     @Path("/qualitycontrol/exceptioninfo")
     public QualityControlResponse exceptionInfo(QualityControlRequest request) {
-        logger.warn("PDA调用异常配送接口开始，参数信息 " + JsonHelper.toJson(request));
         QualityControlResponse response = new QualityControlResponse();
         if(StringUtils.isEmpty(request.getQcValue()) || !WaybillCodeRuleValidateUtil.isEffectiveOperateCode(request.getQcValue())){
-            logger.error(MessageFormat.format("PDA调用异常配送接口插入质控任务表失败-参数错误[{0}]",JsonHelper.toJson(request)));
+            log.warn("PDA调用异常配送接口插入质控任务表失败-参数错误[{}]",JsonHelper.toJson(request));
             response.setCode(response.CODE_SERVICE_ERROR);
             response.setMessage("请扫描运单号或者包裹号！");
             return response;
@@ -77,7 +76,7 @@ public class QualityControlResource {
         try{
             convertThenAddTask(request);
         }catch(Exception ex){
-            logger.error("PDA调用异常配送接口插入质控任务表失败，原因 " + ex);
+            log.error("PDA调用异常配送接口插入质控任务表失败，原因 " , ex);
             response.setCode(response.CODE_SERVICE_ERROR);
             response.setMessage(response.MESSAGE_SERVICE_ERROR);
             return response;
@@ -96,7 +95,6 @@ public class QualityControlResource {
     @POST
     @Path("/qualitycontrol/exceptioninfos")
     public QualityControlResponse exceptionInfos(QualityControlRequest request) {
-        logger.warn("WEB调用异常配送接口开始，参数信息 " + JsonHelper.toJson(request));
         QualityControlResponse response = new QualityControlResponse();
         String waybillCodes=request.getQcValue();
         String[] waybillCodeArr=waybillCodes.split(Constants.SEPARATOR_COMMA);
@@ -117,7 +115,7 @@ public class QualityControlResource {
         request.setOperateTime(new Date());
         for (String waybillCode:waybillCodeArr){
             if(!WaybillCodeRuleValidateUtil.isEffectiveOperateCode(waybillCode)){
-                logger.error(MessageFormat.format("PDA调用异常配送接口插入质控任务表失败-参数错误[{0}]",JsonHelper.toJson(request)));
+                log.warn("PDA调用异常配送接口插入质控任务表失败-参数错误[{}]",JsonHelper.toJson(request));
                 response.setCode(response.CODE_SERVICE_ERROR);
                 response.setMessage("请扫描运单号或者包裹号！");
                 return response;
@@ -127,7 +125,7 @@ public class QualityControlResource {
             try{
                 convertThenAddTask(request);
             }catch(Exception ex){
-                logger.error("PDA调用异常配送接口插入质控任务表失败，原因 " + ex);
+                log.error("PDA调用异常配送接口插入质控任务表失败，原因 " + ex);
                 hasError=true;
             }
         }
@@ -179,7 +177,7 @@ public class QualityControlResource {
         result.setData(data);
 
         if(StringUtils.isEmpty(request.getCode()) || null==request.getCodeType() || request.getCodeType()<1){
-            logger.error("PDA调用协商再投状态验证接口失败-参数错误。入参:{}",JsonHelper.toJson(request));
+            log.warn("PDA调用协商再投状态验证接口失败-参数错误。入参:{}",JsonHelper.toJson(request));
             result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
             result.setMessage("请扫描者包裹号、运单号或箱号！");
             return result;
@@ -212,17 +210,17 @@ public class QualityControlResource {
                         }
                     }
                     else {
-                        logger.error("PDA调用协商再投状态验证接口失败-无商家信息。运单号:{},入参:{}",waybillCode,JsonHelper.toJson(request));
+                        log.warn("PDA调用协商再投状态验证接口失败-无商家信息。运单号:{},入参:{}",waybillCode,JsonHelper.toJson(request));
                     }
                 }
             }
             else {
-                logger.error("PDA调用协商再投状态验证接口失败-无运单信息。入参:{}",JsonHelper.toJson(request));
+                log.warn("PDA调用协商再投状态验证接口失败-无运单信息。入参:{}",JsonHelper.toJson(request));
                 result.setCode(InvokeResult.RESULT_NULL_WAYBILLCODE_CODE);
                 result.setMessage(InvokeResult.RESULT_NULL_WAYBILLCODE_MESSAGE);
             }
         } catch (Exception ex) {
-            logger.error("PDA调用协商再投状态验证接口失败。异常信息:{}",ex.getMessage(),ex);
+            log.error("PDA调用协商再投状态验证接口失败。异常信息:{}",ex.getMessage(),ex);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
         }

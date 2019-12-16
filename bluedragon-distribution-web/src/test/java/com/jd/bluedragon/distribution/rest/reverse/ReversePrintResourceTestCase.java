@@ -1,22 +1,19 @@
 package com.jd.bluedragon.distribution.rest.reverse;
 
 import com.jd.bluedragon.distribution.api.request.ReversePrintRequest;
-import com.jd.bluedragon.distribution.api.response.WaybillResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.utils.JsonHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.annotation.Resource;
-import javax.annotation.Resources;
 import java.util.Date;
-import java.util.logging.Logger;
 
 /**
  * Created by wangtingwei on 14-8-8.\src\main\webapp
@@ -31,7 +28,7 @@ import java.util.logging.Logger;
 @ContextConfiguration(locations = {"classpath:distribution-web-context.xml"})
 public class ReversePrintResourceTestCase {
 
-    private static final Log logger= LogFactory.getLog(ReversePrintResourceTestCase.class);
+    private static final Logger log = LoggerFactory.getLogger(ReversePrintResourceTestCase.class);
 
     @Resource
     private ReversePrintResource rest;
@@ -51,10 +48,14 @@ public class ReversePrintResourceTestCase {
         request.setOperateUnixTime(new Date().getTime());
         request.setSiteCode(909);
         request.setSiteName("中关村自提点");
-        logger.info("【测试换单打印】" + JsonHelper.toJson(request));
+        if(log.isInfoEnabled()){
+            log.info("【测试换单打印】:{}", JsonHelper.toJson(request));
+        }
 
         InvokeResult<Boolean> result= rest.handlePrint(request);
-        logger.info("【测试换单打印】"+JsonHelper.toJson(result));
+        if(log.isInfoEnabled()){
+            log.info("【测试换单打印】:{}", JsonHelper.toJson(result));
+        }
         Assert.assertEquals(Boolean.TRUE,result.getData());
 
     }

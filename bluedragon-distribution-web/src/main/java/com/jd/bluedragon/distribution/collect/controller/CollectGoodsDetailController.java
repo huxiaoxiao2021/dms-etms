@@ -1,15 +1,18 @@
 package com.jd.bluedragon.distribution.collect.controller;
 
-import java.util.List;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.collect.domain.CollectGoodsDetail;
+import com.jd.bluedragon.distribution.collect.domain.CollectGoodsDetailCondition;
+import com.jd.bluedragon.distribution.collect.service.CollectGoodsDetailService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,13 +20,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import com.jd.bluedragon.distribution.collect.domain.CollectGoodsDetail;
-import com.jd.bluedragon.distribution.collect.domain.CollectGoodsDetailCondition;
-import com.jd.bluedragon.distribution.collect.service.CollectGoodsDetailService;
-import com.jd.ql.dms.common.domain.JdResponse;
-import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.springframework.web.servlet.ModelAndView;
+
+import java.util.List;
 
 /**
  *
@@ -37,7 +36,7 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("collect/collectGoodsDetail")
 public class CollectGoodsDetailController {
 
-	private static final Log logger = LogFactory.getLog(CollectGoodsDetailController.class);
+	private static final Logger log = LoggerFactory.getLogger(CollectGoodsDetailController.class);
 
 	@Autowired
 	private CollectGoodsDetailService collectGoodsDetailService;
@@ -94,7 +93,7 @@ public class CollectGoodsDetailController {
 		try {
 			rest.setData(collectGoodsDetailService.saveOrUpdate(collectGoodsDetail));
 	} catch (Exception e) {
-			logger.error("fail to save！"+e.getMessage(),e);
+			log.error("fail to save！",e);
 			rest.toError("保存失败，服务异常！");
 		}
 		return rest;
@@ -111,7 +110,7 @@ public class CollectGoodsDetailController {
 		try {
 			rest.setData(collectGoodsDetailService.deleteByIds(ids));
 		} catch (Exception e) {
-			logger.error("fail to delete！"+e.getMessage(),e);
+			log.error("fail to delete！",e);
 			rest.toError("删除失败，服务异常！");
 		}
 		return rest;
@@ -157,7 +156,7 @@ public class CollectGoodsDetailController {
 			return new ModelAndView(new DefaultExcelView(), model.asMap());
 
 		} catch (Exception e) {
-			logger.error("toExport:" + e.getMessage(), e);
+			log.error("toExport:", e);
 			return null;
 		}
 	}

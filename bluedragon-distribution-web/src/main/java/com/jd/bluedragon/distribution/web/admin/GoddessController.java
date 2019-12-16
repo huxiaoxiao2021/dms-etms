@@ -5,8 +5,8 @@ import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,7 +23,7 @@ import java.util.List;
 @RequestMapping("/admin/goddess")
 public class GoddessController {
 
-    private static final Log logger= LogFactory.getLog(GoddessController.class);
+    private static final Logger log = LoggerFactory.getLogger(GoddessController.class);
 
     @Resource(name = "goddessService")
     private GoddessService goddessService;
@@ -35,7 +35,7 @@ public class GoddessController {
         try {
             model.addAttribute("model",goddessService.query(pager));
         }catch (Throwable throwable){
-            logger.error("ERROR",throwable);
+            log.error("ERROR",throwable);
             Pager<List<Goddess>> result=new Pager<List<Goddess>>();
             result.setData(new ArrayList<Goddess>(1));
             result.setPageNo(pager.getPageNo());

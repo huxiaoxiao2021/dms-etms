@@ -7,8 +7,8 @@ import com.jd.bluedragon.distribution.worker.domain.TBTaskType;
 import com.jd.bluedragon.distribution.worker.service.TBTaskTypeService;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,7 +27,7 @@ import java.util.List;
 @RequestMapping("worker-setting")
 public class WorkerSettingController {
 
-    private static final Log logger= LogFactory.getLog(WorkerSettingController.class);
+    private static final Logger log = LoggerFactory.getLogger(WorkerSettingController.class);
 
     @Autowired
     private TBTaskTypeService tbTaskTypeService;
@@ -51,7 +51,7 @@ public class WorkerSettingController {
             model.addAttribute("model",tbTaskTypeService.readByName(splitPager));
             return "admin/worker-setting/index";
         }catch (Exception throwable){
-            logger.error("ERROR",throwable);
+            log.error("ERROR",throwable);
             throw throwable;
         }
 
@@ -78,7 +78,7 @@ public class WorkerSettingController {
                 tbTaskTypeService.inserSingle(domain);
                 return "redirect:" + lastLastUrl;
             } catch (Exception ex) {
-                logger.error("ERROR", ex);
+                log.error("ERROR", ex);
                 throw ex;
             }
         }else{
@@ -96,7 +96,7 @@ public class WorkerSettingController {
                 model.addAttribute("lastUrl", request.getHeader("referer"));
                 return "admin/worker-setting/edit";
             } catch (Exception e) {
-                logger.error("ERROR", e);
+                log.error("ERROR", e);
                 throw e;
             }
         }else {
@@ -114,7 +114,7 @@ public class WorkerSettingController {
                 tbTaskTypeService.updateSingleById(domain);
                 return "redirect:" + lastLastUrl;
             } catch (Exception ex) {
-                logger.error("ERROR", ex);
+                log.error("ERROR", ex);
                 throw ex;
             }
         }else {

@@ -1,23 +1,11 @@
 package com.jd.bluedragon.distribution.rest.pop;
 
-import java.util.*;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-
-import com.jd.bluedragon.core.base.WaybillQueryManager;
-import com.jd.bluedragon.distribution.api.request.PopPrintRequest;
-import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.PopPrintRequest;
 import com.jd.bluedragon.distribution.api.response.PopJoinResponse;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
@@ -36,7 +24,20 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageState;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import java.util.*;
 
 /**
  * @author zhaohc
@@ -51,7 +52,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 @Produces({MediaType.APPLICATION_JSON})
 public class PopJoinResource {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private InspectionService inspectionService;
@@ -103,7 +104,7 @@ public class PopJoinResource {
         }
 
         if (Boolean.TRUE.equals(checkParam)) {
-            this.logger.error("按条件查询POP收货交接清单 --> 传入参数非法");
+            this.log.warn("按条件查询POP收货交接清单 --> 传入参数非法");
             return new PopJoinResponse(JdResponse.CODE_PARAM_ERROR,
                     JdResponse.MESSAGE_PARAM_ERROR, popJoinQuery);
         }
@@ -140,15 +141,14 @@ public class PopJoinResource {
                 // 获取总数量
                 int totalSize = this.inspectionService
                         .findPopJoinTotalCount(paramMap);
-                this.logger.info("按条件查询POP收货交接清单 --> 获取总数量为：" + totalSize);
+                this.log.info("按条件查询POP收货交接清单 --> 获取总数量为：{}", totalSize);
                 if (totalSize > 0) {
                     pager.setTotalSize(totalSize);
                     inspections = this.inspectionService
                             .findPopJoinList(paramMap);
                     pager.setData(inspections);
                 } else {
-                    this.logger.info("按条件查询POP收货交接清单 --> paramMap：" + paramMap
-                            + ", 调用服务成功，数据为空");
+                    this.log.info("按条件查询POP收货交接清单 --> paramMap：{}, 调用服务成功，数据为空",paramMap);
                     return new PopJoinResponse(PopJoinResponse.CODE_OK_NULL,
                             PopJoinResponse.MESSAGE_OK_NULL, popJoinQuery);
                 }
@@ -157,7 +157,7 @@ public class PopJoinResource {
                     PopJoinResponse.MESSAGE_OK, popJoinQuery);
 
         } catch (Exception e) {
-            this.logger.error("按条件查询POP收货交接清单异常：", e);
+            this.log.error("按条件查询POP收货交接清单异常：", e);
             return new PopJoinResponse(PopJoinResponse.CODE_SERVICE_ERROR,
                     PopJoinResponse.MESSAGE_SERVICE_ERROR, popJoinQuery);
         }
@@ -192,7 +192,7 @@ public class PopJoinResource {
         }
 
         if (Boolean.TRUE.equals(checkParam)) {
-            this.logger.error("按条件查询POP收货交接清单queryBPopJoinList --> 传入参数非法");
+            this.log.error("按条件查询POP收货交接清单queryBPopJoinList --> 传入参数非法");
             return new PopJoinResponse(JdResponse.CODE_PARAM_ERROR,
                     JdResponse.MESSAGE_PARAM_ERROR, popJoinQuery);
         }
@@ -229,15 +229,14 @@ public class PopJoinResource {
                 // 获取总数量
                 int totalSize = this.inspectionService
                         .findBPopJoinTotalCount(paramMap);
-                this.logger.info("按条件查询POP收货交接清单queryBPopJoinList --> 获取总数量为：" + totalSize);
+                this.log.info("按条件查询POP收货交接清单queryBPopJoinList --> 获取总数量为：{}", totalSize);
                 if (totalSize > 0) {
                     pager.setTotalSize(totalSize);
                     inspections = this.inspectionService
                             .findBPopJoinList(paramMap);
                     pager.setData(inspections);
                 } else {
-                    this.logger.info("按条件查询POP收货交接清单queryBPopJoinList --> paramMap：" + paramMap
-                            + ", 调用服务成功，数据为空");
+                    this.log.info("按条件查询POP收货交接清单queryBPopJoinList --> paramMap：{}, 调用服务成功，数据为空",paramMap);
                     return new PopJoinResponse(PopJoinResponse.CODE_OK_NULL,
                             PopJoinResponse.MESSAGE_OK_NULL, popJoinQuery);
                 }
@@ -246,7 +245,7 @@ public class PopJoinResource {
                     PopJoinResponse.MESSAGE_OK, popJoinQuery);
 
         } catch (Exception e) {
-            this.logger.error("按条件查询POP收货交接清单queryBPopJoinList异常：", e);
+            this.log.error("按条件查询POP收货交接清单queryBPopJoinList异常：", e);
             return new PopJoinResponse(PopJoinResponse.CODE_SERVICE_ERROR,
                     PopJoinResponse.MESSAGE_SERVICE_ERROR, popJoinQuery);
         }
@@ -283,7 +282,7 @@ public class PopJoinResource {
                     PopJoinResponse.MESSAGE_OK, resultBusiNames);
 
         } catch (Exception e) {
-            this.logger.error("按条件查询POP收货交接清单异常：", e);
+            this.log.error("按条件查询POP收货交接清单异常：", e);
             return new PopJoinResponse(PopJoinResponse.CODE_SERVICE_ERROR,
                     PopJoinResponse.MESSAGE_SERVICE_ERROR);
         }
@@ -295,7 +294,7 @@ public class PopJoinResource {
             List<String> waybillCodes) {
         if (waybillCodes == null || waybillCodes.size() <= 0
                 || waybillCodes.size() > 500) {
-            this.logger.error("batchForcePopPrint --> 传入参数非法");
+            this.log.warn("batchForcePopPrint --> 传入参数非法");
             return new PopJoinResponse<Map<String, Integer>>(
                     JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
         }
@@ -368,7 +367,7 @@ public class PopJoinResource {
                             }
                         }
                     } catch (Exception e) {
-                        this.logger.error("forcePopReceive --> 异常：", e);
+                        this.log.error("forcePopReceive --> 异常：", e);
                     }
                 }
 
@@ -376,7 +375,7 @@ public class PopJoinResource {
                     JdResponse.CODE_OK, JdResponse.MESSAGE_OK, paramMap);
 
         } catch (Exception e) {
-            this.logger.error("forcePopReceive --> 异常：", e);
+            this.log.error("forcePopReceive --> 异常：", e);
             return new PopJoinResponse<Map<String, Integer>>(
                     PopJoinResponse.CODE_SERVICE_ERROR,
                     PopJoinResponse.MESSAGE_SERVICE_ERROR);
@@ -404,7 +403,7 @@ public class PopJoinResource {
         }
 
         if (Boolean.TRUE.equals(checkParam)) {
-            this.logger.error("按条件查询POP收货交接清单findSitePrintDetail --> 传入参数非法");
+            this.log.warn("按条件查询POP收货交接清单findSitePrintDetail --> 传入参数非法");
 			return new PopJoinResponse<PopPrintJoinQuery>(JdResponse.CODE_PARAM_ERROR,
 					JdResponse.MESSAGE_PARAM_ERROR, popJoinQuery);
         }
@@ -439,7 +438,7 @@ public class PopJoinResource {
                 // 获取总数量
                 int totalSize = this.popPrintService
                         .findSitePrintDetailCount(paramMap);
-                this.logger.info("按条件查询POP收货交接清单findSitePrintDetail --> 获取总数量为：" + totalSize);
+                this.log.info("按条件查询POP收货交接清单findSitePrintDetail --> 获取总数量为：{}", totalSize);
                 if (totalSize > 0) {
                     pager.setTotalSize(totalSize);
                    popPrints = popPrintService.findSitePrintDetail(paramMap);
@@ -447,15 +446,14 @@ public class PopJoinResource {
                 pager.setData(popPrints);
             }
             else{
-                this.logger.info("按条件查询POP收货交接清单findSitePrintDetail --> paramMap：" + paramMap
-                        + ", 调用服务成功，数据为空");
+                this.log.info("按条件查询POP收货交接清单findSitePrintDetail --> paramMap：{}, 调用服务成功，数据为空",paramMap);
                 return new PopJoinResponse(PopJoinResponse.CODE_OK_NULL,
                         PopJoinResponse.MESSAGE_OK_NULL, popJoinQuery);
             }
             return  new PopJoinResponse<PopPrintJoinQuery>(JdResponse.CODE_OK,JdResponse.MESSAGE_OK,popJoinQuery);
 
         }catch (Exception e){
-            this.logger.error("站点pop打印清单查询失败！"+e.toString());
+            this.log.error("站点pop打印清单查询失败！",e);
             return  new PopJoinResponse<PopPrintJoinQuery>(PopJoinResponse.CODE_SERVICE_ERROR,PopJoinResponse.MESSAGE_SERVICE_ERROR,popJoinQuery);
         }
     }
@@ -467,7 +465,7 @@ public class PopJoinResource {
             List<String> waybillCodes) {
         if (waybillCodes == null || waybillCodes.size() <= 0
                 || waybillCodes.size() > 500) {
-            this.logger.error("forcePopReceive --> 传入参数非法");
+            this.log.warn("forcePopReceive --> 传入参数非法");
             return new PopJoinResponse<Map<String, Integer>>(
                     JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
         }
@@ -504,9 +502,7 @@ public class PopJoinResource {
                                     .toJson(tWaybillStatus), tWaybillStatus,
                             Constants.POP_HANDOVER_OPERATE_TYPE));
                 } catch (Exception e) {
-                    this.logger.error(
-                            "forcePopReceive add Task --> 异常 waybillCode ["
-                                    + waybillCode + "]：", e);
+                    this.log.error("forcePopReceive add Task --> 异常 waybillCode ：{}",waybillCode, e);
                 }
 
                 paramMap.put(waybillCode, resultCode);
@@ -515,7 +511,7 @@ public class PopJoinResource {
                     JdResponse.CODE_OK, JdResponse.MESSAGE_OK, paramMap);
 
         } catch (Exception e) {
-            this.logger.error("forcePopReceive --> 异常：", e);
+            this.log.error("forcePopReceive --> 异常：", e);
             return new PopJoinResponse<Map<String, Integer>>(
                     PopJoinResponse.CODE_SERVICE_ERROR,
                     PopJoinResponse.MESSAGE_SERVICE_ERROR);
@@ -555,7 +551,7 @@ public class PopJoinResource {
     private List<PopPrint> convPopPrint(List<PackageState> data) {
 
         if (data == null || data.size() <= 0) {
-            this.logger.info("获取运单相关信息[List<PackageState>]数据为空");
+            this.log.info("获取运单相关信息[List<PackageState>]数据为空");
             return null;
         }
 

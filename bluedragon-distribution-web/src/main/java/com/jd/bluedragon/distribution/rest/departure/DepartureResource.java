@@ -26,9 +26,9 @@ import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.GZIP;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
@@ -42,7 +42,7 @@ import java.util.*;
 @Produces({ MediaType.APPLICATION_JSON })
 public class DepartureResource {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	DepartureService departureService;
@@ -153,11 +153,11 @@ public class DepartureResource {
 	@Path("/departure/createDepartue")
 	public JdResponse createDepartue(DepartureRequest request) {
 		if (null == request) {
-			logger.error("发车接口：/departure/createDepartue ,DepartureRequest为空");
+			log.warn("发车接口：/departure/createDepartue ,DepartureRequest为空");
 			return new JdResponse(JdResponse.CODE_PARAM_ERROR,
 					JdResponse.MESSAGE_PARAM_ERROR);
 		}
-		logger.info("createDepartue received data: " + request.toString());
+		log.debug("createDepartue received data: {}", request.toString());
 		JdResponse response = new JdResponse();
 		Departure departure = toDeparture(request);
 		ServiceMessage<String> result;
@@ -173,10 +173,9 @@ public class DepartureResource {
 		} catch (Exception e) {
 			response.setCode(JdResponse.CODE_NOT_FOUND);
 			response.setMessage("生成批次失败");
-			logger.error("生成批次失败", e);
+			log.error("生成批次失败", e);
 		}
-		logger.info("--Request end, /departure/createDepartue : "
-				+ System.currentTimeMillis());
+		log.info("--Request end, /departure/createDepartue : {}", System.currentTimeMillis());
 		return response;
 	}
 
@@ -293,8 +292,7 @@ public class DepartureResource {
 			} catch (Exception e) {
 				// avoid the sendUserCode from PDA can't be converted into
 				// integer
-				logger.error("DepartureRequest sendUserCode[" + sendUserCode
-						+ "] can't be converted into integer");
+				log.error("DepartureRequest sendUserCode[{}] can't be converted into integer",sendUserCode);
 			}
 			sendM.setSendUserCode(sendUserCode); // 司机编码
 			sendM.setThirdWaybillCode(departureSendRequest
@@ -320,7 +318,7 @@ public class DepartureResource {
 		departure.setVolume(request.getVolume());
 		departure.setWeight(request.getWeight());
 		if (type == null) {
-			logger.error("发车接口：/departure/createDepartue in toDeparture error: type is null auto set value is 0");
+			log.warn("发车接口：/departure/createDepartue in toDeparture error: type is null auto set value is 0");
 			departure.setType(0);
 		} else {
 			departure.setType(type);
@@ -361,7 +359,7 @@ public class DepartureResource {
 			BaseStaffSiteOrgDto site =this.baseService.getSiteBySiteID(createSiteCode);
 			String createSiteName = site.getSiteName();
 			if (createSiteName == null) {
-				this.logger
+				this.log
 						.error("发车打印根据始发站点编号" + createSiteCode + "获取的站点名称为空");
 			} else {
 				response.setCreateSite(createSiteName);
@@ -379,7 +377,7 @@ public class DepartureResource {
 			//运力类型,基础资料新维护属性
 			//1自营2三方零担3三方整车4联营包车
 			if (departureCar.getSendUserType() == null) {
-				this.logger.error("发车分送人类型为空:" + departurPrintRequest);
+				this.log.warn("发车分送人类型为空:{}" , departurPrintRequest);
 			} else if (departureCar.getSendUserType().intValue() == 1) {// 司机
 				if(departureCar.getCarCode()!=null){
 				String sendUser = departureCar.getCarCode() + ","
@@ -504,11 +502,11 @@ public class DepartureResource {
     @GZIP
     @Path("/departure/deliveryinfo/{orderCode}")
     public DepartureResponse deliveryInfo(@PathParam("orderCode") String orderCode){
-        logger.info("the ordercode is " + orderCode);
+        log.info("the ordercode is {}", orderCode);
 		DepartureResponse dpResponse = new DepartureResponse();
 		List<DeparturePrintResponse> departurePrintResponses = null;
         if(StringUtils.isEmpty(orderCode)){
-            logger.error("获取干线报损运输信息失败，输入的订单号为空。");
+            log.warn("获取干线报损运输信息失败，输入的订单号为空。");
             dpResponse.setCode(JdResponse.CODE_PARAM_ERROR);
             dpResponse.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
             return dpResponse;
@@ -518,7 +516,7 @@ public class DepartureResource {
         try{
 			departurePrintResponses = departureService.queryDeliveryInfoByOrderCode(orderCode);
         }catch(Exception e){
-            logger.error("获取干线报损运输信息失败，获取发货信息失败，原因 " + e);
+            log.error("获取干线报损运输信息失败，获取发货信息失败，原因 " , e);
             dpResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
             dpResponse.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
             return dpResponse;
@@ -540,7 +538,7 @@ public class DepartureResource {
 		try{
 			departurePrintResponses = departureService.queryDepartureInfoBySendCode(sendCodes);
 		}catch(Exception ex){
-			logger.error("获取干线报损运输信息失败，获取发车信息失败，原因 " + ex);
+			log.error("获取干线报损运输信息失败，获取发车信息失败，原因 ", ex);
 			dpResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
 			dpResponse.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
 			return dpResponse;
@@ -576,7 +574,7 @@ public class DepartureResource {
 
 		try {
 			if (departurPrintRequest == null) {
-				logger.error("运输发车请求参数为空");
+				log.warn("运输发车请求参数为空");
 				response.setCode(1000);
 				response.setMessage("运输发车请求参数为空");
 				return response;
@@ -594,13 +592,13 @@ public class DepartureResource {
 			CommonDto<List<SendCarInfoDto>> repose = this.vosManager.getSendCar(paramDto);
 			cars = repose.getData();
 			if (cars == null) {
-				logger.info("请求服务成功，运输发车数据为空！");
-				logger.info(JsonHelper.toJson(paramDto));
+				log.info("请求服务成功，运输发车数据为空！");
+				log.info(JsonHelper.toJson(paramDto));
 				response.setCode(200);
 				response.setMessage("请求服务成功，运输发车数据为空！");
 			}
 			else {
-				logger.info(JsonHelper.toJson(cars)+cars.size());
+				log.info(JsonHelper.toJson(cars)+cars.size());
 				response.setData(cars);
 				response.setCode(200);
 				response.setMessage("OK");
@@ -608,7 +606,7 @@ public class DepartureResource {
 		} catch (Exception e) {
 			response.setMessage(e.getMessage());
 			response.setCode(1000);
-			logger.error("运输发车打印："+e);
+			log.error("运输发车打印：",e);
 		}
 		return response;
 	}
@@ -623,11 +621,9 @@ public class DepartureResource {
 	@GZIP
 	@Path("/departure/departuresendtemp")
  	public DepartureTmpResponse departureSendTemp(DepartureTmpRequest request){
-		logger.info("PDA 发车支持200批次接口调用，参数 " + JsonHelper.toJson(request));
-
 		if(null == request || StringHelper.isEmpty(request.getBatchCode())
 				|| StringHelper.isEmpty(request.getSendCode())){
-			logger.error("PDA 发车支持200批次接口调用，参数不正确");
+			log.warn("PDA 发车支持200批次接口调用，参数不正确");
 			return new DepartureTmpResponse(DepartureTmpResponse.CODE_PARAM_ERROR,
 					DepartureTmpResponse.MESSAGE_PARAM_ERROR);
 		}
@@ -635,7 +631,7 @@ public class DepartureResource {
 		try{
 			departureTmpDao.insert(request);
 		}catch (Exception ex){
-			logger.error("PDA 发车支持200批次保存临时表失败，原因 " + ex);
+			log.error("PDA 发车支持200批次保存临时表失败，原因 ", ex);
 			return new DepartureTmpResponse(DepartureTmpResponse.CODE_SERVICE_ERROR,
 					DepartureTmpResponse.MESSAGE_SERVICE_ERROR);
 		}
@@ -660,7 +656,7 @@ public class DepartureResource {
 		try {
 			repose = this.vosManager.queryCarriagePlanDetails(carriagePlanCode);
 		} catch (Exception ex) {
-			logger.error("调用运输接口异常queryCarriagePlanDetails:" + carriagePlanCode);
+			log.error("调用运输接口异常queryCarriagePlanDetails:{}", carriagePlanCode,ex);
 			throw new Exception("vosManager.queryCarriagePlanDetails jsf接口异常");
 		}
 
