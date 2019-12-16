@@ -23,9 +23,13 @@ public class QuoteCustomerApiServiceManagerImpl implements QuoteCustomerApiServi
 
     @Override
     public Integer queryVolumeRateByCustomerId(Integer customerId) {
-        ResponseDTO<QuoteCustomerDto> response = quoteCustomerApiService.queryCustomerById(customerId);
-        if(response !=null && response.getData() != null){
-            return response.getData().getVolumeRate();
+        try {
+            ResponseDTO<QuoteCustomerDto> response = quoteCustomerApiService.queryCustomerById(customerId);
+            if(response !=null && response.getData() != null){
+                return response.getData().getVolumeRate();
+            }
+        }catch(Exception e){
+
         }
         logger.error("根据商家ID：{}",customerId + "获取重泡比失败！");
         return null;
