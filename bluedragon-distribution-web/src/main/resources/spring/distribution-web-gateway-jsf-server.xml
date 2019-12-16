@@ -157,4 +157,13 @@
                   alias="${dms.gateway.jsf.alias}"
                   ref="deviceGatewayService"
                   server="dmsjsf"/>
+
+    <!-- 空铁-新发货登记 -->
+    <bean id="airNewPickupRegisterGateWayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.AirNewPickupRegisterGateWayServiceImpl"/>
+    <jsf:provider id="jsfairNewPickupRegisterGateWayService"
+                  interface="com.jd.bluedragon.external.gateway.service.AirNewPickupRegisterGateWayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="airNewPickupRegisterGateWayService" server="dmsjsf">
+    </jsf:provider>
+
 </beans>
