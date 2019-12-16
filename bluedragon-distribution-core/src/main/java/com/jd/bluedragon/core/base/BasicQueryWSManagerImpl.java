@@ -51,13 +51,13 @@ public class BasicQueryWSManagerImpl implements BasicQueryWSManager {
         try {
             CommonDto<List<BasicDictDto>> commonDto = basicQueryWS.getDictList(parentCode,dictLevel,dictGroup);
             if(commonDto == null || commonDto.getCode() != CommonDto.CODE_SUCCESS){
-                logger.warn("查询BASIC数据字典查询接口失败parentCode[{}]dictLevel[{}]dictGroup[{}]",
+                log.warn("查询BASIC数据字典查询接口失败parentCode[{}]dictLevel[{}]dictGroup[{}]",
                         parentCode,dictLevel,dictGroup, JsonHelper.toJson(commonDto));
                 return null;
             }
             return commonDto.getData();
         } catch (Exception e) {
-            logger.error("查询BASIC数据字典查询接口报错parentCode[{}]dictLevel[{}]dictGroup[{}][{}]",parentCode,dictLevel,dictGroup,e);
+            log.error("查询BASIC数据字典查询接口报错parentCode[{}]dictLevel[{}]dictGroup[{}][{}]",parentCode,dictLevel,dictGroup,e);
         }
         return null;
     }
