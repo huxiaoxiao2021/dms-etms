@@ -966,6 +966,18 @@ public class BusinessUtil {
     }
 
     /**
+     * 可能存在所属站的情况，调用基础资料basicSiteQueryWS.getSiteExtensionBySiteId接口获取所属站信息
+     */
+    public static Boolean isMayBelongSiteExist(Integer type ,Integer subType) {
+
+        return BusinessUtil.isThreePartner(type, subType)
+                || BusinessUtil.isSchoolyard(type, subType)
+                || BusinessUtil.isRecovery(type, subType)
+                || BusinessUtil.isNewBigSmallSite(type, subType)
+                || BusinessUtil.isAllianceBusiSite(type, subType);
+    }
+
+    /**
      * 判断是否是加盟商运单 106=2
      * @param waybillSign
      * @return
