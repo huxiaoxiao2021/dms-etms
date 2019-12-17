@@ -414,8 +414,12 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
         wpAbnormalRecordPda.setAbnormalSecondName(dmsAbnormalReasonDto.getParentName());
         wpAbnormalRecordPda.setAbnormalThirdId(dmsAbnormalReasonDto.getReasonCode());
         wpAbnormalRecordPda.setAbnormalThirdName(dmsAbnormalReasonDto.getReasonName());
-        wpAbnormalRecordPda.setDealDept(abnormalReportingRequest.getDealDeptCode());
-        wpAbnormalRecordPda.setDealDeptName(abnormalReportingRequest.getDealDeptName());
+
+        if (StringHelper.isNotEmpty(abnormalReportingRequest.getDealDeptCode()) && StringHelper.isNotEmpty(abnormalReportingRequest.getDealDeptName())) {
+            wpAbnormalRecordPda.setDealDept(abnormalReportingRequest.getDealDeptCode());
+            wpAbnormalRecordPda.setDealDeptName(abnormalReportingRequest.getDealDeptName());
+        }
+
         wpAbnormalRecordPda.setOutCallStatus(dmsAbnormalReasonDto.getIsOutCallType().toString());
         wpAbnormalRecordPda.setRemark(abnormalReportingRequest.getRemark());
         wpAbnormalRecordPda.setCreateDept(abnormalReportingRequest.getSiteCode().toString());
