@@ -415,9 +415,11 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
         wpAbnormalRecordPda.setAbnormalThirdId(dmsAbnormalReasonDto.getReasonCode());
         wpAbnormalRecordPda.setAbnormalThirdName(dmsAbnormalReasonDto.getReasonName());
 
-        if (StringHelper.isNotEmpty(abnormalReportingRequest.getDealDeptCode()) && StringHelper.isNotEmpty(abnormalReportingRequest.getDealDeptName())) {
+        if (StringHelper.isNotEmpty(abnormalReportingRequest.getDealDeptCode()) && StringHelper.isNotEmpty(abnormalReportingRequest.getDealDeptName())
+                && abnormalReportingRequest.getDealDeptType() != null) {
             wpAbnormalRecordPda.setDealDept(abnormalReportingRequest.getDealDeptCode());
             wpAbnormalRecordPda.setDealDeptName(abnormalReportingRequest.getDealDeptName());
+            wpAbnormalRecordPda.setStoreType(abnormalReportingRequest.getDealDeptType().toString());
         }
 
         wpAbnormalRecordPda.setOutCallStatus(dmsAbnormalReasonDto.getIsOutCallType().toString());
@@ -429,7 +431,6 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
         if (abnormalReportingRequest.getImgUrls() != null && abnormalReportingRequest.getImgUrls().size() > 0) {
             wpAbnormalRecordPda.setProofUrls(StringUtils.join(abnormalReportingRequest.getImgUrls().toArray(), ','));
         }
-        wpAbnormalRecordPda.setStoreType(abnormalReportingRequest.getDealDeptType().toString());
 
         return wpAbnormalRecordPda;
     }
