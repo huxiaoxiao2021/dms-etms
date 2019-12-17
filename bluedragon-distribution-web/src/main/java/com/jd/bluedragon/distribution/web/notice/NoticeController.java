@@ -19,16 +19,12 @@ import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
@@ -48,7 +44,7 @@ import java.util.List;
 @RequestMapping("/notice")
 public class NoticeController {
 
-    private final Logger logger = Logger.getLogger(NoticeController.class);
+    private final Logger log = LoggerFactory.getLogger(NoticeController.class);
 
     @Autowired
     private NoticeService noticeService;
@@ -144,7 +140,7 @@ public class NoticeController {
                 result.setMessage("获取当前登录用户信息失败，请重新登录ERP后尝试");
             }
         } catch (Exception ex) {
-            logger.error("附件下载异常", ex);
+            log.error("附件下载异常", ex);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
         }
@@ -204,11 +200,11 @@ public class NoticeController {
                 result.setMessage(InvokeResult.PARAM_ERROR);
             }
         } catch (JssStorageException je) {
-            logger.error("调用JSS服务进行附件存储时发生异常", je);
+            log.error("调用JSS服务进行附件存储时发生异常", je);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage("调用JSS服务进行附件存储时发生异常");
         } catch (Exception e) {
-            logger.error("新增通知时发生异常", e);
+            log.error("新增通知时发生异常", e);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
         }
@@ -242,7 +238,7 @@ public class NoticeController {
                 result.setMessage("删除失败，获取ERP信息失败，请重新登录后再操作！");
             }
         } catch (Exception e) {
-            logger.error("删除通知时发生异常！" + e.getMessage(), e);
+            log.error("删除通知时发生异常！", e);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
         }

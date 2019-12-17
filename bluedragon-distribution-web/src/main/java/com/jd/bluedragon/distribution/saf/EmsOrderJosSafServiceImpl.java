@@ -16,12 +16,11 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +30,7 @@ import java.util.List;
 @Service("emsOrderJosSafService")
 public class EmsOrderJosSafServiceImpl implements EmsOrderJosSafService {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private SendDatailDao sendDatailDao;
@@ -51,7 +50,7 @@ public class EmsOrderJosSafServiceImpl implements EmsOrderJosSafService {
 	@Override
 	public WaybillInfoResponse getWaybillInfo(String waybillCode) {
 		if (waybillCode == null || waybillCode.isEmpty()) {
-			logger.error("JOS获取订单信息参数为空");
+			log.warn("JOS获取订单信息参数为空");
 			return new WaybillInfoResponse(JdResponse.CODE_PARAM_ERROR,
 					JdResponse.MESSAGE_PARAM_ERROR);
 		}
@@ -81,13 +80,13 @@ public class EmsOrderJosSafServiceImpl implements EmsOrderJosSafService {
 	@JProfiler(jKey= "DMSWEB.EmsOrderJosSafServiceImpl.getEmsWaybillInfo",mState = {JProEnum.TP})
 	private WaybillInfoResponse getEmsWaybillInfo(String waybillCode) {
 
-		logger.error("JOS获取订单信息,订单号为" + waybillCode);
+		log.warn("JOS获取订单信息,订单号为：{}", waybillCode);
 		SendDetail send = new SendDetail();
 		send.setWaybillCode(waybillCode);
 		List<SendDetail> sendlist = sendDatailDao
 				.querySendDatailsBySelective(send);//FIXME:无create_site_code有跨节点风险
 		if (sendlist.isEmpty()) {
-			logger.error("JOS获取订单信息,订单没有发货记录" + waybillCode);
+			log.warn("JOS获取订单信息,订单没有发货记录:{}", waybillCode);
 			return new WaybillInfoResponse(JdResponse.CODE_OK_NULL,
 					JdResponse.MESSAGE_OK_NULL);
 		}
@@ -190,12 +189,12 @@ public class EmsOrderJosSafServiceImpl implements EmsOrderJosSafService {
 					}
 				}
 			} else {
-				logger.error("JOS获取订单信息,订单接口返回空信息" + waybillCode);
+				log.warn("JOS获取订单信息,订单接口返回空信息:{}", waybillCode);
 				return new WaybillInfoResponse(JdResponse.CODE_OK_NULL,
 						JdResponse.MESSAGE_OK_NULL);
 			}
 		} catch (Exception e) {
-			logger.error("JOS获取订单信息失败：信息为", e);
+			log.error("JOS获取订单信息失败：信息为", e);
 			return new WaybillInfoResponse(JdResponse.CODE_SERVICE_ERROR,
 					JdResponse.MESSAGE_SERVICE_ERROR);
 		}

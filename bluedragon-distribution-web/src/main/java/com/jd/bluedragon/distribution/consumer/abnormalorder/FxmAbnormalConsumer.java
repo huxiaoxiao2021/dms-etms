@@ -6,15 +6,15 @@ import com.jd.bluedragon.distribution.abnormalorder.domain.AbnormalOrderMq;
 import com.jd.bluedragon.distribution.abnormalorder.service.AbnormalOrderService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service("fxmAbnormalConsumer")
 public class FxmAbnormalConsumer  extends MessageBaseConsumer {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	
 	@Autowired
 	AbnormalOrderService abnormalOrderService;
@@ -22,8 +22,7 @@ public class FxmAbnormalConsumer  extends MessageBaseConsumer {
 	@Override
 	public void consume(Message message) {
 		// 处理消息体
-		this.logger.info("FxmAbnormalMessageConsumer consume --> 消息Body为【"
-									+ message.getText() + "】");
+		this.log.debug("FxmAbnormalMessageConsumer consume --> 消息Body为：{}",message.getText());
 		
 		AbnormalOrderMq abnormalOrderMq = JsonHelper.fromJson(message.getText(),AbnormalOrderMq.class);
 		if(abnormalOrderMq.getOrderId()!=null && abnormalOrderMq.getSystemFlag().equals("DMS")){
@@ -42,9 +41,9 @@ public class FxmAbnormalConsumer  extends MessageBaseConsumer {
 			/***/
 			abnormalOrder.setOrderId(abnormalOrderMq.getOrderId());
 			abnormalOrderService.updateResult(abnormalOrder);
-			this.logger.info("FxmAbnormalMessageConsumer consume : 更新完毕！");
+			this.log.debug("FxmAbnormalMessageConsumer consume : 更新完毕！");
 		}else{
-			this.logger.info("FxmAbnormalMessageConsumer consume : 运单号为空，数据丢弃！");
+			this.log.warn("FxmAbnormalMessageConsumer consume : 运单号为空，数据丢弃！消息Body为：{}",message.getText());
 		}
 	}
 

@@ -8,7 +8,6 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDevice;
 import com.jd.bluedragon.distribution.gantry.service.GantryDeviceService;
-import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -16,17 +15,15 @@ import com.jd.common.authorization.RestAuthorization;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.dto.SimpleBaseSite;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.awt.print.Paper;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +36,7 @@ import java.util.Map;
 @Controller
 @RequestMapping("/gantry")
 public class GantryController {
-    private static final Log logger = LogFactory.getLog(GantryController.class);
+    private static final Logger log = LoggerFactory.getLogger(GantryController.class);
     @Autowired
     private BaseService baseService;
     @Autowired
@@ -57,7 +54,7 @@ public class GantryController {
             List<BaseOrg> allOrgs = baseService.getAllOrg();
             model.addAttribute("allOrgs", allOrgs);
         } catch (Exception e){
-            logger.error("获取所有机构失败",e);
+            log.error("获取所有机构失败",e);
         }
         return "gantry/gantryList";
     }
@@ -69,7 +66,7 @@ public class GantryController {
         try {
             return baseMajorManager.getDmsListByOrgId(orgId);
         } catch (Exception e) {
-            logger.error("获取机构下的所有分拣中心失败",e);
+            log.error("获取机构下的所有分拣中心失败",e);
             return null;
         }
     }
@@ -81,7 +78,7 @@ public class GantryController {
             List<BaseOrg> allOrgs = baseService.getAllOrg();
             model.addAttribute("allOrgs", allOrgs);
         } catch (Exception e) {
-            logger.error("获取所有机构信息失败",e);
+            log.error("获取所有机构信息失败",e);
         }
         return "/gantry/gantryAdd";
     }
@@ -98,7 +95,7 @@ public class GantryController {
             List<GantryDevice> gantryDevices = gantryDeviceService.getGantry(map);
             model.addAttribute("gantryDevice", gantryDevices.get(0));
         } catch (Exception e) {
-            logger.error("获取所有机构信息失败",e);
+            log.error("获取所有机构信息失败",e);
         }
         return "/gantry/gantryModify";
     }
@@ -114,7 +111,7 @@ public class GantryController {
             request.setOperateName(erpUser.getUserName());
             gantryDeviceService.addGantry(GantryDevice.fromGantryRequest(request));
         } catch (Exception e){
-            logger.error("插入龙门架信息失败", e);
+            log.error("插入龙门架信息失败", e);
             if(e instanceof IllegalArgumentException){
                 IllegalArgumentException exception = (IllegalArgumentException)e;
                 result.setCode(10000);
@@ -138,7 +135,7 @@ public class GantryController {
         try{
             gantryDeviceService.delGantryById(id);
         } catch (Exception e){
-            logger.error("删除龙门架信息失败", e);
+            log.error("删除龙门架信息失败", e);
             result.setCode(20000);
             result.setMessage("服务异常，请稍后再试");
             return result;
@@ -162,7 +159,7 @@ public class GantryController {
             request.setOperateName(erpUser.getUserName());
             gantryDeviceService.updateGantryById(GantryDevice.fromGantryRequest(request));
         } catch (Exception e) {
-            logger.error("更新龙门架信息失败", e);
+            log.error("更新龙门架信息失败", e);
             if (e instanceof IllegalArgumentException) {
                 IllegalArgumentException exception = (IllegalArgumentException)e;
                 result.setCode(10000);
@@ -215,7 +212,7 @@ public class GantryController {
         } catch (Exception e){
             result.setCode(10000);
             result.setMessage("查询龙门架失败");
-            logger.error("查询龙门架失败", e);
+            log.error("查询龙门架失败", e);
         }
 
         return result;

@@ -1,23 +1,24 @@
 package com.jd.bluedragon.distribution.half.controller;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.half.domain.*;
+import com.jd.bluedragon.distribution.half.domain.PackageHalfDetail;
+import com.jd.bluedragon.distribution.half.domain.PackageHalfDetailCondition;
+import com.jd.bluedragon.distribution.half.domain.PackageHalfDetailResponseVO;
+import com.jd.bluedragon.distribution.half.domain.PackageHalfResultTypeEnum;
+import com.jd.bluedragon.distribution.half.service.PackageHalfDetailService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,9 +26,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.jd.bluedragon.distribution.half.service.PackageHalfDetailService;
-import com.jd.ql.dms.common.domain.JdResponse;
-import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -41,7 +43,7 @@ import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 @RequestMapping("half/packageHalfDetail")
 public class PackageHalfDetailController {
 
-	private static final Log logger = LogFactory.getLog(PackageHalfDetailController.class);
+	private static final Logger log = LoggerFactory.getLogger(PackageHalfDetailController.class);
 
 	@Autowired
 	private PackageHalfDetailService packageHalfDetailService;
@@ -82,7 +84,7 @@ public class PackageHalfDetailController {
 		try {
 			rest.setData(packageHalfDetailService.saveOrUpdate(packageHalfDetail));
 	} catch (Exception e) {
-			logger.error("fail to save！"+e.getMessage(),e);
+			log.error("fail to save！",e);
 			rest.toError("保存失败，服务异常！");
 		}
 		return rest;
@@ -99,7 +101,7 @@ public class PackageHalfDetailController {
 		try {
 			rest.setData(packageHalfDetailService.deleteByIds(ids));
 		} catch (Exception e) {
-			logger.error("fail to delete！"+e.getMessage(),e);
+			log.error("fail to delete！",e);
 			rest.toError("删除失败，服务异常！");
 		}
 		return rest;
@@ -247,7 +249,7 @@ public class PackageHalfDetailController {
 			return result;
 
 		} catch (Exception e) {
-            logger.error("half/packageHalfDetail/getPackageStatus接口调用失败"+e.getMessage());
+            log.error("half/packageHalfDetail/getPackageStatus接口调用失败",e);
 			result.setCode(InvokeResult.SERVER_ERROR_CODE);
 			result.setMessage("获取运单信息失败"+e.getMessage());
 			return result;

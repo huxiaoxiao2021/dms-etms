@@ -396,6 +396,16 @@ public class BasePrintWaybill implements Serializable {
     */
     private String timeCategory ;
 
+	/**
+	 * 物品名称
+	 */
+	private String goodsName;
+
+	/**
+	 * 其他路区（现阶段只存放大件路区）
+	 */
+	private String backupRoadCode;
+
 	public String getAdditionalComment() {
 		return additionalComment;
 	}
@@ -1480,5 +1490,21 @@ public class BasePrintWaybill implements Serializable {
 	 */
 	public void setOrderCode(String orderCode) {
 		this.orderCode = orderCode;
+	}
+
+	public String getGoodsName() {
+		return goodsName;
+	}
+
+	public void setGoodsName(String goodsName) {
+		this.goodsName = goodsName;
+	}
+
+	public String getBackupRoadCode() {
+		return backupRoadCode;
+	}
+
+	public void setBackupRoadCode(String backupRoadCode) {
+		this.backupRoadCode = backupRoadCode;
 	}
 }

@@ -245,6 +245,7 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
         pdaOperateRequest.setOperateUserCode(request.getUser().getUserCode());
         pdaOperateRequest.setOperateUserName(request.getUser().getUserName());
         pdaOperateRequest.setOperateTime(DateUtil.format(request.getCurrentOperate().getOperateTime(), DateUtil.FORMAT_DATE_TIME));
+        pdaOperateRequest.setMachineCode(request.getMachineCode());
 
         return waybillResource.getBarCodeAllRouters(pdaOperateRequest);
     }

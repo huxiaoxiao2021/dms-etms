@@ -517,7 +517,8 @@
     </jsf:consumer>
 
 
-    <jsf:consumer id="ecpQueryWS" interface="com.jd.tms.ecp.ws.EcpQueryWS" protocol="jsf" alias="${tms.ecp.jsf.alias}" timeout="${tms.ecp.jsf.timeout}" retries="1"/>
+    <jsf:consumer id="ecpQueryWS" interface="com.jd.tms.ecp.ws.EcpQueryWS" serialization="hessian"  protocol="jsf" alias="${tms.ecp.jsf.alias}"
+                  timeout="${tms.ecp.jsf.timeout}" retries="1"/>
 
     <jsf:consumer id="jdwlSignServiceJsf" interface="com.jdwl.bcoi.entry.api.service.JdwlService"
                   protocol="jsf" alias="${jsf.jdwlSignService.alias}" timeout="${jsf.jdwlSignService.timeout}" retries="${jsf.retries}" >
@@ -545,6 +546,15 @@
     <jsf:consumer id="generalWaybillQueryApi" interface="com.jd.ldop.center.api.waybill.GeneralWaybillQueryApi"
                   protocol="jsf" alias="${jsf.generalWaybillQueryApi.alias}" timeout="${jsf.generalWaybillQueryApi.timeout}">
     </jsf:consumer>
+
+
+    <jsf:consumer id="deviceConfigInfoJsfService" interface="com.jd.bd.dms.automatic.sdk.modules.device.DeviceConfigInfoJsfService"
+                  protocol="jsf" alias="${jsf.automatic.alias}" timeout="${jsf.automatic.timeout}" retries="${jsf.retries}">
+        <jsf:parameter key="token" value="${jsf.automatic.token}" hide="true"/>
+    </jsf:consumer>
+
+    <jsf:consumer id="ecpAirWS" interface="com.jd.tms.ecp.ws.EcpAirWS" protocol="jsf" alias="${tms.ecp.jsf.alias}" timeout="${tms.ecp.jsf.timeout}"
+                  retries="1" serialization="hessian" />
 
 
 </beans>

@@ -93,7 +93,7 @@ public class SpotCheckConsumer extends MessageBaseConsumer {
                     List<PackSpotCheckResult> detailList = pictureInfoMq.getDetailList();
                     for(PackSpotCheckResult result : detailList){
                         OpeObject obj = new OpeObject();
-                        obj.setOpeSiteId(pictureInfoMq.getReviewSecondLevelId());
+                        obj.setOpeSiteId(Integer.valueOf(pictureInfoMq.getReviewSecondLevelId()));
                         obj.setOpeSiteName(pictureInfoMq.getReviewSecondLevelName());
                         obj.setPackageCode(result.getBillCode());
                         obj.setpWeight(result.getWeight().floatValue());
@@ -125,7 +125,7 @@ public class SpotCheckConsumer extends MessageBaseConsumer {
                     vo.setWeight(pictureInfoMq.getReviewWeight());
                     vo.setVolume(pictureInfoMq.getReviewVolume());
                     vo.setOperatorName(pictureInfoMq.getReviewErp());
-                    vo.setOperatorSiteCode(pictureInfoMq.getReviewSecondLevelId());
+                    vo.setOperatorSiteCode(Integer.valueOf(pictureInfoMq.getReviewSecondLevelId()));
                     vo.setOperatorSiteName(pictureInfoMq.getReviewSecondLevelName());
                     vo.setStatus(10);
                     weighByWaybillService.insertWaybillWeightEntry(vo);
@@ -150,9 +150,9 @@ public class SpotCheckConsumer extends MessageBaseConsumer {
         private Double reviewWeight;
         private Double reviewVolume;
         private Long reviewDate;
-        private Integer reviewFirstLevelId;
+        private String reviewFirstLevelId;
         private String reviewFirstLevelName;
-        private Integer reviewSecondLevelId;
+        private String reviewSecondLevelId;
         private String reviewSecondLevelName;
         private String reviewErp;
         private Integer isExcess;
@@ -266,11 +266,11 @@ public class SpotCheckConsumer extends MessageBaseConsumer {
             this.reviewDate = reviewDate;
         }
 
-        public Integer getReviewFirstLevelId() {
+        public String getReviewFirstLevelId() {
             return reviewFirstLevelId;
         }
 
-        public void setReviewFirstLevelId(Integer reviewFirstLevelId) {
+        public void setReviewFirstLevelId(String reviewFirstLevelId) {
             this.reviewFirstLevelId = reviewFirstLevelId;
         }
 
@@ -282,11 +282,11 @@ public class SpotCheckConsumer extends MessageBaseConsumer {
             this.reviewFirstLevelName = reviewFirstLevelName;
         }
 
-        public Integer getReviewSecondLevelId() {
+        public String getReviewSecondLevelId() {
             return reviewSecondLevelId;
         }
 
-        public void setReviewSecondLevelId(Integer reviewSecondLevelId) {
+        public void setReviewSecondLevelId(String reviewSecondLevelId) {
             this.reviewSecondLevelId = reviewSecondLevelId;
         }
 

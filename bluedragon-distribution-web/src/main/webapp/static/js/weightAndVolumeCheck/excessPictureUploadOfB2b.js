@@ -66,7 +66,6 @@ $(function () {
             Jd.alert('上传图片的格式不正确,请检查后在上传!');
             return;
         }
-        debugger;
         var formData = new FormData();
         formData.append('image',param2);
         formData.append('createSiteCode',$('#createSiteCode').val());
@@ -111,7 +110,7 @@ $(function () {
             if($('#isWaybill').val() == 1){
                 parent.$('#waybillDataTable')[0].rows[$('#rowIndex').val()].cells[6].innerHTML = 5;
             }else {
-                parent.$('#packageDataTable')[0].rows[$('#rowIndex').val()].cells[6].innerHTML = 5;
+                parent.$('#packageDataTable')[0].rows[$('#rowIndex').val()].cells[7].innerHTML = 5;
             }
             //全部上传成功，显示记录
             var index = parent.layer.getFrameIndex('upExcessPicture');

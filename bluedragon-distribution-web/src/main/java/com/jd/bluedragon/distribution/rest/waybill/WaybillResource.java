@@ -7,6 +7,7 @@ import com.jd.bd.dms.automatic.sdk.modules.areadest.dto.AreaDestJsfVo;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
+import com.jd.bluedragon.common.dto.device.enums.DeviceTypeEnum;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
@@ -1511,7 +1512,7 @@ public class WaybillResource {
 			result = getSiteRoutersFromRouterJsf(operateSiteCode,waybillCode,nextRouters);
 		} else if (2 == request.getOperateType()) {
 			/* 通过发货配置jsf接口调用 */
-			result = getSiteRoutersFromDMSAutoJsf(operateSiteCode,siteCode,operateTime,waybillCode,nextRouters);
+			result = getSiteRoutersFromDMSAutoJsf(request.getMachineCode(),operateSiteCode,siteCode,operateTime,waybillCode,nextRouters);
 		}
 		siteRouters.addAll(nextRouters);
 		result.setData(siteRouters);
@@ -1548,7 +1549,7 @@ public class WaybillResource {
 	}
 
 	private InvokeResult<List<Integer>> getSiteRoutersFromDMSAutoJsf
-			(Integer operateSiteCode, Integer destinationSiteCode,Long operateTime,String waybillCode,Set<Integer> nextRouters) {
+			(String machineCode, Integer operateSiteCode, Integer destinationSiteCode,Long operateTime,String waybillCode,Set<Integer> nextRouters) {
 
 		InvokeResult<List<Integer>> result = new InvokeResult<List<Integer>>();
 
@@ -1556,6 +1557,8 @@ public class WaybillResource {
 		jsfRequest.setOriginalSiteCode(operateSiteCode);
 		jsfRequest.setDestinationSiteCode(destinationSiteCode);
 		jsfRequest.setOperateTime(operateTime);
+		jsfRequest.setMachineId(machineCode);
+		jsfRequest.setDeviceType(DeviceTypeEnum.GANTRY.getTypeCode());
 		BaseDmsAutoJsfResponse<List<AreaDestJsfVo>> jsfResponse;
 
 		CallerInfo info = Profiler.registerInfo("DMSWEB.jsf.areaDestJsfService.findAreaDest", Constants.UMP_APP_NAME_DMSWEB,false, true);

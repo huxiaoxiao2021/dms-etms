@@ -1,25 +1,5 @@
 package com.jd.bluedragon.distribution.web.popReceive;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.jd.uim.annotation.Authorization;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.propertyeditors.CustomDateEditor;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.RequestMapping;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -31,6 +11,21 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.common.web.LoginContext;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.uim.annotation.Authorization;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * @author zhaohc
@@ -42,7 +37,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 @Controller
 @RequestMapping("/popReceive")
 public class PopReceiveController {
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private BaseService baseService;
@@ -104,7 +99,7 @@ public class PopReceiveController {
 		queryMap.put("end", pager.getEndIndex());
         queryMap.put("pageSize",pager.getPageSize());
 		List<PopReceive> dataList =this.popReceiveService.findPopReceiveList(queryMap);
-		logger.info("count:"+count);
+		log.info("count:{}", count);
 		model.addAttribute("dataList", dataList);
 		model.addAttribute("pager", pager);
 		model.addAttribute("query", popReceiveDTO);
