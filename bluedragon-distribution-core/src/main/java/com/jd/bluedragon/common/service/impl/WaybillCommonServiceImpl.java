@@ -771,23 +771,47 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
          * B2B生鲜运输产品类型
          * waybill_sign36位=0 且waybill_sign40位=1 且 waybill_sign54位=2：冷链整车
          * waybill_sign36位=1 且waybill_sign40位=2 且 waybill_sign54位=2：快运冷链
+         * 快运冷链下新增 原逻辑待业务确认是否变更
+         * {
+         *     1. Waybill_sign54=2生鲜行业 且Waybill_sign40=2 纯配快运零担 且Waybill_sign80=6 且118=2 城配整车，即为：“冷链城配整车”
+         *     2. Waybill_sign54=2生鲜行业 且 Waybill_sign40=2纯配快运零担 且Waybill_sign80=6 且 118= 1或者0或者空 城配共配，即为：“冷链城配共配”
+         *     3. Waybill_sign54=2 生鲜行业 且Waybill_sign40=2 纯配快运零担且Waybill_sign80=8 专车，代表：“冷链整车”
+         * }
          * waybill_sign36位=1 且waybill_sign40位=3 且 waybill_sign54位=2：仓配冷链
          */
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(),54,'2')){
-            //冷链整车
-            if(BusinessUtil.isSignChar(waybill.getWaybillSign(),36,'0')
-                    && BusinessUtil.isSignChar(waybill.getWaybillSign(),40,'1')){
-                target.setjZDFlag(TextConstants.B2B_FRESH_WHOLE_VEHICLE);
-            //快运冷链
-            }else if(BusinessUtil.isSignChar(waybill.getWaybillSign(),36,'1')
-                    && BusinessUtil.isSignChar(waybill.getWaybillSign(),40,'2')
-                    && !isColdChainKBAndOuterWare
-                    ){
-                target.setjZDFlag(TextConstants.B2B_FRESH_EXPRESS);
-            //仓配冷链
-            }else if(BusinessUtil.isSignChar(waybill.getWaybillSign(),36,'1')
-                    && BusinessUtil.isSignChar(waybill.getWaybillSign(),40,'3')){
-                target.setjZDFlag(TextConstants.B2B_FRESH_WAREHOUSE);
+            if (BusinessUtil.isSignChar(waybill.getWaybillSign(),40,'1')) {
+                if (BusinessUtil.isSignChar(waybill.getWaybillSign(),36,'0')) {
+                    //冷链整车
+                    target.setjZDFlag(TextConstants.B2B_FRESH_WHOLE_VEHICLE);
+                }
+            } else if (BusinessUtil.isSignChar(waybill.getWaybillSign(),40,'2')) {
+                if (BusinessUtil.isSignChar(waybill.getWaybillSign(),80,'8')) {
+                    //冷链整车
+                    target.setjZDFlag(TextConstants.B2B_FRESH_WHOLE_VEHICLE);
+                } else if (BusinessUtil.isSignChar(waybill.getWaybillSign(),80,'6')) {
+                    if (BusinessUtil.isSignChar(waybill.getWaybillSign(),118,'2')) {
+                        //城配整车
+                        target.setjZDFlag(TextConstants.B2B_FRESH_URBAN_WHOLE_VEHICLE);
+                    } else if ( waybill.getWaybillSign().length() < 118
+                            || BusinessUtil.isSignChar(waybill.getWaybillSign(),118,'1')
+                            || BusinessUtil.isSignChar(waybill.getWaybillSign(),118,'0')) {
+                        //城配共配
+                        target.setjZDFlag(TextConstants.B2B_FRESH_URBAN_TOGETHER);
+                    }
+                } else if (BusinessUtil.isSignChar(waybill.getWaybillSign(),80,'7')) {
+                    //冷链卡班
+                    target.setjZDFlag(TextConstants.B2B_FRESH_EXPRESS);
+                } else if (BusinessUtil.isSignChar(waybill.getWaybillSign(),36,'1')
+                        && !isColdChainKBAndOuterWare) {
+                    //冷链卡班
+                    target.setjZDFlag(TextConstants.B2B_FRESH_EXPRESS);
+                }
+            } else if (BusinessUtil.isSignChar(waybill.getWaybillSign(),40,'3')) {
+                if (BusinessUtil.isSignChar(waybill.getWaybillSign(),36,'1')) {
+                    //仓配冷链
+                    target.setjZDFlag(TextConstants.B2B_FRESH_WAREHOUSE);
+                }
             }
         }
 

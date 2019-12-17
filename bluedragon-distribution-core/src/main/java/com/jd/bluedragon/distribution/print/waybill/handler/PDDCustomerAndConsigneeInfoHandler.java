@@ -11,6 +11,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.crossbow.pdd.domain.PDDResponse;
 import com.jd.bluedragon.external.crossbow.pdd.domain.PDDWaybillDetailDto;
 import com.jd.bluedragon.external.crossbow.pdd.service.PDDService;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
@@ -84,6 +85,11 @@ public class PDDCustomerAndConsigneeInfoHandler implements InterceptHandler<Wayb
             log.warn("拼多多订单信息获取失败:{}",waybillCode);
             result.toWeakSuccess(MessageFormat.format("该单【{0}】为拼多多订单，获取联系人信息失败", waybillCode));
             return result;
+        }
+        //用于统计拼多多面单打印获取的次数
+        if(log.isInfoEnabled()){
+            log.info("pddService.queryPDDWaybillByWaybillCode,siteCode:{},req:{}",
+                    context.getRequest().getSiteCode(), waybillCode);
         }
 
         PDDWaybillDetailDto pddWaybillDetailDto = pddWaybillDetailDtoPDDResponse.getResult();
