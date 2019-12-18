@@ -6,6 +6,8 @@ import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.ReturnsRequest;
+import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.DmsWaybillInfoResponse;
 import com.jd.bluedragon.distribution.api.response.OrderPackage;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
@@ -14,11 +16,13 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
 import com.jd.bluedragon.distribution.reverse.service.ReverseReceiveService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.dao.CancelWaybillDao;
 import com.jd.bluedragon.distribution.waybill.domain.*;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -47,7 +51,13 @@ import java.util.List;
 
 @Service
 public class WaybillServiceImpl implements WaybillService {
+
     private final Logger log = LoggerFactory.getLogger(this.getClass());
+
+    /**
+     * 记录拦截订单操作数据
+     */
+    public final static Integer INTERCEPT_RECORD_TYPE = -1;
 
     @Autowired
     private WaybillStatusService waybillStatusService;
@@ -76,6 +86,9 @@ public class WaybillServiceImpl implements WaybillService {
 
 	@Autowired
     private CancelWaybillDao cancelWaybillDao;
+
+    @Autowired
+    private TaskService taskService;
 
     /**
      * 普通运单类型（非移动仓内配）
@@ -409,11 +422,13 @@ public class WaybillServiceImpl implements WaybillService {
 	}
 
     @Override
-    public InvokeResult<Boolean> thirdCheckWaybillCancel(String waybillCode) {
+    public InvokeResult<Boolean> thirdCheckWaybillCancel(PdaOperateRequest pdaOperateRequest) {
 	    InvokeResult<Boolean> result = new InvokeResult<>();
 	    result.success();
 
-	    // 判断运单是否存在
+        String waybillCode = WaybillUtil.getWaybillCode(pdaOperateRequest.getPackageCode());
+
+        // 判断运单是否存在
 	    if (!this.waybillQueryManager.queryExist(waybillCode)) {
 	        result.customMessage(InvokeResult.RESULT_NULL_WAYBILLCODE_CODE, InvokeResult.RESULT_NULL_WAYBILLCODE_MESSAGE);
 	        return result;
@@ -425,6 +440,11 @@ public class WaybillServiceImpl implements WaybillService {
             return result;
         }
         result = this.getResponseByInterceptType(cancelWaybill.getInterceptType(), cancelWaybill.getInterceptMode());
+
+        // 发送全流程跟踪
+        if (result.getCode() != InvokeResult.RESULT_SUCCESS_CODE) {
+            this.pushSortingInterceptByFeatureType(pdaOperateRequest, cancelWaybill.getFeatureType());
+        }
 
         return result;
     }
@@ -500,5 +520,75 @@ public class WaybillServiceImpl implements WaybillService {
             }
         }
         return null;
+    }
+
+    private void pushSortingInterceptByFeatureType(PdaOperateRequest pdaOperate, Integer featureType) {
+        String recordMsg = this.getRecordMsg(featureType);
+        this.pushSortingInterceptRecord(pdaOperate, recordMsg);
+    }
+
+    private String getRecordMsg(Integer featureType) {
+        /*分拣信息链接*/
+        String recordMsg = StringUtils.EMPTY;
+
+        if (CancelWaybill.FEATURE_TYPE_LOCKED.equals(featureType)) {
+            recordMsg = CancelWaybill.FEATURE_MSG_LOCKED;
+        }
+        else if (CancelWaybill.FEATURE_TYPE_CANCELED.equals(featureType)) {
+            recordMsg = CancelWaybill.FEATURE_MSG_CANCELED;
+        }
+        else if (CancelWaybill.FEATURE_TYPE_DELETED.equals(featureType)) {
+            recordMsg = CancelWaybill.FEATURE_MSG_CANCELED;
+        }
+        else if (CancelWaybill.FEATURE_TYPE_REFUND100.equals(featureType)) {
+            recordMsg = CancelWaybill.FEATURE_MSG_REFUND100;
+        }
+        else if (CancelWaybill.FEATURE_TYPE_INTERCEPT.equals(featureType)) {
+            recordMsg = CancelWaybill.FEATURE_MSG_INTERCEPT;
+        }
+        else if (CancelWaybill.FEATURE_TYPE_INTERCEPT_BUSINESS.equals(featureType)) {
+            recordMsg = CancelWaybill.FEATURE_MSG_INTERCEPT_BUSINESS;
+        }
+        else if (CancelWaybill.FEATURE_TYPE_SICK.equals(featureType)) {
+            recordMsg = CancelWaybill.FEATURE_MSG_SICKCANCEL;
+        }
+        else if (CancelWaybill.FEATURE_TYPE_INTERCEPT_LP.equals(featureType)) {
+            recordMsg = CancelWaybill.FEATURE_MSG_INTERCEPT_LP;
+        }
+
+        return recordMsg;
+    }
+
+    private void pushSortingInterceptRecord(PdaOperateRequest request, String recordMsg) {
+        ReturnsRequest sortingReturn = new ReturnsRequest();
+        sortingReturn.setBusinessType(INTERCEPT_RECORD_TYPE);
+        sortingReturn.setSiteCode(request.getCreateSiteCode());
+        sortingReturn.setSiteName(request.getCreateSiteName());
+        sortingReturn.setUserCode(request.getOperateUserCode());
+        sortingReturn.setUserName(request.getOperateUserName());
+        sortingReturn.setShieldsError(recordMsg);
+        sortingReturn.setPackageCode(request.getPackageCode());
+        sortingReturn.setOperateTime(request.getOperateTime());
+
+        TaskRequest taskRequest = new TaskRequest();
+        taskRequest.setOperateTime(request.getOperateTime());
+        taskRequest.setKeyword1(String.valueOf(request.getCreateSiteCode()));
+        taskRequest.setKeyword2(request.getPackageCode());
+        taskRequest.setSiteCode(request.getCreateSiteCode());
+        taskRequest.setReceiveSiteCode(request.getCreateSiteCode());
+        taskRequest.setType(Task.TASK_TYPE_RETURNS);
+        taskRequest.setBody(JsonHelper.toJson(request));
+
+        String eachJson = Constants.PUNCTUATION_OPEN_BRACKET
+                + JsonHelper.toJson(sortingReturn)
+                + Constants.PUNCTUATION_CLOSE_BRACKET;
+
+        try {
+            Task task = this.taskService.toTask(taskRequest, eachJson);
+            this.taskService.add(task);
+        }
+        catch (Exception ex) {
+            log.error("Failed to add task. req:{}", eachJson, ex);
+        }
     }
 }

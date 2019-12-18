@@ -2370,7 +2370,6 @@ public class WaybillResource {
             result.customMessage(SortingResponse.CODE_PARAM_IS_NULL, SortingResponse.MESSAGE_PARAM_IS_NULL);
             return result;
         }
-        String waybillCode = WaybillUtil.getWaybillCode(pdaOperateRequest.getPackageCode());
-        return waybillService.thirdCheckWaybillCancel(waybillCode);
+        return waybillService.thirdCheckWaybillCancel(pdaOperateRequest);
     }
 }
