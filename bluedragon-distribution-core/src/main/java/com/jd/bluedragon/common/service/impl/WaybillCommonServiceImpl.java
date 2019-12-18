@@ -920,7 +920,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         	target.appendSpecialMark(ComposeService.SPECIAL_MARK_AIRTRANSPORT_FILL);
         }else{
             //兼容老逻辑：waybillsign 第31为1 打“航”逻辑
-            if(BusinessUtil.isSignY(waybill.getWaybillSign(), 31)){
+            if(BusinessUtil.isSignY(waybill.getWaybillSign(), 31)
+                    && BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_116,DmsConstants.FLG_CHAR_DEFAULT)){
             	target.appendSpecialMark(ComposeService.SPECIAL_MARK_AIRTRANSPORT);
             }
         }

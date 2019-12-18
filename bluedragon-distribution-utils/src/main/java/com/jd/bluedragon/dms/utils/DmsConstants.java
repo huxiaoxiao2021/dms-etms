@@ -64,6 +64,11 @@ public class DmsConstants {
     public static final char FLG_CHAR_YN_Y = '1';
 
     /**
+     * 空占位符 0
+     */
+    public static final char FLG_CHAR_DEFAULT = '0';
+
+    /**
      * 箱号正则表达式 旧版 废弃
      */
     @Deprecated
