@@ -27,6 +27,7 @@ import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.api.response.TaskResponse;
 import com.jd.bluedragon.distribution.api.response.WaybillResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.domain.PdaStaff;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
@@ -105,6 +106,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -2356,4 +2358,19 @@ public class WaybillResource {
         return result;
     }
 
+    @POST
+    @Path("/waybill/thirdCheckCancel")
+    @JProfiler(jKey = "DMS.WEB.WaybillResource.thirdCheckWaybillCancel", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<Boolean> thirdCheckWaybillCancel(@NotNull PdaOperateRequest pdaOperateRequest) {
+        if (log.isInfoEnabled()) {
+            log.info("validate waybill cancel when third check goods:[{}]", JsonHelper.toJson(pdaOperateRequest));
+        }
+	    InvokeResult<Boolean> result = new InvokeResult<>();
+        if (null == pdaOperateRequest || StringUtils.isBlank(pdaOperateRequest.getPackageCode())) {
+            result.customMessage(SortingResponse.CODE_PARAM_IS_NULL, SortingResponse.MESSAGE_PARAM_IS_NULL);
+            return result;
+        }
+        String waybillCode = WaybillUtil.getWaybillCode(pdaOperateRequest.getPackageCode());
+        return waybillService.thirdCheckWaybillCancel(waybillCode);
+    }
 }

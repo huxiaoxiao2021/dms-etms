@@ -77,4 +77,12 @@ public interface WaybillService {
     DmsWaybillInfoResponse getDmsWaybillInfoResponse(String packageCode);
 
     Waybill getWaybillByWayCode(String waybillCode);
+
+    /**
+     * 三方验货校验运单取消拦截
+     *
+     * @param waybillCode
+     * @return
+     */
+    InvokeResult<Boolean> thirdCheckWaybillCancel(String waybillCode);
 }

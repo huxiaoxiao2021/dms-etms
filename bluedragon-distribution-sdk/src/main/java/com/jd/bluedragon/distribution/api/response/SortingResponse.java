@@ -75,6 +75,24 @@ public class SortingResponse extends JdResponse {
     public static final String MESSAGE_EXE_ERROR = "取消分拣异常";
 
 
+
+    /**************************************配送拦截新逻辑START****************************/
+
+    public static final Integer CODE_29311 = 29311;
+    public static final String MESSAGE_29311 = "此单为[取消订单],请退货";
+
+    public static final Integer CODE_29312 = 29312;
+    public static final String MESSAGE_29312 = "此单为[拒收订单拦截],请退货";
+
+    public static final Integer CODE_29313= 29313;
+    public static final String MESSAGE_29313 = "此单为[恶意订单拦截],请退货";
+
+    public static final Integer CODE_29316 = 29316;
+    public static final String MESSAGE_29316 = "此单为[白条强制拦截],请退货";
+
+    /**************************************配送拦截新逻辑END******************************/
+
+
     /** 箱号 */
     private String boxCode;
 

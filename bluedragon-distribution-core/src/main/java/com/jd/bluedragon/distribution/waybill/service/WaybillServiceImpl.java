@@ -19,9 +19,8 @@ import com.jd.bluedragon.distribution.reverse.service.ReverseReceiveService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.bluedragon.distribution.waybill.domain.PaymentEnum;
-import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
-import com.jd.bluedragon.distribution.waybill.domain.WaybillTypeEnum;
+import com.jd.bluedragon.distribution.waybill.dao.CancelWaybillDao;
+import com.jd.bluedragon.distribution.waybill.domain.*;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.service.LossServiceManager;
@@ -74,6 +73,9 @@ public class WaybillServiceImpl implements WaybillService {
     private ReverseReceiveService reverseReceiveService;
 	@Autowired
 	private BaseMajorManager baseMajorManager;
+
+	@Autowired
+    private CancelWaybillDao cancelWaybillDao;
 
     /**
      * 普通运单类型（非移动仓内配）
@@ -405,4 +407,98 @@ public class WaybillServiceImpl implements WaybillService {
 			}
 		}
 	}
+
+    @Override
+    public InvokeResult<Boolean> thirdCheckWaybillCancel(String waybillCode) {
+	    InvokeResult<Boolean> result = new InvokeResult<>();
+	    result.success();
+
+	    // 判断运单是否存在
+	    if (!this.waybillQueryManager.queryExist(waybillCode)) {
+	        result.customMessage(InvokeResult.RESULT_NULL_WAYBILLCODE_CODE, InvokeResult.RESULT_NULL_WAYBILLCODE_MESSAGE);
+	        return result;
+        }
+
+	    // 校验运单是否拦截
+	    CancelWaybill cancelWaybill = this.getCancelWaybillByWaybillCode(waybillCode);
+        if (null == cancelWaybill) {
+            return result;
+        }
+        result = this.getResponseByInterceptType(cancelWaybill.getInterceptType(), cancelWaybill.getInterceptMode());
+
+        return result;
+    }
+
+    /**
+     * 三方验货拦截，目前只强拦截四种类型
+     * <ul>
+     *     <li>29311：此单为[取消订单],请退货</li>
+     *     <li>29312：此单为[拒收订单拦截],请退货</li>
+     *     <li>29313：此单为[恶意订单拦截],请退货</li>
+     *     <li>29316：此单为[白条强制拦截],请退货</li>
+     * </ul>
+     * @param interceptType
+     * @param interceptMode
+     * @return
+     */
+    private InvokeResult<Boolean> getResponseByInterceptType(Integer interceptType, Integer interceptMode) {
+        InvokeResult<Boolean> result = new InvokeResult<>();
+
+        if (WaybillCancelInterceptTypeEnum.CANCEL.getCode() == interceptType) {
+            if (interceptMode == WaybillCancelInterceptModeEnum.INTERCEPT.getCode()) {
+                result.customMessage(SortingResponse.CODE_29311, SortingResponse.MESSAGE_29311);
+                return result;
+            }
+        }
+
+        if (WaybillCancelInterceptTypeEnum.REFUSE.getCode() == interceptType) {
+            result.customMessage(SortingResponse.CODE_29312, SortingResponse.MESSAGE_29312);
+            return result;
+        }
+
+        if (WaybillCancelInterceptTypeEnum.MALICE.getCode() == interceptType) {
+            result.customMessage(SortingResponse.CODE_29313, SortingResponse.MESSAGE_29313);
+            return result;
+        }
+
+        if (WaybillCancelInterceptTypeEnum.WHITE.getCode() == interceptType) {
+            result.customMessage(SortingResponse.CODE_29316, SortingResponse.MESSAGE_29316);
+            return result;
+        }
+
+        return result;
+    }
+
+    private CancelWaybill getCancelWaybillByWaybillCode(String waybillCode) {
+        List<CancelWaybill> cancelWaybills = this.cancelWaybillDao.getByWaybillCode(waybillCode);
+        if (cancelWaybills == null || cancelWaybills.isEmpty()) {
+            return null;
+        }
+
+        // 获取病单拦截
+        CancelWaybill cancelWaybill = this.getSickCancelWaybill(cancelWaybills);
+        if (cancelWaybill != null) {
+            return cancelWaybill;
+        }
+
+        return cancelWaybills.get(0);
+    }
+
+    /**
+     * 获取病单，有病单则优先返回病单 30病单 31 取消病单
+     *
+     * @param cancelWaybills
+     * @return
+     */
+    private CancelWaybill getSickCancelWaybill(List<CancelWaybill> cancelWaybills) {
+        for (CancelWaybill cancelWaybill : cancelWaybills) {
+            if (CancelWaybill.FEATURE_TYPE_SICK.equals(cancelWaybill.getFeatureType())) {
+                return cancelWaybill;
+            }
+            if (CancelWaybill.FEATURE_TYPE_SICK_CANCEL.equals(cancelWaybill.getFeatureType())) {
+                return null;
+            }
+        }
+        return null;
+    }
 }
