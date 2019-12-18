@@ -461,55 +461,6 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 weightVolumeCollectDto.setBillingVolume(billingVolume);
             }
 
-/*            //复核重泡比
-            Double reviewVolumeWeight =  keeTwoDecimals(reviewVolume/8000);
-            if(reviewWeightStr > reviewVolumeWeight){
-                if(billingWeight == 0){
-                    result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
-                    result.setData(false);
-                    result.setMessage("计费重量为0或空，无法进行校验");
-                    weightVolumeCollectDto.setIsExcess(1);
-                }else{
-                    double diffOfWeight = Math.abs(keeTwoDecimals(reviewWeightStr - billingWeight));
-                    if((reviewWeightStr <= 5 && diffOfWeight> 0.3) || (reviewWeightStr > 5 && reviewWeightStr <= 20 && diffOfWeight> 0.5)
-                            || (reviewWeightStr > 20 && reviewWeightStr <= 50 && diffOfWeight> 1)
-                            || (reviewWeightStr > 50 && diffOfWeight > reviewWeightStr * 0.02)){
-                        result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
-                        result.setData(false);
-                        result.setMessage("此次操作重量为"+reviewWeightStr+"kg,计费重量为"+billingWeight+"kg，"
-                                +"经校验误差值"+diffOfWeight+"kg已超出规定"+ (reviewWeightStr <=5 ? "0.3":reviewWeightStr<=20 ? "0.5":reviewWeightStr<=50 ? "1" : reviewWeightStr * 0.02)+"kg！");
-                        weightVolumeCollectDto.setIsExcess(1);
-                    }
-                }
-            }else {
-                if(billingVolume == 0){
-                    result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
-                    result.setData(false);
-                    result.setMessage("计费体积为0或空，无法进行校验");
-                    weightVolumeCollectDto.setIsExcess(1);
-                    weightVolumeCollectDto.setVolumeWeightIsExcess(1);
-                }else{
-                    double diff = Math.abs(keeTwoDecimals(reviewVolume - billingVolume));
-                    double diffOfVolume = diff==0.00 ? 0.01 : diff;
-                    if((reviewVolume/8000 <= 5 && diffOfVolume/8000> 0.3)
-                            || (reviewVolume/8000 > 5 && reviewVolume/8000 <= 20  && diffOfVolume/8000 > 0.5)
-                            || (reviewVolume/8000 > 20 && reviewVolume/8000 <= 50  && diffOfVolume/8000 > 1)
-                            || (reviewVolume/8000 > 50 && diffOfVolume/8000 > reviewVolume*0.02/8000)){
-                        result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
-                        result.setData(false);
-                        String message = "此次操作体积重量（体积除以8000）为"+String.format("%.6f", reviewVolume/8000)+"kg,计费体积重量（体积除以8000）为"+String.format("%.6f", billingVolume/8000)+"kg，"
-
-                                +"经校验误差值"+diffOfVolume/8000+"kg已超出规定"+ (reviewVolume/8000 <=5 ? "0.3":reviewVolume/8000<=20 ? "0.5":reviewVolume/8000<=50 ? "1" : reviewVolume/8000 * 0.02)+"kg！";
-                        if(!StringUtils.isBlank(result.getMessage())){
-                            message = result.getMessage()+"\r\n"+message;
-                        }
-                        result.setMessage(message);
-                        weightVolumeCollectDto.setIsExcess(1);
-                        weightVolumeCollectDto.setVolumeWeightIsExcess(1);
-                    }
-                }
-            }*/
-
             //复核重泡比
             Integer volumeRate = quoteCustomerApiServiceManager.queryVolumeRateByCustomerId(weightVolumeCollectDto.getBusiCode());
             if(volumeRate == null){
@@ -541,14 +492,17 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             }
 
             //判断体积重量是否超标
-            if(billingVolume == 0) weightVolumeCollectDto.setVolumeWeightIsExcess(1);
-            double diff = Math.abs(keeTwoDecimals(reviewVolume - billingVolume));
-            double diffOfVolume = diff==0.00 ? 0.01 : diff;
-            if((reviewVolume/volumeRate <= 5 && diffOfVolume/volumeRate> 0.3)
-                    || (reviewVolume/volumeRate > 5 && reviewVolume/volumeRate <= 20  && diffOfVolume/volumeRate > 0.5)
-                    || (reviewVolume/volumeRate > 20 && reviewVolume/volumeRate <= 50  && diffOfVolume/volumeRate > 1)
-                    || (reviewVolume/volumeRate > 50 && diffOfVolume/volumeRate > reviewVolume*0.02/volumeRate)){
+            if(billingVolume == 0){
                 weightVolumeCollectDto.setVolumeWeightIsExcess(1);
+            }else{
+                double diff = Math.abs(keeTwoDecimals(reviewVolume - billingVolume));
+                double diffOfVolume = diff==0.00 ? 0.01 : diff;
+                if((reviewVolume/volumeRate <= 5 && diffOfVolume/volumeRate> 0.3)
+                        || (reviewVolume/volumeRate > 5 && reviewVolume/volumeRate <= 20  && diffOfVolume/volumeRate > 0.5)
+                        || (reviewVolume/volumeRate > 20 && reviewVolume/volumeRate <= 50  && diffOfVolume/volumeRate > 1)
+                        || (reviewVolume/volumeRate > 50 && diffOfVolume/volumeRate > reviewVolume*0.02/volumeRate)){
+                    weightVolumeCollectDto.setVolumeWeightIsExcess(1);
+                }
             }
 
 

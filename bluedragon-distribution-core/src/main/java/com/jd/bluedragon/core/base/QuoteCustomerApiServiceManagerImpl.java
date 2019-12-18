@@ -25,13 +25,13 @@ public class QuoteCustomerApiServiceManagerImpl implements QuoteCustomerApiServi
     public Integer queryVolumeRateByCustomerId(Integer customerId) {
         try {
             ResponseDTO<QuoteCustomerDto> response = quoteCustomerApiService.queryCustomerById(customerId);
-            if(response !=null && response.getData() != null){
+            if(ResponseDTO.SUCCESS_CODE.equals(response.getStatusCode()) && response.getData() != null){
                 return response.getData().getVolumeRate();
             }
+            logger.warn("根据商家ID：{},获取重泡比失败,使用默认的泡重比8000",customerId);
         }catch(Exception e){
-
+            logger.error("根据商家ID：{},获取重泡比失败,使用默认的泡重比8000",customerId);
         }
-        logger.error("根据商家ID：{}",customerId + "获取重泡比失败！");
         return null;
     }
 }
