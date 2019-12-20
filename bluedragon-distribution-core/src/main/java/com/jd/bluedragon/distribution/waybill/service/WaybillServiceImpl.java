@@ -439,7 +439,9 @@ public class WaybillServiceImpl implements WaybillService {
         if (null == cancelWaybill) {
             return result;
         }
-        result = this.getResponseByInterceptType(cancelWaybill.getInterceptType(), cancelWaybill.getInterceptMode());
+        if (cancelWaybill.getInterceptType() != null) {
+            result = this.getResponseByInterceptType(cancelWaybill.getInterceptType(), cancelWaybill.getInterceptMode());
+        }
 
         // 发送全流程跟踪
         if (result.getCode() != InvokeResult.RESULT_SUCCESS_CODE) {
