@@ -15,6 +15,7 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
@@ -46,7 +47,9 @@ public class PDDExternalJSFServiceImpl implements DMSExternalInPDDService {
     /**
      * 获取拼多多运单数据
      * 如果运单中电话或手机非密文 则返回运单数据，否则调用拼多多接口返回数据
+     * (此处添加监控是为了看看是否有直接的调用量，没有流量的话，可以将此方法改为私有方法，因为该方法的参数没有系统标识无法知道是哪个接口调用
      */
+    @JProfiler(jKey = "dms.web.DMSExternalInPDDService.queryPDDWaybillByWaybillCode", jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public BaseEntity<PDDWaybillPrintInfoDto> queryPDDWaybillByWaybillCode(String waybillCode) {
         try {
             BaseEntity<PDDWaybillPrintInfoDto> baseEntity = new BaseEntity<>(BaseEntity.CODE_SUCCESS, BaseEntity.MESSAGE_SUCCESS);
