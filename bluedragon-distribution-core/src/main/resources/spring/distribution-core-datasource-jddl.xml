@@ -6,8 +6,6 @@
     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd">
 
-    <tx:annotation-driven transaction-manager="transactionManager"/>
-
     <!-- DMS主库（拆分库）JDDL数据源 -->
     <bean id="jddlShardingDataSource" class="com.jd.jddl.client.jdbc.TDataSource" init-method="doInit">
         <property name="appName" value="${jddl.app.name}"/>
