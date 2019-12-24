@@ -460,7 +460,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 			return;
 		}
 
-		/* 快生开关 */
+		/* 快生开关 注意取反 */
 		boolean quickFlag = true;
 		List<SysConfig> configs=baseService.queryConfigByKeyWithCache(EMS_ONOFF);
 		for(SysConfig sys : configs){
@@ -470,9 +470,9 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		}
 		BigWaybillDto waybillDto;
 		if (quickFlag) {
-			waybillDto = getWaybillQuickProduce(waybillCode);
-		} else {
 			waybillDto = waybillService.getWaybill(waybillCode);
+		} else {
+			waybillDto = getWaybillQuickProduce(waybillCode);
 		}
 
 		if (waybillDto == null || waybillDto.getWaybill() == null) {
