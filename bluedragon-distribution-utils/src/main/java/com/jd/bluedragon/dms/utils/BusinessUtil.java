@@ -949,6 +949,33 @@ public class BusinessUtil {
         return Boolean.FALSE;
     }
 
+    /**
+     * 判断否属于新增大小站类型（除校园派、爱回收等情况）
+     * 1.一级为自提点siteType=8;
+     * 2.一级营业部siteType=4；二级为营业部subType=4
+     */
+    public static Boolean isNewBigSmallSite(Integer type ,Integer subType) {
+
+        if (type != null) {
+            if (subType != null) {
+                return type == 8 || (type == 4 && subType == 4);
+            }
+            return type == 8;
+        }
+        return false;
+    }
+
+    /**
+     * 可能存在所属站的情况，调用基础资料basicSiteQueryWS.getSiteExtensionBySiteId接口获取所属站信息
+     */
+    public static Boolean isMayBelongSiteExist(Integer type ,Integer subType) {
+
+        return BusinessUtil.isThreePartner(type, subType)
+                || BusinessUtil.isSchoolyard(type, subType)
+                || BusinessUtil.isRecovery(type, subType)
+                || BusinessUtil.isNewBigSmallSite(type, subType)
+                || BusinessUtil.isAllianceBusiSite(type, subType);
+    }
 
     /**
      * 判断是否是加盟商运单 106=2
@@ -1010,4 +1037,14 @@ public class BusinessUtil {
     public static boolean isTrustBusi(String waybillSign){
         return isSignChar(waybillSign,WaybillSignConstants.POSITION_56,WaybillSignConstants.CHAR_56_1);
     }
+
+    /**
+     * 是否重货网运单
+     * @param waybillSign
+     * @return true 是，false 不是
+     */
+    public static boolean isHeavyCargo(String waybillSign){
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_36, WaybillSignConstants.CHAR_36_4);
+    }
+
 }

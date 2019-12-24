@@ -10,8 +10,8 @@ import com.jd.bluedragon.distribution.collect.service.CollectGoodsDetailService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -36,7 +36,7 @@ import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 @RequestMapping("collect/collectGoodsPlace")
 public class CollectGoodsPlaceController {
 
-	private static final Log logger = LogFactory.getLog(CollectGoodsPlaceController.class);
+	private static final Logger log = LoggerFactory.getLogger(CollectGoodsPlaceController.class);
 
 	@Autowired
 	private CollectGoodsPlaceService collectGoodsPlaceService;
@@ -127,7 +127,7 @@ public class CollectGoodsPlaceController {
 			collectGoodsPlaceService.saveAll(collectGoodsPlaces);
 
 		} catch (Exception e) {
-			logger.error("fail to save！"+e.getMessage(),e);
+			log.error("fail to save！",e);
 			rest.toError("保存失败，服务异常！");
 		}
 		return rest;
@@ -163,7 +163,7 @@ public class CollectGoodsPlaceController {
 			collectGoodsPlaceService.saveOrUpdate(collectGoodsPlace);
 
 		} catch (Exception e) {
-			logger.error("fail to save！"+e.getMessage(),e);
+			log.error("fail to save！",e);
 			rest.toError("保存失败，服务异常！");
 		}
 		return rest;
@@ -198,7 +198,7 @@ public class CollectGoodsPlaceController {
 			rest.setData(collectGoodsPlaceService.savePalceType(condition));
 
 		} catch (Exception e) {
-			logger.error("fail to save！"+e.getMessage(),e);
+			log.error("fail to save！",e);
 			rest.toError("保存失败，服务异常！");
 		}
 		return rest;
@@ -225,7 +225,7 @@ public class CollectGoodsPlaceController {
 
 			rest.setData(collectGoodsPlaceService.deleteByIds(ids));
 		} catch (Exception e) {
-			logger.error("fail to delete！"+e.getMessage(),e);
+			log.error("fail to delete！",e);
 			rest.toError("删除失败，服务异常！");
 		}
 		return rest;

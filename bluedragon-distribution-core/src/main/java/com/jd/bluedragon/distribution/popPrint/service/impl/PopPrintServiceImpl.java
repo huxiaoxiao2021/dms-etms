@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.popPrint.service.impl;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.api.request.PopPrintRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
@@ -11,19 +10,17 @@ import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +35,7 @@ import java.util.Map;
 @Service("popPrintService")
 public class PopPrintServiceImpl implements PopPrintService {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private PopPrintDao popPrintDao;
@@ -55,7 +52,7 @@ public class PopPrintServiceImpl implements PopPrintService {
     @Override
     public PopPrint findByWaybillCode(String waybillCode) {
         if (StringUtils.isBlank(waybillCode)) {
-            logger.info("传入运单号 waybillCode 为空");
+            log.info("传入运单号 waybillCode 为空");
         }
         return popPrintDao.findByWaybillCode(waybillCode);
     }
@@ -74,7 +71,7 @@ public class PopPrintServiceImpl implements PopPrintService {
     @Override
     public List<PopPrint> findAllByWaybillCode(String waybillCode) {
         if (StringUtils.isBlank(waybillCode)) {
-            logger.info("传入运单号 waybillCode 为空");
+            log.info("传入运单号 waybillCode 为空");
         }
         return this.popPrintDao.findAllByWaybillCode(waybillCode);
     }
@@ -83,7 +80,7 @@ public class PopPrintServiceImpl implements PopPrintService {
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public int add(PopPrint popPrint) {
         if (popPrint == null) {
-            logger.info("传入popPrint 为空");
+            log.info("传入popPrint 为空");
             return 0;
         }
        return popPrintDao.add(popPrint);
@@ -117,8 +114,8 @@ public class PopPrintServiceImpl implements PopPrintService {
         Task task = this.taskService.toTask(request, eachJson);
 
         int result = this.taskService.add(task, true);
-        if (logger.isDebugEnabled()) {
-            logger.debug("平台打印补验货任务插入条数:" + result + "条,请求参数:" + JsonHelper.toJson(task));
+        if (log.isDebugEnabled()) {
+            log.debug("平台打印补验货任务插入条数:{}条,请求参数:{}" ,result, JsonHelper.toJson(task));
         }
     }
 

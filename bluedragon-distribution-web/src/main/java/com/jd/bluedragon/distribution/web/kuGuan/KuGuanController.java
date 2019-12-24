@@ -26,7 +26,7 @@ import java.util.Map;
 @RequestMapping("/kuGuan")
 public class KuGuanController {
 	
-	private final Logger logger = LoggerFactory.getLogger(KuGuanController.class);
+	private final Logger log = LoggerFactory.getLogger(KuGuanController.class);
 	
 	@Autowired
 	private StockExportManager stockExportManager;
@@ -36,7 +36,7 @@ public class KuGuanController {
 
     @Resource
     private UccPropertyConfiguration uccPropertyConfiguration;
-	
+
 	@Authorization(Constants.DMS_WEB_QUERY_KUGUANINIT)
 	@RequestMapping(value = "/goListPage", method = RequestMethod.GET)
 	public String goListpage(Model model) {
@@ -52,23 +52,32 @@ public class KuGuanController {
 		Map<String, Object> params = ObjectMapHelper
 				.makeObject2Map(kuGuanDomain);
 		if (params.get("waybillCode") == null) {
-			logger.error("根据订单号获取库管单信息参数错误");
+			log.warn("根据订单号获取库管单信息参数错误");
 			return "kuguan/kuguan";
 		}
-        ErpUserClient.ErpUser user = ErpUserClient.getCurrUser();
-		logger.info("库管单查询-queryOperateLog-user[{}]", JsonHelper.toJson(user));
+        ErpUserClient.ErpUser user = null;
+        try {
+            user = ErpUserClient.getCurrUser();
+            if(log.isInfoEnabled()){
+				log.info("库管单查询-queryOperateLog-user[{}]kuGuanDomain[{}]", JsonHelper.toJson(user), JsonHelper.toJson(kuGuanDomain));
+			}
+		} catch (Exception e) {
+            log.error("库管单查询-queryOperateLog-kuGuanDomain[{}]",JsonHelper.toJson(kuGuanDomain),e);
+        }
         String orderCode = kuGuanDomain.getWaybillCode();
         String lKdanhao = kuGuanDomain.getlKdanhao();
 
 		try {
-			logger.info("根据订单号获取库管单信息"+params.toString());
+			if(log.isInfoEnabled()){
+				log.info("根据订单号获取库管单信息:{}", params.toString());
+			}
 			kuGuanDomain = this.queryByOrderCode(orderCode,lKdanhao);
 			
 		} catch (Exception e) {
 			kuGuanDomain = new KuGuanDomain(); 
 			kuGuanDomain.setWaybillCode(null);
 			model.addAttribute("errorMesage", "1");
-			logger.error("根据订单号获取库管单信息服务异常"+e);
+			log.error("根据订单号获取库管单信息服务异常",e);
 		}
 		if(kuGuanDomain == null){
             kuGuanDomain = new KuGuanDomain();
@@ -88,7 +97,7 @@ public class KuGuanController {
 	}
 
     private KuGuanDomain queryByOrderCode(String orderCode,String lKdanhao){
-        if(uccPropertyConfiguration.isChuguanNewInterfaceQuerySwitch()){
+        if(uccPropertyConfiguration.isChuguanNewPageQuerySwitch()){
             return chuguanExportManager.queryByOrderCode(orderCode,lKdanhao);
         }
         return stockExportManager.queryByOrderCode(orderCode,lKdanhao);

@@ -11,8 +11,8 @@ import com.jd.ioms.jsf.export.domain.OrderDetail;
 import com.jd.ql.basic.domain.Assort;
 import jd.oom.client.core.OrderLoadFlag;
 import jd.oom.client.orderfile.OrderArchiveInfo;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +25,7 @@ public class OrderWebService {
 	@Autowired
 	private  BaseService baseService;
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private PreseparateWaybillManager preseparateWaybillManager;
@@ -123,10 +123,10 @@ public class OrderWebService {
 
 				try {
 					waybill.setSiteCode(preseparateWaybillManager.getPreseparateSiteId(String.valueOf(orderId)));
-					logger.info("快生从预分拣获取预分拣站点" + orderId + "-" + waybill.getSiteCode());
+					log.info("快生从预分拣获取预分拣站点{}-{}" ,orderId, waybill.getSiteCode());
 				} catch (Exception ex) {
 					waybill.setSiteCode(order.getPartnerId());
-					logger.error("快生预分拣接口异常" + orderId, ex);
+					log.error("快生预分拣接口异常:{}" , orderId, ex);
 				}
 				waybill.setSiteName(order.getIdPickSiteName());
 				waybill.setPaymentType(order.getPaymentType());

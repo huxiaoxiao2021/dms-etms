@@ -1,16 +1,15 @@
 package com.jd.bluedragon.core.redis;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.jd.bluedragon.distribution.base.service.BaseService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import com.jd.bluedragon.distribution.base.service.BaseService;
 
 @Component
 public class TaskModeAgent {
 	
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	
 	@Autowired
 	private BaseService baseService;
@@ -40,7 +39,7 @@ public class TaskModeAgent {
 			//任务本身支持redis
 			isRedisTaskModeSupported = task.findTaskMode().equals(TaskMode.REDIS);
 		} catch (Exception e) {
-			logger.error("isTaskModeSupported 失败", e);
+			log.error("isTaskModeSupported 失败", e);
 		}
 		return isRedisTaskModeSupported;
 	}

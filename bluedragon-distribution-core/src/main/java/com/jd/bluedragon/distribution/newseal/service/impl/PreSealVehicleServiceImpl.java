@@ -203,9 +203,9 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
             if(StringUtils.isNotEmpty(dto.getSealDataCode())){
                 try {
                     redisManager.del(Constants.CACHE_KEY_PRE_SEAL_SENDCODE + dto.getSealDataCode());
-                    logger.info("已封车批次号清除缓存成功:" + dto.getSealDataCode());
+                    log.info("已封车批次号清除缓存成功:{}" , dto.getSealDataCode());
                 } catch (Throwable e) {
-                    logger.warn("已封车批次号清除缓存失败:" + dto.getSealDataCode() + ";异常：" + e.getMessage());
+                    log.warn("已封车批次号清除缓存失败:{};异常：{}",dto.getSealDataCode(), e.getMessage());
                 }
             }
         }
@@ -224,9 +224,9 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
             if(StringUtils.isNotEmpty(dto.getSealDataCode())) {
                 try {
                     redisManager.setex(Constants.CACHE_KEY_PRE_SEAL_SENDCODE + dto.getSealDataCode(), Constants.TIME_SECONDS_ONE_WEEK, String.valueOf(dto.getOperateTime().getTime()));
-                    logger.info("已封车批次号存入缓存成功:" + dto.getSealDataCode());
+                    log.info("已封车批次号存入缓存成功:{}" , dto.getSealDataCode());
                 } catch (Throwable e) {
-                    logger.warn("已封车批次号存入缓存失败:" + dto.getSealDataCode() + ";异常：" + e.getMessage());
+                    log.warn("已封车批次号存入缓存失败:{};异常：{}" ,dto.getSealDataCode(), e.getMessage());
                 }
             }
         }
@@ -269,7 +269,7 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
                 SealVehicles vo = sendCodes.get(i);
                 //未封车的批次才需要提交封车任务
                 if(newSealVehicleService.checkSendCodeIsSealed(vo.getSealDataCode())){
-                    logger.warn("一键封车批次号已封车：" + vo.getSealDataCode());
+                    log.warn("一键封车批次号已封车：{}" , vo.getSealDataCode());
                     continue;
                 }
                 SealTaskBody body = carMap.get(vo.getVehicleNumber());

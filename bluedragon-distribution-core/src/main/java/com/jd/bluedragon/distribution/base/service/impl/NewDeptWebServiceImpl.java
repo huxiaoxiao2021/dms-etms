@@ -6,15 +6,15 @@ import com.jd.common.hrm.UimHelper;
 import com.jd.ssa.domain.UserInfo;
 import com.jd.ssa.exception.SsoException;
 import com.jd.ssa.service.SsoService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 public class NewDeptWebServiceImpl implements NewDeptWebService{
 	
-	private static final Log logger = LogFactory.getLog(NewDeptWebServiceImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(NewDeptWebServiceImpl.class);
 	
 	private SsoService ssoService;
 	
@@ -22,21 +22,25 @@ public class NewDeptWebServiceImpl implements NewDeptWebService{
 	 * 校验用户密码 调用ssa服务的SsoService
 	 * @param username 用户名
 	 * @param password 密码
+	 * @param loginVersion 客户端登录接口的版本
 	 */
-	public InvokeResult<UserInfo> verify(String username, String password) {
+	public InvokeResult<UserInfo> verify(String username, String password, Byte loginVersion) {
         InvokeResult<UserInfo> result = new InvokeResult<>();
         result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
 		try {
 			String pwd = UimHelper.md5(password);
+			if (null != loginVersion && loginVersion == 1) {
+				pwd = password;
+			}
 			String remoteIp = InetAddress.getLocalHost().getHostAddress();
             UserInfo userInfo = ssoService.verify(username, pwd, remoteIp);
             result.setData(userInfo);
 		}catch(SsoException e){
-            logger.error("SsoException verify error,认证失败",e);
+            log.error("SsoException verify error,认证失败",e);
             result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
             result.setMessage(e.getMessage());
 		}catch (UnknownHostException e) {
-			logger.error("获取本地ip异常",e);
+			log.error("获取本地ip异常",e);
 			result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
 			result.setMessage("验证失败!");
 		}
@@ -55,7 +59,7 @@ public class NewDeptWebServiceImpl implements NewDeptWebService{
 
 	public static void main(String args[]){
 		NewDeptWebServiceImpl impl = new NewDeptWebServiceImpl();
-        InvokeResult<UserInfo> result = impl.verify("bjadmin","xinxibu456");
+        InvokeResult<UserInfo> result = impl.verify("bjadmin","xinxibu456", (byte)1);
 		System.out.println(result);
 	}
 }

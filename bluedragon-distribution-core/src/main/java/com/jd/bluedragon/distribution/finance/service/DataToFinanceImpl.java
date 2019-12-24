@@ -6,7 +6,8 @@ import com.jd.bluedragon.distribution.failqueue.service.DataTranTool;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.finance.wss.WaybillDataServiceWS;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Service;
 
 @Service("dataToFinanceService")
 public class DataToFinanceImpl implements DataToFinance{
-    private final static Logger logger = Logger.getLogger(DataToFinanceImpl.class);
+    private final static Logger log = LoggerFactory.getLogger(DataToFinanceImpl.class);
 
     @Autowired
     private DefaultJMQProducer deliveryToFinanceMQ;
@@ -34,7 +35,7 @@ public class DataToFinanceImpl implements DataToFinance{
                     ,JsonHelper.toJsonUseGson(sortingOrder));
 
         } catch (Exception e) {
-            logger.error("[DataToFinanceImpl.delivery2Finance]发送到mq失败,失败单号为："+task.getKeyword2());
+            log.error("[DataToFinanceImpl.delivery2Finance]发送到mq失败,失败单号为：{}", task.getKeyword2());
             return false;
         }
         return true;

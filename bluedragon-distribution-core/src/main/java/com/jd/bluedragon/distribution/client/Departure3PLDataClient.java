@@ -1,23 +1,21 @@
 package com.jd.bluedragon.distribution.client;
 
-import java.net.URLEncoder;
-import java.security.MessageDigest;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.ws.rs.core.MediaType;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.xml.security.utils.Base64;
-import org.jboss.resteasy.client.ClientRequest;
-import org.jboss.resteasy.client.ClientResponse;
-
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.failqueue.domain.DealData_Departure_3PL;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.etms.thirdpl.dto.OrderShipsDto;
 import com.jd.etms.thirdpl.dto.ThirdShipIdDto;
+import org.apache.xml.security.utils.Base64;
+import org.jboss.resteasy.client.ClientRequest;
+import org.jboss.resteasy.client.ClientResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.ws.rs.core.MediaType;
+import java.net.URLEncoder;
+import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author huangliang
@@ -26,8 +24,7 @@ import com.jd.etms.thirdpl.dto.ThirdShipIdDto;
  * 
  */
 public class Departure3PLDataClient {
-	private static final Log logger = LogFactory
-			.getLog(Departure3PLDataClient.class);
+	private static final Logger log = LoggerFactory.getLogger(Departure3PLDataClient.class);
 
 	private static final String PROTOCOLS = "http://";
 	private static final String CONTEXT = "/rest/ThirdJobNoRoutEntry/insertOrderShips";
@@ -35,8 +32,7 @@ public class Departure3PLDataClient {
 	/**
 	 * 发送发车信息到3PL,只向其传送批次号，运单号，承运商
 	 * 
-	 * @param waybillCode
-	 * @param confirmNum
+	 * @param dealData
 	 * @return
 	 */
 	public static int departure3PLData(DealData_Departure_3PL dealData) {
@@ -79,30 +75,23 @@ public class Departure3PLDataClient {
 			String bodyStr = "data=" + osdJson + "&data_validate=" + token;
 			request.body(MediaType.APPLICATION_FORM_URLENCODED, bodyStr);
 
-			logger.info("向3PL发送三方运单数据，三方运单号：" + dealData.getThirdWaybillCode()
-					+ "，承运商编码：" + dealData.getCarrierId() + "，批次号："
-					+ dealData.getSendCode() + ", 开始");
+			log.info("向3PL发送三方运单数据，三方运单号：{}，承运商编码：{}，批次号：{}, 开始"
+					,dealData.getThirdWaybillCode(),dealData.getCarrierId(),dealData.getSendCode());
 			ClientResponse<String> response = request.post(String.class);
 
 			//4.处理请求结果
 			if ("success".equals(response.getEntity())) {
-				logger.info("向3PL发送三方运单数据，三方运单号："
-						+ dealData.getThirdWaybillCode() + "，承运商编码："
-						+ dealData.getCarrierId() + "，批次号："
-						+ dealData.getSendCode() + ", 成功");
+				log.info("向3PL发送三方运单数据，三方运单号：{}，承运商编码：{}，批次号：{}, 成功"
+						,dealData.getThirdWaybillCode(),dealData.getCarrierId(),dealData.getSendCode());
 				return JdResponse.CODE_OK;
 			} else {
-				logger.error("向3PL发送三方运单数据，三方运单号："
-						+ dealData.getThirdWaybillCode() + "，承运商编码："
-						+ dealData.getCarrierId() + "，批次号："
-						+ dealData.getSendCode() + ", 失败:" + response.getEntity());
+				log.error("向3PL发送三方运单数据，三方运单号：{}，承运商编码：{}，批次号：{}, 失败:{}"
+						,dealData.getThirdWaybillCode(),dealData.getCarrierId(),dealData.getSendCode(),response.getEntity());
 				return JdResponse.CODE_SERVICE_ERROR;
 			}
 		} catch (Exception e) {
-			logger.error(
-					"向3PL发送三方运单数据，三方运单号：" + dealData.getThirdWaybillCode()
-							+ "，承运商编码：" + dealData.getCarrierId() + "，批次号："
-							+ dealData.getSendCode() + "，异常信息：", e);
+			log.error("向3PL发送三方运单数据，三方运单号：{}，承运商编码：{}，批次号：{}, 异常信息"
+					,dealData.getThirdWaybillCode(),dealData.getCarrierId(),dealData.getSendCode(),e);
 			return JdResponse.CODE_SERVICE_ERROR;
 		}
 	}

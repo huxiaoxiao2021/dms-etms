@@ -5,11 +5,7 @@ import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.receive.service.ArReceiveService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.bluedragon.distribution.transport.domain.ArSendCode;
-import com.jd.bluedragon.distribution.transport.domain.ArSendRegister;
-import com.jd.bluedragon.distribution.transport.domain.ArTransportTypeEnum;
-import com.jd.bluedragon.distribution.transport.domain.ArWaitReceive;
-import com.jd.bluedragon.distribution.transport.domain.ArWaitReceiveRequest;
+import com.jd.bluedragon.distribution.transport.domain.*;
 import com.jd.bluedragon.distribution.transport.service.ArSendCodeService;
 import com.jd.bluedragon.distribution.transport.service.ArSendRegisterService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -21,17 +17,12 @@ import com.jd.ql.dms.common.domain.ListResponse;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -46,7 +37,7 @@ import java.util.List;
 @Consumes({MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_JSON})
 public class ArReceiveResource {
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private ArSendRegisterService arSendRegisterService;
@@ -104,8 +95,8 @@ public class ArReceiveResource {
             if (StringHelper.isNotEmpty(request.getTransportName())) {
                 arSendRegister.setTransportName(request.getTransportName());
             }
-            logger.info("空铁项目待提货查询参数," + "始发城市id:" + request.getStartCityId() + ",目的城市id:" + endCityId +
-                    ",航空单号:" + request.getOrderNo() + ",运力名称:" + request.getTransportName());
+            log.info("空铁项目待提货查询参数,始发城市id:{},目的城市id:{},航空单号:{},运力名称:{}"
+                    ,request.getStartCityId(),endCityId,request.getOrderNo(), request.getTransportName());
 
             try {
                 //从发货登记表中查找待提货信息
@@ -119,7 +110,7 @@ public class ArReceiveResource {
                             formatter.format(arSendRegister1.getPlanEndTime()).toString()));
                 }
             } catch (Exception e) {
-                logger.error("空铁项目待提货查询失败，原因：" + e.getMessage());
+                log.error("空铁项目待提货查询失败",e);
                 result.setCode(com.jd.ql.dms.common.domain.JdResponse.CODE_ERROR);
                 result.setMessage(com.jd.ql.dms.common.domain.JdResponse.MESSAGE_ERROR + ":请联系研发人员");
             }
@@ -164,22 +155,22 @@ public class ArReceiveResource {
                                         sendRegisterListToRouter.add(sendRegister);
                                     }
                                 } else {
-                                    logger.warn("空铁JSF接口---根据批次号获取发货明细为空，批次号：" + arSendCode);
+                                    log.warn("空铁JSF接口---根据批次号获取发货明细为空，批次号：{}", arSendCode);
                                 }
                             }
                         } else {
-                            logger.warn("空铁JSF接口---根据发货登记id获取批次号列表为空，发货登记id：" + sendRegister.getId());
+                            log.warn("空铁JSF接口---根据发货登记id获取批次号列表为空，发货登记id：{}", sendRegister.getId());
                         }
                     }
                 } else {
-                    logger.warn("空铁JSF接口---根据入参获取发货登记列表明细为空");
+                    log.warn("空铁JSF接口---根据入参获取发货登记列表明细为空");
                 }
                 response.toSucceed();
                 response.setData(sendRegisterListToRouter);
             }
         } catch (Exception e) {
             Profiler.functionError(info);
-            logger.error("获取发货登记信息和批次信息时发生异常", e);
+            log.error("获取发货登记信息和批次信息时发生异常", e);
             response.toError("获取发货登记信息和批次信息时发生异常");
         }finally {
             Profiler.registerInfoEnd(info);
@@ -225,7 +216,7 @@ public class ArReceiveResource {
             response.toSucceed();
             response.setData(sendRegisterList);
         } catch (Exception e) {
-            logger.error("获取发货登记信息和批次信息时发生异常", e);
+            log.error("获取发货登记信息和批次信息时发生异常", e);
             response.toError("获取发货登记信息和批次信息时发生异常");
         }
         return response;
@@ -254,7 +245,7 @@ public class ArReceiveResource {
                 }
             }
         } catch (Exception e) {
-            logger.error("中心服务调用基础资料getDmsBaseSiteByCode出错 siteCode=" + siteCode, e);
+            log.error("中心服务调用基础资料getDmsBaseSiteByCode出错 siteCode={}", siteCode, e);
         }
         return cityId;
     }
@@ -285,7 +276,7 @@ public class ArReceiveResource {
             rest.setData(arSendRegisterService.findById(arSendCode.getSendRegisterId()));
         } else {
             //不再作为强制校验
-            logger.info("根据包裹号/箱号获取空铁登记信息，不存在或未操作空铁发货登记." + barcode);
+            log.warn("根据包裹号/箱号获取空铁登记信息，不存在或未操作空铁发货登记.{}", barcode);
         }
 
         return rest;

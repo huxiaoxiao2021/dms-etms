@@ -45,7 +45,7 @@ public class InventoryScanDetailServiceImpl extends BaseService<InventoryScanDet
             if (packList == null || packList.size() == 0) {
                 //抛出一个自定义的异常
                 String message = "【" + waybillCode + "】无包裹信息，无法进行盘点！";
-                logger.error(message);
+                log.warn(message);
                 throw new InventoryCustomException(message);
             }
             packageNum = packList.size();

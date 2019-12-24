@@ -55,25 +55,35 @@ public class ConstantEnums {
 
     /**
      * 出管国际业务类型映射；
-     * 字段  typeId 业务类型Id	枚举
+     * 字段
+     * typeId 业务类型 定义来自 出管
+     * text 业务类型描述 定义来自 出管
+     * logistics 自定义 是否逆向物流业务
      * https://cf.jd.com/pages/viewpage.action?pageId=175378878
      */
     public enum ChuGuanTypeId{
-        REVERSE_LOGISTICS_GOODS_REJECTION(1401,"逆向物流-先货拒收(虚入"),
-        REVERSE_LOGISTICS_MONEY_REJECTION(1402,"逆向物流-先款拒收(虚入"),
-        REVERSE_LOGISTICS_OUT(1403,"逆向物流-虚出"),
-        ORDER_MONEY_OUT(202,"订单出库-先款");
+        REVERSE_LOGISTICS_GOODS_REJECTION(1401,"逆向物流-先货拒收(虚入",true),
+        REVERSE_LOGISTICS_MONEY_REJECTION(1402,"逆向物流-先款拒收(虚入",true),
+        REVERSE_LOGISTICS_OUT(1403,"逆向物流-虚出",true),
+        ORDER_MONEY_OUT(202,"订单出库-先款",false);
         private Integer type;
         private String text;
+        private boolean logistics;
 
-        private ChuGuanTypeId(Integer type, String text) {
+        private ChuGuanTypeId(Integer type, String text,boolean logistics) {
             this.type = type;
             this.text = text;
+            this.logistics = logistics;
         }
 
-        public static boolean hasTypeId(Integer typeValue){
+        /**
+         *  判断是否是逆向物流 业务类型
+         * @param typeValue
+         * @return
+         */
+        public static boolean iSLogisticsTypeId(Integer typeValue){
             for(ChuGuanTypeId item : ChuGuanTypeId.values()){
-                if(Objects.equals(item.getType(),typeValue)){
+                if(item.isLogistics() && Objects.equals(item.getType(),typeValue)){
                     return true;
                 }
             }
@@ -86,6 +96,10 @@ public class ConstantEnums {
 
         public String getText() {
             return text;
+        }
+
+        public boolean isLogistics() {
+            return logistics;
         }
     }
 

@@ -10,20 +10,16 @@ import com.jd.bluedragon.distribution.quickProduce.domain.JoinDetail;
 import com.jd.bluedragon.distribution.quickProduce.domain.QuickProduceWabill;
 import com.jd.bluedragon.distribution.quickProduce.service.QuickProduceService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.receive.api.dto.OrderMsgDTO;
 import com.jd.ql.dms.receive.api.jsf.GetOrderMsgServiceJsf;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
 
 /**
  * 快生项目获取运单信息
@@ -31,7 +27,7 @@ import java.math.BigDecimal;
 @Service("quickProduceService")
 public class QuickProduceServiceImpl implements QuickProduceService {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     GetOrderMsgServiceJsf getOrderMsgServiceJsf;
@@ -79,7 +75,7 @@ public class QuickProduceServiceImpl implements QuickProduceService {
                 waybill=getQuickProduceWabillFromDrec(waybillCode);
         }
         if (waybill==null) {
-            logger.error("快生服务接口获取运单信息为空,单号为"+waybillCode);
+            log.warn("快生服务接口获取运单信息为空,单号为:{}",waybillCode);
             return null;
         }
 
@@ -116,7 +112,7 @@ public class QuickProduceServiceImpl implements QuickProduceService {
         Waybill waybill= null;
         OrderMsgDTO orderMsgDTO= getOrderMsgServiceJsf.getOrderAllMsgByDeliveryId(waybillCode);
         if(orderMsgDTO==null) {
-            logger.error("闪购从外单获取运单数据为空，单号为："+waybillCode);
+            log.warn("闪购从外单获取运单数据为空，单号为：{}",waybillCode);
             return waybill;
         }
         waybill=new Waybill();
@@ -155,7 +151,7 @@ public class QuickProduceServiceImpl implements QuickProduceService {
 
         }
         catch (Exception ex){
-            logger.debug(ex);
+            log.error("getWabillFromOom:{}",waybillCode,ex);
         }
         return waybill;
     }

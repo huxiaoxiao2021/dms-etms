@@ -1,15 +1,14 @@
 package com.jd.bluedragon.distribution.rest.transport;
 
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
-import com.jd.bluedragon.distribution.transport.domain.ArSendRegister;
 import com.jd.bluedragon.distribution.transport.domain.ArWaitReceive;
 import com.jd.bluedragon.distribution.transport.domain.ArWaitReceiveRequest;
 import com.jd.ql.dms.common.domain.ListResponse;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -23,7 +22,7 @@ import java.util.List;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:distribution-web-context.xml"})
 public class ArReceiveResourceTest {
-    private static final Log logger= LogFactory.getLog(ArReceiveResourceTest.class);
+    private static final Logger log = LoggerFactory.getLogger(ArReceiveResourceTest.class);
 
     @Resource
     private ArReceiveResource rest;
@@ -98,10 +97,13 @@ public class ArReceiveResourceTest {
         requests.add(request9);
 
         for(ArWaitReceiveRequest request : requests){
-            logger.info("【待提货查询接口测试参数】" + JsonHelper.toJson(request));
-
+            if(log.isInfoEnabled()){
+                log.info("【待提货查询接口测试参数】：{}", JsonHelper.toJson(request));
+            }
             ListResponse<ArWaitReceive> result= rest.getARWaitReceive(request);
-            logger.info("【待提货查询接口测试结果】"+JsonHelper.toJson(result));
+            if(log.isInfoEnabled()) {
+                log.info("【待提货查询接口测试结果】:{}", JsonHelper.toJson(result));
+            }
         }
     }
 }

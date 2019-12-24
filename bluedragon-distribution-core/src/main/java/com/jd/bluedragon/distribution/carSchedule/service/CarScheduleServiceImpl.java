@@ -13,8 +13,8 @@ import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -29,7 +29,7 @@ import java.util.*;
 @Service("carScheduleService")
 public class CarScheduleServiceImpl implements CarScheduleService {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Resource
     private CarScheduleDao carScheduleDao;
@@ -48,9 +48,9 @@ public class CarScheduleServiceImpl implements CarScheduleService {
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public void persistData(CarScheduleTo carScheduleTo) {
-        this.logger.info("CarScheduleService-->persistData方法begin...");
+        this.log.info("CarScheduleService-->persistData方法begin...");
         if(null == carScheduleTo || null == carScheduleTo.getSendCarCode() || "".equals(carScheduleTo.getSendCarCode())){
-            this.logger.info("参数错误，参数的基本信息为空,本次方法退出。");
+            this.log.info("参数错误，参数的基本信息为空,本次方法退出。");
             return;
         }
         completeDomain(carScheduleTo);
@@ -189,7 +189,7 @@ public class CarScheduleServiceImpl implements CarScheduleService {
     public Integer isSameOrg(String vehicleNumber, Integer siteCode) {
         CarScheduleTo carScheduleTo = carScheduleDao.getByVehicleNoAndSiteCode(vehicleNumber,siteCode);
         if (null == carScheduleTo ) {
-            logger.warn("车辆调度查询该车辆信息失败，车牌号为:" + vehicleNumber + ",站点为：" + siteCode);
+            log.warn("车辆调度查询该车辆信息失败，车牌号为:{},站点为：{}" ,vehicleNumber, siteCode);
             return null;
         }
         Integer createSiteCode = carScheduleTo.getCreateSiteCode();

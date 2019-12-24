@@ -9,8 +9,8 @@ import com.jd.bluedragon.distribution.inspection.service.impl.InspectionExceptio
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.JsonResult;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,7 +27,7 @@ import java.util.Map;
 @Controller
 @RequestMapping("/partnerInspection")
 public class InspectionController {
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	
 	@Autowired
 	InspectionExceptionService inspectionExceptionService;
@@ -45,7 +45,7 @@ public class InspectionController {
 	private Map<String, Object> makeObject2Map(Object obj) {
 		Map<String, Object> paramMap = new HashMap<String, Object>();
 		if (obj == null) {
-			logger.debug("转换对象为空");
+			log.warn("转换对象为空");
 			return paramMap;
 		}
 		try {
@@ -58,13 +58,13 @@ public class InspectionController {
 					if (targetValueObj != null) {
 						if (targetValueObj instanceof Integer) {
 							if ((Integer) targetValueObj < 0) {
-								logger.debug("方法名：" + methodName + " 的值小于0");
+								log.warn("方法名：{} 的值小于0", methodName);
 								continue;
 							}
 						} else if (targetValueObj instanceof String 
 								&& "".equals(targetValueObj.toString())) {
 							//if ("".equals(targetValueObj.toString())) {
-								logger.debug("方法名：" + methodName + " 的值为空");
+								log.warn("方法名：{} 的值为空", methodName);
 								continue;
 							//}
 						}
@@ -74,7 +74,7 @@ public class InspectionController {
 				}
 			}
 		} catch (Exception e) {
-			logger.error("将对象转换为Map异常：", e);
+			log.error("将对象转换为Map异常：", e);
 		}
 		return paramMap;
 	}
@@ -94,7 +94,7 @@ public class InspectionController {
 			ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
 			sortingCenters = baseService.getSiteInfoByBaseStaffId(erpUser.getUserId());
 		} catch (Exception e) {
-            logger.error("根据用户获取分拣中心异常：", e);
+            log.error("根据用户获取分拣中心异常：", e);
 		}
 		model.addAttribute("sortingCenters", sortingCenters);
 	}
@@ -102,7 +102,7 @@ public class InspectionController {
     @Authorization(Constants.DMS_WEB_SORTING_PARTNERINSPECTION_R)
 	@RequestMapping(value = "/partnerDifferentList", method = RequestMethod.GET)
 	public String partnerDifferentList(InspectionEC inspectionEC, Pager pager, Model model){
-		logger.debug("按条件查询规则页面");
+		log.debug("按条件查询规则页面");
 
 		List<InspectionEC> inspectionECs = null;
 		try {
@@ -119,12 +119,12 @@ public class InspectionController {
 			// 获取总数量
 			int totalsize = inspectionExceptionService.totalThirdByParams(paramMap);
 			pager.setTotalSize(totalsize);
-			logger.info("查询符合条件的规则数量：" + totalsize);
+			log.info("查询符合条件的规则数量：{}", totalsize);
 			inspectionECs = inspectionExceptionService.queryThirdByParams(paramMap);
 			
 			initBaseData(model);
 		} catch (Exception e) {
-			logger.error("根据条件查询规则数据异常：", e);
+			log.error("根据条件查询规则数据异常：", e);
 		}
 		model.addAttribute("inspectionECs", inspectionECs);
 		model.addAttribute("inspectionDto", inspectionEC);

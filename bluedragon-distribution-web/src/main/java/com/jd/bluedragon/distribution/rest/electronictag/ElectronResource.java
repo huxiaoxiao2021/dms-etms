@@ -6,9 +6,8 @@ import com.jd.bluedragon.distribution.api.response.ElectronSiteResponse;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
 import com.jd.bluedragon.distribution.electron.service.ElectronSiteService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -28,7 +27,7 @@ import javax.ws.rs.core.MediaType;
 @Produces( { MediaType.APPLICATION_JSON })
 public class ElectronResource {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private ElectronSiteService electronSiteService;
@@ -47,8 +46,8 @@ public class ElectronResource {
 			@PathParam("waybillorPackCode") String waybillorPackCode) {
 		Assert.notNull(dmsID, "dmsID must not be null");
 		Assert.notNull(waybillorPackCode, "waybillorPackCode must not be null");
-		this.logger.info("dmsID：   " + dmsID);
-		this.logger.info("waybillorPackCode：    " + waybillorPackCode);
+		this.log.info("dmsID：  {}", dmsID);
+		this.log.info("waybillorPackCode：  {}", waybillorPackCode);
 		ElectronSite electronSite = new ElectronSite();
 		String aWaybillCode = WaybillUtil.getWaybillCode(waybillorPackCode);
 		electronSite = electronSiteService.getElecSiteInfo(dmsID, aWaybillCode);
@@ -75,8 +74,8 @@ public class ElectronResource {
 			@PathParam("taskAreaNo") Integer taskAreaNo) {
 		Assert.notNull(dmsID, "dmsID must not be null");
 		Assert.notNull(taskAreaNo, "waybillorPackCode must not be null");
-		this.logger.info("dmsID：   " + dmsID);
-		this.logger.info("taskAreaNo：    " + taskAreaNo);
+		this.log.info("dmsID：   {}", dmsID);
+		this.log.info("taskAreaNo：  {}  ", taskAreaNo);
 		ElectronSite electronSite = new ElectronSite();
 		electronSite = electronSiteService.getTaskAreaNo(dmsID, taskAreaNo);
 		if (electronSite == null) {

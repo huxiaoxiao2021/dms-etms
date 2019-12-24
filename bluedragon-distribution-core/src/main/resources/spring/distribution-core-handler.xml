@@ -34,6 +34,8 @@
 				<entry key="100107"  value-ref="sitePlatePrint"/>
 				<entry key="100108"  value-ref="basicPrint"/>
 				<entry key="100109"  value-ref="basicPrint"/>
+				<!-- 收纳暂存打印 -->
+				<entry key="100110"  value-ref="basicPrint"/>
 			</map>
 		</property>
 	</bean>
@@ -60,6 +62,8 @@
                 <entry key="100309"  value-ref="generatePdfPackagePrint"/>
 				<!-- 终端包裹打印 -->
 				<entry key="100310"  value-ref="getBasicPrintInfo"/>
+				<!-- 终端函速达包裹打印 -同站长工作台-->
+				<entry key="100311"  value-ref="packageReprint"/>				
 			</map>
 		</property>
 	</bean>

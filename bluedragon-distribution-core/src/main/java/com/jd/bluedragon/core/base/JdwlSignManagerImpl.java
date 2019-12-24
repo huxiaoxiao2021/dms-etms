@@ -71,7 +71,7 @@ public class JdwlSignManagerImpl implements JdwlSignManager {
             if(actionSlimDtoRs.getResult()){
                 return true;
             }else{
-                log.warn("调用线上签传输数据接口失败{} 返回结果：{}",JsonHelper.toJson(printOnlineModalDTO),JsonHelper.toJson(actionSlimDtoRs));
+                log.error("调用线上签传输数据接口失败{} 返回结果：{}",JsonHelper.toJson(printOnlineModalDTO),JsonHelper.toJson(actionSlimDtoRs));
                 return false;
             }
 

@@ -12,6 +12,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -29,7 +30,7 @@ import java.util.List;
 @Produces({ MediaType.APPLICATION_JSON })
 public class AllianceBusiResouse {
 
-    private org.slf4j.Logger logger = LoggerFactory.getLogger(AllianceBusiResouse.class);
+    private Logger log = LoggerFactory.getLogger(AllianceBusiResouse.class);
 
     @Autowired
     private AllianceBusiDeliveryDetailService allianceBusiDeliveryDetailService;
@@ -48,7 +49,7 @@ public class AllianceBusiResouse {
         try{
             result = allianceBusiDeliveryDetailService.allianceBusiDelivery(dto);
         }catch (Exception e){
-            logger.error("加盟商交接异常Rest"+ JsonHelper.toJson(dto),e);
+            log.error("加盟商交接异常Rest：{}", JsonHelper.toJson(dto),e);
             result.setCode(BaseEntity.CODE_SERVICE_ERROR);
             result.setMessage(BaseEntity.MESSAGE_SERVICE_ERROR);
         }
@@ -69,7 +70,7 @@ public class AllianceBusiResouse {
         try{
             result.setData(allianceBusiDeliveryDetailService.checkExist(waybillCode));
         }catch (Exception e){
-            logger.error("加盟商校验已交接异常Rest"+ waybillCode,e);
+            log.error("加盟商校验已交接异常Rest:{}", waybillCode,e);
             result.setCode(BaseEntity.CODE_SERVICE_ERROR);
             result.setMessage(BaseEntity.MESSAGE_SERVICE_ERROR);
         }
@@ -100,7 +101,7 @@ public class AllianceBusiResouse {
             }
 
         }catch (Exception e){
-            logger.error("加盟商校验余额异常Rest"+ waybillCode,e);
+            log.error("加盟商校验余额异常Rest:{}", waybillCode,e);
             result.setCode(BaseEntity.CODE_SERVICE_ERROR);
             result.setMessage(BaseEntity.MESSAGE_SERVICE_ERROR);
         }
@@ -129,7 +130,7 @@ public class AllianceBusiResouse {
                 result.setData(BusinessUtil.isForeignForward(baseEntity.getData().getWaybill().getWaybillSign()) && BusinessUtil.isAllianceBusi(baseEntity.getData().getWaybill().getWaybillSign()));
             }
         }catch (Exception e){
-            logger.error("运单是否为加盟商运单异常Rest"+ waybillCode,e);
+            log.error("运单是否为加盟商运单异常Rest:{}", waybillCode,e);
             result.setCode(BaseEntity.CODE_SERVICE_ERROR);
             result.setMessage(BaseEntity.MESSAGE_SERVICE_ERROR);
         }
@@ -162,7 +163,7 @@ public class AllianceBusiResouse {
                 }
             }
         }catch (Exception e){
-            logger.error("此单是否归属此加盟商站点异常Rest"+ waybillCode,e);
+            log.error("此单是否归属此加盟商站点异常Rest:{}", waybillCode,e);
             result.setCode(BaseEntity.CODE_SERVICE_ERROR);
             result.setMessage(BaseEntity.MESSAGE_SERVICE_ERROR);
         }

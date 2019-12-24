@@ -58,9 +58,7 @@ public class ChuguanExportManagerImpl implements ChuguanExportManager{
                         ,JsonHelper.toJson(chuguanParamList),JsonHelper.toJson(callerParam),JsonHelper.toJson(result));
                 return 0;
             }
-            if(log.isDebugEnabled()){
-                log.debug("新出管接口写入成功-chuguanParamList[{}]result[{}]",JsonHelper.toJson(chuguanParamList),JsonHelper.toJson(result));
-            }
+            log.info("新出管接口写入成功-chuguanParamList[{}]result[{}]",JsonHelper.toJson(chuguanParamList),JsonHelper.toJson(result));
             return 1;//表示推送成功
         }catch(Exception e){
             log.error("新出管接口写入报错chuguanParamList[{}]",JsonHelper.toJson(chuguanParamList),e);

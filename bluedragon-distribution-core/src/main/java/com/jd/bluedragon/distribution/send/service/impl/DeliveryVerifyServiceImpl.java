@@ -14,8 +14,8 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +29,7 @@ import java.util.List;
 @Service("deliveryVerifyService")
 public class DeliveryVerifyServiceImpl implements DeliveryVerifyService {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private BoxService boxService;
@@ -75,11 +75,11 @@ public class DeliveryVerifyServiceImpl implements DeliveryVerifyService {
                         this.receiveSiteVerify(box.getReceiveSiteCode(), receiveSiteCode, response);
                     }
                 } else {
-                    this.receiveSiteVerify(box.getReceiveSiteCode(), receiveSiteCode, response);
+                    this.receiveSiteAndBelongSiteVerify(box.getReceiveSiteCode(), receiveSiteCode, response);
                 }
             }
         } catch (Exception e) {
-            logger.error("[一车一单发货]按箱发货校验异常，请求参数：" + JsonHelper.toJson(request), e);
+            log.error("[一车一单发货]按箱发货校验异常，请求参数：{}" , JsonHelper.toJson(request), e);
             response.toError();
         }
         return response;
@@ -142,6 +142,32 @@ public class DeliveryVerifyServiceImpl implements DeliveryVerifyService {
      */
     private void receiveSiteVerify(Integer boxReceiveSiteCode, Integer sendCodeReceiveSiteCode, JdVerifyResponse response) {
         if (!boxReceiveSiteCode.equals(sendCodeReceiveSiteCode)) {
+            JdVerifyResponse.MsgBox msgBox = new JdVerifyResponse.MsgBox();
+            msgBox.setMsg("箱号的收货站点与发货批次站点不一致，是否继续？");
+            msgBox.setType(MsgBoxTypeEnum.CONFIRM);
+            response.addBox(msgBox);
+
+        }
+    }
+
+    /**
+     * 箱子目的地以及所属站与批次目的地校验
+     *
+     * @param boxReceiveSiteCode
+     * @param receiveSiteCode
+     * @param response
+     */
+    private void receiveSiteAndBelongSiteVerify(Integer boxReceiveSiteCode, Integer receiveSiteCode, JdVerifyResponse response) {
+        if (! receiveSiteCode.equals(boxReceiveSiteCode)) {
+            BaseStaffSiteOrgDto receiveSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(boxReceiveSiteCode);
+            //如果站点类型符合可能存在所属站的逻辑，取所属站判断
+            if (receiveSiteOrgDto != null && BusinessUtil.isMayBelongSiteExist(receiveSiteOrgDto.getSiteType(), receiveSiteOrgDto.getSubType())) {
+                Integer belongSiteCode = baseMajorManager.getPartnerSiteBySiteId(boxReceiveSiteCode);
+                if (receiveSiteCode.equals(belongSiteCode)) {
+                    return;
+                }
+            }
+
             JdVerifyResponse.MsgBox msgBox = new JdVerifyResponse.MsgBox();
             msgBox.setMsg("箱号的收货站点与发货批次站点不一致，是否继续？");
             msgBox.setType(MsgBoxTypeEnum.CONFIRM);

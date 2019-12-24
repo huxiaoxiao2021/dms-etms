@@ -1,27 +1,5 @@
 package com.jd.bluedragon.distribution.print.service;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-
-import com.jd.jss.JingdongStorageService;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
@@ -34,9 +12,30 @@ import com.jd.bluedragon.distribution.print.domain.JdCloudPrintResponse;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.jss.JingdongStorageService;
 import com.jd.ql.dms.print.engine.toolkit.IPrintPdfHelper;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 
@@ -48,7 +47,7 @@ import com.jd.ump.profiler.proxy.Profiler;
  */
 @Service
 public class JdCloudPrintServiceImpl implements JdCloudPrintService {
-	private static final Log logger = LogFactory.getLog(JdCloudPrintServiceImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(JdCloudPrintServiceImpl.class);
 	/**
 	 * 监控key
 	 */
@@ -135,7 +134,7 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
 		header.add("Content-Type", REST_CONTENT_TYPE);
 		header.add("Accept", REST_CONTENT_TYPE);
 		HttpEntity<String> formEntity = new HttpEntity<String>(JsonHelper.toJson(jdCloudPrintRequest), header);
-		logger.info("开始调用云打印,req:"+ jdCloudPrintRequest.getOrderNum());
+		log.info("开始调用云打印,req:{}", jdCloudPrintRequest.getOrderNum());
 		long startTime = System.currentTimeMillis();
 		ResponseEntity<String> responseEntity = template.postForEntity(jdCloudIdcPrintUrl, formEntity, String.class);
 		if (responseEntity != null && HttpStatus.OK.equals(responseEntity.getStatusCode())) {
@@ -149,7 +148,7 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
 		}else{
 			printResult.toError("调用云打印IDC服务失败！");
 		}
-		logger.info("调用云打印结束,cost:"+(System.currentTimeMillis() - startTime)+"ms,resp:"+ JsonHelper.toJson(responseEntity));
+		log.info("调用云打印结束,cost:{}ms,resp:{}",(System.currentTimeMillis() - startTime), JsonHelper.toJson(responseEntity));
 		Profiler.registerInfoEnd(callerInfo);
 		return printResult;
 	}
@@ -161,7 +160,7 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
 	private <M> JdResult<List<JdCloudPrintResponse>> localPdfPrint(JdCloudPrintRequest<M> jdCloudPrintRequest) {
 		CallerInfo callerInfo = ProfilerHelper.registerInfo(UMP_KEY+"localPdfPrint");
 		JdResult<List<JdCloudPrintResponse>> printResult = new JdResult<List<JdCloudPrintResponse>>();
-		logger.info("开始生成pdf,req:"+ jdCloudPrintRequest.getOrderNum());
+		log.info("开始生成pdf,req:{}", jdCloudPrintRequest.getOrderNum());
 		long startTime = System.currentTimeMillis();
 
 			String pdfFileName = jdCloudPrintRequest.getOrderNum()+"-"+System.currentTimeMillis()+".pdf";
@@ -188,7 +187,7 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
 			printResult.toSuccess();
 		} catch (Throwable e) {
 			Profiler.functionError(callerInfo);
-			logger.error("本地生成pdf失败！", e);
+			log.error("本地生成pdf失败！", e);
 			printResult.toError("生成pdf失败！");
 		}finally{
 			Profiler.registerInfoEnd(callerInfo);
@@ -196,11 +195,11 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
 				try {
 					outputStream.close();
 				} catch (IOException e) {
-					logger.error("OutPutStream关闭失败", e);
+					log.error("OutPutStream关闭失败", e);
 				}
 			}
 		}
-		logger.info("生成pdf结束,cost:"+(System.currentTimeMillis() - startTime)+"ms,resp:"+ JsonHelper.toJson(printResult));
+		log.info("生成pdf结束,cost:{}ms,resp:{}",(System.currentTimeMillis() - startTime), JsonHelper.toJson(printResult));
 		return printResult;
 	}
 	/**

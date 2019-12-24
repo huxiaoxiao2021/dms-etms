@@ -2,8 +2,8 @@ package com.jd.bluedragon.distribution.sorting.service;
 
 import com.jd.bluedragon.distribution.sorting.dao.SortingExceptionDao;
 import com.jd.bluedragon.distribution.sorting.domain.SortingException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -16,7 +16,7 @@ import java.util.List;
 @Service("SortingExceptionService")
 public class SortingExceptionServiceImpl implements SortingExceptionService {
 
-    private static final Log logger= LogFactory.getLog(SortingExceptionServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(SortingExceptionServiceImpl.class);
 
     @Autowired
     @Qualifier("sortingExceptionDao")
@@ -29,7 +29,7 @@ public class SortingExceptionServiceImpl implements SortingExceptionService {
      */
     @Override
     public int add(SortingException domain) {
-        logger.info(domain.toString());
+        log.info(domain.toString());
         return this.sortingExceptionDao.add(domain);
     }
 

@@ -5,8 +5,8 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.ArAbnormalRequest;
 import com.jd.bluedragon.distribution.api.response.ArAbnormalResponse;
 import com.jd.bluedragon.distribution.arAbnormal.ArAbnormalService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +26,7 @@ import javax.ws.rs.core.MediaType;
 @Consumes({ MediaType.APPLICATION_JSON })
 @Produces({ MediaType.APPLICATION_JSON })
 public class ArAbnormalResource {
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     ArAbnormalService arAbnormalService;
@@ -37,7 +37,7 @@ public class ArAbnormalResource {
         try{
           return arAbnormalService.pushArAbnormal(request);
         }catch (Exception e) {
-            logger.error("ArAbnormalResource.pushArAbnormal操作出现异常", e);
+            log.error("ArAbnormalResource.pushArAbnormal操作出现异常", e);
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
             response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
         }

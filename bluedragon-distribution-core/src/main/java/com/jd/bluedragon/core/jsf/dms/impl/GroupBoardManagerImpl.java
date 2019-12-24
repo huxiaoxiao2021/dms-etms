@@ -24,7 +24,7 @@ import java.util.List;
 @Service("groupBoardManager")
 public class GroupBoardManagerImpl implements GroupBoardManager {
 
-    private static final Logger logger = LoggerFactory.getLogger(GroupBoardManagerImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(GroupBoardManagerImpl.class);
 
     @Autowired
     @Qualifier("groupBoardService")
@@ -36,10 +36,10 @@ public class GroupBoardManagerImpl implements GroupBoardManager {
 
         Response<String> response = groupBoardService.resuseBoards(boardList,operatorInfo);
         if(response != null && response.getCode() == 200 ){
-            logger.info("取消板关闭状态成功，板号分别为：{},操作人的ERP为：{}" , boardList.toString() ,operatorInfo.getOperatorErp());
+            log.info("取消板关闭状态成功，板号分别为：{},操作人的ERP为：{}" , boardList.toString() ,operatorInfo.getOperatorErp());
             return;
         }
-        logger.error("取消板关闭状态失败，板号分别为：{},操作人的ERP为：{}" ,boardList.toString() ,operatorInfo.getOperatorErp());
+        log.warn("取消板关闭状态失败，板号分别为：{},操作人的ERP为：{}" ,boardList.toString() ,operatorInfo.getOperatorErp());
     }
 
     @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.createBoards",jAppName= Constants.UMP_APP_NAME_DMSWEB,

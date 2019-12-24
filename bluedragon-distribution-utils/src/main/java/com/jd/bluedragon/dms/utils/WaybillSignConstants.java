@@ -154,6 +154,14 @@ public interface WaybillSignConstants {
 	 */
 	int POSITION_31 = 31;
 	char CHAR_31_9 = '9';
+
+	/**
+	 * waybillsign第36位
+	 */
+	int POSITION_36 = 36;
+	char CHAR_36_4 = '4';
+
+
 	/**
 	 * waybillsign第84位定义
 	 */

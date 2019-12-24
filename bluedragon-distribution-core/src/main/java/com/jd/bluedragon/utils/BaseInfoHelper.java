@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 
 public class BaseInfoHelper {
-	private static Logger logger = LoggerFactory.getLogger(BaseInfoHelper.class);
+	private static Logger log = LoggerFactory.getLogger(BaseInfoHelper.class);
 	private static Map<Integer,BaseStaffSiteOrgDto>  siteInfoMap=new HashMap<Integer,BaseStaffSiteOrgDto>();
 
 	public static BaseStaffSiteOrgDto getSiteInfoMap(Integer siteCode){
@@ -19,17 +19,17 @@ public class BaseInfoHelper {
 	
 	
 	public synchronized static void setSiteInfoMap(List<BaseStaffSiteOrgDto> siteInfo_list) {
-		logger.info("接受站点信息size={}",siteInfo_list.size());
+		log.debug("接受站点信息size={}",siteInfo_list.size());
 		//每次接受直接重置
 		siteInfoMap.clear();
 		for(BaseStaffSiteOrgDto baseDto:siteInfo_list){
 			Integer key=baseDto.getSiteCode();
 			if(siteInfoMap.containsKey(key)){
-				logger.info("[站点code={} 站点name={}] 更新[站点name={}]",
+				log.debug("[站点code={} 站点name={}] 更新[站点name={}]",
 						baseDto.getSiteCode(),siteInfoMap.get(key).getSiteName(),baseDto.getSiteName());
 			}
 			siteInfoMap.put(baseDto.getSiteCode(), baseDto);
 		}
-		logger.info("设置站点信息size={}",siteInfoMap.size());
+		log.debug("设置站点信息size={}",siteInfoMap.size());
 	}
 }

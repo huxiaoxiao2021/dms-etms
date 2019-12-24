@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ import com.jd.bluedragon.utils.StringHelper;
 @Service
 public class PopPickupServiceImpl implements PopPickupService {
 	
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	
 	@Autowired
 	private PopPickupDao popPickupDao;
@@ -77,7 +77,7 @@ public class PopPickupServiceImpl implements PopPickupService {
 			//pushPackageToMqService.pubshMq(MQ_KEY, mq, popPickupRequest.getPackageBarcode());
             dmsPopPickupMQ.send(popPickupRequest.getPackageBarcode(),mq);
 		}catch(Exception e){
-			this.logger.error("PopPickupServiceImpl.pushPopPickupRequest to MQ error",e);
+			this.log.error("PopPickupServiceImpl.pushPopPickupRequest to MQ error",e);
 			throw e;
 		}
 	}

@@ -1,22 +1,20 @@
 package com.jd.bluedragon.distribution.rest.mq;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.UmpAlertRequest;
 import com.jd.bluedragon.distribution.api.request.WmsOrderPackagesRequest;
 import com.jd.bluedragon.distribution.packageToMq.service.IPushPackageToMqService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 
 @Component
 @Path(Constants.REST_URL)
@@ -24,7 +22,7 @@ import com.jd.bluedragon.distribution.packageToMq.service.IPushPackageToMqServic
 @Produces({ MediaType.APPLICATION_JSON })
 public class PushMqResource {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private IPushPackageToMqService pushMqService;
@@ -32,12 +30,12 @@ public class PushMqResource {
     @POST
     @Path("/pushmq/pushmq")
     public JdResponse pushOrderToMq(WmsOrderPackagesRequest orderPackages) {
-        this.logger.info("WMS库房调用DMS_WEB推送包裹信息到MQ");
+        this.log.debug("WMS库房调用DMS_WEB推送包裹信息到MQ");
         try{
         	pushMqService.pushPackageToMq(orderPackages);
         	return getSuccessResponse();
         }catch(Exception e){
-        	this.logger.error("WMS库房调用DMS_WEB推送包裹信息到MQ_失败",e);
+        	this.log.error("WMS库房调用DMS_WEB推送包裹信息到MQ_失败",e);
         	return getErrorResponse();
         }
     }
@@ -45,17 +43,16 @@ public class PushMqResource {
     @POST
     @Path("/pushump/pushump")
     public JdResponse pushUmpAlert(UmpAlertRequest umpAlertRequest) {
-        this.logger.info("WMS库房调用DMS_WEB出发UMP自定义报警");
+        this.log.debug("WMS库房调用DMS_WEB出发UMP自定义报警");
         try{
         	String key = umpAlertRequest.getKey();
         	String area = umpAlertRequest.getArea();
         	String time = umpAlertRequest.getTime();
         	String msg = umpAlertRequest.getMsg();
-        	this.logger.info("WMS库房调用DMS_WEB出发UMP自定义报警:UMP-KEY[" + key + "],机房[" + area + "],推送时间[" + time + "],推送内容[" + msg + "]");
         	pushMqService.pushAlert(key,msg);
         	return getSuccessResponse();
         }catch(Exception e){
-        	this.logger.error("WMS库房调用DMS_WEB出发UMP自定义报警_失败",e);
+        	this.log.error("WMS库房调用DMS_WEB出发UMP自定义报警_失败",e);
         	return getErrorResponse();
         }
     }
@@ -63,17 +60,16 @@ public class PushMqResource {
     @POST
     @Path("/pushump/package/handover")
     public JdResponse pushPackageHandoverUMP(UmpAlertRequest umpAlertRequest){
-        this.logger.info("大福线自动分拣出发UMP自定义报警");
+        this.log.debug("大福线自动分拣出发UMP自定义报警");
         try{
             String key = umpAlertRequest.getKey();
             String area = umpAlertRequest.getArea();
             String time = umpAlertRequest.getTime();
             String msg = umpAlertRequest.getMsg();
-            this.logger.info("大福线自动分拣出发UMP自定义报警:UMP-KEY[" + key + "],分拣中心[" + area + "],推送时间[" + time + "],推送内容[" + msg + "]");
             pushMqService.pushAlert(key,msg);
             return getSuccessResponse();
         }catch(Exception e){
-            this.logger.error("大福线自动分拣出发UMP自定义报警失败",e);
+            this.log.error("大福线自动分拣出发UMP自定义报警失败",e);
             return getErrorResponse();
         }
     }

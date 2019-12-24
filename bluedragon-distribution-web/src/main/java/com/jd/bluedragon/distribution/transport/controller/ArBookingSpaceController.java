@@ -1,26 +1,6 @@
 package com.jd.bluedragon.distribution.transport.controller;
 
-import java.util.Date;
-import java.util.List;
-
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.uim.annotation.Authorization;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
-
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.basic.DataResolver;
 import com.jd.bluedragon.distribution.basic.ExcelDataResolverFactory;
@@ -30,9 +10,23 @@ import com.jd.bluedragon.distribution.transport.domain.ArBookingSpaceCondition;
 import com.jd.bluedragon.distribution.transport.service.ArBookingSpaceService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.uim.annotation.Authorization;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * 
@@ -46,7 +40,7 @@ import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 @RequestMapping("transport/arBookingSpace")
 public class ArBookingSpaceController {
 	
-	private static final Log logger = LogFactory.getLog(ArBookingSpaceController.class);
+	private static final Logger log = LoggerFactory.getLogger(ArBookingSpaceController.class);
 	
 	@Autowired
 	ArBookingSpaceService arBookingSpaceService;
@@ -126,7 +120,7 @@ public class ArBookingSpaceController {
     	try {
 			rest.setData(arBookingSpaceService.saveOrUpdate(arBookingSpace,userCode,userName,createSiteCode,createSiteName));
 		} catch (Exception e) {
-			logger.error("fail to save！"+e.getMessage(),e);
+			log.error("fail to save！",e);
 			rest.toError("保存失败，服务异常！");
 		}
     	return rest;
@@ -142,7 +136,7 @@ public class ArBookingSpaceController {
     	try {
 			rest.setData(arBookingSpaceService.deleteByIds(ids));
 		} catch (Exception e) {
-			logger.error("fail to delete！"+e.getMessage(),e);
+			log.error("fail to delete！",e);
 			rest.toError("删除失败，服务异常！");
 		}
     	return rest;
@@ -178,7 +172,7 @@ public class ArBookingSpaceController {
 			return new ModelAndView(new DefaultExcelView(), model.asMap());
 
 		} catch (Exception e) {
-			logger.error("toExport:" + e.getMessage(), e);
+			log.error("toExport:{}", e.getMessage(), e);
 			return null;
 		}
 	}
@@ -187,7 +181,7 @@ public class ArBookingSpaceController {
 	@Authorization(Constants.DMS_WEB_TRANSPORT_ARBOOKINGSPACE_R)
 	@RequestMapping(value = "/uploadExcel", method = RequestMethod.POST)
 	public @ResponseBody JdResponse uploadExcel( @RequestParam("importExcelFile") MultipartFile file) {
-		logger.debug("uploadExcelFile begin...");
+		log.debug("uploadExcelFile begin...");
 		String errorString = "";
 		try {
 
@@ -238,7 +232,7 @@ public class ArBookingSpaceController {
 			if (e instanceof IllegalArgumentException) {
 				errorString = e.getMessage();
 			} else {
-				logger.error("导入异常信息：", e);
+				log.error("导入异常信息：", e);
 				errorString = "导入出现异常";
 			}
 			return new JdResponse(JdResponse.CODE_FAIL,errorString);

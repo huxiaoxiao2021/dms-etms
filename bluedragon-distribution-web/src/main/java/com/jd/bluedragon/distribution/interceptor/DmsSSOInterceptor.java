@@ -2,7 +2,8 @@ package com.jd.bluedragon.distribution.interceptor;
 
 import com.jd.common.web.LoginContext;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -14,7 +15,7 @@ import java.util.List;
 
 public class DmsSSOInterceptor implements HandlerInterceptor {
 
-    private final Logger logger = Logger.getLogger(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
     private String excludePath;
     private List<String> excludePathCache;
 
@@ -42,7 +43,7 @@ public class DmsSSOInterceptor implements HandlerInterceptor {
             return true;
         }
         if (!currUserCode.equals(loginContext.getPin())) {
-            logger.error("用户不一致：" + currUserCode + "!=" +loginContext.getPin());
+            log.warn("用户不一致：{} != {}",currUserCode, loginContext.getPin());
             response.setStatus(888);
             return false;
         }

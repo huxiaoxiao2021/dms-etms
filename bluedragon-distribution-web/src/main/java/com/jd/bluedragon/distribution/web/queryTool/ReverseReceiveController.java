@@ -8,8 +8,8 @@ import com.jd.bluedragon.distribution.queryTool.domain.ReverseReceiveRequest;
 import com.jd.bluedragon.distribution.queryTool.service.ReverseReceiveService;
 import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,7 +30,7 @@ public class ReverseReceiveController {
     @Autowired
     ReverseReceiveService queryReverseReceiveService;
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Authorization(Constants.DMS_WEB_TOOL_REVERSERECEIVE_R)
     @RequestMapping("/index")
@@ -44,7 +44,7 @@ public class ReverseReceiveController {
     public QueryBaseResponse<Pager<List<ReverseReceive>>> query(ReverseReceiveRequest request, Pager<List<ReverseReceive>> pager) {
         QueryBaseResponse<Pager<List<ReverseReceive>>> queryBaseResponse = new QueryBaseResponse<Pager<List<ReverseReceive>>>();
         try {
-            logger.info("reverse_receive 表查询");
+            log.info("reverse_receive 表查询");
 
             Map<String, Object> params = ObjectMapHelper.makeObject2Map(request);
             List<ReverseReceive> resultList = queryReverseReceiveService.queryByCondition(params, pager);
@@ -60,7 +60,7 @@ public class ReverseReceiveController {
         } catch (Exception e) {
             queryBaseResponse.setData(null);
             queryBaseResponse.setCode(queryBaseResponse.CODE_EXCEPTION);
-            logger.info("查询reverse_service表失败. "+e.getMessage());
+            log.error("查询reverse_service表失败. ", e);
             queryBaseResponse.setMessage("查询reverse_service表失败");
         }
 

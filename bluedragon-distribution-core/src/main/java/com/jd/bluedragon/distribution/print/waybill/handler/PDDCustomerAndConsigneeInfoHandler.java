@@ -11,6 +11,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.crossbow.pdd.domain.PDDResponse;
 import com.jd.bluedragon.external.crossbow.pdd.domain.PDDWaybillDetailDto;
 import com.jd.bluedragon.external.crossbow.pdd.service.PDDService;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
@@ -20,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
-import java.util.List;
 
 /**
  * <p>
@@ -32,7 +32,7 @@ import java.util.List;
 @Service("pddCustomerAndConsigneeInfoHandler")
 public class PDDCustomerAndConsigneeInfoHandler implements InterceptHandler<WaybillPrintContext, String> {
 
-    private static final Logger logger = LoggerFactory.getLogger(PDDCustomerAndConsigneeInfoHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(PDDCustomerAndConsigneeInfoHandler.class);
 
     @Autowired
     private PDDService pddService;
@@ -49,13 +49,13 @@ public class PDDCustomerAndConsigneeInfoHandler implements InterceptHandler<Wayb
         String waybillCode = WaybillUtil.getWaybillCode(context.getRequest().getBarCode());
         /* 非拼多多订单不走获取拼多多数据逻辑 */
         if (!WaybillUtil.isPDDWaybillCode(waybillCode)) {
-            logger.info("该单不是拼多多单，不需要从拼多多接口中获取收寄件人信息：{}", waybillCode);
+            log.info("该单不是拼多多单，不需要从拼多多接口中获取收寄件人信息：{}", waybillCode);
             return result;
         }
 
         /* 10*5的面单无需获取拼多多面单联系人逻辑 */
         if (DmsPaperSize.PAPER_SIZE_CODE_1005.equals(context.getRequest().getPaperSizeCode())) {
-            logger.info("该单打印的是10*5面单，不需要从拼多多接口中获取收寄件人信息：{}", waybillCode);
+            log.info("该单打印的是10*5面单，不需要从拼多多接口中获取收寄件人信息：{}", waybillCode);
             return result;
         }
 
@@ -65,7 +65,7 @@ public class PDDCustomerAndConsigneeInfoHandler implements InterceptHandler<Wayb
         if(dto!=null && Integer.valueOf(64).equals(dto.getSiteType())){
             if(notNeedPddOfPrintType(context.getRequest().getOperateType())){
                 result.toFail(MessageFormat.format("该单【{0}】为拼多多订单，请补打标签尺寸为10*5的包裹签", waybillCode));
-                logger.info(result.getMessage());
+                log.info(result.getMessage());
                 return result;
             }
         }
@@ -75,16 +75,21 @@ public class PDDCustomerAndConsigneeInfoHandler implements InterceptHandler<Wayb
                 && context.getBigWaybillDto().getWaybill().getReceiverMobile().indexOf('*') == -1)
             || (StringUtils.isNotBlank(context.getBigWaybillDto().getWaybill().getReceiverTel())
                 && context.getBigWaybillDto().getWaybill().getReceiverTel().indexOf('*') ==-1)){
-            logger.info(MessageFormat.format("该单【{0}】为拼多多订单，运单中的手机号或电话号非密文，不调用拼多多接口", waybillCode));
+            log.info("该单【{}】为拼多多订单，运单中的手机号或电话号非密文，不调用拼多多接口", waybillCode);
             return result;
         }
 
         PDDResponse<PDDWaybillDetailDto> pddWaybillDetailDtoPDDResponse = pddService.queryPDDWaybillByWaybillCode(waybillCode);
         if (pddWaybillDetailDtoPDDResponse == null || !Boolean.TRUE.equals(pddWaybillDetailDtoPDDResponse.getSuccess())
                 || pddWaybillDetailDtoPDDResponse.getResult() == null) {
-            logger.warn("拼多多订单信息获取失败:{}",waybillCode);
+            log.warn("拼多多订单信息获取失败:{}",waybillCode);
             result.toWeakSuccess(MessageFormat.format("该单【{0}】为拼多多订单，获取联系人信息失败", waybillCode));
             return result;
+        }
+        //用于统计拼多多面单打印获取的次数
+        if(log.isInfoEnabled()){
+            log.info("pddService.queryPDDWaybillByWaybillCode,siteCode:{},siteName:{},req:{}",
+                    context.getRequest().getSiteCode(),context.getRequest().getSiteName(), waybillCode);
         }
 
         PDDWaybillDetailDto pddWaybillDetailDto = pddWaybillDetailDtoPDDResponse.getResult();
