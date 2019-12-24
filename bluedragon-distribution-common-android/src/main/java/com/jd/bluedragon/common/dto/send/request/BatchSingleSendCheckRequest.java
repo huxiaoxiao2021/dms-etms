@@ -41,6 +41,11 @@ public class BatchSingleSendCheckRequest implements Serializable {
      */
     private int operateType;
 
+    /**
+     * 设备号
+     */
+    private String machineCode;
+
     public User getUser() {
         return user;
     }
@@ -79,5 +84,13 @@ public class BatchSingleSendCheckRequest implements Serializable {
 
     public void setOperateType(int operateType) {
         this.operateType = operateType;
+    }
+
+    public String getMachineCode() {
+        return machineCode;
+    }
+
+    public void setMachineCode(String machineCode) {
+        this.machineCode = machineCode;
     }
 }

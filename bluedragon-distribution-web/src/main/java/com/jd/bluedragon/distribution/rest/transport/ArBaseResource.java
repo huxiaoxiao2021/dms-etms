@@ -13,8 +13,8 @@ import com.jd.bluedragon.distribution.transport.service.impl.BusTypeService;
 import com.jd.ql.dms.common.domain.BusType;
 import com.jd.ql.dms.common.domain.City;
 import com.jd.ql.dms.common.domain.DictionaryInfoModel;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -33,7 +33,7 @@ import java.util.List;
 @Produces({MediaType.APPLICATION_JSON})
 public class ArBaseResource {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private ArSendRegisterService arSendRegisterService;
@@ -52,7 +52,7 @@ public class ArBaseResource {
     @GET
     @Path("/arbase/getARCommonDictionaryInfo/")
     public List<DictionaryInfoModel> getARCommonDictionaryInfo() {
-        this.logger.info("获取空铁项目城市信息和摆渡车信息列表");
+        this.log.debug("获取空铁项目城市信息和摆渡车信息列表");
 
         List<DictionaryInfoModel> result = new ArrayList<DictionaryInfoModel>();
 

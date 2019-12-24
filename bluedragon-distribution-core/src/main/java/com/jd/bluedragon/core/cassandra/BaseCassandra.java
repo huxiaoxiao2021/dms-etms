@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 public class BaseCassandra {
 
-    private static final Logger logger = LoggerFactory.getLogger(BaseCassandra.class);
+    private static final Logger log = LoggerFactory.getLogger(BaseCassandra.class);
 
     private Cluster cluster;
 
@@ -36,8 +36,7 @@ public class BaseCassandra {
                 .withSocketOptions(new SocketOptions().setKeepAlive(true).setReadTimeoutMillis(timeout))
                 .build();
 
-        logger.info("cluster name:{}",cluster.getClusterName());
-        //logger.info("{}",cluster.getMetadata().exportSchemaAsString());
+        log.info("cluster name:{}",cluster.getClusterName());
     }
     public BaseCassandra() {
     }
@@ -57,8 +56,7 @@ public class BaseCassandra {
                 .withLoadBalancingPolicy(new TokenAwarePolicy(new DCAwareRoundRobinPolicy(dataCenter)))
                 .build();
 
-        logger.info("cluster name:{}",cluster.getClusterName());
-        //logger.info("{}",cluster.getMetadata().exportSchemaAsString());
+        log.info("cluster name:{}",cluster.getClusterName());
     }
 
     public Session getSession(String keyspace){

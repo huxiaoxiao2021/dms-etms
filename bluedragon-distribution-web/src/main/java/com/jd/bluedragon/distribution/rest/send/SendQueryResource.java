@@ -6,8 +6,8 @@ import com.jd.bluedragon.distribution.send.domain.SendQuery;
 import com.jd.bluedragon.distribution.send.service.SendQueryService;
 import com.jd.bluedragon.distribution.sendprint.domain.ExpressInfo;
 import com.jd.bluedragon.distribution.sendprint.service.ThirdExpressPrintService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
@@ -26,7 +26,7 @@ import java.util.List;
 @Produces(MediaType.APPLICATION_JSON)
 public class SendQueryResource {
 
-    private final Log logger = LogFactory.getLog(SendQueryResource.class);
+    private final Logger log = LoggerFactory.getLogger(SendQueryResource.class);
 
     @Autowired
     private SendQueryService sendQueryService;
@@ -44,8 +44,8 @@ public class SendQueryResource {
     public InvokeResult<Boolean> put(SendQuery domain,@Context HttpServletRequest servletRequest){
         InvokeResult<Boolean> result=new InvokeResult<Boolean>();
         String realIP = servletRequest.getHeader("X-Forwarded-For");
-        if(logger.isInfoEnabled()) {
-            this.logger.info("SendQueryResource.put()" + realIP);
+        if(log.isInfoEnabled()) {
+            this.log.info("SendQueryResource.put()：{}", realIP);
         }
         domain.setIpAddress(realIP);
 
@@ -87,7 +87,7 @@ public class SendQueryResource {
         try {
             result=thirdExpressPrintService.getThirdExpress(packageCode);
         }catch (Throwable ex){
-            logger.error(ex);
+            log.error("获取三方面单异常",ex);
             result=new InvokeResult<ExpressInfo>();
             result.error(ex);
         }

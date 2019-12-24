@@ -1,27 +1,20 @@
 package com.jd.bluedragon.distribution.popAbnormal.helper;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.utils.PropertiesHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.utils.PropertiesHelper;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
 
 @Service("abnormalReasonManager")
 public class AbnormalReasonManager implements InitializingBean {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private Properties properties;
 	private static final String ID = "id";
@@ -40,13 +33,13 @@ public class AbnormalReasonManager implements InitializingBean {
 			this.properties = new Properties();
 			this.properties.load(inputStream);
 		} catch (IOException e) {
-			logger.error("AbnormalReasonManager load error", e);
+			log.error("AbnormalReasonManager load error", e);
 		} finally {
 			if (inputStream != null) {
 				try {
 					inputStream.close();
 				} catch (IOException e) {
-					logger.error("AbnormalReasonManager close inputStream error", e);
+					log.error("AbnormalReasonManager close inputStream error", e);
 				}
 			}
 		}
@@ -137,7 +130,7 @@ public class AbnormalReasonManager implements InitializingBean {
 		try {
 			return cachedAbnormalReasons.get(mainType).getClilds();
 		} catch (Exception e) {
-			logger.error("getSubReasonsByMainType error: mainType[" + mainType+ "]", e);
+			log.error("getSubReasonsByMainType error: mainType[{}]",mainType , e);
 			return null;
 		}
 	}

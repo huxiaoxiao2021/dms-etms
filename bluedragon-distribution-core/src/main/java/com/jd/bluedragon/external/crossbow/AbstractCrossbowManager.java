@@ -26,6 +26,8 @@ import java.lang.reflect.Type;
  *
  * @link http://lft.jd.com/docCenter?docId=2967 组件crossbow对接流程
  * @see DMSCrossbowClient
+ * @param <P> 请求参数对象
+ * @param <R> 接口返回对象
  * @author wuzuxiang
  * @since 2019/10/17
  **/
@@ -74,7 +76,7 @@ public abstract class AbstractCrossbowManager<P,R> implements InitializingBean {
             return dmsCrossbowClient.executor(crossbowConfig, JsonHelper.toJson(parameter), type);
         } catch (RuntimeException e) {
             Profiler.functionError(callerInfo);
-            logger.warn("调用物流网关crossBow组件执行调用拼多多的接口异常:", e);
+            logger.warn("通过物流网关crossBow组件调用外部接口异常:", e);
             return null;
         } finally {
             Profiler.registerInfoEnd(callerInfo);

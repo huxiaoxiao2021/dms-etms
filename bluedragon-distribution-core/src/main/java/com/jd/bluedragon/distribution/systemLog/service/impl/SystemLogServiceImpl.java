@@ -8,9 +8,9 @@ import com.jd.bluedragon.distribution.systemLog.dao.SystemlogCassandra;
 import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.distribution.systemLog.service.SystemLogService;
 import com.jd.bluedragon.utils.StringHelper;
-
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -27,7 +27,7 @@ import java.util.Map;
 @Service("SystemLogService")
 public class SystemLogServiceImpl implements SystemLogService {
 
-	private final static Logger logger = Logger.getLogger(SystemLogServiceImpl.class);
+	private final static Logger log = LoggerFactory.getLogger(SystemLogServiceImpl.class);
 
 	@Autowired
 	private SystemLogDao systemLogDao;
@@ -65,7 +65,7 @@ public class SystemLogServiceImpl implements SystemLogService {
 			}
 			return 1;
 		} catch (Exception e) {
-			logger.error("插入操作日志失败，失败信息为：" + e.getMessage(), e);
+			log.error("插入操作日志失败，失败信息为：", e);
 			return 0;
 		}
 	}

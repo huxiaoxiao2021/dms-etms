@@ -6,8 +6,8 @@ import com.jd.bluedragon.distribution.client.JsonUtil;
 import com.jd.bluedragon.distribution.waybill.domain.FWaybillArgs;
 import com.jd.bluedragon.distribution.waybill.domain.FWaybillResult;
 import com.jd.bluedragon.distribution.waybill.service.FWaybillExchangeService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -27,7 +27,7 @@ import javax.ws.rs.core.MediaType;
 @Produces({MediaType.APPLICATION_JSON})
 public class FWaybillExchangeResource {
 
-    private final Log logger= LogFactory.getLog(FWaybillExchangeResource.class);
+    private final Logger log = LoggerFactory.getLogger(FWaybillExchangeResource.class);
 
     /**
      * F返单换单服务
@@ -44,8 +44,10 @@ public class FWaybillExchangeResource {
     public InvokeResult<FWaybillResult> exchange(FWaybillArgs fWaybillArgs){
         //String[] arr=new String[]{"123","dfsa"};
         //fWaybillArgs.setFWaybills(arr);
-        logger.info("F返单运单换单调用"+ JsonUtil.getInstance().object2Json(fWaybillArgs));
-        logger.info("F返单运单换单调用"+fWaybillArgs.toString());
+        if(log.isInfoEnabled()){
+            log.info("F返单运单换单调用:{}", JsonUtil.getInstance().object2Json(fWaybillArgs));
+            log.info("F返单运单换单调用:{}", fWaybillArgs.toString());
+        }
         return exchangeService.exchange(fWaybillArgs);
     }
 

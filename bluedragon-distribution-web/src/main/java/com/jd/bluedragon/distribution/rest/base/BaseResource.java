@@ -1,30 +1,5 @@
 package com.jd.bluedragon.distribution.rest.base;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-
-import com.jd.bluedragon.sdk.modules.menu.dto.MenuPdaRequest;
-import com.jd.bluedragon.utils.JsonHelper;
-import org.apache.commons.lang.StringUtils;
-import org.jboss.resteasy.annotations.GZIP;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
-
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -33,13 +8,7 @@ import com.jd.bluedragon.core.base.VmsManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
-import com.jd.bluedragon.distribution.api.response.BaseDatadict;
-import com.jd.bluedragon.distribution.api.response.BaseResponse;
-import com.jd.bluedragon.distribution.api.response.BaseStaffResponse;
-import com.jd.bluedragon.distribution.api.response.DatadictResponse;
-import com.jd.bluedragon.distribution.api.response.LoginUserResponse;
-import com.jd.bluedragon.distribution.api.response.SysConfigResponse;
-import com.jd.bluedragon.distribution.api.response.WarehouseResponse;
+import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.base.domain.BaseSetConfig;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
@@ -51,7 +20,9 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
 import com.jd.bluedragon.distribution.version.service.ClientConfigService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.sdk.modules.menu.dto.MenuPdaRequest;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.api.common.dto.CommonDto;
 import com.jd.etms.api.common.enums.RouteProductEnum;
@@ -72,6 +43,22 @@ import com.jd.ql.basic.domain.PsStoreInfo;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.dto.SimpleBaseSite;
 import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
+import org.apache.commons.lang.StringUtils;
+import org.jboss.resteasy.annotations.GZIP;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
 
 @Component
 @Path(Constants.REST_URL)
@@ -299,6 +286,16 @@ public class BaseResource {
 	public BaseResponse login(LoginRequest request) {
 		return userService.dmsClientLogin(request);
 	}
+
+	@POST
+	@Path("/bases/newLogin")
+	public LoginUserResponse newLogin(LoginRequest request) {
+		if (log.isInfoEnabled()) {
+			log.info("login from new rest service.[{}]", JsonHelper.toJson(request));
+		}
+		return userService.clientLoginIn(request);
+	}
+
 	@POST
 	@Path("/bases/getLoginUser")
 	public JdResult<LoginUserResponse> getLoginUser(LoginRequest request) {
@@ -968,9 +965,7 @@ public class BaseResource {
 					//记录预分拣站点
 					siteCodes.add(perSiteCode);
 					//根据三方-合作站点获取三方-合作站点所属自营站点
-					if(BusinessUtil.isThreePartner(perSite.getSiteType(),perSite.getSubType())
-							|| BusinessUtil.isSchoolyard(perSite.getSiteType(),perSite.getSubType())
-							|| BusinessUtil.isRecovery(perSite.getSiteType(),perSite.getSubType())){
+					if(BusinessUtil.isMayBelongSiteExist(perSite.getSiteType(),perSite.getSubType())) {
 						Integer PartnerSite =  baseMajorManager.getPartnerSiteBySiteId(perSiteCode);
 						if(PartnerSite!=null){
 							//记录大站

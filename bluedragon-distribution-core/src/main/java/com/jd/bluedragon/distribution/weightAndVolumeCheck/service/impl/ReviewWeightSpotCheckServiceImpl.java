@@ -17,7 +17,8 @@ import com.jd.ql.dms.report.domain.BaseEntity;
 import com.jd.ql.dms.report.domain.ReviewSpotCheckDto;
 import com.jd.ql.dms.report.domain.SpotCheckQueryCondition;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,7 +40,7 @@ import java.util.Set;
 @Service("reviewWeightSpotCheckService")
 public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckService {
 
-    private Logger logger = Logger.getLogger(ReviewWeightSpotCheckServiceImpl.class);
+    private Logger log = LoggerFactory.getLogger(ReviewWeightSpotCheckServiceImpl.class);
 
     @Autowired
     private ReviewWeightSpotCheckDao reviewWeightSpotCheckDao;
@@ -243,7 +244,7 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
         try {
             List<SpotCheckInfo> spotCheckInfos = reviewWeightSpotCheckDao.queryByCondition(condition);
             if(spotCheckInfos.size() == 0){
-                logger.warn("未导入抽查任务!");
+                log.warn("未导入抽查任务!");
                 result.setRows(new ArrayList<ReviewWeightSpotCheck>());
                 result.setTotal(0);
                 return result;
@@ -300,7 +301,7 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
             result.setTotal(list.size());
 
         }catch (Exception e){
-            logger.error("查询失败!",e);
+            log.error("查询失败!",e);
             result.setRows(new ArrayList<ReviewWeightSpotCheck>());
             result.setTotal(0);
         }

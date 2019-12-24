@@ -1,16 +1,15 @@
 package com.jd.ql.dms.common.web.mvc.mybatis;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.ibatis.session.SqlSession;
-
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.api.Entity;
 import com.jd.ql.dms.common.web.mvc.api.PagerCondition;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import org.apache.ibatis.session.SqlSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 
@@ -26,7 +25,7 @@ public class BaseDao<E extends Entity> implements Dao<E>{
 	/**
 	 * 公共logger
 	 */
-	protected final Log logger = LogFactory.getLog(this.getClass());
+	protected final Logger log = LoggerFactory.getLogger(this.getClass());
 	
 	protected String nameSpace;
 	
@@ -57,7 +56,7 @@ public class BaseDao<E extends Entity> implements Dao<E>{
 		if(datas != null && !datas.isEmpty()){
 			return sqlSession.insert(this.nameSpace+".batchInsert", datas) >= 1;
 		}
-		logger.warn(this.nameSpace+".batchInsert unexecuted with empty params");
+		log.warn("{}.batchInsert unexecuted with empty params",this.nameSpace);
 		return false;
 	}
 

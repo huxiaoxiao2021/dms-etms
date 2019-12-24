@@ -12,7 +12,8 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ import java.util.HashMap;
 @Service("IPushPackageToMqService")
 public class PushPackageToMqServiceImpl implements IPushPackageToMqService {
 
-	private final Logger logger = Logger.getLogger(PushPackageToMqServiceImpl.class);
+	private final Logger log = LoggerFactory.getLogger(PushPackageToMqServiceImpl.class);
 
     @Autowired
     @Qualifier("packageMQ")
@@ -63,7 +64,7 @@ public class PushPackageToMqServiceImpl implements IPushPackageToMqService {
 			tmpwaybill.setWaybillCode(waybillno);
 			waybillmqmsg.put(waybillno, tmpwaybill);
 
-			logger.info("PushPackageToMqServiceImpl.transData 运单号[" +waybillno + "] 包裹号[" + orderPackage.getPackageSn() + "] 转换完毕，准备推送mq");
+			log.info("PushPackageToMqServiceImpl.transData 运单号[{}] 包裹号[{}] 转换完毕，准备推送mq",waybillno,orderPackage.getPackageSn());
 		}
 
 		return waybillmqmsg.values().toArray(new WaybillMqMsg[0]);
@@ -76,10 +77,11 @@ public class PushPackageToMqServiceImpl implements IPushPackageToMqService {
         		/*按照运单进行分组，businessId 是  'ORDER_PACKAGE_' + waybillno*/
         		//pubshMq("package",JsonHelper.toJson(waybillmq),MessageConstant.OrderPacke.getName() + waybillmq.getMsgObj().getWaybillCode());
                 packageMQ.send(MessageConstant.OrderPacke.getName() + waybillmq.getMsgObj().getWaybillCode(),JsonHelper.toJson(waybillmq));
-                logger.info("PushPackageToMqServiceImpl.execPush 运单号[" + waybillmq.getMsgObj().getWaybillCode() + "] 包裹数量[" + waybillmq.getMsgObj().getPackList().size() + "] 推送完毕");
+                log.info("PushPackageToMqServiceImpl.execPush 运单号[{}] 包裹数量[{}] 推送完毕"
+				,waybillmq.getMsgObj().getWaybillCode(),waybillmq.getMsgObj().getPackList().size());
         	}
         }catch(Exception e){
-        	logger.error("PushPackageToMqServiceImpl.execPush 推送MQ异常",e);
+        	log.error("PushPackageToMqServiceImpl.execPush 推送MQ异常",e);
         	throw e;
         }
 	}
@@ -101,13 +103,13 @@ public class PushPackageToMqServiceImpl implements IPushPackageToMqService {
 		try{
 			pushAlert(MQ_ERROR_UMP_ALERT_KEY,"MQ推送  业务主键:【" + key + "】超时【" + time + "ms】");
 		}catch(Exception e){
-			logger.error("PushPackageToMqServiceImpl.pushMqErrorUmpAlert 推送UMP异常",e);
+			log.error("PushPackageToMqServiceImpl.pushMqErrorUmpAlert 推送UMP异常",e);
 		}
 	}
 
 	@Override
 	public void pushAlert(String key,String msg) {
-		logger.info("PushPackageToMqServiceImpl.execPush ");
+		log.info("PushPackageToMqServiceImpl.execPush ");
 		Profiler.businessAlarm(key, new Date().getTime(), msg);
 	}
 }

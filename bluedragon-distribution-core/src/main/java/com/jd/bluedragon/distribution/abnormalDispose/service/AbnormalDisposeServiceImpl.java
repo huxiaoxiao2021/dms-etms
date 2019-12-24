@@ -29,8 +29,8 @@ import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -45,7 +45,7 @@ import java.util.*;
 @Service("abnormalDisposeService")
 public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
 
-    private static final Log logger = LogFactory.getLog(AbnormalDisposeServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(AbnormalDisposeServiceImpl.class);
     /**
      * 运单路由字段使用的分隔符
      */
@@ -82,7 +82,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
         PagerResult<AbnormalDisposeInspection> pagerResult = new PagerResult<AbnormalDisposeInspection>();
         BaseStaffSiteOrgDto currSite = baseMajorManager.getBaseSiteByDmsCode(abnormalDisposeCondition.getSiteCode());
         if (currSite == null) {
-            logger.error("当前站点不存在：" + abnormalDisposeCondition.getSiteCode());
+            log.warn("当前站点不存在：{}" , abnormalDisposeCondition.getSiteCode());
             pagerResult.setTotal(0);
             pagerResult.setRows(new ArrayList<AbnormalDisposeInspection>());
             return pagerResult;
@@ -490,7 +490,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
         PagerResult<AbnormalDisposeSend> pagerResult = new PagerResult<AbnormalDisposeSend>();
         BaseStaffSiteOrgDto currSite = baseMajorManager.getBaseSiteByDmsCode(abnormalDisposeCondition.getSiteCode());
         if (currSite == null) {
-            logger.error("当前站点不存在：" + abnormalDisposeCondition.getSiteCode());
+            log.warn("当前站点不存在：{}" , abnormalDisposeCondition.getSiteCode());
             pagerResult.setTotal(0);
             pagerResult.setRows(new ArrayList<AbnormalDisposeSend>());
             return pagerResult;
@@ -971,8 +971,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
                 abnormalQcDao.insertAbnormalQc(abnormalQc);
             }
         } catch (Exception e) {
-            logger.error("质控编码保存失败", e);
-            logger.error("保存参数" + JsonHelper.toJson(abnormalDisposeInspection));
+            log.error("质控编码保存失败,保存参数:{}" , JsonHelper.toJson(abnormalDisposeInspection),e);
             return new JdResponse<String>(JdResponse.CODE_FAIL, JdResponse.MESSAGE_FAIL);
         }
         return new JdResponse<String>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);

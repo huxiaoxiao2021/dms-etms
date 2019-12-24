@@ -6,9 +6,9 @@ import com.jd.bluedragon.distribution.wss.dto.*;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.GZIP;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
@@ -27,7 +27,7 @@ import java.util.List;
 @Consumes({ MediaType.APPLICATION_JSON })
 @Produces({ MediaType.APPLICATION_JSON })
 public class DeliveryExternalResource {
-    private static final Log logger = LogFactory.getLog(DeliveryExternalResource.class);
+    private static final Logger log = LoggerFactory.getLogger(DeliveryExternalResource.class);
     @Autowired
     private DmsExternalReadService dmsExternalReadService;
 
@@ -42,10 +42,10 @@ public class DeliveryExternalResource {
     @Path("/external/getBoxSummary/{code}/{type}/{siteCode}")
     @JProfiler(jKey = "DMSWEB.REST.DeliveryExternalResource.getBoxSummary",mState = {JProEnum.TP})
     public List<BoxSummaryDto> getBoxSummary(@PathParam("code") String code, @PathParam("type")Integer type, @PathParam("siteCode") Integer siteCode){
-        if(logger.isInfoEnabled()){
-            logger.info("code=" + code);
-            logger.info("type=" + type);
-            logger.info("siteCode=" + siteCode);
+        if(log.isInfoEnabled()){
+            log.info("code={}", code);
+            log.info("type={}", type);
+            log.info("siteCode={}", siteCode);
         }
         return dmsExternalReadService.getBoxSummary(code,type,siteCode);
     }
@@ -62,10 +62,10 @@ public class DeliveryExternalResource {
     @Path("/external/getPackageSummary/{code}/{type}/{siteCode}")
     @JProfiler(jKey = "DMSWEB.REST.DeliveryExternalResource.getPackageSummary",mState = {JProEnum.TP})
     public List<PackageSummaryDto> getPackageSummary(@PathParam("code")String code,@PathParam("type") Integer type, @PathParam("siteCode")Integer siteCode){
-        if(logger.isInfoEnabled()){
-            logger.info("code=" + code);
-            logger.info("type=" + type);
-            logger.info("siteCode=" + siteCode);
+        if(log.isInfoEnabled()){
+            log.info("code={}", code);
+            log.info("type={}", type);
+            log.info("siteCode={}", siteCode);
         }
         return dmsExternalReadService.getPackageSummary(code,type,siteCode);
     }
@@ -80,8 +80,8 @@ public class DeliveryExternalResource {
     @Path("/external/findSealByCodeSummary/{sealCode}")
     @JProfiler(jKey = "DMSWEB.REST.DeliveryExternalResource.findSealByCodeSummary",mState = {JProEnum.TP})
     public SealVehicleSummaryDto findSealByCodeSummary(@PathParam("sealCode")String sealCode){
-        if(logger.isInfoEnabled()){
-            logger.info("sealCode=" + sealCode);
+        if(log.isInfoEnabled()){
+            log.info("sealCode={}", sealCode);
         }
         return dmsExternalReadService.findSealByCodeSummary(sealCode);
     }
@@ -98,10 +98,10 @@ public class DeliveryExternalResource {
     @Path("/external/findDeliveryPackageBySiteSummary/{siteid}/{startTime}/{endTime}")
     @JProfiler(jKey = "DMSWEB.REST.DeliveryExternalResource.findDeliveryPackageBySiteSummary",mState = {JProEnum.TP})
     public List<WaybillCodeSummatyDto> findDeliveryPackageBySiteSummary(@PathParam("siteid")int siteid, @PathParam("startTime") String startTime, @PathParam("endTime") String endTime){
-        if(logger.isInfoEnabled()){
-            logger.info("siteid=" + siteid);
-            logger.info("startTime=" + startTime);
-            logger.info("endTime=" + endTime);
+        if(log.isInfoEnabled()){
+            log.info("siteid={}", siteid);
+            log.info("startTime={}", startTime);
+            log.info("endTime={}", endTime);
         }
         return dmsExternalReadService.findDeliveryPackageBySiteSummary(siteid, DateHelper.parseDateTime(startTime), DateHelper.parseDateTime(endTime));
     }
@@ -117,9 +117,9 @@ public class DeliveryExternalResource {
     @Path("/external/findDeliveryPackageByCodeSummary/{siteid}/{waybillCode}")
     @JProfiler(jKey = "DMSWEB.REST.DeliveryExternalResource.findDeliveryPackageByCodeSummary",mState = {JProEnum.TP})
     public List<WaybillCodeSummatyDto> findDeliveryPackageByCodeSummary(@PathParam("siteid")int siteid,@PathParam("waybillCode")String waybillCode){
-        if(logger.isInfoEnabled()){
-            logger.info("siteid=" + siteid);
-            logger.info("waybillCode=" + waybillCode);
+        if(log.isInfoEnabled()){
+            log.info("siteid={}", siteid);
+            log.info("waybillCode={}", waybillCode);
         }
         return dmsExternalReadService.findDeliveryPackageByCodeSummary(siteid, waybillCode);
     }
@@ -135,9 +135,9 @@ public class DeliveryExternalResource {
     @Path("/external/getWaybillsByDeparture/{code}/{type}")
     @JProfiler(jKey = "DMSWEB.REST.DeliveryExternalResource.getWaybillsByDeparture",mState = {JProEnum.TP})
     public List<DepartureWaybillDto> getWaybillsByDeparture(@PathParam("code")String code, @PathParam("type")Integer type){
-        if(logger.isInfoEnabled()){
-            logger.info("code=" + code);
-            logger.info("type=" + type);
+        if(log.isInfoEnabled()){
+            log.info("code={}", code);
+            log.info("type={}", type);
         }
         return dmsExternalReadService.getWaybillsByDeparture(code, type);
     }

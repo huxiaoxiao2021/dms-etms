@@ -13,8 +13,8 @@ import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.tbschedule.dto.ScheduleQueue;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -29,7 +29,7 @@ import java.util.Map;
 @Produces({MediaType.APPLICATION_JSON})
 public class RedisTaskResource {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     RedisTaskHelper redisTaskHelper;
@@ -92,7 +92,7 @@ public class RedisTaskResource {
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
             response.setMessage(String.valueOf(e.getMessage()));
 
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
 
         return response;
@@ -106,7 +106,7 @@ public class RedisTaskResource {
         try {
             value = redisManager.get(key);
         } catch (Exception e) {
-            logger.error("redisQuery failed", e);
+            log.error("redisQuery failed", e);
             response.setCode(JdResponse.CODE_INTERNAL_ERROR);
             response.setMessage(e.getMessage());
             return response;
@@ -135,7 +135,7 @@ public class RedisTaskResource {
         try {
             taskMode = baseService.getTaskMode();
         } catch (Exception e) {
-            logger.error("redisQuery failed", e);
+            log.error("redisQuery failed", e);
             response.setCode(JdResponse.CODE_INTERNAL_ERROR);
             response.setMessage(e.getMessage());
         }
@@ -166,31 +166,26 @@ public class RedisTaskResource {
             Boolean isExist = redisManager.exists(cachedKey);
             Long result = redisManager.lpush(cachedKey, JsonHelper.toJson(sendM));
             if (result <= 0) {
-                logger.warn("save to redis of key <" + cachedKey
-                        + "> value <" + JsonHelper.toJson(sendM) + "> fail");
+                log.warn("save to redis of key <{}> value <{}> fail",cachedKey,JsonHelper.toJson(sendM));
 
             } else {
-                logger.warn("save to redis of key <" + cachedKey
-                        + "> value <" + JsonHelper.toJson(sendM) + "> success");
+                log.warn("save to redis of key <{}> value <{}> success",cachedKey,JsonHelper.toJson(sendM));
                 if (!isExist) {
                     // 如果是列表key是第一次插入的，则设置整体的超时时间
                     Boolean expireResult = redisManager.expire(cachedKey, 5);
                     if (!expireResult) {
-                        logger.warn("set expire of key <" + cachedKey
-                                + "> second <" + 5 + "> fail, expireResult = " + expireResult);
+                        log.warn("set expire of key <{}> second <{}> fail, expireResult = {}",cachedKey,5,expireResult);
                     } else {
-                        logger.warn("set expire of key <" + cachedKey
-                                + "> second <" + 5 + "> success");
-                        logger.warn("get senm from redis of key <" + cachedKey + "> value <"
-                                + redisManager.lrange(cachedKey, 0, -1) + ">");
+                        log.warn("set expire of key <{}> second <{}> success",cachedKey,5);
+                        log.warn("get senm from redis of key <{}> value <{}> ",cachedKey,redisManager.lrange(cachedKey, 0, -1));
                         Thread.sleep(5 * 1000);
-                        logger.warn("get senm after 5 seconds from redis of key <" + cachedKey + "> value <"
-                                + redisManager.lrange(cachedKey, 0, -1) + ">");
+                        log.warn("get senm after 5 seconds from redis of key <{}> value <{}>"
+                                ,cachedKey,redisManager.lrange(cachedKey, 0, -1));
                     }
                 }
             }
         } catch (Exception ex) {
-            logger.error("save to redis throws exceptions ", ex);
+            log.error("save to redis throws exceptions ", ex);
         }
     }
 }

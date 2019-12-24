@@ -8,8 +8,8 @@ import com.jd.etms.waybill.domain.WaybillExt;
 import com.alibaba.fastjson.JSON;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -26,7 +26,7 @@ import com.jd.bluedragon.utils.StringHelper;
  */
 @Service
 public class CustomerAndConsignerInfoHandler implements Handler<WaybillPrintContext,JdResult<String>> {
-	private static final Log logger = LogFactory.getLog(CustomerAndConsignerInfoHandler.class);
+	private static final Logger log = LoggerFactory.getLogger(CustomerAndConsignerInfoHandler.class);
 	@Autowired
 	@Qualifier("hideInfoService")
 	private HideInfoService hideInfoService;
@@ -39,18 +39,18 @@ public class CustomerAndConsignerInfoHandler implements Handler<WaybillPrintCont
 	@Override
 	public JdResult<String> handle(WaybillPrintContext context) {
 		if(context == null){
-			logger.error("处理面单收/寄件信息，context为空");
+			log.warn("处理面单收/寄件信息，context为空");
 			return null;
 		}
 		if(context.getBasePrintWaybill() == null){
-			logger.error("处理面单收/寄件信息，context.BasePrintWaybill为空." + JSON.toJSONString(context));
+			log.warn("处理面单收/寄件信息，context.BasePrintWaybill为空:{}" , JSON.toJSONString(context));
 			return context.getResult();
 		}
 		//处理国际化运单的收件信息
 		internationalCustomerInfo(context);
 
 		//处理收/寄件的微笑
-		logger.info("包裹标签打印-微笑面单-隐藏电话和地址");
+		log.debug("包裹标签打印-微笑面单-隐藏电话和地址");
 		String waybillSign = "";
 		if (context.getBigWaybillDto() != null && context.getBigWaybillDto().getWaybill() != null) {
 			waybillSign = context.getBigWaybillDto().getWaybill().getWaybillSign();
@@ -92,7 +92,7 @@ public class CustomerAndConsignerInfoHandler implements Handler<WaybillPrintCont
 	 */
 	private void internationalCustomerInfo(WaybillPrintContext context) {
 		if(context.getBigWaybillDto() == null){
-			logger.error("处理国际化运单的收件信息.没有初始化运单信息" + JSON.toJSONString(context));
+			log.warn("处理国际化运单的收件信息.没有初始化运单信息:{}" , JSON.toJSONString(context));
 			return;
 		}
 

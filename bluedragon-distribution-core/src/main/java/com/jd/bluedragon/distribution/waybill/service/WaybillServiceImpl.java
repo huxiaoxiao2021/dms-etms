@@ -1,14 +1,5 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -17,7 +8,6 @@ import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillSer
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.DmsWaybillInfoResponse;
 import com.jd.bluedragon.distribution.api.response.OrderPackage;
-import com.jd.bluedragon.distribution.api.response.OrderResponse;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -47,10 +37,18 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class WaybillServiceImpl implements WaybillService {
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private WaybillStatusService waybillStatusService;
@@ -158,7 +156,7 @@ public class WaybillServiceImpl implements WaybillService {
                 waybillStatusService.sendModifyWaybillStatusNotify(taskList);
             }
         } catch (Exception e) {
-            logger.error("调用运单接口[回传运单状态]或者[置妥投]失败 \n" + JsonHelper.toJson(task) + "\n", e);
+            log.error("调用运单接口[回传运单状态]或者[置妥投]失败:{}",JsonHelper.toJson(task), e);
             return false;
         }
 
@@ -172,7 +170,7 @@ public class WaybillServiceImpl implements WaybillService {
             taskList.add(task);
             this.waybillStatusService.sendModifyWaybillTrackNotify(taskList);
         } catch (Exception e) {
-            this.logger.warn("调用运单[回传全程跟踪]服务出现异常 \n" + JsonHelper.toJson(task) + "\n", e);
+            this.log.error("调用运单[回传全程跟踪]服务出现异常：{}",JsonHelper.toJson(task), e);
             return false;
         }
         return true;
@@ -262,7 +260,7 @@ public class WaybillServiceImpl implements WaybillService {
 
         } else {
             String log = "isReverseOperationAllowed方法获取运单状态失败，waybillCode：" + waybillCode + ", siteCode：" + siteCode;
-            logger.error(log);
+            this.log.error(log);
             throw new Exception(log);
         }
 

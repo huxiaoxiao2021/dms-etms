@@ -10,8 +10,8 @@ import com.jd.bluedragon.distribution.batch.domain.BatchInfo;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -28,7 +28,7 @@ import java.util.List;
 @Service("batchInfoService")
 class BatchInfoServiceImpl implements BatchInfoService {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private static final int timeout = 172800;
 
@@ -71,7 +71,7 @@ class BatchInfoServiceImpl implements BatchInfoService {
                 redisManager.setex(getRedisKey(temp), timeout,
                         JsonHelper.toJson(temp));
             } catch (Exception e) {
-                this.logger.error("创建波次号写入缓存失败",e);
+                this.log.error("创建波次号写入缓存失败",e);
             }
         }
 
@@ -103,22 +103,22 @@ class BatchInfoServiceImpl implements BatchInfoService {
             if (batchInfoJson != null && !batchInfoJson.isEmpty()) {
                 batchCache = JsonHelper.fromJson(batchInfoJson, BatchInfo.class);
                 if (batchCache != null) {
-                    this.logger.info("findMaxCreateTimeBatchInfo缓存命中波次为" + maxbatchinfocode);
+                    this.log.info("findMaxCreateTimeBatchInfo缓存命中波次为:{}" , maxbatchinfocode);
                     //如果箱号 目的地 始发地不为空的时候
                     if (batchCache != null&&batchCache.getBatchCode() != null && batchCache.getCreateSiteCode() != null) {
                         lst.add(batchCache);
                         return lst;
                     }
                 } else {
-                    this.logger.info("findMaxCreateTimeBatchInfo没有缓存波次号" + maxbatchinfocode);
+                    this.log.info("findMaxCreateTimeBatchInfo没有缓存波次号:{}" , maxbatchinfocode);
                 }
             } else {
-                this.logger.info("findMaxCreateTimeBatchInfo缓存命中,但是消息为null,波次号为" + maxbatchinfocode);
+                this.log.info("findMaxCreateTimeBatchInfo缓存命中,但是消息为null,波次号为{}" , maxbatchinfocode);
             }
 
 
         } catch (Exception e) {
-            this.logger.error("findMaxCreateTimeBatchInfo获取缓存波次号失败，波次号为" + maxbatchinfocode, e);
+            this.log.error("findMaxCreateTimeBatchInfo获取缓存波次号失败，波次号为:{}" , maxbatchinfocode, e);
         }
 
         return batchInfoDao.findMaxCreateTimeBatchInfo(batchInfo);

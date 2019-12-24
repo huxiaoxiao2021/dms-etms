@@ -1,19 +1,18 @@
 package com.jd.bluedragon.distribution.wss.service.impl;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.jd.bluedragon.distribution.popAbnormal.domain.PopAbnormal;
 import com.jd.bluedragon.distribution.popAbnormal.domain.PopAbnormalTransferConverter;
 import com.jd.bluedragon.distribution.popAbnormal.service.PopAbnormalService;
 import com.jd.bluedragon.distribution.wss.service.PopAbnormalWssService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.XmlHelper;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author zhaohc
@@ -24,7 +23,7 @@ import com.jd.bluedragon.utils.XmlHelper;
  */
 public class PopAbnormalWssServiceImpl implements PopAbnormalWssService {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private PopAbnormalService popAbnormalService;
@@ -38,12 +37,9 @@ public class PopAbnormalWssServiceImpl implements PopAbnormalWssService {
 
 		try {
 			// 2 处理消息体
-			this.logger
-					.info("PopAbnormalWssServiceImpl updatePopPackNum --> 消息Body为【"
-							+ popAbnormalXml + "】");
+			this.log.info("PopAbnormalWssServiceImpl updatePopPackNum --> 消息Body为【{}】",popAbnormalXml);
 			if (StringUtils.isBlank(popAbnormalXml)) {
-				this.logger
-						.info("PopAbnormalWssServiceImpl updatePopPackNum --> 获取MQ数据内容为空，直接commit MQ");
+				this.log.info("PopAbnormalWssServiceImpl updatePopPackNum --> 获取MQ数据内容为空，直接commit MQ");
 				isCommit = true;
 			} else {
 				popAbnormal = XmlHelper.xmlToObject(popAbnormalXml,
@@ -55,24 +51,17 @@ public class PopAbnormalWssServiceImpl implements PopAbnormalWssService {
 						|| !BusinessHelper.checkIntNumRange(popAbnormal
 								.getConfirmNum())) {
 					if (popAbnormal != null) {
-						this.logger
-								.info("PopAbnormalWssServiceImpl updatePopPackNum --> 商家确认运单号-包裹数量为【"
-										+ popAbnormal.getOrderCode()
-										+ "-"
-										+ popAbnormal.getConfirmNum()
-										+ "】，不合要求，直接commit MQ");
+						this.log.info("PopAbnormalWssServiceImpl updatePopPackNum --> 商家确认运单号-包裹数量为【{}-{}】，不合要求，直接commit MQ"
+						,popAbnormal.getOrderCode(),popAbnormal.getConfirmNum());
 					} else {
-						this.logger
-								.info("PopAbnormalWssServiceImpl updatePopPackNum --> popAbnormal为空，不合要求，直接commit MQ");
+						this.log.info("PopAbnormalWssServiceImpl updatePopPackNum --> popAbnormal为空，不合要求，直接commit MQ");
 					}
 					isCommit = true;
 				}
 			}
 
 		} catch (Exception e) {
-			this.logger.error(
-					"PopAbnormalWssServiceImpl updatePopPackNum --> 获取MQ数据内容转换对象，内容【"
-							+ popAbnormalXml + "】，直接提交MQ， 异常：", e);
+			this.log.error("PopAbnormalWssServiceImpl updatePopPackNum --> 获取MQ数据内容转换对象，内容【{}】，直接提交MQ， 异常：",popAbnormalXml, e);
 			isCommit = true;
 		}
 
@@ -81,26 +70,19 @@ public class PopAbnormalWssServiceImpl implements PopAbnormalWssService {
 			Map<String, String> paramMap = new HashMap<String, String>();
 			paramMap.put("serialNumber", popAbnormal.getSerialNumber());
 			paramMap.put("orderCode", popAbnormal.getOrderCode());
-			this.logger
-					.info("PopAbnormalWssServiceImpl updatePopPackNum --> 验证数据，参数："
-							+ paramMap);
+			this.log.info("PopAbnormalWssServiceImpl updatePopPackNum --> 验证数据，参数：{}",paramMap);
 			try {
 				order = this.popAbnormalService.checkByMap(paramMap);
 				if (order == null) {
-					this.logger
-							.info("PopAbnormalWssServiceImpl updatePopPackNum --> 验证本地数据不存在，直接commit MQ，参数："
-									+ paramMap);
+					this.log.info("PopAbnormalWssServiceImpl updatePopPackNum --> 验证本地数据不存在，直接commit MQ，参数：{}", paramMap);
 					isCommit = true;
 				} else {
 					// 组装需要提交的参数
 					order.setConfirmNum(popAbnormal.getConfirmNum());
 					order.setConfirmTime(popAbnormal.getConfirmTime());
 
-					this.logger
-							.info("PopAbnormalWssServiceImpl updatePopPackNum --> 验证数据成功，更新数据，订单号【"
-									+ order.getOrderCode()
-									+ "】，数量【"
-									+ order.getConfirmNum() + "】");
+					this.log.info("PopAbnormalWssServiceImpl updatePopPackNum --> 验证数据成功，更新数据，订单号【{}】，数量【{}】"
+									,order.getOrderCode(), order.getConfirmNum() );
 
 					int uptCount = this.popAbnormalService
 							.updatePopPackNum(order);
@@ -108,14 +90,11 @@ public class PopAbnormalWssServiceImpl implements PopAbnormalWssService {
 						// 3 提交消息
 						isCommit = true;
 					} else {
-						this.logger.info("更新ID为“" + order.getId()
-								+ "”的数据失败,返回状态为:" + uptCount);
+						this.log.info("更新ID为{}的数据失败,返回状态为:{}",order.getId(), uptCount);
 					}
 				}
 			} catch (Exception e) {
-				this.logger.error(
-						"PopAbnormalWssServiceImpl updatePopPackNum --> 处理数据异常，参数【"
-								+ paramMap + "】", e);
+				this.log.error("PopAbnormalWssServiceImpl updatePopPackNum --> 处理数据异常，参数【{}】",paramMap, e);
 			}
 		}
 		if (isCommit) {

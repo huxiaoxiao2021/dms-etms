@@ -5,8 +5,8 @@ import com.jd.bluedragon.distribution.base.domain.KvIndex;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -19,7 +19,7 @@ import java.util.List;
  */
 public class SendDetailRouterDao extends SendDatailDao {
 
-    private static final Log logger = LogFactory.getLog(SendDetailRouterDao.class);
+    private static final Logger log = LoggerFactory.getLogger(SendDetailRouterDao.class);
 
     @Autowired
     private KvIndexDao kvIndexDao;
@@ -34,7 +34,7 @@ public class SendDetailRouterDao extends SendDatailDao {
             kvIndex.setKeyword(entity.getBoxCode());
             kvIndexDao.add(kvIndexDao.namespace, kvIndex);
         } catch (Throwable e) {
-            logger.error("保存到中间索引表失败 " + JsonHelper.toJson(entity), e);
+            log.error("保存到中间索引表失败 {}" , JsonHelper.toJson(entity), e);
         }
         return super.add(namespace, entity);
     }

@@ -60,7 +60,7 @@ public class DeliverGoodsNoticeConsumer extends MessageBaseConsumer {
             Sorting sorting = new Sorting();
             sorting.setBoxCode(context.getBoxCode());
             sorting.setCreateSiteCode(Integer.parseInt(context.getSiteCode()));
-            List<Sorting> list = sortingService.findOrderDetail(sorting);
+            List<Sorting> list = sortingService.findByBoxCode(sorting);
             if(list!=null && !list.isEmpty()){
                 Set<String> waybillCodeSet = new HashSet<>();
                 for(Sorting sort :list){

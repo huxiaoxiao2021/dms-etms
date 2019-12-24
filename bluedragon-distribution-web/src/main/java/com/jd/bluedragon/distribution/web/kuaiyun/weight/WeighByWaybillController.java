@@ -25,8 +25,8 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -52,7 +52,7 @@ import java.util.Map;
 @Controller
 @RequestMapping("/b2b/express/weight")
 public class WeighByWaybillController {
-    private static final Log logger = LogFactory.getLog(WeighByWaybillController.class);
+    private static final Logger log = LoggerFactory.getLogger(WeighByWaybillController.class);
 
     private final Double MAX_WEIGHT = 999999.99;
     private final Double MAX_VOLUME = 999.99;
@@ -130,7 +130,7 @@ public class WeighByWaybillController {
                                 vo.setOperatorSiteCode(baseStaffSiteOrgDto.getSiteCode());
                                 vo.setOperatorSiteName(baseStaffSiteOrgDto.getSiteName());
                             }else {
-                                logger.error("运单称重：未获取到当前操作人机构信息"+JsonHelper.toJson(erpUser));
+                                log.warn("运单称重：未获取到当前操作人机构信息：{}", JsonHelper.toJson(erpUser));
                                 service.errorLogForOperator(vo, LoginContext.getLoginContext(),false);
                                 if(service.isOpenIntercept()){
                                     result.setCode(InvokeResult.SERVER_ERROR_CODE);
@@ -140,7 +140,7 @@ public class WeighByWaybillController {
                                 }
                             }
                         }else {
-                            logger.error("运单称重：未获取到当前操作人信息"+JsonHelper.toJson(erpUser));
+                            log.warn("运单称重：未获取到当前操作人信息:{}", JsonHelper.toJson(erpUser));
                             service.errorLogForOperator(vo, LoginContext.getLoginContext(),false);
                             if(service.isOpenIntercept()) {
                                 result.setCode(InvokeResult.SERVER_ERROR_CODE);
@@ -159,7 +159,7 @@ public class WeighByWaybillController {
                 }
 
             } catch (Exception e) {
-                logger.error("运单称重：获取操作用户Erp账号失败"+JsonHelper.toJson(erpUser),e);
+                log.error("运单称重：获取操作用户Erp账号失败:{}", JsonHelper.toJson(erpUser),e);
                 service.errorLogForOperator(vo, LoginContext.getLoginContext(),false);
                 if(service.isOpenIntercept()) {
                     result.setCode(InvokeResult.SERVER_ERROR_CODE);
@@ -234,15 +234,15 @@ public class WeighByWaybillController {
             if (exceptionType.shouldBeThrowToTop) {
                 if (exceptionType.equals(WeightByWaybillExceptionTypeEnum.WaybillServiceNotAvailableException)) {
                     result.setCode(InvokeResult.SERVER_ERROR_CODE);
-                    logger.error("运单称重：" + exceptionType.exceptionMessage);
+                    log.warn("运单称重：{}", exceptionType.exceptionMessage);
                 }else if(exceptionType.equals(WeightByWaybillExceptionTypeEnum.WaybillNoNeedWeightException)){
                     //不称重
                     result.setCode(NO_NEED_WEIGHT);
-                    logger.debug("运单称重：" +codeStr+ "  " + exceptionType.exceptionMessage);
+                    log.warn("运单称重：{}-{} " ,codeStr, exceptionType.exceptionMessage);
                 }else if(exceptionType.equals(WeightByWaybillExceptionTypeEnum.WaybillFinishedException)){
                     //运单已经妥投，不允许录入
                     result.setCode(WAYBILL_STATE_FINISHED);
-                    logger.debug("运单称重:" + codeStr + " " +exceptionType.exceptionMessage);
+                    log.warn("运单称重:{}-{} ", codeStr, exceptionType.exceptionMessage);
                 }
                 result.setData(false);
                 result.setMessage(exceptionType.exceptionMessage);
@@ -317,7 +317,7 @@ public class WeighByWaybillController {
     @Authorization(Constants.DMS_WEB_TOOL_B2BWEIGHT_R)
     @RequestMapping(value = "/uploadExcel", method = RequestMethod.POST)
     public @ResponseBody JdResponse uploadExcel(@RequestParam("importExcelFile") MultipartFile file) {
-        logger.debug("uploadExcelFile begin...");
+        log.debug("uploadExcelFile begin...");
         String errorString = "";
         try {
             //提前获取一次
@@ -413,7 +413,7 @@ public class WeighByWaybillController {
             if (e instanceof IllegalArgumentException) {
                 errorString = e.getMessage();
             } else {
-                logger.error("导入异常信息：", e);
+                log.error("导入异常信息：", e);
                 errorString = "导入出现异常";
             }
             return new JdResponse(JdResponse.CODE_FAIL,errorString);
@@ -525,7 +525,7 @@ public class WeighByWaybillController {
             return new ModelAndView(new DefaultExcelView(), model.asMap());
 
         } catch (Exception e) {
-            logger.error("toExport:" + e.getMessage(), e);
+            log.error("toExport:", e);
             return null;
         }
     }
@@ -595,7 +595,7 @@ public class WeighByWaybillController {
                 }
             }
         }catch (Exception e){
-            this.logger.error("通过运单号:"+codeStr+"获取运单信息失败!");
+            this.log.error("通过运单号:{}获取运单信息失败!",codeStr, e);
         }
 
         return result;

@@ -13,8 +13,8 @@ import com.jd.bluedragon.distribution.sortscheme.domain.SortSchemeDetail;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.staig.receiver.rpc.Result;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -30,7 +30,7 @@ import java.util.Map;
 @Service("sortSchemeSyncService")
 public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private List<String> stores ;
 
@@ -57,12 +57,12 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
     public Boolean sendDtc(SortSchemeRequest request,String url,Integer siteCode) {
         boolean bool = false;
         if (!Integer.valueOf(625130).equals(siteCode)){
-            logger.error("非北京亚一的分拣中心不能进行分拣计划同步" + siteCode);
+            log.warn("非北京亚一的分拣中心不能进行分拣计划同步:{}", siteCode);
             return true;
         }
         BaseStaffSiteOrgDto bDto = baseMajorManager.getBaseSiteBySiteId(siteCode);
         if(bDto == null){
-            logger.warn("分拣计划同步失败，站点不存在：" + siteCode);
+            log.warn("分拣计划同步失败，站点不存在：{}" , siteCode);
             return false;
         }
         SortSchemeResponse<SortScheme> sortScheme = sortSchemeService.findById2(request,url + sortSchemeUrl);//获取激活的方案的主表
@@ -75,8 +75,8 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
         /** 发送MQ到DTC系统 **/
         List<String> jsonMQs = new ArrayList<String>();
         jsonMQs = this.sortSchemeToJson(jsonMQs,sortSchemeDetailDatas,bDto,sortSchemeData);
-        if(this.logger.isDebugEnabled()){
-            this.logger.info("分拣中心已激活的分拣方案推送DTC:MQ[" + jsonMQs + "]");
+        if(this.log.isDebugEnabled()){
+            this.log.debug("分拣中心已激活的分拣方案推送DTC:MQ[{}]",jsonMQs);
         }
         String businessId = siteCode + "_" + sortSchemeData.getMachineCode() + "_" + sortSchemeData.getName();//分拣中心+分拣机代码+方案名称，例如：1086_PX-SHYK-JD_1月12日生产方案
 
@@ -87,8 +87,7 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
                 }
                 bool = true;
             }catch (Exception e) {
-                this.logger.error(
-                        "分拣中心已激活的分拣方案通过MQ推送DTC失败[" + jsonMQs + "]:" + e.getMessage(), e);
+                this.log.error("分拣中心已激活的分拣方案通过MQ推送DTC失败[{}]" ,jsonMQs, e);
                 bool = false;
             }
         }
@@ -100,7 +99,7 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
         boolean bool = false;
         BaseStaffSiteOrgDto bDto = baseMajorManager.getBaseSiteBySiteId(Integer.valueOf(siteCode));
         if(bDto == null){
-            logger.warn("分拣计划同步失败，站点不存在：" + siteCode);
+            log.warn("分拣计划同步失败，站点不存在：{}" , siteCode);
             return false;
         }
         //通过siteCode得到分拣中心本地的激活的分拣方案
@@ -109,7 +108,7 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
         List<SortScheme> sortSchemes = sortSchemeService.queryBySiteCode(request,url + "/autosorting/sortScheme/find/siteCode").getData();
         List<SortSchemeDetail> sortSchemeDetails = new ArrayList<SortSchemeDetail>();
         if(sortSchemes == null || sortSchemes.size() <= 0){
-            logger.info("没有获取到该站点的分拣计划主表信息" + siteCode);
+            log.info("没有获取到该站点的分拣计划主表信息:{}", siteCode);
             return bool;
         }
         for(int i = 0;i<sortSchemes.size();i++ ){
@@ -132,11 +131,11 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
                 String outboundType = mapMq.get("outboundType").toString();
                 String source = mapMq.get("source").toString();
                 Result result = this.dtcDataReceiverManager.downStreamHandle(target, outboundType, messageValue, source, outboundNo);
-                this.logger.info("[分拣中心分拣方案推送DTC]:接口访问成功，result.getResultCode()=" + result.getResultCode());
-                this.logger.info("[分拣中心分拣方案推送DTC]:接口访问成功，result.getResultMessage()=" + result.getResultMessage());
-                this.logger.info("[分拣中心分拣方案推送DTC]:接口访问成功，result.getResultValue()=" + result.getResultValue());
+                this.log.info("[分拣中心分拣方案推送DTC]:接口访问成功，result.getResultCode()={}" , result.getResultCode());
+                this.log.info("[分拣中心分拣方案推送DTC]:接口访问成功，result.getResultMessage()={}" , result.getResultMessage());
+                this.log.info("[分拣中心分拣方案推送DTC]:接口访问成功，result.getResultValue()={}" , result.getResultValue());
                 if (result.getResultCode()!= 1) {
-                    this.logger.error("[分拣中心分拣方案推送DTC]消息失败，消息体为" + messageValue);
+                    this.log.error("[分拣中心分拣方案推送DTC]消息失败，消息体为:{}" , messageValue);
                 }else{
                     bool = Boolean.TRUE;
                 }
@@ -155,8 +154,8 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
     private List<String> sortSchemeToJson(List<String> mapMQs, List<SortSchemeDetail> sortSchemeDetails, BaseStaffSiteOrgDto bDto,SortScheme... sortSchemes ){
         Integer orgId = bDto.getOrgId();
         String dmsStoreId = bDto.getDmsSiteCode();//七位站点编码
-        if(this.logger.isDebugEnabled()){
-            this.logger.debug(dmsStoreId);
+        if(this.log.isDebugEnabled()){
+            this.log.debug(dmsStoreId);
         }
         String cky2;
         String storeId;
@@ -173,7 +172,7 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
 //            for (int i = 0;i<sortSchemes.length;i++){
 //            DmsSortSchemeRouter dmsSortSchemeRouter = new DmsSortSchemeRouter();
 //            Map<String,String> mapMq = new HashMap<String, String>();
-//            logger.info("分拣方案主表的数据消息体转化");
+//            log.info("分拣方案主表的数据消息体转化");
 //
 //            StringBuffer jsonBuffer = new StringBuffer();
 //            jsonBuffer.append("{\"machineCode\":").append(sortSchemes[i].getMachineCode())
@@ -196,7 +195,7 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
 //        }
 
         if(sortSchemeDetails.size() > 0){
-            logger.info("分拣方案明细的数据消息体转化：条数"+sortSchemeDetails.size());
+            log.debug("分拣方案明细的数据消息体转化：条数:{}",sortSchemeDetails.size());
             for(SortSchemeDetail itemDetail : sortSchemeDetails){
                 Map<String,String> mapMq = new HashMap<String, String>();
                 DmsSortSchemeRouter dmsSortSchemeRouter = new DmsSortSchemeRouter();

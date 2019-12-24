@@ -2,8 +2,8 @@ package com.jd.bluedragon.distribution.rest.ucc;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 
 import javax.annotation.Resource;
@@ -23,7 +23,7 @@ public class UccConfigResource {
     @Resource
     UccPropertyConfiguration uccPropertyConfiguration;
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @GET
     @Path("/ucc/get/")
@@ -36,7 +36,7 @@ public class UccConfigResource {
             returnValue = String.valueOf(value) + "#" + value.getClass().getSimpleName();
         } catch (Exception e) {
             returnValue = "获取ucc配置失败：" + e.getMessage();
-            logger.error(returnValue);
+            log.error(returnValue,e);
         }
         return returnValue;
     }
@@ -63,7 +63,7 @@ public class UccConfigResource {
         } catch (Exception e) {
             returnValue.append("获取ucc配置失败：" + e.getMessage());
             returnValue.append('\n');
-            logger.error(returnValue);
+            log.error(returnValue.toString(),e);
         }
         return returnValue.toString();
     }

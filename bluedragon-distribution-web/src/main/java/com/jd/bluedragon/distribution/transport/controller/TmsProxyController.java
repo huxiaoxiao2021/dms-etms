@@ -17,8 +17,8 @@ import com.jd.tms.tfc.dto.TransBookBillQueryDto;
 import com.jd.tms.tfc.dto.TransBookBillResultDto;
 import com.jd.uim.annotation.Authorization;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -40,7 +40,7 @@ import java.util.List;
 @RequestMapping("transport/tmsProxy")
 public class TmsProxyController extends DmsBaseController{
 
-    private static final Log logger = LogFactory.getLog(TmsProxyController.class);
+    private static final Logger log = LoggerFactory.getLogger(TmsProxyController.class);
 
     @Autowired
     private NewSealVehicleService newsealVehicleService;
@@ -75,7 +75,7 @@ public class TmsProxyController extends DmsBaseController{
         try {
             allDms.addAll(siteService.getAllDmsSite());
         } catch (Exception e) {
-            logger.error("加载站点失败：", e);
+            log.error("加载站点失败：", e);
         }
         return allDms;
     }
@@ -95,17 +95,19 @@ public class TmsProxyController extends DmsBaseController{
             TransBookBillQueryDto queryDto = convertQueryDto(condition);
 
             CommonDto<PageDto<TransBookBillResultDto>> resultDtoPageDto = newsealVehicleService.getTransBookBill(queryDto, convertPageDto(condition));
-            logger.debug("运输委托书查询结果：" + JsonHelper.toJson(resultDtoPageDto));
+            if(log.isDebugEnabled()){
+                log.debug("运输委托书查询结果：{}", JsonHelper.toJson(resultDtoPageDto));
+            }
             if(Constants.INTEGER_FLG_TRUE.equals(resultDtoPageDto.getCode())){
                 if(resultDtoPageDto.getData() != null){
                     result.setTotal(resultDtoPageDto.getData().getTotalRow());
                     result.setRows(dealResult(resultDtoPageDto.getData().getResult()));
                 }
             }else{
-                logger.warn("运输委托书查询失败：" + JsonHelper.toJson(resultDtoPageDto));
+                log.warn("运输委托书查询失败：{}", JsonHelper.toJson(resultDtoPageDto));
             }
         }catch (Exception e){
-            logger.error("运输委托书查询失败：" + JsonHelper.toJson(condition), e);
+            log.error("运输委托书查询失败：{}", JsonHelper.toJson(condition), e);
         }
         return result;
     }

@@ -12,8 +12,8 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -36,7 +36,7 @@ import java.util.Collections;
 @RequestMapping("signReturn")
 public class SignReturnController extends DmsBaseController {
 
-    private static final Log logger = LogFactory.getLog(SignReturnController.class);
+    private static final Logger log = LoggerFactory.getLogger(SignReturnController.class);
 
     @Autowired
     private SignReturnService signReturnService;
@@ -119,12 +119,12 @@ public class SignReturnController extends DmsBaseController {
     @RequestMapping(value = "/toExport", method = RequestMethod.POST)
     public void toExport(SignReturnCondition condition, HttpServletResponse response, Model model){
 
-        logger.info("导出签单返回合单打印交接单");
+        log.debug("导出签单返回合单打印交接单");
         try{
             PagerResult<SignReturnPrintM> result = query(condition);
             signReturnService.toExport(result,response);
         }catch (Exception e){
-            logger.error("导出失败!");
+            log.error("导出失败!",e);
         }
     }
 

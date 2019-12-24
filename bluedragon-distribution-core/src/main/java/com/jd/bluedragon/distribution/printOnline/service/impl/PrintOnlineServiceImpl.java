@@ -7,7 +7,6 @@ import com.jd.bluedragon.distribution.printOnline.domain.PrintOnlineBoxDTO;
 import com.jd.bluedragon.distribution.printOnline.domain.PrintOnlineModalDTO;
 import com.jd.bluedragon.distribution.printOnline.domain.PrintOnlineWaybillDTO;
 import com.jd.bluedragon.distribution.printOnline.service.IPrintOnlineService;
-import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.sendprint.domain.PrintQueryCriteria;
 import com.jd.bluedragon.distribution.sendprint.domain.SummaryPrintBoxEntity;
 import com.jd.bluedragon.distribution.sendprint.domain.SummaryPrintResult;
@@ -15,7 +14,6 @@ import com.jd.bluedragon.distribution.sendprint.domain.SummaryPrintResultRespons
 import com.jd.bluedragon.distribution.sendprint.service.SendPrintService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.DateHelper;
-import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
@@ -26,7 +24,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 无纸化线上打印业务实现类
@@ -38,7 +35,7 @@ import java.util.Map;
 public class PrintOnlineServiceImpl implements IPrintOnlineService {
 
 
-    private Logger logger = LoggerFactory.getLogger(PrintOnlineServiceImpl.class);
+    private Logger log = LoggerFactory.getLogger(PrintOnlineServiceImpl.class);
 
     @Autowired
     private SendPrintService sendPrintService;
@@ -69,7 +66,7 @@ public class PrintOnlineServiceImpl implements IPrintOnlineService {
             //推送数据
             return jdwlSignManager.aciton(modalDTO);
         }catch (Exception e){
-            logger.error("逆向交接清单线上签异常"+sendCode,e);
+            log.error("逆向交接清单线上签异常:{}",sendCode,e);
             return false;
         }
 
@@ -115,7 +112,7 @@ public class PrintOnlineServiceImpl implements IPrintOnlineService {
                         pojo.setSendTime(DateHelper.parseAllFormatDateTime(summaryPrintResult.getSendTime()));
                     }
                 } catch (Exception e) {
-                    logger.error("线上签组装发货时间异常" + summaryPrintResult.getSendTime(), e);
+                    log.error("线上签组装发货时间异常:{}" , summaryPrintResult.getSendTime(), e);
                 }
             }
         }
@@ -175,7 +172,7 @@ public class PrintOnlineServiceImpl implements IPrintOnlineService {
                         boxDTO.setSealTime(DateHelper.parseAllFormatDateTime(summaryPrintBoxEntity.getLockTime()));
                     }
                 }catch (Exception e){
-                    logger.error("线上签组装锁时间异常"+summaryPrintBoxEntity.getLockTime(),e);
+                    log.error("线上签组装锁时间异常:{}",summaryPrintBoxEntity.getLockTime(),e);
                 }
 
                 boxes.add(boxDTO);

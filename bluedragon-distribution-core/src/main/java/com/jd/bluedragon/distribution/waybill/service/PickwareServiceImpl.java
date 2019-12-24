@@ -1,31 +1,30 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.distribution.waybill.domain.Pickware;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PickupTask;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service("pickwareService")
 public class PickwareServiceImpl implements PickwareService {
     
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
     
     @Autowired
 	private WaybillPickupTaskApi waybillPickupTaskApi;
     
     public Pickware get(String code) {
-        this.logger.info("取件单面单号：" + code);
+        this.log.debug("取件单面单号：{}" , code);
         
         BaseEntity<PickupTask> pickupTask = this.waybillPickupTaskApi.getDataBySfCode(code);
         if (pickupTask == null || pickupTask.getData() == null) {
-            this.logger.info("未找到此面单号相关信息, 取件单面单号：" + code);
+            this.log.warn("未找到此面单号相关信息, 取件单面单号：{}", code);
             return null;
         }
         
@@ -53,7 +52,7 @@ public class PickwareServiceImpl implements PickwareService {
             pickware.setWaybillCode(pickupTask.getData().getOldWaybillCode());
         }
         
-        this.logger.info("取件单面单号：" + code + ", 商品详情：" + pickware.toString());
+        this.log.info("取件单面单号：{}, 商品详情：{}",code, pickware.toString());
         
         return pickware;
         

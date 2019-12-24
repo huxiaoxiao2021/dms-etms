@@ -1,32 +1,6 @@
 package com.jd.bluedragon.distribution.web.popAbnormal;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletResponse;
-
 import com.jd.bluedragon.Constants;
-import com.jd.uim.annotation.Authorization;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.propertyeditors.CustomDateEditor;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.popAbnormal.domain.PopAbnormal;
 import com.jd.bluedragon.distribution.popAbnormal.domain.PopAbnormalDTO;
@@ -37,6 +11,26 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.bluedragon.utils.WorkBookObject;
+import com.jd.uim.annotation.Authorization;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author zhaohc
@@ -48,7 +42,7 @@ import com.jd.bluedragon.utils.WorkBookObject;
 @Controller
 @RequestMapping("/popAbnormal")
 public class PopAbnormalController {
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private PopAbnormalService popAbnormalService;
@@ -62,7 +56,7 @@ public class PopAbnormalController {
 	@Authorization(Constants.DMS_WEB_POP_ABNORMAL_R)
 	@RequestMapping(value = "/goListPage", method = RequestMethod.GET)
 	public String goListPage() {
-		logger.info("跳转到查询POP差异列表页面");
+		log.debug("跳转到查询POP差异列表页面");
 		return "popAbnormal/pop_abnormal_list";
 	}
 
@@ -77,7 +71,7 @@ public class PopAbnormalController {
 	@Authorization(Constants.DMS_WEB_POP_ABNORMAL_R)
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	public String list(PopAbnormalDTO popAbnormalDTO, Pager pager, Model model) {
-		logger.info("按条件查询POP差异订单数据集合");
+		log.debug("按条件查询POP差异订单数据集合");
 		Map<String, Object> paramMap = ObjectMapHelper.makeObject2Map(popAbnormalDTO);
 
 		// 验证登陆信息
@@ -101,14 +95,14 @@ public class PopAbnormalController {
 			try {
 				// 获取总数量
 				int totalSize = popAbnormalService.findTotalCount(paramMap);
-				logger.info("按条件查询POP差异订单数据集合 --> 获取总数量为：" + totalSize);
+				log.info("按条件查询POP差异订单数据集合 --> 获取总数量为：{}", totalSize);
 				if (totalSize > 0) {
 					pager.setTotalSize(totalSize);
 					popAbnormals = popAbnormalService.findList(paramMap);
 				}
 				
 			} catch (Exception e) {
-				logger.error("根据条件查询POP差异订单处理集合异常：", e);
+				log.error("根据条件查询POP差异订单处理集合异常：", e);
 			}
 		}
 		model.addAttribute("popAbnormals", popAbnormals);
@@ -126,7 +120,7 @@ public class PopAbnormalController {
 	@Authorization(Constants.DMS_WEB_POP_ABNORMAL_R)
 	@RequestMapping(value = "/detail", method = RequestMethod.GET)
 	public String detail(Model model) {
-		logger.info("进入反馈页面");
+		log.debug("进入反馈页面");
 		Map<String, Object> paramMap = new HashMap<String, Object>();
 		// 验证登陆信息
 		ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
@@ -156,17 +150,17 @@ public class PopAbnormalController {
 	@ResponseBody
 	public JsonResult getWaybillByOrderCode(
 			@RequestBody Map<String, String> paramMap) {
-		logger.info("根据订单号获取运单信息");
+		log.debug("根据订单号获取运单信息");
 		String resultMsg = "";
 		String orderCode = "";
 		// 验证传入参数
 		if (paramMap == null) {
-			logger.info("根据订单号获取运单信息，传入参数为空!");
+			log.warn("根据订单号获取运单信息，传入参数为空!");
 			resultMsg = "传入参数为空!";
 		} else {
 			orderCode = paramMap.get("orderCode");
 			if (StringUtils.isBlank(orderCode)) {
-				logger.info("根据订单号获取运单信息，传入参数有误：" + paramMap);
+				log.warn("根据订单号获取运单信息，传入参数有误：{}", paramMap);
 				resultMsg = "传入参数有误！";
 			}
 		}
@@ -174,11 +168,11 @@ public class PopAbnormalController {
 			// 验证POP订单是否正在申请中
 			PopAbnormal tempAbnormal = popAbnormalService.checkByMap(paramMap);
 			if (tempAbnormal != null) {
-				logger.info("根据订单号获取运单信息，" + paramMap + " 运单号正在申请中，返回");
+				log.warn("根据订单号获取运单信息，{} 运单号正在申请中，返回",paramMap);
 				resultMsg = "此订单号 " + orderCode + " 正在申请中，未审核通过！";
 			}
 			if (StringUtils.isNotBlank(resultMsg)) {
-				logger.info("根据订单号获取运单信息，" + resultMsg + " 返回");
+				log.warn("根据订单号获取运单信息，{} 返回", resultMsg);
 				return new JsonResult(false, resultMsg);
 			}
 			// 获取运单信息
@@ -186,14 +180,14 @@ public class PopAbnormalController {
 					.getWaybillByOrderCode(orderCode);
 			
 			if (popAbnormal == null) {
-				logger.info("根据订单号：" + orderCode + " 获取运单信息为空");
+				log.info("根据订单号：{}获取运单信息为空",orderCode);
 				return new JsonResult(false, "不存在此订单号：" + orderCode);
 			} else {
-				logger.info("根据订单号：" + orderCode + " 获取运单信息为：" + popAbnormal);
+				log.info("根据订单号：{} 获取运单信息为：{}",orderCode, popAbnormal);
 				return new JsonResult(true, popAbnormal);
 			}
 		} catch (Exception e) {
-			logger.error("根据订单号获取运单信息:“" + paramMap + "” 异常：", e);
+			log.error("根据订单号获取运单信息:{}异常",paramMap, e);
 			return new JsonResult(false, "服务器异常，请稍后重试！");
 		}
 	}
@@ -209,7 +203,7 @@ public class PopAbnormalController {
 	@RequestMapping(value = "/savePopAbnormal", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult savePopAbnormal(PopAbnormal popAbnormal) {
-		logger.info("保存差异订单保存差异订单 开始");
+		log.debug("保存差异订单保存差异订单 开始");
 		// 验证传入参数
 		if (popAbnormal == null || popAbnormal.getAbnormalType() == null
 				|| StringUtils.isBlank(popAbnormal.getWaybillCode())
@@ -219,11 +213,11 @@ public class PopAbnormalController {
 				|| popAbnormal.getCurrentNum() == null
 				|| popAbnormal.getActualNum() == null
 				|| popAbnormal.getActualNum() <= 0) {
-			logger.info("保存差异订单 传入参数有误！");
+			log.info("保存差异订单 传入参数有误！");
 			return new JsonResult(false, "传入参数有误！");
 		}
 		if (!BusinessHelper.checkIntNumRange(popAbnormal.getActualNum())) {
-			this.logger.info("保存差异订单 传入实际包裹数不大于0或大于2000！");
+			this.log.info("保存差异订单 传入实际包裹数不大于0或大于2000！");
 			return new JsonResult(false, "传入实际包裹数不大于0或大于2000");
 		}
 		// 生成流水号
@@ -234,26 +228,21 @@ public class PopAbnormalController {
 			paramMap.put("waybillCode", popAbnormal.getWaybillCode());
 			PopAbnormal tempAbnormal = popAbnormalService.checkByMap(paramMap);
 			if (tempAbnormal == null) {
-				logger.info("保存差异订单根据运单号“" + popAbnormal.getWaybillCode()
-						+ "”验证为空，执行插入");
+				log.info("保存差异订单根据运单号 {} 验证为空，执行插入", popAbnormal.getWaybillCode());
 				int addCount = popAbnormalService.add(popAbnormal);
 				if (addCount == 2) {
-					logger.info("保存差异订单根据运单号“" + popAbnormal.getWaybillCode()
-							+ "”成功");
+					log.info("保存差异订单根据运单号{}成功", popAbnormal.getWaybillCode());
 					return new JsonResult(true, "申请成功");
 				} else {
-					logger.info("保存差异订单根据运单号“" + popAbnormal.getWaybillCode()
-							+ "”失败");
+					log.info("保存差异订单根据运单号{}失败", popAbnormal.getWaybillCode());
 					return new JsonResult(false, "申请失败，请稍后重试！");
 				}
 			} else {
-				logger.info("保存差异订单根据运单号“" + popAbnormal.getWaybillCode()
-						+ "”验证不为空，不执行插入");
+				log.info("保存差异订单根据运单号 {} 验证不为空，不执行插入",popAbnormal.getWaybillCode());
 				return new JsonResult(false, "此订单号已申请过，且未审核通过！");
 			}
 		} catch (Exception e) {
-			logger.error(
-					"保存差异订单，运单号“" + popAbnormal.getWaybillCode() + "” 异常：", e);
+			log.error("保存差异订单，运单号 {} 异常：",popAbnormal.getWaybillCode(), e);
 			return new JsonResult(false, "服务器异常，请稍后重试！");
 		}
 	}
@@ -271,7 +260,7 @@ public class PopAbnormalController {
 	@RequestMapping(value = "/exportPopAbnormal", method = RequestMethod.POST)
 	public String exportPopAbnormal(PopAbnormalDTO popAbnormalDTO, Pager pager,
 			HttpServletResponse response) {
-		logger.info("导出POP差异订单数据");
+		log.debug("导出POP差异订单数据");
 		Map<String, Object> paramMap = ObjectMapHelper.makeObject2Map(popAbnormalDTO);
 		// 验证登陆信息
 		ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
@@ -296,7 +285,7 @@ public class PopAbnormalController {
 					popAbnormals = popAbnormalService.findList(paramMap);
 				}
 			} catch (Exception e) {
-				this.logger.error("根据条件查询POP差异订单处理集合异常：", e);
+				this.log.error("根据条件查询POP差异订单处理集合异常：", e);
 			}
 			os = response.getOutputStream();
 			String filename = "POP差异订单数据" + DateHelper.formatDate(new Date())
@@ -325,14 +314,14 @@ public class PopAbnormalController {
 
 			os.flush();
 		} catch (IOException e) {
-			logger.error("根据条件查询POP差异订单处理集合异常：", e);
+			log.error("根据条件查询POP差异订单处理集合异常：", e);
 		} finally {
 			try {
 				if (os != null) {
 					os.close();
 				}
 			} catch (IOException e) {
-				logger.error("关闭数据流 ERROR", e);
+				log.error("关闭数据流 ERROR", e);
 			}
 		}
 		return null;

@@ -1,23 +1,5 @@
 package com.jd.bluedragon.distribution.rest.pop;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
-import com.jd.bluedragon.dms.utils.WaybillUtil;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -27,8 +9,23 @@ import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.inspection.service.WaybillPackageBarcodeService;
 import com.jd.bluedragon.distribution.popPickup.domain.PopPickup;
 import com.jd.bluedragon.distribution.popPickup.service.PopPickupService;
-import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.ObjectMapHelper;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The boundary of pop request
@@ -42,7 +39,7 @@ import com.jd.bluedragon.utils.ObjectMapHelper;
 @Produces({ MediaType.APPLICATION_JSON })
 public class PopPickupResource {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	WaybillPackageBarcodeService waybillPackageBarcodeService;
@@ -135,7 +132,7 @@ public class PopPickupResource {
 		}
 
 		if (Boolean.TRUE.equals(checkParam)) {
-			this.logger.error("按条件查询POP上门接货交接清单 --> 传入参数非法");
+			this.log.warn("按条件查询POP上门接货交接清单 --> 传入参数非法");
 			return new PopPickupResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR, popPickupQuery);
 		}
 
@@ -169,13 +166,13 @@ public class PopPickupResource {
 			if (!paramMap.isEmpty()) {
 				// 获取总数量
 				int totalSize = this.popPickupService.findPopPickupTotalCount(paramMap);
-				this.logger.info("按条件查询POP上门接货交接清单 --> 获取总数量为：" + totalSize);
+				this.log.info("按条件查询POP上门接货交接清单 --> 获取总数量为：{}", totalSize);
 				if (totalSize > 0) {
 					pager.setTotalSize(totalSize);
 					popPickups = this.popPickupService.findPopPickupList(paramMap);
 					pager.setData(popPickups);
 				} else {
-					this.logger.info("按条件查询POP上门接货交接清单 --> paramMap：" + paramMap + ", 调用服务成功，数据为空");
+					this.log.info("按条件查询POP上门接货交接清单 --> paramMap：{}, 调用服务成功，数据为空",paramMap);
 					return new PopPickupResponse(PopPickupResponse.CODE_OK_NULL, PopPickupResponse.MESSAGE_OK_NULL,
 							popPickupQuery);
 				}
@@ -183,7 +180,7 @@ public class PopPickupResource {
 			return new PopPickupResponse(PopPickupResponse.CODE_OK, PopPickupResponse.MESSAGE_OK, popPickupQuery);
 
 		} catch (Exception e) {
-			this.logger.error("按条件查询POP上门接货交接清单异常：", e);
+			this.log.error("按条件查询POP上门接货交接清单异常：", e);
 			return new PopPickupResponse(PopPickupResponse.CODE_SERVICE_ERROR, PopPickupResponse.MESSAGE_SERVICE_ERROR,
 					popPickupQuery);
 		}

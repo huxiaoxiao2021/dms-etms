@@ -152,9 +152,10 @@ public class OfflineCoreTask extends DBSingleScheduler {
                 } else if (Task.TASK_TYPE_AR_RECEIVE_AND_SEND.equals(offlineLogRequest.getTaskType())) {
                 	//空铁提货并发货
                 	resultCode = offlineArReceiveService.parseToTask(offlineLogRequest);
-                	//先加入一个提货worker，操作时间延后30s然后加入一个一车一单发货任务
+                	//先加入一个提货worker，操作时间延后5s然后加入一个一车一单发货任务
                 	Date operateTime = DateHelper.parseDate(offlineLogRequest.getOperateTime());
-                	String operateTimeStr = DateHelper.formatDate(DateHelper.add(operateTime, Calendar.SECOND, 30));
+                	String operateTimeStr = DateHelper.formatDate(DateHelper.add(operateTime, Calendar.MILLISECOND,
+                            Constants.DELIVERY_DELAY_TIME));
                 	offlineLogRequest.setOperateTime(operateTimeStr);
                 	resultCode = offlineDeliveryService.parseToTask(offlineLogRequest);
                 }

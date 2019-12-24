@@ -34,8 +34,8 @@ import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.lang.reflect.Field;
@@ -51,7 +51,7 @@ import java.util.Objects;
 
 public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
 
-    private static final Log logger= LogFactory.getLog(SimpleWaybillPrintServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(SimpleWaybillPrintServiceImpl.class);
 
     @Autowired
     private PopPrintService popPrintService;
@@ -169,7 +169,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
             }
         }catch (Exception ex){
             Profiler.functionError(info);
-            logger.error("标签打印接口异常，运单号:"+waybillCode,ex);
+            log.error("标签打印接口异常，运单号:{}",waybillCode,ex);
             result.error(ex);
         }finally {
             Profiler.registerInfoEnd(info);
@@ -231,8 +231,8 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
                 }catch (NumberFormatException exception){
                     value=Integer.MIN_VALUE;/*不符合integer*/
                 }
-                if(logger.isInfoEnabled()){
-                    logger.info(MessageFormat.format("原值：{0}转换后:{1}",tmsWaybill.getSpareColumn1(),value));
+                if(log.isInfoEnabled()){
+                    log.info("原值：{}转换后:{}",tmsWaybill.getSpareColumn1(),value);
                 }
                 switch (value){
                     case 1:
@@ -245,8 +245,8 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
                         break;
                 }
             }
-            if(logger.isInfoEnabled()){
-                logger.info(commonWaybill.getNormalText());
+            if(log.isInfoEnabled()){
+                log.info(commonWaybill.getNormalText());
             }
             /*，62=金牌用户，105=钻石会员，110=VIP会员，在面单上展示“V”。
 90=企业用户，面单上展示“企”。
@@ -275,7 +275,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
             commonWaybill.setType(tmsWaybill.getWaybillType());
             commonWaybill.appendRemark(tmsWaybill.getImportantHint());
             String roadCode = "";
-            if(BusinessUtil.isUrban(tmsWaybill.getWaybillSign(), tmsWaybill.getSendPay())) {//城配的订单标识，remark打派车单号
+            if(BusinessUtil.isUrban(tmsWaybill.getWaybillSign(), tmsWaybill.getSendPay()) || BusinessUtil.isHeavyCargo(tmsWaybill.getWaybillSign())) {//城配的订单标识，remark打派车单号
                 String scheduleCode = "";
                 TransbillM transbillM = transbillMService.getByWaybillCode(tmsWaybill.getWaybillCode());
                 if(transbillM != null){
@@ -395,7 +395,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
             if(jdResult.isSucceed()) {
                 tag=jdResult.getData();
             }else{
-            	logger.warn("打印业务：未获取到滑道号及笼车号信息！"+jdResult.getMessage());
+            	log.warn("打印业务：未获取到滑道号及笼车号信息:{}",jdResult.getMessage());
             }
         }
         if(null!=tag){
@@ -457,7 +457,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
 				try {
 					ObjectHelper.setValue(target, field, signText);
 				} catch (Exception e) {
-					logger.error(signConfig.getFieldName() + "属性设置异常", e);
+					log.error("属性设置异常:{}",signConfig.getFieldName(), e);
 				}
 			}
 		}
@@ -475,7 +475,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
 					try {
 						ObjectHelper.setValue(target, field, signConfig.getSignTexts().get(dicKey));
 					} catch (Exception e) {
-						logger.error(signConfig.getFieldName() + "属性设置异常", e);
+						log.error("属性设置异常:{}",signConfig.getFieldName(), e);
 					}
 				}
 			}

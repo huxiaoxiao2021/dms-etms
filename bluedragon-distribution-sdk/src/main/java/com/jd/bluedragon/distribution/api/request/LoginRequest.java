@@ -10,11 +10,24 @@ public class LoginRequest extends BaseRequest{
     /** 主机名称 */
     private String clientInfo;
 
+    /**
+     * 登录接口的版本，1：为新版本
+     */
+    private Byte loginVersion;
+
     public String getClientInfo() {
         return clientInfo;
     }
 
     public void setClientInfo(String clientInfo) {
         this.clientInfo = clientInfo;
+    }
+
+    public Byte getLoginVersion() {
+        return loginVersion;
+    }
+
+    public void setLoginVersion(Byte loginVersion) {
+        this.loginVersion = loginVersion;
     }
 }

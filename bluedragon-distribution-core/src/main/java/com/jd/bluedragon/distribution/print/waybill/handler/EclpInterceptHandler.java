@@ -1,13 +1,12 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.utils.BusinessHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 /**
  * 
@@ -19,11 +18,11 @@ import com.jd.bluedragon.utils.BusinessHelper;
  */
 @Service("eclpInterceptHandler")
 public class EclpInterceptHandler implements Handler<WaybillPrintContext, JdResult<String>> {
-    private static final Log logger = LogFactory.getLog(EclpInterceptHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(EclpInterceptHandler.class);
 
     @Override
     public InterceptResult<String> handle(WaybillPrintContext context) {
-        logger.info("eclpInterceptHandler-eclp打印业务拦截");
+        log.debug("eclpInterceptHandler-eclp打印业务拦截");
         InterceptResult<String> interceptResult = context.getResult();
         if(!BusinessHelper.isEclpCanPrint(context.getWaybill().getWaybillSign())){
         	interceptResult.toFail("此类运单不允许eclp系统操作打印！");

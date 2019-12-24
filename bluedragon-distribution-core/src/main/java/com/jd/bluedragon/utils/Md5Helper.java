@@ -7,14 +7,13 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang.CharSet;
 import org.apache.xml.security.utils.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Md5Helper {
 
-	private static final Logger logger = LoggerFactory.getLogger(Md5Helper.class);
+	private static final Logger log = LoggerFactory.getLogger(Md5Helper.class);
     
     public static String encode(String str) {
         return DigestUtils.md5Hex(str).toUpperCase();
@@ -37,10 +36,10 @@ public class Md5Helper {
     		messageDigest.update(msg.getBytes(StandardCharsets.UTF_8));
     		return messageDigest.digest();
 		} catch (NoSuchAlgorithmException e) {
-    		logger.warn("算法实例加载错误，无法加载MD5的算法对象");
+    		log.error("算法实例加载错误，无法加载MD5的算法对象");
 			return new byte[]{};
 		} catch (RuntimeException e) {
-    		logger.warn("MD5算法失败，运行异常，参数为：" + msg, e);
+    		log.error("MD5算法失败，运行异常，参数为：{}", msg, e);
     		return new byte[]{};
 		}
  	}

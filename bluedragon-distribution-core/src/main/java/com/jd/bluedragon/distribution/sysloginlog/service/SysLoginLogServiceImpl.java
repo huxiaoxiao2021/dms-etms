@@ -7,10 +7,9 @@ import com.jd.bluedragon.distribution.sysloginlog.domain.SysLoginLog;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -25,7 +24,7 @@ import java.util.List;
  */
 @Service("SysLoginLogService")
 public class SysLoginLogServiceImpl implements SysLoginLogService{
-	private static final Log logger = LogFactory.getLog(SysLoginLogServiceImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(SysLoginLogServiceImpl.class);
     @Autowired
     private SysLoginLogDao sysLoginLogDao;
 
@@ -37,7 +36,7 @@ public class SysLoginLogServiceImpl implements SysLoginLogService{
         try {
 			sysLoginLogDao.insert(sysLoginLog);
 		} catch (Exception e) {
-			logger.error("插入用户登录日志失败！",e);
+			log.error("插入用户登录日志失败！",e);
 		}
         return sysLoginLog;
     }
@@ -74,7 +73,7 @@ public class SysLoginLogServiceImpl implements SysLoginLogService{
         if(StringHelper.isNotEmpty(clientInfo.getIpv4()) && clientInfo.getIpv4().length()<=20){
         	sysLoginLog.setIpv4(clientInfo.getIpv4());
         }else{
-        	logger.warn("客户端登录用户-ipv4:"+clientInfo.getIpv4());
+        	log.warn("客户端登录用户-ipv4:{}", clientInfo.getIpv4());
         }
         sysLoginLog.setIpv6(clientInfo.getIpv6());
         sysLoginLog.setMacAdress(clientInfo.getMacAdress());

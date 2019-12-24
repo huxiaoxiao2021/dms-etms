@@ -159,7 +159,7 @@ public class DmsStorageAreaServiceImpl extends BaseService<DmsStorageArea> imple
 					}
 				}
 			} catch (IllegalAccessException e) {
-				logger.error("initObjectValue fail!   "+e.getMessage().toString());
+				log.error("initObjectValue fail!   ",e);
 			}
 		}
 	}

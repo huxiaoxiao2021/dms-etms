@@ -4,22 +4,19 @@ import com.datastax.driver.core.*;
 import com.datastax.driver.core.utils.UUIDs;
 import com.google.common.base.Function;
 import com.jd.bluedragon.Pager;
-import com.jd.bluedragon.core.cassandra.*;
+import com.jd.bluedragon.core.cassandra.BaseCassandraDao;
 import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.utils.JsonHelper;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import javax.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
+import javax.annotation.Resource;
+import java.util.*;
+
 public class SystemlogCassandra {
 
-	private static final Logger logger = LoggerFactory.getLogger(SystemlogCassandra.class);
+	private static final Logger log = LoggerFactory.getLogger(SystemlogCassandra.class);
 
     @Value("${cassandra.consistencyLevel.default}")
     protected ConsistencyLevel  consistencyLevel;
@@ -62,10 +59,9 @@ public class SystemlogCassandra {
 			}
 
 			baseCassandraDao.batchInsert(bstatementList, values);
-			logger.info("OperationlogCassandra batchInsert execute success cost:"
-					+ (System.currentTimeMillis() - startTime) + "ms");
+			SystemlogCassandra.log.info("OperationlogCassandra batchInsert execute success cost:{}ms",(System.currentTimeMillis() - startTime));
 		} catch (Exception e) {
-			logger.error("添加操作日志异常 异常原因：", e);
+			SystemlogCassandra.log.error("添加操作日志异常 异常原因：", e);
 		}
 	}
     
@@ -100,11 +96,10 @@ public class SystemlogCassandra {
 				}
 			}
 			list = rsToList(rs, new RowToOrder());
-			logger.info("OperationlogCassandra getPage execute success cost:" + (System.currentTimeMillis() - startTime)
-					+ "ms");
+			log.info("OperationlogCassandra getPage execute success cost:{}ms" , (System.currentTimeMillis() - startTime));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			logger.error("查询操作日志异常 异常原因：", e);
+			log.error("查询操作日志异常 异常原因：", e);
 		}
 
 		return list;
@@ -121,11 +116,10 @@ public class SystemlogCassandra {
             bs = preparedswaybill.bind(code);
 			ResultSet rs = baseCassandraDao.preparedSelectBycode(bs);
 			size = rs.getAvailableWithoutFetching();
-			logger.info("OperationlogCassandra totalSize execute success cost:" + (System.currentTimeMillis() - startTime)
-					+ "ms");
+			log.info("OperationlogCassandra totalSize execute success cost:{}ms" , (System.currentTimeMillis() - startTime));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			logger.error("查询操作日志异常 异常原因：", e);
+			log.error("查询操作日志异常 异常原因：", e);
 		}
 
 		return size;

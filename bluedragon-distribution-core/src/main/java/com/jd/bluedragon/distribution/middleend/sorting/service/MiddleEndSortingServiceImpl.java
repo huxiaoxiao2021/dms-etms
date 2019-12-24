@@ -51,16 +51,21 @@ public class MiddleEndSortingServiceImpl extends BaseSortingService implements I
             ApiResult<Void> result = null;
 
             SortingObject sortingObject = sorting.getMiddleEndSorting();
-            logger.info("中台理货接口调用参数:isHaveContainer:" + isHaveContainer + ",containerCode：" + dmsSorting.getBoxCode() + ",SortingObject: " + JSON.toJSONString(sortingObject) + ",operator:" + JSON.toJSONString(operator) + ",operateTime:" + dmsSorting.getOperateTime());
+            if(log.isInfoEnabled()){
+                log.info("中台理货接口调用参数:isHaveContainer:{},containerCode：{},SortingObject: {},operator:{},operateTime:{}"
+                        ,isHaveContainer,dmsSorting.getBoxCode(),JSON.toJSONString(sortingObject),JSON.toJSONString(operator), dmsSorting.getOperateTime());
+            }
             if (isHaveContainer) {
                 result = middleEndSortingManager.sort(dmsSorting.getBoxCode(), sortingObject, operator, dmsSorting.getOperateTime());
             } else {
                 result = middleEndSortingManager.sortWithoutContainer(sortingObject, operator, dmsSorting.getOperateTime());
             }
-            logger.info("中台理货接口调用结果:" + JSON.toJSONString(result));
+            if(log.isInfoEnabled()){
+                log.info("中台理货接口调用结果:{}" , JSON.toJSONString(result));
+            }
             return result.getCode() == ApiResult.OK_CODE;
         }catch (Exception e){
-            logger.error("MiddleEndSortingServiceImpl.coreSorting异常.参数:" + JSON.toJSONString(sorting),e);
+            log.error("MiddleEndSortingServiceImpl.coreSorting异常.参数:{}", JSON.toJSONString(sorting),e);
             return false;
         }
     }
@@ -98,9 +103,14 @@ public class MiddleEndSortingServiceImpl extends BaseSortingService implements I
             cancelObject.setCancelObjectType(sortingCancelType);
             cancelObject.setCancelDirection(SortingDirection.getEunmByType(dmsSorting.getType()));
 
-            logger.info("中台取消理货接口调用参数:barCode:" + barCode + ",sortingCancelType：" + JSON.toJSONString(sortingCancelType) + ",operateSiteId: " + dmsSorting.getCreateSiteCode() + ",operator:" + JSON.toJSONString(operator) + ",operateTime:" + dmsSorting.getOperateTime());
+            if(log.isInfoEnabled()){
+                log.info("中台取消理货接口调用参数:barCode:{},sortingCancelType：{},operateSiteId:{},operator:{},operateTime:{}"
+                        ,barCode,JSON.toJSONString(sortingCancelType),dmsSorting.getCreateSiteCode(),JSON.toJSONString(operator), dmsSorting.getOperateTime());
+            }
             ApiResult<Void> result = middleEndSortingManager.cancelSorting(cancelObject, operator, dmsSorting.getOperateTime());
-            logger.info("中台取消理货接口调用结果:" + JSON.toJSONString(result));
+            if(log.isInfoEnabled()){
+                log.info("中台取消理货接口调用结果:{}", JSON.toJSONString(result));
+            }
 
             if (result.getCode() == ApiResult.OK_CODE) {
                 afterSortingCancel(dmsSorting);
@@ -109,7 +119,7 @@ public class MiddleEndSortingServiceImpl extends BaseSortingService implements I
 
             return SortingResponse.exeError();
         }catch (Exception e){
-            logger.error("MiddleEndSortingServiceImpl.cancelSorting异常.参数:" + JSON.toJSONString(dmsSorting),e);
+            log.error("MiddleEndSortingServiceImpl.cancelSorting异常.参数:{}", JSON.toJSONString(dmsSorting),e);
             return SortingResponse.exeError();
         }
 

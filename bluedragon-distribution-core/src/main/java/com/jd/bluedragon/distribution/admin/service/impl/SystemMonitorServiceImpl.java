@@ -1,20 +1,15 @@
 package com.jd.bluedragon.distribution.admin.service.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.admin.service.SystemMonitorService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
 
 /**
  * 系统监控业务逻辑
@@ -23,14 +18,14 @@ import com.jd.bluedragon.utils.StringHelper;
 @Service("systemMonitorService")
 public class SystemMonitorServiceImpl implements SystemMonitorService {
 	
-	private static final Logger logger = Logger.getLogger(SystemMonitorServiceImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(SystemMonitorServiceImpl.class);
 	
 	@Autowired
 	private RedisManager redisManager;
 
 	public Map<String,Object> queryRedisQueueUMP(Map<String,Object> param) throws Exception {
 		if(param == null || param.size() < 1){
-			logger.warn("queryRedisQueueUMP: map == null || map.size() < 1, return...");
+			log.warn("queryRedisQueueUMP: map == null || map.size() < 1, return...");
 			return param;
 		}
 		Map<String,Object> map = new HashMap<String,Object>();
@@ -47,18 +42,18 @@ public class SystemMonitorServiceImpl implements SystemMonitorService {
 				queueName = StringHelper.getFileNameSuffix(bKey);
 			}
 			if(queueName == null || queueName.length() == 0){
-				logger.warn("queryRedisQueueUMP: queueName == null || queueName.length() == 0, return...");
+				log.warn("queryRedisQueueUMP: queueName == null || queueName.length() == 0, return...");
 				return map;
 			}
 			
 			List<String> queue_list = this.buildQueueNameList(queueName, qSign , qSize);
 			if(queue_list == null || queue_list.isEmpty()){
-				logger.warn("queryRedisQueueUMP: queue_list == null || queue_list.isEmpty(), return...");
+				log.warn("queryRedisQueueUMP: queue_list == null || queue_list.isEmpty(), return...");
 				return map;
 			}
 			Map<String,Long> count_map = this.queryRedisQueueCount(queue_list);
 			if(count_map == null || count_map.isEmpty()){
-				logger.warn("queryRedisQueueUMP: count_map == null || count_map.isEmpty(), return...");
+				log.warn("queryRedisQueueUMP: count_map == null || count_map.isEmpty(), return...");
 				return map;
 			}
 			
@@ -77,14 +72,14 @@ public class SystemMonitorServiceImpl implements SystemMonitorService {
 			map.put("bTime", bTime);
 			map.put("bCount", bCount);
 		} catch (Exception e) {
-			logger.error("queryRedisQueueUMP-error", e);
+			log.error("queryRedisQueueUMP-error", e);
 		}
 		return map;
 	}
 	
 	public Map<String,Long> queryRedisQueueCount(Map<String,Object> param) throws Exception {
 		if(param == null || param.size() < 1){
-			logger.warn("queryRedisQueueCount: parameter cannot be empty, return...");
+			log.warn("queryRedisQueueCount: parameter cannot be empty, return...");
 			return null;
 		}
 		try {
@@ -93,19 +88,19 @@ public class SystemMonitorServiceImpl implements SystemMonitorService {
 			String qSize = (String)param.get("qSize");
 			
 			if(qName == null || qName.length() == 0){
-				logger.warn("queryRedisQueueCount: qName == null || qName.length() == 0, return...");
+				log.warn("queryRedisQueueCount: qName == null || qName.length() == 0, return...");
 				return null;
 			}
 			
 			List<String> queue_list = this.buildQueueNameList(qName, qSign , qSize);
 			if(queue_list == null || queue_list.isEmpty()){
-				logger.warn("queryRedisQueueCount: queue_list == null || queue_list.isEmpty(), return...");
+				log.warn("queryRedisQueueCount: queue_list == null || queue_list.isEmpty(), return...");
 				return null;
 			}
 			Map<String,Long> count_map = this.queryRedisQueueCount(queue_list);
 			return count_map;
 		} catch (Exception e) {
-			logger.error("queryRedisQueueCount-error", e);
+			log.error("queryRedisQueueCount-error", e);
 			return null;
 		}
 	}
@@ -144,7 +139,7 @@ public class SystemMonitorServiceImpl implements SystemMonitorService {
 				list.addAll(this.buildQueueNameList(queueName_arr, null, queue_size));
 			}
 		} catch (Exception e) {
-			logger.error("buildQueueNameList-error", e);
+			log.error("buildQueueNameList-error", e);
 		}
 		return list;
 	}
@@ -165,7 +160,7 @@ public class SystemMonitorServiceImpl implements SystemMonitorService {
 				}
 			}
 		} catch (Exception e) {
-			logger.error("buildQueueNameList-error", e);
+			log.error("buildQueueNameList-error", e);
 		}
 		return list;
 	}
