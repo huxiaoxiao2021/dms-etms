@@ -4,9 +4,14 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.crossbow.CrossbowConfig;
 import com.jd.bluedragon.core.crossbow.DMSCrossbowClient;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.SoapXmlHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.DocumentHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -40,6 +45,11 @@ public abstract class AbstractCrossbowManager<P,R> implements InitializingBean {
      */
     private CrossbowConfig crossbowConfig;
 
+    /**
+     * 定义请求和返回字段的序列化和反序列化方式
+     */
+    private SerializationConfig serializationConfig;
+
     @Autowired
     private DMSCrossbowClient dmsCrossbowClient;
 
@@ -70,10 +80,14 @@ public abstract class AbstractCrossbowManager<P,R> implements InitializingBean {
         try {
             /* 获取具体实现类的返回值泛型 对应的R */
             Type superClass = this.getClass().getGenericSuperclass();
-            Type type = ((ParameterizedType)superClass).getActualTypeArguments()[1];
+            Type requestType = ((ParameterizedType)superClass).getActualTypeArguments()[0];
+            Type responseType = ((ParameterizedType)superClass).getActualTypeArguments()[1];
 
             P parameter = getMyRequestBody(condition);
-            return dmsCrossbowClient.executor(crossbowConfig, JsonHelper.toJson(parameter), type);
+            return deSerializeResponse(
+                    dmsCrossbowClient.executor(crossbowConfig, serializeRequest(parameter,requestType))
+                    ,responseType);
+
         } catch (RuntimeException e) {
             Profiler.functionError(callerInfo);
             logger.warn("通过物流网关crossBow组件调用外部接口异常:", e);
@@ -101,13 +115,51 @@ public abstract class AbstractCrossbowManager<P,R> implements InitializingBean {
         if (StringHelper.isEmpty(crossbowConfig.getAppKey())) {
             throw new RuntimeException(this.getClass() + "缺少crossbowConfig配置中appKey的内容，请检查相关配置");
         }
+        if (null == serializationConfig) {
+            throw new RuntimeException(this.getClass() + "缺少serializationConfig配置信息，请检查相关配置");
+        }
     }
 
-    public CrossbowConfig getCrossbowConfig() {
-        return crossbowConfig;
+    private String serializeRequest(P parameter, Type requestType) {
+        switch (serializationConfig.getSerializationMode()) {
+            case XML:
+                return XmlHelper.toXml(parameter,(Class)requestType);
+            case JSON:
+                return JsonHelper.toJson(parameter);
+            case SOAP:
+                return SoapXmlHelper.createSoapXml(serializationConfig.getMethodName(),
+                        serializationConfig.getNameSpaceUIR(),serializationConfig.getParameterName(),
+                        XmlHelper.toXml(parameter,(Class) requestType));
+            default:
+                return null;
+        }
+    }
+
+    private R deSerializeResponse(String responseStr, Type responseType) {
+        switch (serializationConfig.getSerializationMode()) {
+            case XML:
+                return (R) XmlHelper.toObject(responseStr,(Class) responseType);
+            case JSON:
+                return JsonHelper.fromJsonUseGson(responseStr,responseType);
+            case SOAP:
+                try {
+                    Document document = DocumentHelper.parseText(responseStr);
+                    String responseBody = document.getRootElement().getStringValue();
+                    return (R) XmlHelper.toObject(responseBody.substring(responseBody.indexOf("?>") + 2),(Class) responseType);
+                } catch (DocumentException e) {
+                    logger.error("解析SOAP的报文异常，报文为：{}", responseStr);
+                    return null;
+                }
+            default:
+                return null;
+        }
     }
 
     public void setCrossbowConfig(CrossbowConfig crossbowConfig) {
         this.crossbowConfig = crossbowConfig;
+    }
+
+    public void setSerializationConfig(SerializationConfig serializationConfig) {
+        this.serializationConfig = serializationConfig;
     }
 }
