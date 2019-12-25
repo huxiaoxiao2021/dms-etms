@@ -293,6 +293,12 @@ public class BaseResource {
 		if (log.isInfoEnabled()) {
 			log.info("login from new rest service.[{}]", JsonHelper.toJson(request));
 		}
+		LoginUserResponse loginUserResponse = new LoginUserResponse();
+		if(request == null){
+			loginUserResponse.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+			loginUserResponse.setMessage(InvokeResult.PARAM_ERROR);
+			return loginUserResponse;
+		}
 		return userService.clientLoginIn(request);
 	}
 
