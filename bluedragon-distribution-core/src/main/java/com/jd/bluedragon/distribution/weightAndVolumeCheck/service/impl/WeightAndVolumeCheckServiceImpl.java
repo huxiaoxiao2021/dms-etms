@@ -150,8 +150,10 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             if(invokeResult != null && !CollectionUtils.isEmpty(invokeResult.getData())){
                 map.put(waybillCode,invokeResult.getData());
             }
-            result.setCode(invokeResult.getCode());
-            result.setMessage(invokeResult.getMessage());
+            if(invokeResult != null){
+                result.setCode(invokeResult.getCode());
+                result.setMessage(invokeResult.getMessage());
+            }
             result.setData(JsonHelper.toJson(map));
         }else {
             //B网包裹维度
@@ -262,7 +264,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             //图片类型 1:重量 2:长 3:宽 4:高 5:面单
             Integer type = Integer.valueOf(packageCodeAndOperateTimes[2]);
             String operateTime = packageCodeAndOperateTimes[3];
-            if(packageCodeAndOperateTimes.length != 4 || siteCode.equals(createSiteCode)){
+            if(packageCodeAndOperateTimes.length != 4 || siteCode.equals(Integer.valueOf(createSiteCode))){
                 break;
             }
             if(type == 1){

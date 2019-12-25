@@ -156,9 +156,9 @@ public class MiddleEndSortingDao implements ISortingDao {
 
             //循环获取剩余数据
             for (int i = 2; i <= totalPage; i++) {
-                pageBean.setPageSize(i);
+                pageBean.setPageNum(i);
                 apiResult = sharedSortingQueryManager.queryPackList(sorting.getCreateSiteCode(), sorting.getWaybillCode(), objectCode, direction, pageBean);
-                if (apiResult != null && ApiResult.OK_CODE == apiResult.getCode()) {
+                if (apiResult == null || ApiResult.OK_CODE != apiResult.getCode() ) {
                     log.warn("调用中台接口queryPackList查询结果不成功.:{},{},{},{},返回值为:{}"
                             , sorting.getCreateSiteCode() , sorting.getWaybillCode() ,objectCode ,JSON.toJSONString(pageBean), JSON.toJSONString(apiResult));
                     return null;
@@ -239,9 +239,9 @@ public class MiddleEndSortingDao implements ISortingDao {
 
             //循环获取剩余数据
             for (int i = 2; i <= totalPage; i++) {
-                pageBean.setPageSize(i);
+                pageBean.setPageNum(i);
                 apiResult = sharedSortingQueryManager.queryByBatchCode(sorting.getCreateSiteCode(), sorting.getBsendCode(), pageBean);
-                if (apiResult != null && ApiResult.OK_CODE == apiResult.getCode()) {
+                if (apiResult == null || ApiResult.OK_CODE != apiResult.getCode()) {
                     log.warn("调用中台接口queryByBatchCode查询结果不成功.:{},{}-{},返回值为:{}"
                             ,sorting.getCreateSiteCode(),sorting.getBsendCode(),JSON.toJSONString(pageBean), JSON.toJSONString(apiResult));
                     return null;

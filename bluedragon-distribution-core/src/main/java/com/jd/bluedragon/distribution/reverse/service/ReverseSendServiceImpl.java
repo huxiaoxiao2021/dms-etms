@@ -1007,6 +1007,8 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             SystemLogUtil.log(sLogDetail);
         }
 
+        if(result == null){ return false; }
+
         this.log.debug("青龙发货至仓储WS接口访问成功，result.getResultCode()={}", result.getResultCode());
         this.log.debug("青龙发货至仓储WS接口访问成功，result.getResultMessage()={}", result.getResultMessage());
         this.log.debug("青龙发货至仓储WS接口访问成功，result.getResultValue()={}",result.getResultValue());
@@ -1102,6 +1104,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             sLogDetail.setContent(messageValue);
             SystemLogUtil.log(sLogDetail);
         }
+        if(result == null) { return false; }
 
         this.log.debug("青龙发货访问仓储WS接口成功，result.getResultCode()={}", result.getResultCode());
         this.log.debug("青龙发货访问仓储WS接口成功，result.getResultMessage()={}", result.getResultMessage());

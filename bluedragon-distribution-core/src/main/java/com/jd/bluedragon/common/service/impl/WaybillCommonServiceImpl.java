@@ -1107,9 +1107,9 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 }
             }
             if(!isVaildDms(dmsCode)) {
-                log.warn("组装包裹标签始发分拣中心信息，运单号：{} 对应的始发分拣中心:{}" ,waybillCode, dmsCode);
+                log.warn("组装包裹标签始发分拣中心信息，运单号：{} 对应的始发分拣中心:{}，无效分拣中心编码" ,waybillCode, dmsCode);
             }else{
-                log.warn("组装包裹标签始发分拣中心信息，运单号：{} 对应的始发分拣中心:{}" ,waybillCode, dmsCode);
+                log.warn("组装包裹标签始发分拣中心信息，运单号：{} 对应的始发分拣中心:{}，有效分拣中心编码" ,waybillCode, dmsCode);
             }
         }
         printWaybill.setOriginalDmsCode(dmsCode);
