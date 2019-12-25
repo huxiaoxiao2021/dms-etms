@@ -522,17 +522,11 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 				}
 			}
 		}
-		waybillEntityDto.setAddress(waybill.getReceiverAddress());
+		waybillEntityDto.setAddress("<![CDATA[" + waybill.getReceiverAddress() + "]]");
 		waybillEntityDto.setDeliveryTime("");
 		waybillEntityDto.setEmailAddress("");
 		waybillEntityDto.setWeight("0");
-		if (waybill.getGoodWeight() != null) {
-			waybillEntityDto.setWeight(String.valueOf(waybill.getGoodWeight() * 1000));
-		}
-		if (waybill.getAgainWeight() != null) {
-			waybillEntityDto.setWeight(String.valueOf(waybill.getAgainWeight() * 1000));
-		}
-		waybillEntityDto.setwBulk(String.valueOf(waybill.getGoodVolume()));
+		waybillEntityDto.setRemark("");
 
 		String payment = String.valueOf(waybill.getPayment());
 		String declaredValue = waybill.getCodMoney();
@@ -556,6 +550,13 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 			for (DeliveryPackageD deliveryPackageD : waybillDto.getPackageList()) {
 				waybillEntityDto.setId(deliveryPackageD.getPackageBarcode());
 				waybillEntityDto.setBagId(deliveryPackageD.getPackageBarcode());
+				if (waybill.getGoodWeight() != null) {
+					waybillEntityDto.setWeight(String.valueOf(deliveryPackageD.getGoodWeight() * 1000));
+				}
+				if (waybill.getAgainWeight() != null) {
+					waybillEntityDto.setWeight(String.valueOf(deliveryPackageD.getAgainWeight() * 1000));
+				}
+				waybillEntityDto.setwBulk(String.valueOf(deliveryPackageD.getGoodVolume()));
 				/* 逐条发送 */
 				whSmsSendMq.sendOnFailPersistent(waybillCode,JsonHelper.toJson(waybillEntityDto));
 			}
