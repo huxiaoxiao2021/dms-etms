@@ -26,6 +26,7 @@ public interface ComposeService {
     //时效
     String SPECIAL_MARK_SAME_CITY = "同城";
     String SPECIAL_MARK_NEXT_DAY = "次晨";
+    String SPECIAL_MARK_LAND_TRANS = "陆运";
 
     String SPECIAL_MARK_C ="C";
     String SPECIAL_MARK_AIRTRANSPORT ="航";

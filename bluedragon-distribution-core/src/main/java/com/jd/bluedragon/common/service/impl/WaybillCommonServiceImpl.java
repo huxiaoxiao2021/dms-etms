@@ -870,13 +870,13 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 
         /*
         识别waybillsign116位=2，面单“时效”字段处展示“同城”；
-	    识别waybillsign116位=3，面单“时效”字段处展示“次晨”；
+	    识别waybillsign116位=3，面单“时效”字段处展示“陆运”；
         */
         if(BusinessUtil.isSameCity(waybill.getWaybillSign())){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_SAME_CITY);
         }
         if(BusinessUtil.isNextMorning(waybill.getWaybillSign())){
-            target.appendSpecialMark(ComposeService.SPECIAL_MARK_NEXT_DAY);
+            target.appendSpecialMark(ComposeService.SPECIAL_MARK_LAND_TRANS);
         }
 
         /**
