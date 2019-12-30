@@ -59,7 +59,7 @@ public interface ReverseDeliveryService {
 	 */
 	public WaybillInfoResponse getEmsWaybillInfo(String waybillCode);
 	
-	public String toEmsServer(List<String> waybillList);
+	public void toEmsServer(List<String> waybillList);
 	
 	/**
 	 * 快生获取订单信息
