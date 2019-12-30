@@ -493,7 +493,7 @@
 		<dependency>
 			<groupId>com.jd.ql.erp</groupId>
 			<artifactId>ql-erp-client</artifactId>
-			<version>5.3.66-SNAPSHOT</version>
+			<version>5.4.8-SNAPSHOT</version>
 		</dependency>
 		<!--jsf  -->
 		<dependency>
