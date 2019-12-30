@@ -9,6 +9,7 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.codec.binary.Base64;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
@@ -17,8 +18,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 /**
  * <p>
@@ -130,6 +135,14 @@ public abstract class AbstractCrossbowManager<P,R> implements InitializingBean {
                 return SoapXmlHelper.createSoapXml(serializationConfig.getMethodName(),
                         serializationConfig.getNameSpaceUIR(),serializationConfig.getParameterName(),
                         XmlHelper.toXml(parameter,(Class) requestType));
+            case SOAP_BASE64:
+                String body = new String(
+                        new Base64().encode(
+                                Objects.requireNonNull(XmlHelper.toXml(parameter, (Class) requestType))
+                                        .getBytes(StandardCharsets.UTF_8))
+                        , StandardCharsets.UTF_8);
+                return SoapXmlHelper.createSoapXml(serializationConfig.getMethodName(),
+                        serializationConfig.getNameSpaceUIR(),serializationConfig.getParameterName(),body);
             default:
                 return null;
         }
@@ -146,6 +159,16 @@ public abstract class AbstractCrossbowManager<P,R> implements InitializingBean {
                     Document document = DocumentHelper.parseText(responseStr);
                     String responseBody = document.getRootElement().getStringValue();
                     return (R) XmlHelper.toObject(responseBody.substring(responseBody.indexOf("?>") + 2),(Class) responseType);
+                } catch (DocumentException e) {
+                    logger.error("解析SOAP的报文异常，报文为：{}", responseStr);
+                    return null;
+                }
+            case SOAP_BASE64:
+                try {
+                    Document document = DocumentHelper.parseText(responseStr);
+                    String responseBody = document.getRootElement().getStringValue();
+                    String responseBodyXML = new String(new Base64().decode(responseBody), StandardCharsets.UTF_8);
+                    return (R) XmlHelper.toObject(responseBodyXML.substring(responseBodyXML.indexOf("?>") + 2),(Class) responseType);
                 } catch (DocumentException e) {
                     logger.error("解析SOAP的报文异常，报文为：{}", responseStr);
                     return null;

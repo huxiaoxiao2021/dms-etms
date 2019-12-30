@@ -69,5 +69,29 @@
         </property>
     </bean>
 
+    <!--  全国邮政  -->
+    <bean id="emsBusinessManager" class="com.jd.bluedragon.external.crossbow.ems.manager.EMSBusinessManager">
+        <property name="printKind" value="${dms.external.ems.printKind}" />
+        <property name="password" value="${dms.external.ems.password}" />
+        <property name="crossbowConfig" >
+            <bean class="com.jd.bluedragon.core.crossbow.CrossbowConfig">
+                <property name="domain" value="${dms.external.ems.domain}" />
+                <property name="api" value="${dms.external.ems.api}" />
+                <property name="appKey" value="${dms.external.ems.appKey}" />
+                <property name="appSecret" value="${dms.external.ems.appSecret}" />
+                <property name="customerId" value="${dms.external.ems.customerId}" />
+                <property name="securityEnum" value="message_sign" />
+            </bean>
+        </property>
+        <property name="serializationConfig">
+            <bean class="com.jd.bluedragon.external.crossbow.SerializationConfig">
+                <property name="serializationMode" value="SOAP_BASE64" />
+                <property name="methodName" value="printEMSDatas" />
+                <property name="nameSpaceUIR" value="http://printService.webservice.bigaccount.hollycrm.com" />
+                <property name="parameterName" value="xmlStr" />
+            </bean>
+        </property>
+    </bean>
+
 
 </beans>

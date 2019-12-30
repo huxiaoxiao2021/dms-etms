@@ -22,5 +22,11 @@ public enum SerializationModeEnum {
     /**
      * SOAP的报文
      */
-    SOAP;
+    SOAP,
+
+    /**
+     * SOAP的报文，使用base64加密消息体
+     */
+    SOAP_BASE64;
+
 }
