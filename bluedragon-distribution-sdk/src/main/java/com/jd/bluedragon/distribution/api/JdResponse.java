@@ -15,6 +15,7 @@ public class JdResponse extends JdObject {
     
     public static final Integer CODE_PARAM_ERROR = 10000;
     public static final String MESSAGE_PARAM_ERROR = "参数错误";
+    public static final String MESSAGE_PARAM_ERROR_2 = "网点信息为空，请重新登录再试！";
 
     public static final Integer CODE_NO_POP_WAYBILL = 11000;
     public static final String MESSAGE_NO_POP_WAYBILL = "运单不存在或者为非POP";

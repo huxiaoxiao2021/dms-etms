@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.send.service;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.ThirdPartyLogisticManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -22,6 +23,7 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillInfo;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.external.crossbow.whems.domain.WuHanEMSWaybillEntityDto;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.third.service.dto.BaseResult;
 import com.jd.etms.third.service.dto.OrderShipsReturnDto;
@@ -62,9 +64,6 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 
 	@Autowired
 	private SendDatailDao sendDatailDao;
-
-	@Autowired
-	private Ems4JingDongPortType whemsClientService;
 
 	@Autowired
 	private ThirdPartyLogisticManager thirdPartyLogisticManager;
@@ -211,17 +210,6 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
         return splitList.toArray(new List[0]);
     }
 
-    @SuppressWarnings("unchecked")
-    private List<String>[] splitList1(List<String> transresult){
-        List<List<String>> splitList = new ArrayList<List<String>>();
-        for(int i = 0;i<transresult.size();i+=1){
-            int size = i+1>transresult.size()?transresult.size():i+1;
-            List<String> tmp = (List<String>)transresult.subList(i, size);
-            splitList.add(tmp);
-        }
-        return splitList.toArray(new List[0]);
-    }
-
 	public void batchProcessOrderInfo2DSF(List<SendM> tSendMList) {
 
 		List<SendDetail> sendList = new ArrayList<SendDetail>();
@@ -230,13 +218,11 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		if (sendList != null && !sendList.isEmpty()) {
 			Set<String> waybillset = new HashSet<String>();
 			for (SendDetail dSendDatail : sendList) {
+				if (waybillset.contains(dSendDatail.getWaybillCode())) {
+					continue;
+				}
 				waybillset.add(dSendDatail.getWaybillCode());
-			}
-			List<String> waybillList = new CollectionHelper<String>()
-					.toList(waybillset);
-			boolean bool = sendMqToWhsmsServer(waybillList);
-			if(!bool){
-				this.log.warn("武汉邮政推送自消费类型的MQ失败：{}" , waybillList.toString());
+				pushWhemsWaybill(dSendDatail.getWaybillCode());
 			}
 		}
 	}
@@ -320,182 +306,6 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 				}
 			}
 		}
-	}
-
-	/**
-	 * 调用邮政接口回传数据
-	 * @param waybillList
-	 */
-	private boolean sendMqToWhsmsServer(List<String> waybillList) {
-		boolean resultBool = false;
-		if (waybillList != null && !waybillList.isEmpty()) {
-			boolean flage = true;
-			List<SysConfig> configs=baseService.queryConfigByKeyWithCache(EMS_ONOFF);
-			for(SysConfig sys : configs){
-				if(StringHelper.matchSiteRule(sys.getConfigContent(), "EMS_OFF")){
-					flage =false;
-				}
-			}
-			List<String>[] splitListResultAl = splitList1(waybillList);
-			for (List<String> wlist : splitListResultAl) {
-				WChoice queryWChoice = new WChoice();
-				queryWChoice.setQueryPackList(true);
-				queryWChoice.setQueryWaybillC(true);
-				List<BigWaybillDto> tWaybillList = null;
-				if(flage)
-					tWaybillList = deliveryService.getWaillCodeListMessge(queryWChoice, wlist);
-				else
-					tWaybillList =getWaillCodeListMessge(queryWChoice, wlist);
-
-				StringBuffer buffer = new StringBuffer();
-				if (tWaybillList != null && !tWaybillList.isEmpty()) {
-					/*this.log
-							.info("batchProcessOrderInfo2DSF武汉邮政推送接口-调用运单接口不为空");*/
-					for (BigWaybillDto tWaybill : tWaybillList) {
-						if (tWaybill != null && tWaybill.getWaybill() != null) {
-							Waybill waybill = tWaybill.getWaybill();
-							String payment = String.valueOf(waybill
-									.getPayment());
-							String declaredValue = waybill.getCodMoney();
-							String collection = "";
-							String needFund = "0.00";
-							if (payment.equals("1") || payment.equals("3")) {
-								collection = "1";
-								if (declaredValue != null) {
-									Double d = Math.round(Double
-											.parseDouble(declaredValue) * 100) / 100.00;
-									needFund = d.toString();
-								}
-							} else {
-								collection = "0";
-								needFund = "0.00";
-							}
-							Object[] sendData = new Object[17];
-							sendData[0] = waybill.getWaybillCode();
-							sendData[1] = waybill.getWaybillCode();
-							;
-							sendData[2] = waybill.getReceiverName();
-							if (null == waybill.getReceiverZipCode()) {
-								sendData[3] = "";
-							} else {
-								sendData[3] = waybill.getReceiverZipCode();
-							}
-							String province = waybill.getProvinceName();
-							if (StringUtils.isBlank(province)) {
-								if (waybill.getProvinceId() != null){
-									Assort assort = baseService.getOneAssortById(waybill.getProvinceId());
-									if (assort != null){
-										sendData[4] = assort.getAssDis();
-									}else {
-										sendData[4] = "";								}
-								} else {
-									sendData[4] = "";
-								}
-							} else {
-								sendData[4] = province;
-							}
-							String city = waybill.getCityName();
-							if (StringUtils.isBlank(city)) {
-								if (waybill.getCityId() != null){
-									Assort assort = baseService.getOneAssortById(waybill.getCityId());
-									if (assort != null){
-										sendData[5] = assort.getAssDis();
-									}else {
-										sendData[5] = "";
-									}
-								} else {
-									sendData[5] = "";
-								}
-							} else {
-								sendData[5] = city;
-							}
-							String county = waybill.getCountryName();
-							if (StringUtils.isBlank(county)) {
-								if (waybill.getCountryId() != null){
-									Assort assort = baseService.getOneAssortById(waybill.getCountryId());
-									if (assort != null){
-										sendData[6] = assort.getAssDis();
-									}else {
-										sendData[6] = "";
-									}
-								} else {
-									sendData[6] = "";
-								}
-							} else {
-								sendData[6] = county;
-							}
-							sendData[7] = waybill.getReceiverAddress();
-							sendData[8] = waybill.getReceiverMobile();
-							sendData[9] = waybill.getReceiverTel();
-							sendData[10] = "";
-
-							List<DeliveryPackageD> deliveryPackage = tWaybill
-									.getPackageList();
-							if (deliveryPackage != null
-									&& !deliveryPackage.isEmpty()
-									&& BusinessHelper
-											.checkIntNumRange(deliveryPackage
-													.size())) {
-								for (DeliveryPackageD delivery : deliveryPackage) {
-									sendData[0] = delivery.getPackageBarcode();
-									sendData[11] = 0;
-									if (delivery.getGoodWeight() != null)
-										sendData[11] = delivery.getGoodWeight()*1000;
-									if (delivery.getAgainWeight() != null)
-										sendData[11] = delivery.getAgainWeight()*1000;
-									sendData[12] = delivery.getGoodVolume();
-									sendData[13] = collection;
-									sendData[14] = needFund;
-									sendData[15] = deliveryPackage.size();
-									sendData[16] = delivery.getPackageBarcode();
-									String tempstring = String
-											.format(""
-													+ "<OrderShip><Id>%1$s</Id><OrderId>%2$s</OrderId><BagId>%17$s</BagId><UserName>"
-													+ "%3$s</UserName><PostalCode>%4$s</PostalCode><Province>%5$s</Province><City>%6$s</City>"
-													+ "<Area>%7$s</Area><Address><![CDATA[%8$s]]></Address><CellPhoneNumber>%9$s</CellPhoneNumber>"
-													+ "<TelePhoneNumber>%10$s</TelePhoneNumber><EmailAddress></EmailAddress>"
-													+ "<DeliveryTime>%11$s</DeliveryTime><Weight>%12$s</Weight><Wbulk>%13$s</Wbulk>"
-													+ "<Collection>%14$s</Collection><NeedFund>%15$s</NeedFund><Remark></Remark>"
-													+ "<BagQuatity>%16$s</BagQuatity></OrderShip>",
-													(Object[]) sendData);
-									buffer.append(tempstring);
-								}
-							}
-						}
-					}
-					String whEmsKey = PropertiesHelper.newInstance().getValue(
-							"encpKey");
-					if (StringHelper.isEmpty(whEmsKey))
-						return resultBool;
-					String body = "<PlaintextData><OrderShipList>"
-							+ buffer.toString()
-							+ "</OrderShipList></PlaintextData>";
-					this.log.warn("数据报文：{}" , body);
-					String businessId = wlist.get(0);//改为逐条发送的话，只有一条运单数据
-					whSmsSendMq.sendOnFailPersistent(businessId,body);
-					resultBool = true;
-				}
-			}
-
-		}
-		return resultBool;
-	}
-
-	public static String md5(String input) {
-		MessageDigest md = null;
-		try {
-			// 生成一个MD5加密计算摘要
-			md = MessageDigest.getInstance("MD5");
-			// 计算md5函数
-			md.update(input.getBytes("utf-8"));
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-			return "1";
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-			return "1";
-		}
-		return new BigInteger(1, md.digest()).toString(16);
 	}
 
 	@JProfiler(jKey = "com.jd.bluedragon.distribution.send.service.ReverseDeliveryServiceImpl.getWhemsWaybill",mState = JProEnum.TP)
@@ -642,16 +452,115 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		return response;
 	}
 
-	public void pushWhemsWaybill(List<String> wlist) {
-		sendMqToWhsmsServer(wlist);
-	}
+	@Override
+	@JProfiler(jKey = "dms.core.ReverseDeliveryService.pushWhemsWaybill", jAppName = Constants.UMP_APP_NAME_DMSWORKER)
+	public void pushWhemsWaybill(String waybillCode) {
+		if (StringHelper.isEmpty(waybillCode) || !WaybillUtil.isWaybillCode(waybillCode)) {
+			log.warn("推送武汉邮政数据，运单号错误。waybillCode:{}", waybillCode);
+			return;
+		}
 
-	public Ems4JingDongPortType getWhemsClientService() {
-		return whemsClientService;
-	}
+		/* 快生开关 注意取反 */
+		boolean quickFlag = true;
+		List<SysConfig> configs=baseService.queryConfigByKeyWithCache(EMS_ONOFF);
+		for(SysConfig sys : configs){
+			if(StringHelper.matchSiteRule(sys.getConfigContent(), "EMS_OFF")){
+				quickFlag =false;
+			}
+		}
+		BigWaybillDto waybillDto;
+		if (quickFlag) {
+			waybillDto = waybillService.getWaybill(waybillCode);
+		} else {
+			waybillDto = getWaybillQuickProduce(waybillCode);
+		}
 
-	public void setWhemsClientService(Ems4JingDongPortType whemsClientService) {
-		this.whemsClientService = whemsClientService;
+		if (waybillDto == null || waybillDto.getWaybill() == null) {
+			log.warn("获取运单数据失败，是否快生模式：{}, 运单号：{}", quickFlag, waybillCode);
+			return;
+		}
+		Waybill waybill = waybillDto.getWaybill();
+
+		WuHanEMSWaybillEntityDto waybillEntityDto = new WuHanEMSWaybillEntityDto();
+		waybillEntityDto.setOrderId(waybillCode);
+		waybillEntityDto.setUserName(waybill.getReceiverName());
+		waybillEntityDto.setAddress(waybill.getReceiverAddress());
+		waybillEntityDto.setTelPhoneNumber(waybill.getReceiverTel());
+		waybillEntityDto.setCellphoneNumber(waybill.getReceiverMobile());
+		waybillEntityDto.setPostalCode(StringHelper.isEmpty(waybill.getReceiverZipCode())?
+				"" : waybill.getReceiverZipCode());
+
+		String province = waybill.getProvinceName();
+		waybillEntityDto.setProvince(province);
+		if (StringUtils.isBlank(province)) {
+			if (waybill.getProvinceId() != null){
+				Assort assort = baseService.getOneAssortById(waybill.getProvinceId());
+				if (assort != null){
+					waybillEntityDto.setProvince(assort.getAssDis());
+				}
+			}
+		}
+
+		String city = waybill.getCityName();
+		waybillEntityDto.setCity(city);
+		if (StringUtils.isBlank(city)) {
+			if (waybill.getCityId() != null){
+				Assort assort = baseService.getOneAssortById(waybill.getCityId());
+				if (assort != null){
+					waybillEntityDto.setCity(assort.getAssDis());
+				}
+			}
+		}
+
+		String county = waybill.getCountryName();
+		waybillEntityDto.setArea(county);
+		if (StringUtils.isBlank(county)) {
+			if (waybill.getCountryId() != null){
+				Assort assort = baseService.getOneAssortById(waybill.getCountryId());
+				if (assort != null){
+					waybillEntityDto.setArea(assort.getAssDis());
+				}
+			}
+		}
+		waybillEntityDto.setAddress("<![CDATA[" + waybill.getReceiverAddress() + "]]");
+		waybillEntityDto.setDeliveryTime("");
+		waybillEntityDto.setEmailAddress("");
+		waybillEntityDto.setWeight("0");
+		waybillEntityDto.setRemark("");
+
+		String payment = String.valueOf(waybill.getPayment());
+		String declaredValue = waybill.getCodMoney();
+		String collection = "";
+		String needFund = "0.00";
+		if (payment.equals("1") || payment.equals("3")) {
+			collection = "1";
+			if (declaredValue != null) {
+				Double d = Math.round(Double
+						.parseDouble(declaredValue) * 100) / 100.00;
+				needFund = d.toString();
+			}
+		} else {
+			collection = "0";
+			needFund = "0.00";
+		}
+		waybillEntityDto.setCollection(collection);
+		waybillEntityDto.setNeedFund(needFund);
+		if (waybillDto.getPackageList() != null && waybillDto.getPackageList().size() > 0) {
+			waybillEntityDto.setBagQuantity(String.valueOf(waybillDto.getPackageList().size()));
+			for (DeliveryPackageD deliveryPackageD : waybillDto.getPackageList()) {
+				waybillEntityDto.setId(deliveryPackageD.getPackageBarcode());
+				waybillEntityDto.setBagId(deliveryPackageD.getPackageBarcode());
+				if (waybill.getGoodWeight() != null) {
+					waybillEntityDto.setWeight(String.valueOf(deliveryPackageD.getGoodWeight() * 1000));
+				}
+				if (waybill.getAgainWeight() != null) {
+					waybillEntityDto.setWeight(String.valueOf(deliveryPackageD.getAgainWeight() * 1000));
+				}
+				waybillEntityDto.setwBulk(String.valueOf(deliveryPackageD.getGoodVolume()));
+				/* 逐条发送 */
+				whSmsSendMq.sendOnFailPersistent(waybillCode,JsonHelper.toJson(waybillEntityDto));
+			}
+		}
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -735,18 +644,6 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 			}
 		}
 		return errorWaybill.toString();
-	}
-
-	public static String decrypt(String mingwen) {
-		Base64 base64=new Base64();
-		String result = "";
-		try {
-			result = new String(base64.decode(md5(mingwen).getBytes("utf-8")),Charset.forName("UTF-8"));
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return result;
 	}
 
 	public List<WaybillInfo> getWaybillInfo(String waybillCode) {
@@ -975,16 +872,5 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
     		}
     	}
     	return list;
-    }
-
-    public static void main(String[] args) {
-        List<String> waybillCodes = new ArrayList<String>();
-        waybillCodes.add("42747094316");
-        waybillCodes.add("42747094313");
-        waybillCodes.add("42747094310");
-        waybillCodes.add("42747094265");
-        waybillCodes.add("42747090797");
-        System.out.println(JsonHelper.toJson(waybillCodes));
-
     }
 }

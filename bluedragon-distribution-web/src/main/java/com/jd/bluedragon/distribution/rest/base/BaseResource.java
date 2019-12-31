@@ -293,6 +293,12 @@ public class BaseResource {
 		if (log.isInfoEnabled()) {
 			log.info("login from new rest service.[{}]", JsonHelper.toJson(request));
 		}
+		LoginUserResponse loginUserResponse = new LoginUserResponse();
+		if(request == null){
+			loginUserResponse.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+			loginUserResponse.setMessage(InvokeResult.PARAM_ERROR);
+			return loginUserResponse;
+		}
 		return userService.clientLoginIn(request);
 	}
 
@@ -1601,6 +1607,28 @@ public class BaseResource {
 		}
 
 
+		return result;
+	}
+
+	@Path("/getBaseDataDictList/{parentId}/{nodeLevel}/{typeGroup}")
+	@GET
+	/**
+	 * 基础资料字典获取接口
+	 */
+	public InvokeResult<List<BaseDataDict>>  getBaseDataDictList(@PathParam("parentId")Integer parentId, @PathParam("nodeLevel")Integer nodeLevel,@PathParam("typeGroup")Integer typeGroup){
+        InvokeResult<List<BaseDataDict>> result = new InvokeResult<>();
+	    if(parentId == null || nodeLevel == null || typeGroup == null){
+			result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
+			result.setMessage(InvokeResult.PARAM_ERROR);
+			return result;
+		}
+		try{
+			result.setData(this.baseService.getBaseDataDictList(parentId, nodeLevel, typeGroup));
+		}catch (Exception e){
+	    	log.error("获取基础资料字典数据异常{}，{}，{}",parentId,nodeLevel,typeGroup,e);
+			result.setCode(InvokeResult.SERVER_ERROR_CODE);
+			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
+		}
 		return result;
 	}
 }

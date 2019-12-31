@@ -51,7 +51,7 @@ public interface ReverseDeliveryService {
 	 * 武汉邮政订单推送接口
 	 * @return
 	 */
-	public void pushWhemsWaybill(List<String> wlist);
+	void pushWhemsWaybill(String waybillCode);
 	
 	/**
 	 * 全国邮政订单推送接口
