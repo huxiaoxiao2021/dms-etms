@@ -582,68 +582,23 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 	 * 调用全国邮政接口回传数据
 	 * @param waybillList
 	 */
-	public String toEmsServer(List<String> waybillList) {
-		StringBuffer errorWaybill = new StringBuffer();
+	public void toEmsServer(List<String> waybillList) {
 		for(String waybillCode : waybillList){
-			if(waybillCode == null){
+			if(StringHelper.isEmpty(waybillCode)){
 				continue;
 			}
 			String sysAccount = "";
 			List<WaybillInfo> list = getWaybillInfo(waybillCode);
-			if(list!=null && !list.isEmpty()){
-				StringBuffer buffer = new StringBuffer();
-				for(WaybillInfo info : list){
-					sysAccount = info.getSysAccount();
-					buffer.append("<printData><businessType>")
-					.append(info.getBusinessType())
-					.append("</businessType><dateType></dateType><procdate></procdate><scontactor>")
-					.append(info.getScontactor())
-					.append("</scontactor><scustMobile>")
-					.append(info.getScustMobile())
-					.append("</scustMobile><scustTelplus></scustTelplus><scustPost></scustPost><scustAddr><![CDATA[")
-					.append(info.getScustAddr())
-					.append("]]></scustAddr><scustComp></scustComp><tcontactor>")
-					.append(info.getTcontactor())
-					.append("</tcontactor><tcustMobile>")
-					.append(info.getTcustMobile())
-					.append("</tcustMobile><tcustTelplus>")
-					.append(info.getTcustTelplus())
-					.append("</tcustTelplus><tcustPost>")
-					.append(info.getTcustPost())
-					.append("</tcustPost ><tcustAddr><![CDATA[")
-					.append(info.getTcustAddr())
-					.append("]]></tcustAddr><tcustComp></tcustComp><tcustProvince>")
-					.append(info.getTcustProvince())
-					.append("</tcustProvince><tcustCity>")
-					.append(info.getTcustCity())
-					.append("</tcustCity><tcustCounty>")
-					.append(info.getTcustCounty())
-					.append("</tcustCounty><weight>")
-					.append(info.getWeight())
-					.append("</weight><length></length><insure></insure><fee>")
-					.append(info.getFee().intValue())
-					.append("</fee><feeUppercase>")
-					.append(info.getFeeUppercase())
-					.append("</feeUppercase><cargoDesc></cargoDesc><cargoDesc1></cargoDesc1><cargoDesc2></cargoDesc2><cargoDesc3></cargoDesc3><cargoDesc4></cargoDesc4><cargoType></cargoType><deliveryclaim></deliveryclaim><remark></remark><bigAccountDataId>")
-					.append(info.getPackageBarcode())
-					.append("</bigAccountDataId><customerDn>")
-					.append(info.getWaybillCode())
-					.append("</customerDn><subBillCount>")
-					.append(info.getPackageNum().equals(0)?"":info.getPackageNum())
-					.append("</subBillCount><mainBillNo></mainBillNo><mainBillFlag></mainBillFlag><mainSubPayMode>4</mainSubPayMode><payMode>")
-					.append(info.getPayMode())
-					.append("</payMode><insureType></insureType><blank1></blank1><blank2></blank2><blank3></blank3><blank4></blank4><blank5></blank5></printData>");
-				}
-				String body = buffer.toString();
-				body = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-						+ "<XMLInfo><sysAccount>"+sysAccount+"</sysAccount><passWord>e10adc3949ba59abbe56e057f20f883e</passWord><printKind>2</printKind><printDatas>"
-						+ body + "</printDatas></XMLInfo>";
+			if (null == list || list.isEmpty()) {
+				continue;
+			}
+			for (WaybillInfo info : list) {
+				String businessId = info.getWaybillCode();
+				String body = JsonHelper.toJson(info);
 				this.log.warn("ems数据报文：{}" , body);
-				String businessId = waybillCode;
-                emsSendMq.sendOnFailPersistent(businessId,body);// 改为一条一条的发送的话，busineId为运单号
+				emsSendMq.sendOnFailPersistent(businessId,body);// 改为一条一条的发送的话，busineId为运单号
 			}
 		}
-		return errorWaybill.toString();
 	}
 
 	public List<WaybillInfo> getWaybillInfo(String waybillCode) {
