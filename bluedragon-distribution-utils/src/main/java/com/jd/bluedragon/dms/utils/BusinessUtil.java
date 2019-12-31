@@ -960,31 +960,55 @@ public class BusinessUtil {
     }
 
     /**
-     * 判断否属于新增大小站类型（除校园派、爱回收等情况）
-     * 1.一级为自提点siteType=8;
-     * 2.一级营业部siteType=4；二级为营业部subType=4
+     * 判断是否是乡镇共配站
+     * 16-1605
      */
-    public static Boolean isNewBigSmallSite(Integer type ,Integer subType) {
-
-        if (type != null) {
-            if (subType != null) {
-                return type == 8 || (type == 4 && subType == 4);
-            }
-            return type == 8;
+    public static Boolean isRuralSite(Integer type, Integer subType) {
+        if (type == null || subType == null) {
+            return Boolean.FALSE;
         }
-        return false;
+
+        if (type == 16 && subType == 1605) {
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
+
+    /**
+     * 判断是否是自提点
+     * 8
+     */
+    public static Boolean isSelfSite(Integer type) {
+        return type != null && type == 8;
+    }
+
+    /**
+     * 判断是否是营业部
+     * 4-4
+     */
+    public static Boolean isSalesDeptSite(Integer type, Integer subType) {
+
+        if (type == null || subType == null) {
+            return Boolean.FALSE;
+        }
+
+        if (type == 4 && subType == 4) {
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
     }
 
     /**
      * 可能存在所属站的情况，调用基础资料basicSiteQueryWS.getSiteExtensionBySiteId接口获取所属站信息
      */
     public static Boolean isMayBelongSiteExist(Integer type ,Integer subType) {
-
-        return BusinessUtil.isThreePartner(type, subType)
+        return BusinessUtil.isSelfSite(type)
+                || BusinessUtil.isThreePartner(type, subType)
                 || BusinessUtil.isSchoolyard(type, subType)
                 || BusinessUtil.isRecovery(type, subType)
-                || BusinessUtil.isNewBigSmallSite(type, subType)
-                || BusinessUtil.isAllianceBusiSite(type, subType);
+                || BusinessUtil.isAllianceBusiSite(type, subType)
+                || BusinessUtil.isRuralSite(type, subType)
+                || BusinessUtil.isSalesDeptSite(type, subType);
     }
 
     /**
