@@ -111,13 +111,13 @@
 
     <!-- 武汉邮政自消费类型MQ created by wzx (全国和华中环境的注释掉此mq消费者，只保留外网分组的此消费者) -->
     <!--<jmq:consumer id="jmq.ReverseDeliveryToWhSmsConsumer" transport="jmq.BlueDragonDistribution.transport">-->
-            <!--<jmq:listener topic="bd_dms_whSms_mq" listener="reverseDeliveryToWhSmsConsumer"/>-->
+            <!--<jmq:listener topic="${jmq.topic.bd.dms.whSms.mq}" listener="reverseDeliveryToWhSmsConsumer"/>-->
     <!--</jmq:consumer>-->
 
     <!-- 全国邮政自消费类型MQ created by wzx -->
     <!--
     <jmq:consumer id="jmq.ReverseDeliveryToEmsConsumer" transport="jmq.BlueDragonDistribution.transport">
-            <jmq:listener topic="bd_dms_ems_mq" listener="reverseDeliveryToEmsConsumer"/>
+            <jmq:listener topic="${jmq.topic.bd.dms.ems.mq}" listener="reverseDeliveryToEmsConsumer"/>
     </jmq:consumer>
 	-->
     <!-- 消费龙门架扫描MQ added by zhanglei -->

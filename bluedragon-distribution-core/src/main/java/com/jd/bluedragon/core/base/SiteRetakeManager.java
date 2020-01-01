@@ -1,9 +1,10 @@
 package com.jd.bluedragon.core.base;
 
-import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.common.orm.page.Page;
 import com.jd.etms.erp.service.domain.VendorOrder;
 import com.jd.ldop.middle.api.basic.domain.BasicTraderQueryDTO;
+import com.jd.ql.erp.dto.vendor.ReTakeRequestDTO;
 
 import java.util.List;
 
@@ -30,11 +31,14 @@ public interface SiteRetakeManager {
      */
     Page<VendorOrder> selectVendorOrderList(VendorOrder vendorOrder, Page page);
 
+
+
     /**
-     * 更新揽收状态接口
+     * 批量更新揽收状态接口
      *
-     * @param vendorOrder
+     * 返回失败数据
      * @return
      */
-    InvokeResult<String> updateCommonOrderStatus(VendorOrder vendorOrder);
+    List<String> batchUpdateReTakeTime(List<ReTakeRequestDTO> reTakeRequestDTOS);
+
 }

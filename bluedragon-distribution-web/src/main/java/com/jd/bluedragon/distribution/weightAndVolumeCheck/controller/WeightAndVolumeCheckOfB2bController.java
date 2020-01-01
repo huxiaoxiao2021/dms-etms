@@ -51,10 +51,13 @@ public class WeightAndVolumeCheckOfB2bController extends DmsBaseController {
     public String toIndex(Model model){
         Integer createSiteCode = new Integer(-1);
         LoginUser loginUser = getLoginUser();
-        if(loginUser != null && loginUser.getSiteType() == 64){
-            createSiteCode = loginUser.getSiteCode();
+        String loginErp = null;
+        if(loginUser != null){
+            if(loginUser.getSiteType() == 64){
+                createSiteCode = loginUser.getSiteCode();
+            }
+            loginErp = loginUser.getUserErp();
         }
-        String loginErp = loginUser.getUserErp();
         model.addAttribute("createSiteCode",createSiteCode);
         model.addAttribute("loginErp",loginErp);
         return "/weightAndVolumeCheck/weightAndVolumeCheckOfB2b";

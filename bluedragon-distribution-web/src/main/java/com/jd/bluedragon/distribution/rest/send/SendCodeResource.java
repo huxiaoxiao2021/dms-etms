@@ -199,12 +199,8 @@ public class SendCodeResource {
         for (String code : waybills) {
             request.add(code);
         }
-        String message = reverseDelivery.toEmsServer(request);
-        if (StringHelper.isEmpty(message)) {
-            return new JdResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
-        } else {
-            return new JdResponse(JdResponse.CODE_OK, message);
-        }
+        reverseDelivery.toEmsServer(request);
+        return new JdResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
     }
 
     private Integer getCreateSiteCodeBysendCode(String sendCode) {
