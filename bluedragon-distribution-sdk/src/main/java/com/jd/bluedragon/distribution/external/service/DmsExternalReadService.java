@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.external.service;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.api.response.DmsBaseResponse;
 import com.jd.bluedragon.distribution.api.response.SendBoxDetailResponse;
+import com.jd.bluedragon.distribution.api.response.WaybillInfoResponse;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.saf.WaybillSafResponse;
 import com.jd.bluedragon.distribution.send.domain.SendDSimple;
@@ -91,6 +92,14 @@ public interface DmsExternalReadService {
 	 * */
 	public List<DepartureWaybillDto> getWaybillsByDeparture(String code, Integer type);
 
+
+	//////////////////////EmsOrderJosSafService//////////////////////
+	/**
+	 * 根据运单号获取发货信息
+	 * @param waybillCode 运单号
+	 * @return
+	 * */
+	public WaybillInfoResponse getWaybillInfo(String waybillCode);
 
 	////////////////////////OrdersResourceSafService//////////////////////
 	/**

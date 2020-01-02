@@ -5,11 +5,13 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.api.response.DmsBaseResponse;
 import com.jd.bluedragon.distribution.api.response.SendBoxDetailResponse;
+import com.jd.bluedragon.distribution.api.response.WaybillInfoResponse;
 import com.jd.bluedragon.distribution.base.dao.KvIndexDao;
 import com.jd.bluedragon.distribution.crossbox.service.CrossBoxService;
 import com.jd.bluedragon.distribution.external.service.DmsExternalReadService;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
+import com.jd.bluedragon.distribution.saf.EmsOrderJosSafService;
 import com.jd.bluedragon.distribution.saf.OrdersResourceSafService;
 import com.jd.bluedragon.distribution.saf.WaybillSafResponse;
 import com.jd.bluedragon.distribution.saf.WaybillSafService;
@@ -51,6 +53,9 @@ public class DmsExternalReadServiceImpl implements DmsExternalReadService {
 
 	@Autowired
 	private WaybillSafService waybillSafService;
+
+	@Autowired
+	private EmsOrderJosSafService emsOrderJosSafService;
 
 	@Autowired
 	private OrdersResourceSafService ordersResourceSafService;
@@ -163,6 +168,13 @@ public class DmsExternalReadServiceImpl implements DmsExternalReadService {
 	@JProfiler(jKey = "DMSWEB.DmsExternalReadServiceImpl.getWaybillsByDeparture", mState = {JProEnum.TP})
 	public List<DepartureWaybillDto> getWaybillsByDeparture(String code, Integer type) {
 		return distributionService.getWaybillsByDeparture(code, type);
+	}
+
+
+	@Override
+	@JProfiler(jKey = "DMSWEB.DmsExternalReadServiceImpl.getWaybillInfo", mState = {JProEnum.TP})
+	public WaybillInfoResponse getWaybillInfo(String waybillCode) {
+		return emsOrderJosSafService.getWaybillInfo(waybillCode);
 	}
 
 	@Override
