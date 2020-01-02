@@ -1,5 +1,8 @@
 package com.jd.bluedragon.external.gateway.waybill;
 
+import com.jd.bluedragon.external.gateway.base.GateWayBaseResponse;
+import com.jd.bluedragon.external.gateway.dto.request.WaybillSyncRequest;
+
 /**
  * 运单相关 发布物流网关
  * 目前的调用方有：经济网
@@ -7,4 +10,11 @@ package com.jd.bluedragon.external.gateway.waybill;
  * @date : 2020/1/2
  */
 public interface WaybillGateWayExternalService {
+
+    /**
+     * 回传箱号与运单明细
+     * @param request
+     * @return
+     */
+    GateWayBaseResponse<Void> syncWaybillCodeAndBoxCode(WaybillSyncRequest request);
 }
