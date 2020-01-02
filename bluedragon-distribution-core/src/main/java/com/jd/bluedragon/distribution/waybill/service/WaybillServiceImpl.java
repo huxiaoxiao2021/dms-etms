@@ -148,6 +148,7 @@ public class WaybillServiceImpl implements WaybillService {
         return baseEntity != null && baseEntity.getData() != null ? baseEntity.getData() : null;
     }
 
+    @Override
     public BigWaybillDto getWaybillState(String waybillCode) {
 
         WChoice wChoice = new WChoice();
@@ -347,6 +348,7 @@ public class WaybillServiceImpl implements WaybillService {
      * @param waybillCode
      * @return
      */
+    @Override
     public Integer getWaybillTypeByWaybillSign(String waybillCode){
         BigWaybillDto dto = getWaybillProductAndState(waybillCode);
         if(dto != null &&
@@ -365,12 +367,15 @@ public class WaybillServiceImpl implements WaybillService {
      * @param waybillCode
      * @return
      */
+    @Override
     public boolean isMovingWareHouseInnerWaybill(String waybillCode){
         return WAYBILL_TYPE_MOVING_WAREHOUSE_INNER.equals(getWaybillTypeByWaybillSign(waybillCode));
     }
+
     /**
      * 根据包裹号或者运单号获取运单相关信息
      */
+    @Override
 	public DmsWaybillInfoResponse getDmsWaybillInfoResponse(String packageCode) {
 		Boolean isIncludePackage = WaybillUtil.isWaybillCode(packageCode);
 		BigWaybillDto waybillDto = this.getWaybill(packageCode);
@@ -467,6 +472,10 @@ public class WaybillServiceImpl implements WaybillService {
         InvokeResult<Boolean> result = new InvokeResult<>();
 
         if (WaybillCancelInterceptTypeEnum.CANCEL.getCode() == interceptType) {
+            if (interceptMode == WaybillCancelInterceptModeEnum.NOTICE.getCode()) {
+                result.customMessage(SortingResponse.CODE_39006, SortingResponse.MESSAGE_39006);
+                return result;
+            }
             if (interceptMode == WaybillCancelInterceptModeEnum.INTERCEPT.getCode()) {
                 result.customMessage(SortingResponse.CODE_29311, SortingResponse.MESSAGE_29311);
                 return result;

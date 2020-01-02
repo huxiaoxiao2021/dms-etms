@@ -74,7 +74,8 @@ public class SortingResponse extends JdResponse {
     public static final Integer CODE_EXE_ERROR = 22011;
     public static final String MESSAGE_EXE_ERROR = "取消分拣异常";
 
-
+    public static final Integer CODE_39006 = 39006;
+    public static final String MESSAGE_39006 = "此单为取消订单，请逆向退回，确定强制继续？";
 
     /**************************************配送拦截新逻辑START****************************/
 
