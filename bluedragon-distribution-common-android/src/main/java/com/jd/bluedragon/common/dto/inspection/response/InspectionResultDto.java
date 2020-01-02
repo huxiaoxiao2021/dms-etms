@@ -16,6 +16,11 @@ public class InspectionResultDto implements Serializable {
     /*PDA验货提示语*/
     private String hintMessage;
 
+    /**
+     * 笼车号
+     */
+    private String tabletrolleyCode;
+
     public String getStorageCode() {
         return storageCode;
     }
@@ -30,5 +35,13 @@ public class InspectionResultDto implements Serializable {
 
     public void setHintMessage(String hintMessage) {
         this.hintMessage = hintMessage;
+    }
+
+    public String getTabletrolleyCode() {
+        return tabletrolleyCode;
+    }
+
+    public void setTabletrolleyCode(String tabletrolleyCode) {
+        this.tabletrolleyCode = tabletrolleyCode;
     }
 }
