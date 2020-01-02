@@ -21,16 +21,9 @@ public interface DMSExternalInPDDService {
 
     /**
      * 根据拼多多的电子面单号获取拼多多的运单详细信息
-     * @param waybillCode 电子面单号
-     * @return 返回拼多多运单信息
-     */
-    @Deprecated
-    BaseEntity<PDDWaybillPrintInfoDto> queryPDDWaybillByWaybillCode(String waybillCode);
-
-    /**
-     * 根据拼多多的电子面单号获取拼多多的运单详细信息
      * @param request 电子面单号 和 系统标识
      * @return 返回拼多多运单信息
      */
     BaseEntity<PDDWaybillPrintInfoDto> queryWaybillByWaybillCode(PDDWaybillPrintInfoRequest request);
+
 }
