@@ -16,6 +16,7 @@ import java.nio.charset.Charset;
  * Created by wuzuxiang on 2017/2/7.
  */
 @Service("reverseDeliveryToEmsConsumer")
+@Deprecated
 public class ReverseDeliveryToEmsConsumer extends MessageBaseConsumer{
     private static final Logger log = LoggerFactory.getLogger(ReverseDeliveryToEmsConsumer.class);
 

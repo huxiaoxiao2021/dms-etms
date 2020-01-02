@@ -863,7 +863,9 @@ public class DeliveryResource {
             return new WhemsWaybillResponse(JdResponse.CODE_PARAM_ERROR,
                     JdResponse.MESSAGE_PARAM_ERROR);
         }
-        reverseDelivery.pushWhemsWaybill(request);
+        for (String waybillCode : request) {
+            reverseDelivery.pushWhemsWaybill(waybillCode);
+        }
         return new WhemsWaybillResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
     }
 

@@ -10,7 +10,7 @@
     <bean id="jddlShardingDataSource" class="com.jd.jddl.client.jdbc.TDataSource" init-method="doInit">
         <property name="appName" value="${jddl.app.name}"/>
         <property name="dynamicRule" value="false"/>
-        <property name="appRuleFile" value="classpath:spring/mysql/jddl/distribution-core-sharding-rule-${profiles.env}.xml"/>
+        <property name="appRuleFile" value="classpath:spring/jddl/distribution-core-sharding-rule-${profiles.env}.xml"/>
     </bean>
 
     <!-- DMS主库（拆分库）JDDL 工厂类 -->
@@ -28,6 +28,33 @@
     <bean id="transactionShardingSlaveManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="jddlShardingDataSource" />
         <property name="rollbackOnCommitFailure" value="true"></property>
+    </bean>
+    <!-- DMS主库（拆分库）JDDL 工厂类 -->
+    <bean id="mainSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="jddlShardingDataSource" />
+        <property name="configLocation" value="classpath:config/mysql/mybatis-config.xml" />
+    </bean>
+
+    <!-- DMS主库（拆分库）事务管理器 -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="jddlShardingDataSource" />
+        <qualifier value="main"></qualifier>
+    </bean>
+
+    <!-- DMS主库（拆分库）模板类 -->
+    <bean id="sessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="mainSqlSessionFactory"/>
+    </bean>
+
+    <!-- DMS从库（拆分库）工厂类  -start-->
+    <bean id="slaveSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="jddlShardingDataSource" />
+        <property name="configLocation" value="classpath:config/mysql/mybatis-config-read.xml" />
+    </bean>
+
+    <!-- DMS从库（拆分库）模板类  -start-->
+    <bean id="readSqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="slaveSqlSessionFactory" />
     </bean>
 
 </beans>

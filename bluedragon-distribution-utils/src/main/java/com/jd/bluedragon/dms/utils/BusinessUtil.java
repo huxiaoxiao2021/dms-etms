@@ -324,6 +324,16 @@ public class BusinessUtil {
     }
 
     /**
+     * 根据waybillSign判断是否一盘货订单 （29 位 6 ）
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isYiPanHuoOrder(String waybillSign) {
+        return isSignInChars(waybillSign, 29, '6');
+    }
+
+    /**
      * 包裹半收 标识 waybillSign 27位 （0-不半收 1-全收半退 2-包裹半收 3-运单明细半收 4-包裹明细半收）
      *
      * @param waybillSign
@@ -963,6 +973,18 @@ public class BusinessUtil {
             return type == 8;
         }
         return false;
+    }
+
+    /**
+     * 可能存在所属站的情况，调用基础资料basicSiteQueryWS.getSiteExtensionBySiteId接口获取所属站信息
+     */
+    public static Boolean isMayBelongSiteExist(Integer type ,Integer subType) {
+
+        return BusinessUtil.isThreePartner(type, subType)
+                || BusinessUtil.isSchoolyard(type, subType)
+                || BusinessUtil.isRecovery(type, subType)
+                || BusinessUtil.isNewBigSmallSite(type, subType)
+                || BusinessUtil.isAllianceBusiSite(type, subType);
     }
 
     /**
