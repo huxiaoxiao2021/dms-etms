@@ -8,7 +8,7 @@ import java.util.List;
 
 /**
  * 暂存上架服务
- *
+ *发布到物流网关 由安卓调用
  * @author jiaowenqiang
  * @date 2019/7/5
  */

@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.dto.send.request.SinglePackageSendRequest;
 
 /**
  * 发货相关
+ * 发布到物流网关 由安卓调用
  * @author : xumigen
  * @date : 2019/6/27
  */
