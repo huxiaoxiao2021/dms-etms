@@ -1,12 +1,15 @@
 package com.jd.bluedragon.distribution.external;
 
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
-import com.jd.bluedragon.distribution.api.response.WaybillInfoResponse;
 import com.jd.bluedragon.distribution.external.service.DmsExternalReadService;
 import com.jd.bluedragon.distribution.saf.WaybillSafResponse;
 import com.jd.bluedragon.distribution.sorting.domain.OrderDetailEntityResponse;
 import com.jd.bluedragon.distribution.sorting.domain.OrdersDetailEntity;
-import com.jd.bluedragon.distribution.wss.dto.*;
+import com.jd.bluedragon.distribution.wss.dto.BoxSummaryDto;
+import com.jd.bluedragon.distribution.wss.dto.DepartureWaybillDto;
+import com.jd.bluedragon.distribution.wss.dto.PackageSummaryDto;
+import com.jd.bluedragon.distribution.wss.dto.SealVehicleSummaryDto;
+import com.jd.bluedragon.distribution.wss.dto.WaybillCodeSummatyDto;
 import com.jd.bluedragon.utils.DateHelper;
 import org.junit.Before;
 import org.junit.Test;
@@ -121,13 +124,6 @@ public class DmsExternalReadServiceTest {
             LOGGER.error("根据三方运单号获取发车信息：{}", dwd.getWaybillCode());
         }
 
-    }
-
-
-    @Test
-    public void testGetWaybillInfo() {
-        WaybillInfoResponse waybillInfoResponse = dmsExternalService.getWaybillInfo("170001005");
-        LOGGER.error("根据运单号获取发货信息：{}", waybillInfoResponse.getCode() + "," + waybillInfoResponse.getJsonData() + "," + waybillInfoResponse.getMessage());
     }
 
     @Test
