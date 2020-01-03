@@ -6,8 +6,6 @@
     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd">
 
-    <tx:annotation-driven transaction-manager="transactionManager"/>
-
     <!-- DMS主库（拆分库）JDDL数据源 -->
     <bean id="jddlShardingDataSource" class="com.jd.jddl.client.jdbc.TDataSource" init-method="doInit">
         <property name="appName" value="${jddl.app.name}"/>
@@ -15,6 +13,22 @@
         <property name="appRuleFile" value="classpath:spring/jddl/distribution-core-sharding-rule-${profiles.env}.xml"/>
     </bean>
 
+    <!-- DMS主库（拆分库）JDDL 工厂类 -->
+    <bean id="sqlSessionShardingSlaveFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="jddlShardingDataSource" />
+        <property name="configLocation" value="classpath:config/mysql/mybatis-config.xml" />
+    </bean>
+
+    <!-- DMS主库（拆分库）JDDL 模板类 -->
+    <bean id="sqlSessionSlaveShardingTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg ref="sqlSessionShardingSlaveFactory"/>
+    </bean>
+
+    <!-- DMS主库（拆分库）JDDL 事务管理器 -->
+    <bean id="transactionShardingSlaveManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="jddlShardingDataSource" />
+        <property name="rollbackOnCommitFailure" value="true"></property>
+    </bean>
     <!-- DMS主库（拆分库）JDDL 工厂类 -->
     <bean id="mainSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="dataSource" ref="jddlShardingDataSource" />

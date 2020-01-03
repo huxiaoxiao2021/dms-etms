@@ -2,15 +2,16 @@ package com.jd.bluedragon.distribution.rest.cyclebox;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
-import com.jd.bluedragon.distribution.api.request.WaybillCodeListRequest;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
+import com.jd.bluedragon.distribution.api.request.WaybillCodeListRequest;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.cyclebox.domain.CycleBox;
 import com.jd.dms.logger.annotation.BusinessLog;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
@@ -23,7 +24,7 @@ import java.util.List;
 @Consumes({MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_JSON})
 public class CycleBoxResource {
-    private final Logger logger = Logger.getLogger(CycleBoxResource.class);
+    private final Logger log = LoggerFactory.getLogger(CycleBoxResource.class);
 
     @Autowired
     CycleBoxService cycleBoxService;
@@ -38,7 +39,9 @@ public class CycleBoxResource {
     @Path("/cycleBox/getCycleBoxNum")
     @BusinessLog(sourceSys = 1,bizType = 1015,operateType = 101501)
     public InvokeResult<CycleBox> getCycleBoxNum(List<DeliveryRequest> request) {
-        this.logger.info("快运发货获取青流箱数量" + JsonHelper.toJson(request));
+        if(log.isInfoEnabled()){
+            this.log.info("快运发货获取青流箱数量:{}", JsonHelper.toJson(request));
+        }
         InvokeResult<CycleBox> result = new InvokeResult<CycleBox>();
         try {
             result.setData(cycleBoxService.getCycleBoxNum(request));
@@ -80,7 +83,7 @@ public class CycleBoxResource {
     @Path("/cycleBox/getCycleBoxByBatchCode/{batchCode}")
     @BusinessLog(sourceSys = 1,bizType = 1015,operateType = 101503)
     public InvokeResult<CycleBox> getCycleBoxByBatchCode(@PathParam("batchCode") String batchCode) {
-        this.logger.info("通过流水号获取青流箱明细，流水号:" + batchCode);
+        this.log.info("通过流水号获取青流箱明细，流水号:{}", batchCode);
         InvokeResult<CycleBox> result = new InvokeResult<CycleBox>();
 
         if (StringUtils.isBlank(batchCode)) {

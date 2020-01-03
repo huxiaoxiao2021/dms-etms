@@ -5,8 +5,10 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.DmsLocalServerManager;
-
-import com.jd.bluedragon.distribution.api.request.*;
+import com.jd.bluedragon.distribution.api.request.BatchSendPrintImageRequest;
+import com.jd.bluedragon.distribution.api.request.SendExceptionRequest;
+import com.jd.bluedragon.distribution.api.request.SortSchemeDetailRequest;
+import com.jd.bluedragon.distribution.api.request.SortSchemeRequest;
 import com.jd.bluedragon.distribution.api.response.BatchSendPrintImageResponse;
 import com.jd.bluedragon.distribution.api.response.SortSchemeDetailResponse;
 import com.jd.bluedragon.distribution.api.response.SortSchemeResponse;
@@ -27,7 +29,6 @@ import com.jd.bluedragon.distribution.sendGroup.service.SortMachineSendGroupServ
 import com.jd.bluedragon.distribution.sortscheme.domain.SortScheme;
 import com.jd.bluedragon.distribution.sortscheme.domain.SortSchemeDetail;
 import com.jd.bluedragon.distribution.sortscheme.service.SortSchemeService;
-import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.*;
@@ -35,15 +36,17 @@ import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.util.DateUtil;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
-import javax.annotation.meta.TypeQualifier;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -57,7 +60,7 @@ import java.util.*;
 @Controller
 @RequestMapping("/sortMachineAutoSend")
 public class SortMachineAutoSendController {
-    private static final Log logger = LogFactory.getLog(SortMachineAutoSendController.class);
+    private static final Logger log = LoggerFactory.getLogger(SortMachineAutoSendController.class);
     private final static String prefixKey = "localdmsIp$";
     private final static String HTTP = "http://";
     private final static String PREFIX_VER_URL = "DMSVER_ADDRESS";
@@ -93,7 +96,7 @@ public class SortMachineAutoSendController {
     @Authorization(Constants.DMS_WEB_SORTING_SORTMACHINEAUTOSEND_R)
     @RequestMapping(value = "/index", method = RequestMethod.GET)
     public String index(Model model) {
-        this.logger.debug("分拣机自动发货 --> index");
+        this.log.debug("分拣机自动发货 --> index");
         try {
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
             if (erpUser != null) {
@@ -109,7 +112,7 @@ public class SortMachineAutoSendController {
                 model.addAttribute("createSiteName", siteName);
             }
         } catch (Exception e) {
-            logger.info("没有维护分拣中心，初始化加载失败");
+            log.error("没有维护分拣中心，初始化加载失败");
         }
         return "sortMachine/sortMachineAutoSendIndex";
     }
@@ -141,12 +144,12 @@ public class SortMachineAutoSendController {
         if (!StringUtils.isBlank(urlOfVer)){
             url=urlOfVer;
         }else{
-            logger.warn("调用自动化web本地服务器信息接口获取分拣中心服务器V信息为空，"+bssod.getSiteCode());
+            log.warn("调用自动化web本地服务器信息接口获取分拣中心服务器V信息为空:{}",bssod.getSiteCode());
             url=PropertiesHelper.newInstance().getValue(prefixKey + bssod.getSiteCode());
         }
 
         if (StringUtils.isBlank(url)) {
-            logger.error("获取本地分拣中心应用服务器url信息结果为空，请检查该分拣中心是否配置了服务器url，"+bssod.getSiteCode());
+            log.warn("获取本地分拣中心应用服务器url信息结果为空，请检查该分拣中心是否配置了服务器url:{}",bssod.getSiteCode());
             response.parameterError("根据分拣中心ID,无法定位访问地址,请检查是否配置了该分拣中心url信息!!");
             return response;
         }
@@ -246,12 +249,12 @@ public class SortMachineAutoSendController {
         if (!StringUtils.isBlank(urlOfVer)){
             url=urlOfVer;
         }else{
-            logger.warn("调用自动化web本地服务器信息接口获取分拣中心服务器V信息为空，"+bssod.getSiteCode());
+            log.warn("调用自动化web本地服务器信息接口获取分拣中心服务器V信息为空:{}", bssod.getSiteCode());
             url=PropertiesHelper.newInstance().getValue(prefixKey + bssod.getSiteCode());
         }
 
         if (StringUtils.isBlank(url)) {
-            logger.error("获取本地分拣中心应用服务器url信息结果为空，请检查该分拣中心是否配置了服务器url，"+bssod.getSiteCode());
+            log.warn("获取本地分拣中心应用服务器url信息结果为空，请检查该分拣中心是否配置了服务器url:{}", bssod.getSiteCode());
             response.parameterError("根据分拣中心ID,无法定位访问地址,请检查是否配置了该分拣中心url信息!!");
             return response;
         }
@@ -296,8 +299,7 @@ public class SortMachineAutoSendController {
         scannerArgument.setStartTime(DateHelper.add(scannerArgument.getEndTime(), Calendar.HOUR,-24));
         List<ScannerFrameBatchSend> scannerFrameBatchSends = scannerFrameBatchSendService.queryByMachineIdAndTime(scannerArgument);
         if(scannerFrameBatchSends == null){
-            logger.error("查询发货批次信息失败machineCode=[" + machineCode + "][EndTime=[" + scannerArgument.getEndTime()
-            + "][StartTime=[" + scannerArgument.getStartTime() + "]");
+            log.warn("查询发货批次信息失败machineCode=[{}][EndTime=[{}][StartTime=[{}]", machineCode, scannerArgument.getEndTime(), scannerArgument.getStartTime());
             return null;
         }
         Map<String, ScannerFrameBatchSend> stringScannerFrameBatchSendMap = convert2Map(scannerFrameBatchSends);
@@ -350,7 +352,7 @@ public class SortMachineAutoSendController {
                 return addResult;
             }
         }catch (Exception e){
-            e.printStackTrace();
+            log.error("添加发货组时系统异常", e);
             respone.customMessage(500, "添加发货组时系统异常！");
         }
 
@@ -373,7 +375,7 @@ public class SortMachineAutoSendController {
                      request.getMachineCode(),request.getChuteCodes(),
                      erpUser.getStaffNo(), erpUser.getUserName());
         }catch (Exception e){
-            e.printStackTrace();
+            log.error("修改发货组时系统异常", e);
             respone.customMessage(500, "修改发货组时系统异常！");
         }
 
@@ -393,7 +395,7 @@ public class SortMachineAutoSendController {
         try{
             sortMachineSendGroupService.deleteSendGroup(groupId);
         }catch (Exception e){
-            e.printStackTrace();
+            log.error("删除发货组时系统异常", e);
             respone.customMessage(500, "删除发货组时系统异常！");
         }
 
@@ -412,7 +414,7 @@ public class SortMachineAutoSendController {
             @RequestBody ScannerFrameBatchSendPrint[] requests) {
         com.jd.bluedragon.distribution.base.domain.InvokeResult<List<BatchSendPrintImageResponse>> result =
                 new com.jd.bluedragon.distribution.base.domain.InvokeResult<List<BatchSendPrintImageResponse>>();
-        logger.info("已打印并完结批次动作开始-->打印的分拣机ID为：" + requests[0].getMachineId());
+        log.info("已打印并完结批次动作开始-->打印的分拣机ID为：{}", requests[0].getMachineId());
         result.setCode(400);
         result.setMessage("服务调用成功，数据为空");
         result.setData(null);
@@ -435,7 +437,7 @@ public class SortMachineAutoSendController {
                 userId = erpUser.getStaffNo() == null ? 0 : erpUser.getStaffNo();
                 userName = erpUser.getUserName() == null ? "none" : erpUser.getUserName();
             } catch (Exception e) {
-                logger.info("没有在基础资料中维护此erp信息");
+                log.error("没有在基础资料中维护此erp信息");
                 result.setCode(500);
                 result.setMessage("没有在基础资料中维护您的登录信息");
                 result.setData(null);
@@ -454,7 +456,7 @@ public class SortMachineAutoSendController {
             List<ScannerFrameBatchSend> dataRequestOld = pagerResult.getData();//取所有批次信息
             List<ScannerFrameBatchSend> dataRequest = new ArrayList<ScannerFrameBatchSend>();//取所有批次信息
             if (requests.length > 1) {
-                logger.info("本次提交的打印事件不是默认全选事件，需要对选中事件进行打印，选中的条数为：" + (requests.length - 1));
+                log.info("本次提交的打印事件不是默认全选事件，需要对选中事件进行打印，选中的条数为：{}", (requests.length - 1));
                 /** ==============通过request判断是否有选中打印事件=============== **/
                 for (ScannerFrameBatchSend data : dataRequestOld) {
                     long itemReceiveSiteCode = data.getReceiveSiteCode();
@@ -473,19 +475,19 @@ public class SortMachineAutoSendController {
             } else {
                 dataRequest = dataRequestOld;
             }
-            logger.info("需要执行该打印并完结批次的条数为：" + dataRequest.size());
+            log.info("需要执行该打印并完结批次的条数为：{}", dataRequest.size());
             List<BatchSendPrintImageResponse> results = new ArrayList<BatchSendPrintImageResponse>();
             String urlBatchPrint = PropertiesHelper.newInstance().getValue(PREFIX_VER_URL) + "/batchSendPrint/sortMachineBatchPrint";
             String urlSummaryPrint = PropertiesHelper.newInstance().getValue(PREFIX_VER_URL) + "/batchSendPrint/sortMachineSummaryPrint";
             for (ScannerFrameBatchSend item : dataRequest) {
                 if (item.getReceiveSiteCode() == 0) {
                     //没有目的站点，自动退出循环
-                    logger.error("检测出该条数据没有目的站点：本条数据丢弃，本次循环退出。");
+                    log.error("检测出该条数据没有目的站点：本条数据丢弃，本次循环退出。");
                     continue;
                 }
                 /** ===============1.执行换批次动作================== **/
                 ScannerFrameBatchSend itemtoEndSend = new ScannerFrameBatchSend();
-                logger.info("打印并完结批次-->执行换批次操作：" + item.toString());
+                log.info("打印并完结批次-->执行换批次操作：{}", item.toString());
                 itemtoEndSend.setMachineId(item.getMachineId());
                 itemtoEndSend.setCreateSiteCode(item.getCreateSiteCode());
                 itemtoEndSend.setCreateSiteName(item.getCreateSiteName());
@@ -503,33 +505,33 @@ public class SortMachineAutoSendController {
                 itemtoEndSend.setSendCode(SerialRuleUtil.generateSendCode(itemtoEndSend.getCreateSiteCode(), itemtoEndSend.getReceiveSiteCode(), itemtoEndSend.getCreateTime()));
                 boolean bool = scannerFrameBatchSendService.generateSend(itemtoEndSend);
                 if (!bool) {
-                    logger.error("换批次动作失败：打印跳过该批次：" + item.toString());
+                    log.warn("换批次动作失败：打印跳过该批次：{}", item.toString());
                     continue;
                 }
                 result.setCode(300);
                 result.setMessage("服务调用成功,换批次成功，打印失败");
                 result.setData(results);
-                logger.info("换批次动作实心成功，执行打印获取base64。");
+                log.info("换批次动作实心成功，执行打印获取base64。");
                 /** ==================换批次动作执行完毕================ **/
                 if ((printType & 1) == 1) {//批次打印逻辑
-                    logger.info("分拣机自动发货页面--批次打印开始");
+                    log.info("分拣机自动发货页面--批次打印开始");
                     BatchSendPrintImageResponse itemSendCodeResponse = scannerFrameBatchSendService.batchPrint(urlBatchPrint, item, userId, userName);
                     itemSendCodeResponse.setPrintType(SENDCODE_PRINT_TYPE);//批次打印单
                     results.add(itemSendCodeResponse);
                 }
                 if ((printType & 2) == 2) {//汇总打印逻辑
-                    logger.info("分拣机自动发货页面-打印汇总单开始");
+                    log.info("分拣机自动发货页面-打印汇总单开始");
                     BatchSendPrintImageResponse itemSummaryResponse = scannerFrameBatchSendService.summaryPrint(urlSummaryPrint, item, userId, userName);
                     itemSummaryResponse.setPrintType(SUMMARY_PRINT_TYPE);//汇总打印单
                     results.add(itemSummaryResponse);
                 }
-                logger.info("本次打印结束，获取的图片个数为：" + results.size());
+                log.info("本次打印结束，获取的图片个数为：{}", results.size());
             }
             result.setCode(200);
             result.setMessage("服务调用成功");
             result.setData(results);
         } catch (Exception e) {
-            logger.error("获取数据异常");
+            log.error("获取数据异常");
             result.setCode(500);
             result.setMessage("服务调用异常");
         }
@@ -540,7 +542,7 @@ public class SortMachineAutoSendController {
     @RequestMapping(value = "/queryExceptionNum", method = RequestMethod.POST)
     @ResponseBody
     public com.jd.bluedragon.distribution.base.domain.InvokeResult<Integer> queryExceptionNum(@RequestBody SendExceptionRequest request) {
-        this.logger.debug("获取分拣机发货异常信息 --> queryExceptionNum");
+        this.log.debug("获取分拣机发货异常信息 --> queryExceptionNum");
         com.jd.bluedragon.distribution.base.domain.InvokeResult<Integer> result =
                 new com.jd.bluedragon.distribution.base.domain.InvokeResult<Integer>();
         try {
@@ -548,7 +550,7 @@ public class SortMachineAutoSendController {
                     request.getStartTime(), request.getEndTime());
             result.setData(count);
         } catch (Exception e) {
-            logger.error("获取分拣机自动发货异常数据失败，分拣机ID为：" + request.getMachineId());
+            log.error("获取分拣机自动发货异常数据失败，分拣机ID为：{}", request.getMachineId());
         }
         return result;
     }
@@ -557,7 +559,7 @@ public class SortMachineAutoSendController {
     @RequestMapping(value = "/generateSendCode", method = RequestMethod.POST)
     @ResponseBody
     public com.jd.bluedragon.distribution.base.domain.InvokeResult<Integer> generateSendCode(@RequestBody ScannerFrameBatchSend[] lists) {
-        this.logger.debug("分拣机自动换批次 --> changeSendCode");
+        this.log.debug("分拣机自动换批次 --> changeSendCode");
         com.jd.bluedragon.distribution.base.domain.InvokeResult<Integer> result = new com.jd.bluedragon.distribution.base.domain.InvokeResult<Integer>();
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
         Integer userCode = 0;//用户编号
@@ -586,8 +588,8 @@ public class SortMachineAutoSendController {
                     allSuccess = false;
                     errorMsg += ("【物理滑槽:" + item.getMachineId() + "发货目的代码:" + item.getReceiveSiteCode()
                             + "批次开始时间：" + item.getCreateTime() + "换批失败】");
-                    logger.error("物理滑槽:" + item.getMachineId() + "发货目的代码:" + item.getReceiveSiteCode()
-                            + "批次开始时间：" + item.getCreateTime() + "换批异常",e);
+                    log.error("物理滑槽:{} 发货目的代码:{} 批次开始时间：{} 换批异常"
+                            ,item.getMachineId(),item.getReceiveSiteCode(),item.getCreateTime(),e);
                 }
             }
             if(!allSuccess){
@@ -610,7 +612,7 @@ public class SortMachineAutoSendController {
             try {
                 model.addAttribute("createSiteName", URLDecoder.decode(createSiteName, "UTF-8"));
             } catch (UnsupportedEncodingException e) {
-                logger.info("补打界面跳转参数解码异常", e);
+                log.error("补打界面跳转参数解码异常", e);
                 model.addAttribute("createSiteName", "未知分拣中心");
             }
             Date nowTime = new Date();
@@ -654,7 +656,7 @@ public class SortMachineAutoSendController {
 //                        }
 //                        volumeSum += waybillPackageDTO.getVolume() == 0 ? waybillPackageDTO.getOriginalVolume() : waybillPackageDTO.getVolume();
 //                    } catch (Exception e) {
-//                        logger.error("获取批次的总数量和总体积失败：批次号为" + sendCode, e);
+//                        log.error("获取批次的总数量和总体积失败：批次号为" + sendCode, e);
 //                    }
 //                }
 //                packageSum = sendDetailList.size();//获取包裹的数量
@@ -671,7 +673,7 @@ public class SortMachineAutoSendController {
             result.setData(sendBoxSum);
             result.setMessage("获取批次号的总数量和总体积成功");
         } else {
-            logger.error("获取参数批次的总体积和总数量失败：批次号为空");
+            log.error("获取参数批次的总体积和总数量失败：批次号为空");
             result.setCode(400);
             result.setMessage("参数错误");
             result.setData(null);
@@ -686,7 +688,7 @@ public class SortMachineAutoSendController {
     @RequestMapping(value = "/sendCodePrint", method = RequestMethod.POST)
     @ResponseBody
     public com.jd.bluedragon.distribution.base.domain.InvokeResult<List<BatchSendPrintImageResponse>> printSendCode(@RequestBody ScannerFrameBatchSendPrint[] requests) {
-        this.logger.info("分拣机补打印数据开始-->需要打印的分拣机ID为" + requests[0].getMachineId());
+        this.log.info("分拣机补打印数据开始-->需要打印的分拣机ID为:{}", requests[0].getMachineId());
         com.jd.bluedragon.distribution.base.domain.InvokeResult<List<BatchSendPrintImageResponse>> result = new com.jd.bluedragon.distribution.base.domain.InvokeResult<List<BatchSendPrintImageResponse>>();
         result.setCode(400);
         result.setMessage("服务调用成功，数据为空");
@@ -707,7 +709,7 @@ public class SortMachineAutoSendController {
 
 
         try {
-            logger.info("需要执行该打印并完结批次的条数为：" + requests.length);
+            log.info("需要执行该打印并完结批次的条数为：{}", requests.length);
             Map<String, ScannerFrameBatchSend> scannerFrameBatchSendMap = getScannerFrameBatchSendMap(machineId);
             List<BatchSendPrintImageResponse> results = new ArrayList<BatchSendPrintImageResponse>();
             String urlBatchPrint = PropertiesHelper.newInstance().getValue(PREFIX_VER_URL) + "/batchSendPrint/sortMachineBatchPrint";
@@ -715,7 +717,7 @@ public class SortMachineAutoSendController {
             for (ScannerFrameBatchSendPrint item : requests) {
                 if (item.getReceiveSiteCode() == 0 || "".equals(item.getSendCode()) || item.getCreateSiteCode() == 0) {
                     //没有目的站点，自动退出循环
-                    logger.error("检测出该条数据参数不完全：本条数据丢弃，本次循环退出。");
+                    log.warn("检测出该条数据参数不完全：本条数据丢弃，本次循环退出。");
                     continue;
                 }
                 /** 2. ==================获取打印图片================= **/
@@ -732,8 +734,8 @@ public class SortMachineAutoSendController {
                     packageSum = sendDetailList.size();//获取包裹的数量
                 }
                 itemRequest.setPackageNum(packageSum);
-                if(logger.isInfoEnabled()){
-                    logger.info(MessageFormat.format("分拣机自动发货调用批次号打印接口，基本数据为：{0}", JsonHelper.toJson(itemRequest)));
+                if(log.isInfoEnabled()){
+                    log.info("分拣机自动发货调用批次号打印接口，基本数据为：{}", JsonHelper.toJson(itemRequest));
                 }
 
 
@@ -746,16 +748,16 @@ public class SortMachineAutoSendController {
                 BatchSendPrintImageResponse summaryPrintItemResponse =scannerFrameBatchSendService.summaryPrint(urlSummaryPrint, request, userId, userName);
                 summaryPrintItemResponse.setPrintType(SUMMARY_PRINT_TYPE);
                 results.add(summaryPrintItemResponse);
-                logger.info("获取图片的base64结束。");
+                log.info("获取图片的base64结束。");
                 /** ===================获取打印图片获取base64图片码结束================= **/
 
-                logger.info("更新打印时间次数结束。返回结果");
+                log.info("更新打印时间次数结束。返回结果");
                 result.setCode(200);
                 result.setMessage("服务调用成功");
                 result.setData(results);
             }
         } catch (Exception e) {
-            logger.error("获取数据异常");
+            log.error("获取数据异常");
             e.printStackTrace();
             result.setCode(500);
             result.setMessage("服务调用异常");
@@ -806,7 +808,7 @@ public class SortMachineAutoSendController {
             result.setMessage("获取分拣机的目的站点成功");
         } catch (Exception e) {
             result.setMessage("获取分拣机的目的站点失败");
-            logger.error("加载分拣机的目的站点失败。。", e);
+            log.error("加载分拣机的目的站点失败。。", e);
         }
         return result;
     }
@@ -815,7 +817,7 @@ public class SortMachineAutoSendController {
     @RequestMapping(value = "/query", method = RequestMethod.POST)
     @ResponseBody
     public com.jd.bluedragon.distribution.base.domain.InvokeResult<Pager<List<ScannerFrameBatchSend>>> query(ScannerFrameBatchSendSearchArgument request, Pager<List<ScannerFrameBatchSend>> pager) {
-        logger.debug("获取补打印数据 --> ");
+        log.debug("获取补打印数据 --> ");
         com.jd.bluedragon.distribution.base.domain.InvokeResult<Pager<List<ScannerFrameBatchSend>>> result = new com.jd.bluedragon.distribution.base.domain.InvokeResult<Pager<List<ScannerFrameBatchSend>>>();
         result.setCode(400);
         result.setMessage("服务器处理信息异常，查询补打印数据失败!!");
@@ -836,7 +838,7 @@ public class SortMachineAutoSendController {
                 result.setCode(500);
                 result.setMessage("服务调用异常");
                 result.setData(null);
-                logger.error("补打数据获取失败..", e);
+                log.error("补打数据获取失败..", e);
             }
         }
         return result;

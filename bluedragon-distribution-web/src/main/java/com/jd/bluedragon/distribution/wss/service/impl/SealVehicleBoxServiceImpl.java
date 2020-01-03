@@ -1,16 +1,5 @@
 package com.jd.bluedragon.distribution.wss.service.impl;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.jd.bluedragon.utils.JsonHelper;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.seal.domain.SealBox;
 import com.jd.bluedragon.distribution.seal.domain.SealVehicle;
@@ -21,7 +10,17 @@ import com.jd.bluedragon.distribution.wss.dto.SealBoxDto;
 import com.jd.bluedragon.distribution.wss.dto.SealVehicleDto;
 import com.jd.bluedragon.distribution.wss.service.SealVehicleBoxService;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectMapHelper;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author zhaohc
@@ -33,6 +32,11 @@ import com.jd.bluedragon.utils.ObjectMapHelper;
 public class SealVehicleBoxServiceImpl implements SealVehicleBoxService {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
+
+	/**
+	 * 封箱中箱号默认最大长度
+	 * */
+	private static final int BOX_CODE_LENGTH_MAX = 32;
 
 	@Autowired
 	private SealVehicleService sealVehicleService;
@@ -257,6 +261,7 @@ public class SealVehicleBoxServiceImpl implements SealVehicleBoxService {
 		}
 		if (StringUtils.isBlank(sealBox.getCode())
 				|| StringUtils.isBlank(sealBox.getBoxCode())
+				|| sealBox.getBoxCode().length() > BOX_CODE_LENGTH_MAX
 				|| sealBox.getCreateSiteCode() == null
 				|| sealBox.getCreateUserCode() == null
 				|| StringUtils.isBlank(sealBox.getCreateUser())) {

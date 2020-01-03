@@ -7,6 +7,7 @@ import com.jd.bd.dms.automatic.sdk.modules.areadest.dto.AreaDestJsfVo;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
+import com.jd.bluedragon.common.dto.device.enums.DeviceTypeEnum;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
@@ -1511,7 +1512,7 @@ public class WaybillResource {
 			result = getSiteRoutersFromRouterJsf(operateSiteCode,waybillCode,nextRouters);
 		} else if (2 == request.getOperateType()) {
 			/* 通过发货配置jsf接口调用 */
-			result = getSiteRoutersFromDMSAutoJsf(operateSiteCode,siteCode,operateTime,waybillCode,nextRouters);
+			result = getSiteRoutersFromDMSAutoJsf(request.getMachineCode(),operateSiteCode,siteCode,operateTime,waybillCode,nextRouters);
 		}
 		siteRouters.addAll(nextRouters);
 		result.setData(siteRouters);
@@ -1548,7 +1549,7 @@ public class WaybillResource {
 	}
 
 	private InvokeResult<List<Integer>> getSiteRoutersFromDMSAutoJsf
-			(Integer operateSiteCode, Integer destinationSiteCode,Long operateTime,String waybillCode,Set<Integer> nextRouters) {
+			(String machineCode, Integer operateSiteCode, Integer destinationSiteCode,Long operateTime,String waybillCode,Set<Integer> nextRouters) {
 
 		InvokeResult<List<Integer>> result = new InvokeResult<List<Integer>>();
 
@@ -1556,6 +1557,8 @@ public class WaybillResource {
 		jsfRequest.setOriginalSiteCode(operateSiteCode);
 		jsfRequest.setDestinationSiteCode(destinationSiteCode);
 		jsfRequest.setOperateTime(operateTime);
+		jsfRequest.setMachineId(machineCode);
+		jsfRequest.setDeviceType(DeviceTypeEnum.GANTRY.getTypeCode());
 		BaseDmsAutoJsfResponse<List<AreaDestJsfVo>> jsfResponse;
 
 		CallerInfo info = Profiler.registerInfo("DMSWEB.jsf.areaDestJsfService.findAreaDest", Constants.UMP_APP_NAME_DMSWEB,false, true);
@@ -1910,19 +1913,30 @@ public class WaybillResource {
 	 * @return 运单号
 	 */
 	@GET
-	@Path("/waybill/findPackByBusiCode/{busiId}/{busiCode}")
-	public InvokeResult<String> findPackByBusiIdAndBusiCode(@PathParam("busiId") Integer busiId,@PathParam("busiCode") String busiCode){
+	@Path("/waybill/findByBusiCode/{busiId}/{busiCode}/{isBusiBoxCode}")
+	public InvokeResult<String> findByBusiIdAndBusiCode(@PathParam("busiId") Integer busiId,@PathParam("busiCode") String busiCode,@PathParam("isBusiBoxCode") boolean isBusiBoxCode){
 		InvokeResult<String> result = new InvokeResult<String>();
 		try{
-			String packCode = eclpPackageApiService.queryPackage(busiId,busiCode);
-			if(StringUtils.isBlank(packCode)){
-				result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
-				result.setMessage("未获取到运单数据。请确认商家ID和商家单号是否正确！");
+			String barCode;
+			if(isBusiBoxCode){
+				barCode = eclpPackageApiService.queryPackage(busiId,busiCode);
 			}else{
-				result.setData(eclpPackageApiService.queryPackage(busiId,busiCode));
+				barCode = ldopManager.queryWaybillCodeByOrderIdAndCustomerCode(busiId,busiCode);
+			}
+
+			if(StringUtils.isBlank(barCode)){
+				result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
+				if(isBusiBoxCode){
+					result.setMessage("未获取到运单数据。请确认【商家ID】和【商家箱号】是否正确！或尝试选择【商家订单号】");
+				}else{
+					result.setMessage("未获取到运单数据。请确认【商家ID】和【商家订单号】是否正确！或尝试选择【商家箱号】");
+				}
+
+			}else{
+				result.setData(barCode);
 			}
 		}catch (Exception e){
-		    log.error("根据商家ID{}和商家单号{}获取包裹号异常{}",busiId,busiCode,e.getMessage(),e);
+		    log.error("根据商家ID{}和商家单号或箱号{}获取包裹号异常{}",busiId,busiCode,e.getMessage(),e);
 			result.setCode(InvokeResult.SERVER_ERROR_CODE);
 			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
 		}

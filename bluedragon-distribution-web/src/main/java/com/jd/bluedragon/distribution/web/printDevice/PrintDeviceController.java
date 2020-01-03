@@ -9,8 +9,8 @@ import com.jd.bluedragon.distribution.alpha.PrintDeviceIdListRequest;
 import com.jd.bluedragon.distribution.alpha.PrintDeviceRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -31,7 +31,7 @@ import java.util.List;
 @RequestMapping("/printDevice")
 public class PrintDeviceController {
 
-    private static final Log logger = LogFactory.getLog(PrintDeviceController.class);
+    private static final Logger log = LoggerFactory.getLogger(PrintDeviceController.class);
 
     @Autowired
     PrintDeviceService printDeviceService;
@@ -67,7 +67,7 @@ public class PrintDeviceController {
             result.setMessage("查询ISV信息成功");
             result.setData(list);
         }catch(Exception e){
-            logger.error("查询信息失败：",e);
+            log.error("查询信息失败：",e);
             result.setCode(20000);
             result.setMessage("服务异常，请稍后再试");
         }
@@ -112,7 +112,7 @@ public class PrintDeviceController {
         }catch(Exception e){
             result.setCode(10000);
             result.setMessage("ISV版本新增失败");
-            logger.error("增加信息失败：",e);
+            log.error("增加信息失败：",e);
         }
         return result;
     }
@@ -128,7 +128,7 @@ public class PrintDeviceController {
         try{
             list = printDeviceService.searchPrintDevice(request.getVersionId(),request.getPrintDeviceId());
         } catch (Exception e){
-            logger.error("查询ISV的版本信息失败");
+            log.error("查询ISV的版本信息失败");
             return mav;
         }
         List<Version> versionList = new ArrayList<Version>();
@@ -162,7 +162,7 @@ public class PrintDeviceController {
         }catch(Exception e ){
             result.setCode(10000);
             result.setMessage("修改失败");
-            logger.error("执行修改操作异常：",e);
+            log.error("执行修改操作异常：",e);
         }
         return result;
     }
@@ -186,7 +186,7 @@ public class PrintDeviceController {
             result.setCode(200);
             result.setMessage("删除成功");
         }catch (Exception e){
-            logger.error("执行删除操作异常：",e);
+            log.error("执行删除操作异常：",e);
             result.setCode(20000);
             result.setMessage("执行删除异常");
         }
@@ -217,7 +217,7 @@ public class PrintDeviceController {
         }catch(Exception e){
             result.setCode(10000);
             result.setMessage("状态修改失败");
-            logger.error("删除失败",e);
+            log.error("删除失败",e);
         }
         return result;
     }

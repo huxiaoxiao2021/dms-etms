@@ -1,8 +1,7 @@
 package com.jd.bluedragon.core.crossbow;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.TypeReference;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.crossbow.security.CrossbowSecurityProcessorSelector;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SpringHelper;
 import com.jd.lop.crossbow.dto.LopRequest;
@@ -16,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.NotNull;
-import java.lang.reflect.Type;
 
 /**
  * <p>
@@ -31,7 +29,7 @@ import java.lang.reflect.Type;
 @Component("dmsCrossbowClient")
 public class DMSCrossbowClient {
 
-    private static final Logger logger = LoggerFactory.getLogger(DMSCrossbowClient.class);
+    private static final Logger log = LoggerFactory.getLogger(DMSCrossbowClient.class);
 
     private CrossbowService crossbowService;
 
@@ -39,13 +37,13 @@ public class DMSCrossbowClient {
      * 调用crossbow组件客户端的执行方法 目前不涉及加密，如果有需要对接加密的请完善该接口
      * @param crossBowConfig 需要的配置参数
      * @param parameterStr 三方的公司需要用的请求的体body
-     * @param typeReference 三方公司提供的接口返回值的类型
-     * @param <R> 三方公司提供的接口返回值的类型的泛型
-     * @return 返回 R类型
+     * @return 返回 String类型 根据需要进行转换
      * @throws RuntimeException 如果crossbow调用失败则抛出相应的异常由调用方处理
      */
     @JProfiler(jKey = "dms.core.DMSCrossBowClient.executor", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public <R> R executor(@NotNull CrossbowConfig crossBowConfig, String parameterStr, Type typeReference) throws RuntimeException {
+    public String executor(@NotNull CrossbowConfig crossBowConfig, String parameterStr) throws RuntimeException {
+
+        /* 1. 组装基本参数 */
         LopRequest request = new LopRequest();
         request.setDomain(crossBowConfig.getDomain());
         request.setCustomerId(crossBowConfig.getCustomerId());
@@ -53,15 +51,20 @@ public class DMSCrossbowClient {
         request.setAppKey(crossBowConfig.getAppKey());
         request.setBody(parameterStr);
         try {
+            /* 2. 设置安全插件对应的内容 */
+            request = CrossbowSecurityProcessorSelector.getProcessor(crossBowConfig.getSecurityEnum())
+                    .handleSecurityContent(request, crossBowConfig);
+
+            /* 3. 请求物流网关代理，调用外部接口 */
             crossbowService = getCrossbowService();
             LopResponse response = crossbowService.execute(request);
             if (response.getStatusCode() != 200) {
-                logger.error("调用物流网关crossBow组件失败，参数为：{}, 返回值为: {}", JsonHelper.toJson(request), JsonHelper.toJson(response));
+                log.warn("调用物流网关crossBow组件失败，参数为：{}, 返回值为: {}", JsonHelper.toJson(request), JsonHelper.toJson(response));
                 throw new RuntimeException("调用物流网关crossBow组件失败,返回值：" + JsonHelper.toJson(response));
             }
-            return JSON.parseObject(response.getBody(), typeReference);
+            return response.getBody();
         } catch (ExecErrorException e) {
-            logger.error("调用物流网关的接口异常，请求参数: " + JsonHelper.toJson(parameterStr), e);
+            log.error("调用物流网关的接口异常，请求参数: {}" , JsonHelper.toJson(parameterStr), e);
             throw new RuntimeException("物流网关crossBow组件调用异常", e);
         }
     }

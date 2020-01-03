@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.rest.product;
 
-import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.message.MessageDto;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -9,12 +8,9 @@ import com.jd.bluedragon.distribution.api.response.ProductResponse;
 import com.jd.bluedragon.distribution.consumer.reverse.LossOrderConsumer;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.jmq.common.message.Message;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -30,7 +26,7 @@ import java.util.List;
 @Produces({ "application/json" })
 public class LossProductResource {
 
-	private final Log logger = LogFactory.getLog(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	@Autowired
 	private ProductService productService;
@@ -71,7 +67,7 @@ public class LossProductResource {
 		if(orderId == null){
 			return paramError();
 		}
-		this.logger.info("获取订单商品详情, 订单号：" + orderId);
+		this.log.info("获取订单商品详情, 订单号：{}", orderId);
 
 		List<Product> actualProducts = this.productService.getOrderProducts(orderId);
 		if (actualProducts == null || actualProducts.isEmpty()) {
@@ -91,7 +87,7 @@ public class LossProductResource {
 		if(orderId == null){
 			return paramError();
 		}
-		this.logger.info("获取订单商品详情及报损详情, 订单号：" + orderId);
+		this.log.info("获取订单商品详情及报损详情, 订单号：{}", orderId);
 
 		List<Product> actualProducts = this.productService.getOrderProducts(orderId);
 		List<Product> lossProducts = this.productService.getLossOrderProducts(orderId);

@@ -7,8 +7,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.view.document.AbstractExcelView;
 
 /**
@@ -18,7 +19,7 @@ import org.springframework.web.servlet.view.document.AbstractExcelView;
  */
 public class DefaultExcelView extends AbstractExcelView {
 	
-	private static final Logger logger = Logger.getLogger(DefaultExcelView.class);
+	private static final Logger log = LoggerFactory.getLogger(DefaultExcelView.class);
 
 	@Override
 	protected void buildExcelDocument(Map<String, Object> map, HSSFWorkbook workbook, HttpServletRequest request,
@@ -32,7 +33,7 @@ public class DefaultExcelView extends AbstractExcelView {
 			response.setHeader("Content-disposition", "attachment; filename=" + URLEncoder.encode(filename, "UTF-8"));// 设定输出文件头
 			this.buildExcelDocument(map, workbook);
 		} catch (Exception e) {
-			logger.error("buildExcelDocument-error:", e);
+			log.error("buildExcelDocument-error:", e);
 			throw e;
 		} 
 	}

@@ -5,8 +5,8 @@ import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.worker.dao.TBTaskTypeDao;
 import com.jd.bluedragon.distribution.worker.domain.TBTaskQueue;
 import com.jd.bluedragon.distribution.worker.domain.TBTaskType;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -21,7 +21,7 @@ import java.util.List;
 @Service("tbTaskTypeService")
 public class TBTaskTypeServiceImpl implements TBTaskTypeService{
 
-    private static  final Log logger= LogFactory.getLog(TBTaskTypeServiceImpl.class);
+    private static  final Logger log = LoggerFactory.getLogger(TBTaskTypeServiceImpl.class);
 
     @Autowired
     private TBTaskTypeDao tbTaskTypeDao;
@@ -34,9 +34,9 @@ public class TBTaskTypeServiceImpl implements TBTaskTypeService{
 
         Pager<List<TBTaskType>> result=new Pager<List<TBTaskType>>(pagerInnerTaskTypeName);
         Integer count=tbTaskTypeDao.selectCountByName(pagerInnerTaskTypeName);
-        if(logger.isInfoEnabled()){
-            logger.info("查询参数为"+ JsonHelper.toJson(pagerInnerTaskTypeName));
-            logger.info("查询记录总数为"+count);
+        if(log.isInfoEnabled()){
+            log.info("查询参数为:{}", JsonHelper.toJson(pagerInnerTaskTypeName));
+            log.info("查询记录总数为:{}", count);
         }
         result.setTotalSize(count);
         result.setData(tbTaskTypeDao.selectByNameUsePager(pagerInnerTaskTypeName));

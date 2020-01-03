@@ -31,8 +31,8 @@ import com.jd.ql.basic.domain.BaseDmsStore;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -47,7 +47,7 @@ import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTyp
 
 @Service
 public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintContext,String>{
-	private static final Log logger= LogFactory.getLog(BasicWaybillPrintHandler.class);
+	private static final Logger log = LoggerFactory.getLogger(BasicWaybillPrintHandler.class);
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
@@ -152,7 +152,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             	if(baseEntity.getData() == null
             			||baseEntity.getData().getWaybill() == null){
             		interceptResult.toFail(WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.getMsgCode(), WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.formatMsg());
-            		logger.warn("调用运单接口获取运单数据为空，waybillCode："+waybillCode);
+            		log.warn("调用运单接口获取运单数据为空，waybillCode：{}", waybillCode);
             		return interceptResult;
             	}
             	//获取运单数据正常，设置打印基础信息
@@ -172,7 +172,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 interceptResult.toError(InterceptResult.CODE_ERROR, "运单数据为空！");
             }
         }catch (Exception ex){
-            logger.error("标签打印接口异常，运单号:"+waybillCode,ex);
+            log.error("标签打印接口异常，运单号:{}", waybillCode,ex);
             interceptResult.toError();
         }
         return interceptResult;
@@ -237,8 +237,8 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 }catch (NumberFormatException exception){
                     value=Integer.MIN_VALUE;/*不符合integer*/
                 }
-                if(logger.isInfoEnabled()){
-                    logger.info(MessageFormat.format("原值：{0}转换后:{1}",tmsWaybill.getSpareColumn1(),value));
+                if(log.isInfoEnabled()){
+                    log.info("原值：{}转换后:{}",tmsWaybill.getSpareColumn1(),value);
                 }
                 switch (value){
                     case 1:
@@ -251,8 +251,8 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                         break;
                 }
             }
-            if(logger.isInfoEnabled()){
-                logger.info(commonWaybill.getNormalText());
+            if(log.isInfoEnabled()){
+                log.info(commonWaybill.getNormalText());
             }
             /*，62=金牌用户，105=钻石会员，110=VIP会员，在面单上展示“V”。
 				90=企业用户，面单上展示“企”。
@@ -281,7 +281,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             commonWaybill.setType(tmsWaybill.getWaybillType());
             commonWaybill.appendRemark(tmsWaybill.getImportantHint());
             String roadCode = "";
-            if(BusinessUtil.isUrban(tmsWaybill.getWaybillSign(), tmsWaybill.getSendPay())) {//城配的订单标识，remark打派车单号
+            if(BusinessUtil.isUrban(tmsWaybill.getWaybillSign(), tmsWaybill.getSendPay()) || BusinessUtil.isHeavyCargo(tmsWaybill.getWaybillSign())) {//城配的订单标识，remark打派车单号
                 String scheduleCode = "";
                 TransbillM transbillM = transbillMService.getByWaybillCode(tmsWaybill.getWaybillCode());
                 if(transbillM != null){
@@ -296,6 +296,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
 //                String str = StringUtils.isNotBlank(tmsWaybill.getImportantHint())? tmsWaybill.getImportantHint():"";
                 commonWaybill.appendRemark(scheduleCode);
             }
+
             //sendpay的第153位为“1”，remark追加【合并送】
             if(BusinessUtil.isSignY(commonWaybill.getSendPay(), 153)){
                 commonWaybill.appendRemark(TextConstants.REMARK_SEND_GATHER_TOGETHER);
@@ -437,7 +438,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             if(jdResult.isSucceed()) {
                 tag=jdResult.getData();
             }else{
-            	logger.warn("打印业务：未获取到滑道号及笼车号信息！"+jdResult.getMessage());
+            	log.warn("打印业务：未获取到滑道号及笼车号信息:{}", jdResult.getMessage());
             }
         }
         if(null!=tag){

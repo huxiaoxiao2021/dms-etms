@@ -13,8 +13,8 @@ import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,11 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  *
@@ -40,7 +36,7 @@ import java.util.Set;
 @RequestMapping("abnormal/dmsOperateHint")
 public class DmsOperateHintController extends DmsBaseController{
 
-	private static final Log logger = LogFactory.getLog(DmsOperateHintController.class);
+	private static final Logger log = LoggerFactory.getLogger(DmsOperateHintController.class);
 
 	@Autowired
 	private DmsOperateHintService dmsOperateHintService;
@@ -111,7 +107,7 @@ public class DmsOperateHintController extends DmsBaseController{
 				rest.toFail("运单号非法：" + dmsOperateHint.getWaybillCode());
 			}
 		} catch (Exception e) {
-			logger.error("PDA验货发货提示信息保存失败：" + JsonHelper.toJson(dmsOperateHint), e);
+			log.error("PDA验货发货提示信息保存失败：{}", JsonHelper.toJson(dmsOperateHint), e);
 			rest.toError("保存失败，服务异常！");
 		}
 		return rest;
@@ -177,7 +173,7 @@ public class DmsOperateHintController extends DmsBaseController{
 				}
 			}
 		} catch (Exception e) {
-			logger.error("PDA验货发货提示信息保存失败：" + JsonHelper.toJson(dmsOperateHint), e);
+			log.error("PDA验货发货提示信息保存失败：{}", JsonHelper.toJson(dmsOperateHint), e);
 			rest.toError("保存失败，服务异常！");
 		}
 		return rest;
@@ -194,7 +190,7 @@ public class DmsOperateHintController extends DmsBaseController{
 		try {
 			rest.setData(dmsOperateHintService.deleteByIds(ids));
 		} catch (Exception e) {
-			logger.error("fail to delete！"+e.getMessage(),e);
+			log.error("fail to delete！",e);
 			rest.toError("删除失败，服务异常！");
 		}
 		return rest;

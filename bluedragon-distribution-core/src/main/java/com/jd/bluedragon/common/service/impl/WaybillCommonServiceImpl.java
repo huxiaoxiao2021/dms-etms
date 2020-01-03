@@ -661,14 +661,18 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             target.setPopularizeMatrixCode(popularizeMatrixCode);
             target.setAdditionalComment(additionalComment);
         }
+        target.setBusiOrderCode(waybill.getBusiOrderCode());
 
         //Waybillsign的15位打了3的取件单，并且订单号非“QWD”开头的单子getSpareColumn3  ----产品：luochengyi  2017年8月29日16:37:21
-        if(BusinessUtil.isSignChar(waybill.getWaybillSign(),15,'3'))
-        {
-            target.setBusiOrderCode(waybill.getSpareColumn3());
-        }
-        else{
-            target.setBusiOrderCode(waybill.getBusiOrderCode());
+        //B网面单busiOrderCode字段调整为spareColumn3，若spareColumn3为null则该字段不显示
+        if(BusinessUtil.isSignChar(waybill.getWaybillSign(),15,'3')
+                || BusinessUtil.isB2b(waybill.getWaybillSign())){
+            String spareColumn3 = waybill.getSpareColumn3();
+            if(spareColumn3 !=null){
+                target.setBusiOrderCode(waybill.getSpareColumn3());
+            }else{
+                target.setBusiOrderCode("");
+            }
         }
 
         //面单打印新增寄件人、电话、手机号、地址信息
@@ -767,23 +771,47 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
          * B2B生鲜运输产品类型
          * waybill_sign36位=0 且waybill_sign40位=1 且 waybill_sign54位=2：冷链整车
          * waybill_sign36位=1 且waybill_sign40位=2 且 waybill_sign54位=2：快运冷链
+         * 快运冷链下新增 原逻辑待业务确认是否变更
+         * {
+         *     1. Waybill_sign54=2生鲜行业 且Waybill_sign40=2 纯配快运零担 且Waybill_sign80=6 且118=2 城配整车，即为：“冷链城配整车”
+         *     2. Waybill_sign54=2生鲜行业 且 Waybill_sign40=2纯配快运零担 且Waybill_sign80=6 且 118= 1或者0或者空 城配共配，即为：“冷链城配共配”
+         *     3. Waybill_sign54=2 生鲜行业 且Waybill_sign40=2 纯配快运零担且Waybill_sign80=8 专车，代表：“冷链整车”
+         * }
          * waybill_sign36位=1 且waybill_sign40位=3 且 waybill_sign54位=2：仓配冷链
          */
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(),54,'2')){
-            //冷链整车
-            if(BusinessUtil.isSignChar(waybill.getWaybillSign(),36,'0')
-                    && BusinessUtil.isSignChar(waybill.getWaybillSign(),40,'1')){
-                target.setjZDFlag(TextConstants.B2B_FRESH_WHOLE_VEHICLE);
-            //快运冷链
-            }else if(BusinessUtil.isSignChar(waybill.getWaybillSign(),36,'1')
-                    && BusinessUtil.isSignChar(waybill.getWaybillSign(),40,'2')
-                    && !isColdChainKBAndOuterWare
-                    ){
-                target.setjZDFlag(TextConstants.B2B_FRESH_EXPRESS);
-            //仓配冷链
-            }else if(BusinessUtil.isSignChar(waybill.getWaybillSign(),36,'1')
-                    && BusinessUtil.isSignChar(waybill.getWaybillSign(),40,'3')){
-                target.setjZDFlag(TextConstants.B2B_FRESH_WAREHOUSE);
+            if (BusinessUtil.isSignChar(waybill.getWaybillSign(),40,'1')) {
+                if (BusinessUtil.isSignChar(waybill.getWaybillSign(),36,'0')) {
+                    //冷链整车
+                    target.setjZDFlag(TextConstants.B2B_FRESH_WHOLE_VEHICLE);
+                }
+            } else if (BusinessUtil.isSignChar(waybill.getWaybillSign(),40,'2')) {
+                if (BusinessUtil.isSignChar(waybill.getWaybillSign(),80,'8')) {
+                    //冷链整车
+                    target.setjZDFlag(TextConstants.B2B_FRESH_WHOLE_VEHICLE);
+                } else if (BusinessUtil.isSignChar(waybill.getWaybillSign(),80,'6')) {
+                    if (BusinessUtil.isSignChar(waybill.getWaybillSign(),118,'2')) {
+                        //城配整车
+                        target.setjZDFlag(TextConstants.B2B_FRESH_URBAN_WHOLE_VEHICLE);
+                    } else if ( waybill.getWaybillSign().length() < 118
+                            || BusinessUtil.isSignChar(waybill.getWaybillSign(),118,'1')
+                            || BusinessUtil.isSignChar(waybill.getWaybillSign(),118,'0')) {
+                        //城配共配
+                        target.setjZDFlag(TextConstants.B2B_FRESH_URBAN_TOGETHER);
+                    }
+                } else if (BusinessUtil.isSignChar(waybill.getWaybillSign(),80,'7')) {
+                    //冷链卡班
+                    target.setjZDFlag(TextConstants.B2B_FRESH_EXPRESS);
+                } else if (BusinessUtil.isSignChar(waybill.getWaybillSign(),36,'1')
+                        && !isColdChainKBAndOuterWare) {
+                    //冷链卡班
+                    target.setjZDFlag(TextConstants.B2B_FRESH_EXPRESS);
+                }
+            } else if (BusinessUtil.isSignChar(waybill.getWaybillSign(),40,'3')) {
+                if (BusinessUtil.isSignChar(waybill.getWaybillSign(),36,'1')) {
+                    //仓配冷链
+                    target.setjZDFlag(TextConstants.B2B_FRESH_WAREHOUSE);
+                }
             }
         }
 
@@ -939,6 +967,16 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 
         //处理特殊的distributTypeText
         processSpecialDistributTypeText(target,waybill.getWaybillSign());
+
+        //物品名称
+        if(waybill.getWaybillExt()!=null && StringUtils.isNotBlank(waybill.getWaybillExt().getConsignWare())){
+            target.setGoodsName(waybill.getWaybillExt().getConsignWare());
+        }
+        //大件路区
+        if(BusinessUtil.isHeavyCargo(waybill.getWaybillSign())){
+            target.setBackupRoadCode(waybill.getRoadCode());
+        }
+
         return target;
     }
 
@@ -1103,9 +1141,9 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 }
             }
             if(!isVaildDms(dmsCode)) {
-                log.warn("组装包裹标签始发分拣中心信息，运单号：{} 对应的始发分拣中心:{}" ,waybillCode, dmsCode);
+                log.warn("组装包裹标签始发分拣中心信息，运单号：{} 对应的始发分拣中心:{}，无效分拣中心编码" ,waybillCode, dmsCode);
             }else{
-                log.warn("组装包裹标签始发分拣中心信息，运单号：{} 对应的始发分拣中心:{}" ,waybillCode, dmsCode);
+                log.warn("组装包裹标签始发分拣中心信息，运单号：{} 对应的始发分拣中心:{}，有效分拣中心编码" ,waybillCode, dmsCode);
             }
         }
         printWaybill.setOriginalDmsCode(dmsCode);

@@ -4,13 +4,14 @@ import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.fastjson.JSON;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
 public class FailoverSortingDao implements ISortingDao {
-    private final Logger logger = Logger.getLogger(FailoverSortingDao.class);
+    private final Logger log = LoggerFactory.getLogger(FailoverSortingDao.class);
 
     @Autowired
     private SortingDao sortingDao;
@@ -29,10 +30,10 @@ public class FailoverSortingDao implements ISortingDao {
         try {
             sortingList = middleEndSortingDao.findByBoxCode(sorting);
         } catch (Exception e) {
-            logger.error("中台findByBoxCode接口调用异常.sorting:" + JSON.toJSONString(sorting), e);
+            log.error("中台findByBoxCode接口调用异常.sorting:{}" , JSON.toJSONString(sorting), e);
         }
         if (sortingList == null) {
-            logger.info("调用中台findByBoxCode接口的返回值为空，调用分拣的接口查询");
+            log.info("调用中台findByBoxCode接口的返回值为空，调用分拣的接口查询");
             sortingList = sortingDao.findByBoxCode(sorting);
         }
         return sortingList;
@@ -50,10 +51,10 @@ public class FailoverSortingDao implements ISortingDao {
         try {
             result = middleEndSortingDao.existSortingByPackageCode(sorting);
         } catch (Exception e) {
-            logger.error("中台existSortingByPackageCode接口调用异常.sorting:" + JSON.toJSONString(sorting), e);
+            log.error("中台existSortingByPackageCode接口调用异常.sorting:{}" , JSON.toJSONString(sorting), e);
         }
         if (result == null) {
-            logger.info("调用中台existSortingByPackageCode接口的返回值为空，调用分拣的接口查询");
+            log.info("调用中台existSortingByPackageCode接口的返回值为空，调用分拣的接口查询");
             result = sortingDao.existSortingByPackageCode(sorting);
         }
         return result;
@@ -72,10 +73,10 @@ public class FailoverSortingDao implements ISortingDao {
         try {
             result = middleEndSortingDao.findPackCount(createSiteCode, boxCode);
         } catch (Exception e) {
-            logger.error("中台findPackCount接口调用异常.createSiteCode:" + createSiteCode + ",boxCode:" + boxCode, e);
+            log.error("中台findPackCount接口调用异常.createSiteCode:{},boxCode:{}" ,createSiteCode, boxCode, e);
         }
         if (result == null) {
-            logger.info("调用中台findPackCount接口的返回值为空，调用分拣的接口查询");
+            log.info("调用中台findPackCount接口的返回值为空，调用分拣的接口查询");
             result = sortingDao.findPackCount(createSiteCode, boxCode);
         }
         return result;
@@ -93,10 +94,10 @@ public class FailoverSortingDao implements ISortingDao {
         try {
             sorting = middleEndSortingDao.findBoxDescSite(createSiteCode, boxCode);
         } catch (Exception e) {
-            logger.error("中台findBoxDescSite接口调用异常.createSiteCode:" + createSiteCode + ",boxCode:" + boxCode, e);
+            log.error("中台findBoxDescSite接口调用异常.createSiteCode:{},boxCode:{}" ,createSiteCode, boxCode, e);
         }
         if (sorting == null) {
-            logger.info("调用中台findBoxDescSite接口的返回值为空，调用分拣的接口查询");
+            log.info("调用中台findBoxDescSite接口的返回值为空，调用分拣的接口查询");
             sorting = sortingDao.findBoxDescSite(createSiteCode, boxCode);
         }
         return sorting;
@@ -114,10 +115,10 @@ public class FailoverSortingDao implements ISortingDao {
         try {
             sortingList = middleEndSortingDao.findBoxPackList(sorting);
         } catch (Exception e) {
-            logger.error("中台findBoxPackList接口调用异常.sorting:" + JSON.toJSONString(sorting), e);
+            log.error("中台findBoxPackList接口调用异常.sorting:{}" , JSON.toJSONString(sorting), e);
         }
         if (sortingList == null) {
-            logger.info("调用中台findBoxPackList接口的返回值为空，调用分拣的接口查询");
+            log.info("调用中台findBoxPackList接口的返回值为空，调用分拣的接口查询");
             sortingList = sortingDao.findBoxPackList(sorting);
         }
         return sortingList;
@@ -134,10 +135,10 @@ public class FailoverSortingDao implements ISortingDao {
         try {
             sortingList = middleEndSortingDao.queryByCode(sorting);
         } catch (Exception e) {
-            logger.error("中台queryByCode接口调用异常.sorting:" + JSON.toJSONString(sorting), e);
+            log.error("中台queryByCode接口调用异常.sorting:{}" , JSON.toJSONString(sorting), e);
         }
         if (sortingList == null) {
-            logger.info("调用中台queryByCode接口的返回值为空，调用分拣的接口查询");
+            log.info("调用中台queryByCode接口的返回值为空，调用分拣的接口查询");
             sortingList = sortingDao.queryByCode(sorting);
         }
         return sortingList;
@@ -155,10 +156,10 @@ public class FailoverSortingDao implements ISortingDao {
         try {
             sortingList = middleEndSortingDao.queryByCode2(sorting);
         } catch (Exception e) {
-            logger.error("中台queryByCode2接口调用异常.sorting:" + JSON.toJSONString(sorting), e);
+            log.error("中台queryByCode2接口调用异常.sorting:{}" , JSON.toJSONString(sorting), e);
         }
         if (sortingList == null) {
-            logger.info("调用中台queryByCode2接口的返回值为空，调用分拣的接口查询");
+            log.info("调用中台queryByCode2接口的返回值为空，调用分拣的接口查询");
             sortingList = sortingDao.queryByCode2(sorting);
         }
         return sortingList;
@@ -175,10 +176,10 @@ public class FailoverSortingDao implements ISortingDao {
         try {
             sortingList = middleEndSortingDao.findByBsendCode(sorting);
         } catch (Exception e) {
-            logger.error("中台findByBsendCode接口调用异常.sorting:" + JSON.toJSONString(sorting), e);
+            log.error("中台findByBsendCode接口调用异常.sorting:{}" , JSON.toJSONString(sorting), e);
         }
         if (sortingList == null) {
-            logger.info("调用中台findByBsendCode接口的返回值为空，调用分拣的接口查询");
+            log.info("调用中台findByBsendCode接口的返回值为空，调用分拣的接口查询");
             sortingList = sortingDao.findByBsendCode(sorting);
         }
         return sortingList;
@@ -195,10 +196,10 @@ public class FailoverSortingDao implements ISortingDao {
         try {
             sortingList = middleEndSortingDao.findByPackageCode(sorting);
         } catch (Exception e) {
-            logger.error("中台findByPackageCode接口调用异常.sorting:" + JSON.toJSONString(sorting), e);
+            log.error("中台findByPackageCode接口调用异常.sorting:{}" , JSON.toJSONString(sorting), e);
         }
         if (sortingList == null) {
-            logger.info("调用中台findByPackageCode接口的返回值为空，调用分拣的接口查询");
+            log.info("调用中台findByPackageCode接口的返回值为空，调用分拣的接口查询");
             sortingList = sortingDao.findByPackageCode(sorting);
         }
         return sortingList;
@@ -217,10 +218,10 @@ public class FailoverSortingDao implements ISortingDao {
         try {
             sortingList = middleEndSortingDao.findByBoxCodeAndFetchNum(boxCode, createSiteCode, fetchNum);
         } catch (Exception e) {
-            logger.error("中台findByBoxCodeAndFetchNum接口调用异常.boxCode:" + boxCode + ",createSiteCode:" + createSiteCode + "fetchNum:" +fetchNum , e);
+            log.error("中台findByBoxCodeAndFetchNum接口调用异常.boxCode:{},createSiteCode:{},fetchNum:{}",boxCode, createSiteCode,fetchNum , e);
         }
         if (sortingList == null) {
-            logger.info("调用中台findByBoxCodeAndFetchNum接口的返回值为空，调用分拣的接口查询");
+            log.info("调用中台findByBoxCodeAndFetchNum接口的返回值为空，调用分拣的接口查询");
             sortingList = sortingDao.findByBoxCodeAndFetchNum(boxCode, createSiteCode, fetchNum);
         }
         return sortingList;
@@ -237,10 +238,10 @@ public class FailoverSortingDao implements ISortingDao {
         try {
             sortingList = middleEndSortingDao.findByWaybillCodeOrPackageCode(sorting);
         } catch (Exception e) {
-            logger.error("中台findByWaybillCodeOrPackageCode接口调用异常.sorting:" + JSON.toJSONString(sorting), e);
+            log.error("中台findByWaybillCodeOrPackageCode接口调用异常.sorting:{}", JSON.toJSONString(sorting), e);
         }
         if (sortingList == null) {
-            logger.info("调用中台findByWaybillCodeOrPackageCode接口的返回值为空，调用分拣的接口查询");
+            log.info("调用中台findByWaybillCodeOrPackageCode接口的返回值为空，调用分拣的接口查询");
             sortingList = sortingDao.findByWaybillCodeOrPackageCode(sorting);
         }
         return sortingList;
@@ -252,10 +253,10 @@ public class FailoverSortingDao implements ISortingDao {
         try {
             sortingList = middleEndSortingDao.findPackageCodesByWaybillCode(sorting);
         } catch (Exception e) {
-            logger.error("中台findPackageBoxCodesByWaybillCode接口调用异常.sorting:" + JSON.toJSONString(sorting), e);
+            log.error("中台findPackageBoxCodesByWaybillCode接口调用异常.sorting:{}", JSON.toJSONString(sorting), e);
         }
         if (CollectionUtils.isNotEmpty(sortingList)) {
-            logger.info("调用中台findPackageBoxCodesByWaybillCode接口的返回值为空，调用分拣的接口查询");
+            log.info("调用中台findPackageBoxCodesByWaybillCode接口的返回值为空，调用分拣的接口查询");
             sortingList = sortingDao.findPackageCodesByWaybillCode(sorting);
         }
         return sortingList;

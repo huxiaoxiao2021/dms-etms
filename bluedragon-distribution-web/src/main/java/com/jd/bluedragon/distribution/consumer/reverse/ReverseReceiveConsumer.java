@@ -22,8 +22,8 @@ import com.jd.bluedragon.utils.*;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +36,7 @@ import java.util.Map;
 @Service("reverseReceiveConsumer")
 public class ReverseReceiveConsumer extends MessageBaseConsumer {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private ReverseRejectService reverseRejectService;
@@ -63,7 +63,9 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 	public void consume(Message message) {
 
 		String messageContent = message.getText();
-		this.logger.info("逆向收货消息messageContent：" + messageContent);
+		if(log.isDebugEnabled()){
+			this.log.debug("逆向收货消息messageContent：{}", messageContent);
+		}
 
 		ReverseReceiveRequest jrequest = null;
 		ReceiveRequest xrequest = null;
@@ -71,7 +73,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 
 		if (XmlHelper.isXml(messageContent, ReceiveRequest.class, null)) {
 			xrequest = (ReceiveRequest) XmlHelper.toObject(messageContent, ReceiveRequest.class);
-			this.logger.info("逆向收货消息ReverseReceiveRequest：" + xrequest.toString());
+			this.log.info("逆向收货消息ReverseReceiveRequest：{}", xrequest.toString());
 			reverseReceive.setSendCode(xrequest.getSendCode());
 			reverseReceive.setPackageCode(xrequest.getOrderId());
 			reverseReceive.setOrderId(xrequest.getOrderId());
@@ -87,7 +89,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 
 		} else if (JsonHelper.isJson(messageContent, ReverseReceiveRequest.class)) {
 			jrequest = JsonHelper.fromJson(messageContent, ReverseReceiveRequest.class);
-			this.logger.info("逆向收货消息ReverseReceiveRequest：" + jrequest.toString());
+			this.log.info("逆向收货消息ReverseReceiveRequest：{}", jrequest.toString());
 
 			Date date = null;
 			try {
@@ -96,7 +98,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 				date = sdf.parse(jrequest.getReceiveTime());
 				reverseReceive.setReceiveTime(date);
 			} catch (Exception e) {
-				this.logger.error("逆向收货消息转换失败：" + e);
+				this.log.error("逆向收货消息转换失败：" , e);
 			}
 		}
 		try {
@@ -114,7 +116,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 				Profiler.bizNode("Reverse_mq_ams2dms", data);
 			}
 		} catch (Exception e) {
-			this.logger.error("推送UMP发生异常.", e);
+			this.log.error("推送UMP发生异常.", e);
 		}
 
 		//添加订单处理，判断是否是T单 2016-1-8
@@ -172,10 +174,10 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5|| reverseReceive.getReceiveType() == 4) {
 			String sendCode = "";
 			if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5) {
-				this.logger.info("逆向添加全称跟踪sendCode" + xrequest.getSendCode());
+				this.log.info("逆向添加全称跟踪sendCode:{}", xrequest.getSendCode());
 				sendCode = xrequest.getSendCode();
 			} else if (reverseReceive.getReceiveType() == 4 && jrequest != null) {
-				this.logger.info("逆向添加全称跟踪sendCode" + jrequest.getSendCode());
+				this.log.info("逆向添加全称跟踪sendCode:{}", jrequest.getSendCode());
 				sendCode = jrequest.getSendCode();
 				reverseReceive.setOrderId(reverseReceive.getPackageCode());
 			}

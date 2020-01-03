@@ -11,11 +11,7 @@ import com.jd.bluedragon.distribution.api.response.inventory.InventoryTaskRespon
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.inventory.dao.InventoryTaskDao;
-import com.jd.bluedragon.distribution.inventory.domain.CooperateTypeEnum;
-import com.jd.bluedragon.distribution.inventory.domain.InventoryScopeEnum;
-import com.jd.bluedragon.distribution.inventory.domain.InventoryTask;
-import com.jd.bluedragon.distribution.inventory.domain.InventoryTaskCondition;
-import com.jd.bluedragon.distribution.inventory.domain.InventoryTaskStatusEnum;
+import com.jd.bluedragon.distribution.inventory.domain.*;
 import com.jd.bluedragon.distribution.inventory.service.InventoryTaskService;
 import com.jd.bluedragon.utils.BeanHelper;
 import com.jd.bluedragon.utils.DateHelper;
@@ -26,8 +22,8 @@ import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.report.domain.BaseEntity;
 import com.jd.ql.dms.report.inventory.domain.InventoryDirection;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -39,7 +35,7 @@ import java.util.UUID;
 
 @Service("inventoryTaskService")
 public class InventoryTaskServiceImpl extends BaseService<InventoryTask> implements InventoryTaskService {
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     /**
      * 盘点任务号前缀
@@ -131,7 +127,7 @@ public class InventoryTaskServiceImpl extends BaseService<InventoryTask> impleme
     public List<SiteEntity>  getInventoryDirectionList(Integer createSiteCode){
         List<SiteEntity> directionList = new ArrayList<>();
         BaseEntity<List<InventoryDirection>> baseEntity= inventoryJsfManager.queryInventoryDirectionList(createSiteCode);
-        logger.info("调用报表jsf接口获取盘点流向信息.参数：" + createSiteCode + ".返回值为:" + JSON.toJSONString(baseEntity));
+        log.info("调用报表jsf接口获取盘点流向信息.参数：{}.返回值为:{}",createSiteCode, JSON.toJSONString(baseEntity));
         if(baseEntity!= null && baseEntity.getData() != null){
             for(InventoryDirection direction : baseEntity.getData()){
                 SiteEntity siteEntity = new SiteEntity();
@@ -306,7 +302,7 @@ public class InventoryTaskServiceImpl extends BaseService<InventoryTask> impleme
             }
 
         } catch (Exception e) {
-            logger.warn("获取【" + request.getSiteName() + "】的基础资料信息失败！");
+            log.error("获取【{}】的基础资料信息失败！",request.getSiteName(),e);
         }
         inventoryTaskBasic.setInventoryTaskId(inventoryTaskId);
         inventoryTaskBasic.setCreateSiteCode(request.getSiteCode());

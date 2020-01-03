@@ -4,18 +4,17 @@ import com.jd.bluedragon.distribution.auto.domain.UploadedPackage;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * Created by wangtingwei on 2014/10/16.
  */
 public abstract class AbstractSortingPrepareService implements SortingPrepareService{
-    private static final Log logger = LogFactory.getLog(AbstractSortingPrepareService.class);
+    private static final Logger log = LoggerFactory.getLogger(AbstractSortingPrepareService.class);
     /**
      * 处理分拣数据
      * @param task      任务
@@ -23,7 +22,7 @@ public abstract class AbstractSortingPrepareService implements SortingPrepareSer
      */
     @Override
     public boolean handler(Task task) {
-        logger.info("自动分拣机开始处理 插入到 task_sorting 任务 task = " + task);
+        log.info("自动分拣机开始处理 插入到 task_sorting 任务 task = {}" , task);
         Sorting entity=new Sorting();
         dataConvert(task, entity);
         if(!prepareSite(entity))
@@ -39,7 +38,7 @@ public abstract class AbstractSortingPrepareService implements SortingPrepareSer
     }
 
     private static void dataConvert(Task source,Sorting target){
-        logger.info("dataConvert");
+        log.info("dataConvert");
         target.setType(10);/*正向分拣*/
         UploadedPackage pack= JsonHelper.fromJson(source.getBody(),UploadedPackage.class);
         target.setPackageCode(pack.getBarcode());

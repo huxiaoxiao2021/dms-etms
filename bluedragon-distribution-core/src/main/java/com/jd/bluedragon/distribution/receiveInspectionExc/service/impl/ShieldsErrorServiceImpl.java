@@ -20,14 +20,14 @@ import java.util.List;
 
 @Service("shieldsErrorService")
 public class ShieldsErrorServiceImpl implements ShieldsErrorService {
-	private Logger logger = LoggerFactory.getLogger(ShieldsErrorServiceImpl.class);
+	private Logger log = LoggerFactory.getLogger(ShieldsErrorServiceImpl.class);
 	@Autowired
 	private ShieldsErrorDao shieldsErrorDao;
 
 	/**
 	 * 记录封签异常
 	 * 
-	 * @param shieldsErrors
+	 * @param shieldsError
 	 * @return
 	 */
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
@@ -40,11 +40,11 @@ public class ShieldsErrorServiceImpl implements ShieldsErrorService {
 	 */
 	public ShieldsError doParseShieldsCar(Task task) {
 		String jsonShieldsError = task.getBody();
-		logger.info("封签异常json数据：{}" , jsonShieldsError);
+		log.info("封签异常json数据：{}" , jsonShieldsError);
 		List<ShieldsCarErrorRequest> shieldsErrorRequest = Arrays
 				.asList(JsonHelper.jsonToArray(jsonShieldsError,
 						ShieldsCarErrorRequest[].class));
-		logger.info("封签异常json数据转化后：{}" , shieldsErrorRequest);
+		log.info("封签异常json数据转化后：{}" , shieldsErrorRequest);
 		ShieldsError shieldsError = new ShieldsError();
 		ShieldsCarErrorRequest sh = shieldsErrorRequest.get(0);
 		shieldsError.setCarCode(sh.getCarCode());
@@ -68,11 +68,11 @@ public class ShieldsErrorServiceImpl implements ShieldsErrorService {
 	 * */
 	public ShieldsError doParseShieldsBox(Task task) {
 		String jsonShieldsError = task.getBody();
-		logger.info("封签异常json数据：{}" , jsonShieldsError);
+		log.info("封签异常json数据：{}" , jsonShieldsError);
 		List<ShieldsBoxErrorRequest> shieldsErrorRequest = Arrays
 				.asList(JsonHelper.jsonToArray(jsonShieldsError,
 						ShieldsBoxErrorRequest[].class));
-		logger.info("封签异常json数据转化后：{}" , shieldsErrorRequest);
+		log.info("封签异常json数据转化后：{}" , shieldsErrorRequest);
 		ShieldsError shieldsError = new ShieldsError();
 		ShieldsBoxErrorRequest sh = shieldsErrorRequest.get(0);
 		shieldsError.setBoxCode(sh.getBoxCode());

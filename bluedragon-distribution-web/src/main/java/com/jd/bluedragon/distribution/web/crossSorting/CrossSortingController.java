@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.web.crossSorting;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -12,14 +13,13 @@ import com.jd.bluedragon.distribution.web.ErpUserClient.ErpUser;
 import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.erp.service.dto.CommonDto;
-import com.alibaba.fastjson.JSON;
 import com.jd.uim.annotation.Authorization;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -42,7 +42,7 @@ import java.util.zip.DataFormatException;
 @RequestMapping("/crossSorting")
 public class CrossSortingController {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
     private static final int FILE_SIZE_LIMIT = 1024 * 1024;
     private static final int EXPORT_ROW_LIMIT = 50000;
 
@@ -56,7 +56,7 @@ public class CrossSortingController {
             ErpUser erpUser = ErpUserClient.getCurrUser();
             model.addAttribute("erpUser", erpUser);
         } catch (Exception e) {
-            logger.error("index error!", e);
+            log.error("index error!", e);
         }
         return "cross-sorting/cross-sorting-index";
     }
@@ -73,7 +73,7 @@ public class CrossSortingController {
     public CommonDto<Pager<List<CrossSorting>>> doQueryCrossSorting(CrossSortingRequest request, Pager<List<CrossSorting>> pager, Model model) {
         CommonDto<Pager<List<CrossSorting>>> cdto = new CommonDto<Pager<List<CrossSorting>>>();
         try {
-            logger.info("CrossSortingController doQueryCrossSorting begin...");
+            log.info("CrossSortingController doQueryCrossSorting begin...");
             if (null == request || ((null == request.getCreateDmsCode() || request.getCreateDmsCode() < 1)
                     && (null == request.getDestinationDmsCode() || request.getDestinationDmsCode() < 1)
                     && StringUtils.isBlank(request.getCreateUserName())
@@ -95,12 +95,12 @@ public class CrossSortingController {
             Integer totalSize = crossSortingService.findCountCrossSorting(params);
             pager.setTotalSize(totalSize);
             pager.setData(CrossSortingList);
-            logger.info("查询符合条件的规则数量：" + totalSize);
+            log.info("查询符合条件的规则数量：{}", totalSize);
 
             cdto.setData(pager);
             cdto.setCode(CommonDto.CODE_NORMAL);
         } catch (Exception e) {
-            logger.error("doQueryCrossSorting-error!", e);
+            log.error("doQueryCrossSorting-error!", e);
             cdto.setCode(CommonDto.CODE_EXCEPTION);
             cdto.setData(null);
             cdto.setMessage(e.getMessage());
@@ -130,7 +130,7 @@ public class CrossSortingController {
     @ResponseBody
     public CommonDto<String> doDeleteCrossSorting(CrossSortingRequest request) {
         CommonDto<String> cdto = new CommonDto<String>();
-        logger.info("CrossSortingController doDeleteCrossSorting begin...");
+        log.info("CrossSortingController doDeleteCrossSorting begin...");
         try {
             if (null == request || (null == request.getId() || request.getId() < 1)) {
                 cdto.setCode(CommonDto.CODE_WARN);
@@ -152,7 +152,7 @@ public class CrossSortingController {
                 cdto.setCode(CommonDto.CODE_FAIL);
             }
         } catch (Exception e) {
-            logger.error("doQueryCrossSorting-error!", e);
+            log.error("doQueryCrossSorting-error!", e);
             cdto.setCode(CommonDto.CODE_EXCEPTION);
             cdto.setData(null);
             cdto.setMessage(e.getMessage());
@@ -165,7 +165,7 @@ public class CrossSortingController {
     @ResponseBody
     public CommonDto<String> doAddBatchCrossSorting(CrossSortingRequest request) {
         CommonDto<String> cdto = new CommonDto<String>();
-        logger.info("CrossSortingController doAddCrossSorting begin...");
+        log.info("CrossSortingController doAddCrossSorting begin...");
         try {
             //request.setData("[{\"mixDmsCode\":123,\"mixDmsName\":\"zhangsan\"},{\"mixDmsCode\":456,\"mixDmsName\":\"zhangsan\"}]");
             if (checkData(request)) {
@@ -198,7 +198,7 @@ public class CrossSortingController {
                 cdto.setCode(CommonDto.CODE_FAIL);
             }
         } catch (Exception e) {
-            logger.error("doAddCrossSorting-error!", e);
+            log.error("doAddCrossSorting-error!", e);
             cdto.setCode(CommonDto.CODE_EXCEPTION);
             cdto.setData(null);
             cdto.setMessage(e.getMessage());
@@ -284,7 +284,7 @@ public class CrossSortingController {
     @ResponseBody
     public CommonDto<List<CrossSorting>> doQueryMixDms(CrossSortingRequest request) {
         CommonDto<List<CrossSorting>> cdto = new CommonDto<List<CrossSorting>>();
-        logger.info("CrossSortingController doQueryMixDms begin...");
+        log.info("CrossSortingController doQueryMixDms begin...");
         try {
             if (null == request || null == request.getCreateDmsCode()
                     || request.getCreateDmsCode() < 1
@@ -305,7 +305,7 @@ public class CrossSortingController {
                 cdto.setCode(CommonDto.CODE_FAIL);
             }
         } catch (Exception e) {
-            logger.error("doAddCrossSorting-error!", e);
+            log.error("doAddCrossSorting-error!", e);
             cdto.setCode(CommonDto.CODE_EXCEPTION);
             cdto.setData(null);
             cdto.setMessage(e.getMessage());
@@ -337,10 +337,10 @@ public class CrossSortingController {
         } catch (Exception e) {
             if(pw != null){
                 if (e instanceof IOException) {
-                    logger.error("导入分拣配置规则失败", e);
+                    log.error("导入分拣配置规则失败", e);
                     writeAndClose(pw,JsonHelper.toJson(new JdResponse(701, e.getMessage())));
                 } else if (e instanceof DataFormatException) {
-                    logger.error("导入分拣配置规则失败", e);
+                    log.error("导入分拣配置规则失败", e);
                     writeAndClose(pw,JsonHelper.toJson(new JdResponse(702, e.getMessage())));
                 }else{
                     writeAndClose(pw,JsonHelper.toJson(new JdResponse(703, "导入分拣配置规则失败,系统异常")));
@@ -415,7 +415,7 @@ public class CrossSortingController {
             ouputStream.flush();
             ouputStream.close();
         } catch (Exception ex) {
-            logger.error("导出分拣配置规则异常", ex);
+            log.error("导出分拣配置规则异常", ex);
         }
     }
 

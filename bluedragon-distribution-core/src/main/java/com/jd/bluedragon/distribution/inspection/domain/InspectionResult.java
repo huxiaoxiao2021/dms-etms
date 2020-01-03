@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.inspection.domain;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.io.Serializable;
 
 /**
@@ -17,6 +19,11 @@ public class InspectionResult implements Serializable {
 
     /*路由下一节点*/
     private String nextRouterSiteName;
+
+    /**
+     * 笼车号
+     */
+    private String tabletrolleyCode = StringUtils.EMPTY;
 
     public String getNextRouterSiteName() {
         return nextRouterSiteName;
@@ -44,5 +51,13 @@ public class InspectionResult implements Serializable {
 
     public void setHintMessage(String hintMessage) {
         this.hintMessage = hintMessage;
+    }
+
+    public String getTabletrolleyCode() {
+        return tabletrolleyCode;
+    }
+
+    public void setTabletrolleyCode(String tabletrolleyCode) {
+        this.tabletrolleyCode = tabletrolleyCode;
     }
 }

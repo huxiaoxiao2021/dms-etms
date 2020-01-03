@@ -26,6 +26,7 @@
 				<value>classpath:configured/snowflake.properties</value>
 				<value>classpath:configured/ucc.properties</value>
 				<value>classpath:configured/print.properties</value>
+				<value>classpath:configured/dms_crossbow.properties</value>
 			</list>
 		</property>
 		<property name="properties" ref="secApplicationProperties"/>

@@ -2,8 +2,8 @@ package com.jd.bluedragon.utils.converter;
 
 import com.jd.bluedragon.utils.DateHelper;
 import org.apache.commons.beanutils.Converter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -15,7 +15,7 @@ import java.util.Date;
  */
 public class LocalDateConverter implements Converter {
 
-    private static final Log logger = LogFactory.getLog(LocalDateConverter.class);
+    private static final Logger log = LoggerFactory.getLogger(LocalDateConverter.class);
 
     @Override
     public Object convert(Class targetType, Object value) {
@@ -28,7 +28,7 @@ public class LocalDateConverter implements Converter {
             try {
                 return DateHelper.parseAllFormatDateTime(value.toString());
             } catch (Exception e) {
-                logger.error("本地日期格式转换器进行转换时发生异常，对象类型:String，对象值:" + value, e);
+                log.error("本地日期格式转换器进行转换时发生异常，对象类型:String，对象值:{}", value, e);
             }
             return null;
         }

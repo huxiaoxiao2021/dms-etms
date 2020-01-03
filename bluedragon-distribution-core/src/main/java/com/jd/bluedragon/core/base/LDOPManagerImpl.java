@@ -22,6 +22,9 @@ import com.jd.ldop.center.api.reverse.WaybillReturnSignatureApi;
 import com.jd.ldop.center.api.reverse.WaybillReverseApi;
 import com.jd.ldop.center.api.reverse.dto.*;
 import com.jd.ldop.center.api.update.dto.WaybillAddress;
+import com.jd.ldop.center.api.waybill.GeneralWaybillQueryApi;
+import com.jd.ldop.center.api.waybill.dto.OrderInfoDTO;
+import com.jd.ldop.center.api.waybill.dto.WaybillQueryByOrderIdDTO;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.receive.api.dto.OrderInfoPrintDTO;
 import com.jd.ql.dms.receive.api.dto.OrderInfoQueryDTO;
@@ -69,6 +72,9 @@ public class LDOPManagerImpl implements LDOPManager {
 
     @Autowired
     private OrderInfoServiceJsf orderInfoServiceJsf ;
+
+    @Autowired
+    private GeneralWaybillQueryApi generalWaybillQueryApi;
 
     @Autowired
     private ReverseSpareEclp reverseSpareEclp;
@@ -357,6 +363,32 @@ public class LDOPManagerImpl implements LDOPManager {
             result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
         }
         return result;
+    }
+
+    /**
+     * 根据商家ID和商家单号获取运单号
+     *
+     * @param busiId   商家ID
+     * @param busiCode 商家单号
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMS.BASE.LDOPManagerImpl.queryWaybillCodeByOrderIdAndCustomerCode",
+            mState = {JProEnum.TP, JProEnum.FunctionError},jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public String queryWaybillCodeByOrderIdAndCustomerCode(Integer busiId, String busiCode) {
+        try{
+            WaybillQueryByOrderIdDTO queryByOrderIdDTO = new WaybillQueryByOrderIdDTO();
+            queryByOrderIdDTO.setOrderId(busiCode);
+            queryByOrderIdDTO.setCustomerId(busiId);
+
+            ResponseDTO<OrderInfoDTO> responseDTO = generalWaybillQueryApi.queryOrderInfoByOrderIdAndCustomerCode(queryByOrderIdDTO);
+            if(responseDTO != null && ResponseDTO.SUCCESS_CODE.equals(responseDTO.getStatusCode()) && responseDTO.getData()!=null){
+                return responseDTO.getData().getDeliveryId();
+            }
+        }catch (Exception e){
+           log.error("根据商家ID和商家单号获取运单号异常!req:{},{}",busiId,busiCode,e);
+        }
+        return StringUtils.EMPTY;
     }
 
     /**
