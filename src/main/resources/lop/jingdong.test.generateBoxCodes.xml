@@ -1,6 +1,7 @@
 <lop>
   <service name="com.jd.bluedragon.external.gateway.box.BoxGateWayExternalService" version="1.0" group="alias">
-    <method name="generateBoxCodes" restName="jingdong.test.generateBoxCodes" znName="generateBoxCodes" desc="" scenesDesc="" auth="false" argIndex="请替换为合法值" attrName="请替换为合法值">
+    <method name="generateBoxCodes" restName="jingdong.enet.generateBoxCodes" znName="generateBoxCodes" desc="" scenesDesc="" auth="false"
+            argIndex="请替换为合法值" attrName="请替换为合法值">
       <element type="com.jd.bluedragon.external.gateway.dto.request.BoxGenerateRequest" name="request" webParmer="request" paramLength="" desc="请替换为恰当的中文描述" val="" systemValue="" defaultValue="" required="false">
         <element type="java.lang.String" name="tenantCode" webParmer="tenantCode" paramLength="" desc="请替换为恰当的中文描述" val="" systemValue="" defaultValue="" required="false"/>
         <element type="java.lang.String" name="startSiteCode" webParmer="startSiteCode" paramLength="" desc="请替换为恰当的中文描述" val="" systemValue="" defaultValue="" required="false"/>
