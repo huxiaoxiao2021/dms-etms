@@ -15,8 +15,6 @@ import org.springframework.util.Assert;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
-//import com.jd.etms.erp.ws.ErpQuerySafWS;
-//import com.jd.etms.waybill.wss.ErpQuerySafWS
 
 @Component
 @Path(Constants.REST_URL)

@@ -16,6 +16,7 @@ import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.base.domain.DmsStorageArea;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.DmsStorageAreaService;
+import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionEC;
@@ -32,8 +33,11 @@ import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ql.basic.domain.SortCrossDetail;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.ws.BasicPrimaryWS;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +46,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
 
+import javax.swing.text.TabExpander;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
@@ -100,6 +105,12 @@ public class InspectionResource {
 	@Autowired
 	@Qualifier("operateHintTrackMQ")
 	private DefaultJMQProducer operateHintTrackMQ;
+
+	@Autowired
+    private BasicPrimaryWS basicPrimaryWS;
+
+	@Autowired
+    private SiteService siteService;
 
 	private final static Logger log = LoggerFactory.getLogger(InspectionResource.class);
 
@@ -569,9 +580,34 @@ public class InspectionResource {
 		BaseStaffSiteOrgDto baseDto = routerService.getRouterNextSite(dmsSiteCode, waybillCode);
 		inspectionResult.setNextRouterSiteName(baseDto==null?null:baseDto.getSiteName());
 		inspectionResult.setHintMessage(hintMessage);
+
+		// B网验货增加笼车号显示
+		this.setTabletrolleyCode(inspectionResult, dmsSiteCode, baseDto);
+
         jdResponse.toSucceed();//这里设置为成功，取不到值时记录warn日志
 		jdResponse.setData(inspectionResult);
 		return jdResponse;
 	}
 
+    /**
+     * B网验货显示下一节点的笼车号
+     *
+     * @param inspectionResult
+     * @param dmsSiteCode
+     * @param nextDest
+     */
+	private void setTabletrolleyCode(InspectionResult inspectionResult, Integer dmsSiteCode, BaseStaffSiteOrgDto nextDest) {
+        if (null == dmsSiteCode || null == nextDest)
+            return;
+        BaseStaffSiteOrgDto siteOrgDto = siteService.getSite(dmsSiteCode);
+        if (null != siteOrgDto && siteOrgDto.getSubType() != null && siteOrgDto.getSubType() == Constants.B2B_SITE_TYPE) {
+            SortCrossDetail sortCrossDetail = basicPrimaryWS.getCrossCodeDetailByDmsID(dmsSiteCode, String.valueOf(nextDest.getSiteCode()));
+            if (log.isInfoEnabled()) {
+                log.info("Get table trolley code from basic. dmsId:{}, siteCode:{}, ret:[{}]", dmsSiteCode, nextDest.getSiteCode(), JsonHelper.toJson(sortCrossDetail));
+            }
+            if (null != sortCrossDetail) {
+                inspectionResult.setTabletrolleyCode(sortCrossDetail.getTabletrolleyCode());
+            }
+        }
+    }
 }

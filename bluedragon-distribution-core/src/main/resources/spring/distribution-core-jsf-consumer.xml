@@ -36,30 +36,15 @@
     </jsf:consumer>
 
     <!-- erp接口 苗延超 杨庭柱 -->
-
-    <!--     <jsf:consumer id="bizServiceInterfaceJsf" interface="com.jd.etms.erp.ws.BizServiceInterface"
-                      protocol="jsf" alias="${erp.jsf.alias}" timeout="10000" retries="${jsf.retries}">
-        </jsf:consumer> -->
-
     <jsf:consumer id="supportServiceJsf" interface="com.jd.etms.erp.ws.SupportServiceInterface"
                   protocol="jsf" alias="${erp.jsf.alias}" timeout="${erp.jsf.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
-
-    <!--     <jsf:consumer id="erpBizSafWS"  interface="com.jd.etms.erp.ws.ErpQuerySafWS"
-                      protocol="jsf" alias="${erp.jsf.alias}" timeout="10000"  check="false" retries="${jsf.retries}">
-        </jsf:consumer> -->
 
     <!-- 仓储dtc接口 乔洪佥 -->
     <jsf:consumer id="dtcDataReceiverServiceJsf" interface="com.jd.staig.receiver.rpc.DataReceiver"
                   protocol="jsf" alias="${dtc.jsf.alias}" timeout="${dtc.jsf.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
     <!-- -->
-    <!-- Promise接口，获取分拣中心和配送中心对应关系 -->
-    <jsf:consumer id="sortDeliverySyncService"
-                  interface="com.jd.fce.upc.area.service.contract.SortDeliveryCenterInfoSyncService"
-                  protocol="jsf" alias="${dos.ofc.alias}" timeout="${dos.ofc.timeout}" retries="${jsf.retries}">
-        <jsf:parameter key="token" value="${dos.ofc.token}" hide="true"/>
-    </jsf:consumer>
 
     <jsf:consumer id="orderMarkingService" interface="com.jd.fce.dos.service.contract.OrderMarkingService"
                   protocol="jsf" alias="${fce.dos.ofc.alias}" timeout="${fce.dos.ofc.timeout}" retries="${jsf.retries}">
@@ -123,9 +108,6 @@
     <jsf:consumer id="waybillPackageApiJsf" interface="com.jd.etms.waybill.api.WaybillPackageApi" protocol="jsf"
                   alias="${jsf.waybill.group}" timeout="${jsf.waybill.timeout}" retries="${jsf.retries}" check="false">
     </jsf:consumer>
-    <jsf:consumer id="waybillAddApiJsf" interface="com.jd.etms.waybill.api.WaybillAddApi" protocol="jsf"
-                  alias="${jsf.waybill.group}" timeout="${jsf.waybill.timeout}" retries="${jsf.retries}" check="false">
-    </jsf:consumer>
     <jsf:consumer id="waybillSyncApiJsf" interface="com.jd.etms.waybill.api.WaybillSyncApi" protocol="jsf"
                   alias="${jsf.waybill.group}" timeout="${jsf.waybill.timeout}" retries="${jsf.retries}" check="false">
     </jsf:consumer>
@@ -137,14 +119,6 @@
     </jsf:consumer>
     <jsf:consumer id="waybillTraceApiJsf" interface="com.jd.etms.waybill.api.WaybillTraceApi" protocol="jsf"
                   alias="${jsf.waybill.group}" timeout="${jsf.waybill.timeout}" retries="${jsf.retries}" check="false">
-    </jsf:consumer>
-    <jsf:consumer id="waybillExtendApiJsf" interface="com.jd.etms.waybill.api.WaybillExtendApi" protocol="jsf"
-                  alias="${jsf.waybill.group}" timeout="${jsf.waybill.timeout}" retries="${jsf.retries}" check="false">
-    </jsf:consumer>
-    <jsf:consumer id="josServiceJsf"
-                  interface="com.jd.bluedragon.distribution.external.jos.service.JosService" protocol="jsf"
-                  alias="${dms.jsf.alias}" timeout="${dms.jsf.timeout}" retries="${jsf.retries}"
-    >
     </jsf:consumer>
 
     <!-- 运单系统接口 结束 -->
