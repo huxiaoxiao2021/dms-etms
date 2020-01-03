@@ -15,7 +15,8 @@ public interface BoxGateWayExternalService {
     /**
      * 箱号获取
      * @param request 请求参数
+     * @param pin 京东PIN码 物流网关会透传过来
      * @return
      */
-    GateWayBaseResponse<BoxDto> generateBoxCodes(BoxGenerateRequest request);
+    GateWayBaseResponse<BoxDto> generateBoxCodes(BoxGenerateRequest request,String pin);
 }

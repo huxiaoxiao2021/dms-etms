@@ -14,7 +14,8 @@ public interface WaybillGateWayExternalService {
     /**
      * 回传箱号与运单明细
      * @param request
+     * @param pin 京东PIN码 物流网关会透传过来
      * @return
      */
-    GateWayBaseResponse<Void> syncWaybillCodeAndBoxCode(WaybillSyncRequest request);
+    GateWayBaseResponse<Void> syncWaybillCodeAndBoxCode(WaybillSyncRequest request,String pin);
 }

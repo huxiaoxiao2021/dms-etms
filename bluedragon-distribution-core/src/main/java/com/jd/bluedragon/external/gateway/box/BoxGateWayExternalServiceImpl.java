@@ -15,7 +15,7 @@ public class BoxGateWayExternalServiceImpl implements BoxGateWayExternalService{
     private final Logger logger = LoggerFactory.getLogger(BoxGateWayExternalServiceImpl.class);
 
     @Override
-    public GateWayBaseResponse<BoxDto> generateBoxCodes(BoxGenerateRequest request) {
+    public GateWayBaseResponse<BoxDto> generateBoxCodes(BoxGenerateRequest request,String pin) {
         logger.info("生成箱号request[{}]", JsonHelper.toJson(request));
         return null;
     }

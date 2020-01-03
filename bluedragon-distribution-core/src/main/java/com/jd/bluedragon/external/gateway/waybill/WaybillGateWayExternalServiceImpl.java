@@ -14,7 +14,7 @@ public class WaybillGateWayExternalServiceImpl implements WaybillGateWayExternal
     private final Logger logger = LoggerFactory.getLogger(WaybillGateWayExternalServiceImpl.class);
 
     @Override
-    public GateWayBaseResponse<Void> syncWaybillCodeAndBoxCode(WaybillSyncRequest request) {
+    public GateWayBaseResponse<Void> syncWaybillCodeAndBoxCode(WaybillSyncRequest request,String pin) {
         logger.info("同步运单与箱号信息waybillCode[{}]boxCode[{}]",request.getWaybillCode(),request.getBoxCode());
         return null;
     }
