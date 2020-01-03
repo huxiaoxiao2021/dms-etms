@@ -472,8 +472,8 @@ public class WaybillServiceImpl implements WaybillService {
         InvokeResult<Boolean> result = new InvokeResult<>();
 
         if (WaybillCancelInterceptTypeEnum.CANCEL.getCode() == interceptType) {
-            if (interceptMode == WaybillCancelInterceptModeEnum.NOTICE.getCode()) {
-                result.customMessage(SortingResponse.CODE_39006, SortingResponse.MESSAGE_39006);
+            if (interceptMode == WaybillCancelInterceptModeEnum.NOTICE.getCode()) {//目前三方验货 要求通知类型的也要拦截
+                result.customMessage(SortingResponse.CODE_29311, SortingResponse.MESSAGE_29311);
                 return result;
             }
             if (interceptMode == WaybillCancelInterceptModeEnum.INTERCEPT.getCode()) {
