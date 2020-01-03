@@ -229,6 +229,9 @@ public class UserServiceImpl implements UserService{
 					sysLoginLogService.insert(loginResult, clientInfo);
 					//jsf保存登录记录接口
 					DmsClientLoginRequest dmsClientLoginRequest = new DmsClientLoginRequest();
+					dmsClientLoginRequest.setProgramType(clientInfo.getProgramType());
+					dmsClientLoginRequest.setVersionCode(clientInfo.getVersionCode());
+					dmsClientLoginRequest.setSystemCode(Constants.SYS_CODE_DMS);
 					String orgCode = null;
 					if(loginResult.getOrganizationId() != null){
 						orgCode = loginResult.getOrganizationId().toString();
@@ -243,7 +246,7 @@ public class UserServiceImpl implements UserService{
 					dmsClientLoginRequest.setSiteName(loginResult.getSiteName());
 					dmsClientLoginRequest.setUserCode(request.getErpAccount());
 					dmsClientLoginRequest.setUserName(loginResult.getStaffName());
-					dmsClientLoginRequest.setProgramType(clientInfo.getProgramType());
+					
 					dmsClientLoginRequest.setMacAdress(clientInfo.getMacAdress());
 					dmsClientLoginRequest.setMachineCode(clientInfo.getMachineName());
 					dmsClientLoginRequest.setIpv4(clientInfo.getIpv4());
