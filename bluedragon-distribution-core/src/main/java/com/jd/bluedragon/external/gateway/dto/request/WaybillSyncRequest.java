@@ -11,15 +11,25 @@ import java.io.Serializable;
 public class WaybillSyncRequest implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    //租户
     private String tenantCode;
+    //始发网点
     private String startSiteCode;
+    //目的网点
     private String endSiteCode;
+    //操作人id
     private String operatorId;
+    //操作人名称
     private String operatorName;
+    //操作单位名称
     private String operatorUnitName;
+    //操作时间
     private Data operatorTime;
+    //箱号
     private String boxCode;
+    //运单号
     private String waybillCode;
+    //包裹号
     private String packageCode;
 
     public String getTenantCode() {
