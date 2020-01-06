@@ -1,7 +1,8 @@
-package com.jd.bluedragon.external.gateway.waybill;
+package com.jd.bluedragon.distribution.external.gateway.waybill;
 
 import com.jd.bluedragon.external.gateway.base.GateWayBaseResponse;
 import com.jd.bluedragon.external.gateway.dto.request.WaybillSyncRequest;
+import com.jd.bluedragon.external.gateway.waybill.WaybillGateWayExternalService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
