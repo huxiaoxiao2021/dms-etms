@@ -48,7 +48,8 @@ public class BoxGateWayExternalServiceImpl implements BoxGateWayExternalService 
         logger.info("生成箱号request[{}]", JsonHelper.toJson(request));
         GateWayBaseResponse gateWayBaseResponse = new GateWayBaseResponse();
         //参数校验
-        if(!tenantCode.equals(request.getTenantCode()) || !boxType.equals(request.getBoxType())){
+        if(!tenantCode.equals(request.getTenantCode()) || !boxType.equals(request.getBoxType())
+                || request.getNum() < 0 || request.getNum() > 100 ){
             gateWayBaseResponse.setResultCode(GateWayBaseResponse.CODE_ERROR);
             gateWayBaseResponse.setMessage(GateWayBaseResponse.MESSAGE_ERROR);
             return gateWayBaseResponse;
