@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.waybill.service;
 
 import com.jd.bluedragon.distribution.api.response.DmsWaybillInfoResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
 import com.jd.etms.waybill.domain.Waybill;
@@ -77,4 +78,12 @@ public interface WaybillService {
     DmsWaybillInfoResponse getDmsWaybillInfoResponse(String packageCode);
 
     Waybill getWaybillByWayCode(String waybillCode);
+
+    /**
+     * 三方验货校验运单取消拦截
+     *
+     * @param pdaOperateRequest
+     * @return
+     */
+    InvokeResult<Boolean> thirdCheckWaybillCancel(PdaOperateRequest pdaOperateRequest);
 }
