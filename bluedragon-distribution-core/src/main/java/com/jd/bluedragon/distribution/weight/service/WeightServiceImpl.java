@@ -7,6 +7,7 @@ import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.domain.WeightOperFlow;
 import com.jd.bluedragon.distribution.api.response.WeightResponse;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
@@ -14,6 +15,7 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.weight.domain.OpeEntity;
 import com.jd.bluedragon.distribution.weight.domain.OpeObject;
 import com.jd.bluedragon.distribution.weight.domain.OpeSendObject;
+import com.jd.bluedragon.distribution.weight.domain.WeightAndVolumeDetailFlow;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -34,7 +36,11 @@ import java.lang.reflect.Type;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service("weightService")
 public class WeightServiceImpl implements WeightService {
@@ -65,7 +71,11 @@ public class WeightServiceImpl implements WeightService {
     @Autowired
     @Qualifier("jimdbCacheService")
     private CacheService jimdbCacheService;
-    
+
+    @Autowired
+    @Qualifier("dmsWeightVolumeUpload")
+    private DefaultJMQProducer dmsWeightVolumeUpload;
+
     private static final Type WAYBILL_WEIGHT=new TypeToken<List<OpeEntity>>(){}.getType();
 
     public boolean doWeightTrack(Task task) {
@@ -315,7 +325,6 @@ public class WeightServiceImpl implements WeightService {
 		return null;
 	}
 
-	@Override
 	public boolean batchSaveDmsWeight(List<WeightOperFlow> weightFlowList) {
 		if(weightFlowList!=null){
 			for(WeightOperFlow weightOperFlow:weightFlowList){
@@ -324,4 +333,23 @@ public class WeightServiceImpl implements WeightService {
 		}
 		return true;
 	}
+
+    @Override
+    public InvokeResult<Boolean> dealWeightVolume(WeightAndVolumeDetailFlow weightAndVolumeDetailFlow) {
+        InvokeResult<Boolean> result = new InvokeResult<Boolean>();
+        result.success();
+        //上传称重流水
+        sendWeightVolumeMQ(weightAndVolumeDetailFlow);
+        return result;
+    }
+
+    /**
+     * 上传称重量方数据
+     * @param weightAndVolumeDetailFlow
+     */
+    private void sendWeightVolumeMQ(WeightAndVolumeDetailFlow weightAndVolumeDetailFlow) {
+        log.info("发送MQ成功topic：{},businessId：{}，msgContent：{}", dmsWeightVolumeUpload.getTopic(),
+                weightAndVolumeDetailFlow.getStrCode() + "_" + weightAndVolumeDetailFlow.getOpeSiteCode(), JsonHelper.toJson(weightAndVolumeDetailFlow));
+        dmsWeightVolumeUpload.sendOnFailPersistent(weightAndVolumeDetailFlow.getStrCode() + "_" + weightAndVolumeDetailFlow.getOpeSiteCode(),JsonHelper.toJson(weightAndVolumeDetailFlow));
+    }
 }
