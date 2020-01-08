@@ -2,6 +2,7 @@ package com.jd.bluedragon.external.gateway.dto.request;
 
 import javax.xml.crypto.Data;
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 运单与箱号关系绑定 请求对象
@@ -24,13 +25,15 @@ public class WaybillSyncRequest implements Serializable {
     //操作单位名称
     private String operatorUnitName;
     //操作时间
-    private Data operatorTime;
+    private Date operatorTime;
     //箱号
     private String boxCode;
     //运单号
     private String waybillCode;
     //包裹号
     private String packageCode;
+    //操作类型:集包:1,取消集包:2
+    private Integer operationType;
 
     public String getTenantCode() {
         return tenantCode;
@@ -80,11 +83,11 @@ public class WaybillSyncRequest implements Serializable {
         this.operatorUnitName = operatorUnitName;
     }
 
-    public Data getOperatorTime() {
+    public Date getOperatorTime() {
         return operatorTime;
     }
 
-    public void setOperatorTime(Data operatorTime) {
+    public void setOperatorTime(Date operatorTime) {
         this.operatorTime = operatorTime;
     }
 
@@ -111,4 +114,13 @@ public class WaybillSyncRequest implements Serializable {
     public void setPackageCode(String packageCode) {
         this.packageCode = packageCode;
     }
+
+    public Integer getOperationType() {
+        return operationType;
+    }
+
+    public void setOperationType(Integer operationType) {
+        this.operationType = operationType;
+    }
+
 }
