@@ -24,6 +24,7 @@ public class GateWayBaseResponse<E> implements Serializable{
     public static final String MESSAGE_PACKAGECODE_ERROR = "包裹号参数为空！";
     public static final String MESSAGE_START_SITE_ERROR = "始发站点参数为空！";
     public static final String MESSAGE_BOX_SITE_ERROR = "箱子始发地与集包始发地不一致！";
+    public static final String  MESSAGE_OPERATION_TYPE_ERROR = "不支持的操作类型！";
 
     public static final Integer CODE_CONFIRM = -3;
     public static final String  MESSAGE_CONFIRM = "Data does not exist";
@@ -31,7 +32,7 @@ public class GateWayBaseResponse<E> implements Serializable{
     public static final String  MESSAGE_START_SITE_CONFIRM = "始发站点不存在！";
     public static final String  MESSAGE_END_SITE_CONFIRM = "目的站点不存在！";
     public static final String  MESSAGE_BOX_PACKAGE_CONFIRM = "箱包关系不存在，无法取消集包！";
-    public static final String  MESSAGE_OPERATIONTYPE_CONFIRM = "不支持的操作类型！";
+    public static final String  MESSAGE_START_SITE_TYPE_CONFIRM = "始发站点非经济网网点！";
 
 
     /** 响应状态码 */

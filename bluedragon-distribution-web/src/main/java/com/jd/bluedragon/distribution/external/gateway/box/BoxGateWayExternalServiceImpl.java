@@ -26,7 +26,6 @@ import java.util.Arrays;
  */
 public class BoxGateWayExternalServiceImpl implements BoxGateWayExternalService {
 
-    private static final String tenantCode = "ECONOMIC_NET";//经济网
     private static final String boxType = "ECONOMIC_NET_ORDINARY";//经济网箱子类型：普通
     private static final String type = "BC";//经济网箱子类型：普通对应京东类型
     private static final int mixBoxType = 0;//不混装
@@ -48,10 +47,9 @@ public class BoxGateWayExternalServiceImpl implements BoxGateWayExternalService 
         logger.info("生成箱号request[{}]", JsonHelper.toJson(request));
         GateWayBaseResponse gateWayBaseResponse = new GateWayBaseResponse();
         //参数校验
-        if(!tenantCode.equals(request.getTenantCode()) || !boxType.equals(request.getBoxType())
+        if(!Constants.TENANT_CODE_ECONOMIC.equals(request.getTenantCode()) || !boxType.equals(request.getBoxType())
                 || request.getNum() < 0 || request.getNum() > 100 ){
-            gateWayBaseResponse.setResultCode(GateWayBaseResponse.CODE_ERROR);
-            gateWayBaseResponse.setMessage(GateWayBaseResponse.MESSAGE_ERROR);
+            gateWayBaseResponse.toError(GateWayBaseResponse.MESSAGE_ERROR);
             return gateWayBaseResponse;
         }
 
@@ -59,14 +57,12 @@ public class BoxGateWayExternalServiceImpl implements BoxGateWayExternalService 
         BoxRequest param = convertParam(request, pin);
         BoxResponse response = boxResource.printClientBoxes(param);
         if(!JdResponse.CODE_OK.equals(response.getCode())){
-            gateWayBaseResponse.setResultCode(GateWayBaseResponse.CODE_FAIL);
-            gateWayBaseResponse.setMessage(response.getMessage());
+            gateWayBaseResponse.toFail(response.getMessage());
             return gateWayBaseResponse;
         }
         //结果转换
         BoxDto dto = convertBoxDto(response, param);
-        gateWayBaseResponse.setResultCode(GateWayBaseResponse.CODE_SUCCESS);
-        gateWayBaseResponse.setMessage(GateWayBaseResponse.MESSAGE_SUCCESS);
+        gateWayBaseResponse.toSucceed(GateWayBaseResponse.MESSAGE_SUCCESS);
         gateWayBaseResponse.setData(dto);
 
         return gateWayBaseResponse;

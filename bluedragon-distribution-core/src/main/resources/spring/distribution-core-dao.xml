@@ -568,4 +568,7 @@
         <property name="sqlSession" ref="sessionTemplateBase" />
     </bean>
 
+    <!-- 三方装箱明细 -->
+    <bean id="thirdBoxDetailDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.third.dao.impl.ThirdBoxDetailDaoImpl"/>
 </beans>
