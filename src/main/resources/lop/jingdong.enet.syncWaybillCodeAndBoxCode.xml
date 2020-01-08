@@ -15,6 +15,7 @@
         <element type="java.lang.String" name="boxCode" webParmer="boxCode" paramLength="" desc="箱号" val="" systemValue="" defaultValue="" required="false"/>
         <element type="java.lang.String" name="waybillCode" webParmer="waybillCode" paramLength="" desc="运单号" val="" systemValue="" defaultValue="" required="false"/>
         <element type="java.lang.String" name="packageCode" webParmer="packageCode" paramLength="" desc="包裹号" val="" systemValue="" defaultValue="" required="false"/>
+          <element type="java.lang.Integer" name="operationType" webParmer="operationType" paramLength="" desc="操作类型:集包:1,取消集包:2" val="" systemValue="" defaultValue="" required="false"/>
       </element>
       <element type="java.lang.String" name="pin" webParmer="pin" paramLength="" desc="京东pin码" val="" systemValue="" defaultValue=""
                required="false"/>
