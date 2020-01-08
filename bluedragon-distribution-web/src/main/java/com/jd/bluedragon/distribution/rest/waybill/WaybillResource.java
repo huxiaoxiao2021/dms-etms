@@ -66,6 +66,9 @@ import com.jd.bluedragon.distribution.web.kuaiyun.weight.WeighByWaybillControlle
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDetail;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDto;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
+import com.jd.bluedragon.distribution.weight.domain.WeightAndVolumeDetailFlow;
+import com.jd.bluedragon.distribution.weight.domain.WeightOpeTypeEnum;
+import com.jd.bluedragon.distribution.weight.service.WeightService;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -95,7 +98,6 @@ import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
-import org.jboss.resteasy.annotations.GZIP;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -111,7 +113,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -213,6 +214,9 @@ public class WaybillResource {
 
     @Autowired
     private LdopWaybillUpdateManager ldopWaybillUpdateManager;
+
+    @Autowired
+	private WeightService weightService;
 
     /**
      * 根据运单号获取运单包裹信息接口
@@ -2352,5 +2356,33 @@ public class WaybillResource {
         result.setMessage("取消鸡毛信失败【"+ldopInvokeResult.getMessage()+"】");
         return result;
     }
+
+	@POST
+	@Path("/waybill/dealWeightVolumeFlow")
+	public InvokeResult<Boolean> dealWeightVolumeFlow(WeightAndVolumeDetailFlow weightAndVolumeDetailFlow){
+		InvokeResult<Boolean> result = new InvokeResult<>();
+		result.success();
+		if(!checkWeightVolumeParams(weightAndVolumeDetailFlow)){
+			result.parameterError(InvokeResult.PARAM_ERROR);
+			return result;
+		}
+		return weightService.dealWeightVolume(weightAndVolumeDetailFlow);
+	}
+
+	private Boolean checkWeightVolumeParams(WeightAndVolumeDetailFlow weightAndVolumeDetailFlow) {
+		Boolean sign = Boolean.TRUE;
+		if(weightAndVolumeDetailFlow == null){
+			sign = Boolean.FALSE;
+		}
+		String strCode = weightAndVolumeDetailFlow.getStrCode();
+		if(!BusinessUtil.isBoxcode(strCode) || !WaybillUtil.isWaybillCode(strCode) || !WaybillUtil.isPackageCode(strCode)){
+			sign = Boolean.FALSE;
+		}
+		Set<Integer> weightTypes = WeightOpeTypeEnum.getCodeMap().keySet();
+		if(weightAndVolumeDetailFlow.getWeightType() == null || !weightTypes.contains(weightAndVolumeDetailFlow.getWeightType())){
+			sign = Boolean.FALSE;
+		}
+		return sign;
+	}
 
 }
