@@ -7,13 +7,19 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.ProductResponse;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +61,7 @@ public class ProductResource {
 
     @GET
     @Path("/order/products/{codeStr}")
+    @JProfiler(jKey = "DMS.WEB.ProductResource.getOrderProducts", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public ProductResponse getOrderProducts(@PathParam("codeStr") String codeStr) {
         if (codeStr == null) {
             return this.paramError();
@@ -76,6 +83,7 @@ public class ProductResource {
 
     @GET
     @Path("/pickware/products/{code}")
+    @JProfiler(jKey = "DMS.WEB.ProductResource.getPickwareProducts", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public ProductResponse getPickwareProducts(@PathParam("code") String code) {
         if (code == null) {
             return this.paramError();

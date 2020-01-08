@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.order.ws;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.core.base.PreseparateWaybillManager;
 import com.jd.bluedragon.distribution.base.service.BaseService;
@@ -9,6 +10,8 @@ import com.jd.ioms.jsf.export.domain.ExportResult;
 import com.jd.ioms.jsf.export.domain.Order;
 import com.jd.ioms.jsf.export.domain.OrderDetail;
 import com.jd.ql.basic.domain.Assort;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import jd.oom.client.core.OrderLoadFlag;
 import jd.oom.client.orderfile.OrderArchiveInfo;
 import org.slf4j.Logger;
@@ -30,6 +33,7 @@ public class OrderWebService {
 	@Autowired
 	private PreseparateWaybillManager preseparateWaybillManager;
 
+    @JProfiler(jKey = "DMS.WEB.OrderWebService.getOrderDetailById", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<com.jd.ioms.jsf.export.domain.OrderDetail> getOrderDetailById(long orderId) {
 		com.jd.ioms.jsf.export.OrderMiddlewareJSFService oomServiceSoap = (com.jd.ioms.jsf.export.OrderMiddlewareJSFService) SpringHelper
 		        .getBean("orderMiddlewareJSFService");
@@ -44,6 +48,7 @@ public class OrderWebService {
 		return Collections.emptyList();
 	}
 
+    @JProfiler(jKey = "DMS.WEB.OrderWebService.getHistoryOrderDetailById", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<jd.oom.client.orderfile.OrderDetail> getHistoryOrderDetailById(long orderId) {
 		jd.oom.client.orderfile.ServiceSoap oomOrderFileServerSoap = (jd.oom.client.orderfile.ServiceSoap) SpringHelper
 		        .getBean("oomOrderFileServerSoap");
@@ -59,6 +64,7 @@ public class OrderWebService {
 		return Collections.emptyList();
 	}
 
+    @JProfiler(jKey = "DMS.WEB.OrderWebService.getHisWaybillByOrderId", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public Waybill getHisWaybillByOrderId(long orderId) {
 		jd.oom.client.orderfile.ServiceSoap oomOrderFileServerSoap = (jd.oom.client.orderfile.ServiceSoap) SpringHelper
 		        .getBean("oomOrderFileServerSoap");
@@ -88,6 +94,7 @@ public class OrderWebService {
 		return null;
 	}
 
+    @JProfiler(jKey = "DMS.WEB.OrderWebService.getOrder", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public Order getOrder(long orderId) {
 		com.jd.ioms.jsf.export.OrderMiddlewareJSFService orderMiddlewareJSFService = (com.jd.ioms.jsf.export.OrderMiddlewareJSFService) SpringHelper
 				.getBean("orderMiddlewareJSFService");
@@ -98,6 +105,7 @@ public class OrderWebService {
 		return null;
 	}
 
+    @JProfiler(jKey = "DMS.WEB.OrderWebService.getHistoryOrder", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public jd.oom.client.orderfile.Order getHistoryOrder(long orderId) {
 		jd.oom.client.orderfile.ServiceSoap oomOrderFileServerSoap = (jd.oom.client.orderfile.ServiceSoap) SpringHelper
 		        .getBean("oomOrderFileServerSoap");
@@ -110,7 +118,8 @@ public class OrderWebService {
 		
 		return null;
 	}
-	
+
+    @JProfiler(jKey = "DMS.WEB.OrderWebService.getWaybillByOrderId", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public Waybill getWaybillByOrderId(long orderId) {
 		com.jd.ioms.jsf.export.OrderMiddlewareJSFService orderMiddlewareJSFService = (com.jd.ioms.jsf.export.OrderMiddlewareJSFService) SpringHelper
 				.getBean("orderMiddlewareJSFService");
