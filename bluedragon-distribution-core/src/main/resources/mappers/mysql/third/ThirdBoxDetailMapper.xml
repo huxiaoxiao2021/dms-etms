@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.third.dao.ThirdBoxDetailDao">
+
+	<resultMap id="ThirdBoxDetail" type="com.jd.bluedragon.distribution.third.domain.ThirdBoxDetail" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="tenant_code" property="tenantCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="start_site_id" property="startSiteId" javaType="java.lang.Integer" jdbcType="BIGINT" />
+		<result column="start_site_code" property="startSiteCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="end_site_id" property="endSiteId" javaType="java.lang.Integer" jdbcType="BIGINT" />
+		<result column="end_site_code" property="endSiteCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="operator_id" property="operatorId" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="operator_name" property="operatorName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="operator_unit_name" property="operatorUnitName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="operator_time" property="operatorTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="box_code" property="boxCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="package_code" property="packageCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="waybill_code" property="waybillCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="update_user_id" property="updateUserId" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="update_user_name" property="updateUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="update_unit_name" property="updateUnitName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		tenant_code,start_site_id,start_site_code,end_site_id,end_site_code,
+		operator_id,operator_name,operator_unit_name,operator_time,box_code,
+		package_code,waybill_code,create_time,update_user_id,update_user_name,
+		update_unit_name,update_time
+	</sql>
+
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.third.domain.ThirdBoxDetail">
+		insert into third_box_detail
+			(
+				tenant_code,
+				start_site_id,
+				start_site_code,
+				end_site_id,
+				end_site_code,
+				operator_id,
+				operator_name,
+				operator_unit_name,
+				operator_time,
+				box_code,
+				package_code,
+				waybill_code,
+				create_time
+			)
+			values
+			(
+				#{tenantCode,jdbcType=VARCHAR},
+				#{startSiteId,jdbcType=BIGINT},
+				#{startSiteCode,jdbcType=VARCHAR},
+				#{endSiteId,jdbcType=BIGINT},
+				#{endSiteCode,jdbcType=VARCHAR},
+				#{operatorId,jdbcType=VARCHAR},
+				#{operatorName,jdbcType=VARCHAR},
+				#{operatorUnitName,jdbcType=VARCHAR},
+				#{operatorTime,jdbcType=TIMESTAMP},
+				#{boxCode,jdbcType=VARCHAR},
+				#{packageCode,jdbcType=VARCHAR},
+				#{waybillCode,jdbcType=VARCHAR},
+				now()
+			)
+	</insert>
+
+	<update id="cancel" parameterType="com.jd.bluedragon.distribution.third.domain.ThirdBoxDetail">
+		update third_box_detail
+			<set>
+				<if test="updateUserId != null">
+					update_user_id = #{updateUserId,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUserName != null">
+					update_user_name = #{updateUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUnitName != null">
+					update_unit_name = #{updateUnitName,jdbcType=VARCHAR},
+				</if>
+					update_time = now(),
+					is_delete = 1,
+			</set>
+		where start_site_id = #{startSiteId,jdbcType=BIGINT}
+		    and box_code = #{boxCode,jdbcType=VARCHAR}
+		    and package_code = #{packageCode,jdbcType=VARCHAR}
+		    and tenant_code = #{tenantCode,jdbcType=VARCHAR}
+		    and is_delete = 0
+	</update>
+
+	<select id="queryByBoxCode" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="ThirdBoxDetail">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  third_box_detail
+		where start_site_id = #{startSiteId,jdbcType=BIGINT}
+		and box_code = #{boxCode,jdbcType=VARCHAR}
+		and tenant_code = #{tenantCode,jdbcType=VARCHAR}
+		and is_delete = 0
+	</select>
+
+</mapper>

@@ -996,4 +996,10 @@ public class Constants {
      */
     public static final String BOX_TYPE_CHECK_SWITCH = "BOX_TYPE_CHECK_SWITCH";
 
+    /**
+     * 经济网租户编码
+     */
+    public static final String TENANT_CODE_ECONOMIC = "ECONOMIC_NET";
+
+
 }
