@@ -147,7 +147,7 @@ public class UserServiceImpl implements UserService{
 			if (null != dtoStaff) {
 				response.setSiteType(dtoStaff.getSiteType());
 				response.setSubType(dtoStaff.getSubType());
-				if (!dtoStaff.getDmsId().equals(dtoStaff.getSiteCode()) && dtoStaff.getDmsId() > 0) {
+				if (null != dtoStaff.getDmsId() && !dtoStaff.getDmsId().equals(dtoStaff.getSiteCode()) && dtoStaff.getDmsId() > 0) {
 					response.setDmsId(dtoStaff.getDmsId());
 					response.setDmsName(dtoStaff.getDmsName());
 				}
