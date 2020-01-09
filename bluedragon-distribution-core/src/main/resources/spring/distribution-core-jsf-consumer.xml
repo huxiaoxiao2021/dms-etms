@@ -546,5 +546,11 @@
                   protocol="jsf" alias="${jsf.generalWaybillQueryApi.alias}" timeout="${jsf.generalWaybillQueryApi.timeout}">
     </jsf:consumer>
 
+    <!--  称重量方流水接口  -->
+    <jsf:consumer id="weightVolumeFlowJSFService" interface="com.jd.ql.dms.report.weightVolumeFlow.WeightVolumeFlowJSFService"
+                  protocol="jsf" alias="${jsf.reportExternalService.alias}" timeout="${jsf.reportExternalService.timeout}"
+                  retries="${jsf.retries}" serialization="hessian">
+    </jsf:consumer>
+
 
 </beans>
