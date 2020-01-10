@@ -16,6 +16,8 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
@@ -52,6 +54,7 @@ public class WaybillGateWayExternalServiceImpl implements WaybillGateWayExternal
     private static final Integer OPERATOR_ID= -1;//经济网操作人回传全称跟踪默认ID：-1
 
     @Override
+    @JProfiler(jKey = "DMSWEB.WaybillGateWayExternalServiceImpl.syncWaybillCodeAndBoxCode", jAppName = Constants.UMP_APP_NAME_DMSWEB , mState = {JProEnum.TP})
     public GateWayBaseResponse<Void> syncWaybillCodeAndBoxCode(WaybillSyncRequest request,String pin) {
         logger.info("同步运单与箱号信息waybillCode[{}]boxCode[{}]",request.getWaybillCode(),request.getBoxCode());
         GateWayBaseResponse<Void> response = null;
@@ -131,6 +134,7 @@ public class WaybillGateWayExternalServiceImpl implements WaybillGateWayExternal
 
 
     private GateWayBaseResponse<Void> sorting(WaybillSyncRequest request, BaseStaffSiteOrgDto startSite, Box box){
+        CallerInfo info = Profiler.registerInfo("DMSWORKER.WaybillGateWayExternalServiceImpl.sorting", false, true);
         GateWayBaseResponse<Void> response = new GateWayBaseResponse<Void>();
         try {
             //集包校验
@@ -155,6 +159,9 @@ public class WaybillGateWayExternalServiceImpl implements WaybillGateWayExternal
         }catch (Exception e){
             logger.error("经济网集包异常：{}", JsonHelper.toJson(request), e);
             response.toFail(GateWayBaseResponse.MESSAGE_FAIL);
+            Profiler.functionError(info);
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
         return response;
     }
@@ -167,28 +174,31 @@ public class WaybillGateWayExternalServiceImpl implements WaybillGateWayExternal
      * @param receiveSite 目的
      */
     public void addSortingAdditionalTask(ThirdBoxDetail detail, BaseStaffSiteOrgDto createSite, BaseStaffSiteOrgDto receiveSite) {
-        //added by huangliang
-        CallerInfo info = Profiler.registerInfo("DMSWORKER.SortingService.addSortingAdditionalTask", false, true);
-        WaybillStatus waybillStatus = this.parseWaybillStatus(detail, createSite, receiveSite);
-        String jsonStr = JsonHelper.toJson(waybillStatus);
-        Task task = new Task();
-        task.setBody(jsonStr);
-        task.setFingerprint(Md5Helper.encode(createSite.getSiteCode()+ "_" + receiveSite.getSiteCode() + "_10_"
-                + detail.getWaybillCode() + "_" + detail.getPackageCode() + "_" + System.currentTimeMillis()));
-        task.setBoxCode(detail.getBoxCode());
-        task.setCreateSiteCode(createSite.getSiteCode());
-        task.setCreateTime(detail.getOperatorTime());
-        task.setKeyword1(detail.getWaybillCode());
-        task.setKeyword2(detail.getPackageCode());
-        task.setReceiveSiteCode(receiveSite.getSiteCode());
-        task.setType(WaybillStatus.WAYBILL_STATUS_CODE_FORWARD_SORTING);
-        task.setTableName(Task.TABLE_NAME_WAYBILL);
-        task.setSequenceName(Task.getSequenceName(task.getTableName()));
-        task.setOwnSign(BusinessHelper.getOwnSign());
-        this.taskService.add(task);
-
-        Profiler.registerInfoEnd(info);
-        //added end
+        CallerInfo info = Profiler.registerInfo("DMSWORKER.WaybillGateWayExternalServiceImpl.addSortingAdditionalTask", false, true);
+        try{
+            WaybillStatus waybillStatus = this.parseWaybillStatus(detail, createSite, receiveSite);
+            String jsonStr = JsonHelper.toJson(waybillStatus);
+            Task task = new Task();
+            task.setBody(jsonStr);
+            task.setFingerprint(Md5Helper.encode(createSite.getSiteCode()+ "_" + receiveSite.getSiteCode() + "_10_"
+                    + detail.getWaybillCode() + "_" + detail.getPackageCode() + "_" + System.currentTimeMillis()));
+            task.setBoxCode(detail.getBoxCode());
+            task.setCreateSiteCode(createSite.getSiteCode());
+            task.setCreateTime(detail.getOperatorTime());
+            task.setKeyword1(detail.getWaybillCode());
+            task.setKeyword2(detail.getPackageCode());
+            task.setReceiveSiteCode(receiveSite.getSiteCode());
+            task.setType(WaybillStatus.WAYBILL_STATUS_CODE_FORWARD_SORTING);
+            task.setTableName(Task.TABLE_NAME_WAYBILL);
+            task.setSequenceName(Task.getSequenceName(task.getTableName()));
+            task.setOwnSign(BusinessHelper.getOwnSign());
+            this.taskService.add(task);
+        }catch (Exception e){
+            logger.error("经济网回传集包全称跟踪异常：{}", JsonHelper.toJson(detail), e);
+            Profiler.functionError(info);
+        }finally {
+            Profiler.registerInfoEnd(info);
+        }
     }
 
     private WaybillStatus parseWaybillStatus(ThirdBoxDetail detail, BaseStaffSiteOrgDto createSite,
@@ -280,13 +290,14 @@ public class WaybillGateWayExternalServiceImpl implements WaybillGateWayExternal
      */
     private GateWayBaseResponse<Void> cancelSorting(WaybillSyncRequest request, Integer startSiteId, Box box){
         GateWayBaseResponse<Void> response = new GateWayBaseResponse<Void>();
+        CallerInfo info = Profiler.registerInfo("DMSWEB.WaybillGateWayExternalServiceImpl.cancelSorting", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             //取消集包校验
             response = cancelSortingCheck(box);
             if(!GateWayBaseResponse.CODE_SUCCESS.equals(response.getResultCode())){
                 return response;
             }
-            //TODO 增加操作人和时间 取消集包
+            //取消集包
             ThirdBoxDetail detail = convertRequest(request, startSiteId, null);
             boolean result = thirdBoxDetailService.cancel(detail);
             if(!result){
@@ -297,6 +308,9 @@ public class WaybillGateWayExternalServiceImpl implements WaybillGateWayExternal
         }catch (Exception e){
             logger.error("经济网取消集包异常：{}", JsonHelper.toJson(request), e);
             response.toFail(GateWayBaseResponse.MESSAGE_FAIL);
+            Profiler.functionError(info);
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
 
         return response;
@@ -307,7 +321,7 @@ public class WaybillGateWayExternalServiceImpl implements WaybillGateWayExternal
      *
      */
     private void sendSortingCancelWaybillTrace(WaybillSyncRequest request, Integer createSiteCode) {
-        CallerInfo info = Profiler.registerInfo("DMSWEB.SortingServiceImpl.sendSortingCancelWaybillTrace", Constants.UMP_APP_NAME_DMSWEB,false, true);
+        CallerInfo info = Profiler.registerInfo("DMSWEB.WaybillGateWayExternalServiceImpl.sendSortingCancelWaybillTrace", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             String boxCode = request.getBoxCode();
             String packageCode = request.getPackageCode();
@@ -338,7 +352,7 @@ public class WaybillGateWayExternalServiceImpl implements WaybillGateWayExternal
 
         } catch (Exception e) {
             Profiler.functionError(info);
-            logger.error("取消分拣发送全称跟踪失败:{}",JsonHelper.toJson(request), e);
+            logger.error("经济网取消分拣发送全称跟踪失败:{}",JsonHelper.toJson(request), e);
         } finally {
             Profiler.registerInfoEnd(info);
         }
