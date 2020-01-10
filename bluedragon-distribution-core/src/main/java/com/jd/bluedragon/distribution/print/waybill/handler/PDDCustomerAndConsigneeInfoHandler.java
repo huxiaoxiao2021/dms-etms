@@ -88,8 +88,8 @@ public class PDDCustomerAndConsigneeInfoHandler implements InterceptHandler<Wayb
         }
         //用于统计拼多多面单打印获取的次数
         if(log.isInfoEnabled()){
-            log.info("pddService.queryPDDWaybillByWaybillCode,siteCode:{},siteName:{},req:{}",
-                    context.getRequest().getSiteCode(),context.getRequest().getSiteName(), waybillCode);
+            log.info("pddService.queryPDDWaybillByWaybillCode,siteCode:{},siteName:{},req:{},operateType:{}",
+                    context.getRequest().getSiteCode(),context.getRequest().getSiteName(), waybillCode, context.getRequest().getOperateType());
         }
 
         PDDWaybillDetailDto pddWaybillDetailDto = pddWaybillDetailDtoPDDResponse.getResult();

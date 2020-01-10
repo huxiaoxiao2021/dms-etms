@@ -29,7 +29,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -91,9 +90,6 @@ public class SortingReturnServiceImple implements SortingReturnService {
 
 	@Autowired
 	private IPushPackageToMqService pushMqService;
-	
-//	@Autowired
-//	private BizServiceInterface bizService;
 	
 	@Autowired
 	private WaybillQueryManager waybillQueryManager;

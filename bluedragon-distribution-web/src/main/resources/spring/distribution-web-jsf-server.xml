@@ -40,11 +40,6 @@
 		<property name="ordersResource" ref="ordersResource"></property>
 	</bean>
     
-  	<bean id="emsOrderJosSafService"
-		class="com.jd.bluedragon.distribution.saf.EmsOrderJosSafServiceImpl" />
-	<jsf:provider id="jsfEmsOrderJos" interface="com.jd.bluedragon.distribution.saf.EmsOrderJosSafService" alias="${dms.jsf.alias}" ref="emsOrderJosSafService" server="dmsjsf"/>
-				  
-  
   	<bean id="getWaybillSafService"
 		class="com.jd.bluedragon.distribution.saf.GetWaybillSafServiceImpl" />
     <jsf:provider id="jsfGetWaybillServer" server="dmsjsf" ref="getWaybillSafService" 
@@ -64,13 +59,6 @@
                   alias="${dms.jsf.print.alias}">
                   <jsf:parameter key="token" value="${dms.jsf.print.token}"/>
     </jsf:provider>
-
-    <!-- 阿尔法打印插件自动升级JSF接口 -->
-    <!-- 实现类 -->
-    <bean id="jsfPrintDeviceServiceImpl" class="com.jd.bluedragon.distribution.saf.JsfPrintDeviceServiceImpl"/>
-    <jsf:provider id="jsfPrintDeviceService" server="dmsjsf" ref="jsfPrintDeviceServiceImpl"
-                  interface="com.jd.bluedragon.distribution.alpha.jsf.JsfPrintDeviceService"
-                    alias="${dms.jsf.alias}"/>
 
     <!-- PDA操作JSF接口 -->
     <!-- 基础服务相关JSF接口 -->

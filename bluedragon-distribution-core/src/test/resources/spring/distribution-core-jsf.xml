@@ -53,13 +53,6 @@
     <jsf:consumer id="dtcDataReceiverServiceJsf" interface="com.jd.staig.receiver.rpc.DataReceiver"
                   protocol="jsf" alias="${dtc.jsf.alias}" timeout="${dtc.jsf.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
-    <!-- -->
-    <!-- Promise接口，获取分拣中心和配送中心对应关系 -->
-    <jsf:consumer id="sortDeliverySyncService"
-                  interface="com.jd.fce.upc.area.service.contract.SortDeliveryCenterInfoSyncService"
-                  protocol="jsf" alias="${dos.ofc.alias}" timeout="${dos.ofc.timeout}" retries="${jsf.retries}">
-        <jsf:parameter key="token" value="${dos.ofc.token}" hide="true"/>
-    </jsf:consumer>
 
     <jsf:consumer id="orderMarkingService" interface="com.jd.fce.dos.service.contract.OrderMarkingService"
                   protocol="jsf" alias="${fce.dos.ofc.alias}" timeout="${fce.dos.ofc.timeout}" retries="${jsf.retries}">
