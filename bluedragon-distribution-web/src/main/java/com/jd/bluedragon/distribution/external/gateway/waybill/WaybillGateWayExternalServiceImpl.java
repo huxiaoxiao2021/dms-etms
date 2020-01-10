@@ -50,7 +50,6 @@ public class WaybillGateWayExternalServiceImpl implements WaybillGateWayExternal
     private static final Integer OPERATION_SORTING = 1;//集包
     private static final Integer OPERATION_CANCEL = 2;//取消集包
     private static final Integer BOX_MAX_PACKAGE = 20000;//经济网集包上限
-    private static final Integer SITE_TYPE= 10000;//经济网网点类型
     private static final Integer OPERATOR_ID= -1;//经济网操作人回传全称跟踪默认ID：-1
 
     @Override
@@ -74,7 +73,7 @@ public class WaybillGateWayExternalServiceImpl implements WaybillGateWayExternal
                 return response;
             }
             //校验始发为经济网站点
-            if(!SITE_TYPE.equals(startSite.getSiteType())){
+            if(!Constants.THIRD_ENET_SITE_TYPE.equals(startSite.getSiteType())){
                 response.toConfirm(GateWayBaseResponse.MESSAGE_START_SITE_TYPE_CONFIRM);
                 return response;
             }
