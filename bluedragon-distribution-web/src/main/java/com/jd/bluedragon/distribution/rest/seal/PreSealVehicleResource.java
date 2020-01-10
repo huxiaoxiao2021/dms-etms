@@ -86,7 +86,7 @@ public class PreSealVehicleResource {
      */
     @POST
     @Path("/new/preSealFerry")
-    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1010)
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1010, operateType = 10101)
     public NewSealVehicleResponse<Boolean> preSealFerry(NewSealVehicleRequest request) {
         CallerInfo info = Profiler.registerInfo("DMSWEB.PreSealVehicleResource.preSealFerry", Constants.UMP_APP_NAME_DMSWEB, false, true);
         NewSealVehicleResponse<Boolean> preSealResponse = new NewSealVehicleResponse<>(NewSealVehicleResponse.CODE_OK, NewSealVehicleResponse.MESSAGE_OK);
@@ -202,7 +202,7 @@ public class PreSealVehicleResource {
      */
     @POST
     @Path("/new/updatePreSealFerry")
-    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1010)
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1010, operateType = 10102)
     public NewSealVehicleResponse<Boolean> updatePreSealFerry(NewSealVehicleRequest request) {
         CallerInfo info = Profiler.registerInfo("DMSWEB.PreSealVehicleResource.updatePreSealFerry", Constants.UMP_APP_NAME_DMSWEB,false, true);
         NewSealVehicleResponse<Boolean> preSealResponse = new NewSealVehicleResponse<>(NewSealVehicleResponse.CODE_OK, NewSealVehicleResponse.MESSAGE_OK);
@@ -365,6 +365,49 @@ public class PreSealVehicleResource {
         return vtrd;
     }
 
+
+    /**
+     * 取消预封车
+     */
+    @POST
+    @Path("/new/preSeal/cancel")
+    @JProfiler(jKey = "DMSWEB.PreSealVehicleResource.cancelPreSeal", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP})
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1010, operateType = 10103)
+    public NewSealVehicleResponse cancelPreSeal(CancelPreSealVehicleRequest request) {
+        NewSealVehicleResponse<Boolean> newSealVehicleResponse = new NewSealVehicleResponse<>(NewSealVehicleResponse.CODE_OK, NewSealVehicleResponse.MESSAGE_OK);
+        log.info("取消预封车任务失败！，参数：{}", JsonHelper.toJson(request));
+        if (request.getVehicleNumber() == null) {
+            newSealVehicleResponse.setCode(NewSealVehicleResponse.CODE_PARAM_ERROR);
+            newSealVehicleResponse.setMessage("车牌号不能为空！");
+            return newSealVehicleResponse;
+        }
+
+        try {
+            List<PreSealVehicle> list = preSealVehicleService.queryBySiteCodeAndVehicleNumber(request.getSiteCode(), request.getVehicleNumber());
+
+            if (list == null || list.isEmpty()) {
+                newSealVehicleResponse.setCode(NewSealVehicleResponse.CODE_SERVICE_ERROR);
+                newSealVehicleResponse.setMessage("该车牌在本场地没有预封车信息，无需取消！");
+                return newSealVehicleResponse;
+            }
+
+            for (PreSealVehicle preSealVehicle : list) {
+                preSealVehicle.setStatus(SealVehicleEnum.CANCEL_PRE_SEAL.getCode());
+                preSealVehicle.setUpdateUserErp(request.getOperateUserErp());
+                preSealVehicle.setUpdateUserName(request.getOperateUserName());
+                preSealVehicle.setUpdateTime(new Date());
+                //更新成功并且是传摆预封车，才需要调用运输
+                if (preSealVehicleService.updateById(preSealVehicle) && PreSealVehicleSourceEnum.FERRY_PRE_SEAL.getCode() == preSealVehicle.getPreSealSource()) {
+                    preSealVehicleService.notifyVosPreSealJob(preSealVehicle, 2);
+                }
+            }
+        } catch (Exception e) {
+            newSealVehicleResponse.setCode(NewSealVehicleResponse.CODE_SERVICE_ERROR);
+            newSealVehicleResponse.setMessage("取消预封车任务失败，请稍后重试！");
+            log.error("取消预封车任务失败！，参数：{}", JsonHelper.toJson(request), e);
+        }
+        return newSealVehicleResponse;
+    }
     /**
      * 预封车VO转换
      * @param sealCarDto
