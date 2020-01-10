@@ -213,7 +213,7 @@ public class WaybillGateWayExternalServiceImpl implements WaybillGateWayExternal
 
         waybillStatus.setOperatorId(OPERATOR_ID);
         waybillStatus.setOperator(detail.getOperatorName());
-        waybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_CODE_FORWARD_SORTING);
+        waybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_CODE_SITE_SORTING);
         waybillStatus.setOperateTime(detail.getOperatorTime());
         return waybillStatus;
     }
@@ -321,8 +321,7 @@ public class WaybillGateWayExternalServiceImpl implements WaybillGateWayExternal
             waybillStatus.setOperatorId(OPERATOR_ID);
             waybillStatus.setOperator(request.getOperatorName());
             waybillStatus.setOperateTime(request.getOperatorTime() == null ? new Date() : request.getOperatorTime());
-            waybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_SORTING_CANCEL);
-            waybillStatus.setRemark("取消建箱，箱号：" + boxCode);
+            waybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_CODE_SITE_CANCEL_SORTING);
 
             Task task = new Task();
             task.setTableName(Task.TABLE_NAME_POP);
