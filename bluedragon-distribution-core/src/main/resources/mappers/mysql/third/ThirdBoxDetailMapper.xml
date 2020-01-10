@@ -71,15 +71,15 @@
 		update third_box_detail
 			<set>
 				<if test="updateUserId != null">
-					update_user_id = #{updateUserId,jdbcType=VARCHAR},
+					update_user_id = #{operatorId,jdbcType=VARCHAR},
 				</if>
 				<if test="updateUserName != null">
-					update_user_name = #{updateUserName,jdbcType=VARCHAR},
+					update_user_name = #{operatorName,jdbcType=VARCHAR},
 				</if>
 				<if test="updateUnitName != null">
-					update_unit_name = #{updateUnitName,jdbcType=VARCHAR},
+					update_unit_name = #{operatorUnitName,jdbcType=VARCHAR},
 				</if>
-					update_time = now(),
+					update_time = #{operatorTime,jdbcType=TIMESTAMP},
 					is_delete = 1,
 			</set>
 		where start_site_id = #{startSiteId,jdbcType=BIGINT}
