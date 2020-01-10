@@ -11,8 +11,8 @@ import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.uim.annotation.Authorization;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,8 +38,8 @@ import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 @RequestMapping("transport/arExcpRegister")
 public class ArExcpRegisterController {
 	
-	private static final Log logger = LogFactory.getLog(ArExcpRegisterController.class);
-	
+	private static final Logger log = LoggerFactory.getLogger(ArExcpRegisterController.class);
+
 	@Autowired
 	ArExcpRegisterService arExcpRegisterService;
 
@@ -95,7 +95,7 @@ public class ArExcpRegisterController {
     	try {
 			rest.setData(arExcpRegisterService.saveOrUpdate(arExcpRegister,userCode,userName));
 		} catch (Exception e) {
-			logger.error("fail to save！"+e.getMessage(),e);
+			log.error("fail to save！",e);
 			rest.toError("保存失败，服务异常！");
 		}
     	return rest;
@@ -112,7 +112,7 @@ public class ArExcpRegisterController {
     	try {
 			rest.setData(arExcpRegisterService.deleteByIds(ids));
 		} catch (Exception e) {
-			logger.error("fail to delete！"+e.getMessage(),e);
+			log.error("fail to delete！",e);
 			rest.toError("删除失败，服务异常！");
 		}
     	return rest;

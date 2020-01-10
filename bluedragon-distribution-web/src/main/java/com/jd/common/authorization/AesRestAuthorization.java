@@ -1,11 +1,13 @@
 package com.jd.common.authorization;
 
 import com.jd.bluedragon.utils.StringHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.*;
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.SecureRandom;
 
@@ -15,7 +17,7 @@ import java.security.SecureRandom;
 @Service("restAuthriztation")
 public class AesRestAuthorization implements RestAuthorization {
 
-    private static final Log logger= LogFactory.getLog(AesRestAuthorization.class);
+    private static final Logger log = LoggerFactory.getLogger(AesRestAuthorization.class);
 
     @Override
     public boolean authorize(String key, String token, String requestTime) {
@@ -77,7 +79,7 @@ public class AesRestAuthorization implements RestAuthorization {
             byte[] result = cipher.doFinal(byteContent);
             return result; // 加密
         } catch (Throwable throwable){
-            logger.error("AESREST加密",throwable);
+            log.error("AESREST加密异常",throwable);
         }
         return null;
     }
@@ -101,7 +103,7 @@ public class AesRestAuthorization implements RestAuthorization {
             byte[] result = cipher.doFinal(content);
             return result; // 加密
         } catch (Throwable throwable){
-            logger.error("AESREST解密", throwable);
+            log.error("AESREST解密异常", throwable);
         }
         return null;
     }

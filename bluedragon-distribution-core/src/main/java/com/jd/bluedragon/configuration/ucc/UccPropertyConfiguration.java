@@ -47,6 +47,10 @@ public class UccPropertyConfiguration {
     /** 出管新接口-查询方法开关 true 调用新接口，false 调用老接口**/
     private boolean chuguanNewInterfaceQuerySwitch;
 
+
+    /** 出管新接口-页面查询方法开关 true 调用新接口，false 调用老接口**/
+    private boolean chuguanNewPageQuerySwitch;
+
     /**
      * 驻场打印 是否开启校验 鸡毛信必输设备号；true 开启,false 不开启
      */
@@ -165,5 +169,13 @@ public class UccPropertyConfiguration {
 
     public void setSortingQueryMode(String sortingQueryMode) {
         this.sortingQueryMode = sortingQueryMode;
+    }
+
+    public boolean isChuguanNewPageQuerySwitch() {
+        return chuguanNewPageQuerySwitch;
+    }
+
+    public void setChuguanNewPageQuerySwitch(boolean chuguanNewPageQuerySwitch) {
+        this.chuguanNewPageQuerySwitch = chuguanNewPageQuerySwitch;
     }
 }

@@ -1,14 +1,13 @@
 package com.jd.bluedragon.distribution.base.controller;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.common.web.LoginContext;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 /**
  * 
@@ -20,7 +19,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
  */
 public class DmsBaseController {
 	
-	private static final Log logger = LogFactory.getLog(DmsBaseController.class);
+	private static final Logger log = LoggerFactory.getLogger(DmsBaseController.class);
 	
     @Autowired
     private BaseMajorManager baseMajorManager;
@@ -36,7 +35,7 @@ public class DmsBaseController {
     public LoginUser getLoginUser() {
 		LoginContext loginContext = LoginContext.getLoginContext();
 		if (loginContext == null) {
-			logger.warn("未获取到当前登录信息!");
+			log.warn("未获取到当前登录信息!");
 			//线上系统，获取不到当前登录用户则返回null
 			if(isOnline){
 				return null;

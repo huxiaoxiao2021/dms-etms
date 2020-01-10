@@ -18,7 +18,8 @@ import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.uim.annotation.Authorization;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -44,7 +45,7 @@ import java.util.List;
 @Controller
 @RequestMapping("/base/crossbox")
 public class CrossBoxController {
-	private static final Logger logger = Logger.getLogger(CrossBoxController.class);
+	private static final Logger log = LoggerFactory.getLogger(CrossBoxController.class);
 
 	@Autowired
 	private CrossBoxService crossBoxService;
@@ -72,7 +73,7 @@ public class CrossBoxController {
 					queryInfo.put("transferName",URLDecoder.decode(crossBoxRequest.getTransferName(),"UTF-8"));
 					queryInfo.put("yn",crossBoxRequest.getYn());
 				}catch(UnsupportedEncodingException e){
-					logger.error("查询条件参数解码异常：",e);
+					log.error("查询条件参数解码异常：",e);
 				}
 				model.addAttribute("queryInfo",queryInfo);
 			}
@@ -142,7 +143,7 @@ public class CrossBoxController {
 			queryInfo.put("transferName",URLDecoder.decode(crossBoxRequest.getTransferName(),"UTF-8"));
 			queryInfo.put("yn",crossBoxRequest.getYn());
 		}catch(UnsupportedEncodingException e){
-			logger.error("对查询条件中的汉字解码失败：",e);
+			log.error("对查询条件中的汉字解码失败：",e);
 		}
 		try {
 			CrossBox crossBox = crossBoxService.getCrossBoxById(id);
@@ -164,7 +165,7 @@ public class CrossBoxController {
 			model.addAttribute("crossDmsBox", crossBox);
 			model.addAttribute("queryInfo",queryInfo);/** 渲染出查询参数 **/
 		} catch (Exception e) {
-			logger.error("进入跨分拣箱号中转修改页面异常：", e);
+			log.error("进入跨分拣箱号中转修改页面异常：", e);
 		}
 		return "crossbox/add";
 	}
@@ -291,7 +292,7 @@ public class CrossBoxController {
 		} catch (Exception e) {
 			crossBoxResponse.setCode(CrossBoxResponse.CODE_EXCEPTION);
 			crossBoxResponse.setMessage("检查是否存在异常，请检查数据是否选择正确");
-			logger.error("执行跨分拣箱号中转检查是否存在操作异常：", e);
+			log.error("执行跨分拣箱号中转检查是否存在操作异常：", e);
 		}
 		return crossBoxResponse;
 	}
@@ -341,12 +342,12 @@ public class CrossBoxController {
 			crossBox.setCreateTime(new Date());
 			crossBox.setUpdateTime(new Date());
 			crossBoxService.addCrossBox(crossBox);
-			logger.info("用户帐号【" + userAccount + "】，姓名【" + userName + "】执行添加跨分拣中转操作");
+			log.info("用户帐号【{}】，姓名【{}】执行添加跨分拣中转操作",userAccount,userName);
 			crossBoxResponse.setCode(CrossBoxResponse.CODE_NORMAL);
 		} catch (Exception e) {
 			crossBoxResponse.setCode(CrossBoxResponse.CODE_EXCEPTION);
 			crossBoxResponse.setMessage("添加时异常，请检查数据是否选择正确");
-			logger.error("执行跨分拣箱号中转添加操作异常：", e);
+			log.error("执行跨分拣箱号中转添加操作异常：", e);
 		}
 		return crossBoxResponse;
 	}
@@ -370,13 +371,13 @@ public class CrossBoxController {
 			crossDmsBox.setUpdateOperatorName(userName);
 			crossDmsBox.setUpdateTime(new Date());
 			crossBoxService.updateCrossBoxByDms(crossDmsBox);
-			logger.info("用户帐号【" + userAccount + "】，姓名【" + userName + "】执行修改跨箱号中转操作");
+			log.info("用户帐号【{}】，姓名【{}】执行修改跨箱号中转操作",userAccount,userName);
 
 			crossBoxResponse.setCode(CrossBoxResponse.CODE_NORMAL);
 		} catch (Exception e) {
 			crossBoxResponse.setCode(CrossBoxResponse.CODE_EXCEPTION);
 			crossBoxResponse.setMessage("添加时异常，请检查数据是否选择正确");
-			logger.error("执行跨箱号中转添加操作异常：", e);
+			log.error("执行跨箱号中转添加操作异常：", e);
 		}
 		return crossBoxResponse;
 	}
@@ -402,7 +403,7 @@ public class CrossBoxController {
 				crossBoxService.deleteById(crossDmsBox);
 			}
 		} catch (Exception e) {
-			logger.error("删除时异常：", e);
+			log.error("删除时异常：", e);
 		}
 		return "redirect:index";
 	}
@@ -416,7 +417,7 @@ public class CrossBoxController {
     @Authorization(Constants.DMS_WEB_SORTING_CROSSBOX_R)
 	@RequestMapping(value = "/uploadExcel", method = RequestMethod.POST)
 	public String uploadExcel(Model model, MultipartHttpServletRequest request) {
-		logger.debug("uploadExcelFile begin...");
+		log.debug("uploadExcelFile begin...");
 		try {
 			String userName = "demo";
 			ErpUser erpUser = ErpUserClient.getCurrUser();
@@ -468,14 +469,14 @@ public class CrossBoxController {
 				if (e instanceof IllegalArgumentException) {
 					errorString = e.getMessage();
 				} else {
-					logger.error("导入异常信息：", e);
+					log.error("导入异常信息：", e);
 					errorString = "导入出现异常";
 				}
 				model.addAttribute("excelFile", errorString);
 				return "crossbox/import_data";
 			}
 		} catch (Exception e) {
-			logger.error("执行uploadExcelFile异常" + e.getMessage(), e);
+			log.error("执行uploadExcelFile异常", e);
 			throw new RuntimeException(e.getMessage());
 		}
 		return "crossbox/import_data";
@@ -598,7 +599,7 @@ public class CrossBoxController {
 			return new ModelAndView(new DefaultExcelView(), model.asMap());
 
 		} catch (Exception e) {
-			logger.error("toExport:" + e.getMessage(), e);
+			log.error("toExport:", e);
 			return null;
 		}
 	}
@@ -683,10 +684,10 @@ public class CrossBoxController {
 		try {
 			return cls.newInstance();
 		} catch (InstantiationException e) {
-			logger.error("实例化" + cls.getSimpleName() + "错误", e);
+			log.error("实例化{}错误",cls.getSimpleName(), e);
 			throw new IllegalArgumentException("实例化" + cls.getSimpleName() + "错误", e);
 		} catch (IllegalAccessException e) {
-			logger.error("不合法的访问" + cls.getSimpleName() + "错误", e);
+			log.error("不合法的访问{}错误",cls.getSimpleName(), e);
 			throw new IllegalArgumentException("实例化" + cls.getSimpleName() + "错误", e);
 		}
 	}

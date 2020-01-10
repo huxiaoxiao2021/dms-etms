@@ -18,8 +18,8 @@ import com.jd.transboard.api.dto.BoardMeasureDto;
 import com.jd.transboard.api.dto.BoardMeasureRequest;
 import com.jd.transboard.api.dto.Response;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
@@ -38,7 +38,7 @@ import java.util.List;
 @Produces({MediaType.APPLICATION_JSON})
 public class WeightAndMeasureResource {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     DmsOutWeightAndVolumeService dmsOutWeightAndVolumeService;
@@ -55,8 +55,8 @@ public class WeightAndMeasureResource {
     @POST
     @Path("/weightAndMeasure/getWeightAndVolume")
     public JdResult<DmsOutWeightAndVolumeResponse> getWeightAndVolume(WeightMeasureRequest request) {
-        if (logger.isInfoEnabled()) {
-            logger.info(JsonHelper.toJsonUseGson(request));
+        if (log.isInfoEnabled()) {
+            log.info(JsonHelper.toJsonUseGson(request));
         }
 
         JdResult<DmsOutWeightAndVolumeResponse> result = new JdResult<DmsOutWeightAndVolumeResponse>(JdResult.CODE_SUC, JdResult.MESSAGE_SUC.getMsgCode(), JdResult.MESSAGE_SUC.getMsgFormat());
@@ -101,7 +101,7 @@ public class WeightAndMeasureResource {
             try{
                 boardMeasureDtoList = boardCombinationService.getBoardVolumeByBoardCode(barCodeList);
             }catch (Exception e){
-                logger.error("调用TC接口查询板的体积信息异常.",e);
+                log.error("调用TC接口查询板的体积信息异常.",e);
             }
             if(boardMeasureDtoList != null && boardMeasureDtoList.size() > 0){
                 BoardMeasureDto dto = boardMeasureDtoList.get(0);
@@ -124,8 +124,8 @@ public class WeightAndMeasureResource {
     @POST
     @Path("/weightAndMeasure/dmsOutVolumeAdd")
     public JdResult dmsOutVolumeAdd(WeightMeasureRequest request) {
-        if (logger.isInfoEnabled()) {
-            logger.info(JsonHelper.toJsonUseGson(request));
+        if (log.isInfoEnabled()) {
+            log.info(JsonHelper.toJsonUseGson(request));
         }
 
         JdResult result = new JdResult(JdResult.CODE_SUC, JdResult.MESSAGE_SUC.getMsgCode(), JdResult.MESSAGE_SUC.getMsgFormat());
@@ -133,7 +133,7 @@ public class WeightAndMeasureResource {
         //参数校验
         String errStr = requestCheck(request);
         if (StringUtils.isNotBlank(errStr)) {
-            logger.error("保存人工测量应付体积失败.参数错误:" + errStr + JsonHelper.toJsonUseGson(request));
+            log.warn("保存人工测量应付体积失败.参数错误:{}-{}",errStr, JsonHelper.toJsonUseGson(request));
             result.toFail(JdResult.CODE_FAIL, errStr);
             return result;
         }
@@ -151,7 +151,7 @@ public class WeightAndMeasureResource {
                 }
             }
         } catch (Exception e) {
-            logger.error("保存人工测量应付体积失败.", e);
+            log.error("保存人工测量应付体积失败.", e);
             result.toError(JdResult.CODE_ERROR, "服务器异常");
         }
 

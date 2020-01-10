@@ -1034,6 +1034,7 @@ public class SortingServiceImpl implements SortingService {
 		return pickup;
 	}
 
+	@Deprecated
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.WEB.SortingServiceImpl.findOrderDetail", mState = JProEnum.TP)
 	public List<Sorting> findOrderDetail(Sorting sorting) {
 		return this.sortingDao.findOrderDetail(sorting);

@@ -11,8 +11,8 @@ import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping("/sortSchemeSync")
 public class SortSchemeSyncController {
 
-    private static final Log logger = LogFactory.getLog(SortSchemeSyncController.class);
+    private static final Logger log = LoggerFactory.getLogger(SortSchemeSyncController.class);
 
     private final static String HTTP = "http://";
 
@@ -51,7 +51,7 @@ public class SortSchemeSyncController {
     @Authorization(Constants.DMS_WEB_SORTING_SORTSCHEME_R)
     @RequestMapping(value = "/index" ,method = RequestMethod.GET)
     public String index(Model model){
-        this.logger.debug("分拣计划同步数据 --> index");
+        this.log.debug("分拣计划同步数据 --> index");
         try{
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
 
@@ -69,7 +69,7 @@ public class SortSchemeSyncController {
                 model.addAttribute("siteName",siteName);
             }
         }catch(Exception e){
-            logger.info("没有维护分拣中心，初始化加载失败");
+            log.error("没有维护分拣中心，初始化加载失败", e);
         }
         return "sortscheme/sort-scheme-sync";
     }
@@ -82,26 +82,26 @@ public class SortSchemeSyncController {
         result.setCode(400);
         result.setMessage("请求成功无法响应");
         if("".equals(siteCode) || null == siteCode ){
-            logger.error("正在同步的分拣中心ID为空");
+            log.warn("正在同步的分拣中心ID为空");
             return  result;
         }
-        logger.info("分拣计划配置同步导入开始-->分拣中心ID:" + siteCode);
+        log.info("分拣计划配置同步导入开始-->分拣中心ID:{}", siteCode);
         String url = PropertiesHelper.newInstance().getValue(prefixKey + siteCode);
 
         boolean bool = false;
         try{
             bool = sortSchemeSyncService.sync(HTTP + url,siteCode);
             if(bool){
-                logger.info("分拣中心分拣计划执行同步成功");
+                log.info("分拣中心分拣计划执行同步成功");
                 result.setCode(200);
                 result.setMessage("分拣中心分拣计划执行同步成功");
             }else{
-                logger.info("分拣中心分拣计划执行同步失败");
+                log.info("分拣中心分拣计划执行同步失败");
                 result.setCode(10000);
                 result.setMessage("分拣中心分拣计划执行同步失败");
             }
         }catch (Exception e){
-            logger.error("程序执行异常:",e);
+            log.error("程序执行异常:",e);
             result.setCode(500);
             result.setMessage("程序执行异常，稍后再试");
         }

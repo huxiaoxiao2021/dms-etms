@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.external.service.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.TaskResponse;
 import com.jd.bluedragon.distribution.external.service.DmsTaskService;
@@ -25,6 +26,19 @@ public class DmsTaskServiceImpl implements DmsTaskService {
     @Override
     @JProfiler(jKey = "DMSWEB.DmsTaskServiceImpl.add", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public TaskResponse add(TaskRequest request) {
-        return taskResource.add(request);
+        TaskResponse response = new TaskResponse(JdResponse.CODE_OK,
+                JdResponse.MESSAGE_OK);
+        if(request == null){
+            response.setCode(JdResponse.CODE_PARAM_ERROR);
+            response.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
+            return response;
+        }
+        if(request.getReceiveSiteCode() == null || request.getReceiveSiteCode() == 0){
+            response.setCode(JdResponse.CODE_PARAM_ERROR);
+            response.setMessage(JdResponse.MESSAGE_PARAM_ERROR_2);
+            return response;
+        }
+        response = taskResource.add(request);
+        return response;
     }
 }

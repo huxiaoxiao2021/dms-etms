@@ -1,19 +1,18 @@
 package com.jd.bluedragon.distribution.interceptor;
 
-import java.util.Enumeration;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.log4j.Logger;
+import com.jd.bluedragon.Constants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.jd.bluedragon.Constants;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Enumeration;
 
 public class RecordOperationInterceptor implements HandlerInterceptor {
 
-    private final Logger logger = Logger.getLogger(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response,
@@ -47,8 +46,7 @@ public class RecordOperationInterceptor implements HandlerInterceptor {
             }
         }
 
-        this.logger.info("url:" + url + ", ip:" + request.getRemoteAddr() + "\n"
-                + params.toString());
+        this.log.info("url:{}, ip:{}, params:{}",url, request.getRemoteAddr(), params.toString());
 
         return true;
     }

@@ -1,28 +1,5 @@
 package com.jd.bluedragon.distribution.rest.version;
 
-import static com.jd.bluedragon.distribution.api.JdResponse.CODE_OK;
-import static com.jd.bluedragon.distribution.api.JdResponse.CODE_SERVICE_ERROR;
-import static com.jd.bluedragon.distribution.api.JdResponse.MESSAGE_OK;
-import static com.jd.bluedragon.distribution.api.JdResponse.MESSAGE_SERVICE_ERROR;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
-
 import com.jd.bd.dms.automatic.sdk.modules.dmslocalserverinfo.entity.VipInfoJsfEntity;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
@@ -36,6 +13,18 @@ import com.jd.bluedragon.distribution.version.domain.VersionEntity;
 import com.jd.bluedragon.distribution.version.service.ClientConfigService;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.jd.bluedragon.distribution.api.JdResponse.*;
 
 @Component
 @Path(Constants.REST_URL)
@@ -43,7 +32,7 @@ import com.jd.ump.profiler.proxy.Profiler;
 @Produces( { MediaType.APPLICATION_JSON })
 public class ClientConfigResource {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private ClientConfigService clientConfigService;
@@ -54,7 +43,7 @@ public class ClientConfigResource {
     @GET
     @Path("/versions/config/getAll")
     public ClientConfigResponse getAll(){
-        this.logger.info("get all config " );
+        this.log.debug("get all config " );
         
         List<ClientConfig> list =clientConfigService.getAll();
         if (null != list) {
@@ -75,9 +64,7 @@ public class ClientConfigResource {
     public ClientConfigResponse getById(@PathParam("id") Long id){
         Assert.notNull(id, "id must not be null");
 
-        this.logger.info("id " + id);
-
-        ClientConfig clientVersion =clientConfigService.getById(id);        
+        ClientConfig clientVersion =clientConfigService.getById(id);
         if (null != clientVersion) {
             ClientConfigResponse response=new ClientConfigResponse(CODE_OK,MESSAGE_OK);
             List<ClientConfig> list =new ArrayList<ClientConfig>();
@@ -98,7 +85,7 @@ public class ClientConfigResource {
     public ClientConfigResponse getBySiteCode(@PathParam("siteCode") String siteCode){
         Assert.notNull(siteCode, "siteCode must not be null");
 
-        this.logger.info("siteCode " + siteCode);
+        this.log.debug("siteCode {}", siteCode);
 
         List<ClientConfig> list =clientConfigService.getBySiteCode(siteCode);
         if (null != list) {
@@ -119,7 +106,7 @@ public class ClientConfigResource {
     public ClientConfigResponse getByProgramType(@PathParam("programType") Integer programType){
         Assert.notNull(programType, "programType must not be null");
 
-        this.logger.info("programType " + programType);
+        this.log.debug("programType :{}", programType);
         
         List<ClientConfig> list =clientConfigService.getByProgramType(programType);
         if (null != list) {
@@ -133,7 +120,7 @@ public class ClientConfigResource {
     
     /**
      * 添加配置信息
-     * @param clientConfig
+     * @param request
      * @return
      */
     @POST
@@ -141,8 +128,6 @@ public class ClientConfigResource {
     public ClientConfigResponse add(ClientConfigRequest request){
         Assert.notNull(request, "request must not be null");
 
-        this.logger.info("request " + request);
-        
         ClientConfig clientConfig=toClientConfig(request);
         if (clientConfigService.exists(clientConfig)) {
             return new ClientConfigResponse(30000, "添加失败，版本配置已存在。");
@@ -155,7 +140,7 @@ public class ClientConfigResource {
     
     /**
      * 修改配置信息
-     * @param clientConfig
+     * @param request
      * @return
      */
     @PUT
@@ -163,8 +148,6 @@ public class ClientConfigResource {
     public ClientConfigResponse update(ClientConfigRequest request){
         Assert.notNull(request, "request must not be null");
 
-        this.logger.info("request " + request);
-        
         ClientConfig clientConfig=toClientConfig(request);
         if(clientConfigService.update(clientConfig)){
             return new ClientConfigResponse(CODE_OK, MESSAGE_OK);
@@ -221,8 +204,8 @@ public class ClientConfigResource {
         Assert.notNull(siteCode, "siteCode must not be null");
         Assert.notNull(programType, "programType must not be null");
 
-        this.logger.info("siteCode " + siteCode);
-        this.logger.info("programType " + programType);
+        this.log.debug("siteCode :{}", siteCode);
+        this.log.debug("programType :{}", programType);
         Profiler.registerInfoEnd(callerInfo);
         VersionEntity versionEntity = new VersionEntity(siteCode, programType);
         VersionEntity entity = this.clientConfigService

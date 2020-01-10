@@ -27,7 +27,7 @@ import java.util.*;
 @Produces({ MediaType.APPLICATION_JSON })
 public class InventoryResource {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private InventoryInfoService inventoryInfoService;
@@ -59,7 +59,7 @@ public class InventoryResource {
 			List<SiteEntity> siteEntityList = inventoryTaskService.getInventoryDirectionList(siteCode);
 			result.setData(siteEntityList);
 		}catch (Exception e){
-			logger.error("获取盘点卡位列表异常.参数:"+ siteCode +",异常原因:", e);
+			log.error("获取盘点卡位列表异常.参数:{},异常原因:",siteCode, e);
 			result.toError("获取盘点卡位列表异常.");
 		}
         return result;
@@ -73,14 +73,13 @@ public class InventoryResource {
     @POST
     @Path("/inventory/getUserDoingInventoryTask")
     public JdResult<InventoryTaskResponse> getUserDoingInventoryTask(InventoryTaskRequest request) {
-        logger.info("查询当前操作人是否有正在进行的任务,参数:" + JSON.toJSONString(request));
         JdResult result = new JdResult();
         result.toSuccess();
 
         try {
             return inventoryTaskService.getUserDoingInventoryTask(request);
         } catch (Exception e) {
-            logger.error("查询当前操作人是否有正在进行的任务异常.参数:"+JSON.toJSONString(request)+",异常原因:", e);
+            log.error("查询当前操作人是否有正在进行的任务异常.参数:{},异常原因:",JSON.toJSONString(request), e);
             result.toError("查询当前操作人是否有正在进行的任务异常");
         }
         return result;
@@ -94,14 +93,13 @@ public class InventoryResource {
     @POST
     @Path("/inventory/directionVerify")
     public JdResult<InventoryTaskResponse> directionVerify(InventoryTaskRequest request) {
-        logger.info("流向验证,参数:" + JSON.toJSONString(request));
         JdResult result = new JdResult();
         result.toSuccess();
 
         try {
             return inventoryTaskService.directionVerify(request);
         } catch (Exception e) {
-            logger.error("流向验证异常.参数:"+JSON.toJSONString(request)+",异常原因:", e);
+            log.error("流向验证异常.参数:{},异常原因:",JSON.toJSONString(request), e);
             result.toError("流向验证异常");
         }
         return result;
@@ -116,14 +114,13 @@ public class InventoryResource {
     @POST
     @Path("/inventory/addInventoryTask")
     public JdResult<InventoryTaskResponse> addInventoryTask(InventoryTaskRequest request) {
-        logger.info("生成盘点任务参数:" + JSON.toJSONString(request));
         JdResult result = new JdResult();
         result.toSuccess();
 
         try {
             return inventoryTaskService.addInventoryTask(request);
         } catch (Exception e) {
-            logger.error("生成盘点任务异常.参数:"+JSON.toJSONString(request)+",异常原因:", e);
+            log.error("生成盘点任务异常.参数:{},异常原因:",JSON.toJSONString(request), e);
             result.toError("生成盘点任务异常");
         }
         return result;
@@ -135,7 +132,6 @@ public class InventoryResource {
 	@POST
 	@Path("/inventory/info")
 	public JdResult<InventoryWaybillResponse> getInventoryInfo(InventoryBaseRequest inventoryBaseRequest){
-		logger.info("获取盘点信息,参数:" + JSON.toJSONString(inventoryBaseRequest));
 		JdResult<InventoryWaybillResponse> result = new JdResult<>();
 		result.toSuccess();
 
@@ -167,7 +163,6 @@ public class InventoryResource {
 	@POST
 	@Path("/inventory/detail")
 	public JdResult<List<InventoryWaybillDetail>> getInventoryWaybillDetail(InventoryBaseRequest inventoryBaseRequest){
-		logger.info("获取盘点明细,参数:" + JSON.toJSONString(inventoryBaseRequest));
 		JdResult<List<InventoryWaybillDetail>> result = new JdResult<>();
 		result.toSuccess();
 
@@ -189,7 +184,6 @@ public class InventoryResource {
 	@POST
 	@Path("/inventory/scan")
 	public JdResult<Integer> scanInventoryInfo(InventoryBaseRequest inventoryBaseRequest){
-		logger.info("扫描结果上次,参数:" + JSON.toJSONString(inventoryBaseRequest));
 		JdResult<Integer> result = new JdResult<>();
 		result.toSuccess();
 		//参数校验
@@ -213,7 +207,7 @@ public class InventoryResource {
 			waybillCode = WaybillUtil.getWaybillCode(packageCode);
 		} else {
 			String message = "【" + barCode +"】既不是运单号，也不是包裹号，请重新扫描！";
-			logger.warn(message);
+			log.warn(message);
 			result.toFail(message);
 			return result;
 		}
@@ -235,12 +229,12 @@ public class InventoryResource {
 				//不在盘点流向内，输入盘点异常，PDA提示
 				if (! directionCodeList.contains(receiveSite.getDirectionCode())) {
 					String message = "流向异常，【" + barCode +"】的下一站是【" + receiveSite.getDirectionName() + "】不在盘点范围内！";
-					logger.warn(message);
+					log.warn(message);
 					//插入异常表，并返回PDA提示
 					result.toError(message);
 				}
 			} else {
-				logger.warn("【" + barCode +"】的下一站信息为空！");
+				log.warn("【{}】的下一站信息为空！",barCode);
 			}
 		}
 
@@ -250,7 +244,7 @@ public class InventoryResource {
 		try {
 			packageNum = inventoryScanDetailService.insert(inventoryScanDetail);
 		} catch (InventoryCustomException e) {
-			logger.error(e.getMessage());
+			log.error(e.getMessage());
 			result.toError(e.getMessage());
 		}
 		result.setData(packageNum);
@@ -263,7 +257,6 @@ public class InventoryResource {
 	@POST
 	@Path("/inventory/complete")
 	public JdResult completeInventoryTask(InventoryBaseRequest inventoryBaseRequest){
-		logger.info("扫描结果上次,参数:" + JSON.toJSONString(inventoryBaseRequest));
 		JdResult result = new JdResult<>();
 		result.toSuccess();
 		//参数校验

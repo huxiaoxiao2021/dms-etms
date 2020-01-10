@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:util="http://www.springframework.org/schema/util" xmlns:aop="http://www.springframework.org/schema/aop"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+    http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context-3.1.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+	<!-- aop动态代理 -->
+	<aop:aspectj-autoproxy proxy-target-class="true"/>
+
+	<!-- ump monitor begin -->
+	<!--  监控注解处理器 -->
+	<bean class="com.jd.ump.annotation.JAnnotation">
+		<property name="jvmKey" value="Bluedragon_dms_web.jvm"></property>
+		<property name="systemKey" value="Bluedragon_dms_web.system"></property>
+	</bean>
+	<!-- ump monitor end -->
+
+	<!-- 箱号生成序列号服务 -->
+	<bean id="objectIdService" class="com.jd.bluedragon.distribution.dbs.service.ObjectIdServiceImpl">
+	</bean>
+	<bean class="com.jd.bluedragon.core.objectid.DbsGenerateObjectId" id="genObjectId">
+		<property name="objectIdService" ref="objectIdService"/>
+	</bean>
+
+
+	<bean id="baseSetConfig" class="com.jd.bluedragon.distribution.base.domain.BaseSetConfig">
+		<property name="erroral">
+			<list>
+				<value>110</value>
+				<value>120</value>
+				<value>130</value>
+				<value>140</value>
+			</list>
+		</property>
+		<property name="sitetype" value="18" />
+		<property name="capacityType">
+			<list>
+				<value>7030</value>
+				<value>7031</value>
+				<value>7032</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- new vts baseSetConfig -->
+	<bean id="vtsBaseSetConfig" class="com.jd.bluedragon.distribution.base.domain.VtsBaseSetConfig">
+		<property name="erroral">
+			<list>
+				<value>110</value>
+				<value>120</value>
+				<value>130</value>
+				<value>140</value>
+			</list>
+		</property>
+		<property name="sitetype" value="18" />
+		<property name="capacityType">
+			<list>
+				<value>1011</value>
+				<value>1004</value>
+				<value>1001</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="sortSchemeSyncService" class="com.jd.bluedragon.distribution.sortscheme.service.SortSchemeSyncServiceImpl">
+		<property name="stores">
+			<list>
+				<value>6,6,80</value>
+				<value>006,006,080</value>
+			</list>
+		</property>
+	</bean>
+
+</beans>

@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.rest.product;
 
-import com.jd.bluedragon.common.domain.Waybill;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.message.MessageDto;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -9,18 +9,22 @@ import com.jd.bluedragon.distribution.api.response.ProductResponse;
 import com.jd.bluedragon.distribution.consumer.reverse.LossOrderConsumer;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.jmq.common.message.Message;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +34,7 @@ import java.util.List;
 @Produces({ "application/json" })
 public class LossProductResource {
 
-	private final Log logger = LogFactory.getLog(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	@Autowired
 	private ProductService productService;
@@ -45,6 +49,7 @@ public class LossProductResource {
 	@POST
 	@Deprecated
 	@Path("/order/loss")
+    @JProfiler(jKey = "DMS.WEB.LossProductResource.add", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public JdResponse add(MessageDto message) {
 		Message newMessage = new Message();
 		newMessage.setText(message.getContent());
@@ -55,6 +60,7 @@ public class LossProductResource {
 	
 	@POST
 	@Path("/lossProduct/add")
+    @JProfiler(jKey = "DMS.WEB.LossProductResource.add", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public JdResponse add(Message message) {
 		this.lossOrderConsumer.consume(message);
 
@@ -63,6 +69,7 @@ public class LossProductResource {
 
 	@GET
 	@Path("/order/product/quantity/{codeStr}")
+    @JProfiler(jKey = "DMS.WEB.LossProductResource.getOrderProductQuantity", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public LossProductResponse getOrderProductQuantity(@PathParam("codeStr") String codeStr) {
 		if (codeStr == null) {
 			return paramError();
@@ -71,7 +78,7 @@ public class LossProductResource {
 		if(orderId == null){
 			return paramError();
 		}
-		this.logger.info("获取订单商品详情, 订单号：" + orderId);
+		this.log.info("获取订单商品详情, 订单号：{}", orderId);
 
 		List<Product> actualProducts = this.productService.getOrderProducts(orderId);
 		if (actualProducts == null || actualProducts.isEmpty()) {
@@ -83,6 +90,7 @@ public class LossProductResource {
 
 	@GET
 	@Path("/order/loss/products/{codeStr}")
+    @JProfiler(jKey = "DMS.WEB.LossProductResource.getLossOrderProducts", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public LossProductResponse getLossOrderProducts(@PathParam("codeStr") String codeStr) {
 		if (codeStr == null) {
 			return paramError();
@@ -91,7 +99,7 @@ public class LossProductResource {
 		if(orderId == null){
 			return paramError();
 		}
-		this.logger.info("获取订单商品详情及报损详情, 订单号：" + orderId);
+		this.log.info("获取订单商品详情及报损详情, 订单号：{}", orderId);
 
 		List<Product> actualProducts = this.productService.getOrderProducts(orderId);
 		List<Product> lossProducts = this.productService.getLossOrderProducts(orderId);

@@ -253,5 +253,39 @@
     <span id="currUserCode" class="hidden">$!{usercode}</span>
     <hr/>
 </div>
+
+<div id="exceptionOutBoundOffLine" class="main jqmWindow">
+    <ol class="breadcrumb">
+        <li class="active">异常外呼地址迁出</li>
+    </ol>
+    <div class="row">
+        <div class="form-group ">
+            <div class="text-center">此功能已下线，如需外呼请提交工单！</div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group ">
+            <div class="text-center">（http://woms.jd.com/#）</div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group ">
+            <div class="text-center">工单系统→工单发起→物流客服</div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group ">
+            <div class="text-center">外单：选“配送异常”</div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group ">
+            <div class="text-center">自营：选“配送异常（自营消费者）”</div>
+        </div>
+    </div>
+    <div class="form-group " style="text-align:center;">
+        <input type="button" id="exceptionOutBoundOffLineBtn" href="#" class="btn_c jqmClose" value="知道了" />
+    </div>
+</div>
 </body>
 </html>
