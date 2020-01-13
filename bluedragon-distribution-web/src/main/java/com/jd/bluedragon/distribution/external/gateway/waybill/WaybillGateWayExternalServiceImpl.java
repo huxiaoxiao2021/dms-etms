@@ -335,12 +335,13 @@ public class WaybillGateWayExternalServiceImpl implements WaybillGateWayExternal
             waybillStatus.setOperator(request.getOperatorName());
             waybillStatus.setOperateTime(request.getOperatorTime() == null ? new Date() : request.getOperatorTime());
             waybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_CODE_SITE_CANCEL_SORTING);
+            waybillStatus.setRemark("站点取消装箱，箱号：" + boxCode);
 
             Task task = new Task();
             task.setTableName(Task.TABLE_NAME_POP);
             task.setSequenceName(Task.getSequenceName(task.getTableName()));
             task.setKeyword1(packageCode);
-            task.setKeyword2(WaybillStatus.WAYBILL_TRACK_SORTING_CANCEL.toString());
+            task.setKeyword2(WaybillStatus.WAYBILL_STATUS_CODE_SITE_CANCEL_SORTING.toString());
             task.setCreateSiteCode(createSiteCode);
             task.setBody(JsonHelper.toJson(waybillStatus));
             task.setType(Task.TASK_TYPE_WAYBILL_TRACK);
