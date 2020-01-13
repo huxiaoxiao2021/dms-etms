@@ -98,7 +98,7 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
                         //C网统一模板
                         templateName = TEMPlATE_NAME_C_MAIN;
                         //10*10模板
-                        if(DmsPaperSize.PAPER_SIZE_CODE_1010.equals(paperSizeCode)){
+                        if(DmsPaperSize.PAPER_SIZE_CODE_1010.equals(paperSizeCode) || BusinessUtil.isBusinessNet(waybillSign)){
                         	templateName = TEMPlATE_NAME_C1010_MAIN;
                         }
                     }

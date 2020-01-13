@@ -20,13 +20,6 @@ public class WeightAndVolumeDetailFlow implements Serializable {
     private Integer sourceFrom;
 
     /**
-     * 称重量方维度：
-     * WeightOpeTypeEnum
-     * 1、箱 2、运单 3、包裹
-     * */
-    private Integer weightType;
-
-    /**
      * 操作类型：
      * OpeTypeEnum
      * */
@@ -73,14 +66,6 @@ public class WeightAndVolumeDetailFlow implements Serializable {
 
     public void setSourceFrom(Integer sourceFrom) {
         this.sourceFrom = sourceFrom;
-    }
-
-    public Integer getWeightType() {
-        return weightType;
-    }
-
-    public void setWeightType(Integer weightType) {
-        this.weightType = weightType;
     }
 
     public Integer getOpeType() {

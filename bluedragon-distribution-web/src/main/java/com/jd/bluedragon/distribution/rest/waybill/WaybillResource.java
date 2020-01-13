@@ -27,7 +27,6 @@ import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.api.response.TaskResponse;
 import com.jd.bluedragon.distribution.api.response.WaybillResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.base.domain.PdaStaff;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
@@ -69,7 +68,6 @@ import com.jd.bluedragon.distribution.weight.domain.PackOpeDetail;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDto;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
 import com.jd.bluedragon.distribution.weight.domain.WeightAndVolumeDetailFlow;
-import com.jd.bluedragon.distribution.weight.domain.WeightOpeTypeEnum;
 import com.jd.bluedragon.distribution.weight.service.WeightService;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -2381,10 +2379,6 @@ public class WaybillResource {
 		}
 		String strCode = weightAndVolumeDetailFlow.getStrCode();
 		if(!BusinessUtil.isBoxcode(strCode) || !WaybillUtil.isWaybillCode(strCode) || !WaybillUtil.isPackageCode(strCode)){
-			sign = Boolean.FALSE;
-		}
-		Set<Integer> weightTypes = WeightOpeTypeEnum.getCodeMap().keySet();
-		if(weightAndVolumeDetailFlow.getWeightType() == null || !weightTypes.contains(weightAndVolumeDetailFlow.getWeightType())){
 			sign = Boolean.FALSE;
 		}
 		return sign;
