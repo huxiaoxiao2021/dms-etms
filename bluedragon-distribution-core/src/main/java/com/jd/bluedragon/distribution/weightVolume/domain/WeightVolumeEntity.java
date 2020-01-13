@@ -1,5 +1,8 @@
 package com.jd.bluedragon.distribution.weightVolume.domain;
 
+import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
+import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
+
 import java.util.Date;
 
 /**
@@ -96,6 +99,11 @@ public class WeightVolumeEntity {
      * 操作时间
      */
     private Date operateTime;
+
+    public WeightVolumeEntity barCode(String barCode){
+        this.barCode = barCode;
+        return this;
+    }
 
     public String getBarCode() {
         return barCode;

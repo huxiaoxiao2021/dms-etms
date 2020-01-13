@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.weightVolume;
 
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.weight.domain.WeightOpeDto;
-import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeBusinessTypeEnum;
+import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;

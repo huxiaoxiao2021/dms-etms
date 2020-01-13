@@ -6,6 +6,7 @@ import com.jd.bluedragon.utils.BeanHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.report.weightVolumeFlow.WeightVolumeFlowJSFService;
+import com.jd.ql.dms.report.weightVolumeFlow.domain.WeightVolumeFlowEntity;
 import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,8 +91,7 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
     protected abstract void handlerWeighVolume(WeightVolumeEntity entity);
 
     protected void postHandler(WeightVolumeEntity entity) {
-        com.jd.ql.dms.report.weightVolumeFlow.domain.WeightVolumeEntity weightVolumeEntity
-                = new com.jd.ql.dms.report.weightVolumeFlow.domain.WeightVolumeEntity();
+        WeightVolumeFlowEntity weightVolumeEntity = new WeightVolumeFlowEntity();
         BeanHelper.copyProperties(weightVolumeEntity, entity);
         weightVolumeFlowJSFService.recordWeightVolumeFlow(weightVolumeEntity);
     }

@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.weightVolume.domain;
+package com.jd.bluedragon.distribution.weightvolume;
 
 /**
  * <p>

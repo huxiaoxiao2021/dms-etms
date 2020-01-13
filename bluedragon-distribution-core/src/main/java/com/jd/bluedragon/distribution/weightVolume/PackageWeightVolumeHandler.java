@@ -1,13 +1,18 @@
 package com.jd.bluedragon.distribution.weightVolume;
 
 import com.jd.bluedragon.core.base.WaybillPackageManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.api.response.WeightResponse;
+import com.jd.bluedragon.distribution.weight.domain.OpeSendObject;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDetail;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDto;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.jmq.common.exception.JMQException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -27,6 +32,10 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
 
     @Autowired
     private WaybillPackageManager waybillPackageManager;
+
+    @Autowired
+    @Qualifier("dmsWeightSendMQ")
+    private DefaultJMQProducer dmsWeightSendMQ;
 
     @Override
     protected boolean checkWeightVolumeParam(WeightVolumeEntity entity) {
@@ -61,7 +70,35 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
         packOpeDetail.setpWeight(entity.getWeight());
         packOpeDetail.setOpeTime(DateHelper.formatDateTime(entity.getOperateTime()));
         packOpeDto.setOpeDetails(Collections.singletonList(packOpeDetail));
-        Map<String, Object> resultMap = waybillPackageManager.uploadOpe(JsonHelper.toJson(packOpeDto));
+        try {
+            Map<String, Object> resultMap = waybillPackageManager.uploadOpe(JsonHelper.toJson(packOpeDto));
+            if (resultMap != null && resultMap.containsKey("code")
+                    && WeightResponse.WEIGHT_TRACK_OK == Integer.parseInt(resultMap.get("code").toString())) {
+                if(logger.isInfoEnabled()){
+                    logger.info("向运单系统回传包裹称重信息成功：{}", entity.getPackageCode());
+                }
+            } else {
+                logger.warn("向运单系统回传包裹称重信息失败：{}，运单返回值：{}", entity.getPackageCode(), JsonHelper.toJson(resultMap));
+            }
 
+            /* 原始逻辑：发送MQ，在未来的日志里看看能否合并 */
+            OpeSendObject opeSend = new OpeSendObject();
+            opeSend.setPackage_code(entity.getPackageCode());
+            opeSend.setDms_site_id(entity.getOperateSiteCode());
+            opeSend.setThisUpdateTime(entity.getOperateTime().getTime());
+            opeSend.setWeight((float)(double)entity.getWeight());//精度丢失问题
+            opeSend.setLength((float)(double)entity.getLength());//精度丢失问题
+            opeSend.setWidth((float)(double)entity.getWidth());//精度丢失问题
+            opeSend.setHigh((float)(double)entity.getHeight());//精度丢失问题
+            opeSend.setOpeUserId(entity.getOperatorId());
+            opeSend.setOpeUserName(entity.getOperatorName());
+            if (opeSend.getHigh() != null && opeSend.getLength() != null && opeSend.getWidth() != null) {
+                //计算体积
+                opeSend.setVolume(opeSend.getHigh() * opeSend.getLength() * opeSend.getWidth());
+            }
+            dmsWeightSendMQ.send(entity.getPackageCode(),JsonHelper.toJson(opeSend));
+        } catch (RuntimeException | JMQException e) {
+            logger.warn("按包裹称重量方发生异常，处理失败：{}",JsonHelper.toJson(entity));
+        }
     }
 }

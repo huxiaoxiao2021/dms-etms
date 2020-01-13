@@ -1,13 +1,16 @@
 package com.jd.bluedragon.distribution.weightVolume.service;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.weightVolume.WeightVolumeHandlerFactory;
-import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeBusinessTypeEnum;
+import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.weightVolume.WeightVolumeHandlerStrategy;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -22,6 +25,12 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
 
     private static final Logger logger = LoggerFactory.getLogger(DMSWeightVolumeServiceImpl.class);
 
+    @Autowired
+    private TaskService taskService;
+
+    @Autowired
+    private WeightVolumeHandlerStrategy weightVolumeHandlerStrategy;
+
     @Override
     public InvokeResult<Boolean> dealWeightAndVolume(WeightVolumeEntity entity, boolean isSync) {
         InvokeResult<Boolean> result = new InvokeResult<>();
@@ -34,13 +43,24 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
             return result;
         }
         if (isSync) {
-            //todo async
-            return result;
+            //同步处理
+            return weightVolumeHandlerStrategy.doHandler(entity);
         } else {
-            return WeightVolumeHandlerFactory.getHandler(entity.getBarCode(),
-                    WeightVolumeBusinessTypeEnum.TERMINAL_SITE_HANDOVER.equals(entity.getBusinessType())
-                            || WeightVolumeBusinessTypeEnum.DMS_HANDOVER.equals(entity.getBusinessType())
-            ).handlerOperateWeightVolume(entity);
+            //异步处理
+            Task weightVolumeTask = new Task();
+            weightVolumeTask.setKeyword1(entity.getBarCode());
+            weightVolumeTask.setKeyword2(entity.getBusinessType().name());
+            weightVolumeTask.setCreateSiteCode(entity.getOperateSiteCode());
+            weightVolumeTask.setCreateTime(entity.getOperateTime());
+            weightVolumeTask.setType(Task.TASK_TYPE_WEIGHT_VOLUME);
+            weightVolumeTask.setTableName(Task.getTableName(Task.TASK_TYPE_WEIGHT_VOLUME));
+            weightVolumeTask.setSequenceName(Task.getSequenceName(Task.TABLE_NAME_WEIGHT_VOLUME));
+            String ownSign = BusinessHelper.getOwnSign();
+            weightVolumeTask.setOwnSign(ownSign);
+
+            weightVolumeTask.setBody(JsonHelper.toJson(entity));
+            taskService.add(weightVolumeTask);
+            return result;
         }
     }
 
