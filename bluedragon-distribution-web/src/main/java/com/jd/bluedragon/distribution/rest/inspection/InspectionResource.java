@@ -14,12 +14,11 @@ import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.base.domain.DmsStorageArea;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
-import com.jd.bluedragon.distribution.base.service.DmsStorageAreaService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
-import com.jd.bluedragon.distribution.inspection.domain.InspectionPackProgress;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionEC;
+import com.jd.bluedragon.distribution.inspection.domain.InspectionPackProgress;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
@@ -37,9 +36,9 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.domain.SortCrossDetail;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import com.jd.ql.basic.ws.BasicPrimaryWS;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,8 +47,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
 
-import javax.ws.rs.*;
-import javax.swing.text.TabExpander;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
@@ -87,17 +84,8 @@ public class InspectionResource {
 	@Autowired
 	ReceiveService receiveService;
 
-	@Autowired
-	private DmsStorageAreaService dmsStorageAreaService;
-
-	@Autowired
-	private WaybillQueryManager waybillQueryManager;
-
     @Autowired
     private DmsOperateHintService dmsOperateHintService;
-
-	@Autowired
-	private RedisManager redisManager;
 
 	@Autowired
 	private InspectionService inspectionService;
@@ -614,7 +602,7 @@ public class InspectionResource {
 		}
 		catch (Exception e) {
 			result.error(e);
-			logger.error("Failed to get package check progress rate.[" + packageOrWaybillCode + "].", e);
+			log.error("Failed to get package check progress rate.[" + packageOrWaybillCode + "].", e);
 		}
 
 		return result;
