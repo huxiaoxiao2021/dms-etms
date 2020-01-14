@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.weight.domain;
+package com.jd.bluedragon.distribution.weightVolume.domain;
 
 import java.io.Serializable;
 import java.util.List;
@@ -17,13 +17,13 @@ public class WeightAndVolumeDetailFlow implements Serializable {
      * 来源：
      * WeightSourceFromEnum
      * */
-    private Integer sourceFrom;
+    private String sourceFrom;
 
     /**
      * 操作类型：
      * OpeTypeEnum
      * */
-    private Integer opeType;
+    private String opeType;
 
     /**
      * 操作站点ID
@@ -51,28 +51,23 @@ public class WeightAndVolumeDetailFlow implements Serializable {
     private String opeUserName;
 
     /**
-     * 操作单号：箱号、运单号、包裹号
-     * */
-    private String strCode;
-
-    /**
      * 称重量方数据
      * */
     private List<WeightAndVolumeFlow> list;
 
-    public Integer getSourceFrom() {
+    public String getSourceFrom() {
         return sourceFrom;
     }
 
-    public void setSourceFrom(Integer sourceFrom) {
+    public void setSourceFrom(String sourceFrom) {
         this.sourceFrom = sourceFrom;
     }
 
-    public Integer getOpeType() {
+    public String getOpeType() {
         return opeType;
     }
 
-    public void setOpeType(Integer opeType) {
+    public void setOpeType(String opeType) {
         this.opeType = opeType;
     }
 
@@ -114,14 +109,6 @@ public class WeightAndVolumeDetailFlow implements Serializable {
 
     public void setOpeUserName(String opeUserName) {
         this.opeUserName = opeUserName;
-    }
-
-    public String getStrCode() {
-        return strCode;
-    }
-
-    public void setStrCode(String strCode) {
-        this.strCode = strCode;
     }
 
     public List<WeightAndVolumeFlow> getList() {

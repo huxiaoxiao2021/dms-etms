@@ -4,6 +4,7 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.alliance.AllianceBusiDeliveryDetailDto;
 import com.jd.bluedragon.distribution.alliance.AllianceBusiDeliveryDto;
 import com.jd.bluedragon.distribution.alliance.service.AllianceBusiDeliveryDetailService;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,14 +31,6 @@ public class HandoverWeightVolumeHandler extends AbstractWeightVolumeHandler {
 
     @Autowired
     private AllianceBusiDeliveryDetailService allianceBusiDeliveryDetailService;
-
-    @Override
-    protected boolean checkWeightVolumeParam(WeightVolumeEntity entity) {
-        if (super.checkWeightVolumeParam(entity)) {
-            return WaybillUtil.isPackageCode(entity.getBarCode()) || WaybillUtil.isWaybillCode(entity.getWaybillCode());
-        }
-        return Boolean.FALSE;
-    }
 
     @Override
     protected void handlerWeighVolume(WeightVolumeEntity entity) {
@@ -95,5 +88,13 @@ public class HandoverWeightVolumeHandler extends AbstractWeightVolumeHandler {
         allianceBusiDeliveryDto.setDatas(Collections.singletonList(detailDto));
 
         allianceBusiDeliveryDetailService.allianceBusiDelivery(allianceBusiDeliveryDto);
+    }
+
+    @Override
+    protected InvokeResult weighVolumeIntercept(WeightVolumeEntity entity) {
+        InvokeResult result = new InvokeResult();
+        result.success();
+        //TODO 加盟商
+        return result;
     }
 }

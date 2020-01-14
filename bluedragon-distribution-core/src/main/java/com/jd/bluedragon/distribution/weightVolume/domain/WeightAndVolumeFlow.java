@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.weight.domain;
+package com.jd.bluedragon.distribution.weightVolume.domain;
 
 import java.io.Serializable;
 

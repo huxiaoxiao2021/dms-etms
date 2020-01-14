@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.weightVolume;
 
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
@@ -8,7 +9,6 @@ import com.jd.bluedragon.distribution.third.domain.ThirdBoxDetail;
 import com.jd.bluedragon.distribution.third.service.ThirdBoxDetailService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BeanHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,14 +41,6 @@ public class BoxWeightVolumeHandler extends AbstractWeightVolumeHandler {
 
     @Autowired
     private WeightVolumeHandlerStrategy weightVolumeHandlerStrategy;
-
-    @Override
-    protected boolean checkWeightVolumeParam(WeightVolumeEntity entity) {
-        if (super.checkWeightVolumeParam(entity)) {
-            return BusinessUtil.isBoxcode(entity.getBarCode());
-        }
-        return Boolean.FALSE;
-    }
 
     @Override
     protected void handlerWeighVolume(WeightVolumeEntity entity) {
@@ -127,5 +119,12 @@ public class BoxWeightVolumeHandler extends AbstractWeightVolumeHandler {
             weightVolumeHandlerStrategy.doHandler(itemEntity);
         }
 
+    }
+
+    @Override
+    protected InvokeResult weighVolumeIntercept(WeightVolumeEntity entity) {
+        InvokeResult result = new InvokeResult();
+        result.success();
+        return result;
     }
 }
