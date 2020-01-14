@@ -13,4 +13,6 @@ import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 public interface IWeightVolumeHandler {
 
     InvokeResult<Boolean> handlerOperateWeightVolume(WeightVolumeEntity entity);
+
+    InvokeResult<Boolean> checkWeightVolume(WeightVolumeEntity entity);
 }

@@ -14,12 +14,12 @@ import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.RouteType;
 import com.jd.ql.basic.dto.SimpleBaseSite;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -45,7 +45,7 @@ import java.util.zip.DataFormatException;
 @RequestMapping("/areaDest")
 public class AreaDestController {
 
-    private final static Log logger = LogFactory.getLog(AreaDestController.class);
+    private final static Logger log = LoggerFactory.getLogger(AreaDestController.class);
 
     @Autowired
     private AreaDestService areaDestService;
@@ -99,7 +99,7 @@ public class AreaDestController {
         } catch (Exception e) {
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
             response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
-            logger.error("获取区域批次目的地树形列表数据异常", e);
+            log.error("获取区域批次目的地树形列表数据异常", e);
         }
         return response;
     }
@@ -117,7 +117,7 @@ public class AreaDestController {
         try {
             return baseMajorManager.getDmsListByOrgId(orgId);
         } catch (Exception e) {
-            logger.error("获取机构下的所有分拣中心失败", e);
+            log.error("获取机构下的所有分拣中心失败", e);
             return null;
         }
     }
@@ -136,7 +136,7 @@ public class AreaDestController {
         try {
             return areaDestService.getList(planId, RouteType.getEnum(routeType));
         } catch (Exception e) {
-            logger.error("获取机构下的分拣中心失败", e);
+            log.error("获取机构下的分拣中心失败", e);
         }
         return null;
     }
@@ -175,7 +175,7 @@ public class AreaDestController {
                 response.setMessage("获取Erp用户信息失败，结果为null，请重新登陆！");
             }
         } catch (Exception e) {
-            logger.error("新增发货关系时发生异常", e);
+            log.error("新增发货关系时发生异常", e);
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
             response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
         }
@@ -234,7 +234,7 @@ public class AreaDestController {
                 response.setMessage("获取Erp用户信息失败，结果为null，请重新登陆！");
             }
         } catch (Exception e) {
-            logger.error("批量保存目的分拣中心失败", e);
+            log.error("批量保存目的分拣中心失败", e);
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
             response.setMessage(e.getMessage());
         }
@@ -272,7 +272,7 @@ public class AreaDestController {
                 response.setMessage("获取Erp用户信息失败，结果为null，请重新登陆！");
             }
         } catch (Exception e) {
-            logger.error("批量移除目的站点失败", e);
+            log.error("批量移除目的站点失败", e);
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
             response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
         }
@@ -304,7 +304,7 @@ public class AreaDestController {
                 writeAndClose(pw, JsonHelper.toJson(new JdResponse(JdResponse.CODE_OK, getMessage(result))));
             }
         } catch (Exception e) {
-            logger.error("导入方案配置关系失败", e);
+            log.error("导入方案配置关系失败", e);
             if(pw != null){
                 if (e instanceof IOException) {
                     writeAndClose(pw, JsonHelper.toJson(new JdResponse(701, e.getMessage())));
@@ -407,7 +407,7 @@ public class AreaDestController {
                 outputStream.close();
             }
         } catch (Exception ex) {
-            logger.error("导出发货方案配置异常", ex);
+            log.error("导出发货方案配置异常", ex);
         }
     }
 

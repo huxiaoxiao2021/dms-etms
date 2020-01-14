@@ -7,7 +7,6 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.report.weightVolumeFlow.WeightVolumeFlowJSFService;
 import com.jd.ql.dms.report.weightVolumeFlow.domain.WeightVolumeFlowEntity;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,13 +29,6 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
         InvokeResult<Boolean> result = new InvokeResult<>();
         result.success();
         result.setData(Boolean.TRUE);
-        /* 校验参数 */
-        if (!checkWeightVolumeParam(entity)) {
-            logger.warn("称重量方处理失败，参数有误：{}", JsonHelper.toJson(entity));
-            result.customMessage(InvokeResult.SERVER_ERROR_CODE, InvokeResult.PARAM_ERROR);
-            result.setData(Boolean.FALSE);
-            return result;
-        }
         /* 处理称重量方任务 */
         handlerWeighVolume(entity);
 
@@ -44,6 +36,16 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
         postHandler(entity);
 
         return result;
+    }
+
+    @Override
+    public InvokeResult checkWeightVolume(WeightVolumeEntity entity){
+        InvokeResult result = new InvokeResult<>();
+        if(!checkWeightVolumeParam(entity)){
+            result.parameterError(InvokeResult.PARAM_ERROR);
+            return result;
+        }
+        return weighVolumeIntercept(entity);
     }
 
     protected boolean checkWeightVolumeParam(WeightVolumeEntity entity) {
@@ -89,6 +91,8 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
     }
 
     protected abstract void handlerWeighVolume(WeightVolumeEntity entity);
+
+    protected abstract InvokeResult weighVolumeIntercept(WeightVolumeEntity entity);
 
     protected void postHandler(WeightVolumeEntity entity) {
         WeightVolumeFlowEntity weightVolumeEntity = new WeightVolumeFlowEntity();

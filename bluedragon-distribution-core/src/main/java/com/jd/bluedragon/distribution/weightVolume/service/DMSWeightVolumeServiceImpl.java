@@ -42,6 +42,12 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
             result.setData(Boolean.FALSE);
             return result;
         }
+        InvokeResult checkResult = weightVolumeHandlerStrategy.doCheck(entity);
+        if(checkResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE){
+            result.parameterError(checkResult.getMessage());
+            result.setData(Boolean.FALSE);
+            return result;
+        }
         if (isSync) {
             //同步处理
             return weightVolumeHandlerStrategy.doHandler(entity);

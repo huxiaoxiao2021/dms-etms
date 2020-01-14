@@ -1,25 +1,5 @@
 package com.jd.bluedragon.distribution.web.sqlkit;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.sql.DataSource;
-
-import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.sqlkit.domain.Sqlkit;
@@ -28,12 +8,26 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.SpringHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.uim.annotation.Authorization;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import javax.sql.DataSource;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.sql.*;
+import java.util.Date;
+import java.util.*;
 
 @Controller
 @RequestMapping("/sqlkit")
 public class SqlkitController {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private static final String MODIFY_USERS = "modifyUsers";
 	private static final String QUERY_USERS = "queryUsers";
@@ -59,10 +53,10 @@ public class SqlkitController {
 	@RequestMapping("/toView")
 	public String toView(Model model) {
 		ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-		logger.info("访问sqlkit/toView用户erp账号：[" + erpUser.getUserCode() + "]");
+		log.info("访问sqlkit/toView用户erp账号：[{}]",erpUser.getUserCode());
 
 		if (!SqlkitController.queryUsers.contains(erpUser.getUserCode().toLowerCase())) {
-			logger.info("用户erp账号：" + erpUser.getUserCode() + "不在查询用户列表中,跳转到/index");
+			log.info("用户erp账号：{}不在查询用户列表中,跳转到/index",erpUser.getUserCode());
 			return "index";
 		}
 
@@ -103,14 +97,13 @@ public class SqlkitController {
                 pstmt.setInt(1, pager.getStartIndex());
                 pstmt.setInt(2, pager.getPageSize());
 				resultSet = pstmt.executeQuery();
-				logger.info("访问sqlkit/toView用户erp账号:[" + erpUser.getUserCode() + "]执行sql[" + sql
-				        + "]");
+				log.info("访问sqlkit/toView用户erp账号:[{}]执行sql[{}]",erpUser.getUserCode(), sql);
 				ResultSetMetaData rsmd = resultSet.getMetaData();
 				int columnCount = rsmd.getColumnCount();// 获得列数
 				List<String> columnList = setColumnList(rsmd, columnCount);
 				List<Map<String, Object>> rowList = setRows(resultSet, rsmd, columnCount);
 				int rowCount = rowList.size();
-				logger.debug("结果条数=" + rowCount);
+				log.debug("结果条数={}", rowCount);
 				model.addAttribute("rowList", rowList);
 				model.addAttribute("columnList", columnList);
 				model.addAttribute("columnsize", columnList.size());
@@ -127,8 +120,7 @@ public class SqlkitController {
 					int changeRows = pstmt.executeUpdate();
 //					connection.commit();
 					model.addAttribute("message", "影响行数" + changeRows);
-					logger.info("访问sqlkit/toView用户erp账号:[" + erpUser.getUserCode() + "]执行sql["
-					        + sql + "]");
+					log.info("访问sqlkit/toView用户erp账号:[{}]执行sql[{}]",erpUser.getUserCode(), sql);
 				} else {
 					model.addAttribute("message", "你没有权限执行update/insert");
 				}
@@ -145,28 +137,28 @@ public class SqlkitController {
 			String msg = baos.toString();
 			model.addAttribute("error", msg);
 			errorCount++;
-			logger.error(e);
+			log.error("executeSql 异常：",e);
 		} finally {
 			try {
 				if (resultSet != null) {
 					resultSet.close();
 				}
 			} catch (SQLException se) {
-				this.logger.error("关闭文件流发生异常！", se);
+				this.log.error("关闭文件流发生异常！", se);
 			}
             try {
                 if (pstmt != null) {
                     pstmt.close();
                 }
             } catch (SQLException se) {
-                this.logger.error("关闭PreparedStatement发生异常！", se);
+                this.log.error("关闭PreparedStatement发生异常！", se);
             }
 			try {
 				if (connection != null) {
 					connection.close();
 				}
 			} catch (SQLException se) {
-				this.logger.error("关闭文件流发生异常！", se);
+				this.log.error("关闭文件流发生异常！", se);
 			}
 		}
 
@@ -196,14 +188,14 @@ public class SqlkitController {
 					resultSet.close();
 				}
 			} catch (SQLException se) {
-				this.logger.error("关闭文件流发生异常！", se);
+				this.log.error("关闭文件流发生异常！", se);
 			}
             try {
                 if (pstmt != null) {
                     pstmt.close();
                 }
             } catch (SQLException se) {
-                this.logger.error("关闭PreparedStatement发生异常！", se);
+                this.log.error("关闭PreparedStatement发生异常！", se);
             }
 		}
 	}
@@ -235,7 +227,6 @@ public class SqlkitController {
 						rowMap.put(columnName, columnValue);
 					}
 				}
-				logger.debug("列名:" + columnName + " 类型:" + columnType + " 列值:" + columnValue);
 			}
 			rows.add(rowMap);
 		}

@@ -5,8 +5,8 @@ import com.jd.bluedragon.distribution.api.response.TransBillScheduleResponse;
 import com.jd.bluedragon.distribution.transBillSchedule.domain.TransBillScheduleRequest;
 import com.jd.bluedragon.distribution.transBillSchedule.service.TransBillScheduleService;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
@@ -24,7 +24,7 @@ import javax.ws.rs.core.MediaType;
 @Produces({ MediaType.APPLICATION_JSON })
 public class TransBillScheduleResource {
 
-    private static final Log logger = LogFactory.getLog(TransBillScheduleResource.class);
+    private static final Logger log = LoggerFactory.getLogger(TransBillScheduleResource.class);
 
     @Autowired
     private TransBillScheduleService transBillScheduleService;
@@ -47,7 +47,7 @@ public class TransBillScheduleResource {
                 response.setSameScheduleBill(transBillScheduleService.checkSameScheduleBill(request));
                 response.setRoadCode(transBillScheduleService.queryTruckSpotByWaybillCode(request.getWaybillCode()));
             }catch(Exception e){
-                this.logger.error("派车单信息校验失败" + request.toString());
+                this.log.error("派车单信息校验失败：{}", request.toString(), e);
             }
         }
         return response;

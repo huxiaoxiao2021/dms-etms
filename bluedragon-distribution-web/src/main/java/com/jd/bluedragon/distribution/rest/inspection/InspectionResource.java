@@ -10,14 +10,19 @@ import com.jd.bluedragon.distribution.api.request.InspectionECRequest;
 import com.jd.bluedragon.distribution.api.request.InspectionFCRequest;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.request.TurnoverBoxRequest;
-import com.jd.bluedragon.distribution.api.response.*;
+import com.jd.bluedragon.distribution.api.response.HandoverDetailResponse;
+import com.jd.bluedragon.distribution.api.response.HandoverResponse;
+import com.jd.bluedragon.distribution.api.response.InspectionECResponse;
+import com.jd.bluedragon.distribution.api.response.PackageResponse;
+import com.jd.bluedragon.distribution.api.response.WaybillResponse;
 import com.jd.bluedragon.distribution.base.domain.DmsStorageArea;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
-import com.jd.bluedragon.distribution.inspection.domain.InspectionPackProgress;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionEC;
+import com.jd.bluedragon.distribution.inspection.domain.InspectionPackProgress;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
@@ -31,18 +36,28 @@ import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ql.basic.domain.SortCrossDetail;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -92,8 +107,13 @@ public class InspectionResource {
 	@Qualifier("operateHintTrackMQ")
 	private DefaultJMQProducer operateHintTrackMQ;
 
-	private final static Logger logger = Logger
-			.getLogger(InspectionResource.class);
+	@Autowired
+    private BasicPrimaryWS basicPrimaryWS;
+
+	@Autowired
+    private SiteService siteService;
+
+	private final static Logger log = LoggerFactory.getLogger(InspectionResource.class);
 
 	@POST
 	@Path("/inspection/exceptionQueryExpand")
@@ -102,7 +122,7 @@ public class InspectionResource {
 		if (null == inspectionECRequest
 				|| (StringUtils.isBlank(inspectionECRequest.getBoxCode()) && StringUtils
 						.isBlank(inspectionECRequest.getPartnerIdOrCode()))) {
-			logger.info(" /inspection/exceptionQuery 参数错误或者参数不存在 ");
+			log.info(" /inspection/exceptionQuery 参数错误或者参数不存在 ");
 			return new InspectionECResponse(JdResponse.CODE_PARAM_ERROR,
 					JdResponse.MESSAGE_PARAM_ERROR);
 		} else if (StringUtils.isNotBlank(inspectionECRequest.getBoxCode())
@@ -125,7 +145,7 @@ public class InspectionResource {
 	public InspectionECResponse inspectionException(
 			InspectionECRequest inspectionECRequest) {
 		if (null == inspectionECRequest) {
-			logger.info(" /inspection/exceptionQuery 参数错误或者参数不存在 ");
+			log.info(" /inspection/exceptionQuery 参数错误或者参数不存在 ");
 			return new InspectionECResponse(JdResponse.CODE_PARAM_ERROR,
 					JdResponse.MESSAGE_PARAM_ERROR);
 		}
@@ -135,8 +155,7 @@ public class InspectionResource {
 
 		if (StringUtils.isBlank(partnerIdOrCode)
 				&& StringUtils.isBlank(inspectionECRequest.getBoxCode())) {
-			logger.info(" /inspection/exceptionQuery 参数错误或者不存在, partnerIdOrCode : "
-					+ partnerIdOrCode);
+			log.info(" /inspection/exceptionQuery 参数错误或者不存在, partnerIdOrCode : {}",partnerIdOrCode);
 			return new InspectionECResponse(JdResponse.CODE_PARAM_ERROR,
 					JdResponse.MESSAGE_PARAM_ERROR);
 		}
@@ -154,8 +173,7 @@ public class InspectionResource {
 						|| null == base.getSiteCode()
 						|| !Constants.BASE_SITE_TYPE_THIRD.equals(base
 								.getSiteType())) {// base.getSiteType()：16为三方，4为自营
-					logger.info(" /inspection/exceptionQuery, 获取基础资料三方站点失败， partnerIdOrCode is: "
-							+ partnerIdOrCode);
+					log.info(" /inspection/exceptionQuery, 获取基础资料三方站点失败， partnerIdOrCode is: {}",partnerIdOrCode);
 					return new InspectionECResponse(
 							InspectionECResponse.CODE_PARAM_ERROR,
 							InspectionECResponse.MESSAGE_PARAM_PARTNER_ERROR);
@@ -197,7 +215,7 @@ public class InspectionResource {
 			return new InspectionECResponse(JdResponse.CODE_OK,
 					JdResponse.MESSAGE_OK, responses);
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			log.error(e.getMessage(), e);
 			return new InspectionECResponse(JdResponse.CODE_SERVICE_ERROR,
 					JdResponse.MESSAGE_SERVICE_ERROR);
 		}
@@ -218,12 +236,11 @@ public class InspectionResource {
 		if (null == inspectionECRequest
 				|| null == inspectionECRequest.getPackages()
 				|| inspectionECRequest.getPackages().isEmpty()) {
-			logger.info(" web访问：/inspection/exception/dispose，json 转换为 InspectionRequest 异常 ");
+			log.info(" web访问：/inspection/exception/dispose，json 转换为 InspectionRequest 异常 ");
 			return new JdResponse(JdResponse.CODE_PARAM_ERROR,
 					JdResponse.MESSAGE_PARAM_ERROR);
 		}
-		logger.info(" web访问：/inspection/exception/dispose parameters: "
-				+ inspectionECRequest.toString());
+		log.info(" web访问：/inspection/exception/dispose parameters: {}",inspectionECRequest.toString());
 
 		if (inspectionECRequest.getPackages().size() > 200) {
 			return new JdResponse(InspectionECResponse.CODE_PARAM_UPPER_LIMIT,
@@ -235,8 +252,7 @@ public class InspectionResource {
 		List<InspectionEC> inspectionECs = new ArrayList<InspectionEC>();
 
 		for (InspectionRequest requestBean : packages) {
-			logger.info("  /inspection/exception/dispose parameters of each package : "
-					+ requestBean.toString());
+			log.info("  /inspection/exception/dispose parameters of each package : {}",requestBean.toString());
 			InspectionEC inspectionEC = InspectionEC
 					.toInspectionEC(requestBean);
 			// inspectionEC.setCreateSiteCode(inspectionECRequest.getSiteCode());
@@ -291,8 +307,7 @@ public class InspectionResource {
 			result = inspectionExceptionService.directDistribution(
 					inspectionECs, inspectionECRequest.getOperationType());
 		} else {
-			logger.info(" web访问：/inspection/exception/dispose 参数operationType错误: "
-					+ inspectionECRequest.getOperationType());
+			log.info(" web访问：/inspection/exception/dispose 参数operationType错误: {}",inspectionECRequest.getOperationType());
 			return new JdResponse(JdResponse.CODE_PARAM_ERROR,
 					JdResponse.MESSAGE_PARAM_ERROR);
 		}
@@ -343,7 +358,7 @@ public class InspectionResource {
 			@PathParam("receiveSiteCodeORBoxCode") String receiveSiteCodeORBoxCode) {
 		Assert.notNull(code, "/inspection/getWaybillPackage/ 参数code为空");
 		if (StringUtils.isBlank(code) || siteCode <= 0) {
-			logger.error("包裹或者运单无数据：" + code);
+			log.warn("包裹或者运单无数据：{}", code);
 			return new WaybillResponse(JdResponse.CODE_PARAM_ERROR,
 					JdResponse.MESSAGE_PARAM_ERROR);
 		}
@@ -363,7 +378,7 @@ public class InspectionResource {
 						WaybillResponse.MESSAGE_NO_RECEIVE_SITE);
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			log.error(e.getMessage(), e);
 			return new WaybillResponse(WaybillResponse.CODE_NO_RECEIVE_SITE,
 					WaybillResponse.MESSAGE_NO_RECEIVE_SITE);
 		}
@@ -371,7 +386,7 @@ public class InspectionResource {
 		WaybillResponse response = waybillPackageBarcodeService
 				.getWaybillPackageBarcode(code, siteCode, receiveSiteCode);// 通过运单号获得包裹信息以及运单的客户地址
 		if (null == response.getPackages() || response.getPackages().isEmpty()) {
-			logger.error("运单接口返回包裹为空: " + code);
+			log.warn("运单接口返回包裹为空: {}", code);
 			response.setCode(WaybillResponse.CODE_NO_DATA);
 			response.setMessage(WaybillResponse.MESSAGE_NO_DATA);
 		} else {
@@ -473,12 +488,11 @@ public class InspectionResource {
 	public JdResponse turnoverBox(TurnoverBoxRequest turnoverBoxRequest) {
 		if (null == turnoverBoxRequest
 				|| turnoverBoxRequest.getBusinessType() == null) {
-			logger.info(" web访问：/inspection/turnoverBox，json 转换为 turnoverBoxRequest 异常 ");
+			log.info(" web访问：/inspection/turnoverBox，json 转换为 turnoverBoxRequest 异常 ");
 			return new JdResponse(JdResponse.CODE_PARAM_ERROR,
 					JdResponse.MESSAGE_PARAM_ERROR);
 		}
-		logger.info(" web访问：/inspection/turnoverBox parameters: "
-				+ turnoverBoxRequest.toString());
+		log.info(" web访问：/inspection/turnoverBox parameters: {}", turnoverBoxRequest.toString());
 		/**
 		 * 1.收 2.发 3.取消
 		 */
@@ -516,8 +530,7 @@ public class InspectionResource {
 		try {
 			receiveService.turnoverBoxAdd(turnoverBox);
 		} catch (Exception ex) {
-			logger.error("web访问/inspection/turnoverBox异常:turnoverBoxAdd处理失败",
-					ex);
+			log.error("web访问/inspection/turnoverBox异常:turnoverBoxAdd处理失败",ex);
 		}
 	}
 
@@ -538,14 +551,14 @@ public class InspectionResource {
         try{
 			inspectionResult = inspectionService.getInspectionResult(dmsSiteCode, waybillCode);
 		}catch (Exception e){
-			logger.error("获取库位号失败，异常原因：" + e.getMessage());
+			log.error("获取库位号失败，异常原因：", e);
 		}
 
 		String hintMessage = "";
 		try{
 			hintMessage = dmsOperateHintService.getInspectHintMessageByWaybillCode(waybillCode);
 			inspectionResult.setHintMessage(hintMessage);
-			logger.info("验货redis查询运单提示语，运单号：" + waybillCode + ",结果：" + hintMessage);
+			log.info("验货redis查询运单提示语，运单号：{},结果：{}",waybillCode, hintMessage);
 			if(StringHelper.isNotEmpty(hintMessage)){
 				try {
 					DmsOperateHintTrack dmsOperateHintTrack = new DmsOperateHintTrack();
@@ -553,14 +566,14 @@ public class InspectionResource {
 					dmsOperateHintTrack.setHintDmsCode(siteCode);
 					dmsOperateHintTrack.setHintOperateNode(DmsOperateHintTrack.OPERATE_NODE_INSPECTION);
 					dmsOperateHintTrack.setHintTime(new Date());
-					this.logger.info("发送MQ[" + operateHintTrackMQ.getTopic() + "],业务ID[" + dmsOperateHintTrack.getWaybillCode() + "],消息主题: " + JSON.toJSONString(dmsOperateHintTrack));
+					this.log.info("发送MQ[{}],业务ID[{}]",operateHintTrackMQ.getTopic(),dmsOperateHintTrack.getWaybillCode());
 					operateHintTrackMQ.sendOnFailPersistent(dmsOperateHintTrack.getWaybillCode(), JSON.toJSONString(dmsOperateHintTrack));
 				}catch(Exception e){
-					logger.error("发货提示语发mq异常,异常原因:" +e);
+					log.error("发货提示语发mq异常,异常原因:" ,e);
 				}
 			}
 		}catch (Exception e){
-			logger.error("验货redis查询运单提示语异常，改DB查询，运单号：" + waybillCode + "异常原因：" + e.getMessage());
+			log.error("验货redis查询运单提示语异常，改DB查询，运单号：{}",waybillCode, e);
 		}
 		//金鹏订单拦截提示
 		hintMessage += inspectionService.getHintMessage(dmsSiteCode, waybillCode);
@@ -568,11 +581,36 @@ public class InspectionResource {
 		BaseStaffSiteOrgDto baseDto = routerService.getRouterNextSite(dmsSiteCode, waybillCode);
 		inspectionResult.setNextRouterSiteName(baseDto==null?null:baseDto.getSiteName());
 		inspectionResult.setHintMessage(hintMessage);
+
+		// B网验货增加笼车号显示
+		this.setTabletrolleyCode(inspectionResult, dmsSiteCode, baseDto);
+
         jdResponse.toSucceed();//这里设置为成功，取不到值时记录warn日志
 		jdResponse.setData(inspectionResult);
 		return jdResponse;
 	}
 
+    /**
+     * B网验货显示下一节点的笼车号
+     *
+     * @param inspectionResult
+     * @param dmsSiteCode
+     * @param nextDest
+     */
+	private void setTabletrolleyCode(InspectionResult inspectionResult, Integer dmsSiteCode, BaseStaffSiteOrgDto nextDest) {
+        if (null == dmsSiteCode || null == nextDest)
+            return;
+        BaseStaffSiteOrgDto siteOrgDto = siteService.getSite(dmsSiteCode);
+        if (null != siteOrgDto && siteOrgDto.getSubType() != null && siteOrgDto.getSubType() == Constants.B2B_SITE_TYPE) {
+            SortCrossDetail sortCrossDetail = basicPrimaryWS.getCrossCodeDetailByDmsID(dmsSiteCode, String.valueOf(nextDest.getSiteCode()));
+            if (log.isInfoEnabled()) {
+                log.info("Get table trolley code from basic. dmsId:{}, siteCode:{}, ret:[{}]", dmsSiteCode, nextDest.getSiteCode(), JsonHelper.toJson(sortCrossDetail));
+            }
+            if (null != sortCrossDetail) {
+                inspectionResult.setTabletrolleyCode(sortCrossDetail.getTabletrolleyCode());
+            }
+        }
+    }
 	@GET
 	@Path("/inspection/checkProgress/{packageOrWaybillCode}/{siteCode}")
 	@JProfiler(jKey = "DMS.BASE.InspectionResource.getWaybillCheckPackDetail", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -595,7 +633,7 @@ public class InspectionResource {
 		}
 		catch (Exception e) {
 			result.error(e);
-			logger.error("Failed to get package check progress rate.[" + packageOrWaybillCode + "].", e);
+			log.error("Failed to get package check progress rate.[" + packageOrWaybillCode + "].", e);
 		}
 
 		return result;

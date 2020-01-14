@@ -568,6 +568,10 @@
         <property name="sqlSession" ref="sessionTemplateBase" />
     </bean>
 
+    <bean id="cancelWaybillDao" class="com.jd.bluedragon.distribution.waybill.dao.CancelWaybillDao">
+        <property name="sqlSession" ref="sessionTemplateBase" />
+    </bean>
+
     <!-- 三方装箱明细 -->
     <bean id="thirdBoxDetailDao" parent="unDivBaseDao"
           class="com.jd.bluedragon.distribution.third.dao.impl.ThirdBoxDetailDaoImpl"/>

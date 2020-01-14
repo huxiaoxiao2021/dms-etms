@@ -1,35 +1,40 @@
 package com.jd.bluedragon.distribution.saf;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.saf.domain.WaybillResponse;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.jd.bluedragon.distribution.saf.domain.WaybillSafResponse;
+import com.jd.bluedragon.distribution.saf.service.GetWaybillSafService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
-import com.jd.bluedragon.distribution.saf.service.GetWaybillSafService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.distribution.saf.domain.WaybillSafResponse;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service("getWaybillSafService")
 public class GetWaybillSafServiceImpl implements GetWaybillSafService{
 	
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	
 	@Autowired
 	private SortingService sortingService;
-	
+
+	@Autowired
+	private BoxService boxService;
+
 	@Autowired
     private SendMDao sendMDao;
 
@@ -37,7 +42,7 @@ public class GetWaybillSafServiceImpl implements GetWaybillSafService{
     private SendDatailDao sendDatailDao;
     
     private static final int OPERATE_TYPE_CANCEL_L = 0;
-	 
+
     /**
      * 通过箱号获取包裹信息
      * */
@@ -46,14 +51,17 @@ public class GetWaybillSafServiceImpl implements GetWaybillSafService{
 	public WaybillSafResponse<List<WaybillResponse>> getOrdersDetails(
 			String boxCode) {
 		if(boxCode ==null || boxCode.trim().equals("")){
-			logger.error("boxCode的参数为空");
+			log.warn("boxCode的参数为空");
 			return new WaybillSafResponse<List<WaybillResponse>>(WaybillSafResponse.CODE_PARAM_ERROR,WaybillSafResponse.MESSAGE_PARAM_ERROR);
 		}
 		List<WaybillResponse> responseList = new ArrayList<WaybillResponse>();
 		try {
+			//通过箱号的创建场地查询明细
+			Box box = boxService.findBoxByCode(boxCode);
 			Sorting sorting = new Sorting();
 			sorting.setBoxCode(boxCode);
-			List<Sorting> list = sortingService.findOrderDetail(sorting);
+			sorting.setCreateSiteCode(box.getCreateSiteCode());
+			List<Sorting> list = sortingService.findByBoxCode(sorting);
 			if(list!=null && !list.isEmpty()){
 				for(Sorting sort :list){
 					WaybillResponse  response = new WaybillResponse();
@@ -63,11 +71,11 @@ public class GetWaybillSafServiceImpl implements GetWaybillSafService{
 					responseList.add(response);
 				}
 			}else{
-				logger.error("boxCode获取的数据为空"+boxCode);
+				log.warn("boxCode获取的数据为空：{}", boxCode);
 				return new WaybillSafResponse<List<WaybillResponse>>(WaybillSafResponse.CODE_OK_NULL,WaybillSafResponse.MESSAGE_OK_NULL);
 			}
 		} catch (Exception e) {
-			logger.error("boxCode获取异常",e);
+			log.error("boxCode获取异常",e);
 			return new WaybillSafResponse<List<WaybillResponse>>(WaybillSafResponse.CODE_SERVICE_ERROR,WaybillSafResponse.MESSAGE_SERVICE_ERROR);
 		}
 		return new WaybillSafResponse<List<WaybillResponse>>(WaybillSafResponse.CODE_OK,WaybillSafResponse.MESSAGE_OK,responseList);
@@ -80,7 +88,7 @@ public class GetWaybillSafServiceImpl implements GetWaybillSafService{
 	public WaybillSafResponse<List<WaybillResponse>> getPackageCodesBySendCode(
 			String sendCode) {
 		if(sendCode ==null || sendCode.trim().equals("")){
-			logger.error("sendCode的参数为空");
+			log.warn("sendCode的参数为空");
 			return new WaybillSafResponse<List<WaybillResponse>>(WaybillSafResponse.CODE_PARAM_ERROR,WaybillSafResponse.MESSAGE_PARAM_ERROR);
 		}
 		List<WaybillResponse> responseList = new ArrayList<WaybillResponse>();
@@ -117,7 +125,7 @@ public class GetWaybillSafServiceImpl implements GetWaybillSafService{
 			}
 			
 		} catch (Exception e) {
-			logger.error("sendCode获取异常",e);
+			log.error("sendCode获取异常",e);
 			return new WaybillSafResponse<List<WaybillResponse>>(WaybillSafResponse.CODE_SERVICE_ERROR,WaybillSafResponse.MESSAGE_SERVICE_ERROR);
 		}
 		return new WaybillSafResponse<List<WaybillResponse>>(WaybillSafResponse.CODE_OK,WaybillSafResponse.MESSAGE_OK,responseList);

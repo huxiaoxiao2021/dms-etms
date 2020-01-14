@@ -1,24 +1,6 @@
 package com.jd.bluedragon.distribution.web.admin;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.jd.bluedragon.Constants;
-import com.jd.uim.annotation.Authorization;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.admin.service.WorkerMonitorService;
 import com.jd.bluedragon.distribution.api.request.WorkerRequest;
@@ -27,12 +9,30 @@ import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.ErpUserClient.ErpUser;
 import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.etms.erp.service.dto.CommonDto;
+import com.jd.uim.annotation.Authorization;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/admin/worker-monitor")
 public class WorkerMonitorController {
 
-	private static final Logger logger = Logger.getLogger(WorkerMonitorController.class);
+	private static final Logger log = LoggerFactory.getLogger(WorkerMonitorController.class);
 
 	@Autowired
 	private WorkerMonitorService workerMonitorService;
@@ -44,7 +44,7 @@ public class WorkerMonitorController {
 			ErpUser erpUser = ErpUserClient.getCurrUser();
 			model.addAttribute("erpUser", erpUser);
 		} catch (Exception e) {
-			logger.error("index error!", e);
+			log.error("index error!", e);
 		}
 		return "admin/worker-monitor/worker-monitor-index";
 	}
@@ -55,7 +55,7 @@ public class WorkerMonitorController {
 	public CommonDto<Pager<List<Task>>> doQueryWorker(WorkerRequest request, Pager<List<Task>> pager, Model model) {
 		CommonDto<Pager<List<Task>>> cdto = new CommonDto<Pager<List<Task>>>();
 		try {
-			logger.info("WorkerMonitorController doQueryWorker begin...");
+			log.info("WorkerMonitorController doQueryWorker begin...");
 			if (null == request || StringUtils.isBlank(request.getTableName())) {
 				cdto.setCode(CommonDto.CODE_WARN);
 				cdto.setMessage("参数[tableName]不能为空！");
@@ -75,12 +75,12 @@ public class WorkerMonitorController {
 			pager.setTotalSize(totalSize);
 			pager.setData(taskList);
 			pager.setTableName(request.getTableName());
-			logger.info("查询符合条件的规则数量：" + totalSize);
+			log.info("查询符合条件的规则数量：{}", totalSize);
 
 			cdto.setData(pager);
 			cdto.setCode(CommonDto.CODE_NORMAL);
 		} catch (Exception e) {
-			logger.error("doQueryWorker-error!", e);
+			log.error("doQueryWorker-error!", e);
 			cdto.setCode(CommonDto.CODE_EXCEPTION);
 			cdto.setData(null);
 			cdto.setMessage(e.getMessage());
@@ -94,7 +94,7 @@ public class WorkerMonitorController {
 	public CommonDto<List<Integer>> queryTaskTypeByTableName(Model model, @RequestParam(value = "tableName", required = false) String tableName) {
 		CommonDto<List<Integer>> cdto = new CommonDto<List<Integer>>();
 		try {
-			logger.info("WorkerMonitorController queryTaskTypeByTableName begin...");
+			log.info("WorkerMonitorController queryTaskTypeByTableName begin...");
 			if (tableName == null || StringUtils.isBlank(tableName)) {
 				cdto.setCode(CommonDto.CODE_WARN);
 				cdto.setMessage("参数[tableName]不能为空！");
@@ -109,7 +109,7 @@ public class WorkerMonitorController {
 			}
 			cdto.setCode(CommonDto.CODE_NORMAL);
 		} catch (Exception e) {
-			logger.error("queryTaskTypeByTableName-error!", e);
+			log.error("queryTaskTypeByTableName-error!", e);
 			cdto.setCode(CommonDto.CODE_EXCEPTION);
 			cdto.setData(null);
 			cdto.setMessage(e.getMessage());
@@ -123,7 +123,7 @@ public class WorkerMonitorController {
 	public CommonDto<Integer> doTaskReset(Model model, @RequestParam(value = "id", required = false) Integer id, @RequestParam(value = "tableName", required = false) String tableName) {
 		CommonDto<Integer> cdto = new CommonDto<Integer>();
 		try {
-			logger.info("WorkerMonitorController taskReset begin...");
+			log.info("WorkerMonitorController taskReset begin...");
 			if (id == null || id <= 0) {
 				cdto.setCode(CommonDto.CODE_WARN);
 				cdto.setMessage("参数[id]不合法！");
@@ -136,7 +136,7 @@ public class WorkerMonitorController {
 			cdto.setData(result);
 			cdto.setCode(CommonDto.CODE_NORMAL);
 		} catch (Exception e) {
-			logger.error("taskReset-error!", e);
+			log.error("taskReset-error!", e);
 			cdto.setCode(CommonDto.CODE_EXCEPTION);
 			cdto.setData(null);
 			cdto.setMessage(e.getMessage());
@@ -150,7 +150,7 @@ public class WorkerMonitorController {
 	public CommonDto<Integer> doTaskBatchReset(WorkerRequest request, Model model) {
 		CommonDto<Integer> cdto = new CommonDto<Integer>();
 		try {
-			logger.info("WorkerMonitorController doTaskBatchReset begin...");
+			log.info("WorkerMonitorController doTaskBatchReset begin...");
 			if (null == request || StringUtils.isBlank(request.getTableName())) {
 				cdto.setCode(CommonDto.CODE_WARN);
 				cdto.setMessage("参数[tableName]不能为空！");
@@ -161,7 +161,7 @@ public class WorkerMonitorController {
 			cdto.setData(result);
 			cdto.setCode(CommonDto.CODE_NORMAL);
 		} catch (Exception e) {
-			logger.error("doQueryWorker-error!", e);
+			log.error("doQueryWorker-error!", e);
 			cdto.setCode(CommonDto.CODE_EXCEPTION);
 			cdto.setData(null);
 			cdto.setMessage(e.getMessage());

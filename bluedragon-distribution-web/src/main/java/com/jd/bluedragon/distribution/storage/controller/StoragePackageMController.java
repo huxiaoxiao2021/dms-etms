@@ -17,9 +17,8 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -43,7 +42,7 @@ import java.util.List;
 @RequestMapping("storage/storagePackageM")
 public class StoragePackageMController {
 
-	private static final Log logger = LogFactory.getLog(StoragePackageMController.class);
+	private static final Logger log = LoggerFactory.getLogger(StoragePackageMController.class);
 
 	@Autowired
 	private BaseMajorManager baseMajorManager;
@@ -104,7 +103,7 @@ public class StoragePackageMController {
 		try {
 			rest.setData(storagePackageMService.saveOrUpdate(storagePackageM));
 	} catch (Exception e) {
-			logger.error("fail to save！"+e.getMessage(),e);
+			log.error("fail to save！",e);
 			rest.toError("保存失败，服务异常！");
 		}
 		return rest;
@@ -121,7 +120,7 @@ public class StoragePackageMController {
 		try {
 			rest.setData(storagePackageMService.deleteByIds(ids));
 		} catch (Exception e) {
-			logger.error("fail to delete！"+e.getMessage(),e);
+			log.error("fail to delete！",e);
 			rest.toError("删除失败，服务异常！");
 		}
 		return rest;
@@ -192,7 +191,7 @@ public class StoragePackageMController {
 		try {
 			rest.setData(storagePackageMService.forceSend(performanceCodes,putawayDTO));
 		} catch (Exception e) {
-			logger.error("fail to forceSend！"+e.getMessage(),e);
+			log.error("fail to forceSend！",e);
 			rest.toError("强制发货失败，服务异常！");
 		}
 		return rest;
@@ -211,7 +210,7 @@ public class StoragePackageMController {
         try {
             rest.setData(storagePackageMService.cancelPutaway(ids));
         } catch (Exception e) {
-            logger.error("fail to delete！"+e.getMessage(),e);
+            log.error("fail to delete！",e);
             rest.toError("删除失败，服务异常！");
         }
         return rest;
@@ -234,7 +233,7 @@ public class StoragePackageMController {
 		} catch (StorageException e) {
 			rest.setMessage(e.getMessage());
 		}catch (Exception e) {
-			logger.error("刷新履约单下运单发货状态失败！"+e.getMessage(),e);
+			log.error("刷新履约单下运单发货状态失败！",e);
 			rest.toError("刷新履约单下运单发货状态失败，服务异常！");
 		}
 		return rest;
@@ -277,7 +276,7 @@ public class StoragePackageMController {
 			}
 
 		}catch (Exception e) {
-			logger.error("获取履约单下所有运单数据异常！"+e.getMessage(),e);
+			log.error("获取履约单下所有运单数据异常！",e);
 			result.toError("获取履约单下所有运单数据异常，服务异常！");
 		}
 		return result;

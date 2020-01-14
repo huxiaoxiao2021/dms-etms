@@ -13,15 +13,15 @@ import com.jd.jmq.common.message.Message;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service("popAbnormalNewConsumer")
 public class PopAbnormalNewConsumer extends MessageBaseConsumer {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private PopReceiveAbnormalService popReceiveAbnormalService;
@@ -31,8 +31,6 @@ public class PopAbnormalNewConsumer extends MessageBaseConsumer {
 		String popAbnormalReceiveJson = message.getText();
 		Integer resultCode = Constants.YN_YES;
 		
-		this.logger.error("popAbnormalReceiveJson:" + popAbnormalReceiveJson);
-
 		PopAbnormalReceiveVO popAbnormalReceiveVO = null;
 		try {
 			popAbnormalReceiveVO = JsonHelper.fromJson(popAbnormalReceiveJson,
@@ -44,9 +42,8 @@ public class PopAbnormalNewConsumer extends MessageBaseConsumer {
 					|| popAbnormalReceiveVO.getMainType() <= 0
 					|| StringUtils.isBlank(popAbnormalReceiveVO
 							.getOperateTime())) {
-				this.logger.error("popAbnormalReceiveVO -- 参数有误！Id ["
-						+ message.getBusinessId() + "]， message ["
-						+ popAbnormalReceiveJson + "]");
+				this.log.warn("popAbnormalReceiveVO -- 参数有误！Id [{}]， message [{}]"
+						,message.getBusinessId(),popAbnormalReceiveJson);
 				resultCode = Constants.YN_NO;
 			}
 
@@ -68,8 +65,7 @@ public class PopAbnormalNewConsumer extends MessageBaseConsumer {
 			}
 
 		} catch (Exception e) {
-			this.logger.error(
-					"popAbnormalNewMessageConsumer.popMqFromPop 类型转换或字段异常：", e);
+			this.log.error("popAbnormalNewMessageConsumer.popMqFromPop 类型转换或字段异常：", e);
 			resultCode = Constants.YN_NO;
 		}
 
@@ -121,7 +117,7 @@ public class PopAbnormalNewConsumer extends MessageBaseConsumer {
 					popReceiveAbnormal, popAbnormalDetail, Boolean.FALSE);
 		}
 
-		this.logger.info("Id [" + message.getBusinessId() + "] , 处理结果：" + resultCode);
+		this.log.info("Id [{}] , 处理结果：{}",message.getBusinessId(), resultCode);
 	}
 	
 	public static void main(String args[]){

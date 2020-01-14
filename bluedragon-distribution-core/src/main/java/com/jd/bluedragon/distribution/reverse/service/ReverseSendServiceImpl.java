@@ -818,6 +818,12 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
         send.setSickWaybill(isSickWaybill);
 
+        //一盘货变更订单号获取来源 从新单获取
+        if(sendTwaybill!=null && BusinessUtil.isYiPanHuoOrder(sendTwaybill.getWaybillSign())){
+            send.setOrderId(sendTwaybill.getSpareColumn3());
+        }
+
+
         //初始化加履中心订单
 
         if(BusinessUtil.isPerformanceOrder(send.getWaybillSign())){
@@ -1007,6 +1013,8 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             SystemLogUtil.log(sLogDetail);
         }
 
+        if(result == null){ return false; }
+
         this.log.debug("青龙发货至仓储WS接口访问成功，result.getResultCode()={}", result.getResultCode());
         this.log.debug("青龙发货至仓储WS接口访问成功，result.getResultMessage()={}", result.getResultMessage());
         this.log.debug("青龙发货至仓储WS接口访问成功，result.getResultValue()={}",result.getResultValue());
@@ -1102,6 +1110,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             sLogDetail.setContent(messageValue);
             SystemLogUtil.log(sLogDetail);
         }
+        if(result == null) { return false; }
 
         this.log.debug("青龙发货访问仓储WS接口成功，result.getResultCode()={}", result.getResultCode());
         this.log.debug("青龙发货访问仓储WS接口成功，result.getResultMessage()={}", result.getResultMessage());

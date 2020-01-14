@@ -154,6 +154,14 @@ public interface WaybillSignConstants {
 	 */
 	int POSITION_31 = 31;
 	char CHAR_31_9 = '9';
+
+	/**
+	 * waybillsign第36位
+	 */
+	int POSITION_36 = 36;
+	char CHAR_36_4 = '4';
+
+
 	/**
 	 * waybillsign第84位定义
 	 */
@@ -173,4 +181,10 @@ public interface WaybillSignConstants {
 	 */
 	int POSITION_56 = 56;
 	char CHAR_56_1 = '1';
+
+	/**
+	 * 经济网 62位为8
+	 */
+	int BUSINESS_ENET_POSITION_62 = 62;
+	char BUSINESS_ENET_CHAR_62_8 = '8';
 }

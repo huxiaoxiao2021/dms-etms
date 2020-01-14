@@ -7,8 +7,8 @@ import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ssa.utils.SSOHelper;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -33,7 +33,7 @@ import java.util.regex.Pattern;
 @Controller
 public class IndexController {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
     //获取一级域名的正则
     private static final String RE_DOMAIN = "[0-9a-zA-Z]+\\.((360buy.com)|(jd.com))";
 
@@ -48,7 +48,7 @@ public class IndexController {
     @Authorization(Constants.DMS_WEB_INDEX_R)
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String welcomePage() {
-        this.logger.debug("IndexController --> welcomePage");
+        this.log.debug("IndexController --> welcomePage");
         if (!checkBasicInfo()) {
             return "reject";
         }
@@ -74,7 +74,7 @@ public class IndexController {
     @Authorization(Constants.DMS_WEB_INDEX_R)
     @RequestMapping(value = "/index", method = RequestMethod.GET)
     public String index() {
-        this.logger.debug("IndexController --> index");
+        this.log.debug("IndexController --> index");
         if (!checkBasicInfo()) {
             return "reject";
         }
@@ -84,7 +84,7 @@ public class IndexController {
     @Authorization(Constants.DMS_WEB_INDEX_R)
     @RequestMapping(value = "/top", method = RequestMethod.GET)
     public String top(Model model) {
-        this.logger.debug("IndexController --> top");
+        this.log.debug("IndexController --> top");
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
         Integer userId = erpUser.getUserId();
         String roleName = null;
@@ -100,7 +100,7 @@ public class IndexController {
                 }
             }
         } catch (Exception e) {
-            this.logger.error("首页显示类-->获取基础资料信息异常：", e);
+            this.log.error("首页显示类-->获取基础资料信息异常：", e);
         }
         if (org.apache.commons.lang.StringUtils.isEmpty(roleName)) {
             roleName = "管理员";
@@ -114,7 +114,7 @@ public class IndexController {
     @Authorization(Constants.DMS_WEB_INDEX_R)
     @RequestMapping(value = "/left", method = RequestMethod.GET)
     public String left(Model model) {
-        this.logger.debug("IndexController --> left");
+        this.log.debug("IndexController --> left");
         ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
         try {
             erpUser = ErpUserClient.getCurrUser();
@@ -124,7 +124,7 @@ public class IndexController {
             model.addAttribute("userCode", erpUser.getStaffNo());
         } catch (Exception e) {
             //菜单不处理异常信息
-            logger.error("获取当前用户失败", e);
+            log.error("获取当前用户失败", e);
         }
 
         return "leftFrame";

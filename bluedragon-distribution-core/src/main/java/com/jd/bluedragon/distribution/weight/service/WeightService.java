@@ -1,9 +1,7 @@
 package com.jd.bluedragon.distribution.weight.service;
 
 import com.jd.bluedragon.distribution.api.domain.WeightOperFlow;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.bluedragon.distribution.weight.domain.WeightAndVolumeDetailFlow;
 
 import java.util.List;
 import java.util.Map;
@@ -38,9 +36,4 @@ public interface WeightService {
 	 * @return
 	 */
 	Map<String,WeightOperFlow> getDmsWeightsByWaybillCode(String waybillCode);
-
-	/**
-	 * 处理称重量方数据
-	 * */
-    InvokeResult<Boolean> dealWeightVolume(WeightAndVolumeDetailFlow weightAndVolumeDetailFlow);
 }

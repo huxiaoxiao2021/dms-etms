@@ -8,17 +8,12 @@ import com.jd.bluedragon.distribution.mergeWaybillCodeReturn.service.MergeWaybil
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.ldop.center.api.reverse.dto.WaybillReturnSignatureDTO;
 import com.jd.ql.dms.common.domain.JdResponse;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.Date;
 
@@ -34,7 +29,7 @@ import java.util.Date;
 @Produces({MediaType.APPLICATION_JSON})
 public class MergeWaybillCodeReturnResource {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private MergeWaybillCodeReturnService mergeWaybillCodeReturnService;
@@ -52,7 +47,7 @@ public class MergeWaybillCodeReturnResource {
         JdResponse result = new JdResponse();
         if(!WaybillUtil.isWaybillCode(firstWaybillCode) ||
                 !WaybillUtil.isWaybillCode(secondWaybillCode)){
-            this.logger.error(InvokeResult.PARAM_ERROR);
+            this.log.warn(InvokeResult.PARAM_ERROR);
             result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
             result.setMessage(InvokeResult.PARAM_ERROR);
             return result;
@@ -60,7 +55,7 @@ public class MergeWaybillCodeReturnResource {
         try {
             result = mergeWaybillCodeReturnService.checkIsMerge(firstWaybillCode,secondWaybillCode);
         } catch (Exception e) {
-            this.logger.error("根据运单号"+firstWaybillCode+"调用外单接口失败",e);
+            this.log.error("根据运单号{}调用外单接口失败",firstWaybillCode,e);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
         }
@@ -89,7 +84,7 @@ public class MergeWaybillCodeReturnResource {
             dto.setWaybillCodeList(mergeWaybillCodeReturnRequest.getWaybillCodeList());
             result = mergeWaybillCodeReturnService.mergeWaybillCode(dto,mergeWaybillCodeReturnRequest);
         }catch (Exception e){
-            this.logger.error("通过旧单号集合获取新单号失败"+ JSON.toJSONString(mergeWaybillCodeReturnRequest.getWaybillCodeList()),e);
+            this.log.error("通过旧单号集合获取新单号失败:{}", JSON.toJSONString(mergeWaybillCodeReturnRequest.getWaybillCodeList()),e);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
         }

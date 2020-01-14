@@ -8,8 +8,8 @@ import com.jd.bluedragon.distribution.batch.domain.BatchSendResponse;
 import com.jd.bluedragon.distribution.batch.service.BatchSendService;
 import com.jd.bluedragon.utils.JsonHelper;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -31,7 +31,7 @@ public class BatchSendResource {
     @Autowired
     private BatchSendService batchSendService;
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 
     @POST
@@ -60,24 +60,24 @@ public class BatchSendResource {
             if (batchSend == null) {
                 jdResponse.setCode(JdResponse.CODE_PARAM_ERROR);
                 jdResponse.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
-                logger.error("插入批次号批次对象为空！");
+                log.warn("插入批次号批次对象为空！");
                 return jdResponse;
             }
             if (batchSend.getCreateSiteCode() == null || batchSend.getReceiveSiteCode() == null
                     || batchSend.getSendCode() == null || batchSend.getCreateUser() == null || batchSend.getCreateUserCode() == null) {
                 jdResponse.setCode(JdResponse.CODE_PARAM_ERROR);
                 jdResponse.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
-                logger.error("插入批次号失败："+JsonHelper.toJson(batchSend));
+                log.warn("插入批次号失败：{}", JsonHelper.toJson(batchSend));
                 return jdResponse;
             }
 
             batchSendService.add(batchSend);
-            logger.info("插入批次号成功：" + batchSend.getSendCode());
+            log.info("插入批次号成功：{}", batchSend.getSendCode());
             jdResponse.setCode(JdResponse.CODE_OK);
             jdResponse.setMessage(JdResponse.MESSAGE_OK);
         }
         catch (Exception e){
-            logger.error("插入批次号失败：",e);
+            log.error("插入批次号失败：",e);
             jdResponse.setCode(JdResponse.CODE_INTERNAL_ERROR);
             jdResponse.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
         }

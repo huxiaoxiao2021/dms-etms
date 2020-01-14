@@ -7,6 +7,7 @@ import com.jd.bd.dms.automatic.sdk.modules.areadest.dto.AreaDestJsfVo;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
+import com.jd.bluedragon.common.dto.device.enums.DeviceTypeEnum;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
@@ -66,10 +67,14 @@ import com.jd.bluedragon.distribution.web.kuaiyun.weight.WeighByWaybillControlle
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDetail;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDto;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
-import com.jd.bluedragon.distribution.weight.domain.WeightAndVolumeDetailFlow;
-import com.jd.bluedragon.distribution.weight.domain.WeightOpeTypeEnum;
-import com.jd.bluedragon.distribution.weight.service.WeightService;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightAndVolumeDetailFlow;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightAndVolumeFail;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightAndVolumeFlow;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
+import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeService;
+import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
+import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -106,6 +111,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -216,7 +222,7 @@ public class WaybillResource {
     private LdopWaybillUpdateManager ldopWaybillUpdateManager;
 
     @Autowired
-	private WeightService weightService;
+	private DMSWeightVolumeService dMSWeightVolumeService;
 
     /**
      * 根据运单号获取运单包裹信息接口
@@ -1515,7 +1521,7 @@ public class WaybillResource {
 			result = getSiteRoutersFromRouterJsf(operateSiteCode,waybillCode,nextRouters);
 		} else if (2 == request.getOperateType()) {
 			/* 通过发货配置jsf接口调用 */
-			result = getSiteRoutersFromDMSAutoJsf(operateSiteCode,siteCode,operateTime,waybillCode,nextRouters);
+			result = getSiteRoutersFromDMSAutoJsf(request.getMachineCode(),operateSiteCode,siteCode,operateTime,waybillCode,nextRouters);
 		}
 		siteRouters.addAll(nextRouters);
 		result.setData(siteRouters);
@@ -1552,7 +1558,7 @@ public class WaybillResource {
 	}
 
 	private InvokeResult<List<Integer>> getSiteRoutersFromDMSAutoJsf
-			(Integer operateSiteCode, Integer destinationSiteCode,Long operateTime,String waybillCode,Set<Integer> nextRouters) {
+			(String machineCode, Integer operateSiteCode, Integer destinationSiteCode,Long operateTime,String waybillCode,Set<Integer> nextRouters) {
 
 		InvokeResult<List<Integer>> result = new InvokeResult<List<Integer>>();
 
@@ -1560,6 +1566,8 @@ public class WaybillResource {
 		jsfRequest.setOriginalSiteCode(operateSiteCode);
 		jsfRequest.setDestinationSiteCode(destinationSiteCode);
 		jsfRequest.setOperateTime(operateTime);
+		jsfRequest.setMachineId(machineCode);
+		jsfRequest.setDeviceType(DeviceTypeEnum.GANTRY.getTypeCode());
 		BaseDmsAutoJsfResponse<List<AreaDestJsfVo>> jsfResponse;
 
 		CallerInfo info = Profiler.registerInfo("DMSWEB.jsf.areaDestJsfService.findAreaDest", Constants.UMP_APP_NAME_DMSWEB,false, true);
@@ -2359,30 +2367,66 @@ public class WaybillResource {
 
 	@POST
 	@Path("/waybill/dealWeightVolumeFlow")
-	public InvokeResult<Boolean> dealWeightVolumeFlow(WeightAndVolumeDetailFlow weightAndVolumeDetailFlow){
-		InvokeResult<Boolean> result = new InvokeResult<>();
-		result.success();
-		if(!checkWeightVolumeParams(weightAndVolumeDetailFlow)){
-			result.parameterError(InvokeResult.PARAM_ERROR);
-			return result;
+	public BaseEntity<List<WeightAndVolumeFail>> dealWeightVolumeFlow(WeightAndVolumeDetailFlow weightAndVolumeDetailFlow){
+		BaseEntity<List<WeightAndVolumeFail>> result = new BaseEntity<>();
+		List<WeightVolumeEntity> weightVolumeEntityList = convert2WeightVolumeEntity(weightAndVolumeDetailFlow);
+		List<WeightAndVolumeFail> errorList = new ArrayList<>();
+		for (WeightVolumeEntity entity : weightVolumeEntityList){
+			InvokeResult<Boolean> invokeResult = dMSWeightVolumeService.dealWeightAndVolume(entity, Boolean.FALSE);
+			if(invokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE){
+				WeightAndVolumeFail weightAndVolumeFail = new WeightAndVolumeFail();
+				weightAndVolumeFail.setStrCode(entity.getBarCode());
+				weightAndVolumeFail.setFailMessage(invokeResult.getMessage());
+				errorList.add(weightAndVolumeFail);
+			}
 		}
-		return weightService.dealWeightVolume(weightAndVolumeDetailFlow);
+		result.setData(errorList);
+		return result;
 	}
 
-	private Boolean checkWeightVolumeParams(WeightAndVolumeDetailFlow weightAndVolumeDetailFlow) {
-		Boolean sign = Boolean.TRUE;
-		if(weightAndVolumeDetailFlow == null){
-			sign = Boolean.FALSE;
+	private List<WeightVolumeEntity> convert2WeightVolumeEntity(WeightAndVolumeDetailFlow weightAndVolumeDetailFlow) {
+		List<WeightVolumeEntity> weightVolumeEntityList = new ArrayList<>();
+		List<WeightAndVolumeFlow> list = weightAndVolumeDetailFlow.getList();
+		for(WeightAndVolumeFlow weightAndVolumeFlow : list){
+			WeightVolumeEntity entity = new WeightVolumeEntity();
+			if(BusinessUtil.isBoxcode(weightAndVolumeFlow.getStrCode())){
+				entity.setBoxCode(weightAndVolumeFlow.getStrCode());
+			}else if(WaybillUtil.isWaybillCode(weightAndVolumeFlow.getStrCode())) {
+				entity.setWaybillCode(weightAndVolumeFlow.getStrCode());
+			}else if(WaybillUtil.isPackageCode(weightAndVolumeFlow.getStrCode())){
+				entity.setPackageCode(weightAndVolumeFlow.getStrCode());
+			}
+			entity.setBarCode(weightAndVolumeFlow.getStrCode());
+			entity.setWeight(weightAndVolumeFlow.getWeight());
+			entity.setVolume(weightAndVolumeFlow.getVolume());
+			entity.setLength(weightAndVolumeFlow.getLength());
+			entity.setWidth(weightAndVolumeFlow.getWidth());
+			entity.setHeight(weightAndVolumeFlow.getHigh());
+			entity.setOperateTime(new Date(weightAndVolumeFlow.getOpeTime()));
+			entity.setOperateSiteCode(weightAndVolumeDetailFlow.getOpeSiteCode());
+			entity.setOperateSiteName(weightAndVolumeDetailFlow.getOpeSiteName());
+			entity.setOperatorId(weightAndVolumeDetailFlow.getOpeUserId());
+			entity.setOperatorCode(weightAndVolumeDetailFlow.getOpeUserErp());
+			entity.setOperatorName(weightAndVolumeDetailFlow.getOpeUserName());
+			entity.setSourceCode(FromSourceEnum.MDS_DESK_CLIENT);
+			entity.setBusinessType(WeightVolumeBusinessTypeEnum.DMS_HANDOVER);
+			weightVolumeEntityList.add(entity);
 		}
-		String strCode = weightAndVolumeDetailFlow.getStrCode();
-		if(!BusinessUtil.isBoxcode(strCode) || !WaybillUtil.isWaybillCode(strCode) || !WaybillUtil.isPackageCode(strCode)){
-			sign = Boolean.FALSE;
-		}
-		Set<Integer> weightTypes = WeightOpeTypeEnum.getCodeMap().keySet();
-		if(weightAndVolumeDetailFlow.getWeightType() == null || !weightTypes.contains(weightAndVolumeDetailFlow.getWeightType())){
-			sign = Boolean.FALSE;
-		}
-		return sign;
+		return weightVolumeEntityList;
 	}
 
+    @POST
+    @Path("/waybill/thirdCheckCancel")
+    @JProfiler(jKey = "DMS.WEB.WaybillResource.thirdCheckWaybillCancel", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<Boolean> thirdCheckWaybillCancel(@NotNull PdaOperateRequest pdaOperateRequest) {
+        if (log.isInfoEnabled()) {
+            log.info("validate waybill cancel when third check goods:[{}]", JsonHelper.toJson(pdaOperateRequest));
+        }
+	    InvokeResult<Boolean> result = new InvokeResult<>();
+        if (null == pdaOperateRequest || StringUtils.isBlank(pdaOperateRequest.getPackageCode())) {
+            result.customMessage(SortingResponse.CODE_PARAM_IS_NULL, SortingResponse.MESSAGE_PARAM_IS_NULL);
+            return result;
+        }
+        return waybillService.thirdCheckWaybillCancel(pdaOperateRequest);
+    }
 }

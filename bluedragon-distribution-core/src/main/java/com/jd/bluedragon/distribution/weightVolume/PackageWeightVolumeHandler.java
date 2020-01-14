@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.weightVolume;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.response.WeightResponse;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.weight.domain.OpeSendObject;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDetail;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDto;
@@ -16,7 +17,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
-import java.util.Date;
 import java.util.Map;
 
 /**
@@ -36,14 +36,6 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
     @Autowired
     @Qualifier("dmsWeightSendMQ")
     private DefaultJMQProducer dmsWeightSendMQ;
-
-    @Override
-    protected boolean checkWeightVolumeParam(WeightVolumeEntity entity) {
-        if (super.checkWeightVolumeParam(entity)) {
-            return WaybillUtil.isPackageCode(entity.getBarCode()) || WaybillUtil.isPackageCode(entity.getPackageCode());
-        }
-        return Boolean.FALSE;
-    }
 
     @Override
     protected void handlerWeighVolume(WeightVolumeEntity entity) {
@@ -100,5 +92,12 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
         } catch (RuntimeException | JMQException e) {
             logger.warn("按包裹称重量方发生异常，处理失败：{}",JsonHelper.toJson(entity));
         }
+    }
+
+    @Override
+    protected InvokeResult weighVolumeIntercept(WeightVolumeEntity entity) {
+        InvokeResult result = new InvokeResult();
+        result.success();
+        return result;
     }
 }

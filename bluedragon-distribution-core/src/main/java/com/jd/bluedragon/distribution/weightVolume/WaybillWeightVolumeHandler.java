@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.weightVolume;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightDTO;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
 import com.jd.bluedragon.distribution.kuaiyun.weight.service.WeighByWaybillService;
@@ -41,14 +42,6 @@ public class WaybillWeightVolumeHandler extends AbstractWeightVolumeHandler {
 
     @Autowired
     private WeighByWaybillService weighByWaybillService;
-
-    @Override
-    protected boolean checkWeightVolumeParam(WeightVolumeEntity entity) {
-        if (super.checkWeightVolumeParam(entity)) {
-            return WaybillUtil.isWaybillCode(entity.getBarCode()) || WaybillUtil.isWaybillCode(entity.getWaybillCode());
-        }
-        return Boolean.FALSE;
-    }
 
     @Override
     protected void handlerWeighVolume(WeightVolumeEntity entity) {
@@ -102,5 +95,13 @@ public class WaybillWeightVolumeHandler extends AbstractWeightVolumeHandler {
         } catch (JMQException e) {
             logger.error("发送MQ-TOPIC【{}】消息失败，消息体为：{}",weighByWaybillProducer.getTopic(),JsonHelper.toJson(weightDTO));
         }
+    }
+
+    @Override
+    protected InvokeResult weighVolumeIntercept(WeightVolumeEntity entity) {
+        InvokeResult result = new InvokeResult();
+        result.success();
+        //TODO 运单维度拦截校验
+        return result;
     }
 }
