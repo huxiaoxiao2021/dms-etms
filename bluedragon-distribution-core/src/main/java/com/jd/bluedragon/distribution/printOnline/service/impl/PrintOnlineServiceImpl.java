@@ -63,8 +63,13 @@ public class PrintOnlineServiceImpl implements IPrintOnlineService {
             }
             //根据批次号获取发货数据
             PrintOnlineModalDTO modalDTO = makeModalDTO(sendCode);
-            //推送数据
-            return jdwlSignManager.aciton(modalDTO);
+            if(modalDTO!=null){
+                //推送数据
+                return jdwlSignManager.aciton(modalDTO);
+            }else{
+                //无数据直接返回
+                return true;
+            }
         }catch (Exception e){
             log.error("逆向交接清单线上签异常:{}",sendCode,e);
             return false;
@@ -114,7 +119,13 @@ public class PrintOnlineServiceImpl implements IPrintOnlineService {
                 } catch (Exception e) {
                     log.error("线上签组装发货时间异常:{}" , summaryPrintResult.getSendTime(), e);
                 }
+            }else{
+                log.warn("线上签无组装数据:{}" , sendCode);
+                return null;
             }
+        }else{
+            log.warn("线上签组装数据接口返回空:{}" , sendCode);
+            return null;
         }
 
         return pojo;
