@@ -1,12 +1,15 @@
 package com.jd.bluedragon.distribution.rest.seal;
 
+import IceInternal.Ex;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.TmsTfcWSManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
+import com.jd.bluedragon.distribution.api.request.SealVehicleVolumeVerifyRequest;
 import com.jd.bluedragon.distribution.api.request.cancelSealRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
+import com.jd.bluedragon.distribution.api.response.SealVehicleVolumeVerifyResponse;
 import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
@@ -361,6 +364,53 @@ public class NewSealVehicleResource {
         }
         return sealVehicleResponse;
     }
+
+    /**
+     * 校验批次中的体积是否超标
+     */
+    @POST
+    @Path("/new/vehicle/seal/verifySealVehicleVolume")
+    public SealVehicleVolumeVerifyResponse verifySendVolume(SealVehicleVolumeVerifyRequest request){
+
+        SealVehicleVolumeVerifyResponse response = new SealVehicleVolumeVerifyResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
+
+        if (request == null) {
+            log.warn("NewSealVehicleResource seal --> 传入参数非法");
+            response.setCode(JdResponse.CODE_PARAM_ERROR);
+            response.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
+            return response;
+        }
+        try{
+            SealCarDto sealCarDto = new SealCarDto();
+            sealCarDto.setSource(request.getSource());
+            sealCarDto.setVehicleNumber(request.getVehicleNumber());
+            sealCarDto.setTransportCode(request.getTransportCode());
+            sealCarDto.setBatchCodes(request.getBatchCodes());
+            sealCarDto.setSealCodes(request.getSealCodes());
+            sealCarDto.setSealCarTime(DateHelper.parseDate(request.getSealCarTime(),"yyyy-MM-dd HH:mm:ss"));
+            sealCarDto.setSealSiteId(request.getSealSiteId());
+            sealCarDto.setSealSiteCode(request.getSealSiteCode());
+            sealCarDto.setSealSiteName(request.getSealSiteName());
+            sealCarDto.setSealUserCode(sealCarDto.getDesealUserCode());
+            sealCarDto.setSealUserName(request.getSealUserName());
+            sealCarDto.setSealCarType(request.getSealCarType());
+            sealCarDto.setItemSimpleCode(request.getItemSimpleCode());
+            sealCarDto.setVolume(request.getVolume());
+            sealCarDto.setWeight(request.getWeight());
+
+            CommonDto<String> dto = newsealVehicleService.verifySealVehicleVolume(sealCarDto);
+            response.setCode(dto.getCode());
+            response.setMessage(dto.getMessage());
+            response.setData(dto.getData());
+
+        }catch(Exception e){
+            response.setCode(JdResponse.CODE_SERVICE_ERROR);
+            response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+            this.log.error("校验批次的体积异常，批次号:{}",request.getBatchCodes().toString(), e);
+        }
+        return response;
+    }
+
 
     /**
      * 封车功能
