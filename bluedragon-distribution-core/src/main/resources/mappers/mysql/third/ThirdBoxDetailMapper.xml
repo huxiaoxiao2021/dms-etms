@@ -80,7 +80,7 @@
 					update_unit_name = #{operatorUnitName,jdbcType=VARCHAR},
 				</if>
 					update_time = #{operatorTime,jdbcType=TIMESTAMP},
-					is_delete = 1,
+					is_delete = 1
 			</set>
 		where start_site_id = #{startSiteId,jdbcType=BIGINT}
 		    and box_code = #{boxCode,jdbcType=VARCHAR}

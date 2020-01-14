@@ -28,17 +28,7 @@ public class ThirdBoxDetailDaoImpl extends BaseDao<ThirdBoxDetail> implements Th
      */
     @Override
     public boolean cancel(ThirdBoxDetail detail) {
-        ThirdBoxDetail param = new ThirdBoxDetail();
-        param.setStartSiteId(detail.getStartSiteId());
-        param.setBoxCode(detail.getBoxCode());
-        param.setPackageCode(detail.getPackageCode());
-        param.setTenantCode(detail.getTenantCode());
-        param.setUpdateUserId(detail.getOperatorId());
-        param.setUpdateUserName(detail.getOperatorName());
-        param.setUpdateUnitName(detail.getOperatorUnitName());
-        param.setUpdateTime(detail.getOperatorTime());
-
-        return sqlSession.update(this.nameSpace+".cancel", param) == 1;
+        return sqlSession.update(this.nameSpace+".cancel", detail) == 1;
     }
 
     /**

@@ -137,7 +137,7 @@ public class WaybillGateWayExternalServiceImpl implements WaybillGateWayExternal
         GateWayBaseResponse<Void> response = new GateWayBaseResponse<Void>();
         try {
             //集包校验
-            sortingCheck(startSite, box);
+            response = sortingCheck(startSite, box);
             if(!GateWayBaseResponse.CODE_SUCCESS.equals(response.getResultCode())){
                 return response;
             }
