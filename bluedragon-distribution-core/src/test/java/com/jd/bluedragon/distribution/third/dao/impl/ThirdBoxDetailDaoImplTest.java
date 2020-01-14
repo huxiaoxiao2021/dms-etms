@@ -57,8 +57,7 @@ public class ThirdBoxDetailDaoImplTest {
     }
     @Test
     public void cancel() {
-        boolean result = boxDetailDao.cancel(detail.getTenantCode(), detail.getStartSiteId()
-                , detail.getBoxCode(), detail.getPackageCode());
+        boolean result = boxDetailDao.cancel(detail);
         Assert.assertEquals(true, result);
     }
 
