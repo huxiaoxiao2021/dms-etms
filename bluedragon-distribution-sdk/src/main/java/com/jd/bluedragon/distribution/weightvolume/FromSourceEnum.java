@@ -10,28 +10,52 @@ package com.jd.bluedragon.distribution.weightvolume;
 public enum FromSourceEnum {
 
     /**
-     * 分拣PDA程序
+     * 平台打印
      */
-    DMS_PDA,
+    DMS_CLIENT_PLATE_PRINT,
 
     /**
-     * 分拣安卓程序
+     * 站点平台打印
      */
-    DMS_ANDROID,
+    DMS_CLIENT_SITE_PLATE_PRINT,
 
     /**
-     * 分拣web页面
+     * 换单打印
      */
-    DMS_WEB,
+    DMS_CLIENT_SWITCH_BILL_PRINT,
 
     /**
-     * 分拣桌面程序
+     * 包裹称重
      */
-    MDS_DESK_CLIENT,
+    DMS_CLIENT_PACKAGE_WEIGH_PRINT,
 
     /**
-     * 分拣自动化龙门架设备
+     * 驻场打印
      */
-    DMS_AUTOMATIC_MACHINE,
+    DMS_CLIENT_FIELD_PRINT,
 
+    /**
+     * 批量分拣称重
+     */
+    DMS_CLIENT_BATCH_SORT_WEIGH_PRINT,
+
+    /**
+     * 快运称重打印
+     */
+    DMS_CLIENT_FAST_TRANSPORT_PRINT,
+
+    /**
+     * 分拣自动化测量
+     */
+    DMS_AUTOMATIC_MEASURE,
+
+    /**
+     * 分拣页面快运称重
+     */
+    DMS_WEB_FAST_TRANSPORT,
+
+    /**
+     * 分拣内部拆分
+     */
+    DMS_INNER_SPLIT;
 }

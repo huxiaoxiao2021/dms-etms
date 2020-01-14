@@ -9,40 +9,60 @@ package com.jd.bluedragon.distribution.weightvolume;
  **/
 public enum WeightVolumeBusinessTypeEnum {
 
-    /**
-     * 分拣交接
-     */
-    DMS_HANDOVER,
+//    /**
+//     * 分拣交接
+//     */
+//    DMS_HANDOVER,
+//
+//    /**
+//     * 终端站点交接
+//     * 这个枚举的存在背景：加盟商业务分拣做了一个交接称重的业务，终端站点的不想自己写了，就调用了我们的JSF接口...
+//     */
+//    TERMINAL_SITE_HANDOVER,
+//
+//    /**
+//     * 分拣自动化测量
+//     */
+//    DMS_AUTOMATIC_MEASURE,
+//
+//    /**
+//     * 分拣客户端测量
+//     */
+//    DMS_CLIENT_MEASURE,
+//
+//    /**
+//     * 分拣客户手工录入
+//     */
+//    DMS_CLIENT_LOGGED,
+//
+//    /**
+//     * 分拣手工录入
+//     */
+//    DMS_MANUAL_LOGGED,
+//
+//    /**
+//     * 分拣按箱处理内部分裂
+//     */
+//    DMS_INNER_SPLIT;
 
     /**
-     * 终端站点交接
-     * 这个枚举的存在背景：加盟商业务分拣做了一个交接称重的业务，终端站点的不想自己写了，就调用了我们的JSF接口...
+     * 安包裹称重量方
      */
-    TERMINAL_SITE_HANDOVER,
+    BY_PACKAGE,
 
     /**
-     * 分拣自动化测量
+     * 按运单称重量方
      */
-    DMS_AUTOMATIC_MEASURE,
+    BY_WAYBILL,
 
     /**
-     * 分拣客户端测量
+     * 按箱号称重量方
      */
-    DMS_CLIENT_MEASURE,
+    BY_BOX,
 
     /**
-     * 分拣客户手工录入
+     * 交接称重量方
      */
-    DMS_CLIENT_LOGGED,
-
-    /**
-     * 分拣手工录入
-     */
-    DMS_MANUAL_LOGGED,
-
-    /**
-     * 分拣按箱处理内部分裂
-     */
-    DMS_INNER_SPLIT;
+    BY_HANDOVER;
 
 }

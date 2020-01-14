@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.third.domain.ThirdBoxDetail;
 import com.jd.bluedragon.distribution.third.service.ThirdBoxDetailService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
+import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -122,7 +123,8 @@ public class BoxWeightVolumeHandler extends AbstractWeightVolumeHandler {
             itemEntity.setLength(itemLength);
             itemEntity.setWidth(itemWidth);
             itemEntity.setHeight(itemHeight);
-            itemEntity.setBusinessType(WeightVolumeBusinessTypeEnum.DMS_INNER_SPLIT);
+            itemEntity.setBusinessType(WeightVolumeBusinessTypeEnum.BY_WAYBILL);
+            itemEntity.setSourceCode(FromSourceEnum.DMS_INNER_SPLIT);
             /* 这个地方的handoverFlag设置为false，可以放到entity对象中，传过来 */
             weightVolumeHandlerStrategy.doHandler(itemEntity);
         }
