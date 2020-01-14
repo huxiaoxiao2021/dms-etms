@@ -31,8 +31,18 @@ public enum WeightVolumeBusinessTypeEnum {
     DMS_CLIENT_MEASURE,
 
     /**
+     * 分拣客户手工录入
+     */
+    DMS_CLIENT_LOGGED,
+
+    /**
      * 分拣手工录入
      */
-    DMS_MANUAL_LOGGED;
+    DMS_MANUAL_LOGGED,
+
+    /**
+     * 分拣按箱处理内部分裂
+     */
+    DMS_INNER_SPLIT;
 
 }

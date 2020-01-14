@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.third.domain.ThirdBoxDetail;
 import com.jd.bluedragon.distribution.third.service.ThirdBoxDetailService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
+import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BeanHelper;
@@ -101,7 +102,7 @@ public class BoxWeightVolumeHandler extends AbstractWeightVolumeHandler {
         }
 
         if (waybillList.isEmpty()) {
-            logger.warn("获取此箱号的装箱明细数据失败：{}",entity.getBarCode());
+            logger.warn("获取此箱号的装箱明细数据为空：{}",entity.getBarCode());
             return;
         }
 
@@ -114,12 +115,14 @@ public class BoxWeightVolumeHandler extends AbstractWeightVolumeHandler {
         for (String waybillCode : waybillList) {
             WeightVolumeEntity itemEntity = new WeightVolumeEntity();
             BeanHelper.copyProperties(itemEntity,entity);
+            itemEntity.setBarCode(waybillCode);
             itemEntity.setWaybillCode(waybillCode);
             itemEntity.setVolume(itemVolume);
             itemEntity.setWeight(itemWeight);
             itemEntity.setLength(itemLength);
             itemEntity.setWidth(itemWidth);
             itemEntity.setHeight(itemHeight);
+            itemEntity.setBusinessType(WeightVolumeBusinessTypeEnum.DMS_INNER_SPLIT);
             /* 这个地方的handoverFlag设置为false，可以放到entity对象中，传过来 */
             weightVolumeHandlerStrategy.doHandler(itemEntity);
         }
