@@ -2408,8 +2408,8 @@ public class WaybillResource {
 			entity.setOperatorId(weightAndVolumeDetailFlow.getOpeUserId());
 			entity.setOperatorCode(weightAndVolumeDetailFlow.getOpeUserErp());
 			entity.setOperatorName(weightAndVolumeDetailFlow.getOpeUserName());
-			entity.setSourceCode(FromSourceEnum.MDS_DESK_CLIENT);
-			entity.setBusinessType(WeightVolumeBusinessTypeEnum.DMS_HANDOVER);
+            entity.setSourceCode(FromSourceEnum.valueOf(weightAndVolumeDetailFlow.getSourceFrom()));
+			entity.setBusinessType(WeightVolumeBusinessTypeEnum.valueOf(weightAndVolumeDetailFlow.getOpeType()));
 			weightVolumeEntityList.add(entity);
 		}
 		return weightVolumeEntityList;

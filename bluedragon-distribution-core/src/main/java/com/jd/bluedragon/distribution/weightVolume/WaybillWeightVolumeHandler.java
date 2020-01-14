@@ -2,14 +2,17 @@ package com.jd.bluedragon.distribution.weightVolume;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightDTO;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
+import com.jd.bluedragon.distribution.kuaiyun.weight.enums.WeightByWaybillExceptionTypeEnum;
 import com.jd.bluedragon.distribution.kuaiyun.weight.service.WeighByWaybillService;
 import com.jd.bluedragon.distribution.weight.domain.DmsWeightFlow;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -18,6 +21,8 @@ import com.jd.jmq.common.exception.JMQException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+import java.text.MessageFormat;
 
 /**
  * <p>
@@ -42,6 +47,14 @@ public class WaybillWeightVolumeHandler extends AbstractWeightVolumeHandler {
 
     @Autowired
     private WeighByWaybillService weighByWaybillService;
+
+    @Autowired
+    private WaybillTraceManager waybillTraceManager;
+
+    /**
+     * M³和CM³转换值
+     * */
+    private static final int TRANSFOR_VALUE = 1000000;
 
     @Override
     protected void handlerWeighVolume(WeightVolumeEntity entity) {
@@ -101,7 +114,55 @@ public class WaybillWeightVolumeHandler extends AbstractWeightVolumeHandler {
     protected InvokeResult weighVolumeIntercept(WeightVolumeEntity entity) {
         InvokeResult result = new InvokeResult();
         result.success();
-        //TODO 运单维度拦截校验
+        BaseEntity<Waybill> waybillBaseEntity = null;
+        try {
+            //运单存在性校验
+            waybillBaseEntity = waybillQueryManager.getWaybillByWaybillCode(entity.getWaybillCode());
+            Waybill waybill = waybillBaseEntity.getData();
+            if(waybill == null){
+               result.parameterError(WeightByWaybillExceptionTypeEnum.WaybillNotFindExceptionMessage);
+               return result;
+            }
+            //是否需要称重校验
+            if (BusinessUtil.isNoNeedWeight(waybill.getWaybillSign())) {
+                result.parameterError(WeightByWaybillExceptionTypeEnum.WaybillNoNeedWeightExceptionMessage);
+                return result;
+            }
+            //校验是否已经妥投
+            if(waybillTraceManager.isWaybillFinished(waybill.getWaybillCode())){
+                result.parameterError(WeightByWaybillExceptionTypeEnum.WaybillFinishedExceptionMessage);
+                return result;
+            }
+            //判断是否转网
+            WaybillWeightVO weightVO = trans2WaybillWeightVO(entity);
+            if (weighByWaybillService.waybillTransferB2C(weightVO)) {
+                result.parameterError(MessageFormat.format(InvokeResult.RESULT_INTERCEPT_MESSAGE, WaybillUtil.getWaybillCode(waybill.getWaybillCode())));
+                return result;
+            }
+
+        }catch (Exception e){
+            logger.error(InvokeResult.SERVER_ERROR_MESSAGE);
+            result.error(InvokeResult.SERVER_ERROR_MESSAGE);
+        }
         return result;
+    }
+
+    /**
+     * 实体转换
+     * @param entity
+     * @return
+     */
+    private WaybillWeightVO trans2WaybillWeightVO(WeightVolumeEntity entity) {
+        WaybillWeightVO vo = new WaybillWeightVO();
+        vo.setOperatorSiteCode(entity.getOperateSiteCode());
+        vo.setOperatorSiteName(entity.getOperateSiteName());
+        vo.setOperatorId(entity.getOperatorId());
+        vo.setOperatorName(entity.getOperatorName());
+        vo.setWeight(entity.getWeight());
+        vo.setVolume(entity.getVolume()/TRANSFOR_VALUE);
+        vo.setOperateTimeMillis(entity.getOperateTime().getTime());
+        vo.setCodeStr(entity.getWaybillCode());
+        vo.setStatus(10);
+        return vo;
     }
 }

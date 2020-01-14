@@ -15,13 +15,13 @@ public class WeightAndVolumeDetailFlow implements Serializable {
 
     /**
      * 来源：
-     * WeightSourceFromEnum
+     * FromSourceEnum
      * */
     private String sourceFrom;
 
     /**
      * 操作类型：
-     * OpeTypeEnum
+     * WeightVolumeBusinessTypeEnum
      * */
     private String opeType;
 
