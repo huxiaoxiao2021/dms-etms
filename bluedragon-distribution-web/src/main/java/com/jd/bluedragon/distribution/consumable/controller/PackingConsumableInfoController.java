@@ -1,24 +1,23 @@
 package com.jd.bluedragon.distribution.consumable.controller;
 
-import java.util.Map;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
+import com.jd.bluedragon.distribution.consumable.domain.PackingConsumableInfo;
+import com.jd.bluedragon.distribution.consumable.domain.PackingConsumableInfoCondition;
 import com.jd.bluedragon.distribution.consumable.domain.PackingTypeEnum;
+import com.jd.bluedragon.distribution.consumable.service.PackingConsumableInfoService;
+import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.jd.bluedragon.distribution.consumable.domain.PackingConsumableInfo;
-import com.jd.bluedragon.distribution.consumable.domain.PackingConsumableInfoCondition;
-import com.jd.bluedragon.distribution.consumable.service.PackingConsumableInfoService;
-import com.jd.ql.dms.common.domain.JdResponse;
-import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import java.util.Map;
 
 /**
  *
@@ -32,7 +31,7 @@ import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 @RequestMapping("consumable/packingConsumableInfo")
 public class PackingConsumableInfoController extends DmsBaseController {
 
-	private static final Log logger = LogFactory.getLog(PackingConsumableInfoController.class);
+	private static final Logger log = LoggerFactory.getLogger(PackingConsumableInfoController.class);
 
 	@Autowired
 	private PackingConsumableInfoService packingConsumableInfoService;
@@ -61,7 +60,7 @@ public class PackingConsumableInfoController extends DmsBaseController {
 			packingConsumableInfo.setOperateUserCode(this.getLoginUser().getStaffNo().toString());
 			rest.setData(packingConsumableInfoService.saveOrUpdate(packingConsumableInfo));
 	} catch (Exception e) {
-			logger.error("fail to save！"+e.getMessage(),e);
+			log.error("fail to save！",e);
 			rest.toError("保存失败，服务异常！");
 		}
 		return rest;
@@ -100,7 +99,7 @@ public class PackingConsumableInfoController extends DmsBaseController {
 		try {
 			rest.setData(PackingTypeEnum.getEnumMap());
 		} catch (Exception e) {
-			logger.error("获取包装类型失败" + e.getMessage(), e);
+			log.error("获取包装类型失败", e);
 			rest.toError("获取包装类型失败，服务异常！");
 		}
 		return rest;

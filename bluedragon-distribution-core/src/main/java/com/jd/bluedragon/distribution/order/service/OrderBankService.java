@@ -1,16 +1,18 @@
 package com.jd.bluedragon.distribution.order.service;
 
-import java.math.BigDecimal;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.order.domain.OrderBankResponse;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.orderbank.export.vo.GetDiscountReqVo;
 import com.jd.orderbank.export.vo.GetOrderByIdResVo;
 import com.jd.orderbank.export.vo.OrderShouldPayReqVo;
 import com.jd.orderbank.export.vo.OrderShouldPayResVo;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
 
 @Service
 public class OrderBankService {
@@ -21,6 +23,7 @@ public class OrderBankService {
 	@Autowired
 	private com.jd.orderbank.export.rest.OrderQueryResource orderQueryResource;
 
+    @JProfiler(jKey = "DMS.WEB.OrderBankService.getShouldPay", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BigDecimal getShouldPay(String orderId, String pin) {
 		String appId = PropertiesHelper.newInstance().getValue(ORDER_BANK_APP_ID);
 		String appToken = PropertiesHelper.newInstance().getValue(ORDER_BANK_APP_TOKEN);
@@ -36,6 +39,8 @@ public class OrderBankService {
 		}
 		return null;
 	}
+
+    @JProfiler(jKey = "DMS.WEB.OrderBankService.getOrderBankResponse", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public OrderBankResponse getOrderBankResponse(String orderId) {
 		String appId = PropertiesHelper.newInstance().getValue(ORDER_BANK_APP_ID);
 		String appToken = PropertiesHelper.newInstance().getValue(ORDER_BANK_APP_TOKEN);

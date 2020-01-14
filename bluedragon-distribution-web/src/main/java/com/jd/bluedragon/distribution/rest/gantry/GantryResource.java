@@ -9,8 +9,8 @@ import com.jd.bluedragon.distribution.api.response.GantryVelocityResponse;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDevice;
 import com.jd.bluedragon.distribution.gantry.service.GantryDeviceService;
 import com.jd.bluedragon.utils.BeanHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -32,7 +32,7 @@ import java.util.List;
 @Consumes({MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_JSON})
 public class GantryResource {
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 
     @Autowired
@@ -42,8 +42,7 @@ public class GantryResource {
     @Path("/gantryDevice/findAllGantryDevice")
     public GantryDeviceResponse findAllGantryDeviceCurrentConfig(GantryDeviceConfigRequest request) {
         GantryDeviceResponse response=new GantryDeviceResponse();
-        logger.info(request.toString());
-        logger.info("查找所有" + (request.getVersion() == 1?"新的":"老的") + "龙门架设备：" + request.toString());
+        log.info(request.toString());
         response.setCode(JdResponse.CODE_OK);
         response.setMessage(JdResponse.MESSAGE_OK);
         try {
@@ -51,7 +50,7 @@ public class GantryResource {
             response.setData(this.ok(list));
         } catch (Throwable ex) {
             String message = "获取龙门架设备异常" + request.toString() + ex.toString();
-            logger.error(message);
+            log.error(message,ex);
             response.setCode(JdResponse.CODE_INTERNAL_ERROR);
             response.setMessage(message);
         }
@@ -92,7 +91,7 @@ public class GantryResource {
             response.setVelocity(velocity);
         } catch (Throwable ex) {
             String message = "获取龙门架设备异常" + request.toString() + ex.toString();
-            logger.error(message);
+            log.error(message, ex);
             response.setCode(JdResponse.CODE_INTERNAL_ERROR);
             response.setMessage(message);
         }

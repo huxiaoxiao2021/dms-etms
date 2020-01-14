@@ -11,8 +11,8 @@ import com.jd.bluedragon.distribution.alpha.VersionRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -33,7 +33,7 @@ import java.util.List;
 @RequestMapping("/version")
 public class VersionController {
 
-    private static final Log logger = LogFactory.getLog(VersionController.class);
+    private static final Logger log = LoggerFactory.getLogger(VersionController.class);
 
     @Autowired
     VersionInfoInUccService versionInfoInUccService;
@@ -63,7 +63,7 @@ public class VersionController {
             result.setMessage("查询成功");
             result.setData(versionList);
         }catch(Exception e){
-            logger.error("查询信息失败：",e);
+            log.error("查询信息失败：",e);
             result.setCode(20000);
             result.setMessage("查询信息失败，服务器异常");
         }
@@ -109,7 +109,7 @@ public class VersionController {
                 result.setMessage("版本上传成功");
             }
         } catch (Exception e) {
-            logger.error("版本上传失败", e);
+            log.error("版本上传失败", e);
             result.setCode(10000);
             result.setMessage("版本上传失败");
         }
@@ -131,7 +131,7 @@ public class VersionController {
             versionParamsMap.put("state",version.isState());
             versionParamsMap.put("createTime",version.getCreateTime());
         }catch (Exception e){
-            logger.error("跳转错误：",e);
+            log.error("跳转错误：",e);
             return new ModelAndView("printDevice/versionModify");
         }
 
@@ -161,7 +161,7 @@ public class VersionController {
             result.setCode(200);
             result.setMessage("版本更新成功");
         } catch (Exception e) {
-            logger.error("版本更新失败", e);
+            log.error("版本更新失败", e);
             result.setCode(10000);
             result.setMessage("版本更新失败");
         }
@@ -186,7 +186,7 @@ public class VersionController {
         }catch (Exception e){
             result.setCode(1000);
             result.setMessage("执行删除失败");
-            logger.error("删除失败：",e);
+            log.error("删除失败：",e);
         }
         return result;
     }
@@ -214,7 +214,7 @@ public class VersionController {
         }catch(Exception e){
             result.setCode(10000);
             result.setMessage("状态修改失败");
-            logger.error("删除失败",e);
+            log.error("删除失败",e);
         }
         return result;
     }

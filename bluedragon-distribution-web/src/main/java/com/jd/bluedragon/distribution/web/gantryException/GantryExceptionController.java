@@ -14,16 +14,15 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.ql.basic.util.DateUtil;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.usermodel.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -41,7 +40,7 @@ import java.util.*;
 @Controller
 @RequestMapping("/gantryException")
 public class GantryExceptionController {
-    private static final Log logger = LogFactory.getLog(GantryExceptionController.class);
+    private static final Logger log = LoggerFactory.getLogger(GantryExceptionController.class);
 
     @Autowired
     private GantryDeviceService gantryDeviceService;
@@ -61,7 +60,7 @@ public class GantryExceptionController {
                 model.addAttribute("allDevice", allDevice);
             }
         } catch (Exception e){
-            logger.error("获取分拣中心编号为" +request.getSiteCode() + "的龙门架失败",e);
+            log.error("获取分拣中心编号为{}的龙门架失败",request.getSiteCode(),e);
         }
         if (request.getEndTime() == null || request.getEndTime() == "") {
             Date date = new Date();
@@ -123,13 +122,12 @@ public class GantryExceptionController {
             } catch (Exception e) {
                 result.setCode(10000);
                 result.setMessage("查询异常信息失败");
-                logger.error("查询异常信息失败", e);
+                log.error("查询异常信息失败", e);
             }
         } else {
             result.setCode(10000);
             result.setMessage("查询参数不能为空且时间间隔不能超过24小时");
-            this.logger
-                    .error("GantryExceptionController gantryExceptionPageList PARAM ERROR --> 传入参数非法");
+            this.log.warn("GantryExceptionController gantryExceptionPageList PARAM ERROR --> 传入参数非法");
         }
         return result;
     }
@@ -153,13 +151,12 @@ public class GantryExceptionController {
             } catch (Exception e){
                 result.setCode(10000);
                 result.setMessage("查询龙门架异常信息失败");
-                logger.error("查询龙门架异常信息失败", e);
+                log.error("查询龙门架异常信息失败", e);
             }
         } else {
             result.setCode(10000);
             result.setMessage("查询参数不能为空且时间间隔不能超过24小时");
-            this.logger
-                    .error("GantryExceptionController queryGantryExceptionCountByParam PARAM ERROR --> 传入参数非法");
+            this.log.warn("GantryExceptionController queryGantryExceptionCountByParam PARAM ERROR --> 传入参数非法");
         }
         return result;
     }
@@ -171,7 +168,7 @@ public class GantryExceptionController {
     @Authorization(Constants.DMS_WEB_SORTING_MACHINE_EXCEPTION)
     @RequestMapping(value = "/doExport", method = RequestMethod.GET)
     public void exportGantryException(GantryExceptionRequest request, HttpServletResponse response) {
-        this.logger.info("导出发货异常信息数据");
+        this.log.info("导出发货异常信息数据");
 
         if (checkAddParam(request) && checkDateGap(request)) {
         Map<String, Object> params = buildParam(request);
@@ -184,7 +181,7 @@ public class GantryExceptionController {
                         gantryExceptions = this.gantryExceptionService.getGantryException(params);
                     }
                 } catch (Exception e) {
-                    this.logger.error("根据条件查询发货异常信息数据异常：", e);
+                    this.log.error("根据条件查询发货异常信息数据异常：", e);
                 }
 
                 if (gantryExceptions != null && !gantryExceptions.isEmpty()) {
@@ -217,19 +214,18 @@ public class GantryExceptionController {
                 }
 
             } catch (IOException e) {
-                this.logger.error("根据条件查询龙门架自动发货导出数据异常：", e);
+                this.log.error("根据条件查询龙门架自动发货导出数据异常：", e);
             } finally {
                 try {
                     if (outputStream != null) {
                         outputStream.close();
                     }
                 } catch (IOException e) {
-                    this.logger.error("关闭数据流 ERROR", e);
+                    this.log.error("关闭数据流 ERROR", e);
                 }
             }
         } else {
-            this.logger
-                    .error("GantryExceptionController exportGantryException PARAM ERROR --> 传入参数非法");
+            this.log.warn("GantryExceptionController exportGantryException PARAM ERROR --> 传入参数非法");
         }
 
     }
@@ -271,7 +267,7 @@ public class GantryExceptionController {
             d = sdf.parse(date);
         } catch (ParseException e) {
             e.printStackTrace();
-            this.logger.error("时间转换失败");
+            this.log.error("时间转换失败");
         }
         return d;
     }

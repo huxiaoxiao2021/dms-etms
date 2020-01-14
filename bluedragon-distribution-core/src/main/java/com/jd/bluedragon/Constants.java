@@ -1003,4 +1003,17 @@ public class Constants {
     public static final String TENANT_CODE_ECONOMIC = "ECONOMIC_NET";
 
 
+    /**
+     * 调用运输基础资料获取货物类型 父节点编码
+     */
+    public static final String PARENTCODE = "3";
+    /**
+     * 调用运输基础资料获取货物类型 字典节点级别
+     */
+    public static final int DICTLEVEL = 3;
+    /**
+     * 调用运输基础资料获取货物类型 字典分组
+     */
+    public static final String DICTGROUP = "1209";
+
 }

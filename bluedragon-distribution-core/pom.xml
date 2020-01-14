@@ -214,7 +214,7 @@
 		<dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>bluedragon-distribution-common-android</artifactId>
-            <version>1.0.6-SNAPSHOT</version>
+            <version>1.0.8-SNAPSHOT</version>
         </dependency>
 		<dependency>
 			<groupId>com.jd.etms.waybill</groupId>
@@ -481,7 +481,7 @@
 		<dependency>
 			<groupId>com.jd.ql.basic</groupId>
 			<artifactId>ql-basic-client</artifactId>
-			<version>1.2.22-SNAPSHOT</version>
+			<version>1.2.25-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.ldop.basic</groupId>
@@ -493,7 +493,7 @@
 		<dependency>
 			<groupId>com.jd.ql.erp</groupId>
 			<artifactId>ql-erp-client</artifactId>
-			<version>5.3.66-SNAPSHOT</version>
+			<version>5.4.8-SNAPSHOT</version>
 		</dependency>
 		<!--jsf  -->
 		<dependency>
@@ -986,7 +986,7 @@
 		<dependency>
 			<groupId>com.jd.bd.dms.automatic</groupId>
 			<artifactId>automatic-sdk</artifactId>
-			<version>1.1.1-SNAPSHOT</version>
+			<version>1.1.4-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -1188,9 +1188,51 @@
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.jd.etms.contract</groupId>
+			<artifactId>etms-contract-api</artifactId>
+			<version>1.0.8.7-SNAPSHOT</version>
+		</dependency>
+
 	</dependencies>
 
+	<profiles>
+		<!--测试环境  -->
+		<profile>
+			<id>test</id>
+			<properties>
+				<profiles.env>test</profiles.env>
+			</properties>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+		</profile>
+		<!--正式环境  -->
+		<profile>
+			<id>release</id>
+			<properties>
+				<profiles.env>release</profiles.env>
+			</properties>
+		</profile>
+		<!--uat环境  -->
+		<profile>
+			<id>uat</id>
+			<properties>
+				<profiles.env>uat</profiles.env>
+			</properties>
+		</profile>
+	</profiles>
+
 	<build>
+		<finalName>bluedragon-distribution-core</finalName>
+		<resources>
+			<!-- maven占位符替换 -->
+			<resource>
+				<directory>src/main/resources</directory>
+				<!-- 表示资源文件中的占位符是否需要被替换，true为需要替换 -->
+				<filtering>true</filtering>
+			</resource>
+		</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

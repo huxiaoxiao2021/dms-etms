@@ -1,19 +1,15 @@
 package com.jd.bluedragon.distribution.inventory.controller;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
-import com.jd.bluedragon.distribution.inventory.domain.InventoryException;
-import com.jd.bluedragon.distribution.inventory.domain.InventoryExceptionCondition;
 import com.jd.bluedragon.distribution.inventory.domain.InventoryTask;
 import com.jd.bluedragon.distribution.inventory.domain.InventoryTaskCondition;
-import com.jd.bluedragon.distribution.inventory.service.InventoryExceptionService;
 import com.jd.bluedragon.distribution.inventory.service.InventoryTaskService;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,7 +25,7 @@ import java.util.List;
 @RequestMapping("/inventoryTask")
 public class inventoryTaskController extends DmsBaseController {
 
-    private static final Log logger = LogFactory.getLog(inventoryTaskController.class);
+    private static final Logger log = LoggerFactory.getLogger(inventoryTaskController.class);
     
     @Autowired
     private InventoryTaskService inventoryTaskService;
@@ -52,7 +48,7 @@ public class inventoryTaskController extends DmsBaseController {
         try {
             result = inventoryTaskService.queryByPagerCondition(condition);
         } catch (Exception e) {
-            logger.error("获取清场任务分页数据异常", e);
+            log.error("获取清场任务分页数据异常", e);
         }
         return result;
     }
@@ -64,7 +60,7 @@ public class inventoryTaskController extends DmsBaseController {
     @RequestMapping(value = "/toExport", method = RequestMethod.POST)
     public ModelAndView toExport(InventoryTaskCondition condition, Model model) {
 
-        logger.info("转运清场任务信息结果");
+        log.debug("转运清场任务信息结果");
         try{
             List<List<Object>> resultList = inventoryTaskService.getExportData(condition);
             model.addAttribute("filename", "转运清场任务信息表.xls");
@@ -72,7 +68,7 @@ public class inventoryTaskController extends DmsBaseController {
             model.addAttribute("contents", resultList);
             return new ModelAndView(new DefaultExcelView(), model.asMap());
         }catch (Exception e){
-            logger.error("导出转运清场任务信息表失败:" + e.getMessage(), e);
+            log.error("导出转运清场任务信息表失败:", e);
             return null;
         }
     }

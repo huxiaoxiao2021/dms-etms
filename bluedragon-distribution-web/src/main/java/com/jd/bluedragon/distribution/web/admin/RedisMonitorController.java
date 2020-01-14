@@ -7,7 +7,8 @@ import java.util.Map;
 
 import com.jd.bluedragon.Constants;
 import com.jd.uim.annotation.Authorization;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,7 +30,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 @RequestMapping("/admin/redis-monitor")
 public class RedisMonitorController {
 
-	private static final Logger logger = Logger.getLogger(RedisMonitorController.class);
+	private static final Logger log = LoggerFactory.getLogger(RedisMonitorController.class);
 
 	@Autowired
 	private RedisMonitorService redisMonitorService;
@@ -47,7 +48,7 @@ public class RedisMonitorController {
 			ErpUser erpUser = ErpUserClient.getCurrUser();
 			model.addAttribute("erpUser", erpUser);
 		} catch (Exception e) {
-			logger.error("index error!", e);
+			log.error("index error!", e);
 		}
 		return "admin/redis-monitor/redis-monitor-index";
 	}
@@ -59,7 +60,7 @@ public class RedisMonitorController {
 
 		CommonDto<List<Map<String, Object>>> cdto = new CommonDto<List<Map<String, Object>>>();
 		try {
-			logger.debug("doQueryRedisQueueCount begin...");
+			log.debug("doQueryRedisQueueCount begin...");
 
 			if (key == null || key.length() < 1) {
 				cdto.setCode(CommonDto.CODE_WARN);
@@ -81,7 +82,7 @@ public class RedisMonitorController {
 			cdto.setCode(CommonDto.CODE_NORMAL);
 			cdto.setData(list);
 		} catch (Exception e) {
-			logger.error("doQueryValueByKey-error!", e);
+			log.error("doQueryValueByKey-error!", e);
 			cdto.setCode(CommonDto.CODE_EXCEPTION);
 			cdto.setData(null);
 			cdto.setMessage(e.getMessage());
@@ -96,7 +97,7 @@ public class RedisMonitorController {
 
 		CommonDto<String> cdto = new CommonDto<String>();
 		try {
-			logger.debug("doQueryRedisQueueCount begin...");
+			log.debug("doQueryRedisQueueCount begin...");
 			if (key == null || key.length() < 1) {
 				cdto.setCode(CommonDto.CODE_WARN);
 				cdto.setMessage("参数[key]不能为空！");
@@ -105,7 +106,7 @@ public class RedisMonitorController {
 			redisMonitorService.deleteByKey(key);
 			cdto.setCode(CommonDto.CODE_NORMAL);
 		} catch (Exception e) {
-			logger.error("deleteByKey-error!", e);
+			log.error("deleteByKey-error!", e);
 			cdto.setCode(CommonDto.CODE_EXCEPTION);
 			cdto.setData(null);
 			cdto.setMessage(e.getMessage());
@@ -129,7 +130,7 @@ public class RedisMonitorController {
 			redisManager.setex("basicMajorWSProxy.getBaseSiteBySiteId@1", 1000000, value);
 			cdto.setCode(CommonDto.CODE_NORMAL);
 		} catch (Exception e) {
-			logger.error("doQueryValueByKey-error!", e);
+			log.error("doQueryValueByKey-error!", e);
 			cdto.setCode(CommonDto.CODE_EXCEPTION);
 			cdto.setData(null);
 			cdto.setMessage(e.getMessage());

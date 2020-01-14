@@ -10,10 +10,9 @@ import com.jd.bluedragon.distribution.send.service.SendMService;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.ql.dms.common.domain.JdResponse;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -42,7 +41,7 @@ import java.util.Set;
 @Produces({MediaType.APPLICATION_JSON})
 public class ReverseWarehouseResource {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private SortingService sortingService;
@@ -120,7 +119,7 @@ public class ReverseWarehouseResource {
                 }
             }
         }catch (Exception e){
-            logger.error("返仓扫描查询分拣发货数据失败", e);
+            log.error("返仓扫描查询分拣发货数据失败", e);
             response.toError("系统异常：查询分拣发货数据失败");
             return response;
         }

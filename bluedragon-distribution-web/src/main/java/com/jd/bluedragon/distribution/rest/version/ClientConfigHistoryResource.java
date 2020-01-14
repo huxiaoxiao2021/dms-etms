@@ -1,26 +1,20 @@
 package com.jd.bluedragon.distribution.rest.version;
 
-import java.util.List;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.rest.version.resp.ClientConfigHistoryResponse;
+import com.jd.bluedragon.distribution.version.domain.ClientConfigHistory;
+import com.jd.bluedragon.distribution.version.service.ClientConfigHistoryService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import com.jd.bluedragon.Constants;
-import static com.jd.bluedragon.distribution.api.JdResponse.*;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import java.util.List;
 
-import com.jd.bluedragon.distribution.rest.version.resp.ClientConfigHistoryResponse;
-import com.jd.bluedragon.distribution.version.domain.ClientConfigHistory;
-import com.jd.bluedragon.distribution.version.service.ClientConfigHistoryService;
+import static com.jd.bluedragon.distribution.api.JdResponse.*;
 
 @Component
 @Path(Constants.REST_URL)
@@ -28,7 +22,7 @@ import com.jd.bluedragon.distribution.version.service.ClientConfigHistoryService
 @Produces( { MediaType.APPLICATION_JSON })
 public class ClientConfigHistoryResource {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private ClientConfigHistoryService clientConfigHistoryService;
@@ -41,7 +35,7 @@ public class ClientConfigHistoryResource {
 	@GET
 	@Path("/versions/configHistory/getAll")
 	public ClientConfigHistoryResponse getAll() {
-		this.logger.info("get all history config "); 
+		this.log.debug("get all history config ");
 		
 		List<ClientConfigHistory> list =clientConfigHistoryService.getAll();
 		if (null !=list) {
@@ -64,7 +58,7 @@ public class ClientConfigHistoryResource {
 			@PathParam("siteCode") String siteCode) {
 		Assert.notNull(siteCode, "siteCode must not be null");
 		
-		this.logger.info("siteCode " + siteCode);
+		this.log.debug("siteCode ：{}", siteCode);
 		
 		List<ClientConfigHistory> list =clientConfigHistoryService.getBySiteCode(siteCode);
 		if (null !=list) {
@@ -87,7 +81,7 @@ public class ClientConfigHistoryResource {
 			@PathParam("programType") Integer programType) {
 		Assert.notNull(programType, "programType must not be null");
 
-		this.logger.info("programType " + programType);
+		this.log.debug("programType :{}", programType);
 		
 		List<ClientConfigHistory> list =clientConfigHistoryService.getByProgramType(programType);
 		if (null !=list) {

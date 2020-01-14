@@ -6,8 +6,8 @@ import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,7 +20,7 @@ import java.util.Map;
 @RequestMapping("/operateLog")
 public class OperateLogController {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private OperationLogService operationLosService;
@@ -59,7 +59,7 @@ public class OperateLogController {
 		int totalsize = operationLosService.totalSizeByParams(params);
 		pager.setTotalSize(totalsize);
 
-		logger.info("查询符合条件的规则数量：" + totalsize);
+		log.info("查询符合条件的规则数量：{}", totalsize);
 
 		model.addAttribute("operatelogs", operationLosService.queryByParams(params));
 		model.addAttribute("operationLogqueryDto", operationLog);
@@ -103,13 +103,13 @@ public class OperateLogController {
 			int totalsize = operationLosService.totalSizeByParams(params);
 			pager.setTotalSize(totalsize);
 
-			logger.info("查询符合条件的规则数量：" + totalsize);
+			log.info("查询符合条件的规则数量：{}", totalsize);
 
 			model.addAttribute("operatelogs", operationLosService.queryByParams(params));
 			model.addAttribute("operationLogqueryDto", operationLog);
 			model.addAttribute("pager", pager);
 		} catch (Exception e) {
-			logger.error("日志查询异常-读库",e);
+			log.error("日志查询异常-读库",e);
 		}
 
 		return "operateLog/operatelog1";
@@ -164,7 +164,7 @@ public class OperateLogController {
 			model.addAttribute("operationLogqueryDto", operationLog);
 			model.addAttribute("pager", pager);
 		} catch (Exception e) {
-			logger.error("日志查询异常2-读库",e);
+			log.error("日志查询异常2-读库",e);
 		}
 
 		return "operateLog/operatelog2";

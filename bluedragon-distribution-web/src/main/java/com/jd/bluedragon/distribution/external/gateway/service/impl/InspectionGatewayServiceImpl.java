@@ -18,6 +18,7 @@ import java.util.Objects;
 
 /**
  * 验货相关接口 发布物流网关
+ *
  * @author : xumigen
  * @date : 2019/6/14
  */
@@ -28,29 +29,30 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
     private InspectionResource inspectionResource;
 
     @Override
-    @BusinessLog(sourceSys = 1,bizType = 500,operateType = 50011)
-    @JProfiler(jKey = "DMSWEB.InspectionGatewayServiceImpl.getStorageCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    @BusinessLog(sourceSys = 1, bizType = 500, operateType = 50011)
+    @JProfiler(jKey = "DMSWEB.InspectionGatewayServiceImpl.getStorageCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<InspectionResultDto> getStorageCode(String packageBarOrWaybillCode, Integer siteCode) {
         JdCResponse<InspectionResultDto> jdCResponse = new JdCResponse<>();
         jdCResponse.toSucceed();
-        if(StringUtils.isEmpty(packageBarOrWaybillCode)){
+        if (StringUtils.isEmpty(packageBarOrWaybillCode)) {
             jdCResponse.toFail("单号不能为空");
             return jdCResponse;
         }
-        if(siteCode == null){
+        if (siteCode == null) {
             jdCResponse.toFail("站点不能为空");
             return jdCResponse;
         }
-        JdResponse<InspectionResult> response = inspectionResource.getStorageCode(packageBarOrWaybillCode,siteCode);
-        if(!Objects.equals(response.getCode(),JdResponse.CODE_SUCCESS)){
+        JdResponse<InspectionResult> response = inspectionResource.getStorageCode(packageBarOrWaybillCode, siteCode);
+        if (!Objects.equals(response.getCode(), JdResponse.CODE_SUCCESS)) {
             jdCResponse.toError(response.getMessage());
             return jdCResponse;
         }
         jdCResponse.toSucceed(response.getMessage());
-        if(response.getData() != null){
+        if (response.getData() != null) {
             InspectionResultDto dto = new InspectionResultDto();
             dto.setStorageCode(response.getData().getStorageCode());
             dto.setHintMessage(response.getData().getHintMessage());
+            dto.setTabletrolleyCode(response.getData().getTabletrolleyCode());
             jdCResponse.setData(dto);
         }
         return jdCResponse;

@@ -46,7 +46,7 @@ import java.util.Map;
 @RequestMapping("/exception")
 public class SendCodeExceptionHandlerController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SendCodeExceptionHandlerController.class);
+    private static final Logger log = LoggerFactory.getLogger(SendCodeExceptionHandlerController.class);
 
     private static final String EXCEL_TITLE = "上游批次未操作异常单明细";
 
@@ -154,7 +154,6 @@ public class SendCodeExceptionHandlerController {
     @ResponseBody
     public PagerResult<GoodsPrintDto> querySendCodeDetails(@RequestBody SendCodeExceptionRequest request) {
         PagerResult<GoodsPrintDto> result = new PagerResult<>();
-        LOGGER.debug(JsonHelper.toJson(request));
         System.out.println(JsonHelper.toJson(request));
         ErpUserClient.ErpUser user = ErpUserClient.getCurrUser();
         if (user == null) {
@@ -163,7 +162,7 @@ public class SendCodeExceptionHandlerController {
 
         BaseStaffSiteOrgDto staffSiteOrgDto = baseMajorManager.getBaseStaffByErpNoCache(user.getUserCode());
         if (null == staffSiteOrgDto) {
-            LOGGER.warn("用户【{}】未维护基础资料信息",user.getUserCode());
+            log.warn("用户【{}】未维护基础资料信息",user.getUserCode());
             return result;
         }
         request.setSiteCode(staffSiteOrgDto.getSiteCode());
@@ -195,10 +194,9 @@ public class SendCodeExceptionHandlerController {
             List<String> sendCodes = JsonHelper.fromJson(sendCodesStr[0],List.class);
             request1.setSendCodes(sendCodes);
         }
-        LOGGER.debug("SendCodeExceptionHandlerController.toExport-->导出异常批次的明细数据：{}",JsonHelper.toJson(request));
 
         if (request1.getSendCodes() == null || request1.getType() == 0) {
-            LOGGER.warn("导出异常批次明细数据时提交的参数不正确：{}", JsonHelper.toJson(request));
+            log.warn("导出异常批次明细数据时提交的参数不正确：{}", JsonHelper.toJson(paramMap));
             return;
         }
 
@@ -209,7 +207,7 @@ public class SendCodeExceptionHandlerController {
 
         BaseStaffSiteOrgDto staffSiteOrgDto = baseMajorManager.getBaseStaffByErpNoCache(user.getUserCode());
         if (null == staffSiteOrgDto) {
-            LOGGER.warn("用户【{}】未维护基础资料信息",user.getUserCode());
+            log.warn("用户【{}】未维护基础资料信息",user.getUserCode());
             return;
         }
         request1.setSiteCode(staffSiteOrgDto.getSiteCode());
@@ -231,7 +229,7 @@ public class SendCodeExceptionHandlerController {
             workbook.write(out);
             out.close();
         }catch (Exception e){
-            LOGGER.error("导出异常批次明细数据失败!{}",JsonHelper.toJson(request),e);
+            log.error("导出异常批次明细数据失败!{}",JsonHelper.toJson(paramMap),e);
         }
     }
 }

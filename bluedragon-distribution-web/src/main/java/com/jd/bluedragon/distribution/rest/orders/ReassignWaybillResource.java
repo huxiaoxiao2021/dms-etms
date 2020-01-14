@@ -1,33 +1,30 @@
 package com.jd.bluedragon.distribution.rest.orders;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.ReassignWaybillRequest;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
+import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.reassignWaybill.domain.ReassignWaybill;
+import com.jd.bluedragon.distribution.reassignWaybill.service.ReassignWaybillService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.request.ReassignWaybillRequest;
-import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.reassignWaybill.domain.ReassignWaybill;
-import com.jd.bluedragon.distribution.reassignWaybill.service.ReassignWaybillService;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 
 @Controller
 @Path(Constants.REST_URL)
 @Consumes({ MediaType.APPLICATION_JSON })
 @Produces({ MediaType.APPLICATION_JSON })
 public class ReassignWaybillResource {
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	@Autowired
 	ReassignWaybillService reassignWaybillService;
 
@@ -51,10 +48,10 @@ public class ReassignWaybillResource {
     @GET
     @Path("/packLastScheduleSite/{packageCode}")
     public BaseResponse queryLastScheduleSite(@PathParam("packageCode") String packageCode){
-        this.logger.info("the packagecode is : " + packageCode);
+        this.log.info("the packagecode is : {}", packageCode);
         BaseResponse baseResponse = new BaseResponse();
         if(StringHelper.isEmpty(packageCode)){
-            this.logger.warn("获取包裹最后一次反调度站点失败，参数包裹号为空。");
+            this.log.warn("获取包裹最后一次反调度站点失败，参数包裹号为空。");
             baseResponse.setCode(JdResponse.CODE_PARAM_ERROR);
             baseResponse.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
             return baseResponse;
@@ -69,7 +66,7 @@ public class ReassignWaybillResource {
         		reassignWaybill = reassignWaybillService.queryByWaybillCode(packageCode);
         }catch(Exception e){
             Profiler.functionError(info);
-            this.logger.error("获取包裹 [" + packageCode +"] 最后一次反调度站点异常，原因：" + e);
+            this.log.error("获取包裹 [{}] 最后一次反调度站点异常，原因：",packageCode, e);
             baseResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
             baseResponse.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
             return baseResponse;
@@ -78,7 +75,7 @@ public class ReassignWaybillResource {
         }
 
         if(null == reassignWaybill){
-            this.logger.warn("获取包裹 [" + packageCode +"] 最后一次反调度站点失败，反调度站点为空");
+            this.log.warn("获取包裹 [{}] 最后一次反调度站点失败，反调度站点为空",packageCode);
             baseResponse.setCode(JdResponse.CODE_PACKAGE_ERROR);
             baseResponse.setMessage(JdResponse.MESSAGE_PACKAGE_ERROR);
             return baseResponse;

@@ -1,18 +1,5 @@
 package com.jd.bluedragon.distribution.saf;
 
-import java.awt.image.BufferedImage;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.jsf.dms.CancelWaybillJsfManager;
@@ -47,6 +34,14 @@ import com.jd.ql.dms.print.engine.TemplateFactory;
 import com.jd.ql.dms.print.engine.toolkit.JPGBase64Encoder;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+import java.awt.image.BufferedImage;
+import java.util.*;
 
 /**
  * B网营业厅打印JSF接口
@@ -104,7 +99,7 @@ public class PackagePrintServiceImpl implements PackagePrintService {
      */
     private static final Map<TemplateGroupEnum,Integer> FEATURE_TYPES_MAP = new HashMap<>();
 
-    private static Logger logger = Logger.getLogger(PackagePrintServiceImpl.class);
+    private static Logger log = LoggerFactory.getLogger(PackagePrintServiceImpl.class);
     static{
     	FEATURE_TYPES_MAP.put(TemplateGroupEnum.TEMPLATE_GROUP_B, FEATURE_TYPE_C2B);
     	FEATURE_TYPES_MAP.put(TemplateGroupEnum.TEMPLATE_GROUP_C, FEATURE_TYPE_B2C);
@@ -113,8 +108,10 @@ public class PackagePrintServiceImpl implements PackagePrintService {
     		mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public JdResult<Map<String, Object>> getPrintInfo(JdCommand<String> printRequest) {
-        logger.info("查询包裹信息参数：" + JsonHelper.toJson(printRequest));
-        JdResult<Map<String, Object>> result = new JdResult<Map<String, Object>>();
+    	if(log.isInfoEnabled()){
+			log.info("查询包裹信息参数：{}", JsonHelper.toJson(printRequest));
+		}
+		JdResult<Map<String, Object>> result = new JdResult<Map<String, Object>>();
         result.toSuccess();
         if(printRequest == null){
             result.toFail("传入的参数不能为空！");
@@ -125,7 +122,7 @@ public class PackagePrintServiceImpl implements PackagePrintService {
             return result;
         }
         String commandResult = jdCommandService.execute(JsonHelper.toJson(printRequest));
-        logger.info("查询包裹信息结果：" + commandResult);
+        log.info("查询包裹信息结果：{}", commandResult);
         JdResult jdResult = JsonHelper.fromJson(commandResult, JdResult.class);
         String data = JSONObject.parseObject(commandResult).getString("data");
         Map map = JsonHelper.json2MapNormal(data);
@@ -145,12 +142,16 @@ public class PackagePrintServiceImpl implements PackagePrintService {
     		mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public JdResult<List<PrintPackageImage>> generateImage(JdCommand<String> printRequest) {
-        logger.info("获取图片列表参数：" + JsonHelper.toJson(printRequest));
-        JdResult<List<PrintPackageImage>> result = new JdResult<List<PrintPackageImage>>();
+		if(log.isInfoEnabled()){
+			log.info("获取图片列表参数：{}", JsonHelper.toJson(printRequest));
+		}
+		JdResult<List<PrintPackageImage>> result = new JdResult<List<PrintPackageImage>>();
         result.toSuccess();
         JdResult<Map<String, Object>> data = getPrintInfo(printRequest);
-        logger.info("获取图片列表之打印信息查询结果：" + JsonHelper.toJson(data));
-        if(!data.isSucceed()){
+		if(log.isInfoEnabled()){
+			log.info("获取图片列表之打印信息查询结果：{}", JsonHelper.toJson(data));
+		}
+		if(!data.isSucceed()){
             result.setCode(data.getCode());
             result.setMessage(data.getMessage());
             result.setMessageCode(data.getMessageCode());
@@ -176,15 +177,13 @@ public class PackagePrintServiceImpl implements PackagePrintService {
             try{
                 engine = templateFactory.buildEngine(templateName, templateVersion);
                 engine.SetParameters(map);
-                long startTime = System.currentTimeMillis();
                 BufferedImage image = engine.GenerateImage(false, request.getDpiX(), request.getDpiY());
-                logger.info(MessageFormat.format("生成标签时间为{0}ms", System.currentTimeMillis() - startTime));
                 PrintPackageImage packageImage = new PrintPackageImage();
                 packageImage.setImageBase64(encoder.encode(image, request.getDpiX(), request.getDpiY()));
                 packageImage.setPackageCode(map.get("packageCode"));
                 result.getData().add(packageImage);
             }catch (Throwable e){
-                logger.error("打印服务异常，参数：" + JsonHelper.toJson(map), e);
+                log.error("打印服务异常，参数：{}", JsonHelper.toJson(map), e);
                 result.toError("打印服务异常:" + e.getMessage());
                 break;
             }
@@ -281,7 +280,7 @@ public class PackagePrintServiceImpl implements PackagePrintService {
             	JsfVerifyConfig jsfVerifyConfig = JsonHelper.fromJson(sysConfig.getConfigContent(), JsfVerifyConfig.class);
                 if(jsfVerifyConfig != null){
                 	if(!printRequest.getSecretKey().equals(jsfVerifyConfig.getSecretKey())){
-                		logger.warn(printRequest.getSystemCode() + "密钥验证失败！");
+                		log.warn("{}密钥验证失败！",printRequest.getSystemCode());
                 		return false;
                 	}
                 	//是否允许所有访问
@@ -294,7 +293,7 @@ public class PackagePrintServiceImpl implements PackagePrintService {
                 				&& jsfVerifyConfig.getOperateTypes().contains(printRequest.getOperateType());
                 	}
                 }else{
-                	logger.warn("jsf未获取到权限配置信息！key="+configKey);
+                	log.warn("jsf未获取到权限配置信息！key={}", configKey);
                 }
             	return false;
             }else{

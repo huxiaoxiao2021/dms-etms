@@ -19,8 +19,9 @@ import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.common.print.PrintHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.uim.annotation.Authorization;
-import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
@@ -49,7 +50,7 @@ public class RmaHandOverController {
     @Autowired
     private BaseMajorManager baseMajorManager;
 
-    private static final Logger logger = Logger.getLogger(RmaHandOverController.class);
+    private static final Logger log = LoggerFactory.getLogger(RmaHandOverController.class);
 
     /**
      * 跳转到主界面
@@ -124,7 +125,7 @@ public class RmaHandOverController {
             response.setData(pager);
             response.setCode(RmaHandoverResponse.CODE_NORMAL);
         } catch (Exception e) {
-            logger.error("根据查询条件获取RMA交接清单打印信息异常", e);
+            log.error("根据查询条件获取RMA交接清单打印信息异常", e);
             response.toException("根据查询条件获取RMA交接清单打印信息异常：" + e.getMessage());
         }
         return response;
@@ -175,7 +176,7 @@ public class RmaHandOverController {
                         response.toFail("根据ERP账号:" + erpUser.getUserCode() + "获取所属站点信息为空，请检查是否配置基础资料信息");
                     }
                 } catch (Exception e) {
-                    logger.error("根据运单号获取收货人地址时发生异常，运单号：" + waybillCode, e);
+                    log.error("根据运单号获取收货人地址时发生异常，运单号：{}", waybillCode, e);
                     response.toException("根据运单号获取收货人地址时发生异常");
                 }
             } else {
@@ -222,7 +223,7 @@ public class RmaHandOverController {
                 }
             }
         } catch (Exception e) {
-            logger.error("[RMA交接清单打印]生成打印页面时发生异常", e);
+            log.error("[RMA交接清单打印]生成打印页面时发生异常", e);
             rmaResponse.toException("生成打印页面时发生异常，请联系管理员");
         }
         return rmaResponse;
@@ -235,7 +236,7 @@ public class RmaHandOverController {
         try {
             this.doExport(idList, response);
         } catch (Exception e) {
-            logger.error("toExport:" + e.getMessage(), e);
+            log.error("toExport:异常", e);
         }
     }
 

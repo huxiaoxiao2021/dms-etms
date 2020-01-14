@@ -88,9 +88,11 @@
                                 <div class="form-group">
                                     <label class="control-label col-xs-3" for="box-code-input"></label>
                                     <div class="col-xs-4" >
+                                        <label for="checkOfWaybill">
                                         <input type="radio" id="checkOfWaybill" class="control-label" name="weightCheck" checked>按运单抽检
                                     </div>
                                     <div class="col-xs-4" >
+                                        <label for="checkOfPackage">
                                         <input type="radio" id="checkOfPackage" name="weightCheck" class="control-label">按包裹抽检
                                     </div>
                                 </div>
@@ -133,6 +135,11 @@
                                 </div>
                             </div>
 
+                            <div id="toolbar" class="btn-group">
+                                <button id="btn_weightVolumeRatio_check" type="button" class="btn btn-primary">
+                                    <span class="glyphicon glyphicon-check" aria-hidden="true"></span>&nbsp;重泡比校验
+                                </button>
+                            </div>
                             <div id="toolbar" class="btn-group">
                                 <button id="btn_check" type="button" class="btn btn-primary">
                                     <span class="glyphicon glyphicon-check" aria-hidden="true"></span>&nbsp;检查

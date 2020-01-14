@@ -3954,8 +3954,9 @@ public class DeliveryServiceImpl implements DeliveryService {
     /**
      * 判断当前发货是否为中转发货
      * 1:装箱、正向、逆向发货
-     * 2.1:发货起始站与箱子起始站不同
-     * 2.2:发货起始站与箱子起始站相同，但目的站不同，且发货目的站必须是分拣中心
+     * 2:发货起始站与箱子起始站不同
+     * 3:发货目的是分拣中心，发货起始站与箱子起始不同
+     * 4.如发货目的是站点并且站点类型在所属站类型范围内，取箱号目的所属站和批次目的地相同
      *
      * @param domain 发货对象
      * @return
@@ -3971,20 +3972,31 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (domain.getReceiveSiteCode() == null || domain.getCreateSiteCode() == null) {
             return false;
         }
-        String sendReceiveSiteType = "";
-        BaseStaffSiteOrgDto yrDto = this.baseMajorManager.getBaseSiteBySiteId(domain.getReceiveSiteCode());
-        if (yrDto != null) {
-            sendReceiveSiteType = String.valueOf(yrDto.getSiteType());
-        }
         Box box = this.boxService.findBoxByCode(domain.getBoxCode());
         if (null == box || null == box.getCreateSiteCode() || null == box.getReceiveSiteCode()) {
             return false;
         }
-        return (!domain.getCreateSiteCode().equals(box.getCreateSiteCode()))
-                || (domain.getCreateSiteCode().equals(box.getCreateSiteCode())
-                && !domain.getReceiveSiteCode().equals(box.getReceiveSiteCode())
-                && sendReceiveSiteType.equals("64")
-        );
+
+        //发货起始站与箱子起始站不同，属于中转
+        if (! domain.getCreateSiteCode().equals(box.getCreateSiteCode())) {
+            return true;
+        }
+
+        BaseStaffSiteOrgDto yrDto = this.baseMajorManager.getBaseSiteBySiteId(domain.getReceiveSiteCode());
+        if (yrDto == null) {
+            return false;
+        }
+        //发货目的站是分拣中心
+        if (BusinessUtil.isDistrubutionCenter(yrDto.getSiteType())) {
+            return ! domain.getReceiveSiteCode().equals(box.getReceiveSiteCode());
+        }
+
+        BaseStaffSiteOrgDto boxReceiveSite = this.baseMajorManager.getBaseSiteBySiteId(box.getReceiveSiteCode());
+        //判断箱号目的的所属站是否与批次目的地一致，如果一致属于跨站发货（通俗理解，小站箱号发大站的批次）
+        if (boxReceiveSite != null && BusinessUtil.isMayBelongSiteExist(boxReceiveSite.getSiteType(), boxReceiveSite.getSubType())) {
+            return domain.getReceiveSiteCode().equals(baseMajorManager.getPartnerSiteBySiteId(box.getReceiveSiteCode()));
+        }
+        return false;
     }
 
     @Override

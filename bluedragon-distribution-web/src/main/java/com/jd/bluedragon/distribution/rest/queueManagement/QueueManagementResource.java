@@ -20,8 +20,8 @@ import com.jd.intelligent.common.model.enums.ResourceTypeEnum;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
@@ -44,7 +44,7 @@ import java.util.List;
 @Consumes({MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_JSON})
 public class QueueManagementResource {
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private QueueManagementService queueManagementService;
@@ -61,7 +61,7 @@ public class QueueManagementResource {
     public InvokeResult<List<PdaPlatformInfoResponseDto>> getPlatformInfoList(PdaPlatformRequest request){
         InvokeResult<List<PdaPlatformInfoResponseDto>> result=new InvokeResult<List<PdaPlatformInfoResponseDto>>();
         if(StringUtils.isEmpty(request.getCurrentStationCode()) || request.getResourceType()<1){
-            logger.error(MessageFormat.format("获取月台、流向、车型信息证接口失败-参数错误[{0}]", JsonHelper.toJson(request)));
+            log.warn("获取月台、流向、车型信息证接口失败-参数错误[{}]", JsonHelper.toJson(request));
             result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
             result.setMessage(InvokeResult.PARAM_ERROR);
             return result;
@@ -72,7 +72,7 @@ public class QueueManagementResource {
         try{
             result=queueManagementService.getPlatformInfoList(req);
         } catch (Exception ex) {
-            logger.error("获取月台、流向、车型信息接口失败，原因 " + ex);
+            log.error("获取月台、流向、车型信息接口失败，原因 ", ex);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
         }
@@ -92,7 +92,7 @@ public class QueueManagementResource {
     public InvokeResult<List<PlatformQueueTaskResponseDto>> getPlatformQueueTaskList(PdaPlatformRequest request){
         InvokeResult<List<PlatformQueueTaskResponseDto>> result=new InvokeResult<List<PlatformQueueTaskResponseDto>>();
         if(StringUtils.isEmpty(request.getCurrentStationCode()) || StringUtils.isEmpty(request.getPlatformCode()) || request.getResourceType()<1){
-            logger.error(MessageFormat.format("获取排队任务信息列表接口失败-参数错误[{0}]", JsonHelper.toJson(request)));
+            log.warn("获取排队任务信息列表接口失败-参数错误[{}]", JsonHelper.toJson(request));
             result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
             result.setMessage("请选择月台");
             return result;
@@ -105,7 +105,7 @@ public class QueueManagementResource {
         try{
             result=queueManagementService.getPlatformQueueTaskList(req);
         } catch (Exception ex) {
-            logger.error("获取排队任务信息列表接口失败，原因 " + ex);
+            log.error("获取排队任务信息列表接口失败，原因 " , ex);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
         }
@@ -125,7 +125,7 @@ public class QueueManagementResource {
         InvokeResult<Boolean> result=new InvokeResult<Boolean>();
         if(StringUtils.isEmpty(request.getPlatformCode()))
         {
-            logger.error(MessageFormat.format("校验月台是否空闲接口失败-参数错误[{0}]", JsonHelper.toJson(request)));
+            log.warn("校验月台是否空闲接口失败-参数错误[{}]", JsonHelper.toJson(request));
             result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
             result.setMessage("请选择月台");
             return result;
@@ -143,7 +143,7 @@ public class QueueManagementResource {
         try{
             result=queueManagementService.isCoccupyPlatform(req);
         } catch (Exception ex) {
-            logger.error("校验月台是否空闲接口失败，原因 " + ex);
+            log.error("校验月台是否空闲接口失败，原因 ", ex);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
         }
@@ -163,7 +163,7 @@ public class QueueManagementResource {
         InvokeResult<PlatformCallNumResponseDto> result=new InvokeResult<PlatformCallNumResponseDto>();
         if(StringUtils.isEmpty(request.getPlatformCode()) || ((StringUtils.isEmpty(request.getFlowCode()) || StringUtils.isEmpty(request.getCarType())) && request.getPlatformWorkTypeEnum()==0))
         {
-            logger.error(MessageFormat.format("叫号接口失败-参数错误[{0}]", JsonHelper.toJson(request)));
+            log.warn("叫号接口失败-参数错误[{}]", JsonHelper.toJson(request));
             result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
             result.setMessage(InvokeResult.PARAM_ERROR);
             return result;
@@ -184,7 +184,7 @@ public class QueueManagementResource {
         try{
             result=queueManagementService.callNum(req);
         } catch (Exception ex) {
-            logger.error("叫号接口失败，原因 " + ex);
+            log.error("叫号接口失败，原因 ", ex);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
         }
@@ -204,7 +204,7 @@ public class QueueManagementResource {
         InvokeResult<Boolean> result=new InvokeResult<Boolean>();
         if(StringUtils.isEmpty(request.getPlatformCode()) || StringUtils.isEmpty(request.getQueueTaskCode()) || request.getPlatformWorkTypeEnum()<0)
         {
-            logger.error(MessageFormat.format("作业状态修改接口失败-参数错误[{0}]", JsonHelper.toJson(request)));
+            log.warn("作业状态修改接口失败-参数错误[{}]", JsonHelper.toJson(request));
             result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
             result.setMessage(InvokeResult.PARAM_ERROR);
             return result;
@@ -224,7 +224,7 @@ public class QueueManagementResource {
         try{
             result=queueManagementService.platformWorkFeedback(req);
         } catch (Exception ex) {
-            logger.error("作业状态修改接口失败，原因 " + ex);
+            log.error("作业状态修改接口失败，原因 ", ex);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
         }

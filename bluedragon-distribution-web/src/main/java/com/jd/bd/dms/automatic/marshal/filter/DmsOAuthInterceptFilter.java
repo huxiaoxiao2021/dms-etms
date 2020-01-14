@@ -39,7 +39,8 @@ public class DmsOAuthInterceptFilter extends DmsAuthorizationFilter {
         boolean temporaryBool = StringHelper.isEmpty(authorization);/* 过渡期的临时保护 */
         /* 过渡期间对传空的的进行保护处理，和内部后门JD-opCode的特殊值进行保护处理 */
         if (temporaryBool) {
-            LOGGER.warn("该客户端本次调用未进行rest加密鉴权,如果过渡期已过，将进行强制拦截，客户端IP:{}", ServletRequestHelper.getRealIpAddress(httpServletRequest));
+            LOGGER.warn("该客户端本次调用未进行rest加密鉴权,如果过渡期已过，将进行强制拦截，客户端IP:{}，请求路径：{}",
+                    ServletRequestHelper.getRealIpAddress(httpServletRequest),httpServletRequest.getRequestURI());
             filterChain.doFilter(httpServletRequest,httpServletResponse);
         } else if (secretBool) {
             LOGGER.info("内部调用，未拦截，客户端IP:{}", ServletRequestHelper.getRealIpAddress(httpServletRequest));

@@ -11,7 +11,8 @@
  
 	<bean class="org.springframework.context.annotation.CommonAnnotationBeanPostProcessor"/>
 	
-	<!-- <import resource="classpath:spring/distribution-core-common.xml" /> -->
+	<import resource="classpath:spring/distribution-core-datasource-jddl.xml" />
+	<import resource="classpath:spring/distribution-core-datasource-task-config.xml" />
 	<import resource="classpath:spring/distribution-core-datasource-undiv.xml" />
 	<import resource="classpath:spring/distribution-core-datasource-task.xml" />
 	<import resource="classpath:spring/distribution-core-dao.xml" />
@@ -23,6 +24,7 @@
 	<import resource="classpath:spring/distribution-core-jsf-consumer.xml" />
     <import resource="classpath:spring/distribution-core-cassandra.xml" />
     <import resource="classpath:spring/distribution-core-manual-bean.xml"/>
+	<import resource="classpath:spring/distribution-core-crossbow-manager.xml" />
 
     <!--<import resource="classpath:spring/distribution-core-asynBuffer-producer.xml"/>-->
     <!--<import resource="classpath:spring/distribution-core-dcam.xml"/>-->

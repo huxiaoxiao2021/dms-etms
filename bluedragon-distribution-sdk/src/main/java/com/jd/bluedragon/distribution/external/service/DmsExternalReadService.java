@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.external.service;
 
-import com.jd.bluedragon.distribution.api.request.PackageSummaryRequest;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.api.response.DmsBaseResponse;
 import com.jd.bluedragon.distribution.api.response.SendBoxDetailResponse;

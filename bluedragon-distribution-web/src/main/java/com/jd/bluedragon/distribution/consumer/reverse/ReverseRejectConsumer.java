@@ -11,8 +11,8 @@ import com.jd.bluedragon.utils.BeanHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.jmq.common.message.Message;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +21,7 @@ import java.util.List;
 @Service("reverseRejectConsumer")
 public class ReverseRejectConsumer extends MessageBaseConsumer {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private ReverseRejectService reverseRejectService;
@@ -31,13 +31,11 @@ public class ReverseRejectConsumer extends MessageBaseConsumer {
 
 	@Override
 	public void consume(Message message) throws Exception {
-		this.logger.info("逆向驳回消息：" + message.getText());
-
 		RejectRequest request = (RejectRequest) XmlHelper.toObject(message.getText(),
 				RejectRequest.class);
 
 		if (request == null) {
-			this.logger.info("逆向驳回消息序列化失败！");
+			this.log.warn("逆向驳回消息序列化失败！逆向驳回消息：{}", message.getText());
 			return;
 		}else{
 			String sourceCode = request.getSorceCode();

@@ -591,7 +591,8 @@ public class BusinessHelper {
         if (StringUtils.isBlank(sendPay)) {
             return false;
         }
-        return !BusinessUtil.isSignChar(sendPay, 275, '0');
+        return !BusinessUtil.isSignChar(sendPay, 275, '0')
+                && BusinessUtil.isSignInChars(sendPay, 265, '3','5');
     }
 
     /**

@@ -13,17 +13,12 @@ import com.jd.bluedragon.distribution.rollcontainer.service.RollContainerService
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.Collections;
 import java.util.Date;
@@ -38,7 +33,7 @@ import java.util.List;
 @Produces({MediaType.APPLICATION_JSON})
 public class RollContainerResource {
 	
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	
 	@Autowired
     private RollContainerService rollContainerService;
@@ -115,17 +110,17 @@ public class RollContainerResource {
 			String boxCode = containerRelationService.getBoxCodeByContainerCode(containerCode);
 			if(boxCode != null){
 				response.setBoxCode(boxCode);
-				logger.info("根据周转箱号:"+containerCode+"获取箱号("+boxCode+")成功!");
+				log.info("根据周转箱号:{}获取箱号({})成功!",containerCode,boxCode);
 			}else{
 				response.setCode(JdResponse.CODE_OK_NULL);
 				response.setMessage("异常提示：上游未将周转箱号与箱号绑定！");
-				logger.error("周转箱"+containerCode+"对应的发货信息sendm数据为空，请确认！");
+				log.warn("周转箱{}对应的发货信息sendm数据为空，请确认！",containerCode);
 			}
 			
 		}catch(Exception e){
         	response.setCode(JdResponse.CODE_INTERNAL_ERROR);
         	response.setMessage("内部错误");
-        	logger.error("内部错误",e);
+        	log.error("内部错误",e);
         }
         
         return response;
@@ -170,7 +165,7 @@ public class RollContainerResource {
         }catch(Exception e){
         	response.setCode(JdResponse.CODE_INTERNAL_ERROR);
         	response.setMessage("内部错误");
-        	logger.error("中转箱与箱号绑定内部错误",e);
+        	log.error("中转箱与箱号绑定内部错误",e);
         }
         return response;
     }
@@ -205,7 +200,7 @@ public class RollContainerResource {
         }catch(Exception e){
         	response.setCode(JdResponse.CODE_INTERNAL_ERROR);
         	response.setMessage("内部错误");
-        	logger.error("根据编号获得对应关系内部错误",e);
+        	log.error("根据编号获得对应关系内部错误",e);
         }
 		
         return response;
@@ -233,7 +228,7 @@ public class RollContainerResource {
         }catch(Exception e){
         	response.setCode(JdResponse.CODE_INTERNAL_ERROR);
         	response.setMessage("内部错误");
-        	logger.error("周转箱与箱号释放绑定关系内部错误",e);
+        	log.error("周转箱与箱号释放绑定关系内部错误",e);
         }
 		
         return response;

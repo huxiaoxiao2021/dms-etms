@@ -518,6 +518,11 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
         page.setCurrentPage(getCurrentPage(abnormalDisposeCondition.getOffset(), abnormalDisposeCondition.getLimit()));
         PageDto<TransferWaveMonitorDetailResp> noSendDetail = vrsRouteTransferRelationManager.getNoSendDetail(page, abnormalDisposeCondition.getWaveBusinessId());
         //整理所有的运单号，后面批量查询 路由 异常等
+        if(noSendDetail == null){
+            pagerResult.setTotal(0);
+            pagerResult.setRows(new ArrayList<AbnormalDisposeSend>());
+            return pagerResult;
+        }
         ArrayList<String> waybillCodeList = new ArrayList();
         for (TransferWaveMonitorDetailResp detailResp : noSendDetail.getResult()) {
             waybillCodeList.add(detailResp.getWaybillCode());

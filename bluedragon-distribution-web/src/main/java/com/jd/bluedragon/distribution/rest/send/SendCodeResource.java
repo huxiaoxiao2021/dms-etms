@@ -16,25 +16,15 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.urban.domain.TransbillM;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import javax.annotation.Resource;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -47,7 +37,7 @@ import java.util.List;
 @Consumes({MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_JSON})
 public class SendCodeResource {
-    private final Log logger = LogFactory.getLog(SendCodeResource.class);
+    private final Logger log = LoggerFactory.getLogger(SendCodeResource.class);
     private static final String IS_AIR_TRANSPORT_CARRIER = "Y";
     private static final Integer TRANSPORT_TYPE_AIR = 1; // 航空
 
@@ -209,12 +199,8 @@ public class SendCodeResource {
         for (String code : waybills) {
             request.add(code);
         }
-        String message = reverseDelivery.toEmsServer(request);
-        if (StringHelper.isEmpty(message)) {
-            return new JdResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
-        } else {
-            return new JdResponse(JdResponse.CODE_OK, message);
-        }
+        reverseDelivery.toEmsServer(request);
+        return new JdResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
     }
 
     private Integer getCreateSiteCodeBysendCode(String sendCode) {
@@ -256,7 +242,7 @@ public class SendCodeResource {
         } catch (Exception e) {
             response.setCode(CODE_CREATE_SEND_CODE_ERROR);
             response.setMessage(MESSAGE_CODE_CREATE_SEND_CODE_ERROR);
-            logger.error(MESSAGE_CODE_CREATE_SEND_CODE_ERROR, e);
+            log.error(MESSAGE_CODE_CREATE_SEND_CODE_ERROR, e);
         }
         return response;
     }
@@ -285,7 +271,7 @@ public class SendCodeResource {
         } catch (Exception e) {
             response.setCode(CODE_CREATE_SEND_CODE_ERROR);
             response.setMessage(MESSAGE_CODE_CREATE_SEND_CODE_ERROR);
-            logger.error(MESSAGE_CODE_CREATE_SEND_CODE_ERROR, e);
+            log.error(MESSAGE_CODE_CREATE_SEND_CODE_ERROR, e);
         }
         return response;
     }
@@ -295,13 +281,13 @@ public class SendCodeResource {
         if (request.getQuantity() == null || request.getQuantity() <= 0) {
             response.setCode(JdResponse.CODE_PARAM_ERROR);
             response.setMessage("生成数量Quantity非法！");
-            logger.warn(MessageFormat.format("生成数量Quantity:{0}非法！", request.getQuantity()));
+            log.warn("生成数量Quantity:{}非法！", request.getQuantity());
             return false;
         }
         if (request.getCreateSiteCode() == 0 || request.getReceiveSiteCode() == 0) {
             response.setCode(JdResponse.CODE_PARAM_ERROR);
             response.setMessage("分拣中心编号非法！");
-            logger.warn("分拣中心编号非法！");
+            log.warn("分拣中心编号非法！");
             return false;
         }
         return true;
