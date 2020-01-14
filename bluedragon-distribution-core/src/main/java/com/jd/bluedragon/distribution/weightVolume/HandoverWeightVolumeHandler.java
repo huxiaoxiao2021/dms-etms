@@ -1,14 +1,16 @@
 package com.jd.bluedragon.distribution.weightVolume;
 
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
-import com.jd.bluedragon.distribution.weight.domain.WeightOpeDto;
-import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
+import com.jd.bluedragon.distribution.alliance.AllianceBusiDeliveryDetailDto;
+import com.jd.bluedragon.distribution.alliance.AllianceBusiDeliveryDto;
+import com.jd.bluedragon.distribution.alliance.service.AllianceBusiDeliveryDetailService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.JsonHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+import java.util.Collections;
 
 /**
  * <p>
@@ -25,6 +27,9 @@ public class HandoverWeightVolumeHandler extends AbstractWeightVolumeHandler {
     @Autowired
     @Qualifier("opeWeightProducer")
     private DefaultJMQProducer opeWeightProducer;
+
+    @Autowired
+    private AllianceBusiDeliveryDetailService allianceBusiDeliveryDetailService;
 
     @Override
     protected boolean checkWeightVolumeParam(WeightVolumeEntity entity) {
@@ -51,25 +56,44 @@ public class HandoverWeightVolumeHandler extends AbstractWeightVolumeHandler {
             entity.setVolume(entity.getHeight() * entity.getLength() * entity.getWidth());
         }
 
-        WeightOpeDto weightOpeDto = new WeightOpeDto();
-        weightOpeDto.setOperateCode(entity.getBarCode());
-        weightOpeDto.setCodeType(codeType);
-        weightOpeDto.setOperateSite(entity.getOperateSiteName());
-        weightOpeDto.setOperateSiteId(entity.getOperateSiteCode());
-        weightOpeDto.setOperateUserId(entity.getOperatorId());
-        weightOpeDto.setOperateUser(entity.getOperatorName());
-        weightOpeDto.setOperateTime(entity.getOperateTime().getTime());
-        weightOpeDto.setWeight(entity.getWeight());
-        weightOpeDto.setVolumeHeight(entity.getHeight());
-        weightOpeDto.setVolumeLength(entity.getLength());
-        weightOpeDto.setVolumeWidth(entity.getWidth());
-        weightOpeDto.setVolume(entity.getVolume());
-        if (WeightVolumeBusinessTypeEnum.TERMINAL_SITE_HANDOVER.equals(entity.getBusinessType())) {
-            weightOpeDto.setOpeType(4);
-        } else {
-            weightOpeDto.setOpeType(5);
-        }
+//        WeightOpeDto weightOpeDto = new WeightOpeDto();
+//        weightOpeDto.setOperateCode(entity.getBarCode());
+//        weightOpeDto.setCodeType(codeType);
+//        weightOpeDto.setOperateSite(entity.getOperateSiteName());
+//        weightOpeDto.setOperateSiteId(entity.getOperateSiteCode());
+//        weightOpeDto.setOperateUserId(entity.getOperatorId());
+//        weightOpeDto.setOperateUser(entity.getOperatorName());
+//        weightOpeDto.setOperateTime(entity.getOperateTime().getTime());
+//        weightOpeDto.setWeight(entity.getWeight());
+//        weightOpeDto.setVolumeHeight(entity.getHeight());
+//        weightOpeDto.setVolumeLength(entity.getLength());
+//        weightOpeDto.setVolumeWidth(entity.getWidth());
+//        weightOpeDto.setVolume(entity.getVolume());
+//        if (WeightVolumeBusinessTypeEnum.TERMINAL_SITE_HANDOVER.equals(entity.getBusinessType())) {
+//            weightOpeDto.setOpeType(4);
+//        } else {
+//            weightOpeDto.setOpeType(5);
+//        }
+//        opeWeightProducer.sendOnFailPersistent(entity.getBarCode(), JsonHelper.toJson(weightOpeDto));
 
-        opeWeightProducer.sendOnFailPersistent(entity.getBarCode(), JsonHelper.toJson(weightOpeDto));
+        /* 调用原始的加盟商的逻辑 */
+        AllianceBusiDeliveryDto allianceBusiDeliveryDto = new AllianceBusiDeliveryDto();
+        allianceBusiDeliveryDto.setForce(Boolean.FALSE);
+        allianceBusiDeliveryDto.setOperatorId(entity.getOperatorId());
+        allianceBusiDeliveryDto.setOperatorName(entity.getOperatorName());
+        allianceBusiDeliveryDto.setOperatorSiteCode(entity.getOperateSiteCode());
+        allianceBusiDeliveryDto.setOperatorSiteName(entity.getOperateSiteName());
+        allianceBusiDeliveryDto.setOpeType(4);//todo 什么是揽收 ，什么是派送
+        AllianceBusiDeliveryDetailDto detailDto = new AllianceBusiDeliveryDetailDto();
+        detailDto.setOpeCode(entity.getBarCode());
+        detailDto.setHeight(entity.getHeight());
+        detailDto.setLength(entity.getLength());
+        detailDto.setWidth(entity.getWidth());
+        detailDto.setVolume(entity.getVolume());
+        detailDto.setWeight(entity.getWeight());
+        detailDto.setOperateTimeMillis(entity.getOperateTime().getTime());
+        allianceBusiDeliveryDto.setDatas(Collections.singletonList(detailDto));
+
+        allianceBusiDeliveryDetailService.allianceBusiDelivery(allianceBusiDeliveryDto);
     }
 }
