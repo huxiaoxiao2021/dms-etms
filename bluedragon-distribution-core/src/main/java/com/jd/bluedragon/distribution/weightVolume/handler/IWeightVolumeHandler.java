@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.weightVolume;
+package com.jd.bluedragon.distribution.weightVolume.handler;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;

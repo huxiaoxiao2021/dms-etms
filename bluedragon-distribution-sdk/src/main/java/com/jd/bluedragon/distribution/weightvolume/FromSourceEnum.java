@@ -45,6 +45,11 @@ public enum FromSourceEnum {
     DMS_CLIENT_FAST_TRANSPORT_PRINT,
 
     /**
+     * 分拣称重量方
+     */
+    DMS_CLIENT_WEIGHT_VOLUME,
+
+    /**
      * 分拣自动化测量
      */
     DMS_AUTOMATIC_MEASURE,
