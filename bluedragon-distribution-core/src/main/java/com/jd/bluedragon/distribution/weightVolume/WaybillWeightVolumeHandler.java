@@ -99,12 +99,6 @@ public class WaybillWeightVolumeHandler extends AbstractWeightVolumeHandler {
                 logger.error("记录称重流水库失败：{}",JsonHelper.toJson(entity));
             }
 
-            /* 判断是否转网 ? 称重操作触发转网？ */
-            WaybillWeightVO weightVO = new WaybillWeightVO();
-            if (weighByWaybillService.waybillTransferB2C(weightVO)) {
-                logger.info("转网成功");
-            }
-
         } catch (JMQException e) {
             logger.error("发送MQ-TOPIC【{}】消息失败，消息体为：{}",weighByWaybillProducer.getTopic(),JsonHelper.toJson(weightDTO));
         }

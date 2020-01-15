@@ -66,9 +66,7 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
             Map<String, Object> resultMap = waybillPackageManager.uploadOpe(JsonHelper.toJson(packOpeDto));
             if (resultMap != null && resultMap.containsKey("code")
                     && WeightResponse.WEIGHT_TRACK_OK == Integer.parseInt(resultMap.get("code").toString())) {
-                if(logger.isInfoEnabled()){
-                    logger.info("向运单系统回传包裹称重信息成功：{}", entity.getPackageCode());
-                }
+                logger.info("向运单系统回传包裹称重信息成功：{}", entity.getPackageCode());
             } else {
                 logger.warn("向运单系统回传包裹称重信息失败：{}，运单返回值：{}", entity.getPackageCode(), JsonHelper.toJson(resultMap));
             }
@@ -78,10 +76,10 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
             opeSend.setPackage_code(entity.getPackageCode());
             opeSend.setDms_site_id(entity.getOperateSiteCode());
             opeSend.setThisUpdateTime(entity.getOperateTime().getTime());
-            opeSend.setWeight((float)(double)entity.getWeight());//精度丢失问题
-            opeSend.setLength((float)(double)entity.getLength());//精度丢失问题
-            opeSend.setWidth((float)(double)entity.getWidth());//精度丢失问题
-            opeSend.setHigh((float)(double)entity.getHeight());//精度丢失问题
+            opeSend.setWeight(entity.getWeight() == null? 0f : (float)(double)entity.getWeight());//精度丢失问题
+            opeSend.setLength(entity.getLength() == null? 0f :(float)(double)entity.getLength());//精度丢失问题
+            opeSend.setWidth(entity.getWidth() == null? 0f :(float)(double)entity.getWidth());//精度丢失问题
+            opeSend.setHigh(entity.getHeight() == null? 0f :(float)(double)entity.getHeight());//精度丢失问题
             opeSend.setOpeUserId(entity.getOperatorId());
             opeSend.setOpeUserName(entity.getOperatorName());
             if (opeSend.getHigh() != null && opeSend.getLength() != null && opeSend.getWidth() != null) {

@@ -105,6 +105,86 @@ public class WeightVolumeEntity {
         return this;
     }
 
+    public WeightVolumeEntity waybillCode(String waybillCode){
+        this.waybillCode = waybillCode;
+        return this;
+    }
+
+    public WeightVolumeEntity packageCode(String packageCode){
+        this.packageCode = packageCode;
+        return this;
+    }
+
+    public WeightVolumeEntity boxCode(String boxCode){
+        this.boxCode = boxCode;
+        return this;
+    }
+
+    public WeightVolumeEntity businessType(WeightVolumeBusinessTypeEnum businessType){
+        this.businessType = businessType;
+        return this;
+    }
+
+    public WeightVolumeEntity sourceCode(FromSourceEnum sourceCode){
+        this.sourceCode = sourceCode;
+        return this;
+    }
+
+    public WeightVolumeEntity operateSiteCode(Integer operateSiteCode){
+        this.operateSiteCode = operateSiteCode;
+        return this;
+    }
+
+    public WeightVolumeEntity operateSiteName(String operateSiteName){
+        this.operateSiteName = operateSiteName;
+        return this;
+    }
+
+    public WeightVolumeEntity operatorCode(String operatorCode){
+        this.operatorCode = operatorCode;
+        return this;
+    }
+
+    public WeightVolumeEntity operatorId(Integer operatorId){
+        this.operatorId = operatorId;
+        return this;
+    }
+
+    public WeightVolumeEntity operatorName(String operatorName){
+        this.operatorName = operatorName;
+        return this;
+    }
+
+    public WeightVolumeEntity weight(Double weight){
+        this.weight = weight;
+        return this;
+    }
+
+    public WeightVolumeEntity length(Double length){
+        this.length = length;
+        return this;
+    }
+
+    public WeightVolumeEntity width(Double width){
+        this.width = width;
+        return this;
+    }
+
+    public WeightVolumeEntity height(Double height){
+        this.height = height;
+        return this;
+    }
+
+    public WeightVolumeEntity volume(Double volume){
+        this.volume = volume;
+        return this;
+    }
+
+    public WeightVolumeEntity operateTime(Date operateTime){
+        this.operateTime = operateTime;
+        return this;
+    }
+
     public String getBarCode() {
         return barCode;
     }
