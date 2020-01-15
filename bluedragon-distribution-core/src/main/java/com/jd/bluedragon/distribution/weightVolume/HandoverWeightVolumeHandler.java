@@ -35,39 +35,16 @@ public class HandoverWeightVolumeHandler extends AbstractWeightVolumeHandler {
     @Override
     protected void handlerWeighVolume(WeightVolumeEntity entity) {
         /* 处理称重对象 */
-        int codeType = 0;
         if (WaybillUtil.isWaybillCode(entity.getBarCode())) {
             entity.setWaybillCode(entity.getBarCode());
-            codeType = 1;
         }
         if (WaybillUtil.isPackageCode(entity.getBarCode())) {
             entity.setWaybillCode(WaybillUtil.getWaybillCode(entity.getBarCode()));
             entity.setPackageCode(entity.getBarCode());
-            codeType = 2;
         }
         if (entity.getLength() != null && entity.getWidth() != null && entity.getHeight() != null) {
             entity.setVolume(entity.getHeight() * entity.getLength() * entity.getWidth());
         }
-
-//        WeightOpeDto weightOpeDto = new WeightOpeDto();
-//        weightOpeDto.setOperateCode(entity.getBarCode());
-//        weightOpeDto.setCodeType(codeType);
-//        weightOpeDto.setOperateSite(entity.getOperateSiteName());
-//        weightOpeDto.setOperateSiteId(entity.getOperateSiteCode());
-//        weightOpeDto.setOperateUserId(entity.getOperatorId());
-//        weightOpeDto.setOperateUser(entity.getOperatorName());
-//        weightOpeDto.setOperateTime(entity.getOperateTime().getTime());
-//        weightOpeDto.setWeight(entity.getWeight());
-//        weightOpeDto.setVolumeHeight(entity.getHeight());
-//        weightOpeDto.setVolumeLength(entity.getLength());
-//        weightOpeDto.setVolumeWidth(entity.getWidth());
-//        weightOpeDto.setVolume(entity.getVolume());
-//        if (WeightVolumeBusinessTypeEnum.TERMINAL_SITE_HANDOVER.equals(entity.getBusinessType())) {
-//            weightOpeDto.setOpeType(4);
-//        } else {
-//            weightOpeDto.setOpeType(5);
-//        }
-//        opeWeightProducer.sendOnFailPersistent(entity.getBarCode(), JsonHelper.toJson(weightOpeDto));
 
         /* 调用原始的加盟商的逻辑 */
         AllianceBusiDeliveryDto allianceBusiDeliveryDto = new AllianceBusiDeliveryDto();

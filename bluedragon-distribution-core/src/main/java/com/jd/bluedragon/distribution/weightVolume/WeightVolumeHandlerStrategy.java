@@ -63,17 +63,17 @@ public class WeightVolumeHandlerStrategy {
         }
 
         /* 2. 按包裹称重 */
-        if (WaybillUtil.isPackageCode(entity.getPackageCode()) || WaybillUtil.isPackageCode(entity.getPackageCode())) {
+        if (WaybillUtil.isPackageCode(entity.getBarCode())) {
             return packageWeightVolumeHandler.handlerOperateWeightVolume(entity);
         }
 
         /* 3. 按运单称重（B网） */
-        if (WaybillUtil.isWaybillCode(entity.getBarCode()) || WaybillUtil.isWaybillCode(entity.getWaybillCode())) {
+        if (WaybillUtil.isWaybillCode(entity.getBarCode())) {
             return waybillWeightVolumeHandler.handlerOperateWeightVolume(entity);
         }
 
         /* 4. 按箱称重业务 */
-        if (BusinessUtil.isBoxcode(entity.getBarCode()) || BusinessUtil.isBoxcode(entity.getBoxCode())) {
+        if (BusinessUtil.isBoxcode(entity.getBarCode())) {
             return boxWeightVolumeHandler.handlerOperateWeightVolume(entity);
         }
 

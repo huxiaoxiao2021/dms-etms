@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.weightvolume;
 
 /**
  * <p>
- *     对接分拣web的系统上游数据来源的系统编码枚举
+ *     称重数据来源
  *
  * @author wuzuxiang
  * @since 2020/1/8

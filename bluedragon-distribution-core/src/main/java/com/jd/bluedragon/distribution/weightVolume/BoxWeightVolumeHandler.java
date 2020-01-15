@@ -61,36 +61,18 @@ public class BoxWeightVolumeHandler extends AbstractWeightVolumeHandler {
         /* 存储箱号的运单信息，保留不重复项 */
         Set<String> waybillList = new HashSet<>();
 
-        /* 从始发分拣的明细表中获取箱号的明细 */
-        Sorting sortingCondition = new Sorting();
-        sortingCondition.setBoxCode(entity.getBoxCode());
-        sortingCondition.setCreateSiteCode(box.getCreateSiteCode());
-        List<Sorting> sortings = sortingService.findByBoxCode(sortingCondition);
-        if (sortings != null && !sortings.isEmpty()) {
-            for (Sorting sorting : sortings) {
-                String waybillCode = WaybillUtil.isWaybillCode(sorting.getWaybillCode())?
-                        sorting.getWaybillCode() : WaybillUtil.getWaybillCode(sorting.getPackageCode());
+        /* 从始发交接明细中获取箱号的明细 */
+        List<ThirdBoxDetail> thirdBoxDetails = thirdBoxDetailService.queryByBoxCode(TENANT_CODE_ECONOMIC,box.getCreateSiteCode(),entity.getBoxCode());
+        if (thirdBoxDetails != null && !thirdBoxDetails.isEmpty()) {
+            for (ThirdBoxDetail thirdBoxDetail : thirdBoxDetails) {
+                String waybillCode = WaybillUtil.isWaybillCode(thirdBoxDetail.getWaybillCode())?
+                        thirdBoxDetail.getWaybillCode() : WaybillUtil.getWaybillCode(thirdBoxDetail.getPackageCode());
                 if (waybillList.contains(waybillCode)) {
+                    logger.warn("三方装箱检测到重复的运单装箱数据：{}，{}", entity.getBoxCode(), waybillCode);
                     continue;
                 }
                 /* 如果SET集合中不包含该运动号则添加 */
                 waybillList.add(waybillCode);
-            }
-        }
-
-        /* 从始发交接明细中获取箱号的明细 */
-        if (waybillList.isEmpty()) {
-            List<ThirdBoxDetail> thirdBoxDetails = thirdBoxDetailService.queryByBoxCode(TENANT_CODE_ECONOMIC,box.getCreateSiteCode(),entity.getBoxCode());
-            if (thirdBoxDetails != null && !thirdBoxDetails.isEmpty()) {
-                for (ThirdBoxDetail thirdBoxDetail : thirdBoxDetails) {
-                    String waybillCode = WaybillUtil.isWaybillCode(thirdBoxDetail.getWaybillCode())?
-                            thirdBoxDetail.getWaybillCode() : WaybillUtil.getWaybillCode(thirdBoxDetail.getPackageCode());
-                    if (waybillList.contains(waybillCode)) {
-                        continue;
-                    }
-                    /* 如果SET集合中不包含该运动号则添加 */
-                    waybillList.add(waybillCode);
-                }
             }
         }
 
@@ -107,14 +89,20 @@ public class BoxWeightVolumeHandler extends AbstractWeightVolumeHandler {
         /* 循环处理箱明细 */
         for (String waybillCode : waybillList) {
             WeightVolumeEntity itemEntity = new WeightVolumeEntity();
-            BeanHelper.copyProperties(itemEntity,entity);
             itemEntity.setBarCode(waybillCode);
             itemEntity.setWaybillCode(waybillCode);
+            itemEntity.setBoxCode(entity.getBoxCode());
             itemEntity.setVolume(itemVolume);
             itemEntity.setWeight(itemWeight);
             itemEntity.setLength(itemLength);
             itemEntity.setWidth(itemWidth);
             itemEntity.setHeight(itemHeight);
+            itemEntity.setOperateSiteCode(entity.getOperateSiteCode());
+            itemEntity.setOperateSiteName(entity.getOperateSiteName());
+            itemEntity.setOperatorId(entity.getOperatorId());
+            itemEntity.setOperatorCode(entity.getOperatorCode());
+            itemEntity.setOperatorName(entity.getOperatorName());
+            itemEntity.setOperateTime(entity.getOperateTime());
             itemEntity.setBusinessType(WeightVolumeBusinessTypeEnum.BY_WAYBILL);
             itemEntity.setSourceCode(FromSourceEnum.DMS_INNER_SPLIT);
             /* 这个地方的handoverFlag设置为false，可以放到entity对象中，传过来 */
