@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.weightVolume;
+package com.jd.bluedragon.distribution.weightVolume.handler;
 
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.alliance.AllianceBusiDeliveryDetailDto;
