@@ -45,12 +45,6 @@ public class WaybillWeightVolumeHandler extends AbstractWeightVolumeHandler {
     @Autowired
     private DmsWeightFlowService dmsWeightFlowService;
 
-    @Autowired
-    private WeighByWaybillService weighByWaybillService;
-
-    @Autowired
-    private WaybillTraceManager waybillTraceManager;
-
     /**
      * M³和CM³转换值
      * */
@@ -104,59 +98,4 @@ public class WaybillWeightVolumeHandler extends AbstractWeightVolumeHandler {
         }
     }
 
-    @Override
-    protected InvokeResult weighVolumeIntercept(WeightVolumeEntity entity) {
-        InvokeResult result = new InvokeResult();
-        result.success();
-        BaseEntity<Waybill> waybillBaseEntity = null;
-        try {
-            //运单存在性校验
-            waybillBaseEntity = waybillQueryManager.getWaybillByWaybillCode(entity.getWaybillCode());
-            Waybill waybill = waybillBaseEntity.getData();
-            if(waybill == null){
-               result.parameterError(WeightByWaybillExceptionTypeEnum.WaybillNotFindExceptionMessage);
-               return result;
-            }
-            //是否需要称重校验
-            if (BusinessUtil.isNoNeedWeight(waybill.getWaybillSign())) {
-                result.parameterError(WeightByWaybillExceptionTypeEnum.WaybillNoNeedWeightExceptionMessage);
-                return result;
-            }
-            //校验是否已经妥投
-            if(waybillTraceManager.isWaybillFinished(waybill.getWaybillCode())){
-                result.parameterError(WeightByWaybillExceptionTypeEnum.WaybillFinishedExceptionMessage);
-                return result;
-            }
-            //判断是否转网
-            WaybillWeightVO weightVO = trans2WaybillWeightVO(entity);
-            if (weighByWaybillService.waybillTransferB2C(weightVO)) {
-                result.parameterError(MessageFormat.format(InvokeResult.RESULT_INTERCEPT_MESSAGE, WaybillUtil.getWaybillCode(waybill.getWaybillCode())));
-                return result;
-            }
-
-        }catch (Exception e){
-            logger.error(InvokeResult.SERVER_ERROR_MESSAGE);
-            result.error(InvokeResult.SERVER_ERROR_MESSAGE);
-        }
-        return result;
-    }
-
-    /**
-     * 实体转换
-     * @param entity
-     * @return
-     */
-    private WaybillWeightVO trans2WaybillWeightVO(WeightVolumeEntity entity) {
-        WaybillWeightVO vo = new WaybillWeightVO();
-        vo.setOperatorSiteCode(entity.getOperateSiteCode());
-        vo.setOperatorSiteName(entity.getOperateSiteName());
-        vo.setOperatorId(entity.getOperatorId());
-        vo.setOperatorName(entity.getOperatorName());
-        vo.setWeight(entity.getWeight());
-        vo.setVolume(entity.getVolume()/TRANSFOR_VALUE);
-        vo.setOperateTimeMillis(entity.getOperateTime().getTime());
-        vo.setCodeStr(entity.getWaybillCode());
-        vo.setStatus(10);
-        return vo;
-    }
 }

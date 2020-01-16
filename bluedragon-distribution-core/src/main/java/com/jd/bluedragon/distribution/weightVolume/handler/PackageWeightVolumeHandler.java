@@ -92,10 +92,4 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
         }
     }
 
-    @Override
-    protected InvokeResult weighVolumeIntercept(WeightVolumeEntity entity) {
-        InvokeResult result = new InvokeResult();
-        result.success();
-        return result;
-    }
 }

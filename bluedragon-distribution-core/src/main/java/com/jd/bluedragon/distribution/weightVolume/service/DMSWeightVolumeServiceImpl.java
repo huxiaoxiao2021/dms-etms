@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.weightVolume.service;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.weightVolume.check.WeightVolumeChecker;
 import com.jd.bluedragon.distribution.weightVolume.handler.WeightVolumeHandlerStrategy;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -42,11 +43,10 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
             result.setData(Boolean.FALSE);
             return result;
         }
-        InvokeResult checkResult = weightVolumeHandlerStrategy.doCheck(entity);
+        InvokeResult<Boolean> checkResult = WeightVolumeChecker.check(entity);
         if(checkResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE){
-            result.parameterError(checkResult.getMessage());
-            result.setData(Boolean.FALSE);
-            return result;
+            logger.warn("称重数据上传，校验未通过，参数：{}，返回值：{}",JsonHelper.toJson(entity), JsonHelper.toJson(checkResult));
+            return checkResult;
         }
         if (isSync) {
             //同步处理
