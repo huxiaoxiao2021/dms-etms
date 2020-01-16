@@ -119,58 +119,6 @@ public class InspectionServiceImpl implements InspectionService {
 	@Autowired
 	private SiteService siteService;
 
-	public List<Inspection> parseInspections(Task task) {
-		if (task == null || StringUtils.isBlank(task.getBody())) {
-			return null;
-		}
-
-		InspectionRequest[] arrays = JsonHelper.jsonToArray(task.getBody(),
-				InspectionRequest[].class);//FIXME:问下配送序列化高性能方法
-		List<InspectionRequest> requestList = Arrays.asList(arrays);
-
-		List<Inspection> inspections = new ArrayList<Inspection>();
-
-		for (InspectionRequest requestBean : requestList) {
-			String code = requestBean.getPackageBarOrWaybillCode();
-
-            //pda不再区分用户入口， 所有订单都可以扫描， 由后台获取运单ordertype和storeid 判断以前的类型  2014年12月16日16:21:55 by guoyongzhi
-            if(requestBean.getBusinessType()==Constants.BUSSINESS_TYPE_NEWTRANSFER)//包裹交接类型 以前是 1130： 50库房， 51夺宝岛 52协同仓  现在是50
-            {
-                String waybillCode = WaybillUtil.getWaybillCode(requestBean.getPackageBarOrWaybillCode());
-                BigWaybillDto bigWaybillDto = getWaybill(waybillCode);
-                if (bigWaybillDto != null && bigWaybillDto.getWaybill()!=null) {
-
-                    log.debug("包裹交接50 订单号:{} waybillType:{} StoreID:{} task id:{} "
-							,requestBean.getPackageBarOrWaybillCode() ,bigWaybillDto.getWaybill().getWaybillType() , bigWaybillDto.getWaybillState().getStoreId() , task.getId());
-
-                    if (bigWaybillDto.getWaybill().getWaybillType() == Constants.BUSSINESS_TYPE_DBD_ORDERTYPE) { //夺宝岛交接 51 : 2
-                        requestBean.setBusinessType(Constants.BUSSINESS_TYPE_BDB);
-                    } else if (bigWaybillDto.getWaybill().getWaybillType() == Constants.BUSSINESS_TYPE_ZY_ORDERTYPE) {  //正向库房或者协同仓交接
-                        if (isExists(bigWaybillDto.getWaybillState().getStoreId())) {
-                            requestBean.setBusinessType(Constants.BUSSINESS_TYPE_OEM_52);
-                        } else {
-                            requestBean.setBusinessType(Constants.BUSSINESS_TYPE_TRANSFER);
-                        }
-                    }
-                }
-            }
-
-
-			// 如果是包裹号获取取件单号，则存在包裹号属性中
-			if (WaybillUtil.isPackageCode(code)
-					|| WaybillUtil.isSurfaceCode(code)) {
-				requestBean.setPackageBarcode(code);
-			} else if (WaybillUtil.isWaybillCode(code)) {// 否则为运单号
-				requestBean.setWaybillCode(code);
-			} else {
-				log.warn("验货executeInspectionWorker，数据错误，非正常包裹号、取件单号或运单号，code: {} task id: {}" ,code, task.getId());
-				continue;
-			}
-			inspections.addAll(prepareInspection(requestBean));
-		}
-		Collections.sort(inspections);
-		return inspections;
-	}
 
     public boolean isExists(Integer Storeid)
     {
@@ -291,39 +239,7 @@ public class InspectionServiceImpl implements InspectionService {
 		return result;
 	}
 
-	/**
-	 * 根据运单号或包裹号来返回Inspection集合
-	 * 
-	 * @param requestBean
-	 */
-	@Override
-	public List<Inspection> prepareInspection(InspectionRequest requestBean) {
-		Set<Inspection> inspections = new HashSet<Inspection>();
-		if (StringUtils.isNotBlank(requestBean.getWaybillCode())) {
-			String waybillCode = requestBean.getWaybillCode();
-			List<DeliveryPackageD> packages = waybillPackageBarcodeService
-					.getPackageBarcodeByWaybillCode(waybillCode);
-			requestBean = getStoreIdByWaybillCode(requestBean, waybillCode);
-			if (null == packages) {
-				return null;
-			}
-			if (BusinessHelper.checkIntNumRange(packages.size())) {
-				for (DeliveryPackageD pack : packages) {
-					requestBean.setPackageBarcode(pack.getPackageBarcode());
-					inspections.add(Inspection.toInspection(requestBean));
-				}
-			}
-		} else if (StringUtils.isNotEmpty(requestBean.getPackageBarcode())) {
-			requestBean = getStoreIdByWaybillCode(requestBean,
-					WaybillUtil.getWaybillCode(requestBean
-							.getPackageBarcode()));
-			inspections.add(Inspection.toInspection(requestBean));
-		} else {
-			log.warn(" 验货prepareInspection，没有对应的包裹号或者箱号 ");
-		}
-		CollectionHelper<Inspection> helper = new CollectionHelper<Inspection>();
-		return helper.toList(inspections);
-	}
+
 
 	private InspectionRequest getStoreIdByWaybillCode(
 			InspectionRequest requestBean, String waybillCode) {
@@ -351,7 +267,9 @@ public class InspectionServiceImpl implements InspectionService {
 	public Integer inspectionCount(Inspection inspection) {
 		return inspectionDao.inspectionCount(inspection);
 	}
-
+	public Integer inspectionCountByWaybill(Inspection inspection) {
+		return inspectionDao.inspectionCountByWaybill(inspection);
+	}
 	/**
 	 * 插入pda操作日志表
 	 * 
@@ -553,24 +471,23 @@ public class InspectionServiceImpl implements InspectionService {
 	 * */
 	@JProfiler(jKey = "InspectionServiceImpl.getInspectionResult",mState = {JProEnum.TP,JProEnum.FunctionError})
 	public InspectionResult getInspectionResult(Integer dmsSiteCode, String waybillCode) {
+		InspectionResult result =  new InspectionResult("");
 		BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, false, false, false);
 		if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null) {
 			// 获取运单信息
 			Waybill waybill = baseEntity.getData().getWaybill();
+			result.setPackageSize(waybill.getGoodNumber());
 			if(dmsSiteCode == null || waybill.getProvinceId() ==null){
-				return new InspectionResult("");
+				return result;
 			}
 			DmsStorageArea newDmsStorageArea = dmsStorageAreaService.findByDmsSiteAndWaybillAdress(dmsSiteCode,waybill.getProvinceId(),waybill.getCityId());
-			if(newDmsStorageArea != null){
-				String storageCode = newDmsStorageArea.getStorageCode();
-				return new InspectionResult(storageCode);
-			}else {
-				return new InspectionResult("");
+			if(newDmsStorageArea != null) {
+				result.setStorageCode(newDmsStorageArea.getStorageCode());
 			}
 		}else{
 			this.log.warn("通过运单号获取运单信息失败：{}" , waybillCode);
-			return new InspectionResult("");
 		}
+		return result;
 	}
 
 	/**
