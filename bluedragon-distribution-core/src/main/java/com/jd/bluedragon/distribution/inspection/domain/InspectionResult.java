@@ -25,6 +25,17 @@ public class InspectionResult implements Serializable {
      */
     private String tabletrolleyCode = StringUtils.EMPTY;
 
+
+    /**
+     * 包裹总数
+     */
+    private int packageSize;
+
+    /**
+     * 已扫包裹总数
+     */
+    private int sacnPackageSize;
+
     public String getNextRouterSiteName() {
         return nextRouterSiteName;
     }
@@ -59,5 +70,21 @@ public class InspectionResult implements Serializable {
 
     public void setTabletrolleyCode(String tabletrolleyCode) {
         this.tabletrolleyCode = tabletrolleyCode;
+    }
+
+    public int getPackageSize() {
+        return packageSize;
+    }
+
+    public void setPackageSize(int packageSize) {
+        this.packageSize = packageSize;
+    }
+
+    public int getSacnPackageSize() {
+        return sacnPackageSize;
+    }
+
+    public void setSacnPackageSize(int sacnPackageSize) {
+        this.sacnPackageSize = sacnPackageSize;
     }
 }
