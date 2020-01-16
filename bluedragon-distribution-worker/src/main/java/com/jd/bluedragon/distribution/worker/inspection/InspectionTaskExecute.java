@@ -161,7 +161,7 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
             if (BusinessHelper.checkIntNumRange(packages.size())) {
                 for (DeliveryPackageD pack : packages) {
                     request.setPackageBarcode(pack.getPackageBarcode());
-                    inspectionList.add(Inspection.toInspection(request));
+                    inspectionList.add(Inspection.toInspection(request,bigWaybillDto));
                 }
             }
         } else if (StringUtils.isNotEmpty(request.getPackageBarcode())) {
@@ -169,7 +169,7 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
                     && !WaybillUtil.isSurfaceCode(request.getPackageBarcode())) {
                 request.setWaybillCode(WaybillUtil.getWaybillCode(request.getPackageBarcode()));
             }
-            inspectionList.add(Inspection.toInspection(request));
+            inspectionList.add(Inspection.toInspection(request,bigWaybillDto));
         }
         Collections.sort(inspectionList);
         context.setInspectionList(inspectionList);
