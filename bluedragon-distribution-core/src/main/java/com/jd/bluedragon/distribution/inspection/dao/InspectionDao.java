@@ -41,7 +41,11 @@ public class InspectionDao extends BaseDao<Inspection>{
 	public Integer inspectionCount( Inspection inspection ){
 		return (Integer)this.getSqlSession().selectOne(namespace+".inspectionCount", inspection);
 	}
-	
+
+	public Integer inspectionCountByWaybill( Inspection inspection ){
+		return (Integer)this.getSqlSession().selectOne(namespace+".inspectionCountByWaybill", inspection);
+	}
+
 	public int updateYnByPackage(Inspection inspection){
 		return this.getSqlSession().update(namespace+".updateYnByPackage", inspection);
 	}

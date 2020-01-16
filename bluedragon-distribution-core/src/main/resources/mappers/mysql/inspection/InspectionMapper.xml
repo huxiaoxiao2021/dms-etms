@@ -260,6 +260,16 @@
         AND yn=1
     </select>
 
+    <select id="inspectionCountByWaybill" resultType="Integer" parameterType="Inspection">
+        SELECT
+        count(DISTINCT PACKAGE_BARCODE)
+        FROM inspection
+        WHERE waybill_code = #{waybillCode,jdbcType=VARCHAR}
+        AND package_barcode != #{packageBarcode,jdbcType=VARCHAR}
+        AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
+        AND yn=1
+    </select>
+
     <select id="findPopJoinTotalCount" resultType="java.lang.Integer" parameterType="java.util.Map">
         SELECT
         count(inspection_id)
