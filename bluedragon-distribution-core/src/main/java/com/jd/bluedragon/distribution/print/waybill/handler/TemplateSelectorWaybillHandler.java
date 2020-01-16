@@ -73,7 +73,10 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
             	//冷链合伙人打印，指定为冷链模板
             	if(WaybillPrintOperateTypeEnum.COLD_CHAIN_PRINT.getType().equals(operateType)){
             		templateName = TEMPlATE_NAME_B2B_MAIN;
-            	}else if (TemplateGroupEnum.TEMPLATE_GROUP_CODE_TC.equals(basePrintWaybill.getTemplateGroupCode())) {
+            	}else if(BusinessUtil.isBusinessNet(waybillSign)){
+            	    //经济网模板
+                    templateName = TEMPlATE_NAME_C1010_MAIN;
+                }else if (TemplateGroupEnum.TEMPLATE_GROUP_CODE_TC.equals(basePrintWaybill.getTemplateGroupCode())) {
                     //TC模板
                     templateName = TEMPlATE_NAME_TC;
                 }else if (TemplateGroupEnum.TEMPLATE_GROUP_CODE_B.equals(basePrintWaybill.getTemplateGroupCode())) {
@@ -98,7 +101,7 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
                         //C网统一模板
                         templateName = TEMPlATE_NAME_C_MAIN;
                         //10*10模板
-                        if(DmsPaperSize.PAPER_SIZE_CODE_1010.equals(paperSizeCode) || BusinessUtil.isBusinessNet(waybillSign)){
+                        if(DmsPaperSize.PAPER_SIZE_CODE_1010.equals(paperSizeCode)){
                         	templateName = TEMPlATE_NAME_C1010_MAIN;
                         }
                     }
