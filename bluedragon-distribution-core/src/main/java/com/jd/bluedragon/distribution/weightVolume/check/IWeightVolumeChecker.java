@@ -11,7 +11,7 @@ import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
  * @author wuzuxiang
  * @since 2020/1/15
  **/
-public interface IWeightVolumeCheck {
+public interface IWeightVolumeChecker {
 
     /**
      * 校验参数，校验本次操作的合法性

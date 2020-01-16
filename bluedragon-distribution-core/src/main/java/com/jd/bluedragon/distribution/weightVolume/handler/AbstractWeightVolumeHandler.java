@@ -38,61 +38,7 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
         return result;
     }
 
-    @Override
-    public InvokeResult checkWeightVolume(WeightVolumeEntity entity){
-        InvokeResult result = new InvokeResult<>();
-        if(!checkWeightVolumeParam(entity)){
-            result.parameterError(InvokeResult.PARAM_ERROR);
-            return result;
-        }
-        return weighVolumeIntercept(entity);
-    }
-
-    protected boolean checkWeightVolumeParam(WeightVolumeEntity entity) {
-        /* 校验基础参数 */
-        if (null == entity || StringHelper.isEmpty(entity.getBarCode())
-                || StringHelper.isEmpty(entity.getOperateSiteName()) || entity.getOperateSiteCode() == null
-                || StringHelper.isEmpty(entity.getOperatorCode()) || StringHelper.isEmpty(entity.getOperatorName())
-                || entity.getSourceCode() == null || entity.getBusinessType() == null || entity.getOperateTime() == null) {
-            logger.warn("分拣称重量方处理的消息实体部分数据不存在，参数错误：{}",JsonHelper.toJson(entity));
-            return Boolean.FALSE;
-        }
-
-        /* 校验称重量方信息的存在性 */
-        if (entity.getHeight() == null && entity.getLength() == null && entity.getWidth() == null
-                && entity.getWeight() == null && entity.getVolume() == null) {
-            logger.warn("分拣称重量方处理的消息实体无称重量方数据，参数错误：{}",JsonHelper.toJson(entity));
-            return Boolean.FALSE;
-        }
-
-        /* 校验称重量方信息的有效性，可以不传但是不能为空 */
-        if (entity.getWeight() != null && entity.getWeight() < 0) {
-            logger.warn("分拣称重量方处理的消息重量信息小于0，参数错误：{}", JsonHelper.toJson(entity));
-            return Boolean.FALSE;
-        }
-        if (entity.getLength() != null && entity.getLength() < 0) {
-            logger.warn("分拣称重量方处理的消息长度信息小于0，参数错误：{}", JsonHelper.toJson(entity));
-            return Boolean.FALSE;
-        }
-        if (entity.getWidth() != null && entity.getWidth() < 0) {
-            logger.warn("分拣称重量方处理的消息宽信息小于0，参数错误：{}", JsonHelper.toJson(entity));
-            return Boolean.FALSE;
-        }
-        if (entity.getHeight() != null && entity.getHeight() < 0) {
-            logger.warn("分拣称重量方处理的消息高度信息小于0，参数错误：{}", JsonHelper.toJson(entity));
-            return Boolean.FALSE;
-        }
-        if (entity.getVolume() != null && entity.getVolume() < 0) {
-            logger.warn("分拣称重量方处理的消息体积信息小于0，参数错误：{}", JsonHelper.toJson(entity));
-            return Boolean.FALSE;
-        }
-
-        return Boolean.TRUE;
-    }
-
     protected abstract void handlerWeighVolume(WeightVolumeEntity entity);
-
-    protected abstract InvokeResult weighVolumeIntercept(WeightVolumeEntity entity);
 
     protected void postHandler(WeightVolumeEntity entity) {
         WeightVolumeFlowEntity weightVolumeEntity = new WeightVolumeFlowEntity();

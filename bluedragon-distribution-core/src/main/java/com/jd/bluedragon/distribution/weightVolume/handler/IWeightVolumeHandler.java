@@ -14,5 +14,4 @@ public interface IWeightVolumeHandler {
 
     InvokeResult<Boolean> handlerOperateWeightVolume(WeightVolumeEntity entity);
 
-    InvokeResult<Boolean> checkWeightVolume(WeightVolumeEntity entity);
 }
