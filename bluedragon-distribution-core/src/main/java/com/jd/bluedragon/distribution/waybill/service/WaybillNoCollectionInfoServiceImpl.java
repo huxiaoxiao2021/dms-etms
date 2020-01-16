@@ -729,7 +729,7 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
         //子集合的长度
         int toIndex = subSize;
         for (int i = 0; i < list.size(); i += subSize) {
-            if (i + 2 > size) {
+            if (i + subSize > size) {
                 toIndex = size - i;
             }
             List<String> newList = list.subList(i, i + toIndex);

@@ -2341,7 +2341,7 @@ public class WaybillResource {
 		} catch (Exception e) {
 			result.setCode(JdResponse.CODE_SERVICE_ERROR);
 			result.setMessage("服务端查询异常，请稍后再试！");
-			log.error("获取差异查询信息失败，参数：{}", JsonHelper.toJson(waybillNoCollectionRequest) + e);
+			log.error("获取差异查询信息失败，参数：{}", JsonHelper.toJson(waybillNoCollectionRequest), e);
 		}
 
 		result.setData(inspectionNoCollectionResult);
