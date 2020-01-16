@@ -242,7 +242,7 @@ public class WaybillGateWayExternalServiceImpl implements WaybillGateWayExternal
             return response;
         }
         //校验箱子始发地是否和集包始发地一致
-        if(site.getSiteCode() != box.getCreateSiteCode()){
+        if(!site.getSiteCode().equals(box.getCreateSiteCode())){
             response.toError(GateWayBaseResponse.MESSAGE_BOX_SITE_ERROR);
             return response;
         }
