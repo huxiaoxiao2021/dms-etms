@@ -66,12 +66,4 @@ public class HandoverWeightVolumeHandler extends AbstractWeightVolumeHandler {
 
         allianceBusiDeliveryDetailService.allianceBusiDelivery(allianceBusiDeliveryDto);
     }
-
-    @Override
-    protected InvokeResult weighVolumeIntercept(WeightVolumeEntity entity) {
-        InvokeResult result = new InvokeResult();
-        result.success();
-        //TODO 加盟商
-        return result;
-    }
 }
