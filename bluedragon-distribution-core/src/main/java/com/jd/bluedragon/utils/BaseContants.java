@@ -108,6 +108,7 @@ public class BaseContants {
 	public static final int SANFANGKUAIDI=16;//站点类型为第三方快递类型
 	public static final int ZITIGUI=28;//站点类型为自提柜类型
 	public static final int DMS=64;//站点类型为分拣中心类型
+	public static final int ECONOMIC_NET_SITE=10000;//站点类型为经济网类型
 	public static final int LOCAL=1;//道口类型为本地，即分拣中心和站点绑定的分拣中心一致
 	public static final int DIRECT=2;//道口类型直发，分拣中心和站点绑定的不一致，但还是维护了道口
 	public static final int CROSS=3;//跨分拣道口

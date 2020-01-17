@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.weightVolume.handler;
 
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
@@ -10,6 +10,11 @@ import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.external.crossbow.economicNet.domain.EconomicNetBoxWeightVolumeDto;
+import com.jd.bluedragon.external.crossbow.economicNet.manager.EconomicNetBusinessManager;
+import com.jd.bluedragon.utils.BaseContants;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,6 +45,12 @@ public class BoxWeightVolumeHandler extends AbstractWeightVolumeHandler {
 
     @Autowired
     private WeightVolumeHandlerStrategy weightVolumeHandlerStrategy;
+
+    @Autowired
+    private SiteService siteService;
+
+    @Autowired
+    private EconomicNetBusinessManager economicNetBusinessManager;
 
     @Override
     protected void handlerWeighVolume(WeightVolumeEntity entity) {
@@ -105,6 +116,24 @@ public class BoxWeightVolumeHandler extends AbstractWeightVolumeHandler {
             itemEntity.setSourceCode(FromSourceEnum.DMS_INNER_SPLIT);
             /* 这个地方的handoverFlag设置为false，可以放到entity对象中，传过来 */
             weightVolumeHandlerStrategy.doHandler(itemEntity);
+        }
+
+        /* 经济网的箱号需要回传信息给经济网:经济网箱号的判断条件--始发是经济网 */
+        BaseStaffSiteOrgDto siteEntity = siteService.getSite(box.getCreateSiteCode());
+        if (siteEntity != null && siteEntity.getSiteType() == BaseContants.ECONOMIC_NET_SITE) {
+            EconomicNetBoxWeightVolumeDto weightVolumeDto = new EconomicNetBoxWeightVolumeDto();
+            weightVolumeDto.setId(String.valueOf(System.currentTimeMillis()));
+            weightVolumeDto.setBagCode(entity.getBoxCode());
+            weightVolumeDto.setHeight(String.valueOf(entity.getHeight()));
+            weightVolumeDto.setLength(String.valueOf(entity.getLength()));
+            weightVolumeDto.setWeight(String.valueOf(entity.getWeight()));
+            weightVolumeDto.setWidth(String.valueOf(entity.getWidth()));
+            weightVolumeDto.setScanDate(DateHelper.formatDateTime(entity.getOperateTime()));
+            weightVolumeDto.setScanMan(entity.getOperatorName());
+            weightVolumeDto.setScanSite(entity.getOperateSiteName());
+            weightVolumeDto.setScanSiteCode(String.valueOf(entity.getOperateSiteCode()));
+            weightVolumeDto.setScanType("包裹称重扫描");
+            economicNetBusinessManager.doRestInterface(weightVolumeDto);
         }
 
     }

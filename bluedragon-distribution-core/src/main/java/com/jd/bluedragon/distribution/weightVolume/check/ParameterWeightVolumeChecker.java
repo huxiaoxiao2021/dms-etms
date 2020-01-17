@@ -111,6 +111,17 @@ public class ParameterWeightVolumeChecker implements IWeightVolumeChecker {
             result.setData(Boolean.FALSE);
             return result;
         }
+
+        /* 按箱操作测量体积时需要回传长宽高 */
+        if (WeightVolumeBusinessTypeEnum.BY_BOX.equals(entity.getBusinessType())) {
+            if ((!NumberHelper.gt0(entity.getLength()) || !NumberHelper.gt0(entity.getWidth()) || !NumberHelper.gt0(entity.getHeight()))
+                    && NumberHelper.gt0(entity.getVolume())) {
+                result.parameterError("按箱操作需测量长宽高");
+                result.setData(Boolean.FALSE);
+                return result;
+            }
+        }
+
         result.success();
         result.setData(Boolean.TRUE);
         return result;

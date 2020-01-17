@@ -37,12 +37,7 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
         InvokeResult<Boolean> result = new InvokeResult<>();
         result.success();
         result.setData(Boolean.TRUE);
-        if (null == entity || StringHelper.isEmpty(entity.getBarCode())) {
-            logger.error("称重量方操作单号为空：{}", JsonHelper.toJson(entity));
-            result.parameterError(InvokeResult.PARAM_ERROR);
-            result.setData(Boolean.FALSE);
-            return result;
-        }
+
         InvokeResult<Boolean> checkResult = WeightVolumeChecker.check(entity);
         if(checkResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE){
             logger.warn("称重数据上传，校验未通过，参数：{}，返回值：{}",JsonHelper.toJson(entity), JsonHelper.toJson(checkResult));
