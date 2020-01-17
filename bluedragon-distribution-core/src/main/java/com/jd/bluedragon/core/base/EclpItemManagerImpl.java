@@ -5,6 +5,8 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.eclp.core.ApiResponse;
 import com.jd.eclp.master.export.api.service.dept.DeptServiceApi;
 import com.jd.eclp.master.export.api.service.dept.domain.DeptDomain;
+import com.jd.eclp.spare.ext.api.common.StringApiResponse;
+import com.jd.eclp.spare.ext.api.inbound.InboundCancelRequest;
 import com.jd.eclp.spare.ext.api.inbound.InboundOrderService;
 import com.jd.eclp.spare.ext.api.inbound.OrderResponse;
 import com.jd.eclp.spare.ext.api.inbound.domain.InboundOrder;
@@ -90,5 +92,35 @@ public class EclpItemManagerImpl implements EclpItemManager {
             log.error("EclpItemManagerImpl-createInboundOrder 调用失败：{}",JsonHelper.toJson(inboundOrder), e);
         }
         return null;
+    }
+
+    /**
+     * 取消入库单
+     * @param deptNo
+     * @param isvInboundOrderNo
+     * @param inboundSource
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMS.BASE.EclpItemManagerImpl.cancelInboundOrder", mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWORKER)
+    public boolean cancelInboundOrder(String deptNo,String isvInboundOrderNo,Byte inboundSource) {
+
+        boolean result = false;
+        try{
+            InboundCancelRequest request = new InboundCancelRequest();
+            request.setDeptNo(deptNo);
+            request.setIsvInboundOrderNo(isvInboundOrderNo);
+            request.setInboundSource(inboundSource);
+            StringApiResponse response = inboundOrderService.cancelInboundOrder(request);
+
+            result = STRINGAPIRESPONE_SUCCESS == response.getCode();
+
+            if(!result){
+                log.warn("EclpItemManagerImpl-cancelInboundOrder返回失败{},{},{},{}",deptNo,isvInboundOrderNo,inboundSource,JsonHelper.toJson(response));
+            }
+        }catch (Exception e){
+            log.error("EclpItemManagerImpl-createInboundOrder 调用异常：{},{},{}",deptNo,isvInboundOrderNo,inboundSource, e);
+        }
+        return result;
     }
 }

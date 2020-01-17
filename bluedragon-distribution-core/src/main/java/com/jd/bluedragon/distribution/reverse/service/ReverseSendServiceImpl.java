@@ -1931,7 +1931,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 }
                 if(InboundSourceEnum.SORTING_C2C.getCode().equals(inboundOrder.getSource().getCode())){
 
-                    if(!checkAlreadyDeal(sendDetail)){
+                    if(!checkAlreadyDeal(inboundOrder)){
                         log.error("ECLP退备件库失败,检查入库单数据失败：{}|{}",waybillCode,sendDetail.getSendCode());
                         continue;
                     }
@@ -1995,12 +1995,13 @@ public class ReverseSendServiceImpl implements ReverseSendService {
      * 发货状态 暂停本次创建过程，交由其他任务创建
      * 收货状态 拦截
      * 其他情况继续
-     * @param sendDetail
+     * @param inboundOrder
      * @return
      */
-    private boolean checkAlreadyDeal(SendDetail sendDetail){
+    private boolean checkAlreadyDeal(InboundOrder inboundOrder){
         ReverseStockInDetail queryParam = new ReverseStockInDetail();
-        queryParam.setWaybillCode(sendDetail.getWaybillCode());
+        queryParam.setWaybillCode(inboundOrder.getWaybillNo());
+        //现在业务阶段只有C2C
         queryParam.setBusiType(ReverseStockInDetailTypeEnum.C2C_REVERSE_SPWMS.getCode());
 
         List<ReverseStockInDetail> reverseStockInDetails = reverseStockInDetailService.findByWaybillCodeAndType(queryParam);
@@ -2012,18 +2013,20 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
             if(ReverseStockInDetailStatusEnum.SUCCESS.getCode().equals(reverseStockInDetail.getStatus())){
                 //此时需要调用取消接口
-                /*if(){
+
+                if(eclpItemManager.cancelInboundOrder(inboundOrder.getTargetDeptNo(),inboundOrder.getOrderNo(),inboundOrder.getSource().getCode())){
                     return true;
                 }else{
-                    log.warn("此入库单操作取消时失败，无法继续推送！，运单号{}",sendDetail.getWaybillCode());
+                    log.warn("此入库单操作取消时失败，无法继续推送！，运单号{}",inboundOrder.getWaybillNo());
                     return false;
-                }*/
-            }
-            if(ReverseStockInDetailStatusEnum.REVERSE.getCode().equals(reverseStockInDetail.getStatus())){
-                log.warn("此入库单已收货，无法继续推送！，运单号{}",sendDetail.getWaybillCode());
+                }
+            }else if(ReverseStockInDetailStatusEnum.REVERSE.getCode().equals(reverseStockInDetail.getStatus())){
+                log.warn("此入库单已收货，无法继续推送！，运单号{}",inboundOrder.getWaybillNo());
+                return false;
+            }else if(ReverseStockInDetailStatusEnum.SEND.getCode().equals(reverseStockInDetail.getStatus())){
+                log.warn("此入库单其他任务在执行，无法继续推送！，运单号{}",inboundOrder.getWaybillNo());
                 return false;
             }
-
         }
 
         return true;
