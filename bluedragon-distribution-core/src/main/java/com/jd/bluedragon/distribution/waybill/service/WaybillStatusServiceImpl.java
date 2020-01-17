@@ -786,6 +786,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				tWaybillStatus.setPackageCode(packageCode);
 				tWaybillStatus.setWaybillCode(waybillCode);
 				toWaybillStatus(tWaybillStatus, bdTraceDto);
+				bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
 				waybillQueryManager.sendBdTrace(bdTraceDto);
 				task.setYn(0);
 			}
