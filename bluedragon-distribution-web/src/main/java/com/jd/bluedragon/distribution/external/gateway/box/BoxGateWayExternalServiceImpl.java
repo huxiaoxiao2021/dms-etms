@@ -12,6 +12,8 @@ import com.jd.bluedragon.external.gateway.dto.request.BoxGenerateRequest;
 import com.jd.bluedragon.external.gateway.dto.response.BoxDto;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +45,7 @@ public class BoxGateWayExternalServiceImpl implements BoxGateWayExternalService 
     private final Logger logger = LoggerFactory.getLogger(BoxGateWayExternalServiceImpl.class);
 
     @Override
+    @JProfiler(jKey = "DMSWEB.BoxGateWayExternalServiceImpl.generateBoxCodes", jAppName = Constants.UMP_APP_NAME_DMSWEB ,mState = {JProEnum.TP})
     public GateWayBaseResponse<BoxDto> generateBoxCodes(BoxGenerateRequest request,String pin) {
         logger.info("生成箱号request[{}]", JsonHelper.toJson(request));
         GateWayBaseResponse gateWayBaseResponse = new GateWayBaseResponse();

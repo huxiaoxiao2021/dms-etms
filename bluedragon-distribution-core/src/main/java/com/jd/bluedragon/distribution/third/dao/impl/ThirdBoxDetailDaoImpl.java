@@ -23,19 +23,21 @@ public class ThirdBoxDetailDaoImpl extends BaseDao<ThirdBoxDetail> implements Th
     /**
      * 取消某一包裹的绑定关系
      *
-     * @param tenantCode 租户编码
-     * @param startSiteId 操作场地
-     * @param boxCode     箱号
-     * @param packageCode 包裹号
+     * @param detail 明细
      * @return 结果
      */
     @Override
-    public boolean cancel(String tenantCode, Integer startSiteId, String boxCode, String packageCode) {
+    public boolean cancel(ThirdBoxDetail detail) {
         ThirdBoxDetail param = new ThirdBoxDetail();
-        param.setStartSiteId(startSiteId);
-        param.setBoxCode(boxCode);
-        param.setPackageCode(packageCode);
-        param.setTenantCode(tenantCode);
+        param.setStartSiteId(detail.getStartSiteId());
+        param.setBoxCode(detail.getBoxCode());
+        param.setPackageCode(detail.getPackageCode());
+        param.setTenantCode(detail.getTenantCode());
+        param.setUpdateUserId(detail.getOperatorId());
+        param.setUpdateUserName(detail.getOperatorName());
+        param.setUpdateUnitName(detail.getOperatorUnitName());
+        param.setUpdateTime(detail.getOperatorTime());
+
         return sqlSession.update(this.nameSpace+".cancel", param) == 1;
     }
 

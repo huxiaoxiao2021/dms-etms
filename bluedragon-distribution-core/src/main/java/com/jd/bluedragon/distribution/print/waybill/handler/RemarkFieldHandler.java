@@ -2,11 +2,12 @@ package com.jd.bluedragon.distribution.print.waybill.handler;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.TextConstants;
+import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
-import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
+import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -34,7 +35,7 @@ public class RemarkFieldHandler implements Handler<WaybillPrintContext,JdResult<
     private WaybillQueryManager waybillQueryManager;
 
     @Value("${accordedVersion:20200113}")
-    private int ACCORDED_VERSION;
+    private int accordedVersion;
 
     /**
 	 * 20200113WM
@@ -46,17 +47,20 @@ public class RemarkFieldHandler implements Handler<WaybillPrintContext,JdResult<
 	@Override
 	public JdResult<String> handle(WaybillPrintContext context) {
 		log.debug("包裹标签打印-备注字段处理");
-		WaybillPrintResponse response = context.getResponse();
-		String waybillSign = response.getWaybillSign();
+		BasePrintWaybill basePrintWaybill = context.getBasePrintWaybill();
+		Waybill waybill = context.getWaybill();
+		String waybillCode = waybill==null?null:waybill.getWaybillCode();
+		String waybillSign = waybill==null?null:waybill.getWaybillSign();
+		String sendPay = waybill==null?null:waybill.getSendPay();
 		/**
 		 * 1、自营运单-备注展示订单号
 		 */
-		String remark = response.getRemark()==null?NULL_STR:response.getRemark();
+		String remark = basePrintWaybill.getRemark()==null?NULL_STR:basePrintWaybill.getRemark();
 		if(BusinessUtil.isSelf(waybillSign)){
-			String orderCode = waybillQueryManager.getOrderCodeByWaybillCode(response.getWaybillCode(), true);
+			String orderCode = waybillQueryManager.getOrderCodeByWaybillCode(waybillCode, true);
 			if(StringHelper.isNotEmpty(orderCode)){
-				response.setRemark(TextConstants.PRINT_TEXT_ORDER_CODE_PREFIX + orderCode);
-				response.appendRemark(remark);
+				basePrintWaybill.setRemark(TextConstants.PRINT_TEXT_ORDER_CODE_PREFIX + orderCode);
+				basePrintWaybill.appendRemark(remark);
 			}
 		}
 		/**
@@ -66,41 +70,41 @@ public class RemarkFieldHandler implements Handler<WaybillPrintContext,JdResult<
 			WaybillPrintRequest request = context.getRequest();
 			String versionCode = request.getVersionCode();
 			if(StringUtils.isBlank(versionCode)
-					|| Integer.valueOf(versionCode.replace(VERSION_SUFFIX,NULL_STR)) > ACCORDED_VERSION){
-				if (!BusinessUtil.isBusinessNet(response.getWaybillSign())) {
-					if (WaybillUtil.isSwitchCode(response.getWaybillCode())
-							&& BusinessUtil.isSignChar(response.getSendPay(),8,'6')) {
+					|| Integer.valueOf(versionCode.replace(VERSION_SUFFIX,NULL_STR)) > accordedVersion){
+				if (!BusinessUtil.isBusinessNet(waybillSign)) {
+					if (WaybillUtil.isSwitchCode(waybillCode)
+							&& BusinessUtil.isSignChar(sendPay,8,'6')) {
 						remark += DmsConstants.BAD_WAREHOURSE_FOR_PORT;
 					} else {
-						remark += StringHelper.isEmpty(response.getRemark())? NULL_STR : response.getRemark();
+						remark += StringHelper.isEmpty(basePrintWaybill.getRemark())? NULL_STR : basePrintWaybill.getRemark();
 					}
-					if (StringHelper.isNotEmpty(response.getServiceCode())) {
-						if (!remark.contains(response.getServiceCode())) {
+					if (StringHelper.isNotEmpty(basePrintWaybill.getServiceCode())) {
+						if (!remark.contains(basePrintWaybill.getServiceCode())) {
 							if (remark.length() > 0) {
 								remark += Constants.SEPARATOR_SEMICOLON;
 							}
 							remark += DmsConstants.PICKUP_CUSTOMER_COMMET;
-							remark += response.getServiceCode();
+							remark += basePrintWaybill.getServiceCode();
 						}
 
 					}
-					if (StringHelper.isNotEmpty(response.getBusiOrderCode())) {
-						if (!remark.contains(response.getBusiOrderCode())) {
+					if (StringHelper.isNotEmpty(basePrintWaybill.getBusiOrderCode())) {
+						if (!remark.contains(basePrintWaybill.getBusiOrderCode())) {
 							if (remark.length() > 0) {
 								remark += Constants.SEPARATOR_SEMICOLON;
 							}
 							remark += DmsConstants.BUSINESS_ORDER_CODE_REMARK;
-							remark += response.getBusiOrderCode();
+							remark += basePrintWaybill.getBusiOrderCode();
 						}
 					}
 				}else {
-					remark = response.getBusiOrderCode();
+					remark = basePrintWaybill.getBusiOrderCode();
 				}
 			}
 		}catch (Exception e){
 			log.error("版本号异常!");
 		}
-		response.setRemark(remark);
+		basePrintWaybill.setRemark(remark);
 		return context.getResult();
 	}
 }

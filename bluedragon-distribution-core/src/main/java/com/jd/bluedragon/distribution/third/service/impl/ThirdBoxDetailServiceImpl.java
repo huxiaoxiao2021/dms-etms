@@ -51,16 +51,13 @@ public class ThirdBoxDetailServiceImpl extends BaseService<ThirdBoxDetail> imple
 	/**
 	 * 取消某一包裹的绑定关系
 	 *
-	 * @param tenantCode 租户编码
-	 * @param startSiteId 操作场地
-	 * @param boxCode     箱号
-	 * @param packageCode 包裹号
+	 * @param detail 明细
 	 * @return 结果
 	 */
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	@Override
-	public boolean cancel(String tenantCode, Integer startSiteId, String boxCode, String packageCode) {
-		return thirdBoxDetailDao.cancel(tenantCode, startSiteId, boxCode, packageCode);
+	public boolean cancel(ThirdBoxDetail detail) {
+		return thirdBoxDetailDao.cancel(detail);
 	}
 
 	/**

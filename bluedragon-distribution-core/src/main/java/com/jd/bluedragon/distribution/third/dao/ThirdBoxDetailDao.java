@@ -18,13 +18,10 @@ public interface ThirdBoxDetailDao extends Dao<ThirdBoxDetail> {
     /**
      * 取消某一包裹的绑定关系
      *
-     * @param tenantCode 租户编码
-     * @param startSiteId 操作场地
-     * @param boxCode 箱号
-     * @param packageCode 包裹号
+     * @param detail 明细
      * @return 结果
      */
-    boolean cancel(String tenantCode, Integer startSiteId, String boxCode, String packageCode);
+    boolean cancel(ThirdBoxDetail detail);
 
     /**
      * 查询箱子明细
