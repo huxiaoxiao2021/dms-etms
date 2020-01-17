@@ -10,11 +10,7 @@ import com.jd.bluedragon.distribution.api.request.InspectionECRequest;
 import com.jd.bluedragon.distribution.api.request.InspectionFCRequest;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.request.TurnoverBoxRequest;
-import com.jd.bluedragon.distribution.api.response.HandoverDetailResponse;
-import com.jd.bluedragon.distribution.api.response.HandoverResponse;
-import com.jd.bluedragon.distribution.api.response.InspectionECResponse;
-import com.jd.bluedragon.distribution.api.response.PackageResponse;
-import com.jd.bluedragon.distribution.api.response.WaybillResponse;
+import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.base.domain.DmsStorageArea;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
@@ -51,13 +47,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -590,27 +580,6 @@ public class InspectionResource {
 		return jdResponse;
 	}
 
-    /**
-     * B网验货显示下一节点的笼车号
-     *
-     * @param inspectionResult
-     * @param dmsSiteCode
-     * @param nextDest
-     */
-	private void setTabletrolleyCode(InspectionResult inspectionResult, Integer dmsSiteCode, BaseStaffSiteOrgDto nextDest) {
-        if (null == dmsSiteCode || null == nextDest)
-            return;
-        BaseStaffSiteOrgDto siteOrgDto = siteService.getSite(dmsSiteCode);
-        if (null != siteOrgDto && siteOrgDto.getSubType() != null && siteOrgDto.getSubType() == Constants.B2B_SITE_TYPE) {
-            SortCrossDetail sortCrossDetail = basicPrimaryWS.getCrossCodeDetailByDmsID(dmsSiteCode, String.valueOf(nextDest.getSiteCode()));
-            if (log.isInfoEnabled()) {
-                log.info("Get table trolley code from basic. dmsId:{}, siteCode:{}, ret:[{}]", dmsSiteCode, nextDest.getSiteCode(), JsonHelper.toJson(sortCrossDetail));
-            }
-            if (null != sortCrossDetail) {
-                inspectionResult.setTabletrolleyCode(sortCrossDetail.getTabletrolleyCode());
-            }
-        }
-    }
 	@GET
 	@Path("/inspection/checkProgress/{packageOrWaybillCode}/{siteCode}")
 	@JProfiler(jKey = "DMS.BASE.InspectionResource.getWaybillCheckPackDetail", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -638,4 +607,25 @@ public class InspectionResource {
 
 		return result;
 	}
+    /**
+     * B网验货显示下一节点的笼车号
+     *
+     * @param inspectionResult
+     * @param dmsSiteCode
+     * @param nextDest
+     */
+	private void setTabletrolleyCode(InspectionResult inspectionResult, Integer dmsSiteCode, BaseStaffSiteOrgDto nextDest) {
+        if (null == dmsSiteCode || null == nextDest)
+            return;
+        BaseStaffSiteOrgDto siteOrgDto = siteService.getSite(dmsSiteCode);
+        if (null != siteOrgDto && siteOrgDto.getSubType() != null && siteOrgDto.getSubType() == Constants.B2B_SITE_TYPE) {
+            SortCrossDetail sortCrossDetail = basicPrimaryWS.getCrossCodeDetailByDmsID(dmsSiteCode, String.valueOf(nextDest.getSiteCode()));
+            if (log.isInfoEnabled()) {
+                log.info("Get table trolley code from basic. dmsId:{}, siteCode:{}, ret:[{}]", dmsSiteCode, nextDest.getSiteCode(), JsonHelper.toJson(sortCrossDetail));
+            }
+            if (null != sortCrossDetail) {
+                inspectionResult.setTabletrolleyCode(sortCrossDetail.getTabletrolleyCode());
+            }
+        }
+    }
 }

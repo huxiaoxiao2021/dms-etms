@@ -83,8 +83,8 @@ public class BoxGateWayExternalServiceImpl implements BoxGateWayExternalService 
             dto.setRouterText(response.getRouterText());
             dto.setRouter(new ArrayList<String>(Arrays.asList(response.getRouterInfo())));
         }
-        dto.setEndSiteName(param.getCreateSiteName());
-        dto.setStartSiteName(param.getReceiveSiteName());
+        dto.setEndSiteName(param.getReceiveSiteName());
+        dto.setStartSiteName(param.getCreateSiteName());
         dto.setBoxCodes(new ArrayList<String>(Arrays.asList(response.getBoxCodes().split(Constants.SEPARATOR_COMMA))));
         return dto;
     }

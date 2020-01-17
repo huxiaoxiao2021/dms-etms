@@ -137,7 +137,7 @@ public class WaybillGateWayExternalServiceImpl implements WaybillGateWayExternal
         GateWayBaseResponse<Void> response = new GateWayBaseResponse<Void>();
         try {
             //集包校验
-            sortingCheck(startSite, box);
+            response = sortingCheck(startSite, box);
             if(!GateWayBaseResponse.CODE_SUCCESS.equals(response.getResultCode())){
                 return response;
             }
@@ -242,7 +242,7 @@ public class WaybillGateWayExternalServiceImpl implements WaybillGateWayExternal
             return response;
         }
         //校验箱子始发地是否和集包始发地一致
-        if(site.getSiteCode() != box.getCreateSiteCode()){
+        if(!site.getSiteCode().equals(box.getCreateSiteCode())){
             response.toError(GateWayBaseResponse.MESSAGE_BOX_SITE_ERROR);
             return response;
         }
