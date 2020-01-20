@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import org.slf4j.Logger;
@@ -55,6 +56,16 @@ public class LiveCycleWeightVolumeChecker implements IWeightVolumeChecker {
                 return result;
             }
             Waybill waybill = baseWaybillEntity.getData();
+            /* 经济网的操作需要回传长宽高 */
+            if (BusinessUtil.isBusinessNet(waybill.getWaybillSign())) {
+                if ((!NumberHelper.gt0(entity.getLength()) || !NumberHelper.gt0(entity.getWidth()) || !NumberHelper.gt0(entity.getHeight()))
+                        && NumberHelper.gt0(entity.getVolume())) {
+                    result.parameterError("按箱操作需测量长宽高");
+                    result.setData(Boolean.FALSE);
+                    return result;
+                }
+            }
+
             /* 是否需要称重校验 */
             if (BusinessUtil.isNoNeedWeight(waybill.getWaybillSign())) {
                 result.error(WeightByWaybillExceptionTypeEnum.WaybillNoNeedWeightExceptionMessage);
