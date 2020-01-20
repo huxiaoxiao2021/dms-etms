@@ -807,7 +807,9 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return "PartnerWaybillSynchroTaskN";
         }else if(TASK_TYPE_WEIGHT.equals(type)){
             return "WeightTask";
-        }else if(TASK_TYPE_SORTING.equals(type)){
+        }else if(TASK_TYPE_WEIGHT_VOLUME.equals(type)){
+            return "WeightVolumeTask";
+        } else if(TASK_TYPE_SORTING.equals(type)){
             return "SortingTaskN";
         }else if(TASK_TYPE_SORTING_SPLIT.equals(type)){
             return "SortingSplitTaskN";
