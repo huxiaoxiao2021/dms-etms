@@ -70,6 +70,14 @@ public interface WaybillService {
      * @return
      */
     boolean isMovingWareHouseInnerWaybill(String waybillCode);
+
+    /**
+     * 获取运单信息 并校验超区逻辑
+     * @param packageCode
+     * @return
+     */
+    DmsWaybillInfoResponse getDmsWaybillInfoAndCheck(String packageCode);
+
     /**
      * 获取运单信息
      * @param packageCode

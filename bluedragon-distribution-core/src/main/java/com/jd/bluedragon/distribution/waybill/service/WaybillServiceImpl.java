@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
@@ -46,6 +47,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -89,6 +91,9 @@ public class WaybillServiceImpl implements WaybillService {
 
     @Autowired
     private TaskService taskService;
+
+    @Resource
+    private UccPropertyConfiguration uccPropertyConfiguration;
 
     /**
      * 普通运单类型（非移动仓内配）
@@ -370,6 +375,23 @@ public class WaybillServiceImpl implements WaybillService {
     @Override
     public boolean isMovingWareHouseInnerWaybill(String waybillCode){
         return WAYBILL_TYPE_MOVING_WAREHOUSE_INNER.equals(getWaybillTypeByWaybillSign(waybillCode));
+    }
+
+    @Override
+    public DmsWaybillInfoResponse getDmsWaybillInfoAndCheck(String packageCode){
+        BigWaybillDto waybillDto = this.getWaybill(packageCode);
+        if (waybillDto == null || waybillDto.getWaybill() == null || waybillDto.getWaybillState() == null) {
+            return new DmsWaybillInfoResponse(CODE_WAYBILL_NOE_FOUND, MESSAGE_WAYBILL_NOE_FOUND);
+        }
+        Waybill waybill = waybillDto.getWaybill();
+        //-136 代表超区；具体逻辑上游（预分拣）控制
+        if(uccPropertyConfiguration.isPreOutZoneSwitch()
+                && BusinessUtil.isForeignForward(waybill.getWaybillSign())
+                && waybill.getOldSiteId() != null && waybill.getOldSiteId() == Constants.WAYBILL_SITE_ID_OUT_ZONE){
+            return new DmsWaybillInfoResponse(JdResponse.CODE_WRONG_STATUS, JdResponse.MESSAGE_OUT_ZONE);
+        }
+        DmsWaybillInfoResponse response = getDmsWaybillInfoResponse(packageCode);
+        return response;
     }
 
     /**

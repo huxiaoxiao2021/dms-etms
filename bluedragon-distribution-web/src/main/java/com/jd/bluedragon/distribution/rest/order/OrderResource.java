@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.api.response.OrderResponse;
 import com.jd.bluedragon.distribution.order.ws.OrderWebService;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Goods;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
@@ -52,20 +53,11 @@ public class OrderResource {
 	@Autowired
 	private OrderWebService orderWebService;
 
-	@Resource
-	private UccPropertyConfiguration uccPropertyConfiguration;
-
 	@GET
 	@Path("/order")
     @JProfiler(jKey = "DMS.WEB.OrderResource.getOrderResponse", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public OrderResponse getOrderResponse(@QueryParam("packageCode") String packageCode) {
-		OrderResponse orderResponse = this.waybillService.getDmsWaybillInfoResponse(packageCode);
-		//-136 代表超区；具体逻辑上游（预分拣）控制
-		if(uccPropertyConfiguration.isPreOutZoneSwitch() && orderResponse.getSiteId() != null && orderResponse.getSiteId() == -136){
-			orderResponse.setCode(JdResponse.CODE_WRONG_STATUS);
-			orderResponse.setMessage(JdResponse.MESSAGE_OUT_ZONE);
-			return orderResponse;
-		}
+		OrderResponse orderResponse = this.waybillService.getDmsWaybillInfoAndCheck(packageCode);
 		return orderResponse;
 	}
 
