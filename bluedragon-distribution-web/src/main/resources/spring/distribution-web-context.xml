@@ -2,7 +2,6 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	   xmlns:context="http://www.springframework.org/schema/context"
-	   xmlns:aop="http://www.springframework.org/schema/aop"
 	   xsi:schemaLocation="http://www.springframework.org/schema/beans
 	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd 
 
@@ -27,6 +26,7 @@
 				<value>classpath:configured/snowflake.properties</value>
 				<value>classpath:configured/ucc.properties</value>
 				<value>classpath:configured/print.properties</value>
+				<value>classpath:configured/dms_crossbow.properties</value>
 			</list>
 		</property>
 		<property name="properties" ref="secApplicationProperties"/>
@@ -44,12 +44,10 @@
 	<context:component-scan base-package="com.jd.dms.logger"/>
 
 
-    <!-- 引入不同环境下的特殊配置 -->
-    <import resource="classpath:spring/distribution-web-context-${profiles.env}.xml" />
+    <!-- 引入特殊配置 -->
+    <import resource="classpath:spring/distribution-web-context-special.xml" />
 
 	<!-- 引入相关配置 -->
-	<import resource="classpath:spring/mysql/distribution-core-common.xml" />
-	<import resource="classpath:spring/mysql/jddl/distribution-core-common-jddl.xml" />
 	<import resource="classpath:spring/distribution-core-context.xml" />
 	<import resource="classpath:spring/distribution-web-mvc.xml" />
 	<import resource="classpath:spring/distribution-web-new-authen.xml" />
@@ -63,12 +61,4 @@
 	<import resource="classpath:spring/distribution-web-special-jsf.xml"/>
 	
 	<import resource="classpath:spring/distribution-web-gateway-jsf-server.xml"/>
-
-	<!-- ump monitor begin -->
-	<!--  监控注解处理器 -->
-	<bean class="com.jd.ump.annotation.JAnnotation">
-	   <property name="jvmKey" value="Bluedragon_dms_web.jvm"></property>
-	   <property name="systemKey" value="Bluedragon_dms_web.system"></property>
-	</bean>
-	<!-- ump monitor end -->
 </beans>

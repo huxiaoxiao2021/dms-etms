@@ -16,6 +16,7 @@ import javax.annotation.Resource;
 import java.util.Objects;
 
 /**
+ * pda异常提交功能 相关方法，发布jsf 供物流网关调用
  * @author : xumigen
  * @date : 2019/9/10
  */
@@ -24,6 +25,11 @@ public class AbnormalOrderGatewayServiceImpl implements AbnormalOrderGatewayServ
     @Resource
     private AbnormalOrderResource abnormalOrderResource;
 
+    /**
+     * 异常订单信息 提交
+     * @param abnormalOrdRequest pda参数
+     * @return 结果封装对象
+     */
     @Override
     @JProfiler(jKey = "DMSWEB.AbnormalOrderGatewayServiceImpl.pushAbnormalOrder",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<Void> pushAbnormalOrder(AbnormalOrdRequest abnormalOrdRequest){
@@ -51,6 +57,12 @@ public class AbnormalOrderGatewayServiceImpl implements AbnormalOrderGatewayServ
         return jdCResponse;
     }
 
+    /**
+     * 根据订单号和异常类型查询订单
+     * @param orderId 订单号
+     * @param type 异常类型
+     * @return 结果封装对象
+     */
     @Override
     @JProfiler(jKey = "DMSWEB.AbnormalOrderGatewayServiceImpl.queryAbnormalorder",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<Void> queryAbnormalorder(String orderId,Integer type){

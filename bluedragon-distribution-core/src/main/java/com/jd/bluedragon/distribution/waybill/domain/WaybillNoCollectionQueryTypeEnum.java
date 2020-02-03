@@ -9,7 +9,8 @@ public enum WaybillNoCollectionQueryTypeEnum {
 
     SEND_CODE_QUERY_TYPE(1, "批次号查询差异"),
     BOARD_CODE_QUERY_TYPE(2, "板号查询差异"),
-    BOX_CODE_QUERY_TYPE(3, "箱号查询差异");
+    BOX_CODE_QUERY_TYPE(3, "箱号查询差异"),
+    WAYBILL_CODE_QUERY_TYPE(4, "运单查询差异");
 
     private Integer type;
 

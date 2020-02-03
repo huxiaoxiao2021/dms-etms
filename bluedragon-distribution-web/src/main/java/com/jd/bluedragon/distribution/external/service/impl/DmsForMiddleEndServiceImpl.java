@@ -20,8 +20,8 @@ import com.jd.fastjson.JSON;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -30,7 +30,7 @@ import java.util.Map;
 
 @Service("dmsForMiddleEndService")
 public class DmsForMiddleEndServiceImpl implements DmsForMiddleEndService {
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     @Qualifier("storagePackageMService")
@@ -75,7 +75,7 @@ public class DmsForMiddleEndServiceImpl implements DmsForMiddleEndService {
             result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
             result.setData(storagePackageMService.checkWaybillCanSend(waybillCode, waybillSign));
         } catch (Exception e) {
-            logger.error("checkJPWaybillCanSend执行异常.参数waybillCode:" + waybillCode + ",waybillSign:" + waybillSign + ".", e);
+            log.error("checkJPWaybillCanSend执行异常.参数waybillCode:{},waybillSign:{}",waybillCode, waybillSign , e);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
 
@@ -111,7 +111,7 @@ public class DmsForMiddleEndServiceImpl implements DmsForMiddleEndService {
                 invokeResult.customMessage(BoxResponse.CODE_BOX_NOT_FOUND, BoxResponse.MESSAGE_BOX_NOT_FOUND);
             }
         } catch (Exception e) {
-            logger.error("checkBoxIsSent执行异常.参数boxCode:" + boxCode + ".", e);
+            log.error("checkBoxIsSent执行异常.参数boxCode:{}", boxCode, e);
             invokeResult.setCode(InvokeResult.SERVER_ERROR_CODE);
             invokeResult.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
 
@@ -153,7 +153,7 @@ public class DmsForMiddleEndServiceImpl implements DmsForMiddleEndService {
             TransBillScheduleResponse response = transBillScheduleService.checkScheduleBill(request);
             invokeResult.setData(response);
         } catch (Exception e) {
-            logger.error("checkScheduleBill执行异常.参数boxCode:" + boxCode + ",waybillCode:" + waybillCode + ".", e);
+            log.error("checkScheduleBill执行异常.参数boxCode:{},waybillCode:{}",boxCode, waybillCode, e);
             invokeResult.setCode(InvokeResult.SERVER_ERROR_CODE);
             invokeResult.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
 
@@ -184,7 +184,7 @@ public class DmsForMiddleEndServiceImpl implements DmsForMiddleEndService {
             result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
             result.setData(jsfSortingResourceService.weightVolumeValidate(waybillCode, packageCode));
         } catch (Exception e) {
-            logger.error("weightVolumeValidate执行异常.参数waybillCode:" + waybillCode + ",packageCode:" + packageCode + ".", e);
+            log.error("weightVolumeValidate执行异常.参数waybillCode:{},packageCode:{}",waybillCode, packageCode , e);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
 
@@ -219,7 +219,7 @@ public class DmsForMiddleEndServiceImpl implements DmsForMiddleEndService {
             result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
             result.setData(jsfSortingResourceService.getSortingRule(ruleType, createSiteCode));
         } catch (Exception e) {
-            logger.error("getSortingRule执行异常.参数ruleType:" + ruleType + ",createSiteCode:" + createSiteCode + ".", e);
+            log.error("getSortingRule执行异常.参数ruleType:{},createSiteCode:{}",ruleType, createSiteCode , e);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
 
@@ -249,7 +249,7 @@ public class DmsForMiddleEndServiceImpl implements DmsForMiddleEndService {
             result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
             result.setData(jsfSortingResourceService.getSiteSortingRule(createSiteCode));
         } catch (Exception e) {
-            logger.error("getSiteSortingRule执行异常.参数createSiteCode:" + createSiteCode + ".", e);
+            log.error("getSiteSortingRule执行异常.参数createSiteCode:{}", createSiteCode, e);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
 
@@ -279,7 +279,7 @@ public class DmsForMiddleEndServiceImpl implements DmsForMiddleEndService {
             result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
             result.setData(jsfSortingResourceService.getUccConfigurationByKey(configureKey));
         } catch (Exception e) {
-            logger.error("getUccConfigurationByKey执行异常.参数configureKey:" + configureKey + ".", e);
+            log.error("getUccConfigurationByKey执行异常.参数configureKey:{}",configureKey, e);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
 
@@ -311,7 +311,7 @@ public class DmsForMiddleEndServiceImpl implements DmsForMiddleEndService {
             result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
             result.setData(jsfSortingResourceService.getFileConfigurationByKey(configureKey));
         } catch (Exception e) {
-            logger.error("getFileConfigurationByKey执行异常.参数configureKey:" + configureKey + ".", e);
+            log.error("getFileConfigurationByKey执行异常.参数configureKey:{}",configureKey, e);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
 
@@ -361,8 +361,8 @@ public class DmsForMiddleEndServiceImpl implements DmsForMiddleEndService {
             result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
             result.setData(jsfSortingResourceService.checkMixedPackageConfig(createSiteCode, receiveSiteCode, mixedSiteCode, transportType, ruleType));
         } catch (Exception e) {
-            logger.error("checkMixedPackageConfig执行异常.参数createSiteCode:" + createSiteCode + ",receiveSiteCode:" + receiveSiteCode +
-                    ",mixedSiteCode:" + mixedSiteCode + ",transportType:" + transportType + ",ruleType:" + ruleType + ".", e);
+            log.error("checkMixedPackageConfig执行异常.参数createSiteCode:{},receiveSiteCode:{},mixedSiteCode:{},transportType:{},ruleType:{}"
+                    ,createSiteCode,receiveSiteCode,mixedSiteCode,transportType, ruleType, e);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
 
@@ -385,7 +385,7 @@ public class DmsForMiddleEndServiceImpl implements DmsForMiddleEndService {
         try {
             return cancelWaybillJsfService.checkWaybillBlock(waybillCode, featureType);
         } catch (Exception e) {
-            logger.error("checkWaybillBlock执行异常.参数waybillCode:" + waybillCode + ",featureType:" + featureType + ".", e);
+            log.error("checkWaybillBlock执行异常.参数waybillCode:{},featureType:{}",waybillCode, featureType, e);
             BlockResponse response = new BlockResponse();
             response.setCode(InvokeResult.SERVER_ERROR_CODE);
             response.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
@@ -409,7 +409,7 @@ public class DmsForMiddleEndServiceImpl implements DmsForMiddleEndService {
         try {
             return cancelWaybillJsfService.checkPackageBlock(packageCode, featureType);
         } catch (Exception e) {
-            logger.error("checkPackageBlock执行异常.参数packageCode:" + packageCode + ",featureType:" + featureType + ".", e);
+            log.error("checkPackageBlock执行异常.参数packageCode:{},featureType:{}",packageCode, featureType, e);
             BlockResponse response = new BlockResponse();
             response.setCode(InvokeResult.SERVER_ERROR_CODE);
             response.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
@@ -432,7 +432,7 @@ public class DmsForMiddleEndServiceImpl implements DmsForMiddleEndService {
         try {
             return jsfSortingResourceService.dealCancelWaybill(waybillCode);
         } catch (Exception e) {
-            logger.error("checkPackageBlock执行异常.参数waybillCode:" + waybillCode + ".", e);
+            log.error("checkPackageBlock执行异常.参数waybillCode:{}",waybillCode, e);
             JdResponse response = new BlockResponse();
             response.setCode(InvokeResult.SERVER_ERROR_CODE);
             response.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
@@ -455,7 +455,7 @@ public class DmsForMiddleEndServiceImpl implements DmsForMiddleEndService {
         try {
             return jsfSortingResourceService.dealCancelWaybillByRequest(pdaOperateRequest);
         }catch (Exception e){
-            logger.error("dealCancelWaybillByRequest执行异常.参数pdaOperateRequest:" + JSON.toJSONString(pdaOperateRequest) + ".", e);
+            log.error("dealCancelWaybillByRequest执行异常.参数pdaOperateRequest:{}",JSON.toJSONString(pdaOperateRequest), e);
             JdResponse response = new BlockResponse();
             response.setCode(InvokeResult.SERVER_ERROR_CODE);
             response.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
@@ -487,7 +487,7 @@ public class DmsForMiddleEndServiceImpl implements DmsForMiddleEndService {
             result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
             result.setData(jsfSortingResourceService.getRouterByWaybillCode(waybillCode));
         } catch (Exception e) {
-            logger.error("getRouterByWaybillCode执行异常.参数waybillCode:" + waybillCode + ".", e);
+            log.error("getRouterByWaybillCode执行异常.参数waybillCode:{}",waybillCode, e);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
             Profiler.functionError(info);

@@ -12,8 +12,8 @@ import com.jd.bluedragon.utils.IntegerHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.jsf.gd.util.StringUtils;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,7 +32,7 @@ import java.util.List;
 @RequestMapping("/autosorting/sortSchemeDetail")
 public class SortSchemeDetailController {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private final static String HTTP = "http://";
 
@@ -80,7 +80,7 @@ public class SortSchemeDetailController {
                 response.setData(remoteResponse.getData());
             }
         } catch (Exception e) {
-            logger.error("SortSchemeController.pageQuerySortScheme-error!", e);
+            log.error("SortSchemeController.pageQuerySortScheme-error!", e);
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
             response.setData(null);
             response.setMessage(e.getMessage());
@@ -111,7 +111,7 @@ public class SortSchemeDetailController {
                 response.setData(remoteResponse.getData());
             }
         } catch (Exception e) {
-            logger.error("SortSchemeController.pageQuerySortScheme-error!", e);
+            log.error("SortSchemeController.pageQuerySortScheme-error!", e);
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
             response.setData(null);
             response.setMessage(e.getMessage());
@@ -142,7 +142,7 @@ public class SortSchemeDetailController {
                 response.setData(remoteResponse.getData());
             }
         } catch (Exception e) {
-            logger.error("SortSchemeController.pageQuerySortScheme-error!", e);
+            log.error("SortSchemeController.pageQuerySortScheme-error!", e);
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
             response.setData(null);
             response.setMessage(e.getMessage());

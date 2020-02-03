@@ -17,8 +17,8 @@ import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -40,7 +40,7 @@ import java.util.List;
 @RequestMapping("/areaDestPlan")
 public class AreaDestPlanController {
 
-    private final static Log logger = LogFactory.getLog(AreaDestPlanController.class);
+    private final static Logger log = LoggerFactory.getLogger(AreaDestPlanController.class);
 
     @Autowired
     private AreaDestPlanService areaDestPlanService;
@@ -73,10 +73,10 @@ public class AreaDestPlanController {
                 model.addAttribute("currentSiteCode", dto.getSiteCode());
                 model.addAttribute("currentSiteName", dto.getSiteName());
             } else {
-                logger.error("获取erp用户信息失败，结果为null");
+                log.warn("获取erp用户信息失败，结果为null");
             }
         } catch (Exception e) {
-            logger.error("获取始发分拣中心信息发生异常", e);
+            log.error("获取始发分拣中心信息发生异常", e);
         }
         return "areadest/list";
     }
@@ -111,7 +111,7 @@ public class AreaDestPlanController {
         } catch (Exception e) {
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
             response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
-            logger.error("查询龙门架发货关系方案列表失败", e);
+            log.error("查询龙门架发货关系方案列表失败", e);
         }
         return response;
     }
@@ -140,7 +140,7 @@ public class AreaDestPlanController {
         } catch (Exception e) {
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
             response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
-            logger.error("查询龙门架发货关系方案列表失败", e);
+            log.error("查询龙门架发货关系方案列表失败", e);
         }
         return response;
     }
@@ -154,7 +154,7 @@ public class AreaDestPlanController {
             }
             buildSiteViewParam(model);
         } catch (Exception e) {
-            logger.error("跳转新增方案页面发生异常", e);
+            log.error("跳转新增方案页面发生异常", e);
         }
         return "areadest/add";
     }
@@ -167,10 +167,10 @@ public class AreaDestPlanController {
                 model.addAttribute("currentSiteCode", dto.getSiteCode());
                 model.addAttribute("currentSiteName", dto.getSiteName());
             } else {
-                logger.error("根据Erp用户信息获取基础信息失败，结果为null");
+                log.warn("根据Erp用户信息获取基础信息失败，结果为null");
             }
         } else {
-            logger.error("获取Erp用户信息失败，结果为null");
+            log.error("获取Erp用户信息失败，结果为null");
         }
     }
 
@@ -219,7 +219,7 @@ public class AreaDestPlanController {
         } catch (Exception e) {
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
             response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
-            logger.error("新增龙门架发货关系方案发生异常", e);
+            log.error("新增龙门架发货关系方案发生异常", e);
         }
         return response;
     }
@@ -239,8 +239,8 @@ public class AreaDestPlanController {
         result.setData(null);
 
         if (null != request) {
-            if (this.logger.isInfoEnabled()) {
-                this.logger.info("分拣中心" + request.getOperateSiteCode() + "的龙门架" + request.getMachineId() + "获取当前的方案--AreaDestPlanController.queryMyPlan");
+            if (this.log.isInfoEnabled()) {
+                this.log.info("分拣中心{}的龙门架{}获取当前的方案--AreaDestPlanController.queryMyPlan",request.getOperateSiteCode(),request.getMachineId());
             }
             try {
                 AreaDestPlanDetail plan = areaDestPlanDetailService.getByScannerTime(request.getMachineId(), request.getOperateSiteCode(), new Date());
@@ -248,7 +248,7 @@ public class AreaDestPlanController {
                 result.setMessage("请求成功");
                 result.setData(plan);
             } catch (Exception e) {
-                this.logger.error("获取当前分拣中心当前龙门架设备的发货方案异常，龙门架ID为：" + request.getMachineId(), e);
+                this.log.error("获取当前分拣中心当前龙门架设备的发货方案异常，龙门架ID为：{}", request.getMachineId(), e);
             }
         }
         return result;
@@ -292,7 +292,7 @@ public class AreaDestPlanController {
         } catch (Exception e) {
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
             response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
-            logger.error("删除龙门架发货关系方案发生异常", e);
+            log.error("删除龙门架发货关系方案发生异常", e);
         }
         return response;
     }
@@ -308,7 +308,7 @@ public class AreaDestPlanController {
                 model.addAttribute("planName", plan.getPlanName());
             }
         } catch (Exception e) {
-            logger.error("跳转查询方案详情页面发生异常", e);
+            log.error("跳转查询方案详情页面发生异常", e);
         }
         return "areadest/detail";
     }
@@ -326,7 +326,7 @@ public class AreaDestPlanController {
                 model.addAttribute("allOrgs", baseService.getAllOrg());
             }
         } catch (Exception e) {
-            logger.error("跳转配置页面发生异常", e);
+            log.error("跳转配置页面发生异常", e);
         }
         return "areadest/config";
     }

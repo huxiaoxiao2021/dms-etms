@@ -306,7 +306,7 @@ public class ReverseReceiveNotifyStockService {
         if(CHUGUAN_FIELD_QITAFANGSHI.equals(kuguanDomain.getLblOtherWay())){
             return Boolean.TRUE;
         }
-        if(ConstantEnums.ChuGuanTypeId.hasTypeId(kuguanDomain.getTypeId())){
+        if(ConstantEnums.ChuGuanTypeId.iSLogisticsTypeId(kuguanDomain.getTypeId())){
             return Boolean.TRUE;
         }
         return Boolean.FALSE;

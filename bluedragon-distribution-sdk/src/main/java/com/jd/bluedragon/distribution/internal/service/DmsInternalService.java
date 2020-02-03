@@ -1,13 +1,18 @@
 package com.jd.bluedragon.distribution.internal.service;
 
-import com.jd.bluedragon.distribution.api.request.BaseRequest;
 import com.jd.bluedragon.distribution.api.request.BoxRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
-import com.jd.bluedragon.distribution.api.response.*;
+import com.jd.bluedragon.distribution.api.response.AutoSortingBoxResult;
+import com.jd.bluedragon.distribution.api.response.BaseResponse;
+import com.jd.bluedragon.distribution.api.response.BoxResponse;
+import com.jd.bluedragon.distribution.api.response.DatadictResponse;
+import com.jd.bluedragon.distribution.api.response.LossProductResponse;
+import com.jd.bluedragon.distribution.api.response.PopPrintResponse;
+import com.jd.bluedragon.distribution.api.response.ReverseReceiveResponse;
+import com.jd.bluedragon.distribution.api.response.SysConfigResponse;
+import com.jd.bluedragon.distribution.api.response.TaskResponse;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.wss.dto.BaseEntity;
-
-import java.util.List;
 
 /**
  * @author dudong
@@ -208,4 +213,13 @@ public interface DmsInternalService {
      * @return
      */
     BaseEntity<Boolean> allianceBusiDelivered(String waybillCode);
+
+    /**
+     * 查询运单是否操作过异常处理
+     *
+     * @param waybillCode 运单号
+     * @param siteCode 操作站点
+     * @return true:操作过 false:反之
+     */
+    InvokeResult<Boolean> isTreatedAbnormal(String waybillCode, Integer siteCode);
 }

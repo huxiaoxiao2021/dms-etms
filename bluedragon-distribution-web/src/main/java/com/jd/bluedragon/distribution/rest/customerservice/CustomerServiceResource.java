@@ -6,8 +6,8 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PickupTask;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -15,8 +15,6 @@ import org.springframework.util.Assert;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
-//import com.jd.etms.erp.ws.ErpQuerySafWS;
-//import com.jd.etms.waybill.wss.ErpQuerySafWS
 
 @Component
 @Path(Constants.REST_URL)
@@ -25,7 +23,7 @@ import javax.ws.rs.core.MediaType;
 public class CustomerServiceResource {
 
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private static final String oldPrefix = "Q";
 
@@ -40,7 +38,7 @@ public class CustomerServiceResource {
         try {
             Assert.notNull(oldBillCode, "oldBillCode must not be null");
             Assert.isTrue(oldBillCode.startsWith(oldPrefix), "请输入正确的取件单号!");
-            this.logger.info("oldBillCode's " + oldBillCode);
+            this.log.info("oldBillCode's {}", oldBillCode);
 
             BaseEntity<PickupTask> task = this.waybillPickupTaskApi.getPickTaskByPickCode(oldBillCode);
             String surFaceCode="";
@@ -48,11 +46,13 @@ public class CustomerServiceResource {
             surFaceCode = pickupTask.getSurfaceCode();
             response.setSurfaceCode(surFaceCode);
             response.setServiceCode(pickupTask.getServiceCode());
-            logger.info("外单逆向换单旧单号"+oldBillCode+JsonHelper.toJson(response));
+            if(log.isInfoEnabled()){
+                log.info("外单逆向换单旧单号:{}-{}",oldBillCode, JsonHelper.toJson(response));
+            }
         } catch (Exception ex) {
             response.setCode(CustomerServiceResponse.CODE_NEW_BILL_CODE_NOT_FOUND);
             response.setMessage(ex.getMessage());
-            logger.error("外单逆向换单获取新运单号失败,旧单号："+oldBillCode+ex);
+            log.error("外单逆向换单获取新运单号失败,旧单号：{}", oldBillCode,ex);
         }
 
         return response;

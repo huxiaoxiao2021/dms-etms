@@ -51,12 +51,13 @@ public class C2cInterceptHandler implements Handler<WaybillPrintContext, JdResul
         log.debug("C2cInterceptHandler-C2C运单打印面单校验揽收完成");
         InterceptResult<String> interceptResult = new InterceptResult<String>();
         interceptResult.toSuccess();
+        String waybillSign = context.getWaybill().getWaybillSign();
         if ((WaybillPrintOperateTypeEnum.PLATE_PRINT.getType().equals(context.getRequest().getOperateType())
                 || WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType().equals(context.getRequest().getOperateType())
                 || WaybillPrintOperateTypeEnum.BATCH_PACKAGE_AGAIN_PRINT.getType().equals(context.getRequest().getOperateType())
                 || WaybillPrintOperateTypeEnum.SITE_PLATE_PRINT.getType().equals(context.getRequest().getOperateType())
                 || WaybillPrintOperateTypeEnum.SITE_MASTER_PACKAGE_REPRINT.getType().equals(context.getRequest().getOperateType()))
-                && BusinessHelper.isC2cForward(context.getWaybill().getWaybillSign())) {
+                && BusinessHelper.isC2cForward(waybillSign) && !(BusinessHelper.isC2cChangeAddress(waybillSign))) {
             //查询揽收完成（-640）全程跟踪结果
             List<PackageStateDto> collectCompleteResult = waybillTraceManager.getPkStateDtoByWCodeAndState(context.getWaybill().getWaybillCode(), Constants.WAYBILL_TRACE_STATE_COLLECT_COMPLETE);
             //揽收交接完成（-1300）全程跟踪结果

@@ -9,8 +9,8 @@ import com.jd.bluedragon.distribution.sortingCenterQueryTool.service.SortingCent
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,7 +28,7 @@ import java.util.Map;
 @RequestMapping("/sortingCenter")
 public class SortingCenterQueryController {
 
-    private final Log logger = LogFactory.getLog(SortingCenterQueryController.class);
+    private final Logger log = LoggerFactory.getLogger(SortingCenterQueryController.class);
 
     private final static String HTTP = "http://";
 
@@ -70,7 +70,7 @@ public class SortingCenterQueryController {
                 result.setData(remoteResult.getData());
             }
         }catch(Exception e){
-            logger.error("SortingCenterQueryTool--controller 查询区域分拣中心数据失败：",e);
+            log.error("SortingCenterQueryTool--controller 查询区域分拣中心数据失败：",e);
             result.setCode(JdResponse.CODE_SERVICE_ERROR);
             result.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
             result.setData(null);
@@ -107,7 +107,7 @@ public class SortingCenterQueryController {
                 result.setData(objects.toArray());
             }
         }catch(Exception e){
-            logger.error("SortingCenterQueryTool--controller 查询区域分拣中心数据失败：",e);
+            log.error("SortingCenterQueryTool--controller 查询区域分拣中心数据失败：",e);
         }
 
         return result;

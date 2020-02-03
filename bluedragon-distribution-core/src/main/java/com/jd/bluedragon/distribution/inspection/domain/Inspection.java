@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.inspection.domain;
 
 import java.util.Date;
 
+import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 import org.apache.commons.lang.StringUtils;
 
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
@@ -528,7 +530,7 @@ public class Inspection implements java.io.Serializable,Comparable<Inspection>{
 		this.driverName = driverName;
 	}
 
-	public static Inspection toInspection(InspectionRequest requestBean) {
+	public static Inspection toInspection(InspectionRequest requestBean,BigWaybillDto bigWaybillDto) {
 		Inspection inspection = new Inspection();
 		inspection.setWaybillCode(requestBean.getWaybillCode());
 		inspection.setBoxCode(requestBean.getBoxCode());
@@ -547,6 +549,11 @@ public class Inspection implements java.io.Serializable,Comparable<Inspection>{
 		inspection.setWidth(requestBean.getWidth());
 		inspection.setHigh(requestBean.getHigh());
 		inspection.setVolume(requestBean.getVolume());
+		if(bigWaybillDto!=null && bigWaybillDto.getWaybill()!=null && bigWaybillDto.getWaybill().getGoodNumber()!=null){
+			inspection.setQuantity(bigWaybillDto.getWaybill().getGoodNumber());
+		}else if(StringUtils.isNotBlank(requestBean.getPackageBarcode()) && WaybillUtil.isPackageCode(requestBean.getPackageBarcode())){
+			inspection.setQuantity(WaybillUtil.getPackNumByPackCode(requestBean.getPackageBarcode()));
+		}
 		Date operateTime = StringUtils.isBlank(requestBean.getOperateTime())?new Date():DateHelper.getSeverTime(requestBean.getOperateTime());
         Date createTime = new Date();
         inspection.setOperateTime(operateTime);

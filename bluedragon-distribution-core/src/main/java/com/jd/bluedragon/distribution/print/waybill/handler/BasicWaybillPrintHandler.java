@@ -281,7 +281,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             commonWaybill.setType(tmsWaybill.getWaybillType());
             commonWaybill.appendRemark(tmsWaybill.getImportantHint());
             String roadCode = "";
-            if(BusinessUtil.isUrban(tmsWaybill.getWaybillSign(), tmsWaybill.getSendPay())) {//城配的订单标识，remark打派车单号
+            if(BusinessUtil.isUrban(tmsWaybill.getWaybillSign(), tmsWaybill.getSendPay()) || BusinessUtil.isHeavyCargo(tmsWaybill.getWaybillSign())) {//城配的订单标识，remark打派车单号
                 String scheduleCode = "";
                 TransbillM transbillM = transbillMService.getByWaybillCode(tmsWaybill.getWaybillCode());
                 if(transbillM != null){
@@ -296,6 +296,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
 //                String str = StringUtils.isNotBlank(tmsWaybill.getImportantHint())? tmsWaybill.getImportantHint():"";
                 commonWaybill.appendRemark(scheduleCode);
             }
+
             //sendpay的第153位为“1”，remark追加【合并送】
             if(BusinessUtil.isSignY(commonWaybill.getSendPay(), 153)){
                 commonWaybill.appendRemark(TextConstants.REMARK_SEND_GATHER_TOGETHER);

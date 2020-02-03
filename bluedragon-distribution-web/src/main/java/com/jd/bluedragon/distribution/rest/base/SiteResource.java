@@ -18,16 +18,14 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.GZIP;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +42,7 @@ public class SiteResource {
     @Autowired
     private BaseMajorManager baseMajorManager;
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@GET
 	@GZIP
@@ -63,14 +61,14 @@ public class SiteResource {
 	@GET
 	@Path("/bases/capacityCode/{capacityCode}")
 	public RouteTypeResponse getCapacityCodeInfo(@PathParam("capacityCode") String capacityCode) {
-		this.logger.info("capacityCode is " + capacityCode);
+		this.log.info("capacityCode is :{}", capacityCode);
         RouteTypeResponse response = new RouteTypeResponse();
 		try {
 			response = siteService.getCapacityCodeInfo(capacityCode);
 		} catch (Exception e) {
 			response.setCode(JdResponse.CODE_SERVICE_ERROR);
 			response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
-			logger.error("通过运力编码获取基础资料信息异常：", e);
+			log.error("通过运力编码获取基础资料信息异常：", e);
 		}
 		
 		return response;
@@ -125,7 +123,7 @@ public class SiteResource {
             result.setData(this.siteService.getSitesByPage(category,pageNo));
         }catch (Throwable throwable){
 			Profiler.functionError(info);
-            logger.error(MessageFormat.format("分页获取站点数据失败{0}-{1}",category,pageNo),throwable);
+            log.error("分页获取站点数据失败{}-{}",category,pageNo,throwable);
             result.error("获取站点出现异常，请联系IT运维！");
         }finally {
 			Profiler.registerInfoEnd(info);
@@ -147,7 +145,7 @@ public class SiteResource {
         try{
             result.setData(this.siteService.getSitesByPage(category,pageNo));
         }catch (Throwable throwable){
-            logger.error(MessageFormat.format("分页获取站点数据失败{0}-{1}",category,pageNo),throwable);
+            log.error("分页获取站点数据失败{}-{}",category,pageNo,throwable);
             result.error("获取站点出现异常，请联系IT运维！");
             Profiler.functionError(callerInfo);
         }finally{
@@ -165,7 +163,7 @@ public class SiteResource {
 
 		//验证sendCode
 		if(StringHelper.isEmpty(sendCode)){
-			logger.error("根据批次号获取始发和目的分拣信息失败，参数批次号为空");
+			log.warn("根据批次号获取始发和目的分拣信息失败，参数批次号为空");
 			result.error("根据批次号获取始发和目的分拣信息失败，参数批次号为空");
 			return result;
 		}
@@ -173,7 +171,7 @@ public class SiteResource {
 			//解析批次号，获取始发分拣中心id和目的分拣中心id，0是始发，1是目的
 			Integer[] siteCodes = BusinessUtil.getSiteCodeBySendCode(sendCode);
 			if (siteCodes[0] == -1 || siteCodes[1] == -1) {
-				logger.error("根据批次号获取始发和目的分拣信息失败，批次号:" + sendCode + "始发分拣code:" + siteCodes[0] + ",目的分拣Code:" + siteCodes[1]);
+				log.warn("根据批次号获取始发和目的分拣信息失败，批次号:{} 始发分拣code:{} ,目的分拣Code:{}",sendCode, siteCodes[0], siteCodes[1]);
 				result.error("根据批次号获取始发和目的分拣信息失败，批次号：" + "始发分拣code:" + siteCodes[0] + ",目的分拣Code:" + siteCodes[1]);
 				return result;
 			}
@@ -202,7 +200,7 @@ public class SiteResource {
 			result.setMessage("success");
 			result.setData(createAndReceiveSite);
 		}catch (Exception e){
-			logger.error("根据批次号获取始发和目的分拣信息失败，批次号：" + sendCode);
+			log.error("根据批次号获取始发和目的分拣信息失败，批次号：{}", sendCode, e);
 			result.error("根据批次号获取始发和目的分拣信息出现异常，请联系配送系统运营(xnpsxt)");
 		}
 

@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.siteRetake.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.SiteRetakeManager;
-import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.siteRetake.domain.SiteRetakeCondition;
 import com.jd.bluedragon.distribution.siteRetake.domain.SiteRetakeOperation;
 import com.jd.bluedragon.distribution.siteRetake.service.SiteRetakeService;
@@ -10,9 +10,11 @@ import com.jd.common.orm.page.Page;
 import com.jd.etms.erp.service.domain.VendorOrder;
 import com.jd.ldop.middle.api.basic.domain.BasicTraderQueryDTO;
 import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.ql.erp.dto.vendor.ReTakeRequestDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,6 +26,8 @@ import java.util.List;
 public class SiteRetakeServiceImpl implements SiteRetakeService {
     @Autowired
     private SiteRetakeManager siteRetakeManager;
+
+    private int operatorSource = 3;
 
     /**
      * 查商家
@@ -62,36 +66,44 @@ public class SiteRetakeServiceImpl implements SiteRetakeService {
     }
 
     public JdResponse<String> updateCommonOrderStatus(SiteRetakeOperation siteRetakeOperation) {
-        VendorOrder vendorOrder = new VendorOrder();
-        vendorOrder.setStatus(siteRetakeOperation.getStatus());
-        vendorOrder.setOperatorId(siteRetakeOperation.getOperatorId());
-        vendorOrder.setOperatorName(siteRetakeOperation.getOperatorName());
-        vendorOrder.setSiteCode(siteRetakeOperation.getSiteCode());
-        vendorOrder.setSiteName(siteRetakeOperation.getSiteName());
-        vendorOrder.setEndReason(siteRetakeOperation.getEndReason());
-        vendorOrder.setRequiredStartTime(siteRetakeOperation.getRequiredStartTime());
-        vendorOrder.setRequiredEndTime(siteRetakeOperation.getRequiredEndTime());
-        vendorOrder.setOperatorSource(3);//系统标识
-        vendorOrder.setRemark(siteRetakeOperation.getRemark());
-        vendorOrder.setUpdateTime(siteRetakeOperation.getOperatorTime());
         JdResponse<String> result = new JdResponse<String>();
-        result.setCode(200);
-        result.setMessage("");
         String[] waybillcodes = siteRetakeOperation.getWaybillCode().split(Constants.SEPARATOR_COMMA);
         if (waybillcodes != null && waybillcodes.length > 0) {
-
+            List< ReTakeRequestDTO > reTakeRequestDTOS = new ArrayList<>();
             for (String waybillCode : waybillcodes) {
-                vendorOrder.setWaybillCode(waybillCode);
-                InvokeResult<String> resultOne = siteRetakeManager.updateCommonOrderStatus(vendorOrder);
-                if (resultOne.getCode() != 200) {
-                    result.setCode(101);
-                    result.setMessage(result.getMessage() + "运单[" + waybillCode + "]保存失败：" + resultOne.getMessage() + "\n");
-                }
+                ReTakeRequestDTO reTakeRequestDTO = new ReTakeRequestDTO();
+                reTakeRequestDTO.setOperatorId(siteRetakeOperation.getOperatorId());
+                reTakeRequestDTO.setStatus(siteRetakeOperation.getStatus());
+                reTakeRequestDTO.setOperatorName(siteRetakeOperation.getOperatorName());
+                reTakeRequestDTO.setSiteCode(siteRetakeOperation.getSiteCode());
+                reTakeRequestDTO.setSiteName(siteRetakeOperation.getSiteName());
+                reTakeRequestDTO.setEndReason(siteRetakeOperation.getEndReason());
+                reTakeRequestDTO.setRequiredStartTime(siteRetakeOperation.getRequiredStartTime());
+                reTakeRequestDTO.setRequiredEndTime(siteRetakeOperation.getRequiredEndTime());
+                reTakeRequestDTO.setOperatorSource(operatorSource);//系统标识
+                reTakeRequestDTO.setRemark(siteRetakeOperation.getRemark());
+                reTakeRequestDTO.setUpdateTime(siteRetakeOperation.getOperatorTime());
+                reTakeRequestDTO.setWaybillCode(waybillCode);
+                reTakeRequestDTOS.add(reTakeRequestDTO);
             }
+            try {
+                List<String> failWaybillCodes = siteRetakeManager.batchUpdateReTakeTime(reTakeRequestDTOS);
+                if(failWaybillCodes!=null && !failWaybillCodes.isEmpty()){
+                    result.setData(failWaybillCodes.toString());
+                }
+            }catch (Exception e){
+                result.setCode(InvokeResult.SERVER_ERROR_CODE);
+                result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
+                return result;
+            }
+
+
         } else {
-            result.setCode(100);
+            result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
             result.setMessage("无可操作运单");
         }
         return result;
     }
+
+
 }
