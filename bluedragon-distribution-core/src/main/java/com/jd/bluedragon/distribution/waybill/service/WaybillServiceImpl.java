@@ -387,7 +387,7 @@ public class WaybillServiceImpl implements WaybillService {
         //-136 代表超区；具体逻辑上游（预分拣）控制
         if(uccPropertyConfiguration.isPreOutZoneSwitch()
                 && BusinessUtil.isForeignForward(waybill.getWaybillSign())
-                && waybill.getSiteId() != null && waybill.getSiteId() == Constants.WAYBILL_SITE_ID_OUT_ZONE){
+                && waybill.getOldSiteId() != null && waybill.getOldSiteId() == Constants.WAYBILL_SITE_ID_OUT_ZONE){
             return new DmsWaybillInfoResponse(JdResponse.CODE_WRONG_STATUS, JdResponse.MESSAGE_OUT_ZONE);
         }
         DmsWaybillInfoResponse response = getDmsWaybillInfoResponse(packageCode);
