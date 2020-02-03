@@ -42,7 +42,7 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
         /* 处理称重对象 */
         entity.setWaybillCode(WaybillUtil.getWaybillCode(entity.getBarCode()));
         entity.setPackageCode(entity.getBarCode());
-        if (entity.getLength() != null && entity.getHeight() != null && entity.getVolume() != null) {
+        if (entity.getLength() != null && entity.getHeight() != null && entity.getVolume() != null && entity.getVolume() == null) {
             entity.setVolume(entity.getHeight() * entity.getLength() * entity.getWidth());
         }
 

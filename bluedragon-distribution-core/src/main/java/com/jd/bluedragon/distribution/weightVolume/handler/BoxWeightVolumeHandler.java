@@ -56,7 +56,7 @@ public class BoxWeightVolumeHandler extends AbstractWeightVolumeHandler {
     protected void handlerWeighVolume(WeightVolumeEntity entity) {
         /* 处理称重对象 */
         entity.setBoxCode(entity.getBarCode());
-        if (entity.getWidth() != null && entity.getLength() != null && entity.getHeight() != null) {
+        if (entity.getWidth() != null && entity.getLength() != null && entity.getHeight() != null && entity.getVolume() == null) {
             entity.setVolume(entity.getWidth() * entity.getLength() * entity.getHeight());
         }
 
@@ -91,8 +91,8 @@ public class BoxWeightVolumeHandler extends AbstractWeightVolumeHandler {
         }
 
         Double itemWeight = entity.getWeight() == null? null :  entity.getWeight() / waybillList.size();
-        Double itemLength = entity.getLength() == null? null : entity.getLength() / waybillList.size();
-        Double itemWidth = entity.getWidth() == null? null : entity.getWidth() / waybillList.size();
+        Double itemLength = entity.getLength();
+        Double itemWidth = entity.getWidth();
         Double itemHeight = entity.getHeight() == null? null : entity.getHeight() / waybillList.size();
         Double itemVolume = entity.getVolume() == null? null : entity.getVolume() / waybillList.size();
         /* 循环处理箱明细 */

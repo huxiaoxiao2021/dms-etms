@@ -62,7 +62,9 @@ public class WaybillWeightVolumeHandler extends AbstractWeightVolumeHandler {
         weightDTO.setOperatorId(entity.getOperatorId());
         weightDTO.setOperatorName(entity.getOperatorName());
         weightDTO.setWeight(entity.getWeight());
-        if (entity.getLength() != null && entity.getWidth() != null && entity.getHeight() != null) {
+        if (entity.getVolume() != null) {
+            weightDTO.setVolume(entity.getVolume());
+        } else if (entity.getLength() != null && entity.getWidth() != null && entity.getHeight() != null) {
             weightDTO.setVolume(entity.getHeight() * entity.getWidth() * entity.getLength());
         }
         weightDTO.setOperateTimeMillis(entity.getOperateTime().getTime());

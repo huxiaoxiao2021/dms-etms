@@ -42,7 +42,7 @@ public class HandoverWeightVolumeHandler extends AbstractWeightVolumeHandler {
             entity.setWaybillCode(WaybillUtil.getWaybillCode(entity.getBarCode()));
             entity.setPackageCode(entity.getBarCode());
         }
-        if (entity.getLength() != null && entity.getWidth() != null && entity.getHeight() != null) {
+        if (entity.getLength() != null && entity.getWidth() != null && entity.getHeight() != null && entity.getVolume() == null) {
             entity.setVolume(entity.getHeight() * entity.getLength() * entity.getWidth());
         }
 
