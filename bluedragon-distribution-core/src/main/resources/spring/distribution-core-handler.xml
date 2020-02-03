@@ -125,6 +125,7 @@
 		<property name="handlers">
 			<list>
 				<ref bean="basicWaybillPrintHandler"/>
+				<ref bean="overLengthRemindHandler"/>
 				<ref bean="isNeedPrintHandler"/>
 				<ref bean="c2cInterceptHandler"/>
 				<!-- 三方超限拦截 -->
@@ -138,7 +139,6 @@
 				<ref bean="remarkFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
-				<ref bean="overLengthRemindHandler"/>
 			</list>
 		</property>
 	</bean>
