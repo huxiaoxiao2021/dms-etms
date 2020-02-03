@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.waybill.dao.CancelWaybillDao">
+
+	<resultMap id="cancelWaybill" type="com.jd.bluedragon.distribution.waybill.domain.CancelWaybill">
+		<result column="waybill_code" property="waybillCode" />
+		<result column="package_code" property="packageCode" />
+		<result column="feature_type" property="featureType" />
+		<result column="create_time" property="createTime"/>
+		<result column="update_time" property="updateTime"/>
+		<result column="business_type" property="businessType"/>
+		<result column="intercept_type" property="interceptType"/>
+		<result column="intercept_mode" property="interceptMode"/>
+		<result column="operate_time" property="operateTime"/>
+		<result column="operate_time_order" property="operateTimeOrder"/>
+		<result column="yn" property="yn"/>
+		<result column="ts" property="ts"/>
+	</resultMap>
+
+	<select id="getByWaybillCode" resultMap="cancelWaybill" parameterType="String">
+		SELECT
+		waybill_code,
+		feature_type,
+		create_time,
+		update_time,
+		business_type,
+		intercept_type,
+		intercept_mode,
+		operate_time,
+		operate_time_order
+		FROM waybill_cancel
+		WHERE waybill_code = #{waybillCode}
+		AND yn = 1
+		AND (package_code IS NULL OR LENGTH(package_code) = 0)
+		ORDER BY operate_time_order DESC , ts DESC
+	</select>
+
+</mapper>

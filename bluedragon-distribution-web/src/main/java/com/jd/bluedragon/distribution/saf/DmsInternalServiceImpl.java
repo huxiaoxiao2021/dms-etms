@@ -2,12 +2,23 @@ package com.jd.bluedragon.distribution.saf;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.DmsInterturnManager;
+import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
+import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
 import com.jd.bluedragon.distribution.alliance.service.AllianceBusiDeliveryDetailService;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoxRequest;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
-import com.jd.bluedragon.distribution.api.response.*;
+import com.jd.bluedragon.distribution.api.response.AutoSortingBoxResult;
+import com.jd.bluedragon.distribution.api.response.BaseResponse;
+import com.jd.bluedragon.distribution.api.response.BoxResponse;
+import com.jd.bluedragon.distribution.api.response.DatadictResponse;
+import com.jd.bluedragon.distribution.api.response.LossProductResponse;
+import com.jd.bluedragon.distribution.api.response.PopPrintResponse;
+import com.jd.bluedragon.distribution.api.response.ReverseReceiveResponse;
+import com.jd.bluedragon.distribution.api.response.SortingResponse;
+import com.jd.bluedragon.distribution.api.response.SysConfigResponse;
+import com.jd.bluedragon.distribution.api.response.TaskResponse;
 import com.jd.bluedragon.distribution.base.service.UserService;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
@@ -82,6 +93,9 @@ public class DmsInternalServiceImpl implements DmsInternalService {
 
     @Autowired
     private AllianceBusiDeliveryDetailService allianceBusiDeliveryDetailService;
+
+    @Autowired
+    private AbnormalWayBillService abnormalWayBillService;
 
     @Override
     @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.getDatadict",mState = JProEnum.TP)
@@ -349,4 +363,23 @@ public class DmsInternalServiceImpl implements DmsInternalService {
         return result;
 
     }
+
+    @Override
+    public InvokeResult<Boolean> isTreatedAbnormal(String waybillCode, Integer siteCode) {
+        InvokeResult<Boolean> result = new InvokeResult<Boolean>();
+        result.success();
+        result.setData(Boolean.FALSE);
+        try {
+            AbnormalWayBill abnormalWayBill = abnormalWayBillService.getAbnormalWayBillByWayBillCode(waybillCode, siteCode);
+            if(abnormalWayBill != null){
+                result.setData(Boolean.TRUE);
+            }
+        }catch (Exception e){
+            log.error("查询站点：{}运单号：{}的异常记录失败!" ,siteCode ,waybillCode,e);
+            result.setCode(BaseEntity.CODE_SERVICE_ERROR);
+            result.setMessage(BaseEntity.MESSAGE_SERVICE_ERROR);
+        }
+        return result;
+    }
+
 }
