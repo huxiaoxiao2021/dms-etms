@@ -1003,4 +1003,13 @@
 		group by WAYBILL_CODE
 
 	</select>
+
+	<select id="getWaybillCodeBySendCode" parameterType="SendDetail" resultType="String">
+		select waybill_code
+		from send_d
+		where is_cancel = 0
+		and yn = 1
+		and send_code = #{sendCode,jdbcType=VARCHAR} and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		group by waybill_code
+	</select>
 </mapper>

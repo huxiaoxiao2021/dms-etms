@@ -5,6 +5,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.OrderResponse;
@@ -21,6 +22,7 @@ import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
+import javax.annotation.Resource;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -50,11 +52,21 @@ public class OrderResource {
 	@Autowired
 	private OrderWebService orderWebService;
 
+	@Resource
+	private UccPropertyConfiguration uccPropertyConfiguration;
+
 	@GET
 	@Path("/order")
     @JProfiler(jKey = "DMS.WEB.OrderResource.getOrderResponse", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public OrderResponse getOrderResponse(@QueryParam("packageCode") String packageCode) {
-		return this.waybillService.getDmsWaybillInfoResponse(packageCode);
+		OrderResponse orderResponse = this.waybillService.getDmsWaybillInfoResponse(packageCode);
+		//-136 代表超区；具体逻辑上游（预分拣）控制
+		if(uccPropertyConfiguration.isPreOutZoneSwitch() && orderResponse.getSiteId() != null && orderResponse.getSiteId() == -136){
+			orderResponse.setCode(JdResponse.CODE_WRONG_STATUS);
+			orderResponse.setMessage(JdResponse.MESSAGE_OUT_ZONE);
+			return orderResponse;
+		}
+		return orderResponse;
 	}
 
 	@GET

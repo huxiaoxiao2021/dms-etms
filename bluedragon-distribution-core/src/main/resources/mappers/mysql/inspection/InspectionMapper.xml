@@ -35,6 +35,13 @@
         <result column="busi_name" property="busiName" jdbcType="VARCHAR"/>
     </resultMap>
 
+    <resultMap id="WaybillNoCollectionInfo" type="com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionInfo">
+        <result column="waybill_code"  property="waybillCode" />
+        <result column="package_barcode"  property="packageCodeSomeone" />
+        <result column="package_num"  property="packageNum" />
+        <result column="scan_count"  property="scanCount" />
+    </resultMap>
+
     <sql id="Base_Column_List">
     inspection_id, waybill_code, box_code, 
     package_barcode, inspection_status, exception_type, 
@@ -250,6 +257,16 @@
         <if test="null!=receiveSiteCode and ''!=receiveSiteCode">
             AND receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
         </if>
+        AND yn=1
+    </select>
+
+    <select id="inspectionCountByWaybill" resultType="Integer" parameterType="Inspection">
+        SELECT
+        count(DISTINCT PACKAGE_BARCODE)
+        FROM inspection
+        WHERE waybill_code = #{waybillCode,jdbcType=VARCHAR}
+        AND package_barcode != #{packageBarcode,jdbcType=VARCHAR}
+        AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
         AND yn=1
     </select>
 
@@ -550,4 +567,30 @@
             limit #{startIndex},#{pageSize}
     </select>
 
+    <select id="getWaybillNoCollectionInfo" parameterType="map" resultMap="WaybillNoCollectionInfo">
+        select count(distinct package_barcode) scan_count, waybill_code, quantity as package_num, package_barcode from inspection
+        where
+        yn = 1 and create_site_code = #{createSiteCode, jdbcType=INTEGER} and create_time <![CDATA[>]]> #{startTime, jdbcType=TIMESTAMP}
+        and waybill_code in
+        <foreach collection="waybillCodeList" item="items" index="index" open="("
+                 close=")" separator=","> #{items,jdbcType=VARCHAR}
+        </foreach>
+        and quantity <![CDATA[>]]> 1 group by waybill_code
+        having scan_count <![CDATA[<]]> quantity
+    </select>
+
+    <select id="getInspectedPackageNumMoreThanOne" parameterType="map" resultType="java.lang.String">
+        select package_barcode from inspection
+        where
+        yn = 1 and quantity <![CDATA[>]]> 1
+        and create_site_code = #{createSiteCode, jdbcType=INTEGER}
+        <if test="waybillCodeList != null">
+            and waybill_code in
+            <foreach collection="waybillCodeList" item="items" index="index" open="("
+                     close=")" separator=","> #{items,jdbcType=VARCHAR}
+            </foreach>
+        </if>
+        group by package_barcode
+
+    </select>
 </mapper>
