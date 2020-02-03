@@ -15,6 +15,7 @@ import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.jmq.common.exception.JMQException;
@@ -62,7 +63,7 @@ public class WaybillWeightVolumeHandler extends AbstractWeightVolumeHandler {
         weightDTO.setOperatorId(entity.getOperatorId());
         weightDTO.setOperatorName(entity.getOperatorName());
         weightDTO.setWeight(entity.getWeight());
-        if (entity.getVolume() != null) {
+        if (NumberHelper.gt0(entity.getVolume())) {
             weightDTO.setVolume(entity.getVolume());
         } else if (entity.getLength() != null && entity.getWidth() != null && entity.getHeight() != null) {
             weightDTO.setVolume(entity.getHeight() * entity.getWidth() * entity.getLength());

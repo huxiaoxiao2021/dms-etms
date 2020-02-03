@@ -14,6 +14,7 @@ import com.jd.bluedragon.external.crossbow.economicNet.domain.EconomicNetBoxWeig
 import com.jd.bluedragon.external.crossbow.economicNet.manager.EconomicNetBusinessManager;
 import com.jd.bluedragon.utils.BaseContants;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -56,7 +57,7 @@ public class BoxWeightVolumeHandler extends AbstractWeightVolumeHandler {
     protected void handlerWeighVolume(WeightVolumeEntity entity) {
         /* 处理称重对象 */
         entity.setBoxCode(entity.getBarCode());
-        if (entity.getWidth() != null && entity.getLength() != null && entity.getHeight() != null && entity.getVolume() == null) {
+        if (entity.getWidth() != null && entity.getLength() != null && entity.getHeight() != null && !NumberHelper.gt0(entity.getVolume())) {
             entity.setVolume(entity.getWidth() * entity.getLength() * entity.getHeight());
         }
 
