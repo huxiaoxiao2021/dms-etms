@@ -541,4 +541,11 @@
 
     </jsf:consumer>
 
+    <jsf:consumer id="sortingExceptionJsfService" interface="com.jd.bd.dms.automatic.sdk.modules.sorting.SortingExceptionJsfService"
+                  protocol="jsf" alias="${jsf.automatic.alias}" timeout="${jsf.automatic.timeout}">
+    </jsf:consumer>
+
+    <jsf:consumer id="verCommonJsfApi" interface="com.jd.dms.ver.service.VerCommonJsfApi"
+                  protocol="jsf" alias="${jsf.verCommonJsfApi.alias}" timeout="${jsf.verCommonJsfApi.timeout}">
+    </jsf:consumer>
 </beans>

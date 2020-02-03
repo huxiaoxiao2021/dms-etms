@@ -330,5 +330,6 @@
         <!-- 商家称重量方白名单 -->
         <mapper resource="mappers/mysql/weightAndVolume/MerchantWeightAndVolumeMapper.xml"/>
 
+        <mapper resource="mappers/mysql/interceptconfig/InterceptConfigInfo.xml" />
     </mappers>
 </configuration>

@@ -572,4 +572,8 @@
         <property name="sqlSession" ref="sessionTemplateBase" />
     </bean>
 
+    <bean id="interceptConfigInfoDao" class="com.jd.bluedragon.distribution.interceptconfig.dao.InterceptConfigInfoDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
 </beans>
