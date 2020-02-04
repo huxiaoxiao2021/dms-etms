@@ -1088,7 +1088,7 @@ public class BusinessUtil {
      * @return true 是，false 不是
      */
     public static boolean isOverLength(String traderSign){
-        return isSignChar(traderSign, TraderSignConstants.POSITION_92, TraderSignConstants.CHAR_91_2);
+        return isSignChar(traderSign, TraderSignConstants.POSITION_91, TraderSignConstants.CHAR_91_2);
     }
 
     /**
@@ -1127,7 +1127,9 @@ public class BusinessUtil {
      * @return true 是，false 不是
      */
     public static boolean isNextMorningArrived(String waybillSign){
-        return isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_4);
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_4)
+                || (isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_1)
+                    && isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_3));
     }
 
     /**
@@ -1136,8 +1138,10 @@ public class BusinessUtil {
      * @return true 是，false 不是
      */
     public static boolean isSameCityArrived(String waybillSign){
-        return isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_2)
-                && isSignChar(waybillSign, WaybillSignConstants.POSITION_16, WaybillSignConstants.CHAR_16_1);
+        return (isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_2)
+                && isSignChar(waybillSign, WaybillSignConstants.POSITION_16, WaybillSignConstants.CHAR_16_1))
+                || (isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_1)
+                && isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_2));
     }
 
 }

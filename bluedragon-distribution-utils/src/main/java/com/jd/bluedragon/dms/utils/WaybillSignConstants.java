@@ -205,11 +205,15 @@ public interface WaybillSignConstants {
 	/**
 	 * 是否是次晨达
 	 * */
+	int POSITION_116 = 116;
+	char CHAR_31_1 = '1';
 	char CHAR_31_4 = '4';
+	char CHAR_116_3 = '3';
 	/**
 	 * 是否是同城当日达
 	 * */
 	char CHAR_31_2 = '2';
 	int POSITION_16 = 16;
 	char CHAR_16_1 = '1';
+	char CHAR_116_2 = '2';
 }

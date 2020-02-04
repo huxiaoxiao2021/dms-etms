@@ -21,9 +21,17 @@ public class OverLengthRemindHandler implements InterceptHandler<WaybillPrintCon
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
-     * 包裹最长边CM
+     * 包裹长CM
      * */
-    private static final int MAX_LENGTH = 100;
+    private static final int MAX_LENGTH = 150;
+    /**
+     * 包裹宽CM
+     * */
+    private static final int MAX_WIDTH = 100;
+    /**
+     * 包裹高CM
+     * */
+    private static final int MAX_HIGH = 100;
 
     @Override
     public InterceptResult<String> handle(WaybillPrintContext context) {
@@ -32,8 +40,8 @@ public class OverLengthRemindHandler implements InterceptHandler<WaybillPrintCon
         WeightOperFlow weightOperFlow = context.getRequest().getWeightOperFlow();
         if(weightOperFlow == null
                 || (weightOperFlow.getLength() <= MAX_LENGTH
-                && weightOperFlow.getWidth() <= MAX_LENGTH
-                && weightOperFlow.getHigh() <= MAX_LENGTH)){
+                && weightOperFlow.getWidth() <= MAX_WIDTH
+                && weightOperFlow.getHigh() <= MAX_HIGH)){
             return interceptResult;
         }
         String traderSign = context.getTraderSign();
@@ -45,7 +53,7 @@ public class OverLengthRemindHandler implements InterceptHandler<WaybillPrintCon
                         || BusinessUtil.isNextMorningArrived(waybillSign)
                         || BusinessUtil.isSameCityArrived(waybillSign))){
             context.getResponse().setLongPack(Boolean.TRUE);
-            interceptResult.toWeakSuccess(JdResult.CODE_SUC, String.format(WaybillPrintMessages.MESSAGE_PACKAGE_OVER_LENGTH_REMIND,String.valueOf(MAX_LENGTH)));
+            interceptResult.toWeakSuccess(JdResult.CODE_SUC, WaybillPrintMessages.MESSAGE_PACKAGE_OVER_LENGTH_REMIND);
         }
         return interceptResult;
     }
