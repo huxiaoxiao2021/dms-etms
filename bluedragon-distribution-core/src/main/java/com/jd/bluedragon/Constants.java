@@ -1009,4 +1009,9 @@ public class Constants {
      */
     public static final String DICTGROUP = "1209";
 
+    /**
+     * 运单预分拣网点值 为-136代表超区
+     */
+    public static final int WAYBILL_SITE_ID_OUT_ZONE = -136;
+
 }
