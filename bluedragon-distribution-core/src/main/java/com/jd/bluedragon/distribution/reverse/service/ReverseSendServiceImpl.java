@@ -1972,6 +1972,8 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                     //病单需要回传原包裹号
                     send.setPackageCodes(packageCode.replace(waybillCode,oldWaybillCode));
                 }
+                //病单增加面单实操包裹字段供WMS使用
+                send.setBillPackageCode(packageCode);
                 isBatchSendSuccess &= sendWMS(send, waybillCode, sendM, entry, lossCount, bDto, taskId);
             }
         } else {
