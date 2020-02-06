@@ -401,13 +401,14 @@ public class WaybillServiceImpl implements WaybillService {
         String aWaybillCode = WaybillUtil.getWaybillCode(waybillCode);
         Waybill waybill = waybillQueryManager.getWaybillByWayCode(aWaybillCode);
         if(waybill == null){
+            log.info("疫情超区或者春节禁售运单判断，数据为空waybillCode{}",waybillCode);
             return false;
         }
         //-136 代表超区；具体逻辑上游（预分拣）控制
         if(uccPropertyConfiguration.isPreOutZoneSwitch()
                 && BusinessUtil.isForeignForwardAndWaybillMarkForward(waybill.getWaybillSign())
                 && waybill.getOldSiteId() != null && waybill.getOldSiteId() == Constants.WAYBILL_SITE_ID_OUT_ZONE){
-            log.info("此单是疫情超区或者春节禁售运单waybillCode{}",waybillCode);
+            log.info("疫情超区或者春节禁售运单判断-拦截运单waybillCode{}",waybillCode);
             return true;
         }
         return false;
