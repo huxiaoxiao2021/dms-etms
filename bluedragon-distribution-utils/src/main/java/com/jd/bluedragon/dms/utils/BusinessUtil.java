@@ -893,11 +893,31 @@ public class BusinessUtil {
 
     /**
      * 是否正向 （外单）
+     * waybillSign 61位是0
      * @param waybillSign waybillSign
      * @return true 是，false 不是
      */
     public static boolean isForeignForward(String waybillSign) {
         return isSignChar(waybillSign,WaybillSignConstants.BACKWARD_TYPE_POSITION_61,WaybillSignConstants.BACKWARD_TYPE_NO_CHAR_61_0);
+    }
+
+    /**
+     * 运单打标是否是正向
+     * waybillSign 15位是0
+     * @param waybillSign waybillSign
+     * @return true 是，false 不是
+     */
+    private static boolean isWaybillMarkForward(String waybillSign) {
+        return isSignChar(waybillSign,WaybillSignConstants.BACKWARD_TYPE_WAYBILL_MARK_POSITION_15,WaybillSignConstants.BACKWARD_TYPE_WAYBILL_MARK_POSITION_15_0);
+    }
+
+    /**
+     * 正向外单 并且运单打标也是正向
+     * @param waybillSign
+     * @return true 正向，false 非正向
+     */
+    public static boolean isForeignForwardAndWaybillMarkForward(String waybillSign){
+        return isForeignForward(waybillSign) && isWaybillMarkForward(waybillSign);
     }
 
     /**

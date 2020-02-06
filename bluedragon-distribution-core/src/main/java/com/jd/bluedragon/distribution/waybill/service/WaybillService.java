@@ -79,6 +79,13 @@ public interface WaybillService {
     DmsWaybillInfoResponse getDmsWaybillInfoAndCheck(String packageCode);
 
     /**
+     * 本意是判断：是否是疫情超区 或者 春节禁售。此逻辑在预分拣侧控制。分拣只根据预分拣网点是-136做拦截限制
+     * @param waybillCode
+     * @return true 是，false 不是
+     */
+    boolean isOutZoneControl(String waybillCode);
+
+    /**
      * 获取运单信息
      * @param packageCode
      * @return

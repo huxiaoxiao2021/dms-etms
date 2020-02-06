@@ -74,6 +74,9 @@ public class JdResponse extends JdObject {
     public static final Integer CODE_CODMONAY_THIRD_SITE_ERROR = 20012;
     public static final String MESSAGE_CODMONAY_THIRD_SITE_ERROR = "有货到付款金额，不能分配到第三方快递！";
 
+    public static final Integer CODE_OUT_ZONE_ERROR = 20013;
+    public static final String MESSAGE_OUT_ZONE_ERROR = "此运单收件地址为春节禁售或疫情地区，无法揽收，请退回商家！";
+
     public static final Integer CODE_UNLOADBILL = 2424;
     public static final String MESSAGE_UNLOADBILL = "已经装载不允许取消";
 
