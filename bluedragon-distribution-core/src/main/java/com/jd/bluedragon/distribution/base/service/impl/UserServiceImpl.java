@@ -1,6 +1,9 @@
 package com.jd.bluedragon.distribution.base.service.impl;
 
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -33,12 +36,17 @@ import com.jd.bluedragon.distribution.sysloginlog.domain.SysLoginLog;
 import com.jd.bluedragon.distribution.sysloginlog.service.SysLoginLogService;
 import com.jd.bluedragon.distribution.version.domain.ClientConfig;
 import com.jd.bluedragon.distribution.version.service.ClientConfigService;
+import com.jd.bluedragon.sdk.modules.client.DmsClientMessages;
+import com.jd.bluedragon.sdk.modules.client.LoginStatusEnum;
+import com.jd.bluedragon.sdk.modules.client.LogoutTypeEnum;
+import com.jd.bluedragon.sdk.modules.client.ProgramTypeEnum;
 import com.jd.bluedragon.sdk.modules.client.dto.DmsClientHeartbeatRequest;
 import com.jd.bluedragon.sdk.modules.client.dto.DmsClientHeartbeatResponse;
 import com.jd.bluedragon.sdk.modules.client.dto.DmsClientLoginRequest;
 import com.jd.bluedragon.sdk.modules.client.dto.DmsClientLoginResponse;
 import com.jd.bluedragon.service.remote.client.DmsClientManager;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
@@ -59,6 +67,8 @@ import com.jd.ump.profiler.proxy.Profiler;
 public class UserServiceImpl implements UserService{
 
 	private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
+	private static final String DEFAULTTIME = "BasicSystemResource.defaultTime";
+	 
 	/**
 	 *	登录方式-分拣客户端（PDA、打印、标签设计器）
 	 */
@@ -426,25 +436,83 @@ public class UserServiceImpl implements UserService{
 		}
 		return loginResult;
 	}
+	/**
+	 * 搜集客户端心跳信息，控制客户端退出、更新版本等
+	 */
 	@Override
 	public JdResult<DmsClientHeartbeatResponse> sendHeartbeat(DmsClientHeartbeatRequest dmsClientHeartbeatRequest){
+		//调用jsf记录心跳信息
 		JdResult<DmsClientHeartbeatResponse> result = dmsClientManager.sendHeartbeat(dmsClientHeartbeatRequest);
 		if(result != null 
 				&& result.isSucceed()
-				&& result.getData() != null
-				&& result.getData().getDmsClientConfigInfo() != null){
-			//设置运行环境信息
+				&& result.getData() != null){
 			Integer programType = result.getData().getProgramType();
 			String userCode = result.getData().getUserCode();
-			Integer siteCode = NumberHelper.convertToInteger(result.getData().getSiteCode());
-			Integer orgCode = NumberHelper.convertToInteger(result.getData().getOrgCode());
-			String runningMode = this.getRunningMode(programType, userCode, siteCode, orgCode);
-			if(StringHelper.isNotEmpty(runningMode)){
-				result.getData().getDmsClientConfigInfo().setRunningMode(runningMode);
+			//设置运行环境信息，后续迁移到business
+			if(result.getData().getDmsClientConfigInfo() != null){
+				Integer siteCode = NumberHelper.convertToInteger(result.getData().getSiteCode());
+				Integer orgCode = NumberHelper.convertToInteger(result.getData().getOrgCode());
+				String runningMode = this.getRunningMode(programType, userCode, siteCode, orgCode);
+				if(StringHelper.isNotEmpty(runningMode)){
+					result.getData().getDmsClientConfigInfo().setRunningMode(runningMode);
+				}
 			}
+			//PDA登录，特殊控制处理
+			if(ProgramTypeEnum.isPda(programType)){
+				//校验校验客户端时间和服务器时间差异
+	            if(!checkClientTime(dmsClientHeartbeatRequest.getRequestTime(),result.getData().getServerTime())){
+	            	result.getData().setForceLogout(Boolean.TRUE);
+	            	result.getData().setLogoutType(LogoutTypeEnum.WARN_CLIENT_TIME_INVALID.getTypeCode());
+	            	result.toWarn(JdResponse.CODE_TIMEOUT,JdResponse.MESSAGE_TIMEOUT + "[PDA时间:" + dmsClientHeartbeatRequest.getRequestTime() + ",服务器时间:" + result.getData().getServerTime() + "]");
+	                return result;
+	            }
+				//校验是否重复登录
+				if(LoginStatusEnum.WARN_MULTIPLE_LOGIN.getStatusCode().equals(result.getData().getLoginStatus())
+						&& sysConfigService.getConfigByName(SysConfigService.SYS_CONFIG_PDA_CHECK_MULTIPLE_LOGIN)){
+					result.getData().setForceLogout(Boolean.TRUE);
+					result.getData().setLogoutType(LogoutTypeEnum.WARN_MULTIPLE_LOGIN.getTypeCode());
+					result.toWarn(DmsClientMessages.WARN_NEED_LOGOUT.getMsgCode(),"该账号已在其他设备登录！");
+					return result;
+				}
+				//校验账号是否有效
+				if(!checkUserCode(userCode)){
+					result.getData().setForceLogout(Boolean.TRUE);
+					result.getData().setLogoutType(LogoutTypeEnum.WARN_USER_INVALID.getTypeCode());
+	                result.toWarn(JdResponse.CODE_RESIGNATION,JdResponse.MESSAGE_RESIGNATION);
+	                return result;
+	            }
+            }
 		}
 		return result;
 	}
+    /**
+     * 校验账号是否有效
+     * @param userCode
+     * @return
+     */
+    public boolean checkUserCode(String userCode){
+		if(userCode != null && !userCode.toLowerCase().contains(Constants.PDA_THIRDPL_TYPE)){
+            BaseStaffSiteOrgDto baseDto = baseMajorManager.getBaseStaffIgnoreIsResignByErp(userCode);
+            if(baseDto == null || baseDto.getIsResign() == null || baseDto.getIsResign() != 1){
+                return false;
+            }
+		}
+        return true;
+    }
+    /**
+     * 校验客户端时间和服务器时间，不能相差5分钟
+     * @param clientTime
+     * @param serverTime
+     * @return
+     */
+    public boolean checkClientTime(Date clientTime, Date serverTime){
+        long diff = Math.abs(clientTime.getTime() - serverTime.getTime());
+        String defaultTime = PropertiesHelper.newInstance().getValue(DEFAULTTIME);
+        if(diff/(1000*60) < Integer.valueOf(defaultTime)){
+            return true;
+        }
+        return false;
+    }
 	/**
 	 * 根据配置设置当前登录人的环境
 	 * @param request
