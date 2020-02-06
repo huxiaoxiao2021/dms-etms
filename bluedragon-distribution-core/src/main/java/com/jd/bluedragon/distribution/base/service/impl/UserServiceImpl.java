@@ -237,30 +237,8 @@ public class UserServiceImpl implements UserService{
 					return response;
 				}else{
 					sysLoginLogService.insert(loginResult, clientInfo);
-					//jsf保存登录记录接口
-					DmsClientLoginRequest dmsClientLoginRequest = new DmsClientLoginRequest();
-					dmsClientLoginRequest.setProgramType(clientInfo.getProgramType());
-					dmsClientLoginRequest.setVersionCode(clientInfo.getVersionCode());
-					dmsClientLoginRequest.setSystemCode(Constants.SYS_CODE_DMS);
-					String orgCode = null;
-					if(loginResult.getOrganizationId() != null){
-						orgCode = loginResult.getOrganizationId().toString();
-					}
-					dmsClientLoginRequest.setOrgCode(orgCode);
-					dmsClientLoginRequest.setOrgName(loginResult.getOrganizationName());
-					String siteCode = null;
-					if(loginResult.getSiteId() != null){
-						siteCode = loginResult.getSiteId().toString();
-					}
-					dmsClientLoginRequest.setSiteCode(siteCode);
-					dmsClientLoginRequest.setSiteName(loginResult.getSiteName());
-					dmsClientLoginRequest.setUserCode(request.getErpAccount());
-					dmsClientLoginRequest.setUserName(loginResult.getStaffName());
-					
-					dmsClientLoginRequest.setMacAdress(clientInfo.getMacAdress());
-					dmsClientLoginRequest.setMachineCode(clientInfo.getMachineName());
-					dmsClientLoginRequest.setIpv4(clientInfo.getIpv4());
-					dmsClientLoginRequest.setIpv6(clientInfo.getIpv6());
+					DmsClientLoginRequest dmsClientLoginRequest = generateDmsClientLoginRequest(request,loginResult, clientInfo);
+					//调用jsf登录记录接口
 					JdResult<DmsClientLoginResponse> loginResponse = dmsClientManager.login(dmsClientLoginRequest);
 					if(loginResponse != null 
 							&& loginResponse.isSucceed()
@@ -305,7 +283,39 @@ public class UserServiceImpl implements UserService{
 			return response;
 		}
 	}
-
+	/**
+	 * 生成客户端登录请求
+	 * @param loginResult
+	 * @param clientInfo
+	 * @return
+	 */
+	private DmsClientLoginRequest generateDmsClientLoginRequest(LoginRequest loginRequest,PdaStaff loginResult,
+			ClientInfo clientInfo) {
+		DmsClientLoginRequest dmsClientLoginRequest = new DmsClientLoginRequest();
+		dmsClientLoginRequest.setProgramType(clientInfo.getProgramType());
+		dmsClientLoginRequest.setVersionCode(clientInfo.getVersionCode());
+		dmsClientLoginRequest.setSystemCode(Constants.SYS_CODE_DMS);
+		String orgCode = null;
+		if(loginResult.getOrganizationId() != null){
+			orgCode = loginResult.getOrganizationId().toString();
+		}
+		dmsClientLoginRequest.setOrgCode(orgCode);
+		dmsClientLoginRequest.setOrgName(loginResult.getOrganizationName());
+		String siteCode = null;
+		if(loginResult.getSiteId() != null){
+			siteCode = loginResult.getSiteId().toString();
+		}
+		dmsClientLoginRequest.setSiteCode(siteCode);
+		dmsClientLoginRequest.setSiteName(loginResult.getSiteName());
+		dmsClientLoginRequest.setUserCode(request.getErpAccount());
+		dmsClientLoginRequest.setUserName(loginResult.getStaffName());
+		
+		dmsClientLoginRequest.setMacAdress(clientInfo.getMacAdress());
+		dmsClientLoginRequest.setMachineCode(clientInfo.getMachineName());
+		dmsClientLoginRequest.setIpv4(clientInfo.getIpv4());
+		dmsClientLoginRequest.setIpv6(clientInfo.getIpv6());
+		return dmsClientLoginRequest;
+	}
 	/**
 	 * 检查客户端版本信息
 	 * @param clientInfo 上传的客户端信息
