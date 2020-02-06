@@ -66,11 +66,8 @@ public class WaybillServiceTest {
         cancelWaybill.setInterceptType(WaybillCancelInterceptTypeEnum.REFUSE.getCode());
         cancelWaybill.setInterceptMode(WaybillCancelInterceptModeEnum.INTERCEPT.getCode());
         cancelWaybills.add(cancelWaybill);
-        Waybill waybill = new Waybill();
-        waybill.setOldSiteId(-136);
-        waybill.setWaybillSign("30001000011900000000000000000002000000000002000000002000010000000100000000000010000000000000100000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
+
         when(waybillQueryManager.queryExist(anyString())).thenReturn(Boolean.TRUE);
-        when(waybillQueryManager.getWaybillByWayCode(anyString())).thenReturn(waybill);
         when(cancelWaybillDao.getByWaybillCode(cancelWaybill.getWaybillCode())).thenReturn(cancelWaybills);
 //        when(taskService.toTask(any(TaskRequest.class), anyString())).thenReturn(any(Task.class));
         when(uccPropertyConfiguration.isPreOutZoneSwitch()).thenReturn(Boolean.TRUE);
@@ -85,6 +82,9 @@ public class WaybillServiceTest {
 
     @Test
     public void  testisOutZoneControl(){
-        Assert.assertTrue(waybillService.isOutZoneControl("1111111"));
+        Waybill waybill = new Waybill();
+        waybill.setOldSiteId(-136);
+        waybill.setWaybillSign("30001000011900000000000000000002000000000002000000002000010000000100000000000010000000000000100000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
+        Assert.assertTrue(waybillService.isOutZoneControl(waybill));
     }
 }
