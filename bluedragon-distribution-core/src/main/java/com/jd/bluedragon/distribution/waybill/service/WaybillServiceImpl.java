@@ -408,9 +408,9 @@ public class WaybillServiceImpl implements WaybillService {
                 && BusinessUtil.isForeignForwardAndWaybillMarkForward(waybill.getWaybillSign())
                 && waybill.getOldSiteId() != null && waybill.getOldSiteId() == Constants.WAYBILL_SITE_ID_OUT_ZONE){
             log.info("此单是疫情超区或者春节禁售运单waybillCode{}",waybillCode);
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     /**
