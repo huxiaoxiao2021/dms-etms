@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.waybill.test.service;
 
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
@@ -11,6 +12,8 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptModeE
 import com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeEnum;
 import com.jd.bluedragon.distribution.waybill.service.WaybillServiceImpl;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.waybill.domain.Waybill;
+import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,6 +51,9 @@ public class WaybillServiceTest {
 
     private PdaOperateRequest request;
 
+    @Mock
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
     @Before
     public void initMocks() throws Exception {
 
@@ -60,10 +66,14 @@ public class WaybillServiceTest {
         cancelWaybill.setInterceptType(WaybillCancelInterceptTypeEnum.REFUSE.getCode());
         cancelWaybill.setInterceptMode(WaybillCancelInterceptModeEnum.INTERCEPT.getCode());
         cancelWaybills.add(cancelWaybill);
-
+        Waybill waybill = new Waybill();
+        waybill.setOldSiteId(-136);
+        waybill.setWaybillSign("30001000011900600000000000000002000000000002000000002000010010000100000000000010000000000000100000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
         when(waybillQueryManager.queryExist(anyString())).thenReturn(Boolean.TRUE);
+        when(waybillQueryManager.getWaybillByWayCode(anyString())).thenReturn(waybill);
         when(cancelWaybillDao.getByWaybillCode(cancelWaybill.getWaybillCode())).thenReturn(cancelWaybills);
         when(taskService.toTask(any(TaskRequest.class), anyString())).thenReturn(any(Task.class));
+        when(uccPropertyConfiguration.isPreOutZoneSwitch()).thenReturn(Boolean.TRUE);
     }
 
     @Test
@@ -71,5 +81,10 @@ public class WaybillServiceTest {
 
         System.out.println(JsonHelper.toJson(waybillService.thirdCheckWaybillCancel(request)));
 
+    }
+
+    @Test
+    public void  testisOutZoneControl(){
+        Assert.assertFalse(waybillService.isOutZoneControl("1111111"));
     }
 }
