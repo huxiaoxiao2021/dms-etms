@@ -383,15 +383,35 @@ public class WaybillServiceImpl implements WaybillService {
         if (waybillDto == null || waybillDto.getWaybill() == null || waybillDto.getWaybillState() == null) {
             return new DmsWaybillInfoResponse(CODE_WAYBILL_NOE_FOUND, MESSAGE_WAYBILL_NOE_FOUND);
         }
-        Waybill waybill = waybillDto.getWaybill();
         //-136 代表超区；具体逻辑上游（预分拣）控制
-        if(uccPropertyConfiguration.isPreOutZoneSwitch()
-                && BusinessUtil.isForeignForward(waybill.getWaybillSign())
-                && waybill.getOldSiteId() != null && waybill.getOldSiteId() == Constants.WAYBILL_SITE_ID_OUT_ZONE){
+        if(isOutZoneControl(packageCode)){
             return new DmsWaybillInfoResponse(JdResponse.CODE_WRONG_STATUS, JdResponse.MESSAGE_OUT_ZONE);
         }
         DmsWaybillInfoResponse response = getDmsWaybillInfoResponse(packageCode);
         return response;
+    }
+
+    /**
+     * 正向运单是否是疫情超区 或者 春节禁售
+     * @param waybillCode
+     * @return true 是，false 不是
+     */
+    @Override
+    public boolean isOutZoneControl(String waybillCode){
+        String aWaybillCode = WaybillUtil.getWaybillCode(waybillCode);
+        Waybill waybill = waybillQueryManager.getWaybillByWayCode(aWaybillCode);
+        if(waybill == null){
+            log.info("疫情超区或者春节禁售运单判断，数据为空waybillCode{}",waybillCode);
+            return false;
+        }
+        //-136 代表超区；具体逻辑上游（预分拣）控制
+        if(uccPropertyConfiguration.isPreOutZoneSwitch()
+                && BusinessUtil.isForeignForwardAndWaybillMarkForward(waybill.getWaybillSign())
+                && waybill.getOldSiteId() != null && waybill.getOldSiteId() == Constants.WAYBILL_SITE_ID_OUT_ZONE){
+            log.info("疫情超区或者春节禁售运单判断-拦截运单waybillCode{}",waybillCode);
+            return true;
+        }
+        return false;
     }
 
     /**

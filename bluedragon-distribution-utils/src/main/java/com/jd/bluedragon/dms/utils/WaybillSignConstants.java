@@ -129,6 +129,15 @@ public interface WaybillSignConstants {
 	char BACKWARD_TYPE_NO_CHAR_61_0 = '0';
 
 	/**
+	 * 逆向类型(运单打标)
+	 */
+	int BACKWARD_TYPE_WAYBILL_MARK_POSITION_15 = 15;
+	/**
+	 * 正向
+	 */
+	char BACKWARD_TYPE_WAYBILL_MARK_POSITION_15_0 = '0';
+
+	/**
 	 * 毕业寄
 	 */
 	int POSITION_98 = 98;
