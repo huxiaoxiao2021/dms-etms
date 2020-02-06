@@ -34,7 +34,7 @@ public class WaybillOutZoneHandler implements Handler<WaybillPrintContext,JdResu
         InterceptResult<String> result = new InterceptResult<String>();
         result.toSuccess();
 
-        if(waybillService.isOutZoneControl(context.getWaybill().getWaybillCode())){
+        if(waybillService.isOutZoneControl(context.getBigWaybillDto().getWaybill())){
             result.toFail(JdResponse.CODE_OUT_ZONE_ERROR, JdResponse.MESSAGE_OUT_ZONE_ERROR);
             return result;
         }
