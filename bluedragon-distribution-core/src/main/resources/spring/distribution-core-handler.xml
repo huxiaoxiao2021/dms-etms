@@ -106,6 +106,7 @@
         <property name="handlers">
             <list>
                 <ref bean="basicWaybillPrintHandler"/>
+                <ref bean="waybillOutZoneHandler"/>
                 <ref bean="featherLetterHandler"/>
                 <ref bean="c2cInterceptHandler"/>
                 <ref bean="interceptWaybillHandler"/>
