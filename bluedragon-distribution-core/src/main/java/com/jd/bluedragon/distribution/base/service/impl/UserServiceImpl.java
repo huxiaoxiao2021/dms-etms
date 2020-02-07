@@ -295,6 +295,7 @@ public class UserServiceImpl implements UserService{
 		dmsClientLoginRequest.setProgramType(clientInfo.getProgramType());
 		dmsClientLoginRequest.setVersionCode(clientInfo.getVersionCode());
 		dmsClientLoginRequest.setSystemCode(Constants.SYS_CODE_DMS);
+		dmsClientLoginRequest.setRunningMode(this.runningMode);
 		String orgCode = null;
 		if(loginResult.getOrganizationId() != null){
 			orgCode = loginResult.getOrganizationId().toString();
