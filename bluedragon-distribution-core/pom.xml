@@ -1063,7 +1063,7 @@
         <dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>business-sdk</artifactId>
-            <version>1.0.5-test-SNAPSHOT</version>
+            <version>1.0.5-RELEASE</version>
         </dependency>
 
 		<!--JMQ-Split组件  -->
