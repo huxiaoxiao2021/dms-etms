@@ -307,7 +307,7 @@ public class UserServiceImpl implements UserService{
 		}
 		dmsClientLoginRequest.setSiteCode(siteCode);
 		dmsClientLoginRequest.setSiteName(loginResult.getSiteName());
-		dmsClientLoginRequest.setUserCode(request.getErpAccount());
+		dmsClientLoginRequest.setUserCode(loginRequest.getErpAccount());
 		dmsClientLoginRequest.setUserName(loginResult.getStaffName());
 		
 		dmsClientLoginRequest.setMacAdress(clientInfo.getMacAdress());
