@@ -82,7 +82,10 @@ public class LoginUserResponse extends JdResponse {
 	 * 分拣中心ID
 	 */
 	private Integer dmsId;
-
+	/**
+	 * 登录id
+	 */
+	private Long loginId;
 	/**
 	 * @return the dmsSiteCode
 	 */
@@ -230,6 +233,18 @@ public class LoginUserResponse extends JdResponse {
 		this.dmsId = dmsId;
 	}
 
+	/**
+	 * @return the loginId
+	 */
+	public Long getLoginId() {
+		return loginId;
+	}
+	/**
+	 * @param loginId the loginId to set
+	 */
+	public void setLoginId(Long loginId) {
+		this.loginId = loginId;
+	}
 	public BaseResponse toOldLoginResponse() {
 		BaseResponse baseResponse = new BaseResponse(super.getCode(), super.getMessage());
 		baseResponse.setErpAccount(this.erpAccount);
