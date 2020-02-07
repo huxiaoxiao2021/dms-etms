@@ -1008,6 +1008,15 @@ public class Constants {
      * 调用运输基础资料获取货物类型 字典分组
      */
     public static final String DICTGROUP = "1209";
+    /**
+     * 泡重比类型--按体积
+     */
+    public static final Integer VOLUMEFEETYPE_VOLUME = 1;
+
+    /**
+     * 泡重比类型--按重泡比
+     */
+    public static final Integer VOLUMEFEETYPE_VOLUMERATE = 2;
 
     /**
      * 运单预分拣网点值 为-136代表超区
