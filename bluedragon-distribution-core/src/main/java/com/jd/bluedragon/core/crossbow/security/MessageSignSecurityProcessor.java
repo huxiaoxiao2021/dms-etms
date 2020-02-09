@@ -1,6 +1,7 @@
 package com.jd.bluedragon.core.crossbow.security;
 
 import com.jd.bluedragon.core.crossbow.CrossbowConfig;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.lop.crossbow.dto.LopRequest;
 import com.jd.lop.crossbow.util.HmacUtil;
 import org.springframework.stereotype.Component;
@@ -31,9 +32,7 @@ public class MessageSignSecurityProcessor implements ICrossbowSecurityProcessor 
 
     @Override
     public LopRequest handleSecurityContent(LopRequest request,CrossbowConfig crossbowConfig) {
-        if (request != null) {
-            request.addUrlArg("payload",HmacUtil.MD5(request.getBody()));
-        }
+        request.addUrlArg("payload",HmacUtil.MD5(StringHelper.isEmpty(request.getBody())? "":request.getBody()));
         return request;
     }
 }
