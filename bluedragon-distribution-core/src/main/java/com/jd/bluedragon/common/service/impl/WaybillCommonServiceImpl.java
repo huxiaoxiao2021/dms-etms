@@ -1187,7 +1187,12 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }
 
 
-        List<String> routerNameList = vrsRouteTransferRelationManager.loadWaybillRouter(originalDmsCode,destinationDmsCode,routeProduct,predictSendTime);
+        List<String> routerNameList = null;
+        try {
+            routerNameList = vrsRouteTransferRelationManager.loadWaybillRouter(originalDmsCode,destinationDmsCode,routeProduct,predictSendTime);
+        } catch (Exception e) {
+            log.error("获取路由环节信息失败waybillCode[{}]originalDmsCode[{}]destinationDmsCode[{}]",printWaybill.getWaybillCode(),originalDmsCode,destinationDmsCode,e);
+        }
         log.debug("获取到的城市名列表为:{}" , routerNameList);
         if(routerNameList != null && routerNameList.size() > 0){
             for(int i=0;i<routerNameList.size();i++){
