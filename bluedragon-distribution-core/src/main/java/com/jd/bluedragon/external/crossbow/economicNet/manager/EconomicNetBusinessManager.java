@@ -9,6 +9,8 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <p>
@@ -35,12 +37,12 @@ public class EconomicNetBusinessManager extends AbstractCrossbowManager<Economic
      * @return
      */
     @Override
-    protected EconomicNetEntity<EconomicNetBoxWeightVolumeDto> getMyRequestBody(Object condition) {
-        EconomicNetEntity<EconomicNetBoxWeightVolumeDto> request = new EconomicNetEntity<>();
-        request.setPartnerId(partnerId);
-        request.setData(Collections.singletonList((EconomicNetBoxWeightVolumeDto) condition));
-        request.setSign(Md5Helper.encode(JsonHelper.toJson(condition) + secretKey));
-        return request;
+    protected Map<String, String> getMyUrlParams(Object condition) {
+        Map<String, String> urlParams = new HashMap<>();
+        urlParams.put("partnerId", partnerId);
+        urlParams.put("sign", Md5Helper.encode(JsonHelper.toJson(condition) + secretKey));
+        urlParams.put("data", JsonHelper.toJson(Collections.singletonList((EconomicNetBoxWeightVolumeDto) condition)));
+        return urlParams;
     }
 
     public void setPartnerId(String partnerId) {
