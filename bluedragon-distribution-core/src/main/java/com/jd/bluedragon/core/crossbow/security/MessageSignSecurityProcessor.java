@@ -31,7 +31,9 @@ public class MessageSignSecurityProcessor implements ICrossbowSecurityProcessor 
 
     @Override
     public LopRequest handleSecurityContent(LopRequest request,CrossbowConfig crossbowConfig) {
-        request.addUrlArg("payload",HmacUtil.MD5(request.getBody()));
+        if (request != null) {
+            request.addUrlArg("payload",HmacUtil.MD5(request.getBody()));
+        }
         return request;
     }
 }
