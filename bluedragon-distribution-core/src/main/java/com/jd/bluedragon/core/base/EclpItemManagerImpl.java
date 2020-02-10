@@ -126,6 +126,8 @@ public class EclpItemManagerImpl implements EclpItemManager {
             }
         }catch (Exception e){
             log.error("EclpItemManagerImpl-createInboundOrder 调用异常：{},{},{}",deptNo,isvInboundOrderNo,inboundSource, e);
+            response.setCode(Constants.RESULT_ERROR);
+            response.setMsg(e.getMessage());
         }finally {
             //记录日志
             pushSystemLog(waybillCode,isvInboundOrderNo,request,response);
