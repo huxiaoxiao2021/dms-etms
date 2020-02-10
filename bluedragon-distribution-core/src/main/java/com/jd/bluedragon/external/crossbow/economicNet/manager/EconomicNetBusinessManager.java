@@ -1,5 +1,6 @@
 package com.jd.bluedragon.external.crossbow.economicNet.manager;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.external.crossbow.AbstractCrossbowManager;
 import com.jd.bluedragon.external.crossbow.economicNet.domain.EconomicNetBoxWeightVolumeDto;
 import com.jd.bluedragon.external.crossbow.economicNet.domain.EconomicNetEntity;
@@ -38,7 +39,7 @@ public class EconomicNetBusinessManager extends AbstractCrossbowManager<Economic
      */
     @Override
     protected Map<String, String> getMyUrlParams(Object condition) {
-        String data = JsonHelper.toJson(Collections.singletonList((EconomicNetBoxWeightVolumeDto) condition));
+        String data = JSON.toJSONString(Collections.singletonList((EconomicNetBoxWeightVolumeDto) condition));
         Map<String, String> urlParams = new HashMap<>();
         urlParams.put("partnerId", partnerId);
         urlParams.put("sign", DigestUtils.md5Hex(data + secretKey));
