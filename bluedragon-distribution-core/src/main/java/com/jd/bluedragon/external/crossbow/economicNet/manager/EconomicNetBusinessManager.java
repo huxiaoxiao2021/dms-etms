@@ -38,10 +38,11 @@ public class EconomicNetBusinessManager extends AbstractCrossbowManager<Economic
      */
     @Override
     protected Map<String, String> getMyUrlParams(Object condition) {
+        String data = JsonHelper.toJson(Collections.singletonList((EconomicNetBoxWeightVolumeDto) condition));
         Map<String, String> urlParams = new HashMap<>();
         urlParams.put("partnerId", partnerId);
-        urlParams.put("sign", Md5Helper.encode(JsonHelper.toJson(condition) + secretKey));
-        urlParams.put("data", JsonHelper.toJson(Collections.singletonList((EconomicNetBoxWeightVolumeDto) condition)));
+        urlParams.put("sign", Md5Helper.encode(data + secretKey));
+        urlParams.put("data", data);
         return urlParams;
     }
 
