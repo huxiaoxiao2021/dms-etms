@@ -190,4 +190,14 @@ public interface WaybillSignConstants {
 	 */
 	int POSITION_56 = 56;
 	char CHAR_56_1 = '1';
+
+	/**
+	 * 寄付月结 waybillSign第14位为0
+	 * 自提 waybillSign第79位为2
+	 * */
+	int POSITION_14 = 14;
+	char CHAR_14_0 = '0';
+	int POSITION_79 = 79;
+	char CHAR_79_2 = '2';
+
 }

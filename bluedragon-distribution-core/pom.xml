@@ -1194,6 +1194,12 @@
 			<version>1.0.8.7-SNAPSHOT</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.jd.mobilePhoneMsg.sender</groupId>
+			<artifactId>mobilePhoneMsg-sender-client-jsf</artifactId>
+			<version>3.2-SNAPSHOT</version>
+		</dependency>
+
 	</dependencies>
 
 	<profiles>
