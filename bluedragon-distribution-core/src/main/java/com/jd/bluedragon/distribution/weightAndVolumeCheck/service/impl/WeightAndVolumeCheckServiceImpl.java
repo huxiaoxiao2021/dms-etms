@@ -469,7 +469,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             //根据青龙商家ID查询商家信息
             //返回值中的volumeFeeType（泡重比类型），当volumeFeeType的值为1.则按体积；当volumeFeeType的值2，则按泡重比；当volumeFeeType的值为空或0，则按重量
             QuoteCustomerDto quoteCustomerDto = quoteCustomerApiServiceManager.queryCustomerById(weightVolumeCollectDto.getBusiCode());
-            Integer volumeRate = null;
+            Integer volumeRate = 8000;
             if(quoteCustomerDto != null){
                 //取重泡比，当重泡比为null或0时，volumeRate取默认值8000
                 volumeRate = quoteCustomerDto.getVolumeRate();
