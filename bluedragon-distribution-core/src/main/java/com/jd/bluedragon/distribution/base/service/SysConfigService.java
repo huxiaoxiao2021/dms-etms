@@ -14,7 +14,11 @@ public interface SysConfigService {
      * 是否开启云打印
      */
     public static final String SYS_CONFIG_NAME_DMS_PRINT_USE_JD_CLOUD = "print.config.useJdCloudPrint";
-
+    /**
+     * 是否开启PDA重复登录校验
+     */
+    public static final String SYS_CONFIG_PDA_CHECK_MULTIPLE_LOGIN = "sys.config.pda.check.multiple.login";
+    
 	public List<SysConfig> getSwitchList();
 	public List<SysConfig> getList(SysConfig sysConfig);
 	public int del(Long pk);

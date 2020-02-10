@@ -4,6 +4,7 @@ import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 
 import java.util.List;
 import java.util.Map;
@@ -28,22 +29,22 @@ public interface InspectionService {
 	public void inspectionCore( List<Inspection> inspections ) throws Exception;
 
 	
-	/**
-	 * 根据运单号或包裹号来返回Inspection集合
-	 * @param requestBean
-	 * @return 
-	 */
-	public List<Inspection> prepareInspection(InspectionRequest requestBean);
 
-	public List<Inspection> parseInspections(Task task);
-	
 	/**
 	 * 验货数量
 	 * @param inspection
 	 * @return
 	 */
 	public Integer inspectionCount(Inspection inspection);
-	
+
+	/**
+	 * 已验数据 按运单查询
+	 * 不包含传入的包裹号
+	 * @param inspection
+	 * @return
+	 */
+	public Integer inspectionCountByWaybill(Inspection inspection);
+
 	/**
 	 * 增加POP收货数据
 	 * @param pop

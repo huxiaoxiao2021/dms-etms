@@ -825,44 +825,10 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
 
         //初始化加履中心订单
-
+        //金鹏退仓修改字段 OrderId 初始化商品信息（原商品信息已被初始化） OrderSource
         if(BusinessUtil.isPerformanceOrder(send.getWaybillSign())){
             send.setOrderSource(ReverseSendWms.ORDER_SOURCE_JLZX);
-        }
-
-
-        //金鹏退仓修改字段 OrderId 初始化商品信息
-        if(BusinessUtil.isPerformanceOrder(send.getWaybillSign())){
-
-            try{
-                BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill = waybillQueryManager.getWaybillByReturnWaybillCode(wayBillCode);
-                if(oldWaybill!=null && oldWaybill.getData()!=null && StringUtils.isNotBlank(oldWaybill.getData().getWaybillCode())){
-
-                    BaseEntity<BigWaybillDto> bigWaybill= waybillQueryManager.getDataByChoice(oldWaybill.getData().getWaybillCode(),true,true,true,true,false,false,false);
-                    if(bigWaybill!=null && bigWaybill.getData() != null && bigWaybill.getData().getWaybill() != null){
-
-                        send.setOrderId(bigWaybill.getData().getWaybill().getBusiOrderCode());
-
-                        if(bigWaybill.getData().getGoodsList()!=null&&bigWaybill.getData().getGoodsList().size()>0){
-                            List<com.jd.bluedragon.distribution.reverse.domain.Product> proList = new ArrayList<com.jd.bluedragon.distribution.reverse.domain.Product>();
-                            for (Goods good : bigWaybill.getData().getGoodsList()) {
-                                com.jd.bluedragon.distribution.reverse.domain.Product product = new com.jd.bluedragon.distribution.reverse.domain.Product();
-                                product.setProductId(good.getSku());
-                                product.setProductName(good.getGoodName());
-                                product.setProductNum(good.getGoodCount());
-                                product.setProductPrice(good.getGoodPrice());
-                                product.setProductLoss("0");
-                                proList.add(product);
-                            }
-                            send.setProList(proList);//存入原单的商品明细
-                        }
-                    }
-                }
-            }catch (Exception e){
-                log.error("金鹏逆向发货异常 :{}",wayBillCode,e);
-            }
-
-
+            send.setOrderId(send.getBusiOrderCode());
         }
         if(log.isInfoEnabled()){
             log.info("2:构建ReverseSendWms对象结果:{}", JSON.toJSONString(send));
@@ -2006,6 +1972,8 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                     //病单需要回传原包裹号
                     send.setPackageCodes(packageCode.replace(waybillCode,oldWaybillCode));
                 }
+                //病单增加面单实操包裹字段供WMS使用
+                send.setBillPackageCode(packageCode);
                 isBatchSendSuccess &= sendWMS(send, waybillCode, sendM, entry, lossCount, bDto, taskId);
             }
         } else {

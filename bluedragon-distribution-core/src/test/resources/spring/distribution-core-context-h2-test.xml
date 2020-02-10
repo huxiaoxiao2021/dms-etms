@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+    http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd"
+       default-lazy-init="true">
+
+    <aop:aspectj-autoproxy/>
+
+    <bean id="propertyConfigurer"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
+        <property name="locations">
+            <list>
+                <value>classpath:configured/app.properties</value>
+                <value>classpath:configured/db.properties</value>
+                <value>classpath:configured/dcam.properties</value>
+                <value>classpath:configured/dms_ip_mapper.properties</value>
+                <value>classpath:configured/order_service_config.properties</value>
+                <value>classpath:configured/popabnormal.properties</value>
+                <value>classpath:configured/snowflake.properties</value>
+                <value>classpath:configured/jsf.properties</value>
+                <value>classpath:configured/mq.properties</value>
+            </list>
+        </property>
+        <property name="properties" ref="secApplicationProperties"/>
+    </bean>
+    <!--公司安全要求 importants文件未防止运行环境泄露 应用secsdk加密-->
+    <bean id="secApplicationProperties" class="com.jd.security.configsec.spring.config.JDSecurityPropertyFactoryBean">
+        <property name="ignoreResourceNotFound" value="true"/>
+        <property name="secLocation" value="classpath:configured/important.properties"/>
+    </bean>
+    <bean class="org.springframework.context.annotation.CommonAnnotationBeanPostProcessor"/>
+
+    <!--<import resource="classpath:spring/distribution-core-common.xml" />-->
+    <!--<import resource="classpath:spring/distribution-core-dao-test.xml" />-->
+    <!--<import resource="classpath:spring/distribution-core-ws.xml" />-->
+    <import resource="classpath:spring/distribution-core-dao.xml"/>
+    <import resource="classpath:spring/order_service_config.xml"/>
+    <import resource="classpath:spring/distribution-core-redis.xml"/>
+    <import resource="classpath:spring/distribution-core-jsf.xml"/>
+    <import resource="classpath:spring/distribution-core-jmq.xml"/>
+    <import resource="classpath:spring/distribution-core-datasource-undiv-h2-test.xml"/>
+    <context:component-scan base-package="com.jd.bluedragon.distribution.popAbnormal.helper"/>
+    <context:component-scan base-package="com.jd.bluedragon.distribution.*.service"/>
+    <context:component-scan base-package="com.jd.bluedragon.distribution.product.service"/>
+    <context:component-scan base-package="com.jd.bluedragon.distribution.*.ws"/>
+    <context:component-scan base-package="com.jd.bluedragon.distribution.product.service"/>
+    <context:component-scan base-package="com.jd.bluedragon.core.message.producer"/>
+    <context:component-scan base-package="com.jd.bluedragon.core.redis"/>
+    <context:component-scan base-package="com.jd.bluedragon.core.base"/>
+
+
+    <bean id="springHelper" class="com.jd.bluedragon.utils.SpringHelper"></bean>
+
+    <bean id="cacheKeyGeneratorScaner" class="com.jd.bluedragon.utils.CacheKeyGeneratorScaner">
+        <property name="keyGenerator" ref="keyGenerator"></property>
+    </bean>
+
+    <bean id="keyGenerator" class="com.jd.bluedragon.utils.DmsArgsMatchCacheKeyGenerator"></bean>
+
+    <!--    id生成-->
+    <bean class="com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor" id="sequenceGenAdaptor">
+        <constructor-arg index="0">
+            <bean class="com.jd.coo.sa.sequence.snowflake.impl.PropertiesFileSnowflakeSequenceGen">
+                <constructor-arg index="0" value="/configured/snowflake.properties"/>
+            </bean>
+        </constructor-arg>
+    </bean>
+
+
+</beans>

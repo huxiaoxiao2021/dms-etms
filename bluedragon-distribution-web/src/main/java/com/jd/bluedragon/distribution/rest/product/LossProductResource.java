@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.rest.product;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.message.MessageDto;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -9,6 +10,8 @@ import com.jd.bluedragon.distribution.consumer.reverse.LossOrderConsumer;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.jmq.common.message.Message;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -16,7 +19,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +49,7 @@ public class LossProductResource {
 	@POST
 	@Deprecated
 	@Path("/order/loss")
+    @JProfiler(jKey = "DMS.WEB.LossProductResource.add", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public JdResponse add(MessageDto message) {
 		Message newMessage = new Message();
 		newMessage.setText(message.getContent());
@@ -51,6 +60,7 @@ public class LossProductResource {
 	
 	@POST
 	@Path("/lossProduct/add")
+    @JProfiler(jKey = "DMS.WEB.LossProductResource.add", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public JdResponse add(Message message) {
 		this.lossOrderConsumer.consume(message);
 
@@ -59,6 +69,7 @@ public class LossProductResource {
 
 	@GET
 	@Path("/order/product/quantity/{codeStr}")
+    @JProfiler(jKey = "DMS.WEB.LossProductResource.getOrderProductQuantity", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public LossProductResponse getOrderProductQuantity(@PathParam("codeStr") String codeStr) {
 		if (codeStr == null) {
 			return paramError();
@@ -79,6 +90,7 @@ public class LossProductResource {
 
 	@GET
 	@Path("/order/loss/products/{codeStr}")
+    @JProfiler(jKey = "DMS.WEB.LossProductResource.getLossOrderProducts", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public LossProductResponse getLossOrderProducts(@PathParam("codeStr") String codeStr) {
 		if (codeStr == null) {
 			return paramError();

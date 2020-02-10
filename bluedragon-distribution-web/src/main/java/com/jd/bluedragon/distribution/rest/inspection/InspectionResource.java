@@ -19,6 +19,7 @@ import com.jd.bluedragon.distribution.base.service.DmsStorageAreaService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionEC;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
@@ -543,10 +544,16 @@ public class InspectionResource {
 		//判断是运单号还是包裹号
 		Integer dmsSiteCode = siteCode;
 		String waybillCode = packageBarOrWaybillCode;
+		String packageCode = packageBarOrWaybillCode;
+		boolean isPack = false;
         if(WaybillUtil.isPackageCode(packageBarOrWaybillCode)){
+			isPack = true;
             waybillCode = WaybillUtil.getWaybillCode(packageBarOrWaybillCode);
         }
 		InspectionResult inspectionResult = new InspectionResult("");
+        //提取获取操作站点信息
+		BaseStaffSiteOrgDto siteOrgDto = siteService.getSite(dmsSiteCode);
+
         try{
 			inspectionResult = inspectionService.getInspectionResult(dmsSiteCode, waybillCode);
 		}catch (Exception e){
@@ -582,9 +589,13 @@ public class InspectionResource {
 		inspectionResult.setHintMessage(hintMessage);
 
 		// B网验货增加笼车号显示
-		this.setTabletrolleyCode(inspectionResult, dmsSiteCode, baseDto);
+		this.setTabletrolleyCode(inspectionResult, siteOrgDto, baseDto);
 
-        jdResponse.toSucceed();//这里设置为成功，取不到值时记录warn日志
+		//增加已验内容
+		if(isPack){
+			setScanPackageSize(inspectionResult,packageCode,waybillCode,dmsSiteCode);
+		}
+		jdResponse.toSucceed();//这里设置为成功，取不到值时记录warn日志
 		jdResponse.setData(inspectionResult);
 		return jdResponse;
 	}
@@ -596,18 +607,36 @@ public class InspectionResource {
      * @param dmsSiteCode
      * @param nextDest
      */
-	private void setTabletrolleyCode(InspectionResult inspectionResult, Integer dmsSiteCode, BaseStaffSiteOrgDto nextDest) {
-        if (null == dmsSiteCode || null == nextDest)
+	private void setTabletrolleyCode(InspectionResult inspectionResult, BaseStaffSiteOrgDto siteOrgDto, BaseStaffSiteOrgDto nextDest) {
+        if (null == siteOrgDto || null == nextDest)
             return;
-        BaseStaffSiteOrgDto siteOrgDto = siteService.getSite(dmsSiteCode);
         if (null != siteOrgDto && siteOrgDto.getSubType() != null && siteOrgDto.getSubType() == Constants.B2B_SITE_TYPE) {
-            SortCrossDetail sortCrossDetail = basicPrimaryWS.getCrossCodeDetailByDmsID(dmsSiteCode, String.valueOf(nextDest.getSiteCode()));
+            SortCrossDetail sortCrossDetail = basicPrimaryWS.getCrossCodeDetailByDmsID(siteOrgDto.getSiteCode(), String.valueOf(nextDest.getSiteCode()));
             if (log.isInfoEnabled()) {
-                log.info("Get table trolley code from basic. dmsId:{}, siteCode:{}, ret:[{}]", dmsSiteCode, nextDest.getSiteCode(), JsonHelper.toJson(sortCrossDetail));
+                log.info("Get table trolley code from basic. dmsId:{}, siteCode:{}, ret:[{}]", siteOrgDto.getSiteCode(), nextDest.getSiteCode(), JsonHelper.toJson(sortCrossDetail));
             }
             if (null != sortCrossDetail) {
                 inspectionResult.setTabletrolleyCode(sortCrossDetail.getTabletrolleyCode());
             }
         }
     }
+
+	/**
+	 * 设置已扫包裹数据
+	 * @param inspectionResult
+	 * @param packageCode
+	 * @param waybillCode
+	 * @param siteCode
+	 */
+    private void setScanPackageSize(InspectionResult inspectionResult,String packageCode,String waybillCode,Integer siteCode){
+		Inspection inspection = new Inspection();
+		inspection.setWaybillCode(waybillCode);
+		inspection.setCreateSiteCode(siteCode);
+		inspection.setPackageBarcode(packageCode);
+		//此时返回的已验数据不包含此次扫描包裹
+		Integer scanSize = inspectionService.inspectionCountByWaybill(inspection);
+		inspectionResult.setSacnPackageSize((scanSize==null?0:scanSize)+1);
+
+	}
+
 }
