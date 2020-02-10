@@ -49,5 +49,5 @@ public class WaybillPrintMessages{
 	/**
 	 * 超长包裹
 	 * */
-	public static final String MESSAGE_PACKAGE_OVER_LENGTH_REMIND = "此包裹超过150*100*100厘米，为超长揽收包裹";
+	public static final String MESSAGE_PACKAGE_OVER_LENGTH_REMIND = "此包裹超过{0}*{1}*{2}厘米，为超长揽收包裹";
 }

@@ -7,7 +7,10 @@ import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.text.MessageFormat;
 
 /**
  * 包裹超长提示 处理器
@@ -23,15 +26,18 @@ public class OverLengthRemindHandler implements InterceptHandler<WaybillPrintCon
     /**
      * 包裹长CM
      * */
-    private static final int MAX_LENGTH = 150;
+    @Value("${overLengthRemindHandler.maxLength:150}")
+    private int maxLength = 150;
     /**
      * 包裹宽CM
      * */
-    private static final int MAX_WIDTH = 100;
+    @Value("${overLengthRemindHandler.maxWidth:100}")
+    private int maxWidth = 100;
     /**
      * 包裹高CM
      * */
-    private static final int MAX_HIGH = 100;
+    @Value("${overLengthRemindHandler.maxHigh:100}")
+    private int maxHigh = 100;
 
     @Override
     public InterceptResult<String> handle(WaybillPrintContext context) {
@@ -39,9 +45,9 @@ public class OverLengthRemindHandler implements InterceptHandler<WaybillPrintCon
         interceptResult.toSuccess();
         WeightOperFlow weightOperFlow = context.getRequest().getWeightOperFlow();
         if(weightOperFlow == null
-                || (weightOperFlow.getLength() <= MAX_LENGTH
-                && weightOperFlow.getWidth() <= MAX_WIDTH
-                && weightOperFlow.getHigh() <= MAX_HIGH)){
+                || (weightOperFlow.getLength() <= maxLength
+                && weightOperFlow.getWidth() <= maxWidth
+                && weightOperFlow.getHigh() <= maxHigh)){
             return interceptResult;
         }
         String traderSign = context.getTraderSign();
@@ -53,7 +59,8 @@ public class OverLengthRemindHandler implements InterceptHandler<WaybillPrintCon
                         || BusinessUtil.isNextMorningArrived(waybillSign)
                         || BusinessUtil.isSameCityArrived(waybillSign))){
             context.getResponse().setLongPack(Boolean.TRUE);
-            interceptResult.toWeakSuccess(JdResult.CODE_SUC, WaybillPrintMessages.MESSAGE_PACKAGE_OVER_LENGTH_REMIND);
+            interceptResult.toWeakSuccess(JdResult.CODE_SUC,
+                    MessageFormat.format(WaybillPrintMessages.MESSAGE_PACKAGE_OVER_LENGTH_REMIND,maxLength,maxWidth,maxHigh));
         }
         return interceptResult;
     }
