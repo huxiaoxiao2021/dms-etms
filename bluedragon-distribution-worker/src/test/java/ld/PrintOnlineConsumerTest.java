@@ -25,8 +25,8 @@ public class PrintOnlineConsumerTest {
     @Test
     public void testMQ(){
         Message message = new Message();
-        message.setBusinessId("1");
-        message.setText("1");
+        message.setBusinessId("910-15478-2020020712562901621113");
+        message.setText("910-15478-20200207125629016");
         try {
             printOnlineConsumer.consume(message);
         } catch (Exception e) {
