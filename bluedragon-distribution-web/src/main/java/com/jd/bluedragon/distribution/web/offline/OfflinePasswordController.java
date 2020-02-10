@@ -35,7 +35,7 @@ public class OfflinePasswordController {
 		querySysConfig.setConfigName("offline.password");
 		List<SysConfig> passwordList =this.sysConfigService.getList(querySysConfig);
 		if(passwordList!=null&&passwordList.size()>0){
-			model.addAttribute("offlinePassword", passwordList.get(0).getConfigContent());
+			model.addAttribute("offlinePassword", RandomUtils.generateRandomNumByCurDate());
 		}
 		
 		querySysConfig.setConfigName("special.password");
