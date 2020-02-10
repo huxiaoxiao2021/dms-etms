@@ -398,7 +398,7 @@ public class PreSealVehicleResource {
                 preSealVehicle.setUpdateTime(new Date());
                 //更新成功并且是传摆预封车，才需要调用运输
                 if (preSealVehicleService.updateById(preSealVehicle) && PreSealVehicleSourceEnum.FERRY_PRE_SEAL.getCode() == preSealVehicle.getPreSealSource()) {
-                    preSealVehicleService.notifyVosPreSealJob(preSealVehicle, 2);
+                    preSealVehicleService.notifyVosPreSealJob(preSealVehicle, PreSealVehicleService.CANCEL_FLAG);
                 }
             }
         } catch (Exception e) {

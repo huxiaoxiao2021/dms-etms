@@ -72,7 +72,7 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
         boolean result = preSealVehicleDao.insert(preSealVehicle);
         if (result && PreSealVehicleSourceEnum.FERRY_PRE_SEAL.getCode() == preSealVehicle.getPreSealSource()) {
             //调用运输已创建预封车任务，1创建，2取消
-            this.notifyVosPreSealJob(preSealVehicle, 1);
+            this.notifyVosPreSealJob(preSealVehicle, PreSealVehicleService.NEW_FLAG);
         }
 		return result;
 	}
@@ -87,7 +87,7 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
             for (PreSealVehicle temp : list) {
                 if (! set.contains(temp.getVehicleNumber())) {
                     //调用运输已取消预封车任务，1创建，2取消
-                    this.notifyVosPreSealJob(temp, 2);
+                    this.notifyVosPreSealJob(temp, PreSealVehicleService.CANCEL_FLAG);
                 }
                 set.add(temp.getVehicleNumber());
             }
@@ -376,7 +376,7 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
         preSealVehicleJobDto.setOperateUserName(preSealVehicle.getCreateUserName());
         preSealVehicleJobDto.setOperateTime(new Date());
         CommonDto<String> commonDto = null;
-        if (flag == 1) {
+        if (flag == PreSealVehicleService.NEW_FLAG) {
             commonDto = vosManager.doPreSealVehicleJob(preSealVehicleJobDto);
         } else {
             commonDto = vosManager.cancelPreSealVehicleJob(preSealVehicleJobDto);

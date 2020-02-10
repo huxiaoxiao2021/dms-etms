@@ -19,6 +19,12 @@ import java.util.Map;
  */
 public interface PreSealVehicleService extends Service<PreSealVehicle> {
 
+    //新建标识
+    int NEW_FLAG = 1;
+
+    //取消标识
+    int CANCEL_FLAG = 2;
+
     /**
      * 新增一条预封车数据
      * @param preSealVehicle
