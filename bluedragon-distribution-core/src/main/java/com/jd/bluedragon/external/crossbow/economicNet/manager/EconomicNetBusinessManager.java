@@ -6,7 +6,7 @@ import com.jd.bluedragon.external.crossbow.economicNet.domain.EconomicNetEntity;
 import com.jd.bluedragon.external.crossbow.economicNet.domain.EconomicNetErrorRes;
 import com.jd.bluedragon.external.crossbow.economicNet.domain.EconomicNetResult;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.Md5Helper;
+import org.apache.commons.codec.digest.DigestUtils;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -41,7 +41,7 @@ public class EconomicNetBusinessManager extends AbstractCrossbowManager<Economic
         String data = JsonHelper.toJson(Collections.singletonList((EconomicNetBoxWeightVolumeDto) condition));
         Map<String, String> urlParams = new HashMap<>();
         urlParams.put("partnerId", partnerId);
-        urlParams.put("sign", Md5Helper.encode(data + secretKey));
+        urlParams.put("sign", DigestUtils.md5Hex(data + secretKey));
         urlParams.put("data", data);
         return urlParams;
     }
