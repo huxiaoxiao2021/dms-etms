@@ -1,7 +1,9 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.eclp.core.ApiResponse;
 import com.jd.eclp.master.export.api.service.dept.DeptServiceApi;
 import com.jd.eclp.master.export.api.service.dept.domain.DeptDomain;
@@ -33,6 +35,8 @@ import java.util.List;
 @Service("eclpItemManager")
 public class EclpItemManagerImpl implements EclpItemManager {
     private static final Logger log = LoggerFactory.getLogger(EclpItemManagerImpl.class);
+    private static Long SYSTEM_LOG_TYPE = 12004L;
+
     @Autowired
     OrderExtendService orderExtendService;
 
@@ -103,15 +107,17 @@ public class EclpItemManagerImpl implements EclpItemManager {
      */
     @Override
     @JProfiler(jKey = "DMS.BASE.EclpItemManagerImpl.cancelInboundOrder", mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWORKER)
-    public boolean cancelInboundOrder(String deptNo,String isvInboundOrderNo,Byte inboundSource) {
+    public boolean cancelInboundOrder(String waybillCode,String deptNo,String isvInboundOrderNo,Byte inboundSource) {
 
         boolean result = false;
+        InboundCancelRequest request = new InboundCancelRequest();
+        StringApiResponse response = new StringApiResponse();
         try{
-            InboundCancelRequest request = new InboundCancelRequest();
+
             request.setDeptNo(deptNo);
             request.setIsvInboundOrderNo(isvInboundOrderNo);
             request.setInboundSource(inboundSource);
-            StringApiResponse response = inboundOrderService.cancelInboundOrder(request);
+            response = inboundOrderService.cancelInboundOrder(request);
 
             result = STRINGAPIRESPONE_SUCCESS == response.getCode();
 
@@ -120,7 +126,34 @@ public class EclpItemManagerImpl implements EclpItemManager {
             }
         }catch (Exception e){
             log.error("EclpItemManagerImpl-createInboundOrder 调用异常：{},{},{}",deptNo,isvInboundOrderNo,inboundSource, e);
+        }finally {
+            //记录日志
+            pushSystemLog(waybillCode,isvInboundOrderNo,request,response);
         }
         return result;
+    }
+
+    /**
+     * 记录日志
+
+     */
+    private void pushSystemLog(String waybillCode,String isvInboundOrderNo,InboundCancelRequest request, StringApiResponse response){
+        try{
+            //增加系统日志
+            SystemLog sLogDetail = new SystemLog();
+            sLogDetail.setKeyword1(waybillCode);
+            sLogDetail.setKeyword2(isvInboundOrderNo);
+            sLogDetail.setKeyword3("ECLPSpwmsCancel");
+            if(response == null){
+                sLogDetail.setKeyword4(Long.valueOf(Constants.RESULT_ERROR));
+            }else{
+                sLogDetail.setKeyword4(Long.valueOf(response.getCode()));
+            }
+            sLogDetail.setType(SYSTEM_LOG_TYPE);
+            sLogDetail.setContent("请求:"+JsonHelper.toJson(request)+"返回:"+JsonHelper.toJson(response));
+            SystemLogUtil.log(sLogDetail);
+        }catch (Exception e){
+            log.error("cancelInboundOrder.pushSystemLog",e);
+        }
     }
 }

@@ -26,5 +26,5 @@ public interface EclpItemManager {
     public String getDeptBySettlementOuId(String ouId);
     public OrderResponse createInboundOrder(InboundOrder inboundOrder);
 
-    boolean cancelInboundOrder(String deptNo,String isvInboundOrderNo,Byte inboundSource);
+    boolean cancelInboundOrder(String waybillCode,String deptNo,String isvInboundOrderNo,Byte inboundSource);
 }
