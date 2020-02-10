@@ -126,15 +126,21 @@ public class OfflinePasswordController {
 	public String generatePassword(Integer type,Model model){
 		SysConfig querySysConfig = new SysConfig();
 		SysConfig sysConfig= new SysConfig();
-		if(type.equals(1)){//离线密码
+		if (type.equals(1)) {//离线密码
 			querySysConfig.setConfigName("offline.password");
-			}else{
-			querySysConfig.setConfigName("special.password");
-			}
-		List<SysConfig> passwordList =this.sysConfigService.getList(querySysConfig);
+        }
+		else {
+            querySysConfig.setConfigName("special.password");
+        }
+		List<SysConfig> passwordList = this.sysConfigService.getList(querySysConfig);
 		if(passwordList!=null&&passwordList.size()>0){
 			sysConfig=passwordList.get(0);
-			sysConfig.setConfigContent(RandomUtils.generateString(6));
+			if (type.equals(1)) {
+			    sysConfig.setConfigContent(RandomUtils.generateRandomNumByCurDate());
+            }
+			else {
+                sysConfig.setConfigContent(RandomUtils.generateString(6));
+            }
 		}
 		this.baseService.updateSysConfig(sysConfig);
 		return list(model);
