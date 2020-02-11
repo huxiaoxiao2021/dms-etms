@@ -670,4 +670,20 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 
         return deliveryPackageDList;
     }
+
+    /**
+     * 根据运单号获取商家ID
+     * @param waybillCode
+     * @return
+     */
+    @Override
+    public Integer getBusiId(String waybillCode) {
+        Integer busiId = null;
+        BaseEntity<BigWaybillDto> baseEntity = this.getDataByChoice(waybillCode, true, false, false, false);
+        if (baseEntity != null && Constants.RESULT_SUCCESS == baseEntity.getResultCode() && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null) {
+            busiId = baseEntity.getData().getWaybill().getBusiId();
+        }
+
+        return busiId;
+    }
 }

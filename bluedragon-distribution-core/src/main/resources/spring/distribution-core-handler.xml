@@ -126,6 +126,7 @@
 		<property name="handlers">
 			<list>
 				<ref bean="basicWaybillPrintHandler"/>
+				<ref bean="overLengthRemindHandler"/>
 				<ref bean="isNeedPrintHandler"/>
 				<ref bean="c2cInterceptHandler"/>
 				<!-- 三方超限拦截 -->

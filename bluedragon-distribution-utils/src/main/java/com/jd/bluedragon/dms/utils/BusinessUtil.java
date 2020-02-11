@@ -389,7 +389,10 @@ public class BusinessUtil {
      */
     public static Integer getOriginalCrossType(String waybillSign, String sendPay) {
         //外单-waybillsign第31位等于1，则为航空，waybillsign第31位等于0，且waybillsign第67位等于1则为航填
-        if (isSignChar(waybillSign, 31, '1')) {
+        //12日26日修改 特快送项目  变更标位， 变更为 （31位1 并且 116位0 ）或者 84位3 都代表航
+        if ((isSignChar(waybillSign, 31, '1') &&
+                BusinessUtil.isSignChar(waybillSign,WaybillSignConstants.POSITION_116,DmsConstants.FLG_CHAR_DEFAULT))
+                || BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_84, WaybillSignConstants.CHAR_84_3)) {
             return DmsConstants.ORIGINAL_CROSS_TYPE_AIR;
         } else if (isSignChar(waybillSign, 31, '0') && isSignChar(waybillSign, 67, '1')) {
             return DmsConstants.ORIGINAL_CROSS_TYPE_FILL;
@@ -1099,6 +1102,87 @@ public class BusinessUtil {
      */
     public static boolean isHeavyCargo(String waybillSign){
         return isSignChar(waybillSign, WaybillSignConstants.POSITION_36, WaybillSignConstants.CHAR_36_4);
+    }
+
+
+    /**
+     * 是否是同城
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isSameCity(String waybillSign){
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_2);
+    }
+
+    /**
+     * 是否是次晨
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isNextMorning(String waybillSign){
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_3);
+    }
+
+    /**
+     * 商家是否开通超长服务
+     * @param traderSign
+     * @return true 是，false 不是
+     */
+    public static boolean isOverLength(String traderSign){
+        return isSignChar(traderSign, TraderSignConstants.POSITION_91, TraderSignConstants.CHAR_91_1);
+    }
+
+    /**
+     * 是否是B2C纯配订单
+     * @param waybillSign
+     * @return true 是，false 不是
+     */
+    public static boolean isB2CPureMatch(String waybillSign){
+        return isSignInChars(waybillSign, WaybillSignConstants.POSITION_1,
+                WaybillSignConstants.CHAR_1_3,WaybillSignConstants.CHAR_1_6,WaybillSignConstants.CHAR_1_9,WaybillSignConstants.CHAR_1_K,WaybillSignConstants.CHAR_1_Y)
+                && isSignChar(waybillSign, WaybillSignConstants.POSITION_28, WaybillSignConstants.CHAR_28_0);
+    }
+
+    /**
+     * 是否是月结运单
+     * @param waybillSign
+     * @return true 是，false 不是
+     */
+    public static boolean isMonthFinish(String waybillSign){
+        return isSignInChars(waybillSign, WaybillSignConstants.POSITION_25,
+                WaybillSignConstants.CHAR_25_0,WaybillSignConstants.CHAR_25_5);
+    }
+
+    /**
+     * 是否是特惠送
+     * @param waybillSign
+     * @return true 是，false 不是
+     */
+    public static boolean isPreferentialSend(String waybillSign){
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_0);
+    }
+
+    /**
+     * 是否是次晨达
+     * @param waybillSign
+     * @return true 是，false 不是
+     */
+    public static boolean isNextMorningArrived(String waybillSign){
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_4)
+                || (isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_1)
+                    && isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_3));
+    }
+
+    /**
+     * 是否是同城当日达
+     * @param waybillSign
+     * @return true 是，false 不是
+     */
+    public static boolean isSameCityArrived(String waybillSign){
+        return (isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_2)
+                && isSignChar(waybillSign, WaybillSignConstants.POSITION_16, WaybillSignConstants.CHAR_16_1))
+                || (isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_1)
+                && isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_2));
     }
 
 }
