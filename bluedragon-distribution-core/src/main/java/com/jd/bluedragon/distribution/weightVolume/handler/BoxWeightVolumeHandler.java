@@ -11,9 +11,12 @@ import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.crossbow.economicNet.domain.EconomicNetBoxWeightVolumeDto;
+import com.jd.bluedragon.external.crossbow.economicNet.domain.EconomicNetErrorRes;
+import com.jd.bluedragon.external.crossbow.economicNet.domain.EconomicNetResult;
 import com.jd.bluedragon.external.crossbow.economicNet.manager.EconomicNetBusinessManager;
 import com.jd.bluedragon.utils.BaseContants;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -134,7 +137,8 @@ public class BoxWeightVolumeHandler extends AbstractWeightVolumeHandler {
             weightVolumeDto.setScanSite(entity.getOperateSiteName());
             weightVolumeDto.setScanSiteCode(String.valueOf(entity.getOperateSiteCode()));
             weightVolumeDto.setScanType("包裹称重扫描");
-            economicNetBusinessManager.doRestInterface(weightVolumeDto);
+            EconomicNetResult<EconomicNetErrorRes> result = economicNetBusinessManager.doRestInterface(weightVolumeDto);
+            logger.info("推送箱号信息，经济网返回{}", JsonHelper.toJson(result));
         }
 
     }
