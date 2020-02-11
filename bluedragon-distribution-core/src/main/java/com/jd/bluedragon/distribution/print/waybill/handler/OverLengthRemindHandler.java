@@ -27,17 +27,17 @@ public class OverLengthRemindHandler implements InterceptHandler<WaybillPrintCon
      * 包裹长CM
      * */
     @Value("${overLengthRemindHandler.maxLength:150}")
-    private int maxLength = 150;
+    private int maxLength;
     /**
      * 包裹宽CM
      * */
     @Value("${overLengthRemindHandler.maxWidth:100}")
-    private int maxWidth = 100;
+    private int maxWidth;
     /**
      * 包裹高CM
      * */
     @Value("${overLengthRemindHandler.maxHigh:100}")
-    private int maxHigh = 100;
+    private int maxHigh;
 
     @Override
     public InterceptResult<String> handle(WaybillPrintContext context) {
