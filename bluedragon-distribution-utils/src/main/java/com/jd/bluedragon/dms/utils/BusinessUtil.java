@@ -389,7 +389,10 @@ public class BusinessUtil {
      */
     public static Integer getOriginalCrossType(String waybillSign, String sendPay) {
         //外单-waybillsign第31位等于1，则为航空，waybillsign第31位等于0，且waybillsign第67位等于1则为航填
-        if (isSignChar(waybillSign, 31, '1')) {
+        //12日26日修改 特快送项目  变更标位， 变更为 （31位1 并且 116位0 ）或者 84位3 都代表航
+        if ((isSignChar(waybillSign, 31, '1') &&
+                BusinessUtil.isSignChar(waybillSign,WaybillSignConstants.POSITION_116,DmsConstants.FLG_CHAR_DEFAULT))
+                || BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_84, WaybillSignConstants.CHAR_84_3)) {
             return DmsConstants.ORIGINAL_CROSS_TYPE_AIR;
         } else if (isSignChar(waybillSign, 31, '0') && isSignChar(waybillSign, 67, '1')) {
             return DmsConstants.ORIGINAL_CROSS_TYPE_FILL;
@@ -1101,6 +1104,24 @@ public class BusinessUtil {
         return isSignChar(waybillSign, WaybillSignConstants.POSITION_36, WaybillSignConstants.CHAR_36_4);
     }
 
+
+    /**
+     * 是否是同城
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isSameCity(String waybillSign){
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_2);
+    }
+
+    /**
+     * 是否是次晨
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isNextMorning(String waybillSign){
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_3);
+    }
 
     /**
      * 商家是否开通超长服务
