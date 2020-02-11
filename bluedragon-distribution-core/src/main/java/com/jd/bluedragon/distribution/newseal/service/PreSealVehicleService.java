@@ -19,6 +19,12 @@ import java.util.Map;
  */
 public interface PreSealVehicleService extends Service<PreSealVehicle> {
 
+    //新建标识
+    int NEW_FLAG = 1;
+
+    //取消标识
+    int CANCEL_FLAG = 2;
+
     /**
      * 新增一条预封车数据
      * @param preSealVehicle
@@ -77,6 +83,11 @@ public interface PreSealVehicleService extends Service<PreSealVehicle> {
     List<PreSealVehicle> queryBySiteCode(Integer createSiteCode);
 
     /**
+     * 查询场地和车牌号查询预封车数据
+     *
+     */
+    List<PreSealVehicle> queryBySiteCodeAndVehicleNumber(Integer createSiteCode, String vehicleNumber);
+    /**
      * 根据始发查询当天已使用预封车的运力编码
      * @param createSiteCode
      * @return
@@ -114,4 +125,10 @@ public interface PreSealVehicleService extends Service<PreSealVehicle> {
      * @return
      */
     boolean updatePreSealVehicleMeasureInfo(PreSealVehicle preSealVehicle);
+
+    /**
+     * 通知运输创建或取消传摆预封车任务
+     *
+     * */
+    void notifyVosPreSealJob(PreSealVehicle preSealVehicle, int flag);
 }
