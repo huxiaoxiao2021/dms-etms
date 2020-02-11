@@ -124,7 +124,7 @@ public class ReceiveServiceImpl implements ReceiveService {
 		}
 		// 插收货确认表
 		if (Constants.BOXING_TYPE.equals(receive.getBoxingType())) {
-			addOperationLog(receive);// 记录日志
+			addOperationLog(receive,"ReceiveServiceImpl#doReceiveing");// 记录日志
 			CenConfirm cenConfirm=cenConfirmService.createCenConfirmByReceive(receive);
 			cenConfirmService.saveOrUpdateCenConfirm(cenConfirm);
 			returnTrack(cenConfirm);
@@ -159,7 +159,7 @@ public class ReceiveServiceImpl implements ReceiveService {
 				CenConfirm cenConfirm = paseCenConfirm(receive);
 				for(SendDetail  sendDetail:sendDetails){
 					receive.setPackageBarcode(sendDetail.getPackageBarcode());
-					addOperationLog(receive);// 记录日志
+					addOperationLog(receive,"ReceiveServiceImpl#doReceiveing");// 记录日志
 					cenConfirm.setPackageBarcode(sendDetail.getPackageBarcode());
 					returnTrack(cenConfirm);
 					
@@ -287,7 +287,7 @@ public class ReceiveServiceImpl implements ReceiveService {
 	 *
 	 * @param receive
 	 */
-	private void addOperationLog(Receive receive) {
+	private void addOperationLog(Receive receive,String methodName) {
 		OperationLog operationLog = new OperationLog();
 		operationLog.setBoxCode(receive.getBoxCode());
 		operationLog.setCreateSiteCode(receive.getCreateSiteCode());
@@ -300,6 +300,7 @@ public class ReceiveServiceImpl implements ReceiveService {
 		operationLog.setPackageCode(receive.getPackageBarcode());
 		operationLog.setUpdateTime(receive.getUpdateTime());
 		operationLog.setWaybillCode(receive.getWaybillCode());
+		operationLog.setMethodName(methodName);
 		operationLogService.add(operationLog);
 	}
 

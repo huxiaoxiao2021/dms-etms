@@ -39,6 +39,7 @@
 		<property name="sortingQueryMode" value="${sorting.query.mode}"/>
         <property name="chuguanNewPageQuerySwitch" value="${chuguanNewPageQuerySwitch:false}"/>
         <property name="preOutZoneSwitch" value="${preOutZoneSwitch:true}"/>
+        <property name="logToBusinessLogByKafka" value="${logtobusinesslog.global.on}"/>
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -62,6 +63,7 @@
 				<value>uccPropertyConfiguration.sortingQueryMode</value>
 				<value>uccPropertyConfiguration.chuguanNewPageQuerySwitch</value>
 				<value>uccPropertyConfiguration.preOutZoneSwitch</value>
+				<value>uccPropertyConfiguration.logToBusinessLogByKafka</value>
 			</list>
 		</property>
 	</bean>

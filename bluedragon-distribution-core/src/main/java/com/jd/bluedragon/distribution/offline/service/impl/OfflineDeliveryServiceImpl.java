@@ -127,7 +127,7 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
 					}
 				}
 				if (!tempGoOn) {
-					offlineLogs.add(requestToOffline(offlineLogRequest, Constants.RESULT_FAIL));
+					offlineLogs.add(requestToOffline(offlineLogRequest, Constants.RESULT_FAIL,"OfflineDeliveryServiceImpl#parseToTask"));
 					continue;
 				}
 
@@ -150,8 +150,8 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
 				offlineLogRequest.setTurnoverBoxCode(turnoverBoxCodes[i]);
 			}
 			sendMList.add(toSendDatail(offlineLogRequest));
-			offlineLogs.add(requestToOffline(offlineLogRequest, Constants.RESULT_SUCCESS));
-			operationLogs.add(RequestConvertOperationLog(offlineLogRequest));
+			offlineLogs.add(requestToOffline(offlineLogRequest, Constants.RESULT_SUCCESS,"OfflineDeliveryServiceImpl#parseToTask"));
+			operationLogs.add(RequestConvertOperationLog(offlineLogRequest,"OfflineDeliveryServiceImpl#parseToTask"));
 		}
 
 		if (sendMList.size() > 0) {
@@ -209,7 +209,7 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
 		return sendM;
 	}
 
-	private OfflineLog requestToOffline(OfflineLogRequest offlineLogRequest, Integer status) {
+	private OfflineLog requestToOffline(OfflineLogRequest offlineLogRequest, Integer status,String methodName) {
 		if (offlineLogRequest == null) {
 			return null;
 		}
@@ -238,6 +238,7 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
 		offlineLog.setVolume(offlineLogRequest.getVolume());
 		offlineLog.setWeight(offlineLogRequest.getWeight());
 		offlineLog.setTurnoverBoxCode(offlineLogRequest.getTurnoverBoxCode());
+		offlineLog.setMethodName(methodName);
 
 		offlineLog.setStatus(status);
 
@@ -261,7 +262,7 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
 	 * @param offlineLogRequest
 	 * @return
 	 */
-	private OperationLog RequestConvertOperationLog(OfflineLogRequest offlineLogRequest) {
+	private OperationLog RequestConvertOperationLog(OfflineLogRequest offlineLogRequest,String methodName) {
 		OperationLog operationLog = new OperationLog();
 		operationLog.setBoxCode(offlineLogRequest.getBoxCode());
 		operationLog.setWaybillCode(offlineLogRequest.getWaybillCode());

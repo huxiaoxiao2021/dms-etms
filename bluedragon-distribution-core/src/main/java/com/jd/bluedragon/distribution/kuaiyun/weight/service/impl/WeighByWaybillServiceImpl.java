@@ -13,6 +13,10 @@ import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
 import com.jd.bluedragon.distribution.kuaiyun.weight.enums.WeightByWaybillExceptionTypeEnum;
 import com.jd.bluedragon.distribution.kuaiyun.weight.exception.WeighByWaybillExcpetion;
 import com.jd.bluedragon.distribution.kuaiyun.weight.service.WeighByWaybillService;
+import com.jd.bluedragon.distribution.log.BizTypeConstants;
+import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.dms.logger.external.LogEngine;
+import com.jd.bluedragon.distribution.log.OperateTypeConstants;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.distribution.task.dao.TaskDao;
@@ -28,9 +32,11 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.common.web.LoginContext;
+import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.fastjson.JSONObject;
 import com.jd.preseparate.util.*;
 import com.jd.preseparate.vo.*;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -106,6 +112,9 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
 
     @Value("${weight.transfer.b2c.max:30}")
     private double weightTransferB2cMax;
+
+    @Autowired
+    private LogEngine logEngine;
 
 
     /**
@@ -231,7 +240,27 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
      * @throws WeighByWaybillExcpetion MQServiceNotAvailableException WaybillWeightVOConvertExcetion
      */
     public void validWaybillProcess(WaybillWeightDTO dto) throws WeighByWaybillExcpetion {
-        this.logToOperationlogCassandra(dto);
+
+        JSONObject request=new JSONObject();
+        request.put("waybillCode",dto.getWaybillCode());
+        request.put("operatorCode",dto.getOperatorName());
+        request.put("operatorName",dto.getOperatorId());
+
+        JSONObject response=new JSONObject();
+        response.put("body", JsonHelper.toJson(dto));
+
+        BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
+                .bizType(BizTypeConstants.WEIGH_WAYBILL)
+                .operateType(OperateTypeConstants.VALIDWAYBILL)
+                .operateRequest(request)
+                .operateResponse(response)
+                .methodName("WeighByWaybillServiceImpl#validWaybillProcess")
+                .build();
+
+        logEngine.addLog(businessLogProfiler);
+
+                this.logToOperationlogCassandra(dto);
+
         this.sendMessageToMq(dto);
         //保存称重流水入库
         dmsWeightFlowService.saveOrUpdate(convertToDmsWeightFlow(dto));
@@ -265,7 +294,27 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
      * @throws WeighByWaybillExcpetion MQServiceNotAvailableException WaybillWeightVOConvertExcetion
      */
     public void invalidWaybillProcess(WaybillWeightDTO dto) throws WeighByWaybillExcpetion {
+        JSONObject request=new JSONObject();
+        request.put("waybillCode",dto.getWaybillCode());
+        request.put("operatorCode",dto.getOperatorName());
+        request.put("operatorName",dto.getOperatorId());
+
+        JSONObject response=new JSONObject();
+        response.put("body", JsonHelper.toJson(dto));
+
+
+        BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
+                .bizType(BizTypeConstants.WEIGH_WAYBILL)
+                .operateType(OperateTypeConstants.INVALIDWAYBILL)
+                .operateRequest(request)
+                .operateResponse(response)
+                .methodName("WeighByWaybillServiceImpl#invalidWaybillProcess")
+                .build();
+
+        logEngine.addLog(businessLogProfiler);
+
         this.logToOperationlogCassandra(dto);
+
         this.sendMessageToMq(dto);
     }
 
@@ -331,6 +380,20 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
             }
             goddess.setBody(JsonHelper.toJson(dto)+"|"+JsonHelper.toJson(loginContext));
             goddess.setHead(loginContext==null?"null":loginContext.getPin());
+
+            JSONObject operateRequest=new JSONObject();
+            operateRequest.put("operatorCode",dto.getOperatorId());
+            operateRequest.put("operatorName",dto.getOperatorName());
+
+            BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
+                    .operateRequest(operateRequest)
+                    .operateResponse(goddess)
+                    .methodName("WeighByWaybillServiceImpl#errorLogForOperator")
+                    .bizType(BizTypeConstants.WEIGH_WAYBILL)
+                    .operateType(OperateTypeConstants.OPERATEEXCEPTION)
+                    .build();
+
+            logEngine.addLog(businessLogProfiler);
 
             goddessService.save(goddess);
         } catch (Exception e) {

@@ -168,7 +168,7 @@ public class InspectionServiceImpl implements InspectionService {
 				inspection.setWaybillCode(WaybillUtil.getWaybillCode(inspection.getPackageBarcode()));
 			}
 			//写入业务表数据和日志数据
-			service.saveData(inspection);
+			service.saveData(inspection,"InspectionServiceImpl#inspectionCore");
 			if(Constants.BUSSINESS_TYPE_OEM==inspection.getInspectionType()){
 				// OEM同步wms
                 pushOEMToWMS(inspection);//FIXME:51号库推送，需要检查是否在用
@@ -217,9 +217,9 @@ public class InspectionServiceImpl implements InspectionService {
 	}
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-    public void saveData(Inspection inspection) {//FIXME:private
+    public void saveData(Inspection inspection, String methodName) {//FIXME:private
         this.insertOrUpdate(inspection);
-        addOperationLog(inspection);
+        addOperationLog(inspection,methodName);
 
         cenConfirmService.saveOrUpdateCenConfirm(cenConfirmService
                 .createCenConfirmByInspection(inspection));
@@ -275,7 +275,7 @@ public class InspectionServiceImpl implements InspectionService {
 	 * 
 	 * @param inspection
 	 */
-	private void addOperationLog(Inspection inspection) {
+	private void addOperationLog(Inspection inspection,String methodName) {
 		OperationLog operationLog = new OperationLog();
 		operationLog.setBoxCode(inspection.getBoxCode());
 		operationLog.setCreateSiteCode(inspection.getCreateSiteCode());
@@ -292,6 +292,7 @@ public class InspectionServiceImpl implements InspectionService {
 		operationLog.setPackageCode(inspection.getPackageBarcode());
 		operationLog.setReceiveSiteCode(inspection.getReceiveSiteCode());
 		operationLog.setWaybillCode(inspection.getWaybillCode());
+		operationLog.setMethodName(methodName);
 		operationLogService.add(operationLog);
 	}
 
@@ -313,7 +314,7 @@ public class InspectionServiceImpl implements InspectionService {
 			this.log.debug("POP 运单号为【{}】【{}】的验货数据存在，更新成功",inspectionPop.getWaybillCode(),inspectionPop.getCreateSiteCode());
 		}
 
-		addOperationLog(inspectionPop);
+		addOperationLog(inspectionPop,"InspectionServiceImpl#addInspectionPop");
 
 		return result;
 	}

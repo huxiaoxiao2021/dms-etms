@@ -209,6 +209,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         operationLog.setCreateUserCode(domain.getStaffId());
         operationLog.setCreateSiteCode(domain.getSiteCode());
         operationLog.setCreateSiteName(domain.getSiteName());
+        operationLog.setMethodName("ReversePrintServiceImpl#handlePrint");
         operationLogService.add(operationLog);
         return true;
     }

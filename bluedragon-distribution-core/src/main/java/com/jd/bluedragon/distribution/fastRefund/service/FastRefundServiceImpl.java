@@ -132,22 +132,22 @@ public class FastRefundServiceImpl implements FastRefundService{
 			 	case IS_GOODS:
 			 		log.info("FastRefundServiceImpl.execRefund 先货类型运单 [{}]",waybillCode);
 			 		result = fastRefundByGoods(waybillCode, waybill);
-			 		addLog(waybillCode, type,result);
+			 		addLog(waybillCode, type,result,"FastRefundServiceImpl#execRefund");
 			 		break;
 			 	case IS_MONEY:
 			 		log.info("FastRefundServiceImpl.execRefund 先款类型运单 [{}]",waybillCode);
 			 		result =  fastRefundByMoney(waybillCode);
-			 		addLog(waybillCode, type,result);
+			 		addLog(waybillCode, type,result,"FastRefundServiceImpl#execRefund");
 			 		break;
 			 	case IS_OTHER:
 			 		log.info("FastRefundServiceImpl.execRefund 其他类型运单 [{}]",waybillCode);
 			 		result =  FastRefundService.OTHER;
-			 		addLog(waybillCode, type,result);
+			 		addLog(waybillCode, type,result,"FastRefundServiceImpl#execRefund");
 			 		break;
 			 	default: 
 				 	log.info("FastRefundServiceImpl.execRefund 其他类型运单 [{}]",waybillCode);
 			 		result =  FastRefundService.OTHER;
-			 		addLog(waybillCode, type,result);
+			 		addLog(waybillCode, type,result,"FastRefundServiceImpl#execRefund");
 			 		break;
 			 }
 			 if(result.length()>0){
@@ -157,11 +157,11 @@ public class FastRefundServiceImpl implements FastRefundService{
 			 return FastRefundService.OTHER;
 	}
 	
-	private void addLog(String waybillCode,Integer type,String msg){
-		this.operationLogService.add(parseOperationLog(waybillCode, type,msg));
+	private void addLog(String waybillCode,Integer type,String msg, String methodName){
+		this.operationLogService.add(parseOperationLog(waybillCode, type,msg,methodName));
 	}
 	
-    public OperationLog parseOperationLog(String waybillCode,Integer type,String msg) {
+    public OperationLog parseOperationLog(String waybillCode,Integer type,String msg, String methodName) {
         OperationLog operationLog = new OperationLog();
         operationLog.setBoxCode("");
         operationLog.setWaybillCode(waybillCode);
@@ -174,6 +174,7 @@ public class FastRefundServiceImpl implements FastRefundService{
         operationLog.setCreateUserCode(0);
 		operationLog.setCreateTime(new Date());
         operationLog.setOperateTime(new Date());
+        operationLog.setMethodName(methodName);
         
         operationLog.setLogType(OperationLog.LOG_TYPE_FASTREFUND);
         if(type.equals(IS_GOODS)){

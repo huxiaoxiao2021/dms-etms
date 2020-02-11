@@ -98,7 +98,7 @@ public interface InspectionService {
 	 * 写入业务表数据和日志数据
 	 * @param  inspection
 	 * */
-	public void saveData(Inspection inspection);
+	public void saveData(Inspection inspection, String methodName);
 
     /**
      * 更新或插入数据

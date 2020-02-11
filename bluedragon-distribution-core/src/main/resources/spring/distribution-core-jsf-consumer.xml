@@ -541,4 +541,10 @@
 
     </jsf:consumer>
 
+    <jsf:consumer id="jsfTypeService" interface="com.jd.dms.logger.service.BusinessLogQueryService"
+                  protocol="jsf" url="jsf://127.0.0.1:22000;jsf://127.0.0.1:22001"
+                  alias="${dms.jsf.alias}" timeout="${jsf.erpCommonCollectApi.timeout}"
+                  retries="${jsf.retries}">
+    </jsf:consumer>
+
 </beans>
