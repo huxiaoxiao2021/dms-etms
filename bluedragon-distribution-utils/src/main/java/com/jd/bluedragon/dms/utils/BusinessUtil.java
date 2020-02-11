@@ -1129,7 +1129,7 @@ public class BusinessUtil {
      * @return true 是，false 不是
      */
     public static boolean isOverLength(String traderSign){
-        return isSignChar(traderSign, TraderSignConstants.POSITION_91, TraderSignConstants.CHAR_91_2);
+        return isSignChar(traderSign, TraderSignConstants.POSITION_91, TraderSignConstants.CHAR_91_1);
     }
 
     /**

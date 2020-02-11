@@ -12,6 +12,6 @@ public interface TraderSignConstants {
      * 商家超长服务
      * */
     int POSITION_91 = 91;
-    char CHAR_91_2 = '1';
+    char CHAR_91_1 = '1';
 
 }
