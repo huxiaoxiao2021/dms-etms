@@ -1920,6 +1920,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 if(doneWaybill.contains(waybillCode)){
                     continue;
                 }
+                doneWaybill.add(waybillCode);
                 InboundOrder inboundOrder =  reverseSpareEclp.makeInboundOrder(waybillCode,sendDetail);
                 if(inboundOrder==null){
                     log.error("ECLP退备件库失败：{}|{}",waybillCode,sendDetail.getSendCode());
@@ -1953,7 +1954,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                         log.error("ECLP退备件库更新入库单记录失败：{}|{}",waybillCode,sendDetail.getSendCode());
                     }
                 }
-                doneWaybill.add(waybillCode);
+
             }
             if(!StringHelper.isEmpty(failWaybillCodes.toString())){
                 log.warn("eclp退备件库失败订单有:{}",failWaybillCodes.toString());
@@ -2015,6 +2016,16 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 //此时需要调用取消接口
 
                 if(eclpItemManager.cancelInboundOrder(inboundOrder.getWaybillNo(),inboundOrder.getTargetDeptNo(),reverseStockInDetail.getExternalCode(),inboundOrder.getSource().getCode())){
+                    //更新上次记录状态 更新至取消成功状态
+                    ReverseStockInDetail updateReverseStockInDetail = new ReverseStockInDetail();
+                    updateReverseStockInDetail.setExternalCode(reverseStockInDetail.getExternalCode());
+                    reverseStockInDetail.setWaybillCode(reverseStockInDetail.getWaybillCode());
+                    reverseStockInDetail.setSendCode(reverseStockInDetail.getSendCode());
+                    reverseStockInDetail.setBusiType(ReverseStockInDetailTypeEnum.C2C_REVERSE_SPWMS.getCode());
+                    if(!reverseStockInDetailService.updateStatus(reverseStockInDetail,ReverseStockInDetailStatusEnum.CANCEL)){
+                        log.error("ECLP退备件库更新入库单记录失败-更新上次取消状态：{}|{}",reverseStockInDetail.getWaybillCode(),reverseStockInDetail.getSendCode());
+                        return false;
+                    }
                     return true;
                 }else{
                     log.warn("此入库单操作取消时失败，无法继续推送！，运单号{}",inboundOrder.getWaybillNo());
