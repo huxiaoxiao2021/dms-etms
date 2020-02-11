@@ -2014,7 +2014,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             if(ReverseStockInDetailStatusEnum.SUCCESS.getCode().equals(reverseStockInDetail.getStatus())){
                 //此时需要调用取消接口
 
-                if(eclpItemManager.cancelInboundOrder(inboundOrder.getWaybillNo(),inboundOrder.getTargetDeptNo(),inboundOrder.getOrderNo(),inboundOrder.getSource().getCode())){
+                if(eclpItemManager.cancelInboundOrder(inboundOrder.getWaybillNo(),inboundOrder.getTargetDeptNo(),reverseStockInDetail.getExternalCode(),inboundOrder.getSource().getCode())){
                     return true;
                 }else{
                     log.warn("此入库单操作取消时失败，无法继续推送！，运单号{}",inboundOrder.getWaybillNo());
