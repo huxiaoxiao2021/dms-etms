@@ -255,6 +255,7 @@ public class QualityControlService {
         tWaybillStatus.setWaybillCode(waybillCode);
 
         //组装异常原因
+        // FIXME: 2020/2/11 待优化
         String qcName = request.getQcName();
         if(StringUtils.isNotBlank(qcName)){
             if (qcName.indexOf('-') != -1 && qcName.split("-").length == 2) {

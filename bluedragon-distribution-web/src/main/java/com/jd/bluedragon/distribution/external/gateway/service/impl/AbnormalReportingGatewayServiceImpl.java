@@ -295,7 +295,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
             dmsAbnormalReasonDto.setReasonId(baseDataDict.getId());
             dmsAbnormalReasonDto.setReasonCode(baseDataDict.getTypeCode().longValue());
             dmsAbnormalReasonDto.setSourceType(source.getType());
-
+            //2对应的是原因列表的二级目录，3对应的是三级目录，与2级目录有所属关系
             if (level == 2) {
                 String parentKey = level + "-" + baseDataDict.getTypeCode();
                 dmsAbnormalReasonDtoMap.put(parentKey, dmsAbnormalReasonDto);
