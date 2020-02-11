@@ -11,8 +11,8 @@ import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -34,7 +34,7 @@ import java.util.List;
 @RequestMapping("receive")
 public class ReceiveWeightCheckController extends DmsBaseController {
 
-    private static final Log logger = LogFactory.getLog(ReceiveWeightCheckController.class);
+    private static final Logger log = LoggerFactory.getLogger(ReceiveWeightCheckController.class);
 
     @Autowired
     private BaseMajorManager baseMajorManager;
@@ -82,7 +82,7 @@ public class ReceiveWeightCheckController extends DmsBaseController {
     @RequestMapping(value = "/toExport", method = RequestMethod.POST)
     public ModelAndView toExport(ReceiveWeightCheckCondition condition, Model model) {
 
-        this.logger.info("导出揽收重量校验统计表");
+        this.log.debug("导出揽收重量校验统计表");
         try{
             List<List<Object>> resultList = receiveWeightCheckService.getExportData(condition);
             model.addAttribute("filename", "揽收重量统计校验表.xls");
@@ -90,7 +90,7 @@ public class ReceiveWeightCheckController extends DmsBaseController {
             model.addAttribute("contents", resultList);
             return new ModelAndView(new DefaultExcelView(), model.asMap());
         }catch (Exception e){
-            this.logger.error("导出揽收重量统计校验表失败:" + e.getMessage(), e);
+            this.log.error("导出揽收重量统计校验表失败:" , e);
             return null;
         }
     }

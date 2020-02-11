@@ -10,8 +10,8 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.Date;
-import java.util.List;
 
 /**
  *
@@ -34,7 +33,7 @@ import java.util.List;
 @RequestMapping("consumable/waybillConsumableRelation")
 public class WaybillConsumableRelationController extends DmsBaseController{
 
-	private static final Log logger = LogFactory.getLog(WaybillConsumableRelationController.class);
+	private static final Logger log = LoggerFactory.getLogger(WaybillConsumableRelationController.class);
 
 	@Autowired
 	private WaybillConsumableRelationService waybillConsumableRelationService;
@@ -98,7 +97,7 @@ public class WaybillConsumableRelationController extends DmsBaseController{
 				waybillConsumableRecordService.updateByCondition(waybillConsumableRecord);
 			}
 	} catch (Exception e) {
-			logger.error("fail to save！"+e.getMessage(),e);
+			log.error("fail to save！",e);
 			rest.toError("保存失败，服务异常！");
 		}
 		return rest;
@@ -120,7 +119,7 @@ public class WaybillConsumableRelationController extends DmsBaseController{
 			waybillConsumableRecord.setModifyStatus(WaybillConsumableRecordService.TREATED_STATE);
 			waybillConsumableRecordService.updateByCondition(waybillConsumableRecord);
 		} catch (Exception e) {
-			logger.error("fail to delete！"+e.getMessage(),e);
+			log.error("fail to delete！",e);
 			rest.toError("删除失败，服务异常！");
 		}
 		return rest;
@@ -176,7 +175,7 @@ public class WaybillConsumableRelationController extends DmsBaseController{
 			}
 			result.setData(count);
 		} catch (Exception e) {
-			logger.error("fail to updatePackUserErp！"+ e.getMessage(), e);
+			log.error("fail to updatePackUserErp！", e);
 			result.toError("更新失败，服务异常！");
 		}
 		return result;

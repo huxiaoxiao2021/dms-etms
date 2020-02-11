@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.waybill.service;
 
 import com.jd.bluedragon.distribution.api.response.DmsWaybillInfoResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
 import com.jd.etms.waybill.domain.Waybill;
@@ -69,6 +70,21 @@ public interface WaybillService {
      * @return
      */
     boolean isMovingWareHouseInnerWaybill(String waybillCode);
+
+    /**
+     * 获取运单信息 并校验超区逻辑
+     * @param packageCode
+     * @return
+     */
+    DmsWaybillInfoResponse getDmsWaybillInfoAndCheck(String packageCode);
+
+    /**
+     * 本意是判断：是否是疫情超区 或者 春节禁售。此逻辑在预分拣侧控制。分拣只根据预分拣网点是-136做拦截限制
+     * @param waybill
+     * @return true 是，false 不是
+     */
+    boolean isOutZoneControl(Waybill waybill);
+
     /**
      * 获取运单信息
      * @param packageCode
@@ -77,4 +93,12 @@ public interface WaybillService {
     DmsWaybillInfoResponse getDmsWaybillInfoResponse(String packageCode);
 
     Waybill getWaybillByWayCode(String waybillCode);
+
+    /**
+     * 三方验货校验运单取消拦截
+     *
+     * @param pdaOperateRequest
+     * @return
+     */
+    InvokeResult<Boolean> thirdCheckWaybillCancel(PdaOperateRequest pdaOperateRequest);
 }

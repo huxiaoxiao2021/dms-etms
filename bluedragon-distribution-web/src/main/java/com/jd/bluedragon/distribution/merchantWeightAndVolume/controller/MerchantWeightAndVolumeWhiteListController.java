@@ -16,16 +16,12 @@ import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -42,7 +38,7 @@ import java.util.List;
 @RequestMapping("/merchantWeightAndVolume/whiteList")
 public class MerchantWeightAndVolumeWhiteListController extends DmsBaseController {
 
-    private static final Log logger = LogFactory.getLog(MerchantWeightAndVolumeWhiteListController.class);
+    private static final Logger log = LoggerFactory.getLogger(MerchantWeightAndVolumeWhiteListController.class);
 
     /**
      * 文件后缀名
@@ -102,7 +98,7 @@ public class MerchantWeightAndVolumeWhiteListController extends DmsBaseControlle
     @RequestMapping(value = "/toImport", method = RequestMethod.POST)
     @ResponseBody
     public JdResponse toImport(@RequestParam("importExcelFile") MultipartFile file) {
-        logger.debug("uploadExcelFile begin...");
+        log.debug("uploadExcelFile begin...");
         JdResponse response = new JdResponse();
         try {
             String fileName = file.getOriginalFilename();
@@ -120,7 +116,7 @@ public class MerchantWeightAndVolumeWhiteListController extends DmsBaseControlle
                 return new JdResponse(JdResponse.CODE_FAIL, errorMessage);
             }
         } catch (Exception e) {
-            this.logger.error("导入异常!",e);
+            this.log.error("导入异常!",e);
             return new JdResponse(JdResponse.CODE_FAIL, e.getMessage());
         }
         return response;
@@ -134,14 +130,14 @@ public class MerchantWeightAndVolumeWhiteListController extends DmsBaseControlle
     @RequestMapping(value = "/toExport", method = RequestMethod.POST)
     public ModelAndView toExport(MerchantWeightAndVolumeCondition condition, Model model) {
 
-        this.logger.info("商家称重量方白名单统计表");
+        this.log.debug("商家称重量方白名单统计表");
         List<List<Object>> resultList;
         try{
             model.addAttribute("filename", "商家称重量方白名单.xls");
             model.addAttribute("sheetname", "商家称重量方白名单结果");
             resultList = merchantWeightAndVolumeWhiteListService.getExportData(condition);
         }catch (Exception e){
-            this.logger.error("导出商家称重量方白名单统计表失败:" + e.getMessage(), e);
+            this.log.error("导出商家称重量方白名单统计表失败:" , e);
             List<Object> list = new ArrayList<>();
             list.add("导出商家称重量方白名单统计表失败!");
             resultList = new ArrayList<>();

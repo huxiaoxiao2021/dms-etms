@@ -15,6 +15,7 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
@@ -43,11 +44,26 @@ public class PDDExternalJSFServiceImpl implements DMSExternalInPDDService {
     private WaybillQueryManager waybillQueryManager;
 
     @Override
+    public BaseEntity<PDDWaybillPrintInfoDto> queryWaybillByWaybillCode(PDDWaybillPrintInfoRequest request) {
+        if (null == request || StringHelper.isEmpty(request.getWaybillCode()) || StringHelper.isEmpty(request.getSystemFlag())) {
+            return new BaseEntity<>(BaseEntity.CODE_PARAM_ERROR, BaseEntity.MESSAGE_PARAM_ERROR);
+        }
+        CallerInfo callerInfo = Profiler.registerInfo("dms.web." + request.getSystemFlag() + ".PDDExternalJSFServiceImpl.queryWaybillByWaybillCode",
+                Constants.UMP_APP_NAME_DMSWEB, false, true);
+        BaseEntity<PDDWaybillPrintInfoDto> result = queryPDDWaybillByWaybillCode(request.getWaybillCode());
+        if(log.isInfoEnabled()){
+            log.info("JsfService.pdd.queryWaybillByWaybillCode,req:{},resp:{}", JsonHelper.toJson(request),JsonHelper.toJson(result));
+        }
+        Profiler.registerInfoEnd(callerInfo);
+        return result;
+    }
+
     /**
      * 获取拼多多运单数据
      * 如果运单中电话或手机非密文 则返回运单数据，否则调用拼多多接口返回数据
+     * (此处添加监控是为了看看是否有直接的调用量，没有流量的话，可以将此方法改为私有方法，因为该方法的参数没有系统标识无法知道是哪个接口调用
      */
-    public BaseEntity<PDDWaybillPrintInfoDto> queryPDDWaybillByWaybillCode(String waybillCode) {
+    private BaseEntity<PDDWaybillPrintInfoDto> queryPDDWaybillByWaybillCode(String waybillCode) {
         try {
             BaseEntity<PDDWaybillPrintInfoDto> baseEntity = new BaseEntity<>(BaseEntity.CODE_SUCCESS, BaseEntity.MESSAGE_SUCCESS);
 
@@ -114,20 +130,5 @@ public class PDDExternalJSFServiceImpl implements DMSExternalInPDDService {
             log.error("拼多多接口调用发生异常，请求参数：{}", waybillCode, e);
             return new BaseEntity<>(BaseEntity.CODE_SERVICE_ERROR, BaseEntity.MESSAGE_SERVICE_ERROR);
         }
-    }
-
-    @Override
-    public BaseEntity<PDDWaybillPrintInfoDto> queryWaybillByWaybillCode(PDDWaybillPrintInfoRequest request) {
-        if (null == request || StringHelper.isEmpty(request.getWaybillCode()) || StringHelper.isEmpty(request.getSystemFlag())) {
-            return new BaseEntity<>(BaseEntity.CODE_PARAM_ERROR, BaseEntity.MESSAGE_PARAM_ERROR);
-        }
-        CallerInfo callerInfo = Profiler.registerInfo("dms.web." + request.getSystemFlag() + ".PDDExternalJSFServiceImpl.queryWaybillByWaybillCode",
-                Constants.UMP_APP_NAME_DMSWEB, false, true);
-        BaseEntity<PDDWaybillPrintInfoDto> result = queryPDDWaybillByWaybillCode(request.getWaybillCode());
-        if(log.isInfoEnabled()){
-            log.info("JsfService.pdd.queryWaybillByWaybillCode,req:{},resp:{}", JsonHelper.toJson(request),JsonHelper.toJson(result));
-        }
-        Profiler.registerInfoEnd(callerInfo);
-        return result;
     }
 }

@@ -591,7 +591,8 @@ public class BusinessHelper {
         if (StringUtils.isBlank(sendPay)) {
             return false;
         }
-        return !BusinessUtil.isSignChar(sendPay, 275, '0');
+        return !BusinessUtil.isSignChar(sendPay, 275, '0')
+                && BusinessUtil.isSignInChars(sendPay, 265, '3','5');
     }
 
     /**
@@ -604,5 +605,16 @@ public class BusinessHelper {
             return false;
         }
         return BusinessUtil.isSignChar(sendPay, 1, '1');
+    }
+
+    /**
+     * 是否为C端改址的订单
+     * @return
+     */
+    public static boolean isC2cChangeAddress(String waybillSign){
+        if (StringUtils.isBlank(waybillSign)) {
+            return false;
+        }
+        return BusinessUtil.isSignChar(waybillSign, 24, '8');
     }
 }

@@ -47,6 +47,10 @@ public class UccPropertyConfiguration {
     /** 出管新接口-查询方法开关 true 调用新接口，false 调用老接口**/
     private boolean chuguanNewInterfaceQuerySwitch;
 
+
+    /** 出管新接口-页面查询方法开关 true 调用新接口，false 调用老接口**/
+    private boolean chuguanNewPageQuerySwitch;
+
     /**
      * 驻场打印 是否开启校验 鸡毛信必输设备号；true 开启,false 不开启
      */
@@ -54,6 +58,11 @@ public class UccPropertyConfiguration {
 
     /** 分拣查询的模式配置，支持DMS、MIDDLEEND、FAILOVER三个值 **/
     private String sortingQueryMode;
+
+    /**
+     * 现场预分拣 超区运单拦截开关;true 开启拦截
+     */
+    private boolean preOutZoneSwitch;
 
     public String getAsynbufferEnabledTaskType() {
         return asynbufferEnabledTaskType;
@@ -165,5 +174,21 @@ public class UccPropertyConfiguration {
 
     public void setSortingQueryMode(String sortingQueryMode) {
         this.sortingQueryMode = sortingQueryMode;
+    }
+
+    public boolean isChuguanNewPageQuerySwitch() {
+        return chuguanNewPageQuerySwitch;
+    }
+
+    public void setChuguanNewPageQuerySwitch(boolean chuguanNewPageQuerySwitch) {
+        this.chuguanNewPageQuerySwitch = chuguanNewPageQuerySwitch;
+    }
+
+    public boolean isPreOutZoneSwitch() {
+        return preOutZoneSwitch;
+    }
+
+    public void setPreOutZoneSwitch(boolean preOutZoneSwitch) {
+        this.preOutZoneSwitch = preOutZoneSwitch;
     }
 }

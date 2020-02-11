@@ -69,11 +69,18 @@ public class TextConstants {
 
     /**
      * waybill_sign36位=0 且waybill_sign40位=1 且 waybill_sign54位=2：冷链整车
+     * 冷链整车 -> 冷链专车 -> 冷链整车
      */
-    public static final String B2B_FRESH_WHOLE_VEHICLE ="冷链专车";
+    public static final String B2B_FRESH_WHOLE_VEHICLE ="冷链整车";
 
     /**
      * waybill_sign36位=1 且waybill_sign40位=2 且 waybill_sign54位=2：快运冷链
+     * 快运冷链下新增 原逻辑待业务确认是否变更
+     * {
+     *     1. Waybill_sign54=2生鲜行业 且Waybill_sign40=2 纯配快运零担 且Waybill_sign80=6 且118=2 城配整车，即为：“冷链城配整车”
+     *     2. Waybill_sign54=2生鲜行业 且 Waybill_sign40=2纯配快运零担 且Waybill_sign80=6 且 118= 1或者0或者空 城配共配，即为：“冷链城配共配”
+     *     3. Waybill_sign54=2 生鲜行业 且Waybill_sign40=2 纯配快运零担且Waybill_sign80=8 专车，代表：“冷链整车”
+     * }
      */
     public static final String B2B_FRESH_EXPRESS ="冷链卡班";
 
@@ -81,6 +88,16 @@ public class TextConstants {
      * waybill_sign36位=1 且waybill_sign40位=3 且 waybill_sign54位=2：仓配冷链
      */
     public static final String B2B_FRESH_WAREHOUSE ="仓配冷链";
+
+    /**
+     * Waybill_sign54=2生鲜行业 且Waybill_sign40=2 纯配快运零担 且Waybill_sign80=6 且118=2：  城配整车
+     */
+    public static final String B2B_FRESH_URBAN_WHOLE_VEHICLE = "城配整车";
+
+    /**
+     * Waybill_sign54=2 生鲜行业 且Waybill_sign40=2 纯配快运零担 且Waybill_sign80=6 且 118=1或者0或者空：  城配共配
+     */
+    public static final String B2B_FRESH_URBAN_TOGETHER = "城配共配";
 
     /**
      * 当waybill_sign第62位等于1时，确定为B网营业厅运单:

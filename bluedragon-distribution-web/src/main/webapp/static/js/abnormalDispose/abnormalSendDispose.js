@@ -2,6 +2,7 @@ $(function () {
     var sendQueryUrl = '/abnormalDispose/abnormalDispose/send/listData';
     var pushAbnormalOrderUrl = '/services/abnormalorder/pushAbnormalOrders';//外呼地址
     var pushExceptioninfoUrl = '/services/qualitycontrol/exceptioninfos';//异常地址
+    var pushExceptionInfoCheckUrl = '/services/qualitycontrol/redeliverychecknew';//异常提交前的校验：协商再投状态校验
     var exportUrl = '/abnormalDispose/abnormalDispose/send/toExport';
     var tableInit = function () {
         var oTableInit = new Object();
@@ -246,32 +247,12 @@ $(function () {
         if (!usercode) {
             return;
         }
-        var v_url;
         var params = {};
         params.waveBusinessId = $('#waveBusinessIdSend').val();
         if (type == 1) {//发外呼
-            params.userName=usercode;
-            v_url = pushAbnormalOrderUrl;
-            params.orderId = waybillcodes;
-            if (abnormalReason1Select1.id > 0) {
-                params.abnormalCode1 = abnormalReason1Select1.id;
-                params.abnormalReason1 = abnormalReason1Select1.text;
-            } else {
-                params.abnormalCode1 = 0;
-                params.abnormalReason1 = '';
-                Jd.alert("请选择原因");
-                return;
-            }
-            if (abnormalReason1Select2 && abnormalReason1Select2.id > 0) {
-                params.abnormalCode2 = abnormalReason1Select2.id;
-                params.abnormalReason2 = abnormalReason1Select2.text;
-                params.abnormalReasonId = abnormalReason1Select2.vid;
-            } else {
-                params.abnormalCode2 = 0;
-                params.abnormalReason2 = '';
-            }
+            $("#exceptionOutBoundOffLine").jqmShow();
+            return;
         } else {
-            v_url = pushExceptioninfoUrl;
             params.userERP = usercode;
             params.qcType = 2;//2代表运单
             params.qcValue = waybillcodes;
@@ -290,34 +271,8 @@ $(function () {
                 params.qcName = abnormalReason1Select2.text;
                 params.isSortingReturn = abnormalReason1Select2.typeGroup == 110;
             }
+            pushExceptionInfo(params);
         }
-        jQuery.ajax({
-            type: "POST",
-            url: v_url,
-            contentType: 'application/json',
-            dataType: 'json',
-            data: JSON.stringify(params),
-            async: false,
-            success: function (response) {
-                if (response.code == 200) {
-                    $('#dataEditDiv').jqmHide();
-                    if(type == 1){
-                        Jd.alert("外呼提报成功");
-                        $('#dataTableSend').bootstrapTable('refreshOptions', {pageNumber: 1});
-                    }else{
-                        Jd.alert("异常提报成功，系统正在处理，请稍后刷新查看");
-                        $('#dataTableSend').bootstrapTable('refreshOptions', {pageNumber: 1});
-                    }
-                } else {
-                    Jd.alert(response.message);
-                }
-
-            },
-            error: function () {
-                Jd.alert("服务器异常");
-            }
-        });
-
 
     }
 
@@ -350,6 +305,8 @@ $(function () {
             //弹窗行为
             $('#dataEditDiv').jqm({modal: true});
             $('#dataEditDiv').css('opacity', 1);//透明程度
+            $('#exceptionOutBoundOffLine').jqm({modal: true});
+            $('#exceptionOutBoundOffLine').css('opacity', 1);//透明程度
             $('#btn_abnormal').click(function () {
                 var rows = $('#dataTableSend').bootstrapTable('getSelections');
                 if (rows && rows.length > 0) {
@@ -419,6 +376,57 @@ $(function () {
     pageInit().init();
     initSelect();
     initExport(tableInit());
+
+    var pushExceptionInfo = function (param){
+        var checkParam = {};
+        checkParam.code = param.qcValue;
+        checkParam.codeType = param.qcType;
+
+        jQuery.ajax({
+            type: "POST",
+            url: pushExceptionInfoCheckUrl,
+            contentType: 'application/json',
+            dataType: 'json',
+            data: JSON.stringify(checkParam),
+            async: false,
+            success: function (response) {
+                if (response.code == 200) {
+                    if (response.data.isCompleted == false) {
+                        Jd.alert("此条码包含【发起协商再投未处理】状态的运单：" + response.data.waybillCode +  "需商家审核完成才能提交异常");
+                        return;
+                    } else {
+                        jQuery.ajax({
+                            type: "POST",
+                            url: pushExceptioninfoUrl,
+                            contentType: 'application/json',
+                            dataType: 'json',
+                            data: JSON.stringify(param),
+                            async: false,
+                            success: function (response) {
+                                if (response.code == 200) {
+                                    $('#dataEditDiv').jqmHide();
+                                    Jd.alert("异常提报成功，系统正在处理，请稍后刷新查看");
+                                    $('#dataTableSend').bootstrapTable('refreshOptions', {pageNumber: 1});
+                                } else {
+                                    Jd.alert(response.message);
+                                }
+
+                            },
+                            error: function () {
+                                Jd.alert("服务器异常");
+                            }
+                        });
+                    }
+                } else {
+                    Jd.alert(response.message);
+                }
+
+            },
+            error: function () {
+                Jd.alert("服务器异常");
+            }
+        });
+    }
 });
 
 function querySend(waveBusinessId, siteCode, num) {

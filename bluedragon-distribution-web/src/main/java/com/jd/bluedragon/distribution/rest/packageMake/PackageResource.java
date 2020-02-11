@@ -52,7 +52,7 @@ import java.util.Date;
 @Produces({MediaType.APPLICATION_JSON})
 public class PackageResource {
 
-    private final Logger logger= LoggerFactory.getLogger(PackageResource.class);
+    private final Logger log = LoggerFactory.getLogger(PackageResource.class);
 
     @Autowired
     private TaskService taskService;
@@ -90,7 +90,7 @@ public class PackageResource {
                                      @PathParam("operateName") String operateName){
         JdResponse jdResponse = new JdResponse();
         if(StringHelper.isEmpty(barCode)){
-            logger.error("包裹号"+barCode+"为空，不能触发包裹补打的全程跟踪!");
+            log.warn("包裹号为空，不能触发包裹补打的全程跟踪!");
             jdResponse.setCode(400);
             jdResponse.setMessage("包裹号"+barCode+"为空，不能触发包裹补打的全程跟踪!");
             return jdResponse;
@@ -133,7 +133,7 @@ public class PackageResource {
                 }
             }
         }catch (Exception e){
-            this.logger.warn("修改客户地址包裹补打触发全程跟踪失败",e);
+            this.log.error("修改客户地址包裹补打触发全程跟踪失败",e);
         }
 
         //2.所有补打的包裹,发送全程跟踪,用于在青龙全程跟踪显示
@@ -141,7 +141,7 @@ public class PackageResource {
             redisManager.setex(RE_PRINT_PREFIX+barCode, 3600, barCode);//1小时
             taskService.add(this.toPackReprintTask(barCode, bDto.getSiteCode(), bDto.getSiteName(), operatorId, operateName));
             jdResponse.setCode(JdResponse.CODE_OK);
-            logger.info("触发包裹补打的全程跟踪成功,"+"包裹号"+barCode+",操作人"+operateName);
+            log.info("触发包裹补打的全程跟踪成功,包裹号{},操作人{}",barCode,operateName);
         }else{
             jdResponse.setCode(400);
             jdResponse.setMessage("参数错误，不能触发包裹补打的全程跟踪!不存在的siteId："+siteId);
@@ -277,7 +277,7 @@ public class PackageResource {
             operationLog.setCreateTime(DateHelper.parseDateTime(request.getOperateTime()));
             operationLogService.add(operationLog);
         } catch (Exception e) {
-            logger.error("PackageResource.packReprintAfter-->记录包裹打印日志异常,请求参数为{}", JsonHelper.toJson(request),e);
+            log.error("PackageResource.packReprintAfter-->记录包裹打印日志异常,请求参数为{}", JsonHelper.toJson(request),e);
         }
 
         try {
@@ -308,10 +308,10 @@ public class PackageResource {
                 modifyOrderInfo.setOperateTime(request.getOperateTime());
                 String json = JsonHelper.toJson(modifyOrderInfo);
                 dmsModifyOrderInfoMQ.send(modifyOrderInfo.getOrderId(),json);
-                logger.debug("PackageResource.packReprintAfter-->客户改址MQ发送成功{}",json);
+                log.debug("PackageResource.packReprintAfter-->客户改址MQ发送成功{}",json);
             }
         } catch (Exception e) {
-            logger.error("PackageResource.packReprintAfter-->包裹补打全程跟踪、客户改址拦截MQ发送失败：{}", JsonHelper.toJson(request),e);
+            log.error("PackageResource.packReprintAfter-->包裹补打全程跟踪、客户改址拦截MQ发送失败：{}", JsonHelper.toJson(request),e);
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
             response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
         }

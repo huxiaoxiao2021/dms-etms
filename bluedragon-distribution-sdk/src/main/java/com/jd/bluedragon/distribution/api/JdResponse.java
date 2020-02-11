@@ -15,6 +15,7 @@ public class JdResponse extends JdObject {
     
     public static final Integer CODE_PARAM_ERROR = 10000;
     public static final String MESSAGE_PARAM_ERROR = "参数错误";
+    public static final String MESSAGE_PARAM_ERROR_2 = "网点信息为空，请重新登录再试！";
 
     public static final Integer CODE_NO_POP_WAYBILL = 11000;
     public static final String MESSAGE_NO_POP_WAYBILL = "运单不存在或者为非POP";
@@ -73,6 +74,9 @@ public class JdResponse extends JdObject {
     public static final Integer CODE_CODMONAY_THIRD_SITE_ERROR = 20012;
     public static final String MESSAGE_CODMONAY_THIRD_SITE_ERROR = "有货到付款金额，不能分配到第三方快递！";
 
+    public static final Integer CODE_OUT_ZONE_ERROR = 20013;
+    public static final String MESSAGE_OUT_ZONE_ERROR = "此运单收件地址为春节禁售或疫情地区，无法揽收，请退回商家！";
+
     public static final Integer CODE_UNLOADBILL = 2424;
     public static final String MESSAGE_UNLOADBILL = "已经装载不允许取消";
 
@@ -121,6 +125,7 @@ public class JdResponse extends JdObject {
     public static final String SEND_BOX_NOT_FOUND="没有获取到该箱子";
     public static final String MESSAGE_EXIST_BOX_CODE="箱号已存在";
     public static final String MESSAGE_NO_FEATHER_LETTER="非鸡毛信运单，不用取消鸡毛信服务";
+    public static final String MESSAGE_OUT_ZONE="此运单收件地址为春节禁售或疫情地区，请操作逆向换单后退回";
 
     public static final Integer CODE_RE_PRINT_IN_ONE_HOUR = 30100;
     public static final String MESSAGE_RE_PRINT_IN_ONE_HOUR = "条码在1小时内重复打印，是否继续？";

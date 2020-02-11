@@ -5,9 +5,8 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.sorting.domain.SortingException;
 import com.jd.bluedragon.distribution.sorting.service.SortingExceptionService;
 import com.jd.bluedragon.utils.StringHelper;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +24,7 @@ import java.util.List;
 @Produces({ MediaType.APPLICATION_JSON })
 public class SortingExceptionResource {
 
-    private static final Log logger= LogFactory.getLog(SortingExceptionResource.class);
+    private static final Logger log = LoggerFactory.getLogger(SortingExceptionResource.class);
 
     @Autowired
     private SortingExceptionService sortingExceptionService;
@@ -42,13 +41,13 @@ public class SortingExceptionResource {
         if(StringHelper.isEmpty(batchCode)||StringHelper.isEmpty(batchCode.trim())){
             result.setCode(499);
             result.setMessage("查询条件：波次号不能为空");
-            logger.info(result.getMessage());
+            log.info(result.getMessage());
             return result;
         }
         if(null==siteCode||siteCode.intValue()<=0){
             result.setCode(499);
             result.setMessage("查询条件：发货站点ID不正确");
-            logger.info(result.getMessage());
+            log.info(result.getMessage());
             return result;
         }
         result.setCode(200);

@@ -1001,4 +1001,31 @@ public class Constants {
      */
     public static final String BOX_TYPE_CHECK_SWITCH = "BOX_TYPE_CHECK_SWITCH";
 
+    /**
+     * 调用运输基础资料获取货物类型 父节点编码
+     */
+    public static final String PARENTCODE = "3";
+    /**
+     * 调用运输基础资料获取货物类型 字典节点级别
+     */
+    public static final int DICTLEVEL = 3;
+    /**
+     * 调用运输基础资料获取货物类型 字典分组
+     */
+    public static final String DICTGROUP = "1209";
+    /**
+     * 泡重比类型--按体积
+     */
+    public static final Integer VOLUMEFEETYPE_VOLUME = 1;
+
+    /**
+     * 泡重比类型--按重泡比
+     */
+    public static final Integer VOLUMEFEETYPE_VOLUMERATE = 2;
+
+    /**
+     * 运单预分拣网点值 为-136代表超区
+     */
+    public static final int WAYBILL_SITE_ID_OUT_ZONE = -136;
+
 }

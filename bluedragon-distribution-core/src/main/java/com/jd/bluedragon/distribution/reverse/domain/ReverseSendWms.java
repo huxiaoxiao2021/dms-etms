@@ -70,6 +70,10 @@ public class ReverseSendWms {
 
 	private String orderSource; // 订单来源
 
+	private String spareColumn3; //特殊字段3 存放运单中对应的spareColumn3 返回仓储时不生成XML节点 仅供内部使用
+
+	private String billPackageCode; //面单实际包裹号 仅供病单使用
+
 	public final static String ORDER_SOURCE_JLZX = "JLZX"; //订单来源 加履中心
 
     public String getBusiOrderCode() {
@@ -248,5 +252,21 @@ public class ReverseSendWms {
 
 	public void setXniType(int xniType) {
 		this.xniType = xniType;
+	}
+	@XmlTransient
+	public String getSpareColumn3() {
+		return spareColumn3;
+	}
+
+	public void setSpareColumn3(String spareColumn3) {
+		this.spareColumn3 = spareColumn3;
+	}
+
+	public String getBillPackageCode() {
+		return billPackageCode;
+	}
+
+	public void setBillPackageCode(String billPackageCode) {
+		this.billPackageCode = billPackageCode;
 	}
 }

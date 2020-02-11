@@ -2,11 +2,9 @@ package com.jd.bluedragon.distribution.rest.waybill;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.PreseparateWaybillManager;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.SerialRuleUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +19,7 @@ import javax.ws.rs.core.MediaType;
 @Consumes({ MediaType.APPLICATION_JSON })
 @Produces({ MediaType.APPLICATION_JSON })
 public class PreseparateWaybillResource {
-    private static final Log logger= LogFactory.getLog(PreseparateWaybillResource.class);
+    private static final Logger log = LoggerFactory.getLogger(PreseparateWaybillResource.class);
 
     @Autowired
     private PreseparateWaybillManager preseparateWaybillManager;
@@ -31,8 +29,8 @@ public class PreseparateWaybillResource {
     public com.jd.bluedragon.distribution.jsf.domain.InvokeResult<Integer> getPreseparateSiteId(@PathParam("waybillCode") String waybillCode){
         com.jd.bluedragon.distribution.jsf.domain.InvokeResult<Integer> result=new com.jd.bluedragon.distribution.jsf.domain.InvokeResult<Integer>();
         if(!WaybillUtil.isWaybillCode(waybillCode)){
-            if(logger.isInfoEnabled()){
-                logger.info("获取预分拣站点，运单号为"+waybillCode);
+            if(log.isInfoEnabled()){
+                log.info("获取预分拣站点，运单号为：{}", waybillCode);
             }
             result.parameterError("运单号不符合规则");
             return result;
@@ -40,8 +38,8 @@ public class PreseparateWaybillResource {
         try{
             result.setData(preseparateWaybillManager.getPreseparateSiteId(waybillCode));
         }catch (Exception ex){
-            if(logger.isErrorEnabled()){
-                logger.error("获取预分拣站点"+waybillCode,ex);
+            if(log.isErrorEnabled()){
+                log.error("获取预分拣站点:{}", waybillCode,ex);
             }
             result.error(ex);
         }

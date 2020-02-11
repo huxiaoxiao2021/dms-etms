@@ -26,25 +26,15 @@ import com.jd.tms.tfc.dto.TransWorkItemDto;
 import com.jd.tms.tfc.dto.TransWorkItemWsDto;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * create by zhanglei 2017-05-10
@@ -62,7 +52,7 @@ import java.util.Map;
 @Produces({MediaType.APPLICATION_JSON})
 public class NewSealVehicleResource {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private NewSealVehicleService newsealVehicleService;
@@ -89,7 +79,6 @@ public class NewSealVehicleResource {
     @Path("/new/vehicle/seal/transportCode")
     @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 101101)
     public RouteTypeResponse getTransportCode(NewSealVehicleRequest request) {
-        logger.info("封车校验运力编码请求体：" + JsonHelper.toJson(request));
         RouteTypeResponse response = new RouteTypeResponse();
         if (StringUtils.isEmpty(request.getTransportCode()) || !NumberHelper.isPositiveNumber(request.getSiteCode())) {
             response.setCode(JdResponse.CODE_PARAM_ERROR);
@@ -117,14 +106,14 @@ public class NewSealVehicleResource {
             } else { //服务出错或者出异常，打日志
                 response.setCode(JdResponse.CODE_SERVICE_ERROR);
                 response.setMessage("查询运力信息出错！");
-                logger.error("查询运力信息出错,出错原因:" + vtsDto.getMessage());
-                logger.error("查询运力信息出错,运力编码:" + request.getTransportCode());
+                log.warn("查询运力信息出错,出错原因:{}", vtsDto.getMessage());
+                log.warn("查询运力信息出错,运力编码:{}",request.getTransportCode());
             }
             return response;
         } catch (Exception e) {
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
             response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
-            logger.error("通过运力编码获取基础资料信息异常：" + JsonHelper.toJson(request), e);
+            log.error("通过运力编码获取基础资料信息异常：{}", JsonHelper.toJson(request), e);
         }
 
         return response;
@@ -199,7 +188,7 @@ public class NewSealVehicleResource {
         } catch (Exception e) {
             sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
             sealVehicleResponse.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
-            this.logger.error("根据任务简码获取任务信息：任务简码->" + simpleCode, e);
+            this.log.error("根据任务简码获取任务信息：任务简码->{}", simpleCode, e);
         }
         return sealVehicleResponse;
     }
@@ -215,7 +204,7 @@ public class NewSealVehicleResource {
         try {
             if (request == null || StringUtils.isEmpty(request.getUserErp()) || StringUtils.isEmpty(request.getDmsCode()) ||
                     (StringUtils.isEmpty(request.getTransWorkItemCode()) && StringUtils.isEmpty(request.getVehicleNumber()))) {
-                this.logger.error("NewSealVehicleResource workitem query--> 传入参数非法" + JsonHelper.toJson(request));
+                this.log.warn("NewSealVehicleResource workitem query--> 传入参数非法:{}", JsonHelper.toJson(request));
                 sealVehicleResponse.setCode(TransWorkItemResponse.CODE_PARAM_ERROR);
                 sealVehicleResponse.setMessage(TransWorkItemResponse.MESSAGE_PARAM_ERROR);
                 return sealVehicleResponse;
@@ -226,7 +215,6 @@ public class NewSealVehicleResource {
             transWorkItemWsDto.setOperateUserCode(request.getUserErp());
             transWorkItemWsDto.setOperateNodeCode(request.getDmsCode());
             com.jd.tms.tfc.dto.CommonDto<TransWorkItemWsDto> returnCommonDto = newsealVehicleService.getVehicleNumberOrItemCodeByParam(transWorkItemWsDto);
-            logger.debug("根据车牌号获取派车明细编码或根据派车明细编码获取车牌号：" + JsonHelper.toJson(returnCommonDto));
             if (returnCommonDto != null) {
                 if (Constants.RESULT_SUCCESS == returnCommonDto.getCode() && returnCommonDto.getData() != null) {
                     sealVehicleResponse = getVehicleNumBySimpleCode(returnCommonDto.getData().getTransWorkItemCode());
@@ -242,7 +230,7 @@ public class NewSealVehicleResource {
                 }
             }
         } catch (Exception e) {
-            this.logger.error("根据车牌号获取派车明细编码或根据派车明细编码获取车牌号-error", e);
+            this.log.error("根据车牌号获取派车明细编码或根据派车明细编码获取车牌号-error", e);
         }
         return sealVehicleResponse;
     }
@@ -257,14 +245,13 @@ public class NewSealVehicleResource {
         TransWorkItemResponse sealVehicleResponse = new TransWorkItemResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         try {
             if (request == null || StringUtils.isEmpty(request.getTransWorkItemCode()) || StringUtils.isEmpty(request.getTransportCode())) {
-                this.logger.error("NewSealVehicleResource workitem check --> 传入参数非法" + JsonHelper.toJson(request));
+                this.log.warn("NewSealVehicleResource workitem check --> 传入参数非法:{}", JsonHelper.toJson(request));
                 sealVehicleResponse.setCode(TransWorkItemResponse.CODE_PARAM_ERROR);
                 sealVehicleResponse.setMessage(TransWorkItemResponse.MESSAGE_PARAM_ERROR);
                 return sealVehicleResponse;
             }
 
             com.jd.tms.tfc.dto.CommonDto<String> returnCommonDto = newsealVehicleService.checkTransportCode(request.getTransWorkItemCode(), request.getTransportCode());
-            logger.debug("根据任务简码和运力资源编码校验运力资源编码并对运力资源编码进行更新：" + JsonHelper.toJson(returnCommonDto));
             if (returnCommonDto != null) {
                 if (Constants.RESULT_SUCCESS == returnCommonDto.getCode()) {
                     sealVehicleResponse.setCode(JdResponse.CODE_OK);
@@ -277,7 +264,7 @@ public class NewSealVehicleResource {
                 }
             }
         } catch (Exception e) {
-            this.logger.error("根据任务简码和运力资源编码校验运力资源编码并对运力资源编码进行更新-error", e);
+            this.log.error("根据任务简码和运力资源编码校验运力资源编码并对运力资源编码进行更新-error", e);
         }
         return sealVehicleResponse;
     }
@@ -327,14 +314,14 @@ public class NewSealVehicleResource {
                 } else { //服务出错或者出异常，打日志
                     sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
                     sealVehicleResponse.setMessage("查询运力信息出错！");
-                    logger.error("查询运力信息出错,出错原因:" + vtsDto.getMessage());
-                    logger.error("查询运力信息出错,运力编码:" + transportCode);
+                    log.warn("查询运力信息出错,出错原因:{}", vtsDto.getMessage());
+                    log.warn("查询运力信息出错,运力编码:{}", transportCode);
                 }
             }
         } catch (Exception e) {
             sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
             sealVehicleResponse.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
-            this.logger.error("封车检查运力编码和批次号目的地是否一致出错：批次号->" + batchCode + "运力编码->" + transportCode, e);
+            this.log.error("封车检查运力编码和批次号目的地是否一致出错：批次号->{}运力编码->{}",batchCode, transportCode, e);
         }
         return sealVehicleResponse;
     }
@@ -354,7 +341,7 @@ public class NewSealVehicleResource {
             if (Constants.SEAL_TYPE_TRANSPORT.equals(sealCarType)) {
                 CommonDto<String> dto = newsealVehicleService.verifyVehicleJobByVehicleNumber(transportCode,vehicleNumber);
                 if (dto == null) {    //JSF接口返回空
-                    logger.warn("校验车牌号能否封车创建车次任务返回值为空:" + transportCode + "-" + vehicleNumber + "-" + sealCarType);
+                    log.warn("校验车牌号能否封车创建车次任务返回值为空:{}-{}-{}",transportCode, vehicleNumber, sealCarType);
                     sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
                     sealVehicleResponse.setMessage("校验车牌号能否封车创建车次任务返回值为空:" + transportCode + "-" + vehicleNumber + "-" + sealCarType);
                     return sealVehicleResponse;
@@ -370,7 +357,7 @@ public class NewSealVehicleResource {
         } catch (Exception e) {
             sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
             sealVehicleResponse.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
-            this.logger.error("校验车牌号能否封车创建车次任务异常.运力编码:" + transportCode + ",车牌号:" + vehicleNumber, e);
+            this.log.error("校验车牌号能否封车创建车次任务异常.运力编码:{},车牌号:{}",transportCode, vehicleNumber, e);
         }
         return sealVehicleResponse;
     }
@@ -385,7 +372,7 @@ public class NewSealVehicleResource {
         NewSealVehicleResponse sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         try {
             if (request == null || request.getData() == null) {
-                logger.warn("NewSealVehicleResource seal --> 传入参数非法");
+                log.warn("NewSealVehicleResource seal --> 传入参数非法");
                 sealVehicleResponse.setCode(JdResponse.CODE_PARAM_ERROR);
                 sealVehicleResponse.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
                 return sealVehicleResponse;
@@ -404,7 +391,7 @@ public class NewSealVehicleResource {
                 }
             }
         } catch (Exception e) {
-            this.logger.error("NewSealVehicleResource.seal-error", e);
+            this.log.error("NewSealVehicleResource.seal-error", e);
         }
         return sealVehicleResponse;
     }
@@ -419,7 +406,7 @@ public class NewSealVehicleResource {
         NewSealVehicleResponse sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         try {
             if (request == null || request.getData() == null) {
-                logger.warn("NewSealVehicleResource doSealCarWithVehicleJob --> 传入参数非法");
+                log.warn("NewSealVehicleResource doSealCarWithVehicleJob --> 传入参数非法");
                 sealVehicleResponse.setCode(JdResponse.CODE_PARAM_ERROR);
                 sealVehicleResponse.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
                 return sealVehicleResponse;
@@ -427,7 +414,7 @@ public class NewSealVehicleResource {
 
             sealVehicleResponse = newsealVehicleService.doSealCarWithVehicleJob(request.getData());
         } catch (Exception e) {
-            this.logger.error("NewSealVehicleResource.doSealCarWithVehicleJob-error", e);
+            this.log.error("NewSealVehicleResource.doSealCarWithVehicleJob-error", e);
         }
         return sealVehicleResponse;
     }
@@ -450,7 +437,7 @@ public class NewSealVehicleResource {
     try
     {
       if (null == request || StringHelper.isEmpty(request.getBatchCode())) {
-        logger.warn("NewSealVehicleResource cancelSeal --> 传入参数非法");
+        log.warn("NewSealVehicleResource cancelSeal --> 传入参数非法");
         sealVehicleResponse.setCode(JdResponse.CODE_PARAM_ERROR);
         sealVehicleResponse.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
         return sealVehicleResponse;
@@ -467,7 +454,7 @@ public class NewSealVehicleResource {
         sealVehicleResponse = newsealVehicleService.cancelSeal(request);
     }
     catch (Exception e) {
-      this.logger.error("NewSealVehicleResource.cancelSeal-error", e);
+      this.log.error("NewSealVehicleResource.cancelSeal-error", e);
     }
       return sealVehicleResponse;
     }
@@ -519,8 +506,10 @@ public class NewSealVehicleResource {
             PageDto<SealCarDto> pageDto = new PageDto<SealCarDto>();
             pageDto.setPageSize(request.getPageNums());
 
-            logger.info("解封车查询参数，sealCarDto：" + JsonHelper.toJson(sealCarDto));
-            logger.info("解封车查询参数，pageDto：" + JsonHelper.toJson(pageDto));
+            if(log.isInfoEnabled()){
+                log.info("解封车查询参数，sealCarDto：{}", JsonHelper.toJson(sealCarDto));
+                log.info("解封车查询参数，pageDto：{}", JsonHelper.toJson(pageDto));
+            }
 
             CommonDto<PageDto<SealCarDto>> returnCommonDto = newsealVehicleService.findSealInfo(sealCarDto, pageDto);
 
@@ -545,7 +534,7 @@ public class NewSealVehicleResource {
                 }
             }
         } catch (Exception e) {
-            this.logger.error("NewSealVehicleResource.findSealInfo-error", e);
+            this.log.error("NewSealVehicleResource.findSealInfo-error", e);
         }
         return sealVehicleResponse;
     }
@@ -573,7 +562,7 @@ public class NewSealVehicleResource {
                 }
             }
         } catch (Exception e) {
-            this.logger.error("NewSealVehicleResource.unsealCheck-error", e);
+            this.log.error("NewSealVehicleResource.unsealCheck-error", e);
         }
         return sealVehicleResponse;
     }
@@ -588,7 +577,7 @@ public class NewSealVehicleResource {
         NewSealVehicleResponse<String> sealVehicleResponse = new NewSealVehicleResponse<String>(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         try {
             if (request == null || request.getData() == null) {
-                logger.warn("NewSealVehicleResource unseal --> 传入参数非法");
+                log.warn("NewSealVehicleResource unseal --> 传入参数非法");
                 sealVehicleResponse.setCode(JdResponse.CODE_PARAM_ERROR);
                 sealVehicleResponse.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
                 return sealVehicleResponse;
@@ -607,7 +596,7 @@ public class NewSealVehicleResource {
                 }
             }
         } catch (Exception e) {
-            this.logger.error("NewSealVehicleResource.unseal-error", e);
+            this.log.error("NewSealVehicleResource.unseal-error", e);
         }
         return sealVehicleResponse;
     }
@@ -634,7 +623,7 @@ public class NewSealVehicleResource {
         if (isSealed == null) {
             sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
             sealVehicleResponse.setMessage("服务异常，运输系统查询批次号状态结果为空！");
-            logger.error("服务异常，运输系统查询批次号状态结果为空, 批次号:" + batchCode);
+            log.warn("服务异常，运输系统查询批次号状态结果为空, 批次号:{}", batchCode);
             return;
         }
 
@@ -652,8 +641,8 @@ public class NewSealVehicleResource {
         } else {//服务出错或者出异常，打日志
             sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
             sealVehicleResponse.setMessage("服务异常，运输系统查询批次号状态失败！");
-            logger.error("服务异常，运输系统查询批次号状态失败, 批次号:" + batchCode);
-            logger.error("服务异常，运输系统查询批次号状态失败，失败原因:" + isSealed.getMessage());
+            log.warn("服务异常，运输系统查询批次号状态失败, 批次号:{}", batchCode);
+            log.warn("服务异常，运输系统查询批次号状态失败，失败原因:{}", isSealed.getMessage());
         }
         //3.批次号是否存在（最后查询批次号是否存在，不存在时给前台提示）
         if (JdResponse.CODE_OK.equals(sealVehicleResponse.getCode()) && !newsealVehicleService.checkSendIsExist(batchCode)) {//批次号不存在
@@ -736,7 +725,7 @@ public class NewSealVehicleResource {
                 }
             }
         } catch (Exception e) {
-            logger.error("[调用TMS-TFC-JSF接口]根据派车任务明细简码获取派车任务明细时发生异常", e);
+            log.error("[调用TMS-TFC-JSF接口]根据派车任务明细简码获取派车任务明细时发生异常", e);
         }
     }
 }

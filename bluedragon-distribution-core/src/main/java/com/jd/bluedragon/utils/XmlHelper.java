@@ -128,7 +128,7 @@ public class XmlHelper {
                 return Boolean.TRUE;
             }
         } catch (Exception e) {
-            XmlHelper.log.error("序列化XML发生异常， 异常信息为：{}" , e.getMessage(), e);
+            XmlHelper.log.warn("序列化XML发生异常， 异常信息为：{}" , e.getMessage());
         }
 
         return Boolean.FALSE;

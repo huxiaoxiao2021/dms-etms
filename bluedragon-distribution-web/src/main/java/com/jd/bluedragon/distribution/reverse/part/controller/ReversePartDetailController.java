@@ -11,8 +11,8 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -37,7 +37,7 @@ import java.util.List;
 @RequestMapping("reverse/part/reversePartDetail")
 public class ReversePartDetailController {
 
-	private static final Log logger = LogFactory.getLog(ReversePartDetailController.class);
+	private static final Logger log = LoggerFactory.getLogger(ReversePartDetailController.class);
 
 	@Autowired
 	private ReversePartDetailService reversePartDetailService;
@@ -95,7 +95,7 @@ public class ReversePartDetailController {
 		try {
 			rest.setData(reversePartDetailService.saveOrUpdate(reversePartDetail));
 	} catch (Exception e) {
-			logger.error("fail to save！"+e.getMessage(),e);
+			log.error("fail to save！",e);
 			rest.toError("保存失败，服务异常！");
 		}
 		return rest;
@@ -112,7 +112,7 @@ public class ReversePartDetailController {
 		try {
 			rest.setData(reversePartDetailService.deleteByIds(ids));
 		} catch (Exception e) {
-			logger.error("fail to delete！"+e.getMessage(),e);
+			log.error("fail to delete！",e);
 			rest.toError("删除失败，服务异常！");
 		}
 		return rest;
@@ -139,7 +139,7 @@ public class ReversePartDetailController {
 		try{
 			rest.setData(reversePartDetailService.queryAllSendPack(waybillCode,createSiteCode));
 		}catch (Exception e){
-			logger.error("获取累计发货数据异常"+waybillCode+" "+createSiteCode,e);
+			log.error("获取累计发货数据异常:{}-{}",waybillCode,createSiteCode,e);
 			rest.setCode(JdResponse.CODE_ERROR);
 			rest.setMessage(JdResponse.MESSAGE_ERROR);
 		}
@@ -153,7 +153,7 @@ public class ReversePartDetailController {
 		try{
 			rest.setData(reversePartDetailService.queryNoSendPack(waybillCode,createSiteCode));
 		}catch (Exception e){
-			logger.error("获取未发货数据异常"+waybillCode+" "+createSiteCode,e);
+			log.error("获取未发货数据异常:{}-{}",waybillCode,createSiteCode,e);
 			rest.setCode(JdResponse.CODE_ERROR);
 			rest.setMessage(JdResponse.MESSAGE_ERROR);
 		}
@@ -195,7 +195,7 @@ public class ReversePartDetailController {
 			return new ModelAndView(new DefaultExcelView(), model.asMap());
 
 		} catch (Exception e) {
-			logger.error("toExport:" + e.getMessage(), e);
+			log.error("toExport:异常", e);
 			return null;
 		}
 	}

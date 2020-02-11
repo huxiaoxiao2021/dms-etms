@@ -6,8 +6,8 @@ import com.jd.bluedragon.distribution.barcode.service.BarcodeService;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,7 +26,7 @@ import java.util.List;
 @Controller
 @RequestMapping("barcode")
 public class DmsBarCodeController extends DmsBaseController {
-    private static final Log logger = LogFactory.getLog(DmsBarCodeController.class);
+    private static final Logger log = LoggerFactory.getLogger(DmsBarCodeController.class);
 
     @Autowired
     BarcodeService barcodeService;
@@ -66,7 +66,7 @@ public class DmsBarCodeController extends DmsBaseController {
 
             return new ModelAndView(new DefaultExcelView(), model.asMap());
         } catch (Exception e) {
-            logger.error("barcode--toExport:" + e.getMessage(), e);
+            log.error("barcode--toExport:", e);
             return null;
         }
     }

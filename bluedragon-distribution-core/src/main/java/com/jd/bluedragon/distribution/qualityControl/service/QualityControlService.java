@@ -345,10 +345,9 @@ public class QualityControlService {
         Response<AbnormalOrderDTO> dto = abnormalOrderApi.queryByCustomerIdDeliveryIdMainTypeId(waybillCode,businessID,20);
         log.info("获取运单协商再投状态: 入参waybillCode={} businessID={} JSF接口返回:{}"
                 ,waybillCode,businessID,JsonHelper.toJson(dto));
-        if(null!=dto && dto.getStatus()== ResponseStatus.SUCCESS && null!=dto.getResult()){
-           if (null != dto.getResult().getAbnormalState()) {
-               res = dto.getResult().getAbnormalState();
-           }
+        if(null != dto && ResponseStatus.SUCCESS.equals(dto.getStatus()) &&
+                null != dto.getResult() && null != dto.getResult().getAbnormalState()){
+            res = dto.getResult().getAbnormalState();
         }
 
         return res;

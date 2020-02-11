@@ -7,6 +7,7 @@ import com.jd.bd.dms.automatic.sdk.modules.areadest.dto.AreaDestJsfVo;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
+import com.jd.bluedragon.common.dto.device.enums.DeviceTypeEnum;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
@@ -48,17 +49,7 @@ import com.jd.bluedragon.distribution.saf.WaybillSafResponse;
 import com.jd.bluedragon.distribution.saf.WaybillSafService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
-import com.jd.bluedragon.distribution.waybill.domain.BaseResponseIncidental;
-import com.jd.bluedragon.distribution.waybill.domain.CancelFeatherLetterRequest;
-import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
-import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
-import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionCondition;
-import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionException;
-import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionQueryTypeEnum;
-import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionRangeEnum;
-import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionRequest;
-import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionResult;
-import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.distribution.waybill.domain.*;
 import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
 import com.jd.bluedragon.distribution.waybill.service.WaybillNoCollectionInfoService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
@@ -95,7 +86,6 @@ import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
-import org.jboss.resteasy.annotations.GZIP;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,6 +94,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -111,7 +102,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -1511,7 +1501,7 @@ public class WaybillResource {
 			result = getSiteRoutersFromRouterJsf(operateSiteCode,waybillCode,nextRouters);
 		} else if (2 == request.getOperateType()) {
 			/* 通过发货配置jsf接口调用 */
-			result = getSiteRoutersFromDMSAutoJsf(operateSiteCode,siteCode,operateTime,waybillCode,nextRouters);
+			result = getSiteRoutersFromDMSAutoJsf(request.getMachineCode(),operateSiteCode,siteCode,operateTime,waybillCode,nextRouters);
 		}
 		siteRouters.addAll(nextRouters);
 		result.setData(siteRouters);
@@ -1548,7 +1538,7 @@ public class WaybillResource {
 	}
 
 	private InvokeResult<List<Integer>> getSiteRoutersFromDMSAutoJsf
-			(Integer operateSiteCode, Integer destinationSiteCode,Long operateTime,String waybillCode,Set<Integer> nextRouters) {
+			(String machineCode, Integer operateSiteCode, Integer destinationSiteCode,Long operateTime,String waybillCode,Set<Integer> nextRouters) {
 
 		InvokeResult<List<Integer>> result = new InvokeResult<List<Integer>>();
 
@@ -1556,6 +1546,8 @@ public class WaybillResource {
 		jsfRequest.setOriginalSiteCode(operateSiteCode);
 		jsfRequest.setDestinationSiteCode(destinationSiteCode);
 		jsfRequest.setOperateTime(operateTime);
+		jsfRequest.setMachineId(machineCode);
+		jsfRequest.setDeviceType(DeviceTypeEnum.GANTRY.getTypeCode());
 		BaseDmsAutoJsfResponse<List<AreaDestJsfVo>> jsfResponse;
 
 		CallerInfo info = Profiler.registerInfo("DMSWEB.jsf.areaDestJsfService.findAreaDest", Constants.UMP_APP_NAME_DMSWEB,false, true);
@@ -2312,6 +2304,50 @@ public class WaybillResource {
 		return result;
 	}
 
+	/**
+	 * 验货差异查询
+	 * @param
+	 * @return
+	 */
+	@POST
+	@Path("/waybill/inspection/uneven")
+	public InvokeResult<InspectionNoCollectionResult> getInspectionWaybillNoCollectionInfo(WaybillNoCollectionRequest waybillNoCollectionRequest) {
+
+		log.info("验货差异查询开始，参数：{}", JsonHelper.toJson(waybillNoCollectionRequest));
+
+		InvokeResult<InspectionNoCollectionResult> result = new InvokeResult<>();
+		result.success();
+		InspectionNoCollectionResult inspectionNoCollectionResult = null;
+
+		if (waybillNoCollectionRequest == null || waybillNoCollectionRequest.getSiteCode() == null || StringHelper.isEmpty(waybillNoCollectionRequest.getQueryCode())) {
+			result.parameterError("请求内容值为空，请检查请求体！");
+			return result;
+		}
+		String queryCode = waybillNoCollectionRequest.getQueryCode();
+		int queryType = waybillNoCollectionRequest.getQueryType();
+
+		WaybillNoCollectionCondition waybillNoCollectionCondition = new WaybillNoCollectionCondition();
+		waybillNoCollectionCondition.setCreateSiteCode(waybillNoCollectionRequest.getSiteCode());
+
+		List<String> waybillCodeList = new ArrayList<>();
+		try {
+			if (queryType == WaybillNoCollectionQueryTypeEnum.WAYBILL_CODE_QUERY_TYPE.getType()) {
+				waybillCodeList.add(queryCode);
+				waybillNoCollectionCondition.setWaybillCodeList(waybillCodeList);
+				inspectionNoCollectionResult = waybillNoCollectionInfoService.getInspectionNoCollectionInfo(waybillNoCollectionCondition);
+			} else if (queryType == WaybillNoCollectionQueryTypeEnum.SEND_CODE_QUERY_TYPE.getType()) {
+				inspectionNoCollectionResult = waybillNoCollectionInfoService.getInspectionNoCollectionInfoBySendCode(waybillNoCollectionCondition, queryCode);
+			}
+		} catch (Exception e) {
+			result.setCode(JdResponse.CODE_SERVICE_ERROR);
+			result.setMessage("服务端查询异常，请稍后再试！");
+			log.error("获取差异查询信息失败，参数：{}", JsonHelper.toJson(waybillNoCollectionRequest), e);
+		}
+
+		result.setData(inspectionNoCollectionResult);
+		return result;
+	}
+
     @POST
     @Path("/waybill/cancelFeatherLetter")
 	public InvokeResult<String> cancelFeatherLetter(CancelFeatherLetterRequest request){
@@ -2353,4 +2389,18 @@ public class WaybillResource {
         return result;
     }
 
+    @POST
+    @Path("/waybill/thirdCheckCancel")
+    @JProfiler(jKey = "DMS.WEB.WaybillResource.thirdCheckWaybillCancel", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<Boolean> thirdCheckWaybillCancel(@NotNull PdaOperateRequest pdaOperateRequest) {
+        if (log.isInfoEnabled()) {
+            log.info("validate waybill cancel when third check goods:[{}]", JsonHelper.toJson(pdaOperateRequest));
+        }
+	    InvokeResult<Boolean> result = new InvokeResult<>();
+        if (null == pdaOperateRequest || StringUtils.isBlank(pdaOperateRequest.getPackageCode())) {
+            result.customMessage(SortingResponse.CODE_PARAM_IS_NULL, SortingResponse.MESSAGE_PARAM_IS_NULL);
+            return result;
+        }
+        return waybillService.thirdCheckWaybillCancel(pdaOperateRequest);
+    }
 }
