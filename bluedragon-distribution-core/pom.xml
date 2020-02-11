@@ -1188,6 +1188,13 @@
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 
+		<!-- 质控 -->
+		<dependency>
+			<groupId>com.jd.wl</groupId>
+			<artifactId>data.qc.abnormal.jsf.jar</artifactId>
+			<version>1.0.1.1-SNAPSHOT</version>
+		</dependency>
+
 		<dependency>
 			<groupId>com.jd.etms.contract</groupId>
 			<artifactId>etms-contract-api</artifactId>

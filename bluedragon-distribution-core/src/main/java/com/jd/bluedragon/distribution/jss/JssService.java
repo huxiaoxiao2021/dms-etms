@@ -71,4 +71,13 @@ public interface JssService {
      */
     String getPublicBucketUrl(String bucket, String keyName);
 
+    /**
+     * 上传图片
+     *
+     * @param bucket
+     * @param bytes
+     * @return
+     */
+    String uploadImage(String bucket, byte[] bytes);
+
 }

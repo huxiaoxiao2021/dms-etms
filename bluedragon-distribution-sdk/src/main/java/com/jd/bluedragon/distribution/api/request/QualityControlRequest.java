@@ -24,6 +24,7 @@ public class QualityControlRequest implements Serializable{
     private boolean isSortingReturn; //是否生成分拣退货数据
     private String trackContent;     // 发送全程跟踪内容
     private String waveBusinessId;//版次号，路由系统的字段
+    private Integer qcVersionFlag;//对接质控版本，1是老质控，2是新质控，null默认为老质控
 
     public Integer getUserID() {
         return userID;
@@ -127,5 +128,13 @@ public class QualityControlRequest implements Serializable{
 
     public void setWaveBusinessId(String waveBusinessId) {
         this.waveBusinessId = waveBusinessId;
+    }
+
+    public Integer getQcVersionFlag() {
+        return qcVersionFlag;
+    }
+
+    public void setQcVersionFlag(Integer qcVersionFlag) {
+        this.qcVersionFlag = qcVersionFlag;
     }
 }

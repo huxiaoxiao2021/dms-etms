@@ -544,4 +544,8 @@
     <jsf:consumer id="dmsClientJsfService" interface="com.jd.bluedragon.sdk.modules.client.DmsClientJsfService" protocol="jsf"
                   alias="${jsf.business.dmsClientJsfService.alias}" timeout="${jsf.business.dmsClientJsfService.timeout}"  retries="${jsf.retries}">
     </jsf:consumer>	
+    <jsf:consumer id="iAbnPdaAPI" interface="com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.service.IAbnPdaAPI" alias="${qcAbnPdaAPI.alias}" timeout="${qcAbnPdaAPI.timeout}" retries="1">
+        <jsf:parameter key="token" value="${qcAbnPdaAPI.token}" hide="true" />
+    </jsf:consumer>
+
 </beans>

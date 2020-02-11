@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.abnormalwaybill.service;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.abnormalwaybill.dao.AbnormalWayBillDao;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.ump.annotation.JProEnum;
@@ -53,5 +54,17 @@ public class AbnormalWayBillServiceImpl implements AbnormalWayBillService {
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public int insertBatchAbnormalWayBill(List<AbnormalWayBill> wayBillList) {
         return abnormalWayBillDao.addBatch(wayBillList);
+    }
+
+    /**
+     * 根据提报异常的条码号和站点编号查询异常处理记录
+     * @param createSiteCode
+     * @param qcValue
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.AbnormalWayBillService.getAbnormalWayBillByQcValue", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+    public AbnormalWayBill getAbnormalWayBillByQcValue(Integer createSiteCode, String qcValue) {
+        return abnormalWayBillDao.getAbnormalWayBillByQcValue(createSiteCode, qcValue);
     }
 }
