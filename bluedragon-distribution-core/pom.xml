@@ -22,7 +22,7 @@
 		<slf4j.version>1.6.4</slf4j.version>
 		<aspectj.version>1.6.11</aspectj.version>
 		<jmq.version>2.2.0</jmq.version>
-		<etms.waybill.agent.version>4.2.125</etms.waybill.agent.version>
+		<etms.waybill.agent.version>4.2.134</etms.waybill.agent.version>
 		<jddl-client.version>2.0.1-SNAPSHOT</jddl-client.version>
 		<configure-client.version>1.0.0-SNAPSHOT</configure-client.version>
 		<configure-utils.version>1.0.0-SNAPSHOT</configure-utils.version>
@@ -1063,7 +1063,7 @@
         <dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>business-sdk</artifactId>
-            <version>1.0.4-SNAPSHOT</version>
+            <version>1.0.5-RELEASE</version>
         </dependency>
 
 		<!--JMQ-Split组件  -->
@@ -1186,6 +1186,13 @@
 			<groupId>com.jd.eclp</groupId>
 			<artifactId>customer-center-api</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
+		<!-- 质控 -->
+		<dependency>
+			<groupId>com.jd.wl</groupId>
+			<artifactId>data.qc.abnormal.jsf.jar</artifactId>
+			<version>1.0.1.1-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>

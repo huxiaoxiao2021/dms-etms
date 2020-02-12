@@ -69,6 +69,7 @@ public class SealCarDto implements Serializable {
     private Double volume;
     private String transBookCode;
     private String routeLineCode;
+    private Integer palletCount;
 
     public SealCarDto() {
     }
@@ -522,5 +523,13 @@ public class SealCarDto implements Serializable {
 
     public void setRouteLineCode(String routeLineCode) {
         this.routeLineCode = routeLineCode;
+    }
+
+    public Integer getPalletCount() {
+        return palletCount;
+    }
+
+    public void setPalletCount(Integer palletCount) {
+        this.palletCount = palletCount;
     }
 }

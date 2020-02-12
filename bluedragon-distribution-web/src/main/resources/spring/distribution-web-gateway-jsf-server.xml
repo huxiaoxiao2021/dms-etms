@@ -166,4 +166,12 @@
                   ref="airNewPickupRegisterGateWayService" server="dmsjsf">
     </jsf:provider>
 
+
+    <!-- 异常提交（新质控） -->
+    <bean id="abnormalReportingGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.AbnormalReportingGatewayServiceImpl"/>
+    <jsf:provider id="jsfAbnormalReportingGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.AbnormalReportingGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="abnormalReportingGatewayService" server="dmsjsf">
+    </jsf:provider>
 </beans>

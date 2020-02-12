@@ -1,8 +1,10 @@
 package com.jd.bluedragon.distribution.base.service.impl;
 
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-import com.jd.ql.basic.ws.BasicPrimaryWS;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,8 +36,20 @@ import com.jd.bluedragon.distribution.sysloginlog.domain.SysLoginLog;
 import com.jd.bluedragon.distribution.sysloginlog.service.SysLoginLogService;
 import com.jd.bluedragon.distribution.version.domain.ClientConfig;
 import com.jd.bluedragon.distribution.version.service.ClientConfigService;
+import com.jd.bluedragon.sdk.modules.client.DmsClientMessages;
+import com.jd.bluedragon.sdk.modules.client.LoginStatusEnum;
+import com.jd.bluedragon.sdk.modules.client.LogoutTypeEnum;
+import com.jd.bluedragon.sdk.modules.client.ProgramTypeEnum;
+import com.jd.bluedragon.sdk.modules.client.dto.DmsClientHeartbeatRequest;
+import com.jd.bluedragon.sdk.modules.client.dto.DmsClientHeartbeatResponse;
+import com.jd.bluedragon.sdk.modules.client.dto.DmsClientLoginRequest;
+import com.jd.bluedragon.sdk.modules.client.dto.DmsClientLoginResponse;
+import com.jd.bluedragon.service.remote.client.DmsClientManager;
+import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -53,6 +67,8 @@ import com.jd.ump.profiler.proxy.Profiler;
 public class UserServiceImpl implements UserService{
 
 	private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
+	private static final String DEFAULTTIME = "BasicSystemResource.defaultTime";
+	 
 	/**
 	 *	登录方式-分拣客户端（PDA、打印、标签设计器）
 	 */
@@ -98,7 +114,8 @@ public class UserServiceImpl implements UserService{
 	@Autowired
 	@Qualifier("basicPrimaryWS")
 	private BasicPrimaryWS basicPrimaryWS;
-
+	@Autowired
+	private DmsClientManager dmsClientManager;
 	/**
 	 * 分拣客户端登录服务
 	 * @param request
@@ -170,6 +187,7 @@ public class UserServiceImpl implements UserService{
 		String erpAccount = request.getErpAccount();
 		String erpAccountPwd = request.getPassword();
 		ClientInfo clientInfo = null;
+		Long loginId = 0L;
 		//初始化客户端信息
 		if(StringUtils.isNotBlank(request.getClientInfo())){
 			clientInfo = JsonHelper.fromJson(request.getClientInfo(), ClientInfo.class);
@@ -219,6 +237,14 @@ public class UserServiceImpl implements UserService{
 					return response;
 				}else{
 					sysLoginLogService.insert(loginResult, clientInfo);
+					DmsClientLoginRequest dmsClientLoginRequest = generateDmsClientLoginRequest(request,loginResult, clientInfo);
+					//调用jsf登录记录接口
+					JdResult<DmsClientLoginResponse> loginResponse = dmsClientManager.login(dmsClientLoginRequest);
+					if(loginResponse != null 
+							&& loginResponse.isSucceed()
+							&& loginResponse.getData() != null){
+						loginId = loginResponse.getData().getLoginId();
+					}
 				}
 	        }catch (Exception e){
 	            log.error("用户登录保存日志失败：{}", erpAccount, e);
@@ -251,12 +277,46 @@ public class UserServiceImpl implements UserService{
 
 			// dmscode
 			response.setDmsCode(loginResult.getDmsCod());
-
+			//设置登录Id
+			response.setLoginId(loginId);
 			// 返回结果
 			return response;
 		}
 	}
-
+	/**
+	 * 生成客户端登录请求
+	 * @param loginResult
+	 * @param clientInfo
+	 * @return
+	 */
+	private DmsClientLoginRequest generateDmsClientLoginRequest(LoginRequest loginRequest,PdaStaff loginResult,
+			ClientInfo clientInfo) {
+		DmsClientLoginRequest dmsClientLoginRequest = new DmsClientLoginRequest();
+		dmsClientLoginRequest.setProgramType(clientInfo.getProgramType());
+		dmsClientLoginRequest.setVersionCode(clientInfo.getVersionCode());
+		dmsClientLoginRequest.setSystemCode(Constants.SYS_CODE_DMS);
+		dmsClientLoginRequest.setRunningMode(this.runningMode);
+		String orgCode = null;
+		if(loginResult.getOrganizationId() != null){
+			orgCode = loginResult.getOrganizationId().toString();
+		}
+		dmsClientLoginRequest.setOrgCode(orgCode);
+		dmsClientLoginRequest.setOrgName(loginResult.getOrganizationName());
+		String siteCode = null;
+		if(loginResult.getSiteId() != null){
+			siteCode = loginResult.getSiteId().toString();
+		}
+		dmsClientLoginRequest.setSiteCode(siteCode);
+		dmsClientLoginRequest.setSiteName(loginResult.getSiteName());
+		dmsClientLoginRequest.setUserCode(loginRequest.getErpAccount());
+		dmsClientLoginRequest.setUserName(loginResult.getStaffName());
+		
+		dmsClientLoginRequest.setMacAdress(clientInfo.getMacAdress());
+		dmsClientLoginRequest.setMachineCode(clientInfo.getMachineName());
+		dmsClientLoginRequest.setIpv4(clientInfo.getIpv4());
+		dmsClientLoginRequest.setIpv6(clientInfo.getIpv6());
+		return dmsClientLoginRequest;
+	}
 	/**
 	 * 检查客户端版本信息
 	 * @param clientInfo 上传的客户端信息
@@ -388,13 +448,92 @@ public class UserServiceImpl implements UserService{
 		return loginResult;
 	}
 	/**
+	 * 搜集客户端心跳信息，控制客户端退出、更新版本等
+	 */
+	@Override
+	public JdResult<DmsClientHeartbeatResponse> sendHeartbeat(DmsClientHeartbeatRequest dmsClientHeartbeatRequest){
+		//调用jsf记录心跳信息
+		JdResult<DmsClientHeartbeatResponse> result = dmsClientManager.sendHeartbeat(dmsClientHeartbeatRequest);
+		if(result != null 
+				&& result.isSucceed()
+				&& result.getData() != null){
+			Integer programType = result.getData().getProgramType();
+			String userCode = result.getData().getUserCode();
+			//设置运行环境信息，后续迁移到business
+			if(result.getData().getDmsClientConfigInfo() != null){
+				Integer siteCode = NumberHelper.convertToInteger(result.getData().getSiteCode());
+				Integer orgCode = NumberHelper.convertToInteger(result.getData().getOrgCode());
+				String runningMode = this.getRunningMode(programType, userCode, siteCode, orgCode);
+				if(StringHelper.isNotEmpty(runningMode)){
+					result.getData().getDmsClientConfigInfo().setRunningMode(runningMode);
+				}
+			}
+			//PDA登录，特殊控制处理
+			if(ProgramTypeEnum.isPda(programType)){
+				//校验校验客户端时间和服务器时间差异
+	            if(!checkClientTime(dmsClientHeartbeatRequest.getRequestTime(),result.getData().getServerTime())){
+	            	result.getData().setForceLogout(Boolean.TRUE);
+	            	result.getData().setLogoutType(LogoutTypeEnum.WARN_CLIENT_TIME_INVALID.getTypeCode());
+	            	result.toWarn(JdResponse.CODE_TIMEOUT,JdResponse.MESSAGE_TIMEOUT + "[PDA时间:" + dmsClientHeartbeatRequest.getRequestTime() + ",服务器时间:" + result.getData().getServerTime() + "]");
+	                return result;
+	            }
+				//校验是否重复登录
+				if(LoginStatusEnum.WARN_MULTIPLE_LOGIN.getStatusCode().equals(result.getData().getLoginStatus())
+						&& sysConfigService.getConfigByName(SysConfigService.SYS_CONFIG_PDA_CHECK_MULTIPLE_LOGIN)){
+					result.getData().setForceLogout(Boolean.TRUE);
+					result.getData().setLogoutType(LogoutTypeEnum.WARN_MULTIPLE_LOGIN.getTypeCode());
+					result.toWarn(DmsClientMessages.WARN_NEED_LOGOUT.getMsgCode(),"该账号已在其他设备登录！");
+					return result;
+				}
+				//校验账号是否有效
+				if(!checkUserCode(userCode)){
+					result.getData().setForceLogout(Boolean.TRUE);
+					result.getData().setLogoutType(LogoutTypeEnum.WARN_USER_INVALID.getTypeCode());
+	                result.toWarn(JdResponse.CODE_RESIGNATION,JdResponse.MESSAGE_RESIGNATION);
+	                return result;
+	            }
+            }
+		}
+		return result;
+	}
+    /**
+     * 校验账号是否有效
+     * @param userCode
+     * @return
+     */
+    public boolean checkUserCode(String userCode){
+		if(userCode != null && !userCode.toLowerCase().contains(Constants.PDA_THIRDPL_TYPE)){
+            BaseStaffSiteOrgDto baseDto = baseMajorManager.getBaseStaffIgnoreIsResignByErp(userCode);
+            if(baseDto == null || baseDto.getIsResign() == null || baseDto.getIsResign() != 1){
+                return false;
+            }
+		}
+        return true;
+    }
+    /**
+     * 校验客户端时间和服务器时间，不能相差5分钟
+     * @param clientTime
+     * @param serverTime
+     * @return
+     */
+    public boolean checkClientTime(Date clientTime, Date serverTime){
+        long diff = Math.abs(clientTime.getTime() - serverTime.getTime());
+        String defaultTime = PropertiesHelper.newInstance().getValue(DEFAULTTIME);
+        if(diff/(1000*60) < Integer.valueOf(defaultTime)){
+            return true;
+        }
+        return false;
+    }
+	/**
 	 * 根据配置设置当前登录人的环境
 	 * @param request
 	 * @param loginUserResponse
 	 */
 	private void setRunningMode(LoginRequest request,LoginUserResponse loginUserResponse){
 		Integer programType = null;
-		String runningMode = null;
+		String userCode = null;
+		Integer siteCode = null;
+		Integer orgCode = null;
 		//获取客户端配置信息
 		if(StringUtils.isNotBlank(request.getClientInfo())){
 			ClientInfo clientInfo = JsonHelper.fromJson(request.getClientInfo(), ClientInfo.class);
@@ -402,6 +541,26 @@ public class UserServiceImpl implements UserService{
 				programType = clientInfo.getProgramType();
 			}
 		}
+		if(loginUserResponse != null){
+			userCode = loginUserResponse.getErpAccount();
+			siteCode = loginUserResponse.getSiteCode();
+			orgCode = loginUserResponse.getOrgId();
+		}
+		String runningMode = this.getRunningMode(programType, userCode, siteCode, orgCode);
+		if(StringHelper.isNotEmpty(runningMode)){
+			loginUserResponse.setRunningMode(runningMode);
+		}
+	}
+	/**
+	 * 获取当前环境配置信息（后续改为jsf心跳接口返回）
+	 * @param programType
+	 * @param userCode
+	 * @param siteCode
+	 * @param orgCode
+	 * @return
+	 */
+	private String getRunningMode(Integer programType,String userCode,Integer siteCode,Integer orgCode){
+		String runningMode = null;
 		if(programType != null){
 			//监控
 			CallerInfo callerInfo = ProfilerHelper.registerInfo(String.format(UmpConstants.UMP_KEY_FORMAT_REST_CLIENT_GET_RUNNING_MODE,programType,this.runningMode));
@@ -415,15 +574,15 @@ public class UserServiceImpl implements UserService{
 	    			//2、分别按erp、站点、机构逐级判断是否匹配
 	    			if(clientRunningModeConfig.getConfigItems() != null && !clientRunningModeConfig.getConfigItems().isEmpty()){
 	    				for(ClientRunningModeConfigItem item:clientRunningModeConfig.getConfigItems()){
-	    					if(item.getUserErps() != null && item.getUserErps().contains(loginUserResponse.getErpAccount())){
+	    					if(item.getUserErps() != null && item.getUserErps().contains(userCode)){
 	    						runningMode = item.getRunningMode();
 	    						break;
 	    					}
-	    					if(item.getSiteCodes() != null && item.getSiteCodes().contains(loginUserResponse.getSiteCode())){
+	    					if(item.getSiteCodes() != null && item.getSiteCodes().contains(siteCode)){
 	    						runningMode = item.getRunningMode();
 	    						break;
 	    					}
-	    					if(item.getOrgCodes() != null && item.getOrgCodes().contains(loginUserResponse.getOrgId())){
+	    					if(item.getOrgCodes() != null && item.getOrgCodes().contains(orgCode)){
 	    						runningMode = item.getRunningMode();
 	    						break;
 	    					}
@@ -432,8 +591,6 @@ public class UserServiceImpl implements UserService{
 	    		}
 	    	}
 		}
-		if(StringHelper.isNotEmpty(runningMode)){
-			loginUserResponse.setRunningMode(runningMode);
-		}
-	}	
+		return runningMode;
+	}
 }

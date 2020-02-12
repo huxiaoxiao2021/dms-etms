@@ -81,6 +81,13 @@ public interface NewSealVehicleService {
      */
     public boolean checkSendIsExist(String sendCode);
 
+    /**
+     * 校验批次的体积是否超标
+     * @param sealCarDto
+     * @return
+     * @throws Exception
+     */
+    CommonDto<String> verifySealVehicleVolume(SealCarDto sealCarDto);
 
     /**
      * 校验车牌号能否生成车次任务
