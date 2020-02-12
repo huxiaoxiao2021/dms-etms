@@ -450,9 +450,9 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		reverseStockInDetail.setSendCode(reverseReceive.getSendCode());
 		if(ReverseReceive.REVERSE_TYPE_C2C.equals(reverseReceive.getReceiveType())){
 			reverseStockInDetail.setBusiType(ReverseStockInDetailTypeEnum.C2C_REVERSE_SPWMS.getCode());
-			if(ReverseReceive.RECEIVE.equals(reverseReceive.getReceiveType())){
+			if(ReverseReceive.RECEIVE.equals(reverseReceive.getCanReceive())){
 				reverseStockInDetailService.updateStatus(reverseStockInDetail, ReverseStockInDetailStatusEnum.REVERSE);
-			}else if(ReverseReceive.REJECT.equals(reverseReceive.getReceiveType())){
+			}else if(ReverseReceive.REJECT.equals(reverseReceive.getCanReceive())){
 				reverseStockInDetailService.updateStatus(reverseStockInDetail, ReverseStockInDetailStatusEnum.REJECT);
 			}
 		}
