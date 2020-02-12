@@ -1,11 +1,14 @@
 package com.jd.bluedragon.distribution.consumer.send;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.SmsMessageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.MessageException;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
@@ -24,7 +27,6 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.alibaba.fastjson.JSON;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
@@ -33,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -76,6 +79,9 @@ public class SendDetailConsumer extends MessageBaseConsumer {
     @Qualifier("redisClientCache")
     private Cluster redisClientCache;
 
+    @Autowired
+    private SmsMessageManager smsMessageManager;
+
     /**
      * 缓存redis的key
      */
@@ -85,6 +91,64 @@ public class SendDetailConsumer extends MessageBaseConsumer {
      * 缓存redis的到期时间，5s
      */
     private final static long REDIS_CACHE_EXPIRE_TIME = 5;
+
+    /**
+     * 冷链卡班缓存redis的key
+     * */
+    private final static String REDIS_COLD_CHAIN_STORAGE_SMS = "COLD_CHAIN_STORAGE_SMS-";
+    /**
+     * 冷链卡班缓存redis的过期时间，10h
+     * */
+    private final static long REDIS_COLDCHAIN_STORAGE_SMS_EXPIRE_TIME = 10;
+
+    /**
+     * 冷链卡班-七大区短信账号
+     *  华东:eastChinaAccount
+     *  西南:southWestAccount
+     *  华北:northChinaAccount
+     *  华南:southChinaAccount
+     *  华中:centralChinaAccount
+     *  东北:northEastAccount
+     *  西北:northWestAccount
+     */
+    @Value("${coldChain.eastChinaAccount}")
+    private String eastChinaAccount;
+    @Value("${coldChain.southWestAccount}")
+    private String southWestAccount;
+    @Value("${coldChain.northChinaAccount}")
+    private String northChinaAccount;
+    @Value("${coldChain.southChinaAccount}")
+    private String southChinaAccount;
+    @Value("${coldChain.centralChinaAccount}")
+    private String centralChinaAccount;
+    @Value("${coldChain.northEastAccount}")
+    private String northEastAccount;
+    @Value("${coldChain.northWestAccount}")
+    private String northWestAccount;
+    /**
+     * 冷链卡班-七大区短信模板ID
+     *  华东:eastChinaTemplateId
+     *  西南:southWestTemplateId
+     *  华北:northChinaTemplateId
+     *  华南:southChinaTemplateId
+     *  华中:centralChinaTemplateId
+     *  东北:northEastTemplateId
+     *  西北:northWestTemplateId
+     */
+    @Value("${coldChain.eastChinaTemplateId}")
+    private long eastChinaTemplateId;
+    @Value("${coldChain.southWestTemplateId}")
+    private long southWestTemplateId;
+    @Value("${coldChain.northChinaTemplateId}")
+    private long northChinaTemplateId;
+    @Value("${coldChain.southChinaTemplateId}")
+    private long southChinaTemplateId;
+    @Value("${coldChain.centralChinaTemplateId}")
+    private long centralChinaTemplateId;
+    @Value("${coldChain.northEastTemplateId}")
+    private long northEastTemplateId;
+    @Value("${coldChain.northWestTemplateId}")
+    private long northWestTemplateId;
 
     /**
      * 分隔符号
@@ -195,6 +259,8 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                 this.sendColdChainSendMQ(sendDetail, waybillCode);
                 // 龙门架、分拣机发货更新发货异常状态
                 this.updateGantryExceptionStatus(sendDetail);
+                // 冷链暂存收费发短信
+                this.coldChainStorageSMS(sendDetail,waybill);
             } else {
                 log.warn("[dmsWorkSendDetail消费]根据运单号获取运单信息为空，packageBarCode:{},boxCode:{}" ,packageBarCode, sendDetail.getBoxCode());
             }
@@ -354,4 +420,90 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         }
     }
 
+    /**
+     * 冷链暂存收费发短信
+     *  1、冷链卡班纯配、月结自提或冷链卡班仓配、月结自提
+     *  2、目的分拣中心操作发货
+     * @param sendDetail
+     * @param waybill
+     */
+    private void coldChainStorageSMS(SendDetailMessage sendDetail,Waybill waybill) {
+
+        try {
+            String waybillSign = waybill.getWaybillSign();
+            if(!(BusinessUtil.isMonthSelf(waybillSign)
+                    && (BusinessUtil.isColdKBPureMatch(waybillSign) || BusinessUtil.isColdKBWmsSend(waybillSign)))){
+                //非冷链卡班
+                return;
+            }
+            BaseStaffSiteOrgDto oldSiteDto = baseMajorManager.getBaseSiteBySiteId(waybill.getOldSiteId());
+            if(oldSiteDto != null && oldSiteDto.getDmsId() != null){
+                Integer operateSiteCode = sendDetail.getCreateSiteCode();
+                if(!operateSiteCode.equals(oldSiteDto.getDmsId())){
+                    //不是目的分拣中心
+                    return;
+                }
+                String waybillCode = WaybillUtil.getWaybillCode(sendDetail.getPackageBarcode());
+                String sendCode = sendDetail.getSendCode();
+                if(StringUtils.isBlank(waybillCode) || StringUtils.isBlank(sendCode)){
+                    return;
+                }
+                String redisKey = REDIS_COLD_CHAIN_STORAGE_SMS + waybillCode + SEPARATOR + sendCode;
+                if(StringUtils.isNotBlank(redisClientCache.get(redisKey))){
+                    //默认设置10小时的去重
+                    return;
+                }
+                redisClientCache.set(redisKey, redisKey, REDIS_COLDCHAIN_STORAGE_SMS_EXPIRE_TIME, TimeUnit.HOURS, false);
+
+                Integer orgId = oldSiteDto.getOrgId();
+                Long templateId = null;//TODO 待定
+                String senderNum = null;//TODO 待定
+                switch (orgId){
+                    case Constants.EAST_CHINA_ORG_ID:
+                        templateId = eastChinaTemplateId;
+                        senderNum = eastChinaAccount;
+                        break;
+                    case Constants.SOUTH_WEST_ORG_ID:
+                        templateId = southWestTemplateId;
+                        senderNum = southWestAccount;
+                        break;
+                    case Constants.NORTH_CHINA_ORG_ID:
+                        templateId = northChinaTemplateId;
+                        senderNum = northChinaAccount;
+                        break;
+                    case Constants.SOUTH_CHINA_ORG_ID:
+                        templateId = southChinaTemplateId;
+                        senderNum = southChinaAccount;
+                        break;
+                    case Constants.CENTRAL_CHINA_ORG_ID:
+                        templateId = centralChinaTemplateId;
+                        senderNum = centralChinaAccount;
+                        break;
+                    case Constants.NORTH_EAST_ORG_ID:
+                        templateId = northEastTemplateId;
+                        senderNum = northEastAccount;
+                        break;
+                    case Constants.NORTH_WEST_ORG_ID:
+                        templateId = northWestTemplateId;
+                        senderNum = northWestAccount;
+                        break;
+                    default:
+                        log.info("目的分拣中心不属于7大区,目的分拣中心：{}所属区域：{}",operateSiteCode,orgId);
+                        return;
+                }
+                String[] templateParam = new String[]{waybillCode,oldSiteDto.getDmsName(),oldSiteDto.getSitePhone()};
+                String mobileNum = waybill.getReceiverMobile();
+                String token = "";//TODO 待定
+                String extension = Constants.DMS_COLD_CHAIN_SEND;//TODO 待定
+                InvokeResult result = smsMessageManager.sendSmsTemplateMessage(senderNum,templateId,
+                        templateParam,mobileNum,token,extension);
+                if(result.getCode() != InvokeResult.RESULT_SUCCESS_CODE){
+                    log.error("冷链暂存收费发短信失败,失败原因：{}",result.getMessage());
+                }
+            }
+        }catch (Exception e){
+            log.error("冷链暂存收费发短信异常!",e);
+        }
+
+    }
 }
