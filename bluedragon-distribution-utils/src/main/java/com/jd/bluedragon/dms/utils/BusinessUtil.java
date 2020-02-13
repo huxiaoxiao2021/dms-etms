@@ -780,6 +780,60 @@ public class BusinessUtil {
     }
 
     /**
+     * 判断是否是纯配冷链卡班
+     * waybill_sign54位=2（生鲜）、waybill_sign80位=7（卡班）、40位=2（纯配快运零担）
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isColdChainCPKB(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_80,WaybillSignConstants.CHAR_80_7)
+                && isSignChar(waybillSign,WaybillSignConstants.POSITION_54,WaybillSignConstants.CHAR_54_2)
+                && isSignChar(waybillSign,WaybillSignConstants.POSITION_40,WaybillSignConstants.CHAR_40_2);
+    }
+
+    /**
+     * 判断是否是纯配医药零担
+     * waybill_sign54位=4（医药）、waybill_sign80位=7（卡班）、40位=2（纯配快运零担）
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isMedicineCP(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_80,WaybillSignConstants.CHAR_80_7)
+                && isSignChar(waybillSign,WaybillSignConstants.POSITION_54,WaybillSignConstants.CHAR_54_4)
+                && isSignChar(waybillSign,WaybillSignConstants.POSITION_40,WaybillSignConstants.CHAR_40_2);
+    }
+
+    /**
+     * 判断是否是生鲜纯配城配共配
+     * waybill_sign54位=2（生鲜）、waybill_sign80位=6（城配）、40位=2（纯配快运零担）、118位=1（共配）
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isFreshCPGP(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_80,WaybillSignConstants.CHAR_80_6)
+                && isSignChar(waybillSign,WaybillSignConstants.POSITION_54,WaybillSignConstants.CHAR_54_2)
+                && isSignChar(waybillSign,WaybillSignConstants.POSITION_40,WaybillSignConstants.CHAR_40_2)
+                && isSignChar(waybillSign,WaybillSignConstants.POSITION_118,WaybillSignConstants.CHAR_118_1);
+    }
+
+    /**
+     * 不需要隐藏收件人信息
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isNoNeedHideCustomer(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_37,WaybillSignConstants.CHAR_37_0);
+    }
+    /**
+     * 不需要隐藏寄件人信息
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isNoNeedHideConsigner(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_47,WaybillSignConstants.CHAR_47_0);
+    }
+
+    /**
      * 判断是否是京仓运单
      * @param waybillSign
      * @return
