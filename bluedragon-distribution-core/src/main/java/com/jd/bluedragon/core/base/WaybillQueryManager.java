@@ -257,4 +257,11 @@ public interface WaybillQueryManager{
      * */
     List<DeliveryPackageD> findWaybillPackList(String waybillCode);
 
+	/*
+	 *
+	 * 根据运单号获取商家ID
+	 *
+	 * */
+	Integer getBusiId(String waybillCode);
+
 }

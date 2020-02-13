@@ -61,4 +61,17 @@ public class AbnormalWayBillDao extends BaseDao<AbnormalWayBill> {
         param.put("waybillCodes", waybillCodeList);
         return super.getSqlSession().selectList(namespace + ".queryByWaveIdAndWaybillCodes", param);
     }
+
+    /**
+     * 查询异常操作记录
+     * @param qcValue
+     * @param createSiteCode
+     * @return
+     */
+    public AbnormalWayBill getAbnormalWayBillByQcValue(Integer createSiteCode, String qcValue){
+        Map<String, Object> parameter = new HashMap<>();
+        parameter.put("qcValue", qcValue);
+        parameter.put("createSiteCode", createSiteCode);
+        return super.getSqlSession().selectOne(namespace + ".getAbnormalWayBillByQcValue" , parameter);
+    }
 }

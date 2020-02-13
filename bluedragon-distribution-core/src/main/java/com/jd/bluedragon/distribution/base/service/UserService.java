@@ -4,6 +4,8 @@ import com.jd.bluedragon.distribution.api.request.LoginRequest;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.distribution.api.response.LoginUserResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.sdk.modules.client.dto.DmsClientHeartbeatRequest;
+import com.jd.bluedragon.sdk.modules.client.dto.DmsClientHeartbeatResponse;
 
 /**
  * 
@@ -40,4 +42,10 @@ public interface UserService {
 	 * @return
 	 */
 	LoginUserResponse clientLoginIn(LoginRequest request);
+	/**
+	 * 发送心跳信息
+	 * @param dmsClientHeartbeatRequest
+	 * @return
+	 */
+	JdResult<DmsClientHeartbeatResponse> sendHeartbeat(DmsClientHeartbeatRequest dmsClientHeartbeatRequest);
 }

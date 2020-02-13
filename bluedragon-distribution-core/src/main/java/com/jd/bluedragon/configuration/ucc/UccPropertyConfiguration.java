@@ -59,6 +59,11 @@ public class UccPropertyConfiguration {
     /** 分拣查询的模式配置，支持DMS、MIDDLEEND、FAILOVER三个值 **/
     private String sortingQueryMode;
 
+    /**
+     * 现场预分拣 超区运单拦截开关;true 开启拦截
+     */
+    private boolean preOutZoneSwitch;
+
     public String getAsynbufferEnabledTaskType() {
         return asynbufferEnabledTaskType;
     }
@@ -177,5 +182,13 @@ public class UccPropertyConfiguration {
 
     public void setChuguanNewPageQuerySwitch(boolean chuguanNewPageQuerySwitch) {
         this.chuguanNewPageQuerySwitch = chuguanNewPageQuerySwitch;
+    }
+
+    public boolean isPreOutZoneSwitch() {
+        return preOutZoneSwitch;
+    }
+
+    public void setPreOutZoneSwitch(boolean preOutZoneSwitch) {
+        this.preOutZoneSwitch = preOutZoneSwitch;
     }
 }

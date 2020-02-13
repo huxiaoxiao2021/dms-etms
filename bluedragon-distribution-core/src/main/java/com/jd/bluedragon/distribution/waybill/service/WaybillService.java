@@ -70,6 +70,21 @@ public interface WaybillService {
      * @return
      */
     boolean isMovingWareHouseInnerWaybill(String waybillCode);
+
+    /**
+     * 获取运单信息 并校验超区逻辑
+     * @param packageCode
+     * @return
+     */
+    DmsWaybillInfoResponse getDmsWaybillInfoAndCheck(String packageCode);
+
+    /**
+     * 本意是判断：是否是疫情超区 或者 春节禁售。此逻辑在预分拣侧控制。分拣只根据预分拣网点是-136做拦截限制
+     * @param waybill
+     * @return true 是，false 不是
+     */
+    boolean isOutZoneControl(Waybill waybill);
+
     /**
      * 获取运单信息
      * @param packageCode

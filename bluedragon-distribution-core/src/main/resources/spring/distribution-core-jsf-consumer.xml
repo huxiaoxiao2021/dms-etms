@@ -540,6 +540,13 @@
                   alias="${jsf.erpCommonCollectApi.alias}" timeout="${jsf.erpCommonCollectApi.timeout}"  retries="${jsf.retries}">
 
     </jsf:consumer>
+    <!-- 客户端管理-jsf -->
+    <jsf:consumer id="dmsClientJsfService" interface="com.jd.bluedragon.sdk.modules.client.DmsClientJsfService" protocol="jsf"
+                  alias="${jsf.business.dmsClientJsfService.alias}" timeout="${jsf.business.dmsClientJsfService.timeout}"  retries="${jsf.retries}">
+    </jsf:consumer>	
+    <jsf:consumer id="iAbnPdaAPI" interface="com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.service.IAbnPdaAPI" alias="${qcAbnPdaAPI.alias}" timeout="${qcAbnPdaAPI.timeout}" retries="1">
+        <jsf:parameter key="token" value="${qcAbnPdaAPI.token}" hide="true" />
+    </jsf:consumer>
 
     <jsf:consumer id="sortingExceptionJsfService" interface="com.jd.bd.dms.automatic.sdk.modules.sorting.SortingExceptionJsfService"
                   protocol="jsf" alias="${jsf.automatic.alias}" timeout="${jsf.automatic.timeout}">

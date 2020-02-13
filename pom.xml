@@ -45,7 +45,6 @@
 		<sonar.core.codeCoveragePlugin>jacoco</sonar.core.codeCoveragePlugin>
 		<!--将所有jacoco定位到同样的父目录位置-->
 		<sonar.jacoco.reportPaths>${project.basedir}/../coverage-report/jacoco.exec</sonar.jacoco.reportPaths>
-
 	</properties>
 	
 	<dependencyManagement>
@@ -148,6 +147,20 @@
 				<groupId>commons-codec</groupId>
 				<artifactId>commons-codec</artifactId>
 				<version>1.6</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-all</artifactId>
+				<version>1.9.5</version>
+				<scope>test</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>com.h2database</groupId>
+				<artifactId>h2</artifactId>
+				<version>1.4.200</version>
+				<scope>test</scope>
 			</dependency>
 
 		</dependencies>

@@ -1,8 +1,5 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
@@ -12,6 +9,9 @@ import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -51,6 +51,11 @@ public class WaybillPrintContext implements Context{
 	 * 商家id
 	 * */
 	private String busiCode;
+
+	/**
+	 * 商家标识位
+	 * */
+	private String traderSign;
 
 	public String getBusiCode() {
 		return busiCode;
@@ -189,5 +194,13 @@ public class WaybillPrintContext implements Context{
 	 */
 	public void setLabelPrintingResponse(LabelPrintingResponse labelPrintingResponse) {
 		this.labelPrintingResponse = labelPrintingResponse;
+	}
+
+	public String getTraderSign() {
+		return traderSign;
+	}
+
+	public void setTraderSign(String traderSign) {
+		this.traderSign = traderSign;
 	}
 }

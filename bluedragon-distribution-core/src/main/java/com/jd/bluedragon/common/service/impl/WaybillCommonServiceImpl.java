@@ -852,6 +852,18 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             target.setBusiCode("");
             target.setBusiOrderCode("");
         }
+
+        /*
+        识别waybillsign116位=2，面单“时效”字段处展示“同城”；
+	    识别waybillsign116位=3，面单“时效”字段处展示“次晨”； 回改 20200203
+        */
+        if(BusinessUtil.isSameCity(waybill.getWaybillSign())){
+            target.appendSpecialMark(ComposeService.SPECIAL_MARK_SAME_CITY);
+        }
+        if(BusinessUtil.isNextMorning(waybill.getWaybillSign())){
+            target.appendSpecialMark(ComposeService.SPECIAL_MARK_NEXT_DAY);
+        }
+
         /**
          * 1.waybill_sign第80位等于1时，面单打印“特惠运”
          * 2.waybill_sign第80位等于2时，面单打标“特准运”
@@ -885,21 +897,13 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             target.setTransportMode(ComposeService.PREPARE_SITE_NAME_FRESH_SEND);
         }
         //根据始发道口号类型，判断打‘航’还是‘航填’
+        //此处始发道口类型是根据waybillSign 或 sendPay判断的，道口类型也会影响获取基础资料大全表信息，请谨慎使用
         if(Constants.ORIGINAL_CROSS_TYPE_AIR.equals(target.getOriginalCrossType())){
         	target.appendSpecialMark(ComposeService.SPECIAL_MARK_AIRTRANSPORT);
         }else if(Constants.ORIGINAL_CROSS_TYPE_FILL.equals(target.getOriginalCrossType())){
         	target.appendSpecialMark(ComposeService.SPECIAL_MARK_AIRTRANSPORT_FILL);
-        }else{
-            //兼容老逻辑：waybillsign 第31为1 打“航”逻辑
-            if(BusinessUtil.isSignY(waybill.getWaybillSign(), 31)){
-            	target.appendSpecialMark(ComposeService.SPECIAL_MARK_AIRTRANSPORT);
-            }
         }
-        //生鲜惠达-当waybillsign第31位=9，并且waybillsign第84位=3，则打印“航”字标
-        if(BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_9)
-        		&& BusinessUtil.isSignChar(waybill.getWaybillSign(), WaybillSignConstants.POSITION_84, WaybillSignConstants.CHAR_84_3)){
-        	target.appendSpecialMark(ComposeService.SPECIAL_MARK_AIRTRANSPORT);
-        }
+
         //waybill_sign标识位，第十六位为1且第三十一位为2且第五十五位为0，打同字标
         if(!BusinessUtil.isB2b(waybill.getWaybillSign()) &&
                 BusinessUtil.isSignChar(waybill.getWaybillSign(),16,'1') &&
