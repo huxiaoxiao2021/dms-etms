@@ -6,16 +6,23 @@ import java.util.Date;
 public class CurrentOperate implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    /*
-    操作单位编号
+    /**
+     *操作单位编号
      */
     private int siteCode;
-    /*
-    操作单位名称
+
+    /**
+     *分拣中心编码
+     */
+    private String dmsCode;
+
+    /**
+     *操作单位名称
      */
     private String siteName;
-    /*
-    操作时间
+
+    /**
+     *操作时间
      */
     private Date operateTime;
 
@@ -44,6 +51,14 @@ public class CurrentOperate implements Serializable {
 
     public void setSiteCode(int siteCode) {
         this.siteCode = siteCode;
+    }
+
+    public String getDmsCode() {
+        return dmsCode;
+    }
+
+    public void setDmsCode(String dmsCode) {
+        this.dmsCode = dmsCode;
     }
 
     public String getSiteName() {
