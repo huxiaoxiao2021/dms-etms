@@ -5,6 +5,8 @@ import com.jd.bluedragon.common.dto.send.request.WholeBatchRetransRequest;
 import com.jd.bluedragon.common.dto.send.response.SendCodeSiteDto;
 
 /**
+ * 批次号相关
+ * 发布到物流网关 由安卓调用
  * @author : xumigen
  * @date : 2019/7/11
  */

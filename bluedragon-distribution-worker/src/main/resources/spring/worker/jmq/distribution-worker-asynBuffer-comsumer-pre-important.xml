@@ -81,6 +81,15 @@
                     </bean>
                 </entry>
 
+                <!-- 分拣操作称重量方回传（整合 -->
+                <entry key="${jmq.task.topic.weight.volume.pre}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="asynBufferService"/>
+                        <constructor-arg name="methodName" value="weightTaskProcess"/>
+                    </bean>
+                </entry>
+
                 <!-- 龙门架自动发货 -->
                 <entry key = "${jmq.task.topic.scannerFrame.pre}">
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"

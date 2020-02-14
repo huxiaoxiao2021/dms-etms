@@ -273,6 +273,11 @@
         <property name="topic" value="${jmq.topic.dms.waybill.weight}"/>
     </bean>
 
+    <!--运单称重mq 整单量方称重信息 发送给运单系统 added by luyue-->
+    <bean id="dmsWeighByWaybillProducer" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dms.waybill.weight.ope.flow}"/>
+    </bean>
+
     <!--PDA操作取消发货MQ-->
     <bean id="deliveryCancelSendMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="topic" value="${jmq.topic.bd.dms.delivery.cancel.send}"/>
@@ -408,5 +413,11 @@
     <!-- 线上签 - 异步+重试处理推送线上签数据 -->
     <bean id="printOnlineProducer" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.print.online}"/>
+    </bean>
+
+    <!-- 上传称重量方数据 -->
+    <bean id="dmsWeightVolumeUpload" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.weightVolume.upload}"/>
+        <property name="timeout" value="1000"/>
     </bean>
 </beans>

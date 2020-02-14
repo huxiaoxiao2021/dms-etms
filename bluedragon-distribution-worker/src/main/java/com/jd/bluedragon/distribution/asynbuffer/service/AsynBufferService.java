@@ -44,15 +44,19 @@ public interface AsynBufferService {
         boolean executeSortingSuccess(Task task);
 
         //统一处理task_send入口，根据keyword1对应具体的方法
-        public boolean taskSendProcess(Task task)throws Exception;
+        boolean taskSendProcess(Task task)throws Exception;
 
-        //称重信息回传运单中心
-        public boolean weightTaskProcess(Task task) throws Exception;
+        //称重信息回传运单中心（将废弃
+        @Deprecated
+        boolean weightTaskProcess(Task task) throws Exception;
+
+        //称重信息回传运单中心(整合
+        boolean weightVolumeTaskProcess(Task task) throws Exception;
 
         //龙门架自动发货任务
-        public boolean scannerFrameDispatchProcess(Task task) throws Exception;
+        boolean scannerFrameDispatchProcess(Task task) throws Exception;
 
         //平台打印补验货数据
-        public boolean popPrintInspection(Task task) throws Exception;
+        boolean popPrintInspection(Task task) throws Exception;
 
 }

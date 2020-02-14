@@ -232,4 +232,10 @@ public interface WaybillSignConstants {
 	char CHAR_31_2 = '2';
 	int POSITION_16 = 16;
 	char CHAR_16_1 = '1';
+
+	/**
+	 * 经济网 62位为8
+	 */
+	int BUSINESS_ENET_POSITION_62 = 62;
+	char BUSINESS_ENET_CHAR_62_8 = '8';
 }

@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.recyclematerial.request.RecycleMaterialReque
 
 /**
  * 循环物资实操装态更新 发布物流网关
+ * 发布到物流网关 由安卓调用
  * @author : xumigen
  * @date : 2019/6/14
  */
