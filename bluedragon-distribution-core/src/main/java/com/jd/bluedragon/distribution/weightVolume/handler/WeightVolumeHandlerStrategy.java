@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.weightVolume.handler;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
+import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
+import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -43,6 +45,10 @@ public class WeightVolumeHandlerStrategy {
     private IWeightVolumeHandler handoverWeightVolumeHandler;
 
     @Autowired
+    @Qualifier("splitWaybillWeightVolumeHandler")
+    private IWeightVolumeHandler splitWaybillWeightVolumeHandler;
+
+    @Autowired
     private WaybillService waybillService;
 
     public InvokeResult<Boolean> doHandler(WeightVolumeEntity entity) throws RuntimeException {
@@ -62,17 +68,22 @@ public class WeightVolumeHandlerStrategy {
             }
         }
 
-        /* 2. 按包裹称重 */
+        /* 2. 按箱称重的内部拆分处理逻辑 */
+        if (FromSourceEnum.DMS_INNER_SPLIT.equals(entity.getSourceCode())) {
+            return splitWaybillWeightVolumeHandler.handlerOperateWeightVolume(entity);
+        }
+
+        /* 3. 按包裹称重 */
         if (WaybillUtil.isPackageCode(entity.getBarCode())) {
             return packageWeightVolumeHandler.handlerOperateWeightVolume(entity);
         }
 
-        /* 3. 按运单称重（B网） */
+        /* 4. 按运单称重（B网） */
         if (WaybillUtil.isWaybillCode(entity.getBarCode())) {
             return waybillWeightVolumeHandler.handlerOperateWeightVolume(entity);
         }
 
-        /* 4. 按箱称重业务 */
+        /* 5. 按箱称重业务 */
         if (BusinessUtil.isBoxcode(entity.getBarCode())) {
             return boxWeightVolumeHandler.handlerOperateWeightVolume(entity);
         }

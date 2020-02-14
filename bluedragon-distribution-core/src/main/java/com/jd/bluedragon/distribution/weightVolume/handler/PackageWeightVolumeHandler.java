@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.jmq.common.exception.JMQException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -42,7 +43,7 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
         /* 处理称重对象 */
         entity.setWaybillCode(WaybillUtil.getWaybillCode(entity.getBarCode()));
         entity.setPackageCode(entity.getBarCode());
-        if (entity.getLength() != null && entity.getHeight() != null && entity.getVolume() != null) {
+        if (entity.getLength() != null && entity.getHeight() != null && entity.getVolume() != null && !NumberHelper.gt0(entity.getVolume())) {
             entity.setVolume(entity.getHeight() * entity.getLength() * entity.getWidth());
         }
 

@@ -2,27 +2,20 @@ package com.jd.bluedragon.distribution.weightVolume.handler;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
-import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightDTO;
-import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
-import com.jd.bluedragon.distribution.kuaiyun.weight.enums.WeightByWaybillExceptionTypeEnum;
-import com.jd.bluedragon.distribution.kuaiyun.weight.service.WeighByWaybillService;
 import com.jd.bluedragon.distribution.weight.domain.DmsWeightFlow;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.jmq.common.exception.JMQException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
-import java.text.MessageFormat;
 
 /**
  * <p>
@@ -45,11 +38,6 @@ public class WaybillWeightVolumeHandler extends AbstractWeightVolumeHandler {
     @Autowired
     private DmsWeightFlowService dmsWeightFlowService;
 
-    /**
-     * M³和CM³转换值
-     * */
-    private static final int TRANSFOR_VALUE = 1000000;
-
     @Override
     protected void handlerWeighVolume(WeightVolumeEntity entity) {
         /* 处理称重对象 */
@@ -62,7 +50,9 @@ public class WaybillWeightVolumeHandler extends AbstractWeightVolumeHandler {
         weightDTO.setOperatorId(entity.getOperatorId());
         weightDTO.setOperatorName(entity.getOperatorName());
         weightDTO.setWeight(entity.getWeight());
-        if (entity.getLength() != null && entity.getWidth() != null && entity.getHeight() != null) {
+        if (NumberHelper.gt0(entity.getVolume())) {
+            weightDTO.setVolume(entity.getVolume());
+        } else if (entity.getLength() != null && entity.getWidth() != null && entity.getHeight() != null) {
             weightDTO.setVolume(entity.getHeight() * entity.getWidth() * entity.getLength());
         }
         weightDTO.setOperateTimeMillis(entity.getOperateTime().getTime());

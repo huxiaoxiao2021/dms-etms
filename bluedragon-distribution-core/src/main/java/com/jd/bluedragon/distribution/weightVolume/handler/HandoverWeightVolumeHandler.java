@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.alliance.service.AllianceBusiDeliveryDetai
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.NumberHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -42,7 +43,7 @@ public class HandoverWeightVolumeHandler extends AbstractWeightVolumeHandler {
             entity.setWaybillCode(WaybillUtil.getWaybillCode(entity.getBarCode()));
             entity.setPackageCode(entity.getBarCode());
         }
-        if (entity.getLength() != null && entity.getWidth() != null && entity.getHeight() != null) {
+        if (entity.getLength() != null && entity.getWidth() != null && entity.getHeight() != null && !NumberHelper.gt0(entity.getVolume())) {
             entity.setVolume(entity.getHeight() * entity.getLength() * entity.getWidth());
         }
 
