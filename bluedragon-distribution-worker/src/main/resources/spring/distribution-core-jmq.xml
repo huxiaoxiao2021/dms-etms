@@ -414,10 +414,4 @@
     <bean id="printOnlineProducer" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.print.online}"/>
     </bean>
-
-    <!-- 上传称重量方数据 -->
-    <bean id="dmsWeightVolumeUpload" parent="dmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.weightVolume.upload}"/>
-        <property name="timeout" value="1000"/>
-    </bean>
 </beans>
