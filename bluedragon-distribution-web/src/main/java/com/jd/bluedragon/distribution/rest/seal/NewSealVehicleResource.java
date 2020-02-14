@@ -538,7 +538,7 @@ public class NewSealVehicleResource {
             sealCarDto.setSealCode(request.getSealCode());
             sealCarDto.setTransportCode(request.getTransportCode());
             sealCarDto.setBatchCode(request.getBatchCode());
-            //查询7天内的带解任务
+            //查询15天内的待解任务
             Calendar c = Calendar.getInstance();
             c.add(Calendar.DATE, rollBackDay);
             sealCarDto.setSealCarTimeBegin(c.getTime());
