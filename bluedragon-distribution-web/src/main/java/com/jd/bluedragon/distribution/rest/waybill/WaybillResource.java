@@ -14,7 +14,6 @@ import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.LDOPManager;
 import com.jd.bluedragon.core.base.LdopWaybillUpdateManager;
 import com.jd.bluedragon.core.base.OBCSManager;
-import com.jd.bluedragon.core.base.SmsMessageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -80,8 +79,6 @@ import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseResponseDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseResult;
-import com.jd.mobilePhoneMsg.sender.client.request.SmsTemplateMessage;
-import com.jd.mobilePhoneMsg.sender.client.response.SmsTemplateResponse;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import com.jd.ump.annotation.JProEnum;
@@ -2406,31 +2403,4 @@ public class WaybillResource {
         }
         return waybillService.thirdCheckWaybillCancel(pdaOperateRequest);
     }
-
-
-	@Autowired
-	private SmsMessageManager smsMessageManager;
-
-	@GET
-	@Path("/waybill/sendSMS")
-	public void sendSMS() {
-		try {
-			SmsTemplateMessage smsTemplateMessage = new SmsTemplateMessage();
-			smsTemplateMessage.setSenderNum("Notification");
-			smsTemplateMessage.setTemplateId(451L);
-			smsTemplateMessage.setTemplateParam(new String[]{"1","2"});
-			smsTemplateMessage.setMobileNum("15856509130");
-			smsTemplateMessage.setToken("12345678");
-			smsTemplateMessage.setExtension("dms_sendSMS");
-			SmsTemplateResponse response = smsMessageManager.sendSmsTemplateMessage(smsTemplateMessage);
-			if(response != null
-					&& response.getResultMsg() !=null && ("0").equals(response.getResultMsg().getErrorCode())
-					&& response.getBaseResultMsg() != null && ("999").equals(response.getBaseResultMsg().getErrorCode()) ){
-				this.log.info("短信发送成功!");
-			}
-		}catch (Exception e){
-			this.log.error("发送短信失败!");
-			e.printStackTrace();
-		}
-	}
 }

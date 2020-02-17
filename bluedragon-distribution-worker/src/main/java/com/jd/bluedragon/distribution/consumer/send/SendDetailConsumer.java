@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.consumer.send;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.SMSConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.SmsMessageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -35,7 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -100,55 +100,6 @@ public class SendDetailConsumer extends MessageBaseConsumer {
      * 冷链卡班缓存redis的过期时间，10h
      * */
     private final static long REDIS_COLDCHAIN_STORAGE_SMS_EXPIRE_TIME = 10;
-
-    /**
-     * 冷链卡班-七大区短信账号
-     *  华东:eastChinaAccount
-     *  西南:southWestAccount
-     *  华北:northChinaAccount
-     *  华南:southChinaAccount
-     *  华中:centralChinaAccount
-     *  东北:northEastAccount
-     *  西北:northWestAccount
-     */
-    @Value("${coldChain.eastChinaAccount}")
-    private String eastChinaAccount;
-    @Value("${coldChain.southWestAccount}")
-    private String southWestAccount;
-    @Value("${coldChain.northChinaAccount}")
-    private String northChinaAccount;
-    @Value("${coldChain.southChinaAccount}")
-    private String southChinaAccount;
-    @Value("${coldChain.centralChinaAccount}")
-    private String centralChinaAccount;
-    @Value("${coldChain.northEastAccount}")
-    private String northEastAccount;
-    @Value("${coldChain.northWestAccount}")
-    private String northWestAccount;
-    /**
-     * 冷链卡班-七大区短信模板ID
-     *  华东:eastChinaTemplateId
-     *  西南:southWestTemplateId
-     *  华北:northChinaTemplateId
-     *  华南:southChinaTemplateId
-     *  华中:centralChinaTemplateId
-     *  东北:northEastTemplateId
-     *  西北:northWestTemplateId
-     */
-    @Value("${coldChain.eastChinaTemplateId}")
-    private long eastChinaTemplateId;
-    @Value("${coldChain.southWestTemplateId}")
-    private long southWestTemplateId;
-    @Value("${coldChain.northChinaTemplateId}")
-    private long northChinaTemplateId;
-    @Value("${coldChain.southChinaTemplateId}")
-    private long southChinaTemplateId;
-    @Value("${coldChain.centralChinaTemplateId}")
-    private long centralChinaTemplateId;
-    @Value("${coldChain.northEastTemplateId}")
-    private long northEastTemplateId;
-    @Value("${coldChain.northWestTemplateId}")
-    private long northWestTemplateId;
 
     /**
      * 分隔符号
@@ -456,44 +407,51 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                 redisClientCache.set(redisKey, redisKey, REDIS_COLDCHAIN_STORAGE_SMS_EXPIRE_TIME, TimeUnit.HOURS, false);
 
                 Integer orgId = oldSiteDto.getOrgId();
-                Long templateId = null;//TODO 待定
-                String senderNum = null;//TODO 待定
+                String senderNum = null;
+                Long templateId = null;
+                String token = null;
                 switch (orgId){
                     case Constants.EAST_CHINA_ORG_ID:
-                        templateId = eastChinaTemplateId;
-                        senderNum = eastChinaAccount;
+                        senderNum = SMSConstants.COLDCHAIN_EASTCHINA_ACCOUNT;
+                        templateId = SMSConstants.COLDCHAIN_EASTCHINA_TEMPLATEID;
+                        token = SMSConstants.COLDCHAIN_EASTCHINA_TOKEN;
                         break;
                     case Constants.SOUTH_WEST_ORG_ID:
-                        templateId = southWestTemplateId;
-                        senderNum = southWestAccount;
+                        senderNum = SMSConstants.COLDCHAIN_SOUTHWEST_ACCOUNT;
+                        templateId = SMSConstants.COLDCHAIN_SOUTHWEST_TEMPLATEID;
+                        token = SMSConstants.COLDCHAIN_SOUTHWEST_TOKEN;
                         break;
                     case Constants.NORTH_CHINA_ORG_ID:
-                        templateId = northChinaTemplateId;
-                        senderNum = northChinaAccount;
+                        senderNum = SMSConstants.COLDCHAIN_NORTHCHINA_ACCOUNT;
+                        templateId = SMSConstants.COLDCHAIN_NORTHCHINA_TEMPLATEID;
+                        token = SMSConstants.COLDCHAIN_NORTHCHINA_TOKEN;
                         break;
                     case Constants.SOUTH_CHINA_ORG_ID:
-                        templateId = southChinaTemplateId;
-                        senderNum = southChinaAccount;
+                        senderNum = SMSConstants.COLDCHAIN_SOUTHCHINA_ACCOUNT;
+                        templateId = SMSConstants.COLDCHAIN_SOUTHCHINA_TEMPLATEID;
+                        token = SMSConstants.COLDCHAIN_SOUTHCHINA_TOKEN;
                         break;
                     case Constants.CENTRAL_CHINA_ORG_ID:
-                        templateId = centralChinaTemplateId;
-                        senderNum = centralChinaAccount;
+                        senderNum = SMSConstants.COLDCHAIN_CENTRALCHINA_ACCOUNT;
+                        templateId = SMSConstants.COLDCHAIN_CENTRALCHINA_TEMPLATEID;
+                        token = SMSConstants.COLDCHAIN_CENTRALCHINA_TOKEN;
                         break;
                     case Constants.NORTH_EAST_ORG_ID:
-                        templateId = northEastTemplateId;
-                        senderNum = northEastAccount;
+                        senderNum = SMSConstants.COLDCHAIN_NORTHEASTA_ACCOUNT;
+                        templateId = SMSConstants.COLDCHAIN_NORTHEASTA_TEMPLATEID;
+                        token = SMSConstants.COLDCHAIN_NORTHEASTA_TOKEN;
                         break;
                     case Constants.NORTH_WEST_ORG_ID:
-                        templateId = northWestTemplateId;
-                        senderNum = northWestAccount;
+                        senderNum = SMSConstants.COLDCHAIN_NORTHWEST_ACCOUNT;
+                        templateId = SMSConstants.COLDCHAIN_NORTHWEST_TEMPLATEID;
+                        token = SMSConstants.COLDCHAIN_NORTHWEST_TOKEN;
                         break;
                     default:
                         log.info("目的分拣中心不属于7大区,目的分拣中心：{}所属区域：{}",operateSiteCode,orgId);
                         return;
                 }
-                String[] templateParam = new String[]{waybillCode,oldSiteDto.getDmsName(),oldSiteDto.getSitePhone()};
+                String[] templateParam = new String[]{waybillCode,oldSiteDto.getDmsName(),oldSiteDto.getSitePhone(),oldSiteDto.getAddress()};
                 String mobileNum = waybill.getReceiverMobile();
-                String token = "";//TODO 待定
                 String extension = Constants.DMS_COLD_CHAIN_SEND;//TODO 待定
                 InvokeResult result = smsMessageManager.sendSmsTemplateMessage(senderNum,templateId,
                         templateParam,mobileNum,token,extension);
