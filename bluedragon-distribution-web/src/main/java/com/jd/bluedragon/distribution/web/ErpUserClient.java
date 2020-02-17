@@ -4,6 +4,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.SpringHelper;
 import com.jd.common.web.LoginContext;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,7 +33,10 @@ public class ErpUserClient {
         erpUser.setUserName(loginContext.getNick());
         BaseMajorManager baseMajorManager = (BaseMajorManager) SpringHelper.getBean("baseMajorManager");
         if (baseMajorManager != null) {
-            erpUser.setStaffNo(baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode()).getStaffNo());
+            BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
+            if(baseStaffSiteOrgDto != null){
+                erpUser.setStaffNo(baseStaffSiteOrgDto.getStaffNo());
+            }
         }
         return erpUser;
     }

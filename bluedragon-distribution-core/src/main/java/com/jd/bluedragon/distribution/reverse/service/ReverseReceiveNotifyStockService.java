@@ -259,7 +259,7 @@ public class ReverseReceiveNotifyStockService {
 				}
 				
 				sysLog.setKeyword3("MQ");
-				sysLog.setContent("推出管成功!");
+                    sysLog.setContent("推出管成功!");
 			}else if (Waybill.TYPE_GENERAL.equals(order.getOrderType()) || Waybill.TYPE_POP_FBP.equals(order.getOrderType())) {
                 long result = 0;
                 //判断是否是已旧换新

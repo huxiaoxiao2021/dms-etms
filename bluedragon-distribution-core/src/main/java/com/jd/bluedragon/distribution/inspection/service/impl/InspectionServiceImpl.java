@@ -476,7 +476,9 @@ public class InspectionServiceImpl implements InspectionService {
 		if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null) {
 			// 获取运单信息
 			Waybill waybill = baseEntity.getData().getWaybill();
-			result.setPackageSize(waybill.getGoodNumber());
+			if(waybill.getGoodNumber() != null){
+				result.setPackageSize(waybill.getGoodNumber());
+			}
 			if(dmsSiteCode == null || waybill.getProvinceId() ==null){
 				return result;
 			}
