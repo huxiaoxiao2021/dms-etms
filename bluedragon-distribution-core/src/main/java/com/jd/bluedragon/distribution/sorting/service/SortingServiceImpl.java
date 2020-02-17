@@ -26,6 +26,7 @@ import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionEC;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
+import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
 import com.jd.bluedragon.distribution.log.BizTypeConstants;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.dms.logger.external.LogEngine;
@@ -1158,8 +1159,8 @@ public class SortingServiceImpl implements SortingService {
 				response.put("content", e.getMessage());
 
 				BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
-						.bizType(BizTypeConstants.RETURNS)
-						.operateType(OperateTypeConstants.REFUND100)
+						.bizType(BizOperateTypeConstants.RETURNS_REFUND100.getBizTypeCode())
+						.operateType(BizOperateTypeConstants.RETURNS_REFUND100.getOperateTypeCode())
 						.operateRequest(request)
 						.operateResponse(response)
 						.processTime(endTime,startTime)

@@ -13,6 +13,7 @@ import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
 import com.jd.bluedragon.distribution.kuaiyun.weight.enums.WeightByWaybillExceptionTypeEnum;
 import com.jd.bluedragon.distribution.kuaiyun.weight.exception.WeighByWaybillExcpetion;
 import com.jd.bluedragon.distribution.kuaiyun.weight.service.WeighByWaybillService;
+import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
 import com.jd.bluedragon.distribution.log.BizTypeConstants;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.dms.logger.external.LogEngine;
@@ -250,8 +251,8 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
         response.put("body", JsonHelper.toJson(dto));
 
         BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
-                .bizType(BizTypeConstants.WEIGH_WAYBILL)
-                .operateType(OperateTypeConstants.VALIDWAYBILL)
+                .bizType(BizOperateTypeConstants.WEIGH_WAYBILL_VALIDWAYBILL.getBizTypeCode())
+                .operateType(BizOperateTypeConstants.WEIGH_WAYBILL_VALIDWAYBILL.getOperateTypeCode())
                 .operateRequest(request)
                 .operateResponse(response)
                 .methodName("WeighByWaybillServiceImpl#validWaybillProcess")
@@ -304,8 +305,8 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
 
 
         BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
-                .bizType(BizTypeConstants.WEIGH_WAYBILL)
-                .operateType(OperateTypeConstants.INVALIDWAYBILL)
+                .bizType(BizOperateTypeConstants.WEIGH_WAYBILL_INVALIDWAYBILL.getBizTypeCode())
+                .operateType(BizOperateTypeConstants.WEIGH_WAYBILL_INVALIDWAYBILL.getOperateTypeCode())
                 .operateRequest(request)
                 .operateResponse(response)
                 .methodName("WeighByWaybillServiceImpl#invalidWaybillProcess")
@@ -389,8 +390,8 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
                     .operateRequest(operateRequest)
                     .operateResponse(goddess)
                     .methodName("WeighByWaybillServiceImpl#errorLogForOperator")
-                    .bizType(BizTypeConstants.WEIGH_WAYBILL)
-                    .operateType(OperateTypeConstants.OPERATEEXCEPTION)
+                    .bizType(BizOperateTypeConstants.WEIGH_WAYBILL_OPERATEEXCEPTION.getBizTypeCode())
+                    .operateType(BizOperateTypeConstants.WEIGH_WAYBILL_OPERATEEXCEPTION.getOperateTypeCode())
                     .build();
 
             logEngine.addLog(businessLogProfiler);

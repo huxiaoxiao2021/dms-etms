@@ -23,7 +23,7 @@ public class OperateTypeConstants {
     public static final int REFUND100 = 20073;//退款100分
     public static final int CAR_IN = 20091;//车辆进出记录，进
     public static final int CAR_OUT = 20092;//车辆进出记录，出
-    public static final int DEPARTURE = 20092;//发车
+    public static final int DEPARTURE = 20093;//发车
     public static final int BOXCACHECLEAR = 60015;//缓存箱号清理
     public static final int REVERSE_DELIVERY = 1008;//逆向发货
     public static final int TRANSFER = 20101;//交接
@@ -44,16 +44,16 @@ public class OperateTypeConstants {
     public static final int BACKUP_STORAGE_REVERSE_RECEIPT = 20083;//逆向备件库收货
     public static final int REVERSE_WAREHOUSING_REJECT = 20121;//逆向仓储驳回
     public static final int REVERSE_SPWMS_REJECT = 20092;//逆向仓储驳回
-    public static final int SORTING_INTERCEPT = 20092;//分拣拦截
+    public static final int SORTING_INTERCEPT = 60018;//分拣拦截
     public static final int SALE_REVERSE_INSPECT_REJECT = 5004;//逆向售后驳回验货
     public static final int CAN_GLOBAL = 20131;//取消预装载
     public static final int PARTNER_WAY_BILL = 1011;//运单号关联包裹信息
     public static final int FASTREFUND = 20074;//先货先款退款
     public static final int REVERSE_AFTERSALE_REJECT = 20141;//逆向售后驳回
-    public static final int SORTING_CENTER_INSPECT = 20141;//分拣中心验货
+    public static final int SORTING_CENTER_INSPECT = 50012;//分拣中心验货
     public static final int OFFLINE_SORTING = 60011;//离线分拣
     public static final int SORTING_SEAL = 60012;//分拣封箱
     public static final int OVER_AREA_RETURN = 20071;//三方超区退货
-    public static final int POP_RECEIVE = 20071;//pop上门接货
+    public static final int POP_RECEIVE = 20086;//pop上门接货
 
 }

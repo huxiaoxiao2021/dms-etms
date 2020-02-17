@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.cancelSealRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
 import com.jd.bluedragon.distribution.log.BizTypeConstants;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.dms.logger.external.LogEngine;
@@ -141,8 +142,8 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 response.put("msg", msg);
 
                 BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
-                        .bizType(BizTypeConstants.SEAL)
-                        .operateType(OperateTypeConstants.SEAL)
+                        .bizType(BizOperateTypeConstants.SEAL_SEAL.getBizTypeCode())
+                        .operateType(BizOperateTypeConstants.SEAL_SEAL.getOperateTypeCode())
                         .operateRequest(operateRequest)
                         .operateResponse(response)
                         .processTime(endTime,startTime)
@@ -219,8 +220,8 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             response.put("errmsg",errorMsg);
 
             BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
-                    .bizType(BizTypeConstants.SEAL)
-                    .operateType(OperateTypeConstants.FERRY_SEAL)
+                    .bizType(BizOperateTypeConstants.SEAL_FERRY_SEAL.getBizTypeCode())
+                    .operateType(BizOperateTypeConstants.SEAL_FERRY_SEAL.getOperateTypeCode())
                     .methodName("NewSealVehicleServiceImpl#doSealCarWithVehicleJob")
                     .operateRequest(request)
                     .operateResponse(response)
@@ -289,8 +290,8 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
 
                 BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
-                        .bizType(BizTypeConstants.SEAL)
-                        .operateResponse(OperateTypeConstants.OFFLINE_SEAL)
+                        .bizType(BizOperateTypeConstants.SEAL_OFFLINE_SEAL.getBizTypeCode())
+                        .operateResponse(BizOperateTypeConstants.SEAL_OFFLINE_SEAL.getOperateTypeCode())
                         .methodName("NewSealVehicleServiceImpl#offlineSeal")
                         .operateRequest(request)
                         .operateResponse(response)
@@ -475,8 +476,8 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 response.put("msg",msg);
 
                 BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
-                        .bizType(BizTypeConstants.DE_SEAL)
-                        .operateType(OperateTypeConstants.DE_SEAL)
+                        .bizType(BizOperateTypeConstants.DE_SEAL_DE_SEAL.getBizTypeCode())
+                        .operateType(BizOperateTypeConstants.DE_SEAL_DE_SEAL.getOperateTypeCode())
                         .operateRequest(operateRequest)
                         .operateResponse(response)
                         .processTime(endTime,startTime)
@@ -687,8 +688,8 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             response.put("body", JsonHelper.toJson(dto));
 
             BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
-                    .bizType(BizTypeConstants.SEAL)
-                    .operateType(OperateTypeConstants.FERRY_SEAL)
+                    .bizType(BizOperateTypeConstants.SEAL_FERRY_SEAL.getBizTypeCode())
+                    .operateType(BizOperateTypeConstants.SEAL_FERRY_SEAL.getOperateTypeCode())
                     .operateRequest(request)
                     .operateResponse(response)
                     .processTime(endTime,startTime)
@@ -744,8 +745,8 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                     response.put("content", JsonHelper.toJsonUseGson(sealCarMqDto));
 
                     BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
-                            .operateType(OperateTypeConstants.SEAL)
-                            .bizType(BizTypeConstants.SEAL)
+                            .bizType(BizOperateTypeConstants.SEAL_SEAL.getBizTypeCode())
+                            .operateType(BizOperateTypeConstants.SEAL_SEAL.getOperateTypeCode())
                             .operateResponse(response)
                             .operateRequest(operateRequest)
                             .methodName("NewSealVehicleServiceImpl#sealCarMQ")
@@ -801,8 +802,8 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                     response.put("content", JsonHelper.toJsonUseGson(sealCarMqDto));
 
                     BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
-                            .bizType(BizTypeConstants.DE_SEAL)
-                            .operateType(OperateTypeConstants.DE_SEAL)
+                            .bizType(BizOperateTypeConstants.DE_SEAL_DE_SEAL.getBizTypeCode())
+                            .operateType(BizOperateTypeConstants.DE_SEAL_DE_SEAL.getOperateTypeCode())
                             .processTime(endTime,startTime)
                             .methodName("NewSealVehicleServiceImpl#deSealCarMQ")
                             .build();

@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.api.response.SortSchemeResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.cacheClean.domain.CacheClean;
 import com.jd.bluedragon.distribution.cacheClean.service.CacheCleanService;
+import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
 import com.jd.bluedragon.distribution.log.BizTypeConstants;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.dms.logger.external.LogEngine;
@@ -735,8 +736,8 @@ public class SortSchemeController {
         response.put("info", goddess);
 
         BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
-                .bizType(BizTypeConstants.SORTING)
-                .operateType(OperateTypeConstants.BOXCACHECLEAR)
+                .bizType(BizOperateTypeConstants.SORTING_BOXCACHECLEAR.getBizTypeCode())
+                .operateType(BizOperateTypeConstants.SORTING_BOXCACHECLEAR.getOperateTypeCode())
                 .processTime(endTime,startTime)
                 .build();
 

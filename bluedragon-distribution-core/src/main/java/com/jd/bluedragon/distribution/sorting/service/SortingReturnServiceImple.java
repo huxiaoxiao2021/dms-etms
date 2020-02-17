@@ -5,6 +5,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.ReturnsRequest;
+import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
 import com.jd.bluedragon.distribution.log.BizTypeConstants;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.dms.logger.external.LogEngine;
@@ -463,8 +464,8 @@ public class SortingReturnServiceImple implements SortingReturnService {
 					response.put("content", e.getMessage());
 
 					BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
-							.bizType(BizTypeConstants.RETURNS)
-							.operateType(OperateTypeConstants.REFUND100)
+							.bizType(BizOperateTypeConstants.RETURNS_REFUND100.getBizTypeCode())
+							.operateType(BizOperateTypeConstants.RETURNS_REFUND100.getOperateTypeCode())
 							.processTime(endTime,startTime)
 							.operateRequest(request)
 							.operateResponse(response)

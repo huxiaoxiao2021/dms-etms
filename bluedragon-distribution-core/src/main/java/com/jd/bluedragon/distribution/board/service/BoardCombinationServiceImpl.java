@@ -16,6 +16,7 @@ import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
+import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
 import com.jd.bluedragon.distribution.log.BizTypeConstants;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.dms.logger.external.LogEngine;
@@ -836,8 +837,8 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         response.put("content", com.jd.bluedragon.utils.JsonHelper.toJsonUseGson(goddess));
 
         BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
-                .bizType(BizTypeConstants.BOARDCOMBINATION)
-                .operateType(BizTypeConstants.BOARDCOMBINATION)
+                .bizType(BizOperateTypeConstants.BOARDCOMBINATION_BOARDCOMBINATION.getBizTypeCode())
+                .operateType(BizOperateTypeConstants.BOARDCOMBINATION_BOARDCOMBINATION.getOperateTypeCode())
                 .operateRequest(request)
                 .operateResponse(response)
                 .processTime(endTime,startTime)

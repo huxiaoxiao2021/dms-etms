@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.carSchedule.domain.CarScheduleRequest;
 import com.jd.bluedragon.distribution.carSchedule.domain.CarScheduleResponse;
 import com.jd.bluedragon.distribution.carSchedule.service.CarScheduleService;
+import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
 import com.jd.bluedragon.distribution.log.BizTypeConstants;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.dms.logger.external.LogEngine;
@@ -125,16 +126,17 @@ public class CarScheduleResource {
         response.put("content",domain);
 
         BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
-                .bizType(BizTypeConstants.CAR)
                 .methodName("CarScheduleResource#InAndOut")
                 .url("/carSchedule/InAndOut")
                 .operateRequest(request)
                 .operateResponse(response)
                 .build();
         if(key==1){
-            businessLogProfiler.setOperateType(OperateTypeConstants.CAR_IN);
+            businessLogProfiler.setBizType(BizOperateTypeConstants.CAR_CAR_IN.getBizTypeCode());
+            businessLogProfiler.setOperateType(BizOperateTypeConstants.CAR_CAR_IN.getOperateTypeCode());
         }else if (key==0){
-            businessLogProfiler.setOperateType(OperateTypeConstants.CAR_OUT);
+            businessLogProfiler.setBizType(BizOperateTypeConstants.CAR_CAR_OUT.getBizTypeCode());
+            businessLogProfiler.setOperateType(BizOperateTypeConstants.CAR_CAR_OUT.getOperateTypeCode());
         }
 
         logEngine.addLog(businessLogProfiler);
