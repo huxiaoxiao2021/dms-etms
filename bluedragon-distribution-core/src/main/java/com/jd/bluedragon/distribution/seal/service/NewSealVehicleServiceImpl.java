@@ -530,6 +530,17 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     }
 
     /**
+     * 校验批次的体积是否超标
+     * @param sealCarDto
+     * @return
+     */
+    @JProfiler(jKey = "Bluedragon_dms_center.web.method.vts.verifySealVehicleVolume", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public CommonDto<String> verifySealVehicleVolume(SealCarDto sealCarDto){
+        CommonDto<String> commonDto = vosBusinessWS.checkSealCarData(sealCarDto);
+        return commonDto;
+    }
+
+    /**
      * 校验车牌号能否生成车次任务
      * @param transportCode 运力编码
      * @param vehicleNumber 车牌号
@@ -911,6 +922,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             }
         }
         sealCarDto.setRouteLineCode(sourceSealDto.getRouteLineCode());
+        sealCarDto.setPalletCount(sourceSealDto.getPalletCount());
 
         return sealCarDto;
     }

@@ -4,9 +4,11 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.TmsTfcWSManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
+import com.jd.bluedragon.distribution.api.request.SealVehicleVolumeVerifyRequest;
 import com.jd.bluedragon.distribution.api.request.cancelSealRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
+import com.jd.bluedragon.distribution.api.response.SealVehicleVolumeVerifyResponse;
 import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
@@ -29,6 +31,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.*;
@@ -66,7 +69,12 @@ public class NewSealVehicleResource {
     @Autowired
     private ColdChainSendService coldChainSendService;
 
-    private static final int ROLL_BACK_DAY = -7; //查询几天内的带解任务（负数）
+    /**
+     * 查询几天内的带解任务（负数）
+     * */
+    @Value("${newSealVehicleResource.rollBackDay:-7}")
+    private int rollBackDay;
+
     private static final int RANGE_HOUR = 2; //运力编码在两小时范围内
 
     /**
@@ -363,6 +371,53 @@ public class NewSealVehicleResource {
     }
 
     /**
+     * 校验批次中的体积是否超标
+     */
+    @POST
+    @Path("/new/vehicle/seal/verifySealVehicleVolume")
+    public SealVehicleVolumeVerifyResponse verifySendVolume(SealVehicleVolumeVerifyRequest request){
+
+        SealVehicleVolumeVerifyResponse response = new SealVehicleVolumeVerifyResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
+
+        if (request == null) {
+            log.warn("NewSealVehicleResource seal --> 传入参数非法");
+            response.setCode(JdResponse.CODE_PARAM_ERROR);
+            response.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
+            return response;
+        }
+        try{
+            SealCarDto sealCarDto = new SealCarDto();
+            sealCarDto.setSource(request.getSource());
+            sealCarDto.setVehicleNumber(request.getVehicleNumber());
+            sealCarDto.setTransportCode(request.getTransportCode());
+            sealCarDto.setBatchCodes(request.getBatchCodes());
+            sealCarDto.setSealCodes(request.getSealCodes());
+            sealCarDto.setSealCarTime(DateHelper.parseDate(request.getSealCarTime(),"yyyy-MM-dd HH:mm:ss"));
+            sealCarDto.setSealSiteId(request.getSealSiteId());
+            sealCarDto.setSealSiteCode(request.getSealSiteCode());
+            sealCarDto.setSealSiteName(request.getSealSiteName());
+            sealCarDto.setSealUserCode(sealCarDto.getDesealUserCode());
+            sealCarDto.setSealUserName(request.getSealUserName());
+            sealCarDto.setSealCarType(request.getSealCarType());
+            sealCarDto.setItemSimpleCode(request.getItemSimpleCode());
+            sealCarDto.setVolume(request.getVolume());
+            sealCarDto.setWeight(request.getWeight());
+
+            CommonDto<String> dto = newsealVehicleService.verifySealVehicleVolume(sealCarDto);
+            response.setCode(dto.getCode());
+            response.setMessage(dto.getMessage());
+            response.setData(dto.getData());
+
+        }catch(Exception e){
+            response.setCode(JdResponse.CODE_SERVICE_ERROR);
+            response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+            this.log.error("校验批次的体积异常，批次号:{}",request.getBatchCodes().toString(), e);
+        }
+        return response;
+    }
+
+
+    /**
      * 封车功能
      */
     @POST
@@ -483,9 +538,9 @@ public class NewSealVehicleResource {
             sealCarDto.setSealCode(request.getSealCode());
             sealCarDto.setTransportCode(request.getTransportCode());
             sealCarDto.setBatchCode(request.getBatchCode());
-            //查询7天内的带解任务
+            //查询15天内的待解任务
             Calendar c = Calendar.getInstance();
-            c.add(Calendar.DATE, ROLL_BACK_DAY);
+            c.add(Calendar.DATE, rollBackDay);
             sealCarDto.setSealCarTimeBegin(c.getTime());
 
             if (StringHelper.isNotEmpty(request.getVehicleNumber())) {

@@ -74,7 +74,8 @@ public class WeightServiceImpl implements WeightService {
 
     @Autowired
     private LogEngine logEngine;
-    
+
+
     private static final Type WAYBILL_WEIGHT=new TypeToken<List<OpeEntity>>(){}.getType();
 
     public boolean doWeightTrack(Task task) {

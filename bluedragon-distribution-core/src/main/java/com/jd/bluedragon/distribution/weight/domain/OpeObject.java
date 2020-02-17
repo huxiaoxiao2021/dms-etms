@@ -45,6 +45,10 @@ public class OpeObject {
     /// 操作时间	格式：yyyy-MM-dd HH:mm:ss
     /// </summary>
     private String opeTime;
+    /// <summary>
+    /// 长包裹 0:普通包裹 1:长包裹
+    /// </summary>
+    private Integer longPackage;
 
     public String getPackageCode() {
         return packageCode;
@@ -124,5 +128,13 @@ public class OpeObject {
 
     public void setOpeTime(String opeTime) {
         this.opeTime = opeTime;
+    }
+
+    public Integer getLongPackage() {
+        return longPackage;
+    }
+
+    public void setLongPackage(Integer longPackage) {
+        this.longPackage = longPackage;
     }
 }

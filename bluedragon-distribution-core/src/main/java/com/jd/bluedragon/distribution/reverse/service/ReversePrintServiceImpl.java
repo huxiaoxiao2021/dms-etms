@@ -19,6 +19,7 @@ import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.packageToMq.service.IPushPackageToMqService;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
+import com.jd.bluedragon.distribution.qualityControl.service.QualityControlService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
@@ -113,6 +114,9 @@ public class ReversePrintServiceImpl implements ReversePrintService {
     private ReverseSpareEclp reverseSpareEclp;
     @Autowired
     private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    private QualityControlService qualityControlService;
 
     @Autowired
     @Qualifier("jimdbCacheService")
@@ -211,6 +215,10 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         operationLog.setCreateSiteName(domain.getSiteName());
         operationLog.setMethodName("ReversePrintServiceImpl#handlePrint");
         operationLogService.add(operationLog);
+
+        //换单打印判断是否发起分拣中心退货任务
+        qualityControlService.generateSortingReturnTask(domain.getSiteCode(), domain.getOldCode(), domain.getNewPackageCode(), new Date(domain.getOperateUnixTime()));
+
         return true;
     }
 
