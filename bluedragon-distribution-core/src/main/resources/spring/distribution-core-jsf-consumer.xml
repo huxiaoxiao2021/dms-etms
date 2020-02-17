@@ -545,6 +545,10 @@
                   alias="${jsf.business.dmsClientJsfService.alias}" timeout="${jsf.business.dmsClientJsfService.timeout}"  retries="${jsf.retries}">
     </jsf:consumer>
 
+    <jsf:consumer id="iAbnPdaAPI" interface="com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.service.IAbnPdaAPI" alias="${qcAbnPdaAPI.alias}" timeout="${qcAbnPdaAPI.timeout}" retries="1">
+        <jsf:parameter key="token" value="${qcAbnPdaAPI.token}" hide="true" />
+    </jsf:consumer>
+
     <!-- 短信平台-jsf -->
     <jsf:consumer id="smsMessageTemplateRpcServiceJsf" interface="com.jd.mobilePhoneMsg.sender.client.service.SmsMessageTemplateRpcService"
                   protocol="jsf" alias="${mobilePhoneMsg.SmsMessageTemplateRpcService.jsf.alias}"

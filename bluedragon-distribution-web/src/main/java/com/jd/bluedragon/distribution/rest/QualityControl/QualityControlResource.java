@@ -74,7 +74,7 @@ public class QualityControlResource {
             return response;
         }
         try{
-            convertThenAddTask(request);
+            this.qualityControlService.convertThenAddTask(request);
         }catch(Exception ex){
             log.error("PDA调用异常配送接口插入质控任务表失败，原因 " , ex);
             response.setCode(response.CODE_SERVICE_ERROR);
@@ -123,7 +123,7 @@ public class QualityControlResource {
             request.setQcValue(waybillCode);
             request.setTrackContent("订单扫描异常【"+waybillCode+"】。");
             try{
-                convertThenAddTask(request);
+                this.qualityControlService.convertThenAddTask(request);
             }catch(Exception ex){
                 log.error("PDA调用异常配送接口插入质控任务表失败，原因 ", ex);
                 hasError=true;
@@ -199,7 +199,7 @@ public class QualityControlResource {
 
             if(waybillCodeList != null && waybillCodeList.size() > 0){
                 for (String waybillCode :waybillCodeList){
-                    Integer busID=getBusiId(waybillCode);
+                    Integer busID = waybillQueryManager.getBusiId(waybillCode);
                     if (null != busID){
                         int res=qualityControlService.getRedeliveryState(waybillCode,busID);
                         if (res==0){
@@ -226,48 +226,6 @@ public class QualityControlResource {
         }
 
         return result;
-    }
-
-
-    /**
-     * 根据运单号获取商家ID
-     * @param waybillCode
-     * @return
-     */
-    private Integer getBusiId(String waybillCode){
-        Integer res=null;
-        BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, false, false, false);
-        if (null != baseEntity
-            && Constants.RESULT_SUCCESS == baseEntity.getResultCode()
-            && null != baseEntity.getData()
-            && null != baseEntity.getData().getWaybill()
-            )
-        {
-            res = baseEntity.getData().getWaybill().getBusiId();
-        }
-
-        return res;
-    }
-
-    public void convertThenAddTask(QualityControlRequest request) throws Exception{
-
-        Task qcTask = new Task();
-        qcTask.setKeyword1(request.getQcType() + "");
-        qcTask.setKeyword2(request.getQcValue());
-        qcTask.setOwnSign(BusinessHelper.getOwnSign());
-        qcTask.setStatus(Task.TASK_STATUS_UNHANDLED);
-        qcTask.setType(Task.TASK_TYPE_REVERSE_QUALITYCONTROL);
-        qcTask.setTableName(Task.getTableName(qcTask.getType()));
-        qcTask.setSequenceName(Task.getSequenceName(qcTask.getTableName()));
-        qcTask.setBody(JsonHelper.toJson(request));
-        qcTask.setCreateTime(new Date());
-        qcTask.setCreateSiteCode(Integer.parseInt(String.valueOf(request.getDistCenterID())));
-        qcTask.setExecuteCount(0);
-        StringBuilder fringerprint = new StringBuilder();
-        fringerprint.append(request.getDistCenterID() + "_" + qcTask.getType() + "_" + qcTask.getKeyword1() + "_" + qcTask.getKeyword2());
-        qcTask.setFingerprint(Md5Helper.encode(fringerprint.toString()));
-
-        taskService.add(qcTask);
     }
 
     public static void main(String[] args) {

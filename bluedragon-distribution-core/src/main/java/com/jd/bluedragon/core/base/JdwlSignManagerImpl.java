@@ -1,8 +1,11 @@
 package com.jd.bluedragon.core.base;
 
 import com.alibaba.fastjson.JSONObject;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.printOnline.domain.PrintOnlineModalDTO;
+import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jdwl.bcoi.entry.api.dto.ActionSlimDtoRe;
 import com.jdwl.bcoi.entry.api.dto.ActionSlimDtoRs;
 import com.jdwl.bcoi.entry.api.dto.PrintJobDTO;
@@ -17,6 +20,8 @@ import org.springframework.stereotype.Service;
 
 @Service("jdwlSignManager")
 public class JdwlSignManagerImpl implements JdwlSignManager {
+
+    private static Long SYSTEM_LOG_TYPE = 12004L;
 
     private Logger log = LoggerFactory.getLogger(JdwlSignManagerImpl.class);
 
@@ -43,6 +48,8 @@ public class JdwlSignManagerImpl implements JdwlSignManager {
 
     @Override
     public boolean aciton(PrintOnlineModalDTO printOnlineModalDTO) {
+
+        ActionSlimDtoRs actionSlimDtoRs = new ActionSlimDtoRs();
         try{
             ActionSlimDtoRe actionSlimDtoRe = new ActionSlimDtoRe();
 
@@ -67,7 +74,7 @@ public class JdwlSignManagerImpl implements JdwlSignManager {
             printJobDTO.setTime(System.currentTimeMillis());
             printJobDTO.setSys(systemFlg);
             actionSlimDtoRe.setPrintJobDTO(printJobDTO);
-            ActionSlimDtoRs actionSlimDtoRs =jdwlSignServiceJsf.action(actionSlimDtoRe);
+            actionSlimDtoRs =jdwlSignServiceJsf.action(actionSlimDtoRe);
             if(actionSlimDtoRs.getResult()){
                 return true;
             }else{
@@ -78,7 +85,34 @@ public class JdwlSignManagerImpl implements JdwlSignManager {
         }catch (Exception e){
             log.error("调用线上签传输数据接口异常:{}", JsonHelper.toJson(printOnlineModalDTO),e);
             return false;
+        }finally {
+            pushSystemLog(printOnlineModalDTO.getSendCode(),actionSlimDtoRs);
         }
 
+    }
+
+    /**
+     * 记录日志
+     * @param sendCode
+     * @param actionSlimDtoRs
+     */
+    private void pushSystemLog(String sendCode, ActionSlimDtoRs actionSlimDtoRs){
+        try{
+            //增加系统日志
+            SystemLog sLogDetail = new SystemLog();
+            sLogDetail.setKeyword1(sendCode);
+            sLogDetail.setKeyword2(sendCode);
+            sLogDetail.setKeyword3("PrintOnline");
+            if(actionSlimDtoRs == null){
+                sLogDetail.setKeyword4(Long.valueOf(Constants.RESULT_ERROR));
+            }else{
+                sLogDetail.setKeyword4(Long.valueOf(actionSlimDtoRs.getCode()));
+            }
+            sLogDetail.setType(SYSTEM_LOG_TYPE);
+            sLogDetail.setContent(actionSlimDtoRs.getMsg());
+            SystemLogUtil.log(sLogDetail);
+        }catch (Exception e){
+            log.error("JdwlSignManagerImpl.pushSystemLog",e);
+        }
     }
 }
