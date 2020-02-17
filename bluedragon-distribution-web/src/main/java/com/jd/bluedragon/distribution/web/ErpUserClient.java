@@ -8,6 +8,8 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author zhaohc
@@ -17,6 +19,7 @@ import org.apache.commons.logging.LogFactory;
  * 当前登录用户信息获取
  */
 public class ErpUserClient {
+    private static final Logger log = LoggerFactory.getLogger(this.getClass());
     /**
      * 获取当前登录用户信息
      *
@@ -35,6 +38,7 @@ public class ErpUserClient {
         if (baseMajorManager != null) {
             BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
             if(baseStaffSiteOrgDto != null){
+                log.info("员工编号为空usercode[{}]username[{}]",erpUser.getUserCode(),erpUser.getUserName());
                 erpUser.setStaffNo(baseStaffSiteOrgDto.getStaffNo());
             }
         }
