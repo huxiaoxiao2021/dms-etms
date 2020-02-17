@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  * 当前登录用户信息获取
  */
 public class ErpUserClient {
-    private static final Logger log = LoggerFactory.getLogger(this.getClass());
+    private static final Logger log = LoggerFactory.getLogger(ErpUserClient.class);
     /**
      * 获取当前登录用户信息
      *
