@@ -840,6 +840,9 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     private List<SealVehicles> convert2SealVehicles(List<SealCarDto> sealist){
         List<SealVehicles> sealVehiclesList = new ArrayList<>();
         for (SealCarDto dto : sealist){
+            if(dto.getBatchCodes() == null){
+                continue;
+            }
             for (String sendCode : dto.getBatchCodes()){
                 SealVehicles temp = new SealVehicles();
                 temp.setSealDataCode(sendCode);
