@@ -139,4 +139,8 @@ public class TextConstants {
      * KA标识
      */
     public static final String KA_FLAG = "KA";
+    /**
+     * 无接触标识‘代’
+     */
+    public static final String NO_TOUCH_FLAG = "代";
 }

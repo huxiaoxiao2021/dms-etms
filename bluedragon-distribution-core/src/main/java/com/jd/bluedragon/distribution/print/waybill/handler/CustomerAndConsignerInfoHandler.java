@@ -20,7 +20,7 @@ import com.jd.bluedragon.utils.StringHelper;
 /**
  * 
  * @ClassName: CustomerAndConsignerInfoHandler
- * @Description: 包裹标签打印-微笑面单处理逻辑
+ * @Description: 包裹标签打印-面单收、寄件人信息处理逻辑
  * @author: wuyoude
  * @date: 2018年1月30日 上午9:18:31
  */
@@ -58,6 +58,9 @@ public class CustomerAndConsignerInfoHandler implements Handler<WaybillPrintCont
 		hideInfoService.setHideInfo(waybillSign, context.getBasePrintWaybill());
 		//手机号、座机一样只保留一个
 		removeRepeatedTel(context);
+		//将printAddressRemark追加printAddress中
+		BasePrintWaybill basePrintWaybill = context.getBasePrintWaybill();
+		basePrintWaybill.setPrintAddress(StringHelper.append(basePrintWaybill.getPrintAddress(), basePrintWaybill.getPrintAddressRemark()));
 		return context.getResult();
 	}
 	/**

@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.print.service;
 
+import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
+import com.jd.bluedragon.utils.StringHelper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,5 +23,7 @@ public class HideInfoComposeServiceImpl implements  ComposeService {
     public void handle(PrintWaybill waybill, Integer dmsCode, Integer targetSiteCode){
         String waybillSign  = waybill.getWaybillSign();
         hideInfoService.setHideInfo(waybillSign,waybill);
+		//将printAddressRemark追加printAddress中
+        waybill.setPrintAddress(StringHelper.append(waybill.getPrintAddress(), waybill.getPrintAddressRemark()));
     }
 }

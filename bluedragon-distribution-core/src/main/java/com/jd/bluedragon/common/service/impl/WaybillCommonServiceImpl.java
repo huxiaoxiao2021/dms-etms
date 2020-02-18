@@ -966,6 +966,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(), WaybillSignConstants.POSITION_57, WaybillSignConstants.CHAR_57_2)){
         	target.appendSpecialMark(TextConstants.KA_FLAG);
         }
+        //无接触面单，追加标识‘代’
+        if(BusinessUtil.isNoTouchService(waybill.getSendPay(),waybill.getWaybillSign())){
+        	target.appendSpecialMark(TextConstants.NO_TOUCH_FLAG);
+        }
         //设置特殊需求
         loadSpecialRequirement(target,waybill.getWaybillSign(),waybill);
 
