@@ -28,18 +28,22 @@ public class ScannerFrameInspectionConsume implements ScannerFrameConsume {
 
     @Override
     public boolean onMessage(UploadData uploadData, GantryDeviceConfig config) {
-
+        //默认验货为正向验货
+        Integer businessType = Constants.BUSSINESS_TYPE_POSITIVE;
+        if(config.getWaybillBusinessType() != null){
+            businessType = config.getWaybillBusinessType();
+        }
         InspectionRequest inspection=new InspectionRequest();
         inspection.setUserCode(config.getOperateUserId());
         inspection.setUserName(config.getOperateUserName());
         inspection.setSiteCode(config.getCreateSiteCode());
         inspection.setSiteName(config.getCreateSiteName());
         inspection.setOperateTime(DateHelper.formatDateTime(uploadData.getScannerTime()));
-        inspection.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
+        inspection.setBusinessType(businessType);
         inspection.setPackageBarOrWaybillCode(uploadData.getBarCode());
 
         TaskRequest request=new TaskRequest();
-        request.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
+        request.setBusinessType(businessType);
         request.setKeyword1(String.valueOf(config.getCreateSiteCode()));
         request.setKeyword2(uploadData.getBarCode());
         request.setType(Task.TASK_TYPE_INSPECTION);
