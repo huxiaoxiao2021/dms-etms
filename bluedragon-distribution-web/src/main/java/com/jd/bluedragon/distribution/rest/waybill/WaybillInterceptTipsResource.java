@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -25,6 +26,9 @@ public class WaybillInterceptTipsResource {
 
     public static final Logger log = LoggerFactory.getLogger(WaybillInterceptTipsResource.class);
 
+    private static final int MAX_TIPS = 4;
+
+    private static final String LINE_SPLIT = ";";
     @Autowired
 	private VerCommonJsfApiManager verCommonJsfApiManager;
 
@@ -41,41 +45,44 @@ public class WaybillInterceptTipsResource {
      */
     @POST
     @Path("/waybill/intercept/tips")
-    public JdResult<String> getWaybillAndPack(PdaOperateRequest pdaOperateRequest) {
-        JdResult<String> response = new JdResult<>();
+    public JdResult<List<String>> getWaybillAndPack(PdaOperateRequest pdaOperateRequest) {
+        JdResult<List<String>> response = new JdResult<>();
         response.toSuccess();
-        response.setData("此单没有查询到分拣机拦截相关信息！");
     	// 判断传入参数
         if (pdaOperateRequest == null || StringHelper.isEmpty(pdaOperateRequest.getPackageCode()) || pdaOperateRequest.getCreateSiteCode() == null) {
 			response.toFail("分拣机一键排障获取拦截信息失败，请检查参数！");
             return response;
         }
-        String interceptCode = null;
-        String interceptMessage = null;
+
+        List<String> interceptMessageList = new ArrayList<>();
         // 调用服务
         try {
             List<WaybillInterceptTips> list = verCommonJsfApiManager.getSortMachineInterceptTips(pdaOperateRequest.getPackageCode());
 
-            if (list != null && ! list.isEmpty()) {
-				interceptCode = list.get(0).getCode();
-				interceptMessage = list.get(0).getMessage();
-            } else {
+            for (WaybillInterceptTips waybillInterceptTips : list) {
+                InterceptConfigInfo interceptConfigInfo = interceptConfigService.getInterceptConfigInfoByCode(waybillInterceptTips.getCode());
+                interceptMessageList.add(interceptConfigInfo.getInterceptMessage() + LINE_SPLIT + interceptConfigInfo.getGuidanceNotes());
+                if (interceptMessageList.size() == MAX_TIPS) {
+                    break;
+                }
+            }
+            if (interceptMessageList.isEmpty()) {
 				List<com.jd.bd.dms.automatic.sdk.modules.sorting.entity.WaybillInterceptTips> tipsList = automaticSortingExceptionJsfManager.getSortingExceptionTips(pdaOperateRequest.getPackageCode(), pdaOperateRequest.getCreateSiteCode());
-				if (tipsList != null && ! tipsList.isEmpty()) {
-					interceptCode = tipsList.get(0).getCode();
-					interceptMessage = tipsList.get(0).getMessage();
-				}
+                for (com.jd.bd.dms.automatic.sdk.modules.sorting.entity.WaybillInterceptTips waybillInterceptTips : tipsList) {
+                    InterceptConfigInfo interceptConfigInfo = interceptConfigService.getInterceptConfigInfoByCode(waybillInterceptTips.getCode());
+                    String interceptMessage = waybillInterceptTips.getMessage() != null ? waybillInterceptTips.getMessage() : interceptConfigInfo.getInterceptMessage();
+                    interceptMessageList.add(interceptMessage + LINE_SPLIT + interceptConfigInfo.getGuidanceNotes());
+                    if (interceptMessageList.size() == MAX_TIPS) {
+                        break;
+                    }
+                }
 			}
-
-			InterceptConfigInfo interceptConfigInfo = interceptConfigService.getInterceptConfigInfoByCode(interceptCode);
-
-			if (interceptConfigInfo != null) {
-				response.setData((interceptMessage != null ? interceptMessage : interceptConfigInfo.getInterceptMessage()) + ";" + interceptConfigInfo.getGuidanceNotes());
-			}
-
         } catch (Exception e) {
             // 调用服务异常
-            log.error("分拣机一键排障获取拦截信息异常！参数：{)", JsonHelper.toJson(pdaOperateRequest), e);
+            log.error("分拣机一键排障获取拦截信息异常！参数：{}", JsonHelper.toJson(pdaOperateRequest), e);
+        }
+        if (interceptMessageList.isEmpty()) {
+            response.toFail("此单没有查询到分拣机拦截相关信息！");
         }
         return response;
     }
