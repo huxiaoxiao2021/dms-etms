@@ -32,7 +32,7 @@ public class NoTouchPrintTestCase {
 	 */
     @Test
     public void testNoTouch() throws Exception{
-    	CustomerAndConsignerInfoHandler customerAndConsignerInfoHandler = EntityUtil.getInstance(CustomerAndConsignerInfoHandler.class);
+    	//CustomerAndConsignerInfoHandler customerAndConsignerInfoHandler = EntityUtil.getInstance(CustomerAndConsignerInfoHandler.class);
     	WaybillCommonServiceImpl waybillCommonServiceImpl = new WaybillCommonServiceImpl();
     	WaybillPrintContext context = EntityUtil.getInstance(WaybillPrintContext.class);
 		String[] sendPays = {null,"","000",};
@@ -45,7 +45,7 @@ public class NoTouchPrintTestCase {
 				context.getBigWaybillDto().getWaybill().setSendPay(sendPays[i]);
 				context.getBigWaybillDto().getWaybill().setWaybillSign(waybillSigns[j]);
 				context.getBasePrintWaybill().setWaybillSignText(null);
-				customerAndConsignerInfoHandler.handle(context);
+				//customerAndConsignerInfoHandler.handle(context);
 				waybillCommonServiceImpl.setBasePrintInfoByWaybill(context.getBasePrintWaybill(), context.getBigWaybillDto().getWaybill());
 				boolean isNoTouch = BusinessUtil.isNoTouchService(sendPays[i], waybillSigns[j]);
 				Assert.assertEquals((sendPayChecks[i]||waybillSignChecks[j]),isNoTouch);
