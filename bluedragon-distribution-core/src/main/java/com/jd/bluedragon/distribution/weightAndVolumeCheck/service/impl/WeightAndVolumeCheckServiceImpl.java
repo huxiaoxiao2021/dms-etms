@@ -56,8 +56,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.text.DecimalFormat;
-import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @ClassName: WeightAndVolumeCheckServiceImpl
@@ -269,7 +274,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             //图片类型 1:重量 2:长 3:宽 4:高 5:面单
             Integer type = Integer.valueOf(packageCodeAndOperateTimes[2]);
             String operateTime = packageCodeAndOperateTimes[3];
-            if(packageCodeAndOperateTimes.length != 4 || siteCode.equals(Integer.valueOf(createSiteCode))){
+            if(packageCodeAndOperateTimes.length != 4 || !siteCode.equals(Integer.valueOf(createSiteCode))){
                 break;
             }
             if(type == 1){
