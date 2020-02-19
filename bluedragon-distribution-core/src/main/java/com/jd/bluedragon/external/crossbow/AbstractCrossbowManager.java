@@ -18,11 +18,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 
@@ -83,7 +82,7 @@ public abstract class AbstractCrossbowManager<P,R> implements InitializingBean {
      * @return 返回三方接口的url请求参数
      */
     protected Map<String, String> getMyUrlParams(Object condition) {
-        return null;
+        return Collections.emptyMap();
     }
 
     /**
