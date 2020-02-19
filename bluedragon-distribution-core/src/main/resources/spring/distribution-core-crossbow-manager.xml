@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+        <!--  拼多多面单打印信息获取接口  -->
+    <bean id="pddWaybillQueryManager" class="com.jd.bluedragon.external.crossbow.pdd.manager.PDDBusinessManager">
+            <property name="wpCode" value="${dms.external.pdd.wpCode}" />
+            <property name="secret" value="${dms.external.pdd.secret}" />
+            <property name="crossbowConfig">
+                <bean class="com.jd.bluedragon.core.crossbow.CrossbowConfig">
+                    <property name="domain" value="${dms.external.pdd.domain}" />
+                    <property name="api" value="${dms.external.pdd.api}" />
+                    <property name="appKey" value="${dms.external.pdd.appKey}" />
+                    <property name="appSecret" value="${dms.external.pdd.appSecret}" />
+                    <property name="customerId" value="${dms.external.pdd.customerId}" />
+                    <property name="securityEnum" value="message_sign" />
+                </bean>
+            </property>
+        <property name="serializationConfig">
+            <bean class="com.jd.bluedragon.external.crossbow.SerializationConfig">
+                <property name="serializationMode" value="JSON" />
+            </bean>
+        </property>
+    </bean>
+
+    <!--  卓志全球购业务的预装载接口  -->
+    <bean id="globalTradeBusinessManager" class="com.jd.bluedragon.external.crossbow.globalTrade.manager.GlobalTradeBusinessManager">
+        <property name="crossbowConfig">
+            <bean class="com.jd.bluedragon.core.crossbow.CrossbowConfig">
+                <property name="domain" value="${dms.external.global.trade.domain}" />
+                <property name="api" value="${dms.external.global.trade.api}" />
+                <property name="appKey" value="${dms.external.global.trade.appKey}" />
+                <property name="appSecret" value="${dms.external.global.trade.appSecret}" />
+                <property name="customerId" value="${dms.external.global.trade.customerId}" />
+                <property name="securityEnum" value="message_sign" />
+            </bean>
+        </property>
+        <property name="serializationConfig">
+            <bean class="com.jd.bluedragon.external.crossbow.SerializationConfig">
+                <property name="serializationMode" value="JSON" />
+            </bean>
+        </property>
+    </bean>
+
+    <!--  武汉邮政面单打印信息推送业务  -->
+    <bean id="wuHanEMSBusinessManager" class="com.jd.bluedragon.external.crossbow.whems.manager.WuHanEMSBusinessManager">
+        <property name="actionCode" value="${dms.external.wuhan.ems.actionCode}" />
+        <property name="partnerCode" value="${dms.external.wuhan.ems.partnerCode}" />
+        <property name="productProviderID" value="${dms.external.wuhan.ems.productProviderID}" />
+        <property name="secretKey" value="${dms.external.wuhan.ems.secretKey}" />
+        <property name="crossbowConfig">
+            <bean class="com.jd.bluedragon.core.crossbow.CrossbowConfig">
+                <property name="domain" value="${dms.external.wuhan.ems.domain}" />
+                <property name="api" value="${dms.external.wuhan.ems.api}" />
+                <property name="appKey" value="${dms.external.wuhan.ems.appKey}" />
+                <property name="appSecret" value="${dms.external.wuhan.ems.appSecret}" />
+                <property name="customerId" value="${dms.external.wuhan.ems.customerId}" />
+                <property name="securityEnum" value="message_sign" />
+            </bean>
+        </property>
+        <property name="serializationConfig">
+            <bean class="com.jd.bluedragon.external.crossbow.SerializationConfig">
+                <property name="serializationMode" value="SOAP" />
+                <property name="methodName" value="sendMsg" />
+                <property name="nameSpaceUIR" value="http://jingdong.ws.whpost.cn" />
+                <property name="parameterName" value="content" />
+            </bean>
+        </property>
+    </bean>
+
+    <!--  全国邮政  -->
+    <bean id="emsBusinessManager" class="com.jd.bluedragon.external.crossbow.ems.manager.EMSBusinessManager">
+        <property name="printKind" value="${dms.external.ems.printKind}" />
+        <property name="password" value="${dms.external.ems.password}" />
+        <property name="crossbowConfig" >
+            <bean class="com.jd.bluedragon.core.crossbow.CrossbowConfig">
+                <property name="domain" value="${dms.external.ems.domain}" />
+                <property name="api" value="${dms.external.ems.api}" />
+                <property name="appKey" value="${dms.external.ems.appKey}" />
+                <property name="appSecret" value="${dms.external.ems.appSecret}" />
+                <property name="customerId" value="${dms.external.ems.customerId}" />
+                <property name="securityEnum" value="message_sign" />
+            </bean>
+        </property>
+        <property name="serializationConfig">
+            <bean class="com.jd.bluedragon.external.crossbow.SerializationConfig">
+                <property name="serializationMode" value="SOAP_BASE64" />
+                <property name="methodName" value="printEMSDatas" />
+                <property name="nameSpaceUIR" value="http://printService.webservice.bigaccount.hollycrm.com" />
+                <property name="parameterName" value="xmlStr" />
+            </bean>
+        </property>
+    </bean>
+
+    <!--  经济网：按箱回传称重量方体积  -->
+    <bean id="economicNetBusinessManager" class="com.jd.bluedragon.external.crossbow.economicNet.manager.EconomicNetBusinessManager">
+        <property name="partnerId" value="${dms.economic.net.partnerId}" />
+        <property name="secretKey" value="${dms.economic.net.secretKey}" />
+        <property name="crossbowConfig" >
+            <bean class="com.jd.bluedragon.core.crossbow.CrossbowConfig">
+                <property name="domain" value="${dms.economic.net.domain}" />
+                <property name="api" value="${dms.economic.net.api}" />
+                <property name="appKey" value="${dms.economic.net.appKey}" />
+                <property name="appSecret" value="${dms.economic.net.appSecret}" />
+                <property name="customerId" value="${dms.economic.net.customerId}" />
+                <property name="securityEnum" value="message_sign" />
+            </bean>
+        </property>
+        <property name="serializationConfig">
+            <bean class="com.jd.bluedragon.external.crossbow.SerializationConfig">
+                <property name="serializationMode" value="JSON" />
+            </bean>
+        </property>
+    </bean>
+
+
+</beans>

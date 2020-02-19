@@ -8,7 +8,10 @@ import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
 import com.jd.bluedragon.distribution.api.request.QualityControlRequest;
 import com.jd.bluedragon.distribution.api.request.ReturnsRequest;
+import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.message.OwnReverseTransferDomain;
+import com.jd.bluedragon.distribution.qualityControl.QcVersionFlagEnum;
 import com.jd.bluedragon.distribution.qualityControl.domain.QualityControl;
 import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
@@ -37,8 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by dudong on 2014/12/1.
@@ -60,12 +62,6 @@ public class QualityControlService {
     private DefaultJMQProducer bdExceptionToQcMQ;
 
     @Autowired
-	private WaybillTraceApi waybillTraceApi;
-
-    @Autowired
-    private WaybillSyncApi waybillSyncApi;
-
-    @Autowired
     private BaseMajorManager baseMajorManager;
 
     @Autowired
@@ -82,6 +78,9 @@ public class QualityControlService {
 
     @Autowired
     private AbnormalOrderApi abnormalOrderApi;
+
+    @Autowired
+    private SysConfigService sysConfigService;
 
     public TaskResult dealQualityControlTask(Task task) {
         QualityControlRequest request = null;
@@ -128,7 +127,12 @@ public class QualityControlService {
         }
 
         try {
-            toQualityControlAndWaybillTrace(sendDetails, request, boxCode);  // 推质控和全程跟踪
+            //如果是对接新质控系统，走新逻辑
+            if (request.getQcVersionFlag() != null && request.getQcVersionFlag() == QcVersionFlagEnum.NEW_QUALITY_CONTROL_SYSTEM.getType()) {
+                toNewQualityControlWaybillTrace(sendDetails, request);
+            } else {
+                toQualityControlAndWaybillTrace(sendDetails, request, boxCode);  // 推质控和全程跟踪
+            }
             abnormalWayBillService.insertBatchAbnormalWayBill(convert2AbnormalWayBills(sendDetails, request));
         } catch (Exception ex) {
             log.error("分拣中心异常节点推全程跟踪、质控发生异常。" , ex);
@@ -147,43 +151,67 @@ public class QualityControlService {
 
         //过滤数据，按运单维度处理
         //已经处理过的运单
-        List<String> doWaybillCodes = new ArrayList<String>();
+        Set<String> set = new HashSet<>();
 
         for(SendDetail sendDetail : sendDetails){
-
             //过滤数据，按运单维度处理
-            if(doWaybillCodes.contains(sendDetail.getWaybillCode())){
+            if(set.contains(sendDetail.getWaybillCode())){
                 continue;
             }
-            doWaybillCodes.add(sendDetail.getWaybillCode());
+            set.add(sendDetail.getWaybillCode());
 
-
-            //BdTraceDto bdTraceDto = convert2WaybillTrace(sendDetail, request);
-            QualityControl qualityControl = convert2QualityControl(sendDetail, request, boxCode);
+            QualityControl qualityControl = convert2QualityControl(sendDetail.getWaybillCode(), request, boxCode);
             log.info("分拣中心异常页面发质控和全程跟踪开始，消息体：{}" , JsonHelper.toJson(qualityControl));
-            //waybillTraceApi.sendBdTrace(bdTraceDto);
             // 更新运单状态
-            updateWaybillStatus(sendDetail,request,operateSite);
-            //messageClient.sendMessage(MessageDestinationConstant.QualityControlMQ.getName(), JsonHelper.toJson(qualityControl),request.getQcValue());   // 推质控
+            updateWaybillStatus(sendDetail.getWaybillCode(), request, operateSite, sendDetail.getBoxCode());
             bdExceptionToQcMQ.sendOnFailPersistent(request.getQcValue(), JsonHelper.toJson(qualityControl));
 
             //异常处理 节点发MQ 换新单   2016年8月16日18:18:40   by guoyongzhi  逆向整合之：3.2.6	拦截订单，触发新单
             log.info("执行自营换新单  convert2ExchangeNewWaybill exchangeOwnWaybill ");
-            OwnReverseTransferDomain domain=convert2ExchangeNewWaybill(sendDetail, request);
+            OwnReverseTransferDomain domain=convert2ExchangeNewWaybill(sendDetail.getWaybillCode(), request);
             reversePrintService.exchangeOwnWaybill(domain);
 
         }
     }
 
+    /** 发质控和全程跟踪
+     *
+     * 对接新质控系统，只变更运单状态和触发换新单
+     *
+     * */
+    public void toNewQualityControlWaybillTrace(List<SendDetail> sendDetails, QualityControlRequest request){
+        //获取 同步运单状态接口需要的额外参数
+        BaseStaffSiteOrgDto operateSite =  baseMajorManager.getBaseSiteBySiteId(request.getDistCenterID());
+
+        Set<String> set = new HashSet<>();
+        for (SendDetail sendDetail : sendDetails) {
+            String waybillCode = sendDetail.getWaybillCode();
+            //过滤数据，按运单维度处理
+            if (set.contains(waybillCode)) {
+                continue;
+            }
+            set.add(sendDetail.getWaybillCode());
+
+            QualityControl qualityControl = convert2QualityControl(waybillCode, request, null);
+            log.info("分拣中心新异常提交结果同步运单状态开始，消息体：{}", JsonHelper.toJson(qualityControl));
+            // 更新运单状态
+            updateWaybillStatus(waybillCode, request, operateSite, null);
+            //异常处理 节点发MQ 换新单
+            log.info("执行自营换新单 convert2ExchangeNewWaybill exchangeOwnWaybill ");
+            OwnReverseTransferDomain domain = convert2ExchangeNewWaybill(waybillCode, request);
+            reversePrintService.exchangeOwnWaybill(domain);
+        }
+    }
+
     /**
      * 异常处理 节点发MQ 换新单
-     * @param sendDetail
+     * @param waybillCode
      * @param request
      * @return
      */
-    public OwnReverseTransferDomain convert2ExchangeNewWaybill(SendDetail sendDetail,QualityControlRequest request){
+    public OwnReverseTransferDomain convert2ExchangeNewWaybill(String waybillCode, QualityControlRequest request){
         OwnReverseTransferDomain ownReverseTransferDomain=new OwnReverseTransferDomain();
-        ownReverseTransferDomain.setWaybillCode(sendDetail.getWaybillCode());
+        ownReverseTransferDomain.setWaybillCode(waybillCode);
         ownReverseTransferDomain.setSiteId(request.getDistCenterID());
         ownReverseTransferDomain.setUserId(request.getUserID());
         ownReverseTransferDomain.setUserRealName(request.getUserName());
@@ -191,44 +219,27 @@ public class QualityControlService {
         return ownReverseTransferDomain;
     }
 
-    public BdTraceDto convert2WaybillTrace(SendDetail sendDetail, QualityControlRequest request){
-        BdTraceDto bdTraceDto = new BdTraceDto();
-        bdTraceDto.setOperateType(WaybillStatus.WAYBILL_TRACK_QC);
-        bdTraceDto.setOperatorSiteId(request.getDistCenterID());
-        bdTraceDto.setOperatorSiteName(request.getDistCenterName());
-        bdTraceDto.setOperatorTime(request.getOperateTime());
-        bdTraceDto.setOperatorUserId(request.getUserID());
-        bdTraceDto.setOperatorUserName(request.getUserName());
-        bdTraceDto.setPackageBarCode(sendDetail.getPackageBarcode());
-        bdTraceDto.setWaybillCode(sendDetail.getWaybillCode());
-//        bdTraceDto.setOperatorDesp("包裹记录【" + request.getQcName() + "】异常");
-        bdTraceDto.setOperatorDesp(request.getTrackContent());
-        return bdTraceDto;
-    }
-
     /**
      * 更新运单异常状态
      * 此节点节点运单只接收运单维度
-     * @param sendDetail
+     * @param boxCode 箱号
      * @param request
      * @param operateSite
      */
-    private void updateWaybillStatus(SendDetail sendDetail,QualityControlRequest request,BaseStaffSiteOrgDto operateSite){
-
-
+    private void updateWaybillStatus(String waybillCode, QualityControlRequest request,BaseStaffSiteOrgDto operateSite, String boxCode){
         Task tTask = new Task();
-        tTask.setBoxCode(sendDetail.getBoxCode());
+        tTask.setBoxCode(boxCode);
 
         tTask.setCreateSiteCode(request.getDistCenterID());
-        tTask.setKeyword2(sendDetail.getWaybillCode());
+        tTask.setKeyword2(waybillCode);
         tTask.setReceiveSiteCode(request.getDistCenterID());
         tTask.setType(WaybillStatus.WAYBILL_TRACK_QC);
         tTask.setTableName(Task.TABLE_NAME_WAYBILL);
         tTask.setSequenceName(Task.TABLE_NAME_WAYBILL_SEQ);
         tTask.setOwnSign(BusinessHelper.getOwnSign());
-        tTask.setKeyword1(sendDetail.getWaybillCode());//回传运单状态
+        tTask.setKeyword1(waybillCode);//回传运单状态
         tTask.setFingerprint(Md5Helper.encode(request.getDistCenterID() + "_" + WaybillStatus.WAYBILL_TRACK_QC + "_"
-                + sendDetail.getWaybillCode() + "-" + request.getOperateTime() ));
+                + waybillCode + "-" + request.getOperateTime() ));
 
 
         WaybillStatus tWaybillStatus = new WaybillStatus();
@@ -241,18 +252,24 @@ public class QualityControlService {
         tWaybillStatus.setOrgId(operateSite.getOrgId());
         tWaybillStatus.setOrgName(operateSite.getOrgName());
         tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_QC);
-        tWaybillStatus.setWaybillCode(sendDetail.getWaybillCode());
+        tWaybillStatus.setWaybillCode(waybillCode);
 
         //组装异常原因
+        // FIXME: 2020/2/11 待优化
         String qcName = request.getQcName();
-        if(StringUtils.isNotBlank(qcName) && qcName.indexOf('-') != -1 && qcName.split("-").length == 2){
+        if(StringUtils.isNotBlank(qcName)){
+            if (qcName.indexOf('-') != -1 && qcName.split("-").length == 2) {
+                tWaybillStatus.setReasonId(Integer.valueOf(qcName.split("-")[0]));
+                tWaybillStatus.setRemark(qcName.split("-")[1]);
+            } else {
+                tWaybillStatus.setReasonId(request.getQcCode());
+                tWaybillStatus.setRemark(qcName);
+            }
 
-            tWaybillStatus.setReasonId(Integer.valueOf(qcName.split("-")[0]));
-            tWaybillStatus.setRemark(qcName.split("-")[1]);
 
         }
 
-        tWaybillStatus.setPackageCode(sendDetail.getWaybillCode()); //异常 节点运单只接收运单维度
+        tWaybillStatus.setPackageCode(waybillCode); //异常 节点运单只接收运单维度
 
         tTask.setBody(JsonHelper.toJson(tWaybillStatus));
 
@@ -260,7 +277,7 @@ public class QualityControlService {
     }
 
 
-    public QualityControl convert2QualityControl(SendDetail sendDetail, QualityControlRequest request, String boxCode){
+    public QualityControl convert2QualityControl(String waybillCode, QualityControlRequest request, String boxCode){
         BaseDataDict baseDataDict = baseMajorManager.getBaseDataDictById(request.getQcCode());
         QualityControl qualityControl = new QualityControl();
         qualityControl.setBlameDept(request.getDistCenterID());
@@ -275,7 +292,7 @@ public class QualityControlService {
         }else{
             qualityControl.setBoxCode("null");
         }
-        qualityControl.setWaybillCode(sendDetail.getWaybillCode());
+        qualityControl.setWaybillCode(waybillCode);
         qualityControl.setTypeCode(baseDataDict.getTypeCode() + "");
         qualityControl.setExtraCode("null");
         qualityControl.setSystemName(QualityControl.SYSTEM_NAME);
@@ -329,10 +346,9 @@ public class QualityControlService {
         Response<AbnormalOrderDTO> dto = abnormalOrderApi.queryByCustomerIdDeliveryIdMainTypeId(waybillCode,businessID,20);
         log.info("获取运单协商再投状态: 入参waybillCode={} businessID={} JSF接口返回:{}"
                 ,waybillCode,businessID,JsonHelper.toJson(dto));
-        if(null!=dto && dto.getStatus()== ResponseStatus.SUCCESS && null!=dto.getResult()){
-           if (null != dto.getResult().getAbnormalState()) {
-               res = dto.getResult().getAbnormalState();
-           }
+        if(null != dto && ResponseStatus.SUCCESS.equals(dto.getStatus()) &&
+                null != dto.getResult() && null != dto.getResult().getAbnormalState()){
+            res = dto.getResult().getAbnormalState();
         }
 
         return res;
@@ -370,6 +386,102 @@ public class QualityControlService {
             list.add(abnormalWayBill);
         }
         return list;
+    }
+
+    public void convertThenAddTask(QualityControlRequest request) throws Exception {
+
+        Task qcTask = new Task();
+        qcTask.setKeyword1(request.getQcType() + "");
+        qcTask.setKeyword2(request.getQcValue());
+        qcTask.setOwnSign(BusinessHelper.getOwnSign());
+        qcTask.setStatus(Task.TASK_STATUS_UNHANDLED);
+        qcTask.setType(Task.TASK_TYPE_REVERSE_QUALITYCONTROL);
+        qcTask.setTableName(Task.getTableName(qcTask.getType()));
+        qcTask.setSequenceName(Task.getSequenceName(qcTask.getTableName()));
+        qcTask.setBody(JsonHelper.toJson(request));
+        qcTask.setCreateTime(new Date());
+        qcTask.setCreateSiteCode(Integer.parseInt(String.valueOf(request.getDistCenterID())));
+        qcTask.setExecuteCount(0);
+        StringBuilder fringerprint = new StringBuilder();
+        fringerprint.append(request.getDistCenterID() + "_" + qcTask.getType() + "_" + qcTask.getKeyword1() + "_" + qcTask.getKeyword2());
+        qcTask.setFingerprint(Md5Helper.encode(fringerprint.toString()));
+
+        taskService.add(qcTask);
+    }
+
+    /*
+    * 根据站点和条码判断是否生成分拣退货任务
+    * */
+    public void generateSortingReturnTask(Integer siteCode, String oldWaybillCode, String newPackageCode, Date operateTime) {
+        if (StringHelper.isEmpty(oldWaybillCode) || StringHelper.isEmpty(newPackageCode)) {
+            return;
+        }
+        AbnormalWayBill abnormalWayBill = null;
+        String oldPackageCode = null;
+        //根据新单组装包裹号
+        String index = WaybillUtil.getPackageSuffix(newPackageCode);
+        if (StringHelper.isNotEmpty(index)) {
+            oldPackageCode = oldWaybillCode + index;
+        }
+
+        try {
+            if (StringHelper.isNotEmpty(oldPackageCode)) {
+                //先用包裹号查询abnormal_waybill表
+                abnormalWayBill = this.abnormalWayBillService.getAbnormalWayBillByQcValue(siteCode, oldPackageCode);
+            }
+            //如果包裹维度没有，查询运单维度
+            if (abnormalWayBill == null) {
+                abnormalWayBill = this.abnormalWayBillService.getAbnormalWayBillByQcValue(siteCode, oldWaybillCode);
+            }
+
+        } catch (Exception e) {
+            log.error("获取异常提报记录信息失败，参数:{}, {}, {}", siteCode, oldWaybillCode, newPackageCode, e);
+        }
+
+        if (abnormalWayBill != null && this.isGenerateSortingReturnTask(abnormalWayBill.getQcCode())) {
+            ReturnsRequest sortingReturn = new ReturnsRequest();
+            sortingReturn.setSiteCode(abnormalWayBill.getCreateSiteCode());
+            sortingReturn.setSiteName(abnormalWayBill.getCreateSiteName());
+            sortingReturn.setUserCode(abnormalWayBill.getCreateUserCode());
+            sortingReturn.setUserName(abnormalWayBill.getCreateUser());
+
+            if (StringHelper.isNotEmpty(oldPackageCode) && WaybillUtil.isPackageCode(oldPackageCode)) {
+                sortingReturn.setPackageCode(oldPackageCode);
+            } else {
+                sortingReturn.setPackageCode(oldWaybillCode);
+            }
+            sortingReturn.setBusinessType(10);
+            sortingReturn.setOperateTime(DateHelper.formatDateTime(operateTime));
+            sortingReturn.setShieldsError(abnormalWayBill.getQcName());
+            Task task = new Task();
+            task.setKeyword1(abnormalWayBill.getCreateSiteCode() + "");
+            task.setKeyword2(abnormalWayBill.getQcValue());
+            task.setCreateSiteCode(abnormalWayBill.getCreateSiteCode());
+            task.setReceiveSiteCode(abnormalWayBill.getCreateSiteCode());
+            task.setOwnSign(BusinessHelper.getOwnSign());
+            task.setType(Task.TASK_TYPE_RETURNS);
+            task.setTableName(Task.getTableName(task.getType()));
+            task.setSequenceName(Task.getSequenceName(task.getTableName()));
+            task.setFingerprint(Md5Helper.encode(task.getKeyword1() + "_" + task.getKeyword2() + "_" + task.getCreateSiteCode()));
+            task.setBody(Constants.PUNCTUATION_OPEN_BRACKET + JsonHelper.toJson(sortingReturn) + Constants.PUNCTUATION_CLOSE_BRACKET);
+
+            try{
+                taskService.add(task);
+            }catch(Exception e){
+                log.error("质控异常生成分拣退货数据异常:{}", JsonHelper.toJson(task), e);
+            }
+        }
+    }
+
+    /*
+    * 从配置中获取需要发送分拣退货任务的原因列表
+    * */
+    private boolean isGenerateSortingReturnTask(Integer reasonId){
+        SysConfigContent content = sysConfigService.getSysConfigJsonContent(Constants.SYS_CONFIG_ABNORMAL_REASON_ID_GENERATE_SORTING_RETURN_TASK);
+        if (content != null && content.getKeyCodes() != null && ! content.getKeyCodes().isEmpty()) {
+            return content.getKeyCodes().contains(reasonId.toString());
+    }
+        return false;
     }
 
 }

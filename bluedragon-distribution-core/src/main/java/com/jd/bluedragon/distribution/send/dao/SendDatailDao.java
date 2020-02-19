@@ -417,4 +417,16 @@ public class SendDatailDao extends BaseDao<SendDetail> {
         return this.getSqlSession().selectList(namespace + ".queryWaybillCountBySendCode", sendDetail);
     }
 
+    public List<String> getWaybillCodeBySendCode(String sendCode) {
+        SendDetail query = new SendDetail();
+        query.setSendCode(sendCode);
+
+        Integer createSiteCode = SerialRuleUtil.getCreateSiteCodeFromSendCode(query.getSendCode());
+        if (createSiteCode == null) {
+            return new ArrayList<>();
+        }
+        query.setCreateSiteCode(createSiteCode);
+        return this.getSqlSession().selectList(SendDatailDao.namespace + ".getWaybillCodeBySendCode", query);
+    }
+
 }

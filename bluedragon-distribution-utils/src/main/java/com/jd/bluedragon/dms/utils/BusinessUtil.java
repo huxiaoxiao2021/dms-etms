@@ -324,6 +324,16 @@ public class BusinessUtil {
     }
 
     /**
+     * 根据waybillSign判断是否一盘货订单 （29 位 6 ）
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isYiPanHuoOrder(String waybillSign) {
+        return isSignInChars(waybillSign, 29, '6');
+    }
+
+    /**
      * 包裹半收 标识 waybillSign 27位 （0-不半收 1-全收半退 2-包裹半收 3-运单明细半收 4-包裹明细半收）
      *
      * @param waybillSign
@@ -379,7 +389,10 @@ public class BusinessUtil {
      */
     public static Integer getOriginalCrossType(String waybillSign, String sendPay) {
         //外单-waybillsign第31位等于1，则为航空，waybillsign第31位等于0，且waybillsign第67位等于1则为航填
-        if (isSignChar(waybillSign, 31, '1')) {
+        //12日26日修改 特快送项目  变更标位， 变更为 （31位1 并且 116位0 ）或者 84位3 都代表航
+        if ((isSignChar(waybillSign, 31, '1') &&
+                BusinessUtil.isSignChar(waybillSign,WaybillSignConstants.POSITION_116,DmsConstants.FLG_CHAR_DEFAULT))
+                || BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_84, WaybillSignConstants.CHAR_84_3)) {
             return DmsConstants.ORIGINAL_CROSS_TYPE_AIR;
         } else if (isSignChar(waybillSign, 31, '0') && isSignChar(waybillSign, 67, '1')) {
             return DmsConstants.ORIGINAL_CROSS_TYPE_FILL;
@@ -883,11 +896,31 @@ public class BusinessUtil {
 
     /**
      * 是否正向 （外单）
+     * waybillSign 61位是0
      * @param waybillSign waybillSign
      * @return true 是，false 不是
      */
     public static boolean isForeignForward(String waybillSign) {
         return isSignChar(waybillSign,WaybillSignConstants.BACKWARD_TYPE_POSITION_61,WaybillSignConstants.BACKWARD_TYPE_NO_CHAR_61_0);
+    }
+
+    /**
+     * 运单打标是否是正向
+     * waybillSign 15位是0
+     * @param waybillSign waybillSign
+     * @return true 是，false 不是
+     */
+    private static boolean isWaybillMarkForward(String waybillSign) {
+        return isSignChar(waybillSign,WaybillSignConstants.BACKWARD_TYPE_WAYBILL_MARK_POSITION_15,WaybillSignConstants.BACKWARD_TYPE_WAYBILL_MARK_POSITION_15_0);
+    }
+
+    /**
+     * 正向外单 并且运单打标也是正向
+     * @param waybillSign
+     * @return true 正向，false 非正向
+     */
+    public static boolean isForeignForwardAndWaybillMarkForward(String waybillSign){
+        return isForeignForward(waybillSign) && isWaybillMarkForward(waybillSign);
     }
 
     /**
@@ -950,19 +983,55 @@ public class BusinessUtil {
     }
 
     /**
-     * 判断否属于新增大小站类型（除校园派、爱回收等情况）
-     * 1.一级为自提点siteType=8;
-     * 2.一级营业部siteType=4；二级为营业部subType=4
+     * 判断是否是乡镇共配站
+     * 16-1605
      */
-    public static Boolean isNewBigSmallSite(Integer type ,Integer subType) {
-
-        if (type != null) {
-            if (subType != null) {
-                return type == 8 || (type == 4 && subType == 4);
-            }
-            return type == 8;
+    public static Boolean isRuralSite(Integer type, Integer subType) {
+        if (type == null || subType == null) {
+            return Boolean.FALSE;
         }
-        return false;
+
+        if (type == 16 && subType == 1605) {
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
+
+    /**
+     * 判断是否是自提点
+     * 8
+     */
+    public static Boolean isSelfSite(Integer type) {
+        return type != null && type == 8;
+    }
+
+    /**
+     * 判断是否是营业部
+     * 4-4
+     */
+    public static Boolean isSalesDeptSite(Integer type, Integer subType) {
+
+        if (type == null || subType == null) {
+            return Boolean.FALSE;
+        }
+
+        if (type == 4 && subType == 4) {
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
+
+    /**
+     * 可能存在所属站的情况，调用基础资料basicSiteQueryWS.getSiteExtensionBySiteId接口获取所属站信息
+     */
+    public static Boolean isMayBelongSiteExist(Integer type ,Integer subType) {
+        return BusinessUtil.isSelfSite(type)
+                || BusinessUtil.isThreePartner(type, subType)
+                || BusinessUtil.isSchoolyard(type, subType)
+                || BusinessUtil.isRecovery(type, subType)
+                || BusinessUtil.isAllianceBusiSite(type, subType)
+                || BusinessUtil.isRuralSite(type, subType)
+                || BusinessUtil.isSalesDeptSite(type, subType);
     }
 
     /**
@@ -1033,6 +1102,96 @@ public class BusinessUtil {
      */
     public static boolean isHeavyCargo(String waybillSign){
         return isSignChar(waybillSign, WaybillSignConstants.POSITION_36, WaybillSignConstants.CHAR_36_4);
+    }
+
+
+    /**
+     * 是否是同城
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isSameCity(String waybillSign){
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_2);
+    }
+
+    /**
+     * 是否是次晨
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isNextMorning(String waybillSign){
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_3);
+    }
+
+    /**
+     * 商家是否开通超长服务
+     * @param traderSign
+     * @return true 是，false 不是
+     */
+    public static boolean isOverLength(String traderSign){
+        return isSignChar(traderSign, TraderSignConstants.POSITION_91, TraderSignConstants.CHAR_91_1);
+    }
+
+    /**
+     * 是否是B2C纯配订单
+     * @param waybillSign
+     * @return true 是，false 不是
+     */
+    public static boolean isB2CPureMatch(String waybillSign){
+        return isSignInChars(waybillSign, WaybillSignConstants.POSITION_1,
+                WaybillSignConstants.CHAR_1_3,WaybillSignConstants.CHAR_1_6,WaybillSignConstants.CHAR_1_9,WaybillSignConstants.CHAR_1_K,WaybillSignConstants.CHAR_1_Y)
+                && isSignChar(waybillSign, WaybillSignConstants.POSITION_28, WaybillSignConstants.CHAR_28_0);
+    }
+
+    /**
+     * 是否是月结运单
+     * @param waybillSign
+     * @return true 是，false 不是
+     */
+    public static boolean isMonthFinish(String waybillSign){
+        return isSignInChars(waybillSign, WaybillSignConstants.POSITION_25,
+                WaybillSignConstants.CHAR_25_0,WaybillSignConstants.CHAR_25_5);
+    }
+
+    /**
+     * 是否是特惠送
+     * @param waybillSign
+     * @return true 是，false 不是
+     */
+    public static boolean isPreferentialSend(String waybillSign){
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_0);
+    }
+
+    /**
+     * 是否是次晨达
+     * @param waybillSign
+     * @return true 是，false 不是
+     */
+    public static boolean isNextMorningArrived(String waybillSign){
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_4)
+                || (isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_1)
+                    && isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_3));
+    }
+
+    /**
+     * 是否是同城当日达
+     * @param waybillSign
+     * @return true 是，false 不是
+     */
+    public static boolean isSameCityArrived(String waybillSign){
+        return (isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_2)
+                && isSignChar(waybillSign, WaybillSignConstants.POSITION_16, WaybillSignConstants.CHAR_16_1))
+                || (isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_1)
+                && isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_2));
+    }
+
+    /**
+     * 是否经济网运单
+     * @param waybillSign
+     * @return true 是，false 不是
+     */
+    public static boolean isBusinessNet(String waybillSign){
+        return isSignChar(waybillSign, WaybillSignConstants.BUSINESS_ENET_POSITION_62, WaybillSignConstants.BUSINESS_ENET_CHAR_62_8);
     }
 
 }

@@ -102,6 +102,12 @@ public class BasePrintWaybill implements Serializable {
      * 运输产品类型 waybillSign第40位，1-整车、2-快运零担、3-仓配零担
 	 * waybill_sign36位=0 且waybill_sign40位=1 且 waybill_sign54位=2：冷链整车
      * waybill_sign36位=1 且waybill_sign40位=2 且 waybill_sign54位=2：快运冷链
+	 * 快运冷链下新增 原逻辑待业务确认是否变更
+	 * {
+	 *     1. Waybill_sign54=2生鲜行业 且Waybill_sign40=2 纯配快运零担 且Waybill_sign80=6 且118=2 城配整车，即为：“冷链城配整车”
+	 *     2. Waybill_sign54=2生鲜行业 且 Waybill_sign40=2纯配快运零担 且Waybill_sign80=6 且 118= 1或者0或者空 城配共配，即为：“冷链城配共配”
+	 *     3. Waybill_sign54=2 生鲜行业 且Waybill_sign40=2 纯配快运零担且Waybill_sign80=8 专车，代表：“冷链整车”
+	 * }
      * waybill_sign36位=1 且waybill_sign40位=3 且 waybill_sign54位=2：仓配冷链
      */
     private String jZDFlag;
@@ -405,6 +411,29 @@ public class BasePrintWaybill implements Serializable {
 	 * 其他路区（现阶段只存放大件路区）
 	 */
 	private String backupRoadCode;
+
+	/**
+	 * 服务号
+	 */
+	private String serviceCode;
+
+	private String comment;
+
+	public String getServiceCode() {
+		return serviceCode;
+	}
+
+	public void setServiceCode(String serviceCode) {
+		this.serviceCode = serviceCode;
+	}
+
+	public String getComment() {
+		return comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
 
 	public String getAdditionalComment() {
 		return additionalComment;

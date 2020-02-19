@@ -22,6 +22,7 @@
 				<value>classpath:configured/popabnormal.properties</value>
 				<value>classpath:configured/snowflake.properties</value>
 				<value>classpath:configured/ucc.properties</value>
+				<value>classpath:configured/dms_crossbow.properties</value>
 			</list>
 		</property>
 		<property name="properties" ref="secApplicationProperties"/>
@@ -32,9 +33,10 @@
 		<property name="secLocation" value="classpath:configured/important.properties"/>
 	</bean>
 
+	<!-- 引入特殊配置 -->
+	<import resource="classpath:spring/distribution-worker-context-special.xml" />
+
     <!-- 扩容Mysql主备配置表 -->
-    <import resource="classpath:spring/mysql/distribution-core-common.xml" />
-	<import resource="classpath:spring/mysql/jddl/distribution-core-common-jddl.xml" />
 	<import resource="classpath:spring/distribution-core-context.xml" />
 	<import resource="classpath:spring/distribution-core-jmq.xml" />
 	<import resource="classpath:spring/distribution-core-asynBuffer-producer.xml" />
@@ -44,11 +46,5 @@
 	<import resource="classpath:spring/distribution-worker-special-jsf.xml"/>
 
 
-	<!-- ump monitor begin -->
-	<!--  监控注解处理器 -->
-	<bean class="com.jd.ump.annotation.JAnnotation">
-	   <property name="jvmKey" value="Bluedragon_dms_worker.jvm"></property>
-	   <property name="systemKey" value="Bluedragon_dms_worker.system"></property>
-	</bean>
-	<!-- ump monitor end -->
+
 </beans>

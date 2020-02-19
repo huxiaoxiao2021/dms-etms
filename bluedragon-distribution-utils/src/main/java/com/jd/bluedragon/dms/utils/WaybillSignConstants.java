@@ -129,6 +129,15 @@ public interface WaybillSignConstants {
 	char BACKWARD_TYPE_NO_CHAR_61_0 = '0';
 
 	/**
+	 * 逆向类型(运单打标)
+	 */
+	int BACKWARD_TYPE_WAYBILL_MARK_POSITION_15 = 15;
+	/**
+	 * 正向
+	 */
+	char BACKWARD_TYPE_WAYBILL_MARK_POSITION_15_0 = '0';
+
+	/**
 	 * 毕业寄
 	 */
 	int POSITION_98 = 98;
@@ -149,6 +158,16 @@ public interface WaybillSignConstants {
     int POSITION_92 = 92;
     char CHAR_92_2 = '2';
     char CHAR_92_3 = '3';
+
+	/**
+	 * 时效
+	 * 2 同城
+	 * 3 次晨
+	 */
+	int POSITION_116 = 116;
+	char CHAR_116_2 = '2';
+	char CHAR_116_3 = '3';
+
 	/**
 	 * waybillsign第31位
 	 */
@@ -181,4 +200,42 @@ public interface WaybillSignConstants {
 	 */
 	int POSITION_56 = 56;
 	char CHAR_56_1 = '1';
+
+	/**
+     * B2C纯配订单
+     * */
+	char CHAR_1_3 = '3';
+	char CHAR_1_6 = '6';
+	char CHAR_1_9 = '9';
+	char CHAR_1_K = 'K';
+	char CHAR_1_Y = 'Y';
+	int POSITION_28 = 28;
+	char CHAR_28_0 = '0';
+	/**
+	 * 是否是月结订单
+	 * */
+	int POSITION_25 = 25;
+	char CHAR_25_0 = '0';
+	char CHAR_25_5 = '5';
+	/**
+	 * 是否是特惠送
+	 * */
+	char CHAR_31_0 = '0';
+	/**
+	 * 是否是次晨达
+	 * */
+	char CHAR_31_1 = '1';
+	char CHAR_31_4 = '4';
+	/**
+	 * 是否是同城当日达
+	 * */
+	char CHAR_31_2 = '2';
+	int POSITION_16 = 16;
+	char CHAR_16_1 = '1';
+
+	/**
+	 * 经济网 62位为8
+	 */
+	int BUSINESS_ENET_POSITION_62 = 62;
+	char BUSINESS_ENET_CHAR_62_8 = '8';
 }

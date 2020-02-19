@@ -129,17 +129,10 @@ public class PrintWaybill extends BasePrintWaybill {
         this.sendPay = sendPay;
     }
 
-    private String comment ;
-
     /**
     * 新用记标识
     */
     private String newCustomerText ;
-
-    /**
-    * 服务号
-    */
-    private String serviceCode;
 
     /**
     * 包裹列表
@@ -213,6 +206,11 @@ public class PrintWaybill extends BasePrintWaybill {
      * 是否需要打印
      * */
     private Boolean needPrintFlag = Boolean.TRUE;
+
+    /**
+     * 是否是长包裹
+     * */
+    private Boolean longPack = Boolean.FALSE;
 
     public PrintWaybill(){
         this.isAir=false;
@@ -341,28 +339,12 @@ public class PrintWaybill extends BasePrintWaybill {
         this.packagePrice = packagePrice;
     }
 
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
-
     public String getNewCustomerText() {
         return newCustomerText;
     }
 
     public void setNewCustomerText(String newCustomerText) {
         this.newCustomerText = newCustomerText;
-    }
-
-    public String getServiceCode() {
-        return serviceCode;
-    }
-
-    public void setServiceCode(String serviceCode) {
-        this.serviceCode = serviceCode;
     }
 
     public List<PrintPackage> getPackList() {
@@ -515,5 +497,13 @@ public class PrintWaybill extends BasePrintWaybill {
 
     public void setNeedPrintFlag(Boolean needPrintFlag) {
         this.needPrintFlag = needPrintFlag;
+    }
+
+    public Boolean getLongPack() {
+        return longPack;
+    }
+
+    public void setLongPack(Boolean longPack) {
+        this.longPack = longPack;
     }
 }

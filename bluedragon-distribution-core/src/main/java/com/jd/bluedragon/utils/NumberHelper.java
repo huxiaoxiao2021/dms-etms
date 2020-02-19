@@ -1,5 +1,6 @@
 package com.jd.bluedragon.utils;
 
+import com.jd.common.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -184,7 +185,7 @@ public class NumberHelper {
      * @return
      */
     public static Integer convertToInteger(String str,Integer defaultVal) {
-    	if (str != null) {
+    	if (str != null && StringUtils.isNumeric(str)) {
             try {
 				return Integer.valueOf(str);
 			} catch (NumberFormatException e) {

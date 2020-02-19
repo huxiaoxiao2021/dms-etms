@@ -68,6 +68,8 @@ import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.third.domain.ThirdBoxDetail;
+import com.jd.bluedragon.distribution.third.service.ThirdBoxDetailService;
 import com.jd.bluedragon.distribution.transBillSchedule.service.TransBillScheduleService;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
@@ -94,6 +96,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -172,6 +175,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private SupportServiceInterface supportProxy;
+
+    @Autowired
+    private ThirdBoxDetailService thirdBoxDetailService;
 
     @Autowired
     private DmsOperateHintService dmsOperateHintService;
@@ -3948,8 +3954,9 @@ public class DeliveryServiceImpl implements DeliveryService {
     /**
      * 判断当前发货是否为中转发货
      * 1:装箱、正向、逆向发货
-     * 2.1:发货起始站与箱子起始站不同
-     * 2.2:发货起始站与箱子起始站相同，但目的站不同，且发货目的站必须是分拣中心
+     * 2:发货起始站与箱子起始站不同
+     * 3:发货目的是分拣中心，发货起始站与箱子起始不同
+     * 4.如发货目的是站点并且站点类型在所属站类型范围内，取箱号目的所属站和批次目的地相同
      *
      * @param domain 发货对象
      * @return
@@ -3965,20 +3972,31 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (domain.getReceiveSiteCode() == null || domain.getCreateSiteCode() == null) {
             return false;
         }
-        String sendReceiveSiteType = "";
-        BaseStaffSiteOrgDto yrDto = this.baseMajorManager.getBaseSiteBySiteId(domain.getReceiveSiteCode());
-        if (yrDto != null) {
-            sendReceiveSiteType = String.valueOf(yrDto.getSiteType());
-        }
         Box box = this.boxService.findBoxByCode(domain.getBoxCode());
         if (null == box || null == box.getCreateSiteCode() || null == box.getReceiveSiteCode()) {
             return false;
         }
-        return (!domain.getCreateSiteCode().equals(box.getCreateSiteCode()))
-                || (domain.getCreateSiteCode().equals(box.getCreateSiteCode())
-                && !domain.getReceiveSiteCode().equals(box.getReceiveSiteCode())
-                && sendReceiveSiteType.equals("64")
-        );
+
+        //发货起始站与箱子起始站不同，属于中转
+        if (! domain.getCreateSiteCode().equals(box.getCreateSiteCode())) {
+            return true;
+        }
+
+        BaseStaffSiteOrgDto yrDto = this.baseMajorManager.getBaseSiteBySiteId(domain.getReceiveSiteCode());
+        if (yrDto == null) {
+            return false;
+        }
+        //发货目的站是分拣中心
+        if (BusinessUtil.isDistrubutionCenter(yrDto.getSiteType())) {
+            return ! domain.getReceiveSiteCode().equals(box.getReceiveSiteCode());
+        }
+
+        BaseStaffSiteOrgDto boxReceiveSite = this.baseMajorManager.getBaseSiteBySiteId(box.getReceiveSiteCode());
+        //判断箱号目的的所属站是否与批次目的地一致，如果一致属于跨站发货（通俗理解，小站箱号发大站的批次）
+        if (boxReceiveSite != null && BusinessUtil.isMayBelongSiteExist(boxReceiveSite.getSiteType(), boxReceiveSite.getSubType())) {
+            return domain.getReceiveSiteCode().equals(baseMajorManager.getPartnerSiteBySiteId(box.getReceiveSiteCode()));
+        }
+        return false;
     }
 
     @Override
@@ -4115,60 +4133,98 @@ public class DeliveryServiceImpl implements DeliveryService {
         tsendDatail.setReceiveSiteCode(yReceiveSiteCode);
         tsendDatail.setIsCancel(OPERATE_TYPE_CANCEL_Y);
         // 查询未操作取消的跨中转发货明细数据，用于补中转发货sendD数据
-        List<SendDetail> sendDatailist = this.sendDatailDao.querySendDatailsBySelective(tsendDatail);
+        List<SendDetail> sendDetailList = this.sendDatailDao.querySendDatailsBySelective(tsendDatail);
         // 判断sendD数据是否存在，若不存在则视为站点发货至分拣，调用TMS获取箱子对应的装箱明细信息
-        if (sendDatailist == null || sendDatailist.isEmpty()) {
-            if(sendDatailist == null){
-                sendDatailist = new ArrayList<SendDetail>();
+        if (sendDetailList == null || sendDetailList.isEmpty()) {
+            if(sendDetailList == null){
+                sendDetailList = new ArrayList<SendDetail>();
             }
             SendInfoDto sendInfoDto = new SendInfoDto();
             sendInfoDto.setBoxCode(boxCode);
             com.jd.etms.erp.service.domain.BaseEntity<List<SendInfoDto>> baseEntity = supportProxy.getSendDetails(sendInfoDto);
-            if (baseEntity != null && baseEntity.getResultCode() > 0) {
+            if (baseEntity != null && baseEntity.getResultCode() > 0 && CollectionUtils.isNotEmpty(baseEntity.getData())) {
                 List<SendInfoDto> datas = baseEntity.getData();
-                if (datas != null && !datas.isEmpty()) {
-                    //根据箱号判断终端箱子的正逆向
-                    Integer businessType = BusinessUtil.isReverseBoxCode(boxCode) ? Constants.BUSSINESS_TYPE_REVERSE : Constants.BUSSINESS_TYPE_POSITIVE;
-                    for (SendInfoDto dto : datas) {
-                        SendDetail dsendDatail = new SendDetail();
-                        dsendDatail.setBoxCode(dto.getBoxCode());
+                //根据箱号判断终端箱子的正逆向
+                Integer businessType = BusinessUtil.isReverseBoxCode(boxCode) ? Constants.BUSSINESS_TYPE_REVERSE : Constants.BUSSINESS_TYPE_POSITIVE;
+                for (SendInfoDto dto : datas) {
+                    SendDetail dsendDatail = new SendDetail();
+                    dsendDatail.setBoxCode(dto.getBoxCode());
 
-                        dsendDatail.setWaybillCode(dto.getWaybillCode());
-                        dsendDatail.setPackageBarcode(dto.getPackageBarcode());
+                    dsendDatail.setWaybillCode(dto.getWaybillCode());
+                    dsendDatail.setPackageBarcode(dto.getPackageBarcode());
 
-                        if (WaybillUtil.isSurfaceCode(dto.getPackageBarcode())) {
-                            BaseEntity<PickupTask> pickup = null;
-                            try {
-                                pickup = this.waybillPickupTaskApi.getDataBySfCode(WaybillUtil.getWaybillCode(dto.getPackageBarcode()));
-                            } catch (Exception e) {
-                                this.log.error("调用取件单号信息ws接口异常：{}",dto.getPackageBarcode(),e);
-                            }
-                            if (pickup != null && pickup.getData() != null) {
-                                dsendDatail.setPickupCode(pickup.getData().getPickupCode());
-                                dsendDatail.setWaybillCode(pickup.getData().getSurfaceCode());
-                            }
-                            if(WaybillUtil.isWaybillCode(dto.getPackageBarcode())){//FIXME:这里只是针对取件单的临时更改,应当从运单获得取件单包裹明细进行组装2018-07-17 黄亮 已做stash save
-                                dsendDatail.setPackageBarcode(dto.getPackageBarcode()+"-1-1-");
-                            }
+                    if (WaybillUtil.isSurfaceCode(dto.getPackageBarcode())) {
+                        BaseEntity<PickupTask> pickup = null;
+                        try {
+                            pickup = this.waybillPickupTaskApi.getDataBySfCode(WaybillUtil.getWaybillCode(dto.getPackageBarcode()));
+                        } catch (Exception e) {
+                            this.log.error("调用取件单号信息ws接口异常：{}",dto.getPackageBarcode(),e);
                         }
-                        dsendDatail.setCreateUser(dto.getOperatorName());
-                        dsendDatail.setCreateUserCode(dto.getOperatorId());
-                        dsendDatail.setOperateTime(dto.getHandoverDate());
-                        dsendDatail.setSendType(businessType);
-                        if (dsendDatail.getPackageBarcode() != null) {
-                            dsendDatail.setPackageNum(BusinessUtil.getPackNumByPackCode(dsendDatail.getPackageBarcode()));
-                        } else {
-                            dsendDatail.setPackageNum(1);
+                        if (pickup != null && pickup.getData() != null) {
+                            dsendDatail.setPickupCode(pickup.getData().getPickupCode());
+                            dsendDatail.setWaybillCode(pickup.getData().getSurfaceCode());
                         }
-                        dsendDatail.setIsCancel(OPERATE_TYPE_CANCEL_L);
-                        sendDatailist.add(dsendDatail);
+                        if(WaybillUtil.isWaybillCode(dto.getPackageBarcode())){//FIXME:这里只是针对取件单的临时更改,应当从运单获得取件单包裹明细进行组装2018-07-17 黄亮 已做stash save
+                            dsendDatail.setPackageBarcode(dto.getPackageBarcode()+"-1-1-");
+                        }
                     }
-                } else {
-                    log.info("调用tms取站点箱子明细接口返回信息为空:{}", baseEntity.getResultCode());
+                    dsendDatail.setCreateUser(dto.getOperatorName());
+                    dsendDatail.setCreateUserCode(dto.getOperatorId());
+                    dsendDatail.setOperateTime(dto.getHandoverDate());
+                    dsendDatail.setSendType(businessType);
+                    if (dsendDatail.getPackageBarcode() != null) {
+                        dsendDatail.setPackageNum(BusinessUtil.getPackNumByPackCode(dsendDatail.getPackageBarcode()));
+                    } else {
+                        dsendDatail.setPackageNum(1);
+                    }
+                    dsendDatail.setIsCancel(OPERATE_TYPE_CANCEL_L);
+                    sendDetailList.add(dsendDatail);
+                }
+            }else{
+                sendDetailList = getCancelSendByBoxFromThird(box);
+                if(!CollectionUtils.isEmpty(sendDetailList)){
+                    return sendDetailList;
                 }
             }
         }
-        return sendDatailist;
+        return sendDetailList;
+    }
+
+    /**
+     * 获取经济网装箱明细
+     * @param box
+     * @return
+     */
+    public List<SendDetail> getCancelSendByBoxFromThird(Box box) {
+
+        BaseStaffSiteOrgDto startSite = baseMajorManager.getBaseSiteBySiteId(box.getCreateSiteCode());
+        if(!Constants.THIRD_ENET_SITE_TYPE.equals(startSite.getSiteType())){
+            return null;
+        }
+        List<ThirdBoxDetail> thirdBoxDetails = thirdBoxDetailService.queryByBoxCode(Constants.TENANT_CODE_ECONOMIC, startSite.getSiteCode(), box.getCode());
+        if(CollectionUtils.isEmpty(thirdBoxDetails)){
+            return null;
+        }
+        List<SendDetail> sendDetailList = new ArrayList<>(thirdBoxDetails.size());
+        for(ThirdBoxDetail detail : thirdBoxDetails){
+            SendDetail sendDetail = new SendDetail();
+            sendDetail.setBoxCode(detail.getBoxCode());
+            sendDetail.setWaybillCode(detail.getWaybillCode());
+            sendDetail.setPackageBarcode(detail.getPackageCode());
+
+            sendDetail.setCreateUser(detail.getOperatorName());
+            sendDetail.setCreateUserCode(-1);
+            sendDetail.setOperateTime(detail.getOperatorTime());
+            sendDetail.setSendType(Constants.BUSSINESS_TYPE_POSITIVE);
+            if (sendDetail.getPackageBarcode() != null) {
+                sendDetail.setPackageNum(BusinessUtil.getPackNumByPackCode(sendDetail.getPackageBarcode()));
+            } else {
+                sendDetail.setPackageNum(1);
+            }
+            sendDetail.setIsCancel(OPERATE_TYPE_CANCEL_L);
+            sendDetailList.add(sendDetail);
+        }
+        return sendDetailList;
     }
 
     @Override

@@ -4,16 +4,27 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.crossbow.CrossbowConfig;
 import com.jd.bluedragon.core.crossbow.DMSCrossbowClient;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.SoapXmlHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.codec.binary.Base64;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.DocumentHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * <p>
@@ -40,6 +51,11 @@ public abstract class AbstractCrossbowManager<P,R> implements InitializingBean {
      */
     private CrossbowConfig crossbowConfig;
 
+    /**
+     * 定义请求和返回字段的序列化和反序列化方式
+     */
+    private SerializationConfig serializationConfig;
+
     @Autowired
     private DMSCrossbowClient dmsCrossbowClient;
 
@@ -57,7 +73,18 @@ public abstract class AbstractCrossbowManager<P,R> implements InitializingBean {
      * @param condition 相应的条件
      * @return 返回三方接口的请求参数request对象
      */
-    protected abstract P getMyRequestBody(Object condition);
+    protected P getMyRequestBody(Object condition) {
+        return null;
+    }
+
+    /**
+     * 构建url参数
+     * @param condition 相应的条件
+     * @return 返回三方接口的url请求参数
+     */
+    protected Map<String, String> getMyUrlParams(Object condition) {
+        return null;
+    }
 
     /**
      * 调用物流基础组件crossbow的执行器
@@ -70,10 +97,15 @@ public abstract class AbstractCrossbowManager<P,R> implements InitializingBean {
         try {
             /* 获取具体实现类的返回值泛型 对应的R */
             Type superClass = this.getClass().getGenericSuperclass();
-            Type type = ((ParameterizedType)superClass).getActualTypeArguments()[1];
+            Type requestType = ((ParameterizedType)superClass).getActualTypeArguments()[0];
+            Type responseType = ((ParameterizedType)superClass).getActualTypeArguments()[1];
 
             P parameter = getMyRequestBody(condition);
-            return dmsCrossbowClient.executor(crossbowConfig, JsonHelper.toJson(parameter), type);
+            Map<String, String> urlParams = getMyUrlParams(condition);
+            return deSerializeResponse(
+                    dmsCrossbowClient.executor(crossbowConfig, serializeRequest(parameter,requestType), urlParams)
+                    ,responseType);
+
         } catch (RuntimeException e) {
             Profiler.functionError(callerInfo);
             logger.warn("通过物流网关crossBow组件调用外部接口异常:", e);
@@ -101,13 +133,72 @@ public abstract class AbstractCrossbowManager<P,R> implements InitializingBean {
         if (StringHelper.isEmpty(crossbowConfig.getAppKey())) {
             throw new RuntimeException(this.getClass() + "缺少crossbowConfig配置中appKey的内容，请检查相关配置");
         }
+        if (null == serializationConfig) {
+            throw new RuntimeException(this.getClass() + "缺少serializationConfig配置信息，请检查相关配置");
+        }
     }
 
-    public CrossbowConfig getCrossbowConfig() {
-        return crossbowConfig;
+    private String serializeRequest(P parameter, Type requestType) {
+        if (null == parameter) {
+            return null;
+        }
+        switch (serializationConfig.getSerializationMode()) {
+            case XML:
+                return XmlHelper.toXml(parameter,(Class)requestType);
+            case JSON:
+                return JsonHelper.toJson(parameter);
+            case SOAP:
+                return SoapXmlHelper.createSoapXml(serializationConfig.getMethodName(),
+                        serializationConfig.getNameSpaceUIR(),serializationConfig.getParameterName(),
+                        XmlHelper.toXml(parameter,(Class) requestType));
+            case SOAP_BASE64:
+                String body = new String(
+                        new Base64().encode(
+                                Objects.requireNonNull(XmlHelper.toXml(parameter, (Class) requestType))
+                                        .getBytes(StandardCharsets.UTF_8))
+                        , StandardCharsets.UTF_8);
+                return SoapXmlHelper.createSoapXml(serializationConfig.getMethodName(),
+                        serializationConfig.getNameSpaceUIR(),serializationConfig.getParameterName(),body);
+            default:
+                return null;
+        }
+    }
+
+    private R deSerializeResponse(String responseStr, Type responseType) {
+        switch (serializationConfig.getSerializationMode()) {
+            case XML:
+                return (R) XmlHelper.toObject(responseStr,(Class) responseType);
+            case JSON:
+                return JsonHelper.fromJsonUseGson(responseStr,responseType);
+            case SOAP:
+                try {
+                    Document document = DocumentHelper.parseText(responseStr);
+                    String responseBody = document.getRootElement().getStringValue();
+                    return (R) XmlHelper.toObject(responseBody.substring(responseBody.indexOf("?>") + 2),(Class) responseType);
+                } catch (DocumentException e) {
+                    logger.error("解析SOAP的报文异常，报文为：{}", responseStr);
+                    return null;
+                }
+            case SOAP_BASE64:
+                try {
+                    Document document = DocumentHelper.parseText(responseStr);
+                    String responseBody = document.getRootElement().getStringValue();
+                    String responseBodyXML = new String(new Base64().decode(responseBody), StandardCharsets.UTF_8);
+                    return (R) XmlHelper.toObject(responseBodyXML.substring(responseBodyXML.indexOf("?>") + 2),(Class) responseType);
+                } catch (DocumentException e) {
+                    logger.error("解析SOAP的报文异常，报文为：{}", responseStr);
+                    return null;
+                }
+            default:
+                return null;
+        }
     }
 
     public void setCrossbowConfig(CrossbowConfig crossbowConfig) {
         this.crossbowConfig = crossbowConfig;
+    }
+
+    public void setSerializationConfig(SerializationConfig serializationConfig) {
+        this.serializationConfig = serializationConfig;
     }
 }

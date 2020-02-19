@@ -64,6 +64,11 @@ public class DmsConstants {
     public static final char FLG_CHAR_YN_Y = '1';
 
     /**
+     * 空占位符 0
+     */
+    public static final char FLG_CHAR_DEFAULT = '0';
+
+    /**
      * 箱号正则表达式 旧版 废弃
      */
     @Deprecated
@@ -184,4 +189,11 @@ public class DmsConstants {
     public static final String SPECIAL_MARK1_WAREHOUSE_JD = "京仓";
     public static final String SPECIAL_MARK1_WAREHOUSE_NOT_JD = "非京仓";
     public static final String SPECIAL_MARK1_WAREHOUSE_OUTER ="外仓";
+
+    /**
+     * remark特殊标识处理
+     * */
+    public static final String BAD_WAREHOURSE_FOR_PORT = "保税";
+    public static final String PICKUP_CUSTOMER_COMMET = "服务单号：";
+    public static final String BUSINESS_ORDER_CODE_REMARK = "商家订单号：";
 }

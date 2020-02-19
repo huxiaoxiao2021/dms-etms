@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.DmsRouter;
 import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
@@ -13,10 +14,7 @@ import com.jd.bluedragon.distribution.base.service.DmsStorageAreaService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
-import com.jd.bluedragon.distribution.inspection.domain.Inspection;
-import com.jd.bluedragon.distribution.inspection.domain.InspectionAS;
-import com.jd.bluedragon.distribution.inspection.domain.InspectionEC;
-import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
+import com.jd.bluedragon.distribution.inspection.domain.*;
 import com.jd.bluedragon.distribution.inspection.exception.InspectionException;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
@@ -34,6 +32,7 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
@@ -42,6 +41,7 @@ import com.jd.ioms.jsf.export.domain.Order;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
@@ -119,58 +119,8 @@ public class InspectionServiceImpl implements InspectionService {
 	@Autowired
 	private SiteService siteService;
 
-	public List<Inspection> parseInspections(Task task) {
-		if (task == null || StringUtils.isBlank(task.getBody())) {
-			return null;
-		}
-
-		InspectionRequest[] arrays = JsonHelper.jsonToArray(task.getBody(),
-				InspectionRequest[].class);//FIXME:问下配送序列化高性能方法
-		List<InspectionRequest> requestList = Arrays.asList(arrays);
-
-		List<Inspection> inspections = new ArrayList<Inspection>();
-
-		for (InspectionRequest requestBean : requestList) {
-			String code = requestBean.getPackageBarOrWaybillCode();
-
-            //pda不再区分用户入口， 所有订单都可以扫描， 由后台获取运单ordertype和storeid 判断以前的类型  2014年12月16日16:21:55 by guoyongzhi
-            if(requestBean.getBusinessType()==Constants.BUSSINESS_TYPE_NEWTRANSFER)//包裹交接类型 以前是 1130： 50库房， 51夺宝岛 52协同仓  现在是50
-            {
-                String waybillCode = WaybillUtil.getWaybillCode(requestBean.getPackageBarOrWaybillCode());
-                BigWaybillDto bigWaybillDto = getWaybill(waybillCode);
-                if (bigWaybillDto != null && bigWaybillDto.getWaybill()!=null) {
-
-                    log.debug("包裹交接50 订单号:{} waybillType:{} StoreID:{} task id:{} "
-							,requestBean.getPackageBarOrWaybillCode() ,bigWaybillDto.getWaybill().getWaybillType() , bigWaybillDto.getWaybillState().getStoreId() , task.getId());
-
-                    if (bigWaybillDto.getWaybill().getWaybillType() == Constants.BUSSINESS_TYPE_DBD_ORDERTYPE) { //夺宝岛交接 51 : 2
-                        requestBean.setBusinessType(Constants.BUSSINESS_TYPE_BDB);
-                    } else if (bigWaybillDto.getWaybill().getWaybillType() == Constants.BUSSINESS_TYPE_ZY_ORDERTYPE) {  //正向库房或者协同仓交接
-                        if (isExists(bigWaybillDto.getWaybillState().getStoreId())) {
-                            requestBean.setBusinessType(Constants.BUSSINESS_TYPE_OEM_52);
-                        } else {
-                            requestBean.setBusinessType(Constants.BUSSINESS_TYPE_TRANSFER);
-                        }
-                    }
-                }
-            }
-
-
-			// 如果是包裹号获取取件单号，则存在包裹号属性中
-			if (WaybillUtil.isPackageCode(code)
-					|| WaybillUtil.isSurfaceCode(code)) {
-				requestBean.setPackageBarcode(code);
-			} else if (WaybillUtil.isWaybillCode(code)) {// 否则为运单号
-				requestBean.setWaybillCode(code);
-			} else {
-				log.warn("验货executeInspectionWorker，数据错误，非正常包裹号、取件单号或运单号，code: {} task id: {}" ,code, task.getId());
-				continue;
-			}
-			inspections.addAll(prepareInspection(requestBean));
-		}
-		Collections.sort(inspections);
-		return inspections;
-	}
+	@Autowired
+    private WaybillPackageManager waybillPackageManager;
 
     public boolean isExists(Integer Storeid)
     {
@@ -291,67 +241,13 @@ public class InspectionServiceImpl implements InspectionService {
 		return result;
 	}
 
-	/**
-	 * 根据运单号或包裹号来返回Inspection集合
-	 * 
-	 * @param requestBean
-	 */
-	@Override
-	public List<Inspection> prepareInspection(InspectionRequest requestBean) {
-		Set<Inspection> inspections = new HashSet<Inspection>();
-		if (StringUtils.isNotBlank(requestBean.getWaybillCode())) {
-			String waybillCode = requestBean.getWaybillCode();
-			List<DeliveryPackageD> packages = waybillPackageBarcodeService
-					.getPackageBarcodeByWaybillCode(waybillCode);
-			requestBean = getStoreIdByWaybillCode(requestBean, waybillCode);
-			if (null == packages) {
-				return null;
-			}
-			if (BusinessHelper.checkIntNumRange(packages.size())) {
-				for (DeliveryPackageD pack : packages) {
-					requestBean.setPackageBarcode(pack.getPackageBarcode());
-					inspections.add(Inspection.toInspection(requestBean));
-				}
-			}
-		} else if (StringUtils.isNotEmpty(requestBean.getPackageBarcode())) {
-			requestBean = getStoreIdByWaybillCode(requestBean,
-					WaybillUtil.getWaybillCode(requestBean
-							.getPackageBarcode()));
-			inspections.add(Inspection.toInspection(requestBean));
-		} else {
-			log.warn(" 验货prepareInspection，没有对应的包裹号或者箱号 ");
-		}
-		CollectionHelper<Inspection> helper = new CollectionHelper<Inspection>();
-		return helper.toList(inspections);
-	}
-
-	private InspectionRequest getStoreIdByWaybillCode(
-			InspectionRequest requestBean, String waybillCode) {
-		// 返仓交接，根据运单号获取库房号
-		if (Constants.BUSSINESS_TYPE_FC == requestBean.getBusinessType()
-				.intValue()) {
-			try {
-				BaseEntity<Waybill> baseEntity = waybillQueryManager
-						.getWaybillByWaybillCode(waybillCode);
-				if (baseEntity != null && baseEntity.getData() != null
-						&& baseEntity.getData().getDistributeStoreId() != null) {
-					requestBean.setReceiveSiteCode(baseEntity.getData()
-							.getDistributeStoreId());// 库房编号
-					this.log.warn("返仓交接:运单号【{}】调用运单WSS获取[库房编号]=[{}]"	,waybillCode, baseEntity.getData().getDistributeStoreId());
-				} else {
-					this.log.warn("返仓交接:运单号【{}】调用运单WSS获取[库房编号]异常:[baseEntity=null||baseEntity.getData()=null||baseEntity.getData().getDistributeStoreId()=null]",waybillCode);
-				}
-			} catch (Exception ex) {
-				this.log.error("返仓交接:运单号【{}】调用运单WSS获取[库房编号]异常：",waybillCode, ex);
-			}
-		}
-		return requestBean;
-	}
 
 	public Integer inspectionCount(Inspection inspection) {
 		return inspectionDao.inspectionCount(inspection);
 	}
-
+	public Integer inspectionCountByWaybill(Inspection inspection) {
+		return inspectionDao.inspectionCountByWaybill(inspection);
+	}
 	/**
 	 * 插入pda操作日志表
 	 * 
@@ -553,24 +449,25 @@ public class InspectionServiceImpl implements InspectionService {
 	 * */
 	@JProfiler(jKey = "InspectionServiceImpl.getInspectionResult",mState = {JProEnum.TP,JProEnum.FunctionError})
 	public InspectionResult getInspectionResult(Integer dmsSiteCode, String waybillCode) {
+		InspectionResult result =  new InspectionResult("");
 		BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, false, false, false);
 		if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null) {
 			// 获取运单信息
 			Waybill waybill = baseEntity.getData().getWaybill();
+			if(waybill.getGoodNumber() != null){
+				result.setPackageSize(waybill.getGoodNumber());
+			}
 			if(dmsSiteCode == null || waybill.getProvinceId() ==null){
-				return new InspectionResult("");
+				return result;
 			}
 			DmsStorageArea newDmsStorageArea = dmsStorageAreaService.findByDmsSiteAndWaybillAdress(dmsSiteCode,waybill.getProvinceId(),waybill.getCityId());
-			if(newDmsStorageArea != null){
-				String storageCode = newDmsStorageArea.getStorageCode();
-				return new InspectionResult(storageCode);
-			}else {
-				return new InspectionResult("");
+			if(newDmsStorageArea != null) {
+				result.setStorageCode(newDmsStorageArea.getStorageCode());
 			}
 		}else{
 			this.log.warn("通过运单号获取运单信息失败：{}" , waybillCode);
-			return new InspectionResult("");
 		}
+		return result;
 	}
 
 	/**
@@ -708,4 +605,51 @@ public class InspectionServiceImpl implements InspectionService {
 		return inspectionDao.findPageInspection(params);
 	}
 
+	@Override
+	public InspectionPackProgress getWaybillCheckProgress(String waybillCode, Integer createSiteCode) {
+        if (StringUtils.isBlank(waybillCode))
+            return null;
+
+		BaseEntity<List<DeliveryPackageD>> packageListRet = waybillPackageManager.getPackListByWaybillCode(waybillCode);
+        if (null == packageListRet ||
+            EnumBusiCode.BUSI_SUCCESS.getCode() != packageListRet.getResultCode() ||
+            CollectionUtils.isEmpty(packageListRet.getData())
+        )
+            return null;
+
+		List<Inspection> inspections = inspectionDao.listInspectionByWaybillCode(waybillCode, createSiteCode);
+        List<String> inspectedPackNos = new ArrayList<>();
+        List<InspectionPackProgress.CheckPack> checkedPacks = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(inspections)) {
+            for (Inspection inspection : inspections) {
+                InspectionPackProgress.CheckPack checkPack = new InspectionPackProgress.CheckPack();
+                checkPack.setPackNo(inspection.getPackageBarcode());
+                checkedPacks.add(checkPack);
+                inspectedPackNos.add(inspection.getPackageBarcode());
+            }
+        }
+
+        List<DeliveryPackageD> packageList = packageListRet.getData();
+        List<String> totalPackNos = new ArrayList<>(packageList.size());
+        for (DeliveryPackageD deliveryPackageD : packageList) {
+            totalPackNos.add(deliveryPackageD.getPackageBarcode());
+        }
+        List<InspectionPackProgress.CheckPack> unCheckedPacks = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(inspectedPackNos)) {
+	        totalPackNos.removeAll(inspectedPackNos);
+        }
+        if (!CollectionUtils.isEmpty(totalPackNos)) {
+            for (String packNo : totalPackNos) {
+                InspectionPackProgress.CheckPack checkPack = new InspectionPackProgress.CheckPack();
+                checkPack.setPackNo(packNo);
+                unCheckedPacks.add(checkPack);
+            }
+        }
+
+        InspectionPackProgress result = new InspectionPackProgress();
+        result.setWaybillCode(waybillCode);
+        result.setCheckedPackNos(checkedPacks);
+        result.setUnCheckedPackNos(unCheckedPacks);
+        return result;
+	}
 }

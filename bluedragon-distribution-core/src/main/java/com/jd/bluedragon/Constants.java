@@ -99,7 +99,8 @@ public class Constants {
      * B冷链转运中心站点类型
      */
     public static final Integer B2B_CODE_SITE_TYPE = 6460;
-
+    /** 经济网网点类型 **/
+    public static final Integer THIRD_ENET_SITE_TYPE= 10000;
 
     /** 操作类型 **/
     public static final int TRANS_SORTING_OPERATE_TYPE = 1;
@@ -716,6 +717,11 @@ public class Constants {
     public static final String SYS_CONFIG_PDD_PRINT_TYPE_NOT_USE = "pdd.print.type.not.use";
 
     /**
+     * 配置信息-生成分拣中心退货任务的异常原因id列表 abnormal.reason.id.generate.sorting_return_task;
+     */
+    public static final String SYS_CONFIG_ABNORMAL_REASON_ID_GENERATE_SORTING_RETURN_TASK = "abnormal.reason.id.generate.sorting_return_task";
+
+    /**
 	  * 配置信息-客户端运行环境配置前缀 sys.config.client.runningMode.
 	  */
     public static final String SYS_CONFIG_CLIENT_RUNNING_MODE_PRE = "sys.config.client.runningMode.";    
@@ -1008,5 +1014,25 @@ public class Constants {
      * 调用运输基础资料获取货物类型 字典分组
      */
     public static final String DICTGROUP = "1209";
+    /**
+     * 泡重比类型--按体积
+     */
+    public static final Integer VOLUMEFEETYPE_VOLUME = 1;
+
+    /**
+     * 泡重比类型--按重泡比
+     */
+    public static final Integer VOLUMEFEETYPE_VOLUMERATE = 2;
+
+    /**
+     * 运单预分拣网点值 为-136代表超区
+     */
+    public static final int WAYBILL_SITE_ID_OUT_ZONE = -136;
+
+    /**
+     * 经济网租户编码
+     */
+    public static final String TENANT_CODE_ECONOMIC = "ECONOMIC_NET";
+
 
 }
