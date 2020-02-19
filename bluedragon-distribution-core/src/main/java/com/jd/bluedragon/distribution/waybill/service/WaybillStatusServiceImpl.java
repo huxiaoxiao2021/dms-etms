@@ -777,7 +777,19 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				}
 				task.setYn(0);
 			}
-
+			/**
+			 * 全程跟踪:经济网取消建箱
+			 */
+			if (task.getKeyword2() != null && String.valueOf(WaybillStatus.WAYBILL_STATUS_CODE_SITE_CANCEL_SORTING).equals(task.getKeyword2())) {
+				String packageCode = tWaybillStatus.getPackageCode();
+				String waybillCode = tWaybillStatus.getWaybillCode();
+				tWaybillStatus.setPackageCode(packageCode);
+				tWaybillStatus.setWaybillCode(waybillCode);
+				toWaybillStatus(tWaybillStatus, bdTraceDto);
+				bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
+				waybillQueryManager.sendBdTrace(bdTraceDto);
+				task.setYn(0);
+			}
 			/**
 			 * 全程跟踪:揽收交接
 			 */

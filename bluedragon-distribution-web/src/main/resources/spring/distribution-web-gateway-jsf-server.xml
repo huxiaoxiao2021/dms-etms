@@ -4,6 +4,8 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
     http://jsf.jd.com/schema/jsf http://jsf.jd.com/schema/jsf/jsf.xsd">
 
+
+    <!-- 发布jsf 到物流网关 安卓调用start -->
     <!-- 分拣 -->
     <bean id="sortingGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.SortingGatewayServiceImpl"/>
     <jsf:provider id="jsfSortingService"
@@ -150,6 +152,24 @@
                   alias="${dms.gateway.jsf.alias}"
                   ref="exceptionHandleGatewayService" server="dmsjsf">
     </jsf:provider>
+    <!-- 发布jsf 到物流网关 安卓调用end -->
+
+    <!-- 发布jsf到物流网关 外部公司调用start  -->
+    <!-- 运单相关 -->
+    <bean id="waybillGateWayExternalService" class="com.jd.bluedragon.distribution.external.gateway.waybill.WaybillGateWayExternalServiceImpl"/>
+    <jsf:provider id="jsfWaybillGateWayExternalService"
+                  interface="com.jd.bluedragon.external.gateway.waybill.WaybillGateWayExternalService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="waybillGateWayExternalService" server="dmsjsf">
+    </jsf:provider>
+    <!-- 箱号相关 -->
+    <bean id="boxGateWayExternalService" class="com.jd.bluedragon.distribution.external.gateway.box.BoxGateWayExternalServiceImpl"/>
+    <jsf:provider id="jsfBoxGateWayExternalService"
+                  interface="com.jd.bluedragon.external.gateway.box.BoxGateWayExternalService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="boxGateWayExternalService" server="dmsjsf">
+    </jsf:provider>
+    <!-- 发布jsf到物流网关 外部公司调用end -->
 
     <!--  自动化设备查询接口：网关使用  -->
     <bean id="deviceGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.DeviceGatewayServiceImpl" />

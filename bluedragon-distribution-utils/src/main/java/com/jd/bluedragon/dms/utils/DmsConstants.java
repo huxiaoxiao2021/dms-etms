@@ -189,4 +189,11 @@ public class DmsConstants {
     public static final String SPECIAL_MARK1_WAREHOUSE_JD = "京仓";
     public static final String SPECIAL_MARK1_WAREHOUSE_NOT_JD = "非京仓";
     public static final String SPECIAL_MARK1_WAREHOUSE_OUTER ="外仓";
+
+    /**
+     * remark特殊标识处理
+     * */
+    public static final String BAD_WAREHOURSE_FOR_PORT = "保税";
+    public static final String PICKUP_CUSTOMER_COMMET = "服务单号：";
+    public static final String BUSINESS_ORDER_CODE_REMARK = "商家订单号：";
 }

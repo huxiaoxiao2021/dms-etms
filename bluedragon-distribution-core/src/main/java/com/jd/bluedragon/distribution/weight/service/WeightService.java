@@ -1,10 +1,10 @@
 package com.jd.bluedragon.distribution.weight.service;
 
-import java.util.List;
-import java.util.Map;
-
 import com.jd.bluedragon.distribution.api.domain.WeightOperFlow;
 import com.jd.bluedragon.distribution.task.domain.Task;
+
+import java.util.List;
+import java.util.Map;
 
 public interface WeightService {
 

@@ -87,6 +87,7 @@
 		<property name="handlers">
 			<list>
 				<ref bean="basicWaybillPrintHandler"/>
+				<ref bean="businessNetInterceptHandler"/>
 				<ref bean="c2cInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
 				<ref bean="specialMarkWaybillHandler"/>
@@ -106,6 +107,7 @@
         <property name="handlers">
             <list>
                 <ref bean="basicWaybillPrintHandler"/>
+				<ref bean="businessNetInterceptHandler"/>
                 <ref bean="waybillOutZoneHandler"/>
                 <ref bean="featherLetterHandler"/>
                 <ref bean="c2cInterceptHandler"/>
@@ -127,6 +129,7 @@
 			<list>
 				<ref bean="basicWaybillPrintHandler"/>
 				<ref bean="overLengthRemindHandler"/>
+				<ref bean="businessNetInterceptHandler"/>
 				<ref bean="isNeedPrintHandler"/>
 				<ref bean="c2cInterceptHandler"/>
 				<!-- 三方超限拦截 -->
@@ -148,6 +151,7 @@
 		<property name="handlers">
 			<list>
 				<ref bean="basicWaybillPrintHandler"/>
+				<ref bean="businessNetInterceptHandler"/>
 				<ref bean="c2cInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
 				<ref bean="specialMarkWaybillHandler"/>
@@ -219,6 +223,7 @@
 		<property name="handlers">
 			<list>
 				<ref bean="sitePlateBasicHandler"/>
+				<ref bean="businessNetInterceptHandler"/>
 				<ref bean="customerAndConsignerInfoHandler"/>
 				<ref bean="promiseWaybillHandler"/>
 				<ref bean="specialFieldHandler"/>

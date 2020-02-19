@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.task.request.TaskPdaRequest;
 
 /**
  * 上传任务接口 发布物流网关
+ * 发布到物流网关 由安卓调用
  * @author : xumigen
  * @date : 2019/7/6
  */

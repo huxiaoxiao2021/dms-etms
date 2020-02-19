@@ -8,6 +8,7 @@ import com.jd.bluedragon.common.dto.send.response.BatchSingleSendCheckDto;
 /**
  * BatchSingleSendGatewayService
  * 批量一车一单发货JSF接口
+ * 发布到物流网关 由安卓调用
  * @author jiaowenqiang
  * @date 2019/6/11
  */

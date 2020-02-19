@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.DmsRouter;
 import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
@@ -13,10 +14,7 @@ import com.jd.bluedragon.distribution.base.service.DmsStorageAreaService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
-import com.jd.bluedragon.distribution.inspection.domain.Inspection;
-import com.jd.bluedragon.distribution.inspection.domain.InspectionAS;
-import com.jd.bluedragon.distribution.inspection.domain.InspectionEC;
-import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
+import com.jd.bluedragon.distribution.inspection.domain.*;
 import com.jd.bluedragon.distribution.inspection.exception.InspectionException;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
@@ -34,6 +32,7 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
@@ -42,6 +41,7 @@ import com.jd.ioms.jsf.export.domain.Order;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
@@ -119,6 +119,8 @@ public class InspectionServiceImpl implements InspectionService {
 	@Autowired
 	private SiteService siteService;
 
+	@Autowired
+    private WaybillPackageManager waybillPackageManager;
 
     public boolean isExists(Integer Storeid)
     {
@@ -239,30 +241,6 @@ public class InspectionServiceImpl implements InspectionService {
 		return result;
 	}
 
-
-
-	private InspectionRequest getStoreIdByWaybillCode(
-			InspectionRequest requestBean, String waybillCode) {
-		// 返仓交接，根据运单号获取库房号
-		if (Constants.BUSSINESS_TYPE_FC == requestBean.getBusinessType()
-				.intValue()) {
-			try {
-				BaseEntity<Waybill> baseEntity = waybillQueryManager
-						.getWaybillByWaybillCode(waybillCode);
-				if (baseEntity != null && baseEntity.getData() != null
-						&& baseEntity.getData().getDistributeStoreId() != null) {
-					requestBean.setReceiveSiteCode(baseEntity.getData()
-							.getDistributeStoreId());// 库房编号
-					this.log.warn("返仓交接:运单号【{}】调用运单WSS获取[库房编号]=[{}]"	,waybillCode, baseEntity.getData().getDistributeStoreId());
-				} else {
-					this.log.warn("返仓交接:运单号【{}】调用运单WSS获取[库房编号]异常:[baseEntity=null||baseEntity.getData()=null||baseEntity.getData().getDistributeStoreId()=null]",waybillCode);
-				}
-			} catch (Exception ex) {
-				this.log.error("返仓交接:运单号【{}】调用运单WSS获取[库房编号]异常：",waybillCode, ex);
-			}
-		}
-		return requestBean;
-	}
 
 	public Integer inspectionCount(Inspection inspection) {
 		return inspectionDao.inspectionCount(inspection);
@@ -476,7 +454,9 @@ public class InspectionServiceImpl implements InspectionService {
 		if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null) {
 			// 获取运单信息
 			Waybill waybill = baseEntity.getData().getWaybill();
-			result.setPackageSize(waybill.getGoodNumber());
+			if(waybill.getGoodNumber() != null){
+				result.setPackageSize(waybill.getGoodNumber());
+			}
 			if(dmsSiteCode == null || waybill.getProvinceId() ==null){
 				return result;
 			}
@@ -625,4 +605,51 @@ public class InspectionServiceImpl implements InspectionService {
 		return inspectionDao.findPageInspection(params);
 	}
 
+	@Override
+	public InspectionPackProgress getWaybillCheckProgress(String waybillCode, Integer createSiteCode) {
+        if (StringUtils.isBlank(waybillCode))
+            return null;
+
+		BaseEntity<List<DeliveryPackageD>> packageListRet = waybillPackageManager.getPackListByWaybillCode(waybillCode);
+        if (null == packageListRet ||
+            EnumBusiCode.BUSI_SUCCESS.getCode() != packageListRet.getResultCode() ||
+            CollectionUtils.isEmpty(packageListRet.getData())
+        )
+            return null;
+
+		List<Inspection> inspections = inspectionDao.listInspectionByWaybillCode(waybillCode, createSiteCode);
+        List<String> inspectedPackNos = new ArrayList<>();
+        List<InspectionPackProgress.CheckPack> checkedPacks = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(inspections)) {
+            for (Inspection inspection : inspections) {
+                InspectionPackProgress.CheckPack checkPack = new InspectionPackProgress.CheckPack();
+                checkPack.setPackNo(inspection.getPackageBarcode());
+                checkedPacks.add(checkPack);
+                inspectedPackNos.add(inspection.getPackageBarcode());
+            }
+        }
+
+        List<DeliveryPackageD> packageList = packageListRet.getData();
+        List<String> totalPackNos = new ArrayList<>(packageList.size());
+        for (DeliveryPackageD deliveryPackageD : packageList) {
+            totalPackNos.add(deliveryPackageD.getPackageBarcode());
+        }
+        List<InspectionPackProgress.CheckPack> unCheckedPacks = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(inspectedPackNos)) {
+	        totalPackNos.removeAll(inspectedPackNos);
+        }
+        if (!CollectionUtils.isEmpty(totalPackNos)) {
+            for (String packNo : totalPackNos) {
+                InspectionPackProgress.CheckPack checkPack = new InspectionPackProgress.CheckPack();
+                checkPack.setPackNo(packNo);
+                unCheckedPacks.add(checkPack);
+            }
+        }
+
+        InspectionPackProgress result = new InspectionPackProgress();
+        result.setWaybillCode(waybillCode);
+        result.setCheckedPackNos(checkedPacks);
+        result.setUnCheckedPackNos(unCheckedPacks);
+        return result;
+	}
 }

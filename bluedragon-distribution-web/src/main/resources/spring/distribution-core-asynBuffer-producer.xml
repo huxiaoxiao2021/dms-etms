@@ -92,10 +92,15 @@
 					<entry key="task_sorting_1280_PRE" value="${jmq.task.topic.sorting.success.pre}"/>
 					<entry key="task_sorting_1280_UAT" value="${jmq.task.topic.sorting.success.uat}"/>
 
-					<!-- 称重信息回传运单中心 -->
+					<!-- 称重信息回传运单中心（将弃用 -->
 					<entry key="task_weight_1160_DMS" value="${jmq.task.topic.weight.dms}"/>
 					<entry key="task_weight_1160_PRE" value="${jmq.task.topic.weight.pre}"/>
 					<entry key="task_weight_1160_UAT" value="${jmq.task.topic.weight.uat}"/>
+
+					<!-- 分拣操作称重量方回传（整合 -->
+					<entry key="task_weight_volume_1170_DMS" value="${jmq.task.topic.weight.volume.dms}"/>
+					<entry key="task_weight_volume_1170_PRE" value="${jmq.task.topic.weight.volume.pre}"/>
+					<entry key="task_weight_volume_1170_UAT" value="${jmq.task.topic.weight.volume.uat}"/>
 
 					<!-- 逆向备件库 -->
 					<entry key="task_reverse_3300_DMS" value="${jmq.task.topic.reverse.spare.dms}"/>

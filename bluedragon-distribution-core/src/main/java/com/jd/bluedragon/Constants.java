@@ -99,7 +99,8 @@ public class Constants {
      * B冷链转运中心站点类型
      */
     public static final Integer B2B_CODE_SITE_TYPE = 6460;
-
+    /** 经济网网点类型 **/
+    public static final Integer THIRD_ENET_SITE_TYPE= 10000;
 
     /** 操作类型 **/
     public static final int TRANS_SORTING_OPERATE_TYPE = 1;
@@ -1045,5 +1046,11 @@ public class Constants {
      * 冷链卡班短信扩展字段extension
      */
     public static final String DMS_COLD_CHAIN_SEND = "dms_coldChain_send";
+
+    /**
+     * 经济网租户编码
+     */
+    public static final String TENANT_CODE_ECONOMIC = "ECONOMIC_NET";
+
 
 }

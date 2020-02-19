@@ -1,0 +1,42 @@
+<lop>
+<service name="com.jd.bluedragon.external.gateway.box.BoxGateWayExternalService" version="1.0" group="GATEWAY-TEST">
+    <method name="generateBoxCodes" restName="jingdong.enet.generateBoxCodes" znName="generateBoxCodes" desc="箱号获取" scenesDesc="" auth="false"
+            argIndex="2" attrName="">
+        <element type="com.jd.bluedragon.external.gateway.dto.request.BoxGenerateRequest" name="request" webParmer="request" paramLength=""
+                 desc="请求参数体" val="" systemValue="" defaultValue="" required="false">
+            <element type="java.lang.String" name="tenantCode" webParmer="tenantCode" paramLength="" desc="租户" val="" systemValue="" defaultValue="" required="false"/>
+            <element type="java.lang.String" name="startSiteCode" webParmer="startSiteCode" paramLength="" desc="始发网点" val="" systemValue="" defaultValue="" required="false"/>
+            <element type="java.lang.String" name="endSiteCode" webParmer="endSiteCode" paramLength="" desc="目的网点" val="" systemValue="" defaultValue="" required="false"/>
+            <element type="java.lang.String" name="operatorName" webParmer="operatorName" paramLength="" desc="操作人名称" val="" systemValue="" defaultValue="" required="false"/>
+            <element type="java.lang.Integer" name="operatorId" webParmer="operatorId" paramLength="" desc="操作人id" val="" systemValue="" defaultValue="" required="false"/>
+            <element type="java.lang.String" name="operatorUnitName" webParmer="operatorUnitName" paramLength="" desc="操作单位名称" val="" systemValue="" defaultValue="" required="false"/>
+            <element type="java.lang.String" name="boxType" webParmer="boxType" paramLength="" desc="箱号类型" val="" systemValue="" defaultValue="" required="false"/>
+            <element type="java.lang.Integer" name="num" webParmer="num" paramLength="" desc="一次获取的箱号数量" val="" systemValue="" defaultValue="" required="false"/>
+        </element>
+        <element type="java.lang.String" name="pin" webParmer="pin" paramLength="" desc="京东pin码" val="" systemValue="" defaultValue=""
+                 required="false"/>
+        <result>
+            <element type="GateWayBaseResponse" name="result" webParmer="result" paramLength="" desc="响应对象" val="" systemValue="" defaultValue=""
+                     required="false">
+                <element type="java.lang.Integer" name="resultCode" webParmer="resultCode" paramLength="" desc="响应状态码" val="" systemValue="" defaultValue="" required="false"/>
+                <element type="java.lang.String" name="message" webParmer="message" paramLength="" desc="响应消息" val="" systemValue="" defaultValue="" required="false"/>
+                <element type="com.jd.bluedragon.external.gateway.dto.response.BoxDto" name="data" webParmer="data" paramLength="" desc="响应数据对象"
+                         val="" systemValue="" defaultValue="" required="false">
+                    <element type="java.util.List&lt;java.lang.String&gt;" name="boxCodes" webParmer="boxCodes" paramLength="" desc="箱号list" val="" systemValue="" defaultValue="" required="false">
+                        <element type="java.lang.String" name="箱号code" webParmer="箱号code" paramLength="" desc="箱号code" val="" systemValue="" defaultValue=""
+                                 required="false"/>
+                    </element>
+                    <element type="java.lang.String" name="startSiteName" webParmer="startSiteName" paramLength="" desc="始发网点" val="" systemValue="" defaultValue="" required="false"/>
+                    <element type="java.lang.String" name="endSiteName" webParmer="endSiteName" paramLength="" desc="目的网点" val="" systemValue="" defaultValue="" required="false"/>
+                    <element type="java.util.List&lt;java.lang.String&gt;" name="router" webParmer="router" paramLength="" desc="中转站点或分拣中心等，不包含始发和目的站点" val="" systemValue="" defaultValue="" required="false">
+                        <element type="java.lang.String" name="路由内容" webParmer="路由内容" paramLength="" desc="路由内容" val="" systemValue="" defaultValue=""
+                                 required="false"/>
+                    </element>
+                    <element type="java.lang.String" name="routerNum" webParmer="routerNum" paramLength="" desc="始发道口和笼车号" val="" systemValue="" defaultValue="" required="false"/>
+                    <element type="java.lang.String" name="routerText" webParmer="routerText" paramLength="" desc="路由经过的站点或分拣中心字符串拼接，以-拼接，包含始发和目的地" val="" systemValue="" defaultValue="" required="false"/>
+                </element>
+            </element>
+        </result>
+    </method>
+</service>
+</lop>
