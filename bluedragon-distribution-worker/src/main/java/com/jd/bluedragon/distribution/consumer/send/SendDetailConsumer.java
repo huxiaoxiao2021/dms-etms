@@ -395,21 +395,26 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                     return;
                 }
                 String waybillCode = WaybillUtil.getWaybillCode(sendDetail.getPackageBarcode());
-                String sendCode = sendDetail.getSendCode();
-                if(StringUtils.isBlank(waybillCode) || StringUtils.isBlank(sendCode)){
+                if(StringUtils.isBlank(waybillCode)){
                     return;
                 }
-                String redisKey = REDIS_COLD_CHAIN_STORAGE_SMS + waybillCode + SEPARATOR + sendCode;
-                if(StringUtils.isNotBlank(redisClientCache.get(redisKey))){
-                    //默认设置10小时的去重
-                    return;
+                try {
+                    String redisKey = REDIS_COLD_CHAIN_STORAGE_SMS + waybillCode;
+                    boolean isExist = redisClientCache.set(redisKey, redisKey, REDIS_COLDCHAIN_STORAGE_SMS_EXPIRE_TIME,
+                            TimeUnit.HOURS, false);
+                    if(!isExist){
+                        //默认设置10小时的去重
+                        return;
+                    }
+                }catch (Exception e){
+                    log.error("获取{}冷链卡班发短信缓存失败！", waybillCode, e);
                 }
-                redisClientCache.set(redisKey, redisKey, REDIS_COLDCHAIN_STORAGE_SMS_EXPIRE_TIME, TimeUnit.HOURS, false);
 
                 Integer orgId = oldSiteDto.getOrgId();
                 String senderNum = null;
                 Long templateId = null;
                 String token = null;
+                //todo 属性变化
                 switch (orgId){
                     case Constants.EAST_CHINA_ORG_ID:
                         senderNum = SMSConstants.COLDCHAIN_EASTCHINA_ACCOUNT;
@@ -447,12 +452,12 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                         token = SMSConstants.COLDCHAIN_NORTHWEST_TOKEN;
                         break;
                     default:
-                        log.info("目的分拣中心不属于7大区,目的分拣中心：{}所属区域：{}",operateSiteCode,orgId);
+                        log.warn("目的分拣中心不属于7大区,目的分拣中心：{}所属区域：{}",operateSiteCode,orgId);
                         return;
                 }
                 String[] templateParam = new String[]{waybillCode,oldSiteDto.getDmsName(),oldSiteDto.getSitePhone(),oldSiteDto.getAddress()};
                 String mobileNum = waybill.getReceiverMobile();
-                String extension = Constants.DMS_COLD_CHAIN_SEND;//TODO 待定
+                String extension = Constants.DMS_COLD_CHAIN_SEND;
                 InvokeResult result = smsMessageManager.sendSmsTemplateMessage(senderNum,templateId,
                         templateParam,mobileNum,token,extension);
                 if(result.getCode() != InvokeResult.RESULT_SUCCESS_CODE){

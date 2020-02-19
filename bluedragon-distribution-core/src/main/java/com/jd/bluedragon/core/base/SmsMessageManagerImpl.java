@@ -73,7 +73,7 @@ public class SmsMessageManagerImpl implements SmsMessageManager {
             }else if(baseResultMsg == null){
                 result.customMessage(InvokeResult.RESULT_NULL_CODE,InvokeResult.RESULT_NULL_MESSAGE);
             }else if(!baseResultMsgSuccess.equals(baseResultMsg.getErrorCode())){
-                result.customMessage(InvokeResult.RESULT_NULL_CODE,resultMsg.getErrorMsg());
+                result.customMessage(InvokeResult.RESULT_NULL_CODE,baseResultMsg.getErrorMsg());
             }else {
                 result.success();
             }
