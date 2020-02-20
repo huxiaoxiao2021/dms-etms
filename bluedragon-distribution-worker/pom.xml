@@ -222,13 +222,6 @@
 			<version>4.5.6</version>
 		</dependency>
 
-		<!--操作日志系统-->
-		<dependency>
-			<groupId>com.jd.ql.dms.opLog</groupId>
-			<artifactId>opLog-agent</artifactId>
-			<version>1.0.3-SNAPSHOT</version>
-		</dependency>
-
 
 	</dependencies>
 	<profiles>

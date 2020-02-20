@@ -980,7 +980,6 @@
 		<dependency>
 			<groupId>com.jd.ql.dms.opLog</groupId>
 			<artifactId>opLog-agent</artifactId>
-			<version>1.0.3-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
