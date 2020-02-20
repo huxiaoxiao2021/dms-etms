@@ -106,7 +106,7 @@
 					</form>
 				</div>
 			</div>
-			<div style="color: red;text-align: right">此功能预计在2020-3-20号下线，请到<a style="float: none;border: none" href="http://dms.etms.jd.com/">http://dms.etms.jd.com/(分拣系统)</a>&gt;分拣中心相关功能&gt;“<a style="float: none;border: none" href="#springUrl('/businesslog/goListPage')">日志查询</a>”里查询，有疑问联系<a href="timline://chat/?topin=xnfjxm">分拣小秘</a></div>
+##			<div style="color: red;text-align: right">此功能预计在2020-3-20号下线，请到<a style="float: none;border: none" href="http://dms.etms.jd.com/">http://dms.etms.jd.com/(分拣系统)</a>&gt;分拣中心相关功能&gt;“<a style="float: none;border: none" href="#springUrl('/businesslog/goListPage')">日志查询</a>”里查询，有疑问联系<a href="timline://chat/?topin=xnfjxm">分拣小秘</a></div>
 			<div id="opening">
 				<div class="tbl-list">
 					<div class="tbl-bg">

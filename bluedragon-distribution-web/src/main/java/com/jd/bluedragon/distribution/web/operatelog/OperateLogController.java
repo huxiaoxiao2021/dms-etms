@@ -1,10 +1,16 @@
 package com.jd.bluedragon.distribution.web.operatelog;
 
+import com.alibaba.fastjson.JSONObject;
+import com.google.gson.JsonObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
+import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.ObjectMapHelper;
+import com.jd.dms.logger.aop.BusinessLogWriter;
+import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.uim.annotation.Authorization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,6 +124,18 @@ public class OperateLogController {
 	@Authorization(Constants.DMS_WEB_SORTING_OPERATELOG_R)
 	@RequestMapping(value = "/goListPage2", method = RequestMethod.GET)
 	public String goListpage2(Model model) {
+
+		ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
+		BusinessLogProfiler businessLogProfiler = new BusinessLogProfiler();
+		businessLogProfiler.setSourceSys(1);
+		businessLogProfiler.setBizType(Constants.BIZTYPE_URL_CLICK);
+		businessLogProfiler.setOperateType(Constants.OPERATELOG_CLICK);
+		JSONObject request=new JSONObject();
+		request.put("operatorName",erpUser.getUserName());
+		request.put("operatorCode",erpUser.getUserCode());
+		businessLogProfiler.setOperateRequest(JSONObject.toJSONString(request));
+		BusinessLogWriter.writeLog(businessLogProfiler);
+
 		return "operateLog/operatelog2";
 	}
 

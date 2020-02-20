@@ -145,32 +145,32 @@
                                     </tr>`)
                             console.log(tr)
                             $("#logcontent").append(tr)
-                            if (offset == 0 && $("#pageTool").children().length != 0){
-                                p.render({
-                                    count: message.total,
-                                    pagesize: limit,
-                                    current: 1
-                                });
-                            }
-                            if ($("#pageTool").children().length == 0) {
-                                //分页第一次加载
-                                p.init({
-                                    target: '#pageTool',
-                                    pagesize: 10,
-                                    count: message.total,
-                                    current: 1,
-                                    toolbar: true,
-                                    changePagesize:function (pagesize){
-                                        getlogs(0, parseInt(pagesize,10));
-                                    },
-                                    callback: function (pagecount, size, count) {
-                                        // console.log(pagecount, size, count)
-                                        getlogs((pagecount - 1) * size, parseInt(size,10));
-                                    }
-                                });
-                            }
+                        });
 
-                        })
+                        if (offset == 0 && $("#pageTool").children().length != 0) {
+                            p.render({
+                                count: message.total,
+                                pagesize: limit,
+                                current: 1
+                            });
+                        }
+                        if ($("#pageTool").children().length == 0) {
+                            //分页第一次加载
+                            p.init({
+                                target: '#pageTool',
+                                pagesize: 10,
+                                count: message.total,
+                                current: 1,
+                                toolbar: true,
+                                changePagesize: function (pagesize) {
+                                    getlogs(0, parseInt(pagesize, 10));
+                                },
+                                callback: function (pagecount, size, count) {
+                                    // console.log(pagecount, size, count)
+                                    getlogs((pagecount - 1) * size, parseInt(size, 10));
+                                }
+                            });
+                        }
 
                     } else {
                         alert(message.statusMessage)
@@ -256,9 +256,29 @@
                             <input id="sendCode" name="sendCode" type="text" class="textField28"/>
                         </td>
 
+                        <th align="right">任意关键字：</th>
+                        <td>
+                            <input id="otherKey" name="otherKey" class="select18">
+
+                            </input>
+                        </td>
+
                     </tr>
 
                     <tr>
+                        <th align="right">所属业务：</th>
+                        <td>
+                            <select id="biztype" name="biztype" class="select18">
+
+                            </select>
+                        </td>
+                        <th align="right">操作类型：</th>
+                        <td>
+                            <select id="operatetype" name="operatetype" class="select18">
+
+                            </select>
+                        </td>
+
                         <th align="right">操作站点编码：</th>
                         <td>
                             <input id="siteCode" name="siteCode" type="text" class="textField28"/>
@@ -277,33 +297,16 @@
                     </tr>
 
 
-                    <tr>
-                        <th align="right">所属业务：</th>
-                        <td>
-                            <select id="biztype" name="biztype" class="select18">
 
-                            </select>
-                        </td>
-                        <th align="right">操作类型：</th>
-                        <td>
-                            <select id="operatetype" name="operatetype" class="select18">
+##                        <th align="right">服务器ip：</th>
+##                        <td>
+##                            <input id="serverIp" name="serverIp" type="text" class="textField28"/>
+##                        </td>
 
-                            </select>
-                        </td>
-                        <th align="right">服务器ip：</th>
-                        <td>
-                            <input id="serverIp" name="serverIp" type="text" class="textField28"/>
-                        </td>
-                    </tr>
 
 
                     <tr>
-                        <th align="right">其他关键字：</th>
-                        <td>
-                            <input id="otherKey" name="otherKey" class="select18">
 
-                            </input>
-                        </td>
                         <th align="left">时间：</th>
                         <td>
                             <input type="text" id="startTime" name="startDate" style="width: 130px" class="Wdate"
@@ -313,6 +316,13 @@
                             <input type="text" id="endTime" name="startDate" style="width: 130px" class="Wdate"
                                    onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss'})" value=""
                                    realvalue=""></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
                         <td align="right"><input id="search" type="button" value="查询" class="btn_c"/>
                     </tr>
 

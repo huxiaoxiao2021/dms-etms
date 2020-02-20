@@ -1035,4 +1035,25 @@ public class Constants {
     public static final String TENANT_CODE_ECONOMIC = "ECONOMIC_NET";
 
 
+    /**
+     *所属业务操作点击量
+     *
+     */
+    public static final Integer BIZTYPE_URL_CLICK = 999001;
+
+    /**
+     *
+     * 菜单点击 分拣中心操作日志
+     */
+    public static final Integer OPERATELOG_CLICK = 1;
+    /**
+     * 菜单点击 分拣运行时全程跟踪
+     */
+    public static final Integer GODDESSLOG_CLICK = 2;
+
+    /**
+     * 菜单点击 分拣离线操作日志查询
+     */
+    public static final Integer OFFLINELOG_CLICK = 3;
+
 }
