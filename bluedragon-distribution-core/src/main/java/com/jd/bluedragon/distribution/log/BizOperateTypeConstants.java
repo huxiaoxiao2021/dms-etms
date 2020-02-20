@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.log;
 
 public enum BizOperateTypeConstants {
     DELIVERY_DELIVERY(100, 1009),//发货，发货
+    DELIVERY_DELIVERY_OFFLINE(100, 1012),//发货，离线发货
     SORTING_SORTING(700, 60016),//分拣，分拣
     DELIVERY_CANCEL_DELIVERY(100, 1010),//发货，取消发货
     OUTER_WAYBILL_EXCHANGE_TRIGGER_OUTER_WAYBILL_EXCHANGE(1900, 1900002),//外单换单,触发外单换单
@@ -22,6 +23,7 @@ public enum BizOperateTypeConstants {
     SEAL_OFFLINE_SEAL(1011, 101104),//封车，离线封车
     DE_SEAL_DE_SEAL(1012, 1012),//解封车,解封车
     DELIVERY_ONECARDELIVERY(100, 1001),//发货,一车一单发货
+    DELIVERY_ONECARDELIVERY_OFFLINE(100, 1013),//发货,离线一车一单发货
     RETURNS_REFUND100(2007, 20073),//退货,退款100分
     CAR_CAR_IN(2009, 20091),//车辆，进出记录进
     CAR_CAR_OUT(2009, 20092),//车辆，进出记录出
@@ -30,6 +32,7 @@ public enum BizOperateTypeConstants {
     DELIVERY_REVERSE_DELIVERY(100, 1008),//发货，逆向发货
     TRANSFER_TRANSFER(2010, 20101),//交接,交接
     RECEIVE_RECEIVE(2008, 20081),//收货，收货
+    RECEIVE_RECEIVE_OFFLINE(2008, 20087),//收货，离线收货
     RECEIVE_REVERSE_AMS_RECEIVE(2008, 20085),//收货,逆向售后收货
     RECEIVE_REVERSE_WMS_RECEIVE(2008, 20081),//收货,逆向仓储收货
     INSPECT_INSPECT(500, 5001),//验货,验货
@@ -50,11 +53,16 @@ public enum BizOperateTypeConstants {
     RETURNS_FASTREFUND(2007, 20074),//退款,先货先款退款
     AFTERSALE_REVERSE_AFTERSALE_REJECT(2014, 20141),//售后,逆向售后驳回
     INSPECT_SORTING_CENTER_INSPECT(500, 50012),//验货,分拣中心验货
+    INSPECT_SORTING_CENTER_INSPECT_OFFLINE(500, 50013),//验货,离线分拣中心验货
     SORTING_OFFLINE_SORTING(700,60011),//分拣,离线分拣
     SORTING_SORTING_SEAL(700,60012),//分拣，分拣封箱
+    SORTING_SORTING_SEAL_OFFLINE(700,60019),//分拣，离线分拣封箱
     RETURNS_OVER_AREA_RETURN(2007,20071),//退货,三方超区退货
+    RETURNS_OVER_AREA_RETURN_OFFLINE(2007,20075),//退货,离线三方超区退货
     RECEIVE_POP_RECEIVE(2008,20086),//收货,pop上门接货
-    OTHER_OTHER(2015,20151);//其他，其他，当offlinelog或者operatelog的type不存在时;
+    RECEIVE_POP_RECEIVE_OFFLINE(2008,20088),//收货,离线pop上门接货
+    OTHER_OTHER(2015,20151),//其他，其他，当offlinelog或者operatelog的type不存在时;
+    OTHER_OTHER_OFFLINE(2015,20152);//其他，离线其他，当offlinelog或者operatelog的type不存在时;
 
     private int BizTypeCode;
     private int OperateTypeCode;
