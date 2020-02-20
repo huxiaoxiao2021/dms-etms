@@ -1,10 +1,9 @@
 package com.jd.bluedragon.distribution.web.log;
 
 import com.jd.dms.logger.domain.es.ESIndexAndTypeEnum;
+import com.jd.dms.logger.dto.base.BusinessLogResult;
 import com.jd.dms.logger.dto.base.TableResult;
 import com.jd.dms.logger.service.BusinessLogQueryService;
-import com.jd.dms.logger.service.config.TypeService;
-import com.jd.dms.logger.service.query.BusinessLogService;
 import com.jd.ql.dms.common.domain.JdResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,10 +48,10 @@ public class LogController {
         logger.info("根据系统编码查询业务类型配置.systemCode:" + systemCode);
         JdResponse<Map<Integer, String>> response = new JdResponse<Map<Integer, String>>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
 
-        Map<String, Integer> params = new HashMap<>();
+        HashMap<String, Integer> params = new HashMap<>();
         params.put("system_code", systemCode);
         try {
-            Map<Integer, String> systemConfigMap = businessLogQueryService.getConfigByCondition(ESIndexAndTypeEnum.BizTypeConfig, params, null);
+            HashMap<Integer, String> systemConfigMap = businessLogQueryService.getConfigByCondition(ESIndexAndTypeEnum.BizTypeConfig, params, null);
             response.setData(systemConfigMap);
         } catch (Exception e) {
             logger.error("根据系统编码查询业务类型配置.失败原因:", e);
@@ -77,11 +76,11 @@ public class LogController {
         logger.info("根据系统编码和业务类型编码查询操作类型配置.systemCode:" + systemCode + ",bizTypeCode:" + bizTypeCode);
         JdResponse<Map<Integer, String>> response = new JdResponse<Map<Integer, String>>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
 
-        Map<String, Integer> params = new HashMap<>();
+        HashMap<String, Integer> params = new HashMap<>();
         params.put("system_code", systemCode);
         params.put("biz_type_code",bizTypeCode);
         try {
-            Map<Integer, String> operateTypeMap = businessLogQueryService.getConfigByCondition(ESIndexAndTypeEnum.OperateTypeConfig, params, null);
+            HashMap<Integer, String> operateTypeMap = businessLogQueryService.getConfigByCondition(ESIndexAndTypeEnum.OperateTypeConfig, params, null);
             response.setData(operateTypeMap);
         } catch (Exception e) {
             logger.error("根据系统编码和业务类型编码查询操作类型配置.失败原因:", e);
@@ -96,11 +95,15 @@ public class LogController {
 
     @RequestMapping("/getBusinessLog")
     @ResponseBody
-    public TableResult getBusinessLog(@RequestBody Map<String, Object> request) {
+    public TableResult getBusinessLog(@RequestBody HashMap<String, String> request) {
         request.put("sourceSys","112"); //只从实操日志里面查
-        TableResult businessLogList=null;
+        TableResult businessLogList=new TableResult();
         try {
-            businessLogList = businessLogQueryService.getBusinessLogList(request);
+            BusinessLogResult businessLogReqResult = businessLogQueryService.getBusinessLogList(request);
+            businessLogList.setRows(businessLogReqResult.getRows());
+            businessLogList.setTotal(businessLogReqResult.getTotal());
+            businessLogList.setStatusCode(TableResult.SUCCESS_CODE);
+            businessLogList.setStatusMessage(TableResult.SUCCESS_MESSAGE);
         } catch (Exception e) {
             logger.error("BusinessLogController.getBusinessLogList-error!", e);
             businessLogList.setStatusCode(TableResult.SERVER_ERROR_CODE);

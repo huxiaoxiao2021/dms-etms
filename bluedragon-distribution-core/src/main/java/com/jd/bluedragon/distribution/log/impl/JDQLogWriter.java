@@ -12,6 +12,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.KafkaException;
 import org.apache.log4j.Logger;
 
 import javax.annotation.Resource;
@@ -43,7 +44,11 @@ public class JDQLogWriter implements LogWriter {
 
     public JDQLogWriter(String clientId, String brokerlist, String groupId) {
         Properties props = getProperties(brokerlist, clientId, groupId);
-        this.producer = new KafkaProducer<String, String>(props);
+        try {
+            this.producer = new KafkaProducer<String, String>(props);
+        }catch (KafkaException e){
+            logger.error("初始化Kafka失败，brokerlist: " + brokerlist, e);
+        }
     }
 
 
@@ -81,7 +86,6 @@ public class JDQLogWriter implements LogWriter {
 
         try {
             producer.send(record);
-            producer.flush();
         } catch (Exception e) {
             logger.error("Kafka日志发送失败", e);
         }
@@ -91,6 +95,8 @@ public class JDQLogWriter implements LogWriter {
      *  关闭
      */
     public void close(){
+        producer.flush();
         producer.close();
+        logger.info("关闭Kafka连接");
     }
 }

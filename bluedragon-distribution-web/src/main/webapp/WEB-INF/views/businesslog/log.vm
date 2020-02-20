@@ -21,7 +21,7 @@
 
         //根据biztype获取operatetype
         function getOperateType(bizTypeCode) {
-            console.log(bizTypeCode)
+            // console.log(bizTypeCode)
             jQuery.ajax({
                 type: "POST",
                 url: "#springUrl('/businesslog/getOpeBySysAndBiz')",
@@ -45,8 +45,12 @@
                 }
             });
         }
-
+        var p = new Paging();
         function getlogs(offset, limit) {
+            if (offset + limit > 10000) {
+                alert("只能查询前10000条数据");
+                return;
+            }
             $("#showloading").show()
 
             let waybillCode = $("#waybillCode").val();
@@ -141,9 +145,15 @@
                                     </tr>`)
                             console.log(tr)
                             $("#logcontent").append(tr)
+                            if (offset == 0 && $("#pageTool").children().length != 0){
+                                p.render({
+                                    count: message.total,
+                                    pagesize: limit,
+                                    current: 1
+                                });
+                            }
                             if ($("#pageTool").children().length == 0) {
                                 //分页第一次加载
-                                var p = new Paging();
                                 p.init({
                                     target: '#pageTool',
                                     pagesize: 10,
@@ -154,7 +164,7 @@
                                         getlogs(0, parseInt(pagesize,10));
                                     },
                                     callback: function (pagecount, size, count) {
-                                        console.log(pagecount, size, count)
+                                        // console.log(pagecount, size, count)
                                         getlogs((pagecount - 1) * size, parseInt(size,10));
                                     }
                                 });
@@ -189,11 +199,6 @@
                     $("#biztype").append(defaultnull)
 
                     jQuery.each(keys, function (index, item) {
-                        console.log(index)
-                        if (index == 0) {
-                            getOperateType(item)
-                        }
-                        console.log(item + ":" + msg.data[item])
                         let name = msg.data[item];
                         let optionitem = $(`<option value='${item}'>${name}</option>`)
                         $("#biztype").append(optionitem)

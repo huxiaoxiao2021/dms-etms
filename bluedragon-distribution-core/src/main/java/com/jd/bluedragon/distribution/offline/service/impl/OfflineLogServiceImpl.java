@@ -109,6 +109,9 @@ public class OfflineLogServiceImpl implements OfflineLogService {
             // pop上门接货
             businessLogProfiler.setBizType(BizOperateTypeConstants.RECEIVE_POP_RECEIVE.getBizTypeCode());
             businessLogProfiler.setOperateType(BizOperateTypeConstants.RECEIVE_POP_RECEIVE.getOperateTypeCode());
+        }else {
+            businessLogProfiler.setBizType(BizOperateTypeConstants.OTHER_OTHER.getBizTypeCode());
+            businessLogProfiler.setOperateType(BizOperateTypeConstants.OTHER_OTHER.getOperateTypeCode());
         }
 
         logEngine.addLog(businessLogProfiler);

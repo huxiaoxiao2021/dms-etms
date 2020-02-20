@@ -53,7 +53,8 @@ public enum BizOperateTypeConstants {
     SORTING_OFFLINE_SORTING(700,60011),//分拣,离线分拣
     SORTING_SORTING_SEAL(700,60012),//分拣，分拣封箱
     RETURNS_OVER_AREA_RETURN(2007,20071),//退货,三方超区退货
-    RECEIVE_POP_RECEIVE(2008,20086);//收货,pop上门接货
+    RECEIVE_POP_RECEIVE(2008,20086),//收货,pop上门接货
+    OTHER_OTHER(2015,20151);//其他，其他，当offlinelog或者operatelog的type不存在时;
 
     private int BizTypeCode;
     private int OperateTypeCode;

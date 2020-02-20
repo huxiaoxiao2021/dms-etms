@@ -77,7 +77,7 @@ public class OperationLogServiceImpl implements OperationLogService {
                 .reMark(operationLog.getRemark())
                 .build();
 
-        int logType = operationLog.getLogType();
+        Integer logType = operationLog.getLogType();
         if (OperationLog.LOG_TYPE_TRANSFER.equals(logType)) {
             businessLogProfiler.setBizType(BizOperateTypeConstants.TRANSFER_TRANSFER.getBizTypeCode());
             businessLogProfiler.setOperateType(BizOperateTypeConstants.TRANSFER_TRANSFER.getOperateTypeCode());
@@ -180,6 +180,9 @@ public class OperationLogServiceImpl implements OperationLogService {
         } else if (OperationLog.DATA_EXCEPTION.equals(logType)) {
             businessLogProfiler.setBizType(BizOperateTypeConstants.EXCEPTIONS_DATA_EXCEPTIONS.getBizTypeCode());
             businessLogProfiler.setOperateType(BizOperateTypeConstants.EXCEPTIONS_DATA_EXCEPTIONS.getOperateTypeCode());
+        } else {
+            businessLogProfiler.setBizType(BizOperateTypeConstants.OTHER_OTHER.getBizTypeCode());
+            businessLogProfiler.setOperateType(BizOperateTypeConstants.OTHER_OTHER.getOperateTypeCode());
         }
 
         logEngine.addLog(businessLogProfiler);
