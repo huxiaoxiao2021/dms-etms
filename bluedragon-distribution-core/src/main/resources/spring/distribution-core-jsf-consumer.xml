@@ -555,7 +555,7 @@
     </jsf:consumer>
 
     <jsf:consumer id="jsfTypeService" interface="com.jd.dms.logger.service.BusinessLogQueryService"
-                  protocol="jsf" url="jsf://127.0.0.1:22000;jsf://127.0.0.1:22001"
+                  protocol="jsf"
                   alias="${dms.jsfbusinesslog.alias}" timeout="10000"
                   retries="${jsf.retries}">
     </jsf:consumer>
