@@ -5,6 +5,11 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.ReturnsRequest;
+import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
+import com.jd.bluedragon.distribution.log.BizTypeConstants;
+import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.dms.logger.external.LogEngine;
+import com.jd.bluedragon.distribution.log.OperateTypeConstants;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.packageToMq.service.IPushPackageToMqService;
@@ -17,6 +22,8 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.fastjson.JSONObject;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -30,6 +37,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -93,6 +101,9 @@ public class SortingReturnServiceImple implements SortingReturnService {
 	
 	@Autowired
 	private WaybillQueryManager waybillQueryManager;
+
+	@Autowired
+	private LogEngine logEngine;
 
 	@JProfiler(jKey= "DMSWORKER.SortingReturnService.doSortingReturnForTask",mState = {JProEnum.TP})
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
@@ -171,7 +182,7 @@ public class SortingReturnServiceImple implements SortingReturnService {
 		if (returns.getBusinessType().equals(INTERCEPT_RECORD_TYPE)||Constants.NO_MATCH_DATA == this.update(returns).intValue()) {
 			/** 插入数据 */
 			this.add(returns);
-			addOperationLog(returns);
+			addOperationLog(returns,"SortingReturnServiceImple#saveOrUpdate");
 		}
 	}
 
@@ -198,7 +209,7 @@ public class SortingReturnServiceImple implements SortingReturnService {
 	 *
 	 * @param sortingReturn
 	 */
-	private void addOperationLog(SortingReturn sortingReturn) {
+	private void addOperationLog(SortingReturn sortingReturn,String methodName) {
 		OperationLog operationLog = new OperationLog();
 		operationLog.setCreateSiteCode(sortingReturn.getSiteCode());
 		operationLog.setCreateTime(sortingReturn.getCreateTime());
@@ -213,6 +224,7 @@ public class SortingReturnServiceImple implements SortingReturnService {
 		operationLog.setPackageCode(sortingReturn.getPackageCode());
 		operationLog.setUpdateTime(sortingReturn.getUpdateTime());
 		operationLog.setWaybillCode(sortingReturn.getWaybillCode());
+		operationLog.setMethodName(methodName);
 		operationLogService.add(operationLog);
 	}
 
@@ -395,7 +407,8 @@ public class SortingReturnServiceImple implements SortingReturnService {
 	 * @param _datas
 	 */
 	private void pushBlockerMqQueue(List<SortingReturn> _datas) {
-        long timeId = System.currentTimeMillis();
+		long startTime=new Date().getTime();
+		long timeId = System.currentTimeMillis();
         log.debug("SortingReturnServiceImple.pushBlockerMqQueue[{}] 预处理",timeId);
         for (SortingReturn ret : _datas) {
             try {
@@ -438,6 +451,29 @@ public class SortingReturnServiceImple implements SortingReturnService {
 			        /* 记录异常，但不处理，避免影响运单操作 */
                 log.error("退款100分MQ消息推送失败[{}]orderId:{}",timeId,ret.getWaybillCode(), e);
                 try{
+
+					long endTime = new Date().getTime();
+					JSONObject request=new JSONObject();
+					request.put("waybillCode",ret.getWaybillCode());
+
+					JSONObject response=new JSONObject();
+					response.put("keyword1", ret.getWaybillCode());
+					response.put("keyword2", "BLOCKER_QUEUE_BD_DMS_ST");
+					response.put("keyword3", ret.getShieldsError());
+					response.put("keyword4", ret.getShieldsType());
+					response.put("content", e.getMessage());
+
+					BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
+							.bizType(BizOperateTypeConstants.RETURNS_REFUND100.getBizTypeCode())
+							.operateType(BizOperateTypeConstants.RETURNS_REFUND100.getOperateTypeCode())
+							.processTime(endTime,startTime)
+							.operateRequest(request)
+							.operateResponse(response)
+							.methodName("SortingReturnServiceImple#pushBlockerMqQueue")
+							.build();
+
+					logEngine.addLog(businessLogProfiler);
+
                     SystemLogUtil.log(ret.getWaybillCode(),"BLOCKER_QUEUE_BD_DMS_ST",ret.getShieldsError(),ret.getShieldsType(),e.getMessage(),Long.valueOf(12201));
                 }catch (Exception ex){
                     log.error("退款100分MQ消息推送记录日志失败:{}",ret.getWaybillCode(), ex);

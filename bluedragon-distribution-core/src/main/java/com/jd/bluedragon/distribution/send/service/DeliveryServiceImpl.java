@@ -47,6 +47,11 @@ import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
+import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
+import com.jd.bluedragon.distribution.log.BizTypeConstants;
+import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.dms.logger.external.LogEngine;
+import com.jd.bluedragon.distribution.log.OperateTypeConstants;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.reverse.dao.ReverseSpareDao;
@@ -77,6 +82,7 @@ import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
@@ -86,6 +92,7 @@ import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.fastjson.JSONObject;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
@@ -292,6 +299,10 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Autowired
     @Qualifier("redisClientCache")
     private Cluster redisClientCache;
+
+    @Autowired
+    private LogEngine logEngine;
+
 
     /**
      * 自动过期时间 15分钟
@@ -1264,7 +1275,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      *
      * @param sendDetail
      */
-    private void addOperationLog(SendDetail sendDetail) {
+    private void addOperationLog(SendDetail sendDetail,String methodName) {
         OperationLog operationLog = new OperationLog();
         operationLog.setBoxCode(sendDetail.getBoxCode());
         operationLog.setCreateSiteCode(sendDetail.getCreateSiteCode());
@@ -1282,6 +1293,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         operationLog.setReceiveSiteCode(sendDetail.getReceiveSiteCode());
         operationLog.setUpdateTime(sendDetail.getUpdateTime());
         operationLog.setWaybillCode(sendDetail.getWaybillCode());
+        operationLog.setMethodName(methodName);
         operationLogService.add(operationLog);
     }
 
@@ -2307,7 +2319,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                             WaybillStatus tWaybillStatus = this.buildWaybillStatus(tSendDetail, createSiteDto, receiveSiteDto);
                             if (tSendDetail.getYn().equals(1) && tSendDetail.getIsCancel().equals(0)) {
                                 // 添加操作日志
-                                addOperationLog(tSendDetail);
+                                addOperationLog(tSendDetail,"DeliveryServiceImpl#updateWaybillStatus");
                                 // 判断是正向发货还是逆向发货
                                 if (tSendDetail.getSendType() != null && Constants.BUSSINESS_TYPE_REVERSE == tSendDetail.getSendType().intValue()) {
                                     tWaybillStatus.setOperateType(OPERATE_TYPE_REVERSE_SEND);
@@ -3021,6 +3033,8 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @return
      */
     public DeliveryResponse checkRouterForCBox(SendM queryPara){
+        long startTime=new Date().getTime();
+
         DeliveryResponse response = new DeliveryResponse();
         response.setCode(JdResponse.CODE_OK);
         response.setMessage(JdResponse.MESSAGE_OK);
@@ -3088,7 +3102,26 @@ public class DeliveryServiceImpl implements DeliveryService {
                             ",运单正确路由:" + routerStr +  ",操作站点：" + createSiteCode +
                             ",批次号的目的地：" + receiveSiteCode;
                     log.info(logInfo);
+                    long endTime = new Date().getTime();
+
+                    JSONObject request=new JSONObject();
+                    request.put("boxCode",boxCode);
+
+                    JSONObject operateResponse=new JSONObject();
+                    operateResponse.put("info", logInfo);
+
+                    BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
+                            .bizType(BizOperateTypeConstants.DELIVERY_ONECARDELIVERY.getBizTypeCode())
+                            .operateType(BizOperateTypeConstants.DELIVERY_ONECARDELIVERY.getOperateTypeCode())
+                            .operateRequest(request)
+                            .operateResponse(response)
+                            .methodName("DeliveryServiceImpl#checkRouterForCBox")
+                            .build();
+
+                    logEngine.addLog(businessLogProfiler);
+
                     addCassandraLog(boxCode,boxCode,logInfo);
+
                     return response;
                 }
             }
@@ -3100,6 +3133,28 @@ public class DeliveryServiceImpl implements DeliveryService {
                     waybillCodes + ",进行校验的运单号：" + waybillCodeForVerify +
                     ",运单正确路由:" + routerStr +  ",操作站点：" + createSiteCode +
                     ",批次号的目的地：" + receiveSiteCode;
+            long endTime = new Date().getTime();
+
+
+            JSONObject request=new JSONObject();
+            request.put("boxCode",boxCode);
+
+            JSONObject operateResponse=new JSONObject();
+            operateResponse.put("info", logInfo);
+
+            BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
+                    .bizType(BizOperateTypeConstants.DELIVERY_ONECARDELIVERY.getBizTypeCode())
+                    .operateType(BizOperateTypeConstants.DELIVERY_ONECARDELIVERY.getOperateTypeCode())
+                    .operateRequest(request)
+                    .operateResponse(response)
+                    .methodName("DeliveryServiceImpl#checkRouterForCBox")
+                    .processTime(endTime,startTime)
+                    .build();
+            businessLogProfiler.setTimeStamp(endTime);
+            businessLogProfiler.setUrl("");
+
+            logEngine.addLog(businessLogProfiler);
+
             addCassandraLog(boxCode,boxCode,logInfo);
             return response;
         }
@@ -3126,7 +3181,32 @@ public class DeliveryServiceImpl implements DeliveryService {
                 ",运单正确路由为:" + routerStr +  ",操作站点为：" + createSiteCode +
                 ",批次号的目的地为：" + receiveSiteCode;
 
+//        addCassandraLog(boxCode,boxCode,logInfo);
+
+
+        long endTime = new Date().getTime();
+
+        JSONObject request=new JSONObject();
+        request.put("boxCode",boxCode);
+
+        JSONObject operateResponse=new JSONObject();
+        operateResponse.put("info", logInfo);
+
+        BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
+                .bizType(BizOperateTypeConstants.DELIVERY_ONECARDELIVERY.getBizTypeCode())
+                .operateType(BizOperateTypeConstants.DELIVERY_ONECARDELIVERY.getOperateTypeCode())
+                .operateRequest(request)
+                .operateResponse(response)
+                .methodName("DeliveryServiceImpl#checkRouterForCBox")
+                .processTime(endTime,startTime)
+                .build();
+        businessLogProfiler.setTimeStamp(endTime);
+        businessLogProfiler.setUrl("");
+
+        logEngine.addLog(businessLogProfiler);
         addCassandraLog(boxCode,boxCode,logInfo);
+
+
 
         return response;
     }
@@ -4928,6 +5008,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param domain
      */
     private void boardCombinationCancel(SendM domain){
+        long startTime=new Date().getTime();
         BoardCombinationRequest request = new BoardCombinationRequest();
         request.setBoxOrPackageCode(domain.getBoxCode());
         request.setSiteCode(domain.getCreateSiteCode());
@@ -4944,6 +5025,26 @@ public class DeliveryServiceImpl implements DeliveryService {
             if(log.isInfoEnabled()) {
                 log.info(logInfo);
             }
+
+            long endTime = new Date().getTime();
+
+            JSONObject operateRequest=new JSONObject();
+            operateRequest.put("boxCode",domain.getBoxCode());
+
+            JSONObject operateResponse=new JSONObject();
+            operateResponse.put("info", logInfo);
+
+
+            BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
+                    .bizType(BizOperateTypeConstants.BOARDCOMBINATION_DEBOARDCOMBINATION.getBizTypeCode())
+                    .operateType(BizOperateTypeConstants.BOARDCOMBINATION_DEBOARDCOMBINATION.getOperateTypeCode())
+                    .operateRequest(operateRequest)
+                    .operateResponse(operateResponse)
+                    .processTime(endTime,startTime)
+                    .methodName("DeliveryServiceImpl#boardCombinationCancel")
+                    .build();
+            logEngine.addLog(businessLogProfiler);
+
 
             //记录cassandra日志
             addCassandraLog(domain.getBoxCode(),domain.getBoxCode(),logInfo);

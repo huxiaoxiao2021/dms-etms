@@ -44,6 +44,7 @@
                         <td style="font-size: 14px;">关键字</td>
                         <td><input type="text" name="data" value="$!request.getParameter('data')" style="font-size: 14px; height: 25px;"/> </td>
                         <td><a href="javascript:" onclick="document.queryForm.submit()" >查询</a> </td>
+                        <td style="color: red;">到2020-3-10号，此功能下线。请到“<a style="float: none;border: none" href="#springUrl('/businesslog/goListPage')">日志查询</a>”查询，有疑问联系<a style="float: none;border: none" href="timline://chat/?topin=xnfjxm">分拣小秘</a></td>
                     </tr>
                 </table>
             </form>
