@@ -88,6 +88,11 @@
 										<input id="search" type="button" value="查询" class="btn_c"/>
 									</td>
 								</tr>
+								<tr>
+									<td colspan="11">
+										<span style="color: red;float: right">到2020-3-10号，此功能下线。请到“<a style="float: none;border: none" href="#springUrl('/businesslog/goListPage')">日志查询</a>”查询，有疑问联系 <a href="timline://chat/?topin=xnfjxm">分拣小秘</a></span>
+									</td>
+								</tr>l
 							</tbody>
 						</table>
 					</form>

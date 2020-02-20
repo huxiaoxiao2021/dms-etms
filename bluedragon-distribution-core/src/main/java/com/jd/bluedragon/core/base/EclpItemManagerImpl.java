@@ -1,9 +1,13 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
+import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SystemLogUtil;
+import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.dms.logger.external.LogEngine;
 import com.jd.eclp.core.ApiResponse;
 import com.jd.eclp.master.export.api.service.dept.DeptServiceApi;
 import com.jd.eclp.master.export.api.service.dept.domain.DeptDomain;
@@ -12,6 +16,7 @@ import com.jd.eclp.spare.ext.api.inbound.InboundCancelRequest;
 import com.jd.eclp.spare.ext.api.inbound.InboundOrderService;
 import com.jd.eclp.spare.ext.api.inbound.OrderResponse;
 import com.jd.eclp.spare.ext.api.inbound.domain.InboundOrder;
+import com.jd.fastjson.JSONObject;
 import com.jd.kom.ext.service.OrderExtendService;
 import com.jd.kom.ext.service.domain.request.SoNoItemRequest;
 import com.jd.kom.ext.service.domain.response.ItemInfo;
@@ -45,6 +50,9 @@ public class EclpItemManagerImpl implements EclpItemManager {
 
     @Autowired
     private InboundOrderService inboundOrderService;
+
+    @Autowired
+    private LogEngine logEngine;
 
     @Override
     @JProfiler(jKey = "DMS.BASE.EclpItemManagerImpl.getltemBySoNo", mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWORKER)
@@ -130,7 +138,7 @@ public class EclpItemManagerImpl implements EclpItemManager {
             response.setMsg(e.getMessage());
         }finally {
             //记录日志
-            pushSystemLog(waybillCode,isvInboundOrderNo,request,response);
+            pushSystemLog(waybillCode,isvInboundOrderNo,request,response, "EclpItemManagerImpl#cancelInboundOrder");
         }
         return result;
     }
@@ -139,7 +147,7 @@ public class EclpItemManagerImpl implements EclpItemManager {
      * 记录日志
 
      */
-    private void pushSystemLog(String waybillCode,String isvInboundOrderNo,InboundCancelRequest request, StringApiResponse response){
+    private void pushSystemLog(String waybillCode,String isvInboundOrderNo,InboundCancelRequest request, StringApiResponse response, String methodName){
         try{
             //增加系统日志
             SystemLog sLogDetail = new SystemLog();
@@ -152,8 +160,29 @@ public class EclpItemManagerImpl implements EclpItemManager {
                 sLogDetail.setKeyword4(Long.valueOf(response.getCode()));
             }
             sLogDetail.setType(SYSTEM_LOG_TYPE);
-            sLogDetail.setContent("请求:"+JsonHelper.toJson(request)+"返回:"+JsonHelper.toJson(response));
+            String content = "请求:" + JsonHelper.toJson(request) + "返回:" + JsonHelper.toJson(response);
+            sLogDetail.setContent(content);
             SystemLogUtil.log(sLogDetail);
+
+            JSONObject logResponse = new JSONObject();
+            logResponse.put("keyword2", isvInboundOrderNo);
+            logResponse.put("keyword3", "ECLPSpwmsCancel");
+            logResponse.put("keyword4", Long.valueOf(Constants.RESULT_ERROR));
+            logResponse.put("content", content);
+
+            JSONObject logRequest = new JSONObject();
+            logRequest.put("waybillCode", waybillCode);
+
+            BusinessLogProfiler businessLogProfiler = new BusinessLogProfilerBuilder()
+                    .bizType(BizOperateTypeConstants.SORTING_PRE_SORTING_SITE_CHANGE.getBizTypeCode())
+                    .operateType(BizOperateTypeConstants.SORTING_PRE_SORTING_SITE_CHANGE.getOperateTypeCode())
+                    .methodName("ReassignWaybillServiceImpl#add")
+                    .operateRequest(request)
+                    .operateResponse(response)
+                    .build();
+
+            logEngine.addLog(businessLogProfiler);
+
         }catch (Exception e){
             log.error("cancelInboundOrder.pushSystemLog",e);
         }

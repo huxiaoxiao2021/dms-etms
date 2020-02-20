@@ -86,9 +86,9 @@ public interface SortingService {
 	 * @param sorting
 	 * @param logType
 	 */
-	public void addOpetationLog(Sorting sorting, Integer logType);
+	public void addOpetationLog(Sorting sorting, Integer logType,String methodName);
 
-	public void addOpetationLog(Sorting sorting, Integer logType, String remark);
+	public void addOpetationLog(Sorting sorting, Integer logType, String remark,String methodName);
 
 	public boolean taskToSorting(List<Sorting> sortings);
 	

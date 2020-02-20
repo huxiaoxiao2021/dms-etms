@@ -26,6 +26,11 @@ import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionEC;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
+import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
+import com.jd.bluedragon.distribution.log.BizTypeConstants;
+import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.dms.logger.external.LogEngine;
+import com.jd.bluedragon.distribution.log.OperateTypeConstants;
 import com.jd.bluedragon.distribution.middleend.sorting.domain.SortingObjectExtend;
 import com.jd.bluedragon.distribution.middleend.sorting.dao.DynamicSortingQueryDao;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
@@ -157,6 +162,10 @@ public class SortingServiceImpl implements SortingService {
 	@Autowired
 	private WaybillPackageManager waybillPackageManager;
 
+	@Autowired
+	private LogEngine logEngine;
+
+
     /**
      * sorting任务处理告警时间，单位:ms，默认值100
      */
@@ -204,7 +213,7 @@ public class SortingServiceImpl implements SortingService {
 		boolean result = this.sortingDao.canCancel(sorting)
 				&& this.deliveryService.canCancel(this.parseSendDetail(sorting));
 		if (result) {
-			this.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING_CANCEL);
+			this.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING_CANCEL,"SortingServiceImpl#canCancelSorting");
 		}
 		return result;
 	}
@@ -215,7 +224,7 @@ public class SortingServiceImpl implements SortingService {
 		boolean result = this.sortingDao.canCancel2(sorting)
 				&& this.deliveryService.canCancel2(this.parseSendDetail(sorting));
 		if (result) {
-			this.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING_CANCEL);
+			this.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING_CANCEL,"SortingServiceImpl#canCancelSorting2");
 			//发送取消建箱全程跟踪，MQ
 			this.sendSortingCancelWaybillTrace(sorting);
 		}
@@ -228,7 +237,7 @@ public class SortingServiceImpl implements SortingService {
 		boolean result = this.sortingDao.canCancelFuzzy(sorting)
 				&& this.deliveryService.canCancelFuzzy(this.parseSendDetail(sorting));
 		if (result) {
-			this.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING_CANCEL);
+			this.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING_CANCEL,"SortingServiceImpl#canCancelSortingFuzzy");
 		}
 		return result;
 	}
@@ -651,7 +660,7 @@ public class SortingServiceImpl implements SortingService {
 		this.fillSortingIfPickup(sorting);
 		this.saveOrUpdate(sorting);
 		this.saveOrUpdateInspectionEC(sorting);//FIXME:差异处理拿出
-		this.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING);//日志拿出
+		this.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING,"SortingServiceImpl#addSorting");//日志拿出
 		this.notifyBlocker(sorting);//FIXME:可以异步发送拿出
 		this.backwardSendMQ(sorting);
 		Profiler.registerInfoEnd(info);
@@ -745,18 +754,18 @@ public class SortingServiceImpl implements SortingService {
 	}
 
 	@Override
-	public void addOpetationLog(Sorting sorting, Integer logType) {
-		OperationLog operationLog = this.parseOperationLog(sorting, logType, "");
+	public void addOpetationLog(Sorting sorting, Integer logType,String methodName) {
+		OperationLog operationLog = this.parseOperationLog(sorting, logType, "",methodName);
 		this.operationLogService.add(operationLog);
 	}
 
 	@Override
-	public void addOpetationLog(Sorting sorting, Integer logType, String remark) {
-		OperationLog operationLog = this.parseOperationLog(sorting, logType, remark);
+	public void addOpetationLog(Sorting sorting, Integer logType, String remark,String methodName) {
+		OperationLog operationLog = this.parseOperationLog(sorting, logType, remark,methodName);
 		this.operationLogService.add(operationLog);
 	}
 
-	private OperationLog parseOperationLog(Sorting sorting, Integer logType, String remark) {
+	private OperationLog parseOperationLog(Sorting sorting, Integer logType, String remark,String methodname) {
 		OperationLog operationLog = new OperationLog();
 		operationLog.setBoxCode(sorting.getBoxCode());
 		operationLog.setWaybillCode(sorting.getWaybillCode());
@@ -775,6 +784,7 @@ public class SortingServiceImpl implements SortingService {
 		operationLog.setOperateTime(sorting.getOperateTime());
 		operationLog.setLogType(logType);
 		operationLog.setRemark(remark);
+		operationLog.setMethodName(methodname);
 		return operationLog;
 	}
 
@@ -1096,6 +1106,10 @@ public class SortingServiceImpl implements SortingService {
 	}
 
 	public void notifyBlocker(Sorting sorting) {
+		long startTime=new Date().getTime();
+
+
+
 		try {
 			if (Sorting.TYPE_REVERSE.equals(sorting.getType())) {
 //					&& waybillCancelService.isRefundWaybill(sorting.getWaybillCode())) {
@@ -1132,6 +1146,29 @@ public class SortingServiceImpl implements SortingService {
 		} catch (Exception e) {
 			this.log.error("回传退款100分逆向分拣信息失败，运单号：{}" , sorting.getWaybillCode(), e);
 			try{
+				long endTime = new Date().getTime();
+
+				JSONObject request=new JSONObject();
+				request.put("waybillCode",sorting.getWaybillCode());
+
+				JSONObject response=new JSONObject();
+				response.put("keyword1", sorting.getWaybillCode());
+				response.put("keyword2", "BLOCKER_QUEUE_DMS");
+				response.put("keyword3", "");
+				response.put("keyword4", sorting.getType());
+				response.put("content", e.getMessage());
+
+				BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
+						.bizType(BizOperateTypeConstants.RETURNS_REFUND100.getBizTypeCode())
+						.operateType(BizOperateTypeConstants.RETURNS_REFUND100.getOperateTypeCode())
+						.operateRequest(request)
+						.operateResponse(response)
+						.processTime(endTime,startTime)
+						.methodName("SortingServiceImpl#nodifyStock")
+						.build();
+
+				logEngine.addLog(businessLogProfiler);
+
 				SystemLogUtil.log(sorting.getWaybillCode(),"BLOCKER_QUEUE_DMS","",sorting.getType(),e.getMessage(),Long.valueOf(12201));
 			}catch (Exception ex){
 				log.error("退款100分MQ消息推送记录日志失败：{}",sorting.getWaybillCode(), ex);
@@ -1400,7 +1437,7 @@ public class SortingServiceImpl implements SortingService {
 			sortingRecords.addAll(queryByCode2(sorting));
 			if (sortingRecords == null || sortingRecords.isEmpty()) {
 				log.warn("取消分拣--->包裹已经发货");
-				addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING_CANCEL, "包裹已经发货");
+				addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING_CANCEL, "包裹已经发货","SortingServiceImpl#getSortingRecords");
 				return SortingResponse.sortingSended();
 			} else if (sortingRecords.size() > DmsConstants.MAX_NUMBER) {
 				log.warn("{}的包裹数：{}，大于两万，已反馈现场提报IT",sorting.getPackageCode(),sortingRecords.size());
@@ -1420,7 +1457,7 @@ public class SortingServiceImpl implements SortingService {
 
 					if (inspectionCount > 0) {
 						unfilledOrdersCount++;
-						addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING_CANCEL, "已经三方验货或者差异处理");
+						addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING_CANCEL, "已经三方验货或者差异处理","SortingServiceImpl#getSortingRecords");
 					}
 				}
 				if (unfilledOrdersCount == sortingRecords.size()) {
@@ -1467,7 +1504,7 @@ public class SortingServiceImpl implements SortingService {
 		fillSortingIfPickup(sorting);
 		sortingAddInspection(sorting);
 		sortingAddSend(sorting);
-		addOpetationLog(sorting,OperationLog.LOG_TYPE_SORTING);
+		addOpetationLog(sorting,OperationLog.LOG_TYPE_SORTING,"SortingServiceImpl#doSortingAfter");
 	}
 
 	/**

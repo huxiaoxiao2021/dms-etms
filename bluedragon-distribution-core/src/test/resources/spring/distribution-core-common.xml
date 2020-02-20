@@ -61,7 +61,7 @@
     <!--<bean id="dmsWaybillDataSource" class="org.apache.commons.dbcp.BasicDataSource"-->
           <!--destroy-method="close">-->
         <!--<property name="driverClassName" value="${dms.waybill.mysql.db.driverClassName}"/>-->
-        <!--<property name="url" value="${dms.waybill.mysql.db.url}"/>-->
+        <!--<property name="remark" value="${dms.waybill.mysql.db.remark}"/>-->
         <!--<property name="username" value="${dms.waybill.mysql.db.username}"/>-->
         <!--<property name="password" value="${dms.waybill.mysql.db.password}"/>-->
         <!--<property name="defaultAutoCommit" value="${dms.waybill.db.defaultAutoCommit}" />-->

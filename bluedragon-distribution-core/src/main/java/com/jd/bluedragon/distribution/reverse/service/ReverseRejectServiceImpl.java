@@ -69,7 +69,7 @@ public class ReverseRejectServiceImpl implements ReverseRejectService {
             }
             
             this.add(source);
-            this.addOpetationLog(source, this.getRejectLogType(source.getBusinessType()));
+            this.addOpetationLog(source, this.getRejectLogType(source.getBusinessType()),"ReverseRejectServiceImpl#rejecet");
         } else {
             ReverseReject reverseRejectVO = new ReverseReject();
             BeanHelper.copyProperties(reverseRejectVO, source);
@@ -82,7 +82,7 @@ public class ReverseRejectServiceImpl implements ReverseRejectService {
             }
             
             this.update(reverseRejectVO);
-            this.addOpetationLog(reverseRejectVO, this.getRejectLogType(source.getBusinessType()));
+            this.addOpetationLog(reverseRejectVO, this.getRejectLogType(source.getBusinessType()),"ReverseRejectServiceImpl#reject");
         }
     }
     
@@ -104,7 +104,7 @@ public class ReverseRejectServiceImpl implements ReverseRejectService {
             this.setReverseReject(reverseRejectVO, request);
             this.add(reverseRejectVO);
             this.addOpetationLog(reverseRejectVO,
-                    this.getRejectInspectLogType(request.getBusinessType()));
+                    this.getRejectInspectLogType(request.getBusinessType()),"ReverseRejectServiceImpl#rejectInspect");
             sendTask(reverseRejectVO);
         } else {
             ReverseReject reverseRejectVO = new ReverseReject();
@@ -114,7 +114,7 @@ public class ReverseRejectServiceImpl implements ReverseRejectService {
             reverseRejectVO.setOperateTime(DateHelper.parseDateTime(request.getOperateTime()));
             this.update(reverseRejectVO);
             this.addOpetationLog(reverseRejectVO,
-                    this.getRejectInspectLogType(request.getBusinessType()));
+                    this.getRejectInspectLogType(request.getBusinessType()),"ReverseRejectServiceImpl#rejectInspect");
             sendTask(reverseRejectVO);
         }
         
@@ -175,7 +175,7 @@ public class ReverseRejectServiceImpl implements ReverseRejectService {
         }
     }
     
-    public void addOpetationLog(ReverseReject reverseReject, Integer logType) {
+    public void addOpetationLog(ReverseReject reverseReject, Integer logType, String methodName) {
         this.appentPickwareInfo(reverseReject, reverseReject.getPackageCode());
         OperationLog operationLog = new OperationLog();
         operationLog.setWaybillCode(reverseReject.getOrderId());
@@ -194,6 +194,7 @@ public class ReverseRejectServiceImpl implements ReverseRejectService {
         }
         
         operationLog.setLogType(logType);
+        operationLog.setMethodName(methodName);
         this.operationLogService.add(operationLog);
     }
     

@@ -105,5 +105,5 @@ public interface InspectionExceptionService {
 	 * 写入业务表数据和日志数据
 	 * @param  Inspection
 	 * */
-	public void saveData(Inspection inspection);
+	public void saveData(Inspection inspection,String methodName);
 }

@@ -161,11 +161,33 @@ public class OperationLog implements java.io.Serializable {
     /** 更新时间 */
     private Date updateTime;
 
+    /** 记录日志的url */
+    private String url;
+
+    /** 记录日志的方法名 */
+    private String methodName;
+
     /** 记录是否存在，1存在，0删除 */
     private Integer yn;
 
     public OperationLog() {
         super();
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getMethodName() {
+        return methodName;
+    }
+
+    public void setMethodName(String methodName) {
+        this.methodName = methodName;
     }
 
     public Long getLogId() {
