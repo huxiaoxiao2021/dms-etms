@@ -1076,7 +1076,7 @@
 		<dependency>
 			<groupId>com.jd.eclp</groupId>
 			<artifactId>eclp-spare-ext-api</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.0.1-TEST-SNAPSHOT</version>
 		</dependency>
 
         <dependency>

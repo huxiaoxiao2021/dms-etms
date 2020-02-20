@@ -333,5 +333,8 @@
         <!-- 三方装箱明细 -->
         <mapper resource="mappers/mysql/third/ThirdBoxDetailMapper.xml"/>
 
+        <mapper resource="mappers/mysql/reverse/ReverseStockInDetailMapper.xml"/>
+
+
     </mappers>
 </configuration>

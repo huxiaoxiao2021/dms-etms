@@ -38,6 +38,7 @@ import com.jd.bluedragon.external.service.LossServiceManager;
 import com.jd.bluedragon.utils.*;
 import com.jd.eclp.spare.ext.api.inbound.OrderResponse;
 import com.jd.eclp.spare.ext.api.inbound.domain.InboundOrder;
+import com.jd.eclp.spare.ext.api.inbound.domain.InboundSourceEnum;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Goods;
 import com.jd.etms.waybill.dto.BigWaybillDto;
@@ -165,6 +166,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
     @Autowired
     private IPrintOnlineService printOnlineService;
+
+    @Autowired
+    private ReverseStockInDetailService reverseStockInDetailService;
 
     // 自营
     public static final Integer businessTypeONE = 10;
@@ -1891,6 +1895,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 if(doneWaybill.contains(waybillCode)){
                     continue;
                 }
+                doneWaybill.add(waybillCode);
                 InboundOrder inboundOrder =  reverseSpareEclp.makeInboundOrder(waybillCode,sendDetail);
                 if(inboundOrder==null){
                     log.error("ECLP退备件库失败：{}|{}",waybillCode,sendDetail.getSendCode());
@@ -1900,12 +1905,31 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 if(log.isInfoEnabled()){
                     this.log.info("eclp退备件库报文：{}", JsonHelper.toJson(inboundOrder));
                 }
+                if(InboundSourceEnum.SORTING_C2C.getCode().equals(inboundOrder.getSource().getCode())){
+
+                    if(!checkAlreadyDeal(inboundOrder)){
+                        log.error("ECLP退备件库失败,检查入库单数据失败：{}|{}",waybillCode,sendDetail.getSendCode());
+                        continue;
+                    }
+                    //记录入库单数据
+                    if(!saveReverseStockInDetail(sendDetail,inboundOrder)){
+                        log.error("ECLP退备件库失败,记录入库单数据失败：{}|{}",waybillCode,sendDetail.getSendCode());
+                        continue;
+                    }
+                }
+                //创建入库单
                 OrderResponse orderResponse = eclpItemManager.createInboundOrder(inboundOrder);
                 pushInboundOrderToSpwmsLog(sendDetail,inboundOrder,orderResponse);
-                if(orderResponse != null && orderResponse.getResCode() != 200){
+                if(orderResponse != null && orderResponse.getResCode() != EclpItemManager.ORDER_RESPONSE_SUCCESS){
                     this.log.warn("ECLP退备件库失败,运单号:{},原因：{}",waybillCode, orderResponse.getMessage());
                 }
-                doneWaybill.add(waybillCode);
+                //更新入库单状态
+                if(InboundSourceEnum.SORTING_C2C.getCode().equals(inboundOrder.getSource().getCode())){
+                    if(!updateReverseStockInDetailStatus(sendDetail,inboundOrder,orderResponse)){
+                        log.error("ECLP退备件库更新入库单记录失败：{}|{}",waybillCode,sendDetail.getSendCode());
+                    }
+                }
+
             }
             if(!StringHelper.isEmpty(failWaybillCodes.toString())){
                 log.warn("eclp退备件库失败订单有:{}",failWaybillCodes.toString());
@@ -1914,6 +1938,109 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             log.error("ECLP退备件库异常",e);
         }
     }
+
+    /**
+     * 存储入库单数据
+     *
+     * @param sendDetail
+     * @param inboundOrder
+     * @return
+     */
+    private boolean saveReverseStockInDetail(SendDetail sendDetail,InboundOrder inboundOrder){
+
+        ReverseStockInDetail reverseStockInDetail = new ReverseStockInDetail();
+
+        reverseStockInDetail.setExternalCode(inboundOrder.getOrderNo());
+        reverseStockInDetail.setWaybillCode(sendDetail.getWaybillCode());
+        reverseStockInDetail.setSendCode(sendDetail.getSendCode());
+        reverseStockInDetail.setCreateUser(sendDetail.getCreateUser());
+        reverseStockInDetail.setCreateSiteCode(sendDetail.getCreateSiteCode());
+        reverseStockInDetail.setReceiveSiteCode(sendDetail.getReceiveSiteCode());
+        reverseStockInDetail.setBusiType(ReverseStockInDetailTypeEnum.C2C_REVERSE_SPWMS.getCode());
+
+        return reverseStockInDetailService.initReverseStockInDetail(reverseStockInDetail);
+    }
+
+    /**
+     * 检查是否已经处理过，
+     * 如果处理过状态是非收货情况 则操作取消
+     *
+     *
+     * 先检查此运单是否已创建过入库单，
+     * 如果创建过在成功状态时需要 触发取消 取消成功继续，取消失败拦截
+     * 发货状态 暂停本次创建过程，交由其他任务创建
+     * 收货状态 拦截
+     * 其他情况继续
+     * @param inboundOrder
+     * @return
+     */
+    private boolean checkAlreadyDeal(InboundOrder inboundOrder){
+        ReverseStockInDetail queryParam = new ReverseStockInDetail();
+        queryParam.setWaybillCode(inboundOrder.getWaybillNo());
+        //现在业务阶段只有C2C
+        queryParam.setBusiType(ReverseStockInDetailTypeEnum.C2C_REVERSE_SPWMS.getCode());
+
+        List<ReverseStockInDetail> reverseStockInDetails = reverseStockInDetailService.findByWaybillCodeAndType(queryParam);
+        if(reverseStockInDetails.isEmpty()){
+            return true;
+        }
+        //理论上 非终止状态的数据只会有一条
+        for(ReverseStockInDetail reverseStockInDetail : reverseStockInDetails){
+
+            if(ReverseStockInDetailStatusEnum.SUCCESS.getCode().equals(reverseStockInDetail.getStatus())){
+                //此时需要调用取消接口
+
+                if(eclpItemManager.cancelInboundOrder(inboundOrder.getWaybillNo(),inboundOrder.getTargetDeptNo(),reverseStockInDetail.getExternalCode(),inboundOrder.getSource().getCode())){
+                    //更新上次记录状态 更新至取消成功状态
+                    ReverseStockInDetail updateReverseStockInDetail = new ReverseStockInDetail();
+                    updateReverseStockInDetail.setExternalCode(reverseStockInDetail.getExternalCode());
+                    reverseStockInDetail.setWaybillCode(reverseStockInDetail.getWaybillCode());
+                    reverseStockInDetail.setSendCode(reverseStockInDetail.getSendCode());
+                    reverseStockInDetail.setBusiType(ReverseStockInDetailTypeEnum.C2C_REVERSE_SPWMS.getCode());
+                    if(!reverseStockInDetailService.updateStatus(reverseStockInDetail,ReverseStockInDetailStatusEnum.CANCEL)){
+                        log.error("ECLP退备件库更新入库单记录失败-更新上次取消状态：{}|{}",reverseStockInDetail.getWaybillCode(),reverseStockInDetail.getSendCode());
+                        return false;
+                    }
+                    return true;
+                }else{
+                    log.warn("此入库单操作取消时失败，无法继续推送！，运单号{}",inboundOrder.getWaybillNo());
+                    return false;
+                }
+            }else if(ReverseStockInDetailStatusEnum.REVERSE.getCode().equals(reverseStockInDetail.getStatus())){
+                log.warn("此入库单已收货，无法继续推送！，运单号{}",inboundOrder.getWaybillNo());
+                return false;
+            }else if(ReverseStockInDetailStatusEnum.SEND.getCode().equals(reverseStockInDetail.getStatus())){
+                log.warn("此入库单其他任务在执行，无法继续推送！，运单号{}",inboundOrder.getWaybillNo());
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+    /**
+     * 存储入库单数据
+     * @param sendDetail
+     * @param inboundOrder
+     * @return
+     */
+    private boolean updateReverseStockInDetailStatus(SendDetail sendDetail,InboundOrder inboundOrder,OrderResponse orderResponse){
+
+        ReverseStockInDetail reverseStockInDetail = new ReverseStockInDetail();
+
+        reverseStockInDetail.setExternalCode(inboundOrder.getOrderNo());
+        reverseStockInDetail.setWaybillCode(sendDetail.getWaybillCode());
+        reverseStockInDetail.setSendCode(sendDetail.getSendCode());
+        reverseStockInDetail.setBusiType(ReverseStockInDetailTypeEnum.C2C_REVERSE_SPWMS.getCode());
+        //这种成功状态对方系统不提供常量 我们也没办法
+        if(orderResponse != null && orderResponse.getResCode() != EclpItemManager.ORDER_RESPONSE_SUCCESS){
+            return reverseStockInDetailService.updateStatus(reverseStockInDetail,ReverseStockInDetailStatusEnum.ERROR);
+        }else{
+            return reverseStockInDetailService.updateStatus(reverseStockInDetail,ReverseStockInDetailStatusEnum.SUCCESS);
+        }
+    }
+
 
     private void pushInboundOrderToSpwmsLog(SendDetail sendDetail,InboundOrder inboundOrder,OrderResponse orderResponse){
         try{
