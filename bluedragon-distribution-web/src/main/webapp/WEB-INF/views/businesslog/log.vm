@@ -122,7 +122,6 @@
                             let responseMessage = item.responseMessage == null ? "-" : item.responseMessage;
                             let operateRequest = item.operateRequest == null ? "-" : item.operateRequest;
                             let operateResponse = item.operateResponse == null ? "-" : item.operateResponse;
-                            let serverIp = item.serverIp == null ? "-" : item.serverIp;
 
                             let tr = $(`<tr>
                                          <td>${bizTypeName}  </td>
@@ -141,7 +140,6 @@
                                          <td>${responseMessage}</td>
                                          <td style="max-width: 450px;word-wrap:break-word;word-break:break-all;">${operateRequest}</td>
                                          <td style="max-width: 450px;word-wrap:break-word;word-break:break-all;">${operateResponse}</td>
-                                         <td>${serverIp}</td>
                                     </tr>`)
                             console.log(tr)
                             $("#logcontent").append(tr)
@@ -353,7 +351,6 @@
                         <th>Message</th>
                         <th style="max-width: 450px;word-wrap:break-word;word-break:break-all;">请求参数</th>
                         <th style="max-width: 450px;word-wrap:break-word;word-break:break-all;">返回值</th>
-                        <th>服务器ip</th>
                     </tr>
                     </thead>
                     <tbody id="logcontent">
