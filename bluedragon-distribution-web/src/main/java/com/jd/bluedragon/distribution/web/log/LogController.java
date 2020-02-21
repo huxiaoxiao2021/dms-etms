@@ -1,10 +1,12 @@
 package com.jd.bluedragon.distribution.web.log;
 
+import com.jd.bluedragon.Constants;
 import com.jd.dms.logger.domain.es.ESIndexAndTypeEnum;
 import com.jd.dms.logger.dto.base.BusinessLogResult;
 import com.jd.dms.logger.dto.base.TableResult;
 import com.jd.dms.logger.service.BusinessLogQueryService;
 import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.uim.annotation.Authorization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +31,7 @@ public class LogController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    //    @Authorization(Constants.DMS_WEB_SORTING_OFFLINELOG_R)
+    @Authorization(Constants.DMS_WEB_SORTING_OPERATELOG_R)
     @RequestMapping(value = "/goListPage", method = RequestMethod.GET)
     public String goListpage(Model model) {
 
@@ -93,6 +95,7 @@ public class LogController {
     }
 
 
+    @Authorization(Constants.DMS_WEB_SORTING_OPERATELOG_R)
     @RequestMapping("/getBusinessLog")
     @ResponseBody
     public TableResult getBusinessLog(@RequestBody HashMap<String, String> request) {
