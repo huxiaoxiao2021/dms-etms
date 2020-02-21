@@ -246,7 +246,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             if (baseEntity != null && baseEntity.getData() != null) {
                 waybill = this.convWaybillWS(baseEntity.getData(), true, true);
                 if (Waybill.isInvalidWaybill(waybill)) {
-                    this.log.warn("运单号【{}】验证运单数据缺少必要字段，运单【{}】",waybillCode,waybill.toString());
+                    this.log.warn("运单号【{}】验证运单数据缺少必要字段，运单【{}】",waybillCode,waybill);
                     return null;
                 }
             }
