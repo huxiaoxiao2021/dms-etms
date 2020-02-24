@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.businessCode.dao.BusinessCodeDao" >
+
+	<resultMap id="businessCode" type="com.jd.bluedragon.distribution.businessCode.domain.BusinessCodePo" >
+		<result column="id" property="id" />
+		<result column="code" property="code"/>
+		<result column="node_type" property="nodeType"/>
+		<result column="from_source" property="fromSource"/>
+		<result column="create_user" property="createUser"/>
+		<result column="create_time" property="createTime"/>
+		<result column="update_user" property="updateUser"/>
+		<result column="update_time" property="updateTime"/>
+		<result column="is_delete" property="isDelete"/>
+		<result column="ts" property="ts" />
+	</resultMap>
+
+	<resultMap id="businessCodeAttributePo" type="com.jd.bluedragon.distribution.businessCode.domain.BusinessCodeAttributePo" >
+		<result column="id" property="id" />
+		<result column="code" property="code"/>
+		<result column="attribute_key" property="attributeKey"/>
+		<result column="attribute_value" property="attributeValue"/>
+		<result column="from_source" property="fromSource"/>
+		<result column="create_user" property="createUser"/>
+		<result column="create_time" property="createTime"/>
+		<result column="update_user" property="updateUser"/>
+		<result column="update_time" property="updateTime"/>
+		<result column="is_delete" property="isDelete"/>
+		<result column="ts" property="ts" />
+	</resultMap>
+
+	<insert id="insertBusinessCode" parameterType="BusinessCodePo">
+		INSERT INTO BUSINESS_CODE
+		(
+			`ID`, `CODE`, `NODE_TYPE`, `FROM_SOURCE`, `CREATE_USER`, `CREATE_TIME`, `UPDATE_USER`, `UPDATE_TIME`, `IS_DELETE`
+		)
+		VALUES (
+			#{id,jdbcType=BIGINT},
+			#{code, jdbcType=VARCHAR},
+			#{nodeType, jdbcType=VARCHAR},
+			#{fromSource, jdbcType=VARCHAR},
+			#{createUser, jdbcType=VARCHAR},
+			NOW(),
+			#{updateUser, jdbcType=VARCHAR},
+			NOW(),
+			0
+		)
+	</insert>
+
+	<select id="findBusinessCodeByCode" resultMap="businessCodePo" parameterType="java.lang.String">
+		SELECT
+			`CODE`, `NODE_TYPE`, `FROM_SOURCE`, `CREATE_USER`, `CREATE_TIME`, `UPDATE_USER`, `UPDATE_TIME`
+		FROM
+			BUSINESS_CODE
+		WHERE CODE = #{code, jdbcType=VARCHAR} AND IS_DELETE = 0
+	</select>
+
+	<insert id="batchInsertBusinessCodeAttribute" parameterType="java.util.List">
+		INSERT INTO BUSINESS_CODE_ATTRIBUTE
+		(
+			`ID`, `CODE`, `ATTRIBUTE_KEY`, `ATTRIBUTE_VALUE`, `FROM_SOURCE`, `CREATE_USER`, `CREATE_TIME`, `UPDATE_USER`, `UPDATE_TIME`, `IS_DELETE`
+		)
+		VALUES
+		<foreach collection="businessCodeAttributePos" item="item" index="index" separator=",">
+			(
+				#{item.id, jdbcType=BIGINT},
+				#{item.code, jdbcType=VARCHAR},
+				#{item.attributeKey, jdbcType=VARCHAR},
+				#{item.attributeKey, jdbcType=VARCHAR},
+				#{item.fromSource, jdbcType=VARCHAR},
+				#{item.createUser, jdbcType=VARCHAR},
+				now(),
+				#{item.updateUser, jdbcType=VARCHAR},
+				now(),
+				0
+			)
+		</foreach>
+	</insert>
+
+	<select id="findAllAttributesByCode" parameterType="java.lang.String" resultMap="businessAttributePo">
+		SELECT
+			`CODE`, `ATTRIBUTE_KEY`, `ATTRIBUTE_VALUE`, `FROM_SOURCE`, `CREATE_USER`, `CREATE_TIME`, `UPDATE_USER`, `UPDATE_TIME`
+		FROM
+			BUSINESS_CODE_ATTRIBUTE
+		WHERE CODE = #{code, jdbcType=VARCHAR} AND IS_DELETE = 0
+	</select>
+
+	<select id="findAttributeByCodeAndKey" parameterType="BusinessCodePo" resultMap="businessAttributePo">
+		SELECT
+			`CODE`, `ATTRIBUTE_KEY`, `ATTRIBUTE_VALUE`, `FROM_SOURCE`, `CREATE_USER`, `CREATE_TIME`, `UPDATE_USER`, `UPDATE_TIME`
+		FROM
+			BUSINESS_CODE_ATTRIBUTE
+		WHERE CODE = #{code, jdbcType=VARCHAR} AND ATTRIBUTE_KEY = #{attributeKey, jdbcType=VARCHAR} AND IS_DELETE = 0
+	</select>
+
+	<update id="updateAttribute">
+		UPDATE BUSINESS_CODE_ATTRIBUTE
+		SET
+			ATTRIBUTE_VALUE = #{attributeValue, jdbcType=VARCHAR},
+			UPDATE_USER = #{updateUser, jdbcType=VARCHAR},
+			UPDATE_TIME = NOW()
+		WHERE
+			CODE = #{code, jdbcType=VARCHAR} AND ATTRIBUTE_KEY = #{attributeKey, jdbcType=VARCHAR} AND IS_DELETE = 0
+	</update>
+
+</mapper>
