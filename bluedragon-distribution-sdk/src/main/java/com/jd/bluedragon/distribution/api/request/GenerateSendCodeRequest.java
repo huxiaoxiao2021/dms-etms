@@ -13,6 +13,10 @@ public class GenerateSendCodeRequest implements Serializable {
     private Date time;
     //数量
     private Integer quantity;
+
+    /* 属性： 0：普通  1：生鲜 */
+    private String property;
+
     public long getCreateSiteCode() {
         return createSiteCode;
     }
@@ -43,5 +47,13 @@ public class GenerateSendCodeRequest implements Serializable {
 
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
+    }
+
+    public String getProperty() {
+        return property;
+    }
+
+    public void setProperty(String property) {
+        this.property = property;
     }
 }

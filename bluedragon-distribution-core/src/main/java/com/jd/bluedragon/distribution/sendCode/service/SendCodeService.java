@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.sendCode.service;
 
+import com.jd.bluedragon.distribution.businessCode.constans.BusinessCodeFromSourceEnum;
 import com.jd.bluedragon.distribution.sendCode.domain.SendCodeDto;
 
 /**
@@ -15,7 +16,7 @@ public interface SendCodeService {
      * 创建批次号业务单号
      * @return
      */
-    Boolean createSendCode(Integer createSiteCode, Integer receiveSiteCode, String createUser, Boolean isFresh, String fromSource);
+    Boolean createSendCode(Integer createSiteCode, Integer receiveSiteCode, String createUser, Boolean isFresh, BusinessCodeFromSourceEnum fromSource);
 
     /**
      * 查询批次号的对象

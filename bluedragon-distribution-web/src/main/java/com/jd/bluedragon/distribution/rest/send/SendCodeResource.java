@@ -12,12 +12,14 @@ import com.jd.bluedragon.distribution.rest.departure.DepartureResource;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.service.ReverseDeliveryService;
+import com.jd.bluedragon.distribution.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.urban.domain.TransbillM;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.utils.*;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,8 +79,12 @@ public class SendCodeResource {
     @Resource(name = "transbillMService")
     private TransbillMService transbillMService;
 
+    @Autowired
+    private SendCodeService sendCodeService;
+
     @GET
     @Path("/trans/{waybillCode}")
+    @JProfiler(jKey = "com.jd.bluedragon.distribution.rest.send.SendCodeResource.checkSendCodeStatus", jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public TransbillM checkSendCodeStatus(@PathParam("waybillCode") String waybillCode) {
         return transbillMService.getByWaybillCode(waybillCode);
 
@@ -86,6 +92,7 @@ public class SendCodeResource {
 
     @GET
     @Path("/departure/check")
+    @JProfiler(jKey = "com.jd.bluedragon.distribution.rest.send.SendCodeResource.isAirTransportBatch", jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public JdResponse isAirTransportBatch(@QueryParam("siteCode") Integer siteCode,
                                           @QueryParam("carrierSiteCode") Integer carrierSiteCode, @QueryParam("sendCode") String sendCode) {
         if (siteCode == null || carrierSiteCode == null || Strings.isNullOrEmpty(sendCode)) {
@@ -140,6 +147,7 @@ public class SendCodeResource {
 
     @GET
     @Path("/send/repair/sendcode")
+    @JProfiler(jKey = "com.jd.bluedragon.distribution.rest.send.SendCodeResource.repairSendCode", jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public JdResponse repairSendCode(@QueryParam("sendCode") String sendCode) {
         if (StringHelper.isEmpty(sendCode)) {
             return new JdResponse(JdResponse.CODE_PARAM_ERROR,
@@ -180,6 +188,7 @@ public class SendCodeResource {
 
     @GET
     @Path("/send/repair/waybillCode")
+    @JProfiler(jKey = "com.jd.bluedragon.distribution.rest.send.SendCodeResource.repairWaybillCode", jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public JdResponse repairWaybillCode(@QueryParam("waybillCode") String waybillCode) {
         if (StringHelper.isEmpty(waybillCode)) {
             return new JdResponse(JdResponse.CODE_PARAM_ERROR,
@@ -229,6 +238,7 @@ public class SendCodeResource {
 
     @POST
     @Path("/sendCode/generate")
+    @JProfiler(jKey = "com.jd.bluedragon.distribution.rest.send.SendCodeResource.generateSendCode", jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public GenerateSendCodeResponse generateSendCode(GenerateSendCodeRequest request) {
         GenerateSendCodeResponse response = new GenerateSendCodeResponse();
         try {
@@ -249,6 +259,7 @@ public class SendCodeResource {
 
     @POST
     @Path("/sendCode/batchGenerate")
+    @JProfiler(jKey = "com.jd.bluedragon.distribution.rest.send.SendCodeResource.batchGenerate", jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public BatchGenerateSendCodeReponse batchGenerate(GenerateSendCodeRequest request) {
         BatchGenerateSendCodeReponse response = new BatchGenerateSendCodeReponse();
         /** 校验参数*/

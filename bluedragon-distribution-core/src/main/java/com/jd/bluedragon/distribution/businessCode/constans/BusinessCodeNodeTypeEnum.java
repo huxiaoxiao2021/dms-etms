@@ -11,26 +11,19 @@ package com.jd.bluedragon.distribution.businessCode.constans;
  **/
 public enum BusinessCodeNodeTypeEnum {
 
-    send_code("批次号"),
-
-    board_code("板标号"),
-
-    box_code("箱号");
+    /**
+     * 批次号
+     */
+    send_code,
 
     /**
-     * 枚举释义
+     * 板标号
      */
-    private String mark;
+    board_code,
 
-    BusinessCodeNodeTypeEnum(String mark) {
-        this.mark = mark;
-    }
+    /**
+     * 箱号
+     */
+    box_code;
 
-    public String getMark() {
-        return mark;
-    }
-
-    public void setMark(String mark) {
-        this.mark = mark;
-    }
 }

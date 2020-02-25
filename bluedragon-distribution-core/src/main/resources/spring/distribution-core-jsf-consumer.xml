@@ -554,4 +554,9 @@
         <jsf:parameter key="token" value="${qcAbnPdaAPI.token}" hide="true" />
     </jsf:consumer>
 
+    <!--报表的批次号重量体积查询接口 -->
+    <jsf:consumer id="weightVolSendCodeJSFService" interface="com.jd.ql.dms.report.WeightVolSendCodeJSFService"
+                  protocol="jsf" alias="${jsf.reportExternalService.alias}" timeout="${jsf.reportExternalService.timeout}" retries="${jsf.retries}" serialization="hessian">
+    </jsf:consumer>
+
 </beans>
