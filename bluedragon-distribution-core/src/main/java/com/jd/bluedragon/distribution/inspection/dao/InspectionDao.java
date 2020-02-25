@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.inspection.dao;
 import com.google.common.collect.Maps;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.distribution.inspection.InsepctionCheckDto;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionCondition;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionInfo;
@@ -36,6 +37,18 @@ public class InspectionDao extends BaseDao<Inspection>{
 			return 0;
 		}
 		return this.getSqlSession().update(namespace + ".updatePop", inspection);
+	}
+
+	public List<InsepctionCheckDto> findInspectionGather(Map<String, Object> paramMap ){
+		return this.getSqlSession().selectList(namespace+".findInspectionGather", paramMap);
+	}
+
+	public List<Inspection> findInspetionedPacks(Inspection inspection){
+        return this.getSqlSession().selectList(namespace+".findInspetionedPacks", inspection);
+    }
+
+	public InsepctionCheckDto verifyReverseInspectionGather( Inspection inspection ){
+		return this.getSqlSession().selectOne(namespace+".verifyReverseInspectionGather", inspection);
 	}
 	
 	public Integer inspectionCount( Inspection inspection ){

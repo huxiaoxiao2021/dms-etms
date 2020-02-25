@@ -1,10 +1,14 @@
 package com.jd.bluedragon.distribution.inspection.service;
 
-import com.jd.bluedragon.distribution.api.request.InspectionRequest;
+import com.jd.bluedragon.distribution.api.response.SortingResponse;
+import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
+import com.jd.bluedragon.distribution.inspection.InspectionCheckCondition;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
+import com.jd.bluedragon.distribution.inspection.InsepctionCheckDto;
+import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 
 import java.util.List;
 import java.util.Map;
@@ -28,7 +32,27 @@ public interface InspectionService {
 	 */
 	public void inspectionCore( List<Inspection> inspections ) throws Exception;
 
-	
+	/**
+	 * 查询运单中已校验的数量
+	 * @param condition
+	 * @return
+	 */
+	public PagerResult<InsepctionCheckDto> findInspectionGather(InspectionCheckCondition condition);
+
+
+	/**
+	 * 查询运单中已校验的包裹
+	 * @param inspection
+	 * @return
+	 */
+	public PagerResult<Inspection> findInspetionedPacks(Inspection inspection);
+
+    /**
+     * 校验验货是否集齐
+     * @param pdaOperateRequest
+     * @return
+     */
+    public SortingJsfResponse gatherCheck(PdaOperateRequest pdaOperateRequest,SortingJsfResponse sortingJsfResponse);
 
 	/**
 	 * 验货数量

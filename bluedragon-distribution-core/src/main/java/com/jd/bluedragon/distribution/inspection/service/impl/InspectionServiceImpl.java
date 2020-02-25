@@ -7,10 +7,13 @@ import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
+import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.auto.domain.UploadedPackage;
 import com.jd.bluedragon.distribution.base.domain.DmsStorageArea;
 import com.jd.bluedragon.distribution.base.service.DmsStorageAreaService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
+import com.jd.bluedragon.distribution.inspection.InspectionCheckCondition;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
@@ -18,9 +21,11 @@ import com.jd.bluedragon.distribution.inspection.domain.InspectionAS;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionEC;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
 import com.jd.bluedragon.distribution.inspection.exception.InspectionException;
+import com.jd.bluedragon.distribution.inspection.InsepctionCheckDto;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.inspection.service.WaybillPackageBarcodeService;
+import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.order.ws.OrderWebService;
@@ -35,11 +40,11 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ioms.jsf.export.domain.Order;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
@@ -263,6 +268,80 @@ public class InspectionServiceImpl implements InspectionService {
 		}
 		return requestBean;
 	}
+
+	public PagerResult<InsepctionCheckDto> findInspectionGather(InspectionCheckCondition condition){
+
+		PagerResult<InsepctionCheckDto> result = new PagerResult<>();
+		List<InsepctionCheckDto> insepctionCheckDtos = new ArrayList<>();
+		try{
+			Map<String, Object> paramMap = new HashMap<String, Object>();
+			paramMap = ObjectMapHelper.makeObject2Map(condition);
+			if(condition.getGatherType() == 1){
+			    paramMap.put("gather","gather");
+            }
+            insepctionCheckDtos = inspectionDao.findInspectionGather(paramMap);
+
+			result.setRows(insepctionCheckDtos);
+			result.setTotal(insepctionCheckDtos.size());
+
+		}catch (Exception e){
+			log.error("查询失败!",e);
+			result.setRows(new ArrayList<InsepctionCheckDto>());
+			result.setTotal(0);
+		}
+		return result;
+	}
+
+	public PagerResult<Inspection> findInspetionedPacks(Inspection inspection){
+
+		PagerResult<Inspection> result = new PagerResult<>();
+		List<Inspection> inspections = new ArrayList<>();
+		try{
+			inspections = inspectionDao.findInspetionedPacks(inspection);
+			result.setRows(inspections);
+			result.setTotal(inspections.size());
+		}catch(Exception e){
+			log.error("查询失败!",e);
+			result.setRows(new ArrayList<Inspection>());
+			result.setTotal(0);
+		}
+		return result;
+	}
+
+    public SortingJsfResponse gatherCheck(PdaOperateRequest pdaOperateRequest,SortingJsfResponse sortingJsfResponse){
+
+        //校验运单验货是否集齐
+        if(pdaOperateRequest.getIsGather() == 1){
+            String packageCode = pdaOperateRequest.getPackageCode();
+            String waybillCode = WaybillUtil.getWaybillCode(packageCode);
+            Integer createSiteCode = pdaOperateRequest.getCreateSiteCode();
+
+            Inspection inspection = new Inspection();
+            inspection.setWaybillCode(waybillCode);
+            inspection.setCreateSiteCode(createSiteCode);
+
+            try{
+                InsepctionCheckDto insepctionCheckDto = inspectionDao.verifyReverseInspectionGather(inspection);
+                if(insepctionCheckDto == null){
+                    sortingJsfResponse = new SortingJsfResponse();
+                    sortingJsfResponse.setCode(SortingResponse.CODE_31123);
+                    sortingJsfResponse.setMessage(SortingResponse.MESSAGE_31123);
+                    return sortingJsfResponse;
+                }
+                if(insepctionCheckDto.getPackageNum()>insepctionCheckDto.getInspectionedPackNum()){
+                    sortingJsfResponse = new SortingJsfResponse();
+                    sortingJsfResponse.setCode(SortingResponse.CODE_31123);
+                    sortingJsfResponse.setMessage(SortingResponse.MESSAGE_31123);
+                    return sortingJsfResponse;
+                }
+            }catch (Exception e){
+                sortingJsfResponse.setCode(SortingJsfResponse.CODE_SERVICE_ERROR);
+                sortingJsfResponse.setMessage(SortingJsfResponse.MESSAGE_SERVICE_ERROR_C);
+            }
+
+        }
+        return sortingJsfResponse;
+    }
 
 	public Integer inspectionCount(Inspection inspection) {
 		return inspectionDao.inspectionCount(inspection);
