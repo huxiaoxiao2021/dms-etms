@@ -12,11 +12,6 @@ public class CurrentOperate implements Serializable {
     private int siteCode;
 
     /**
-     *分拣中心编码
-     */
-    private String dmsCode;
-
-    /**
      *操作单位名称
      */
     private String siteName;
@@ -35,6 +30,11 @@ public class CurrentOperate implements Serializable {
      * 当前所在区域名称
      */
     private String orgName;
+
+    /**
+     *分拣中心编码
+     */
+    private String dmsCode;
 
     public CurrentOperate() {
     }
