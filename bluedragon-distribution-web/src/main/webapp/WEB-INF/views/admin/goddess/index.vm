@@ -40,12 +40,12 @@
         <div class="tbl-n">
             <form id="queryForm" name="queryForm" action="#springUrl('/admin/goddess/index')" method="GET">
                 <table class="pagin">
+                    $oldLogPageTips
                     <tr>
                         <td style="font-size: 14px;">关键字</td>
                         <td><input type="text" name="data" value="$!request.getParameter('data')" style="font-size: 14px; height: 25px;"/> </td>
                         <td><a href="javascript:" onclick="document.queryForm.submit()" >查询</a> </td>
-##                        <td style="color: red;">此功能预计在2020-3-20号下线，请到<a style="float: none;border: none" href="http://dms.etms.jd.com/">http://dms.etms.jd.com/(分拣系统)</a>&gt;分拣中心相关功能&gt;“<a style="float: none;border: none" href="#springUrl('/businesslog/goListPage')">日志查询</a>”里查询，有疑问联系<a href="timline://chat/?topin=xnfjxm">分拣小秘</a></td>
-                    </tr>
+
                 </table>
             </form>
         </div>

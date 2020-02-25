@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.web.log;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.dms.logger.domain.es.ESIndexAndTypeEnum;
 import com.jd.dms.logger.dto.base.BusinessLogResult;
 import com.jd.dms.logger.dto.base.TableResult;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,15 +28,17 @@ import java.util.Map;
 public class LogController {
 
     @Autowired
-    BusinessLogQueryService businessLogQueryService;
+    private BusinessLogQueryService businessLogQueryService;
 
+    @Resource
+    private UccPropertyConfiguration uccPropertyConfiguration;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Authorization(Constants.DMS_WEB_SORTING_OPERATELOG_R)
     @RequestMapping(value = "/goListPage", method = RequestMethod.GET)
     public String goListpage(Model model) {
-
+        model.addAttribute("newLogPageTips",uccPropertyConfiguration.getNewLogPageTips());
         return "businesslog/log";
     }
 

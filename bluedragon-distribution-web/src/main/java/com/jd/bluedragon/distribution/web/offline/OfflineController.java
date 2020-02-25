@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.web.offline;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.OfflineLogRequest;
 import com.jd.bluedragon.distribution.base.service.BaseService;
@@ -66,6 +67,9 @@ public class OfflineController {
 	@Resource(name = "offlinePopPickupService")
 	private OfflineService offlinePopPickupService;
 
+    @Resource
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
 	@Authorization(Constants.DMS_WEB_SORTING_OFFLINELOG_R)
 	@RequestMapping(value = "/goListPage", method = RequestMethod.GET)
 	public String goListpage(Model model) {
@@ -81,6 +85,8 @@ public class OfflineController {
 		request.put("operatorCode",erpUser.getUserCode());
 		businessLogProfiler.setOperateRequest(JSONObject.toJSONString(request));
 		BusinessLogWriter.writeLog(businessLogProfiler);
+
+        model.addAttribute("oldLogPageTips",uccPropertyConfiguration.getOldLogPageTips());
 		return "offline/offline";
 	}
 

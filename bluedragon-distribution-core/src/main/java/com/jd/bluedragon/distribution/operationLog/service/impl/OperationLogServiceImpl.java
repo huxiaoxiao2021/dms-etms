@@ -3,15 +3,13 @@ package com.jd.bluedragon.distribution.operationLog.service.impl;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
-import com.jd.bluedragon.distribution.log.BizTypeConstants;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
-import com.jd.dms.logger.external.LogEngine;
-import com.jd.bluedragon.distribution.log.OperateTypeConstants;
 import com.jd.bluedragon.distribution.operationLog.dao.OperationLogReadDao;
 import com.jd.bluedragon.distribution.operationLog.dao.OperationlogCassandra;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.dms.logger.external.LogEngine;
 import com.jd.fastjson.JSONObject;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
@@ -25,7 +23,16 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 1.不要删除此类；删除前请确认 logEngine接口保存的日志是否还需要或者迁移走。
+ *
+ * 2.不要使用此接口保存日志了。请使用统一的日志日志接口com.jd.bluedragon.distribution.log.impl.LogEngineImpl。
+ * com.jd.bluedragon.distribution.log.impl.LogEngineImpl 此接口保存的日志会存储到business.log.jd.com 中;
+ *
+ * 3.等日日志都切到 logEngine接口,再删除 logCassandra接口保存日志的代码
+ */
 @Service
+@Deprecated
 public class OperationLogServiceImpl implements OperationLogService {
 
     private final static Logger log = LoggerFactory.getLogger(OperationLogServiceImpl.class);
@@ -37,7 +44,7 @@ public class OperationLogServiceImpl implements OperationLogService {
 	private OperationLogReadDao operationLogReadDao;
 
 	@Autowired
-    LogEngine logEngine;
+    private LogEngine logEngine;
 	
 	@Resource
 	private UccPropertyConfiguration uccPropertyConfiguration;

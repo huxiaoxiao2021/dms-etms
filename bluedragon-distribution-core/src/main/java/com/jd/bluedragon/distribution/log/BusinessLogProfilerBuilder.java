@@ -5,7 +5,6 @@ import com.jd.fastjson.JSONObject;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Date;
 
 public class BusinessLogProfilerBuilder {
 
@@ -22,19 +21,19 @@ public class BusinessLogProfilerBuilder {
         } catch (UnknownHostException ex) {
             businessLogProfiler.setServerIp("");
         }
-        this.businessLogProfiler.setTimeStamp(new Date().getTime());
+        this.businessLogProfiler.setTimeStamp(System.currentTimeMillis());
     }
 
     public BusinessLogProfilerBuilder BusinessLogProfilerBuilder(String waybillCode) {
         this.businessLogProfiler = new BusinessLogProfiler();
         businessLogProfiler.setLogType("developer");
-        this.businessLogProfiler.setSourceSys(112);//实操日志
+        this.businessLogProfiler.setSourceSys(SOURCESYS);//实操日志
         try {
             businessLogProfiler.setServerIp(InetAddress.getLocalHost().getHostAddress());
         } catch (UnknownHostException ex) {
             businessLogProfiler.setServerIp("");
         }
-        this.businessLogProfiler.setTimeStamp(new Date().getTime());
+        this.businessLogProfiler.setTimeStamp(System.currentTimeMillis());
         return this;
     }
 

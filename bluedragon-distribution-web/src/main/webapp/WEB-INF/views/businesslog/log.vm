@@ -14,6 +14,7 @@
     <script type="text/javascript" src="#springUrl('/static/js/paging/paging.js')"></script>
 
 </head>
+
 <script type="text/javascript">
 
 
@@ -224,6 +225,8 @@
     <p>
         <a href="javascript:void(0)">分拣管理</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">日志查询</a>
     </p>
+
+
 </div>
 <div id="content">
     <div class="m">
@@ -231,28 +234,30 @@
             <form id="selectLogList" name="selectLogList" action="#springUrl('/offline/list')" method="GET">
                 <input type="hidden" id="pageNo" name="pageNo"/>
                 <input type="hidden" id="pageSize" name="pageSize"/>
+                $newLogPageTips
                 <table border="0" cellpadding="0" cellspacing="0" style="width: 100%;min-width:1100px;">
                     <tbody>
-                    <tr>
-                        <td colspan="8"><h3  style="color: red;text-align: center">此功能只是日志记录，不代表任何业务含义，不能证明系统间的交互凭证。</h3></td>
-                    </tr>
+
                     <tr>
                         <th align="right">运单号：</th>
                         <td>
                             <input id="waybillCode" name="waybillCode" type="text" class="textField28"/>
                         </td>
-                        <th align="right">箱号：</th>
-                        <td>
-                            <input id="boxCode" name="boxCode" type="text" class="textField28"/>
-                        </td>
                         <th align="right">包裹号：</th>
                         <td>
                             <input id="packageCode" name="packageCode" type="text" class="textField28"/>
+                        </td>
+                        <th align="right">箱号：</th>
+                        <td>
+                            <input id="boxCode" name="boxCode" type="text" class="textField28"/>
                         </td>
                         <th align="right">批次号：</th>
                         <td>
                             <input id="sendCode" name="sendCode" type="text" class="textField28"/>
                         </td>
+                    </tr>
+                    <tr>
+
 
                         <th align="right">任意关键字：</th>
                         <td>
@@ -260,10 +265,6 @@
 
                             </input>
                         </td>
-
-                    </tr>
-
-                    <tr>
                         <th align="right">所属业务：</th>
                         <td>
                             <select id="biztype" name="biztype" class="select18">
@@ -276,6 +277,10 @@
 
                             </select>
                         </td>
+                    </tr>
+
+                    <tr>
+
 
                         <th align="right">操作站点编码：</th>
                         <td>
@@ -294,33 +299,19 @@
 
                     </tr>
 
-
-
-##                        <th align="right">服务器ip：</th>
-##                        <td>
-##                            <input id="serverIp" name="serverIp" type="text" class="textField28"/>
-##                        </td>
-
-
-
                     <tr>
 
-                        <th align="left">时间：</th>
+                        <th align="right">时间：</th>
                         <td>
-                            <input type="text" id="startTime" name="startDate" style="width: 130px" class="Wdate"
+                            <input type="text" id="startTime" name="startDate" style="width: 140px" class="Wdate"
                                    onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss'})" value=""
                                    realvalue="">
                             ~
-                            <input type="text" id="endTime" name="startDate" style="width: 130px" class="Wdate"
+                            <input type="text" id="endTime" name="startDate" style="width: 140px" class="Wdate"
                                    onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss'})" value=""
                                    realvalue=""></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
+
+
                         <td align="right"><input id="search" type="button" value="查询" class="btn_c"/>
                     </tr>
 
