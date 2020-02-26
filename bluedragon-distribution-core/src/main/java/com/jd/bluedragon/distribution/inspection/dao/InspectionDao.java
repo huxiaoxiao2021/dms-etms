@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionCondition;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionInfo;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.ql.dms.common.web.mvc.api.PagerCondition;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
@@ -39,8 +40,12 @@ public class InspectionDao extends BaseDao<Inspection>{
 		return this.getSqlSession().update(namespace + ".updatePop", inspection);
 	}
 
-	public List<InsepctionCheckDto> findInspectionGather(Map<String, Object> paramMap ){
-		return this.getSqlSession().selectList(namespace+".findInspectionGather", paramMap);
+	public List<InsepctionCheckDto> findInspectionGatherPageCount(PagerCondition pagerCondition){
+		return this.getSqlSession().selectList(namespace+".findInspectionGatherPageCount", pagerCondition);
+	}
+
+	public List<InsepctionCheckDto> findInspectionGather(PagerCondition pagerCondition){
+		return this.getSqlSession().selectList(namespace+".findInspectionGather", pagerCondition);
 	}
 
 	public List<Inspection> findInspetionedPacks(Inspection inspection){

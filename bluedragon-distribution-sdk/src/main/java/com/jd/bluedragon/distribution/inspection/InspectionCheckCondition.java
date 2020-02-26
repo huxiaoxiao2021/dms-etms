@@ -23,7 +23,7 @@ public class InspectionCheckCondition extends BasePagerCondition {
     private String endTime;
 
     /**
-     * 是否集齐：1-集齐，2-未集齐，3-全部
+     * 是否集齐：1-集齐，2-未集齐
      * */
     private Integer gatherType;
 

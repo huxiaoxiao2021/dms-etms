@@ -273,16 +273,30 @@ public class InspectionServiceImpl implements InspectionService {
 
 		PagerResult<InsepctionCheckDto> result = new PagerResult<>();
 		List<InsepctionCheckDto> insepctionCheckDtos = new ArrayList<>();
-		try{
-			Map<String, Object> paramMap = new HashMap<String, Object>();
-			paramMap = ObjectMapHelper.makeObject2Map(condition);
-			if(condition.getGatherType() == 1){
-			    paramMap.put("gather","gather");
-            }
-            insepctionCheckDtos = inspectionDao.findInspectionGather(paramMap);
 
+		if(condition != null && condition.getStartTime() != null && condition.getEndTime() != null){
+			String format = "yyyy-MM-dd HH:mm:ss";
+			Date start = DateHelper.parseDate(condition.getStartTime(),format);
+			Date end = DateHelper.parseDate(condition.getEndTime(),format);
+			int days = DateHelper.daysBetween(start,end);
+			if(days > 1){
+				log.error("验货集齐查询失败!");
+				result.setRows(new ArrayList<InsepctionCheckDto>());
+				result.setTotal(0);
+				return result;
+			}
+		}
+		try{
+			//查询总数
+			List<InsepctionCheckDto> insepctionCheckDtoList = inspectionDao.findInspectionGatherPageCount(condition);
+			if(insepctionCheckDtoList != null){
+				result.setTotal(insepctionCheckDtoList.size());
+			}else{
+				result.setTotal(0);
+			}
+
+            insepctionCheckDtos = inspectionDao.findInspectionGather(condition);
 			result.setRows(insepctionCheckDtos);
-			result.setTotal(insepctionCheckDtos.size());
 
 		}catch (Exception e){
 			log.error("查询失败!",e);
