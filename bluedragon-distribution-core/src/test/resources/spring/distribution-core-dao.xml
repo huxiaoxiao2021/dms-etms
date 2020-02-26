@@ -529,4 +529,9 @@
     <!-- 三方装箱明细 -->
     <bean id="thirdBoxDetailDao" parent="unDivBaseDao"
           class="com.jd.bluedragon.distribution.third.dao.impl.ThirdBoxDetailDaoImpl"/>
+    <!--  businessCode 业务单号表  -->
+    <bean id="businessCodeDao" class="com.jd.bluedragon.distribution.businessCode.dao.BusinessCodeDao">
+        <property name="sqlSession" ref="divSqlSessionTemplate"/>
+    </bean>
+
 </beans>

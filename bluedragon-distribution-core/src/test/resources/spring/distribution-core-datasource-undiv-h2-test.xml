@@ -10,9 +10,9 @@
 
     <!-- undiv 写-->
     <jdbc:embedded-database id="dms_main_undiv" type="H2">
-        <jdbc:script location="classpath:h2/mode.sql"/>
-        <jdbc:script location="classpath:h2/bd_dms_core_undivdb_h2_ddl.sql"/>
-        <jdbc:script location="classpath:h2/dml.sql"/>
+        <jdbc:script location="classpath:h2/undiv/mode.sql"/>
+        <jdbc:script location="classpath:h2/undiv/bd_dms_core_undivdb_h2_ddl.sql"/>
+        <jdbc:script location="classpath:h2/undiv/dml.sql"/>
     </jdbc:embedded-database>
 
 
@@ -60,9 +60,9 @@
 
     <!-- undiv 写-->
     <jdbc:embedded-database id="dms_main_read_undiv" type="H2">
-        <jdbc:script location="classpath:h2/mode.sql"/>
-        <jdbc:script location="classpath:h2/bd_dms_core_undivdb_h2_ddl.sql"/>
-        <jdbc:script location="classpath:h2/dml.sql"/>
+        <jdbc:script location="classpath:h2/undiv/mode.sql"/>
+        <jdbc:script location="classpath:h2/undiv/bd_dms_core_undivdb_h2_ddl.sql"/>
+        <jdbc:script location="classpath:h2/undiv/dml.sql"/>
     </jdbc:embedded-database>
 
 

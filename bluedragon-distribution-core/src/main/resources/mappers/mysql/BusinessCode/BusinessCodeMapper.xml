@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.jd.bluedragon.distribution.businessCode.dao.BusinessCodeDao" >
 
-	<resultMap id="businessCode" type="com.jd.bluedragon.distribution.businessCode.domain.BusinessCodePo" >
+	<resultMap id="businessCodePoMap" type="com.jd.bluedragon.distribution.businessCode.domain.BusinessCodePo" >
 		<result column="id" property="id" />
 		<result column="code" property="code"/>
 		<result column="node_type" property="nodeType"/>
@@ -15,7 +15,7 @@
 		<result column="ts" property="ts" />
 	</resultMap>
 
-	<resultMap id="businessCodeAttributePo" type="com.jd.bluedragon.distribution.businessCode.domain.BusinessCodeAttributePo" >
+	<resultMap id="businessCodeAttributePoMap" type="com.jd.bluedragon.distribution.businessCode.domain.BusinessCodeAttributePo" >
 		<result column="id" property="id" />
 		<result column="code" property="code"/>
 		<result column="attribute_key" property="attributeKey"/>
@@ -47,7 +47,7 @@
 		)
 	</insert>
 
-	<select id="findBusinessCodeByCode" resultMap="businessCodePo" parameterType="java.lang.String">
+	<select id="findBusinessCodeByCode" resultMap="businessCodePoMap" parameterType="java.lang.String">
 		SELECT
 			`CODE`, `NODE_TYPE`, `FROM_SOURCE`, `CREATE_USER`, `CREATE_TIME`, `UPDATE_USER`, `UPDATE_TIME`
 		FROM
@@ -55,13 +55,13 @@
 		WHERE CODE = #{code, jdbcType=VARCHAR} AND IS_DELETE = 0
 	</select>
 
-	<insert id="batchInsertBusinessCodeAttribute" parameterType="java.util.List">
+	<insert id="batchInsertBusinessCodeAttribute" parameterType="List">
 		INSERT INTO BUSINESS_CODE_ATTRIBUTE
 		(
 			`ID`, `CODE`, `ATTRIBUTE_KEY`, `ATTRIBUTE_VALUE`, `FROM_SOURCE`, `CREATE_USER`, `CREATE_TIME`, `UPDATE_USER`, `UPDATE_TIME`, `IS_DELETE`
 		)
 		VALUES
-		<foreach collection="businessCodeAttributePos" item="item" index="index" separator=",">
+		<foreach collection="list" item="item" index="index" separator=",">
 			(
 				#{item.id, jdbcType=BIGINT},
 				#{item.code, jdbcType=VARCHAR},
@@ -77,7 +77,7 @@
 		</foreach>
 	</insert>
 
-	<select id="findAllAttributesByCode" parameterType="java.lang.String" resultMap="businessAttributePo">
+	<select id="findAllAttributesByCode" parameterType="java.lang.String" resultMap="businessCodeAttributePoMap">
 		SELECT
 			`CODE`, `ATTRIBUTE_KEY`, `ATTRIBUTE_VALUE`, `FROM_SOURCE`, `CREATE_USER`, `CREATE_TIME`, `UPDATE_USER`, `UPDATE_TIME`
 		FROM
@@ -85,7 +85,7 @@
 		WHERE CODE = #{code, jdbcType=VARCHAR} AND IS_DELETE = 0
 	</select>
 
-	<select id="findAttributeByCodeAndKey" parameterType="BusinessCodePo" resultMap="businessAttributePo">
+	<select id="findAttributeByCodeAndKey" parameterType="BusinessCodeAttributePo" resultMap="businessCodeAttributePoMap">
 		SELECT
 			`CODE`, `ATTRIBUTE_KEY`, `ATTRIBUTE_VALUE`, `FROM_SOURCE`, `CREATE_USER`, `CREATE_TIME`, `UPDATE_USER`, `UPDATE_TIME`
 		FROM

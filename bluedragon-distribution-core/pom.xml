@@ -399,11 +399,11 @@
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
 
-		<dependency>
-			<groupId>com.jd</groupId>
-			<artifactId>omc-jsf-api</artifactId>
-			<version>1.1.1-SNAPSHOT</version>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>com.jd</groupId>-->
+<!--			<artifactId>omc-jsf-api</artifactId>-->
+<!--			<version>1.1.1-SNAPSHOT</version>-->
+<!--		</dependency>-->
 		<dependency>
 			<groupId>net.sf.json-lib</groupId>
 			<artifactId>json-lib</artifactId>
@@ -686,13 +686,25 @@
 		    <groupId>com.jd.stock.iwms</groupId>
 		    <artifactId>iwms-app-export</artifactId>
 		    <version>0.2.0-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>jsf</artifactId>
+					<groupId>com.jd</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
         <!-- 国际化-库存出管 -->
         <dependency>
             <groupId>com.jd.stock.iwms</groupId>
             <artifactId>iwms-app-export</artifactId>
             <version>1.0.2-SNAPSHOT</version>
-        </dependency>
+			<exclusions>
+				<exclusion>
+					<artifactId>jsf</artifactId>
+					<groupId>com.jd</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
         <dependency>
             <groupId>stock-sdk</groupId>
             <artifactId>stock-sdk-base</artifactId>
@@ -774,7 +786,11 @@
                     <artifactId>slf4j-api</artifactId>
                     <groupId>org.slf4j</groupId>
                 </exclusion>
-            </exclusions>
+				<exclusion>
+					<artifactId>jsf</artifactId>
+					<groupId>com.jd</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 	    <!-- global id generator service lib. -->
@@ -792,6 +808,10 @@
 				<exclusion>
 					<artifactId>spring-asm</artifactId>
 					<groupId>org.springframework</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jsf</artifactId>
+					<groupId>com.jd</groupId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -908,7 +928,13 @@
             <groupId>com.jd.user.sdk</groupId>
             <artifactId>user-sdk-export</artifactId>
             <version>2.0.0-SNAPSHOT</version>
-        </dependency>
+			<exclusions>
+				<exclusion>
+					<artifactId>jsf</artifactId>
+					<groupId>com.jd</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 
         <!-- 主键生成服务 -->
         <dependency>
@@ -1145,6 +1171,10 @@
 				<exclusion>
 					<artifactId>jss-sdk-java</artifactId>
 					<groupId>com.jcloud</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jsf</artifactId>
+					<groupId>com.jd</groupId>
 				</exclusion>
 			</exclusions>
 		</dependency>
