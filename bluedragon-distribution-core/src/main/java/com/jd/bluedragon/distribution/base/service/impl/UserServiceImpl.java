@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +19,7 @@ import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.domain.DmsClientConfigInfo;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.distribution.api.response.LoginUserResponse;
@@ -48,6 +50,7 @@ import com.jd.bluedragon.service.remote.client.DmsClientManager;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ldop.utils.ObjectUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ump.annotation.JProEnum;
@@ -132,11 +135,21 @@ public class UserServiceImpl implements UserService{
 	 * @param request
 	 * @return
 	 */
-    @JProfiler(jKey = "DMS.BASE.UserServiceImpl.jsfLogin",
+    @JProfiler(jKey = "DMS.BASE.UserServiceImpl.oldJsfLogin",
             mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
-	public BaseResponse jsfLogin(LoginRequest request){
+	public BaseResponse oldJsfLogin(LoginRequest request){
 		LoginUserResponse loginResponse = this.login(request, LOGIN_TYPE_DMS_CLIENT);
 		return loginResponse.toOldLoginResponse();
+	}
+	/**
+	 * 通过jsf调用登录服务
+	 * @param request
+	 * @return
+	 */
+    @JProfiler(jKey = "DMS.BASE.UserServiceImpl.jsfLogin",
+            mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+	public LoginUserResponse jsfLogin(LoginRequest request){
+		return this.clientLoginIn(request);
 	}
 
 	@JProfiler(jKey = "DMS.BASE.UserServiceImpl.clientLoginIn", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
@@ -188,6 +201,9 @@ public class UserServiceImpl implements UserService{
 		String erpAccountPwd = request.getPassword();
 		ClientInfo clientInfo = null;
 		Long loginId = 0L;
+		Boolean needUpdate = Boolean.FALSE;
+		Boolean forceUpdate = Boolean.FALSE;
+		DmsClientConfigInfo dmsClientConfigInfo = null;
 		//初始化客户端信息
 		if(StringUtils.isNotBlank(request.getClientInfo())){
 			clientInfo = JsonHelper.fromJson(request.getClientInfo(), ClientInfo.class);
@@ -244,6 +260,12 @@ public class UserServiceImpl implements UserService{
 							&& loginResponse.isSucceed()
 							&& loginResponse.getData() != null){
 						loginId = loginResponse.getData().getLoginId();
+						needUpdate = loginResponse.getData().getNeedUpdate();
+						forceUpdate = loginResponse.getData().getForceUpdate();
+						if(loginResponse.getData().getDmsClientConfigInfo() != null){
+							dmsClientConfigInfo = new DmsClientConfigInfo();
+							BeanUtils.copyProperties(loginResponse.getData().getDmsClientConfigInfo(), dmsClientConfigInfo);
+						}
 					}
 				}
 	        }catch (Exception e){
@@ -279,6 +301,9 @@ public class UserServiceImpl implements UserService{
 			response.setDmsCode(loginResult.getDmsCod());
 			//设置登录Id
 			response.setLoginId(loginId);
+			response.setNeedUpdate(needUpdate);
+			response.setForceUpdate(forceUpdate);
+			response.setDmsClientConfigInfo(dmsClientConfigInfo);
 			// 返回结果
 			return response;
 		}

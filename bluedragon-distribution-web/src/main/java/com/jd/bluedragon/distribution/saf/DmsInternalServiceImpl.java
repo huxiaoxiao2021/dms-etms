@@ -291,7 +291,7 @@ public class DmsInternalServiceImpl implements DmsInternalService {
             LoginRequest request = new LoginRequest();
             request.setErpAccount(userName);
             request.setPassword(passwd);
-            return userService.jsfLogin(request);
+            return userService.oldJsfLogin(request);
         }catch (Exception e){
             log.error("getPreseparateSiteId error ", e);
             return null;
