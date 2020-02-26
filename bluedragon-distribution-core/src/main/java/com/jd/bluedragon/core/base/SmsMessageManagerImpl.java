@@ -64,7 +64,7 @@ public class SmsMessageManagerImpl implements SmsMessageManager {
         smsTemplateMessage.setExtension(extension);
         SmsTemplateResponse response = smsService.sendSmsTemplateMessage(smsTemplateMessage);
 
-        if(response == null){
+        if(response != null){
             ResultMsg resultMsg = response.getResultMsg();
             BaseResultMsg baseResultMsg = response.getBaseResultMsg();
             if(resultMsg == null){
