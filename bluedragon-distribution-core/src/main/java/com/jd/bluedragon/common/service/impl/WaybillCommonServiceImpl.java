@@ -842,7 +842,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }
 
         /**
-         * B网面单识别“特准包裹”标识，在jZDFlag处打印“包”
+         * B网面单识别“特准包裹”标识，在jZDFlag处打印“快”
          */
         if(BusinessUtil.isB2b(waybill.getWaybillSign())
                 && BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_80,WaybillSignConstants.CHAR_80_9)){
