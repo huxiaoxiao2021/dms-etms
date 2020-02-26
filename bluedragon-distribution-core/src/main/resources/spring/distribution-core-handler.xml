@@ -63,7 +63,11 @@
 				<!-- 终端包裹打印 -->
 				<entry key="100310"  value-ref="getBasicPrintInfo"/>
 				<!-- 终端函速达包裹打印 -同站长工作台-->
-				<entry key="100311"  value-ref="packageReprint"/>				
+				<entry key="100311"  value-ref="packageReprint"/>
+				<!-- 乐加APP换单打印 -同站长工作台换单打印-->
+				<entry key="100312"  value-ref="packageReverseChangePrint"/>
+				<!-- 终端包裹打印 -->
+				<entry key="100313"  value-ref="getBasicPrintInfo"/>				
 			</map>
 		</property>
 	</bean>
