@@ -1,6 +1,7 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.mobilePhoneMsg.sender.client.request.BatchSmsTemplateMessage;
 import com.jd.mobilePhoneMsg.sender.client.request.SmsTemplateMessage;
 import com.jd.mobilePhoneMsg.sender.client.response.BaseResultMsg;
@@ -75,6 +76,7 @@ public class SmsMessageManagerImpl implements SmsMessageManager {
             }else if(!baseResultMsgSuccess.equals(baseResultMsg.getErrorCode())){
                 result.customMessage(InvokeResult.RESULT_NULL_CODE,baseResultMsg.getErrorMsg());
             }else {
+                log.info("短信发送成功,{}", JsonHelper.toJson(smsTemplateMessage));
                 result.success();
             }
         }else {

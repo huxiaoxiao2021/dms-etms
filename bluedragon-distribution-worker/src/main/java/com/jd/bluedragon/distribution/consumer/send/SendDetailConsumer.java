@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.consumer.send;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.SMSConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.SmsMessageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -18,6 +17,8 @@ import com.jd.bluedragon.distribution.send.domain.ColdChainSendMessage;
 import com.jd.bluedragon.distribution.send.domain.SendDetailMessage;
 import com.jd.bluedragon.distribution.send.domain.SendDispatchDto;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
+import com.jd.bluedragon.distribution.sms.domain.SMSDto;
+import com.jd.bluedragon.distribution.sms.service.SmsConfigService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -81,6 +82,9 @@ public class SendDetailConsumer extends MessageBaseConsumer {
 
     @Autowired
     private SmsMessageManager smsMessageManager;
+
+    @Autowired
+    private SmsConfigService smsConfigService;
 
     /**
      * 缓存redis的key
@@ -411,49 +415,13 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                 }
 
                 Integer orgId = oldSiteDto.getOrgId();
-                String senderNum = null;
-                Long templateId = null;
-                String token = null;
-                //todo 属性变化
-                switch (orgId){
-                    case Constants.EAST_CHINA_ORG_ID:
-                        senderNum = SMSConstants.COLDCHAIN_EASTCHINA_ACCOUNT;
-                        templateId = SMSConstants.COLDCHAIN_EASTCHINA_TEMPLATEID;
-                        token = SMSConstants.COLDCHAIN_EASTCHINA_TOKEN;
-                        break;
-                    case Constants.SOUTH_WEST_ORG_ID:
-                        senderNum = SMSConstants.COLDCHAIN_SOUTHWEST_ACCOUNT;
-                        templateId = SMSConstants.COLDCHAIN_SOUTHWEST_TEMPLATEID;
-                        token = SMSConstants.COLDCHAIN_SOUTHWEST_TOKEN;
-                        break;
-                    case Constants.NORTH_CHINA_ORG_ID:
-                        senderNum = SMSConstants.COLDCHAIN_NORTHCHINA_ACCOUNT;
-                        templateId = SMSConstants.COLDCHAIN_NORTHCHINA_TEMPLATEID;
-                        token = SMSConstants.COLDCHAIN_NORTHCHINA_TOKEN;
-                        break;
-                    case Constants.SOUTH_CHINA_ORG_ID:
-                        senderNum = SMSConstants.COLDCHAIN_SOUTHCHINA_ACCOUNT;
-                        templateId = SMSConstants.COLDCHAIN_SOUTHCHINA_TEMPLATEID;
-                        token = SMSConstants.COLDCHAIN_SOUTHCHINA_TOKEN;
-                        break;
-                    case Constants.CENTRAL_CHINA_ORG_ID:
-                        senderNum = SMSConstants.COLDCHAIN_CENTRALCHINA_ACCOUNT;
-                        templateId = SMSConstants.COLDCHAIN_CENTRALCHINA_TEMPLATEID;
-                        token = SMSConstants.COLDCHAIN_CENTRALCHINA_TOKEN;
-                        break;
-                    case Constants.NORTH_EAST_ORG_ID:
-                        senderNum = SMSConstants.COLDCHAIN_NORTHEASTA_ACCOUNT;
-                        templateId = SMSConstants.COLDCHAIN_NORTHEASTA_TEMPLATEID;
-                        token = SMSConstants.COLDCHAIN_NORTHEASTA_TOKEN;
-                        break;
-                    case Constants.NORTH_WEST_ORG_ID:
-                        senderNum = SMSConstants.COLDCHAIN_NORTHWEST_ACCOUNT;
-                        templateId = SMSConstants.COLDCHAIN_NORTHWEST_TEMPLATEID;
-                        token = SMSConstants.COLDCHAIN_NORTHWEST_TOKEN;
-                        break;
-                    default:
-                        log.warn("目的分拣中心不属于7大区,目的分拣中心：{}所属区域：{}",operateSiteCode,orgId);
-                        return;
+                SMSDto sMSDto = smsConfigService.getSMSConstantsByOrgId(orgId);
+                String senderNum = sMSDto.getAccount();
+                Long templateId = sMSDto.getTemplateId();
+                String token = sMSDto.getToken();
+                if(sMSDto == null){
+                    log.warn("目的分拣中心不属于7大区,目的分拣中心：{}所属区域：{}",operateSiteCode,orgId);
+                    return;
                 }
                 String[] templateParam = new String[]{waybillCode,oldSiteDto.getDmsName(),oldSiteDto.getSitePhone(),oldSiteDto.getAddress()};
                 String mobileNum = waybill.getReceiverMobile();
