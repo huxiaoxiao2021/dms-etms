@@ -9,6 +9,11 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.util.*;
 
+/**
+ * 不要使用此接口保存日志了。请使用统一的日志日志接口com.jd.bluedragon.distribution.log.impl.LogEngineImpl。
+ * com.jd.bluedragon.distribution.log.impl.LogEngineImpl 此接口保存的日志会存储到business.log.jd.com 中;
+ */
+@Deprecated
 public class BaseCassandraDao{
 
     @Value("${cassandra.consistencyLevel.default}")

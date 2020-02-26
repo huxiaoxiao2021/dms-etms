@@ -19,12 +19,20 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 
+
+
 /**
+ *
+ * 不要使用此接口保存日志了。请使用统一的日志日志接口com.jd.bluedragon.distribution.log.impl.LogEngineImpl。
+ * com.jd.bluedragon.distribution.log.impl.LogEngineImpl 此接口保存的日志会存储到business.log.jd.com 中;
+ *
+ *
  * 系统日志记录工具
  * @author huangliang
  *
  */
 @Service("SystemLogService")
+@Deprecated
 public class SystemLogServiceImpl implements SystemLogService {
 
 	private final static Logger log = LoggerFactory.getLogger(SystemLogServiceImpl.class);

@@ -12,13 +12,17 @@
     <script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/paging/paging.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/utils.js')"></script>
 
 </head>
+
 <script type="text/javascript">
 
 
     $(document).ready(function () {
 
+        document.getElementById("startTime").value = DateUtil.formatDateTime(new Date(nowTimeAddDay(-29)));
+        document.getElementById("endTime").value = DateUtil.formatDateTime(new Date());
         //根据biztype获取operatetype
         function getOperateType(bizTypeCode) {
             // console.log(bizTypeCode)
@@ -65,8 +69,8 @@
             let operateType = $("#operatetype").val();
             let serverIp = $("#serverIp").val();
             let otherKey = $("#otherKey").val();
-            let startTime = $("#startTime").attr("realvalue");
-            let endTime = $("#endTime").attr("realvalue");
+            let startTime = $("#startTime").val();
+            let endTime = $("#endTime").val();
 
             if (startTime==''){
                 startTime='1970-01-01 08:00:00'
@@ -122,7 +126,6 @@
                             let responseMessage = item.responseMessage == null ? "-" : item.responseMessage;
                             let operateRequest = item.operateRequest == null ? "-" : item.operateRequest;
                             let operateResponse = item.operateResponse == null ? "-" : item.operateResponse;
-                            let serverIp = item.serverIp == null ? "-" : item.serverIp;
 
                             let tr = $(`<tr>
                                          <td>${bizTypeName}  </td>
@@ -141,36 +144,35 @@
                                          <td>${responseMessage}</td>
                                          <td style="max-width: 450px;word-wrap:break-word;word-break:break-all;">${operateRequest}</td>
                                          <td style="max-width: 450px;word-wrap:break-word;word-break:break-all;">${operateResponse}</td>
-                                         <td>${serverIp}</td>
                                     </tr>`)
                             console.log(tr)
                             $("#logcontent").append(tr)
-                            if (offset == 0 && $("#pageTool").children().length != 0){
-                                p.render({
-                                    count: message.total,
-                                    pagesize: limit,
-                                    current: 1
-                                });
-                            }
-                            if ($("#pageTool").children().length == 0) {
-                                //分页第一次加载
-                                p.init({
-                                    target: '#pageTool',
-                                    pagesize: 10,
-                                    count: message.total,
-                                    current: 1,
-                                    toolbar: true,
-                                    changePagesize:function (pagesize){
-                                        getlogs(0, parseInt(pagesize,10));
-                                    },
-                                    callback: function (pagecount, size, count) {
-                                        // console.log(pagecount, size, count)
-                                        getlogs((pagecount - 1) * size, parseInt(size,10));
-                                    }
-                                });
-                            }
+                        });
 
-                        })
+                        if (offset == 0 && $("#pageTool").children().length != 0) {
+                            p.render({
+                                count: message.total,
+                                pagesize: limit,
+                                current: 1
+                            });
+                        }
+                        if ($("#pageTool").children().length == 0) {
+                            //分页第一次加载
+                            p.init({
+                                target: '#pageTool',
+                                pagesize: 10,
+                                count: message.total,
+                                current: 1,
+                                toolbar: true,
+                                changePagesize: function (pagesize) {
+                                    getlogs(0, parseInt(pagesize, 10));
+                                },
+                                callback: function (pagecount, size, count) {
+                                    // console.log(pagecount, size, count)
+                                    getlogs((pagecount - 1) * size, parseInt(size, 10));
+                                }
+                            });
+                        }
 
                     } else {
                         alert(message.statusMessage)
@@ -214,11 +216,45 @@
         })
 
         $("#search").click(function () {
+            let startTime = $("#startTime").val();
+            let endTime = $("#endTime").val();
+            if(startTime == ''){
+                alert("请输入开始时间！");
+                return;
+            }
+            if(endTime == ''){
+                alert("请输入结束时间！");
+                return;
+            }
+            if(endTime < startTime){
+                alert("开始时间必须大于结束时间！");
+                return;
+            }
+            var limitDay = 30;
+            if(dateDiffDay(startTime,endTime) > limitDay){
+                alert("开始时间与结束时间跨度不能超过"+limitDay+"天！");
+                return;
+            }
             getlogs(0, 10);
         })
+
     })
 
+function dateDiffDay(sDate1, sDate2) {
+    var startDate = sDate1.split(" ")[0];
+    var endDate = sDate2.split(" ")[0];
+    var difValue = (new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24);
+    return difValue;
+}
 
+function nowTimeAddDay(day){
+    var date1 = new Date();
+    var time1=date1.getFullYear()+"-"+(date1.getMonth()+1)+"-"+date1.getDate();//time1表示当前时间
+    var date2 = new Date(date1);
+    date2.setDate(date1.getDate()+day);
+    var time2 = date2.getFullYear()+"-"+(date2.getMonth()+1)+"-"+date2.getDate();
+    return time2;
+}
 </script>
 
 <body>
@@ -226,6 +262,8 @@
     <p>
         <a href="javascript:void(0)">分拣管理</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">日志查询</a>
     </p>
+
+
 </div>
 <div id="content">
     <div class="m">
@@ -233,6 +271,7 @@
             <form id="selectLogList" name="selectLogList" action="#springUrl('/offline/list')" method="GET">
                 <input type="hidden" id="pageNo" name="pageNo"/>
                 <input type="hidden" id="pageSize" name="pageSize"/>
+                $newLogPageTips
                 <table border="0" cellpadding="0" cellspacing="0" style="width: 100%;min-width:1100px;">
                     <tbody>
 
@@ -241,22 +280,45 @@
                         <td>
                             <input id="waybillCode" name="waybillCode" type="text" class="textField28"/>
                         </td>
-                        <th align="right">箱号：</th>
-                        <td>
-                            <input id="boxCode" name="boxCode" type="text" class="textField28"/>
-                        </td>
                         <th align="right">包裹号：</th>
                         <td>
                             <input id="packageCode" name="packageCode" type="text" class="textField28"/>
+                        </td>
+                        <th align="right">箱号：</th>
+                        <td>
+                            <input id="boxCode" name="boxCode" type="text" class="textField28"/>
                         </td>
                         <th align="right">批次号：</th>
                         <td>
                             <input id="sendCode" name="sendCode" type="text" class="textField28"/>
                         </td>
+                    </tr>
+                    <tr>
 
+
+                        <th align="right">任意关键字：</th>
+                        <td>
+                            <input id="otherKey" name="otherKey" class="select18">
+
+                            </input>
+                        </td>
+                        <th align="right">所属业务：</th>
+                        <td>
+                            <select id="biztype" name="biztype" class="select18">
+
+                            </select>
+                        </td>
+                        <th align="right">操作类型：</th>
+                        <td>
+                            <select id="operatetype" name="operatetype" class="select18">
+
+                            </select>
+                        </td>
                     </tr>
 
                     <tr>
+
+
                         <th align="right">操作站点编码：</th>
                         <td>
                             <input id="siteCode" name="siteCode" type="text" class="textField28"/>
@@ -274,43 +336,19 @@
 
                     </tr>
 
-
                     <tr>
-                        <th align="right">所属业务：</th>
-                        <td>
-                            <select id="biztype" name="biztype" class="select18">
 
-                            </select>
-                        </td>
-                        <th align="right">操作类型：</th>
+                        <th align="right">时间：</th>
                         <td>
-                            <select id="operatetype" name="operatetype" class="select18">
-
-                            </select>
-                        </td>
-                        <th align="right">服务器ip：</th>
-                        <td>
-                            <input id="serverIp" name="serverIp" type="text" class="textField28"/>
-                        </td>
-                    </tr>
-
-
-                    <tr>
-                        <th align="right">其他关键字：</th>
-                        <td>
-                            <input id="otherKey" name="otherKey" class="select18">
-
-                            </input>
-                        </td>
-                        <th align="left">时间：</th>
-                        <td>
-                            <input type="text" id="startTime" name="startDate" style="width: 130px" class="Wdate"
+                            <input type="text" id="startTime" name="startDate" style="width: 140px" class="Wdate"
                                    onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss'})" value=""
                                    realvalue="">
                             ~
-                            <input type="text" id="endTime" name="startDate" style="width: 130px" class="Wdate"
+                            <input type="text" id="endTime" name="startDate" style="width: 140px" class="Wdate"
                                    onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss'})" value=""
                                    realvalue=""></td>
+
+
                         <td align="right"><input id="search" type="button" value="查询" class="btn_c"/>
                     </tr>
 
@@ -341,7 +379,6 @@
                         <th>Message</th>
                         <th style="max-width: 450px;word-wrap:break-word;word-break:break-all;">请求参数</th>
                         <th style="max-width: 450px;word-wrap:break-word;word-break:break-all;">返回值</th>
-                        <th>服务器ip</th>
                     </tr>
                     </thead>
                     <tbody id="logcontent">

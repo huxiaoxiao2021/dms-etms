@@ -68,6 +68,15 @@ public class UccPropertyConfiguration {
      */
     private boolean preOutZoneSwitch;
 
+    /**
+     * 新log查询页面提示文字
+     */
+    private String newLogPageTips;
+    /**
+     * 老log查询页面提示
+     */
+    private String oldLogPageTips;
+
     public boolean isLogToBusinessLogByKafka() {
         return logToBusinessLogByKafka;
     }
@@ -202,5 +211,21 @@ public class UccPropertyConfiguration {
 
     public void setPreOutZoneSwitch(boolean preOutZoneSwitch) {
         this.preOutZoneSwitch = preOutZoneSwitch;
+    }
+
+    public String getNewLogPageTips() {
+        return newLogPageTips;
+    }
+
+    public void setNewLogPageTips(String newLogPageTips) {
+        this.newLogPageTips = newLogPageTips;
+    }
+
+    public String getOldLogPageTips() {
+        return oldLogPageTips;
+    }
+
+    public void setOldLogPageTips(String oldLogPageTips) {
+        this.oldLogPageTips = oldLogPageTips;
     }
 }
