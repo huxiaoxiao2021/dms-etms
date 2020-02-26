@@ -1075,8 +1075,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             sLogDetail.setType(Long.valueOf(12004));
             sLogDetail.setContent(messageValue);
 
-            long endTime = new Date().getTime();
-
+            long endTime = System.currentTimeMillis();
 
             JSONObject request = new JSONObject();
             request.put("waybillCode", wallBillCode);
@@ -1091,10 +1090,11 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
             BusinessLogProfiler businessLogProfiler = new BusinessLogProfilerBuilder()
                     .bizType(BizOperateTypeConstants.DELIVERY_SENDREVERSE.getBizTypeCode())
-                    .operateResponse(BizOperateTypeConstants.DELIVERY_SENDREVERSE.getOperateTypeCode())
+                    .operateType(BizOperateTypeConstants.DELIVERY_SENDREVERSE.getOperateTypeCode())
                     .processTime(endTime,startTime)
                     .operateRequest(request)
                     .operateResponse(response)
+                    .reMark(target)
                     .methodName("ReverseSendServiceImpl#sendWMS")
                     .build();
 
