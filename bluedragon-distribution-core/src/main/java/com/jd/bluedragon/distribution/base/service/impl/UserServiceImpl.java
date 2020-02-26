@@ -264,7 +264,7 @@ public class UserServiceImpl implements UserService{
 						forceUpdate = loginResponse.getData().getForceUpdate();
 						if(loginResponse.getData().getDmsClientConfigInfo() != null){
 							dmsClientConfigInfo = new DmsClientConfigInfo();
-							BeanUtils.copyProperties(loginResponse.getData().getDmsClientConfigInfo(), dmsClientConfigInfo);
+							BeanUtils.copyProperties(dmsClientConfigInfo,loginResponse.getData().getDmsClientConfigInfo());
 						}
 					}
 				}
