@@ -1055,5 +1055,9 @@ public class Constants {
      * 菜单点击 分拣离线操作日志查询
      */
     public static final Integer OFFLINELOG_CLICK = 3;
+    /**
+     * 新日志查询
+     */
+    public static final Integer NEW_LOG = 4;
 
 }

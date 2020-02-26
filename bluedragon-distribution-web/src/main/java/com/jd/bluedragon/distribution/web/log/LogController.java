@@ -1,10 +1,14 @@
 package com.jd.bluedragon.distribution.web.log;
 
+import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.distribution.web.ErpUserClient;
+import com.jd.dms.logger.aop.BusinessLogWriter;
 import com.jd.dms.logger.domain.es.ESIndexAndTypeEnum;
 import com.jd.dms.logger.dto.base.BusinessLogResult;
 import com.jd.dms.logger.dto.base.TableResult;
+import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.service.BusinessLogQueryService;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.uim.annotation.Authorization;
@@ -38,6 +42,16 @@ public class LogController {
     @Authorization(Constants.DMS_WEB_SORTING_OPERATELOG_R)
     @RequestMapping(value = "/goListPage", method = RequestMethod.GET)
     public String goListpage(Model model) {
+        ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
+        BusinessLogProfiler businessLogProfiler = new BusinessLogProfiler();
+        businessLogProfiler.setSourceSys(1);
+        businessLogProfiler.setBizType(Constants.BIZTYPE_URL_CLICK);
+        businessLogProfiler.setOperateType(Constants.NEW_LOG);
+        JSONObject request=new JSONObject();
+        request.put("operatorName",erpUser.getUserName());
+        request.put("operatorCode",erpUser.getUserCode());
+        businessLogProfiler.setOperateRequest(JSONObject.toJSONString(request));
+        BusinessLogWriter.writeLog(businessLogProfiler);
         model.addAttribute("newLogPageTips",uccPropertyConfiguration.getNewLogPageTips());
         return "businesslog/log";
     }

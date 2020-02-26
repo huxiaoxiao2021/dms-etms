@@ -116,6 +116,7 @@ public class OfflineController {
 				offlineLogService.queryByParams(params));
 		model.addAttribute("offlineLogqueryDto", offlineLog);
 		model.addAttribute("pager", pager);
+        model.addAttribute("oldLogPageTips",uccPropertyConfiguration.getOldLogPageTips());
 		return "offline/offline";
 	}
 
