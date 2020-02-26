@@ -831,7 +831,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
         JSONObject operateRequest=new JSONObject();
         operateRequest.put("waybillCode",request.getBoxOrPackageCode());
-        operateRequest.put("pakcageCode",request.getBoxOrPackageCode());
+        operateRequest.put("packageCode",request.getBoxOrPackageCode());
 
         JSONObject response=new JSONObject();
         response.put("content", com.jd.bluedragon.utils.JsonHelper.toJsonUseGson(goddess));

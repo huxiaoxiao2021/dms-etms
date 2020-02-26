@@ -7,10 +7,7 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.ReassignWaybillRequest;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
-import com.jd.bluedragon.distribution.log.BizTypeConstants;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
-import com.jd.dms.logger.external.LogEngine;
-import com.jd.bluedragon.distribution.log.OperateTypeConstants;
 import com.jd.bluedragon.distribution.reassignWaybill.dao.ReassignWaybillDao;
 import com.jd.bluedragon.distribution.reassignWaybill.domain.ReassignWaybill;
 import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
@@ -21,6 +18,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SystemLogContants;
 import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.dms.logger.external.LogEngine;
 import com.jd.fastjson.JSONObject;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
@@ -104,7 +102,7 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 
 				JSONObject request=new JSONObject();
 				request.put("waybillCode",siteChangeMqDto.getWaybillCode());
-				request.put("pakcageCode",siteChangeMqDto.getPackageCode());
+				request.put("packageCode",siteChangeMqDto.getPackageCode());
 				request.put("operatorName",siteChangeMqDto.getOperatorName());
 
 				BusinessLogProfiler businessLogProfiler = new BusinessLogProfilerBuilder()
