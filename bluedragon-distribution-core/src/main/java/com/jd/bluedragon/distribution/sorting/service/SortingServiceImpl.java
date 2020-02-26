@@ -18,8 +18,10 @@ import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.fastRefund.domain.FastRefundBlockerComplete;
 import com.jd.bluedragon.distribution.fastRefund.service.FastRefundService;
+import com.jd.bluedragon.distribution.inspection.InsepctionCheckDto;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
@@ -31,6 +33,9 @@ import com.jd.bluedragon.distribution.log.BizTypeConstants;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.bluedragon.distribution.log.OperateTypeConstants;
+import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
+import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
+import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.middleend.sorting.domain.SortingObjectExtend;
 import com.jd.bluedragon.distribution.middleend.sorting.dao.DynamicSortingQueryDao;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
@@ -165,6 +170,9 @@ public class SortingServiceImpl implements SortingService {
 	@Autowired
 	private LogEngine logEngine;
 
+
+	@Autowired
+	private JsfSortingResourceService jsfSortingResourceService;
 
     /**
      * sorting任务处理告警时间，单位:ms，默认值100
@@ -1534,5 +1542,45 @@ public class SortingServiceImpl implements SortingService {
 	@Override
 	public List<Sorting> findPackageCodesByWaybillCode(Sorting sorting) {
 		return dynamicSortingQueryDao.findPackageCodesByWaybillCode(sorting);
+	}
+
+	public SortingJsfResponse check(PdaOperateRequest pdaOperateRequest) {
+		SortingJsfResponse sortingJsfResponse = new SortingJsfResponse();
+
+		try{
+			SortingCheck sortingCheck = convertToSortingCheck(pdaOperateRequest);
+			sortingJsfResponse = jsfSortingResourceService.check(sortingCheck);
+			if(sortingJsfResponse.getCode() != 200){
+				return sortingJsfResponse;
+			}
+
+			//校验运单验货是否集齐
+			sortingJsfResponse = inspectionService.gatherCheck(pdaOperateRequest,sortingJsfResponse);
+			if(sortingJsfResponse != null && sortingJsfResponse.getCode().equals(SortingResponse.CODE_31123)){
+				return sortingJsfResponse;
+			}
+		}catch (Exception ex){
+			log.error("新分拣服务异常", ex);
+			sortingJsfResponse.setCode(SortingJsfResponse.CODE_SERVICE_ERROR);
+			sortingJsfResponse.setMessage(SortingJsfResponse.MESSAGE_SERVICE_ERROR_C);
+		}
+
+		return sortingJsfResponse;
+	}
+
+	public SortingCheck convertToSortingCheck(PdaOperateRequest request){
+		SortingCheck sortingCheck = new SortingCheck();
+		sortingCheck.setBoxCode(request.getBoxCode());
+		sortingCheck.setBusinessType(request.getBusinessType());
+		sortingCheck.setCreateSiteCode(request.getCreateSiteCode());
+		sortingCheck.setCreateSiteName(request.getCreateSiteName());
+		sortingCheck.setOperateTime(request.getOperateTime());
+		sortingCheck.setOperateType(request.getOperateType());
+		sortingCheck.setOperateUserCode(request.getOperateUserCode());
+		sortingCheck.setOperateUserName(request.getOperateUserName());
+		sortingCheck.setPackageCode(request.getPackageCode());
+		sortingCheck.setReceiveSiteCode(request.getReceiveSiteCode());
+		sortingCheck.setIsLoss(request.getIsLoss());
+		return sortingCheck;
 	}
 }

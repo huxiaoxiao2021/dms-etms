@@ -3,10 +3,12 @@ package com.jd.bluedragon.distribution.inspection.dao;
 import com.google.common.collect.Maps;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.distribution.inspection.InsepctionCheckDto;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionCondition;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionInfo;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.ql.dms.common.web.mvc.api.PagerCondition;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
@@ -36,6 +38,22 @@ public class InspectionDao extends BaseDao<Inspection>{
 			return 0;
 		}
 		return this.getSqlSession().update(namespace + ".updatePop", inspection);
+	}
+
+	public List<InsepctionCheckDto> findInspectionGatherPageCount(PagerCondition pagerCondition){
+		return this.getSqlSession().selectList(namespace+".findInspectionGatherPageCount", pagerCondition);
+	}
+
+	public List<InsepctionCheckDto> findInspectionGather(PagerCondition pagerCondition){
+		return this.getSqlSession().selectList(namespace+".findInspectionGather", pagerCondition);
+	}
+
+	public List<Inspection> findInspetionedPacks(Inspection inspection){
+        return this.getSqlSession().selectList(namespace+".findInspetionedPacks", inspection);
+    }
+
+	public InsepctionCheckDto verifyReverseInspectionGather( Inspection inspection ){
+		return this.getSqlSession().selectOne(namespace+".verifyReverseInspectionGather", inspection);
 	}
 	
 	public Integer inspectionCount( Inspection inspection ){
