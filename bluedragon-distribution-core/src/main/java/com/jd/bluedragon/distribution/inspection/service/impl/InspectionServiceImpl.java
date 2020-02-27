@@ -269,9 +269,9 @@ public class InspectionServiceImpl implements InspectionService {
 		}
 		try{
 			//查询总数
-			List<InsepctionCheckDto> insepctionCheckDtoList = inspectionDao.findInspectionGatherPageCount(condition);
-			if(insepctionCheckDtoList != null){
-				result.setTotal(insepctionCheckDtoList.size());
+			Integer total = inspectionDao.findInspectionGatherPageCount(condition);
+			if(total != null){
+				result.setTotal(total);
 			}else{
 				result.setTotal(0);
 			}
