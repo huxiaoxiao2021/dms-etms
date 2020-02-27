@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.financialForKA.domain;
 
-import java.io.Serializable;
+import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 
 /**
  * KA单号查询条件
@@ -8,7 +8,7 @@ import java.io.Serializable;
  * @author: hujiping
  * @date: 2020/2/26 21:59
  */
-public class KaCodeCheckCondition implements Serializable {
+public class KaCodeCheckCondition extends BasePagerCondition {
 
     private static final long serialVersionUID = 1L;
 
@@ -23,7 +23,7 @@ public class KaCodeCheckCondition implements Serializable {
     /**
      * 操作人ERP
      * */
-    private String operaterErp;
+    private String operateErp;
     /**
      * 商家编码
      * */
@@ -59,12 +59,12 @@ public class KaCodeCheckCondition implements Serializable {
         this.operateSiteCode = operateSiteCode;
     }
 
-    public String getOperaterErp() {
-        return operaterErp;
+    public String getOperateErp() {
+        return operateErp;
     }
 
-    public void setOperaterErp(String operaterErp) {
-        this.operaterErp = operaterErp;
+    public void setOperateErp(String operateErp) {
+        this.operateErp = operateErp;
     }
 
     public String getBusiCode() {

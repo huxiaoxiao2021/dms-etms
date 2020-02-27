@@ -9,6 +9,9 @@
     #parse("system/common/baseImport.vm")
     <script src="/static/js/financialForKA/waybillCodeCheck.js"></script>
 </head>
+<input type="hidden" id="operateSiteCode" value="$!{operateSiteCode}"/>
+<input type="hidden" id="operateSiteName" value="$!{operateSiteName}"/>
+<input type="hidden" id="operateErp" value="$!{operateErp}"/>
 <body class="container-fluid">
 <div id="dataTableDiv" class="main">
         <ol class="breadcrumb">

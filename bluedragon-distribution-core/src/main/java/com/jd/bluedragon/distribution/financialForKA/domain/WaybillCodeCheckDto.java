@@ -19,11 +19,15 @@ public class WaybillCodeCheckDto extends DbEntity {
      * */
     private String waybillCode;
     /**
-     * 操作机构ID
+     * 比较单号
      * */
-    private String operateSiteCode;
+    private String compareCode;
     /**
-     * 操作机构名称
+     * 操作站点
+     * */
+    private Integer operateSiteCode;
+    /**
+     * 操作站点名称
      * */
     private String operateSiteName;
     /**
@@ -55,11 +59,19 @@ public class WaybillCodeCheckDto extends DbEntity {
         this.waybillCode = waybillCode;
     }
 
-    public String getOperateSiteCode() {
+    public String getCompareCode() {
+        return compareCode;
+    }
+
+    public void setCompareCode(String compareCode) {
+        this.compareCode = compareCode;
+    }
+
+    public Integer getOperateSiteCode() {
         return operateSiteCode;
     }
 
-    public void setOperateSiteCode(String operateSiteCode) {
+    public void setOperateSiteCode(Integer operateSiteCode) {
         this.operateSiteCode = operateSiteCode;
     }
 

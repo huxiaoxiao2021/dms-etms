@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.financialForKA.service;
 
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.financialForKA.domain.KaCodeCheckCondition;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.ReviewWeightSpotCheck;
+import com.jd.bluedragon.distribution.financialForKA.domain.WaybillCodeCheckCondition;
+import com.jd.bluedragon.distribution.financialForKA.domain.WaybillCodeCheckDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 
 import java.util.List;
@@ -19,7 +21,7 @@ public interface WaybillCodeCheckService {
      * @param condition
      * @return
      */
-    PagerResult<ReviewWeightSpotCheck> listData(KaCodeCheckCondition condition);
+    PagerResult<WaybillCodeCheckDto> listData(KaCodeCheckCondition condition);
 
     /**
      * 获取导出数据
@@ -27,4 +29,11 @@ public interface WaybillCodeCheckService {
      * @return
      */
     List<List<Object>> getExportData(KaCodeCheckCondition condition);
+
+    /**
+     * 单号校验
+     * @param condition
+     * @return
+     */
+    InvokeResult waybillCodeCheck(WaybillCodeCheckCondition condition);
 }

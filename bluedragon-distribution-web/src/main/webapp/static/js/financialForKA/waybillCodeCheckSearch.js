@@ -74,11 +74,31 @@ $(function () {
             title: '运单号',
             align: 'center'
         },{
+            field: 'compareCode',
+            title: '比较单号',
+            align: 'center'
+        },{
+            field: 'busiCode',
+            title: '商家编码',
+            align: 'center'
+        }, {
+            field: 'busiName',
+            title: '商家名称',
+            align: 'center'
+        },{
+            field: 'operateSiteCode',
+            title: '操作站点',
+            align: 'center'
+        },{
+            field: 'operateSiteName',
+            title: '操作站点名称',
+            align: 'center'
+        },{
             field: 'checkResult',
             title: '校验结果',
             align: 'center',
             formatter: function (value, row, index) {
-                return (value != null && value == "1") ? "通过" : "未通过";
+                return (value != null && value == "1") ? "成功" : "失败";
             }
         },{
             field: 'operateErp',
@@ -91,22 +111,6 @@ $(function () {
             formatter : function(value,row,index){
                 return $.dateHelper.formateDateTimeOfTs(value);
             }
-        }, {
-            field: 'operateSiteName',
-            title: '操作机构名称',
-            align: 'center'
-        }, {
-            field: 'operateSiteCode',
-            title: '操作机构ID',
-            align: 'center'
-        }, {
-            field: 'busiName',
-            title: '商家名称',
-            align: 'center'
-        }, {
-            field: 'busiCode',
-            title: '商家编码',
-            align: 'center'
         }];
         oTableInit.refresh = function () {
             $('#dataTable').bootstrapTable('refreshOptions', {pageNumber: 1});
@@ -176,20 +180,12 @@ $(function () {
     }
 
     initSelect();
-    initOrg();
     initDateQuery();
     tableInit().init();
     pageInit().init();
     initExport(tableInit());
 
 });
-
-function  getDaysByDateString(dateString1,dateString2) {
-    var startDate = Date.parse(dateString1.replace('/-/g', '/'));
-    var endDate = Date.parse(dateString2.replace('/-/g', '/'));
-    var days = (endDate - startDate) / (1 * 24 * 60 * 60 * 1000);
-    return days;
-}
 
 function initDateQuery(){
     var v = $.dateHelper.formatDate(new Date());
@@ -198,125 +194,14 @@ function initDateQuery(){
 }
 
 function initSelect() {
-    var defualt = $("#query-form #isExcessSelect").val();
-    $("#query-form #isExcess").val(defualt);
-    $("#query-form #isExcessSelect").on('change', function (e) {
-        var v = $("#query-form #isExcessSelect").val();
+    var defualt = $("#query-form #checkResultSelect").val();
+    $("#query-form #checkResult").val(defualt);
+    $("#query-form #checkResultSelect").on('change', function (e) {
+        var v = $("#query-form #checkResultSelect").val();
         if (v == 0 || v == 1) {
-            $("#query-form #isExcess").val(v);
+            $("#query-form #checkResult").val(v);
         } else {
-            $("#query-form #isExcess").val(null);
+            $("#query-form #checkResult").val(null);
         }
     });
-
-    defualt = $("#query-form #spotCheckTypeSelect").val();
-    $("#query-form #spotCheckType").val(defualt);
-    $("#query-form #spotCheckTypeSelect").on('change', function (e) {
-        var v = $("#query-form #spotCheckTypeSelect").val();
-        if (v == 0 || v == 1) {
-            $("#query-form #spotCheckType").val(v);
-        } else {
-            $("#query-form #spotCheckType").val(null);
-        }
-    });
-}
-
-function findSite(selectId,siteListUrl,initIdSelectId){
-    $(selectId).html("");
-    $.ajax({
-        type : "get",
-        url : siteListUrl,
-        data : {},
-        async : false,
-        success : function (data) {
-
-
-            var result = [];
-            if(data.length==1 && data[0].code!="200"){
-
-
-                result.push({id:"-999",text:data[0].message});
-
-            }else{
-                for(var i in data){
-                    if(data[i].siteCode && data[i].siteCode != ""){
-                        result.push({id:data[i].siteCode,text:data[i].siteName});
-                    }
-                }
-
-            }
-            if(initIdSelectId && result[0].id!="-999"){
-                $(initIdSelectId).val(result[0].id);
-            }
-
-            $(selectId).select2({
-                width: '100%',
-                placeholder:'请选择分拣中心',
-                allowClear:true,
-                data:result
-            });
-            $(selectId).val(null).trigger('change');
-
-        }
-    });
-}
-
-// 初始化大区下拉框
-function initOrg() {
-
-
-    var url = "/services/bases/allorgs";
-    var param = {};
-    $.ajax({
-        type: "get",
-        url: url,
-        data: param,
-        async: false,
-        success: function (data) {
-
-            var result = [];
-            for (var i in data) {
-                if (data[i].orgId && data[i].orgId != "") {
-                    result.push({id: data[i].orgId, text: data[i].orgName});
-
-                }
-
-            }
-
-            $('#site-group-select').select2({
-                width: '100%',
-                placeholder: '请选择机构',
-                allowClear: true,
-                data: result
-            });
-
-            $("#site-group-select")
-                .on("change", function (e) {
-                    $("#query-form #createSiteCode").val("");
-                    var orgId = $("#site-group-select").val();
-                    $("#query-form #reviewOrgCode").val(orgId);
-                    if (orgId) {
-                        var siteListUrl = '/services/bases/dms/' + orgId;
-                        findSite("#site-select", siteListUrl, "#query-form #createSiteCode");
-                    }
-
-                });
-
-            $("#site-select").on("change", function (e) {
-                var _s = $("#site-select").val();
-                $("#query-form #createSiteCode").val(_s);
-            });
-
-
-            if ($("#loginUserOrgId").val() != -1) {
-                //登录人大区
-                $('#site-group-select').val($("#loginUserOrgId").val()).trigger('change');
-            } else {
-                $('#site-group-select').val(null).trigger('change');
-            }
-
-
-        }
-    });
-
 }

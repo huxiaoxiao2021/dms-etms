@@ -27,6 +27,9 @@ $(function() {
             if(barCodeOfOne && barCodeOfTwo){
                 params.barCodeOfOne=barCodeOfOne;
                 params.barCodeOfTwo=barCodeOfTwo;
+                params.operateSiteCode = $('#operateSiteCode').val();
+                params.operateSiteName = $('#operateSiteName').val();
+                params.operateErp = $('#operateErp').val();
             }else{
                 Jd.alert("请输入条码!");
                 return;

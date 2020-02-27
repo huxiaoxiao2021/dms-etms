@@ -13,7 +13,7 @@ public class WaybillCodeCheckCondition implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 条码1
+     * 条码1(待比较单号)
      * */
     private String barCodeOfOne;
 
@@ -21,6 +21,21 @@ public class WaybillCodeCheckCondition implements Serializable {
      * 条码2
      * */
     private String barCodeOfTwo;
+
+    /**
+     * 操作站点
+     * */
+    private Integer operateSiteCode;
+
+    /**
+     * 操作站点名称
+     * */
+    private String operateSiteName;
+
+    /**
+     * 操作人ERP
+     * */
+    private String operateErp;
 
     public String getBarCodeOfOne() {
         return barCodeOfOne;
@@ -36,5 +51,29 @@ public class WaybillCodeCheckCondition implements Serializable {
 
     public void setBarCodeOfTwo(String barCodeOfTwo) {
         this.barCodeOfTwo = barCodeOfTwo;
+    }
+
+    public Integer getOperateSiteCode() {
+        return operateSiteCode;
+    }
+
+    public void setOperateSiteCode(Integer operateSiteCode) {
+        this.operateSiteCode = operateSiteCode;
+    }
+
+    public String getOperateSiteName() {
+        return operateSiteName;
+    }
+
+    public void setOperateSiteName(String operateSiteName) {
+        this.operateSiteName = operateSiteName;
+    }
+
+    public String getOperateErp() {
+        return operateErp;
+    }
+
+    public void setOperateErp(String operateErp) {
+        this.operateErp = operateErp;
     }
 }

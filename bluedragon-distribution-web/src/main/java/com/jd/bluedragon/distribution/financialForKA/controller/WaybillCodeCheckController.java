@@ -1,17 +1,16 @@
 package com.jd.bluedragon.distribution.financialForKA.controller;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.financialForKA.domain.KaCodeCheckCondition;
 import com.jd.bluedragon.distribution.financialForKA.domain.WaybillCodeCheckCondition;
+import com.jd.bluedragon.distribution.financialForKA.domain.WaybillCodeCheckDto;
 import com.jd.bluedragon.distribution.financialForKA.service.WaybillCodeCheckService;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.ReviewWeightSpotCheck;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +46,11 @@ public class WaybillCodeCheckController extends DmsBaseController {
      */
     @Authorization(Constants.DMS_WEB_TOOL_WAYBILLCODECHECK_R)
     @RequestMapping("/toIndex")
-    public String toIndex(){
+    public String toIndex(Model model){
+        LoginUser loginUser = getLoginUser();
+        model.addAttribute("operateSiteCode",loginUser.getSiteCode());
+        model.addAttribute("operateSiteName",loginUser.getSiteName());
+        model.addAttribute("operateErp",loginUser.getUserErp());
         return "/financialForKA/waybillCodeCheck";
     }
 
@@ -60,27 +63,7 @@ public class WaybillCodeCheckController extends DmsBaseController {
     @RequestMapping("/check")
     @ResponseBody
     public InvokeResult waybillCodeCheck(@RequestBody WaybillCodeCheckCondition condition){
-        InvokeResult result = new InvokeResult();
-        if(StringUtils.isEmpty(condition.getBarCodeOfOne()) || StringUtils.isEmpty(condition.getBarCodeOfTwo())){
-            result.setCode(InvokeResult.RESULT_NULL_CODE);
-            result.setMessage("条码为空，请重新输入!");
-            return result;
-        }
-        if((!WaybillUtil.isWaybillCode(condition.getBarCodeOfOne()) && !WaybillUtil.isPackageCode(condition.getBarCodeOfOne())) ||
-                (!WaybillUtil.isWaybillCode(condition.getBarCodeOfTwo()) && !WaybillUtil.isPackageCode(condition.getBarCodeOfTwo())) ){
-            result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
-            result.setMessage("输入的条码不符合规则!");
-            return result;
-        }
-        String waybillCodeOfOne = WaybillUtil.getWaybillCode(condition.getBarCodeOfOne());
-        String waybillCodeOfTwo = WaybillUtil.getWaybillCode(condition.getBarCodeOfTwo());
-        if(!waybillCodeOfOne.equals(waybillCodeOfTwo)){
-            result.setCode(600);
-            result.setMessage("匹配失败，号码不一致！请检查面单是否贴错");
-            return result;
-        }
-        result.setMessage("匹配成功，号码一致!");
-        return result;
+        return waybillCodeCheckService.waybillCodeCheck(condition);
     }
 
     /**
@@ -101,10 +84,8 @@ public class WaybillCodeCheckController extends DmsBaseController {
     @Authorization(Constants.DMS_WEB_TOOL_WAYBILLCODECHECK_R)
     @RequestMapping("/listData")
     @ResponseBody
-    public PagerResult<ReviewWeightSpotCheck> listData(@RequestBody KaCodeCheckCondition condition){
-
-        PagerResult<ReviewWeightSpotCheck> result = waybillCodeCheckService.listData(condition);
-        return result;
+    public PagerResult<WaybillCodeCheckDto> listData(@RequestBody KaCodeCheckCondition condition){
+        return waybillCodeCheckService.listData(condition);
     }
 
     /**
