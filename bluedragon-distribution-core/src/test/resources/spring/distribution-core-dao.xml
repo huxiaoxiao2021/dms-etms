@@ -532,6 +532,7 @@
     <!--  businessCode 业务单号表  -->
     <bean id="businessCodeDao" class="com.jd.bluedragon.distribution.businessCode.dao.BusinessCodeDao">
         <property name="sqlSession" ref="divSqlSessionTemplate"/>
+        <property name="sequenceGenAdaptor" ref="sequenceGenAdaptor"/>
     </bean>
 
 </beans>

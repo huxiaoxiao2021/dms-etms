@@ -55,7 +55,7 @@
 		WHERE CODE = #{code, jdbcType=VARCHAR} AND IS_DELETE = 0
 	</select>
 
-	<insert id="batchInsertBusinessCodeAttribute" parameterType="List">
+	<insert id="batchInsertBusinessCodeAttribute" parameterType="java.util.List">
 		INSERT INTO BUSINESS_CODE_ATTRIBUTE
 		(
 			`ID`, `CODE`, `ATTRIBUTE_KEY`, `ATTRIBUTE_VALUE`, `FROM_SOURCE`, `CREATE_USER`, `CREATE_TIME`, `UPDATE_USER`, `UPDATE_TIME`, `IS_DELETE`

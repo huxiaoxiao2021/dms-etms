@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.businessCode.domain.BusinessCodePo;
 import com.jd.bluedragon.distribution.sendCode.domain.SendCodeDto;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -36,9 +36,6 @@ public class BusinessCodeDaoTest extends AbstractDaoIntegrationH2Test {
     @Autowired
     private BusinessCodeDao businessCodeDao;
 
-    @Autowired
-    private SequenceGenAdaptor sequenceGen;
-
     @Before
     public void setUp() throws Exception {
         sendCode = SerialRuleUtil.generateSendCode(createSiteCOde, receiveSiteCode, new Date());
@@ -47,7 +44,7 @@ public class BusinessCodeDaoTest extends AbstractDaoIntegrationH2Test {
     @Test
     public void insertBusinessCode() {
         BusinessCodePo businessCodePo = new BusinessCodePo();
-        businessCodePo.setId(sequenceGen.newId("BUSINESS_CODE"));
+//        businessCodePo.setId(sequenceGen.newId("BUSINESS_CODE"));
         businessCodePo.setFromSource(BusinessCodeFromSourceEnum.DMS_WEB_SYS.name());
         businessCodePo.setCode(sendCode);
         businessCodePo.setNodeType(BusinessCodeNodeTypeEnum.send_code.name());
@@ -59,7 +56,6 @@ public class BusinessCodeDaoTest extends AbstractDaoIntegrationH2Test {
     @Test
     public void findBusinessCodeByCode() {
         BusinessCodePo businessCodePo = new BusinessCodePo();
-        businessCodePo.setId(sequenceGen.newId("BUSINESS_CODE"));
         businessCodePo.setFromSource(BusinessCodeFromSourceEnum.DMS_WEB_SYS.name());
         businessCodePo.setCode(sendCode);
         businessCodePo.setNodeType(BusinessCodeNodeTypeEnum.send_code.name());
@@ -73,7 +69,6 @@ public class BusinessCodeDaoTest extends AbstractDaoIntegrationH2Test {
     @Test
     public void batchInsertBusinessCodeAttribute() {
         BusinessCodeAttributePo businessCodeAttributePo1 = new BusinessCodeAttributePo();
-        businessCodeAttributePo1.setId(sequenceGen.newId("BUSINESS_CODE_ATTRIBUTE"));
         businessCodeAttributePo1.setCode(sendCode);
         businessCodeAttributePo1.setAttributeKey(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code.name());
         businessCodeAttributePo1.setAttributeValue(String.valueOf(createSiteCOde));
@@ -81,7 +76,6 @@ public class BusinessCodeDaoTest extends AbstractDaoIntegrationH2Test {
         businessCodeAttributePo1.setCreateUser(user);
         businessCodeAttributePo1.setUpdateUser(user);
         BusinessCodeAttributePo businessCodeAttributePo2 = new BusinessCodeAttributePo();
-        businessCodeAttributePo2.setId(sequenceGen.newId("BUSINESS_CODE_ATTRIBUTE"));
         businessCodeAttributePo2.setCode(sendCode);
         businessCodeAttributePo2.setAttributeKey(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code.name());
         businessCodeAttributePo2.setAttributeValue(String.valueOf(receiveSiteCode));
@@ -99,7 +93,6 @@ public class BusinessCodeDaoTest extends AbstractDaoIntegrationH2Test {
     @Test
     public void findAllAttributesByCode() {
         BusinessCodeAttributePo businessCodeAttributePo = new BusinessCodeAttributePo();
-        businessCodeAttributePo.setId(sequenceGen.newId("BUSINESS_CODE_ATTRIBUTE"));
         businessCodeAttributePo.setCode(sendCode);
         businessCodeAttributePo.setAttributeKey(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code.name());
         businessCodeAttributePo.setAttributeValue(String.valueOf(receiveSiteCode));
@@ -119,7 +112,6 @@ public class BusinessCodeDaoTest extends AbstractDaoIntegrationH2Test {
     @Test
     public void findAttributeByCodeAndKey() {
         BusinessCodeAttributePo businessCodeAttributePo = new BusinessCodeAttributePo();
-        businessCodeAttributePo.setId(sequenceGen.newId("BUSINESS_CODE_ATTRIBUTE"));
         businessCodeAttributePo.setCode(sendCode);
         businessCodeAttributePo.setAttributeKey(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code.name());
         businessCodeAttributePo.setAttributeValue(String.valueOf(receiveSiteCode));
@@ -139,7 +131,6 @@ public class BusinessCodeDaoTest extends AbstractDaoIntegrationH2Test {
     @Test
     public void updateAttribute() {
         BusinessCodeAttributePo businessCodeAttributePo = new BusinessCodeAttributePo();
-        businessCodeAttributePo.setId(sequenceGen.newId("BUSINESS_CODE_ATTRIBUTE"));
         businessCodeAttributePo.setCode(sendCode);
         businessCodeAttributePo.setAttributeKey(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code.name());
         businessCodeAttributePo.setAttributeValue(String.valueOf(receiveSiteCode));
