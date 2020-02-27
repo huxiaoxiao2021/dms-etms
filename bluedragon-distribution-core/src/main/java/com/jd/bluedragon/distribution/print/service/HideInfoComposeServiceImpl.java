@@ -20,6 +20,7 @@ public class HideInfoComposeServiceImpl implements  ComposeService {
     @Override
     public void handle(PrintWaybill waybill, Integer dmsCode, Integer targetSiteCode){
         String waybillSign  = waybill.getWaybillSign();
-        hideInfoService.setHideInfo(waybillSign,waybill);
+        String sendPay  = waybill.getSendPay();
+        hideInfoService.setHideInfo(waybillSign,sendPay,waybill);
     }
 }

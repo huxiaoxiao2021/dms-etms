@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.print.service;
 
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
+import com.jd.bluedragon.dms.utils.SendPayConstants;
 import com.jd.bluedragon.utils.StringHelper;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,13 +16,23 @@ public class HideInfoServiceImpl implements HideInfoService{
 
     private static final int ADDRESS_SHOW_LENGTH = 9; //地址信息需要显示的前几位，超过部分用微笑符号替代
 
-    public void setHideInfo(String waybillSign,BasePrintWaybill waybill){
-        if(StringUtils.isBlank(waybillSign)){
+    public void setHideInfo(String waybillSign,String sendPay,BasePrintWaybill waybill){
+    	if(waybill == null){
+    		return;
+    	}
+    	if(StringUtils.isBlank(waybillSign) && StringUtils.isBlank(sendPay)){
             return;
         }
+    	boolean customerInfoHideFlag = false;
         //收件人信息隐藏，根据waybill_sign第37位判断
         if(waybillSign.length() >= 37 && '0' != waybillSign.charAt(36)){
             char customerInfoHideType = waybillSign.charAt(36);
+            customerInfoHideFlag = customerInfoHide(customerInfoHideType, waybill);
+        }
+        //waybillSign未设置隐藏时，根据SendPay第188位进行隐藏收件人信息
+        if(!customerInfoHideFlag 
+        		&& sendPay.length() >= SendPayConstants.POSITION_188){
+            char customerInfoHideType = sendPay.charAt(SendPayConstants.POSITION_188 - 1);
             customerInfoHide(customerInfoHideType, waybill);
         }
         //寄件人信息隐藏，根据waybill_sign第47位判断
@@ -35,7 +47,7 @@ public class HideInfoServiceImpl implements HideInfoService{
      * @param hideType
      * @param waybill
      */
-    private void customerInfoHide(char hideType, BasePrintWaybill waybill){
+    private boolean customerInfoHide(char hideType, BasePrintWaybill waybill){
         switch(hideType) {
             case '1':
                 //1、隐藏姓名
@@ -71,8 +83,10 @@ public class HideInfoServiceImpl implements HideInfoService{
                 hideCustomerAddress(waybill);
                 break;
             default:
-                log.info("运单的waybillSign第37位标识非法：{}" , waybill.getWaybillCode());
+                log.info("运单{}不做隐藏处理：{}" ,waybill.getWaybillCode(),hideType);
+                return false;
         }
+        return true;
     }
 
 

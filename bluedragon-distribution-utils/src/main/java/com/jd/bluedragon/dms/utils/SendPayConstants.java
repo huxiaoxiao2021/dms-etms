@@ -15,4 +15,8 @@ public interface SendPayConstants {
 
 	int POSITION_124 = 124;
 	char CHAR_124_7 = '7';
+	/**
+	 * SendPay第188位隐藏收件人信息标识
+	 */
+	int POSITION_188 = 188;
 }
