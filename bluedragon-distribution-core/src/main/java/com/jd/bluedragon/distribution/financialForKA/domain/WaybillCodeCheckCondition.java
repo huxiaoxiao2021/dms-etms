@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.financialForKA;
+package com.jd.bluedragon.distribution.financialForKA.domain;
 
 import java.io.Serializable;
 

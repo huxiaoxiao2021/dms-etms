@@ -20,6 +20,11 @@
         <div id="query-condition">
             <form id="query-form" class="form-horizontal">
                 <fieldset>
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <a href="#springUrl('/waybillCodeCheckForKA/toSearchIndex')" target="_self" style="text-decoration:underline;">操作记录查询</a>
+                        </div>
+                    </div>
                 	<div class="row">
                     	<div class="col-xs-12">
                     		<div class="col-xs-5">

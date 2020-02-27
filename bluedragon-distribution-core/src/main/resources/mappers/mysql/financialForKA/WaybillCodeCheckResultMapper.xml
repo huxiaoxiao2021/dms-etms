@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.weightAndVolumeCheck.dao.ReviewWeightSpotCheckDao">
+
+	<resultMap id="waybillCodeCheckDto" type="com.jd.bluedragon.distribution.financialForKA.domain.WaybillCodeCheckDto" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="org_code" property="waybillCode" javaType="java.lang.Integer" jdbcType="BIGINT" />
+		<result column="site_code" property="operateSiteCode" javaType="java.lang.Integer" jdbcType="BIGINT" />
+		<result column="site_name" property="operateSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="normal_package_num" property="operateErp" javaType="java.lang.Integer" jdbcType="BIGINT" />
+		<result column="trust_package_num" property="busiName" javaType="java.lang.Integer" jdbcType="BIGINT" />
+		<result column="import_erp" property="busiCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="is_delete" property="checkResult" javaType="java.lang.Integer" jdbcType="BIGINT" />
+		<result column="is_delete" property="operateTime" javaType="java.lang.Integer" jdbcType="BIGINT" />
+	</resultMap>
+
+
+</mapper>
