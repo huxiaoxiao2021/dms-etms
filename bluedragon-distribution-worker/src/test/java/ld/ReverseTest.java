@@ -50,7 +50,7 @@ public class ReverseTest {
 
         Task tTask = new Task();
 
-        String sendCode = "910-11252-20190926180416014";
+        String sendCode = "910-11252-20200211135630046";
         tTask.setBoxCode(sendCode);
         tTask.setBody(sendCode);
         tTask.setCreateSiteCode(910);
@@ -199,15 +199,13 @@ public class ReverseTest {
                 "  <receiveType>3</receiveType>\n" +
                 "  <canReceive>1</canReceive>\n" +
                 "</ReceiveRequest>");*/
-        message.setText("{\"canReceive\":1,\"operateTime\":\"2019-08-26 09:32:19\",\"operateType\":1,\"operator\":\"冯硕|fengshuo9\",\"o" +
-                "rderId\":101662618300,\"orgId\":611,\"packageCode\":\"WA1165522865029517316\"," +
-                "\"pickwareCode\":\"Q566247436\"}");
+        message.setText("{\"waybillCode\":\"JDX000155555052\",\"sendCode\":\"910-11252-20200212100902013,JDX000155555052\",\"receiveType\":10,\"canReceive\":1,\"operaterName\":\"bjtc\",\"operateTime\":\"2020-02-12 11:10:51\",\"detailList\":[{\"goodsNo\":\"EMG4398060033898\",\"goodsName\":\"测试商品\",\"batchNo\":\"JDX000155555052-1-2-\",\"quantity\":1},{\"goodsNo\":\"EMG4398060033899\",\"goodsName\":\"测试商品\",\"batchNo\":\"JDX000155555052-2-2-\",\"quantity\":1}]}");
         /*{"canReceive":1,"operateTime":"2019-08-26 09:32:19","operateType":1,"operator":"冯硕|fengshuo9","o
             rderId":101662618300,"orgId":611,"packageCode":"WA1165522865029517312",
             "pickwareCode":"Q566247436,Q566247437,Q566247439,Q566247440,Q566247441"}*/
-        //reverseReceiveConsumer.consume(message);
+        reverseReceiveConsumer.consume(message);
         try {
-            pickWareConsumer.consume(message);
+            //pickWareConsumer.consume(message);
         } catch (Exception e) {
             e.printStackTrace();
         }

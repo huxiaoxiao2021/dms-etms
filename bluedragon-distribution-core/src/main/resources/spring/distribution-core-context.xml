@@ -25,6 +25,7 @@
     <import resource="classpath:spring/distribution-core-cassandra.xml" />
     <import resource="classpath:spring/distribution-core-manual-bean.xml"/>
 	<import resource="classpath:spring/distribution-core-crossbow-manager.xml" />
+	<import resource="classpath:spring/distribution-core-log.xml" />
 
     <!--<import resource="classpath:spring/distribution-core-asynBuffer-producer.xml"/>-->
     <!--<import resource="classpath:spring/distribution-core-dcam.xml"/>-->

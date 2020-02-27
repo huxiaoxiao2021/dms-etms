@@ -8,6 +8,9 @@ import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
+import com.jd.bluedragon.distribution.inspection.service.InspectionService;
+import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.middleend.SortingServiceFactory;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
@@ -58,6 +61,9 @@ public class SortingResource {
 
 	@Autowired
 	private SortingReturnService returnsService;
+
+	@Autowired
+	private InspectionService inspectionService;
 
 	@Autowired
 	private SendMDao sendMDao;
@@ -370,6 +376,26 @@ public class SortingResource {
 			result.customMessage(BoxResponse.CODE_BOX_NOT_FOUND, BoxResponse.MESSAGE_BOX_NOT_FOUND);
 		}
 		return result;
+	}
+
+	@POST
+	@Path("/sorting/post/check")
+	@BusinessLog(sourceSys = 1,bizType = 700,operateType = 60016)
+	public SortingJsfResponse check(PdaOperateRequest pdaOperateRequest) {
+		String boxCode = pdaOperateRequest.getBoxCode();
+		Integer createSiteCode = pdaOperateRequest.getCreateSiteCode();
+		Integer receiveSiteCode = pdaOperateRequest.getReceiveSiteCode();
+		Integer businessType = pdaOperateRequest.getBusinessType();
+		String packageCode = pdaOperateRequest.getPackageCode();
+
+		this.log.info("boxCode is " + boxCode);
+		this.log.info("createSiteCode is " + createSiteCode);
+		this.log.info("receiveSiteCode is " + receiveSiteCode);
+		this.log.info("businessType is " + businessType);
+		this.log.info("packageCode is " + packageCode);
+
+        return sortingService.check(pdaOperateRequest);
+
 	}
 
 }

@@ -1185,4 +1185,13 @@ public class BusinessUtil {
                 && isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_2));
     }
 
+    /**
+     * 是否经济网运单
+     * @param waybillSign
+     * @return true 是，false 不是
+     */
+    public static boolean isBusinessNet(String waybillSign){
+        return isSignChar(waybillSign, WaybillSignConstants.BUSINESS_ENET_POSITION_62, WaybillSignConstants.BUSINESS_ENET_CHAR_62_8);
+    }
+
 }

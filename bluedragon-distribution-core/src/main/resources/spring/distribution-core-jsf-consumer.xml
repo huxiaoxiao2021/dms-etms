@@ -521,6 +521,12 @@
                   protocol="jsf" alias="${jsf.generalWaybillQueryApi.alias}" timeout="${jsf.generalWaybillQueryApi.timeout}">
     </jsf:consumer>
 
+    <!--  称重量方流水接口  -->
+    <jsf:consumer id="weightVolumeFlowJSFService" interface="com.jd.ql.dms.report.weightVolumeFlow.WeightVolumeFlowJSFService"
+                  protocol="jsf" alias="${jsf.reportExternalService.alias}" timeout="${jsf.reportExternalService.timeout}"
+                  retries="${jsf.retries}" serialization="hessian">
+    </jsf:consumer>
+
 
     <jsf:consumer id="deviceConfigInfoJsfService" interface="com.jd.bd.dms.automatic.sdk.modules.device.DeviceConfigInfoJsfService"
                   protocol="jsf" alias="${jsf.automatic.alias}" timeout="${jsf.automatic.timeout}" retries="${jsf.retries}">
@@ -546,6 +552,12 @@
     </jsf:consumer>	
     <jsf:consumer id="iAbnPdaAPI" interface="com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.service.IAbnPdaAPI" alias="${qcAbnPdaAPI.alias}" timeout="${qcAbnPdaAPI.timeout}" retries="1">
         <jsf:parameter key="token" value="${qcAbnPdaAPI.token}" hide="true" />
+    </jsf:consumer>
+
+    <jsf:consumer id="jsfTypeService" interface="com.jd.dms.logger.service.BusinessLogQueryService"
+                  protocol="jsf"
+                  alias="${dms.jsfbusinesslog.alias}" timeout="10000"
+                  retries="${jsf.retries}">
     </jsf:consumer>
 
 </beans>

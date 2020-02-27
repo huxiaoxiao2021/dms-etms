@@ -391,9 +391,9 @@ public class InspectionExceptionServiceImpl implements InspectionExceptionServic
 	}
 
 	@Override
-	public void saveData(Inspection inspection) {
+	public void saveData(Inspection inspection,String methodName) {
 		// TODO Auto-generated method stub
-		inspectionService.saveData(inspection);
+		inspectionService.saveData(inspection,"");
 
 		try {//FIXME:看看龙门架是否能拆出
 			if ((inspection.getLength() != null && inspection.getLength() > 0)

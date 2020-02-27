@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>验货集齐查询</title>
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    #parse("system/common/baseImport.vm")
+    <script src="/static/js/inspectionCheck/listPackage.js"></script>
+</head>
+<body>
+
+<div id="dataTableDiv" class="main">
+    <ol class="breadcrumb">
+        <li><a href="#">分拣中心</a></li>
+        <li class="active">已验包裹</li>
+    </ol>
+
+    <!-- 查询条件 -->
+    <div id="query-condition">
+        <form id="query-form" class="form-horizontal">
+            <fieldset>
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="control-label col-xs-4">运单号：</label>
+                                <div class="col-xs-6">
+                                    <input type="text" id="waybillCode" name="waybillCode" class="form-control search-param" >
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </fieldset>
+        </form>
+    </div>
+    <hr />
+
+    <!-- 主页面操作按钮 -->
+    <div id="toolbar" class="btn-group">
+        <button id="btn_query" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;查询
+        </button>
+    </div>
+    <table id="dataTable"></table>
+</div>
+
+</body>
+</html>

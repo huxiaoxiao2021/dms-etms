@@ -27,6 +27,7 @@ public class OperationLogResource {
 		try {
 			if (operationLog == null || operationLog.getLogType() == null)
 				return new JdResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
+			operationLog.setUrl("/OperationLogResource/add");
 			operationLogService.add(operationLog);
 		} catch (Exception e) {
 			return new JdResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);

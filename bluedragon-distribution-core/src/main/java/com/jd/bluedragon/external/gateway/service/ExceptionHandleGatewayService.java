@@ -7,6 +7,8 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.qualityControl.domain.RedeliveryMode;
 
 /**
+ * 异常相关
+ * 发布到物流网关 由安卓调用
  * @author lixin39
  * @Description TODO
  * @ClassName ExceptionHandleGatewayService

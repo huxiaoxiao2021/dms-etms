@@ -12,6 +12,11 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.cancelSealRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
+import com.jd.bluedragon.distribution.log.BizTypeConstants;
+import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.dms.logger.external.LogEngine;
+import com.jd.bluedragon.distribution.log.OperateTypeConstants;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicleEnum;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicles;
 import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
@@ -22,11 +27,13 @@ import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.SystemLogContants;
 import com.jd.bluedragon.utils.SystemLogUtil;
+import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.etms.vos.dto.*;
 import com.jd.etms.vos.ws.VosBusinessWS;
 import com.jd.etms.vos.ws.VosQueryWS;
 import com.jd.etms.vts.dto.VtsTransportResourceDto;
 import com.jd.etms.vts.ws.VtsQueryWS;
+import com.jd.fastjson.JSONObject;
 import com.jd.tms.tfc.dto.TransBookBillQueryDto;
 import com.jd.tms.tfc.dto.TransWorkItemDto;
 import com.jd.tms.tfc.dto.TransWorkItemWsDto;
@@ -83,6 +90,9 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     @Autowired
     private VosManager vosManager;
 
+    @Autowired
+    private LogEngine logEngine;
+
     private static final Integer UNSEAL_CAR_IN_RECIVE_AREA = 2;    //带解封的车辆在围栏里(1-是否在始发网点 2-是否在目的网点)
 
     private static final Integer IN_AREA_FLAG = 2;    //标识车辆不在围栏内(1：在围栏内 2：不在围栏内 3：坐标数据不存在 4：围栏数据不存在 5：其他)
@@ -92,7 +102,8 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 	@Override
 	@JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.seal",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public CommonDto<String> seal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars) throws Exception{
-        List<SealCarDto> paramList = convertList(sealCars);
+	    long startTime=new Date().getTime();
+	    List<SealCarDto> paramList = convertList(sealCars);
         if(log.isDebugEnabled()){
             log.debug("封车参数：{}", JsonHelper.toJson(paramList));
         }
@@ -116,7 +127,34 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             msg = "封车异常：["+ e.getMessage() +"]";
             throw e;
         }finally {
-            addSystemLog(paramList, msg);
+//            addSystemLog(paramList, msg);
+            long endTime = new Date().getTime();
+
+            for (int i = 0; i < paramList.size(); i++) {
+                SealCarDto param = paramList.get(i);
+
+                JSONObject operateRequest=new JSONObject();
+                operateRequest.put("sealSiteId",param.getSealSiteId());
+                operateRequest.put("sealSiteName",param.getSealSiteName());
+
+                JSONObject response=new JSONObject();
+                response.put("param", param);
+                response.put("msg", msg);
+
+                BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
+                        .bizType(BizOperateTypeConstants.SEAL_SEAL.getBizTypeCode())
+                        .operateType(BizOperateTypeConstants.SEAL_SEAL.getOperateTypeCode())
+                        .operateRequest(operateRequest)
+                        .operateResponse(response)
+                        .processTime(endTime,startTime)
+                        .methodName("NewSealVehicleServiceImpl#seal")
+                        .build();
+
+                logEngine.addLog(businessLogProfiler);
+                addSystemLog(paramList, msg);
+            }
+
+
         }
         return sealCarInfo;
 	}
@@ -129,6 +167,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
      */
     @JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.doSealCarWithVehicleJob",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public NewSealVehicleResponse doSealCarWithVehicleJob(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars) {
+        long startTime=new Date().getTime();
         List<SealCarDto> paramList = convertList(sealCars);
         if(log.isDebugEnabled()){
             log.debug("VOS封车业务同时生成车次任务参数：{}", JsonHelper.toJson(paramList));
@@ -165,7 +204,34 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             saveSealData(successSealCarList);
         }
 
-        addSystemLog(paramList, errorMsg);
+//        addSystemLog(paramList, errorMsg);
+
+        for (int i = 0; i < paramList.size(); i++) {
+            SealCarDto sealCarDto = paramList.get(i);
+
+            long endTime = new Date().getTime();
+
+            JSONObject request=new JSONObject();
+            request.put("siteCode",sealCarDto.getSealSiteId());
+            request.put("siteName",sealCarDto.getSealSiteName());
+
+            JSONObject response=new JSONObject();
+            response.put("param",sealCarDto);
+            response.put("errmsg",errorMsg);
+
+            BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
+                    .bizType(BizOperateTypeConstants.SEAL_FERRY_SEAL.getBizTypeCode())
+                    .operateType(BizOperateTypeConstants.SEAL_FERRY_SEAL.getOperateTypeCode())
+                    .methodName("NewSealVehicleServiceImpl#doSealCarWithVehicleJob")
+                    .operateRequest(request)
+                    .operateResponse(response)
+                    .processTime(endTime,startTime)
+                    .build();
+            logEngine.addLog(businessLogProfiler);
+            addSystemLog(paramList, errorMsg);
+
+        }
+
 
         if(successSealCarList.size() == paramList.size()){
             sealVehicleResponse.setCode(JdResponse.CODE_OK);
@@ -186,6 +252,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     @Override
     @JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.offlineSeal",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
     public CommonDto<String> offlineSeal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars) {
+        long startTime=new Date().getTime();
         List<SealCarDto> paramList = offlineConvertList(sealCars);
         if(log.isDebugEnabled()){
             log.debug("离线封车参数：{}", JsonHelper.toJson(paramList));
@@ -209,6 +276,31 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             this.log.error("离线封车-error：{}", JsonHelper.toJson(paramList), e);
             msg += "["+ e.getMessage() +"]";
         }finally {
+
+            for (SealCarDto sealCarDto : paramList) {
+
+                long endTime = new Date().getTime();
+
+                JSONObject request=new JSONObject();
+                request.put("siteCode",sealCarDto.getSealSiteId());
+
+                JSONObject response=new JSONObject();
+                response.put("param", sealCarDto);
+                response.put("errmsg", msg);
+
+
+                BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
+                        .bizType(BizOperateTypeConstants.SEAL_OFFLINE_SEAL.getBizTypeCode())
+                        .operateResponse(BizOperateTypeConstants.SEAL_OFFLINE_SEAL.getOperateTypeCode())
+                        .methodName("NewSealVehicleServiceImpl#offlineSeal")
+                        .operateRequest(request)
+                        .operateResponse(response)
+                        .processTime(endTime,startTime)
+                        .build();
+
+                logEngine.addLog(businessLogProfiler);
+            }
+
             addSystemLog(paramList, msg);
         }
         return sealCarInfo;
@@ -242,6 +334,8 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             this.log.error("离线传摆封车-error参数：{}", JsonHelper.toJson(sealCars), e);
             msg += "["+ e.getMessage() +"]";
         } finally {
+
+
             addFerrySealSystemLog(sealCars, msg);
         }
         return newSealVehicleResponse;
@@ -348,6 +442,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     @Override
 	@JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.unseal",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public CommonDto<String> unseal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars) throws Exception{
+        long startTime=new Date().getTime();
         List<SealCarDto> paramList = convertList(sealCars);
         if(log.isDebugEnabled()){
             log.debug("解封车参数：{}",JsonHelper.toJson(paramList));
@@ -371,6 +466,27 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             msg = "封车异常：["+ e.getMessage() +"]";
             throw e;
         }finally {
+            long endTime = new Date().getTime();
+            for (SealCarDto sealCarDto : paramList) {
+                JSONObject operateRequest=new JSONObject();
+                operateRequest.put("siteCode",sealCarDto.getSealSiteId());
+                operateRequest.put("siteName",sealCarDto.getSealSiteName());
+
+                JSONObject response=new JSONObject();
+                response.put("msg",msg);
+
+                BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
+                        .bizType(BizOperateTypeConstants.DE_SEAL_DE_SEAL.getBizTypeCode())
+                        .operateType(BizOperateTypeConstants.DE_SEAL_DE_SEAL.getOperateTypeCode())
+                        .operateRequest(operateRequest)
+                        .operateResponse(response)
+                        .processTime(endTime,startTime)
+                        .methodName("NewSealVehicleServiceImpl#unseal")
+                        .build();
+
+                logEngine.addLog(businessLogProfiler);
+            }
+
             addSystemLog(paramList, msg);
         }
         return sealCarInfo;
@@ -542,6 +658,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
      * @param remark
      */
     private void addFerrySealSystemLog(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars, String remark) {
+        long startTime=new Date().getTime();
         if(sealCars == null || sealCars.isEmpty()){
             return;
         }
@@ -561,6 +678,25 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             }else if(StringUtils.isNotBlank(dto.getItemSimpleCode())){//按任务封车日志（key为任务简码）
                 goddess.setKey(dto.getItemSimpleCode());
             }
+            long endTime=new Date().getTime();
+
+            JSONObject request=new JSONObject();
+            request.put("siteCode",dto.getSealSiteId());
+
+            JSONObject response=new JSONObject();
+            response.put("head", dto.getSealSiteId() + "-" + dto.getDesealSiteId());
+            response.put("body", JsonHelper.toJson(dto));
+
+            BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
+                    .bizType(BizOperateTypeConstants.SEAL_FERRY_SEAL.getBizTypeCode())
+                    .operateType(BizOperateTypeConstants.SEAL_FERRY_SEAL.getOperateTypeCode())
+                    .operateRequest(request)
+                    .operateResponse(response)
+                    .processTime(endTime,startTime)
+                    .build();
+
+            logEngine.addLog(businessLogProfiler);
+
             goddessService.save(goddess);
             correctValue++;
         }
@@ -571,6 +707,8 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
      * @param sealCars
      */
     private void sealCarMQ(List<SealCarDto> sealCars){
+        long startTime=new Date().getTime();
+
         if(sealCars!=null){
             for(SealCarDto sealCarDto:sealCars){
                 SealCarMqDto sealCarMqDto = new SealCarMqDto();
@@ -593,8 +731,33 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 try {
                     sealCarProducer.send(key, JsonHelper.toJsonUseGson(sealCarMqDto));
                 }catch (Exception e){
+                    long endTime = new Date().getTime();
+
+                    JSONObject operateRequest=new JSONObject();
+                    operateRequest.put("siteCode",sealCarDto.getSealSiteId());
+                    operateRequest.put("siteName",sealCarDto.getSealSiteName());
+
+                    JSONObject response=new JSONObject();
+                    response.put("keyword1", key);
+                    response.put("keyword2", sealCarDto.getSealUserCode());
+                    response.put("keyword3", sealCarProducer.getTopic());
+                    response.put("keyword4", sealCarDto.getSealSiteId().longValue());
+                    response.put("content", JsonHelper.toJsonUseGson(sealCarMqDto));
+
+                    BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
+                            .bizType(BizOperateTypeConstants.SEAL_SEAL.getBizTypeCode())
+                            .operateType(BizOperateTypeConstants.SEAL_SEAL.getOperateTypeCode())
+                            .operateResponse(response)
+                            .operateRequest(operateRequest)
+                            .methodName("NewSealVehicleServiceImpl#sealCarMQ")
+                            .processTime(endTime,startTime)
+                            .build();
+
+                    logEngine.addLog(businessLogProfiler);
+
                     SystemLogUtil.log(key, sealCarDto.getSealUserCode(), sealCarProducer.getTopic(),
                             sealCarDto.getSealSiteId().longValue(), JsonHelper.toJsonUseGson(sealCarMqDto), SystemLogContants.TYPE_SEAL_MQ);
+
                     log.error("发送封车mq消息失败:key={}",key,e);
                 }
             }
@@ -606,6 +769,9 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
      * @param sealCars
      */
     private void deSealCarMQ(List<SealCarDto> sealCars){
+        long startTime=new Date().getTime();
+
+
         //解封车成功，发送解封车mq消息dms_unseal_car
         if(sealCars!=null){
             for(SealCarDto sealCarDto:sealCars){
@@ -622,6 +788,29 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 try {
                     unsealCarProducer.send(sealCarDto.getTransportCode(), JsonHelper.toJsonUseGson(sealCarMqDto));
                 }catch (Exception e){
+
+                    long endTime = new Date().getTime();
+                    JSONObject operateRequest = new JSONObject();
+                    operateRequest.put("sealSiteId", sealCarDto.getSealSiteId());
+                    operateRequest.put("sealSiteName", sealCarDto.getSealSiteName());
+
+                    JSONObject response=new JSONObject();
+                    response.put("keyword1", sealCarDto.getTransportCode());
+                    response.put("keyword2", sealCarDto.getSealUserCode());
+                    response.put("keyword3", unsealCarProducer.getTopic());
+                    response.put("keyword4", sealCarDto.getSealSiteId().longValue());
+                    response.put("content", JsonHelper.toJsonUseGson(sealCarMqDto));
+
+                    BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
+                            .bizType(BizOperateTypeConstants.DE_SEAL_DE_SEAL.getBizTypeCode())
+                            .operateType(BizOperateTypeConstants.DE_SEAL_DE_SEAL.getOperateTypeCode())
+                            .processTime(endTime,startTime)
+                            .methodName("NewSealVehicleServiceImpl#deSealCarMQ")
+                            .build();
+
+                    logEngine.addLog(businessLogProfiler);
+
+
                     SystemLogUtil.log(sealCarDto.getTransportCode(), sealCarDto.getSealUserCode(), unsealCarProducer.getTopic(),
                             sealCarDto.getSealSiteId().longValue(), JsonHelper.toJsonUseGson(sealCarMqDto), SystemLogContants.TYPE_UNSEAL_MQ);
                     log.error("发送解封车mq消息失败:{}",sealCarDto.getTransportCode(),e);
@@ -840,6 +1029,9 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     private List<SealVehicles> convert2SealVehicles(List<SealCarDto> sealist){
         List<SealVehicles> sealVehiclesList = new ArrayList<>();
         for (SealCarDto dto : sealist){
+            if(dto.getBatchCodes() == null){
+                continue;
+            }
             for (String sendCode : dto.getBatchCodes()){
                 SealVehicles temp = new SealVehicles();
                 temp.setSealDataCode(sendCode);

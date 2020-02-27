@@ -275,6 +275,7 @@ public class PackageResource {
             operationLog.setCreateUserCode(request.getOperateUserCode());
             operationLog.setCreateUser(request.getOperateUserName());
             operationLog.setCreateTime(DateHelper.parseDateTime(request.getOperateTime()));
+            operationLog.setUrl("/package/reprintAfter");
             operationLogService.add(operationLog);
         } catch (Exception e) {
             log.error("PackageResource.packReprintAfter-->记录包裹打印日志异常,请求参数为{}", JsonHelper.toJson(request),e);

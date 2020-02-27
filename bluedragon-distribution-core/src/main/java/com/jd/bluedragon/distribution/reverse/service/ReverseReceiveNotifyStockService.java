@@ -12,6 +12,11 @@ import com.jd.bluedragon.core.exception.OrderCallTimeoutException;
 import com.jd.bluedragon.core.exception.StockCallPayTypeException;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.kuguan.domain.KuGuanDomain;
+import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
+import com.jd.bluedragon.distribution.log.BizTypeConstants;
+import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.dms.logger.external.LogEngine;
+import com.jd.bluedragon.distribution.log.OperateTypeConstants;
 import com.jd.bluedragon.distribution.order.domain.OrderBankResponse;
 import com.jd.bluedragon.distribution.order.service.OrderBankService;
 import com.jd.bluedragon.distribution.order.ws.OrderWebService;
@@ -30,6 +35,8 @@ import com.jd.bluedragon.utils.SystemLogContants;
 import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.common.util.StringUtils;
+import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.fastjson.JSONObject;
 import com.jd.ioms.jsf.export.domain.Order;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.stock.iwms.export.param.ChuguanParam;
@@ -97,6 +104,9 @@ public class ReverseReceiveNotifyStockService {
 
     //出管 其他方式字段值，依旧换新 需要传此值
     private static final String CHUGUAN_FIELD_STILL_NEW_QTFS = "trade-in";
+
+    @Autowired
+    private LogEngine logEngine;
 
 	@Autowired
 	private OrderWebService orderWebService;
@@ -168,7 +178,9 @@ public class ReverseReceiveNotifyStockService {
 
 
 	public Boolean nodifyStock(Long waybillCode) throws Exception {
-		this.log.debug("运单号：{}" , waybillCode);
+        long startTime=new Date().getTime();
+
+        this.log.debug("运单号：{}" , waybillCode);
 
 		if (!NumberHelper.isPositiveNumber(waybillCode)) {
 			this.log.warn("运单号非法, 运单号 为：{}" , waybillCode);
@@ -259,7 +271,7 @@ public class ReverseReceiveNotifyStockService {
 				}
 				
 				sysLog.setKeyword3("MQ");
-				sysLog.setContent("推出管成功!");
+                    sysLog.setContent("推出管成功!");
 			}else if (Waybill.TYPE_GENERAL.equals(order.getOrderType()) || Waybill.TYPE_POP_FBP.equals(order.getOrderType())) {
                 long result = 0;
                 //判断是否是已旧换新
@@ -296,7 +308,29 @@ public class ReverseReceiveNotifyStockService {
 			}
 			return Boolean.FALSE;
 		}finally{
-			SystemLogUtil.log(sysLog);
+            long endTime = new Date().getTime();
+
+            JSONObject request=new JSONObject();
+            request.put("waybillCode",sysLog.getKeyword1());
+
+            JSONObject response=new JSONObject();
+            response.put("keyword1", sysLog.getKeyword1());
+            response.put("keyword2", sysLog.getKeyword2());
+            response.put("keyword3", sysLog.getKeyword3());
+            response.put("keyword4", sysLog.getKeyword4());
+            response.put("content", sysLog.getContent());
+
+            BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
+                    .bizType(BizOperateTypeConstants.BACKUP_STORAGE_CHUGUAN.getBizTypeCode())
+                    .operateResponse(response)
+                    .operateRequest(request)
+                    .operateResponse(BizOperateTypeConstants.BACKUP_STORAGE_CHUGUAN.getOperateTypeCode())
+                    .methodName("ReverseReceiveNotifyStockService#nodifyStock")
+                    .processTime(endTime,startTime)
+                    .build();
+
+            logEngine.addLog(businessLogProfiler);
+            SystemLogUtil.log(sysLog);
 		}
 		
 		return Boolean.TRUE;

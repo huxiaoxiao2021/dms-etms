@@ -99,7 +99,8 @@ public class Constants {
      * B冷链转运中心站点类型
      */
     public static final Integer B2B_CODE_SITE_TYPE = 6460;
-
+    /** 经济网网点类型 **/
+    public static final Integer THIRD_ENET_SITE_TYPE= 10000;
 
     /** 操作类型 **/
     public static final int TRANS_SORTING_OPERATE_TYPE = 1;
@@ -1027,5 +1028,36 @@ public class Constants {
      * 运单预分拣网点值 为-136代表超区
      */
     public static final int WAYBILL_SITE_ID_OUT_ZONE = -136;
+
+    /**
+     * 经济网租户编码
+     */
+    public static final String TENANT_CODE_ECONOMIC = "ECONOMIC_NET";
+
+
+    /**
+     *所属业务操作点击量
+     *
+     */
+    public static final Integer BIZTYPE_URL_CLICK = 999001;
+
+    /**
+     *
+     * 菜单点击 分拣中心操作日志
+     */
+    public static final Integer OPERATELOG_CLICK = 1;
+    /**
+     * 菜单点击 分拣运行时全程跟踪
+     */
+    public static final Integer GODDESSLOG_CLICK = 2;
+
+    /**
+     * 菜单点击 分拣离线操作日志查询
+     */
+    public static final Integer OFFLINELOG_CLICK = 3;
+    /**
+     * 新日志查询
+     */
+    public static final Integer NEW_LOG = 4;
 
 }

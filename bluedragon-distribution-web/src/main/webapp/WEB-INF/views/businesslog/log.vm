@@ -1,0 +1,397 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>日志查询</title>
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/paging/paging.css')">
+    <script type="text/javascript" src="#springUrl('/static/js/jquery-1.8.0.min.js')"></script>
+    <SCRIPT type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></SCRIPT>
+    <script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/paging/paging.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/utils.js')"></script>
+
+</head>
+
+<script type="text/javascript">
+
+
+    $(document).ready(function () {
+
+        document.getElementById("startTime").value = DateUtil.formatDateTime(new Date(nowTimeAddDay(-29)));
+        document.getElementById("endTime").value = DateUtil.formatDateTime(new Date());
+        //根据biztype获取operatetype
+        function getOperateType(bizTypeCode) {
+            // console.log(bizTypeCode)
+            jQuery.ajax({
+                type: "POST",
+                url: "#springUrl('/businesslog/getOpeBySysAndBiz')",
+                data: {systemCode: 112, bizTypeCode: bizTypeCode},
+                success: function (msg) {
+                    if (msg.code == 200) {
+                        $("#operatetype").empty()
+
+                        var keys = Object.keys(msg.data);
+                        let defaultnull = $(`<option value=''>-</option>`)
+
+                        $("#operatetype").append(defaultnull)
+
+                        jQuery.each(keys, function (index, item) {
+                            console.log(item + ":" + msg.data[item])
+                            let name = msg.data[item];
+                            let optionitem = $(`<option value='${item}'>${name}</option>`)
+                            $("#operatetype").append(optionitem)
+                        })
+                    }
+                }
+            });
+        }
+        var p = new Paging();
+        function getlogs(offset, limit) {
+            if (offset + limit > 10000) {
+                alert("只能查询前10000条数据");
+                return;
+            }
+            $("#showloading").show()
+
+            let waybillCode = $("#waybillCode").val();
+            let packageCode = $("#packageCode").val();
+            let boxCode = $("#boxCode").val();
+            let sendCode = $("#sendCode").val();
+            let siteCode = $("#siteCode").val();
+            let siteName = $("#siteName").val();
+            let operatorName = $("#operatorName").val();
+            let sourceSys = $("#waybillCode").val();
+            let bizType = $("#biztype").val();
+            let operateType = $("#operatetype").val();
+            let serverIp = $("#serverIp").val();
+            let otherKey = $("#otherKey").val();
+            let startTime = $("#startTime").val();
+            let endTime = $("#endTime").val();
+
+            if (startTime==''){
+                startTime='1970-01-01 08:00:00'
+            }
+            if(endTime==''){
+                endTime='9999-12-31 00:00:00'
+            }
+
+
+            $.ajax({
+                type: "POST",
+                url: "#springUrl('/businesslog/getBusinessLog')",
+                contentType: "application/json;charset=utf-8",
+                data: JSON.stringify({
+                    waybillCode: waybillCode,
+                    packageCode: packageCode,
+                    boxCode: boxCode,
+                    sendCode: sendCode,
+                    siteCode: siteCode,
+                    siteName: siteName,
+                    operatorName: operatorName,
+                    sourceSys: sourceSys,
+                    bizType: bizType,
+                    operateType: operateType,
+                    serverIp: serverIp,
+                    otherKey: otherKey,
+                    startTime: startTime,
+                    endTime: endTime,
+                    offset: offset,
+                    limit: limit
+                }),
+                dataType: "json",
+                success: function (message) {
+                    $("#logcontent").empty();
+                    $("#showloading").hide();
+
+                    if (message.statusCode == 200) {
+                        let data = message.rows;
+                        jQuery.each(data, function (index, item) {
+                            let bizTypeName = item.bizTypeName == null ? "-" : item.bizTypeName;
+                            let operateTypeName = item.operateTypeName == null ? "-" : item.operateTypeName;
+                            let waybillCode = item.waybillCode == null ? "-" : item.waybillCode;
+                            let packageCode = item.packageCode == null ? "-" : item.packageCode;
+                            let boxCode = item.boxCode == null ? "-" : item.boxCode;
+                            let sendCode = item.sendCode == null ? "-" : item.sendCode;
+                            let operatorName = item.operatorName == null ? "-" : item.operatorName;
+                            let siteCode = item.siteCode == null ? "-" : item.siteCode;
+                            let siteName = item.siteName == null ? "-" : item.siteName;
+                            let requestTime = item.requestTime == null ? "-" : item.requestTime;
+                            let timeStamp = item.timeStamp == null ? "-" : item.timeStamp;
+                            let processTime = item.processTime == null ? "-" : item.processTime;
+                            let responseCode = item.responseCode == null ? "-" : item.responseCode;
+                            let responseMessage = item.responseMessage == null ? "-" : item.responseMessage;
+                            let operateRequest = item.operateRequest == null ? "-" : item.operateRequest;
+                            let operateResponse = item.operateResponse == null ? "-" : item.operateResponse;
+
+                            let tr = $(`<tr>
+                                         <td>${bizTypeName}  </td>
+                                         <td>${operateTypeName}</td>
+                                         <td>${waybillCode}</td>
+                                         <td>${packageCode}</td>
+                                         <td>${boxCode}</td>
+                                         <td>${sendCode}</td>
+                                         <td>${operatorName}</td>
+                                         <td>${siteCode}</td>
+                                         <td>${siteName}</td>
+                                         <td>${requestTime}</td>
+                                         <td>${timeStamp}</td>
+                                         <td>${processTime}</td>
+                                         <td>${responseCode}</td>
+                                         <td>${responseMessage}</td>
+                                         <td style="max-width: 450px;word-wrap:break-word;word-break:break-all;">${operateRequest}</td>
+                                         <td style="max-width: 450px;word-wrap:break-word;word-break:break-all;">${operateResponse}</td>
+                                    </tr>`)
+                            console.log(tr)
+                            $("#logcontent").append(tr)
+                        });
+
+                        if (offset == 0 && $("#pageTool").children().length != 0) {
+                            p.render({
+                                count: message.total,
+                                pagesize: limit,
+                                current: 1
+                            });
+                        }
+                        if ($("#pageTool").children().length == 0) {
+                            //分页第一次加载
+                            p.init({
+                                target: '#pageTool',
+                                pagesize: 10,
+                                count: message.total,
+                                current: 1,
+                                toolbar: true,
+                                changePagesize: function (pagesize) {
+                                    getlogs(0, parseInt(pagesize, 10));
+                                },
+                                callback: function (pagecount, size, count) {
+                                    // console.log(pagecount, size, count)
+                                    getlogs((pagecount - 1) * size, parseInt(size, 10));
+                                }
+                            });
+                        }
+
+                    } else {
+                        alert(message.statusMessage)
+                    }
+
+
+                },
+                error: function (message) {
+
+                }
+            });
+        }
+
+        //获取biztype
+        jQuery.ajax({
+            type: "POST",
+            url: "#springUrl('/businesslog/getBizTypeConfigBySystemCode')",
+            data: {systemCode: 112},
+            success: function (msg) {
+                if (msg.code == 200) {
+                    var keys = Object.keys(msg.data);
+
+                    $("#biztype").empty();
+
+                    let defaultnull = $(`<option value=''>-</option>`)
+                    $("#biztype").append(defaultnull)
+
+                    jQuery.each(keys, function (index, item) {
+                        let name = msg.data[item];
+                        let optionitem = $(`<option value='${item}'>${name}</option>`)
+                        $("#biztype").append(optionitem)
+                    })
+                }
+            }
+        });
+
+        //biztype变更
+        $("#biztype").change(function (e) {
+            let bizTypeCode = $(this).val();
+            getOperateType(bizTypeCode)
+        })
+
+        $("#search").click(function () {
+            let startTime = $("#startTime").val();
+            let endTime = $("#endTime").val();
+            if(startTime == ''){
+                alert("请输入开始时间！");
+                return;
+            }
+            if(endTime == ''){
+                alert("请输入结束时间！");
+                return;
+            }
+            if(endTime < startTime){
+                alert("开始时间必须大于结束时间！");
+                return;
+            }
+            var limitDay = 30;
+            if(dateDiffDay(startTime,endTime) > limitDay){
+                alert("开始时间与结束时间跨度不能超过"+limitDay+"天！");
+                return;
+            }
+            getlogs(0, 10);
+        })
+
+    })
+
+function dateDiffDay(sDate1, sDate2) {
+    var startDate = sDate1.split(" ")[0];
+    var endDate = sDate2.split(" ")[0];
+    var difValue = (new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24);
+    return difValue;
+}
+
+function nowTimeAddDay(day){
+    var date1 = new Date();
+    var time1=date1.getFullYear()+"-"+(date1.getMonth()+1)+"-"+date1.getDate();//time1表示当前时间
+    var date2 = new Date(date1);
+    date2.setDate(date1.getDate()+day);
+    var time2 = date2.getFullYear()+"-"+(date2.getMonth()+1)+"-"+date2.getDate();
+    return time2;
+}
+</script>
+
+<body>
+<div id="breadcrumb">
+    <p>
+        <a href="javascript:void(0)">分拣管理</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">日志查询</a>
+    </p>
+
+
+</div>
+<div id="content">
+    <div class="m">
+        <div class="tbl-n">
+            <form id="selectLogList" name="selectLogList" action="#springUrl('/offline/list')" method="GET">
+                <input type="hidden" id="pageNo" name="pageNo"/>
+                <input type="hidden" id="pageSize" name="pageSize"/>
+                $newLogPageTips
+                <table border="0" cellpadding="0" cellspacing="0" style="width: 100%;min-width:1100px;">
+                    <tbody>
+
+                    <tr>
+                        <th align="right">运单号：</th>
+                        <td>
+                            <input id="waybillCode" name="waybillCode" type="text" class="textField28"/>
+                        </td>
+                        <th align="right">包裹号：</th>
+                        <td>
+                            <input id="packageCode" name="packageCode" type="text" class="textField28"/>
+                        </td>
+                        <th align="right">箱号：</th>
+                        <td>
+                            <input id="boxCode" name="boxCode" type="text" class="textField28"/>
+                        </td>
+                        <th align="right">批次号：</th>
+                        <td>
+                            <input id="sendCode" name="sendCode" type="text" class="textField28"/>
+                        </td>
+                    </tr>
+                    <tr>
+
+
+                        <th align="right">任意关键字：</th>
+                        <td>
+                            <input id="otherKey" name="otherKey" class="select18">
+
+                            </input>
+                        </td>
+                        <th align="right">所属业务：</th>
+                        <td>
+                            <select id="biztype" name="biztype" class="select18">
+
+                            </select>
+                        </td>
+                        <th align="right">操作类型：</th>
+                        <td>
+                            <select id="operatetype" name="operatetype" class="select18">
+
+                            </select>
+                        </td>
+                    </tr>
+
+                    <tr>
+
+
+                        <th align="right">操作站点编码：</th>
+                        <td>
+                            <input id="siteCode" name="siteCode" type="text" class="textField28"/>
+                        </td>
+
+                        <th align="right">操作站点名称：</th>
+                        <td>
+                            <input id="siteName" name="siteName" type="text" class="textField28"/>
+                        </td>
+
+                        <th align="right">操作人姓名：</th>
+                        <td>
+                            <input id="operatorName" name="operatorName" type="text" class="textField28"/>
+                        </td>
+
+                    </tr>
+
+                    <tr>
+
+                        <th align="right">时间：</th>
+                        <td>
+                            <input type="text" id="startTime" name="startDate" style="width: 140px" class="Wdate"
+                                   onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss'})" value=""
+                                   realvalue="">
+                            ~
+                            <input type="text" id="endTime" name="startDate" style="width: 140px" class="Wdate"
+                                   onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss'})" value=""
+                                   realvalue=""></td>
+
+
+                        <td align="right"><input id="search" type="button" value="查询" class="btn_c"/>
+                    </tr>
+
+                    </tbody>
+                </table>
+            </form>
+        </div>
+    </div>
+    <div id="opening">
+        <div class="tbl-list">
+            <div class="tbl-bg">
+                <table cellspacing=0 cellpadding=0 style="width: 100%;min-width:1100px;" class="tb-x1">
+                    <thead>
+                    <tr>
+                        <th>业务节点</th>
+                        <th>操作类型</th>
+                        <th>运单号</th>
+                        <th>包裹号</th>
+                        <th>箱号</th>
+                        <th>批次号</th>
+                        <th>操作人</th>
+                        <th>操作站点编码</th>
+                        <th>操作站点名称</th>
+                        <th>请求时间</th>
+                        <th>响应时间</th>
+                        <th>响应时长</th>
+                        <th>状态</th>
+                        <th>Message</th>
+                        <th style="max-width: 450px;word-wrap:break-word;word-break:break-all;">请求参数</th>
+                        <th style="max-width: 450px;word-wrap:break-word;word-break:break-all;">返回值</th>
+                    </tr>
+                    </thead>
+                    <tbody id="logcontent">
+                    <div id="showloading" style="text-align: center;display:none">加载中</div>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="pageTool"></div>
+    </div>
+</div>
+
+</body>
+</html>

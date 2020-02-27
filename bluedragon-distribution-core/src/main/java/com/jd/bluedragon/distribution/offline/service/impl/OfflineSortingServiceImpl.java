@@ -84,7 +84,7 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 							return 0;
 						}
 						int m = this.taskService.add(task);
-						addOperationLog(request);    //添加离线分拣操作日志
+						addOperationLog(request,"OfflineSortingServiceImpl#insert");    //添加离线分拣操作日志
 						request.setPackageCode(null);
 						n += m;
 					}
@@ -104,7 +104,7 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 				return 0;
 			}
 			n = this.taskService.add(task);
-			addOperationLog(request);    //添加离线分拣操作日志
+			addOperationLog(request,"OfflineSortingServiceImpl#insert");    //添加离线分拣操作日志
 			if(n==0){
 				log.warn("离线分拣:执行新增task返回结果为0");
 			}
@@ -179,7 +179,7 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 	 * @param offlineLogRequest
 	 * @return
 	 */
-	private void addOperationLog(OfflineLogRequest offlineLogRequest) {
+	private void addOperationLog(OfflineLogRequest offlineLogRequest,String methodName) {
 		OperationLog operationLog = new OperationLog();
 		operationLog.setBoxCode(offlineLogRequest.getBoxCode());
 		operationLog.setWaybillCode(offlineLogRequest.getWaybillCode());
@@ -199,6 +199,7 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 
 		operationLog.setLogType(OperationLog.LOG_TYPE_SORTING);
 		operationLog.setRemark(OFFLINE_SORTING_REMARK);
+		operationLog.setMethodName(methodName);
 		operationLogService.add(operationLog);
 	}
 

@@ -218,7 +218,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                     waybill.setCky2(waybillState.getCky2());
                 }
                 if (Waybill.isInvalidWaybill(waybill)) {
-                    this.log.warn("运单号【{}】验证运单数据缺少必要字段，运单【{}】",waybillCode,waybill.toString());
+                    this.log.warn("运单号【{}】验证运单数据缺少必要字段，运单【{}】",waybillCode,waybill);
                     return null;
                 }
             }
@@ -246,7 +246,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             if (baseEntity != null && baseEntity.getData() != null) {
                 waybill = this.convWaybillWS(baseEntity.getData(), true, true);
                 if (Waybill.isInvalidWaybill(waybill)) {
-                    this.log.warn("运单号【{}】验证运单数据缺少必要字段，运单【{}】",waybillCode,waybill.toString());
+                    this.log.warn("运单号【{}】验证运单数据缺少必要字段，运单【{}】",waybillCode,waybill);
                     return null;
                 }
             }
@@ -1191,7 +1191,12 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }
 
 
-        List<String> routerNameList = vrsRouteTransferRelationManager.loadWaybillRouter(originalDmsCode,destinationDmsCode,routeProduct,predictSendTime);
+        List<String> routerNameList = null;
+        try {
+            routerNameList = vrsRouteTransferRelationManager.loadWaybillRouter(originalDmsCode,destinationDmsCode,routeProduct,predictSendTime);
+        } catch (Exception e) {
+            log.error("获取路由环节信息失败waybillCode[{}]originalDmsCode[{}]destinationDmsCode[{}]",printWaybill.getWaybillCode(),originalDmsCode,destinationDmsCode,e);
+        }
         log.debug("获取到的城市名列表为:{}" , routerNameList);
         if(routerNameList != null && routerNameList.size() > 0){
             for(int i=0;i<routerNameList.size();i++){
