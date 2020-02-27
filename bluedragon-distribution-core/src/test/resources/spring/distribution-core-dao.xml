@@ -529,4 +529,10 @@
     <!-- 三方装箱明细 -->
     <bean id="thirdBoxDetailDao" parent="unDivBaseDao"
           class="com.jd.bluedragon.distribution.third.dao.impl.ThirdBoxDetailDaoImpl"/>
+
+    <!-- KA单号校验记录 -->
+    <bean id="waybillCodeCheckDao" class="com.jd.bluedragon.distribution.financialForKA.dao.WaybillCodeCheckDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
 </beans>

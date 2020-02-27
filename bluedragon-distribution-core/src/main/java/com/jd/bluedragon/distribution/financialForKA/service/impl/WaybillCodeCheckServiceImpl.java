@@ -44,6 +44,7 @@ public class WaybillCodeCheckServiceImpl implements WaybillCodeCheckService {
 
     @Value("${merchant.whiteList.export.maxNum:5000}")
     private Integer exportMaxNum;
+    private static final Integer EXPORT_MAX_NUM = 5000;
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
@@ -94,7 +95,7 @@ public class WaybillCodeCheckServiceImpl implements WaybillCodeCheckService {
         heads.add("操作人ERP");
         heads.add("操作时间");
         resList.add(heads);
-        condition.setLimit(exportMaxNum);
+        condition.setLimit(exportMaxNum!=null?exportMaxNum:EXPORT_MAX_NUM);
         List<WaybillCodeCheckDto> dataList = waybillCodeCheckDao.exportByCondition(condition);
         if(dataList != null && dataList.size() > 0){
             //表格信息
