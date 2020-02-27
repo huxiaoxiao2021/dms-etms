@@ -62,6 +62,7 @@ public class SmsMessageManagerImpl implements SmsMessageManager {
         smsTemplateMessage.setMobileNum(mobileNum);
         smsTemplateMessage.setToken(token);
         smsTemplateMessage.setExtension(extension);
+        log.info("冷链卡班暂存收费短信入参对象：{}",JsonHelper.toJson(smsTemplateMessage));
         SmsTemplateResponse response = smsService.sendSmsTemplateMessage(smsTemplateMessage);
 
         if(response != null){
@@ -76,7 +77,7 @@ public class SmsMessageManagerImpl implements SmsMessageManager {
             }else if(!baseResultMsgSuccess.equals(baseResultMsg.getErrorCode())){
                 result.customMessage(InvokeResult.RESULT_NULL_CODE,baseResultMsg.getErrorMsg());
             }else {
-                log.info("短信发送成功,{}", JsonHelper.toJson(smsTemplateMessage));
+                log.info("冷链卡班暂存收费短信发送成功");
                 result.success();
             }
         }else {
