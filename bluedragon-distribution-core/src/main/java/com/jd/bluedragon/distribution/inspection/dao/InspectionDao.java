@@ -40,8 +40,8 @@ public class InspectionDao extends BaseDao<Inspection>{
 		return this.getSqlSession().update(namespace + ".updatePop", inspection);
 	}
 
-	public List<InsepctionCheckDto> findInspectionGatherPageCount(PagerCondition pagerCondition){
-		return this.getSqlSession().selectList(namespace+".findInspectionGatherPageCount", pagerCondition);
+	public Integer findInspectionGatherPageCount(PagerCondition pagerCondition){
+		return this.getSqlSession().selectOne(namespace+".findInspectionGatherPageCount", pagerCondition);
 	}
 
 	public List<InsepctionCheckDto> findInspectionGather(PagerCondition pagerCondition){
