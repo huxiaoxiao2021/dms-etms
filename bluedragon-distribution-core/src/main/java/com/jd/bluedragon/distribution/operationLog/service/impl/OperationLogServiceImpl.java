@@ -73,7 +73,8 @@ public class OperationLogServiceImpl implements OperationLogService {
         request.put("operatorName", operationLog.getCreateUser());
         request.put("operatorCode", operationLog.getCreateUserCode());
         request.put("sendCode", operationLog.getSendCode());
-        request.put("siteCode", operationLog.getReceiveSiteCode());
+        request.put("siteCode", operationLog.getCreateSiteCode());
+        request.put("operateTime", operationLog.getOperateTime());
 
         JSONObject response=new JSONObject();
         response.put("取件单号",operationLog.getPickupCode());
