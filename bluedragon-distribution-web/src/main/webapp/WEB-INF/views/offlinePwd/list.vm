@@ -80,13 +80,12 @@ function sendMail(type){
               <td>
 				<span style="color:red">$!offlinePassword</span>
 			  </td>
-                <!-- <td align="left"><input  type="button" value="重新生成" onclick="generatePwd(1);" class="btn_c"/></td> -->
-			  <td align="left"><input  type="button" value="重新生成" class="btn_c"/></td>
+			  #*<td align="left"><input  type="button" value="重新生成" onclick="generatePwd(1);" class="btn_c"/></td>
               <td align="left">
 				<input  type="button" value="发送" onclick="sendMail(1);" class="btn_c"/>
 			  </td>
               <td colspan="3">
-			  </td>
+			  </td>*#
 			  
             </tr>
 			<tr >

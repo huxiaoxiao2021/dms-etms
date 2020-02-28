@@ -1,5 +1,8 @@
 package com.jd.bluedragon.utils;
 
+import org.apache.commons.lang.StringUtils;
+
+import java.util.Date;
 import java.util.Random;
 
 public class RandomUtils {
@@ -71,8 +74,16 @@ public class RandomUtils {
 	        return sb.toString();
 	    }
 
+	    public static String generateRandomNumByCurDate() {
+	        Date serverDate = DateHelper.parseDate(DateHelper.formatDate(new Date()));
+            final int prime = 31;
+	        String randomStr = serverDate.getTime() * prime + "";
+	        return StringUtils.substring(randomStr, 3 , 9);
+        }
+
 	    public static void main(String[] args) {
 	        System.out.println(generateUpperString(15));
 	        System.out.println(toFixdLengthString(123, 5));
+            System.out.println(generateRandomNumByCurDate());
 	    }
 }
