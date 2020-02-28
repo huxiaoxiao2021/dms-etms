@@ -10,9 +10,8 @@ import com.jd.bluedragon.distribution.print.service.HideInfoServiceImpl;
 import com.jd.bluedragon.utils.JsonHelper;
 
 public class HideInfoServiceImplTestCase {
-    @Test
+	@Test
     public void testSetHideInfo() throws Exception{
-    	BasePrintWaybill waybill = new BasePrintWaybill();
     	HideInfoServiceImpl hideInfoServiceImpl = new HideInfoServiceImpl();
     	List<String> sendPays = new ArrayList<String>();
     	sendPays.add(null);
@@ -26,6 +25,7 @@ public class HideInfoServiceImplTestCase {
     	sendPays.add(getSignChar(188,'7'));
     	sendPays.add(getSignChar(188,'8'));
     	for(String sendPay:sendPays){
+    		BasePrintWaybill waybill = new BasePrintWaybill();
         	waybill.setCustomerName("收件人姓名");
         	waybill.setPrintAddress("收件人地址67890123456");
         	waybill.setTelFirst("1501001");
@@ -36,6 +36,76 @@ public class HideInfoServiceImplTestCase {
     		hideInfoServiceImpl.setHideInfo(null, sendPay, waybill);
     		System.err.println(JsonHelper.toJson(waybill));
     	}
+    }
+	/**
+	 * 
+	 * @ClassName: TestCase
+	 * @Description: TODO
+	 * @author: wuyoude
+	 * @date: 2020年2月28日 上午11:16:29
+	 * 
+	 * @param <T> 目标对象，入参
+	 * @param <R> 处理结果对象，出参
+	 * @param <C_R>预期结果对象， 用于检查校验结果
+	 */
+    private static abstract class TestCase<T,R,C_R>{
+    	T target;
+    	R result;
+    	C_R checkResult;
+    	/**
+    	 * 结果验证方法
+    	 * @return
+    	 */
+		public abstract boolean isSuccess() throws Exception;
+    	/**
+		 * @return the target
+		 */
+		public T getTarget() {
+			return target;
+		}
+
+		/**
+		 * @param target the target to set
+		 */
+		public void setTarget(T target) {
+			this.target = target;
+		}
+
+		/**
+		 * @return the result
+		 */
+		public R getResult() {
+			return result;
+		}
+
+		/**
+		 * @param result the result to set
+		 */
+		public void setResult(R result) {
+			this.result = result;
+		}
+
+		/**
+		 * @return the checkResult
+		 */
+		public C_R getCheckResult() {
+			return checkResult;
+		}
+
+		/**
+		 * @param checkResult the checkResult to set
+		 */
+		public void setCheckResult(C_R checkResult) {
+			this.checkResult = checkResult;
+		}
+    }
+    private static class TargetObject{
+    	String waybillSign;
+    	String sendPay;
+    	BasePrintWaybill waybill;
+    }
+    private static class ResultObject{
+    	BasePrintWaybill waybill;
     }
     private String getSignChar(int position,char c){
     	char[] chars = "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000".toCharArray();
