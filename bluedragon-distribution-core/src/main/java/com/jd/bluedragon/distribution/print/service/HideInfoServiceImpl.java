@@ -25,18 +25,19 @@ public class HideInfoServiceImpl implements HideInfoService{
         }
     	boolean customerInfoHideFlag = false;
         //收件人信息隐藏，根据waybill_sign第37位判断
-        if(waybillSign.length() >= 37 && '0' != waybillSign.charAt(36)){
+        if(waybillSign != null && waybillSign.length() >= 37 && '0' != waybillSign.charAt(36)){
             char customerInfoHideType = waybillSign.charAt(36);
             customerInfoHideFlag = customerInfoHide(customerInfoHideType, waybill);
         }
         //waybillSign未设置隐藏时，根据SendPay第188位进行隐藏收件人信息
         if(!customerInfoHideFlag 
+        		&& sendPay != null
         		&& sendPay.length() >= SendPayConstants.POSITION_188){
             char customerInfoHideType = sendPay.charAt(SendPayConstants.POSITION_188 - 1);
             customerInfoHide(customerInfoHideType, waybill);
         }
         //寄件人信息隐藏，根据waybill_sign第47位判断
-        if(waybillSign.length() >= 47 && '0' != waybillSign.charAt(46)){
+        if(waybillSign != null && waybillSign.length() >= 47 && '0' != waybillSign.charAt(46)){
             char consignerInfoHideType = waybillSign.charAt(46);
             consignerInfoHide(consignerInfoHideType,waybill);
         }
