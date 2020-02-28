@@ -526,10 +526,13 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             sLogAll.setType(Long.valueOf(12004));
             sLogAll.setContent("获得发货明细数量:" + allsendListSize + ",orderpackMapLoss数量:" + orderpackMapLoss.size() + ",orderpackMap数量:" + orderpackMap.size() + ",总包裹数量:" + packSum);
 
-            long endTime = new Date().getTime();
+            long endTime = System.currentTimeMillis();
 
             JSONObject request = new JSONObject();
             request.put("sendCode", sendM.getSendCode());
+            request.put("waybillCode", sLogAll.getKeyword2());
+            request.put("packageCode", sLogAll.getKeyword3());
+            request.put("boxCode", sLogAll.getKeyword4());
 
             JSONObject response = new JSONObject();
             response.put("keyword1", sLogAll.getKeyword1());
@@ -540,8 +543,8 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
 
             BusinessLogProfiler businessLogProfiler = new BusinessLogProfilerBuilder()
-                    .bizType(BizOperateTypeConstants.DELIVERY_SENDREVERSE.getBizTypeCode())
-                    .operateResponse(BizOperateTypeConstants.DELIVERY_SENDREVERSE.getOperateTypeCode())
+                    .bizType(BizOperateTypeConstants.DELIVERY_REVERSE_GETSENDDETIAL.getBizTypeCode())
+                    .operateType(BizOperateTypeConstants.DELIVERY_REVERSE_GETSENDDETIAL.getOperateTypeCode())
                     .processTime(endTime,startTime)
                     .operateRequest(request)
                     .operateResponse(response)
@@ -728,12 +731,12 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 response.put("keyword2", sLogAll.getKeyword2());
                 response.put("keyword3", sLogAll.getKeyword3());
                 response.put("keyword4", sLogAll.getKeyword4());
+                response.put("type", sLogAll.getType());
                 response.put("content", sLogAll.getContent());
 
-
                 BusinessLogProfiler businessLogProfiler = new BusinessLogProfilerBuilder()
-                        .bizType(BizOperateTypeConstants.DELIVERY_SENDREVERSE.getBizTypeCode())
-                        .operateResponse(BizOperateTypeConstants.DELIVERY_SENDREVERSE.getOperateTypeCode())
+                        .bizType(BizOperateTypeConstants.DELIVERY_REVERSE_WMS_GETSENDDETIAL.getBizTypeCode())
+                        .operateType(BizOperateTypeConstants.DELIVERY_REVERSE_WMS_GETSENDDETIAL.getOperateTypeCode())
                         .processTime(endTime,startTime)
                         .operateRequest(request)
                         .operateResponse(response)
@@ -970,9 +973,10 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             sLogDetail.setType(Long.valueOf(12005));
             sLogDetail.setContent(messageValue);
 
-            long endTime = new Date().getTime();
+            long endTime = System.currentTimeMillis();
 
             JSONObject request = new JSONObject();
+            request.put("waybillCode", detail.getSendCode());
             request.put("sendCode", detail.getSendCode());
 
             JSONObject response = new JSONObject();
@@ -980,11 +984,13 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             response.put("keyword2", sLogDetail.getKeyword2());
             response.put("keyword3", sLogDetail.getKeyword3());
             response.put("keyword4", sLogDetail.getKeyword4());
+            response.put("type", sLogDetail.getType());
             response.put("content", sLogDetail.getContent());
 
+
             BusinessLogProfiler businessLogProfiler = new BusinessLogProfilerBuilder()
-                    .bizType(BizOperateTypeConstants.DELIVERY_SENDREVERSE.getBizTypeCode())
-                    .operateResponse(BizOperateTypeConstants.DELIVERY_SENDREVERSE.getOperateTypeCode())
+                    .bizType(BizOperateTypeConstants.DELIVERY_REVERSE_MOBILE_DELIVERY.getBizTypeCode())
+                    .operateType(BizOperateTypeConstants.DELIVERY_REVERSE_MOBILE_DELIVERY.getOperateTypeCode())
                     .processTime(endTime,startTime)
                     .operateRequest(request)
                     .operateResponse(response)
@@ -1075,8 +1081,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             sLogDetail.setType(Long.valueOf(12004));
             sLogDetail.setContent(messageValue);
 
-            long endTime = new Date().getTime();
-
+            long endTime = System.currentTimeMillis();
 
             JSONObject request = new JSONObject();
             request.put("waybillCode", wallBillCode);
@@ -1087,14 +1092,16 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             response.put("keyword2", sLogDetail.getKeyword2());
             response.put("keyword3", sLogDetail.getKeyword3());
             response.put("keyword4", sLogDetail.getKeyword4());
+            response.put("type", sLogDetail.getType());
             response.put("content", sLogDetail.getContent());
 
             BusinessLogProfiler businessLogProfiler = new BusinessLogProfilerBuilder()
-                    .bizType(BizOperateTypeConstants.DELIVERY_SENDREVERSE.getBizTypeCode())
-                    .operateResponse(BizOperateTypeConstants.DELIVERY_SENDREVERSE.getOperateTypeCode())
+                    .bizType(BizOperateTypeConstants.DELIVERY_REVERSE_DELIVERY.getBizTypeCode())
+                    .operateType(BizOperateTypeConstants.DELIVERY_REVERSE_DELIVERY.getOperateTypeCode())
                     .processTime(endTime,startTime)
                     .operateRequest(request)
                     .operateResponse(response)
+                    .reMark(target)
                     .methodName("ReverseSendServiceImpl#sendWMS")
                     .build();
 
@@ -1202,7 +1209,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             sLogDetail.setType(Long.valueOf(12004));
             sLogDetail.setContent(messageValue);
 
-            long endTime = new Date().getTime();
+            long endTime = System.currentTimeMillis();
 
             JSONObject request = new JSONObject();
             request.put("waybillCode", sLogDetail.getKeyword1());
@@ -1214,14 +1221,16 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             response.put("keyword2", sLogDetail.getKeyword2());
             response.put("keyword3", sLogDetail.getKeyword3());
             response.put("keyword4", sLogDetail.getKeyword4());
+            response.put("type", sLogDetail.getType());
             response.put("content", sLogDetail.getContent());
 
             BusinessLogProfiler businessLogProfiler = new BusinessLogProfilerBuilder()
-                    .bizType(BizOperateTypeConstants.DELIVERY_SENDREVERSE.getBizTypeCode())
-                    .operateResponse(BizOperateTypeConstants.DELIVERY_SENDREVERSE.getOperateTypeCode())
+                    .bizType(BizOperateTypeConstants.DELIVERY_REVERSE_DELIVERY.getBizTypeCode())
+                    .operateType(BizOperateTypeConstants.DELIVERY_REVERSE_DELIVERY.getOperateTypeCode())
                     .processTime(endTime,startTime)
                     .operateRequest(request)
                     .operateResponse(response)
+                    .reMark(target)
                     .methodName("ReverseSendServiceImpl#sendAsiaWMS")
                     .build();
 
@@ -1836,11 +1845,12 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 response.put("keyword2", sLogDetail.getKeyword2());
                 response.put("keyword3", sLogDetail.getKeyword3());
                 response.put("keyword4", sLogDetail.getKeyword4());
+                response.put("type", sLogDetail.getType());
                 response.put("content", sLogDetail.getContent());
 
                 BusinessLogProfiler businessLogProfiler = new BusinessLogProfilerBuilder()
-                        .bizType(BizOperateTypeConstants.DELIVERY_SENDREVERSE.getBizTypeCode())
-                        .operateResponse(BizOperateTypeConstants.DELIVERY_SENDREVERSE.getOperateTypeCode())
+                        .bizType(BizOperateTypeConstants.DELIVERY_REVERSE_SPECIAL_DELIVERY.getBizTypeCode())
+                        .operateType(BizOperateTypeConstants.DELIVERY_REVERSE_SPECIAL_DELIVERY.getOperateTypeCode())
                         .processTime(endTime,startTime)
                         .operateRequest(request)
                         .operateResponse(response)
@@ -1933,8 +1943,8 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             response.put("content", sLogDetail.getContent());
 
             BusinessLogProfiler businessLogProfiler = new BusinessLogProfilerBuilder()
-                    .bizType(BizOperateTypeConstants.DELIVERY_SENDREVERSE.getBizTypeCode())
-                    .operateResponse(BizOperateTypeConstants.DELIVERY_SENDREVERSE.getOperateTypeCode())
+                    .bizType(BizOperateTypeConstants.DELIVERY_REVERSE_ECLP_DELIVERY.getBizTypeCode())
+                    .operateType(BizOperateTypeConstants.DELIVERY_REVERSE_ECLP_DELIVERY.getOperateTypeCode())
                     .processTime(endTime,startTime)
                     .operateRequest(request)
                     .operateResponse(response)
@@ -1989,8 +1999,8 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             response.put("content", sLogDetail.getContent());
 
             BusinessLogProfiler businessLogProfiler = new BusinessLogProfilerBuilder()
-                    .bizType(BizOperateTypeConstants.DELIVERY_SENDREVERSE.getBizTypeCode())
-                    .operateResponse(BizOperateTypeConstants.DELIVERY_SENDREVERSE.getOperateTypeCode())
+                    .bizType(BizOperateTypeConstants.DELIVERY_REVERSE_CLPS_DELIVERY.getBizTypeCode())
+                    .operateType(BizOperateTypeConstants.DELIVERY_REVERSE_CLPS_DELIVERY.getOperateTypeCode())
                     .processTime(endTime,startTime)
                     .operateRequest(request)
                     .operateResponse(response)
@@ -2285,7 +2295,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             }
             sLogDetail.setType(Long.valueOf(12004));
             sLogDetail.setContent(JsonHelper.toJson(inboundOrder));
-            long endTime = new Date().getTime();
+            long endTime = System.currentTimeMillis();
 
             JSONObject request = new JSONObject();
             request.put("waybillCode", sLogDetail.getKeyword1());
@@ -2299,8 +2309,8 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             response.put("content", sLogDetail.getContent());
 
             BusinessLogProfiler businessLogProfiler = new BusinessLogProfilerBuilder()
-                    .bizType(BizOperateTypeConstants.DELIVERY_SENDREVERSE.getBizTypeCode())
-                    .operateResponse(BizOperateTypeConstants.DELIVERY_SENDREVERSE.getOperateTypeCode())
+                    .bizType(BizOperateTypeConstants.DELIVERY_REVERSE_ECLP_SPWMS_DELIVERY.getBizTypeCode())
+                    .operateType(BizOperateTypeConstants.DELIVERY_REVERSE_ECLP_SPWMS_DELIVERY.getOperateTypeCode())
                     .processTime(endTime,startTime)
                     .operateRequest(request)
                     .operateResponse(response)
@@ -2345,8 +2355,8 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             response.put("content", sLogDetail.getContent());
 
             BusinessLogProfiler businessLogProfiler = new BusinessLogProfilerBuilder()
-                    .bizType(BizOperateTypeConstants.DELIVERY_SENDREVERSE.getBizTypeCode())
-                    .operateResponse(BizOperateTypeConstants.DELIVERY_SENDREVERSE.getOperateTypeCode())
+                    .bizType(BizOperateTypeConstants.DELIVERY_REVERSE_SPWMS_DELIVERY.getBizTypeCode())
+                    .operateType(BizOperateTypeConstants.DELIVERY_REVERSE_SPWMS_DELIVERY.getOperateTypeCode())
                     .processTime(endTime,startTime)
                     .operateRequest(request)
                     .operateResponse(response)

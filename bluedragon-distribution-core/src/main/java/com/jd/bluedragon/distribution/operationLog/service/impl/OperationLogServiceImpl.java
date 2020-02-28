@@ -3,29 +3,37 @@ package com.jd.bluedragon.distribution.operationLog.service.impl;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
-import com.jd.bluedragon.distribution.log.BizTypeConstants;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
-import com.jd.dms.logger.external.LogEngine;
-import com.jd.bluedragon.distribution.log.OperateTypeConstants;
 import com.jd.bluedragon.distribution.operationLog.dao.OperationLogReadDao;
 import com.jd.bluedragon.distribution.operationLog.dao.OperationlogCassandra;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.dms.logger.external.LogEngine;
 import com.jd.fastjson.JSONObject;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 1.不要删除此类；删除前请确认 logEngine接口保存的日志是否还需要或者迁移走。
+ *
+ * 2.不要使用此接口保存日志了。请使用统一的日志日志接口com.jd.bluedragon.distribution.log.impl.LogEngineImpl。
+ * com.jd.bluedragon.distribution.log.impl.LogEngineImpl 此接口保存的日志会存储到business.log.jd.com 中;
+ *
+ * 3.等日日志都切到 logEngine接口,再删除 logCassandra接口保存日志的代码
+ */
 @Service
+@Deprecated
 public class OperationLogServiceImpl implements OperationLogService {
 
     private final static Logger log = LoggerFactory.getLogger(OperationLogServiceImpl.class);
@@ -37,7 +45,7 @@ public class OperationLogServiceImpl implements OperationLogService {
 	private OperationLogReadDao operationLogReadDao;
 
 	@Autowired
-    LogEngine logEngine;
+    private LogEngine logEngine;
 	
 	@Resource
 	private UccPropertyConfiguration uccPropertyConfiguration;
@@ -49,7 +57,14 @@ public class OperationLogServiceImpl implements OperationLogService {
      * @return int
      */
     public int add(OperationLog operationLog) {
+        if(operationLog == null){
+            return 0;
+        }
 
+        //排查日志使用 可删除
+        if(isReturnGoodsCode(operationLog)){
+            log.info("退货数据打印日志operationLog[{}]", JsonHelper.toJson(operationLog));
+        }
 
         JSONObject request = new JSONObject();
         request.put("boxCode", operationLog.getBoxCode());
@@ -58,7 +73,8 @@ public class OperationLogServiceImpl implements OperationLogService {
         request.put("operatorName", operationLog.getCreateUser());
         request.put("operatorCode", operationLog.getCreateUserCode());
         request.put("sendCode", operationLog.getSendCode());
-        request.put("siteCode", operationLog.getReceiveSiteCode());
+        request.put("siteCode", operationLog.getCreateSiteCode());
+        request.put("operateTime", operationLog.getOperateTime());
 
         JSONObject response=new JSONObject();
         response.put("取件单号",operationLog.getPickupCode());
@@ -73,7 +89,7 @@ public class OperationLogServiceImpl implements OperationLogService {
                 .methodName(operationLog.getMethodName())
                 .url(operationLog.getUrl())
                 .operateResponse(response)
-                .timeStamp(operationLog.getOperateTime() == null ? new Date().getTime() : operationLog.getOperateTime().getTime())
+                .timeStamp(operationLog.getOperateTime() == null ? System.currentTimeMillis() : operationLog.getOperateTime().getTime())
                 .reMark(operationLog.getRemark())
                 .build();
 
@@ -203,6 +219,15 @@ public class OperationLogServiceImpl implements OperationLogService {
         }
         //监控结束
         return 1;
+    }
+
+    private boolean isReturnGoodsCode(OperationLog operationLog) {
+        String strPrefix = "PI20";
+        return (StringUtils.isNotEmpty(operationLog.getBoxCode()) && operationLog.getBoxCode().startsWith(strPrefix))
+                || (StringUtils.isNotEmpty(operationLog.getPackageCode()) && operationLog.getPackageCode().startsWith(strPrefix))
+                || (StringUtils.isNotEmpty(operationLog.getPickupCode()) && operationLog.getPickupCode().startsWith(strPrefix))
+                || (StringUtils.isNotEmpty(operationLog.getSendCode()) && operationLog.getSendCode().startsWith(strPrefix))
+                || (StringUtils.isNotEmpty(operationLog.getWaybillCode()) && operationLog.getWaybillCode().startsWith(strPrefix));
     }
 
     public List<OperationLog> queryByParams(Map<String, Object> params) {
