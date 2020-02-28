@@ -13,16 +13,19 @@ import com.jd.bluedragon.distribution.api.domain.WeightOperFlow;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
-import com.jd.bluedragon.distribution.log.BizTypeConstants;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
-import com.jd.dms.logger.external.LogEngine;
-import com.jd.bluedragon.distribution.log.OperateTypeConstants;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.distribution.weight.service.WeightService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.SystemLogContants;
+import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.dms.logger.external.LogEngine;
 import com.jd.fastjson.JSONObject;
 import com.jd.preseparate.vo.BaseResponseIncidental;
 import com.jd.preseparate.vo.MediumStationOrderInfo;
@@ -247,7 +250,7 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
 
 			JSONObject request=new JSONObject();
 			request.put("waybillCode",siteChangeMqDto.getWaybillCode());
-			request.put("pakcageCode",siteChangeMqDto.getPackageCode());
+			request.put("packageCode",siteChangeMqDto.getPackageCode());
 			request.put("operatorName",siteChangeMqDto.getOperatorName());
 
 			JSONObject response=new JSONObject();

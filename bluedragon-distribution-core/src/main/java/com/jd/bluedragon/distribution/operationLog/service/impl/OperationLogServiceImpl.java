@@ -8,18 +8,19 @@ import com.jd.bluedragon.distribution.operationLog.dao.OperationLogReadDao;
 import com.jd.bluedragon.distribution.operationLog.dao.OperationlogCassandra;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.fastjson.JSONObject;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -56,7 +57,14 @@ public class OperationLogServiceImpl implements OperationLogService {
      * @return int
      */
     public int add(OperationLog operationLog) {
+        if(operationLog == null){
+            return 0;
+        }
 
+        //排查日志使用 可删除
+        if(isReturnGoodsCode(operationLog)){
+            log.info("退货数据打印日志operationLog[{}]", JsonHelper.toJson(operationLog));
+        }
 
         JSONObject request = new JSONObject();
         request.put("boxCode", operationLog.getBoxCode());
@@ -65,7 +73,8 @@ public class OperationLogServiceImpl implements OperationLogService {
         request.put("operatorName", operationLog.getCreateUser());
         request.put("operatorCode", operationLog.getCreateUserCode());
         request.put("sendCode", operationLog.getSendCode());
-        request.put("siteCode", operationLog.getReceiveSiteCode());
+        request.put("siteCode", operationLog.getCreateSiteCode());
+        request.put("operateTime", operationLog.getOperateTime());
 
         JSONObject response=new JSONObject();
         response.put("取件单号",operationLog.getPickupCode());
@@ -80,7 +89,7 @@ public class OperationLogServiceImpl implements OperationLogService {
                 .methodName(operationLog.getMethodName())
                 .url(operationLog.getUrl())
                 .operateResponse(response)
-                .timeStamp(operationLog.getOperateTime() == null ? new Date().getTime() : operationLog.getOperateTime().getTime())
+                .timeStamp(operationLog.getOperateTime() == null ? System.currentTimeMillis() : operationLog.getOperateTime().getTime())
                 .reMark(operationLog.getRemark())
                 .build();
 
@@ -210,6 +219,15 @@ public class OperationLogServiceImpl implements OperationLogService {
         }
         //监控结束
         return 1;
+    }
+
+    private boolean isReturnGoodsCode(OperationLog operationLog) {
+        String strPrefix = "PI20";
+        return (StringUtils.isNotEmpty(operationLog.getBoxCode()) && operationLog.getBoxCode().startsWith(strPrefix))
+                || (StringUtils.isNotEmpty(operationLog.getPackageCode()) && operationLog.getPackageCode().startsWith(strPrefix))
+                || (StringUtils.isNotEmpty(operationLog.getPickupCode()) && operationLog.getPickupCode().startsWith(strPrefix))
+                || (StringUtils.isNotEmpty(operationLog.getSendCode()) && operationLog.getSendCode().startsWith(strPrefix))
+                || (StringUtils.isNotEmpty(operationLog.getWaybillCode()) && operationLog.getWaybillCode().startsWith(strPrefix));
     }
 
     public List<OperationLog> queryByParams(Map<String, Object> params) {
