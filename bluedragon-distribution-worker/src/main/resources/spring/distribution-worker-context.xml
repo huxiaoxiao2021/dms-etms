@@ -23,6 +23,7 @@
 				<value>classpath:configured/snowflake.properties</value>
 				<value>classpath:configured/ucc.properties</value>
 				<value>classpath:configured/dms_crossbow.properties</value>
+				<value>classpath:configured/kafka.properties</value>
 				<value>classpath:configured/sms.properties</value>
 			</list>
 		</property>
@@ -45,6 +46,7 @@
 	<import resource="classpath:spring/worker/distribution-worker-execute-conf.xml" />
 	<import resource="classpath:spring/distribution-worker-wss.xml"/>
 	<import resource="classpath:spring/distribution-worker-special-jsf.xml"/>
+	<import resource="classpath:spring/distribution-core-log.xml" />
 
 
 

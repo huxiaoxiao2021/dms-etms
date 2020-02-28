@@ -4,8 +4,15 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.carSchedule.domain.CarScheduleRequest;
 import com.jd.bluedragon.distribution.carSchedule.domain.CarScheduleResponse;
 import com.jd.bluedragon.distribution.carSchedule.service.CarScheduleService;
+import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
+import com.jd.bluedragon.distribution.log.BizTypeConstants;
+import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.dms.logger.external.LogEngine;
+import com.jd.bluedragon.distribution.log.OperateTypeConstants;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
+import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.fastjson.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
@@ -18,6 +25,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.Date;
 
 /**
  * 车辆园区调度：提供园区车载信息的rest接口
@@ -35,6 +43,10 @@ public class CarScheduleResource {
 
     @Autowired
     GoddessService goddessService;
+
+    @Autowired
+    private LogEngine logEngine;
+
 
     /**
      * 暴露一个接口，提供车辆的线路类型routeType,车载总量packageNum,当前分拣中心的货物量localPackageNum,当前分拣中心载货明细localPackageDetail,
@@ -105,6 +117,31 @@ public class CarScheduleResource {
             body = "车牌号为：" + vehicleNumber + "的车辆已经出港，站点ID：" + siteCode;
         }
         domain.setBody(body);
+        long endTime = new Date().getTime();
+
+        JSONObject operateRequest=new JSONObject();
+        operateRequest.put("siteCode",siteCode);
+
+        JSONObject response=new JSONObject();
+        response.put("content",domain);
+
+        BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
+                .methodName("CarScheduleResource#InAndOut")
+                .url("/carSchedule/InAndOut")
+                .operateRequest(request)
+                .operateResponse(response)
+                .build();
+        if(key==1){
+            businessLogProfiler.setBizType(BizOperateTypeConstants.CAR_CAR_IN.getBizTypeCode());
+            businessLogProfiler.setOperateType(BizOperateTypeConstants.CAR_CAR_IN.getOperateTypeCode());
+        }else if (key==0){
+            businessLogProfiler.setBizType(BizOperateTypeConstants.CAR_CAR_OUT.getBizTypeCode());
+            businessLogProfiler.setOperateType(BizOperateTypeConstants.CAR_CAR_OUT.getOperateTypeCode());
+        }
+
+        logEngine.addLog(businessLogProfiler);
+
+
         goddessService.save(domain);
         return Boolean.TRUE;
     }

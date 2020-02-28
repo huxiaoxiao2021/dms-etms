@@ -18,9 +18,9 @@
         </property>
         <property name="fileEncoding" value="UTF-8"/>
     </bean>
-    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer">
-        <property name="properties" ref="configProperties"/>
-    </bean>
+<!--    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer">-->
+<!--        <property name="properties" ref="configProperties"/>-->
+<!--    </bean>-->
 
     <bean id="baseCassandra" class="com.jd.bluedragon.core.cassandra.BaseCassandra" init-method="init">
         <property name="connectTimeoutMillis" value="${cassandra.timeoutDefault}"  />

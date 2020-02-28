@@ -40,11 +40,12 @@
         <div class="tbl-n">
             <form id="queryForm" name="queryForm" action="#springUrl('/admin/goddess/index')" method="GET">
                 <table class="pagin">
+                    $oldLogPageTips
                     <tr>
                         <td style="font-size: 14px;">关键字</td>
                         <td><input type="text" name="data" value="$!request.getParameter('data')" style="font-size: 14px; height: 25px;"/> </td>
                         <td><a href="javascript:" onclick="document.queryForm.submit()" >查询</a> </td>
-                    </tr>
+
                 </table>
             </form>
         </div>

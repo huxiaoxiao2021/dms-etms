@@ -406,7 +406,13 @@
             <version>2.7.12</version>
             <scope>test</scope>
         </dependency>
-    </dependencies>
+
+		<dependency>
+			<groupId>com.jd.ql.dms.opLog</groupId>
+			<artifactId>opLog-api</artifactId>
+		</dependency>
+
+	</dependencies>
 	<profiles>
 		<!--测试环境  -->
 		<profile>

@@ -176,6 +176,7 @@ public class OfflineCoreTask extends DBSingleScheduler {
                 } else {
                     offlineLog.setStatus(Constants.RESULT_FAIL);
                 }
+                offlineLog.setMethodName("OfflineCoreTask#offlineCore");
                 this.offlineLogService.addOfflineLog(offlineLog);
             } catch (Exception e) {
                 this.log.error("OfflineCoreTask--> 插入日志异常：【{}】",body, e);

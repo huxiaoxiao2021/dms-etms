@@ -268,7 +268,7 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 	 * 
 	 * @param receive
 	 */
-	protected void addOperationLog(T receive) {
+	protected void addOperationLog(T receive,String methodName) {
 		OperationLog operationLog = new OperationLog();
 		operationLog.setBoxCode(receive.getBoxCode());
 		operationLog.setCreateSiteCode(receive.getCreateSiteCode());
@@ -281,6 +281,7 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 		operationLog.setPackageCode(receive.getPackageBarcode());
 		operationLog.setUpdateTime(receive.getUpdateTime());
 		operationLog.setWaybillCode(receive.getWaybillCode());
+		operationLog.setMethodName(methodName);
 		operationLogService.add(operationLog);
 	}
 
@@ -340,7 +341,7 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 	 */
 	public List<CenConfirm> saveCenConfirmAndSendTrack(TaskContext<T> taskContext,boolean saveOrUpdateCenConfirmFlg) {
 		T receive = taskContext.getBody();
-		addOperationLog(receive);// 记录日志
+		addOperationLog(receive,"BaseReceiveTaskExecutor#saveCenConfirmAndSendTrack");// 记录日志
 		List<CenConfirm> cenConfirmList = new ArrayList<>();
 		CenConfirm cenConfirm = cenConfirmService
 				.createCenConfirmByReceive(receive);
@@ -387,7 +388,7 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 			for (SendDetail sendDetail : sendDetails) {
 				CenConfirm cenConfirm = paseCenConfirm(taskContext);
 				receive.setPackageBarcode(sendDetail.getPackageBarcode());
-				addOperationLog(receive);// 记录日志
+				addOperationLog(receive,"BaseReceiveTaskExecutor#batchSaveCenConfirmAndSendTrack");// 记录日志
 				cenConfirm.setPackageBarcode(sendDetail.getPackageBarcode());
 				cenConfirm.setWaybillCode(sendDetail.getWaybillCode());
 				sendTrack(taskContext,cenConfirm);

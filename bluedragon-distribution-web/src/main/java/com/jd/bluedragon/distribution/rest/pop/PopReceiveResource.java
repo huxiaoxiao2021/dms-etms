@@ -94,7 +94,7 @@ public class PopReceiveResource {
 				this.log.error("PopReceiveResponse --> taskPopRecieveCountService insert ：", e);
 			}
 			
-			this.operationLogService.add(parseOperationLog(request, null));
+			this.operationLogService.add(parseOperationLog(request, null,"/popReceive/save"));
 
 			return new PopReceiveResponse(PopReceiveResponse.CODE_OK,
 					PopReceiveResponse.MESSAGE_OK);
@@ -132,7 +132,7 @@ public class PopReceiveResource {
 		return popReceive;
 	}
 	
-	private OperationLog parseOperationLog(PopReceiveRequest request, String remark) {
+	private OperationLog parseOperationLog(PopReceiveRequest request, String remark,String url) {
         OperationLog operationLog = new OperationLog();
         operationLog.setWaybillCode(request.getWaybillCode());
         operationLog.setCreateSiteCode(request.getCreateSiteCode());
@@ -144,6 +144,7 @@ public class PopReceiveResource {
 				.getOperateTime()));
         operationLog.setLogType(OperationLog.LOG_TYPE_RECEIVE);
         operationLog.setRemark(remark);
+        operationLog.setUrl(url);
         return operationLog;
     }
 

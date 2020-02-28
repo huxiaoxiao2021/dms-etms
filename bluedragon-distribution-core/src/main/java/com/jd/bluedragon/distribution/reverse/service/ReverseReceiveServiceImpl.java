@@ -111,7 +111,7 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
             	this.log.info("reverseReceivePO is null");
                 this.appentPickwareInfo(source, source.getPackageCode());
                 this.add(source);
-                this.addOpetationLog(source, OperationLog.TYPE_REVERSE_RECEIVE,"add");
+                this.addOpetationLog(source, OperationLog.TYPE_REVERSE_RECEIVE,"add","ReverseReceiveServiceImpl#aftersaleReceive");
             } else {
             	this.log.info("reverseReceivePO is not null");
                 ReverseReceive reverseReceiveVO = new ReverseReceive();
@@ -121,7 +121,7 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
                 reverseReceiveVO.setReceiveTime(source.getReceiveTime());
                 this.appentPickwareInfo(reverseReceiveVO, source.getPackageCode());
                 this.update(reverseReceiveVO);
-                this.addOpetationLog(reverseReceiveVO, OperationLog.TYPE_REVERSE_RECEIVE,"update");
+                this.addOpetationLog(reverseReceiveVO, OperationLog.TYPE_REVERSE_RECEIVE,"update","ReverseReceiveServiceImpl#aftersaleReceive");
             } 
         }else if(source.getReceiveType()==1||source.getReceiveType()==5 || source.getReceiveType()== 6 || source.getReceiveType()== 7){
         	String orignalPackageCode = source.getPackageCode();
@@ -131,7 +131,7 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
             	this.log.info("reverseReceivePO is null");
             	source.setPackageCode(source.getOrderId());
                 this.add(source);
-                this.addOpetationLog(source, OperationLog.TYPE_REVERSE_RECEIVE,"add");
+                this.addOpetationLog(source, OperationLog.TYPE_REVERSE_RECEIVE,"add","ReverseReceiveServiceImpl#aftersaleReceive");
             } else {
             	this.log.info("reverseReceivePO is not null");
                 ReverseReceive reverseReceiveVO = new ReverseReceive();
@@ -140,7 +140,7 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
                 reverseReceiveVO.setReceiveType(source.getReceiveType());
                 reverseReceiveVO.setReceiveTime(source.getReceiveTime());
                 this.update(reverseReceiveVO);
-                this.addOpetationLog(reverseReceiveVO, OperationLog.TYPE_REVERSE_RECEIVE,"update");
+                this.addOpetationLog(reverseReceiveVO, OperationLog.TYPE_REVERSE_RECEIVE,"update","ReverseReceiveServiceImpl#aftersaleReceive");
             } 
             source.setPackageCode(orignalPackageCode);
 
@@ -161,7 +161,7 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
             	this.log.info("reverseReceivePO is null");
                 this.appentPickwareInfo(source, source.getPackageCode());
                 this.add(source);
-                this.addOpetationLog(source, OperationLog.TYPE_REVERSE_RECEIVE,"add");
+                this.addOpetationLog(source, OperationLog.TYPE_REVERSE_RECEIVE,"add","ReverseReceiveServiceImpl#aftersaleReceive");
             } else {
             	this.log.info("reverseReceivePO is not null");
                 ReverseReceive reverseReceiveVO = new ReverseReceive();
@@ -171,7 +171,7 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
                 reverseReceiveVO.setReceiveTime(source.getReceiveTime());
                 this.appentPickwareInfo(reverseReceiveVO, source.getPackageCode());
                 this.update(reverseReceiveVO);
-                this.addOpetationLog(reverseReceiveVO, OperationLog.TYPE_REVERSE_RECEIVE,"update");
+                this.addOpetationLog(reverseReceiveVO, OperationLog.TYPE_REVERSE_RECEIVE,"update","ReverseReceiveServiceImpl#aftersaleReceive");
             }
             
             SendDetail query = new SendDetail();
@@ -206,7 +206,7 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
                     this.appentPickwareInfo(source, source.getPackageCode());
                 }
                 this.add(source);
-                this.addOpetationLog(source, OperationLog.TYPE_REVERSE_RECEIVE,"add");
+                this.addOpetationLog(source, OperationLog.TYPE_REVERSE_RECEIVE,"add","ReverseReceiveServiceImpl#aftersaleReceive");
             } else {
                 this.log.info("reverseReceivePO is not null");
                 ReverseReceive reverseReceiveVO = new ReverseReceive();
@@ -216,7 +216,7 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
                 reverseReceiveVO.setReceiveTime(source.getReceiveTime());
                 this.appentPickwareInfo(reverseReceiveVO, source.getPackageCode());
                 this.update(reverseReceiveVO);
-                this.addOpetationLog(reverseReceiveVO, OperationLog.TYPE_REVERSE_RECEIVE, "update");
+                this.addOpetationLog(reverseReceiveVO, OperationLog.TYPE_REVERSE_RECEIVE, "update","ReverseReceiveServiceImpl#aftersaleReceive");
             }
         }
 
@@ -297,7 +297,7 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
         }
     }
 
-    public void addOpetationLog(ReverseReceive reverseReceive, Integer logType,String remark) {
+    public void addOpetationLog(ReverseReceive reverseReceive, Integer logType,String remark,String methodName) {
         this.appentPickwareInfo(reverseReceive, reverseReceive.getPackageCode());
         OperationLog operationLog = new OperationLog();
         operationLog.setWaybillCode(reverseReceive.getOrderId());
@@ -308,6 +308,7 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
         operationLog.setCreateUser(reverseReceive.getOperatorName());
         operationLog.setRemark(remark);
         operationLog.setLogType(logType);
+        operationLog.setMethodName(methodName);
         this.operationLogService.add(operationLog);
     }
     
