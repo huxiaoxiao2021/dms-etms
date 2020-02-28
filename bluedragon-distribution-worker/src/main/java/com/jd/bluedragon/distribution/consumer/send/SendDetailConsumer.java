@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.consumer.send;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.SmsMessageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -37,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -86,6 +88,9 @@ public class SendDetailConsumer extends MessageBaseConsumer {
     @Autowired
     private SmsConfigService smsConfigService;
 
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
     /**
      * 缓存redis的key
      */
@@ -101,9 +106,10 @@ public class SendDetailConsumer extends MessageBaseConsumer {
      * */
     private final static String REDIS_COLD_CHAIN_STORAGE_SMS = "COLD_CHAIN_STORAGE_SMS-";
     /**
-     * 冷链卡班缓存redis的过期时间，10h
+     * 冷链卡班缓存redis的过期时间，24h
      * */
-    private final static long REDIS_COLDCHAIN_STORAGE_SMS_EXPIRE_TIME = 10;
+    @Value("${sendDetailConsumer.smsExpireTime:24}")
+    private Integer smsExpireTime;
 
     /**
      * 分隔符号
@@ -215,7 +221,9 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                 // 龙门架、分拣机发货更新发货异常状态
                 this.updateGantryExceptionStatus(sendDetail);
                 // 冷链暂存收费发短信
-                this.coldChainStorageSMS(sendDetail,waybill);
+                if(uccPropertyConfiguration.isColdChainStorageSmsSwitch()){
+                    this.coldChainStorageSMS(sendDetail,waybill);
+                }
             } else {
                 log.warn("[dmsWorkSendDetail消费]根据运单号获取运单信息为空，packageBarCode:{},boxCode:{}" ,packageBarCode, sendDetail.getBoxCode());
             }
@@ -404,7 +412,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                 }
                 try {
                     String redisKey = REDIS_COLD_CHAIN_STORAGE_SMS + waybillCode;
-                    boolean isExist = redisClientCache.set(redisKey, redisKey, REDIS_COLDCHAIN_STORAGE_SMS_EXPIRE_TIME,
+                    boolean isExist = redisClientCache.set(redisKey, redisKey, smsExpireTime,
                             TimeUnit.HOURS, false);
                     if(!isExist){
                         //默认设置10小时的去重

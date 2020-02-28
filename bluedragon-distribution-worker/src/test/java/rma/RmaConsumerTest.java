@@ -1,5 +1,6 @@
 package rma;
 
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.SmsMessageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -60,6 +61,9 @@ public class RmaConsumerTest {
     private SmsConfigService smsConfigService;
 
     @Mock
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
+    @Mock
     @Qualifier("dmsToVendor")
     private DefaultJMQProducer dmsToVendor;
 
@@ -90,6 +94,8 @@ public class RmaConsumerTest {
     @Test
     public void testConsumer(){
         try {
+            Mockito.when(uccPropertyConfiguration.isColdChainStorageSmsSwitch())
+                    .thenReturn(Boolean.TRUE);
             BaseEntity<BigWaybillDto> baseEntity = new BaseEntity<BigWaybillDto>();
             BigWaybillDto bigWaybillDto = new BigWaybillDto();
             Waybill waybill = new Waybill();
