@@ -13,6 +13,8 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
+import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
+import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.rma.service.RmaHandOverWaybillService;
 import com.jd.bluedragon.distribution.send.domain.ColdChainSendMessage;
 import com.jd.bluedragon.distribution.send.domain.SendDetailMessage;
@@ -26,10 +28,13 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.common.util.StringUtils;
+import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.dms.logger.external.LogEngine;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.fastjson.JSONObject;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
@@ -90,6 +95,9 @@ public class SendDetailConsumer extends MessageBaseConsumer {
 
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration;
+
+    @Autowired
+    private LogEngine logEngine;
 
     /**
      * 缓存redis的key
@@ -391,7 +399,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
      * @param waybill
      */
     private void coldChainStorageSMS(SendDetailMessage sendDetail,Waybill waybill) {
-
+        long startTime = System.currentTimeMillis();
         try {
             String waybillSign = waybill.getWaybillSign();
             if(!(BusinessUtil.isMonthSelf(waybillSign)
@@ -439,6 +447,41 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                 if(result.getCode() != InvokeResult.RESULT_SUCCESS_CODE){
                     log.error("冷链暂存收费发短信失败,失败原因：{}",result.getMessage());
                 }
+                try {
+                    //记录日志系统
+                    long endTime = System.currentTimeMillis();
+                    JSONObject request = new JSONObject();
+                    request.put("waybillCode", waybillCode);
+                    request.put("packageCode", sendDetail.getPackageBarcode());
+                    request.put("sendCode", sendDetail.getSendCode());
+                    request.put("siteCode", oldSiteDto.getDmsId());
+                    request.put("siteName", oldSiteDto.getDmsName());
+                    request.put("operatorCode", sendDetail.getCreateUserCode());
+                    request.put("operatorName", sendDetail.getCreateUser());
+
+                    JSONObject response = new JSONObject();
+                    response.put("resultCode", result.getCode());
+                    response.put("resultMessage", result.getMessage());
+                    response.put("senderNum", senderNum);
+                    response.put("templateId", templateId);
+                    response.put("templateParam", JsonHelper.toJson(templateParam));
+                    response.put("mobileNum", mobileNum);
+                    response.put("token", token);
+                    response.put("extension", extension);
+
+                    BusinessLogProfiler businessLogProfiler = new BusinessLogProfilerBuilder()
+                            .bizType(BizOperateTypeConstants.DELIVERY_COLDCHAIN_SMS.getBizTypeCode())
+                            .operateType(BizOperateTypeConstants.DELIVERY_COLDCHAIN_SMS.getOperateTypeCode())
+                            .processTime(endTime,startTime)
+                            .operateRequest(request)
+                            .operateResponse(response)
+                            .methodName("SendDetailConsumer#coldChainStorageSMS")
+                            .build();
+                    logEngine.addLog(businessLogProfiler);
+                }catch (Exception e){
+                    log.error("冷链卡班暂存计费发短信记录日志异常！",e);
+                }
+
             }
         }catch (Exception e){
             log.error("冷链暂存收费发短信异常!",e);
