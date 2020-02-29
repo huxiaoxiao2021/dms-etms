@@ -1,21 +1,23 @@
 package com.jd.bluedragon.distribution.log;
 
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.fastjson.JSONObject;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+/**
+ * 创建 BusinessLogProfiler
+ */
 public class BusinessLogProfilerBuilder {
 
-    private static final int SOURCESYS=112;//实操日志在businesslog对应的sourcesys
-
-    BusinessLogProfiler businessLogProfiler;
+    private BusinessLogProfiler businessLogProfiler;
 
     public BusinessLogProfilerBuilder() {
         this.businessLogProfiler = new BusinessLogProfiler();
         businessLogProfiler.setLogType("developer");
-        this.businessLogProfiler.setSourceSys(SOURCESYS);
+        this.businessLogProfiler.setSourceSys(BusinessLogConstans.SourceSys.DMS_OPERATE.getCode());//默认是 实操日志
         try {
             businessLogProfiler.setServerIp(InetAddress.getLocalHost().getHostAddress());
         } catch (UnknownHostException ex) {
@@ -24,19 +26,24 @@ public class BusinessLogProfilerBuilder {
         this.businessLogProfiler.setTimeStamp(System.currentTimeMillis());
     }
 
-    public BusinessLogProfilerBuilder BusinessLogProfilerBuilder(String waybillCode) {
+    public BusinessLogProfilerBuilder(BusinessLogConstans.SourceSys sourceSys) {
         this.businessLogProfiler = new BusinessLogProfiler();
         businessLogProfiler.setLogType("developer");
-        this.businessLogProfiler.setSourceSys(SOURCESYS);//实操日志
+        this.businessLogProfiler.setSourceSys(sourceSys.getCode());
         try {
             businessLogProfiler.setServerIp(InetAddress.getLocalHost().getHostAddress());
         } catch (UnknownHostException ex) {
             businessLogProfiler.setServerIp("");
         }
         this.businessLogProfiler.setTimeStamp(System.currentTimeMillis());
-        return this;
     }
 
+    public BusinessLogProfilerBuilder operateTypeEnum(BusinessLogConstans.OperateTypeEnum operateTypeEnum){
+        this.businessLogProfiler.setSourceSys(operateTypeEnum.getSourceSysCode());
+        this.businessLogProfiler.setBizType(operateTypeEnum.getBizTypeCode());
+        this.businessLogProfiler.setOperateType(operateTypeEnum.getCode());
+        return this;
+    }
 
     public BusinessLogProfilerBuilder bizType(int biztype) {
         this.businessLogProfiler.setBizType(biztype);

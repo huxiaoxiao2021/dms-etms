@@ -5,11 +5,10 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.ReturnsRequest;
-import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
-import com.jd.bluedragon.distribution.log.BizTypeConstants;
+
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
-import com.jd.bluedragon.distribution.log.OperateTypeConstants;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.packageToMq.service.IPushPackageToMqService;
@@ -464,8 +463,7 @@ public class SortingReturnServiceImple implements SortingReturnService {
 					response.put("content", e.getMessage());
 
 					BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
-							.bizType(BizOperateTypeConstants.RETURNS_REFUND100.getBizTypeCode())
-							.operateType(BizOperateTypeConstants.RETURNS_REFUND100.getOperateTypeCode())
+							.operateTypeEnum(BusinessLogConstans.OperateTypeEnum.RETURNS_REFUND100)
 							.processTime(endTime,startTime)
 							.operateRequest(request)
 							.operateResponse(response)

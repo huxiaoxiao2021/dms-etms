@@ -4,11 +4,10 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.carSchedule.domain.CarScheduleRequest;
 import com.jd.bluedragon.distribution.carSchedule.domain.CarScheduleResponse;
 import com.jd.bluedragon.distribution.carSchedule.service.CarScheduleService;
-import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
-import com.jd.bluedragon.distribution.log.BizTypeConstants;
+
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
-import com.jd.bluedragon.distribution.log.OperateTypeConstants;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.dms.logger.external.BusinessLogProfiler;
@@ -132,11 +131,11 @@ public class CarScheduleResource {
                 .operateResponse(response)
                 .build();
         if(key==1){
-            businessLogProfiler.setBizType(BizOperateTypeConstants.CAR_CAR_IN.getBizTypeCode());
-            businessLogProfiler.setOperateType(BizOperateTypeConstants.CAR_CAR_IN.getOperateTypeCode());
+            businessLogProfiler.setBizType(BusinessLogConstans.OperateTypeEnum.CAR_IN.getBizTypeCode());
+            businessLogProfiler.setOperateType(BusinessLogConstans.OperateTypeEnum.CAR_IN.getCode());
         }else if (key==0){
-            businessLogProfiler.setBizType(BizOperateTypeConstants.CAR_CAR_OUT.getBizTypeCode());
-            businessLogProfiler.setOperateType(BizOperateTypeConstants.CAR_CAR_OUT.getOperateTypeCode());
+            businessLogProfiler.setBizType(BusinessLogConstans.OperateTypeEnum.CAR_OUT.getBizTypeCode());
+            businessLogProfiler.setOperateType(BusinessLogConstans.OperateTypeEnum.CAR_OUT.getCode());
         }
 
         logEngine.addLog(businessLogProfiler);

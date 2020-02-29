@@ -1,13 +1,14 @@
 package com.jd.bluedragon.distribution.offline.service.impl;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
+
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.offline.dao.OfflineDao;
 import com.jd.bluedragon.distribution.offline.domain.OfflineLog;
 import com.jd.bluedragon.distribution.offline.service.OfflineLogService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.fastjson.JSONObject;
@@ -74,7 +75,7 @@ public class OfflineLogServiceImpl implements OfflineLogService {
         response.put("发货人id", offlineLog.getSendUserCode());
 
 
-        BusinessLogProfiler businessLogProfiler = new BusinessLogProfilerBuilder()
+        BusinessLogProfiler businessLogProfiler = new BusinessLogProfilerBuilder(BusinessLogConstans.SourceSys.DMS_OPERATE)
                 .operateRequest(request)
                 .operateResponse(response)
                 .timeStamp(offlineLog.getCreateTime() == null ? new Date().getTime() : offlineLog.getCreateTime().getTime())
@@ -85,39 +86,39 @@ public class OfflineLogServiceImpl implements OfflineLogService {
 
         if (taskType != null && Task.TASK_TYPE_RECEIVE.equals(taskType)) {
             // 分拣中心收货
-            businessLogProfiler.setBizType(BizOperateTypeConstants.RECEIVE_RECEIVE_OFFLINE.getBizTypeCode());
-            businessLogProfiler.setOperateType(BizOperateTypeConstants.RECEIVE_RECEIVE_OFFLINE.getOperateTypeCode());
+            businessLogProfiler.setBizType(BusinessLogConstans.OperateTypeEnum.RECEIVE_RECEIVE_OFFLINE.getBizTypeCode());
+            businessLogProfiler.setOperateType(BusinessLogConstans.OperateTypeEnum.RECEIVE_RECEIVE_OFFLINE.getCode());
         } else if (taskType != null && Task.TASK_TYPE_INSPECTION.equals(taskType)) {
             // 分拣中心验货
-            businessLogProfiler.setBizType(BizOperateTypeConstants.INSPECT_SORTING_CENTER_INSPECT_OFFLINE.getBizTypeCode());
-            businessLogProfiler.setOperateType(BizOperateTypeConstants.INSPECT_SORTING_CENTER_INSPECT_OFFLINE.getOperateTypeCode());
+            businessLogProfiler.setBizType(BusinessLogConstans.OperateTypeEnum.INSPECTION_SORT_CENTER_INSPECTION_OFFLINE.getBizTypeCode());
+            businessLogProfiler.setOperateType(BusinessLogConstans.OperateTypeEnum.INSPECTION_SORT_CENTER_INSPECTION_OFFLINE.getCode());
         } else if (taskType != null && Task.TASK_TYPE_SORTING.equals(taskType)) {
             // 分拣
-            businessLogProfiler.setBizType(BizOperateTypeConstants.SORTING_OFFLINE_SORTING.getBizTypeCode());
-            businessLogProfiler.setOperateType(BizOperateTypeConstants.SORTING_OFFLINE_SORTING.getOperateTypeCode());
+            businessLogProfiler.setBizType(BusinessLogConstans.OperateTypeEnum.SORTING_OFFLINE_SORTING.getBizTypeCode());
+            businessLogProfiler.setOperateType(BusinessLogConstans.OperateTypeEnum.SORTING_OFFLINE_SORTING.getCode());
         } else if (taskType != null && Task.TASK_TYPE_SEND_DELIVERY.equals(taskType)) {
             // 发货
-            businessLogProfiler.setBizType(BizOperateTypeConstants.DELIVERY_DELIVERY_OFFLINE.getBizTypeCode());
-            businessLogProfiler.setOperateType(BizOperateTypeConstants.DELIVERY_DELIVERY_OFFLINE.getOperateTypeCode());
+            businessLogProfiler.setBizType(BusinessLogConstans.OperateTypeEnum.SEND_OFFLINE.getBizTypeCode());
+            businessLogProfiler.setOperateType(BusinessLogConstans.OperateTypeEnum.SEND_OFFLINE.getCode());
         } else if (taskType != null && Task.TASK_TYPE_ACARABILL_SEND_DELIVERY.equals(taskType)) {
             // 一车一单发货
-            businessLogProfiler.setBizType(BizOperateTypeConstants.DELIVERY_ONECARDELIVERY_OFFLINE.getBizTypeCode());
-            businessLogProfiler.setOperateType(BizOperateTypeConstants.DELIVERY_ONECARDELIVERY_OFFLINE.getOperateTypeCode());
+            businessLogProfiler.setBizType(BusinessLogConstans.OperateTypeEnum.SEND_ONECAR_OFFLINE.getBizTypeCode());
+            businessLogProfiler.setOperateType(BusinessLogConstans.OperateTypeEnum.SEND_ONECAR_OFFLINE.getCode());
         } else if (taskType != null && Task.TASK_TYPE_SEAL_BOX.equals(taskType)) {
             // 分拣封箱
-            businessLogProfiler.setBizType(BizOperateTypeConstants.SORTING_SORTING_SEAL_OFFLINE.getBizTypeCode());
-            businessLogProfiler.setOperateType(BizOperateTypeConstants.SORTING_SORTING_SEAL_OFFLINE.getOperateTypeCode());
+            businessLogProfiler.setBizType(BusinessLogConstans.OperateTypeEnum.SORTING_SORTING_SEAL_OFFLINE.getBizTypeCode());
+            businessLogProfiler.setOperateType(BusinessLogConstans.OperateTypeEnum.SORTING_SORTING_SEAL_OFFLINE.getCode());
         } else if (taskType != null && Task.TASK_TYPE_OFFLINE_EXCEEDAREA.equals(taskType)) {
             // 三方超区退货
-            businessLogProfiler.setBizType(BizOperateTypeConstants.RETURNS_OVER_AREA_RETURN_OFFLINE.getBizTypeCode());
-            businessLogProfiler.setOperateType(BizOperateTypeConstants.RETURNS_OVER_AREA_RETURN_OFFLINE.getOperateTypeCode());
+            businessLogProfiler.setBizType(BusinessLogConstans.OperateTypeEnum.RETURNS_OVER_AREA_RETURN_OFFLINE.getBizTypeCode());
+            businessLogProfiler.setOperateType(BusinessLogConstans.OperateTypeEnum.RETURNS_OVER_AREA_RETURN_OFFLINE.getCode());
         } else if (taskType != null && Task.TASK_TYPE_BOUNDARY.equals(taskType)) {
             // pop上门接货
-            businessLogProfiler.setBizType(BizOperateTypeConstants.RECEIVE_POP_RECEIVE.getBizTypeCode());
-            businessLogProfiler.setOperateType(BizOperateTypeConstants.RECEIVE_POP_RECEIVE.getOperateTypeCode());
+            businessLogProfiler.setBizType(BusinessLogConstans.OperateTypeEnum.RECEIVE_POP_RECEIVE.getBizTypeCode());
+            businessLogProfiler.setOperateType(BusinessLogConstans.OperateTypeEnum.RECEIVE_POP_RECEIVE.getCode());
         }else {
-            businessLogProfiler.setBizType(BizOperateTypeConstants.OTHER_OTHER_OFFLINE.getBizTypeCode());
-            businessLogProfiler.setOperateType(BizOperateTypeConstants.OTHER_OTHER_OFFLINE.getOperateTypeCode());
+            businessLogProfiler.setBizType(BusinessLogConstans.OperateTypeEnum.OTHER_OTHER_OFFLINE.getBizTypeCode());
+            businessLogProfiler.setOperateType(BusinessLogConstans.OperateTypeEnum.OTHER_OTHER_OFFLINE.getCode());
         }
 
         logEngine.addLog(businessLogProfiler);

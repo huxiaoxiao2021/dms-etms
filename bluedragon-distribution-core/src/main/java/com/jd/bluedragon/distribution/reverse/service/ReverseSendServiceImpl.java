@@ -15,11 +15,10 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
-import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
-import com.jd.bluedragon.distribution.log.BizTypeConstants;
+
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
-import com.jd.bluedragon.distribution.log.OperateTypeConstants;
 import com.jd.bluedragon.distribution.printOnline.service.IPrintOnlineService;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.reverse.domain.*;
@@ -543,8 +542,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
 
             BusinessLogProfiler businessLogProfiler = new BusinessLogProfilerBuilder()
-                    .bizType(BizOperateTypeConstants.DELIVERY_REVERSE_GETSENDDETIAL.getBizTypeCode())
-                    .operateType(BizOperateTypeConstants.DELIVERY_REVERSE_GETSENDDETIAL.getOperateTypeCode())
+                    .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SEND_REVERSE_GETSENDDETIAL)
                     .processTime(endTime,startTime)
                     .operateRequest(request)
                     .operateResponse(response)
@@ -735,8 +733,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 response.put("content", sLogAll.getContent());
 
                 BusinessLogProfiler businessLogProfiler = new BusinessLogProfilerBuilder()
-                        .bizType(BizOperateTypeConstants.DELIVERY_REVERSE_WMS_GETSENDDETIAL.getBizTypeCode())
-                        .operateType(BizOperateTypeConstants.DELIVERY_REVERSE_WMS_GETSENDDETIAL.getOperateTypeCode())
+                        .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SEND_REVERSE_WMS_GETSENDDETIAL)
                         .processTime(endTime,startTime)
                         .operateRequest(request)
                         .operateResponse(response)
@@ -989,8 +986,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
 
             BusinessLogProfiler businessLogProfiler = new BusinessLogProfilerBuilder()
-                    .bizType(BizOperateTypeConstants.DELIVERY_REVERSE_MOBILE_DELIVERY.getBizTypeCode())
-                    .operateType(BizOperateTypeConstants.DELIVERY_REVERSE_MOBILE_DELIVERY.getOperateTypeCode())
+                    .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SEND_REVERSE_MOBILE_SEND)
                     .processTime(endTime,startTime)
                     .operateRequest(request)
                     .operateResponse(response)
@@ -1096,8 +1092,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             response.put("content", sLogDetail.getContent());
 
             BusinessLogProfiler businessLogProfiler = new BusinessLogProfilerBuilder()
-                    .bizType(BizOperateTypeConstants.DELIVERY_REVERSE_DELIVERY.getBizTypeCode())
-                    .operateType(BizOperateTypeConstants.DELIVERY_REVERSE_DELIVERY.getOperateTypeCode())
+                    .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SEND_REVERSE_SEND)
                     .processTime(endTime,startTime)
                     .operateRequest(request)
                     .operateResponse(response)
@@ -1225,8 +1220,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             response.put("content", sLogDetail.getContent());
 
             BusinessLogProfiler businessLogProfiler = new BusinessLogProfilerBuilder()
-                    .bizType(BizOperateTypeConstants.DELIVERY_REVERSE_DELIVERY.getBizTypeCode())
-                    .operateType(BizOperateTypeConstants.DELIVERY_REVERSE_DELIVERY.getOperateTypeCode())
+                    .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SEND_REVERSE_SEND)
                     .processTime(endTime,startTime)
                     .operateRequest(request)
                     .operateResponse(response)
@@ -1849,8 +1843,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 response.put("content", sLogDetail.getContent());
 
                 BusinessLogProfiler businessLogProfiler = new BusinessLogProfilerBuilder()
-                        .bizType(BizOperateTypeConstants.DELIVERY_REVERSE_SPECIAL_DELIVERY.getBizTypeCode())
-                        .operateType(BizOperateTypeConstants.DELIVERY_REVERSE_SPECIAL_DELIVERY.getOperateTypeCode())
+                        .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SEND_REVERSE_SPECIAL_SEND)
                         .processTime(endTime,startTime)
                         .operateRequest(request)
                         .operateResponse(response)
@@ -1943,8 +1936,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             response.put("content", sLogDetail.getContent());
 
             BusinessLogProfiler businessLogProfiler = new BusinessLogProfilerBuilder()
-                    .bizType(BizOperateTypeConstants.DELIVERY_REVERSE_ECLP_DELIVERY.getBizTypeCode())
-                    .operateType(BizOperateTypeConstants.DELIVERY_REVERSE_ECLP_DELIVERY.getOperateTypeCode())
+                    .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SEND_REVERSE_ECLP_SEND)
                     .processTime(endTime,startTime)
                     .operateRequest(request)
                     .operateResponse(response)
@@ -1999,8 +1991,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             response.put("content", sLogDetail.getContent());
 
             BusinessLogProfiler businessLogProfiler = new BusinessLogProfilerBuilder()
-                    .bizType(BizOperateTypeConstants.DELIVERY_REVERSE_CLPS_DELIVERY.getBizTypeCode())
-                    .operateType(BizOperateTypeConstants.DELIVERY_REVERSE_CLPS_DELIVERY.getOperateTypeCode())
+                    .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SEND_REVERSE_CLPS_SEND)
                     .processTime(endTime,startTime)
                     .operateRequest(request)
                     .operateResponse(response)
@@ -2309,8 +2300,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             response.put("content", sLogDetail.getContent());
 
             BusinessLogProfiler businessLogProfiler = new BusinessLogProfilerBuilder()
-                    .bizType(BizOperateTypeConstants.DELIVERY_REVERSE_ECLP_SPWMS_DELIVERY.getBizTypeCode())
-                    .operateType(BizOperateTypeConstants.DELIVERY_REVERSE_ECLP_SPWMS_DELIVERY.getOperateTypeCode())
+                    .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SEND_REVERSE_ECLP_SPWMS_SEND)
                     .processTime(endTime,startTime)
                     .operateRequest(request)
                     .operateResponse(response)
@@ -2355,8 +2345,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             response.put("content", sLogDetail.getContent());
 
             BusinessLogProfiler businessLogProfiler = new BusinessLogProfilerBuilder()
-                    .bizType(BizOperateTypeConstants.DELIVERY_REVERSE_SPWMS_DELIVERY.getBizTypeCode())
-                    .operateType(BizOperateTypeConstants.DELIVERY_REVERSE_SPWMS_DELIVERY.getOperateTypeCode())
+                    .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SEND_REVERSE_SPWMS_SEND)
                     .processTime(endTime,startTime)
                     .operateRequest(request)
                     .operateResponse(response)

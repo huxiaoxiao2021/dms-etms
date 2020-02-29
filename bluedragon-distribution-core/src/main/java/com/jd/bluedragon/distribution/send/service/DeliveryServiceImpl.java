@@ -47,11 +47,10 @@ import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
-import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
-import com.jd.bluedragon.distribution.log.BizTypeConstants;
+
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
-import com.jd.bluedragon.distribution.log.OperateTypeConstants;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.reverse.dao.ReverseSpareDao;
@@ -3111,8 +3110,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                     operateResponse.put("info", logInfo);
 
                     BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
-                            .bizType(BizOperateTypeConstants.DELIVERY_ONECARDELIVERY.getBizTypeCode())
-                            .operateType(BizOperateTypeConstants.DELIVERY_ONECARDELIVERY.getOperateTypeCode())
+                            .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SEND_ONECAR_SEND)
                             .operateRequest(request)
                             .operateResponse(response)
                             .methodName("DeliveryServiceImpl#checkRouterForCBox")
@@ -3143,8 +3141,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             operateResponse.put("info", logInfo);
 
             BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
-                    .bizType(BizOperateTypeConstants.DELIVERY_ONECARDELIVERY.getBizTypeCode())
-                    .operateType(BizOperateTypeConstants.DELIVERY_ONECARDELIVERY.getOperateTypeCode())
+                    .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SEND_ONECAR_SEND)
                     .operateRequest(request)
                     .operateResponse(response)
                     .methodName("DeliveryServiceImpl#checkRouterForCBox")
@@ -3193,8 +3190,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         operateResponse.put("info", logInfo);
 
         BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
-                .bizType(BizOperateTypeConstants.DELIVERY_ONECARDELIVERY.getBizTypeCode())
-                .operateType(BizOperateTypeConstants.DELIVERY_ONECARDELIVERY.getOperateTypeCode())
+                .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SEND_ONECAR_SEND)
                 .operateRequest(request)
                 .operateResponse(response)
                 .methodName("DeliveryServiceImpl#checkRouterForCBox")
@@ -5036,8 +5032,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
 
             BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
-                    .bizType(BizOperateTypeConstants.BOARDCOMBINATION_DEBOARDCOMBINATION.getBizTypeCode())
-                    .operateType(BizOperateTypeConstants.BOARDCOMBINATION_DEBOARDCOMBINATION.getOperateTypeCode())
+                    .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.BOARD_DEBOARDCOMBINATION)
                     .operateRequest(operateRequest)
                     .operateResponse(operateResponse)
                     .processTime(endTime,startTime)
