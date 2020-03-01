@@ -71,4 +71,24 @@
 
     <tx:annotation-driven transaction-manager="transactionManagerBase"/>
 
+
+    <!--###########################bd_dms_business dataSource###############################-->
+    <bean id="businessDataSource" parent="parentDataSource">
+        <property name="url" value="${dms.business.db.write.url}"/>
+        <property name="username" value="${dms.business.db.username}"/>
+        <property name="password" value="${dms.business.db.password}"/>
+    </bean>
+    <bean id="transactionManagerBusiness" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="businessDataSource"/>
+    </bean>
+    <bean id="sqlSessionFactoryBusiness" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="configLocation" value="classpath:config/mysql/mybatis-config-dms-business.xml"/>
+        <property name="dataSource" ref="businessDataSource"/>
+    </bean>
+    <bean id="sessionTemplateBusiness" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="sqlSessionFactoryBusiness"/>
+    </bean>
+    <tx:annotation-driven transaction-manager="transactionManagerBusiness"/>
+    <!--###########################bd_dms_business dataSource###############################-->
+
 </beans>

@@ -96,6 +96,7 @@
         <dd><a href="#springUrl('/b2b/express/weight/index')" target="mainFrame">快运运单称重</a></dd>
         <dd><a href="#springUrl('/abnormal/dmsOperateHint/toIndex')" target="mainFrame">PDA验货提示语</a></dd>
         <dd><a href="#springUrl('/recyclematerial/index')" target="mainFrame">循环物资管理</a></dd>
+        <dd><a href="#springUrl('/recycleMaterialScan/index')" target="mainFrame">循环物资扫描查询</a></dd>
         <dt><a href="#" class="curr">FAQ</a></dt>
         <dd><a href="pages/faq/faq.html" target="mainFrame">FAQ</a></dd>
         <dt><a href="#" class="curr">离线管理</a></dt>

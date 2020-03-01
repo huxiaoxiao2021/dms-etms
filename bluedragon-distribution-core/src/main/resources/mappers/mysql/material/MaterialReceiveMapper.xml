@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.material.dao.MaterialReceiveDao" >
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.material.domain.DmsMaterialReceive" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="material_code" property="materialCode" jdbcType="VARCHAR" />
+    <result column="material_type" property="materialType" jdbcType="TINYINT" />
+    <result column="receive_type" property="receiveType" jdbcType="TINYINT" />
+    <result column="receive_code" property="receiveCode" jdbcType="VARCHAR" />
+    <result column="receive_num" property="receiveNum" jdbcType="INTEGER" />
+    <result column="create_site_code" property="createSiteCode" jdbcType="BIGINT" />
+    <result column="create_site_type" property="createSiteType" jdbcType="INTEGER" />
+    <result column="create_user_erp" property="createUserErp" jdbcType="VARCHAR" />
+    <result column="create_user_name" property="createUserName" jdbcType="VARCHAR" />
+    <result column="update_user_erp" property="updateUserErp" jdbcType="VARCHAR" />
+    <result column="update_user_name" property="updateUserName" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="yn" property="yn" jdbcType="BIT" />
+    <result column="ts" property="ts" jdbcType="TIMESTAMP" />
+  </resultMap>
+
+  <sql id="Base_Column_List" >
+    id, material_code, material_type, receive_type, receive_code, receive_num, create_site_code, 
+    create_site_type, create_user_erp, create_user_name, update_user_erp, update_user_name, 
+    create_time, update_time, yn, ts
+  </sql>
+
+    <sql id="where_condition">
+        <where>
+            yn = 1
+            <if test="createSiteCode != null">
+                AND create_site_code = #{createSiteCode,jdbcType=BIGINT}
+            </if>
+            <if test="materialType != null">
+                AND material_type = #{materialType,jdbcType=TINYINT}
+            </if>
+            <if test="materialCode != null">
+                AND material_code = #{materialCode,jdbcType=VARCHAR}
+            </if>
+            <if test="boardCode != null">
+                AND receive_code = #{boardCode,jdbcType=VARCHAR}
+            </if>
+            <if test="userErp != null">
+                AND update_user_erp = #{userErp,jdbcType=VARCHAR}
+            </if>
+            <if test="startTime != null">
+                AND update_time <![CDATA[ >= ]]> #{startTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="endTime != null">
+                AND update_time <![CDATA[ <= ]]> #{endTime,jdbcType=TIMESTAMP}
+            </if>
+        </where>
+    </sql>
+
+    <insert id="batchInsertOnDuplicate" parameterType="java.util.List">
+        INSERT INTO dms_material_receive
+        (
+            material_code,
+            material_type,
+            receive_type,
+            receive_code,
+            receive_num,
+            create_site_code,
+            create_site_type,
+            create_user_erp,
+            create_user_name,
+            update_user_erp,
+            update_user_name,
+            create_time,
+            update_time,
+            yn,
+            ts
+        )
+        VALUES
+        <foreach item="item" collection="list" index="index" separator=",">
+            <trim suffixOverrides="," prefix="(" suffix=")">
+            #{item.materialCode,jdbcType=VARCHAR},
+            #{item.materialType,jdbcType=TINYINT},
+            #{item.receiveType,jdbcType=TINYINT},
+            #{item.receiveCode,jdbcType=VARCHAR},
+            #{item.receiveNum,jdbcType=INTEGER},
+            #{item.createSiteCode,jdbcType=BIGINT},
+            #{item.createSiteType,jdbcType=INTEGER},
+            #{item.createUserErp,jdbcType=VARCHAR},
+            #{item.createUserName,jdbcType=VARCHAR},
+            #{item.updateUserErp,jdbcType=VARCHAR},
+            #{item.updateUserName,jdbcType=VARCHAR},
+            now(),
+            now(),
+            1,
+            now(3)
+            </trim>
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        receive_type = VALUES(receive_type),
+        receive_code = VALUES(receive_code),
+        receive_num = VALUES(receive_num),
+        update_user_erp = VALUES(update_user_erp),
+        update_user_name = VALUES(update_user_name),
+        update_time = now()
+    </insert>
+
+    <delete id="deleteByReceiveCode">
+        DELETE FROM dms_material_receive
+        WHERE
+            create_site_code = #{createSiteCode,jdbcType=BIGINT}
+        AND receive_code = #{receiveCode,jdbcType=VARCHAR}
+        AND yn = 1
+    </delete>
+
+    <select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
+        SELECT
+        COUNT(1) AS num
+        FROM
+        dms_material_receive
+        <include refid="where_condition"/>
+    </select>
+
+    <select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM
+        dms_material_receive
+        <include refid="where_condition"/>
+        ORDER BY update_time DESC
+        LIMIT #{offset,jdbcType=INTEGER}, #{limit,jdbcType=INTEGER}
+    </select>
+</mapper>
