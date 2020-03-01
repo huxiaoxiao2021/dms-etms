@@ -22,6 +22,11 @@ public class SendCodePrintEntity implements Serializable {
      **/
     private String destinationTabletrolleyCode;
 
+    /**
+     * 特殊说明，例如生鲜的“鲜”字
+     */
+    private String flagText;
+
     public String getDestinationCrossCode() {
         return destinationCrossCode;
     }
@@ -36,5 +41,13 @@ public class SendCodePrintEntity implements Serializable {
 
     public void setDestinationTabletrolleyCode(String destinationTabletrolleyCode) {
         this.destinationTabletrolleyCode = destinationTabletrolleyCode;
+    }
+
+    public String getFlagText() {
+        return flagText;
+    }
+
+    public void setFlagText(String flagText) {
+        this.flagText = flagText;
     }
 }

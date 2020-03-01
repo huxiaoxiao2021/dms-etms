@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.api.request.GenerateSendCodeRequest;
 import com.jd.bluedragon.distribution.api.response.BatchGenerateSendCodeReponse;
 import com.jd.bluedragon.distribution.api.response.GenerateSendCodeResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.businessCode.constans.BusinessCodeFromSourceEnum;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.rest.departure.DepartureResource;
 import com.jd.bluedragon.distribution.send.domain.SendM;
@@ -242,11 +243,12 @@ public class SendCodeResource {
     public GenerateSendCodeResponse generateSendCode(GenerateSendCodeRequest request) {
         GenerateSendCodeResponse response = new GenerateSendCodeResponse();
         try {
-            String sendCode = SerialRuleUtil.generateSendCode(
-                    request.getCreateSiteCode(),
-                    request.getReceiveSiteCode(),
-                    request.getTime()
-            );
+            Integer createSiteCode = (int) request.getCreateSiteCode();
+            Integer receiveSiteCode = (int) request.getReceiveSiteCode();
+            BusinessCodeFromSourceEnum businessCodeFromSourceEnum = BusinessCodeFromSourceEnum.getFromName(request.getFromSource());
+            String userName = StringHelper.isEmpty(request.getUserCode())? "" : request.getUserCode();
+            String sendCode = sendCodeService.createSendCode(createSiteCode, receiveSiteCode, userName,
+                    "1".equals(request.getFreshProperty()),request.getTime(),businessCodeFromSourceEnum);
             response.setCode(200);
             response.setSendCode(sendCode);
         } catch (Exception e) {
@@ -267,14 +269,15 @@ public class SendCodeResource {
             return response;
         }
         try {
+            Integer createSiteCode = (int) request.getCreateSiteCode();
+            Integer receiveSiteCode = (int) request.getReceiveSiteCode();
+            BusinessCodeFromSourceEnum businessCodeFromSourceEnum = BusinessCodeFromSourceEnum.getFromName(request.getFromSource());
+            String userName = StringHelper.isEmpty(request.getUserCode())? "" : request.getUserCode();
+
             List<String> sendCodes = new ArrayList<String>(request.getQuantity());
             for (int i = 0; i < request.getQuantity(); i++) {
-                String sendCode = SerialRuleUtil.generateSendCode(
-                        request.getCreateSiteCode(),
-                        request.getReceiveSiteCode(),
-                        //防止生成的批次号重复
-                        DateHelper.add(new Date(), Calendar.MILLISECOND, i * 10)
-                );
+                String sendCode = sendCodeService.createSendCode(createSiteCode, receiveSiteCode, userName,
+                        "1".equals(request.getFreshProperty()),DateHelper.add(new Date(), Calendar.MILLISECOND, i * 10),businessCodeFromSourceEnum);
                 sendCodes.add(sendCode);
             }
             response.setCode(200);

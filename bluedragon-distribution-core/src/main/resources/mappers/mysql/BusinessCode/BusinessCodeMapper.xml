@@ -3,7 +3,6 @@
 <mapper namespace="com.jd.bluedragon.distribution.businessCode.dao.BusinessCodeDao" >
 
 	<resultMap id="businessCodePoMap" type="com.jd.bluedragon.distribution.businessCode.domain.BusinessCodePo" >
-		<result column="id" property="id" />
 		<result column="code" property="code"/>
 		<result column="node_type" property="nodeType"/>
 		<result column="from_source" property="fromSource"/>
@@ -16,7 +15,7 @@
 	</resultMap>
 
 	<resultMap id="businessCodeAttributePoMap" type="com.jd.bluedragon.distribution.businessCode.domain.BusinessCodeAttributePo" >
-		<result column="id" property="id" />
+		<result column="id" property="id"/>
 		<result column="code" property="code"/>
 		<result column="attribute_key" property="attributeKey"/>
 		<result column="attribute_value" property="attributeValue"/>
@@ -32,10 +31,9 @@
 	<insert id="insertBusinessCode" parameterType="BusinessCodePo">
 		INSERT INTO BUSINESS_CODE
 		(
-			`ID`, `CODE`, `NODE_TYPE`, `FROM_SOURCE`, `CREATE_USER`, `CREATE_TIME`, `UPDATE_USER`, `UPDATE_TIME`, `IS_DELETE`
+			`CODE`, `NODE_TYPE`, `FROM_SOURCE`, `CREATE_USER`, `CREATE_TIME`, `UPDATE_USER`, `UPDATE_TIME`, `IS_DELETE`
 		)
 		VALUES (
-			#{id,jdbcType=BIGINT},
 			#{code, jdbcType=VARCHAR},
 			#{nodeType, jdbcType=VARCHAR},
 			#{fromSource, jdbcType=VARCHAR},
@@ -66,7 +64,7 @@
 				#{item.id, jdbcType=BIGINT},
 				#{item.code, jdbcType=VARCHAR},
 				#{item.attributeKey, jdbcType=VARCHAR},
-				#{item.attributeKey, jdbcType=VARCHAR},
+				#{item.attributeValue, jdbcType=VARCHAR},
 				#{item.fromSource, jdbcType=VARCHAR},
 				#{item.createUser, jdbcType=VARCHAR},
 				now(),

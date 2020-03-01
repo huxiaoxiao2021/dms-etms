@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.sendCode.domain.SendCodeDto;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,10 +37,11 @@ public class SendCodeServiceImpl implements SendCodeService {
     private BusinessCodeDao businessCodeDao;
 
     @Override
-    public Boolean createSendCode(Integer createSiteCode, Integer receiveSiteCode, String createUser, Boolean isFresh, BusinessCodeFromSourceEnum fromSource) {
+    public String createSendCode(Integer createSiteCode, Integer receiveSiteCode, String createUser, Boolean isFresh, Date date, BusinessCodeFromSourceEnum fromSource) {
 
         String sendCode = SerialRuleUtil.generateSendCode(createSiteCode, receiveSiteCode, new Date());
 
+        List<BusinessCodeAttributePo> businessCodeAttributePos = new ArrayList<>();
         /* 1. 创建业务单号的副表 */
         BusinessCodeAttributePo businessCodeAttributePo1 = new BusinessCodeAttributePo();
         businessCodeAttributePo1.setCode(sendCode);
@@ -48,6 +50,7 @@ public class SendCodeServiceImpl implements SendCodeService {
         businessCodeAttributePo1.setCreateUser(createUser);
         businessCodeAttributePo1.setUpdateUser(createUser);
         businessCodeAttributePo1.setFromSource(fromSource.name());
+        businessCodeAttributePos.add(businessCodeAttributePo1);
 
         BusinessCodeAttributePo businessCodeAttributePo2 = new BusinessCodeAttributePo();
         businessCodeAttributePo2.setCode(sendCode);
@@ -56,24 +59,23 @@ public class SendCodeServiceImpl implements SendCodeService {
         businessCodeAttributePo2.setCreateUser(createUser);
         businessCodeAttributePo2.setUpdateUser(createUser);
         businessCodeAttributePo2.setFromSource(fromSource.name());
-
-        BusinessCodeAttributePo businessCodeAttributePo3 = new BusinessCodeAttributePo();
-        businessCodeAttributePo3.setCode(sendCode);
-        businessCodeAttributePo3.setAttributeKey(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.is_fresh.name());
-        businessCodeAttributePo3.setAttributeValue(Boolean.TRUE.toString());
-        businessCodeAttributePo3.setCreateUser(createUser);
-        businessCodeAttributePo3.setUpdateUser(createUser);
-        businessCodeAttributePo3.setFromSource(fromSource.name());
-
-        List<BusinessCodeAttributePo> businessCodeAttributePos = new ArrayList<>();
-        businessCodeAttributePos.add(businessCodeAttributePo1);
         businessCodeAttributePos.add(businessCodeAttributePo2);
-        businessCodeAttributePos.add(businessCodeAttributePo3);
+
+        if (Boolean.TRUE.equals(isFresh)) {
+            BusinessCodeAttributePo businessCodeAttributePo3 = new BusinessCodeAttributePo();
+            businessCodeAttributePo3.setCode(sendCode);
+            businessCodeAttributePo3.setAttributeKey(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.is_fresh.name());
+            businessCodeAttributePo3.setAttributeValue(Boolean.TRUE.toString());
+            businessCodeAttributePo3.setCreateUser(createUser);
+            businessCodeAttributePo3.setUpdateUser(createUser);
+            businessCodeAttributePo3.setFromSource(fromSource.name());
+            businessCodeAttributePos.add(businessCodeAttributePo3);
+        }
 
         Integer insertNum = businessCodeDao.batchInsertBusinessCodeAttribute(businessCodeAttributePos);
         if (insertNum <= 0) {
             logger.warn("插入业务单号的属性值副表失败，创建批次号失败，始发：{}，目的：{}，生鲜：{}", createSiteCode, receiveSiteCode, isFresh);
-            return Boolean.FALSE;
+            return StringUtils.EMPTY;
         }
 
         /* 2. 创建业务单号的主表 */
@@ -86,10 +88,10 @@ public class SendCodeServiceImpl implements SendCodeService {
         Integer businessCodeInsertNum = businessCodeDao.insertBusinessCode(businessCodePo);
         if (businessCodeInsertNum <= 0) {
             logger.warn("插入业务单号的主表失败，创建批次号失败，始发：{}，目的：{}，生鲜：{}", createSiteCode, receiveSiteCode, isFresh);
-            return Boolean.FALSE;
+            return StringUtils.EMPTY;
         }
 
-        return Boolean.TRUE;
+        return sendCode;
     }
 
     @Override

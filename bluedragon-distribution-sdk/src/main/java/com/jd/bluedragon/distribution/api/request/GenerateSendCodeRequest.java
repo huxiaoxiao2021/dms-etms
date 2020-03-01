@@ -15,7 +15,15 @@ public class GenerateSendCodeRequest implements Serializable {
     private Integer quantity;
 
     /* 属性： 0：普通  1：生鲜 */
-    private String property;
+    private String freshProperty;
+
+    /* 用户ERP */
+    private String userCode;
+
+    /**
+     * 创建来源
+     */
+    private String fromSource;
 
     public long getCreateSiteCode() {
         return createSiteCode;
@@ -49,11 +57,27 @@ public class GenerateSendCodeRequest implements Serializable {
         this.quantity = quantity;
     }
 
-    public String getProperty() {
-        return property;
+    public String getFreshProperty() {
+        return freshProperty;
     }
 
-    public void setProperty(String property) {
-        this.property = property;
+    public void setFreshProperty(String freshProperty) {
+        this.freshProperty = freshProperty;
+    }
+
+    public String getUserCode() {
+        return userCode;
+    }
+
+    public void setUserCode(String userCode) {
+        this.userCode = userCode;
+    }
+
+    public String getFromSource() {
+        return fromSource;
+    }
+
+    public void setFromSource(String fromSource) {
+        this.fromSource = fromSource;
     }
 }

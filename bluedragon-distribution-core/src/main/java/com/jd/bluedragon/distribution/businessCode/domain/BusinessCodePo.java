@@ -13,11 +13,6 @@ import java.util.Date;
 public class BusinessCodePo {
 
     /**
-     * 数据库主键
-     */
-    private Long id;
-
-    /**
      * 业务单号（逻辑主键
      */
     private String code;
@@ -61,14 +56,6 @@ public class BusinessCodePo {
      * 数据库时间
      */
     private Date ts;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getCode() {
         return code;

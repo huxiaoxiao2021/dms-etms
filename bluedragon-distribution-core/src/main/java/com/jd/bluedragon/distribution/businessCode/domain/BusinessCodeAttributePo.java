@@ -18,7 +18,7 @@ public class BusinessCodeAttributePo {
     private Long id;
 
     /**
-     * 业务单号（逻辑主键
+     * 业务单号
      */
     private String code;
 

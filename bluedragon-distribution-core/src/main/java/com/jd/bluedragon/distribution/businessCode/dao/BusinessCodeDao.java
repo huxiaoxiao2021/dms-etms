@@ -4,7 +4,6 @@ import com.jd.bluedragon.distribution.businessCode.domain.BusinessCodeAttributeP
 import com.jd.bluedragon.distribution.businessCode.domain.BusinessCodePo;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import org.apache.ibatis.session.SqlSession;
-import org.mybatis.spring.SqlSessionTemplate;
 
 import java.util.List;
 
@@ -23,8 +22,6 @@ public class BusinessCodeDao {
 
     private SqlSession sqlSession;
 
-    private SqlSessionTemplate sqlSessionRead;
-
     private SequenceGenAdaptor sequenceGenAdaptor;
 
     public Integer insertBusinessCode(BusinessCodePo businessCodePo) {
@@ -36,8 +33,8 @@ public class BusinessCodeDao {
     }
 
     public Integer batchInsertBusinessCodeAttribute(List<BusinessCodeAttributePo> businessCodeAttributePos) {
-        for (BusinessCodeAttributePo item : businessCodeAttributePos) {
-            item.setId(sequenceGenAdaptor.newId(TABLE_NAME));
+        for (BusinessCodeAttributePo businessCodeAttributePo : businessCodeAttributePos) {
+            businessCodeAttributePo.setId(sequenceGenAdaptor.newId(TABLE_NAME));
         }
         return sqlSession.insert(NAMESPACE + ".batchInsertBusinessCodeAttribute", businessCodeAttributePos);
     }
@@ -60,14 +57,6 @@ public class BusinessCodeDao {
 
     public void setSqlSession(SqlSession sqlSession) {
         this.sqlSession = sqlSession;
-    }
-
-    public SqlSessionTemplate getSqlSessionRead() {
-        return sqlSessionRead;
-    }
-
-    public void setSqlSessionRead(SqlSessionTemplate sqlSessionRead) {
-        this.sqlSessionRead = sqlSessionRead;
     }
 
     public SequenceGenAdaptor getSequenceGenAdaptor() {
