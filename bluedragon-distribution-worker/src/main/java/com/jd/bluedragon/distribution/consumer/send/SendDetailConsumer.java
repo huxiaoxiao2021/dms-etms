@@ -439,7 +439,11 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                     log.warn("目的分拣中心不属于7大区,目的分拣中心：{}所属区域：{}",operateSiteCode,orgId);
                     return;
                 }
-                String[] templateParam = new String[]{waybillCode,oldSiteDto.getDmsName(),oldSiteDto.getSitePhone(),oldSiteDto.getAddress()};
+                BaseStaffSiteOrgDto operateSite = baseMajorManager.getBaseSiteBySiteId(operateSiteCode);
+                if(operateSite == null){
+                    return;
+                }
+                String[] templateParam = new String[]{waybillCode,operateSite.getSiteName(),operateSite.getSitePhone(),operateSite.getAddress()};
                 String mobileNum = waybill.getReceiverMobile();
                 String extension = Constants.DMS_COLD_CHAIN_SEND;
                 InvokeResult result = smsMessageManager.sendSmsTemplateMessage(senderNum,templateId,
