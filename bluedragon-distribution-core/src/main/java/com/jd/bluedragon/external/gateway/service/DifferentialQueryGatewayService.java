@@ -7,7 +7,7 @@ import com.jd.bluedragon.common.dto.waybillnocollection.response.DifferentialQue
 /**
  * DifferentialQueryGatewayService
  * 一车一单发货、组板、建箱差异查询服务
- *
+ * 发布到物流网关 由安卓调用
  * @author jiaowenqiang
  * @date 2019/7/5
  */

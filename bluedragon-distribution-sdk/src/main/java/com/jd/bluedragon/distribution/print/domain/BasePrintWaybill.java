@@ -412,6 +412,29 @@ public class BasePrintWaybill implements Serializable {
 	 */
 	private String backupRoadCode;
 
+	/**
+	 * 服务号
+	 */
+	private String serviceCode;
+
+	private String comment;
+
+	public String getServiceCode() {
+		return serviceCode;
+	}
+
+	public void setServiceCode(String serviceCode) {
+		this.serviceCode = serviceCode;
+	}
+
+	public String getComment() {
+		return comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
+
 	public String getAdditionalComment() {
 		return additionalComment;
 	}

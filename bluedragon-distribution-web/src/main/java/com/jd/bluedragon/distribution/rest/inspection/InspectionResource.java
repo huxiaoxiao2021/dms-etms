@@ -2,9 +2,7 @@ package com.jd.bluedragon.distribution.rest.inspection;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
-import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintTrack;
 import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -14,13 +12,14 @@ import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.request.TurnoverBoxRequest;
 import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.base.domain.DmsStorageArea;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
-import com.jd.bluedragon.distribution.base.service.DmsStorageAreaService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionEC;
+import com.jd.bluedragon.distribution.inspection.domain.InspectionPackProgress;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
@@ -39,6 +38,8 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.domain.SortCrossDetail;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +48,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
 
-import javax.swing.text.TabExpander;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
@@ -85,17 +85,8 @@ public class InspectionResource {
 	@Autowired
 	ReceiveService receiveService;
 
-	@Autowired
-	private DmsStorageAreaService dmsStorageAreaService;
-
-	@Autowired
-	private WaybillQueryManager waybillQueryManager;
-
     @Autowired
     private DmsOperateHintService dmsOperateHintService;
-
-	@Autowired
-	private RedisManager redisManager;
 
 	@Autowired
 	private InspectionService inspectionService;
@@ -600,6 +591,33 @@ public class InspectionResource {
 		return jdResponse;
 	}
 
+	@GET
+	@Path("/inspection/checkProgress/{packageOrWaybillCode}/{siteCode}")
+	@JProfiler(jKey = "DMS.BASE.InspectionResource.getWaybillCheckPackDetail", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+	public InvokeResult<InspectionPackProgress> getWaybillCheckPackDetail(
+			@PathParam("packageOrWaybillCode") String packageOrWaybillCode,
+			@PathParam("siteCode") Integer siteCode) {
+
+		InvokeResult<InspectionPackProgress> result = new InvokeResult<>();
+		if (StringUtils.isBlank(packageOrWaybillCode)) {
+			result.parameterError("运单号/包裹号为空！");
+			return result;
+		}
+
+		try {
+			String waybillCode = packageOrWaybillCode;
+			if (WaybillUtil.isPackageCode(packageOrWaybillCode)) {
+				waybillCode = WaybillUtil.getWaybillCode(packageOrWaybillCode);
+			}
+			result.setData(inspectionService.getWaybillCheckProgress(waybillCode, siteCode));
+		}
+		catch (Exception e) {
+			result.error(e);
+			log.error("Failed to get package check progress rate.[" + packageOrWaybillCode + "].", e);
+		}
+
+		return result;
+	}
     /**
      * B网验货显示下一节点的笼车号
      *

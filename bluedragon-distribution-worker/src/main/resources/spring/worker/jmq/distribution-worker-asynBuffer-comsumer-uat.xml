@@ -133,12 +133,21 @@
                     </bean>
                 </entry>
 
-                <!-- 称重信息回传运单中心 -->
+                <!-- 称重信息回传运单中心(将弃用 -->
                 <entry key="${jmq.task.topic.weight.uat}">
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
                         <constructor-arg name="target" ref="asynBufferService"></constructor-arg>
                         <constructor-arg name="methodName" value="weightTaskProcess"></constructor-arg>
+                    </bean>
+                </entry>
+
+                <!-- 分拣操作称重量方回传（整合 -->
+                <entry key="${jmq.task.topic.weight.volume.uat}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="asynBufferService"/>
+                        <constructor-arg name="methodName" value="weightTaskProcess"/>
                     </bean>
                 </entry>
 

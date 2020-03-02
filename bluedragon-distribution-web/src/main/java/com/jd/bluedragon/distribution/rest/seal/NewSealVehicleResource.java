@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.rest.seal;
 
-import IceInternal.Ex;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.TmsTfcWSManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -32,6 +31,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.*;
@@ -69,7 +69,12 @@ public class NewSealVehicleResource {
     @Autowired
     private ColdChainSendService coldChainSendService;
 
-    private static final int ROLL_BACK_DAY = -7; //查询几天内的带解任务（负数）
+    /**
+     * 查询几天内的带解任务（负数）
+     * */
+    @Value("${newSealVehicleResource.rollBackDay:-7}")
+    private int rollBackDay;
+
     private static final int RANGE_HOUR = 2; //运力编码在两小时范围内
 
     /**
@@ -533,9 +538,9 @@ public class NewSealVehicleResource {
             sealCarDto.setSealCode(request.getSealCode());
             sealCarDto.setTransportCode(request.getTransportCode());
             sealCarDto.setBatchCode(request.getBatchCode());
-            //查询7天内的带解任务
+            //查询15天内的待解任务
             Calendar c = Calendar.getInstance();
-            c.add(Calendar.DATE, ROLL_BACK_DAY);
+            c.add(Calendar.DATE, rollBackDay);
             sealCarDto.setSealCarTimeBegin(c.getTime());
 
             if (StringHelper.isNotEmpty(request.getVehicleNumber())) {

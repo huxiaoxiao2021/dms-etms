@@ -211,4 +211,18 @@ public class InspectionDao extends BaseDao<Inspection>{
 		}
 		return this.getSqlSession().selectList(namespace + ".getInspectedPackageNumMoreThanOne", waybillNoCollectionCondition);
 	}
+
+	/**
+	 * 查询运单的验货记录
+	 *
+	 * @param waybillCode
+	 * @param createSiteCode
+	 * @return
+	 */
+	public List<Inspection> listInspectionByWaybillCode(String waybillCode, Integer createSiteCode) {
+		Map<String, Object> paramMap = new HashMap<>();
+		paramMap.put("createSiteCode", createSiteCode);
+		paramMap.put("waybillCode", waybillCode);
+		return this.getSqlSession().selectList(namespace + ".listInspectionByWaybillCode", paramMap);
+	}
 }

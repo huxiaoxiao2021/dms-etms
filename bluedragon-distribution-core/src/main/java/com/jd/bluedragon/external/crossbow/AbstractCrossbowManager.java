@@ -18,11 +18,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -72,7 +72,18 @@ public abstract class AbstractCrossbowManager<P,R> implements InitializingBean {
      * @param condition 相应的条件
      * @return 返回三方接口的请求参数request对象
      */
-    protected abstract P getMyRequestBody(Object condition);
+    protected P getMyRequestBody(Object condition) {
+        return null;
+    }
+
+    /**
+     * 构建url参数
+     * @param condition 相应的条件
+     * @return 返回三方接口的url请求参数
+     */
+    protected Map<String, String> getMyUrlParams(Object condition) {
+        return Collections.emptyMap();
+    }
 
     /**
      * 调用物流基础组件crossbow的执行器
@@ -89,8 +100,9 @@ public abstract class AbstractCrossbowManager<P,R> implements InitializingBean {
             Type responseType = ((ParameterizedType)superClass).getActualTypeArguments()[1];
 
             P parameter = getMyRequestBody(condition);
+            Map<String, String> urlParams = getMyUrlParams(condition);
             return deSerializeResponse(
-                    dmsCrossbowClient.executor(crossbowConfig, serializeRequest(parameter,requestType))
+                    dmsCrossbowClient.executor(crossbowConfig, serializeRequest(parameter,requestType), urlParams)
                     ,responseType);
 
         } catch (RuntimeException e) {
@@ -126,6 +138,9 @@ public abstract class AbstractCrossbowManager<P,R> implements InitializingBean {
     }
 
     private String serializeRequest(P parameter, Type requestType) {
+        if (null == parameter) {
+            return null;
+        }
         switch (serializationConfig.getSerializationMode()) {
             case XML:
                 return XmlHelper.toXml(parameter,(Class)requestType);

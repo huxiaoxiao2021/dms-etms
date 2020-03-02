@@ -9,6 +9,8 @@ public class WaybillStatus {
 
     public static final Integer WAYBILL_STATUS_CODE_FORWARD_INSPECTION = 0; //正向验货
     public static final Integer WAYBILL_STATUS_CODE_FORWARD_SORTING = 1;  //正向分拣
+    public static final Integer WAYBILL_STATUS_CODE_SITE_SORTING = 11;  //经济网、站点装箱
+    public static final Integer WAYBILL_STATUS_CODE_SITE_CANCEL_SORTING = 70;  //经济网、站点取消装箱
     public static final Integer WAYBILL_STATUS_CODE_POP_InFactory = 1150; //驻场验货
 
     public static final Integer WAYBILL_STATUS_CODE_REVERSE_INSPECTION = 30; //逆向验货
