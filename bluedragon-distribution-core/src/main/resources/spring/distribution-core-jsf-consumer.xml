@@ -556,7 +556,7 @@
 
     <!--报表的批次号重量体积查询接口 -->
     <jsf:consumer id="weightVolSendCodeJSFService" interface="com.jd.ql.dms.report.WeightVolSendCodeJSFService"
-                  protocol="jsf" alias="${jsf.reportExternalService.alias}" timeout="${jsf.reportExternalService.timeout}" retries="${jsf.retries}" serialization="hessian">
+                  protocol="jsf" alias="${jsf.reportExternalService.alias}" timeout="${jsf.reportExternalService.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
 
 </beans>
