@@ -77,6 +77,11 @@ public class UccPropertyConfiguration {
      */
     private String oldLogPageTips;
 
+    /**
+     * 冷链卡班短信开关;true 开启
+     */
+    private boolean coldChainStorageSmsSwitch;
+
     public boolean isLogToBusinessLogByKafka() {
         return logToBusinessLogByKafka;
     }
@@ -227,5 +232,13 @@ public class UccPropertyConfiguration {
 
     public void setOldLogPageTips(String oldLogPageTips) {
         this.oldLogPageTips = oldLogPageTips;
+    }
+
+    public boolean isColdChainStorageSmsSwitch() {
+        return coldChainStorageSmsSwitch;
+    }
+
+    public void setColdChainStorageSmsSwitch(boolean coldChainStorageSmsSwitch) {
+        this.coldChainStorageSmsSwitch = coldChainStorageSmsSwitch;
     }
 }

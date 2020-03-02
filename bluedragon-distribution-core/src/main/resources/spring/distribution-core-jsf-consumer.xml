@@ -549,7 +549,8 @@
     <!-- 客户端管理-jsf -->
     <jsf:consumer id="dmsClientJsfService" interface="com.jd.bluedragon.sdk.modules.client.DmsClientJsfService" protocol="jsf"
                   alias="${jsf.business.dmsClientJsfService.alias}" timeout="${jsf.business.dmsClientJsfService.timeout}"  retries="${jsf.retries}">
-    </jsf:consumer>	
+    </jsf:consumer>
+
     <jsf:consumer id="iAbnPdaAPI" interface="com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.service.IAbnPdaAPI" alias="${qcAbnPdaAPI.alias}" timeout="${qcAbnPdaAPI.timeout}" retries="1">
         <jsf:parameter key="token" value="${qcAbnPdaAPI.token}" hide="true" />
     </jsf:consumer>
@@ -557,6 +558,13 @@
     <jsf:consumer id="jsfTypeService" interface="com.jd.dms.logger.service.BusinessLogQueryService"
                   protocol="jsf"
                   alias="${dms.jsfbusinesslog.alias}" timeout="10000"
+                  retries="${jsf.retries}">
+    </jsf:consumer>
+
+    <!-- 短信平台-jsf -->
+    <jsf:consumer id="smsMessageTemplateRpcServiceJsf" interface="com.jd.mobilePhoneMsg.sender.client.service.SmsMessageTemplateRpcService"
+                  protocol="jsf" alias="${mobilePhoneMsg.SmsMessageTemplateRpcService.jsf.alias}"
+                  timeout="${mobilePhoneMsg.SmsMessageTemplateRpcService.jsf.timeout}"
                   retries="${jsf.retries}">
     </jsf:consumer>
 
