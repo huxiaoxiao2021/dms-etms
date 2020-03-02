@@ -234,10 +234,11 @@ public interface WaybillSignConstants {
 	char CHAR_16_1 = '1';
 	
 	/**
-	 * WaybillSign第33位,9-物业代收 A-保安室代收 B-门口存放
+	 * WaybillSign第33位,9-物业代收 A-保安室代收 B-门口存放 C-用户指定
 	 */
 	int POSITION_33 = 33;
 	char CHAR_33_9 = '9';
 	char CHAR_33_A = 'A';
 	char CHAR_33_B = 'B';
+	char CHAR_33_C = 'C';
 }

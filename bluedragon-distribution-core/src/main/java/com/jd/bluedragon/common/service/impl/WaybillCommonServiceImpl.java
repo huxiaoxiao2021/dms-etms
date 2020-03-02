@@ -38,6 +38,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -969,6 +970,11 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         //无接触面单，追加标识‘代’
         if(BusinessUtil.isNoTouchService(waybill.getSendPay(),waybill.getWaybillSign())){
         	target.appendSpecialMark(TextConstants.NO_TOUCH_FLAG);
+        	//无接触面单，追加waybillExt.contactlessPlace到printAddressRemark中
+    		if(waybill.getWaybillExt()!= null
+    				&& StringUtils.isNotBlank(waybill.getWaybillExt().getContactlessPlace())){
+    			target.setPrintAddressRemark(waybill.getWaybillExt().getContactlessPlace());
+    		}
         }
         //设置特殊需求
         loadSpecialRequirement(target,waybill.getWaybillSign(),waybill);

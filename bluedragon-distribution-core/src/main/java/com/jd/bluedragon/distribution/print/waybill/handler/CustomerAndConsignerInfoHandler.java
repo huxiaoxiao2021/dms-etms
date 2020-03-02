@@ -1,12 +1,5 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
-import com.google.common.base.Objects;
-import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
-import com.jd.bluedragon.distribution.print.service.HideInfoService;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.etms.waybill.domain.WaybillExt;
-import com.alibaba.fastjson.JSON;
-
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,9 +7,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import com.alibaba.fastjson.JSON;
+import com.google.common.base.Objects;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
+import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
+import com.jd.bluedragon.distribution.print.service.HideInfoService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.waybill.domain.WaybillExt;
 /**
  * 
  * @ClassName: CustomerAndConsignerInfoHandler
@@ -58,10 +57,19 @@ public class CustomerAndConsignerInfoHandler implements Handler<WaybillPrintCont
 		hideInfoService.setHideInfo(waybillSign, context.getBasePrintWaybill());
 		//手机号、座机一样只保留一个
 		removeRepeatedTel(context);
-		//将printAddressRemark追加printAddress中
-		BasePrintWaybill basePrintWaybill = context.getBasePrintWaybill();
-		basePrintWaybill.setPrintAddress(StringHelper.append(basePrintWaybill.getPrintAddress(), basePrintWaybill.getPrintAddressRemark()));
+		//地址追加备注信息
+		appendAdressRemark(context);
 		return context.getResult();
+	}
+	//地址追加备注信息
+	private void appendAdressRemark(WaybillPrintContext context) {
+		if (context.getBasePrintWaybill() == null){
+			return;
+		}
+		BasePrintWaybill basePrintWaybill = context.getBasePrintWaybill();
+		//将printAddressRemark追加printAddress中
+		String newPrintAddress = StringHelper.append(basePrintWaybill.getPrintAddress(), basePrintWaybill.getPrintAddressRemark());
+		basePrintWaybill.setPrintAddress(newPrintAddress);
 	}
 	/**
 	 * 手机号、座机一样只保留一个

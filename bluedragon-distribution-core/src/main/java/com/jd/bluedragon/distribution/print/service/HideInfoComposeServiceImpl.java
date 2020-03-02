@@ -21,9 +21,13 @@ public class HideInfoComposeServiceImpl implements  ComposeService {
 
     @Override
     public void handle(PrintWaybill waybill, Integer dmsCode, Integer targetSiteCode){
-        String waybillSign  = waybill.getWaybillSign();
+    	if(waybill == null){
+    		return;
+    	}
+    	String waybillSign  = waybill.getWaybillSign();
         hideInfoService.setHideInfo(waybillSign,waybill);
 		//将printAddressRemark追加printAddress中
-        waybill.setPrintAddress(StringHelper.append(waybill.getPrintAddress(), waybill.getPrintAddressRemark()));
+		String newPrintAddress = StringHelper.append(waybill.getPrintAddress(), waybill.getPrintAddressRemark());
+		waybill.setPrintAddress(newPrintAddress);
     }
 }

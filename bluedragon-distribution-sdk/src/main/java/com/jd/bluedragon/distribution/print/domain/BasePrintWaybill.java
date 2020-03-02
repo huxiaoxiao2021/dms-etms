@@ -640,7 +640,11 @@ public class BasePrintWaybill implements Serializable {
 	 */
 	public void setSpecialMark(String specialMark) {
 		this.specialMark = specialMark;
-		specialMarkBuilder = new StringBuilder(specialMark);
+		if(specialMark != null){
+			specialMarkBuilder = new StringBuilder(specialMark);
+		}else{
+			specialMarkBuilder = new StringBuilder();
+		}
 	}
     /**
 	 * 特殊标记字段追加标记，不包含时加入标记

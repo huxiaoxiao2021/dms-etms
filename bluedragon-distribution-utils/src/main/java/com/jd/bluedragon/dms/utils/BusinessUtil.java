@@ -1195,11 +1195,13 @@ public class BusinessUtil {
 					SendPayConstants.POSITION_295,
 					SendPayConstants.CHAR_295_1,
 					SendPayConstants.CHAR_295_2, 
-					SendPayConstants.CHAR_295_3)
+					SendPayConstants.CHAR_295_3,
+					SendPayConstants.CHAR_295_4)
 				|| BusinessUtil.isSignInChars(waybillSign,
 						WaybillSignConstants.POSITION_33,
 						WaybillSignConstants.CHAR_33_9,
 						WaybillSignConstants.CHAR_33_A,
-						WaybillSignConstants.CHAR_33_B);
+						WaybillSignConstants.CHAR_33_B,
+						WaybillSignConstants.CHAR_33_C);
     }
 }
