@@ -45,13 +45,13 @@ public class BusinessLogProfilerBuilder {
         return this;
     }
 
-    public BusinessLogProfilerBuilder bizType(int biztype) {
-        this.businessLogProfiler.setBizType(biztype);
+    public BusinessLogProfilerBuilder bizType(BusinessLogConstans.OperateTypeEnum operateTypeEnum) {
+        this.businessLogProfiler.setBizType(operateTypeEnum.getBizTypeCode());
         return this;
     }
 
-    public BusinessLogProfilerBuilder operateType(int operatetype) {
-        this.businessLogProfiler.setOperateType(operatetype);
+    public BusinessLogProfilerBuilder operateType(BusinessLogConstans.OperateTypeEnum operateTypeEnum) {
+        this.businessLogProfiler.setOperateType(operateTypeEnum.getCode());
         return this;
     }
 

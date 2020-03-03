@@ -52,7 +52,6 @@ import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
-import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
 
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;

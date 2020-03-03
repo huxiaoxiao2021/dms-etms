@@ -13,7 +13,6 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
-import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.rma.service.RmaHandOverWaybillService;
 import com.jd.bluedragon.distribution.send.domain.ColdChainSendMessage;
@@ -27,6 +26,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.common.util.StringUtils;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
@@ -474,8 +474,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                     response.put("extension", extension);
 
                     BusinessLogProfiler businessLogProfiler = new BusinessLogProfilerBuilder()
-                            .bizType(BizOperateTypeConstants.DELIVERY_COLDCHAIN_SMS.getBizTypeCode())
-                            .operateType(BizOperateTypeConstants.DELIVERY_COLDCHAIN_SMS.getOperateTypeCode())
+                            .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SEND_COLDCHAIN_SMS)
                             .processTime(endTime,startTime)
                             .operateRequest(request)
                             .operateResponse(response)

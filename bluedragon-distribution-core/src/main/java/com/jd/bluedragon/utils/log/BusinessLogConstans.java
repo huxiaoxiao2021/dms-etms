@@ -50,6 +50,7 @@ public class BusinessLogConstans {
     }
 
     /**
+     * 添加枚举前 要定义好使用的 com.jd.bluedragon.utils.log.BusinessLogConstans.SourceSys
      * http://business.log.jd.com/》配置管理》业务类型配置； 中定义的业务类型；
      * 配置指引：https://cf.jd.com/pages/viewpage.action?pageId=146201361
      */
@@ -108,6 +109,7 @@ public class BusinessLogConstans {
     }
 
     /**
+     * 添加枚举前，首先要定好要使用的com.jd.bluedragon.utils.log.BusinessLogConstans.BizTypeEnum
      * http://business.log.jd.com/》配置管理》操作类型配置；
      * 理论上每一条写日志的地方operateType值都不一样；这样方便查找
      * 配置指引：https://cf.jd.com/pages/viewpage.action?pageId=146201361
@@ -129,6 +131,7 @@ public class BusinessLogConstans {
         SEND_REVERSE_ECLP_SPWMS_SEND(BizTypeEnum.SEND,1020,"逆向发货ECLP_SPWMS"),
         SEND_REVERSE_SPWMS_SEND(BizTypeEnum.SEND,1021,"逆向发货SPWMS"),
         SEND_PARTNER_WAY_BILL(BizTypeEnum.SEND,1011,"运单号关联包裹信息"),
+        SEND_COLDCHAIN_SMS(BizTypeEnum.SEND,1022,"冷链卡班暂存计费发短信"),
 
         OUTER_WAYBILL_EXCHANGE_WAYBILL(BizTypeEnum.OUTER_WAYBILL_EXCHANGE,1900002,"触发外单换单"),
         TASK_CONSUME_FAIL(BizTypeEnum.TASK,20062,"消费失败落库"),

@@ -3,6 +3,7 @@ package com.jd.bluedragon.common.log;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationH2Test;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.bluedragon.distribution.log.impl.JDQLogWriter;
 import com.jd.bluedragon.distribution.offline.domain.OfflineLog;
@@ -106,8 +107,7 @@ public class LogEngineImplTest extends AbstractDaoIntegrationH2Test {
                 .reMark("remark")
                 .operateResponse(response)
                 .operateRequest(request)
-                .bizType(1)
-                .operateType(2)
+                .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SEND_REVERSE_SEND)
                 .build();
 
         System.out.println(JSONObject.toJSONString(businessLogProfiler));
