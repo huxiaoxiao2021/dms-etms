@@ -6,7 +6,7 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.ReassignWaybillRequest;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
+
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.reassignWaybill.dao.ReassignWaybillDao;
 import com.jd.bluedragon.distribution.reassignWaybill.domain.ReassignWaybill;
@@ -17,6 +17,7 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SystemLogContants;
 import com.jd.bluedragon.utils.SystemLogUtil;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.fastjson.JSONObject;
@@ -106,8 +107,7 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 				request.put("operatorName",siteChangeMqDto.getOperatorName());
 
 				BusinessLogProfiler businessLogProfiler = new BusinessLogProfilerBuilder()
-						.bizType(BizOperateTypeConstants.SORTING_PRE_SORTING_SITE_CHANGE.getBizTypeCode())
-						.operateType(BizOperateTypeConstants.SORTING_PRE_SORTING_SITE_CHANGE.getOperateTypeCode())
+						.operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SORTING_PRE_SITE_CHANGE)
 						.methodName("ReassignWaybillServiceImpl#add")
 						.operateRequest(request)
 						.operateResponse(response)

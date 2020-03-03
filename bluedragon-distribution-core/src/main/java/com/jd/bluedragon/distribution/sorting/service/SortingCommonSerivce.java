@@ -14,11 +14,10 @@ import com.jd.bluedragon.distribution.fastRefund.domain.FastRefundBlockerComplet
 import com.jd.bluedragon.distribution.fastRefund.service.FastRefundService;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
-import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
-import com.jd.bluedragon.distribution.log.BizTypeConstants;
+
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
-import com.jd.bluedragon.distribution.log.OperateTypeConstants;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.domain.SortingVO;
@@ -337,8 +336,7 @@ public abstract class SortingCommonSerivce {
                 response.put("content", e.getMessage());
 
                 BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
-                        .bizType(BizOperateTypeConstants.SORTING_REVERSE_SORTING_100SCORE.getBizTypeCode())
-                        .operateType(BizOperateTypeConstants.SORTING_REVERSE_SORTING_100SCORE.getOperateTypeCode())
+                        .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SORTING_REVERSE_SORTING_100SCORE)
                         .methodName("SortingCommonSerivce#notifyBlocker")
                         .processTime(endTime,startTime)
                         .operateRequest(request)

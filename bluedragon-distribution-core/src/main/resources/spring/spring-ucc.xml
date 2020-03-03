@@ -42,6 +42,7 @@
         <property name="logToBusinessLogByKafka" value="${logtobusinesslog.global.on}"/>
         <property name="newLogPageTips" value="${newLogPageTips:''}"/>
         <property name="oldLogPageTips" value="${newLogPageTips:''}"/>
+        <property name="coldChainStorageSmsSwitch" value="${coldChainStorageSmsSwitch:false}"/>
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -68,6 +69,7 @@
 				<value>uccPropertyConfiguration.logToBusinessLogByKafka</value>
 				<value>uccPropertyConfiguration.newLogPageTips</value>
 				<value>uccPropertyConfiguration.oldLogPageTips</value>
+				<value>uccPropertyConfiguration.coldChainStorageSmsSwitch</value>
 			</list>
 		</property>
 	</bean>

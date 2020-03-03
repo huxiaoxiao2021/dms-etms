@@ -13,8 +13,10 @@ import java.util.Map;
 @Deprecated
 public interface SystemLogService {
 
+	@Deprecated
 	int add(SystemLog systemLog);
 
+	@Deprecated
 	int add(String keyword1, String keyword2, String keyword3, Long keyword4,
 			String content, Long type);
 

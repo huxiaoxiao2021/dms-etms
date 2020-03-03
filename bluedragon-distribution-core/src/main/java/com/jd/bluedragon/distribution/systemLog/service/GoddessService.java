@@ -18,6 +18,7 @@ public interface GoddessService {
      * 保存
      * @param domain
      */
+    @Deprecated
     void save(Goddess domain);
 
     /**

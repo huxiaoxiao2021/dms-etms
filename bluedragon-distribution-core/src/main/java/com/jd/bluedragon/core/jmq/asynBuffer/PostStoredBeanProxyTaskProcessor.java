@@ -1,11 +1,10 @@
 package com.jd.bluedragon.core.jmq.asynBuffer;
 
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
-import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
-import com.jd.bluedragon.distribution.log.BizTypeConstants;
+
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
-import com.jd.bluedragon.distribution.log.OperateTypeConstants;
 import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
@@ -139,8 +138,7 @@ public class PostStoredBeanProxyTaskProcessor extends BeanProxyTaskProcessor<Tas
 			request.put("boxCode", task.getBoxCode());
 
 			BusinessLogProfiler businessLogProfiler = new BusinessLogProfilerBuilder()
-					.bizType(BizOperateTypeConstants.TASK_CONSUME_FAIL.getBizTypeCode())
-					.operateType(BizOperateTypeConstants.TASK_CONSUME_FAIL.getOperateTypeCode())
+					.operateTypeEnum(BusinessLogConstans.OperateTypeEnum.TASK_CONSUME_FAIL)
 					.methodName("PostStoredBeanProxyTaskProcessor#saveConsumerFailedTask")
 					.processTime(endTime, startTime)
 					.operateRequest(request)
