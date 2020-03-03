@@ -173,6 +173,7 @@ public interface WaybillSignConstants {
 	 */
 	int POSITION_31 = 31;
 	char CHAR_31_9 = '9';
+	char CHAR_31_A = 'A';
 
 	/**
 	 * waybillsign第36位
@@ -242,20 +243,6 @@ public interface WaybillSignConstants {
 	/**
 	 * 生鲜专送：55位为1
 	 */
-	int FRESH_SPECIAL_DELIVERY_POSITION_55 = 55;
-	char FRESH_SPECIAL_DELIVERY_CHAR_55_1 = '1';
-
-	/**
-	 * 生鲜特惠：waybillsign 55位<>1且waybillsign 31位=A
-	 */
-	int FRESH_SPECIAL_BENEFIT_POSITION_31 = 31;
-	char FRESH_SPECIAL_BENEFIT_CHAR_31_A = 'A';
-
-	/**
-	 * 生鲜特快：waybillsign 55位<>1且waybillsign 31位=9，且waybillSign54位=2
-	 */
-	int FRESH_FAST_EXPRESS_POSITION_31 = 31;
-	char FRESH_FAST_EXPRESS_CHAR_31_9 = '9';
-	int FRESH_FAST_EXPRESS_POSITION_54 = 54;
-	char FRESH_FAST_EXPRESS_CHAR_54_2 = '2';
+	int POSITION_55 = 55;
+	char CHAR_55_1 = '1';
 }

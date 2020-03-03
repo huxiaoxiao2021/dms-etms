@@ -550,9 +550,9 @@ public class DeliveryServiceImpl implements DeliveryService {
         /*
          * 生鲜批次号只能装生鲜订单校验 针对包裹发货或者是按运单发货
          * 生鲜运单得标位：
-         *      Waybillsign 55位=1：“生鲜专送”；
-         *      waybillsign 55位<>1且waybillsign 31位=A：“生鲜特惠”；
-         *      waybillsign 55位<>1且waybillsign 31位=9，且waybillSign54位=2：“生鲜特快”
+         *      WaybillSign 55位=1：“生鲜专送”；
+         *      WaybillSign 55位<>1且WaybillSign 31位=A：“生鲜特惠”；
+         *      WaybillSign 55位<>1且WaybillSign 31位=9，且waybillSign54位=2：“生鲜特快”
          */
         if ((WaybillUtil.isPackageCode(domain.getBoxCode()) || WaybillUtil.isWaybillCode(domain.getBoxCode()))
                 && sendCodeService.isFreshSendCode(domain.getSendCode())) {

@@ -1196,27 +1196,30 @@ public class BusinessUtil {
 
     /**
      * 生鲜运单得标位：
-     * Waybillsign 55位=1：“生鲜专送”；
-     * waybillsign 55位<>1且waybillsign 31位=A：“生鲜特惠”；
-     * waybillsign 55位<>1且waybillsign 31位=9，且waybillSign54位=2：“生鲜特快”
+     * WaybillSign 55位=1：“生鲜专送”；
+     * WaybillSign 55位<>1且WaybillSign 31位=A：“生鲜特惠”；
+     * WaybillSign 55位<>1且WaybillSign 31位=9，且waybillSign54位=2：“生鲜特快”
      * @param waybillSign
      * @return
      */
     public static boolean isFreshWaybill(String waybillSign) {
         /* 生鲜专送：55位为1 */
-        boolean freshSpecialDelivery = isSignChar(waybillSign, WaybillSignConstants.FRESH_SPECIAL_DELIVERY_POSITION_55, WaybillSignConstants.FRESH_SPECIAL_DELIVERY_CHAR_55_1);
+        boolean freshSpecialDelivery = isSignChar(waybillSign, WaybillSignConstants.POSITION_55, WaybillSignConstants.CHAR_55_1);
+        if (freshSpecialDelivery) {
+            return Boolean.TRUE;
+        }
 
-        /* 生鲜特惠：waybillsign 55位<>1且waybillsign 31位=A */
-        boolean freshSpecialBenefit = !freshSpecialDelivery &&
-                isSignChar(waybillSign, WaybillSignConstants.FRESH_SPECIAL_BENEFIT_POSITION_31, WaybillSignConstants.FRESH_SPECIAL_BENEFIT_CHAR_31_A);
+        /* 生鲜特惠：WaybillSign 55位<>1且WaybillSign 31位=A */
+        boolean freshSpecialBenefit = isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_A);
+        if (freshSpecialBenefit) {
+            return Boolean.TRUE;
+        }
 
-        /* 生鲜特快：waybillsign 55位<>1且waybillsign 31位=9，且waybillSign54位=2 */
-        boolean freshFastExpress = !freshSpecialDelivery &&
-                isSignChar(waybillSign, WaybillSignConstants.FRESH_FAST_EXPRESS_POSITION_31, WaybillSignConstants.FRESH_FAST_EXPRESS_CHAR_31_9) &&
-                isSignChar(waybillSign, WaybillSignConstants.FRESH_FAST_EXPRESS_POSITION_54, WaybillSignConstants.FRESH_FAST_EXPRESS_CHAR_54_2);
+        /* 生鲜特快：WaybillSign 55位<>1且WaybillSign 31位=9，且waybillSign54位=2 */
+        boolean freshFastExpress = isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_9) &&
+                isSignChar(waybillSign, WaybillSignConstants.POSITION_54, WaybillSignConstants.CHAR_54_2);
 
-        return  freshSpecialDelivery || freshSpecialBenefit || freshFastExpress;
-
+        return freshFastExpress? Boolean.TRUE : Boolean.FALSE;
     }
 
 }

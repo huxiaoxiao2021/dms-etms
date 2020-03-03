@@ -9,7 +9,6 @@ import com.jd.bluedragon.distribution.businessCode.domain.BusinessCodePo;
 import com.jd.bluedragon.distribution.sendCode.domain.SendCodeDto;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,8 +38,7 @@ public class SendCodeServiceImpl implements SendCodeService {
     @Override
     public String createSendCode(Integer createSiteCode, Integer receiveSiteCode, String createUser, Boolean isFresh, Date date, BusinessCodeFromSourceEnum fromSource) {
 
-        String sendCode = SerialRuleUtil.generateSendCode(createSiteCode, receiveSiteCode, new Date());
-
+        String sendCode = SerialRuleUtil.generateSendCode(createSiteCode, receiveSiteCode, date);
         List<BusinessCodeAttributePo> businessCodeAttributePos = new ArrayList<>();
         /* 1. 创建业务单号的副表 */
         BusinessCodeAttributePo businessCodeAttributePo1 = new BusinessCodeAttributePo();
