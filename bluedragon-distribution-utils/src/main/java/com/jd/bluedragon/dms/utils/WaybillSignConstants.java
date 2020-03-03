@@ -234,6 +234,16 @@ public interface WaybillSignConstants {
 	char CHAR_16_1 = '1';
 
 	/**
+	 * 寄付月结 waybillSign第14位为0
+	 * 自提 waybillSign第79位为2
+	 * */
+	int POSITION_14 = 14;
+	char CHAR_14_0 = '0';
+	int POSITION_79 = 79;
+	char CHAR_79_2 = '2';
+
+
+	/**
 	 * 经济网 62位为8
 	 */
 	int BUSINESS_ENET_POSITION_62 = 62;

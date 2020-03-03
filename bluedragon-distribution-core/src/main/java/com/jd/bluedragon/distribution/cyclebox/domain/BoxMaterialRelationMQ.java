@@ -27,9 +27,11 @@ public class BoxMaterialRelationMQ {
 
     /**
      * 业务标识
-     1 发货（对应 绑定）
-     2 取消发货（对应 解绑）
-     3 验货
+     * @see com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationEnum
+     *  1： 发货（对应 绑定）
+     *  2： 取消发货（对应 解绑）
+     *  3： 验货 (对应 解绑)
+     *  4： 站点发货 (对应 绑定)
      */
     private int businessType;
 

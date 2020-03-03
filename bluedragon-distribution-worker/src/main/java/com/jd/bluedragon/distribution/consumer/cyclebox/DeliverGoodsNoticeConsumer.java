@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -74,6 +75,7 @@ public class DeliverGoodsNoticeConsumer extends MessageBaseConsumer {
             }
             context.setWaybillCode(waybillCodeList);
             context.setPackageCode(packageCodeList);
+            context.setOperatorTime(new Date());
 
             cycleMaterialSendMQ.send(context.getBoxCode(),JsonHelper.toJson(context));
         }catch (Exception e) {
