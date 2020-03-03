@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.log.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.fastjson.JSON;
@@ -70,7 +71,7 @@ public class JDQLogWriter implements LogWriter {
 
 
     @Override
-    @JProfiler(jKey = "DMSWEB.JDQLogWriter.addLog", mState = {JProEnum.TP})
+    @JProfiler(jKey = "DMSWEB.JDQLogWriter.addLog", mState = {JProEnum.TP},jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public void addLog(BusinessLogProfiler businessLogProfiler) {
         //ucc开关，是否启用
         if (uccPropertyConfiguration.isLogToBusinessLogByKafka() == false) {

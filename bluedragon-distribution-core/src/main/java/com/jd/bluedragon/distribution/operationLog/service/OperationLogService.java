@@ -14,7 +14,8 @@ import java.util.Map;
  */
 @Deprecated
 public interface OperationLogService {
-	
+
+	@Deprecated
 	int add(OperationLog operationLog);
 
 	List<OperationLog> queryByParams(Map<String, Object> paramMap);

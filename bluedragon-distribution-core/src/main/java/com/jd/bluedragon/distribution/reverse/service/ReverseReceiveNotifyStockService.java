@@ -12,11 +12,10 @@ import com.jd.bluedragon.core.exception.OrderCallTimeoutException;
 import com.jd.bluedragon.core.exception.StockCallPayTypeException;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.kuguan.domain.KuGuanDomain;
-import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
-import com.jd.bluedragon.distribution.log.BizTypeConstants;
+
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
-import com.jd.bluedragon.distribution.log.OperateTypeConstants;
 import com.jd.bluedragon.distribution.order.domain.OrderBankResponse;
 import com.jd.bluedragon.distribution.order.service.OrderBankService;
 import com.jd.bluedragon.distribution.order.ws.OrderWebService;
@@ -321,10 +320,9 @@ public class ReverseReceiveNotifyStockService {
             response.put("content", sysLog.getContent());
 
             BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
-                    .bizType(BizOperateTypeConstants.BACKUP_STORAGE_CHUGUAN.getBizTypeCode())
+                    .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.REVERSE_SPARE_CHUGUAN)
                     .operateResponse(response)
                     .operateRequest(request)
-                    .operateResponse(BizOperateTypeConstants.BACKUP_STORAGE_CHUGUAN.getOperateTypeCode())
                     .methodName("ReverseReceiveNotifyStockService#nodifyStock")
                     .processTime(endTime,startTime)
                     .build();
