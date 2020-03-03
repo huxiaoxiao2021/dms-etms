@@ -58,22 +58,27 @@ public class WaybillInterceptTipsResource {
         // 调用服务
         try {
             List<WaybillInterceptTips> list = verCommonJsfApiManager.getSortMachineInterceptTips(pdaOperateRequest.getPackageCode());
-
-            for (WaybillInterceptTips waybillInterceptTips : list) {
-                InterceptConfigInfo interceptConfigInfo = interceptConfigService.getInterceptConfigInfoByCode(waybillInterceptTips.getCode());
-                interceptMessageList.add(interceptConfigInfo.getInterceptMessage() + LINE_SPLIT + interceptConfigInfo.getGuidanceNotes());
-                if (interceptMessageList.size() == MAX_TIPS) {
-                    break;
-                }
-            }
-            if (interceptMessageList.isEmpty()) {
-				List<com.jd.bd.dms.automatic.sdk.modules.sorting.entity.WaybillInterceptTips> tipsList = automaticSortingExceptionJsfManager.getSortingExceptionTips(pdaOperateRequest.getPackageCode(), pdaOperateRequest.getCreateSiteCode());
-                for (com.jd.bd.dms.automatic.sdk.modules.sorting.entity.WaybillInterceptTips waybillInterceptTips : tipsList) {
+            if (list != null) {
+                for (WaybillInterceptTips waybillInterceptTips : list) {
                     InterceptConfigInfo interceptConfigInfo = interceptConfigService.getInterceptConfigInfoByCode(waybillInterceptTips.getCode());
-                    String interceptMessage = waybillInterceptTips.getMessage() != null ? waybillInterceptTips.getMessage() : interceptConfigInfo.getInterceptMessage();
-                    interceptMessageList.add(interceptMessage + LINE_SPLIT + interceptConfigInfo.getGuidanceNotes());
+                    interceptMessageList.add(interceptConfigInfo.getInterceptMessage() + LINE_SPLIT + interceptConfigInfo.getGuidanceNotes());
                     if (interceptMessageList.size() == MAX_TIPS) {
                         break;
+                    }
+                }
+            }
+
+            //无拦截信息，调分拣机拦截接口获取结果
+            if (interceptMessageList.isEmpty()) {
+				List<com.jd.bd.dms.automatic.sdk.modules.sorting.entity.WaybillInterceptTips> tipsList = automaticSortingExceptionJsfManager.getSortingExceptionTips(pdaOperateRequest.getPackageCode(), pdaOperateRequest.getCreateSiteCode());
+                if (tipsList != null) {
+                    for (com.jd.bd.dms.automatic.sdk.modules.sorting.entity.WaybillInterceptTips waybillInterceptTips : tipsList) {
+                        InterceptConfigInfo interceptConfigInfo = interceptConfigService.getInterceptConfigInfoByCode(waybillInterceptTips.getCode());
+                        String interceptMessage = waybillInterceptTips.getMessage() != null ? waybillInterceptTips.getMessage() : interceptConfigInfo.getInterceptMessage();
+                        interceptMessageList.add(interceptMessage + LINE_SPLIT + interceptConfigInfo.getGuidanceNotes());
+                        if (interceptMessageList.size() == MAX_TIPS) {
+                            break;
+                        }
                     }
                 }
 			}
@@ -84,6 +89,7 @@ public class WaybillInterceptTipsResource {
         if (interceptMessageList.isEmpty()) {
             response.toFail("此单没有查询到分拣机拦截相关信息！");
         }
+        response.setData(interceptMessageList);
         return response;
     }
 
