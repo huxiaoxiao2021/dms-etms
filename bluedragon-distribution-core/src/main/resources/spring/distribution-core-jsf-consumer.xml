@@ -560,4 +560,11 @@
                   retries="${jsf.retries}">
     </jsf:consumer>
 
+    <!-- 技术发展部 - 冷链产品 - 冷链货物操作管理 -->
+    <jsf:consumer id="jsfFullFlowOptimizeApi" interface="com.jd.ccmp.ctm.api.FullFlowOptimizeApi"
+                  protocol="jsf"
+                  alias="${dms.ccmp.ctm.alias}" timeout="${dms.ccmp.ctm.timeout}"
+                  retries="${jsf.retries}">
+    </jsf:consumer>
+
 </beans>

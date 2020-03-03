@@ -43,6 +43,7 @@ import com.jd.ql.basic.domain.PsStoreInfo;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.dto.SimpleBaseSite;
 import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
+import com.jd.tms.basic.dto.BasicVehicleDto;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.annotations.GZIP;
 import org.slf4j.Logger;
@@ -1630,6 +1631,27 @@ public class BaseResource {
 			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
 		}
 		return result;
+	}
+
+	@GET
+	@Path("/base/getVehicleByVehicleNumber/{vehicleNumber}")
+	public InvokeResult<BasicVehicleDto> getVehicleByVehicleNumber(@PathParam("vehicleNumber") String vehicleNumber) {
+		InvokeResult<BasicVehicleDto> response = new InvokeResult<>();
+		try {
+			if (com.jd.common.util.StringUtils.isNotBlank(vehicleNumber)) {
+				response.setCode(JdResponse.CODE_OK);
+				response.setMessage(JdResponse.MESSAGE_OK);
+				response.setData(baseService.getVehicleByVehicleNumber(vehicleNumber));
+			} else {
+				response.setCode(JdResponse.CODE_PARAM_ERROR);
+				response.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
+			}
+		} catch (Exception e) {
+			log.error("[BASIC车辆/车型信息查询接口]根据车牌号获取车辆信息,vehicleNumber:" + vehicleNumber, e);
+			response.setCode(JdResponse.CODE_SERVICE_ERROR);
+			response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+		}
+		return response;
 	}
 }
 

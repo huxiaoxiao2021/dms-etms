@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.sorting.service;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
@@ -21,23 +22,19 @@ import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.fastRefund.domain.FastRefundBlockerComplete;
 import com.jd.bluedragon.distribution.fastRefund.service.FastRefundService;
-import com.jd.bluedragon.distribution.inspection.InsepctionCheckDto;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionEC;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
-import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
-import com.jd.bluedragon.distribution.log.BizTypeConstants;
-import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
-import com.jd.dms.logger.external.LogEngine;
-import com.jd.bluedragon.distribution.log.OperateTypeConstants;
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
-import com.jd.bluedragon.distribution.middleend.sorting.domain.SortingObjectExtend;
+import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
+import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.middleend.sorting.dao.DynamicSortingQueryDao;
+import com.jd.bluedragon.distribution.middleend.sorting.domain.SortingObjectExtend;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
@@ -53,16 +50,10 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.bluedragon.utils.StringHelper;
-import com.jd.bluedragon.utils.SystemLogUtil;
+import com.jd.bluedragon.utils.*;
 import com.jd.dms.logger.aop.BusinessLogWriter;
 import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.dms.logger.external.LogEngine;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -70,7 +61,6 @@ import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.alibaba.fastjson.JSON;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
@@ -1348,6 +1338,27 @@ public class SortingServiceImpl implements SortingService {
             return Collections.EMPTY_LIST;
         }
     }
+
+	@Override
+	public List<String> getPackageCodeListByBoxCode(String boxCode) {
+		Box box = this.boxService.findBoxByCode(boxCode);
+		if (box == null) {
+			return null;
+		}
+		Sorting queryParam = new Sorting();
+		queryParam.setCreateSiteCode(box.getCreateSiteCode());
+		queryParam.setBoxCode(boxCode);
+		List<Sorting> sortingList = this.findByBoxCode(queryParam);
+		if (sortingList.size() > 0) {
+			Set<String> packageCodeSet = new HashSet<>();
+			for (Sorting sorting : sortingList) {
+				packageCodeSet.add(sorting.getPackageCode());
+			}
+			return new ArrayList<>(packageCodeSet);
+		} else {
+			return Collections.EMPTY_LIST;
+		}
+	}
 
 	/**
 	 * 发送全称跟踪

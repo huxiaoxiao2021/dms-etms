@@ -1,8 +1,5 @@
 package com.jd.bluedragon.distribution.base.service;
 
-import java.util.List;
-import java.util.Map;
-
 import com.jd.bluedragon.core.redis.TaskMode;
 import com.jd.bluedragon.distribution.base.domain.PdaStaff;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
@@ -16,6 +13,10 @@ import com.jd.ql.basic.domain.Assort;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.tms.basic.dto.BasicVehicleDto;
+
+import java.util.List;
+import java.util.Map;
 
 public interface BaseService {
 
@@ -275,4 +276,13 @@ public interface BaseService {
 	 * @return
      */
 	public String getDmsShortNameByCode(Integer dmsCode);
+
+	/**
+	 * 根据车牌号获取车辆信息
+	 *
+	 * @param vehicleNumber
+	 * @return
+	 * @throws Exception
+	 */
+	BasicVehicleDto getVehicleByVehicleNumber(String vehicleNumber) throws Exception;
 }

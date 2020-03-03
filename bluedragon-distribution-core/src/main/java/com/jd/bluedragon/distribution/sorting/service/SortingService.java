@@ -6,8 +6,8 @@ import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.task.domain.Task;
+
 import java.util.List;
-import java.util.Map;
 
 public interface SortingService {
 	
@@ -162,6 +162,15 @@ public interface SortingService {
      * @return
      */
     List<String> getWaybillCodeListByBoxCode(String boxCode);
+
+    /**
+     * 根据箱号获取包裹号列表
+     *
+     * @param boxCode
+     * @return
+     */
+    List<String> getPackageCodeListByBoxCode(String boxCode);
+
     /**
      * 根据运单号，查询所有包裹号
      * @param sorting 运单号
