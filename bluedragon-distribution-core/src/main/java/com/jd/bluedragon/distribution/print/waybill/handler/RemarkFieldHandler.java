@@ -12,12 +12,15 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.StringHelper;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum.SITE_MASTER_PACKAGE_REPRINT;
+import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum.SITE_MASTER_RESCHEDULE_PRINT;
+import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum.SITE_MASTER_REVERSE_CHANGE_PRINT;
 
 /**
  * 
@@ -59,8 +62,7 @@ public class RemarkFieldHandler implements Handler<WaybillPrintContext,JdResult<
 		if(BusinessUtil.isSelf(waybillSign)){
 			String orderCode = waybillQueryManager.getOrderCodeByWaybillCode(waybillCode, true);
 			if(StringHelper.isNotEmpty(orderCode)){
-				basePrintWaybill.setRemark(TextConstants.PRINT_TEXT_ORDER_CODE_PREFIX + orderCode);
-				basePrintWaybill.appendRemark(remark);
+                remark = TextConstants.PRINT_TEXT_ORDER_CODE_PREFIX + orderCode + remark;
 			}
 		}
 		/**
@@ -69,14 +71,14 @@ public class RemarkFieldHandler implements Handler<WaybillPrintContext,JdResult<
 		try {
 			WaybillPrintRequest request = context.getRequest();
 			String versionCode = request.getVersionCode();
-			if(StringUtils.isBlank(versionCode)
+			if(SITE_MASTER_PACKAGE_REPRINT.getType().equals(request.getOperateType())
+                    || SITE_MASTER_REVERSE_CHANGE_PRINT.getType().equals(request.getOperateType())
+                    || SITE_MASTER_RESCHEDULE_PRINT.getType().equals(request.getOperateType())
 					|| Integer.valueOf(versionCode.replace(VERSION_SUFFIX,NULL_STR)) > accordedVersion){
 				if (!BusinessUtil.isBusinessNet(waybillSign)) {
 					if (WaybillUtil.isSwitchCode(waybillCode)
 							&& BusinessUtil.isSignChar(sendPay,8,'6')) {
 						remark += DmsConstants.BAD_WAREHOURSE_FOR_PORT;
-					} else {
-						remark += StringHelper.isEmpty(basePrintWaybill.getRemark())? NULL_STR : basePrintWaybill.getRemark();
 					}
 					if (StringHelper.isNotEmpty(basePrintWaybill.getServiceCode())) {
 						if (!remark.contains(basePrintWaybill.getServiceCode())) {
@@ -86,7 +88,6 @@ public class RemarkFieldHandler implements Handler<WaybillPrintContext,JdResult<
 							remark += DmsConstants.PICKUP_CUSTOMER_COMMET;
 							remark += basePrintWaybill.getServiceCode();
 						}
-
 					}
 					if (StringHelper.isNotEmpty(basePrintWaybill.getBusiOrderCode())) {
 						if (!remark.contains(basePrintWaybill.getBusiOrderCode())) {
