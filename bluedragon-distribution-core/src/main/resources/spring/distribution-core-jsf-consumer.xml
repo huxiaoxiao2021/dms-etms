@@ -554,6 +554,12 @@
         <jsf:parameter key="token" value="${qcAbnPdaAPI.token}" hide="true" />
     </jsf:consumer>
 
+    <jsf:consumer id="jsfTypeService" interface="com.jd.dms.logger.service.BusinessLogQueryService"
+                  protocol="jsf"
+                  alias="${dms.jsfbusinesslog.alias}" timeout="10000"
+                  retries="${jsf.retries}">
+    </jsf:consumer>
+
     <jsf:consumer id="sortingExceptionJsfService" interface="com.jd.bd.dms.automatic.sdk.modules.sorting.SortingExceptionJsfService"
                   protocol="jsf" alias="${jsf.automatic.alias}" timeout="${jsf.automatic.timeout}">
     </jsf:consumer>

@@ -980,7 +980,6 @@
 		<dependency>
 			<groupId>com.jd.ql.dms.opLog</groupId>
 			<artifactId>opLog-agent</artifactId>
-			<version>1.0.2-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -1199,6 +1198,16 @@
 			<groupId>com.jd.etms.contract</groupId>
 			<artifactId>etms-contract-api</artifactId>
 			<version>1.0.8.7-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.bdp</groupId>
+			<artifactId>jdq</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.ql.dms.opLog</groupId>
+			<artifactId>opLog-api</artifactId>
 		</dependency>
 
 		<dependency>

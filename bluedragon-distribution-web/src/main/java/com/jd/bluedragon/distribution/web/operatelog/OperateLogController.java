@@ -1,10 +1,15 @@
 package com.jd.bluedragon.distribution.web.operatelog;
 
+import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
+import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.ObjectMapHelper;
+import com.jd.dms.logger.aop.BusinessLogWriter;
+import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.uim.annotation.Authorization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +19,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import javax.annotation.Resource;
 import java.util.Map;
 
 @Controller
@@ -25,9 +31,13 @@ public class OperateLogController {
 	@Autowired
 	private OperationLogService operationLosService;
 
+    @Resource
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
 	@Authorization("DMS-WEB-QUERY-OPERATE-LOG0")
 	@RequestMapping(value = "/goListPage", method = RequestMethod.GET)
 	public String goListpage(Model model) {
+        model.addAttribute("oldLogPageTips",uccPropertyConfiguration.getOldLogPageTips());
 		return "operateLog/operatelog";
 	}
 
@@ -64,7 +74,7 @@ public class OperateLogController {
 		model.addAttribute("operatelogs", operationLosService.queryByParams(params));
 		model.addAttribute("operationLogqueryDto", operationLog);
 		model.addAttribute("pager", pager);
-
+        model.addAttribute("oldLogPageTips",uccPropertyConfiguration.getOldLogPageTips());
 		return "operateLog/operatelog";
 	}
 
@@ -108,6 +118,7 @@ public class OperateLogController {
 			model.addAttribute("operatelogs", operationLosService.queryByParams(params));
 			model.addAttribute("operationLogqueryDto", operationLog);
 			model.addAttribute("pager", pager);
+            model.addAttribute("oldLogPageTips",uccPropertyConfiguration.getOldLogPageTips());
 		} catch (Exception e) {
 			log.error("日志查询异常-读库",e);
 		}
@@ -118,6 +129,18 @@ public class OperateLogController {
 	@Authorization(Constants.DMS_WEB_SORTING_OPERATELOG_R)
 	@RequestMapping(value = "/goListPage2", method = RequestMethod.GET)
 	public String goListpage2(Model model) {
+
+		ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
+		BusinessLogProfiler businessLogProfiler = new BusinessLogProfiler();
+		businessLogProfiler.setSourceSys(1);
+		businessLogProfiler.setBizType(Constants.BIZTYPE_URL_CLICK);
+		businessLogProfiler.setOperateType(Constants.OPERATELOG_CLICK);
+		JSONObject request=new JSONObject();
+		request.put("operatorName",erpUser.getUserName());
+		request.put("operatorCode",erpUser.getUserCode());
+		businessLogProfiler.setOperateRequest(JSONObject.toJSONString(request));
+		BusinessLogWriter.writeLog(businessLogProfiler);
+        model.addAttribute("oldLogPageTips",uccPropertyConfiguration.getOldLogPageTips());
 		return "operateLog/operatelog2";
 	}
 
@@ -163,6 +186,7 @@ public class OperateLogController {
 			model.addAttribute("operatelogs", operationLosService.queryByCassandra(code ,type,pager));
 			model.addAttribute("operationLogqueryDto", operationLog);
 			model.addAttribute("pager", pager);
+            model.addAttribute("oldLogPageTips",uccPropertyConfiguration.getOldLogPageTips());
 		} catch (Exception e) {
 			log.error("日志查询异常2-读库",e);
 		}

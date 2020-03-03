@@ -489,7 +489,7 @@ public class LoadBillServiceImpl implements LoadBillService {
                 //取消预装载 取消发货
                 deliveryService.dellCancelDeliveryMessage(toSendM(loadBill), false);
                 //取消预装载 操作日志
-                addOperationLog(loadBill);
+                addOperationLog(loadBill,"LoadBillServiceImpl#cancelPreloaded");
             }
         } catch (Exception e) {
             // TODO Auto-generated catch block
@@ -539,7 +539,7 @@ public class LoadBillServiceImpl implements LoadBillService {
      *
      * @param loadBill
      */
-    private void addOperationLog(LoadBill loadBill) {
+    private void addOperationLog(LoadBill loadBill,String methodName) {
         OperationLog operationLog = new OperationLog();
         operationLog.setCreateSiteCode(loadBill.getDmsCode());
         operationLog.setCreateTime(loadBill.getApprovalTime());
@@ -549,6 +549,7 @@ public class LoadBillServiceImpl implements LoadBillService {
         operationLog.setOperateTime(loadBill.getApprovalTime());
         operationLog.setPackageCode(loadBill.getPackageBarcode());
         operationLog.setWaybillCode(loadBill.getWaybillCode());
+        operationLog.setMethodName(methodName);
         operationLogService.add(operationLog);
     }
 

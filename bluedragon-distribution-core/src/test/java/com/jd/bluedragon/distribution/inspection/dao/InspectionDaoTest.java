@@ -234,4 +234,24 @@ public class InspectionDaoTest extends AbstractDaoIntegrationTest{
         inspection.setPackageBarcode("jim1");
         Assert.assertEquals(new Integer(8), inspectionDao.queryCountByCondition(inspection));
     }
+
+    @Test
+    public void testfindInspectionGather(){
+        testAdd();
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("startTime","2020-02-20 00:00:00");
+        paramMap.put("endTime","2020-02-20 23:59:59");
+        paramMap.put("waybillCode","Joe1");
+        //Assert.assertEquals(1,inspectionDao.findInspectionGather(paramMap).size());
+    }
+
+    @Test
+    public void testFindWaybillInspectionList(){
+        testAdd();
+        Inspection inspection = new Inspection();
+        inspection.setWaybillCode("Joe1");
+        inspection.setCreateSiteCode(593);
+        Assert.assertEquals(new Integer(1),inspectionDao.verifyReverseInspectionGather(inspection));
+    }
+
 }

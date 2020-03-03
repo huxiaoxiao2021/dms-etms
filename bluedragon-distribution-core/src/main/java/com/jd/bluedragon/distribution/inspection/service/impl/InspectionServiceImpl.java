@@ -8,17 +8,22 @@ import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
+import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.auto.domain.UploadedPackage;
 import com.jd.bluedragon.distribution.base.domain.DmsStorageArea;
 import com.jd.bluedragon.distribution.base.service.DmsStorageAreaService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
+import com.jd.bluedragon.distribution.inspection.InspectionCheckCondition;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
 import com.jd.bluedragon.distribution.inspection.domain.*;
 import com.jd.bluedragon.distribution.inspection.exception.InspectionException;
+import com.jd.bluedragon.distribution.inspection.InsepctionCheckDto;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.inspection.service.WaybillPackageBarcodeService;
+import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.order.ws.OrderWebService;
@@ -39,6 +44,7 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ioms.jsf.export.domain.Order;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
@@ -170,7 +176,7 @@ public class InspectionServiceImpl implements InspectionService {
 				inspection.setWaybillCode(WaybillUtil.getWaybillCode(inspection.getPackageBarcode()));
 			}
 			//写入业务表数据和日志数据
-			service.saveData(inspection);
+			service.saveData(inspection,"InspectionServiceImpl#inspectionCore");
 			if(Constants.BUSSINESS_TYPE_OEM==inspection.getInspectionType()){
 				// OEM同步wms
                 pushOEMToWMS(inspection);//FIXME:51号库推送，需要检查是否在用
@@ -219,9 +225,9 @@ public class InspectionServiceImpl implements InspectionService {
 	}
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-    public void saveData(Inspection inspection) {//FIXME:private
+    public void saveData(Inspection inspection, String methodName) {//FIXME:private
         this.insertOrUpdate(inspection);
-        addOperationLog(inspection);
+        addOperationLog(inspection,methodName);
 
         cenConfirmService.saveOrUpdateCenConfirm(cenConfirmService
                 .createCenConfirmByInspection(inspection));
@@ -242,6 +248,96 @@ public class InspectionServiceImpl implements InspectionService {
 	}
 
 
+
+
+	public PagerResult<InsepctionCheckDto> findInspectionGather(InspectionCheckCondition condition){
+
+		PagerResult<InsepctionCheckDto> result = new PagerResult<>();
+		List<InsepctionCheckDto> insepctionCheckDtos = new ArrayList<>();
+
+		if(condition != null && condition.getStartTime() != null && condition.getEndTime() != null){
+			String format = "yyyy-MM-dd HH:mm:ss";
+			Date start = DateHelper.parseDate(condition.getStartTime(),format);
+			Date end = DateHelper.parseDate(condition.getEndTime(),format);
+			int days = DateHelper.daysBetween(start,end);
+			if(days > 1){
+				log.error("验货集齐查询失败!");
+				result.setRows(new ArrayList<InsepctionCheckDto>());
+				result.setTotal(0);
+				return result;
+			}
+		}
+		try{
+			//查询总数
+			Integer total = inspectionDao.findInspectionGatherPageCount(condition);
+			if(total != null){
+				result.setTotal(total);
+			}else{
+				result.setTotal(0);
+			}
+
+            insepctionCheckDtos = inspectionDao.findInspectionGather(condition);
+			result.setRows(insepctionCheckDtos);
+
+		}catch (Exception e){
+			log.error("查询失败!",e);
+			result.setRows(new ArrayList<InsepctionCheckDto>());
+			result.setTotal(0);
+		}
+		return result;
+	}
+
+	public PagerResult<Inspection> findInspetionedPacks(Inspection inspection){
+
+		PagerResult<Inspection> result = new PagerResult<>();
+		List<Inspection> inspections = new ArrayList<>();
+		try{
+			inspections = inspectionDao.findInspetionedPacks(inspection);
+			result.setRows(inspections);
+			result.setTotal(inspections.size());
+		}catch(Exception e){
+			log.error("查询失败!",e);
+			result.setRows(new ArrayList<Inspection>());
+			result.setTotal(0);
+		}
+		return result;
+	}
+
+    public SortingJsfResponse gatherCheck(PdaOperateRequest pdaOperateRequest,SortingJsfResponse sortingJsfResponse){
+
+        //校验运单验货是否集齐
+        if(pdaOperateRequest.getIsGather() == 1){
+            String packageCode = pdaOperateRequest.getPackageCode();
+            String waybillCode = WaybillUtil.getWaybillCode(packageCode);
+            Integer createSiteCode = pdaOperateRequest.getCreateSiteCode();
+
+            Inspection inspection = new Inspection();
+            inspection.setWaybillCode(waybillCode);
+            inspection.setCreateSiteCode(createSiteCode);
+
+            try{
+                InsepctionCheckDto insepctionCheckDto = inspectionDao.verifyReverseInspectionGather(inspection);
+                if(insepctionCheckDto == null){
+                    sortingJsfResponse = new SortingJsfResponse();
+                    sortingJsfResponse.setCode(SortingResponse.CODE_31123);
+                    sortingJsfResponse.setMessage(SortingResponse.MESSAGE_31123);
+                    return sortingJsfResponse;
+                }
+                if(insepctionCheckDto.getPackageNum()>insepctionCheckDto.getInspectionedPackNum()){
+                    sortingJsfResponse = new SortingJsfResponse();
+                    sortingJsfResponse.setCode(SortingResponse.CODE_31123);
+                    sortingJsfResponse.setMessage(SortingResponse.MESSAGE_31123);
+                    return sortingJsfResponse;
+                }
+            }catch (Exception e){
+                sortingJsfResponse.setCode(SortingJsfResponse.CODE_SERVICE_ERROR);
+                sortingJsfResponse.setMessage(SortingJsfResponse.MESSAGE_SERVICE_ERROR_C);
+            }
+
+        }
+        return sortingJsfResponse;
+    }
+
 	public Integer inspectionCount(Inspection inspection) {
 		return inspectionDao.inspectionCount(inspection);
 	}
@@ -253,7 +349,7 @@ public class InspectionServiceImpl implements InspectionService {
 	 * 
 	 * @param inspection
 	 */
-	private void addOperationLog(Inspection inspection) {
+	private void addOperationLog(Inspection inspection,String methodName) {
 		OperationLog operationLog = new OperationLog();
 		operationLog.setBoxCode(inspection.getBoxCode());
 		operationLog.setCreateSiteCode(inspection.getCreateSiteCode());
@@ -270,6 +366,7 @@ public class InspectionServiceImpl implements InspectionService {
 		operationLog.setPackageCode(inspection.getPackageBarcode());
 		operationLog.setReceiveSiteCode(inspection.getReceiveSiteCode());
 		operationLog.setWaybillCode(inspection.getWaybillCode());
+		operationLog.setMethodName(methodName);
 		operationLogService.add(operationLog);
 	}
 
@@ -291,7 +388,7 @@ public class InspectionServiceImpl implements InspectionService {
 			this.log.debug("POP 运单号为【{}】【{}】的验货数据存在，更新成功",inspectionPop.getWaybillCode(),inspectionPop.getCreateSiteCode());
 		}
 
-		addOperationLog(inspectionPop);
+		addOperationLog(inspectionPop,"InspectionServiceImpl#addInspectionPop");
 
 		return result;
 	}

@@ -153,7 +153,7 @@ public class MiddleEndSortingServiceImpl extends BaseSortingService implements I
             dmsSortingItem.setUpdateUser(dmsSorting.getUpdateUser());
 
             deliveryService.canCancel2(parseSendDetail(dmsSortingItem));
-            dmsSortingService.addOpetationLog(dmsSortingItem, OperationLog.LOG_TYPE_SORTING_CANCEL);
+            dmsSortingService.addOpetationLog(dmsSortingItem, OperationLog.LOG_TYPE_SORTING_CANCEL,"MiddleEndSortingServiceImpl#afterSortingCancel");
             if (Constants.BUSSINESS_TYPE_THIRD_PARTY == dmsSortingItem.getType()) {
                 // 更新三方验货异常比对表，由少验修改为正常
                 dmsSortingService.canCancelInspectionEC(dmsSortingItem);

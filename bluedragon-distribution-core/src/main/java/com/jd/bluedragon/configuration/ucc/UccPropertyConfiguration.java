@@ -11,6 +11,10 @@ public class UccPropertyConfiguration {
     /** cassandra服务的全局开关 **/
     private boolean cassandraGlobalSwitch;
 
+    /** 将日志通过kafka写入businesslog开关 **/
+    private boolean logToBusinessLogByKafka;
+
+
     /** 使用异步缓冲组件时生产者的类型,
      * 多级缓冲的动态生产者的生产者类型配置项，支持'JMQ‘，’TBSCHEDULE‘和’FAILOVER‘三个可选值。
      * JMQ 直接存入JMQ
@@ -63,6 +67,23 @@ public class UccPropertyConfiguration {
      * 现场预分拣 超区运单拦截开关;true 开启拦截
      */
     private boolean preOutZoneSwitch;
+
+    /**
+     * 新log查询页面提示文字
+     */
+    private String newLogPageTips;
+    /**
+     * 老log查询页面提示
+     */
+    private String oldLogPageTips;
+
+    public boolean isLogToBusinessLogByKafka() {
+        return logToBusinessLogByKafka;
+    }
+
+    public void setLogToBusinessLogByKafka(boolean logToBusinessLogByKafka) {
+        this.logToBusinessLogByKafka = logToBusinessLogByKafka;
+    }
 
     public String getAsynbufferEnabledTaskType() {
         return asynbufferEnabledTaskType;
@@ -190,5 +211,21 @@ public class UccPropertyConfiguration {
 
     public void setPreOutZoneSwitch(boolean preOutZoneSwitch) {
         this.preOutZoneSwitch = preOutZoneSwitch;
+    }
+
+    public String getNewLogPageTips() {
+        return newLogPageTips;
+    }
+
+    public void setNewLogPageTips(String newLogPageTips) {
+        this.newLogPageTips = newLogPageTips;
+    }
+
+    public String getOldLogPageTips() {
+        return oldLogPageTips;
+    }
+
+    public void setOldLogPageTips(String oldLogPageTips) {
+        this.oldLogPageTips = oldLogPageTips;
     }
 }

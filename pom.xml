@@ -163,6 +163,24 @@
 				<scope>test</scope>
 			</dependency>
 
+			<dependency>
+				<groupId>com.jd.bdp</groupId>
+				<artifactId>jdq</artifactId>
+				<version>3.3-SNAPSHOT</version>
+			</dependency>
+
+			<!--oplog-->
+			<dependency>
+				<groupId>com.jd.ql.dms.opLog</groupId>
+				<artifactId>opLog-api</artifactId>
+				<version>1.0.1-SNAPSHOT</version>
+			</dependency>
+			<!--操作日志系统-->
+			<dependency>
+				<groupId>com.jd.ql.dms.opLog</groupId>
+				<artifactId>opLog-agent</artifactId>
+				<version>1.0.3-SNAPSHOT</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 

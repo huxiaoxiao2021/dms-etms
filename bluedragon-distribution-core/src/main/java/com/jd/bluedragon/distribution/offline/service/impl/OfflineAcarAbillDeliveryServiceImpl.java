@@ -77,8 +77,10 @@ public class OfflineAcarAbillDeliveryServiceImpl implements OfflineService {
                 }
             }
 
-            offlineLogService.addOfflineLog(requestToOffline(request, Constants.RESULT_SUCCESS));
-            operationLogService.add(requestConvertOperationLog(request));
+            OfflineLog offlineLog = requestToOffline(request, Constants.RESULT_SUCCESS);
+            offlineLog.setMethodName("OfflineAcarAbillDeliveryServiceImpl#parseToTask");
+            offlineLogService.addOfflineLog(offlineLog);
+            operationLogService.add(requestConvertOperationLog(request,"OfflineAcarAbillDeliveryServiceImpl#parseToTask"));
             this.log.info("一车一单离线发货 --> 结束写入发货信息");
             return Constants.RESULT_SUCCESS;
         }
@@ -193,7 +195,7 @@ public class OfflineAcarAbillDeliveryServiceImpl implements OfflineService {
      * @param offlineLogRequest
      * @return
      */
-    private OperationLog requestConvertOperationLog(OfflineLogRequest offlineLogRequest) {
+    private OperationLog requestConvertOperationLog(OfflineLogRequest offlineLogRequest,String methodName) {
         OperationLog operationLog = new OperationLog();
         operationLog.setBoxCode(offlineLogRequest.getBoxCode());
         operationLog.setWaybillCode(offlineLogRequest.getWaybillCode());
@@ -205,6 +207,7 @@ public class OfflineAcarAbillDeliveryServiceImpl implements OfflineService {
         operationLog.setCreateUser(offlineLogRequest.getUserName());
         operationLog.setCreateUserCode(offlineLogRequest.getUserCode());
         operationLog.setCreateTime(new Date());
+        operationLog.setMethodName(methodName);
 
         //因为后续的操作会根据操作时间冲掉这里的记录，所以这里将时间的long值减一，以确保不会被冲掉
         Date OperateTime = DateHelper.parseDate(offlineLogRequest.getOperateTime(), Constants.DATE_TIME_MS_FORMAT);

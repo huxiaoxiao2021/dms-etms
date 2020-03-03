@@ -2,6 +2,10 @@ package com.jd.bluedragon.distribution.jsf.domain;
 
 public class SortingJsfResponse {
 
+    public static final Integer CODE_SERVICE_ERROR = 20000;
+    public static final String MESSAGE_SERVICE_ERROR = "service exceptions";
+    public static final String MESSAGE_SERVICE_ERROR_C = "服务异常!";
+
     /** 相应状态码 */
     private Integer code;
 
