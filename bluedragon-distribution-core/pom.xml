@@ -1210,6 +1210,12 @@
 			<artifactId>opLog-api</artifactId>
 		</dependency>
 
+		<dependency>
+			<artifactId>dms-ver-sdk</artifactId>
+			<groupId>com.jd.bluedragon</groupId>
+			<version>1.0.0-SNAPSHOT</version>
+		</dependency>
+
 	</dependencies>
 
 	<profiles>
