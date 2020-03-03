@@ -12,6 +12,8 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.StringHelper;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,7 +76,8 @@ public class RemarkFieldHandler implements Handler<WaybillPrintContext,JdResult<
 			if(SITE_MASTER_PACKAGE_REPRINT.getType().equals(request.getOperateType())
                     || SITE_MASTER_REVERSE_CHANGE_PRINT.getType().equals(request.getOperateType())
                     || SITE_MASTER_RESCHEDULE_PRINT.getType().equals(request.getOperateType())
-					|| Integer.valueOf(versionCode.replace(VERSION_SUFFIX,NULL_STR)) > accordedVersion){
+                    || (StringUtils.isNotBlank(versionCode) && NumberUtils.isDigits(versionCode.replace(VERSION_SUFFIX,NULL_STR))
+                    && Integer.valueOf(versionCode.replace(VERSION_SUFFIX,NULL_STR)) > accordedVersion)){
 				if (!BusinessUtil.isBusinessNet(waybillSign)) {
 					if (WaybillUtil.isSwitchCode(waybillCode)
 							&& BusinessUtil.isSignChar(sendPay,8,'6')) {
