@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.sorting.service;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -42,6 +43,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +55,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import javax.annotation.Resource;
 
 /**
  * 分拣业务抽象类
@@ -116,6 +120,9 @@ public abstract class SortingCommonSerivce {
 
     @Autowired
     private LogEngine logEngine;
+    
+    @Resource
+    private UccPropertyConfiguration uccPropertyConfiguration;
 
     public abstract boolean doSorting(SortingVO sorting);
 
@@ -244,6 +251,10 @@ public abstract class SortingCommonSerivce {
      * @param sorting
      */
     protected void b2bPushInspection(SortingVO sorting){
+    	//ucc判断B网分拣是否需要补验货
+    	if(!uccPropertyConfiguration.isB2bPushInspectionSwitch()){
+    		return;
+    	}
         InspectionRequest inspection=new InspectionRequest();
         TaskRequest request=new TaskRequest();
 

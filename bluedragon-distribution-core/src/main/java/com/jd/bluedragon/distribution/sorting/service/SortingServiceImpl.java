@@ -5,6 +5,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.MonitorAlarm;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -75,6 +76,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -91,6 +93,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+
+import javax.annotation.Resource;
 
 @Service("sortingService")
 public class SortingServiceImpl implements SortingService {
@@ -177,7 +181,10 @@ public class SortingServiceImpl implements SortingService {
      */
 	@Value("${beans.SortingServiceImpl.sortingDealWarnTime:100}")
 	private long sortingDealWarnTime;
-
+	
+    @Resource
+    private UccPropertyConfiguration uccPropertyConfiguration;
+    
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Integer add(Sorting sorting) {
 		return this.sortingDao.add(SortingDao.namespace, sorting);
@@ -858,6 +865,10 @@ public class SortingServiceImpl implements SortingService {
 	 * @param sorting
 	 */
 	public void b2bPushInspection(Sorting sorting) {
+    	//ucc判断B网分拣是否需要补验货
+    	if(!uccPropertyConfiguration.isB2bPushInspectionSwitch()){
+    		return;
+    	}
 		BaseStaffSiteOrgDto createSite = null;
 		try {
 			createSite = this.baseMajorManager.getBaseSiteBySiteId(sorting.getCreateSiteCode());
