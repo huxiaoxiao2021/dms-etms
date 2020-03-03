@@ -1211,6 +1211,12 @@
 		</dependency>
 
 		<dependency>
+			<artifactId>dms-ver-sdk</artifactId>
+			<groupId>com.jd.bluedragon</groupId>
+			<version>1.0.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
 			<groupId>com.jd.mobilePhoneMsg.sender</groupId>
 			<artifactId>mobilePhoneMsg-sender-client-jsf</artifactId>
 			<version>3.2-SNAPSHOT</version>
