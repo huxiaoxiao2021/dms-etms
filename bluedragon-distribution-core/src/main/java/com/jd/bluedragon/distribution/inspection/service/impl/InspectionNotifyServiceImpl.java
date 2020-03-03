@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.inspection.service.impl;
 
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationEnum;
+import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationMQ;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionMQBody;
 import com.jd.bluedragon.distribution.inspection.service.InspectionNotifyService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -10,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+import java.util.Collections;
 
 /**
  * Created by wangtingwei on 2016/2/22.
@@ -39,13 +43,13 @@ public class InspectionNotifyServiceImpl implements InspectionNotifyService {
         inspectionDataSyncMQ.sendOnFailPersistent(body.getWaybillCode(), JsonHelper.toJson(body));
 
         //循环集包袋在验货环节发送解绑MQ
-//        BoxMaterialRelationMQ loopPackageMq = new BoxMaterialRelationMQ();
-//        loopPackageMq.setBusinessType(BoxMaterialRelationEnum.INSPECTION.getType());
-//        loopPackageMq.setOperatorCode(body.getCreateUserCode());
-//        loopPackageMq.setOperatorName(body.getCreateUserName());
-//        loopPackageMq.setSiteCode(String.valueOf(body.getInspectionSiteCode()));
-//        loopPackageMq.setWaybillCode(Collections.singletonList(body.getWaybillCode()));
-//        loopPackageMq.setOperatorTime(body.getOperateTime());
-//        cycleMaterialSendMQ.sendOnFailPersistent(body.getWaybillCode(), JsonHelper.toJson(loopPackageMq));
+        BoxMaterialRelationMQ loopPackageMq = new BoxMaterialRelationMQ();
+        loopPackageMq.setBusinessType(BoxMaterialRelationEnum.INSPECTION.getType());
+        loopPackageMq.setOperatorCode(body.getCreateUserCode()==null?0:body.getCreateUserCode());
+        loopPackageMq.setOperatorName(body.getCreateUserName());
+        loopPackageMq.setSiteCode(String.valueOf(body.getInspectionSiteCode()));
+        loopPackageMq.setWaybillCode(Collections.singletonList(body.getWaybillCode()));
+        loopPackageMq.setOperatorTime(body.getOperateTime());
+        cycleMaterialSendMQ.sendOnFailPersistent(body.getWaybillCode(), JsonHelper.toJson(loopPackageMq));
     }
 }
