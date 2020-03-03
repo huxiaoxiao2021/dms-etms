@@ -76,6 +76,11 @@ public class UccPropertyConfiguration {
      * 老log查询页面提示
      */
     private String oldLogPageTips;
+    
+    /**
+     * b2b分拣补验货开关
+     */
+    private boolean b2bPushInspectionSwitch;
 
     public boolean isLogToBusinessLogByKafka() {
         return logToBusinessLogByKafka;
@@ -228,4 +233,18 @@ public class UccPropertyConfiguration {
     public void setOldLogPageTips(String oldLogPageTips) {
         this.oldLogPageTips = oldLogPageTips;
     }
+
+	/**
+	 * @return the b2bPushInspectionSwitch
+	 */
+	public boolean isB2bPushInspectionSwitch() {
+		return b2bPushInspectionSwitch;
+	}
+
+	/**
+	 * @param b2bPushInspectionSwitch the b2bPushInspectionSwitch to set
+	 */
+	public void setB2bPushInspectionSwitch(boolean b2bPushInspectionSwitch) {
+		this.b2bPushInspectionSwitch = b2bPushInspectionSwitch;
+	}
 }
