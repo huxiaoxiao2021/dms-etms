@@ -1,12 +1,8 @@
 package com.jd.bluedragon.distribution.material.vo;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.jd.bluedragon.Pager;
-import com.jd.bluedragon.utils.DateHelper;
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
-import org.springframework.format.annotation.DateTimeFormat;
 
-import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -28,13 +24,11 @@ public class RecycleMaterialScanQuery extends BasePagerCondition {
     /**
      * 开始时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private Date startTime;
 
     /**
      * 结束时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private Date endTime;
 
     /**
