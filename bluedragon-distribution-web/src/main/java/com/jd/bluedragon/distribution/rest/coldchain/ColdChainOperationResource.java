@@ -3,17 +3,25 @@ package com.jd.bluedragon.distribution.rest.coldchain;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.ColdChainOperationResponse;
-import com.jd.bluedragon.distribution.coldchain.dto.*;
+import com.jd.bluedragon.distribution.coldchain.dto.ColdChainInAndOutBoundRequest;
+import com.jd.bluedragon.distribution.coldchain.dto.ColdChainQueryUnloadTaskRequest;
+import com.jd.bluedragon.distribution.coldchain.dto.ColdChainUnloadCompleteRequest;
+import com.jd.bluedragon.distribution.coldchain.dto.ColdChainUnloadDto;
+import com.jd.bluedragon.distribution.coldchain.dto.ColdChainUnloadQueryResultDto;
+import com.jd.bluedragon.distribution.coldchain.dto.VehicleTypeDict;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainOperationService;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.ccmp.ctm.dto.QueryUnloadDto;
 import com.jd.common.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
@@ -114,14 +122,14 @@ public class ColdChainOperationResource {
      */
     @POST
     @Path("/coldChain/operation/queryUnload")
-    public ColdChainOperationResponse<List<QueryUnloadDto>> queryUnload(ColdChainQueryUnloadTaskRequest request) {
-        ColdChainOperationResponse<List<QueryUnloadDto>> response = new ColdChainOperationResponse<>();
+    public ColdChainOperationResponse<List<ColdChainUnloadQueryResultDto>> queryUnload(ColdChainQueryUnloadTaskRequest request) {
+        ColdChainOperationResponse<List<ColdChainUnloadQueryResultDto>> response = new ColdChainOperationResponse<>();
         try {
             if (this.checkParams(request)) {
-                List<QueryUnloadDto> result = coldChainOperationService.queryUnloadTask(request);
+                List<ColdChainUnloadQueryResultDto> result = coldChainOperationService.queryUnloadTask(request);
                 response.setCode(JdResponse.CODE_OK);
                 response.setMessage(JdResponse.MESSAGE_OK);
-                response.setData(coldChainOperationService.queryUnloadTask(request));
+                response.setData(result);
             } else {
                 response.setCode(JdResponse.CODE_PARAM_ERROR);
                 response.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
@@ -232,13 +240,11 @@ public class ColdChainOperationResource {
      */
     @POST
     @Path("/coldChain/operation/inAndOutBound")
-    public ColdChainOperationResponse<Boolean> inAndOutBound(ColdChainInAndOutBoundRequest request) {
-        ColdChainOperationResponse<Boolean> response = new ColdChainOperationResponse<>();
+    public ColdChainOperationResponse inAndOutBound(ColdChainInAndOutBoundRequest request) {
+        ColdChainOperationResponse response = new ColdChainOperationResponse<>();
         try {
             if (this.checkParams(request)) {
-                response.setCode(JdResponse.CODE_OK);
-                response.setMessage(JdResponse.MESSAGE_OK);
-                response.setData(coldChainOperationService.inAndOutBound(request));
+                response = coldChainOperationService.inAndOutBound(request);
             } else {
                 response.setCode(JdResponse.CODE_PARAM_ERROR);
                 response.setMessage(JdResponse.MESSAGE_PARAM_ERROR);

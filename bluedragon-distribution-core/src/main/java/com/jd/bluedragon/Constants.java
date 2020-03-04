@@ -1060,4 +1060,9 @@ public class Constants {
      */
     public static final Integer NEW_LOG = 4;
 
+    /**
+     * 负号
+     */
+    public final static String NEGATIVE_SIGN = "-";
+
 }
