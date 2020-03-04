@@ -195,7 +195,7 @@ public class WarmBoxInOutResource {
             response.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
             return response;
         }
-        if (null != request.getBoardCode() && !BusinessUtil.isBoardCode(request.getBoardCode())) {
+        if (!BusinessUtil.isBoardCode(request.getBoardCode())) {
             response.toError("板号输入错误！");
             return response;
         }
@@ -226,9 +226,9 @@ public class WarmBoxInOutResource {
             receive.setReceiveType(MaterialReceiveTypeEnum.RECEIVE_BY_CONTAINER.getCode());
         }
         receive.setReceiveNum(DEFAULT_RECEIVE_NUM);
-        receive.setCreateUserErp(request.getUserCode().toString());
+        receive.setCreateUserErp(request.getUserErp());
         receive.setCreateUserName(request.getUserName());
-        receive.setUpdateUserErp(request.getUserCode().toString());
+        receive.setUpdateUserErp(request.getUserErp());
         receive.setUpdateUserName(request.getUserName());
 
         return receive;
@@ -251,9 +251,9 @@ public class WarmBoxInOutResource {
             send.setSendType(MaterialSendTypeEnum.SEND_BY_CONTAINER.getCode());
         }
         send.setSendNum(DEFAULT_SEND_NUM);
-        send.setCreateUserErp(request.getUserCode().toString());
+        send.setCreateUserErp(request.getUserErp());
         send.setCreateUserName(request.getUserName());
-        send.setUpdateUserErp(request.getUserCode().toString());
+        send.setUpdateUserErp(request.getUserErp());
         send.setUpdateUserName(request.getUserName());
 
         send.setReceiveSiteCode(0L);

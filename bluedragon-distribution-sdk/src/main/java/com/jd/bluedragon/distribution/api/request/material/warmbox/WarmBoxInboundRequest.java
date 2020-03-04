@@ -10,4 +10,13 @@ public class WarmBoxInboundRequest extends WarmBoxInOutBaseRequest {
 
     private static final long serialVersionUID = -3012240394195681092L;
 
+    private String userErp;
+
+    public String getUserErp() {
+        return userErp;
+    }
+
+    public void setUserErp(String userErp) {
+        this.userErp = userErp;
+    }
 }

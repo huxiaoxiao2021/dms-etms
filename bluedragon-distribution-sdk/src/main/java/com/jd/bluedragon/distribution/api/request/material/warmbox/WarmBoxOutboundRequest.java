@@ -15,12 +15,22 @@ public class WarmBoxOutboundRequest extends WarmBoxInOutBaseRequest {
      */
     private Byte outboundType;
 
+    private String userErp;
+
     public Byte getOutboundType() {
         return outboundType;
     }
 
     public void setOutboundType(Byte outboundType) {
         this.outboundType = outboundType;
+    }
+
+    public String getUserErp() {
+        return userErp;
+    }
+
+    public void setUserErp(String userErp) {
+        this.userErp = userErp;
     }
 
 }

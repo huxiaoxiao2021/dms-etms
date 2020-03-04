@@ -61,7 +61,11 @@ $(function () {
                 var _k = this.id;
                 var _v = $(this).val();
                 if(_k && (_v != null && _v != '')){
-                    params[_k] = _v;
+                    if (_k == 'startTime' || _k == 'endTime') {
+                        params[_k] = new Date(_v).getTime();
+                    } else {
+                        params[_k] = _v;
+                    }
                 }
             });
             return params;
@@ -199,17 +203,17 @@ $(function () {
 
 });
 
-function  getDaysByDateString(dateString1, dateString2) {
+function getDaysByDateString(dateString1, dateString2) {
     let startDate = Date.parse(dateString1.replace('/-/g', '/'));
     let endDate = Date.parse(dateString2.replace('/-/g', '/'));
     return (endDate - startDate) / (24 * 60 * 60 * 1000);
 }
 
 function initDateQuery(){
-    let today = $.dateHelper.formatDate(new Date());
-    let fifteenDayAgo = $.dateHelper.addDays(new Date(), -15);
-    $("#startTime").val(fifteenDayAgo + " 00:00:00");
-    $("#endTime").val(today + " 23:59:59");
+    let endTime = $.dateHelper.formatDate(new Date());
+    let startTime = $.dateHelper.formatDate($.dateHelper.addDays(new Date(), -14));
+    $("#startTime").val(startTime + " 00:00:00");
+    $("#endTime").val(endTime + " 23:59:59");
 }
 
 function initSelect() {
@@ -219,7 +223,7 @@ function initSelect() {
     materialStatus.val(defaultV);
     materialStatusSelect.on('change', function () {
         let v = materialStatusSelect.val();
-        if (v === 1 || v === 2) {
+        if (v == 1 || v == 2) {
             materialStatus.val(v);
         }
         else {
@@ -233,7 +237,7 @@ function initSelect() {
     scanType.val(defaultV);
     scanTypeSelect.on('change', function () {
         let v = scanTypeSelect.val();
-        if (v === 1 || v === 2) {
+        if (v == 1 || v == 2) {
             scanType.val(v);
         }
         else {
@@ -247,7 +251,7 @@ function initSelect() {
     materialType.val(defaultV);
     materialTypeSelect.on('change', function () {
         let v = materialTypeSelect.val();
-        if (v === 1 || v === 99) {
+        if (v == 1 || v == 99) {
             materialType.val(v);
         }
         else {

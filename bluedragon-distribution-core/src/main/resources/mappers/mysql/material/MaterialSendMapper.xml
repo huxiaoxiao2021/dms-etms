@@ -95,11 +95,13 @@
             <trim suffixOverrides="," prefix="(" suffix=")">
                 #{item.materialCode,jdbcType=VARCHAR},
                 #{item.materialType,jdbcType=TINYINT},
-                #{item.receiveType,jdbcType=TINYINT},
-                #{item.receiveCode,jdbcType=VARCHAR},
-                #{item.receiveNum,jdbcType=INTEGER},
+                #{item.sendType,jdbcType=TINYINT},
+                #{item.sendCode,jdbcType=VARCHAR},
+                #{item.sendNum,jdbcType=INTEGER},
                 #{item.createSiteCode,jdbcType=BIGINT},
                 #{item.createSiteType,jdbcType=INTEGER},
+                #{item.receiveSiteCode,jdbcType=BIGINT},
+                #{item.receiveSiteType,jdbcType=INTEGER},
                 #{item.createUserErp,jdbcType=VARCHAR},
                 #{item.createUserName,jdbcType=VARCHAR},
                 #{item.updateUserErp,jdbcType=VARCHAR},
@@ -143,7 +145,7 @@
         FROM
         dms_material_send
         <include refid="where_condition"/>
-        ORDER BY update_time DESC
+        ORDER BY material_code, update_time DESC
         LIMIT #{offset,jdbcType=INTEGER}, #{limit,jdbcType=INTEGER}
     </select>
 </mapper>

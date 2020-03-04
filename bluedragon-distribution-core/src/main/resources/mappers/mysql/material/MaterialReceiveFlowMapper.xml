@@ -25,7 +25,7 @@
     create_time, update_time, yn, ts
   </sql>
 
-    <insert id="insert" parameterType="com.jd.bluedragon.distribution.material.domain.DmsMaterialReceiveFlow" >
+    <insert id="batchInsert" parameterType="java.util.List" >
         INSERT INTO dms_material_receive_flow
         (
             material_code,
@@ -45,23 +45,25 @@
             ts
         )
         VALUES
-        (
-            #{materialCode,jdbcType=VARCHAR},
-            #{materialType,jdbcType=TINYINT},
-            #{receiveType,jdbcType=TINYINT},
-            #{receiveCode,jdbcType=VARCHAR},
-            #{receiveNum,jdbcType=INTEGER},
-            #{createSiteCode,jdbcType=BIGINT},
-            #{createSiteType,jdbcType=INTEGER},
-            #{createUserErp,jdbcType=VARCHAR},
-            #{createUserName,jdbcType=VARCHAR},
-            #{updateUserErp,jdbcType=VARCHAR},
-            #{updateUserName,jdbcType=VARCHAR},
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim suffixOverrides="," prefix="(" suffix=")">
+            #{item.materialCode,jdbcType=VARCHAR},
+            #{item.materialType,jdbcType=TINYINT},
+            #{item.receiveType,jdbcType=TINYINT},
+            #{item.receiveCode,jdbcType=VARCHAR},
+            #{item.receiveNum,jdbcType=INTEGER},
+            #{item.createSiteCode,jdbcType=BIGINT},
+            #{item.createSiteType,jdbcType=INTEGER},
+            #{item.createUserErp,jdbcType=VARCHAR},
+            #{item.createUserName,jdbcType=VARCHAR},
+            #{item.updateUserErp,jdbcType=VARCHAR},
+            #{item.updateUserName,jdbcType=VARCHAR},
             now(),
             now(),
             1,
             now(3)
-        )
+            </trim>
+        </foreach>
     </insert>
 
 </mapper>

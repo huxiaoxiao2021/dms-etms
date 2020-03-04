@@ -17,11 +17,21 @@ public class WarmBoxBoardRelationRequest extends JdRequest {
      */
     private String boardCode;
 
+    private String userErp;
+
     public String getBoardCode() {
         return boardCode;
     }
 
     public void setBoardCode(String boardCode) {
         this.boardCode = boardCode;
+    }
+
+    public String getUserErp() {
+        return userErp;
+    }
+
+    public void setUserErp(String userErp) {
+        this.userErp = userErp;
     }
 }

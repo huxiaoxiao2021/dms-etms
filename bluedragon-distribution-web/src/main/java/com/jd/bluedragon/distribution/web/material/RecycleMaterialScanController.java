@@ -43,17 +43,17 @@ public class RecycleMaterialScanController {
     }
 
     @Authorization(Constants.DMS_WEB_RECYCLE_MATERIAL_SCAN_R)
-    @RequestMapping(value = "/listData", method = RequestMethod.GET)
+    @RequestMapping(value = "/listData")
     public @ResponseBody PagerResult<RecycleMaterialScanVO> list(@RequestBody RecycleMaterialScanQuery query){
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+        Long createSiteCode = -1L;
         if (null != erpUser) {
             BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
-            Long createSiteCode = -1L;
             if (baseStaffSiteOrgDto != null && baseStaffSiteOrgDto.getSiteType().equals(Constants.DMS_SITE_TYPE)) {
                 createSiteCode = new Long(baseStaffSiteOrgDto.getSiteCode());
             }
-            query.setCreateSiteCode(createSiteCode);
         }
+        query.setCreateSiteCode(createSiteCode);
         return materialOperationService.queryByPagerCondition(query);
     }
 }

@@ -137,7 +137,7 @@ public class MaterialOperationServiceImpl implements MaterialOperationService {
         }
         catch (Exception ex) {
             result.toError();
-            LOGGER.error("Failed to save material send data. body:[{}]", JsonHelper.toJson(materialSends), ex);
+            LOGGER.error("Failed to save material send data. body:[{}].", JsonHelper.toJson(materialSends), ex);
         }
 
         return result;
@@ -185,7 +185,7 @@ public class MaterialOperationServiceImpl implements MaterialOperationService {
         }
         catch (Exception ex) {
             result.toError();
-            LOGGER.error("Failed to save material receive data. body:[{}]", JsonHelper.toJson(materialReceives), ex);
+            LOGGER.error("Failed to save material receive data. body:[{}].", JsonHelper.toJson(materialReceives), ex);
         }
 
         return result;
@@ -234,34 +234,32 @@ public class MaterialOperationServiceImpl implements MaterialOperationService {
     @Override
     @JProfiler(jKey = "DMS.WEB.MaterialOperationServiceImpl.queryByPagerCondition", jAppName= Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public PagerResult<RecycleMaterialScanVO> queryByPagerCondition(RecycleMaterialScanQuery query) {
-
-        List<RecycleMaterialScanVO> scanVOS = new ArrayList<>();
+        PagerResult<RecycleMaterialScanVO> result = new PagerResult<>();
 
         // 只查收货
-        if (MaterialOperationStatusEnum.INBOUND.getCode() == query.getMaterialStatus()
-                || MaterialScanTypeEnum.INBOUND.getCode() == query.getScanType()) {
+        if ((null != query.getMaterialStatus() && MaterialOperationStatusEnum.INBOUND.getCode() == query.getMaterialStatus()) ||
+                (null != query.getScanType() && MaterialScanTypeEnum.INBOUND.getCode() == query.getScanType())) {
 
-            this.createReceiveScanVO(query, scanVOS);
+            this.createReceiveScanVO(result, query);
         }
         // 只查发货
-        else if (MaterialOperationStatusEnum.OUTBOUND.getCode() == query.getMaterialStatus()
-                || MaterialScanTypeEnum.OUTBOUND.getCode() == query.getScanType()){
+        else if ((null != query.getMaterialStatus() && MaterialOperationStatusEnum.OUTBOUND.getCode() == query.getMaterialStatus()) ||
+                (null != query.getScanType() && MaterialScanTypeEnum.OUTBOUND.getCode() == query.getScanType())){
 
-            this.createSendScanVO(query, scanVOS);
+            this.createSendScanVO(result, query);
 
         }
         // 发货收货Union查询
         else {
 
-            this.createReceiveAndSendVO(query, scanVOS);
+            this.createReceiveAndSendVO(result, query);
         }
 
-        PagerResult<RecycleMaterialScanVO> result = new PagerResult<>();
-        result.setRows(scanVOS);
         return result;
     }
 
-    private void createReceiveScanVO(RecycleMaterialScanQuery query, List<RecycleMaterialScanVO> scanVOS) {
+    private void createReceiveScanVO(PagerResult<RecycleMaterialScanVO> result, RecycleMaterialScanQuery query) {
+        List<RecycleMaterialScanVO> scanVOS = new ArrayList<>();
         PagerResult<DmsMaterialReceive> pageResult = materialReceiveDao.queryByPagerCondition(query);
         if (!CollectionUtils.isEmpty(pageResult.getRows())) {
             for (DmsMaterialReceive row : pageResult.getRows()) {
@@ -277,9 +275,12 @@ public class MaterialOperationServiceImpl implements MaterialOperationService {
                 scanVOS.add(vo);
             }
         }
+        result.setRows(scanVOS);
+        result.setTotal(pageResult.getTotal());
     }
 
-    private void createSendScanVO(RecycleMaterialScanQuery query, List<RecycleMaterialScanVO> scanVOS) {
+    private void createSendScanVO(PagerResult<RecycleMaterialScanVO> result, RecycleMaterialScanQuery query) {
+        List<RecycleMaterialScanVO> scanVOS = new ArrayList<>();
         PagerResult<DmsMaterialSend> pagerResult = materialSendDao.queryByPagerCondition(query);
         if (!CollectionUtils.isEmpty(pagerResult.getRows())) {
             for (DmsMaterialSend row : pagerResult.getRows()) {
@@ -295,9 +296,12 @@ public class MaterialOperationServiceImpl implements MaterialOperationService {
                 scanVOS.add(vo);
             }
         }
+        result.setRows(scanVOS);
+        result.setTotal(pagerResult.getTotal());
     }
 
-    private void createReceiveAndSendVO(RecycleMaterialScanQuery query, List<RecycleMaterialScanVO> scanVOS) {
+    private void createReceiveAndSendVO(PagerResult<RecycleMaterialScanVO> result, RecycleMaterialScanQuery query) {
+        List<RecycleMaterialScanVO> scanVOS = new ArrayList<>();
         PagerResult<RecycleMaterialScanVO> pagerResult = materialRelationDao.queryReceiveAndSend(query);
         if (!CollectionUtils.isEmpty(pagerResult.getRows())) {
             for (RecycleMaterialScanVO row : pagerResult.getRows()) {
@@ -305,13 +309,15 @@ public class MaterialOperationServiceImpl implements MaterialOperationService {
                 vo.setBoardCode(row.getBoardCode());
                 vo.setMaterialCode(row.getMaterialCode());
                 vo.setCreateSiteName(this.getSiteName(row.getCreateSiteCode()));
-                vo.setMaterialStatus(vo.getMaterialStatus());
+                vo.setMaterialStatus(row.getMaterialStatus());
                 vo.setMaterialType(row.getMaterialType());
                 vo.setOperateTime(row.getOperateTime());
-                vo.setScanType(vo.getScanType());
+                vo.setScanType(row.getScanType());
                 vo.setUserErp(row.getUserErp());
                 scanVOS.add(vo);
             }
         }
+        result.setRows(scanVOS);
+        result.setTotal(pagerResult.getTotal());
     }
 }
