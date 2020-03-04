@@ -88,7 +88,7 @@ public class ColdChainOptimizeManagerImpl implements ColdChainOptimizeManager {
             unloadRequest.setOperateERP(unloadDto.getOperateERP());
             unloadRequest.setVehicleNo(unloadDto.getVehicleNo());
             unloadRequest.setVehicleModelName(unloadDto.getVehicleModelName());
-            unloadRequest.setVehicleModelNo(unloadDto.getVehicleNo());
+            unloadRequest.setVehicleModelNo(unloadDto.getVehicleModelNo());
             unloadRequest.setTemp(unloadDto.getTemp());
             return unloadRequest;
         }

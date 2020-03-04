@@ -194,7 +194,7 @@ public class ColdChainOperationResource {
      * @return
      */
     private boolean checkParams(ColdChainUnloadCompleteRequest request) {
-        if (request != null) {
+        if (request == null) {
             return false;
         }
 
