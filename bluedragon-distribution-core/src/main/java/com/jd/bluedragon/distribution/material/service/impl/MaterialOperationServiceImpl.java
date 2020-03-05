@@ -114,9 +114,7 @@ public class MaterialOperationServiceImpl implements MaterialOperationService {
             List<BoxInOutMessage> messages = new ArrayList<>(materialSends.size());
             for (DmsMaterialSend materialSend : materialSends) {
                 flows.add(materialSend.convert2SendFlow());
-                if (!StringUtils.isBlank(materialSend.getSendCode())) {
-                    relations.add(materialSend.convert2Relation());
-                }
+                relations.add(materialSend.convert2Relation());
                 messages.add(this.convertMaterialSend2Message(materialSend));
             }
 
@@ -138,6 +136,7 @@ public class MaterialOperationServiceImpl implements MaterialOperationService {
         catch (Exception ex) {
             result.toError();
             LOGGER.error("Failed to save material send data. body:[{}].", JsonHelper.toJson(materialSends), ex);
+            throw new RuntimeException("保温箱出库失败");
         }
 
         return result;
@@ -162,9 +161,7 @@ public class MaterialOperationServiceImpl implements MaterialOperationService {
             List<BoxInOutMessage> messages = new ArrayList<>(materialReceives.size());
             for (DmsMaterialReceive materialReceive : materialReceives) {
                 flows.add(materialReceive.convert2ReceiveFlow());
-                if (!StringUtils.isBlank(materialReceive.getReceiveCode())) {
-                    relations.add(materialReceive.convert2Relation());
-                }
+                relations.add(materialReceive.convert2Relation());
                 messages.add(this.convertMaterialReceive2Message(materialReceive));
             }
 
@@ -186,6 +183,7 @@ public class MaterialOperationServiceImpl implements MaterialOperationService {
         catch (Exception ex) {
             result.toError();
             LOGGER.error("Failed to save material receive data. body:[{}].", JsonHelper.toJson(materialReceives), ex);
+            throw new RuntimeException("保温箱入库失败");
         }
 
         return result;

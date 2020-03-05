@@ -195,7 +195,7 @@ public class WarmBoxInOutResource {
             response.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
             return response;
         }
-        if (!BusinessUtil.isBoardCode(request.getBoardCode())) {
+        if (!StringUtils.isEmpty(request.getBoardCode()) && !BusinessUtil.isBoardCode(request.getBoardCode())) {
             response.toError("板号输入错误！");
             return response;
         }
