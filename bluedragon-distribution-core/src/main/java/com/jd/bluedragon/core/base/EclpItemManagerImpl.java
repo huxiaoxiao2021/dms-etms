@@ -1,11 +1,12 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
+
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SystemLogUtil;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.eclp.core.ApiResponse;
@@ -174,8 +175,7 @@ public class EclpItemManagerImpl implements EclpItemManager {
             logRequest.put("waybillCode", waybillCode);
 
             BusinessLogProfiler businessLogProfiler = new BusinessLogProfilerBuilder()
-                    .bizType(BizOperateTypeConstants.SORTING_PRE_SORTING_SITE_CHANGE.getBizTypeCode())
-                    .operateType(BizOperateTypeConstants.SORTING_PRE_SORTING_SITE_CHANGE.getOperateTypeCode())
+                    .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SORTING_PRE_SITE_CHANGE)
                     .methodName("ReassignWaybillServiceImpl#add")
                     .operateRequest(request)
                     .operateResponse(response)

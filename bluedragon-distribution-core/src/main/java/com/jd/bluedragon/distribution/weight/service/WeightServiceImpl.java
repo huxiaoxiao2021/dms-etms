@@ -8,11 +8,10 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.domain.WeightOperFlow;
 import com.jd.bluedragon.distribution.api.response.WeightResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
-import com.jd.bluedragon.distribution.log.BizTypeConstants;
+
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
-import com.jd.bluedragon.distribution.log.OperateTypeConstants;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -139,8 +138,7 @@ public class WeightServiceImpl implements WeightService {
             response.put("head", com.jd.bluedragon.utils.JsonHelper.toJson(goddess.getHead()));
 
             BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
-                    .bizType(BizOperateTypeConstants.WEIGH_WAYBILL_WEIGHTINFOTOWAYBILL.getBizTypeCode())
-                    .operateType(BizOperateTypeConstants.WEIGH_WAYBILL_WEIGHTINFOTOWAYBILL.getOperateTypeCode())
+                    .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.WEIGH_WAYBILL_WEIGHTINFOTOWAYBILL)
                     .processTime(endTime,startTime)
                     .operateRequest(request)
                     .operateResponse(response)

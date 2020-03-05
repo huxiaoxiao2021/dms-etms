@@ -45,7 +45,7 @@ public class InspectionNotifyServiceImpl implements InspectionNotifyService {
         //循环集包袋在验货环节发送解绑MQ
         BoxMaterialRelationMQ loopPackageMq = new BoxMaterialRelationMQ();
         loopPackageMq.setBusinessType(BoxMaterialRelationEnum.INSPECTION.getType());
-        loopPackageMq.setOperatorCode(body.getCreateUserCode());
+        loopPackageMq.setOperatorCode(body.getCreateUserCode()==null?0:body.getCreateUserCode());
         loopPackageMq.setOperatorName(body.getCreateUserName());
         loopPackageMq.setSiteCode(String.valueOf(body.getInspectionSiteCode()));
         loopPackageMq.setWaybillCode(Collections.singletonList(body.getWaybillCode()));

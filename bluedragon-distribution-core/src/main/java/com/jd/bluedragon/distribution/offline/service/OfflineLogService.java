@@ -13,10 +13,13 @@ import java.util.Map;
  */
 @Deprecated
 public interface OfflineLogService {
-	
+
+	@Deprecated
 	Integer addOfflineLog(OfflineLog offlineLog);
 	Integer totalSizeByParams(Map<String, Object> params);
 	List<OfflineLog> queryByParams(Map<String, Object> paramMap);
 	OfflineLog findByObj(OfflineLog offlineLog);
+
+	@Deprecated
 	Integer update(OfflineLog offlineLog); 
 }

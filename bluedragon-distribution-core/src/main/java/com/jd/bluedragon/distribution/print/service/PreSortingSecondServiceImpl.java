@@ -12,7 +12,7 @@ import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
 import com.jd.bluedragon.distribution.api.domain.WeightOperFlow;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
-import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
+
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
@@ -24,6 +24,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.SystemLogContants;
 import com.jd.bluedragon.utils.SystemLogUtil;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.fastjson.JSONObject;
@@ -260,8 +261,7 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
 			response.put("content", JsonHelper.toJsonUseGson(siteChangeMqDto));
 
 			BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
-					.bizType(BizOperateTypeConstants.SORTING_PRE_SORTING_SITE_CHANGE.getBizTypeCode())
-					.operateType(BizOperateTypeConstants.SORTING_PRE_SORTING_SITE_CHANGE.getOperateTypeCode())
+					.operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SORTING_PRE_SITE_CHANGE)
 					.methodName("PreSortingSecondServiceImpl#sendSiteChangeMQ")
 					.operateRequest(request)
 					.operateResponse(response)
