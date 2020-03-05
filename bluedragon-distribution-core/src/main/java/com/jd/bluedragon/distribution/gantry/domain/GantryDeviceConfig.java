@@ -126,6 +126,11 @@ public class GantryDeviceConfig {
     */
     private Byte version;
 
+    /**
+     * 业务类型：正向 逆向
+     */
+    private Integer waybillBusinessType;
+
     public Long getId() {
         return id;
     }
@@ -292,6 +297,14 @@ public class GantryDeviceConfig {
 
     public void setVersion(Byte version) {
         this.version = version;
+    }
+
+    public Integer getWaybillBusinessType() {
+        return waybillBusinessType;
+    }
+
+    public void setWaybillBusinessType(Integer waybillBusinessType) {
+        this.waybillBusinessType = waybillBusinessType;
     }
 
     @Override

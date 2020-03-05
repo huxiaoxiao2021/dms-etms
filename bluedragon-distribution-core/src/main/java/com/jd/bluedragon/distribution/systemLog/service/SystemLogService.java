@@ -1,14 +1,22 @@
 package com.jd.bluedragon.distribution.systemLog.service;
 
-import java.util.List;
-import java.util.Map;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 不要使用此接口保存日志了。请使用统一的日志日志接口com.jd.bluedragon.distribution.log.impl.LogEngineImpl。
+ * com.jd.bluedragon.distribution.log.impl.LogEngineImpl 此接口保存的日志会存储到business.log.jd.com 中;
+ */
+@Deprecated
 public interface SystemLogService {
 
+	@Deprecated
 	int add(SystemLog systemLog);
 
+	@Deprecated
 	int add(String keyword1, String keyword2, String keyword3, Long keyword4,
 			String content, Long type);
 

@@ -11,6 +11,10 @@ import com.jd.bluedragon.distribution.api.response.SortSchemeResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.cacheClean.domain.CacheClean;
 import com.jd.bluedragon.distribution.cacheClean.service.CacheCleanService;
+
+import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
+import com.jd.dms.logger.external.LogEngine;
 import com.jd.bluedragon.distribution.sortscheme.domain.SortScheme;
 import com.jd.bluedragon.distribution.sortscheme.domain.SortSchemeDetail;
 import com.jd.bluedragon.distribution.sortscheme.service.SortSchemeDetailService;
@@ -23,6 +27,8 @@ import com.jd.bluedragon.utils.ExportByPOIUtil;
 import com.jd.bluedragon.utils.IntegerHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.fastjson.JSONObject;
 import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.uim.annotation.Authorization;
@@ -85,6 +91,11 @@ public class SortSchemeController {
 
     @Resource
     private CacheCleanService cacheCleanService;
+
+    @Autowired
+    private LogEngine logEngine;
+
+
 
     // 页面跳转控制 增加参数跳转
     @Authorization(Constants.DMS_WEB_SORTING_SORTSCHEME_R)
@@ -704,6 +715,7 @@ public class SortSchemeController {
      * 增加箱号缓存清理日志
      */
     private void addSystemLog(ErpUserClient.ErpUser user,String createSiteCode){
+        long startTime=new Date().getTime();
 
         String erpUserCode = user.getUserCode();
         String erpUserName = user.getUserName();
@@ -712,6 +724,24 @@ public class SortSchemeController {
         goddess.setBody("用户["+erpUserCode + ":" + erpUserName+"],清理["+createSiteCode+"]分拣中心箱号缓存！");
         goddess.setDateTime(new Date());
         goddess.setKey("CleanBoxCache"+createSiteCode);
+
+        long endTime = new Date().getTime();
+
+        JSONObject request=new JSONObject();
+        request.put("operatorCode",erpUserCode);
+        request.put("siteCode",createSiteCode);
+
+        JSONObject response=new JSONObject();
+        response.put("info", goddess);
+
+        BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
+                .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SORTING_BOXCACHECLEAR)
+                .processTime(endTime,startTime)
+                .build();
+
+        logEngine.addLog(businessLogProfiler);
+
+
         goddessService.save(goddess);
     }
 }

@@ -43,7 +43,7 @@ public class SortingZhiPeiServiceImple implements SortingZhiPeiService {
 		
 		try{
 			//生成分拣中心操作日志到Cassandra
-			this.sortingService.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING);
+			this.sortingService.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING,"SortingZhiPeiServiceImple#doSorting");
 		}catch (Exception e) {
 			this.log.error("全程跟踪失败，运单号：{}", sorting.getWaybillCode(), e);
 		}

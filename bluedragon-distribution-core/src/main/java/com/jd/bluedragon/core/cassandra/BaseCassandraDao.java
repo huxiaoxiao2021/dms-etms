@@ -9,6 +9,11 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.util.*;
 
+/**
+ * 不要使用此接口保存日志了。请使用统一的日志日志接口com.jd.bluedragon.distribution.log.impl.LogEngineImpl。
+ * com.jd.bluedragon.distribution.log.impl.LogEngineImpl 此接口保存的日志会存储到business.log.jd.com 中;
+ */
+@Deprecated
 public class BaseCassandraDao{
 
     @Value("${cassandra.consistencyLevel.default}")
@@ -25,7 +30,8 @@ public class BaseCassandraDao{
         }
         this.session.close();
     }
-    
+
+    @Deprecated
 	@JProfiler(jKey = "baseCassandra.batchInsert", mState = { JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError })
 	public void batchInsert(List<BoundStatement> bstatementList, Map<String, Object> values) throws Exception {
 		BatchStatement batch = new BatchStatement();
@@ -35,13 +41,15 @@ public class BaseCassandraDao{
 		batch.setConsistencyLevel(consistencyLevel);
 		session.executeAsync(batch);
 	}
-	
+
+    @Deprecated
 	@JProfiler(jKey = "baseCassandra.preparedSelectBycode", mState = { JProEnum.TP,JProEnum.Heartbeat, JProEnum.FunctionError })
     public ResultSet preparedSelectBycode(BoundStatement bs) throws Exception{
 		ResultSet set = session.execute(bs);
         return set;
 	}
-    
+
+    @Deprecated
     @JProfiler(jKey = "baseCassandra.insert", mState = { JProEnum.TP,JProEnum.Heartbeat, JProEnum.FunctionError })
     public void insert(String tableName,Map<String,Object> values) throws Exception{
         if(StringUtils.isBlank(tableName)){
@@ -85,6 +93,8 @@ public class BaseCassandraDao{
         ResultSet result = session.execute(bounded);
 
     }
+
+    @Deprecated
     @JProfiler(jKey = "baseCassandra.select", mState = { JProEnum.TP,JProEnum.Heartbeat, JProEnum.FunctionError })
     public List<Map<String,Object>> select(String tableName,Map<String,Object> params) throws Exception{
         if(StringUtils.isBlank(tableName)){
@@ -183,6 +193,7 @@ public class BaseCassandraDao{
         return mapList;
     }
 
+    @Deprecated
     @JProfiler(jKey = "baseCassandra.insertByCql", mState = { JProEnum.TP,JProEnum.Heartbeat, JProEnum.FunctionError })
     public void insertByCql(String cql,Object[] args) throws Exception{
         if(StringUtils.isBlank(cql)){

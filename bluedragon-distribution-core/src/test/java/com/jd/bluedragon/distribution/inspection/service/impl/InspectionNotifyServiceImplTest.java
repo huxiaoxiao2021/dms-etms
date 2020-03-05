@@ -1,13 +1,23 @@
 package com.jd.bluedragon.distribution.inspection.service.impl;
 
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionMQBody;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.SerialRuleUtil;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /** 
@@ -16,19 +26,64 @@ import java.util.List;
 * @author <wuzuxiang> 
 * @since <pre>12/20/2017</pre> 
 * @version 1.0 
-*/ 
-public class InspectionNotifyServiceImplTest {//extends TestBase {
+*/
+@RunWith(MockitoJUnitRunner.class)
+public class InspectionNotifyServiceImplTest {
 
-//    @Autowired
-//    private InspectionNotifyService inspectionNotifyService;
+    @InjectMocks
+    private InspectionNotifyServiceImpl inspectionNotifyService;
+
+    @Mock
+    @Qualifier("inspectionDataSyncMQ")
+    private DefaultJMQProducer inspectionDataSyncMQ;
+
+    @Mock
+    @Qualifier("cycleMaterialSendMQ")
+    private DefaultJMQProducer cycleMaterialSendMQ;
+
+    private InspectionMQBody body;
 
     @Before
-    public void before() throws Exception { 
+    public void before() throws Exception {
+        body = new InspectionMQBody();
+        body.setWaybillCode("JDJ000121845488");
+        body.setCreateUserCode(11);
+        body.setCreateUserName("bjxings");
+        body.setInspectionSiteCode(910);
+        body.setOperateTime(new Date());
+
     } 
 
     @After
     public void after() throws Exception { 
-    } 
+    }
+
+    @Test
+    public void send(){
+        try {
+            DefaultJMQProducer ss = Mockito.mock(inspectionDataSyncMQ.getClass());
+            Mockito.doAnswer(new Answer<Object>() {
+                public Object answer(InvocationOnMock invocation) {
+                    Object[] args = invocation.getArguments();
+                    return "called with arguments: " + args;
+                }
+            }).when(ss).sendOnFailPersistent(Mockito.anyString(),Mockito.anyString());
+
+            DefaultJMQProducer aa = Mockito.mock(cycleMaterialSendMQ.getClass());
+            Mockito.doAnswer(new Answer<Object>() {
+                public Object answer(InvocationOnMock invocation) {
+                    Object[] args = invocation.getArguments();
+                    return "called with arguments: " + args;
+                }
+            }).when(aa).sendOnFailPersistent(Mockito.anyString(),Mockito.anyString());
+
+            inspectionNotifyService.send(body);
+            Assert.assertTrue(Boolean.TRUE);
+        }catch (Exception e){
+            //异常则断言失败
+            Assert.assertTrue(Boolean.FALSE);
+        }
+    }
     
     /** 
     * 

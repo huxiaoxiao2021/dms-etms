@@ -5,7 +5,6 @@ import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.print.domain.PrintPackage;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -17,7 +16,8 @@ import org.springframework.stereotype.Service;
 import java.text.MessageFormat;
 import java.util.Date;
 
-import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum.*;
+import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum.SITE_MASTER_PACKAGE_REPRINT;
+import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum.SITE_MASTER_REVERSE_CHANGE_PRINT;
 
 /**
  * <P>
@@ -117,43 +117,6 @@ public class MappedBasicPrintWaybillHandler implements Handler<WaybillPrintConte
             receivable = "￥" + receivable;
         }
         printWaybill.setReceivable(receivable);
-
-        /*   加工字段：remark
-             增加判断，如果remark字段已经打了  就不在打印服务单号，  客户端自己解决重复服务单号问题
-             VY中remark会存在服务单号，其他类型还要打印 ServiceCode，
-             没人知道需求，不敢贸然修改代码，目前做硬编码判断避免重复
-         */
-        if (SITE_MASTER_PACKAGE_REPRINT.getType().equals(context.getRequest().getOperateType())
-                || SITE_MASTER_REVERSE_CHANGE_PRINT.getType().equals(context.getRequest().getOperateType())
-                || SITE_MASTER_RESCHEDULE_PRINT.getType().equals(context.getRequest().getOperateType())) {
-            String remark = "";
-            if (WaybillUtil.isSwitchCode(printWaybill.getWaybillCode())
-                    && BusinessUtil.isSignChar(printWaybill.getSendPay(),8,'6')) {
-                remark += BAD_WAREHOURSE_FOR_PORT;
-            } else {
-                remark += StringHelper.isEmpty(printWaybill.getRemark())? "" : printWaybill.getRemark();
-            }
-            if (StringHelper.isNotEmpty(printWaybill.getServiceCode())) {
-                if (!remark.contains(printWaybill.getServiceCode())) {
-                    if (remark.length() > 0) {
-                        remark += SPLIT;
-                    }
-                    remark += PICKUP_CUSTOMER_COMMET;
-                    remark += printWaybill.getServiceCode();
-                }
-
-            }
-            if (StringHelper.isNotEmpty(printWaybill.getBusiOrderCode())) {
-                if (!remark.contains(printWaybill.getBusiOrderCode())) {
-                    if (remark.length() > 0) {
-                        remark += SPLIT;
-                    }
-                    remark += BUSINESS_ORDER_CODE_REMARK;
-                    remark += printWaybill.getBusiOrderCode();
-                }
-            }
-            printWaybill.setRemark(remark);
-        }
 
         /* 加工字段：寄件人电话consignerTelText */
         String consignerTelText = "";

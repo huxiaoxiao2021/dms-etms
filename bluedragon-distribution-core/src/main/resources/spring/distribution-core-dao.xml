@@ -572,4 +572,16 @@
         <property name="sqlSession" ref="sessionTemplateBase" />
     </bean>
 
+    <!-- 三方装箱明细 -->
+    <bean id="thirdBoxDetailDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.third.dao.impl.ThirdBoxDetailDaoImpl"/>
+    <!-- 逆向入库单 -->
+    <bean id="reverseStockInDetailDao" class="com.jd.bluedragon.distribution.reverse.dao.impl.ReverseStockInDetailDaoImpl">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
+    <bean id="interceptConfigInfoDao" class="com.jd.bluedragon.distribution.interceptconfig.dao.InterceptConfigInfoDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
 </beans>

@@ -1,6 +1,8 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.etms.framework.utils.cache.annotation.Cache;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.AbnormalReasonDto;
 import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.PdaResult;
 import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.WpAbnormalRecordPda;
@@ -25,6 +27,7 @@ public class IAbnPdaAPIManagerImpl implements IAbnPdaAPIManager {
     @Autowired
     private IAbnPdaAPI iAbnPdaAPI;
 
+    @JProfiler(jKey = "DMSWEB.IAbnPdaAPIManagerImpl.selectAbnReasonByErp", mState = {JProEnum.TP})
     @Cache(key = "IAbnPdaAPIManager.selectAbnReasonByErp@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
     @Override
     public Map<String, AbnormalReasonDto> selectAbnReasonByErp(String userErp) {
@@ -52,6 +55,7 @@ public class IAbnPdaAPIManagerImpl implements IAbnPdaAPIManager {
         return abnormalReasonDtoMap;
     }
 
+    @JProfiler(jKey = "DMSWEB.IAbnPdaAPIManagerImpl.report", mState = {JProEnum.TP})
     @Override
     public PdaResult report(WpAbnormalRecordPda wpAbnormalRecordPda) {
         PdaResult pdaResult = null;

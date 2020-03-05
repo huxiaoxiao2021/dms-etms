@@ -31,6 +31,7 @@ public class OfflineLog implements java.io.Serializable {
 	private Integer operateType;
 	private Date updateTime;
 	private Integer status;
+	private String methodName;
 	private Integer yn;
 	/**
 	 * 创建机构CODE
@@ -39,6 +40,14 @@ public class OfflineLog implements java.io.Serializable {
 
 	/** 航标发货标示*/
 	private Integer transporttype;
+
+	public String getMethodName() {
+		return methodName;
+	}
+
+	public void setMethodName(String methodName) {
+		this.methodName = methodName;
+	}
 
 	public Integer getOrgCode() {
 		return orgCode;

@@ -47,4 +47,17 @@ public interface VosManager {
      */
     CommonDto<String> verifyVehicleJobByVehicleNumber(VerifyVehicleJobDto  verifyVehicleJobDto);
 
+    /**
+     * VOS创建预封车任务
+     * @param preSealVehicleJobDto
+     * @return
+     */
+    CommonDto<String> doPreSealVehicleJob(PreSealVehicleJobDto preSealVehicleJobDto);
+
+    /**
+     * VOS取消预封车任务
+     * @param preSealVehicleJobDto
+     * @return
+     */
+    CommonDto<String> cancelPreSealVehicleJob(PreSealVehicleJobDto preSealVehicleJobDto);
 }

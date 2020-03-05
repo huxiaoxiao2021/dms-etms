@@ -129,17 +129,10 @@ public class PrintWaybill extends BasePrintWaybill {
         this.sendPay = sendPay;
     }
 
-    private String comment ;
-
     /**
     * 新用记标识
     */
     private String newCustomerText ;
-
-    /**
-    * 服务号
-    */
-    private String serviceCode;
 
     /**
     * 包裹列表
@@ -346,28 +339,12 @@ public class PrintWaybill extends BasePrintWaybill {
         this.packagePrice = packagePrice;
     }
 
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
-
     public String getNewCustomerText() {
         return newCustomerText;
     }
 
     public void setNewCustomerText(String newCustomerText) {
         this.newCustomerText = newCustomerText;
-    }
-
-    public String getServiceCode() {
-        return serviceCode;
-    }
-
-    public void setServiceCode(String serviceCode) {
-        this.serviceCode = serviceCode;
     }
 
     public List<PrintPackage> getPackList() {

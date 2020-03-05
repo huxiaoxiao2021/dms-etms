@@ -5,6 +5,7 @@ import java.util.List;
 
 /**
  * 终端称重量方对象
+ * @link https://cf.jd.com/pages/viewpage.action?pageId=195474766
  * Created by yangjun8 on 2019/7/10.
  */
 public class WeightOpeDto implements Serializable {
@@ -21,7 +22,7 @@ public class WeightOpeDto implements Serializable {
     private Long operateTime;//打包时间
     private Integer operateSiteId;//站点id
     private String operateSite;//站点名称
-    private Integer opeType;//操作类型
+    private Integer opeType;//操作类型 3.加盟站点操作 4.揽收交接操作 5.配送交接操作
     private Double volumeHeight;//包裹高
     private Double volumeLength;//包裹长
     private Double volumeWidth;//包裹宽

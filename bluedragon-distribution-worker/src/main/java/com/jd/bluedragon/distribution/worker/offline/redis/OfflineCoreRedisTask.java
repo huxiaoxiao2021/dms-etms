@@ -167,6 +167,7 @@ public class OfflineCoreRedisTask extends RedisSingleScheduler {
 				} else {
 					offlineLog.setStatus(Constants.RESULT_FAIL);
 				}
+				offlineLog.setMethodName("OfflineCoreRedisTask#offlineCore");
 				this.offlineLogService.addOfflineLog(offlineLog);
 			} catch (Exception e) {
 				this.log.error("OfflineCoreTask--> 插入日志异常：【{}】",body, e);

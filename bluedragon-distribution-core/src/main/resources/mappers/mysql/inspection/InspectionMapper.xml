@@ -41,6 +41,12 @@
         <result column="package_num"  property="packageNum" />
         <result column="scan_count"  property="scanCount" />
     </resultMap>
+    
+    <resultMap id="InsepctionCheckDto" type="com.jd.bluedragon.distribution.inspection.InsepctionCheckDto">
+        <result column="waybill_code"  property="waybillCode" />
+        <result column="package_num"  property="packageNum" />
+        <result column="inspectioned_pack_num"  property="inspectionedPackNum" />
+    </resultMap>
 
     <sql id="Base_Column_List">
     inspection_id, waybill_code, box_code, 
@@ -244,6 +250,62 @@
         AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
         AND receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
         AND inspection_type=30
+        AND yn=1
+    </select>
+
+    <select id="findInspectionGatherPageCount" resultType="java.lang.Integer" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition">
+        SELECT
+        count(distinct waybill_code)
+        FROM inspection
+        WHERE create_time <![CDATA[>=]]> str_to_date(date_format(#{startTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
+        AND create_time <![CDATA[<=]]> str_to_date(date_format(#{endTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
+        AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
+        <if test="waybillCode != null">
+            AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+        </if>
+        AND yn=1
+    </select>
+
+    <!-- 查询运单中的验货是否集齐数据-->
+    <select id="findInspectionGather" resultMap="InsepctionCheckDto" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition">
+        SELECT
+        waybill_code,max(quantity) package_num,count(distinct package_barcode) inspectioned_pack_num
+        FROM inspection
+        WHERE create_time <![CDATA[>=]]> str_to_date(date_format(#{startTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
+        AND create_time <![CDATA[<=]]> str_to_date(date_format(#{endTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
+        AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
+        <if test="waybillCode != null">
+            AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+        </if>
+        AND yn=1
+        group by waybill_code
+        having
+        <choose>
+            <when test="gatherType == 1">
+                inspectioned_pack_num <![CDATA[>=]]> package_num
+            </when>
+            <otherwise>
+                inspectioned_pack_num <![CDATA[<]]> package_num
+            </otherwise>
+        </choose>
+        limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+    </select>
+
+    <select id="findInspetionedPacks" resultMap="BaseResultMap" parameterType="Inspection">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM inspection
+        WHERE waybill_code = #{waybillCode,jdbcType=VARCHAR}
+        AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
+        AND yn=1
+    </select>
+
+    <select id="verifyReverseInspectionGather" resultMap="InsepctionCheckDto" parameterType="Inspection">
+        SELECT
+        waybill_code,max(quantity) package_num,count(1) inspectioned_pack_num
+        FROM inspection
+        WHERE waybill_code = #{waybillCode,jdbcType=VARCHAR}
+        AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
         AND yn=1
     </select>
 
@@ -592,5 +654,14 @@
         </if>
         group by package_barcode
 
+    </select>
+    <select id="listInspectionByWaybillCode" resultMap="BaseResultMap" parameterType="java.util.Map">
+        SELECT
+            WAYBILL_CODE, PACKAGE_BARCODE
+        FROM inspection
+        WHERE
+        WAYBILL_CODE = #{waybillCode, jdbcType=VARCHAR}
+        AND CREATE_SITE_CODE = #{createSiteCode, jdbcType=BIGINT}
+        AND YN = 1
     </select>
 </mapper>

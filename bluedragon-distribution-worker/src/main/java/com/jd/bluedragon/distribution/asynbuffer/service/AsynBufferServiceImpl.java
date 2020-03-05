@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.auto.domain.UploadData;
 import com.jd.bluedragon.distribution.auto.service.ScannerFrameDispatchService;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.framework.AbstractTaskExecute;
 import com.jd.bluedragon.distribution.inspection.exception.InspectionException;
@@ -26,6 +27,8 @@ import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.DmsTaskExecutor;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.weight.service.WeightService;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
+import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.logger.aop.BusinessLogWriter;
 import com.jd.dms.logger.external.BusinessLogProfiler;
@@ -246,6 +249,10 @@ public class AsynBufferServiceImpl implements AsynBufferService {
     //称重信息回传运单中心
     @Autowired
     private WeightService weightService;
+
+    @Autowired
+    private DMSWeightVolumeService weightVolumeService;
+
     public boolean weightTaskProcess(Task task) throws Exception{
         boolean result = Boolean.FALSE;
         try {
@@ -256,6 +263,29 @@ public class AsynBufferServiceImpl implements AsynBufferService {
             return Boolean.FALSE;
         }
         return result;
+    }
+
+    @Override
+    public boolean weightVolumeTaskProcess(Task task) throws Exception {
+        try {
+            this.log.info("task id is {}" , task.getId());
+            WeightVolumeEntity weightVolumeEntity = JsonHelper.fromJson(task.getBody(),WeightVolumeEntity.class);
+            if (null == weightVolumeEntity) {
+                this.log.warn("称重量方消息反序列化失败{}" , task.getBody());
+                return Boolean.FALSE;
+            }
+            InvokeResult<Boolean> invokeResult = weightVolumeService.dealWeightAndVolume(weightVolumeEntity);
+            if (invokeResult != null &&
+                    InvokeResult.RESULT_SUCCESS_CODE == invokeResult.getCode() && Boolean.TRUE.equals(invokeResult.getData())) {
+                return Boolean.TRUE;
+            } else {
+                log.warn("称重量方任务处理失败，处理单号为：{}，处理结果：{}", weightVolumeEntity.getBarCode(), JsonHelper.toJson(invokeResult));
+                return Boolean.FALSE;
+            }
+        } catch (Exception e) {
+            this.log.error("处理称重回传任务发生异常：{}" ,task.getId(), e);
+            return Boolean.FALSE;
+        }
     }
 
     //统一处理task_send入口，根据keyword1对应具体的方法

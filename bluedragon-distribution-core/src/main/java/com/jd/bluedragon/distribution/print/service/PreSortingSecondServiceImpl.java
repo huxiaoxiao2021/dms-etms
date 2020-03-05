@@ -12,11 +12,22 @@ import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
 import com.jd.bluedragon.distribution.api.domain.WeightOperFlow;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
+
+import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.distribution.weight.service.WeightService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.SystemLogContants;
+import com.jd.bluedragon.utils.SystemLogUtil;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
+import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.dms.logger.external.LogEngine;
+import com.jd.fastjson.JSONObject;
 import com.jd.preseparate.vo.BaseResponseIncidental;
 import com.jd.preseparate.vo.MediumStationOrderInfo;
 import com.jd.preseparate.vo.OriginalOrderInfo;
@@ -40,6 +51,9 @@ import java.util.Set;
 @Service("preSortingSecondService")
 public class PreSortingSecondServiceImpl implements PreSortingSecondService{
     private static final Logger log = LoggerFactory.getLogger(PreSortingSecondServiceImpl.class);
+
+    @Autowired
+	private LogEngine logEngine;
 
     @Autowired
     private PreseparateWaybillManager preseparateWaybillManager;
@@ -213,7 +227,9 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
      * @param newPreSiteInfo
      */
     private void sendSiteChangeMQ(WaybillPrintContext context, MediumStationOrderInfo newPreSiteInfo){
-        SiteChangeMqDto siteChangeMqDto = new SiteChangeMqDto();
+		long startTime=new Date().getTime();
+
+		SiteChangeMqDto siteChangeMqDto = new SiteChangeMqDto();
         siteChangeMqDto.setWaybillCode(context.getWaybill().getWaybillCode());
         siteChangeMqDto.setPackageCode(context.getWaybill().getPackList().get(0).getPackCode());
         siteChangeMqDto.setNewSiteId(newPreSiteInfo.getMediumStationId());
@@ -230,6 +246,31 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
         } catch (Exception e) {
             log.error("发送预分拣站点变更mq消息失败：{}", JsonHelper.toJsonUseGson(siteChangeMqDto), e);
         }finally{
+
+			long endTime = new Date().getTime();
+
+			JSONObject request=new JSONObject();
+			request.put("waybillCode",siteChangeMqDto.getWaybillCode());
+			request.put("packageCode",siteChangeMqDto.getPackageCode());
+			request.put("operatorName",siteChangeMqDto.getOperatorName());
+
+			JSONObject response=new JSONObject();
+			response.put("keyword2", String.valueOf(siteChangeMqDto.getOperatorId()));
+			response.put("keyword3", waybillSiteChangeProducer.getTopic());
+			response.put("keyword4", siteChangeMqDto.getOperatorSiteId().longValue());
+			response.put("content", JsonHelper.toJsonUseGson(siteChangeMqDto));
+
+			BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
+					.operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SORTING_PRE_SITE_CHANGE)
+					.methodName("PreSortingSecondServiceImpl#sendSiteChangeMQ")
+					.operateRequest(request)
+					.operateResponse(response)
+					.processTime(endTime,startTime)
+					.build();
+
+			logEngine.addLog(businessLogProfiler);
+
+
         	SystemLogUtil.log(siteChangeMqDto.getWaybillCode(), String.valueOf(siteChangeMqDto.getOperatorId()), waybillSiteChangeProducer.getTopic(),
                     siteChangeMqDto.getOperatorSiteId().longValue(), JsonHelper.toJsonUseGson(siteChangeMqDto), SystemLogContants.TYPE_SITE_CHANGE_MQ);
         }

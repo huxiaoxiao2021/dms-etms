@@ -2,6 +2,10 @@ package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+
+import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
+import com.jd.dms.logger.external.LogEngine;
 import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
 import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
 import com.jd.bluedragon.distribution.reverse.service.ReverseSpareEclp;
@@ -11,8 +15,10 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.fastjson.JSONObject;
 import com.jd.ldop.center.api.ResponseDTO;
 import com.jd.ldop.center.api.print.WaybillPrintApi;
 import com.jd.ldop.center.api.print.dto.PrintResultDTO;
@@ -59,7 +65,8 @@ public class LDOPManagerImpl implements LDOPManager {
     public static final int RETURN_TYPE_4 = 4;
     public static final int RETURN_TYPE_5 = 5;
 
-
+    @Autowired
+    private LogEngine logEngine;
 
     @Autowired
     private WaybillReverseApi waybillReverseApi;
@@ -98,6 +105,7 @@ public class LDOPManagerImpl implements LDOPManager {
      */
     public boolean waybillReverse(WaybillReverseDTO waybillReverseDTO,JdResponse<Boolean> rest){
 
+        long startTime=new Date().getTime();
         CallerInfo info = null;
         ResponseDTO responseDTO = null;
         try{
@@ -117,6 +125,26 @@ public class LDOPManagerImpl implements LDOPManager {
             Profiler.functionError(info);
             return false;
         }finally{
+            long endTime= new Date().getTime();
+
+
+            JSONObject response=new JSONObject();
+            response.put("waybillReverseDTO", JsonHelper.toJson(waybillReverseDTO));
+            response.put("responseDTO", JsonHelper.toJson(responseDTO));
+
+            JSONObject request=new JSONObject();
+            request.put("waybillCode", waybillReverseDTO.getWaybillCode());
+
+            BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
+                    .methodName("LDOPManagerImpl#waybillReverse")
+                    .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.OUTER_WAYBILL_EXCHANGE_WAYBILL)
+                    .processTime(endTime,startTime)
+                    .operateResponse(response)
+                    .operateRequest(request)
+                    .build();
+
+            logEngine.addLog(businessLogProfiler);
+
             insertLog(waybillReverseDTO,responseDTO);
             Profiler.registerInfoEnd(info);
         }
@@ -125,6 +153,8 @@ public class LDOPManagerImpl implements LDOPManager {
 
     @Override
     public WaybillReverseResult waybillReverse(WaybillReverseDTO waybillReverseDTO,StringBuilder errorMessage) {
+        long startTime=new Date().getTime();
+
         CallerInfo info = null;
         ResponseDTO responseDTO = null;
         try{
@@ -144,6 +174,26 @@ public class LDOPManagerImpl implements LDOPManager {
             Profiler.functionError(info);
             return null;
         }finally{
+
+            long endTime= new Date().getTime();
+
+            JSONObject request=new JSONObject();
+            request.put("waybillCode", waybillReverseDTO.getWaybillCode());
+
+            JSONObject response=new JSONObject();
+            response.put("waybillReverseDTO", JsonHelper.toJson(waybillReverseDTO));
+            response.put("responseDTO", JsonHelper.toJson(responseDTO));
+
+            BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
+                    .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.OUTER_WAYBILL_EXCHANGE_WAYBILL)
+                    .methodName("LDOPManagerImpl#waybillReverse")
+                    .operateRequest(request)
+                    .operateResponse(response)
+                    .processTime(endTime,startTime)
+                    .build();
+
+            logEngine.addLog(businessLogProfiler);
+
             insertLog(waybillReverseDTO,responseDTO);
             Profiler.registerInfoEnd(info);
 

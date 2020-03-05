@@ -9,7 +9,7 @@ import com.jd.bluedragon.common.dto.board.response.BoardInfoDto;
 /**
  * SortBoardGatewayService
  * 组板服务
- *
+ *发布到物流网关 由安卓调用
  * @author jiaowenqiang
  * @date 2019/7/5
  */

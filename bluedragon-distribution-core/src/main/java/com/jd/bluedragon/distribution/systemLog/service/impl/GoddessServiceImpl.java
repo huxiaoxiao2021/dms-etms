@@ -11,15 +11,20 @@ import javax.annotation.Resource;
 import java.util.List;
 
 /**
+ * 不要使用此接口保存日志了。请使用统一的日志日志接口com.jd.bluedragon.distribution.log.impl.LogEngineImpl。
+ * com.jd.bluedragon.distribution.log.impl.LogEngineImpl 此接口保存的日志会存储到business.log.jd.com 中;
+ *
  * Created by wangtingwei on 2017/2/17.
  */
 @Service("goddessService")
+@Deprecated
 public class GoddessServiceImpl implements GoddessService {
 
     @Resource(name = "goddessDao")
     private GoddessDao goddessDao;
 
     @Override
+    @Deprecated
     public void save(Goddess domain) {
         if(null!=domain&& StringUtils.isNotBlank(domain.getKey())){
             goddessDao.batchInsert(domain);

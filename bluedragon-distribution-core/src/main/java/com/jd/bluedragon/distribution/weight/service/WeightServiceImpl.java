@@ -8,6 +8,10 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.domain.WeightOperFlow;
 import com.jd.bluedragon.distribution.api.response.WeightResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
+
+import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
+import com.jd.dms.logger.external.LogEngine;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -17,6 +21,8 @@ import com.jd.bluedragon.distribution.weight.domain.OpeSendObject;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.fastjson.JSONObject;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.ql.dms.common.cache.CacheKeyGenerator;
 import com.jd.ql.dms.common.cache.CacheService;
@@ -66,9 +72,14 @@ public class WeightServiceImpl implements WeightService {
     @Qualifier("jimdbCacheService")
     private CacheService jimdbCacheService;
 
+    @Autowired
+    private LogEngine logEngine;
+
+
     private static final Type WAYBILL_WEIGHT=new TypeToken<List<OpeEntity>>(){}.getType();
 
     public boolean doWeightTrack(Task task) {
+        long startTime=new Date().getTime();
         String taskBody = null;
         Goddess goddess=builderGoddess(task.getBody());
         try {
@@ -117,6 +128,24 @@ public class WeightServiceImpl implements WeightService {
             this.log.error("处理称重回传任务发生异常，异常信息为：", e);
             goddess.setHead(MessageFormat.format("提交称重至运单:异常为{0}",e.getMessage()));
         }finally {
+            long endTime=new Date().getTime();
+
+            JSONObject request=new JSONObject();
+            request.put("waybillCode", goddess.getKey());
+
+            JSONObject response=new JSONObject();
+            response.put("body", com.jd.bluedragon.utils.JsonHelper.toJson(goddess.getBody()));
+            response.put("head", com.jd.bluedragon.utils.JsonHelper.toJson(goddess.getHead()));
+
+            BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
+                    .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.WEIGH_WAYBILL_WEIGHTINFOTOWAYBILL)
+                    .processTime(endTime,startTime)
+                    .operateRequest(request)
+                    .operateResponse(response)
+                    .methodName("WeightServiceImpl#doWeightTrack")
+                    .build();
+            logEngine.addLog(businessLogProfiler);
+
             goddessService.save(goddess);
         }
         return false;

@@ -140,6 +140,16 @@
         <property name="desc" value="将称重信息回传到运单中心" />
     </bean>
 
+    <bean id="weightVolumeTask" class="com.jd.bluedragon.distribution.worker.weightVolume.WeightVolumeTask"
+          init-method="init" lazy-init="false" depends-on="managerFactory">
+        <property name="dataSource" ref="taskDataSource" />
+        <property name="taskType" value="WeightVolumeTask" />
+        <property name="managerFactory" ref="managerFactory" />
+        <property name="ownSign" value="${ownSign}" />
+        <property name="type" value="1170" />
+        <property name="desc" value="将称重量方信息回传到运单中心" />
+    </bean>
+
     <bean id="scannerFrameTask" class="com.jd.bluedragon.distribution.worker.ScannerFrameTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
         <property name="dataSource" ref="taskDataSource" />

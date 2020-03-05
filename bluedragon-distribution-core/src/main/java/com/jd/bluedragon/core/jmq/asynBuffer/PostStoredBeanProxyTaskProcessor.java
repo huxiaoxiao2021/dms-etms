@@ -1,15 +1,23 @@
 package com.jd.bluedragon.core.jmq.asynBuffer;
 
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+
+import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
+import com.jd.dms.logger.external.LogEngine;
 import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.SystemLogUtil;
+import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.fastjson.JSONObject;
 import com.jd.ql.framework.asynBuffer.comsumer.BeanProxyTaskProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 
 
@@ -21,6 +29,9 @@ import java.util.List;
 public class PostStoredBeanProxyTaskProcessor extends BeanProxyTaskProcessor<Task> {
 
 	private TaskService taskService;
+
+	@Autowired
+	private LogEngine logEngine;
 
 	@Resource
 	private UccPropertyConfiguration uccPropertyConfiguration;
@@ -104,6 +115,8 @@ public class PostStoredBeanProxyTaskProcessor extends BeanProxyTaskProcessor<Tas
 
 	protected boolean saveConsumerFailedTask(Task task) {
 		log.info("【异步缓冲组件】消费消息失败，执行落库,消息内容：{}",task);
+		long startTime=new Date().getTime();
+
 		task.setStatus(Task.TASK_STATUS_UNHANDLED);
 		task.setExecuteCount(0);
 		try {
@@ -117,6 +130,21 @@ public class PostStoredBeanProxyTaskProcessor extends BeanProxyTaskProcessor<Tas
 			systemLog.setKeyword4(Task.TASK_STATUS_PARSE_ERROR.longValue());//表示任务执行失败
 			systemLog.setType(task.getType().longValue());
 			systemLog.setContent(task.getBody());
+
+			long endTime = new Date().getTime();
+
+
+			JSONObject request = new JSONObject();
+			request.put("boxCode", task.getBoxCode());
+
+			BusinessLogProfiler businessLogProfiler = new BusinessLogProfilerBuilder()
+					.operateTypeEnum(BusinessLogConstans.OperateTypeEnum.TASK_CONSUME_FAIL)
+					.methodName("PostStoredBeanProxyTaskProcessor#saveConsumerFailedTask")
+					.processTime(endTime, startTime)
+					.operateRequest(request)
+					.build();
+			logEngine.addLog(businessLogProfiler);
+
 			SystemLogUtil.log(systemLog);
 		}
 		return true;

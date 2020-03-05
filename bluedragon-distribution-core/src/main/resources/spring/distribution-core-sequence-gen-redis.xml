@@ -21,5 +21,11 @@
 		<constructor-arg index="1" value="seq-box-%s" />
 	</bean>
 
+	<bean id="redisSequenceGen"
+		  class="com.jd.coo.sa.sequence.JimdbSequenceGen">
+		<constructor-arg index="0" ref="redisClientCache"/>
+		<!-- %s 为ownerKey的占位符 -->
+		<constructor-arg index="1" value="seq-code-%s" />
+	</bean>
 
 </beans>

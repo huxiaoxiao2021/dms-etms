@@ -56,6 +56,16 @@ public class PdaOperateRequest {
 	 * 设备编号
 	 */
 	String machineCode;
+
+	/**
+	 * 是否报丢 1报丢
+	 */
+	Integer isLoss;
+
+	/**
+	 * 是否校验验货集齐
+	 */
+	Integer isGather;
 	
 	public Integer getOperateType() {
 		return operateType;
@@ -124,5 +134,21 @@ public class PdaOperateRequest {
 
 	public void setMachineCode(String machineCode) {
 		this.machineCode = machineCode;
+	}
+
+	public Integer getIsLoss() {
+		return isLoss;
+	}
+
+	public void setIsLoss(Integer isLoss) {
+		this.isLoss = isLoss;
+	}
+
+	public Integer getIsGather() {
+		return isGather;
+	}
+
+	public void setIsGather(Integer isGather) {
+		this.isGather = isGather;
 	}
 }

@@ -10,13 +10,11 @@ import com.jd.bluedragon.distribution.api.request.Eclp2BdReceiveDetail;
 import com.jd.bluedragon.distribution.api.request.ReverseReceiveRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.reverse.dao.ReverseSpareDao;
-import com.jd.bluedragon.distribution.reverse.domain.ReceiveRequest;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseReject;
-import com.jd.bluedragon.distribution.reverse.domain.ReverseSpare;
+import com.jd.bluedragon.distribution.reverse.domain.*;
 import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
 import com.jd.bluedragon.distribution.reverse.service.ReverseReceiveService;
 import com.jd.bluedragon.distribution.reverse.service.ReverseRejectService;
+import com.jd.bluedragon.distribution.reverse.service.ReverseStockInDetailService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
@@ -64,7 +62,9 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 
 	@Autowired
 	private ReverseReceiveService reverseReceiveService;
-	
+	@Autowired
+	private ReverseStockInDetailService reverseStockInDetailService;
+
 	@Autowired
 	private TaskService taskService;
 
@@ -298,6 +298,8 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 				}
 			}
 		}
+		//更新入库单状态
+		updateReverseStockInStatus(reverseReceive);
 
 	}
 
@@ -434,7 +436,27 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 
 	}
 
+	/**
+	 * 更新入库单状态
+	 *
+	 * 现阶段只处理C2C入备件库场景  收货 驳回情况
+	 *
+	 * @param reverseReceive
+	 */
+	private void updateReverseStockInStatus(ReverseReceive reverseReceive){
+		ReverseStockInDetail reverseStockInDetail = new ReverseStockInDetail();
 
+		reverseStockInDetail.setWaybillCode(reverseReceive.getWaybillCode());
+		reverseStockInDetail.setSendCode(reverseReceive.getSendCode());
+		if(ReverseReceive.REVERSE_TYPE_C2C.equals(reverseReceive.getReceiveType())){
+			reverseStockInDetail.setBusiType(ReverseStockInDetailTypeEnum.C2C_REVERSE_SPWMS.getCode());
+			if(ReverseReceive.RECEIVE.equals(reverseReceive.getCanReceive())){
+				reverseStockInDetailService.updateStatus(reverseStockInDetail, ReverseStockInDetailStatusEnum.REVERSE);
+			}else if(ReverseReceive.REJECT.equals(reverseReceive.getCanReceive())){
+				reverseStockInDetailService.updateStatus(reverseStockInDetail, ReverseStockInDetailStatusEnum.REJECT);
+			}
+		}
+	}
 
     private Task toTask(WaybillStatus tWaybillStatus) {
 		Task task = new Task();

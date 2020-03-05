@@ -94,4 +94,37 @@ public class VosManagerImpl implements VosManager{
 		}
 		return commonDto;
 	}
+
+	/**
+	 * VOS创建预封车任务
+	 */
+	@Override
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.VosManagerImpl.doPreSealVehicleJob",mState = {JProEnum.TP,JProEnum.FunctionError})
+	public CommonDto<String> doPreSealVehicleJob(PreSealVehicleJobDto preSealVehicleJobDto) {
+		log.info("调用VOS创建预封车任务接口,参数:{}" ,JSON.toJSONString(preSealVehicleJobDto));
+		CommonDto<String> commonDto = null;
+		try {
+			commonDto = vosVehicleJobBusinessWS.doPreSealVehicleJob(preSealVehicleJobDto);
+		} catch (Exception e) {
+			log.warn("调用VOS创建预封车任务接口失败,参数:{},返回值：{}" ,JSON.toJSONString(preSealVehicleJobDto), e);
+		}
+		return commonDto;
+	}
+
+	/**
+	 * VOS取消预封车任务
+	 */
+	@Override
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.VosManagerImpl.cancelPreSealVehicleJob",mState = {JProEnum.TP,JProEnum.FunctionError})
+	public CommonDto<String> cancelPreSealVehicleJob(PreSealVehicleJobDto preSealVehicleJobDto) {
+		log.info("调用VOS取消预封车任务接口,参数:{}" ,JSON.toJSONString(preSealVehicleJobDto));
+		CommonDto<String> commonDto = null;
+		try {
+			commonDto = vosVehicleJobBusinessWS.cancelPreSealVehicleJob(preSealVehicleJobDto);
+		} catch (Exception e) {
+			log.warn("调用VOS取消预封车任务接口失败,参数:{},返回值：{}" ,JSON.toJSONString(preSealVehicleJobDto), e);
+		}
+		return commonDto;
+	}
+
 }

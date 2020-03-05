@@ -93,5 +93,26 @@
         </property>
     </bean>
 
+    <!--  经济网：按箱回传称重量方体积  -->
+    <bean id="economicNetBusinessManager" class="com.jd.bluedragon.external.crossbow.economicNet.manager.EconomicNetBusinessManager">
+        <property name="partnerId" value="${dms.economic.net.partnerId}" />
+        <property name="secretKey" value="${dms.economic.net.secretKey}" />
+        <property name="crossbowConfig" >
+            <bean class="com.jd.bluedragon.core.crossbow.CrossbowConfig">
+                <property name="domain" value="${dms.economic.net.domain}" />
+                <property name="api" value="${dms.economic.net.api}" />
+                <property name="appKey" value="${dms.economic.net.appKey}" />
+                <property name="appSecret" value="${dms.economic.net.appSecret}" />
+                <property name="customerId" value="${dms.economic.net.customerId}" />
+                <property name="securityEnum" value="message_sign" />
+            </bean>
+        </property>
+        <property name="serializationConfig">
+            <bean class="com.jd.bluedragon.external.crossbow.SerializationConfig">
+                <property name="serializationMode" value="JSON" />
+            </bean>
+        </property>
+    </bean>
+
 
 </beans>
