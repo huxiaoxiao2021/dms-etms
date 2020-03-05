@@ -16,6 +16,7 @@ import com.jd.bluedragon.distribution.rest.material.WarmBoxInOutResource;
 import com.jd.bluedragon.external.gateway.service.WarmBoxInOutGatewayService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +50,13 @@ public class WarmBoxInOutGatewayServiceImpl implements WarmBoxInOutGatewayServic
             LOGGER.info("Gateway获取板和保温箱绑定关系. req:[{}]", JSON.toJSONString(request));
         }
 
-        WarmBoxBoardRelationRequest queryParam = JSON.parseObject(JSON.toJSONString(request), WarmBoxBoardRelationRequest.class);
+        WarmBoxBoardRelationRequest queryParam = new WarmBoxBoardRelationRequest();
+        queryParam.setBoardCode(request.getBoardCode() == null ? StringUtils.EMPTY : request.getBoardCode());
+        queryParam.setUserErp(request.getUser().getUserErp());
+        queryParam.setUserCode(request.getUser().getUserCode());
+        queryParam.setUserName(request.getUser().getUserName());
+        queryParam.setSiteCode(request.getCurrentOperate().getSiteCode());
+        queryParam.setSiteName(request.getCurrentOperate().getSiteName());
         JdResult<WarmBoxInOutResponse> result = warmBoxInOutResource.listBoxBoardRelation(queryParam);
         if (result.isFailed()) {
             response.toError(result.getMessage());
@@ -80,11 +87,12 @@ public class WarmBoxInOutGatewayServiceImpl implements WarmBoxInOutGatewayServic
         }
 
         WarmBoxInboundRequest reqBody = new WarmBoxInboundRequest();
-        reqBody.setBoardCode(request.getBoardCode());
+        reqBody.setBoardCode(request.getBoardCode() == null ? StringUtils.EMPTY : request.getBoardCode());
         reqBody.setWarmBoxCodes(request.getWarmBoxCodes());
         reqBody.setSiteCode(request.getCurrentOperate().getSiteCode());
         reqBody.setSiteName(request.getCurrentOperate().getSiteName());
         reqBody.setUserCode(request.getUser().getUserCode());
+        reqBody.setUserErp(request.getUser().getUserErp());
         reqBody.setUserName(request.getUser().getUserName());
         JdResult<WarmBoxInOutResponse> result = warmBoxInOutResource.warmBoxInbound(reqBody);
         if (result.isFailed()) {
@@ -114,13 +122,14 @@ public class WarmBoxInOutGatewayServiceImpl implements WarmBoxInOutGatewayServic
         }
 
         WarmBoxOutboundRequest body = new WarmBoxOutboundRequest();
-        body.setBoardCode(request.getBoardCode());
+        body.setBoardCode(request.getBoardCode() == null ? StringUtils.EMPTY : request.getBoardCode());
         body.setWarmBoxCodes(request.getWarmBoxCodes());
         body.setOutboundType(request.getOutboundType());
-        body.setSiteCode(request.getCurrentOperate().getSiteCode());
-        body.setSiteName(request.getCurrentOperate().getSiteName());
+        body.setUserErp(request.getUser().getUserErp());
         body.setUserCode(request.getUser().getUserCode());
         body.setUserName(request.getUser().getUserName());
+        body.setSiteCode(request.getCurrentOperate().getSiteCode());
+        body.setSiteName(request.getCurrentOperate().getSiteName());
 
         JdResult<WarmBoxInOutResponse> result = warmBoxInOutResource.warmBoxOutbound(body);
         if (result.isFailed()) {

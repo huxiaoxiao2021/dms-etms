@@ -73,10 +73,26 @@
 
 
     <!--###########################bd_dms_business dataSource###############################-->
-    <bean id="businessDataSource" parent="parentDataSource">
-        <property name="url" value="${dms.business.db.write.url}"/>
-        <property name="username" value="${dms.business.db.username}"/>
-        <property name="password" value="${dms.business.db.password}"/>
+    <bean id="businessDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="url" value="${dms.business.mysql.db.url}"/>
+        <property name="username" value="${dms.business.mysql.db.username}"/>
+        <property name="password" value="${dms.business.mysql.db.password}"/>
+        <property name="driverClassName" value="${db.mysql.driverClassName}"/>
+        <property name="defaultAutoCommit" value="true"/>
+        <property name="initialSize" value="${dms.business.mysql.db.initialSize}"/>
+        <property name="maxIdle" value="${dms.business.mysql.db.maxIdle}"/>
+        <property name="minIdle" value="${dms.business.mysql.db.minIdle}"/>
+        <property name="maxActive" value="${dms.business.mysql.db.maxActive}"/>
+        <property name="maxWait" value="${dms.business.mysql.db.maxWait}"/>
+        <property name="logAbandoned" value="${dms.business.mysql.db.logAbandoned}"/>
+        <property name="removeAbandoned" value="${dms.business.mysql.db.removeAbandoned}"/>
+        <property name="removeAbandonedTimeout" value="${dms.business.mysql.db.removeAbandonedTimeout}" />
+        <property name="testWhileIdle" value="${dms.business.mysql.db.testWhileIdle}" />
+        <property name="testOnBorrow" value="${dms.business.mysql.db.testOnBorrow}" />
+        <property name="validationQuery" value="${dms.business.mysql.db.validationQuery}" />
+        <property name="minEvictableIdleTimeMillis" value="${dms.business.mysql.db.minEvictableIdleTimeMillis}"/>
+        <property name="timeBetweenEvictionRunsMillis" value="${dms.business.mysql.db.timeBetweenEvictionRunsMillis}"/>
+        <property name="poolPreparedStatements" value="false" />
     </bean>
     <bean id="transactionManagerBusiness" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="businessDataSource"/>
