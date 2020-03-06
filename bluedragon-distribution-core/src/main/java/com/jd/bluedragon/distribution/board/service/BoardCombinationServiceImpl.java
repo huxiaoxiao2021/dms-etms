@@ -16,6 +16,10 @@ import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
+
+import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
+import com.jd.dms.logger.external.LogEngine;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
@@ -32,8 +36,9 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
-import com.alibaba.fastjson.JSON;
+import com.jd.fastjson.JSONObject;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.transboard.api.dto.*;
 import com.jd.transboard.api.service.BoardMeasureService;
@@ -61,6 +66,9 @@ import java.util.List;
 public class BoardCombinationServiceImpl implements BoardCombinationService {
 
     private static final Logger log = LoggerFactory.getLogger(BoardCombinationServiceImpl.class);
+
+    @Autowired
+    private LogEngine logEngine;
 
     @Autowired
     private SendMDao sendMDao;
@@ -388,7 +396,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
                 //缓存+1
                 redisCommonUtil.incr(CacheKeyConstants.REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardCode);
                 addSystemLog(request, logInfo);
-                addOperationLog(request, OperationLog.BOARD_COMBINATITON);
+                addOperationLog(request, OperationLog.BOARD_COMBINATITON,"BoardCombinationServiceImpl#sendBoardBindings");
                 return JdResponse.CODE_SUCCESS;
             }
 
@@ -412,7 +420,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         //记录操作日志
         addSystemLog(request, logInfo);
 
-        addOperationLog(request, OperationLog.BOARD_COMBINATITON);
+        addOperationLog(request, OperationLog.BOARD_COMBINATITON, "BoardCombinationServiceImpl#sendBoardBindings");
 
         //发送全称跟踪
         sendWaybillTrace(request, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
@@ -560,7 +568,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
                     //原板号缓存-1
                     redisCommonUtil.decr(CacheKeyConstants.REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardMoveResponse.getData());
                     addSystemLog(request, logInfo);
-                    addOperationLog(request, OperationLog.BOARD_COMBINATITON);
+                    addOperationLog(request, OperationLog.BOARD_COMBINATITON,"BoardCombinationServiceImpl#sendBoardBindingsByWaybill");
                 } else {
                     logInfo = "按运单组板失败,板号：" + boardCode + ",包裹号：" + packageCode +
                             ",站点：" + request.getSiteCode() + ".失败原因:" + tcResponse.getMesseage();
@@ -582,7 +590,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
             //记录操作日志
             addSystemLog(request, logInfo);
 
-            addOperationLog(request, OperationLog.BOARD_COMBINATITON);
+            addOperationLog(request, OperationLog.BOARD_COMBINATITON, "BoardCombinationServiceImpl#sendBoardBindingsByWaybill");
 
             //发送全称跟踪
             sendWaybillTrace(request, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
@@ -791,7 +799,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         //记录操作日志
         logInfo = "取消组板成功!板号：" + boardCode + ",箱号/包裹号：" + boxOrPackageCode + ",站点：" + request.getSiteCode();
         addSystemLog(request, logInfo);
-        addOperationLog(request, OperationLog.BOARD_COMBINATITON_CANCEL);
+        addOperationLog(request, OperationLog.BOARD_COMBINATITON_CANCEL, "BoardCombinationServiceImpl#boardCombinationCancel");
 
         //缓存-1 //
         redisCommonUtil.decr(CacheKeyConstants.REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardCode);
@@ -809,6 +817,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
      * @param
      */
     public void addSystemLog(BoardCombinationRequest request, String log) {
+        long startTime=new Date().getTime();
         if (request == null || request.getBoxOrPackageCode() == null || request.getBoardCode() == null) {
             return;
         }
@@ -816,8 +825,28 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         goddess.setHead(request.getBoardCode() + "-" + request.getBoxOrPackageCode());
         goddess.setKey(request.getBoxOrPackageCode());
         goddess.setDateTime(new Date());
-
         goddess.setBody(JsonHelper.toJson(log));
+
+        long endTime = new Date().getTime();
+
+        JSONObject operateRequest=new JSONObject();
+        operateRequest.put("waybillCode",request.getBoxOrPackageCode());
+        operateRequest.put("packageCode",request.getBoxOrPackageCode());
+
+        JSONObject response=new JSONObject();
+        response.put("content", com.jd.bluedragon.utils.JsonHelper.toJsonUseGson(goddess));
+
+        BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
+                .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.BOARD_BOARDCOMBINATION)
+                .operateRequest(request)
+                .operateResponse(response)
+                .processTime(endTime,startTime)
+                .methodName("BoardCombinationServiceImpl#addSystemLog")
+                .build();
+
+        logEngine.addLog(businessLogProfiler);
+
+
         goddessService.save(goddess);
     }
 
@@ -895,7 +924,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
      *
      * @param request
      */
-    public void addOperationLog(BoardCombinationRequest request, Integer logType) {
+    public void addOperationLog(BoardCombinationRequest request, Integer logType, String methodName) {
         OperationLog operationLog = new OperationLog();
         if (BusinessUtil.isBoxcode(request.getBoxOrPackageCode())) {
             operationLog.setBoxCode(request.getBoxOrPackageCode());
@@ -911,6 +940,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         operationLog.setCreateTime(new Date());
         operationLog.setOperateTime(new Date());
         operationLog.setLogType(logType);
+        operationLog.setMethodName(methodName);
 
         this.operationLogService.add(operationLog);
     }

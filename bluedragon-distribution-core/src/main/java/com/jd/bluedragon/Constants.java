@@ -1030,9 +1030,52 @@ public class Constants {
     public static final int WAYBILL_SITE_ID_OUT_ZONE = -136;
 
     /**
+     * 七大区区域ID：
+     *  华东:3 西南:4 华北:6 华南:10
+     *  华中:600 东北:611 西北:645
+     * */
+    public static final int EAST_CHINA_ORG_ID = 3;
+    public static final int SOUTH_WEST_ORG_ID = 4;
+    public static final int NORTH_CHINA_ORG_ID = 6;
+    public static final int SOUTH_CHINA_ORG_ID = 10;
+    public static final int CENTRAL_CHINA_ORG_ID = 600;
+    public static final int NORTH_EAST_ORG_ID = 611;
+    public static final int NORTH_WEST_ORG_ID = 645;
+
+    /**
+     * 冷链卡班短信扩展字段extension
+     */
+    public static final String DMS_COLD_CHAIN_SEND = "dms_coldChain_send";
+
+    /**
      * 经济网租户编码
      */
     public static final String TENANT_CODE_ECONOMIC = "ECONOMIC_NET";
 
+
+    /**
+     *所属业务操作点击量
+     *
+     */
+    public static final Integer BIZTYPE_URL_CLICK = 999001;
+
+    /**
+     *
+     * 菜单点击 分拣中心操作日志
+     */
+    public static final Integer OPERATELOG_CLICK = 1;
+    /**
+     * 菜单点击 分拣运行时全程跟踪
+     */
+    public static final Integer GODDESSLOG_CLICK = 2;
+
+    /**
+     * 菜单点击 分拣离线操作日志查询
+     */
+    public static final Integer OFFLINELOG_CLICK = 3;
+    /**
+     * 新日志查询
+     */
+    public static final Integer NEW_LOG = 4;
 
 }

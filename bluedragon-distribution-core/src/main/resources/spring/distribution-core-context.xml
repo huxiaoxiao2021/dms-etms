@@ -25,6 +25,7 @@
     <import resource="classpath:spring/distribution-core-cassandra.xml" />
     <import resource="classpath:spring/distribution-core-manual-bean.xml"/>
 	<import resource="classpath:spring/distribution-core-crossbow-manager.xml" />
+	<import resource="classpath:spring/distribution-core-log.xml" />
 
     <!--<import resource="classpath:spring/distribution-core-asynBuffer-producer.xml"/>-->
     <!--<import resource="classpath:spring/distribution-core-dcam.xml"/>-->
@@ -32,6 +33,7 @@
 	<import resource="classpath:spring/distribution-core-jss.xml"/>
 	<import resource="classpath:spring/distribution-core-ucc.xml"/>
 	<import resource="classpath:spring/spring-ucc.xml" />
+	<import resource="classpath:spring/distribution-core-sms.xml" />
 	<import resource="classpath:spring/distribution-core-handler.xml" />
 	<import resource="classpath:spring/distribution-core-sequence-gen-redis.xml" />
 	<import resource="classpath*:cdf/crossbow.comp" />

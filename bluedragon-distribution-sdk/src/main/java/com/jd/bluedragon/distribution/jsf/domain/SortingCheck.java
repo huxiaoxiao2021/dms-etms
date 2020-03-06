@@ -46,6 +46,10 @@ public class SortingCheck {
          * 箱号
          */
         String boxCode;
+        /**
+         * 是否报丢 1报丢
+         */
+        Integer isLoss;
 
         public Integer getOperateType() {
             return operateType;
@@ -107,6 +111,10 @@ public class SortingCheck {
         public void setOperateTime(String operateTime) {
             this.operateTime = operateTime;
         }
-
-
+        public Integer getIsLoss() {
+            return isLoss;
+        }
+        public void setIsLoss(Integer isLoss) {
+            this.isLoss = isLoss;
+        }
 }

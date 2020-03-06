@@ -80,6 +80,19 @@ public class WeightVolumeCondition {
      */
     private Long operateTime;
 
+    /**
+     * 长包裹 0:普通包裹 1:长包裹
+     * */
+    private Integer longPackage;
+
+    public Integer getLongPackage() {
+        return longPackage;
+    }
+
+    public void setLongPackage(Integer longPackage) {
+        this.longPackage = longPackage;
+    }
+
     public String getBarCode() {
         return barCode;
     }

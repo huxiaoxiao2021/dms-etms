@@ -2,11 +2,17 @@ package com.jd.bluedragon.distribution.framework;
 
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+
+import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
+import com.jd.dms.logger.external.LogEngine;
 import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.SystemLogUtil;
+import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.fastjson.JSONObject;
 import com.jd.tbschedule.dto.ScheduleQueue;
 import com.jd.tbschedule.redis.template.TBRedisWorkerMultiTemplate;
 import com.jd.tbschedule.redis.template.TaskEntry;
@@ -16,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 public abstract class RedisSingleScheduler extends
@@ -32,7 +39,10 @@ public abstract class RedisSingleScheduler extends
 	
 	@Autowired
 	private BaseService baseService;
-	
+
+	@Autowired
+	private LogEngine logEngine;
+
 	//redis开关
 	public static final String HANDLE_SWITCH = "HANDLE_SWITCH";
 	
@@ -99,6 +109,7 @@ public abstract class RedisSingleScheduler extends
 	}
 
 	private boolean handleSingleTask(Task task, String ownSign) throws Exception {
+		long startTime=new Date().getTime();
 		if (task == null) {
 			return false;
 		}
@@ -146,6 +157,24 @@ public abstract class RedisSingleScheduler extends
 				systemLog.setKeyword4(Task.TASK_STATUS_PARSE_ERROR.longValue());//表示任务执行失败
 				systemLog.setType(task.getType().longValue());
 				systemLog.setContent(task.getBody());
+
+				long endTime = new Date().getTime();
+
+				JSONObject request=new JSONObject();
+				request.put("boxCode",task.getBoxCode());
+
+				JSONObject response=new JSONObject();
+				response.put("log", systemLog);
+
+				BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
+						.operateTypeEnum(BusinessLogConstans.OperateTypeEnum.TASK_REDIS_TASK)
+						.operateRequest(request)
+						.operateResponse(response)
+						.methodName("RedisSingleScheduler#handleSingleTask")
+						.processTime(endTime,startTime)
+						.build();
+
+				logEngine.addLog(businessLogProfiler);
 				
 				int count = SystemLogUtil.log(systemLog);
 				if(count<1){//说明此时数据库有异常，存不进去。向上抛出异常，防止redis 删除数据。

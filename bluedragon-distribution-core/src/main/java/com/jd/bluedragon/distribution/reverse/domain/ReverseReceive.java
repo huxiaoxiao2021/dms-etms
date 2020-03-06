@@ -10,7 +10,9 @@ public class ReverseReceive {
     public static final Integer RECEIVE_TYPE_SPWMS = 3;
     public static final Integer RECEIVE = 1;
     public static final Integer REJECT = 0;
-    
+
+    public static final Integer REVERSE_TYPE_C2C = 10;
+
     // 是否可收
     private Integer canReceive;
     

@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.sorting.service;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -14,6 +15,10 @@ import com.jd.bluedragon.distribution.fastRefund.domain.FastRefundBlockerComplet
 import com.jd.bluedragon.distribution.fastRefund.service.FastRefundService;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
+
+import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
+import com.jd.dms.logger.external.LogEngine;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.domain.SortingVO;
@@ -33,10 +38,12 @@ import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.fastjson.JSONObject;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +55,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import javax.annotation.Resource;
 
 /**
  * 分拣业务抽象类
@@ -108,6 +117,12 @@ public abstract class SortingCommonSerivce {
 
     @Autowired
     WaybillPackageManager waybillPackageManager;
+
+    @Autowired
+    private LogEngine logEngine;
+    
+    @Resource
+    private UccPropertyConfiguration uccPropertyConfiguration;
 
     public abstract boolean doSorting(SortingVO sorting);
 
@@ -218,7 +233,7 @@ public abstract class SortingCommonSerivce {
         if(sorting.getSortingType() != SortingVO.SORTING_TYPE_WAYBILL_SPLIT
                 && sorting.getIsCancel().equals(SortingService.SORTING_CANCEL_NORMAL)){
             //非 运单转换成的分批包裹任务才执行
-            sortingService.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING);
+            sortingService.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING,"SortingCommonSerivce#after");
             //快退
             notifyBlocker(sorting);
             backwardSendMQ(sorting);
@@ -236,6 +251,10 @@ public abstract class SortingCommonSerivce {
      * @param sorting
      */
     protected void b2bPushInspection(SortingVO sorting){
+    	//ucc判断B网分拣是否需要补验货
+    	if(!uccPropertyConfiguration.isB2bPushInspectionSwitch()){
+    		return;
+    	}
         InspectionRequest inspection=new InspectionRequest();
         TaskRequest request=new TaskRequest();
 
@@ -282,6 +301,8 @@ public abstract class SortingCommonSerivce {
 
 
     public void notifyBlocker(SortingVO sorting) {
+        long startTime=new Date().getTime();
+
         try {
             if (Sorting.TYPE_REVERSE.equals(sorting.getType())) {
                 String wayBillCode = sorting.getWaybillCode();
@@ -313,6 +334,28 @@ public abstract class SortingCommonSerivce {
         } catch (Exception e) {
             this.log.error("回传退款100分逆向分拣信息失败，运单号：{}", sorting.getWaybillCode(), e);
             try{
+                long endTime = new Date().getTime();
+
+                JSONObject request=new JSONObject();
+                request.put("waybillCode",sorting.getWaybillCode());
+
+                JSONObject response=new JSONObject();
+                response.put("keyword1", sorting.getWaybillCode());
+                response.put("keyword2", "BLOCKER_QUEUE_DMS");
+                response.put("keyword3", "");
+                response.put("keyword4", sorting.getType());
+                response.put("content", e.getMessage());
+
+                BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
+                        .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SORTING_REVERSE_SORTING_100SCORE)
+                        .methodName("SortingCommonSerivce#notifyBlocker")
+                        .processTime(endTime,startTime)
+                        .operateRequest(request)
+                        .operateResponse(response)
+                        .build();
+
+                logEngine.addLog(businessLogProfiler);
+
                 SystemLogUtil.log(sorting.getWaybillCode(),"BLOCKER_QUEUE_DMS","",sorting.getType(),e.getMessage(),Long.valueOf(12201));
             }catch (Exception ex){
                 log.error("退款100分MQ消息推送记录日志失败", ex);

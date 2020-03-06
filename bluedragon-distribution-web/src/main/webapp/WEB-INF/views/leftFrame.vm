@@ -38,6 +38,7 @@
         <dd><a href="#springUrl('/autosorting/sortScheme/index')" target="mainFrame">分拣计划配置</a></dd>
         <dd><a href="#springUrl('/admin/remote-access')" target="mainFrame">客户改址查询</a></dd>
         <dd><a href="#springUrl('/partnerInspection/goPartnerDifferentList')" target="mainFrame">第三方差异处理</a></dd>
+        <dd><a href="#springUrl('/businesslog/goListPage')" target="mainFrame">日志查询</a></dd>
         <dd><a href="#springUrl('/operateLog/goListPage2')" target="mainFrame">分拣中心操作日志(新)</a></dd>
         <dd><a href="#springUrl('/admin/goddess/index')" target="mainFrame">分拣运行时全程跟踪</a></dd>
         <dd><a href="#springUrl('/offline/goListPage')" target="mainFrame">分拣中心离线操作日志</a></dd>
@@ -74,6 +75,7 @@
 
         <dt><a href="#" class="curr">工具</a></dt>
         <dd><a href="#springUrl('/notice/manage')" target="mainFrame">通知栏管理</a></dd>
+        <dd><a href="#springUrl('/inspectionCheck/toIndex')" target="mainFrame">验货集齐查询</a></dd>
         <dd><a href="#springUrl('/reviewWeightSpotCheck/toIndex')" target="mainFrame">复重抽检任务导入</a></dd>
         <dd><a href="#springUrl('/weightAndVolumeCheckOfB2b/toIndex')" target="mainFrame">B网转运重量抽检</a></dd>
         <dd><a href="#springUrl('/weightAndVolumeCheck/toIndex')" target="mainFrame">重量体积抽检统计</a></dd>

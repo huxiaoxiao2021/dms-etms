@@ -173,14 +173,14 @@ public class PopPrintResource {
 				this.log.info("插入POP打印信息savePopPrint成功，运单号【{}】",popPrint.getWaybillCode());
 				if (isPrintPack) {
 					if (!savePopPrintToRedis) {
-						this.operationLogService.add(parseOperationLog(popPrintRequest, "新增打印"));
+						this.operationLogService.add(parseOperationLog(popPrintRequest, "新增打印","/popPrint/savePopPrint"));
 					}
 				}
 			} else {
 				this.log.info("更新POP打印信息savePopPrint，运单号【{}】",popPrint.getWaybillCode());
 				if (isPrintPack) {
 					if (!savePopPrintToRedis) {
-						this.operationLogService.add(parseOperationLog(popPrintRequest, "更新打印"));
+						this.operationLogService.add(parseOperationLog(popPrintRequest, "更新打印","/popPrint/savePopPrint"));
 					}
 				}
 			}
@@ -315,14 +315,14 @@ public class PopPrintResource {
 				this.log.info("插入POP打印信息成功，运单号【{}】",popPrint.getWaybillCode());
 				if (PopPrintRequest.PRINT_PACK_TYPE.equals(popPrintRequest.getOperateType())) {
 					if (!savePopPrintToRedis) {
-						this.operationLogService.add(parseOperationLog(popPrintRequest, "新增打印"));
+						this.operationLogService.add(parseOperationLog(popPrintRequest, "新增打印","/popPrint/savePopPrint"));
 					}
 				}
 			} else {
 				this.log.info("更新POP打印信息，运单号【{}】",popPrint.getWaybillCode());
 				if (PopPrintRequest.PRINT_PACK_TYPE.equals(popPrintRequest.getOperateType())) {
 					if (!savePopPrintToRedis) {
-						this.operationLogService.add(parseOperationLog(popPrintRequest, "更新打印"));
+						this.operationLogService.add(parseOperationLog(popPrintRequest, "更新打印","/popPrint/savePopPrint"));
 					}
 				}
 			}
@@ -543,7 +543,7 @@ public class PopPrintResource {
 		return popPrint;
 	}
 	
-	private OperationLog parseOperationLog(PopPrintRequest request, String remark) {
+	private OperationLog parseOperationLog(PopPrintRequest request, String remark,String url) {
         OperationLog operationLog = new OperationLog();
         operationLog.setWaybillCode(request.getWaybillCode());
         operationLog.setCreateSiteCode(request.getOperateSiteCode());
@@ -554,6 +554,7 @@ public class PopPrintResource {
         operationLog.setOperateTime(DateHelper.getSeverTime(request.getOperateTime()));
         operationLog.setLogType(OperationLog.LOG_TYPE_POP_PRINT);
         operationLog.setRemark(remark);
+        operationLog.setUrl(url);
         return operationLog;
     }
 
