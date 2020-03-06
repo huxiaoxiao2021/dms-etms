@@ -66,7 +66,7 @@ public class PushMessageHook implements TaskHook<InspectionTaskExecuteContext> {
 
     private void pushColdChainOperateMQ (InspectionTaskExecuteContext context) {
         String waybillSign = context.getBigWaybillDto().getWaybill().getWaybillSign();
-        if (!BusinessUtil.isColdChainWaybill(waybillSign)) {
+        if (!(BusinessUtil.isColdChainKBWaybill(waybillSign) || BusinessUtil.isColdChainCityDeliveryWaybill(waybillSign))) {
             return ;
         }
         List<CenConfirm> cenConfirmList = context.getCenConfirmList();
