@@ -1,10 +1,16 @@
 package com.jd.bluedragon.distribution.rest.task;
 
+import com.jd.bluedragon.distribution.api.request.AutoSortingPackageDto;
 import com.jd.bluedragon.distribution.api.request.QualityControlRequest;
+import com.jd.bluedragon.distribution.api.response.TaskResponse;
+import com.jd.bluedragon.distribution.inspection.domain.InspectionAS;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
+import org.apache.commons.lang3.time.DateUtils;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +21,12 @@ import org.springframework.web.client.RestTemplate;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.task.domain.Task;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
+
+import static com.jd.bluedragon.distribution.api.JdResponse.CODE_OK;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:spring/distribution-web-context.xml" })
@@ -26,6 +36,8 @@ public class TaskResourceTestCase {
 
 	@Autowired
 	private TaskService taskService;
+	@Autowired
+	private TaskResource taskResource;
 
 	@Test
 	public void testSortingAdd(){
@@ -46,7 +58,46 @@ public class TaskResourceTestCase {
             e.printStackTrace();
         }
 	}
-	
+	@Test
+	public void autoAddInspectionTaskTest(){
+		InspectionAS insp = new InspectionAS();
+		insp.setPackageBarOrWaybillCode("JDV000051299890-99-222-");
+		insp.setExceptionType("");
+		insp.setOperateType(0);
+		insp.setReceiveSiteCode(0);
+		insp.setBusinessType(10);
+		insp.setUserCode(17907);
+		insp.setUserName("邢松");
+		insp.setSiteCode(910);
+		insp.setSiteName("马驹桥分拣中心");
+		insp.setOperateTime(DateHelper.formatDateTime(new Date()));
+		List<InspectionAS> list = new ArrayList<>();
+		list.add(insp);
+		TaskRequest request = new TaskRequest();
+		request.setReceiveSiteCode(509);
+		request.setBody(JsonHelper.toJson(insp));
+		request.setBoxCode("JDV000051299890-99-222-");
+		request.setType(1130);
+		request.setSiteCode(910);
+		TaskResponse taskResponse = taskResource.autoAddInspectionTask(request);
+		Assert.assertEquals(CODE_OK, taskResponse.getCode());
+
+	}
+
+	@Test
+	public void addInspectSortingTaskTest(){
+		AutoSortingPackageDto dto = new AutoSortingPackageDto();
+		dto.setBoxCode("BC010F001010F00500003029");
+		dto.setCreateTime(DateHelper.formatDateTime(new Date()));
+		dto.setDistributeID(910);
+		dto.setDistributeName("马驹桥分拣中心");
+		dto.setOperatorErp("bjxings");
+		dto.setOperatorID(17907);
+		dto.setOperatorName("邢松");
+		dto.setWaybillCode("JDV000051299890-99-222-");
+		TaskResponse taskResponse = taskResource.addInspectSortingTask(dto);
+		Assert.assertEquals(CODE_OK, taskResponse.getCode());
+	}
 	@Test
 	public void testReceiveAdd(){
 		TaskRequest request = new TaskRequest();
