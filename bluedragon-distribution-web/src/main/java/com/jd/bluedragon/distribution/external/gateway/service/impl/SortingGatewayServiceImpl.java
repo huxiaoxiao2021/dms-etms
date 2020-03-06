@@ -80,10 +80,10 @@ public class SortingGatewayServiceImpl implements SortingGatewayService {
         pdaOperateRequest.setBoxCode(checkRequest.getBoxCode());
         pdaOperateRequest.setBusinessType(checkRequest.getBusinessType());
         pdaOperateRequest.setIsLoss(checkRequest.getIsLoss());
-        if(checkRequest.getIsGather == null){
+        if(checkRequest.getIsGather() == null){
             pdaOperateRequest.setIsGather(0);
         }else{
-            pdaOperateRequest.setIsGather(checkRequest.getIsGather);
+            pdaOperateRequest.setIsGather(checkRequest.getIsGather());
         }
         pdaOperateRequest.setOperateType(checkRequest.getOperateType());
         pdaOperateRequest.setPackageCode(checkRequest.getPackageCode());
