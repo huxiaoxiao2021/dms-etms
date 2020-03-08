@@ -94,6 +94,12 @@ public class TaskResource {
         Assert.notNull(taskId, "taskId must not be null");
         return this.toTaskResponse(new Task());
     }
+
+    /**
+     * 分拣机验货任务
+     * @param request
+     * @return
+     */
     @JProfiler(jKey = "Bluedragon_dms_center.dms.method.task.autoAddTask", mState = {
             JProEnum.TP, JProEnum.FunctionError})
     @POST
@@ -393,14 +399,6 @@ public class TaskResource {
                 log.warn("龙门架上传接口，包裹号{}非法[非包裹号和箱号]", domain.getBarCode());
                 return result;
             }
-            //运单是否妥投
-            if(WaybillUtil.isPackageCode(domain.getBarCode()) &&
-                    waybillTraceManager.isWaybillFinished(WaybillUtil.getWaybillCode(domain.getBarCode()))){
-                //添加异常记录
-                GantryException gantryException = this.convert2GantryException(domain,25);
-                gantryExceptionService.addGantryException(gantryException);
-            }
-
             //added by hanjiaxing3 2018.05.04
             Date scannerTime = new Date(DateHelper.adjustTimestampToJava(domain.getScannerTime().getTime()));
             String daysStr = PropertiesHelper.newInstance().getValue("GANTRY_CHECK_DAYS");
