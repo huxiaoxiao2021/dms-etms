@@ -67,6 +67,7 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
         heads.add("复核区域");
         heads.add("机构类型");
         heads.add("机构名称");
+        heads.add("业务类型");
         heads.add("普通应抽查包裹数");
         heads.add("普通实际抽查包裹数");
         heads.add("普通抽查率");
@@ -89,6 +90,7 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
                 body.add(reviewWeightSpotCheck.getReviewOrgName());
                 body.add((reviewWeightSpotCheck.getReviewMechanismType()==null || reviewWeightSpotCheck.getReviewMechanismType()==-1)?"":reviewWeightSpotCheck.getReviewMechanismType()==1?"分拣中心":"转运中心");
                 body.add(reviewWeightSpotCheck.getReviewSiteName());
+                body.add(reviewWeightSpotCheck.getSpotCheckType()==0?"C网":"B网");
                 body.add(reviewWeightSpotCheck.getNormalPackageNum());
                 body.add(reviewWeightSpotCheck.getNormalPackageNumOfActual());
                 body.add(reviewWeightSpotCheck.getNormalCheckRate());
@@ -355,6 +357,8 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
                     reviewWeightSpotCheck.setTrustCheckRate("0%");
                     reviewWeightSpotCheck.setTrustPackageNumOfDiff(0);
                     reviewWeightSpotCheck.setTrustCheckRateOfDiff("0%");
+
+                    reviewWeightSpotCheck.setTotalCheckRate("0%");
 
                     list.add(reviewWeightSpotCheck);
                 }
