@@ -7,6 +7,7 @@
 		<result column="org_code" property="orgCode" javaType="java.lang.Integer" jdbcType="BIGINT" />
 		<result column="site_code" property="siteCode" javaType="java.lang.Integer" jdbcType="BIGINT" />
 		<result column="site_name" property="siteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="spot_check_type" property="spotCheckType" javaType="java.lang.Integer" jdbcType="BIGINT" />
 		<result column="normal_package_num" property="normalPackageNum" javaType="java.lang.Integer" jdbcType="BIGINT" />
 		<result column="trust_package_num" property="trustPackageNum" javaType="java.lang.Integer" jdbcType="BIGINT" />
 		<result column="import_erp" property="importErp" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -14,15 +15,18 @@
 	</resultMap>
 
 	<sql id="Base_Column_List" >
-		id,org_code,site_code,site_name,normal_package_num,trust_package_num,import_erp,is_delete,ts
+		id,org_code,site_code,site_name,spot_check_type,normal_package_num,trust_package_num,import_erp,is_delete,ts
 	</sql>
 
 	<sql id="Query_Params_Condition_Sql">
 		<if test="reviewOrgCode != null">
-			and org_code = #{createSiteCode,jdbcType=BIGINT}
+			and org_code = #{reviewOrgCode,jdbcType=BIGINT}
 		</if>
 		<if test="createSiteCode != null">
 			and site_code = #{createSiteCode,jdbcType=BIGINT}
+		</if>
+		<if test="spotCheckType != null">
+			and spot_check_type = #{spotCheckType,jdbcType=BIGINT}
 		</if>
 	</sql>
 
@@ -41,6 +45,9 @@
 			</if>
 			<if test="siteName != null">
 				site_name,
+			</if>
+			<if test="spotCheckType != null">
+				spot_check_type,
 			</if>
 			<if test="normalPackageNum != null">
 				normal_package_num,
@@ -69,6 +76,9 @@
 			</if>
 			<if test="siteName != null">
 				#{siteName,jdbcType=VARCHAR},
+			</if>
+			<if test="spotCheckType != null">
+				#{spotCheckType,jdbcType=BIGINT},
 			</if>
 			<if test="normalPackageNum != null">
 				#{normalPackageNum,jdbcType=BIGINT},
@@ -126,6 +136,9 @@
 			</if>
 			<if test="siteName != null">
 				site_name = #{siteName,jdbcType=VARCHAR},
+			</if>
+			<if test="spotCheckType != null">
+				spot_check_type = #{spotCheckType,jdbcType=BIGINT},
 			</if>
 			<if test="normalPackageNum != null">
 				normal_package_num = #{normalPackageNum,jdbcType=BIGINT},

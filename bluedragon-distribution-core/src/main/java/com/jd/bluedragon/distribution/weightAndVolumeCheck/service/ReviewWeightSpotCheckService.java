@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.weightAndVolumeCheck.service;
 
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.ReviewWeightSpotCheck;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckExcelData;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckInfo;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
@@ -28,13 +29,13 @@ public interface ReviewWeightSpotCheckService {
      * @param dataList
      * @return
      */
-    String checkExportData(List<SpotCheckInfo> dataList,String importErpCode);
+    String checkExportData(List<SpotCheckExcelData> dataList, String importErpCode);
 
     /**
      * 批量插入数据
      * @param dataList
      */
-    void batchInsert(List<SpotCheckInfo> dataList);
+    void batchInsert(List<SpotCheckExcelData> dataList);
 
     /**
      * 根据机构编码查询

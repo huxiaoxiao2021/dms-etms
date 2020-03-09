@@ -4,12 +4,14 @@ import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.ReviewWeightSpotCheck;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckExcelData;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckInfo;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.dao.ReviewWeightSpotCheckDao;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.ReviewWeightSpotCheckService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.IntegerHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.report.ReportExternalService;
@@ -144,7 +146,7 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
      * @return
      */
     @Override
-    public String checkExportData(List<SpotCheckInfo> dataList,String importErpCode) {
+    public String checkExportData(List<SpotCheckExcelData> dataList, String importErpCode) {
         String errorString = "";
         if(dataList != null && dataList.size() > 0){
             if(dataList.size() > 1000){
@@ -153,7 +155,7 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
             }
             int rowIndex = 1;
             Set<Integer> siteCodeSet = new HashSet<>();
-            for(SpotCheckInfo spotCheckInfo : dataList){
+            for(SpotCheckExcelData spotCheckInfo : dataList){
                 siteCodeSet.add(spotCheckInfo.getSiteCode());
                 spotCheckInfo.setImportErp(importErpCode);
                 BaseStaffSiteOrgDto site = siteService.getSite(spotCheckInfo.getSiteCode());
@@ -169,6 +171,10 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
                         errorString = "第"+ rowIndex +"行区域编码与机构编码不匹配!";
                         return errorString;
                     }
+                }
+                if(!(spotCheckInfo.getSpotCheckType().equals("B网")||spotCheckInfo.getSpotCheckType().equals("C网"))){
+                    errorString = "第" + rowIndex + "行业务类型填写有误!";
+                    return errorString;
                 }
                 rowIndex ++;
             }
@@ -188,10 +194,12 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
 
     /**
      * 批量插入数据
-     * @param dataList
+     * @param spotCheckExcelDataList
      */
     @Override
-    public void batchInsert(List<SpotCheckInfo> dataList) {
+    public void batchInsert(List<SpotCheckExcelData> spotCheckExcelDataList) {
+        //将Excel中的业务类型B网/C网转换为1/0
+        List<SpotCheckInfo> dataList = convert2spotCheckInfo(spotCheckExcelDataList);
         for(SpotCheckInfo spotCheckInfo : dataList){
             SpotCheckInfo newSpotCheckInfo = queryBySiteCode(spotCheckInfo.getSiteCode());
             if(newSpotCheckInfo != null){
@@ -202,6 +210,27 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
                 insert(spotCheckInfo);
             }
         }
+    }
+
+    private List<SpotCheckInfo> convert2spotCheckInfo(List<SpotCheckExcelData> spotCheckExcelDataList){
+        List<SpotCheckInfo> checkInfoList = new ArrayList<>();
+        for(int i=0;i<spotCheckExcelDataList.size();i++){
+            SpotCheckInfo spotCheckInfo = new SpotCheckInfo();
+            spotCheckInfo.setImportErp(spotCheckExcelDataList.get(i).getImportErp());
+            spotCheckInfo.setOrgCode(spotCheckExcelDataList.get(i).getOrgCode());
+            spotCheckInfo.setSiteCode(spotCheckExcelDataList.get(i).getSiteCode());
+            spotCheckInfo.setSiteName(spotCheckExcelDataList.get(i).getSiteName());
+
+            if(spotCheckExcelDataList.get(i).getSpotCheckType().equals("C网")){
+                spotCheckInfo.setSpotCheckType(0);
+            }else if(spotCheckExcelDataList.get(i).getSpotCheckType().equals("B网")){
+                spotCheckInfo.setSpotCheckType(1);
+            }
+            spotCheckInfo.setNormalPackageNum(spotCheckExcelDataList.get(i).getNormalPackageNum());
+            spotCheckInfo.setTrustPackageNum(spotCheckExcelDataList.get(i).getTrustPackageNum());
+            checkInfoList.add(spotCheckInfo);
+        }
+        return checkInfoList;
     }
 
     /**
@@ -249,7 +278,7 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
                 result.setTotal(0);
                 return result;
             }
-            Map<Integer,SpotCheckInfo> map = new HashMap<>();
+            Map<String,SpotCheckInfo> map = new HashMap<>();
             SpotCheckQueryCondition spotCondition = convert2queryCondition(condition,spotCheckInfos,map);
             BaseEntity<List<ReviewSpotCheckDto>> entity = reportExternalService.getAllBySpotCheckCondition(spotCondition);
             if(entity == null || entity.getData() == null){
@@ -260,7 +289,9 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
             List<ReviewSpotCheckDto> data = entity.getData();
             for(ReviewSpotCheckDto dto : data){
 
-                SpotCheckInfo info = map.get(dto.getReviewSiteCode());
+                String reviewSiteCodeAndSpotCheckType = StringHelper.getStringValue(dto.getSpotCheckType()) + StringHelper.getStringValue(dto.getReviewSiteCode());
+                SpotCheckInfo info = map.get(reviewSiteCodeAndSpotCheckType);
+                map.remove(reviewSiteCodeAndSpotCheckType);
                 if(info != null){
                     ReviewWeightSpotCheck reviewWeightSpotCheck = new ReviewWeightSpotCheck();
 
@@ -274,7 +305,8 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
                     reviewWeightSpotCheck.setReviewDate(dto.getReviewDate());
                     BaseStaffSiteOrgDto baseStaffSiteOrgDto = siteService.getSite(dto.getReviewSiteCode());
                     reviewWeightSpotCheck.setReviewOrgName(baseStaffSiteOrgDto == null?null:baseStaffSiteOrgDto.getOrgName());
-                    reviewWeightSpotCheck.setReviewMechanismType(1);
+                    reviewWeightSpotCheck.setReviewMechanismType(dto.getSpotCheckType());
+                    reviewWeightSpotCheck.setSpotCheckType(dto.getSpotCheckType());
                     reviewWeightSpotCheck.setReviewSiteCode(dto.getReviewSiteCode());
                     reviewWeightSpotCheck.setReviewSiteName(info.getSiteName());
 
@@ -296,6 +328,34 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
                     list.add(reviewWeightSpotCheck);
                 }
             }
+            if(map.size()>0 && condition.getCreateSiteCode()==null){
+                for (String reviewSiteCodeAndSpotCheckType :map.keySet()){
+                    SpotCheckInfo info = map.get(reviewSiteCodeAndSpotCheckType);
+                    ReviewWeightSpotCheck reviewWeightSpotCheck = new ReviewWeightSpotCheck();
+                    Date reviewDate = data.get(0).getReviewDate();
+                    reviewWeightSpotCheck.setReviewDate(reviewDate);
+                    BaseStaffSiteOrgDto baseStaffSiteOrgDto = siteService.getSite(info.getSiteCode());
+                    reviewWeightSpotCheck.setReviewOrgName(baseStaffSiteOrgDto == null?null:baseStaffSiteOrgDto.getOrgName());
+                    reviewWeightSpotCheck.setReviewMechanismType(info.getSpotCheckType());
+                    reviewWeightSpotCheck.setSpotCheckType(info.getSpotCheckType());
+                    reviewWeightSpotCheck.setReviewSiteCode(info.getSiteCode());
+                    reviewWeightSpotCheck.setReviewSiteName(info.getSiteName());
+
+                    reviewWeightSpotCheck.setNormalPackageNum(info.getNormalPackageNum());
+                    reviewWeightSpotCheck.setNormalPackageNumOfActual(0);
+                    reviewWeightSpotCheck.setNormalCheckRate("0%");
+                    reviewWeightSpotCheck.setNormalPackageNumOfDiff(0);
+                    reviewWeightSpotCheck.setNormalCheckRateOfDiff("0%");
+
+                    reviewWeightSpotCheck.setTrustPackageNum(info.getTrustPackageNum());
+                    reviewWeightSpotCheck.setTrustPackageNumOfActual(0);
+                    reviewWeightSpotCheck.setTrustCheckRate("0%");
+                    reviewWeightSpotCheck.setTrustPackageNumOfDiff(0);
+                    reviewWeightSpotCheck.setTrustCheckRateOfDiff("0%");
+
+                    list.add(reviewWeightSpotCheck);
+                }
+            }
 
             result.setRows(list);
             result.setTotal(list.size());
@@ -310,16 +370,17 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
     }
 
     private SpotCheckQueryCondition convert2queryCondition(WeightAndVolumeCheckCondition weightAndVolumeCheckCondition,
-                                                           List<SpotCheckInfo> spotCheckInfos, Map<Integer, SpotCheckInfo> map) {
+                                                           List<SpotCheckInfo> spotCheckInfos, Map<String, SpotCheckInfo> map) {
         List<Integer> siteCodes = new ArrayList<>();
         for(SpotCheckInfo spotCheckInfo : spotCheckInfos){
             siteCodes.add(spotCheckInfo.getSiteCode());
-            map.put(spotCheckInfo.getSiteCode(),spotCheckInfo);
+            map.put(StringHelper.getStringValue(spotCheckInfo.getSpotCheckType()) + StringHelper.getStringValue(spotCheckInfo.getSiteCode()),spotCheckInfo);
         }
         SpotCheckQueryCondition condition = new SpotCheckQueryCondition();
         condition.setStartTime(weightAndVolumeCheckCondition.getReviewStartTime());
         condition.setEndTime(weightAndVolumeCheckCondition.getReviewEndTime());
         condition.setReviewSiteCodes(siteCodes);
+        condition.setSpotCheckType(weightAndVolumeCheckCondition.getSpotCheckType());
         return condition;
     }
 
