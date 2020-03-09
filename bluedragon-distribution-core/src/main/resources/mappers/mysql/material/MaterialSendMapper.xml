@@ -145,7 +145,7 @@
         FROM
         dms_material_send
         <include refid="where_condition"/>
-        ORDER BY material_code, update_time DESC
+        ORDER BY material_code DESC, update_time DESC
         LIMIT #{offset,jdbcType=INTEGER}, #{limit,jdbcType=INTEGER}
     </select>
 </mapper>
