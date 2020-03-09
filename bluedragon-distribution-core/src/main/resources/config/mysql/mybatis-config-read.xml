@@ -16,12 +16,15 @@
         <typeAlias type="com.jd.bluedragon.distribution.send.domain.SendDetail" alias="SendDetail"/>
         <typeAlias type="com.jd.bluedragon.distribution.inspection.domain.Inspection" alias="Inspection"/>
         <typeAlias type="com.jd.bluedragon.distribution.send.domain.SendM" alias="SendM"/>
+        <typeAlias type="com.jd.bluedragon.distribution.businessCode.domain.BusinessCodePo" alias="BusinessCodePo" />
+        <typeAlias type="com.jd.bluedragon.distribution.businessCode.domain.BusinessCodeAttributePo" alias="BusinessCodeAttributePo" />
     </typeAliases>
 
     <mappers>
         <mapper resource="mappers/mysql/send/SendDatailReadMapper.xml"/>
         <mapper resource="mappers/mysql/inspection/InspectionReadMapper.xml"/>
         <mapper resource="mappers/mysql/send/SendMReadMapper.xml"/>
+        <mapper resource="mappers/mysql/BusinessCode/BusinessCodeMapper.xml"/>
     </mappers>
 
 </configuration>

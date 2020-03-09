@@ -173,6 +173,7 @@ public interface WaybillSignConstants {
 	 */
 	int POSITION_31 = 31;
 	char CHAR_31_9 = '9';
+	char CHAR_31_A = 'A';
 
 	/**
 	 * waybillsign第36位
@@ -248,4 +249,10 @@ public interface WaybillSignConstants {
 	 */
 	int BUSINESS_ENET_POSITION_62 = 62;
 	char BUSINESS_ENET_CHAR_62_8 = '8';
+
+	/**
+	 * 生鲜专送：55位为1
+	 */
+	int POSITION_55 = 55;
+	char CHAR_55_1 = '1';
 }
