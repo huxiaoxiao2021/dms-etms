@@ -146,7 +146,9 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
             }
         }
         //检查运单是否已妥投
-        checkWaybillFinish(domain, config);
+        if(!checkWaybillFinish(domain, config)){
+            return true;
+        }
         Iterator<Map.Entry<Integer, ScannerFrameConsume>> item = scannerFrameConsumeMap.entrySet().iterator();
         while (item.hasNext()) {
             Map.Entry<Integer, ScannerFrameConsume> consume = item.next();
