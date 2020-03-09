@@ -201,7 +201,10 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
         //将Excel中的业务类型B网/C网转换为1/0
         List<SpotCheckInfo> dataList = convert2spotCheckInfo(spotCheckExcelDataList);
         for(SpotCheckInfo spotCheckInfo : dataList){
-            SpotCheckInfo newSpotCheckInfo = queryBySiteCode(spotCheckInfo.getSiteCode());
+            SpotCheckInfo spotCheckCondition = new SpotCheckInfo();
+            spotCheckCondition.setSiteCode(spotCheckInfo.getSiteCode());
+            spotCheckCondition.setSpotCheckType(spotCheckInfo.getSpotCheckType());
+            SpotCheckInfo newSpotCheckInfo = queryBySiteCode(spotCheckCondition);
             if(newSpotCheckInfo != null){
                 //存在就更新
                 updateBySiteCode(spotCheckInfo);
@@ -235,11 +238,11 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
 
     /**
      * 根据机构编码查询
-     * @param siteCode
+     * @param spotCheckInfo
      */
     @Override
-    public SpotCheckInfo queryBySiteCode(Integer siteCode) {
-        return reviewWeightSpotCheckDao.queryBySiteCode(siteCode);
+    public SpotCheckInfo queryBySiteCode(SpotCheckInfo spotCheckInfo) {
+        return reviewWeightSpotCheckDao.queryBySiteCode(spotCheckInfo);
     }
 
     /**

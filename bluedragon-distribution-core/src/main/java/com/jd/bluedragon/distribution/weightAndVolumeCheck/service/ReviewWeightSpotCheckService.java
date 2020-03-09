@@ -38,11 +38,11 @@ public interface ReviewWeightSpotCheckService {
     void batchInsert(List<SpotCheckExcelData> dataList);
 
     /**
-     * 根据机构编码查询
-     * @param siteCode
+     * 根据机构编码和业务类型查询
+     * @param spotCheckInfo
      * @return
      */
-    SpotCheckInfo queryBySiteCode(Integer siteCode);
+    SpotCheckInfo queryBySiteCode(SpotCheckInfo spotCheckInfo);
 
     /**
      * 更新

@@ -105,13 +105,14 @@
 		limit 5000
 	</select>
 
-	<select id="queryBySiteCode" parameterType="Integer" resultMap="spotCheckInfo">
+	<select id="queryBySiteCode" parameterType="com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckInfo" resultMap="spotCheckInfo">
 		select
 		<include refid="Base_Column_List"/>
 		from
 		spot_check_info
 		where 1=1
 		AND site_code = #{siteCode,jdbcType=BIGINT}
+		AND spot_check_type = #{spotCheckType,jdbcType=BIGINT}
 		<include refid="Base_Condition_Sql"/>
 		limit 1
 	</select>
