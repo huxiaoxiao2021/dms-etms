@@ -170,7 +170,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
         //运单是否妥投
         if(WaybillUtil.isPackageCode(domain.getBarCode()) &&
                 waybillTraceManager.isWaybillFinished(WaybillUtil.getWaybillCode(domain.getBarCode()))){
-            log.warn("运单{}已妥投，不能再操作分拣发货");
+            log.warn("包裹{}已妥投，不能再操作分拣发货", domain.getBarCode());
             //添加异常记录
             addGantryException(domain, config, 25, null);
             return false;
