@@ -42,7 +42,7 @@
                         jQuery.each(keys, function (index, item) {
                             console.log(item + ":" + msg.data[item])
                             var name = msg.data[item];
-                            var optionitem = $("<option value='${item}'>${name}</option>");
+                            var optionitem = $("<option value="+item+">"+name+"</option>");
                             $("#operatetype").append(optionitem)
                         })
                     }
@@ -128,22 +128,22 @@
                             var operateResponse = item.operateResponse == null ? "-" : item.operateResponse;
 
                             var tr = $('<tr>'
-                                         +'<td>${bizTypeName}  </td>'
-                                         +'<td>${operateTypeName}</td>'
-                                         +'<td>${waybillCode}</td>'
-                                         +'<td>${packageCode}</td>'
-                                         +'<td>${boxCode}</td>'
-                                         +'<td>${sendCode}</td>'
-                                         +'<td>${operatorName}</td>'
-                                         +'<td>${siteCode}</td>'
-                                         +'<td>${siteName}</td>'
-                                         +'<td>${requestTime}</td>'
-                                         +'<td>${timeStamp}</td>'
-                                         +'<td>${processTime}</td>'
-                                         +'<td>${responseCode}</td>'
-                                         +'<td>${responseMessage}</td>'
-                                         +'<td style="max-width: 450px;word-wrap:break-word;word-break:break-all;">${operateRequest}</td>'
-                                         +'<td style="max-width: 450px;word-wrap:break-word;word-break:break-all;">${operateResponse}</td>'
+                                         +'<td>'+bizTypeName+'</td>'
+                                         +'<td>'+operateTypeName+'</td>'
+                                         +'<td>'+waybillCode+'</td>'
+                                         +'<td>'+packageCode+'</td>'
+                                         +'<td>'+boxCode+'</td>'
+                                         +'<td>'+sendCode+'</td>'
+                                         +'<td>'+operatorName+'</td>'
+                                         +'<td>'+siteCode+'</td>'
+                                         +'<td>'+siteName+'</td>'
+                                         +'<td>'+requestTime+'</td>'
+                                         +'<td>'+timeStamp+'</td>'
+                                         +'<td>'+processTime+'</td>'
+                                         +'<td>'+responseCode+'</td>'
+                                         +'<td>'+responseMessage+'</td>'
+                                         +'<td style="max-width: 450px;word-wrap:break-word;word-break:break-all;">'+operateRequest+'</td>'
+                                         +'<td style="max-width: 450px;word-wrap:break-word;word-break:break-all;">'+operateResponse+'</td>'
                                     +'</tr>')
                             console.log(tr)
                             $("#logcontent").append(tr)
@@ -202,7 +202,7 @@
 
                     jQuery.each(keys, function (index, item) {
                         var name = msg.data[item];
-                        var optionitem = $("<option value='${item}'>${name}</option>");
+                        var optionitem = $("<option value="+item+">"+name+"</option>");
                         $("#biztype").append(optionitem)
                     })
                 }
