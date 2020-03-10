@@ -2,11 +2,10 @@ package com.jd.bluedragon.distribution.consumer.reverse;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
-import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
-import com.jd.bluedragon.distribution.log.BizTypeConstants;
+
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
-import com.jd.bluedragon.distribution.log.OperateTypeConstants;
 import com.jd.bluedragon.distribution.send.service.ReverseDeliveryService;
 import com.jd.bluedragon.external.crossbow.whems.domain.WuHanEMSResponse;
 import com.jd.bluedragon.external.crossbow.whems.domain.WuHanEMSWaybillEntityDto;
@@ -85,8 +84,7 @@ public class ReverseDeliveryToWhSmsConsumer extends MessageBaseConsumer{
 
 
         BusinessLogProfiler businessLogProfiler = new BusinessLogProfilerBuilder()
-                .bizType(BizOperateTypeConstants.DELIVERY_REVERSE_DELIVERY.getBizTypeCode())
-                .operateType(BizOperateTypeConstants.DELIVERY_REVERSE_DELIVERY.getOperateTypeCode())
+                .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SEND_REVERSE_SEND)
                 .operateRequest(request)
                 .operateResponse(logResponse)
                 .methodName("ReverseReceiveNotifyStockService#nodifyStock")

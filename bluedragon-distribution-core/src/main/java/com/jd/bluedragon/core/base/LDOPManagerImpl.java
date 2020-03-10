@@ -2,11 +2,10 @@ package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
-import com.jd.bluedragon.distribution.log.BizTypeConstants;
+
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
-import com.jd.bluedragon.distribution.log.OperateTypeConstants;
 import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
 import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
 import com.jd.bluedragon.distribution.reverse.service.ReverseSpareEclp;
@@ -138,8 +137,7 @@ public class LDOPManagerImpl implements LDOPManager {
 
             BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
                     .methodName("LDOPManagerImpl#waybillReverse")
-                    .bizType(BizOperateTypeConstants.OUTER_WAYBILL_EXCHANGE_TRIGGER_OUTER_WAYBILL_EXCHANGE.getBizTypeCode())
-                    .operateType(BizOperateTypeConstants.OUTER_WAYBILL_EXCHANGE_TRIGGER_OUTER_WAYBILL_EXCHANGE.getOperateTypeCode())
+                    .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.OUTER_WAYBILL_EXCHANGE_WAYBILL)
                     .processTime(endTime,startTime)
                     .operateResponse(response)
                     .operateRequest(request)
@@ -187,8 +185,7 @@ public class LDOPManagerImpl implements LDOPManager {
             response.put("responseDTO", JsonHelper.toJson(responseDTO));
 
             BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
-                    .bizType(BizOperateTypeConstants.OUTER_WAYBILL_EXCHANGE_TRIGGER_OUTER_WAYBILL_EXCHANGE.getBizTypeCode())
-                    .operateType(BizOperateTypeConstants.OUTER_WAYBILL_EXCHANGE_TRIGGER_OUTER_WAYBILL_EXCHANGE.getOperateTypeCode())
+                    .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.OUTER_WAYBILL_EXCHANGE_WAYBILL)
                     .methodName("LDOPManagerImpl#waybillReverse")
                     .operateRequest(request)
                     .operateResponse(response)

@@ -580,6 +580,10 @@
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
 
+    <bean id="interceptConfigInfoDao" class="com.jd.bluedragon.distribution.interceptconfig.dao.InterceptConfigInfoDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
     <!-- KA单号校验记录 -->
     <bean id="waybillCodeCheckDao" class="com.jd.bluedragon.distribution.financialForKA.dao.WaybillCodeCheckDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>

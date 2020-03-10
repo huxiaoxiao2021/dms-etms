@@ -482,4 +482,10 @@
     <jsf:consumer id="ecpQueryWS" interface="com.jd.tms.ecp.ws.EcpQueryWS"  serialization="hessian"  protocol="jsf" alias="${tms.ecp.jsf.alias}"
                   timeout="${tms.ecp.jsf.timeout}" retries="1"/>
 
+    <jsf:consumer id="smsMessageTemplateRpcServiceJsf" interface="com.jd.mobilePhoneMsg.sender.client.service.SmsMessageTemplateRpcService"
+                  protocol="jsf" alias="${mobilePhoneMsg.SmsMessageTemplateRpcService.jsf.alias}"
+                  timeout="${mobilePhoneMsg.SmsMessageTemplateRpcService.jsf.timeout}"
+                  retries="${jsf.retries}">
+    </jsf:consumer>
+
 </beans>

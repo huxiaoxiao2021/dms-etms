@@ -317,19 +317,23 @@ public class InspectionServiceImpl implements InspectionService {
 
             try{
                 InsepctionCheckDto insepctionCheckDto = inspectionDao.verifyReverseInspectionGather(inspection);
-                if(insepctionCheckDto == null){
+                if(insepctionCheckDto == null || insepctionCheckDto.getInspectionedPackNum() == null
+                || insepctionCheckDto.getInspectionedPackNum() == 0){
+                    this.log.info("未查到验货信息，校验运单号：{}，分拣中心ID：{}",waybillCode,createSiteCode);
                     sortingJsfResponse = new SortingJsfResponse();
                     sortingJsfResponse.setCode(SortingResponse.CODE_31123);
                     sortingJsfResponse.setMessage(SortingResponse.MESSAGE_31123);
                     return sortingJsfResponse;
                 }
                 if(insepctionCheckDto.getPackageNum()>insepctionCheckDto.getInspectionedPackNum()){
+                    this.log.info("逆向验货未集齐，校验运单号：{}，分拣中心ID：{}",waybillCode,createSiteCode);
                     sortingJsfResponse = new SortingJsfResponse();
                     sortingJsfResponse.setCode(SortingResponse.CODE_31123);
                     sortingJsfResponse.setMessage(SortingResponse.MESSAGE_31123);
                     return sortingJsfResponse;
                 }
             }catch (Exception e){
+                this.log.error("逆向验货校验失败，校验运单号：{}，分拣中心ID：{}",waybillCode,createSiteCode,e);
                 sortingJsfResponse.setCode(SortingJsfResponse.CODE_SERVICE_ERROR);
                 sortingJsfResponse.setMessage(SortingJsfResponse.MESSAGE_SERVICE_ERROR_C);
             }

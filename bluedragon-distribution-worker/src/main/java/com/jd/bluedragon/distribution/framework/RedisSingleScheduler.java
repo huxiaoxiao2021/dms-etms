@@ -2,11 +2,10 @@ package com.jd.bluedragon.distribution.framework;
 
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
-import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
-import com.jd.bluedragon.distribution.log.BizTypeConstants;
+
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
-import com.jd.bluedragon.distribution.log.OperateTypeConstants;
 import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -168,8 +167,7 @@ public abstract class RedisSingleScheduler extends
 				response.put("log", systemLog);
 
 				BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
-						.bizType(BizOperateTypeConstants.TASK_REDIS_TASK.getBizTypeCode())
-						.operateType(BizOperateTypeConstants.TASK_REDIS_TASK.getOperateTypeCode())
+						.operateTypeEnum(BusinessLogConstans.OperateTypeEnum.TASK_REDIS_TASK)
 						.operateRequest(request)
 						.operateResponse(response)
 						.methodName("RedisSingleScheduler#handleSingleTask")

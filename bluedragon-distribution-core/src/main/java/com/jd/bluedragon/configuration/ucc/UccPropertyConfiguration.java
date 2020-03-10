@@ -76,6 +76,21 @@ public class UccPropertyConfiguration {
      * 老log查询页面提示
      */
     private String oldLogPageTips;
+    
+    /**
+     * b2b分拣补验货开关
+     */
+    private boolean b2bPushInspectionSwitch;
+
+    /**
+     * 冷链卡班短信开关;true 开启
+     */
+    private boolean coldChainStorageSmsSwitch;
+
+    /**
+     * 离线任务的操作时间的更正时间范围
+     */
+    private int offlineTaskOperateTimeCorrectHours;
 
     public boolean isLogToBusinessLogByKafka() {
         return logToBusinessLogByKafka;
@@ -227,5 +242,35 @@ public class UccPropertyConfiguration {
 
     public void setOldLogPageTips(String oldLogPageTips) {
         this.oldLogPageTips = oldLogPageTips;
+    }
+
+    public boolean isColdChainStorageSmsSwitch() {
+        return coldChainStorageSmsSwitch;
+    }
+
+    public void setColdChainStorageSmsSwitch(boolean coldChainStorageSmsSwitch) {
+        this.coldChainStorageSmsSwitch = coldChainStorageSmsSwitch;
+    }
+
+	/**
+	 * @return the b2bPushInspectionSwitch
+	 */
+	public boolean isB2bPushInspectionSwitch() {
+		return b2bPushInspectionSwitch;
+	}
+
+	/**
+	 * @param b2bPushInspectionSwitch the b2bPushInspectionSwitch to set
+	 */
+	public void setB2bPushInspectionSwitch(boolean b2bPushInspectionSwitch) {
+		this.b2bPushInspectionSwitch = b2bPushInspectionSwitch;
+	}
+
+    public int getOfflineTaskOperateTimeCorrectHours() {
+        return offlineTaskOperateTimeCorrectHours;
+    }
+
+    public void setOfflineTaskOperateTimeCorrectHours(int offlineTaskOperateTimeCorrectHours) {
+        this.offlineTaskOperateTimeCorrectHours = offlineTaskOperateTimeCorrectHours;
     }
 }

@@ -339,5 +339,6 @@
         <mapper resource="mappers/mysql/financialForKA/WaybillCodeCheckResultMapper.xml"/>
 
 
+        <mapper resource="mappers/mysql/interceptconfig/InterceptConfigInfo.xml" />
     </mappers>
 </configuration>
