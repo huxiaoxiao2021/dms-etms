@@ -416,4 +416,9 @@
     <bean id="printOnlineProducer" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.print.online}"/>
     </bean>
+
+    <!-- 保温箱出入库消息 -->
+    <bean id="boxInOutProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.box.inOut}"/>
+    </bean>
 </beans>

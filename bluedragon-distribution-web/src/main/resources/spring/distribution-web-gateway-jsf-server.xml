@@ -194,4 +194,14 @@
                   alias="${dms.gateway.jsf.alias}"
                   ref="abnormalReportingGatewayService" server="dmsjsf">
     </jsf:provider>
+
+    <!-- 保温箱出入库 -->
+    <bean id="warmBoxInOutGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.WarmBoxInOutGatewayServiceImpl" />
+    <jsf:provider id="jsfWarmBoxInOutGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.WarmBoxInOutGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="warmBoxInOutGatewayService"
+                  server="dmsjsf">
+    </jsf:provider>
+
 </beans>
