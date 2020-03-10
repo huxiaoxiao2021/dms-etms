@@ -248,11 +248,17 @@ function dateDiffDay(sDate1, sDate2) {
 }
 
 function nowTimeAddDay(day){
+
     var date1 = new Date();
     var time1=date1.getFullYear()+"-"+(date1.getMonth()+1)+"-"+date1.getDate();//time1表示当前时间
     var date2 = new Date(date1);
     date2.setDate(date1.getDate()+day);
-    var time2 = date2.getFullYear()+"-"+(date2.getMonth()+1)+"-"+date2.getDate();
+    var month = (date2.getMonth()+1) + "";
+    if(month.length == 1){
+        month ='0'+month;
+    }
+
+    var time2 = date2.getFullYear()+"-"+month+"-"+date2.getDate();
     return time2;
 }
 </script>
@@ -344,7 +350,7 @@ function nowTimeAddDay(day){
                                    onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss'})" value=""
                                    realvalue="">
                             ~
-                            <input type="text" id="endTime" name="startDate" style="width: 140px" class="Wdate"
+                            <input type="text" id="endTime" name="endTime" style="width: 140px" class="Wdate"
                                    onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss'})" value=""
                                    realvalue=""></td>
 
