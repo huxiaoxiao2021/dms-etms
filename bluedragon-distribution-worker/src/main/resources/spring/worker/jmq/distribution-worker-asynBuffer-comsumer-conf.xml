@@ -16,8 +16,7 @@
 
     </bean>
 
-    <bean id="dynamicJmqComsumer" class="com.jd.ql.framework.asynBuffer.comsumer.DynamicJmqComsumer"
-          init-method="start">
+    <bean id="dynamicJmqComsumer" class="com.jd.ql.framework.asynBuffer.comsumer.DynamicJmqComsumer">
         <property name="transportConfig">
             <bean class="com.jd.jmq.client.connection.TransportConfig">
                 <property name="address" value="${dms.task.jmq.address}"></property>
@@ -31,5 +30,8 @@
             <bean class="com.jd.bluedragon.distribution.task.asynBuffer.jmq.TaskJmqMessageJsonCoder"></bean>
         </property>
         <property name="ownSign" value="${ownSign}"/>
+    </bean>
+    <bean id="asynBufferTaskManager" class="com.jd.bluedragon.distribution.asynbuffer.AsynBufferTaskManager">
+    	<property name="dynamicJmqComsumer" ref="dynamicJmqComsumer"></property>
     </bean>
 </beans>
