@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.financialForKA.dao.WaybillCodeCheckDao">
+
+	<resultMap id="waybillCodeCheckDto" type="com.jd.bluedragon.distribution.financialForKA.domain.WaybillCodeCheckDto" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="waybill_code" property="waybillCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="compare_code" property="compareCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="operate_site_code" property="operateSiteCode" javaType="java.lang.Integer" jdbcType="BIGINT" />
+		<result column="operate_site_name" property="operateSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="operate_erp" property="operateErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="busi_name" property="busiName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="busi_code" property="busiCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="check_result" property="checkResult" javaType="java.lang.Integer" jdbcType="TINYINT" />
+        <result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="operate_time" property="operateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
+	</resultMap>
+
+    <sql id="Base_Column_List" >
+		id,waybill_code,compare_code,operate_site_code,operate_site_name,operate_erp,
+		busi_name,busi_code,check_result,create_time,operate_time,update_time,
+		is_delete
+	</sql>
+
+    <sql id="Base_Condition_Sql" >
+			and is_delete=0
+	</sql>
+
+    <sql id="Query_Params_Condition_Sql">
+        <if test="waybillCode != null">
+            and waybill_code = #{waybillCode,jdbcType=VARCHAR}
+        </if>
+        <if test="checkResult != null">
+            and check_result = #{checkResult,jdbcType=TINYINT}
+        </if>
+        <if test="operateSiteCode != null">
+            and operate_site_code = #{operateSiteCode,jdbcType=BIGINT}
+        </if>
+        <if test="operateErp != null">
+            and operate_erp = #{operateErp,jdbcType=VARCHAR}
+        </if>
+        <if test="busiCode != null">
+            and busi_code = #{busiCode,jdbcType=VARCHAR}
+        </if>
+        <if test="startTime != null and endTime !=null">
+            and operate_time BETWEEN #{startTime} and #{endTime}
+        </if>
+        <if test="startTime != null and endTime ==null">
+            and  <![CDATA[   operate_time >= #{startTime}  ]]>
+        </if>
+        <if test="startTime == null and endTime !=null">
+            and  <![CDATA[   operate_time <= #{endTime}  ]]>
+        </if>
+    </sql>
+
+    <insert id="add" parameterType="com.jd.bluedragon.distribution.financialForKA.domain.WaybillCodeCheckDto">
+        insert into code_check_record
+        (
+        <trim suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="waybillCode != null">
+                waybill_code,
+            </if>
+            <if test="compareCode != null">
+                compare_code,
+            </if>
+            <if test="operateSiteCode != null">
+                operate_site_code,
+            </if>
+            <if test="operateSiteName != null">
+                operate_site_name,
+            </if>
+            <if test="operateErp != null">
+                operate_erp,
+            </if>
+            <if test="busiName != null">
+                busi_name,
+            </if>
+            <if test="busiCode != null">
+                busi_code,
+            </if>
+            <if test="checkResult != null">
+                check_result,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="operateTime != null">
+                operate_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="isDelete != null">
+                is_delete
+            </if>
+        </trim>
+        )
+        values
+        (
+        <trim suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="waybillCode != null">
+                #{waybillCode,jdbcType=VARCHAR},
+            </if>
+            <if test="compareCode != null">
+                #{compareCode,jdbcType=VARCHAR},
+            </if>
+            <if test="operateSiteCode != null">
+                #{operateSiteCode,jdbcType=BIGINT},
+            </if>
+            <if test="operateSiteName != null">
+                #{operateSiteName,jdbcType=VARCHAR},
+            </if>
+            <if test="operateErp != null">
+                #{operateErp,jdbcType=VARCHAR},
+            </if>
+            <if test="busiName != null">
+                #{busiName,jdbcType=VARCHAR},
+            </if>
+            <if test="busiCode != null">
+                #{busiCode,jdbcType=VARCHAR},
+            </if>
+            <if test="checkResult != null">
+                #{checkResult,jdbcType=TINYINT},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TINYINT},
+            </if>
+            <if test="operateTime != null">
+                #{operateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDelete != null">
+                #{isDelete,jdbcType=TINYINT}
+            </if>
+        </trim>
+        )
+    </insert>
+
+    <select id="queryByCondition" parameterType="com.jd.bluedragon.distribution.financialForKA.domain.KaCodeCheckCondition"
+            resultMap="waybillCodeCheckDto">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        code_check_record
+        where 1=1
+        <include refid="Query_Params_Condition_Sql"/>
+        <include refid="Base_Condition_Sql"/>
+        <if test="limit != -1">
+            limit #{offset,jdbcType=BIGINT},#{limit,jdbcType=BIGINT}
+        </if>
+    </select>
+
+    <select id="queryCountByCondition" parameterType="com.jd.bluedragon.distribution.financialForKA.domain.KaCodeCheckCondition"
+            resultType="Integer">
+        select
+        count(1) as num
+        from
+        code_check_record
+        where 1=1
+        <include refid="Query_Params_Condition_Sql"/>
+        <include refid="Base_Condition_Sql"/>
+    </select>
+
+    <select id="exportByCondition" parameterType="com.jd.bluedragon.distribution.financialForKA.domain.KaCodeCheckCondition"
+            resultMap="waybillCodeCheckDto">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        code_check_record
+        where 1=1
+        <include refid="Query_Params_Condition_Sql"/>
+        <include refid="Base_Condition_Sql"/>
+        <if test="limit != -1">
+            limit #{limit,jdbcType=BIGINT}
+        </if>
+    </select>
+
+</mapper>
