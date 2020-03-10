@@ -35,14 +35,14 @@
                         $("#operatetype").empty()
 
                         var keys = Object.keys(msg.data);
-                        let defaultnull = $(`<option value=''>-</option>`)
+                        var defaultnull = $("<option value=''>-</option>");
 
                         $("#operatetype").append(defaultnull)
 
                         jQuery.each(keys, function (index, item) {
                             console.log(item + ":" + msg.data[item])
-                            let name = msg.data[item];
-                            let optionitem = $(`<option value='${item}'>${name}</option>`)
+                            var name = msg.data[item];
+                            var optionitem = $("<option value='${item}'>${name}</option>");
                             $("#operatetype").append(optionitem)
                         })
                     }
@@ -57,20 +57,20 @@
             }
             $("#showloading").show()
 
-            let waybillCode = $("#waybillCode").val();
-            let packageCode = $("#packageCode").val();
-            let boxCode = $("#boxCode").val();
-            let sendCode = $("#sendCode").val();
-            let siteCode = $("#siteCode").val();
-            let siteName = $("#siteName").val();
-            let operatorName = $("#operatorName").val();
-            let sourceSys = $("#waybillCode").val();
-            let bizType = $("#biztype").val();
-            let operateType = $("#operatetype").val();
-            let serverIp = $("#serverIp").val();
-            let otherKey = $("#otherKey").val();
-            let startTime = $("#startTime").val();
-            let endTime = $("#endTime").val();
+            var waybillCode = $("#waybillCode").val();
+            var packageCode = $("#packageCode").val();
+            var boxCode = $("#boxCode").val();
+            var sendCode = $("#sendCode").val();
+            var siteCode = $("#siteCode").val();
+            var siteName = $("#siteName").val();
+            var operatorName = $("#operatorName").val();
+            var sourceSys = $("#waybillCode").val();
+            var bizType = $("#biztype").val();
+            var operateType = $("#operatetype").val();
+            var serverIp = $("#serverIp").val();
+            var otherKey = $("#otherKey").val();
+            var startTime = $("#startTime").val();
+            var endTime = $("#endTime").val();
 
             if (startTime==''){
                 startTime='1970-01-01 08:00:00'
@@ -108,26 +108,26 @@
                     $("#showloading").hide();
 
                     if (message.statusCode == 200) {
-                        let data = message.rows;
+                        var data = message.rows;
                         jQuery.each(data, function (index, item) {
-                            let bizTypeName = item.bizTypeName == null ? "-" : item.bizTypeName;
-                            let operateTypeName = item.operateTypeName == null ? "-" : item.operateTypeName;
-                            let waybillCode = item.waybillCode == null ? "-" : item.waybillCode;
-                            let packageCode = item.packageCode == null ? "-" : item.packageCode;
-                            let boxCode = item.boxCode == null ? "-" : item.boxCode;
-                            let sendCode = item.sendCode == null ? "-" : item.sendCode;
-                            let operatorName = item.operatorName == null ? "-" : item.operatorName;
-                            let siteCode = item.siteCode == null ? "-" : item.siteCode;
-                            let siteName = item.siteName == null ? "-" : item.siteName;
-                            let requestTime = item.requestTime == null ? "-" : item.requestTime;
-                            let timeStamp = item.timeStamp == null ? "-" : item.timeStamp;
-                            let processTime = item.processTime == null ? "-" : item.processTime;
-                            let responseCode = item.responseCode == null ? "-" : item.responseCode;
-                            let responseMessage = item.responseMessage == null ? "-" : item.responseMessage;
-                            let operateRequest = item.operateRequest == null ? "-" : item.operateRequest;
-                            let operateResponse = item.operateResponse == null ? "-" : item.operateResponse;
+                            var bizTypeName = item.bizTypeName == null ? "-" : item.bizTypeName;
+                            var operateTypeName = item.operateTypeName == null ? "-" : item.operateTypeName;
+                            var waybillCode = item.waybillCode == null ? "-" : item.waybillCode;
+                            var packageCode = item.packageCode == null ? "-" : item.packageCode;
+                            var boxCode = item.boxCode == null ? "-" : item.boxCode;
+                            var sendCode = item.sendCode == null ? "-" : item.sendCode;
+                            var operatorName = item.operatorName == null ? "-" : item.operatorName;
+                            var siteCode = item.siteCode == null ? "-" : item.siteCode;
+                            var siteName = item.siteName == null ? "-" : item.siteName;
+                            var requestTime = item.requestTime == null ? "-" : item.requestTime;
+                            var timeStamp = item.timeStamp == null ? "-" : item.timeStamp;
+                            var processTime = item.processTime == null ? "-" : item.processTime;
+                            var responseCode = item.responseCode == null ? "-" : item.responseCode;
+                            var responseMessage = item.responseMessage == null ? "-" : item.responseMessage;
+                            var operateRequest = item.operateRequest == null ? "-" : item.operateRequest;
+                            var operateResponse = item.operateResponse == null ? "-" : item.operateResponse;
 
-                            let tr = $(`<tr>
+                            var tr = $('<tr>
                                          <td>${bizTypeName}  </td>
                                          <td>${operateTypeName}</td>
                                          <td>${waybillCode}</td>
@@ -144,7 +144,7 @@
                                          <td>${responseMessage}</td>
                                          <td style="max-width: 450px;word-wrap:break-word;word-break:break-all;">${operateRequest}</td>
                                          <td style="max-width: 450px;word-wrap:break-word;word-break:break-all;">${operateResponse}</td>
-                                    </tr>`)
+                                    </tr>')
                             console.log(tr)
                             $("#logcontent").append(tr)
                         });
@@ -197,12 +197,12 @@
 
                     $("#biztype").empty();
 
-                    let defaultnull = $(`<option value=''>-</option>`)
-                    $("#biztype").append(defaultnull)
+                    var defaultnull1 = $("<option value=''>-</option>");
+                    $("#biztype").append(defaultnull1)
 
                     jQuery.each(keys, function (index, item) {
-                        let name = msg.data[item];
-                        let optionitem = $(`<option value='${item}'>${name}</option>`)
+                        var name = msg.data[item];
+                        var optionitem = $("<option value='${item}'>${name}</option>");
                         $("#biztype").append(optionitem)
                     })
                 }
@@ -211,13 +211,13 @@
 
         //biztype变更
         $("#biztype").change(function (e) {
-            let bizTypeCode = $(this).val();
+            var bizTypeCode = $(this).val();
             getOperateType(bizTypeCode)
         })
 
         $("#search").click(function () {
-            let startTime = $("#startTime").val();
-            let endTime = $("#endTime").val();
+            var startTime = $("#startTime").val();
+            var endTime = $("#endTime").val();
             if(startTime == ''){
                 alert("请输入开始时间！");
                 return;
