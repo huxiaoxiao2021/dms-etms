@@ -160,13 +160,13 @@
 
     <bean id="business_code" class="com.jd.jddl.interact.rule.TableRule">
         <property name="extraPackages" value="com.jd.bluedragon.utils.jddl.*"/>
-        <property name="dbNamePattern" value="bd_dms_core{0}"/>
+        <property name="dbNamePattern" value="bd_dms_spl{0}"/>
         <property name="dbRuleArray">
             <value>
                 return DmsJddlUtils.getDbInstanceIndex((#code, 1_string,1024#));
             </value>
         </property>
-        <property name="tbNamePattern" value="bd_dms_core{0}.business_code"/>
+        <property name="tbNamePattern" value="bd_dms_spl{0}.business_code"/>
         <property name="tbRuleArray">
             <value>
                 return DmsJddlUtils.getDbPartitionIndex((#code, 1_string,1024#));
@@ -177,13 +177,13 @@
 
     <bean id="business_code_attribute" class="com.jd.jddl.interact.rule.TableRule">
         <property name="extraPackages" value="com.jd.bluedragon.utils.jddl.*"/>
-        <property name="dbNamePattern" value="bd_dms_core{0}"/>
+        <property name="dbNamePattern" value="bd_dms_spl{0}"/>
         <property name="dbRuleArray">
             <value>
                 return DmsJddlUtils.getDbInstanceIndex((#code, 1_string,1024#));
             </value>
         </property>
-        <property name="tbNamePattern" value="bd_dms_core{0}.business_code_attribute"/>
+        <property name="tbNamePattern" value="bd_dms_spl{0}.business_code_attribute"/>
         <property name="tbRuleArray">
             <value>
                 return DmsJddlUtils.getDbPartitionIndex((#code, 1_string,1024#));
