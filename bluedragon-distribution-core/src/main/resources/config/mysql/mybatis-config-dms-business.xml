@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="GBK"?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+	<properties>
+		<property name="dialect" value="MYSQL"/>
+	</properties>
+    <settings>
+        <setting name="lazyLoadingEnabled" value="false"/>
+        <setting name="autoMappingBehavior" value="FULL"/>
+        <setting name="defaultStatementTimeout" value="30"/>
+    </settings>
+
+    <mappers>
+        <mapper resource="mappers/mysql/material/MaterialReceiveMapper.xml" />
+        <mapper resource="mappers/mysql/material/MaterialReceiveFlowMapper.xml" />
+        <mapper resource="mappers/mysql/material/MaterialRelationMapper.xml" />
+        <mapper resource="mappers/mysql/material/MaterialSendMapper.xml" />
+        <mapper resource="mappers/mysql/material/MaterialSendFlowMapper.xml" />
+    </mappers>
+</configuration>

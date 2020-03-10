@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.material.dao.MaterialSendFlowDao" >
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.material.domain.DmsMaterialSendFlow" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="material_code" property="materialCode" jdbcType="VARCHAR" />
+    <result column="material_type" property="materialType" jdbcType="TINYINT" />
+    <result column="send_type" property="sendType" jdbcType="TINYINT" />
+    <result column="send_code" property="sendCode" jdbcType="VARCHAR" />
+    <result column="send_num" property="sendNum" jdbcType="INTEGER" />
+    <result column="create_site_code" property="createSiteCode" jdbcType="BIGINT" />
+    <result column="create_site_type" property="createSiteType" jdbcType="INTEGER" />
+    <result column="receive_site_code" property="receiveSiteCode" jdbcType="BIGINT" />
+    <result column="receive_site_type" property="receiveSiteType" jdbcType="INTEGER" />
+    <result column="create_user_erp" property="createUserErp" jdbcType="VARCHAR" />
+    <result column="create_user_name" property="createUserName" jdbcType="VARCHAR" />
+    <result column="update_user_erp" property="updateUserErp" jdbcType="VARCHAR" />
+    <result column="update_user_name" property="updateUserName" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="yn" property="yn" jdbcType="BIT" />
+    <result column="ts" property="ts" jdbcType="TIMESTAMP" />
+  </resultMap>
+
+  <sql id="Base_Column_List" >
+    id, material_code, material_type, send_type, send_code, send_num, create_site_code, 
+    create_site_type, receive_site_code, receive_site_type, create_user_erp, create_user_name, 
+    update_user_erp, update_user_name, create_time, update_time, yn, ts
+  </sql>
+
+    <insert id="batchInsert" parameterType="java.util.List" >
+        INSERT INTO dms_material_send_flow
+        (
+            material_code,
+            material_type,
+            send_type,
+            send_code,
+            send_num,
+            create_site_code,
+            create_site_type,
+            receive_site_code,
+            receive_site_type,
+            create_user_erp,
+            create_user_name,
+            update_user_erp,
+            update_user_name,
+            create_time,
+            update_time,
+            yn,
+            ts
+        )
+        VALUES
+        <foreach collection="list" index="index" item="item" separator=",">
+            <trim suffixOverrides="," prefix="(" suffix=")">
+            #{item.materialCode,jdbcType=VARCHAR},
+            #{item.materialType,jdbcType=TINYINT},
+            #{item.sendType,jdbcType=TINYINT},
+            #{item.sendCode,jdbcType=VARCHAR},
+            #{item.sendNum,jdbcType=INTEGER},
+            #{item.createSiteCode,jdbcType=BIGINT},
+            #{item.createSiteType,jdbcType=INTEGER},
+            #{item.receiveSiteCode,jdbcType=BIGINT},
+            #{item.receiveSiteType,jdbcType=INTEGER},
+            #{item.createUserErp,jdbcType=VARCHAR},
+            #{item.createUserName,jdbcType=VARCHAR},
+            #{item.updateUserErp,jdbcType=VARCHAR},
+            #{item.updateUserName,jdbcType=VARCHAR},
+            now(),
+            now(),
+            1,
+            now(3)
+            </trim>
+        </foreach>
+    </insert>
+
+</mapper>

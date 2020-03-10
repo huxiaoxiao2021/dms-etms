@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.rest.task;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -12,6 +13,7 @@ import com.jd.bluedragon.distribution.auto.domain.UploadData;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.gantry.domain.GantryException;
 import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
+import com.jd.bluedragon.distribution.inspection.domain.InspectionAS;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
@@ -20,6 +22,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.common.authorization.RestAuthorization;
+import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.fastjson.JSONObject;
@@ -27,6 +30,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -40,10 +44,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.jd.bluedragon.distribution.auto.domain.UploadData.NOT_PACKAGECODE_BOXCDOE;
 import static com.jd.bluedragon.distribution.auto.domain.UploadData.NOT_PACKAGECODE_BOXCDOE_MESSAGE;
@@ -70,6 +71,8 @@ public class TaskResource {
 
     @Autowired
     private GantryExceptionService gantryExceptionService;
+    @Autowired
+    private WaybillTraceManager waybillTraceManager;
 
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration;
@@ -92,6 +95,47 @@ public class TaskResource {
         return this.toTaskResponse(new Task());
     }
 
+    /**
+     * 分拣机验货任务
+     * @param request
+     * @return
+     */
+    @JProfiler(jKey = "Bluedragon_dms_center.dms.method.task.autoAddTask", mState = {
+            JProEnum.TP, JProEnum.FunctionError})
+    @POST
+    @Path("/autoAddInspectionTask")
+    public TaskResponse autoAddInspectionTask(TaskRequest request){
+        TaskResponse response = null;
+        if (StringUtils.isBlank(request.getBody())) {
+            response = new TaskResponse(JdResponse.CODE_PARAM_ERROR, "参数错误：body内容为空");
+            return response;
+        }
+        List<InspectionAS> inspections = JsonHelper.jsonToList(request.getBody(), InspectionAS.class);
+        if(CollectionUtils.isEmpty(inspections)){
+            response = new TaskResponse(JdResponse.CODE_PARAM_ERROR, "body格式错误，内容反序列化后为空");
+            return response;
+        }
+        //过滤妥投的运单
+        Iterator<InspectionAS> it = inspections.iterator();
+        while (it.hasNext()){
+            InspectionAS inspection = it.next();
+            String waybillCode = WaybillUtil.getWaybillCode(inspection.getPackageBarOrWaybillCode());
+            if(StringUtils.isBlank(waybillCode)){
+                log.warn("验货数据{}非包裹或运单号", inspection.getPackageBarOrWaybillCode());
+                it.remove();
+            }
+            if(waybillTraceManager.isWaybillFinished(waybillCode)){
+                log.warn("运单{}已妥投", waybillCode);
+                it.remove();
+            }
+        }
+        if(inspections.size() ==0){
+            return new TaskResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK,
+                    DateHelper.formatDateTime(new Date()));
+        }
+        request.setBody(JsonHelper.toJson(inspections));
+        return add(request);
+    }
     @JProfiler(jKey = "Bluedragon_dms_center.dms.method.task.addPack", mState = {
             JProEnum.TP, JProEnum.FunctionError})
     @SuppressWarnings("unchecked")
@@ -349,6 +393,8 @@ public class TaskResource {
                 DateHelper.formatDateTime(new Date()));
     }
 
+
+
     /**
      * 龙门加任务插入
      *
@@ -400,7 +446,6 @@ public class TaskResource {
                 log.warn("龙门架上传接口，包裹号{}非法[非包裹号和箱号]", domain.getBarCode());
                 return result;
             }
-
             //added by hanjiaxing3 2018.05.04
             Date scannerTime = new Date(DateHelper.adjustTimestampToJava(domain.getScannerTime().getTime()));
             String daysStr = PropertiesHelper.newInstance().getValue("GANTRY_CHECK_DAYS");
@@ -417,7 +462,7 @@ public class TaskResource {
             //比调整后的时间还早，说明上传时间有问题
             if (DateHelper.compareAdjustDate(scannerTime, days) < 0) {
                 scannerTime = new Date();
-                GantryException gantryException = this.convert2GantryException(domain);
+                GantryException gantryException = this.convert2GantryException(domain,7);
                 gantryExceptionService.addGantryException(gantryException);
                 log.warn("验货时间早于调整后的时间！时间调整数为：{},domain={}" , days.toString() , JsonHelper.toJson(domain));
             }else {
@@ -533,7 +578,7 @@ public class TaskResource {
      * @param domain
      * @return
      */
-    private GantryException convert2GantryException(UploadData domain) {
+    private GantryException convert2GantryException(UploadData domain, int type) {
         Date date = new Date();
 
         GantryException gantryException = new GantryException();
@@ -548,8 +593,7 @@ public class TaskResource {
 
         gantryException.setCreateSiteCode(domain.getDistributeId() == null ? 0 : domain.getDistributeId().longValue());
         gantryException.setOperateTime(domain.getScannerTime());
-        //操作时间异常：7
-        gantryException.setType(7);
+        gantryException.setType(type);
         return gantryException;
     }
 

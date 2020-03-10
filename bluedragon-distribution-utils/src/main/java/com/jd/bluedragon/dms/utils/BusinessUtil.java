@@ -8,11 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 
-import static com.jd.bluedragon.dms.utils.DmsConstants.PRODUCT_TYPE_COLD_CHAIN_KB;
-import static com.jd.bluedragon.dms.utils.DmsConstants.RULE_TERMINAL_SEND_CODE_ALL_REGEX;
-import static com.jd.bluedragon.dms.utils.DmsConstants.SEAL_BOX_NO;
-import static com.jd.bluedragon.dms.utils.DmsConstants.SEND_CODE_ALL_REG;
-import static com.jd.bluedragon.dms.utils.DmsConstants.SEND_CODE_NEW_REG;
+import static com.jd.bluedragon.dms.utils.DmsConstants.*;
 
 /**
  * @author tangchunqing
@@ -1249,6 +1245,20 @@ public class BusinessUtil {
                 isSignChar(waybillSign, WaybillSignConstants.POSITION_54, WaybillSignConstants.CHAR_54_2);
 
         return freshFastExpress? Boolean.TRUE : Boolean.FALSE;
+    }
+
+    /**
+     * @Description
+     * @param [boxCode]
+     * @Author wyh
+     * @Date 2020/2/21 14:07
+     * @return java.lang.Boolean
+     **/
+    public static Boolean isWarmBoxCode(String boxCode) {
+        if (StringUtils.isEmpty(boxCode)) {
+            return Boolean.FALSE;
+        }
+        return DmsConstants.WARM_BOX_CODE_REGEX.matcher(boxCode.toUpperCase().trim()).matches();
     }
 
 }

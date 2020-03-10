@@ -535,4 +535,26 @@
         <property name="sequenceGenAdaptor" ref="sequenceGenAdaptor"/>
     </bean>
 
+
+
+    <!--################################## bd_dms_business 相关DAO Start ############################################ -->
+    <bean id="businessBaseDao" class="com.jd.ql.dms.common.web.mvc.mybatis.BaseDao" abstract="true">
+        <property name="sqlSession" ref="sessionTemplateBusiness"/>
+    </bean>
+
+    <bean id="materialRelationDao" parent="businessBaseDao"
+          class="com.jd.bluedragon.distribution.material.dao.impl.MaterialRelationDaoImpl" />
+
+    <bean id="materialReceiveDao" parent="businessBaseDao"
+          class="com.jd.bluedragon.distribution.material.dao.impl.MaterialReceiveDaoImpl" />
+
+    <bean id="materialSendDao" parent="businessBaseDao"
+          class="com.jd.bluedragon.distribution.material.dao.impl.MaterialSendDaoImpl" />
+
+    <bean id="materialReceiveFlowDao" parent="businessBaseDao"
+          class="com.jd.bluedragon.distribution.material.dao.impl.MaterialReceiveFlowDaoImpl" />
+
+    <bean id="materialSendFlowDao" parent="businessBaseDao"
+          class="com.jd.bluedragon.distribution.material.dao.impl.MaterialSendFlowDaoImpl" />
+    <!--################################## bd_dms_business 相关DAO End ############################################ -->
 </beans>
