@@ -87,6 +87,11 @@ public class UccPropertyConfiguration {
      */
     private boolean coldChainStorageSmsSwitch;
 
+    /**
+     * 离线任务的操作时间的更正时间范围
+     */
+    private int offlineTaskOperateTimeCorrectHours;
+
     public boolean isLogToBusinessLogByKafka() {
         return logToBusinessLogByKafka;
     }
@@ -260,4 +265,12 @@ public class UccPropertyConfiguration {
 	public void setB2bPushInspectionSwitch(boolean b2bPushInspectionSwitch) {
 		this.b2bPushInspectionSwitch = b2bPushInspectionSwitch;
 	}
+
+    public int getOfflineTaskOperateTimeCorrectHours() {
+        return offlineTaskOperateTimeCorrectHours;
+    }
+
+    public void setOfflineTaskOperateTimeCorrectHours(int offlineTaskOperateTimeCorrectHours) {
+        this.offlineTaskOperateTimeCorrectHours = offlineTaskOperateTimeCorrectHours;
+    }
 }

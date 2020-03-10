@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.rest.task;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.AutoSortingPackageDto;
@@ -13,19 +14,18 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.gantry.domain.GantryException;
 import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionAS;
+import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.common.authorization.RestAuthorization;
 import com.jd.etms.waybill.api.WaybillTraceApi;
+import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.dms.logger.external.LogEngine;
+import com.jd.fastjson.JSONObject;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -41,13 +41,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import java.util.*;
@@ -79,6 +73,12 @@ public class TaskResource {
     private GantryExceptionService gantryExceptionService;
     @Autowired
     private WaybillTraceManager waybillTraceManager;
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
+    @Autowired
+    private LogEngine logEngine;
 
 
     @POST
@@ -182,6 +182,53 @@ public class TaskResource {
                             + JsonHelper.toJson(reverseSpareMap)
                             + Constants.PUNCTUATION_CLOSE_BRACKET;
                     this.taskAssemblingAndSave(request, eachJson);
+                }
+            } if (Task.TASK_TYPE_OFFLINE.equals(request.getType())) {
+                //离线任务 处理操作时间
+                long startTime = System.currentTimeMillis();
+
+                Map<String, Object> itemTask = (Map<String, Object>) element;
+                String operateTime = (String) itemTask.get("operateTime");
+                String dateFormat = DateHelper.getDateFormat(operateTime);
+
+                if (StringHelper.isNotEmpty(dateFormat)) {
+                    String newOperateTime = DateHelper.formatDate(
+                            DateHelper.adjustTimeToNow(
+                                    DateHelper.parseDate(operateTime,dateFormat),
+                                    uccPropertyConfiguration.getOfflineTaskOperateTimeCorrectHours()),
+                            dateFormat
+                    );
+                    if (StringHelper.isNotEmpty(newOperateTime) && !newOperateTime.equals(operateTime)) {
+                        itemTask.put("operateTime",newOperateTime);
+
+                        log.warn("离线任务的操作时间【{}】超过了设定上传时间范围【{}】，已经被重置当前系统时间【{}】",
+                                operateTime, uccPropertyConfiguration.getOfflineTaskOperateTimeCorrectHours(), newOperateTime );
+                        log.warn("离线任务上传操作时间纠正，原始任务消息为：{}",JsonHelper.toJson(element));
+
+                        JSONObject logRequest=new JSONObject();
+                        logRequest.putAll(itemTask);
+
+                        JSONObject logResponse=new JSONObject();
+                        logResponse.put("originOperateTime", operateTime);
+                        logResponse.put("correctOperateTime", newOperateTime);
+
+                        BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
+                                .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.OTHER_OTHER_OFFLINE)
+                                .methodName("TaskResource#add")
+                                .operateRequest(logRequest)
+                                .operateResponse(logResponse)
+                                .processTime(System.currentTimeMillis(),startTime)
+                                .build();
+
+                        logEngine.addLog(businessLogProfiler);
+
+                    }
+                    String eachJson = Constants.PUNCTUATION_OPEN_BRACKET
+                            + JsonHelper.toJson(itemTask)
+                            + Constants.PUNCTUATION_CLOSE_BRACKET;
+                    this.taskAssemblingAndSave(request, eachJson);
+                } else {
+                    log.warn("未知的离线任务时间格式【{}】，请注意代码适配问题。",operateTime);
                 }
             } else {
                 String eachJson = Constants.PUNCTUATION_OPEN_BRACKET

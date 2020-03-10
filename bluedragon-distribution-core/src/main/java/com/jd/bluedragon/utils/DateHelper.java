@@ -1,15 +1,20 @@
 package com.jd.bluedragon.utils;
 
 import com.jd.bluedragon.Constants;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class DateHelper {
 
@@ -22,7 +27,7 @@ public class DateHelper {
             "yyyyMMddHHmmssSSS"
     };
 
-    private static final Log LOGGER = LogFactory.getLog(DateHelper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DateHelper.class);
 
     /**
      * 一分钟的毫秒数
@@ -59,6 +64,15 @@ public class DateHelper {
      * 日期-格式yyyy-MM-dd HH:mm
      */
     public static final String DATE_TIME_FORMAT_YYYY_MM_DD_HH_MM = "yyyy-MM-dd HH:mm";
+
+    public static final Map<String, String> DATE_FORMATE_TIME = new HashMap<>();
+
+    static {
+        DATE_FORMATE_TIME.put("^(\\d{4})(\\-)(\\d{2})(\\-)(\\d{2})(\\s+)(\\d{2})(\\:)(\\d{2})(\\:)(\\d{2})$", "yyyy-MM-dd HH:mm:ss");
+        DATE_FORMATE_TIME.put("^(\\d{4})(\\-)(\\d{2})(\\-)(\\d{2})(\\s+)(\\d{2})(\\:)(\\d{2})(\\:)(\\d{2})(\\.)(\\d{3})$", "yyyy-MM-dd HH:mm:ss.SSS");
+        DATE_FORMATE_TIME.put("^(\\d{4})(\\/)(\\d{2})(\\/)(\\d{2})(\\s+)(\\d{2})(\\:)(\\d{2})(\\:)(\\d{2})(\\.)(\\d{3})$","yyyy/MM/dd HH:mm:ss.SSS");
+        DATE_FORMATE_TIME.put("^(\\d{4})(\\/)(\\d{2})(\\/)(\\d{2})(\\s+)(\\d{2})(\\:)(\\d{2})(\\:)(\\d{2})$","yyyy/MM/dd HH:mm:ss");
+    }
 
 
     public static Date add(final Date date, Integer field, Integer amount) {
@@ -362,6 +376,21 @@ public class DateHelper {
     }
 
     /**
+     * @param originTime 原始时间
+     * @param hours 与当前时间对比的时间范围 （超过这个范围的时间认为不合法）单位 h小时
+     * @return 返回新的时间，如果originTime与当前时间的差超过<code>hours</code>小时，则返回当前时间，否则返回<code>originTime</code>
+     */
+    public static Date adjustTimeToNow(Date originTime, Integer hours) {
+        if (currentTimeIsRangeHours(originTime,hours)) {
+            return originTime;
+        } else {
+            Date now = new Date();
+            LOGGER.warn("计算原始时间【{}】与当前系统时间【{}】相差超过{}小时，已被重置为当前系统时间",originTime, now, hours);
+            return now;
+        }
+    }
+
+    /**
      * 计算两个日期相差的天数
      * @param start
      * @param end
@@ -387,5 +416,26 @@ public class DateHelper {
                 .getTime().getTime() / 1000)) / 3600 / 24;
 
         return days;
+    }
+
+    /**
+     * 根据正则判断属于哪个时间格式
+     * @param dateStr 时间戳
+     * @return
+     */
+    public static String getDateFormat(String dateStr) {
+        if (StringHelper.isEmpty(dateStr)) {
+            return StringUtils.EMPTY;
+        }
+        for (Map.Entry<String,String> item : DATE_FORMATE_TIME.entrySet()) {
+            String regex = item.getKey();
+            Pattern pattern = Pattern.compile(regex);
+            Matcher matcher = pattern.matcher(dateStr);
+            if (matcher.find()) {
+                return item.getValue();
+            }
+
+        }
+        return StringUtils.EMPTY;
     }
 }

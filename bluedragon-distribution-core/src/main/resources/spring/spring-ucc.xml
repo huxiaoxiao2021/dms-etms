@@ -44,6 +44,7 @@
         <property name="oldLogPageTips" value="${newLogPageTips:''}"/>
         <property name="coldChainStorageSmsSwitch" value="${coldChainStorageSmsSwitch:false}"/>
         <property name="b2bPushInspectionSwitch" value="${b2bPushInspectionSwitch:false}"/>
+		<property name="offlineTaskOperateTimeCorrectHours" value="${offlineTaskOperateTimeCorrectHours:24}"/>
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -72,6 +73,7 @@
 				<value>uccPropertyConfiguration.oldLogPageTips</value>
 				<value>uccPropertyConfiguration.coldChainStorageSmsSwitch</value>
 				<value>uccPropertyConfiguration.b2bPushInspectionSwitch</value>
+				<value>uccPropertyConfiguration.offlineTaskOperateTimeCorrectHours</value>
 			</list>
 		</property>
 	</bean>
