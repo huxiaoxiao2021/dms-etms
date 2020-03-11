@@ -183,7 +183,7 @@ public class TaskResource {
                             + Constants.PUNCTUATION_CLOSE_BRACKET;
                     this.taskAssemblingAndSave(request, eachJson);
                 }
-            } if (Task.TASK_TYPE_OFFLINE.equals(request.getType())) {
+            } else if (Task.TASK_TYPE_OFFLINE.equals(request.getType())) {
                 //离线任务 处理操作时间
                 long startTime = System.currentTimeMillis();
 
