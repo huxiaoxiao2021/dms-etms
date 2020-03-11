@@ -1,7 +1,9 @@
 package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.sorting.request.SortingCancelRequest;
+import com.jd.bluedragon.common.dto.sorting.request.SortingCheckRequest;
 
 /**
  * 分拣相关物流网关调用
@@ -12,4 +14,6 @@ import com.jd.bluedragon.common.dto.sorting.request.SortingCancelRequest;
 public interface SortingGatewayService {
 
     JdCResponse sortingCancel(SortingCancelRequest request);
+
+    JdVerifyResponse sortingPostCheck(SortingCheckRequest checkRequest);
 }
