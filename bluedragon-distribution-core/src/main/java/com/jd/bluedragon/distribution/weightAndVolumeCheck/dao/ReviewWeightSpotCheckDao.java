@@ -44,7 +44,7 @@ public class ReviewWeightSpotCheckDao extends BaseDao<SpotCheckInfo> {
     }
 
     /**
-     * 根据机构编码更新
+     * 根据机构编码和业务类型更新
      * @param spotCheckInfo
      * @return
      */
