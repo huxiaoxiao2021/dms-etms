@@ -156,9 +156,9 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
                 return errorString;
             }
             int rowIndex = 1;
-            Set<Integer> siteCodeSet = new HashSet<>();
+            Set<String> siteCodeSet = new HashSet<>();
             for(SpotCheckExcelData spotCheckInfo : dataList){
-                siteCodeSet.add(spotCheckInfo.getSiteCode());
+                siteCodeSet.add(StringHelper.getStringValue(spotCheckInfo.getSiteCode())+StringHelper.getStringValue(spotCheckInfo.getSpotCheckType()));
                 spotCheckInfo.setImportErp(importErpCode);
                 BaseStaffSiteOrgDto site = siteService.getSite(spotCheckInfo.getSiteCode());
                 if(site == null){
