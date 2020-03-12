@@ -51,6 +51,6 @@ public interface ColdChainOperationService {
      *
      * @return
      */
-    List<VehicleTypeDict> getVehicleTypeByType();
+    List<VehicleTypeDict> getVehicleModelList();
 
 }

@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.coldchain.dto.VehicleTypeDict;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainOperationService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.util.StringUtils;
+import com.jd.dms.logger.annotation.BusinessLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,7 @@ public class ColdChainOperationResource {
      * @param unloadDto
      * @return
      */
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1016, operateType = 101601)
     @POST
     @Path("/coldChain/operation/addUpload")
     public ColdChainOperationResponse<Boolean> addUpload(ColdChainUnloadDto unloadDto) {
@@ -174,6 +176,7 @@ public class ColdChainOperationResource {
      * @param request
      * @return
      */
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1016, operateType = 101602)
     @POST
     @Path("/coldChain/operation/unloadComplete")
     public ColdChainOperationResponse<Boolean> unloadComplete(ColdChainUnloadCompleteRequest request) {
@@ -218,12 +221,12 @@ public class ColdChainOperationResource {
 
     @GET
     @Path("/coldChain/getVehicleTypeByType")
-    public ColdChainOperationResponse<List<VehicleTypeDict>> getVehicleTypeByType() {
+    public ColdChainOperationResponse<List<VehicleTypeDict>> getVehicleModelList() {
         ColdChainOperationResponse<List<VehicleTypeDict>> response = new ColdChainOperationResponse<>();
         try {
             response.setCode(JdResponse.CODE_OK);
             response.setMessage(JdResponse.MESSAGE_OK);
-            response.setData(coldChainOperationService.getVehicleTypeByType());
+            response.setData(coldChainOperationService.getVehicleModelList());
         } catch (Exception e) {
             log.error("[冷链操作-获取冷链车型]查询冷链车型时发生异常", e);
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
@@ -238,6 +241,7 @@ public class ColdChainOperationResource {
      * @param request
      * @return
      */
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1016, operateType = 101603)
     @POST
     @Path("/coldChain/operation/inAndOutBound")
     public ColdChainOperationResponse inAndOutBound(ColdChainInAndOutBoundRequest request) {

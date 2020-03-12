@@ -301,9 +301,8 @@ public class ColdChainOperationServiceImpl implements ColdChainOperationService 
         return messageList;
     }
 
-
     @Override
-    public List<VehicleTypeDict> getVehicleTypeByType() {
+    public List<VehicleTypeDict> getVehicleModelList() {
         // type 所有：0 ，冷链：1 ，非冷链：2
         List<BasicDictDto> basicDictDtoList = basicQueryWSManager.getVehicleTypeByType(null, 1);
         return this.convert(basicDictDtoList);
