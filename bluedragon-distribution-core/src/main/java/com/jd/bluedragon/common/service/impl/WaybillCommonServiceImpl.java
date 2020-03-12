@@ -1196,6 +1196,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
          * 1.waybill_sign第80位等于1时，产品类型为“特惠运”--TB1
          * 2.waybill_sign第80位等于2时，产品类型为“特准运”--TB2
          * 3.waybill_sign第80位等于7时，产品类型为“冷链卡板”--TLL1
+         * 4.waybill_sign第80位等于9时，产品类型为“特准包裹”--TB2（特准运）
          */
 
         if(BusinessUtil.isSignChar(waybillSign,80,'1')){
@@ -1204,6 +1205,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             routeProduct = RouteProductEnum.TB2;
         }else if(BusinessUtil.isSignChar(waybillSign,80,'7')){
             routeProduct = RouteProductEnum.TLL1;
+        }else if(BusinessUtil.isSignChar(waybillSign,80,'9')){
+            routeProduct = RouteProductEnum.TB2;
         }
 
 
