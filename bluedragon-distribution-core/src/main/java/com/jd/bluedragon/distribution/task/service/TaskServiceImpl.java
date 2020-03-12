@@ -174,6 +174,13 @@ public class TaskServiceImpl implements TaskService {
                 }
             }
         }
+
+        //超长校验
+		if (StringHelper.isNotEmpty(task.getBody()) && task.getBody().length() > 2000) {
+			log.warn("插入任务失败，body字段超长，参数：{}", JsonHelper.toJson(task));
+			return 0;
+		}
+
         //获取当前任务类型队列数量
         //随机生成队列数
         Map<String, Integer> allQueueSize = tbTaskQueueService.findAllQueueSize();
@@ -339,6 +346,10 @@ public class TaskServiceImpl implements TaskService {
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     @Override
     public Integer doAddWithStatus(Task task) {
+		if (StringHelper.isNotEmpty(task.getBody()) && task.getBody().length() > 2000) {
+			log.warn("插入任务失败，body字段超长，参数：{}", JsonHelper.toJson(task));
+			return 0;
+		}
         TaskDao routerDao = taskDao;
 		//随机生成队列数
 		Map<String, Integer> allQueueSize = tbTaskQueueService.findAllQueueSize();
