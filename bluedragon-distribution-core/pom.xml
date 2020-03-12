@@ -1232,6 +1232,12 @@
 			<groupId>com.jd.wl</groupId>
 			<artifactId>data.qc.abnormal.jsf.jar</artifactId>
 			<version>1.0.4-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.kafka</groupId>
+					<artifactId>kafka-clients</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
