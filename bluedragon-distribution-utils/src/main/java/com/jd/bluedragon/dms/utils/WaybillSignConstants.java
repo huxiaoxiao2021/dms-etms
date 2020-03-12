@@ -98,6 +98,11 @@ public interface WaybillSignConstants {
 	int POSITION_47 = 47;
 	char CHAR_47_0 = '0';
 	/**
+	 * 特准包裹
+	 */
+	char CHAR_80_9 = '9';
+
+	/**
 	 * B网冷链
 	 */
 	int POSITION_54 = 54;

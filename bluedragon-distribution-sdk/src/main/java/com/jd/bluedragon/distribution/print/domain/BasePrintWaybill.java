@@ -408,6 +408,11 @@ public class BasePrintWaybill implements Serializable {
 	private String goodsName;
 
 	/**
+	 * B/C网水印标识
+	 */
+	private String bcSign;
+
+	/**
 	 * 其他路区（现阶段只存放大件路区）
 	 */
 	private String backupRoadCode;
@@ -1535,5 +1540,13 @@ public class BasePrintWaybill implements Serializable {
 
 	public void setBackupRoadCode(String backupRoadCode) {
 		this.backupRoadCode = backupRoadCode;
+	}
+
+	public String getBcSign() {
+		return bcSign;
+	}
+
+	public void setBcSign(String bcSign) {
+		this.bcSign = bcSign;
 	}
 }

@@ -841,6 +841,22 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             target.setjZDFlag(TextConstants.COMMON_TEXT_MEDICINE_SCATTERED);
         }
 
+        /**
+         * B网面单识别“特准包裹”标识，在jZDFlag处打印“快”
+         */
+        if(BusinessUtil.isB2b(waybill.getWaybillSign())
+                && BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_80,WaybillSignConstants.CHAR_80_9)){
+            target.setjZDFlag(TextConstants.PECIAL_TIMELY_MARK);
+        }
+
+        /**
+         * 纯配B2B运单或纯配C转B运单，面单上加“B”水印
+         */
+        if(BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_40,WaybillSignConstants.CHAR_40_2)
+                ||BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_97,WaybillSignConstants.CHAR_97_1)){
+            target.setBcSign(TextConstants.PECIAL_B_MARK);
+        }
+
         //waybill_sign标识位，第七十九位为2，打提字标
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(), 79,'2')){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_ARAYACAK_SITE);
