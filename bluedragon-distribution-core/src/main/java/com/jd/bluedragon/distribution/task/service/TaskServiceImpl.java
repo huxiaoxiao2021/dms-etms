@@ -177,7 +177,7 @@ public class TaskServiceImpl implements TaskService {
 
         //超长校验
 		if (StringHelper.isNotEmpty(task.getBody()) && task.getBody().length() > 2000) {
-			log.warn("插入任务失败，body字段超长，参数：{}", JsonHelper.toJson(task));
+			log.error("插入任务失败，body字段超长，参数：{}", JsonHelper.toJson(task));
 			return 0;
 		}
 
@@ -347,7 +347,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public Integer doAddWithStatus(Task task) {
 		if (StringHelper.isNotEmpty(task.getBody()) && task.getBody().length() > 2000) {
-			log.warn("插入任务失败，body字段超长，参数：{}", JsonHelper.toJson(task));
+			log.error("插入任务失败，body字段超长，参数：{}", JsonHelper.toJson(task));
 			return 0;
 		}
         TaskDao routerDao = taskDao;
