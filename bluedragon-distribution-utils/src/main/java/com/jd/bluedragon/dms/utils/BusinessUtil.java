@@ -8,11 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 
-import static com.jd.bluedragon.dms.utils.DmsConstants.PRODUCT_TYPE_COLD_CHAIN_KB;
-import static com.jd.bluedragon.dms.utils.DmsConstants.RULE_TERMINAL_SEND_CODE_ALL_REGEX;
-import static com.jd.bluedragon.dms.utils.DmsConstants.SEAL_BOX_NO;
-import static com.jd.bluedragon.dms.utils.DmsConstants.SEND_CODE_ALL_REG;
-import static com.jd.bluedragon.dms.utils.DmsConstants.SEND_CODE_NEW_REG;
+import static com.jd.bluedragon.dms.utils.DmsConstants.*;
 
 /**
  * @author tangchunqing
@@ -780,6 +776,60 @@ public class BusinessUtil {
     }
 
     /**
+     * 判断是否是纯配冷链卡班
+     * waybill_sign54位=2（生鲜）、waybill_sign80位=7（卡班）、40位=2（纯配快运零担）
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isColdChainCPKB(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_80,WaybillSignConstants.CHAR_80_7)
+                && isSignChar(waybillSign,WaybillSignConstants.POSITION_54,WaybillSignConstants.CHAR_54_2)
+                && isSignChar(waybillSign,WaybillSignConstants.POSITION_40,WaybillSignConstants.CHAR_40_2);
+    }
+
+    /**
+     * 判断是否是纯配医药零担
+     * waybill_sign54位=4（医药）、waybill_sign80位=7（卡班）、40位=2（纯配快运零担）
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isMedicineCP(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_80,WaybillSignConstants.CHAR_80_7)
+                && isSignChar(waybillSign,WaybillSignConstants.POSITION_54,WaybillSignConstants.CHAR_54_4)
+                && isSignChar(waybillSign,WaybillSignConstants.POSITION_40,WaybillSignConstants.CHAR_40_2);
+    }
+
+    /**
+     * 判断是否是生鲜纯配城配共配
+     * waybill_sign54位=2（生鲜）、waybill_sign80位=6（城配）、40位=2（纯配快运零担）、118位=1（共配）
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isFreshCPGP(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_80,WaybillSignConstants.CHAR_80_6)
+                && isSignChar(waybillSign,WaybillSignConstants.POSITION_54,WaybillSignConstants.CHAR_54_2)
+                && isSignChar(waybillSign,WaybillSignConstants.POSITION_40,WaybillSignConstants.CHAR_40_2)
+                && isSignChar(waybillSign,WaybillSignConstants.POSITION_118,WaybillSignConstants.CHAR_118_1);
+    }
+
+    /**
+     * 不需要隐藏收件人信息
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isNoNeedHideCustomer(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_37,WaybillSignConstants.CHAR_37_0);
+    }
+    /**
+     * 不需要隐藏寄件人信息
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isNoNeedHideConsigner(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_47,WaybillSignConstants.CHAR_47_0);
+    }
+
+    /**
      * 判断是否是京仓运单
      * @param waybillSign
      * @return
@@ -1221,6 +1271,48 @@ public class BusinessUtil {
      */
     public static boolean isBusinessNet(String waybillSign){
         return isSignChar(waybillSign, WaybillSignConstants.BUSINESS_ENET_POSITION_62, WaybillSignConstants.BUSINESS_ENET_CHAR_62_8);
+    }
+
+    /**
+     * 生鲜运单得标位：
+     * WaybillSign 55位=1：“生鲜专送”；
+     * WaybillSign 55位<>1且WaybillSign 31位=A：“生鲜特惠”；
+     * WaybillSign 55位<>1且WaybillSign 31位=9，且waybillSign54位=2：“生鲜特快”
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isFreshWaybill(String waybillSign) {
+        /* 生鲜专送：55位为1 */
+        boolean freshSpecialDelivery = isSignChar(waybillSign, WaybillSignConstants.POSITION_55, WaybillSignConstants.CHAR_55_1);
+        if (freshSpecialDelivery) {
+            return Boolean.TRUE;
+        }
+
+        /* 生鲜特惠：WaybillSign 55位<>1且WaybillSign 31位=A */
+        boolean freshSpecialBenefit = isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_A);
+        if (freshSpecialBenefit) {
+            return Boolean.TRUE;
+        }
+
+        /* 生鲜特快：WaybillSign 55位<>1且WaybillSign 31位=9，且waybillSign54位=2 */
+        boolean freshFastExpress = isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_9) &&
+                isSignChar(waybillSign, WaybillSignConstants.POSITION_54, WaybillSignConstants.CHAR_54_2);
+
+        return freshFastExpress? Boolean.TRUE : Boolean.FALSE;
+    }
+
+    /**
+     * @Description
+     * @param [boxCode]
+     * @Author wyh
+     * @Date 2020/2/21 14:07
+     * @return java.lang.Boolean
+     **/
+    public static Boolean isWarmBoxCode(String boxCode) {
+        if (StringUtils.isEmpty(boxCode)) {
+            return Boolean.FALSE;
+        }
+        return DmsConstants.WARM_BOX_CODE_REGEX.matcher(boxCode.toUpperCase().trim()).matches();
     }
 
 }

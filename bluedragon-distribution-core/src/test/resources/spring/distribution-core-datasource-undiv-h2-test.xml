@@ -10,9 +10,9 @@
 
     <!-- undiv 写-->
     <jdbc:embedded-database id="dms_main_undiv" type="H2">
-        <jdbc:script location="classpath:h2/mode.sql"/>
-        <jdbc:script location="classpath:h2/bd_dms_core_undivdb_h2_ddl.sql"/>
-        <jdbc:script location="classpath:h2/dml.sql"/>
+        <jdbc:script location="classpath:h2/undiv/mode.sql"/>
+        <jdbc:script location="classpath:h2/undiv/bd_dms_core_undivdb_h2_ddl.sql"/>
+        <jdbc:script location="classpath:h2/undiv/dml.sql"/>
     </jdbc:embedded-database>
 
 
@@ -60,9 +60,9 @@
 
     <!-- undiv 写-->
     <jdbc:embedded-database id="dms_main_read_undiv" type="H2">
-        <jdbc:script location="classpath:h2/mode.sql"/>
-        <jdbc:script location="classpath:h2/bd_dms_core_undivdb_h2_ddl.sql"/>
-        <jdbc:script location="classpath:h2/dml.sql"/>
+        <jdbc:script location="classpath:h2/undiv/mode.sql"/>
+        <jdbc:script location="classpath:h2/undiv/bd_dms_core_undivdb_h2_ddl.sql"/>
+        <jdbc:script location="classpath:h2/undiv/dml.sql"/>
     </jdbc:embedded-database>
 
 
@@ -99,5 +99,29 @@
         <constructor-arg index="0" ref="readUnDivSqlSessionFactory"/>
     </bean>
     <!-- dms单库读库 数据源 end -->
+
+
+
+
+    <!--###########################bd_dms_business dataSource###############################-->
+
+    <jdbc:embedded-database id="dms_business_h2_dataSource" type="H2">
+        <jdbc:script location="classpath:h2/mode.sql"/>
+        <jdbc:script location="classpath:h2/bd_dms_businesss.ddl"/>
+        <jdbc:script location="classpath:h2/bd_dms_business_material.dml"/>
+    </jdbc:embedded-database>
+
+    <bean id="transactionManagerBusiness" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dms_business_h2_dataSource"/>
+    </bean>
+    <bean id="sqlSessionFactoryBusiness" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="configLocation" value="classpath:config/mysql/mybatis-config-dms-business.xml"/>
+        <property name="dataSource" ref="dms_business_h2_dataSource"/>
+    </bean>
+    <bean id="sessionTemplateBusiness" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="sqlSessionFactoryBusiness"/>
+    </bean>
+    <tx:annotation-driven transaction-manager="transactionManagerBusiness"/>
+    <!--###########################bd_dms_business dataSource###############################-->
 
 </beans>

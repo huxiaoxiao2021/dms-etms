@@ -85,6 +85,7 @@ import com.jd.bluedragon.distribution.send.manager.SendMManager;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.DmsToTmsWebService;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.Result;
+import com.jd.bluedragon.distribution.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
@@ -345,6 +346,9 @@ public class DeliveryServiceImpl implements DeliveryService {
     private LogEngine logEngine;
 
 
+    @Autowired
+    private SendCodeService sendCodeService;
+
     /**
      * 自动过期时间 15分钟
      */
@@ -593,6 +597,24 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
         }
         Profiler.registerInfoEnd(temp_info1);
+
+        CallerInfo freshInfo = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.freshInfoCheck",Constants.UMP_APP_NAME_DMSWEB, false, true);
+        /*
+         * 生鲜批次号只能装生鲜订单校验 针对包裹发货或者是按运单发货
+         * 生鲜运单得标位：
+         *      WaybillSign 55位=1：“生鲜专送”；
+         *      WaybillSign 55位<>1且WaybillSign 31位=A：“生鲜特惠”；
+         *      WaybillSign 55位<>1且WaybillSign 31位=9，且waybillSign54位=2：“生鲜特快”
+         */
+        if ((WaybillUtil.isPackageCode(domain.getBoxCode()) || WaybillUtil.isWaybillCode(domain.getBoxCode()))
+                && sendCodeService.isFreshSendCode(domain.getSendCode())) {
+            com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findByWaybillCode(WaybillUtil.getWaybillCode(domain.getBoxCode()));
+            if (null == waybill  || !BusinessUtil.isFreshWaybill(waybill.getWaybillSign())) {
+                result.init(SendResult.CODE_SENDED, SendResult.FRESH_MESSAGE_SENDED);
+                return result;
+            }
+        }
+        Profiler.registerInfoEnd(freshInfo);
 
         // 根据发货的条码类型进行校验
         this.sendVerificationByBarCodeType(domain, result);

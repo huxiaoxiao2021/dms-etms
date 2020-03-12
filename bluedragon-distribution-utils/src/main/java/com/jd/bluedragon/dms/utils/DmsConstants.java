@@ -196,4 +196,9 @@ public class DmsConstants {
     public static final String BAD_WAREHOURSE_FOR_PORT = "保税";
     public static final String PICKUP_CUSTOMER_COMMET = "服务单号：";
     public static final String BUSINESS_ORDER_CODE_REMARK = "商家订单号：";
+
+    /**
+     * 保温箱号规则，MZ开头，总长度14到16位
+     */
+    public static final Pattern WARM_BOX_CODE_REGEX = Pattern.compile("^MZ[A-Z0-9]{12,14}$");
 }

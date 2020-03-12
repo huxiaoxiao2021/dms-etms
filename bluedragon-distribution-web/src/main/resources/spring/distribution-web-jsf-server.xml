@@ -168,4 +168,12 @@
                   ref="dmsExternalInPDDService" server="dmsjsf">
         <jsf:parameter key="token" value="${dms.jsf.pdd.external.token}" hide="true"/>
     </jsf:provider>
+
+    <!--  为运输提供接口，获取批次号得重量体积和生鲜属性  -->
+    <jsf:provider id="dmsSendCodeJSFServiceAPI"
+                  interface="com.jd.bluedragon.distribution.sendCode.DMSSendCodeJSFService"
+                  alias="${dms.jsf.sendCode.external.alias}"
+                  ref="dmsSendCodeJSFService" server="dmsjsf">
+        <jsf:parameter key="token" value="${dms.jsf.sendCode.external.token}" hide="true"/>
+    </jsf:provider>
 </beans>

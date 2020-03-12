@@ -33,4 +33,39 @@ public class DateHelperTest {
 			System.out.println("测试 -- 原时间：" + dateStr + "，现时间：" + reDateStr1);
 		}
 	}
+
+	@Test
+	public void testAdjustTime() {
+		String date1 = "2020-03-03 16:31:04";
+		System.out.println(DateHelper.adjustTimeToNow(DateHelper.parseAllFormatDateTime(date1), 24));
+		String date2 = "2020-03-04 16:57:13";
+		System.out.println(DateHelper.adjustTimeToNow(DateHelper.parseAllFormatDateTime(date2), 24));
+	}
+
+
+	@Test
+	public void testGetDateFormat() {
+		String[] dateStrList = new String[]{
+				"2020-03-06 11:16:15",
+				"2020-03-06 11:16:15.124",
+				"2020/03/06 11:16:15",
+				"2020/03/06 11:16:15.123",
+				"2020-3-6 11:16:15",
+				""};
+		for (String dateStr : dateStrList) {
+			String dateFormat = DateHelper.getDateFormat(dateStr);
+			if (StringHelper.isNotEmpty(dateFormat)) {
+				String newOperateTime = DateHelper.formatDate(
+						DateHelper.adjustTimeToNow(
+								DateHelper.parseDate(dateStr,dateFormat),
+								24),
+						dateFormat
+				);
+				System.out.println(newOperateTime);
+			} else {
+				System.out.println("未知的离线任务时间格式【{}】，请注意代码适配问题。"+ dateStr);
+			}
+		}
+		System.out.println("----:" + DateHelper.getDateFormat(null));
+	}
 }

@@ -77,7 +77,26 @@ public interface WaybillSignConstants {
 	 */
 	int POSITION_80 = 80;
 	char CHAR_80_7 = '7';
+	/**
+	 * 城配
+	 */
+	char CHAR_80_6 = '6';
 
+	int POSITION_118 = 118;
+	/**
+	 * 共配
+	 */
+	char CHAR_118_1 = '1';
+	/**
+	 * 隐藏收件人
+	 */
+	int POSITION_37 = 37;
+	char CHAR_37_0 = '0';
+	/**
+	 * 隐藏寄件人
+	 */
+	int POSITION_47 = 47;
+	char CHAR_47_0 = '0';
 	/**
 	 * B网冷链
 	 */
@@ -173,6 +192,7 @@ public interface WaybillSignConstants {
 	 */
 	int POSITION_31 = 31;
 	char CHAR_31_9 = '9';
+	char CHAR_31_A = 'A';
 
 	/**
 	 * waybillsign第36位
@@ -248,4 +268,10 @@ public interface WaybillSignConstants {
 	 */
 	int BUSINESS_ENET_POSITION_62 = 62;
 	char BUSINESS_ENET_CHAR_62_8 = '8';
+
+	/**
+	 * 生鲜专送：55位为1
+	 */
+	int POSITION_55 = 55;
+	char CHAR_55_1 = '1';
 }

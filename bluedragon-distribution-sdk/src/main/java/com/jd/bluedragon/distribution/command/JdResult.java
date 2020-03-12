@@ -55,6 +55,14 @@ public class JdResult<T> implements Serializable{
 	public boolean isSucceed(){
 		return CODE_SUC.equals(this.code) || CODE_WARN.equals(this.code);
 	}
+
+    /**
+     * 判断是否失败
+     * @return
+     */
+	public boolean isFailed() {
+	    return !isSucceed();
+    }
 	/**
 	 * 判断是否成功
 	 * @return

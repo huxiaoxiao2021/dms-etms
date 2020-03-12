@@ -335,6 +335,9 @@
 
         <mapper resource="mappers/mysql/reverse/ReverseStockInDetailMapper.xml"/>
 
+        <!-- KA单号校验记录 -->
+        <mapper resource="mappers/mysql/financialForKA/WaybillCodeCheckResultMapper.xml"/>
+
 
         <mapper resource="mappers/mysql/interceptconfig/InterceptConfigInfo.xml" />
     </mappers>
