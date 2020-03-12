@@ -29,7 +29,7 @@ public class IAbnPdaAPIManagerImpl implements IAbnPdaAPIManager {
     private IAbnPdaAPI iAbnPdaAPI;
 
     @JProfiler(jKey = "DMSWEB.IAbnPdaAPIManagerImpl.selectAbnReasonByErp", mState = {JProEnum.TP})
-    @Cache(key = "IAbnPdaAPIManager.selectAbnReasonByErp@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000, redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
+    @Cache(key = "IAbnPdaAPIManager.selectAbnReasonByErp@args0", memoryEnable = true, memoryExpiredTime = 3 * 60 * 1000, redisEnable = true, redisExpiredTime = 5 * 60 * 1000)
     @Override
     public Map<String, AbnormalReasonDto> selectAbnReasonByErp(String userErp) {
         logger.info("调用质控系统JSF接口获取质控侧异常原因，ERP：{}", userErp);
