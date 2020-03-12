@@ -1,6 +1,6 @@
 package com.jd.bluedragon.external.gateway.service;
 
-import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.distribution.coldchain.dto.ColdChainInAndOutBoundRequest;
 import com.jd.bluedragon.distribution.coldchain.dto.ColdChainQueryUnloadTaskRequest;
 import com.jd.bluedragon.distribution.coldchain.dto.ColdChainUnloadCompleteRequest;
@@ -24,7 +24,7 @@ public interface ColdChainGatewayService {
      * @param unloadDto
      * @return
      */
-    JdVerifyResponse<Boolean> addUpload(ColdChainUnloadDto unloadDto);
+    JdCResponse<Boolean> addUpload(ColdChainUnloadDto unloadDto);
 
     /**
      * 查询卸货任务
@@ -32,21 +32,21 @@ public interface ColdChainGatewayService {
      * @param request
      * @return
      */
-    JdVerifyResponse<List<ColdChainUnloadQueryResultDto>> queryUnload(ColdChainQueryUnloadTaskRequest request);
+    JdCResponse<List<ColdChainUnloadQueryResultDto>> queryUnload(ColdChainQueryUnloadTaskRequest request);
 
     /**
      *
      * @param request
      * @return
      */
-    JdVerifyResponse<Boolean> unloadComplete(ColdChainUnloadCompleteRequest request);
+    JdCResponse<Boolean> unloadComplete(ColdChainUnloadCompleteRequest request);
 
     /**
      *
      * @param args
      * @return
      */
-    JdVerifyResponse<List<VehicleTypeDict>> getVehicleModelList(String args);
+    JdCResponse<List<VehicleTypeDict>> getVehicleModelList(String args);
 
     /**
      *
@@ -54,6 +54,6 @@ public interface ColdChainGatewayService {
      * @param request
      * @return
      */
-    JdVerifyResponse inAndOutBound(ColdChainInAndOutBoundRequest request);
+    JdCResponse inAndOutBound(ColdChainInAndOutBoundRequest request);
 
 }

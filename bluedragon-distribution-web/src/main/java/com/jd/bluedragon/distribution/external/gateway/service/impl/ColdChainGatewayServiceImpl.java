@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
-import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.ColdChainOperationResponse;
 import com.jd.bluedragon.distribution.coldchain.dto.ColdChainInAndOutBoundRequest;
@@ -33,8 +33,8 @@ public class ColdChainGatewayServiceImpl implements ColdChainGatewayService {
      * @return
      */
     @Override
-    public JdVerifyResponse<Boolean> addUpload(ColdChainUnloadDto unloadDto) {
-        JdVerifyResponse<Boolean> response = new JdVerifyResponse<>();
+    public JdCResponse<Boolean> addUpload(ColdChainUnloadDto unloadDto) {
+        JdCResponse<Boolean> response = new JdCResponse<>();
 
         if (unloadDto == null) {
             response.toError("请求参数为null");
@@ -54,7 +54,7 @@ public class ColdChainGatewayServiceImpl implements ColdChainGatewayService {
         request.setTemp(unloadDto.getTemp());
         ColdChainOperationResponse<Boolean> operationResponse = coldChainOperationResource.addUpload(request);
         if (JdResponse.CODE_OK.equals(operationResponse.getCode())) {
-            response.toSuccess();
+            response.toSucceed();
             response.setData(operationResponse.getData());
         } else {
             response.toError(operationResponse.getMessage());
@@ -69,8 +69,8 @@ public class ColdChainGatewayServiceImpl implements ColdChainGatewayService {
      * @return
      */
     @Override
-    public JdVerifyResponse<List<ColdChainUnloadQueryResultDto>> queryUnload(ColdChainQueryUnloadTaskRequest taskRequest) {
-        JdVerifyResponse<List<ColdChainUnloadQueryResultDto>> response = new JdVerifyResponse<>();
+    public JdCResponse<List<ColdChainUnloadQueryResultDto>> queryUnload(ColdChainQueryUnloadTaskRequest taskRequest) {
+        JdCResponse<List<ColdChainUnloadQueryResultDto>> response = new JdCResponse<>();
 
         if (taskRequest == null) {
             response.toError("请求参数为null");
@@ -84,7 +84,7 @@ public class ColdChainGatewayServiceImpl implements ColdChainGatewayService {
         request.setVehicleNo(taskRequest.getVehicleNo());
         ColdChainOperationResponse<List<ColdChainUnloadQueryResultDto>> operationResponse = coldChainOperationResource.queryUnload(request);
         if (JdResponse.CODE_OK.equals(operationResponse.getCode())) {
-            response.toSuccess();
+            response.toSucceed();
             response.setData(operationResponse.getData());
         } else {
             response.toError(operationResponse.getMessage());
@@ -100,8 +100,8 @@ public class ColdChainGatewayServiceImpl implements ColdChainGatewayService {
      * @return
      */
     @Override
-    public JdVerifyResponse<Boolean> unloadComplete(ColdChainUnloadCompleteRequest completeRequest) {
-        JdVerifyResponse<Boolean> response = new JdVerifyResponse<>();
+    public JdCResponse<Boolean> unloadComplete(ColdChainUnloadCompleteRequest completeRequest) {
+        JdCResponse<Boolean> response = new JdCResponse<>();
 
         if (completeRequest == null) {
             response.toError("请求参数为null");
@@ -113,7 +113,7 @@ public class ColdChainGatewayServiceImpl implements ColdChainGatewayService {
         request.setTaskNo(completeRequest.getTaskNo());
         ColdChainOperationResponse<Boolean> operationResponse = coldChainOperationResource.unloadComplete(request);
         if (JdResponse.CODE_OK.equals(operationResponse.getCode())) {
-            response.toSuccess();
+            response.toSucceed();
             response.setData(operationResponse.getData());
         } else {
             response.toError(operationResponse.getMessage());
@@ -128,11 +128,11 @@ public class ColdChainGatewayServiceImpl implements ColdChainGatewayService {
      * @return
      */
     @Override
-    public JdVerifyResponse<List<VehicleTypeDict>> getVehicleModelList(String args) {
-        JdVerifyResponse<List<VehicleTypeDict>> response = new JdVerifyResponse<>();
+    public JdCResponse<List<VehicleTypeDict>> getVehicleModelList(String args) {
+        JdCResponse<List<VehicleTypeDict>> response = new JdCResponse<>();
         ColdChainOperationResponse<List<VehicleTypeDict>> modelListResponse = coldChainOperationResource.getVehicleModelList();
         if (JdResponse.CODE_OK.equals(modelListResponse.getCode())) {
-            response.toSuccess();
+            response.toSucceed();
             response.setData(modelListResponse.getData());
         } else {
             response.toError(modelListResponse.getMessage());
@@ -147,8 +147,8 @@ public class ColdChainGatewayServiceImpl implements ColdChainGatewayService {
      * @return
      */
     @Override
-    public JdVerifyResponse inAndOutBound(ColdChainInAndOutBoundRequest inAndOutBoundRequest) {
-        JdVerifyResponse<Boolean> response = new JdVerifyResponse<>();
+    public JdCResponse inAndOutBound(ColdChainInAndOutBoundRequest inAndOutBoundRequest) {
+        JdCResponse<Boolean> response = new JdCResponse<>();
         if (inAndOutBoundRequest == null) {
             response.toError("请求参数为null");
             return response;
@@ -165,7 +165,7 @@ public class ColdChainGatewayServiceImpl implements ColdChainGatewayService {
         request.setOperateType(inAndOutBoundRequest.getOperateType());
         ColdChainOperationResponse operationResponse = coldChainOperationResource.inAndOutBound(request);
         if (JdResponse.CODE_OK.equals(operationResponse.getCode())) {
-            response.toSuccess();
+            response.toSucceed();
         } else {
             response.toError(operationResponse.getMessage());
         }
