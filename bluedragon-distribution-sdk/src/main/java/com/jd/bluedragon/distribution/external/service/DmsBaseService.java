@@ -15,12 +15,19 @@ import java.util.List;
 public interface DmsBaseService {
 
     /**
-     * 登录验证(安卓PDA)
+     * 旧登录验证接口(安卓PDA)
      *
      * @param request
      * @return
      */
     BaseResponse login(LoginRequest request);
+    /**
+     * 客户端登录获取登录信息接口(安卓PDA)
+     *
+     * @param request
+     * @return
+     */
+    LoginUserResponse clientLogin(LoginRequest request);
     /**
      * web页面，cookies自动登录后，调用该接口获取用户登录信息
      * @param request
