@@ -23,6 +23,12 @@ public class AsynBufferTaskManager implements ApplicationListener{
 	
 	private DynamicJmqComsumer dynamicJmqComsumer;
 	
+	public AsynBufferTaskManager(){
+		logger.info("AsynBufferTask build...");
+	}
+	public void init(){
+		logger.info("AsynBufferTask init...");
+	}
 	@Override
 	public void onApplicationEvent(ApplicationEvent event) {
 		try {

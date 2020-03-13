@@ -31,7 +31,8 @@
         </property>
         <property name="ownSign" value="${ownSign}"/>
     </bean>
-    <bean id="asynBufferTaskManager" class="com.jd.bluedragon.distribution.asynbuffer.AsynBufferTaskManager">
+    <bean id="asynBufferTaskManager" class="com.jd.bluedragon.distribution.asynbuffer.AsynBufferTaskManager"
+    	init-method="init">
     	<property name="dynamicJmqComsumer" ref="dynamicJmqComsumer"></property>
     </bean>
 </beans>
