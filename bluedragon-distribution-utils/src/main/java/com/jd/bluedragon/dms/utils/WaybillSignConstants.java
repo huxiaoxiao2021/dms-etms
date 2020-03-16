@@ -35,6 +35,8 @@ public interface WaybillSignConstants {
 	int POSITION_40 = 40;
 	char CHAR_40_2='2';
 	char CHAR_40_3='3';
+	char CHAR_40_6='6';
+	char CHAR_40_7='7';
 	/**
 	 * B与C转网模式说明: 0：未转网
 		1：C转B
@@ -63,6 +65,10 @@ public interface WaybillSignConstants {
 	 * TC标识
 	 */
 	int POSITION_89 = 89;
+	/**
+	 *
+	 */
+	char CHAR_89_0 = '0';
 	/**
 	 * TC-1
 	 */

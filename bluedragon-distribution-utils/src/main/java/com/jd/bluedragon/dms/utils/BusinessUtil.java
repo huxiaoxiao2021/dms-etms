@@ -865,13 +865,21 @@ public class BusinessUtil {
     }
     /**
      * 判断是否TC，waybillSign第89位为1和2
-     *
+     * 或者（89位为0且40位等于6或7）--新增 2020-3-15 23:29:42
      * @param waybillSign
      * @return
      */
     public static boolean isTc(String waybillSign) {
-    	return isSignInChars(waybillSign,WaybillSignConstants.POSITION_89,
-    			WaybillSignConstants.CHAR_89_1,WaybillSignConstants.CHAR_89_2);
+        if (isSignInChars(waybillSign,WaybillSignConstants.POSITION_89,
+                WaybillSignConstants.CHAR_89_1,WaybillSignConstants.CHAR_89_2)) {
+            return Boolean.TRUE;
+        }
+        if (isSignChar(waybillSign,WaybillSignConstants.POSITION_89,WaybillSignConstants.CHAR_89_0)
+                && isSignInChars(waybillSign,WaybillSignConstants.POSITION_40,WaybillSignConstants.CHAR_40_6,WaybillSignConstants.CHAR_40_7)) {
+            return Boolean.TRUE;
+        }
+
+    	return Boolean.FALSE;
     }
 
     /**
