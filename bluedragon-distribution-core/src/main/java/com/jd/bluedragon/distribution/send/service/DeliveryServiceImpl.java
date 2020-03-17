@@ -1939,6 +1939,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
             // 改变箱子状态为分拣
         } catch (Exception e) {
+            log.error("取消发货时异常", e);
             return new ThreeDeliveryResponse(
                     DeliveryResponse.CODE_Delivery_ERROR,
                     DeliveryResponse.MESSAGE_Delivery_ERROR, null);

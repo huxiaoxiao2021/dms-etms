@@ -68,4 +68,24 @@ public class SendDetailServiceImpl implements SendDetailService {
     public Integer querySendDCountBySendCode(String sendCode) {
         return sendDatailDao.querySendDCountBySendCode(sendCode);
     }
+
+    /**
+     * 根据批次号查询 包裹号
+     * @param params
+     * @return
+     */
+    @Override
+    public List<String> queryPackageCodeBySendCode(SendDetailDto params){
+        return sendDatailDao.queryPackageCodeBySendCode(params);
+    }
+
+    /**
+     * 根据箱号号查询 包裹号
+     * @param params
+     * @return
+     */
+    @Override
+    public List<String> queryPackageCodeByboxCode(SendDetailDto params){
+        return sendDatailDao.queryPackageCodeByboxCode(params);
+    }
 }

@@ -419,4 +419,9 @@
     <bean id="boxInOutProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.box.inOut}"/>
     </bean>
+
+    <!-- 滞留上报消息 -->
+    <bean id="strandReportProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.strand.report}"/>
+    </bean>
 </beans>
