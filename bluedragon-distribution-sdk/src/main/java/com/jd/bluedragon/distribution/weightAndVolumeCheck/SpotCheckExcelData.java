@@ -3,12 +3,10 @@ package com.jd.bluedragon.distribution.weightAndVolumeCheck;
 import com.jd.ql.dms.common.web.mvc.api.DbEntity;
 
 /**
- * @ClassName: SpotCheckInfo
- * @Description: 类描述信息
- * @author: hujiping
- * @date: 2019/4/23 11:17
+ * @author lijie
+ * @date 2020/3/9 20:13
  */
-public class SpotCheckInfo extends DbEntity {
+public class SpotCheckExcelData extends DbEntity {
 
     private static final long serialVersionUID = 1L;
 
@@ -19,7 +17,7 @@ public class SpotCheckInfo extends DbEntity {
     /** 机构名称 */
     private String siteName;
     /** 业务类型 */
-    private Integer spotCheckType;
+    private String spotCheckType;
     /** 普通应抽查包裹数 */
     private Integer normalPackageNum;
     /** 信任商家应抽查包裹数 */
@@ -51,11 +49,11 @@ public class SpotCheckInfo extends DbEntity {
         this.siteName = siteName;
     }
 
-    public Integer getSpotCheckType() {
+    public String getSpotCheckType() {
         return spotCheckType;
     }
 
-    public void setSpotCheckType(Integer spotCheckType) {
+    public void setSpotCheckType(String spotCheckType) {
         this.spotCheckType = spotCheckType;
     }
 

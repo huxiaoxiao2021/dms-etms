@@ -50,6 +50,8 @@ public class ReviewWeightSpotCheck extends DbEntity {
     private String trustCheckRateOfDiff;
     /** 总抽查率 */
     private String totalCheckRate;
+    /** 业务类型 */
+    private Integer spotCheckType;
 
     @Override
     public Long getId() {
@@ -187,5 +189,13 @@ public class ReviewWeightSpotCheck extends DbEntity {
 
     public void setTotalCheckRate(String totalCheckRate) {
         this.totalCheckRate = totalCheckRate;
+    }
+
+    public Integer getSpotCheckType() {
+        return spotCheckType;
+    }
+
+    public void setSpotCheckType(Integer spotCheckType) {
+        this.spotCheckType = spotCheckType;
     }
 }
