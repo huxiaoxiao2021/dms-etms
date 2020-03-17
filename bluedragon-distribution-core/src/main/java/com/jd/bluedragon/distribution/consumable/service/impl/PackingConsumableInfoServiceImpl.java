@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.packingconsumable.domain.PackingConsumable
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -13,7 +14,9 @@ import com.jd.bluedragon.distribution.consumable.domain.PackingConsumableInfo;
 import com.jd.bluedragon.distribution.consumable.dao.PackingConsumableInfoDao;
 import com.jd.bluedragon.distribution.consumable.service.PackingConsumableInfoService;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -63,4 +66,12 @@ public class PackingConsumableInfoServiceImpl extends BaseService<PackingConsuma
 	public PackingConsumableBaseInfo getPackingConsumableInfoByCode(String code) {
 		return packingConsumableInfoDao.getPackingConsumableInfoByCode(code);
 	}
+
+    @Override
+    public List<PackingConsumableInfo> listPackingConsumableInfoByCodes(List<String> codes) {
+	    if (!CollectionUtils.isEmpty(codes)) {
+	        return packingConsumableInfoDao.listPackingConsumableInfoByCodes(codes);
+        }
+        return new ArrayList<>();
+    }
 }

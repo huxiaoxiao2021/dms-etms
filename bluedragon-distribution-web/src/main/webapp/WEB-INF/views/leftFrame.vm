@@ -66,7 +66,7 @@
         <dd><a href="http://erp.ql.jd.com/transport/detailPartDeliver" target="mainFrame">明细部分签收操作</a></dd>
         <dd><a href="http://erp.ql.jd.com/transport/detailPartDeliverPackage" target="mainFrame">修改包裹数</a></dd>
         <dd><a href="#springUrl('/consumable/waybillConsumableRecord/toIndex')" target="mainFrame">B网包装耗材</a></dd>
-        <dd><a href="#springUrl('/consumable/packingConsumableInfo/toIndex')" target="mainFrame">包装耗材基础信息管理</a></dd>
+        <dd><a href="#springUrl('/consumable/packingConsumableInfo/toIndex')" target="mainFrame">包装物资基础信息管理</a></dd>
         <dd><a href="#springUrl('/consumable/dmsConsumableRelation/toIndex')" target="mainFrame">快运中心包装耗材管理</a></dd>
         <dd><a href="#springUrl('/storage/storagePackageM/toIndex')" target="mainFrame">暂存管理</a></dd>
         <dd><a href="#springUrl('/jinpeng/performance/toIndex')" target="mainFrame">加履交接单打印</a></dd>

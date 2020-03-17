@@ -1,9 +1,14 @@
 package com.jd.bluedragon.distribution.material.domain;
 
+import com.jd.bluedragon.distribution.api.request.material.warmbox.MaterialBatchSendRequest;
+import com.jd.bluedragon.distribution.material.enums.MaterialSendTypeEnum;
 import com.jd.ql.dms.common.web.mvc.api.DbEntity;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class DmsMaterialSend extends DbEntity implements Serializable {
 

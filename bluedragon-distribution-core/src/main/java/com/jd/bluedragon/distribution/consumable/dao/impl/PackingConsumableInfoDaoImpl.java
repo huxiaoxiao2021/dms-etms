@@ -7,6 +7,10 @@ import com.jd.bluedragon.distribution.consumable.domain.PackingConsumableInfo;
 import com.jd.bluedragon.distribution.consumable.dao.PackingConsumableInfoDao;
 import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  *
  * @ClassName: PackingConsumableInfoDaoImpl
@@ -22,5 +26,12 @@ public class PackingConsumableInfoDaoImpl extends BaseDao<PackingConsumableInfo>
     @Override
     public PackingConsumableBaseInfo getPackingConsumableInfoByCode(String code) {
         return this.getSqlSession().selectOne(this.getNameSpace() + ".getPackingConsumableInfoByCode", code);
+    }
+
+    @Override
+    public List<PackingConsumableInfo> listPackingConsumableInfoByCodes(List<String> codes) {
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("list", codes);
+        return this.getSqlSession().selectList(this.getNameSpace() + ".listPackingConsumableInfoByCodes", paramMap);
     }
 }

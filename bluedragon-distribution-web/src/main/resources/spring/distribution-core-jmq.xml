@@ -421,4 +421,15 @@
     <bean id="boxInOutProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.box.inOut}"/>
     </bean>
+
+    <!-- 物资按批次发货消息 -->
+    <bean id="materialSendMQProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.material.send}" />
+    </bean>
+
+    <!-- 物资取消按批次发货消息 -->
+    <bean id="cancelMaterialSendMQProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.cancel.material.send}" />
+    </bean>
+
 </beans>

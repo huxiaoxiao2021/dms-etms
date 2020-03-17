@@ -77,7 +77,7 @@ $(function() {
 			},
 			{
 				field: 'code',
-				title: '耗材编号'
+				title: '编号'
 			},
 			{
 				field: 'type',
@@ -86,15 +86,19 @@ $(function() {
 			},
 			{
 				field: 'typeName',
-				title: '耗材类型'
+				title: '类型'
 			},
 			{
 				field: 'name',
-				title: '耗材名称'
+				title: '名称'
 			},
 			{
 				field: 'volume',
 				title: '体积（立方厘米）'
+			},
+			{
+				field: 'weight',
+				title: '重量（公斤）'
 			},
 			{
 				field: 'volumeCoefficient',

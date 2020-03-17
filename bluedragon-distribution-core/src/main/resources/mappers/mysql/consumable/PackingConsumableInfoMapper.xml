@@ -19,6 +19,7 @@
 		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
 		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="weight" property="weight" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
 	</resultMap>
 
 	<resultMap id="PackingConsumableBaseInfo" type="com.jd.bluedragon.distribution.packingconsumable.domain.PackingConsumableBaseInfo" >
@@ -33,7 +34,7 @@
 	</resultMap>
 
 	<sql id="Base_Column_List" >
-		id,code,name,type,type_name,volume,volume_coefficient,
+		id,code,name,type,type_name,volume,volume_coefficient,weight,
 		specification,unit,operate_user_code,operate_user_erp,operate_time,
 		create_time,update_time,is_delete,ts
 	</sql>
@@ -284,4 +285,16 @@
 		from packing_consumable_info
 		where code = #{code, jdbcType=VARCHAR} and is_delete = 0 limit 1
 	</select>
+
+    <select id="listPackingConsumableInfoByCodes" parameterType="java.util.List" resultMap="PackingConsumableInfo">
+        SELECT
+            code,name,type,type_name,volume,volume_coefficient,weight
+        FROM packing_consumable_info
+        WHERE
+            code IN
+            <foreach collection="list" item="item" separator="," open="(" close=")">
+                #{item, jdbcType=VARCHAR}
+            </foreach>
+            AND is_delete = 0
+    </select>
 </mapper>

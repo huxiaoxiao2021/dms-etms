@@ -36,7 +36,7 @@ import java.util.List;
 
 /**
  * @ClassName WarmBoxInOutResource
- * @Description
+ * @Description 保温箱相关Rest接口
  * @Author wyh
  * @Date 2020/2/26 15:17
  **/
@@ -129,12 +129,14 @@ public class WarmBoxInOutResource {
                 materialReceives.add(this.createMaterialReceiveFromRequest(warmBoxCode, receiveCode, baseStaffSiteOrgDto, request));
             }
 
+            long startTime = System.currentTimeMillis();
             JdResult<Boolean> ret = materialOperationService.saveMaterialReceive(materialReceives);
+            long endTime = System.currentTimeMillis();
             response.setCode(ret.getCode());
             response.setMessage(ret.getMessage());
 
             if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("保温箱入库结果. data:[{}], resp:[{}]", JsonHelper.toJson(materialReceives), JsonHelper.toJson(response));
+                LOGGER.info("保温箱入库结果. time:[{}], resp:[{}]", endTime - startTime, JsonHelper.toJson(response));
             }
         }
         catch (Exception ex) {
@@ -167,12 +169,14 @@ public class WarmBoxInOutResource {
             for (String warmBoxCode : request.getWarmBoxCodes()) {
                 materialSends.add(this.createMaterialSendFromRequest(warmBoxCode, sendCode, baseStaffSiteOrgDto, request));
             }
+            long startTime = System.currentTimeMillis();
             JdResult<Boolean> ret = materialOperationService.saveMaterialSend(materialSends);
+            long endTime = System.currentTimeMillis();
             response.setCode(ret.getCode());
             response.setMessage(ret.getMessage());
 
             if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("保温箱出库结果. data:[{}], resp:[{}]", JsonHelper.toJson(materialSends), JsonHelper.toJson(response));
+                LOGGER.info("保温箱出库结果. time:[{}], resp:[{}]", endTime - startTime, JsonHelper.toJson(response));
             }
         }
         catch (Exception ex) {

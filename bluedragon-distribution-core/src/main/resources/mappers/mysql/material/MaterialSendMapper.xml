@@ -148,4 +148,25 @@
         ORDER BY material_code DESC, update_time DESC
         LIMIT #{offset,jdbcType=INTEGER}, #{limit,jdbcType=INTEGER}
     </select>
+
+    <update id="logicalDeleteBatchSendBySendCode">
+        UPDATE dms_material_send
+        SET yn = 0
+        WHERE
+            yn = 1
+          AND send_code = #{sendCode,jdbcType=VARCHAR}
+          AND send_type = 3
+          AND create_site_code = #{createSiteCode,jdbcType=BIGINT}
+    </update>
+
+    <select id="listBySendCode" resultMap="BaseResultMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM
+            dms_material_send
+        WHERE
+            yn = 1
+        AND send_code = #{sendCode,jdbcType=VARCHAR}
+        AND create_site_code = #{createSiteCode,jdbcType=BIGINT}
+    </select>
 </mapper>
