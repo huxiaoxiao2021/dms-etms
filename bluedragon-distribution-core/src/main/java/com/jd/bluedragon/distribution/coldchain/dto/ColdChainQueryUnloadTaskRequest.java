@@ -1,5 +1,11 @@
 package com.jd.bluedragon.distribution.coldchain.dto;
 
+/**
+ * @author lixin39
+ * @Description 冷链卸货任务查询条件
+ * @ClassName ColdChainUnloadQueryResultDto
+ * @date 2020/3/4
+ */
 public class ColdChainQueryUnloadTaskRequest {
     /**
      * 分拣中心ID
@@ -12,7 +18,7 @@ public class ColdChainQueryUnloadTaskRequest {
     private String queryDays;
 
     /**
-     * 状态（未完成 0、已完成 1、全部 2 ）
+     * 状态（0-全部，1-卸货中，2-卸货完成
      */
     private int state;
 

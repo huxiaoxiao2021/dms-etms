@@ -780,6 +780,26 @@ public class BusinessUtil {
     }
 
     /**
+     * 判断是否是冷链卡班
+     */
+    public static Boolean isColdChainKBWaybill(String waybillSign) {
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_80, WaybillSignConstants.CHAR_80_7)
+                && isSignChar(waybillSign, WaybillSignConstants.POSITION_54, WaybillSignConstants.CHAR_54_2);
+    }
+
+    /**
+     * 判断是否为冷链城配
+     *
+     * @return
+     */
+    public static Boolean isColdChainCityDeliveryWaybill(String waybillSign) {
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_80, WaybillSignConstants.CHAR_80_6)
+                && isSignChar(waybillSign, WaybillSignConstants.POSITION_54, WaybillSignConstants.CHAR_54_2)
+                && (isSignChar(waybillSign, WaybillSignConstants.POSITION_118, WaybillSignConstants.CHAR_118_0)
+                || isSignChar(waybillSign, WaybillSignConstants.POSITION_118, WaybillSignConstants.CHAR_118_1));
+    }
+
+    /**
      * 判断是否是京仓运单
      * @param waybillSign
      * @return

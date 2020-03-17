@@ -77,6 +77,14 @@ public interface WaybillSignConstants {
 	 */
 	int POSITION_80 = 80;
 	char CHAR_80_7 = '7';
+	char CHAR_80_6 = '6';
+
+	/**
+	 * 城配共配模式
+	 */
+	int POSITION_118 = 118;
+	char CHAR_118_1 = '1';
+	char CHAR_118_0 = '0';
 
 	/**
 	 * B网冷链

@@ -1,10 +1,11 @@
 package com.jd.bluedragon.distribution.coldchain.service;
 
+import com.jd.bluedragon.distribution.api.response.ColdChainOperationResponse;
 import com.jd.bluedragon.distribution.coldchain.dto.ColdChainInAndOutBoundRequest;
 import com.jd.bluedragon.distribution.coldchain.dto.ColdChainQueryUnloadTaskRequest;
 import com.jd.bluedragon.distribution.coldchain.dto.ColdChainUnloadDto;
+import com.jd.bluedragon.distribution.coldchain.dto.ColdChainUnloadQueryResultDto;
 import com.jd.bluedragon.distribution.coldchain.dto.VehicleTypeDict;
-import com.jd.ccmp.ctm.dto.QueryUnloadDto;
 import com.jd.jmq.common.exception.JMQException;
 
 import java.util.List;
@@ -25,7 +26,7 @@ public interface ColdChainOperationService {
      * @param request
      * @return
      */
-    List<QueryUnloadDto> queryUnloadTask(ColdChainQueryUnloadTaskRequest request);
+    List<ColdChainUnloadQueryResultDto> queryUnloadTask(ColdChainQueryUnloadTaskRequest request);
 
     /**
      * 卸货完成
@@ -36,20 +37,20 @@ public interface ColdChainOperationService {
      */
     boolean unloadTaskComplete(String taskNo, String operateErp);
 
-
     /**
      * 出入库操作
      *
      * @param request
      * @return
+     * @throws JMQException
      */
-    boolean inAndOutBound(ColdChainInAndOutBoundRequest request) throws JMQException;
+    ColdChainOperationResponse inAndOutBound(ColdChainInAndOutBoundRequest request) throws JMQException;
 
     /**
      * 获取冷链车型信息
      *
      * @return
      */
-    List<VehicleTypeDict> getVehicleTypeByType();
+    List<VehicleTypeDict> getVehicleModelList();
 
 }

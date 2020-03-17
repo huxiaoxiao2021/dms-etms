@@ -1,12 +1,20 @@
 package com.jd.bluedragon.distribution.coldchain.service;
 
 import com.alibaba.fastjson.JSON;
-import com.esotericsoftware.minlog.Log;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BasicQueryWSManager;
 import com.jd.bluedragon.core.base.ColdChainOptimizeManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
-import com.jd.bluedragon.distribution.coldchain.dto.*;
+import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.response.ColdChainOperationResponse;
+import com.jd.bluedragon.distribution.coldchain.dto.CCInAndOutBoundMessage;
+import com.jd.bluedragon.distribution.coldchain.dto.ColdChainInAndOutBoundRequest;
+import com.jd.bluedragon.distribution.coldchain.dto.ColdChainOperateTypeEnum;
+import com.jd.bluedragon.distribution.coldchain.dto.ColdChainQueryUnloadTaskRequest;
+import com.jd.bluedragon.distribution.coldchain.dto.ColdChainUnloadDto;
+import com.jd.bluedragon.distribution.coldchain.dto.ColdChainUnloadQueryResultDto;
+import com.jd.bluedragon.distribution.coldchain.dto.VehicleTypeDict;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -18,10 +26,12 @@ import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
 import com.jd.tms.basic.dto.BasicDictDto;
+import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -72,11 +82,72 @@ public class ColdChainOperationServiceImpl implements ColdChainOperationService 
      * @return
      */
     @Override
-    public List<QueryUnloadDto> queryUnloadTask(ColdChainQueryUnloadTaskRequest request) {
+    public List<ColdChainUnloadQueryResultDto> queryUnloadTask(ColdChainQueryUnloadTaskRequest request) {
         if (request != null) {
-            return coldChainOptimizeManager.queryUnloadTask(request);
+            List<QueryUnloadDto> result = coldChainOptimizeManager.queryUnloadTask(request);
+            return this.assembleResultDto(result);
         }
         return Collections.emptyList();
+    }
+
+    private List<ColdChainUnloadQueryResultDto> assembleResultDto(List<QueryUnloadDto> unloadDtoList) {
+        if (unloadDtoList == null || unloadDtoList.size() == 0) {
+            return Collections.emptyList();
+        }
+        List<ColdChainUnloadQueryResultDto> resultList = new ArrayList<>(unloadDtoList.size());
+        for (QueryUnloadDto dto : unloadDtoList) {
+            ColdChainUnloadQueryResultDto resultDto = new ColdChainUnloadQueryResultDto();
+            resultDto.setTaskNo(dto.getTaskNo());
+            resultDto.setUnloadTime(dto.getUnloadTime());
+            resultDto.setVehicleNo(dto.getVehicleNo());
+            resultDto.setVehicleModelName(dto.getVehicleModelName());
+            resultDto.setRemainingTime(this.remainingTimeToView(dto.getRemainingTime()));
+            resultList.add(resultDto);
+        }
+        return resultList;
+    }
+
+    /**
+     * 剩余时间显示转换
+     *
+     * @param remainingTime
+     * @return
+     */
+    private String remainingTimeToView(String remainingTime) {
+        if (StringUtils.isBlank(remainingTime)) {
+            return remainingTime;
+        }
+
+        // 未超时
+        if (!remainingTime.startsWith(Constants.NEGATIVE_SIGN)) {
+            return remainingTime;
+        }
+
+        String time = remainingTime.substring(1);
+        String[] timeArray = time.split(":");
+        if (timeArray.length == 1) {
+            return "超时" + timeArray[0] + "小时";
+        } else if (timeArray.length > 1) {
+            if (!NumberUtils.isNumber(timeArray[0]) || !NumberUtils.isNumber(timeArray[1])) {
+                return remainingTime;
+            }
+            float hour = Float.parseFloat(timeArray[0]);
+            float minute = Float.parseFloat(timeArray[1]);
+            if (minute == 0) {
+                return "超时" + timeArray[0] + "小时";
+            }
+
+            float minuteFloat = new BigDecimal(minute / 60).setScale(1, BigDecimal.ROUND_HALF_UP).floatValue();
+            if (minuteFloat == 0) {
+                return "超时" + timeArray[0] + "小时";
+            }
+
+            float viewNum = hour + minuteFloat;
+            //四舍五入
+            return "超时" + viewNum + "小时";
+        } else {
+            return remainingTime;
+        }
     }
 
     /**
@@ -95,26 +166,37 @@ public class ColdChainOperationServiceImpl implements ColdChainOperationService 
     }
 
     @Override
-    public boolean inAndOutBound(ColdChainInAndOutBoundRequest request) throws JMQException {
-        if (request == null) {
-            return false;
-        }
+    public ColdChainOperationResponse inAndOutBound(ColdChainInAndOutBoundRequest request) throws JMQException {
+        ColdChainOperationResponse response = new ColdChainOperationResponse();
+        response.setCode(JdResponse.CODE_OK);
+        response.setMessage(JdResponse.MESSAGE_OK);
 
         String barCode = request.getBarCode();
-
         List<Message> messages = null;
         if (WaybillUtil.isPackageCode(barCode)) {
             messages = this.buildMessageByPackageCode(request);
         } else if (WaybillUtil.isWaybillCode(barCode)) {
-            messages = this.buildMessageByWaybillCode(request);
+            List<String> packageCodeList = this.getPackageCodeListByWaybillCode(barCode);
+            if (packageCodeList != null && packageCodeList.size() > 0) {
+                messages = this.buildMessageByWaybillCode(request, packageCodeList);
+            } else {
+                response.setCode(JdResponse.CODE_PARAM_ERROR);
+                response.setMessage("无效运单号或该运单下无包裹");
+            }
         } else if (BusinessUtil.isBoxcode(barCode)) {
-            messages = this.buildMessageByBoxCode(request);
+            List<String> packageCodeList = sortingService.getPackageCodeListByBoxCode(barCode);
+            if (packageCodeList != null && packageCodeList.size() > 0) {
+                messages = this.buildMessageByBoxCode(request, packageCodeList);
+            } else {
+                response.setCode(JdResponse.CODE_PARAM_ERROR);
+                response.setMessage("无效箱号或为空箱");
+            }
         } else {
-            Log.warn("无法识别的条码");
-            return false;
+            response.setCode(JdResponse.CODE_PARAM_ERROR);
+            response.setMessage("无法识别的条码");
         }
         ccInAndOutBoundProducer.batchSend(messages);
-        return true;
+        return response;
     }
 
     private List<Message> buildMessageByPackageCode(ColdChainInAndOutBoundRequest request) {
@@ -141,9 +223,8 @@ public class ColdChainOperationServiceImpl implements ColdChainOperationService 
         return messageList;
     }
 
-    private List<Message> buildMessageByWaybillCode(ColdChainInAndOutBoundRequest request) {
+    private List<Message> buildMessageByWaybillCode(ColdChainInAndOutBoundRequest request, List<String> packageCodeList) {
         String waybillCode = request.getBarCode();
-        List<String> packageCodeList = this.getPackageCodeListByWaybillCode(waybillCode);
         CCInAndOutBoundMessage body = new CCInAndOutBoundMessage();
         body.setWaybillNo(waybillCode);
         body.setOrgId(String.valueOf(request.getOrgId()));
@@ -194,9 +275,7 @@ public class ColdChainOperationServiceImpl implements ColdChainOperationService 
         return resultList;
     }
 
-    private List<Message> buildMessageByBoxCode(ColdChainInAndOutBoundRequest request) {
-        String boxCode = request.getBarCode();
-        List<String> packageCodeList = sortingService.getPackageCodeListByBoxCode(boxCode);
+    private List<Message> buildMessageByBoxCode(ColdChainInAndOutBoundRequest request, List<String> packageCodeList) {
         CCInAndOutBoundMessage body = new CCInAndOutBoundMessage();
         body.setOrgId(String.valueOf(request.getOrgId()));
         body.setOrgName(request.getOrgName());
@@ -222,9 +301,8 @@ public class ColdChainOperationServiceImpl implements ColdChainOperationService 
         return messageList;
     }
 
-
     @Override
-    public List<VehicleTypeDict> getVehicleTypeByType() {
+    public List<VehicleTypeDict> getVehicleModelList() {
         // type 所有：0 ，冷链：1 ，非冷链：2
         List<BasicDictDto> basicDictDtoList = basicQueryWSManager.getVehicleTypeByType(null, 1);
         return this.convert(basicDictDtoList);

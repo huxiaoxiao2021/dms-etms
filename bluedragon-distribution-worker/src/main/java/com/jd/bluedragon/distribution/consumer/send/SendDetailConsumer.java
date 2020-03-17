@@ -373,7 +373,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
      * @throws JMQException
      */
     private void pushColdChainOperateMQ(SendDetailMessage sendDetail, String waybillSign) throws JMQException {
-        if (!BusinessUtil.isColdChainWaybill(waybillSign)) {
+        if (!(BusinessUtil.isColdChainKBWaybill(waybillSign) || BusinessUtil.isColdChainCityDeliveryWaybill(waybillSign))) {
             return ;
         }
 
