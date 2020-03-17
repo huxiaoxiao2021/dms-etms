@@ -43,13 +43,4 @@ public class Md5Helper {
     		return new byte[]{};
 		}
  	}
-    public static void main(String[] args) throws NoSuchAlgorithmException, UnsupportedEncodingException{
-    	String tmp1 = encode("wms");
-    	System.err.println(tmp1);
-    	System.err.println(new String(
-    			MessageDigest.getInstance("md5").digest
-				("wms".getBytes("UTF-8")),"UTF-8"));
-    	String tmp2 = encode(tmp1+"wms-packagePrint");
-    	System.err.println(tmp2);
-    }
 }

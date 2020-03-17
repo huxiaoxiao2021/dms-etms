@@ -85,7 +85,7 @@ public abstract class RedisSingleScheduler extends
 		if(initFinished && isActive){//初始化成功, 查询redis 
 			return super.selectTasks(ownSign, taskQueueNum, taskQueueList, eachFetchDataNum);
 		}else{
-			log.warn("任务[{}-{}]未准备就绪，本次不抓取任务数据！", this.taskType, this.ownSign);
+			log.warn("任务[{}-{}]未准备就绪或已停止，本次不抓取任务数据！", this.taskType, this.ownSign);
 			return new ArrayList<TaskEntry<Task>>();
 		}
 	}

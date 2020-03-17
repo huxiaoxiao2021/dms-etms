@@ -48,6 +48,7 @@ public class DmsRestFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String requestURI = request.getRequestURI();
+        org.apache.velocity.tools.view.context.ChainedContext a;
         //目前只拦截分拣、发货、验货三个主要流程
         int count = 0;
         for(String restUrl : restUrlList){

@@ -22,9 +22,12 @@ public class AsynBufferTaskManager implements ApplicationListener{
 	private static final Logger logger = LoggerFactory.getLogger(AsynBufferTaskManager.class);
 	
 	private DynamicJmqComsumer dynamicJmqComsumer;
-	
+	/**
+	 * 标识任务是否有效
+	 */
+	private boolean isActive = false;
+
 	public AsynBufferTaskManager(){
-		logger.info("AsynBufferTask build...");
 	}
 	public void init(){
 		logger.info("AsynBufferTask init...");
@@ -36,6 +39,7 @@ public class AsynBufferTaskManager implements ApplicationListener{
 			if (event instanceof ContextRefreshedEvent) {
 				logger.warn("AsynBufferTask start...");
 				dynamicJmqComsumer.start();
+				this.isActive = true;
 				logger.warn("AsynBufferTask start end!");
 			}
 		} catch (Exception e) {
@@ -46,6 +50,7 @@ public class AsynBufferTaskManager implements ApplicationListener{
 			if (event instanceof ContextClosedEvent) {
 				logger.warn("AsynBufferTask stop...");
 				dynamicJmqComsumer.stop();
+				this.isActive = false;
 				logger.warn("AsynBufferTask stop end!");
 			}
 		} catch (Exception e) {
@@ -64,5 +69,11 @@ public class AsynBufferTaskManager implements ApplicationListener{
 	 */
 	public void setDynamicJmqComsumer(DynamicJmqComsumer dynamicJmqComsumer) {
 		this.dynamicJmqComsumer = dynamicJmqComsumer;
+	}
+	/**
+	 * @return the isActive
+	 */
+	public boolean isActive() {
+		return isActive;
 	}
 }

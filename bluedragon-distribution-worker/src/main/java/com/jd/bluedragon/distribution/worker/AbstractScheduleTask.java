@@ -24,7 +24,7 @@ public abstract class AbstractScheduleTask extends AbstractScheduler<Task>{
 	public List<Task> selectTasks(String arg0, int queueNum,
 			List<String> queryCondition, int fetchNum) throws Exception {
         if(!isActive){
-        	log.warn("任务[{}-{}]未准备就绪，本次不抓取任务数据！", this.taskType, this.ownSign);
+        	log.warn("任务[{}-{}]未准备就绪或已停止，本次不抓取任务数据！", this.taskType, this.ownSign);
         	return Collections.emptyList();
         }
 		if(log.isInfoEnabled()){
