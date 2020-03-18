@@ -12,6 +12,8 @@ import com.jd.bluedragon.sdk.modules.client.dto.DmsClientHeartbeatResponse;
 import com.jd.bluedragon.sdk.modules.client.dto.DmsClientLoginRequest;
 import com.jd.bluedragon.sdk.modules.client.dto.DmsClientLoginResponse;
 import com.jd.bluedragon.sdk.modules.client.dto.DmsClientLogoutRequest;
+import com.jd.bluedragon.sdk.modules.client.dto.DmsClientVersionRequest;
+import com.jd.bluedragon.sdk.modules.client.dto.DmsClientVersionResponse;
 import com.jd.bluedragon.service.remote.client.DmsClientManager;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -58,6 +60,16 @@ public class DmsClientManagerJsfImpl implements DmsClientManager{
     		mState = {JProEnum.TP, JProEnum.FunctionError})
 	public JdResult<DmsClientHeartbeatResponse> sendHeartbeat(DmsClientHeartbeatRequest dmsClientHeartbeatRequest){
 		return toJdResult(dmsClientJsfService.sendHeartbeat(dmsClientHeartbeatRequest));
+	}
+	/**
+	 * 登出接口
+	 * @param dmsClientLogoutRequest
+	 * @return
+	 */
+    @JProfiler(jKey = "dmsWeb.jsf.client.business.dmsClientJsfService.getClientVersion",jAppName=Constants.UMP_APP_NAME_DMSWEB,
+    		mState = {JProEnum.TP, JProEnum.FunctionError})
+	public JdResult<DmsClientVersionResponse> getClientVersion(DmsClientVersionRequest dmsClientVersionRequest){
+		return toJdResult(dmsClientJsfService.getClientVersion(dmsClientVersionRequest));
 	}
 	/**
 	 * 结果集转换

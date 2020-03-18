@@ -12,12 +12,14 @@ public class SpotCheckInfo extends DbEntity {
 
     private static final long serialVersionUID = 1L;
 
-    /** 机构编码 */
+    /** 区域编码 */
     private Integer orgCode;
     /** 机构编码 */
     private Integer siteCode;
     /** 机构名称 */
     private String siteName;
+    /** 业务类型 */
+    private Integer spotCheckType;
     /** 普通应抽查包裹数 */
     private Integer normalPackageNum;
     /** 信任商家应抽查包裹数 */
@@ -47,6 +49,14 @@ public class SpotCheckInfo extends DbEntity {
 
     public void setSiteName(String siteName) {
         this.siteName = siteName;
+    }
+
+    public Integer getSpotCheckType() {
+        return spotCheckType;
+    }
+
+    public void setSpotCheckType(Integer spotCheckType) {
+        this.spotCheckType = spotCheckType;
     }
 
     public Integer getNormalPackageNum() {

@@ -27,20 +27,20 @@ public class HideInfoServiceImplTest {
         waybill.setConsignerMobile("13888888888");
         waybill.setMobileFirst("1234");
 
-        hideInfoService.setHideInfo(WAYBILL_SIGN_DZ,waybill);
+        hideInfoService.setHideInfo(WAYBILL_SIGN_DZ,null,waybill);
         System.out.println("收件人地址隐藏:"+waybill.getPrintAddress());
         Assert.assertTrue("北京市丰台区槐房北路2号德鑫家园33号楼2^_^".equals(waybill.getPrintAddress()));
         System.out.println("寄件人地址隐藏:"+waybill.getConsignerAddress());
         Assert.assertTrue("黑龙江省铁力市槐房北路2号德鑫家园33号楼2^_^".equals(waybill.getConsignerAddress()));
 
-        hideInfoService.setHideInfo(WAYBILL_SIGN_XM,waybill);
+        hideInfoService.setHideInfo(WAYBILL_SIGN_XM,null,waybill);
         System.out.println("收件人姓名隐藏:"+waybill.getCustomerName());
         Assert.assertTrue("刘^_^".equals(waybill.getCustomerName()));
 
         System.out.println("寄件人姓名隐藏:"+waybill.getConsigner());
         Assert.assertTrue("关^_^".equals(waybill.getConsigner()));
 
-        hideInfoService.setHideInfo(WAYBILL_SIGN_DH,waybill);
+        hideInfoService.setHideInfo(WAYBILL_SIGN_DH,null,waybill);
         System.out.println("收件人电话隐藏:"+waybill.getMobileFirst());
         Assert.assertTrue("123^_^".equals(waybill.getMobileFirst()));
 

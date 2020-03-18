@@ -35,6 +35,8 @@ public interface WaybillSignConstants {
 	int POSITION_40 = 40;
 	char CHAR_40_2='2';
 	char CHAR_40_3='3';
+	char CHAR_40_6='6';
+	char CHAR_40_7='7';
 	/**
 	 * B与C转网模式说明: 0：未转网
 		1：C转B
@@ -63,6 +65,10 @@ public interface WaybillSignConstants {
 	 * TC标识
 	 */
 	int POSITION_89 = 89;
+	/**
+	 *
+	 */
+	char CHAR_89_0 = '0';
 	/**
 	 * TC-1
 	 */
@@ -97,6 +103,11 @@ public interface WaybillSignConstants {
 	 */
 	int POSITION_47 = 47;
 	char CHAR_47_0 = '0';
+	/**
+	 * 特准包裹
+	 */
+	char CHAR_80_9 = '9';
+
 	/**
 	 * B网冷链
 	 */
@@ -274,4 +285,13 @@ public interface WaybillSignConstants {
 	 */
 	int POSITION_55 = 55;
 	char CHAR_55_1 = '1';
+	
+	/**
+	 * WaybillSign第33位,9-物业代收 A-保安室代收 B-门口存放 C-用户指定
+	 */
+	int POSITION_33 = 33;
+	char CHAR_33_9 = '9';
+	char CHAR_33_A = 'A';
+	char CHAR_33_B = 'B';
+	char CHAR_33_C = 'C';
 }

@@ -865,13 +865,21 @@ public class BusinessUtil {
     }
     /**
      * 判断是否TC，waybillSign第89位为1和2
-     *
+     * 或者（89位为0且40位等于6或7）--新增 2020-3-15 23:29:42
      * @param waybillSign
      * @return
      */
     public static boolean isTc(String waybillSign) {
-    	return isSignInChars(waybillSign,WaybillSignConstants.POSITION_89,
-    			WaybillSignConstants.CHAR_89_1,WaybillSignConstants.CHAR_89_2);
+        if (isSignInChars(waybillSign,WaybillSignConstants.POSITION_89,
+                WaybillSignConstants.CHAR_89_1,WaybillSignConstants.CHAR_89_2)) {
+            return Boolean.TRUE;
+        }
+        if (isSignChar(waybillSign,WaybillSignConstants.POSITION_89,WaybillSignConstants.CHAR_89_0)
+                && isSignInChars(waybillSign,WaybillSignConstants.POSITION_40,WaybillSignConstants.CHAR_40_6,WaybillSignConstants.CHAR_40_7)) {
+            return Boolean.TRUE;
+        }
+
+    	return Boolean.FALSE;
     }
 
     /**
@@ -1234,7 +1242,26 @@ public class BusinessUtil {
                 || (isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_1)
                 && isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_2));
     }
-
+    /**
+     * 根据sendPay或者waybillSign判断是否无接触服务
+     * @param sendPay
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isNoTouchService(String sendPay,String waybillSign){
+		return BusinessUtil.isSignInChars(sendPay,
+					SendPayConstants.POSITION_295,
+					SendPayConstants.CHAR_295_1,
+					SendPayConstants.CHAR_295_2, 
+					SendPayConstants.CHAR_295_3,
+					SendPayConstants.CHAR_295_4)
+				|| BusinessUtil.isSignInChars(waybillSign,
+						WaybillSignConstants.POSITION_33,
+						WaybillSignConstants.CHAR_33_9,
+						WaybillSignConstants.CHAR_33_A,
+						WaybillSignConstants.CHAR_33_B,
+						WaybillSignConstants.CHAR_33_C);
+    }
     /**
      * 是否冷链卡班纯配
      * @param waybillSign
@@ -1261,7 +1288,7 @@ public class BusinessUtil {
      * @return true 是，false 不是
      */
     public static boolean isMonthSelf(String waybillSign){
-        return isSignChar(waybillSign, WaybillSignConstants.POSITION_14, WaybillSignConstants.CHAR_14_0)
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_25, WaybillSignConstants.CHAR_25_0)
                 && isSignChar(waybillSign, WaybillSignConstants.POSITION_79, WaybillSignConstants.CHAR_79_2);
     }
     /**

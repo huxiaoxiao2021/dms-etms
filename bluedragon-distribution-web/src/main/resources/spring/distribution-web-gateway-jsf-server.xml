@@ -204,4 +204,13 @@
                   server="dmsjsf">
     </jsf:provider>
 
+
+    <!-- 智能园区 -->
+    <bean id="queueManagementGateWayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.QueueManagementGateWayServiceImpl"/>
+    <jsf:provider id="jsfQueueManagementGateWayService"
+                  interface="com.jd.bluedragon.external.gateway.service.QueueManagementGateWayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="queueManagementGateWayService"
+                  server="dmsjsf">
+    </jsf:provider>
 </beans>

@@ -23,11 +23,17 @@ public interface UserService {
 	 */
 	public BaseResponse dmsClientLogin(LoginRequest request);
 	/**
+	 * 通过旧的jsf调用登录服务
+	 * @param request
+	 * @return
+	 */
+	public BaseResponse oldJsfLogin(LoginRequest request);
+	/**
 	 * 通过jsf调用登录服务
 	 * @param request
 	 * @return
 	 */
-	public BaseResponse jsfLogin(LoginRequest request);
+	public LoginUserResponse jsfLogin(LoginRequest request);
 	/**
 	 * 通过jsf调用,获取当前登录账户信息
 	 * @param request
