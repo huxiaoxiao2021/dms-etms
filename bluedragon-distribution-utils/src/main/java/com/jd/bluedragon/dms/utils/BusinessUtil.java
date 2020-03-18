@@ -1242,7 +1242,26 @@ public class BusinessUtil {
                 || (isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_1)
                 && isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_2));
     }
-
+    /**
+     * 根据sendPay或者waybillSign判断是否无接触服务
+     * @param sendPay
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isNoTouchService(String sendPay,String waybillSign){
+		return BusinessUtil.isSignInChars(sendPay,
+					SendPayConstants.POSITION_295,
+					SendPayConstants.CHAR_295_1,
+					SendPayConstants.CHAR_295_2, 
+					SendPayConstants.CHAR_295_3,
+					SendPayConstants.CHAR_295_4)
+				|| BusinessUtil.isSignInChars(waybillSign,
+						WaybillSignConstants.POSITION_33,
+						WaybillSignConstants.CHAR_33_9,
+						WaybillSignConstants.CHAR_33_A,
+						WaybillSignConstants.CHAR_33_B,
+						WaybillSignConstants.CHAR_33_C);
+    }
     /**
      * 是否冷链卡班纯配
      * @param waybillSign
