@@ -18,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -29,7 +28,6 @@ import java.util.List;
  * @author wangzichen
  * 
  */
-@Service
 public class InspectionTask extends DBSingleScheduler {
 
 	private final static Logger log = LoggerFactory.getLogger(InspectionTask.class);

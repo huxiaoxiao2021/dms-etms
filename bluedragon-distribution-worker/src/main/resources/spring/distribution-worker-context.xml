@@ -47,7 +47,6 @@
 	<import resource="classpath:spring/distribution-worker-wss.xml"/>
 	<import resource="classpath:spring/distribution-worker-special-jsf.xml"/>
 	<import resource="classpath:spring/distribution-core-log.xml" />
-
-
+	<import resource="classpath:spring/distribution-worker-mvc.xml"/>
 
 </beans>

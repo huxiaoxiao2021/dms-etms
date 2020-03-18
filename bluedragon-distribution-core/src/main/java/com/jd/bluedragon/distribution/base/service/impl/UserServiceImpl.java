@@ -541,7 +541,11 @@ public class UserServiceImpl implements UserService{
      * @param serverTime
      * @return
      */
-    public boolean checkClientTime(Date clientTime, Date serverTime){
+    private boolean checkClientTime(Date clientTime, Date serverTime){
+    	//判断为空，返回false
+    	if(clientTime == null || serverTime == null){
+    		return false;
+    	}
         long diff = Math.abs(clientTime.getTime() - serverTime.getTime());
         String defaultTime = PropertiesHelper.newInstance().getValue(DEFAULTTIME);
         if(diff/(1000*60) < Integer.valueOf(defaultTime)){
