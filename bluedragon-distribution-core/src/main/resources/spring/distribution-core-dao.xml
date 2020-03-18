@@ -88,6 +88,11 @@
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
 
+    <bean id="WhiteListDao"
+          class="com.jd.bluedragon.distribution.whiteList.dao.WhiteListDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
     <bean id="operationLogDao"
           class="com.jd.bluedragon.distribution.operationLog.dao.OperationLogDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>

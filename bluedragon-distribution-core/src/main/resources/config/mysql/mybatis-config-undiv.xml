@@ -338,7 +338,9 @@
         <!-- KA单号校验记录 -->
         <mapper resource="mappers/mysql/financialForKA/WaybillCodeCheckResultMapper.xml"/>
 
-
         <mapper resource="mappers/mysql/interceptconfig/InterceptConfigInfo.xml" />
+
+        <!-- PDA功能使用白名单 -->
+        <mapper resource="mappers/mysql/whiteList/WhiteListMapper.xml" />
     </mappers>
 </configuration>

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.whiteList.dao.WhiteListDao" >
+
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.whitelist.WhiteList" >
+    <id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+    <result column="menu" property="menu" javaType="java.lang.String" jdbcType="VARCHAR" />
+    <result column="dimension" property="dimension" javaType="java.lang.String" jdbcType="VARCHAR" />
+    <result column="site_code" property="siteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+    <result column="site_name" property="siteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+    <result column="erp" property="erp" javaType="java.lang.String" jdbcType="VARCHAR"/>
+    <result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	<result column="update_user" property="updateUser" javaType="java.lang.String" jdbcType="VARCHAR"/>
+    <result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+    <result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
+    <result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    id,menu,dimension, site_code,site_name, erp,
+    create_user,create_time,
+    update_user,update_time,
+    is_delete,ts
+  </sql>
+
+  <select id="queryByCondition" parameterType="com.jd.bluedragon.distribution.whitelist.WhiteListCondition" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from
+    white_list
+    where is_delete=0
+    <if test="menu != null">
+      and menu = #{menu,jdbcType=VARCHAR}
+    </if>
+    <if test="dimension != null">
+      and dimension = #{dimension,jdbcType=VARCHAR}
+    </if>
+    <if test="siteName != null">
+      and site_name = #{siteName,jdbcType=VARCHAR}
+    </if>
+    <if test="siteCode != null">
+      and site_code = #{siteCode,jdbcType=INTEGER}
+    </if>
+    <if test="erp != null">
+      and erp = #{erp,jdbcType=VARCHAR}
+    </if>
+  </select>
+
+  <select id="query" parameterType="com.jd.bluedragon.distribution.whitelist.WhiteList" resultType="java.lang.Integer">
+    select
+    count(*)
+    from
+    white_list
+    where is_delete=0
+    <if test="menu != null">
+      and menu = #{menu,jdbcType=VARCHAR}
+    </if>
+    <if test="dimension != null">
+      and dimension = #{dimension,jdbcType=VARCHAR}
+    </if>
+    <if test="siteName != null">
+      and site_name = #{siteName,jdbcType=VARCHAR}
+    </if>
+    <if test="siteCode != null">
+      and site_code = #{siteCode,jdbcType=INTEGER}
+    </if>
+    <if test="erp != null">
+      and erp = #{erp,jdbcType=VARCHAR}
+    </if>
+  </select>
+
+  <insert id="save" parameterType="com.jd.bluedragon.distribution.whitelist.WhiteList" >
+    insert into white_list
+    (
+    <trim suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="menu != null">
+        menu,
+      </if>
+      <if test="dimension != null">
+        dimension,
+      </if>
+      <if test="siteCode != null">
+        site_code,
+      </if>
+      <if test="siteName != null">
+        site_name,
+      </if>
+      <if test="erp != null">
+        erp,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateUser != null">
+        update_user,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      is_delete,
+      ts
+    </trim>
+    )
+    values
+    (
+    <trim suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="menu != null">
+        #{menu,jdbcType=VARCHAR},
+      </if>
+      <if test="dimension != null">
+        #{dimension,jdbcType=VARCHAR},
+      </if>
+      <if test="siteCode != null">
+        #{siteCode,jdbcType=INTEGER},
+      </if>
+      <if test="siteName != null">
+        #{siteName,jdbcType=VARCHAR},
+      </if>
+      <if test="erp != null">
+        #{erp,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUser != null">
+        #{updateUser,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      0,
+      now()
+    </trim>
+    )
+  </insert>
+
+  <update id="deleteByIds" parameterType="List">
+    update white_list
+    set is_delete = 1
+    where id in
+    <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+      #{item,jdbcType=BIGINT}
+    </foreach>
+  </update>
+
+</mapper>
