@@ -52,10 +52,12 @@ public class CustomerAndConsignerInfoHandler implements Handler<WaybillPrintCont
 		//处理收/寄件的微笑
 		log.debug("包裹标签打印-微笑面单-隐藏电话和地址");
 		String waybillSign = "";
+		String sendPay = "";
 		if (context.getBigWaybillDto() != null && context.getBigWaybillDto().getWaybill() != null) {
 			waybillSign = context.getBigWaybillDto().getWaybill().getWaybillSign();
+			sendPay = context.getBigWaybillDto().getWaybill().getSendPay();
 		}
-		hideInfoService.setHideInfo(waybillSign, context.getBasePrintWaybill());
+		hideInfoService.setHideInfo(waybillSign,sendPay, context.getBasePrintWaybill());
 		//手机号、座机一样只保留一个
 		removeRepeatedTel(context);
 		return context.getResult();
