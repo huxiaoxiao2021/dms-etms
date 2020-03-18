@@ -1269,7 +1269,7 @@ public class BusinessUtil {
      * @return true 是，false 不是
      */
     public static boolean isMonthSelf(String waybillSign){
-        return isSignChar(waybillSign, WaybillSignConstants.POSITION_14, WaybillSignConstants.CHAR_14_0)
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_25, WaybillSignConstants.CHAR_25_0)
                 && isSignChar(waybillSign, WaybillSignConstants.POSITION_79, WaybillSignConstants.CHAR_79_2);
     }
     /**
