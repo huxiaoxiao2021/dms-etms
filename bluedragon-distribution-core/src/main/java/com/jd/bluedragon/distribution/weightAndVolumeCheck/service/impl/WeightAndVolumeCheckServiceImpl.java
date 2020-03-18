@@ -443,7 +443,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             if(responseDto != null && responseDto.getStatusCode() == 0 && responseDto.getData() != null){
                 weightVolumeCollectDto.setBillingOrgCode(Integer.parseInt(responseDto.getData().getFirstLevelId()==null?"-1":responseDto.getData().getFirstLevelId()));
                 weightVolumeCollectDto.setBillingOrgName(responseDto.getData().getFirstLevelName());
-                weightVolumeCollectDto.setBillingDeptCode(Integer.parseInt(responseDto.getData().getSecondLevelId()==null?"-1":responseDto.getData().getSecondLevelId()));
+//                weightVolumeCollectDto.setBillingDeptCode(Integer.parseInt(responseDto.getData().getSecondLevelId()==null?"-1":responseDto.getData().getSecondLevelId()));
+                weightVolumeCollectDto.setBillingDeptId(responseDto.getData().getSecondLevelId());
                 weightVolumeCollectDto.setBillingDeptName(responseDto.getData().getSecondLevelName());
                 weightVolumeCollectDto.setBillingErp(responseDto.getData().getDutyErp());
                 BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(responseDto.getData().getDutyErp());
