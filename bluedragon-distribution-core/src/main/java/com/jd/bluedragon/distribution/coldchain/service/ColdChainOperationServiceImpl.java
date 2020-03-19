@@ -68,11 +68,6 @@ public class ColdChainOperationServiceImpl implements ColdChainOperationService 
     private SysConfigService sysConfigService;
 
     /**
-     * 系统默认查询天数
-     */
-    private static final Integer DEFAULT_QUERY_DAYS = 7;
-
-    /**
      * 上传卸货数据
      *
      * @param unloadDto
@@ -95,7 +90,7 @@ public class ColdChainOperationServiceImpl implements ColdChainOperationService 
     @Override
     public List<ColdChainUnloadQueryResultDto> queryUnloadTask(ColdChainQueryUnloadTaskRequest request) {
         if (request != null) {
-            request.setQueryDays(this.getQueryDaysString(request.getQueryDays()));
+            request.setQueryDays(this.getQueryDaysString());
             List<QueryUnloadDto> result = coldChainOptimizeManager.queryUnloadTask(request);
             return this.assembleResultDto(result);
         }
@@ -105,10 +100,9 @@ public class ColdChainOperationServiceImpl implements ColdChainOperationService 
     /**
      * 获取查询天数字符串，优先去配置，其次取页面传入值，最后取系统默认7天
      *
-     * @param defaultDays
      * @return
      */
-    private String getQueryDaysString(String defaultDays) {
+    private String getQueryDaysString() {
         List<SysConfig> sysConfigs = sysConfigService.getListByConfigName(Constants.SYS_CONFIG_COLD_CHAIN_UNLOAD_QUERY_DAYS);
         if (!sysConfigs.isEmpty()) {
             String content = sysConfigs.get(0).getConfigContent();
@@ -118,11 +112,7 @@ public class ColdChainOperationServiceImpl implements ColdChainOperationService 
                 }
             }
         }
-        if (StringUtils.isNotBlank(defaultDays)) {
-            return defaultDays;
-
-        }
-        return DEFAULT_QUERY_DAYS.toString();
+        return null;
     }
 
     private List<ColdChainUnloadQueryResultDto> assembleResultDto(List<QueryUnloadDto> unloadDtoList) {
@@ -239,6 +229,7 @@ public class ColdChainOperationServiceImpl implements ColdChainOperationService 
             default: {
                 response.setCode(JdResponse.CODE_PARAM_ERROR);
                 response.setMessage("无法识别的条码");
+                break;
             }
         }
         ccInAndOutBoundProducer.batchSend(messages);

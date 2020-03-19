@@ -36,4 +36,12 @@ public enum BarCodeType {
         this.code = code;
         this.name = name;
     }
+
+    public int getCode() {
+        return code;
+    }
+
+    public String getName() {
+        return name;
+    }
 }
