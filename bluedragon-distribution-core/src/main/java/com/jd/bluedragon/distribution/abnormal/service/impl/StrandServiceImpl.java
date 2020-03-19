@@ -80,10 +80,12 @@ public class StrandServiceImpl implements StrandService {
         if(ReportTypeEnum.PACKAGE_CODE.getCode().equals(reportType)){
             String waybillCode = WaybillUtil.getWaybillCode(request.getBarcode());
             //发全程跟踪
-            addPackageCodeWaybilTraceTask(request.getBarcode(), waybillCode, request, siteOrgDto);
+            int addCount = addPackageCodeWaybilTraceTask(request.getBarcode(), waybillCode, request, siteOrgDto);
             //发滞留明细jmq
             StrandDetailMessage strandDetailMessage = initStrandDetailMessage(request, request.getBarcode(), waybillCode);
-            strandReportProducer.send(waybillCode, JsonHelper.toJson(strandDetailMessage));
+
+            strandReportProducer.sendOnFailPersistent(waybillCode, JsonHelper.toJson(strandDetailMessage));
+            return result;
         }
 
         /*按运单上报*/
@@ -111,6 +113,7 @@ public class StrandServiceImpl implements StrandService {
                 list.add(message);
             }
             strandReportProducer.batchSendOnFailPersistent(list);
+            return result;
         }
 
         /*按箱号或批次号上报*/
@@ -225,7 +228,7 @@ public class StrandServiceImpl implements StrandService {
      * @param request
      * @param siteOrgDto
      */
-    private void addPackageCodeWaybilTraceTask(String barcode, String waybillCode, StrandReportRequest request,
+    private Integer addPackageCodeWaybilTraceTask(String barcode, String waybillCode, StrandReportRequest request,
                                                BaseStaffSiteOrgDto siteOrgDto){
         Date operateTime = DateHelper.parseDateTime(request.getOperateTime());
         Task tTask = new Task();
@@ -256,6 +259,6 @@ public class StrandServiceImpl implements StrandService {
         // 运单自行区分 是包裹号还是运单号来更新状态
         tWaybillStatus.setPackageCode(barcode);
         tTask.setBody(JsonHelper.toJson(tWaybillStatus));
-        taskService.add(tTask);
+        return taskService.add(tTask);
     }
 }
