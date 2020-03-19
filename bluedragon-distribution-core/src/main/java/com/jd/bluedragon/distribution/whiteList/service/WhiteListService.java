@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.whiteList.service;
 
 import com.jd.bluedragon.distribution.whitelist.WhiteList;
 import com.jd.bluedragon.distribution.whitelist.WhiteListCondition;
+import com.jd.jddl.executor.function.scalar.filter.In;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 
@@ -29,5 +30,5 @@ public interface WhiteListService {
      * 根据id删除白名单
      *
      * */
-    public int deleteByIds(List<Long> ids);
+    public JdResponse<Integer> deleteByIds(List<Long> ids);
 }

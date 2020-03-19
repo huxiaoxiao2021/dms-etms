@@ -4,8 +4,10 @@
 
   <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.whitelist.WhiteList" >
     <id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
-    <result column="menu" property="menu" javaType="java.lang.String" jdbcType="VARCHAR" />
-    <result column="dimension" property="dimension" javaType="java.lang.String" jdbcType="VARCHAR" />
+    <result column="menu_id" property="menuId" javaType="java.lang.Integer" jdbcType="INTEGER" />
+    <result column="menu_name" property="menuName" javaType="java.lang.String" jdbcType="VARCHAR" />
+    <result column="dimension_id" property="dimensionId" javaType="java.lang.Integer" jdbcType="INTEGER" />
+    <result column="dimension_name" property="dimensionName" javaType="java.lang.String" jdbcType="VARCHAR" />
     <result column="site_code" property="siteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
     <result column="site_name" property="siteName" javaType="java.lang.String" jdbcType="VARCHAR" />
     <result column="erp" property="erp" javaType="java.lang.String" jdbcType="VARCHAR"/>
@@ -18,7 +20,8 @@
   </resultMap>
   
   <sql id="Base_Column_List" >
-    id,menu,dimension, site_code,site_name, erp,
+    id,menu_id,menu_name,dimension_id,dimension_name,
+    site_code,site_name, erp,
     create_user,create_time,
     update_user,update_time,
     is_delete,ts
@@ -30,17 +33,11 @@
     from
     white_list
     where is_delete=0
-    <if test="menu != null">
-      and menu = #{menu,jdbcType=VARCHAR}
-    </if>
-    <if test="dimension != null">
-      and dimension = #{dimension,jdbcType=VARCHAR}
+    <if test="menuName != null">
+      and menu_name = #{menuName,jdbcType=VARCHAR}
     </if>
     <if test="siteName != null">
       and site_name = #{siteName,jdbcType=VARCHAR}
-    </if>
-    <if test="siteCode != null">
-      and site_code = #{siteCode,jdbcType=INTEGER}
     </if>
     <if test="erp != null">
       and erp = #{erp,jdbcType=VARCHAR}
@@ -53,14 +50,11 @@
     from
     white_list
     where is_delete=0
-    <if test="menu != null">
-      and menu = #{menu,jdbcType=VARCHAR}
+    <if test="menuId != null">
+      and menu_id = #{menuId,jdbcType=INTEGER}
     </if>
-    <if test="dimension != null">
-      and dimension = #{dimension,jdbcType=VARCHAR}
-    </if>
-    <if test="siteName != null">
-      and site_name = #{siteName,jdbcType=VARCHAR}
+    <if test="dimensionId != null">
+      and dimension_id = #{dimensionId,jdbcType=INTEGER}
     </if>
     <if test="siteCode != null">
       and site_code = #{siteCode,jdbcType=INTEGER}
@@ -77,11 +71,17 @@
       <if test="id != null">
         id,
       </if>
-      <if test="menu != null">
-        menu,
+      <if test="menuId != null">
+        menu_id,
       </if>
-      <if test="dimension != null">
-        dimension,
+      <if test="menuName != null">
+        menu_name,
+      </if>
+      <if test="dimensionId != null">
+        dimension_id,
+      </if>
+      <if test="dimensionName != null">
+        dimension_name,
       </if>
       <if test="siteCode != null">
         site_code,
@@ -114,11 +114,17 @@
       <if test="id != null">
         #{id,jdbcType=BIGINT},
       </if>
-      <if test="menu != null">
-        #{menu,jdbcType=VARCHAR},
+      <if test="menuId != null">
+        #{menuId,jdbcType=INTEGER},
       </if>
-      <if test="dimension != null">
-        #{dimension,jdbcType=VARCHAR},
+      <if test="menuName != null">
+        #{menuName,jdbcType=VARCHAR},
+      </if>
+      <if test="dimensionId != null">
+        #{dimensionId,jdbcType=INTEGER},
+      </if>
+      <if test="dimensionName != null">
+        #{dimensionName,jdbcType=VARCHAR},
       </if>
       <if test="siteCode != null">
         #{siteCode,jdbcType=INTEGER},

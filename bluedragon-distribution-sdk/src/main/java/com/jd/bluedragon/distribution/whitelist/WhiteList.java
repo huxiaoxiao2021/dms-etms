@@ -17,14 +17,24 @@ public class WhiteList implements Serializable {
     private Long id;
 
     /**
-     * 功能菜单
+     * 功能ID
      * */
-    private String menu;
+    private Integer menuId;
 
     /**
-     * 维度
+     * 功能名称
      * */
-    private String dimension;
+    private String menuName;
+
+    /**
+     * 维度ID
+     * */
+    private Integer dimensionId;
+
+    /**
+     * 维度名称
+     * */
+    private String dimensionName;
 
     /**
      * 分拣中心名称
@@ -78,20 +88,36 @@ public class WhiteList implements Serializable {
         this.id = id;
     }
 
-    public String getMenu() {
-        return menu;
+    public Integer getMenuId() {
+        return menuId;
     }
 
-    public void setMenu(String menu) {
-        this.menu = menu;
+    public void setMenuId(Integer menuId) {
+        this.menuId = menuId;
     }
 
-    public String getDimension() {
-        return dimension;
+    public String getMenuName() {
+        return menuName;
     }
 
-    public void setDimension(String dimension) {
-        this.dimension = dimension;
+    public void setMenuName(String menuName) {
+        this.menuName = menuName;
+    }
+
+    public Integer getDimensionId() {
+        return dimensionId;
+    }
+
+    public void setDimensionId(Integer dimensionId) {
+        this.dimensionId = dimensionId;
+    }
+
+    public String getDimensionName() {
+        return dimensionName;
+    }
+
+    public void setDimensionName(String dimensionName) {
+        this.dimensionName = dimensionName;
     }
 
     public String getSiteName() {

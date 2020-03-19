@@ -29,8 +29,7 @@ public class WhiteListDaoTest extends AbstractDaoIntegrationTest {
     @Test
     public void queryByConditionTest() {
         WhiteListCondition condition = new WhiteListCondition();
-        condition.setMenu("验货");
-        condition.setDimension("个人");
+        condition.setMenuName("验货");
         condition.setErp("bjxings");
         Assert.assertTrue(whiteListDao.queryByCondition(condition).size() > 0);
     }
@@ -38,8 +37,8 @@ public class WhiteListDaoTest extends AbstractDaoIntegrationTest {
     @Test
     public void queryTest(){
         WhiteList whiteList = new WhiteList();
-        whiteList.setMenu("分拣");
-        whiteList.setDimension("场地");
+        whiteList.setMenuId(1);
+        whiteList.setDimensionId(2);
         whiteList.setSiteName("北京马驹桥分拣中心");
         Assert.assertTrue(whiteListDao.query(whiteList)>0);
     }
@@ -47,8 +46,8 @@ public class WhiteListDaoTest extends AbstractDaoIntegrationTest {
     @Test
     public void saveTest(){
         WhiteList whiteList = new WhiteList();
-        whiteList.setMenu("发货");
-        whiteList.setDimension("场地");
+        whiteList.setMenuId(2);
+        whiteList.setDimensionId(1);
         whiteList.setSiteCode(910);
         whiteList.setSiteName("北京马驹桥分拣中心");
         Assert.assertTrue(whiteListDao.save(whiteList)>0);

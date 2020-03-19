@@ -11,44 +11,26 @@ public class WhiteListCondition extends BasePagerCondition {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 功能菜单
+     * 功能名称
      * */
-    private String menu;
+    private String menuName;
 
     /**
-     * 维度
-     * */
-    private String dimension;
-
-    /**
-     * 快运中心名称
+     * 分拣中心名称
      * */
     private String siteName;
-
-    /**
-     * 快运中心ID
-     * */
-    private String siteCode;
 
     /**
      * 白名单erp
      * */
     private String erp;
 
-    public String getMenu() {
-        return menu;
+    public String getMenuName() {
+        return menuName;
     }
 
-    public void setMenu(String menu) {
-        this.menu = menu;
-    }
-
-    public String getDimension() {
-        return dimension;
-    }
-
-    public void setDimension(String dimension) {
-        this.dimension = dimension;
+    public void setMenuName(String menuName) {
+        this.menuName = menuName;
     }
 
     public String getSiteName() {
@@ -57,14 +39,6 @@ public class WhiteListCondition extends BasePagerCondition {
 
     public void setSiteName(String siteName) {
         this.siteName = siteName;
-    }
-
-    public String getSiteCode() {
-        return siteCode;
-    }
-
-    public void setSiteCode(String siteCode) {
-        this.siteCode = siteCode;
     }
 
     public String getErp() {

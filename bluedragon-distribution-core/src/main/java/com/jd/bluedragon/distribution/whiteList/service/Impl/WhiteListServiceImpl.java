@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.whiteList.service.Impl;
 
 import com.jd.bluedragon.distribution.whiteList.dao.WhiteListDao;
 import com.jd.bluedragon.distribution.whiteList.service.WhiteListService;
+import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
+import com.jd.bluedragon.distribution.whitelist.MenuEnum;
 import com.jd.bluedragon.distribution.whitelist.WhiteList;
 import com.jd.bluedragon.distribution.whitelist.WhiteListCondition;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -37,7 +39,7 @@ public class WhiteListServiceImpl implements WhiteListService {
 
             result.setRows(whiteLists);
             result.setTotal(whiteLists.size());
-        }catch (Exception e){
+        }catch (RuntimeException e){
             log.error("查询失败!",e);
             result.setRows(new ArrayList<WhiteList>());
             result.setTotal(0);
@@ -58,11 +60,13 @@ public class WhiteListServiceImpl implements WhiteListService {
                 return rest;
             }
 
+            whiteList.setMenuName(MenuEnum.getEnumByKey(whiteList.getMenuId()).getName());
+            whiteList.setDimensionName(DimensionEnum.getEnumByKey(whiteList.getDimensionId()).getName());
             int res = whiteListDao.save(whiteList);
             if(res>0){
                 rest.setData(true);
             }
-        }catch (Exception e){
+        }catch (RuntimeException e){
             log.error("新增白名单信息保存失败：{}", JsonHelper.toJson(whiteList), e);
             rest.toError("保存失败，服务异常！");
         }
@@ -71,7 +75,14 @@ public class WhiteListServiceImpl implements WhiteListService {
     }
 
     @Override
-    public int deleteByIds(List<Long> ids) {
-        return whiteListDao.deleteByIds(ids);
+    public JdResponse<Integer> deleteByIds(List<Long> ids) {
+        JdResponse<Integer> rest = new JdResponse<>();
+        try{
+            rest.setData(whiteListDao.deleteByIds(ids));
+        }catch(RuntimeException e){
+            log.error("删除白名单失败：{}", JsonHelper.toJson(ids), e);
+            rest.toError("删除白名单失败，服务异常！");
+        }
+        return rest;
     }
 }

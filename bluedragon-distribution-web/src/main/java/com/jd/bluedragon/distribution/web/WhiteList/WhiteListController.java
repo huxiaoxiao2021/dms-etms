@@ -37,6 +37,7 @@ public class WhiteListController extends DmsBaseController {
     @Autowired
     private WhiteListService whiteListService;
 
+    //todo 加权限
     @Authorization()
     @RequestMapping("/toIndex")
     public String toIndex(){
@@ -64,7 +65,7 @@ public class WhiteListController extends DmsBaseController {
 
         JdResponse<Boolean> rest = new JdResponse<Boolean>();
 
-        if(whiteList == null || whiteList.getMenu() == null || whiteList.getDimension() == null){
+        if(whiteList == null || whiteList.getMenuId() == null || whiteList.getDimensionId() == null){
             rest.toError("参数有误！");
             return rest;
         }
@@ -84,12 +85,7 @@ public class WhiteListController extends DmsBaseController {
     @RequestMapping(value = "/deleteByIds")
     public @ResponseBody JdResponse<Integer> deleteByIds(@RequestBody List<Long> ids) {
         JdResponse<Integer> rest = new JdResponse<Integer>();
-        try {
-            rest.setData(whiteListService.deleteByIds(ids));
-        } catch (Exception e) {
-            log.error("删除白名单失败！",e);
-            rest.toError("删除白名单失败，服务异常！");
-        }
+        rest = whiteListService.deleteByIds(ids);
         return rest;
     }
 

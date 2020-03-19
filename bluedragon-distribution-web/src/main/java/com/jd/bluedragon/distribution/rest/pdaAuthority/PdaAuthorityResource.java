@@ -43,8 +43,8 @@ public class PdaAuthorityResource {
         result.toSuccess();
 
         if (null == whiteListrequest
-                || null == whiteListrequest.getMenu()
-                || null == whiteListrequest.getDimension()
+                || null == whiteListrequest.getMenuId()
+                || null == whiteListrequest.getDimensionId()
                 || null == whiteListrequest.getErp()) {
             result.setCode(JdResponse.CODE_PARAM_ERROR);
             result.setMessage(JdResponse.MESSAGE_PARAM_ERROR);

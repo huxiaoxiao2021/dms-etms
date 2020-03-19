@@ -25,7 +25,7 @@
                                 <div class="form-group" >
                                     <label class="control-label col-xs-4" for="box-code-input">功能 ：</label>
                                     <div class="col-xs-6 ">
-                                        <input type="text" id="menu" name="menu"
+                                        <input type="text" id="menuName" name="menuName"
                                                class="form-control search-param " >
                                     </div>
                                 </div>
@@ -85,23 +85,15 @@
                     </div>
                     <div class="col-xs-6">
 
-#*                        <div class="form-group">
-                            <label class="col-xs-3 control-label">功能 ：</label>
-                            <div class="col-xs-8">
-                                <textarea  class="form-control edit-param" id="menu" name="menu" rows="6">
-		                        </textarea>
-                            </div>
-                        </div>*#
-
                         <div class="form-group">
                             <label class="col-xs-3 control-label">功能 ：</label>
                             <div class="col-xs-8">
-                                <select type="text" class="form-control edit-param" id="menu" name="menu">
+                                <select type="text" class="form-control edit-param" id="menuId" name="menuId">
                                     <option value="" selected="selected"></option>
-                                    <option value="验货">验货</option>
-                                    <option value="分拣">分拣</option>
-                                    <option value="发货">发货</option>
-                                    <option value="封车">封车</option>
+                                    <option value="1">验货</option>
+                                    <option value="2">发货</option>
+                                    <option value="3">分拣</option>
+                                    <option value="4">封车</option>
                                 </select>
                             </div>
                         </div>
@@ -109,10 +101,10 @@
                         <div class="form-group">
                             <label class="col-xs-3 control-label">维度 ：</label>
                             <div class="col-xs-8">
-                                <select type="text" class="form-control edit-param" id="dimension" name="dimension">
+                                <select type="text" class="form-control edit-param" id="dimensionId" name="dimensionId">
                                     <option value="" selected="selected"></option>
-                                    <option value="个人">个人</option>
-                                    <option value="场地">场地</option>
+                                    <option value="1">个人</option>
+                                    <option value="2">场地</option>
                                 </select>
                             </div>
                         </div>
@@ -124,7 +116,7 @@
                                         value=""></select>
                             </div>
                             <input type="hidden" id="reviewOrgCode" name="reviewOrgCode"
-                                   class="form-control search-param " >
+                                   class="form-control search-param " >(选填)
                         </div>
 
                         <div class="form-group">
@@ -133,23 +125,14 @@
                                 <select id="site-select" class="form-control" name="site-select" value=""></select>
                             </div>
                             <input type="hidden" id="siteCode" name="siteCode" class="form-control edit-param" />
-                            <input type="hidden" id="siteName" name="siteName" class="form-control edit-param" />
+                            <input type="hidden" id="siteName" name="siteName" class="form-control edit-param" />(选填)
                         </div>
-
-#*                        <div class="form-group">
-                            <label class="col-xs-3 control-label">机构名称 ：</label>
-                            <div class="col-xs-9">
-                                <select  class="form-control " id="siteCode" name="siteCode"></select>
-                                <input type="hidden" class="form-control edit-param" id="siteCode" name="siteCode" />
-                                <input type="hidden" class="form-control edit-param" id="siteName" name="siteName" />
-                            </div>
-                        </div>*#
 
                         <div class="form-group">
                             <label class="col-xs-3 control-label">ERP账号 ：</label>
                             <div class="col-xs-8">
                                 <input type="text" class="form-control edit-param" id="erp" name="erp"></input>
-                            </div>
+                            </div>(选填)
                         </div>
 
                     </div>

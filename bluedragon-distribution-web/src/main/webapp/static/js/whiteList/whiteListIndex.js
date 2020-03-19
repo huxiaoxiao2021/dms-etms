@@ -3,13 +3,6 @@ var saveUrl = '/whiteList/save';
 var deleteUrl = '/whiteList/deleteByIds';
 $(function () {
 
-    //todo 调试一下这两个有作用嘛！！！
-    $('#fileField').hide();
-    //浏览
-    $('#btn_browse').click(function () {
-        $('#fileField').click();
-    });
-
     var tableInit = function () {
         var oTableInit = new Object();
         oTableInit.init = function () {
@@ -79,11 +72,11 @@ $(function () {
         oTableInit.tableColums = [{
             checkbox: true
         }, {
-            field: 'menu',
+            field: 'menuName',
             title: '功能',
             align: 'center'
         }, {
-            field: 'dimension',
+            field: 'dimensionName',
             title: '维度',
             align: 'center'
         }, {
@@ -103,7 +96,7 @@ $(function () {
             title: '添加时间',
             align: 'center',
             formatter : function(value,row,index){
-                return value=="0"?"空闲":value=="1"?"非空闲":value=="2"?"已满":"未知状态";
+                return $.dateHelper.formateDateTimeOfTs(value);
             }
         }];
         oTableInit.refresh = function () {
@@ -131,7 +124,6 @@ $(function () {
                 });
                 $('#dataTableDiv').hide();
                 $('#dataEditDiv').show();
-                //$("#edit-form").data("bootstrapValidator").resetForm();
                 initOrg();
             });
             // 删除
@@ -146,14 +138,6 @@ $(function () {
                     var params = [];
                     for(var i in rows){
                         params.push(rows[i].id);
-/*                        if (rows[i].collectGoodsPlaceType == 4) {
-                            alert("不允许删除异常类型的集货位");
-                            return;
-                        }
-                        if (rows[i].collectGoodsPlaceStatus != 0) {
-                            alert("不允许删除非空闲的集货位");
-                            return;
-                        }*/
                     };
                     $.ajaxHelper.doPostSync(deleteUrl,JSON.stringify(params),function(res){
                         if(res&&res.succeed&&res.data){
@@ -169,12 +153,6 @@ $(function () {
             //保存
             $('#btn_submit').click(function() {
                 $('#btn_submit').attr("disabled",true);
-                //先去校验
-/*                if(!editValidator()){
-                    $('#btn_submit').attr("disabled",false);
-                    return;
-                }*/
-
                 var params = {};
                 $('.edit-param').each(function () {
                     var _k = this.id;
