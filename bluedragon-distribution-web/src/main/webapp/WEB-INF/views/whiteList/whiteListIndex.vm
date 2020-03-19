@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>白名单配置</title>
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    #parse("system/common/baseImport.vm")
+    <script src="/static/js/whiteList/whiteListIndex.js"></script>
+</head>
+<body>
+<div id="dataTableDiv" class="main">
+        <ol class="breadcrumb">
+            <li><a href="#">分拣中心</a></li>
+            <li class="active">PDA功能白名单配置</li>
+        </ol>
+		<!-- 查询条件 -->
+        <div id="query-condition">
+            <form id="query-form" class="form-horizontal" >
+                <fieldset>
+                	<div class="row">
+                        <div class="col-xs-12">
+                            <div class="col-xs-4">
+                                <div class="form-group" >
+                                    <label class="control-label col-xs-4" for="box-code-input">功能 ：</label>
+                                    <div class="col-xs-6 ">
+                                        <input type="text" id="menuName" name="menuName"
+                                               class="form-control search-param " >
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="form-group">
+                                    <label class="control-label col-xs-4" for="site-select">分拣中心 ：</label>
+                                    <div class="col-xs-6">
+                                        <input type="text" id="siteName" name="siteName"
+                                               class="form-control search-param " >
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="form-group">
+                                    <label class="control-label col-xs-4 ">ERP账号 ：</label>
+                                    <div class=" col-xs-6">
+                                        <input type="text" id="erp" name="erp" class="form-control search-param ">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+               		</div>
+
+                </fieldset>
+            </form>
+        </div>
+        <hr />
+        <!-- 主页面操作按钮 -->
+        <div id="toolbar" class="btn-group">
+            <button id="btn_query" type="button" class="btn btn-default">
+                <span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;查询
+            </button>
+            <button id="btn_add" type="button" class="btn btn-default">
+                <span class="glyphicon  glyphicon-add" aria-hidden="true"></span>添加
+            </button>
+            <button id="btn_delete" type="button" class="btn btn-default">
+                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>删除
+            </button>
+        </div>
+        <table id="dataTable"></table>
+</div>
+
+<div id="dataEditDiv" class="main" style="display: true">
+    <ol class="breadcrumb">
+        <li><a href="#">PDA功能白名单配置</a></li>
+        <li class="active">新增</li>
+    </ol>
+
+    <div id="edit-condition">
+        <form id="edit-form" class="form-horizontal  col-xs-12">
+            <fieldset>
+                <input type="hidden" class="form-control edit-param" id="id" name="id"/>
+                <hr/>
+                <div class="row">
+                    <div class="col-xs-3">
+                    </div>
+                    <div class="col-xs-6">
+
+                        <div class="form-group">
+                            <label class="col-xs-3 control-label">功能 ：</label>
+                            <div class="col-xs-8">
+                                <select type="text" class="form-control edit-param" id="menuId" name="menuId">
+                                    <option value="" selected="selected"></option>
+                                    <option value="1">验货</option>
+                                    <option value="2">发货</option>
+                                    <option value="3">分拣</option>
+                                    <option value="4">封车</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-xs-3 control-label">维度 ：</label>
+                            <div class="col-xs-8">
+                                <select type="text" class="form-control edit-param" id="dimensionId" name="dimensionId">
+                                    <option value="" selected="selected"></option>
+                                    <option value="1">个人</option>
+                                    <option value="2">场地</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group" >
+                            <label class="col-xs-3 control-label" for="box-code-input">区域 ：</label>
+                            <div class="col-xs-8 ">
+                                <select id="site-group-select" class="form-control " name="site-group-select"
+                                        value=""></select>
+                            </div>
+                            <input type="hidden" id="reviewOrgCode" name="reviewOrgCode"
+                                   class="form-control param " >(选填)
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-xs-3 control-label" for="site-select">分拣中心 ：</label>
+                            <div class=" col-xs-8 ">
+                                <select id="site-select" class="form-control" name="site-select" value=""></select>
+                            </div>
+                            <input type="hidden" id="siteCode" name="siteCode" class="form-control edit-param" />
+                            <input type="hidden" id="siteName" name="siteName" class="form-control edit-param" />(选填)
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-xs-3 control-label">ERP账号 ：</label>
+                            <div class="col-xs-8">
+                                <input type="text" class="form-control edit-param" id="erp" name="erp"></input>
+                            </div>(选填)
+                        </div>
+
+                    </div>
+
+                </div>
+                <hr/>
+
+                <div class="form-group " style="text-align:center;">
+                    <button id="btn_submit" type="button" class="btn btn-primary" data-toggle="button">保存</button>
+                    <button id="btn_return" type="button" class="btn btn-primary" data-toggle="button">取消</button>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    <hr/>
+</div>
+
+</body>
+</html>

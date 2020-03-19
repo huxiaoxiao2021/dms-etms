@@ -541,6 +541,11 @@
         <property name="sequenceGenAdaptor" ref="sequenceGenAdaptor"/>
     </bean>
 
+    <!-- PDA功能使用白名单 -->
+    <bean id="WhiteListDao"
+          class="com.jd.bluedragon.distribution.whiteList.dao.WhiteListDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
 
 
     <!--################################## bd_dms_business 相关DAO Start ############################################ -->
