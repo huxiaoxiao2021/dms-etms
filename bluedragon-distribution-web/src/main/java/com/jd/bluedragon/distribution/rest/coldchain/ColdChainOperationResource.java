@@ -159,10 +159,6 @@ public class ColdChainOperationResource {
             return false;
         }
 
-        if (StringUtils.isBlank(request.getVehicleNo())) {
-            return false;
-        }
-
         if (StringUtils.isBlank(request.getQueryDays())) {
             return false;
         }
