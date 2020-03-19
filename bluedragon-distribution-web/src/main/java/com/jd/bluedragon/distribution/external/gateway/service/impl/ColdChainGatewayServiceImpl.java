@@ -41,18 +41,7 @@ public class ColdChainGatewayServiceImpl implements ColdChainGatewayService {
             return response;
         }
 
-        ColdChainUnloadDto request = new ColdChainUnloadDto();
-        request.setOrgId(unloadDto.getOrgId());
-        request.setOrgName(unloadDto.getOrgName());
-        request.setSiteId(unloadDto.getSiteId());
-        request.setSiteName(unloadDto.getSiteName());
-        request.setUnloadTime(unloadDto.getUnloadTime());
-        request.setOperateERP(unloadDto.getOperateERP());
-        request.setVehicleNo(unloadDto.getVehicleNo());
-        request.setVehicleModelNo(unloadDto.getVehicleModelNo());
-        request.setVehicleModelName(unloadDto.getVehicleModelName());
-        request.setTemp(unloadDto.getTemp());
-        ColdChainOperationResponse<Boolean> operationResponse = coldChainOperationResource.addUpload(request);
+        ColdChainOperationResponse<Boolean> operationResponse = coldChainOperationResource.addUpload(unloadDto);
         if (JdResponse.CODE_OK.equals(operationResponse.getCode())) {
             response.toSucceed();
             response.setData(operationResponse.getData());
@@ -65,23 +54,18 @@ public class ColdChainGatewayServiceImpl implements ColdChainGatewayService {
     /**
      * 查询卸货任务
      *
-     * @param taskRequest
+     * @param request
      * @return
      */
     @Override
-    public JdCResponse<List<ColdChainUnloadQueryResultDto>> queryUnload(ColdChainQueryUnloadTaskRequest taskRequest) {
+    public JdCResponse<List<ColdChainUnloadQueryResultDto>> queryUnload(ColdChainQueryUnloadTaskRequest request) {
         JdCResponse<List<ColdChainUnloadQueryResultDto>> response = new JdCResponse<>();
 
-        if (taskRequest == null) {
+        if (request == null) {
             response.toError("请求参数为null");
             return response;
         }
 
-        ColdChainQueryUnloadTaskRequest request = new ColdChainQueryUnloadTaskRequest();
-        request.setSiteId(taskRequest.getSiteId());
-        request.setQueryDays(taskRequest.getQueryDays());
-        request.setState(taskRequest.getState());
-        request.setVehicleNo(taskRequest.getVehicleNo());
         ColdChainOperationResponse<List<ColdChainUnloadQueryResultDto>> operationResponse = coldChainOperationResource.queryUnload(request);
         if (JdResponse.CODE_OK.equals(operationResponse.getCode())) {
             response.toSucceed();
@@ -96,21 +80,18 @@ public class ColdChainGatewayServiceImpl implements ColdChainGatewayService {
     /**
      * 卸货任务完成
      *
-     * @param completeRequest
+     * @param request
      * @return
      */
     @Override
-    public JdCResponse<Boolean> unloadComplete(ColdChainUnloadCompleteRequest completeRequest) {
+    public JdCResponse<Boolean> unloadComplete(ColdChainUnloadCompleteRequest request) {
         JdCResponse<Boolean> response = new JdCResponse<>();
 
-        if (completeRequest == null) {
+        if (request == null) {
             response.toError("请求参数为null");
             return response;
         }
 
-        ColdChainUnloadCompleteRequest request = new ColdChainUnloadCompleteRequest();
-        request.setOperateERP(completeRequest.getOperateERP());
-        request.setTaskNo(completeRequest.getTaskNo());
         ColdChainOperationResponse<Boolean> operationResponse = coldChainOperationResource.unloadComplete(request);
         if (JdResponse.CODE_OK.equals(operationResponse.getCode())) {
             response.toSucceed();
@@ -143,26 +124,17 @@ public class ColdChainGatewayServiceImpl implements ColdChainGatewayService {
     /**
      * 出入库
      *
-     * @param inAndOutBoundRequest
+     * @param request
      * @return
      */
     @Override
-    public JdCResponse inAndOutBound(ColdChainInAndOutBoundRequest inAndOutBoundRequest) {
+    public JdCResponse inAndOutBound(ColdChainInAndOutBoundRequest request) {
         JdCResponse<Boolean> response = new JdCResponse<>();
-        if (inAndOutBoundRequest == null) {
+        if (request == null) {
             response.toError("请求参数为null");
             return response;
         }
 
-        ColdChainInAndOutBoundRequest request = new ColdChainInAndOutBoundRequest();
-        request.setBarCode(inAndOutBoundRequest.getBarCode());
-        request.setOrgId(inAndOutBoundRequest.getOrgId());
-        request.setOrgName(inAndOutBoundRequest.getOrgName());
-        request.setSiteId(inAndOutBoundRequest.getSiteId());
-        request.setSiteName(inAndOutBoundRequest.getSiteName());
-        request.setOperateERP(inAndOutBoundRequest.getOperateERP());
-        request.setOperateTime(inAndOutBoundRequest.getOperateTime());
-        request.setOperateType(inAndOutBoundRequest.getOperateType());
         ColdChainOperationResponse operationResponse = coldChainOperationResource.inAndOutBound(request);
         if (JdResponse.CODE_OK.equals(operationResponse.getCode())) {
             response.toSucceed();

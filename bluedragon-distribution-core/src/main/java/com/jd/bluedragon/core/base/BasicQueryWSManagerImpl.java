@@ -64,31 +64,6 @@ public class BasicQueryWSManagerImpl implements BasicQueryWSManager {
         return null;
     }
 
-
-    /**
-     * BASIC车辆/车型信息查询接口
-     * 根据车牌号获取车辆信息
-     *
-     * @param vehicleNumber
-     * @return
-     * @throws Exception
-     */
-    @JProfiler(jKey = "DMS.BASE.BasicQueryWSManagerImpl.getVehicleByVehicleNumber", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    @Override
-    public BasicVehicleDto getVehicleByVehicleNumber(String vehicleNumber) throws Exception {
-        if (StringUtils.isBlank(vehicleNumber)) {
-            return null;
-        }
-        CommonDto<BasicVehicleDto> commonDto = basicQueryWS.getVehicleByVehicleNumber(vehicleNumber);
-        if (commonDto.getCode() == CommonDto.CODE_SUCCESS) {
-            return commonDto.getData();
-        } else {
-            log.warn("[BASIC车辆/车型信息查询]根据车牌号获取车辆信息失败，vehicleNumber[{}]，code[{}]，message[{}]",
-                    vehicleNumber, commonDto.getCode(), commonDto.getMessage());
-        }
-        return null;
-    }
-
     /**
      * 获取车型查询接口
      *

@@ -970,8 +970,4 @@ public class BaseServiceImpl implements BaseService {
 				.replace(Constants.SUFFIX_TRANSIT,"");
 	}
 
-	@Override
-	public BasicVehicleDto getVehicleByVehicleNumber(String vehicleNumber) throws Exception {
-		return basicQueryWSManager.getVehicleByVehicleNumber(vehicleNumber);
-	}
 }

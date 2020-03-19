@@ -770,6 +770,12 @@ public class Constants {
      * 三无寄托物核实 上报运单数量限制
      */
     public static final String SYS_ABNORMAL_UNKNOWN_REPORT_WAYBILL_MAX= "abnormal.unknown.report.waybill.max";
+
+    /**
+     * 配置信息-冷链卸货任务查询天数-冷链操作卸货出入库业务
+     */
+    public static final String SYS_CONFIG_COLD_CHAIN_UNLOAD_QUERY_DAYS = "cold.chain.operation.query.days";
+
     /**
      * 封车批次号缓存前缀
      */

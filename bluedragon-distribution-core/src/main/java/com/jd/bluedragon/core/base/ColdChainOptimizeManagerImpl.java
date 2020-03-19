@@ -25,7 +25,7 @@ import java.util.List;
  * 冷链全流程优化
  * 冷链货物操作数据接口
  *
- * @auther lixin456
+ * @author lixin456
  * @date 2020-02-27
  */
 @Service
@@ -46,7 +46,7 @@ public class ColdChainOptimizeManagerImpl implements ColdChainOptimizeManager {
             if (commonDto.getCode() == CommonDto.CODE_SUCCESS) {
                 return true;
             } else {
-                log.error("[冷链操作-冷链卸货]调用JSF接口上传卸货数据返回结果失败,request:" + JsonHelper.toJson(unloadDto) + ",code:" + commonDto.getCode() + ",message:" + commonDto.getMessage());
+                log.warn("[冷链操作-冷链卸货]调用JSF接口上传卸货数据返回结果失败,request:" + JsonHelper.toJson(unloadDto) + ",code:" + commonDto.getCode() + ",message:" + commonDto.getMessage());
             }
         }
         return false;
@@ -71,7 +71,7 @@ public class ColdChainOptimizeManagerImpl implements ColdChainOptimizeManager {
             if (commonDto.getCode() == CommonDto.CODE_SUCCESS) {
                 return commonDto.getData();
             } else {
-                log.error("[冷链操作-卸货任务查询]调用JSF接口查询卸货任务返回结果失败,request:" + JsonHelper.toJson(request) + ",code:" + commonDto.getCode() + ",message:" + commonDto.getMessage());
+                log.warn("[冷链操作-卸货任务查询]调用JSF接口查询卸货任务返回结果失败,request:" + JsonHelper.toJson(request) + ",code:" + commonDto.getCode() + ",message:" + commonDto.getMessage());
             }
         }
         return Collections.emptyList();
@@ -110,7 +110,7 @@ public class ColdChainOptimizeManagerImpl implements ColdChainOptimizeManager {
             if (commonDto.getCode() == CommonDto.CODE_SUCCESS) {
                 return true;
             } else {
-                log.error("[冷链操作-卸货完成]调用JSF接口完成卸货返回结果失败,taskNo:" + taskNo + ",operateErp:" + operateErp + ",code:" + commonDto.getCode() + ",message:" + commonDto.getMessage());
+                log.warn("[冷链操作-卸货完成]调用JSF接口完成卸货返回结果失败,taskNo:" + taskNo + ",operateErp:" + operateErp + ",code:" + commonDto.getCode() + ",message:" + commonDto.getMessage());
             }
         }
         return false;

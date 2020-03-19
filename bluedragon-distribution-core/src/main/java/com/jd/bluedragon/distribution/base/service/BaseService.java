@@ -277,12 +277,4 @@ public interface BaseService {
      */
 	public String getDmsShortNameByCode(Integer dmsCode);
 
-	/**
-	 * 根据车牌号获取车辆信息
-	 *
-	 * @param vehicleNumber
-	 * @return
-	 * @throws Exception
-	 */
-	BasicVehicleDto getVehicleByVehicleNumber(String vehicleNumber) throws Exception;
 }

@@ -8,6 +8,8 @@ import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.ColdChainOperationResponse;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.coldchain.dto.CCInAndOutBoundMessage;
 import com.jd.bluedragon.distribution.coldchain.dto.ColdChainInAndOutBoundRequest;
 import com.jd.bluedragon.distribution.coldchain.dto.ColdChainOperateTypeEnum;
@@ -16,6 +18,7 @@ import com.jd.bluedragon.distribution.coldchain.dto.ColdChainUnloadDto;
 import com.jd.bluedragon.distribution.coldchain.dto.ColdChainUnloadQueryResultDto;
 import com.jd.bluedragon.distribution.coldchain.dto.VehicleTypeDict;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
+import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.ccmp.ctm.dto.QueryUnloadDto;
@@ -61,6 +64,14 @@ public class ColdChainOperationServiceImpl implements ColdChainOperationService 
     @Autowired
     private SortingService sortingService;
 
+    @Autowired
+    private SysConfigService sysConfigService;
+
+    /**
+     * 系统默认查询天数
+     */
+    private static final Integer DEFAULT_QUERY_DAYS = 7;
+
     /**
      * 上传卸货数据
      *
@@ -84,10 +95,34 @@ public class ColdChainOperationServiceImpl implements ColdChainOperationService 
     @Override
     public List<ColdChainUnloadQueryResultDto> queryUnloadTask(ColdChainQueryUnloadTaskRequest request) {
         if (request != null) {
+            request.setQueryDays(this.getQueryDaysString(request.getQueryDays()));
             List<QueryUnloadDto> result = coldChainOptimizeManager.queryUnloadTask(request);
             return this.assembleResultDto(result);
         }
         return Collections.emptyList();
+    }
+
+    /**
+     * 获取查询天数字符串，优先去配置，其次取页面传入值，最后取系统默认7天
+     *
+     * @param defaultDays
+     * @return
+     */
+    private String getQueryDaysString(String defaultDays) {
+        List<SysConfig> sysConfigs = sysConfigService.getListByConfigName(Constants.SYS_CONFIG_COLD_CHAIN_UNLOAD_QUERY_DAYS);
+        if (!sysConfigs.isEmpty()) {
+            String content = sysConfigs.get(0).getConfigContent();
+            if (NumberUtils.isNumber(content)) {
+                if (Integer.valueOf(content) > 0) {
+                    return content;
+                }
+            }
+        }
+        if (StringUtils.isNotBlank(defaultDays)) {
+            return defaultDays;
+
+        }
+        return DEFAULT_QUERY_DAYS.toString();
     }
 
     private List<ColdChainUnloadQueryResultDto> assembleResultDto(List<QueryUnloadDto> unloadDtoList) {
@@ -173,81 +208,47 @@ public class ColdChainOperationServiceImpl implements ColdChainOperationService 
 
         String barCode = request.getBarCode();
         List<Message> messages = null;
-        if (WaybillUtil.isPackageCode(barCode)) {
-            messages = this.buildMessageByPackageCode(request);
-        } else if (WaybillUtil.isWaybillCode(barCode)) {
-            List<String> packageCodeList = this.getPackageCodeListByWaybillCode(barCode);
-            if (packageCodeList != null && packageCodeList.size() > 0) {
-                messages = this.buildMessageByWaybillCode(request, packageCodeList);
-            } else {
-                response.setCode(JdResponse.CODE_PARAM_ERROR);
-                response.setMessage("无效运单号或该运单下无包裹");
+
+        BarCodeType codeType = BusinessUtil.getBarCodeType(barCode);
+
+        switch (codeType) {
+            case PACKAGE_CODE: {
+                messages = this.buildMessageByPackageCode(request);
+                break;
             }
-        } else if (BusinessUtil.isBoxcode(barCode)) {
-            List<String> packageCodeList = sortingService.getPackageCodeListByBoxCode(barCode);
-            if (packageCodeList != null && packageCodeList.size() > 0) {
-                messages = this.buildMessageByBoxCode(request, packageCodeList);
-            } else {
-                response.setCode(JdResponse.CODE_PARAM_ERROR);
-                response.setMessage("无效箱号或为空箱");
+            case WAYBILL_CODE: {
+                List<String> packageCodeList = this.getPackageCodeListByWaybillCode(barCode);
+                if (packageCodeList != null && packageCodeList.size() > 0) {
+                    messages = this.buildMessageByPackageCodeList(request, packageCodeList);
+                } else {
+                    response.setCode(JdResponse.CODE_PARAM_ERROR);
+                    response.setMessage("无效运单号或该运单下无包裹");
+                }
+                break;
             }
-        } else {
-            response.setCode(JdResponse.CODE_PARAM_ERROR);
-            response.setMessage("无法识别的条码");
+            case BOX_CODE: {
+                List<String> packageCodeList = sortingService.getPackageCodeListByBoxCode(barCode);
+                if (packageCodeList != null && packageCodeList.size() > 0) {
+                    messages = this.buildMessageByPackageCodeList(request, packageCodeList);
+                } else {
+                    response.setCode(JdResponse.CODE_PARAM_ERROR);
+                    response.setMessage("无效箱号或为空箱");
+                }
+                break;
+            }
+            default: {
+                response.setCode(JdResponse.CODE_PARAM_ERROR);
+                response.setMessage("无法识别的条码");
+            }
         }
         ccInAndOutBoundProducer.batchSend(messages);
         return response;
     }
 
     private List<Message> buildMessageByPackageCode(ColdChainInAndOutBoundRequest request) {
-        CCInAndOutBoundMessage body = new CCInAndOutBoundMessage();
-        body.setPackageNo(request.getBarCode());
-        body.setWaybillNo(WaybillUtil.getWaybillCode(request.getBarCode()));
-        body.setOrgId(String.valueOf(request.getOrgId()));
-        body.setOrgName(request.getOrgName());
-        body.setSiteId(String.valueOf(request.getSiteId()));
-        body.setSiteName(request.getSiteName());
-        body.setOperateERP(request.getOperateERP());
-        body.setOperateTime(request.getOperateTime());
-        if (request.getOperateType() == 1) {
-            body.setOperateType(ColdChainOperateTypeEnum.IN_BOUND.getType());
-        } else {
-            body.setOperateType(ColdChainOperateTypeEnum.OUT_BOUND.getType());
-        }
-        Message message = new Message();
-        message.setBusinessId(request.getBarCode());
-        message.setText(JSON.toJSONString(body));
-        message.setTopic(ccInAndOutBoundProducer.getTopic());
-        List<Message> messageList = new ArrayList<>(1);
-        messageList.add(message);
-        return messageList;
-    }
-
-    private List<Message> buildMessageByWaybillCode(ColdChainInAndOutBoundRequest request, List<String> packageCodeList) {
-        String waybillCode = request.getBarCode();
-        CCInAndOutBoundMessage body = new CCInAndOutBoundMessage();
-        body.setWaybillNo(waybillCode);
-        body.setOrgId(String.valueOf(request.getOrgId()));
-        body.setOrgName(request.getOrgName());
-        body.setSiteId(String.valueOf(request.getSiteId()));
-        body.setSiteName(request.getSiteName());
-        body.setOperateERP(request.getOperateERP());
-        body.setOperateTime(request.getOperateTime());
-        if (request.getOperateType() == 1) {
-            body.setOperateType(ColdChainOperateTypeEnum.IN_BOUND.getType());
-        } else {
-            body.setOperateType(ColdChainOperateTypeEnum.OUT_BOUND.getType());
-        }
-        List<Message> messageList = new ArrayList<>();
-        for (String packageCode : packageCodeList) {
-            body.setPackageNo(packageCode);
-            Message message = new Message();
-            message.setBusinessId(request.getBarCode());
-            message.setText(JSON.toJSONString(body));
-            message.setTopic(ccInAndOutBoundProducer.getTopic());
-            messageList.add(message);
-        }
-        return messageList;
+        List<String> packageCodeList = new ArrayList<>(1);
+        packageCodeList.add(request.getBarCode());
+        return this.buildMessageByPackageCodeList(request, packageCodeList);
     }
 
     /**
@@ -275,7 +276,7 @@ public class ColdChainOperationServiceImpl implements ColdChainOperationService 
         return resultList;
     }
 
-    private List<Message> buildMessageByBoxCode(ColdChainInAndOutBoundRequest request, List<String> packageCodeList) {
+    private List<Message> buildMessageByPackageCodeList(ColdChainInAndOutBoundRequest request, List<String> packageCodeList) {
         CCInAndOutBoundMessage body = new CCInAndOutBoundMessage();
         body.setOrgId(String.valueOf(request.getOrgId()));
         body.setOrgName(request.getOrgName());

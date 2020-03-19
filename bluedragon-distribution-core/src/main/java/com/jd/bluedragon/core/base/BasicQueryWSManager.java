@@ -1,7 +1,6 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.tms.basic.dto.BasicDictDto;
-import com.jd.tms.basic.dto.BasicVehicleDto;
 import com.jd.tms.basic.dto.ConfNodeCarrierDto;
 
 import java.util.List;
@@ -31,17 +30,6 @@ public interface BasicQueryWSManager {
      * @return
      */
     List<BasicDictDto> getDictList(String parentCode, int dictLevel, String dictGroup);
-
-    /**
-     * BASIC车辆/车型信息查询接口
-     * 根据车牌号获取车辆信息
-     *
-     * @param vehicleNumber
-     * @return
-     * @throws Exception
-     */
-    BasicVehicleDto getVehicleByVehicleNumber(String vehicleNumber) throws Exception;
-
 
     /**
      * 获取车型查询接口
