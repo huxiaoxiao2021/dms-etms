@@ -169,6 +169,7 @@ $(function () {
                 $.ajaxHelper.doPostSync(url,JSON.stringify(params),function(res){
                     if(res&&res.succeed){
                         Jd.alert('操作成功');
+                        $("#edit-form #reviewOrgCode").val("");
                         tableInit().refresh();
                     }else if(res){
                         Jd.alert(res.message);

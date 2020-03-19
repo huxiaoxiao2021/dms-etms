@@ -25,10 +25,10 @@
     </bean>
     
 	<!-- 单点登录拦截器配置 -->
-<!--	<mvc:interceptors>
+	<mvc:interceptors>
 	  <mvc:interceptor>
 	    <mvc:mapping path="/**"/>
-	    &lt;!&ndash; 单点登录springmvc 拦截器bean &ndash;&gt;
+	    <!-- 单点登录springmvc 拦截器bean -->
 		<bean id="springSSOInterceptor" class="com.jd.common.springmvc.interceptor.SpringSSOInterceptor"
 		      init-method="initialize">
 		    <property name="appDomainName" value="${webapp.domain.name}"/>
@@ -41,7 +41,7 @@
 	  </mvc:interceptor>
 	   <mvc:interceptor>
             <mvc:mapping path="/**"/>
-		    &lt;!&ndash; Spring mvc 权限拦截器bean &ndash;&gt;
+		    <!-- Spring mvc 权限拦截器bean -->
 		    <bean id="springAuthorizationInterceptor" class="com.jd.common.authorization.DmsUimAuthorizationInterceptor">
 		        <property name="hrmPrivilegeHelper" ref="hrmPrivilegeHelper"/>
                 <property name="excludePath" value="${uim.exclude.code}"/>
@@ -50,19 +50,19 @@
         </mvc:interceptor>
 		<mvc:interceptor>
 			<mvc:mapping path="/**"/>
-			&lt;!&ndash; Spring mvc 当前人和在线用户是否一致 &ndash;&gt;
+			<!-- Spring mvc 当前人和在线用户是否一致 -->
 			<bean class="com.jd.bluedragon.distribution.interceptor.DmsSSOInterceptor" >
 				<property name="excludePath" value="${sso.exclude.path}"/>
 			</bean>
 		</mvc:interceptor>
-		&lt;!&ndash; 该拦截器发现有点多余 &ndash;&gt;
-		&lt;!&ndash;<mvc:interceptor>
+		<!-- 该拦截器发现有点多余 -->
+		<!--<mvc:interceptor>
 			<mvc:mapping path="/**"/>
 			&lt;!&ndash; Spring mvc 拦截web页面判断当前登陆人是否在职 &ndash;&gt;
 			<bean class="com.jd.bluedragon.distribution.interceptor.ResignationInterceptor" >
 				<property name="excludePath" value="${sso.exclude.path}"/>
 			</bean>
-		</mvc:interceptor>&ndash;&gt;
-	</mvc:interceptors>-->
+		</mvc:interceptor>-->
+	</mvc:interceptors>
 
 </beans>

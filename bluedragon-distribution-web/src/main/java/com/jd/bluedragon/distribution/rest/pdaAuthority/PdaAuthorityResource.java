@@ -51,6 +51,10 @@ public class PdaAuthorityResource {
             return result;
         }
 
+        //过滤掉场地的参数
+        if(whiteListrequest.getSiteCode() == 0){
+            whiteListrequest.setSiteCode(null);
+        }
         try{
             //查询PDA登陆人是否有验货权限
             int count = whiteListDao.query(whiteListrequest);
