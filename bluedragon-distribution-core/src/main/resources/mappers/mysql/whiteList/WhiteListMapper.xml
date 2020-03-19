@@ -31,7 +31,7 @@
     select
     <include refid="Base_Column_List"/>
     from
-    white_list
+    pda_menu_white_list
     where is_delete=0
     <if test="menuName != null">
       and menu_name = #{menuName,jdbcType=VARCHAR}
@@ -48,7 +48,7 @@
     select
     count(*)
     from
-    white_list
+    pda_menu_white_list
     where is_delete=0
     <if test="menuId != null">
       and menu_id = #{menuId,jdbcType=INTEGER}
@@ -65,7 +65,7 @@
   </select>
 
   <insert id="save" parameterType="com.jd.bluedragon.distribution.whitelist.WhiteList" >
-    insert into white_list
+    insert into pda_menu_white_list
     (
     <trim suffixOverrides=",">
       <if test="id != null">
@@ -154,7 +154,7 @@
   </insert>
 
   <update id="deleteByIds" parameterType="List">
-    update white_list
+    update pda_menu_white_list
     set is_delete = 1
     where id in
     <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
