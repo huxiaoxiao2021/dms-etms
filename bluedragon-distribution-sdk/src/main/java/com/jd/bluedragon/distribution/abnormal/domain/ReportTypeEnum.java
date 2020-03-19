@@ -23,6 +23,14 @@ public enum ReportTypeEnum {
         this.code = code;
         this.desc = desc;
     }
+    public static String getReportTypeName(int code){
+         for(ReportTypeEnum reportTypeEnum : ReportTypeEnum.values()){
+             if(reportTypeEnum.getCode() == code){
+                 return reportTypeEnum.getDesc();
+             }
+         }
+         return null;
+    }
 
     public Integer getCode() {
         return code;
