@@ -33,13 +33,17 @@ import com.jd.bluedragon.distribution.rest.product.LossProductResource;
 import com.jd.bluedragon.distribution.rest.task.TaskResource;
 import com.jd.bluedragon.distribution.rest.waybill.PreseparateWaybillResource;
 import com.jd.bluedragon.distribution.rest.waybill.WaybillResource;
+import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.wss.dto.BaseEntity;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Objects;
 
 /**
  * @author dudong
@@ -134,6 +138,9 @@ public class DmsInternalServiceImpl implements DmsInternalService {
     @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.addTask",mState = JProEnum.TP)
     public TaskResponse addTask(TaskRequest request) {
         try {
+            if(request != null && Objects.equals(Task.TASK_TYPE_INSPECTION,request.getType())){
+                log.warn("DmsInternalServiceImpl验货任务keyword2[{}]siteCode[{}]request[{}]", request.getKeyword2(),request.getSiteCode(), JsonHelper.toJson(request));
+            }
             return taskResource.add(request);
         } catch (Exception e) {
             log.error("addTask error ", e);
