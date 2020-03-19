@@ -1,10 +1,7 @@
 package com.jd.bluedragon.distribution.base.service.impl;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.BaseMinorManager;
-import com.jd.bluedragon.core.base.UserVerifyManager;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.redis.TaskMode;
 import com.jd.bluedragon.distribution.base.dao.SysConfigDao;
 import com.jd.bluedragon.distribution.base.domain.BasePdaUserDto;
@@ -41,6 +38,7 @@ import com.jd.ql.basic.ws.BasicMixedWS;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
 import com.jd.ssa.domain.UserInfo;
+import com.jd.tms.basic.dto.BasicVehicleDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -103,6 +101,9 @@ public class BaseServiceImpl implements BaseService {
     
     @Autowired
 	private VtsQueryWS vtsQueryWS;
+
+	@Autowired
+	private BasicQueryWSManager basicQueryWSManager;
 
     @Override
     public BasePdaUserDto pdaUserLogin(String userid, String password, ClientInfo clientInfo, Byte loginVersion) {
@@ -968,4 +969,5 @@ public class BaseServiceImpl implements BaseService {
 				.replace(Constants.SUFFIX_DMS_TWO,"")
 				.replace(Constants.SUFFIX_TRANSIT,"");
 	}
+
 }

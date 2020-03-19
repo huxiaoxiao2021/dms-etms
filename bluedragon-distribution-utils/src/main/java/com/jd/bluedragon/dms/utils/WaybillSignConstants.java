@@ -93,6 +93,8 @@ public interface WaybillSignConstants {
 	 * 共配
 	 */
 	char CHAR_118_1 = '1';
+    char CHAR_118_0 = '0';
+
 	/**
 	 * 隐藏收件人
 	 */
@@ -285,7 +287,7 @@ public interface WaybillSignConstants {
 	 */
 	int POSITION_55 = 55;
 	char CHAR_55_1 = '1';
-	
+
 	/**
 	 * WaybillSign第33位,9-物业代收 A-保安室代收 B-门口存放 C-用户指定
 	 */
