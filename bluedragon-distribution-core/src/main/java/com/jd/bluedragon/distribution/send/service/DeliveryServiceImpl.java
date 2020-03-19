@@ -1888,7 +1888,9 @@ public class DeliveryServiceImpl implements DeliveryService {
                     sendMItem.setUpdateUserCode(tSendM.getUpdateUserCode());
 
                     //将板号添加到板号集合中
-                    boardSet.add(sendMItem.getBoardCode());
+                    if(StringUtils.isNotBlank(sendMItem.getBoardCode())){
+                        boardSet.add(sendMItem.getBoardCode());
+                    }
 
                     /* 根据sendM组装sendD请求条件 */
                     SendDetail mSendDetail = new SendDetail();
@@ -1932,8 +1934,10 @@ public class DeliveryServiceImpl implements DeliveryService {
                     delDeliveryFromRedis(sendMItem);//取消发货成功，删除redis缓存的发货数据 根据boxCode和createSiteCode
                 }
                 //将板号的集合转换成String类型的列表
-                List<String> boardList = new CollectionHelper<String>().toList(boardSet);
-                changeBoardStatus(tSendM,boardList);
+                if(CollectionUtils.isNotEmpty(boardSet)){
+                    List<String> boardList = new CollectionHelper<String>().toList(boardSet);
+                    changeBoardStatus(tSendM,boardList);
+                }
                 Profiler.registerInfoEnd(callerInfo);
                 return new ThreeDeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, null);
             }

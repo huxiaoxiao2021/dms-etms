@@ -33,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -127,9 +128,11 @@ public class StrandServiceImpl implements StrandService {
         if(ReportTypeEnum.BATCH_NO.getCode().equals(reportType)){
             packageCodes = sendDetailService.queryPackageCodeBySendCode(sendDetail);
         }
+
         if(CollectionUtils.isEmpty(packageCodes)){
-            log.warn("根据箱号{}上报滞留包裹，箱号内无包裹号", request.getBarcode());
-            result.error("上报失败，该箱号无包裹信息！");
+            String reportTypeName = ReportTypeEnum.getReportTypeName(reportType);
+            log.warn("根据{}:{}上报滞留，内无包裹号", reportTypeName,request.getBarcode());
+            result.error(MessageFormat.format("上报失败，该{0}内无包裹信息！", reportTypeName));
             return result;
         }
         //发全程跟踪和上报明细消息
