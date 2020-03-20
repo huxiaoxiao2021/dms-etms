@@ -27,6 +27,62 @@ public class RouteTypeResponse extends BaseResponse {
     /** 承运商类型 1 京东自营，2 第三方 */
     private Integer carrierType;
 
+    /** 始发目的运力 */
+    private Integer startNodeId;
+    private Integer startNodeType;
+    private Integer startNodeSubType;
+    private Integer endNodeId;
+    private Integer endNodeType;
+    private Integer endNodeSubType;
+
+    public Integer getStartNodeId() {
+        return startNodeId;
+    }
+
+    public void setStartNodeId(Integer startNodeId) {
+        this.startNodeId = startNodeId;
+    }
+
+    public Integer getStartNodeType() {
+        return startNodeType;
+    }
+
+    public void setStartNodeType(Integer startNodeType) {
+        this.startNodeType = startNodeType;
+    }
+
+    public Integer getStartNodeSubType() {
+        return startNodeSubType;
+    }
+
+    public void setStartNodeSubType(Integer startNodeSubType) {
+        this.startNodeSubType = startNodeSubType;
+    }
+
+    public Integer getEndNodeId() {
+        return endNodeId;
+    }
+
+    public void setEndNodeId(Integer endNodeId) {
+        this.endNodeId = endNodeId;
+    }
+
+    public Integer getEndNodeType() {
+        return endNodeType;
+    }
+
+    public void setEndNodeType(Integer endNodeType) {
+        this.endNodeType = endNodeType;
+    }
+
+    public Integer getEndNodeSubType() {
+        return endNodeSubType;
+    }
+
+    public void setEndNodeSubType(Integer endNodeSubType) {
+        this.endNodeSubType = endNodeSubType;
+    }
+
     public int getRouteType() {
         return routeType;
     }

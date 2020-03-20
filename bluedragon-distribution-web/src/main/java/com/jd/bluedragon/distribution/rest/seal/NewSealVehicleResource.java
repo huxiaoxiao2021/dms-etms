@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.rest.seal;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.blockcar.enumeration.SealCarSourceEnum;
+import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
 import com.jd.bluedragon.core.base.TmsTfcWSManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
@@ -34,10 +36,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * create by zhanglei 2017-05-10
@@ -56,6 +68,13 @@ import java.util.*;
 public class NewSealVehicleResource {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
+
+    /**
+     *  运力网点中转站
+     *      类型2、子类型203
+     * */
+    private static final Integer TRANSPORT_NODE_TYPE = 2;
+    private static final Integer TRANSPORT_NODE_SUB_TYPE = 203;
 
     @Autowired
     private NewSealVehicleService newsealVehicleService;
@@ -146,6 +165,12 @@ public class NewSealVehicleResource {
         response.setTransWay(data.getTransMode());
         response.setTransWayName(data.getTransModeName());
         response.setCarrierType(data.getTransType());
+        response.setStartNodeId(data.getStartNodeId());
+        response.setStartNodeType(data.getStartNodeType());
+        response.setStartNodeSubType(data.getStartNodeSubType());
+        response.setEndNodeId(data.getEndNodeId());
+        response.setEndNodeType(data.getEndNodeType());
+        response.setEndNodeSubType(data.getEndNodeSubType());
 
         //运力校验
         if (createSiteCode.equals(data.getStartNodeId())) {
@@ -334,6 +359,65 @@ public class NewSealVehicleResource {
         return sealVehicleResponse;
     }
 
+    /**
+     * 检查运力编码和批次号目的地是否一致(新)
+     */
+    @POST
+    @Path("/new/vehicle/seal/check")
+    public NewSealVehicleResponse newCheckTranCodeAndBatchCode(SealCarPreRequest sealCarPreRequest) {
+        NewSealVehicleResponse sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
+        String sendCode = sealCarPreRequest.getSendCode();
+        Integer sealCarType = sealCarPreRequest.getSealCarType();
+        String transportCode = sealCarPreRequest.getTransportCode();
+        Integer sealCarSource = sealCarPreRequest.getSealCarSource();
+        try {
+            //1.检查批次号
+            checkBatchCode(sealVehicleResponse, sendCode);
+            if (Constants.SEAL_TYPE_TRANSPORT.equals(sealCarType)
+                    && JdResponse.CODE_OK.equals(sealVehicleResponse.getCode())) {
+                com.jd.etms.vts.dto.CommonDto<VtsTransportResourceDto> vtsDto
+                        = newsealVehicleService.getTransportResourceByTransCode(transportCode);
+                if (vtsDto == null) {
+                    sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
+                    sealVehicleResponse.setMessage("查询运力信息结果为空:" + transportCode);
+                    return sealVehicleResponse;
+                }
+                if (Constants.RESULT_SUCCESS == vtsDto.getCode() && vtsDto.getData() != null) {
+                    /**
+                     * 校验规则
+                     *  1、普通封车：校验运力编码目的地和批次目的地一致
+                     *  2、传摆封车：满足1或者运力编码目的网点是中转场(网点类型为2子类型为203)
+                     * */
+                    Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(sendCode);
+                    Integer endNodeId = vtsDto.getData().getEndNodeId();
+                    Integer endNodeType = vtsDto.getData().getEndNodeType();
+                    Integer endNodeSubType = vtsDto.getData().getEndNodeSubType();
+                    if (receiveSiteCode.equals(endNodeId)
+                            || (SealCarSourceEnum.FERRY_SEAL_CAR.getCode().equals(sealCarSource)
+                            && TRANSPORT_NODE_TYPE.equals(endNodeType) && TRANSPORT_NODE_SUB_TYPE.equals(endNodeSubType))) {
+                        sealVehicleResponse.setCode(JdResponse.CODE_OK);
+                        sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
+                    } else {
+                        sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
+                        sealVehicleResponse.setMessage(NewSealVehicleResponse.TIPS_RECEIVESITE_DIFF_ERROR);
+                    }
+                } else if (Constants.RESULT_WARN == vtsDto.getCode()) {
+                    sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
+                    sealVehicleResponse.setMessage(vtsDto.getMessage());
+                } else {
+                    sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
+                    sealVehicleResponse.setMessage("查询运力信息出错！");
+                    log.warn("根据运力编码：【{}】查询运力信息出错,出错原因:{}", transportCode,vtsDto.getMessage());
+                }
+            }
+        } catch (Exception e) {
+            sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
+            sealVehicleResponse.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+            this.log.error("封车检查运力编码和批次号目的地是否一致出错：批次号->{}运力编码->{}", sendCode, transportCode, e);
+        }
+        return sealVehicleResponse;
+    }
+
 
     /**
      * 校验车牌号能否封车创建车次任务
@@ -366,6 +450,39 @@ public class NewSealVehicleResource {
             sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
             sealVehicleResponse.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
             this.log.error("校验车牌号能否封车创建车次任务异常.运力编码:{},车牌号:{}",transportCode, vehicleNumber, e);
+        }
+        return sealVehicleResponse;
+    }
+
+    /**
+     * 校验车牌号能否封车创建车次任务（新）
+     */
+    @POST
+    @Path("/new/vehicle/seal/newVerifyVehicleJobByVehicleNumber")
+    public NewSealVehicleResponse newVerifyVehicleJobByVehicleNumber(SealCarPreRequest sealCarPreRequest) {
+        NewSealVehicleResponse sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
+        try {
+            //按运力封车，需要校验车牌号能否生成车次任务
+            if (Constants.SEAL_TYPE_TRANSPORT.equals(sealCarPreRequest.getSealCarType())) {
+                CommonDto<String> dto = newsealVehicleService.newVerifyVehicleJobByVehicleNumber(sealCarPreRequest);
+                if (dto == null) {
+                    log.warn("校验车牌号能否封车创建车次任务失败,请求参数：【{}】",JsonHelper.toJson(sealCarPreRequest));
+                    sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
+                    sealVehicleResponse.setMessage("校验车牌号能否封车创建车次任务失败!");
+                    return sealVehicleResponse;
+                }
+                if (Constants.RESULT_SUCCESS == dto.getCode()) {
+                    sealVehicleResponse.setCode(JdResponse.CODE_OK);
+                    sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
+                }else {
+                    sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
+                    sealVehicleResponse.setMessage(dto.getMessage());
+                }
+            }
+        } catch (Exception e) {
+            sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
+            sealVehicleResponse.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+            this.log.error("校验车牌号能否封车创建车次任务失败,请求参数：【{}】",JsonHelper.toJson(sealCarPreRequest),e);
         }
         return sealVehicleResponse;
     }

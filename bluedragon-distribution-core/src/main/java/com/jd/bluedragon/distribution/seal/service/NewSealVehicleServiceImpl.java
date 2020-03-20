@@ -4,6 +4,7 @@ package com.jd.bluedragon.distribution.seal.service;
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
+import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
 import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.core.jmq.domain.SealCarMqDto;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -13,10 +14,7 @@ import com.jd.bluedragon.distribution.api.request.cancelSealRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
-import com.jd.bluedragon.distribution.log.BizTypeConstants;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
-import com.jd.dms.logger.external.LogEngine;
-import com.jd.bluedragon.distribution.log.OperateTypeConstants;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicleEnum;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicles;
 import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
@@ -28,7 +26,13 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.SystemLogContants;
 import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.dms.logger.external.BusinessLogProfiler;
-import com.jd.etms.vos.dto.*;
+import com.jd.dms.logger.external.LogEngine;
+import com.jd.etms.vos.dto.CancelSealCarDto;
+import com.jd.etms.vos.dto.CommonDto;
+import com.jd.etms.vos.dto.PageDto;
+import com.jd.etms.vos.dto.SealCarDto;
+import com.jd.etms.vos.dto.SealCarInAreaDto;
+import com.jd.etms.vos.dto.VerifyVehicleJobDto;
 import com.jd.etms.vos.ws.VosBusinessWS;
 import com.jd.etms.vos.ws.VosQueryWS;
 import com.jd.etms.vts.dto.VtsTransportResourceDto;
@@ -48,7 +52,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Service("newSealVehicleService")
 public class NewSealVehicleServiceImpl implements NewSealVehicleService {
@@ -547,10 +555,24 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
      * @param vehicleNumber 车牌号
      * @return
      */
+    @Deprecated
     public CommonDto<String> verifyVehicleJobByVehicleNumber(String transportCode,String vehicleNumber){
         VerifyVehicleJobDto dto = new VerifyVehicleJobDto();
         dto.setTransportCode(transportCode);
         dto.setVehicleNumber(vehicleNumber);
+        return vosManager.verifyVehicleJobByVehicleNumber(dto);
+    }
+
+    /**
+     * 校验车牌号能否生成车次任务（新）
+     * @param sealCarPreRequest
+     * @return
+     */
+    public CommonDto<String> newVerifyVehicleJobByVehicleNumber(SealCarPreRequest sealCarPreRequest){
+        VerifyVehicleJobDto dto = new VerifyVehicleJobDto();
+        dto.setTransportCode(sealCarPreRequest.getTransportCode());
+        dto.setVehicleNumber(sealCarPreRequest.getVehicleNumber());
+        dto.setSealUserCode(sealCarPreRequest.getOperateErp());
         return vosManager.verifyVehicleJobByVehicleNumber(dto);
     }
 

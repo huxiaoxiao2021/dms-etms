@@ -3,9 +3,11 @@ package com.jd.bluedragon.external.gateway.service;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.blockcar.request.CapacityInfoRequest;
 import com.jd.bluedragon.common.dto.blockcar.request.CheckTransportCodeRequest;
+import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
 import com.jd.bluedragon.common.dto.blockcar.request.SealCarRequest;
 import com.jd.bluedragon.common.dto.blockcar.request.SealCarTaskInfoRequest;
 import com.jd.bluedragon.common.dto.blockcar.response.SealCarTaskInfoDto;
+import com.jd.bluedragon.common.dto.blockcar.response.TransportInfoDto;
 import com.jd.bluedragon.common.dto.seal.request.CancelSealRequest;
 
 /**
@@ -21,13 +23,19 @@ public interface NewSealVehicleGatewayService {
 
     JdCResponse<Integer> getAndCheckTransportCode(CapacityInfoRequest request);
 
+    JdCResponse<TransportInfoDto> getTransportInfoByCode(CapacityInfoRequest request);
+
     JdCResponse checkTransportCode(CheckTransportCodeRequest request);
 
     JdCResponse checkTranCodeAndBatchCode(String transportCode, String batchCode, Integer sealCarType);
 
+    JdCResponse newCheckTranCodeAndBatchCode(SealCarPreRequest sealCarPreRequest);
+
     JdCResponse sealCar(SealCarRequest sealCarRequest);
 
     JdCResponse verifyVehicleJobByVehicleNumber(String transportCode, String vehicleNumber, Integer sealCarType);
+
+    JdCResponse newVerifyVehicleJobByVehicleNumber(SealCarPreRequest sealCarPreRequest);
 
     JdCResponse doSealCarWithVehicleJob(SealCarRequest sealCarRequest);
 
