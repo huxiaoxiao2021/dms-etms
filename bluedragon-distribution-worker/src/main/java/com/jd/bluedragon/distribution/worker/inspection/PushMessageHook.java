@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -21,7 +22,11 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * 推送验货MQ消息
@@ -65,7 +70,11 @@ public class PushMessageHook implements TaskHook<InspectionTaskExecuteContext> {
     }
 
     private void pushColdChainOperateMQ (InspectionTaskExecuteContext context) {
-        String waybillSign = context.getBigWaybillDto().getWaybill().getWaybillSign();
+        Waybill waybill = context.getBigWaybillDto().getWaybill();
+        if (waybill == null) {
+            return;
+        }
+        String waybillSign = waybill.getWaybillSign();
         if (!(BusinessUtil.isColdChainKBWaybill(waybillSign) || BusinessUtil.isColdChainCityDeliveryWaybill(waybillSign))) {
             return ;
         }
