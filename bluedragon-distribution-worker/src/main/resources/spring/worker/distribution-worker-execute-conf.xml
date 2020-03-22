@@ -26,48 +26,4 @@
 	<!-- 特殊业务 -->
 	<!--<import resource="classpath:spring/worker/db/distribution-worker-task-special.xml" />-->
 
-
-
-	<!-- 离线 -->
-	<bean id="offlineCoreTask" class="com.jd.bluedragon.distribution.framework.BaseDBSingleScheduler"
-		  parent = "baseDBSingleScheduler">
-		<property name="taskType" value="OfflineCoreTask"/>
-		<property name="dmsTaskExecutor" ref="offlineCoreTaskExecutor"/>
-		<property name="type" value="1800"/>
-		<property name="desc" value="离线任务"/>
-	</bean>
-
-	<!--<bean id="qualityControlTask" class="com.jd.bluedragon.distribution.worker.QualityControl.QualityControlTask"
-              init-method="init" lazy-init="false" depends-on="managerFactory">
-            <property name="dataSource" ref="taskDataSource"/>
-            <property name="taskType" value="QualityControlTask"/>
-            <property name="managerFactory" ref="managerFactory"/>
-            <property name="ownSign" value="${ownSign}"/>
-            <property name="type" value="3340"/>
-            <property name="desc" value="发送质控系统，配送外呼任务"/>
-        </bean>
-
-
-        <bean id="inspectionTask" class="com.jd.bluedragon.distribution.worker.InspectionTask"
-              init-method="init" lazy-init="false" depends-on="managerFactory">
-            <property name="dataSource" ref="taskDataSource"/>
-            <property name="taskType" value="InspectionTaskN"/>
-            <property name="managerFactory" ref="managerFactory"/>
-            <property name="ownSign" value="${ownSign}"/>
-            <property name="type" value="1130"/>
-            <property name="desc" value="分拣中心验货任务"/>
-        </bean>-->
-
-
-	<!--<bean id="reverseSendTask"
-		  class="com.jd.bluedragon.distribution.worker.reverse.ReverseSendTask"
-		  init-method="init" lazy-init="false" depends-on="managerFactory">
-		<property name="dataSource" ref="taskDataSource"/>
-		<property name="taskType" value="ReverseSendTask"/>
-		<property name="managerFactory" ref="managerFactory"/>
-		<property name="ownSign" value="DMS"/>
-		<property name="type" value="1300"/>
-		<property name="keyType" value="4"/>
-		<property name="desc" value="逆向发货回传任务"/>
-	</bean>-->
 </beans>

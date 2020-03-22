@@ -82,6 +82,11 @@ public class SealCarDto implements Serializable {
      */
     private String sealUserName;
 
+    /**
+     * 托盘数
+     */
+    private String palletCount;
+
     @Override
     public String toString() {
         return "SealCarDto{" +
@@ -99,6 +104,7 @@ public class SealCarDto implements Serializable {
                 ", sealSiteName='" + sealSiteName + '\'' +
                 ", sealUserCode='" + sealUserCode + '\'' +
                 ", sealUserName='" + sealUserName + '\'' +
+                ", palletCount='" + palletCount + '\'' +
                 '}';
     }
 
@@ -212,5 +218,13 @@ public class SealCarDto implements Serializable {
 
     public void setSealUserName(String sealUserName) {
         this.sealUserName = sealUserName;
+    }
+
+    public String getPalletCount() {
+        return palletCount;
+    }
+
+    public void setPalletCount(String palletCount) {
+        this.palletCount = palletCount;
     }
 }

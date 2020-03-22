@@ -1,5 +1,6 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -28,20 +29,23 @@ public class IAbnPdaAPIManagerImpl implements IAbnPdaAPIManager {
     private IAbnPdaAPI iAbnPdaAPI;
 
     @JProfiler(jKey = "DMSWEB.IAbnPdaAPIManagerImpl.selectAbnReasonByErp", mState = {JProEnum.TP})
-    @Cache(key = "IAbnPdaAPIManager.selectAbnReasonByErp@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+    @Cache(key = "IAbnPdaAPIManager.selectAbnReasonByErp@args0", memoryEnable = true, memoryExpiredTime = 3 * 60 * 1000, redisEnable = true, redisExpiredTime = 5 * 60 * 1000)
     @Override
     public Map<String, AbnormalReasonDto> selectAbnReasonByErp(String userErp) {
-
+        logger.info("调用质控系统JSF接口获取质控侧异常原因，ERP：{}", userErp);
         List<AbnormalReasonDto> abnormalReasonDtoList = null;
         try {
-            abnormalReasonDtoList = iAbnPdaAPI.selectAbnReasonByErp(userErp, PROCESS_NODE);
+            abnormalReasonDtoList = iAbnPdaAPI.selectAbnReasonByErpForZY(userErp, PROCESS_NODE);
         } catch (Exception e) {
-            logger.error("调用质控系统selectAbnReasonByErp JSF接口异常！", e);
+            logger.error("调用质控系统selectAbnReasonByErp JSF接口异常！ERP：{}", userErp, e);
         }
 
         if (abnormalReasonDtoList == null || abnormalReasonDtoList.size() == 0) {
+            logger.warn("调用质控系统selectAbnReasonByErp JSF接口返回原因列表为null！ERP：{}", userErp);
             return null;
         }
+
+        logger.info("调用质控系统JSF接口获取质控侧异常原因列表：{}", JsonHelper.toJson(abnormalReasonDtoList));
 
         Map<String, AbnormalReasonDto> abnormalReasonDtoMap = new HashMap<>(abnormalReasonDtoList.size());
 

@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.task.service;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.redis.TaskModeAgent;
 import com.jd.bluedragon.distribution.api.request.AutoSortingPackageDto;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
@@ -83,6 +84,9 @@ public class TaskServiceImpl implements TaskService {
 
 	@Autowired
     private TBTaskQueueService tbTaskQueueService;
+
+	@Autowired
+	private WaybillTraceManager waybillTraceManager;
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -170,6 +174,13 @@ public class TaskServiceImpl implements TaskService {
                 }
             }
         }
+
+        //超长校验
+		if (StringHelper.isNotEmpty(task.getBody()) && task.getBody().length() > 2000) {
+			log.error("插入任务失败，body字段超长，参数：{}", JsonHelper.toJson(task));
+			return 0;
+		}
+
         //获取当前任务类型队列数量
         //随机生成队列数
         Map<String, Integer> allQueueSize = tbTaskQueueService.findAllQueueSize();
@@ -335,6 +346,10 @@ public class TaskServiceImpl implements TaskService {
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     @Override
     public Integer doAddWithStatus(Task task) {
+		if (StringHelper.isNotEmpty(task.getBody()) && task.getBody().length() > 2000) {
+			log.error("插入任务失败，body字段超长，参数：{}", JsonHelper.toJson(task));
+			return 0;
+		}
         TaskDao routerDao = taskDao;
 		//随机生成队列数
 		Map<String, Integer> allQueueSize = tbTaskQueueService.findAllQueueSize();
@@ -593,6 +608,16 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void addInspectSortingTaskDirectly(AutoSortingPackageDto packageDtos) throws Exception{
+		String waybillCode = WaybillUtil.getWaybillCode(packageDtos.getWaybillCode());
+		if(StringUtils.isBlank(waybillCode)){
+			log.error("{}非包裹号或运单号", packageDtos.getWaybillCode());
+			return;
+		}
+		//检查订单是否已妥投
+		if(waybillTraceManager.isWaybillFinished(waybillCode)){
+			log.error("运单{}已妥投，不能再继续分拣", waybillCode);
+			return;
+		}
 		add(toSortingTask(packageDtos));
 
 		//modified by zhanglei 20171127  这里做一下处理，如果是智配中心上传的数据，不再添加验货任务
@@ -600,9 +625,6 @@ public class TaskServiceImpl implements TaskService {
 		if(distribution != null && distribution.getSiteType().intValue() != 4){
 			add(toInspectionTask(packageDtos));
 		}
-//        if (add(toInspectionTask(packageDtos)) <= 0 || add(toSortingTask(packageDtos)) <= 0) {
-//            throw new Exception("智能分拣线生成交接、分拣任务出错，两个之中有一个可能失败");
-//        }
     }
 
     private Task toSortingTask(AutoSortingPackageDto dto){

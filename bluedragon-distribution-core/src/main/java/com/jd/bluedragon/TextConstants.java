@@ -139,4 +139,16 @@ public class TextConstants {
      * KA标识
      */
     public static final String KA_FLAG = "KA";
+    /**
+     * 特准包裹-标识-‘快’
+     */
+    public static final String	PECIAL_TIMELY_MARK="快";
+    /**
+     * 纯配B2B运单、纯配C转B添加水印“B”
+     */
+    public static final String	PECIAL_B_MARK="B";
+    /**
+     * 无接触标识‘代’
+     */
+    public static final String NO_TOUCH_FLAG = "代";
 }

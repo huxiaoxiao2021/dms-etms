@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.api.response;
 
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.domain.DmsClientConfigInfo;
 
 /**
  * 
@@ -86,6 +87,19 @@ public class LoginUserResponse extends JdResponse {
 	 * 登录id
 	 */
 	private Long loginId;
+    /**
+     * 标识是否需要更新
+     */
+    private Boolean needUpdate = Boolean.FALSE;
+	/**
+	 * 标识是否强制升级
+	 */
+	private Boolean forceUpdate = Boolean.FALSE;
+	 /**
+	  *  客户端配置信息
+	  */
+	private DmsClientConfigInfo dmsClientConfigInfo;
+	
 	/**
 	 * @return the dmsSiteCode
 	 */
@@ -244,6 +258,42 @@ public class LoginUserResponse extends JdResponse {
 	 */
 	public void setLoginId(Long loginId) {
 		this.loginId = loginId;
+	}
+	/**
+	 * @return the needUpdate
+	 */
+	public Boolean getNeedUpdate() {
+		return needUpdate;
+	}
+	/**
+	 * @param needUpdate the needUpdate to set
+	 */
+	public void setNeedUpdate(Boolean needUpdate) {
+		this.needUpdate = needUpdate;
+	}
+	/**
+	 * @return the forceUpdate
+	 */
+	public Boolean getForceUpdate() {
+		return forceUpdate;
+	}
+	/**
+	 * @param forceUpdate the forceUpdate to set
+	 */
+	public void setForceUpdate(Boolean forceUpdate) {
+		this.forceUpdate = forceUpdate;
+	}
+	/**
+	 * @return the dmsClientConfigInfo
+	 */
+	public DmsClientConfigInfo getDmsClientConfigInfo() {
+		return dmsClientConfigInfo;
+	}
+	/**
+	 * @param dmsClientConfigInfo the dmsClientConfigInfo to set
+	 */
+	public void setDmsClientConfigInfo(DmsClientConfigInfo dmsClientConfigInfo) {
+		this.dmsClientConfigInfo = dmsClientConfigInfo;
 	}
 	public BaseResponse toOldLoginResponse() {
 		BaseResponse baseResponse = new BaseResponse(super.getCode(), super.getMessage());

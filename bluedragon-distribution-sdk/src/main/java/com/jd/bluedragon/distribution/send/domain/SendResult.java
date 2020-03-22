@@ -24,6 +24,7 @@ public class SendResult implements Serializable {
      */
     public static final Integer CODE_SENDED = 2;
     public static final String MESSAGE_SENDED = "箱子已经在该批次中发货";
+    public static final String FRESH_MESSAGE_SENDED = "当前批次为生鲜运单，请更换批次号";
     /**
      * 发货确认
      */

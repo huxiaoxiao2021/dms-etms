@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.rest.ucc;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.ql.dms.print.utils.ObjectHelper;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -9,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import javax.annotation.Resource;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
@@ -31,9 +34,7 @@ public class UccConfigResource {
         String filedName = configureKey;
         String returnValue = null;
         try {
-            Method method = uccPropertyConfiguration.getClass().getDeclaredMethod("get" + filedName.substring(0, 1).toUpperCase() + filedName.substring(1), null);
-            Object value = method.invoke(uccPropertyConfiguration);
-            returnValue = String.valueOf(value) + "#" + value.getClass().getSimpleName();
+            returnValue = filedName + "="+ObjectHelper.getValue(uccPropertyConfiguration, filedName);
         } catch (Exception e) {
             returnValue = "获取ucc配置失败：" + e.getMessage();
             log.error(returnValue,e);

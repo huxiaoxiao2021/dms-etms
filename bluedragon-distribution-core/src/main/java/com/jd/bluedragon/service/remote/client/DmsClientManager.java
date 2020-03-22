@@ -6,6 +6,8 @@ import com.jd.bluedragon.sdk.modules.client.dto.DmsClientHeartbeatResponse;
 import com.jd.bluedragon.sdk.modules.client.dto.DmsClientLoginRequest;
 import com.jd.bluedragon.sdk.modules.client.dto.DmsClientLoginResponse;
 import com.jd.bluedragon.sdk.modules.client.dto.DmsClientLogoutRequest;
+import com.jd.bluedragon.sdk.modules.client.dto.DmsClientVersionRequest;
+import com.jd.bluedragon.sdk.modules.client.dto.DmsClientVersionResponse;
 
 /**
  * 
@@ -34,4 +36,10 @@ public interface DmsClientManager {
 	 * @return
 	 */
 	JdResult<DmsClientHeartbeatResponse> sendHeartbeat(DmsClientHeartbeatRequest dmsClientHeartbeatRequest);
+	/**
+	 * 获取版本号信息
+	 * @param dmsClientVersionRequest
+	 * @return
+	 */
+	JdResult<DmsClientVersionResponse> getClientVersion(DmsClientVersionRequest dmsClientVersionRequest);
 }

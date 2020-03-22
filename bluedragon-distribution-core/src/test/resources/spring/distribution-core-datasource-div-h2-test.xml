@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+    http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd">
+
+
+
+    <!-- undiv 写-->
+    <jdbc:embedded-database id="dms_main_div" type="H2">
+        <jdbc:script location="classpath:h2/div/mode.sql"/>
+        <jdbc:script location="classpath:h2/div/bd_dms_core_divdb_h2_ddl.sql"/>
+        <jdbc:script location="classpath:h2/div/dml.sql"/>
+    </jdbc:embedded-database>
+
+    <bean id="transactionManager_div"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dms_main_div"/>
+        <qualifier value="main_div"/>
+    </bean>
+
+    <tx:annotation-driven transaction-manager="transactionManager_div" proxy-target-class="true"/>
+
+    <bean id="divSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dms_main_div"/>
+        <property name="configLocation" value="classpath:config/mysql/mybatis-config.xml"/>
+    </bean>
+
+    <bean id="divSqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="divSqlSessionFactory"/>
+    </bean>
+    <!-- dms单库写库 数据源 end -->
+
+
+    <!-- div 读-->
+    <jdbc:embedded-database id="dms_main_read_div" type="H2">
+        <jdbc:script location="classpath:h2/div/mode.sql"/>
+        <jdbc:script location="classpath:h2/div/bd_dms_core_divdb_h2_ddl.sql"/>
+        <jdbc:script location="classpath:h2/div/dml.sql"/>
+    </jdbc:embedded-database>
+
+    <bean id="readDivSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dms_main_read_div"/>
+        <property name="configLocation" value="classpath:config/mysql/mybatis-config-read.xml"/>
+    </bean>
+
+    <bean id="readDivSqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="readDivSqlSessionFactory"/>
+    </bean>
+    <!-- dms单库读库 数据源 end -->
+
+</beans>

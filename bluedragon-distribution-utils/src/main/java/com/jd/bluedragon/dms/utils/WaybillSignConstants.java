@@ -35,6 +35,8 @@ public interface WaybillSignConstants {
 	int POSITION_40 = 40;
 	char CHAR_40_2='2';
 	char CHAR_40_3='3';
+	char CHAR_40_6='6';
+	char CHAR_40_7='7';
 	/**
 	 * B与C转网模式说明: 0：未转网
 		1：C转B
@@ -64,6 +66,10 @@ public interface WaybillSignConstants {
 	 */
 	int POSITION_89 = 89;
 	/**
+	 *
+	 */
+	char CHAR_89_0 = '0';
+	/**
 	 * TC-1
 	 */
 	char CHAR_89_1 = '1';
@@ -77,6 +83,32 @@ public interface WaybillSignConstants {
 	 */
 	int POSITION_80 = 80;
 	char CHAR_80_7 = '7';
+	/**
+	 * 城配
+	 */
+	char CHAR_80_6 = '6';
+
+	int POSITION_118 = 118;
+	/**
+	 * 共配
+	 */
+	char CHAR_118_1 = '1';
+    char CHAR_118_0 = '0';
+
+	/**
+	 * 隐藏收件人
+	 */
+	int POSITION_37 = 37;
+	char CHAR_37_0 = '0';
+	/**
+	 * 隐藏寄件人
+	 */
+	int POSITION_47 = 47;
+	char CHAR_47_0 = '0';
+	/**
+	 * 特准包裹
+	 */
+	char CHAR_80_9 = '9';
 
 	/**
 	 * B网冷链
@@ -173,6 +205,7 @@ public interface WaybillSignConstants {
 	 */
 	int POSITION_31 = 31;
 	char CHAR_31_9 = '9';
+	char CHAR_31_A = 'A';
 
 	/**
 	 * waybillsign第36位
@@ -234,8 +267,33 @@ public interface WaybillSignConstants {
 	char CHAR_16_1 = '1';
 
 	/**
+	 * 寄付月结 waybillSign第14位为0
+	 * 自提 waybillSign第79位为2
+	 * */
+	int POSITION_14 = 14;
+	char CHAR_14_0 = '0';
+	int POSITION_79 = 79;
+	char CHAR_79_2 = '2';
+
+
+	/**
 	 * 经济网 62位为8
 	 */
 	int BUSINESS_ENET_POSITION_62 = 62;
 	char BUSINESS_ENET_CHAR_62_8 = '8';
+
+	/**
+	 * 生鲜专送：55位为1
+	 */
+	int POSITION_55 = 55;
+	char CHAR_55_1 = '1';
+
+	/**
+	 * WaybillSign第33位,9-物业代收 A-保安室代收 B-门口存放 C-用户指定
+	 */
+	int POSITION_33 = 33;
+	char CHAR_33_9 = '9';
+	char CHAR_33_A = 'A';
+	char CHAR_33_B = 'B';
+	char CHAR_33_C = 'C';
 }

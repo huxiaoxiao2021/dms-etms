@@ -19,6 +19,8 @@ import com.jd.bluedragon.sdk.modules.client.dto.DmsClientHeartbeatResponse;
 import com.jd.bluedragon.sdk.modules.client.dto.DmsClientLoginRequest;
 import com.jd.bluedragon.sdk.modules.client.dto.DmsClientLoginResponse;
 import com.jd.bluedragon.sdk.modules.client.dto.DmsClientLogoutRequest;
+import com.jd.bluedragon.sdk.modules.client.dto.DmsClientVersionRequest;
+import com.jd.bluedragon.sdk.modules.client.dto.DmsClientVersionResponse;
 import com.jd.bluedragon.service.remote.client.DmsClientManager;
 
 
@@ -28,8 +30,6 @@ import com.jd.bluedragon.service.remote.client.DmsClientManager;
 @Produces({ MediaType.APPLICATION_JSON })
 public class ClientResource {
 
-	private final static Logger log = LoggerFactory.getLogger(ClientResource.class);
-	
 	@Autowired
 	private UserService userService;
 	
@@ -52,6 +52,16 @@ public class ClientResource {
 	@Path("/client/sendHeartbeat")
 	public JdResult<DmsClientHeartbeatResponse> sendHeartbeat(DmsClientHeartbeatRequest dmsClientHeartbeatRequest){
 		return userService.sendHeartbeat(dmsClientHeartbeatRequest);
+	}
+	/**
+	 * 获取线上版本号接口
+	 * @param dmsClientVersionRequest
+	 * @return
+	 */
+	@POST
+	@Path("/client/getClientVersion")
+	public JdResult<DmsClientVersionResponse> getClientVersion(DmsClientVersionRequest dmsClientVersionRequest){
+		return dmsClientManager.getClientVersion(dmsClientVersionRequest);
 	}
 }
 

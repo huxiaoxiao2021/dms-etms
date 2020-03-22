@@ -100,6 +100,16 @@ public class WeightVolumeEntity {
      */
     private Date operateTime;
 
+    /**
+     * 长包裹 0:普通包裹 1:长包裹
+     * */
+    private Integer longPackage;
+
+    public WeightVolumeEntity longPackage(Integer longPackage){
+        this.longPackage = longPackage;
+        return this;
+    }
+
     public WeightVolumeEntity barCode(String barCode){
         this.barCode = barCode;
         return this;
@@ -183,6 +193,14 @@ public class WeightVolumeEntity {
     public WeightVolumeEntity operateTime(Date operateTime){
         this.operateTime = operateTime;
         return this;
+    }
+
+    public Integer getLongPackage() {
+        return longPackage;
+    }
+
+    public void setLongPackage(Integer longPackage) {
+        this.longPackage = longPackage;
     }
 
     public String getBarCode() {

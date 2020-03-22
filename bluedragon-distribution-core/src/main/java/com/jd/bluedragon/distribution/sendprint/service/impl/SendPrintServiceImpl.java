@@ -25,6 +25,7 @@ import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.send.service.SendMService;
+import com.jd.bluedragon.distribution.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.sendprint.domain.*;
 import com.jd.bluedragon.distribution.sendprint.service.SendPrintService;
 import com.jd.bluedragon.distribution.sendprint.utils.SendPrintConstants;
@@ -103,6 +104,9 @@ public class SendPrintServiceImpl implements SendPrintService {
 
     @Autowired
     WaybillPackageManager waybillPackageManager;
+
+    @Autowired
+    private SendCodeService sendCodeService;
 
     private static int PARAM_CM3_M3 = 1000000;//立方厘米和立方米的换算基数
 
@@ -901,6 +905,12 @@ public class SendPrintServiceImpl implements SendPrintService {
             entity.setDestinationCrossCode(crossPackageTag.getDestinationCrossCode());
             entity.setDestinationTabletrolleyCode(crossPackageTag.getDestinationTabletrolleyCode());
         }
+
+        /* 读取flagText字段：1.是否生鲜批次，追加“鲜”字 */
+        if (sendCodeService.isFreshSendCode(criteria.getSendCode())) {
+            entity.setFlagText("鲜");
+        }
+
         return entity;
     }
 

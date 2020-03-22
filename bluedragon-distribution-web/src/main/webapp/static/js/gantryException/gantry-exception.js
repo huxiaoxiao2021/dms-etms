@@ -143,6 +143,8 @@ function doQuery(params) {
                     reason = "订单拦截";
                 else if (dataList[i].type == 24)
                     reason = "无落格时间";
+                else if (dataList[i].type == 25)
+                    reason = "运单已妥投";
                 temp += "<td>" + reason + "</td>";
                 temp += "<td>" + (getDateString(dataList[i].operateTime)) + "</td>";
                 temp += "<td>" + (getDateString(dataList[i].createTime)) + "</td>";

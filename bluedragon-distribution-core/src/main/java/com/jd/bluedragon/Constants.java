@@ -665,6 +665,7 @@ public class Constants {
     public static final String DMS_WEB_INDEX_R="DMS_WEB_INDEX_R";  //系统主页
     public static final String DMS_WEB_COLLECT_SET="DMS_WEB_COLLECT_SET";  //集货配置
     public static final String DMS_WEB_COLLECT_REPORT="DMS_WEB_COLLECT_REPORT";  //集货报表
+    public static final String DMS_WEB_RECYCLE_MATERIAL_SCAN_R = "DMS_WEB_RECYCLE_MATERIAL_SCAN_R"; //循环物资扫描查询
 
     /********************************************* 研发UIM权限资源码相关start ***********************************************/
     public static final String DMS_WEB_DEVELOP_REDIS_R ="DMS_WEB_DEVELOP_REDIS_R"; //分拣缓存查询
@@ -770,6 +771,12 @@ public class Constants {
      * 三无寄托物核实 上报运单数量限制
      */
     public static final String SYS_ABNORMAL_UNKNOWN_REPORT_WAYBILL_MAX= "abnormal.unknown.report.waybill.max";
+
+    /**
+     * 配置信息-冷链卸货任务查询天数-冷链操作卸货出入库业务
+     */
+    public static final String SYS_CONFIG_COLD_CHAIN_UNLOAD_QUERY_DAYS = "cold.chain.operation.query.days";
+
     /**
      * 封车批次号缓存前缀
      */
@@ -1030,6 +1037,24 @@ public class Constants {
     public static final int WAYBILL_SITE_ID_OUT_ZONE = -136;
 
     /**
+     * 七大区区域ID：
+     *  华东:3 西南:4 华北:6 华南:10
+     *  华中:600 东北:611 西北:645
+     * */
+    public static final int EAST_CHINA_ORG_ID = 3;
+    public static final int SOUTH_WEST_ORG_ID = 4;
+    public static final int NORTH_CHINA_ORG_ID = 6;
+    public static final int SOUTH_CHINA_ORG_ID = 10;
+    public static final int CENTRAL_CHINA_ORG_ID = 600;
+    public static final int NORTH_EAST_ORG_ID = 611;
+    public static final int NORTH_WEST_ORG_ID = 645;
+
+    /**
+     * 冷链卡班短信扩展字段extension
+     */
+    public static final String DMS_COLD_CHAIN_SEND = "dms_coldChain_send";
+
+    /**
      * 经济网租户编码
      */
     public static final String TENANT_CODE_ECONOMIC = "ECONOMIC_NET";
@@ -1059,5 +1084,10 @@ public class Constants {
      * 新日志查询
      */
     public static final Integer NEW_LOG = 4;
+
+    /**
+     * 负号
+     */
+    public final static String NEGATIVE_SIGN = "-";
 
 }

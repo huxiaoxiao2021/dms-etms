@@ -43,6 +43,7 @@ import com.jd.ql.basic.domain.PsStoreInfo;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.dto.SimpleBaseSite;
 import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
+import com.jd.tms.basic.dto.BasicVehicleDto;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.annotations.GZIP;
 import org.slf4j.Logger;
@@ -1631,6 +1632,7 @@ public class BaseResource {
 		}
 		return result;
 	}
+
 }
 
 

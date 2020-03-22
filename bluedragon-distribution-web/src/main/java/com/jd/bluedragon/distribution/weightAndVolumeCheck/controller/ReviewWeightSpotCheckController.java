@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.basic.PropertiesMetaDataFactory;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.ReviewWeightSpotCheck;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckExcelData;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckInfo;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.ReviewWeightSpotCheckService;
@@ -93,7 +94,7 @@ public class ReviewWeightSpotCheckController extends DmsBaseController {
             String importErpCode = erpUser.getUserCode();
 
             DataResolver dataResolver = ExcelDataResolverFactory.getDataResolver(2);
-            List<SpotCheckInfo> dataList = dataResolver.resolver(file.getInputStream(), SpotCheckInfo.class, new PropertiesMetaDataFactory("/excel/reviewWeightSpotCheck.properties"));
+            List<SpotCheckExcelData> dataList = dataResolver.resolver(file.getInputStream(), SpotCheckExcelData.class, new PropertiesMetaDataFactory("/excel/reviewWeightSpotCheck.properties"));
             String errorMessage = reviewWeightSpotCheckService.checkExportData(dataList,importErpCode);
             if (!"".equals(errorMessage)) {
                 return new JdResponse(JdResponse.CODE_FAIL, errorMessage);

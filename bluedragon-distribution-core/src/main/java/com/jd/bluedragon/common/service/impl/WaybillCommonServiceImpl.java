@@ -38,6 +38,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -841,6 +842,22 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             target.setjZDFlag(TextConstants.COMMON_TEXT_MEDICINE_SCATTERED);
         }
 
+        /**
+         * B网面单识别“特准包裹”标识，在jZDFlag处打印“快”
+         */
+        if(BusinessUtil.isB2b(waybill.getWaybillSign())
+                && BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_80,WaybillSignConstants.CHAR_80_9)){
+            target.setjZDFlag(TextConstants.PECIAL_TIMELY_MARK);
+        }
+
+        /**
+         * 纯配B2B运单或纯配C转B运单，面单上加“B”水印
+         */
+        if(BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_40,WaybillSignConstants.CHAR_40_2)
+                ||BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_97,WaybillSignConstants.CHAR_97_1)){
+            target.setBcSign(TextConstants.PECIAL_B_MARK);
+        }
+
         //waybill_sign标识位，第七十九位为2，打提字标
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(), 79,'2')){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_ARAYACAK_SITE);
@@ -965,6 +982,15 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         //waybill_sign第57位= 2，代表“KA运营特殊保障”，追加“KA”
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(), WaybillSignConstants.POSITION_57, WaybillSignConstants.CHAR_57_2)){
         	target.appendSpecialMark(TextConstants.KA_FLAG);
+        }
+        //无接触面单，追加标识‘代’
+        if(BusinessUtil.isNoTouchService(waybill.getSendPay(),waybill.getWaybillSign())){
+        	target.appendSpecialMark(TextConstants.NO_TOUCH_FLAG);
+        	//无接触面单，追加waybillExt.contactlessPlace到printAddressRemark中
+    		if(waybill.getWaybillExt()!= null
+    				&& StringUtils.isNotBlank(waybill.getWaybillExt().getContactlessPlace())){
+    			target.setPrintAddressRemark(waybill.getWaybillExt().getContactlessPlace());
+    		}
         }
         //设置特殊需求
         loadSpecialRequirement(target,waybill.getWaybillSign(),waybill);
@@ -1180,6 +1206,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
          * 1.waybill_sign第80位等于1时，产品类型为“特惠运”--TB1
          * 2.waybill_sign第80位等于2时，产品类型为“特准运”--TB2
          * 3.waybill_sign第80位等于7时，产品类型为“冷链卡板”--TLL1
+         * 4.waybill_sign第80位等于9时，产品类型为“特准包裹”--TB2（特准运）
          */
 
         if(BusinessUtil.isSignChar(waybillSign,80,'1')){
@@ -1188,6 +1215,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             routeProduct = RouteProductEnum.TB2;
         }else if(BusinessUtil.isSignChar(waybillSign,80,'7')){
             routeProduct = RouteProductEnum.TLL1;
+        }else if(BusinessUtil.isSignChar(waybillSign,80,'9')){
+            routeProduct = RouteProductEnum.TB2;
         }
 
 

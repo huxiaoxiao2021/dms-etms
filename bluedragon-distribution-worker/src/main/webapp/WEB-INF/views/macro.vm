@@ -1,0 +1,166 @@
+#macro(pageBar $url $totalSize $pageNo $totalNo $pageNoName)
+	##相关参数处理
+	#if("" == "$!totalSize")
+		#set($totalSize = 0)
+	#end
+	#if("" == "$!pageNo")
+		#set($pageNo = 0)
+	#end
+	#if("" == "$!totalNo")
+		#set($totalNo = 0)
+	#end
+	#if("" == "$!pageNoName")
+		#set($pageNoName = "pageNo")
+	#end
+    ##url处理
+	#if($url.indexOf("?")>=0)
+		#set($param_char='&')
+	#else
+		#set($param_char='?')
+	#end
+    #if(!$url.endsWith("?") && !$url.endsWith("&"))
+		#set($purl = "${url}${param_char}")
+	#else
+		#set($purl = $url)
+	#end
+	##pageCount
+	#if($totalNo > 3)
+    	#set($start = $pageNo - 1)
+    	#if($start < 1)
+    		#set($start = 1)
+    	#end
+    	#set($end = $start + 2)
+    	#if($end > $totalNo)
+    		#set($end = $totalNo)
+    		#set($start = $end - 2)
+    	#end	
+	#else
+		#set($start = 1)
+		#set($end = $totalNo)
+	#end	
+	#set($_prePage = $start - 1)
+	#set($_nextPage = $end + 1)
+	#set($prePage = $pageNo - 1)
+	#set($nextPage = $pageNo + 1)
+	<div class="tbl-n">
+      <table border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tbody>
+          <tr>
+            <td align="left" width="56"></td>
+            <td width="104" align="center">&nbsp;</td>
+            <td width="819" align="right"><div class="m clearfix">
+				##页码显示规则
+				#if($totalSize>0)
+                <div class="pagin fr"> 
+					<span class="text">共$!{totalSize}条记录</span> 
+					<span class="text">共$!{totalNo}页</span> 
+					#if($pageNo>1)
+					<a href="${purl}pageNum=1">首页<b></b></a> <a href="${purl}$!pageNoName=${prePage}">上一页<b></b></a> 
+        			#else		
+					<span class="prev-disabled">上一页<b></b></span> <span class="prev-disabled">首页</span> 
+					#end
+					#if($_prePage>0)
+						<span class="text">...</span> 	
+					#end	
+					#foreach($idx in [$start..$end])
+						#if($idx==$pageNo)
+						</a><a class="current" href="javascript:;">$idx</a>
+						#else
+						</a><a href="${purl}$!pageNoName=${idx}">$idx</a>
+						#end	
+					#end	
+					#if($_nextPage<=$totalNo )
+    					<span class="text">...</span>	
+					#end	
+					#if($pageNo<$totalNo)
+					<a href="${purl}$!pageNoName=${totalNo}" class="next">末页</a> <a href="${purl}$!pageNoName=${nextPage}">下一页<b></b></a> 
+					#else
+					<span class="prev-disabled">末页<b></b></span> <span class="prev-disabled">下一页</span> 	
+					#end
+				</div>
+				#else
+                <div class="pagin fr"> <span class="text">没有相关记录</span></div>
+				#end
+              </div>
+			</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+#end
+#macro(pageBarPost $totalSize $pageNo $totalNo)
+	##相关参数处理
+	#if("" == "$!totalSize")
+		#set($totalSize = 0)
+	#end
+	#if("" == "$!pageNo")
+		#set($pageNo = 0)
+	#end
+	#if("" == "$!totalNo")
+		#set($totalNo = 0)
+	#end
+	##pageCount
+	#if($totalNo > 3)
+    	#set($start = $pageNo - 1)
+    	#if($start < 1)
+    		#set($start = 1)
+    	#end
+    	#set($end = $start + 2)
+    	#if($end > $totalNo)
+    		#set($end = $totalNo)
+    		#set($start = $end - 2)
+    	#end	
+	#else
+		#set($start = 1)
+		#set($end = $totalNo)
+	#end	
+	#set($_prePage = $start - 1)
+	#set($_nextPage = $end + 1)
+	#set($prePage = $pageNo - 1)
+	#set($nextPage = $pageNo + 1)
+	<div class="tbl-n">
+      <table border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tbody>
+          <tr>
+            <td align="left" width="56"></td>
+            <td width="104" align="center">&nbsp;</td>
+            <td width="819" align="right"><div class="m clearfix">
+				##页码显示规则
+				#if($totalSize>0)
+                <div class="pagin fr"> 
+					<span class="text">共$!{totalSize}条记录</span> 
+					<span class="text">共$!{totalNo}页</span> 
+					#if($pageNo>1)
+					<a href="#" onclick="pageSubmit(1)">首页<b></b></a> <a href="#" onclick="pageSubmit(${prePage})">上一页<b></b></a> 
+        			#else		
+					<span class="prev-disabled">上一页<b></b></span> <span class="prev-disabled">首页</span> 
+					#end
+					#if($_prePage>0)
+						<span class="text">...</span> 	
+					#end	
+					#foreach($idx in [$start..$end])
+						#if($idx==$pageNo)
+						</a><a class="current" href="javascript:;">$idx</a>
+						#else
+						</a><a href="#" onclick="pageSubmit(${idx})">$idx</a>
+						#end	
+					#end	
+					#if($_nextPage<=$totalNo )
+    					<span class="text">...</span>	
+					#end	
+					#if($pageNo<$totalNo)
+					<a href="#" onclick="pageSubmit(${totalNo})" class="next">末页</a> <a href="#" onclick="pageSubmit(${nextPage})">下一页<b></b></a> 
+					#else
+					<span class="prev-disabled">末页<b></b></span> <span class="prev-disabled">下一页</span> 	
+					#end
+				</div>
+				#else
+                <div class="pagin fr"> <span class="text">没有相关记录</span></div>
+				#end
+              </div>
+			</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+	#end

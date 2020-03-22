@@ -84,7 +84,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
 
         if (abnormalReasonDtoMap == null || abnormalReasonDtoMap.size() == 0) {
             jdCResponse.setCode(JdCResponse.CODE_ERROR);
-            jdCResponse.setMessage("ERP：" + userErp + "没有在质控系统维护信息，无法获取异常原因，请通过质控系统维护ERP信息！");
+            jdCResponse.setMessage("获取质控系统异常原因列表失败，请通过质控系统维护ERP信息！ERP：" + userErp);
             return jdCResponse;
         }
         List<BaseDataDict> qcDateDictList = baseService.getBaseDictionaryTree(this.qcAbnormalReasonType);

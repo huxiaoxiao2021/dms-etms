@@ -7,7 +7,11 @@ import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
-import com.jd.bluedragon.core.base.*;
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.ColdChainQuarantineManager;
+import com.jd.bluedragon.core.base.DmsInterturnManager;
+import com.jd.bluedragon.core.base.WaybillPackageManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.core.redis.service.RedisManager;
@@ -38,6 +42,7 @@ import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
+import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationEnum;
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationMQ;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
@@ -47,11 +52,10 @@ import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
-import com.jd.bluedragon.distribution.log.BizOperateTypeConstants;
-import com.jd.bluedragon.distribution.log.BizTypeConstants;
+
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
-import com.jd.bluedragon.distribution.log.OperateTypeConstants;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.reverse.dao.ReverseSpareDao;
@@ -61,11 +65,27 @@ import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendDatailReadDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
-import com.jd.bluedragon.distribution.send.domain.*;
+import com.jd.bluedragon.distribution.send.domain.ArSendDetailMQBody;
+import com.jd.bluedragon.distribution.send.domain.BoxInfo;
+import com.jd.bluedragon.distribution.send.domain.ColdChainSendMessage;
+import com.jd.bluedragon.distribution.send.domain.ConfirmMsgBox;
+import com.jd.bluedragon.distribution.send.domain.DeliveryCancelSendMQBody;
+import com.jd.bluedragon.distribution.send.domain.OrderInfo;
+import com.jd.bluedragon.distribution.send.domain.PackInfo;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.distribution.send.domain.SendResult;
+import com.jd.bluedragon.distribution.send.domain.SendTaskBody;
+import com.jd.bluedragon.distribution.send.domain.SendThreeDetail;
+import com.jd.bluedragon.distribution.send.domain.ShouHuoConverter;
+import com.jd.bluedragon.distribution.send.domain.ShouHuoInfo;
+import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
+import com.jd.bluedragon.distribution.send.domain.TurnoverBoxInfo;
 import com.jd.bluedragon.distribution.send.manager.SendMManager;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.DmsToTmsWebService;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.Result;
+import com.jd.bluedragon.distribution.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
@@ -81,8 +101,18 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.CollectionHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.PropertiesHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.dms.logger.external.LogEngine;
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
@@ -116,8 +146,20 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 
 @Service("deliveryService")
@@ -303,6 +345,9 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Autowired
     private LogEngine logEngine;
 
+
+    @Autowired
+    private SendCodeService sendCodeService;
 
     /**
      * 自动过期时间 15分钟
@@ -552,6 +597,24 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
         }
         Profiler.registerInfoEnd(temp_info1);
+
+        CallerInfo freshInfo = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.freshInfoCheck",Constants.UMP_APP_NAME_DMSWEB, false, true);
+        /*
+         * 生鲜批次号只能装生鲜订单校验 针对包裹发货或者是按运单发货
+         * 生鲜运单得标位：
+         *      WaybillSign 55位=1：“生鲜专送”；
+         *      WaybillSign 55位<>1且WaybillSign 31位=A：“生鲜特惠”；
+         *      WaybillSign 55位<>1且WaybillSign 31位=9，且waybillSign54位=2：“生鲜特快”
+         */
+        if ((WaybillUtil.isPackageCode(domain.getBoxCode()) || WaybillUtil.isWaybillCode(domain.getBoxCode()))
+                && sendCodeService.isFreshSendCode(domain.getSendCode())) {
+            com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findByWaybillCode(WaybillUtil.getWaybillCode(domain.getBoxCode()));
+            if (null == waybill  || !BusinessUtil.isFreshWaybill(waybill.getWaybillSign())) {
+                result.init(SendResult.CODE_SENDED, SendResult.FRESH_MESSAGE_SENDED);
+                return result;
+            }
+        }
+        Profiler.registerInfoEnd(freshInfo);
 
         // 根据发货的条码类型进行校验
         this.sendVerificationByBarCodeType(domain, result);
@@ -1198,7 +1261,7 @@ public class DeliveryServiceImpl implements DeliveryService {
          try {
              BoxMaterialRelationMQ mq = new BoxMaterialRelationMQ();
              mq.setBoxCode(businessId);
-             mq.setBusinessType(1);
+             mq.setBusinessType(BoxMaterialRelationEnum.SEND.getType());
              mq.setOperatorName(sdm.getCreateUser());
              mq.setOperatorCode(sdm.getCreateUserCode());
              mq.setSiteCode(sdm.getCreateSiteCode().toString());
@@ -3111,8 +3174,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                     operateResponse.put("info", logInfo);
 
                     BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
-                            .bizType(BizOperateTypeConstants.DELIVERY_ONECARDELIVERY.getBizTypeCode())
-                            .operateType(BizOperateTypeConstants.DELIVERY_ONECARDELIVERY.getOperateTypeCode())
+                            .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SEND_ONECAR_SEND)
                             .operateRequest(request)
                             .operateResponse(response)
                             .methodName("DeliveryServiceImpl#checkRouterForCBox")
@@ -3143,8 +3205,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             operateResponse.put("info", logInfo);
 
             BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
-                    .bizType(BizOperateTypeConstants.DELIVERY_ONECARDELIVERY.getBizTypeCode())
-                    .operateType(BizOperateTypeConstants.DELIVERY_ONECARDELIVERY.getOperateTypeCode())
+                    .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SEND_ONECAR_SEND)
                     .operateRequest(request)
                     .operateResponse(response)
                     .methodName("DeliveryServiceImpl#checkRouterForCBox")
@@ -3193,8 +3254,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         operateResponse.put("info", logInfo);
 
         BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
-                .bizType(BizOperateTypeConstants.DELIVERY_ONECARDELIVERY.getBizTypeCode())
-                .operateType(BizOperateTypeConstants.DELIVERY_ONECARDELIVERY.getOperateTypeCode())
+                .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SEND_ONECAR_SEND)
                 .operateRequest(request)
                 .operateResponse(response)
                 .methodName("DeliveryServiceImpl#checkRouterForCBox")
@@ -5036,8 +5096,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
 
             BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
-                    .bizType(BizOperateTypeConstants.BOARDCOMBINATION_DEBOARDCOMBINATION.getBizTypeCode())
-                    .operateType(BizOperateTypeConstants.BOARDCOMBINATION_DEBOARDCOMBINATION.getOperateTypeCode())
+                    .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.BOARD_DEBOARDCOMBINATION)
                     .operateRequest(operateRequest)
                     .operateResponse(operateResponse)
                     .processTime(endTime,startTime)

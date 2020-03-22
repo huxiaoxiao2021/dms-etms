@@ -549,7 +549,8 @@
     <!-- 客户端管理-jsf -->
     <jsf:consumer id="dmsClientJsfService" interface="com.jd.bluedragon.sdk.modules.client.DmsClientJsfService" protocol="jsf"
                   alias="${jsf.business.dmsClientJsfService.alias}" timeout="${jsf.business.dmsClientJsfService.timeout}"  retries="${jsf.retries}">
-    </jsf:consumer>	
+    </jsf:consumer>
+
     <jsf:consumer id="iAbnPdaAPI" interface="com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.service.IAbnPdaAPI" alias="${qcAbnPdaAPI.alias}" timeout="${qcAbnPdaAPI.timeout}" retries="1">
         <jsf:parameter key="token" value="${qcAbnPdaAPI.token}" hide="true" />
     </jsf:consumer>
@@ -557,6 +558,32 @@
     <jsf:consumer id="jsfTypeService" interface="com.jd.dms.logger.service.BusinessLogQueryService"
                   protocol="jsf"
                   alias="${dms.jsfbusinesslog.alias}" timeout="10000"
+                  retries="${jsf.retries}">
+    </jsf:consumer>
+
+    <jsf:consumer id="sortingExceptionJsfService" interface="com.jd.bd.dms.automatic.sdk.modules.sorting.SortingExceptionJsfService"
+                  protocol="jsf" alias="${jsf.automatic.alias}" timeout="${jsf.automatic.timeout}">
+    </jsf:consumer>
+
+    <jsf:consumer id="verCommonJsfApi" interface="com.jd.dms.ver.service.VerCommonJsfApi"
+                  protocol="jsf" alias="${jsf.verCommonJsfApi.alias}" timeout="${jsf.verCommonJsfApi.timeout}">
+    </jsf:consumer>
+    <!-- 短信平台-jsf -->
+    <jsf:consumer id="smsMessageTemplateRpcServiceJsf" interface="com.jd.mobilePhoneMsg.sender.client.service.SmsMessageTemplateRpcService"
+                  protocol="jsf" alias="${mobilePhoneMsg.SmsMessageTemplateRpcService.jsf.alias}"
+                  timeout="${mobilePhoneMsg.SmsMessageTemplateRpcService.jsf.timeout}"
+                  retries="${jsf.retries}">
+    </jsf:consumer>
+
+    <!--报表的批次号重量体积查询接口 -->
+    <jsf:consumer id="weightVolSendCodeJSFService" interface="com.jd.ql.dms.report.WeightVolSendCodeJSFService"
+                  protocol="jsf" alias="${jsf.reportExternalService.alias}" timeout="${jsf.reportExternalService.timeout}" retries="${jsf.retries}">
+    </jsf:consumer>
+
+    <!-- 技术发展部 - 冷链产品 - 冷链货物操作管理 -->
+    <jsf:consumer id="jsfFullFlowOptimizeApi" interface="com.jd.ccmp.ctm.api.FullFlowOptimizeApi"
+                  protocol="jsf"
+                  alias="${dms.ccmp.ctm.alias}" timeout="${dms.ccmp.ctm.timeout}"
                   retries="${jsf.retries}">
     </jsf:consumer>
 

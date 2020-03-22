@@ -1,0 +1,315 @@
+INSERT INTO dms_material_receive (
+    material_code,
+    material_type,
+    receive_type,
+    receive_code,
+    receive_num,
+    create_site_code,
+    create_site_type,
+    create_user_erp,
+    create_user_name,
+    update_user_erp,
+    update_user_name,
+    create_time,
+    update_time,
+    yn,
+    ts
+)
+VALUES
+(
+    'MZ111111111111',
+    1,
+    1,
+    'B11111111111111',
+    1,
+    910,
+    64,
+    'bjxings',
+    '邢松',
+    'bjxings',
+    '邢松',
+    NOW(),
+    NOW(),
+    1,
+    NOW(3)
+),
+(
+    'MZ111111111122',
+    1,
+    1,
+    'B11111111111111',
+    1,
+    910,
+    64,
+    'bjxings',
+    '邢松',
+    'bjxings',
+    '邢松',
+    NOW(),
+    NOW(),
+    1,
+    NOW(3)
+) ON DUPLICATE KEY UPDATE receive_type =
+                              VALUES
+                                  (receive_type),
+                          receive_code =
+                              VALUES
+                                  (receive_code),
+                          receive_num =
+                              VALUES
+                                  (receive_num),
+                          update_user_erp =
+                              VALUES
+                                  (update_user_erp),
+                          update_user_name =
+                              VALUES
+                                  (update_user_name),
+                          update_time = now();
+
+
+DELETE FROM dms_material_receive
+WHERE
+        create_site_code = 910
+  AND receive_code = 'B11111111111111'
+  AND yn = 1;
+
+
+INSERT INTO dms_material_send (
+    material_code,
+    material_type,
+    send_type,
+    send_code,
+    send_num,
+    create_site_code,
+    create_site_type,
+    receive_site_code,
+    receive_site_type,
+    create_user_erp,
+    create_user_name,
+    update_user_erp,
+    update_user_name,
+    create_time,
+    update_time,
+    yn,
+    ts
+)
+VALUES
+(
+    'MZ111111111111',
+    1,
+    1,
+    'B11111111111111',
+    1,
+    910,
+    64,
+    0,
+    0,
+    'bjxings',
+    '邢松',
+    'bjxings',
+    '邢松',
+    NOW(),
+    NOW(),
+    1,
+    NOW(3)
+),
+(
+    'MZ111111111122',
+    1,
+    1,
+    'B11111111111111',
+    1,
+    910,
+    64,
+    0,
+    0,
+    'bjxings',
+    '邢松',
+    'bjxings',
+    '邢松',
+    NOW(),
+    NOW(),
+    1,
+    NOW(3)
+) ON DUPLICATE KEY UPDATE send_type =
+                              VALUES
+                                  (send_type),
+                          send_code =
+                              VALUES
+                                  (send_code),
+                          send_num =
+                              VALUES
+                                  (send_num),
+                          receive_site_type =
+                              VALUES
+                                  (receive_site_type),
+                          receive_site_code =
+                              VALUES
+                                  (receive_site_code),
+                          update_user_erp =
+                              VALUES
+                                  (update_user_erp),
+                          update_user_name =
+                              VALUES
+                                  (update_user_name),
+                          update_time = now();
+
+
+DELETE FROM dms_material_send
+WHERE
+        create_site_code = 910
+  AND send_code = 'B11111111111111'
+  AND yn = 1;
+
+
+INSERT INTO dms_material_relation (
+    material_code,
+    material_type,
+    receive_code,
+    receive_num,
+    create_site_code,
+    create_site_type,
+    update_site_code,
+    update_site_type,
+    create_user_erp,
+    create_user_name,
+    update_user_erp,
+    update_user_name,
+    create_time,
+    update_time,
+    yn,
+    ts
+)
+VALUES
+(
+    'MZ111111111111',
+    1,
+    'B11111111111111',
+    1,
+    910,
+    64,
+    0,
+    0,
+    'bjxings',
+    '邢松',
+    'bjxings',
+    '邢松',
+    NOW(),
+    NOW(),
+    1,
+    NOW(3)
+),
+(
+    'MZ111111111122',
+    1,
+    'B11111111111111',
+    1,
+    910,
+    64,
+    0,
+    0,
+    'bjxings',
+    '邢松',
+    'bjxings',
+    '邢松',
+    NOW(),
+    NOW(),
+    1,
+    NOW(3)
+) ON DUPLICATE KEY UPDATE receive_code =
+                              VALUES
+                                  (receive_code),
+                          receive_num =
+                              VALUES
+                                  (receive_num),
+                          update_site_code =
+                              VALUES
+                                  (update_site_code),
+                          update_site_type =
+                              VALUES
+                                  (update_site_type),
+                          update_user_erp =
+                              VALUES
+                                  (update_user_erp),
+                          update_user_name =
+                              VALUES
+                                  (update_user_name),
+                          update_time = now();
+
+
+INSERT INTO dms_material_receive_flow (
+    material_code,
+    material_type,
+    receive_type,
+    receive_code,
+    receive_num,
+    create_site_code,
+    create_site_type,
+    create_user_erp,
+    create_user_name,
+    update_user_erp,
+    update_user_name,
+    create_time,
+    update_time,
+    yn,
+    ts
+)
+VALUES
+(
+    'MZ111111111111',
+    1,
+    1,
+    'B11111111111111',
+    1,
+    910,
+    64,
+    'bjxings',
+    '邢松',
+    'bjxings',
+    '邢松',
+    NOW(),
+    NOW(),
+    1,
+    NOW(3)
+);
+
+
+INSERT INTO dms_material_send_flow (
+    material_code,
+    material_type,
+    send_type,
+    send_code,
+    send_num,
+    create_site_code,
+    create_site_type,
+    receive_site_code,
+    receive_site_type,
+    create_user_erp,
+    create_user_name,
+    update_user_erp,
+    update_user_name,
+    create_time,
+    update_time,
+    yn,
+    ts
+)
+VALUES
+(
+    'MZ111111111111',
+    1,
+    1,
+    'B11111111111111',
+    1,
+    910,
+    64,
+    910,
+    64,
+    'bjxings',
+    '邢松',
+    'bjxings',
+    '邢松',
+    NOW(),
+    NOW(),
+    1,
+    NOW(3)
+);

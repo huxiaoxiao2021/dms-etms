@@ -42,6 +42,7 @@ public class GoddessDao {
     private PreparedStatement selectStatement;
 
 
+    @Deprecated
     private synchronized PreparedStatement getInsertStatement() {
         if (null == insertStatement) {
             RegularStatement toPrepare = new SimpleStatement(
@@ -53,6 +54,7 @@ public class GoddessDao {
         return insertStatement;
     }
 
+    @Deprecated
     public void batchInsert(Goddess log) {
         try {
             long startTime = System.currentTimeMillis();
