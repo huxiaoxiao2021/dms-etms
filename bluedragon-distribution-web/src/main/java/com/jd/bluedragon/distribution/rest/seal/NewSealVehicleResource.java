@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.rest.seal;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.blockcar.enumeration.FerrySealCarSceneEnum;
 import com.jd.bluedragon.common.dto.blockcar.enumeration.SealCarSourceEnum;
 import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
 import com.jd.bluedragon.core.base.TmsTfcWSManager;
@@ -75,6 +76,18 @@ public class NewSealVehicleResource {
      * */
     private static final Integer TRANSPORT_NODE_TYPE = 2;
     private static final Integer TRANSPORT_NODE_SUB_TYPE = 203;
+    /**
+     *  运力网点逆向退货组
+     *      类型2、子类型215
+     * */
+    private static final Integer RETURNGROUP_NODE_TYPE = 2;
+    private static final Integer RETURNGROUP_NODE_SUBTYPE = 215;
+    /** 飞机场网点类型 */
+    private static final Integer AIRPORT_NODE_TYPE = 7;
+    /** 火车站网点类型 */
+    private static final Integer TRAINSTATION_NODE_TYPE = 9;
+    /** 仓库网点类型 */
+    private static final Integer WMS_NODE_TYPE = 3;
 
     @Autowired
     private NewSealVehicleService newsealVehicleService;
@@ -165,12 +178,26 @@ public class NewSealVehicleResource {
         response.setTransWay(data.getTransMode());
         response.setTransWayName(data.getTransModeName());
         response.setCarrierType(data.getTransType());
-        response.setStartNodeId(data.getStartNodeId());
-        response.setStartNodeType(data.getStartNodeType());
-        response.setStartNodeSubType(data.getStartNodeSubType());
-        response.setEndNodeId(data.getEndNodeId());
-        response.setEndNodeType(data.getEndNodeType());
-        response.setEndNodeSubType(data.getEndNodeSubType());
+
+        //仅限于传摆封车
+        if(data.getStartNodeId() != null
+                && data.getStartNodeId().equals(data.getEndNodeId())){
+            response.setFerrySealCarSceneCode(FerrySealCarSceneEnum.PARK_SEAL_CAR.getCode());
+            response.setFerrySealCarSceneName(FerrySealCarSceneEnum.PARK_SEAL_CAR.getName());
+        }
+        if(AIRPORT_NODE_TYPE.equals(data.getStartNodeType())
+                || TRAINSTATION_NODE_TYPE.equals(data.getStartNodeType())
+                || AIRPORT_NODE_TYPE.equals(data.getEndNodeType())
+                || TRAINSTATION_NODE_TYPE.equals(data.getEndNodeType())){
+            response.setFerrySealCarSceneCode(FerrySealCarSceneEnum.AIRLINE_SEAL_CAR.getCode());
+            response.setFerrySealCarSceneName(FerrySealCarSceneEnum.AIRLINE_SEAL_CAR.getName());
+        }
+        if(WMS_NODE_TYPE.equals(data.getEndNodeType())
+                && RETURNGROUP_NODE_TYPE.equals(data.getStartNodeType())
+                && RETURNGROUP_NODE_SUBTYPE.equals(data.getStartNodeSubType())){
+            response.setFerrySealCarSceneCode(FerrySealCarSceneEnum.WMS_SEAL_CAR.getCode());
+            response.setFerrySealCarSceneName(FerrySealCarSceneEnum.WMS_SEAL_CAR.getName());
+        }
 
         //运力校验
         if (createSiteCode.equals(data.getStartNodeId())) {
@@ -315,6 +342,7 @@ public class NewSealVehicleResource {
     /**
      * 检查运力编码和批次号目的地是否一致
      */
+    @Deprecated
     @GET
     @Path("/new/vehicle/seal/check/{transportCode}/{batchCode}/{sealCarType}")
     @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 101103)
@@ -364,6 +392,7 @@ public class NewSealVehicleResource {
      */
     @POST
     @Path("/new/vehicle/seal/check")
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 101103)
     public NewSealVehicleResponse newCheckTranCodeAndBatchCode(SealCarPreRequest sealCarPreRequest) {
         NewSealVehicleResponse sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         String sendCode = sealCarPreRequest.getSendCode();
@@ -422,6 +451,7 @@ public class NewSealVehicleResource {
     /**
      * 校验车牌号能否封车创建车次任务
      */
+    @Deprecated
     @GET
     @Path("/new/vehicle/seal/verifyVehicleJobByVehicleNumber/{transportCode}/{vehicleNumber}/{sealCarType}")
     @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB,bizType = 1011,operateType = 101103)
@@ -459,6 +489,7 @@ public class NewSealVehicleResource {
      */
     @POST
     @Path("/new/vehicle/seal/newVerifyVehicleJobByVehicleNumber")
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB,bizType = 1011,operateType = 101103)
     public NewSealVehicleResponse newVerifyVehicleJobByVehicleNumber(SealCarPreRequest sealCarPreRequest) {
         NewSealVehicleResponse sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         try {

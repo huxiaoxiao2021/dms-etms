@@ -96,6 +96,7 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
     /**
      * 校验运力编码信息,返回运输类型
      */
+    @Deprecated
     @Override
     @JProfiler(jKey = "DMSWEB.NewSealVehicleGatewayServiceImpl.getAndCheckTransportCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<Integer> getAndCheckTransportCode(CapacityInfoRequest request) {
@@ -142,12 +143,12 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
         param.setTransportCode(request.getTransportCode());
         RouteTypeResponse routeTypeResponse = newSealVehicleResource.getTransportCode(param);
         if(routeTypeResponse.getCode().equals(JdResponse.CODE_OK)){
-            jdCResponse.toSucceed();
+            jdCResponse.toSucceed(routeTypeResponse.getMessage());
         }else if(routeTypeResponse.getCode().equals(NewSealVehicleResponse.CODE_TRANSPORT_RANGE_CHECK)
                 || routeTypeResponse.getCode().equals(NewSealVehicleResponse.CODE_TRANSPORT_RANGE_ERROR)){
             jdCResponse.toConfirm(routeTypeResponse.getMessage());
         }else {
-            jdCResponse.toFail();
+            jdCResponse.toFail(routeTypeResponse.getMessage());
         }
         TransportInfoDto transportInfoDto = new TransportInfoDto();
         BeanUtils.copyProperties(routeTypeResponse,transportInfoDto);
@@ -178,6 +179,7 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
     /**
      * 检查运力编码和批次号目的地是否一致
      */
+    @Deprecated
     @Override
     @JProfiler(jKey = "DMSWEB.NewSealVehicleGatewayServiceImpl.checkTranCodeAndBatchCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse checkTranCodeAndBatchCode(String transportCode, String batchCode, Integer sealCarType) {
@@ -242,6 +244,7 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
     /**
      * 【传摆封车】&& 按运力封车需 校验车牌号能否创建车次任务
      */
+    @Deprecated
     @Override
     @JProfiler(jKey = "DMSWEB.NewSealVehicleGatewayServiceImpl.verifyVehicleJobByVehicleNumber",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse verifyVehicleJobByVehicleNumber(String transportCode, String vehicleNumber, Integer sealCarType) {

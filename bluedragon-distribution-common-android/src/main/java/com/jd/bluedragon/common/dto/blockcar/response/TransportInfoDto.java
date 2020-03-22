@@ -44,29 +44,27 @@ public class TransportInfoDto implements Serializable {
     private Integer carrierType;
 
     /**
-     * 运力始发网点
+     * 传摆封车场景
+     * @see com.jd.bluedragon.common.dto.blockcar.enumeration.FerrySealCarSceneEnum
      * */
-    private Integer startNodeId;
-    /**
-     * 运力始发网点类型
-     * */
-    private Integer startNodeType;
-    /**
-     * 运力始发网点子类型
-     * */
-    private Integer startNodeSubType;
-    /**
-     * 运力目的网点
-     * */
-    private Integer endNodeId;
-    /**
-     * 运力目的网点类型
-     * */
-    private Integer endNodeType;
-    /**
-     * 运力目的网点子类型
-     * */
-    private Integer endNodeSubType;
+    private Integer ferrySealCarSceneCode;
+    private String ferrySealCarSceneName;
+
+    public Integer getFerrySealCarSceneCode() {
+        return ferrySealCarSceneCode;
+    }
+
+    public void setFerrySealCarSceneCode(Integer ferrySealCarSceneCode) {
+        this.ferrySealCarSceneCode = ferrySealCarSceneCode;
+    }
+
+    public String getFerrySealCarSceneName() {
+        return ferrySealCarSceneName;
+    }
+
+    public void setFerrySealCarSceneName(String ferrySealCarSceneName) {
+        this.ferrySealCarSceneName = ferrySealCarSceneName;
+    }
 
     public Integer getRouteType() {
         return routeType;
@@ -98,53 +96,5 @@ public class TransportInfoDto implements Serializable {
 
     public void setCarrierType(Integer carrierType) {
         this.carrierType = carrierType;
-    }
-
-    public Integer getStartNodeId() {
-        return startNodeId;
-    }
-
-    public void setStartNodeId(Integer startNodeId) {
-        this.startNodeId = startNodeId;
-    }
-
-    public Integer getStartNodeType() {
-        return startNodeType;
-    }
-
-    public void setStartNodeType(Integer startNodeType) {
-        this.startNodeType = startNodeType;
-    }
-
-    public Integer getStartNodeSubType() {
-        return startNodeSubType;
-    }
-
-    public void setStartNodeSubType(Integer startNodeSubType) {
-        this.startNodeSubType = startNodeSubType;
-    }
-
-    public Integer getEndNodeId() {
-        return endNodeId;
-    }
-
-    public void setEndNodeId(Integer endNodeId) {
-        this.endNodeId = endNodeId;
-    }
-
-    public Integer getEndNodeType() {
-        return endNodeType;
-    }
-
-    public void setEndNodeType(Integer endNodeType) {
-        this.endNodeType = endNodeType;
-    }
-
-    public Integer getEndNodeSubType() {
-        return endNodeSubType;
-    }
-
-    public void setEndNodeSubType(Integer endNodeSubType) {
-        this.endNodeSubType = endNodeSubType;
     }
 }

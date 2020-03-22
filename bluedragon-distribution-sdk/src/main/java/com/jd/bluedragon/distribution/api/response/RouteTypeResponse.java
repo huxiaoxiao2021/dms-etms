@@ -27,60 +27,27 @@ public class RouteTypeResponse extends BaseResponse {
     /** 承运商类型 1 京东自营，2 第三方 */
     private Integer carrierType;
 
-    /** 始发目的运力 */
-    private Integer startNodeId;
-    private Integer startNodeType;
-    private Integer startNodeSubType;
-    private Integer endNodeId;
-    private Integer endNodeType;
-    private Integer endNodeSubType;
+    /**
+     * 传摆封车场景
+     * @see com.jd.bluedragon.common.dto.blockcar.enumeration.FerrySealCarSceneEnum
+     * */
+    private Integer ferrySealCarSceneCode;
+    private String ferrySealCarSceneName;
 
-    public Integer getStartNodeId() {
-        return startNodeId;
+    public Integer getFerrySealCarSceneCode() {
+        return ferrySealCarSceneCode;
     }
 
-    public void setStartNodeId(Integer startNodeId) {
-        this.startNodeId = startNodeId;
+    public void setFerrySealCarSceneCode(Integer ferrySealCarSceneCode) {
+        this.ferrySealCarSceneCode = ferrySealCarSceneCode;
     }
 
-    public Integer getStartNodeType() {
-        return startNodeType;
+    public String getFerrySealCarSceneName() {
+        return ferrySealCarSceneName;
     }
 
-    public void setStartNodeType(Integer startNodeType) {
-        this.startNodeType = startNodeType;
-    }
-
-    public Integer getStartNodeSubType() {
-        return startNodeSubType;
-    }
-
-    public void setStartNodeSubType(Integer startNodeSubType) {
-        this.startNodeSubType = startNodeSubType;
-    }
-
-    public Integer getEndNodeId() {
-        return endNodeId;
-    }
-
-    public void setEndNodeId(Integer endNodeId) {
-        this.endNodeId = endNodeId;
-    }
-
-    public Integer getEndNodeType() {
-        return endNodeType;
-    }
-
-    public void setEndNodeType(Integer endNodeType) {
-        this.endNodeType = endNodeType;
-    }
-
-    public Integer getEndNodeSubType() {
-        return endNodeSubType;
-    }
-
-    public void setEndNodeSubType(Integer endNodeSubType) {
-        this.endNodeSubType = endNodeSubType;
+    public void setFerrySealCarSceneName(String ferrySealCarSceneName) {
+        this.ferrySealCarSceneName = ferrySealCarSceneName;
     }
 
     public int getRouteType() {
