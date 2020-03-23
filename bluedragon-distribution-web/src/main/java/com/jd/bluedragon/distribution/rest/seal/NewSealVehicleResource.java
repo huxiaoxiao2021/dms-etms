@@ -27,6 +27,9 @@ import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.etms.vts.dto.VtsTransportResourceDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.util.SiteSignTool;
+import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.tms.tfc.dto.TransWorkItemDto;
 import com.jd.tms.tfc.dto.TransWorkItemWsDto;
 import org.apache.commons.collections.map.HashedMap;
@@ -34,6 +37,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -71,12 +75,6 @@ public class NewSealVehicleResource {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     /**
-     *  运力网点中转站
-     *      类型2、子类型203
-     * */
-    private static final Integer TRANSPORT_NODE_TYPE = 2;
-    private static final Integer TRANSPORT_NODE_SUB_TYPE = 203;
-    /**
      *  运力网点逆向退货组
      *      类型2、子类型215
      * */
@@ -100,6 +98,10 @@ public class NewSealVehicleResource {
 
     @Autowired
     private ColdChainSendService coldChainSendService;
+
+    @Autowired
+    @Qualifier("basicPrimaryWS")
+    private BasicPrimaryWS basicPrimaryWS;
 
     /**
      * 查询几天内的带解任务（负数）
@@ -415,18 +417,23 @@ public class NewSealVehicleResource {
                     /**
                      * 校验规则
                      *  1、普通封车：校验运力编码目的地和批次目的地一致
-                     *  2、传摆封车：满足1或者运力编码目的网点是中转场(网点类型为2子类型为203)
+                     *  2、传摆封车：满足1或者目的地站点类型是中转场
                      * */
                     Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(sendCode);
                     Integer endNodeId = vtsDto.getData().getEndNodeId();
-                    Integer endNodeType = vtsDto.getData().getEndNodeType();
-                    Integer endNodeSubType = vtsDto.getData().getEndNodeSubType();
-                    if (receiveSiteCode.equals(endNodeId)
-                            || (SealCarSourceEnum.FERRY_SEAL_CAR.getCode().equals(sealCarSource)
-                            && TRANSPORT_NODE_TYPE.equals(endNodeType) && TRANSPORT_NODE_SUB_TYPE.equals(endNodeSubType))) {
+                    if (receiveSiteCode.equals(endNodeId)) {
                         sealVehicleResponse.setCode(JdResponse.CODE_OK);
                         sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
                     } else {
+                        if(SealCarSourceEnum.FERRY_SEAL_CAR.getCode().equals(sealCarSource)){
+                            BaseStaffSiteOrgDto receiveSite = basicPrimaryWS.getBaseSiteBySiteId(receiveSiteCode);
+                            if(receiveSite != null
+                                    && SiteSignTool.supportTemporaryTransfer(receiveSite.getSiteSign())){
+                                sealVehicleResponse.setCode(JdResponse.CODE_OK);
+                                sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
+                                return sealVehicleResponse;
+                            }
+                        }
                         sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
                         sealVehicleResponse.setMessage(NewSealVehicleResponse.TIPS_RECEIVESITE_DIFF_ERROR);
                     }
