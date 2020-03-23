@@ -158,10 +158,6 @@ public class ColdChainOperationResource {
         if (StringUtils.isBlank(request.getSiteId())) {
             return false;
         }
-
-        if (StringUtils.isBlank(request.getQueryDays())) {
-            return false;
-        }
         return true;
     }
 
