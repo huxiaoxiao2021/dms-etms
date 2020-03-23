@@ -147,4 +147,8 @@ public class TextConstants {
      * 纯配B2B运单、纯配C转B添加水印“B”
      */
     public static final String	PECIAL_B_MARK="B";
+    /**
+     * 无接触标识‘代’
+     */
+    public static final String NO_TOUCH_FLAG = "代";
 }

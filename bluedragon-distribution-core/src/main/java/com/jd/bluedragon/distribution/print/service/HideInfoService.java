@@ -8,5 +8,5 @@ public interface HideInfoService {
      * @param waybillSign
      * @param waybill
      */
-    void setHideInfo(String waybillSign,BasePrintWaybill waybill);
+    void setHideInfo(String waybillSign,String sendPay,BasePrintWaybill waybill);
 }

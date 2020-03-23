@@ -6,7 +6,9 @@
  http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
    
     <display-name>distribution-worker</display-name>
-	
+	<welcome-file-list>
+		<welcome-file>ok.vm</welcome-file>
+	</welcome-file-list>
     <filter>
         <filter-name>encodingFilter</filter-name>
         <filter-class>
@@ -45,7 +47,11 @@
         <servlet-name>distribution-worker</servlet-name>
         <url-pattern>/services/*</url-pattern>
     </servlet-mapping>
-
+	<servlet-mapping>
+        <servlet-name>distribution-worker</servlet-name>
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+    
     <servlet>
         <servlet-name>jsp</servlet-name>
         <!--#####京东信息安全部改造的安全版本的JspServlet#####-->

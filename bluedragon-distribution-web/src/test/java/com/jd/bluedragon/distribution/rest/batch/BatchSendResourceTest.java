@@ -20,7 +20,7 @@ public class BatchSendResourceTest {
     @Test
     public void testfindBatchSend(){
 //        BatchSendRequest request = new BatchSendRequest();
-//        request.setSendCode("12312");
+//        request.setBatchCode("12312");
 //        request.setCreateSiteCode(0);
 //        request.setReceiveCodes("1,2,3");
 //        request.setCreateTime(new Date());

@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.jd.bluedragon.distribution.departure.dao.DepartureTmpDao">
     <resultMap id="DepartureTmpSendResult" type="DepartureTmpSend">
-        <result column="batch_code" property="sendCode"  jdbcType="VARCHAR"/>
+        <result column="batch_code" property="batchCode"  jdbcType="VARCHAR"/>
         <result column="send_code" property="sendCode"  jdbcType="VARCHAR"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
         <result column="operate_time" jdbcType="TIMESTAMP" property="operateTime"/>
@@ -12,7 +12,7 @@
 
     <insert id="insert" parameterType="DepartureTmpSend">
         INSERT INTO departure_tmp (departure_tmp_id,batch_code,send_code,create_time,yn,operate_time,third_waybill_code)
-        VALUES (seq_departure_tmp.nextval,#{sendCode,jdbcType=VARCHAR},#{sendCode,jdbcType=VARCHAR},
+        VALUES (seq_departure_tmp.nextval,#{batchCode,jdbcType=VARCHAR},#{sendCode,jdbcType=VARCHAR},
         NOW(),1,#{operateTime,jdbcType=TIMESTAMP},#{thirdWaybillCode,jdbcType=VARCHAR})
     </insert>
 

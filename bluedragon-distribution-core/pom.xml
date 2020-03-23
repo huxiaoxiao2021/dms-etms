@@ -22,7 +22,7 @@
 		<slf4j.version>1.6.4</slf4j.version>
 		<aspectj.version>1.6.11</aspectj.version>
 		<jmq.version>2.2.0</jmq.version>
-		<etms.waybill.agent.version>4.2.134</etms.waybill.agent.version>
+		<etms.waybill.agent.version>4.2.149</etms.waybill.agent.version>
 		<jddl-client.version>2.0.1-SNAPSHOT</jddl-client.version>
 		<configure-client.version>1.0.0-SNAPSHOT</configure-client.version>
 		<configure-utils.version>1.0.0-SNAPSHOT</configure-utils.version>
@@ -56,7 +56,7 @@
 		<dependency>
 			<groupId>ql-dms-report</groupId>
 			<artifactId>report-sdk</artifactId>
-			<version>1.1.4-SNAPSHOT</version>
+			<version>1.1.5-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -187,7 +187,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>1.3.6-SNAPSHOT</version>
+			<version>1.3.8-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.ldop.alpha</groupId>
@@ -197,7 +197,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-utils</artifactId>
-			<version>1.2.1-SNAPSHOT</version>
+			<version>1.2.2-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -1092,7 +1092,7 @@
         <dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>business-sdk</artifactId>
-            <version>1.0.5-RELEASE</version>
+            <version>1.0.7-RELEASE</version>
         </dependency>
 
 		<!--JMQ-Split组件  -->
@@ -1150,7 +1150,7 @@
         <dependency>
 			<groupId>com.jd.ql.dms.print</groupId>
 			<artifactId>label-print-engine</artifactId>
-			<version>1.2.2-RELEASE</version>
+			<version>1.2.3-RELEASE</version>
         </dependency>
 		<!-- 打印引擎    start-->
 		<dependency>
@@ -1244,6 +1244,12 @@
 			<groupId>com.jd.etms.contract</groupId>
 			<artifactId>etms-contract-api</artifactId>
 			<version>1.0.8.7-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.ccmp</groupId>
+			<artifactId>ccmp-ctm-api</artifactId>
+			<version>1.0-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>

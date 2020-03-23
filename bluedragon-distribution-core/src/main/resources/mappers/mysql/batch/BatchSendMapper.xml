@@ -4,7 +4,7 @@
 
 	<resultMap id="batchSend" type="com.jd.bluedragon.distribution.batch.domain.BatchSend" >
 		<result column="id" property="id" />
-		<result column="batch_code" property="sendCode" />
+		<result column="batch_code" property="batchCode" />
 		<result column="create_site_code" property="createSiteCode" />
 		<result column="receive_site_code" property="receiveSiteCode" />
 		<result column="send_code" property="sendCode" />
@@ -41,7 +41,7 @@
 			update_user_code, update_user, create_time, update_time,send_status,
 			yn,send_car_state,send_car_operate_time)
 		VALUES (
-			#{sendCode,jdbcType=VARCHAR}, #{createSiteCode,jdbcType=INTEGER},#{receiveSiteCode,jdbcType=INTEGER},#{sendCode,jdbcType=VARCHAR},
+			#{batchCode,jdbcType=VARCHAR}, #{createSiteCode,jdbcType=INTEGER},#{receiveSiteCode,jdbcType=INTEGER},#{sendCode,jdbcType=VARCHAR},
 			#{createUser,jdbcType=VARCHAR}, #{createUserCode,jdbcType=INTEGER},
 			#{updateUserCode,jdbcType=INTEGER}, #{updateUser,jdbcType=VARCHAR},
 			NOW(), NOW(),#{sendStatus,jdbcType=INTEGER},
@@ -53,7 +53,7 @@
 			update_user_code, update_user, create_time, update_time,send_car_operate_time,send_car_state,
 			yn
 		    FROM BATCH_SEND
-		    WHERE batch_code=#{sendCode,jdbcType=VARCHAR} AND receive_site_code=#{receiveSiteCode,jdbcType=INTEGER} LIMIT 1
+		    WHERE batch_code=#{batchCode,jdbcType=VARCHAR} AND receive_site_code=#{receiveSiteCode,jdbcType=INTEGER} LIMIT 1
 	</select>
 
 	<select id="findBatchSend" resultMap="batchSend" parameterType="com.jd.bluedragon.distribution.batch.domain.BatchSendRequest" >
@@ -66,8 +66,8 @@
                 #{item,jdbcType=INTEGER}
             </foreach>
 		</if>
-		<if test="sendCode!=null">
-			and batch_code = #{sendCode,jdbcType=VARCHAR}
+		<if test="batchCode!=null">
+			and batch_code = #{batchCode,jdbcType=VARCHAR}
 		</if>
 		<if test="createTime!=null">
 			and create_time <![CDATA[>=]]> str_to_date(date_format(#{createTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')

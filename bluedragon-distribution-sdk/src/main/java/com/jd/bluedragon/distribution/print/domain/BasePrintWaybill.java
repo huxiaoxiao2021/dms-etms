@@ -416,6 +416,11 @@ public class BasePrintWaybill implements Serializable {
 	 * 其他路区（现阶段只存放大件路区）
 	 */
 	private String backupRoadCode;
+	
+	/**
+	 * 地址备注信息，追加显示到面单的地址printAddress
+	 */
+	private String printAddressRemark;
 
 	/**
 	 * 服务号
@@ -663,7 +668,11 @@ public class BasePrintWaybill implements Serializable {
 	 */
 	public void setSpecialMark(String specialMark) {
 		this.specialMark = specialMark;
-		specialMarkBuilder = new StringBuilder(specialMark);
+		if(specialMark != null){
+			specialMarkBuilder = new StringBuilder(specialMark);
+		}else{
+			specialMarkBuilder = new StringBuilder();
+		}
 	}
     /**
 	 * 特殊标记字段追加标记，不包含时加入标记
@@ -1548,5 +1557,17 @@ public class BasePrintWaybill implements Serializable {
 
 	public void setBcSign(String bcSign) {
 		this.bcSign = bcSign;
+	}
+	/**
+	 * @return the printAddressRemark
+	 */
+	public String getPrintAddressRemark() {
+		return printAddressRemark;
+	}
+	/**
+	 * @param printAddressRemark the printAddressRemark to set
+	 */
+	public void setPrintAddressRemark(String printAddressRemark) {
+		this.printAddressRemark = printAddressRemark;
 	}
 }

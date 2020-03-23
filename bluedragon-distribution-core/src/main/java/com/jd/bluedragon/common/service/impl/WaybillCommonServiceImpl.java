@@ -38,6 +38,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -981,6 +982,15 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         //waybill_sign第57位= 2，代表“KA运营特殊保障”，追加“KA”
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(), WaybillSignConstants.POSITION_57, WaybillSignConstants.CHAR_57_2)){
         	target.appendSpecialMark(TextConstants.KA_FLAG);
+        }
+        //无接触面单，追加标识‘代’
+        if(BusinessUtil.isNoTouchService(waybill.getSendPay(),waybill.getWaybillSign())){
+        	target.appendSpecialMark(TextConstants.NO_TOUCH_FLAG);
+        	//无接触面单，追加waybillExt.contactlessPlace到printAddressRemark中
+    		if(waybill.getWaybillExt()!= null
+    				&& StringUtils.isNotBlank(waybill.getWaybillExt().getContactlessPlace())){
+    			target.setPrintAddressRemark(waybill.getWaybillExt().getContactlessPlace());
+    		}
         }
         //设置特殊需求
         loadSpecialRequirement(target,waybill.getWaybillSign(),waybill);

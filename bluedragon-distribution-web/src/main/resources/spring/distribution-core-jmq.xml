@@ -432,4 +432,8 @@
         <property name="topic" value="${jmq.topic.cancel.material.send}" />
     </bean>
 
+    <!-- 冷链 - 货物出入库消息 -->
+    <bean id="ccInAndOutBoundProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.coldChain.inAndOutBound}"/>
+    </bean>
 </beans>

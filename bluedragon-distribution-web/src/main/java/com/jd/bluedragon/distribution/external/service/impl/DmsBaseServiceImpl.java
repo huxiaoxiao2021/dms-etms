@@ -33,9 +33,13 @@ public class DmsBaseServiceImpl implements DmsBaseService {
     @Override
     @JProfiler(jKey = "DMSWEB.DmsBaseServiceImpl.login", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public BaseResponse login(LoginRequest request) {
+        return userService.oldJsfLogin(request);
+    }
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsBaseServiceImpl.clientLogin", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public LoginUserResponse clientLogin(LoginRequest request) {
         return userService.jsfLogin(request);
     }
-
     @Override
     @JProfiler(jKey = "DMSWEB.DmsBaseServiceImpl.getSite", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public BaseResponse getSite(String code) {

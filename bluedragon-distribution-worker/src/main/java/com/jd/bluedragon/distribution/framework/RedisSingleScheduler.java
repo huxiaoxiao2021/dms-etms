@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.framework;
 
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
-
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
@@ -16,9 +15,13 @@ import com.jd.fastjson.JSONObject;
 import com.jd.tbschedule.dto.ScheduleQueue;
 import com.jd.tbschedule.redis.template.TBRedisWorkerMultiTemplate;
 import com.jd.tbschedule.redis.template.TaskEntry;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.event.ContextClosedEvent;
+import org.springframework.context.event.ContextRefreshedEvent;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -36,6 +39,10 @@ public abstract class RedisSingleScheduler extends
 	private TaskHanlder redisTaskHanlder;
 	
 	private boolean initFinished = false;
+	/**
+	 * 标识是否处于激活状态，任务初始化成功并且spring容器初始化成功，才能正常运行
+	 */
+	private boolean isActive = false;
 	
 	@Autowired
 	private BaseService baseService;
@@ -57,16 +64,30 @@ public abstract class RedisSingleScheduler extends
 			}
 		}
 	}
-	
+	@Override
+	public void onApplicationEvent(ApplicationEvent event) {
+		//监听初始化、刷新事件，isActive标识为true
+		if (event instanceof ContextRefreshedEvent) {
+			log.warn("Spring初始化完成，任务[{}-{}]开始执行！", this.taskType, this.ownSign);
+			isActive = true;
+		}
+		//监听关闭事件，停止异步缓冲任务
+		if (event instanceof ContextClosedEvent) {
+			log.warn("Spring关闭，任务[{}-{}]停止执行！", this.taskType, this.ownSign);
+			isActive = false;
+		}
+	}	
 	@Override
 	public List<TaskEntry<Task>> selectTasks(String ownSign, int taskQueueNum,
 			List<String> taskQueueList, int eachFetchDataNum) throws Exception {
 		//初始化，内部逻辑保证只初始化一次
 		init();
-		if(initFinished)//初始化成功, 查询redis 
+		if(initFinished && isActive){//初始化成功, 查询redis 
 			return super.selectTasks(ownSign, taskQueueNum, taskQueueList, eachFetchDataNum);
-		else 
+		}else{
+			log.warn("任务[{}-{}]未准备就绪或已停止，本次不抓取任务数据！", this.taskType, this.ownSign);
 			return new ArrayList<TaskEntry<Task>>();
+		}
 	}
 	
 	
@@ -89,7 +110,6 @@ public abstract class RedisSingleScheduler extends
 	public boolean handleTask(List<TaskEntry<Task>> tasks, String ownSign)
 			throws Exception {
 		log.info("[{}]worker 抓取到[{}]条任务待处理",desc,tasks.size());
-
 		int dealDataFail = 0;
 		for (TaskEntry<Task> task : tasks) {
 			boolean result = handleSingleTask(task.getTask(), ownSign);
