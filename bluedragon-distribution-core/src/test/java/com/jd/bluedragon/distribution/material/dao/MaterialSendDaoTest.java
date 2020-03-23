@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.material.domain.DmsMaterialSend;
 import com.jd.bluedragon.distribution.material.enums.*;
 import com.jd.bluedragon.distribution.material.vo.RecycleMaterialScanQuery;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -75,7 +76,7 @@ public class MaterialSendDaoTest extends AbstractDaoIntegrationH2Test {
     }
 
     @Test
-    public void deleteByReceiveCodeTest() {
+    public void deleteBySendCodeTest() {
         materialSendDao.deleteBySendCode("B11111111111111", 910L);
     }
 
@@ -88,5 +89,21 @@ public class MaterialSendDaoTest extends AbstractDaoIntegrationH2Test {
         query.setScanType(MaterialScanTypeEnum.INBOUND.getCode());
         query.setCreateSiteCode(910L);
         Assert.assertNotNull(materialSendDao.queryByPagerCondition(query));
+    }
+
+    @Test
+    public void logicalDeleteBatchSendBySendCodeTest() {
+        String sendCode = "B11111111111111";
+        Long createSiteCode = 910L;
+        materialSendDao.logicalDeleteBatchSendBySendCode(sendCode, createSiteCode, "", "");
+        Assert.assertTrue(true);
+    }
+
+    @Test
+    public void listBySendCodeTest() {
+        String sendCode = "B11111111111111";
+        Long createSiteCode = 910L;
+        System.out.println(JsonHelper.toJson(materialSendDao.listBySendCode(sendCode, createSiteCode)));
+        Assert.assertTrue(true);
     }
 }

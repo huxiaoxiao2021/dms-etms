@@ -1,14 +1,9 @@
 package com.jd.bluedragon.distribution.material.domain;
 
-import com.jd.bluedragon.distribution.api.request.material.warmbox.MaterialBatchSendRequest;
-import com.jd.bluedragon.distribution.material.enums.MaterialSendTypeEnum;
+import com.jd.bluedragon.distribution.api.response.material.MaterialSendDetailResponse;
 import com.jd.ql.dms.common.web.mvc.api.DbEntity;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 public class DmsMaterialSend extends DbEntity implements Serializable {
 
@@ -231,6 +226,22 @@ public class DmsMaterialSend extends DbEntity implements Serializable {
         relation.setUpdateUserName(this.updateUserName);
         relation.setYn(this.yn);
         return relation;
+    }
+
+    public MaterialSendDetailResponse convert2SendResponse() {
+        MaterialSendDetailResponse detailResponse = new MaterialSendDetailResponse();
+        detailResponse.setMaterialCode(this.materialCode);
+        detailResponse.setMaterialType(this.materialType);
+        detailResponse.setSendType(this.sendType);
+        detailResponse.setSendCode(this.sendCode);
+        detailResponse.setSendNum(this.sendNum);
+        detailResponse.setCreateSiteCode(this.createSiteCode);
+        detailResponse.setCreateSiteType(this.createSiteType);
+        detailResponse.setReceiveSiteCode(this.receiveSiteCode);
+        detailResponse.setReceiveSiteType(this.receiveSiteType);
+        detailResponse.setOperateUserErp(this.updateUserErp);
+        detailResponse.setOperateUserName(this.updateUserName);
+        return detailResponse;
     }
 
 }

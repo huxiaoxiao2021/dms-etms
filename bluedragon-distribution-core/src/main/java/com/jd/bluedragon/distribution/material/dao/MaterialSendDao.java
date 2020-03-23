@@ -13,7 +13,7 @@ public interface MaterialSendDao extends Dao<DmsMaterialSend> {
 
     int deleteBySendCode(String sendCode, Long createSiteCode);
 
-    int logicalDeleteBatchSendBySendCode(String sendCode, Long createSiteCode);
+    int logicalDeleteBatchSendBySendCode(String sendCode, Long createSiteCode, String userErp, String userName);
 
     List<DmsMaterialSend> listBySendCode(String sendCode, Long createSiteCode);
 }

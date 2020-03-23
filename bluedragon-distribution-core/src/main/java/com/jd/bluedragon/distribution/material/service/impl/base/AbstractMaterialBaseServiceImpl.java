@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.material.service.impl;
+package com.jd.bluedragon.distribution.material.service.impl.base;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.command.JdResult;
@@ -10,16 +10,16 @@ import com.jd.bluedragon.distribution.material.domain.DmsMaterialReceive;
 import com.jd.bluedragon.distribution.material.domain.DmsMaterialReceiveFlow;
 import com.jd.bluedragon.distribution.material.domain.DmsMaterialSend;
 import com.jd.bluedragon.distribution.material.domain.DmsMaterialSendFlow;
-import com.jd.bluedragon.distribution.material.service.MaterialReceiveService;
-import com.jd.bluedragon.distribution.material.service.MaterialSendService;
+import com.jd.bluedragon.distribution.material.service.MaterialOperationService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,10 +30,10 @@ import java.util.List;
  * @Author wyh
  * @Date 2020/3/13 17:37
  **/
-@Service
-public abstract class AbstractMaterialBaseServiceImpl implements MaterialSendService, MaterialReceiveService {
+@Component
+public abstract class AbstractMaterialBaseServiceImpl implements MaterialOperationService {
 
-    static final int INSERT_NUMBER_UPPER_LIMIT = 100;
+    protected static final int INSERT_NUMBER_UPPER_LIMIT = 100;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -51,18 +51,13 @@ public abstract class AbstractMaterialBaseServiceImpl implements MaterialSendSer
 
     protected abstract Boolean checkReceiveParam(List<DmsMaterialReceive> materialReceives);
 
-    protected Boolean receiveBeforeOperation(List<DmsMaterialReceive> materialReceives) {
-        return true;
-    }
+    protected abstract Boolean receiveBeforeOperation(List<DmsMaterialReceive> materialReceives);
 
-    protected Boolean receiveAfterOperation(List<DmsMaterialReceive> materialReceives) {
-        return true;
-    }
+    protected abstract Boolean receiveAfterOperation(List<DmsMaterialReceive> materialReceives);
 
     @Override
-    @Transactional
     @JProfiler(jKey = "DMS.WEB.AbstractMaterialBaseServiceImpl.saveMaterialReceive", jAppName= Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public JdResult<Boolean> saveMaterialReceive(List<DmsMaterialReceive> materialReceives) {
+    public JdResult<Boolean> saveMaterialReceive(List<DmsMaterialReceive> materialReceives, Boolean saveFlow) {
         JdResult<Boolean> result = new JdResult<>();
         result.toSuccess();
         if (!checkReceiveParam(materialReceives)) {
@@ -73,13 +68,13 @@ public abstract class AbstractMaterialBaseServiceImpl implements MaterialSendSer
         try {
             if (receiveBeforeOperation(materialReceives)) {
 
-                result = saveMaterialReceiveRecord(materialReceives);
+                result = saveMaterialReceiveAndFlow(materialReceives, saveFlow);
             }
 
             receiveAfterOperation(materialReceives);
         }
         catch (Throwable ex) {
-            result.toError("服务器异常！");
+            result.toError("服务器异常!");
             logger.error("Failed to save material receive data. body:[{}].", JsonHelper.toJson(materialReceives), ex);
             throw new RuntimeException("物资入库失败");
         }
@@ -87,7 +82,7 @@ public abstract class AbstractMaterialBaseServiceImpl implements MaterialSendSer
         return result;
     }
 
-    private JdResult<Boolean> saveMaterialReceiveRecord(List<DmsMaterialReceive> materialReceives) {
+    private JdResult<Boolean> saveMaterialReceiveAndFlow(List<DmsMaterialReceive> materialReceives, Boolean saveFlow) {
         JdResult<Boolean> result = new JdResult<>();
         result.toSuccess();
 
@@ -98,7 +93,9 @@ public abstract class AbstractMaterialBaseServiceImpl implements MaterialSendSer
 
         if (materialReceives.size() <= INSERT_NUMBER_UPPER_LIMIT) {
             result.setData(materialReceiveDao.batchInsertOnDuplicate(materialReceives) > 0);
-            materialReceiveFlowDao.batchInsert(flows);
+            if (saveFlow) {
+                materialReceiveFlowDao.batchInsert(flows);
+            }
         }
         else {
             for (int fromIndex = 0; fromIndex < materialReceives.size(); fromIndex = fromIndex + INSERT_NUMBER_UPPER_LIMIT) {
@@ -109,7 +106,9 @@ public abstract class AbstractMaterialBaseServiceImpl implements MaterialSendSer
                 List<DmsMaterialReceive> subList = materialReceives.subList(fromIndex, toIndex);
                 List<DmsMaterialReceiveFlow> subFlows = flows.subList(fromIndex, toIndex);
                 result.setData(materialReceiveDao.batchInsertOnDuplicate(subList) > 0);
-                materialReceiveFlowDao.batchInsert(subFlows);
+                if (saveFlow) {
+                    materialReceiveFlowDao.batchInsert(subFlows);
+                }
             }
         }
         return result;
@@ -118,18 +117,13 @@ public abstract class AbstractMaterialBaseServiceImpl implements MaterialSendSer
 
     protected abstract Boolean checkSendParam(List<DmsMaterialSend> materialSends);
 
-    protected Boolean sendBeforeOperation(List<DmsMaterialSend> materialSends) {
-        return true;
-    }
+    protected abstract Boolean sendBeforeOperation(List<DmsMaterialSend> materialSends);
 
-    protected Boolean sendAfterOperation(List<DmsMaterialSend> materialSends) {
-        return true;
-    }
+    protected abstract Boolean sendAfterOperation(List<DmsMaterialSend> materialSends);
 
     @Override
-    @Transactional
     @JProfiler(jKey = "DMS.WEB.AbstractMaterialBaseServiceImpl.saveMaterialSend", jAppName= Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public JdResult<Boolean> saveMaterialSend(List<DmsMaterialSend> materialSends) {
+    public JdResult<Boolean> saveMaterialSend(List<DmsMaterialSend> materialSends, Boolean saveFlow) {
         JdResult<Boolean> result = new JdResult<>();
         result.toSuccess();
         if (!checkSendParam(materialSends)) {
@@ -140,14 +134,14 @@ public abstract class AbstractMaterialBaseServiceImpl implements MaterialSendSer
         try {
             if (sendBeforeOperation(materialSends)){
 
-                result = this.saveMaterialSendRecord(materialSends);
+                result = this.saveMaterialSendAndFlow(materialSends, saveFlow);
 
             }
 
             sendAfterOperation(materialSends);
         }
         catch (Throwable ex) {
-            result.toError("服务器异常！");
+            result.toError("服务器异常!");
             logger.error("Failed to save material send data. body:[{}].", JsonHelper.toJson(materialSends), ex);
             throw new RuntimeException("物资出库失败");
         }
@@ -155,7 +149,7 @@ public abstract class AbstractMaterialBaseServiceImpl implements MaterialSendSer
         return result;
     }
 
-    private JdResult<Boolean> saveMaterialSendRecord(List<DmsMaterialSend> materialSends) {
+    private JdResult<Boolean> saveMaterialSendAndFlow(List<DmsMaterialSend> materialSends, Boolean saveFlow) {
         JdResult<Boolean> result = new JdResult<>();
         result.toSuccess();
 
@@ -165,7 +159,9 @@ public abstract class AbstractMaterialBaseServiceImpl implements MaterialSendSer
         }
         if (materialSends.size() <= INSERT_NUMBER_UPPER_LIMIT) {
             result.setData(materialSendDao.batchInsertOnDuplicate(materialSends) > 0);
-            materialSendFlowDao.batchInsert(flows);
+            if (saveFlow) {
+                materialSendFlowDao.batchInsert(flows);
+            }
         }
         else {
             for (int fromIndex = 0; fromIndex < materialSends.size(); fromIndex = fromIndex + INSERT_NUMBER_UPPER_LIMIT) {
@@ -176,10 +172,36 @@ public abstract class AbstractMaterialBaseServiceImpl implements MaterialSendSer
                 List<DmsMaterialSend> subList = materialSends.subList(fromIndex, toIndex);
                 List<DmsMaterialSendFlow> subFlows = flows.subList(fromIndex, toIndex);
                 result.setData(materialSendDao.batchInsertOnDuplicate(subList) > 0);
-                materialSendFlowDao.batchInsert(subFlows);
+                if (saveFlow) {
+                    materialSendFlowDao.batchInsert(subFlows);
+                }
             }
         }
         return result;
     }
 
+    @Override
+    @JProfiler(jKey = "DMS.WEB.AbstractMaterialBaseServiceImpl.listMaterialSendBySendCode", jAppName= Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdResult<List<DmsMaterialSend>> listMaterialSendBySendCode(String sendCode, Long createSiteCode) {
+        JdResult<List<DmsMaterialSend>> result = new JdResult<>();
+        result.toSuccess();
+
+        if (StringUtils.isBlank(sendCode) || null == createSiteCode || createSiteCode <= 0) {
+            result.toError("请求参数不合法！");
+            return result;
+        }
+        if (!BusinessUtil.isSendCode(sendCode)) {
+            result.toError("批次号错误！");
+            return result;
+        }
+
+        try {
+            result.setData(materialSendDao.listBySendCode(sendCode, createSiteCode));
+        }
+        catch (Exception ex) {
+            result.toError("服务器异常!");
+            logger.error("Failed to get material send records. sendCode:[{}], createSiteCode:[{}]", sendCode, createSiteCode, ex);
+        }
+        return result;
+    }
 }

@@ -59,7 +59,7 @@
     <select id="getListByBatchCodeAndSiteCode" parameterType="java.util.Map" resultMap="sortingExceptionResult">
       select  <include refid="field"/>
         from SORTING_EC
-          WHERE BOX_CODE=#{batchCode,jdbcType=VARCHAR}
+          WHERE BOX_CODE=#{sendCode,jdbcType=VARCHAR}
                 AND RECEIVE_SITE_CODE=#{siteCode,jdbcType=INTEGER}
     </select>
 </mapper>

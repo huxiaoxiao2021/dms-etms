@@ -34,4 +34,11 @@ public class PackingConsumableInfoDaoImpl extends BaseDao<PackingConsumableInfo>
         paramMap.put("list", codes);
         return this.getSqlSession().selectList(this.getNameSpace() + ".listPackingConsumableInfoByCodes", paramMap);
     }
+
+    @Override
+    public List<PackingConsumableInfo> listByTypeCode(String typeCode) {
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("typeCode", typeCode);
+        return this.getSqlSession().selectList(this.getNameSpace() + ".listByTypeCode", paramMap);
+    }
 }

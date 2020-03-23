@@ -3,6 +3,8 @@ $(function() {
 	var queryUrl = '/consumable/packingConsumableInfo/listData';
 	var modifyInfoPageUrl = '/consumable/packingConsumableInfo/getModifyPage';
 	var addInfoPageUrl = '/consumable/packingConsumableInfo/getAddPage';
+    // 分拣物资类型
+    let type_sorting_material = 'TY010';
 	var tableInit = function() {
 		var oTableInit = new Object();
 		oTableInit.init = function() {
@@ -161,6 +163,7 @@ $(function() {
 								var volumeCoefficient = row.volumeCoefficient;
 								var specification = row.specification;
 								var unit = row.unit;
+								let weight = row.weight;
 
 								var frameId = document.getElementById("modifyInfoFrame").getElementsByTagName("iframe")[0].id;
 								var frameWindow = $('#' + frameId)[0].contentWindow;
@@ -188,6 +191,18 @@ $(function() {
 										frameWindow.$('#height-value-input').val(dataArr[2]);
 									}
 								}
+
+                                frameWindow.$('#weight-input').val(weight);
+                                if (type == type_sorting_material) {
+                                    frameWindow.$('#volumeCoefficientDiv').hide();
+                                    frameWindow.$('#unitDiv').hide();
+                                    frameWindow.$('#weightDiv').show();
+                                }
+                                else {
+                                    frameWindow.$('#volumeCoefficientDiv').show();
+                                    frameWindow.$('#unitDiv').show();
+                                    frameWindow.$('#weightDiv').hide();
+                                }
 							}
 						});
 					}

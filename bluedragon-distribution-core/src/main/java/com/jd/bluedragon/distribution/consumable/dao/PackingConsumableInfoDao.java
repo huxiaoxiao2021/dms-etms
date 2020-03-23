@@ -29,4 +29,13 @@ public interface PackingConsumableInfoDao extends Dao<PackingConsumableInfo> {
      * @return java.util.List<com.jd.bluedragon.distribution.consumable.domain.PackingConsumableInfo>
      **/
     List<PackingConsumableInfo> listPackingConsumableInfoByCodes(List<String> codes);
+
+    /**
+     * @Description
+     * @param [typeCode]
+     * @Author wyh
+     * @Date 2020/3/18 15:07
+     * @return java.util.List<com.jd.bluedragon.distribution.consumable.domain.PackingConsumableInfo>
+     **/
+    List<PackingConsumableInfo> listByTypeCode(String typeCode);
 }

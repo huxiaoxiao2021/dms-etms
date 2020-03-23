@@ -32,10 +32,12 @@ public class MaterialSendDaoImpl extends BaseDao<DmsMaterialSend> implements Mat
     }
 
     @Override
-    public int logicalDeleteBatchSendBySendCode(String sendCode, Long createSiteCode) {
+    public int logicalDeleteBatchSendBySendCode(String sendCode, Long createSiteCode, String userErp, String userName) {
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("sendCode", sendCode);
         paramMap.put("createSiteCode", createSiteCode);
+        paramMap.put("updateUserErp", userErp);
+        paramMap.put("updateUserName", userName);
         return sqlSession.update(this.nameSpace + ".logicalDeleteBatchSendBySendCode", paramMap);
     }
 

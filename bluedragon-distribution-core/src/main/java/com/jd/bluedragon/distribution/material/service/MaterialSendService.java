@@ -13,5 +13,7 @@ import java.util.List;
  **/
 public interface MaterialSendService {
 
-    JdResult<Boolean> saveMaterialSend(List<DmsMaterialSend> materialSends);
+    JdResult<Boolean> saveMaterialSend(List<DmsMaterialSend> materialSends, Boolean saveFlow);
+
+    JdResult<List<DmsMaterialSend>> listMaterialSendBySendCode(String sendCode, Long createSiteCode);
 }

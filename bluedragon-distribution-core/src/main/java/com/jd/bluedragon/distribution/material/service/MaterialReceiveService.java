@@ -13,5 +13,5 @@ import java.util.List;
  **/
 public interface MaterialReceiveService {
 
-    JdResult<Boolean> saveMaterialReceive(List<DmsMaterialReceive> materialReceives);
+    JdResult<Boolean> saveMaterialReceive(List<DmsMaterialReceive> materialReceives, Boolean saveFlow);
 }

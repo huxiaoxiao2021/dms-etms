@@ -4,7 +4,7 @@
 
 	<resultMap id="batchInfo" type="com.jd.bluedragon.distribution.batch.domain.BatchInfo" >
 		<result column="id" property="id" />
-		<result column="batch_code" property="batchCode" />
+		<result column="batch_code" property="sendCode" />
 		<result column="create_site_code" property="createSiteCode" />
 		<result column="create_user" property="createUser" />
 		<result column="create_user_code" property="createUserCode" />
@@ -22,7 +22,7 @@
 			update_user_code, update_user, create_time, update_time,
 			yn)
 		VALUES (
-			#{batchCode,jdbcType=VARCHAR}, #{createSiteCode,jdbcType=INTEGER},
+			#{sendCode,jdbcType=VARCHAR}, #{createSiteCode,jdbcType=INTEGER},
 			#{createUser,jdbcType=VARCHAR}, #{createUserCode,jdbcType=INTEGER},
 			#{updateUserCode,jdbcType=INTEGER}, #{updateUser,jdbcType=VARCHAR},
 			NOW()
@@ -80,14 +80,14 @@
 		SELECT id, batch_code, create_site_code, create_user, create_user_code,
 			update_user_code, update_user, create_time, update_time,yn
 		FROM batchinfo
-		WHERE yn = 1 AND batch_code = #{batchCode}
+		WHERE yn = 1 AND batch_code = #{sendCode}
 		LIMIT 1
 	</select>
 
     <update id="update" parameterType="batchInfo" >
         UPDATE batchinfo
         SET update_time = #{updateTime, jdbcType=TIMESTAMP}
-        WHERE  batch_code =  #{batchCode,jdbcType=VARCHAR}
+        WHERE  batch_code =  #{sendCode,jdbcType=VARCHAR}
     </update>
 
 </mapper>

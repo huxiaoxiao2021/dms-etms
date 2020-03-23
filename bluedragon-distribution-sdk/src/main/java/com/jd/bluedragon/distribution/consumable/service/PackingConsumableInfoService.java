@@ -29,4 +29,13 @@ public interface PackingConsumableInfoService extends Service<PackingConsumableI
      * @return java.util.List<com.jd.bluedragon.distribution.consumable.domain.PackingConsumableInfo>
      **/
     List<PackingConsumableInfo> listPackingConsumableInfoByCodes(List<String> codes);
+
+    /**
+     * @Description 根据耗材类型查询
+     * @param [typeCode]
+     * @Author wyh
+     * @Date 2020/3/18 15:02
+     * @return java.util.List<com.jd.bluedragon.distribution.consumable.domain.PackingConsumableInfo>
+     **/
+    List<PackingConsumableInfo> listByTypeCode(String typeCode);
 }

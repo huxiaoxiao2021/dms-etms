@@ -86,8 +86,11 @@
 					is_delete,
 				</if>
 				<if test="ts != null">
-					ts
+					ts,
 				</if>
+                <if test="weight != null">
+                    weight
+                </if>
 			</trim>
 			)
 			values
@@ -136,8 +139,11 @@
 					#{isDelete,jdbcType=TINYINT},
 				</if>
 				<if test="ts != null">
-					#{ts,jdbcType=TIMESTAMP}
+					#{ts,jdbcType=TIMESTAMP},
 				</if>
+                <if test="weight != null">
+                    #{weight,jdbcType=DECIMAL}
+                </if>
 			</trim>
 			)
 	</insert>
@@ -217,8 +223,11 @@
 					is_delete = #{isDelete,jdbcType=TINYINT},
 				</if>
 				<if test="ts != null">
-					ts = #{ts,jdbcType=TIMESTAMP}
+					ts = #{ts,jdbcType=TIMESTAMP},
 				</if>
+                <if test="weight != null">
+                    weight = #{weight,jdbcType=DECIMAL}
+                </if>
 			</set>
 		where id = #{id,jdbcType=BIGINT}
 	</update>
@@ -296,5 +305,14 @@
                 #{item, jdbcType=VARCHAR}
             </foreach>
             AND is_delete = 0
+    </select>
+    
+    <select id="listByTypeCode" resultMap="PackingConsumableInfo" parameterType="java.lang.String">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM packing_consumable_info
+        WHERE
+            is_delete = 0
+        AND type = #{typeCode,jdbcType=VARCHAR}
     </select>
 </mapper>

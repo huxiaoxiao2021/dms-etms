@@ -6,6 +6,7 @@ import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -73,5 +74,13 @@ public class PackingConsumableInfoServiceImpl extends BaseService<PackingConsuma
 	        return packingConsumableInfoDao.listPackingConsumableInfoByCodes(codes);
         }
         return new ArrayList<>();
+    }
+
+    @Override
+    public List<PackingConsumableInfo> listByTypeCode(String typeCode) {
+	    if (StringUtils.isBlank(typeCode)) {
+	        return new ArrayList<>();
+        }
+        return packingConsumableInfoDao.listByTypeCode(typeCode);
     }
 }

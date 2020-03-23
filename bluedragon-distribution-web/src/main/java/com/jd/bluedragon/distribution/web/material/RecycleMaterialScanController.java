@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.web.material;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.material.service.MaterialOperationService;
+import com.jd.bluedragon.distribution.material.service.WarmBoxInOutOperationService;
 import com.jd.bluedragon.distribution.material.vo.RecycleMaterialScanQuery;
 import com.jd.bluedragon.distribution.material.vo.RecycleMaterialScanVO;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
@@ -31,7 +32,7 @@ public class RecycleMaterialScanController {
     private static final Logger LOGGER = LoggerFactory.getLogger(RecycleMaterialScanController.class);
 
     @Autowired
-    private MaterialOperationService materialOperationService;
+    private WarmBoxInOutOperationService warmBoxInOutOperationService;
 
     @Autowired
     BaseMajorManager baseMajorManager;
@@ -54,6 +55,6 @@ public class RecycleMaterialScanController {
             }
         }
         query.setCreateSiteCode(createSiteCode);
-        return materialOperationService.queryByPagerCondition(query);
+        return warmBoxInOutOperationService.queryByPagerCondition(query);
     }
 }

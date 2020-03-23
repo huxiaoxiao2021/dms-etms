@@ -140,6 +140,8 @@ $(function () {
             $('#weightDiv').show();
         }
         else {
+            $('#volumeCoefficientDiv').show();
+            $('#unitDiv').show();
             $('#weightDiv').hide();
         }
 
@@ -150,9 +152,11 @@ $(function () {
     /*新增*/
     $('#btn_add').click(function () {
 
+        let formParams = $.formHelper.serialize('add-form');
+
         // 分拣物资类型不需要录入单位，跳过表单验证
-        if (formParams.type == type_sorting_material) {
-            $('#unit-value-input').val("");
+        if (formParams.type.trim() == type_sorting_material) {
+            $('#unit-value-input').val("个");
             $('#volume-coefficient-value-input').val(1);
         }
 
@@ -169,7 +173,6 @@ $(function () {
                 var heightValue =  $('#height-value-input').val();
 
                 /*获取参数*/
-                var formParams = $.formHelper.serialize('add-form');
                 formParams.name = formParams.name.trim();
                 formParams.type = formParams.type.trim();
                 formParams.volumeCoefficient = formParams.volumeCoefficient.trim();

@@ -2,20 +2,22 @@ package com.jd.bluedragon.distribution.material.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
-import com.jd.bluedragon.distribution.api.request.material.warmbox.MaterialBatchSendRequest;
+import com.jd.bluedragon.distribution.api.request.material.batch.MaterialBatchSendRequest;
+import com.jd.bluedragon.distribution.api.response.material.batch.MaterialTypeResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.consumable.domain.PackingConsumableInfo;
+import com.jd.bluedragon.distribution.consumable.domain.PackingTypeEnum;
 import com.jd.bluedragon.distribution.consumable.service.PackingConsumableInfoService;
 import com.jd.bluedragon.distribution.material.dao.MaterialSendDao;
 import com.jd.bluedragon.distribution.material.dao.MaterialSendFlowDao;
-import com.jd.bluedragon.distribution.material.domain.DmsMaterialReceive;
 import com.jd.bluedragon.distribution.material.domain.DmsMaterialSend;
-import com.jd.bluedragon.distribution.material.domain.DmsMaterialSendFlow;
 import com.jd.bluedragon.distribution.material.dto.MaterialCancelSendDto;
 import com.jd.bluedragon.distribution.material.dto.MaterialSendDto;
 import com.jd.bluedragon.distribution.material.enums.MaterialSendTypeEnum;
 import com.jd.bluedragon.distribution.material.service.SortingMaterialSendService;
+import com.jd.bluedragon.distribution.material.service.impl.base.AbstractMaterialSendServiceImpl;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
@@ -41,7 +43,7 @@ import java.util.*;
  * @Date 2020/3/16 13:52
  **/
 @Service("materialBatchSendService")
-public class SortingMaterialSendServiceImpl extends AbstractMaterialBaseServiceImpl implements SortingMaterialSendService {
+public class SortingMaterialSendServiceImpl extends AbstractMaterialSendServiceImpl implements SortingMaterialSendService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SortingMaterialSendServiceImpl.class);
 
@@ -66,17 +68,24 @@ public class SortingMaterialSendServiceImpl extends AbstractMaterialBaseServiceI
     private SiteService siteService;
 
     @Override
-    protected Boolean checkReceiveParam(List<DmsMaterialReceive> materialReceives) {
+    public Boolean checkSendParam(List<DmsMaterialSend> materialSends) {
+        if (CollectionUtils.isEmpty(materialSends))
+            return false;
+        String sendCode = materialSends.get(0).getSendCode();
+        if (StringUtils.isBlank(sendCode))
+            return false;
+        if (!BusinessUtil.isSendCode(sendCode))
+            return false;
         return true;
     }
 
     @Override
-    protected Boolean checkSendParam(List<DmsMaterialSend> materialSends) {
-        return CollectionUtils.isEmpty(materialSends);
+    public Boolean sendBeforeOperation(List<DmsMaterialSend> materialSends) {
+        return true;
     }
 
     @Override
-    protected Boolean sendAfterOperation(List<DmsMaterialSend> materialSends) {
+    public Boolean sendAfterOperation(List<DmsMaterialSend> materialSends) {
 
         List<MaterialSendDto> mqBodyList = generateMQBody(materialSends);
 
@@ -160,21 +169,21 @@ public class SortingMaterialSendServiceImpl extends AbstractMaterialBaseServiceI
 
     @Override
     @Transactional
-    @JProfiler(jKey = "DMS.WEB.SortingMaterialSendServiceImpl.cancelMaterialSendByBatchCode", jAppName= Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public JdResult<Boolean> cancelMaterialSendByBatchCode(MaterialBatchSendRequest request) {
+    @JProfiler(jKey = "DMS.WEB.SortingMaterialSendServiceImpl.cancelMaterialSendBySendCode", jAppName= Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdResult<Boolean> cancelMaterialSendBySendCode(MaterialBatchSendRequest request) {
         JdResult<Boolean> result = new JdResult<>();
         result.toSuccess();
 
-        if (null == request || StringUtils.isBlank(request.getBatchCode()) || null == request.getSiteCode()){
+        if (null == request || StringUtils.isBlank(request.getSendCode()) || null == request.getSiteCode()){
             result.toError("缺少参数！");
             return result;
         }
 
         try {
 
-            createCancelSendFlow(request);
+            cancelSendRecord(request);
 
-            materialSendDao.logicalDeleteBatchSendBySendCode(request.getBatchCode(), request.getSiteCode().longValue());
+            cancelSendFlow(request);
 
             sendCancelMaterialSendMQ(request);
 
@@ -188,47 +197,53 @@ public class SortingMaterialSendServiceImpl extends AbstractMaterialBaseServiceI
         return result;
     }
 
-    private void createCancelSendFlow(MaterialBatchSendRequest request) {
-        List<DmsMaterialSend> materialSends = materialSendDao.listBySendCode(request.getBatchCode(), request.getSiteCode().longValue());
-
-        if (CollectionUtils.isEmpty(materialSends)) {
-            LOGGER.warn("发货记录已取消. sendCode:[{}], createSite:[{}]", request.getBatchCode(), request.getSiteName());
-            return;
-        }
-
-        List<DmsMaterialSendFlow> flows = new ArrayList<>(materialSends.size());
-        for (DmsMaterialSend materialSend : materialSends) {
-            DmsMaterialSendFlow flow = materialSend.convert2SendFlow();
-            flow.setCreateUserErp(request.getUserErp());
-            flow.setCreateUserName(request.getUserName());
-            flow.setUpdateUserErp(request.getUserErp());
-            flow.setUpdateUserName(request.getUserName());
-            flows.add(flow);
-        }
-        if (flows.size() <= INSERT_NUMBER_UPPER_LIMIT) {
-            materialSendFlowDao.batchInsert(flows);
-        }
-        else {
-            for (int fromIndex = 0; fromIndex < flows.size(); fromIndex = fromIndex + INSERT_NUMBER_UPPER_LIMIT) {
-                int toIndex = fromIndex + INSERT_NUMBER_UPPER_LIMIT;
-                if (toIndex > flows.size()) {
-                    toIndex = flows.size();
-                }
-                List<DmsMaterialSendFlow> subFlows = flows.subList(fromIndex, toIndex);
-                materialSendFlowDao.batchInsert(subFlows);
-            }
-        }
+    private void cancelSendRecord(MaterialBatchSendRequest request) {
+        materialSendDao.logicalDeleteBatchSendBySendCode(request.getSendCode(), request.getSiteCode().longValue(), request.getUserErp(), request.getUserName());
     }
 
-    private void sendCancelMaterialSendMQ(MaterialBatchSendRequest request) throws JMQException {
+    private void cancelSendFlow(MaterialBatchSendRequest request) {
+        materialSendFlowDao.logicalDeleteSendFlowBySendCode(request.getSendCode(), request.getSiteCode().longValue(), request.getUserErp(), request.getUserName());
+    }
+
+    private void sendCancelMaterialSendMQ(MaterialBatchSendRequest request) {
         MaterialCancelSendDto dto = new MaterialCancelSendDto();
-        dto.setBatchCode(request.getBatchCode());
-        dto.setCreateSiteCode(dto.getCreateSiteCode());
-        dto.setCreateSiteName(getSiteName(dto.getCreateSiteCode()));
+        dto.setBatchCode(request.getSendCode());
+        dto.setCreateSiteCode(request.getSiteCode().longValue());
+        dto.setCreateSiteName(getSiteName(request.getSiteCode().longValue()));
         dto.setErpUserCode(request.getUserErp());
         dto.setErpUserName(request.getUserName());
         dto.setOperateTime(System.currentTimeMillis());
 
-        cancelMaterialSendMQProducer.send(dto.getBatchCode(), JsonHelper.toJson(dto));
+        cancelMaterialSendMQProducer.sendOnFailPersistent(dto.getBatchCode(), JsonHelper.toJson(dto));
+    }
+
+    @Override
+    @JProfiler(jKey = "DMS.WEB.SortingMaterialSendServiceImpl.listSortingMaterialType", jAppName= Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdResult<List<MaterialTypeResponse>> listSortingMaterialType(MaterialBatchSendRequest request) {
+        JdResult<List<MaterialTypeResponse>> result = new JdResult<>();
+        result.toSuccess();
+
+        if (null == request) {
+            result.toError("缺少参数");
+            return result;
+        }
+
+        List<PackingConsumableInfo> packingInfos = packingConsumableInfoService.listByTypeCode(PackingTypeEnum.TY010.getTypeCode());
+        List<MaterialTypeResponse> materialTypeList = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(packingInfos)) {
+            for (PackingConsumableInfo packingInfo : packingInfos) {
+                MaterialTypeResponse response = new MaterialTypeResponse();
+                response.setMaterialCode(packingInfo.getCode());
+                response.setMaterialName(packingInfo.getName());
+                materialTypeList.add(response);
+            }
+        }
+        result.setData(materialTypeList);
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("sorting material types:[{}]", JsonHelper.toJson(materialTypeList));
+        }
+
+        return result;
     }
 }

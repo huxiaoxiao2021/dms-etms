@@ -1,7 +1,10 @@
 package com.jd.bluedragon.distribution.material.service;
 
-import com.jd.bluedragon.distribution.api.request.material.warmbox.MaterialBatchSendRequest;
+import com.jd.bluedragon.distribution.api.request.material.batch.MaterialBatchSendRequest;
+import com.jd.bluedragon.distribution.api.response.material.batch.MaterialTypeResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
+
+import java.util.List;
 
 /**
  * @ClassName SortingMaterialSendService
@@ -11,5 +14,7 @@ import com.jd.bluedragon.distribution.command.JdResult;
  **/
 public interface SortingMaterialSendService {
 
-    JdResult<Boolean> cancelMaterialSendByBatchCode(MaterialBatchSendRequest request);
+    JdResult<Boolean> cancelMaterialSendBySendCode(MaterialBatchSendRequest request);
+
+    JdResult<List<MaterialTypeResponse>> listSortingMaterialType(MaterialBatchSendRequest request);
 }

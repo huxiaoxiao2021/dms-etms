@@ -149,14 +149,14 @@
         LIMIT #{offset,jdbcType=INTEGER}, #{limit,jdbcType=INTEGER}
     </select>
 
-    <update id="logicalDeleteBatchSendBySendCode">
-        UPDATE dms_material_send
+    <update id="logicalDeleteBatchSendByUPDATE dms_material_send
         SET yn = 0
         WHERE
             yn = 1
           AND send_code = #{sendCode,jdbcType=VARCHAR}
           AND send_type = 3
-          AND create_site_code = #{createSiteCode,jdbcType=BIGINT}
+          AND create_site_code = #{createSiteCode,jdbcType=BIGINT}SendCode">
+
     </update>
 
     <select id="listBySendCode" resultMap="BaseResultMap">
@@ -169,4 +169,18 @@
         AND send_code = #{sendCode,jdbcType=VARCHAR}
         AND create_site_code = #{createSiteCode,jdbcType=BIGINT}
     </select>
+
+    <update id="logicalDeleteBatchSendBySendCode">
+        UPDATE dms_material_send
+        SET
+            yn = 0,
+            update_user_erp = #{updateUserErp, jdbcType=VARCHAR},
+            update_user_name = #{updateUserName, jdbcType=VARCHAR},
+            update_time = now()
+        WHERE
+            yn = 1
+          AND send_code = #{sendCode,jdbcType=VARCHAR}
+          AND send_type = 3
+          AND create_site_code = #{createSiteCode,jdbcType=BIGINT}
+    </update>
 </mapper>

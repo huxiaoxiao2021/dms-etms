@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.api.request.material.warmbox;
+package com.jd.bluedragon.distribution.api.request.material.batch;
 
 
 import com.jd.bluedragon.distribution.api.JdRequest;
@@ -16,24 +16,25 @@ public class MaterialBatchSendRequest extends JdRequest {
 
     private static final long serialVersionUID = -2483299650913701153L;
 
+    public MaterialBatchSendRequest() {}
+
+    public MaterialBatchSendRequest(Byte sendBusinessType) {
+        this.sendBusinessMode = sendBusinessType;
+    }
+
     private String userErp;
 
     /**
      * 发货批次号
      */
-    private String batchCode;
+    private String sendCode;
 
-    private Byte sendBusinessType;
+    private Byte sendBusinessMode;
 
     /**
      * 发货明细
      */
-    private List<MaterialSendDetail> sendDetails;
-
-    // should be never changed
-    private void setSendBusinessType(Byte sendBusinessType) {
-        this.sendBusinessType = sendBusinessType;
-    }
+    private List<MaterialSendByTypeDetail> sendDetails;
 
     public String getUserErp() {
         return userErp;
@@ -43,32 +44,37 @@ public class MaterialBatchSendRequest extends JdRequest {
         this.userErp = userErp;
     }
 
-    public String getBatchCode() {
-        return batchCode;
+    public String getSendCode() {
+        return sendCode;
     }
 
-    public void setBatchCode(String batchCode) {
-        this.batchCode = batchCode;
+    public void setSendCode(String sendCode) {
+        this.sendCode = sendCode;
     }
 
-    public Byte getSendBusinessType() {
-        return sendBusinessType;
+    // should be never changed
+    private void setSendBusinessMode(Byte sendBusinessMode) {
+        this.sendBusinessMode = sendBusinessMode;
     }
 
-    public List<MaterialSendDetail> getSendDetails() {
+    public Byte getSendBusinessMode() {
+        return sendBusinessMode;
+    }
+
+    public List<MaterialSendByTypeDetail> getSendDetails() {
         return sendDetails;
     }
 
-    public void setSendDetails(List<MaterialSendDetail> sendDetails) {
+    public void setSendDetails(List<MaterialSendByTypeDetail> sendDetails) {
         this.sendDetails = sendDetails;
     }
 
-    public class MaterialSendDetail implements Serializable {
+    public static class MaterialSendByTypeDetail implements Serializable {
 
         private static final long serialVersionUID = -3640063075948924774L;
 
         /**
-         * 物资编码
+         * 物资类型编码
          */
         private String materialTypeCode;
 
