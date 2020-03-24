@@ -213,4 +213,12 @@
                   ref="queueManagementGateWayService"
                   server="dmsjsf">
     </jsf:provider>
+
+    <!-- 冷链操作（新质控） -->
+    <bean id="coldChainGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.ColdChainGatewayServiceImpl"/>
+    <jsf:provider id="jsfColdChainGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.ColdChainGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="coldChainGatewayService" server="dmsjsf">
+    </jsf:provider>
 </beans>

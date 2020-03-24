@@ -830,6 +830,25 @@ public class BusinessUtil {
     }
 
     /**
+     * 判断是否是冷链卡班
+     */
+    public static Boolean isColdChainKBWaybill(String waybillSign) {
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_80, WaybillSignConstants.CHAR_80_7)
+                && isSignChar(waybillSign, WaybillSignConstants.POSITION_54, WaybillSignConstants.CHAR_54_2);
+    }
+
+    /**
+     * 判断是否为冷链城配
+     *
+     * @return
+     */
+    public static Boolean isColdChainCityDeliveryWaybill(String waybillSign) {
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_80, WaybillSignConstants.CHAR_80_6)
+                && isSignChar(waybillSign, WaybillSignConstants.POSITION_54, WaybillSignConstants.CHAR_54_2)
+                && isSignInChars(waybillSign, WaybillSignConstants.POSITION_118, WaybillSignConstants.CHAR_118_0, WaybillSignConstants.CHAR_118_1);
+    }
+
+    /**
      * 判断是否是京仓运单
      * @param waybillSign
      * @return
@@ -1252,7 +1271,7 @@ public class BusinessUtil {
 		return BusinessUtil.isSignInChars(sendPay,
 					SendPayConstants.POSITION_295,
 					SendPayConstants.CHAR_295_1,
-					SendPayConstants.CHAR_295_2, 
+					SendPayConstants.CHAR_295_2,
 					SendPayConstants.CHAR_295_3,
 					SendPayConstants.CHAR_295_4)
 				|| BusinessUtil.isSignInChars(waybillSign,
@@ -1340,6 +1359,30 @@ public class BusinessUtil {
             return Boolean.FALSE;
         }
         return DmsConstants.WARM_BOX_CODE_REGEX.matcher(boxCode.toUpperCase().trim()).matches();
+    }
+
+    /**
+     * 获取条码类型逻辑
+     * 判断范围包裹号，运单号，箱号，批次号
+     *
+     * @param barCode
+     * @return null为未知条码
+     */
+    public static BarCodeType getBarCodeType(String barCode) {
+        if (StringUtils.isBlank(barCode)) {
+            return null;
+        }
+        if (BusinessUtil.isBoxcode(barCode)) {
+            return BarCodeType.BOX_CODE;
+        } else if (WaybillUtil.isPackageCode(barCode)) {
+            return BarCodeType.PACKAGE_CODE;
+        } else if (WaybillUtil.isWaybillCode(barCode)) {
+            return BarCodeType.WAYBILL_CODE;
+        } else if (BusinessUtil.isSendCode(barCode)) {
+            return BarCodeType.SEND_CODE;
+        } else {
+            return null;
+        }
     }
 
 }
