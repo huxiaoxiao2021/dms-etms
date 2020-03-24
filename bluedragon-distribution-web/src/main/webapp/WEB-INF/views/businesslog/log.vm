@@ -172,6 +172,7 @@
                                     getlogs((pagecount - 1) * size, parseInt(size, 10));
                                 }
                             });
+                            $("#pageTool").find('ul').append("  共"+message.total+"条");
                         }
 
                     } else {
