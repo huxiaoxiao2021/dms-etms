@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface MaterialReceiveDao extends Dao<DmsMaterialReceive> {
 
-    int batchInsertOnDuplicate(@Param("list") List<DmsMaterialReceive> list);
+    int batchInsertOnDuplicate(List<DmsMaterialReceive> list);
 
-    int deleteByReceiveCode(@Param("receiveCode") String receiveCode, @Param("createSiteCode") Long createSiteCode);
+    int deleteByReceiveCode(String receiveCode, Long createSiteCode);
 }

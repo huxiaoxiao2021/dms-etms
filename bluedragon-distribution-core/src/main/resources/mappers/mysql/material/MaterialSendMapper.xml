@@ -120,7 +120,8 @@
         receive_site_code = VALUES(receive_site_code),
         update_user_erp = VALUES(update_user_erp),
         update_user_name = VALUES(update_user_name),
-        update_time = now()
+        update_time = now(),
+        yn = VALUES(yn)
     </insert>
 
     <delete id="deleteBySendCode">
@@ -148,4 +149,29 @@
         ORDER BY material_code DESC, update_time DESC
         LIMIT #{offset,jdbcType=INTEGER}, #{limit,jdbcType=INTEGER}
     </select>
+
+    <select id="listBySendCode" resultMap="BaseResultMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM
+            dms_material_send
+        WHERE
+            yn = 1
+        AND send_code = #{sendCode,jdbcType=VARCHAR}
+        AND create_site_code = #{createSiteCode,jdbcType=BIGINT}
+    </select>
+
+    <update id="logicalDeleteBatchSendBySendCode">
+        UPDATE dms_material_send
+        SET
+            yn = 0,
+            update_user_erp = #{updateUserErp, jdbcType=VARCHAR},
+            update_user_name = #{updateUserName, jdbcType=VARCHAR},
+            update_time = now()
+        WHERE
+            yn = 1
+          AND send_code = #{sendCode,jdbcType=VARCHAR}
+          AND send_type = 3
+          AND create_site_code = #{createSiteCode,jdbcType=BIGINT}
+    </update>
 </mapper>

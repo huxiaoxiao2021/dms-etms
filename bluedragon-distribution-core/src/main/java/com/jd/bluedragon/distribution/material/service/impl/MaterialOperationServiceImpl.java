@@ -1,3 +1,4 @@
+/*
 package com.jd.bluedragon.distribution.material.service.impl;
 
 import com.jd.bluedragon.Constants;
@@ -36,12 +37,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+*/
 /**
  * @ClassName MaterialBoxServiceImpl
  * @Description
  * @Author wyh
  * @Date 2020/2/21 11:44
- **/
+ **//*
+
 @Service
 public class MaterialOperationServiceImpl implements MaterialOperationService {
 
@@ -319,3 +322,4 @@ public class MaterialOperationServiceImpl implements MaterialOperationService {
         result.setTotal(pagerResult.getTotal());
     }
 }
+*/

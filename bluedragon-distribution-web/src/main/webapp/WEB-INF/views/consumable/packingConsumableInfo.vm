@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>包装耗材信息管理</title>
+    <title>包装物资信息管理</title>
     <meta http-equiv="pragma" content="no-cache" />
     <meta http-equiv="cache-control" content="no-cache">
     <meta http-equiv="expires" content="0">
@@ -12,7 +12,7 @@
 <body>
 <div id="dataTableDiv" class="main" style="margin-left: 20px;">
         <ol class="breadcrumb">
-            <li><a href="#">包装耗材信息管理</a></li>
+            <li><a href="#">包装物资信息管理</a></li>
             <li class="active">包装耗材信息</li>
         </ol>
 		<!-- 查询条件 -->
