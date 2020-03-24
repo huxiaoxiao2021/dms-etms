@@ -59,6 +59,8 @@ public class ColdChainOperationResource {
             }
         } catch (Exception e) {
             log.error("[冷链操作-冷链卸货]上传卸货数据时发生异常,request:" + JsonHelper.toJson(unloadDto), e);
+            response.setCode(JdResponse.CODE_SERVICE_ERROR);
+            response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
         }
         return response;
     }
