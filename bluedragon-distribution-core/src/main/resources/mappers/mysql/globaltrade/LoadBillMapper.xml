@@ -320,7 +320,15 @@
 		approval_time, remark
 		FROM load_bill
 		<include refid="Base_Where_List" />
-		ORDER BY CREATE_TIME
+		<choose>
+			<when test="sendTimeFrom != null or sendTimeTo != null">
+				ORDER BY send_time
+			</when>
+			<otherwise>
+				ORDER BY CREATE_TIME
+			</otherwise>
+		</choose>
+
 		<if test="startIndex != null">
 			LIMIT #{startIndex},#{pageSize}
 		</if>

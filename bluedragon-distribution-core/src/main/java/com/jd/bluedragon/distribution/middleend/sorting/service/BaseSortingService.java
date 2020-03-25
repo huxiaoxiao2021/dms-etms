@@ -97,9 +97,11 @@ public abstract class BaseSortingService {
                 if (coreSorting(sorting)) {
                     //核心分拣操作成功，则生成分拣成功处理任务用于处理分拣补验货/补发货/写操作日志等动作
                     doSortingSuccess(sorting);
+                } else {
+                    log.error("核心的分拣操作执行失败，扩展对象：{}" , JSON.toJSONString(sorting));
+                    return false;
                 }
             }
-            return true;
         } catch (Exception e) {
             log.error("分拣操作异常.参数:{}" , JSON.toJSONString(sortingTask) , e);
             Profiler.functionError(info);
@@ -108,6 +110,7 @@ public abstract class BaseSortingService {
             delCache(fingerPrintKey);
             Profiler.registerInfoEnd(info);
         }
+        return true;
     }
 
     /**
