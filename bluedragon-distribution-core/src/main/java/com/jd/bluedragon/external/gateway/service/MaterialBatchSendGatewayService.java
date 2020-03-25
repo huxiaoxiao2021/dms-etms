@@ -19,7 +19,7 @@ public interface MaterialBatchSendGatewayService {
 
     JdCResponse<Void> cancelMaterialBatchSend(MaterialBatchSendReq request);
 
-    JdCResponse<List<MaterialTypeDto>> listMaterialType(MaterialBatchSendReq req);
+    JdCResponse<List<MaterialTypeDto>> listMaterialType(MaterialBatchSendReq request);
 
-    JdCResponse<SendCodeCheckDto> checkSendCode(MaterialBatchSendReq req);
+    JdCResponse<SendCodeCheckDto> getSendCodeDestination(MaterialBatchSendReq request);
 }

@@ -46,8 +46,8 @@ public class WarmBoxInOutGatewayServiceImpl implements WarmBoxInOutGatewayServic
             response.toError("参数为空！");
             return response;
         }
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("Gateway获取板和保温箱绑定关系. req:[{}]", JSON.toJSONString(request));
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Gateway获取板和保温箱绑定关系. req:[{}]", JSON.toJSONString(request));
         }
 
         WarmBoxBoardRelationRequest queryParam = new WarmBoxBoardRelationRequest();
@@ -65,8 +65,8 @@ public class WarmBoxInOutGatewayServiceImpl implements WarmBoxInOutGatewayServic
         response.setData(JSON.parseObject(JSON.toJSONString(result.getData()), WarmBoxInOutDto.class));
         response.toSucceed(result.getMessage());
 
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("Gateway获取板和保温箱绑定关系. resp:[{}]", JSON.toJSONString(response));
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Gateway获取板和保温箱绑定关系. resp:[{}]", JSON.toJSONString(response));
         }
 
         return response;
@@ -82,8 +82,8 @@ public class WarmBoxInOutGatewayServiceImpl implements WarmBoxInOutGatewayServic
             response.toError("参数为空！");
             return response;
         }
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("Gateway保温箱入库. req:[{}]", JSON.toJSONString(request));
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Gateway保温箱入库. req:[{}]", JSON.toJSONString(request));
         }
 
         WarmBoxInboundRequest reqBody = new WarmBoxInboundRequest();
@@ -101,8 +101,8 @@ public class WarmBoxInOutGatewayServiceImpl implements WarmBoxInOutGatewayServic
         }
         response.toSucceed(result.getMessage());
 
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("Gateway保温箱入库. resp:[{}]", JSON.toJSONString(response));
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Gateway保温箱入库. resp:[{}]", JSON.toJSONString(response));
         }
         return response;
     }
@@ -117,8 +117,8 @@ public class WarmBoxInOutGatewayServiceImpl implements WarmBoxInOutGatewayServic
             response.toError("参数为空！");
             return response;
         }
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("Gateway保温箱出库. req:[{}]", JSON.toJSONString(request));
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Gateway保温箱出库. req:[{}]", JSON.toJSONString(request));
         }
 
         WarmBoxOutboundRequest body = new WarmBoxOutboundRequest();
@@ -138,8 +138,8 @@ public class WarmBoxInOutGatewayServiceImpl implements WarmBoxInOutGatewayServic
         }
         response.toSucceed(result.getMessage());
 
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("Gateway保温箱出库. resp:[{}]", JSON.toJSONString(response));
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Gateway保温箱出库. resp:[{}]", JSON.toJSONString(response));
         }
         return response;
     }

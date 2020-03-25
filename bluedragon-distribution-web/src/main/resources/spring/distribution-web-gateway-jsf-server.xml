@@ -221,4 +221,14 @@
                   alias="${dms.gateway.jsf.alias}"
                   ref="coldChainGatewayService" server="dmsjsf">
     </jsf:provider>
+
+    <!--  物资发货  -->
+    <bean id="materialBatchSendGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.MaterialBatchSendGatewayServiceImpl" />
+    <jsf:provider id="jsfMaterialBatchSendGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.MaterialBatchSendGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="materialBatchSendGatewayService"
+                  server="dmsjsf">
+    </jsf:provider>
+
 </beans>

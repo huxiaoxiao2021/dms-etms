@@ -27,6 +27,46 @@ public class MaterialBatchSendReq implements Serializable {
 
     private Byte sendBusinessMode;
 
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public CurrentOperate getCurrentOperate() {
+        return currentOperate;
+    }
+
+    public void setCurrentOperate(CurrentOperate currentOperate) {
+        this.currentOperate = currentOperate;
+    }
+
+    public String getSendCode() {
+        return sendCode;
+    }
+
+    public void setSendCode(String sendCode) {
+        this.sendCode = sendCode;
+    }
+
+    public Byte getSendBusinessMode() {
+        return sendBusinessMode;
+    }
+
+    public void setSendBusinessMode(Byte sendBusinessMode) {
+        this.sendBusinessMode = sendBusinessMode;
+    }
+
+    public List<MaterialSendByTypeDetailDto> getSendDetails() {
+        return sendDetails;
+    }
+
+    public void setSendDetails(List<MaterialSendByTypeDetailDto> sendDetails) {
+        this.sendDetails = sendDetails;
+    }
+
     /**
      * 发货明细
      */
