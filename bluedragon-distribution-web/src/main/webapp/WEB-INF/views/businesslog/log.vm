@@ -13,6 +13,7 @@
     <script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/paging/paging.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/common/utils.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/businesslog/log.js')"></script>
 
 </head>
 
@@ -396,7 +397,10 @@ function nowTimeAddDay(day){
             </div>
         </div>
 
-        <div id="pageTool"></div>
+        <div style="margin-left: 35%;">
+            <div id="pageTool" style="float: left;"></div>
+            <div id="dataTotal" style="margin-left: 5px;padding: 0 3px;display: inline-block;margin-top: 3px;"></div>
+        </div>
     </div>
 </div>
 
