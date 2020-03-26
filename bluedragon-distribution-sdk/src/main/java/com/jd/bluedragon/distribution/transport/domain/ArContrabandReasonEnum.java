@@ -40,12 +40,12 @@ public enum ArContrabandReasonEnum {
     /**
      * 政府航空管制
      */
-    GOVERNMENT_AVIATION_CONTROL(7, "违禁品-危险品"),
+    GOVERNMENT_AVIATION_CONTROL(7, "政府航空管制"),
 
     /**
      * 航空停运
      */
-    AIR_OUTAGE(8, "违禁品-危险品"),
+    AIR_OUTAGE(8, "航空停运"),
 
     /**
      * 其他
