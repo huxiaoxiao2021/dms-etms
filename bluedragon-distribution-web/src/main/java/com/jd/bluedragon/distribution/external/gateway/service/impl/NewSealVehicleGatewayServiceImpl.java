@@ -20,6 +20,7 @@ import com.jd.bluedragon.external.gateway.service.NewSealVehicleGatewayService;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -236,6 +237,10 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
             param.setSealCodes(sc.getSealCodes());
             param.setVolume(sc.getVolume());
             param.setWeight(sc.getWeight());
+            int pc=NumberUtils.toInt(sc.getPalletCount(),-1);
+            if (pc > -1) {
+              param.setPalletCount(pc);
+            }
             param.setRouteLineCode(sc.getRouteLineCode());
             param.setSealCarTime(sc.getSealCarTime());
             param.setSealSiteId(sc.getSealSiteId());
