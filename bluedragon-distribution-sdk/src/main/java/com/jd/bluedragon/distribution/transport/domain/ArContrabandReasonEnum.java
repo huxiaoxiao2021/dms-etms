@@ -1,5 +1,8 @@
 package com.jd.bluedragon.distribution.transport.domain;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author lixin39
  * @Description 违禁品原因枚举值
@@ -10,41 +13,62 @@ public enum ArContrabandReasonEnum {
     /**
      * 液体或膏状
      */
-    LIQUID_OR_PASTE(1, "含液体或膏状"),
+    LIQUID_OR_PASTE(1, "违禁品-含液体或膏状"),
 
     /**
      * 气体
      */
-    GAS(2, "含气体"),
+    GAS(2, "违禁品-含气体"),
 
     /**
      * 粉末
      */
-    POWDER(3, "含粉末"),
+    POWDER(3, "违禁品-含粉末"),
 
     /**
      * 电池
      */
-    BATTERY(4, "含电池"),
+    BATTERY(4, "违禁品-含电池"),
 
     /**
      * 磁
      */
-    MAGNET(5, "含磁"),
+    MAGNET(5, "违禁品-含磁"),
 
     /**
      * 危险品
      */
-    DANGEROUS_GOODS(6, "危险品"),
+    DANGEROUS_GOODS(6, "违禁品-危险品"),
+
+    /**
+     * 政府航空管制
+     */
+    GOVERNMENT_AVIATION_CONTROL(7, "违禁品-危险品"),
+
+    /**
+     * 航空停运
+     */
+    AIR_OUTAGE(8, "违禁品-危险品"),
 
     /**
      * 其他
      */
-    OTHER(7, "其他");
+    OTHER(9, "其他");
 
     private Integer code;
 
     private String desc;
+
+    private static Map<Integer, String> codeMap;
+
+    static {
+        //将所有枚举装载到map中
+        codeMap = new HashMap<Integer, String>();
+
+        for (ArContrabandReasonEnum _enum : ArContrabandReasonEnum.values()) {
+            codeMap.put(_enum.getCode(), _enum.getDesc());
+        }
+    }
 
     ArContrabandReasonEnum() {
     }

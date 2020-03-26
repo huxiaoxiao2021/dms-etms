@@ -337,7 +337,7 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
      * @param arAbnormalRequest
      * @param waybillMap
      */
-    private void doSendTrace(ArAbnormalRequest arAbnormalRequest, Map<String, List<String>> waybillMap) {
+    public void doSendTrace(ArAbnormalRequest arAbnormalRequest, Map<String, List<String>> waybillMap) {
         // 组装全程跟踪对象
         BdTraceDto bdTraceDto = assembleBdTraceDto(arAbnormalRequest);
         for (Map.Entry<String, List<String>> entry : waybillMap.entrySet()) {
@@ -384,7 +384,6 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
         if (isNewClientRequest(arAbnormalRequest)) {
             desc.append(getTransportChangeDesc(arAbnormalRequest.getTranspondType()));
             desc.append(Constants.SEPARATOR_BLANK_SPACE);
-            desc.append(getAbnormalReasonDesc(arAbnormalRequest.getTranspondReason()));
             desc.append(Constants.PUNCTUATION_OPEN_BRACKET_SMALL);
             desc.append(getContrabandReasonDesc(arAbnormalRequest.getContrabandReason()));
             desc.append(Constants.PUNCTUATION_CLOSE_BRACKET_SMALL);
