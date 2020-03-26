@@ -237,8 +237,8 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
             param.setSealCodes(sc.getSealCodes());
             param.setVolume(sc.getVolume());
             param.setWeight(sc.getWeight());
-            int pc=NumberUtils.toInt(sc.getPalletCount(),-1);
-            if (pc > -1) {
+            int pc=NumberUtils.toInt(sc.getPalletCount(),0);
+            if (pc > 0) {
               param.setPalletCount(pc);
             }
             param.setRouteLineCode(sc.getRouteLineCode());
