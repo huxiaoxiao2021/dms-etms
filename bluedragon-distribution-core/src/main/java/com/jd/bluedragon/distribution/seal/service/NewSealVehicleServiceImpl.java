@@ -915,7 +915,9 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             }
         }
         sealCarDto.setRouteLineCode(sourceSealDto.getRouteLineCode());
-        sealCarDto.setPalletCount(sourceSealDto.getPalletCount());
+        if (null!=sourceSealDto.getPalletCount() && sourceSealDto.getPalletCount()>0){
+            sealCarDto.setPalletCount(sourceSealDto.getPalletCount());
+        }
 
         return sealCarDto;
     }
