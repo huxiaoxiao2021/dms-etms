@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.arabnormal;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.request.ArAbnormalRequest;
 import com.jd.bluedragon.distribution.arAbnormal.ArAbnormalServiceImpl;
+import com.jd.bluedragon.distribution.transport.domain.ArContrabandReason;
 import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BdTraceDto;
@@ -80,6 +81,12 @@ public class sendTraceTest {
             e.printStackTrace();
         }
         //arAbnormalService.doSendTrace(arAbnormalRequest,waybillMap);
+    }
+
+    @Test
+    public void getReasonListTest(){
+        List<ArContrabandReason> reasons = arAbnormalService.getArContrabandReasonList();
+        System.out.println(reasons.toString());
     }
 
 }

@@ -1,8 +1,5 @@
 package com.jd.bluedragon.distribution.transport.domain;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * @author lixin39
  * @Description 违禁品原因枚举值
@@ -58,17 +55,6 @@ public enum ArContrabandReasonEnum {
     private Integer code;
 
     private String desc;
-
-    private static Map<Integer, String> codeMap;
-
-    static {
-        //将所有枚举装载到map中
-        codeMap = new HashMap<Integer, String>();
-
-        for (ArContrabandReasonEnum _enum : ArContrabandReasonEnum.values()) {
-            codeMap.put(_enum.getCode(), _enum.getDesc());
-        }
-    }
 
     ArContrabandReasonEnum() {
     }

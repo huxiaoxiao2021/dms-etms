@@ -13,6 +13,7 @@ import com.jd.bluedragon.distribution.api.response.ArAbnormalResponse;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.transport.domain.ArAbnormalReasonEnum;
+import com.jd.bluedragon.distribution.transport.domain.ArContrabandReason;
 import com.jd.bluedragon.distribution.transport.domain.ArContrabandReasonEnum;
 import com.jd.bluedragon.distribution.transport.domain.ArTransportChangeModeEnum;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
@@ -187,8 +188,9 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
                 if (ArAbnormalReasonEnum.getEnum(arAbnormalRequest.getTranspondReason()) != ArAbnormalReasonEnum.CONTRABAND_GOODS) {
                     return;
                 }
-                // 第一期只做航空转陆运，其他运输类型不发送MQ消息
-                if (ArTransportChangeModeEnum.getEnum(arAbnormalRequest.getTranspondType()) != ArTransportChangeModeEnum.AIR_TO_ROAD_CODE) {
+                // 第一期只做航空转陆运，其他运输类型不发送MQ消息 + 铁路转公路
+                if (!(ArTransportChangeModeEnum.getEnum(arAbnormalRequest.getTranspondType()) == ArTransportChangeModeEnum.AIR_TO_ROAD_CODE
+                    || ArTransportChangeModeEnum.getEnum(arAbnormalRequest.getTranspondType()) == ArTransportChangeModeEnum.RAILWAY_TO_ROAD_CODE)) {
                     return;
                 }
                 // 发MQ消息
@@ -667,5 +669,22 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
             return name.toString();
         }
         return null;
+    }
+
+    /**
+     * 查询运输方式变更的原因
+     *
+     * @return
+     */
+    @Override
+    public List<ArContrabandReason> getArContrabandReasonList() {
+        List<ArContrabandReason> arContrabandReasons = new ArrayList<>();
+        for (ArContrabandReasonEnum _enum : ArContrabandReasonEnum.values()) {
+            ArContrabandReason arContrabandReason = new ArContrabandReason();
+            arContrabandReason.setReasonCode(_enum.getCode());
+            arContrabandReason.setReasonName(_enum.getDesc());
+            arContrabandReasons.add(arContrabandReason);
+        }
+        return arContrabandReasons;
     }
 }
