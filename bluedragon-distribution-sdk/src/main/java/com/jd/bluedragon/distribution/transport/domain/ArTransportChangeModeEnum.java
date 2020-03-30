@@ -36,7 +36,7 @@ public enum ArTransportChangeModeEnum {
     /**
      * 铁路转公路
      */
-    RAILWAY_TO_ROAD_CODE(60, "铁路转公路");
+    RAILWAY_TO_ROAD_CODE(60, "铁路转公路","RAILWAY_TO_ROAD");
 
     private Integer code;
 

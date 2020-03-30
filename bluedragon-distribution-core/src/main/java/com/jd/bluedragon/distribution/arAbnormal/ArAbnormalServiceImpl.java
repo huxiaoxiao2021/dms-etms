@@ -480,7 +480,8 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
         for (Map.Entry<String, List<String>> entry : waybillMap.entrySet()) {
             BigWaybillDto bigWaybillDto = this.getBigWaybillDtoByWaybillCode(entry.getKey());
             if (bigWaybillDto != null && bigWaybillDto.getWaybill() != null) {
-                if (isNeedSendMQ(bigWaybillDto.getWaybill().getWaybillSign())) {
+                //当运单为【航】字标的运单或者为铁路转公路的运单时，发送MQ
+                if (isNeedSendMQ(bigWaybillDto.getWaybill().getWaybillSign()) || request.getTranspondType()==60) {
                     messages.addAll(this.assembleMessageList(request, bigWaybillDto, entry.getValue()));
                 }
             } else {
