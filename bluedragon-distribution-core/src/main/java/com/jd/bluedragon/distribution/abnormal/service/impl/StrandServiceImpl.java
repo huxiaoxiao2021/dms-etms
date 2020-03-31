@@ -237,11 +237,11 @@ public class StrandServiceImpl implements StrandService {
         Task tTask = new Task();
         tTask.setBoxCode(barcode);
         tTask.setCreateSiteCode(siteOrgDto.getSiteCode());
-        tTask.setKeyword2(barcode);
+        tTask.setKeyword2(String.valueOf(WaybillStatus.WAYBILL_OPE_TYPE_PUTAWAY));
         tTask.setReceiveSiteCode(siteOrgDto.getSiteCode());
-        tTask.setType(WaybillStatus.WAYBILL_OPE_TYPE_PUTAWAY);
-        tTask.setTableName(Task.TABLE_NAME_WAYBILL);
-        tTask.setSequenceName(Task.TABLE_NAME_WAYBILL_SEQ);
+        tTask.setType(Task.TASK_TYPE_WAYBILL_TRACK);
+        tTask.setTableName(Task.getTableName(Task.TASK_TYPE_WAYBILL_TRACK));
+        tTask.setSequenceName(Task.getSequenceName(Task.TABLE_NAME_POP));
         tTask.setOwnSign(BusinessHelper.getOwnSign());
         //回传运单状态
         tTask.setKeyword1(waybillCode);

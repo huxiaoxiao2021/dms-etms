@@ -831,7 +831,19 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				waybillQueryManager.sendBdTrace(bdTraceDto);
 				task.setYn(0);
 			}
+			/**
+			 * 滞留上报 发暂存的全程跟踪
+			 *
+			 */
+			if (null != task.getKeyword2() &&
+					(String.valueOf(WaybillStatus.WAYBILL_OPE_TYPE_PUTAWAY).equals(task.getKeyword2()))) {
+				toWaybillStatus(tWaybillStatus, bdTraceDto);
+				bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
+				waybillQueryManager.sendBdTrace(bdTraceDto);
+				task.setYn(0);
+			}
 		}
+
 
 		Map<Long, Result> results = this.waybillSyncApi.batchUpdateStateByCode(this
 		        .parseWaybillSyncParameter(tasks));
