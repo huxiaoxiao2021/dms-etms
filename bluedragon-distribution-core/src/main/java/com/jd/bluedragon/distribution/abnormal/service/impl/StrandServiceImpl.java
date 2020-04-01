@@ -237,11 +237,11 @@ public class StrandServiceImpl implements StrandService {
         Task tTask = new Task();
         tTask.setBoxCode(barcode);
         tTask.setCreateSiteCode(siteOrgDto.getSiteCode());
-        tTask.setKeyword2(String.valueOf(WaybillStatus.WAYBILL_OPE_TYPE_PUTAWAY));
+        tTask.setKeyword2(barcode);
         tTask.setReceiveSiteCode(siteOrgDto.getSiteCode());
-        tTask.setType(Task.TASK_TYPE_WAYBILL_TRACK);
-        tTask.setTableName(Task.getTableName(Task.TASK_TYPE_WAYBILL_TRACK));
-        tTask.setSequenceName(Task.getSequenceName(Task.TABLE_NAME_POP));
+        tTask.setType(WaybillStatus.WAYBILL_OPE_TYPE_PUTAWAY);
+        tTask.setTableName(Task.TABLE_NAME_WAYBILL);
+        tTask.setSequenceName(Task.TABLE_NAME_WAYBILL_SEQ);
         tTask.setOwnSign(BusinessHelper.getOwnSign());
         //回传运单状态
         tTask.setKeyword1(waybillCode);
@@ -258,7 +258,6 @@ public class StrandServiceImpl implements StrandService {
         tWaybillStatus.setCreateSiteType(siteOrgDto.getSiteType());
         tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_OPE_TYPE_PUTAWAY);
         tWaybillStatus.setWaybillCode(waybillCode);
-        tWaybillStatus.setRemark(ABNORMAL_DESCRIPTION_PREFIX + request.getReasonMessage());
         // 运单自行区分 是包裹号还是运单号来更新状态
         tWaybillStatus.setPackageCode(barcode);
         tTask.setBody(JsonHelper.toJson(tWaybillStatus));
