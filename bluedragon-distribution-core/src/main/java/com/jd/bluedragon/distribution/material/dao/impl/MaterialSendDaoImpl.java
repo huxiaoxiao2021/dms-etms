@@ -48,4 +48,12 @@ public class MaterialSendDaoImpl extends BaseDao<DmsMaterialSend> implements Mat
         paramMap.put("createSiteCode", createSiteCode);
         return sqlSession.selectList(this.nameSpace + ".listBySendCode", paramMap);
     }
+
+    @Override
+    public long countBySendCode(String sendCode, Long createSiteCode) {
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("sendCode", sendCode);
+        paramMap.put("createSiteCode", createSiteCode);
+        return (long)sqlSession.selectOne(this.nameSpace + ".countBySendCode", paramMap);
+    }
 }

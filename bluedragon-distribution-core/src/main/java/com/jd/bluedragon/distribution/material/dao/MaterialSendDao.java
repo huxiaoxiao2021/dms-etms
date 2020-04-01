@@ -16,4 +16,6 @@ public interface MaterialSendDao extends Dao<DmsMaterialSend> {
     int logicalDeleteBatchSendBySendCode(String sendCode, Long createSiteCode, String userErp, String userName);
 
     List<DmsMaterialSend> listBySendCode(String sendCode, Long createSiteCode);
+
+    long countBySendCode(String sendCode, Long createSiteCode);
 }

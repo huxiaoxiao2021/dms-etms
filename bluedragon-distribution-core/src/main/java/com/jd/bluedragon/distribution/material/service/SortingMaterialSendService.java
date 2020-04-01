@@ -12,7 +12,7 @@ import java.util.List;
  * @Author wyh
  * @Date 2020/3/16 13:52
  **/
-public interface SortingMaterialSendService {
+public interface SortingMaterialSendService extends MaterialOperationService {
 
     JdResult<Boolean> cancelMaterialSendBySendCode(MaterialBatchSendRequest request);
 

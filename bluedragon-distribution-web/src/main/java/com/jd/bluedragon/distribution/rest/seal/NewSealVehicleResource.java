@@ -13,6 +13,8 @@ import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
+import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.material.service.SortingMaterialSendService;
 import com.jd.bluedragon.distribution.seal.service.CarLicenseChangeUtil;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.utils.DateHelper;
@@ -68,6 +70,9 @@ public class NewSealVehicleResource {
 
     @Autowired
     private ColdChainSendService coldChainSendService;
+
+    @Autowired
+    private SortingMaterialSendService sortingMaterialSendService;
 
     /**
      * 查询几天内的带解任务（负数）
@@ -699,12 +704,25 @@ public class NewSealVehicleResource {
             log.warn("服务异常，运输系统查询批次号状态失败, 批次号:{}", batchCode);
             log.warn("服务异常，运输系统查询批次号状态失败，失败原因:{}", isSealed.getMessage());
         }
+
+        boolean sendMExist = true;
         //3.批次号是否存在（最后查询批次号是否存在，不存在时给前台提示）
         if (JdResponse.CODE_OK.equals(sealVehicleResponse.getCode()) && !newsealVehicleService.checkSendIsExist(batchCode)) {//批次号不存在
+            sendMExist = false;
             sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
             sealVehicleResponse.setMessage(NewSealVehicleResponse.TIPS_BATCHCODE_PARAM_NOTEXSITE_ERROR);
         }
+
+        if (!sendMExist) {
+            JdResult<Long> materialSendRet = sortingMaterialSendService.countMaterialSendRecordByBatchCode(batchCode, null);
+            if (materialSendRet.isSucceed() && materialSendRet.getData() == 0) {
+                log.info("批次号不包含运单发货记录，也不包含物资发货记录!, batchCode:[{}]", batchCode);
+                sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
+                sealVehicleResponse.setMessage(NewSealVehicleResponse.TIPS_BATCHCODE_PARAM_NOTEXSITE_ERROR);
+            }
+        }
     }
+
 
     /**
      * 合并同一运力编码、同意操作时间的批次号
