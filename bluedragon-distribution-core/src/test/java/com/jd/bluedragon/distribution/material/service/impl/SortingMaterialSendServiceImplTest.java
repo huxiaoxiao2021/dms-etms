@@ -162,7 +162,7 @@ public class SortingMaterialSendServiceImplTest {
     public void countMaterialSendRecordBySendCodeTest() {
         String sendCode = "910-39-20191125184252014";
         Long createSiteCode = 910L;
-        JdResult<Long> result = sortingMaterialSendServiceImpl.countMaterialSendRecordByBatchCode(sendCode, createSiteCode);
+        JdResult<Integer> result = sortingMaterialSendServiceImpl.countMaterialSendRecordByBatchCode(sendCode, createSiteCode);
         System.out.println(JSON.toJSONString(result));
         Assert.assertNotNull(result);
     }
