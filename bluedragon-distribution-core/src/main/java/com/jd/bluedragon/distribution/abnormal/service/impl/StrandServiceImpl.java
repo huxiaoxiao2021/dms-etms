@@ -109,7 +109,7 @@ public class StrandServiceImpl implements StrandService {
                 //全程跟踪
                 addPackageCodeWaybilTraceTask(packageCode, waybillCode, request, siteOrgDto);
                 //构建
-                StrandDetailMessage strandDetailMessage = initStrandDetailMessage(request, request.getBarcode(), waybillCode);
+                StrandDetailMessage strandDetailMessage = initStrandDetailMessage(request, packageCode, waybillCode);
                 Message message = new Message(strandReportProducer.getTopic(), JsonHelper.toJson(strandDetailMessage), waybillCode);
                 list.add(message);
             }
@@ -142,7 +142,7 @@ public class StrandServiceImpl implements StrandService {
             //全程跟踪
             addPackageCodeWaybilTraceTask(packageCode, waybillCode, request, siteOrgDto);
             //构建
-            StrandDetailMessage strandDetailMessage = initStrandDetailMessage(request, request.getBarcode(), waybillCode);
+            StrandDetailMessage strandDetailMessage = initStrandDetailMessage(request, packageCode, waybillCode);
             Message message = new Message(strandReportProducer.getTopic(), JsonHelper.toJson(strandDetailMessage), waybillCode);
             list.add(message);
         }
@@ -151,25 +151,6 @@ public class StrandServiceImpl implements StrandService {
 
     }
 
-//    private
-//
-//    /**
-//     * 根据运单包裹信息构建 滞留详情jmq list
-//     * @param packageList
-//     * @param request
-//     * @return
-//     */
-//    private List<StrandDetailMessage> initStrandDetailMessages(List<DeliveryPackageD> packageList, String waybillCode,
-//                                                               StrandReportRequest request){
-//        if(CollectionUtils.isEmpty(packageList)){
-//            return Collections.EMPTY_LIST;
-//        }
-//        List<StrandDetailMessage> list = new ArrayList<>(packageList.size());
-//        for(DeliveryPackageD packageD : packageList){
-//            list.add(initStrandDetailMessage(request, request.getBarcode(), waybillCode));
-//        }
-//        return list;
-//    }
     /**
      * 根据sendCode 或 boxCode构建查询send_d 查询参数
      * @param reportType
