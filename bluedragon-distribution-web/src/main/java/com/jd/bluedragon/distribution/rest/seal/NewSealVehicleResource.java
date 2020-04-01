@@ -705,22 +705,24 @@ public class NewSealVehicleResource {
             log.warn("服务异常，运输系统查询批次号状态失败，失败原因:{}", isSealed.getMessage());
         }
 
-        boolean sendMExist = true;
         //3.批次号是否存在（最后查询批次号是否存在，不存在时给前台提示）
+        // 批次号没有运单发货记录，也没有物资发货记录，判定为不存在
         if (JdResponse.CODE_OK.equals(sealVehicleResponse.getCode()) && !newsealVehicleService.checkSendIsExist(batchCode)) {//批次号不存在
-            sendMExist = false;
-            sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
-            sealVehicleResponse.setMessage(NewSealVehicleResponse.TIPS_BATCHCODE_PARAM_NOTEXSITE_ERROR);
-        }
-
-        if (!sendMExist) {
-            JdResult<Integer> materialSendRet = sortingMaterialSendService.countMaterialSendRecordByBatchCode(batchCode, null);
-            if (materialSendRet.isSucceed() && materialSendRet.getData() == 0) {
+            if (!existMaterialSendRecord(batchCode)) {
                 log.info("批次号不包含运单发货记录，也不包含物资发货记录!, batchCode:[{}]", batchCode);
                 sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
                 sealVehicleResponse.setMessage(NewSealVehicleResponse.TIPS_BATCHCODE_PARAM_NOTEXSITE_ERROR);
             }
         }
+    }
+
+    private boolean existMaterialSendRecord(String batchCode) {
+        boolean existRecord = true;
+        JdResult<Integer> materialSendRet = sortingMaterialSendService.countMaterialSendRecordByBatchCode(batchCode, null);
+        if (materialSendRet.isSucceed() && materialSendRet.getData() == 0) {
+            existRecord = false;
+        }
+        return existRecord;
     }
 
 
