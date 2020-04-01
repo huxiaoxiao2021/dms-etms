@@ -38,8 +38,7 @@ import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUC
 @Produces({ MediaType.APPLICATION_JSON })
 public class StrandResouce {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
-    @Autowired
-    private DeliveryService deliveryService;
+
     @Autowired
     private StrandService strandService;
 
@@ -59,47 +58,26 @@ public class StrandResouce {
             //发全程跟踪和 发滞留明细jmq
             invokeResult = strandService.reportStrandDetail(request);
             if(RESULT_SUCCESS_CODE != invokeResult.getCode()){
-                log.warn("滞留上报发全程跟踪和jmq是失败:{}，请求参数{}", JsonHelper.toJson(invokeResult), JsonHelper.toJson(request));
+                log.warn("滞留上报发全程跟踪和jmq时失败:{}，请求参数{}", JsonHelper.toJson(invokeResult), JsonHelper.toJson(request));
                 return invokeResult;
             }
-            SendM sendM = initSendM(request);
-            ThreeDeliveryResponse response = deliveryService.dellCancelDeliveryMessage(sendM, true);
-            //取消发货时异常
-            if(DeliveryResponse.CODE_Delivery_ERROR.equals(response.getCode())){
-                log.error("包裹滞留上报取消发货时异常条码:{},createSiteCode:{}", request.getBarcode(), request.getSiteCode());
-                invokeResult.error("取消发货时异常");
-                return invokeResult;
-            }
+            strandService.sendStrandReportJmq(request);
         }catch (Exception e){
             log.error("滞留上报异常,请求参数：{}", JsonHelper.toJson(request),e);
             invokeResult.error("滞留上报异常,请联系分拣小秘！");
         }
+        boolean hasSend = strandService.hasSenddetail(request);
+        String message = "滞留上报成功";
+        if(hasSend){
+            message += "，该" + ReportTypeEnum.getReportTypeName(request.getReportType()) + "发货将被取消";
+        }
+        invokeResult.setMessage(message);
         return invokeResult;
     }
 
-    private SendM initSendM(StrandReportRequest request){
-        SendM sendM = new SendM();
-        sendM.setCreateSiteCode(request.getSiteCode());
-        sendM.setUpdaterUser(request.getUserName());
-        sendM.setSendType(request.getBusinessType());
-        sendM.setUpdateUserCode(request.getUserCode());
-        String barcode = request.getBarcode();
-        Integer reportType = request.getReportType();
-        if(ReportTypeEnum.BATCH_NO.getCode().equals(reportType)){
-            sendM.setSendCode(barcode);
-        }else{
-            sendM.setBoxCode(barcode);
-        }
-        Date operateTime = DateHelper.parseDate(request.getOperateTime(), Constants.DATE_TIME_FORMAT);
-        sendM.setOperateTime(operateTime);
-        //从批次号中获取目的站点
-        if (ReportTypeEnum.BATCH_NO.getCode().equals(reportType)) {
-            sendM.setReceiveSiteCode(BusinessUtil.getReceiveSiteCodeFromSendCode(barcode));
-        }
-        sendM.setUpdateTime(new Date());
-        sendM.setYn(0);
-        return sendM;
-    }
+
+
+
 
     /**
      * 参数检查

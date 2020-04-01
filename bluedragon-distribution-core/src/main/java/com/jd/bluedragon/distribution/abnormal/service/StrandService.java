@@ -16,4 +16,10 @@ public interface StrandService {
      * @throws JMQException
      */
     InvokeResult reportStrandDetail(StrandReportRequest request) throws JMQException;
+
+    boolean hasSenddetail(StrandReportRequest request);
+
+    void strandReportAndCancelDelivery(StrandReportRequest request) throws JMQException;
+
+    void sendStrandReportJmq(StrandReportRequest request) throws JMQException;
 }

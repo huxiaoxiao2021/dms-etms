@@ -246,5 +246,9 @@
     <jmq:consumer id="jmq.printOnlineConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.print.online}" listener="printOnlineConsumer"/>
     </jmq:consumer>
+    <!--分拣滞留-->
+    <jmq:consumer id="jmq.strandConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.strand.report}" listener="strandConsumer"/>
+    </jmq:consumer>
 </beans>
 
