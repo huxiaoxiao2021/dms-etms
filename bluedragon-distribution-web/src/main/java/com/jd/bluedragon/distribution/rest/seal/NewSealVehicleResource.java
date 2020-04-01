@@ -426,9 +426,9 @@ public class NewSealVehicleResource {
                         sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
                     } else {
                         if(SealCarSourceEnum.FERRY_SEAL_CAR.getCode().equals(sealCarSource)){
-                            BaseStaffSiteOrgDto receiveSite = basicPrimaryWS.getBaseSiteBySiteId(receiveSiteCode);
-                            if(receiveSite != null
-                                    && SiteSignTool.supportTemporaryTransfer(receiveSite.getSiteSign())){
+                            BaseStaffSiteOrgDto endNodeSite = basicPrimaryWS.getBaseSiteBySiteId(endNodeId);
+                            if(endNodeSite != null
+                                    && SiteSignTool.supportTemporaryTransfer(endNodeSite.getSiteSign())){
                                 sealVehicleResponse.setCode(JdResponse.CODE_OK);
                                 sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
                                 return sealVehicleResponse;
