@@ -14,7 +14,7 @@ import java.util.List;
  * @Author wyh
  * @Date 2020/3/16 13:43
  **/
-public interface WarmBoxInOutOperationService {
+public interface WarmBoxInOutOperationService extends MaterialOperationService {
 
     JdResult<List<DmsMaterialRelation>> listMaterialRelations(String receiveCode);
 

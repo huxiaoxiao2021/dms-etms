@@ -106,4 +106,12 @@ public class MaterialSendDaoTest extends AbstractDaoIntegrationH2Test {
         System.out.println(JsonHelper.toJson(materialSendDao.listBySendCode(sendCode, createSiteCode)));
         Assert.assertTrue(true);
     }
+
+    @Test
+    public void countBySendCodeTest() {
+        String sendCode = "B11111111111111";
+        Long createSiteCode = 910L;
+        System.out.println(JsonHelper.toJson(materialSendDao.countBySendCode(sendCode, createSiteCode)));
+        Assert.assertTrue(true);
+    }
 }

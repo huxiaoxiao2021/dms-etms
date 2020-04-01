@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.material.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.google.common.collect.ImmutableList;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.material.batch.MaterialBatchSendRequest;
@@ -17,7 +18,6 @@ import com.jd.bluedragon.distribution.material.domain.DmsMaterialReceiveFlow;
 import com.jd.bluedragon.distribution.material.domain.DmsMaterialSend;
 import com.jd.bluedragon.distribution.material.domain.DmsMaterialSendFlow;
 import com.jd.bluedragon.distribution.material.enums.MaterialSendTypeEnum;
-import com.jd.bluedragon.distribution.material.service.impl.SortingMaterialSendServiceImpl;
 import com.jd.bluedragon.distribution.material.util.MaterialServiceFactory;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.junit.Assert;
@@ -156,5 +156,14 @@ public class SortingMaterialSendServiceImplTest {
 
         JdResult<List<DmsMaterialSend>> result = sortingMaterialSendServiceImpl.listMaterialSendBySendCode("910-39-20191125184252014", 1L);
         Assert.assertEquals(JdResult.CODE_SUC, result.getCode());
+    }
+
+    @Test
+    public void countMaterialSendRecordBySendCodeTest() {
+        String sendCode = "910-39-20191125184252014";
+        Long createSiteCode = 910L;
+        JdResult<Long> result = sortingMaterialSendServiceImpl.countMaterialSendRecordByBatchCode(sendCode, createSiteCode);
+        System.out.println(JSON.toJSONString(result));
+        Assert.assertNotNull(result);
     }
 }

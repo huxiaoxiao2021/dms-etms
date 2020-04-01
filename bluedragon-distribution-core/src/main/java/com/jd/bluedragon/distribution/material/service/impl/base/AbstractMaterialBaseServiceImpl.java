@@ -186,7 +186,7 @@ public abstract class AbstractMaterialBaseServiceImpl implements MaterialOperati
         JdResult<List<DmsMaterialSend>> result = new JdResult<>();
         result.toSuccess();
 
-        if (StringUtils.isBlank(sendCode) || null == createSiteCode || createSiteCode <= 0) {
+        if (StringUtils.isBlank(sendCode)) {
             result.toError("请求参数不合法！");
             return result;
         }
@@ -202,6 +202,32 @@ public abstract class AbstractMaterialBaseServiceImpl implements MaterialOperati
             result.toError("服务器异常!");
             logger.error("Failed to get material send records. sendCode:[{}], createSiteCode:[{}]", sendCode, createSiteCode, ex);
         }
+        return result;
+    }
+
+    @Override
+    @JProfiler(jKey = "DMS.WEB.AbstractMaterialBaseServiceImpl.countMaterialSendRecordByBatchCode", jAppName= Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdResult<Integer> countMaterialSendRecordByBatchCode(String sendCode, Long createSiteCode) {
+        JdResult<Integer> result = new JdResult<>();
+        result.toSuccess();
+
+        if (StringUtils.isBlank(sendCode)) {
+            result.toError("请求参数不合法！");
+            return result;
+        }
+        if (!BusinessUtil.isSendCode(sendCode)) {
+            result.toError("批次号错误！");
+            return result;
+        }
+
+        try {
+            result.setData(materialSendDao.countBySendCode(sendCode, createSiteCode));
+        }
+        catch (Exception ex) {
+            result.toError("服务器异常!");
+            logger.error("Failed to count send records. sendCode:[{}], createSiteCode:[{}]", sendCode, createSiteCode, ex);
+        }
+
         return result;
     }
 }

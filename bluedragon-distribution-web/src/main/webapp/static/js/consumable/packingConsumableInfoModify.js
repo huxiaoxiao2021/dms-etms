@@ -181,13 +181,13 @@ $(function () {
 
                 // 分拣物资特殊逻辑
                 if (formParams.type == type_sorting_material) {
-                    if (formParams.weight == undefined || formParams.weight == null) {
+                    if (formParams.weight == null || formParams.weight == "") {
                         $.msg.warn('类型为【' + formParams.typeName + ']必须录入重量！');
                         $.pageBlocker.close(blocker);
                         return;
                     }
                     else {
-                        let regex = new RegExp("^[0-9]*$");
+                        let regex = /^[0-9]+.?[0-9]*$/;
                         if (!regex.test(formParams.weight)) {
                             $.msg.warn('重量必须为数字！');
                             $.pageBlocker.close(blocker);

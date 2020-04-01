@@ -22,8 +22,8 @@
     <result column="ts" property="ts" jdbcType="TIMESTAMP" />
   </resultMap>
   <sql id="Base_Column_List" >
-    id, material_code, material_type, send_type, send_code, send_num, create_site_code, 
-    create_site_type, receive_site_code, receive_site_type, create_user_erp, create_user_name, 
+    id, material_code, material_type, send_type, send_code, send_num, create_site_code,
+    create_site_type, receive_site_code, receive_site_type, create_user_erp, create_user_name,
     update_user_erp, update_user_name, create_time, update_time, yn, ts
   </sql>
 
@@ -158,7 +158,9 @@
         WHERE
             yn = 1
         AND send_code = #{sendCode,jdbcType=VARCHAR}
-        AND create_site_code = #{createSiteCode,jdbcType=BIGINT}
+        <if test="createSiteCode != null">
+            AND create_site_code = #{createSiteCode,jdbcType=BIGINT}
+        </if>
     </select>
 
     <update id="logicalDeleteBatchSendBySendCode">
@@ -174,4 +176,16 @@
           AND send_type = 3
           AND create_site_code = #{createSiteCode,jdbcType=BIGINT}
     </update>
+
+    <select id="countBySendCode" resultType="java.lang.Integer">
+        SELECT
+            COUNT(1)
+        FROM dms_material_send
+        WHERE
+            yn = 1
+        AND send_code = #{sendCode,jdbcType=VARCHAR}
+        <if test="createSiteCode != null">
+            AND create_site_code = #{createSiteCode,jdbcType=BIGINT}
+        </if>
+    </select>
 </mapper>
