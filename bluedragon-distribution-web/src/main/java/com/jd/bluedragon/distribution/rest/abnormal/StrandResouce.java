@@ -55,12 +55,7 @@ public class StrandResouce {
             return invokeResult;
         }
         try {
-            //发全程跟踪和 发滞留明细jmq
-            invokeResult = strandService.reportStrandDetail(request);
-            if(RESULT_SUCCESS_CODE != invokeResult.getCode()){
-                log.warn("滞留上报发全程跟踪和jmq时失败:{}，请求参数{}", JsonHelper.toJson(invokeResult), JsonHelper.toJson(request));
-                return invokeResult;
-            }
+            //发送滞留上报消息
             strandService.sendStrandReportJmq(request);
         }catch (Exception e){
             log.error("滞留上报异常,请求参数：{}", JsonHelper.toJson(request),e);

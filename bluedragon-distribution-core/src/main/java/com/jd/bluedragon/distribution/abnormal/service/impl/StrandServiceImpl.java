@@ -35,6 +35,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -299,6 +300,8 @@ public class StrandServiceImpl implements StrandService {
             sendM.setBoxCode(barcode);
         }
         Date operateTime = DateHelper.parseDate(request.getOperateTime(), Constants.DATE_TIME_FORMAT);
+        //取消发货的时间减1秒
+        operateTime = DateUtils.addSeconds(operateTime, -1);
         sendM.setOperateTime(operateTime);
         //从批次号中获取目的站点
         if (ReportTypeEnum.BATCH_NO.getCode().equals(reportType)) {
