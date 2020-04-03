@@ -65,6 +65,7 @@ public class StrandServiceImpl implements StrandService {
     @Autowired
     @Qualifier("strandReportDetailProducer")
     DefaultJMQProducer strandReportDetailProducer;
+    @Autowired
     @Qualifier("strandReportProducer")
     DefaultJMQProducer strandReportProducer;
     @Autowired
