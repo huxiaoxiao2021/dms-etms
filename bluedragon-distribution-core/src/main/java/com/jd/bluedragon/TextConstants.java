@@ -148,7 +148,15 @@ public class TextConstants {
      */
     public static final String	PECIAL_B_MARK="B";
     /**
+     * 纯配B2B运单、纯配C转B添加水印 B-【运单号】后4位
+     */
+    public static final String	PECIAL_B_MARK1="B-";    
+    /**
      * 无接触标识‘代’
      */
     public static final String NO_TOUCH_FLAG = "代";
+    /**
+     * 海运标识‘H’
+     */
+    public static final String TRANSPORT_SEA_FLAG = "H";
 }

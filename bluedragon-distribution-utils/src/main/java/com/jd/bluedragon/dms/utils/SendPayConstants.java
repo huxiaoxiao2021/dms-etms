@@ -27,4 +27,9 @@ public interface SendPayConstants {
 	char CHAR_295_2 = '2';
 	char CHAR_295_3 = '3';
 	char CHAR_295_4 = '4';
+	/**
+	 * SendPay第293位,1-海运标识
+	 */
+	int POSITION_293 = 293;
+	char CHAR_293_1 = '1';
 }

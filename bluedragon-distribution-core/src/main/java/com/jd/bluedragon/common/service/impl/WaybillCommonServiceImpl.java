@@ -20,6 +20,7 @@ import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
+import com.jd.bluedragon.dms.utils.SendPayConstants;
 import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
@@ -851,11 +852,15 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }
 
         /**
-         * 纯配B2B运单或纯配C转B运单，面单上加“B”水印
+         * 纯配B2B运单或纯配C转B运单，面单上加“B-”+【运单号】后4位
          */
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_40,WaybillSignConstants.CHAR_40_2)
                 ||BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_97,WaybillSignConstants.CHAR_97_1)){
-            target.setBcSign(TextConstants.PECIAL_B_MARK);
+        	if(StringHelper.isNotEmpty(target.getWaybillCodeLast())){
+        		target.setBcSign(TextConstants.PECIAL_B_MARK1.concat(target.getWaybillCodeLast()));
+        	}else{
+        		target.setBcSign(TextConstants.PECIAL_B_MARK);
+        	}
         }
 
         //waybill_sign标识位，第七十九位为2，打提字标
@@ -991,6 +996,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     				&& StringUtils.isNotBlank(waybill.getWaybillExt().getContactlessPlace())){
     			target.setPrintAddressRemark(waybill.getWaybillExt().getContactlessPlace());
     		}
+        }
+        //根据sendpay第293位=1，在面单上打印海运标记“H”
+        if(BusinessUtil.isSignChar(waybill.getSendPay(), SendPayConstants.POSITION_293, SendPayConstants.CHAR_293_1)){
+        	target.appendSpecialMark(TextConstants.TRANSPORT_SEA_FLAG);
         }
         //设置特殊需求
         loadSpecialRequirement(target,waybill.getWaybillSign(),waybill);
