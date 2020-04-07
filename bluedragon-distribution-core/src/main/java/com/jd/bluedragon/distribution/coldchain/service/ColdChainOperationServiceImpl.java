@@ -4,24 +4,20 @@ import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BasicQueryWSManager;
 import com.jd.bluedragon.core.base.ColdChainOptimizeManager;
+import com.jd.bluedragon.core.base.WayBillThermometerApiManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.ColdChainOperationResponse;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
-import com.jd.bluedragon.distribution.coldchain.dto.CCInAndOutBoundMessage;
-import com.jd.bluedragon.distribution.coldchain.dto.ColdChainInAndOutBoundRequest;
-import com.jd.bluedragon.distribution.coldchain.dto.ColdChainOperateTypeEnum;
-import com.jd.bluedragon.distribution.coldchain.dto.ColdChainQueryUnloadTaskRequest;
-import com.jd.bluedragon.distribution.coldchain.dto.ColdChainUnloadDto;
-import com.jd.bluedragon.distribution.coldchain.dto.ColdChainUnloadQueryResultDto;
-import com.jd.bluedragon.distribution.coldchain.dto.VehicleTypeDict;
+import com.jd.bluedragon.distribution.coldchain.dto.*;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.ccmp.ctm.dto.QueryUnloadDto;
+import com.jd.ccmp.ctm.dto.WaybillRequest;
 import com.jd.common.util.StringUtils;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -66,6 +62,9 @@ public class ColdChainOperationServiceImpl implements ColdChainOperationService 
 
     @Autowired
     private SysConfigService sysConfigService;
+
+    @Autowired
+    private WayBillThermometerApiManager wayBillThermometerApiManager;
 
     /**
      * 上传卸货数据
@@ -320,6 +319,23 @@ public class ColdChainOperationServiceImpl implements ColdChainOperationService 
             vehicleTypeDictList.add(dict);
         }
         return vehicleTypeDictList;
+    }
+
+    @Override
+    public ColdChainOperationResponse boundThermometer(ThermometerRequest request) {
+        ColdChainOperationResponse response = new ColdChainOperationResponse();
+        response.setCode(JdResponse.CODE_OK);
+        response.setMessage(JdResponse.MESSAGE_OK);
+
+        WaybillRequest waybillRequest = new WaybillRequest();
+        waybillRequest.setTemperDeviceID(request.getThermometerCode());
+        waybillRequest.setPackageCode(request.getPackageCode());
+        waybillRequest.setWaybillCode(WaybillUtil.getWaybillCode(request.getPackageCode()));
+        waybillRequest.setBoxNo(request.getCabinetCode());
+
+        response = wayBillThermometerApiManager.bindWaybillPackage(waybillRequest);
+
+        return response;
     }
 
 }

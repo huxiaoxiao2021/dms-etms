@@ -1274,6 +1274,12 @@
 			<version>3.2-SNAPSHOT</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.jd.lljk</groupId>
+			<artifactId>ccmp-ctm-api</artifactId>
+			<version>1.0.0-TEST-SNAPSHOT</version>
+		</dependency>
+
 	</dependencies>
 
 	<profiles>
