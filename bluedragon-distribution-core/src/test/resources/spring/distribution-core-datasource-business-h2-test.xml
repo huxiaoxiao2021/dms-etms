@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+    http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd">
+
+
+    <!--###########################bd_dms_business dataSource###############################-->
+
+    <jdbc:embedded-database id="dms_business_h2_dataSource" type="H2">
+        <jdbc:script location="classpath:h2/business/mode.sql"/>
+        <jdbc:script location="classpath:h2/business/bd_dms_business.ddl"/>
+        <jdbc:script location="classpath:h2/business/bd_dms_business_material.dml"/>
+    </jdbc:embedded-database>
+
+    <bean id="transactionManagerBusiness" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dms_business_h2_dataSource"/>
+    </bean>
+    <bean id="sqlSessionFactoryBusiness" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="configLocation" value="classpath:config/mysql/mybatis-config-dms-business.xml"/>
+        <property name="dataSource" ref="dms_business_h2_dataSource"/>
+    </bean>
+    <bean id="sessionTemplateBusiness" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="sqlSessionFactoryBusiness"/>
+    </bean>
+    <tx:annotation-driven transaction-manager="transactionManagerBusiness"/>
+    <!--###########################bd_dms_business dataSource###############################-->
+
+</beans>

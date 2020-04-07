@@ -30,4 +30,30 @@ public class MaterialSendDaoImpl extends BaseDao<DmsMaterialSend> implements Mat
         paramMap.put("createSiteCode", createSiteCode);
         return sqlSession.delete(this.nameSpace + ".deleteBySendCode", paramMap);
     }
+
+    @Override
+    public int logicalDeleteBatchSendBySendCode(String sendCode, Long createSiteCode, String userErp, String userName) {
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("sendCode", sendCode);
+        paramMap.put("createSiteCode", createSiteCode);
+        paramMap.put("updateUserErp", userErp);
+        paramMap.put("updateUserName", userName);
+        return sqlSession.update(this.nameSpace + ".logicalDeleteBatchSendBySendCode", paramMap);
+    }
+
+    @Override
+    public List<DmsMaterialSend> listBySendCode(String sendCode, Long createSiteCode) {
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("sendCode", sendCode);
+        paramMap.put("createSiteCode", createSiteCode);
+        return sqlSession.selectList(this.nameSpace + ".listBySendCode", paramMap);
+    }
+
+    @Override
+    public int countBySendCode(String sendCode, Long createSiteCode) {
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("sendCode", sendCode);
+        paramMap.put("createSiteCode", createSiteCode);
+        return sqlSession.selectOne(this.nameSpace + ".countBySendCode", paramMap);
+    }
 }

@@ -8,9 +8,11 @@ package com.jd.bluedragon.distribution.material.enums;
  **/
 public enum MaterialSendTypeEnum {
 
-    SEND_BY_SINGLE_MATERIAL((byte)1, "按物资单个收货"),
+    SEND_BY_SINGLE_MATERIAL((byte)1, "按物资单个发货"),
 
-    SEND_BY_CONTAINER((byte)2, "按容器收货");
+    SEND_BY_CONTAINER((byte)2, "按容器发货"),
+
+    SEND_BY_BATCH((byte)3, "按批次发货");
 
     private byte code;
 

@@ -15,7 +15,8 @@ import com.jd.bluedragon.distribution.material.domain.DmsMaterialSend;
 import com.jd.bluedragon.distribution.material.enums.MaterialReceiveTypeEnum;
 import com.jd.bluedragon.distribution.material.enums.MaterialSendTypeEnum;
 import com.jd.bluedragon.distribution.material.enums.MaterialTypeEnum;
-import com.jd.bluedragon.distribution.material.service.MaterialOperationService;
+import com.jd.bluedragon.distribution.material.service.WarmBoxInOutOperationService;
+import com.jd.bluedragon.distribution.material.util.MaterialServiceFactory;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -36,7 +37,7 @@ import java.util.List;
 
 /**
  * @ClassName WarmBoxInOutResource
- * @Description
+ * @Description 保温箱相关Rest接口
  * @Author wyh
  * @Date 2020/2/26 15:17
  **/
@@ -50,9 +51,13 @@ public class WarmBoxInOutResource {
 
     private static final int DEFAULT_RECEIVE_NUM = 1;
     private static final int DEFAULT_SEND_NUM = 1;
+    private static final byte SEND_MODE = MaterialServiceFactory.MaterialSendModeEnum.MATERIAL_SINGLE_SEND.getCode();
 
     @Autowired
-    private MaterialOperationService materialOperationService;
+    private MaterialServiceFactory materialServiceFactory;
+
+    @Autowired
+    private WarmBoxInOutOperationService warmBoxInOutOperationService;
 
     @Autowired
     private SiteService siteService;
@@ -75,7 +80,7 @@ public class WarmBoxInOutResource {
         }
 
         try {
-            JdResult<List<DmsMaterialRelation>> result = materialOperationService.listMaterialRelations(request.getBoardCode());
+            JdResult<List<DmsMaterialRelation>> result = warmBoxInOutOperationService.listMaterialRelations(request.getBoardCode());
             response.setCode(result.getCode());
             response.setMessage(result.getMessage());
 
@@ -117,8 +122,8 @@ public class WarmBoxInOutResource {
             return response;
         }
 
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("保温箱入库参数. req:[{}]", JsonHelper.toJson(request));
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("保温箱入库参数. req:[{}]", JsonHelper.toJson(request));
         }
 
         try {
@@ -129,12 +134,17 @@ public class WarmBoxInOutResource {
                 materialReceives.add(this.createMaterialReceiveFromRequest(warmBoxCode, receiveCode, baseStaffSiteOrgDto, request));
             }
 
-            JdResult<Boolean> ret = materialOperationService.saveMaterialReceive(materialReceives);
+            long startTime = System.currentTimeMillis();
+
+            JdResult<Boolean> ret = materialServiceFactory.findMaterialOperationService(SEND_MODE)
+                            .saveMaterialReceive(materialReceives, false);
+
+            long endTime = System.currentTimeMillis();
             response.setCode(ret.getCode());
             response.setMessage(ret.getMessage());
 
             if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("保温箱入库结果. data:[{}], resp:[{}]", JsonHelper.toJson(materialReceives), JsonHelper.toJson(response));
+                LOGGER.info("保温箱入库结果. time:[{}], resp:[{}]", endTime - startTime, JsonHelper.toJson(response));
             }
         }
         catch (Exception ex) {
@@ -157,8 +167,8 @@ public class WarmBoxInOutResource {
             return response;
         }
 
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("保温箱出库参数. req:[{}]", JsonHelper.toJson(request));
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("保温箱出库参数. req:[{}]", JsonHelper.toJson(request));
         }
         try {
             String sendCode = null != request.getBoardCode() ? request.getBoardCode() : StringUtils.EMPTY;
@@ -167,12 +177,17 @@ public class WarmBoxInOutResource {
             for (String warmBoxCode : request.getWarmBoxCodes()) {
                 materialSends.add(this.createMaterialSendFromRequest(warmBoxCode, sendCode, baseStaffSiteOrgDto, request));
             }
-            JdResult<Boolean> ret = materialOperationService.saveMaterialSend(materialSends);
+            long startTime = System.currentTimeMillis();
+
+            JdResult<Boolean> ret = materialServiceFactory.findMaterialOperationService(SEND_MODE)
+                    .saveMaterialSend(materialSends, false);
+
+            long endTime = System.currentTimeMillis();
             response.setCode(ret.getCode());
             response.setMessage(ret.getMessage());
 
             if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("保温箱出库结果. data:[{}], resp:[{}]", JsonHelper.toJson(materialSends), JsonHelper.toJson(response));
+                LOGGER.info("保温箱出库结果. time:[{}], resp:[{}]", endTime - startTime, JsonHelper.toJson(response));
             }
         }
         catch (Exception ex) {

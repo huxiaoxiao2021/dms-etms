@@ -11,6 +11,9 @@ $(function () {
 
     var allTypeUrl = '/consumable/packingConsumableInfo/getAllPackingType';
 
+    // 分拣物资类型
+    let type_sorting_material = 'TY010';
+
     /*****************************************/
     /*组件*/
     /*****************************************/
@@ -118,28 +121,8 @@ $(function () {
     initPageFunc();
 
     $('#type-select').on("select2:select", function (e){
-        var type =  $('#type-select').val();
         var unitInput = $('#unit-value-input');
-        var volumeCoefficientInput =  $('#volume-coefficient-value-input');
-        var withInput = $('#with-value-input');
-        var lengthInput = $('#length-value-input');
-        var heightInput =  $('#height-value-input');
 
-        // unitInput.prop("readonly", true);
-        // withInput.prop("readonly", true);
-        // lengthInput.prop("readonly", true);
-        // heightInput.prop("readonly", true);
-        // volumeCoefficientInput.prop("readonly", true);
-        // withInput.val(null);
-        // lengthInput.val(null);
-        // heightInput.val(null);
-        // volumeCoefficientInput.val(null);
-        // if (type == "TY003" || type == "TY004" || type == "TY005") {
-        //     withInput.prop("readonly", false);
-        //     lengthInput.prop("readonly", false);
-        //     heightInput.prop("readonly", false);
-        //     volumeCoefficientInput.prop("readonly", false);
-        // }
         var unit = e.params.data.element.unit;
         if (unit != null) {
             unitInput.val(unit);
@@ -150,12 +133,33 @@ $(function () {
 
         $('#type-name-value-input').val(e.params.data.element.typeName);
 
+        let type =  $('#type-select').val();
+        if (type == type_sorting_material) {
+            $('#volumeCoefficientDiv').hide();
+            $('#unitDiv').hide();
+            $('#weightDiv').show();
+        }
+        else {
+            $('#volumeCoefficientDiv').show();
+            $('#unitDiv').show();
+            $('#weightDiv').hide();
+        }
+
     });
     /*****************************************/
     /*按钮动作*/
     /*****************************************/
     /*新增*/
     $('#btn_add').click(function () {
+
+        let formParams = $.formHelper.serialize('add-form');
+
+        // 分拣物资类型不需要录入单位，跳过表单验证
+        if (formParams.type.trim() == type_sorting_material) {
+            $('#unit-value-input').val("个");
+            $('#volume-coefficient-value-input').val(1);
+        }
+
         /*进行查询参数校验*/
         var flag = $.formValidator.isValid('add-form');
         if(flag == true)
@@ -169,27 +173,36 @@ $(function () {
                 var heightValue =  $('#height-value-input').val();
 
                 /*获取参数*/
-                var formParams = $.formHelper.serialize('add-form');
                 formParams.name = formParams.name.trim();
                 formParams.type = formParams.type.trim();
                 formParams.volumeCoefficient = formParams.volumeCoefficient.trim();
 
+                // 分拣物资特殊逻辑
+                if (formParams.type == type_sorting_material) {
+                    if (formParams.weight == null || formParams.weight == "") {
+                        $.msg.warn('类型为【' + formParams.typeName + ']必须录入重量！');
+                        $.pageBlocker.close(blocker);
+                        return;
+                    }
+                    else {
+                        let regex = /^[0-9]+.?[0-9]*$/;
+                        if (!regex.test(formParams.weight)) {
+                            $.msg.warn('重量必须为数字！');
+                            $.pageBlocker.close(blocker);
+                            return;
+                        }
+                    }
+                }
 
-                // if (formParams.volumeCoefficient == null || formParams.volumeCoefficient == "") {
-                //     $.msg.warn('类型为' + formParams.typeName + '必须录入体积系数！');
-                //     $.pageBlocker.close(blocker);
-                //     return;
-                // }
                 if (withValue != null && withValue !="" && lengthValue != null && lengthValue !="" && heightValue != null && heightValue != "") {
                     formParams.volume = withValue * lengthValue * heightValue;
                     formParams.specification = lengthValue + "*" + withValue + "*" + heightValue;
                 } else {
-                    if (formParams.type == "TY001") {
+                    if (formParams.type == "TY001" || formParams.type == type_sorting_material) {
                         $.msg.warn('类型为【' + formParams.typeName + ']需要计算标准体积' + '必须录入长、宽、高！');
                         $.pageBlocker.close(blocker);
                         return;
                     }
-
                 }
                 formParams.unit = formParams.unit.trim();
                 var formJson = JSON.stringify(formParams);
