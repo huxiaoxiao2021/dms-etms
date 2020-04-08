@@ -966,20 +966,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(), WaybillSignConstants.POSITION_57, WaybillSignConstants.CHAR_57_2)){
         	target.appendSpecialMark(TextConstants.KA_FLAG);
         }
-        //waybill_sign第43位分别为1，2，3，4，5，6，代表冷链医药温层的冷藏、阴凉、控温、常温、冷冻、精准冷藏
-        if(BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_43,WaybillSignConstants.CHAR_43_1)){
-            target.appendSpecialMark(DISTRIBUTE_TYPE_COLD);
-        }else if(BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_43,WaybillSignConstants.CHAR_43_2)){
-            target.appendSpecialMark(DISTRIBUTE_TYPE_COOL);
-        }else if(BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_43,WaybillSignConstants.CHAR_43_3)){
-            target.appendSpecialMark(DISTRIBUTE_TYPE_CONTROL_TEMP);
-        }else if(BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_43,WaybillSignConstants.CHAR_43_4)){
-            target.appendSpecialMark(DISTRIBUTE_TYPE_NORMAL);
-        }else if(BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_43,WaybillSignConstants.CHAR_43_5)){
-            target.appendSpecialMark(DISTRIBUTE_TYPE_FREEZING);
-        }else if(BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_43,WaybillSignConstants.CHAR_43_6)){
-            target.appendSpecialMark(DISTRIBUTE_TYPE_PRECISION_COLD);
-        }
         //设置特殊需求
         loadSpecialRequirement(target,waybill.getWaybillSign(),waybill);
 
@@ -1381,16 +1367,22 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         if(BusinessUtil.isBMedicine(waybillSign)) {
             if (BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_43, WaybillSignConstants.CHAR_43_1)) {
                 printWaybill.setDistributTypeText(DISTRIBUTE_TYPE_COLD);
+                printWaybill.appendSpecialMark(DISTRIBUTE_TYPE_COLD);
             }else if(BusinessUtil.isSignChar(waybillSign,WaybillSignConstants.POSITION_43,WaybillSignConstants.CHAR_43_2)){
                 printWaybill.setDistributTypeText(DISTRIBUTE_TYPE_COOL);
+                printWaybill.appendSpecialMark(DISTRIBUTE_TYPE_COOL);
             }else if(BusinessUtil.isSignChar(waybillSign,WaybillSignConstants.POSITION_43,WaybillSignConstants.CHAR_43_3)){
                 printWaybill.setDistributTypeText(DISTRIBUTE_TYPE_CONTROL_TEMP);
+                printWaybill.appendSpecialMark(DISTRIBUTE_TYPE_CONTROL_TEMP);
             }else if(BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_43,WaybillSignConstants.CHAR_43_4)){
                 printWaybill.setDistributTypeText(DISTRIBUTE_TYPE_NORMAL);
+                printWaybill.appendSpecialMark(DISTRIBUTE_TYPE_NORMAL);
             }else if(BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_43,WaybillSignConstants.CHAR_43_5)){
                 printWaybill.setDistributTypeText(DISTRIBUTE_TYPE_FREEZING);
+                printWaybill.appendSpecialMark(DISTRIBUTE_TYPE_FREEZING);
             }else if(BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_43,WaybillSignConstants.CHAR_43_6)){
                 printWaybill.setDistributTypeText(DISTRIBUTE_TYPE_PRECISION_COLD);
+                printWaybill.appendSpecialMark(DISTRIBUTE_TYPE_PRECISION_COLD);
             }
         }
     }
