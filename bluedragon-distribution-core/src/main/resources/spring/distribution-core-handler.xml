@@ -67,7 +67,9 @@
 				<!-- 乐加APP换单打印 -同站长工作台换单打印-->
 				<entry key="100312"  value-ref="packageReverseChangePrint"/>
 				<!-- 终端包裹打印 -->
-				<entry key="100313"  value-ref="getBasicPrintInfo"/>				
+				<entry key="100313"  value-ref="getBasicPrintInfo"/>
+				<!-- bnet官网打印 -->
+				<entry key="100314"  value-ref="getBasicPrintInfo"/>								
 			</map>
 		</property>
 	</bean>
