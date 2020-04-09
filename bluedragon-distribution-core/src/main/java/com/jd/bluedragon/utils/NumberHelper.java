@@ -1,6 +1,7 @@
 package com.jd.bluedragon.utils;
 
 import com.jd.common.util.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,12 +48,19 @@ public class NumberHelper {
         return matcher.matches();
     }
 
-    public static BigDecimal nullToZeroBigDecimal(String value) {
+    /**
+     * 如果是null 返回0，如果非数字 返回null
+     * @param value
+     * @return
+     */
+    public static BigDecimal parseBigDecimalNullToZero(String value) {
         if(null == value){
             return BigDecimal.ZERO;
         }
-
-        return new BigDecimal(value);
+        if(NumberUtils.isNumber(value)){
+            new BigDecimal(value);
+        }
+        return null;
     }
 
     /**
