@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.dto.air.request.AirDepartRequest;
 import com.jd.bluedragon.common.dto.air.request.AirPortRequest;
 import com.jd.bluedragon.common.dto.air.request.AirTplBillRequest;
 import com.jd.bluedragon.common.dto.air.request.TmsDictRequest;
+import com.jd.bluedragon.common.dto.air.response.AirContrabandReason;
 import com.jd.bluedragon.common.dto.air.response.AirPortResponseDto;
 import com.jd.bluedragon.common.dto.air.response.AirTplBillRespDto;
 import com.jd.bluedragon.common.dto.air.response.TmsDictDto;
@@ -14,7 +15,10 @@ import com.jd.bluedragon.core.base.BasicQueryWSManager;
 import com.jd.bluedragon.core.base.EcpAirWSManager;
 import com.jd.bluedragon.core.base.EcpQueryWSManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.rest.arAbnormal.ArAbnormalResource;
+import com.jd.bluedragon.distribution.transport.domain.ArContrabandReason;
 import com.jd.bluedragon.external.gateway.service.AirNewPickupRegisterGateWayService;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.tms.basic.dto.BasicDictDto;
 import com.jd.tms.ecp.dto.AirDepartInfoDto;
 import com.jd.tms.ecp.dto.AirPortDto;
@@ -24,6 +28,7 @@ import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -41,6 +46,9 @@ public class AirNewPickupRegisterGateWayServiceImpl implements AirNewPickupRegis
 
     @Autowired
     private BasicQueryWSManager basicQueryWSManager;
+
+    @Autowired
+    ArAbnormalResource arAbnormalResource;
 
     @Override
     @JProfiler(jKey = "DMS.BASE.AirNewPickupRegisterGateWayServiceImpl.getGoodsTypeFromTms", mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
@@ -171,5 +179,24 @@ public class AirNewPickupRegisterGateWayServiceImpl implements AirNewPickupRegis
         jdCResponse.setData(airTplBillRespDto);
         jdCResponse.toSucceed();
         return jdCResponse;
+    }
+
+    @Override
+    @JProfiler(jKey = "DMS.BASE.AirNewPickupRegisterGateWayServiceImpl.getArContrabandReasonList", mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
+    public JdCResponse<List<AirContrabandReason>> getArContrabandReasonList(String request){
+        JdCResponse<List<AirContrabandReason>> res = new JdCResponse<>();
+        res.toSucceed();
+
+        InvokeResult<List<ArContrabandReason>> resourceRES=arAbnormalResource.getArContrabandReasonList();
+        if (InvokeResult.RESULT_SUCCESS_CODE == resourceRES.getCode()) {
+            res.setMessage(resourceRES.getMessage());
+            String datastr= JsonHelper.toJson(resourceRES.getData());
+            res.setData(JsonHelper.fromJson(datastr,new ArrayList<AirContrabandReason>().getClass()));
+        }
+        else {
+            res.toFail(resourceRES.getMessage());
+        }
+
+        return res;
     }
 }
