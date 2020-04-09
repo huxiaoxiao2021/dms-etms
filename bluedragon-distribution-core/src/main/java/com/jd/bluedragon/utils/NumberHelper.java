@@ -46,6 +46,15 @@ public class NumberHelper {
         Matcher matcher = pattern.matcher(numberStr);
         return matcher.matches();
     }
+
+    public static BigDecimal nullToZeroBigDecimal(String value) {
+        if(null == value){
+            return BigDecimal.ZERO;
+        }
+
+        return new BigDecimal(value);
+    }
+
     /**
      * 判断是否正整数
      * @param number

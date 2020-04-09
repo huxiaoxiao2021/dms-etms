@@ -706,7 +706,7 @@ public class ReverseReceiveNotifyStockService {
 			waybillCode = domain.getWaybillCode();
 			churu = domain.getLblWay();
 			feifei = domain.getLblType();
-			qite = new BigDecimal(domain.getLblOther());
+			qite = NumberHelper.nullToZeroBigDecimal(domain.getLblOther());
 			if (ConstantEnums.ChuGuanChuruId.OUT_KU.getText().equals(churu)
                     && ConstantEnums.ChuGuanFenLei.PUT_GOODS.getText().equals(feifei) && (new BigDecimal(0).compareTo(qite) == 0)) {
 				result = PAY_TYPE_POST;
