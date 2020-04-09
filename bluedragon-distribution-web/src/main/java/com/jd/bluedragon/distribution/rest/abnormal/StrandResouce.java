@@ -61,10 +61,15 @@ public class StrandResouce {
             log.error("滞留上报异常,请求参数：{}", JsonHelper.toJson(request),e);
             invokeResult.error("滞留上报异常,请联系分拣小秘！");
         }
+        //按批次提交 单独提示
+        if(ReportTypeEnum.BATCH_NO.getCode().equals(request.getReportType())){
+            invokeResult.setMessage("提交成功，如需取消发货或封车，请手动操作！");
+            return invokeResult;
+        }
         boolean hasSend = strandService.hasSenddetail(request);
         String message = "滞留上报成功";
         if(hasSend){
-            message += "，该" + ReportTypeEnum.getReportTypeName(request.getReportType()) + "发货将被取消";
+            message += "，该" + ReportTypeEnum.getReportTypeName(request.getReportType()) + "发货已被取消";
         }
         invokeResult.setMessage(message);
         return invokeResult;

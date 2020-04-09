@@ -322,6 +322,10 @@ public class StrandServiceImpl implements StrandService {
         //发暂存的全程跟踪 和 滞留明细jmq
         reportStrandDetail(request);
         SendM sendM = initSendM(request);
+        //按批次提交,不取消发货
+        if(ReportTypeEnum.BATCH_NO.getCode().equals(request.getReportType())){
+            return;
+        }
         ThreeDeliveryResponse response = deliveryService.dellCancelDeliveryMessage(sendM, true);
         //取消发货时异常
         if(DeliveryResponse.CODE_Delivery_ERROR.equals(response.getCode())){
