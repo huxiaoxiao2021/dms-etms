@@ -1385,4 +1385,15 @@ public class BusinessUtil {
         }
     }
 
+    /**
+     * 航空转陆运，
+     * waybillsign第31位等于1或者84位等于3，目前用于航空转陆运通知质控和路由，如果需要确定使用请与产品确定标位
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isArTransportMode(String waybillSign) {
+
+        return BusinessUtil.isSignY(waybillSign, 31) || BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_84, WaybillSignConstants.CHAR_84_3);
+    }
 }
