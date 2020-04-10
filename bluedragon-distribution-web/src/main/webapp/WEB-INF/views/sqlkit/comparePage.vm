@@ -37,7 +37,7 @@
 						<tr>
                             <td align="right">旧库域名:库名：</td>
                             <td>
-                                <input type="text" name="oldUrlName" id="oldUrlName" placeholder="例如：qldms001.mysql.jddb.com:3358/bd_ssc_spl16"
+                                <input type="text" name="oldUrl" id="oldUrl" placeholder="例如：qldms001.mysql.jddb.com:3358/bd_ssc_spl16"
                                        style="width: 300px" />
                             </td>
 
@@ -56,7 +56,7 @@
                         <tr>
                             <td align="right">新库域名:库名：</td>
                             <td>
-                                <input type="text" name="newUrlName" id="newUrlName" placeholder="例如：qldms001.mysql.jddb.com:3358/bd_ssc_spl16"  style="width: 300px" />
+                                <input type="text" name="newUrl" id="newUrl" placeholder="例如：qldms001.mysql.jddb.com:3358/bd_ssc_spl16"  style="width: 300px" />
                             </td>
 
                             <td align="right"> 新库用户名：</td>
@@ -69,7 +69,19 @@
                             <td>
                                 <input type="text" name="newPassword" id="newPassword"  />
                             </td>
+                        </tr>
 
+                        <tr>
+                            <td align="right">sql：</td>
+                            <td>
+                                <input type="text" name="newUrl" id="newUrl" placeholder=""  style="width: 300px" />
+                            </td>
+                            <td>
+                                sql示例：<span style="color: #D24D57">select * from ddd</span>
+                                <span style="color: #00CCFF">where  create_time > '2020-04-10'</span>
+                                <span style="color: #D24D57">limit 1000;--id</span>（红色为必待的字符，id代表主键）
+
+                            </td>
                         </tr>
                         <tr>
                         <td>
