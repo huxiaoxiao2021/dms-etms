@@ -1,0 +1,53 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<title>库管单号查询</title>
+		<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+		<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+		#parse("system/common/baseImport.vm")
+		<script type="text/javascript" src="#springUrl('/static/js/jquery-1.js')"></script>
+		<SCRIPT type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></SCRIPT>
+		<script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
+		<script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+		<script type="text/javascript" src="#springUrl('/static/js/chuguan/reprocessChuguanPage.js')"></script>
+	</head>
+
+
+	<body>
+		<div id="breadcrumb">
+			<p>
+				<a href="javascript:void(0)">订单</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">库管单查询界面</a>
+			</p>
+		</div>
+		<div id="content">
+			<div class="m">
+				<div class="tbl-n">
+					<form id="dataForm" name="dataForm"  method="GET">
+						
+						<table cellspacing=0 cellpadding=0 style="width: 100%;min-width:1100px;" class="tb-x2">
+            				<tbody>
+            					<tr>
+                					<td align="left" width="80px">请输入订单号，多个英文逗号隔开：</td>
+                					<td width="120px" align="left" class="style2">
+                                        <textarea id="orderIds"  name="orderIds"></textarea>
+                					</td>
+
+								</tr>
+                                <tr>
+
+                                    <td  style="text-align: left;" class="style2" width="100px">
+                                        <input id="doSubmmit" type="doSubmmit" value="提交" class="btn_c"/>
+                                    </td>
+
+                                </tr>
+       						</tbody>
+       					</table>
+					</form>
+				</div>
+			</div>
+            <div id="message"></div>
+        	
+		</div>
+	</body>
+</html>

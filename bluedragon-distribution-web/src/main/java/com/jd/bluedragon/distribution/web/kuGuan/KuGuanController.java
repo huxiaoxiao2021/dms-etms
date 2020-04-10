@@ -5,12 +5,14 @@ import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.ChuguanExportManager;
 import com.jd.bluedragon.core.base.StockExportManager;
 import com.jd.bluedragon.distribution.kuguan.domain.KuGuanDomain;
+import com.jd.bluedragon.distribution.reverse.service.ReverseReceiveNotifyStockService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.uim.annotation.Authorization;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
 import java.util.Map;
@@ -36,6 +39,10 @@ public class KuGuanController {
 
     @Resource
     private UccPropertyConfiguration uccPropertyConfiguration;
+
+
+    @Autowired
+    private ReverseReceiveNotifyStockService reverseReceiveNotifyStockService;
 
 	@Authorization(Constants.DMS_WEB_QUERY_KUGUANINIT)
 	@RequestMapping(value = "/goListPage", method = RequestMethod.GET)
@@ -102,4 +109,36 @@ public class KuGuanController {
         }
         return stockExportManager.queryByOrderCode(orderCode,lKdanhao);
     }
+
+    @RequestMapping(value = "/reprocessChuguanPage", method = RequestMethod.GET)
+    public String reprocessChuguanPage() {
+        return "kuguan/reprocessChuguanPage";
+    }
+
+    @RequestMapping(value="/reprocessChuguan",method=RequestMethod.POST)
+    @ResponseBody
+    public String reprocessChuguan(String orderIds) {
+        if(StringUtils.isEmpty(orderIds)){
+            return "orderIds is null";
+        }
+        int error=0;
+        int succ=0;
+        try {
+            String[] orderIdArray = orderIds.replaceAll("\n","").split(",");
+            for (String id : orderIdArray){
+                Boolean aBoolean = reverseReceiveNotifyStockService.nodifyStock(Long.valueOf(id));
+                if(aBoolean !=null && aBoolean){
+                    succ++;
+                }else{
+                    error++;
+                }
+                log.info("订单号id[{}]处理结果aBoolean[]",id,aBoolean);
+            }
+        } catch (Exception e) {
+            log.error("根据订单号处理出管报错",e);
+            return e.getMessage();
+        }
+        return "succ["+succ+"[error["+error+"]";
+    }
+
 }
