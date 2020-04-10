@@ -491,13 +491,13 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
 
     /**
      * 根据waybillSign判断是否需要发消息
-     * 【航】字标的运单， waybill_sign第31位等于1 才发消息
+     * 【航】字标的运单， waybill_sign第31位等于1或84位等于3 才发消息
      *
      * @param waybillSign
      * @return
      */
     private boolean isNeedSendMQ(String waybillSign) {
-        return BusinessUtil.isSignY(waybillSign, 31);
+        return BusinessUtil.isArTransportMode(waybillSign);
     }
 
     private BigWaybillDto getBigWaybillDtoByWaybillCode(String waybillCode) {
