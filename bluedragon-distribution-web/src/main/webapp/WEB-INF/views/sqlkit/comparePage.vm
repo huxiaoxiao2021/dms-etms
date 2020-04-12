@@ -17,11 +17,12 @@
     <script type="text/javascript" src="#springUrl('/static/js/common/page-bar.js')"></script>
     <style type="text/css"></style>
 </head>
-
+    #set($websiteCss1="#")
+    #set($websiteCss2=$websiteCss1+$websiteCss1+"id")
 <body>
 	<script type="text/javascript" src="#springUrl('')/static/js/jquery-plugins/jquery.autocomplete.js"></script>
 	<link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/jquery.autocomplete.css" />
-	<script type="text/javascript" src="#springUrl('/static/js/sqlkit/comparePage.js')"></script>
+	<script type="text/javascript" src="#springUrl('/static/js/sqlkit/comparePage.js?id=1111111111111')"></script>
 
 <div id="breadcrumb">
 	<p><a href="#">转运中心</a>&nbsp;&gt;&nbsp;<a href="#">B网路由配置表</a></p>
@@ -74,12 +75,13 @@
                         <tr>
                             <td align="right">sql：</td>
                             <td>
-                                <input type="text" name="newUrl" id="newUrl" placeholder=""  style="width: 300px" />
+                                <input type="text" name="sql" id="sql" placeholder=""  style="width: 300px" />
                             </td>
                             <td>
                                 sql示例：<span style="color: #D24D57">select * from ddd</span>
                                 <span style="color: #00CCFF">where  create_time > '2020-04-10'</span>
-                                <span style="color: #D24D57">limit 1000;--id</span>（红色为必待的字符，id代表主键）
+                                <span style="color: #D24D57">limit 1000;$websiteCss2
+                                 </span>（红色为必待的字符，id代表主键）
 
                             </td>
                         </tr>
@@ -99,19 +101,8 @@
 			<div class="tbl-bg">
 				<TABLE  id="paperTable" cellSpacing=0 cellPadding=0 width="100%" class="tb-x1">
 					<THEAD>
-						<TR>
-							<TH field="checkboxField" checkbox="true" rowspan="2">
-								<input type="checkbox" id="checkAll" name="checkAll">
-							</TH>
-							<TH rowspan="2">始发网点</TH>
-							<TH rowspan="2">中转网点1</TH>
-							<TH rowspan="2">中转网点2</TH>
-							<TH rowspan="2">中转网点3</TH>
-							<TH rowspan="2">中转网点4</TH>
-							<TH rowspan="2">中转网点5</TH>
-							<TH rowspan="2">目的网点</TH>
-							<TH rowspan="2">操作人</TH>
-							<TH rowspan="2">操作时间</TH>
+						<TR >
+
                         </TR>
                     </THEAD>
 					<TBODY>
@@ -121,7 +112,7 @@
             </div>
         </div>
 
-         <div id="pager">
+         <div id="errorMsg">
 
         </div>
 	 </div>

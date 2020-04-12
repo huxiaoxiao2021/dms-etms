@@ -17,7 +17,7 @@ public class MysqlHelper {
 
     private static final Pattern SQL_ALLOW_PATTERN = Pattern.compile("\b*(select)\\s+",Pattern.CASE_INSENSITIVE);
     private static final Pattern SQL_PARSE_PATTERN = Pattern.compile("^(\\s*(select)[\\s\\w\\s\\W]+(from)\\s+(\\w+)\\s+)[\\s\\w\\s\\W]+" +
-                    "(limit)\\s+(\\d+);--(\\w+)\\s*$",
+                    "(limit)\\s+(\\d+);##(\\w+)\\s*$",
             Pattern.CASE_INSENSITIVE);
 
     public static Connection getConnection(String jdbcUrl,String username,String pword){

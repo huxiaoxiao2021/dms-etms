@@ -1,11 +1,9 @@
 package com.jd.bluedragon.distribution.web.sqlkit;
 
 import com.google.common.base.Joiner;
-import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.sqlkit.domain.DataCompareDto;
 import com.jd.bluedragon.utils.MysqlHelper;
-import com.jd.uim.annotation.Authorization;
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,8 +27,8 @@ public class DataCompareController {
 
 	private final Logger log = LoggerFactory.getLogger(DataCompareController.class);
     private static int LIMIT_ALLOW = 100;
-    @Authorization(Constants.DMS_WEB_DEVELOP_SQLKIT_R)
-    @RequestMapping("/compareList")
+
+    @RequestMapping("/comparePage")
     public String toView(Model model) {
         return "sqlkit/comparePage";
     }
@@ -49,7 +47,7 @@ public class DataCompareController {
                 result.parameterError("sql格式错误");
                 return result;
             }
-            if(LIMIT_ALLOW > Integer.parseInt(limit)){
+            if(LIMIT_ALLOW < Integer.parseInt(limit)){
                 result.parameterError("limit大于"+LIMIT_ALLOW);
                 return result;
             }
@@ -69,10 +67,14 @@ public class DataCompareController {
             }
             List<Long> ids = new ArrayList<>();
             for(LinkedHashMap<String, String> item:oldDataList){
-                ids.add(Long.parseLong(item.get(primaryKey)));
+                String id= item.get(primaryKey.toUpperCase());
+                if(id == null){
+                    id = item.get(primaryKey.toLowerCase());
+                }
+                ids.add(Long.parseLong(id));
             }
             StringBuilder newSql = new StringBuilder();
-            newSql.append(sqlBeforeWhere).append(" where ").append(primaryKey).append("(").append(Joiner.on(",").join(ids)).append(")");
+            newSql.append(sqlBeforeWhere).append(" where ").append(primaryKey).append(" in (").append(Joiner.on(",").join(ids)).append(")");
             //根据查询id 拼接sql 查询新库
             List<LinkedHashMap<String, String>> newDataList = MysqlHelper.executeQuery(newJdbc,dataCompareDto.getNewUserName(),
                     dataCompareDto.getNewPassword(),newSql.toString());
@@ -121,7 +123,11 @@ public class DataCompareController {
     private Map<String,List<String>> getDataList(String primaryKey, List<LinkedHashMap<String, String>> oldDataList) {
         Map<String,List<String>> oldMap = new HashMap<>();
         for(LinkedHashMap<String, String> item:oldDataList){
-            oldMap.put(item.get(primaryKey),new ArrayList<>(item.values()));
+            String id= item.get(primaryKey.toUpperCase());
+            if(id == null){
+                id = item.get(primaryKey.toLowerCase());
+            }
+            oldMap.put(id,new ArrayList<>(item.values()));
         }
         return oldMap;
     }
