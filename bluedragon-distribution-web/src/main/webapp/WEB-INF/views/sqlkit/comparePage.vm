@@ -38,7 +38,7 @@
 						<tr>
                             <td align="right">旧库域名:库名：</td>
                             <td>
-                                <input type="text" name="oldUrl" id="oldUrl" placeholder="例如：qldms001.mysql.jddb.com:3358/bd_ssc_spl16"
+                                <input type="text" name="oldUrl" id="oldUrl" placeholder="例如：qldms001.mysql.jddb.com:3358/basic"
                                        style="width: 300px" />
                             </td>
 
@@ -57,7 +57,7 @@
                         <tr>
                             <td align="right">新库域名:库名：</td>
                             <td>
-                                <input type="text" name="newUrl" id="newUrl" placeholder="例如：qldms001.mysql.jddb.com:3358/bd_ssc_spl16"  style="width: 300px" />
+                                <input type="text" name="newUrl" id="newUrl" placeholder="例如：qldms001.mysql.jddb.com:3358/basic"  style="width: 300px" />
                             </td>
 
                             <td align="right"> 新库用户名：</td>
