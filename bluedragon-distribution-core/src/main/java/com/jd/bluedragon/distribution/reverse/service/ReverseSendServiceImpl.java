@@ -8,6 +8,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.DtcDataReceiverManager;
 import com.jd.bluedragon.core.base.EclpItemManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.MessageConstant;
 import com.jd.bluedragon.distribution.api.request.SpareRequest;
@@ -15,7 +16,6 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
-
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
@@ -61,6 +61,7 @@ import com.jd.staig.receiver.rpc.Result;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.proxy.Profiler;
+
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
@@ -73,6 +74,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
@@ -173,6 +175,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
     @Autowired
     private IPrintOnlineService printOnlineService;
+    
+    @Autowired
+    private WaybillTraceManager waybillTraceManager;
 
     @Autowired
     private ReverseStockInDetailService reverseStockInDetailService;
@@ -856,6 +861,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
      * 获取回传运单信息
      * 并初始化病单标识
      * 初始化加履中心订单标识
+     * 设置退库类型标识
      *
      * @param wayBillCode  原单号
      * @param tWayBillCode 逆向单号
@@ -910,12 +916,44 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             send.setOrderSource(ReverseSendWms.ORDER_SOURCE_JLZX);
             send.setOrderId(send.getBusiOrderCode());
         }
+        //组装退仓类型
+        ReverseSubTypeEnum reverseSubType = getReverseSubType(send,wayBillCode,tWayBillCode);
+        if(reverseSubType !=null){
+        	
+        }
         if (log.isInfoEnabled()) {
             log.info("2:构建ReverseSendWms对象结果:{}", JSON.toJSONString(send));
         }
         return send;
     }
-
+    /**
+     * 组装退仓类型
+     * @param reverseSendWms
+     * @param waybillCode
+     * @param tWaybillCode
+     * @return
+     */
+    private ReverseSubTypeEnum getReverseSubType(ReverseSendWms reverseSendWms,String waybillCode,String tWaybillCode){
+        //判断是否病单
+        if(reverseSendWms.isSickWaybill()){
+        	return ReverseSubTypeEnum.SICK_101;
+        }
+    	//判断拒收
+    	boolean isRejected = waybillTraceManager.isWaybillRejected(waybillCode);
+    	if(isRejected){
+    		return ReverseSubTypeEnum.CUSTOMER_201;
+    	}
+    	//判断是否拦截
+    	Integer featureType = jsfSortingResourceService.getWaybillCancelByWaybillCode(waybillCode);
+    	if(featureType != null){
+    		return ReverseSubTypeEnum.CUSTOMER_202;
+    	}
+    	//判断是否预售退货
+    	if(BusinessUtil.isPreSell(reverseSendWms.getSendPay())){
+    		return ReverseSubTypeEnum.OTHER_301;
+    	}
+        return ReverseSubTypeEnum.CUSTOMER_203;
+    }
     /**
      * 移动仓内配单发货消息推送到WMS
      *

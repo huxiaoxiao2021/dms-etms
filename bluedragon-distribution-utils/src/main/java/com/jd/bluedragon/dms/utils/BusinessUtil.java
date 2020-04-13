@@ -1384,5 +1384,28 @@ public class BusinessUtil {
             return null;
         }
     }
-
+    /**
+     * 根据sendPay判断是否预售,第297位等于1或2
+     * @param sendPay
+     * @return
+     */
+    public static boolean isPreSell(String sendPay) {
+    	return isSignInChars(sendPay,SendPayConstants.POSITION_297,SendPayConstants.CHAR_297_1,SendPayConstants.CHAR_297_2);
+    }
+    /**
+     * 根据sendPay判断是否预售未付款,第297位等于1
+     * @param sendPay
+     * @return
+     */
+    public static boolean isPreSellWithNoPay(String sendPay) {
+    	return isSignChar(sendPay,SendPayConstants.POSITION_297,SendPayConstants.CHAR_297_1);
+    }
+    /**
+     * 根据sendPay判断是否预售已付款,第297位等于2
+     * @param sendPay
+     * @return
+     */
+    public static boolean isPreSellWithPay(String sendPay) {
+    	return isSignChar(sendPay,SendPayConstants.POSITION_297,SendPayConstants.CHAR_297_2);
+    }
 }

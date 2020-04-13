@@ -73,7 +73,22 @@ public class ReverseSendWms {
 	private String spareColumn3; //特殊字段3 存放运单中对应的spareColumn3 返回仓储时不生成XML节点 仅供内部使用
 
 	private String billPackageCode; //面单实际包裹号 仅供病单使用
-
+	/**
+	 * 退仓类型编码
+	 *  1-病单入仓
+	 *  2-客退入仓
+	 *  3-其他
+	 */
+	private Integer reverseTypeCode;
+	/**
+	 * 退仓子类型编码
+	 * 101-病单拦截
+	 * 201-拒收退仓， 202-拦截系统拦截退仓， 203-分拣提交异常退仓的（破损、超区等 ）
+	 * 301-预售未付全款
+	 */
+	private Integer reverseSubTypeCode;
+	
+	private String sendPay;
 	public final static String ORDER_SOURCE_JLZX = "JLZX"; //订单来源 加履中心
 
     public String getBusiOrderCode() {
@@ -268,5 +283,29 @@ public class ReverseSendWms {
 
 	public void setBillPackageCode(String billPackageCode) {
 		this.billPackageCode = billPackageCode;
+	}
+
+	public Integer getReverseTypeCode() {
+		return reverseTypeCode;
+	}
+
+	public void setReverseTypeCode(Integer reverseTypeCode) {
+		this.reverseTypeCode = reverseTypeCode;
+	}
+
+	public Integer getReverseSubTypeCode() {
+		return reverseSubTypeCode;
+	}
+
+	public void setReverseSubTypeCode(Integer reverseSubTypeCode) {
+		this.reverseSubTypeCode = reverseSubTypeCode;
+	}
+
+	public String getSendPay() {
+		return sendPay;
+	}
+
+	public void setSendPay(String sendPay) {
+		this.sendPay = sendPay;
 	}
 }

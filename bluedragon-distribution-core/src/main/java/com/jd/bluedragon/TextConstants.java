@@ -151,4 +151,8 @@ public class TextConstants {
      * 无接触标识‘代’
      */
     public static final String NO_TOUCH_FLAG = "代";
+    /**
+     * 预售标识‘预’
+     */
+    public static final String PRE_SELL_FLAG = "预";
 }
