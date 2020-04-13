@@ -127,8 +127,11 @@ public class PackageResource {
                         BusinessUtil.isSignChar(waybillSign,8,'2') ||             // 2 修改地址和其他
                         BusinessUtil.isSignChar(waybillSign,8,'3')                // 3 未修改地址仅修改其他
                 )){
-                    if(barCode != null && operateName != null){
-                        taskService.add(this.toAddressModTask(barCode, operateName));
+                    if(barCode != null && operateName != null && operatorId !=null && !Integer.valueOf(-1).equals(operatorId)){
+                        taskService.add(this.toAddressModTask(barCode, bDto.getSiteCode(), bDto.getSiteName(), operatorId, operateName));
+                    }
+                    else {
+                        log.info("修改客户地址包裹补打触发全程跟踪失败。参数信息不完整。包裹号{},操作人ID{},操作人名称{},操作站点ID{},操作站点名称{}",barCode,operatorId,operateName,bDto.getSiteCode(),bDto.getSiteName());
                     }
                 }
             }
@@ -333,7 +336,7 @@ public class PackageResource {
         return new JdResponse();
     }
 
-    private Task toAddressModTask(String barCode, String operateName){
+    private Task toAddressModTask(String barCode, Integer createSiteCode, String createSiteName, Integer operatorId, String operateName){
         WaybillStatus waybillStatus = new WaybillStatus();
 
         if(WaybillUtil.isPackageCode(barCode)){
@@ -343,6 +346,9 @@ public class PackageResource {
             waybillStatus.setWaybillCode(barCode);
 
         waybillStatus.setOperateTime(new Date());
+        waybillStatus.setCreateSiteCode(createSiteCode);
+        waybillStatus.setCreateSiteName(createSiteName);
+        waybillStatus.setOperatorId(operatorId);
         waybillStatus.setOperator(operateName);
         waybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_WAYBILL_BD);
 

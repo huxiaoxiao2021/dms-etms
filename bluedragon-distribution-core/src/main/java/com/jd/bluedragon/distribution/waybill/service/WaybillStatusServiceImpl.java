@@ -870,6 +870,8 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
         bdTraceDto2.setWaybillCode(tWaybillStatus.getWaybillCode());
         bdTraceDto2.setOperateType(WaybillStatus.WAYBILL_TRACK_WAYBILL_BD);
         bdTraceDto2.setOperatorDesp(WaybillStatus.WAYBILL_TRACK_WAYBILL_BD_MSG);
+		bdTraceDto2.setOperatorSiteId(null!=tWaybillStatus.getCreateSiteCode()?tWaybillStatus.getCreateSiteCode():0);
+		bdTraceDto2.setOperatorSiteName(tWaybillStatus.getCreateSiteName());
         bdTraceDto2.setOperatorUserName(tWaybillStatus.getOperator());
         bdTraceDto2.setOperatorUserId(null!=tWaybillStatus.getOperatorId()?tWaybillStatus.getOperatorId():0);
         bdTraceDto2.setOperatorTime(new Date());
