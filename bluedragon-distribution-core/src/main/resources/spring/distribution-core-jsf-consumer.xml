@@ -590,7 +590,7 @@
     <!-- 技术发展部 - 冷链产品 - 包裹绑定温度计 -->
     <jsf:consumer id="wayBillThermometerApi" interface="com.jd.ccmp.ctm.api.WayBillThermometerApi"
                   protocol="jsf"
-                  alias="${dms.ccmp.ctm.alias}" timeout="${dms.ccmp.ctm.timeout}"
+                  alias="${dms.ccmp.medicine.alias}" timeout="${dms.ccmp.medicine.timeout}"
                   retries="${jsf.retries}">
     </jsf:consumer>
 
