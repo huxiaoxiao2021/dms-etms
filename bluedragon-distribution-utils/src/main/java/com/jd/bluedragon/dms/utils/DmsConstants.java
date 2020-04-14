@@ -201,4 +201,12 @@ public class DmsConstants {
      * 保温箱号规则，MZ开头，总长度14到16位
      */
     public static final Pattern WARM_BOX_CODE_REGEX = Pattern.compile("^MZ[A-Z0-9]{12,14}$");
+    /**
+     * 预售异常原因-上级编码
+     */
+    public static final Integer QC_TYPE = 2;
+    /**
+     * 预售异常原因前缀
+     */
+    public static final String QC_TYPE_PRE_SELL_CODE_PRE = "24-";
 }

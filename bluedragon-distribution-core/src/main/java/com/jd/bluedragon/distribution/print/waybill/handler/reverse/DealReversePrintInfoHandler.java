@@ -28,7 +28,7 @@ public class DealReversePrintInfoHandler implements InterceptHandler<WaybillPrin
         if (context.getOldBigWaybillDto() != null && context.getOldBigWaybillDto().getWaybill() != null) {
         	oldSendPay = context.getOldBigWaybillDto().getWaybill().getSendPay();
         }
-        //原运单号 SendPay第276位等于Y时，为预售未付全款， 逆向换单后的新单面单打印【预】字
+        //原运单号 SendPay第297位等于1时，为预售未付全款， 逆向换单后的新单面单打印【预】字
         if(BusinessUtil.isPreSellWithNoPay(oldSendPay)){
         	context.getBasePrintWaybill().setBcSign(TextConstants.PRE_SELL_FLAG);
         }

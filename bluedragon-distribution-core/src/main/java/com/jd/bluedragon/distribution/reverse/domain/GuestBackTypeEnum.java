@@ -4,18 +4,18 @@ package com.jd.bluedragon.distribution.reverse.domain;
  * @author wuyoude
  *
  */
-public enum ReverseTypeEnum {
+public enum GuestBackTypeEnum {
 		/**
 		 * 退仓类型编码
+		 *  0-客退入仓
 		 *  1-病单入仓
-		 *  2-客退入仓
-		 *  3-其他
+		 *  2-预售入仓
 		 */
+		CUSTOMER(0,"客退入仓"),
 	    SICK(1,"病单入仓"),
-	    CUSTOMER(2,"客退入仓"),
-	    OTHER(3,"其他");
+	    PRE_SELL(2,"预售");
 	    
-	    private ReverseTypeEnum(Integer code, String name) {
+	    private GuestBackTypeEnum(Integer code, String name) {
 			this.code = code;
 			this.name = name;
 		}
