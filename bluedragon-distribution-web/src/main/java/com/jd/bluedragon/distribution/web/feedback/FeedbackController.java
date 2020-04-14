@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.exception.jss.JssStorageException;
 import com.jd.bluedragon.distribution.feedback.domain.Feedback;
+import com.jd.bluedragon.distribution.feedback.domain.FeedbackNew;
 import com.jd.bluedragon.distribution.feedback.service.FeedbackService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -38,12 +39,14 @@ public class FeedbackController {
     private FeedbackService feedbackService;
 
     private final static String APP_PACKAGE_NAME = "dms.etms";
+    private final static Long APP_ID = 8181L;
+    private final static Integer ORG_TYPE_ERP = 2;
 
     @Authorization(Constants.DMS_WEB_INDEX_R)
     @RequestMapping("/addView")
     public String addView(Model model) {
         try {
-            model.addAttribute("typeMaps", feedbackService.getFeedbackType(APP_PACKAGE_NAME));
+            model.addAttribute("typeMaps", feedbackService.getFeedbackTypeNew(APP_ID,"liuao",ORG_TYPE_ERP));
         } catch (Exception e) {
             log.error("获取意见反馈类型时发生异常", e);
         }
@@ -59,12 +62,13 @@ public class FeedbackController {
             String paramJson = request.getParameter("feedbackRequest");
             List<MultipartFile> images = request.getFiles("images");
             if (JsonHelper.isJsonString(paramJson)) {
-                ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+                ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
                 if (erpUser != null) {
-                    Feedback feedback = JSONObject.parseObject(paramJson, Feedback.class);
-                    feedback.setAppPackageName(APP_PACKAGE_NAME);
-                    feedback.setImages(images);
-                    feedback.setUserErp(erpUser.getUserCode());
+                    FeedbackNew feedback = JSONObject.parseObject(paramJson, FeedbackNew.class);
+                    feedback.setAppId(APP_ID);
+                    feedback.setImgs(images);
+                    feedback.setUserAccount(erpUser.getUserCode());
+                    feedback.setUserName(erpUser.getUserName());
                     if (!feedbackService.add(feedback)) {
                         result.setCode(InvokeResult.SERVER_ERROR_CODE);
                         result.setMessage("提交反馈意见失败，请重试");

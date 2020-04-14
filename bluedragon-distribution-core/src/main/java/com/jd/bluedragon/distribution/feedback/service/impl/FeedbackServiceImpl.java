@@ -1,11 +1,16 @@
 package com.jd.bluedragon.distribution.feedback.service.impl;
 
+import com.jd.bluedragon.core.base.FeedBackApiManager;
 import com.jd.bluedragon.core.base.MrdFeedbackManager;
 import com.jd.bluedragon.distribution.basic.FileUtils;
 import com.jd.bluedragon.distribution.feedback.domain.Feedback;
+import com.jd.bluedragon.distribution.feedback.domain.FeedbackNew;
 import com.jd.bluedragon.distribution.feedback.service.FeedbackService;
 import com.jd.bluedragon.distribution.jss.JssService;
+import com.jd.jdwl.feedback.dto.FeedbackDto;
+import com.jd.jdwl.feedback.dto.UserInfoDto;
 import com.jd.mrd.delivery.rpc.sdk.feedback.dto.UserFeedbackContent;
+import com.sun.org.apache.regexp.internal.RE;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -29,6 +34,8 @@ public class FeedbackServiceImpl implements FeedbackService {
 
     @Autowired
     private MrdFeedbackManager mrdFeedbackManager;
+    @Autowired
+    private FeedBackApiManager feedBackApiManager;
 
     @Autowired
     private JssService jssService;
@@ -42,9 +49,18 @@ public class FeedbackServiceImpl implements FeedbackService {
     }
 
     @Override
-    public boolean add(Feedback feedback) throws IOException {
-        List<String> urlList = this.batchUploadFile(feedback.getImages());
-        return mrdFeedbackManager.saveFeedback(this.toUserFeedbackContent(feedback, urlList));
+    public boolean add(FeedbackNew feedback) throws IOException {
+        List<String> urlList = this.batchUploadFile(feedback.getImgs());
+        return feedBackApiManager.createFeedBack(this.toUserFeedbackContent(feedback, urlList));
+    }
+
+    @Override
+    public Map<Long, String> getFeedbackTypeNew(Long appId, String userAccount, Integer orgType) {
+        UserInfoDto userInfoDto = new UserInfoDto();
+        userInfoDto.setAppId(appId);
+        userInfoDto.setUserAccount(userAccount);
+        userInfoDto.setOrgType(orgType);
+        return feedBackApiManager.queryFeedBackType(userInfoDto);
     }
 
     /**
@@ -54,17 +70,14 @@ public class FeedbackServiceImpl implements FeedbackService {
      * @param urlList
      * @return
      */
-    private UserFeedbackContent toUserFeedbackContent(Feedback feedback, List<String> urlList) {
-        UserFeedbackContent userFeedbackContent = new UserFeedbackContent();
-        userFeedbackContent.setPackageName(feedback.getAppPackageName());
-        userFeedbackContent.setPin(feedback.getUserErp());
-        userFeedbackContent.setFeedbackType(feedback.getType());
-        userFeedbackContent.setContactInfo(feedback.getContactInfo());
-        userFeedbackContent.setFeedbackContent(feedback.getContent());
-        userFeedbackContent.setAppVersion("1");
-        userFeedbackContent.setOs("PC");
-        userFeedbackContent.setRoleIndex("-1");
-        userFeedbackContent.setImages(urlList);
+    private FeedbackDto toUserFeedbackContent(FeedbackNew feedback, List<String> urlList) {
+        FeedbackDto userFeedbackContent = new FeedbackDto();
+        userFeedbackContent.setAppId(feedback.getAppId());
+        userFeedbackContent.setTypeId(feedback.getType());
+        userFeedbackContent.setContent(feedback.getContent());
+        userFeedbackContent.setUserAccount(feedback.getUserAccount());
+        userFeedbackContent.setUserName(feedback.getUserName());
+        userFeedbackContent.setImg(urlList);
         return userFeedbackContent;
     }
 

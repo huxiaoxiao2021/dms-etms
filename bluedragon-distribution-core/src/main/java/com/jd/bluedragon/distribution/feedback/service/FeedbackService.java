@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.feedback.service;
 
 import com.jd.bluedragon.distribution.feedback.domain.Feedback;
+import com.jd.bluedragon.distribution.feedback.domain.FeedbackNew;
 
 import java.io.IOException;
 import java.util.Map;
@@ -27,6 +28,15 @@ public interface FeedbackService {
      * @param feedback
      * @return
      */
-    boolean add(Feedback feedback) throws IOException;
+    boolean add(FeedbackNew feedback) throws IOException;
+
+    /**
+     * 新的获取反馈类型的接口
+     * @param appId
+     * @param userAccount
+     * @param orgType
+     * @return
+     */
+    Map<Long, String> getFeedbackTypeNew(Long appId,String userAccount,Integer orgType);
 
 }

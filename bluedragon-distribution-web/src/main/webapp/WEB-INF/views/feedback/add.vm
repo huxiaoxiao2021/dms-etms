@@ -25,11 +25,94 @@
         <li>意见反馈</li>
         <li>新增意见反馈</li>
     </ol>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-1">
+                <label class="control-label" for="content-input">反馈类型举例：</label>
+            </div>
+            <div class="col-md-3">
+                <div class="well text-center" style="background-color: #F2F2F2;height: 280px">
+                    <h4><Strong>补充功能</Strong></h4>
+                    <div class="thumbnail">
+                        <br/>
+                        <div class="row" style="text-align: left">
+                            <div class="col-md-12">
+                                <ul>
+                                <h5>描述内容</h5>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="row" style="text-align: left;height: 66px">
+                            <div class="col-md-12">
+                            <ul>
+                                <li>涉及系统功能名称</li>
+                                <li>新增功能描述</li>
+                                <li>收益描述</li>
+                            </ul>
+                            </div>
+                        </div>
+                        <br/>
+                    </div>
+                    <br/>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="well text-center" style="background-color: #F2F2F2;height: 280px">
+                    <h4><Strong>系统错误</Strong></h4>
+                    <div class="thumbnail">
+                        <br/>
+                        <div class="row" style="text-align: left">
+                            <div class="col-md-12">
+                                <ul>
+                                    <h5>描述内容</h5>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="row" style="text-align: left;height: 66px">
+                            <div class="col-md-12">
+                                <ul>
+                                    <li>系统功能名称</li>
+                                    <li>问题描述，提供问题单号方便排查</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <br/>
+                    </div>
+                    <br/>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="well text-center" style="background-color: #F2F2F2;height: 280px">
+                    <h4><Strong>提升体验</Strong></h4>
+                    <div class="thumbnail">
+                        <br/>
+                        <div class="row" style="text-align: left" >
+                            <div class="col-md-12">
+                                <ul>
+                                    <h5>描述内容</h5>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="row" style="text-align: left;height: 66px">
+                            <div class="col-md-12">
+                                <ul>
+                                    <li>系统功能名称</li>
+                                    <li>优化建议描述</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <br/>
+                    </div>
+                    <br/>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="add-form-wrapper">
         <form id="add-form" class="form-inline" enctype="multipart/form-data" method="POST">
             <fieldset>
                 <div class="form-group" style="margin-left: 30px;">
-                    <label class="control-label" for="type-select">反馈类型：</label>
+                    <label class="control-label" for="type-select">建议类型：</label>
                     <select id="type-select" name="type" class="form-control" style="display:inline; width:300px;">
                         #if ($typeMaps)
                             #foreach($type in $typeMaps.entrySet())
@@ -39,16 +122,11 @@
                     </select>
                 </div>
                 <hr/>
-                <div class="form-group" style="margin-left: 30px;">
-                    <label class="control-label" for="theme-input">联系方式：</label>
-                    <input type="text" class="form-control edit-param no-update" id="contactInfo-input" name="contactInfo"
-                              placeholder="请输入联系手机号或邮箱" style="display:inline;width: 300px;"></input>
-                </div>
-                <hr/>
-                <div class="form-group" style="margin-left: 30px;">
+                <div class="form-group" style="margin-left: 30px;position: relative;" >
                     <label class="control-label" for="content-input">反馈内容：</label>
                     <textarea type="text" class="form-control edit-param no-update" id="content-input" name="content"
-                              placeholder="请输入意见反馈内容" style="display:inline;width: 300px; height:100px;"></textarea>
+                              placeholder="请输入意见反馈内容" style="display:inline;width: 600px; height:100px;resize: none;" maxlength="200"></textarea>
+                    <i style="position: absolute;bottom:10px;left: 626px"><span class="count-change">0</span>/200</i>
                 </div>
                 <hr/>
                 <div class="form-group" style="margin-left: 30px;">
@@ -69,6 +147,20 @@
                     <div class="form-group">
                         <label for="image3">详细图片3</label>
                         <input type="file" id="image3" name="image3" accept="image/*"/>
+                    </div>
+                </div>
+                <hr/>
+                <div class="form-group" style="margin-left: 30px;">
+                    <div class="form-group">
+                        <label for="image4">详细图片4</label>
+                        <input type="file" id="image4" name="image4" accept="image/*"/>
+                    </div>
+                </div>
+                <hr/>
+                <div class="form-group" style="margin-left: 30px;">
+                    <div class="form-group">
+                        <label for="imag5">详细图片5</label>
+                        <input type="file" id="imag5" name="imag5" accept="image/*"/>
                     </div>
                 </div>
             </fieldset>
