@@ -3,14 +3,24 @@ package com.jd.bluedragon.distribution.feedback.service.impl;
 import com.jd.bluedragon.core.base.FeedBackApiManager;
 import com.jd.bluedragon.core.base.MrdFeedbackManager;
 import com.jd.bluedragon.distribution.basic.FileUtils;
+import com.jd.bluedragon.distribution.feedback.domain.FeedBackResponse;
 import com.jd.bluedragon.distribution.feedback.domain.Feedback;
 import com.jd.bluedragon.distribution.feedback.domain.FeedbackNew;
+import com.jd.bluedragon.distribution.feedback.domain.ReplyResponse;
 import com.jd.bluedragon.distribution.feedback.service.FeedbackService;
 import com.jd.bluedragon.distribution.jss.JssService;
+import com.jd.jdwl.feedback.common.dto.Result;
 import com.jd.jdwl.feedback.dto.FeedbackDto;
+import com.jd.jdwl.feedback.dto.FeedbackQueryDto;
 import com.jd.jdwl.feedback.dto.UserInfoDto;
+import com.jd.jdwl.feedback.vo.FeedbackVo;
+import com.jd.jdwl.feedback.vo.PageVo;
+import com.jd.jdwl.feedback.vo.ReplyVo;
 import com.jd.mrd.delivery.rpc.sdk.feedback.dto.UserFeedbackContent;
+import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.sun.org.apache.regexp.internal.RE;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -61,6 +71,60 @@ public class FeedbackServiceImpl implements FeedbackService {
         userInfoDto.setUserAccount(userAccount);
         userInfoDto.setOrgType(orgType);
         return feedBackApiManager.queryFeedBackType(userInfoDto);
+    }
+
+    @Override
+    public boolean checkHasFeedBack(Long appId, String userAccount) {
+        return feedBackApiManager.checkHasFeedBack(userAccount, appId);
+    }
+
+    @Override
+    public PagerResult<FeedBackResponse> queryFeedBackPage(BasePagerCondition pagerCondition, String userCode, Long appId) {
+        FeedbackQueryDto queryDto = new FeedbackQueryDto();
+        queryDto.setUserAccount(userCode);
+        queryDto.setAppId(appId);
+        queryDto.setIndex(pagerCondition.getOffset());
+        queryDto.setPageSize(pagerCondition.getLimit());
+        PageVo<FeedbackVo> feedbackVoPageVo = feedBackApiManager.queryFeedback(queryDto);
+        PagerResult<FeedBackResponse> result= new PagerResult<>();
+        if (feedbackVoPageVo == null){
+            return result;
+        }
+        return fillResponse(feedbackVoPageVo);
+    }
+
+    private PagerResult<FeedBackResponse> fillResponse(PageVo<FeedbackVo> feedbackVoPageVo) {
+        if (feedbackVoPageVo == null || CollectionUtils.isNotEmpty(feedbackVoPageVo.getItemList())){
+            return new PagerResult<>();
+        }
+        PagerResult<FeedBackResponse> result =  new PagerResult<>();
+        List<FeedBackResponse> responseList =  new ArrayList<>();
+        for (FeedbackVo feedbackVo : feedbackVoPageVo.getItemList()) {
+            FeedBackResponse response = new FeedBackResponse();
+            response.setUserName(feedbackVo.getUserName());
+            response.setUserAccount(feedbackVo.getUserAccount());
+            response.setAttachmentList(feedbackVo.getAttachment());
+            response.setCreateTime(feedbackVo.getCreateTime());
+            response.setStatus(feedbackVo.getStatus());
+            response.setContent(feedbackVo.getContent());
+            if (CollectionUtils.isNotEmpty(feedbackVo.getReplys())){
+                List<ReplyResponse> replyResponses = new ArrayList<>();
+                for (ReplyVo reply : feedbackVo.getReplys()) {
+                    ReplyResponse replyResponse = new ReplyResponse();
+                    replyResponse.setContent(reply.getContent());
+                    replyResponse.setCreateTime(reply.getCreateTime());
+                    replyResponse.setUserAccount(reply.getUserAccount());
+                    replyResponse.setImgs(reply.getImg());
+                    replyResponse.setType(reply.getType());
+                    replyResponses.add(replyResponse);
+                }
+                response.setReplys(replyResponses);
+            }
+            responseList.add(response);
+        }
+        result.setRows(responseList);
+        result.setTotal(feedbackVoPageVo.getTotalItems());
+        return result;
     }
 
     /**

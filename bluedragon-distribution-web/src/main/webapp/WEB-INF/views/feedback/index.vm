@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>意见反馈</title>
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    #parse("system/common/baseImport.vm")
+    <script type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></script>
+    <script src="/static/js/feedback/index.js"></script>
+</head>
+<body>
+<div id="dataTableDiv" class="main">
+        <ol class="breadcrumb">
+            <li><a href="#">意见反馈</a></li>
+            <li class="active">我的建议</li>
+        </ol>
+		<!-- 查询条件 -->
+        <hr />
+        <!-- 主页面操作按钮 -->
+        <div id="toolbar" class="btn-group" style="float: right">
+
+            <button id="btn_add" type="button" class="btn btn-default" >
+                <span class="glyphicon glyphicon-export" aria-hidden="true"></span>提建议
+            </button>
+        </div>
+    <table id="dataTable" class="table table-hover table-striped"><thead><tr>
+        <th style="text-align: center; " data-field="hourRange"><div class="th-inner ">时间范围</div><div class="fht-cell"></div></th>
+    </tr></thead><tbody><tr data-index="0"> <td style="text-align: center; "><div class=""></div></td> </tr><tr data-index="1"> <td style="text-align: center; ">-</td> </tr><tr data-index="2">
+        <td style="text-align: left;margin-left: 50px ">
+        <div class="row" style="margin-left: 10px;margin-top: 5px">
+            【补充功能】建议补充实名制认证
+        </div>
+        <div class="row" style="margin-left: 18px;margin-top: 5px">
+            提交时间：2020-02-04 23:00:00
+        </div>
+        <div class="row" style="margin-left: 10px;margin-top: 5px">
+           【问题描述】测试描述jdsaljlasjdlasjldjlasjdlasjldjlaskjdljasldjlasjdlkjasldjlasjdlj测试描述jdsaljlasjdlasjldjlasjdlasjldjlaskjdljasldjlasjdlkjasldjlasjdlj
+        </div>
+            <div class="row" style="margin-left: 10px;margin-top: 10px">
+
+                <div class="col-xs-2 departImg" style="max-height: 100px;max-width: 100px">
+                    <a href="http://storage.jd.com/com.jd.mrd.common.image/202004151008226872hxSQ.jpg" target="_blank">
+                        <label class="control-label"><img width="100%" src="http://storage.jd.com/com.jd.mrd.common.image/202004151008226872hxSQ.jpg"></label></a>
+                </div>
+
+                <div class="col-xs-2 departImg" style="max-height: 100px;max-width: 100px">
+                    <a href="http://storage.jd.com/com.jd.mrd.common.image/202004151008226872hxSQ.jpg" target="_blank">
+                        <label class="control-label"><img width="100%" src="http://storage.jd.com/com.jd.mrd.common.image/202004151008226872hxSQ.jpg"></label></a>
+                </div>
+                <div class="col-xs-2 departImg" style="max-height: 100px;max-width: 100px">
+                    <a href="http://storage.jd.com/com.jd.mrd.common.image/202004151008226872hxSQ.jpg" target="_blank">
+                        <label class="control-label"><img width="100%" src="http://storage.jd.com/com.jd.mrd.common.image/202004151008226872hxSQ.jpg"></label></a>
+                </div>
+                <div class="col-xs-2 departImg" style="max-height: 100px;max-width: 100px">
+                    <a href="http://storage.jd.com/com.jd.mrd.common.image/202004151008226872hxSQ.jpg" target="_blank">
+                        <label class="control-label"><img width="100%" src="http://storage.jd.com/com.jd.mrd.common.image/202004151008226872hxSQ.jpg"></label></a>
+                </div>
+
+            </div>
+            <div class="row" style="margin-left: 10px;margin-top: 5px;background: #aaaaaa">
+                <div class="row" style="margin-left: 10px;margin-top: 5px;background: #aaaaaa">
+                    【产品回复】
+                </div>
+                <div class="row" style="margin-left: 10px;margin-top: 5px;background: #aaaaaa">
+                    测试描述jdsaljlasjdlasjldjlasjdlasjldjlaskjdljasldjlasjdlkjasldjlasjdlj测试描述jdsaljlasjdlasjldjlasjdlasjldjlaskjdljasldjlasjdlkjasldjlasjdlj
+                </div>
+                <div class="row" style="margin-left: 10px;margin-top: 10px">
+
+                    <div class="col-xs-2 departImg" style="max-height: 100px;max-width: 100px">
+                        <a href="http://storage.jd.com/com.jd.mrd.common.image/202004151008226872hxSQ.jpg" target="_blank">
+                            <label class="control-label"><img width="100%" src="http://storage.jd.com/com.jd.mrd.common.image/202004151008226872hxSQ.jpg"></label></a>
+                    </div>
+
+                    <div class="col-xs-2 departImg" style="max-height: 100px;max-width: 100px">
+                        <a href="http://storage.jd.com/com.jd.mrd.common.image/202004151008226872hxSQ.jpg" target="_blank">
+                            <label class="control-label"><img width="100%" src="http://storage.jd.com/com.jd.mrd.common.image/202004151008226872hxSQ.jpg"></label></a>
+                    </div>
+                    <div class="col-xs-2 departImg" style="max-height: 100px;max-width: 100px">
+                        <a href="http://storage.jd.com/com.jd.mrd.common.image/202004151008226872hxSQ.jpg" target="_blank">
+                            <label class="control-label"><img width="100%" src="http://storage.jd.com/com.jd.mrd.common.image/202004151008226872hxSQ.jpg"></label></a>
+                    </div>
+                    <div class="col-xs-2 departImg" style="max-height: 100px;max-width: 100px">
+                        <a href="http://storage.jd.com/com.jd.mrd.common.image/202004151008226872hxSQ.jpg" target="_blank">
+                            <label class="control-label"><img width="100%" src="http://storage.jd.com/com.jd.mrd.common.image/202004151008226872hxSQ.jpg"></label></a>
+                    </div>
+
+                </div>
+            </div>
+        </td> </tr>
+    <tr data-index="3"> <td style="text-align: center; ">-</td> </tr><tr data-index="4"> <td style="text-align: center; ">-</td> </tr><tr data-index="5"> <td style="text-align: center; ">-</td> </tr><tr data-index="6"> <td style="text-align: center; ">-</td> </tr><tr data-index="7"> <td style="text-align: center; ">-</td> </tr><tr data-index="8"> <td style="text-align: center; ">-</td> </tr><tr data-index="9"> <td style="text-align: center; ">-</td> </tr></tbody></table>
+</div>
+</body>
+</html>
