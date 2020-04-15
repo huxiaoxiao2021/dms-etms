@@ -1276,7 +1276,7 @@
 		<dependency>
 			<groupId>com.jd.jdwl</groupId>
 			<artifactId>feedback-common</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.0-jdk1.6-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.mobilePhoneMsg.sender</groupId>
