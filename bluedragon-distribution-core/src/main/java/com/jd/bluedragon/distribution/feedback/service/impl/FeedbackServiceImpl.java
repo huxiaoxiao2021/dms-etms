@@ -121,8 +121,8 @@ public class FeedbackServiceImpl implements FeedbackService {
                     replyResponses.add(replyResponse);
                 }
                 response.setReplys(replyResponses);
-                response.setViewDataJsonStr(JSON.toJSONString(response));
             }
+            response.setViewDataJsonStr(JSON.toJSONString(response));
             responseList.add(response);
         }
         result.setRows(responseList);
