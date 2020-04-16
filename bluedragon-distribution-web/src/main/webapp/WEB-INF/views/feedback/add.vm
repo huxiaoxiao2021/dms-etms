@@ -159,8 +159,8 @@
                 <hr/>
                 <div class="form-group" style="margin-left: 30px;">
                     <div class="form-group">
-                        <label for="imag5">详细图片5</label>
-                        <input type="file" id="imag5" name="imag5" accept="image/*"/>
+                        <label for="image5">详细图片5</label>
+                        <input type="file" id="image5" name="image5" accept="image/*"/>
                     </div>
                 </div>
             </fieldset>

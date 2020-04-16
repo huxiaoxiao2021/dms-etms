@@ -74,6 +74,7 @@ public class FeedbackController {
                 if (res){
                     return "feedback/index";
                 }else {
+                    model.addAttribute("typeMaps", feedbackService.getFeedbackTypeNew(APP_ID,ErpUserClient.getCurrUser().getUserCode(),ORG_TYPE_ERP));
                     return "feedback/add";
                 }
             }
