@@ -17,7 +17,7 @@ $(function () {
                 pageList: [10, 25, 50, 100], // 可供选择的每页的行数（*）
                 cache: false, // 是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
                 sidePagination: "server", // 分页方式：client客户端分页，server服务端分页（*）
-                striped: true, // 是否显示行间隔色
+                striped: false, // 是否显示行间隔色
                 showColumns: false, // 是否显示所有的列
                 // sortable: true, // 是否启用排序
                 // sortOrder: "asc", // 排序方式
@@ -73,16 +73,18 @@ $(function () {
                             html.push('】');
 
                             if (obj.status == 1) {
-                                html.push('<label style="float:right;margin-right: 100px;border: 1px solid #5ac1d8;color: #ffffff;background: #5ac1d8">');
+                                html.push('<span class="feedBack replySpan" >');
                                 html.push('已回复');
+                                html.push('</span>')
                             } else if (obj.status == 0) {
-                                html.push('<label style="float:right;margin-right: 100px;border: 1px solid #c0c0c0;background: #c0c0c0;color: #ffffff;">');
+                                html.push('<span class="feedBack noReplySpan">');
                                 html.push('未回复');
+                                html.push('</span>')
                             } else {
                                 html.push("");
                             }
                             html.push('</label></div>');
-                            html.push('<div class="row" style="margin-left: 18px;margin-top: 5px">');
+                            html.push('<div class="row" style="margin-left: 18px;margin-top: -7px;color:#989888">');
                             html.push(' 提交时间：');
                             if ($.trim(obj.createTime) != '') {
                                 html.push($.dateHelper.formateDateTimeOfTs(obj.createTime))
@@ -92,7 +94,7 @@ $(function () {
                             html.push('【问题描述】');
                             html.push(obj.content);
                             html.push('</div>');
-                            html.push(' <div class="row" style="margin-left: 10px;margin-top: 10px">');
+                            html.push(' <div class="row" style="margin-left: 5px;margin-top: 10px">');
                             if (obj.attachmentList != undefined && obj.attachmentList != null) {
                                 for (let i = 0; i < obj.attachmentList.length; i++) {
                                     var pic = obj.attachmentList[i];
@@ -110,10 +112,10 @@ $(function () {
                                     html.push('  <div class="row" style="margin-left: 10px;margin-top: 5px;background: #E6E6E6">');
                                     html.push('  【产品回复】');
                                     html.push('  </div>');
-                                    html.push('    <div class="row" style="margin-left: 10px;margin-top: 5px;background: #E6E6E6">');
+                                    html.push('    <div class="row" style="margin-left: 17px;margin-top: 5px;background: #E6E6E6">');
                                     html.push(reply.content);
                                     html.push('  </div>');
-                                    html.push('   <div class="row" style="margin-left: 10px;margin-top: 10px">');
+                                    html.push('   <div class="row" style="margin-left: 3px;margin-top: 10px">');
                                     if (reply.imgs != null && reply.imgs != undefined) {
                                         for (let j = 0; j <reply.imgs.length ; j++) {
                                             let img = reply.imgs[i];

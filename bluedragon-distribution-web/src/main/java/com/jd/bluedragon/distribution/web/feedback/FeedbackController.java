@@ -89,24 +89,24 @@ public class FeedbackController {
     PagerResult<FeedBackResponse> listData(@RequestBody BasePagerCondition pagerCondition) {
         PagerResult<FeedBackResponse> pagerResult = null;
 //        //todo 测试数据删除
-//        pagerResult = new PagerResult<>();
-//        pagerResult.setTotal(1);
-//        return mockData();
-        try {
-            if (ErpUserClient.getCurrUser()!=null){
-                pagerResult = feedbackService.queryFeedBackPage(pagerCondition, ErpUserClient.getCurrUser().getUserCode(),APP_ID);
-            }else {
-                pagerResult = new PagerResult<>();
-                pagerResult.setTotal(0);
-                pagerResult.setRows(new ArrayList<FeedBackResponse>());
-            }
-        } catch (Exception e) {
-            log.error("FeedbackController.listData error",e);
-            pagerResult = new PagerResult<>();
-            pagerResult.setTotal(0);
-            pagerResult.setRows(new ArrayList<FeedBackResponse>());
-        }
-        return pagerResult;
+        pagerResult = new PagerResult<>();
+        pagerResult.setTotal(1);
+        return mockData();
+//        try {
+//            if (ErpUserClient.getCurrUser()!=null){
+//                pagerResult = feedbackService.queryFeedBackPage(pagerCondition, ErpUserClient.getCurrUser().getUserCode(),APP_ID);
+//            }else {
+//                pagerResult = new PagerResult<>();
+//                pagerResult.setTotal(0);
+//                pagerResult.setRows(new ArrayList<FeedBackResponse>());
+//            }
+//        } catch (Exception e) {
+//            log.error("FeedbackController.listData error",e);
+//            pagerResult = new PagerResult<>();
+//            pagerResult.setTotal(0);
+//            pagerResult.setRows(new ArrayList<FeedBackResponse>());
+//        }
+//        return pagerResult;
     }
     @Authorization(Constants.DMS_WEB_INDEX_R)
     @RequestMapping(value = "/add", method = RequestMethod.POST)
