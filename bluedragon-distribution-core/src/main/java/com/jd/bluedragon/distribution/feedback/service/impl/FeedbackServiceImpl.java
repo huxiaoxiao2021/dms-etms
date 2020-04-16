@@ -103,12 +103,14 @@ public class FeedbackServiceImpl implements FeedbackService {
         List<FeedBackResponse> responseList =  new ArrayList<>();
         for (FeedbackVo feedbackVo : feedbackVoPageVo.getItemList()) {
             FeedBackResponse response = new FeedBackResponse();
+            response.setContent(feedbackVo.getContent());
+            response.setCreateTime(feedbackVo.getCreateTime());
+            response.setStatus(feedbackVo.getStatus());
+            response.setStatusName(feedbackVo.getStatusName());
+            response.setTypeName(feedbackVo.getTypeName());
             response.setUserName(feedbackVo.getUserName());
             response.setUserAccount(feedbackVo.getUserAccount());
             response.setAttachmentList(feedbackVo.getAttachment());
-            response.setCreateTime(feedbackVo.getCreateTime());
-            response.setStatus(feedbackVo.getStatus());
-            response.setContent(feedbackVo.getContent());
             if (CollectionUtils.isNotEmpty(feedbackVo.getReplys())){
                 List<ReplyResponse> replyResponses = new ArrayList<>();
                 for (ReplyVo reply : feedbackVo.getReplys()) {
