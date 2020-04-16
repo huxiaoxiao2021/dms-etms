@@ -94,7 +94,7 @@ public class FeedbackServiceImpl implements FeedbackService {
     }
 
     private PagerResult<FeedBackResponse> fillResponse(PageVo<FeedbackVo> feedbackVoPageVo) {
-        if (feedbackVoPageVo == null || CollectionUtils.isNotEmpty(feedbackVoPageVo.getItemList())){
+        if (feedbackVoPageVo == null || CollectionUtils.isEmpty(feedbackVoPageVo.getItemList())){
             return new PagerResult<>();
         }
         PagerResult<FeedBackResponse> result =  new PagerResult<>();
