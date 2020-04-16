@@ -17,6 +17,30 @@
         #add-form input {
             height: 30px;
         }
+        .feedBack{
+            /*float: right;*/
+            display: inline-block;
+            height: 32px;
+            padding: 0 10px;
+            line-height: 30px;
+            font-size: 12px;
+            border-width: 1px;
+            border-style: solid;
+            border-radius: 4px;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            white-space: nowrap;
+        }
+        .submitBtn{
+            border: 1px solid #0d67ac;
+            color: #ffffff;
+            background: #0d67ac;
+        }
+        .cancelBtn{
+            border: 1px solid rgba(186, 191, 187, 0.72);
+            color: #0d67ac;
+            background: rgba(186, 191, 187, 0.72);
+        }
     </style>
 </head>
 <body>
@@ -168,11 +192,11 @@
     </div>
     <hr/>
     <div id="toolbar" class="btn-group" style="float:right;margin-right: 60px;margin-top: 20px;">
-        <button id="btn_add" type="button" class="btn btn-primary">
+        <button id="btn_add" type="button" class=" feedBack submitBtn">
             <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>&nbsp;保存&nbsp;
         </button>
-        <button id="btn_cancel" type="button" class="btn btn-default" style="margin-left: 20px;">
-            <span aria-hidden="true"></span>&nbsp;取消&nbsp;
+        <button id="btn_cancel" type="button" class="feedBack cancelBtn" >
+            <span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span>&nbsp;取消&nbsp;
         </button>
     </div>
 </div>
