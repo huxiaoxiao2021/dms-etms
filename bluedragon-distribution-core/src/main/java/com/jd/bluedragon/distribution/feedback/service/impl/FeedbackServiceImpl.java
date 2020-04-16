@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.feedback.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.core.base.FeedBackApiManager;
 import com.jd.bluedragon.core.base.MrdFeedbackManager;
 import com.jd.bluedragon.distribution.basic.FileUtils;
@@ -83,7 +84,8 @@ public class FeedbackServiceImpl implements FeedbackService {
         FeedbackQueryDto queryDto = new FeedbackQueryDto();
         queryDto.setUserAccount(userCode);
         queryDto.setAppId(appId);
-        queryDto.setIndex(pagerCondition.getOffset());
+        int currentPage = pagerCondition.getOffset()/pagerCondition.getLimit()+1;
+        queryDto.setIndex(currentPage);
         queryDto.setPageSize(pagerCondition.getLimit());
         PageVo<FeedbackVo> feedbackVoPageVo = feedBackApiManager.queryFeedback(queryDto);
         PagerResult<FeedBackResponse> result= new PagerResult<>();
@@ -119,6 +121,7 @@ public class FeedbackServiceImpl implements FeedbackService {
                     replyResponses.add(replyResponse);
                 }
                 response.setReplys(replyResponses);
+                response.setViewDataJsonStr(JSON.toJSONString(response));
             }
             responseList.add(response);
         }
