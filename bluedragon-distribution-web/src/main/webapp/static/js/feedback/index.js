@@ -73,10 +73,10 @@ $(function () {
                             html.push('】');
 
                             if (obj.status == 1) {
-                                html.push('<label style="float:right;margin-right: 100px;border: 1px solid #5ac1d8;color: #5ac1d8;">');
+                                html.push('<label style="float:right;margin-right: 100px;border: 1px solid #5ac1d8;color: #ffffff;background: #5ac1d8">');
                                 html.push('已回复');
                             } else if (obj.status == 0) {
-                                html.push('<label style="float:right;margin-right: 100px;border: 1px solid #5ac1d8;color: #c0c0c0;">');
+                                html.push('<label style="float:right;margin-right: 100px;border: 1px solid #c0c0c0;background: #c0c0c0;color: #ffffff;">');
                                 html.push('未回复');
                             } else {
                                 html.push("");
