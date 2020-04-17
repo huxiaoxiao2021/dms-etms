@@ -833,6 +833,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			}
 		}
 
+
 		Map<Long, Result> results = this.waybillSyncApi.batchUpdateStateByCode(this
 		        .parseWaybillSyncParameter(tasks));
 		if (results == null || results.isEmpty()) {

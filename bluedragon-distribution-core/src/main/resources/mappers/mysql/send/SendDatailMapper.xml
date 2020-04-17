@@ -1012,4 +1012,16 @@
 		and send_code = #{sendCode,jdbcType=VARCHAR} and create_site_code = #{createSiteCode,jdbcType=INTEGER}
 		group by waybill_code
 	</select>
+	<select id="queryPackageCodeBySendCode" parameterType="SendDetail" resultType="String">
+		select package_barcode from send_d where  create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		and send_code = #{sendCode,jdbcType=VARCHAR}
+		and yn = 1
+		and is_cancel = #{isCancel}
+	</select>
+	<select id="queryPackageCodeByboxCode" parameterType="SendDetail" resultType="String">
+		select package_barcode from send_d where  create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		and box_code = #{boxCode,jdbcType=VARCHAR}
+		and yn = 1
+		and is_cancel = #{isCancel}
+	</select>
 </mapper>

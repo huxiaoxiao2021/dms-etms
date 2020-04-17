@@ -38,4 +38,16 @@ public interface SendDetailService {
      */
     List<SendDetail> findSendPageByParams(SendDetailDto params);
     public Integer querySendDCountBySendCode(String sendCode);
+    /**
+     * 根据批次号查询 包裹号
+     * @param params
+     * @return
+     */
+    List<String> queryPackageCodeBySendCode(SendDetailDto params);
+    /**
+     * 根据箱号号查询 包裹号
+     * @param params
+     * @return
+     */
+    List<String> queryPackageCodeByboxCode(SendDetailDto params);
 }

@@ -37,7 +37,7 @@ import java.util.Map;
  * 主要功能点
  * 1、查询包裹在不同操作节点下的操作人及操作时间
  */
-
+@Deprecated
 @Component
 @Path(Constants.REST_URL)
 @Consumes({ MediaType.APPLICATION_JSON })
@@ -65,7 +65,6 @@ public class VideoResource {
     private static final Integer weightType = 1160;
     /**发货类型*/
     private static final Integer sendType = 1300;
-
     @POST
     @Path("/video/getUserAndOperateTime")
     public JdResponse getUserAndOperateTime(VideoRequest videoRequest){
