@@ -191,7 +191,7 @@
         </form>
     </div>
     <hr/>
-    <div id="toolbar" class="btn-group" style="float:right;margin-right: 60px;margin-top: 20px;">
+    <div id="toolbar" class="btn-group" style="float:left;margin-left: 30px;margin-top: 20px;">
         <button id="btn_add" type="button" class=" feedBack submitBtn">
             <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>&nbsp;保存&nbsp;
         </button>

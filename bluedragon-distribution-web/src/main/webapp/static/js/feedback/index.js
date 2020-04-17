@@ -119,7 +119,7 @@ $(function () {
                                     html.push('   <div class="row" style="margin-left: 3px;margin-top: 10px">');
                                     if (reply.imgs != null && reply.imgs != undefined) {
                                         for (let j = 0; j <reply.imgs.length ; j++) {
-                                            let img = reply.imgs[i];
+                                            var img = reply.imgs[j];
                                             html.push('   <div class="col-xs-2 departImg" style="max-height: 100px;max-width: 100px">');
                                             html.push('  <a href="'+img+'" target="_blank">');
                                             html.push('  <label class="control-label"><img width="100%" src="'+img+'"></label></a>');
@@ -130,7 +130,6 @@ $(function () {
                                     html.push(' </div>');
 
                                 }
-
                             }
 
                             return html.join("");

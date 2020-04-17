@@ -82,7 +82,7 @@ $(function () {
             success: function (res) {
                 if (res != null && res.code == 200) {
                     $.msg.ok('提交意见反馈信息成功！', '', function () {
-                        location.href='#springUrl("/feedback/index")';
+                        location.href = "/feedback/index?t=" + new Date().getTime();
                     });
                 } else {
                     $.msg.error("提交意见反馈信息失败！", res.message);
