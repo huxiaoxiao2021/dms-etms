@@ -82,7 +82,7 @@ $(function () {
             success: function (res) {
                 if (res != null && res.code == 200) {
                     $.msg.ok('提交意见反馈信息成功！', '', function () {
-                        $('#btn_cancel').click();
+                        location.href='#springUrl("/feedback/index")';
                     });
                 } else {
                     $.msg.error("提交意见反馈信息失败！", res.message);

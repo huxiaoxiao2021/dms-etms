@@ -52,7 +52,7 @@
             <li class="active">我的建议</li>
         </ol>
         <!-- 主页面操作按钮 -->
-        <div id="toolbar" class="btn-group" style="float: right;margin-right: 10px;">
+        <div id="toolbar" class="btn-group" style="float: left;margin-left: 10px;margin-bottom: 5px">
 
             <button id="btn_add" type="button" class="feedBack submitBtn" >
                 <span class="glyphicon glyphicon-export" aria-hidden="true"></span>提建议
