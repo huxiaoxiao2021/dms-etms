@@ -71,7 +71,10 @@ $(function () {
                             html.push('<div class="row" style="margin-left: 10px;margin-top: 5px">【');
                             html.push(obj.typeName)
                             html.push('】');
-
+                            html.push(' 提交时间：');
+                            if ($.trim(obj.createTime) != '') {
+                                html.push($.dateHelper.formateDateTimeOfTs(obj.createTime))
+                            }
                             if (obj.status == 1) {
                                 html.push('<span class="feedBack replySpan" >');
                                 html.push('已回复');
@@ -84,13 +87,11 @@ $(function () {
                                 html.push("");
                             }
                             html.push('</label></div>');
-                            html.push('<div class="row" style="margin-left: 18px;margin-top: -7px;color:#989888">');
-                            html.push(' 提交时间：');
-                            if ($.trim(obj.createTime) != '') {
-                                html.push($.dateHelper.formateDateTimeOfTs(obj.createTime))
-                            }
-                            html.push('  </div>' +
-                                '<div class="row" style="margin-left: 10px;margin-top: 5px">');
+                            // html.push('<div class="row" style="margin-left: 18px;margin-top: -7px;color:#989888">');
+                            //
+                            // html.push('  </div>' );
+
+                            html.push('<div class="row" style="margin-left: 10px;margin-top: 5px">');
                             html.push('【问题描述】');
                             html.push(obj.content);
                             html.push('</div>');

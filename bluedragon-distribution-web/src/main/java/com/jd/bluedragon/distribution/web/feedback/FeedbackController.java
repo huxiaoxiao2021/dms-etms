@@ -47,7 +47,7 @@ public class FeedbackController {
     private FeedbackService feedbackService;
 
     private final static String APP_PACKAGE_NAME = "dms.etms";
-    private final static Long APP_ID = 9007L;
+    private final static Long APP_ID = 8181L;
     private final static Integer ORG_TYPE_ERP = 2;
 
     @Authorization(Constants.DMS_WEB_INDEX_R)
