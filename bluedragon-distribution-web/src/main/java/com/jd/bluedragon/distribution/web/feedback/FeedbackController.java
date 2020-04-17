@@ -147,38 +147,38 @@ public class FeedbackController {
         }
         return result;
     }
-    private  PagerResult<FeedBackResponse> mockData(){
-        PagerResult<FeedBackResponse> result = new PagerResult<>();
-        List<FeedBackResponse> resList = new ArrayList<>();
-        FeedBackResponse response = new FeedBackResponse();
-        response.setUserAccount("liuao");
-        response.setStatusName("已回复");
-        response.setStatus(1);
-        response.setCreateTime(new Date());
-        response.setUserName("刘奥");
-        response.setTypeId(1);
-        response.setTypeName("体验问题");
-        response.setContent("测试提交问题测试提交问题测试提交问题测试提交问题测试提交问题测试提交问题");
-        response.setAttachmentList(Arrays.asList("http://storage.jd.com/com.jd.mrd.common.image/202004151008226872hxSQ.jpg","http://storage.jd.com/com.jd.mrd.common.image/202004151008226872hxSQ.jpg","http://storage.jd.com/com.jd.mrd.common.image/202004151008226872hxSQ.jpg",
-        "http://storage.jd.com/com.jd.mrd.common.image/202004151008226872hxSQ.jpg","http://storage.jd.com/com.jd.mrd.common.image/202004151008226872hxSQ.jpg"));
-        List<ReplyResponse> replyResponses = new ArrayList<>();
-        ReplyResponse replyResponse = new ReplyResponse();
-        replyResponse.setUserAccount("liuaohuifu");
-        replyResponse.setCreateTime(new Date());
-        replyResponse.setContent("恢复了很多内容");
-        replyResponse.setImgs(Arrays.asList("http://storage.jd.com/com.jd.mrd.common.image/202004151008226872hxSQ.jpg","http://storage.jd.com/com.jd.mrd.common.image/202004151008226872hxSQ.jpg","http://storage.jd.com/com.jd.mrd.common.image/202004151008226872hxSQ.jpg",
-                "http://storage.jd.com/com.jd.mrd.common.image/202004151008226872hxSQ.jpg","http://storage.jd.com/com.jd.mrd.common.image/202004151008226872hxSQ.jpg"));
-        replyResponses.add(replyResponse);
-        ReplyResponse replyResponse2 = new ReplyResponse();
-        replyResponse2.setUserAccount("liuaohuifu");
-        replyResponse2.setCreateTime(new Date());
-        replyResponse2.setContent("恢复了很多内容");
-        replyResponses.add(replyResponse2);
-        response.setReplys(replyResponses);
-        response.setViewDataJsonStr(JSON.toJSONString(response));
-        resList.add(response);
-        result.setRows(resList);
-        result.setTotal(1);
-        return result;
-    }
+//    private  PagerResult<FeedBackResponse> mockData(){
+//        PagerResult<FeedBackResponse> result = new PagerResult<>();
+//        List<FeedBackResponse> resList = new ArrayList<>();
+//        FeedBackResponse response = new FeedBackResponse();
+//        response.setUserAccount("liuao");
+//        response.setStatusName("已回复");
+//        response.setStatus(1);
+//        response.setCreateTime(new Date());
+//        response.setUserName("刘奥");
+//        response.setTypeId(1);
+//        response.setTypeName("体验问题");
+//        response.setContent("测试提交问题测试提交问题测试提交问题测试提交问题测试提交问题测试提交问题");
+//        response.setAttachmentList(Arrays.asList("http://storage.jd.com/com.jd.mrd.common.image/202004151008226872hxSQ.jpg","http://storage.jd.com/com.jd.mrd.common.image/202004151008226872hxSQ.jpg","http://storage.jd.com/com.jd.mrd.common.image/202004151008226872hxSQ.jpg",
+//        "http://storage.jd.com/com.jd.mrd.common.image/202004151008226872hxSQ.jpg","http://storage.jd.com/com.jd.mrd.common.image/202004151008226872hxSQ.jpg"));
+//        List<ReplyResponse> replyResponses = new ArrayList<>();
+//        ReplyResponse replyResponse = new ReplyResponse();
+//        replyResponse.setUserAccount("liuaohuifu");
+//        replyResponse.setCreateTime(new Date());
+//        replyResponse.setContent("恢复了很多内容");
+//        replyResponse.setImgs(Arrays.asList("http://storage.jd.com/com.jd.mrd.common.image/202004151008226872hxSQ.jpg","http://storage.jd.com/com.jd.mrd.common.image/202004151008226872hxSQ.jpg","http://storage.jd.com/com.jd.mrd.common.image/202004151008226872hxSQ.jpg",
+//                "http://storage.jd.com/com.jd.mrd.common.image/202004151008226872hxSQ.jpg","http://storage.jd.com/com.jd.mrd.common.image/202004151008226872hxSQ.jpg"));
+//        replyResponses.add(replyResponse);
+//        ReplyResponse replyResponse2 = new ReplyResponse();
+//        replyResponse2.setUserAccount("liuaohuifu");
+//        replyResponse2.setCreateTime(new Date());
+//        replyResponse2.setContent("恢复了很多内容");
+//        replyResponses.add(replyResponse2);
+//        response.setReplys(replyResponses);
+//        response.setViewDataJsonStr(JSON.toJSONString(response));
+//        resList.add(response);
+//        result.setRows(resList);
+//        result.setTotal(1);
+//        return result;
+//    }
 }
