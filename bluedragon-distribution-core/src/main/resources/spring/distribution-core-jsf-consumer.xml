@@ -586,5 +586,13 @@
                   alias="${dms.ccmp.ctm.alias}" timeout="${dms.ccmp.ctm.timeout}"
                   retries="${jsf.retries}">
     </jsf:consumer>
-
+    <!-- 意见反馈系统 - 意见反馈提交接口 -->
+    <jsf:consumer id="feedbackApi" interface="com.jd.jdwl.feedback.api.FeedbackApi"
+                  protocol="jsf" alias="${jsf.FeedbackApi.alias}" timeout="${jsf.FeedbackApi.timeout}"
+                  retries="${jsf.retries}">
+    </jsf:consumer>
+    <jsf:consumer id="typeApi" interface="com.jd.jdwl.feedback.api.TypeApi"
+                  protocol="jsf" alias="${jsf.TypeApi.alias}" timeout="${jsf.TypeApi.timeout}"
+                  retries="${jsf.retries}">
+    </jsf:consumer>
 </beans>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>意见反馈</title>
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    #parse("system/common/baseImport.vm")
+    <script type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></script>
+    <script src="/static/js/feedback/index.js"></script>
+</head>
+<style>
+    .feedBack{
+        float: right;
+        display: inline-block;
+        height: 32px;
+        padding: 0 10px;
+        line-height: 30px;
+        font-size: 12px;
+        border-width: 1px;
+        border-style: solid;
+        border-radius: 4px;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        white-space: nowrap;
+    }
+    .submitBtn{
+        border: 1px solid #0d67ac;
+        color: #ffffff;
+        background: #0d67ac;
+    }
+    .replySpan{
+        margin-right: 100px;
+        border: 1px solid #5ac1d8;
+        color: #ffffff;
+        background: #5ac1d8;
+
+    }
+    .noReplySpan{
+        margin-right: 100px;
+        border: 1px solid #444444;
+        color: #ffffff;
+        background: #444444;
+
+    }
+</style>
+<body>
+<div id="dataTableDiv" class="main">
+        <ol class="breadcrumb">
+            <li><a href="#">意见反馈</a></li>
+            <li class="active">我的建议</li>
+        </ol>
+        <!-- 主页面操作按钮 -->
+        <div id="toolbar" class="btn-group" style="float: left;margin-left: 10px;margin-bottom: 5px">
+
+            <button id="btn_add" type="button" class="feedBack submitBtn" >
+                <span class="glyphicon glyphicon-export" aria-hidden="true"></span>提建议
+            </button>
+        </div>
+    <table id="dataTable" class="table table-hover table-striped">
+    </table>
+</div>
+</body>
+</html>
