@@ -58,6 +58,7 @@ public class InspectionRedisTask extends RedisSingleScheduler {
                     return true;
                 }
                 Task domain=new Task();
+                domain.setId(task.getId());
 
                 for (InspectionRequest request:middleRequests){
                     domain.setBody(JsonHelper.toJson(request));
