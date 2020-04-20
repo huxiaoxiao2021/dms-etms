@@ -57,7 +57,6 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
     @Autowired
     private TaskService taskService;
     @Override
-    @JProfiler(jKey= "DMSWORKER.InspectionTaskExecute.prepare", mState = {JProEnum.TP}, jAppName= Constants.UMP_APP_NAME_DMSWORKER)
     protected InspectionTaskExecuteContext prepare(Task domain) {
         InspectionTaskExecuteContext context=new InspectionTaskExecuteContext();
         context.setPassCheck(true);
@@ -117,14 +116,16 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
      * @return
      */
     @Override
-    @JProfiler(jKey= "DMSWORKER.InspectionTaskExecute.executeCoreFlow", mState = {JProEnum.TP}, jAppName= Constants.UMP_APP_NAME_DMSWORKER)
     protected boolean executeCoreFlow(InspectionTaskExecuteContext inspectionTaskExecuteContext) {
+        CallerInfo callerInfo = ProfilerHelper.registerInfo("DMSWORKER.InspectionTaskExecute.executeCoreFlow", Constants.UMP_APP_NAME_DMSWORKER);
+
         for(Inspection domain : inspectionTaskExecuteContext.getInspectionList()){
             inspectionService.insertOrUpdate(domain);
         }
         for (CenConfirm confirm:inspectionTaskExecuteContext.getCenConfirmList()){
             cenConfirmService.updateOrInsert(confirm);
         }
+        Profiler.registerInfoEnd(callerInfo);
         return true;
     }
 
@@ -255,7 +256,7 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
         if (domain.getId() == null || domain.getId() == 0) {
             if (bigWaybillDto.getWaybill() != null && bigWaybillDto.getWaybill().getGoodNumber() != null) {
                 Integer size = bigWaybillDto.getWaybill().getGoodNumber();
-                if (size >= INSPECTION_SAVE_TASK_TO_DB_PACKAGE_NUM ) {
+                if (size >= INSPECTION_SAVE_TASK_TO_DB_PACKAGE_NUM) {
                     log.warn("验货包裹数【{}】大于阈值，抛出异常落库执行，任务：{}", size, JsonHelper.toJson(domain));
                     CallerInfo callerInfo = ProfilerHelper.registerInfo("DMSWORKER.InspectionTaskExecute.prepare.check.big.package", Constants.UMP_APP_NAME_DMSWORKER);
                     Profiler.registerInfoEnd(callerInfo);
