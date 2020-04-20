@@ -57,7 +57,7 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
     @Autowired
     private TaskService taskService;
     @Override
-    @JProfiler(jKey= "DMSWORKER.InspectionTaskExecute.prepare", mState = {JProEnum.TP})
+    @JProfiler(jKey= "DMSWORKER.InspectionTaskExecute.prepare", mState = {JProEnum.TP}, jAppName= Constants.UMP_APP_NAME_DMSWORKER)
     protected InspectionTaskExecuteContext prepare(Task domain) {
         InspectionTaskExecuteContext context=new InspectionTaskExecuteContext();
         context.setPassCheck(true);
@@ -117,6 +117,7 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
      * @return
      */
     @Override
+    @JProfiler(jKey= "DMSWORKER.InspectionTaskExecute.executeCoreFlow", mState = {JProEnum.TP}, jAppName= Constants.UMP_APP_NAME_DMSWORKER)
     protected boolean executeCoreFlow(InspectionTaskExecuteContext inspectionTaskExecuteContext) {
         for(Inspection domain : inspectionTaskExecuteContext.getInspectionList()){
             inspectionService.insertOrUpdate(domain);
@@ -255,19 +256,10 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
             if (bigWaybillDto.getWaybill() != null && bigWaybillDto.getWaybill().getGoodNumber() != null) {
                 Integer size = bigWaybillDto.getWaybill().getGoodNumber();
                 if (size >= INSPECTION_SAVE_TASK_TO_DB_PACKAGE_NUM ) {
+                    log.warn("验货包裹数【{}】大于阈值，抛出异常落库执行，任务：{}", size, JsonHelper.toJson(domain));
                     CallerInfo callerInfo = ProfilerHelper.registerInfo("DMSWORKER.InspectionTaskExecute.prepare.check.big.package", Constants.UMP_APP_NAME_DMSWORKER);
-                    try {
-                        //设置false走落库
-                        int result = this.taskService.doAddTask(domain, false);
-                        log.warn("验货包裹数{}大于阈值，插入数据库执行，插入结果：{}，任务：{}", size, result, JsonHelper.toJson(domain));
-                    } catch (Exception e) {
-                        log.error("验货包裹数{}大于阈值，插入数据库失败，任务：{}", size, JsonHelper.toJson(domain), e);
-                        Profiler.functionError(callerInfo);
-                        throw new RuntimeException("验货大包裹运单落任务失败");
-                    } finally {
-                        Profiler.registerInfoEnd(callerInfo);
-                    }
-                    return false;
+                    Profiler.registerInfoEnd(callerInfo);
+                    throw new RuntimeException("验货包裹数大于阈值，抛出异常落库执行");
                 }
             }
         }

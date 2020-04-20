@@ -62,7 +62,7 @@ public class InspectionTask extends DBSingleScheduler {
                     return true;
                 }
                 Task domain=new Task();
-
+                domain.setId(task.getId());
                 for (InspectionRequest request:middleRequests){
                     domain.setBody(JsonHelper.toJson(request));
                     taskExecute.execute(domain);
