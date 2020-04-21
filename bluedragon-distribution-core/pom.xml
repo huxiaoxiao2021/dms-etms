@@ -1277,7 +1277,7 @@
 		<dependency>
 			<groupId>com.jd.lljk</groupId>
 			<artifactId>ccmp-ctm-api</artifactId>
-			<version>1.0.0-TEST-SNAPSHOT</version>
+			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 
 	</dependencies>
