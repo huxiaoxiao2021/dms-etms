@@ -595,4 +595,12 @@
                   protocol="jsf" alias="${jsf.TypeApi.alias}" timeout="${jsf.TypeApi.timeout}"
                   retries="${jsf.retries}">
     </jsf:consumer>
+
+    <!-- 技术发展部 - 冷链产品 - 包裹绑定温度计 -->
+    <jsf:consumer id="wayBillThermometerApi" interface="com.jd.ccmp.ctm.api.WayBillThermometerApi"
+                  protocol="jsf"
+                  alias="${dms.ccmp.medicine.alias}" timeout="${dms.ccmp.medicine.timeout}"
+                  retries="${jsf.retries}">
+    </jsf:consumer>
+
 </beans>
