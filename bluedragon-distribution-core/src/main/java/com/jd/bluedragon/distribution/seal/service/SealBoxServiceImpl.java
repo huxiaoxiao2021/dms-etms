@@ -93,15 +93,14 @@ public class SealBoxServiceImpl implements SealBoxService {
 
 	  
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int addSealBox(SealBox sealBox) {
-		this.log.info("封箱服务-->增加封箱信息，先执行更新操作，封箱号【{}】",sealBox.getCode());
-		int tempUpdateCount = this.sealBoxDao.updateSealBox(sealBox);
-		if (tempUpdateCount <= 0) {
+		SealBox sealBoxOne = this.sealBoxDao.findBySealCode(sealBox.getCode());
+		if (sealBoxOne == null) {
 			this.sealBoxDao.addSealBox(sealBox);
-			this.log.info("封箱服务-->增加封箱信息，更新无数据，执行新增操作成功，封箱号【{}】",sealBox.getCode());
+			this.log.info("封箱服务-->增加封箱信息，执行新增操作成功，封箱号【{}】",sealBox.getCode());
 		} else {
-			this.log.info("封箱服务-->增加封箱信息，执行更新成功，封箱号【】",sealBox.getCode());
+			this.sealBoxDao.updateSealBox(sealBox);
+			this.log.info("封箱服务-->更新封箱信息，执行更新成功，封箱号【{}】",sealBox.getCode());
 		}
 		return 1;
 	}
