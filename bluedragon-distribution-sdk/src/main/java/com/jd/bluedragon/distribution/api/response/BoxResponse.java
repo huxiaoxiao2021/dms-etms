@@ -120,7 +120,7 @@ public class BoxResponse extends JdResponse {
     /**
      * 是否众邮箱号
      * */
-    private boolean isZyBoxCode;
+    private boolean whetherZyBoxCode;
 
     public String getRouterText() {
         return routerText;
@@ -304,11 +304,11 @@ public class BoxResponse extends JdResponse {
         this.receiveSiteType = receiveSiteType;
     }
 
-    public boolean isZyBoxCode() {
-        return isZyBoxCode;
+    public boolean isWhetherZyBoxCode() {
+        return whetherZyBoxCode;
     }
 
-    public void setZyBoxCode(boolean zyBoxCode) {
-        isZyBoxCode = zyBoxCode;
+    public void setWhetherZyBoxCode(boolean whetherZyBoxCode) {
+        this.whetherZyBoxCode = whetherZyBoxCode;
     }
 }

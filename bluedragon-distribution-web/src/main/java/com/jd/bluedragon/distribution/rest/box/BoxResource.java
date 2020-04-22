@@ -279,7 +279,7 @@ public class BoxResource {
             response.setReceiveSiteType(receiveSite==null?null:String.valueOf(receiveSite.getSiteType()));
             if(createSite != null
                     && Constants.THIRD_ENET_SITE_TYPE.equals(createSite.getSiteType())){
-                response.setZyBoxCode(true);
+                response.setWhetherZyBoxCode(true);
             }
         }catch (Exception e){
             log.error("获取箱号:【{}】的始发目站点类型异常,异常信息:【{}】",box.getCode(),e.getMessage(),e);
