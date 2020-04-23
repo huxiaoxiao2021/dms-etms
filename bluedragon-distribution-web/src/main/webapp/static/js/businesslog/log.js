@@ -217,9 +217,15 @@ $(document).ready(function () {
         var siteCode = $("#siteCode").val();
         var siteName = $("#siteName").val();
         var operatorName = $("#operatorName").val();
-        var sourceSys = $("#waybillCode").val();
-        var bizType = $("#biztype").val();
-        var operateType = $("#operatetype").val();
+        var otherKey = $("#otherKey").val();
+        var startTime = $("#startTime").val();
+        var endTime = $("#endTime").val();
+        if(waybillCode == '' || packageCode == '' || boxCode == ''
+                || sendCode == '' || siteCode == '' || siteName == ''
+                || operatorName == '' || otherKey == ''){
+            alert("运单号、包裹号、箱号、批次号、任意关键字、操作站点编码、操作站点名称、操作人姓名！");
+            return;
+        }
         if(startTime == ''){
             alert("请输入开始时间！");
             return;

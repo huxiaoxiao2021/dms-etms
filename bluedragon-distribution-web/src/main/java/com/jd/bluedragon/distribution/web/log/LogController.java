@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.logger.aop.BusinessLogWriter;
 import com.jd.dms.logger.domain.es.ESIndexAndTypeEnum;
 import com.jd.dms.logger.dto.base.BusinessLogResult;
@@ -124,6 +125,7 @@ public class LogController {
     public TableResult getBusinessLog(@RequestBody HashMap request) {
         request.put("sourceSys","112"); //只从实操日志里面查
         TableResult businessLogList=new TableResult();
+        logger.info("request[{}]", JsonHelper.toJson(request));
         try {
             String orderByField = (String)request.remove("orderByField");
             String orderBy = (String)request.remove("orderBy");
@@ -132,13 +134,14 @@ public class LogController {
                 sortFields.put(orderByField,orderBy);
                 request.put("sortFields",sortFields);//key是jsf服务端 指定的
             }
+            logger.info("request2[{}]", JsonHelper.toJson(request));
             BusinessLogResult businessLogReqResult = businessLogQueryService.getBusinessLogList(request);
             businessLogList.setRows(businessLogReqResult.getRows());
             businessLogList.setTotal(businessLogReqResult.getTotal());
             businessLogList.setStatusCode(TableResult.SUCCESS_CODE);
             businessLogList.setStatusMessage(TableResult.SUCCESS_MESSAGE);
         } catch (Exception e) {
-            logger.error("BusinessLogController.getBusinessLogList-error!", e);
+            logger.error("BusinessLogController.getBusinessLogList-error!request[{}]",JsonHelper.toJson(request), e);
             businessLogList.setStatusCode(TableResult.SERVER_ERROR_CODE);
             businessLogList.setStatusMessage(TableResult.SERVER_ERROR_MESSAGE);
         }
