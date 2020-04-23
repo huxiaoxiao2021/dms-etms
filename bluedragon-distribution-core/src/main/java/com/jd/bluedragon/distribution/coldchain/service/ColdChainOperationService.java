@@ -1,11 +1,7 @@
 package com.jd.bluedragon.distribution.coldchain.service;
 
 import com.jd.bluedragon.distribution.api.response.ColdChainOperationResponse;
-import com.jd.bluedragon.distribution.coldchain.dto.ColdChainInAndOutBoundRequest;
-import com.jd.bluedragon.distribution.coldchain.dto.ColdChainQueryUnloadTaskRequest;
-import com.jd.bluedragon.distribution.coldchain.dto.ColdChainUnloadDto;
-import com.jd.bluedragon.distribution.coldchain.dto.ColdChainUnloadQueryResultDto;
-import com.jd.bluedragon.distribution.coldchain.dto.VehicleTypeDict;
+import com.jd.bluedragon.distribution.coldchain.dto.*;
 import com.jd.jmq.common.exception.JMQException;
 
 import java.util.List;
@@ -53,4 +49,10 @@ public interface ColdChainOperationService {
      */
     List<VehicleTypeDict> getVehicleModelList();
 
+    /**
+     * 包裹号绑定温度计
+     *
+     * @return
+     */
+    ColdChainOperationResponse boundThermometer(ThermometerRequest request);
 }
