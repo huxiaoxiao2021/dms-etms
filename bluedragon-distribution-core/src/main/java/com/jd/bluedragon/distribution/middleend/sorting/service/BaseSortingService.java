@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.middleend.sorting.service;
 
+import com.alibaba.fastjson.JSON;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -18,24 +20,27 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.alibaba.fastjson.JSON;
 import com.jd.ql.dms.common.cache.CacheService;
-import com.jd.ql.shared.services.sorting.api.dto.*;
+import com.jd.ql.shared.services.sorting.api.dto.Flow;
+import com.jd.ql.shared.services.sorting.api.dto.SiteType;
+import com.jd.ql.shared.services.sorting.api.dto.SortingDirection;
+import com.jd.ql.shared.services.sorting.api.dto.SortingObject;
+import com.jd.ql.shared.services.sorting.api.dto.SortingObjectStatus;
+import com.jd.ql.shared.services.sorting.api.dto.SortingObjectType;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public abstract class BaseSortingService {
-    protected Logger logger = LoggerFactory.getLogger(BaseSortingService.class);
+    protected Logger log = LoggerFactory.getLogger(BaseSortingService.class);
 
     @Autowired
     @Qualifier("jimdbCacheService")
@@ -76,6 +81,7 @@ public abstract class BaseSortingService {
      * @return
      */
     public boolean doSorting(Task sortingTask) {
+        CallerInfo info = Profiler.registerInfo("DMSWORKER.BaseSortingService.doSorting", Constants.UMP_APP_NAME_DMSWORKER, false, true);
         String fingerPrintKey = "";
         try {
             //验重
@@ -83,21 +89,28 @@ public abstract class BaseSortingService {
             if (check(fingerPrintKey)) {
                 //转换成extend对象
                 SortingObjectExtend sorting = prepareSorting(sortingTask);
-                logger.info("sorting任务转换成中台理货扩展对象:" + JSON.toJSONString(sorting));
+                if(log.isInfoEnabled()){
+                    log.info("sorting任务转换成中台理货扩展对象:{}" , JSON.toJSONString(sorting));
+                }
 
                 //进行核心的分拣操作：1写sorting表；2发分拣的全称跟踪；3逆向的发送退货一百分和快退MQ
                 if (coreSorting(sorting)) {
                     //核心分拣操作成功，则生成分拣成功处理任务用于处理分拣补验货/补发货/写操作日志等动作
                     doSortingSuccess(sorting);
+                } else {
+                    log.error("核心的分拣操作执行失败，扩展对象：{}" , JSON.toJSONString(sorting));
+                    return false;
                 }
             }
-            return true;
         } catch (Exception e) {
-            logger.error("分拣操作异常.参数:" + JSON.toJSONString(sortingTask) + ",异常原因:", e);
+            log.error("分拣操作异常.参数:{}" , JSON.toJSONString(sortingTask) , e);
+            Profiler.functionError(info);
             return false;
         } finally {
             delCache(fingerPrintKey);
+            Profiler.registerInfoEnd(info);
         }
+        return true;
     }
 
     /**
@@ -111,11 +124,11 @@ public abstract class BaseSortingService {
         try {
             Boolean isSuccess = cacheService.setNx(fingerPrintKey, "1", TASK_1200_EX_TIME_5_S, TimeUnit.SECONDS);
             if (!isSuccess) {//说明有重复任务
-                this.logger.warn("分拣任务重复：" + fingerPrintKey);
+                this.log.warn("分拣任务重复：{}" , fingerPrintKey);
                 return false;
             }
         } catch (Exception e) {
-            this.logger.error("获得分拣任务指纹失败" + fingerPrintKey, e);
+            this.log.error("获得分拣任务指纹失败:{}" , fingerPrintKey, e);
         }
         return true;
     }
@@ -151,7 +164,7 @@ public abstract class BaseSortingService {
                 createSite = baseMajorManager.getDmsCustomSiteBySiteId(dmsSorting.getCreateSiteCode());
             }
         } catch (Exception e) {
-            this.logger.error("AbstractSortingService.prepareSorting处理始发分拣异常.createSiteCode:" + dmsSorting.getCreateSiteCode(), e);
+            this.log.error("AbstractSortingService.prepareSorting处理始发分拣异常.createSiteCode:{}" , dmsSorting.getCreateSiteCode(), e);
         }
         extendObject.setCreateSite(createSite);
 
@@ -169,7 +182,7 @@ public abstract class BaseSortingService {
                 receiveSite = baseMajorManager.getDmsCustomSiteBySiteId(dmsSorting.getReceiveSiteCode());
             }
         } catch (Exception e) {
-            this.logger.error("AbstractSortingService.prepareSorting处理目的分拣异常.receiveSiteCode:" + dmsSorting.getReceiveSiteCode(), e);
+            this.log.error("AbstractSortingService.prepareSorting处理目的分拣异常.receiveSiteCode:{}" , dmsSorting.getReceiveSiteCode(), e);
         }
         extendObject.setReceiveSite(receiveSite);
 
@@ -300,7 +313,7 @@ public abstract class BaseSortingService {
             sorting.setPackagePageSize(pageSize);
             taskService.add(sortingObjectExtend2Task(sorting));
             if(goodNumber == 0){
-                logger.info("按包裹理货，运单没有包裹信息：" + JsonHelper.toJson(sorting));
+                log.warn("按包裹理货，运单没有包裹信息：{}", JsonHelper.toJson(sorting));
             }
         }else if (SortingObjectType.WAYBILL.equals(sorting.getMiddleEndSorting().getObjectType()) && goodNumber > 0) {
             //2.按运单理货且运单有包裹信息
@@ -309,7 +322,7 @@ public abstract class BaseSortingService {
             if (goodNumber % pageSize != 0) {
                 pageCount++;
             }
-            logger.info("AbstractSortingService.addSortingSuccessTask将大运单任务进行拆分，总页数:" + pageCount + ",每页容量:" + pageSize);
+            log.info("AbstractSortingService.addSortingSuccessTask将大运单任务进行拆分，总页数:{},每页容量:{}" ,pageCount, pageSize);
             for (int i = 0; i < pageCount; i++) {
                 //发送拆分任务
                 sorting.setPackagePageIndex(i + 1);
@@ -317,7 +330,7 @@ public abstract class BaseSortingService {
                 taskService.add(sortingObjectExtend2Task(sorting));
             }
         } else {
-            logger.error("运单分拣包裹数据为空" + JsonHelper.toJson(sorting));
+            log.warn("运单分拣包裹数据为空:{}" , JsonHelper.toJson(sorting));
         }
     }
 

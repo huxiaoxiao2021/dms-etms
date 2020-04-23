@@ -111,6 +111,7 @@
                     <option value="5">龙门架未绑该站点</option>
                     <option value="6">无启用方案信息</option>
                     <option value="7">上传操作时间异常</option>
+                    <option value="25">运单已妥投</option>
                 </select>
             </span>
 

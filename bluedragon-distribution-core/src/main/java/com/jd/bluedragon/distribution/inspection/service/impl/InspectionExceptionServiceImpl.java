@@ -28,7 +28,8 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -75,7 +76,7 @@ public class InspectionExceptionServiceImpl implements InspectionExceptionServic
 	@Autowired
 	private SiteService siteService;
 	
-	private final static Logger logger = Logger.getLogger(InspectionExceptionServiceImpl.class);
+	private final static Logger log = LoggerFactory.getLogger(InspectionExceptionServiceImpl.class);
 
 	/*包裹已经发货*/
 	public static final int PACKAGE_SENDED = -10000;
@@ -161,7 +162,7 @@ public class InspectionExceptionServiceImpl implements InspectionExceptionServic
 						sortingResult ++;
 					}
 					long endTimeCanCancelSorting = System.currentTimeMillis();
-					InspectionExceptionServiceImpl.logger.info("ortingService.canCancelSorting Time: "+(endTimeCanCancelSorting-startTimeCanCancelSorting));
+					InspectionExceptionServiceImpl.log.info("ortingService.canCancelSorting Time: {}",(endTimeCanCancelSorting-startTimeCanCancelSorting));
 				}
 				if( InspectionEC.INSPECTIONEC_TYPE_CANCEL!=operationType){
 					//取消验货记录及收货确认记录
@@ -183,20 +184,20 @@ public class InspectionExceptionServiceImpl implements InspectionExceptionServic
 				
 				result += inspectionECDao.updateStatus(inspectionEC);
 				if( result<=0 && sortingResult<=0 && inspectionResult<=0){
-					InspectionExceptionServiceImpl.logger.info(" 更新验货异常记录状态失败（分拣、验货、收货确认、异常比对）, packageBarcode: "+inspectionEC.getPackageBarcode());
+					InspectionExceptionServiceImpl.log.warn(" 更新验货异常记录状态失败（分拣、验货、收货确认、异常比对）, packageBarcode: {}",inspectionEC.getPackageBarcode());
 				}
 				long endTime = System.currentTimeMillis();
-				InspectionExceptionServiceImpl.logger.info("exceptionCancel Time: "+(endTime-startTime));
+				InspectionExceptionServiceImpl.log.info("exceptionCancel Time: {}",(endTime-startTime));
 			}
 			
 			if( sended==inspectionECs.size() ){
-				InspectionExceptionServiceImpl.logger.error("包裹已经发货，无法取消： "+inspectionECs.get(0).getPackageBarcode());
+				InspectionExceptionServiceImpl.log.warn("包裹已经发货，无法取消：{} ",inspectionECs.get(0).getPackageBarcode());
 				return InspectionExceptionServiceImpl.PACKAGE_SENDED;
 			}
 			
 			return result>=inspectionECs.size() ? 1 : InspectionExceptionServiceImpl.CANCEL_FAIL;
 		} catch (Exception e) {
-			InspectionExceptionServiceImpl.logger.info(e.getMessage(), e);
+			InspectionExceptionServiceImpl.log.info(e.getMessage(), e);
 			throw new InspectionException(" called method exceptionCancel fail ");
 		}
 	}
@@ -234,17 +235,17 @@ public class InspectionExceptionServiceImpl implements InspectionExceptionServic
 				//更新exception_status和box_code 
 				result += inspectionECDao.updateForSorting(inspectionEC);
 				if( result<=Constants.NO_MATCH_DATA ){
-					InspectionExceptionServiceImpl.logger.info(" 更新验货异常记录状态失败, packageBarcode: "+inspectionEC.getPackageBarcode());
+					InspectionExceptionServiceImpl.log.warn(" 更新验货异常记录状态失败, packageBarcode: {}",inspectionEC.getPackageBarcode());
 				}
 			}
 			
 			if( sended==inspectionECs.size() ){
-				InspectionExceptionServiceImpl.logger.error("包裹已经发货，无法取消： "+inspectionECs.get(0).getPackageBarcode());
+				InspectionExceptionServiceImpl.log.warn("包裹已经发货，无法取消： {}",inspectionECs.get(0).getPackageBarcode());
 				return InspectionExceptionServiceImpl.PACKAGE_SENDED;
 			}
 			return result==inspectionECs.size() ? 1 : 0;
 		} catch (Exception e) {
-			InspectionExceptionServiceImpl.logger.error(e.getMessage(),e);
+			InspectionExceptionServiceImpl.log.error(e.getMessage(),e);
 			throw new InspectionException( " called method  directDistribution fail " );
 		}
 	}
@@ -390,15 +391,17 @@ public class InspectionExceptionServiceImpl implements InspectionExceptionServic
 	}
 
 	@Override
-	public void saveData(Inspection inspection) {
+	public void saveData(Inspection inspection,String methodName) {
 		// TODO Auto-generated method stub
-		inspectionService.saveData(inspection);
+		inspectionService.saveData(inspection,"");
 
 		try {//FIXME:看看龙门架是否能拆出
 			if ((inspection.getLength() != null && inspection.getLength() > 0)
 					|| (inspection.getWidth() != null && inspection.getWidth() > 0)
 					|| (inspection.getHigh() != null && inspection.getHigh() > 0)) {
-				logger.info("龙门架:"+JsonHelper.toJson(inspection));
+				if(log.isInfoEnabled()){
+					log.info("龙门架:{}",JsonHelper.toJson(inspection));
+				}
 				OpeEntity opeEntity = new OpeEntity();
 				opeEntity.setOpeType(1);//分拣中心称重
 				opeEntity.setWaybillCode(inspection.getWaybillCode());
@@ -434,7 +437,7 @@ public class InspectionExceptionServiceImpl implements InspectionExceptionServic
 				taskService.add(task);
 			}
 		} catch (Exception ex) {
-			logger.error("龙门架写称重任务失败",ex);
+			log.error("龙门架写称重任务失败:{}",JsonHelper.toJson(inspection),ex);
 		}
 	}
 }

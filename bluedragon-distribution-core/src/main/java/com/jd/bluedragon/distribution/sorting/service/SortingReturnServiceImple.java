@@ -5,6 +5,10 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.ReturnsRequest;
+
+import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
+import com.jd.dms.logger.external.LogEngine;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.packageToMq.service.IPushPackageToMqService;
@@ -17,20 +21,22 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.fastjson.JSONObject;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -38,7 +44,7 @@ import java.util.regex.Pattern;
 @Service("sortingReturnService")
 public class SortingReturnServiceImple implements SortingReturnService {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private Pattern checkInteger = Pattern.compile("^\\d+$");
 	/**
@@ -92,11 +98,11 @@ public class SortingReturnServiceImple implements SortingReturnService {
 	@Autowired
 	private IPushPackageToMqService pushMqService;
 	
-//	@Autowired
-//	private BizServiceInterface bizService;
-	
 	@Autowired
 	private WaybillQueryManager waybillQueryManager;
+
+	@Autowired
+	private LogEngine logEngine;
 
 	@JProfiler(jKey= "DMSWORKER.SortingReturnService.doSortingReturnForTask",mState = {JProEnum.TP})
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
@@ -139,7 +145,7 @@ public class SortingReturnServiceImple implements SortingReturnService {
 		for (ReturnsRequest request : returnsRequests) {
 			SortingReturn sorting = SortingReturn.parse(request);
 			if(StringUtils.isEmpty(sorting.getWaybillCode()) && StringUtils.isEmpty(sorting.getPackageCode())){
-                logger.error(MessageFormat.format("更新分拣退货运单号和包裹号为空sorting[{0}]request[{1}]",JsonHelper.toJson(sorting),JsonHelper.toJson(request)));
+                log.warn("更新分拣退货运单号和包裹号为空sorting[{}]request[{}]",JsonHelper.toJson(sorting),JsonHelper.toJson(request));
             }
             if(sorting.getBusinessType()==null || !sorting.getBusinessType().equals(INTERCEPT_RECORD_TYPE)){
 	          	/*拦截记录饿信息不回传运单*/
@@ -175,7 +181,7 @@ public class SortingReturnServiceImple implements SortingReturnService {
 		if (returns.getBusinessType().equals(INTERCEPT_RECORD_TYPE)||Constants.NO_MATCH_DATA == this.update(returns).intValue()) {
 			/** 插入数据 */
 			this.add(returns);
-			addOperationLog(returns);
+			addOperationLog(returns,"SortingReturnServiceImple#saveOrUpdate");
 		}
 	}
 
@@ -191,7 +197,7 @@ public class SortingReturnServiceImple implements SortingReturnService {
 	 */
 	private Integer update(SortingReturn returns) {
 	    if(null == returns || StringUtils.isEmpty(returns.getWaybillCode())){
-            logger.error(MessageFormat.format("更新分拣退货运单号为空[{0}]",JsonHelper.toJson(returns)));
+            log.warn("更新分拣退货运单号为空[{}]",JsonHelper.toJson(returns));
             return 0;
         }
 		return this.sortingReturnDao.update(SortingReturnDao.namespace, returns);
@@ -202,7 +208,7 @@ public class SortingReturnServiceImple implements SortingReturnService {
 	 *
 	 * @param sortingReturn
 	 */
-	private void addOperationLog(SortingReturn sortingReturn) {
+	private void addOperationLog(SortingReturn sortingReturn,String methodName) {
 		OperationLog operationLog = new OperationLog();
 		operationLog.setCreateSiteCode(sortingReturn.getSiteCode());
 		operationLog.setCreateTime(sortingReturn.getCreateTime());
@@ -217,6 +223,7 @@ public class SortingReturnServiceImple implements SortingReturnService {
 		operationLog.setPackageCode(sortingReturn.getPackageCode());
 		operationLog.setUpdateTime(sortingReturn.getUpdateTime());
 		operationLog.setWaybillCode(sortingReturn.getWaybillCode());
+		operationLog.setMethodName(methodName);
 		operationLogService.add(operationLog);
 	}
 
@@ -233,13 +240,12 @@ public class SortingReturnServiceImple implements SortingReturnService {
 			BaseStaffSiteOrgDto dto = this.getSiteDtoBySiteCode(tmp.getSiteCode());
 			/** 站点信息无法匹配，跳转到下一个数据 */
 			if (dto == null) {
-				this.logger.error("分拣退货ID：" + returns.getId() + " 无法找到站点编码[" + tmp.getSiteCode()
-				        + "]，无法处理数据");
+				this.log.warn("分拣退货ID：{} 无法找到站点编码[{}]，无法处理数据",returns.getId(),tmp.getSiteCode());
 				erroral.add(tmp);
 				continue;
 			}
 			/** 转换为运单信息参数 */
-			this.logger.info("分拣退货ID：" + returns.getId() + " 为运单数据");
+			this.log.debug("分拣退货ID：{} 为运单数据",returns.getId());
 			/** 运单 */
 			normalreturnsal.add(tmp);
 		}
@@ -249,7 +255,7 @@ public class SortingReturnServiceImple implements SortingReturnService {
 			for (SortingReturn errorreturns : erroral) {
 				sb.append("-" + errorreturns.getId());
 			}
-			this.logger.error("获取siteCode信息失败数据Id=：[" + sb.toString() + "]");
+			this.log.warn("获取siteCode信息失败数据Id=：[{}]",sb.toString());
 		}
 		/********************* STEP2: 调用运单接口更新状态 **********************/
 		if (normalreturnsal.size() > 0) {
@@ -269,7 +275,7 @@ public class SortingReturnServiceImple implements SortingReturnService {
 				addSortingAdditionalTask(returns);
 			}
 		} catch (Exception e) {
-			this.logger.error(
+			this.log.error(
 			        "调用waybillWS.batchUpdateWaybillByWaybillCode(paramal_waybill,60)接口失败", e);
 		}
 	}
@@ -284,7 +290,7 @@ public class SortingReturnServiceImple implements SortingReturnService {
 		        || !NumberHelper.isPositiveNumber(createSiteCode)
 		        || !NumberHelper.isPositiveNumber(returns.getUserCode())
 		        || StringHelper.isEmpty(returns.getUserName())) {
-			this.logger.error("分拣退货记录某数据项为空 id = " + returns.getId());
+			this.log.warn("分拣退货记录某数据项为空 id = {}" , returns.getId());
 			return;
 		}
 
@@ -292,12 +298,10 @@ public class SortingReturnServiceImple implements SortingReturnService {
 		try {
 			createSite = this.baseMajorManager.getBaseSiteBySiteId(createSiteCode);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			log.error("创建站点查询异常：{}",createSiteCode,e);
 		}
 		if (createSite == null) {
-			this.logger.info("创建站点或接收站点信息为空.");
-			this.logger.info("创建站点：" + createSiteCode);
-			this.logger.info("接收站点：" + receiveSiteCode);
+			this.log.warn("创建站点或接收站点信息为空.创建站点：{}接收站点：{}",createSiteCode,receiveSiteCode);
 			return;
 		}
 		WaybillStatus waybillStatus = parseWaybillStatus(returns, createSite, null);
@@ -356,19 +360,19 @@ public class SortingReturnServiceImple implements SortingReturnService {
 		tSendDatail.setPackageBarcode(returns.getPackageCode());
 		try {
 			/** 是否发货 */
-			this.logger.info("ReturnsService开始处理分拣退货，调用DeliveryService判断是否已经发货");
+			this.log.debug("ReturnsService开始处理分拣退货，调用DeliveryService判断是否已经发货");
 			boolean isSend = this.deliveryService.checkSend(tSendDatail);
-			this.logger.info("DeliveryService返回发货结果[发货false,未发货true]：" + isSend);
+			this.log.debug("DeliveryService返回发货结果[发货false,未发货true]：{}", isSend);
 			if (isSend) {
 				this.sortingReturnDao.add(SortingReturnDao.class.getName(), returns);
-				this.logger.info("包裹/运单号[" + returns.getWaybillCode() + "/"
-				        + returns.getPackageCode() + "]分拣退货信息保存成功");
+				this.log.warn("包裹/运单号[{}/{}]分拣退货信息保存成功"
+						,returns.getWaybillCode(),returns.getPackageCode());
 				return SortingReturnService.ADDRETURN_OK;
 			} else {
 				return SortingReturnService.ADDRETURN_ISSEND;
 			}
 		} catch (Exception e) {
-			this.logger.error("调用SortingReturnService.doAddReturn失败", e);
+			this.log.error("调用SortingReturnService.doAddReturn失败：{}-{}",returns.getWaybillCode(),returns.getPackageCode(), e);
 			return SortingReturnService.ADDRETURN_ERROR;
 		}
 	}
@@ -402,12 +406,12 @@ public class SortingReturnServiceImple implements SortingReturnService {
 	 * @param _datas
 	 */
 	private void pushBlockerMqQueue(List<SortingReturn> _datas) {
-        long timeId = System.currentTimeMillis();
-        logger.info("SortingReturnServiceImple.pushBlockerMqQueue[" + timeId + "] 预处理");
+		long startTime=new Date().getTime();
+		long timeId = System.currentTimeMillis();
+        log.debug("SortingReturnServiceImple.pushBlockerMqQueue[{}] 预处理",timeId);
         for (SortingReturn ret : _datas) {
             try {
-                logger.info("SortingReturnServiceImple.pushBlockerMqQueue[" + timeId + "] 开始处理包裹号:"
-                        + ret.getPackageCode());
+                log.debug("SortingReturnServiceImple.pushBlockerMqQueue[{}] 开始处理包裹号:{}",timeId, ret.getPackageCode());
                 String shieldsError = ret.getShieldsError();
                 String[] datas = shieldsError.split(SortingReturnServiceImple.ERROR_CODE_MSG_SPLIT);
                 if(StringUtils.isEmpty(ret.getPackageCode())){
@@ -426,14 +430,12 @@ public class SortingReturnServiceImple implements SortingReturnService {
                 //不是运单号 并且不是包裹1
                 boolean isNotFirstPackage = !WaybillUtil.isWaybillCode(ret.getPackageCode()) && !WaybillUtil.isFirstPack(ret.getPackageCode());
                 if (isNotFirstPackage || isNotToPushBlockerMqQueue(shieldsType)) {
-                    logger.info("SortingReturnServiceImple.pushBlockerMqQueue[" + timeId
-                            + "] 包裹号排除:" + ret.getPackageCode());
+                    log.warn("SortingReturnServiceImple.pushBlockerMqQueue[{}] 包裹号排除:{}",timeId, ret.getPackageCode());
 					/* 只有退款100分的数据才处理，类型为空不处理 */
                     continue;
                 } else {
 					/* 去重处理 */
-                    logger.info("SortingReturnServiceImple.pushBlockerMqQueue[" + timeId
-                            + "] 包裹号去重优化:" + ret.getPackageCode());
+                    log.debug("SortingReturnServiceImple.pushBlockerMqQueue[{}] 包裹号去重优化:{}",timeId, ret.getPackageCode());
                     String orderId = ret.getWaybillCode();
                     String operateTime = DateHelper.formatDateTime(ret.getCreateTime());
                     //Integer orderType = ret.getBusinessType() == null ? 0 : ret.getBusinessType();
@@ -442,16 +444,37 @@ public class SortingReturnServiceImple implements SortingReturnService {
                             createMqBody(orderId, operateTime, ret.getBusinessType());
                     //pushMqService.pubshMq(SortingReturnServiceImple.SORTINGRET_MQ_KEY, mqbody, orderId);
                     bdBlockerCompleteMQ.send(orderId,mqbody);
-                    logger.info("SortingReturnServiceImple.pushBlockerMqQueue[" + timeId
-                            + "] 推送MQ操作完成 orderId:" + orderId);
+                    log.debug("SortingReturnServiceImple.pushBlockerMqQueue[{}] 推送MQ操作完成 orderId:{}" ,timeId, orderId);
                 }
             } catch (Exception e) {
 			        /* 记录异常，但不处理，避免影响运单操作 */
-                logger.error("退款100分MQ消息推送失败[" + timeId + "]", e);
+                log.error("退款100分MQ消息推送失败[{}]orderId:{}",timeId,ret.getWaybillCode(), e);
                 try{
+
+					long endTime = new Date().getTime();
+					JSONObject request=new JSONObject();
+					request.put("waybillCode",ret.getWaybillCode());
+
+					JSONObject response=new JSONObject();
+					response.put("keyword1", ret.getWaybillCode());
+					response.put("keyword2", "BLOCKER_QUEUE_BD_DMS_ST");
+					response.put("keyword3", ret.getShieldsError());
+					response.put("keyword4", ret.getShieldsType());
+					response.put("content", e.getMessage());
+
+					BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
+							.operateTypeEnum(BusinessLogConstans.OperateTypeEnum.RETURNS_REFUND100)
+							.processTime(endTime,startTime)
+							.operateRequest(request)
+							.operateResponse(response)
+							.methodName("SortingReturnServiceImple#pushBlockerMqQueue")
+							.build();
+
+					logEngine.addLog(businessLogProfiler);
+
                     SystemLogUtil.log(ret.getWaybillCode(),"BLOCKER_QUEUE_BD_DMS_ST",ret.getShieldsError(),ret.getShieldsType(),e.getMessage(),Long.valueOf(12201));
                 }catch (Exception ex){
-                    logger.error("退款100分MQ消息推送记录日志失败", ex);
+                    log.error("退款100分MQ消息推送记录日志失败:{}",ret.getWaybillCode(), ex);
                 }
             }
         }

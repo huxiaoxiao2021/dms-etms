@@ -19,10 +19,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Field;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -234,7 +231,7 @@ public class ArBookingSpaceServiceImpl extends BaseService<ArBookingSpace> imple
 				}
 
 			} catch (IllegalAccessException e) {
-				logger.error("initObjectValue fail!   "+e.getMessage().toString());
+				log.error("initObjectValue fail!   ",e);
 			}
 
 		}

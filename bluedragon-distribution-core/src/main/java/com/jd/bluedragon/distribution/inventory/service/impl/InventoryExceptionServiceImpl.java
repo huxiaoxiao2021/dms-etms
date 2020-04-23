@@ -21,10 +21,6 @@ import com.jd.ql.dms.common.web.mvc.BaseService;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.report.inventory.domain.InventoryPackage;
-import com.jd.ql.trace.api.WaybillTraceBusinessQueryApi;
-import com.jd.ql.trace.api.core.APIResultDTO;
-import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
-import com.jd.ql.trace.api.domain.BillBusinessTraceDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +33,7 @@ import java.util.*;
 @Service("inventoryExceptionService")
 public class InventoryExceptionServiceImpl extends BaseService<InventoryException> implements InventoryExceptionService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     @Qualifier("inventoryExceptionDao")
@@ -142,7 +138,7 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
         if (scanPackageCodeList.size() > 0) {
             scanPackageCodeSet = new HashSet<>(scanPackageCodeList);
         } else {
-            logger.warn("任务号【" + inventoryTaskId + "】下扫描记录数据为空！");
+            log.warn("任务号【{}】下扫描记录数据为空！",inventoryTaskId);
         }
 
         //es获取该运单的待盘信息
@@ -152,7 +148,7 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
             InventoryWaybillDetail inventoryWaybillDetail = new InventoryWaybillDetail();
             String packageCode = inventoryPackage.getPackageCode();
             if (StringHelper.isEmpty(packageCode)) {
-                logger.error("【generateInventoryException】包裹号为空，对象值：" + JsonHelper.toJson(inventoryPackage));
+                log.warn("【generateInventoryException】包裹号为空，对象值：{}" , JsonHelper.toJson(inventoryPackage));
                 continue;
             }
             inventoryWaybillDetail.setPackageCode(packageCode);
@@ -178,7 +174,7 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
                         this.inventoryExceptionDao.insert(inventoryException);
 
                     } catch (Exception e) {
-                        logger.error("插入盘点异常表异常！",e);
+                        log.error("插入盘点异常表异常！",e);
                     }
                 }
 
@@ -239,7 +235,7 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
                             inventoryException.setExpDesc(InventoryExpDescEnum.EXCEPTION_MORE.getDesc());
                             inventoryException.setLatestPackStatus(PackStatusEnum.EXCEPTION.getDesc());
                         } else {
-                            logger.warn("包裹状态妈：" + statusCode.toString() + "，不是发货货异常外呼状态！");
+                            log.warn("包裹状态妈：{}，不是发货货异常外呼状态！",statusCode.toString());
                         }
                     } else {
                         //无任何操作有实物
@@ -251,7 +247,7 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
                     exceptionCount++;
                     this.inventoryExceptionDao.insert(inventoryException);
                 } catch (Exception e) {
-                    logger.error("插入盘点异常表异常！", e);
+                    log.error("插入盘点异常表异常！", e);
                 }
             }
         }
@@ -319,13 +315,13 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
                         inventoryExceptionDao.updateExpStatus(params);
                         count++;
                     } else {
-                        logger.warn("包裹号【" + packageCode + "】的在下游无全程跟踪操作，无法对少货异常自动处理！");
+                        log.warn("包裹号【{}】的在下游无全程跟踪操作，无法对少货异常自动处理！",packageCode);
                     }
                 } else {
-                    logger.warn("获取包裹号【" + packageCode + "】无全程跟踪记录，无法对少货异常自动处理！");
+                    log.warn("获取包裹号【{}】无全程跟踪记录，无法对少货异常自动处理！",packageCode);
                 }
             } else {
-                logger.warn("获取包裹号【" + packageCode + "】的全程跟踪结果为空，无法对少货异常自动处理！");
+                log.warn("获取包裹号【{}】的全程跟踪结果为空，无法对少货异常自动处理！",packageCode);
             }
 
         }

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>B网转运重量抽检</title>
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    #parse("system/common/baseImport.vm")
+    <style type="text/css">
+        .spinner {
+            width: 200px;
+        }
+        .spinner input {
+            text-align: center;
+        }
+        .input-group-btn-vertical {
+            position: relative;
+            white-space: nowrap;
+            width: 1%;
+            vertical-align: middle;
+            display: table-cell;
+        }
+        .input-group-btn-vertical > .btn {
+            display: block;
+            float: none;
+            width: 25px;
+            max-width: 100%;
+            padding: 8px;
+            margin-left: -1px;
+            position: relative;
+            border-radius: 0;
+        }
+        .input-group-btn-vertical > .btn:first-child {
+            border-top-right-radius: 4px;
+        }
+        .input-group-btn-vertical > .btn:last-child {
+            margin-top: -2px;
+            border-bottom-right-radius: 4px;
+        }
+        .input-group-btn-vertical i{
+            position: absolute;
+            top: 0;
+            left: 4px;
+        }
+
+        /*.waybillDataTable{ !* 表格整体样式 *!*/
+        /*    border-collapse:collapse; !* 合并为单一的边框线 *!*/
+        /*    mso-cellspacing: 0px;*/
+        /*    margin-top: 50px;*/
+        /*    margin-left: 75px;*/
+        /*    background-color: white;*/
+        /*    border:2px*/
+        /*    solid gray;*/
+        /*}*/
+        /*!* 设置tr的表格样式 *!*/
+        /*.waybillDataTable td{*/
+        /*    padding:10px;*/
+        /*    border:2px*/
+        /*    solid gray;*/
+        /*    text-align: center;*/
+        /*    font-size: 15px;*/
+        /*    word-wrap:break-word;*/
+        /*    word-break:break-all;*/
+        /*}*/
+    </style>
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/imports/bootstrap/v3.3.7/plugin/bootstrap3-editable/css/bootstrap-editable.css')" media="all">
+    <script src="/static/js/weightAndVolumeCheck/weightAndVolumeCheckOfB2b.js"></script>
+    <script src="/static/imports/bootstrap/v3.3.7/plugin/bootstrap3-editable/js/bootstrap-editable.min.js"></script>
+    <script src="/static/js/weightAndVolumeCheck/bootstrap-table-editable.js"></script>
+</head>
+<body>
+<input type="hidden" id="createSiteCode" value="$!{createSiteCode}"/>
+<input type="hidden" id="loginErp" value="$!{loginErp}"/>
+<div id="dataTableDiv" class="main">
+        <ol class="breadcrumb">
+            <li><a href="#">分拣中心</a></li>
+            <li class="active">B网转运重量抽检</li>
+        </ol>
+		<!-- 查询条件 -->
+        <div id="query-condition">
+            <form id="query-form" class="form-horizontal">
+                <fieldset>
+
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="col-xs-3">
+                                <div class="form-group">
+                                    <label class="control-label col-xs-3" for="box-code-input"></label>
+                                    <div class="col-xs-4" >
+                                        <label for="checkOfWaybill">
+                                        <input type="radio" id="checkOfWaybill" class="control-label" name="weightCheck" checked>按运单抽检
+                                    </div>
+                                    <div class="col-xs-4" >
+                                        <label for="checkOfPackage">
+                                        <input type="radio" id="checkOfPackage" name="weightCheck" class="control-label">按包裹抽检
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="col-xs-4">
+                                <div class="form-group">
+                                    <label class="control-label col-xs-4">运单号/包裹号：</label>
+                                    <div class="col-xs-6">
+                                        <input type="text" id="waybillOrPackageCode" name="waybillOrPackageCode" class="form-control search-param" >
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="waybillWeightIsShow" class="col-xs-3">
+                                <div class="form-group">
+                                    <label class="control-label col-xs-5">运单总重量(公斤)：</label>
+                                    <div class="input-group spinner">
+                                        <input type="text" id="waybillWeight" class="form-control" style="text-align: center" value="0.00">
+                                        <div class="input-group-btn-vertical">
+                                            <button id="waybillWeightUp" class="btn btn-default" type="button"><i class="glyphicon glyphicon-chevron-up"></i></button>
+                                            <button id="waybillWeightDown" class="btn btn-default" type="button"><i class="glyphicon glyphicon-chevron-down"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="waybillVolumeIsShow" class="col-xs-3">
+                                <div class="form-group">
+                                    <label class="control-label col-xs-5">运单总体积(立方米)：</label>
+                                    <div class="input-group spinner">
+                                        <input type="text" id="waybillVolume" class="form-control" style="text-align: center" value="0.000000">
+                                        <div class="input-group-btn-vertical">
+                                            <button id="waybillVolumeUp" class="btn btn-default" type="button"><i class="glyphicon glyphicon-chevron-up"></i></button>
+                                            <button id="waybillVolumeDown" class="btn btn-default" type="button"><i class="glyphicon glyphicon-chevron-down"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="toolbar" class="btn-group">
+                                <button id="btn_weightVolumeRatio_check" type="button" class="btn btn-primary">
+                                    <span class="glyphicon glyphicon-check" aria-hidden="true"></span>&nbsp;重泡比校验
+                                </button>
+                            </div>
+                            <div id="toolbar" class="btn-group">
+                                <button id="btn_check" type="button" class="btn btn-primary">
+                                    <span class="glyphicon glyphicon-check" aria-hidden="true"></span>&nbsp;检查
+                                </button>
+                            </div>
+                            <div id="toolbar" class="btn-group">
+                                <button id="btn_submit" type="button" class="btn btn-primary">
+                                    <span class="glyphicon glyphicon-submit" aria-hidden="true"></span>&nbsp;提交
+                                </button>
+                            </div>
+                            <div id="toolbar" class="btn-group">
+                                <button id="btn_refresh" type="button" class="btn btn-primary">
+                                    <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>&nbsp;重置
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </fieldset>
+            </form>
+        </div>
+        <hr />
+    <div id="waybillDataTableDiv" style="display: block">
+        <table id="waybillDataTable" class="waybillDataTable" width="83%">
+        </table>
+    </div>
+    <div id="packageDataTableDiv" style="display: none">
+        <table id="packageDataTable" width="83%">
+        </table>
+    </div>
+
+</div>
+</body>
+</html>

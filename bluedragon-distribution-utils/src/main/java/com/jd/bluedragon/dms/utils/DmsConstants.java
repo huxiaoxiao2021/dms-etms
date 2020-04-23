@@ -64,6 +64,11 @@ public class DmsConstants {
     public static final char FLG_CHAR_YN_Y = '1';
 
     /**
+     * 空占位符 0
+     */
+    public static final char FLG_CHAR_DEFAULT = '0';
+
+    /**
      * 箱号正则表达式 旧版 废弃
      */
     @Deprecated
@@ -88,6 +93,22 @@ public class DmsConstants {
      * 站点类型-B商家
      */
     public static final Integer SITE_TYPE_BIZ = 1024;
+    /**
+     * 站点类型-仓
+     */
+    public static final Integer SITE_TYPE_WMS = 900;
+    /**
+     * 站点类型-分拣中心
+     */
+    public static final Integer SITE_TYPE_DMS = 64;
+    /**
+     * 站点类型-站点
+     */
+    public static final Integer SITE_TYPE_SITE = 4;
+    /**
+     * 站点类型-车队
+     */
+    public static final Integer SITE_TYPE_FLEET = 96;
 
     /**
      * 买卖宝 的标识
@@ -168,4 +189,16 @@ public class DmsConstants {
     public static final String SPECIAL_MARK1_WAREHOUSE_JD = "京仓";
     public static final String SPECIAL_MARK1_WAREHOUSE_NOT_JD = "非京仓";
     public static final String SPECIAL_MARK1_WAREHOUSE_OUTER ="外仓";
+
+    /**
+     * remark特殊标识处理
+     * */
+    public static final String BAD_WAREHOURSE_FOR_PORT = "保税";
+    public static final String PICKUP_CUSTOMER_COMMET = "服务单号：";
+    public static final String BUSINESS_ORDER_CODE_REMARK = "商家订单号：";
+
+    /**
+     * 保温箱号规则，MZ开头，总长度14到16位
+     */
+    public static final Pattern WARM_BOX_CODE_REGEX = Pattern.compile("^MZ[A-Z0-9]{12,14}$");
 }

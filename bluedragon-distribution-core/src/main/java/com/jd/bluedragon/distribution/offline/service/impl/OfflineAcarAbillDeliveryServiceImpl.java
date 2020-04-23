@@ -18,8 +18,8 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +32,7 @@ import java.util.Date;
 @Service("offlineAcarAbillDeliveryService")
 public class OfflineAcarAbillDeliveryServiceImpl implements OfflineService {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private DeliveryService deliveryService;
@@ -57,12 +57,12 @@ public class OfflineAcarAbillDeliveryServiceImpl implements OfflineService {
     @Override
     public int parseToTask(OfflineLogRequest request) {
         if (request == null || request.getBoxCode() == null || request.getSiteCode() == null || request.getBusinessType() == null) {
-            this.logger.error("一车一单离线发货 --> 传入参数有误：" + JsonHelper.toJson(request));
+            this.log.warn("一车一单离线发货 --> 传入参数有误：{}" , JsonHelper.toJson(request));
             return Constants.RESULT_FAIL;
         }
 
         if (checkReceiveSiteCode(request)) {
-            this.logger.info("一车一单离线发货 --> 开始写入发货信息");
+            this.log.info("一车一单离线发货 --> 开始写入发货信息");
             if (BusinessUtil.isBoardCode(request.getBoxCode())) {
                 //一车一单下的组板发货
                 Task task = new Task();
@@ -77,9 +77,11 @@ public class OfflineAcarAbillDeliveryServiceImpl implements OfflineService {
                 }
             }
 
-            offlineLogService.addOfflineLog(requestToOffline(request, Constants.RESULT_SUCCESS));
-            operationLogService.add(requestConvertOperationLog(request));
-            this.logger.info("一车一单离线发货 --> 结束写入发货信息");
+            OfflineLog offlineLog = requestToOffline(request, Constants.RESULT_SUCCESS);
+            offlineLog.setMethodName("OfflineAcarAbillDeliveryServiceImpl#parseToTask");
+            offlineLogService.addOfflineLog(offlineLog);
+            operationLogService.add(requestConvertOperationLog(request,"OfflineAcarAbillDeliveryServiceImpl#parseToTask"));
+            this.log.info("一车一单离线发货 --> 结束写入发货信息");
             return Constants.RESULT_SUCCESS;
         }
 
@@ -103,7 +105,7 @@ public class OfflineAcarAbillDeliveryServiceImpl implements OfflineService {
         if (checkBaseSite(receiveSiteCode)) {
             request.setReceiveSiteCode(receiveSiteCode);
         }else{
-            logger.warn("一车一单离线发货获取目的站点失败：" + JsonHelper.toJson(request));
+            log.warn("一车一单离线发货获取目的站点失败：{}" , JsonHelper.toJson(request));
             result = Boolean.FALSE;
         }
         return result;
@@ -193,7 +195,7 @@ public class OfflineAcarAbillDeliveryServiceImpl implements OfflineService {
      * @param offlineLogRequest
      * @return
      */
-    private OperationLog requestConvertOperationLog(OfflineLogRequest offlineLogRequest) {
+    private OperationLog requestConvertOperationLog(OfflineLogRequest offlineLogRequest,String methodName) {
         OperationLog operationLog = new OperationLog();
         operationLog.setBoxCode(offlineLogRequest.getBoxCode());
         operationLog.setWaybillCode(offlineLogRequest.getWaybillCode());
@@ -205,6 +207,7 @@ public class OfflineAcarAbillDeliveryServiceImpl implements OfflineService {
         operationLog.setCreateUser(offlineLogRequest.getUserName());
         operationLog.setCreateUserCode(offlineLogRequest.getUserCode());
         operationLog.setCreateTime(new Date());
+        operationLog.setMethodName(methodName);
 
         //因为后续的操作会根据操作时间冲掉这里的记录，所以这里将时间的long值减一，以确保不会被冲掉
         Date OperateTime = DateHelper.parseDate(offlineLogRequest.getOperateTime(), Constants.DATE_TIME_MS_FORMAT);

@@ -16,7 +16,7 @@ import java.util.Date;
 @Service
 public class ReprintRecordServiceImpl implements ReprintRecordService {
 
-    private final Logger logger = LoggerFactory.getLogger(ReprintRecordServiceImpl.class);
+    private final Logger log = LoggerFactory.getLogger(ReprintRecordServiceImpl.class);
 
     @Autowired
     private ReprintRecordDao rePrintRecordDao;
@@ -58,7 +58,7 @@ public class ReprintRecordServiceImpl implements ReprintRecordService {
                 redisManager.setex(cachedKey, 3 * 3600, barCode);
             }
         } catch (Exception e) {
-            logger.error("插入包裹补打记录表异常", e);
+            log.error("插入包裹补打记录表异常", e);
         }
     }
 }

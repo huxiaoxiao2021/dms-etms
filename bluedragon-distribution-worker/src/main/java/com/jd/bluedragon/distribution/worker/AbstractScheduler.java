@@ -1,23 +1,27 @@
 package com.jd.bluedragon.distribution.worker;
 
+import com.jd.bluedragon.distribution.task.domain.Task;
+import com.taobao.pamirs.schedule.IScheduleTaskDealMulti;
+import com.taobao.pamirs.schedule.TBScheduleManagerFactory;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextClosedEvent;
+import org.springframework.context.event.ContextRefreshedEvent;
+
+import javax.sql.DataSource;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.sql.DataSource;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import com.jd.bluedragon.distribution.task.domain.Task;
-import com.taobao.pamirs.schedule.IScheduleTaskDealMulti;
-import com.taobao.pamirs.schedule.TBScheduleManagerFactory;
-
-public abstract class AbstractScheduler<T> implements IScheduleTaskDealMulti<T> {
+public abstract class AbstractScheduler<T> implements IScheduleTaskDealMulti<T>,ApplicationListener{
     
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
     
     @Autowired
     private TBScheduleManagerFactory managerFactory;
@@ -25,19 +29,55 @@ public abstract class AbstractScheduler<T> implements IScheduleTaskDealMulti<T> 
      * 任务开关，默认开启
      */
     protected boolean open = true;
+    /**
+     * 尝试初始化次数，超过指定次数才抛出异常
+     */
+    protected int tryInitMaxTimes = 3;
     protected DataSource dataSource;
     protected String taskType;
     protected String ownSign;
     protected Integer type;
-    
+	/**
+	 * 标识是否处于激活状态，任务初始化成功并且spring容器初始化成功，才能正常运行
+	 */
+    protected boolean isActive = false;
+	
     public void init() throws Exception {
     	if(open){
-    		this.managerFactory.createTBScheduleManager(this.taskType, this.ownSign);
+    		int initTimes = 0;
+    		boolean hasInit = false;
+    		while(initTimes < tryInitMaxTimes && !hasInit){
+    			initTimes ++;
+    	    	try {
+    				this.managerFactory.createTBScheduleManager(this.taskType, this.ownSign);
+    				hasInit = true;
+    			} catch (Exception e) {
+    				log.error("任务[{}-{}]第{}次初始化失败！", this.taskType, this.ownSign, initTimes);
+    				log.error(e.getMessage(),e);
+    				//初始化失败，休眠100ms
+    				Thread.sleep(100);
+    			}
+    		}
+    		if(!hasInit){
+    			throw new Exception("任务["+ownSign+"-"+taskType+"]初始化失败！");
+    		}
     	}else{
-    		logger.warn("task["+ownSign+"-"+taskType+"] is not open!");
+    		log.warn("task[{}-{}] is not open!",ownSign,taskType);
     	}
     }
-    
+	@Override
+	public void onApplicationEvent(ApplicationEvent event) {
+		//监听初始化、刷新事件，isActive标识为true
+		if (event instanceof ContextRefreshedEvent) {
+			log.warn("Spring初始化完成，任务[{}-{}]开始执行！", this.taskType, this.ownSign);
+			isActive = true;
+		}
+		//监听关闭事件，停止异步缓冲任务
+		if (event instanceof ContextClosedEvent) {
+			log.warn("Spring关闭，任务[{}-{}]停止执行！", this.taskType, this.ownSign);
+			isActive = false;
+		}
+	}
     public List<Task> asList(Object[] taskArray) {
         if (taskArray == null) {
             return Collections.emptyList();
@@ -116,7 +156,7 @@ public abstract class AbstractScheduler<T> implements IScheduleTaskDealMulti<T> 
                     assigns.add(t);
                 }
             } catch (Exception e) {
-                this.logger.error("error!", e);
+                this.log.error("error!", e);
                 continue;
             }
         }
@@ -156,6 +196,18 @@ public abstract class AbstractScheduler<T> implements IScheduleTaskDealMulti<T> 
 	 */
 	public void setOpen(boolean open) {
 		this.open = open;
+	}
+	/**
+	 * @return the tryInitMaxTimes
+	 */
+	public int getTryInitMaxTimes() {
+		return tryInitMaxTimes;
+	}
+	/**
+	 * @param tryInitMaxTimes the tryInitMaxTimes to set
+	 */
+	public void setTryInitMaxTimes(int tryInitMaxTimes) {
+		this.tryInitMaxTimes = tryInitMaxTimes;
 	}
     
 }

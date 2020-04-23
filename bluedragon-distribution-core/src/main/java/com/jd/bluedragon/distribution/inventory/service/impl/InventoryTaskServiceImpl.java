@@ -11,11 +11,7 @@ import com.jd.bluedragon.distribution.api.response.inventory.InventoryTaskRespon
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.inventory.dao.InventoryTaskDao;
-import com.jd.bluedragon.distribution.inventory.domain.CooperateTypeEnum;
-import com.jd.bluedragon.distribution.inventory.domain.InventoryScopeEnum;
-import com.jd.bluedragon.distribution.inventory.domain.InventoryTask;
-import com.jd.bluedragon.distribution.inventory.domain.InventoryTaskCondition;
-import com.jd.bluedragon.distribution.inventory.domain.InventoryTaskStatusEnum;
+import com.jd.bluedragon.distribution.inventory.domain.*;
 import com.jd.bluedragon.distribution.inventory.service.InventoryTaskService;
 import com.jd.bluedragon.utils.BeanHelper;
 import com.jd.bluedragon.utils.DateHelper;
@@ -26,8 +22,8 @@ import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.report.domain.BaseEntity;
 import com.jd.ql.dms.report.inventory.domain.InventoryDirection;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -39,7 +35,7 @@ import java.util.UUID;
 
 @Service("inventoryTaskService")
 public class InventoryTaskServiceImpl extends BaseService<InventoryTask> implements InventoryTaskService {
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     /**
      * 盘点任务号前缀
@@ -94,6 +90,7 @@ public class InventoryTaskServiceImpl extends BaseService<InventoryTask> impleme
         heads.add("包裹数");
         heads.add("差异数");
         heads.add("盘点erp");
+        heads.add("时间范围（小时）");
         heads.add("创建时间");
         heads.add("完成时间");
 
@@ -112,6 +109,7 @@ public class InventoryTaskServiceImpl extends BaseService<InventoryTask> impleme
                 body.add(inventoryTask.getPackageSum());
                 body.add(inventoryTask.getExceptionSum());
                 body.add((inventoryTask.getCreateUserErp()));
+                body.add((inventoryTask.getHourRange()));
                 body.add(DateHelper.formatDate(inventoryTask.getCreateTime(), Constants.DATE_TIME_FORMAT));
                 body.add(DateHelper.formatDate(inventoryTask.getEndTime(), Constants.DATE_TIME_FORMAT));
                 resList.add(body);
@@ -129,7 +127,7 @@ public class InventoryTaskServiceImpl extends BaseService<InventoryTask> impleme
     public List<SiteEntity>  getInventoryDirectionList(Integer createSiteCode){
         List<SiteEntity> directionList = new ArrayList<>();
         BaseEntity<List<InventoryDirection>> baseEntity= inventoryJsfManager.queryInventoryDirectionList(createSiteCode);
-        logger.info("调用报表jsf接口获取盘点流向信息.参数：" + createSiteCode + ".返回值为:" + JSON.toJSONString(baseEntity));
+        log.info("调用报表jsf接口获取盘点流向信息.参数：{}.返回值为:{}",createSiteCode, JSON.toJSONString(baseEntity));
         if(baseEntity!= null && baseEntity.getData() != null){
             for(InventoryDirection direction : baseEntity.getData()){
                 SiteEntity siteEntity = new SiteEntity();
@@ -234,6 +232,11 @@ public class InventoryTaskServiceImpl extends BaseService<InventoryTask> impleme
             return result;
         }
 
+//        if (request.getHourRange() == null || request.getHourRange() <= 0) {
+//            result.toError("盘点时间范围必须大于0");
+//            return result;
+//        }
+
         List<InventoryTask> inventoryTaskList = null;
         InventoryTaskResponse response = new InventoryTaskResponse();
 
@@ -255,8 +258,6 @@ public class InventoryTaskServiceImpl extends BaseService<InventoryTask> impleme
                     task.setCreateUserErp(request.getUserErp());
                     task.setCreateUserName(request.getUserName());
                     task.setCooperateType(request.getCooperateType());
-                    task.setCreateTime(new Date());
-
                     directionList.add(new SiteEntity(task.getDirectionCode(), task.getDirectionName()));
 
                     //如果当前人对当前任务有过协助，则更新updateTime，否则写入
@@ -301,7 +302,7 @@ public class InventoryTaskServiceImpl extends BaseService<InventoryTask> impleme
             }
 
         } catch (Exception e) {
-            logger.warn("获取【" + request.getSiteName() + "】的基础资料信息失败！");
+            log.error("获取【{}】的基础资料信息失败！",request.getSiteName(),e);
         }
         inventoryTaskBasic.setInventoryTaskId(inventoryTaskId);
         inventoryTaskBasic.setCreateSiteCode(request.getSiteCode());
@@ -309,8 +310,12 @@ public class InventoryTaskServiceImpl extends BaseService<InventoryTask> impleme
         inventoryTaskBasic.setCreateUserCode(request.getUserCode());
         inventoryTaskBasic.setCreateUserErp(request.getUserErp());
         inventoryTaskBasic.setCreateUserName(request.getUserName());
-        inventoryTaskBasic.setCreateTime(new Date());
-        inventoryTaskBasic.setUpdateTime(inventoryTaskBasic.getCreateTime());
+        Date date = new Date();
+        if (request.getHourRange() != null && request.getHourRange() > 0) {
+            inventoryTaskBasic.setHourRange(request.getHourRange());
+            inventoryTaskBasic.setHourRangeTime(DateHelper.newTimeRangeHoursAgo(date, request.getHourRange()));
+        }
+        inventoryTaskBasic.setCreateTime(date);
         inventoryTaskBasic.setCooperateType(request.getCooperateType());
         inventoryTaskBasic.setInventoryScope(request.getInventoryScope());
         inventoryTaskBasic.setStatus(InventoryTaskStatusEnum.DOING.getStatusCode());

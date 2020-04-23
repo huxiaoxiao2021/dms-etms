@@ -9,8 +9,8 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 import java.util.Date;
@@ -19,7 +19,7 @@ import java.util.Map;
 
 public class Task implements java.io.Serializable, TaskModeAware{
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
     /**
 	 * 
 	 */
@@ -61,6 +61,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final Integer TASK_TYPE_PARTNER_WAY_BILL = 1600;// 运单号关联包裹信息
     public static final Integer TASK_TYPE_PARTNER_WAY_BILL_NOTIFY = 1601;// 运单号关联包裹回传
     public static final Integer TASK_TYPE_WEIGHT = 1160;// 称重信息回传运单中心
+    public static final Integer TASK_TYPE_WEIGHT_VOLUME = 1170;// 称重信息回传运单中心(整合
     public static final Integer TASK_TYPE_POP_PRINT_INSPECTION=1180;//平台打印 补验货数据
     
     /** 分拣相关　 */
@@ -178,6 +179,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final String TABLE_NAME_OFFLINE = "task_offline";
     public static final String TABLE_NAME_AUTOSORTING_HANDOVER = "task_handover";
     public static final String TABLE_NAME_WEIGHT = "task_weight";
+    public static final String TABLE_NAME_WEIGHT_VOLUME = "task_weight_volume";
     public static final String TABLE_NAME_GLOBAL_TRADE = "task_global_trade";
     public static final String TABLE_NAME_MESSAGE="task_message";
     public static final String TABLE_NAME_SCANNER_FRAME="task_scanner_frame";
@@ -225,6 +227,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final String TABLE_NAME_OFFLINE_SEQ = "SEQ_TASK_OFFLINE";
     public static final String TABLE_NAME_HANDOVER_SEQ = "SEQ_TASK_HANDOVER";
     public static final String TABLE_NAME_WEIGHT_SEQ = "SEQ_TASK_WEIGHT";
+    public static final String TABLE_NAME_WEIGHT_VOLUME_SEQ = "SEQ_TASK_WEIGHT_VOLUME";
     public static final String TABLE_NAME_GLOBAL_TRADE_SEQ = "SEQ_TASK_GLOBAL_TRADE";
     public static final String TABLE_NAME_MESSAGE_SEQ="SEQ_TASK_MESSAGE";
     public static final String TABLE_NAME_SCANNER_FRAME_SEQ ="SEQ_TASK_SCANNER_FRAME";
@@ -556,6 +559,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return Task.TABLE_NAME_SORTING_EXCEPTION;
         }else if(Task.TASK_TYPE_WEIGHT.equals(type)){
             return Task.TABLE_NAME_WEIGHT;
+        }else if (Task.TASK_TYPE_WEIGHT_VOLUME.equals(type)){
+            return Task.TABLE_NAME_WEIGHT_VOLUME;
         }else if(Task.TASK_TYPE_GLOBAL_TRADE.equals(type)){
             return Task.TABLE_NAME_GLOBAL_TRADE;
         }else if(Task.TASK_TYPE_MESSAGE.equals(type)){
@@ -618,6 +623,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return Task.TABLE_NAME_SORTING_EXCEPTION_SEQ;
         }else if(Task.TABLE_NAME_WEIGHT.equals(tableName)){
             return Task.TABLE_NAME_WEIGHT_SEQ;
+        }else if (Task.TABLE_NAME_WEIGHT_VOLUME.equals(tableName)) {
+            return Task.TABLE_NAME_WEIGHT_VOLUME_SEQ;
         }else if(Task.TABLE_NAME_GLOBAL_TRADE.equals(tableName)){
             return Task.TABLE_NAME_GLOBAL_TRADE_SEQ;
         }else if(Task.TABLE_NAME_MESSAGE.equals(tableName)){
@@ -800,7 +807,9 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return "PartnerWaybillSynchroTaskN";
         }else if(TASK_TYPE_WEIGHT.equals(type)){
             return "WeightTask";
-        }else if(TASK_TYPE_SORTING.equals(type)){
+        }else if(TASK_TYPE_WEIGHT_VOLUME.equals(type)){
+            return "WeightVolumeTask";
+        } else if(TASK_TYPE_SORTING.equals(type)){
             return "SortingTaskN";
         }else if(TASK_TYPE_SORTING_SPLIT.equals(type)){
             return "SortingSplitTaskN";
@@ -908,7 +917,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
         }
 
         //抛异常
-        logger.error("获取任务类型异常 "+allToString());
+        log.warn("获取任务类型异常:{} ",allToString());
         String errorMessage ="task type not found taskType:"+type;
         Profiler.businessAlarm("Task.getTaskNameByTaskType", System.currentTimeMillis(), errorMessage);
         return null;
@@ -930,7 +939,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
             }
         }catch (Exception e){
             Profiler.functionError(info);
-            logger.error("获取任务队列数异常 "+e.getMessage());
+            log.error("获取任务队列数异常 {}",e.getMessage());
         }finally {
             Profiler.registerInfoEnd(info);
         }

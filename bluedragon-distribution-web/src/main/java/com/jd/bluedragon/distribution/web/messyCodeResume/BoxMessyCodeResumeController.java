@@ -5,7 +5,8 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.box.dao.BoxDao;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.uim.annotation.Authorization;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,7 +22,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class BoxMessyCodeResumeController {
 
-    private final Logger logger = Logger.getLogger(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     BoxDao dao;
@@ -58,7 +59,7 @@ public class BoxMessyCodeResumeController {
             }
 
         } catch (Exception e) {
-            logger.error("箱号乱码处理失败", e);
+            log.error("箱号乱码处理失败", e);
             InvokeResult<Integer> result = new InvokeResult<Integer>();
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);

@@ -1,43 +1,34 @@
 package com.jd.bluedragon.distribution.inventory.controller;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
-import com.jd.bluedragon.distribution.basic.DataResolver;
-import com.jd.bluedragon.distribution.basic.ExcelDataResolverFactory;
-import com.jd.bluedragon.distribution.basic.PropertiesMetaDataFactory;
 import com.jd.bluedragon.distribution.inventory.domain.InventoryException;
 import com.jd.bluedragon.distribution.inventory.domain.InventoryExceptionCondition;
 import com.jd.bluedragon.distribution.inventory.service.InventoryExceptionService;
-import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.ReviewWeightSpotCheck;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckInfo;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.ReviewWeightSpotCheckService;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
-import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Controller
 @RequestMapping("/inventoryException")
 public class inventoryExceptionController extends DmsBaseController {
 
-    private static final Log logger = LogFactory.getLog(inventoryExceptionController.class);
+    private static final Logger log = LoggerFactory.getLogger(inventoryExceptionController.class);
 
     @Value("${waybill.trace.url:waybill.test.jd.com}")
     private String waybillTraceUrl;
@@ -71,7 +62,7 @@ public class inventoryExceptionController extends DmsBaseController {
         try {
             result = inventoryExceptionService.queryByPagerCondition(condition);
         } catch (Exception e) {
-            logger.error("获取清场异常记录分页数据异常", e);
+            log.error("获取清场异常记录分页数据异常", e);
         }
 
         return result;
@@ -84,7 +75,7 @@ public class inventoryExceptionController extends DmsBaseController {
     @RequestMapping(value = "/toExport", method = RequestMethod.POST)
     public ModelAndView toExport(InventoryExceptionCondition condition, Model model) {
 
-        logger.info("导出转运清场异常结果");
+        log.info("导出转运清场异常结果");
         try{
             List<List<Object>> resultList = inventoryExceptionService.getExportData(condition);
             model.addAttribute("filename", "转运清场异常统计表.xls");
@@ -92,7 +83,7 @@ public class inventoryExceptionController extends DmsBaseController {
             model.addAttribute("contents", resultList);
             return new ModelAndView(new DefaultExcelView(), model.asMap());
         }catch (Exception e){
-            logger.error("导出转运清场异常统计表失败:" + e.getMessage(), e);
+            log.error("导出转运清场异常统计表失败:", e);
             return null;
         }
     }
@@ -111,7 +102,7 @@ public class inventoryExceptionController extends DmsBaseController {
             LoginUser loginUser = getLoginUser();
             result.setData(inventoryExceptionService.handleException(records, loginUser));
         } catch (Exception e) {
-            logger.error("处理转运清场异常失败："+e.getMessage(),e);
+            log.error("处理转运清场异常失败：",e);
             result.toError("确认失败，服务异常！");
         }
         return result;

@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.waybill.service;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
+import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.waybill.domain.*;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -19,8 +20,8 @@ import com.jd.transboard.api.dto.Response;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -33,10 +34,19 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
     @Value("${no.collection.package.max.count:50}")
     private int noCollectionPackageMaxCount;
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    @Value("${inspection.collection.day.count:7}")
+    private int inspectionCollectionDayCount;
+
+    @Value("${inspection.sub.group.count:50}")
+    private int inspectionSubGroupCount;
+
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private SendDatailDao sendDatailDao;
+
+    @Autowired
+    private InspectionDao inspectionDao;
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
@@ -94,7 +104,7 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
         try {
             tcResponse = boardCombinationService.getBoxesByBoardCode(boardCode);
         } catch (Exception e) {
-            logger.error("通过TC的getBoxesByBoardCode接口获取板号【" + boardCode +"】的信息失败！", e);
+            log.error("通过TC的getBoxesByBoardCode接口获取板号【{}】的信息失败！",boardCode, e);
         }
         List<String> scannedPackageMoreThanOneList = new ArrayList<>();
 
@@ -148,7 +158,7 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
                                     } else {
                                         //查询失败
                                         String message = "板号：" + barCode + "上的包裹以及箱内包裹总数大于2W，无法计算差异！";
-                                        logger.error(message);
+                                        log.error(message);
                                         throw new WaybillNoCollectionException(message);
                                     }
                                 }
@@ -159,13 +169,13 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
 
                 } else {
                     //有可能扫的是运单号，扫运单号认为是齐的，同时也排除脏数据干扰
-                    logger.warn("遍历板号：" + barCode + "上的数据，" + barCode + "既不是包裹号，也不是箱号！");
+                    log.warn("遍历板号：{}上的数据，{}既不是包裹号，也不是箱号！",boardCode,barCode);
                 }
             }
         } else {
             //查询失败
             String message = "通过TC系统的接口获取板号【" + boardCode +"】的信息为空！";
-            logger.error(message);
+            log.error(message);
             throw new WaybillNoCollectionException(message);
         }
 
@@ -183,7 +193,7 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
                 String packageCode = entry.getValue();
                 int packageNum = WaybillUtil.getPackNumByPackCode(packageCode);
                 if (packageNum < 0) {
-                    logger.warn("无法计算出包裹数，请检查包裹号【" + packageCode + "】是否有误！");
+                    log.warn("无法计算出包裹数，请检查包裹号【{}】是否有误！",packageCode);
                     continue;
                 }
                 for (int i = 1; i <= packageNum; i++) {
@@ -204,6 +214,78 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
         }
 
         return waybillNoCollectionResult;
+    }
+
+    /*
+     *
+     * 根据运单号查询包裹验货不齐信息
+     *
+     * */
+    @Override
+    @JProfiler(jKey = "DMSWEB.WaybillNoCollectionInfoServiceImpl.getInspectionNoCollectionInfo", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public InspectionNoCollectionResult getInspectionNoCollectionInfo(WaybillNoCollectionCondition waybillNoCollectionCondition) {
+        InspectionNoCollectionResult inspectionNoCollectionResult = new InspectionNoCollectionResult();
+
+        //根据查询条件统计不齐的订单（验货）
+        List<WaybillNoCollectionInfo> waybillNoCollectionInfoList = inspectionDao.getWaybillNoCollectionInfo(waybillNoCollectionCondition.getCreateSiteCode(), waybillNoCollectionCondition.getWaybillCodeList(), this.inspectionCollectionDayCount);
+        //如果没有查询到不齐的运单，直接返回
+        if (waybillNoCollectionInfoList == null || waybillNoCollectionInfoList.isEmpty()) {
+            inspectionNoCollectionResult.setPackageTotal(0);
+            inspectionNoCollectionResult.setWaybillTotal(0);
+            inspectionNoCollectionResult.setPackageCodeList(new ArrayList<String>());
+            return inspectionNoCollectionResult;
+        }
+
+        inspectionNoCollectionResult = this.getInspectionNoCollectionPackageResult(waybillNoCollectionInfoList, waybillNoCollectionCondition);
+
+        return inspectionNoCollectionResult;
+    }
+
+    /*
+     *
+     * 根据批次查询包裹验货不齐信息
+     *
+     * */
+    @Override
+    @JProfiler(jKey = "DMSWEB.WaybillNoCollectionInfoServiceImpl.getInspectionNoCollectionInfoBySendCode", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public InspectionNoCollectionResult getInspectionNoCollectionInfoBySendCode(WaybillNoCollectionCondition waybillNoCollectionCondition, String sendCode) {
+        InspectionNoCollectionResult inspectionNoCollectionResult = new InspectionNoCollectionResult();
+
+        inspectionNoCollectionResult.setPackageTotal(0);
+        inspectionNoCollectionResult.setWaybillTotal(0);
+        inspectionNoCollectionResult.setPackageCodeList(new ArrayList<String>());
+        //根据始发、批次、获取所有的运单信息；
+        List<String> waybillList = sendDatailDao.getWaybillCodeBySendCode(sendCode);
+
+        if (waybillList == null || waybillList.isEmpty()) {
+            return inspectionNoCollectionResult;
+        }
+
+        int packageTotal = 0;
+        int waybillTotal = 0;
+        List<String> packageCodeList = new ArrayList<>();
+        List<List<String>> subList = this.groupList(waybillList, this.inspectionSubGroupCount);
+        for (List<String> list : subList) {
+            waybillNoCollectionCondition.setWaybillCodeList(list);
+            //根据查询条件统计不齐的订单（验货）
+            List<WaybillNoCollectionInfo> waybillNoCollectionInfoList = inspectionDao.getWaybillNoCollectionInfo(waybillNoCollectionCondition.getCreateSiteCode(), waybillNoCollectionCondition.getWaybillCodeList(), this.inspectionCollectionDayCount);
+
+            if (waybillNoCollectionInfoList != null && ! waybillNoCollectionInfoList.isEmpty()) {
+                InspectionNoCollectionResult inspectionNoCollectionResultTemp = this.getInspectionNoCollectionPackageResult(waybillNoCollectionInfoList, waybillNoCollectionCondition);
+                packageTotal += inspectionNoCollectionResultTemp.getPackageTotal();
+                waybillTotal += inspectionNoCollectionResultTemp.getWaybillTotal();
+                List<String> packageCodeListTemp = inspectionNoCollectionResultTemp.getPackageCodeList();
+                if (packageCodeListTemp != null && packageCodeListTemp.size() + packageCodeList.size() <= 2 * this.noCollectionPackageMaxCount) {
+                    packageCodeList.addAll(inspectionNoCollectionResultTemp.getPackageCodeList());
+                }
+            }
+        }
+
+        inspectionNoCollectionResult.setPackageTotal(packageTotal);
+        inspectionNoCollectionResult.setWaybillTotal(waybillTotal);
+        inspectionNoCollectionResult.setPackageCodeList(packageCodeList);
+
+        return inspectionNoCollectionResult;
     }
 
     /*
@@ -256,7 +338,7 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
                         //计算这一批不齐的运单，packageCodeResultList作为入参，方法结束后内容可能会被改变
                         generateNoCollectionPackageList(scannedPackageList, waybillNoCollectionInfoListTemp, packageCodeResultList);
                     } else {
-                        logger.warn("运单信息：" + JsonHelper.toJson(waybillNoCollectionInfo) + "，此时已补齐！");
+                        log.warn("运单信息：{}，此时已补齐！" ,JsonHelper.toJson(waybillNoCollectionInfo));
                     }
 
                     waybillNoCollectionInfoListTemp.clear();
@@ -270,6 +352,64 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
         waybillNoCollectionResult.setTotal(total);
         waybillNoCollectionResult.setPackageCodeList(packageCodeResultList);
         return waybillNoCollectionResult;
+    }
+
+    /*
+     * 根据不齐运单的运单信息计算包裹不齐的结果（验货）
+     *
+     * */
+    private InspectionNoCollectionResult getInspectionNoCollectionPackageResult(List<WaybillNoCollectionInfo> waybillNoCollectionInfoList, WaybillNoCollectionCondition waybillNoCollectionCondition) {
+        InspectionNoCollectionResult inspectionNoCollectionResult = new InspectionNoCollectionResult();
+
+        //存放缺少的包裹号
+        List<String> packageCodeResultList = new ArrayList<>();
+
+        //临时变量，用于分批查询运单下扫描过的包裹记录
+        List<WaybillNoCollectionInfo> waybillNoCollectionInfoListTemp = new ArrayList<>();
+        List<String> waybillCodeListTemp = new ArrayList<>();
+
+        //初始化总数
+        int total = 0;
+        //不齐的运单总数
+        int waybillCount = waybillNoCollectionInfoList.size();
+
+        for (int i = 0; i < waybillCount; i++) {
+            WaybillNoCollectionInfo waybillNoCollectionInfo = waybillNoCollectionInfoList.get(i);
+            String waybillCode = waybillNoCollectionInfo.getWaybillCode();
+
+            //如果不是运单号，跳过计算
+            if (! WaybillUtil.isWaybillCode(waybillCode)) {
+                continue;
+            }
+            //运单的包裹数
+            int packageNum = waybillNoCollectionInfo.getPackageNum();
+            //该运单下，数据库中记录的扫描包裹数
+            int scanCount = waybillNoCollectionInfo.getScanCount();
+            //如果当前缺少的包裹结果小于阈值，进行计算添加
+            if (packageCodeResultList.size() < this.noCollectionPackageMaxCount) {
+                waybillCodeListTemp.add(waybillCode);
+                waybillNoCollectionInfoListTemp.add(waybillNoCollectionInfo);
+
+                //每次计算十个不齐的运单，遍历到最后，把剩下不够十个的进行计算
+                if ((i > 0 && i % 10 == 0) || (i == waybillCount - 1)) {
+                    //取一次数据库的包裹扫描列表，特点为运单都是一单多件的
+                    List<String> scannedPackageList = this.getInspectedPackageNumMoreThanOne(waybillNoCollectionCondition.getCreateSiteCode(), waybillCodeListTemp);
+                    //由于实时计算的原因，两条SQL中间存在时间，当此处查库时有可能不齐的包裹被扫描上了，此时运单就是齐的，影响后面的总数计算，这种极端情况先不考虑了
+                    if (scannedPackageList != null && scannedPackageList.size() > 0) {
+                        //计算这一批不齐的运单，packageCodeResultList作为入参，方法结束后内容可能会被改变
+                        generateNoCollectionPackageList(scannedPackageList, waybillNoCollectionInfoListTemp, packageCodeResultList);
+                    } else {
+                        log.warn("运单信息：{}，此时已补齐！" ,JsonHelper.toJson(waybillNoCollectionInfo));
+                    }
+                }
+            }
+            //计算差值
+            total += (packageNum - scanCount);
+        }
+        inspectionNoCollectionResult.setWaybillTotal(waybillCount);
+        inspectionNoCollectionResult.setPackageTotal(total);
+        inspectionNoCollectionResult.setPackageCodeList(packageCodeResultList);
+        return inspectionNoCollectionResult;
     }
 
     /*
@@ -335,7 +475,7 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
             int packageNum = WaybillUtil.getPackNumByPackCode(currPackageCode);
 
             if (packageNum < 0) {
-                logger.warn("无法计算出包裹数，请检查包裹号【" + currPackageCode + "】是否有误！");
+                log.warn("无法计算出包裹数，请检查包裹号【{}】是否有误！",currPackageCode);
                 continue;
             }
 
@@ -402,7 +542,7 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
             lexicalOrder = this.getLexicalOrder(packageNum);
         }
         if(lexicalOrder.size() <= desireIndex){
-            logger.warn("lexicalOrder.size() <= desireIndex；packageNum：【" + packageNum + "】，请检查包裹号【" + currPackageCode + "】是否有误！");
+            log.warn("lexicalOrder.size() <= desireIndex；packageNum：【{}】，请检查包裹号【{}】是否有误！",packageNum,currPackageCode);
             return -1;
         }
         //从字典序数组中取出真正的字典序下的值，是一个期望值
@@ -411,7 +551,7 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
         int currLexicalOrderIndex = WaybillUtil.getCurrentPackageNum(currPackageCode);
         //如果该包裹的序号比包裹数还大，说明包裹号有问题，返回-1
         if (currLexicalOrderIndex > packageNum) {
-            logger.warn("计算出包裹序号大于包裹数【" + packageNum + "】，请检查包裹号【" + currPackageCode + "】是否有误！");
+            log.warn("计算出包裹序号大于包裹数【{}】，请检查包裹号【{}】是否有误！",packageNum,currPackageCode);
             return -1;
         }
         //如果当前包裹数字与期望值不同，期望值对应的包裹到当前包裹数字之间的包裹，都是没有被扫描到的包裹
@@ -470,7 +610,7 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
             //如果是B网或逆向单，返回ture
             return isBWaybill(waybillSign) || isReverseWaybill(waybillSign);
         } else {
-            logger.warn("获取【" + waybillCode + "】的运单信息失败，按B网运单处理");
+            log.warn("获取【{}】的运单信息失败，按B网运单处理",waybillCode);
         }
         return true;
     }
@@ -504,6 +644,18 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
     }
 
     /*
+     *
+     * 批量查询运单下，验货扫描过的一单多件的包裹号信息
+     *
+     * */
+    private List<String> getInspectedPackageNumMoreThanOne(Integer createSiteCode, List<String> waybillCodeList) {
+        WaybillNoCollectionCondition waybillNoCollectionCondition = new WaybillNoCollectionCondition();
+        waybillNoCollectionCondition.setCreateSiteCode(createSiteCode);
+        waybillNoCollectionCondition.setWaybillCodeList(waybillCodeList);
+        return inspectionDao.getInspectedPackageNumMoreThanOne(waybillNoCollectionCondition);
+    }
+
+    /*
     *
     * 查询运单接口，判断是否是B网面单
     *
@@ -521,7 +673,7 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
             }
 
         } catch (Exception e) {
-            this.logger.error("运单号【 " + waybillCode + "】调用运单WSS异常：", e);
+            this.log.error("运单号【{}】调用运单WSS异常：",waybillCode, e);
         }
 
         return bigWaybillDto;
@@ -566,8 +718,23 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
         } else if (packageCodeTemplate.contains("-")) {
             newPackageCode = packageCodeTemplate.replaceFirst("-\\d+-", "-" + index + "-");
         } else {
-            logger.warn("根据包裹号【" + packageCodeTemplate + "】，无法计算出新包裹，请检查包裹号是否符合包裹号标准！");
+            log.warn("根据包裹号【{}】，无法计算出新包裹，请检查包裹号是否符合包裹号标准！", packageCodeTemplate);
         }
         return newPackageCode;
+    }
+
+    private List<List<String>> groupList(List<String> list, int subSize) {
+        List<List<String>> listGroup = new ArrayList<>();
+        int size = list.size();
+        //子集合的长度
+        int toIndex = subSize;
+        for (int i = 0; i < list.size(); i += subSize) {
+            if (i + subSize > size) {
+                toIndex = size - i;
+            }
+            List<String> newList = list.subList(i, i + toIndex);
+            listGroup.add(newList);
+        }
+        return listGroup;
     }
 }

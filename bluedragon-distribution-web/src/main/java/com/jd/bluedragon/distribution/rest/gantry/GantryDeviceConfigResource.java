@@ -10,8 +10,8 @@ import com.jd.bluedragon.distribution.gantry.service.GantryDeviceConfigService;
 import com.jd.bluedragon.distribution.gantry.service.GantryDeviceService;
 import com.jd.bluedragon.utils.BeanHelper;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -32,7 +32,7 @@ import java.util.List;
 @Produces({MediaType.APPLICATION_JSON})
 public class GantryDeviceConfigResource {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     GantryDeviceConfigService gantryDeviceConfigService;
@@ -43,7 +43,7 @@ public class GantryDeviceConfigResource {
     @POST
     @Path("/gantryDeviceConfig/findAllGantryDeviceCurrentConfig")
     public GantryDeviceConfigResponse findAllGantryDeviceCurrentConfig(GantryDeviceConfigRequest request) {
-        logger.debug(request.toString());
+        log.debug(request.toString());
         GantryDeviceConfigResponse response = new GantryDeviceConfigResponse();
         response.setCode(JdResponse.CODE_OK);
         response.setMessage(JdResponse.MESSAGE_OK);
@@ -52,7 +52,7 @@ public class GantryDeviceConfigResource {
             response.setData(this.ok(list));
         } catch (Throwable ex) {
             String message = "获取龙门架" + request.toString() + ex.toString();
-            logger.error(message,ex);
+            log.error(message,ex);
             response.setCode(JdResponse.CODE_INTERNAL_ERROR);
             response.setMessage(message);
         }
@@ -102,7 +102,7 @@ public class GantryDeviceConfigResource {
     @POST
     @Path("/gantryDeviceConfig/updateLockStatus")
     public GantryDeviceConfigResponse updateLockStatus(GantryDeviceConfigRequest request) {
-        logger.debug(request.toString());
+        log.debug(request.toString());
         GantryDeviceConfigResponse response = new GantryDeviceConfigResponse();
         response.setCode(JdResponse.CODE_OK);
         response.setMessage(JdResponse.MESSAGE_OK);
@@ -122,7 +122,7 @@ public class GantryDeviceConfigResource {
             }
         } catch (Throwable ex) {
             String message = "更新龙门架状态失败" + request.toString() + ex.toString();
-            logger.error(message,ex);
+            log.error(message,ex);
             response.setCode(JdResponse.CODE_INTERNAL_ERROR);
             response.setMessage(message);
         }
@@ -132,7 +132,7 @@ public class GantryDeviceConfigResource {
     @POST
     @Path("/gantryDeviceConfig/updateBusinessType")
     public GantryDeviceConfigResponse updateBusinessType(GantryDeviceConfigRequest request) {
-        logger.debug(request.toString());
+        log.debug(request.toString());
         GantryDeviceConfigResponse response = new GantryDeviceConfigResponse();
         response.setCode(JdResponse.CODE_OK);
         response.setMessage(JdResponse.MESSAGE_OK);
@@ -150,7 +150,7 @@ public class GantryDeviceConfigResource {
             }
         } catch (Throwable ex) {
             String message = "更新龙门架状态失败" + request.toString() + ex.toString();
-            logger.error(message,ex);
+            log.error(message,ex);
             response.setCode(JdResponse.CODE_INTERNAL_ERROR);
             response.setMessage(message);
         }
@@ -183,8 +183,8 @@ public class GantryDeviceConfigResource {
     @POST
     @Path("/gantryDeviceConfig/addGantryDeviceConfig")
     public InvokeResult<List<com.jd.bluedragon.distribution.api.response.GantryDeviceConfig>> addGantryDeviceConfig(GantryDeviceConfigRequest request) {
-        if(logger.isInfoEnabled()) {
-            logger.info(request.toString());
+        if(log.isInfoEnabled()) {
+            log.info(request.toString());
         }
 
         InvokeResult<List<com.jd.bluedragon.distribution.api.response.GantryDeviceConfig>> response = new InvokeResult<List<com.jd.bluedragon.distribution.api.response.GantryDeviceConfig>>();
@@ -213,7 +213,7 @@ public class GantryDeviceConfigResource {
             }
         } catch (Throwable ex) {
             String message = "更新龙门架状态失败" + request.toString() + ex.toString();
-            logger.error(message,ex);
+            log.error(message,ex);
             response.setCode(JdResponse.CODE_INTERNAL_ERROR);
             response.setMessage(message);
         }
@@ -223,7 +223,7 @@ public class GantryDeviceConfigResource {
     @POST
     @Path("/gantryDeviceConfig/checkSendCode")
     public JdResponse checkSendCode(GantryDeviceConfigRequest request) {
-        logger.debug(request.toString());
+        log.debug(request.toString());
         JdResponse response = new JdResponse();
         try {
             GantryDeviceConfig gantryDeviceConfig = gantryDeviceConfigService.checkSendCode(request.getSendCode());
@@ -236,7 +236,7 @@ public class GantryDeviceConfigResource {
             }
         }catch (Throwable ex){
             String message = "更新龙门架状态失败" + request.toString() + ex.toString();
-            logger.error(message,ex);
+            log.error(message,ex);
             response.setCode(JdResponse.CODE_INTERNAL_ERROR);
             response.setMessage(message);
         }

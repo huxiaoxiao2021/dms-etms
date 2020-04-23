@@ -1,0 +1,161 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>日志查询</title>
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/paging/paging.css')">
+    <script type="text/javascript" src="#springUrl('/static/js/jquery-1.8.0.min.js')"></script>
+    <SCRIPT type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></SCRIPT>
+    <script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/paging/paging.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/utils.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/businesslog/log.js')"></script>
+
+</head>
+
+
+<body>
+<div id="breadcrumb">
+    <p>
+        <a href="javascript:void(0)">分拣管理</a>&nbsp;&gt;&nbsp;<a href="javascript:void(0)">日志查询</a>
+    </p>
+
+
+</div>
+<div id="content">
+    <div class="m">
+        <div class="tbl-n">
+            <form id="selectLogList" name="selectLogList" action="#springUrl('/offline/list')" method="GET">
+                <input type="hidden" id="pageNo" name="pageNo"/>
+                <input type="hidden" id="pageSize" name="pageSize"/>
+                $newLogPageTips
+                <table border="0" cellpadding="0" cellspacing="0" style="width: 100%;min-width:1100px;">
+                    <tbody>
+
+                    <tr>
+                        <th align="right">运单号：</th>
+                        <td>
+                            <input id="waybillCode" name="waybillCode" type="text" class="textField28"/>
+                        </td>
+                        <th align="right">包裹号：</th>
+                        <td>
+                            <input id="packageCode" name="packageCode" type="text" class="textField28"/>
+                        </td>
+                        <th align="right">箱号：</th>
+                        <td>
+                            <input id="boxCode" name="boxCode" type="text" class="textField28"/>
+                        </td>
+                        <th align="right">批次号：</th>
+                        <td>
+                            <input id="sendCode" name="sendCode" type="text" class="textField28"/>
+                        </td>
+                    </tr>
+                    <tr>
+
+
+                        <th align="right">任意关键字：</th>
+                        <td>
+                            <input id="otherKey" name="otherKey" class="select18">
+
+                            </input>
+                        </td>
+                        <th align="right">所属业务：</th>
+                        <td>
+                            <select id="biztype" name="biztype" class="select18">
+
+                            </select>
+                        </td>
+                        <th align="right">操作类型：</th>
+                        <td>
+                            <select id="operatetype" name="operatetype" class="select18">
+
+                            </select>
+                        </td>
+                    </tr>
+
+                    <tr>
+
+
+                        <th align="right">操作站点编码：</th>
+                        <td>
+                            <input id="siteCode" name="siteCode" type="text" class="textField28"/>
+                        </td>
+
+                        <th align="right">操作站点名称：</th>
+                        <td>
+                            <input id="siteName" name="siteName" type="text" class="textField28"/>
+                        </td>
+
+                        <th align="right">操作人姓名：</th>
+                        <td>
+                            <input id="operatorName" name="operatorName" type="text" class="textField28"/>
+                        </td>
+
+                    </tr>
+
+                    <tr>
+
+                        <th align="right">时间：</th>
+                        <td>
+                            <input type="text" id="startTime" name="startDate" style="width: 140px" class="Wdate"
+                                   onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss'})" value=""
+                                   realvalue="">
+                            ~
+                            <input type="text" id="endTime" name="endTime" style="width: 140px" class="Wdate"
+                                   onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss'})" value=""
+                                   realvalue=""></td>
+
+
+                        <td align="right"><input id="search" type="button" value="查询" class="btn_c"/>
+                    </tr>
+
+                    </tbody>
+                </table>
+            </form>
+        </div>
+    </div>
+    <div id="opening">
+        <div class="tbl-list">
+            <div class="tbl-bg">
+                <table cellspacing=0 cellpadding=0 style="width: 100%;min-width:1100px;" class="tb-x1">
+                    <thead>
+                    <tr>
+                        <th>业务节点</th>
+                        <th>操作类型</th>
+                        <th>运单号</th>
+                        <th>包裹号</th>
+                        <th>箱号</th>
+                        <th>批次号</th>
+                        <th>操作人</th>
+                        <th>操作站点编码</th>
+                        <th>操作站点名称</th>
+                        <th>请求时间</th>
+                        <th>响应时间</th>
+                        <th>响应时长</th>
+                        <th>状态</th>
+                        <th>Message</th>
+                        <th style="max-width: 450px;word-wrap:break-word;word-break:break-all;">请求参数</th>
+                        <th style="max-width: 450px;word-wrap:break-word;word-break:break-all;">返回值</th>
+                    </tr>
+                    </thead>
+                    <tbody id="logcontent">
+                    <div id="showloading" style="text-align: center;display:none">加载中</div>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div style="margin-left: 35%;">
+            <div id="pageTool" style="float: left;"></div>
+            <div id="dataTotal" style="margin-left: 5px;padding: 0 3px;display: inline-block;margin-top: 3px;"></div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

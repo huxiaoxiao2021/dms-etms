@@ -88,6 +88,11 @@
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
 
+    <bean id="WhiteListDao"
+          class="com.jd.bluedragon.distribution.whiteList.dao.WhiteListDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
     <bean id="operationLogDao"
           class="com.jd.bluedragon.distribution.operationLog.dao.OperationLogDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
@@ -274,6 +279,7 @@
 
     <bean id="loadBillDao" class="com.jd.bluedragon.distribution.globaltrade.dao.LoadBillDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+        <property name="sqlSessionTemplate" ref="unDivSqlSessionTemplate"/>
     </bean>
 
     <bean id="loadBillReadDao" class="com.jd.bluedragon.distribution.globaltrade.dao.LoadBillReadDao">
@@ -548,4 +554,70 @@
         <property name="sqlSession" ref="businessSqlSessionTemplate"/>
     </bean>
 
+    <!-- 商家称重量方白名单 -->
+    <bean id="merchantWeightAndVolumeWhiteListDao" class="com.jd.bluedragon.distribution.merchantWeightAndVolume.dao.MerchantWeightAndVolumeWhiteListDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
+    <!-- 中台过渡 -->
+    <bean id="middleEndSortingQueryDao" class="com.jd.bluedragon.distribution.middleend.sorting.dao.MiddleEndSortingDao"></bean>
+    <bean id="failoverSortingQueryDao" class="com.jd.bluedragon.distribution.middleend.sorting.dao.FailoverSortingDao"></bean>
+    <bean id="dynamicSortingQueryDao" class="com.jd.bluedragon.distribution.middleend.sorting.dao.DynamicSortingQueryDao">
+        <property name="sortingDao" ref="sortingDao"></property>
+        <property name="middleEndSortingDao" ref="middleEndSortingQueryDao"></property>
+        <property name="failoverSortingDao" ref="failoverSortingQueryDao"></property>
+    </bean>
+
+    <!-- 规则管理 -->
+    <bean id="ruleDao" class="com.jd.bluedragon.distribution.rule.dao.RuleDao">
+        <property name="sqlSession" ref="sessionTemplateBase" />
+    </bean>
+
+    <bean id="cancelWaybillDao" class="com.jd.bluedragon.distribution.waybill.dao.CancelWaybillDao">
+        <property name="sqlSession" ref="sessionTemplateBase" />
+    </bean>
+
+    <!-- 三方装箱明细 -->
+    <bean id="thirdBoxDetailDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.third.dao.impl.ThirdBoxDetailDaoImpl"/>
+    <!-- 逆向入库单 -->
+    <bean id="reverseStockInDetailDao" class="com.jd.bluedragon.distribution.reverse.dao.impl.ReverseStockInDetailDaoImpl">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
+    <bean id="interceptConfigInfoDao" class="com.jd.bluedragon.distribution.interceptconfig.dao.InterceptConfigInfoDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
+    <!-- KA单号校验记录 -->
+    <bean id="waybillCodeCheckDao" class="com.jd.bluedragon.distribution.financialForKA.dao.WaybillCodeCheckDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
+
+    <!--  businessCode 业务单号表  -->
+    <bean id="businessCodeDao" class="com.jd.bluedragon.distribution.businessCode.dao.BusinessCodeDao">
+        <property name="sqlSession" ref="sessionTemplate"/>
+        <property name="sequenceGenAdaptor" ref="sequenceGenAdaptor"/>
+    </bean>
+    <!--################################## bd_dms_business 相关DAO Start ############################################ -->
+    <bean id="businessBaseDao" class="com.jd.ql.dms.common.web.mvc.mybatis.BaseDao" abstract="true">
+        <property name="sqlSession" ref="sessionTemplateBusiness"/>
+    </bean>
+
+    <bean id="materialRelationDao" parent="businessBaseDao"
+          class="com.jd.bluedragon.distribution.material.dao.impl.MaterialRelationDaoImpl" />
+
+    <bean id="materialReceiveDao" parent="businessBaseDao"
+          class="com.jd.bluedragon.distribution.material.dao.impl.MaterialReceiveDaoImpl" />
+
+    <bean id="materialSendDao" parent="businessBaseDao"
+          class="com.jd.bluedragon.distribution.material.dao.impl.MaterialSendDaoImpl" />
+
+    <bean id="materialReceiveFlowDao" parent="businessBaseDao"
+          class="com.jd.bluedragon.distribution.material.dao.impl.MaterialReceiveFlowDaoImpl" />
+
+    <bean id="materialSendFlowDao" parent="businessBaseDao"
+          class="com.jd.bluedragon.distribution.material.dao.impl.MaterialSendFlowDaoImpl" />
+    <!--################################## bd_dms_business 相关DAO End ############################################ -->
 </beans>

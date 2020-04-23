@@ -1,14 +1,5 @@
 package com.jd.bluedragon.distribution.worker;
 
-import java.lang.reflect.Type;
-import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
 import com.google.gson.reflect.TypeToken;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
@@ -22,6 +13,14 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+import java.lang.reflect.Type;
+import java.util.List;
 
 /**
  * 验货worker
@@ -29,10 +28,9 @@ import com.jd.ump.profiler.proxy.Profiler;
  * @author wangzichen
  * 
  */
-@Service
 public class InspectionTask extends DBSingleScheduler {
 
-	private final static Logger logger = Logger.getLogger(InspectionTask.class);
+	private final static Logger log = LoggerFactory.getLogger(InspectionTask.class);
 
     private static final Type LIST_INSPECTIONREQUEST_TYPE=new TypeToken<List<InspectionRequest>>(){}.getType();
 
@@ -50,7 +48,7 @@ public class InspectionTask extends DBSingleScheduler {
     		CallerInfo callerInfo = ProfilerHelper.registerInfo("DmsWorker.Task.InspectionTask.execute",
     				Constants.UMP_APP_NAME_DMSWORKER);
 			try {
-				logger.info("验货work开始，task_id: " + task.getId());
+				log.info("验货work开始，task_id: {}" , task.getId());
 				//List<Inspection> inspections = inspectionService.parseInspections(task);
 				//inspectionService.inspectionCore(inspections);
                 if (task == null || StringUtils.isBlank(task.getBody())) {
@@ -64,7 +62,7 @@ public class InspectionTask extends DBSingleScheduler {
                     return true;
                 }
                 Task domain=new Task();
-
+                domain.setId(task.getId());
                 for (InspectionRequest request:middleRequests){
                     domain.setBody(JsonHelper.toJson(request));
                     taskExecute.execute(domain);
@@ -75,7 +73,7 @@ public class InspectionTask extends DBSingleScheduler {
                 sb.append(SPLIT_CHAR).append(task.getBoxCode());
                 sb.append(SPLIT_CHAR).append(task.getKeyword1());
                 sb.append(SPLIT_CHAR).append(task.getKeyword2());
-                logger.warn(sb.toString());
+                log.warn(sb.toString());
                 task.setExecuteCount(4);    //非法运单号异常讲执行次数设置为4
                 return false;
 			}catch (InspectionException inspectionEx){
@@ -84,12 +82,11 @@ public class InspectionTask extends DBSingleScheduler {
                 sb.append(SPLIT_CHAR).append(task.getBoxCode());
                 sb.append(SPLIT_CHAR).append(task.getKeyword1());
                 sb.append(SPLIT_CHAR).append(task.getKeyword2());
-                logger.warn(sb.toString());
+                log.warn(sb.toString());
 
                 return false;
             }catch (Exception e) {
-				logger.error("验货worker失败, task id: " + task.getId()
-						+ ". 异常信息: " + e.getMessage(), e);
+				log.error("验货worker失败, task id: {}. 异常信息:{} " ,task.getId(), e.getMessage(), e);
 				Profiler.functionError(callerInfo);
 				return false;
 			}finally{

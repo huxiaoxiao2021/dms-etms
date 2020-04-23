@@ -10,19 +10,17 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.text.MessageFormat;
 
 /**
  * Created by xumei3 on 2018/7/26.
  */
 @Service("operateHintTrackConsumer")
 public class OperateHintTrackConsumer extends MessageBaseConsumer {
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private DmsOperateHintTrackService dmsOperateHintTrackService;
@@ -36,23 +34,22 @@ public class OperateHintTrackConsumer extends MessageBaseConsumer {
     @Override
     public void consume(Message message) throws Exception {
         // 处理消息体
-        this.logger.debug("OperateHintTrackConsumer consume --> 消息Body为【"
-                + message.getText() + "】");
+        this.log.debug("OperateHintTrackConsumer consume --> 消息Body为【{}】",message.getText());
         if (message == null || "".equals(message.getText()) || null == message.getText()) {
-            this.logger.warn("OperateHintTrackConsumer consume -->消息为空");
+            log.warn("OperateHintTrackConsumer consume -->消息为空");
             return;
         }
         if (!JsonHelper.isJsonString(message.getText())) {
-            logger.warn(MessageFormat.format("OperateHintTrackConsumer consume -->消息体非JSON格式，内容为【{0}】", message.getText()));
+            log.warn("OperateHintTrackConsumer consume -->消息体非JSON格式，内容为【{}】", message.getText());
             return;
         }
         DmsOperateHintTrack track = JsonHelper.fromJson(message.getText(),DmsOperateHintTrack.class);
         if (track == null) {
-            this.logger.error("OperateHintTrackConsumer consume -->消息转换对象失败：" + message.getText());
+            this.log.warn("OperateHintTrackConsumer consume -->消息转换对象失败：{}" , message.getText());
             return;
         }
         if(StringHelper.isEmpty(track.getWaybillCode())){
-            this.logger.error("OperateHintTrackConsumer consume -->消息中没有运单号：" + message.getText());
+            this.log.warn("OperateHintTrackConsumer consume -->消息中没有运单号：{}" , message.getText());
             return;
         }
 

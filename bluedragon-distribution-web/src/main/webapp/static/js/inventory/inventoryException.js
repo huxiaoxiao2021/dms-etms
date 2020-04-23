@@ -358,7 +358,6 @@ function findSite(selectId,siteListUrl,initIdSelectId){
 
             $(selectId).select2({
                 placeholder:'请选择操作单位',
-                allowClear:true,
                 data:result
             });
 
@@ -394,7 +393,6 @@ function initOrg() {
 
             $('#org-select').select2({
                 placeholder: '请选择机构',
-                allowClear: true,
                 data: result
             });
 

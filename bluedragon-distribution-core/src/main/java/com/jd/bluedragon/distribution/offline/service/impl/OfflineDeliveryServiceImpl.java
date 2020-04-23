@@ -19,8 +19,8 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +31,7 @@ import java.util.List;
 @Service("offlineDeliveryService")
 public class OfflineDeliveryServiceImpl implements OfflineService {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private DeliveryService deliveryService;
@@ -60,7 +60,7 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
 		if (offlineLogRequest == null || offlineLogRequest.getBoxCode() == null
 				|| offlineLogRequest.getSiteCode() == null
 				|| offlineLogRequest.getBusinessType() == null) {
-			this.logger.error("OfflineDeliveryServiceImpl --> 传入参数有误！");
+			this.log.warn("OfflineDeliveryServiceImpl --> 传入参数有误！");
 			return Constants.RESULT_FAIL;
 		}
 
@@ -107,7 +107,7 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
 						receiveSiteCode = bigWaybillDto.getWaybill()
 								.getOldSiteId();
 					} else {
-						this.logger
+						this.log
 								.error("OfflineDeliveryServiceImpl --> 传入参数有误--原包【"
 										+ boxCode + "】预分拣站点问题！");
 						tempGoOn = Boolean.FALSE;
@@ -117,7 +117,7 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
 					// 正常箱号，根据箱号获取目的站点信息
 					Box box = this.boxService.findBoxByCode(boxCode);
 					if (box == null) {
-						this.logger
+						this.log
 								.error("OfflineDeliveryServiceImpl --> 传入参数有误--箱号【"
 										+ boxCode + "】不存在！");
 						tempGoOn = Boolean.FALSE;
@@ -127,7 +127,7 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
 					}
 				}
 				if (!tempGoOn) {
-					offlineLogs.add(requestToOffline(offlineLogRequest, Constants.RESULT_FAIL));
+					offlineLogs.add(requestToOffline(offlineLogRequest, Constants.RESULT_FAIL,"OfflineDeliveryServiceImpl#parseToTask"));
 					continue;
 				}
 
@@ -150,16 +150,16 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
 				offlineLogRequest.setTurnoverBoxCode(turnoverBoxCodes[i]);
 			}
 			sendMList.add(toSendDatail(offlineLogRequest));
-			offlineLogs.add(requestToOffline(offlineLogRequest, Constants.RESULT_SUCCESS));
-			operationLogs.add(RequestConvertOperationLog(offlineLogRequest));
+			offlineLogs.add(requestToOffline(offlineLogRequest, Constants.RESULT_SUCCESS,"OfflineDeliveryServiceImpl#parseToTask"));
+			operationLogs.add(RequestConvertOperationLog(offlineLogRequest,"OfflineDeliveryServiceImpl#parseToTask"));
 		}
 
 		if (sendMList.size() > 0) {
-			this.logger.info("OfflineDeliveryServiceImpl --> 开始写入发货信息");
+			this.log.info("OfflineDeliveryServiceImpl --> 开始写入发货信息");
 			this.deliveryService.dellDeliveryMessage(SendBizSourceEnum.OFFLINE_OLD_SEND, sendMList);
 			this.addOfflineLog(offlineLogs);
 			this.addOperationLogs(operationLogs);    //记录离线发货操作日志
-			this.logger.info("OfflineDeliveryServiceImpl --> 结束写入发货信息");
+			this.log.info("OfflineDeliveryServiceImpl --> 结束写入发货信息");
 			return Constants.RESULT_SUCCESS;
 		}
 
@@ -209,7 +209,7 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
 		return sendM;
 	}
 
-	private OfflineLog requestToOffline(OfflineLogRequest offlineLogRequest, Integer status) {
+	private OfflineLog requestToOffline(OfflineLogRequest offlineLogRequest, Integer status,String methodName) {
 		if (offlineLogRequest == null) {
 			return null;
 		}
@@ -238,6 +238,7 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
 		offlineLog.setVolume(offlineLogRequest.getVolume());
 		offlineLog.setWeight(offlineLogRequest.getWeight());
 		offlineLog.setTurnoverBoxCode(offlineLogRequest.getTurnoverBoxCode());
+		offlineLog.setMethodName(methodName);
 
 		offlineLog.setStatus(status);
 
@@ -261,7 +262,7 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
 	 * @param offlineLogRequest
 	 * @return
 	 */
-	private OperationLog RequestConvertOperationLog(OfflineLogRequest offlineLogRequest) {
+	private OperationLog RequestConvertOperationLog(OfflineLogRequest offlineLogRequest,String methodName) {
 		OperationLog operationLog = new OperationLog();
 		operationLog.setBoxCode(offlineLogRequest.getBoxCode());
 		operationLog.setWaybillCode(offlineLogRequest.getWaybillCode());

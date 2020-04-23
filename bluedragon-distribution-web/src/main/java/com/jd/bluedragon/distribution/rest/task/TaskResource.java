@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.rest.task;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.WaybillTraceManager;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.AutoSortingPackageDto;
@@ -11,45 +13,38 @@ import com.jd.bluedragon.distribution.auto.domain.UploadData;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.gantry.domain.GantryException;
 import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
+import com.jd.bluedragon.distribution.inspection.domain.InspectionAS;
+import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.common.authorization.RestAuthorization;
+import com.jd.etms.waybill.api.WaybillTraceApi;
+import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.dms.logger.external.LogEngine;
+import com.jd.fastjson.JSONObject;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.time.DateUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.jd.bluedragon.distribution.auto.domain.UploadData.NOT_PACKAGECODE_BOXCDOE;
 import static com.jd.bluedragon.distribution.auto.domain.UploadData.NOT_PACKAGECODE_BOXCDOE_MESSAGE;
@@ -60,7 +55,7 @@ import static com.jd.bluedragon.distribution.auto.domain.UploadData.NOT_PACKAGEC
 @Produces({MediaType.APPLICATION_JSON})
 public class TaskResource {
 
-    private final Logger logger = Logger.getLogger(TaskResource.class);
+    private final Logger log = LoggerFactory.getLogger(TaskResource.class);
 
     @Autowired
     private TaskService taskService;
@@ -76,6 +71,14 @@ public class TaskResource {
 
     @Autowired
     private GantryExceptionService gantryExceptionService;
+    @Autowired
+    private WaybillTraceManager waybillTraceManager;
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
+    @Autowired
+    private LogEngine logEngine;
 
 
     @POST
@@ -92,6 +95,47 @@ public class TaskResource {
         return this.toTaskResponse(new Task());
     }
 
+    /**
+     * 分拣机验货任务
+     * @param request
+     * @return
+     */
+    @JProfiler(jKey = "Bluedragon_dms_center.dms.method.task.autoAddTask", mState = {
+            JProEnum.TP, JProEnum.FunctionError})
+    @POST
+    @Path("/autoAddInspectionTask")
+    public TaskResponse autoAddInspectionTask(TaskRequest request){
+        TaskResponse response = null;
+        if (StringUtils.isBlank(request.getBody())) {
+            response = new TaskResponse(JdResponse.CODE_PARAM_ERROR, "参数错误：body内容为空");
+            return response;
+        }
+        List<InspectionAS> inspections = JsonHelper.jsonToList(request.getBody(), InspectionAS.class);
+        if(CollectionUtils.isEmpty(inspections)){
+            response = new TaskResponse(JdResponse.CODE_PARAM_ERROR, "body格式错误，内容反序列化后为空");
+            return response;
+        }
+        //过滤妥投的运单
+        Iterator<InspectionAS> it = inspections.iterator();
+        while (it.hasNext()){
+            InspectionAS inspection = it.next();
+            String waybillCode = WaybillUtil.getWaybillCode(inspection.getPackageBarOrWaybillCode());
+            if(StringUtils.isBlank(waybillCode)){
+                log.warn("验货数据{}非包裹或运单号", inspection.getPackageBarOrWaybillCode());
+                it.remove();
+            }
+            if(waybillTraceManager.isWaybillFinished(waybillCode)){
+                log.warn("运单{}已妥投", waybillCode);
+                it.remove();
+            }
+        }
+        if(inspections.size() ==0){
+            return new TaskResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK,
+                    DateHelper.formatDateTime(new Date()));
+        }
+        request.setBody(JsonHelper.toJson(inspections));
+        return add(request);
+    }
     @JProfiler(jKey = "Bluedragon_dms_center.dms.method.task.addPack", mState = {
             JProEnum.TP, JProEnum.FunctionError})
     @SuppressWarnings("unchecked")
@@ -102,8 +146,8 @@ public class TaskResource {
         CallerInfo info = Profiler.registerInfo("Bluedragon_dms_center.dms.method.task.add", false, true);
 
         Assert.notNull(request, "request must not be null");
-        if (logger.isInfoEnabled()) {
-            logger.info("TaskRequest [" + JsonHelper.toJson(request) + "]");
+        if (log.isInfoEnabled()) {
+            log.info("TaskRequest [{}]",JsonHelper.toJson(request));
         }
 
         TaskResponse response = null;
@@ -139,6 +183,53 @@ public class TaskResource {
                             + Constants.PUNCTUATION_CLOSE_BRACKET;
                     this.taskAssemblingAndSave(request, eachJson);
                 }
+            } else if (Task.TASK_TYPE_OFFLINE.equals(request.getType())) {
+                //离线任务 处理操作时间
+                long startTime = System.currentTimeMillis();
+
+                Map<String, Object> itemTask = (Map<String, Object>) element;
+                String operateTime = (String) itemTask.get("operateTime");
+                String dateFormat = DateHelper.getDateFormat(operateTime);
+
+                if (StringHelper.isNotEmpty(dateFormat)) {
+                    String newOperateTime = DateHelper.formatDate(
+                            DateHelper.adjustTimeToNow(
+                                    DateHelper.parseDate(operateTime,dateFormat),
+                                    uccPropertyConfiguration.getOfflineTaskOperateTimeCorrectHours()),
+                            dateFormat
+                    );
+                    if (StringHelper.isNotEmpty(newOperateTime) && !newOperateTime.equals(operateTime)) {
+                        itemTask.put("operateTime",newOperateTime);
+
+                        log.warn("离线任务的操作时间【{}】超过了设定上传时间范围【{}】，已经被重置当前系统时间【{}】",
+                                operateTime, uccPropertyConfiguration.getOfflineTaskOperateTimeCorrectHours(), newOperateTime );
+                        log.warn("离线任务上传操作时间纠正，原始任务消息为：{}",JsonHelper.toJson(element));
+
+                        JSONObject logRequest=new JSONObject();
+                        logRequest.putAll(itemTask);
+
+                        JSONObject logResponse=new JSONObject();
+                        logResponse.put("originOperateTime", operateTime);
+                        logResponse.put("correctOperateTime", newOperateTime);
+
+                        BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
+                                .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.OTHER_OTHER_OFFLINE)
+                                .methodName("TaskResource#add")
+                                .operateRequest(logRequest)
+                                .operateResponse(logResponse)
+                                .processTime(System.currentTimeMillis(),startTime)
+                                .build();
+
+                        logEngine.addLog(businessLogProfiler);
+
+                    }
+                    String eachJson = Constants.PUNCTUATION_OPEN_BRACKET
+                            + JsonHelper.toJson(itemTask)
+                            + Constants.PUNCTUATION_CLOSE_BRACKET;
+                    this.taskAssemblingAndSave(request, eachJson);
+                } else {
+                    log.warn("未知的离线任务时间格式【{}】，请注意代码适配问题。",operateTime);
+                }
             } else {
                 String eachJson = Constants.PUNCTUATION_OPEN_BRACKET
                         + JsonHelper.toJson(element)
@@ -152,10 +243,10 @@ public class TaskResource {
     }
 
     private void taskAssemblingAndSave(TaskRequest request, String jsonStr) {
-        logger.warn("[" + request.getType() + "]" + jsonStr);
+        log.info("taskAssemblingAndSave:[{}]{}" ,request.getType(), jsonStr);
         Task task = this.taskService.toTask(request, jsonStr);
         if (task.getBoxCode() != null && task.getBoxCode().length() > Constants.BOX_CODE_DB_COLUMN_LENGTH_LIMIT) {
-            logger.warn("箱号超长，无法插入任务，参数：" + JsonHelper.toJson(task));
+            log.warn("箱号超长，无法插入任务，参数：{}" , JsonHelper.toJson(task));
         } else {
             this.taskService.add(task, true);
         }
@@ -255,7 +346,9 @@ public class TaskResource {
         Assert.notNull(request, "autosorting task request must not be null");
         //加入监控，开始
         CallerInfo info = Profiler.registerInfo("Bluedragon_dms_center.dms.method.astask.add", false, true);
-        this.logger.info("总部接口接收到自动分拣机传来的交接数据,数据 ：" + JsonHelper.toJson(request));
+        if(log.isInfoEnabled()){
+            this.log.info("总部接口接收到自动分拣机传来的交接数据,数据 ：{}" , JsonHelper.toJson(request));
+        }
         TaskResponse response = null;
         if (StringUtils.isBlank(request.getBody())) {
             response = new TaskResponse(JdResponse.CODE_PARAM_ERROR,
@@ -266,7 +359,7 @@ public class TaskResource {
             taskService.addInspectSortingTask(request);
         } catch (Exception ex) {
             Profiler.functionError(info);
-            logger.error("总部接口接收到自动分拣机传来的交接数据插入分拣交接数据失败。原因 " + ex);
+            log.error("总部接口接收到自动分拣机传来的交接数据插入分拣交接数据失败：{}" , JsonHelper.toJson(request), ex);
             response = new TaskResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
             return response;
         }finally {
@@ -291,7 +384,7 @@ public class TaskResource {
             taskService.addInspectSortingTaskDirectly(packageDtos);
         } catch (Exception e) {
             Profiler.functionError(info);
-            logger.warn("智能分拣线插入交接、分拣任务失败，原因"+JsonHelper.toJson(packageDtos), e);
+            log.error("智能分拣线插入交接、分拣任务失败，原因:{}",JsonHelper.toJson(packageDtos), e);
             return new TaskResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         }finally {
             Profiler.registerInfoEnd(info);
@@ -299,6 +392,8 @@ public class TaskResource {
         return new TaskResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK,
                 DateHelper.formatDateTime(new Date()));
     }
+
+
 
     /**
      * 龙门加任务插入
@@ -348,10 +443,9 @@ public class TaskResource {
             //非包裹号和箱号不处理
             if (!WaybillUtil.isPackageCode(domain.getBarCode()) && !BusinessUtil.isBoxcode(domain.getBarCode())) {
                 result.customMessage(NOT_PACKAGECODE_BOXCDOE, NOT_PACKAGECODE_BOXCDOE_MESSAGE);
-                logger.info(MessageFormat.format("龙门架上传接口，包裹号{0}非法[非包裹号和箱号]", domain.getBarCode()));
+                log.warn("龙门架上传接口，包裹号{}非法[非包裹号和箱号]", domain.getBarCode());
                 return result;
             }
-
             //added by hanjiaxing3 2018.05.04
             Date scannerTime = new Date(DateHelper.adjustTimestampToJava(domain.getScannerTime().getTime()));
             String daysStr = PropertiesHelper.newInstance().getValue("GANTRY_CHECK_DAYS");
@@ -361,16 +455,16 @@ public class TaskResource {
                     days = Integer.parseInt(daysStr);
                 }
                 catch (Exception e) {
-                    logger.error("验货时间校验常量转换失败！daysStr:" + daysStr, e);
+                    log.error("验货时间校验常量转换失败！daysStr:{}" , daysStr, e);
                 }
 
             }
             //比调整后的时间还早，说明上传时间有问题
             if (DateHelper.compareAdjustDate(scannerTime, days) < 0) {
                 scannerTime = new Date();
-                GantryException gantryException = this.convert2GantryException(domain);
+                GantryException gantryException = this.convert2GantryException(domain,7);
                 gantryExceptionService.addGantryException(gantryException);
-                logger.warn("验货时间早于调整后的时间！时间调整数为：" + days.toString() + JsonHelper.toJsonUseGson(domain));
+                log.warn("验货时间早于调整后的时间！时间调整数为：{},domain={}" , days.toString() , JsonHelper.toJson(domain));
             }else {
                 scannerTime = correctScannerTimeHeaderDate(scannerTime, date, registerNo);
             }
@@ -388,7 +482,7 @@ public class TaskResource {
             gantryScanPackageMQ.sendOnFailPersistent(domain.getBarCode(), JsonHelper.toJsonUseGson(domain));
 
         } catch (Throwable throwable) {
-            logger.error("龙门架自动发货任务上传", throwable);
+            log.error("龙门架自动发货任务上传异常:{}", JsonHelper.toJson(domain), throwable);
             result.error(throwable);
         }
         return result;
@@ -415,23 +509,22 @@ public class TaskResource {
             Date gantryDate = null;
             gantryDate = DateHelper.parseDateTime(headerDate);
             if(gantryDate == null){
-                logger.info("headerDate 转 date 失败headerDate:" + headerDate);
+                log.warn("headerDate 转 date 失败headerDate:{}" , headerDate);
                 return scannerTime;
             }
             long deviationMillSecond = System.currentTimeMillis() - gantryDate.getTime();
             int deviationSecond = (int)deviationMillSecond/1000;
             Date scannerTimeAfterCorrect = DateUtils.addSeconds(scannerTime, deviationSecond);
-            logger.info(MessageFormat.format("registerNo:{0} 扫描时间：{1},校准为:{2}", registerNo,
+            log.info("registerNo:{} 扫描时间：{},校准为:{}", registerNo,
                     DateHelper.formatDateTimeMs(scannerTime),
-                    DateHelper.formatDateTimeMs(scannerTimeAfterCorrect)
-            ));
+                    DateHelper.formatDateTimeMs(scannerTimeAfterCorrect));
             if(scannerTimeAfterCorrect.getTime() > System.currentTimeMillis()){
                 return new Date();
             }
             return scannerTimeAfterCorrect;
         }catch (Exception e){
-            logger.error(MessageFormat.format("校准龙门架时间时异常：scannerTime：{0} headerDate：{1}, registerNo:{2}",
-                    DateHelper.formatDateTimeMs(scannerTime), headerDate, registerNo),e);
+            log.error("校准龙门架时间时异常：scannerTime：{} headerDate：{}, registerNo:{}",
+                    DateHelper.formatDateTimeMs(scannerTime), headerDate, registerNo,e);
         }
         return scannerTime;
 
@@ -450,7 +543,7 @@ public class TaskResource {
                 result.customMessage(0, "保存数据失败");
             }
         } catch (Throwable throwable) {
-            logger.error("分拣机自动发货任务上传", throwable);
+            log.error("分拣机自动发货任务上传：{}",JsonHelper.toJson(domain), throwable);
             result.error(throwable);
         }
         return result;
@@ -485,7 +578,7 @@ public class TaskResource {
      * @param domain
      * @return
      */
-    private GantryException convert2GantryException(UploadData domain) {
+    private GantryException convert2GantryException(UploadData domain, int type) {
         Date date = new Date();
 
         GantryException gantryException = new GantryException();
@@ -500,8 +593,7 @@ public class TaskResource {
 
         gantryException.setCreateSiteCode(domain.getDistributeId() == null ? 0 : domain.getDistributeId().longValue());
         gantryException.setOperateTime(domain.getScannerTime());
-        //操作时间异常：7
-        gantryException.setType(7);
+        gantryException.setType(type);
         return gantryException;
     }
 

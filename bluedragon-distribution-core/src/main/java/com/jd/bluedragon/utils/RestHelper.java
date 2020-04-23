@@ -2,13 +2,9 @@ package com.jd.bluedragon.utils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.*;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
@@ -21,7 +17,7 @@ import java.lang.reflect.Type;
  * Created by yangbo7 on 2016/7/5.
  */
 public class RestHelper {
-    private final static Log logger = LogFactory.getLog(RestHelper.class);
+    private final static Logger log = LoggerFactory.getLogger(RestHelper.class);
     private RestHelper() {
     }
 
@@ -56,9 +52,11 @@ public class RestHelper {
             if (result.getStatusCode() == HttpStatus.OK) {
                 return JSON.parseObject(JSON.toJSONString(result.getBody()), typeReference);
             }
-            logger.error("rest jsonPostForEntity  fail url:" + url + "result:" + JsonHelper.toJson(result));
+            if(log.isDebugEnabled()){
+                log.debug("rest jsonPostForEntity  fail url:{}，result:{}",url, JsonHelper.toJson(result));
+            }
         } catch (Exception e) {
-            logger.error("jsonPostForEntity-error" + url + "result:" + JsonHelper.toJson(request),e);
+            log.error("jsonPostForEntity-error url:{}，result:{}",url, JsonHelper.toJson(request),e);
         }
         return null;
     }
@@ -82,7 +80,7 @@ public class RestHelper {
                 return JsonHelper.fromJsonUseGson(JsonHelper.toJson(result.getBody()), typeReference);
             }
         } catch (Exception e) {
-            logger.error("HTTP post has something wrong when access " + url ,e);
+            log.error("HTTP post has something wrong when access :{}" , url ,e);
         }
         return null;
     }

@@ -35,16 +35,16 @@ public class ReviewWeightSpotCheckDao extends BaseDao<SpotCheckInfo> {
     }
 
     /**
-     * 根据机构编码查询
-     * @param siteCode
+     * 根据机构编码和业务类型查询
+     * @param spotCheckInfo
      * @return
      */
-    public SpotCheckInfo queryBySiteCode(Integer siteCode) {
-        return this.getSqlSession().selectOne(namespace + ".queryBySiteCode", siteCode);
+    public SpotCheckInfo queryBySiteCode(SpotCheckInfo spotCheckInfo) {
+        return this.getSqlSession().selectOne(namespace + ".queryBySiteCode", spotCheckInfo);
     }
 
     /**
-     * 根据机构编码更新
+     * 根据机构编码和业务类型更新
      * @param spotCheckInfo
      * @return
      */

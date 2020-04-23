@@ -1,31 +1,26 @@
 package com.jd.bluedragon.distribution.rest.monitor;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.MonitorRequest;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
-import com.jd.bluedragon.distribution.base.domain.PdaStaff;
 import com.jd.bluedragon.distribution.base.service.BaseService;
-import com.jd.bluedragon.distribution.popAbnormal.ws.client.ObjectFactory;
 import com.jd.bluedragon.utils.PropertiesHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.xml.security.utils.Base64;
 import org.jboss.resteasy.annotations.GZIP;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-import org.apache.xml.security.utils.Base64;
-import org.springframework.http.HttpHeaders;
 
-import com.jd.bluedragon.Constants;
-
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import java.io.UnsupportedEncodingException;
-import java.sql.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,22 +49,21 @@ public class MonitorResource {
     @Autowired
     private BaseService baseService;
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@GET
 	@Path("/monitor/getRemoteRes")
 	@GZIP
 	public Object getRemoteRes(@QueryParam("url") String url) {
         Object result = null;
-        logger.info("monitor getRemoteRes start!url:"+url);
+        log.info("monitor getRemoteRes start!url:{}", url);
 		RestTemplate template = new RestTemplate();
         try {
             result = template.getForObject(url, Object.class);
-            logger.debug("result=" + result);
+            log.debug("result={}", result);
         }catch( Exception e ){
-        	logger.error("调用远程方法出错！", e);
+        	log.error("调用远程方法出错！", e);
         }
-        logger.info("monitor getRemoteRes end!url:"+url);
         return result;
 	}
 
@@ -84,21 +78,20 @@ public class MonitorResource {
     @GZIP
     public Object getRemoteURL(String url){
         Object result = null;
-        logger.info("monitor getRemoteRes start!url:"+url);
+        log.info("monitor getRemoteRes start!url:{}", url);
         RestTemplate template = new RestTemplate();
         try {
             result = template.getForObject(url, Object.class);
-            logger.debug("result=" + result);
+            log.debug("result={}", result);
         }catch( Exception e ){
-            logger.error("调用远程方法出错！", e);
+            log.error("调用远程方法出错！", e);
         }
-        logger.info("monitor getRemoteRes end!url:"+url);
         return result;
     }
 
     /**
      * POST 请求，可以测试本地分拣中心是否可用
-     * @param request 完整的URL请求data数据中包含1url2请求参数3erp帐户密码（或者成功能登录erp后的token）
+     * @param data 完整的URL请求data数据中包含1url2请求参数3erp帐户密码（或者成功能登录erp后的token）
      * 记日志，限制请求次数，仅为查询线上问题而实现此方法
      * @return
      * */
@@ -114,7 +107,7 @@ public class MonitorResource {
             String postData = request.getPostData();
             String url = request.getUrl();
 
-            logger.info("monitor getRemoteRes start!url:" + postData);
+            log.info("monitor getRemoteRes start!url:{}", postData);
             try {
 
                 RestTemplate template = new RestTemplate();
@@ -127,14 +120,11 @@ public class MonitorResource {
                 if (null != response && null != response.getBody()) {
                     result=  response.getBody();
                 }
-                logger.debug("result=" + JsonHelper.toJson(result));
             } catch (Exception e) {
-                logger.error("调用远程方法出错！", e);
+                log.error("调用远程方法出错！", e);
             }
-            logger.info("monitor getRemoteRes end!url:" + postData);
-        }
-        catch (Exception ex){
-            logger.error(ex+data);
+        }catch (Exception ex){
+            log.error(data,ex);
             return  new JdResponse(JdResponse.CODE_SERVICE_ERROR,JdResponse.MESSAGE_SERVICE_ERROR);
         }
         return result;

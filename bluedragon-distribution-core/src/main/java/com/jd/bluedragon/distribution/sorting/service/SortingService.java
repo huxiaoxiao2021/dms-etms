@@ -1,11 +1,13 @@
 package com.jd.bluedragon.distribution.sorting.service;
 
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
+import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
+import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.task.domain.Task;
+
 import java.util.List;
-import java.util.Map;
 
 public interface SortingService {
 	
@@ -35,9 +37,6 @@ public interface SortingService {
     /** 通过操作站点编号、箱号，查询对应分拣信息dms报表 */
     List<Sorting> findOrderDetail(Sorting sorting);
     
-    /** 通过操作站点编号、箱号，查询对应分拣信息dms报表 */
-    List<Sorting> findOrder(Sorting sorting);
-
     /**
      * 根据箱号获取包裹信息
      * @param boxCode
@@ -89,9 +88,9 @@ public interface SortingService {
 	 * @param sorting
 	 * @param logType
 	 */
-	public void addOpetationLog(Sorting sorting, Integer logType);
+	public void addOpetationLog(Sorting sorting, Integer logType,String methodName);
 
-	public void addOpetationLog(Sorting sorting, Integer logType, String remark);
+	public void addOpetationLog(Sorting sorting, Integer logType, String remark,String methodName);
 
 	public boolean taskToSorting(List<Sorting> sortings);
 	
@@ -133,8 +132,13 @@ public interface SortingService {
      */
     public List<Sorting> findByWaybillCodeOrPackageCode(Integer createSiteCode,String waybillCode, String packageCode);
 
-    /**分页查询分拣任务*/
-    public List<Sorting> findPageSorting(Map<String,Object> params);
+    /**
+     * 根据包裹号查询一条sorting记录
+     * @param packageCode
+     * @param createSiteCode
+     * @return
+     */
+    public Sorting getOneSortingByPackageCode(String packageCode,Integer createSiteCode);
 
     /**
      * 处理任务数据
@@ -158,6 +162,21 @@ public interface SortingService {
      * @return
      */
     List<String> getWaybillCodeListByBoxCode(String boxCode);
+
+    /**
+     * 根据箱号获取包裹号列表
+     *
+     * @param boxCode
+     * @return
+     */
+    List<String> getPackageCodeListByBoxCode(String boxCode);
+
+    /**
+     * 根据运单号，查询所有包裹号
+     * @param sorting 运单号
+     * @return
+     */
+    List<Sorting>  findPackageCodesByWaybillCode(Sorting sorting);
 
     void saveOrUpdate(Sorting sorting);
 
@@ -186,4 +205,11 @@ public interface SortingService {
      * @return
      */
     boolean executeSortingSuccess(Task task);
+
+    /**
+     * 分拣校验
+     * @param pdaOperateRequest
+     * @return
+     */
+    SortingJsfResponse check(PdaOperateRequest pdaOperateRequest);
 }

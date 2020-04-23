@@ -52,7 +52,7 @@ import java.util.Date;
 @Produces({MediaType.APPLICATION_JSON})
 public class PackageResource {
 
-    private final Logger logger= LoggerFactory.getLogger(PackageResource.class);
+    private final Logger log = LoggerFactory.getLogger(PackageResource.class);
 
     @Autowired
     private TaskService taskService;
@@ -90,7 +90,7 @@ public class PackageResource {
                                      @PathParam("operateName") String operateName){
         JdResponse jdResponse = new JdResponse();
         if(StringHelper.isEmpty(barCode)){
-            logger.error("包裹号"+barCode+"为空，不能触发包裹补打的全程跟踪!");
+            log.warn("包裹号为空，不能触发包裹补打的全程跟踪!");
             jdResponse.setCode(400);
             jdResponse.setMessage("包裹号"+barCode+"为空，不能触发包裹补打的全程跟踪!");
             return jdResponse;
@@ -127,13 +127,16 @@ public class PackageResource {
                         BusinessUtil.isSignChar(waybillSign,8,'2') ||             // 2 修改地址和其他
                         BusinessUtil.isSignChar(waybillSign,8,'3')                // 3 未修改地址仅修改其他
                 )){
-                    if(barCode != null && operateName != null){
-                        taskService.add(this.toAddressModTask(barCode, operateName));
+                    if(barCode != null && operateName != null && operatorId !=null && !Integer.valueOf(-1).equals(operatorId)){
+                        taskService.add(this.toAddressModTask(barCode, bDto.getSiteCode(), bDto.getSiteName(), operatorId, operateName));
+                    }
+                    else {
+                        log.info("修改客户地址包裹补打触发全程跟踪失败。参数信息不完整。包裹号{},操作人ID{},操作人名称{},操作站点ID{},操作站点名称{}",barCode,operatorId,operateName,bDto.getSiteCode(),bDto.getSiteName());
                     }
                 }
             }
         }catch (Exception e){
-            this.logger.warn("修改客户地址包裹补打触发全程跟踪失败",e);
+            this.log.error("修改客户地址包裹补打触发全程跟踪失败",e);
         }
 
         //2.所有补打的包裹,发送全程跟踪,用于在青龙全程跟踪显示
@@ -141,7 +144,7 @@ public class PackageResource {
             redisManager.setex(RE_PRINT_PREFIX+barCode, 3600, barCode);//1小时
             taskService.add(this.toPackReprintTask(barCode, bDto.getSiteCode(), bDto.getSiteName(), operatorId, operateName));
             jdResponse.setCode(JdResponse.CODE_OK);
-            logger.info("触发包裹补打的全程跟踪成功,"+"包裹号"+barCode+",操作人"+operateName);
+            log.info("触发包裹补打的全程跟踪成功,包裹号{},操作人{}",barCode,operateName);
         }else{
             jdResponse.setCode(400);
             jdResponse.setMessage("参数错误，不能触发包裹补打的全程跟踪!不存在的siteId："+siteId);
@@ -275,9 +278,10 @@ public class PackageResource {
             operationLog.setCreateUserCode(request.getOperateUserCode());
             operationLog.setCreateUser(request.getOperateUserName());
             operationLog.setCreateTime(DateHelper.parseDateTime(request.getOperateTime()));
+            operationLog.setUrl("/package/reprintAfter");
             operationLogService.add(operationLog);
         } catch (Exception e) {
-            logger.error("PackageResource.packReprintAfter-->记录包裹打印日志异常,请求参数为{}", JsonHelper.toJson(request),e);
+            log.error("PackageResource.packReprintAfter-->记录包裹打印日志异常,请求参数为{}", JsonHelper.toJson(request),e);
         }
 
         try {
@@ -308,10 +312,10 @@ public class PackageResource {
                 modifyOrderInfo.setOperateTime(request.getOperateTime());
                 String json = JsonHelper.toJson(modifyOrderInfo);
                 dmsModifyOrderInfoMQ.send(modifyOrderInfo.getOrderId(),json);
-                logger.debug("PackageResource.packReprintAfter-->客户改址MQ发送成功{}",json);
+                log.debug("PackageResource.packReprintAfter-->客户改址MQ发送成功{}",json);
             }
         } catch (Exception e) {
-            logger.error("PackageResource.packReprintAfter-->包裹补打全程跟踪、客户改址拦截MQ发送失败：{}", JsonHelper.toJson(request),e);
+            log.error("PackageResource.packReprintAfter-->包裹补打全程跟踪、客户改址拦截MQ发送失败：{}", JsonHelper.toJson(request),e);
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
             response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
         }
@@ -332,7 +336,7 @@ public class PackageResource {
         return new JdResponse();
     }
 
-    private Task toAddressModTask(String barCode, String operateName){
+    private Task toAddressModTask(String barCode, Integer createSiteCode, String createSiteName, Integer operatorId, String operateName){
         WaybillStatus waybillStatus = new WaybillStatus();
 
         if(WaybillUtil.isPackageCode(barCode)){
@@ -342,6 +346,9 @@ public class PackageResource {
             waybillStatus.setWaybillCode(barCode);
 
         waybillStatus.setOperateTime(new Date());
+        waybillStatus.setCreateSiteCode(createSiteCode);
+        waybillStatus.setCreateSiteName(createSiteName);
+        waybillStatus.setOperatorId(operatorId);
         waybillStatus.setOperator(operateName);
         waybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_WAYBILL_BD);
 

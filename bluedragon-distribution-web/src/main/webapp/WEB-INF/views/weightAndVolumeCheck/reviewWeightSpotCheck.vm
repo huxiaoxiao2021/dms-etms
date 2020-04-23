@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>分拣复重抽检任务统计</title>
+    <title>复重抽检任务导入</title>
     <meta http-equiv="pragma" content="no-cache" />
     <meta http-equiv="cache-control" content="no-cache">
     <meta http-equiv="expires" content="0">
@@ -15,7 +15,7 @@
 <div id="dataTableDiv" class="main">
         <ol class="breadcrumb">
             <li><a href="#">分拣中心</a></li>
-            <li class="active">分拣复重抽检任务统计</li>
+            <li class="active">复重抽检任务导入</li>
         </ol>
 		<!-- 查询条件 -->
         <div id="query-condition">
@@ -42,6 +42,19 @@
                                     </div>
                                     <input type="hidden" id="createSiteCode" name="createSiteCode"
                                            class="form-control search-param " >
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="form-group" >
+                                    <label class="control-label col-xs-4" for="box-code-input">业务类型 ：</label>
+                                    <div class="col-xs-6 ">
+                                        <select type="text" class="form-control" id="spotCheckTypeSelect" name="spotCheckTypeSelect">
+                                            <option value="2" selected>全部</option>
+                                            <option value="0">C网</option>
+                                            <option value="1">B网</option>
+                                        </select>
+                                        <input type="hidden" id="spotCheckType" class="form-control  search-param " >
+                                    </div>
                                 </div>
                             </div>
                         </div>

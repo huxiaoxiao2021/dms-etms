@@ -9,12 +9,15 @@ $(function () {
     var saveInfoUrl = '/feedback/add';
 
     // 1M
-    var fileMaxSize = 1 * 1024 * 1024;
+    var fileMaxSize = 5 * 1024 * 1024;
 
     /*****************************************/
     /*组件*/
     /*****************************************/
-
+    /**
+     * 反馈内容字数提示
+     */
+    initTextArea();
     $.combobox.createNew('type-select', {
         placeholder: '请选择意见反馈类型'
     });
@@ -39,8 +42,8 @@ $(function () {
                         message: '反馈内容不能为空！'
                     },
                     stringLength: {
-                        max: 1000,
-                        message: '反馈内容长度不能超过1000个字！'
+                        max: 200,
+                        message: '反馈内容长度不能超过200个字！'
                     }
                 }
             }
@@ -79,7 +82,7 @@ $(function () {
             success: function (res) {
                 if (res != null && res.code == 200) {
                     $.msg.ok('提交意见反馈信息成功！', '', function () {
-                        $('#btn_cancel').click();
+                        location.href = "/feedback/index?t=" + new Date().getTime();
                     });
                 } else {
                     $.msg.error("提交意见反馈信息失败！", res.message);
@@ -104,7 +107,7 @@ $(function () {
                 if (image1.length > 0) {
                     if (image1[0].size > fileMaxSize) {
                         $.pageBlocker.close(blocker);
-                        $.msg.error("提交失败！", "每个附件大小不能超过1M");
+                        $.msg.error("提交失败！", "每个附件大小不能超过5M");
                         return;
                     }
                     formData.append("images", image1[0]);
@@ -114,7 +117,7 @@ $(function () {
                 if (image2.length > 0) {
                     if (image2[0].size > fileMaxSize) {
                         $.pageBlocker.close(blocker);
-                        $.msg.error("提交失败！", "每个附件大小不能超过1M");
+                        $.msg.error("提交失败！", "每个附件大小不能超过5M");
                         return;
                     }
                     formData.append("images", image2[0]);
@@ -124,10 +127,28 @@ $(function () {
                 if (image3.length > 0) {
                     if (image3[0].size > fileMaxSize) {
                         $.pageBlocker.close(blocker);
-                        $.msg.error("提交失败！", "每个附件大小不能超过1M");
+                        $.msg.error("提交失败！", "每个附件大小不能超过5M");
                         return;
                     }
                     formData.append("images", image3[0]);
+                }
+                var image4 = $('#image4')[0].files;
+                if (image4.length > 0) {
+                    if (image4[0].size > fileMaxSize) {
+                        $.pageBlocker.close(blocker);
+                        $.msg.error("提交失败！", "每个附件大小不能超过5M");
+                        return;
+                    }
+                    formData.append("images", image4[0]);
+                }
+                var image5 = $('#image5')[0].files;
+                if (image5.length > 0) {
+                    if (image5[0].size > fileMaxSize) {
+                        $.pageBlocker.close(blocker);
+                        $.msg.error("提交失败！", "每个附件大小不能超过5M");
+                        return;
+                    }
+                    formData.append("images", image5[0]);
                 }
 
                 /*获取参数*/
@@ -147,3 +168,17 @@ $(function () {
     });
 
 });
+
+function initTextArea() {
+    // var text = $('#content-input').val();
+    // var len = text.length;
+    // $('#content-input').next().find('span').html(len);
+    $('textarea').keyup(function () {
+        var text = $(this).val();
+        len = text.length;
+        if (len > 200) {
+            return false;
+        }
+        $(this).next().find('span').html(len);
+    })
+}

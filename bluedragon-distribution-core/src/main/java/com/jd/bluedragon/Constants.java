@@ -1,10 +1,5 @@
 package com.jd.bluedragon;
 
-import com.jd.bluedragon.utils.LogHelper;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.impl.SimpleLog;
-
 public class Constants {
     public static final char WAYBILL_SIGN_B='3';
     public static final String MAX_PACK_NUM = "MAX_PACK_NUM";
@@ -104,7 +99,8 @@ public class Constants {
      * B冷链转运中心站点类型
      */
     public static final Integer B2B_CODE_SITE_TYPE = 6460;
-
+    /** 经济网网点类型 **/
+    public static final Integer THIRD_ENET_SITE_TYPE= 10000;
 
     /** 操作类型 **/
     public static final int TRANS_SORTING_OPERATE_TYPE = 1;
@@ -150,6 +146,11 @@ public class Constants {
      * 操作日志慢发货记录
      */
     public static final Integer BUSINESS_LOG_OPERATE_TYPE_SLOW_SEND=2003001;
+
+    /**
+     * 操作日志线上签记录
+     */
+    public static final Integer BUSINESS_LOG_OPERATE_TYPE_ONLINE_PRINT=2003002;
 
     /**
      * 操作日志业务编码-航空转陆运
@@ -419,7 +420,7 @@ public class Constants {
 
     public static final String PDA_USER_GETINFO_SUCCESS_MSG = "获取信息成功"; //成功信息
     public static final String PDA_USER_LOGIN_FAILUE_MSG = "验证失败"; //验证失败信息
-    public static final String PDA_USER_GETINFO_FAILUE_MSG = "获取基础资料数据失败"; //获取基础资料数据失败
+    public static final String PDA_USER_GETINFO_FAILUE_MSG = "获取基础资料数据失败，请联系转运管理岗同事（质控）维护青龙基础资料角色"; //获取基础资料数据失败
     public static final String PDA_USER_JSF_FAILUE_MSG = "调取基础账号账号信息失败"; //获取基础账号JSF数据失败
     public static final String PDA_USER_NO_EXIT_MSG = "用户不存在"; //用户不存在
     public static final String PDA_USER_PASS_WORD_WRONG_MSG = "密码错误"; //密码错误
@@ -441,12 +442,6 @@ public class Constants {
     public static final int PDA_BIG_THIRDPL_ID = 6000000;
     public static final String BASIC_STAFF_COL = "staffId";	//员工标识
 
-    private static final Log logger= new SimpleLog("test");
-    public static void main(String[] args) {
-
-        LogHelper.errorUseCurrentStackTrace(logger,"test");
-    }
-    
     // 一次邮件发送最大收件人数
     public static final int MAX_SEND_SIZE = 500;
     /**
@@ -604,7 +599,9 @@ public class Constants {
     public static final String DMS_WEB_PTORDER_RECEIVE_R="DMS-WEB-PTORDER-RECEIVE-R"; //平台实收查询
     public static final String DMS_WEB_SORTING_RECEIVEWEIGHTCHECK_R="DMS-WEB-SORTING-RECEIVEWEIGHTCHECK-R"; //揽收重量校验统计
     public static final String DMS_WEB_SORTING_WEIGHTANDVOLUMECHECK_R="DMS-WEB-SORTING-WEIGHTANDVOLUMECHECK-R"; //重量体积抽验统计
-    public static final String DMS_WEB_SORTING_REVIEWWEIGHTSPOTCHECK_R="DMS-WEB-SORTING-REVIEWWEIGHTSPOTCHECK-R"; //分拣复重抽检任务统计
+    public static final String DMS_WEB_SORTING_WEIGHTANDVOLUMECHECKOFB2B_R="DMS-WEB-SORTING-WEIGHTANDVOLUMECHECKOFB2B-R"; //B网转运重量抽检
+    public static final String DMS_WEB_SORTING_REVIEWWEIGHTSPOTCHECK_R="DMS-WEB-SORTING-REVIEWWEIGHTSPOTCHECK-R"; //复重抽检任务导入
+    public static final String DMS_WEB_SORTING_REVIEWWEIGHTSPOTCHECK_SPECIAL_R="DMS-WEB-SORTING-REVIEWWEIGHTSPOTCHECK-SPECIAL-R"; //复重抽检任务的导入功能（单独申请权限）
     public static final String DMS_WEB_SORTING_INVENTORYTASK_R="DMS_WEB_SORTING_INVENTORYTASK_R"; //转运清场任务
     public static final String DMS_WEB_SORTING_INVENTORYEXCEPTION_R="DMS_WEB_SORTING_INVENTORYEXCEPTION_R"; //转运清场异常
     public static final String DMS_WEB_SORTING_CROSSBOX_R ="DMS-WEB-SORTING-CROSSBOX-R"; //跨箱号中转
@@ -626,6 +623,7 @@ public class Constants {
     public static final String DMS_WEB_SORTING_TMSPROXY_R="DMS-WEB-SORTING-TMSPROXY-R";//运输委托书打印
     public static final String DMS_WEB_SORTING_GOODSPRINT_R="DMS_WEB_SORTING_GOODSPRINT_R";//托寄物品名打印
     public static final String DMS_WEB_SORTING_REVERSEPARTDETAIL_CHECK_R="DMS-WEB-SORTING-REVERSEPARTDETAIL-CHECK-R";//半退明细查询
+    public static final String DMS_WEB_TOOL_BUSIWEIGHTANDVOLUMEWHITELIST_R="DMS-WEB-TOOL-MERCHANTWEIGHTANDVOLUMEWHITELIST-R";//商家称重量方白名单
     public static final String DMS_WEB_EXPRESS_QUARANTINELICENSE_R="DMS-WEB-EXPRESS-QUARANTINELICENSE-R";//冷链卡班检疫证票号管理
     public static final String DMS_WEB_EXPRESS_B2BROUTER_R="DMS-WEB-EXPRESS-B2BROUTER-R";//B网路由配置表
     public static final String DMS_WEB_EXPRESS_DMSSTORAGEAREA_R="DMS-WEB-EXPRESS-DMSSTORAGEAREA-R";//流向库位配置表
@@ -667,6 +665,7 @@ public class Constants {
     public static final String DMS_WEB_INDEX_R="DMS_WEB_INDEX_R";  //系统主页
     public static final String DMS_WEB_COLLECT_SET="DMS_WEB_COLLECT_SET";  //集货配置
     public static final String DMS_WEB_COLLECT_REPORT="DMS_WEB_COLLECT_REPORT";  //集货报表
+    public static final String DMS_WEB_RECYCLE_MATERIAL_SCAN_R = "DMS_WEB_RECYCLE_MATERIAL_SCAN_R"; //循环物资扫描查询
 
     /********************************************* 研发UIM权限资源码相关start ***********************************************/
     public static final String DMS_WEB_DEVELOP_REDIS_R ="DMS_WEB_DEVELOP_REDIS_R"; //分拣缓存查询
@@ -681,6 +680,7 @@ public class Constants {
     public static final String DMS_WEB_DEVELOP_WORKER_SETTING_R ="DMS_WEB_DEVELOP_WORKER_SETTING_R"; //分拣任务配置
     public static final String DMS_WEB_DEVELOP_OPERATE_R ="DMS_WEB_DEVELOP_OPERATE_R"; //分拣实操查询
     public static final String DMS_WEB_DEVELOP_DICT_R ="DMS_WEB_DEVELOP_DICT_R"; //分拣数据字典
+    public static final String DMS_WEB_DEVELOP_RULE_CONFIG_R ="DMS_WEB_DEVELOP_RULE_CONFIG_R"; //规则管理
 
     /********************************************* 研发UIM权限资源码相关end ***********************************************/
     public static final String DMS_WEB_COMMON_R ="DMS_WEB_COMMON_R"; //通用权限
@@ -711,6 +711,17 @@ public class Constants {
      * 配置信息-客户端检查配置sys.config.client.check
      */
     public static final String SYS_CONFIG_LOGIN_CHECK = "sys.config.login.check";
+
+    /**
+     * 配置信息-拼多多不允许获取接口的打印类型 pdd.print.type.not.use;
+     */
+    public static final String SYS_CONFIG_PDD_PRINT_TYPE_NOT_USE = "pdd.print.type.not.use";
+
+    /**
+     * 配置信息-生成分拣中心退货任务的异常原因id列表 abnormal.reason.id.generate.sorting_return_task;
+     */
+    public static final String SYS_CONFIG_ABNORMAL_REASON_ID_GENERATE_SORTING_RETURN_TASK = "abnormal.reason.id.generate.sorting_return_task";
+
     /**
 	  * 配置信息-客户端运行环境配置前缀 sys.config.client.runningMode.
 	  */
@@ -760,6 +771,12 @@ public class Constants {
      * 三无寄托物核实 上报运单数量限制
      */
     public static final String SYS_ABNORMAL_UNKNOWN_REPORT_WAYBILL_MAX= "abnormal.unknown.report.waybill.max";
+
+    /**
+     * 配置信息-冷链卸货任务查询天数-冷链操作卸货出入库业务
+     */
+    public static final String SYS_CONFIG_COLD_CHAIN_UNLOAD_QUERY_DAYS = "cold.chain.operation.query.days";
+
     /**
      * 封车批次号缓存前缀
      */
@@ -964,6 +981,10 @@ public class Constants {
      * 数据库箱号最大长度限制，由于无法保证与数据库同步更新，此常量不属于权威定义
      */
     public static final int BOX_CODE_DB_COLUMN_LENGTH_LIMIT = 50;
+    /**
+     * 数据库车牌长度最大长度限制，由于无法保证与数据库同步更新，此常量不属于权威定义
+     */
+    public static final int CAR_CODE_DB_COLUMN_LENGTH_LIMIT = 32;
 
     /**
      * EMG条码前缀
@@ -978,4 +999,95 @@ public class Constants {
      * 字典的产品类型父节点
      */
     public static final Integer PRODUCT_PARENT_ID = 30048;
+    /**
+     * 货物类型
+     */
+    public static final int BASEDICT_GOODS_TYPE_TYPECODE = 10203;
+
+    /**
+     * 箱号类型校验开关key
+     */
+    public static final String BOX_TYPE_CHECK_SWITCH = "BOX_TYPE_CHECK_SWITCH";
+
+    /**
+     * 调用运输基础资料获取货物类型 父节点编码
+     */
+    public static final String PARENTCODE = "3";
+    /**
+     * 调用运输基础资料获取货物类型 字典节点级别
+     */
+    public static final int DICTLEVEL = 3;
+    /**
+     * 调用运输基础资料获取货物类型 字典分组
+     */
+    public static final String DICTGROUP = "1209";
+    /**
+     * 泡重比类型--按体积
+     */
+    public static final Integer VOLUMEFEETYPE_VOLUME = 1;
+
+    /**
+     * 泡重比类型--按重泡比
+     */
+    public static final Integer VOLUMEFEETYPE_VOLUMERATE = 2;
+
+    /**
+     * 运单预分拣网点值 为-136代表超区
+     */
+    public static final int WAYBILL_SITE_ID_OUT_ZONE = -136;
+
+    /**
+     * 七大区区域ID：
+     *  华东:3 西南:4 华北:6 华南:10
+     *  华中:600 东北:611 西北:645
+     * */
+    public static final int EAST_CHINA_ORG_ID = 3;
+    public static final int SOUTH_WEST_ORG_ID = 4;
+    public static final int NORTH_CHINA_ORG_ID = 6;
+    public static final int SOUTH_CHINA_ORG_ID = 10;
+    public static final int CENTRAL_CHINA_ORG_ID = 600;
+    public static final int NORTH_EAST_ORG_ID = 611;
+    public static final int NORTH_WEST_ORG_ID = 645;
+
+    /**
+     * 冷链卡班短信扩展字段extension
+     */
+    public static final String DMS_COLD_CHAIN_SEND = "dms_coldChain_send";
+
+    /**
+     * 经济网租户编码
+     */
+    public static final String TENANT_CODE_ECONOMIC = "ECONOMIC_NET";
+
+
+    /**
+     *所属业务操作点击量
+     *
+     */
+    public static final Integer BIZTYPE_URL_CLICK = 999001;
+
+    /**
+     *
+     * 菜单点击 分拣中心操作日志
+     */
+    public static final Integer OPERATELOG_CLICK = 1;
+    /**
+     * 菜单点击 分拣运行时全程跟踪
+     */
+    public static final Integer GODDESSLOG_CLICK = 2;
+
+    /**
+     * 菜单点击 分拣离线操作日志查询
+     */
+    public static final Integer OFFLINELOG_CLICK = 3;
+    /**
+     * 新日志查询
+     */
+    public static final Integer NEW_LOG = 4;
+
+    /**
+     * 负号
+     */
+    public final static String NEGATIVE_SIGN = "-";
+
 }

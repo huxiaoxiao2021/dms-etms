@@ -18,20 +18,15 @@ import com.jd.bluedragon.distribution.message.OwnReverseTransferDomain;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.packageToMq.service.IPushPackageToMqService;
-import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
+import com.jd.bluedragon.distribution.qualityControl.service.QualityControlService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PickupTask;
@@ -43,15 +38,14 @@ import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -62,7 +56,7 @@ import java.util.concurrent.TimeUnit;
 public class ReversePrintServiceImpl implements ReversePrintService {
 
 
-    private final Log logger= LogFactory.getLog(ReversePrintServiceImpl.class);
+    private final Logger log = LoggerFactory.getLogger(ReversePrintServiceImpl.class);
 
     private static final String REVERSE_PRINT_MQ_TOPIC="bd_blocker_complete";
 
@@ -122,6 +116,9 @@ public class ReversePrintServiceImpl implements ReversePrintService {
     private BaseMajorManager baseMajorManager;
 
     @Autowired
+    private QualityControlService qualityControlService;
+
+    @Autowired
     @Qualifier("jimdbCacheService")
     private CacheService cacheService;
 
@@ -175,7 +172,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
                 sendOldWaybillTrace = false;
             }
         }catch(Exception e){
-            this.logger.error("判断原单需要换单全程跟踪异常"+JsonHelper.toJson(domain), e);
+            this.log.error("判断原单需要换单全程跟踪异常:{}", JsonHelper.toJson(domain), e);
         }
         if(sendOldWaybillTrace){
             taskService.add(tTask, true);
@@ -195,7 +192,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
          * 新外单添加全程跟踪
          */
         taskService.add(tTask);
-//        this.logger.info(REVERSE_PRINT_MQ_TOPIC+createMqBody(domain.getOldCode())+domain.getOldCode());
+//        this.log.info(REVERSE_PRINT_MQ_TOPIC+createMqBody(domain.getOldCode())+domain.getOldCode());
         //pushMqService.pubshMq(REVERSE_PRINT_MQ_TOPIC, createMqBody(domain.getOldCode()), domain.getOldCode());
         //  这里将要下掉  modified by zhanglei 20161025
 //        bdBlockerCompleteMQ.sendOnFailPersistent(domain.getOldCode(),createMqBody(domain.getOldCode()));
@@ -206,7 +203,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         try {
             reverseChangeWaybillCodeMQ.sendOnFailPersistent(domain.getNewCode(), getReversePrintMqBody(domain));
         }catch (Exception e){
-            logger.error("发送逆向换单mq失败,新单号为："+domain.getNewCode(),e);
+            log.error("发送逆向换单mq失败,新单号为：{}", domain.getNewCode(),e);
         }
         OperationLog operationLog=new OperationLog();
         operationLog.setCreateTime(new Date());
@@ -216,7 +213,12 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         operationLog.setCreateUserCode(domain.getStaffId());
         operationLog.setCreateSiteCode(domain.getSiteCode());
         operationLog.setCreateSiteName(domain.getSiteName());
+        operationLog.setMethodName("ReversePrintServiceImpl#handlePrint");
         operationLogService.add(operationLog);
+
+        //换单打印判断是否发起分拣中心退货任务
+        qualityControlService.generateSortingReturnTask(domain.getSiteCode(), domain.getOldCode(), domain.getNewPackageCode(), new Date(domain.getOperateUnixTime()));
+
         return true;
     }
 
@@ -368,6 +370,10 @@ public class ReversePrintServiceImpl implements ReversePrintService {
                         && !BusinessUtil.isPurematch(waybill.getWaybillSign())){
                     return;
                 }
+                //c2c 直接返回
+                if(BusinessHelper.isC2c(waybill.getWaybillSign())){
+                    return;
+                }
                 //3.有商品信息直接返回
                 if(baseEntity.getData().getGoodsList() != null
                         && baseEntity.getData().getGoodsList().size() > 0){
@@ -386,7 +392,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
             }
 
         }catch (Exception e){
-            logger.error("通过运单号"+newWaybillCode+"查询运单信息异常!",e);
+            log.error("通过运单号{}查询运单信息异常!",newWaybillCode,e);
             errorMessage = InvokeResult.SERVER_ERROR_MESSAGE;
         }
 
@@ -406,14 +412,14 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         BaseEntity<BigWaybillDto> result = null;
         try {
             result = waybillQueryManager.getDataByChoice(waybillCode,
-                    true, true, true, true, true, false, false);
+                    true, true, true, true, false, false, false);
             if(result != null && result.getData() != null && result.getData().getWaybill() != null &&
                     result.getData().getWaybill().getFirstTime() != null)
             {
                 Date diffDate = DateHelper.addDate(new Date(),-PICKUP_DIFFER_DAYS);
                 return result.getData().getWaybill().getFirstTime().before(diffDate);
             }
-            this.logger.warn("通过运单号" + waybillCode + "查询运单数据为空");
+            this.log.warn("通过运单号{}查询运单数据为空",waybillCode);
         } catch (Exception e) {
             StringBuilder errorMsg = new StringBuilder(
                     "中心服务调用运单getDataByChoice出错").append("waybillCode=")
@@ -421,7 +427,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
                     .append(true).append("isWaybillE").append(true)
                     .append("isWaybillM").append(true)
                     .append("isPackList").append(true);
-            logger.error(errorMsg, e);
+            log.error(errorMsg.toString(), e);
         }
         errorMessage.append("新单"+waybillCode+"的运单信息为空，请联系it人员处理!");
         return true;
@@ -429,8 +435,9 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 
     @Override
     public InvokeResult<Boolean> exchangeOwnWaybill(OwnReverseTransferDomain domain) {
-        if(logger.isInfoEnabled()){
-            logger.info(MessageFormat.format("执行自营换单waybillCode={0},userId={1},userRealName={2},siteId={3},siteName={4}",domain.getWaybillCode(),domain.getUserId(),domain.getUserRealName(),domain.getSiteId(),domain.getSiteName()));
+        if(log.isInfoEnabled()){
+            log.info("执行自营换单waybillCode={},userId={},userRealName={},siteId={},siteName={}"
+                    ,domain.getWaybillCode(),domain.getUserId(),domain.getUserRealName(),domain.getSiteId(),domain.getSiteName());
         }
         InvokeResult<Boolean> result=new InvokeResult<Boolean>();
         domain.setOperateTime(new Date());
@@ -442,11 +449,11 @@ public class ReversePrintServiceImpl implements ReversePrintService {
                 domain.setOrgId(siteDomain.getOrgId());
             }else {
                 result.customMessage(2, MessageFormat.format("获取站点【ID={0}】信息为空",domain.getSiteId()));
-                logger.error(MessageFormat.format("自营换单获取站点【ID={0}】信息为空",domain.getSiteId()));
+                log.warn("自营换单获取站点【ID={}】信息为空",domain.getSiteId());
                 return result;
             }
         }catch (Exception ex){
-            logger.error("获取站点",ex);
+            log.error("获取站点",ex);
             result.error("获取站点异常"+ex.getMessage());
             return result;
         }
@@ -454,7 +461,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
             Integer featureType = jsfSortingResourceService.getWaybillCancelByWaybillCode(domain.getWaybillCode());
             domain.setSickWaybillFlag(featureType == null ? Constants.FEATURE_TYPCANCEE_UNSICKL :featureType);//30-病单，31-取消病单，32- 非病单
         }catch (Exception ex){
-            logger.error("获取订单拦截信息 waybill_cancel 的病单标识异常：",ex);
+            log.error("获取订单拦截信息 waybill_cancel 的病单标识异常：",ex);
             result.error("获取订单拦截信息异常");
             return result;
         }
@@ -463,7 +470,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
             result.success();
             result.setData(Boolean.TRUE);
         }catch (Exception ex){
-            logger.error("推送运单自营换单MQ异常",ex);
+            log.error("推送运单自营换单MQ异常",ex);
             result.error("推送运单自营换单MQ异常");
         }
         return result;

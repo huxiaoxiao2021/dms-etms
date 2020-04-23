@@ -16,7 +16,7 @@ import java.util.*;
 
 public class OperationlogCassandra {
 
-	private static final Logger logger = LoggerFactory.getLogger(OperationlogCassandra.class);
+	private static final Logger log = LoggerFactory.getLogger(OperationlogCassandra.class);
 
     @Value("${cassandra.consistencyLevel.default}")
     protected ConsistencyLevel  consistencyLevel;
@@ -106,10 +106,9 @@ public class OperationlogCassandra {
 			}
 
 			baseCassandraDao.batchInsert(bstatementList, values);
-			logger.info("OperationlogCassandra batchInsert execute success cost:"
-					+ (System.currentTimeMillis() - startTime) + "ms");
+			OperationlogCassandra.log.info("OperationlogCassandra batchInsert execute success cost:{}ms",(System.currentTimeMillis() - startTime) );
 		} catch (Exception e) {
-			logger.error("添加操作日志异常 异常原因：", e);
+			OperationlogCassandra.log.error("添加操作日志异常 异常原因：{}",JsonHelper.toJson(log), e);
 		}
 	}
     
@@ -162,7 +161,7 @@ public class OperationlogCassandra {
                 bs = getPreparedsbox().bind(code);
 			}
 			if(bs == null){
-				logger.warn("Cassandra操作日志查询，未知的参数类型：" + type);
+				log.warn("Cassandra操作日志查询，未知的参数类型：{}" , type);
 				return list;
 			}
 			bs.setFetchSize(pager.getPageSize());
@@ -180,11 +179,10 @@ public class OperationlogCassandra {
 				}
 			}
 			list = rsToList(rs, new RowToOrder());
-			logger.info("OperationlogCassandra getPage execute success cost:" + (System.currentTimeMillis() - startTime)
-					+ "ms");
+			log.info("OperationlogCassandra getPage execute success cost:{}ms" , (System.currentTimeMillis() - startTime));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			logger.error("查询操作日志异常 异常原因：", e);
+			log.error("查询操作日志异常 异常原因：code={}",code, e);
 		}
 
 		return list;
@@ -209,11 +207,10 @@ public class OperationlogCassandra {
 			}
 			ResultSet rs = baseCassandraDao.preparedSelectBycode(bs);
 			size = rs.getAvailableWithoutFetching();
-			logger.info("OperationlogCassandra totalSize execute success cost:" + (System.currentTimeMillis() - startTime)
-					+ "ms");
+			log.info("OperationlogCassandra totalSize execute success cost:{}ms" , (System.currentTimeMillis() - startTime));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			logger.error("查询操作日志异常 异常原因：", e);
+			log.error("查询操作日志异常 异常原因：code={}",code, e);
 		}
 
 		return size;

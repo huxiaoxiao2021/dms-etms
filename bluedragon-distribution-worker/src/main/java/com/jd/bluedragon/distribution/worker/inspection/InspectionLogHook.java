@@ -45,6 +45,7 @@ public class InspectionLogHook implements TaskHook<InspectionTaskExecuteContext>
             operationLog.setPackageCode(inspection.getPackageBarcode());
             operationLog.setReceiveSiteCode(inspection.getReceiveSiteCode());
             operationLog.setWaybillCode(inspection.getWaybillCode());
+            operationLog.setMethodName("InspectionLogHook#hook");
             operationLogService.add(operationLog);
         }
         return 0;

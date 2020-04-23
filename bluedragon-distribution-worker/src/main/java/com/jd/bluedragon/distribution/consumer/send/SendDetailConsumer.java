@@ -1,41 +1,54 @@
 package com.jd.bluedragon.distribution.consumer.send;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.SmsMessageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.MessageException;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
+import com.jd.bluedragon.distribution.coldchain.dto.CCInAndOutBoundMessage;
+import com.jd.bluedragon.distribution.coldchain.dto.ColdChainOperateTypeEnum;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
+import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.rma.service.RmaHandOverWaybillService;
 import com.jd.bluedragon.distribution.send.domain.ColdChainSendMessage;
 import com.jd.bluedragon.distribution.send.domain.SendDetailMessage;
 import com.jd.bluedragon.distribution.send.domain.SendDispatchDto;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
+import com.jd.bluedragon.distribution.sms.domain.SMSDto;
+import com.jd.bluedragon.distribution.sms.service.SmsConfigService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.common.util.StringUtils;
+import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.dms.logger.external.LogEngine;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.alibaba.fastjson.JSON;
+import com.jd.fastjson.JSONObject;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.text.MessageFormat;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -47,7 +60,7 @@ import java.util.concurrent.TimeUnit;
 @Service("sendDetailConsumer")
 public class SendDetailConsumer extends MessageBaseConsumer {
 
-    private final Log logger = LogFactory.getLog(SendDetailConsumer.class);
+    private final Logger log = LoggerFactory.getLogger(SendDetailConsumer.class);
 
     @Autowired
     private RmaHandOverWaybillService rmaHandOverWaybillService;
@@ -77,6 +90,22 @@ public class SendDetailConsumer extends MessageBaseConsumer {
     @Qualifier("redisClientCache")
     private Cluster redisClientCache;
 
+    @Autowired
+    private SmsMessageManager smsMessageManager;
+
+    @Autowired
+    private SmsConfigService smsConfigService;
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
+    @Autowired
+    private LogEngine logEngine;
+
+    @Autowired
+    @Qualifier("ccInAndOutBoundProducer")
+    private DefaultJMQProducer ccInAndOutBoundProducer;
+
     /**
      * 缓存redis的key
      */
@@ -88,6 +117,16 @@ public class SendDetailConsumer extends MessageBaseConsumer {
     private final static long REDIS_CACHE_EXPIRE_TIME = 5;
 
     /**
+     * 冷链卡班缓存redis的key
+     * */
+    private final static String REDIS_COLD_CHAIN_STORAGE_SMS = "COLD_CHAIN_STORAGE_SMS-";
+    /**
+     * 冷链卡班缓存redis的过期时间，24h
+     * */
+    @Value("${sendDetailConsumer.smsExpireTime:24}")
+    private Integer smsExpireTime;
+
+    /**
      * 分隔符号
      */
     private final static String SEPARATOR = "-";
@@ -95,7 +134,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
     @Override
     public void consume(Message message) {
         if (!JsonHelper.isJsonString(message.getText())) {
-            logger.warn(MessageFormat.format("[dmsWorkSendDetail消费]MQ-消息体非JSON格式，内容为【{0}】", message.getText()));
+            log.warn("[dmsWorkSendDetail消费]MQ-消息体非JSON格式，内容为【{}】", message.getText());
             return;
         }
         SendDetailMessage context = JsonHelper.fromJsonUseGson(message.getText(), SendDetailMessage.class);
@@ -115,17 +154,17 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                         throw new MessageException("[dmsWorkSendDetail消费]该任务已被锁定，抛出异常进行重试，MQ message body:" + message.getText());
                     } else {
                         // 无效
-                        logger.warn("[dmsWorkSendDetail消费]无效发货明细消息，重复操作，MQ message body:" + message.getText());
+                        log.warn("[dmsWorkSendDetail消费]无效发货明细消息，重复操作，MQ message body:{}", message.getText());
                         return;
                     }
                 }
             } else {
-                logger.warn("[dmsWorkSendDetail消费]无效发货明细消息，包裹号或者操作时间错误，MQ message body:" + message.getText());
+                log.warn("[dmsWorkSendDetail消费]无效发货明细消息，包裹号或者操作时间错误，MQ message body:{}", message.getText());
             }
-        }catch (MessageException e){
+        } catch (MessageException e) {
             throw new RuntimeException(e.getMessage() + "，MQ message body:" + message.getText(), e);
-        }catch (Exception e) {
-            logger.error("[dmsWorkSendDetail消费]消费异常" + "，MQ message body:" + message.getText(), e);
+        } catch (Exception e) {
+            log.error("[dmsWorkSendDetail消费]消费异常，MQ message body:{}", message.getText(), e);
             throw new RuntimeException(e.getMessage() + "，MQ message body:" + message.getText(), e);
         } finally {
             if (isLock) {
@@ -150,7 +189,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                 return redisClientCache.get(redisKey);
             }
         } catch (Exception e) {
-            logger.error("[dmsWorkSendDetail消费]设置Redis并发锁时发生异常，redisKey:" + redisKey, e);
+            log.error("[dmsWorkSendDetail消费]设置Redis并发锁时发生异常，redisKey:{}", redisKey, e);
         }
         return null;
     }
@@ -165,7 +204,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         try {
             redisClientCache.del(redisKey);
         } catch (Exception e) {
-            logger.error("[dmsWorkSendDetail消费]删除Redis并发锁时发生异常，redisKey:" + redisKey, e);
+            log.error("[dmsWorkSendDetail消费]删除Redis并发锁时发生异常，redisKey:{}", redisKey, e);
         }
     }
 
@@ -192,15 +231,21 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                 }
                 // 非城配运单，发车队通知调度系统发送MQ消息
                 this.dmsToVendorMQ(sendDetail, waybill);
-                // 构建并发送冷链发货MQ消息
+                // 构建并发送冷链发货MQ消息 - 运输计划相关
                 this.sendColdChainSendMQ(sendDetail, waybillCode);
                 // 龙门架、分拣机发货更新发货异常状态
                 this.updateGantryExceptionStatus(sendDetail);
+                // 冷链暂存收费发短信
+                if(uccPropertyConfiguration.isColdChainStorageSmsSwitch()){
+                    this.coldChainStorageSMS(sendDetail,waybill);
+                }
+                // 推送冷链操作MQ消息 - B2B冷链卸货出入库业务相关
+                this.pushColdChainOperateMQ(sendDetail, waybill.getWaybillSign());
             } else {
-                logger.warn("[dmsWorkSendDetail消费]根据运单号获取运单信息为空，packageBarCode:" + packageBarCode + ",boxCode:" + sendDetail.getBoxCode());
+                log.warn("[dmsWorkSendDetail消费]根据运单号获取运单信息为空，packageBarCode:{},boxCode:{}", packageBarCode, sendDetail.getBoxCode());
             }
         } else {
-            logger.warn("[dmsWorkSendDetail消费]无效的运单号/包裹号，packageBarCode:" + packageBarCode + ",boxCode:" + sendDetail.getBoxCode());
+            log.warn("[dmsWorkSendDetail消费]无效的运单号/包裹号，packageBarCode:{},boxCode:{}", packageBarCode, sendDetail.getBoxCode());
         }
     }
 
@@ -229,7 +274,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         // 发货目的地是车队，且是非城配运单，要通知调度系统
         if (waybill != null && Constants.BASE_SITE_MOTORCADE.equals(receiveSiteDto.getSiteType()) && !BusinessHelper.isDmsToVendor(waybill.getWaybillSign(), waybill.getSendPay())) {
             Message message = parseSendDetailToMessageOfDispatch(sendDetail, waybill, receiveSiteDto, dmsToVendor.getTopic(), Constants.SEND_DETAIL_SOUCRE_NORMAL);
-            this.logger.info("非城配运单，发车队通知调度系统发送MQ[" + message.getTopic() + "],业务ID[" + message.getBusinessId() + "],消息主题: " + message.getText());
+            this.log.debug("非城配运单，发车队通知调度系统发送MQ[{}],业务ID[{}],消息主题: {}", message.getTopic(), message.getBusinessId(), message.getText());
             dmsToVendor.sendOnFailPersistent(message.getBusinessId(), message.getText());
         }
     }
@@ -275,7 +320,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         try {
             baseSiteDto = this.baseMajorManager.getBaseSiteBySiteId(siteCode);
         } catch (Exception e) {
-            this.logger.error("发货全程跟踪调用站点信息异常", e);
+            this.log.error("发货全程跟踪调用站点信息异常,siteCode={}", siteCode, e);
         }
 
         if (baseSiteDto == null) {
@@ -332,7 +377,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                     dto.setPreSiteName(preSiteDto.getSiteName());
                 }
             } catch (Exception e) {
-                logger.error("非城配运单，发车队通知调度系统构建MQ时查询预分拣站点信息异常，MQ不在发送预分拣站点名称：" + sendDetail.getPackageBarcode(), e);
+                log.error("非城配运单，发车队通知调度系统构建MQ时查询预分拣站点信息异常，MQ不在发送预分拣站点名称：{}", sendDetail.getPackageBarcode(), e);
             }
             message.setTopic(topic);
             message.setText(JSON.toJSONString(dto));
@@ -351,8 +396,144 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         SendBizSourceEnum bizSource = SendBizSourceEnum.getEnum(sendDetail.getBizSource());
         if (bizSource == null || bizSource == SendBizSourceEnum.SCANNER_FRAME_SEND || bizSource == SendBizSourceEnum.SORT_MACHINE_SEND) {
             gantryExceptionService.updateSendStatus(sendDetail.getBoxCode(), Long.valueOf(sendDetail.getCreateSiteCode()));
-            this.logger.info("更新异常信息发货状态，箱号：" + sendDetail.getBoxCode());
+            this.log.debug("更新异常信息发货状态，箱号：{}", sendDetail.getBoxCode());
         }
+    }
+
+    /**
+     * 冷链暂存收费发短信
+     *  1、冷链卡班纯配、月结自提或冷链卡班仓配、月结自提
+     *  2、目的分拣中心操作发货
+     * @param sendDetail
+     * @param waybill
+     */
+    private void coldChainStorageSMS(SendDetailMessage sendDetail,Waybill waybill) {
+        long startTime = System.currentTimeMillis();
+        try {
+            String waybillSign = waybill.getWaybillSign();
+            if(!(BusinessUtil.isMonthSelf(waybillSign)
+                    && (BusinessUtil.isColdKBPureMatch(waybillSign) || BusinessUtil.isColdKBWmsSend(waybillSign)))){
+                //非冷链卡班
+                return;
+            }
+            BaseStaffSiteOrgDto oldSiteDto = baseMajorManager.getBaseSiteBySiteId(waybill.getOldSiteId());
+            if(oldSiteDto != null && oldSiteDto.getDmsId() != null){
+                Integer operateSiteCode = sendDetail.getCreateSiteCode();
+                if(!operateSiteCode.equals(oldSiteDto.getDmsId())){
+                    //不是目的分拣中心
+                    return;
+                }
+                String waybillCode = WaybillUtil.getWaybillCode(sendDetail.getPackageBarcode());
+                if(StringUtils.isBlank(waybillCode)){
+                    return;
+                }
+                try {
+                    String redisKey = REDIS_COLD_CHAIN_STORAGE_SMS + waybillCode;
+                    boolean isExist = redisClientCache.set(redisKey, redisKey, smsExpireTime,
+                            TimeUnit.HOURS, false);
+                    if(!isExist){
+                        //默认设置10小时的去重
+                        return;
+                    }
+                }catch (Exception e){
+                    log.error("获取{}冷链卡班发短信缓存失败！", waybillCode, e);
+                }
+
+                Integer orgId = oldSiteDto.getOrgId();
+                SMSDto sMSDto = smsConfigService.getSMSConstantsByOrgId(orgId);
+                String senderNum = sMSDto.getAccount();
+                Long templateId = sMSDto.getTemplateId();
+                String token = sMSDto.getToken();
+                if(sMSDto == null){
+                    log.warn("目的分拣中心不属于7大区,目的分拣中心：{}所属区域：{}",operateSiteCode,orgId);
+                    return;
+                }
+                BaseStaffSiteOrgDto operateSite = baseMajorManager.getBaseSiteBySiteId(operateSiteCode);
+                if(operateSite == null){
+                    return;
+                }
+                String[] templateParam = new String[]{waybillCode,operateSite.getSiteName(),operateSite.getSitePhone(),operateSite.getAddress()};
+                String mobileNum = waybill.getReceiverMobile();
+                String extension = Constants.DMS_COLD_CHAIN_SEND;
+                InvokeResult result = smsMessageManager.sendSmsTemplateMessage(senderNum,templateId,
+                        templateParam,mobileNum,token,extension);
+                if(result.getCode() != InvokeResult.RESULT_SUCCESS_CODE){
+                    log.error("冷链暂存收费发短信失败,失败原因：{}",result.getMessage());
+                }
+                try {
+                    //记录日志系统
+                    long endTime = System.currentTimeMillis();
+                    JSONObject request = new JSONObject();
+                    request.put("waybillCode", waybillCode);
+                    request.put("packageCode", sendDetail.getPackageBarcode());
+                    request.put("sendCode", sendDetail.getSendCode());
+                    request.put("siteCode", oldSiteDto.getDmsId());
+                    request.put("siteName", oldSiteDto.getDmsName());
+                    request.put("operatorCode", sendDetail.getCreateUserCode());
+                    request.put("operatorName", sendDetail.getCreateUser());
+
+                    JSONObject response = new JSONObject();
+                    response.put("resultCode", result.getCode());
+                    response.put("resultMessage", result.getMessage());
+                    response.put("senderNum", senderNum);
+                    response.put("templateId", templateId);
+                    response.put("templateParam", JsonHelper.toJson(templateParam));
+                    response.put("mobileNum", mobileNum);
+                    response.put("token", token);
+                    response.put("extension", extension);
+
+                    BusinessLogProfiler businessLogProfiler = new BusinessLogProfilerBuilder()
+                            .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SEND_COLDCHAIN_SMS)
+                            .processTime(endTime,startTime)
+                            .operateRequest(request)
+                            .operateResponse(response)
+                            .methodName("SendDetailConsumer#coldChainStorageSMS")
+                            .build();
+                    logEngine.addLog(businessLogProfiler);
+                }catch (Exception e){
+                    log.error("冷链卡班暂存计费发短信记录日志异常！",e);
+                }
+
+            }
+        }catch (Exception e){
+            log.error("冷链暂存收费发短信异常!",e);
+        }
+
+    }
+
+    /**
+     * 推送冷链操作MQ消息 - B2B冷链卸货出入库业务相关
+     * 冷链消费
+     *
+     * @param sendDetail
+     * @param waybillSign
+     * @throws JMQException
+     */
+    private void pushColdChainOperateMQ(SendDetailMessage sendDetail, String waybillSign) throws JMQException {
+        if (!(BusinessUtil.isColdChainKBWaybill(waybillSign) || BusinessUtil.isColdChainCityDeliveryWaybill(waybillSign))) {
+            return ;
+        }
+
+        BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(sendDetail.getCreateSiteCode());
+
+        CCInAndOutBoundMessage body = new CCInAndOutBoundMessage();
+        body.setOrgId(String.valueOf(siteOrgDto.getOrgId()));
+        body.setOrgName(siteOrgDto.getOrgName());
+        body.setSiteId(String.valueOf(siteOrgDto.getSiteCode()));
+        body.setSiteName(siteOrgDto.getSiteName());
+        body.setOperateType(ColdChainOperateTypeEnum.DELIVERY.getType());
+        Integer userCode = sendDetail.getCreateUserCode();
+        if (userCode != null) {
+            BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByStaffId(userCode);
+            if (dto != null) {
+                body.setOperateERP(dto.getErp());
+            }
+        }
+
+        body.setOperateTime(DateHelper.formatDateTime(new Date(sendDetail.getOperateTime())));
+        body.setPackageNo(sendDetail.getPackageBarcode());
+        body.setWaybillNo(WaybillUtil.getWaybillCode(sendDetail.getPackageBarcode()));
+        ccInAndOutBoundProducer.send(sendDetail.getPackageBarcode(), JSON.toJSONString(body));
     }
 
 }

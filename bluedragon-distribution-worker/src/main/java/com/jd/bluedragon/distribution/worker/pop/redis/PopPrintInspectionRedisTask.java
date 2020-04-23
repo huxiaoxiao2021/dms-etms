@@ -17,11 +17,10 @@ public class PopPrintInspectionRedisTask extends RedisSingleScheduler {
     @Override
     protected boolean executeSingleTask(Task task, String ownSign) throws Exception {
         try {
-            this.logger.info("Redis task id&type is " + task.getId()+"&"+task.getType());
+            this.log.info("task id&type is {}&{}",task.getId(),task.getType());
             this.inspectionService.popPrintInspection(task,ownSign);
         } catch (Exception e) {
-            this.logger.error("Redis task id is" + task.getId());
-            this.logger.error("平台打印补验货数据，异常信息为：" + e.getMessage(), e);
+            this.log.error("平台打印补验货数据异常，Redis task id is {}" , task.getId(), e);
             return Boolean.FALSE;
         }
         return Boolean.TRUE;

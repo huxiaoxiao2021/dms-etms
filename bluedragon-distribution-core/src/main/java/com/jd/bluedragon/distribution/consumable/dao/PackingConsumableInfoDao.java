@@ -4,6 +4,8 @@ import com.jd.bluedragon.distribution.consumable.domain.PackingConsumableInfo;
 import com.jd.bluedragon.distribution.packingconsumable.domain.PackingConsumableBaseInfo;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 
+import java.util.List;
+
 /**
  *
  * @ClassName: PackingConsumableInfoDao
@@ -18,4 +20,22 @@ public interface PackingConsumableInfoDao extends Dao<PackingConsumableInfo> {
     * 根据耗材编号获取信息
     * */
     PackingConsumableBaseInfo getPackingConsumableInfoByCode(String code);
+
+    /**
+     * @Description 批量获取耗材
+     * @param [codes]
+     * @Author wyh
+     * @Date 2020/3/16 14:28
+     * @return java.util.List<com.jd.bluedragon.distribution.consumable.domain.PackingConsumableInfo>
+     **/
+    List<PackingConsumableInfo> listPackingConsumableInfoByCodes(List<String> codes);
+
+    /**
+     * @Description
+     * @param [typeCode]
+     * @Author wyh
+     * @Date 2020/3/18 15:07
+     * @return java.util.List<com.jd.bluedragon.distribution.consumable.domain.PackingConsumableInfo>
+     **/
+    List<PackingConsumableInfo> listByTypeCode(String typeCode);
 }

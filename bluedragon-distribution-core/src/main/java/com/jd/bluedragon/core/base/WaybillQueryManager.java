@@ -169,7 +169,9 @@ public interface WaybillQueryManager{
 	 */
 	BaseEntity<Waybill> getWaybillByWaybillCode(String waybillCode);
 
-	/**
+    Waybill getWaybillByWayCode(String waybillCode);
+
+    /**
 	 * 根据运单号获取运单信息
 	 * @param waybillCode
 	 * @return
@@ -254,5 +256,12 @@ public interface WaybillQueryManager{
      *
      * */
     List<DeliveryPackageD> findWaybillPackList(String waybillCode);
+
+	/*
+	 *
+	 * 根据运单号获取商家ID
+	 *
+	 * */
+	Integer getBusiId(String waybillCode);
 
 }

@@ -1,29 +1,27 @@
 package com.jd.bluedragon.distribution.rest.receive;
 
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.response.DeparturePrintResponse;
+import com.jd.bluedragon.distribution.api.response.PopJoinResponse;
+import com.jd.bluedragon.distribution.receive.domain.Receive;
+import com.jd.bluedragon.distribution.receive.service.ReceiveService;
+import com.jd.bluedragon.distribution.receive.service.impl.ReceiveServiceImpl;
+import com.jd.bluedragon.distribution.rest.pop.PopJoinResource.PopJoinQuery;
+import com.jd.bluedragon.utils.ObjectMapHelper;
+import com.jd.bluedragon.utils.StringHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-
-import com.jd.bluedragon.distribution.api.response.DeparturePrintResponse;
-import com.jd.bluedragon.distribution.receive.service.impl.ReceiveServiceImpl;
-import com.jd.bluedragon.utils.StringHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.Pager;
-import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.response.PopJoinResponse;
-import com.jd.bluedragon.distribution.receive.domain.Receive;
-import com.jd.bluedragon.distribution.receive.service.ReceiveService;
-import com.jd.bluedragon.distribution.rest.pop.PopJoinResource.PopJoinQuery;
-import com.jd.bluedragon.utils.ObjectMapHelper;
 
 
 @Controller
@@ -31,7 +29,7 @@ import com.jd.bluedragon.utils.ObjectMapHelper;
 @Consumes({ MediaType.APPLICATION_JSON })
 @Produces({ MediaType.APPLICATION_JSON })
 public class ReceiveResource {
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	@Autowired
 	ReceiveService receiveService;
 
@@ -63,7 +61,7 @@ public class ReceiveResource {
 		}
 
 		if (Boolean.TRUE.equals(checkParam)) {
-			this.logger.error("按条件查询POP收货交接清单 --> 传入参数非法");
+			this.log.warn("按条件查询POP收货交接清单 --> 传入参数非法");
 			return new PopJoinResponse(JdResponse.CODE_PARAM_ERROR,
 					JdResponse.MESSAGE_PARAM_ERROR, receiveJoinQuery);
 		}
@@ -100,15 +98,14 @@ public class ReceiveResource {
 				// 获取总数量
 				int totalSize = this.receiveService
 						.findReceiveJoinTotalCount(paramMap);
-				this.logger.info("按条件查询POP收货交接清单 --> 获取总数量为：" + totalSize);
+				this.log.info("按条件查询POP收货交接清单 --> 获取总数量为：{}", totalSize);
 				if (totalSize > 0) {
 					pager.setTotalSize(totalSize);
 					receives = this.receiveService
 							.findReceiveJoinList(paramMap);
 					pager.setData(receives);
 				} else {
-					this.logger.info("按条件查询POP收货交接清单 --> paramMap：" + paramMap
-							+ ", 调用服务成功，数据为空");
+					this.log.info("按条件查询POP收货交接清单 --> paramMap：{}, 调用服务成功，数据为空",paramMap);
 					return new PopJoinResponse(PopJoinResponse.CODE_OK_NULL,
 							PopJoinResponse.MESSAGE_OK_NULL, receiveJoinQuery);
 				}
@@ -117,7 +114,7 @@ public class ReceiveResource {
 					PopJoinResponse.MESSAGE_OK, receiveJoinQuery);
 
 		} catch (Exception e) {
-			this.logger.error("按条件查询POP收货交接清单异常：", e);
+			this.log.error("按条件查询POP收货交接清单异常：", e);
 			return new PopJoinResponse(PopJoinResponse.CODE_SERVICE_ERROR,
 					PopJoinResponse.MESSAGE_SERVICE_ERROR, receiveJoinQuery);
 		}
@@ -135,20 +132,18 @@ public class ReceiveResource {
     public DeparturePrintResponse queryArteryBillInfo(@PathParam("type") String type,@PathParam("code") String code,
     		@PathParam("dmsID")Integer dmsID,@PathParam("dmsName")String dmsName,
     		@PathParam("userCode")String userCode, @PathParam("userName")String userName){
-        logger.info("PDA 调用 WEB 获取干线计费信息接口 ，参数 type=" + type + ";code=" + code
-                + "dmsID=" + dmsID + ";dmsName=" + dmsName + ";userCode=" + userCode + ";userName=" + userName);
 
         DeparturePrintResponse departurePrintResponse = new DeparturePrintResponse();
         if(StringHelper.isEmpty(type) || (!ReceiveServiceImpl.CARCODE_MARK.equals(type)
                                             && !ReceiveServiceImpl.BOXCODE_MARK.equals(type))){
-            logger.error("获取干线计费信息失败，查询方式不符合要求。查询方式 " + type);
+            log.warn("获取干线计费信息失败，查询方式不符合要求。查询方式 :{}", type);
             departurePrintResponse.setCode(DeparturePrintResponse.CODE_PARAM_ERROR);
             departurePrintResponse.setMessage(DeparturePrintResponse.MESSAGE_PARAM_ERROR);
             return departurePrintResponse;
         }
 
         if(StringHelper.isEmpty(code)){
-            logger.error("获取干线计费信息失败, 查询参数错误。查询参数 " + code);
+            log.warn("获取干线计费信息失败, 查询参数错误。查询参数 {}", code);
             departurePrintResponse.setCode(DeparturePrintResponse.CODE_PARAM_ERROR);
             departurePrintResponse.setMessage(DeparturePrintResponse.MESSAGE_PARAM_ERROR);
             return departurePrintResponse;

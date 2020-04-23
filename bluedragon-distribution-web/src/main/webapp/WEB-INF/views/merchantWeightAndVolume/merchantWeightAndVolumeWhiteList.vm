@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>商家称重量方白名单</title>
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    #parse("system/common/baseImport.vm")
+    <link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/jquery.autocomplete.css" />
+    <script type="text/javascript" src="#springUrl('')/static/js/jquery-plugins/jquery.autocomplete.js"></script>
+    <script src="/static/js/merchantWeightAndVolume/merchantWeightAndVolumeWhiteList.js"></script>
+</head>
+<body>
+<input type="hidden" id="loginUserOrgId" value="$!{orgId}"/>
+<input type="hidden" id="loginUserCreateSiteCode" value="$!{createSiteCode}"/>
+<div id="dataTableDiv" class="main">
+    <ol class="breadcrumb">
+        <li><a href="#">分拣中心</a></li>
+        <li class="active">商家称重量方白名单</li>
+    </ol>
+    <!-- 查询条件 -->
+    <div id="query-condition">
+        <form id="query-form" class="form-horizontal" >
+            <fieldset>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="control-label col-xs-4" for="site-select">区域 ：</label>
+                                <div class=" col-xs-6 ">
+                                    <select id="org-select" class="form-control" name="org-select" value=""></select>
+                                </div>
+                                <input type="hidden" id="orgCode" name="orgCode"
+                                       class="form-control search-param " >
+                            </div>
+                        </div>
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="control-label col-xs-4" for="site-select">场地名称 ：</label>
+                                <div class=" col-xs-6 ">
+                                    <select id="site-select" class="form-control" name="site-select" value=""></select>
+                                </div>
+                                <input type="hidden" id="siteCode" name="siteCode"
+                                       class="form-control search-param " >
+                            </div>
+                        </div>
+                        <div class="col-xs-4">
+                            <div class="form-group" >
+                                <label class="control-label col-xs-4" for="box-code-input">商家名称 ：</label>
+                                <div class=" col-xs-6">
+                                    <input type="text" placeholder="支持模糊查询" id="merchantName" name="merchantName" class="form-control search-param ">
+                                </div>
+                                <input type="hidden" id="merchantCode" name="merchantCode"
+                                       class="form-control search-param " >
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="control-label col-xs-4 ">场地ID ：</label>
+                                <div class=" col-xs-6">
+                                    <input type="text" id="inputSiteCode" name="inputSiteCode" class="form-control search-param ">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="control-label col-xs-4 ">商家编码 ：</label>
+                                <div class=" col-xs-6">
+                                    <input type="text" id="inputMerchantCode" name="inputMerchantCode" class="form-control search-param ">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="col-xs-4">
+                            <div class=" col-xs-12">
+                                <p class="control-label col-xs-10" style="font-size: 17px;color: #FF0000;">此页面仅用于设置不需要打印包裹标签的商家</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </fieldset>
+        </form>
+    </div>
+    <hr />
+    <!-- 主页面操作按钮 -->
+    <div id="toolbar" class="btn-group">
+        <button id="btn_query" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>查询
+        </button>
+        <button id="btn_improt" type="button" class="btn btn-default">
+            <span class="glyphicon  glyphicon-import" aria-hidden="true"></span>导入白名单
+        </button>
+        <button id="btn_export" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-export" aria-hidden="true"></span>导出
+        </button>
+    </div>
+    <table id="dataTable"></table>
+</div>
+
+<!-- 导入 -->
+<div class="modal fade" tabindex="-1" id="improt_modal" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">导入</h4>
+            </div>
+            <div class="modal-body">
+                <form id="upload_excel_form" enctype="multipart/form-data" method="POST">
+
+                    <div class="form-group">
+                        <label for="exampleInputFile">选择导入文件</label>
+                        <input type="file" id="importExcelFile" name="importExcelFile">
+                        <p class="help-block">请使用标准模板,记录条数不得超过1000条</p>
+                        <a href="#springUrl('')/static/importFileModel/merchantWeightAndVolume.xls"
+                           type="application/vnd.ms-excel">下载商家称重量方白名单模版</a>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="btn_upload">上传</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

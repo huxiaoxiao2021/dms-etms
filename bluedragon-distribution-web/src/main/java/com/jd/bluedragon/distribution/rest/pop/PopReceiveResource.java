@@ -1,22 +1,5 @@
 package com.jd.bluedragon.distribution.rest.pop;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.PopReceiveRequest;
@@ -28,6 +11,21 @@ import com.jd.bluedragon.distribution.popReveice.service.PopReceiveService;
 import com.jd.bluedragon.distribution.popReveice.service.TaskPopRecieveCountService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.Md5Helper;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author zhaohc
@@ -42,7 +40,7 @@ import com.jd.bluedragon.utils.Md5Helper;
 @Produces( { MediaType.APPLICATION_JSON })
 public class PopReceiveResource {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private PopReceiveService popReceiveService;
@@ -93,15 +91,15 @@ public class PopReceiveResource {
 				}
 				
 			} catch (Exception e) {
-				this.logger.error("PopReceiveResponse --> taskPopRecieveCountService insert ：", e);
+				this.log.error("PopReceiveResponse --> taskPopRecieveCountService insert ：", e);
 			}
 			
-			this.operationLogService.add(parseOperationLog(request, null));
+			this.operationLogService.add(parseOperationLog(request, null,"/popReceive/save"));
 
 			return new PopReceiveResponse(PopReceiveResponse.CODE_OK,
 					PopReceiveResponse.MESSAGE_OK);
 		} catch (Exception e) {
-			this.logger.error("PopReceiveResponse --> savePopReceive：", e);
+			this.log.error("PopReceiveResponse --> savePopReceive：", e);
 			return new PopReceiveResponse(PopReceiveResponse.CODE_SERVICE_ERROR,
 					PopReceiveResponse.MESSAGE_SERVICE_ERROR);
 		}
@@ -134,7 +132,7 @@ public class PopReceiveResource {
 		return popReceive;
 	}
 	
-	private OperationLog parseOperationLog(PopReceiveRequest request, String remark) {
+	private OperationLog parseOperationLog(PopReceiveRequest request, String remark,String url) {
         OperationLog operationLog = new OperationLog();
         operationLog.setWaybillCode(request.getWaybillCode());
         operationLog.setCreateSiteCode(request.getCreateSiteCode());
@@ -146,6 +144,7 @@ public class PopReceiveResource {
 				.getOperateTime()));
         operationLog.setLogType(OperationLog.LOG_TYPE_RECEIVE);
         operationLog.setRemark(remark);
+        operationLog.setUrl(url);
         return operationLog;
     }
 

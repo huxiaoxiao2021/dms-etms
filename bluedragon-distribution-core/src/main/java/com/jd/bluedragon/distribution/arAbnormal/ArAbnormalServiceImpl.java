@@ -26,11 +26,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.logger.aop.BusinessLogWriter;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.etms.cache.util.EnumBusiCode;
-import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.domain.DeliveryPackageD;
-import com.jd.etms.waybill.domain.Goods;
-import com.jd.etms.waybill.domain.Waybill;
-import com.jd.etms.waybill.domain.WaybillExt;
+import com.jd.etms.waybill.domain.*;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
@@ -41,8 +37,8 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -59,7 +55,7 @@ import java.util.Map;
  */
 @Service("arAbnormalService")
 public class ArAbnormalServiceImpl implements ArAbnormalService {
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     @Qualifier("arAbnormalProducer")
@@ -92,7 +88,7 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
             try {
                 arAbnormalProducer.send(arAbnormalRequest.getPackageCode(), JsonHelper.toJson(arAbnormalRequest));
             } catch (JMQException e) {
-                logger.error("ArAbnormalServiceImpl.pushArAbnormal推送消息错误" + JsonHelper.toJson(arAbnormalRequest), e);
+                log.error("ArAbnormalServiceImpl.pushArAbnormal推送消息错误：{}" , JsonHelper.toJson(arAbnormalRequest), e);
                 response.setCode(ArAbnormalResponse.CODE_SERVICE_ERROR);
                 response.setMessage(ArAbnormalResponse.MESSAGE_SERVICE_ERROR);
                 addBusinessLog(arAbnormalRequest, response);
@@ -157,7 +153,7 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
             try {
                 DateHelper.parseAllFormatDateTime(arAbnormalRequest.getOperateTime());
             } catch (Exception e) {
-                logger.warn("ArAbnormalServiceImpl.pushArAbnormal时间格式错误" + JsonHelper.toJson(arAbnormalRequest), e);
+                log.warn("ArAbnormalServiceImpl.pushArAbnormal时间格式错误:{}" , JsonHelper.toJson(arAbnormalRequest), e);
                 response.setCode(ArAbnormalResponse.CODE_TIMEERROR);
                 response.setMessage(ArAbnormalResponse.MESSAGE_TIMEERROR);
                 return response;
@@ -238,7 +234,7 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
             // 包裹号
             return this.getWaybillMapByPackageCode(barCode);
         } else {
-            logger.error("[空铁 - 运输方式变更]消费处理，无法识别条码，request:" + JsonHelper.toJson(arAbnormalRequest));
+            log.warn("[空铁 - 运输方式变更]消费处理，无法识别条码，request:{}" , JsonHelper.toJson(arAbnormalRequest));
             return null;
         }
     }
@@ -495,13 +491,13 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
 
     /**
      * 根据waybillSign判断是否需要发消息
-     * 【航】字标的运单， waybill_sign第31位等于1 才发消息
+     * 【航】字标的运单， waybill_sign第31位等于1或84位等于3 才发消息
      *
      * @param waybillSign
      * @return
      */
     private boolean isNeedSendMQ(String waybillSign) {
-        return BusinessUtil.isSignY(waybillSign, 31);
+        return BusinessUtil.isArTransportMode(waybillSign);
     }
 
     private BigWaybillDto getBigWaybillDtoByWaybillCode(String waybillCode) {

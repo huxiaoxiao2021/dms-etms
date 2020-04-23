@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.material.dao.MaterialSendDao" >
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.material.domain.DmsMaterialSend" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="material_code" property="materialCode" jdbcType="VARCHAR" />
+    <result column="material_type" property="materialType" jdbcType="TINYINT" />
+    <result column="send_type" property="sendType" jdbcType="TINYINT" />
+    <result column="send_code" property="sendCode" jdbcType="VARCHAR" />
+    <result column="send_num" property="sendNum" jdbcType="INTEGER" />
+    <result column="create_site_code" property="createSiteCode" jdbcType="BIGINT" />
+    <result column="create_site_type" property="createSiteType" jdbcType="INTEGER" />
+    <result column="receive_site_code" property="receiveSiteCode" jdbcType="BIGINT" />
+    <result column="receive_site_type" property="receiveSiteType" jdbcType="INTEGER" />
+    <result column="create_user_erp" property="createUserErp" jdbcType="VARCHAR" />
+    <result column="create_user_name" property="createUserName" jdbcType="VARCHAR" />
+    <result column="update_user_erp" property="updateUserErp" jdbcType="VARCHAR" />
+    <result column="update_user_name" property="updateUserName" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="yn" property="yn" jdbcType="BIT" />
+    <result column="ts" property="ts" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, material_code, material_type, send_type, send_code, send_num, create_site_code,
+    create_site_type, receive_site_code, receive_site_type, create_user_erp, create_user_name,
+    update_user_erp, update_user_name, create_time, update_time, yn, ts
+  </sql>
+
+    <sql id="where_condition">
+        <where>
+            yn = 1
+            <if test="createSiteCode != null">
+                AND create_site_code = #{createSiteCode,jdbcType=BIGINT}
+            </if>
+            <if test="materialType != null">
+                AND material_type = #{materialType,jdbcType=TINYINT}
+            </if>
+            <if test="materialCode != null">
+                AND material_code = #{materialCode,jdbcType=VARCHAR}
+            </if>
+            <if test="boardCode != null">
+                AND send_code = #{boardCode,jdbcType=VARCHAR}
+            </if>
+            <if test="userErp != null">
+                AND update_user_erp = #{userErp,jdbcType=VARCHAR}
+            </if>
+            <if test="startTime != null">
+                AND update_time <![CDATA[ >= ]]> #{startTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="endTime != null">
+                AND update_time <![CDATA[ <= ]]> #{endTime,jdbcType=TIMESTAMP}
+            </if>
+        </where>
+    </sql>
+
+    <insert id="insert" parameterType="com.jd.bluedragon.distribution.material.domain.DmsMaterialSend" >
+        insert into dms_material_send (material_code, material_type,
+          send_type, send_code, send_num,
+          create_site_code, create_site_type, receive_site_code,
+          receive_site_type, create_user_erp, create_user_name,
+          update_user_erp, update_user_name, create_time,
+          update_time, yn, ts)
+        values (#{materialCode,jdbcType=VARCHAR}, #{materialType,jdbcType=TINYINT},
+          #{sendType,jdbcType=TINYINT}, #{sendCode,jdbcType=VARCHAR}, #{sendNum,jdbcType=INTEGER},
+          #{createSiteCode,jdbcType=BIGINT}, #{createSiteType,jdbcType=INTEGER}, #{receiveSiteCode,jdbcType=BIGINT},
+          #{receiveSiteType,jdbcType=INTEGER}, #{createUserErp,jdbcType=VARCHAR}, #{createUserName,jdbcType=VARCHAR},
+          #{updateUserErp,jdbcType=VARCHAR}, #{updateUserName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},
+          #{updateTime,jdbcType=TIMESTAMP}, #{yn,jdbcType=BIT}, #{ts,jdbcType=TIMESTAMP})
+    </insert>
+
+    <insert id="batchInsertOnDuplicate" parameterType="java.util.List">
+        INSERT INTO dms_material_send
+        (
+            material_code,
+            material_type,
+            send_type,
+            send_code,
+            send_num,
+            create_site_code,
+            create_site_type,
+            receive_site_code,
+            receive_site_type,
+            create_user_erp,
+            create_user_name,
+            update_user_erp,
+            update_user_name,
+            create_time,
+            update_time,
+            yn,
+            ts
+        )
+        VALUES
+        <foreach item="item" collection="list" index="index" separator=",">
+            <trim suffixOverrides="," prefix="(" suffix=")">
+                #{item.materialCode,jdbcType=VARCHAR},
+                #{item.materialType,jdbcType=TINYINT},
+                #{item.sendType,jdbcType=TINYINT},
+                #{item.sendCode,jdbcType=VARCHAR},
+                #{item.sendNum,jdbcType=INTEGER},
+                #{item.createSiteCode,jdbcType=BIGINT},
+                #{item.createSiteType,jdbcType=INTEGER},
+                #{item.receiveSiteCode,jdbcType=BIGINT},
+                #{item.receiveSiteType,jdbcType=INTEGER},
+                #{item.createUserErp,jdbcType=VARCHAR},
+                #{item.createUserName,jdbcType=VARCHAR},
+                #{item.updateUserErp,jdbcType=VARCHAR},
+                #{item.updateUserName,jdbcType=VARCHAR},
+                now(),
+                now(),
+                1,
+                now(3)
+            </trim>
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        send_type = VALUES(send_type),
+        send_code = VALUES(send_code),
+        send_num = VALUES(send_num),
+        receive_site_type = VALUES(receive_site_type),
+        receive_site_code = VALUES(receive_site_code),
+        update_user_erp = VALUES(update_user_erp),
+        update_user_name = VALUES(update_user_name),
+        update_time = now(),
+        yn = VALUES(yn)
+    </insert>
+
+    <delete id="deleteBySendCode">
+        DELETE FROM dms_material_send
+        WHERE
+            create_site_code = #{createSiteCode,jdbcType=BIGINT}
+          AND send_code = #{sendCode,jdbcType=VARCHAR}
+          AND yn = 1
+    </delete>
+
+    <select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
+        SELECT
+        COUNT(1) AS num
+        FROM
+        dms_material_send
+        <include refid="where_condition"/>
+    </select>
+
+    <select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM
+        dms_material_send
+        <include refid="where_condition"/>
+        ORDER BY material_code DESC, update_time DESC
+        LIMIT #{offset,jdbcType=INTEGER}, #{limit,jdbcType=INTEGER}
+    </select>
+
+    <select id="listBySendCode" resultMap="BaseResultMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM
+            dms_material_send
+        WHERE
+            yn = 1
+        AND send_code = #{sendCode,jdbcType=VARCHAR}
+        <if test="createSiteCode != null">
+            AND create_site_code = #{createSiteCode,jdbcType=BIGINT}
+        </if>
+    </select>
+
+    <update id="logicalDeleteBatchSendBySendCode">
+        UPDATE dms_material_send
+        SET
+            yn = 0,
+            update_user_erp = #{updateUserErp, jdbcType=VARCHAR},
+            update_user_name = #{updateUserName, jdbcType=VARCHAR},
+            update_time = now()
+        WHERE
+            yn = 1
+          AND send_code = #{sendCode,jdbcType=VARCHAR}
+          AND send_type = 3
+          AND create_site_code = #{createSiteCode,jdbcType=BIGINT}
+    </update>
+
+    <select id="countBySendCode" resultType="java.lang.Integer">
+        SELECT
+            COUNT(1)
+        FROM dms_material_send
+        WHERE
+            yn = 1
+        AND send_code = #{sendCode,jdbcType=VARCHAR}
+        <if test="createSiteCode != null">
+            AND create_site_code = #{createSiteCode,jdbcType=BIGINT}
+        </if>
+    </select>
+</mapper>

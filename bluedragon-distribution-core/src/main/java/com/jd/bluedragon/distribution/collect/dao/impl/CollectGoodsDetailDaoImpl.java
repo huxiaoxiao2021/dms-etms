@@ -55,4 +55,9 @@ public class CollectGoodsDetailDaoImpl extends BaseDao<CollectGoodsDetail> imple
     public List<CollectGoodsDetail> queryByCondition(CollectGoodsDetailCondition collectGoodsDetailCondition) {
         return this.sqlSession.selectList(this.nameSpace+".queryByCondition",collectGoodsDetailCondition);
     }
+
+    @Override
+    public CollectGoodsDetail findCollectGoodsDetailByPackageCode(String packageCode){
+        return this.sqlSession.selectOne(this.nameSpace+".findCollectGoodsDetailByPackageCode",packageCode);
+    }
 }

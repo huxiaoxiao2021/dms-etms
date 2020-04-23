@@ -40,11 +40,6 @@
 		<property name="ordersResource" ref="ordersResource"></property>
 	</bean>
     
-  	<bean id="emsOrderJosSafService"
-		class="com.jd.bluedragon.distribution.saf.EmsOrderJosSafServiceImpl" />
-	<jsf:provider id="jsfEmsOrderJos" interface="com.jd.bluedragon.distribution.saf.EmsOrderJosSafService" alias="${dms.jsf.alias}" ref="emsOrderJosSafService" server="dmsjsf"/>
-				  
-  
   	<bean id="getWaybillSafService"
 		class="com.jd.bluedragon.distribution.saf.GetWaybillSafServiceImpl" />
     <jsf:provider id="jsfGetWaybillServer" server="dmsjsf" ref="getWaybillSafService" 
@@ -64,13 +59,6 @@
                   alias="${dms.jsf.print.alias}">
                   <jsf:parameter key="token" value="${dms.jsf.print.token}"/>
     </jsf:provider>
-
-    <!-- 阿尔法打印插件自动升级JSF接口 -->
-    <!-- 实现类 -->
-    <bean id="jsfPrintDeviceServiceImpl" class="com.jd.bluedragon.distribution.saf.JsfPrintDeviceServiceImpl"/>
-    <jsf:provider id="jsfPrintDeviceService" server="dmsjsf" ref="jsfPrintDeviceServiceImpl"
-                  interface="com.jd.bluedragon.distribution.alpha.jsf.JsfPrintDeviceService"
-                    alias="${dms.jsf.alias}"/>
 
     <!-- PDA操作JSF接口 -->
     <!-- 基础服务相关JSF接口 -->
@@ -171,5 +159,21 @@
                   interface="com.jd.bluedragon.distribution.external.service.DmsForMiddleEndService"
                   alias="${dms.jsf.alias}"
                   ref="dmsForMiddleEndService" server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 为外单提供jsf接口，获取拼多多的面单打印收寄件人信息 -->
+    <jsf:provider id="pddExternalJSFService"
+                  interface="com.jd.bluedragon.distribution.external.pdd.DMSExternalInPDDService"
+                  alias="${dms.jsf.pdd.external.alias}"
+                  ref="dmsExternalInPDDService" server="dmsjsf">
+        <jsf:parameter key="token" value="${dms.jsf.pdd.external.token}" hide="true"/>
+    </jsf:provider>
+
+    <!--  为运输提供接口，获取批次号得重量体积和生鲜属性  -->
+    <jsf:provider id="dmsSendCodeJSFServiceAPI"
+                  interface="com.jd.bluedragon.distribution.sendCode.DMSSendCodeJSFService"
+                  alias="${dms.jsf.sendCode.external.alias}"
+                  ref="dmsSendCodeJSFService" server="dmsjsf">
+        <jsf:parameter key="token" value="${dms.jsf.sendCode.external.token}" hide="true"/>
     </jsf:provider>
 </beans>

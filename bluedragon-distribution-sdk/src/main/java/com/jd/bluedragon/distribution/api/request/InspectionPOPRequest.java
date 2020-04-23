@@ -78,6 +78,15 @@ public class InspectionPOPRequest extends JdRequest {
 	 * B商家名称
 	 */
 	private String busiName;
+
+    /**
+     * 是否取消鸡毛信服务；
+     * 根据waybillsign确认是鸡毛信运单 才有用
+     * true 取消，false 不取消
+     */
+	private Boolean cancelFeatherLetter;
+
+	private String featherLetterDeviceNo;
     
 	public String getBoxCode() {
 		return boxCode;
@@ -190,4 +199,20 @@ public class InspectionPOPRequest extends JdRequest {
 	public void setBusiName(String busiName) {
 		this.busiName = busiName;
 	}
+
+    public Boolean getCancelFeatherLetter() {
+        return cancelFeatherLetter;
+    }
+
+    public void setCancelFeatherLetter(Boolean cancelFeatherLetter) {
+        this.cancelFeatherLetter = cancelFeatherLetter;
+    }
+
+    public String getFeatherLetterDeviceNo() {
+        return featherLetterDeviceNo;
+    }
+
+    public void setFeatherLetterDeviceNo(String featherLetterDeviceNo) {
+        this.featherLetterDeviceNo = featherLetterDeviceNo;
+    }
 }

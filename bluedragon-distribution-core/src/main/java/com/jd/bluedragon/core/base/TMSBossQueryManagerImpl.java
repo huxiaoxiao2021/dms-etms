@@ -1,16 +1,13 @@
 package com.jd.bluedragon.core.base;
 
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.alibaba.fastjson.JSON;
+import com.jd.bluedragon.Constants;
 import com.jd.tms.boss.dto.CommonDto;
 import com.jd.tms.boss.dto.RecyclingBoxDto;
 import com.jd.tms.boss.ws.BossQueryWS;
 import com.jd.ump.annotation.JProfiler;
-import com.jd.ump.profiler.CallerInfo;
-import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +15,7 @@ import java.util.List;
 
 @Service("tmsBossQueryManager")
 public class TMSBossQueryManagerImpl implements TMSBossQueryManager {
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private BossQueryWS bossQueryWS;
@@ -27,13 +24,12 @@ public class TMSBossQueryManagerImpl implements TMSBossQueryManager {
     public RecyclingBoxDto getRecyclingBoxFaceInfo(RecyclingBoxDto dto) throws Exception{
         CommonDto<RecyclingBoxDto> commonDto = bossQueryWS.getRecyclingBoxFaceInfo(dto);
         if(commonDto == null){
-            logger.error("调用运输系统获取青流箱信息失败.RecyclingBoxDto:" + JSON.toJSONString(dto));
+            log.warn("调用运输系统获取青流箱信息失败.RecyclingBoxDto:{}" , JSON.toJSONString(dto));
             return null;
         }
         if(commonDto.getCode() != 1){
-            logger.error("调用运输系统获取青流箱信息失败.RecyclingBoxDto:" + JSON.toJSONString(dto) +
-                    ".返回值code:" + commonDto.getCode() +
-                    ",message" + commonDto.getMessage());
+            log.warn("调用运输系统获取青流箱信息失败.RecyclingBoxDto:{}.返回值code:{}.message:{}"
+                    , JSON.toJSONString(dto) , commonDto.getCode(), commonDto.getMessage());
             return null;
         }
         return commonDto.getData();
@@ -54,9 +50,9 @@ public class TMSBossQueryManagerImpl implements TMSBossQueryManager {
             if (recyclingBoxDto != null && recyclingBoxDto.getBoxCodeList() != null) {
                 return recyclingBoxDto.getBoxCodeList();
             }
-            logger.warn("根据流水号获取青流箱箱号列表为空.batchCode:" + batchCode);
+            log.warn("根据流水号获取青流箱箱号列表为空.batchCode:{}" , batchCode);
         }catch (Exception e){
-            logger.error("调运输系统获取青流箱箱号列表异常.",e);
+            log.error("调运输系统获取青流箱箱号列表异常.batchCode:{}" , batchCode,e);
         }
         return null;
     }

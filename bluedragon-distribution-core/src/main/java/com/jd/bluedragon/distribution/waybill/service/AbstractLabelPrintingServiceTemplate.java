@@ -3,7 +3,8 @@ package com.jd.bluedragon.distribution.waybill.service;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.jd.bluedragon.common.service.WaybillCommonService;
@@ -33,7 +34,7 @@ import com.jd.ql.basic.ws.BasicSecondaryWS;
  */
 public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrintingService {
 
-    private static final Logger log = Logger.getLogger(AbstractLabelPrintingServiceTemplate.class);
+    private static final Logger log = LoggerFactory.getLogger(AbstractLabelPrintingServiceTemplate.class);
 
     public static final String LOG_PREFIX="包裹标签打印模板[AbstractLabelPrintingServiceTemplate] ";
 
@@ -165,12 +166,12 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
             if(jdResult.isSucceed()) {
             	crossPackageTag = jdResult.getData();
             }else{
-            	log.warn("打印业务：获取滑道号笼车号信息为空！" + jdResult.getMessage());
+            	log.warn("打印业务：获取滑道号笼车号信息为空:{}", jdResult.getMessage());
             }
         }
 
         if(crossPackageTag==null){
-            log.warn(LOG_PREFIX+" 无法获取包裹打印数据"+request.getWaybillCode());
+            log.warn(LOG_PREFIX+" 无法获取包裹打印数据{}", request.getWaybillCode());
             if(StringHelper.isEmpty(labelPrinting.getPrepareSiteName())){
                 labelPrinting.setPrepareSiteName(getBaseSite(labelPrinting.getPrepareSiteCode()));
                 labelPrinting.setPrintSiteName(getBaseSite(labelPrinting.getPrepareSiteCode()));
@@ -178,7 +179,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
             return new BaseResponseIncidental<LabelPrintingResponse>(LabelPrintingResponse.CODE_EMPTY_BASE,LabelPrintingResponse.MESSAGE_EMPTY_BASE+"(crossPackageTag打印数据)"
                     ,labelPrinting,JsonHelper.toJson(labelPrinting));
         }
-        log.info(new StringBuilder(LOG_PREFIX).append("基础资料crossPackageTag").append(crossPackageTag.toString()));
+        log.info(LOG_PREFIX + "基础资料crossPackageTag:{}",crossPackageTag.toString());
 
         //如果是自提柜，则打印的是自提柜的地址(基础资料大全表)，而非客户地址(运单系统)
         if(LabelPrintingService.ARAYACAK_CABINET.equals(crossPackageTag.getIsZiTi())){
@@ -254,20 +255,20 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         	isNew = true;
         }else{
 	        /**查询运单*/
-	        BaseEntity<BigWaybillDto> entity = waybillQueryManager.getWaybillDataForPrint(request.getWaybillCode());
+            BaseEntity<BigWaybillDto> entity = waybillQueryManager.getWaybillDataForPrint(request.getWaybillCode());
 	        if(entity==null || entity.getData()==null){
-	            log.warn(LOG_PREFIX+" 没有获取运单数据(BaseEntity<BigWaybillDto>)"+request.getWaybillCode());
+	            log.warn(LOG_PREFIX+" 没有获取运单数据(BaseEntity<BigWaybillDto>):{}",request.getWaybillCode());
 	            return null;
 	        }
             bigWaybillDto = entity.getData();
         }
         if(bigWaybillDto==null){
-        	log.warn(LOG_PREFIX+" 没有获取运单数据(BaseEntity<BigWaybillDto>)"+request.getWaybillCode());
+        	log.warn(LOG_PREFIX+" 没有获取运单数据(BaseEntity<BigWaybillDto>):{}",request.getWaybillCode());
         	return null;
         }
         Waybill waybill = bigWaybillDto.getWaybill();
         if(waybill==null){
-            log.warn(LOG_PREFIX+" 没有获取运单数据(waybill)"+request.getWaybillCode());
+            log.warn(LOG_PREFIX+" 没有获取运单数据(waybill):{}",request.getWaybillCode());
             return null;
         }
         if(context != null && context.getWaybill() != null && InterceptResult.STATUS_WEAK_PASSED.equals(context.getStatus())){//二次预分拣时重置目的站点和路区
@@ -304,18 +305,18 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
             labelPrinting.setPrepareSiteCode(LabelPrintingService.PREPARE_SITE_CODE_OVER_AREA);
             labelPrinting.setPrepareSiteName(LabelPrintingService.PREPARE_SITE_NAME_OVER_AREA);
             labelPrinting.setPrintSiteName(LabelPrintingService.PREPARE_SITE_NAME_OVER_AREA);
-            log.warn(LOG_PREFIX+" 没有获取预分拣站点(-2超区),"+request.getWaybillCode());
+            log.warn(LOG_PREFIX+" 没有获取预分拣站点(-2超区):{}",request.getWaybillCode());
             //未定位门店
         } else if(labelPrinting.getPrepareSiteCode()==null || (labelPrinting.getPrepareSiteCode()<=LabelPrintingService.PREPARE_SITE_CODE_NOTHING && labelPrinting.getPrepareSiteCode() > LabelPrintingService.PREPARE_SITE_CODE_OVER_LINE)){
             labelPrinting.setPrepareSiteCode(LabelPrintingService.PREPARE_SITE_CODE_NOTHING);
             labelPrinting.setPrepareSiteName(LabelPrintingService.PREPARE_SITE_NAME_NOTHING);
             labelPrinting.setPrintSiteName(LabelPrintingService.PREPARE_SITE_NAME_NOTHING);
-            log.warn(LOG_PREFIX+" 没有获取预分拣站点(未定位门店),"+request.getWaybillCode());
+            log.warn(LOG_PREFIX+" 没有获取预分拣站点(未定位门店):{}",request.getWaybillCode());
         } else if(labelPrinting.getPrepareSiteCode() !=null && labelPrinting.getPrepareSiteCode().intValue() < LabelPrintingService.PREPARE_SITE_CODE_OVER_LINE){
             //新细分超区
             labelPrinting.setPrepareSiteName(LabelPrintingService.PREPARE_SITE_NAME_OVER_AREA);
             labelPrinting.setPrintSiteName(LabelPrintingService.PREPARE_SITE_NAME_OVER_AREA);
-            log.warn(LOG_PREFIX+" 没有获取预分拣站点(细分超区)," + labelPrinting.getPrepareSiteCode() + ","+request.getWaybillCode());
+            log.warn(LOG_PREFIX+" 没有获取预分拣站点(细分超区):{},{}",labelPrinting.getPrepareSiteCode(),request.getWaybillCode());
         }
 
         //EMS全国直发
@@ -366,7 +367,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
      * @return
      */
     private String getBaseSite(Integer prepareSiteCode) {
-        log.info(LOG_PREFIX+"查询基础资料获取站点名称接口");
+        log.info(LOG_PREFIX+"查询基础资料获取站点名称接口:{}",prepareSiteCode);
 
         BaseStaffSiteOrgDto baseStaffSite =baseMajorManager.getBaseSiteBySiteId(prepareSiteCode);
 //        BaseStaffSiteOrgDto baseStaffSite = commonBasicFacade.getBaseSiteBySiteId(prepareSiteCode);

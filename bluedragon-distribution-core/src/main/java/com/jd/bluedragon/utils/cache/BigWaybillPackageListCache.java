@@ -10,8 +10,8 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class BigWaybillPackageListCache {
 
-    private static final Log logger = LogFactory.getLog(BigWaybillPackageListCache.class);
+    private static final Logger log = LoggerFactory.getLogger(BigWaybillPackageListCache.class);
 
     /**
      * 大包裹运单限制，如果超过该值需进行缓存
@@ -53,7 +53,7 @@ public class BigWaybillPackageListCache {
             .build(new CacheLoader<String, List<DeliveryPackageD>>() {
                 @Override
                 public List<DeliveryPackageD> load(String key) throws Exception {
-                    logger.info("大运单包裹缓存[" + key + "]，未命中或已过期，调用运单接口，缓存当前大小:" + localCache.size());
+                    log.info("大运单包裹缓存[{}]，未命中或已过期，调用运单接口，缓存当前大小:{}",key, localCache.size());
                     WaybillPackageManager waybillPackageManager = (WaybillPackageManager) SpringHelper.getBean("waybillPackageManager");
                     if (waybillPackageManager != null) {
                         // 根据运单号获取包裹信息
@@ -61,11 +61,11 @@ public class BigWaybillPackageListCache {
                         if (baseEntity.getResultCode() == 1) {
                             return baseEntity.getData();
                         } else {
-                            logger.error("[大包裹运单缓存]调用运单waybillPackageManager.getPackListByWaybillCode接口获取包裹信息失败[ResultCode:" + baseEntity.getResultCode() + "，Message:" + baseEntity.getMessage() + "]");
+                            log.warn("[大包裹运单缓存]调用运单waybillPackageManager.getPackListByWaybillCode接口获取包裹信息失败[ResultCode:{}，Message:{}]",baseEntity.getResultCode(), baseEntity.getMessage());
                             throw new RuntimeException("[大包裹运单缓存]调用运单waybillPackageManager.getPackListByWaybillCode接口获取包裹信息失败[ResultCode:" + baseEntity.getResultCode() + "，Message:" + baseEntity.getMessage() + "]");
                         }
                     } else {
-                        logger.error("[大包裹运单缓存]获取WaybillPackageManager的Spring bean对象为空，无法获取包裹信息，缓存失败");
+                        log.error("[大包裹运单缓存]获取WaybillPackageManager的Spring bean对象为空，无法获取包裹信息，缓存失败");
                         throw new RuntimeException("[大包裹运单缓存]获取WaybillPackageManager的Spring bean对象为空，无法获取包裹信息，缓存失败");
                     }
                 }
@@ -80,7 +80,7 @@ public class BigWaybillPackageListCache {
      */
     public static List<DeliveryPackageD> getPackageListFromCache(String waybillCode) throws ExecutionException {
         CallerInfo info = Profiler.registerInfo("DMSWORKER.BigWaybillPackageListCache.getPackageListFromCache", Constants.UMP_APP_NAME_DMSWORKER, false, true);
-        logger.info("大运单包裹缓存[" + waybillCode + "]，取内存缓存，缓存当前大小:" + localCache.size());
+        log.info("大运单包裹缓存[{}]，取内存缓存，缓存当前大小:{}" ,waybillCode, localCache.size());
         List<DeliveryPackageD> packageList = localCache.get(waybillCode);
         Profiler.registerInfoEnd(info);
         return packageList;

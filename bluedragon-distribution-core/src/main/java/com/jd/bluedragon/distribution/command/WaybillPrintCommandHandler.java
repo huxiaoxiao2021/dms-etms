@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.command.handler.AbstractJsonCommandHandler
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.utils.JsonHelper;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * 
@@ -33,6 +34,9 @@ public class WaybillPrintCommandHandler extends AbstractJsonCommandHandler<Waybi
 			if(waybillPrintRequest.getOperateType() == null){
 				waybillPrintRequest.setOperateType(target.getOperateType());
 			}
+			if(StringUtils.isBlank(waybillPrintRequest.getVersionCode())){
+                waybillPrintRequest.setVersionCode(target.getVersionCode());
+            }
 		}
 		context.setRequest(waybillPrintRequest);
 		context.setResult(result);

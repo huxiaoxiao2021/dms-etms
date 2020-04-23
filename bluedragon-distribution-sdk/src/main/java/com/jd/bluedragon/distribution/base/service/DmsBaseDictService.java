@@ -61,18 +61,34 @@ public interface DmsBaseDictService extends Service<DmsBaseDict> {
      * @return
      */
     List<DmsBaseDict> queryListByParentId(Integer parentId);
+
+    /**
+     * 根据typeCode查找所有下级节点数据,返回list
+     * @param typeCode
+     * @return
+     */
+    List<DmsBaseDict> queryLowerLevelListByTypeCode(Integer typeCode);
     /**
      * 根据parentId查找所有下级节点数据,返回以字段TypeGroup为key的map
      * @param parentId
      * @return
      */
     Map<Integer, List<DmsBaseDict>> queryMapByParentId(Integer parentId);
+
+    /**
+     * 根据typeCode查找所有下级节点数据 解析成；<typeCode,typeName>数据结构
+     * @param typeCode
+     * @return
+     */
+    Map<Integer,String> queryMapKeyTypeCodeByTypeCode(Integer typeCode);
     /**
      * 根据typeCode查询根节点，parantId = 0的
      * @param typeName
      * @return
      */
     DmsBaseDict queryRootByTypeCode(Integer typeCode);
+
+    DmsBaseDict queryRootOnlyByTypeCode(Integer typeCode);
     /**
      * 根据typeCode和parantId查询节点
      * @param typeCode

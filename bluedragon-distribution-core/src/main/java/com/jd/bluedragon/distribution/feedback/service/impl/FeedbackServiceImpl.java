@@ -1,11 +1,27 @@
 package com.jd.bluedragon.distribution.feedback.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.jd.bluedragon.core.base.FeedBackApiManager;
 import com.jd.bluedragon.core.base.MrdFeedbackManager;
 import com.jd.bluedragon.distribution.basic.FileUtils;
+import com.jd.bluedragon.distribution.feedback.domain.FeedBackResponse;
 import com.jd.bluedragon.distribution.feedback.domain.Feedback;
+import com.jd.bluedragon.distribution.feedback.domain.FeedbackNew;
+import com.jd.bluedragon.distribution.feedback.domain.ReplyResponse;
 import com.jd.bluedragon.distribution.feedback.service.FeedbackService;
 import com.jd.bluedragon.distribution.jss.JssService;
+import com.jd.jdwl.feedback.common.dto.Result;
+import com.jd.jdwl.feedback.dto.FeedbackDto;
+import com.jd.jdwl.feedback.dto.FeedbackQueryDto;
+import com.jd.jdwl.feedback.dto.UserInfoDto;
+import com.jd.jdwl.feedback.vo.FeedbackVo;
+import com.jd.jdwl.feedback.vo.PageVo;
+import com.jd.jdwl.feedback.vo.ReplyVo;
 import com.jd.mrd.delivery.rpc.sdk.feedback.dto.UserFeedbackContent;
+import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.sun.org.apache.regexp.internal.RE;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -29,6 +45,8 @@ public class FeedbackServiceImpl implements FeedbackService {
 
     @Autowired
     private MrdFeedbackManager mrdFeedbackManager;
+    @Autowired
+    private FeedBackApiManager feedBackApiManager;
 
     @Autowired
     private JssService jssService;
@@ -42,9 +60,76 @@ public class FeedbackServiceImpl implements FeedbackService {
     }
 
     @Override
-    public boolean add(Feedback feedback) throws IOException {
-        List<String> urlList = this.batchUploadFile(feedback.getImages());
-        return mrdFeedbackManager.saveFeedback(this.toUserFeedbackContent(feedback, urlList));
+    public boolean add(FeedbackNew feedback) throws IOException {
+        List<String> urlList = this.batchUploadFile(feedback.getImgs());
+        return feedBackApiManager.createFeedBack(this.toUserFeedbackContent(feedback, urlList));
+    }
+
+    @Override
+    public Map<Long, String> getFeedbackTypeNew(Long appId, String userAccount, Integer orgType) {
+        UserInfoDto userInfoDto = new UserInfoDto();
+        userInfoDto.setAppId(appId);
+        userInfoDto.setUserAccount(userAccount);
+        userInfoDto.setOrgType(orgType);
+        return feedBackApiManager.queryFeedBackType(userInfoDto);
+    }
+
+    @Override
+    public boolean checkHasFeedBack(Long appId, String userAccount) {
+        return feedBackApiManager.checkHasFeedBack(userAccount, appId);
+    }
+
+    @Override
+    public PagerResult<FeedBackResponse> queryFeedBackPage(BasePagerCondition pagerCondition, String userCode, Long appId) {
+        FeedbackQueryDto queryDto = new FeedbackQueryDto();
+        queryDto.setUserAccount(userCode);
+        queryDto.setAppId(appId);
+        int currentPage = pagerCondition.getOffset()/pagerCondition.getLimit()+1;
+        queryDto.setIndex(currentPage);
+        queryDto.setPageSize(pagerCondition.getLimit());
+        PageVo<FeedbackVo> feedbackVoPageVo = feedBackApiManager.queryFeedback(queryDto);
+        PagerResult<FeedBackResponse> result= new PagerResult<>();
+        if (feedbackVoPageVo == null){
+            return result;
+        }
+        return fillResponse(feedbackVoPageVo);
+    }
+
+    private PagerResult<FeedBackResponse> fillResponse(PageVo<FeedbackVo> feedbackVoPageVo) {
+        if (feedbackVoPageVo == null || CollectionUtils.isEmpty(feedbackVoPageVo.getItemList())){
+            return new PagerResult<>();
+        }
+        PagerResult<FeedBackResponse> result =  new PagerResult<>();
+        List<FeedBackResponse> responseList =  new ArrayList<>();
+        for (FeedbackVo feedbackVo : feedbackVoPageVo.getItemList()) {
+            FeedBackResponse response = new FeedBackResponse();
+            response.setContent(feedbackVo.getContent());
+            response.setCreateTime(feedbackVo.getCreateTime());
+            response.setStatus(feedbackVo.getStatus());
+            response.setStatusName(feedbackVo.getStatusName());
+            response.setTypeName(feedbackVo.getTypeName());
+            response.setUserName(feedbackVo.getUserName());
+            response.setUserAccount(feedbackVo.getUserAccount());
+            response.setAttachmentList(feedbackVo.getAttachment());
+            if (CollectionUtils.isNotEmpty(feedbackVo.getReplys())){
+                List<ReplyResponse> replyResponses = new ArrayList<>();
+                for (ReplyVo reply : feedbackVo.getReplys()) {
+                    ReplyResponse replyResponse = new ReplyResponse();
+                    replyResponse.setContent(reply.getContent());
+                    replyResponse.setCreateTime(reply.getCreateTime());
+                    replyResponse.setUserAccount(reply.getUserAccount());
+                    replyResponse.setImgs(reply.getImg());
+                    replyResponse.setType(reply.getType());
+                    replyResponses.add(replyResponse);
+                }
+                response.setReplys(replyResponses);
+            }
+            response.setViewDataJsonStr(JSON.toJSONString(response));
+            responseList.add(response);
+        }
+        result.setRows(responseList);
+        result.setTotal(feedbackVoPageVo.getTotalItems());
+        return result;
     }
 
     /**
@@ -54,17 +139,14 @@ public class FeedbackServiceImpl implements FeedbackService {
      * @param urlList
      * @return
      */
-    private UserFeedbackContent toUserFeedbackContent(Feedback feedback, List<String> urlList) {
-        UserFeedbackContent userFeedbackContent = new UserFeedbackContent();
-        userFeedbackContent.setPackageName(feedback.getAppPackageName());
-        userFeedbackContent.setPin(feedback.getUserErp());
-        userFeedbackContent.setFeedbackType(feedback.getType());
-        userFeedbackContent.setContactInfo(feedback.getContactInfo());
-        userFeedbackContent.setFeedbackContent(feedback.getContent());
-        userFeedbackContent.setAppVersion("1");
-        userFeedbackContent.setOs("PC");
-        userFeedbackContent.setRoleIndex("-1");
-        userFeedbackContent.setImages(urlList);
+    private FeedbackDto toUserFeedbackContent(FeedbackNew feedback, List<String> urlList) {
+        FeedbackDto userFeedbackContent = new FeedbackDto();
+        userFeedbackContent.setAppId(feedback.getAppId());
+        userFeedbackContent.setTypeId(feedback.getType());
+        userFeedbackContent.setContent(feedback.getContent());
+        userFeedbackContent.setUserAccount(feedback.getUserAccount());
+        userFeedbackContent.setUserName(feedback.getUserName());
+        userFeedbackContent.setImg(urlList);
         return userFeedbackContent;
     }
 

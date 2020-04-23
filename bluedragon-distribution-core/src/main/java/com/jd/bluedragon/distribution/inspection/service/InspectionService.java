@@ -1,9 +1,15 @@
 package com.jd.bluedragon.distribution.inspection.service;
 
-import com.jd.bluedragon.distribution.api.request.InspectionRequest;
+import com.jd.bluedragon.distribution.api.response.SortingResponse;
+import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
+import com.jd.bluedragon.distribution.inspection.InspectionCheckCondition;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
+import com.jd.bluedragon.distribution.inspection.domain.InspectionPackProgress;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
+import com.jd.bluedragon.distribution.inspection.InsepctionCheckDto;
+import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 
 import java.util.List;
 import java.util.Map;
@@ -27,23 +33,43 @@ public interface InspectionService {
 	 */
 	public void inspectionCore( List<Inspection> inspections ) throws Exception;
 
-	
 	/**
-	 * 根据运单号或包裹号来返回Inspection集合
-	 * @param requestBean
-	 * @return 
+	 * 查询运单中已校验的数量
+	 * @param condition
+	 * @return
 	 */
-	public List<Inspection> prepareInspection(InspectionRequest requestBean);
+	public PagerResult<InsepctionCheckDto> findInspectionGather(InspectionCheckCondition condition);
 
-	public List<Inspection> parseInspections(Task task);
-	
+
+	/**
+	 * 查询运单中已校验的包裹
+	 * @param inspection
+	 * @return
+	 */
+	public PagerResult<Inspection> findInspetionedPacks(Inspection inspection);
+
+    /**
+     * 校验验货是否集齐
+     * @param pdaOperateRequest
+     * @return
+     */
+    public SortingJsfResponse gatherCheck(PdaOperateRequest pdaOperateRequest,SortingJsfResponse sortingJsfResponse);
+
 	/**
 	 * 验货数量
 	 * @param inspection
 	 * @return
 	 */
 	public Integer inspectionCount(Inspection inspection);
-	
+
+	/**
+	 * 已验数据 按运单查询
+	 * 不包含传入的包裹号
+	 * @param inspection
+	 * @return
+	 */
+	public Integer inspectionCountByWaybill(Inspection inspection);
+
 	/**
 	 * 增加POP收货数据
 	 * @param pop
@@ -97,7 +123,7 @@ public interface InspectionService {
 	 * 写入业务表数据和日志数据
 	 * @param  inspection
 	 * */
-	public void saveData(Inspection inspection);
+	public void saveData(Inspection inspection, String methodName);
 
     /**
      * 更新或插入数据
@@ -138,4 +164,13 @@ public interface InspectionService {
 
 	/**分页查询验货任务*/
 	public List<Inspection> findPageInspection(Map<String,Object> params);
+
+	/**
+	 * 查询运单的验货进度
+	 *
+	 * @param waybillCode
+	 * @param createSiteCode
+	 * @return
+	 */
+	InspectionPackProgress getWaybillCheckProgress(String waybillCode, Integer createSiteCode);
 }

@@ -29,6 +29,15 @@ public interface DmsOutWeightAndVolumeService {
     DmsOutWeightAndVolume getOneByBarCodeAndDms(String barCode,Integer dmsCode);
 
     /**
+     * 批量查询分拣中心对该箱号/包裹的记录
+     *
+     * @param barCodeList
+     * @param createSiteCode
+     * @return
+     */
+    List<DmsOutWeightAndVolume> getListByBarCodesAndDms(List<String> barCodeList, Integer createSiteCode);
+
+    /**
      * 将数据置成无效is_delete=1
      * @param barCode
      * @param dmsCode

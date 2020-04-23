@@ -10,8 +10,8 @@ import com.jd.bluedragon.distribution.packingconsumable.domain.PackingConsumable
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,7 +33,7 @@ import java.util.List;
 @RequestMapping("consumable/dmsConsumableRelation")
 public class DmsConsumableRelationController extends DmsBaseController {
 
-	private static final Log logger = LogFactory.getLog(DmsConsumableRelationController.class);
+	private static final Logger log = LoggerFactory.getLogger(DmsConsumableRelationController.class);
 
 	@Autowired
 	private DmsConsumableRelationService dmsConsumableRelationService;
@@ -71,7 +71,7 @@ public class DmsConsumableRelationController extends DmsBaseController {
 		try {
 			rest.setData(dmsConsumableRelationService.saveOrUpdate(dmsConsumableRelation));
 	} catch (Exception e) {
-			logger.error("fail to save！"+e.getMessage(),e);
+			log.error("fail to save！",e);
 			rest.toError("保存失败，服务异常！");
 		}
 		return rest;
@@ -88,7 +88,7 @@ public class DmsConsumableRelationController extends DmsBaseController {
 		try {
 			rest.setData(dmsConsumableRelationService.deleteByIds(ids));
 		} catch (Exception e) {
-			logger.error("fail to delete！"+e.getMessage(),e);
+			log.error("fail to delete！",e);
 			rest.toError("删除失败，服务异常！");
 		}
 		return rest;
@@ -124,7 +124,7 @@ public class DmsConsumableRelationController extends DmsBaseController {
 			dmsConsumableRelation.setDmsName(this.getLoginUser().getSiteName());
 			rest.setData(dmsConsumableRelationService.enableByCodes(codes, dmsConsumableRelation));
 		} catch (Exception e) {
-			logger.error("fail to enableByCodes！"+e.getMessage(),e);
+			log.error("fail to enableByCodes！",e);
 			rest.toError("启用失败，服务异常！");
 		}
 		return rest;
@@ -147,7 +147,7 @@ public class DmsConsumableRelationController extends DmsBaseController {
 			dmsConsumableRelation.setDmsName(this.getLoginUser().getSiteName());
 			rest.setData(dmsConsumableRelationService.disableByCodes(codes, dmsConsumableRelation));
 		} catch (Exception e) {
-			logger.error("fail to disableByCodes！"+e.getMessage(),e);
+			log.error("fail to disableByCodes！",e);
 			rest.toError("停用失败，服务异常！");
 		}
 		return rest;
@@ -166,7 +166,7 @@ public class DmsConsumableRelationController extends DmsBaseController {
 		try {
 			rest.setData(dmsConsumableRelationService.getPackingConsumableInfoByDmsId(this.getLoginUser().getSiteCode()));
 		} catch (Exception e) {
-			logger.error("fail to disableByCodes！"+e.getMessage(),e);
+			log.error("fail to disableByCodes！",e);
 			rest.toError("获取失败，服务异常！");
 		}
 

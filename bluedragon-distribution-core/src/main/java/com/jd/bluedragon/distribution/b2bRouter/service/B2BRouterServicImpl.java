@@ -11,7 +11,8 @@ import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -29,7 +30,7 @@ import java.util.Map;
 @Service("b2bRouterService")
 public class  B2BRouterServicImpl implements B2BRouterService{
 
-    private static final Logger logger = Logger.getLogger(B2BRouterServicImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(B2BRouterServicImpl.class);
 
     @Autowired
     private B2BRouterDao b2bRouterDao;
@@ -92,7 +93,7 @@ public class  B2BRouterServicImpl implements B2BRouterService{
             //写入b2b_router表
             b2bRouterNodeDao.addB2BRouterNodes(nodes);
         }catch (Exception e){
-            logger.error("向数据表中写入B网路由配置失败.",e);
+            log.error("向数据表中写入B网路由配置失败.",e);
             return false;
         }
         return true;
@@ -149,7 +150,7 @@ public class  B2BRouterServicImpl implements B2BRouterService{
                 list = b2bRouterDao.queryByCondition(params);
             }
         }catch (Exception e){
-            logger.error("根据查询条件获取路由信息失败.",e);
+            log.error("根据查询B2BRouter信息失败.",e);
             throw e;
         }
         return list;
@@ -177,7 +178,7 @@ public class  B2BRouterServicImpl implements B2BRouterService{
 
                 //表中没有该条数据，直接插入
                 if (routerList == null || routerList.size() < 1) {
-                    logger.error("b2b_router表中无" + router.getSiteNameFullLine() + "这条路径，无法更新，直接插入.");
+                    log.warn("b2b_router表中无{}这条路径，无法更新，直接插入.",router.getSiteNameFullLine());
                     addRouter(router);
                 }
 
@@ -205,7 +206,7 @@ public class  B2BRouterServicImpl implements B2BRouterService{
                 }
             }
         }catch (Exception e){
-            logger.error("更新路由信息失败.",e);
+            log.error("更新路由信息失败.",e);
             throw e;
         }
         return true;
@@ -234,7 +235,7 @@ public class  B2BRouterServicImpl implements B2BRouterService{
 
             b2bRouterNodeDao.deleteRouterNodeByChainId(params);
         }catch (Exception e){
-            logger.error("删除路由信息失败.",e);
+            log.error("删除路由信息失败.",e);
             throw e;
         }
         return true;
@@ -260,7 +261,7 @@ public class  B2BRouterServicImpl implements B2BRouterService{
             params.put("nextSiteCode",nextSiteCode);
             return b2bRouterNodeDao.getNextNode(params);
         }catch (Exception e){
-            logger.error("获取当前路由节点可以到达的一个节点失败.",e);
+            log.error("获取当前路由节点可以到达的一个节点失败.",e);
             throw e;
         }
     }
@@ -281,7 +282,7 @@ public class  B2BRouterServicImpl implements B2BRouterService{
             params.put("destinationSiteCode",destinationSiteCode);
             return b2bRouterDao.queryByCondition(params);
         }catch (Exception e){
-            logger.error("获取当前路由节点可以到达的一个节点失败.",e);
+            log.error("获取当前路由节点可以到达的一个节点失败.",e);
             throw e;
         }
     }
@@ -306,11 +307,11 @@ public class  B2BRouterServicImpl implements B2BRouterService{
         try {
             BaseStaffSiteOrgDto result = baseSiteManager.getBaseSiteBySiteId(code);
             if (result != null) {
-                logger.info("调基础资料接口获取的网点" + code + "的名称为：" + result.getSiteName());
+                log.info("调基础资料接口获取的网点{}的名称为：{}" ,code, result.getSiteName());
                 return result.getSiteName();
             }
         }catch (Exception e){
-            logger.error("根据网点编码获取网点名称失败.",e);
+            log.error("根据网点编码获取网点名称失败.",e);
         }
         return null;
     }
@@ -329,7 +330,7 @@ public class  B2BRouterServicImpl implements B2BRouterService{
                 updateRouter(router);
             }
         }catch (Exception e){
-            logger.error("执行批量录入B网路由信息失败.",e);
+            log.error("执行批量录入B网路由信息失败.",e);
             errString = "执行批量录入B网路由信息失败.";
         }
         return errString;

@@ -1,22 +1,22 @@
 package com.jd.bluedragon.distribution.test.departure;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.jd.bluedragon.distribution.api.response.SendBoxResponse;
+import com.jd.bluedragon.distribution.departure.domain.Departure;
+import com.jd.bluedragon.distribution.departure.domain.SendBox;
+import com.jd.bluedragon.distribution.departure.domain.SendMeasure;
+import com.jd.bluedragon.distribution.departure.service.DepartureService;
+import com.jd.etms.waybill.api.WaybillPackageApi;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.DeliveryPackageD;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
-import com.jd.bluedragon.distribution.api.response.SendBoxResponse;
-import com.jd.bluedragon.distribution.departure.domain.Departure;
-import com.jd.bluedragon.distribution.departure.domain.SendBox;
-import com.jd.bluedragon.distribution.departure.domain.SendMeasure;
-import com.jd.bluedragon.distribution.departure.service.DepartureService;
-import com.jd.bluedragon.distribution.receive.domain.SendCode;
-import com.jd.etms.waybill.api.WaybillPackageApi;
-import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.domain.DeliveryPackageD;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:spring/distribution-core-context.xml" })

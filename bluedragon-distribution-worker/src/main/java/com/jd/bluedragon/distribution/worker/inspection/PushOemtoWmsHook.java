@@ -4,9 +4,10 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.framework.TaskHook;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -15,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class PushOemtoWmsHook implements TaskHook<InspectionTaskExecuteContext> {
 
-    private static final Log logger= LogFactory.getLog(PushOemtoWmsHook.class);
+    private static final Logger log = LoggerFactory.getLogger(PushOemtoWmsHook.class);
 
     @Autowired
     private InspectionService inspectionService;
@@ -31,7 +32,7 @@ public class PushOemtoWmsHook implements TaskHook<InspectionTaskExecuteContext> 
                     inspectionService.pushOEMToWMS(inspection);//FIXME:51号库推送，需要检查是否在用
                 } catch (Exception e) {
                    // e.printStackTrace();
-                    logger.error(" 验货 inspectionCore调用OEM服务异常", e);
+                    log.error(" 验货 inspectionCore调用OEM服务异常:{}", JsonHelper.toJson(inspection), e);
                 }
             }
         }

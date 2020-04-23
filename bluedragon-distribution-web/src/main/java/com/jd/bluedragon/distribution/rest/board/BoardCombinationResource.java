@@ -1,19 +1,21 @@
 package com.jd.bluedragon.distribution.rest.board;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.api.dto.BoardDto;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.transboard.api.dto.AddBoardRequest;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
@@ -30,7 +32,7 @@ import java.util.List;
 @Consumes({MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_JSON})
 public class BoardCombinationResource {
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     BoardCombinationService boardCombinationService;
@@ -42,7 +44,7 @@ public class BoardCombinationResource {
         result.setData(new BoardResponse());
         BoardResponse boardResponse = result.getData();
 
-        logger.info("组板操作扫描的板号为:" + boardCode);
+        log.info("组板操作扫描的板号为:{}", boardCode);
 
         //参数为空校验
         if(StringHelper.isEmpty(boardCode)){
@@ -57,7 +59,7 @@ public class BoardCombinationResource {
             }
             result.setData(boardResponse);
         } catch (Exception e) {
-            logger.error("板号校验失败!",e);
+            log.error("板号校验失败!",e);
             boardResponse.addStatusInfo(JdResponse.CODE_ERROR,"板号校验失败，系统异常！");
             result.toError("板号校验失败，系统异常！");
         }
@@ -116,7 +118,7 @@ public class BoardCombinationResource {
                 return result;
             }
         } catch (Exception e) {
-            logger.error("组板失败!", e);
+            log.error("组板失败!", e);
             boardResponse.addStatusInfo(JdResponse.CODE_ERROR,"组板失败，系统异常！");
             result.toError("组板失败，系统异常！");
         }
@@ -152,7 +154,7 @@ public class BoardCombinationResource {
             }
             result.setData(boardResponse);
         } catch (Exception e) {
-            logger.error("取消组板失败!",e);
+            log.error("取消组板失败!",e);
             boardResponse.addStatusInfo(JdResponse.CODE_ERROR,"取消组板失败，系统异常！");
             result.toError("取消组板失败，系统异常！");
         }
@@ -190,7 +192,7 @@ public class BoardCombinationResource {
                     result.toFail(tcResponse.getMesseage());
                 }
             } catch (Exception e) {
-                logger.error("查询箱子所属板号失败!",e);
+                log.error("查询箱子所属板号失败!",e);
                 result.toError("查询箱子所属板号失败，系统异常！");
             }
         }else{
@@ -198,6 +200,36 @@ public class BoardCombinationResource {
         }
 
         return result;
+    }
+
+    @POST
+    @Path("/boardLablePrint/createBoard")
+    public InvokeResult<List<BoardDto>> createBoard(AddBoardRequest request){
+
+        InvokeResult<List<BoardDto>> invokeResult = new InvokeResult<>();
+        if(request == null || request.getDestination() == null || request.getDestinationId() == null || request.getBoardCount() == null){
+            invokeResult.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+            invokeResult.setMessage(InvokeResult.PARAM_ERROR);
+            this.log.warn("建板请求的参数有误");
+            return invokeResult;
+        }
+        this.log.info("建板请求的板号数量:{},场站sitecode:{},目的地destinationId:{}",request.getBoardCount(), request.getSiteCode(),request.getDestinationId());
+        return boardCombinationService.createBoard(request);
+    }
+
+    @GET
+    @Path("/boardLablePrint/getBoard/{boardCode}")
+    public InvokeResult<BoardDto> getBoard(@PathParam("boardCode") String boardCode){
+        if(boardCode == null){
+            this.log.warn("请求的板号为空");
+            InvokeResult<BoardDto> invokeResult = new InvokeResult<>();
+            invokeResult.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+            invokeResult.setMessage(InvokeResult.PARAM_ERROR);
+            return invokeResult;
+        }
+        this.log.info("请求板信息的板号为：:{}", boardCode);
+        return boardCombinationService.getBoard(boardCode);
+
     }
 
     /**
@@ -229,7 +261,7 @@ public class BoardCombinationResource {
                     result.toFail(tcResponse.getMesseage());
                 }
             } catch (Exception e) {
-                logger.error("查询箱子所属板号失败!",e);
+                log.error("查询箱子所属板号失败!",e);
                 result.toError("查询箱子所属板号失败，系统异常！");
             }
         }else{
@@ -291,7 +323,7 @@ public class BoardCombinationResource {
         //箱号/运单号是否合法
         if (!BusinessUtil.isBoxcode(request.getBoxOrPackageCode())
                 && !WaybillUtil.isPackageCode(request.getBoxOrPackageCode())) {
-            this.logger.error("箱号/包裹号正则校验不通过：" + request.getBoxOrPackageCode());
+            this.log.warn("箱号/包裹号正则校验不通过：{}", request.getBoxOrPackageCode());
            return "箱号/包裹号不合法.";
         }
 
@@ -325,7 +357,7 @@ public class BoardCombinationResource {
         //箱号/包裹号/运单号是否合法
         if (!BusinessUtil.isBoxcode(request.getBoxOrPackageCode())
                 && !WaybillUtil.isPackageCode(request.getBoxOrPackageCode()) && ! WaybillUtil.isWaybillCode(request.getBoxOrPackageCode())) {
-            this.logger.error("箱号/包裹号正则校验不通过：" + request.getBoxOrPackageCode());
+            this.log.warn("箱号/包裹号正则校验不通过：{}", request.getBoxOrPackageCode());
             return "箱号/运单号/包裹号不合法.";
         }
 

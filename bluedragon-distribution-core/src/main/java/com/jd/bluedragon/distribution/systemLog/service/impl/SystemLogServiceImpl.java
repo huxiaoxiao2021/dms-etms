@@ -8,9 +8,9 @@ import com.jd.bluedragon.distribution.systemLog.dao.SystemlogCassandra;
 import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.distribution.systemLog.service.SystemLogService;
 import com.jd.bluedragon.utils.StringHelper;
-
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -19,15 +19,23 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 
+
+
 /**
+ *
+ * 不要使用此接口保存日志了。请使用统一的日志日志接口com.jd.bluedragon.distribution.log.impl.LogEngineImpl。
+ * com.jd.bluedragon.distribution.log.impl.LogEngineImpl 此接口保存的日志会存储到business.log.jd.com 中;
+ *
+ *
  * 系统日志记录工具
  * @author huangliang
  *
  */
 @Service("SystemLogService")
+@Deprecated
 public class SystemLogServiceImpl implements SystemLogService {
 
-	private final static Logger logger = Logger.getLogger(SystemLogServiceImpl.class);
+	private final static Logger log = LoggerFactory.getLogger(SystemLogServiceImpl.class);
 
 	@Autowired
 	private SystemLogDao systemLogDao;
@@ -65,7 +73,7 @@ public class SystemLogServiceImpl implements SystemLogService {
 			}
 			return 1;
 		} catch (Exception e) {
-			logger.error("插入操作日志失败，失败信息为：" + e.getMessage(), e);
+			log.error("插入操作日志失败，失败信息为：", e);
 			return 0;
 		}
 	}

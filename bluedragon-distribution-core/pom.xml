@@ -22,7 +22,7 @@
 		<slf4j.version>1.6.4</slf4j.version>
 		<aspectj.version>1.6.11</aspectj.version>
 		<jmq.version>2.2.0</jmq.version>
-		<etms.waybill.agent.version>4.2.101</etms.waybill.agent.version>
+		<etms.waybill.agent.version>4.2.149</etms.waybill.agent.version>
 		<jddl-client.version>2.0.1-SNAPSHOT</jddl-client.version>
 		<configure-client.version>1.0.0-SNAPSHOT</configure-client.version>
 		<configure-utils.version>1.0.0-SNAPSHOT</configure-utils.version>
@@ -30,13 +30,33 @@
 		<jdbcp-pool.version>2.0.1-SNAPSHOT</jdbcp-pool.version>
 		<nv-websocket.version>2.3</nv-websocket.version>
 		<kryo.version>4.0.0</kryo.version>
+		<crossbow.version>0.1.0-SNAPSHOT</crossbow.version>
+		<crossbow.sdk.version>0.0.1-SNAPSHOT</crossbow.sdk.version>
+		<crossbow.api.version>0.0.1-SNAPSHOT</crossbow.api.version>
+		<crossbow.component.version>0.0.4-SNAPSHOT</crossbow.component.version>
 	</properties>
 
 	<dependencies>
 		<dependency>
+			<artifactId>sorting-api</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>validation-api</artifactId>
+					<groupId>javax.validation</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>hibernate-validator</artifactId>
+					<groupId>org.hibernate.validator</groupId>
+				</exclusion>
+			</exclusions>
+			<groupId>com.jd.ql.shared.services</groupId>
+			<version>1.2-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
 			<groupId>ql-dms-report</groupId>
 			<artifactId>report-sdk</artifactId>
-			<version>1.1.2-SNAPSHOT</version>
+			<version>1.1.5-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -88,12 +108,24 @@
             <groupId>com.jd.std.ucc</groupId>
             <artifactId>confcenter-client</artifactId>
             <version>1.1.2-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 		<dependency>
 			<groupId>com.jd.etms.monitor</groupId>
 			<artifactId>ql-data-saf-api</artifactId>
 			<version>1.2.8-SNAPSHOT</version>
-		</dependency>
+            <exclusions>
+                <exclusion>
+				<artifactId>slf4j-api</artifactId>
+				<groupId>org.slf4j</groupId>
+			</exclusion>
+            </exclusions>
+        </dependency>
 
 		<dependency>
 			<groupId>com.jd.tms.basic</groupId>
@@ -140,11 +172,22 @@
 			<scope>test</scope>
 
 		</dependency>
-
+        <dependency>
+            <groupId>org.jmockit</groupId>
+            <artifactId>jmockit</artifactId>
+            <version>1.9</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>2.7.12</version>
+            <scope>test</scope>
+        </dependency>
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>1.2.26-SNAPSHOT</version>
+			<version>1.3.8-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.ldop.alpha</groupId>
@@ -154,7 +197,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-utils</artifactId>
-			<version>1.1.9-SNAPSHOT</version>
+			<version>1.2.2-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -171,7 +214,7 @@
 		<dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>bluedragon-distribution-common-android</artifactId>
-            <version>1.0.4-SNAPSHOT</version>
+            <version>1.0.9-SNAPSHOT</version>
         </dependency>
 		<dependency>
 			<groupId>com.jd.etms.waybill</groupId>
@@ -356,11 +399,11 @@
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
 
-		<dependency>
-			<groupId>com.jd</groupId>
-			<artifactId>omc-jsf-api</artifactId>
-			<version>1.1.1-SNAPSHOT</version>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>com.jd</groupId>-->
+<!--			<artifactId>omc-jsf-api</artifactId>-->
+<!--			<version>1.1.1-SNAPSHOT</version>-->
+<!--		</dependency>-->
 		<dependency>
 			<groupId>net.sf.json-lib</groupId>
 			<artifactId>json-lib</artifactId>
@@ -421,7 +464,12 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-
+        <!--安全相关 ConfigSecSDK importants运行环境加密-->
+        <dependency>
+            <groupId>com.jd.security.configsec</groupId>
+            <artifactId>spring-configsec-sdk</artifactId>
+            <version>1.0.2.RELEASE</version>
+        </dependency>
 
 
 		<dependency>
@@ -433,7 +481,7 @@
 		<dependency>
 			<groupId>com.jd.ql.basic</groupId>
 			<artifactId>ql-basic-client</artifactId>
-			<version>1.2.22-SNAPSHOT</version>
+			<version>1.2.27-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.ldop.basic</groupId>
@@ -445,14 +493,20 @@
 		<dependency>
 			<groupId>com.jd.ql.erp</groupId>
 			<artifactId>ql-erp-client</artifactId>
-			<version>5.3.66-SNAPSHOT</version>
+			<version>5.4.8-SNAPSHOT</version>
 		</dependency>
 		<!--jsf  -->
 		<dependency>
 			<groupId>com.jd</groupId>
 			<artifactId>jsf</artifactId>
 			<version>1.6.6-HOTFIX-T1</version>
-		</dependency>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
 		<dependency>
 		<groupId>com.jd.jq</groupId>
@@ -513,6 +567,10 @@
                 <exclusion>
                     <artifactId>fastjson</artifactId>
                     <groupId>com.alibaba</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -590,11 +648,20 @@
             <artifactId>etms-erp-client</artifactId>
             <version>1.3-SNAPSHOT</version>
         </dependency>
+		<dependency>
+			<groupId>com.jdwl.bcoi.entry</groupId>
+			<artifactId>bcoi-entry-api-16</artifactId>
+			<version>0.0.2-SNAPSHOT</version>
+		</dependency>
         <dependency>
             <groupId>com.jd.etms.receive</groupId>
             <artifactId>etms-receive-api</artifactId>
             <version>1.2.64-SNAPSHOT</version>
             <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
             	<!-- iText 5 -->
 		        <exclusion>
 		            <groupId>com.itextpdf</groupId>
@@ -608,7 +675,7 @@
 		            <groupId>com.itextpdf</groupId>
 		            <artifactId>itext-asian</artifactId>
 		        </exclusion>
-            </exclusions> 
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.jd.etms.vehicle.manager.interface</groupId>
@@ -619,7 +686,30 @@
 		    <groupId>com.jd.stock.iwms</groupId>
 		    <artifactId>iwms-app-export</artifactId>
 		    <version>0.2.0-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>jsf</artifactId>
+					<groupId>com.jd</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
+        <!-- 国际化-库存出管 -->
+        <dependency>
+            <groupId>com.jd.stock.iwms</groupId>
+            <artifactId>iwms-app-export</artifactId>
+            <version>1.0.2-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>jsf</artifactId>
+					<groupId>com.jd</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+        <dependency>
+            <groupId>stock-sdk</groupId>
+            <artifactId>stock-sdk-base</artifactId>
+            <version>7.1.1-jdk6-SNAPSHOT</version>
+        </dependency>
 		<dependency>
 			<groupId>com.jd.etms.vos</groupId>
 			<artifactId>etms-vos-client</artifactId>
@@ -669,6 +759,11 @@
 			<artifactId>tms-basic-client</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+            <groupId>com.jd.tms.ecp</groupId>
+            <artifactId>tms-ecp-client</artifactId>
+            <version>1.0-SNAPSHOT</version>
+		</dependency>
 
         <!-- cassandra -->
 		<dependency>
@@ -686,6 +781,14 @@
 				<exclusion>
 					<artifactId>spring-asm</artifactId>
 					<groupId>org.springframework</groupId>
+				</exclusion>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+				<exclusion>
+					<artifactId>jsf</artifactId>
+					<groupId>com.jd</groupId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -705,6 +808,10 @@
 				<exclusion>
 					<artifactId>spring-asm</artifactId>
 					<groupId>org.springframework</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jsf</artifactId>
+					<groupId>com.jd</groupId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -785,6 +892,12 @@
             </exclusions>
 		</dependency>
 
+        <!--ioT 校验鸡毛信设备-->
+        <dependency>
+            <groupId>com.jd.tms.iot</groupId>
+            <artifactId>tms-iot-client</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
 
 		<!--增加订单中间件接口 使用jsf-->
 		<dependency>
@@ -806,17 +919,22 @@
 
 		<!-- 增加JSS的依赖包 -->
 		<dependency>
-			<groupId>com.ipd</groupId>
-			<artifactId>jss-sdk-java</artifactId>
-			<version>1.3.0</version>
+		    <groupId>com.jd.jss</groupId>
+		    <artifactId>jss-sdk-java</artifactId>
+		    <version>1.4.2-SNAPSHOT</version>
 		</dependency>
-
         <!-- 用户组接口 -->
         <dependency>
             <groupId>com.jd.user.sdk</groupId>
             <artifactId>user-sdk-export</artifactId>
             <version>2.0.0-SNAPSHOT</version>
-        </dependency>
+			<exclusions>
+				<exclusion>
+					<artifactId>jsf</artifactId>
+					<groupId>com.jd</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 
         <!-- 主键生成服务 -->
         <dependency>
@@ -857,20 +975,20 @@
 		<dependency>
 			<groupId>com.jd.transboard</groupId>
 			<artifactId>transboard-api</artifactId>
-			<version>1.0.2-SNAPSHOT</version>
+			<version>1.0.3-SNAPSHOT</version>
 		</dependency>
 
 		<!--路由系统-->
 		<dependency>
 			<groupId>com.jd.etms.vrs</groupId>
 			<artifactId>etms-vrs-sdk</artifactId>
-			<version>1.1.56-SNAPSHOT</version>
+			<version>1.1.74-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.jd.ldop.center</groupId>
 			<artifactId>ldop-center-api</artifactId>
-			<version>1.2.103-SNAPSHOT</version>
+			<version>1.4.98-SNAPSHOT</version>
 		</dependency>
 		<!-- 理赔系统接口 -->
 		<dependency>
@@ -888,13 +1006,12 @@
 		<dependency>
 			<groupId>com.jd.ql.dms.opLog</groupId>
 			<artifactId>opLog-agent</artifactId>
-			<version>1.0.2-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.jd.bd.dms.automatic</groupId>
 			<artifactId>automatic-sdk</artifactId>
-			<version>1.1.1-SNAPSHOT</version>
+			<version>1.1.4-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -928,6 +1045,10 @@
 				<exclusion>
 					<groupId>com.jd.coo.jdbcp</groupId>
 					<artifactId>jdbcp-pool</artifactId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jboss-logging</artifactId>
+					<groupId>org.jboss.logging</groupId>
 				</exclusion>
 			</exclusions>
 			<version>${jddl-client.version}</version>
@@ -971,7 +1092,7 @@
         <dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>business-sdk</artifactId>
-            <version>1.0.4-SNAPSHOT</version>
+            <version>1.0.7-RELEASE</version>
         </dependency>
 
 		<!--JMQ-Split组件  -->
@@ -1029,7 +1150,7 @@
         <dependency>
 			<groupId>com.jd.ql.dms.print</groupId>
 			<artifactId>label-print-engine</artifactId>
-			<version>1.1.10-SNAPSHOT</version>
+			<version>1.2.3-RELEASE</version>
         </dependency>
 		<!-- 打印引擎    start-->
 		<dependency>
@@ -1049,16 +1170,171 @@
 			<groupId>com.jd.router</groupId>
 			<artifactId>open-router-api</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>jss-sdk-java</artifactId>
+					<groupId>com.jcloud</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jsf</artifactId>
+					<groupId>com.jd</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
+
+		<dependency>
+			<groupId>com.jd.lop</groupId>
+			<artifactId>crossbow-sdk</artifactId>
+			<version>${crossbow.sdk.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.jd.lop</groupId>
+			<artifactId>crossbow-api</artifactId>
+			<version>${crossbow.api.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.jd.lsb</groupId>
+			<artifactId>lsb-component</artifactId>
+			<version>${crossbow.component.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.jd.lsb.component</groupId>
+			<artifactId>crossbow</artifactId>
+			<version>${crossbow.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.intelligent.center</groupId>
+			<artifactId>icenter-api</artifactId>
+			<version>1.1.0-1.7-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>jboss-logging</artifactId>
+					<groupId>org.jboss.logging</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.ldop.oms</groupId>
+			<artifactId>ldop-oms-api</artifactId>
+			<version>1.0.39-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.eclp</groupId>
+			<artifactId>customer-center-api</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
+		<!-- 质控 -->
+		<dependency>
+			<groupId>com.jd.wl</groupId>
+			<artifactId>data.qc.abnormal.jsf.jar</artifactId>
+			<version>1.0.4-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.kafka</groupId>
+					<artifactId>kafka-clients</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.etms.contract</groupId>
+			<artifactId>etms-contract-api</artifactId>
+			<version>1.0.8.7-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.ccmp</groupId>
+			<artifactId>ccmp-ctm-api</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.bdp</groupId>
+			<artifactId>jdq</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.ql.dms.opLog</groupId>
+			<artifactId>opLog-api</artifactId>
+		</dependency>
+
+		<dependency>
+			<artifactId>dms-ver-sdk</artifactId>
+			<groupId>com.jd.bluedragon</groupId>
+			<version>1.0.0-SNAPSHOT</version>
+		</dependency>
+		<!--新意见反馈接口-->
+		<dependency>
+			<groupId>com.jd.jdwl</groupId>
+			<artifactId>feedback-api</artifactId>
+			<version>1.0-jdk1.6-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.jd.jdwl</groupId>
+			<artifactId>feedback-common</artifactId>
+			<version>1.0-jdk1.6-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.jd.mobilePhoneMsg.sender</groupId>
+			<artifactId>mobilePhoneMsg-sender-client-jsf</artifactId>
+			<version>3.2-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.lljk</groupId>
+			<artifactId>ccmp-ctm-api</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+		</dependency>
+
 	</dependencies>
 
+	<profiles>
+		<!--测试环境  -->
+		<profile>
+			<id>test</id>
+			<properties>
+				<profiles.env>test</profiles.env>
+			</properties>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+		</profile>
+		<!--正式环境  -->
+		<profile>
+			<id>release</id>
+			<properties>
+				<profiles.env>release</profiles.env>
+			</properties>
+		</profile>
+		<!--uat环境  -->
+		<profile>
+			<id>uat</id>
+			<properties>
+				<profiles.env>uat</profiles.env>
+			</properties>
+		</profile>
+	</profiles>
+
 	<build>
+		<finalName>bluedragon-distribution-core</finalName>
+		<resources>
+			<!-- maven占位符替换 -->
+			<resource>
+				<directory>src/main/resources</directory>
+				<!-- 表示资源文件中的占位符是否需要被替换，true为需要替换 -->
+				<filtering>true</filtering>
+			</resource>
+		</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
-					<skip>true</skip>
+					<skip>false</skip>
                     <!--
                     <testClassesDirectory>${project.build.directory}/classes</testClassesDirectory>
                     <additionalClasspathElements>

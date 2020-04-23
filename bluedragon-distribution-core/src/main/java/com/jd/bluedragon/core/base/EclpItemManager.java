@@ -12,7 +12,19 @@ import java.util.List;
  * @date 2018年05月11日 18时:34分
  */
 public interface EclpItemManager {
+
+    /**
+     * ECLP入库单创建接口成功状态码
+     */
+    int ORDER_RESPONSE_SUCCESS = 200;
+    /**
+     * 也是牛逼 ECLP那边相同接口 同一业务场景返回两种response 接口里也不提供成功码
+     */
+    int STRINGAPIRESPONE_SUCCESS = 200;
+
     public List<ItemInfo> getltemBySoNo(String soNo);
     public String getDeptBySettlementOuId(String ouId);
     public OrderResponse createInboundOrder(InboundOrder inboundOrder);
+
+    boolean cancelInboundOrder(String waybillCode,String deptNo,String isvInboundOrderNo,Byte inboundSource);
 }

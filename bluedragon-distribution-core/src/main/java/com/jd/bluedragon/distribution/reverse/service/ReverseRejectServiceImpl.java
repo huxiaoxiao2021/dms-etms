@@ -13,8 +13,8 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.PickwareService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service("reverseRejectService")
 public class ReverseRejectServiceImpl implements ReverseRejectService {
     
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
     
     @Autowired
     private TaskService taskService;
@@ -69,7 +69,7 @@ public class ReverseRejectServiceImpl implements ReverseRejectService {
             }
             
             this.add(source);
-            this.addOpetationLog(source, this.getRejectLogType(source.getBusinessType()));
+            this.addOpetationLog(source, this.getRejectLogType(source.getBusinessType()),"ReverseRejectServiceImpl#rejecet");
         } else {
             ReverseReject reverseRejectVO = new ReverseReject();
             BeanHelper.copyProperties(reverseRejectVO, source);
@@ -82,7 +82,7 @@ public class ReverseRejectServiceImpl implements ReverseRejectService {
             }
             
             this.update(reverseRejectVO);
-            this.addOpetationLog(reverseRejectVO, this.getRejectLogType(source.getBusinessType()));
+            this.addOpetationLog(reverseRejectVO, this.getRejectLogType(source.getBusinessType()),"ReverseRejectServiceImpl#reject");
         }
     }
     
@@ -104,7 +104,7 @@ public class ReverseRejectServiceImpl implements ReverseRejectService {
             this.setReverseReject(reverseRejectVO, request);
             this.add(reverseRejectVO);
             this.addOpetationLog(reverseRejectVO,
-                    this.getRejectInspectLogType(request.getBusinessType()));
+                    this.getRejectInspectLogType(request.getBusinessType()),"ReverseRejectServiceImpl#rejectInspect");
             sendTask(reverseRejectVO);
         } else {
             ReverseReject reverseRejectVO = new ReverseReject();
@@ -114,7 +114,7 @@ public class ReverseRejectServiceImpl implements ReverseRejectService {
             reverseRejectVO.setOperateTime(DateHelper.parseDateTime(request.getOperateTime()));
             this.update(reverseRejectVO);
             this.addOpetationLog(reverseRejectVO,
-                    this.getRejectInspectLogType(request.getBusinessType()));
+                    this.getRejectInspectLogType(request.getBusinessType()),"ReverseRejectServiceImpl#rejectInspect");
             sendTask(reverseRejectVO);
         }
         
@@ -175,7 +175,7 @@ public class ReverseRejectServiceImpl implements ReverseRejectService {
         }
     }
     
-    public void addOpetationLog(ReverseReject reverseReject, Integer logType) {
+    public void addOpetationLog(ReverseReject reverseReject, Integer logType, String methodName) {
         this.appentPickwareInfo(reverseReject, reverseReject.getPackageCode());
         OperationLog operationLog = new OperationLog();
         operationLog.setWaybillCode(reverseReject.getOrderId());
@@ -194,24 +194,25 @@ public class ReverseRejectServiceImpl implements ReverseRejectService {
         }
         
         operationLog.setLogType(logType);
+        operationLog.setMethodName(methodName);
         this.operationLogService.add(operationLog);
     }
     
     private Boolean check(ReverseReject source) {
         if (!NumberHelper.isPositiveNumber(source.getBusinessType())) {
-            this.logger.info("数据不合法.");
+            this.log.info("数据不合法.");
             return Boolean.FALSE;
         } else if (this.isAms(source.getBusinessType())
                 && StringHelper.isEmpty(source.getPackageCode())) {
-            this.logger.info("数据不合法.");
+            this.log.info("数据不合法.");
             return Boolean.FALSE;
         } else if (this.isWms(source.getBusinessType())
                 && StringHelper.isEmpty(source.getOrderId())) {
-            this.logger.info("数据不合法.");
+            this.log.info("数据不合法.");
             return Boolean.FALSE;
         } else if (this.isSpwms(source.getBusinessType())
                 && StringHelper.isEmpty(source.getOrderId())) {
-            this.logger.info("数据不合法.");
+            this.log.info("数据不合法.");
             return Boolean.FALSE;
         }
         return Boolean.TRUE;
@@ -220,7 +221,7 @@ public class ReverseRejectServiceImpl implements ReverseRejectService {
     private Boolean check(Task task, RejectRequest request) {
         if (!NumberHelper.isPositiveNumber(request.getBusinessType())
                 || StringHelper.isEmpty(request.getPackageCode())) {
-            this.logger.info("数据不合法.");
+            this.log.info("数据不合法.");
             this.taskService.doError(task);
             return Boolean.FALSE;
         }

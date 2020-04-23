@@ -24,6 +24,8 @@
         <result column="package_sum" property="packageSum" javaType="java.lang.Integer" jdbcType="INTEGER"/>
         <result column="exception_sum" property="exceptionSum" javaType="java.lang.Integer" jdbcType="INTEGER"/>
         <result column="inventory_scope" property="inventoryScope" javaType="java.lang.Integer" jdbcType="TINYINT"/>
+        <result column="hour_range" property="hourRange" javaType="java.lang.Integer" jdbcType="TINYINT"/>
+        <result column="hour_range_time" property="hourRangeTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
         <result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
         <result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT"/>
         <result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
@@ -37,7 +39,7 @@
         create_time,end_time,
         status,cooperate_type,
         waybill_sum,package_sum,exception_sum,
-        inventory_scope,
+        inventory_scope,hour_range,hour_range_time,
         update_time,is_delete
     </sql>
 
@@ -88,7 +90,7 @@
         #{createUserCode,jdbcType=INTEGER},
         #{createUserErp,jdbcType=VARCHAR},
         #{createUserName,jdbcType=INTEGER},
-        now(),
+        #{createTime,jdbcType=TIMESTAMP},
         #{endTime,jdbcType=TIMESTAMP},
         #{status,jdbcType=TINYINT},
         #{cooperateType,jdbcType=TINYINT},
@@ -96,6 +98,8 @@
         0,
         0,
         #{inventoryScope,jdbcType=TINYINT},
+        #{hourRange,jdbcType=TINYINT},
+        #{hourRangeTime,jdbcType=TIMESTAMP},
         now(),
         0
         )
@@ -225,6 +229,8 @@
             0,
             0,
             #{inventoryTask.inventoryScope,jdbcType=TINYINT},
+            #{inventoryTask.hourRange,jdbcType=TINYINT},
+            #{inventoryTask.hourRangeTime,jdbcType=TIMESTAMP},
             now(),
             0
             )
@@ -305,7 +311,7 @@
         create_time,end_time,
         status,cooperate_type,
         waybill_sum,package_sum,exception_sum,
-        inventory_scope,
+        inventory_scope,hour_range,hour_range_time,
         update_time,is_delete
         from
         inventory_task
@@ -321,7 +327,7 @@
         create_time,end_time,
         status,cooperate_type,
         waybill_sum,package_sum,exception_sum,
-        inventory_scope,
+        inventory_scope,hour_range,hour_range_time,
         update_time,is_delete
         from
         inventory_task

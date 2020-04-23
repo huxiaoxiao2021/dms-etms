@@ -50,7 +50,7 @@ import java.util.Date;
 @Produces( { MediaType.APPLICATION_JSON })
 public class ReversePrintResource {
 
-    private static final Logger logger= LoggerFactory.getLogger(ReversePrintResource.class);
+    private static final Logger log = LoggerFactory.getLogger(ReversePrintResource.class);
 
     @Autowired
     private ReversePrintService reversePrintService;
@@ -71,8 +71,8 @@ public class ReversePrintResource {
     @POST
     @Path("/reverse/exchange/print")
     public InvokeResult<Boolean> handlePrint(ReversePrintRequest request){
-        if(logger.isInfoEnabled()) {
-            logger.info("【逆向换单处理打印数据】" + request.toString());
+        if(log.isInfoEnabled()) {
+            log.info("【逆向换单处理打印数据】:{}", request.toString());
         }
         InvokeResult<Boolean> result=new InvokeResult<Boolean>();
         try{
@@ -82,7 +82,7 @@ public class ReversePrintResource {
             result.setData(Boolean.TRUE);
         }
         catch (Throwable e){
-            logger.error("【逆向换单打印】",e);
+            log.error("【逆向换单打印】",e);
             result.setCode(JdResponse.CODE_SERVICE_ERROR);
             result.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
             result.setData(Boolean.FALSE);
@@ -107,7 +107,7 @@ public class ReversePrintResource {
         try {
            result= reversePrintService.getNewWaybillCode(oldWaybillCode, true);
         }catch (Throwable e){
-            logger.error("[逆向换单获取新单号]",e);
+            log.error("[逆向换单获取新单号]",e);
             result.error(e);
         }
         return result;
@@ -126,7 +126,7 @@ public class ReversePrintResource {
         try {
            result= reversePrintService.getNewWaybillCode1(oldWaybillCode, true);
         }catch (Throwable e){
-            logger.error("[逆向换单获取新单号]",e);
+            log.error("[逆向换单获取新单号]",e);
             result.error(e);
         }
         return result;
@@ -171,7 +171,7 @@ public class ReversePrintResource {
                 }
             }
         }catch (Throwable e){
-            logger.error("[逆向换单获取新单号]",e);
+            log.error("[逆向换单获取新单号]",e);
             result.toFail("换单失败!");
         }
         return result;
@@ -195,7 +195,7 @@ public class ReversePrintResource {
             }
         }catch (Throwable e){
             result=new InvokeResult<Boolean>();
-            logger.error("自营逆向换单",e);
+            log.error("自营逆向换单",e);
             result.error(e);
         }
         return result;
@@ -214,7 +214,7 @@ public class ReversePrintResource {
             result = reversePrintService.checkWayBillForExchange(domain.getWaybillCode(), domain.getSiteId());
         }catch (Throwable e){
             result=new InvokeResult<Boolean>();
-            logger.error("逆向换单检查异常",e);
+            log.error("逆向换单检查异常",e);
             result.error(e);
         }
         return result;
@@ -236,7 +236,7 @@ public class ReversePrintResource {
         if (null == request || StringHelper.isEmpty(request.getOldCode())
                 || !WaybillUtil.isWaybillCode(request.getNewCode()) || !WaybillUtil.isPackageCode(request.getNewPackageCode())
                 || request.getSiteCode() <= 0 || StringHelper.isEmpty(request.getStaffErpCode()) || null == request.getWeightOperFlow()) {
-            logger.error("ReversePrintResource.reversePrintAfter-->换单打印结果上传参数不正确{}", JsonHelper.toJson(request));
+            log.warn("ReversePrintResource.reversePrintAfter-->换单打印结果上传参数不正确{}", JsonHelper.toJson(request));
             result.parameterError(InvokeResult.PARAM_ERROR);
             return result;
         }
@@ -247,14 +247,16 @@ public class ReversePrintResource {
             if (Constants.WEIGHT_ENABLE.equals(request.getWeightVolumeOperEnable())
                 || Constants.WEIGHT_VOLUME_ENABLE.equals(request.getWeightVolumeOperEnable())) {
                 TaskResponse taskResponse = taskResource.add(convert2TaskRequest(request));
-                logger.debug("ReversePrintResource.reversePrintAfter-->换单打印离线称重数据上传返回：{}",JsonHelper.toJson(taskResponse));
+                if(log.isDebugEnabled()){
+                    log.debug("ReversePrintResource.reversePrintAfter-->换单打印离线称重数据上传返回：{}",JsonHelper.toJson(taskResponse));
+                }
                 if (null == taskResponse || !TaskResponse.CODE_OK.equals(taskResponse.getCode())) {
                     result.setCode(InvokeResult.SERVER_ERROR_CODE);
                     result.setMessage(result.getMessage().replace(InvokeResult.RESULT_SUCCESS_MESSAGE,"") + "【称重数据保存失败】");
                 }
             }
         } catch (Exception e) {
-            logger.error("ReversePrintResource.reversePrintAfter-->保存离线打印任务失败{}",JsonHelper.toJson(request),e);
+            log.error("ReversePrintResource.reversePrintAfter-->保存离线打印任务失败{}",JsonHelper.toJson(request),e);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(result.getMessage().replace(InvokeResult.RESULT_SUCCESS_MESSAGE,"") + "【称重数据保存异常】");
         }
@@ -267,7 +269,7 @@ public class ReversePrintResource {
                 result.setMessage(result.getMessage().replace(InvokeResult.RESULT_SUCCESS_MESSAGE,"") + "【发送换单打印全程跟踪失败】");
             }
         } catch (Exception e) {
-            logger.error("ReversePrintResource.reversePrintAfter-->发送换单打印全程跟踪失败{}",JsonHelper.toJson(request),e);
+            log.error("ReversePrintResource.reversePrintAfter-->发送换单打印全程跟踪失败{}",JsonHelper.toJson(request),e);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(result.getMessage().replace(InvokeResult.RESULT_SUCCESS_MESSAGE,"") + "【发送换单打印全程跟踪异常】");
         }
@@ -280,7 +282,7 @@ public class ReversePrintResource {
                 result.setMessage(result.getMessage().replace(InvokeResult.RESULT_SUCCESS_MESSAGE,"") + "【保存打印日志失败】");
             }
         } catch (Exception e) {
-            logger.error("ReversePrintResource.reversePrintAfter-->保存popPrint数据失败{}",JsonHelper.toJson(request),e);
+            log.error("ReversePrintResource.reversePrintAfter-->保存popPrint数据失败{}",JsonHelper.toJson(request),e);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(result.getMessage().replace(InvokeResult.RESULT_SUCCESS_MESSAGE,"") + "【保存打印日志异常】");
         }

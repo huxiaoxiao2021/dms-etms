@@ -16,7 +16,8 @@ public enum PackingTypeEnum {
     TY006("TY006", "缓冲物（气泡膜）,米"),
     TY007("TY007", "缓冲物（珍珠棉）,张"),
     TY008("TY008", "木托盘,块"),
-    TY009("TY009", "其他");
+    TY009("TY009", "其他"),
+    TY010("TY010", "分拣物资");
 
     private String typeCode;
 

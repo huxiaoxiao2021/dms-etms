@@ -1,17 +1,28 @@
 package com.jd.bluedragon.distribution.inspection.dao;
 
 import com.google.common.collect.Maps;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.distribution.inspection.InsepctionCheckDto;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionCondition;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionInfo;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.ql.dms.common.web.mvc.api.PagerCondition;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class InspectionDao extends BaseDao<Inspection>{
 
-	private final static Logger logger = Logger.getLogger(InspectionDao.class);
+	private final static Logger log = LoggerFactory.getLogger(InspectionDao.class);
 
 	public static final String namespace = InspectionDao.class.getName();
 	
@@ -23,16 +34,36 @@ public class InspectionDao extends BaseDao<Inspection>{
 	 */
 	public int updatePop(Inspection inspection) {
 		if(inspection == null || StringUtils.isBlank(inspection.getWaybillCode())){
-			logger.info("更新POP验货 参数为空");
+			log.info("更新POP验货 参数为空");
 			return 0;
 		}
 		return this.getSqlSession().update(namespace + ".updatePop", inspection);
+	}
+
+	public Integer findInspectionGatherPageCount(PagerCondition pagerCondition){
+		return this.getSqlSession().selectOne(namespace+".findInspectionGatherPageCount", pagerCondition);
+	}
+
+	public List<InsepctionCheckDto> findInspectionGather(PagerCondition pagerCondition){
+		return this.getSqlSession().selectList(namespace+".findInspectionGather", pagerCondition);
+	}
+
+	public List<Inspection> findInspetionedPacks(Inspection inspection){
+        return this.getSqlSession().selectList(namespace+".findInspetionedPacks", inspection);
+    }
+
+	public InsepctionCheckDto verifyReverseInspectionGather( Inspection inspection ){
+		return this.getSqlSession().selectOne(namespace+".verifyReverseInspectionGather", inspection);
 	}
 	
 	public Integer inspectionCount( Inspection inspection ){
 		return (Integer)this.getSqlSession().selectOne(namespace+".inspectionCount", inspection);
 	}
-	
+
+	public Integer inspectionCountByWaybill( Inspection inspection ){
+		return (Integer)this.getSqlSession().selectOne(namespace+".inspectionCountByWaybill", inspection);
+	}
+
 	public int updateYnByPackage(Inspection inspection){
 		return this.getSqlSession().update(namespace+".updateYnByPackage", inspection);
 	}
@@ -177,5 +208,39 @@ public class InspectionDao extends BaseDao<Inspection>{
 	/**分页查询验货记录*/
 	public List<Inspection> findPageInspection(Map<String,Object> params){
 		return this.getSqlSession().selectList(namespace + ".findPageInspection",params);
+	}
+
+	@JProfiler(jKey = "DMSWEB.InspectionDao.getWaybillNoCollectionInfo", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+	public List<WaybillNoCollectionInfo> getWaybillNoCollectionInfo(Integer createSiteCode, List<String> waybillCodeList, int dayCount) {
+		if (createSiteCode == null || waybillCodeList == null || waybillCodeList.isEmpty() || dayCount <= 0) {
+			return null;
+		}
+		Map<String, Object> params = new HashMap<>();
+		params.put("createSiteCode", createSiteCode);
+		params.put("waybillCodeList", waybillCodeList);
+		params.put("startTime", DateHelper.newTimeRangeHoursAgo(new Date(), 24 * dayCount));
+		return this.getSqlSession().selectList(namespace + ".getWaybillNoCollectionInfo", params);
+	}
+
+	@JProfiler(jKey = "DMSWEB.InspectionDao.getScannedInfoPackageNumMoreThanOne", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+	public List<String> getInspectedPackageNumMoreThanOne(WaybillNoCollectionCondition waybillNoCollectionCondition) {
+		if (waybillNoCollectionCondition.getCreateSiteCode() == null || waybillNoCollectionCondition.getWaybillCodeList() == null || waybillNoCollectionCondition.getWaybillCodeList().isEmpty()) {
+			return null;
+		}
+		return this.getSqlSession().selectList(namespace + ".getInspectedPackageNumMoreThanOne", waybillNoCollectionCondition);
+	}
+
+	/**
+	 * 查询运单的验货记录
+	 *
+	 * @param waybillCode
+	 * @param createSiteCode
+	 * @return
+	 */
+	public List<Inspection> listInspectionByWaybillCode(String waybillCode, Integer createSiteCode) {
+		Map<String, Object> paramMap = new HashMap<>();
+		paramMap.put("createSiteCode", createSiteCode);
+		paramMap.put("waybillCode", waybillCode);
+		return this.getSqlSession().selectList(namespace + ".listInspectionByWaybillCode", paramMap);
 	}
 }

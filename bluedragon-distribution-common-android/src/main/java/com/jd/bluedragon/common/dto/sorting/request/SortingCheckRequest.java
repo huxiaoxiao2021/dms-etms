@@ -44,6 +44,11 @@ public class SortingCheckRequest implements Serializable {
      */
     private Integer isLoss;
 
+    /**
+     * 是否校验验货集齐
+     */
+    private Integer isGather;
+
     public CurrentOperate getCurrentOperate() {
         return currentOperate;
     }
@@ -106,5 +111,13 @@ public class SortingCheckRequest implements Serializable {
 
     public void setIsLoss(Integer isLoss) {
         this.isLoss = isLoss;
+    }
+
+    public Integer getIsGather() {
+        return isGather;
+    }
+
+    public void setIsGather(Integer isGather) {
+        this.isGather = isGather;
     }
 }

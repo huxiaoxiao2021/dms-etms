@@ -38,6 +38,16 @@ public class PrintQueryCriteria implements Serializable{
     
     /** 211  */
     private boolean is211;
+
+    /**
+     * 分页大小
+     */
+    private Integer pageSize;
+
+    /**
+     * 页码
+     */
+    private Integer pageNo;
 	
     public Integer getSiteCode() {
         return siteCode;
@@ -126,5 +136,20 @@ public class PrintQueryCriteria implements Serializable{
 	public void setWaybillcode(String waybillcode) {
 		this.waybillcode = waybillcode;
 	}
-    
+
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+    }
+
+    public Integer getPageNo() {
+        return pageNo;
+    }
+
+    public void setPageNo(Integer pageNo) {
+        this.pageNo = pageNo;
+    }
 }

@@ -3,7 +3,6 @@ package com.jd.bluedragon.distribution.collect.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.service.WaybillCommonService;
-import com.jd.bluedragon.common.service.impl.WaybillCommonServiceImpl;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -44,7 +43,7 @@ import java.util.concurrent.TimeUnit;
 public class CollectGoodsCommonServiceImpl implements CollectGoodsCommonService{
 
 
-    private Logger logger = LoggerFactory.getLogger(CollectGoodsCommonServiceImpl.class);
+    private Logger log = LoggerFactory.getLogger(CollectGoodsCommonServiceImpl.class);
 
     public static final int COLLECT_ALL_TIP_CODE = 201;
 
@@ -118,7 +117,13 @@ public class CollectGoodsCommonServiceImpl implements CollectGoodsCommonService{
         //校验包裹是否已操作过
         if(collectGoodsDetailService.checkExist(req.getPackageCode(),null
                 ,null,req.getOperateSiteCode())){
-            result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+            CollectGoodsDetail collectGoodsDetail1 = collectGoodsDetailService.findCollectGoodsDetailByPackageCode(req.getPackageCode());
+            if(collectGoodsDetail1 != null){
+                CollectGoodsDTO collectGoodsDTO = new CollectGoodsDTO();
+                collectGoodsDTO.setCollectGoodsPlaceCode(collectGoodsDetail1.getCollectGoodsPlaceCode());
+                result.setData(collectGoodsDTO);
+            }
+            result.setCode(COLLECT_NOT_TIP_CODE);
             result.setMessage("此包裹已操作集货！");
             return result;
         }
@@ -167,7 +172,7 @@ public class CollectGoodsCommonServiceImpl implements CollectGoodsCommonService{
         inspection(req);
 
         //记录操作日志
-        collectLog(req,collectGoodsDetail);
+        collectLog(req,collectGoodsDetail,"CollectGoodsCommonServiceImpl#put");
 
         //组装返回对象
         CollectGoodsDTO collectGoodsDTO = new CollectGoodsDTO();
@@ -227,7 +232,7 @@ public class CollectGoodsCommonServiceImpl implements CollectGoodsCommonService{
         }
         try{
             //记录日志
-            operateLogOfQuerySelf(req,"手动释放");
+            operateLogOfQuerySelf(req,"手动释放","CollectGoodsCommonServiceImpl#clean");
 
             //初始化参数
             param.setCollectGoodsPlaceStatus(Integer.valueOf(CollectGoodsPlaceStatusEnum.FREE_0.getCode()));
@@ -321,7 +326,7 @@ public class CollectGoodsCommonServiceImpl implements CollectGoodsCommonService{
         }
         try{
             //记录日志
-            operateLogOfQuerySelf(req,"异常转移，原货位"+sourceCollectGoodsPlaceCode+",新货位"+targetCollectGoodsPlaceCode);
+            operateLogOfQuerySelf(req,"异常转移，原货位"+sourceCollectGoodsPlaceCode+",新货位"+targetCollectGoodsPlaceCode,"CollectGoodsCommonServiceImpl#transfer");
 
             //转移  集货明细
             collectGoodsDetailService.transfer(sourceCollectGoodsPlaceCode,targetCollectGoodsPlaceCode,targetCollectGoodsPlaceType,req.getOperateSiteCode(),req.getPackageCode());
@@ -368,7 +373,7 @@ public class CollectGoodsCommonServiceImpl implements CollectGoodsCommonService{
      * 释放日志
      * @param req
      */
-    private void operateLogOfQuerySelf(CollectGoodsDTO req,String remark){
+    private void operateLogOfQuerySelf(CollectGoodsDTO req,String remark,String methodName){
         CollectGoodsDetailCondition param = new CollectGoodsDetailCondition();
         param.setCollectGoodsPlaceCode(req.getCollectGoodsPlaceCode());
         param.setCollectGoodsAreaCode(req.getCollectGoodsAreaCode());
@@ -380,7 +385,7 @@ public class CollectGoodsCommonServiceImpl implements CollectGoodsCommonService{
         for(CollectGoodsDetail c : list){
             this.operationLogService.add(parseOperationLog(c.getWaybillCode(),c.getPackageCode(),
                     c.getCreateSiteCode(),req.getOperateSiteName(),req.getOperateUserErp()+"|"+req.getOperateUserName()
-                    ,new Date(Long.valueOf(req.getOperateTime())),remark));
+                    ,new Date(Long.valueOf(req.getOperateTime())),remark,methodName));
         }
     }
 
@@ -388,15 +393,15 @@ public class CollectGoodsCommonServiceImpl implements CollectGoodsCommonService{
      * 集货日志
      * @param req
      */
-    private void collectLog(CollectGoodsDTO collectGoodsDTO,CollectGoodsDetail req){
+    private void collectLog(CollectGoodsDTO collectGoodsDTO,CollectGoodsDetail req, String methodName){
 
         this.operationLogService.add(parseOperationLog(req.getWaybillCode(),req.getPackageCode(),
                 req.getCreateSiteCode(),req.getCreateSiteName(),req.getCreateUser()
-                    ,new Date(Long.valueOf(collectGoodsDTO.getOperateTime())),"集货作业，货位号"+req.getCollectGoodsPlaceCode()));
+                    ,new Date(Long.valueOf(collectGoodsDTO.getOperateTime())),"集货作业，货位号"+req.getCollectGoodsPlaceCode(),methodName));
 
     }
 
-    private OperationLog parseOperationLog(String waybillCode, String packCode, Integer siteCode , String siteName, String userErp , Date opeareTime , String remark) {
+    private OperationLog parseOperationLog(String waybillCode, String packCode, Integer siteCode , String siteName, String userErp , Date opeareTime , String remark, String methodName) {
         OperationLog operationLog = new OperationLog();
         operationLog.setWaybillCode(waybillCode);
         operationLog.setPackageCode(packCode);
@@ -407,6 +412,7 @@ public class CollectGoodsCommonServiceImpl implements CollectGoodsCommonService{
         operationLog.setOperateTime(opeareTime);
         operationLog.setLogType(OperationLog.LOG_TYPE_COLLECT);
         operationLog.setRemark(remark);
+        operationLog.setMethodName(methodName);
         return operationLog;
     }
 
@@ -491,7 +497,7 @@ public class CollectGoodsCommonServiceImpl implements CollectGoodsCommonService{
                 return cacheService.setNx(lockKey,StringUtils.EMPTY,60, TimeUnit.SECONDS);
             }
         }catch (Exception e){
-            logger.error("集货lock异常"+JsonHelper.toJson(req),e);
+            log.error("集货lock异常:{}",JsonHelper.toJson(req),e);
         }
         return true;
     }
@@ -501,7 +507,7 @@ public class CollectGoodsCommonServiceImpl implements CollectGoodsCommonService{
             String lockKey = COLLECT_LOCK_BEGIN+req.getOperateSiteCode()+"_"+req.getCollectGoodsAreaCode();
             cacheService.del(lockKey);
         }catch (Exception e){
-            logger.error("集货unLock异常"+JsonHelper.toJson(req),e);
+            log.error("集货unLock异常:{}",JsonHelper.toJson(req),e);
         }
 
     }

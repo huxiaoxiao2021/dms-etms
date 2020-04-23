@@ -3,9 +3,10 @@ package com.jd.bluedragon.distribution.send.service.impl;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendDatailReadDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +16,7 @@ import java.util.Map;
 @Service("sendDetailService")
 public class SendDetailServiceImpl implements SendDetailService {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private SendDatailReadDao sendDatailReadDao;
@@ -52,7 +53,39 @@ public class SendDetailServiceImpl implements SendDetailService {
 
     @Override
     public List<SendDetail> findPageSendDetail(Map<String, Object> params) {
-        logger.info("SendDetailServiceImpl.findPageSendDetail begin...");
+        log.debug("SendDetailServiceImpl.findPageSendDetail begin...");
         return sendDatailDao.findPageSendDetail(params);
+    }
+
+    @Override
+    public List<SendDetail> findSendPageByParams(SendDetailDto params) {
+        if (params != null && params.getCreateSiteCode() != null) {
+            return sendDatailDao.findSendPageByParams(params);
+        }
+        return null;
+    }
+    @Override
+    public Integer querySendDCountBySendCode(String sendCode) {
+        return sendDatailDao.querySendDCountBySendCode(sendCode);
+    }
+
+    /**
+     * 根据批次号查询 包裹号
+     * @param params
+     * @return
+     */
+    @Override
+    public List<String> queryPackageCodeBySendCode(SendDetailDto params){
+        return sendDatailDao.queryPackageCodeBySendCode(params);
+    }
+
+    /**
+     * 根据箱号号查询 包裹号
+     * @param params
+     * @return
+     */
+    @Override
+    public List<String> queryPackageCodeByboxCode(SendDetailDto params){
+        return sendDatailDao.queryPackageCodeByboxCode(params);
     }
 }

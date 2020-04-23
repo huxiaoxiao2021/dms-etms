@@ -1,8 +1,5 @@
 package com.jd.bluedragon.distribution.base.service;
 
-import java.util.List;
-import java.util.Map;
-
 import com.jd.bluedragon.core.redis.TaskMode;
 import com.jd.bluedragon.distribution.base.domain.PdaStaff;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
@@ -16,6 +13,10 @@ import com.jd.ql.basic.domain.Assort;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.tms.basic.dto.BasicVehicleDto;
+
+import java.util.List;
+import java.util.Map;
 
 public interface BaseService {
 
@@ -34,7 +35,7 @@ public interface BaseService {
      * @param password
      * @return
      */
-    com.jd.bluedragon.distribution.base.domain.BasePdaUserDto pdaUserLogin(String userid, String password,ClientInfo clientInfo);
+    com.jd.bluedragon.distribution.base.domain.BasePdaUserDto pdaUserLogin(String userid, String password, ClientInfo clientInfo, Byte loginVersion);
 
     /**
 	 * 账号密码是否存在
@@ -43,9 +44,12 @@ public interface BaseService {
 	 *            erpcode erp账号
 	 * @param String
 	 *            password erp密码
+	 *
+	 * @param loginVersion 登录接口的版本号
+	 *
 	 * @return StaffDto 是否登录成功
 	 */
-	PdaStaff login(String erpcode, String password, ClientInfo clientInfo);
+	PdaStaff login(String erpcode, String password, ClientInfo clientInfo, Byte loginVersion);
 
 	/**
 	 * 返回错误信息列表，便于PDA选择后，进行退货相关业务 根据日期进行增量查询
@@ -272,4 +276,5 @@ public interface BaseService {
 	 * @return
      */
 	public String getDmsShortNameByCode(Integer dmsCode);
+
 }

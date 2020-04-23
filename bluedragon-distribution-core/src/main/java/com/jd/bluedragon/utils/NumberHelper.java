@@ -1,15 +1,17 @@
 package com.jd.bluedragon.utils;
 
+import com.jd.common.util.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 public class NumberHelper {
-	private static final Log logger= LogFactory.getLog(NumberHelper.class);
+	private static final Logger log = LoggerFactory.getLogger(NumberHelper.class);
 	
     public static DecimalFormat doubleFormat = new DecimalFormat("#.00");    //保留两位小数
     public static Double getDoubleValue(Object object) {
@@ -45,6 +47,22 @@ public class NumberHelper {
         Matcher matcher = pattern.matcher(numberStr);
         return matcher.matches();
     }
+
+    /**
+     * 如果是null 返回0，如果非数字 返回null
+     * @param value
+     * @return
+     */
+    public static BigDecimal parseBigDecimalNullToZero(String value) {
+        if(null == value){
+            return BigDecimal.ZERO;
+        }
+        if(NumberUtils.isNumber(value)){
+            new BigDecimal(value);
+        }
+        return null;
+    }
+
     /**
      * 判断是否正整数
      * @param number
@@ -184,11 +202,11 @@ public class NumberHelper {
      * @return
      */
     public static Integer convertToInteger(String str,Integer defaultVal) {
-    	if (str != null) {
+    	if (str != null && StringUtils.isNumeric(str)) {
             try {
 				return Integer.valueOf(str);
 			} catch (NumberFormatException e) {
-				logger.warn("fail to convertToInteger! input:" + str);
+				log.warn("fail to convertToInteger! input:{}", str);
 			}
         }
         return defaultVal;

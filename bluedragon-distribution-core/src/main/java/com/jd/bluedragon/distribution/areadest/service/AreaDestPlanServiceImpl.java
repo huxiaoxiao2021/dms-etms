@@ -6,7 +6,8 @@ import com.jd.bluedragon.distribution.areadest.dao.AreaDestPlanDetailDao;
 import com.jd.bluedragon.distribution.areadest.domain.AreaDestPlan;
 import com.jd.bluedragon.distribution.areadest.domain.AreaDestPlanDetail;
 import com.jd.bluedragon.utils.UsingState;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +21,7 @@ import java.util.*;
 @Service("areaDestPlanService")
 public class AreaDestPlanServiceImpl implements AreaDestPlanService {
 
-    private final Logger logger = Logger.getLogger(AreaDestPlanServiceImpl.class);
+    private final Logger log = LoggerFactory.getLogger(AreaDestPlanServiceImpl.class);
 
     @Autowired
     private AreaDestPlanDao areaDestPlanDao;
@@ -35,7 +36,7 @@ public class AreaDestPlanServiceImpl implements AreaDestPlanService {
                 return true;
             }
         } catch (Exception e) {
-            logger.error("龙门架发货关系方案新增失败", e);
+            log.error("龙门架发货关系方案新增失败", e);
         }
         return false;
     }
@@ -50,7 +51,7 @@ public class AreaDestPlanServiceImpl implements AreaDestPlanService {
             areaDestPlanDao.disableById(parameters);
             return true;
         } catch (Exception e) {
-            logger.error("龙门架发货关系方案移除失败", e);
+            log.error("龙门架发货关系方案移除失败", e);
         }
         return false;
     }
@@ -62,7 +63,7 @@ public class AreaDestPlanServiceImpl implements AreaDestPlanService {
                 return areaDestPlanDao.get(planId);
             }
         } catch (Exception e) {
-            logger.error("根据方案编号获取龙门架发货关系方案信息发生异常", e);
+            log.error("根据方案编号获取龙门架发货关系方案信息发生异常", e);
         }
         return null;
     }
@@ -80,7 +81,7 @@ public class AreaDestPlanServiceImpl implements AreaDestPlanService {
             }
             list = areaDestPlanDao.getList(parameter);
         } catch (Exception e) {
-            logger.error("龙门架发货关系方案列表获取失败", e);
+            log.error("龙门架发货关系方案列表获取失败", e);
         }
         return list;
     }
@@ -110,7 +111,7 @@ public class AreaDestPlanServiceImpl implements AreaDestPlanService {
                 list = areaDestPlanDao.getList(parameter);
             }
         } catch (Exception e) {
-            logger.error("龙门架发货关系方案列表获取失败", e);
+            log.error("龙门架发货关系方案列表获取失败", e);
         }
         return list;
     }
@@ -154,8 +155,8 @@ public class AreaDestPlanServiceImpl implements AreaDestPlanService {
     public List<AreaDestPlan> getMyPlan(Integer siteCode, Integer machineId) {
         List<AreaDestPlan> plan = new ArrayList<AreaDestPlan>();
         if (null != machineId) {
-            if (this.logger.isInfoEnabled()) {
-                this.logger.info("分拣中心：" + siteCode + ",龙门架设备ID：" + machineId + ",请求获取当前分配方案");
+            if (this.log.isInfoEnabled()) {
+                this.log.info("分拣中心：{},龙门架设备ID：{},请求获取当前分配方案",siteCode,machineId);
             }
             Map<String, Object> param = new HashMap<String, Object>();
             param.put("siteCode", siteCode);
@@ -168,15 +169,14 @@ public class AreaDestPlanServiceImpl implements AreaDestPlanService {
     @Override
     public Boolean modifyGantryPlan(Integer machineId, Long planId, Integer userCode, Integer siteCode) {
         Boolean bool = Boolean.FALSE;
-        if (this.logger.isInfoEnabled()) {
-            this.logger.info("修改龙门架方案操作--machineId：" + machineId + ",planId:" + planId
-                    + ",userCode:" + userCode + ",siteCode:" + siteCode);
+        if (this.log.isInfoEnabled()) {
+            this.log.info("修改龙门架方案操作--machineId：{},planId:{},userCode:{},siteCode:{}",machineId,planId,userCode, siteCode);
         }
         if (null != machineId && null != planId && null != siteCode && null != userCode) {
             if (isExist(planId, siteCode, machineId)) {
                 /** 切换方案只要插入流水表就行 **/
-                if (this.logger.isInfoEnabled()) {
-                    this.logger.info("存在此方案列表,进行插入流水操作");
+                if (this.log.isInfoEnabled()) {
+                    this.log.info("存在此方案列表,进行插入流水操作");
                 }
                 AreaDestPlanDetail detail = new AreaDestPlanDetail();
                 detail.setMachineId(machineId);

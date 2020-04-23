@@ -1,24 +1,22 @@
 package com.jd.bluedragon.distribution.sorting.service;
 
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.SystemLogUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 @Service("sortingZhiPeiService")
 public class SortingZhiPeiServiceImple implements SortingZhiPeiService {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	
 	@Autowired
     @Qualifier("zhipeiSortingMQ")
@@ -40,14 +38,14 @@ public class SortingZhiPeiServiceImple implements SortingZhiPeiService {
 			//终端发送mq
 			zhipeiSortingMQ.send(sorting.getWaybillCode(),createMqBody(request));
 		}catch (Exception e) {
-			this.logger.error("智配中心分拣推送给终端系统信息失败，运单号：" + sorting.getWaybillCode(), e);
+			this.log.error("智配中心分拣推送给终端系统信息失败，运单号：{}", sorting.getWaybillCode(), e);
 		}
 		
 		try{
 			//生成分拣中心操作日志到Cassandra
-			this.sortingService.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING);
+			this.sortingService.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING,"SortingZhiPeiServiceImple#doSorting");
 		}catch (Exception e) {
-			this.logger.error("全程跟踪失败，运单号：" + sorting.getWaybillCode(), e);
+			this.log.error("全程跟踪失败，运单号：{}", sorting.getWaybillCode(), e);
 		}
 		
 	}
@@ -70,7 +68,7 @@ public class SortingZhiPeiServiceImple implements SortingZhiPeiService {
 		request.setUserCode(sorting.getUserCode());
 		request.setUserName(sorting.getUserName());
 		String str = JsonHelper.toJson(request);
-		logger.info("智配中心给终端发送zhipeiSortingMQ:"+str);
+		log.info("智配中心给终端发送zhipeiSortingMQ:{}", str);
 		return str;
 	}
 	

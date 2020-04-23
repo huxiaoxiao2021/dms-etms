@@ -213,6 +213,11 @@
         <property name="topic" value="${jmq.topic.bd.ar.air.arSendReport}"/>
     </bean>
 
+    <!-- 空铁项目 - 发货登记 推送计费信息给FXM -->
+    <bean id="railwaySendRegistCostFxmMQ" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.railway.sendRegist.Cost.fxm}"/>
+    </bean>
+
     <!--在操作现场预分拣即返调度之后 发送mq 下发数据给自动分拣机 added by zhanglei-->
     <bean id="reassignWaybillMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="topic" value="${jmq.topic.bd.reassign.waybill}"/>
@@ -308,6 +313,12 @@
     <bean id="weighByWaybillProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.dmsWaybillWeight}"/>
     </bean>
+
+    <!--运单称重mq 整单量方称重信息 发送给运单系统 added by luyue-->
+    <bean id="dmsWeighByWaybillProducer" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dms.waybill.weight.ope.flow}"/>
+    </bean>
+
     <!--纯外单 中小件 二次预分拣MQ 发送给运单系统 added by shipeilin-->
     <bean id="waybillSiteChangeProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.dmsWaybillPrepareSiteChange}"/>
@@ -399,5 +410,38 @@
     <!--交接称重转发终端和分拣机使用 -->
     <bean id="handOverWeightProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.handOverWeight}"/>
+    </bean>
+
+    <!-- 线上签 - 异步+重试处理推送线上签数据 -->
+    <bean id="printOnlineProducer" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.print.online}"/>
+    </bean>
+
+    <!-- 保温箱出入库消息 -->
+    <bean id="boxInOutProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.box.inOut}"/>
+    </bean>
+
+    <!-- 物资按批次发货消息 -->
+    <bean id="materialSendMQProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.material.send}" />
+    </bean>
+
+    <!-- 物资取消按批次发货消息 -->
+    <bean id="cancelMaterialSendMQProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.cancel.material.send}" />
+    </bean>
+
+    <!-- 冷链 - 货物出入库消息 -->
+    <bean id="ccInAndOutBoundProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.coldChain.inAndOutBound}"/>
+    </bean>
+    <!-- 滞留上报消息 -->
+    <bean id="strandReportProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.strand.report}"/>
+    </bean>
+    <!-- 滞留上报明细消息 -->
+    <bean id="strandReportDetailProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.strand.report.detail}"/>
     </bean>
 </beans>

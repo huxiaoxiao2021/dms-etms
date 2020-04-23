@@ -9,8 +9,6 @@ import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.domain.SortingVO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -98,7 +96,7 @@ public class SortingPackServiceImpl extends SortingCommonSerivce{
         List<InspectionEC> preInspectionEC = this.inspectionECDao.selectSelective(inspectionECSel);
         if (!preInspectionEC.isEmpty()
                 && InspectionEC.INSPECTION_EXCEPTION_STATUS_HANDLED <= preInspectionEC.get(0).getStatus()) {
-            this.logger.info("包裹已经异常比较，再次分拣时不操作三方异常比对记录，包裹号：" + sorting.getPackageCode());
+            this.log.info("包裹已经异常比较，再次分拣时不操作三方异常比对记录，包裹号：{}", sorting.getPackageCode());
             return;
         }
 

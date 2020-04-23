@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.task.service;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.redis.TaskModeAgent;
 import com.jd.bluedragon.distribution.api.request.AutoSortingPackageDto;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
@@ -28,8 +29,8 @@ import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -47,7 +48,7 @@ import java.util.Random;
 @Service("taskService")
 public class TaskServiceImpl implements TaskService {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private static final String REDIS_SWITCH = "redis.switch";
 	private static final String REDIS_SWITCH_ON = "1";
@@ -83,6 +84,9 @@ public class TaskServiceImpl implements TaskService {
 
 	@Autowired
     private TBTaskQueueService tbTaskQueueService;
+
+	@Autowired
+	private WaybillTraceManager waybillTraceManager;
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -148,7 +152,7 @@ public class TaskServiceImpl implements TaskService {
     public Integer doAddTask(Task task, boolean ifCheckTaskMode) {
         TaskDao routerDao = taskDao;
         if(Task.TASK_TYPE_PDA.equals(task.getType()) ){
-            logger.info(" pda logs , box_code: "+task.getBoxCode()+" [body]: "+task.getBody());
+            log.warn(" pda logs , box_code: {} [body]: {}",task.getBoxCode(),task.getBody());
             return 0;
         }
 
@@ -163,13 +167,20 @@ public class TaskServiceImpl implements TaskService {
                         isRedisSucc = true;
                     }
                 } catch (Exception e) {
-                    logger.error("保存任务失败：" + task.toString());
+                    log.error("保存任务失败：{}" , task.toString());
                 }
                 if (isRedisSucc) {
                     return 1;
                 }
             }
         }
+
+        //超长校验
+		if (StringHelper.isNotEmpty(task.getBody()) && task.getBody().length() > 2000) {
+			log.error("插入任务失败，body字段超长，参数：{}", JsonHelper.toJson(task));
+			return 0;
+		}
+
         //获取当前任务类型队列数量
         //随机生成队列数
         Map<String, Integer> allQueueSize = tbTaskQueueService.findAllQueueSize();
@@ -184,7 +195,7 @@ public class TaskServiceImpl implements TaskService {
             if(!this.has(task)){
                 return routerDao.add(TaskDao.namespace, task);
             }else{
-                logger.warn(" Duplicate task: "+task.getBody());
+                log.warn(" Duplicate task: {}",task.getBody());
             }
         }else{
             return routerDao.add(TaskDao.namespace, task);
@@ -335,6 +346,10 @@ public class TaskServiceImpl implements TaskService {
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     @Override
     public Integer doAddWithStatus(Task task) {
+		if (StringHelper.isNotEmpty(task.getBody()) && task.getBody().length() > 2000) {
+			log.error("插入任务失败，body字段超长，参数：{}", JsonHelper.toJson(task));
+			return 0;
+		}
         TaskDao routerDao = taskDao;
 		//随机生成队列数
 		Map<String, Integer> allQueueSize = tbTaskQueueService.findAllQueueSize();
@@ -569,7 +584,6 @@ public class TaskServiceImpl implements TaskService {
 		task.setExecuteCount(0);
 		task.setOwnSign(BusinessHelper.getOwnSign());
 		task.setStatus(Task.TASK_STATUS_UNHANDLED);
-		this.logger.info("总部接口把接收到的交接数据存入 交接 Task");
 
 		add(task);
 
@@ -580,12 +594,12 @@ public class TaskServiceImpl implements TaskService {
 			uPackage.setTimeStamp(addOneSecond(uPackage.getTimeStamp()));
 			task.setBody(JsonHelper.toJson(uPackage));
 		}catch(Throwable e){
-			logger.warn("分拣任务全程跟踪乱序加一秒钟失败，原因" + e);
+			log.warn("分拣任务全程跟踪乱序加一秒钟失败，原因:" , e);
 		}
 		fringerprint = uPackage.getSortCenterNo() + "_" + uPackage.getBarcode()
 				+ "_" + uPackage.getTimeStamp() + "_" + task.getType();
 		task.setFingerprint(Md5Helper.encode(fringerprint));
-		this.logger.info("总部接口把接收到的交接数据存入 分拣 Task");
+		this.log.info("总部接口把接收到的交接数据存入 分拣 Task");
 
 		add(task);
 	}
@@ -594,6 +608,16 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void addInspectSortingTaskDirectly(AutoSortingPackageDto packageDtos) throws Exception{
+		String waybillCode = WaybillUtil.getWaybillCode(packageDtos.getWaybillCode());
+		if(StringUtils.isBlank(waybillCode)){
+			log.error("{}非包裹号或运单号", packageDtos.getWaybillCode());
+			return;
+		}
+		//检查订单是否已妥投
+		if(waybillTraceManager.isWaybillFinished(waybillCode)){
+			log.error("运单{}已妥投，不能再继续分拣", waybillCode);
+			return;
+		}
 		add(toSortingTask(packageDtos));
 
 		//modified by zhanglei 20171127  这里做一下处理，如果是智配中心上传的数据，不再添加验货任务
@@ -601,9 +625,6 @@ public class TaskServiceImpl implements TaskService {
 		if(distribution != null && distribution.getSiteType().intValue() != 4){
 			add(toInspectionTask(packageDtos));
 		}
-//        if (add(toInspectionTask(packageDtos)) <= 0 || add(toSortingTask(packageDtos)) <= 0) {
-//            throw new Exception("智能分拣线生成交接、分拣任务出错，两个之中有一个可能失败");
-//        }
     }
 
     private Task toSortingTask(AutoSortingPackageDto dto){

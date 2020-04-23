@@ -4,13 +4,14 @@ import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.ReviewWeightSpotCheck;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckExcelData;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckInfo;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.dao.ReviewWeightSpotCheckDao;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.ReviewWeightSpotCheckService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.IntegerHelper;
-import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.report.ReportExternalService;
@@ -18,14 +19,13 @@ import com.jd.ql.dms.report.domain.BaseEntity;
 import com.jd.ql.dms.report.domain.ReviewSpotCheckDto;
 import com.jd.ql.dms.report.domain.SpotCheckQueryCondition;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
-import com.jd.ql.dms.report.domain.WeightVolumeQueryCondition;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,7 +42,7 @@ import java.util.Set;
 @Service("reviewWeightSpotCheckService")
 public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckService {
 
-    private Logger logger = Logger.getLogger(ReviewWeightSpotCheckServiceImpl.class);
+    private Logger log = LoggerFactory.getLogger(ReviewWeightSpotCheckServiceImpl.class);
 
     @Autowired
     private ReviewWeightSpotCheckDao reviewWeightSpotCheckDao;
@@ -67,6 +67,7 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
         heads.add("复核区域");
         heads.add("机构类型");
         heads.add("机构名称");
+        heads.add("业务类型");
         heads.add("普通应抽查包裹数");
         heads.add("普通实际抽查包裹数");
         heads.add("普通抽查率");
@@ -89,6 +90,7 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
                 body.add(reviewWeightSpotCheck.getReviewOrgName());
                 body.add((reviewWeightSpotCheck.getReviewMechanismType()==null || reviewWeightSpotCheck.getReviewMechanismType()==-1)?"":reviewWeightSpotCheck.getReviewMechanismType()==1?"分拣中心":"转运中心");
                 body.add(reviewWeightSpotCheck.getReviewSiteName());
+                body.add(reviewWeightSpotCheck.getSpotCheckType()==0?"C网":"B网");
                 body.add(reviewWeightSpotCheck.getNormalPackageNum());
                 body.add(reviewWeightSpotCheck.getNormalPackageNumOfActual());
                 body.add(reviewWeightSpotCheck.getNormalCheckRate());
@@ -141,26 +143,12 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
     }
 
     /**
-     * 查询条件转换
-     * */
-    private WeightVolumeQueryCondition transform(WeightAndVolumeCheckCondition condition) {
-        WeightVolumeQueryCondition newCondition = new WeightVolumeQueryCondition();
-        newCondition.setStartTime(DateHelper.parseDateTime(condition.getStartTime()));
-        newCondition.setEndTime(DateHelper.parseDateTime(condition.getEndTime()));
-        newCondition.setReviewOrgCode(condition.getReviewOrgCode()==null?null:condition.getReviewOrgCode().intValue());
-        newCondition.setReviewSiteCode(condition.getCreateSiteCode()==null?null:condition.getCreateSiteCode().intValue());
-        newCondition.setIsExcess(condition.getIsExcess());
-        return newCondition;
-    }
-
-
-    /**
      * 校验模板数据
      * @param dataList
      * @return
      */
     @Override
-    public String checkExportData(List<SpotCheckInfo> dataList,String importErpCode) {
+    public String checkExportData(List<SpotCheckExcelData> dataList, String importErpCode) {
         String errorString = "";
         if(dataList != null && dataList.size() > 0){
             if(dataList.size() > 1000){
@@ -168,9 +156,9 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
                 return errorString;
             }
             int rowIndex = 1;
-            Set<Integer> siteCodeSet = new HashSet<>();
-            for(SpotCheckInfo spotCheckInfo : dataList){
-                siteCodeSet.add(spotCheckInfo.getSiteCode());
+            Set<String> siteCodeSet = new HashSet<>();
+            for(SpotCheckExcelData spotCheckInfo : dataList){
+                siteCodeSet.add(StringHelper.getStringValue(spotCheckInfo.getSiteCode())+StringHelper.getStringValue(spotCheckInfo.getSpotCheckType()));
                 spotCheckInfo.setImportErp(importErpCode);
                 BaseStaffSiteOrgDto site = siteService.getSite(spotCheckInfo.getSiteCode());
                 if(site == null){
@@ -185,6 +173,10 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
                         errorString = "第"+ rowIndex +"行区域编码与机构编码不匹配!";
                         return errorString;
                     }
+                }
+                if(!(spotCheckInfo.getSpotCheckType().equals("B网")||spotCheckInfo.getSpotCheckType().equals("C网"))){
+                    errorString = "第" + rowIndex + "行业务类型填写有误!";
+                    return errorString;
                 }
                 rowIndex ++;
             }
@@ -204,12 +196,17 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
 
     /**
      * 批量插入数据
-     * @param dataList
+     * @param spotCheckExcelDataList
      */
     @Override
-    public void batchInsert(List<SpotCheckInfo> dataList) {
+    public void batchInsert(List<SpotCheckExcelData> spotCheckExcelDataList) {
+        //将Excel中的业务类型B网/C网转换为1/0
+        List<SpotCheckInfo> dataList = convert2spotCheckInfo(spotCheckExcelDataList);
         for(SpotCheckInfo spotCheckInfo : dataList){
-            SpotCheckInfo newSpotCheckInfo = queryBySiteCode(spotCheckInfo.getSiteCode());
+            SpotCheckInfo spotCheckCondition = new SpotCheckInfo();
+            spotCheckCondition.setSiteCode(spotCheckInfo.getSiteCode());
+            spotCheckCondition.setSpotCheckType(spotCheckInfo.getSpotCheckType());
+            SpotCheckInfo newSpotCheckInfo = queryBySiteCode(spotCheckCondition);
             if(newSpotCheckInfo != null){
                 //存在就更新
                 updateBySiteCode(spotCheckInfo);
@@ -220,13 +217,34 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
         }
     }
 
+    private List<SpotCheckInfo> convert2spotCheckInfo(List<SpotCheckExcelData> spotCheckExcelDataList){
+        List<SpotCheckInfo> checkInfoList = new ArrayList<>();
+        for(int i=0;i<spotCheckExcelDataList.size();i++){
+            SpotCheckInfo spotCheckInfo = new SpotCheckInfo();
+            spotCheckInfo.setImportErp(spotCheckExcelDataList.get(i).getImportErp());
+            spotCheckInfo.setOrgCode(spotCheckExcelDataList.get(i).getOrgCode());
+            spotCheckInfo.setSiteCode(spotCheckExcelDataList.get(i).getSiteCode());
+            spotCheckInfo.setSiteName(spotCheckExcelDataList.get(i).getSiteName());
+
+            if(spotCheckExcelDataList.get(i).getSpotCheckType().equals("C网")){
+                spotCheckInfo.setSpotCheckType(0);
+            }else if(spotCheckExcelDataList.get(i).getSpotCheckType().equals("B网")){
+                spotCheckInfo.setSpotCheckType(1);
+            }
+            spotCheckInfo.setNormalPackageNum(spotCheckExcelDataList.get(i).getNormalPackageNum());
+            spotCheckInfo.setTrustPackageNum(spotCheckExcelDataList.get(i).getTrustPackageNum());
+            checkInfoList.add(spotCheckInfo);
+        }
+        return checkInfoList;
+    }
+
     /**
      * 根据机构编码查询
-     * @param siteCode
+     * @param spotCheckInfo
      */
     @Override
-    public SpotCheckInfo queryBySiteCode(Integer siteCode) {
-        return reviewWeightSpotCheckDao.queryBySiteCode(siteCode);
+    public SpotCheckInfo queryBySiteCode(SpotCheckInfo spotCheckInfo) {
+        return reviewWeightSpotCheckDao.queryBySiteCode(spotCheckInfo);
     }
 
     /**
@@ -250,102 +268,6 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
     /**
      * 根据条件查询
      * @param condition
-     * @param type 0:查询 1:导出
-     * @return
-     */
-    @Override
-    public PagerResult<ReviewWeightSpotCheck> listData(WeightAndVolumeCheckCondition condition,int type) {
-
-        PagerResult<ReviewWeightSpotCheck>  result = new PagerResult<>();
-        List<ReviewWeightSpotCheck> list = new ArrayList<>();
-
-        //1.从es中获取所有数据
-        List<WeightVolumeCollectDto> data = Collections.EMPTY_LIST;
-        WeightVolumeQueryCondition transform = transform(condition);
-        try{
-            BaseEntity<List<WeightVolumeCollectDto>> baseEntity = reportExternalService.getByParamForWeightVolume(transform);
-            if(baseEntity != null && baseEntity.getData() != null && baseEntity.getData().size() > 0){
-                data = baseEntity.getData();
-            }
-        }catch (Exception e){
-            logger.error("查询es获取数据失败，"+ JsonHelper.toJson(condition));
-        }
-
-
-        //2.根据复核日期、站点分组（复核日期转换成yyyy-mm-dd）
-        Map<Date,Map<Integer,List<WeightVolumeCollectDto>>> map = convertAndGroup(data);
-
-        //3.将步骤1的数据和步骤2的数据结合生成result返回给前台
-        if(map != null && map.size() > 0){
-
-            for(Date date : map.keySet()){
-
-                Map<Integer, List<WeightVolumeCollectDto>> mapOfSite = map.get(date);
-                for(Integer siteCode : mapOfSite.keySet()){
-
-                    //站点对应的复核总记录
-                    List<WeightVolumeCollectDto> weightVolumeCollectDtos = mapOfSite.get(siteCode);
-                    //查询站点的抽查任务数据
-                    SpotCheckInfo spotCheckInfo = reviewWeightSpotCheckDao.queryBySiteCode(siteCode);
-
-                    WeightVolumeCollectDto weightVolumeCollectDto = weightVolumeCollectDtos.get(0);
-                    Integer trustNumOfActual = getPackageNumOfSpotCheck(weightVolumeCollectDtos,1);//信任商家实际抽查包裹数量
-                    Integer normalNumOfActual = getPackageNumOfSpotCheck(weightVolumeCollectDtos,0);//普通商家实际抽查包裹数量
-                    Integer trustNumOfShould = spotCheckInfo==null?null:spotCheckInfo.getTrustPackageNum();              //信任商家应抽查包裹数
-                    Integer normalNumOfShould = spotCheckInfo==null?null:spotCheckInfo.getNormalPackageNum();            //普通应抽查包裹数
-                    Integer trustNumOfExcess = getPackageNumOfExcess(weightVolumeCollectDtos,1);     //信任商家超标数
-                    Integer normalNumOfExcess = getPackageNumOfExcess(weightVolumeCollectDtos,0);    //普通商家超标数
-
-                    ReviewWeightSpotCheck reviewWeightSpotCheck = new ReviewWeightSpotCheck();
-                    reviewWeightSpotCheck.setReviewDate(date);
-                    reviewWeightSpotCheck.setReviewOrgName(weightVolumeCollectDto.getReviewOrgName());//复核区域
-                    reviewWeightSpotCheck.setReviewMechanismType(weightVolumeCollectDto.getReviewSubType());//机构类型
-                    reviewWeightSpotCheck.setReviewSiteCode(weightVolumeCollectDto.getReviewSiteCode());//机构名称
-                    reviewWeightSpotCheck.setReviewSiteName(weightVolumeCollectDto.getReviewSiteName());//机构名称
-                    reviewWeightSpotCheck.setNormalPackageNum(normalNumOfShould);                          //普通应抽查包裹数
-                    reviewWeightSpotCheck.setNormalPackageNumOfActual(normalNumOfActual);                  //普通实际抽查包裹数
-                    reviewWeightSpotCheck.setNormalCheckRate(normalNumOfShould==null?null:convertPercentage(normalNumOfActual,normalNumOfShould));        //普通抽查率
-                    reviewWeightSpotCheck.setNormalPackageNumOfDiff(normalNumOfExcess);                    //普通抽查差异包裹数(超标)
-                    reviewWeightSpotCheck.setNormalCheckRateOfDiff(convertPercentage(normalNumOfExcess,normalNumOfActual));   //普通抽查差异率
-                    reviewWeightSpotCheck.setTrustPackageNum(trustNumOfShould);                            //信任商家应抽查包裹数
-                    reviewWeightSpotCheck.setTrustPackageNumOfActual(trustNumOfActual);                    //信任商家实际抽查包裹数
-                    reviewWeightSpotCheck.setTrustCheckRate(trustNumOfShould==null?null:convertPercentage(trustNumOfActual,trustNumOfShould));            //信任商家抽查率
-                    reviewWeightSpotCheck.setTrustPackageNumOfDiff(trustNumOfExcess);                      //信任商家抽查差异包裹数(超标数)
-                    reviewWeightSpotCheck.setTrustCheckRateOfDiff(convertPercentage(trustNumOfExcess,trustNumOfActual));      //信任商家抽查差异率
-                    reviewWeightSpotCheck.setTotalCheckRate(spotCheckInfo==null?null:convertPercentage((trustNumOfActual+normalNumOfActual),
-                            ((trustNumOfShould == null?0:trustNumOfShould)+normalNumOfShould)));                 //总抽查率
-
-                    list.add(reviewWeightSpotCheck);
-
-                }
-
-            }
-
-        }
-
-        if(type == 0){
-            //分页查询
-            List<ReviewWeightSpotCheck> listOfReturn = new ArrayList<>();
-            int limit = condition.getLimit();
-            int offset = condition.getOffset();
-            int start = offset;
-            int end = limit+offset;
-            for (int i = start; i < (list.size()<end?list.size():end); i++) {
-                listOfReturn.add(list.get(i));
-            }
-            result.setRows(listOfReturn);
-        }else{
-            //导出
-            result.setRows(list);
-        }
-        result.setTotal(list.size());
-
-        return result;
-    }
-
-    /**
-     * 根据条件查询
-     * @param condition
      * @return
      */
     @Override
@@ -356,12 +278,12 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
         try {
             List<SpotCheckInfo> spotCheckInfos = reviewWeightSpotCheckDao.queryByCondition(condition);
             if(spotCheckInfos.size() == 0){
-                logger.warn("未导入抽查任务!");
+                log.warn("未导入抽查任务!");
                 result.setRows(new ArrayList<ReviewWeightSpotCheck>());
                 result.setTotal(0);
                 return result;
             }
-            Map<Integer,SpotCheckInfo> map = new HashMap<>();
+            Map<String,SpotCheckInfo> map = new HashMap<>();
             SpotCheckQueryCondition spotCondition = convert2queryCondition(condition,spotCheckInfos,map);
             BaseEntity<List<ReviewSpotCheckDto>> entity = reportExternalService.getAllBySpotCheckCondition(spotCondition);
             if(entity == null || entity.getData() == null){
@@ -372,7 +294,9 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
             List<ReviewSpotCheckDto> data = entity.getData();
             for(ReviewSpotCheckDto dto : data){
 
-                SpotCheckInfo info = map.get(dto.getReviewSiteCode());
+                String reviewSiteCodeAndSpotCheckType = StringHelper.getStringValue(dto.getSpotCheckType()) + StringHelper.getStringValue(dto.getReviewSiteCode());
+                SpotCheckInfo info = map.get(reviewSiteCodeAndSpotCheckType);
+                map.remove(reviewSiteCodeAndSpotCheckType);
                 if(info != null){
                     ReviewWeightSpotCheck reviewWeightSpotCheck = new ReviewWeightSpotCheck();
 
@@ -386,7 +310,8 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
                     reviewWeightSpotCheck.setReviewDate(dto.getReviewDate());
                     BaseStaffSiteOrgDto baseStaffSiteOrgDto = siteService.getSite(dto.getReviewSiteCode());
                     reviewWeightSpotCheck.setReviewOrgName(baseStaffSiteOrgDto == null?null:baseStaffSiteOrgDto.getOrgName());
-                    reviewWeightSpotCheck.setReviewMechanismType(1);
+                    reviewWeightSpotCheck.setReviewMechanismType(dto.getSpotCheckType());
+                    reviewWeightSpotCheck.setSpotCheckType(dto.getSpotCheckType());
                     reviewWeightSpotCheck.setReviewSiteCode(dto.getReviewSiteCode());
                     reviewWeightSpotCheck.setReviewSiteName(info.getSiteName());
 
@@ -408,12 +333,42 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
                     list.add(reviewWeightSpotCheck);
                 }
             }
+            if(map.size()>0 && condition.getCreateSiteCode()==null){
+                for (String reviewSiteCodeAndSpotCheckType :map.keySet()){
+                    SpotCheckInfo info = map.get(reviewSiteCodeAndSpotCheckType);
+                    ReviewWeightSpotCheck reviewWeightSpotCheck = new ReviewWeightSpotCheck();
+                    Date reviewDate = data.get(0).getReviewDate();
+                    reviewWeightSpotCheck.setReviewDate(reviewDate);
+                    BaseStaffSiteOrgDto baseStaffSiteOrgDto = siteService.getSite(info.getSiteCode());
+                    reviewWeightSpotCheck.setReviewOrgName(baseStaffSiteOrgDto == null?null:baseStaffSiteOrgDto.getOrgName());
+                    reviewWeightSpotCheck.setReviewMechanismType(info.getSpotCheckType());
+                    reviewWeightSpotCheck.setSpotCheckType(info.getSpotCheckType());
+                    reviewWeightSpotCheck.setReviewSiteCode(info.getSiteCode());
+                    reviewWeightSpotCheck.setReviewSiteName(info.getSiteName());
+
+                    reviewWeightSpotCheck.setNormalPackageNum(info.getNormalPackageNum());
+                    reviewWeightSpotCheck.setNormalPackageNumOfActual(0);
+                    reviewWeightSpotCheck.setNormalCheckRate("0%");
+                    reviewWeightSpotCheck.setNormalPackageNumOfDiff(0);
+                    reviewWeightSpotCheck.setNormalCheckRateOfDiff("0%");
+
+                    reviewWeightSpotCheck.setTrustPackageNum(info.getTrustPackageNum());
+                    reviewWeightSpotCheck.setTrustPackageNumOfActual(0);
+                    reviewWeightSpotCheck.setTrustCheckRate("0%");
+                    reviewWeightSpotCheck.setTrustPackageNumOfDiff(0);
+                    reviewWeightSpotCheck.setTrustCheckRateOfDiff("0%");
+
+                    reviewWeightSpotCheck.setTotalCheckRate("0%");
+
+                    list.add(reviewWeightSpotCheck);
+                }
+            }
 
             result.setRows(list);
             result.setTotal(list.size());
 
         }catch (Exception e){
-            logger.error("查询失败!",e);
+            log.error("查询失败!",e);
             result.setRows(new ArrayList<ReviewWeightSpotCheck>());
             result.setTotal(0);
         }
@@ -422,16 +377,17 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
     }
 
     private SpotCheckQueryCondition convert2queryCondition(WeightAndVolumeCheckCondition weightAndVolumeCheckCondition,
-                                                           List<SpotCheckInfo> spotCheckInfos, Map<Integer, SpotCheckInfo> map) {
+                                                           List<SpotCheckInfo> spotCheckInfos, Map<String, SpotCheckInfo> map) {
         List<Integer> siteCodes = new ArrayList<>();
         for(SpotCheckInfo spotCheckInfo : spotCheckInfos){
             siteCodes.add(spotCheckInfo.getSiteCode());
-            map.put(spotCheckInfo.getSiteCode(),spotCheckInfo);
+            map.put(StringHelper.getStringValue(spotCheckInfo.getSpotCheckType()) + StringHelper.getStringValue(spotCheckInfo.getSiteCode()),spotCheckInfo);
         }
         SpotCheckQueryCondition condition = new SpotCheckQueryCondition();
         condition.setStartTime(weightAndVolumeCheckCondition.getReviewStartTime());
         condition.setEndTime(weightAndVolumeCheckCondition.getReviewEndTime());
         condition.setReviewSiteCodes(siteCodes);
+        condition.setSpotCheckType(weightAndVolumeCheckCondition.getSpotCheckType());
         return condition;
     }
 

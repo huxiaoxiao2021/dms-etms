@@ -11,6 +11,10 @@ public class UccPropertyConfiguration {
     /** cassandra服务的全局开关 **/
     private boolean cassandraGlobalSwitch;
 
+    /** 将日志通过kafka写入businesslog开关 **/
+    private boolean logToBusinessLogByKafka;
+
+
     /** 使用异步缓冲组件时生产者的类型,
      * 多级缓冲的动态生产者的生产者类型配置项，支持'JMQ‘，’TBSCHEDULE‘和’FAILOVER‘三个可选值。
      * JMQ 直接存入JMQ
@@ -40,6 +44,61 @@ public class UccPropertyConfiguration {
 
     /** 分拣动作选取的service DMS、MIDDLEEND、FAILOVER**/
     private String sortingServiceMode;
+
+    /** 出管新接口-写入方法开关 true 调用新接口，false 调用老接口**/
+    private boolean chuguanNewInterfaceInsertSwitch;
+
+    /** 出管新接口-查询方法开关 true 调用新接口，false 调用老接口**/
+    private boolean chuguanNewInterfaceQuerySwitch;
+
+
+    /** 出管新接口-页面查询方法开关 true 调用新接口，false 调用老接口**/
+    private boolean chuguanNewPageQuerySwitch;
+
+    /**
+     * 驻场打印 是否开启校验 鸡毛信必输设备号；true 开启,false 不开启
+     */
+    private boolean stationPrintFeatherLetterCheck;
+
+    /** 分拣查询的模式配置，支持DMS、MIDDLEEND、FAILOVER三个值 **/
+    private String sortingQueryMode;
+
+    /**
+     * 现场预分拣 超区运单拦截开关;true 开启拦截
+     */
+    private boolean preOutZoneSwitch;
+
+    /**
+     * 新log查询页面提示文字
+     */
+    private String newLogPageTips;
+    /**
+     * 老log查询页面提示
+     */
+    private String oldLogPageTips;
+    
+    /**
+     * b2b分拣补验货开关
+     */
+    private boolean b2bPushInspectionSwitch;
+
+    /**
+     * 冷链卡班短信开关;true 开启
+     */
+    private boolean coldChainStorageSmsSwitch;
+
+    /**
+     * 离线任务的操作时间的更正时间范围
+     */
+    private int offlineTaskOperateTimeCorrectHours;
+
+    public boolean isLogToBusinessLogByKafka() {
+        return logToBusinessLogByKafka;
+    }
+
+    public void setLogToBusinessLogByKafka(boolean logToBusinessLogByKafka) {
+        this.logToBusinessLogByKafka = logToBusinessLogByKafka;
+    }
 
     public String getAsynbufferEnabledTaskType() {
         return asynbufferEnabledTaskType;
@@ -119,5 +178,99 @@ public class UccPropertyConfiguration {
 
     public void setSortingServiceMode(String sortingServiceMode) {
         this.sortingServiceMode = sortingServiceMode;
+    }
+
+    public boolean isChuguanNewInterfaceInsertSwitch() {
+        return chuguanNewInterfaceInsertSwitch;
+    }
+
+    public void setChuguanNewInterfaceInsertSwitch(boolean chuguanNewInterfaceInsertSwitch) {
+        this.chuguanNewInterfaceInsertSwitch = chuguanNewInterfaceInsertSwitch;
+    }
+
+    public boolean isChuguanNewInterfaceQuerySwitch() {
+        return chuguanNewInterfaceQuerySwitch;
+    }
+
+    public void setChuguanNewInterfaceQuerySwitch(boolean chuguanNewInterfaceQuerySwitch) {
+        this.chuguanNewInterfaceQuerySwitch = chuguanNewInterfaceQuerySwitch;
+    }
+
+    public boolean isStationPrintFeatherLetterCheck() {
+        return stationPrintFeatherLetterCheck;
+    }
+
+    public void setStationPrintFeatherLetterCheck(boolean stationPrintFeatherLetterCheck) {
+        this.stationPrintFeatherLetterCheck = stationPrintFeatherLetterCheck;
+    }
+
+    public String getSortingQueryMode() {
+        return sortingQueryMode;
+    }
+
+    public void setSortingQueryMode(String sortingQueryMode) {
+        this.sortingQueryMode = sortingQueryMode;
+    }
+
+    public boolean isChuguanNewPageQuerySwitch() {
+        return chuguanNewPageQuerySwitch;
+    }
+
+    public void setChuguanNewPageQuerySwitch(boolean chuguanNewPageQuerySwitch) {
+        this.chuguanNewPageQuerySwitch = chuguanNewPageQuerySwitch;
+    }
+
+    public boolean isPreOutZoneSwitch() {
+        return preOutZoneSwitch;
+    }
+
+    public void setPreOutZoneSwitch(boolean preOutZoneSwitch) {
+        this.preOutZoneSwitch = preOutZoneSwitch;
+    }
+
+    public String getNewLogPageTips() {
+        return newLogPageTips;
+    }
+
+    public void setNewLogPageTips(String newLogPageTips) {
+        this.newLogPageTips = newLogPageTips;
+    }
+
+    public String getOldLogPageTips() {
+        return oldLogPageTips;
+    }
+
+    public void setOldLogPageTips(String oldLogPageTips) {
+        this.oldLogPageTips = oldLogPageTips;
+    }
+
+    public boolean isColdChainStorageSmsSwitch() {
+        return coldChainStorageSmsSwitch;
+    }
+
+    public void setColdChainStorageSmsSwitch(boolean coldChainStorageSmsSwitch) {
+        this.coldChainStorageSmsSwitch = coldChainStorageSmsSwitch;
+    }
+
+	/**
+	 * @return the b2bPushInspectionSwitch
+	 */
+	public boolean isB2bPushInspectionSwitch() {
+		return b2bPushInspectionSwitch;
+	}
+
+	/**
+	 * @param b2bPushInspectionSwitch the b2bPushInspectionSwitch to set
+	 */
+	public void setB2bPushInspectionSwitch(boolean b2bPushInspectionSwitch) {
+		this.b2bPushInspectionSwitch = b2bPushInspectionSwitch;
+	}
+
+    public int getOfflineTaskOperateTimeCorrectHours() {
+        return offlineTaskOperateTimeCorrectHours;
+    }
+
+    public void setOfflineTaskOperateTimeCorrectHours(int offlineTaskOperateTimeCorrectHours) {
+        this.offlineTaskOperateTimeCorrectHours = offlineTaskOperateTimeCorrectHours;
     }
 }

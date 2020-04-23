@@ -4,6 +4,8 @@ import com.jd.bluedragon.distribution.api.request.LoginRequest;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.distribution.api.response.LoginUserResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.sdk.modules.client.dto.DmsClientHeartbeatRequest;
+import com.jd.bluedragon.sdk.modules.client.dto.DmsClientHeartbeatResponse;
 
 /**
  * 
@@ -21,15 +23,35 @@ public interface UserService {
 	 */
 	public BaseResponse dmsClientLogin(LoginRequest request);
 	/**
+	 * 通过旧的jsf调用登录服务
+	 * @param request
+	 * @return
+	 */
+	public BaseResponse oldJsfLogin(LoginRequest request);
+	/**
 	 * 通过jsf调用登录服务
 	 * @param request
 	 * @return
 	 */
-	public BaseResponse jsfLogin(LoginRequest request);
+	public LoginUserResponse jsfLogin(LoginRequest request);
 	/**
 	 * 通过jsf调用,获取当前登录账户信息
 	 * @param request
 	 * @return
 	 */
 	public JdResult<LoginUserResponse> getLoginUser(LoginRequest request);
+
+	/**
+	 * 新登录接口，同时返回用户的站点和分拣中心
+	 *
+	 * @param request
+	 * @return
+	 */
+	LoginUserResponse clientLoginIn(LoginRequest request);
+	/**
+	 * 发送心跳信息
+	 * @param dmsClientHeartbeatRequest
+	 * @return
+	 */
+	JdResult<DmsClientHeartbeatResponse> sendHeartbeat(DmsClientHeartbeatRequest dmsClientHeartbeatRequest);
 }

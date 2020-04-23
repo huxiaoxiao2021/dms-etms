@@ -10,28 +10,24 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.zip.DataFormatException;
 
 @Service("crossSortingService")
 public class CrossSortingImpl implements CrossSortingService {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     public static final String CREATE_PACKAGE = "建包";
     public static final String CREATE_SEND = "发货";
@@ -62,31 +58,31 @@ public class CrossSortingImpl implements CrossSortingService {
 
 	@Override
 	public Integer findCountCrossSorting(Map<String, Object> params) {
-		logger.info("CrossSortingImpl.findCountCrossSorting begin...");
+		log.info("CrossSortingImpl.findCountCrossSorting begin...");
 		return crossSortingReadDao.findCountCrossSorting(params);
 	}
 
 	@Override
 	public List<CrossSorting> findPageCrossSorting(Map<String, Object> params) {
-		logger.info("CrossSortingImpl.findPageCrossSorting begin...");
+		log.info("CrossSortingImpl.findPageCrossSorting begin...");
 		return crossSortingReadDao.findPageCrossSorting(params);
 	}
 
 	@Override
 	public int deleteCrossSorting(Map<String, Object> params) {
-		logger.info("CrossSortingImpl.deleteCrossSorting begin...");
+		log.info("CrossSortingImpl.deleteCrossSorting begin...");
 		return crossSortingDao.deleteCrossSorting(params);
 	}
 
 	@Override
 	public int addBatchCrossSorting(List<CrossSorting> csList) {
-		logger.info("CrossSortingImpl.addBatchCrossSorting begin...");
+		log.info("CrossSortingImpl.addBatchCrossSorting begin...");
 		return crossSortingDao.addBatchCrossSorting(csList);
 	}
 
 	@Override
 	public List<CrossSorting> findMixDms(Map<String, Object> params) {
-		logger.info("CrossSortingImpl.getMixDms begin...");
+		log.info("CrossSortingImpl.getMixDms begin...");
 		return crossSortingReadDao.findMixDms(params);
 	}
 
@@ -108,7 +104,7 @@ public class CrossSortingImpl implements CrossSortingService {
             crossSortingDto.setCode(ERROR_CODE201);
             crossSortingDto.setMessage(ERROR_MESSAGE201);
             resultlist.add(crossSortingDto);
-            logger.info("CrossSortingImpl.getQueryByid params==Null");
+            log.info("CrossSortingImpl.getQueryByid params==Null");
             return resultlist;
         }
         Map<String, Object> params = new HashMap<String, Object>();
@@ -125,7 +121,7 @@ public class CrossSortingImpl implements CrossSortingService {
         }else{
             crossSortingDto.setCode(ERROR_CODE202);
             crossSortingDto.setMessage(ERROR_MESSAGE202);
-            logger.info("CrossSortingImpl.getQueryByids DB is null");
+            log.info("CrossSortingImpl.getQueryByids DB is null");
         }
         return resultlist;
     }
@@ -142,8 +138,8 @@ public class CrossSortingImpl implements CrossSortingService {
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	@Deprecated
 	public void importCrossSortingRules(Sheet sheet0,String userName, String userCode) throws Exception{
-		logger.info("start import crossing sorting rule file...");
-		logger.info("total " + sheet0.getLastRowNum() + " row rules");
+		log.info("start import crossing sorting rule file...");
+		log.info("total {} row rules",sheet0.getLastRowNum());
 		List<BaseStaffSiteOrgDto> siteCodes = getAllDistributionCenter();
 		List<CrossSorting> needInsertRules = new ArrayList<CrossSorting>();
         List<CrossSorting> needUpdateRules = new ArrayList<CrossSorting>();
@@ -259,7 +255,7 @@ public class CrossSortingImpl implements CrossSortingService {
 		if (null == mixCode || mixCode.getCellType() != Cell.CELL_TYPE_NUMERIC) {
 			throw new DataFormatException("(" + (rowIndex + 1) + "行," + (5) + "列) 数据不正确");
 		}
-		logger.info("原分拣:" + sourceCode + ",目标分拣:" + targetCode + ",混装分拣:" + mixCode);
+		log.info("原分拣:{},目标分拣:{},混装分拣:{}",sourceCode, targetCode, mixCode);
 	}
 
     /**
@@ -291,7 +287,7 @@ public class CrossSortingImpl implements CrossSortingService {
 		try{
 			baseStaffSiteOrgDtos = basicPrimaryWSProxy.getBaseSiteByOrgIdSiteType(null,64);
 		}catch (Exception e){
-			this.logger.error("获取所有分拣中心失败!");
+			this.log.error("获取所有分拣中心失败!");
 		}
 		Profiler.registerInfoEnd(info);
 		return baseStaffSiteOrgDtos;
@@ -310,13 +306,13 @@ public class CrossSortingImpl implements CrossSortingService {
 	}
 	@Override
 	public int updateCrossSorting(CrossSorting cs) {
-		logger.info("CrossSortingImpl.updateCrossSorting begin...");
+		log.info("CrossSortingImpl.updateCrossSorting begin...");
 		return crossSortingDao.updateCrossSorting(cs);
 	}
 
 	@Override
 	public int updateCrossSortingForDelete(CrossSorting cs) {
-		logger.info("CrossSortingImpl.updateCrossSortingForDelete begin...");
+		log.info("CrossSortingImpl.updateCrossSortingForDelete begin...");
 		return crossSortingDao.updateCrossSortingForDelete(cs);
 	}
 

@@ -111,6 +111,10 @@ public class GantryDeviceConfigJsfRequest implements Serializable{
     龙门架新老版本，0-老版本，1-新版本
     */
     private Byte version;
+    /**
+     * 业务类型：正向 逆向
+     */
+    private Integer waybillBusinessType;
 
     public Long getId() {
         return id;
@@ -280,6 +284,14 @@ public class GantryDeviceConfigJsfRequest implements Serializable{
         this.version = version;
     }
 
+    public Integer getWaybillBusinessType() {
+        return waybillBusinessType;
+    }
+
+    public void setWaybillBusinessType(Integer waybillBusinessType) {
+        this.waybillBusinessType = waybillBusinessType;
+    }
+
     @Override
     public String toString() {
         return "GantryDeviceConfigJsfRequest{" +
@@ -306,4 +318,5 @@ public class GantryDeviceConfigJsfRequest implements Serializable{
                 ", version=" + version +
                 '}';
     }
+
 }

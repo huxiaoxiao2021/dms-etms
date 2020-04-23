@@ -13,8 +13,8 @@ import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,7 +34,7 @@ import java.util.List;
 @RequestMapping("abnormal/dmsAbnormalEclp")
 public class DmsAbnormalEclpController {
 
-    private static final Log logger = LogFactory.getLog(DmsAbnormalEclpController.class);
+    private static final Logger log = LoggerFactory.getLogger(DmsAbnormalEclpController.class);
 
     @Autowired
     private DmsAbnormalEclpService dmsAbnormalEclpService;
@@ -91,7 +91,7 @@ public class DmsAbnormalEclpController {
                 rest.toFail("运单号非法：" + dmsAbnormalEclp.getWaybillCode());
             }
         } catch (Exception e) {
-            logger.error("库房拒收外呼申请保存异常：" + JsonHelper.toJson(dmsAbnormalEclp), e);
+            log.error("库房拒收外呼申请保存异常：{}", JsonHelper.toJson(dmsAbnormalEclp), e);
             rest.toError("保存失败，服务异常！");
         }
         return rest;
@@ -111,7 +111,7 @@ public class DmsAbnormalEclpController {
         try {
             rest.setData(dmsAbnormalEclpService.deleteByIds(ids));
         } catch (Exception e) {
-            logger.error("库房拒收外呼申请删除异常：" + JsonHelper.toJson(ids), e);
+            log.error("库房拒收外呼申请删除异常：{}", JsonHelper.toJson(ids), e);
             rest.toError("删除失败，服务异常！");
         }
         return rest;

@@ -111,13 +111,13 @@
 
     <!-- 武汉邮政自消费类型MQ created by wzx (全国和华中环境的注释掉此mq消费者，只保留外网分组的此消费者) -->
     <!--<jmq:consumer id="jmq.ReverseDeliveryToWhSmsConsumer" transport="jmq.BlueDragonDistribution.transport">-->
-            <!--<jmq:listener topic="bd_dms_whSms_mq" listener="reverseDeliveryToWhSmsConsumer"/>-->
+            <!--<jmq:listener topic="${jmq.topic.bd.dms.whSms.mq}" listener="reverseDeliveryToWhSmsConsumer"/>-->
     <!--</jmq:consumer>-->
 
     <!-- 全国邮政自消费类型MQ created by wzx -->
     <!--
     <jmq:consumer id="jmq.ReverseDeliveryToEmsConsumer" transport="jmq.BlueDragonDistribution.transport">
-            <jmq:listener topic="bd_dms_ems_mq" listener="reverseDeliveryToEmsConsumer"/>
+            <jmq:listener topic="${jmq.topic.bd.dms.ems.mq}" listener="reverseDeliveryToEmsConsumer"/>
     </jmq:consumer>
 	-->
     <!-- 消费龙门架扫描MQ added by zhanglei -->
@@ -238,5 +238,17 @@
         <jmq:listener topic="${jmq.topic.cb.deliverGoodsNotice.info}" listener="deliverGoodsNoticeConsumer"/>
     </jmq:consumer>
 
+    <!--抽检回传信息-->
+    <jmq:consumer id="jmq.spotCheckConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.dms.spot.check}" listener="spotCheckConsumer"/>
+    </jmq:consumer>
+    <!--线上签推送数据-->
+    <jmq:consumer id="jmq.printOnlineConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.print.online}" listener="printOnlineConsumer"/>
+    </jmq:consumer>
+    <!--分拣滞留-->
+    <jmq:consumer id="jmq.strandConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.strand.report}" listener="strandConsumer"/>
+    </jmq:consumer>
 </beans>
 

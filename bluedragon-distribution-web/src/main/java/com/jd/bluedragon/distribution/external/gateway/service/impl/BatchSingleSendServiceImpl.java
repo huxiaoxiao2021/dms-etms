@@ -46,21 +46,21 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
      */
     @Autowired
     @Qualifier("boxResource")
-    BoxResource boxResource;
+    private BoxResource boxResource;
 
     /**
      * 运单resource
      */
     @Autowired
     @Qualifier("waybillResource")
-    WaybillResource waybillResource;
+    private WaybillResource waybillResource;
 
     /**
      * 发货resource
      */
     @Autowired
     @Qualifier("deliveryResource")
-    DeliveryResource deliveryResource;
+    private DeliveryResource deliveryResource;
 
     /**
      * 处理批量一车一单发货参数校验
@@ -245,6 +245,7 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
         pdaOperateRequest.setOperateUserCode(request.getUser().getUserCode());
         pdaOperateRequest.setOperateUserName(request.getUser().getUserName());
         pdaOperateRequest.setOperateTime(DateUtil.format(request.getCurrentOperate().getOperateTime(), DateUtil.FORMAT_DATE_TIME));
+        pdaOperateRequest.setMachineCode(request.getMachineCode());
 
         return waybillResource.getBarCodeAllRouters(pdaOperateRequest);
     }

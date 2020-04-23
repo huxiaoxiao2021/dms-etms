@@ -1,12 +1,5 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
-import java.util.Date;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -26,6 +19,13 @@ import com.jd.fce.dos.service.contract.OrderMarkingService;
 import com.jd.fce.dos.service.domain.OrderMarkingForeignRequest;
 import com.jd.fce.dos.service.domain.OrderMarkingForeignResponse;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.sun.xml.bind.v2.model.core.ID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
 /**
  * 
  * @ClassName: PromiseWaybillHandler
@@ -36,7 +36,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
  */
 @Service
 public class PromiseWaybillHandler implements Handler<WaybillPrintContext,JdResult<String>>{
-	private static final Log logger= LogFactory.getLog(PromiseWaybillHandler.class);
+	private static final Logger log = LoggerFactory.getLogger(PromiseWaybillHandler.class);
     @Autowired
     private OrderMarkingService orderMarkingService;
     
@@ -53,7 +53,7 @@ public class PromiseWaybillHandler implements Handler<WaybillPrintContext,JdResu
 	
 	@Override
 	public JdResult<String> handle(WaybillPrintContext context) {
-		logger.info("获取时效信息");
+		log.debug("获取时效信息");
 		Integer dmsCode = context.getRequest().getDmsSiteCode();
 		Integer targetSiteCode = context.getRequest().getTargetSiteCode();
 		//调用逻辑设置时效信息
@@ -93,7 +93,7 @@ public class PromiseWaybillHandler implements Handler<WaybillPrintContext,JdResu
         }
 
         try {
-        	logger.info("获取时效信息3"+PropertiesHelper.newInstance().getValue("isRoutePredictDateEnabled"));
+        	log.info("获取时效信息3:{}",PropertiesHelper.newInstance().getValue("isRoutePredictDateEnabled"));
         	//如果是B网订单取路由时效数据,否则取promise数据
         	//40位不为0是快运0默认、1整车、2是纯配快运零担
         	//http://cf.jd.com/pages/viewpage.action?pageId=31916460
@@ -122,7 +122,7 @@ public class PromiseWaybillHandler implements Handler<WaybillPrintContext,JdResu
         	}else if (WaybillUtil.isBusiWaybillCode(basePrintWaybill.getWaybillCode())
                     && ((!BusinessUtil.isSignChar(waybillSign,2,Constants.WAYBILL_SIGN_B)&& NumberHelper.isNumber(basePrintWaybill.getOrderCode()))||BusinessUtil.isSignChar(waybillSign,1,Constants.WAYBILL_SIGN_B))) {
 
-                logger.debug("调用promise获取外单时效开始");
+                log.debug("调用promise获取外单时效开始");
 
                 OrderMarkingForeignRequest orderMarkingRequest = new OrderMarkingForeignRequest();
                 if (BusinessUtil.isSignChar(waybillSign,1,Constants.WAYBILL_SIGN_B))
@@ -144,15 +144,19 @@ public class PromiseWaybillHandler implements Handler<WaybillPrintContext,JdResu
                 orderMarkingRequest.setTownId(Constants.DEFALUT_PROVINCE_CITY_COUNTRY_TOWN_VALUE);//镇
                 orderMarkingRequest.setCurrentDate(new Date());//当前时间
 
-                logger.debug("调用promise获取外单时效传入参数" +JsonHelper.toJson(orderMarkingRequest));
+                if(log.isDebugEnabled()){
+                    log.debug("调用promise获取外单时效传入参数:{}" , JsonHelper.toJson(orderMarkingRequest));
+                }
                 OrderMarkingForeignResponse orderMarkingForeignResponse = orderMarkingService.orderMarkingServiceForForeign(orderMarkingRequest);
                 if (orderMarkingForeignResponse != null && orderMarkingForeignResponse.getResultCode() >= 1) {
                     basePrintWaybill.setPromiseText(orderMarkingForeignResponse.getPromiseMsg());
                     basePrintWaybill.setTimeCategory(orderMarkingForeignResponse.getSendpayDesc());
                 } else {
-                    logger.warn("调用promise接口获取外单时效失败：" + JsonHelper.toJson(orderMarkingForeignResponse));
+                    log.warn("调用promise接口获取外单时效失败：{}" ,JsonHelper.toJson(orderMarkingForeignResponse));
                 }
-                logger.debug("调用promise获取外单时效返回数据"  + JsonHelper.toJson(orderMarkingForeignResponse));
+                if(log.isDebugEnabled()){
+                    log.debug("调用promise获取外单时效返回数据：{}", JsonHelper.toJson(orderMarkingForeignResponse));
+                }
 
                 //C2C面单预计送达时间从运单获取REQUIRE_TIME
                 if(BusinessUtil.isSignChar(waybillSign,29,'8')){
@@ -165,9 +169,9 @@ public class PromiseWaybillHandler implements Handler<WaybillPrintContext,JdResu
                 }
             }//外单增加promise时效代码逻辑,包裹标签业务是核心业务，如果promise接口异常，仍要保证包裹标签业务。
         }catch (Exception e){
-            logger.error("外单调用promise接口异常" +basePrintWaybill.getWaybillCode(),e);
+            log.error("外单调用promise接口异常:{}" , basePrintWaybill.getWaybillCode(),e);
         }
-        this.dealSopJZD(waybillSign, waybillData, basePrintWaybill);
+        this.dealJZD(waybillSign, waybillData, basePrintWaybill);
     }
 	/**
 	 * 处理sop京准达时效信息
@@ -175,9 +179,9 @@ public class PromiseWaybillHandler implements Handler<WaybillPrintContext,JdResu
 	 * @param waybillData
 	 * @param basePrintWaybill
 	 */
-	public void dealSopJZD(String waybillSign,Waybill waybillData,BasePrintWaybill basePrintWaybill){
+	public void dealJZD(String waybillSign,Waybill waybillData,BasePrintWaybill basePrintWaybill){
         //waybill_sign  第31位等于6时，打印【准】字,预计送达时间字段读取运单系统的预计送达时段,时效显示： 预计送达时段为开始时间+终止时间
-		if(BusinessUtil.isSopJZD(waybillSign)){
+		if(BusinessUtil.isSopJZD(waybillSign)||BusinessUtil.isC2CJZD(waybillSign)){
 			//promiseText临时变量
 			String promiseText = null;
 			String startTimeStr = null;
@@ -198,7 +202,12 @@ public class PromiseWaybillHandler implements Handler<WaybillPrintContext,JdResu
 				}
 			}
 			if(promiseText != null){
-				basePrintWaybill.setPromiseText(promiseText);
+			    if(BusinessUtil.isSopJZD(waybillSign)) {
+                    basePrintWaybill.setPromiseText(promiseText);
+                }
+			    if(BusinessUtil.isC2CJZD(waybillSign)){
+                    basePrintWaybill.setPromiseText(TextConstants.TEXT_JZD + promiseText);
+                }
 			}
 		}
 	}

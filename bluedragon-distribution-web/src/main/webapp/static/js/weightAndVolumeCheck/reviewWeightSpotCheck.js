@@ -94,12 +94,19 @@ $(function () {
             title: '机构类型',
             align: 'center',
             formatter: function (value, row, index) {
-                return (value == null || value == -1) ? "" : ((value == 1) ? "分拣中心" : "转运中心");
+                return (value == null || value == -1) ? "" : ((value == 0) ? "分拣中心" : "转运中心");
             }
         }, {
             field: 'reviewSiteName',
             title: '机构名称',
             align: 'center'
+        }, {
+            field: 'spotCheckType',
+            title: '业务类型',
+            align: 'center',
+            formatter: function (value, row, index) {
+                return (value != null && value == "1") ? "B网" : "C网";
+            }
         }, {
             field: 'normalPackageNum',
             title: '普通应抽查包裹数',
@@ -180,8 +187,8 @@ $(function () {
             //查询
             $('#btn_query').click(function () {
                 var days = getDaysByDateString($('#startTime').val(),$('#endTime').val());
-                if(days > 30){
-                    Jd.alert("查询时间不能超过30天，请缩小时间范围!");
+                if(days > 1){
+                    Jd.alert("查询时间不能超过1天，请缩小时间范围!");
                     return;
                 }
                 tableInit().refresh();
@@ -229,6 +236,7 @@ $(function () {
         });
     }
 
+    initSelect();
     initOrg();
     initDateQuery();
     tableInit().init();
@@ -238,6 +246,20 @@ $(function () {
 
 });
 
+function initSelect() {
+    var defualt = $("#query-form #spotCheckTypeSelect").val();
+    if(defualt != 2){
+        $("#query-form #spotCheckType").val(defualt);
+    }
+    $("#query-form #spotCheckTypeSelect").on('change', function (e) {
+        var v = $("#query-form #spotCheckTypeSelect").val();
+        if (v == 0 || v == 1) {
+            $("#query-form #spotCheckType").val(v);
+        } else {
+            $("#query-form #spotCheckType").val(null);
+        }
+    });
+}
 
 function initDateQuery(){
     var v = $.dateHelper.formatDate(new Date());

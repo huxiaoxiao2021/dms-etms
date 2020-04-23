@@ -1,20 +1,5 @@
 package com.jd.bluedragon.distribution.rest.reverse;
 
-import java.util.Arrays;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -27,6 +12,15 @@ import com.jd.bluedragon.distribution.reverse.service.ReverseSpareService;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import java.util.Arrays;
 
 @Component
 @Path(Constants.REST_URL)
@@ -34,7 +28,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 @Produces( { MediaType.APPLICATION_JSON })
 public class ReverseSpareResource {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private ReverseSpareService reverseSpareService;
@@ -49,8 +43,7 @@ public class ReverseSpareResource {
 			@PathParam("spareCode") String spareCode) {
 		if (StringUtils.isBlank(spareCode) || createSiteCode == null
 				|| createSiteCode.equals(0)) {
-			this.logger
-					.error("ReverseSpareResource getBySpareCode--> 传入参数非法");
+			this.log.warn("ReverseSpareResource getBySpareCode--> 传入参数非法");
 			return new ReverseSpareResponse<ReverseSpareRequest>(
 					JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
 		}
@@ -79,7 +72,7 @@ public class ReverseSpareResource {
 			}
 
 		} catch (Exception e) {
-			this.logger.error("ReverseSpareResource getBySpareCode异常：", e);
+			this.log.error("ReverseSpareResource getBySpareCode异常：", e);
 			return new ReverseSpareResponse<ReverseSpareRequest>(
 					PopJoinResponse.CODE_SERVICE_ERROR,
 					PopJoinResponse.MESSAGE_SERVICE_ERROR);
@@ -88,8 +81,7 @@ public class ReverseSpareResource {
 
 	private ReverseSpareRequest toReverseSpareRequest(Sorting sorting) {
 		if (sorting == null) {
-			this.logger
-					.debug("ReverseRejectSpareTask toReverseSpareRequest--> 传入分拣对象为空");
+			this.log.warn("ReverseRejectSpareTask toReverseSpareRequest--> 传入分拣对象为空");
 			return null;
 		}
 
@@ -99,27 +91,18 @@ public class ReverseSpareResource {
 		Integer receiveSiteCode = sorting.getReceiveSiteCode();
 		request.setReceiveSiteCode(receiveSiteCode);
 		try {
-			this.logger
-					.info("ReverseRejectSpareTask toReverseSpareRequest--> 获取包裹分拣目的站点名称开始，站点号【"
-							+ receiveSiteCode + "】");
+			this.log.info("ReverseRejectSpareTask toReverseSpareRequest--> 获取包裹分拣目的站点名称开始，站点号【{}】",receiveSiteCode);
 			BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager
 					.getBaseSiteBySiteId(receiveSiteCode);
 			if (baseStaffSiteOrgDto != null) {
 				request.setReceiveSiteName(baseStaffSiteOrgDto.getSiteName());
-				this.logger
-						.info("ReverseRejectSpareTask toReverseSpareRequest--> 获取包裹分拣目的站点名称，站点号【"
-								+ receiveSiteCode
-								+ "-"
-								+ baseStaffSiteOrgDto.getSiteName() + "】,结束");
+				this.log.info("ReverseRejectSpareTask toReverseSpareRequest--> 获取包裹分拣目的站点名称，站点号【{}-{}】,结束"
+								,receiveSiteCode, baseStaffSiteOrgDto.getSiteName());
 			} else {
-				this.logger
-						.error("ReverseRejectSpareTask toReverseSpareRequest--> 获取包裹分拣目的站点名称为空，站点号【"
-								+ receiveSiteCode + "】");
+				this.log.warn("ReverseRejectSpareTask toReverseSpareRequest--> 获取包裹分拣目的站点名称为空，站点号【{}】",receiveSiteCode);
 			}
 		} catch (Exception e) {
-			this.logger.error(
-					"ReverseRejectSpareTask toReverseSpareRequest--> 根据目的站点Code【"
-							+ receiveSiteCode + "】 获取站点名称接口异常", e);
+			this.log.error("ReverseRejectSpareTask toReverseSpareRequest--> 根据目的站点Code【{}】 获取站点名称接口异常",receiveSiteCode, e);
 		}
 		request.setUserName(sorting.getUpdateUser());
 		request.setUserCode(sorting.getUpdateUserCode());
@@ -136,8 +119,7 @@ public class ReverseSpareResource {
 	private ReverseSpareDto toReverseSpareDto(ReverseSpare reverseSpare) {
 		if (reverseSpare == null
 				|| StringUtils.isBlank(reverseSpare.getSpareCode())) {
-			this.logger
-					.debug("ReverseRejectSpareTask toReverseSpareDto-->传入对象或备件条码为空");
+			this.log.warn("ReverseRejectSpareTask toReverseSpareDto-->传入对象或备件条码为空");
 			return null;
 		}
 		ReverseSpareDto spareDto = new ReverseSpareDto();

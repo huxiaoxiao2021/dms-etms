@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN""http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="content-type" content="text/html;charset=utf-8">
+	<meta http-equiv="pragma" content="no-cach" /> 
+	<meta http-equiv="cache-control" content="no-cache" /> 
+	<meta http-equiv="expires" content="0" />
+	<title>B网路由配置表</title>
+	<link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/erpbase.css" media="all">
+	<link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/erpmanage.css" media="all">
+	
+	<link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/jModal.css" media="all">
+	<script type="text/javascript" src="#springUrl('/static/js/jquery-1.8.0.min.js')"></script>
+	<script type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></script>
+	<script type="text/javascript" src="#springUrl('/static/js/plugins/jquery.blockUI.js')"></script>
+	<script type="text/javascript" src="#springUrl('/static/js/common/common-client.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/page-bar.js')"></script>
+    <style type="text/css"></style>
+</head>
+    #set($websiteCss1="#")
+    #set($websiteCss2=$websiteCss1+$websiteCss1+"id")
+<body>
+	<script type="text/javascript" src="#springUrl('')/static/js/jquery-plugins/jquery.autocomplete.js"></script>
+	<link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/jquery.autocomplete.css" />
+	<script type="text/javascript" src="#springUrl('/static/js/sqlkit/comparePage.js?id=1111111111111')"></script>
+
+<div id="breadcrumb">
+	<p><a href="#">转运中心</a>&nbsp;&gt;&nbsp;<a href="#">B网路由配置表</a></p>
+</div>
+<!--[if !ie]>breadcrumb<![endif]-->
+<div id="content" width="100%">
+    <input type="hidden" id="contextPath" value="#springUrl('')">
+	<div class="m">
+		<div class="tbl-n">
+			<form id="dataForm" name="dataForm" action="" method="post">
+				<table border="0" cellpadding="0" cellspacing="0" >
+					<tbody>
+						<tr>
+                            <td align="right">旧库域名:库名：</td>
+                            <td>
+                                <input type="text" name="oldUrl" id="oldUrl" placeholder="例如：qldms001.mysql.jddb.com:3358/basic"
+                                       style="width: 300px" />
+                            </td>
+
+                            <td align="right"> 旧库用户名：</td>
+                            <td>
+
+                                <input type="text" name="oldUserName" id="oldUserName" />
+
+                            </td>
+                            <td align="right"> 旧库密码：</td>
+                            <td>
+                                <input type="text" name="oldPassword" id="oldPassword"  />
+                            </td>
+
+						</tr>
+                        <tr>
+                            <td align="right">新库域名:库名：</td>
+                            <td>
+                                <input type="text" name="newUrl" id="newUrl" placeholder="例如：qldms001.mysql.jddb.com:3358/basic"  style="width: 300px" />
+                            </td>
+
+                            <td align="right"> 新库用户名：</td>
+                            <td>
+
+                                <input type="text" name="newUserName" id="newUserName" />
+
+                            </td>
+                            <td align="right"> 新库密码：</td>
+                            <td>
+                                <input type="text" name="newPassword" id="newPassword"  />
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td align="right">sql：</td>
+                            <td>
+                                <input type="text" name="sql" id="sql" placeholder=""  style="width: 300px" />
+                            </td>
+                            <td>
+                                sql示例：<span style="color: #D24D57">select * from ddd</span>
+                                <span style="color: #00CCFF">where  create_time > '2020-04-10'</span>
+                                <span style="color: #D24D57">limit 1000;$websiteCss2
+                                 </span>（红色为必待的字符，id代表主键）
+
+                            </td>
+                        </tr>
+                        <tr>
+                        <td>
+                            <input type="button" id="compare" name="compare" value="对比" class="btn_c" />
+                        </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </form>
+        </div>
+    </div>
+	 <!--[if !ie]>tbl-n<![endif]-->
+	 <div id="opening">
+		<div class="tbl-list">
+			<div class="tbl-bg">
+				<TABLE  id="paperTable" cellSpacing=0 cellPadding=0 width="100%" class="tb-x1">
+					<THEAD>
+						<TR >
+
+                        </TR>
+                    </THEAD>
+					<TBODY>
+					
+                    </TBODY>
+                </TABLE>				
+            </div>
+        </div>
+
+         <div id="errorMsg">
+
+        </div>
+	 </div>
+</div>
+</body>
+</html>

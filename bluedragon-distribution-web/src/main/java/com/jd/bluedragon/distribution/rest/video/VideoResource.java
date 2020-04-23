@@ -11,14 +11,13 @@ import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.video.domain.OperateInfo;
 import com.jd.bluedragon.distribution.video.domain.VideoRequest;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.ql.dms.common.domain.JdResponse;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -38,13 +37,13 @@ import java.util.Map;
  * 主要功能点
  * 1、查询包裹在不同操作节点下的操作人及操作时间
  */
-
+@Deprecated
 @Component
 @Path(Constants.REST_URL)
 @Consumes({ MediaType.APPLICATION_JSON })
 @Produces({ MediaType.APPLICATION_JSON })
 public class VideoResource {
-    private final Log logger = LogFactory.getLog(VideoResource.class);
+    private final Logger log = LoggerFactory.getLogger(VideoResource.class);
 
     @Autowired
     private InspectionService inspectionService;
@@ -66,7 +65,6 @@ public class VideoResource {
     private static final Integer weightType = 1160;
     /**发货类型*/
     private static final Integer sendType = 1300;
-
     @POST
     @Path("/video/getUserAndOperateTime")
     public JdResponse getUserAndOperateTime(VideoRequest videoRequest){
@@ -81,8 +79,6 @@ public class VideoResource {
         String packageCode = videoRequest.getPackageCode();
         //返回验货记录
         List<Inspection> inspectionList = null;
-        //返回分拣记录
-        List<Sorting> sortingList = null;
         //返回发货记录
         List<SendDetail> sendDetailList = null;
         Map<String,Object> params = new HashMap<String, Object>();
@@ -92,54 +88,53 @@ public class VideoResource {
         params.put("pageSize",1);
         try {
             if(operateType.equals(inspectionType)){
-                logger.info("开始查询包裹号为"+ packageCode +"的验货业务记录！");
+                log.info("开始查询包裹号为{}的验货业务记录！",packageCode);
                 inspectionList = inspectionService.findPageInspection(params);
                 if(inspectionList != null && !inspectionList.isEmpty()){
                     Inspection inspection = inspectionList.get(0);
                     OperateInfo operateInfo = new OperateInfo(inspection.getCreateUserCode(),inspection.getCreateUser(),inspection.getOperateTime());
                     response.setData(JsonHelper.toJson(operateInfo));
-                    logger.info("查询包裹号为："+ packageCode +"的验货记录成功！");
+                    log.info("查询包裹号为：{}的验货记录成功！",packageCode);
                 }else{
                     response.toFail("包裹号"+ packageCode +"没有对应的验货记录！");
-                    logger.error("根据包裹号为："+ packageCode +"查询验货记录失败！");
+                    log.warn("根据包裹号为：{}查询验货记录失败！",packageCode);
                 }
-                logger.info("结束查询包裹号为"+ packageCode +"的验货业务记录");
+                log.info("结束查询包裹号为{}的验货业务记录",packageCode);
             }
             if(operateType.equals(sortingType)){
-                logger.info("开始查询包裹号为"+ packageCode +"的分拣业务记录!");
-                sortingList = sortingService.findPageSorting(params);
-                if(sortingList!=null && !sortingList.isEmpty()){
-                    Sorting sorting = sortingList.get(0);
-                    OperateInfo operateInfo = new OperateInfo(sorting.getCreateUserCode(),sorting.getCreateUser(),sorting.getOperateTime());
+                log.info("开始查询包裹号为{}的分拣业务记录!",packageCode);
+                Sorting sorting = sortingService.getOneSortingByPackageCode(packageCode,videoRequest.getSiteNo());
+                if(sorting!=null){
+                    OperateInfo operateInfo = new OperateInfo(sorting.getCreateUserCode(), sorting.getCreateUser(), sorting.getOperateTime());
                     response.setData(JsonHelper.toJson(operateInfo));
-                    logger.info("查询包裹号为："+ packageCode +"的分拣记录成功！");
+                    log.info("查询包裹号为：{}的分拣记录成功！",packageCode);
                 }else{
                     response.toFail("包裹号"+ packageCode +"没有对应的分拣记录！");
-                    logger.error("根据包裹号为："+ packageCode +"查询分拣记录失败！");
+                    log.warn("根据包裹号为：{}查询分拣记录失败！",packageCode);
                 }
-                logger.info("结束查询包裹号为"+ packageCode +"的分拣业务记录");
+                log.info("结束查询包裹号为{}的分拣业务记录",packageCode);
             }
             if(operateType.equals(sendType)){
-                logger.info("开始查询包裹号为"+ packageCode +"的发货业务记录!");
+                log.info("开始查询包裹号为{}的发货业务记录!",packageCode);
                 sendDetailList = sendDetailService.findPageSendDetail(params);
                 if(sendDetailList!=null && !sendDetailList.isEmpty()){
                     SendDetail sendDetail = sendDetailList.get(0);
                     OperateInfo operateInfo = new OperateInfo(sendDetail.getCreateUserCode(),sendDetail.getCreateUser(),sendDetail.getOperateTime());
                     response.setData(JsonHelper.toJson(operateInfo));
-                    logger.info("查询包裹号为："+ packageCode +"的发货记录成功！");
+                    log.info("查询包裹号为：{}的发货记录成功！",packageCode);
                 }else{
                     response.toFail("包裹号"+ packageCode +"没有对应的发货记录！");
-                    logger.error("根据包裹号为："+ packageCode +"查询发货记录失败！");
+                    log.warn("根据包裹号为：{}查询发货记录失败！",packageCode);
                 }
-                logger.info("结束查询包裹号为"+ packageCode +"的发货业务记录");
+                log.info("结束查询包裹号为{}的发货业务记录",packageCode);
             }
             if(operateType.equals(weightType)){
-                logger.info("开始查询包裹号为"+ packageCode +"的称重业务记录!");
+                log.info("开始查询包裹号为{}的称重业务记录!",packageCode);
                 String waybillCode = WaybillUtil.getWaybillCode(packageCode);
                 //根据运单号查找运单的称重量方流水
                 BaseEntity<List<PackOpeFlowDto>> packageOpe = waybillPackageApi.getPackOpeByWaybillCode(waybillCode);
                 if(packageOpe != null && packageOpe.getData().size() > 0){
-                    logger.info("查询运单接口称重量方成功，运单号为："+ waybillCode);
+                    log.info("查询运单接口称重量方成功，运单号为：{}", waybillCode);
                     for(PackOpeFlowDto packOpeFlowDto : packageOpe.getData()){
                         //获取包裹号
                         String packageBar = packOpeFlowDto.getPackageCode();
@@ -147,17 +142,17 @@ public class VideoResource {
                             Integer weightUserId = Integer.parseInt(packOpeFlowDto.getWeighUserId());
                             OperateInfo operateInfo = new OperateInfo(weightUserId,packOpeFlowDto.getWeighUserName(),packOpeFlowDto.getWeighTime());
                             response.setData(JsonHelper.toJson(operateInfo));
-                            logger.info("查询包裹号为："+ packageCode +"的称重量方记录成功！");
+                            log.info("查询包裹号为：{}的称重量方记录成功！",packageCode);
                         }
                     }
                 }else{
                     response.toFail("包裹号"+ packageCode + "没有对应的称重量方记录！");
-                    logger.error("根据包裹号为："+ packageCode + "查询称重量方记录失败！");
+                    log.warn("根据包裹号为：{}查询称重量方记录失败！",packageCode);
                 }
-                logger.info("结束查询包裹号为"+ packageCode +"的称重业务记录!");
+                log.info("结束查询包裹号为{}的称重业务记录!",packageCode);
             }
         } catch (Exception e) {
-            logger.error("获取类型为["+operateType+"]的业务节点失败！",e);
+            log.error("获取类型为[{}]的业务节点失败！",operateType,e);
         }
         return response;
     }
@@ -165,20 +160,20 @@ public class VideoResource {
     public boolean checkParam(VideoRequest videoRequest, JdResponse response){
         if(videoRequest.getSiteNo() == null){
             response.toFail("分拣中心id为空！");
-            logger.warn("分拣中心id为空！参数为："+JsonHelper.toJson(videoRequest));
+            log.warn("分拣中心id为空！参数为：{}", JsonHelper.toJson(videoRequest));
             return Boolean.FALSE;
         }
         Integer operateType = videoRequest.getOperateType();
         if(operateType == null || (!operateType.equals(inspectionType) && !operateType.equals(sortingType) && !operateType.equals(weightType)
                 && !operateType.equals(sendType))){
             response.toFail("输入操作类型不符合定义规则！");
-            logger.warn("操作类型输入有误！参数为："+JsonHelper.toJson(videoRequest));
+            log.warn("操作类型输入有误！参数为：{}", JsonHelper.toJson(videoRequest));
             return Boolean.FALSE;
         }
         String packageCode = videoRequest.getPackageCode();
         if("".equals(packageCode) || !WaybillUtil.isPackageCode(packageCode)){
             response.toFail("输入的包裹号为空或不符合包裹号规则！");
-            logger.warn("包裹号输入有误！参数为："+JsonHelper.toJson(videoRequest));
+            log.warn("包裹号输入有误！参数为：{}", JsonHelper.toJson(videoRequest));
             return Boolean.FALSE;
         }
         return Boolean.TRUE;

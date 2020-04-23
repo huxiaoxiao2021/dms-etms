@@ -368,6 +368,9 @@
         from
         pre_seal_vehicle
         where create_site_code = #{createSiteCode,jdbcType=BIGINT}
+		<if test="vehicleNumber != null">
+			and vehicle_number = #{vehicleNumber,jdbcType=VARCHAR}
+		</if>
         and status = #{status,jdbcType=TINYINT}
         and is_delete=0
     </select>

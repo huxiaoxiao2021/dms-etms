@@ -7,34 +7,27 @@ import com.jd.bluedragon.distribution.api.request.GenerateSendCodeRequest;
 import com.jd.bluedragon.distribution.api.response.BatchGenerateSendCodeReponse;
 import com.jd.bluedragon.distribution.api.response.GenerateSendCodeResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.businessCode.constans.BusinessCodeFromSourceEnum;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.rest.departure.DepartureResource;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.service.ReverseDeliveryService;
+import com.jd.bluedragon.distribution.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.urban.domain.TransbillM;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.jd.ump.annotation.JProfiler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import javax.annotation.Resource;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -47,7 +40,7 @@ import java.util.List;
 @Consumes({MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_JSON})
 public class SendCodeResource {
-    private final Log logger = LogFactory.getLog(SendCodeResource.class);
+    private final Logger log = LoggerFactory.getLogger(SendCodeResource.class);
     private static final String IS_AIR_TRANSPORT_CARRIER = "Y";
     private static final Integer TRANSPORT_TYPE_AIR = 1; // 航空
 
@@ -87,8 +80,12 @@ public class SendCodeResource {
     @Resource(name = "transbillMService")
     private TransbillMService transbillMService;
 
+    @Autowired
+    private SendCodeService sendCodeService;
+
     @GET
     @Path("/trans/{waybillCode}")
+    @JProfiler(jKey = "com.jd.bluedragon.distribution.rest.send.SendCodeResource.checkSendCodeStatus", jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public TransbillM checkSendCodeStatus(@PathParam("waybillCode") String waybillCode) {
         return transbillMService.getByWaybillCode(waybillCode);
 
@@ -96,6 +93,7 @@ public class SendCodeResource {
 
     @GET
     @Path("/departure/check")
+    @JProfiler(jKey = "com.jd.bluedragon.distribution.rest.send.SendCodeResource.isAirTransportBatch", jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public JdResponse isAirTransportBatch(@QueryParam("siteCode") Integer siteCode,
                                           @QueryParam("carrierSiteCode") Integer carrierSiteCode, @QueryParam("sendCode") String sendCode) {
         if (siteCode == null || carrierSiteCode == null || Strings.isNullOrEmpty(sendCode)) {
@@ -150,6 +148,7 @@ public class SendCodeResource {
 
     @GET
     @Path("/send/repair/sendcode")
+    @JProfiler(jKey = "com.jd.bluedragon.distribution.rest.send.SendCodeResource.repairSendCode", jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public JdResponse repairSendCode(@QueryParam("sendCode") String sendCode) {
         if (StringHelper.isEmpty(sendCode)) {
             return new JdResponse(JdResponse.CODE_PARAM_ERROR,
@@ -190,6 +189,7 @@ public class SendCodeResource {
 
     @GET
     @Path("/send/repair/waybillCode")
+    @JProfiler(jKey = "com.jd.bluedragon.distribution.rest.send.SendCodeResource.repairWaybillCode", jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public JdResponse repairWaybillCode(@QueryParam("waybillCode") String waybillCode) {
         if (StringHelper.isEmpty(waybillCode)) {
             return new JdResponse(JdResponse.CODE_PARAM_ERROR,
@@ -209,12 +209,8 @@ public class SendCodeResource {
         for (String code : waybills) {
             request.add(code);
         }
-        String message = reverseDelivery.toEmsServer(request);
-        if (StringHelper.isEmpty(message)) {
-            return new JdResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
-        } else {
-            return new JdResponse(JdResponse.CODE_OK, message);
-        }
+        reverseDelivery.toEmsServer(request);
+        return new JdResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
     }
 
     private Integer getCreateSiteCodeBysendCode(String sendCode) {
@@ -243,26 +239,29 @@ public class SendCodeResource {
 
     @POST
     @Path("/sendCode/generate")
+    @JProfiler(jKey = "com.jd.bluedragon.distribution.rest.send.SendCodeResource.generateSendCode", jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public GenerateSendCodeResponse generateSendCode(GenerateSendCodeRequest request) {
         GenerateSendCodeResponse response = new GenerateSendCodeResponse();
         try {
-            String sendCode = SerialRuleUtil.generateSendCode(
-                    request.getCreateSiteCode(),
-                    request.getReceiveSiteCode(),
-                    request.getTime()
-            );
+            Integer createSiteCode = (int) request.getCreateSiteCode();
+            Integer receiveSiteCode = (int) request.getReceiveSiteCode();
+            BusinessCodeFromSourceEnum businessCodeFromSourceEnum = BusinessCodeFromSourceEnum.getFromName(request.getFromSource());
+            String userName = StringHelper.isEmpty(request.getUserCode())? "" : request.getUserCode();
+            String sendCode = sendCodeService.createSendCode(createSiteCode, receiveSiteCode, userName,
+                    "1".equals(request.getFreshProperty()),request.getTime(),businessCodeFromSourceEnum);
             response.setCode(200);
             response.setSendCode(sendCode);
         } catch (Exception e) {
             response.setCode(CODE_CREATE_SEND_CODE_ERROR);
             response.setMessage(MESSAGE_CODE_CREATE_SEND_CODE_ERROR);
-            logger.error(MESSAGE_CODE_CREATE_SEND_CODE_ERROR, e);
+            log.error(MESSAGE_CODE_CREATE_SEND_CODE_ERROR, e);
         }
         return response;
     }
 
     @POST
     @Path("/sendCode/batchGenerate")
+    @JProfiler(jKey = "com.jd.bluedragon.distribution.rest.send.SendCodeResource.batchGenerate", jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public BatchGenerateSendCodeReponse batchGenerate(GenerateSendCodeRequest request) {
         BatchGenerateSendCodeReponse response = new BatchGenerateSendCodeReponse();
         /** 校验参数*/
@@ -270,14 +269,15 @@ public class SendCodeResource {
             return response;
         }
         try {
+            Integer createSiteCode = (int) request.getCreateSiteCode();
+            Integer receiveSiteCode = (int) request.getReceiveSiteCode();
+            BusinessCodeFromSourceEnum businessCodeFromSourceEnum = BusinessCodeFromSourceEnum.getFromName(request.getFromSource());
+            String userName = StringHelper.isEmpty(request.getUserCode())? "" : request.getUserCode();
+
             List<String> sendCodes = new ArrayList<String>(request.getQuantity());
             for (int i = 0; i < request.getQuantity(); i++) {
-                String sendCode = SerialRuleUtil.generateSendCode(
-                        request.getCreateSiteCode(),
-                        request.getReceiveSiteCode(),
-                        //防止生成的批次号重复
-                        DateHelper.add(new Date(), Calendar.MILLISECOND, i * 10)
-                );
+                String sendCode = sendCodeService.createSendCode(createSiteCode, receiveSiteCode, userName,
+                        "1".equals(request.getFreshProperty()),DateHelper.add(new Date(), Calendar.MILLISECOND, i * 10),businessCodeFromSourceEnum);
                 sendCodes.add(sendCode);
             }
             response.setCode(200);
@@ -285,7 +285,7 @@ public class SendCodeResource {
         } catch (Exception e) {
             response.setCode(CODE_CREATE_SEND_CODE_ERROR);
             response.setMessage(MESSAGE_CODE_CREATE_SEND_CODE_ERROR);
-            logger.error(MESSAGE_CODE_CREATE_SEND_CODE_ERROR, e);
+            log.error(MESSAGE_CODE_CREATE_SEND_CODE_ERROR, e);
         }
         return response;
     }
@@ -295,13 +295,13 @@ public class SendCodeResource {
         if (request.getQuantity() == null || request.getQuantity() <= 0) {
             response.setCode(JdResponse.CODE_PARAM_ERROR);
             response.setMessage("生成数量Quantity非法！");
-            logger.warn(MessageFormat.format("生成数量Quantity:{0}非法！", request.getQuantity()));
+            log.warn("生成数量Quantity:{}非法！", request.getQuantity());
             return false;
         }
         if (request.getCreateSiteCode() == 0 || request.getReceiveSiteCode() == 0) {
             response.setCode(JdResponse.CODE_PARAM_ERROR);
             response.setMessage("分拣中心编号非法！");
-            logger.warn("分拣中心编号非法！");
+            log.warn("分拣中心编号非法！");
             return false;
         }
         return true;

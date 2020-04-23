@@ -15,10 +15,6 @@ public class PdaOperateRequest {
 	 * 操作类型
 	 */
 	Integer operateType = 1;
-//	/**
-//	 * 运单号
-//	 */
-//	String waybillCode;
 	/**
 	 * 包裹号
 	 */
@@ -55,6 +51,21 @@ public class PdaOperateRequest {
 	 * 箱号
 	 */
 	String boxCode;
+
+	/**
+	 * 设备编号
+	 */
+	String machineCode;
+
+	/**
+	 * 是否报丢 1报丢
+	 */
+	Integer isLoss;
+
+	/**
+	 * 是否校验验货集齐
+	 */
+	Integer isGather;
 	
 	public Integer getOperateType() {
 		return operateType;
@@ -80,12 +91,6 @@ public class PdaOperateRequest {
 	public void setBoxCode(String boxCode) {
 		this.boxCode = boxCode;
 	}
-//	public String getWaybillCode() {
-//		return waybillCode;
-//	}
-//	public void setWaybillCode(String waybillCode) {
-//		this.waybillCode = waybillCode;
-//	}
 	public String getPackageCode() {
 		return packageCode;
 	}
@@ -123,12 +128,27 @@ public class PdaOperateRequest {
 		this.operateTime = operateTime;
 	}
 
-//	
-//	public String check(){
-//		if(operateType.equals(PdaOperateRequest.SORTING_TYPE)){
-//			return PdaOperateRequest.SORTING_ERROR;
-//		}else{
-//			return null;
-//		}
-//	}
+	public String getMachineCode() {
+		return machineCode;
+	}
+
+	public void setMachineCode(String machineCode) {
+		this.machineCode = machineCode;
+	}
+
+	public Integer getIsLoss() {
+		return isLoss;
+	}
+
+	public void setIsLoss(Integer isLoss) {
+		this.isLoss = isLoss;
+	}
+
+	public Integer getIsGather() {
+		return isGather;
+	}
+
+	public void setIsGather(Integer isGather) {
+		this.isGather = isGather;
+	}
 }

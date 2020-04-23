@@ -88,6 +88,11 @@
 										<input id="search" type="button" value="查询" class="btn_c"/>
 									</td>
 								</tr>
+								<tr>
+									<td colspan="11">
+                                        $oldLogPageTips
+									</td>
+								</tr>l
 							</tbody>
 						</table>
 					</form>

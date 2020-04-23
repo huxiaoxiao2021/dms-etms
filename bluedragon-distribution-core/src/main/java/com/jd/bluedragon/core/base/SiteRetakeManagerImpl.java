@@ -2,7 +2,7 @@ package com.jd.bluedragon.core.base;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.common.orm.page.Page;
@@ -11,7 +11,10 @@ import com.jd.etms.erp.service.dto.CommonDto;
 import com.jd.ldop.middle.api.BaseResult;
 import com.jd.ldop.middle.api.basic.BasicTraderInfoQueryApi;
 import com.jd.ldop.middle.api.basic.domain.BasicTraderQueryDTO;
+import com.jd.ql.erp.dto.ResponseDTO;
+import com.jd.ql.erp.dto.vendor.ReTakeRequestDTO;
 import com.jd.ql.erp.jsf.VendorOrderJsfService;
+import com.jd.ql.erp.jsf.vendor.CommonCollectApi;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -32,11 +35,14 @@ import java.util.List;
  */
 @Service("siteRetakeManager")
 public class SiteRetakeManagerImpl implements SiteRetakeManager {
-    private static final Logger logger = LoggerFactory.getLogger(SiteRetakeManagerImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(SiteRetakeManagerImpl.class);
     @Autowired
     private BasicTraderInfoQueryApi basicTraderInfoQueryApi;
     @Autowired
     private VendorOrderJsfService vendorOrderJsfService;
+
+    @Autowired
+    private CommonCollectApi erpCommonCollectApi;
 
     @Override
     public List<BasicTraderQueryDTO> queryBasicTraderInfoByKey(String key) {
@@ -49,15 +55,15 @@ public class SiteRetakeManagerImpl implements SiteRetakeManager {
             if (baseResult != null && baseResult.getStatusCode() == 0 && baseResult.getData() != null && baseResult.getData().size() > 0) {
                 return baseResult.getData();
             } else if (baseResult != null && baseResult.getStatusCode() == 1) {
-                logger.warn("SiteRetakeManagerImpl-queryBasicTraderInfoByKey 查询失败，key:" + key + ",返回结果：" + baseResult.getStatusMessage());
+                log.warn("SiteRetakeManagerImpl-queryBasicTraderInfoByKey 查询失败，key:{},返回结果：{}" ,key, baseResult.getStatusMessage());
                 return new ArrayList();
             } else {
-                logger.warn("SiteRetakeManagerImpl-queryBasicTraderInfoByKey 查询失败，key:" + key);
+                log.warn("SiteRetakeManagerImpl-queryBasicTraderInfoByKey 查询失败，key:{}" , key);
                 return new ArrayList();
             }
         } catch (Exception e) {
             Profiler.functionError(info);
-            logger.error("SiteRetakeManagerImpl-queryBasicTraderInfoByKey 查询失败，key:" + key, e);
+            log.error("SiteRetakeManagerImpl-queryBasicTraderInfoByKey 查询失败，key:{}" , key, e);
             return new ArrayList();
         }finally {
             Profiler.registerInfoEnd(info);
@@ -71,58 +77,74 @@ public class SiteRetakeManagerImpl implements SiteRetakeManager {
         CommonDto<Page<VendorOrder>> result = vendorOrderJsfService.selectVendorOrderList(vendorOrder, page);
 //        CommonDto<Page<VendorOrder>> result = testQueryOrder();
         if (result == null) {
-            logger.error("SiteRetakeManagerImpl.selectVendorOrderList 查询异常，vendorOrder:" + JsonHelper.toJson(vendorOrder) + ",page：" + JsonHelper.toJson(page));
+            log.warn("SiteRetakeManagerImpl.selectVendorOrderList 查询异常，vendorOrder:{},page：{}" ,JsonHelper.toJson(vendorOrder), JsonHelper.toJson(page));
             page.setTotalRow(0);
             return page;
         }
         if (result.getCode() != 1) {
-            logger.error(result.getMessage());
-            logger.error("SiteRetakeManagerImpl.selectVendorOrderList 查询失败，vendorOrder:" + JsonHelper.toJson(vendorOrder) + ",page：" + JsonHelper.toJson(page) + ",code:" + result.getCode());
+            log.warn("SiteRetakeManagerImpl.selectVendorOrderList 查询失败，vendorOrder:{},page：{},code:{},msg:{}"
+                    , JsonHelper.toJson(vendorOrder),JsonHelper.toJson(page),result.getCode(),result.getMessage());
             page.setTotalRow(0);
             return page;
         }
         return result.getData();
     }
-    private  CommonDto<Page<VendorOrder>> testQueryOrder(){
-        List list=Lists.newArrayList();
-        for (int i=0;i<15;i++){
-            VendorOrder vendorOrder=new VendorOrder();
-            vendorOrder.setWaybillCode("12345"+i);
-            vendorOrder.setWaybillCreateTime(new Date());
-            vendorOrder.setAssignTime(new Date());
-            list.add(vendorOrder);
-        }
-        Page<VendorOrder> page=new Page<VendorOrder>();
-        page.setPageSize(20);
-        page.setCurrentPage(1);
-        page.setTotalRow(15);
-        page.setResult(list);
-        CommonDto<Page<VendorOrder>> aa=new CommonDto<Page<VendorOrder>>();
-        aa.setCode(1);
-        aa.setData(page);
-        return aa;
-    }
+
+
+    /**
+     * 批量处理驻厂再取
+     * 返回处理失败数据
+     * @param reTakeRequestDTOS
+     * @return
+     */
     @Override
-    @JProfiler(jKey = "com.jd.bluedragon.core.base.SiteRetakeManagerImpl.updateCommonOrderStatus", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
-    public InvokeResult<String> updateCommonOrderStatus(VendorOrder vendorOrder) {
-        InvokeResult<String> invokeResult = new InvokeResult<String>();
-        CommonDto<Boolean> result = vendorOrderJsfService.updateCommonOrderStatus(vendorOrder);
-        if (result == null) {
-            logger.error("SiteRetakeManagerImpl.updateCommonOrderStatus异常，vendorOrder:" + JsonHelper.toJson(vendorOrder));
-            invokeResult.customMessage(500, "服务器错误");
-            return invokeResult;
+    @JProfiler(jKey = "com.jd.bluedragon.core.base.SiteRetakeManagerImpl.batchUpdateReTakeTime", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public List<String> batchUpdateReTakeTime(List<ReTakeRequestDTO> reTakeRequestDTOS){
+        List<String> failList = new ArrayList<>();
+        if(reTakeRequestDTOS==null || reTakeRequestDTOS.isEmpty() ){
+            return failList;
         }
-        if (result.getCode() != 1) {
-            logger.error(result.getMessage());
-            logger.error("SiteRetakeManagerImpl.updateCommonOrderStatus失败，vendorOrder:" + JsonHelper.toJson(vendorOrder) + ",code:" + result.getCode());
-            invokeResult.customMessage(501, result.getMessage());
-            return invokeResult;
+        int batchSize = 100;
+        int pageSize = Double.valueOf(Math.ceil(Double.valueOf(reTakeRequestDTOS.size())/batchSize)).intValue();
+
+        for(int i = 0 ; i < pageSize ;i++){
+            List<ReTakeRequestDTO> batchDealList;
+            if((i+1) * batchSize < reTakeRequestDTOS.size()){
+                batchDealList = reTakeRequestDTOS.subList(i*batchSize,(i+1)*batchSize);
+            }else{
+                batchDealList = reTakeRequestDTOS.subList(i*batchSize,reTakeRequestDTOS.size());
+            }
+
+            ResponseDTO<List<String>> batchDealResult = erpCommonCollectApi.batchUpdateReTakeTime(batchDealList);
+            if(batchDealResult!=null && batchDealResult.getResultCode()!=null
+                    && batchDealResult.getData()!=null && !batchDealResult.getData().isEmpty()){
+                failList.addAll(batchDealResult.getData());
+            }
+
+
         }
-        if (result.getData() == Boolean.FALSE) {
-            logger.error(result.getMessage());
-            logger.error("SiteRetakeManagerImpl.updateCommonOrderStatus失败1，vendorOrder:" + JsonHelper.toJson(vendorOrder) + ",code:" + result.getCode());
-        }
-        logger.info("SiteRetakeManagerImpl.updateCommonOrderStatus成功，vendorOrder:" + JsonHelper.toJson(vendorOrder));
-        return invokeResult;
+        return failList;
     }
+
+    public static void main(String[] args) {
+        List<ReTakeRequestDTO> reTakeRequestDTOS = new ArrayList<>();
+        for(int i = 0; i< 200; i++){
+            reTakeRequestDTOS.add(new ReTakeRequestDTO());
+        }
+
+        int batchSize = 100;
+        int pageSize = Double.valueOf(Math.ceil(Double.valueOf(reTakeRequestDTOS.size())/batchSize)).intValue();
+
+        for(int i = 0 ; i < pageSize ;i++){
+            List<ReTakeRequestDTO> batchDealList;
+            if((i+1) * batchSize < reTakeRequestDTOS.size()){
+                batchDealList = reTakeRequestDTOS.subList(i*batchSize,(i+1)*batchSize);
+            }else{
+                batchDealList = reTakeRequestDTOS.subList(i*batchSize,reTakeRequestDTOS.size());
+            }
+            System.out.println("---"+batchDealList.size());
+        }
+
+    }
+
 }

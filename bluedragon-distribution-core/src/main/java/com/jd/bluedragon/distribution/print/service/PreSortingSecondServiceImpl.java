@@ -1,17 +1,5 @@
 package com.jd.bluedragon.distribution.print.service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import com.jd.bluedragon.dms.utils.BusinessUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
@@ -24,20 +12,37 @@ import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
 import com.jd.bluedragon.distribution.api.domain.WeightOperFlow;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
+
+import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.distribution.weight.service.WeightService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.SystemLogContants;
 import com.jd.bluedragon.utils.SystemLogUtil;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
+import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.dms.logger.external.LogEngine;
+import com.jd.fastjson.JSONObject;
 import com.jd.preseparate.vo.BaseResponseIncidental;
 import com.jd.preseparate.vo.MediumStationOrderInfo;
 import com.jd.preseparate.vo.OriginalOrderInfo;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 纯外单中小件二次预分拣服务
@@ -45,7 +50,10 @@ import com.jd.ql.dms.common.cache.CacheService;
  */
 @Service("preSortingSecondService")
 public class PreSortingSecondServiceImpl implements PreSortingSecondService{
-    private static final Log logger= LogFactory.getLog(PreSortingSecondServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(PreSortingSecondServiceImpl.class);
+
+    @Autowired
+	private LogEngine logEngine;
 
     @Autowired
     private PreseparateWaybillManager preseparateWaybillManager;
@@ -127,7 +135,7 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
 	            //新预分拣站点不同于原站点则提示换单并设置为新的预分拣站点
 	            if(!newPreSiteInfo.getMediumStationId().equals(oldPrepareSiteCode)){
 	            	//换站点了
-	                logger.warn("中小件二次预分拣换预分拣站点了："+newPreSiteInfo.getMediumStationId());
+	                log.warn("中小件二次预分拣换预分拣站点了：{}", newPreSiteInfo.getMediumStationId());
 	                this.resetPresiteInfo(context, newPreSiteInfo);
 	                context.appendMessage(String.format(SITE_CHANGE_MSG, context.getRequest().getBarCode()));
 	                context.setStatus(InterceptResult.STATUS_WEAK_PASSED);
@@ -174,8 +182,8 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
 		            MediumStationOrderInfo newPreSiteInfo = mediumStationOrderInfo.getData().getData();
 		            //新预分拣站点不同于原站点则提示换单并设置为新的预分拣站点
 		            if(!newPreSiteInfo.getMediumStationId().equals(oldPrepareSiteCode)){
-		                logger.warn(String.format("C网操作B2B传站业务:%s预分拣站点变更：%s->%s",waybillCode,
-		                		oldPrepareSiteCode,newPreSiteInfo.getMediumStationId()));
+		                log.warn("C网操作B2B传站业务:{}预分拣站点变更：{}->{}",waybillCode,
+								oldPrepareSiteCode,newPreSiteInfo.getMediumStationId());
 		                //一单一件，设置打印站点为新站点,发送站点变更mq
 		                if(packageNum == 1){
 			                this.resetPresiteInfo(context, newPreSiteInfo);
@@ -219,7 +227,9 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
      * @param newPreSiteInfo
      */
     private void sendSiteChangeMQ(WaybillPrintContext context, MediumStationOrderInfo newPreSiteInfo){
-        SiteChangeMqDto siteChangeMqDto = new SiteChangeMqDto();
+		long startTime=new Date().getTime();
+
+		SiteChangeMqDto siteChangeMqDto = new SiteChangeMqDto();
         siteChangeMqDto.setWaybillCode(context.getWaybill().getWaybillCode());
         siteChangeMqDto.setPackageCode(context.getWaybill().getPackList().get(0).getPackCode());
         siteChangeMqDto.setNewSiteId(newPreSiteInfo.getMediumStationId());
@@ -232,10 +242,35 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
         siteChangeMqDto.setOperateTime(DateHelper.formatDateTime(new Date()));
         try {
             waybillSiteChangeProducer.sendOnFailPersistent(context.getWaybill().getWaybillCode(), JsonHelper.toJsonUseGson(siteChangeMqDto));
-            logger.warn("发送预分拣站点变更mq消息成功："+JsonHelper.toJsonUseGson(siteChangeMqDto));
+            log.warn("发送预分拣站点变更mq消息成功：{}", JsonHelper.toJsonUseGson(siteChangeMqDto));
         } catch (Exception e) {
-            logger.error("发送预分拣站点变更mq消息失败："+JsonHelper.toJsonUseGson(siteChangeMqDto), e);
+            log.error("发送预分拣站点变更mq消息失败：{}", JsonHelper.toJsonUseGson(siteChangeMqDto), e);
         }finally{
+
+			long endTime = new Date().getTime();
+
+			JSONObject request=new JSONObject();
+			request.put("waybillCode",siteChangeMqDto.getWaybillCode());
+			request.put("packageCode",siteChangeMqDto.getPackageCode());
+			request.put("operatorName",siteChangeMqDto.getOperatorName());
+
+			JSONObject response=new JSONObject();
+			response.put("keyword2", String.valueOf(siteChangeMqDto.getOperatorId()));
+			response.put("keyword3", waybillSiteChangeProducer.getTopic());
+			response.put("keyword4", siteChangeMqDto.getOperatorSiteId().longValue());
+			response.put("content", JsonHelper.toJsonUseGson(siteChangeMqDto));
+
+			BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
+					.operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SORTING_PRE_SITE_CHANGE)
+					.methodName("PreSortingSecondServiceImpl#sendSiteChangeMQ")
+					.operateRequest(request)
+					.operateResponse(response)
+					.processTime(endTime,startTime)
+					.build();
+
+			logEngine.addLog(businessLogProfiler);
+
+
         	SystemLogUtil.log(siteChangeMqDto.getWaybillCode(), String.valueOf(siteChangeMqDto.getOperatorId()), waybillSiteChangeProducer.getTopic(),
                     siteChangeMqDto.getOperatorSiteId().longValue(), JsonHelper.toJsonUseGson(siteChangeMqDto), SystemLogContants.TYPE_SITE_CHANGE_MQ);
         }
@@ -278,15 +313,15 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
 				needSendMq = true;
 			}
 			if(needCloseHintMsg){
-				logger.warn("关闭包裹补打提醒："+waybill.getWaybillCode());
+				log.warn("关闭包裹补打提醒：{}",waybill.getWaybillCode());
 				dmsOperateHint.setIsEnable(Constants.INTEGER_FLG_FALSE);
 				dmsOperateHintService.saveOrUpdate(dmsOperateHint);
-				logger.warn("清除包裹补打记录："+waybill.getWaybillCode());
+				log.warn("清除包裹补打记录：{}",waybill.getWaybillCode());
 				this.printRecordService.deleteReprintRecordsByWaybillCode(waybillCode);
 			}
 			//发送站点变更的mq给运单
 			if(needSendMq){
-				logger.warn("包裹补打-发送站点变更的mq："+waybill.getWaybillCode());
+				log.warn("包裹补打-发送站点变更的mq：{}",waybill.getWaybillCode());
 				sendSiteChangeMQ(context, newPreSiteInfo);
 			}
 			this.resetPresiteInfo(context, newPreSiteInfo);
@@ -309,7 +344,7 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
 		siteChangeHit.setHintMessage(msg);
 		siteChangeHit.setHintContent(JsonHelper.toJson(newPreSiteInfo));
 		siteChangeHit.setIsEnable(Constants.INTEGER_FLG_TRUE);
-		logger.warn("新增一条包裹补打提醒信息："+siteChangeHit.getWaybillCode());
+		log.warn("新增一条包裹补打提醒信息：{}",siteChangeHit.getWaybillCode());
 		dmsOperateHintService.saveOrUpdate(siteChangeHit);
 	}
 	/**

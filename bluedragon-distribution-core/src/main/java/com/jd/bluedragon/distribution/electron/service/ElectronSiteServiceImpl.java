@@ -8,8 +8,8 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.dto.BaseGoodsPositionDto;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +18,7 @@ import java.util.List;
 @Service("electronSiteService")
 public class ElectronSiteServiceImpl implements ElectronSiteService {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	BaseMinorManager baseMinorManager;
@@ -37,12 +37,11 @@ public class ElectronSiteServiceImpl implements ElectronSiteService {
 		if (baseEntity != null && baseEntity.getData() != null) {
 			siteCode = baseEntity.getData().getWaybill().getOldSiteId();
 		} else {
-			this.logger.error("获取订单【   " + waybillorPackCode + " 】 信息返回 NULL");
+			this.log.error("获取订单【{}】 信息返回 NULL",waybillorPackCode);
 			return null;
 		}
 		if (siteCode == 0) {
-			this.logger.error("订单：  " + waybillorPackCode + " 预分拣站点是  "
-					+ siteCode);
+			this.log.error("订单：{}预分拣站点是{}",waybillorPackCode, siteCode);
 			return this.Not0Found();
 		}
 		List<BaseGoodsPositionDto> baseGoodsPositionDto = baseMinorManager
@@ -50,7 +49,7 @@ public class ElectronSiteServiceImpl implements ElectronSiteService {
 		if (baseGoodsPositionDto != null && !baseGoodsPositionDto.isEmpty()) {
 			return toElectronSite(baseGoodsPositionDto.get(0));
 		} else {
-			this.logger
+			this.log
 					.error("读取接口失败 baseMinorManager.getBaseGoodsPositionDmsCodeSiteCode");
 			return null;
 		}
@@ -94,7 +93,7 @@ public class ElectronSiteServiceImpl implements ElectronSiteService {
 		if (baseGoodsPositionDto != null && !baseGoodsPositionDto.isEmpty()) {
 			return toElectronSite(baseGoodsPositionDto.get(0));
 		} else {
-			this.logger
+			this.log
 					.error("读取接口失败 baseMinorManager.getBaseGoodsPositionTaskAreaNoDmsId");
 			return null;
 		}

@@ -49,6 +49,11 @@ public class PackingConsumableInfo extends DbEntity {
 	 /** 操作时间 */
 	private Date operateTime;
 
+    /**
+     * 重量(KG)
+     */
+	private BigDecimal weight;
+
 	public PackingConsumableInfo() {
 	}
 
@@ -220,4 +225,11 @@ public class PackingConsumableInfo extends DbEntity {
 		return this.operateTime;
 	}
 
+    public BigDecimal getWeight() {
+        return weight;
+    }
+
+    public void setWeight(BigDecimal weight) {
+        this.weight = weight;
+    }
 }

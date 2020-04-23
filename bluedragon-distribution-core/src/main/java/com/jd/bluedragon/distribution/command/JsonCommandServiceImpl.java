@@ -2,22 +2,21 @@ package com.jd.bluedragon.distribution.command;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.command.handler.JsonCommandHandlerMapping;
 import com.jd.bluedragon.distribution.handler.Handler;
+import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.logger.aop.BusinessLogWriter;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -33,7 +32,7 @@ import java.util.Set;
  */
 @Service("jsonCommandService")
 public class JsonCommandServiceImpl implements JdCommandService{
-	private static final Log logger= LogFactory.getLog(JsonCommandServiceImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(JsonCommandServiceImpl.class);
 
 	private static Set<String> encryptedInfo = new HashSet<String>();
 	static {
@@ -71,7 +70,7 @@ public class JsonCommandServiceImpl implements JdCommandService{
 			jdCommand = JsonHelper.fromJsonUseGson(jsonCommand, JdCommand.class);
 		} catch (Exception e) {
 			//json转换异常则返回参数错误信息
-			logger.error("JsonCommandServiceImpl.execute-params-error!params:"+jsonCommand, e);
+			log.error("JsonCommandServiceImpl.execute-params-error!params:{}",jsonCommand, e);
 			jdResult = JdResults.REST_FAIL_PARAM_ERROR;
 			jdCommand = new JdCommand<String>();
 		}
@@ -87,7 +86,7 @@ public class JsonCommandServiceImpl implements JdCommandService{
 				}
 			} catch (Exception e) {
 				//处理异常返回异常信息
-				logger.error("JsonCommandServiceImpl.execute-error!", e);
+				log.error("JsonCommandServiceImpl.execute-error!", e);
 				jdResult = JdResults.REST_ERROR_SERVER_EXCEPTION;
 			}
 		}
@@ -130,9 +129,7 @@ public class JsonCommandServiceImpl implements JdCommandService{
 				}
 			}
 		}catch (Exception e){
-			logger.error("打印写操作日志异常.jsonCommand:"+jsonCommand+",responseJsonString:"+
-					responseJsonString +
-					",operateType:" + operateType,e);
+			log.error("打印写操作日志异常.jsonCommand:{},responseJsonString:{},operateType:{}",jsonCommand, responseJsonString, operateType,e);
 		}
 
 		BusinessLogProfiler businessLogProfiler = new BusinessLogProfiler();

@@ -7,9 +7,9 @@ import com.jd.bluedragon.distribution.reverse.domain.ReverseSendAsiaWms;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
 import com.jd.bluedragon.utils.XmlHelper;
 import junit.framework.Assert;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.util.ArrayList;
@@ -19,7 +19,7 @@ import java.util.Map;
 
 public class ReverseSendServiceImplTestCase {
 	
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     public com.jd.staig.receiver.rpc.DataReceiver getDtcDataReceiverService() {
         ClassPathXmlApplicationContext appContext = new ClassPathXmlApplicationContext(
@@ -105,7 +105,7 @@ public class ReverseSendServiceImplTestCase {
 		sendAssert.setReverseReason("打包不全");
 		sendAssert.setBusiOrderCode("45678");
 		String messageValue = XmlHelper.toXml(sendAssert, ReverseSendWms.class);
-		logger.info(messageValue);
+		log.info(messageValue);
 		System.out.println(messageValue);
 		ReverseSendWms send = new ReverseSendWms();
 		send =  (ReverseSendWms) XmlHelper.toObject(messageValue, ReverseSendWms.class);
@@ -147,7 +147,7 @@ public class ReverseSendServiceImplTestCase {
 		sendAssert.setReverseReason("打包不全");
 		sendAssert.setBusiOrderCode("1786592045");
 		String messageValue = XmlHelper.toXml(sendAssert, ReverseSendAsiaWms.class);
-		logger.info(messageValue);
+		log.info(messageValue);
 		
 		ReverseSendAsiaWms send = new ReverseSendAsiaWms();
 		send =  (ReverseSendAsiaWms) XmlHelper.toObject(messageValue, ReverseSendAsiaWms.class);
@@ -189,13 +189,13 @@ public class ReverseSendServiceImplTestCase {
 		String outboundNo = send.getOrderId();
 		String outboundType = "OrderBackDl"; // OrderBackDl
 		String source = "DMS";
-		logger.error("target:"+target);
-		logger.error("outboundType:"+outboundType);
-		logger.error("priority:"+2);
-		logger.error("messageValue:"+messageValue);
-		logger.error("messageMd5Value:"+null);		
-		logger.error("source:"+source);
-		logger.error("outboundNo:"+outboundNo);
+		log.error("target:{}", target);
+		log.error("outboundType:{}",outboundType);
+		log.error("priority:{}",2);
+		log.error("messageValue:{}", messageValue);
+		log.error("messageMd5Value:{}", "null");
+		log.error("source:{}", source);
+		log.error("outboundNo:{}", outboundNo);
 		/**
 		 * 
 		 * 乔洪佥  15:17:13 
@@ -245,13 +245,13 @@ public class ReverseSendServiceImplTestCase {
 		String outboundNo = send.getOrderId();
 		String outboundType = "OrderBackDl"; // OrderBackDl
 		String source = "DMS";
-		logger.error("target:"+target);
-		logger.error("outboundType:"+outboundType);
-		logger.error("priority:"+2);
-		logger.error("messageValue:"+messageValue);
-		logger.error("messageMd5Value:"+null);		
-		logger.error("source:"+source);
-		logger.error("outboundNo:"+outboundNo);
+		log.error("target:{}",target);
+		log.error("outboundType:{}", outboundType);
+		log.error("priority:{}",2);
+		log.error("messageValue:{}", messageValue);
+		log.error("messageMd5Value:{}","null");
+		log.error("source:{}",source);
+		log.error("outboundNo:{}",outboundNo);
 		/**
 		 * 
 		 * 乔洪佥  15:17:13 

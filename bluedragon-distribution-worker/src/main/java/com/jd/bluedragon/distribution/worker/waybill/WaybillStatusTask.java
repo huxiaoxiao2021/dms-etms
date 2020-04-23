@@ -1,21 +1,16 @@
 package com.jd.bluedragon.distribution.worker.waybill;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
-import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.framework.DBSingleScheduler;
-import com.jd.bluedragon.distribution.waybill.service.WaybillService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
-import com.jd.bluedragon.distribution.waybill.service.WaybillStatusService;
-import com.jd.bluedragon.distribution.worker.AbstractScheduler;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * 同步运单状态到青龙运单系统Worker
@@ -24,7 +19,7 @@ import com.jd.bluedragon.distribution.worker.AbstractScheduler;
  */
 public class WaybillStatusTask extends DBSingleScheduler {
     
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
     
     @Autowired
     private TaskService taskService;
@@ -43,8 +38,8 @@ public class WaybillStatusTask extends DBSingleScheduler {
 
     public List<Task> selectTasks(String arg0, int queueNum,
                                   List<String> queryCondition, int fetchNum) throws Exception {
-        if(logger.isInfoEnabled()){
-            logger.info("任务执行fetchNum is"+fetchNum);
+        if(log.isInfoEnabled()){
+            log.info("任务执行fetchNum is {}",fetchNum);
         }
         if (queryCondition.size() == 0) {
             return Collections.emptyList();
@@ -65,7 +60,7 @@ public class WaybillStatusTask extends DBSingleScheduler {
                 tasks.add(task);
             }
         } catch (Exception e) {
-            this.logger.error("出现异常， 异常信息为：" + e.getMessage(), e);
+            this.log.error("出现异常， 异常信息为：{}" , e.getMessage(), e);
         }
         return tasks;
     }

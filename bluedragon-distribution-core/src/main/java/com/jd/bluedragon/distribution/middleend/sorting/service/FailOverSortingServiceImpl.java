@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.middleend.sorting.service;
 
+import com.alibaba.fastjson.JSON;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.middleend.sorting.domain.SortingObjectExtend;
@@ -9,7 +11,8 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.alibaba.fastjson.JSON;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +39,8 @@ public class FailOverSortingServiceImpl extends BaseSortingService implements IS
      * @param sorting
      * @return
      */
+    @JProfiler(jKey = "DMSWORKER.FailOverSortingServiceImpl.coreSorting", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWORKER)
+    @Override
     public boolean coreSorting(SortingObjectExtend sorting){
         try {
             //调中台的service
@@ -51,7 +56,7 @@ public class FailOverSortingServiceImpl extends BaseSortingService implements IS
             }
             return true;
         }catch (Exception e){
-            logger.error("FailOverSortingServiceImpl.coreSorting异常.参数:" + JSON.toJSONString(sorting),e);
+            log.error("FailOverSortingServiceImpl.coreSorting异常.参数:{}", JSON.toJSONString(sorting),e);
             return false;
         }
     }
@@ -94,6 +99,7 @@ public class FailOverSortingServiceImpl extends BaseSortingService implements IS
      * 取消分拣
      * @param sorting
      */
+    @Override
     public SortingResponse cancelSorting(Sorting sorting){
         //调中台取消分拣的接口，
         SortingResponse response = middleEndSortingService.cancelSorting(sorting);

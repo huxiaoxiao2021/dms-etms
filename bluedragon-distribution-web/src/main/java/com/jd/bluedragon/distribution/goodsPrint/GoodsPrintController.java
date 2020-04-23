@@ -7,8 +7,8 @@ import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.report.domain.GoodsPrintDto;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,7 +27,7 @@ import java.util.List;
 @Controller
 @RequestMapping("goodsPrint")
 public class GoodsPrintController extends DmsBaseController {
-    private static final Log logger = LogFactory.getLog(GoodsPrintController.class);
+    private static final Logger log = LoggerFactory.getLogger(GoodsPrintController.class);
 
     @Autowired
     GoodsPrintService goodsPrintService;
@@ -59,7 +59,7 @@ public class GoodsPrintController extends DmsBaseController {
             JdResponse jdResponse=new JdResponse();
             jdResponse.setCode(500);
             jdResponse.setMessage("调用服务失败");
-            logger.error("goodsPrint.listData调用服务失败",e);
+            log.error("goodsPrint.listData调用服务失败",e);
             return jdResponse;
         }
     }
@@ -75,7 +75,7 @@ public class GoodsPrintController extends DmsBaseController {
 
             return new ModelAndView(new DefaultExcelView(), model.asMap());
         } catch (Exception e) {
-            logger.error("GoodsPrint--toExport:" + e.getMessage(), e);
+            log.error("GoodsPrint--toExport异常:", e);
             return null;
         }
     }

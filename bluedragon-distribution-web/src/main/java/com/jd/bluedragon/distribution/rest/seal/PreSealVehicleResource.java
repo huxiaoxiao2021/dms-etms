@@ -21,8 +21,8 @@ import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -42,7 +42,7 @@ import java.util.List;
 @Produces({MediaType.APPLICATION_JSON})
 public class PreSealVehicleResource {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private PreSealVehicleService preSealVehicleService;
@@ -74,7 +74,7 @@ public class PreSealVehicleResource {
             Profiler.functionError(info);
             preSealResponse.setCode(NewSealVehicleResponse.CODE_SERVICE_ERROR);
             preSealResponse.setMessage(NewSealVehicleResponse.MESSAGE_SERVICE_ERROR);
-            logger.error("PreSealVehicleResource.preSeal-error" + JsonHelper.toJson(request), e);
+            log.error("PreSealVehicleResource.preSeal-error:{}", JsonHelper.toJson(request), e);
         } finally {
             Profiler.registerInfoEnd(info);
         }
@@ -86,7 +86,7 @@ public class PreSealVehicleResource {
      */
     @POST
     @Path("/new/preSealFerry")
-    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1010)
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1010, operateType = 10101)
     public NewSealVehicleResponse<Boolean> preSealFerry(NewSealVehicleRequest request) {
         CallerInfo info = Profiler.registerInfo("DMSWEB.PreSealVehicleResource.preSealFerry", Constants.UMP_APP_NAME_DMSWEB, false, true);
         NewSealVehicleResponse<Boolean> preSealResponse = new NewSealVehicleResponse<>(NewSealVehicleResponse.CODE_OK, NewSealVehicleResponse.MESSAGE_OK);
@@ -97,7 +97,7 @@ public class PreSealVehicleResource {
             Profiler.functionError(info);
             preSealResponse.setCode(NewSealVehicleResponse.CODE_SERVICE_ERROR);
             preSealResponse.setMessage(NewSealVehicleResponse.MESSAGE_SERVICE_ERROR);
-            logger.error("PreSealVehicleResource.preSealFerry-error" + JsonHelper.toJson(request), e);
+            log.error("PreSealVehicleResource.preSealFerry-error:{}", JsonHelper.toJson(request), e);
         } finally {
             Profiler.registerInfoEnd(info);
         }
@@ -111,10 +111,9 @@ public class PreSealVehicleResource {
      * （2）同一个运力编码，不同车牌号，可以进行多次预封车
      */
     private NewSealVehicleResponse<Boolean> getNewSealVehicleResponse(NewSealVehicleRequest request, PreSealVehicleSourceEnum preSealVehicleSourceEnum) {
-        logger.info("预封车请求参数：" + JsonHelper.toJson(request));
         NewSealVehicleResponse<Boolean> preSealResponse = new NewSealVehicleResponse<>(NewSealVehicleResponse.CODE_OK, NewSealVehicleResponse.MESSAGE_OK);
         if (request == null || request.getData() == null || request.getData().size() != 1) {
-            logger.warn("PreSealVehicleResource getNewSealVehicleResponse --> 传入参数非法" + JsonHelper.toJson(request));
+            log.warn("PreSealVehicleResource getNewSealVehicleResponse --> 传入参数非法:{}", JsonHelper.toJson(request));
             preSealResponse.setCode(NewSealVehicleResponse.CODE_PARAM_ERROR);
             preSealResponse.setMessage(NewSealVehicleResponse.MESSAGE_PARAM_ERROR);
             return preSealResponse;
@@ -123,7 +122,7 @@ public class PreSealVehicleResource {
         /** 预封车数据是逐条提交的 */
         SealCarDto sealCarDto = request.getData().get(0);
         if (StringUtils.isBlank(sealCarDto.getTransportCode()) || StringUtils.isBlank(sealCarDto.getVehicleNumber())) {
-            logger.warn("PreSealVehicleResource getNewSealVehicleResponse --> 运力编码或车牌为空：" + JsonHelper.toJson(request));
+            log.warn("PreSealVehicleResource getNewSealVehicleResponse --> 运力编码或车牌为空：{}", JsonHelper.toJson(request));
             preSealResponse.setCode(NewSealVehicleResponse.CODE_PARAM_ERROR);
             preSealResponse.setMessage(NewSealVehicleResponse.TIPS_PRESEAL_PARAM_ERROR);
             return preSealResponse;
@@ -190,7 +189,7 @@ public class PreSealVehicleResource {
             Profiler.functionError(info);
             preSealResponse.setCode(NewSealVehicleResponse.CODE_SERVICE_ERROR);
             preSealResponse.setMessage(NewSealVehicleResponse.MESSAGE_SERVICE_ERROR);
-            logger.error("PreSealVehicleResource.updatePreSeal-error" + JsonHelper.toJson(request), e);
+            log.error("PreSealVehicleResource.updatePreSeal-error:{}", JsonHelper.toJson(request), e);
         } finally {
             Profiler.registerInfoEnd(info);
         }
@@ -203,7 +202,7 @@ public class PreSealVehicleResource {
      */
     @POST
     @Path("/new/updatePreSealFerry")
-    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1010)
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1010, operateType = 10102)
     public NewSealVehicleResponse<Boolean> updatePreSealFerry(NewSealVehicleRequest request) {
         CallerInfo info = Profiler.registerInfo("DMSWEB.PreSealVehicleResource.updatePreSealFerry", Constants.UMP_APP_NAME_DMSWEB,false, true);
         NewSealVehicleResponse<Boolean> preSealResponse = new NewSealVehicleResponse<>(NewSealVehicleResponse.CODE_OK, NewSealVehicleResponse.MESSAGE_OK);
@@ -213,7 +212,7 @@ public class PreSealVehicleResource {
             Profiler.functionError(info);
             preSealResponse.setCode(NewSealVehicleResponse.CODE_SERVICE_ERROR);
             preSealResponse.setMessage(NewSealVehicleResponse.MESSAGE_SERVICE_ERROR);
-            logger.error("PreSealVehicleResource.updatePreSealFerry-error" + JsonHelper.toJson(request), e);
+            log.error("PreSealVehicleResource.updatePreSealFerry-error:{}", JsonHelper.toJson(request), e);
         } finally {
             Profiler.registerInfoEnd(info);
         }
@@ -226,12 +225,10 @@ public class PreSealVehicleResource {
      *
      */
     private NewSealVehicleResponse<Boolean> getUpdatePreSealResponse(NewSealVehicleRequest request, PreSealVehicleSourceEnum preSealVehicleSourceEnum) {
-        logger.info("更新预封车请求参数：" + JsonHelper.toJson(request));
-
         NewSealVehicleResponse<Boolean> preSealResponse = new NewSealVehicleResponse<>(NewSealVehicleResponse.CODE_OK, NewSealVehicleResponse.MESSAGE_OK);
 
         if (request == null || request.getData() == null || request.getData().size() != 1  || request.getData().get(0).getSealSiteId() == null) {
-            logger.warn("PreSealVehicleResource getUpdatePreSealResponse --> 传入参数非法" + JsonHelper.toJson(request));
+            log.warn("PreSealVehicleResource getUpdatePreSealResponse --> 传入参数非法:{}", JsonHelper.toJson(request));
             preSealResponse.setCode(NewSealVehicleResponse.CODE_PARAM_ERROR);
             preSealResponse.setMessage(NewSealVehicleResponse.MESSAGE_PARAM_ERROR);
             return preSealResponse;
@@ -240,7 +237,7 @@ public class PreSealVehicleResource {
         /** 预封车数据是逐条提交的 */
         SealCarDto sealCarDto = request.getData().get(0);
         if(StringUtils.isBlank(sealCarDto.getTransportCode()) || StringUtils.isBlank(sealCarDto.getVehicleNumber())){
-            logger.warn("PreSealVehicleResource getUpdatePreSealResponse --> 运力编码或车牌为空：" + JsonHelper.toJson(request));
+            log.warn("PreSealVehicleResource getUpdatePreSealResponse --> 运力编码或车牌为空：{}", JsonHelper.toJson(request));
             preSealResponse.setCode(NewSealVehicleResponse.CODE_PARAM_ERROR);
             preSealResponse.setMessage(NewSealVehicleResponse.TIPS_PRESEAL_PARAM_ERROR);
             return preSealResponse;
@@ -272,7 +269,7 @@ public class PreSealVehicleResource {
             if (preSealVehicle == null) {
                 newSealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
                 newSealVehicleResponse.setMessage("此运力编码没有预封车信息，请返回录入！");
-                this.logger.error("根据运力编码获取预封车信息为空：运力编码->" + transportCode);
+                this.log.warn("根据运力编码获取预封车信息为空：运力编码->{}", transportCode);
                 return newSealVehicleResponse;
             }
             preSealVehicleMeasureInfo.setTransportCode(transportCode);
@@ -284,7 +281,7 @@ public class PreSealVehicleResource {
         } catch (Exception e) {
             newSealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
             newSealVehicleResponse.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
-            this.logger.error("根据运力编码获取任务信息失败：运力编码->" + transportCode, e);
+            this.log.error("根据运力编码获取任务信息失败：运力编码->{}", transportCode, e);
         }
         return newSealVehicleResponse;
     }
@@ -296,8 +293,6 @@ public class PreSealVehicleResource {
     @Path("/preSeal/vehicleMeasureInfo/save")
     @JProfiler(jKey = "DMSWEB.PreSealVehicleResource.updatePreSealVehicleMeasureInfo", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP})
     public NewSealVehicleResponse<Boolean> updatePreSealVehicleMeasureInfo(PreSealMeasureInfoRequest request) {
-        logger.info("保存体积补录请求参数：" + JsonHelper.toJson(request));
-
         NewSealVehicleResponse<Boolean> preSealResponse = new NewSealVehicleResponse<>(NewSealVehicleResponse.CODE_OK, NewSealVehicleResponse.MESSAGE_OK);
 
         if (request.getTransportCode() == null || request.getVehicleNumber() == null) {
@@ -324,7 +319,7 @@ public class PreSealVehicleResource {
         } catch (Exception e) {
             preSealResponse.setCode(NewSealVehicleResponse.CODE_SERVICE_ERROR);
             preSealResponse.setMessage(NewSealVehicleResponse.MESSAGE_SERVICE_ERROR);
-            logger.error("更新预封车重量体积信息失败！，参数：" + JsonHelper.toJson(request), e);
+            log.error("更新预封车重量体积信息失败！，参数：{}", JsonHelper.toJson(request), e);
         }
 
         return preSealResponse;
@@ -340,7 +335,6 @@ public class PreSealVehicleResource {
         VtsTransportResourceDto vtrd = null;
         try {
             CommonDto<VtsTransportResourceDto> transDto = newsealVehicleService.getTransportResourceByTransCode(transportCode);
-            logger.debug("预封车查询运力信息：" + JsonHelper.toJson(transDto));
             if (transDto == null) {    //JSF接口返回空
                 response.setCode(JdResponse.CODE_SERVICE_ERROR);
                 response.setMessage("查询运力信息结果为空:" + transportCode);
@@ -361,16 +355,59 @@ public class PreSealVehicleResource {
             } else { //服务出错或者出异常，打日志
                 response.setCode(JdResponse.CODE_SERVICE_ERROR);
                 response.setMessage("查询运力信息出错！");
-                logger.warn("预封车查询运力信息出错,运力编码:" + transportCode + ",出错原因:" + transDto.getMessage());
+                log.warn("预封车查询运力信息出错,运力编码:{},出错原因:{}",transportCode, transDto.getMessage());
             }
         } catch (Exception e) {
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
             response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
-            logger.error("通过运力编码获取基础资料信息异常：" + transportCode, e);
+            log.error("通过运力编码获取基础资料信息异常：{}", transportCode, e);
         }
         return vtrd;
     }
 
+
+    /**
+     * 取消预封车
+     */
+    @POST
+    @Path("/new/preSeal/cancel")
+    @JProfiler(jKey = "DMSWEB.PreSealVehicleResource.cancelPreSeal", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP})
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1010, operateType = 10103)
+    public NewSealVehicleResponse cancelPreSeal(CancelPreSealVehicleRequest request) {
+        NewSealVehicleResponse<Boolean> newSealVehicleResponse = new NewSealVehicleResponse<>(NewSealVehicleResponse.CODE_OK, NewSealVehicleResponse.MESSAGE_OK);
+        log.info("取消预封车任务失败！，参数：{}", JsonHelper.toJson(request));
+        if (request.getVehicleNumber() == null) {
+            newSealVehicleResponse.setCode(NewSealVehicleResponse.CODE_PARAM_ERROR);
+            newSealVehicleResponse.setMessage("车牌号不能为空！");
+            return newSealVehicleResponse;
+        }
+
+        try {
+            List<PreSealVehicle> list = preSealVehicleService.queryBySiteCodeAndVehicleNumber(request.getSiteCode(), request.getVehicleNumber());
+
+            if (list == null || list.isEmpty()) {
+                newSealVehicleResponse.setCode(NewSealVehicleResponse.CODE_SERVICE_ERROR);
+                newSealVehicleResponse.setMessage("该车牌在本场地没有预封车信息，无需取消！");
+                return newSealVehicleResponse;
+            }
+
+            for (PreSealVehicle preSealVehicle : list) {
+                preSealVehicle.setStatus(SealVehicleEnum.CANCEL_PRE_SEAL.getCode());
+                preSealVehicle.setUpdateUserErp(request.getOperateUserErp());
+                preSealVehicle.setUpdateUserName(request.getOperateUserName());
+                preSealVehicle.setUpdateTime(new Date());
+                //更新成功并且是传摆预封车，才需要调用运输
+                if (preSealVehicleService.updateById(preSealVehicle) && PreSealVehicleSourceEnum.FERRY_PRE_SEAL.getCode() == preSealVehicle.getPreSealSource()) {
+                    preSealVehicleService.notifyVosPreSealJob(preSealVehicle, PreSealVehicleService.CANCEL_FLAG);
+                }
+            }
+        } catch (Exception e) {
+            newSealVehicleResponse.setCode(NewSealVehicleResponse.CODE_SERVICE_ERROR);
+            newSealVehicleResponse.setMessage("取消预封车任务失败，请稍后重试！");
+            log.error("取消预封车任务失败！，参数：{}", JsonHelper.toJson(request), e);
+        }
+        return newSealVehicleResponse;
+    }
     /**
      * 预封车VO转换
      * @param sealCarDto

@@ -23,6 +23,11 @@ public interface ComposeService {
     String PREPARE_SITE_NAME_SAMECITY_ARRIVE = "同城当日达";
     String PREPARE_SITE_NAME_SMALL_PACKAGE = "微小件";
 
+    //时效
+    String SPECIAL_MARK_SAME_CITY = "同城";
+    String SPECIAL_MARK_NEXT_DAY = "次晨";
+    String SPECIAL_MARK_LAND_TRANS = "陆运";
+
     String SPECIAL_MARK_C ="C";
     String SPECIAL_MARK_AIRTRANSPORT ="航";
     String SPECIAL_MARK_SENIOR ="尊";
@@ -40,8 +45,8 @@ public interface ComposeService {
     String SPECIAL_MARK_HELP_DELIVERY="代";
     String SPECIAL_MARK_TRANSFER="传";
     String SPECIAL_MARK_PART_REVERSE = "半退";
-    String SPECIAL_MARK_BOX = "箱";
-    String SPECIAL_MARK_UTENSIL = "器";
+    String SPECIAL_MARK_BOX = "鸡毛信箱";
+    String SPECIAL_MARK_UTENSIL = "鸡毛信器";
     /**
      * 全球售合包订单标识
      * 当sendpay第108位为1或2或3且senpay第124位为4时，
@@ -95,6 +100,7 @@ public interface ComposeService {
      */
     String  SPECIAL_MARK_MEDICINE ="医药";
 
+    String SPECIAL_MARK_MEDICINE_COLD_CHAIN="医药冷链";
 
     /**
      * 合成器

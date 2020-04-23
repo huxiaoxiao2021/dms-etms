@@ -90,5 +90,14 @@ public interface LDOPManager {
      * @param busiCode 商家单号
      * @return
      */
+    @Deprecated
     InvokeResult<String> findWaybillCodeByBusiIdAndBusiCode(String busiId,String busiCode);
+
+    /**
+     * 根据商家ID和商家单号获取运单号
+     * @param busiId 商家ID
+     * @param busiCode 商家单号
+     * @return
+     */
+    String queryWaybillCodeByOrderIdAndCustomerCode(Integer busiId,String busiCode);
 }

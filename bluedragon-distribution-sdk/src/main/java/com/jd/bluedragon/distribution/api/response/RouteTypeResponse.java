@@ -27,6 +27,29 @@ public class RouteTypeResponse extends BaseResponse {
     /** 承运商类型 1 京东自营，2 第三方 */
     private Integer carrierType;
 
+    /**
+     * 传摆封车场景
+     * @see com.jd.bluedragon.common.dto.blockcar.enumeration.FerrySealCarSceneEnum
+     * */
+    private Integer ferrySealCarSceneCode;
+    private String ferrySealCarSceneName;
+
+    public Integer getFerrySealCarSceneCode() {
+        return ferrySealCarSceneCode;
+    }
+
+    public void setFerrySealCarSceneCode(Integer ferrySealCarSceneCode) {
+        this.ferrySealCarSceneCode = ferrySealCarSceneCode;
+    }
+
+    public String getFerrySealCarSceneName() {
+        return ferrySealCarSceneName;
+    }
+
+    public void setFerrySealCarSceneName(String ferrySealCarSceneName) {
+        this.ferrySealCarSceneName = ferrySealCarSceneName;
+    }
+
     public int getRouteType() {
         return routeType;
     }

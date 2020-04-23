@@ -1,7 +1,9 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.etms.waybill.common.Page;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
+import com.jd.etms.waybill.domain.PackFlowDetail;
 
 import java.util.List;
 import java.util.Map;
@@ -58,4 +60,12 @@ public interface WaybillPackageManager {
      * @return
      */
     boolean isGetPackageByPageOpen();
+
+    /**
+     * 获取所有称重量方记录
+     * @param waybillCode
+     * @param page
+     * @return
+     */
+    Page<PackFlowDetail> getOpeDetailByCode(String waybillCode,Page<PackFlowDetail> page);
 }

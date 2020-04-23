@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.reverse.dao.ReverseStockInDetailDao">
+
+	<resultMap id="ReverseStockInDetail" type="com.jd.bluedragon.distribution.reverse.domain.ReverseStockInDetail" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="waybill_code" property="waybillCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="package_code" property="packageCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="external_code" property="externalCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="send_code" property="sendCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="status" property="status" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="busi_type" property="busiType" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="create_site_code" property="createSiteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="create_site_name" property="createSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="receive_site_code" property="receiveSiteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="receive_site_name" property="receiveSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="update_user" property="updateUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		id,waybill_code,package_code,external_code,send_code,status,
+		busi_type,create_site_code,create_site_name,receive_site_code,receive_site_name,create_user,update_user,
+		create_time,update_time,is_delete,ts
+	</sql>
+
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.reverse.domain.ReverseStockInDetail">
+		insert into reverse_stock_in_detail
+			(
+			<trim suffixOverrides=",">
+
+				<if test="waybillCode != null">
+					waybill_code,
+				</if>
+				<if test="packageCode != null">
+					package_code,
+				</if>
+				<if test="externalCode != null">
+					external_code,
+				</if>
+				<if test="sendCode != null">
+					send_code,
+				</if>
+				<if test="status != null">
+					status,
+				</if>
+				<if test="busiType != null">
+					busi_type,
+				</if>
+				<if test="createSiteCode != null">
+					create_site_code,
+				</if>
+				<if test="createSiteName != null">
+					create_site_name,
+				</if>
+				<if test="receiveSiteCode != null">
+					receive_site_code,
+				</if>
+				<if test="receiveSiteName != null">
+					receive_site_name,
+				</if>
+				<if test="createUser != null">
+					create_user,
+				</if>
+					create_time,
+
+					is_delete,
+					ts
+
+			</trim>
+			)
+			values
+			(
+			<trim suffixOverrides=",">
+
+				<if test="waybillCode != null">
+					#{waybillCode,jdbcType=VARCHAR},
+				</if>
+				<if test="packageCode != null">
+					#{packageCode,jdbcType=VARCHAR},
+				</if>
+				<if test="externalCode != null">
+					#{externalCode,jdbcType=VARCHAR},
+				</if>
+				<if test="sendCode != null">
+					#{sendCode,jdbcType=VARCHAR},
+				</if>
+				<if test="status != null">
+					#{status,jdbcType=TINYINT},
+				</if>
+				<if test="busiType != null">
+					#{busiType,jdbcType=TINYINT},
+				</if>
+				<if test="createSiteCode != null">
+					#{createSiteCode,jdbcType=INTEGER},
+				</if>
+				<if test="createSiteName != null">
+					#{createSiteName,jdbcType=VARCHAR},
+				</if>
+				<if test="receiveSiteCode != null">
+					#{receiveSiteCode,jdbcType=INTEGER},
+				</if>
+				<if test="receiveSiteName != null">
+					#{receiveSiteName,jdbcType=VARCHAR},
+				</if>
+				<if test="createUser != null">
+					#{createUser,jdbcType=VARCHAR},
+				</if>
+
+				now(),
+
+				0,
+				now()
+			</trim>
+			)
+	</insert>
+
+	<insert id="batchInsert" parameterType="List">
+		insert into reverse_stock_in_detail
+			(
+				waybill_code,package_code,external_code,send_code,
+				status,busi_type,create_site_code,create_site_name,receive_site_code,receive_site_name,create_user,
+				update_user,create_time,update_time,is_delete,ts
+			)
+			values
+			<foreach collection="list" item="item" index="index" separator=",">
+				(
+					#{item.waybillCode,jdbcType=VARCHAR},
+					#{item.packageCode,jdbcType=VARCHAR},
+					#{item.externalCode,jdbcType=VARCHAR},
+					#{item.sendCode,jdbcType=VARCHAR},
+					#{item.status,jdbcType=TINYINT},
+					#{item.busiType,jdbcType=TINYINT},
+					#{item.createSiteCode,jdbcType=INTEGER},
+					#{item.createSiteName,jdbcType=VARCHAR},
+					#{item.receiveSiteCode,jdbcType=INTEGER},
+					#{item.receiveSiteName,jdbcType=VARCHAR},
+					#{item.createUser,jdbcType=VARCHAR},
+					#{item.updateUser,jdbcType=VARCHAR},
+					now(),
+					#{item.updateTime,jdbcType=TIMESTAMP},
+					0,
+					now()
+				)
+			</foreach>
+	</insert>
+
+	<update id="update" parameterType="com.jd.bluedragon.distribution.reverse.domain.ReverseStockInDetail">
+		update reverse_stock_in_detail
+			<set>
+				<if test="waybillCode != null">
+					waybill_code = #{waybillCode,jdbcType=VARCHAR},
+				</if>
+				<if test="packageCode != null">
+					package_code = #{packageCode,jdbcType=VARCHAR},
+				</if>
+				<if test="externalCode != null">
+					external_code = #{externalCode,jdbcType=VARCHAR},
+				</if>
+				<if test="sendCode != null">
+					send_code = #{sendCode,jdbcType=VARCHAR},
+				</if>
+				<if test="status != null">
+					status = #{status,jdbcType=TINYINT},
+				</if>
+				<if test="busiType != null">
+					busi_type = #{busiType,jdbcType=TINYINT},
+				</if>
+				<if test="createSiteCode != null">
+					create_site_code = #{createSiteCode,jdbcType=INTEGER},
+				</if>
+				<if test="createSiteName != null">
+					create_site_name = #{createSiteName,jdbcType=VARCHAR},
+				</if>
+				<if test="receiveSiteCode != null">
+					receive_site_code = #{receiveSiteCode,jdbcType=INTEGER},
+				</if>
+				<if test="receiveSiteName != null">
+					receive_site_name = #{receiveSiteName,jdbcType=VARCHAR},
+				</if>
+
+				<if test="updateUser != null">
+					update_user = #{updateUser,jdbcType=VARCHAR},
+				</if>
+
+
+				<if test="isDelete != null">
+					is_delete = #{isDelete,jdbcType=TINYINT},
+				</if>
+				update_time = now()
+
+			</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteById" parameterType="Long">
+		update reverse_stock_in_detail
+			set is_delete = 1
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteByIds" parameterType="List">
+		update reverse_stock_in_detail
+			set is_delete = 1
+		where id in
+		<foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+			#{item,jdbcType=BIGINT}
+		</foreach>
+	</update>
+
+	<select id="findById" parameterType="Long" resultMap="ReverseStockInDetail">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  reverse_stock_in_detail 
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+
+	<select id="findByUniqueKey" parameterType="com.jd.bluedragon.distribution.reverse.domain.ReverseStockInDetail" resultMap="ReverseStockInDetail">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  reverse_stock_in_detail 
+		where id = #{id,jdbcType=BIGINT}
+		  order by ts desc
+		limit 1
+	</select>
+
+	<sql id="Base_Condition_Sql" >
+			and is_delete=0 
+	</sql>
+
+	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
+		select 
+		 count(1) as num
+		from 
+		  reverse_stock_in_detail 
+		where 1=1 
+		 <include refid="Base_Condition_Sql"/>
+	</select>
+
+	<select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="ReverseStockInDetail">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  reverse_stock_in_detail 
+		where 1=1 
+		 <include refid="Base_Condition_Sql"/>
+		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+	</select>
+
+	<select id="findByWaybillCodeAndType" parameterType="com.jd.bluedragon.distribution.reverse.domain.ReverseStockInDetail" resultMap="ReverseStockInDetail">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		reverse_stock_in_detail
+		where
+		waybill_code = #{waybillCode}
+		and busi_type = #{busiType}
+		and status != 2
+	  	and is_delete = 0
+
+	</select>
+
+	<update id="updateStatus">
+		update reverse_stock_in_detail
+		set status = #{status}
+		where is_delete = 0
+		<if test="waybillCode != null">
+			and waybill_code = #{waybillCode,jdbcType=VARCHAR}
+		</if>
+		<if test="packageCode != null">
+			and package_code = #{packageCode,jdbcType=VARCHAR}
+		</if>
+		<if test="externalCode != null">
+			and external_code = #{externalCode,jdbcType=VARCHAR}
+		</if>
+		<if test="sendCode != null">
+			and send_code = #{sendCode,jdbcType=VARCHAR}
+		</if>
+		<if test="busiType != null">
+			and busi_type = #{busiType,jdbcType=TINYINT}
+		</if>
+		<if test="createSiteCode != null">
+			and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		</if>
+
+	</update>
+</mapper>

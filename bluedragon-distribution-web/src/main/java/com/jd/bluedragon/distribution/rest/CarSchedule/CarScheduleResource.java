@@ -4,12 +4,18 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.carSchedule.domain.CarScheduleRequest;
 import com.jd.bluedragon.distribution.carSchedule.domain.CarScheduleResponse;
 import com.jd.bluedragon.distribution.carSchedule.service.CarScheduleService;
+
+import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
+import com.jd.dms.logger.external.LogEngine;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
+import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.fastjson.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +24,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.Date;
 
 /**
  * 车辆园区调度：提供园区车载信息的rest接口
@@ -28,13 +35,17 @@ import javax.ws.rs.core.MediaType;
 @Consumes( { MediaType.APPLICATION_JSON })
 @Produces( { MediaType.APPLICATION_JSON })
 public class CarScheduleResource {
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     CarScheduleService carScheduleService;
 
     @Autowired
     GoddessService goddessService;
+
+    @Autowired
+    private LogEngine logEngine;
+
 
     /**
      * 暴露一个接口，提供车辆的线路类型routeType,车载总量packageNum,当前分拣中心的货物量localPackageNum,当前分拣中心载货明细localPackageDetail,
@@ -66,7 +77,7 @@ public class CarScheduleResource {
             }catch (Exception e){
                 result.setCode(500);
                 result.setMessage("请求接口异常");
-                this.logger.error("请求接口异常:车牌号" + vehicleNumber + ";站点" + siteCode, e);
+                this.log.error("请求接口异常:车牌号{};站点{}",vehicleNumber, siteCode, e);
             }
             result.setCode(200);
             result.setMessage("请求成功");
@@ -89,7 +100,7 @@ public class CarScheduleResource {
     @Path("/carSchedule/InAndOut")
     public Boolean InAndOut(CarScheduleRequest request){
         if(null == request || StringUtils.isBlank(request.getVehicleNumber()) || StringUtils.isBlank(request.getSiteCode()) || null == request.getKey()){
-            logger.error("车辆进出管理确少车牌号、站点、关键字基本信息。");
+            log.warn("车辆进出管理确少车牌号、站点、关键字基本信息。");
             return Boolean.FALSE;
         }
         String vehicleNumber = request.getVehicleNumber();
@@ -105,6 +116,31 @@ public class CarScheduleResource {
             body = "车牌号为：" + vehicleNumber + "的车辆已经出港，站点ID：" + siteCode;
         }
         domain.setBody(body);
+        long endTime = new Date().getTime();
+
+        JSONObject operateRequest=new JSONObject();
+        operateRequest.put("siteCode",siteCode);
+
+        JSONObject response=new JSONObject();
+        response.put("content",domain);
+
+        BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
+                .methodName("CarScheduleResource#InAndOut")
+                .url("/carSchedule/InAndOut")
+                .operateRequest(request)
+                .operateResponse(response)
+                .build();
+        if(key==1){
+            businessLogProfiler.setBizType(BusinessLogConstans.OperateTypeEnum.CAR_IN.getBizTypeCode());
+            businessLogProfiler.setOperateType(BusinessLogConstans.OperateTypeEnum.CAR_IN.getCode());
+        }else if (key==0){
+            businessLogProfiler.setBizType(BusinessLogConstans.OperateTypeEnum.CAR_OUT.getBizTypeCode());
+            businessLogProfiler.setOperateType(BusinessLogConstans.OperateTypeEnum.CAR_OUT.getCode());
+        }
+
+        logEngine.addLog(businessLogProfiler);
+
+
         goddessService.save(domain);
         return Boolean.TRUE;
     }

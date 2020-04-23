@@ -26,8 +26,8 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,7 +40,7 @@ import java.util.List;
 
 @Service("baseMinorManager")
 public class BaseMinorManagerImpl implements BaseMinorManager {
-	private Log log = LogFactory.getLog(BaseMinorManagerImpl.class);
+	private Logger log = LoggerFactory.getLogger(BaseMinorManagerImpl.class);
 	
 	public static final String SEPARATOR_HYPHEN = "-";
 
@@ -151,7 +151,6 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 		log.info("基础资料客户端--getBaseAllTrader获取所有商家，开始调用分页接口获取数据");
 		List<BasicTraderInfoDTO> traderList = new ArrayList();
 		int count = 0;
-		long startTime = System.currentTimeMillis();
 		ResponseDTO<PageDTO<BasicTraderInfoDTO>> resPageDto = this.basicTraderAPI.getTraderListByPage(1);
 		if(null != resPageDto && null != resPageDto.getResult() && null != resPageDto.getResult().getData()
 				&& (resPageDto.getResult().getData()).size() > 0) {
@@ -164,11 +163,10 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 				traderList.addAll((Collection)this.basicTraderAPI.getTraderListByPage(i).getResult().getData());
 			}
 		} else {
-			log.error("getBaseAllTrader获取数据为空");
+			log.warn("getBaseAllTrader获取数据为空");
 		}
 
-		log.info("getBaseAllTrader获取数据count[" + count + "]");
-		log.info("getBaseAllTrader获取数据耗时[" + (System.currentTimeMillis() - startTime) + "]");
+		log.info("getBaseAllTrader获取数据count[{}]",count);
         resetBasicTraderInfoDTOs(traderList);
 		return traderList;
 	}
@@ -182,11 +180,12 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 			if (baseResult != null && baseResult.getResultCode() == BaseResult.RESULT_SUCCESS) {
 				return baseResult.getData();
 			}else{
-				log.warn("获取三方站点超限配置为空，siteCode："+siteCode + ",返回结果："+ JsonHelper.toJson(baseResult));
+				log.warn("获取三方站点超限配置为空，siteCode：{},返回结果：{}",
+						siteCode, JsonHelper.toJson(baseResult));
 			}
 		} catch (Exception e) {
             Profiler.functionError(info);
-            log.error("获取三方站点超限配置异常，siteCode："+siteCode, e);
+            log.error("获取三方站点超限配置异常，siteCode：{}",siteCode, e);
 		}finally {
             Profiler.registerInfoEnd(info);
         }
@@ -242,7 +241,7 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
                 result.toSuccess(reverseResult.getMessage());
 			}else if(reverseResult != null){
 				result.toFail(reverseResult.getMessage());
-				log.warn("jsf-fail:basicSecondaryWS.getReverseCrossPackageTag!params:"+params+",msg:返回结果"+JsonHelper.toJson(reverseResult));
+				log.warn("jsf-fail:basicSecondaryWS.getReverseCrossPackageTag!params:{},msg:{}",params,reverseResult.getMessage());
             }else{
             	result.toFail("jsf-fail:basicSecondaryWS.getReverseCrossPackageTag!params:"+params+",msg:返回结果为null");
             	log.warn(result.getMessage());
@@ -277,7 +276,7 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
                result.toSuccess(crossPackageTagResult.getMessage());
 			}else if(crossPackageTagResult != null){
 				result.toFail(crossPackageTagResult.getMessage());
-				log.warn("jsf-fail:baseCrossPackageTagWS.queryCrossPackageTagByParam!params:"+params+",msg:返回结果"+JsonHelper.toJson(crossPackageTagResult));
+				log.warn("jsf-fail:baseCrossPackageTagWS.queryCrossPackageTagByParam!params:{},msg:{}",params,crossPackageTagResult.getMessage());
            }else{
            		result.toFail("jsf-fail:baseCrossPackageTagWS.queryCrossPackageTagByParam!params:"+params+",msg:返回结果为null");
            		log.warn(result.getMessage());
@@ -313,7 +312,7 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
                 result.toSuccess(crossPackageTagResult.getMessage());
 			}else if(crossPackageTagResult != null){
 				result.toFail(crossPackageTagResult.getMessage());
-				log.warn("jsf-fail:baseCrossPackageTagWS.queryCrossPackageTagByParam!params:"+params+",msg:返回结果"+JsonHelper.toJson(crossPackageTagResult));
+				log.warn("jsf-fail:baseCrossPackageTagWS.queryCrossPackageTagByParam!params:{},msg:{}",params,crossPackageTagResult.getMessage());
             }else{
             	result.toFail("jsf-fail:baseCrossPackageTagWS.queryCrossPackageTagByParam!params:"+params+",msg:返回结果为null");
             	log.warn(result.getMessage());
@@ -421,19 +420,23 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 		try {
 			if (targetSiteId != null && originalDmsId != null) {
 				BaseStaffSiteOrgDto receiveSiteDto = baseMajorManager.getBaseSiteBySiteId(targetSiteId);
+				if(receiveSiteDto == null){
+					log.warn("[箱号/批次号打印]获取基础资料信息,根据targetSiteId+{}未获得到站点信息",targetSiteId);
+					return null;
+				}
 				if (!Constants.DMS_SITE_TYPE.equals(receiveSiteDto.getSiteType()) && !Constants.FINANCIAL_SPECIAL_SITE_TYPE.equals(receiveSiteDto.getSiteType())) {
 					BaseDmsStore baseDmsStore = new BaseDmsStore();
 					JdResult<CrossPackageTagNew> result = queryCrossPackageTagForPrint(baseDmsStore, targetSiteId, originalDmsId, Constants.ORIGINAL_CROSS_TYPE_GENERAL);
 					if (result.isSucceed()) {
 						return result.getData();
 					} else {
-						log.warn("[箱号/批次号打印]获取基础资料信息！Message:" + result.getMessage());
+						log.warn("[箱号/批次号打印]获取基础资料信息！Message:{}" , result.getMessage());
 					}
 				}
 			}
 
 		} catch (Exception e) {
-			log.error("[箱号/批次号打印]获取基础资料信息", e);
+			log.error("[箱号/批次号打印]获取基础资料信息targetSiteId:{},originalDmsId:{}",targetSiteId,originalDmsId, e);
 		}
 		return null;
 	}

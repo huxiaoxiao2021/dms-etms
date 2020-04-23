@@ -1,9 +1,10 @@
 package com.jd.bluedragon.distribution.jss.utils;
 
-import com.jcloud.jss.Credential;
-import com.jcloud.jss.JingdongStorageService;
-import com.jcloud.jss.client.ClientConfig;
-import org.apache.log4j.Logger;
+import com.jd.jss.Credential;
+import com.jd.jss.JingdongStorageService;
+import com.jd.jss.client.ClientConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -16,7 +17,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class JssStorageClient {
 
-    private final static Logger logger = Logger.getLogger(JssStorageClient.class);
+    private final static Logger log = LoggerFactory.getLogger(JssStorageClient.class);
 
     /**
      * 内网连接端点
@@ -69,7 +70,7 @@ public class JssStorageClient {
             config.setEndpoint(endpoint);
             storageService = new JingdongStorageService(new Credential(accessKey, secretKey), config);
         } catch (Exception e) {
-            logger.error("JSS存储创建服务客户端链接失败", e);
+            log.error("JSS存储创建服务客户端链接失败", e);
             throw new RuntimeException("JSS存储创建服务客户端链接失败", e);
         } finally {
             lock.unlock();

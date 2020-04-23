@@ -43,6 +43,6 @@
                 <entry key="8" value-ref="scannerFrameDynamicVolumeConsume"/>
             </map>
         </constructor-arg>
-
     </bean>
+
 </beans>

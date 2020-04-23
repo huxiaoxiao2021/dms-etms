@@ -20,26 +20,13 @@ public class SortingResourceTest {
     @Test
     public void testcancelPackage(){
         SortingRequest request = new SortingRequest();
-        request.setBoxCode("85434861526-1-1-1");
-        request.setPackageCode("85434861526-1-1-1");
-        request.setWaybillCode("85434861526");
-        request.setIsCancel(0);
-        request.setReceiveSiteCode(0);
-        request.setReceiveSiteName("");
-        request.setSealCode("");
-        request.setIsLoss(0);
-        request.setFeatureType(0);
-        request.setWhReverse(0);
-//        request.setPackages(Lists.newArrayList());
-        request.setBsendCode("");
-        request.setKey("");
-        request.setUserCode(0);
-        request.setUserName("");
-        request.setSiteCode(0);
-        request.setSiteName("");
-        request.setBusinessType(0);
-        request.setId(0);
-        request.setOperateTime("");
+        request.setPackageCode("JD0000000454734-1-3-");
+        request.setUserCode(10053);
+        request.setUserName("邢松");
+        request.setSiteCode(910);
+        request.setSiteName("北京马驹桥分拣中心");
+        request.setBusinessType(10);
+        request.setOperateTime("2019-08-07 13:48:29");
 
         sortingResource.cancelPackage(request);
     }

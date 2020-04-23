@@ -1,22 +1,28 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
+import com.jd.bk.common.util.string.StringUtils;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.LDOPManager;
-import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.StringHelper;
-import com.jd.ldop.center.api.print.dto.WaybillPrintDataDTO;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
+import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
+import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
+import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.ldop.center.api.print.dto.WaybillPrintDataDTO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -30,7 +36,7 @@ import java.util.List;
  */
 @Service
 public class SpecialTextWaybillHandler implements Handler<WaybillPrintContext,JdResult<String>>{
-	private static final Log logger= LogFactory.getLog(SpecialTextWaybillHandler.class);
+	private static final Logger log = LoggerFactory.getLogger(SpecialTextWaybillHandler.class);
     /**
      * 预分拣站点编码-未定位门店(0)
      */
@@ -65,9 +71,13 @@ public class SpecialTextWaybillHandler implements Handler<WaybillPrintContext,Jd
 
     @Autowired
     private LDOPManager ldopManager;
+
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
+
 	@Override
 	public JdResult<String> handle(WaybillPrintContext context) {
-		logger.info("包裹标签打印-站点名称显示处理");
+		log.debug("包裹标签打印-站点名称显示处理");
 		Integer targetSiteCode = context.getRequest().getTargetSiteCode();
 		WaybillPrintResponse printInfo = context.getResponse();
 		//预分拣站点
@@ -88,14 +98,14 @@ public class SpecialTextWaybillHandler implements Handler<WaybillPrintContext,Jd
         	printInfo.setPrepareSiteCode(PREPARE_SITE_CODE_NOTHING);
         	printInfo.setPrepareSiteName(PREPARE_SITE_NAME_NOTHING);
         	printInfo.setPrintSiteName(PREPARE_SITE_NAME_NOTHING);
-            logger.warn(" 没有获取预分拣站点(未定位门店),"+printInfo.getWaybillCode());
+            log.warn(" 没有获取预分拣站点(未定位门店):{}", printInfo.getWaybillCode());
             // -2或者<-100 超区
         }else if(PREPARE_SITE_CODE_OVER_AREA.equals(printInfo.getPrepareSiteCode())
                 || printInfo.getPrepareSiteCode().intValue() < PREPARE_SITE_CODE_OVER_LINE.intValue()){
 //        	printInfo.setPrepareSiteCode(printInfo.getPrepareSiteCode());
         	printInfo.setPrepareSiteName(PREPARE_SITE_NAME_OVER_AREA);
         	printInfo.setPrintSiteName(PREPARE_SITE_NAME_OVER_AREA);
-            logger.warn(" 没有获取预分拣站点(细分超区)," + printInfo.getPrepareSiteCode() + ","+printInfo.getWaybillCode());
+            log.warn(" 没有获取预分拣站点(细分超区):{}-{}", printInfo.getPrepareSiteCode() , printInfo.getWaybillCode());
         }
         //设置预分拣站点名称
         if(null == printInfo.getPrepareSiteName() && null != prepareSiteCode){
@@ -117,7 +127,7 @@ public class SpecialTextWaybillHandler implements Handler<WaybillPrintContext,Jd
         //获取waybillSign
         String waybillSign = printInfo.getWaybillSign();
         if(StringHelper.isEmpty(waybillSign)){
-            logger.error("SpecialTextWaybillHandler-->获取waybillSign为空,无法判断是否是同城单日达面单.");
+            log.warn("SpecialTextWaybillHandler-->获取waybillSign为空,无法判断是否是同城单日达面单.");
         } else {
             //根据waybill_sign判断同城当日达 第55位等于0 （表示非生鲜专送）且第16位等于1 （表示当日达）且第31位等于2 （表示同城配送）且第63位等于1 （中心站网络）
             if(BusinessHelper.isSameCityOneDay(waybillSign)){
@@ -158,6 +168,46 @@ public class SpecialTextWaybillHandler implements Handler<WaybillPrintContext,Jd
                 }
             }
         }
+
+        log.debug("包裹标签打印-特殊字符处理");
+        WaybillPrintRequest request = context.getRequest();
+        BasePrintWaybill basePrintWaybill = context.getBasePrintWaybill();
+        BigWaybillDto bigWaybillDto = context.getBigWaybillDto();
+        String popularizeMatrixCode = getPopularizeMatrixCode(request,basePrintWaybill,bigWaybillDto);
+        if(StringUtils.isNotBlank(popularizeMatrixCode)){
+            printInfo.setPopularizeMatrixCode(popularizeMatrixCode);
+        }
 		return context.getResult();
 	}
+
+    /**
+     * 获取面单二维码占位符字符串
+     * @param request
+     * @param basePrintWaybill
+     * @param bigWaybillDto
+     * @return
+     */
+    private String getPopularizeMatrixCode(WaybillPrintRequest request,BasePrintWaybill basePrintWaybill,
+                                           BigWaybillDto bigWaybillDto) {
+        /** 调用运单获取原单信息 */
+        Waybill waybill = bigWaybillDto==null?null:bigWaybillDto.getWaybill();
+        String waybillCode = waybill==null?null:waybill.getWaybillCode();
+        String dmsBusiAlias = basePrintWaybill==null?null:basePrintWaybill.getDmsBusiAlias();
+        try {
+            //换单打印且银行用户面单二维码显示原单号
+            if(WaybillPrintOperateTypeEnum.SWITCH_BILL_PRINT_TYPE.equals(request.getOperateType())
+                    && Constants.BUSINESS_ALIAS_CMBC.equals(dmsBusiAlias)){
+                BaseEntity<Waybill> baseEntity = waybillQueryManager.getWaybillByReturnWaybillCode(waybillCode);
+                if(baseEntity != null && baseEntity.getResultCode() == Constants.RESULT_SUCCESS
+                        && baseEntity.getData() != null
+                        && StringUtils.isNotBlank(baseEntity.getData().getWaybillCode())){
+                    //原单号
+                    return baseEntity.getData().getWaybillCode();
+                }
+            }
+        }catch (Exception e){
+            log.error("根据运单号:{0},获取原单信息异常!",waybillCode);
+        }
+	    return null;
+    }
 }

@@ -15,11 +15,17 @@ import org.springframework.beans.factory.annotation.Value;
 import javax.annotation.Resource;
 import java.util.*;
 
+
 /**
+ *
+ * 不要使用此接口保存日志了。请使用统一的日志日志接口com.jd.bluedragon.distribution.log.impl.LogEngineImpl。
+ * com.jd.bluedragon.distribution.log.impl.LogEngineImpl 此接口保存的日志会存储到business.log.jd.com 中;
+ *
  * Created by wangtingwei on 2017/2/17.
  */
+@Deprecated
 public class GoddessDao {
-    private static final Logger logger = LoggerFactory.getLogger(GoddessDao.class);
+    private static final Logger log = LoggerFactory.getLogger(GoddessDao.class);
 
     @Value("${cassandra.consistencyLevel.default}")
     protected ConsistencyLevel consistencyLevel;
@@ -36,6 +42,7 @@ public class GoddessDao {
     private PreparedStatement selectStatement;
 
 
+    @Deprecated
     private synchronized PreparedStatement getInsertStatement() {
         if (null == insertStatement) {
             RegularStatement toPrepare = new SimpleStatement(
@@ -47,6 +54,7 @@ public class GoddessDao {
         return insertStatement;
     }
 
+    @Deprecated
     public void batchInsert(Goddess log) {
         try {
             long startTime = System.currentTimeMillis();
@@ -63,12 +71,12 @@ public class GoddessDao {
                     JsonHelper.toJson(log), operateTime);
             bstatementList.add(bStatement);
             baseCassandraDao.batchInsert(bstatementList, values);
-            if (logger.isInfoEnabled()) {
-                logger.info("OperationlogCassandra batchInsert execute success cost:"
-                        + (System.currentTimeMillis() - startTime) + "ms");
+            if (GoddessDao.log.isInfoEnabled()) {
+                GoddessDao.log.info("OperationlogCassandra batchInsert execute success cost:{}ms"
+                        , (System.currentTimeMillis() - startTime) );
             }
         } catch (Throwable e) {
-            logger.error("保存全程跟踪", e);
+            GoddessDao.log.error("保存全程跟踪", e);
         }
     }
 
@@ -118,12 +126,11 @@ public class GoddessDao {
                 }
             }
             result.setData(rsToList(rs, new RowToOrder()));
-            if (logger.isInfoEnabled()) {
-                logger.info("OperationlogCassandra getPage execute success cost:" + (System.currentTimeMillis() - startTime)
-                        + "ms");
+            if (log.isInfoEnabled()) {
+                log.info("OperationlogCassandra getPage execute success cost:{}ms" , (System.currentTimeMillis() - startTime));
             }
         } catch (Throwable e) {
-            logger.error("查询操作日志异常 异常原因：", e);
+            log.error("查询操作日志异常 异常原因：", e);
         }
 
         return result;

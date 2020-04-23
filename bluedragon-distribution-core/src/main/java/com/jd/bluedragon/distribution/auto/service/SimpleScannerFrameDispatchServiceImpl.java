@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.auto.service;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.areadest.domain.AreaDest;
 import com.jd.bluedragon.distribution.areadest.domain.AreaDestPlanDetail;
 import com.jd.bluedragon.distribution.areadest.service.AreaDestPlanDetailService;
@@ -23,14 +24,15 @@ import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -44,7 +46,7 @@ import java.util.*;
 @Service("scannerFrameDispatchService")
 public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispatchService {
 
-    private static final Log logger = LogFactory.getLog(SimpleScannerFrameDispatchServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(SimpleScannerFrameDispatchServiceImpl.class);
 
     @Autowired
     private GantryDeviceConfigService gantryDeviceConfigService;
@@ -81,6 +83,9 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
 
     @Autowired
     SysConfigService sysConfigService;
+
+    @Autowired
+    WaybillTraceManager waybillTraceManager;
 
     /**
      * 此处只能使用@Resource注解，使用@Autowired会报错
@@ -140,7 +145,10 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
                 }
             }
         }
-
+        //检查运单是否已妥投
+        if(!checkWaybillFinish(domain, config)){
+            return true;
+        }
         Iterator<Map.Entry<Integer, ScannerFrameConsume>> item = scannerFrameConsumeMap.entrySet().iterator();
         while (item.hasNext()) {
             Map.Entry<Integer, ScannerFrameConsume> consume = item.next();
@@ -152,6 +160,23 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
         return result;
     }
 
+    /**
+     * 检查运单是否已妥投
+     * @param domain
+     * @param config
+     * @return
+     */
+    private boolean checkWaybillFinish(UploadData domain, GantryDeviceConfig config){
+        //运单是否妥投
+        if(WaybillUtil.isPackageCode(domain.getBarCode()) &&
+                waybillTraceManager.isWaybillFinished(WaybillUtil.getWaybillCode(domain.getBarCode()))){
+            log.warn("包裹{}已妥投，不能再操作分拣发货", domain.getBarCode());
+            //添加异常记录
+            addGantryException(domain, config, 25, null);
+            return false;
+        }
+        return true;
+    }
     /**
      * 构建分拣机自动发货任务配置信息
      *
@@ -238,8 +263,8 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
      * @param arguments
      */
     private void printWarnLog(String pattern, Object... arguments) {
-        if (logger.isWarnEnabled()) {
-            logger.warn(MessageFormat.format(pattern, arguments));
+        if (log.isWarnEnabled()) {
+            log.warn(MessageFormat.format(pattern, arguments));
         }
     }
 
@@ -250,8 +275,8 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
      * @param arguments
      */
     private void printInfoLog(String pattern, Object... arguments) {
-        if (logger.isInfoEnabled()) {
-            logger.info(MessageFormat.format(pattern, arguments));
+        if (log.isInfoEnabled()) {
+            log.info(MessageFormat.format(pattern, arguments));
         }
     }
 
@@ -543,8 +568,8 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
             gantryExceptionService.addGantryException(gantryException);
             return;
         }
-        if (logger.isWarnEnabled()) {
-            logger.warn(MessageFormat.format("龙门架自动发货,存储异常信息registerNo={0},operateTime={1},barCode={2},machineId={3}|存储异常信息失败", domain.getRegisterNo(), domain.getScannerTime(), barCode, machineId));
+        if (log.isWarnEnabled()) {
+            log.warn("龙门架自动发货,存储异常信息registerNo={},operateTime={},barCode={},machineId={}|存储异常信息失败", domain.getRegisterNo(), domain.getScannerTime(), barCode, machineId);
         }
     }
 

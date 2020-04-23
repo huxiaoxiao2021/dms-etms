@@ -9,6 +9,9 @@
     #parse("system/common/baseImport.vm")
     <script src="/static/js/financialForKA/waybillCodeCheck.js"></script>
 </head>
+<input type="hidden" id="operateSiteCode" value="$!{operateSiteCode}"/>
+<input type="hidden" id="operateSiteName" value="$!{operateSiteName}"/>
+<input type="hidden" id="operateErp" value="$!{operateErp}"/>
 <body class="container-fluid">
 <div id="dataTableDiv" class="main">
         <ol class="breadcrumb">
@@ -20,6 +23,11 @@
         <div id="query-condition">
             <form id="query-form" class="form-horizontal">
                 <fieldset>
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <a href="#springUrl('/waybillCodeCheckForKA/toSearchIndex')" target="_self" style="text-decoration:underline;">操作记录查询</a>
+                        </div>
+                    </div>
                 	<div class="row">
                     	<div class="col-xs-12">
                     		<div class="col-xs-5">

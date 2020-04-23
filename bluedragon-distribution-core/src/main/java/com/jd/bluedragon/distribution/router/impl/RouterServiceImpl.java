@@ -9,7 +9,8 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +23,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class RouterServiceImpl implements RouterService {
 
-    private Logger log = Logger.getLogger(RouterServiceImpl.class);
+    private Logger log = LoggerFactory.getLogger(RouterServiceImpl.class);
 
     @Autowired
     private SiteService siteService;
@@ -60,7 +61,7 @@ public class RouterServiceImpl implements RouterService {
             return siteService.getSite(nextRouterSiteCode);
         }catch (Exception e){
             Profiler.functionError(info);
-            this.log.error("通过运单号:"+waybillCode+"查询站点:"+siteCode+"的路由下一节点失败!",e);
+            this.log.error("通过运单号:{} 查询站点:{}的路由下一节点失败!",waybillCode,siteCode,e);
         }finally {
             Profiler.registerInfoEnd(info);
         }

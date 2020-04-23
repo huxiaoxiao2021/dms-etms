@@ -18,17 +18,12 @@ import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.departure.dao.DepartureCarDao;
 import com.jd.bluedragon.distribution.departure.dao.DepartureSendDao;
 import com.jd.bluedragon.distribution.departure.dao.DepartureTmpDao;
-import com.jd.bluedragon.distribution.departure.domain.Departure;
-import com.jd.bluedragon.distribution.departure.domain.DepartureCar;
-import com.jd.bluedragon.distribution.departure.domain.DepartureSend;
-import com.jd.bluedragon.distribution.departure.domain.SendBox;
-import com.jd.bluedragon.distribution.departure.domain.SendMeasure;
+import com.jd.bluedragon.distribution.departure.domain.*;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.failqueue.dao.TaskFailQueueDao;
 import com.jd.bluedragon.distribution.failqueue.domain.DealData_Departure_3PL;
 import com.jd.bluedragon.distribution.failqueue.domain.TaskFailQueue;
 import com.jd.bluedragon.distribution.failqueue.service.IFailQueueService;
-import com.jd.bluedragon.distribution.receive.domain.SendCode;
 import com.jd.bluedragon.distribution.seal.domain.SealVehicle;
 import com.jd.bluedragon.distribution.seal.service.SealVehicleService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
@@ -36,17 +31,11 @@ import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
-import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BigDecimalHelper;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.common.util.StringUtils;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import com.jd.etms.vos.dto.CommonDto;
@@ -57,10 +46,10 @@ import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
-import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -68,22 +57,13 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 @Service
 public class DepartureServiceImpl implements DepartureService {
 
-	private final static Logger logger = Logger
-			.getLogger(DepartureServiceImpl.class);
+	private final static Logger log = LoggerFactory.getLogger(DepartureServiceImpl.class);
 
 	private final static String DMS_ADDRESS = PropertiesHelper.newInstance().getValue("DMS_ADDRESS");
 
@@ -251,7 +231,7 @@ public class DepartureServiceImpl implements DepartureService {
 	 * xumei 2017-07-03 推财务数据 发车产生的businessType = 10发货数据推财务
 	 ****************************************************************/
 	private void pushFinancialData(Departure departure, List<SendM> sendMLists) {
-		logger.info("[departureServiceImpl.pushFinancialData]发车产生的businessType = 10发货数据推财务");
+		log.debug("[departureServiceImpl.pushFinancialData]发车产生的businessType = 10发货数据推财务");
 		departure.setSendUser(getSendUserFromSendMs(sendMLists));
 		departure.setSendUserCode(getSendUserCodeFromSendMs(sendMLists));
 
@@ -508,7 +488,7 @@ public class DepartureServiceImpl implements DepartureService {
 				taskService.add(tTask);
 			}
 		}catch(Exception e){
-			logger.error("建立推送支线发车三方承运商发车到全程跟踪的任务(task_send)出错!", e);
+			log.error("建立推送支线发车三方承运商发车到全程跟踪的任务(task_send)出错:sendMs={}",JsonHelper.toJson(sendMs), e);
 		}
 	}
 	
@@ -551,7 +531,7 @@ public class DepartureServiceImpl implements DepartureService {
 
 			}
 		}catch(Exception e){
-			logger.error("建立推送支线发车三方承运商发车到3PL的任务(task_failqueue)出错!", e);
+			log.error("建立推送支线发车三方承运商发车到3PL的任务(task_failqueue)出错:sendMs={}",JsonHelper.toJson(sendMs), e);
 		}
 	}
 	
@@ -595,7 +575,7 @@ public class DepartureServiceImpl implements DepartureService {
 		if(isSealed == null){
 			result.setErrorMsg("服务异常，运输系统查询批次号状态为空！");
 			result.setResult(ServiceResultEnum.NOT_FOUND);
-			logger.warn("服务异常，运输系统查询批次号状态为空, 批次号:" + sendCode);
+			log.warn("服务异常，运输系统查询批次号状态为空, 批次号:{}" , sendCode);
 			return result;
 		}
 
@@ -611,8 +591,8 @@ public class DepartureServiceImpl implements DepartureService {
 		}else{// 服务出错或内部异常，打出日志
 			result.setResult(ServiceResultEnum.FAILED);
 			result.setErrorMsg("服务异常，运输系统查询批次号状态失败！");
-			logger.warn("服务异常，运输系统查询批次号状态失败, 批次号:" + sendCode);
-			logger.warn("服务异常，运输系统查询批次号状态失败，失败原因:"+isSealed.getMessage());
+			log.warn("服务异常，运输系统查询批次号状态失败, 批次号:{}" , sendCode);
+			log.warn("服务异常，运输系统查询批次号状态失败，失败原因:{}",isSealed.getMessage());
 		}
 		return result;
 	}
@@ -675,7 +655,7 @@ public class DepartureServiceImpl implements DepartureService {
 				sendCode = sendDatail.getSendCode();
 				SendM sendM = sendMDao.selectBySendCode(sendCode);
 				if (sendM == null) {
-					logger.warn(errMsg + "查询不到发货单[" + sendCode + "]");
+					log.warn(errMsg + "查询不到发货单[{}]",sendCode);
 					return false;
 				} else {
 					String dbCarCode = sendM.getCarCode();
@@ -683,10 +663,10 @@ public class DepartureServiceImpl implements DepartureService {
 							.equals(carCode);
 				}
 			} else {
-				logger.warn(errMsg + "查询不到和箱号相关的发货单明细表");
+				log.warn("{}查询不到和箱号相关的发货单明细表",errMsg);
 			}
 		} catch (Exception e) {
-			logger.error(errMsg + e.getMessage());
+			log.error(errMsg,e);
 			return false;
 		}
 		return false;
@@ -717,14 +697,14 @@ public class DepartureServiceImpl implements DepartureService {
 						.querySendDatailsByBoxCode(queryDetail);
 			} else if (WaybillUtil.isPackageCode((boxCode))) {
 				if (siteCode == null) {
-					logger.warn("所传站点为空： " + boxCode);
+					log.warn("所传站点为空： {}" , boxCode);
 				} else {
 					queryDetail.setReceiveSiteCode(siteCode);
 					sendDatails = sendDatailDao
 							.querySendDatailsByPackageCode(queryDetail);
 				}
 			} else {
-				logger.warn("传递的箱号或者大件包裹号不对：" + boxCode);
+				log.warn("传递的箱号或者大件包裹号不对：{}" , boxCode);
 				return result;
 			}
 			if (sendDatails != null) {
@@ -738,7 +718,7 @@ public class DepartureServiceImpl implements DepartureService {
 							sendUser = sendM.getSendUser();
 							sendTime = sendM.getOperateTime();
 						} else {
-							logger.warn(errMsg + "无法获得发货单[" + sendCode + "]数据");
+							log.warn("{}无法获得发货单[{}]数据",errMsg,sendCode);
 						}
 					}
 					sendBoxInfo.setBoxCode(boxCode);// 箱号
@@ -751,10 +731,10 @@ public class DepartureServiceImpl implements DepartureService {
 					result.add(sendBoxInfo);
 				}
 			} else {
-				logger.warn(errMsg + "无法获得发货明细数据");
+				log.warn("{}无法获得发货明细数据",errMsg);
 			}
 		} catch (Exception e) {
-			logger.error(errMsg + e.getMessage());
+			log.error(errMsg,e);
 		}
 		return result;
 	}
@@ -766,7 +746,7 @@ public class DepartureServiceImpl implements DepartureService {
 		try {
 			List<SendM> sendMs = sendMDao.selectOneBySendCode(sendCode);
 			if (sendMs == null || sendMs.size() == 0) {
-				logger.warn(errMsg + "查询不到该批次号");
+				log.warn("{}查询不到该批次号",errMsg);
 				return result;
 			}
 
@@ -792,10 +772,10 @@ public class DepartureServiceImpl implements DepartureService {
 					result.add(sendBoxInfo);
 				}
 			} else {
-				logger.warn(errMsg + "无法获得发货明细数据");
+				log.warn("{}无法获得发货明细数据",errMsg);
 			}
 		} catch (Exception e) {
-			logger.error(errMsg + e.getMessage());
+			log.error(errMsg,e);
 		}
 		return result;
 	}
@@ -806,7 +786,7 @@ public class DepartureServiceImpl implements DepartureService {
         PageDto<SendBox> resultPage = new PageDto<>(pageDto.getCurrentPage(),pageDto.getPageSize());
         List<SendM> sendMs = sendMDao.selectOneBySendCode(batchCode);
         if (sendMs == null || sendMs.size() == 0) {
-            logger.warn(MessageFormat.format("查询批次信息为空[{0}]",batchCode));
+            log.warn("查询批次信息为空[{}]",batchCode);
             return resultPage;
         }
         SendM oneSendM = sendMs.get(0);
@@ -838,7 +818,7 @@ public class DepartureServiceImpl implements DepartureService {
                 result.add(sendBoxInfo);
             }
         } else {
-            logger.warn(MessageFormat.format("无法获得发货明细数据sendCode[{0}]createSiteCode[{1}]",batchCode,createSiteCode));
+            log.warn("无法获得发货明细数据sendCode[{}]createSiteCode[{}]",batchCode,createSiteCode);
         }
         return resultPage;
     }
@@ -863,9 +843,9 @@ public class DepartureServiceImpl implements DepartureService {
 				waybillWSRs = waybillPackageManager
 						.queryPackageListForParcodes(requests);
 				datas = waybillWSRs.getData();
-				logger.info("调用运单queryPackageListForParcodes结束");
+				log.debug("调用运单queryPackageListForParcodes结束");
 			} catch (Exception e) {
-				logger.error("调用运单queryPackageListForParcodes接口时候失败");
+				log.error("调用运单queryPackageListForParcodes接口时候失败：{}",JsonHelper.toJson(requests),e);
 			}
 			HashMap<String, Double> packageWeightMap = new HashMap<String, Double>();
 			if (datas != null && datas.size() != 0) {
@@ -884,7 +864,7 @@ public class DepartureServiceImpl implements DepartureService {
 				sendDatailDao.updateWeight(sendDatail);
 			}
 		} catch (Exception e) {
-			logger.error("调用运单batchUpdateSendDMeasure接口时候失败: " + e);
+			log.error("调用运单batchUpdateSendDMeasure接口时候失败:：{}",JsonHelper.toJson(sendDatails), e);
 		}
 	}
 
@@ -895,14 +875,14 @@ public class DepartureServiceImpl implements DepartureService {
 	 * */
 	@SuppressWarnings("rawtypes")
 	public void sendWaybillAddWS(BdTraceDto bdTraceDto) {
-		logger.info("发车回传全称跟踪信息，调用运单接口-----------bdTraceDto="+bdTraceDto.getWaybillCode()+"信息"+bdTraceDto.getOperatorDesp());
+		log.debug("发车回传全称跟踪信息，调用运单接口-----------bdTraceDto={}信息={}",bdTraceDto.getWaybillCode(),bdTraceDto.getOperatorDesp());
 		BaseEntity baseEntity = waybillTraceApi.sendBdTrace(bdTraceDto);
 		if(baseEntity!=null){
 			if(baseEntity.getResultCode()!=1){
-				logger.warn("发车数据回传全程跟踪异常："+baseEntity.getMessage());
+				log.warn("发车数据回传全程跟踪异常：{}",baseEntity.getMessage());
 			}
 		}else{
-			logger.warn("发车数据回传全程跟踪接口异常");
+			log.warn("发车数据回传全程跟踪接口异常:{}",JsonHelper.toJson(bdTraceDto));
 		}
 	}
 	
@@ -942,7 +922,7 @@ public class DepartureServiceImpl implements DepartureService {
 	@Override
 	public boolean sendThirdDepartureInfoToTMS(Task task,boolean isDBModal) {
 
-		logger.info("发车回传全称跟踪信息-----------task.getId()=" + task.getId()+"---"+task.getBody());
+		log.debug("发车回传全称跟踪信息-----------task.getId()={}---{}",task.getId(),task.getBody());
 		if (task == null || task.getBoxCode() == null || task.getBody() == null)
 			return true;
 		try {
@@ -1025,9 +1005,7 @@ public class DepartureServiceImpl implements DepartureService {
 						tWaybillStatus.setRemark(task.getBody());
 						sendWaybillAddWS(toWaybillStatus(tWaybillStatus));
 					} catch (Exception e) {
-						logger.error(
-								"建立推送支线发车三方承运商发车到全程跟踪的明细任务(task_waybill)出错!",
-								e);
+						log.error("建立推送支线发车三方承运商发车到全程跟踪的明细任务(task_waybill)出错：{}",JsonHelper.toJson(detail),e);
 						if(isDBModal){
 							taskService.doError(task);
 						}else{
@@ -1038,7 +1016,7 @@ public class DepartureServiceImpl implements DepartureService {
 			}
 
 		} catch (Exception e) {
-			logger.error("建立推送支线发车三方承运商发车到全程跟踪的明细任务(task_waybill)出错!", e);
+			log.error("建立推送支线发车三方承运商发车到全程跟踪的明细任务(task_waybill)出错：{}",task.getBody(), e);
 			if(isDBModal){
 				taskService.doError(task);
 			}else{
@@ -1136,22 +1114,22 @@ public class DepartureServiceImpl implements DepartureService {
             try{
                 dpr = JsonHelper.fromJson(ArteryInfoTask.getBody(), DeparturePrintResponse.class);
             }catch(Exception e){
-                logger.error("执行干线计费信息任务转换失败，消息不合法 " + ArteryInfoTask.getBody());
+                log.error("执行干线计费信息任务转换失败，消息不合法{} " , ArteryInfoTask.getBody(),e);
                 taskService.doError(ArteryInfoTask);
                 return false;
             }
 
             if(null == dpr || null == dpr.getDepartureCarID()){
-                logger.warn("执行干线计费信息任务转换失败，消息不合法 " + ArteryInfoTask.getBody());
+                log.warn("执行干线计费信息任务转换失败，消息不合法 {}" , ArteryInfoTask.getBody());
                 taskService.doError(ArteryInfoTask);
                 return false;
             }
 
-            logger.info("推送干线计费信息 MQ 开始 " + ArteryInfoTask.getBody());
+            log.debug("推送干线计费信息 MQ 开始 {}" , ArteryInfoTask.getBody());
             try{
                 receiveArteryInfoMQ.send("" + dpr.getDepartureCarID(),ArteryInfoTask.getBody());
             }catch(Exception e){
-                logger.error("执行干线计费信息任务发送MQ失败，失败原因 " + e);
+                log.error("执行干线计费信息任务发送MQ失败:{} " , ArteryInfoTask.getBody() , e);
                 taskService.doError(ArteryInfoTask);
             }
         }
@@ -1164,8 +1142,7 @@ public class DepartureServiceImpl implements DepartureService {
 			taskSendBdTrace(ArteryInfoTask);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-			logger.error("收货的时候回传车辆到达全称跟踪异常");
+			log.error("收货的时候回传车辆到达全称跟踪异常:{} " , ArteryInfoTask.getBody(),e);
 		}
         
         return taskService.doDone(ArteryInfoTask);
@@ -1173,25 +1150,25 @@ public class DepartureServiceImpl implements DepartureService {
 
 	@Override
 	public boolean dealDepartureTmpToSend(Task sendTask) {
-		logger.info("开始处理PDA 批量发车200的任务，任务body " + JsonHelper.toJson(sendTask.getBody()));
+		log.debug("开始处理PDA 批量发车200的任务，任务body:{}" ,sendTask.getBody());
 
 		DepartureRequest request = null;
 		try{
 			DepartureRequest[] requests = JsonHelper.fromJson(sendTask.getBody(),DepartureRequest[].class);
 			request = requests[0];	// 正常数据只有一条发车
 		}catch(Exception ex){
-			logger.warn("处理PDA 批量发车200的任务反序列化失败，原因 " + ex.getMessage());
+			log.warn("处理PDA 批量发车200的任务反序列化失败:{}",sendTask.getBody(),ex);
 			return false;
 		}
 
 		if(null == request || StringHelper.isEmpty(request.getBatchKey())){
-			logger.warn("处理PDA 批量发车200的任务波次号为空，不执行");
+			log.warn("处理PDA 批量发车200的任务波次号为空，不执行:{}",sendTask.getBody());
 			return false;
 		}
 
 		List<DepartureTmpRequest> tmpDeparture = departureTmpDao.queryDepartureTmpByBatchCode(request.getBatchKey());
 		if(null == tmpDeparture || tmpDeparture.size() <= 0){
-			logger.warn("处理PDA 批量发车200的任务没有获取到波次号下面的批次，不执行");
+			log.warn("处理PDA 批量发车200的任务没有获取到波次号下面的批次，不执行:{}",sendTask.getBody());
 			return true;
 		}
 
@@ -1205,14 +1182,14 @@ public class DepartureServiceImpl implements DepartureService {
 		try{
 			response = this.template.postForObject(URL,request,JdResponse.class);
 		}catch(Throwable ex){
-			logger.error("处理PDA 批量发车200的任务调用WEB发车接口失败，原因 " + ex.getMessage());
+			log.error("处理PDA 批量发车200的任务调用WEB发车接口失败:{}",sendTask.getBody() , ex);
 			return false;
 		}
 		if(null == response || response.getCode() != 200){
 			if(null == response){
-				logger.warn("处理PDA 批量发车200的任务调用WEB发车接口处理失败，返回为空");
+				log.warn("处理PDA 批量发车200的任务调用WEB发车接口处理失败，返回为空");
 			}else{
-				logger.warn("处理PDA 批量发车200的任务调用WEB发车接口处理失败，编码 " + response.getCode() + "; 信息 " + response.getMessage());
+				log.warn("处理PDA 批量发车200的任务调用WEB发车接口处理失败，编码 {}; 信息 {}" ,response.getCode() , response.getMessage());
 			}
 			return false;
 		}
@@ -1241,7 +1218,7 @@ public class DepartureServiceImpl implements DepartureService {
 	}
 
 	private void taskSendBdTrace(Task task) {
-		logger.info("收货的时候回传车辆到达全称跟踪，车次号为" + task.getBoxCode());
+		log.debug("收货的时候回传车辆到达全称跟踪，车次号为:{}" , task.getBoxCode());
 		String[] result = task.getKeyword2().split("&");
 		if(result!=null && result.length==4){
 			List<DepartureSend> sendList = getDepartureSendByCarId(Long

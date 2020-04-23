@@ -1,36 +1,41 @@
 package com.jd.bluedragon.distribution.web.systemlog;
 
-import java.util.List;
-import java.util.Map;
-
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
+import com.jd.bluedragon.distribution.systemLog.service.SystemLogService;
+import com.jd.bluedragon.utils.ObjectMapHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import com.jd.bluedragon.Pager;
-import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
-import com.jd.bluedragon.distribution.systemLog.service.SystemLogService;
-import com.jd.bluedragon.utils.ObjectMapHelper;
-import com.jd.bluedragon.utils.StringHelper;
+import javax.annotation.Resource;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/systemLog")
 public class SystemLogController {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private SystemLogService systemLogService;
 
+    @Resource
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
 	@Authorization(Constants.DMS_WEB_DEVELOP_SYSTEMLOG_R)
 	@RequestMapping(value = "/goListPage", method = RequestMethod.GET)
 	public String goListpage(Model model) {
+        model.addAttribute("oldLogPageTips",uccPropertyConfiguration.getOldLogPageTips());
 		return "systemLog/systemLog";
 	}
 
@@ -53,7 +58,7 @@ public class SystemLogController {
 		int totalsize = systemLogService.totalSizeByParams(params);
 		pager.setTotalSize(totalsize);
 
-		logger.info("查询符合条件的规则数量：" + totalsize);
+		log.info("查询符合条件的规则数量：{}", totalsize);
 		
 		
 		List<SystemLog> logList = systemLogService.queryByParams(params);
@@ -64,9 +69,9 @@ public class SystemLogController {
 		model.addAttribute("systemLogQueryDto", systemLog);
 		model.addAttribute("pager", pager);
 		}catch(Exception e){
-			logger.error("查询SystemLog出错", e);
+			log.error("查询SystemLog出错", e);
 		}
-
+        model.addAttribute("oldLogPageTips",uccPropertyConfiguration.getOldLogPageTips());
 		return "systemLog/systemLog";
 	}
 
@@ -91,7 +96,7 @@ public class SystemLogController {
 		int totalsize =systemLogService.totalSize(systemLog.getKeyword1());
 		pager.setTotalSize(totalsize);
 
-		logger.info("查询符合条件的规则数量：" + totalsize);
+		log.info("查询符合条件的规则数量：{}", totalsize);
 		
 		List<SystemLog> logList = systemLogService.queryByCassandra(systemLog.getKeyword1() ,pager);
 		for(SystemLog log:logList){
@@ -100,8 +105,9 @@ public class SystemLogController {
 		model.addAttribute("systemlogs", logList);
 		model.addAttribute("systemLogQueryDto", systemLog);
 		model.addAttribute("pager", pager);
+		model.addAttribute("oldLogPageTips",uccPropertyConfiguration.getOldLogPageTips());
 		}catch(Exception e){
-			logger.error("查询SystemLog出错", e);
+			log.error("查询SystemLog出错", e);
 		}
 		return "systemLog/systemLog1";
 	}

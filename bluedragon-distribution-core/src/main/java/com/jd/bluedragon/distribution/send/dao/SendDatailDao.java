@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.send.dao;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.distribution.printOnline.domain.PrintOnlineWaybillDTO;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionCondition;
@@ -396,6 +397,53 @@ public class SendDatailDao extends BaseDao<SendDetail> {
             return null;
         }
         return this.getSqlSession().selectList(namespace + ".getScannedInfoPackageNumMoreThanOne", waybillNoCollectionCondition);
+    }
+
+    /**
+     * 根据条件分页获取已发货明细记录
+     *
+     * @param params
+     * @return
+     */
+    public List<SendDetail> findSendPageByParams(SendDetailDto params) {
+        return this.getSqlSession().selectList(namespace + ".findSendPageByParams", params);
+    }
+
+    @JProfiler(jKey = "DMSWEB.SendDetailDao.queryWaybillCountBySendCode", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public List<PrintOnlineWaybillDTO> queryWaybillCountBySendCode(SendDetail sendDetail){
+        if (sendDetail.getCreateSiteCode() == null || sendDetail.getSendCode() == null) {
+            return new ArrayList<>();
+        }
+        return this.getSqlSession().selectList(namespace + ".queryWaybillCountBySendCode", sendDetail);
+    }
+
+    public List<String> getWaybillCodeBySendCode(String sendCode) {
+        SendDetail query = new SendDetail();
+        query.setSendCode(sendCode);
+
+        Integer createSiteCode = SerialRuleUtil.getCreateSiteCodeFromSendCode(query.getSendCode());
+        if (createSiteCode == null) {
+            return new ArrayList<>();
+        }
+        query.setCreateSiteCode(createSiteCode);
+        return this.getSqlSession().selectList(SendDatailDao.namespace + ".getWaybillCodeBySendCode", query);
+    }
+
+    /**
+     * 根据批次号查询 包裹号
+     * @param params
+     * @return
+     */
+    public List<String> queryPackageCodeBySendCode(SendDetailDto params){
+        return this.getSqlSession().selectList(namespace + ".queryPackageCodeBySendCode", params);
+    }
+    /**
+     * 根据箱号号查询 包裹号
+     * @param params
+     * @return
+     */
+    public List<String> queryPackageCodeByboxCode(SendDetailDto params){
+        return this.getSqlSession().selectList(namespace + ".queryPackageCodeByboxCode", params);
     }
 
 }

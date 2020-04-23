@@ -6,17 +6,25 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.ReassignWaybillRequest;
 import com.jd.bluedragon.distribution.command.JdResult;
+
+import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.reassignWaybill.dao.ReassignWaybillDao;
 import com.jd.bluedragon.distribution.reassignWaybill.domain.ReassignWaybill;
 import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
 import com.jd.bluedragon.distribution.receive.service.CenConfirmService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.SystemLogContants;
+import com.jd.bluedragon.utils.SystemLogUtil;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
+import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.dms.logger.external.LogEngine;
+import com.jd.fastjson.JSONObject;
 import com.jd.ump.annotation.JProfiler;
-
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -28,7 +36,11 @@ import java.util.Date;
 
 @Service("reassignWaybill")
 public class ReassignWaybillServiceImpl implements ReassignWaybillService {
-	private static final Log logger= LogFactory.getLog(ReassignWaybillServiceImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(ReassignWaybillServiceImpl.class);
+
+
+	@Autowired
+	private LogEngine logEngine;
 
 	@Autowired
 	private ReassignWaybillDao reassignWaybillDao;
@@ -42,6 +54,8 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 
 
 	private Boolean add(ReassignWaybill packTagPrint) {
+		long startTime=new Date().getTime();
+
 		Assert.notNull(packTagPrint, "packTagPrint must not be null");
 		CenConfirm cenConfirm=new CenConfirm();
 		cenConfirm.setWaybillCode(packTagPrint.getWaybillCode());
@@ -72,12 +86,38 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 			siteChangeMqDto.setOperateTime(DateHelper.formatDateTime(new Date()));
 			try {
 				waybillSiteChangeProducer.sendOnFailPersistent(packTagPrint.getWaybillCode(), JsonHelper.toJsonUseGson(siteChangeMqDto));
-				logger.debug("发送预分拣站点变更mq消息成功(现场预分拣)："+JsonHelper.toJsonUseGson(siteChangeMqDto));
+				if(log.isDebugEnabled()){
+					log.debug("发送预分拣站点变更mq消息成功(现场预分拣)：{}",JsonHelper.toJsonUseGson(siteChangeMqDto));
+				}
 			} catch (Exception e) {
-				logger.error("发送预分拣站点变更mq消息失败(现场预分拣)："+JsonHelper.toJsonUseGson(siteChangeMqDto), e);
+				log.error("发送预分拣站点变更mq消息失败(现场预分拣)：{}",JsonHelper.toJsonUseGson(siteChangeMqDto), e);
 			}finally{
+
+				long endTime = new Date().getTime();
+
+				JSONObject response=new JSONObject();
+				response.put("keyword2", String.valueOf(siteChangeMqDto.getOperatorId()));
+				response.put("keyword3", waybillSiteChangeProducer.getTopic());
+				response.put("keyword4", siteChangeMqDto.getOperatorSiteId()==null?0:siteChangeMqDto.getOperatorSiteId().longValue());
+				response.put("content", JsonHelper.toJsonUseGson(siteChangeMqDto));
+
+				JSONObject request=new JSONObject();
+				request.put("waybillCode",siteChangeMqDto.getWaybillCode());
+				request.put("packageCode",siteChangeMqDto.getPackageCode());
+				request.put("operatorName",siteChangeMqDto.getOperatorName());
+
+				BusinessLogProfiler businessLogProfiler = new BusinessLogProfilerBuilder()
+						.operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SORTING_PRE_SITE_CHANGE)
+						.methodName("ReassignWaybillServiceImpl#add")
+						.operateRequest(request)
+						.operateResponse(response)
+						.build();
+				businessLogProfiler.setProcessTime(endTime-startTime);
+
+				logEngine.addLog(businessLogProfiler);
+
 				SystemLogUtil.log(siteChangeMqDto.getWaybillCode(), String.valueOf(siteChangeMqDto.getOperatorId()), waybillSiteChangeProducer.getTopic(),
-						siteChangeMqDto.getOperatorSiteId().longValue(), JsonHelper.toJsonUseGson(siteChangeMqDto), SystemLogContants.TYPE_SITE_CHANGE_MQ_OF_OTHER);
+						siteChangeMqDto.getOperatorSiteId()==null?0:siteChangeMqDto.getOperatorSiteId().longValue(), JsonHelper.toJsonUseGson(siteChangeMqDto), SystemLogContants.TYPE_SITE_CHANGE_MQ_OF_OTHER);
 			}
 
 		}
@@ -121,12 +161,11 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 		jdResult.setData(Boolean.FALSE);
 		jdResult.toFail();
 		if (reassignWaybillRequest == null || StringUtils.isBlank(reassignWaybillRequest.getPackageBarcode())) {
-			logger.warn("backScheduleAfter --> 传入参数非法");
+			log.warn("backScheduleAfter --> 传入参数非法");
 			jdResult.toFail(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
 			return jdResult;
 		}
-		logger.info("backScheduleAfter--> packageBarcode is ["
-						+ reassignWaybillRequest.getPackageBarcode() + "]");
+		log.info("backScheduleAfter--> packageBarcode is [{}]",reassignWaybillRequest.getPackageBarcode());
 		ReassignWaybill packTagPrint = ReassignWaybill.toReassignWaybill(reassignWaybillRequest);
 		if (add(packTagPrint)) {
 			jdResult.toSuccess();

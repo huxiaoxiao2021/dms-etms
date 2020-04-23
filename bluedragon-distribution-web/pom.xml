@@ -333,12 +333,6 @@
 			<version>2.3</version>
 			<scope>runtime</scope>
 		</dependency>
-		<!--安全相关 ConfigSecSDK importants运行环境加密-->
-		<dependency>
-			<groupId>com.jd.security.configsec</groupId>
-			<artifactId>spring-configsec-sdk</artifactId>
-			<version>1.0.2.RELEASE</version>
-		</dependency>
 		<!--京东安全禁止jsp直接访问-开始-->
 		<dependency>
 			<groupId>com.jd.security</groupId>
@@ -366,7 +360,7 @@
 		<dependency>
 			<groupId>com.jd.bd.dms.automatic</groupId>
 			<artifactId>automatic-rest-interceptor</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.2.1-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<groupId>com.jd.bd.dms.automatic</groupId>
@@ -406,6 +400,18 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>2.7.12</version>
+            <scope>test</scope>
+        </dependency>
+
+		<dependency>
+			<groupId>com.jd.ql.dms.opLog</groupId>
+			<artifactId>opLog-api</artifactId>
+		</dependency>
+
 	</dependencies>
 	<profiles>
 		<!--测试环境  -->
@@ -449,7 +455,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
-					<skip>true</skip>
+					<skip>false</skip>
 				</configuration>
 			</plugin>
 		</plugins>

@@ -9,13 +9,14 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.regex.Pattern;
 
 public class BusinessHelper {
 
-    private final static Logger logger = Logger.getLogger(BusinessHelper.class);
+    private final static Logger log = LoggerFactory.getLogger(BusinessHelper.class);
     public static final String PACKAGE_SEPARATOR = "-";
     public static final String PACKAGE_IDENTIFIER_SUM = "S";
     public static final String PACKAGE_IDENTIFIER_NUMBER = "N";
@@ -56,7 +57,7 @@ public class BusinessHelper {
             ownSignValue = PropertiesHelper.newInstance().getValue(
                     Constants.DEFAULT_OWN_SIGN_KEY);
         } catch (NumberFormatException nfe) {
-            BusinessHelper.logger.error("格式化发生异常！", nfe);
+            BusinessHelper.log.error("格式化发生异常！", nfe);
         }
 
         if (ownSignValue == null) {
@@ -74,7 +75,7 @@ public class BusinessHelper {
         try {
             maxPackNum = Integer.parseInt(PropertiesHelper.newInstance().getValue(Constants.MAX_PACK_NUM));
         } catch (NumberFormatException nfe) {
-            BusinessHelper.logger.error("格式化发生异常！", nfe);
+            BusinessHelper.log.error("格式化发生异常！", nfe);
         }
         return maxPackNum <= 0 ? 5000 : maxPackNum;
     }
@@ -307,7 +308,7 @@ public class BusinessHelper {
                 return new String[]{key, packageCode};
             }
         } catch (Exception e) {
-            logger.error(packageCode + "获取hashKey发生错误， 错误信息为：" + e.getMessage(), e);
+            log.error("{}获取hashKey发生错误， 错误信息为：{}",packageCode, e.getMessage(), e);
         }
         return null;
     }
@@ -377,7 +378,7 @@ public class BusinessHelper {
      * waybill_sign
      * 第55位等于0 （表示非生鲜专送）
      * 且第16位等于1 （表示当日达）
-     * 且第31位等于2 （表示同城配送）
+     * 且第31位等于2 （表示同城配送） 2019、11、7变更 116等于2代表同城配送
      * 且第63位等于1 （中心站网络）
      *
      * @param waybillSign
@@ -386,7 +387,7 @@ public class BusinessHelper {
     public static boolean isSameCityOneDay(String waybillSign) {
         return BusinessUtil.isSignChar(waybillSign, 55, '0') &&
                 BusinessUtil.isSignChar(waybillSign, 16, '1') &&
-                BusinessUtil.isSignChar(waybillSign, 31, '2') &&
+                (BusinessUtil.isSignChar(waybillSign, 31, '2')||BusinessUtil.isSameCity(waybillSign)) &&
                 BusinessUtil.isSignChar(waybillSign, 63, '1');
     }
 
@@ -500,6 +501,20 @@ public class BusinessHelper {
     }
 
     /**
+     * b2c 40=0且29!=8 B2C
+     */
+    public static boolean isB2c(String waybillSign) {
+        if (StringUtils.isBlank(waybillSign)){
+            return false;
+        }
+        if (BusinessUtil.isSignChar(waybillSign, 40, '0') && !BusinessUtil.isSignChar(waybillSign, 29, '8')) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * c2c 且为到付或寄付，且为正向
      * waybill_sign第61位为0标记正向
      */
@@ -576,6 +591,30 @@ public class BusinessHelper {
         if (StringUtils.isBlank(sendPay)) {
             return false;
         }
-        return !BusinessUtil.isSignChar(sendPay, 275, '0');
+        return !BusinessUtil.isSignChar(sendPay, 275, '0')
+                && BusinessUtil.isSignInChars(sendPay, 265, '3','5');
+    }
+
+    /**
+     * 是否是211订单送货时效
+     * @param sendPay
+     * @return
+     */
+    public static boolean is211(String sendPay){
+        if (StringUtils.isBlank(sendPay)) {
+            return false;
+        }
+        return BusinessUtil.isSignChar(sendPay, 1, '1');
+    }
+
+    /**
+     * 是否为C端改址的订单
+     * @return
+     */
+    public static boolean isC2cChangeAddress(String waybillSign){
+        if (StringUtils.isBlank(waybillSign)) {
+            return false;
+        }
+        return BusinessUtil.isSignChar(waybillSign, 24, '8');
     }
 }

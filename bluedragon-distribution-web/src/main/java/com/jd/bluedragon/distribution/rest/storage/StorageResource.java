@@ -1,9 +1,6 @@
 package com.jd.bluedragon.distribution.rest.storage;
 
-import IceInternal.Ex;
-import com.jcloud.jss.service.StorageService;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.DmsLocalServerManager;
 import com.jd.bluedragon.core.exception.StorageException;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -12,22 +9,19 @@ import com.jd.bluedragon.distribution.storage.domain.PutawayDTO;
 import com.jd.bluedragon.distribution.storage.domain.StoragePackageD;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -43,7 +37,7 @@ import java.util.List;
 @Produces({MediaType.APPLICATION_JSON})
 public class StorageResource {
 
-    private static Log logger = LogFactory.getLog(StorageResource.class);
+    private static Logger log = LoggerFactory.getLogger(StorageResource.class);
 
 
     @Autowired
@@ -131,7 +125,7 @@ public class StorageResource {
         }catch (Throwable e){
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage("暂存失败！系统异常");
-            logger.error("暂存失败！"+putawayDTO.getBarCode(),e);
+            log.error("暂存失败！:{}",putawayDTO.getBarCode(),e);
             Profiler.functionError(info);
         }finally {
             Profiler.registerInfoEnd(info);

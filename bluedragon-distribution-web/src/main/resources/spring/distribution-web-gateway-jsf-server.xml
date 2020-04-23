@@ -4,6 +4,8 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
     http://jsf.jd.com/schema/jsf http://jsf.jd.com/schema/jsf/jsf.xsd">
 
+
+    <!-- 发布jsf 到物流网关 安卓调用start -->
     <!-- 分拣 -->
     <bean id="sortingGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.SortingGatewayServiceImpl"/>
     <jsf:provider id="jsfSortingService"
@@ -115,4 +117,118 @@
                   alias="${dms.gateway.jsf.alias}"
                   ref="storagePutawayGatewayServiceImpl" server="dmsjsf">
     </jsf:provider>
+
+    <!-- 暂存上架服务 -->
+    <bean id="dmsBaseDictGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.DmsBaseDictGatewayServiceImpl"/>
+    <jsf:provider id="jsfdmsBaseDictGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.DmsBaseDictGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="dmsBaseDictGatewayService" server="dmsjsf">
+    </jsf:provider>
+    <!-- 基础数据服务 -->
+    <bean id="baseDataGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.BaseDataGatewayServiceImpl"/>
+    <jsf:provider id="jsfbaseDataGatewayService" interface="com.jd.bluedragon.external.gateway.service.BaseDataGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="baseDataGatewayService"
+                  server="dmsjsf"/>
+
+    <!-- 异常处理服务 -->
+    <bean id="abnormalOrderGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.AbnormalOrderGatewayServiceImpl"/>
+    <jsf:provider id="jsfabnormalOrderGatewayService" interface="com.jd.bluedragon.external.gateway.service.AbnormalOrderGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="abnormalOrderGatewayService"
+                  server="dmsjsf"/>
+    <!-- 逆向退仓 -->
+    <bean id="reverseWarehouseGateWayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.ReverseWarehouseGateWayServiceImpl"/>
+    <jsf:provider id="jsfreverseWarehouseGateWayService" interface="com.jd.bluedragon.external.gateway.service.ReverseWarehouseGateWayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="reverseWarehouseGateWayService"
+                  server="dmsjsf"/>
+
+    <!-- 异常提交 -->
+    <bean id="exceptionHandleGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.ExceptionHandleGatewayServiceImpl"/>
+    <jsf:provider id="jsfExceptionHandleGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.ExceptionHandleGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="exceptionHandleGatewayService" server="dmsjsf">
+    </jsf:provider>
+    <!-- 发布jsf 到物流网关 安卓调用end -->
+
+    <!-- 发布jsf到物流网关 外部公司调用start  -->
+    <!-- 运单相关 -->
+    <bean id="waybillGateWayExternalService" class="com.jd.bluedragon.distribution.external.gateway.waybill.WaybillGateWayExternalServiceImpl"/>
+    <jsf:provider id="jsfWaybillGateWayExternalService"
+                  interface="com.jd.bluedragon.external.gateway.waybill.WaybillGateWayExternalService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="waybillGateWayExternalService" server="dmsjsf">
+    </jsf:provider>
+    <!-- 箱号相关 -->
+    <bean id="boxGateWayExternalService" class="com.jd.bluedragon.distribution.external.gateway.box.BoxGateWayExternalServiceImpl"/>
+    <jsf:provider id="jsfBoxGateWayExternalService"
+                  interface="com.jd.bluedragon.external.gateway.box.BoxGateWayExternalService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="boxGateWayExternalService" server="dmsjsf">
+    </jsf:provider>
+    <!-- 发布jsf到物流网关 外部公司调用end -->
+
+    <!--  自动化设备查询接口：网关使用  -->
+    <bean id="deviceGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.DeviceGatewayServiceImpl" />
+    <jsf:provider id="jsfDeviceGatewayService" interface="com.jd.bluedragon.external.gateway.service.DeviceGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="deviceGatewayService"
+                  server="dmsjsf"/>
+
+    <!-- 空铁-新发货登记 -->
+    <bean id="airNewPickupRegisterGateWayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.AirNewPickupRegisterGateWayServiceImpl"/>
+    <jsf:provider id="jsfairNewPickupRegisterGateWayService"
+                  interface="com.jd.bluedragon.external.gateway.service.AirNewPickupRegisterGateWayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="airNewPickupRegisterGateWayService" server="dmsjsf">
+    </jsf:provider>
+
+
+    <!-- 异常提交（新质控） -->
+    <bean id="abnormalReportingGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.AbnormalReportingGatewayServiceImpl"/>
+    <jsf:provider id="jsfAbnormalReportingGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.AbnormalReportingGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="abnormalReportingGatewayService" server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 保温箱出入库 -->
+    <bean id="warmBoxInOutGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.WarmBoxInOutGatewayServiceImpl" />
+    <jsf:provider id="jsfWarmBoxInOutGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.WarmBoxInOutGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="warmBoxInOutGatewayService"
+                  server="dmsjsf">
+    </jsf:provider>
+
+
+    <!-- 智能园区 -->
+    <bean id="queueManagementGateWayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.QueueManagementGateWayServiceImpl"/>
+    <jsf:provider id="jsfQueueManagementGateWayService"
+                  interface="com.jd.bluedragon.external.gateway.service.QueueManagementGateWayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="queueManagementGateWayService"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 冷链操作（新质控） -->
+    <bean id="coldChainGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.ColdChainGatewayServiceImpl"/>
+    <jsf:provider id="jsfColdChainGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.ColdChainGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="coldChainGatewayService" server="dmsjsf">
+    </jsf:provider>
+
+    <!--  物资发货  -->
+    <bean id="materialBatchSendGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.MaterialBatchSendGatewayServiceImpl" />
+    <jsf:provider id="jsfMaterialBatchSendGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.MaterialBatchSendGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="materialBatchSendGatewayService"
+                  server="dmsjsf">
+    </jsf:provider>
+
 </beans>

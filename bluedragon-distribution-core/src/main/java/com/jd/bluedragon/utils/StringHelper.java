@@ -4,25 +4,18 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
 import com.jd.bluedragon.Constants;
 import com.jd.common.util.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class StringHelper {
 
-    private static Logger logger = Logger.getLogger(StringHelper.class);
+    private static Logger log = LoggerFactory.getLogger(StringHelper.class);
 
     public static final String  SMILE = "^_^";           //微笑符号
     public static final int PHONE_FIRST_NUMBER = 3;//收件人联系方式前几位需要显示
@@ -122,7 +115,7 @@ public class StringHelper {
                     sb.append(separator);
                 }
             } catch (Exception e) {
-                StringHelper.logger.error("error!", e);
+                StringHelper.log.error("error!", e);
                 continue;
             }
         }
@@ -151,7 +144,7 @@ public class StringHelper {
                     sb.append(separator);
                 }
             } catch (Exception e) {
-                StringHelper.logger.error("error!", e);
+                StringHelper.log.error("error!", e);
                 continue;
             }
         }
@@ -181,7 +174,7 @@ public class StringHelper {
                     sb.append(separator);
                 }
             } catch (Exception e) {
-                StringHelper.logger.error("error!", e);
+                StringHelper.log.error("error!", e);
                 continue;
             }
         }
@@ -222,8 +215,7 @@ public class StringHelper {
              }
          catch (ParseException e)
          {
-             e.printStackTrace();
-             StringHelper.logger.error("时间转换失败", e);
+             StringHelper.log.error("时间转换失败", e);
          }
          return d;
     }
@@ -444,6 +436,16 @@ public class StringHelper {
             return newPhone.substring(0,PHONE_FIRST_NUMBER) + SMILE + newPhone.substring(newPhone.length() - PHONE_HIGHLIGHT_NUMBER);
         }
         return newPhone;
+    }
+
+    public static String substring(String value,int start,int end){
+        if(StringUtils.isEmpty(value)){
+            return value;
+        }
+        if(value.length() <= end){
+            return value;
+        }
+        return value.substring(start,end);
     }
 
     public static final void main(String[] args) {

@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.newseal.service.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.newseal.domain.*;
 import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
@@ -10,6 +11,8 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.vos.dto.CommonDto;
+import com.jd.etms.vos.dto.PreSealVehicleJobDto;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 
@@ -60,18 +63,40 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
     @Qualifier("newSealVehicleService")
     private NewSealVehicleService newSealVehicleService;
 
+    @Autowired
+    private VosManager vosManager;
+
     @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @Override
 	public boolean insert(PreSealVehicle preSealVehicle) {
-		return preSealVehicleDao.insert(preSealVehicle);
+        boolean result = preSealVehicleDao.insert(preSealVehicle);
+        if (result && PreSealVehicleSourceEnum.FERRY_PRE_SEAL.getCode() == preSealVehicle.getPreSealSource()) {
+            //调用运输已创建预封车任务，1创建，2取消
+            this.notifyVosPreSealJob(preSealVehicle, PreSealVehicleService.NEW_FLAG);
+        }
+		return result;
 	}
 
     @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @Override
 	public boolean cancelPreSealBeforeInsert(PreSealVehicle preSealVehicle) {
+        //传摆封车，先查询车牌信息
+        if (PreSealVehicleSourceEnum.FERRY_PRE_SEAL.getCode() == preSealVehicle.getPreSealSource()) {
+            List<PreSealVehicle> list = this.findByCreateAndReceive(preSealVehicle.getCreateSiteCode(), preSealVehicle.getReceiveSiteCode());
+            Set<String> set = new HashSet<>();
+            for (PreSealVehicle temp : list) {
+                if (! set.contains(temp.getVehicleNumber())) {
+                    //调用运输已取消预封车任务，1创建，2取消
+                    this.notifyVosPreSealJob(temp, PreSealVehicleService.CANCEL_FLAG);
+                }
+                set.add(temp.getVehicleNumber());
+            }
+        }
+
         preSealVehicleDao.preCancelByCreateAndReceive(preSealVehicle.getCreateSiteCode(), preSealVehicle.getReceiveSiteCode(),
                 preSealVehicle.getCreateUserErp(), preSealVehicle.getCreateUserName());
-		return insert(preSealVehicle);
+
+		return this.insert(preSealVehicle);
 	}
 
     @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -115,6 +140,17 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
         List<PreSealVehicle> preSealVehicleList = preSealVehicleDao.queryByCondition(query);
 
         return preSealVehicleList;
+    }
+
+    @Override
+    public List<PreSealVehicle> queryBySiteCodeAndVehicleNumber(Integer createSiteCode, String vehicleNumber) {
+
+        PreSealVehicle query = new PreSealVehicle();
+        query.setCreateSiteCode(createSiteCode);
+        query.setStatus(SealVehicleEnum.PRE_SEAL.getCode());
+        query.setVehicleNumber(vehicleNumber);
+
+        return preSealVehicleDao.queryByCondition(query);
     }
 
     @Override
@@ -203,9 +239,9 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
             if(StringUtils.isNotEmpty(dto.getSealDataCode())){
                 try {
                     redisManager.del(Constants.CACHE_KEY_PRE_SEAL_SENDCODE + dto.getSealDataCode());
-                    logger.info("已封车批次号清除缓存成功:" + dto.getSealDataCode());
+                    log.info("已封车批次号清除缓存成功:{}" , dto.getSealDataCode());
                 } catch (Throwable e) {
-                    logger.warn("已封车批次号清除缓存失败:" + dto.getSealDataCode() + ";异常：" + e.getMessage());
+                    log.warn("已封车批次号清除缓存失败:{};异常：{}",dto.getSealDataCode(), e.getMessage());
                 }
             }
         }
@@ -224,9 +260,9 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
             if(StringUtils.isNotEmpty(dto.getSealDataCode())) {
                 try {
                     redisManager.setex(Constants.CACHE_KEY_PRE_SEAL_SENDCODE + dto.getSealDataCode(), Constants.TIME_SECONDS_ONE_WEEK, String.valueOf(dto.getOperateTime().getTime()));
-                    logger.info("已封车批次号存入缓存成功:" + dto.getSealDataCode());
+                    log.info("已封车批次号存入缓存成功:{}" , dto.getSealDataCode());
                 } catch (Throwable e) {
-                    logger.warn("已封车批次号存入缓存失败:" + dto.getSealDataCode() + ";异常：" + e.getMessage());
+                    log.warn("已封车批次号存入缓存失败:{};异常：{}" ,dto.getSealDataCode(), e.getMessage());
                 }
             }
         }
@@ -269,7 +305,7 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
                 SealVehicles vo = sendCodes.get(i);
                 //未封车的批次才需要提交封车任务
                 if(newSealVehicleService.checkSendCodeIsSealed(vo.getSealDataCode())){
-                    logger.warn("一键封车批次号已封车：" + vo.getSealDataCode());
+                    log.warn("一键封车批次号已封车：{}" , vo.getSealDataCode());
                     continue;
                 }
                 SealTaskBody body = carMap.get(vo.getVehicleNumber());
@@ -328,5 +364,36 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
         return preSealVehicleDao.updatePreSealVehicleMeasureInfo(preSealVehicle) > 0;
     }
 
+    /**
+     * 通知运输创建或取消传摆预封车任务
+     *
+     * */
+    public void notifyVosPreSealJob(PreSealVehicle preSealVehicle, int flag) {
+
+        PreSealVehicleJobDto preSealVehicleJobDto = new PreSealVehicleJobDto();
+        preSealVehicleJobDto.setVehicleNumber(preSealVehicle.getVehicleNumber());
+        preSealVehicleJobDto.setOperateUserCode(preSealVehicle.getCreateUserErp());
+        preSealVehicleJobDto.setOperateUserName(preSealVehicle.getCreateUserName());
+        preSealVehicleJobDto.setOperateTime(new Date());
+        CommonDto<String> commonDto = null;
+        if (flag == PreSealVehicleService.NEW_FLAG) {
+            commonDto = vosManager.doPreSealVehicleJob(preSealVehicleJobDto);
+        } else {
+            commonDto = vosManager.cancelPreSealVehicleJob(preSealVehicleJobDto);
+        }
+
+        if (commonDto == null) {
+            log.warn("通知运输传摆预封车任务状态失败！，参数：{}", JsonHelper.toJson(preSealVehicleJobDto));
+            return;
+        }
+        if (Constants.RESULT_SUCCESS == commonDto.getCode()) {
+            String jobCode = commonDto.getData();
+            log.info("通知运输传摆预封车任务状态成功，车次任务号:{}", jobCode);
+        } else if (Constants.RESULT_WARN == commonDto.getCode()) {
+            log.warn("通知运输传摆预封车任务状态异常，异常原因:{}，异常参数:{}", commonDto.getMessage(), JsonHelper.toJson(preSealVehicleJobDto));
+        } else {
+            log.warn("取消预封车任务失败，参数：{}，返回值：{}", JsonHelper.toJson(preSealVehicleJobDto), JsonHelper.toJson(commonDto));
+        }
+    }
 
 }

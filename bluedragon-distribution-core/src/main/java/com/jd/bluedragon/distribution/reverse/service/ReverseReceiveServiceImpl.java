@@ -23,8 +23,8 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -36,7 +36,7 @@ import java.util.List;
 @Service("reverseReceiveService")
 public class ReverseReceiveServiceImpl implements ReverseReceiveService {
     
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
     
     @Autowired
     private TaskService taskService;
@@ -101,19 +101,19 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public void aftersaleReceive(ReverseReceive source) {
         if (StringHelper.isEmpty(source.getPackageCode())) {
-            this.logger.info("数据不合法.");
+            this.log.info("数据不合法.");
             return;
         }
         
         if(source.getReceiveType()==2){
             ReverseReceive reverseReceivePO = this.findByPackageCodeAndSendCode(source.getPackageCode(),source.getSendCode(),source.getReceiveType());
             if (reverseReceivePO == null) {
-            	this.logger.info("reverseReceivePO is null");
+            	this.log.info("reverseReceivePO is null");
                 this.appentPickwareInfo(source, source.getPackageCode());
                 this.add(source);
-                this.addOpetationLog(source, OperationLog.TYPE_REVERSE_RECEIVE,"add");
+                this.addOpetationLog(source, OperationLog.TYPE_REVERSE_RECEIVE,"add","ReverseReceiveServiceImpl#aftersaleReceive");
             } else {
-            	this.logger.info("reverseReceivePO is not null");
+            	this.log.info("reverseReceivePO is not null");
                 ReverseReceive reverseReceiveVO = new ReverseReceive();
                 BeanHelper.copyProperties(reverseReceiveVO, source);
                 reverseReceiveVO.setId(reverseReceivePO.getId());
@@ -121,26 +121,26 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
                 reverseReceiveVO.setReceiveTime(source.getReceiveTime());
                 this.appentPickwareInfo(reverseReceiveVO, source.getPackageCode());
                 this.update(reverseReceiveVO);
-                this.addOpetationLog(reverseReceiveVO, OperationLog.TYPE_REVERSE_RECEIVE,"update");
+                this.addOpetationLog(reverseReceiveVO, OperationLog.TYPE_REVERSE_RECEIVE,"update","ReverseReceiveServiceImpl#aftersaleReceive");
             } 
         }else if(source.getReceiveType()==1||source.getReceiveType()==5 || source.getReceiveType()== 6 || source.getReceiveType()== 7){
         	String orignalPackageCode = source.getPackageCode();
         	source.setPackageCode(source.getOrderId());
             ReverseReceive reverseReceivePO = this.findByPackageCodeAndSendCode(source.getPackageCode(),source.getSendCode(),source.getReceiveType());
             if (reverseReceivePO == null) {
-            	this.logger.info("reverseReceivePO is null");
+            	this.log.info("reverseReceivePO is null");
             	source.setPackageCode(source.getOrderId());
                 this.add(source);
-                this.addOpetationLog(source, OperationLog.TYPE_REVERSE_RECEIVE,"add");
+                this.addOpetationLog(source, OperationLog.TYPE_REVERSE_RECEIVE,"add","ReverseReceiveServiceImpl#aftersaleReceive");
             } else {
-            	this.logger.info("reverseReceivePO is not null");
+            	this.log.info("reverseReceivePO is not null");
                 ReverseReceive reverseReceiveVO = new ReverseReceive();
                 BeanHelper.copyProperties(reverseReceiveVO, source);
                 reverseReceiveVO.setId(reverseReceivePO.getId());
                 reverseReceiveVO.setReceiveType(source.getReceiveType());
                 reverseReceiveVO.setReceiveTime(source.getReceiveTime());
                 this.update(reverseReceiveVO);
-                this.addOpetationLog(reverseReceiveVO, OperationLog.TYPE_REVERSE_RECEIVE,"update");
+                this.addOpetationLog(reverseReceiveVO, OperationLog.TYPE_REVERSE_RECEIVE,"update","ReverseReceiveServiceImpl#aftersaleReceive");
             } 
             source.setPackageCode(orignalPackageCode);
 
@@ -158,12 +158,12 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
         }  else if(source.getReceiveType()==3) {
         	ReverseReceive reverseReceivePO = this.findByPackageCodeAndSendCode(source.getOrderId(),source.getSendCode(),source.getReceiveType());
             if (reverseReceivePO == null) {
-            	this.logger.info("reverseReceivePO is null");
+            	this.log.info("reverseReceivePO is null");
                 this.appentPickwareInfo(source, source.getPackageCode());
                 this.add(source);
-                this.addOpetationLog(source, OperationLog.TYPE_REVERSE_RECEIVE,"add");
+                this.addOpetationLog(source, OperationLog.TYPE_REVERSE_RECEIVE,"add","ReverseReceiveServiceImpl#aftersaleReceive");
             } else {
-            	this.logger.info("reverseReceivePO is not null");
+            	this.log.info("reverseReceivePO is not null");
                 ReverseReceive reverseReceiveVO = new ReverseReceive();
                 BeanHelper.copyProperties(reverseReceiveVO, source);
                 reverseReceiveVO.setId(reverseReceivePO.getId());
@@ -171,7 +171,7 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
                 reverseReceiveVO.setReceiveTime(source.getReceiveTime());
                 this.appentPickwareInfo(reverseReceiveVO, source.getPackageCode());
                 this.update(reverseReceiveVO);
-                this.addOpetationLog(reverseReceiveVO, OperationLog.TYPE_REVERSE_RECEIVE,"update");
+                this.addOpetationLog(reverseReceiveVO, OperationLog.TYPE_REVERSE_RECEIVE,"update","ReverseReceiveServiceImpl#aftersaleReceive");
             }
             
             SendDetail query = new SendDetail();
@@ -189,7 +189,7 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
                      		    //messageClient.sendMessage("logisticsCompensation", JsonHelper.toJson(sendVo),sendVo.getWaybillCode());
                                 logisticsCompensationMQ.send(sendVo.getWaybillCode(),JsonHelper.toJson(sendVo));
                      		}catch (Exception e) {
-                     			this.logger.error("分拣中心逆向收货:备件库收货[三方七折]推送财务mq信息失败：" + e.getMessage(),e);
+                     			this.log.error("分拣中心逆向收货:备件库收货[三方七折]推送财务mq信息失败：{}",sendVo.getWaybillCode() ,e);
                      		}
                          break;
                      }
@@ -201,14 +201,14 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
             //方案:另外声明一个查询方法,加入新的过滤条件,canReceive,可以确定唯一数据
             ReverseReceive reverseReceivePO = this.findMCS(source.getPackageCode(), source.getSendCode(), source.getReceiveType(), source.getCanReceive());
             if (reverseReceivePO == null) {
-                this.logger.info("reverseReceivePO is null");
+                this.log.info("reverseReceivePO is null");
                 if (StringUtils.isBlank(source.getPickWareCode())) {
                     this.appentPickwareInfo(source, source.getPackageCode());
                 }
                 this.add(source);
-                this.addOpetationLog(source, OperationLog.TYPE_REVERSE_RECEIVE,"add");
+                this.addOpetationLog(source, OperationLog.TYPE_REVERSE_RECEIVE,"add","ReverseReceiveServiceImpl#aftersaleReceive");
             } else {
-                this.logger.info("reverseReceivePO is not null");
+                this.log.info("reverseReceivePO is not null");
                 ReverseReceive reverseReceiveVO = new ReverseReceive();
                 BeanHelper.copyProperties(reverseReceiveVO, source);
                 reverseReceiveVO.setId(reverseReceivePO.getId());
@@ -216,7 +216,7 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
                 reverseReceiveVO.setReceiveTime(source.getReceiveTime());
                 this.appentPickwareInfo(reverseReceiveVO, source.getPackageCode());
                 this.update(reverseReceiveVO);
-                this.addOpetationLog(reverseReceiveVO, OperationLog.TYPE_REVERSE_RECEIVE, "update");
+                this.addOpetationLog(reverseReceiveVO, OperationLog.TYPE_REVERSE_RECEIVE, "update","ReverseReceiveServiceImpl#aftersaleReceive");
             }
         }
 
@@ -277,14 +277,14 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
 	        }
 	        
 	        String jsonStr = JsonHelper.toJson(reverseReceiveLoss);
-	    	logger.warn("青龙逆向发货后回传报损系统MQ orderid为" + orderId);
-	    	logger.warn("青龙逆向发货后回传报损系统MQ json为"+jsonStr);
+	    	log.warn("青龙逆向发货后回传报损系统MQ orderid为:{}", orderId);
+	    	log.warn("青龙逆向发货后回传报损系统MQ json为:{}", jsonStr);
     	
 			//this.messageClient.sendMessage("dms_send_loss", jsonStr, orderId);
             dmsSendLossMQ.send(orderId,jsonStr);
-			logger.info("青龙逆向发货后回传报损系统MQ消息成功，订单号为" + orderId);
+			log.info("青龙逆向发货后回传报损系统MQ消息成功，订单号为:{}", orderId);
 		} catch (Exception e) {
-			logger.error("青龙逆向发货后回传报损系统MQ消息失败，订单号为" + orderId, e);
+			log.error("青龙逆向发货后回传报损系统MQ消息失败，订单号为:{}" , orderId, e);
 		}
 		
 	}
@@ -297,7 +297,7 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
         }
     }
 
-    public void addOpetationLog(ReverseReceive reverseReceive, Integer logType,String remark) {
+    public void addOpetationLog(ReverseReceive reverseReceive, Integer logType,String remark,String methodName) {
         this.appentPickwareInfo(reverseReceive, reverseReceive.getPackageCode());
         OperationLog operationLog = new OperationLog();
         operationLog.setWaybillCode(reverseReceive.getOrderId());
@@ -308,6 +308,7 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
         operationLog.setCreateUser(reverseReceive.getOperatorName());
         operationLog.setRemark(remark);
         operationLog.setLogType(logType);
+        operationLog.setMethodName(methodName);
         this.operationLogService.add(operationLog);
     }
     

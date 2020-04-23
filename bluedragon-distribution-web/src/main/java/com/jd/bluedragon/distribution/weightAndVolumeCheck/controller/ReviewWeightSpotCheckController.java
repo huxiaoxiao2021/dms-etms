@@ -9,22 +9,19 @@ import com.jd.bluedragon.distribution.basic.PropertiesMetaDataFactory;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.ReviewWeightSpotCheck;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckExcelData;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckInfo;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.ReviewWeightSpotCheckService;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -33,7 +30,7 @@ import java.util.List;
 
 /**
  * @ClassName: ReviewWeightSpotCheckController
- * @Description: 分拣复重抽检任务Controller
+ * @Description: 复重抽检任务导入Controller
  * @author: hujiping
  * @date: 2019/4/17 15:47
  */
@@ -41,7 +38,7 @@ import java.util.List;
 @RequestMapping("/reviewWeightSpotCheck")
 public class ReviewWeightSpotCheckController extends DmsBaseController {
 
-    private static final Log logger = LogFactory.getLog(ReviewWeightSpotCheckController.class);
+    private static final Logger log = LoggerFactory.getLogger(ReviewWeightSpotCheckController.class);
 
     @Autowired
     private ReviewWeightSpotCheckService reviewWeightSpotCheckService;
@@ -82,11 +79,11 @@ public class ReviewWeightSpotCheckController extends DmsBaseController {
      * 导入
      * @return
      */
-    @Authorization(Constants.DMS_WEB_SORTING_REVIEWWEIGHTSPOTCHECK_R)
+    @Authorization(Constants.DMS_WEB_SORTING_REVIEWWEIGHTSPOTCHECK_SPECIAL_R)
     @RequestMapping(value = "/toImport", method = RequestMethod.POST)
     @ResponseBody
     public JdResponse toImport(@RequestParam("importExcelFile") MultipartFile file) {
-        logger.debug("uploadExcelFile begin...");
+        log.debug("uploadExcelFile begin...");
         JdResponse response = new JdResponse();
         try {
             String fileName = file.getOriginalFilename();
@@ -97,13 +94,13 @@ public class ReviewWeightSpotCheckController extends DmsBaseController {
             String importErpCode = erpUser.getUserCode();
 
             DataResolver dataResolver = ExcelDataResolverFactory.getDataResolver(2);
-            List<SpotCheckInfo> dataList = dataResolver.resolver(file.getInputStream(), SpotCheckInfo.class, new PropertiesMetaDataFactory("/excel/reviewWeightSpotCheck.properties"));
+            List<SpotCheckExcelData> dataList = dataResolver.resolver(file.getInputStream(), SpotCheckExcelData.class, new PropertiesMetaDataFactory("/excel/reviewWeightSpotCheck.properties"));
             String errorMessage = reviewWeightSpotCheckService.checkExportData(dataList,importErpCode);
             if (!"".equals(errorMessage)) {
                 return new JdResponse(JdResponse.CODE_FAIL, errorMessage);
             }
         } catch (Exception e) {
-            this.logger.error("导入异常!");
+            this.log.error("导入异常!",e);
             return new JdResponse(JdResponse.CODE_FAIL, e.getMessage());
         }
         return response;
@@ -117,14 +114,14 @@ public class ReviewWeightSpotCheckController extends DmsBaseController {
     @RequestMapping(value = "/toExport", method = RequestMethod.POST)
     public ModelAndView toExport(WeightAndVolumeCheckCondition condition, Model model) {
 
-        this.logger.info("分拣复重抽查任务统计表");
+        this.log.info("分拣复重抽查任务统计表");
         List<List<Object>> resultList;
         try{
             model.addAttribute("filename", "分拣复重抽检任务统计表.xls");
             model.addAttribute("sheetname", "分拣复重抽检任务统计结果");
             resultList = reviewWeightSpotCheckService.getExportData(condition);
         }catch (Exception e){
-            this.logger.error("导出分拣复重抽检任务统计表失败:" + e.getMessage(), e);
+            this.log.error("导出分拣复重抽检任务统计表失败:", e);
             List<Object> list = new ArrayList<>();
             list.add("导出分拣复重抽检任务统计表失败!");
             resultList = new ArrayList<>();
@@ -142,14 +139,14 @@ public class ReviewWeightSpotCheckController extends DmsBaseController {
     @RequestMapping(value = "/toExportSpot", method = RequestMethod.POST)
     public ModelAndView toExportSpot(Model model) {
 
-        this.logger.info("导出抽查任务表");
+        this.log.info("导出抽查任务表");
         List<List<Object>> resultList;
         try{
             model.addAttribute("filename", "抽查任务表.xls");
             model.addAttribute("sheetname", "抽查统计结果");
             resultList = reviewWeightSpotCheckService.exportSpotData();
         }catch (Exception e){
-            this.logger.error("导出抽查任务表失败:" + e.getMessage(), e);
+            this.log.error("导出抽查任务表失败:", e);
             List<Object> list = new ArrayList<>();
             list.add("导出抽查任务表失败!");
             resultList = new ArrayList<>();

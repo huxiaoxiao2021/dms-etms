@@ -1,8 +1,11 @@
 package com.jd.bluedragon.distribution.seal.service;
 
+import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
 import com.jd.bluedragon.distribution.api.request.cancelSealRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
-import com.jd.etms.vos.dto.*;
+import com.jd.etms.vos.dto.CommonDto;
+import com.jd.etms.vos.dto.PageDto;
+import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.etms.vts.dto.VtsTransportResourceDto;
 import com.jd.tms.tfc.dto.TransBookBillQueryDto;
 import com.jd.tms.tfc.dto.TransWorkItemDto;
@@ -81,6 +84,13 @@ public interface NewSealVehicleService {
      */
     public boolean checkSendIsExist(String sendCode);
 
+    /**
+     * 校验批次的体积是否超标
+     * @param sealCarDto
+     * @return
+     * @throws Exception
+     */
+    CommonDto<String> verifySealVehicleVolume(SealCarDto sealCarDto);
 
     /**
      * 校验车牌号能否生成车次任务
@@ -89,6 +99,14 @@ public interface NewSealVehicleService {
      * @return
      */
     CommonDto<String> verifyVehicleJobByVehicleNumber(String transportCode,String vehicleNumber);
+
+
+    /**
+     * 校验车牌号能否生成车次任务（新）
+     * @param sealCarPreRequest
+     * @return
+     */
+    CommonDto<String> newVerifyVehicleJobByVehicleNumber(SealCarPreRequest sealCarPreRequest);
 
     /**
      * 离线封车

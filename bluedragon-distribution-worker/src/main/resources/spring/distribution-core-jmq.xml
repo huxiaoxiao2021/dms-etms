@@ -269,9 +269,13 @@
     </bean>
 
     <!--运单称重mq 整单量方称重信息 发送给运单系统 added by luyue-->
-    <bean id="weighByWaybillProducer" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+    <bean id="weighByWaybillProducer" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.dms.waybill.weight}"/>
-        <property name="timeout" value="1000"/>
+    </bean>
+
+    <!--运单称重mq 整单量方称重信息 发送给运单系统 added by luyue-->
+    <bean id="dmsWeighByWaybillProducer" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dms.waybill.weight.ope.flow}"/>
     </bean>
 
     <!--PDA操作取消发货MQ-->
@@ -400,5 +404,43 @@
     <!--交接称重转发终端和分拣机使用 -->
     <bean id="handOverWeightProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.handOverWeight}"/>
+    </bean>
+
+    <!-- 空铁项目 - 发货登记 推送计费信息给FXM -->
+    <bean id="railwaySendRegistCostFxmMQ" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.railway.sendRegist.Cost.fxm}"/>
+    </bean>
+    <!-- 线上签 - 异步+重试处理推送线上签数据 -->
+    <bean id="printOnlineProducer" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.print.online}"/>
+    </bean>
+
+    <!-- 保温箱出入库消息 -->
+    <bean id="boxInOutProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.box.inOut}"/>
+    </bean>
+
+    <!-- 物资按批次发货消息 -->
+    <bean id="materialSendMQProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.material.send}" />
+    </bean>
+
+    <!-- 物资取消按批次发货消息 -->
+    <bean id="cancelMaterialSendMQProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.cancel.material.send}" />
+    </bean>
+
+    <!-- 冷链 - 货物出入库消息 -->
+    <bean id="ccInAndOutBoundProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.coldChain.inAndOutBound}"/>
+    </bean>
+
+    <!-- 滞留上报消息 -->
+    <bean id="strandReportProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.strand.report}"/>
+    </bean>
+    <!-- 滞留上报明细消息 -->
+    <bean id="strandReportDetailProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.strand.report.detail}"/>
     </bean>
 </beans>

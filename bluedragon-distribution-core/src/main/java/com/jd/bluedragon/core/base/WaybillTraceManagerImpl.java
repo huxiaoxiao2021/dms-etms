@@ -6,10 +6,13 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageState;
+import com.jd.etms.waybill.dto.BigPackageStateDto;
+import com.jd.etms.waybill.dto.DChoice;
+import com.jd.etms.waybill.dto.PackageStateDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +28,7 @@ import static com.jd.bluedragon.Constants.WAYBILLTRACE_FINISHED;
  */
 @Service("waybillTraceManager")
 public class WaybillTraceManagerImpl implements WaybillTraceManager {
-    private static final Log logger = LogFactory.getLog(WaybillTraceManagerImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(WaybillTraceManagerImpl.class);
     @Autowired
     private WaybillTraceApi waybillTraceApi;
 
@@ -37,13 +40,14 @@ public class WaybillTraceManagerImpl implements WaybillTraceManager {
      * @return
      */
     @Override
-    @JProfiler(jKey = "DMS.BASE.WaybillTraceManagerImpl.getPkStateByWCodeAndState", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public List<PackageState> getPkStateByWCodeAndState(String waybillCode, String state) {
-        BaseEntity<List<PackageState>> baseEntity = waybillTraceApi.getPkStateByWCodeAndState(waybillCode, state);
+    @JProfiler(jKey = "DMS.BASE.WaybillTraceManagerImpl.getPkStateDtoByWCodeAndState",jAppName=Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public List<PackageStateDto> getPkStateDtoByWCodeAndState(String waybillCode, String state) {
+        BaseEntity<List<PackageStateDto>> baseEntity = waybillTraceApi.getPkStateDtoByWCodeAndState(waybillCode, state);
         if (baseEntity != null && baseEntity.getResultCode() == RESULT_SUCCESS && baseEntity.getData() != null ) {
             return baseEntity.getData();
         } else {
-            logger.warn("WaybillTraceManagerImpl.getPkStateByWCodeAndState无揽收全程跟踪，baseEntity："+JsonHelper.toJson(baseEntity)+",waybillCode:"+waybillCode);
+            log.warn("WaybillTraceManagerImpl.getPkStateDtoByWCodeAndState无揽收全程跟踪，baseEntity："+JsonHelper.toJson(baseEntity)+",waybillCode:"+waybillCode);
             return Lists.newArrayList();
         }
     }
@@ -54,7 +58,7 @@ public class WaybillTraceManagerImpl implements WaybillTraceManager {
      * @return true表示已经妥投，false表示还没有妥投
      */
     public boolean isWaybillFinished(String waybillCode){
-        List<PackageState> list = getPkStateByWCodeAndState(waybillCode, WAYBILLTRACE_FINISHED);
+        List<PackageStateDto> list = getPkStateDtoByWCodeAndState(waybillCode, WAYBILLTRACE_FINISHED);
         if(list != null && list.size() > 0 ){
             return true;
         }
@@ -68,7 +72,7 @@ public class WaybillTraceManagerImpl implements WaybillTraceManager {
      */
     @Override
     public boolean isWaybillRejected(String waybillCode) {
-        List<PackageState> list = getPkStateByWCodeAndState(waybillCode, Constants.WAYBILL_TRACE_STATE_REJECTED);
+        List<PackageStateDto> list = getPkStateDtoByWCodeAndState(waybillCode, Constants.WAYBILL_TRACE_STATE_REJECTED);
         if(list != null && list.size() > 0 ){
             return true;
         }
@@ -96,9 +100,32 @@ public class WaybillTraceManagerImpl implements WaybillTraceManager {
         try {
             return waybillTraceApi.getAllOperations(packageCode);
         } catch (Exception e) {
-            logger.error("获取包裹号" + packageCode + "全程跟踪列表失败", e);
+            log.error("获取包裹号{}全程跟踪列表失败",packageCode, e);
         }
         return null;
     }
 
+    /**
+     * 获取运单的全程跟踪的部门信息
+     * @param waybillCode 运单号
+     * @param queryPickInfo 是否查询揽收信息
+     * @param queryDeliveryInfo 是否查询配送信息
+     * @param queryStoreInfo 是否查询计划仓信息
+     * @param querySortingInfo 是否查询分拣中心信息
+     * @return
+     */
+    @Override
+    public BaseEntity<BigPackageStateDto> getPkStateByCodeAndChoice(String waybillCode, Boolean queryPickInfo, Boolean queryDeliveryInfo, Boolean queryStoreInfo, Boolean querySortingInfo) {
+        try {
+            DChoice dChoice = new DChoice();
+            dChoice.setQueryDeliveryInfo(queryPickInfo);
+            dChoice.setQueryPickInfo(queryDeliveryInfo);
+            dChoice.setQueryStoreInfo(queryStoreInfo);
+            dChoice.setQuerySortingInfo(querySortingInfo);
+            return waybillTraceApi.getPkStateByCodeAndChoice(waybillCode, dChoice);
+        } catch (Exception e) {
+            log.error("获取运单号{}状态列表失败", waybillCode, e);
+        }
+        return null;
+    }
 }

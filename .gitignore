@@ -44,3 +44,6 @@ bluedragon-distribution.iws
 *.orig
 /bluedragon-distribution-utils/*.classpath
 /bluedragon-distribution-common-android/target
+/bluedragon-distribution-core/src/main/java/com/jd/bluedragon/queueManagement/111.java
+/bluedragon-distribution-common-android/.classpath
+/bluedragon-distribution-common-android/.factorypath

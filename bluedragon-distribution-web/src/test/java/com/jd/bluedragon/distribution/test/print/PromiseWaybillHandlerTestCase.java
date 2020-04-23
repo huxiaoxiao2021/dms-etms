@@ -39,7 +39,7 @@ public class PromiseWaybillHandlerTestCase {
 			context.getBigWaybillDto().getWaybill().setRequireStartTime(dates[0]);
 			context.getBigWaybillDto().getWaybill().setRequireTime(dates[1]);
 			context.getBasePrintWaybill().setPromiseText(null);
-			promiseWaybillHandler.dealSopJZD("000000000000000000000000000000600000000000000000000000000000000",
+			promiseWaybillHandler.dealJZD("000000000000000000000000000000600000000000000000000000000000000",
 					context.getBigWaybillDto().getWaybill(),
 					context.getBasePrintWaybill());
 			if(results[i]!=null){

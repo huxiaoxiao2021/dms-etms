@@ -17,16 +17,12 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.vos.dto.CommonDto;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author zhaohc
@@ -38,7 +34,7 @@ import java.util.List;
 @Deprecated
 public class OfflineCoreTask extends DBSingleScheduler {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private OfflineLogService offlineLogService;
@@ -87,7 +83,7 @@ public class OfflineCoreTask extends DBSingleScheduler {
                 result = offlineCore(body);
             }
 		} catch (Exception e) {
-			this.logger.error("OfflineCoreTask execute--> 转换body异常body【" + body + "】：", e);
+			this.log.error("OfflineCoreTask execute--> 转换body异常body【{}】",body, e);
 		}
 		return result;
 	}
@@ -156,9 +152,10 @@ public class OfflineCoreTask extends DBSingleScheduler {
                 } else if (Task.TASK_TYPE_AR_RECEIVE_AND_SEND.equals(offlineLogRequest.getTaskType())) {
                 	//空铁提货并发货
                 	resultCode = offlineArReceiveService.parseToTask(offlineLogRequest);
-                	//先加入一个提货worker，操作时间延后30s然后加入一个一车一单发货任务
+                	//先加入一个提货worker，操作时间延后5s然后加入一个一车一单发货任务
                 	Date operateTime = DateHelper.parseDate(offlineLogRequest.getOperateTime());
-                	String operateTimeStr = DateHelper.formatDate(DateHelper.add(operateTime, Calendar.SECOND, 30));
+                	String operateTimeStr = DateHelper.formatDate(DateHelper.add(operateTime, Calendar.MILLISECOND,
+                            Constants.DELIVERY_DELAY_TIME));
                 	offlineLogRequest.setOperateTime(operateTimeStr);
                 	resultCode = offlineDeliveryService.parseToTask(offlineLogRequest);
                 }
@@ -168,7 +165,7 @@ public class OfflineCoreTask extends DBSingleScheduler {
                     continue;
                 }
             } catch (Exception e) {
-                this.logger.error("OfflineCoreTask--> 服务处理异常：【" + body + "】：", e);
+                this.log.error("OfflineCoreTask--> 服务处理异常：【{}】",body, e);
                 resultCode = 0;
             }
 
@@ -179,9 +176,10 @@ public class OfflineCoreTask extends DBSingleScheduler {
                 } else {
                     offlineLog.setStatus(Constants.RESULT_FAIL);
                 }
+                offlineLog.setMethodName("OfflineCoreTask#offlineCore");
                 this.offlineLogService.addOfflineLog(offlineLog);
             } catch (Exception e) {
-                this.logger.error("OfflineCoreTask--> 插入日志异常：【" + body + "】：", e);
+                this.log.error("OfflineCoreTask--> 插入日志异常：【{}】",body, e);
             }
         }
         return true;

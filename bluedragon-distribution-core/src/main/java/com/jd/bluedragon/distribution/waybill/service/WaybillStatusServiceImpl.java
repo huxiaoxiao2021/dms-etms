@@ -1,38 +1,51 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
-import java.text.MessageFormat;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.distribution.base.service.SiteService;
 import java.util.*;
 
-import com.jd.bluedragon.common.domain.RepeatPrint;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.half.domain.PackageHalf;
+import com.jd.bluedragon.distribution.half.domain.PackageHalfDetail;
+import com.jd.bluedragon.distribution.half.domain.PackageHalfReasonTypeEnum;
+import com.jd.bluedragon.distribution.half.domain.PackageHalfResultTypeEnum;
 import com.jd.bluedragon.distribution.inventory.service.PackageStatusService;
 import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
+import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
+import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.distribution.half.domain.PackageHalf;
 import com.jd.bluedragon.distribution.half.domain.PackageHalfDetail;
 import com.jd.bluedragon.distribution.half.domain.PackageHalfReasonTypeEnum;
 import com.jd.bluedragon.distribution.half.domain.PackageHalfResultTypeEnum;
 import com.jd.etms.waybill.api.WaybillSyncApi;
+import com.jd.etms.waybill.common.Result;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.WaybillParameter;
+import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.etms.waybill.dto.OrderShipsDto;
 import com.jd.etms.waybill.handler.PackageSyncPartParameter;
+import com.jd.etms.waybill.handler.WaybillSyncParameter;
+import com.jd.etms.waybill.handler.WaybillSyncParameterExtend;
 import com.jd.etms.waybill.handler.WaybillSyncPartParameter;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,20 +55,26 @@ import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.common.Result;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.etms.waybill.handler.WaybillSyncParameter;
 import com.jd.etms.waybill.handler.WaybillSyncParameterExtend;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Service("waybillStatusService")
 public class WaybillStatusServiceImpl implements WaybillStatusService {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private static final Integer SITE_TYPE_SPWMS = 903;
 	private static final String MERGE_WAYBILL_RETURN_COUNT = "mergeWaybillReturnCount";
@@ -91,12 +110,14 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			return;
 		}
 		List<WaybillSyncParameter> parameterList = this.parseWaybillSyncParameter(tasks);
-		logger.info(JSON.toJSONString(parameterList));
+		if(log.isInfoEnabled()){
+			log.info(JSON.toJSONString(parameterList));
+		}
 		Map<Long, Result> results = this.waybillSyncApi.batchUpdateWaybillByOperateCode(parameterList);
 
 		if (results == null || results.isEmpty()) {
-            if(logger.isInfoEnabled()){
-                logger.info(MessageFormat.format("回传运单状态数据转换为空:{0}",JsonHelper.toJson(tasks)));
+            if(log.isInfoEnabled()){
+                log.info("回传运单状态数据转换为空:{}",JsonHelper.toJson(tasks));
             }
 			return;
 		}
@@ -106,22 +127,20 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			if (mResult != null) {
 				Long taskId = mResult.getKey();
 				Result result = mResult.getValue();
-                if(logger.isInfoEnabled()){
-                    logger.info(MessageFormat.format("回传运单状态taskId:{0}->resultCode:{1}->resultMessage{2}",taskId,result.getCode(),result.getMessage()));
-                }
+				log.info("回传运单状态taskId:{}->resultCode:{}->resultMessage{}",taskId,result.getCode(),result.getMessage());
 				if (true == result.isFlag()) {
 					try{
 						packageStatusService.recordPackageStatus(parameterList,null);
 					}catch (Exception e){
-						logger.error("包裹状态发送MQ消息异常." + JSON.toJSONString(parameterList)+".",e);
+						log.error("包裹状态发送MQ消息异常:{}" , JSON.toJSONString(parameterList),e);
 					}
 				} else if (WaybillStatus.RESULT_CODE_PARAM_IS_NULL == result.getCode()
 						|| WaybillStatus.RESULT_CODE_REPEAT_TASK == result.getCode()) {
-					this.logger.error(this.resultToString(taskId, result, "分拣数据回传运单系统"));
+					this.log.error(this.resultToString(taskId, result, "分拣数据回传运单系统"));
                     throw new Exception("分拣数据回传运单系统失败\n" + JsonHelper.toJson(result) + "\n");
 //					this.taskService.doError(this.findTask(tasks, taskId, Task.TASK_TYPE_WAYBILL));
 				} else {
-                    this.logger.error(this.resultToString(taskId, result, "分拣数据回传运单系统"));
+                    this.log.error(this.resultToString(taskId, result, "分拣数据回传运单系统"));
                     throw new Exception("分拣数据回传运单系统失败\n" + JsonHelper.toJson(result) + "\n");
 //					this.taskService.doRevert(this.findTask(tasks, taskId, Task.TASK_TYPE_WAYBILL));
 				}
@@ -159,14 +178,16 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 	}
 
 	public void sendModifyWaybillStatusFinished(Task task) throws Exception{
-		logger.debug("开始妥投运单调用运单接口:");
+		log.debug("开始妥投运单调用运单接口:");
 		BaseEntity<Boolean> result = this.waybillSyncApi.batchUpdateWaybillByWaybillCode(this.parseWaybillParameter(task), 8);
-		logger.debug("开始妥投运单成功:");
+		log.debug("开始妥投运单成功:");
 		if (result != null && result.getData() == true) {
 //			this.taskService.doDone(task);
-			logger.debug("开始妥投运单成功:" + JsonHelper.toJson(task));
+			if(log.isDebugEnabled()){
+				log.debug("开始妥投运单成功:{}" , JsonHelper.toJson(task));
+			}
 		} else {
-			logger.error("买卖宝置妥投状态失败\n" + JsonHelper.toJson(task) + "\n");
+			log.warn("买卖宝置妥投状态失败:{}" , JsonHelper.toJson(task) );
             throw new Exception("买卖宝置妥投状态失败\n" + JsonHelper.toJson(result) + "\n");
 //			this.taskService.doError(task);
 		}
@@ -213,26 +234,32 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			}
 		}
 
-		this.logger.info("未找到对应Task, 非法任务ID:" + taskId);
+		this.log.info("未找到对应Task, 非法任务ID:{}" , taskId);
 
 		return null;
 	}
 
 	private List<WaybillParameter> parseWaybillParameter(Task task) {
 
-		logger.debug("开始妥投自营订单:"+JsonHelper.toJson(task));
-			if (StringHelper.isEmpty(task.getBody())) {
+		if(log.isDebugEnabled()){
+			log.debug("开始妥投自营订单:{}",JsonHelper.toJson(task));
+		}
+		if (StringHelper.isEmpty(task.getBody())) {
 				return  null;
 			}
 			if (task.getYn()!=null && task.getYn().equals(0)) {
 				return  null;
 			}
-			logger.debug("置妥投状态:"+JsonHelper.toJson(task));
+		if(log.isDebugEnabled()){
+			log.debug("置妥投状态:{}",JsonHelper.toJson(task));
+		}
 		WaybillParameter[] arrays = JsonHelper.jsonToArray(task.getBody(),
 				WaybillParameter[].class);
 
 		List<WaybillParameter> params = Arrays.asList(arrays);
-			logger.debug("传送运单参数:"+JsonHelper.toJson(params));
+		if(log.isDebugEnabled()){
+			log.debug("传送运单参数:{}",JsonHelper.toJson(params));
+		}
 
 		return params;
 	}
@@ -310,8 +337,8 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			param.setWaybillSyncParameterExtend(extend);
 			params.add(param);
 		}
-        if(logger.isInfoEnabled()){
-            logger.info(MessageFormat.format("回传运单消息体：{0}",JsonHelper.toJson(params)));
+        if(log.isInfoEnabled()){
+            log.info("回传运单消息体：{}",JsonHelper.toJson(params));
         }
 		return params;
 	}
@@ -328,11 +355,11 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			return;
 		}
 
-		this.logger.info("向运单系统回传全程跟踪，共计条目数：" + tasks.size()); 
+		this.log.info("向运单系统回传全程跟踪，共计条目数：{}" , tasks.size());
 		for (Task task : tasks) {
 			WaybillStatus tWaybillStatus = JsonHelper.fromJson(task.getBody(),
 					WaybillStatus.class);
-			this.logger.info("向运单系统回传全程跟踪，task.getKeyword2()：" + task.getKeyword2());
+			this.log.info("向运单系统回传全程跟踪，task.getKeyword2()：{}" , task.getKeyword2());
 			BdTraceDto bdTraceDto = new BdTraceDto();
 			if (task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_TRACK_BH))) {
 				toWaybillStatus(tWaybillStatus, bdTraceDto);
@@ -342,9 +369,9 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				
 				bdTraceDto.setOperatorDesp(tWaybillStatus.getReceiveSiteName()
 						+ "已驳回");
-				this.logger.info("向运单系统回传全程跟踪，已驳回调用：" );
+				this.log.info("向运单系统回传全程跟踪，已驳回调用：" );
 				waybillQueryManager.sendBdTrace(bdTraceDto);
-				this.logger.info("向运单系统回传全程跟踪，已驳回调用sendOrderTrace：" );
+				this.log.info("向运单系统回传全程跟踪，已驳回调用sendOrderTrace：" );
 //				this.taskService.doDone(task);
 				task.setYn(0);
 			}
@@ -352,7 +379,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				toWaybillStatus(tWaybillStatus, bdTraceDto);
 				bdTraceDto.setOperatorDesp(tWaybillStatus.getCreateSiteName()
 						+ "已收货");
-				this.logger.info("向运单系统回传全程跟踪，已收货1调用：" );
+				this.log.info("向运单系统回传全程跟踪，已收货1调用：" );
 				waybillQueryManager.sendBdTrace(bdTraceDto);
 //				this.taskService.doDone(task);
 				task.setYn(0);
@@ -365,7 +392,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
                     tWaybillStatus.setCreateSiteCode(task.getCreateSiteCode());
                     tWaybillStatus.setCreateSiteName(siteService.getSite(task.getCreateSiteCode()).getSiteName());
                 }
-                this.logger.info("向运单系统回传全程跟踪，驻场 验货：" );
+                this.log.info("向运单系统回传全程跟踪，驻场 验货：" );
                 waybillQueryManager.sendBdTrace(bdTraceDto);
 //                this.taskService.doDone(task);
                 task.setYn(0);
@@ -378,9 +405,9 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				
 				bdTraceDto.setOperatorDesp(tWaybillStatus.getReceiveSiteName()
 						+ "已收货");
-				this.logger.info("向运单系统回传全程跟踪，已收货调用：" );
+				this.log.info("向运单系统回传全程跟踪，已收货调用：" );
 				waybillQueryManager.sendBdTrace(bdTraceDto);
-				this.logger.info("向运单系统回传全程跟踪，已收货调用sendOrderTrace：" );
+				this.log.info("向运单系统回传全程跟踪，已收货调用sendOrderTrace：" );
 //				this.taskService.doDone(task);
 				task.setYn(0);
 			}
@@ -388,7 +415,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			//包裹补打 客户改址 发全程跟踪 新增节点2400
 			if (task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_TRACK_WAYBILL_BD))
                     || task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_TRACK_MSGTYPE_UPDATE))) {
-				this.logger.info("向运单系统回传全程跟踪，调用sendOrderTrace：" );
+				this.log.info("向运单系统回传全程跟踪，调用sendOrderTrace：" );
 
                 BdTraceDto packagePrintBdTraceDto = getPackagePrintBdTraceDto(tWaybillStatus);
 				//单独发送全程跟踪消息，供其给前台消费
@@ -402,9 +429,9 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				toWaybillStatus(tWaybillStatus, bdTraceDto);
 				bdTraceDto.setOperatorDesp(tWaybillStatus.getOperator()
 						+ "包裹补打");
-				this.logger.info("向运单系统回传全程跟踪，包裹补打调用：" );
+				this.log.info("向运单系统回传全程跟踪，包裹补打调用：" );
 				waybillQueryManager.sendBdTrace(bdTraceDto);
-				this.logger.info("向运单系统回传全程跟踪，包裹补打调用sendOrderTrace：" );
+				this.log.info("向运单系统回传全程跟踪，包裹补打调用sendOrderTrace：" );
 				task.setYn(0);
 			}
 
@@ -413,9 +440,9 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				toWaybillStatus(tWaybillStatus, bdTraceDto);
 				bdTraceDto.setOperatorDesp("返单合单 ，新运单号"+tWaybillStatus.getSendCode());
 
-				this.logger.info("向运单系统回传全程跟踪，签单返回合单调用：" );
+				this.log.info("向运单系统回传全程跟踪，签单返回合单调用：" );
 				waybillQueryManager.sendBdTrace(bdTraceDto);
-				this.logger.info("向运单系统回传全程跟踪，签单返回合单调用sendOrderTrace：" );
+				this.log.info("向运单系统回传全程跟踪，签单返回合单调用sendOrderTrace：" );
 //				this.taskService.doDone(task);
 				task.setYn(0);
 			}
@@ -435,7 +462,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 							temp += list.get(i)+",";
 						}
 					}
-					this.logger.warn("签单返还新单号"+bdTraceDto.getWaybillCode()+"对应的旧单号有"+ JSON.toJSONString(list));
+					this.log.warn("签单返还新单号{}对应的旧单号有：{}",bdTraceDto.getWaybillCode(), JSON.toJSONString(list));
 
 				}else{
 					for(int i=0;i<list.size();i++){
@@ -447,9 +474,9 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 					}
 				}
 				bdTraceDto.setOperatorDesp("返单合单，原运单号"+temp);
-				this.logger.info("向运单系统回传全程跟踪，签单返回合单调用：" );
+				this.log.info("向运单系统回传全程跟踪，签单返回合单调用：" );
 				waybillQueryManager.sendBdTrace(bdTraceDto);
-				this.logger.info("向运单系统回传全程跟踪，签单返回合单调用sendOrderTrace：" );
+				this.log.info("向运单系统回传全程跟踪，签单返回合单调用sendOrderTrace：" );
 //				this.taskService.doDone(task);
 				task.setYn(0);
 			}
@@ -463,9 +490,9 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				
 				bdTraceDto.setOperatorDesp(tWaybillStatus.getReceiveSiteName()
 						+ "已驳回【备件库售后交接拆包】");
-				this.logger.info("向运单系统回传全程跟踪，已驳回调用：" );
+				this.log.info("向运单系统回传全程跟踪，已驳回调用：" );
 				waybillQueryManager.sendBdTrace(bdTraceDto);
-				this.logger.info("向运单系统回传全程跟踪，已驳回调用sendOrderTrace：" );
+				this.log.info("向运单系统回传全程跟踪，已驳回调用sendOrderTrace：" );
 //				this.taskService.doDone(task);
 				task.setYn(0);
 			}
@@ -477,9 +504,9 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				
 				bdTraceDto.setOperatorDesp(tWaybillStatus.getReceiveSiteName()
 						+ "已收货【备件库售后交接拆包】");
-				this.logger.info("向运单系统回传全程跟踪，已收货调用：" );
+				this.log.info("向运单系统回传全程跟踪，已收货调用：" );
 				waybillQueryManager.sendBdTrace(bdTraceDto);
-				this.logger.info("向运单系统回传全程跟踪，已收货调用sendOrderTrace：" );
+				this.log.info("向运单系统回传全程跟踪，已收货调用sendOrderTrace：" );
 //				this.taskService.doDone(task);
 				task.setYn(0);
 			}
@@ -516,7 +543,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 					bdTraceDto.setExtendParameter(map);
 				}
 
-                this.logger.info("向运单系统回传全程跟踪，逆向换单打印调用：" );
+                this.log.info("向运单系统回传全程跟踪，逆向换单打印调用：" );
                 waybillQueryManager.sendBdTrace(bdTraceDto);
 //                this.taskService.doDone(task);
                 task.setYn(0);
@@ -531,7 +558,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				}
 				toWaybillStatus(tWaybillStatus, bdTraceDto);
 				bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
-				this.logger.info("向运单系统回传全程跟踪，站点标签打印调用：" );
+				this.log.info("向运单系统回传全程跟踪，站点标签打印调用：" );
 				waybillQueryManager.sendBdTrace(bdTraceDto);
 //				this.taskService.doDone(task);
 				task.setYn(0);
@@ -543,7 +570,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
             if(null!=task.getKeyword2()&&String.valueOf(WaybillStatus.WAYBILL_TRACK_SEAL_VEHICLE).equals(task.getKeyword2())){
                 toWaybillStatus2(tWaybillStatus, bdTraceDto);
                 bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
-                this.logger.info("向运单系统回传全程跟踪，封车：" );
+                this.log.info("向运单系统回传全程跟踪，封车：" );
                 String sendCodes = tWaybillStatus.getSendCode();
                 if(sendCodes != null){
                 	String[] sendCodeArray = tWaybillStatus.getSendCode().split(",");
@@ -558,7 +585,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
                         }
                     }
                 } else {
-                    this.logger.error("向运单系统回传全程跟踪，封车：批次号为空" );
+                    this.log.error("向运单系统回传全程跟踪，封车：批次号为空" );
                 }
 //                this.taskService.doDone(task);
                 task.setYn(0);
@@ -570,7 +597,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
             if(null!=task.getKeyword2()&&String.valueOf(WaybillStatus.WAYBILL_TRACK_UNSEAL_VEHICLE).equals(task.getKeyword2())){
                 toWaybillStatus3(tWaybillStatus, bdTraceDto);              
                 bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
-                this.logger.info("向运单系统回传全程跟踪，解封车：" );
+                this.log.info("向运单系统回传全程跟踪，解封车：" );
                 String sendCodes = tWaybillStatus.getSendCode();
                 if(sendCodes != null){
                 	String[] sendCodeArray = tWaybillStatus.getSendCode().split(",");
@@ -585,7 +612,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
                         }
                     }
                 } else {
-                    this.logger.error("向运单系统回传全程跟踪，解封车：批次号为空" );
+                    this.log.error("向运单系统回传全程跟踪，解封车：批次号为空" );
                 }
 //                this.taskService.doDone(task);
                 task.setYn(0);
@@ -597,7 +624,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
             if(null!=task.getKeyword2()&&String.valueOf(WaybillStatus.WAYBILL_TRACK_CANCEL_VEHICLE).equals(task.getKeyword2())){
                 toWaybillStatus2(tWaybillStatus, bdTraceDto);              
                 bdTraceDto.setOperatorDesp("货物已取消封车");
-                this.logger.info("向运单系统回传全程跟踪，已撤销封车：" );
+                this.log.info("向运单系统回传全程跟踪，已撤销封车：" );
                 String sendCodes = tWaybillStatus.getSendCode();
                 if(sendCodes != null){
                 	List<SendDetail> sendDetailList = sendDatailDao.queryWaybillsBySendCode(tWaybillStatus.getSendCode());
@@ -609,7 +636,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 	                    }
                     }
                 } else {
-                    this.logger.error("向运单系统回传全程跟踪，解封车：批次号为空" );
+                    this.log.error("向运单系统回传全程跟踪，解封车：批次号为空" );
                 }
 //                this.taskService.doDone(task);
                 task.setYn(0);
@@ -624,7 +651,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
                 }
                 toWaybillStatus(tWaybillStatus, bdTraceDto);
                 bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
-                this.logger.info("向运单系统回传全程跟踪，取消发货：" );
+                this.log.info("向运单系统回传全程跟踪，取消发货：" );
                 waybillQueryManager.sendBdTrace(bdTraceDto);
 //                this.taskService.doDone(task);
                 task.setYn(0);
@@ -657,7 +684,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
             if (null != task.getKeyword2() && String.valueOf(WaybillStatus.WAYBILL_TRACK_AR_SEND_REGISTER).equals(task.getKeyword2())) {
                 toWaybillStatus2(tWaybillStatus, bdTraceDto);
                 bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
-                this.logger.info("向运单系统回传全程跟踪，空铁发货登记");
+                this.log.info("向运单系统回传全程跟踪，空铁发货登记");
                 String sendCode = tWaybillStatus.getSendCode();
                 if (sendCode != null) {
                     List<SendDetail> sendDetailList = sendDatailDao.queryWaybillsBySendCode(sendCode);
@@ -669,7 +696,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
                         }
                     }
                 } else {
-                    this.logger.error("向运单系统回传全程跟踪，空铁发货登记：批次号为空");
+                    this.log.warn("向运单系统回传全程跟踪，空铁发货登记：批次号为空");
                 }
                 task.setYn(0);
             }
@@ -746,11 +773,23 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 					bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
 					waybillQueryManager.sendBdTrace(bdTraceDto);
 				} else {
-					logger.error("取消分拣全程跟踪失败，包裹号没空！");
+					log.warn("取消分拣全程跟踪失败，包裹号没空！");
 				}
 				task.setYn(0);
 			}
-
+			/**
+			 * 全程跟踪:经济网取消建箱
+			 */
+			if (task.getKeyword2() != null && String.valueOf(WaybillStatus.WAYBILL_STATUS_CODE_SITE_CANCEL_SORTING).equals(task.getKeyword2())) {
+				String packageCode = tWaybillStatus.getPackageCode();
+				String waybillCode = tWaybillStatus.getWaybillCode();
+				tWaybillStatus.setPackageCode(packageCode);
+				tWaybillStatus.setWaybillCode(waybillCode);
+				toWaybillStatus(tWaybillStatus, bdTraceDto);
+				bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
+				waybillQueryManager.sendBdTrace(bdTraceDto);
+				task.setYn(0);
+			}
 			/**
 			 * 全程跟踪:揽收交接
 			 */
@@ -781,7 +820,19 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				waybillQueryManager.sendBdTrace(bdTraceDto);
 				task.setYn(0);
 			}
+
+			/**
+			 * 重复抽检
+			 */
+			if (null != task.getKeyword2() &&
+					(String.valueOf(WaybillStatus.WAYBILL_STATUS_WEIGHT_VOLUME_SPOT_CHECK).equals(task.getKeyword2()))) {
+				toWaybillStatus(tWaybillStatus, bdTraceDto);
+				bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
+				waybillQueryManager.sendBdTrace(bdTraceDto);
+				task.setYn(0);
+			}
 		}
+
 
 		Map<Long, Result> results = this.waybillSyncApi.batchUpdateStateByCode(this
 		        .parseWaybillSyncParameter(tasks));
@@ -794,7 +845,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				Long taskId = mResult.getKey();
 				Result result = mResult.getValue();
 
-				this.logger.info(this.resultToString(taskId, result, "回传运单全程跟踪"));
+				this.log.info(this.resultToString(taskId, result, "回传运单全程跟踪"));
 
 				if (true == result.isFlag()) {
 //					this.taskService.doDone(this.findTask(tasks, taskId,
@@ -803,12 +854,12 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				        || WaybillStatus.RESULT_CODE_REPEAT_TASK == result.getCode()) {
 //					this.taskService.doError(this.findTask(tasks, taskId,
 //					        Task.TASK_TYPE_WAYBILL_TRACK));
-                    this.logger.error(this.resultToString(taskId, result, "分拣数据回传运单系统"));
+                    this.log.error(this.resultToString(taskId, result, "分拣数据回传运单系统"));
                     throw new Exception("分拣数据回传运单系统失败\n" + JsonHelper.toJson(result) + "\n");
 				} else {
 //					this.taskService.doRevert(this.findTask(tasks, taskId,
 //					        Task.TASK_TYPE_WAYBILL_TRACK));
-                    this.logger.error(this.resultToString(taskId, result, "分拣数据回传运单系统"));
+                    this.log.error(this.resultToString(taskId, result, "分拣数据回传运单系统"));
                     throw new Exception("分拣数据回传运单系统失败\n" + JsonHelper.toJson(result) + "\n");
 				}
 			}
@@ -820,6 +871,8 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
         bdTraceDto2.setWaybillCode(tWaybillStatus.getWaybillCode());
         bdTraceDto2.setOperateType(WaybillStatus.WAYBILL_TRACK_WAYBILL_BD);
         bdTraceDto2.setOperatorDesp(WaybillStatus.WAYBILL_TRACK_WAYBILL_BD_MSG);
+		bdTraceDto2.setOperatorSiteId(null!=tWaybillStatus.getCreateSiteCode()?tWaybillStatus.getCreateSiteCode():0);
+		bdTraceDto2.setOperatorSiteName(tWaybillStatus.getCreateSiteName());
         bdTraceDto2.setOperatorUserName(tWaybillStatus.getOperator());
         bdTraceDto2.setOperatorUserId(null!=tWaybillStatus.getOperatorId()?tWaybillStatus.getOperatorId():0);
         bdTraceDto2.setOperatorTime(new Date());
@@ -918,7 +971,9 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 					orderShipDto.setPayWayId(-2); //在线支付
 					orderShipDto.setType(0);
 				}
-				logger.debug("运单同步老接口入参："+JsonHelper.toJson(waybillParameters));
+				if(log.isDebugEnabled()){
+					log.debug("运单同步老接口入参：{}",JsonHelper.toJson(waybillParameters));
+				}
 				//老同步接口
 				BaseEntity<Boolean> result = this.waybillSyncApi.batchUpdateWaybillByWaybillCode(waybillParameters, waybillOpeType);
 				if (result.getResultCode() == 1) {
@@ -929,7 +984,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				}
 			}
 		}catch (Exception e){
-			logger.error("包裹半收运单接口调用失败，"+packageHalf.getWaybillCode()+" 操作码 "+waybillOpeType+" 失败原因："+e.getMessage());
+			log.error("包裹半收运单接口调用失败，{} 操作码 {}",packageHalf.getWaybillCode(),waybillOpeType,e);
 			Profiler.functionError(info);
 			return false;
 		}finally{

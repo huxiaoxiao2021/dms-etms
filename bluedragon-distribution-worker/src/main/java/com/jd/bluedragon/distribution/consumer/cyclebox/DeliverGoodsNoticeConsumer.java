@@ -10,13 +10,13 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import org.apache.commons.lang.StringUtils;
 import com.jd.jmq.common.message.Message;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -26,7 +26,7 @@ import java.util.Set;
  */
 @Service("deliverGoodsNoticeConsumer")
 public class DeliverGoodsNoticeConsumer extends MessageBaseConsumer {
-    private final Log logger = LogFactory.getLog(DeliverGoodsNoticeConsumer.class);
+    private final Logger log = LoggerFactory.getLogger(DeliverGoodsNoticeConsumer.class);
 
     @Autowired
     @Qualifier("cycleMaterialSendMQ")
@@ -41,7 +41,7 @@ public class DeliverGoodsNoticeConsumer extends MessageBaseConsumer {
     @Override
     public void consume(Message message) {
         if (!JsonHelper.isJsonString(message.getText())) {
-            logger.warn(MessageFormat.format("[DeliverGoodsNoticeConsumer消费]MQ-消息体非JSON格式，内容为【{0}】", message.getText()));
+            log.warn("[DeliverGoodsNoticeConsumer消费]MQ-消息体非JSON格式，内容为【{}】", message.getText());
             return;
         }
         BoxMaterialRelationMQ context = JsonHelper.fromJsonUseGson(message.getText(), BoxMaterialRelationMQ.class);
@@ -61,7 +61,7 @@ public class DeliverGoodsNoticeConsumer extends MessageBaseConsumer {
             Sorting sorting = new Sorting();
             sorting.setBoxCode(context.getBoxCode());
             sorting.setCreateSiteCode(Integer.parseInt(context.getSiteCode()));
-            List<Sorting> list = sortingService.findOrderDetail(sorting);
+            List<Sorting> list = sortingService.findByBoxCode(sorting);
             if(list!=null && !list.isEmpty()){
                 Set<String> waybillCodeSet = new HashSet<>();
                 for(Sorting sort :list){
@@ -70,15 +70,16 @@ public class DeliverGoodsNoticeConsumer extends MessageBaseConsumer {
                 }
                 waybillCodeList=new ArrayList<>(waybillCodeSet);
             }else{
-                logger.error("[DeliverGoodsNoticeConsumer]消费异常,箱中无任何单据" + message.getText());
+                log.warn("[DeliverGoodsNoticeConsumer]消费异常,箱中无任何单据：{}" , message.getText());
                 return;
             }
             context.setWaybillCode(waybillCodeList);
             context.setPackageCode(packageCodeList);
+            context.setOperatorTime(new Date());
 
             cycleMaterialSendMQ.send(context.getBoxCode(),JsonHelper.toJson(context));
         }catch (Exception e) {
-            logger.error("[DeliverGoodsNoticeConsumer]消费异常" + "，MQ message body:" + message.getText(), e);
+            log.error("[DeliverGoodsNoticeConsumer]消费异常，MQ message body:{}" , message.getText(), e);
             throw new RuntimeException(e.getMessage() + "，MQ message body:" + message.getText(), e);
         }
     }

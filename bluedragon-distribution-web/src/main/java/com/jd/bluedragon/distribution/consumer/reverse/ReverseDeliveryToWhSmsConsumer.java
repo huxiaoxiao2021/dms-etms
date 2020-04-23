@@ -27,6 +27,7 @@ import java.util.Arrays;
  * Created by wuzuxiang on 2017/2/7.
  */
 @Service("reverseDeliveryToWhSmsConsumer")
+@Deprecated
 public class ReverseDeliveryToWhSmsConsumer extends MessageBaseConsumer{
 
     private static final Log logger = LogFactory.getLog(ReverseDeliveryToWhSmsConsumer.class);
@@ -65,7 +66,7 @@ public class ReverseDeliveryToWhSmsConsumer extends MessageBaseConsumer{
             logger.error("推送武汉邮政运单数据，接口异常",e);
             if (e instanceof SocketException){
                 logger.error("推送武汉邮政运单数据，接口超时 :socket time out");
-                reverseDelivery.pushWhemsWaybill(Arrays.asList(message.getBusinessId()));//消息的业务主键就是运单号
+                reverseDelivery.pushWhemsWaybill(message.getBusinessId());//消息的业务主键就是运单号
             }
         }
         if (logger.isInfoEnabled()){
