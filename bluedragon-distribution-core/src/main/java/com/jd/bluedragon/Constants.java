@@ -420,7 +420,7 @@ public class Constants {
 
     public static final String PDA_USER_GETINFO_SUCCESS_MSG = "获取信息成功"; //成功信息
     public static final String PDA_USER_LOGIN_FAILUE_MSG = "验证失败"; //验证失败信息
-    public static final String PDA_USER_GETINFO_FAILUE_MSG = "获取基础资料数据失败"; //获取基础资料数据失败
+    public static final String PDA_USER_GETINFO_FAILUE_MSG = "获取基础资料数据失败，请联系转运管理岗同事（质控）维护青龙基础资料角色"; //获取基础资料数据失败
     public static final String PDA_USER_JSF_FAILUE_MSG = "调取基础账号账号信息失败"; //获取基础账号JSF数据失败
     public static final String PDA_USER_NO_EXIT_MSG = "用户不存在"; //用户不存在
     public static final String PDA_USER_PASS_WORD_WRONG_MSG = "密码错误"; //密码错误

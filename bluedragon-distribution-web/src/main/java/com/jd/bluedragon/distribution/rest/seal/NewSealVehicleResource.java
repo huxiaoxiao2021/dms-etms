@@ -409,7 +409,7 @@ public class NewSealVehicleResource {
         try {
             //1.检查批次号
             checkBatchCode(sealVehicleResponse, sendCode);
-            if (Constants.SEAL_TYPE_TRANSPORT.equals(sealCarType)
+            if ((Constants.SEAL_TYPE_TRANSPORT.equals(sealCarType) || Constants.SEAL_TYPE_TASK.equals(sealCarType))
                     && JdResponse.CODE_OK.equals(sealVehicleResponse.getCode())) {
                 com.jd.etms.vts.dto.CommonDto<VtsTransportResourceDto> vtsDto
                         = newsealVehicleService.getTransportResourceByTransCode(transportCode);
