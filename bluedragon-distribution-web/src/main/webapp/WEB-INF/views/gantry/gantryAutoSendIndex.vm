@@ -264,7 +264,7 @@
                 <tr class="trHeight">
                     <td></td>
                     <td></td>
-                    <td><input type="button" value="获取操作手册" class="btn_c" onclick="window.open('https://cf.jd.com/pages/viewpage.action?pageId=146384841’,‘_blank’)"></td>
+                    <td><input type="button" value="获取操作手册" class="btn_c" onclick="window.open('https://cf.jd.com/pages/viewpage.action?pageId=146384841','_blank')"></td>
                 </tr>
             </table>
         </div>
