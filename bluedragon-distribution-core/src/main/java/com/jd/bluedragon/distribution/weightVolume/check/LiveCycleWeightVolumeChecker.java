@@ -60,7 +60,7 @@ public class LiveCycleWeightVolumeChecker implements IWeightVolumeChecker {
             if (BusinessUtil.isBusinessNet(waybill.getWaybillSign())) {
                 if ((!NumberHelper.gt0(entity.getLength()) || !NumberHelper.gt0(entity.getWidth()) || !NumberHelper.gt0(entity.getHeight()))
                         && NumberHelper.gt0(entity.getVolume())) {
-                    result.parameterError("按箱操作需测量长宽高");
+                    result.parameterError("众邮运单必须录入长宽高");
                     result.setData(Boolean.FALSE);
                     return result;
                 }
