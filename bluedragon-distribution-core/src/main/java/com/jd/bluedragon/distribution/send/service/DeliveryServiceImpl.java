@@ -1338,7 +1338,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      *
      * @param sendDetail
      */
-    private void addOperationLog(SendDetail sendDetail,String methodName) {
+    private void addOperationLog(SendDetail sendDetail,String siteName,String methodName) {
         OperationLog operationLog = new OperationLog();
         operationLog.setBoxCode(sendDetail.getBoxCode());
         operationLog.setCreateSiteCode(sendDetail.getCreateSiteCode());
@@ -1356,6 +1356,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         operationLog.setReceiveSiteCode(sendDetail.getReceiveSiteCode());
         operationLog.setUpdateTime(sendDetail.getUpdateTime());
         operationLog.setWaybillCode(sendDetail.getWaybillCode());
+        operationLog.setCreateSiteName(siteName);
         operationLog.setMethodName(methodName);
         operationLogService.add(operationLog);
     }
@@ -2387,7 +2388,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                             WaybillStatus tWaybillStatus = this.buildWaybillStatus(tSendDetail, createSiteDto, receiveSiteDto);
                             if (tSendDetail.getYn().equals(1) && tSendDetail.getIsCancel().equals(0)) {
                                 // 添加操作日志
-                                addOperationLog(tSendDetail,"DeliveryServiceImpl#updateWaybillStatus");
+                                addOperationLog(tSendDetail,createSiteDto.getSiteName(),"DeliveryServiceImpl#updateWaybillStatus");
                                 // 判断是正向发货还是逆向发货
                                 if (tSendDetail.getSendType() != null && Constants.BUSSINESS_TYPE_REVERSE == tSendDetail.getSendType().intValue()) {
                                     tWaybillStatus.setOperateType(OPERATE_TYPE_REVERSE_SEND);
