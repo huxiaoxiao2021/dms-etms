@@ -12,6 +12,7 @@ import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.service.BusinessLogQueryService;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.uim.annotation.Authorization;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,7 +54,10 @@ public class LogController {
         request.put("operatorCode",erpUser.getUserCode());
         businessLogProfiler.setOperateRequest(JSONObject.toJSONString(request));
         BusinessLogWriter.writeLog(businessLogProfiler);
+        Map<String,String> orderByFiels = new HashMap<>(1);
+        orderByFiels.put("time_stamp","响应时间");
         model.addAttribute("newLogPageTips",uccPropertyConfiguration.getNewLogPageTips());
+        model.addAttribute("orderByFields",orderByFiels);
         return "businesslog/log";
     }
 
@@ -116,10 +121,17 @@ public class LogController {
     @Authorization(Constants.DMS_WEB_SORTING_OPERATELOG_R)
     @RequestMapping("/getBusinessLog")
     @ResponseBody
-    public TableResult getBusinessLog(@RequestBody HashMap<String, String> request) {
+    public TableResult getBusinessLog(@RequestBody HashMap request) {
         request.put("sourceSys","112"); //只从实操日志里面查
         TableResult businessLogList=new TableResult();
         try {
+            String orderByField = (String)request.remove("orderByField");
+            String orderBy = (String)request.remove("orderBy");
+            if(StringUtils.isNotEmpty(orderByField) && StringUtils.isNotEmpty(orderBy)){
+                Map<String,String> sortFields = new HashMap<>();//数据结构为<time_stamp,asc>
+                sortFields.put(orderByField,orderBy);
+                request.put("sortFields",sortFields);//key是jsf服务端 指定的
+            }
             BusinessLogResult businessLogReqResult = businessLogQueryService.getBusinessLogList(request);
             businessLogList.setRows(businessLogReqResult.getRows());
             businessLogList.setTotal(businessLogReqResult.getTotal());

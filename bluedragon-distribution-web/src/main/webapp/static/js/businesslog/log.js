@@ -30,11 +30,19 @@ $(document).ready(function () {
     }
     var p = new Paging();
     function getlogs(offset, limit) {
-        if (offset + limit > 10000) {
+        if (offset + limit > 15000) {
             alert("只能查询前10000条数据");
             return;
         }
-        $("#showloading").show()
+        $("#showloading").show();
+        var showRequest = $('#showRequest').prop("checked");
+        if(showRequest){
+            $('#operateRequest').attr("style","display:;");
+            $('#operateResponse').attr("style","display:;");
+        }else {
+            $('#operateRequest').attr("style","display:none;");
+            $('#operateResponse').attr("style","display:none;");
+        }
 
         var waybillCode = $("#waybillCode").val();
         var packageCode = $("#packageCode").val();
@@ -50,6 +58,8 @@ $(document).ready(function () {
         var otherKey = $("#otherKey").val();
         var startTime = $("#startTime").val();
         var endTime = $("#endTime").val();
+        var orderByField = $("#orderByField").val();
+        var orderBy = $("#orderBy").val();
 
         if (startTime==''){
             startTime='1970-01-01 08:00:00'
@@ -78,6 +88,8 @@ $(document).ready(function () {
                 otherKey: otherKey,
                 startTime: startTime,
                 endTime: endTime,
+                orderByField: orderByField,
+                orderBy: orderBy,
                 offset: offset,
                 limit: limit
             }),
@@ -98,15 +110,19 @@ $(document).ready(function () {
                         var operatorName = item.operatorName == null ? "-" : item.operatorName;
                         var siteCode = item.siteCode == null ? "-" : item.siteCode;
                         var siteName = item.siteName == null ? "-" : item.siteName;
-                        var requestTime = item.requestTime == null ? "-" : item.requestTime;
                         var timeStamp = item.timeStamp == null ? "-" : item.timeStamp;
-                        var processTime = item.processTime == null ? "-" : item.processTime;
                         var responseCode = item.responseCode == null ? "-" : item.responseCode;
                         var responseMessage = item.responseMessage == null ? "-" : item.responseMessage;
                         var operateRequest = item.operateRequest == null ? "-" : item.operateRequest;
                         var operateResponse = item.operateResponse == null ? "-" : item.operateResponse;
 
+                        var showRequestTd = '<td style="max-width: 450px;word-wrap:break-word;word-break:break-all;">'+operateRequest+'</td>'
+                                +'<td style="max-width: 450px;word-wrap:break-word;word-break:break-all;">'+operateResponse+'</td>';
+                        if(!showRequest){
+                            showRequestTd = '';
+                        }
                         var tr = $('<tr>'
+                                +'<td>'+(index+1)+'</td>'
                                 +'<td>'+bizTypeName+'</td>'
                                 +'<td>'+operateTypeName+'</td>'
                                 +'<td>'+waybillCode+'</td>'
@@ -116,15 +132,12 @@ $(document).ready(function () {
                                 +'<td>'+operatorName+'</td>'
                                 +'<td>'+siteCode+'</td>'
                                 +'<td>'+siteName+'</td>'
-                                +'<td>'+requestTime+'</td>'
                                 +'<td>'+timeStamp+'</td>'
-                                +'<td>'+processTime+'</td>'
                                 +'<td>'+responseCode+'</td>'
                                 +'<td>'+responseMessage+'</td>'
-                                +'<td style="max-width: 450px;word-wrap:break-word;word-break:break-all;">'+operateRequest+'</td>'
-                                +'<td style="max-width: 450px;word-wrap:break-word;word-break:break-all;">'+operateResponse+'</td>'
-                                +'</tr>')
-                        console.log(tr)
+                                + showRequestTd
+                                +'</tr>');
+                        console.log(tr);
                         $("#logcontent").append(tr)
                     });
 
@@ -197,8 +210,16 @@ $(document).ready(function () {
     })
 
     $("#search").click(function () {
-        var startTime = $("#startTime").val();
-        var endTime = $("#endTime").val();
+        var waybillCode = $("#waybillCode").val();
+        var packageCode = $("#packageCode").val();
+        var boxCode = $("#boxCode").val();
+        var sendCode = $("#sendCode").val();
+        var siteCode = $("#siteCode").val();
+        var siteName = $("#siteName").val();
+        var operatorName = $("#operatorName").val();
+        var sourceSys = $("#waybillCode").val();
+        var bizType = $("#biztype").val();
+        var operateType = $("#operatetype").val();
         if(startTime == ''){
             alert("请输入开始时间！");
             return;
