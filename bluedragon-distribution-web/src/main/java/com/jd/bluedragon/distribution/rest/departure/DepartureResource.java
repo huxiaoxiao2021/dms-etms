@@ -173,7 +173,7 @@ public class DepartureResource {
 		} catch (Exception e) {
 			response.setCode(JdResponse.CODE_NOT_FOUND);
 			response.setMessage("生成批次失败");
-			log.error("生成批次失败", e);
+			log.error("生成批次失败，请求参数：{}", JsonHelper.toJson(request), e);
 		}
 		log.info("--Request end, /departure/createDepartue : {}", System.currentTimeMillis());
 		return response;
