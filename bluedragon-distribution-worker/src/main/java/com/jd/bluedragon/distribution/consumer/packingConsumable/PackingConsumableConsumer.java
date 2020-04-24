@@ -9,9 +9,14 @@ import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecord;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelation;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRelationService;
+import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
+import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.dms.logger.external.LogEngine;
+import com.jd.fastjson.JSONObject;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
@@ -45,29 +50,38 @@ public class PackingConsumableConsumer extends MessageBaseConsumer {
     @Autowired
     private BaseMajorManager baseMajorManager;
 
+    @Autowired
+    private LogEngine logEngine;
+
     @JProfiler(jKey = "PackingConsumableConsumer.consume", jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public void consume(Message message) throws Exception {
+        long startTime = System.currentTimeMillis();
         log.debug("PackingConsumableConsumer consume --> 消息Body为【{}】",message.getText());
         if (message == null || "".equals(message.getText()) || null == message.getText()) {
             this.log.warn("PackingConsumableConsumer consume -->消息为空");
+            addLog(new WaybillConsumableDto(),startTime);
             return;
         }
         if (!JsonHelper.isJsonString(message.getText())) {
             log.warn("PackingConsumableConsumer consume -->消息体非JSON格式，内容为【{}】", message.getText());
+            addLog(new WaybillConsumableDto(),startTime);
             return;
         }
         WaybillConsumableDto packingConsumable = JsonHelper.fromJson(message.getText(), WaybillConsumableDto.class);
         if (packingConsumable == null) {
             this.log.warn("PackingConsumableConsumer consume -->消息转换对象失败：{}" , message.getText());
+            addLog(new WaybillConsumableDto(),startTime);
             return;
         }
         if(StringHelper.isEmpty(packingConsumable.getWaybillCode())){
             this.log.warn("PackingConsumableConsumer consume -->消息中没有运单号：{}" , message.getText());
+            addLog(packingConsumable,startTime);
             return;
         }
         if(packingConsumable.getDmsCode() == null){
             this.log.warn("PackingConsumableConsumer consume -->消息中没有站点编号：{}" , message.getText());
+            addLog(packingConsumable,startTime);
             return;
         }
         WaybillConsumableRecord oldRecord = waybillConsumableRecordService.queryOneByWaybillCode(packingConsumable.getWaybillCode());
@@ -139,4 +153,24 @@ public class PackingConsumableConsumer extends MessageBaseConsumer {
         return waybillConsumableRelationLst;
     }
 
+    /* 添加日志 */
+    private void addLog(WaybillConsumableDto packingConsumable,long startTime){
+        long endTime = System.currentTimeMillis();
+        JSONObject request = new JSONObject();
+        request.put("waybillCode", packingConsumable.getWaybillCode());
+        request.put("siteCode", packingConsumable.getDmsCode());
+        request.put("operateUserName", packingConsumable.getOperateUserName());
+        request.put("operateUserErp", packingConsumable.getOperateUserErp());
+
+        JSONObject response = new JSONObject();
+
+        BusinessLogProfiler businessLogProfiler = new BusinessLogProfilerBuilder()
+                .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.CONSUMABLE_RECORD_CONSUME_FAIL)
+                .processTime(endTime,startTime)
+                .operateRequest(request)
+                .operateResponse(response)
+                .methodName("PackingConsumableConsumer#consume")
+                .build();
+        logEngine.addLog(businessLogProfiler);
+    }
 }
