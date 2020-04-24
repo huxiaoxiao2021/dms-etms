@@ -240,5 +240,34 @@
             </table>
         </div>
     </div>
+    <div class="popup_block" id="stopServcieWarning">
+        <div style="border:1px solid black;width:300px;height: 180px;padding30px;margin-left: auto;margin-top: auto;margin-right: auto;margin-bottom: auto;">
+            <table>
+                <tr class="trHeight">
+                    <td colspan="3" class="divTitle">该页面将在618前下线，请尽快迁移，点击‘获取操作手册’可获取最新版操作手册,有问题请加咚咚群：84533979</td>
+                </tr>
+                <tr style="height: 5px;">
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr class="trHeight">
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr class="trHeight">
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr class="trHeight">
+                    <td></td>
+                    <td></td>
+                    <td><input type="button" value="获取操作手册" class="btn_c" onclick="window.open('https://cf.jd.com/pages/viewpage.action?pageId=146384841','_blank')"></td>
+                </tr>
+            </table>
+        </div>
+    </div>
 </body>
 </html>

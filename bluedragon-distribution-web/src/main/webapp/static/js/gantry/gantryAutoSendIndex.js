@@ -248,6 +248,8 @@ $(document).ready(function () {
         }
     })
 
+    popUp('stopServcieWarning', 333, 206);
+
 })
 
 /**

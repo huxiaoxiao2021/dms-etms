@@ -3,12 +3,7 @@ package com.jd.bluedragon.distribution.rest.coldchain;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.ColdChainOperationResponse;
-import com.jd.bluedragon.distribution.coldchain.dto.ColdChainInAndOutBoundRequest;
-import com.jd.bluedragon.distribution.coldchain.dto.ColdChainQueryUnloadTaskRequest;
-import com.jd.bluedragon.distribution.coldchain.dto.ColdChainUnloadCompleteRequest;
-import com.jd.bluedragon.distribution.coldchain.dto.ColdChainUnloadDto;
-import com.jd.bluedragon.distribution.coldchain.dto.ColdChainUnloadQueryResultDto;
-import com.jd.bluedragon.distribution.coldchain.dto.VehicleTypeDict;
+import com.jd.bluedragon.distribution.coldchain.dto.*;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainOperationService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.util.StringUtils;
@@ -295,6 +290,53 @@ public class ColdChainOperationResource {
         }
 
         if (request.getOperateType() == null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * 冷链医药-包裹绑定温度计
+     *
+     * @param request
+     * @return
+     */
+    @POST
+    @Path("/coldChain/operation/boundThermometer")
+    public ColdChainOperationResponse boundThermometer(ThermometerRequest request) {
+        ColdChainOperationResponse response = new ColdChainOperationResponse<>();
+        try {
+            if (this.checkParams(request)) {
+                response = coldChainOperationService.boundThermometer(request);
+            } else {
+                response.setCode(JdResponse.CODE_PARAM_ERROR);
+                response.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
+            }
+        } catch (Exception e) {
+            log.error("包裹绑定温度计时发生异常,request:" + JsonHelper.toJson(request), e);
+            response.setCode(JdResponse.CODE_SERVICE_ERROR);
+            response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+        }
+        return response;
+    }
+
+    /**
+     * 参数检查
+     *
+     * @param request
+     * @return
+     */
+    private boolean checkParams(ThermometerRequest request) {
+        if (request == null) {
+            return false;
+        }
+
+        if (StringUtils.isBlank(request.getThermometerCode())) {
+            return false;
+        }
+
+        if (StringUtils.isBlank(request.getPackageCode())) {
             return false;
         }
 

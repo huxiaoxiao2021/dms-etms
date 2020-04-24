@@ -173,7 +173,7 @@
 			<dependency>
 				<groupId>com.jd.ql.dms.opLog</groupId>
 				<artifactId>opLog-api</artifactId>
-				<version>1.0.1-SNAPSHOT</version>
+				<version>1.0.3-SNAPSHOT</version>
 			</dependency>
 			<!--操作日志系统-->
 			<dependency>

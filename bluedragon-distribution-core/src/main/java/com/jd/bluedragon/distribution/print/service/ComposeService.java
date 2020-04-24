@@ -100,6 +100,7 @@ public interface ComposeService {
      */
     String  SPECIAL_MARK_MEDICINE ="医药";
 
+    String SPECIAL_MARK_MEDICINE_COLD_CHAIN="医药冷链";
 
     /**
      * 合成器

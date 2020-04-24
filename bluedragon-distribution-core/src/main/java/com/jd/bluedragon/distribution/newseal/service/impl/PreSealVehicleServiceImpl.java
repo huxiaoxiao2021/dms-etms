@@ -171,13 +171,19 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
     public boolean batchSeal(List<PreSealVehicle> preList, Integer updateUserCode, String updateUserErp, String updateUserName, Date operateTime) throws Exception{
         List<PreSealVehicle> data = new ArrayList<>(preList.size());
         List<String> transportCodes = new ArrayList<>(preList.size());
+        Set<String> vehicleNumberSet = new HashSet<>();
 	    for(PreSealVehicle pre : preList){
 	        if(pre.getSendCodes() != null && pre.getSendCodes().size() > 0){
                 transportCodes.add(pre.getTransportCode());
                 data.add(pre);
+                //取出批次中用到的车牌
+                for (SealVehicles vo : pre.getSendCodes()) {
+                    vehicleNumberSet.add(vo.getVehicleNumber());
+                }
             }
         }
-        preSealVehicleDao.updateStatusByTransportCodes(transportCodes, updateUserErp, updateUserName, SealVehicleEnum.SEAL.getCode());
+        //根据运力编码和车牌信息更新预封车记录状态
+        preSealVehicleDao.updateStatusByTransportCodesAndVehicleNumbers(transportCodes, new ArrayList<>(vehicleNumberSet), updateUserErp, updateUserName, SealVehicleEnum.SEAL.getCode());
         List<SealVehicles> sealVehiclesList = convert2SealVehicles(data, updateUserErp, updateUserName, operateTime);
         sealVehiclesService.batchAdd(sealVehiclesList);
         try{
