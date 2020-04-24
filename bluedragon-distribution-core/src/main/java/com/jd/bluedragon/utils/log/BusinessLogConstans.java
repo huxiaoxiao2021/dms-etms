@@ -136,6 +136,7 @@ public class BusinessLogConstans {
         OUTER_WAYBILL_EXCHANGE_WAYBILL(BizTypeEnum.OUTER_WAYBILL_EXCHANGE,1900002,"触发外单换单"),
         TASK_CONSUME_FAIL(BizTypeEnum.TASK,20062,"消费失败落库"),
         TASK_REDIS_TASK(BizTypeEnum.TASK,20063,"Redis任务数据处理"),
+        CONSUMABLE_RECORD_CONSUME_FAIL(BizTypeEnum.TASK,20064,"B网包装耗材消费失败"),
 
         SORTING_CANCEL_SORTING(BizTypeEnum.SORTING,60017,"取消分拣"),
         SORTING_SORTING(BizTypeEnum.SORTING,60016,"分拣"),
