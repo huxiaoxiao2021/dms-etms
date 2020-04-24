@@ -47,6 +47,7 @@ public class StrandReportGateWayServiceImpl implements StrandReportGateWayServic
     Resouce_req.setReasonMessage(request.getReasonMessage());
     Resouce_req.setBarcode(request.getBarcode());
     Resouce_req.setReportType(request.getReportType());
+    Resouce_req.setBusinessType(10);
 
     InvokeResult<Boolean> invokeResult = strandResouce.report(Resouce_req);
     if (null == invokeResult) {
