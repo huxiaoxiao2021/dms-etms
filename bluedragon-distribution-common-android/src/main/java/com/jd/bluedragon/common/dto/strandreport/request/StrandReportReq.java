@@ -37,6 +37,9 @@ public class StrandReportReq implements Serializable {
      */
     private Integer reportType;
 
+    /** PDA操作时间 */
+    private String operateTime;
+
     public User getUser() {
         return user;
     }
@@ -83,5 +86,13 @@ public class StrandReportReq implements Serializable {
 
     public void setReportType(Integer reportType) {
         this.reportType = reportType;
+    }
+
+    public String getOperateTime() {
+        return operateTime;
+    }
+
+    public void setOperateTime(String operateTime) {
+        this.operateTime = operateTime;
     }
 }
