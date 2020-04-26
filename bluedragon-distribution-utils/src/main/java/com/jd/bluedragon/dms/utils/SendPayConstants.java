@@ -16,6 +16,11 @@ public interface SendPayConstants {
 	int POSITION_124 = 124;
 	char CHAR_124_7 = '7';
 	/**
+	 * sendpay 第146位=1（城配网络订单）
+	 */
+	int POSITION_146 = 146;
+	char CHAR_146_1 = '1';
+	/**
 	 * SendPay第188位隐藏收件人信息标识
 	 */
 	int POSITION_188 = 188;

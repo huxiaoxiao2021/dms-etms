@@ -855,7 +855,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
          * 纯配B2B运单或纯配C转B运单，面单上加“B-”+【运单号】后4位
          */
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_40,WaybillSignConstants.CHAR_40_2)
-                ||BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_97,WaybillSignConstants.CHAR_97_1)){
+                ||BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_97,WaybillSignConstants.CHAR_97_1)
+                ||BusinessUtil.isSignChar(waybill.getSendPay(),SendPayConstants.POSITION_146,SendPayConstants.CHAR_146_1)){
         	if(StringHelper.isNotEmpty(target.getWaybillCodeLast())){
         		target.setBcSign(TextConstants.PECIAL_B_MARK1.concat(target.getWaybillCodeLast()));
         	}else{
