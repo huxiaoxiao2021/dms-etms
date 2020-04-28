@@ -75,6 +75,18 @@
 
                             </select>
                         </td>
+                        <th align="right">排序规则：</th>
+                        <td>
+                            <select id="orderByField" name="orderByField" class="select18">
+                                #foreach($item in $!orderByFields.entrySet())
+                                    <option value="$!{item.key}">$!{item.value}</option>
+                                #end
+                            </select>
+                            <select id="orderBy" name="orderBy" class="select18">
+                                <option value="asc">从小到大</option>
+                                <option value="desc">从大到小</option>
+                            </select>
+                        </td>
                     </tr>
 
                     <tr>
@@ -107,10 +119,15 @@
                             ~
                             <input type="text" id="endTime" name="endTime" style="width: 140px" class="Wdate"
                                    onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss'})" value=""
-                                   realvalue=""></td>
-
+                                   realvalue="">
+                        </td>
+                        <th align="right">表格显示【参数】与【返回值】列：</th>
+                        <td>
+                            <input id="showRequest" name="showRequest" type="checkbox" />
+                        </td>
 
                         <td align="right"><input id="search" type="button" value="查询" class="btn_c"/>
+                        </td>
                     </tr>
 
                     </tbody>
@@ -124,6 +141,7 @@
                 <table cellspacing=0 cellpadding=0 style="width: 100%;min-width:1100px;" class="tb-x1">
                     <thead>
                     <tr>
+                        <th>序号</th>
                         <th>业务节点</th>
                         <th>操作类型</th>
                         <th>运单号</th>
@@ -133,13 +151,9 @@
                         <th>操作人</th>
                         <th>操作站点编码</th>
                         <th>操作站点名称</th>
-                        <th>请求时间</th>
                         <th>响应时间</th>
-                        <th>响应时长</th>
-                        <th>状态</th>
-                        <th>Message</th>
-                        <th style="max-width: 450px;word-wrap:break-word;word-break:break-all;">请求参数</th>
-                        <th style="max-width: 450px;word-wrap:break-word;word-break:break-all;">返回值</th>
+                        <th style="max-width: 450px;word-wrap:break-word;word-break:break-all;display: none;" id="operateRequest">请求参数</th>
+                        <th style="max-width: 450px;word-wrap:break-word;word-break:break-all;display: none;" id="operateResponse">返回值</th>
                     </tr>
                     </thead>
                     <tbody id="logcontent">

@@ -112,6 +112,16 @@ public class BoxResponse extends JdResponse {
     
     private Integer packageNum;
 
+    /**
+     * 始发目的站点类型
+     * */
+    private String createSiteType;
+    private String receiveSiteType;
+    /**
+     * 是否众邮箱号
+     * */
+    private boolean whetherZyBoxCode;
+
     public String getRouterText() {
         return routerText;
     }
@@ -277,4 +287,28 @@ public class BoxResponse extends JdResponse {
 	public void setPackageNum(Integer packageNum) {
 		this.packageNum = packageNum;
 	}
+
+    public String getCreateSiteType() {
+        return createSiteType;
+    }
+
+    public void setCreateSiteType(String createSiteType) {
+        this.createSiteType = createSiteType;
+    }
+
+    public String getReceiveSiteType() {
+        return receiveSiteType;
+    }
+
+    public void setReceiveSiteType(String receiveSiteType) {
+        this.receiveSiteType = receiveSiteType;
+    }
+
+    public boolean isWhetherZyBoxCode() {
+        return whetherZyBoxCode;
+    }
+
+    public void setWhetherZyBoxCode(boolean whetherZyBoxCode) {
+        this.whetherZyBoxCode = whetherZyBoxCode;
+    }
 }

@@ -383,7 +383,8 @@ public class ReversePrintServiceImpl implements ReversePrintService {
                     String spwms_type = PropertiesHelper.newInstance().getValue("spwms_type");
                     BaseStaffSiteOrgDto orgDto = baseMajorManager.getBaseSiteBySiteId(waybill.getOldSiteId());
                     if(orgDto!=null && orgDto.getSiteType().equals(Integer.parseInt(spwms_type))){
-                        errorMessage = "新单" + newWaybillCode + "无商品信息，请在慧眼录入!";
+                       // errorMessage = "新单" + newWaybillCode + "无商品信息，请在慧眼录入!";
+                        errorMessage = "此运单无商品信息，请在【慧眼】录入再【换单打印】或咚咚联系: XNPSXT  !";
                     }
                 }
 

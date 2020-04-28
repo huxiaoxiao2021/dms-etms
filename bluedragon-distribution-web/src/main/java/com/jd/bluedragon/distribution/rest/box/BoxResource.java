@@ -101,6 +101,7 @@ public class BoxResource {
             this.log.error("获得站点路由信息失败： ", e);
         }
         this.buildBoxPrintInfo(box.getCreateSiteCode(), box.getReceiveSiteCode(), response);
+        this.buildBoxExtraInfo(box, response);
         return response;
     }
 
@@ -261,6 +262,27 @@ public class BoxResource {
         if (crossPackageTag != null) {
             response.setDestinationCrossCode(crossPackageTag.getDestinationCrossCode());
             response.setDestinationTabletrolleyCode(crossPackageTag.getDestinationTabletrolleyCode());
+        }
+    }
+
+    /**
+     * 构建箱子额外信息
+     *
+     * @param box
+     * @param response
+     */
+    private void buildBoxExtraInfo(Box box, BoxResponse response) {
+        try {
+            BaseStaffSiteOrgDto createSite = baseService.getSiteBySiteID(box.getCreateSiteCode());
+            BaseStaffSiteOrgDto receiveSite = baseService.getSiteBySiteID(box.getReceiveSiteCode());
+            response.setCreateSiteType(createSite==null?null:String.valueOf(createSite.getSiteType()));
+            response.setReceiveSiteType(receiveSite==null?null:String.valueOf(receiveSite.getSiteType()));
+            if(createSite != null
+                    && Constants.THIRD_ENET_SITE_TYPE.equals(createSite.getSiteType())){
+                response.setWhetherZyBoxCode(true);
+            }
+        }catch (Exception e){
+            log.error("获取箱号:【{}】的始发目站点类型异常,异常信息:【{}】",box.getCode(),e.getMessage(),e);
         }
     }
 
