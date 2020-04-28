@@ -66,18 +66,20 @@ public class PreSealVehicleResource {
     @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1010)
     public NewSealVehicleResponse<Boolean> preSeal(NewSealVehicleRequest request) {
         CallerInfo info = Profiler.registerInfo("DMSWEB.PreSealVehicleResource.preSeal", Constants.UMP_APP_NAME_DMSWEB, false, true);
-        NewSealVehicleResponse<Boolean> preSealResponse = new NewSealVehicleResponse(NewSealVehicleResponse.CODE_OK, NewSealVehicleResponse.MESSAGE_OK);
+        NewSealVehicleResponse<Boolean> preSealResponse = new NewSealVehicleResponse<>();
+        preSealResponse.setCode(NewSealVehicleResponse.CODE_PARAM_ERROR);
+        preSealResponse.setMessage("普通预封车已下线，请更新PDA到最新版本，新版本PDA预封车界面将显示【传摆预封车】字样！");
 
-        try {
-            preSealResponse = getNewSealVehicleResponse(request, PreSealVehicleSourceEnum.COMMON_PRE_SEAL);
-        } catch (Exception e) {
-            Profiler.functionError(info);
-            preSealResponse.setCode(NewSealVehicleResponse.CODE_SERVICE_ERROR);
-            preSealResponse.setMessage(NewSealVehicleResponse.MESSAGE_SERVICE_ERROR);
-            log.error("PreSealVehicleResource.preSeal-error:{}", JsonHelper.toJson(request), e);
-        } finally {
-            Profiler.registerInfoEnd(info);
-        }
+//        try {
+//            preSealResponse = getNewSealVehicleResponse(request, PreSealVehicleSourceEnum.COMMON_PRE_SEAL);
+//        } catch (Exception e) {
+//            Profiler.functionError(info);
+//            preSealResponse.setCode(NewSealVehicleResponse.CODE_SERVICE_ERROR);
+//            preSealResponse.setMessage(NewSealVehicleResponse.MESSAGE_SERVICE_ERROR);
+//            log.error("PreSealVehicleResource.preSeal-error:{}", JsonHelper.toJson(request), e);
+//        } finally {
+//            Profiler.registerInfoEnd(info);
+//        }
         return preSealResponse;
     }
 
