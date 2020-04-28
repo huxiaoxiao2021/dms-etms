@@ -250,7 +250,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
     private RailWaySendRegisterDto initRailWaySendRegisterDto(ArSendRegister arSendRegister, List<String> sendCodes){
         RailWaySendRegisterDto dto = new RailWaySendRegisterDto();
         /*运单号*/
-        dto.setTplBillCode(arSendRegister.getWaybillCode());
+        dto.setTplBillCode(arSendRegister.getOrderCode());
         /*承运商账号(三方承运商)/自营员工ERP账号(自营)*/
         dto.setDepartUserCode(arSendRegister.getOperatorErp());
         /*承运商类型 默认自营*/
