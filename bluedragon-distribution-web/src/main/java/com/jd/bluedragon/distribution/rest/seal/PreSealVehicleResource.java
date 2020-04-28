@@ -68,7 +68,7 @@ public class PreSealVehicleResource {
         CallerInfo info = Profiler.registerInfo("DMSWEB.PreSealVehicleResource.preSeal", Constants.UMP_APP_NAME_DMSWEB, false, true);
         NewSealVehicleResponse<Boolean> preSealResponse = new NewSealVehicleResponse<>();
         preSealResponse.setCode(NewSealVehicleResponse.CODE_PARAM_ERROR);
-        preSealResponse.setMessage("普通预封车已下线，请更新PDA到最新版本，新版本PDA预封车界面将显示【传摆预封车】字样！");
+        preSealResponse.setMessage("普通预封车已下线，重新登录PDA更新版本，新版本该界面有【传摆预封车】字样！");
 
 //        try {
 //            preSealResponse = getNewSealVehicleResponse(request, PreSealVehicleSourceEnum.COMMON_PRE_SEAL);
