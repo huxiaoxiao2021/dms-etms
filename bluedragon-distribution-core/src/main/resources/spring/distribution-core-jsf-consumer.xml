@@ -602,5 +602,8 @@
                   alias="${dms.ccmp.medicine.alias}" timeout="${dms.ccmp.medicine.timeout}"
                   retries="${jsf.retries}">
     </jsf:consumer>
-
+    <jsf:consumer id="ecpRailWayWS" interface="com.jd.tms.ecp.ws.EcpRailWayWS" protocol="jsf"
+                  alias="${tms.ecp.jsf.alias}" timeout="${tms.ecp.jsf.timeout}"
+                  retries="${jsf.retries}">
+    </jsf:consumer>
 </beans>

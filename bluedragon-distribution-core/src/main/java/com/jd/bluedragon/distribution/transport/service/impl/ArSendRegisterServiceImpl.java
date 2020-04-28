@@ -37,8 +37,11 @@ import com.jd.tms.basic.dto.ConfNodeCarrierDto;
 import com.jd.tms.basic.ws.BasicQueryWS;
 import com.jd.tms.basic.ws.BasicSyncWS;
 import com.jd.tms.ecp.dto.BasicRailTrainDto;
+import com.jd.tms.ecp.dto.railway.RailWaySendRegisterDto;
+import com.jd.tms.ecp.ws.EcpRailWayWS;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -124,6 +127,9 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
     @Autowired
     private DmsBaseDictService dmsBaseDictService;
 
+    @Autowired
+    EcpRailWayWS ecpRailWayWS;
+
     /**
      * 分隔符 逗号
      */
@@ -187,8 +193,10 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         if (this.getDao().insert(arSendRegister)) {
             if (sendCodes != null && sendCodes.length > 0) {
                 if (arSendCodeService.batchAdd(arSendRegister.getId(), sendCodes, arSendRegister.getCreateUser())) {
-                    // 推送全程跟踪
-                    this.sendTrack(arSendRegister, sendCodes);
+                    //  航空 推送全程跟踪
+                    if(arSendRegister.getTransportType() != null && arSendRegister.getTransportType().equals(AIR_TRANSPORT.getCode())){
+                        this.sendTrack(arSendRegister, sendCodes);
+                    }
                     // 新增发货MQ任务
                     this.sendDetailMQTask(arSendRegister, sendCodes);
                     //增加批次发货消息供报表使用
@@ -198,9 +206,11 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                         // 调用TMS BASIC订阅实时航班JSF接口
                         this.createAirFlightRealTime(arSendRegister.getTransportName(), arSendRegister.getSendDate());
                     }
+                    //运输方式为铁路 发货登记数据推运输接口，由运输发全程跟踪 和铁路应付计费要素 发送给fxm
                     if(arSendRegister.getTransportType() != null && arSendRegister.getTransportType().equals(RAILWAY.getCode())){
-                        sendCostInfoToFxm(arSendRegister);
+                        submitRailDepartInfo(arSendRegister, Arrays.asList(sendCodes));
                     }
+
                     return true;
                 }
             } else {
@@ -209,6 +219,82 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
 
         }
         return false;
+    }
+    private void submitRailDepartInfo(ArSendRegister arSendRegister, List<String> sendCodes){
+        CallerInfo info = Profiler.registerInfo("DMSWEB.jsf.EcpRailWayWS.submitRailDepartInfo", Constants.UMP_APP_NAME_DMSWEB,false, true);
+        RailWaySendRegisterDto dto = null;
+        try {
+            dto = initRailWaySendRegisterDto(arSendRegister, sendCodes);
+            com.jd.tms.ecp.dto.CommonDto<String> commonDto = ecpRailWayWS.submitRailDepartInfo(dto);
+            if(commonDto == null){
+                log.error("空铁发货登记调运输【新铁路】发货登记提交接口未返回值为null，请求参数：{}", JsonHelper.toJson(dto));
+                return;
+            }
+            if(commonDto.getCode() != com.jd.tms.ecp.dto.CommonDto.CODE_SUCCESS){
+                log.error("空铁发货登记调运输【新铁路】发货登记提交接口返回非成功，返回结果：{}，请求参数：{}",
+                        JsonHelper.toJson(commonDto), JsonHelper.toJson(dto));
+            }
+        }catch (Exception e){
+            log.error("空铁发货登记调运输【新铁路】发货登记提交接口异常，请求参数：{}", JsonHelper.toJson(dto), e);
+            Profiler.functionError(info);
+        }finally {
+            Profiler.registerInfoEnd(info);
+        }
+
+
+    }
+
+    private RailWaySendRegisterDto initRailWaySendRegisterDto(ArSendRegister arSendRegister, List<String> sendCodes){
+        RailWaySendRegisterDto dto = new RailWaySendRegisterDto();
+        /*运单号*/
+        dto.setTplBillCode(arSendRegister.getWaybillCode());
+        /*承运商账号(三方承运商)/自营员工ERP账号(自营)*/
+        dto.setDepartUserCode(arSendRegister.getOperatorErp());
+        /*承运商类型 默认自营*/
+        dto.setDepartCarrierType(ArCarrierTypeEnum.SELF_CARRIER.getCode());
+        /*(承运商)操作人名称*/
+        dto.setDepartUserName(arSendRegister.getOperatorName());
+        /*火车号*/
+        dto.setTrainNumber(arSendRegister.getTransportName());
+        /*计划发车时间*/
+        dto.setPlanDepartTime(arSendRegister.getPlanStartTime());
+        /*始发站点编码*/
+        dto.setBeginNodeCode(arSendRegister.getStartStationId());
+        /*始发站点*/
+        dto.setBeginNodeName(arSendRegister.getStartStationName());
+        /*目的站点编码*/
+        dto.setEndNodeCode(arSendRegister.getEndStationId());
+        /*目的站点名称*/
+        dto.setEndNodeName(arSendRegister.getEndStationName());
+        /*货物件数*/
+        dto.setDepartCargoAmount(arSendRegister.getSendNum());
+        /*计费重量*/
+        if(arSendRegister.getChargedWeight() != null){
+            dto.setDepartCargoChargedWeight(arSendRegister.getChargedWeight().doubleValue());
+        }
+        /*备注*/
+        dto.setDepartRemark(arSendRegister.getRemark());
+        /*运单号集合*/
+        dto.setTransbillCodes(getWaybillCodes(sendCodes));
+        /*批次号集合*/
+        dto.setBatchCodes(sendCodes);
+        /*操作时间*/
+        dto.setDepartOperateTime(arSendRegister.getOperationTime());
+        return dto;
+    }
+
+    private List<String> getWaybillCodes(List<String> sendCodes){
+        if(CollectionUtils.isEmpty(sendCodes)){
+            return null;
+        }
+        List<String> waybillCodes = new ArrayList<>(sendCodes.size());
+        for(String sendCode : sendCodes){
+            List<String> subWaybillCodes = sendDetailDao.getWaybillCodeBySendCode(sendCode);
+            if(CollectionUtils.isNotEmpty(subWaybillCodes)){
+                waybillCodes.addAll(subWaybillCodes);
+            }
+        }
+        return waybillCodes;
     }
 
     /**
