@@ -80,6 +80,7 @@ public class PreSealVehicleResource {
 //        } finally {
 //            Profiler.registerInfoEnd(info);
 //        }
+        Profiler.registerInfoEnd(info);
         return preSealResponse;
     }
 
