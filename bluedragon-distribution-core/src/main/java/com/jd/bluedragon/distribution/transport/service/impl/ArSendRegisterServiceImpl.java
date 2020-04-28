@@ -277,8 +277,6 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         }
         /*备注*/
         dto.setDepartRemark(arSendRegister.getRemark());
-        /*运单号集合*/
-        dto.setTransbillCodes(getWaybillCodes(sendCodes));
         /*批次号集合*/
         dto.setBatchCodes(sendCodes);
         /*操作时间*/
