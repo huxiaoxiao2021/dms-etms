@@ -144,9 +144,9 @@ public class QueueManagementGateWayServiceImpl implements QueueManagementGateWay
             res.toFail("月台编码不能为空");
             return res;
         }
-        if((StringUtils.isEmpty(request.getFlowCode()) || StringUtils.isEmpty(request.getCarType())) && request.getPlatformWorkTypeEnum()==0)
+        if(StringUtils.isEmpty(request.getFlowCode()))
         {
-            res.toFail("流向和车型不能为空");
+            res.toFail("流向不能为空");
             return res;
         }
 
