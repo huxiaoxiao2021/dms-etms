@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.print.service;
 import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillSignConstants;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -65,7 +66,7 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
             waybill.appendSpecialMark(SPECIAL_MARK_LOCAL_SCHEDULE);
         }
         if(waybill.getDistributeType()!=null && waybill.getDistributeType().equals(LabelPrintingService.ARAYACAK_SIGN) && waybill.getSendPay().length()>=50){
-        	if(!BusinessUtil.isSignChar(waybill.getSendPay(),22,'5')){
+        	if(!BusinessUtil.isSignChar(waybill.getSendPay(),22,'5') || BusinessUtil.isZiTiByWaybillSign(waybill.getWaybillSign())){
         		waybill.appendSpecialMark(SPECIAL_MARK_ARAYACAK_SITE);
         	}
         }
@@ -88,7 +89,7 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
         if(BusinessUtil.isSignY(waybill.getWaybillSign(), 35)){
             waybill.appendSpecialMark(SPECIAL_MARK_SENIOR);
         }
-        if(waybill.getIsSelfService()){//城配与配送方式柜互斥，优先城配
+        if(waybill.getIsSelfService() || BusinessUtil.isZiTiGuiByWaybillSign(waybill.getWaybillSign())){//城配与配送方式柜互斥，优先城配
             waybill.appendSpecialMark(SPECIAL_MARK_ARAYACAK_CABINET);
         }
         //城配标和柜冲突处理
@@ -102,6 +103,12 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
             waybill.dealConflictSpecialMark(CITY_DISTRIBUTION_JI, SPECIAL_MARK_ARAYACAK_SITE);
             waybill.dealConflictSpecialMark(CITY_DISTRIBUTION_CHENG, SPECIAL_MARK_ARAYACAK_SITE);
         }
+        if (BusinessUtil.isZiTiDianByWaybillSign(waybill.getWaybillSign())) {
+            waybill.appendSpecialMark(SPECIAL_MARK_ARAYACAK_DIAN);
+        }
+        waybill.dealConflictSpecialMark(CITY_DISTRIBUTION_ZHI, SPECIAL_MARK_ARAYACAK_DIAN);
+        waybill.dealConflictSpecialMark(CITY_DISTRIBUTION_JI, SPECIAL_MARK_ARAYACAK_DIAN);
+        waybill.dealConflictSpecialMark(CITY_DISTRIBUTION_CHENG, SPECIAL_MARK_ARAYACAK_DIAN);
 
         //城配标和运输产品互斥，如果显示【B】字标，那么在显示【特惠送】的位置显示为空
         if(StringHelper.isNotEmpty(waybill.getSpecialMark()) && waybill.getSpecialMark().contains(CITY_DISTRIBUTION_CHENG)){

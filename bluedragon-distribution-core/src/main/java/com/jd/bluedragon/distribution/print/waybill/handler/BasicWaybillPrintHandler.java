@@ -452,6 +452,11 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 waybill.setIsSelfService(true);
                 waybill.setPrintAddress(tag.getPrintAddress());
             }
+            if (BusinessUtil.isZiTiByWaybillSign(waybill.getWaybillSign()) || BusinessUtil.isZiTiGuiByWaybillSign(waybill.getWaybillSign())
+                    || BusinessUtil.isZiTiDianByWaybillSign(waybill.getWaybillSign())) {
+                waybill.setPrintAddress(tag.getPrintAddress());
+            }
+
             waybill.setPrepareSiteName(tag.getPrintSiteName());
             waybill.setPrintSiteName(tag.getPrintSiteName());
             waybill.setOriginalDmsCode(tag.getOriginalDmsId());
