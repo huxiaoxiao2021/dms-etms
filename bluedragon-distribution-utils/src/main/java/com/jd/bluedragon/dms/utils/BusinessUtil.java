@@ -1,6 +1,7 @@
 package com.jd.bluedragon.dms.utils;
 
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
+
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -1396,4 +1397,14 @@ public class BusinessUtil {
 
         return BusinessUtil.isSignY(waybillSign, 31) || BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_84, WaybillSignConstants.CHAR_84_3);
     }
+    /**
+     * 根据标位判断是否企配仓数据sendpay标识314=1或=2 或者 waybillSign128=1
+     * @param sendPay
+     * @param waybillSign
+     * @return
+     */
+	public static boolean isEdn(String sendPay, String waybillSign) {
+		return BusinessUtil.isSignInChars(sendPay, SendPayConstants.POSITION_314, SendPayConstants.CHAR_314_1,SendPayConstants.CHAR_314_2)
+				|| BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_128, WaybillSignConstants.CHAR_128_1);
+	}
 }

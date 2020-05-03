@@ -201,4 +201,16 @@ public class DmsConstants {
      * 保温箱号规则，MZ开头，总长度14到16位
      */
     public static final Pattern WARM_BOX_CODE_REGEX = Pattern.compile("^MZ[A-Z0-9]{12,14}$");
+    /**
+     * 企配仓拣货单模板-名称
+     */
+    public static final String TEMPLATE_NAME_EDN_PICKING = "dms-edn-picking-list";
+    /**
+     * 企配仓拣货单-模板版本配置key
+     */
+    public static final String TEMPLATE_VERSION_KEY_EDN_PICKING = "print.template.version.dms-edn-picking-list";
+    /**
+     * 企配仓拣货单模板-默认版本号1
+     */
+    public static final String TEMPLATE_VERSION_DEFAULT_EDN_PICKING = "1";
 }

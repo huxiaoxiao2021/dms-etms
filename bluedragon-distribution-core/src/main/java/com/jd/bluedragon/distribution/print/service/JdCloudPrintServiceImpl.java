@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.print.service;
 
+import com.jcloud.jss.http.Method;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
@@ -16,6 +17,7 @@ import com.jd.jss.JingdongStorageService;
 import com.jd.ql.dms.print.engine.toolkit.IPrintPdfHelper;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +34,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -201,6 +204,34 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
 		}
 		log.info("生成pdf结束,cost:{}ms,resp:{}",(System.currentTimeMillis() - startTime), JsonHelper.toJson(printResult));
 		return printResult;
+	}
+	@Override
+	public <M> JdResult<String> printPdfAndReturnWebUrl(JdCloudPrintRequest<M> jdCloudPrintRequest) {
+		JdResult<String> result = new JdResult<String>();
+		JdResult<List<JdCloudPrintResponse>> printResult = jdCloudPrint(jdCloudPrintRequest);
+        if(printResult.isSucceed()){
+        	List<JdCloudPrintResponse> pdfList = printResult.getData();
+        	if(pdfList.size()>0){
+        		JdCloudPrintResponse jdCloudPrintResponse = pdfList.get(0);
+        		if(JdCloudPrintResponse.STATUS_SUC.equals(jdCloudPrintResponse.getStatus())
+        				&& jdCloudPrintResponse.getOutputMsg() != null
+        				&& jdCloudPrintResponse.getOutputMsg().size()>0){
+        			String pdfPath = jdCloudPrintResponse.getOutputMsg().get(0);
+        			//生成外链接
+        			URI uri = pdfOutJssStorage.bucket(pdfPrintOssConfig.getBucket()).object(pdfPath).generatePresignedUrl();
+        			if(uri != null){
+        				result.setData(uri.getPath());
+        			}else{
+        				result.toFail("jss生成外链失败！");
+        			}
+        		}else{
+        			result.toFail("生成pdf文件失败！");
+        		}
+        	}
+        }else{
+        	result.toFail(printResult.getMessageCode(), printResult.getMessage());
+        }
+		return result;
 	}
 	/**
 	 * 打印参数验证

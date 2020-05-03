@@ -296,4 +296,9 @@ public interface WaybillSignConstants {
 	char CHAR_33_A = 'A';
 	char CHAR_33_B = 'B';
 	char CHAR_33_C = 'C';
+	/**
+	 * WaybillSign第128位,1-企配仓
+	 */
+	int POSITION_128 = 128;
+	char CHAR_128_1 = '1';
 }

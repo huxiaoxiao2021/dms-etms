@@ -34,9 +34,24 @@ public abstract class MessageBaseConsumer extends EnvMessageListener {
 			message.setContent(jmqMsg.getText());
 			message.setDestinationCode(jmqMsg.getTopic());
 			*/
-			log.debug(jmqMsg.getText());
-
-			consume(jmqMsg);
+			if(checkMessage(jmqMsg)){
+				if(log.isDebugEnabled()){
+					this.log.debug("[{}-{}]:[{}]",jmqMsg.getTopic(),jmqMsg.getBusinessId(),jmqMsg.getText());
+				}
+				consume(jmqMsg);
+			}
 		}
+	}
+	/**
+	 * 校验消息体
+	 * @param jmqMsg
+	 * @return
+	 */
+	protected boolean checkMessage(Message jmqMsg){
+        if(jmqMsg == null || null == jmqMsg.getText() || "".equals(jmqMsg.getText()) ){
+        	this.log.warn("[{}-{}]:消息体为空！",jmqMsg.getTopic(),jmqMsg.getBusinessId());
+            return false;
+        }
+		return true;
 	}
 }
