@@ -1,5 +1,8 @@
 package com.jd.bluedragon.utils.log;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * business.log.jd.com 记录日志使用的系统编码，业务类型，操作类型 枚举类
  * 配置指引：https://cf.jd.com/pages/viewpage.action?pageId=146201361
@@ -74,7 +77,9 @@ public class BusinessLogConstans {
         REVERSE_SPARE(SourceSys.DMS_OPERATE,2019,"备件库"),
         LOAD_CAN(SourceSys.DMS_OPERATE,2013,"装载"),
         AFTER_SALE(SourceSys.DMS_OPERATE,2014,"售后"),
-        OTHER_OTHER(SourceSys.DMS_OPERATE,2015,"其他");
+        OTHER_OTHER(SourceSys.DMS_OPERATE,2015,"其他"),
+        //金鹏业务
+        EDN_BUSINESS(SourceSys.DMS_OPERATE,2016,"企配仓业务");
 
         /**
          * 所属系统；
@@ -200,7 +205,13 @@ public class BusinessLogConstans {
         RECEIVE_POP_RECEIVE(BizTypeEnum.RECEIVE,20086,"pop上门接货"),
         RECEIVE_POP_RECEIVE_OFFLINE(BizTypeEnum.RECEIVE,20088,"离线pop上门接货"),
         OTHER_OTHER(BizTypeEnum.OTHER_OTHER,20151,"其他"),
-        OTHER_OTHER_OFFLINE(BizTypeEnum.OTHER_OTHER,20152,"离线其他");
+        OTHER_OTHER_OFFLINE(BizTypeEnum.OTHER_OTHER,20152,"离线其他"),
+        
+        EDN_PRINT_PICKING_LIST(BizTypeEnum.EDN_BUSINESS,20161,"打印拣货单"),
+        EDN_PRINT_DELIVERY_RECEIPT(BizTypeEnum.EDN_BUSINESS,20162,"打印配送单")
+        ;
+        
+        private static Map<Integer,OperateTypeEnum> CODE_MAPPING = new HashMap<Integer,OperateTypeEnum>();
         /**
          * 业务类型编码；
          */
@@ -218,7 +229,22 @@ public class BusinessLogConstans {
             this.code = code;
             this.text = text;
         }
-
+        /**
+         * 初始化map
+         */
+        static{
+        	for(OperateTypeEnum  item : OperateTypeEnum.values()){
+        		CODE_MAPPING.put(item.code, item);
+        	}
+        }
+        /**
+         * 根据code获取枚举值
+         * @param code
+         * @return
+         */
+        public static OperateTypeEnum toEnum(int enumCode){
+        	return CODE_MAPPING.get(enumCode);
+        }
         public BizTypeEnum getBizType() {
             return bizType;
         }

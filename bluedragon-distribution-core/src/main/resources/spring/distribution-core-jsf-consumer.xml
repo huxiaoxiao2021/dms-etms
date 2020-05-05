@@ -602,5 +602,10 @@
                   alias="${dms.ccmp.medicine.alias}" timeout="${dms.ccmp.medicine.timeout}"
                   retries="${jsf.retries}">
     </jsf:consumer>
-
+        <!-- 技术发展部 - 冷链产品 - 包裹绑定温度计 -->
+    <jsf:consumer id="jpEdnDeliveryReceiptService" interface="com.jd.ka.edn.sdk.service.JpEdnDeliveryReceiptService"
+                  protocol="jsf"
+                  alias="${jsf.jpEdnDeliveryReceiptService.alias}" timeout="${jsf.jpEdnDeliveryReceiptService.timeout}"
+                  retries="${jsf.retries}">
+    </jsf:consumer>
 </beans>

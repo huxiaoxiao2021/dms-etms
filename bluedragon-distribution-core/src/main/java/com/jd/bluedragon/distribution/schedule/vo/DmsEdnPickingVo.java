@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
+import com.jd.bluedragon.distribution.log.BusinessLogDto;
 import com.jd.bluedragon.distribution.schedule.entity.DmsScheduleInfo;
 /**
  * 企配仓拣货
@@ -35,7 +36,7 @@ public class DmsEdnPickingVo implements Serializable{
 	/**
 	 * 调度明细列表
 	 */
-	private List<DmsEdnOperateLog> dmsEdnOperateLogList;
+	private List<BusinessLogDto> dmsEdnOperateLogList;
 	
 	public String getScheduleBillCode() {
 		return scheduleBillCode;
@@ -69,11 +70,11 @@ public class DmsEdnPickingVo implements Serializable{
 		this.dmsScheduleInfoList = dmsScheduleInfoList;
 	}
 
-	public List<DmsEdnOperateLog> getDmsEdnOperateLogList() {
+	public List<BusinessLogDto> getDmsEdnOperateLogList() {
 		return dmsEdnOperateLogList;
 	}
 
-	public void setDmsEdnOperateLogList(List<DmsEdnOperateLog> dmsEdnOperateLogList) {
+	public void setDmsEdnOperateLogList(List<BusinessLogDto> dmsEdnOperateLogList) {
 		this.dmsEdnOperateLogList = dmsEdnOperateLogList;
 	}
 }

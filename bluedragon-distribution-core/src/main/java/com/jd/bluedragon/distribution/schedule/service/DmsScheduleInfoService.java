@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.schedule.service;
 
 import java.util.List;
 
+import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.schedule.entity.DmsScheduleInfo;
 import com.jd.bluedragon.distribution.schedule.entity.DmsScheduleInfoCondition;
 import com.jd.bluedragon.distribution.schedule.vo.DmsEdnBatchVo;
@@ -72,11 +73,11 @@ public interface DmsScheduleInfoService extends Service<DmsScheduleInfo> {
 	 * @param scheduleBillCode
 	 * @return
 	 */
-	JdResponse<String> printEdnPickingList(String scheduleBillCode);
+	JdResponse<String> printEdnPickingList(String scheduleBillCode,LoginUser user);
 	/**
 	 * 打印交接单-调用金鹏接口获取拣货单pdf下载地址
 	 * @param scheduleBillCode
 	 * @return
 	 */
-	JdResponse<List<DmsEdnBatchVo>> printEdnDeliveryReceipt(String scheduleBillCode);
+	JdResponse<List<DmsEdnBatchVo>> printEdnDeliveryReceipt(String scheduleBillCode,LoginUser user);
 }

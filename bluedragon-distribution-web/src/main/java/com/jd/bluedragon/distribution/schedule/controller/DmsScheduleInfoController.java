@@ -17,9 +17,6 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
-import com.jd.bluedragon.distribution.collect.domain.CollectGoodsDetail;
-import com.jd.bluedragon.distribution.collect.domain.CollectGoodsDetailCondition;
-import com.jd.bluedragon.distribution.schedule.entity.DmsScheduleInfo;
 import com.jd.bluedragon.distribution.schedule.entity.DmsScheduleInfoCondition;
 import com.jd.bluedragon.distribution.schedule.service.DmsScheduleInfoService;
 import com.jd.bluedragon.distribution.schedule.vo.DmsEdnBatchVo;
@@ -110,7 +107,7 @@ public class DmsScheduleInfoController extends DmsBaseController{
 	@Authorization(Constants.DMS_WEB_EDN_PICKING_R)
 	@RequestMapping(value = "/printEdnPickingList/{scheduleBillCode}")
 	public @ResponseBody JdResponse<String> printEdnPickingList(@PathVariable("scheduleBillCode") String scheduleBillCode) {
-		return dmsScheduleInfoService.printEdnPickingList(scheduleBillCode);
+		return dmsScheduleInfoService.printEdnPickingList(scheduleBillCode,this.getLoginUser());
 	}
 	/**
 	 * 根据scheduleBillCode打印交接单
@@ -120,6 +117,6 @@ public class DmsScheduleInfoController extends DmsBaseController{
 	@Authorization(Constants.DMS_WEB_EDN_PICKING_R)
 	@RequestMapping(value = "/printEdnDeliveryReceipt/{scheduleBillCode}")
 	public @ResponseBody JdResponse<List<DmsEdnBatchVo>> printEdnDeliveryReceipt(@PathVariable("scheduleBillCode") String scheduleBillCode) {
-		return dmsScheduleInfoService.printEdnDeliveryReceipt(scheduleBillCode);
+		return dmsScheduleInfoService.printEdnDeliveryReceipt(scheduleBillCode,this.getLoginUser());
 	}
 }

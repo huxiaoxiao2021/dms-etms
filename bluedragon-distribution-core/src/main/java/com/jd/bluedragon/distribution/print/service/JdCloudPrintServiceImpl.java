@@ -128,7 +128,7 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
 			return printResult;
 		}
 		//开关未开启或者全局开关开启未开启，调用本地生成
-		if(!useJdCloudPrint || !sysConfigService.getConfigByName(SysConfigService.SYS_CONFIG_NAME_DMS_PRINT_USE_JD_CLOUD)){
+		if(!useJdCloudPrint){
 			return this.localPdfPrint(jdCloudPrintRequest);
 		}
 		CallerInfo callerInfo = ProfilerHelper.registerInfo(UMP_KEY+"jdCloudPrint");

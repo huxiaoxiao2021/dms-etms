@@ -253,10 +253,13 @@
 	<select id="pageNum_queryEdnPickingListByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
 		select 
 		 count(1) as num
-		from 
-		  dms_schedule_info 
-        <include refid="where_condition"/>
-        group by schedule_bill_code,carrier_name
+		from (
+			select 
+			 count(1) as num
+			from 
+			  dms_schedule_info 
+			<include refid="where_queryEdnPickingListByPagerCondition"/>
+	        group by schedule_bill_code,carrier_name) t
 	</select>	
 	<select id="queryEdnPickingListByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="DmsEdnPickingVo">
 		select
@@ -269,19 +272,17 @@
 			limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
 	</select>
 	<sql id="where_queryEdnPickingListByPagerCondition">
-		<where>
-			<include refid="where_queryEdnCondition"/>
-                and dest_dms_site_code = #{destDmsSiteCode,jdbcType=INTEGER}
-			<if test="scheduleBillCode != null" >
-				and schedule_bill_code = #{scheduleBillCode,jdbcType=VARCHAR}
-			</if>
-			<if test="scheduleTimeGte != null" >
-				and schedule_time >= #{scheduleTimeGte,jdbcType=TIMESTAMP}
-			</if>
-			<if test="scheduleTimeLt != null" >
-				and schedule_time &lt; #{scheduleTimeLt,jdbcType=TIMESTAMP}
-			</if>
-		</where>
+		<include refid="where_queryEdnCondition"/>
+		    and dest_dms_site_code = #{destDmsSiteCode,jdbcType=INTEGER}
+		<if test="scheduleBillCode != null" >
+			and schedule_bill_code = #{scheduleBillCode,jdbcType=VARCHAR}
+		</if>
+		<if test="scheduleTimeGte != null" >
+			and schedule_time >= #{scheduleTimeGte,jdbcType=TIMESTAMP}
+		</if>
+		<if test="scheduleTimeLt != null" >
+			and schedule_time &lt; #{scheduleTimeLt,jdbcType=TIMESTAMP}
+		</if>
 	</sql>
 	<!-- 查询单个调度对象 -->
 	<select id="queryDmsEdnPickingVo" parameterType="java.lang.String" resultMap="DmsEdnPickingVo">
@@ -294,7 +295,7 @@
 			group by schedule_bill_code,carrier_name
 	</select>	
 	<!-- 查询调度单号下所有的企配仓批次号 -->
-	<select id="queryEdnBatchNumList" parameterType="java.lang.String" resultMap="java.lang.String">
+	<select id="queryEdnBatchNumList" parameterType="java.lang.String" resultType="java.lang.String">
 		select
 			business_batch_code
 		from
@@ -311,6 +312,6 @@
 			dms_schedule_info t
 		<include refid="where_queryEdnCondition"/>
 			and schedule_bill_code = #{scheduleBillCode,jdbcType=VARCHAR}
-			group by business_batch_code
+		order by schedule_time
 	</select>	
 </mapper>

@@ -204,7 +204,7 @@ public class DmsConstants {
     /**
      * 企配仓拣货单模板-名称
      */
-    public static final String TEMPLATE_NAME_EDN_PICKING = "dms-edn-picking-list";
+    public static final String TEMPLATE_NAME_EDN_PICKING = "dmsEdnPickingList";
     /**
      * 企配仓拣货单-模板版本配置key
      */

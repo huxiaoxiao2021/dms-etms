@@ -13,7 +13,10 @@ import com.jd.ql.dms.common.web.mvc.api.DbEntity;
 public class DmsScheduleInfo extends DbEntity {
 
 	private static final long serialVersionUID = 1L;
-	
+	/**
+	 * 数据序号
+	 */
+	private Integer rowNum;
 	/**
 	 * 运单号
 	 */
@@ -68,6 +71,14 @@ public class DmsScheduleInfo extends DbEntity {
 	 * 1-有效，0-无效
 	 */
 	private Integer yn;
+
+	public Integer getRowNum() {
+		return rowNum;
+	}
+
+	public void setRowNum(Integer rowNum) {
+		this.rowNum = rowNum;
+	}
 
 	/**
 	 *

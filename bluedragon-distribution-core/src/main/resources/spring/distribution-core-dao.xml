@@ -621,6 +621,6 @@
           class="com.jd.bluedragon.distribution.material.dao.impl.MaterialSendFlowDaoImpl" />
           
     <bean id="dmsScheduleInfoDao" parent="businessBaseDao"
-          class="com.jd.bluedragon.distribution.schedule.dao.DmsScheduleInfoDao" />          
+          class="com.jd.bluedragon.distribution.schedule.dao.impl.DmsScheduleInfoDaoImpl" />          
     <!--################################## bd_dms_business 相关DAO End ############################################ -->
 </beans>

@@ -10,9 +10,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.core.base.EdnServiceManager;
+import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.log.BusinessLogDto;
+import com.jd.bluedragon.distribution.log.service.BusinessLogManager;
 import com.jd.bluedragon.distribution.print.domain.JdCloudPrintRequest;
 import com.jd.bluedragon.distribution.print.service.JdCloudPrintService;
 import com.jd.bluedragon.distribution.schedule.dao.DmsScheduleInfoDao;
@@ -20,15 +23,16 @@ import com.jd.bluedragon.distribution.schedule.entity.DmsScheduleInfo;
 import com.jd.bluedragon.distribution.schedule.entity.DmsScheduleInfoCondition;
 import com.jd.bluedragon.distribution.schedule.service.DmsScheduleInfoService;
 import com.jd.bluedragon.distribution.schedule.vo.DmsEdnBatchVo;
-import com.jd.bluedragon.distribution.schedule.vo.DmsEdnOperateLog;
 import com.jd.bluedragon.distribution.schedule.vo.DmsEdnPickingVo;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.log.BusinessLogConstans.OperateTypeEnum;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.ql.dms.print.utils.StringHelper;
 
 /**
  * @ClassName: DmsScheduleInfoServiceImpl
@@ -66,6 +70,10 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 	@Qualifier("ednServiceManager")
 	private EdnServiceManager ednServiceManager;
 	
+	@Autowired
+	@Qualifier("businessLogManager")
+	private BusinessLogManager businessLogManager;	
+	
 	@Override
 	public Dao<DmsScheduleInfo> getDao() {
 		return this.dmsScheduleInfoDao;
@@ -100,6 +108,15 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 	}
 	@Override
 	public PagerResult<DmsEdnPickingVo> queryEdnPickingListByPagerCondition(DmsScheduleInfoCondition dmsScheduleInfoCondition) {
+		if(dmsScheduleInfoCondition != null){
+			//设置调度时间条件
+			if(StringHelper.isNotEmpty(dmsScheduleInfoCondition.getScheduleTimeGteStr())){
+				dmsScheduleInfoCondition.setScheduleTimeGte(DateHelper.parseAllFormatDateTime(dmsScheduleInfoCondition.getScheduleTimeGteStr()));
+			}
+			if(StringHelper.isNotEmpty(dmsScheduleInfoCondition.getScheduleTimeLtStr())){
+				dmsScheduleInfoCondition.setScheduleTimeLt(DateHelper.parseAllFormatDateTime(dmsScheduleInfoCondition.getScheduleTimeLtStr()));
+			}
+		}
 		return dmsScheduleInfoDao.queryEdnPickingListByPagerCondition(dmsScheduleInfoCondition);
 	}
 	@Override
@@ -115,7 +132,7 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 			List<Object> body = new ArrayList<Object>();
 			body.add(row.getScheduleBillCode());
 			body.add(row.getCarrierName());
-			body.add(DateHelper.formatDate(row.getScheduleTime()));
+			body.add(DateHelper.formatDateTime(row.getScheduleTime()));
 			resList.add(body);
 		}
 		return resList;
@@ -133,7 +150,15 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 	@Override
 	public List<DmsScheduleInfo> queryEdnDmsScheduleInfoList(
 			String scheduleBillCode) {
-		return dmsScheduleInfoDao.queryEdnDmsScheduleInfoList(scheduleBillCode);
+		List<DmsScheduleInfo> dataList = dmsScheduleInfoDao.queryEdnDmsScheduleInfoList(scheduleBillCode);
+		//设置序号值
+		if(dataList != null && !dataList.isEmpty()){
+			int rowNum = 1;
+			for(DmsScheduleInfo item : dataList){
+				item.setRowNum(rowNum ++);
+			}
+		}
+		return dataList;
 	}
 
 	@Override
@@ -142,23 +167,19 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 		if(dmsEdnPickingVo != null){
 			dmsEdnPickingVo.setDmsScheduleInfoList(this.queryEdnDmsScheduleInfoList(scheduleBillCode));
 			//查询操作日志
-			dmsEdnPickingVo.setDmsEdnOperateLogList(new ArrayList<DmsEdnOperateLog>());
-			DmsEdnOperateLog log1 = new DmsEdnOperateLog();
-			log1.setOperateContent("打印交接单");
-			log1.setOperateUser("test");
-			log1.setOperateTime("2020-04-30 12:15:45");
-			dmsEdnPickingVo.getDmsEdnOperateLogList().add(log1);
+			dmsEdnPickingVo.setDmsEdnOperateLogList(businessLogManager.queryLogs(scheduleBillCode));
 		}
 		return dmsEdnPickingVo;
 	}
 
 	@Override
-	public JdResponse<String> printEdnPickingList(String scheduleBillCode) {
+	public JdResponse<String> printEdnPickingList(String scheduleBillCode,LoginUser user) {
 		JdResponse<String> printResult = new JdResponse<String>();
 		DmsEdnPickingVo dmsEdnPickingVo = this.queryDmsEdnPickingVo(scheduleBillCode);
 		if(dmsEdnPickingVo != null){
 			dmsEdnPickingVo.setDmsScheduleInfoList(this.queryEdnDmsScheduleInfoList(scheduleBillCode));
-			JdCloudPrintRequest<DmsEdnPickingVo> printRequest = jdCloudPrintService.getDefaultPdfRequest();
+			JdCloudPrintRequest<DmsScheduleInfo> printRequest = jdCloudPrintService.getDefaultPdfRequest();
+			printRequest.setOrderNum(scheduleBillCode);
 			printRequest.setTemplate(DmsConstants.TEMPLATE_NAME_EDN_PICKING);
 			SysConfig templateConfig = sysConfigService.findConfigContentByConfigName(DmsConstants.TEMPLATE_VERSION_KEY_EDN_PICKING);
 			if(templateConfig != null){
@@ -166,11 +187,20 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 			}else{
 				printRequest.setTemplateVer(DmsConstants.TEMPLATE_VERSION_DEFAULT_EDN_PICKING);
 			}
+			printRequest.setModel(dmsEdnPickingVo.getDmsScheduleInfoList());
 			JdResult<String> pdfResult = jdCloudPrintService.printPdfAndReturnWebUrl(printRequest);
 			if(pdfResult != null && pdfResult.isSucceed()){
 				printResult.setData(pdfResult.getData());
 				//记录打印日志
-				
+				BusinessLogDto log = new BusinessLogDto();
+				log.setBusinessKey(scheduleBillCode);
+				log.setOperateType(OperateTypeEnum.EDN_PRINT_PICKING_LIST.getCode());
+				if(user != null){
+					log.setOperateUser(user.getUserErp());
+				}
+				log.setOperateContent(OperateTypeEnum.EDN_PRINT_PICKING_LIST.getText());
+				//记录打印日志
+				businessLogManager.addLog(log);
 			}else {
 				if(pdfResult != null){
 					printResult.toFail(pdfResult.getMessage());
@@ -185,20 +215,28 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 	}
 
 	@Override
-	public JdResponse<List<DmsEdnBatchVo>> printEdnDeliveryReceipt(String scheduleBillCode) {
+	public JdResponse<List<DmsEdnBatchVo>> printEdnDeliveryReceipt(String scheduleBillCode,LoginUser user) {
 		JdResponse<List<DmsEdnBatchVo>> printResult = new JdResponse<List<DmsEdnBatchVo>>();
 		List<String> ednBatchNumList = this.queryEdnBatchNumList(scheduleBillCode);
 		if(ednBatchNumList != null && ednBatchNumList.size() > 0){
 			JdResult<List<DmsEdnBatchVo>> result = ednServiceManager.batchGetDeliveryReceipt(ednBatchNumList);
 			if(result != null && result.isSucceed() && result.getData() != null){
 				printResult.setData(result.getData());
-				//记录打印日志
-				
 			}else if(result != null){
 				printResult.toFail(result.getMessageCode()+ result.getMessage());
 			}else{
 				printResult.toFail("调用金鹏接口失败！");
 			}
+			BusinessLogDto log = new BusinessLogDto();
+			log.setBusinessKey(scheduleBillCode);
+			log.setOperateType(OperateTypeEnum.EDN_PRINT_DELIVERY_RECEIPT.getCode());
+			if(user != null){
+				log.setOperateUser(user.getUserErp());
+			}
+			log.setOperateContent(OperateTypeEnum.EDN_PRINT_DELIVERY_RECEIPT.getText());
+			//记录打印日志
+			businessLogManager.addLog(log);
+			printResult.toSucceed();
 		}else{
 			printResult.toFail("调度单下企配仓批次为空！");
 		}

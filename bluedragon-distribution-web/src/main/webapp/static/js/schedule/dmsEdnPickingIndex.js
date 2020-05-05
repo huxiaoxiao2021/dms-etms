@@ -2,7 +2,8 @@ $(function() {
 	var saveUrl = '/collect/collectGoodsDetail/save';
 	var deleteUrl = '/collect/collectGoodsDetail/deleteByIds';
   var detailUrl = '/collect/collectGoodsDetail/detail/';
-  var queryUrl = '/collect/collectGoodsDetail/listData';
+  var queryUrl = '/schedule/dmsScheduleInfo/queryEdnPickingList';
+  var exportUrl = '/schedule/dmsScheduleInfo/exportEdnPickingList';
 	var tableInit = function() {
 		var oTableInit = new Object();
 		oTableInit.init = function() {
@@ -70,53 +71,31 @@ $(function() {
 		    return params;
 		};
         oTableInit.tableColums = [ {
-            field : 'createSiteCode',
-            title : '场地编码',
-            visible: false
+            field : 'scheduleBillCode',
+            title : '操作',
+            formatter : function(value,row,index){
+                return '<a href="#" class="show-storage-view" onclick="printEdnPickingList(\''+row.scheduleBillCode+'\',event)">'+'打印拣货单</a>'
+                      +'<br/>'+'<a href="#" class="show-storage-view" onclick="printEdnDeliveryReceipt(\''+row.scheduleBillCode+'\',event)">'+'打印配送单</a>';
+            }
         },{
-            field : 'createSiteName',
-            title : '场地'
-        }, {
-            field : 'collectGoodsAreaCode',
-            title : '集货区'
-        }, {
-            field : 'collectGoodsPlaceCode',
-            title : '集货位'
-        }, {
-            field : 'collectGoodsPlaceType',
-            title : '货位类型',
+            field : 'scheduleBillCode',
+            title : '调度单号',
             formatter : function(value,row,index){
-                return value=="1"?"小单":value=="2"?"中单":value=="3"?"大单":value=="4"?"异常":"未知类型";
+                return '<a href="#" class="show-storage-view" onclick="showView(\''+row.scheduleBillCode+'\',event)">'+value+'</a>';
             }
-        }/*, {
-            field : 'collectGoodsPlaceStatus',
-            title : '状态',
-            formatter : function(value,row,index){
-                return value=="0"?"空闲":value=="1"?"非空闲":value=="2"?"已满":"未知状态";
-            }
-        }*/ , {
-            field : 'waybillCode',
-            title : '运单号'
-
+        },{
+            field : 'carrierName',
+            title : '承运商名称'
         }, {
-            field : 'packageCount',
-            title : '总包裹数'
-
-        }, {
-            field : 'scanPackageCount',
-            title : '实际包裹数',
-            formatter : function(value,row,index){
-                return '<a href="#" class="show-storage-view" onclick="showView(\''+row.createSiteCode+'\',\''+row.collectGoodsPlaceCode+'\',\''+row.waybillCode+'\',event)">'+value+'</a>';
+            field : 'scheduleTime',
+            title : '下发时间',
+            formatter: function (value, row, index) {
+                if (value == null) {
+                    return null;
+                } else {
+                    return $.dateHelper.formatDateTime(new Date(value));
+                }
             }
-        }  , {
-            field : 'createTime',
-            title : '集货时间',
-            formatter : function(value,row,index){
-                return $.dateHelper.formateDateTimeOfTs(value);
-            }
-        }, {
-            field : 'createUser',
-            title : '集货人'
         }];
 		oTableInit.refresh = function() {
 			$('#dataTable').bootstrapTable('refresh');
@@ -222,12 +201,11 @@ $(function() {
 
             $("#btn_export").on("click",function(e){
 
-                var url = "/collect/collectGoodsDetail/toExport";
                 var params = tableInit().getSearchCondition();
 
                 var form = $("<form method='post'></form>"),
                     input;
-                form.attr({"action":url});
+                form.attr({"action":exportUrl});
 
                 $.each(params,function(key,value){
 
@@ -269,164 +247,107 @@ $(function() {
 		};
 		return oInit;
 	};
-    initOrg();
 	tableInit().init();
 	pageInit().init();
 });
-
-function showView(createSiteCode,placeCode,waybillCode,event){
+function printPdf(pdfUrl){
+	$("#pdfIfram").attr('src', pdfUrl);
+	$("#pdfIfram").contentWindow.print();
+}
+function printEdnPickingList(scheduleBillCode,event){
     //获取明细
-    var queryDUrl = '/collect/collectGoodsDetail/showViews';
+    var queryDUrl = '/schedule/dmsScheduleInfo/printEdnPickingList/'+scheduleBillCode;
+	var param = {};
+    $.ajaxHelper.doPostSync(queryDUrl,
+		JSON.stringify(param),
+			function(data){
+        if(data.code == 200){
+        	printPdf(data.data);
+        }else{
+            alert(data.message);
+        }        
+    });
+    event.stopPropagation();
+}
+function printEdnDeliveryReceipt(scheduleBillCode,event){
+    //获取明细
+    var queryDUrl = '/schedule/dmsScheduleInfo/printEdnDeliveryReceipt/'+scheduleBillCode;
+    $("#deliveryReceiptDetailTbody").html("<tr><td colspan='5'>努力加载中...</td></tr>");
+    $('#printEdnDeliveryReceipt').modal("show");
+	var param = {};
+    $.ajaxHelper.doPostSync(queryDUrl,
+		JSON.stringify(param),
+			function(data){
+        var tlogBodyHtml = "";
+        if(data.code == 200){
+            if(data.data.length == 0){
+            	tlogBodyHtml = "<tr><td colspan='5'>未获取到明细数据</td></tr>";
+            }
+            for(var i = 0 ; i<data.data.length ; i++ ){
+                var pojo = data.data[i];
+                tlogBodyHtml += "<tr><td width=\"25%\">"+pojo.ednBatchNum+"</td>";
+                tlogBodyHtml += "<td width=\"25%\">"+'<a href="#" class="show-storage-view" onclick="printPdf(\''+pojo.deliveryReceiptUrl+'\',event)">'+'打印</a>'+"</td>";
+                tlogBodyHtml += "</tr>";
 
-
-    $("#collectGoodsDetailTbody").html("<tr><td colspan='5'>努力加载中...</td></tr>");
-
+            }
+        }else{
+            tbodyHtml = "<tr><td colspan='6'>"+data.message+"</td></tr>";
+        }        
+        $("#deliveryReceiptDetailTbody").html(tlogBodyHtml);
+    });
+    event.stopPropagation();
+}
+function showView(scheduleBillCode,event){
+    //获取明细
+    var queryDUrl = '/schedule/dmsScheduleInfo/queryEdnPickingVo/'+scheduleBillCode;
+	$("#scheduleBillCodeView").text('');
+	$("#carrierNameView").text('');
+	$("#scheduleTimeView").text('');
+    $("#scheduleInfoTbody").html("<tr><td colspan='5'>努力加载中...</td></tr>");
+    $("#operateLogTbody").html("<tr><td colspan='5'>努力加载中...</td></tr>");
     $('#viewModal').modal("show");
-
-    var scheduleTimeGteStr  = $("#scheduleTimeGteStr").val();
-    var scheduleTimeLtStr  = $("#scheduleTimeLtStr").val();
-	var param = {"collectGoodsPlaceCode":placeCode,"waybillCode":waybillCode,"createSiteCode":createSiteCode,
-		"scheduleTimeGteStr":scheduleTimeGteStr,"scheduleTimeLtStr":scheduleTimeLtStr};
-
-
+	var param = {};
     $.ajaxHelper.doPostSync(queryDUrl,
 		JSON.stringify(param),
 			function(data){
 
         var tbodyHtml = "";
+        var tlogBodyHtml = "";
         if(data.code == 200){
-            if(data.data.length == 0){
+        	
+        	$("#scheduleBillCodeView").text(data.data.scheduleBillCode);
+        	$("#carrierNameView").text(data.data.carrierName);
+        	$("#scheduleTimeView").text($.dateHelper.formatDateTime(new Date(data.data.scheduleTime)));
+            if(data.data.dmsScheduleInfoList.length == 0){
                 tbodyHtml = "<tr><td colspan='5'>未获取到明细数据</td></tr>";
             }
+            for(var i = 0 ; i<data.data.dmsScheduleInfoList.length ; i++ ){
+                var pojo = data.data.dmsScheduleInfoList[i];
+                tbodyHtml += "<tr><td width=\"25%\">"+pojo.rowNum+"</td>";
+                tbodyHtml += "<td width=\"25%\">"+pojo.businessBatchCode+"</td>";
+                tbodyHtml += "<td width=\"50%\">"+pojo.waybillCode+"</td>";
+                tbodyHtml += "</tr>";
 
-            for(var i = 0 ; i<data.data.length ; i++ ){
-                var pojo = data.data[i];
-                tbodyHtml += "<tr><td>"+pojo.collectGoodsPlaceCode+"</td>";
-                tbodyHtml += "<td>"+pojo.waybillCode+"</td>";
-                tbodyHtml += "<td>"+pojo.packageCode+"</td>";
-                tbodyHtml += "<td>"+pojo.createUser+"</td>";
-                tbodyHtml += "<td>"+$.dateHelper.formateDateTimeOfTs(pojo.createTime)+"</td></tr>";
+            }
+            if(data.data.dmsEdnOperateLogList.length == 0){
+            	tlogBodyHtml = "<tr><td colspan='5'>未获取到明细数据</td></tr>";
+            }
+            for(var i = 0 ; i<data.data.dmsEdnOperateLogList.length ; i++ ){
+                var pojo = data.data.dmsEdnOperateLogList[i];
+                tlogBodyHtml += "<tr><td width=\"25%\">"+pojo.operateTime+"</td>";
+                tlogBodyHtml += "<td width=\"25%\">"+pojo.operateUser+"</td>";
+                tlogBodyHtml += "<td width=\"50%\">"+pojo.operateContent+"</td>";
+                tlogBodyHtml += "</tr>";
 
             }
         }else{
             tbodyHtml = "<tr><td colspan='6'>"+data.message+"</td></tr>";
         }
 
-        $("#collectGoodsDetailTbody").html(tbodyHtml);
-
-
-
+        $("#scheduleInfoTbody").html(tbodyHtml);
+        
+        $("#operateLogTbody").html(tlogBodyHtml);
+        
     });
-
     event.stopPropagation();
-
-}
-
-var initLogin = true;
-function findSite(selectId,siteListUrl,initIdSelectId){
-    $(selectId).html("");
-    $.ajax({
-        type : "get",
-        url : siteListUrl,
-        data : {},
-        async : false,
-        success : function (data) {
-
-
-            var result = [];
-            if(data.length==1 && data[0].code!="200"){
-
-
-                result.push({id:"-999",text:data[0].message});
-
-            }else{
-                for(var i in data){
-                    if(data[i].siteCode && data[i].siteCode != ""){
-                        result.push({id:data[i].siteCode,text:data[i].siteName});
-                    }
-                }
-
-            }
-            if(initIdSelectId && result[0].id!="-999"){
-                $(initIdSelectId).val(result[0].id);
-            }
-
-            $(selectId).select2({
-                width: '100%',
-                placeholder:'请选择分拣中心',
-                allowClear:true,
-                data:result
-            });
-
-            if(initLogin){
-                //第一次登录 初始化登录人分拣中心
-                if($("#loginUserCreateSiteCode").val() != -1){
-                    //登录人大区
-                    $(selectId).val($("#loginUserCreateSiteCode").val()).trigger('change');
-                }
-            }
-            initLogin = false;
-
-        }
-    });
-}
-
-
-// 初始化大区下拉框
-function initOrg() {
-
-
-    var url = "/services/bases/allorgs";
-    var param = {};
-    $.ajax({
-        type: "get",
-        url: url,
-        data: param,
-        async: false,
-        success: function (data) {
-
-            var result = [];
-            for (var i in data) {
-                if (data[i].orgId && data[i].orgId != "") {
-                    result.push({id: data[i].orgId, text: data[i].orgName});
-
-                }
-
-            }
-
-            $('#site-group-select').select2({
-                width: '100%',
-                placeholder: '请选择机构',
-                allowClear: true,
-                data: result
-            });
-
-            $("#site-group-select")
-                .on("change", function (e) {
-                    $("#query-form #createSiteCode").val("");
-                    var orgId = $("#site-group-select").val();
-                    if (orgId) {
-                        var siteListUrl = '/services/bases/dms/' + orgId;
-                        findSite("#site-select", siteListUrl, "#query-form #createSiteCode");
-                    }
-
-                });
-
-            $("#site-select").on("change", function (e) {
-                var _s = $("#site-select").val();
-                $("#query-form #createSiteCode").val(_s);
-            });
-
-
-            if ($("#loginUserOrgId").val() != -1) {
-                //登录人大区
-                $('#site-group-select').val($("#loginUserOrgId").val()).trigger('change');
-            } else {
-                $('#site-group-select').val(null).trigger('change');
-            }
-
-            $('#site-group-select,#site-select').attr("disabled","disabled");
-        }
-    });
-
 }
