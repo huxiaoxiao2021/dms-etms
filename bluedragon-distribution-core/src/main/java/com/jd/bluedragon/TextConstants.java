@@ -159,4 +159,16 @@ public class TextConstants {
      * 海运标识‘H’
      */
     public static final String TRANSPORT_SEA_FLAG = "H";
+    /**
+     * 运输模式‘特快送 次晨’
+     */
+    public static final String EXPRESS_DELIVERY_NEXT_MORNING = "特快送 次晨";
+    /**
+     * 运输模式‘特快送’
+     */
+    public static final String EXPRESS_DELIVERY = "特快送";
+    /**
+     * 运输模式‘特快送 同城’
+     */
+    public static final String EXPRESS_DELIVERY_SAME_CITY = "特快送 同城";
 }
