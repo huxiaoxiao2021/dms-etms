@@ -898,10 +898,14 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         识别waybillsign116位=2，面单“时效”字段处展示“同城”；
 	    识别waybillsign116位=3，面单“时效”字段处展示“次晨”； 回改 20200203
         */
-        if(!BusinessUtil.isExpressDeliverySameCity(waybill.getWaybillSign()) && BusinessUtil.isSameCity(waybill.getWaybillSign())){
+        if(!BusinessUtil.isExpressDeliverySameCity(waybill.getWaybillSign())
+                && !BusinessUtil.isExpressDelivery(waybill.getWaybillSign())
+                && BusinessUtil.isSameCity(waybill.getWaybillSign())){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_SAME_CITY);
         }
-        if(!BusinessUtil.isExpressDeliveryNextMorning(waybill.getWaybillSign()) && BusinessUtil.isNextMorning(waybill.getWaybillSign())){
+        if(!BusinessUtil.isExpressDeliveryNextMorning(waybill.getWaybillSign())
+                && !BusinessUtil.isExpressDelivery(waybill.getWaybillSign())
+                && BusinessUtil.isNextMorning(waybill.getWaybillSign())){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_NEXT_DAY);
         }
 
