@@ -883,24 +883,14 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
          * 4. waybill_sign第31位=4 且 16位不等于4 ，打印【特快送】
          * 5. waybill_sign第31位=1 且 116位=2，打印【特快送 同城】
          * 6. waybill_sign第31位=2，打印【特快送 同城】
+         * 7.以上都不满足时，waybill_sign第31位=1，打印【特快送】
          */
-        if((BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_1)
-                && BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_116,WaybillSignConstants.CHAR_116_3)
-                && BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_16,WaybillSignConstants.CHAR_16_4)
-            )||(BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_4)
-                && BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_14,WaybillSignConstants.CHAR_16_4))){
+        if(BusinessUtil.isExpressDeliveryNextMorning(waybill.getWaybillSign())){
             target.setTransportMode(TextConstants.EXPRESS_DELIVERY_NEXT_MORNING);
-        }else if((BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_1)
-                && BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_116,WaybillSignConstants.CHAR_116_3)
-                && !BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_16,WaybillSignConstants.CHAR_16_4)
-        )||(BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_4)
-                && !BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_14,WaybillSignConstants.CHAR_16_4))){
-            target.setTransportMode(TextConstants.EXPRESS_DELIVERY);
-        }else if((BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_1)
-                && BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_116,WaybillSignConstants.CHAR_116_2)
-            )||BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_2)){
+        }else if(BusinessUtil.isExpressDeliverySameCity(waybill.getWaybillSign())){
             target.setTransportMode(TextConstants.EXPRESS_DELIVERY_SAME_CITY);
-        }else if(BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_1)) {
+        }else if(BusinessUtil.isExpressDelivery(waybill.getWaybillSign())
+            ||BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_1)){
             target.setTransportMode(TextConstants.EXPRESS_DELIVERY);
         }
 
@@ -908,10 +898,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         识别waybillsign116位=2，面单“时效”字段处展示“同城”；
 	    识别waybillsign116位=3，面单“时效”字段处展示“次晨”； 回改 20200203
         */
-        if(BusinessUtil.isSameCity(waybill.getWaybillSign())){
+        if(!BusinessUtil.isExpressDeliverySameCity(waybill.getWaybillSign()) && BusinessUtil.isSameCity(waybill.getWaybillSign())){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_SAME_CITY);
         }
-        if(BusinessUtil.isNextMorning(waybill.getWaybillSign())){
+        if(!BusinessUtil.isExpressDeliveryNextMorning(waybill.getWaybillSign()) && BusinessUtil.isNextMorning(waybill.getWaybillSign())){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_NEXT_DAY);
         }
 
