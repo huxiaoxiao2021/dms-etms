@@ -21,7 +21,7 @@ import com.jd.ql.dms.print.utils.StringHelper;
  * @date: 2020年5月3日 下午12:47:33
  *
  */
-@Service("reverseChangeReprintHandler")
+@Service("queryWaybillByBusiCodeHandler")
 public class QueryWaybillByBusiCodeHandler implements InterceptHandler<WaybillPrintContext,String> {
 
     private static final Logger logger = LoggerFactory.getLogger(QueryWaybillByBusiCodeHandler.class);
