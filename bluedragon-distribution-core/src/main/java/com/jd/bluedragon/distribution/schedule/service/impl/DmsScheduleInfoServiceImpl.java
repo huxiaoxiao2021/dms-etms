@@ -236,7 +236,6 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 			log.setOperateContent(OperateTypeEnum.EDN_PRINT_DELIVERY_RECEIPT.getText());
 			//记录打印日志
 			businessLogManager.addLog(log);
-			printResult.toSucceed();
 		}else{
 			printResult.toFail("调度单下企配仓批次为空！");
 		}

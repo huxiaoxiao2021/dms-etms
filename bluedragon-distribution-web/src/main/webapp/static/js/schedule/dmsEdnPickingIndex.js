@@ -252,8 +252,8 @@ $(function() {
 		};
 		return oInit;
 	};
-	tableInit().init();
 	pageInit().init();
+	tableInit().init();
 });
 function printPdf(pdfUrl){
 	window.open(pdfUrl);
@@ -282,22 +282,22 @@ function printEdnDeliveryReceipt(scheduleBillCode,event){
     $.ajaxHelper.doPostSync(queryDUrl,
 		JSON.stringify(param),
 			function(data){
-        var tlogBodyHtml = "";
+        var tableBodyHtml = "";
         if(data.code == 200){
             if(data.data.length == 0){
-            	tlogBodyHtml = "<tr><td colspan='5'>未获取到明细数据</td></tr>";
+            	tableBodyHtml = "<tr><td colspan='5'>未获取到明细数据</td></tr>";
             }
             for(var i = 0 ; i<data.data.length ; i++ ){
                 var pojo = data.data[i];
-                tlogBodyHtml += "<tr><td width=\"25%\">"+pojo.ednBatchNum+"</td>";
-                tlogBodyHtml += "<td width=\"25%\">"+'<a href="#" class="show-storage-view" onclick="printPdf(\''+pojo.deliveryReceiptUrl+'\',event)">'+'打印</a>'+"</td>";
-                tlogBodyHtml += "</tr>";
+                tableBodyHtml += "<tr><td width=\"25%\">"+pojo.ednBatchNum+"</td>";
+                tableBodyHtml += "<td width=\"25%\">"+'<a href="#" class="show-storage-view" onclick="printPdf(\''+pojo.deliveryReceiptUrl+'\',event)">'+'打印</a>'+"</td>";
+                tableBodyHtml += "</tr>";
 
             }
         }else{
-            tbodyHtml = "<tr><td colspan='6'>"+data.message+"</td></tr>";
+        	tableBodyHtml = "<tr><td colspan='6'>"+data.message+"</td></tr>";
         }        
-        $("#deliveryReceiptDetailTbody").html(tlogBodyHtml);
+        $("#deliveryReceiptDetailTbody").html(tableBodyHtml);
     });
     event.stopPropagation();
 }
