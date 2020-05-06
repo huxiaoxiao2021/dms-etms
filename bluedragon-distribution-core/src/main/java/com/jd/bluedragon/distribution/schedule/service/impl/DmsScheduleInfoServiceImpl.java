@@ -178,7 +178,7 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 		DmsEdnPickingVo dmsEdnPickingVo = this.queryDmsEdnPickingVo(scheduleBillCode);
 		if(dmsEdnPickingVo != null){
 			dmsEdnPickingVo.setDmsScheduleInfoList(this.queryEdnDmsScheduleInfoList(scheduleBillCode));
-			JdCloudPrintRequest<DmsScheduleInfo> printRequest = jdCloudPrintService.getDefaultPdfRequest();
+			JdCloudPrintRequest<DmsEdnPickingVo> printRequest = jdCloudPrintService.getDefaultPdfRequest();
 			printRequest.setOrderNum(scheduleBillCode);
 			printRequest.setTemplate(DmsConstants.TEMPLATE_NAME_EDN_PICKING);
 			SysConfig templateConfig = sysConfigService.findConfigContentByConfigName(DmsConstants.TEMPLATE_VERSION_KEY_EDN_PICKING);
@@ -187,7 +187,9 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 			}else{
 				printRequest.setTemplateVer(DmsConstants.TEMPLATE_VERSION_DEFAULT_EDN_PICKING);
 			}
-			printRequest.setModel(dmsEdnPickingVo.getDmsScheduleInfoList());
+			List<DmsEdnPickingVo> printData = new ArrayList<DmsEdnPickingVo>();
+			printData.add(dmsEdnPickingVo);
+			printRequest.setModel(printData);
 			JdResult<String> pdfResult = jdCloudPrintService.printPdfAndReturnWebUrl(printRequest);
 			if(pdfResult != null && pdfResult.isSucceed()){
 				printResult.setData(pdfResult.getData());
