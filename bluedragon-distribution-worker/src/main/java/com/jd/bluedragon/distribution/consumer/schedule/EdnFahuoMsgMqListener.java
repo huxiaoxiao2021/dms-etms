@@ -14,7 +14,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.dms.print.utils.StringHelper;
 
-@Service("bdWaybillScheduleMqListener")
+@Service("ednFahuoMsgMqListener")
 public class EdnFahuoMsgMqListener extends MessageBaseConsumer {
 
     private static final Logger log = LoggerFactory.getLogger(EdnFahuoMsgMqListener.class);

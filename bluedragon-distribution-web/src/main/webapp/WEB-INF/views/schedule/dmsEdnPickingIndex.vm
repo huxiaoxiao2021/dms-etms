@@ -8,6 +8,7 @@
 <meta http-equiv="expires" content="0">
 #parse("system/common/baseImport.vm")
 <script src="/static/js/schedule/dmsEdnPickingIndex.js"></script>
+<script src="/static/js/jquery-plugins/jquery.media.js"></script>
 </head>
 <body class="container-fluid">
 	<input type="hidden" id="loginUserOrgId" value="$!{orgId}" />
@@ -79,7 +80,6 @@
 
 		</div>
 		<table id="dataTable"></table>
-		<iframe id="pdfIfram" style="display:none"></iframe>
 	</div>
 	<!-- 编辑表单 -->
 	<div id="dataEditDiv" class="main" style="margin-left: 40px;">
@@ -164,7 +164,11 @@
 		<!-- /.modal-dialog -->
 	</div>
 	<!-- /.modal -->
-	
+	<div class="modal fade" id="pdfPrint" tabindex="-1" role="dialog">
+		<div class="panel-body">
+			<a id="pdfPrintA" class="media" href="" target="_about">PDF File</a>
+	   	</div>
+	</div>
 	<div class="modal fade" id="viewModal" tabindex="-1" role="dialog">
 		<div class="modal-dialog modal-lg" role="document">
 			<div class="modal-content">

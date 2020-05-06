@@ -129,7 +129,12 @@ $(function() {
 
                 }
             });
-
+            var v0 = $.dateHelper.formatDate(new Date());
+            var v1 = $.dateHelper.formatDate(new Date());
+            
+            $("#scheduleTimeGteStr").val(v0+" 00:00:00");
+            $("#scheduleTimeLtStr").val(v1+" 23:59:59");
+            
 		    $('#btn_query').click(function() {
 		    	tableInit().refresh();
 			});
@@ -251,8 +256,7 @@ $(function() {
 	pageInit().init();
 });
 function printPdf(pdfUrl){
-	$("#pdfIfram").attr('src', pdfUrl);
-	$("#pdfIfram").contentWindow.print();
+	window.open(pdfUrl);
 }
 function printEdnPickingList(scheduleBillCode,event){
     //获取明细

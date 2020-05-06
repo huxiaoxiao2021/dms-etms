@@ -250,5 +250,13 @@
     <jmq:consumer id="jmq.strandConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.strand.report}" listener="strandConsumer"/>
     </jmq:consumer>
+    <!--调度信息数据-->
+    <jmq:consumer id="jmq.bdWaybillScheduleMqConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.bdWaybillScheduleMqListener}" listener="bdWaybillScheduleMqListener"/>
+    </jmq:consumer>    
+    <!--企配仓信息数据-->
+    <jmq:consumer id="jmq.ednFahuoMsgMqConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.ednFahuoMsgMqListener}" listener="ednFahuoMsgMqListener"/>
+    </jmq:consumer>    
 </beans>
 
