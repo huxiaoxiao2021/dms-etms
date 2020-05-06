@@ -5,10 +5,12 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
+import com.jd.bluedragon.common.dto.send.response.TransPlanDto;
 import com.jd.bluedragon.common.dto.sorting.request.SortingCancelRequest;
 import com.jd.bluedragon.common.dto.sorting.request.SortingCheckRequest;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.rest.sorting.SortingResource;
@@ -22,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -125,5 +128,28 @@ public class SortingGatewayServiceImpl implements SortingGatewayService {
             jdVerifyResponse.toError(e.getMessage());
         }
         return jdVerifyResponse;
+    }
+
+    @Override
+    @BusinessLog(sourceSys = 1,bizType = 2002,operateType = 20022)
+    @JProfiler(jKey = "DMSWEB.SortingGatewayServiceImpl.getWaybillCodes", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public JdCResponse<List<String>> getWaybillCodes(String boxCode){
+        JdCResponse<List<String>> res=new JdCResponse<>();
+        res.toSucceed();
+
+        if(StringUtils.isEmpty(boxCode)){
+            res.toFail("箱号不能为空");
+            return res;
+        }
+
+        InvokeResult<List<String>> rs= sortingResource.getWaybillCodes(boxCode);
+        if (rs.getCode()==InvokeResult.RESULT_SUCCESS_CODE){
+            res.setData(rs.getData());
+        }else {
+            res.setCode(rs.getCode());
+            res.setMessage(rs.getMessage());
+        }
+
+        return res;
     }
 }
