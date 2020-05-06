@@ -37,6 +37,13 @@ public interface SendGatewayService {
     JdCResponse<List<TransPlanDto>> getTransPlan(TransPlanRequest request);
 
     /**
+     * B冷链发货-单个物品（包裹、运单、箱）校验。校验过程：金鹏运单校验->判断是否在路由范围内
+     * @param request
+     * @return
+     */
+    JdCResponse<Boolean> checkGoodsForColdChainSend(DeliveryRequest request);
+
+    /**
      * 金鹏运单校验
      * @param request
      * @return

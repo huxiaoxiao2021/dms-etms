@@ -159,6 +159,64 @@ public class SendGatewayServiceImpl implements SendGatewayService {
 
     @Override
     @JProfiler(jKey = "DMSWEB.SendGatewayServiceImpl.checkJpWaybill",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    @BusinessLog(sourceSys = 1, bizType = 100, operateType = 1013)
+    public  JdCResponse<Boolean> checkGoodsForColdChainSend(DeliveryRequest request){
+        JdCResponse<Boolean> res=parameterCheck(request);
+        if (!JdCResponse.CODE_SUCCESS.equals(res.getCode())){
+            return res;
+        }
+
+        com.jd.bluedragon.distribution.api.request.DeliveryRequest req=new com.jd.bluedragon.distribution.api.request.DeliveryRequest();
+        BeanUtils.copyProperties(request, req);
+        if(null!=request.getUser()){
+            req.setUserCode(request.getUser().getUserCode());
+            req.setUserName(request.getUser().getUserName());
+        }
+        if(null!=request.getCurrentOperate()){
+            req.setSiteCode(request.getCurrentOperate().getSiteCode());
+            req.setSiteName(request.getCurrentOperate().getSiteName());
+        }
+
+        //金鹏运单校验
+        DeliveryResponse rs=deliveryResource.checkJpWaybill(req);
+        if (null==rs){
+            res.toFail("检验异常");
+            res.setData(false);
+            return res;
+        }
+
+        //验证不通过，直接返回拦死信息
+        if (!JdResponse.CODE_OK.equals(rs.getCode())){
+            res.setCode(rs.getCode());
+            res.setMessage(rs.getMessage());
+            res.setData(false);
+            return res;
+        }
+
+        //判断是否在路由范围内
+        rs=deliveryResource.checkThreeDeliveryNew(req);
+        if (null==rs){
+            res.toFail("检验异常");
+            res.setData(false);
+            return res;
+        }
+
+        if (!JdResponse.CODE_OK.equals(rs.getCode())){
+            res.setCode(rs.getCode());
+            res.setMessage(rs.getMessage());
+            //如果code值在30000-40000之间时，返回让用户选择的状态。
+            if (rs.getCode()>=30000 && rs.getCode()<40000){
+                res.setData(true);
+            }
+            res.setData(false);
+            return res;
+        }
+
+        return res;
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.SendGatewayServiceImpl.checkJpWaybill",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     @BusinessLog(sourceSys = 1, bizType = 100, operateType = 1007)
     public JdCResponse<Boolean> checkJpWaybill(DeliveryRequest request){
         JdCResponse<Boolean> res=parameterCheck(request);
