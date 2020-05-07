@@ -56,7 +56,7 @@ public class BdWaybillScheduleMqListener extends MessageBaseConsumer {
     	//调用基础资料获取预分拣站点对应的分拣中心
     	Integer oldSiteId = mqObj.getOldSiteId();
     	if(oldSiteId != null){
-    		BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseStaffByStaffId(oldSiteId);
+    		BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(oldSiteId);
     		if(baseStaffSiteOrgDto != null && baseStaffSiteOrgDto.getDmsId() != null){
     			dmsScheduleInfo.setDestDmsSiteCode(baseStaffSiteOrgDto.getDmsId());
     		}else{
