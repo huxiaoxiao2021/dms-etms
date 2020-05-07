@@ -98,7 +98,7 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 		DmsScheduleInfo oldData = dmsScheduleInfoDao.queryByWaybillCode(dmsScheduleInfo.getWaybillCode());
 		if(oldData == null){
 			return dmsScheduleInfoDao.insert(dmsScheduleInfo);
-		}else if(DateHelper.compare(dmsScheduleInfo.getScheduleTime(), oldData.getScheduleTime())>0){
+		}else if(DateHelper.compare(dmsScheduleInfo.getBusinessUpdateTime(), oldData.getBusinessUpdateTime())>0){
 			dmsScheduleInfo.setId(oldData.getId());
 			return dmsScheduleInfoDao.updateEdnFahuoInfo(dmsScheduleInfo);
 		}else{
