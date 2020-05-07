@@ -191,7 +191,7 @@
 			parent_order_id = #{parentOrderId,jdbcType=VARCHAR},	
 			business_update_time = #{businessUpdateTime,jdbcType=TIMESTAMP}
 		where waybill_code = #{waybillCode,jdbcType=VARCHAR}
-			and (business_update_time is null or business_update_time &lt; #{business_update_time,jdbcType=TIMESTAMP})
+			and (business_update_time is null or business_update_time &lt; #{businessUpdateTime,jdbcType=TIMESTAMP})
 	</update>
 	
 	<update id="deleteById" parameterType="java.lang.Long">
