@@ -170,7 +170,7 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
 		} finally {
 			Profiler.registerInfoEnd(callerInfo);
 		}
-        log.info("调用云打印结束,cost:{}ms,resp:{}",(System.currentTimeMillis() - startTime));
+        log.info("调用云打印结束,cost:{}ms,resp:{}",(System.currentTimeMillis() - startTime),body);
 		return printResult;
 	}
 	/**
@@ -238,7 +238,8 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
         			//生成外链接
         			URI uri = pdfOutJssStorage.bucket(pdfPrintOssConfig.getBucket()).object(pdfPath).generatePresignedUrl();
         			if(uri != null){
-        				result.setData(uri.getPath());
+        				result.setData(uri.toString());
+        				result.toSuccess();
         			}else{
         				result.toFail("jss生成外链失败！");
         			}

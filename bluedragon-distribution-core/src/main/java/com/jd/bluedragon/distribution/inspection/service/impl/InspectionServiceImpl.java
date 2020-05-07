@@ -700,7 +700,7 @@ public class InspectionServiceImpl implements InspectionService {
 				//判断末级分拣中心、企配仓类型
 				if(destinationDmsInfo != null 
 						&& destinationDmsId.equals(dmsSiteCode)
-						&& BusinessUtil.isSite(destinationDmsInfo.getSubType())){
+						&& BusinessUtil.isEdnDmsSite(destinationDmsInfo.getSubType())){
 					hintMessage = "此单为企配仓运单，必须操作暂存上架";
 				}
 			}

@@ -49,7 +49,7 @@ public class BdWaybillScheduleMqListener extends MessageBaseConsumer {
     	DmsScheduleInfo dmsScheduleInfo = new DmsScheduleInfo();
     	dmsScheduleInfo.setWaybillCode(mqObj.getWaybillCode());
     	dmsScheduleInfo.setScheduleBillCode(mqObj.getScheduleBillCode());
-    	dmsScheduleInfo.setCarrierName(mqObj.getCarriername());
+    	dmsScheduleInfo.setCarrierName(mqObj.getCarrierName());
     	dmsScheduleInfo.setPackageNum(mqObj.getGoodNumber());
     	dmsScheduleInfo.setScheduleTime(mqObj.getScheduleTime());
     	dmsScheduleInfo.setBusinessType(businessType.getCode());

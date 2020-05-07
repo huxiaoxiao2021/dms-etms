@@ -102,6 +102,10 @@ public class DmsConstants {
      */
     public static final Integer SITE_TYPE_DMS = 64;
     /**
+     * 分拣中心子类型-企配仓
+     */
+    public static final Integer SITE_SUB_TYPE_EDN = 6540;
+    /**
      * 站点类型-站点
      */
     public static final Integer SITE_TYPE_SITE = 4;

@@ -27,7 +27,7 @@ public class BdWaybillScheduleMq implements Serializable {
 	/**
 	 * 承运商名称
 	 */
-	private String carriername;
+	private String carrierName;
 	
 	/**
 	 * 调度时间，调度信息变更以此时间为准
@@ -70,12 +70,12 @@ public class BdWaybillScheduleMq implements Serializable {
 		this.scheduleBillCode = scheduleBillCode;
 	}
 
-	public String getCarriername() {
-		return carriername;
+	public String getCarrierName() {
+		return carrierName;
 	}
 
-	public void setCarriername(String carriername) {
-		this.carriername = carriername;
+	public void setCarrierName(String carrierName) {
+		this.carrierName = carrierName;
 	}
 
 	public Date getScheduleTime() {

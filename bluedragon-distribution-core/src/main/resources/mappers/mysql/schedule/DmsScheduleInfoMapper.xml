@@ -68,9 +68,7 @@
 				<if test="businessUpdateTime != null" >
 					business_update_time,
 				</if>
-				<if test="createTime != null" >
 					create_time,
-				</if>
 				<if test="yn != null" >
 					yn,
 				</if>
@@ -115,9 +113,7 @@
 				<if test="businessUpdateTime != null" >
 					#{businessUpdateTime,jdbcType=TIMESTAMP},
 				</if>
-				<if test="createTime != null" >
-					#{createTime,jdbcType=TIMESTAMP},
-				</if>
+					now(),
 				<if test="yn != null" >
 					#{yn,jdbcType=TINYINT},
 				</if>
