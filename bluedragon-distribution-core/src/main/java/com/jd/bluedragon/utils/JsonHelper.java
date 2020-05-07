@@ -1,10 +1,13 @@
 package com.jd.bluedragon.utils;
 
+import static org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES;
+
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
+
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -68,7 +71,7 @@ public class JsonHelper {
         try {
             JsonHelper.mapper.getSerializationConfig().setSerializationInclusion(
                     JsonSerialize.Inclusion.NON_NULL);
-
+            JsonHelper.mapper.configure(FAIL_ON_UNKNOWN_PROPERTIES, false);
             return JsonHelper.mapper.readValue(json, responseType);
         } catch (Exception e) {
             JsonHelper.log.warn("Jackson反序列化JSON发生异常，将使用GSON重试");
