@@ -136,15 +136,7 @@ $(function() {
             $("#scheduleTimeLtStr").val(v1+" 23:59:59");
             
 		    $('#btn_query').click(function() {
-		    	var date0 = new Date($("#scheduleTimeGteStr").val());
-		    	var date1 = new Date($("#scheduleTimeLtStr").val());
-		    	if(date1.getTime()<date0.getTime()){
-		    		alert('结束时间不能小于开始时间！');
-		    		return;
-		    	}
-		    	var date00 = $.dateHelper.addDays(date0,30);
-		    	if(date1.getTime()>date00.getTime()){
-		    		alert('时间区间不能大于30天！');
+		    	if(!checkQueryParams()){
 		    		return;
 		    	}
 		    	tableInit().refresh();
@@ -216,7 +208,9 @@ $(function() {
 			});
 
             $("#btn_export").on("click",function(e){
-
+		    	if(!checkQueryParams()){
+		    		return;
+		    	}
                 var params = tableInit().getSearchCondition();
 
                 var form = $("<form method='post'></form>"),
@@ -266,6 +260,20 @@ $(function() {
 	pageInit().init();
 	tableInit().init();
 });
+function checkQueryParams(){
+	var date0 = new Date($("#scheduleTimeGteStr").val());
+	var date1 = new Date($("#scheduleTimeLtStr").val());
+	if(date1.getTime()<date0.getTime()){
+		alert('结束时间不能小于开始时间！');
+		return false;
+	}
+	var date00 = $.dateHelper.addDays(date0,30);
+	if(date1.getTime()>date00.getTime()){
+		alert('时间区间不能大于30天！');
+		return false;
+	}	
+	return true;
+}
 function printPdf(pdfUrl){
 	window.open(pdfUrl);
 }
