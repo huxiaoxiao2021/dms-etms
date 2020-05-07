@@ -168,6 +168,7 @@ public class SendGatewayServiceImpl implements SendGatewayService {
 
         com.jd.bluedragon.distribution.api.request.DeliveryRequest req=new com.jd.bluedragon.distribution.api.request.DeliveryRequest();
         BeanUtils.copyProperties(request, req);
+        req.setBusinessType(10);
         if(null!=request.getUser()){
             req.setUserCode(request.getUser().getUserCode());
             req.setUserName(request.getUser().getUserName());
@@ -175,6 +176,8 @@ public class SendGatewayServiceImpl implements SendGatewayService {
         if(null!=request.getCurrentOperate()){
             req.setSiteCode(request.getCurrentOperate().getSiteCode());
             req.setSiteName(request.getCurrentOperate().getSiteName());
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            req.setOperateTime(sdf.format(request.getCurrentOperate().getOperateTime()));
         }
 
         //金鹏运单校验
@@ -226,6 +229,7 @@ public class SendGatewayServiceImpl implements SendGatewayService {
 
         com.jd.bluedragon.distribution.api.request.DeliveryRequest req=new com.jd.bluedragon.distribution.api.request.DeliveryRequest();
         BeanUtils.copyProperties(request, req);
+        req.setBusinessType(10);
         if(null!=request.getUser()){
             req.setUserCode(request.getUser().getUserCode());
             req.setUserName(request.getUser().getUserName());
@@ -233,6 +237,8 @@ public class SendGatewayServiceImpl implements SendGatewayService {
         if(null!=request.getCurrentOperate()){
             req.setSiteCode(request.getCurrentOperate().getSiteCode());
             req.setSiteName(request.getCurrentOperate().getSiteName());
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            req.setOperateTime(sdf.format(request.getCurrentOperate().getOperateTime()));
         }
 
         DeliveryResponse rs=deliveryResource.checkJpWaybill(req);
@@ -261,6 +267,7 @@ public class SendGatewayServiceImpl implements SendGatewayService {
 
         com.jd.bluedragon.distribution.api.request.DeliveryRequest req=new com.jd.bluedragon.distribution.api.request.DeliveryRequest();
         BeanUtils.copyProperties(request, req);
+        req.setBusinessType(10);
         if(null!=request.getUser()){
             req.setUserCode(request.getUser().getUserCode());
             req.setUserName(request.getUser().getUserName());
@@ -268,6 +275,8 @@ public class SendGatewayServiceImpl implements SendGatewayService {
         if(null!=request.getCurrentOperate()){
             req.setSiteCode(request.getCurrentOperate().getSiteCode());
             req.setSiteName(request.getCurrentOperate().getSiteName());
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            req.setOperateTime(sdf.format(request.getCurrentOperate().getOperateTime()));
         }
 
         DeliveryResponse rs=deliveryResource.checkThreeDeliveryNew(req);
