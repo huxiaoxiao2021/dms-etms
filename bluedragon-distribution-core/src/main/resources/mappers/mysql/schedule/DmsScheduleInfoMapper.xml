@@ -255,15 +255,15 @@
 			from 
 			  dms_schedule_info 
 			<include refid="where_queryEdnPickingListByPagerCondition"/>
-	        group by schedule_bill_code,carrier_name) t
+	        group by schedule_bill_code) t
 	</select>	
 	<select id="queryEdnPickingListByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="DmsEdnPickingVo">
 		select
-			schedule_bill_code,carrier_name,max(schedule_time) as schedule_time
+			schedule_bill_code,max(carrier_name) as carrier_name,max(schedule_time) as schedule_time
 		from
 			dms_schedule_info t
 		<include refid="where_queryEdnPickingListByPagerCondition"/>					
-			group by schedule_bill_code,carrier_name
+			group by schedule_bill_code
 			order by max(schedule_time)
 			limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
 	</select>
@@ -283,12 +283,12 @@
 	<!-- 查询单个调度对象 -->
 	<select id="queryDmsEdnPickingVo" parameterType="java.lang.String" resultMap="DmsEdnPickingVo">
 		select
-			schedule_bill_code,carrier_name,max(schedule_time) as schedule_time
+			schedule_bill_code,max(carrier_name) as carrier_name,max(schedule_time) as schedule_time
 		from
 			dms_schedule_info t
 		<include refid="where_queryEdnCondition"/>
 			and schedule_bill_code = #{scheduleBillCode,jdbcType=VARCHAR}					
-			group by schedule_bill_code,carrier_name
+			group by schedule_bill_code
 	</select>	
 	<!-- 查询调度单号下所有的企配仓批次号 -->
 	<select id="queryEdnBatchNumList" parameterType="java.lang.String" resultType="java.lang.String">
