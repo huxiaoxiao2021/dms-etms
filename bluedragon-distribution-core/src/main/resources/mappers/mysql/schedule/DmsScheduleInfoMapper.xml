@@ -179,7 +179,7 @@
 			business_type = #{businessType,jdbcType=INTEGER},
 			dest_dms_site_code = #{destDmsSiteCode,jdbcType=INTEGER},
 			package_num = #{packageNum,jdbcType=INTEGER},
-			carrierName = #{carriername,jdbcType=VARCHAR},
+			carrier_name = #{carrierName,jdbcType=VARCHAR},
 			schedule_time = #{scheduleTime,jdbcType=TIMESTAMP}
 		where waybill_code = #{waybillCode,jdbcType=VARCHAR}
 			and (schedule_time is null or schedule_time &lt; #{scheduleTime,jdbcType=TIMESTAMP})
