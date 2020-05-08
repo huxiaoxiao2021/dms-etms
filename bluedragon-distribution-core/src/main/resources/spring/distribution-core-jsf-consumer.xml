@@ -603,4 +603,9 @@
                   retries="${jsf.retries}">
     </jsf:consumer>
 
+    <jsf:consumer id="basicSiteUpdateService" interface="com.jd.etms.basic.jsf.BasicSiteUpdateService"
+                  protocol="jsf" alias="${jsf.basicSite.alias}" timeout="${jsf.basicSite.timeout}" retries="${jsf.retries}">
+        <jsf:parameter key="token" value="${jsf.basicSite.token}" hide="true" />
+    </jsf:consumer>
+
 </beans>

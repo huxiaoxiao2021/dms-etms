@@ -23,6 +23,11 @@ import com.jd.bluedragon.distribution.send.domain.SendDispatchDto;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.sms.domain.SMSDto;
 import com.jd.bluedragon.distribution.sms.service.SmsConfigService;
+import com.jd.bluedragon.distribution.storage.domain.KYStorageMessage;
+import com.jd.bluedragon.distribution.storage.domain.StoragePackageMStatusEnum;
+import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -105,6 +110,10 @@ public class SendDetailConsumer extends MessageBaseConsumer {
     @Autowired
     @Qualifier("ccInAndOutBoundProducer")
     private DefaultJMQProducer ccInAndOutBoundProducer;
+
+    @Autowired
+    @Qualifier("taskService")
+    private TaskService taskService;
 
     /**
      * 缓存redis的key
@@ -241,6 +250,8 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                 }
                 // 推送冷链操作MQ消息 - B2B冷链卸货出入库业务相关
                 this.pushColdChainOperateMQ(sendDetail, waybill.getWaybillSign());
+                // 快运暂存发货则下架
+                this.kyStoragePutDown(sendDetail);
             } else {
                 log.warn("[dmsWorkSendDetail消费]根据运单号获取运单信息为空，packageBarCode:{},boxCode:{}", packageBarCode, sendDetail.getBoxCode());
             }
@@ -534,6 +545,55 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         body.setPackageNo(sendDetail.getPackageBarcode());
         body.setWaybillNo(WaybillUtil.getWaybillCode(sendDetail.getPackageBarcode()));
         ccInAndOutBoundProducer.send(sendDetail.getPackageBarcode(), JSON.toJSONString(body));
+    }
+
+    /**
+     * 快运暂存发货即下架
+     * <p>
+     *     1、下架全程跟踪时间点比发货时间早3-5秒
+     *     2、运单下所有包裹下架则对外发MQ
+     * </p>
+     * @param sendDetail
+     */
+    private void kyStoragePutDown(SendDetailMessage sendDetail) {
+        try {
+            updateWaybillStatusOfKYZC(sendDetail);
+            KYStorageMessage message = new KYStorageMessage();
+            message.setWaybillCode(WaybillUtil.getWaybillCode(sendDetail.getPackageBarcode()));
+            message.setPackageCode(sendDetail.getPackageBarcode());
+            message.setStorageStatus(StoragePackageMStatusEnum.SEND_4.getCode());
+            message.setOperateErp(sendDetail.getCreateUser());
+            message.setOperateTime(new Date(sendDetail.getOperateTime() - 3000));
+            message.setOperateSiteCode(sendDetail.getCreateSiteCode());
+            ccInAndOutBoundProducer.send(message.getPackageCode(), JSON.toJSONString(message));
+        }catch (Exception e){
+            log.error("快运暂存发货即下架异常,异常信息:【{}】",e.getMessage(),e);
+        }
+
+    }
+
+    private void updateWaybillStatusOfKYZC(SendDetailMessage sendDetail) {
+        Task tTask = new Task();
+        tTask.setKeyword1(sendDetail.getPackageBarcode());
+        tTask.setKeyword2(String.valueOf(WaybillStatus.WAYBILL_STATUS_PUTAWAY_STORAGE_KYZC));
+        tTask.setCreateSiteCode(sendDetail.getCreateSiteCode());
+        tTask.setCreateTime(new Date(sendDetail.getOperateTime() - 3000));
+        tTask.setType(Task.TASK_TYPE_WAYBILL_TRACK);
+        tTask.setTableName(Task.getTableName(Task.TASK_TYPE_WAYBILL_TRACK));
+        tTask.setSequenceName(Task.getSequenceName(Task.TABLE_NAME_POP));
+        String ownSign = BusinessHelper.getOwnSign();
+        tTask.setOwnSign(ownSign);
+
+        WaybillStatus status=new WaybillStatus();
+        status.setOperateType(WaybillStatus.WAYBILL_STATUS_PUTAWAY_STORAGE_KYZC);
+        status.setWaybillCode(WaybillUtil.getWaybillCode(sendDetail.getPackageBarcode()));
+        status.setPackageCode(sendDetail.getPackageBarcode());
+        status.setOperateTime(new Date(sendDetail.getOperateTime()));
+        status.setOperator(sendDetail.getCreateUser());
+        status.setRemark("分拣中心下架");
+        status.setCreateSiteCode(sendDetail.getCreateSiteCode());
+        tTask.setBody(JsonHelper.toJson(status));
+        taskService.add(tTask);
     }
 
 }

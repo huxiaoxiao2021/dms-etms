@@ -1,17 +1,22 @@
 package com.jd.bluedragon.distribution.storage.service.impl;
 
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.exception.StorageException;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.storage.dao.StoragePackageDDao;
 import com.jd.bluedragon.distribution.storage.dao.StoragePackageMDao;
 import com.jd.bluedragon.distribution.storage.domain.PutawayDTO;
+import com.jd.bluedragon.distribution.storage.domain.StorageCheckDto;
 import com.jd.bluedragon.distribution.storage.domain.StoragePackageD;
 import com.jd.bluedragon.distribution.storage.domain.StoragePackageM;
 import com.jd.bluedragon.distribution.storage.domain.StoragePackageMCondition;
 import com.jd.bluedragon.distribution.storage.domain.StoragePackageMStatusEnum;
+import com.jd.bluedragon.distribution.storage.domain.StorageSourceEnum;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
@@ -19,13 +24,22 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.etms.api.common.dto.CommonDto;
+import com.jd.etms.api.waybill.VrsWaybillQueryAPI;
+import com.jd.etms.api.waybill.resp.WaybillRouteLinkResp;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.ql.basic.dto.BaseSiteInfoDto;
+import com.jd.ql.basic.dto.BaseStaffSiteDTO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.util.SiteSignTool;
+import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.api.PagerCondition;
@@ -45,6 +59,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -58,6 +73,22 @@ import java.util.Map;
 public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> implements StoragePackageMService {
 
 	private final Log logger = LogFactory.getLog(StoragePackageMServiceImpl.class);
+
+	/**
+     * 运单是否需要暂存缓存前缀
+     * */
+    public static final String IS_NEED_STORAGE_LOCK_BEGIN = "IS_NEED_STORAGE_LOCK_";
+    /**
+     * 运单是否需要暂存提示
+     * */
+    public static final Integer HINT_CODE = 201;
+    public static final String HINT_MESSAGE = "运单需暂存，请操作暂存上架";
+    /**
+     * 默认时间值
+     * */
+    public static final Integer DIFF_HOURS = 24;
+    public static final Integer MS_TRANSFER_S = 1000;
+    public static final Integer DEFAULT_DELIVERY_TIME = 2;
 
 	@Autowired
 	@Qualifier("storagePackageMDao")
@@ -81,6 +112,13 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 
 	@Autowired
 	private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    @Qualifier("jimdbCacheService")
+    private CacheService cacheService;
+
+    @Autowired
+    private VrsWaybillQueryAPI vrsWaybillQueryAPI;
 
 	@Override
 	public Dao<StoragePackageM> getDao() {
@@ -231,53 +269,79 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 			}
 		}
 
-		if(!BusinessUtil.isPerformanceOrder(baseEntity.getData().getWaybill().getWaybillSign())){
-			throw new StorageException("非加履中心订单");
-		}
+		if(StorageSourceEnum.JP_STORAGE.getCode().equals(putawayDTO.getStorageSource())){
+            return dealWithJPZC(putawayDTO, isWaybillCode, baseEntity.getData());
+        }else if(StorageSourceEnum.KY_STORAGE.getCode().equals(putawayDTO.getStorageSource())){
+            return dealWithKYZC(putawayDTO, isWaybillCode, baseEntity.getData());
+        }else {
+            throw new StorageException("目前只支持金鹏暂存、快运暂存订单");
+        }
 
-		if(StringUtils.isBlank(baseEntity.getData().getWaybill().getParentOrderId())){
-			throw new StorageException("履约单号为空");
-		}
+	}
 
-		//检查是否已经上架过
-		StoragePackageD lastStoragePackageD = checkExistStorage(putawayDTO.getBarCode());
-		if(lastStoragePackageD != null){
-			throw new StorageException("已上架，储位号："+lastStoragePackageD.getStorageCode());
-		}
+    private boolean dealWithKYZC(PutawayDTO putawayDTO, boolean isWaybillCode, BigWaybillDto dto) {
 
-		//检查是否在其他分拣中心上架过
+        StoragePackageD lastStoragePackageD = checkExistStorage(putawayDTO.getBarCode());
+        if(lastStoragePackageD != null ){
+            //强制上架则更新
+
+        }
+
+        //存储暂存主表
+        saveStoragePackageM( putawayDTO, isWaybillCode, dto);
+
+        //存储暂存明细表
+        saveStoragePackageDs( putawayDTO, isWaybillCode, dto);
+
+        // 15500 暂存上架状态
+        updateWaybillStatusOfKYZC(putawayDTO);
+        return true;
+    }
+
+    private boolean dealWithJPZC(PutawayDTO putawayDTO, boolean isWaybillCode, BigWaybillDto dto) {
+        if(StringUtils.isBlank(dto.getWaybill().getParentOrderId())){
+            throw new StorageException("履约单号为空");
+        }
+
+        //检查是否已经上架过
+        StoragePackageD lastStoragePackageD = checkExistStorage(putawayDTO.getBarCode());
+        if(lastStoragePackageD != null){
+            throw new StorageException("已上架，储位号："+lastStoragePackageD.getStorageCode());
+        }
+
+        //检查是否在其他分拣中心上架过
 		/*StoragePackageM otherStoragePackageM = checkExistStorageOfOtherSite(putawayDTO,baseEntity.getData().getWaybill().getParentOrderId());
 		if(otherStoragePackageM != null){
 			throw new StorageException("履约单已在【"+otherStoragePackageM.getCreateSiteName()+"】上架");
 		}*/
 
-		//末级分拣中心
-		Integer destinationDmsId = null;
-		BaseStaffSiteOrgDto bDto = baseMajorManager.getBaseSiteBySiteId(baseEntity.getData().getWaybill().getOldSiteId());
-		if(bDto != null && bDto.getDmsId() != null){
-			//末级分拣中心
-			destinationDmsId = bDto.getDmsId();
-		}
-		if( destinationDmsId==null || !destinationDmsId.equals(putawayDTO.getCreateSiteCode())){
-			throw new StorageException("只允许在末级分拣中心上架");
-		}
+        //末级分拣中心
+        Integer destinationDmsId = null;
+        BaseStaffSiteOrgDto bDto = baseMajorManager.getBaseSiteBySiteId(dto.getWaybill().getOldSiteId());
+        if(bDto != null && bDto.getDmsId() != null){
+            //末级分拣中心
+            destinationDmsId = bDto.getDmsId();
+        }
+        if( destinationDmsId==null || !destinationDmsId.equals(putawayDTO.getCreateSiteCode())){
+            throw new StorageException("只允许在末级分拣中心上架");
+        }
 
-		//存储暂存主表
-		saveStoragePackageM( putawayDTO, isWaybillCode, baseEntity.getData());
+        //存储暂存主表
+        saveStoragePackageM( putawayDTO, isWaybillCode, dto);
 
-		//存储暂存明细表
-		saveStoragePackageDs( putawayDTO, isWaybillCode, baseEntity.getData());
+        //存储暂存明细表
+        saveStoragePackageDs( putawayDTO, isWaybillCode, dto);
 
-		//推送运单更新状态 8400 暂存上架状态
-		updateWaybillStatus( putawayDTO, isWaybillCode, baseEntity.getData());
+        //推送运单更新状态 8400 暂存上架状态
+        updateWaybillStatus( putawayDTO, isWaybillCode, dto);
 
-		//更新暂存主表发货状态
-		updateStoragePackageMStatusForSendOfParentOrderId(baseEntity.getData().getWaybill().getParentOrderId());
+        //更新暂存主表发货状态
+        updateStoragePackageMStatusForSendOfParentOrderId(dto.getWaybill().getParentOrderId());
+	    return true;
+    }
 
-		return true;
-	}
 
-	/**
+    /**
 	 * 获取最近一次暂存上架 储位号
 	 * @param waybillCode
 	 * @return
@@ -515,7 +579,11 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 			}else{
 				storagePackageM.setPutawayPackageSum(1L);
 			}
-
+			if(StorageSourceEnum.JP_STORAGE.getCode().equals(putawayDTO.getStorageSource())){
+                storagePackageM.setSource(StorageSourceEnum.JP_STORAGE.getCode());
+            }else {
+                storagePackageM.setSource(StorageSourceEnum.KY_STORAGE.getCode());
+            }
 			storagePackageM.setPerformanceCode(bigWaybillDto.getWaybill().getParentOrderId());
 			storagePackageM.setPlanDeliveryTime(bigWaybillDto.getWaybill().getRequireTime());
 			storagePackageM.setPackageSum(Long.valueOf(bigWaybillDto.getPackageList().size()));
@@ -551,7 +619,7 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 
 		StoragePackageD storagePackageD = new StoragePackageD();
 		storagePackageD.setWaybillCode(bigWaybillDto.getWaybill().getWaybillCode());
-		storagePackageD.setPerformanceCode(bigWaybillDto.getWaybill().getParentOrderId());
+		storagePackageD.setPerformanceCode(bigWaybillDto.getWaybill().getParentOrderId());//TODO 履约单是否一定存在
 		storagePackageD.setStorageCode(putawayDTO.getStorageCode());
 		storagePackageD.setCreateSiteCode(Long.valueOf(putawayDTO.getCreateSiteCode()));
 		storagePackageD.setCreateSiteName(putawayDTO.getCreateSiteName());
@@ -639,6 +707,257 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 		updateStoragePackageMStatusForSendOfParentOrderId(baseEntity.getData().getWaybill().getParentOrderId());
 	}
 
+    /**
+     * 校验是否需要暂存
+     *  <p>
+     *      可暂存运单 且 B网快运中心 且 登录人所在机构与运单末级分拣中心一致,则提示"运单需暂存，请操作暂存上架"
+     *      InvokeResult<Boolean>的data值表示，是否第一次上架校验
+     *      <p/>
+     *
+     * @param barCode 运单/包裹
+     * @param siteCode 站点
+     * @return
+     */
+    @Override
+    public InvokeResult<Boolean> checkIsNeedStorage(String barCode, Integer siteCode) {
+        InvokeResult<Boolean> result = new InvokeResult<>();
+        result.setData(false);
+        if(siteCode == null
+                || (!WaybillUtil.isPackageCode(barCode) && !WaybillUtil.isWaybillCode(barCode))){
+            result.parameterError(InvokeResult.PARAM_ERROR);
+            return result;
+        }
+        String waybillCode = WaybillUtil.getWaybillCode(barCode);
+        try {
+            BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(siteCode);
+            if (baseSite == null) {
+                result.parameterError("站点【" + siteCode + "】信息不存在...");
+                return result;
+            }
+            // 可暂存运单 且 B网快运中心 且 登录人所在机构与运单末级分拣中心一致
+            if(waybillCommonService.isStorageWaybill(waybillCode)
+                    && String.valueOf(Constants.B2B_SITE_TYPE).equals(baseSite.getSiteType())
+                    && loginSiteIsLast(null,waybillCode,siteCode)){
+                result.setCode(HINT_CODE);
+                result.setMessage(HINT_MESSAGE);
+                String lockKey = IS_NEED_STORAGE_LOCK_BEGIN + waybillCode + "_" + siteCode;
+                if(cacheService.setNx(lockKey,"",7, TimeUnit.DAYS)){
+                    result.setData(true);
+                }else {
+                    cacheService.setNx(lockKey,"",7, TimeUnit.DAYS);
+                }
+            }
+        }catch (Exception e){
+            log.error("校验是否需要暂存,异常信息:【{}】",e.getMessage(),e);
+            result.error(e);
+        }
+        return result;
+    }
+
+    /**
+     * 暂存校验
+     *
+     * @param barCode 运单/包裹
+     * @param siteCode 站点
+     * @return
+     */
+    @Override
+    public InvokeResult<StorageCheckDto> storageTempCheck(String barCode, Integer siteCode) {
+        InvokeResult<StorageCheckDto> result = new InvokeResult<>();
+        StorageCheckDto storageCheckDto = new StorageCheckDto();
+        try {
+            String waybillCode = WaybillUtil.getWaybillCode(barCode);
+            if(waybillCommonService.isStorageWaybill(waybillCode)){
+                Waybill waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
+                storageCheckDto.setStorageSource(StorageSourceEnum.KY_STORAGE.getCode());
+                storageCheckDto.setPlanDeliveryTime(DateHelper.formatDateTime(waybill.getRequireTime()));
+                if(!loginSiteIsLast(waybill,waybillCode,siteCode)){
+                    result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"当前场地非末级B网场地，禁止上架");
+                    return result;
+                }
+                StoragePackageD storagePackageD = checkExistStorage(barCode);
+                if(storagePackageD != null){
+                    storageCheckDto.setStorageCode(storagePackageD.getStorageCode());
+                    result.customMessage(JdCResponse.CODE_CONFIRM,"包裹号已上架请核实");
+                    return result;
+                }else {
+                    StoragePackageM storagePackageM =  storagePackageMDao.queryByWaybillCode(waybillCode);
+                    storageCheckDto.setStorageCode(storagePackageM==null?null:storagePackageM.getStorageCode());
+                }
+                if(isCanSend(waybill)){
+                    result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"货物距离预计送达时间较近，正常发运");
+                    return result;
+                }
+            }else if(waybillCommonService.isPerformanceWaybill(waybillCode)){
+                storageCheckDto.setStorageSource(StorageSourceEnum.JP_STORAGE.getCode());
+            }else {
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"非暂存运单，无需上架");
+            }
+        }catch (Exception e){
+            log.error("服务异常,异常信息:【{}】",e.getMessage(),e);
+            result.error(e);
+        }
+        return result;
+    }
+
+    /**
+     * 判断登录人所在机构与运单末级分拣中心一致
+     *
+     * @param waybillCode
+     * @param siteCode
+     * @return
+     */
+    private boolean loginSiteIsLast(Waybill waybill,String waybillCode,Integer siteCode){
+        try {
+            if(waybill == null){
+                waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
+                if (waybill == null) {
+                    return false;
+                }
+            }
+            BaseStaffSiteOrgDto oldSite = baseMajorManager.getBaseSiteBySiteId(waybill.getOldSiteId());
+            if (oldSite == null) {
+                return false;
+            }
+            return siteCode.equals(oldSite.getDmsId());
+        }catch (Exception e){
+            log.error("服务异常,异常信息:【{}】",e.getMessage(),e);
+        }
+        return false;
+    }
+
+    /**
+     * 时间校验
+     * <p>
+     *     【预计送达时间-当前时间-送货在途时间】差值 >= 24小时 可以上架
+     *     否则提示"货物距离预计送达时间较近，正常发运"
+     *     预计送达时间：waybill的requireTime字段
+     *     送货在途时间：路由中 计划妥投时间-计划发货时间
+     * </p>
+     *
+     * @param waybill
+     * @return
+     */
+    private boolean isCanSend(Waybill waybill){
+        try {
+            CommonDto<Map<String, List<WaybillRouteLinkResp>>> commonDto
+                    = vrsWaybillQueryAPI.queryWaybillRouteLinkNoToken(waybill.getWaybillCode());
+
+        }catch (Exception e){
+
+        }
+        long betweenHours = (waybill.getRequireTime().getTime() - new Date().getTime())
+                /(MS_TRANSFER_S * Constants.TIME_SECONDS_ONE_HOUR);
+        if(betweenHours - DEFAULT_DELIVERY_TIME > DIFF_HOURS){
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 根据条件导出
+     *
+     * @param condition
+     * @return
+     */
+    @Override
+    public List<List<Object>> getExportData(StoragePackageMCondition condition) {
+        List<List<Object>> resList = new ArrayList<List<Object>>();
+        List<Object> heads = new ArrayList<Object>();
+        //添加表头
+        heads.add("来源");
+        heads.add("履约单号");
+        heads.add("运单号");
+        heads.add("系统包裹数");
+        heads.add("上架包裹数");
+        heads.add("储位号");
+        heads.add("暂存状态");
+        heads.add("预计送达时间");
+        heads.add("上架时间");
+        heads.add("上架人erp");
+        heads.add("所属分拣中心");
+        heads.add("全部上架完成时间");
+        heads.add("全部下架完成时间");
+        resList.add(heads);
+        condition.setLimit(-1);
+        List<StoragePackageM> dataList = storagePackageMDao.queryExportByCondition(condition);
+        if(dataList != null && dataList.size() > 0){
+            //表格信息
+            for(StoragePackageM detail : dataList){
+                List<Object> body = Lists.newArrayList();
+                body.add(detail.getSource());
+                body.add(detail.getPerformanceCode());
+                body.add(detail.getWaybillCode());
+                body.add(detail.getPackageSum());
+                body.add(detail.getPutawayPackageSum());
+                body.add(detail.getStorageCode());
+                body.add(detail.getStatus()==null?null:detail.getStatus()==1?"已上架":detail.getStatus()==2?"可发货":detail.getStatus()==3?"强制可发货":detail.getStatus()==4?"已发货":"未知状态");
+                body.add(detail.getPlanDeliveryTime() == null ? null : DateHelper.formatDate(detail.getPlanDeliveryTime(), Constants.DATE_TIME_FORMAT));
+                body.add(detail.getPutawayTime() == null ? null : DateHelper.formatDate(detail.getPutawayTime(), Constants.DATE_TIME_FORMAT));
+                body.add(detail.getCreateUser());
+                body.add(detail.getCreateSiteName());
+                body.add(detail.getPutAwayCompleteTime() == null ? null : DateHelper.formatDate(detail.getPutAwayCompleteTime(), Constants.DATE_TIME_FORMAT));
+                body.add(detail.getDownAwayCompleteTime() == null ? null : DateHelper.formatDate(detail.getDownAwayCompleteTime(), Constants.DATE_TIME_FORMAT));
+                resList.add(body);
+            }
+        }
+        return  resList;
+    }
+
+    /**
+     * 获取分拣中心储位状态
+     *
+     * @param siteCode
+     * @return
+     */
+    @Override
+    public boolean getStorageStatusBySiteCode(Integer siteCode) {
+        try {
+            BaseSiteInfoDto baseSiteInfoDto = baseMajorManager.getBaseSiteInfoBySiteId(siteCode);
+            if(baseSiteInfoDto == null || StringUtils.isEmpty(baseSiteInfoDto.getSiteSign())){
+                return false;
+            }
+            return SiteSignTool.supportTemporaryStorage(baseSiteInfoDto.getSiteSign());
+        }catch (Exception e){
+            log.error("获取分拣中心储位状态异常,异常信息:【{}】",e.getMessage(),e);
+        }
+        return false;
+    }
+
+    /**
+     * 更新分拣中心储位状态
+     *
+     * @param siteCode
+     * @param isEnough
+     * @param operateErp
+     * @return
+     */
+    @Override
+    public boolean updateStorageStatusBySiteCode(Integer siteCode, Integer isEnough,String operateErp) {
+        try {
+            BaseSiteInfoDto baseSiteInfoDto = baseMajorManager.getBaseSiteInfoBySiteId(siteCode);
+            if(baseSiteInfoDto == null || StringUtils.isEmpty(baseSiteInfoDto.getSiteSign())){
+                return false;
+            }
+            String newSiteSign = SiteSignTool.setSupportTemporaryStorage(baseSiteInfoDto.getSiteSign(), String.valueOf(isEnough));
+            BaseStaffSiteDTO baseStaffSiteDTO = new BaseStaffSiteDTO();
+            baseStaffSiteDTO.setSystemName(Constants.SYS_DMS);
+            baseStaffSiteDTO.setSiteCode(baseSiteInfoDto.getSiteCode());
+            baseStaffSiteDTO.setSiteName(baseSiteInfoDto.getSiteName());
+            baseStaffSiteDTO.setSitePhone(baseSiteInfoDto.getTelephone());
+            baseStaffSiteDTO.setAddress(baseSiteInfoDto.getAddress());
+            baseStaffSiteDTO.setUpdateUser(operateErp);
+            baseStaffSiteDTO.setProvinceId(baseSiteInfoDto.getProvinceId());
+            baseStaffSiteDTO.setCityId(baseSiteInfoDto.getCityId());
+            baseStaffSiteDTO.setCountryId(baseSiteInfoDto.getCountyId());
+            baseStaffSiteDTO.setSiteSign(newSiteSign);
+            return baseMajorManager.updateBaseSiteBasicProperty(baseStaffSiteDTO);
+        }catch (Exception e){
+            log.error("更新分拣中心储位状态异常,异常信息:【{}】",e.getMessage(),e);
+        }
+        return false;
+    }
+
 
 	private void updateWaybillStatus(PutawayDTO putawayDTO,boolean isWaybillCode,BigWaybillDto bigWaybillDto){
 
@@ -676,5 +995,31 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 
 		taskService.add(tTask);
 	}
+
+
+    private void updateWaybillStatusOfKYZC(PutawayDTO putawayDTO) {
+
+        Task tTask = new Task();
+        tTask.setKeyword1(putawayDTO.getBarCode());
+        tTask.setKeyword2(String.valueOf(WaybillStatus.WAYBILL_STATUS_PUTAWAY_STORAGE_KYZC));
+        tTask.setCreateSiteCode(putawayDTO.getCreateSiteCode());
+        tTask.setCreateTime(new Date(putawayDTO.getOperateTime()));
+        tTask.setType(Task.TASK_TYPE_WAYBILL_TRACK);
+        tTask.setTableName(Task.getTableName(Task.TASK_TYPE_WAYBILL_TRACK));
+        tTask.setSequenceName(Task.getSequenceName(Task.TABLE_NAME_POP));
+        String ownSign = BusinessHelper.getOwnSign();
+        tTask.setOwnSign(ownSign);
+
+        WaybillStatus status=new WaybillStatus();
+        status.setOperateType(WaybillStatus.WAYBILL_STATUS_PUTAWAY_STORAGE_KYZC);
+        status.setWaybillCode(WaybillUtil.getWaybillCode(putawayDTO.getBarCode()));
+        status.setPackageCode(putawayDTO.getBarCode());
+        status.setOperateTime(new Date(putawayDTO.getOperateTime()));
+        status.setOperator(putawayDTO.getOperatorErp());
+        status.setRemark("分拣中心上架");
+        status.setCreateSiteCode(putawayDTO.getCreateSiteCode());
+        tTask.setBody(JsonHelper.toJson(status));
+        taskService.add(tTask);
+    }
 
 }

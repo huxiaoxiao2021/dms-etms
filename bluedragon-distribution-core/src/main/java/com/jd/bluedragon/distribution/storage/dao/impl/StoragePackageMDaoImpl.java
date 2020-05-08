@@ -1,9 +1,8 @@
 package com.jd.bluedragon.distribution.storage.dao.impl;
 
-import org.springframework.stereotype.Repository;
-
-import com.jd.bluedragon.distribution.storage.domain.StoragePackageM;
 import com.jd.bluedragon.distribution.storage.dao.StoragePackageMDao;
+import com.jd.bluedragon.distribution.storage.domain.StoragePackageM;
+import com.jd.bluedragon.distribution.storage.domain.StoragePackageMCondition;
 import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
 
 import java.util.List;
@@ -62,6 +61,11 @@ public class StoragePackageMDaoImpl extends BaseDao<StoragePackageM> implements 
     @Override
     public int updateStoragePackageMStatusForBeSendOfPWaybill(String waybillCode) {
         return sqlSession.update(this.nameSpace+".updateStoragePackageMStatusForBeSendOfPWaybill", waybillCode);
+    }
+
+    @Override
+    public List<StoragePackageM> queryExportByCondition(StoragePackageMCondition condition) {
+        return sqlSession.selectList(this.nameSpace+".queryExportByCondition", condition);
     }
 
 }

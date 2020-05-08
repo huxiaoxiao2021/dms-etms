@@ -9,6 +9,7 @@ import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.SkuPackRelationDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
 
 import java.util.List;
@@ -263,5 +264,12 @@ public interface WaybillQueryManager{
 	 *
 	 * */
 	Integer getBusiId(String waybillCode);
+
+    /**
+     * 根据运单号查询运单增值服务信息
+     * @param waybillCode
+     * @return
+     */
+    BaseEntity<List<WaybillVasDto>> getWaybillVasInfosByWaybillCode(String waybillCode);
 
 }

@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.storage.dao;
 
 import com.jd.bluedragon.distribution.storage.domain.StoragePackageM;
+import com.jd.bluedragon.distribution.storage.domain.StoragePackageMCondition;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 
 import java.util.List;
@@ -48,5 +49,10 @@ public interface StoragePackageMDao extends Dao<StoragePackageM> {
      */
     int updateStoragePackageMStatusForBeSendOfPWaybill(String waybillCode);
 
-
+    /**
+     * 根据条件导出
+     * @param condition
+     * @return
+     */
+    List<StoragePackageM> queryExportByCondition(StoragePackageMCondition condition);
 }

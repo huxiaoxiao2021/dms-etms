@@ -26,6 +26,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.api.common.enums.RouteProductEnum;
 import com.jd.etms.cache.util.EnumBusiCode;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.*;
@@ -33,6 +34,7 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.PackageUpdateDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.preseparate.vo.external.AnalysisAddressResult;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
@@ -40,6 +42,7 @@ import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1127,6 +1130,32 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 if(BusinessUtil.isPerformanceOrder(baseEntity.getData().getWaybill().getWaybillSign())){
                     return true;
                 }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 是否快运暂存运单
+     * <p>
+     *     增值服务是"fr-a-0009"表示暂存
+     * </p>
+     *
+     * @param waybillCode
+     * @return
+     */
+    @Override
+    @Cache(key = "WaybillCommonServiceImpl.isStorageWaybill", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+    public boolean isStorageWaybill(String waybillCode) {
+        BaseEntity<List<WaybillVasDto>> baseEntity = waybillQueryManager.getWaybillVasInfosByWaybillCode(waybillCode);
+        if(baseEntity == null || CollectionUtils.isEmpty(baseEntity.getData())){
+            return false;
+        }
+        List<WaybillVasDto> list = baseEntity.getData();
+        for(WaybillVasDto dto : list){
+            if(Constants.STORAGE_INCRE_SERVICE.equals(dto.getVasNo())){
+                return true;
             }
         }
         return false;

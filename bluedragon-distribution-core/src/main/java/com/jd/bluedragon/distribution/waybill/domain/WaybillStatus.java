@@ -222,6 +222,13 @@ public class WaybillStatus {
      * */
     public static final Integer WAYBILL_STATUS_WEIGHT_VOLUME_SPOT_CHECK = 13800;
 
+    /**
+     *  快运暂存节点
+     * */
+    public static final Integer WAYBILL_STATUS_STORAGE_KYZC = 15000;
+    public static final Integer WAYBILL_STATUS_PUTAWAY_STORAGE_KYZC = 15500;
+    public static final Integer WAYBILL_STATUS_DOWNAWAY_STORAGE_KYZC = 15600;
+
     private Long id;
 
     private String sendCode;
