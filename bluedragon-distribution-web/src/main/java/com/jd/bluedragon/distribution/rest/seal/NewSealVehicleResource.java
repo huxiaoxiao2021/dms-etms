@@ -90,6 +90,9 @@ public class NewSealVehicleResource {
     /** 仓库网点类型 */
     private static final Integer WMS_NODE_TYPE = 3;
 
+    /** 封车体积确认CODE */
+    private static final Integer SEAL_VOLUME_CONFIRM = 100;
+
     @Autowired
     private NewSealVehicleService newsealVehicleService;
 
@@ -573,7 +576,7 @@ public class NewSealVehicleResource {
             if(dto.getCode() == CommonDto.CODE_SUCCESS){
                 response.setCode(JdCResponse.CODE_SUCCESS);
                 response.setMessage(JdCResponse.MESSAGE_SUCCESS);
-            }else if(dto.getCode() == CommonDto.CODE_FAIL){
+            }else if(dto.getCode() == SEAL_VOLUME_CONFIRM){
                 response.setCode(JdCResponse.CODE_CONFIRM);
                 response.setMessage(dto.getMessage());
             }else {
