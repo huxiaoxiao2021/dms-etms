@@ -1,8 +1,9 @@
 package com.jd.bluedragon.common.dto.send.response;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class TransPlanDto {
+public class TransPlanDto implements Serializable {
     /**
      * 运输计划编码
      */

@@ -3,7 +3,9 @@ package com.jd.bluedragon.common.dto.send.request;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 
-public class DeliveryRequest {
+import java.io.Serializable;
+
+public class DeliveryRequest  implements Serializable {
 
     /**
      * 用户
@@ -37,6 +39,10 @@ public class DeliveryRequest {
 
     /** 运输类型（默认老发货：0，快运发货：1）*/
     private Integer opType;
+
+    /** 分拣业务类型 '10' 正向 '20' 逆向 '30' 三方 '40' POP */
+    private Integer businessType;
+
     /**
      * 已发货的包裹数量
      */
@@ -132,5 +138,13 @@ public class DeliveryRequest {
 
     public void setTransPlanCode(String transPlanCode) {
         this.transPlanCode = transPlanCode;
+    }
+
+    public Integer getBusinessType() {
+        return businessType;
+    }
+
+    public void setBusinessType(Integer businessType) {
+        this.businessType = businessType;
     }
 }
