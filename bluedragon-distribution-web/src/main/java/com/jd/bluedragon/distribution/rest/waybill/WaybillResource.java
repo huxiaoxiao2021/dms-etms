@@ -58,6 +58,7 @@ import com.jd.bluedragon.distribution.weight.domain.PackOpeDetail;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDto;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
+import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -2054,6 +2055,8 @@ public class WaybillResource {
             result.setMessage("重量体积抽查只支持一单一件!");
             return result;
         }
+        //设置抽检数据来源
+		weightVolumeCollectDto.setFromSource(FromSourceEnum.DMS_CLIENT_PACKAGE_WEIGH_PRINT.name());
 		result = weightAndVolumeCheckService.insertAndSendMq(packWeightVO,weightVolumeCollectDto,result);
         return result;
 

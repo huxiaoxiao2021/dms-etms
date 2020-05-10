@@ -202,6 +202,13 @@ $(function () {
                 return value == "1" ? "超标" : value == "0" ? "未超标" : "-";
             }
         },{
+            field: 'fromSource',
+            title: '数据来源',
+            align: 'center',
+            formatter: function (value, row, index) {
+                return value == "DMS_CLIENT_PACKAGE_WEIGH_PRINT" ? "客户端" : value == "DMS_AUTOMATIC_MEASURE" ? "自动化" : "-";
+            }
+        },{
             field: 'isHasPicture',
             title: '有无图片',
             align: 'center',
