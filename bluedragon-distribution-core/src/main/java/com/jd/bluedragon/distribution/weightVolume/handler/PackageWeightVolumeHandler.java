@@ -78,7 +78,10 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
             weightVolumeCollectDto.setWaybillCode(entity.getWaybillCode());
             weightVolumeCollectDto.setPackageCode(entity.getPackageCode());
             weightVolumeCollectDto.setFromSource(FromSourceEnum.DMS_AUTOMATIC_MEASURE.name());
-            weightAndVolumeCheckService.insertAndSendMq(packWeightVO,weightVolumeCollectDto,new InvokeResult<Boolean>());
+            InvokeResult<Boolean> result = weightAndVolumeCheckService.insertAndSendMq(packWeightVO,weightVolumeCollectDto,new InvokeResult<Boolean>());
+            if(result != null && InvokeResult.RESULT_SUCCESS_CODE != result.getCode()){
+                logger.warn("包裹自动化体积重量抽检失败：{}",result.getMessage());
+            }
         }
 
         PackOpeDto packOpeDto = new PackOpeDto();
@@ -140,7 +143,7 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
         String waybillCode = WaybillUtil.getWaybillCode(entity.getBarCode());
         String state = "-160";
         List<PackageStateDto> packageStateDtos = waybillTraceManager.getPkStateDtoByWCodeAndState(waybillCode,state);
-        if(CollectionUtils.isNotEmpty(packageStateDtos)){
+        if(CollectionUtils.isEmpty(packageStateDtos)){
             return true;
         }else {
             return false;

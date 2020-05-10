@@ -22,6 +22,7 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,7 +76,9 @@ public class ScannerFrameMeasureConsume implements ScannerFrameConsume {
             obj.setpWeight(uploadData.getWeight());//增加称重  2016年12月12日10:54:53  by guoyongzhi
             opeEntity.getOpeDetails().add(obj);
 
-            if(uccPropertyConfiguration.getAutomaticWeightVolumeExchangeSwitch()){
+            if(uccPropertyConfiguration.getAutomaticWeightVolumeExchangeSwitch()
+                    && (StringUtils.isEmpty(uccPropertyConfiguration.getAutomaticWeightVolumeExchangeSiteCode()) ||
+                    uccPropertyConfiguration.getAutomaticWeightVolumeExchangeSiteCode().indexOf(config.getCreateSiteCode()+"")>-1)){
                 WeightVolumeEntity weightVolumeEntity = new WeightVolumeEntity()
                         .barCode(uploadData.getBarCode())
                         .businessType(WeightVolumeBusinessTypeEnum.BY_PACKAGE).sourceCode(FromSourceEnum.DMS_AUTOMATIC_MEASURE)
@@ -92,10 +95,10 @@ public class ScannerFrameMeasureConsume implements ScannerFrameConsume {
                 }
                 InvokeResult<Boolean> result = dmsWeightVolumeService.dealWeightAndVolume(weightVolumeEntity);
                 if(result != null && InvokeResult.RESULT_SUCCESS_CODE == result.getCode()){
-                    log.info("包裹：{}，回传运单称重信息成功",uploadData.getBarCode());
+                    log.info("包裹回传运单称重信息成功:{}",JsonHelper.toJson(weightVolumeEntity));
                     return true;
                 }else{
-                    log.error("包裹：{}，回传运单称重信息失败",uploadData.getBarCode());
+                    log.error("包裹回传运单称重信息失败：{}，返回信息：{}",JsonHelper.toJson(weightVolumeEntity),result==null ? "null" : result.getMessage());
                     return false;
                 }
             }else {

@@ -97,6 +97,11 @@ public class UccPropertyConfiguration {
      */
     private boolean automaticWeightVolumeExchangeSwitch;
 
+    /**
+     * 自动化称重的入口切换站点
+     */
+    private String automaticWeightVolumeExchangeSiteCode;
+
     public boolean isLogToBusinessLogByKafka() {
         return logToBusinessLogByKafka;
     }
@@ -285,5 +290,13 @@ public class UccPropertyConfiguration {
 
     public void setAutomaticWeightVolumeExchangeSwitch(boolean automaticWeightVolumeExchangeSwitch) {
         this.automaticWeightVolumeExchangeSwitch = automaticWeightVolumeExchangeSwitch;
+    }
+
+    public String getAutomaticWeightVolumeExchangeSiteCode() {
+        return automaticWeightVolumeExchangeSiteCode;
+    }
+
+    public void setAutomaticWeightVolumeExchangeSiteCode(String automaticWeightVolumeExchangeSiteCode) {
+        this.automaticWeightVolumeExchangeSiteCode = automaticWeightVolumeExchangeSiteCode;
     }
 }
