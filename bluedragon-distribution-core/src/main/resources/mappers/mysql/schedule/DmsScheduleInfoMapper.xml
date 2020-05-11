@@ -242,7 +242,7 @@
 	<!-- 企配仓查询条件 -->
 	<sql id="where_queryEdnCondition">
 		<where>
-             	yn = 1 and business_type = 1 and 
+             	yn = 1 and business_type = 1
 		</where>
 	</sql>
 	<!-- 分页查询企配仓调度信息 -->
