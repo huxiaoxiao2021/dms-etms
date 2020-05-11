@@ -48,6 +48,10 @@ public class SpotCheckConsumer extends MessageBaseConsumer {
      * 来源:分拣
      * */
     private static final String TO = "2";
+    /**
+     * 	立方厘米和立方米的换算基数
+     */
+    private static int PARAM_CM3_M3 = 1000000;
 
     @Autowired
     private WeighByWaybillService weighByWaybillService;
@@ -123,7 +127,7 @@ public class SpotCheckConsumer extends MessageBaseConsumer {
                     WaybillWeightVO vo = new WaybillWeightVO();
                     vo.setCodeStr(pictureInfoMq.getBillCode());
                     vo.setWeight(pictureInfoMq.getReviewWeight());
-                    vo.setVolume(pictureInfoMq.getReviewVolume());
+                    vo.setVolume(pictureInfoMq.getReviewVolume()/PARAM_CM3_M3);
                     vo.setOperatorName(pictureInfoMq.getReviewErp());
                     vo.setOperatorSiteCode(Integer.valueOf(pictureInfoMq.getReviewSecondLevelId()));
                     vo.setOperatorSiteName(pictureInfoMq.getReviewSecondLevelName());
