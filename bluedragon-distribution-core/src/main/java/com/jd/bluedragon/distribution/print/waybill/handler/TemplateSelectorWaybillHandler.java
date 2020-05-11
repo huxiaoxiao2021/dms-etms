@@ -91,7 +91,8 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
                         if(DmsPaperSize.PAPER_SIZE_CODE_1010.equals(paperSizeCode)){
                         	templateName = TEMPlATE_NAME_C1010_BUSINESS;
                         }
-                    } else if (Constants.BUSINESS_ALIAS_CMBC.equals(context.getBasePrintWaybill().getDmsBusiAlias())) {
+                    } else if (Constants.BUSINESS_ALIAS_CMBC.equals(context.getBasePrintWaybill().getDmsBusiAlias())
+                                && !BusinessUtil.isLetterExpress(waybillSign)) {
                         //招商银行使用老模板
                         templateName = TEMPlATE_NAME_C_CMBC;
                     } else if(BusinessUtil.isC2CJZD(waybillSign)){

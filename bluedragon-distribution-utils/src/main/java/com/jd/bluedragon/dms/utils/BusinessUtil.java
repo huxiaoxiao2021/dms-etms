@@ -411,6 +411,16 @@ public class BusinessUtil {
     }
 
     /**
+     * 判断是否函速达运单，waybill_sign第31位等于B时
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isLetterExpress(String waybillSign) {
+        return isSignChar(waybillSign, 31, 'B');
+    }
+
+    /**
      * 是否是RMA标识的运单
      *
      * @param waybillSign
