@@ -97,7 +97,7 @@ public interface StoragePackageMService extends Service<StoragePackageM> {
     InvokeResult<Boolean> checkIsNeedStorage(String barCode, Integer siteCode);
 
     /**
-     * 暂存校验
+     * 暂存上架校验
      *
      * @param barCode 运单/包裹
      * @param siteCode 站点
@@ -130,4 +130,28 @@ public interface StoragePackageMService extends Service<StoragePackageM> {
      * @return
      */
     boolean updateStorageStatusBySiteCode(Integer siteCode, Integer isEnough,String operateErp);
+
+    /**
+     * 是否全部上架
+     *
+     * @param waybillCode
+     * @return
+     */
+    boolean isAllPutAwayAll(String waybillCode);
+
+    /**
+     * 更新全部下架时间
+     *
+     * @param waybillCode
+     * @return
+     */
+    int updateDownAwayTimeByWaybillCode(String waybillCode);
+
+    /**
+     * 更新运单状态
+     *
+     * @param putawayDTO
+     * @param isPutAway 是否上架
+     */
+    void updateWaybillStatusOfKYZC(PutawayDTO putawayDTO,boolean isPutAway);
 }

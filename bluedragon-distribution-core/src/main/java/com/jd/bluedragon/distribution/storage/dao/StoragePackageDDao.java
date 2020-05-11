@@ -40,4 +40,12 @@ public interface StoragePackageDDao extends Dao<StoragePackageD> {
     List<StoragePackageD> findByWaybill(String waybillCode);
 
     int cancelPutaway(String waybillCode);
+
+    /**
+     * 更新储位号
+     *  只针对快运暂存
+     * @param storagePackageD
+     * @return
+     */
+    int updateKYStorageCode(StoragePackageD storagePackageD);
 }

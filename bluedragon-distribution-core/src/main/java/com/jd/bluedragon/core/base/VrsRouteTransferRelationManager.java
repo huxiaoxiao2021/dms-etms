@@ -5,6 +5,7 @@ import com.jd.etms.api.common.enums.RouteProductEnum;
 import com.jd.etms.api.transferwavemonitor.req.TransferWaveMonitorReq;
 import com.jd.etms.api.transferwavemonitor.resp.TransferWaveMonitorDetailResp;
 import com.jd.etms.api.transferwavemonitor.resp.TransferWaveMonitorResp;
+import com.jd.etms.api.waybillroutelink.resp.WaybillRouteLinkCustDetailResp;
 
 import java.util.Date;
 import java.util.List;
@@ -81,5 +82,15 @@ public interface VrsRouteTransferRelationManager {
      * @return
      */
     List<String> loadWaybillRouter(Integer originalDmsCode, Integer destinationDmsCode, RouteProductEnum routeProduct, Date predictSendTime);
+
+    /**
+     * 查询路由节点信息
+     *
+     * @param packageCode 包裹号
+     * @param siteCode 站点
+     * @param operateType 操作类型
+     * @return
+     */
+    List<WaybillRouteLinkCustDetailResp> waybillRouteLinkQueryCondition(String packageCode,String siteCode,Integer operateType);
 }
 

@@ -77,7 +77,7 @@ public class PutawayDTO implements Serializable {
     /**
      * 是否强制暂存
      * */
-    private boolean forceStorage;
+    private Boolean forceStorage;
 
     public Integer getStorageSource() {
         return storageSource;
@@ -87,11 +87,11 @@ public class PutawayDTO implements Serializable {
         this.storageSource = storageSource;
     }
 
-    public boolean isForceStorage() {
+    public Boolean getForceStorage() {
         return forceStorage;
     }
 
-    public void setForceStorage(boolean forceStorage) {
+    public void setForceStorage(Boolean forceStorage) {
         this.forceStorage = forceStorage;
     }
 

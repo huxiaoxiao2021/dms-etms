@@ -284,6 +284,9 @@
     <jsf:consumer id="vrsWaybillQueryAPI" interface="com.jd.etms.api.waybill.VrsWaybillQueryAPI"
                   protocol="jsf" alias="${jsf.router.vrsWaybillQueryAPI.alias}" timeout="${jsf.router.vrsWaybillQueryAPI.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
+    <jsf:consumer id="waybillRouteLinkCustAPI" interface="com.jd.etms.api.waybillroutelink.WaybillRouteLinkCustAPI"
+                  protocol="jsf" alias="${jsf.router.waybillRouteLinkCustAPI.alias}" timeout="${jsf.router.waybillRouteLinkCustAPI.timeout}" retries="${jsf.retries}">
+    </jsf:consumer>
     <!-- 外单逆向换单接口-->
     <jsf:consumer id="waybillReverseApi" interface="com.jd.ldop.center.api.reverse.WaybillReverseApi"
                   protocol="jsf" alias="${jsf.waybillReverseApi.alias}" timeout="${jsf.waybillReverseApi.timeout}" retries="${jsf.retries}">

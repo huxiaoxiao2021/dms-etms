@@ -18,13 +18,9 @@ public class KYStorageMessage implements Serializable {
      * */
     private String waybillCode;
     /**
-     * 包裹号
+     * 暂存状态 1、上架 2、下架
      * */
-    private String packageCode;
-    /**
-     * 暂存状态
-     * */
-    private String storageStatus;
+    private Integer storageStatus;
     /**
      * 操作人ERP
      * */
@@ -34,9 +30,13 @@ public class KYStorageMessage implements Serializable {
      * */
     private Date operateTime;
     /**
-     * 操作站点
+     * 操作站点编码
      * */
     private Integer operateSiteCode;
+    /**
+     * 操作站点名称
+     * */
+    private String operateSiteName;
 
     public String getWaybillCode() {
         return waybillCode;
@@ -46,19 +46,11 @@ public class KYStorageMessage implements Serializable {
         this.waybillCode = waybillCode;
     }
 
-    public String getPackageCode() {
-        return packageCode;
-    }
-
-    public void setPackageCode(String packageCode) {
-        this.packageCode = packageCode;
-    }
-
-    public String getStorageStatus() {
+    public Integer getStorageStatus() {
         return storageStatus;
     }
 
-    public void setStorageStatus(String storageStatus) {
+    public void setStorageStatus(Integer storageStatus) {
         this.storageStatus = storageStatus;
     }
 
@@ -84,5 +76,13 @@ public class KYStorageMessage implements Serializable {
 
     public void setOperateSiteCode(Integer operateSiteCode) {
         this.operateSiteCode = operateSiteCode;
+    }
+
+    public String getOperateSiteName() {
+        return operateSiteName;
+    }
+
+    public void setOperateSiteName(String operateSiteName) {
+        this.operateSiteName = operateSiteName;
     }
 }

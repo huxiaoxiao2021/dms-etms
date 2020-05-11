@@ -55,4 +55,19 @@ public interface StoragePackageMDao extends Dao<StoragePackageM> {
      * @return
      */
     List<StoragePackageM> queryExportByCondition(StoragePackageMCondition condition);
+
+    /**
+     * 更新储位号
+     *  只针对快运暂存
+     * @param storagePackageM
+     * @return
+     */
+    int updateKYStorageCode(StoragePackageM storagePackageM);
+
+    /**
+     * 更新全部下架时间
+     * @param waybillCode
+     * @return
+     */
+    int updateDownAwayTimeByWaybillCode(String waybillCode);
 }

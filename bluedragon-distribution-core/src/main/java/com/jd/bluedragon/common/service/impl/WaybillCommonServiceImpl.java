@@ -1149,7 +1149,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
     public boolean isStorageWaybill(String waybillCode) {
         BaseEntity<List<WaybillVasDto>> baseEntity = waybillQueryManager.getWaybillVasInfosByWaybillCode(waybillCode);
-        if(baseEntity == null || CollectionUtils.isEmpty(baseEntity.getData())){
+        if(baseEntity == null || baseEntity.getResultCode() != EnumBusiCode.BUSI_SUCCESS.getCode()
+                || CollectionUtils.isEmpty(baseEntity.getData())){
             return false;
         }
         List<WaybillVasDto> list = baseEntity.getData();

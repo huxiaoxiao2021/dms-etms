@@ -117,7 +117,7 @@ public class StorageResource {
     }
 
     /**
-     * 暂存校验
+     * 暂存上架校验
      *
      * @return
      */

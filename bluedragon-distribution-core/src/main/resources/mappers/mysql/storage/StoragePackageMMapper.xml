@@ -418,10 +418,28 @@
 		storage_code = #{storageCode},
 		putaway_time = #{putawayTime},
 		update_user = #{updateUser},
-		update_time = now()
+		update_time = now(),
+        putaway_complete_time = #{putAwayCompleteTime}
 		WHERE  waybill_code = #{waybillCode}
 		<include refid="Base_Condition_Sql"/>
 	</update>
+
+    <update id="updateKYStorageCode" parameterType="com.jd.bluedragon.distribution.storage.domain.StoragePackageM">
+        UPDATE storage_package_m
+        SET storage_code = #{storageCode},
+        putaway_time = #{putawayTime},
+        update_user = #{updateUser},
+        update_time = now()
+        WHERE  waybill_code = #{waybillCode}
+        <include refid="Base_Condition_Sql"/>
+    </update>
+
+    <update id="updateDownAwayTimeByWaybillCode" parameterType="String">
+        UPDATE storage_package_m
+        SET downaway_complete_time = now()
+        WHERE  waybill_code = #{waybillCode}
+        <include refid="Base_Condition_Sql"/>
+    </update>
 
 	<update id="updateStoragePackageMStatusForSendOfWaybill" parameterType="String">
 		UPDATE storage_package_m
