@@ -89,7 +89,7 @@ public class ScannerFrameMeasureConsume implements ScannerFrameConsume {
                         .operateSiteCode(config.getCreateSiteCode()).operateSiteName(config.getCreateSiteName()).operatorId(config.getOperateUserId())
                         .operatorName(config.getUpdateUserName()).operateTime(uploadData.getScannerTime());
                 weightVolumeEntity.setVolume(weightVolumeEntity.getLength()*weightVolumeEntity.getWidth()*weightVolumeEntity.getHeight());
-                BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByStaffIdNoCache(uploadData.getOperatorId());
+                BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByStaffIdNoCache(config.getOperateUserId());
                 if(dto != null){
                     weightVolumeEntity.setOperatorCode(dto.getAccountNumber());
                 }

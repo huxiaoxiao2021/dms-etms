@@ -71,7 +71,7 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
         }
 
         //自动化称重量方设备上传的运单/包裹，且为一单一件，且上游站点/分拣中心操作过称重，才进行抽检
-        if(FromSourceEnum.DMS_AUTOMATIC_MEASURE.equals(entity.getSourceCode()) && getPackNum(entity.getWaybillCode()) == 1
+        if(FromSourceEnum.DMS_AUTOMATIC_MEASURE.equals(entity.getSourceCode()) && WaybillUtil.getPackNumByPackCode(entity.getBarCode()) == 1
                 && !isFirstWeightVolume(entity)){
             PackWeightVO packWeightVO = convertToPackWeightVO(entity);
             WeightVolumeCollectDto weightVolumeCollectDto = new WeightVolumeCollectDto();
@@ -131,12 +131,12 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
         }
     }
 
-    //获取包裹数量
+/*    //获取包裹数量
     public Integer getPackNum(String waybillCode){
         InvokeResult<Integer> result = waybillCommonService.getPackNum(waybillCode);
 
         return result != null ? result.getData():0;
-    }
+    }*/
 
     //是否为首次称重量方，根据运单/包裹的全程跟踪状态值是否为“-160”
     public boolean isFirstWeightVolume(WeightVolumeEntity entity){
