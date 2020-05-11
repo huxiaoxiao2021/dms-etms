@@ -239,7 +239,7 @@
 				<ref bean="remarkFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
-				<ref bean="pdfJdCloudGenerateHandler"/>
+				<ref bean="pdfLocalGenerateHandler"/>
 			</list>
 		</property>
 	</bean>			

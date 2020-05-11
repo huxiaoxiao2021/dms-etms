@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.log.service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,10 +15,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.log.BusinessLogDto;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.log.BusinessLogConstans.OperateTypeEnum;
-import com.jd.common.util.StringUtils;
 import com.jd.dms.logger.dto.base.BusinessLogResult;
-import com.jd.dms.logger.dto.base.TableResult;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.dms.logger.service.BusinessLogQueryService;
@@ -69,7 +69,17 @@ public class BusinessLogManagerImpl implements BusinessLogManager{
 	@Override
 	public List<BusinessLogDto> queryLogs(String businessKey,Integer operateType) {
 		List<BusinessLogDto> logs = new ArrayList<BusinessLogDto>();
+        Map<String,String> sortFields = new HashMap<>();//数据结构为<time_stamp,asc>
+        sortFields.put("time_stamp","desc");
+        Date endTime = new Date();
+        Date startTime = DateHelper.addDate(endTime, -30);
 		HashMap request = new HashMap();
+		request.put("startTime",DateHelper.formatDateTime(startTime));
+		request.put("endTime",DateHelper.formatDateTime(endTime));
+		request.put("offset","0");
+		request.put("limit","100");
+		request.put("sortFields",sortFields);//key是jsf服务端 指定的
+		
 		request.put("waybillCode",businessKey);
 		if(operateType != null){
 			OperateTypeEnum operateTypeEnum = OperateTypeEnum.toEnum(operateType);
@@ -78,39 +88,22 @@ public class BusinessLogManagerImpl implements BusinessLogManager{
 				request.put("operateType",operateTypeEnum.getCode());
 			}
 		}
-		
-        TableResult businessLogList=new TableResult();
-        logger.info("request[{}]", JsonHelper.toJson(request));
         try {
-            String orderByField = (String)request.remove("orderByField");
-            String orderBy = (String)request.remove("orderBy");
-            if(StringUtils.isNotEmpty(orderByField) && StringUtils.isNotEmpty(orderBy)){
-                Map<String,String> sortFields = new HashMap<>();//数据结构为<time_stamp,asc>
-                sortFields.put(orderByField,orderBy);
-                request.put("sortFields",sortFields);//key是jsf服务端 指定的
-            }
-            logger.info("request2[{}]", JsonHelper.toJson(request));
+            logger.info("request[{}]", JsonHelper.toJson(request));
             BusinessLogResult businessLogReqResult = businessLogQueryService.getBusinessLogList(request);
-            businessLogList.setRows(businessLogReqResult.getRows());
-            businessLogList.setTotal(businessLogReqResult.getTotal());
-            businessLogList.setStatusCode(TableResult.SUCCESS_CODE);
-            businessLogList.setStatusMessage(TableResult.SUCCESS_MESSAGE);
+            List<HashMap<String,String>> rows = businessLogReqResult.getRows();
+            if(rows != null){
+            	for(HashMap<String,String> map : businessLogReqResult.getRows()){
+            		BusinessLogDto log = new BusinessLogDto();
+            		log.setBusinessKey(map.get("waybillCode"));
+            		log.setOperateUser(map.get("operatorName"));
+            		log.setOperateTime(map.get("timeStamp"));
+            		log.setOperateContent(map.get("operateResponse"));
+            		logs.add(log);
+                }
+            }
         } catch (Exception e) {
             logger.error("BusinessLogController.getBusinessLogList-error!request[{}]",JsonHelper.toJson(request), e);
-            businessLogList.setStatusCode(TableResult.SERVER_ERROR_CODE);
-            businessLogList.setStatusMessage(TableResult.SERVER_ERROR_MESSAGE);
-        }
-        List<Object> rows = (List<Object>)businessLogList.getRows();
-        if(rows != null){
-        	for(Object obj : rows){
-        		Map map = JsonHelper.json2Map(JsonHelper.toJson(obj));
-        		BusinessLogDto log = new BusinessLogDto();
-        		log.setBusinessKey((String)map.get("waybillCode"));
-        		log.setOperateTime((String)map.get("timeStamp"));
-        		log.setOperateContent((String)map.get("operateTypeName"));
-        		log.setOperateUser((String)map.get("operatorName"));
-        		logs.add(log);
-            }
         }
 		return logs;
 	}

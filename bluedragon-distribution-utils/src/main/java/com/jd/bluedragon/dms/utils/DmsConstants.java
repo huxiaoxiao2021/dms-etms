@@ -212,7 +212,7 @@ public class DmsConstants {
     /**
      * 企配仓拣货单-模板版本配置key
      */
-    public static final String TEMPLATE_VERSION_KEY_EDN_PICKING = "print.template.version.dms-edn-picking-list";
+    public static final String TEMPLATE_VERSION_KEY_EDN_PICKING = "print.template.version.dmsEdnPickingList";
     /**
      * 企配仓拣货单模板-默认版本号1
      */

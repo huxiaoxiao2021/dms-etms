@@ -17,6 +17,7 @@ public class BusinessLogProfilerBuilder {
     public BusinessLogProfilerBuilder() {
         this.businessLogProfiler = new BusinessLogProfiler();
         businessLogProfiler.setLogType("developer");
+        businessLogProfiler.setRequestTime(System.currentTimeMillis());
         this.businessLogProfiler.setSourceSys(BusinessLogConstans.SourceSys.DMS_OPERATE.getCode());//默认是 实操日志
         try {
             businessLogProfiler.setServerIp(InetAddress.getLocalHost().getHostAddress());

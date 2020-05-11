@@ -242,7 +242,7 @@
 	<!-- 企配仓查询条件 -->
 	<sql id="where_queryEdnCondition">
 		<where>
-             	yn = 1 and business_type = 1
+             	yn = 1 and business_type = 1 and 
 		</where>
 	</sql>
 	<!-- 分页查询企配仓调度信息 -->
@@ -297,6 +297,7 @@
 		from
 			dms_schedule_info t
 		<include refid="where_queryEdnCondition"/>
+			and business_batch_code is not null
 			and schedule_bill_code = #{scheduleBillCode,jdbcType=VARCHAR}
 			group by business_batch_code
 	</select>

@@ -41,8 +41,7 @@ public class EdnServiceManagerImpl implements EdnServiceManager{
 		try {
 			SdkRpcResult<List<DeliveryReceiptResDto>> rpcResult = jpEdnDeliveryReceiptService.batchGetDeliveryReceipt(ednBatchNumList);
 			if(rpcResult != null
-					&& rpcResult.isSuccess() 
-					&& ReturnCodeEnum.SUCCESS.getCode().equals(rpcResult.getResultCode())){
+					&& rpcResult.isSuccess()){
 				if(rpcResult.getResult() != null && !rpcResult.getResult().isEmpty()){
 					List<DmsEdnBatchVo> dataList = new ArrayList<DmsEdnBatchVo>();
 					result.setData(dataList);
@@ -55,12 +54,12 @@ public class EdnServiceManagerImpl implements EdnServiceManager{
 					}
 				}
 			}else{
-				log.warn("调用金鹏接口批量获取配送单失败！return:{}",JsonHelper.toJson(rpcResult));
-				result.toFail("调用金鹏接口批量获取配送单失败！");
+				log.warn("调用企配仓接口批量获取配送单失败！return:{}",JsonHelper.toJson(rpcResult));
+				result.toFail("调用企配仓接口批量获取配送单失败！");
 			}
 		} catch (Exception e) {
-			log.error("调用金鹏接口批量获取配送单异常！",e);
-			result.toError("调用金鹏接口批量获取配送单异常！");
+			log.error("调用企配仓接口批量获取配送单异常！",e);
+			result.toError("调用企配仓接口批量获取配送单异常！");
 			Profiler.functionError(callerInfo);
 		}finally{
 			Profiler.registerInfoEnd(callerInfo);

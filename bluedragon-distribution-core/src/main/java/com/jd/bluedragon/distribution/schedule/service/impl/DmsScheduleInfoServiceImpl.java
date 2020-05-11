@@ -227,7 +227,7 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 			}else if(result != null){
 				printResult.toFail(result.getMessageCode()+ result.getMessage());
 			}else{
-				printResult.toFail("调用金鹏接口失败！");
+				printResult.toFail("调用企配仓接口失败！");
 			}
 			BusinessLogDto log = new BusinessLogDto();
 			log.setBusinessKey(scheduleBillCode);
