@@ -844,6 +844,7 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
     public InvokeResult<StorageCheckDto> storageTempCheck(String barCode, Integer siteCode) {
         InvokeResult<StorageCheckDto> result = new InvokeResult<>();
         StorageCheckDto storageCheckDto = new StorageCheckDto();
+        result.setData(storageCheckDto);
         try {
             String waybillCode = WaybillUtil.getWaybillCode(barCode);
             if(waybillCommonService.isStorageWaybill(waybillCode)){
@@ -857,13 +858,13 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
                 StoragePackageD storagePackageD = checkExistStorage(barCode);
                 if(storagePackageD != null){
                     storageCheckDto.setStorageCode(storagePackageD.getStorageCode());
+                    if(!StringUtils.isEmpty(storagePackageD.getStorageCode())){
+                        result.customMessage(JdCResponse.CODE_CONFIRM,"包裹号已上架请核实");
+                        return result;
+                    }
                 }else {
                     StoragePackageM storagePackageM =  storagePackageMDao.queryByWaybillCode(waybillCode);
                     storageCheckDto.setStorageCode(storagePackageM==null?null:storagePackageM.getStorageCode());
-                }
-                if(StringUtils.isEmpty(storageCheckDto.getStorageCode())){
-                    result.customMessage(JdCResponse.CODE_CONFIRM,"包裹号已上架请核实");
-                    return result;
                 }
                 if(!isCanSend(waybill,barCode,siteCode)){
                     result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"货物距离预计送达时间较近，正常发运");

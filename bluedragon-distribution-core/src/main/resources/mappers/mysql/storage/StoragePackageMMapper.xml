@@ -329,7 +329,9 @@
 		<if test="putawayDateGE == null and putawayDateLE !=null">
 			and  <![CDATA[   update_time <= #{putawayDateLE}  ]]>
 		</if>
-
+        <if test="planDeliveryTimeGE != null and planDeliveryTimeLE !=null">
+            and plan_delivery_time BETWEEN #{planDeliveryTimeGE} and #{planDeliveryTimeLE}
+        </if>
         <if test="planDeliveryTimeGE != null and planDeliveryTimeLE ==null">
             and  <![CDATA[   plan_delivery_time >= #{planDeliveryTimeGE}  ]]>
         </if>
