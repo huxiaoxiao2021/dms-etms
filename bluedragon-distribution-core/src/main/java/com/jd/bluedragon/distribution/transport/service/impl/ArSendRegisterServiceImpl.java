@@ -233,8 +233,10 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
             if(commonDto.getCode() != com.jd.tms.ecp.dto.CommonDto.CODE_SUCCESS){
                 log.error("空铁发货登记调运输【新铁路】发货登记提交接口返回非成功，返回结果：{}，请求参数：{}",
                         JsonHelper.toJson(commonDto), JsonHelper.toJson(dto));
+                return;
             }
-            log.info("空铁发货登记调运输【新铁路】发货登记提交接口返回成功，请求参数：{}，返回参数：{}");
+            log.info("空铁发货登记调运输【新铁路】发货登记提交接口返回成功，请求参数：{}，返回参数：{}",
+                    JsonHelper.toJson(commonDto), JsonHelper.toJson(dto));
 
         }catch (Exception e){
             log.error("空铁发货登记调运输【新铁路】发货登记提交接口异常，请求参数：{}", JsonHelper.toJson(dto), e);
