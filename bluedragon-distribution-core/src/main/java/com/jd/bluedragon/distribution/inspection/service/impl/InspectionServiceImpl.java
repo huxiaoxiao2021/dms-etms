@@ -670,16 +670,16 @@ public class InspectionServiceImpl implements InspectionService {
 		Integer preSiteCode = null;
 		Integer destinationDmsId = null;
 		com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findByWaybillCode(waybillCode);
-		if(waybill != null && waybill.getWaybillSign() != null){
+		if(waybill != null){
+			//预分拣站点
+			preSiteCode = waybill.getSiteCode();
+			BaseStaffSiteOrgDto bDto = siteService.getSite(preSiteCode);
+			if(bDto != null && bDto.getDmsId() != null){
+				//末级分拣中心
+				destinationDmsId = bDto.getDmsId();
+			}
 			//是否是金鹏订单
 			if(BusinessUtil.isPerformanceOrder(waybill.getWaybillSign())){
-				//预分拣站点
-				preSiteCode = waybill.getSiteCode();
-				BaseStaffSiteOrgDto bDto = siteService.getSite(preSiteCode);
-				if(bDto != null && bDto.getDmsId() != null){
-					//末级分拣中心
-					destinationDmsId = bDto.getDmsId();
-				}
 				String dmsIds = PropertiesHelper.newInstance().getValue(PERFORMANCE_DMSSITECODE_SWITCH);
 				String[] dmsCodes = dmsIds.split(",");
 				List<String> dmsList = Arrays.asList(dmsCodes);
@@ -695,6 +695,14 @@ public class InspectionServiceImpl implements InspectionService {
 					}
 				}
 
+			}else if(BusinessUtil.isEdn(waybill.getSendPay(), waybill.getWaybillSign())){
+				BaseStaffSiteOrgDto destinationDmsInfo = siteService.getSite(destinationDmsId);
+				//判断末级分拣中心、企配仓类型
+				if(destinationDmsInfo != null 
+						&& destinationDmsId.equals(dmsSiteCode)
+						&& BusinessUtil.isEdnDmsSite(destinationDmsInfo.getSubType())){
+					hintMessage = "此单为企配仓运单，必须操作暂存上架";
+				}
 			}
 		}
 		return hintMessage;

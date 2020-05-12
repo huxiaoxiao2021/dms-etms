@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.schedule.dao.DmsScheduleInfoDao" >
+
+	<resultMap id="DmsScheduleInfo" type="com.jd.bluedragon.distribution.schedule.entity.DmsScheduleInfo" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="waybill_code" property="waybillCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="schedule_bill_code" property="scheduleBillCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="business_type" property="businessType" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="business_batch_code" property="businessBatchCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="parent_order_id" property="parentOrderId" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="dest_dms_site_code" property="destDmsSiteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="package_num" property="packageNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="carrier_name" property="carrierName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="schedule_time" property="scheduleTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="business_update_time" property="businessUpdateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+	
+	<resultMap id="DmsEdnPickingVo" type="com.jd.bluedragon.distribution.schedule.vo.DmsEdnPickingVo" >
+		<result column="schedule_bill_code" property="scheduleBillCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="carrier_name" property="carrierName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="schedule_time" property="scheduleTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+	
+	<sql id="Base_Column_List" >
+		id,waybill_code,schedule_bill_code,business_type,business_batch_code,parent_order_id,
+		dest_dms_site_code,package_num,carrier_name,schedule_time,business_update_time,
+		create_time,yn,ts
+	</sql>
+
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.schedule.entity.DmsScheduleInfo" useGeneratedKeys="true" keyProperty="id">
+		insert into dms_schedule_info
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null" >
+					id,
+				</if>
+				<if test="waybillCode != null" >
+					waybill_code,
+				</if>
+				<if test="scheduleBillCode != null" >
+					schedule_bill_code,
+				</if>
+				<if test="businessType != null" >
+					business_type,
+				</if>
+				<if test="businessBatchCode != null" >
+					business_batch_code,
+				</if>
+				<if test="parentOrderId != null" >
+					parent_order_id,
+				</if>
+				<if test="destDmsSiteCode != null" >
+					dest_dms_site_code,
+				</if>
+				<if test="packageNum != null" >
+					package_num,
+				</if>
+				<if test="carrierName != null" >
+					carrier_name,
+				</if>
+				<if test="scheduleTime != null" >
+					schedule_time,
+				</if>
+				<if test="businessUpdateTime != null" >
+					business_update_time,
+				</if>
+					create_time,
+				<if test="yn != null" >
+					yn,
+				</if>
+				<if test="ts != null" >
+					ts,
+				</if>
+			</trim>
+			)
+			values
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null" >
+					#{id,jdbcType=BIGINT},
+				</if>
+				<if test="waybillCode != null" >
+					#{waybillCode,jdbcType=VARCHAR},
+				</if>
+				<if test="scheduleBillCode != null" >
+					#{scheduleBillCode,jdbcType=VARCHAR},
+				</if>
+				<if test="businessType != null" >
+					#{businessType,jdbcType=INTEGER},
+				</if>
+				<if test="businessBatchCode != null" >
+					#{businessBatchCode,jdbcType=VARCHAR},
+				</if>
+				<if test="parentOrderId != null" >
+					#{parentOrderId,jdbcType=VARCHAR},
+				</if>
+				<if test="destDmsSiteCode != null" >
+					#{destDmsSiteCode,jdbcType=INTEGER},
+				</if>
+				<if test="packageNum != null" >
+					#{packageNum,jdbcType=INTEGER},
+				</if>
+				<if test="carrierName != null" >
+					#{carrierName,jdbcType=VARCHAR},
+				</if>
+				<if test="scheduleTime != null" >
+					#{scheduleTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="businessUpdateTime != null" >
+					#{businessUpdateTime,jdbcType=TIMESTAMP},
+				</if>
+					now(),
+				<if test="yn != null" >
+					#{yn,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null" >
+					#{ts,jdbcType=TIMESTAMP},
+				</if>
+			</trim>
+			)
+	</insert>
+
+	<update id="update" parameterType="com.jd.bluedragon.distribution.schedule.entity.DmsScheduleInfo">
+		update dms_schedule_info
+			<set>
+				<if test="id != null" >
+					id = #{id,jdbcType=BIGINT},
+				</if>
+				<if test="waybillCode != null" >
+					waybill_code = #{waybillCode,jdbcType=VARCHAR},
+				</if>
+				<if test="scheduleBillCode != null" >
+					schedule_bill_code = #{scheduleBillCode,jdbcType=VARCHAR},
+				</if>
+				<if test="businessType != null" >
+					business_type = #{businessType,jdbcType=INTEGER},
+				</if>
+				<if test="businessBatchCode != null" >
+					business_batch_code = #{businessBatchCode,jdbcType=VARCHAR},
+				</if>
+				<if test="parentOrderId != null" >
+					parent_order_id = #{parentOrderId,jdbcType=VARCHAR},
+				</if>
+				<if test="destDmsSiteCode != null" >
+					dest_dms_site_code = #{destDmsSiteCode,jdbcType=INTEGER},
+				</if>
+				<if test="packageNum != null" >
+					package_num = #{packageNum,jdbcType=INTEGER},
+				</if>
+				<if test="carrierName != null" >
+					carrier_name = #{carrierName,jdbcType=VARCHAR},
+				</if>
+				<if test="scheduleTime != null" >
+					schedule_time = #{scheduleTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="businessUpdateTime != null" >
+					business_update_time = #{businessUpdateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="createTime != null" >
+					create_time = #{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="yn != null" >
+					yn = #{yn,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null" >
+					ts = #{ts,jdbcType=TIMESTAMP},
+				</if>
+			</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+	
+	<update id="updateScheduleInfo" parameterType="com.jd.bluedragon.distribution.schedule.entity.DmsScheduleInfo">
+		update dms_schedule_info set
+			schedule_bill_code = #{scheduleBillCode,jdbcType=VARCHAR},
+			business_type = #{businessType,jdbcType=INTEGER},
+			dest_dms_site_code = #{destDmsSiteCode,jdbcType=INTEGER},
+			package_num = #{packageNum,jdbcType=INTEGER},
+			carrier_name = #{carrierName,jdbcType=VARCHAR},
+			schedule_time = #{scheduleTime,jdbcType=TIMESTAMP}
+		where waybill_code = #{waybillCode,jdbcType=VARCHAR}
+			and (schedule_time is null or schedule_time &lt; #{scheduleTime,jdbcType=TIMESTAMP})
+	</update>
+
+	<update id="updateEdnFahuoInfo" parameterType="com.jd.bluedragon.distribution.schedule.entity.DmsScheduleInfo">
+		update dms_schedule_info set
+			business_batch_code = #{businessBatchCode,jdbcType=VARCHAR},
+			parent_order_id = #{parentOrderId,jdbcType=VARCHAR},	
+			business_update_time = #{businessUpdateTime,jdbcType=TIMESTAMP}
+		where waybill_code = #{waybillCode,jdbcType=VARCHAR}
+			and (business_update_time is null or business_update_time &lt; #{businessUpdateTime,jdbcType=TIMESTAMP})
+	</update>
+	
+	<update id="deleteById" parameterType="java.lang.Long">
+		update dms_schedule_info
+			set yn = 0
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<select id="queryById" parameterType="java.lang.Long" resultMap="DmsScheduleInfo">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			dms_schedule_info t
+		where yn = 1 and id = #{id,jdbcType=BIGINT}
+	</select>
+	
+	<select id="queryByWaybillCode" parameterType="java.lang.String" resultMap="DmsScheduleInfo">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			dms_schedule_info t
+		where yn = 1 
+			and waybill_code = #{waybillCode,jdbcType=VARCHAR}
+	</select>
+	
+	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
+		select 
+		 count(1) as num
+		from 
+		  dms_schedule_info 
+        <include refid="where_condition"/>
+	</select>
+
+	<select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="DmsScheduleInfo">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  dms_schedule_info 
+        <include refid="where_condition"/>
+         order by schedule_time
+		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+	</select>
+	<sql id="where_condition">
+		<where>
+                yn = 1
+		</where>
+	</sql>
+	<!-- 企配仓查询条件 -->
+	<sql id="where_queryEdnCondition">
+		<where>
+             	yn = 1 and business_type = 1
+		</where>
+	</sql>
+	<!-- 分页查询企配仓调度信息 -->
+	<select id="pageNum_queryEdnPickingListByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
+		select 
+		 count(1) as num
+		from (
+			select 
+			 count(1) as num
+			from 
+			  dms_schedule_info 
+			<include refid="where_queryEdnPickingListByPagerCondition"/>
+	        group by schedule_bill_code) t
+	</select>	
+	<select id="queryEdnPickingListByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="DmsEdnPickingVo">
+		select
+			schedule_bill_code,max(carrier_name) as carrier_name,max(schedule_time) as schedule_time
+		from
+			dms_schedule_info t
+		<include refid="where_queryEdnPickingListByPagerCondition"/>					
+			group by schedule_bill_code
+			order by max(schedule_time)
+			limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+	</select>
+	<sql id="where_queryEdnPickingListByPagerCondition">
+		<include refid="where_queryEdnCondition"/>
+		    and dest_dms_site_code = #{destDmsSiteCode,jdbcType=INTEGER}
+		<if test="scheduleBillCode != null" >
+			and schedule_bill_code = #{scheduleBillCode,jdbcType=VARCHAR}
+		</if>
+		<if test="scheduleTimeGte != null" >
+			and schedule_time >= #{scheduleTimeGte,jdbcType=TIMESTAMP}
+		</if>
+		<if test="scheduleTimeLt != null" >
+			and schedule_time &lt; #{scheduleTimeLt,jdbcType=TIMESTAMP}
+		</if>
+	</sql>
+	<!-- 查询单个调度对象 -->
+	<select id="queryDmsEdnPickingVo" parameterType="java.lang.String" resultMap="DmsEdnPickingVo">
+		select
+			schedule_bill_code,max(carrier_name) as carrier_name,max(schedule_time) as schedule_time
+		from
+			dms_schedule_info t
+		<include refid="where_queryEdnCondition"/>
+			and schedule_bill_code = #{scheduleBillCode,jdbcType=VARCHAR}					
+			group by schedule_bill_code
+	</select>	
+	<!-- 查询调度单号下所有的企配仓批次号 -->
+	<select id="queryEdnBatchNumList" parameterType="java.lang.String" resultType="java.lang.String">
+		select
+			business_batch_code
+		from
+			dms_schedule_info t
+		<include refid="where_queryEdnCondition"/>
+			and business_batch_code is not null
+			and schedule_bill_code = #{scheduleBillCode,jdbcType=VARCHAR}
+			group by business_batch_code
+	</select>
+	<!-- 查询企配仓调度单号下明细 -->
+	<select id="queryEdnDmsScheduleInfoList" parameterType="java.lang.String" resultMap="DmsScheduleInfo">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			dms_schedule_info t
+		<include refid="where_queryEdnCondition"/>
+			and schedule_bill_code = #{scheduleBillCode,jdbcType=VARCHAR}
+		order by schedule_time
+	</select>	
+</mapper>
