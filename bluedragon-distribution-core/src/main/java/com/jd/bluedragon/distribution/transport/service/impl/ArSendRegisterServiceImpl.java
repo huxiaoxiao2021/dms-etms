@@ -649,6 +649,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                     arTransportInfo.setAging(railwayTrainDto.getAging());
                     return arTransportInfo;
                 }
+                log.warn("根据车次号{}，和站序号查询车次{}信息失败，返回值：{}", code, siteOrder, JsonHelper.toJson(commonDto));
             }
         } catch (Exception e) {
             log.error("[空铁]调用TMS运输接口获取航班信息/铁路信息出现异常", e);
