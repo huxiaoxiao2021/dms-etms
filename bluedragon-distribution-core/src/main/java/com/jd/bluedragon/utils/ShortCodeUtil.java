@@ -28,8 +28,8 @@ public class ShortCodeUtil {
             long lHexLong = 0x3FFFFFFF & Long.parseLong(sTempSubString, 16);
             StringBuilder outChars = new StringBuilder();
             for (int j = 0; j < 6; j++) {
-                // 把得到的值与 0x0000003D （十进制61 11111）进行位与运算，取得字符数组 chars 索引
-                long index = 0x0000003D & lHexLong;
+                // 把得到的值与 0x0000003D （十进制63 11111）进行位与运算，取得字符数组 chars 索引
+                long index = 0x0000001F & lHexLong;
                 // 把取得的字符相加
                 outChars.append(chars[(int) index]);
                 // 每次循环按位右移 5 位
@@ -40,5 +40,4 @@ public class ShortCodeUtil {
         }
         return resCodes;
     }
-
 }
