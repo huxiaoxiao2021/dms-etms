@@ -98,7 +98,7 @@ public class BusinessLogManagerImpl implements BusinessLogManager{
             		log.setBusinessKey(map.get("waybillCode"));
             		log.setOperateUser(map.get("operatorName"));
             		log.setOperateTime(map.get("timeStamp"));
-            		log.setOperateContent(map.get("operateResponse"));
+            		log.setOperateContent(map.get("responseMessage"));
             		logs.add(log);
                 }
             }
