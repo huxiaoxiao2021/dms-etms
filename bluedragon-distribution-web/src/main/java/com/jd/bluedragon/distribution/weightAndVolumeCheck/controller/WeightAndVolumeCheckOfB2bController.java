@@ -1,13 +1,17 @@
 package com.jd.bluedragon.distribution.weightAndVolumeCheck.controller;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.WaybillFlowDetail;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightVolumeCheckConditionB2b;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightVolumeCheckOfB2bPackage;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightVolumeCheckOfB2bWaybill;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckOfB2bService;
+import com.jd.etms.waybill.common.Page;
+import com.jd.etms.waybill.domain.PackFlowDetail;
 import com.jd.uim.annotation.Authorization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +28,10 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.QueryParam;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述信息
@@ -40,6 +47,9 @@ public class WeightAndVolumeCheckOfB2bController extends DmsBaseController {
 
     @Autowired
     private WeightAndVolumeCheckOfB2bService weightAndVolumeCheckOfB2bService;
+
+    @Autowired
+    private WaybillPackageManager waybillPackageManager;
 
 
     /**
@@ -182,4 +192,39 @@ public class WeightAndVolumeCheckOfB2bController extends DmsBaseController {
                                                                                        HttpServletRequest request) {
         return weightAndVolumeCheckOfB2bService.uploadExcessPicture(image,request);
     }
+
+    /**
+     * 获取运单称重流水
+     *
+     * @param waybillCode
+     * @return
+     */
+    @Authorization(Constants.DMS_WEB_SORTING_WEIGHTANDVOLUMECHECKOFB2B_R)
+    @RequestMapping(value = "/getOpeDetailByCode", method = RequestMethod.GET)
+    @ResponseBody
+    public InvokeResult<Map<String,Object>> getOpeDetailByCode(@RequestParam("waybillCode") String waybillCode) {
+        InvokeResult<Map<String,Object>> result = new InvokeResult<>();
+        Map<String,Object> map = new HashMap<>();
+        List<PackFlowDetail> list = Collections.emptyList();
+        WaybillFlowDetail waybillFlowDetail;
+        try {
+            Page<PackFlowDetail> page = new Page<>();
+            page.setPageSize(1000);
+            page.setCurPage(1);
+            Page<PackFlowDetail> pageResult = waybillPackageManager.getOpeDetailByCode(waybillCode, page);
+            if(pageResult != null){
+                list = pageResult.getResult();
+            }
+            waybillFlowDetail = weightAndVolumeCheckOfB2bService.getFirstWeightAndVolumeDetail(waybillCode);
+            map.put("waybillRecord",list);
+            map.put("firstRecord",waybillFlowDetail);
+            result.setData(map);
+        }catch (Exception e){
+            logger.error("获取运单称重流水异常,异常信息:【{}】",e.getMessage(),e);
+            result.customMessage(600,"获取运单称重流水异常");
+        }
+        return result;
+    }
+
+
 }

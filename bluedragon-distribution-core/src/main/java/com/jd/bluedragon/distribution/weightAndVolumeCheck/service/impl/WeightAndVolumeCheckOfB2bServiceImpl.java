@@ -10,7 +10,15 @@ import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.*;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.AbnormalResultMq;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.DutyTypeEnum;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckData;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckOfPackageDetail;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.SystemEnum;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.WaybillFlowDetail;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightVolumeCheckConditionB2b;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightVolumeCheckOfB2bPackage;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightVolumeCheckOfB2bWaybill;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckOfB2bService;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -19,7 +27,6 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.waybill.common.Page;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.PackFlowDetail;
@@ -44,7 +51,14 @@ import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述信息
@@ -372,8 +386,8 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         dto.setReviewWeight(spotCheckData.getTotalWeight());
         dto.setReviewVolumeWeight(keeTwoDecimals(dto.getReviewVolume()/VOLUME_RATIO));
         dto.setBillingVolumeWeight(keeTwoDecimals(dto.getBillingVolume()/VOLUME_RATIO));
-        dto.setWeightDiff(new DecimalFormat("#0.00").format(dto.getReviewWeight()-dto.getBillingWeight()));
-        dto.setVolumeWeightDiff(new DecimalFormat("#0.00").format(dto.getReviewVolumeWeight()-dto.getBillingVolumeWeight()));
+        dto.setWeightDiff(new DecimalFormat("#0.00").format(Math.abs(dto.getReviewWeight()-dto.getBillingWeight())));
+        dto.setVolumeWeightDiff(new DecimalFormat("#0.00").format(Math.abs(dto.getReviewVolumeWeight()-dto.getBillingVolumeWeight())));
 
         Integer siteId = waybillFlowDetail.getOperateSiteCode();
         if(waybillFlowDetail.getTrustBusi()){
@@ -558,17 +572,15 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
      * @return
      */
     private Boolean isExcess(Double nowWeight,Double beforeWeight,Double nowVolume,Double beforeVolume){
-        Boolean sign = Boolean.FALSE;
         if((nowWeight < WEIGHT_THRESHOLD && Math.abs(nowWeight - beforeWeight) > WEIGHT_STANDARD_UP)
                 || (nowWeight >= WEIGHT_THRESHOLD && Math.abs(nowWeight - beforeWeight) > WEIGHT_STANDARD_LOW * nowWeight)){
-            sign = Boolean.TRUE;
-            return sign;
+            return Boolean.TRUE;
         }
         if((nowVolume < VOLUME_THRESHOLD && Math.abs(nowVolume - beforeVolume) > VOLUME_THRESHOLD)
                 || (nowVolume >= VOLUME_THRESHOLD && Math.abs(nowVolume - beforeVolume) > VOLUME_STANDARD_LOW * nowVolume)){
-            sign = Boolean.TRUE;
+            return Boolean.TRUE;
         }
-        return sign;
+        return Boolean.FALSE;
     }
 
     private void sendMqToFXM(WeightVolumeCollectDto dto,AbnormalResultMq abnormalResultMq) {
@@ -746,8 +758,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
      6、若是整单，则取最后一次整单录入的重量体积为对比对象
      7、若是包裹，则筛选出所有包裹维度称重量方的记录，然后以包裹维度进行去重，仅保留时间靠后的那条，最后汇总得到的重量体积为对比对象
      */
-    @Cache(key = "DMS.BASE.WaybillPackageManagerImpl.getFirstWeightAndVolumeDetail@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
-            redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
+    @Override
     public WaybillFlowDetail getFirstWeightAndVolumeDetail(String waybillCode){
 
         WaybillFlowDetail waybillFlowDetail = new WaybillFlowDetail();
@@ -813,28 +824,41 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             });
             volumeTimeSortList.addAll(timeSortList);
             PackFlowDetail packFlowDetail = null;
+            String operateId = null;
             String operateErp = null;
-            Date operatTime = null;
+            Date operateTime = null;
             Date weightTime = weightTimeSortList.get(0).getWeighTime();
             Date volumeTime = volumeTimeSortList.get(0).getMeasureTime();
             if(volumeTime == null
-                    || (weightTime!=null&&volumeTime!=null&&weightTime.getTime()>=volumeTime.getTime())){
+                    || (weightTime!=null&&volumeTime!=null&&weightTime.getTime()<=volumeTime.getTime())){
                 finalList = weightTimeSortList;
                 packFlowDetail = weightTimeSortList.get(0);
+                operateId = packFlowDetail.getWeighUserId();
                 operateErp = packFlowDetail.getWeighUserErp();
-                operatTime = packFlowDetail.getWeighTime();
+                operateTime = packFlowDetail.getWeighTime();
 
             }else if(weightTime == null
-                    || (weightTime!=null&&volumeTime!=null&&volumeTime.getTime()>=weightTime.getTime())){
+                    || (weightTime!=null&&volumeTime!=null&&volumeTime.getTime()<=weightTime.getTime())){
                 finalList = volumeTimeSortList;
                 packFlowDetail = volumeTimeSortList.get(0);
+                operateId = packFlowDetail.getMeasureUserId();
                 operateErp = packFlowDetail.getMeasureUserErp();
-                operatTime = packFlowDetail.getMeasureTime();
+                operateTime = packFlowDetail.getMeasureTime();
             }else {
                 return waybillFlowDetail;
             }
+            // 防止ERP字段为空,根据id获取ERP
+            try {
+                if(StringUtils.isEmpty(operateErp)){
+                    BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByStaffId(Integer.valueOf(operateId));
+                    operateErp = baseStaff.getAccountNumber();
+                }
+            }catch (Exception e){
+                log.error("根据操作人id获取操作人信息异常,异常信息:【{}】",e.getMessage(),e);
+            }
+
             waybillFlowDetail.setOperateErp(operateErp);
-            waybillFlowDetail.setOperateTime(operatTime);
+            waybillFlowDetail.setOperateTime(operateTime);
             waybillFlowDetail.setOperateSiteCode(packFlowDetail.getOperatorSiteId());
             waybillFlowDetail.setOperateSiteName(packFlowDetail.getOperatorSite());
             if(StringUtils.isEmpty(operateErp)){
