@@ -44,7 +44,12 @@ public class StoragePackageDDaoImpl extends BaseDao<StoragePackageD> implements 
     }
 
     @Override
-    public int updateKYStorageCode(StoragePackageD storagePackageD) {
-        return sqlSession.update(this.nameSpace+".updateKYStorageCode", storagePackageD);
+    public int updateKYStorageCodeByPackageCode(StoragePackageD storagePackageD) {
+        return sqlSession.update(this.nameSpace+".updateKYStorageCodeByPackageCode", storagePackageD);
+    }
+
+    @Override
+    public int updateKYStorageCodeByWaybillCode(StoragePackageD storagePackageD) {
+        return sqlSession.update(this.nameSpace+".updateKYStorageCodeByWaybillCode", storagePackageD);
     }
 }

@@ -292,7 +292,7 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
         //强制上架
         if(putawayDTO.getForceStorage()){
             // 更新暂存主表及明细表
-            updateStorageCode(putawayDTO);
+            updateStorageCode(putawayDTO,dto);
         }else {
             //存储暂存主表
             saveStoragePackageM( putawayDTO, isWaybillCode, dto);
@@ -353,19 +353,85 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
     }
 
 
-    private void updateStorageCode(PutawayDTO putawayDTO) {
+    /**
+     * <p>
+     *      更新暂存主表及明细表
+     * </p>
+     */
+    private void updateStorageCode(PutawayDTO putawayDTO,BigWaybillDto dto) {
+	    String waybillCode = WaybillUtil.getWaybillCode(putawayDTO.getBarCode());
         // 更新暂存主表储位号
         StoragePackageM storagePackageM = new StoragePackageM();
         storagePackageM.setStorageCode(putawayDTO.getStorageCode());
+        storagePackageM.setWaybillCode(waybillCode);
         storagePackageM.setPutawayTime(new Date(putawayDTO.getOperateTime()));
         storagePackageM.setUpdateUser(putawayDTO.getOperatorErp());
-        storagePackageMDao.updateKYStorageCode(storagePackageM);
         // 更新暂存明细表储位号
         StoragePackageD storagePackageD = new StoragePackageD();
         storagePackageD.setStorageCode(putawayDTO.getStorageCode());
+        storagePackageD.setWaybillCode(waybillCode);
+        storagePackageD.setPackageCode(putawayDTO.getBarCode());
         storagePackageD.setPutawayTime(new Date(putawayDTO.getOperateTime()));
         storagePackageD.setUpdateUser(putawayDTO.getOperatorErp());
-        storagePackageDDao.updateKYStorageCode(storagePackageD);
+        if(WaybillUtil.isWaybillCode(putawayDTO.getBarCode())){
+            storagePackageDDao.updateKYStorageCodeByWaybillCode(storagePackageD);
+            List<StoragePackageD> noExist = getNotExistStoragePackageD(putawayDTO,dto, waybillCode);
+            if (noExist == null) return;
+            storagePackageDDao.batchInsert(noExist);
+            storagePackageM.setPutawayPackageSum(Long.valueOf(dto.getPackageList().size()));
+            storagePackageM.setPutAwayCompleteTime(new Date(putawayDTO.getOperateTime()));
+            // 对外MQ
+            sendKYStorageMQ(putawayDTO);
+        }else {
+            storagePackageDDao.updateKYStorageCodeByPackageCode(storagePackageD);
+        }
+        storagePackageMDao.updateKYStorageCode(storagePackageM);
+    }
+
+    /**
+     * <p>
+     *     1、获取未录入的暂存包裹
+     *     2、未录入包裹发上架全程跟踪
+     * <p/>
+     * */
+    private List<StoragePackageD> getNotExistStoragePackageD(PutawayDTO putawayDTO,BigWaybillDto dto, String waybillCode) {
+        List<DeliveryPackageD> allPackageD = dto.getPackageList();
+        List<String> allPackageCode = new ArrayList<>();
+        for(DeliveryPackageD packageD : allPackageD){
+            allPackageCode.add(packageD.getPackageBarcode());
+        }
+        List<StoragePackageD> existStoragePackageD = storagePackageDDao.findByWaybill(waybillCode);
+        List<String> existPackageCode = new ArrayList<>();
+        for(StoragePackageD storagePackage : existStoragePackageD){
+            existPackageCode.add(storagePackage.getPackageCode());
+        }
+        List<String> noExistPackageCode = new ArrayList<>();
+        for(String packageCode : allPackageCode){
+            if(!existPackageCode.contains(packageCode)){
+                noExistPackageCode.add(packageCode);
+            }
+        }
+        if(CollectionUtils.isEmpty(noExistPackageCode)){
+            return null;
+        }
+        List<StoragePackageD> noExist = new ArrayList<>();
+        for(String packageCode : noExistPackageCode){
+            StoragePackageD noExistStoragePackageD = new StoragePackageD();
+            noExistStoragePackageD.setPerformanceCode(waybillCode);
+            noExistStoragePackageD.setStorageCode(putawayDTO.getStorageCode());
+            noExistStoragePackageD.setWaybillCode(waybillCode);
+            noExistStoragePackageD.setCreateSiteCode(Long.valueOf(putawayDTO.getCreateSiteCode()));
+            noExistStoragePackageD.setCreateSiteName(putawayDTO.getCreateSiteName());
+            noExistStoragePackageD.setCreateUser(putawayDTO.getOperatorErp());
+            noExistStoragePackageD.setUpdateUser(putawayDTO.getOperatorErp());
+            noExistStoragePackageD.setPutawayTime(new Date(putawayDTO.getOperateTime()));
+            noExistStoragePackageD.setPackageCode(packageCode);
+            noExist.add(noExistStoragePackageD);
+            // 更新运单状态
+            putawayDTO.setBarCode(packageCode);
+            updateWaybillStatusOfKYZC(putawayDTO,true);
+        }
+        return noExist;
     }
 
 
@@ -379,6 +445,8 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
             kYStorageMessage.setOperateTime(new Date(putawayDTO.getOperateTime()));
             kYStorageMessage.setOperateErp(putawayDTO.getOperatorErp());
             kYStorageMessage.setStorageStatus(1);
+            this.log.info("运单暂存全部上架发送MQ【{}】,业务ID【{}】,消息体【{}】",
+                    kyStorageProducer.getTopic(),waybillCode,JsonHelper.toJson(kYStorageMessage));
             kyStorageProducer.sendOnFailPersistent(waybillCode, JsonHelper.toJson(kYStorageMessage));
         }
     }

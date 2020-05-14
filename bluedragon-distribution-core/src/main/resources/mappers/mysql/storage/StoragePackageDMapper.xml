@@ -218,7 +218,16 @@
 		where waybill_code = #{waybillCode,jdbcType=VARCHAR}
 	</update>
 
-    <update id="updateKYStorageCode" parameterType="com.jd.bluedragon.distribution.storage.domain.StoragePackageD">
+    <update id="updateKYStorageCodeByPackageCode" parameterType="com.jd.bluedragon.distribution.storage.domain.StoragePackageD">
+		update storage_package_d
+		set storage_code = #{storageCode},
+        putaway_time = #{putawayTime},
+        update_user = #{updateUser},
+        update_time = now()
+		where package_code = #{packageCode,jdbcType=VARCHAR}
+	</update>
+
+    <update id="updateKYStorageCodeByWaybillCode" parameterType="com.jd.bluedragon.distribution.storage.domain.StoragePackageD">
 		update storage_package_d
 		set storage_code = #{storageCode},
         putaway_time = #{putawayTime},

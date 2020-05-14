@@ -575,6 +575,8 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                     message.setOperateTime(new Date(sendDetail.getOperateTime() - 3000));
                     message.setOperateSiteCode(sendDetail.getCreateSiteCode());
                     message.setStorageStatus(2);
+                    this.log.info("运单暂存全部下架发送MQ【{}】,业务ID【{}】,消息体【{}】",
+                            kyStorageProducer.getTopic(),waybillCode,JsonHelper.toJson(message));
                     kyStorageProducer.sendOnFailPersistent(message.getWaybillCode(), JSON.toJSONString(message));
                 }
             }
