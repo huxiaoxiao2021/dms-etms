@@ -411,16 +411,6 @@ public class BusinessUtil {
     }
 
     /**
-     * 判断是否函速达运单，waybill_sign第31位等于B时
-     *
-     * @param waybillSign
-     * @return
-     */
-    public static boolean isLetterExpress(String waybillSign) {
-        return isSignChar(waybillSign, 31, 'B');
-    }
-
-    /**
      * 是否是RMA标识的运单
      *
      * @param waybillSign
@@ -1405,5 +1395,15 @@ public class BusinessUtil {
     public static Boolean isArTransportMode(String waybillSign) {
 
         return BusinessUtil.isSignY(waybillSign, 31) || BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_84, WaybillSignConstants.CHAR_84_3);
+    }
+
+    /**
+     * 判断是否函速达运单，waybill_sign第31位等于B时
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isLetterExpress(String waybillSign) {
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_B);
     }
 }
