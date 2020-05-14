@@ -359,7 +359,6 @@ $(function() {
 
 			// 导出
             $('#btn_export').click(function () {
-                debugger;
                 var params = tableInit().getSearchCondition();
                 var form = $("<form method='post'></form>"),
                     input;
@@ -378,11 +377,11 @@ $(function() {
 
             // 储位充足变更
             $('#btn_edit').click(function() {
+                initStorageIsEnough();
                 $('#editStorageCap').modal('show');
             });
             // 储位充足变更保存
             $('#storageIsEnoughSave').click(function() {
-                debugger;
                 var isEnough;
                 if($('#storageIsEnough').attr("checked")){
                     isEnough = 1;
@@ -392,6 +391,13 @@ $(function() {
                 var url = "/storage/storagePackageM/updateStorageStatusBySiteCode/"+$('#loginUserCreateSiteCode').val() + "/" + isEnough;
                 $.post(url,function(data){
                     if(data.data){
+                        if($('#storageIsEnough').attr("checked")){
+                            $('#btn_edit').css("color","blue");
+                            $('#btn_edit').text('储位充足客户可下单');
+                        }else {
+                            $('#btn_edit').css("color","red");
+                            $('#btn_edit').text('储位已满停止客户下单');
+                        }
                         Jd.alert("保存成功");
                         $('#editStorageCap').modal('hide');
                     }else{

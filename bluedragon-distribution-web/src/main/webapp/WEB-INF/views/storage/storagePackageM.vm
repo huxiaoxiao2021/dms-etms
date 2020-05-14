@@ -179,6 +179,7 @@
                     </div>
                     <div class="input-group">
                         <h4 class="modal-title" style="color:red">储位是否充足变更将会同步基础资料</h4>
+                        <h4 class="modal-title" style="color:red">保存成功10分钟后同步状态，请勿重复操作...</h4>
                     </div>
                 </form>
             </div>
