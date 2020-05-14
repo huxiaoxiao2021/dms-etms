@@ -27,8 +27,9 @@ public enum WaybillPrintOperateTypeEnum {
     COLD_CHAIN_PRINT(100306, "冷链合伙人打印"),
 
     SITE_3PL_MASTER_RESCHEDULE_REPRINT(100307, "终端3PL：现场预分拣"),
-    SITE_3PL_PACKAGE_AGAIN_REPRINT(100308, "终端3PL：包裹补打");
-
+    SITE_3PL_PACKAGE_AGAIN_REPRINT(100308, "终端3PL：包裹补打"),
+    
+    PDF_DJ_JDB_PACKAGE_REPRINT(100315, "大件：大件京东帮");
 
     private Integer type;//操作类型
     private String name;//操作名称

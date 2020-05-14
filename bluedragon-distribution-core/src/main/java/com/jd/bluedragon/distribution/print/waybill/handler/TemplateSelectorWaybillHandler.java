@@ -20,6 +20,8 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
     
     /**B网统一面单 **/
     private static final String TEMPlATE_NAME_B2B_MAIN = "dms-b2b-unite";
+    /**大件模板 **/
+    private static final String TEMPlATE_NAME_DJ_JDB_MAIN = "dms-dj-jdb-m";
     /** TC面单 **/
     private static final String TEMPlATE_NAME_TC = "dms-b2b-m";
     /** C网统一面单-10*11 **/
@@ -73,7 +75,10 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
             	//冷链合伙人打印，指定为冷链模板
             	if(WaybillPrintOperateTypeEnum.COLD_CHAIN_PRINT.getType().equals(operateType)){
             		templateName = TEMPlATE_NAME_B2B_MAIN;
-            	}else if(BusinessUtil.isBusinessNet(waybillSign)){
+            	}else if(WaybillPrintOperateTypeEnum.PDF_DJ_JDB_PACKAGE_REPRINT.getType().equals(operateType)){
+            	    //大件-京东帮打印，指定模板
+                    templateName = TEMPlATE_NAME_DJ_JDB_MAIN;
+                }else if(BusinessUtil.isBusinessNet(waybillSign)){
             	    //经济网模板
                     templateName = TEMPlATE_NAME_C1010_MAIN;
                 }else if (TemplateGroupEnum.TEMPLATE_GROUP_CODE_TC.equals(basePrintWaybill.getTemplateGroupCode())) {
