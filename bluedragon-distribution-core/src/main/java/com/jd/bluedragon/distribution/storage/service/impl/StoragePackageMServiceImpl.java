@@ -915,10 +915,10 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
         result.setData(storageCheckDto);
         try {
             String waybillCode = WaybillUtil.getWaybillCode(barCode);
+            Waybill waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
+            storageCheckDto.setPlanDeliveryTime(DateHelper.formatDateTime(waybill.getRequireTime()));
             if(waybillCommonService.isStorageWaybill(waybillCode)){
-                Waybill waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
                 storageCheckDto.setStorageSource(StorageSourceEnum.KY_STORAGE.getCode());
-                storageCheckDto.setPlanDeliveryTime(DateHelper.formatDateTime(waybill.getRequireTime()));
                 if(!loginSiteIsLast(waybill,waybillCode,siteCode)){
                     result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"当前场地非末级B网场地，禁止上架");
                     return result;
