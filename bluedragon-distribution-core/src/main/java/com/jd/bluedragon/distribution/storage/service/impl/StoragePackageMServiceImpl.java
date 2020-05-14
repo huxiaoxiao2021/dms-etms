@@ -1066,7 +1066,7 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
             //表格信息
             for(StoragePackageM detail : dataList){
                 List<Object> body = Lists.newArrayList();
-                body.add(detail.getSource());
+                body.add(StorageSourceEnum.getNameByKey(detail.getSource()));
                 body.add(detail.getPerformanceCode());
                 body.add(detail.getWaybillCode());
                 body.add(detail.getPackageSum());
