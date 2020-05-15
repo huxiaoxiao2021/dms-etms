@@ -26,6 +26,7 @@ import com.jd.bluedragon.distribution.sms.domain.SMSDto;
 import com.jd.bluedragon.distribution.sms.service.SmsConfigService;
 import com.jd.bluedragon.distribution.storage.domain.KYStorageMessage;
 import com.jd.bluedragon.distribution.storage.domain.PutawayDTO;
+import com.jd.bluedragon.distribution.storage.domain.StoragePutStatusEnum;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -567,14 +568,15 @@ public class SendDetailConsumer extends MessageBaseConsumer {
             String waybillCode = WaybillUtil.getWaybillCode(sendDetail.getPackageBarcode());
             if(waybillCommonService.isStorageWaybill(waybillCode)){
                 updateWaybillStatusOfKYZC(sendDetail);
-                if(storagePackageMService.isAllPutAwayAll(waybillCode)){
+                if(storagePackageMService.isAllPutAwayAll(waybillCode)
+                        && storagePackageMService.packageIsAllSend(waybillCode,sendDetail.getCreateSiteCode())){
                     storagePackageMService.updateDownAwayTimeByWaybillCode(waybillCode);
                     KYStorageMessage message = new KYStorageMessage();
                     message.setWaybillCode(WaybillUtil.getWaybillCode(sendDetail.getPackageBarcode()));
                     message.setOperateErp(sendDetail.getCreateUser());
                     message.setOperateTime(new Date(sendDetail.getOperateTime() - 3000));
                     message.setOperateSiteCode(sendDetail.getCreateSiteCode());
-                    message.setStorageStatus(2);
+                    message.setStorageStatus(StoragePutStatusEnum.STORAGE_DOWN_AWAY.getCode());
                     this.log.info("运单暂存全部下架发送MQ【{}】,业务ID【{}】,消息体【{}】",
                             kyStorageProducer.getTopic(),waybillCode,JsonHelper.toJson(message));
                     kyStorageProducer.sendOnFailPersistent(message.getWaybillCode(), JSON.toJSONString(message));

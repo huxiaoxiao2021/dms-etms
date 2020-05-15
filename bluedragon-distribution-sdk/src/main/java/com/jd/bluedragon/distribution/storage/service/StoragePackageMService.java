@@ -140,6 +140,15 @@ public interface StoragePackageMService extends Service<StoragePackageM> {
     boolean isAllPutAwayAll(String waybillCode);
 
     /**
+     * 是否全部发货
+     *
+     * @param waybillCode
+     * @param siteCode
+     * @return
+     */
+    boolean packageIsAllSend(String waybillCode,Integer siteCode);
+
+    /**
      * 更新全部下架时间
      *
      * @param waybillCode

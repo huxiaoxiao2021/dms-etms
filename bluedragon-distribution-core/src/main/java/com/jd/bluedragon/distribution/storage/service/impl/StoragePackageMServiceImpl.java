@@ -10,6 +10,8 @@ import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.exception.StorageException;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
+import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.storage.dao.StoragePackageDDao;
 import com.jd.bluedragon.distribution.storage.dao.StoragePackageMDao;
 import com.jd.bluedragon.distribution.storage.domain.KYStorageMessage;
@@ -19,6 +21,7 @@ import com.jd.bluedragon.distribution.storage.domain.StoragePackageD;
 import com.jd.bluedragon.distribution.storage.domain.StoragePackageM;
 import com.jd.bluedragon.distribution.storage.domain.StoragePackageMCondition;
 import com.jd.bluedragon.distribution.storage.domain.StoragePackageMStatusEnum;
+import com.jd.bluedragon.distribution.storage.domain.StoragePutStatusEnum;
 import com.jd.bluedragon.distribution.storage.domain.StorageSourceEnum;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -127,6 +130,9 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
     @Autowired
     @Qualifier("kyStorageProducer")
     private DefaultJMQProducer kyStorageProducer;
+
+    @Autowired
+    private SendDetailService sendDetailService;
 
 	@Override
 	public Dao<StoragePackageM> getDao() {
@@ -444,7 +450,7 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
             kYStorageMessage.setOperateSiteName(putawayDTO.getCreateSiteName());
             kYStorageMessage.setOperateTime(new Date(putawayDTO.getOperateTime()));
             kYStorageMessage.setOperateErp(putawayDTO.getOperatorErp());
-            kYStorageMessage.setStorageStatus(1);
+            kYStorageMessage.setStorageStatus(StoragePutStatusEnum.STORAGE_PUT_AWAY.getCode());
             this.log.info("运单暂存全部上架发送MQ【{}】,业务ID【{}】,消息体【{}】",
                     kyStorageProducer.getTopic(),waybillCode,JsonHelper.toJson(kYStorageMessage));
             kyStorageProducer.sendOnFailPersistent(waybillCode, JsonHelper.toJson(kYStorageMessage));
@@ -934,7 +940,7 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
                     StoragePackageM storagePackageM =  storagePackageMDao.queryByWaybillCode(waybillCode);
                     storageCheckDto.setStorageCode(storagePackageM==null?null:storagePackageM.getStorageCode());
                 }
-                if(!isCanSend(waybill,barCode,siteCode)){
+                if(!timeCheck(waybill,barCode,siteCode)){
                     result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"货物距离预计送达时间较近，正常发运");
                     return result;
                 }
@@ -990,14 +996,14 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
      * @param siteCode 站点
      * @return
      */
-    private boolean isCanSend(Waybill waybill,String barCode, Integer siteCode){
+    private boolean timeCheck(Waybill waybill,String barCode, Integer siteCode){
         long vrsDiffTime = 0;
         try {
             List<WaybillRouteLinkCustDetailResp> firstList = vrsRouteManager.waybillRouteLinkQueryCondition(barCode,
                     String.valueOf(siteCode),WaybillRouteEnum.RealTimeOperateType.SEAL_CAR_NEW_PACKAGE.getValue());
             List<WaybillRouteLinkCustDetailResp> secondList = vrsRouteManager.waybillRouteLinkQueryCondition(barCode,
-                    String.valueOf(siteCode),WaybillRouteEnum.RealTimeOperateType.UNSEAL_CAR_NEW_PACKAGE.getValue());
-            vrsDiffTime = sortAndGetPlanOperateTime(firstList,siteCode) - sortAndGetPlanOperateTime(secondList,siteCode);
+                    String.valueOf(waybill.getOldSiteId()),WaybillRouteEnum.RealTimeOperateType.UNSEAL_CAR_NEW_PACKAGE.getValue());
+            vrsDiffTime = sortAndGetPlanOperateTime(firstList,siteCode) - sortAndGetPlanOperateTime(secondList,waybill.getOldSiteId());
         }catch (Exception e){
             log.error("获取路由在途时间异常,异常信息:【{}】",e.getMessage(),e);
         }
@@ -1010,8 +1016,8 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
     }
 
     /**
-     * 获取计划网点操作时间
-     *  按计划操作时间从小到大排序
+     * 获取网点操作时间（最近一次）
+     *  按计划操作时间从大到小排序
      * @param list
      * @param siteCode
      */
@@ -1150,6 +1156,36 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
         try {
             StoragePackageM storagePackageM = storagePackageMDao.queryByWaybillCode(waybillCode);
             return storagePackageM != null && storagePackageM.getPackageSum() == storagePackageM.getPutawayPackageSum();
+        }catch (Exception e){
+            log.error("服务异常");
+        }
+        return false;
+    }
+
+    /**
+     * 运单下包裹是否已全部发货
+     *
+     * @param waybillCode
+     * @param siteCode
+     * @return
+     */
+    @Override
+    public boolean packageIsAllSend(String waybillCode,Integer siteCode) {
+        try {
+            if(StringUtils.isEmpty(waybillCode) || siteCode == null){
+                return false;
+            }
+            SendDetailDto sendDto = new SendDetailDto();
+            sendDto.setCreateSiteCode(siteCode);
+            sendDto.setWaybillCode(waybillCode);
+            sendDto.setStatus(1);
+            sendDto.setIsCancel(0);
+            List<String> sendPackageList = sendDetailService.queryPackageByWaybillCode(sendDto);
+            if(CollectionUtils.isEmpty(sendPackageList)){
+                return false;
+            }
+            StoragePackageM storagePackageM = storagePackageMDao.queryByWaybillCode(waybillCode);
+            return storagePackageM != null && storagePackageM.getPackageSum() == sendPackageList.size();
         }catch (Exception e){
             log.error("服务异常");
         }
