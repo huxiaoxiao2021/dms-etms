@@ -11,5 +11,5 @@ public interface DmsMessageConstants {
 	 * 预售拦截消息码
 	 */
     public static final Integer CODE_29419 = 29419;
-    public static final String MESSAGE_29419 = "预售订单未付尾款，请操作异常处理后换单，原因选择”预售订单未付全款需返仓”";
+    public static final String MESSAGE_29419 = "此单未付尾款，异常处理选24预售原因，换单回仓”";
 }
