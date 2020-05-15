@@ -1294,7 +1294,12 @@
 			<artifactId>ccmp-ctm-api</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
-
+		<!-- 金鹏相关服务 -->
+		<dependency>
+		    <groupId>com.jd.ka</groupId>
+		    <artifactId>edn-sdk</artifactId>
+		    <version>0.1.5-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 	<profiles>

@@ -37,4 +37,10 @@ public interface SendPayConstants {
 	 */
 	int POSITION_293 = 293;
 	char CHAR_293_1 = '1';
+	/**
+	 * SendPay第314位,1-企配仓 2-企配仓
+	 */
+	int POSITION_314 = 314;
+	char CHAR_314_1 = '1';
+	char CHAR_314_2 = '2';
 }

@@ -152,6 +152,25 @@
                   alias="${dms.gateway.jsf.alias}"
                   ref="exceptionHandleGatewayService" server="dmsjsf">
     </jsf:provider>
+
+    <!-- 参数配置 -->
+    <bean id="sysConfigManageGateWayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.SysConfigManageGateWayServiceImpl"/>
+    <jsf:provider id="jsfSysConfigManageGateWayService"
+                  interface="com.jd.bluedragon.external.gateway.service.SysConfigManageGateWayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="sysConfigManageGateWayService"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 滞留上报 -->
+    <bean id="strandReportGateWayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.StrandReportGateWayServiceImpl"/>
+    <jsf:provider id="jsfStrandReportGateWayService"
+                  interface="com.jd.bluedragon.external.gateway.service.StrandReportGateWayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="strandReportGateWayService"
+                  server="dmsjsf">
+    </jsf:provider>
+
     <!-- 发布jsf 到物流网关 安卓调用end -->
 
     <!-- 发布jsf到物流网关 外部公司调用start  -->

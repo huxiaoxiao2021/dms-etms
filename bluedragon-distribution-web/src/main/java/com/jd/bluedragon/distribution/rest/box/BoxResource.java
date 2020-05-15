@@ -22,6 +22,8 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -362,7 +364,8 @@ public class BoxResource {
         Assert.notNull(request.getCreateSiteCode(), "request createSiteCode must not be null");
         Assert.notNull(request.getQuantity(), "request quantity must not be null");
         this.log.info("BoxRequest's {}", request.toString());
-
+        CallerInfo callerInfo = Profiler.registerInfo("DMSWEB.boxResource.boxes.create",
+                Constants.UMP_APP_NAME_DMSWEB, false, true);
         //排除非法箱号类型
         if(boxTypeCheckSwitchOn() && request.getType().length() > BOX_TYPE_LENGTH){
             com.jd.bluedragon.distribution.jsf.domain.InvokeResult<AutoSortingBoxResult> result
@@ -415,9 +418,10 @@ public class BoxResource {
                 boxResult.setRouterInfo(router);
             } catch (Exception e) {
                 this.log.error("获得站点路由信息失败： ", e);
+                Profiler.functionError(callerInfo);
             }
         }
-
+        Profiler.registerInfoEnd(callerInfo);
         return result;
     }
 

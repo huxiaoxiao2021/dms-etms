@@ -605,6 +605,12 @@
                   alias="${dms.ccmp.medicine.alias}" timeout="${dms.ccmp.medicine.timeout}"
                   retries="${jsf.retries}">
     </jsf:consumer>
+        <!-- 技术发展部 - 冷链产品 - 包裹绑定温度计 -->
+    <jsf:consumer id="jpEdnDeliveryReceiptService" interface="com.jd.ka.edn.sdk.service.JpEdnDeliveryReceiptService"
+                  protocol="jsf"
+                  alias="${jsf.jpEdnDeliveryReceiptService.alias}" timeout="${jsf.jpEdnDeliveryReceiptService.timeout}"
+                  retries="${jsf.retries}">
+    </jsf:consumer>
 
     <jsf:consumer id="basicSiteUpdateService" interface="com.jd.etms.basic.jsf.BasicSiteUpdateService"
                   protocol="jsf" alias="${jsf.basicSite.alias}" timeout="${jsf.basicSite.timeout}" retries="${jsf.retries}">
