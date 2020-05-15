@@ -209,8 +209,9 @@ public class SendGatewayServiceImpl implements SendGatewayService {
             //如果code值在30000-40000之间时，返回让用户选择的状态。
             if (rs.getCode()>=30000 && rs.getCode()<40000){
                 res.setData(true);
+            }else{
+                res.setData(false);
             }
-            res.setData(false);
             return res;
         }
 

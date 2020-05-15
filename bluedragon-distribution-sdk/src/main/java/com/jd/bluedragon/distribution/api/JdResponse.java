@@ -30,7 +30,7 @@ public class JdResponse extends JdObject {
     public static final String MESSAGE_INVALID_PACKAGECODE_BOXCODE="请扫描正确的包裹号/箱号";
 
     public static final Integer CODE_CAN_NOT_GENERATE_PACKAGECODE =  15000;
-    public static final String MESSAGE_CAN_NOT_GENERATE_PACKAGECODE = "按运单号[{0}]发货失败";
+    public static final String MESSAGE_CAN_NOT_GENERATE_PACKAGECODE = "运单号[{0}]发货验证失败。该运单中无包裹信息";
 
     public static final Integer CODE_SERVICE_ERROR = 20000;
     public static final String MESSAGE_SERVICE_ERROR = "服务异常";
