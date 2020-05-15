@@ -124,7 +124,7 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
         }
         //得到业务模板
         //根据key查config
-        if (needMatchTemplate && siteCode != null) {
+        if (needMatchTemplate) {
         	LabelTemplate matchedTemplate = templateSelectService.getMatchLabelTemplate(templateName, siteCode);
             if (matchedTemplate != null && StringUtils.isNotBlank(matchedTemplate.getTemplateName())) {
                 templateName = matchedTemplate.getTemplateName();
