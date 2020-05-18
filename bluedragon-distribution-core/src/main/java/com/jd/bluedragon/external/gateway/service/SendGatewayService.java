@@ -45,20 +45,6 @@ public interface SendGatewayService {
     JdCResponse<Boolean> checkGoodsForColdChainSend(DeliveryRequest request);
 
     /**
-     * 金鹏运单校验
-     * @param request
-     * @return
-     */
-    JdCResponse<Boolean> checkJpWaybill(DeliveryRequest request);
-
-    /**
-     *发货校验-判断是否在路由范围内
-     * @param request
-     * @return
-     */
-    JdCResponse<Boolean> checkThreeDeliveryNew(DeliveryRequest request);
-
-    /**
      * 取消上一次发货
      * @param request
      * @return

@@ -131,7 +131,6 @@ public class SortingGatewayServiceImpl implements SortingGatewayService {
     }
 
     @Override
-    @BusinessLog(sourceSys = 1,bizType = 2002,operateType = 20022)
     @JProfiler(jKey = "DMSWEB.SortingGatewayServiceImpl.getWaybillCodes", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public JdCResponse<List<String>> getWaybillCodes(String boxCode){
         JdCResponse<List<String>> res=new JdCResponse<>();

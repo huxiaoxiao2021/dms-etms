@@ -132,7 +132,6 @@ public class SendGatewayServiceImpl implements SendGatewayService {
 
     @Override
     @JProfiler(jKey = "DMSWEB.SendGatewayServiceImpl.getTransPlan",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    @BusinessLog(sourceSys = 1, bizType = 100, operateType = 1006)
     public JdCResponse<List<TransPlanDto>> getTransPlan(TransPlanRequest request){
         JdCResponse<List<TransPlanDto>> res=new JdCResponse<>();
         res.toSucceed();
@@ -160,7 +159,6 @@ public class SendGatewayServiceImpl implements SendGatewayService {
 
     @Override
     @JProfiler(jKey = "DMSWEB.SendGatewayServiceImpl.checkJpWaybill",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    @BusinessLog(sourceSys = 1, bizType = 100, operateType = 1013)
     public  JdCResponse<Boolean> checkGoodsForColdChainSend(DeliveryRequest request){
         JdCResponse<Boolean> res=parameterCheck(request);
         if (!JdCResponse.CODE_SUCCESS.equals(res.getCode())){
@@ -183,9 +181,9 @@ public class SendGatewayServiceImpl implements SendGatewayService {
         //金鹏运单校验
         DeliveryResponse rs=deliveryResource.checkJpWaybill(req);
         if (null==rs){
-            res.toFail("检验异常");
-            res.setData(false);
-            return res;
+           res.toFail("金鹏运单校验异常");
+           res.setData(false);
+           return res;
         }
 
         //验证不通过，直接返回拦死信息
@@ -199,7 +197,7 @@ public class SendGatewayServiceImpl implements SendGatewayService {
         //判断是否在路由范围内
         rs=deliveryResource.checkThreeDeliveryNew(req);
         if (null==rs){
-            res.toFail("检验异常");
+            res.toFail("运单是否在路由范围内校验异常");
             res.setData(false);
             return res;
         }
@@ -219,83 +217,9 @@ public class SendGatewayServiceImpl implements SendGatewayService {
         return res;
     }
 
-    @Override
-    @JProfiler(jKey = "DMSWEB.SendGatewayServiceImpl.checkJpWaybill",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    @BusinessLog(sourceSys = 1, bizType = 100, operateType = 1007)
-    public JdCResponse<Boolean> checkJpWaybill(DeliveryRequest request){
-        JdCResponse<Boolean> res=parameterCheck(request);
-        if (!JdCResponse.CODE_SUCCESS.equals(res.getCode())){
-            return res;
-        }
-
-        com.jd.bluedragon.distribution.api.request.DeliveryRequest req=new com.jd.bluedragon.distribution.api.request.DeliveryRequest();
-        BeanUtils.copyProperties(request, req);
-        if(null!=request.getUser()){
-            req.setUserCode(request.getUser().getUserCode());
-            req.setUserName(request.getUser().getUserName());
-        }
-        if(null!=request.getCurrentOperate()){
-            req.setSiteCode(request.getCurrentOperate().getSiteCode());
-            req.setSiteName(request.getCurrentOperate().getSiteName());
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            req.setOperateTime(sdf.format(request.getCurrentOperate().getOperateTime()));
-        }
-
-        DeliveryResponse rs=deliveryResource.checkJpWaybill(req);
-        if (null==rs){
-            res.toFail("检验异常");
-            return res;
-        }
-
-        if (!JdResponse.CODE_OK.equals(rs.getCode())){
-            res.setCode(rs.getCode());
-            res.setMessage(rs.getMessage());
-            return res;
-        }
-
-        return res;
-    }
-
-    @Override
-    @JProfiler(jKey = "DMSWEB.SendGatewayServiceImpl.checkThreeDelivery",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    @BusinessLog(sourceSys = 1, bizType = 100, operateType = 1008)
-    public JdCResponse<Boolean> checkThreeDeliveryNew(DeliveryRequest request){
-        JdCResponse<Boolean> res=parameterCheck(request);
-        if (!JdCResponse.CODE_SUCCESS.equals(res.getCode())){
-            return res;
-        }
-
-        com.jd.bluedragon.distribution.api.request.DeliveryRequest req=new com.jd.bluedragon.distribution.api.request.DeliveryRequest();
-        BeanUtils.copyProperties(request, req);
-        if(null!=request.getUser()){
-            req.setUserCode(request.getUser().getUserCode());
-            req.setUserName(request.getUser().getUserName());
-        }
-        if(null!=request.getCurrentOperate()){
-            req.setSiteCode(request.getCurrentOperate().getSiteCode());
-            req.setSiteName(request.getCurrentOperate().getSiteName());
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            req.setOperateTime(sdf.format(request.getCurrentOperate().getOperateTime()));
-        }
-
-        DeliveryResponse rs=deliveryResource.checkThreeDeliveryNew(req);
-        if (null==rs){
-            res.toFail("检验异常");
-            return res;
-        }
-
-        if (!JdResponse.CODE_OK.equals(rs.getCode())){
-            res.setCode(rs.getCode());
-            res.setMessage(rs.getMessage());
-            return res;
-        }
-
-        return res;
-    }
 
     @Override
     @JProfiler(jKey = "DMSWEB.SendGatewayServiceImpl.cancelLastDeliveryInfo",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    @BusinessLog(sourceSys = 1, bizType = 100, operateType = 1009)
     public JdCResponse<Boolean> cancelLastDeliveryInfo(DeliveryRequest request){
         JdCResponse<Boolean> res=parameterCheck(request);
         if (!JdCResponse.CODE_SUCCESS.equals(res.getCode())){
@@ -317,7 +241,7 @@ public class SendGatewayServiceImpl implements SendGatewayService {
 
         ThreeDeliveryResponse rs=deliveryResource.cancelLastDeliveryInfo(req);
         if (null==rs){
-            res.toFail("检验异常");
+            res.toFail("取消订单拦截校验异常");
             return res;
         }
 
@@ -332,7 +256,6 @@ public class SendGatewayServiceImpl implements SendGatewayService {
 
     @Override
     @JProfiler(jKey = "DMSWEB.SendGatewayServiceImpl.checkThreeDelivery",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    @BusinessLog(sourceSys = 1, bizType = 100, operateType = 1010)
     public JdCResponse<Boolean> checkThreeDelivery(ColdChainSendRequest request){
         JdCResponse<Boolean> res=new JdCResponse<>();
         res.toSucceed();
@@ -366,7 +289,7 @@ public class SendGatewayServiceImpl implements SendGatewayService {
 
         ThreeDeliveryResponse rs=deliveryResource.checkThreeDelivery(listRequest);
         if (null==rs){
-            res.toFail("检验异常");
+            res.toFail("发货前发货数据校验异常");
             return res;
         }
 
@@ -381,7 +304,6 @@ public class SendGatewayServiceImpl implements SendGatewayService {
 
     @Override
     @JProfiler(jKey = "DMSWEB.SendGatewayServiceImpl.coldChainSendDelivery",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    @BusinessLog(sourceSys = 1, bizType = 100, operateType = 1011)
     public JdCResponse<Boolean> coldChainSendDelivery(ColdChainSendRequest request){
         JdCResponse<Boolean> res=new JdCResponse<>();
         res.toSucceed();
@@ -416,7 +338,7 @@ public class SendGatewayServiceImpl implements SendGatewayService {
 
         DeliveryResponse rs=coldChainDeliveryResource.coldChainSendDelivery(listRequest);
         if (null==rs){
-            res.toFail("检验异常");
+            res.toFail("冷链发货异常");
             return res;
         }
 
@@ -431,7 +353,6 @@ public class SendGatewayServiceImpl implements SendGatewayService {
 
     @Override
     @JProfiler(jKey = "DMSWEB.SendGatewayServiceImpl.differentialQuery",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    @BusinessLog(sourceSys = 1, bizType = 100, operateType = 1012)
     public JdCResponse<List<SendThreeDetailDto>> differentialQuery(DifferentialQueryRequest request){
         JdCResponse<List<SendThreeDetailDto>> res=new JdCResponse<>();
         res.toSucceed();
@@ -463,7 +384,7 @@ public class SendGatewayServiceImpl implements SendGatewayService {
 
         ThreeDeliveryResponse rs=deliveryResource.differentialQuery(req);
         if (null==rs){
-            res.toFail("检验异常");
+            res.toFail("发货差异查询异常");
             return res;
         }
 
