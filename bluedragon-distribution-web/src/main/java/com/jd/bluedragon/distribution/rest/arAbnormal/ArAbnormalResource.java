@@ -5,16 +5,16 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.ArAbnormalRequest;
 import com.jd.bluedragon.distribution.api.response.ArAbnormalResponse;
 import com.jd.bluedragon.distribution.arAbnormal.ArAbnormalService;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.transport.domain.ArContrabandReason;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.util.List;
 
 /**
  * @author tangchunqing
@@ -42,5 +42,21 @@ public class ArAbnormalResource {
             response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
         }
         return response;
+    }
+
+    @GET
+    @Path("/arAbnormal/getArContrabandReason")
+    public InvokeResult<List<ArContrabandReason>> getArContrabandReasonList(){
+        InvokeResult<List<ArContrabandReason>> result = new InvokeResult<>();
+        try{
+            result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+            result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+            result.setData(arAbnormalService.getArContrabandReasonList());
+        }catch (Exception e){
+            log.error("获取运输方式变更原因失败",e);
+            result.setCode(InvokeResult.SERVER_ERROR_CODE);
+            result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
+        }
+        return result;
     }
 }
