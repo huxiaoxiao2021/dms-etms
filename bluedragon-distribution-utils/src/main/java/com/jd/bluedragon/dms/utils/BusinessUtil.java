@@ -1494,4 +1494,14 @@ public class BusinessUtil {
                 BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_79, WaybillSignConstants.CHAR_79_2) &&
                 BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_23, WaybillSignConstants.CHAR_23_7);
     }
+
+    /**
+     * 判断是否函速达运单，waybill_sign第31位等于B时
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isLetterExpress(String waybillSign) {
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_B);
+    }
 }
