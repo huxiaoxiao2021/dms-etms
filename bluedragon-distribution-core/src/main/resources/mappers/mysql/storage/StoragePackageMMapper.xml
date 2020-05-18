@@ -419,8 +419,11 @@
 		SET putaway_package_sum = putaway_package_sum + 1,
 		storage_code = #{storageCode},
 		putaway_time = #{putawayTime},
+        <if test="putAwayCompleteTime != null">
+            putaway_complete_time = #{putAwayCompleteTime},
+        </if>
 		update_user = #{updateUser},
-		update_time = now(),
+		update_time = now()
 		WHERE  waybill_code = #{waybillCode}
 		<include refid="Base_Condition_Sql"/>
 	</update>

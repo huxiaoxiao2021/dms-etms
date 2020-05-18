@@ -380,18 +380,19 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
         storagePackageD.setPutawayTime(new Date(putawayDTO.getOperateTime()));
         storagePackageD.setUpdateUser(putawayDTO.getOperatorErp());
         if(WaybillUtil.isWaybillCode(putawayDTO.getBarCode())){
+            storagePackageM.setPutawayPackageSum(Long.valueOf(dto.getPackageList().size()));
+            storagePackageM.setPutAwayCompleteTime(new Date(putawayDTO.getOperateTime()));
+            storagePackageMDao.updateKYStorageCode(storagePackageM);
             storagePackageDDao.updateKYStorageCodeByWaybillCode(storagePackageD);
             List<StoragePackageD> noExist = getNotExistStoragePackageD(putawayDTO,dto, waybillCode);
             if (noExist == null) return;
             storagePackageDDao.batchInsert(noExist);
-            storagePackageM.setPutawayPackageSum(Long.valueOf(dto.getPackageList().size()));
-            storagePackageM.setPutAwayCompleteTime(new Date(putawayDTO.getOperateTime()));
             // 对外MQ
             sendKYStorageMQ(putawayDTO);
         }else {
+            storagePackageMDao.updateKYStorageCode(storagePackageM);
             storagePackageDDao.updateKYStorageCodeByPackageCode(storagePackageD);
         }
-        storagePackageMDao.updateKYStorageCode(storagePackageM);
     }
 
     /**
