@@ -306,12 +306,12 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
             //存储暂存明细表
             saveStoragePackageDs( putawayDTO, isWaybillCode, dto);
 
-            // 15500 暂存上架状态
-            updateWaybillStatusOfKYZC(putawayDTO,true);
-
             // 全部上架对外MQ
             sendKYStorageMQ(putawayDTO);
         }
+
+        // 15500 暂存上架状态
+        updateWaybillStatusOfKYZC(putawayDTO,true);
 
         return true;
     }
