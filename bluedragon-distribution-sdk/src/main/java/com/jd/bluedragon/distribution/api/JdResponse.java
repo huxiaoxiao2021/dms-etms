@@ -30,7 +30,7 @@ public class JdResponse extends JdObject {
     public static final String MESSAGE_INVALID_PACKAGECODE_BOXCODE="请扫描正确的包裹号/箱号";
 
     public static final Integer CODE_CAN_NOT_GENERATE_PACKAGECODE =  15000;
-    public static final String MESSAGE_CAN_NOT_GENERATE_PACKAGECODE = "按运单号[{0}]发货失败";
+    public static final String MESSAGE_CAN_NOT_GENERATE_PACKAGECODE = "运单号[{0}]发货验证失败。该运单中无包裹信息";
 
     public static final Integer CODE_SERVICE_ERROR = 20000;
     public static final String MESSAGE_SERVICE_ERROR = "服务异常";
@@ -76,6 +76,9 @@ public class JdResponse extends JdObject {
 
     public static final Integer CODE_OUT_ZONE_ERROR = 20013;
     public static final String MESSAGE_OUT_ZONE_ERROR = "此运单收件地址为春节禁售或疫情地区，无法揽收，请退回商家！";
+
+    public static final Integer CODE_GET_TRANSPLAN_ERROR = 20014;
+    public static final String MESSAGE_GET_TRANSPLAN_ERROR = "没有查询到相应运输计划，请核实查询条件后重新操作！";
 
     public static final Integer CODE_UNLOADBILL = 2424;
     public static final String MESSAGE_UNLOADBILL = "已经装载不允许取消";
