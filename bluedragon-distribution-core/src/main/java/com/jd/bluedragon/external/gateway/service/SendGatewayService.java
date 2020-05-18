@@ -2,6 +2,7 @@ package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.send.request.ColdChainSendRequest;
 import com.jd.bluedragon.common.dto.send.request.DeliveryVerifyRequest;
 import com.jd.bluedragon.common.dto.send.request.SinglePackageSendRequest;
 import com.jd.bluedragon.common.dto.send.request.TransPlanRequest;
@@ -69,14 +70,14 @@ public interface SendGatewayService {
      * @param request
      * @return
      */
-    JdCResponse<Boolean> checkThreeDelivery(List<DeliveryRequest> request);
+    JdCResponse<Boolean> checkThreeDelivery(ColdChainSendRequest request);
 
     /**
      * 冷链发货
      * @param request
      * @return
      */
-    JdCResponse<Boolean> coldChainSendDelivery(List<DeliveryRequest> request);
+    JdCResponse<Boolean> coldChainSendDelivery(ColdChainSendRequest request);
 
     /**
      * 快运发货、冷链发货差异查询

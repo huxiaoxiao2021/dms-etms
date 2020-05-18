@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
 import com.jd.bluedragon.common.dto.base.response.ResponseCodeConstants;
+import com.jd.bluedragon.common.dto.send.request.ColdChainSendRequest;
 import com.jd.bluedragon.common.dto.send.request.DeliveryRequest;
 import com.jd.bluedragon.common.dto.send.request.DeliveryVerifyRequest;
 import com.jd.bluedragon.common.dto.send.request.DifferentialQueryRequest;
@@ -332,16 +333,16 @@ public class SendGatewayServiceImpl implements SendGatewayService {
     @Override
     @JProfiler(jKey = "DMSWEB.SendGatewayServiceImpl.checkThreeDelivery",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     @BusinessLog(sourceSys = 1, bizType = 100, operateType = 1010)
-    public JdCResponse<Boolean> checkThreeDelivery(List<DeliveryRequest> request){
+    public JdCResponse<Boolean> checkThreeDelivery(ColdChainSendRequest request){
         JdCResponse<Boolean> res=new JdCResponse<>();
         res.toSucceed();
 
-        if (null==request || request.size()<=0){
+        if (null==request || null==request.getSendList() || request.getSendList().size()<=0){
             res.toFail("入参不能为空");
             return res;
         }
         List<com.jd.bluedragon.distribution.api.request.DeliveryRequest> listRequest =new ArrayList<>();
-        for (DeliveryRequest ltem : request) {
+        for (DeliveryRequest ltem : request.getSendList()) {
             JdCResponse<Boolean> ltemcheck=parameterCheck(ltem);
             if (!JdCResponse.CODE_SUCCESS.equals(ltemcheck.getCode())){
                 return ltemcheck;
@@ -381,17 +382,17 @@ public class SendGatewayServiceImpl implements SendGatewayService {
     @Override
     @JProfiler(jKey = "DMSWEB.SendGatewayServiceImpl.coldChainSendDelivery",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     @BusinessLog(sourceSys = 1, bizType = 100, operateType = 1011)
-    public JdCResponse<Boolean> coldChainSendDelivery(List<DeliveryRequest> request){
+    public JdCResponse<Boolean> coldChainSendDelivery(ColdChainSendRequest request){
         JdCResponse<Boolean> res=new JdCResponse<>();
         res.toSucceed();
 
-        if (null==request || request.size()<=0){
+        if (null==request || null==request.getSendList() || request.getSendList().size()<=0){
             res.toFail("入参不能为空");
             return res;
         }
 
         List<ColdChainDeliveryRequest> listRequest=new ArrayList<>();
-        for (DeliveryRequest ltem : request) {
+        for (DeliveryRequest ltem : request.getSendList()) {
             JdCResponse<Boolean> ltemcheck=parameterCheck(ltem);
             if (!JdCResponse.CODE_SUCCESS.equals(ltemcheck.getCode())){
                 return ltemcheck;
