@@ -1415,4 +1415,60 @@ public class BusinessUtil {
 	public static boolean isEdnDmsSite(Integer subType) {
 		return SITE_SUB_TYPE_EDN.equals(subType);
 	}
+
+    /**
+     * 是否外单自提点
+     *  C网 waybillsign第40位=0
+     *  订单类型 SOP Waybillsign第1位=2
+     * 且79位=2，且23位≠5、6、7，面单打印“提”字
+     * @return
+     */
+    public static boolean isZiTiByWaybillSign(String waybillSign) {
+        /* C网 waybillsign第40位=0
+         * 订单类型 SOP Waybillsign第1位=2
+         */
+        boolean bool = BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_1, WaybillSignConstants.CHAR_1_2) ||
+                BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_40, WaybillSignConstants.CHAR_40_0);
+        return bool &&
+                BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_79, WaybillSignConstants.CHAR_79_2) &&
+                !BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_23,WaybillSignConstants.CHAR_23_5, WaybillSignConstants.CHAR_23_6, WaybillSignConstants.CHAR_23_7);
+    }
+
+    /**
+     * 是否自提柜
+     *  C网 waybillsign第40位=0
+     *  订单类型 SOP Waybillsign第1位=2
+     * 且79位=2，且23=5、6，面单打印【柜】字
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isZiTiGuiByWaybillSign(String waybillSign) {
+        /* C网 waybillsign第40位=0
+         * 订单类型 SOP Waybillsign第1位=2
+         */
+        boolean bool = BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_1, WaybillSignConstants.CHAR_1_2) ||
+                BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_40, WaybillSignConstants.CHAR_40_0);
+        return bool &&
+                BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_79, WaybillSignConstants.CHAR_79_2) &&
+                BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_23,WaybillSignConstants.CHAR_23_5, WaybillSignConstants.CHAR_23_6);
+    }
+
+    /**
+     * 是否自提店
+     *  C网 waybillsign第40位=0
+     *  订单类型 SOP Waybillsign第1位=2
+     * 且79位=2，且23=7，面单打印【店】字
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isZiTiDianByWaybillSign(String waybillSign) {
+        /* C网 waybillsign第40位=0
+         * 订单类型 SOP Waybillsign第1位=2
+         */
+        boolean bool = BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_1, WaybillSignConstants.CHAR_1_2) ||
+                BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_40, WaybillSignConstants.CHAR_40_0);
+        return bool &&
+                BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_79, WaybillSignConstants.CHAR_79_2) &&
+                BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_23, WaybillSignConstants.CHAR_23_7);
+    }
 }
