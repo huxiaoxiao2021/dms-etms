@@ -106,18 +106,6 @@ public class DmsDeliveryServiceImpl implements DmsDeliveryService,SendGatewaySer
 
     @Override
     @Deprecated
-    public JdCResponse<Boolean> checkJpWaybill(com.jd.bluedragon.common.dto.send.request.DeliveryRequest request){
-        return null;
-    }
-
-    @Override
-    @Deprecated
-    public JdCResponse<Boolean> checkThreeDeliveryNew(com.jd.bluedragon.common.dto.send.request.DeliveryRequest request){
-        return null;
-    }
-
-    @Override
-    @Deprecated
     public JdCResponse<Boolean> cancelLastDeliveryInfo(com.jd.bluedragon.common.dto.send.request.DeliveryRequest request){
         return null;
     }
