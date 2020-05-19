@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.jd.bluedragon</groupId>
     <artifactId>bluedragon-distribution-common-android</artifactId>
-    <version>1.0.9-SNAPSHOT</version>
+    <version>1.0.9-test-SNAPSHOT</version>
     <name>bluedragon-distribution-common-android</name>
     <packaging>jar</packaging>
     <description> 只用于后台服务与android端接口交互场景,

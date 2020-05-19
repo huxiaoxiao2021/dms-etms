@@ -612,4 +612,8 @@
                   alias="${tms.ecp.jsf.alias}" timeout="${tms.ecp.jsf.timeout}"
                   retries="${jsf.retries}">
     </jsf:consumer>
+    <jsf:consumer id="expInfoSummaryJsfService" interface="com.jd.ps.data.epf.service.ExpInfoSummaryJsfService"
+                  protocol="jsf" alias="${epf.jsf.alias}" timeout="epf.exp.info.timeout" retries="${jsf.retries}">
+
+    </jsf:consumer>
 </beans>
