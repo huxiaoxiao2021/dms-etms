@@ -129,6 +129,14 @@ public class WaybillPrintRequest extends JdRequest{
 	 * 自动识别包裹标签打印标识
 	 * */
 	private Boolean discernFlag = false;
+    /**
+     * 商家Id
+     */
+	private Integer businessId;
+    /**
+     * 扫描单号类
+     */
+	private Integer barCodeType;
 
 	public Boolean getTrustBusinessFlag() {
 		return trustBusinessFlag;
@@ -381,5 +389,21 @@ public class WaybillPrintRequest extends JdRequest{
 
 	public void setDiscernFlag(Boolean discernFlag) {
 		this.discernFlag = discernFlag;
+	}
+
+	public Integer getBusinessId() {
+		return businessId;
+	}
+
+	public void setBusinessId(Integer businessId) {
+		this.businessId = businessId;
+	}
+
+	public Integer getBarCodeType() {
+		return barCodeType;
+	}
+
+	public void setBarCodeType(Integer barCodeType) {
+		this.barCodeType = barCodeType;
 	}
 }

@@ -1,8 +1,29 @@
 package com.jd.bluedragon.distribution.web.log;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.ws.rs.QueryParam;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.distribution.log.BusinessLogDto;
+import com.jd.bluedragon.distribution.log.service.BusinessLogManager;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.logger.aop.BusinessLogWriter;
@@ -13,21 +34,6 @@ import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.service.BusinessLogQueryService;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 
 @Controller
@@ -39,6 +45,9 @@ public class LogController {
 
     @Resource
     private UccPropertyConfiguration uccPropertyConfiguration;
+	@Autowired
+	@Qualifier("businessLogManager")
+    BusinessLogManager businessLogManager;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -146,5 +155,17 @@ public class LogController {
             businessLogList.setStatusMessage(TableResult.SERVER_ERROR_MESSAGE);
         }
         return businessLogList;
+    }
+    @Authorization(Constants.DMS_WEB_SORTING_OPERATELOG_R)
+    @RequestMapping("/addLog")
+    @ResponseBody
+    public boolean addLog(@RequestBody BusinessLogDto log) {
+    	return this.businessLogManager.addLog(log);
+    }
+    @Authorization(Constants.DMS_WEB_SORTING_OPERATELOG_R)
+    @RequestMapping("/queryLogs")
+    @ResponseBody
+    public List<BusinessLogDto> queryLogs(@QueryParam("businessKey") String businessKey,@QueryParam("operateType") Integer operateType) {
+    	return this.businessLogManager.queryLogs(businessKey,operateType);
     }
 }

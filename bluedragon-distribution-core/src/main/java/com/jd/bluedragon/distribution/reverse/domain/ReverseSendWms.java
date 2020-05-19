@@ -73,7 +73,15 @@ public class ReverseSendWms {
 	private String spareColumn3; //特殊字段3 存放运单中对应的spareColumn3 返回仓储时不生成XML节点 仅供内部使用
 
 	private String billPackageCode; //面单实际包裹号 仅供病单使用
-
+	/**
+	 * 0：客退入，为1：病单入，为2：预售入
+	 */
+	private Integer guestBackType;
+	/**
+	 * sendPay判断业务用
+	 */
+	private String sendPay;
+	
 	public final static String ORDER_SOURCE_JLZX = "JLZX"; //订单来源 加履中心
 
     public String getBusiOrderCode() {
@@ -268,5 +276,21 @@ public class ReverseSendWms {
 
 	public void setBillPackageCode(String billPackageCode) {
 		this.billPackageCode = billPackageCode;
+	}
+
+	public Integer getGuestBackType() {
+		return guestBackType;
+	}
+
+	public void setGuestBackType(Integer guestBackType) {
+		this.guestBackType = guestBackType;
+	}
+	@XmlTransient
+	public String getSendPay() {
+		return sendPay;
+	}
+
+	public void setSendPay(String sendPay) {
+		this.sendPay = sendPay;
 	}
 }

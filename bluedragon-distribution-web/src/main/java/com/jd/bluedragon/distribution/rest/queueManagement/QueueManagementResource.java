@@ -161,7 +161,7 @@ public class QueueManagementResource {
     @JProfiler(jKey = "DMSWEB.QueueManagementResource.callNum", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public InvokeResult<PlatformCallNumResponseDto> callNum(PlatformCallNumRequest request){
         InvokeResult<PlatformCallNumResponseDto> result=new InvokeResult<PlatformCallNumResponseDto>();
-        if(StringUtils.isEmpty(request.getPlatformCode()) || ((StringUtils.isEmpty(request.getFlowCode()) || StringUtils.isEmpty(request.getCarType())) && request.getPlatformWorkTypeEnum()==0))
+        if(StringUtils.isEmpty(request.getPlatformCode()) || StringUtils.isEmpty(request.getFlowCode()))
         {
             log.warn("叫号接口失败-参数错误[{}]", JsonHelper.toJson(request));
             result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);

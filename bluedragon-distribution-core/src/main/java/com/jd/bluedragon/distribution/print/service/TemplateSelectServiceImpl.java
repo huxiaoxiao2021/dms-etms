@@ -47,7 +47,8 @@ public class TemplateSelectServiceImpl implements TemplateSelectService {
                 PackageTemplate packageTemplate = JsonHelper.fromJson(content, PackageTemplate.class);
                 //如果没有测试模板的信息则返回正式模板
                 if (packageTemplate !=null){
-                	if(packageTemplate.getTemporaryTemplate() != null 
+                	if(siteCode != null
+                		&& packageTemplate.getTemporaryTemplate() != null 
                 		&& !packageTemplate.getTemporaryTemplate().isEmpty()) {
 	                    //能够查到测试模板的信息，则循环测试模板，获取匹配的模板
 	                    List<TemporaryPackageTemplate> temporaryTemplateList = packageTemplate.getTemporaryTemplate();

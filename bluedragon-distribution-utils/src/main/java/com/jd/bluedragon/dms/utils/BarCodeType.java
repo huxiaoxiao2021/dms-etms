@@ -26,7 +26,15 @@ public enum BarCodeType {
     /**
      * 批次号
      */
-    SEND_CODE(4, "批次号");
+    SEND_CODE(4, "批次号"),
+    /**
+     * 包裹|运单号
+     */
+    PACKAGE_OR_WAYBILL_CODE(5, "包裹|运单号"),
+    /**
+     * 商家单号
+     */
+    BUSINESS_ORDER_CODE(6, "商家单号");
 
     private int code;
 

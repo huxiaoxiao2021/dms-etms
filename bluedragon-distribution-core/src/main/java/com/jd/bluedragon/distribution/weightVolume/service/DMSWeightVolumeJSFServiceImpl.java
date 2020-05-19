@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
  * @author wuzuxiang
  * @since 2020/1/10
  **/
-@Service
+@Service("dmsWeightVolumeJSFService")
 public class DMSWeightVolumeJSFServiceImpl implements DMSWeightVolumeJSFService {
 
     @Autowired
