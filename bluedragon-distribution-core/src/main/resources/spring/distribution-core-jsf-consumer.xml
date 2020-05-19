@@ -617,4 +617,8 @@
         <jsf:parameter key="token" value="${jsf.basicSite.token}" hide="true" />
     </jsf:consumer>
 
+    <jsf:consumer id="ecpRailWayWS" interface="com.jd.tms.ecp.ws.EcpRailWayWS" protocol="jsf"
+                  alias="${tms.ecp.jsf.alias}" timeout="${tms.ecp.jsf.timeout}"
+                  retries="${jsf.retries}">
+    </jsf:consumer>
 </beans>

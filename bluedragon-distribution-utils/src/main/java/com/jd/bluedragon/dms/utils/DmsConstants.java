@@ -206,6 +206,14 @@ public class DmsConstants {
      */
     public static final Pattern WARM_BOX_CODE_REGEX = Pattern.compile("^MZ[A-Z0-9]{12,14}$");
     /**
+     * 预售异常原因-上级编码
+     */
+    public static final Integer QC_TYPE = 2;
+    /**
+     * 预售异常原因前缀
+     */
+    public static final String QC_TYPE_PRE_SELL_CODE_PRE = "24-";
+    /**
      * 企配仓拣货单模板-名称
      */
     public static final String TEMPLATE_NAME_EDN_PICKING = "dmsEdnPickingList";

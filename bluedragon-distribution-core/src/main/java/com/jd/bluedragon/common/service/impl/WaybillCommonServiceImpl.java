@@ -867,8 +867,11 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         	}
         }
 
-        //waybill_sign标识位，第七十九位为2，打提字标
-        if(BusinessUtil.isSignChar(waybill.getWaybillSign(), 79,'2')){
+        /* waybill_sign标识位，第七十九位为2，打提字标
+           标位变更 ：2020-4-29
+           详细见方法释义
+         */
+        if(BusinessUtil.isSignChar(waybill.getWaybillSign(), 79,'2') || BusinessUtil.isZiTiByWaybillSign(waybill.getWaybillSign())){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_ARAYACAK_SITE);
         }
         //waybill_sign标识位，第二十九位为8，打C字标

@@ -38,5 +38,10 @@ public interface AbnormalWayBillService {
      * @return
      */
     AbnormalWayBill getAbnormalWayBillByQcValue(Integer createSiteCode, String qcValue);
-
+    /**
+     * 根据运单号查询提报的异常
+     * @param waybillCode
+     * @return
+     */
+    AbnormalWayBill queryAbnormalWayBillByWayBillCode(String waybillCode);
 }

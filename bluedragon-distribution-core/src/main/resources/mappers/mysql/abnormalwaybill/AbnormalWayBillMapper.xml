@@ -140,4 +140,11 @@
 		where yn = 1 and create_site_code = #{createSiteCode, jdbcType=INTEGER}
 		and qc_value = #{qcValue, jdbcType=VARCHAR}  order by operate_time desc LIMIT 1
 	</select>
+	<select id="queryAbnormalWayBillByWayBillCode" resultMap="abnormalWayBill" parameterType="java.util.HashMap">
+		select
+		<include refid="Base_Column_List"/>
+		from abnormal_waybill
+		where yn = 1 
+		and waybill_code = #{waybillCode, jdbcType=VARCHAR}  order by operate_time desc LIMIT 1
+	</select>
 </mapper>	

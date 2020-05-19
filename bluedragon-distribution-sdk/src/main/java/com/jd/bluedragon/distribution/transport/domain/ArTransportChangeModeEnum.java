@@ -31,7 +31,12 @@ public enum ArTransportChangeModeEnum {
     /**
      * 航空转普列
      */
-    AIR_TO_ORDINARY_TRAIN_CODE(50, "航空转普列");
+    AIR_TO_ORDINARY_TRAIN_CODE(50, "航空转普列"),
+
+    /**
+     * 铁路转公路
+     */
+    RAILWAY_TO_ROAD_CODE(60, "铁路转公路","RAILWAY_TO_ROAD");
 
     private Integer code;
 
