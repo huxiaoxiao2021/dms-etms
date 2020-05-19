@@ -69,7 +69,9 @@
 				<!-- 终端包裹打印 -->
 				<entry key="100313"  value-ref="getBasicPrintInfo"/>
 				<!-- bnet官网打印 -->
-				<entry key="100314"  value-ref="getBasicPrintInfo"/>								
+				<entry key="100314"  value-ref="getBasicPrintInfo"/>
+				<!-- 大件-京东帮打印 -->
+				<entry key="100315"  value-ref="generatePdfJdCloudPackagePrint"/>				
 			</map>
 		</property>
 	</bean>
@@ -327,6 +329,28 @@
 			</list>
 		</property>
 	</bean>
+	<!-- 包裹补打并调用云打印返回pdf(100315) -->
+	<bean id="generatePdfJdCloudPackagePrint" class="com.jd.bluedragon.distribution.print.waybill.handler.PlatePrintOperateHandler">
+		<property name="handlers">
+			<list>
+				<ref bean="basicWaybillPrintHandler"/>
+				<ref bean="c2cInterceptHandler"/>
+				<ref bean="duplicatePrintInterceptHandler"/>
+				<ref bean="pickWillPrintPackageInterceptHandler"/>
+				<ref bean="interceptWaybillHandler"/>
+				<ref bean="oldWaybillQueryHandler"/>
+				<ref bean="specialMarkWaybillHandler"/>
+				<ref bean="specialTextWaybillHandler"/>
+				<ref bean="promiseWaybillHandler"/>
+				<ref bean="customerAndConsignerInfoHandler"/>
+				<ref bean="mappedBasicPrintWaybillHandler"/>
+				<ref bean="remarkFieldHandler"/>
+				<ref bean="templateSelectorWaybillHandler"/>
+				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
+				<ref bean="pdfJdCloudGenerateHandler"/>
+			</list>
+		</property>
+	</bean>	
     <!-- 换单打印-站长工作台、终端 -->
 	<bean id="packageReverseChangePrint" class="com.jd.bluedragon.distribution.print.waybill.handler.PlatePrintOperateHandler">
 		<property name="handlers">
