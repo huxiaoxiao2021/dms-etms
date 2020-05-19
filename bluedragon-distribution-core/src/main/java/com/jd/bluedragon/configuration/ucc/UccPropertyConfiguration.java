@@ -92,6 +92,16 @@ public class UccPropertyConfiguration {
      */
     private int offlineTaskOperateTimeCorrectHours;
 
+    /**
+     * 自动化称重的入口切换开关
+     */
+    private boolean automaticWeightVolumeExchangeSwitch;
+
+    /**
+     * 自动化称重的入口切换站点
+     */
+    private String automaticWeightVolumeExchangeSiteCode;
+
     public boolean isLogToBusinessLogByKafka() {
         return logToBusinessLogByKafka;
     }
@@ -272,5 +282,21 @@ public class UccPropertyConfiguration {
 
     public void setOfflineTaskOperateTimeCorrectHours(int offlineTaskOperateTimeCorrectHours) {
         this.offlineTaskOperateTimeCorrectHours = offlineTaskOperateTimeCorrectHours;
+    }
+
+    public boolean getAutomaticWeightVolumeExchangeSwitch() {
+        return automaticWeightVolumeExchangeSwitch;
+    }
+
+    public void setAutomaticWeightVolumeExchangeSwitch(boolean automaticWeightVolumeExchangeSwitch) {
+        this.automaticWeightVolumeExchangeSwitch = automaticWeightVolumeExchangeSwitch;
+    }
+
+    public String getAutomaticWeightVolumeExchangeSiteCode() {
+        return automaticWeightVolumeExchangeSiteCode;
+    }
+
+    public void setAutomaticWeightVolumeExchangeSiteCode(String automaticWeightVolumeExchangeSiteCode) {
+        this.automaticWeightVolumeExchangeSiteCode = automaticWeightVolumeExchangeSiteCode;
     }
 }

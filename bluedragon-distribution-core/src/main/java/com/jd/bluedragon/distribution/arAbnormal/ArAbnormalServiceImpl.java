@@ -13,6 +13,7 @@ import com.jd.bluedragon.distribution.api.response.ArAbnormalResponse;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.transport.domain.ArAbnormalReasonEnum;
+import com.jd.bluedragon.distribution.transport.domain.ArContrabandReason;
 import com.jd.bluedragon.distribution.transport.domain.ArContrabandReasonEnum;
 import com.jd.bluedragon.distribution.transport.domain.ArTransportChangeModeEnum;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
@@ -187,8 +188,9 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
                 if (ArAbnormalReasonEnum.getEnum(arAbnormalRequest.getTranspondReason()) != ArAbnormalReasonEnum.CONTRABAND_GOODS) {
                     return;
                 }
-                // 第一期只做航空转陆运，其他运输类型不发送MQ消息
-                if (ArTransportChangeModeEnum.getEnum(arAbnormalRequest.getTranspondType()) != ArTransportChangeModeEnum.AIR_TO_ROAD_CODE) {
+                // 第一期只做航空转陆运，其他运输类型不发送MQ消息 + 铁路转公路
+                if (!(ArTransportChangeModeEnum.getEnum(arAbnormalRequest.getTranspondType()) == ArTransportChangeModeEnum.AIR_TO_ROAD_CODE
+                    || ArTransportChangeModeEnum.getEnum(arAbnormalRequest.getTranspondType()) == ArTransportChangeModeEnum.RAILWAY_TO_ROAD_CODE)) {
                     return;
                 }
                 // 发MQ消息
@@ -337,7 +339,7 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
      * @param arAbnormalRequest
      * @param waybillMap
      */
-    private void doSendTrace(ArAbnormalRequest arAbnormalRequest, Map<String, List<String>> waybillMap) {
+    public void doSendTrace(ArAbnormalRequest arAbnormalRequest, Map<String, List<String>> waybillMap) {
         // 组装全程跟踪对象
         BdTraceDto bdTraceDto = assembleBdTraceDto(arAbnormalRequest);
         for (Map.Entry<String, List<String>> entry : waybillMap.entrySet()) {
@@ -384,7 +386,6 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
         if (isNewClientRequest(arAbnormalRequest)) {
             desc.append(getTransportChangeDesc(arAbnormalRequest.getTranspondType()));
             desc.append(Constants.SEPARATOR_BLANK_SPACE);
-            desc.append(getAbnormalReasonDesc(arAbnormalRequest.getTranspondReason()));
             desc.append(Constants.PUNCTUATION_OPEN_BRACKET_SMALL);
             desc.append(getContrabandReasonDesc(arAbnormalRequest.getContrabandReason()));
             desc.append(Constants.PUNCTUATION_CLOSE_BRACKET_SMALL);
@@ -479,7 +480,8 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
         for (Map.Entry<String, List<String>> entry : waybillMap.entrySet()) {
             BigWaybillDto bigWaybillDto = this.getBigWaybillDtoByWaybillCode(entry.getKey());
             if (bigWaybillDto != null && bigWaybillDto.getWaybill() != null) {
-                if (isNeedSendMQ(bigWaybillDto.getWaybill().getWaybillSign())) {
+                //当运单为【航】字标的运单或者为铁路转公路的运单时，发送MQ
+                if (isNeedSendMQ(bigWaybillDto.getWaybill().getWaybillSign()) || request.getTranspondType()==60) {
                     messages.addAll(this.assembleMessageList(request, bigWaybillDto, entry.getValue()));
                 }
             } else {
@@ -668,5 +670,22 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
             return name.toString();
         }
         return null;
+    }
+
+    /**
+     * 查询运输方式变更的原因
+     *
+     * @return
+     */
+    @Override
+    public List<ArContrabandReason> getArContrabandReasonList() {
+        List<ArContrabandReason> arContrabandReasons = new ArrayList<>();
+        for (ArContrabandReasonEnum _enum : ArContrabandReasonEnum.values()) {
+            ArContrabandReason arContrabandReason = new ArContrabandReason();
+            arContrabandReason.setReasonCode(_enum.getCode());
+            arContrabandReason.setReasonName(_enum.getDesc());
+            arContrabandReasons.add(arContrabandReason);
+        }
+        return arContrabandReasons;
     }
 }

@@ -197,7 +197,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-utils</artifactId>
-			<version>1.2.2-SNAPSHOT</version>
+			<version>1.2.4-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -214,7 +214,7 @@
 		<dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>bluedragon-distribution-common-android</artifactId>
-            <version>1.0.9-SNAPSHOT</version>
+            <version>1.1.0-SNAPSHOT</version>
         </dependency>
 		<dependency>
 			<groupId>com.jd.etms.waybill</groupId>
@@ -762,7 +762,7 @@
 		<dependency>
             <groupId>com.jd.tms.ecp</groupId>
             <artifactId>tms-ecp-client</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0.1-SNAPSHOT</version>
 		</dependency>
 
         <!-- cassandra -->
@@ -1289,7 +1289,12 @@
 			<artifactId>ccmp-ctm-api</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
-
+		<!-- 金鹏相关服务 -->
+		<dependency>
+		    <groupId>com.jd.ka</groupId>
+		    <artifactId>edn-sdk</artifactId>
+		    <version>0.1.5-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 	<profiles>

@@ -77,10 +77,12 @@ public class DmsLablePrintingServiceImpl extends AbstractLabelPrintingServiceTem
             log.debug(LOG_PREFIX + "waybill---distanceType:{},sendpay{}",waybill.getDistanceType(),waybill.getSendPay());
         }
         if(waybill.getDistributeType()!=null && waybill.getDistributeType().equals(LabelPrintingService.ARAYACAK_SIGN) && waybill.getSendPay().length()>=50){
-            if(waybill.getSendPay().charAt(21)!='5'){
-                labelPrinting.setPrintAddress("");
-                labelPrinting.appendSpecialMark(LabelPrintingService.SPECIAL_MARK_ARAYACAK_SITE);
-            }
+        	boolean sendPayBool = waybill.getSendPay().charAt(21)!='5';
+        	boolean waybillSignBool = BusinessUtil.isZiTiByWaybillSign(waybill.getWaybillSign());
+            if(sendPayBool || waybillSignBool){
+				labelPrinting.setPrintAddress("");
+				labelPrinting.appendSpecialMark(LabelPrintingService.SPECIAL_MARK_ARAYACAK_SITE);
+			}
         }
         // 众包--运单 waybillSign 第 12位为 9--追打"众"字
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(),12,'9')) {
