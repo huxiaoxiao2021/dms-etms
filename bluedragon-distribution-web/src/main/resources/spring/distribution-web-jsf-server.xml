@@ -157,7 +157,7 @@
     <!-- 为中台提供jsf接口 -->
     <jsf:provider id="jsfDmsForMiddleEndService"
                   interface="com.jd.bluedragon.distribution.external.service.DmsForMiddleEndService"
-                  alias="${dms.jsf.alias}"
+                  alias="${dms.jsf.for.middle.end.alias}"
                   ref="dmsForMiddleEndService" server="dmsjsf">
     </jsf:provider>
 
