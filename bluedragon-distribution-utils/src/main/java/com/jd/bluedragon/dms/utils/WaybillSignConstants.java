@@ -24,6 +24,7 @@ public interface WaybillSignConstants {
 	 * 第1位等于 1、4、5、7、8 、A，判断为【自营】运单
 	 */
 	char CHAR_1_1 = '1';
+	char CHAR_1_2 = '2';
 	char CHAR_1_4 = '4';
 	char CHAR_1_5 = '5';
 	char CHAR_1_7 = '7';
@@ -33,6 +34,7 @@ public interface WaybillSignConstants {
 	 * B网标识 1、2、3、4、5
 	 */
 	int POSITION_40 = 40;
+	char CHAR_40_0='0';
 	char CHAR_40_2='2';
 	char CHAR_40_3='3';
 	char CHAR_40_6='6';
@@ -206,6 +208,7 @@ public interface WaybillSignConstants {
 	int POSITION_31 = 31;
 	char CHAR_31_9 = '9';
 	char CHAR_31_A = 'A';
+	char CHAR_31_B = 'B';
 
 	/**
 	 * waybillsign第36位
@@ -301,4 +304,15 @@ public interface WaybillSignConstants {
 	 */
 	int POSITION_128 = 128;
 	char CHAR_128_1 = '1';
+
+	/**
+	 * 直投自提柜提示
+	 * 5-自营自提柜
+	 * 6-深度合作自提柜（如丰巢
+	 * 7-合作自提代收点（便民点
+	 */
+	int POSITION_23 = 23;
+	char CHAR_23_5 = '5';
+	char CHAR_23_6 = '6';
+	char CHAR_23_7 = '7';
 }

@@ -20,6 +20,8 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
     
     /**B网统一面单 **/
     private static final String TEMPlATE_NAME_B2B_MAIN = "dms-b2b-unite";
+    /**大件模板 **/
+    private static final String TEMPlATE_NAME_DJ_JDB_MAIN = "dms-dj-jdb-m";
     /** TC面单 **/
     private static final String TEMPlATE_NAME_TC = "dms-b2b-m";
     /** C网统一面单-10*11 **/
@@ -73,7 +75,10 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
             	//冷链合伙人打印，指定为冷链模板
             	if(WaybillPrintOperateTypeEnum.COLD_CHAIN_PRINT.getType().equals(operateType)){
             		templateName = TEMPlATE_NAME_B2B_MAIN;
-            	}else if(BusinessUtil.isBusinessNet(waybillSign)){
+            	}else if(WaybillPrintOperateTypeEnum.PDF_DJ_JDB_PACKAGE_REPRINT.getType().equals(operateType)){
+            	    //大件-京东帮打印，指定模板
+                    templateName = TEMPlATE_NAME_DJ_JDB_MAIN;
+                }else if(BusinessUtil.isBusinessNet(waybillSign)){
             	    //经济网模板
                     templateName = TEMPlATE_NAME_C1010_MAIN;
                 }else if (TemplateGroupEnum.TEMPLATE_GROUP_CODE_TC.equals(basePrintWaybill.getTemplateGroupCode())) {
@@ -91,7 +96,8 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
                         if(DmsPaperSize.PAPER_SIZE_CODE_1010.equals(paperSizeCode)){
                         	templateName = TEMPlATE_NAME_C1010_BUSINESS;
                         }
-                    } else if (Constants.BUSINESS_ALIAS_CMBC.equals(context.getBasePrintWaybill().getDmsBusiAlias())) {
+                    } else if (Constants.BUSINESS_ALIAS_CMBC.equals(context.getBasePrintWaybill().getDmsBusiAlias())
+                                && !BusinessUtil.isLetterExpress(waybillSign)) {
                         //招商银行使用老模板
                         templateName = TEMPlATE_NAME_C_CMBC;
                     } else if(BusinessUtil.isC2CJZD(waybillSign)){
@@ -119,7 +125,7 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
         }
         //得到业务模板
         //根据key查config
-        if (needMatchTemplate && siteCode != null) {
+        if (needMatchTemplate) {
         	LabelTemplate matchedTemplate = templateSelectService.getMatchLabelTemplate(templateName, siteCode);
             if (matchedTemplate != null && StringUtils.isNotBlank(matchedTemplate.getTemplateName())) {
                 templateName = matchedTemplate.getTemplateName();

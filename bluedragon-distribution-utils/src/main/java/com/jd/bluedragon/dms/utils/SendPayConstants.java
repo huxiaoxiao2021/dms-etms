@@ -33,6 +33,12 @@ public interface SendPayConstants {
 	char CHAR_295_3 = '3';
 	char CHAR_295_4 = '4';
 	/**
+	 * SendPay第297位,1-预售未付款 2-预售已付款
+	 */
+	int POSITION_297 = 297;
+	char CHAR_297_1 = '1';
+	char CHAR_297_2 = '2';
+	/**
 	 * SendPay第293位,1-海运标识
 	 */
 	int POSITION_293 = 293;
