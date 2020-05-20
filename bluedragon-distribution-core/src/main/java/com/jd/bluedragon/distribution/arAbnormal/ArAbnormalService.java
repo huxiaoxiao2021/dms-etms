@@ -2,7 +2,10 @@ package com.jd.bluedragon.distribution.arAbnormal;
 
 import com.jd.bluedragon.distribution.api.request.ArAbnormalRequest;
 import com.jd.bluedragon.distribution.api.response.ArAbnormalResponse;
+import com.jd.bluedragon.distribution.transport.domain.ArContrabandReason;
 import com.jd.jmq.common.exception.JMQException;
+
+import java.util.List;
 
 /**
  * @author tangchunqing
@@ -21,4 +24,9 @@ public interface ArAbnormalService {
      * @param arAbnormalRequest
      */
     public void dealArAbnormal(ArAbnormalRequest arAbnormalRequest) throws JMQException;
+    /**
+     * 查询运输方式变更的原因
+     * @param 
+     */
+    public List<ArContrabandReason> getArContrabandReasonList();
 }

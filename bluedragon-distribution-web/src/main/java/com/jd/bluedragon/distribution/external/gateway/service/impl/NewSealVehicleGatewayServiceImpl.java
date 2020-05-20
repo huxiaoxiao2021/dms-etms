@@ -13,17 +13,19 @@ import com.jd.bluedragon.common.dto.blockcar.response.TransportInfoDto;
 import com.jd.bluedragon.common.dto.seal.request.CancelSealRequest;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
+import com.jd.bluedragon.distribution.api.request.SealVehicleVolumeVerifyRequest;
 import com.jd.bluedragon.distribution.api.request.cancelSealRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
+import com.jd.bluedragon.distribution.api.response.SealVehicleVolumeVerifyResponse;
 import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
 import com.jd.bluedragon.distribution.rest.seal.NewSealVehicleResource;
 import com.jd.bluedragon.external.gateway.service.NewSealVehicleGatewayService;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.springframework.beans.BeanUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -272,6 +274,24 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
         jdCResponse.setCode(response.getCode());
         jdCResponse.setMessage(response.getMessage());
 
+        return jdCResponse;
+    }
+
+    /**
+     * 校验批次体积是否合格
+     *  1、现阶段只支持按任务公路零担
+     *
+     * @param request
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.NewSealVehicleGatewayServiceImpl.verifySendVolume",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse verifySendVolume(SealVehicleVolumeVerifyRequest request) {
+        JdCResponse jdCResponse = new JdCResponse();
+
+        SealVehicleVolumeVerifyResponse response = newSealVehicleResource.verifySendVolume(request);
+        jdCResponse.setCode(response.getCode());
+        jdCResponse.setMessage(response.getMessage());
         return jdCResponse;
     }
 

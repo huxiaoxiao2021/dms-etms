@@ -148,7 +148,7 @@ public class ColdChainDeliveryResource extends DeliveryResource{
                 if (resultList != null) {
                     return new ColdChainSendResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, resultList);
                 } else {
-                    return new ColdChainSendResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
+                    return new ColdChainSendResponse(JdResponse.CODE_GET_TRANSPLAN_ERROR, JdResponse.MESSAGE_GET_TRANSPLAN_ERROR);
                 }
             } catch (Exception e) {
                 log.error("[冷链发货]根据始发分拣中心和目的分拣中心编号获取当日的运输计划明细信息时发生异常", e);
