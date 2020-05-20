@@ -28,8 +28,16 @@ public class ExpInfoSummaryGatewayServiceImpl implements ExpInfoSummaryGatewaySe
             return response;
         }
         com.jd.ps.data.epf.dto.ExpInfoSummaryDto dto = new com.jd.ps.data.epf.dto.ExpInfoSummaryDto();
-        BeanUtils.copyProperties(expInfoSummaryDto,dto);
-        CommonDto commonDto = expInfoSummaryJsfService.addEpfExpInfo(dto);
+        CommonDto commonDto = null;
+        try {
+            BeanUtils.copyProperties(expInfoSummaryDto,dto);
+            commonDto = expInfoSummaryJsfService.addEpfExpInfo(dto);
+        }catch (Exception e){
+            logger.error("根据dto:{}调慧眼上传是三无图片信息时异常", JsonHelper.toJson(dto), e);
+            response.toFail("上传失败！");
+            response.setData(Boolean.FALSE);
+            return response;
+        }
         if(commonDto == null){
             logger.warn("根据dto:{}调慧眼上传是三无图片信息，无返回值", JsonHelper.toJson(dto));
             response.toFail("上传失败请稍后重试！");
