@@ -251,11 +251,11 @@
     </jsf:provider>
 
     <!--三无图片信息上传-->
-    <bean id="expInfoSummaryGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.ExpInfoSummaryGatewayServiceImpl" />
+    <bean id="expInfoSummaryGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.ExpInfoSummaryGatewayServiceImpl" />
     <jsf:provider id="jsfExpInfoSummaryGatewayService"
                   interface="com.jd.bluedragon.external.gateway.service.ExpInfoSummaryGatewayService"
                   alias="${dms.gateway.jsf.alias}"
-                  ref="materialBatchSendGatewayService"
+                  ref="expInfoSummaryGatewayService"
                   server="dmsjsf">
     </jsf:provider>
 </beans>
