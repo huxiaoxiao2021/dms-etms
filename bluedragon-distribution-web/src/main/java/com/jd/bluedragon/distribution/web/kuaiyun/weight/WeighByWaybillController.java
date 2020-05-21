@@ -303,12 +303,12 @@ public class WeighByWaybillController {
             return false;
         }
 
-        if ( WaybillUtil.isEconomicNet(WaybillUtil.getWaybillCode(vo.getCodeStr()))
-                && (weight.compareTo(this.MAX_WEIGHT) != -1 || weight <= 0.0)) {
+        if (weight.compareTo(this.MAX_WEIGHT) != -1 || weight <= 0.0) {
             return false;
         }
 
-        if (volume.compareTo(this.MAX_VOLUME) != -1 || volume <= 0.0) {
+        if ( !WaybillUtil.isEconomicNet(WaybillUtil.getWaybillCode(vo.getCodeStr()))
+                && volume.compareTo(this.MAX_VOLUME) != -1 || volume <= 0.0) {
             return false;
         }
 

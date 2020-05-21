@@ -329,10 +329,10 @@ public class WaybillUtil {
     /**
      * 根据单号判断是否是经济网运单单号
      * @param waybillCode 单号
-     * @return 是拼多多则返回true 否则返回false
+     * @return 是经济网则返回true 否则返回false
      */
     public static boolean isEconomicNet(String waybillCode) {
-        return UniformValidateUtil.isWaybillCodeMatchType(waybillCode, WaybillCodePattern.PDD_WAYBILL_CODE);
+        return UniformValidateUtil.isWaybillCodeMatchType(waybillCode, WaybillCodePattern.ENOCOMIC_WAYBILL_CODE);
     }
 
 
