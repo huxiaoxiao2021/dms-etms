@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.blockcar.enumeration.FerrySealCarSceneEnum;
 import com.jd.bluedragon.common.dto.blockcar.enumeration.SealCarSourceEnum;
 import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.TmsTfcWSManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
@@ -119,6 +120,9 @@ public class NewSealVehicleResource {
     private int rollBackDay;
 
     private static final int RANGE_HOUR = 2; //运力编码在两小时范围内
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
 
     /**
      * 校验并获取运力编码信息
@@ -543,6 +547,11 @@ public class NewSealVehicleResource {
 
         SealVehicleVolumeVerifyResponse response = new SealVehicleVolumeVerifyResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
 
+        if(!uccPropertyConfiguration.getSealVolumeCheckSwitch()){
+            response.setCode(JdCResponse.CODE_SUCCESS);
+            response.setMessage(JdCResponse.MESSAGE_SUCCESS);
+            return response;
+        }
         if (request == null) {
             log.warn("NewSealVehicleResource verifySendVolume --> 传入参数非法");
             response.setCode(JdResponse.CODE_PARAM_ERROR);
