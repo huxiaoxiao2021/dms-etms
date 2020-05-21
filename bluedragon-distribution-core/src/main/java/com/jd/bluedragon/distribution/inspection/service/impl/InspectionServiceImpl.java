@@ -303,6 +303,7 @@ public class InspectionServiceImpl implements InspectionService {
 		return result;
 	}
 
+	@JProfiler(jKey = "DMSWEB.InspectionServiceImpl.gatherCheck", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public SortingJsfResponse gatherCheck(PdaOperateRequest pdaOperateRequest,SortingJsfResponse sortingJsfResponse){
 
         //校验运单验货是否集齐
