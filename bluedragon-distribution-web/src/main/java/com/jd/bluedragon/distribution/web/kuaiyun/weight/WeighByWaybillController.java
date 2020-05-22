@@ -312,6 +312,11 @@ public class WeighByWaybillController {
             return false;
         }
 
+        //众邮单子体积为0时，体积赋值为null
+        if (volume == 0.0) {
+            vo.setVolume(null);
+        }
+
         return true;
     }
 
