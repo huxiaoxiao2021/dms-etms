@@ -80,6 +80,9 @@ public class JdResponse extends JdObject {
     public static final Integer CODE_GET_TRANSPLAN_ERROR = 20014;
     public static final String MESSAGE_GET_TRANSPLAN_ERROR = "没有查询到相应运输计划，请核实查询条件后重新操作！";
 
+    public static final Integer CODE_CHECK_MATERIAL_ERROR = 20015;
+    public static final String MESSAGE_CHECK_MATERIAL_ERROR = "此运单号已绑定循环集包袋，请扫描包裹号操作!";
+
     public static final Integer CODE_UNLOADBILL = 2424;
     public static final String MESSAGE_UNLOADBILL = "已经装载不允许取消";
 

@@ -12,4 +12,6 @@ import com.jd.bluedragon.common.dto.inspection.response.InspectionResultDto;
 public interface InspectionGatewayService {
 
     JdCResponse<InspectionResultDto> getStorageCode(String packageBarOrWaybillCode, Integer siteCode);
+
+    JdCResponse checkIsBindMaterial(String waybillCode);
 }

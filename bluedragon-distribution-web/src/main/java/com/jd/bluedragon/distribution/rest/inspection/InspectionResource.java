@@ -591,6 +591,28 @@ public class InspectionResource {
 		return jdResponse;
 	}
 
+    /**
+     * 校验运单号是否绑定集包袋
+     *
+     * @param waybillCode
+     * @return
+     */
+    @GET
+    @Path("/inspection/checkIsBindMaterial/{waybillCode}")
+    public JdResponse checkIsBindMaterial(@PathParam("waybillCode") String waybillCode){
+        JdResponse jdResponse = new JdResponse();
+        if(WaybillUtil.isWaybillCode(waybillCode)){
+            jdResponse.setCode(JdResponse.CODE_PARAM_ERROR);
+            jdResponse.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
+            return jdResponse;
+        }
+        if(inspectionService.checkIsBindMaterial(waybillCode)){
+            jdResponse.setCode(JdResponse.CODE_CHECK_MATERIAL_ERROR);
+            jdResponse.setMessage(JdResponse.MESSAGE_CHECK_MATERIAL_ERROR);
+        }
+        return jdResponse;
+    }
+
 	@GET
 	@Path("/inspection/checkProgress/{packageOrWaybillCode}/{siteCode}")
 	@JProfiler(jKey = "DMS.BASE.InspectionResource.getWaybillCheckPackDetail", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
