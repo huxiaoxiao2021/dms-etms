@@ -308,7 +308,7 @@ public class WeighByWaybillController {
         }
 
         if ( !WaybillUtil.isEconomicNet(WaybillUtil.getWaybillCode(vo.getCodeStr()))
-                && volume.compareTo(this.MAX_VOLUME) != -1 || volume <= 0.0) {
+                && (volume.compareTo(this.MAX_VOLUME) != -1 || volume <= 0.0)) {
             return false;
         }
 
