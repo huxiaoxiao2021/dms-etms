@@ -808,7 +808,7 @@ public class InspectionServiceImpl implements InspectionService {
                 return false;
             }
         }catch (Exception e){
-            log.error("校验运单号是否绑定集包袋异常,异常信息:【{}】",e.getMessage(),e);
+            log.error("校验运单号【{}】是否绑定集包袋异常",waybillCode,e);
         }
         return true;
     }
