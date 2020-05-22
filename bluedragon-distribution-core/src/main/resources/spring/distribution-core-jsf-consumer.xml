@@ -616,4 +616,10 @@
                   protocol="jsf" alias="${epf.jsf.alias}" timeout="${epf.exp.info.timeout}" retries="${jsf.retries}">
 
     </jsf:consumer>
+
+    <!-- 运输 - 循环集包袋 -->
+    <jsf:consumer id="assetApplyQueryApi" interface="com.jd.ql.asset.api.AssetApplyQueryApi" protocol="jsf"
+                  alias="${assetApply.jsf.alias}" timeout="${assetApply.jsf.timeout}"
+                  retries="${jsf.retries}" >
+    </jsf:consumer>
 </beans>

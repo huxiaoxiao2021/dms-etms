@@ -601,7 +601,7 @@ public class InspectionResource {
     @Path("/inspection/checkIsBindMaterial/{waybillCode}")
     public JdResponse checkIsBindMaterial(@PathParam("waybillCode") String waybillCode){
         JdResponse jdResponse = new JdResponse();
-        if(WaybillUtil.isWaybillCode(waybillCode)){
+        if(!WaybillUtil.isWaybillCode(waybillCode)){
             jdResponse.setCode(JdResponse.CODE_PARAM_ERROR);
             jdResponse.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
             return jdResponse;

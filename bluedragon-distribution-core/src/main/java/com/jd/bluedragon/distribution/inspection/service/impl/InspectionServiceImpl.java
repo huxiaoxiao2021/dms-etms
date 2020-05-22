@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.DmsRouter;
 import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.core.base.AssertQueryManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -50,6 +51,9 @@ import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ioms.jsf.export.domain.Order;
+import com.jd.ql.asset.dto.MatterPackageRelationDto;
+import com.jd.ql.asset.dto.ResultData;
+import com.jd.ql.asset.enums.ResultStateEnum;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ump.annotation.JProEnum;
@@ -123,6 +127,9 @@ public class InspectionServiceImpl implements InspectionService {
 
     @Autowired
     private StoragePackageMService storagePackageMService;
+
+    @Autowired
+    private AssertQueryManager assertQueryManager;
 
 	/**
 	 * 运单包裹关联信息
@@ -784,11 +791,25 @@ public class InspectionServiceImpl implements InspectionService {
     public boolean checkIsBindMaterial(String waybillCode) {
 
         try {
-
+            MatterPackageRelationDto dto = new MatterPackageRelationDto();
+            dto.setWaybillCode(waybillCode);
+            ResultData<List<String>> result = assertQueryManager.queryBindMaterialByCode(dto);
+            if(result == null){
+                log.warn("校验运单号【{}】是否绑定集包袋返回值为空...",waybillCode);
+                return false;
+            }
+            if(!ResultStateEnum.RESULT_SUCCESS.getStatusCode().equals(result.getStatusCode())){
+                log.warn("校验运单号【{}】是否绑定集包袋失败,失败信息:【{}】",waybillCode,result.getResultMsg());
+                return false;
+            }
+            if(CollectionUtils.isNotEmpty(result.getData())){
+                return true;
+            }else {
+                return false;
+            }
         }catch (Exception e){
             log.error("校验运单号是否绑定集包袋异常,异常信息:【{}】",e.getMessage(),e);
         }
-
         return true;
     }
 }
