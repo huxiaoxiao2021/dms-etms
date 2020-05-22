@@ -879,14 +879,36 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             target.setBusiOrderCode("");
         }
 
+         /*
+         * 1. waybill_sign第31位=1 且 116位=3 且 16位=4 ，打印【特快送 次晨】
+         * 2. waybill_sign第31位=1 且 116位=3 且 16位不等于4 ，打印【特快送】
+         * 3. waybill_sign第31位=4 且 16位=4 ，打印【特快送 次晨】
+         * 4. waybill_sign第31位=4 且 16位不等于4 ，打印【特快送】
+         * 5. waybill_sign第31位=1 且 116位=2，打印【特快送 同城】
+         * 6. waybill_sign第31位=2，打印【特快送 同城】
+         * 7.以上都不满足时，waybill_sign第31位=1，打印【特快送】
+         */
+        if(BusinessUtil.isExpressDeliveryNextMorning(waybill.getWaybillSign())){
+            target.setTransportMode(TextConstants.EXPRESS_DELIVERY_NEXT_MORNING);
+        }else if(BusinessUtil.isExpressDeliverySameCity(waybill.getWaybillSign())){
+            target.setTransportMode(TextConstants.EXPRESS_DELIVERY_SAME_CITY);
+        }else if(BusinessUtil.isExpressDelivery(waybill.getWaybillSign())
+            ||BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_1)){
+            target.setTransportMode(TextConstants.EXPRESS_DELIVERY);
+        }
+
         /*
         识别waybillsign116位=2，面单“时效”字段处展示“同城”；
 	    识别waybillsign116位=3，面单“时效”字段处展示“次晨”； 回改 20200203
         */
-        if(BusinessUtil.isSameCity(waybill.getWaybillSign())){
+        if(!BusinessUtil.isExpressDeliverySameCity(waybill.getWaybillSign())
+                && !BusinessUtil.isExpressDelivery(waybill.getWaybillSign())
+                && BusinessUtil.isSameCity(waybill.getWaybillSign())){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_SAME_CITY);
         }
-        if(BusinessUtil.isNextMorning(waybill.getWaybillSign())){
+        if(!BusinessUtil.isExpressDeliveryNextMorning(waybill.getWaybillSign())
+                && !BusinessUtil.isExpressDelivery(waybill.getWaybillSign())
+                && BusinessUtil.isNextMorning(waybill.getWaybillSign())){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_NEXT_DAY);
         }
 
@@ -929,7 +951,14 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }else if(Constants.ORIGINAL_CROSS_TYPE_FILL.equals(target.getOriginalCrossType())){
         	target.appendSpecialMark(ComposeService.SPECIAL_MARK_AIRTRANSPORT_FILL);
         }
-
+        //waybil_sign标识位，第八十四位为1，打‘陆’字标
+        if(BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_84,WaybillSignConstants.CHAR_84_1)){
+            target.appendSpecialMark(ComposeService.SPECIAL_MARK_ROAD);
+        }
+        //waybil_sign标识位，第八十四位为2，打‘高’字标
+        if(BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_84,WaybillSignConstants.CHAR_84_2)){
+            target.appendSpecialMark(ComposeService.SPECIAL_MARK_RAIL);
+        }
         //waybill_sign标识位，第十六位为1且第三十一位为2且第五十五位为0，打同字标
         if(!BusinessUtil.isB2b(waybill.getWaybillSign()) &&
                 BusinessUtil.isSignChar(waybill.getWaybillSign(),16,'1') &&
