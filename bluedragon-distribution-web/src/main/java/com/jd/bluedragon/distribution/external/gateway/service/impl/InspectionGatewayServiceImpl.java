@@ -57,14 +57,4 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
         }
         return jdCResponse;
     }
-
-    @Override
-    @JProfiler(jKey = "DMSWEB.InspectionGatewayServiceImpl.checkIsBindMaterial", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public JdCResponse checkIsBindMaterial(String waybillCode) {
-        JdCResponse jdCResponse = new JdCResponse();
-        com.jd.bluedragon.distribution.api.JdResponse jdResponse = inspectionResource.checkIsBindMaterial(waybillCode);
-        jdCResponse.setCode(jdResponse.getCode());
-        jdCResponse.setMessage(jdResponse.getMessage());
-        return jdCResponse;
-    }
 }

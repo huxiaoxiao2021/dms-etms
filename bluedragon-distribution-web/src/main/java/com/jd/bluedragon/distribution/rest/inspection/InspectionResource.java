@@ -541,6 +541,12 @@ public class InspectionResource {
 			isPack = true;
             waybillCode = WaybillUtil.getWaybillCode(packageBarOrWaybillCode);
         }
+        // 运单绑定集包袋校验
+        if(WaybillUtil.isWaybillCode(packageBarOrWaybillCode)
+                && inspectionService.checkIsBindMaterial(waybillCode)){
+            jdResponse.toFail(JdResponse.MESSAGE_CHECK_MATERIAL_ERROR);
+            return jdResponse;
+        }
 		InspectionResult inspectionResult = new InspectionResult("");
         //提取获取操作站点信息
 		BaseStaffSiteOrgDto siteOrgDto = siteService.getSite(dmsSiteCode);
@@ -590,30 +596,6 @@ public class InspectionResource {
 		jdResponse.setData(inspectionResult);
 		return jdResponse;
 	}
-
-    /**
-     * 校验运单号是否绑定集包袋
-     *
-     * @param waybillCode
-     * @return
-     */
-    @GET
-    @Path("/inspection/checkIsBindMaterial/{waybillCode}")
-    public JdResponse checkIsBindMaterial(@PathParam("waybillCode") String waybillCode){
-        JdResponse jdResponse = new JdResponse();
-        jdResponse.setCode(JdResponse.CODE_OK);
-        jdResponse.setMessage(JdResponse.MESSAGE_OK);
-        if(!WaybillUtil.isWaybillCode(waybillCode)){
-            jdResponse.setCode(JdResponse.CODE_PARAM_ERROR);
-            jdResponse.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
-            return jdResponse;
-        }
-        if(inspectionService.checkIsBindMaterial(waybillCode)){
-            jdResponse.setCode(JdResponse.CODE_CHECK_MATERIAL_ERROR);
-            jdResponse.setMessage(JdResponse.MESSAGE_CHECK_MATERIAL_ERROR);
-        }
-        return jdResponse;
-    }
 
 	@GET
 	@Path("/inspection/checkProgress/{packageOrWaybillCode}/{siteCode}")
