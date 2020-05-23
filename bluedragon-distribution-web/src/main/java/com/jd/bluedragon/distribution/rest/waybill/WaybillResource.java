@@ -1732,7 +1732,11 @@ public class WaybillResource {
 		if(log.isDebugEnabled()){
             log.debug("换单前获取信息接口入参：{}",JsonHelper.toJson(request));
         }
-
+        if(request != null && StringUtils.isNotEmpty(request.getPhone()) && request.getPhone().length() > 30){
+            invokeResult.setCode(InvokeResult.SERVER_ERROR_CODE);
+            invokeResult.setMessage("手机号【"+request.getPhone()+"】超长,请重新输入");
+            return invokeResult;
+        }
 		try {
 			WaybillReverseDTO waybillReverseDTO = ldopManager.makeWaybillReverseDTOCanTwiceExchange(request);
 			StringBuilder errorMessage = new StringBuilder();
