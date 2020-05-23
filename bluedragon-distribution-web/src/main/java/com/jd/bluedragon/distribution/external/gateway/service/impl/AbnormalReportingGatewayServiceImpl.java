@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.jss.JssService;
 import com.jd.bluedragon.distribution.qualityControl.QcVersionFlagEnum;
 import com.jd.bluedragon.distribution.qualityControl.service.QualityControlService;
+import com.jd.bluedragon.distribution.rest.shortcode.ShortCodeResource;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.AbnormalReportingGatewayService;
 import com.jd.bluedragon.utils.DateHelper;
@@ -24,6 +25,7 @@ import com.jd.etms.waybill.domain.PackageState;
 import com.jd.etms.waybill.dto.BigPackageStateDto;
 import com.jd.etms.waybill.dto.StoreInfoDto;
 import com.jd.ql.basic.domain.BaseDataDict;
+import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.AbnormalReasonDto;
 import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.PdaResult;
 import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.WpAbnormalRecordPda;
@@ -74,6 +76,9 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
     private static final int PACKAGE_CODE_TYPE = 1;
 
     private static final int WAYBILL_CODE_TYPE = 2;
+
+    @Autowired
+    private ShortCodeResource shortCodeResource;
 
     @Override
     public JdCResponse<List<DmsAbnormalReasonDto>> getAllAbnormalReason(String userErp) {
@@ -433,5 +438,11 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
         }
 
         return wpAbnormalRecordPda;
+    }
+
+    @Override
+    public JdCResponse trace(String key, String packageCode) {
+        JdResponse<String> jdResponse = shortCodeResource.trace(key, packageCode);
+        return new JdCResponse(jdResponse.getCode(), jdResponse.getMessage());
     }
 }

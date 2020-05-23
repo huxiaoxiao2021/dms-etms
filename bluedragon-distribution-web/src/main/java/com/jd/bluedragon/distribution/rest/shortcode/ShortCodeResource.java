@@ -31,7 +31,7 @@ import java.util.Map;
 /**
  * Created by hanjiaxing1 on 2018/8/16.
  */
-@Component
+@Component("shortCodeResource")
 @Path(Constants.REST_URL)
 @Consumes({ MediaType.APPLICATION_JSON })
 @Produces({ MediaType.APPLICATION_JSON })

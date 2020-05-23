@@ -19,4 +19,6 @@ public interface AbnormalReportingGatewayService {
     JdCResponse<List<DutyDepartmentInfo>> getDutyDepartment(String barCode, Integer siteCode, String siteName);
 
     JdCResponse saveAbnormalReportingInfo(AbnormalReportingRequest abnormalReportingRequest);
+
+    JdCResponse trace(String key, String packageCode);
 }
