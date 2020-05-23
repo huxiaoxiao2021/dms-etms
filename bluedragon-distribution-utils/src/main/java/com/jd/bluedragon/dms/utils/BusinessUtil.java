@@ -1182,6 +1182,48 @@ public class BusinessUtil {
         return isSignChar(waybillSign, WaybillSignConstants.POSITION_36, WaybillSignConstants.CHAR_36_4);
     }
 
+    /**
+     *  是否是【特快送 同城】
+     *  waybill_sign第31位=1 且 116位=2，打印【特快送 同城】
+     *  waybill_sign第31位=2，打印【特快送 同城】
+     * @param waybillSign
+     * @return EXPRESS_DELIVERY
+     */
+    public static boolean isExpressDeliverySameCity(String waybillSign){
+        return (isSignChar(waybillSign,WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_1)
+                    && isSignChar(waybillSign,WaybillSignConstants.POSITION_116,WaybillSignConstants.CHAR_116_2)
+                )||isSignChar(waybillSign,WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_2);
+    }
+
+    /**
+     *  是否是【特快送 次晨】
+     *  waybill_sign第31位=1 且 116位=3 且 16位=4 ，打印【特快送 次晨】
+     *  waybill_sign第31位=4 且 16位=4 ，打印【特快送 次晨】
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isExpressDeliveryNextMorning(String waybillSign){
+        return (isSignChar(waybillSign,WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_1)
+                    && isSignChar(waybillSign,WaybillSignConstants.POSITION_116,WaybillSignConstants.CHAR_116_3)
+                    && isSignChar(waybillSign,WaybillSignConstants.POSITION_16,WaybillSignConstants.CHAR_16_4)
+                )||(isSignChar(waybillSign,WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_4)
+                    && isSignChar(waybillSign,WaybillSignConstants.POSITION_16,WaybillSignConstants.CHAR_16_4));
+    }
+
+    /**
+     *  是否是【特快送】
+     *  waybill_sign第31位=1 且 116位=3 且 16位不等于4 ，打印【特快送】
+     *  waybill_sign第31位=4 且 16位不等于4 ，打印【特快送】
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isExpressDelivery(String waybillSign){
+        return (isSignChar(waybillSign,WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_1)
+                && isSignChar(waybillSign,WaybillSignConstants.POSITION_116,WaybillSignConstants.CHAR_116_3)
+                && !isSignChar(waybillSign,WaybillSignConstants.POSITION_16,WaybillSignConstants.CHAR_16_4)
+                )||(isSignChar(waybillSign,WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_4)
+                && !isSignChar(waybillSign,WaybillSignConstants.POSITION_16,WaybillSignConstants.CHAR_16_4));
+    }
 
     /**
      * 是否是同城

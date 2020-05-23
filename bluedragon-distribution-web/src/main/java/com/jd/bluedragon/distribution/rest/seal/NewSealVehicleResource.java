@@ -1,9 +1,11 @@
 package com.jd.bluedragon.distribution.rest.seal;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.blockcar.enumeration.FerrySealCarSceneEnum;
 import com.jd.bluedragon.common.dto.blockcar.enumeration.SealCarSourceEnum;
 import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.TmsTfcWSManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
@@ -89,6 +91,9 @@ public class NewSealVehicleResource {
     /** 仓库网点类型 */
     private static final Integer WMS_NODE_TYPE = 3;
 
+    /** 封车体积确认CODE */
+    private static final Integer SEAL_VOLUME_CONFIRM = 100;
+
     @Autowired
     private NewSealVehicleService newsealVehicleService;
 
@@ -115,6 +120,9 @@ public class NewSealVehicleResource {
     private int rollBackDay;
 
     private static final int RANGE_HOUR = 2; //运力编码在两小时范围内
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
 
     /**
      * 校验并获取运力编码信息
@@ -539,8 +547,13 @@ public class NewSealVehicleResource {
 
         SealVehicleVolumeVerifyResponse response = new SealVehicleVolumeVerifyResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
 
+        if(!uccPropertyConfiguration.getSealVolumeCheckSwitch()){
+            response.setCode(JdCResponse.CODE_SUCCESS);
+            response.setMessage(JdCResponse.MESSAGE_SUCCESS);
+            return response;
+        }
         if (request == null) {
-            log.warn("NewSealVehicleResource seal --> 传入参数非法");
+            log.warn("NewSealVehicleResource verifySendVolume --> 传入参数非法");
             response.setCode(JdResponse.CODE_PARAM_ERROR);
             response.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
             return response;
@@ -564,13 +577,24 @@ public class NewSealVehicleResource {
             sealCarDto.setWeight(request.getWeight());
 
             CommonDto<String> dto = newsealVehicleService.verifySealVehicleVolume(sealCarDto);
-            response.setCode(dto.getCode());
-            response.setMessage(dto.getMessage());
-            response.setData(dto.getData());
-
+            if(dto == null){
+                response.setCode(JdCResponse.CODE_ERROR);
+                response.setMessage(JdCResponse.MESSAGE_ERROR);
+                return response;
+            }
+            if(dto.getCode() == CommonDto.CODE_SUCCESS){
+                response.setCode(JdCResponse.CODE_SUCCESS);
+                response.setMessage(JdCResponse.MESSAGE_SUCCESS);
+            }else if(dto.getCode() == SEAL_VOLUME_CONFIRM){
+                response.setCode(JdCResponse.CODE_CONFIRM);
+                response.setMessage(dto.getMessage());
+            }else {
+                response.setCode(JdCResponse.CODE_FAIL);
+                response.setMessage(dto.getMessage());
+            }
         }catch(Exception e){
-            response.setCode(JdResponse.CODE_SERVICE_ERROR);
-            response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+            response.setCode(JdCResponse.CODE_ERROR);
+            response.setMessage(JdCResponse.MESSAGE_ERROR);
             this.log.error("校验批次的体积异常，批次号:{}",request.getBatchCodes().toString(), e);
         }
         return response;

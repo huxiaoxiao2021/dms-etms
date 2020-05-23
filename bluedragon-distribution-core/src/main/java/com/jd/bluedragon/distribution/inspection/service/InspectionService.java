@@ -1,12 +1,11 @@
 package com.jd.bluedragon.distribution.inspection.service;
 
-import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
+import com.jd.bluedragon.distribution.inspection.InsepctionCheckDto;
 import com.jd.bluedragon.distribution.inspection.InspectionCheckCondition;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionPackProgress;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
-import com.jd.bluedragon.distribution.inspection.InsepctionCheckDto;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
@@ -173,4 +172,12 @@ public interface InspectionService {
 	 * @return
 	 */
 	InspectionPackProgress getWaybillCheckProgress(String waybillCode, Integer createSiteCode);
+
+    /**
+     * 校验运单号是否绑定集包袋
+     *
+     * @param waybillCode
+     * @return
+     */
+    boolean checkIsBindMaterial(String waybillCode);
 }

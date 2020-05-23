@@ -222,6 +222,8 @@ public interface WaybillSignConstants {
 	 */
 	int POSITION_84 = 84;
 	char CHAR_84_3 = '3';
+	char CHAR_84_2 = '2';
+	char CHAR_84_1 = '1';
 	/**
 	 * waybillsign第57位定义
 	 */
@@ -268,6 +270,7 @@ public interface WaybillSignConstants {
 	char CHAR_31_2 = '2';
 	int POSITION_16 = 16;
 	char CHAR_16_1 = '1';
+	char CHAR_16_4 = '4';
 
 	/**
 	 * 寄付月结 waybillSign第14位为0

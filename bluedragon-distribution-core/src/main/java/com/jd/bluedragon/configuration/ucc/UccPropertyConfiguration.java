@@ -102,6 +102,11 @@ public class UccPropertyConfiguration {
      */
     private String automaticWeightVolumeExchangeSiteCode;
 
+    /**
+     * 封車體積校驗开关;true 开启
+     */
+    private boolean sealVolumeCheckSwitch;
+
     public boolean isLogToBusinessLogByKafka() {
         return logToBusinessLogByKafka;
     }
@@ -298,5 +303,13 @@ public class UccPropertyConfiguration {
 
     public void setAutomaticWeightVolumeExchangeSiteCode(String automaticWeightVolumeExchangeSiteCode) {
         this.automaticWeightVolumeExchangeSiteCode = automaticWeightVolumeExchangeSiteCode;
+    }
+
+    public boolean getSealVolumeCheckSwitch() {
+        return sealVolumeCheckSwitch;
+    }
+
+    public void setSealVolumeCheckSwitch(boolean sealVolumeCheckSwitch) {
+        this.sealVolumeCheckSwitch = sealVolumeCheckSwitch;
     }
 }

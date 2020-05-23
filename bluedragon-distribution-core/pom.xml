@@ -34,6 +34,7 @@
 		<crossbow.sdk.version>0.0.1-SNAPSHOT</crossbow.sdk.version>
 		<crossbow.api.version>0.0.1-SNAPSHOT</crossbow.api.version>
 		<crossbow.component.version>0.0.4-SNAPSHOT</crossbow.component.version>
+		<ps-epf.version>1.0-SNAPSHOT</ps-epf.version>
 	</properties>
 
 	<dependencies>
@@ -1300,6 +1301,18 @@
 		    <artifactId>edn-sdk</artifactId>
 		    <version>0.1.5-SNAPSHOT</version>
 		</dependency>
+		<!--慧眼系统 三无相关-->
+        <dependency>
+			<groupId>com.jd.ps.epf</groupId>
+			<artifactId>ps-epf-api</artifactId>
+			<version>1.0-SNAPSHOT</version>
+        </dependency>
+        <!--运输系统 集包袋相关-->
+        <dependency>
+            <groupId>com.jd.ql.asset</groupId>
+            <artifactId>ql-asset-client</artifactId>
+            <version>1.5-SNAPSHOT</version>
+        </dependency>
 	</dependencies>
 
 	<profiles>

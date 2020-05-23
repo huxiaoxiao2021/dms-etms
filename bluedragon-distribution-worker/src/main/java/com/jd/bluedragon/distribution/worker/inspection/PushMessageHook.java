@@ -5,6 +5,8 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.coldchain.dto.CCInAndOutBoundMessage;
 import com.jd.bluedragon.distribution.coldchain.dto.ColdChainOperateTypeEnum;
+import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationEnum;
+import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationMQ;
 import com.jd.bluedragon.distribution.framework.TaskHook;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionMQBody;
 import com.jd.bluedragon.distribution.inspection.service.InspectionNotifyService;
@@ -17,12 +19,14 @@ import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -46,6 +50,10 @@ public class PushMessageHook implements TaskHook<InspectionTaskExecuteContext> {
     @Autowired
     private BaseMajorManager baseMajorManager;
 
+    @Autowired
+    @Qualifier("cycleMaterialSendMQ")
+    private DefaultJMQProducer cycleMaterialSendMQ;
+
     @JProfiler(jKey = "dmsworker.PushMessageHook.hook")
     @Override
     public int hook(InspectionTaskExecuteContext context) {
@@ -65,8 +73,43 @@ public class PushMessageHook implements TaskHook<InspectionTaskExecuteContext> {
 
             inspectionNotifyService.send(inspectionMQBody);/*此处MQ推送时，失败将添加任务，以确保MQ发送成功*/
         }
+        this.pushCycleMaterialMQ(context);
         this.pushColdChainOperateMQ(context);
         return 0;
+    }
+
+    /**
+     * 循环集包袋验货对外MQ
+     * */
+    private void pushCycleMaterialMQ (InspectionTaskExecuteContext context) {
+        List<CenConfirm> cenConfirmList = context.getCenConfirmList();
+        if (CollectionUtils.isEmpty(cenConfirmList)) {
+            return;
+        }
+        List<Message> messageList = new ArrayList<>();
+        for (CenConfirm cenConfirm : context.getCenConfirmList()) {
+            //循环集包袋在验货环节发送解绑MQ
+            BoxMaterialRelationMQ loopPackageMq = new BoxMaterialRelationMQ();
+            loopPackageMq.setBusinessType(BoxMaterialRelationEnum.INSPECTION.getType());
+            loopPackageMq.setOperatorCode(cenConfirm.getInspectionUserCode()==null?0:cenConfirm.getInspectionUserCode());
+            loopPackageMq.setOperatorName(cenConfirm.getInspectionUser());
+            loopPackageMq.setSiteCode(String.valueOf(cenConfirm.getCreateSiteCode()));
+            loopPackageMq.setWaybillCode(Collections.singletonList(cenConfirm.getWaybillCode()));
+            loopPackageMq.setPackageCode(Collections.singletonList(cenConfirm.getPackageBarcode()));
+            loopPackageMq.setOperatorTime(cenConfirm.getInspectionTime());
+            Message message = new Message();
+            message.setBusinessId(cenConfirm.getPackageBarcode());
+            message.setText(JSON.toJSONString(loopPackageMq));
+            message.setTopic(cycleMaterialSendMQ.getTopic());
+            messageList.add(message);
+        }
+        try {
+            cycleMaterialSendMQ.batchSend(messageList);
+        } catch (JMQException e) {
+            log.error("循环集包袋验货对外MQ异常" ,e);
+            throw new RuntimeException(e);
+        }
+
     }
 
     private void pushColdChainOperateMQ (InspectionTaskExecuteContext context) {
