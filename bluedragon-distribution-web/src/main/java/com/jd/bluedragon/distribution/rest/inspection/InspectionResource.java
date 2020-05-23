@@ -541,6 +541,12 @@ public class InspectionResource {
 			isPack = true;
             waybillCode = WaybillUtil.getWaybillCode(packageBarOrWaybillCode);
         }
+        // 运单绑定集包袋校验
+        if(WaybillUtil.isWaybillCode(packageBarOrWaybillCode)
+                && inspectionService.checkIsBindMaterial(waybillCode)){
+            jdResponse.toFail(JdResponse.MESSAGE_CHECK_MATERIAL_ERROR);
+            return jdResponse;
+        }
 		InspectionResult inspectionResult = new InspectionResult("");
         //提取获取操作站点信息
 		BaseStaffSiteOrgDto siteOrgDto = siteService.getSite(dmsSiteCode);
