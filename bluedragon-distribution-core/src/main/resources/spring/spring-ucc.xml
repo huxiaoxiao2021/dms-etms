@@ -45,6 +45,9 @@
         <property name="coldChainStorageSmsSwitch" value="${coldChainStorageSmsSwitch:false}"/>
         <property name="b2bPushInspectionSwitch" value="${b2bPushInspectionSwitch:false}"/>
 		<property name="offlineTaskOperateTimeCorrectHours" value="${offlineTaskOperateTimeCorrectHours:24}"/>
+		<property name="automaticWeightVolumeExchangeSwitch" value="${automaticWeightVolumeExchangeSwitch:false}"/>
+		<property name="automaticWeightVolumeExchangeSiteCode" value="${automaticWeightVolumeExchangeSiteCode}"/>
+        <property name="sealVolumeCheckSwitch" value="${sealVolumeCheckSwitch:false}"/>
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -74,6 +77,9 @@
 				<value>uccPropertyConfiguration.coldChainStorageSmsSwitch</value>
 				<value>uccPropertyConfiguration.b2bPushInspectionSwitch</value>
 				<value>uccPropertyConfiguration.offlineTaskOperateTimeCorrectHours</value>
+				<value>uccPropertyConfiguration.automaticWeightVolumeExchangeSwitch</value>
+				<value>uccPropertyConfiguration.automaticWeightVolumeExchangeSiteCode</value>
+				<value>uccPropertyConfiguration.sealVolumeCheckSwitch</value>
 			</list>
 		</property>
 	</bean>

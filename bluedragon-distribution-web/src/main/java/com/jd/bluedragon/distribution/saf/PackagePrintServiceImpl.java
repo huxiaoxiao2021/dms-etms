@@ -229,17 +229,21 @@ public class PackagePrintServiceImpl implements PackagePrintService {
      * @return
      */
     private void filterData(Map<String, Object> data, String packageCode){
-
-        List<PrintPackage> printPackages = Arrays.asList(JsonHelper.jsonToArray(JsonHelper.toJson(data.get("packList")), PrintPackage[].class));
-
-        for(PrintPackage printPackage: printPackages){
-            if(packageCode.equals(printPackage.getPackageCode())){
-                List<PrintPackage> temp = new ArrayList<PrintPackage>();
-                temp.add(printPackage);
-                data.put("packList", temp);
-                break;
-            }
-        }
+    	//增加null判断
+    	Object packList = data.get("packList");
+    	if(packList != null){
+	        List<PrintPackage> printPackages = Arrays.asList(JsonHelper.jsonToArray(JsonHelper.toJson(packList), PrintPackage[].class));
+	        if(printPackages != null ){
+		        for(PrintPackage printPackage: printPackages){
+		            if(packageCode.equals(printPackage.getPackageCode())){
+		                List<PrintPackage> temp = new ArrayList<PrintPackage>();
+		                temp.add(printPackage);
+		                data.put("packList", temp);
+		                break;
+		            }
+		        }
+	        }
+    	}
     }
     /**
      * 校验基本传入参数和权限

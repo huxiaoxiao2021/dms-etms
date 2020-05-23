@@ -371,10 +371,12 @@ public class SortingResource {
 		Assert.notNull(boxCode, "boxCode must not be null");
 		this.log.debug("box code's {}" , boxCode);
 		InvokeResult result = new InvokeResult();
+		result.success();
 		List<String> waybillList = sortingService.getWaybillCodeListByBoxCode(boxCode);
 		if (waybillList == null) {
 			result.customMessage(BoxResponse.CODE_BOX_NOT_FOUND, BoxResponse.MESSAGE_BOX_NOT_FOUND);
 		}
+		result.setData(waybillList);
 		return result;
 	}
 

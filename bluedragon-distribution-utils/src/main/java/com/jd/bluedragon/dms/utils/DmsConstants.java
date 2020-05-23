@@ -102,6 +102,10 @@ public class DmsConstants {
      */
     public static final Integer SITE_TYPE_DMS = 64;
     /**
+     * 分拣中心子类型-企配仓
+     */
+    public static final Integer SITE_SUB_TYPE_EDN = 6540;
+    /**
      * 站点类型-站点
      */
     public static final Integer SITE_TYPE_SITE = 4;
@@ -201,4 +205,24 @@ public class DmsConstants {
      * 保温箱号规则，MZ开头，总长度14到16位
      */
     public static final Pattern WARM_BOX_CODE_REGEX = Pattern.compile("^MZ[A-Z0-9]{12,14}$");
+    /**
+     * 预售异常原因-上级编码
+     */
+    public static final Integer QC_TYPE = 2;
+    /**
+     * 预售异常原因前缀
+     */
+    public static final String QC_TYPE_PRE_SELL_CODE_PRE = "24-";
+    /**
+     * 企配仓拣货单模板-名称
+     */
+    public static final String TEMPLATE_NAME_EDN_PICKING = "dmsEdnPickingList";
+    /**
+     * 企配仓拣货单-模板版本配置key
+     */
+    public static final String TEMPLATE_VERSION_KEY_EDN_PICKING = "print.template.version.dmsEdnPickingList";
+    /**
+     * 企配仓拣货单模板-默认版本号1
+     */
+    public static final String TEMPLATE_VERSION_DEFAULT_EDN_PICKING = "1";
 }

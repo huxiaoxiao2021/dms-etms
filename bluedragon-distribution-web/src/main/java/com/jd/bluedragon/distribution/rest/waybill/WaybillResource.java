@@ -58,6 +58,7 @@ import com.jd.bluedragon.distribution.weight.domain.PackOpeDetail;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDto;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
+import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -1731,7 +1732,11 @@ public class WaybillResource {
 		if(log.isDebugEnabled()){
             log.debug("换单前获取信息接口入参：{}",JsonHelper.toJson(request));
         }
-
+        if(request != null && StringUtils.isNotEmpty(request.getPhone()) && request.getPhone().length() > 30){
+            invokeResult.setCode(InvokeResult.SERVER_ERROR_CODE);
+            invokeResult.setMessage("手机号【"+request.getPhone()+"】超长,请重新输入");
+            return invokeResult;
+        }
 		try {
 			WaybillReverseDTO waybillReverseDTO = ldopManager.makeWaybillReverseDTOCanTwiceExchange(request);
 			StringBuilder errorMessage = new StringBuilder();
@@ -2054,6 +2059,8 @@ public class WaybillResource {
             result.setMessage("重量体积抽查只支持一单一件!");
             return result;
         }
+        //设置抽检数据来源
+		weightVolumeCollectDto.setFromSource(FromSourceEnum.DMS_CLIENT_PACKAGE_WEIGH_PRINT.name());
 		result = weightAndVolumeCheckService.insertAndSendMq(packWeightVO,weightVolumeCollectDto,result);
         return result;
 

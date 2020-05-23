@@ -602,5 +602,24 @@
                   alias="${dms.ccmp.medicine.alias}" timeout="${dms.ccmp.medicine.timeout}"
                   retries="${jsf.retries}">
     </jsf:consumer>
+        <!-- 技术发展部 - 冷链产品 - 包裹绑定温度计 -->
+    <jsf:consumer id="jpEdnDeliveryReceiptService" interface="com.jd.ka.edn.sdk.service.JpEdnDeliveryReceiptService"
+                  protocol="jsf"
+                  alias="${jsf.jpEdnDeliveryReceiptService.alias}" timeout="${jsf.jpEdnDeliveryReceiptService.timeout}"
+                  retries="${jsf.retries}">
+    </jsf:consumer>
+    <jsf:consumer id="ecpRailWayWS" interface="com.jd.tms.ecp.ws.EcpRailWayWS" protocol="jsf"
+                  alias="${tms.ecp.jsf.alias}" timeout="${tms.ecp.jsf.timeout}"
+                  retries="${jsf.retries}">
+    </jsf:consumer>
+    <jsf:consumer id="expInfoSummaryJsfService" interface="com.jd.ps.data.epf.service.ExpInfoSummaryJsfService"
+                  protocol="jsf" alias="${epf.jsf.alias}" timeout="${epf.exp.info.timeout}" retries="${jsf.retries}">
 
+    </jsf:consumer>
+
+    <!-- 运输 - 循环集包袋 -->
+    <jsf:consumer id="assetApplyQueryApi" interface="com.jd.ql.asset.api.AssetApplyQueryApi" protocol="jsf"
+                  alias="${assetApply.jsf.alias}" timeout="${assetApply.jsf.timeout}"
+                  retries="${jsf.retries}" >
+    </jsf:consumer>
 </beans>

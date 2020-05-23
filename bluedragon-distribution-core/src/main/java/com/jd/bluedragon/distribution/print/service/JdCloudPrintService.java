@@ -27,4 +27,10 @@ public interface JdCloudPrintService {
 	 * @return
 	 */
 	<M> JdResult<List<JdCloudPrintResponse>> jdCloudPrint(JdCloudPrintRequest<M> jdCloudPrintRequest);
+	/**
+	 * 调用云打印生成pdf并返回外链
+	 * @param jdCloudPrintRequest
+	 * @return
+	 */
+	<M> JdResult<String> printPdfAndReturnWebUrl(JdCloudPrintRequest<M> jdCloudPrintRequest);
 }

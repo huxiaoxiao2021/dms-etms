@@ -1576,6 +1576,7 @@ public class SortingServiceImpl implements SortingService {
 		return dynamicSortingQueryDao.findPackageCodesByWaybillCode(sorting);
 	}
 
+	@JProfiler(jKey = "DMSWEB.SortingServiceImpl.check", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
 	public SortingJsfResponse check(PdaOperateRequest pdaOperateRequest) {
 		SortingJsfResponse sortingJsfResponse = new SortingJsfResponse();
 

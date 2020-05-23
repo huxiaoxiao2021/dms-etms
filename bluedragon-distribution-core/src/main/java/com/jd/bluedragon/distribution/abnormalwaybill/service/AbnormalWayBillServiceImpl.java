@@ -3,8 +3,10 @@ package com.jd.bluedragon.distribution.abnormalwaybill.service;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.abnormalwaybill.dao.AbnormalWayBillDao;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
+import com.jd.ql.dms.print.utils.StringHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -66,5 +68,18 @@ public class AbnormalWayBillServiceImpl implements AbnormalWayBillService {
     @JProfiler(jKey = "DMSWEB.AbnormalWayBillService.getAbnormalWayBillByQcValue", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
     public AbnormalWayBill getAbnormalWayBillByQcValue(Integer createSiteCode, String qcValue) {
         return abnormalWayBillDao.getAbnormalWayBillByQcValue(createSiteCode, qcValue);
+    }
+    /**
+     * 根据运单号查询提报的异常,返回最后一次提交的异常记录
+     * @param waybillCode
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.AbnormalWayBillService.queryAbnormalWayBillByWayBillCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+    public AbnormalWayBill queryAbnormalWayBillByWayBillCode(String waybillCode) {
+    	if(StringHelper.isEmpty(waybillCode)){
+    		return null;
+    	}
+        return abnormalWayBillDao.queryAbnormalWayBillByWayBillCode(waybillCode);
     }
 }

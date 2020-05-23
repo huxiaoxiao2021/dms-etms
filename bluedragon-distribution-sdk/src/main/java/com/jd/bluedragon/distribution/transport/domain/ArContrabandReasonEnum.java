@@ -10,37 +10,47 @@ public enum ArContrabandReasonEnum {
     /**
      * 液体或膏状
      */
-    LIQUID_OR_PASTE(1, "含液体或膏状"),
+    LIQUID_OR_PASTE(1, "违禁品-含液体或膏状"),
 
     /**
      * 气体
      */
-    GAS(2, "含气体"),
+    GAS(2, "违禁品-含气体"),
 
     /**
      * 粉末
      */
-    POWDER(3, "含粉末"),
+    POWDER(3, "违禁品-含粉末"),
 
     /**
      * 电池
      */
-    BATTERY(4, "含电池"),
+    BATTERY(4, "违禁品-含电池"),
 
     /**
      * 磁
      */
-    MAGNET(5, "含磁"),
+    MAGNET(5, "违禁品-含磁"),
 
     /**
      * 危险品
      */
-    DANGEROUS_GOODS(6, "危险品"),
+    DANGEROUS_GOODS(6, "违禁品-危险品"),
+
+    /**
+     * 政府航空管制
+     */
+    GOVERNMENT_AVIATION_CONTROL(7, "政府航空管制"),
+
+    /**
+     * 航空停运
+     */
+    AIR_OUTAGE(8, "航空停运"),
 
     /**
      * 其他
      */
-    OTHER(7, "其他");
+    OTHER(9, "其他");
 
     private Integer code;
 
