@@ -283,7 +283,8 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 			}
 		}
 
-		if(StorageSourceEnum.JP_STORAGE.getCode().equals(putawayDTO.getStorageSource())){
+		if(putawayDTO.getStorageSource() == null
+                || StorageSourceEnum.JP_STORAGE.getCode().equals(putawayDTO.getStorageSource())){
             return dealWithJPZC(putawayDTO, isWaybillCode, baseEntity.getData());
         }else if(StorageSourceEnum.KY_STORAGE.getCode().equals(putawayDTO.getStorageSource())){
             return dealWithKYZC(putawayDTO, isWaybillCode, baseEntity.getData());
@@ -675,7 +676,8 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 			if(StringUtils.isNotBlank(perStoragePackageM.getStorageCode())){
 				storagePackageM.setStorageCode(perStoragePackageM.getStorageCode());
 
-				if(StorageSourceEnum.JP_STORAGE.getCode().equals(putawayDTO.getStorageSource())){
+				if(putawayDTO.getStorageSource() == null
+                        || StorageSourceEnum.JP_STORAGE.getCode().equals(putawayDTO.getStorageSource())){
                     List<String> storageCodeList =  Arrays.asList(perStoragePackageM.getStorageCode().split(Constants.SEPARATOR_COMMA))  ;
                     if(!storageCodeList.contains(putawayDTO.getStorageCode())){
                         //新储位号，  追加
@@ -709,7 +711,8 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 			}else{
 				storagePackageM.setPutawayPackageSum(1L);
 			}
-			if(StorageSourceEnum.JP_STORAGE.getCode().equals(putawayDTO.getStorageSource())){
+			if(putawayDTO.getStorageSource() == null
+                    || StorageSourceEnum.JP_STORAGE.getCode().equals(putawayDTO.getStorageSource())){
                 storagePackageM.setSource(StorageSourceEnum.JP_STORAGE.getCode());
                 storagePackageM.setPerformanceCode(bigWaybillDto.getWaybill().getParentOrderId());
             }else {
@@ -770,7 +773,8 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 
 		StoragePackageD storagePackageD = new StoragePackageD();
 		storagePackageD.setWaybillCode(bigWaybillDto.getWaybill().getWaybillCode());
-		if(StorageSourceEnum.JP_STORAGE.getCode().equals(putawayDTO.getStorageSource())){
+		if(putawayDTO.getStorageSource() == null
+                || StorageSourceEnum.JP_STORAGE.getCode().equals(putawayDTO.getStorageSource())){
             storagePackageD.setPerformanceCode(bigWaybillDto.getWaybill().getParentOrderId());
         }else {
 		    // 非金鹏订单无履约单号，用运单号代替
