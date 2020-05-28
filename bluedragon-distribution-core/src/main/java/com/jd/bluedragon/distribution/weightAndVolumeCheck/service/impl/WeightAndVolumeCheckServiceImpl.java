@@ -99,7 +99,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     /**
      * 导出分页阈值
      * */
-    private static final Integer EXPORT_THRESHOLD_SIZE = 2;
+    private static final Integer EXPORT_THRESHOLD_SIZE = 2000;
 
     /** 对象存储 **/
     /**外部 访问域名 */
