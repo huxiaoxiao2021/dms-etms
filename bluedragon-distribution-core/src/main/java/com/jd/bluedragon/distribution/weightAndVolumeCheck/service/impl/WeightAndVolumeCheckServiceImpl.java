@@ -622,11 +622,14 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         StringBuilder stringBuilder = new StringBuilder();
         if(weight > firstThresholdWeight && weight <= secondThresholdWeight){
             return stringBuilder.append(firstStage);
-        }else if(weight > secondThresholdWeight && weight <= thirdThresholdWeight){
+        }
+        if(weight > secondThresholdWeight && weight <= thirdThresholdWeight){
             return stringBuilder.append(secondStage);
-        }else {
+        }
+        if(weight > thirdThresholdWeight){
             return stringBuilder.append(getPercentInstance().format(thirdStage));
         }
+        return stringBuilder;
     }
 
     /**
