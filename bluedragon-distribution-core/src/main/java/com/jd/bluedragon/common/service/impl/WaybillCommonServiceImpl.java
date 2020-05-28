@@ -1177,7 +1177,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
      * @return
      */
     @Override
-    @Cache(key = "WaybillCommonServiceImpl.isStorageWaybill", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+    @Cache(key = "WaybillCommonServiceImpl.isStorageWaybill@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
             redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
     public boolean isStorageWaybill(String waybillCode) {
         BaseEntity<List<WaybillVasDto>> baseEntity = waybillQueryManager.getWaybillVasInfosByWaybillCode(waybillCode);
