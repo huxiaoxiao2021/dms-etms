@@ -1,19 +1,5 @@
 package com.jd.bluedragon.distribution.base.service.impl;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
@@ -50,13 +36,24 @@ import com.jd.bluedragon.service.remote.client.DmsClientManager;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.ldop.utils.ObjectUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * 
@@ -103,6 +100,7 @@ public class UserServiceImpl implements UserService{
 	 */
 	@Value("${app.config.runningMode:prod}")
 	private String runningMode;
+    private static final String RUNNING_MODE_UAT = "uat";
 	@Autowired
 	private BaseService baseService;
 	@Autowired
@@ -161,6 +159,13 @@ public class UserServiceImpl implements UserService{
 		if (response.getCode().equals(JdResponse.CODE_OK)) {
 			this.bindSite2LoginUser(response);
 		}
+        String sysconfRunningMode = response.getDmsClientConfigInfo()!= null?response.getDmsClientConfigInfo().getRunningMode():"";
+        if(runningMode.contains(RUNNING_MODE_UAT) && !Objects.equals(runningMode,sysconfRunningMode)){
+            response.setCode(JdResponse.CODE_WRONG_STATUS);
+            String msg = String.format("当前登录账号[%s]不支持[%s]登录,请尝试在登录首页右上角修改正式环境再登录！",request.getErpAccount(),runningMode);
+            response.setMessage(msg);
+            return response;
+        }
 		return response;
 	}
 
