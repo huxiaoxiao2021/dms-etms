@@ -95,11 +95,7 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
 
         //校验验货是否是运单且为大运单包裹，直接落库不走MQ
         if (isByWayBillCode) {
-            boolean checkResult = this.inspectionCheckBigPackage(domain, bigWaybillDto);
-            if (! checkResult) {
-                context.setPassCheck(false);
-                return context;
-            }
+            this.inspectionCheckBigPackage(domain, bigWaybillDto);
         }
         resetBusinessType(request, bigWaybillDto);/*验货businessType存在非50的数据吗，需要验证*/
         resetStoreId(request, bigWaybillDto);
@@ -251,7 +247,7 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
      * 4.数量是否大于阈值
      *
      * */
-    private boolean inspectionCheckBigPackage(Task domain, BigWaybillDto bigWaybillDto) {
+    private void inspectionCheckBigPackage(Task domain, BigWaybillDto bigWaybillDto) {
 
         if (domain.getId() == null || domain.getId() == 0) {
             if (bigWaybillDto.getWaybill() != null && bigWaybillDto.getWaybill().getGoodNumber() != null) {
@@ -264,8 +260,6 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
                 }
             }
         }
-
-        return true;
     }
 
 }
