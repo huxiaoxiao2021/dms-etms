@@ -1,11 +1,13 @@
 package com.jd.bluedragon.distribution.rest.storage;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.DmsLocalServerManager;
 import com.jd.bluedragon.core.exception.StorageException;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.storage.domain.PutawayDTO;
+import com.jd.bluedragon.distribution.storage.domain.StorageCheckDto;
 import com.jd.bluedragon.distribution.storage.domain.StoragePackageD;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -20,7 +22,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
@@ -50,6 +57,10 @@ public class StorageResource {
     @Autowired
     @Qualifier("dmsLocalServerManager")
     private DmsLocalServerManager dmsLocalServerManager;
+
+    @Autowired
+    @Qualifier("waybillCommonService")
+    private WaybillCommonService waybillCommonService;
     /**
      * 根据所属分拣中心 获取储位号
      *
@@ -86,6 +97,40 @@ public class StorageResource {
         }
 
         return result;
+    }
+
+    /**
+     * 校验是否需要暂存
+     *
+     * @return
+     */
+    @GET
+    @Path("/storage/checkIsNeedStorage/{barCode}/{siteCode}")
+    public InvokeResult<Boolean> checkIsNeedStorage(@PathParam("barCode") String barCode,@PathParam("siteCode") Integer siteCode) {
+        InvokeResult<Boolean> result = new InvokeResult<Boolean>();
+        if(siteCode == null
+                || (!WaybillUtil.isPackageCode(barCode) && !WaybillUtil.isWaybillCode(barCode))){
+            result.parameterError(InvokeResult.PARAM_ERROR);
+            return result;
+        }
+        return storagePackageMService.checkIsNeedStorage(barCode,siteCode);
+    }
+
+    /**
+     * 暂存上架校验
+     *
+     * @return
+     */
+    @GET
+    @Path("/storage/storageTempCheck/{barCode}/{siteCode}")
+    public InvokeResult<StorageCheckDto> storageTempCheck(@PathParam("barCode") String barCode, @PathParam("siteCode") Integer siteCode) {
+        InvokeResult<StorageCheckDto> result = new InvokeResult<StorageCheckDto>();
+        if(siteCode == null
+                || (!WaybillUtil.isPackageCode(barCode) && !WaybillUtil.isWaybillCode(barCode))){
+            result.parameterError(InvokeResult.PARAM_ERROR);
+            return result;
+        }
+        return storagePackageMService.storageTempCheck(barCode,siteCode);
     }
 
 

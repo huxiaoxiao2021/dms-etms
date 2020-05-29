@@ -1,8 +1,11 @@
 package com.jd.bluedragon.distribution.storage.service;
 
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.storage.domain.PutawayDTO;
+import com.jd.bluedragon.distribution.storage.domain.StorageCheckDto;
 import com.jd.bluedragon.distribution.storage.domain.StoragePackageD;
 import com.jd.bluedragon.distribution.storage.domain.StoragePackageM;
+import com.jd.bluedragon.distribution.storage.domain.StoragePackageMCondition;
 import com.jd.ql.dms.common.web.mvc.api.Service;
 
 import java.util.List;
@@ -83,4 +86,81 @@ public interface StoragePackageMService extends Service<StoragePackageM> {
      * @param waybillCode
      */
     void updateStoragePackageMStatusForSend(String waybillCode);
+
+    /**
+     * 校验是否需要暂存
+     *
+     * @param barCode 运单/包裹
+     * @param siteCode 站点
+     * @return
+     */
+    InvokeResult<Boolean> checkIsNeedStorage(String barCode, Integer siteCode);
+
+    /**
+     * 暂存上架校验
+     *
+     * @param barCode 运单/包裹
+     * @param siteCode 站点
+     * @return
+     */
+    InvokeResult<StorageCheckDto> storageTempCheck(String barCode, Integer siteCode);
+
+    /**
+     * 根据条件导出
+     *
+     * @param condition
+     * @return
+     */
+    List<List<Object>> getExportData(StoragePackageMCondition condition);
+
+    /**
+     * 获取分拣中心储位状态
+     *
+     * @param siteCode
+     * @return
+     */
+    boolean getStorageStatusBySiteCode(Integer siteCode);
+
+    /**
+     * 更新分拣中心储位状态
+     *
+     * @param siteCode
+     * @param isEnough
+     * @param operateErp
+     * @return
+     */
+    boolean updateStorageStatusBySiteCode(Integer siteCode, Integer isEnough,String operateErp);
+
+    /**
+     * 是否全部上架
+     *
+     * @param waybillCode
+     * @return
+     */
+    boolean isAllPutAwayAll(String waybillCode);
+
+    /**
+     * 是否全部发货
+     *
+     * @param waybillCode
+     * @param siteCode
+     * @return
+     */
+    boolean packageIsAllSend(String waybillCode,Integer siteCode);
+
+    /**
+     * 更新全部下架时间
+     *
+     * @param waybillCode
+     * @return
+     */
+    int updateDownAwayTimeByWaybillCode(String waybillCode);
+
+    /**
+     * 更新运单状态
+     *
+     * @param putawayDTO
+     * @param isPutAway 是否上架
+     */
+    void updateWaybillStatusOfKYZC(PutawayDTO putawayDTO,boolean isPutAway);
 }

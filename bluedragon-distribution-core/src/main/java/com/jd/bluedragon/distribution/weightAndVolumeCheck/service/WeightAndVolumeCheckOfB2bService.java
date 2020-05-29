@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.weightAndVolumeCheck.service;
 
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.WaybillFlowDetail;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightVolumeCheckConditionB2b;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightVolumeCheckOfB2bPackage;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightVolumeCheckOfB2bWaybill;
@@ -68,4 +69,11 @@ public interface WeightAndVolumeCheckOfB2bService {
      */
     com.jd.bluedragon.distribution.base.domain.InvokeResult uploadExcessPicture(MultipartFile image, HttpServletRequest request);
 
+    /**
+     * 获取第一次称重量方记录
+     *
+     * @param waybillCode
+     * @return
+     */
+    WaybillFlowDetail getFirstWeightAndVolumeDetail(String waybillCode);
 }

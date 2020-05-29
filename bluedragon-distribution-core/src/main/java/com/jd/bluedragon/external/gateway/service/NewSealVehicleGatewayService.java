@@ -9,6 +9,7 @@ import com.jd.bluedragon.common.dto.blockcar.request.SealCarTaskInfoRequest;
 import com.jd.bluedragon.common.dto.blockcar.response.SealCarTaskInfoDto;
 import com.jd.bluedragon.common.dto.blockcar.response.TransportInfoDto;
 import com.jd.bluedragon.common.dto.seal.request.CancelSealRequest;
+import com.jd.bluedragon.distribution.api.request.SealVehicleVolumeVerifyRequest;
 
 /**
  * 封车发布物流网关
@@ -36,6 +37,8 @@ public interface NewSealVehicleGatewayService {
     JdCResponse verifyVehicleJobByVehicleNumber(String transportCode, String vehicleNumber, Integer sealCarType);
 
     JdCResponse newVerifyVehicleJobByVehicleNumber(SealCarPreRequest sealCarPreRequest);
+
+    JdCResponse verifySendVolume(SealVehicleVolumeVerifyRequest request);
 
     JdCResponse doSealCarWithVehicleJob(SealCarRequest sealCarRequest);
 

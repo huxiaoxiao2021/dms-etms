@@ -7,7 +7,7 @@
 
 	<groupId>com.jd.bluedragon</groupId>
 	<artifactId>bluedragon-distribution-sdk</artifactId>
-	<version>1.3.8-SNAPSHOT</version>
+	<version>1.3.9-SNAPSHOT</version>
 	<name>bluedragon-distribution-sdk</name>
 	<url>http://bluedragon.360buy.com</url>
 	<packaging>jar</packaging>
@@ -37,12 +37,12 @@
 		    <artifactId>guava</artifactId>
 		    <version>14.0.1</version>
 		</dependency>
-        <dependency>
-            <groupId>com.jd.transboard</groupId>
-            <artifactId>transboard-api</artifactId>
-            <version>1.0.3-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.jd.transboard</groupId>-->
+<!--            <artifactId>transboard-api</artifactId>-->
+<!--            <version>1.0.3-SNAPSHOT</version>-->
+<!--            <scope>compile</scope>-->
+<!--        </dependency>-->
 		<!--<dependency>-->
             <!--<groupId>joda-time</groupId>-->
             <!--<artifactId>joda-time</artifactId>-->

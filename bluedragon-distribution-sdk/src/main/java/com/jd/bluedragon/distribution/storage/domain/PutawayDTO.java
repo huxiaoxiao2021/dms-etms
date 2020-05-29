@@ -69,7 +69,31 @@ public class PutawayDTO implements Serializable {
      */
     private Long operateTime;
 
+    /**
+     * 暂存来源
+     * */
+    private Integer storageSource;
 
+    /**
+     * 是否强制暂存
+     * */
+    private Boolean forceStorage;
+
+    public Integer getStorageSource() {
+        return storageSource;
+    }
+
+    public void setStorageSource(Integer storageSource) {
+        this.storageSource = storageSource;
+    }
+
+    public Boolean getForceStorage() {
+        return forceStorage;
+    }
+
+    public void setForceStorage(Boolean forceStorage) {
+        this.forceStorage = forceStorage;
+    }
 
     public String getBarCode() {
         return barCode;

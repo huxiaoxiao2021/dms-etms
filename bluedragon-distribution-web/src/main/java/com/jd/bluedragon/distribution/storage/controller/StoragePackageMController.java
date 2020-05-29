@@ -4,12 +4,14 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.exception.StorageException;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.storage.domain.FulfillmentOrderDto;
 import com.jd.bluedragon.distribution.storage.domain.PutawayDTO;
 import com.jd.bluedragon.distribution.storage.domain.StoragePackageM;
 import com.jd.bluedragon.distribution.storage.domain.StoragePackageMCondition;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
+import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
@@ -25,7 +27,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -281,4 +285,61 @@ public class StoragePackageMController {
 		}
 		return result;
 	}
+
+    /**
+     * 导出
+     * @return
+     */
+    @Authorization(Constants.DMS_WEB_EXPRESS_STORAGEPACKAGEM_R)
+    @RequestMapping(value = "/toExport", method = RequestMethod.POST)
+    public ModelAndView toExport(StoragePackageMCondition condition, Model model) {
+
+        this.log.info("暂存管理记录统计表...");
+        List<List<Object>> resultList;
+        try{
+            model.addAttribute("filename", "暂存记录统计表.xls");
+            model.addAttribute("sheetname", "暂存记录");
+            resultList = storagePackageMService.getExportData(condition);
+        }catch (Exception e){
+            this.log.error("导出暂存记录统计表失败:", e);
+            List<Object> list = new ArrayList<>();
+            list.add("导出暂存记录统计表失败!");
+            resultList = new ArrayList<>();
+            resultList.add(list);
+        }
+        model.addAttribute("contents", resultList);
+        return new ModelAndView(new DefaultExcelView(), model.asMap());
+    }
+
+    /**
+     * 获取分拣中心储位状态
+     * @param siteCode 运单号
+     * @return
+     */
+    @Authorization(Constants.DMS_WEB_EXPRESS_STORAGEPACKAGEM_R)
+    @RequestMapping(value = "/getStorageStatusBySiteCode/{siteCode}")
+    public @ResponseBody JdResponse<Boolean> getStorageStatusBySiteCode(@PathVariable("siteCode") Integer siteCode) {
+        JdResponse<Boolean> rest = new JdResponse<Boolean>();
+        rest.setData(storagePackageMService.getStorageStatusBySiteCode(siteCode));
+        return rest;
+    }
+
+    /**
+     * 获取分拣中心储位状态
+     * @param siteCode 运单号
+     * @return
+     */
+    @Authorization(Constants.DMS_WEB_EXPRESS_STORAGEPACKAGEM_R)
+    @RequestMapping(value = "/updateStorageStatusBySiteCode/{siteCode}/{isEnough}")
+    public @ResponseBody JdResponse<Boolean> updateStorageStatusBySiteCode(@PathVariable("siteCode") Integer siteCode,
+                                                                           @PathVariable("isEnough") Integer isEnough) {
+        JdResponse<Boolean> rest = new JdResponse<Boolean>();
+        if(siteCode == null || isEnough == null){
+            rest.toFail(InvokeResult.PARAM_ERROR);
+            return rest;
+        }
+        String userErp = ErpUserClient.getCurrUser()==null?null:ErpUserClient.getCurrUser().getUserCode();
+        rest.setData(storagePackageMService.updateStorageStatusBySiteCode(siteCode,isEnough,userErp));
+        return rest;
+    }
 }

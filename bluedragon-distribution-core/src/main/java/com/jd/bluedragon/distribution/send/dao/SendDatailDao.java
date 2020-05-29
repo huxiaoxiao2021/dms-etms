@@ -446,4 +446,13 @@ public class SendDatailDao extends BaseDao<SendDetail> {
         return this.getSqlSession().selectList(namespace + ".queryPackageCodeByboxCode", params);
     }
 
+    /**
+     * 根据运单号查询 包裹号
+     * @param params
+     * @return
+     */
+    public List<String> queryPackageByWaybillCode(SendDetailDto params){
+        return this.getSqlSession().selectList(namespace + ".queryPackageByWaybillCode", params);
+    }
+
 }

@@ -335,6 +335,12 @@ $(function () {
     //导出
     function initExport(tableInit) {
         $('#btn_export').click(function () {
+            var startDate = Date.parse($('#startTime').val().replace('/-/g', '/'));
+            var endDate = Date.parse($('#endTime').val().replace('/-/g', '/'));
+            if((endDate - startDate) > (1 * 24 * 60 * 60 * 1000)){
+                Jd.alert("只能导出一天的数据,请缩短复核时间范围!");
+                return;
+            }
             var params = tableInit.getSearchCondition();
             var form = $("<form method='post'></form>"),
                 input;
