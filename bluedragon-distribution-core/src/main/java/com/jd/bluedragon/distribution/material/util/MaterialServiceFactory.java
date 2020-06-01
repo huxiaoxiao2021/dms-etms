@@ -20,7 +20,9 @@ public class MaterialServiceFactory {
 
         MATERIAL_SINGLE_SEND((byte)1, "物资单个扫描发货"),
 
-        MATERIAL_TYPE_BATCH_SEND((byte)2, "物资按类型批量发货");
+        MATERIAL_TYPE_BATCH_SEND((byte)2, "物资按类型批量发货"),
+
+        MATERIAL_TAG_SEND((byte)3,"物资按标签发货");
 
         private byte code;
 
@@ -48,6 +50,10 @@ public class MaterialServiceFactory {
     @Qualifier("warmBoxInOutOperationService")
     private MaterialOperationService warmBoxInOutOperationService;
 
+    @Autowired
+    @Qualifier("recyclingBoxInOutOperationService")
+    private MaterialOperationService recyclingBoxInOutOperationService;
+
     public MaterialOperationService findMaterialOperationService(Byte sendBusinessType){
         if (null == sendBusinessType) {
             throw new IllegalArgumentException("缺少必要参数!");
@@ -58,6 +64,9 @@ public class MaterialServiceFactory {
         }
         else if (MaterialSendModeEnum.MATERIAL_TYPE_BATCH_SEND.code == sendBusinessType) {
             return materialBatchSendService;
+        }
+        else if (MaterialSendModeEnum.MATERIAL_TAG_SEND.code == sendBusinessType) {
+            return recyclingBoxInOutOperationService;
         }
 
         return null;
