@@ -110,7 +110,7 @@ public class StorageResource {
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
         if(siteCode == null
                 || (!WaybillUtil.isPackageCode(barCode) && !WaybillUtil.isWaybillCode(barCode))){
-            result.parameterError(InvokeResult.PARAM_ERROR);
+            // 只有运单/包裹才进行校验
             return result;
         }
         return storagePackageMService.checkIsNeedStorage(barCode,siteCode);
