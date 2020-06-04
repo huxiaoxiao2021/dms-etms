@@ -86,7 +86,7 @@ public class RecycleMaterialGatewayServiceImpl implements RecycleMaterialGateway
     }
 
     @Override
-    @JProfiler(jKey = "DMSWEB.RecycleMaterialGatewayServiceImpl.getBoxMaterialRelation",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "DMSWEB.RecycleMaterialGatewayServiceImpl.boxMaterialRelationAlter",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<Boolean> boxMaterialRelationAlter(BoxMaterialRelationJSFRequest request){
         JdCResponse<Boolean> res = new JdCResponse<>();
         res.toSucceed();
