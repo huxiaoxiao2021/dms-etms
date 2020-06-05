@@ -1,17 +1,26 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta http-equiv="content-type" content="text/html; charset=UTF-8">
-<title>规则管理UI</title>
-<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
-<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
-<script type="text/javascript" src="#springUrl('/static/js/jquery-1.js')"></script>
-<SCRIPT type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></SCRIPT>
-<script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
-<script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+    <meta charset="UTF-8">
+    <title>规则管理UI</title>
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    #parse("system/common/baseImport.vm")
 </head>
 <script type="text/javascript">
 $(document).ready(function() {
+    // 初始化站点下拉列表
+    $.ajaxHelper.doGetSync('#springUrl("/services/bases/dms")',null,function (res) {
+        if (res != null) {
+            var temp = "";
+            $.each (res, function (index, item) {
+                temp += "<option value='"+ item.siteCode +"'>" + item.siteName + "</option>";
+            })
+            jQuery("#siteCodeList").html(temp);
+        }
+    })
+
 	if ("$!rulemanagequeryDto" != "") {
 		// 初始化查询条件
 		$("#siteCode").val("$!rulemanagequeryDto.siteCode");
@@ -20,19 +29,124 @@ $(document).ready(function() {
 			$("#pageSize").val($!pager.pageSize);
 		}
 	}
-	// 提交查询
-	$("#search").click(function() {
-		$("#sitecode").blur();
-		$("#selectRuleList").attr("action", '#springUrl("/ruleManage/list")');
-		$("#selectRuleList").attr("method", "GET");
-		$("#selectRuleList").submit();
-	});
-	
+
+	$("#search").click(function () {
+        tableInit().refresh();
+    })
+
 	$("#add").click(function() {
 		location.href = "#springUrl('/ruleManage/goAddPage')";
 	});
+
+    tableInit().init();
 	
 });
+
+var tableInit = function() {
+    var oTableInit = new Object();
+    oTableInit.init = function() {
+        $('#dataTable').bootstrapTable({
+            url : "/ruleManage/list", // 请求后台的URL（*）
+            method : 'POST', // 请求方式（*）
+            toolbar : '#toolbar', // 工具按钮用哪个容器
+            queryParams : oTableInit.getSearchParams, // 查询参数（*）
+            uniqueId : "ID", // 每一行的唯一标识，一般为主键列
+            pagination : true, // 是否显示分页（*）
+            pageNumber : 1, // 初始化加载第一页，默认第一页
+            pageSize : 10, // 每页的记录行数（*）
+            pageList : [ 10, 25, 50, 100 ], // 可供选择的每页的行数（*）
+            cache : false, // 是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+            sidePagination : "server", // 分页方式：client客户端分页，server服务端分页（*）
+            striped : true, // 是否显示行间隔色
+            showColumns : true, // 是否显示所有的列
+            sortable : true, // 是否启用排序
+            sortOrder : "asc", // 排序方式
+//				search : true, // 是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+            showRefresh : true, // 是否显示刷新按钮
+            minimumCountColumns : 2, // 最少允许的列数
+            clickToSelect : true, // 是否启用点击选中行
+            showToggle : true, // 是否显示详细视图和列表视图的切换按钮
+            strictSearch : true,
+            columns : oTableInit.tableColums
+        });
+    };
+    oTableInit.getSearchParams = function(params) {
+
+        var temp = oTableInit.getSearchCondition();
+        if(!temp){
+            temp={};
+        }
+        temp.pageNo = params.offset;
+        temp.pageSize = params.limit;
+        // 这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+        return temp;
+    };
+    /**
+     * 获取查询参数
+     * @param _selector 选择器（默认为'.search-param'）
+     */
+    oTableInit.getSearchCondition = function(_selector) {
+        debugger
+        var params = $.formHelper.serialize("search-param")
+        return params;
+    };
+
+    oTableInit.tableColums = [ {
+        field: 'ID',
+        title: '序号',
+        width:5 ,
+        align:'center',
+        switchable:false,
+        formatter:function(value,row,index){
+            return index+1;//这样的话每翻一页都会重新从1开始
+        }
+    }, {
+        field : 'siteCode',
+        title : '站点编号'
+    } ,{
+        field : 'type',
+        title : '站点类型'
+    },{
+        field : 'content',
+        title : '规则内容'
+    },{
+        field : 'inOut',
+        title : '包含关系'
+    },{
+        field : 'createTime',
+        title : '创建时间',
+        formatter:function (value) {
+            return $.dateHelper.formatDateTime(value)
+        }
+    },{
+        field : 'updateUser',
+        title : '操作人'
+    },{
+        field : 'updateTime',
+        title : '更新时间',
+        formatter:function (value) {
+            return $.dateHelper.formatDateTime(value)
+        }
+    },{
+        field : 'memo',
+        title : '备注'
+    },{
+        field: 'ope',
+        title: '操作',
+        width:5 ,
+        align:'center',
+        switchable:false,
+        formatter:function(value, row, index){
+            var temp = "<input id=\"edit\" type=\"button\" value=\"修改\" onclick=\"edit("+ row.ruleId +")\" class=\"btn btn-default\"/>\n" +
+                    "<input id=\"del\" type=\"button\" value=\"删除\" onclick=\"del(" + rule.ruleId + ")\" class=\"btn btn-default\"/>";
+            return temp;
+        }
+    }];
+    oTableInit.refresh = function() {
+        $('#dataTable').bootstrapTable('refreshOptions', {pageNumber: 1});
+    };
+    return oTableInit;
+};
 
 function del(ruleid){
 	location.href = "#springUrl('/ruleManage/del')" + "?ruleId=" + ruleid;
@@ -44,36 +158,44 @@ function edit(ruleid){
 </script>
 
 <body>
-<div id="breadcrumb">
-  <p><a href="#springUrl('/ruleManage/list')">基础资料管理</a>&nbsp;&gt;&nbsp;<a href="#springUrl('/ruleManage/list')">规则管理UI</a></p>
-</div>
+<ol class="breadcrumb">
+    <li><a href="#springUrl('/ruleManage/list')">基础资料管理</a></li>
+    <li class="active">规则管理UI</li>
+</ol>
 <!--[if !ie]>breadcrumb<![endif]-->
 <div id="content">
   <div style="color:red;"> $!errormsg $!successmsg</div>
   <div class="m">
     <div class="tbl-n">
-      <form id="selectRuleList" name="selectRuleList" action="#springUrl('/ruleManage/list')" method="GET">
-		<input type="hidden" id="pageNo" name="pageNo" />
-		<input type="hidden" id="pageSize" name="pageSize" />
-        <table border="0" cellpadding="0" cellspacing="0" width="100%">
-          <tbody>
-            <tr>
-              <th align="right">站点编码：</th>
-              <td>
-				<input id="siteCode" name="siteCode" type="text" class="textField28"/>
-			  </td>
-              <th align="right" >&nbsp;</th>
-              <td>&nbsp;</td>
-              <th colspan="3">
-				<input id="search" type="button" value="查询" class="btn_c"/>
-				<input id="add" type="button" value="增加" class="btn_c"/>
-			  </th>
-            </tr>
-          </tbody>
-        </table>
+      <form id="search-param" action="#springUrl('/ruleManage/list')" method="GET">
+          <fieldset>
+              <div class="row">
+                  <input type="hidden" id="pageNo" name="pageNo" />
+                  <input type="hidden" id="pageSize" name="pageSize" />
+              </div>
+              <div class="row">
+                  <label class="control-label col-md-1 col-md-offset-1">站点编码:</label>
+                  <div class="col-md-2">
+                      <input id="siteCode" name="siteCode" list="siteCodeList" type="text" class="form-control"/>
+                      <datalist id="siteCodeList"></datalist>
+                  </div>
+              </div>
+          </fieldset>
       </form>
     </div>
   </div>
+
+    <div id="toolbar" class="btn-group">
+        <button id="search" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>查询
+        </button>
+        <button id="add" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-plus." aria-hidden="true"></span>增加
+        </button>
+    </div>
+    <table id="dataTable"></table>
+
+
   <!--[if !ie]>tbl-n<![endif]-->
   <div id="opening">
     <div class="tbl-list">
@@ -85,7 +207,7 @@ function edit(ruleid){
 			  <th>站点编码</th>
               <th>规则类型</th>
               <th>规则内容</th>
-              <th>包含关系</th>              
+              <th>包含关系</th>
               <th>创建时间</th>
               <th>操作人</th>
               <th>更新时间</th>

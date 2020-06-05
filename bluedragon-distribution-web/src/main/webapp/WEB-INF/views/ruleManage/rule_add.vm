@@ -1,17 +1,74 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta http-equiv="content-type" content="text/html; charset=UTF-8">
-<title>规则管理UI</title>
-<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
-<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
-<script type="text/javascript" src="#springUrl('/static/js/jquery-1.js')"></script>
-<SCRIPT type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></SCRIPT>
-<script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
-<script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+	<meta charset="UTF-8">
+	<title>规则管理UI</title>
+	<meta http-equiv="pragma" content="no-cache" />
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="expires" content="0">
+	#parse("system/common/baseImport.vm")
 </head>
 <script type="text/javascript">
 $(document).ready(function() {
+	var ruleTypeMap = {};
+
+	// 初始化站点下拉列表
+	$.ajaxHelper.doGetSync('#springUrl("/services/bases/dms")',null,function (res) {
+		if (res != null) {
+			var temp = "";
+			$.each (res, function (index, item) {
+				temp += "<option value='"+ item.siteCode +"'>" + item.siteName + "</option>";
+			})
+			jQuery("#siteCodeList").html(temp);
+		}
+	})
+
+	//初始化规则类型下拉列表
+	$.ajaxHelper.doGetSync('#springUrl("/ruleManage/getRuleTypeList")',null,function (res) {
+		if (res != null) {
+			var temp = "";
+			$.each (res, function (index, item) {
+				temp += "<option value='"+ item.ruleType +"'>" + item.ruleTypeName + "</option>";
+				ruleTypeMap[item.ruleType] = item;
+			})
+			jQuery("#ruleTypeList").html(temp);
+		}
+	})
+
+	// 规则类型绑定onChange事件
+	$("#type").change(function () {
+		var ruleType = $(this).val();
+		var rule = ruleTypeMap[ruleType];
+		if (rule != null) {
+			/* 设置content的填充内容 */
+			var contentType = rule.contentType;
+			var contentHTML = "";
+			if (1 === contentType) {
+				$("#rule_content").attr("placeholder", "请键入站点编号，以英文逗号分隔");
+			} else if (2 === contentType) {
+				$("#rule_content").attr("placeholder", "请键入站点类型，以英文逗号分隔");
+			} else if (3 === contentType) {
+				$("#rule_content").attr("placeholder", "请键入站点子类型，以英文逗号分隔");
+			} else if (4 === contentType) {
+				$("#rule_content").attr("placeholder", "请键入0或1，以英文逗号分隔");
+			} else if (5 === contentType) {
+				$("#rule_content").attr("placeholder", "请键入true或者false，以英文逗号分隔");
+			} else if (6 === contentType) {
+				$("#rule_content").attr("placeholder", "请键入字符串，无需分隔符");
+			} else if (7 === contentType) {
+				$("#rule_content").attr("placeholder", "请键入数字，无需分隔符");
+			}
+			/* 设置默认备注 */
+			jQuery("#memo").val(rule.memo);
+		}
+	})
+	$("#id").select2({
+		language : "zh-CN",
+		minimumInputLength : 0,
+		placeholder:"可选多值",//默认值
+		allowClear: true,
+	})
+
 	// 提交查询
 	$("#save").click(function() {
 		$("#addRule").attr("action", '#springUrl("/ruleManage/add")');
@@ -22,54 +79,62 @@ $(document).ready(function() {
 </script>
 
 <body>
-<div id="breadcrumb">
-  <p><a href="#springUrl('/ruleManage/list')">基础资料管理</a>&nbsp;&gt;&nbsp;<a href="#springUrl('/ruleManage/list')">规则管理UI</a></p>
-</div>
+<ol class="breadcrumb">
+	<li><a href="#springUrl('/ruleManage/list')">基础资料管理</a></li>
+	<li class="active">规则管理UI</li>
+</ol>
 <!--[if !ie]>breadcrumb<![endif]-->
 <div id="content">
   <div style="color:red;"> $!errormsg $!successmsg</div>
   <div class="m">
     <div class="tbl-n">
       <form id="addRule" name="addRule" action="#springUrl('/ruleManage/add')" method="POST">
-        <table border="0" cellpadding="0" cellspacing="0">
-          <tbody>
-			<tr>
-				<th align="right">站点编码：</th>
-				<td>
-					<input id="sitecode" name="siteCode" type="text" class="textField28"/>
-    			</td>
-			</tr>
-			<tr>
-				<th align="right">包含关系：</th>
-				<td>
-					<input id="inOut" name="inOut" type="text" class="textField28"/>
-				</td>
-			</tr>
-			<tr>
-				<th align="right">规则内容：</th>
-				<td>
-					<input id="rule_content" name="content" type="text" class="textField28"/>
-				</td>
-			</tr>
-			<tr>
-				<th align="right">规则类型：</th>
-				<td>
-					<input id="type" name="type" type="text" class="textField28"/>
-				</td>
-			</tr>
-			<tr>
-				<th align="right">备注内容：</th>
-				<td>
-					<input id="memo" name="memo" type="text" class="textField28"/>
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<input id="save" type="button" value="保存" class="btn_c"/>
-				</td>
-            </tr>
-          </tbody>
-        </table>
+		  <fieldset>
+			  <div class="row">
+				  <label class="control-label col-md-1 col-md-offset-2">站点编码:</label>
+				  <div class="col-md-2">
+					  <input id="sitecode" name="siteCode" list="siteCodeList" type="text" class="form-control"/>
+					  <datalist id="siteCodeList"></datalist>
+				  </div>
+			  </div>
+			  <div class="row">
+				  <label class="control-label col-md-1 col-md-offset-2">包含关系:</label>
+				  <div class="col-md-2">
+					  <input id="inOut" name="inOut" list="inOutList" type="text" class="form-control"/>
+					  <datalist id="inOutList">
+						  <option value="IN">IN</option>
+						  <option value="OUT">OUT</option>
+					  </datalist>
+				  </div>
+			  </div>
+			  <div class="row">
+				  <label class="control-label col-md-1 col-md-offset-2">规则类型:</label>
+				  <div class="col-md-2">
+					  <input id="type" name="type" list="ruleTypeList" type="text" class="form-control"/>
+					  <datalist id="ruleTypeList"></datalist>
+				  </div>
+			  </div>
+			  <div class="row">
+				  <label class="control-label col-md-1 col-md-offset-2">规则内容:</label>
+				  <div class="col-md-2" id="rule_content_div">
+					  <input id="rule_content" name="content" type="text" class="form-control"/>
+				  </div>
+##				  <div class="col-md-2">
+##					  <select name="content" id="rule_content" multiple="multiple"></select>
+##				  </div>
+			  </div>
+			  <div class="row">
+				  <label class="control-label col-md-1 col-md-offset-2">备注内容:</label>
+				  <div class="col-md-2">
+					  <input id="memo" name="memo" type="text" class="form-control"/>
+				  </div>
+			  </div>
+			  <div class="row">
+				  <div class="col-md-2 col-md-offset-2">
+					  <input id="save" type="button" value="保    存" class="btn btn-default btn_c"/>
+				  </div>
+			  </div>
+		  </fieldset>
       </form>
     </div>
   </div>
