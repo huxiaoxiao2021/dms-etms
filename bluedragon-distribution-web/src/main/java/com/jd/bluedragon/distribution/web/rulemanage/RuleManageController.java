@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.web.rulemanage;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.rule.domain.Rule;
 import com.jd.bluedragon.distribution.rule.domain.RuleCondition;
 import com.jd.bluedragon.distribution.rule.domain.RuleEnum;
@@ -69,7 +70,8 @@ public class RuleManageController {
 
 	@Authorization(Constants.DMS_WEB_DEVELOP_RULE_CONFIG_R)
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
-	public String update(Rule rule,Pager pager, Model model){
+    @ResponseBody
+	public InvokeResult<String> update(@RequestBody Rule rule){
 		try{
 			log.info("更新规则-验证必输项");
 			/**验证必输项*/
@@ -82,19 +84,19 @@ public class RuleManageController {
 			rule.setUpdateUser(erpUser == null ? StringUtils.EMPTY : erpUser.getUserName());
 			ruleService.update(rule);
 			log.info("更新规则成功");
-			model.addAttribute("successmsg","规则更新成功，请重新查询");
-			return "ruleManage/rule_list";
+			return new InvokeResult<>();
 		}catch (Exception e) {
-			log.error("查询规则数据失败",e);
-			model.addAttribute("errormsg","规则删除失败：" + e.getMessage());
-			model.addAttribute("rulemanagequeryDto",rule);
-			return "ruleManage/rule_list";
+			log.error("更新规则数据失败",e);
+			InvokeResult result = new InvokeResult();
+			result.error("规则更新失败");
+			return result;
 		}		
 	}
 
 	@Authorization(Constants.DMS_WEB_DEVELOP_RULE_CONFIG_R)
 	@RequestMapping(value = "/del", method = RequestMethod.GET)
-	public String del(Rule rule,Pager pager, Model model){
+    @ResponseBody
+	public InvokeResult del(Rule rule){
 		try{
 			log.info("删除规则-验证主键");
 			/**验证主键*/
@@ -102,18 +104,18 @@ public class RuleManageController {
 			log.info("删除规则-准备调用服务进行删除 id = {}", rule.getRuleId());
 			ruleService.del(rule.getRuleId());
 			log.info("规则删除成功");
-			model.addAttribute("successmsg","规则删除成功，请重新查询");
 		}catch (Exception e) {
-			log.error("规则删除失败",e);
-			model.addAttribute("errormsg","规则删除失败：" + e.getMessage());
+			log.error("规则删除失败:" + rule.getRuleId(),e);
+			InvokeResult result = new InvokeResult();
+			result.error("规则删除失败");
 		}
-		return "ruleManage/rule_list";
+		return new InvokeResult();
 	}
 
 	@Authorization(Constants.DMS_WEB_DEVELOP_RULE_CONFIG_R)
-	@RequestMapping(value = "/list", method = RequestMethod.POST)
+	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
-	public PagerResult<Rule> list(@RequestBody RuleCondition rule){
+	public PagerResult<Rule> list(RuleCondition rule){
 		log.debug("按条件查询规则页面");
 		PagerResult<Rule> result = new PagerResult<>();
 
@@ -137,7 +139,8 @@ public class RuleManageController {
 
 	@Authorization(Constants.DMS_WEB_DEVELOP_RULE_CONFIG_R)
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
-	public String add(Rule rule,Pager pager, Model model) {
+    @ResponseBody
+	public InvokeResult add(@RequestBody Rule rule) {
 		try{
 			log.info("增加规则-验证必输项");
 			checkRule(rule);
@@ -148,12 +151,13 @@ public class RuleManageController {
 			rule.setUpdateUser(userName);
 			ruleService.add(rule);
 			log.info("规则增加成功");
-			model.addAttribute("successmsg","规则增加成功，请重新查询");
+			return new InvokeResult();
 		}catch (Exception e) {
 			log.error("规则增加失败",e);
-			model.addAttribute("errormsg","规则增加失败：" + e.getMessage());
+			InvokeResult result = new InvokeResult();
+			result.error("增加分拣规则成功");
+			return result;
 		}
-		return "ruleManage/rule_list";
 	}
 
 	@Authorization(Constants.DMS_WEB_DEVELOP_RULE_CONFIG_R)
@@ -223,7 +227,7 @@ public class RuleManageController {
 		}
 		try {
 			Class objClass = obj.getClass();
-			Method[] methods = objClass.getDeclaredMethods();
+			Method[] methods = objClass.getMethods();
 			for (Method method : methods) {
 				String methodName = method.getName();
 				if (methodName.startsWith("get")) {

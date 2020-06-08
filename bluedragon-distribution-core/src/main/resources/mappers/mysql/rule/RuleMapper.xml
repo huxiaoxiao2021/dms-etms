@@ -60,7 +60,7 @@
             AND rule_type = #{type}
         </if>
         ORDER BY site_code, rule_type
-        LIMIT #{startIndex, jdbcType=INTEGER},#{pageSize, jdbcType=INTEGER}
+        LIMIT #{offset, jdbcType=INTEGER},#{limit, jdbcType=INTEGER}
     </select>
 
     <select id="queryAllSize" resultType="java.lang.Integer" parameterType="java.util.Map">

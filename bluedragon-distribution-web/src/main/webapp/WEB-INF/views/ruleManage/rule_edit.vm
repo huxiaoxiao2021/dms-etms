@@ -1,14 +1,12 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta http-equiv="content-type" content="text/html; charset=UTF-8">
-<title>规则管理UI</title>
-<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
-<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
-<script type="text/javascript" src="#springUrl('/static/js/jquery-1.js')"></script>
-<SCRIPT type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></SCRIPT>
-<script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
-<script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+	<meta charset="UTF-8">
+	<title>规则管理UI</title>
+	<meta http-equiv="pragma" content="no-cache" />
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="expires" content="0">
+	#parse("system/common/baseImport.vm")
 </head>
 <script type="text/javascript">
 $(document).ready(function() {
@@ -23,17 +21,24 @@ $(document).ready(function() {
 	}
 	// 提交查询
 	$("#update").click(function() {
-		$("#updateRule").attr("action", '#springUrl("/ruleManage/update")');
-		$("#updateRule").attr("method", "POST");
-		$("#updateRule").submit();
+		$.ajaxHelper.doPostAsync('#springUrl("/ruleManage/update")',JSON.stringify($.formHelper.serialize("updateRule")),function (res) {
+			if (res == null || res.code != 200) {
+				$.msg.error("失败", "修改分拣规则失败");
+			} else {
+				$.msg.ok("成功", "修改分拣规则成功", function () {
+					parent.layer.close(parent.layer.getFrameIndex('modifyInfoFrame'));
+				});
+			}
+		})
 	});
 });
 </script>
 
 <body>
-<div id="breadcrumb">
-  <p><a href="#springUrl('/ruleManage/list')">基础资料管理</a>&nbsp;&gt;&nbsp;<a href="#springUrl('/ruleManage/list')">规则管理UI</a></p>
-</div>
+<ol class="breadcrumb">
+	<li class="active">基础资料管理</li>
+	<li class="active">规则管理UI</li>
+</ol>
 <!--[if !ie]>breadcrumb<![endif]-->
 <div id="content">
   <div style="color:red;"> $!errormsg $!successmsg</div>
@@ -42,47 +47,49 @@ $(document).ready(function() {
 	  #if("$!rulemanagequeryDto" == "")
 		没有匹配数据
 	  #else
-      <form id="updateRule" name="updateRule" action="#springUrl('/ruleManage/update')" method="POST">
-		<input type="hidden" id="ruleId" name="ruleId" />
-        <table border="0" cellpadding="0" cellspacing="0">
-          <tbody>
-			<tr>
-				<th align="right">站点编码：</th>
-				<td>
-					<input id="siteCode" name="siteCode" type="text" class="textField28"/>
-    			</td>
-			</tr>
-			<tr>
-				<th align="right">包含关系：</th>
-				<td>
-					<input id="inOut" name="inOut" type="text" class="textField28"/>
-				</td>
-			</tr>
-			<tr>
-				<th align="right">规则内容：</th>
-				<td>
-					<input id="rule_content" name="content" type="text" class="textField28"/>
-				</td>
-			</tr>
-			<tr>
-				<th align="right">规则类型：</th>
-				<td>
-					<input id="type" name="type" type="text" class="textField28"/>
-				</td>
-			</tr>
-			<tr>
-				<th align="right">备注内容：</th>
-				<td>
-					<input id="memo" name="memo" type="text" class="textField28"/>
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<input id="update" type="button" value="更新" class="btn_c"/>
-				</td>
-            </tr>
-          </tbody>
-        </table>
+      <form id="updateRule" name="updateRule">
+		  <fieldset>
+			  <input type="hidden" id="ruleId" name="ruleId" />
+			  <div class="row">
+				  <label class="control-label col-md-2 col-md-offset-1">站点编码:</label>
+				  <div class="col-md-4">
+					  <input id="siteCode" name="siteCode" type="text" class="form-control" readonly/>
+				  </div>
+			  </div>
+			  <div class="row">
+				  <label class="control-label col-md-2 col-md-offset-1">包含关系:</label>
+				  <div class="col-md-4">
+					  <input id="inOut" name="inOut" list="inOutList" type="text" class="form-control"/>
+					  <datalist id="inOutList">
+						  <option value="IN">IN</option>
+						  <option value="OUT">OUT</option>
+					  </datalist>
+				  </div>
+			  </div>
+			  <div class="row">
+				  <label class="control-label col-md-2 col-md-offset-1">规则类型:</label>
+				  <div class="col-md-4">
+					  <input id="type" name="type" type="text" class="form-control" readonly/>
+				  </div>
+			  </div>
+			  <div class="row">
+				  <label class="control-label col-md-2 col-md-offset-1">规则内容:</label>
+				  <div class="col-md-4" id="rule_content_div">
+					  <input id="rule_content" name="content" type="text" class="form-control"/>
+				  </div>
+			  </div>
+			  <div class="row">
+				  <label class="control-label col-md-2 col-md-offset-1">备注内容:</label>
+				  <div class="col-md-4">
+					  <input id="memo" name="memo" type="text" class="form-control"/>
+				  </div>
+			  </div>
+			  <div class="row">
+				  <div class="col-md-2 col-md-offset-1">
+					  <input id="update" type="button" value="更    新" class="btn btn-default btn_c"/>
+				  </div>
+			  </div>
+		  </fieldset>
       </form>
 	  #end
     </div>
