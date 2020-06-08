@@ -187,7 +187,7 @@ public class WaybillConsumableRecordController extends DmsBaseController{
 	public @ResponseBody PagerResult<WaybillConsumableRecord> listData(@RequestBody WaybillConsumableRecordCondition waybillConsumableRecordCondition) {
 		JdResponse<PagerResult<WaybillConsumableRecord>> rest = new JdResponse<PagerResult<WaybillConsumableRecord>>();
 		try {
-			Integer siteCode = getLoginUser().getSiteCode();
+/*			Integer siteCode = getLoginUser().getSiteCode();
 			//如果站点类型非分拣中心，尝试取所属分拣中心
 			if (! Constants.BASE_SITE_DISTRIBUTION_CENTER.equals(getLoginUser().getSiteType())) {
 				BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(siteCode);
@@ -197,11 +197,12 @@ public class WaybillConsumableRecordController extends DmsBaseController{
 					log.warn("调用getBaseSiteInfoBySiteId获取站点所属分拣中心信息为空，siteCode:{}", getLoginUser().getSiteCode());
 				}
 			}
-			waybillConsumableRecordCondition.setDmsId(siteCode);
+			waybillConsumableRecordCondition.setDmsId(siteCode);*/
 			rest.setData(waybillConsumableRecordService.queryByPagerCondition(waybillConsumableRecordCondition));
 
 		} catch (Exception e) {
-			log.error("调用getBaseSiteInfoBySiteId获取站点所属分拣中心信息异常，siteCode:{}", getLoginUser().getSiteCode(),e);
+			//log.error("调用getBaseSiteInfoBySiteId获取站点所属分拣中心信息异常，siteCode:{}", getLoginUser().getSiteCode(),e);
+			log.error("查询包装耗材的信息失败");
 		}
 
 		return rest.getData();

@@ -62,4 +62,13 @@ public class DmsPackingConsumableResource {
 //        }
         return jdResponse;
     }
+
+    @POST
+    @Path("/packing/confirmStatus/{waybillCode}")
+    public JdResponse<Boolean> getPackingConsumableConfirmStatus(@PathParam("waybillCode") String waybillCode) {
+
+        JdResponse jdResponse = dmsPackingConsumableService.getConfirmStatusByWaybillCode(waybillCode);
+
+        return jdResponse;
+    }
 }

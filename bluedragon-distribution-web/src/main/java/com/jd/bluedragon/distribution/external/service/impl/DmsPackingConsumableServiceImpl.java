@@ -2,8 +2,10 @@ package com.jd.bluedragon.distribution.external.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecord;
 import com.jd.bluedragon.distribution.consumable.service.DmsConsumableRelationService;
 import com.jd.bluedragon.distribution.consumable.service.PackingConsumableInfoService;
+import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.external.service.DmsPackingConsumableService;
 import com.jd.bluedragon.distribution.packingconsumable.domain.DmsPackingConsumableInfo;
 import com.jd.bluedragon.distribution.packingconsumable.domain.PackingConsumableBaseInfo;
@@ -35,6 +37,9 @@ public class DmsPackingConsumableServiceImpl implements DmsPackingConsumableServ
 
     @Autowired
     private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    private WaybillConsumableRecordService waybillConsumableRecordService;
 
     @Override
     @JProfiler(jKey = "DMSWEB.DmsPackingConsumableServiceImpl.getPackingConsumableInfoByDmsId", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
@@ -120,6 +125,21 @@ public class DmsPackingConsumableServiceImpl implements DmsPackingConsumableServ
             jdResponse.setMessage("获取耗材信息失败");
         }
 
+        return jdResponse;
+    }
+
+    @Override
+    public JdResponse<Boolean> getConfirmStatusByWaybillCode(String waybillCode) {
+
+        JdResponse<Boolean> jdResponse = new JdResponse<>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
+
+        WaybillConsumableRecord waybillConsumableRecord = waybillConsumableRecordService.queryOneByWaybillCode(waybillCode);
+        if(waybillConsumableRecord != null && waybillConsumableRecord.getId() != null
+                && waybillConsumableRecord.getConfirmStatus() == WaybillConsumableRecordService.UNTREATED_STATE) {
+            jdResponse.setData(false);
+            return jdResponse;
+        }
+        jdResponse.setData(true);
         return jdResponse;
     }
 }
