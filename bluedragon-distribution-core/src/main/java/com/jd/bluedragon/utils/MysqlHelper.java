@@ -105,25 +105,26 @@ public class MysqlHelper {
         int rows = 2000;
         int row = 1;
 
-        ResultSet rs;
+
         try {
             ps = conn.prepareStatement(sql);
-            rs = ps.executeQuery();
-            ResultSetMetaData meta = rs.getMetaData();
-            List<String> nameList = new ArrayList<String>();
-            for (int i = 0; i < meta.getColumnCount(); i++) {
-                nameList.add(meta.getColumnName(i + 1));
-            }
-            while (rs.next()) {
-                if (row > rows) {
-                    break;
+            try(ResultSet rs = ps.executeQuery()){
+                ResultSetMetaData meta = rs.getMetaData();
+                List<String> nameList = new ArrayList<String>();
+                for (int i = 0; i < meta.getColumnCount(); i++) {
+                    nameList.add(meta.getColumnName(i + 1));
                 }
-                LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
-                for (String col : nameList) {
-                    map.put(col, rs.getString(col));
+                while (rs.next()) {
+                    if (row > rows) {
+                        break;
+                    }
+                    LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
+                    for (String col : nameList) {
+                        map.put(col, rs.getString(col));
+                    }
+                    info.add(map);
+                    row++;
                 }
-                info.add(map);
-                row++;
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

@@ -897,10 +897,10 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                         = reportExternalService.getPagerByConditionForWeightVolume(pager);
                 if(nextBaseEntity != null && nextBaseEntity.isSuccess()){
                     response.getData().addAll(nextBaseEntity.getData().getData());
-                }
-                Long total = nextBaseEntity.getData().getTotal()==null?0:nextBaseEntity.getData().getTotal();
-                if(total <= pageNo * EXPORT_THRESHOLD_SIZE){
-                    break;
+                    Long total = nextBaseEntity.getData().getTotal()==null?0:nextBaseEntity.getData().getTotal();
+                    if(total <= pageNo * EXPORT_THRESHOLD_SIZE){
+                        break;
+                    }
                 }
                 pageNo ++;
             }

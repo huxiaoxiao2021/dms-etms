@@ -74,6 +74,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 验货Service
@@ -717,9 +718,9 @@ public class InspectionServiceImpl implements InspectionService {
 			}else if(BusinessUtil.isEdn(waybill.getSendPay(), waybill.getWaybillSign())){
 				BaseStaffSiteOrgDto destinationDmsInfo = siteService.getSite(destinationDmsId);
 				//判断末级分拣中心、企配仓类型
-				if(destinationDmsInfo != null 
-						&& destinationDmsId.equals(dmsSiteCode)
-						&& BusinessUtil.isEdnDmsSite(destinationDmsInfo.getSubType())){
+				if(destinationDmsInfo != null
+						&& Objects.equals(destinationDmsId,dmsSiteCode)
+                        && BusinessUtil.isEdnDmsSite(destinationDmsInfo.getSubType())){
 					hintMessage = "此单为企配仓运单，必须操作暂存上架";
 				}
 			}

@@ -1039,11 +1039,11 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
                 return o2.getPlanOperateTime().compareTo(o1.getPlanOperateTime());
             }
         });
-        for(WaybillRouteLinkCustDetailResp waybillRoute : list){
-            if(siteCode.equals(waybillRoute.getPlanNodeCode())){
-                return waybillRoute.getPlanOperateTime().getTime();
-            }
-        }
+//        for(WaybillRouteLinkCustDetailResp waybillRoute : list){
+//            if(siteCode.equals(waybillRoute.getPlanNodeCode())){
+//                return waybillRoute.getPlanOperateTime().getTime();
+//            }
+//        }
         return 0;
     }
 

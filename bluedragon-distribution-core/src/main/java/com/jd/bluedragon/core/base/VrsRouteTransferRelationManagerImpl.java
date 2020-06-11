@@ -444,7 +444,7 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
         if(commonDto != null && commonDto.getCode() == CommonDto.CODE_SUCCESS){
             return commonDto.getData();
         }else {
-            log.warn("查询路由节点信息失败,异常信息:"+ commonDto==null?"":commonDto.getMessage());
+            log.warn("查询路由节点信息失败,异常信息commonDto[{}]",JsonHelper.toJson(commonDto));
             return null;
         }
     }
