@@ -161,7 +161,7 @@ public class ColdChainOperationServiceImpl implements ColdChainOperationService 
                 return "超时" + timeArray[0] + "小时";
             }
 
-            float minuteFloat = new BigDecimal(minute / 60).setScale(1, BigDecimal.ROUND_HALF_UP).floatValue();
+            float minuteFloat = BigDecimal.valueOf(minute / 60).setScale(1, BigDecimal.ROUND_HALF_UP).floatValue();
             if (minuteFloat == 0) {
                 return "超时" + timeArray[0] + "小时";
             }

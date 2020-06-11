@@ -152,10 +152,14 @@ public class UserServiceImpl implements UserService{
 
 	@JProfiler(jKey = "DMS.BASE.UserServiceImpl.clientLoginIn", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
 	public LoginUserResponse clientLoginIn(LoginRequest request) {
-    	if (null != request) {
-    		request.setLoginVersion((byte)1);
-		}
-    	LoginUserResponse response = this.login(request, LOGIN_TYPE_DMS_CLIENT);
+        LoginUserResponse response = new LoginUserResponse();
+	    if(request == null){
+            response.setCode(JdResponse.CODE_PARAM_ERROR);
+            response.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
+            return response;
+        }
+        request.setLoginVersion((byte)1);
+        response = this.login(request, LOGIN_TYPE_DMS_CLIENT);
 		if (response.getCode().equals(JdResponse.CODE_OK)) {
 			this.bindSite2LoginUser(response);
 		}
@@ -581,7 +585,7 @@ public class UserServiceImpl implements UserService{
 			orgCode = loginUserResponse.getOrgId();
 		}
 		String runningMode = this.getRunningMode(programType, userCode, siteCode, orgCode);
-		if(StringHelper.isNotEmpty(runningMode)){
+		if(loginUserResponse != null && StringHelper.isNotEmpty(runningMode)){
 			loginUserResponse.setRunningMode(runningMode);
 		}
 	}
