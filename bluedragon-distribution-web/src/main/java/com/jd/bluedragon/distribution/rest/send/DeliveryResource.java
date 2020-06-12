@@ -55,6 +55,7 @@ import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -64,6 +65,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 
 import javax.servlet.http.HttpServletRequest;
@@ -145,6 +147,9 @@ public class DeliveryResource {
     @Autowired
     private SendDetailService sendDetailService;
 
+    @Autowired
+    @Qualifier("jimdbCacheService")
+    private CacheService jimdbCacheService;
 
     /**
      * 原包发货【一车一件项目，发货专用】
@@ -428,19 +433,39 @@ public class DeliveryResource {
             return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR,
                     JdResponse.MESSAGE_PARAM_ERROR);
         }
-        DeliveryResponse tDeliveryResponse;
+        DeliveryResponse tDeliveryResponse = null;
 
         Integer opType = request.get(0).getOpType();
         if (KY_DELIVERY.equals(opType)) {
             tDeliveryResponse = this.sendDeliveryInfoForKY(request);
         } else {
             Integer businessType = request.get(0).getBusinessType();
-            if (businessType != null && Constants.BUSSINESS_TYPE_REVERSE == businessType) {
-                // 逆向发货
-                tDeliveryResponse = deliveryService.dellDeliveryMessage(SendBizSourceEnum.REVERSE_SEND, toSendDetailList(request));
-            } else {
-                // 正向老发货
-                tDeliveryResponse = deliveryService.dellDeliveryMessage(SendBizSourceEnum.OLD_PACKAGE_SEND, toSendDetailList(request));
+            //获取批量参数中的批次号
+            String sendCode = request.get(0).getSendCode();
+            String redisKey = businessType + Constants.SEPARATOR_HYPHEN + sendCode;
+
+            try {
+                //查询redis中是否存在key
+                if (jimdbCacheService.exists(redisKey)) {
+                    log.warn("发货任务已提交，批次号：{}", sendCode);
+                    tDeliveryResponse = new DeliveryResponse(DeliveryResponse.CODE_DELIVERY_SEND_CODE_IS_COMMITTED, DeliveryResponse.MESSAGE_DELIVERY_SEND_CODE_IS_COMMITTED);
+                } else {
+                    jimdbCacheService.setEx(redisKey, sendCode, 5 * DateHelper.ONE_MINUTES_MILLI);
+                    if (businessType != null && Constants.BUSSINESS_TYPE_REVERSE == businessType) {
+                        // 逆向发货
+                        tDeliveryResponse = deliveryService.dellDeliveryMessage(SendBizSourceEnum.REVERSE_SEND, toSendDetailList(request));
+                    } else {
+                        // 正向老发货
+                        tDeliveryResponse = deliveryService.dellDeliveryMessage(SendBizSourceEnum.OLD_PACKAGE_SEND, toSendDetailList(request));
+                    }
+
+                    if (! JdResponse.CODE_OK.equals(tDeliveryResponse.getCode())) {
+                        //业务拦截，删除缓存中的key
+                        jimdbCacheService.del(redisKey);
+                    }
+                }
+            } catch (Exception e) {
+                log.error("老发货执行失败，请求：{}", JsonHelper.toJson(request), e);
             }
         }
         this.log.debug("结束写入发货信息");
