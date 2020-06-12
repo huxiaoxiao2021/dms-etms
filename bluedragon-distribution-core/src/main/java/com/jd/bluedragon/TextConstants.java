@@ -175,4 +175,8 @@ public class TextConstants {
      * 运输模式‘特快送 同城’
      */
     public static final String EXPRESS_DELIVERY_SAME_CITY = "特快送 同城";
+    /**
+     * 无人车配送标识-车
+     */
+    public static final String WRCPS_FLAG = "车";
 }

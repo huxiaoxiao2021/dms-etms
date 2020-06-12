@@ -1546,4 +1546,13 @@ public class BusinessUtil {
     public static boolean isLetterExpress(String waybillSign) {
         return isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_B);
     }
+    /**
+     * 判断是否无人车配送，sendpay第307位=1
+     *
+     * @param sendPay
+     * @return
+     */
+    public static boolean isWrcps(String sendPay) {
+        return isSignChar(sendPay, SendPayConstants.POSITION_307, SendPayConstants.CHAR_307_1);
+    }
 }

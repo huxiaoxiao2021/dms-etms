@@ -72,6 +72,7 @@ public class PromiseWaybillHandler implements Handler<WaybillPrintContext,JdResu
 			Integer targetSiteCode) {
 		Waybill waybillData = context.getBigWaybillDto().getWaybill();
 		String waybillSign = waybillData.getWaybillSign();
+		String sendPay = waybillData.getSendPay();
         // 外单多时效打标
         if(StringHelper.isNotEmpty(waybillSign) && waybillSign.length() > 15) {
             if(waybillSign.charAt(15)=='0')
@@ -171,7 +172,7 @@ public class PromiseWaybillHandler implements Handler<WaybillPrintContext,JdResu
         }catch (Exception e){
             log.error("外单调用promise接口异常:{}" , basePrintWaybill.getWaybillCode(),e);
         }
-        this.dealJZD(waybillSign, waybillData, basePrintWaybill);
+        this.dealJZD(sendPay,waybillSign, waybillData, basePrintWaybill);
     }
 	/**
 	 * 处理sop京准达时效信息
@@ -179,9 +180,10 @@ public class PromiseWaybillHandler implements Handler<WaybillPrintContext,JdResu
 	 * @param waybillData
 	 * @param basePrintWaybill
 	 */
-	public void dealJZD(String waybillSign,Waybill waybillData,BasePrintWaybill basePrintWaybill){
+	public void dealJZD(String sendPay,String waybillSign,Waybill waybillData,BasePrintWaybill basePrintWaybill){
         //waybill_sign  第31位等于6时，打印【准】字,预计送达时间字段读取运单系统的预计送达时段,时效显示： 预计送达时段为开始时间+终止时间
-		if(BusinessUtil.isSopJZD(waybillSign)||BusinessUtil.isC2CJZD(waybillSign)){
+		if(BusinessUtil.isSopJZD(waybillSign)||BusinessUtil.isC2CJZD(waybillSign)
+				||BusinessUtil.isWrcps(sendPay)){
 			//promiseText临时变量
 			String promiseText = null;
 			String startTimeStr = null;
