@@ -1101,4 +1101,9 @@ public class Constants {
      * */
     public static final String SYS_DMS = "dms.etms";
 
+    /**
+     * businessType缓存前缀
+     * */
+    public static final String BUSINESS_TYPE_PREFIX = "BUSINESS-TYPE";
+
 }

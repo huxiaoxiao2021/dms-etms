@@ -435,14 +435,16 @@ public class DeliveryResource {
         }
         DeliveryResponse tDeliveryResponse = null;
 
-        Integer opType = request.get(0).getOpType();
+        DeliveryRequest deliveryRequest = request.get(0);
+        Integer opType = deliveryRequest.getOpType();
         if (KY_DELIVERY.equals(opType)) {
             tDeliveryResponse = this.sendDeliveryInfoForKY(request);
         } else {
-            Integer businessType = request.get(0).getBusinessType();
+
+            Integer businessType = deliveryRequest.getBusinessType();
             //获取批量参数中的批次号
-            String sendCode = request.get(0).getSendCode();
-            String redisKey = businessType + Constants.SEPARATOR_HYPHEN + sendCode;
+            String sendCode = deliveryRequest.getSendCode();
+            String redisKey = Constants.BUSINESS_TYPE_PREFIX + Constants.SEPARATOR_HYPHEN + businessType + Constants.SEPARATOR_HYPHEN + sendCode;
 
             try {
                 //查询redis中是否存在key
