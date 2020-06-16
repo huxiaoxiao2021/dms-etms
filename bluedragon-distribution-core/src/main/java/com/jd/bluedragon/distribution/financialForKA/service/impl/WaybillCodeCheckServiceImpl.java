@@ -11,19 +11,24 @@ import com.jd.bluedragon.distribution.financialForKA.domain.KaCodeCheckCondition
 import com.jd.bluedragon.distribution.financialForKA.domain.WaybillCodeCheckCondition;
 import com.jd.bluedragon.distribution.financialForKA.domain.WaybillCodeCheckDto;
 import com.jd.bluedragon.distribution.financialForKA.service.WaybillCodeCheckService;
+import com.jd.bluedragon.distribution.financialForKA.service.thread.ExportWaybillCodeCheckCallable;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.base.PageResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Future;
 
 /**
  * 单号校验服务实现
@@ -55,6 +60,9 @@ public class WaybillCodeCheckServiceImpl implements WaybillCodeCheckService {
     @Autowired
     private WaybillCodeCheckDao waybillCodeCheckDao;
 
+    @Autowired
+    private ThreadPoolTaskExecutor executor;
+
 
     /**
      * 根据条件查询
@@ -83,37 +91,47 @@ public class WaybillCodeCheckServiceImpl implements WaybillCodeCheckService {
     @Override
     public List<List<Object>> getExportData(KaCodeCheckCondition condition) {
         List<List<Object>> resList = new ArrayList<List<Object>>();
-        List<Object> heads = new ArrayList<Object>();
-        //添加表头
-        heads.add("运单号");
-        heads.add("比较单号");
-        heads.add("商家编码");
-        heads.add("商家名称");
-        heads.add("操作站点");
-        heads.add("操作站点名称");
-        heads.add("校验结果");
-        heads.add("操作人ERP");
-        heads.add("操作时间");
-        resList.add(heads);
-        condition.setLimit(exportMaxNum!=null?exportMaxNum:EXPORT_MAX_NUM);
-        List<WaybillCodeCheckDto> dataList = waybillCodeCheckDao.exportByCondition(condition);
-        if(dataList != null && dataList.size() > 0){
-            //表格信息
-            for(WaybillCodeCheckDto detail : dataList){
-                List<Object> body = Lists.newArrayList();
-                body.add(detail.getWaybillCode());
-                body.add(detail.getCompareCode());
-                body.add(detail.getBusiCode());
-                body.add(detail.getBusiName());
-                body.add(detail.getOperateSiteCode());
-                body.add(detail.getOperateSiteName());
-                body.add(detail.getCheckResult()==null?FAIL_RESULT:(detail.getCheckResult()==SUCCESS_RESULT_NUM?SUCCESS_RESULT:FAIL_RESULT));
-                body.add(detail.getOperateErp());
-                body.add(detail.getOperateTime() == null ? null : DateHelper.formatDate(detail.getCreateTime(), Constants.DATE_TIME_FORMAT));
-                resList.add(body);
-            }
-        }
+        condition.setLimit(1);
+        Integer count = waybillCodeCheckDao.queryCountByCondition(condition);
+        Integer pageCount=count/condition.getLimit()+(count%condition.getLimit()==0?0:1);
+        long beginTime= System.currentTimeMillis();
+        log.info("读取数据库开始，执行时间：{}",beginTime);
+        List<Future> futures = new ArrayList<>();
+        for(Integer i=0;i<pageCount;i++) {
+            condition.setOffset(condition.getLimit()*i);
+            ExportWaybillCodeCheckCallable exportWaybillCodeCheckCallable=new ExportWaybillCodeCheckCallable(condition,waybillCodeCheckDao);
+            Future<List<List<Object>>> future =executor.submit(exportWaybillCodeCheckCallable);
+            futures.add(future);
+       }
+       try {
+           for(Future future : futures) {
+               resList.addAll((List<List<Object>>) future.get());
+           }
+       }catch (Exception ex){
+           log.error("读取数据库异常",ex);
+       }
+        log.info("读取数据库结束，用时：{}",System.currentTimeMillis()-beginTime);
         return  resList;
+    }
+
+    private void getWaybillCodeCheckDTOList(KaCodeCheckCondition condition, List<List<Object>> resList) {
+            List<WaybillCodeCheckDto> dataList = waybillCodeCheckDao.exportByCondition(condition);
+            if(dataList != null && dataList.size() > 0) {
+                //表格信息
+                for(WaybillCodeCheckDto detail : dataList) {
+                    List<Object> body = Lists.newArrayList();
+                    body.add(detail.getWaybillCode());
+                    body.add(detail.getCompareCode());
+                    body.add(detail.getBusiCode());
+                    body.add(detail.getBusiName());
+                    body.add(detail.getOperateSiteCode());
+                    body.add(detail.getOperateSiteName());
+                    body.add(detail.getCheckResult() == null ? FAIL_RESULT : (detail.getCheckResult() == SUCCESS_RESULT_NUM ? SUCCESS_RESULT : FAIL_RESULT));
+                    body.add(detail.getOperateErp());
+                    body.add(detail.getOperateTime() == null ? null : DateHelper.formatDate(detail.getCreateTime(), Constants.DATE_TIME_FORMAT));
+                    resList.add(body);
+                }
+            }
     }
 
     /**
