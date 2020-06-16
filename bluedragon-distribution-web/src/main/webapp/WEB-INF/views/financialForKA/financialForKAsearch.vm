@@ -25,7 +25,7 @@
                                 <div class="form-group">
                                     <label class="control-label col-xs-4 ">操作时间 ：</label>
                                     <div class=" col-xs-6">
-                                        <input type="text" id="startTime" name="startTime"  readonly="readonly" class="form-control search-param ">
+                                        <input type="text" id="startTime" name="startTime" class="form-control search-param ">
                                     </div>
                                 </div>
                             </div>

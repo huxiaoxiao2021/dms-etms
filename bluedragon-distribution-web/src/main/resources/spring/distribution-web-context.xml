@@ -63,4 +63,5 @@
 	<import resource="classpath:spring/distribution-web-special-jsf.xml"/>
 	
 	<import resource="classpath:spring/distribution-web-gateway-jsf-server.xml"/>
+	<import resource="classpath:spring/distribution-web-threadPool.xml"/>
 </beans>

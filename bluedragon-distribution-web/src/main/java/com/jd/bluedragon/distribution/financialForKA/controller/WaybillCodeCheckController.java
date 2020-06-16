@@ -9,8 +9,11 @@ import com.jd.bluedragon.distribution.financialForKA.domain.WaybillCodeCheckCond
 import com.jd.bluedragon.distribution.financialForKA.domain.WaybillCodeCheckDto;
 import com.jd.bluedragon.distribution.financialForKA.service.WaybillCodeCheckService;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
+import com.jd.bluedragon.distribution.web.view.ExcelWriter;
+import com.jd.bluedragon.distribution.web.view.MutiSheetExcelView;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +25,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @ClassName: WaybillCodeCheckController
@@ -36,7 +43,19 @@ import java.util.List;
 public class WaybillCodeCheckController extends DmsBaseController {
 
     private static final Logger log = LoggerFactory.getLogger(WaybillCodeCheckController.class);
-
+    public static List<Object> heads = new ArrayList<Object>();
+    static {
+    //添加表头
+        heads.add("运单号");
+        heads.add("比较单号");
+        heads.add("商家编码");
+        heads.add("商家名称");
+        heads.add("操作站点");
+        heads.add("操作站点名称");
+        heads.add("校验结果");
+        heads.add("操作人ERP");
+        heads.add("操作时间");
+    }
     @Autowired
     private WaybillCodeCheckService waybillCodeCheckService;
 
@@ -110,7 +129,8 @@ public class WaybillCodeCheckController extends DmsBaseController {
             resultList.add(list);
         }
         model.addAttribute("contents", resultList);
-        return new ModelAndView(new DefaultExcelView(), model.asMap());
+        return new ModelAndView(new MutiSheetExcelView(heads), model.asMap());
     }
+
 
 }
