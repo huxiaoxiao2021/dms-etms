@@ -924,7 +924,10 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                         && CollectionUtils.isNotEmpty(nextBaseEntity.getData().getData())){
                     list.addAll(nextBaseEntity.getData().getData());
                 }else {
-                    log.warn("获取重量体积抽检数据第【{}】页数据为空，共【{}】页，JSF方法【getPagerByConditionForWeightVolume】",i,totalPageNum);
+                    log.warn("获取重量体积抽检数据第【{}】页数据为空，共【{}】页，查询条件【{}】",i,totalPageNum,JsonHelper.toJson(pager));
+                    response.setCode(BaseEntity.CODE_SERVICE_ERROR);
+                    response.setMessage("导出数据失败!");
+                    return response;
                 }
             }
             response.setData(list);
