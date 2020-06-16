@@ -204,11 +204,10 @@ public class PromiseWaybillHandler implements Handler<WaybillPrintContext,JdResu
 				}
 			}
 			if(promiseText != null){
-			    if(BusinessUtil.isSopJZD(waybillSign)) {
-                    basePrintWaybill.setPromiseText(promiseText);
-                }
 			    if(BusinessUtil.isC2CJZD(waybillSign)){
                     basePrintWaybill.setPromiseText(TextConstants.TEXT_JZD + promiseText);
+                }else{
+                	basePrintWaybill.setPromiseText(promiseText);
                 }
 			}
 		}
