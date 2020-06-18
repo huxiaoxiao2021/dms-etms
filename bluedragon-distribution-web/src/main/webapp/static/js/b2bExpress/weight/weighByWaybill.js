@@ -458,6 +458,10 @@ function existSubmit(insertParam,removeFailData,removeIndex){
             dataType : 'json',
             async : true,
             success : function(result) {
+                if(result.code == 300){
+                    $.messager.alert(result.message);
+                    flag = true;
+                }
                 if(result.code == 600){
                     $.messager.confirm('请您仔细确认',result.message
                         ,function(confirmFlag){
