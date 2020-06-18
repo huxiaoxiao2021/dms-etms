@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.inspection.response.InspectionResultDto;
+import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecord;
+import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
 import com.jd.bluedragon.distribution.rest.inspection.InspectionResource;
 import com.jd.bluedragon.external.gateway.service.InspectionGatewayService;
@@ -24,9 +26,18 @@ import java.util.Objects;
  */
 public class InspectionGatewayServiceImpl implements InspectionGatewayService {
 
+    /**
+     * 运单是否存在待确认的包装任务
+     * */
+    public static final Integer HINT_CODE = 201;
+    public static final String HINT_MESSAGE = "此运单需要进行包装，包装后请在电脑端确认";
+
     @Autowired
     @Qualifier("inspectionResource")
     private InspectionResource inspectionResource;
+
+    @Autowired
+    private WaybillConsumableRecordService waybillConsumableRecordService;
 
     @Override
     @BusinessLog(sourceSys = 1, bizType = 500, operateType = 50011)
@@ -55,6 +66,34 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
             dto.setTabletrolleyCode(response.getData().getTabletrolleyCode());
             jdCResponse.setData(dto);
         }
+        return jdCResponse;
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.InspectionGatewayServiceImpl.isExistConsumableRecord", jAppName =
+            Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<Boolean> isExistConsumableRecord(String waybillCode) {
+        JdCResponse<Boolean> jdCResponse = new JdCResponse<>();
+        jdCResponse.toSucceed();
+        if (StringUtils.isEmpty(waybillCode)) {
+            jdCResponse.toFail("单号不能为空");
+            return jdCResponse;
+        }
+
+        try {
+            WaybillConsumableRecord waybillConsumableRecord = waybillConsumableRecordService.queryOneByWaybillCode(waybillCode);
+            if (waybillConsumableRecord == null || waybillConsumableRecord.getConfirmStatus() == 1) {
+                jdCResponse.setData(Boolean.FALSE);
+            } else {
+                jdCResponse.setCode(HINT_CODE);
+                jdCResponse.setMessage(HINT_MESSAGE);
+                jdCResponse.setData(Boolean.TRUE);
+            }
+        } catch (Exception e) {
+        jdCResponse.setCode(JdCResponse.CODE_ERROR);
+        jdCResponse.setMessage(JdCResponse.MESSAGE_ERROR);
+    }
+
         return jdCResponse;
     }
 }

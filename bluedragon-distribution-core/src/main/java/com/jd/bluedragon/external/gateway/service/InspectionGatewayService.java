@@ -12,4 +12,7 @@ import com.jd.bluedragon.common.dto.inspection.response.InspectionResultDto;
 public interface InspectionGatewayService {
 
     JdCResponse<InspectionResultDto> getStorageCode(String packageBarOrWaybillCode, Integer siteCode);
+
+    /* 运单是否存在待确认的包装任务 */
+    JdCResponse<Boolean> isExistConsumableRecord (String packageBarOrWaybillCode);
 }
