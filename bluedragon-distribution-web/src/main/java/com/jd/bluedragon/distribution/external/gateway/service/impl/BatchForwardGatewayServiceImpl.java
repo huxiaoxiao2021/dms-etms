@@ -14,6 +14,7 @@ import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.etms.sdk.util.DateUtil;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.Objects;
@@ -56,6 +57,12 @@ public class BatchForwardGatewayServiceImpl implements BatchForwardGatewayServic
     @BusinessLog(sourceSys = 1,bizType = 100,operateType = 1007)
     @JProfiler(jKey = "DMSWEB.BatchForwardGatewayServiceImpl.batchForwardSend",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<String> batchForwardSend(WholeBatchRetransRequest retransRequest) {
+        JdCResponse<String> jdCResponse = new JdCResponse<>();
+        if (retransRequest.getUser().getUserCode()<=0 || StringUtils.isNotBlank(retransRequest.getUser().getUserName()) || retransRequest.getCurrentOperate().getSiteCode()<=0 || StringUtils.isNotBlank(retransRequest.getCurrentOperate().getSiteName())){
+            jdCResponse.toFail("操作人信息和场地信息都不能为空");
+            return jdCResponse;
+        }
+
         BatchForwardRequest request = new BatchForwardRequest();
         request.setOldSendCode(retransRequest.getOldSendCode());
         request.setNewSendCode(retransRequest.getNewSendCode());
@@ -66,7 +73,6 @@ public class BatchForwardGatewayServiceImpl implements BatchForwardGatewayServic
         request.setBusinessType(retransRequest.getBusinessType());
         request.setOperateTime(DateUtil.format(retransRequest.getCurrentOperate().getOperateTime(),DateUtil.FORMAT_DATE_TIME));
         InvokeResult invokeResult = batchForwardResource.batchForwardSend(request);
-        JdCResponse<String> jdCResponse = new JdCResponse<>();
         if(Objects.equals(invokeResult.getCode(), SendResult.CODE_OK)){
             jdCResponse.toSucceed(invokeResult.getMessage());
             return jdCResponse;

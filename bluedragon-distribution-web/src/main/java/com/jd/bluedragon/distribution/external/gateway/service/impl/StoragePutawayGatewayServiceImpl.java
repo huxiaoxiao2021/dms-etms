@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.storageputaway.request.StoragePutawayRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -7,6 +8,9 @@ import com.jd.bluedragon.distribution.rest.storage.StorageResource;
 import com.jd.bluedragon.distribution.storage.domain.PutawayDTO;
 import com.jd.bluedragon.distribution.storage.domain.StorageCheckDto;
 import com.jd.bluedragon.external.gateway.service.StoragePutawayGatewayService;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +34,7 @@ public class StoragePutawayGatewayServiceImpl implements StoragePutawayGatewaySe
      * 获取储位信息
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.StoragePutawayGatewayServiceImpl.getStorageInfo",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<List<String>> getStorageInfo(Integer siteCode) {
 
         JdCResponse<List<String>> jdCResponse = new JdCResponse<>();
@@ -47,6 +52,7 @@ public class StoragePutawayGatewayServiceImpl implements StoragePutawayGatewaySe
      * 校验储位
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.StoragePutawayGatewayServiceImpl.checkStorage",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<Boolean> checkStorage(Integer siteCode, String storageCode) {
 
         JdCResponse<Boolean> jdCResponse = new JdCResponse<>();
@@ -92,6 +98,15 @@ public class StoragePutawayGatewayServiceImpl implements StoragePutawayGatewaySe
     public JdCResponse<Boolean> putaway(StoragePutawayRequest request) {
 
         JdCResponse<Boolean> jdCResponse = new JdCResponse<>();
+        if(request == null){
+            jdCResponse.toFail("入参不能为空");
+            return jdCResponse;
+        }
+
+        if (request.getUser().getUserCode()<=0 || StringUtils.isNotBlank(request.getUser().getUserName()) || request.getCurrentOperate().getSiteCode()<=0 || StringUtils.isNotBlank(request.getCurrentOperate().getSiteName())){
+            jdCResponse.toFail("操作人信息和场地信息都不能为空");
+            return jdCResponse;
+        }
 
         InvokeResult<Boolean> invokeResult = storageResource.putaway(convert(request));
 

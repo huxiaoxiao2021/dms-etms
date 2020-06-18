@@ -21,6 +21,7 @@ import com.jd.ql.basic.util.DateUtil;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -72,6 +73,16 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
         JdCResponse<BatchSingleSendCheckDto> jdResponse = new JdCResponse<>();
         jdResponse.toFail("操作失败请联系IT");
 
+        if(request == null){
+            jdResponse.toFail("入参不能为空");
+            return jdResponse;
+        }
+
+        if (request.getUser().getUserCode()<=0 || StringUtils.isNotBlank(request.getUser().getUserName()) || request.getCurrentOperate().getSiteCode()<=0 || StringUtils.isNotBlank(request.getCurrentOperate().getSiteName())){
+            jdResponse.toFail("操作人信息和场地信息都不能为空");
+            return jdResponse;
+        }
+
         BatchSingleSendCheckDto checkVO = new BatchSingleSendCheckDto();
         //对批次号的处理,map的key为目的站点，值为批次号
         Map<Integer, String> batchCodeMap = dealSendCodes(request.getBatchCodeList());
@@ -100,11 +111,20 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
     @JProfiler(jKey = "DMSWEB.BatchSingleSendServiceImpl.batchSingleSend", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     @BusinessLog(sourceSys = 1,bizType = 100,operateType = 1006)
     public JdCResponse batchSingleSend(BatchSingleSendRequest request) {
+        JdCResponse jdResponse = new JdCResponse<>();
+        if(request == null){
+            jdResponse.toFail("入参不能为空");
+            return jdResponse;
+        }
+
+        if (request.getUser().getUserCode()<=0 || StringUtils.isNotBlank(request.getUser().getUserName()) || request.getCurrentOperate().getSiteCode()<=0 || StringUtils.isNotBlank(request.getCurrentOperate().getSiteName())){
+            jdResponse.toFail("操作人信息和场地信息都不能为空");
+            return jdResponse;
+        }
 
         PackageSendRequest param = convertToPackageSendRequest(request);
         param.setOperateTime(DateUtil.format(request.getCurrentOperate().getOperateTime(), DateUtil.FORMAT_DATE_TIME));
 
-        JdCResponse jdResponse = new JdCResponse<>();
         InvokeResult<SendResult> result = deliveryResource.newPackageSend(param);
 
         if (result.getCode() == InvokeResult.RESULT_SUCCESS_CODE) {
