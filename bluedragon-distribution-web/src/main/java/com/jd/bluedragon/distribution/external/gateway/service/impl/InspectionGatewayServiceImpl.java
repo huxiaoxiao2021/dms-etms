@@ -2,11 +2,15 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.inspection.response.InspectionCheckResultDto;
+import com.jd.bluedragon.common.dto.inspection.response.ConsumableRecordResponseDto;
 import com.jd.bluedragon.common.dto.inspection.response.InspectionResultDto;
+import com.jd.bluedragon.distribution.api.request.HintCheckRequest;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecord;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
 import com.jd.bluedragon.distribution.rest.inspection.InspectionResource;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.InspectionGatewayService;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ql.dms.common.domain.JdResponse;
@@ -29,7 +33,6 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
     /**
      * 运单是否存在待确认的包装任务
      * */
-    public static final Integer HINT_CODE = 201;
     public static final String HINT_MESSAGE = "此运单需要进行包装，包装后请在电脑端确认";
 
     @Autowired
@@ -70,10 +73,11 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
     }
 
     @Override
-    @JProfiler(jKey = "DMSWEB.InspectionGatewayServiceImpl.isExistConsumableRecord", jAppName =
-            Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public JdCResponse<Boolean> isExistConsumableRecord(String waybillCode) {
-        JdCResponse<Boolean> jdCResponse = new JdCResponse<>();
+    @JProfiler(jKey = "DMSWEB.InspectionGatewayServiceImpl.isExistConsumableRecord", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<ConsumableRecordResponseDto> isExistConsumableRecord(String waybillCode) {
+        JdCResponse<ConsumableRecordResponseDto> jdCResponse = new JdCResponse<>();
+        ConsumableRecordResponseDto consumableRecordResponseDto = new ConsumableRecordResponseDto();
+        jdCResponse.setData(consumableRecordResponseDto);
         jdCResponse.toSucceed();
         if (StringUtils.isEmpty(waybillCode)) {
             jdCResponse.toFail("单号不能为空");
@@ -82,12 +86,12 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
 
         try {
             WaybillConsumableRecord waybillConsumableRecord = waybillConsumableRecordService.queryOneByWaybillCode(waybillCode);
+            // 运单不需要包装或者已包装确认，则无需在PDA提示
             if (waybillConsumableRecord == null || waybillConsumableRecord.getConfirmStatus() == 1) {
-                jdCResponse.setData(Boolean.FALSE);
+                consumableRecordResponseDto.setExistConsumableRecord(Boolean.FALSE);
             } else {
-                jdCResponse.setCode(HINT_CODE);
-                jdCResponse.setMessage(HINT_MESSAGE);
-                jdCResponse.setData(Boolean.TRUE);
+                consumableRecordResponseDto.setHintMessage(HINT_MESSAGE);
+                consumableRecordResponseDto.setExistConsumableRecord(Boolean.TRUE);
             }
         } catch (Exception e) {
         jdCResponse.setCode(JdCResponse.CODE_ERROR);
@@ -95,5 +99,35 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
     }
 
         return jdCResponse;
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.InspectionGatewayServiceImpl.hintCheck", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<InspectionCheckResultDto> hintCheck(HintCheckRequest request) {
+
+        JdCResponse<InspectionCheckResultDto> resultDto = new JdCResponse<InspectionCheckResultDto>();
+        resultDto.toSucceed();
+        InspectionCheckResultDto inspectionCheckResultDto = new InspectionCheckResultDto();
+        resultDto.setData(inspectionCheckResultDto);
+
+        JdCResponse<InspectionResultDto> response = this.getStorageCode(request.getPackageCode(), request.getCreateSiteCode());
+        inspectionCheckResultDto.setInspectionResultDto(response.getData());
+        if (!JdCResponse.CODE_SUCCESS.equals(response.getCode())) {
+            resultDto.setCode(response.getCode());
+            resultDto.setMessage(response.getMessage());
+        }
+
+        String waybillCode = request.getPackageCode();
+        if (WaybillUtil.isPackageCode(request.getPackageCode())) {
+            waybillCode = WaybillUtil.getWaybillCode(request.getPackageCode());
+        }
+        JdCResponse<ConsumableRecordResponseDto> jdCResponse = this.isExistConsumableRecord(waybillCode);
+        inspectionCheckResultDto.setConsumableRecordResponseDto(jdCResponse.getData());
+        if (!JdCResponse.CODE_SUCCESS.equals(jdCResponse.getCode())) {
+            resultDto.setCode(response.getCode());
+            resultDto.setMessage(response.getMessage());
+        }
+
+        return resultDto;
     }
 }
