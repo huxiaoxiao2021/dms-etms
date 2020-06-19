@@ -1,32 +1,41 @@
 package com.jd.bluedragon.distribution.financialForKA.controller;
 
+import com.jcloud.jss.domain.StorageObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.exportlog.domain.ExportLog;
+import com.jd.bluedragon.distribution.exportlog.domain.ExportLogCondition;
+import com.jd.bluedragon.distribution.exportlog.service.ExportLogService;
 import com.jd.bluedragon.distribution.financialForKA.domain.KaCodeCheckCondition;
 import com.jd.bluedragon.distribution.financialForKA.domain.WaybillCodeCheckCondition;
 import com.jd.bluedragon.distribution.financialForKA.domain.WaybillCodeCheckDto;
 import com.jd.bluedragon.distribution.financialForKA.service.WaybillCodeCheckService;
+import com.jd.bluedragon.distribution.jss.JssService;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.bluedragon.distribution.web.view.ExcelWriter;
 import com.jd.bluedragon.distribution.web.view.MutiSheetExcelView;
+import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.util.Assert;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,6 +68,13 @@ public class WaybillCodeCheckController extends DmsBaseController {
     @Autowired
     private WaybillCodeCheckService waybillCodeCheckService;
 
+    @Autowired
+    private ExportLogService exportLogService;
+
+    @Autowired
+    private JssService  jssService;
+    @Value("${jss.waybillcheck.export.zip.bucket}")
+    private String bucket;
     /**
      * 返回主页面
      * @return
@@ -106,23 +122,71 @@ public class WaybillCodeCheckController extends DmsBaseController {
     public PagerResult<WaybillCodeCheckDto> listData(@RequestBody KaCodeCheckCondition condition){
         return waybillCodeCheckService.listData(condition);
     }
-
+    /**
+     * 获取导出任务列表
+     * @return
+     */
+    @Authorization(Constants.DMS_WEB_TOOL_WAYBILLCODECHECK_R)
+    @RequestMapping("/exportLogList")
+    @ResponseBody
+    public PagerResult<ExportLog> listData(@RequestBody ExportLogCondition condition){
+        return exportLogService.listData(condition);
+    }
     /**
      * 导出
      * @return
      */
     @Authorization(Constants.DMS_WEB_TOOL_WAYBILLCODECHECK_R)
     @RequestMapping(value = "/toExport", method = RequestMethod.POST)
-    public ModelAndView toExport(KaCodeCheckCondition condition, Model model) {
+    @ResponseBody
+    public InvokeResult toExportNew(KaCodeCheckCondition condition, Model model) {
+        LoginUser loginUser = getLoginUser();
+        InvokeResult invokeResult=new InvokeResult();
+       String result= waybillCodeCheckService.exportApply(loginUser,condition);
+        if(StringUtils.isBlank(result)){
+            invokeResult.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+            invokeResult.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+        }else{
+            invokeResult.setCode(InvokeResult.SERVER_ERROR_CODE);
+            invokeResult.setMessage(result);
+        }
+        return invokeResult;
+    }
 
-        this.log.info("KA条码对比校验操作记录统计表");
+    /**
+     * 下载文件
+     * @param fileName
+     * @param response
+     * @param request
+     */
+    @RequestMapping(value = "/downLoadFile")
+    public void downLoad(@RequestParam("fileName") String fileName, HttpServletResponse response, HttpServletRequest request) {
+        response.setContentType("multipart/form-data");
+        response.setHeader("Content-Disposition", "attachment;filename=" + fileName);
+        try {
+            InputStream inputStream = jssService.downloadFile(bucket,fileName);
+            IOUtils.copy(inputStream, response.getOutputStream());
+        } catch (Exception e) {
+           log.info("下载运单号校验导出记录失败",e);
+        }
+    }
+    /**
+     * 导出
+     * @return
+     */
+    @Authorization(Constants.DMS_WEB_TOOL_WAYBILLCODECHECK_R)
+    @RequestMapping(value = "/toExportOld", method = RequestMethod.POST)
+    @Deprecated
+    public ModelAndView toExportOld(KaCodeCheckCondition condition, Model model) {
+        LoginUser loginUser = getLoginUser();
+        log.info("KA条码对比校验操作记录统计表");
         List<List<Object>> resultList;
         try{
             model.addAttribute("filename", "KA条码对比校验操作记录统计表.xls");
             model.addAttribute("sheetname", "KA条码对比校验操作记录");
             resultList = waybillCodeCheckService.getExportData(condition);
         }catch (Exception e){
-            this.log.error("导出KA条码对比校验操作记录统计表失败:", e);
+            log.error("导出KA条码对比校验操作记录统计表失败:", e);
             List<Object> list = new ArrayList<>();
             list.add("导出KA条码对比校验操作记录统计表失败!");
             resultList = new ArrayList<>();
@@ -131,6 +195,5 @@ public class WaybillCodeCheckController extends DmsBaseController {
         model.addAttribute("contents", resultList);
         return new ModelAndView(new MutiSheetExcelView(heads), model.asMap());
     }
-
 
 }
