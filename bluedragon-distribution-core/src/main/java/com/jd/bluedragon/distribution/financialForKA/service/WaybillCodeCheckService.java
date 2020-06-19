@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.financialForKA.service;
 
+import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.financialForKA.domain.KaCodeCheckCondition;
 import com.jd.bluedragon.distribution.financialForKA.domain.WaybillCodeCheckCondition;
@@ -36,4 +37,12 @@ public interface WaybillCodeCheckService {
      * @return
      */
     InvokeResult waybillCodeCheck(WaybillCodeCheckCondition condition);
+
+    /**
+     * 导出申请
+     * @param loginUser
+     * @param condition
+     * @return
+     */
+     String exportApply(LoginUser loginUser, KaCodeCheckCondition condition);
 }
