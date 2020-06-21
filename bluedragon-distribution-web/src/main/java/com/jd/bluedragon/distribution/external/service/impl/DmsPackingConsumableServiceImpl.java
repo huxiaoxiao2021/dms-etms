@@ -29,6 +29,8 @@ public class DmsPackingConsumableServiceImpl implements DmsPackingConsumableServ
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
+    public static final String MESSAGE = "此运单需要进行包装，包装后请在电脑端确认";
+
     @Autowired
     private DmsConsumableRelationService dmsConsumableRelationService;
 
@@ -133,13 +135,19 @@ public class DmsPackingConsumableServiceImpl implements DmsPackingConsumableServ
 
         JdResponse<Boolean> jdResponse = new JdResponse<>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
 
-        WaybillConsumableRecord waybillConsumableRecord = waybillConsumableRecordService.queryOneByWaybillCode(waybillCode);
-        if(waybillConsumableRecord != null && waybillConsumableRecord.getId() != null
-                && waybillConsumableRecord.getConfirmStatus() == WaybillConsumableRecordService.UNTREATED_STATE) {
-            jdResponse.setData(false);
-            return jdResponse;
+        try {
+            WaybillConsumableRecord waybillConsumableRecord = waybillConsumableRecordService.queryOneByWaybillCode(waybillCode);
+            if(waybillConsumableRecord != null && waybillConsumableRecord.getConfirmStatus() == WaybillConsumableRecordService.UNTREATED_STATE) {
+                jdResponse.setData(Boolean.TRUE);
+                jdResponse.setMessage(MESSAGE);
+                return jdResponse;
+            }
+            jdResponse.setData(Boolean.FALSE);
+        } catch (Exception e) {
+            jdResponse.setCode(JdResponse.CODE_ERROR);
+            jdResponse.setMessage(JdResponse.MESSAGE_ERROR);
         }
-        jdResponse.setData(true);
+
         return jdResponse;
     }
 }
