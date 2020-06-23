@@ -20,6 +20,7 @@
         <result column="distribute_time" property="distributeTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
         <result column="update_user_erp" property="updateUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="update_user_name" property="updateUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="status" property="status" javaType="java.lang.Integer" jdbcType="TINYINT" />
         <result column="operate_time" property="operateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
         <result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
         <result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
@@ -30,7 +31,7 @@
     <sql id="Base_Column_List" >
 		unload_car_id,task_code,start_site_code,start_site_name,end_site_code,end_site_name,
 		seal_time,seal_code,batch_code,railWay_platForm,waybill_num,package_num,unload_user_erp,unload_user_name,
-		distribute_time,update_user_erp,update_user_name,operate_time,create_time,update_time,is_delete
+		distribute_time,update_user_erp,update_user_name,status,operate_time,create_time,update_time,is_delete
 	</sql>
 
     <sql id="Base_Condition_Sql" >
@@ -91,6 +92,9 @@
             </if>
             <if test="updateUserName != null">
                 update_user_name,
+            </if>
+            <if test="status != null">
+                status,
             </if>
             <if test="operateTime != null">
                 operate_time,
@@ -160,8 +164,8 @@
             <if test="updateUserName != null">
                 #{updateUserName,jdbcType=VARCHAR},
             </if>
-            <if test="createTime != null">
-                #{createTime,jdbcType=TIMESTAMP},
+            <if test="status != null">
+                #{status,jdbcType=TINYINT},
             </if>
             <if test="operateTime != null">
                 #{operateTime,jdbcType=TIMESTAMP},

@@ -84,6 +84,11 @@ public class UnloadCar extends DbEntity {
      * 操作时间
      * */
     private Date operateTime;
+    /**
+     * 卸车任务状态
+     * @see UnloadCarStatusEnum
+     * */
+    private Integer status;
 
     public Long getUnloadCarId() {
         return unloadCarId;
@@ -227,5 +232,13 @@ public class UnloadCar extends DbEntity {
 
     public void setOperateTime(Date operateTime) {
         this.operateTime = operateTime;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 }

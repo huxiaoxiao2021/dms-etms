@@ -7,7 +7,7 @@
 		<result column="unload_car_id" property="unloadCarId" javaType="java.lang.Long" jdbcType="BIGINT" />
 		<result column="unload_user_erp" property="unloadUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="unload_user_name" property="unloadUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="unload_user_type" property="unloadUserType" javaType="java.lang.Integer" jdbcType="TinyINT" />
+		<result column="unload_user_type" property="unloadUserType" javaType="java.lang.Integer" jdbcType="TINYINT" />
         <result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
         <result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
