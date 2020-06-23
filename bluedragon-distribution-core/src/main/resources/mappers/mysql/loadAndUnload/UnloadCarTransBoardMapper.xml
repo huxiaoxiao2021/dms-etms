@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarTransBoardDao">
+
+	<resultMap id="unloadCar" type="com.jd.bluedragon.distribution.loadAndUnload.UnloadCarTransBoard" >
+		<id column="unload_board_id" property="unloadBoardId" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="unload_car_id" property="unloadCarId" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="board_code" property="boardCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="package_scan_count" property="packageScanCount" javaType="java.lang.Integer" jdbcType="BIGINT" />
+		<result column="surplus_package_scan_count" property="surplusPackageScanCount" javaType="java.lang.Integer" jdbcType="BIGINT" />
+        <result column="operate_time" property="operateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
+	</resultMap>
+
+
+</mapper>

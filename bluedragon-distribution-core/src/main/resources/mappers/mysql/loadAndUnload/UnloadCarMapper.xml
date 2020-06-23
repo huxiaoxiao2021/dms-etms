@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDao">
+
+	<resultMap id="unloadCar" type="com.jd.bluedragon.distribution.loadAndUnload.UnloadCar" >
+		<id column="unload_car_id" property="unloadCarId" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="task_code" property="taskCode" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="start_site_code" property="startSiteCode" javaType="java.lang.Integer" jdbcType="BIGINT" />
+		<result column="start_site_name" property="startSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="end_site_code" property="endSiteCode" javaType="java.lang.Integer" jdbcType="BIGINT" />
+		<result column="end_site_name" property="endSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="seal_time" property="sealTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="seal_code" property="sealCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="batch_code" property="batchCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="railWay_platForm" property="railWayPlatForm" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="waybill_num" property="waybillNum" javaType="java.lang.Integer" jdbcType="BIGINT" />
+        <result column="package_num" property="packageNum" javaType="java.lang.Integer" jdbcType="BIGINT" />
+        <result column="unload_user_erp" property="unloadUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="unload_user_name" property="unloadUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="distribute_time" property="distributeTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="update_user_erp" property="updateUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="update_user_name" property="updateUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="operate_time" property="operateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
+	</resultMap>
+
+
+</mapper>
