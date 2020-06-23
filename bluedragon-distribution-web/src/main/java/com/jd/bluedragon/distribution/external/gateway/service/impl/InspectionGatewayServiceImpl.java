@@ -92,7 +92,7 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
         }
 
         JdResponse<Boolean> jdResponse = dmsPackingConsumableService.getConfirmStatusByWaybillCode(waybillCode);
-        if (jdCResponse.isSucceed()) {
+        if (jdCResponse.isSucceed() && jdResponse.getData() != null) {
             consumableRecordResponseDto.setExistConsumableRecord(jdResponse.getData());
             consumableRecordResponseDto.setHintMessage(jdResponse.getMessage());
         }
