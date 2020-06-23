@@ -122,7 +122,7 @@ jQuery.extend({
     /******************************/
     datePicker:{
         createNew:function (options) {
-          return  laydate.render(options);
+            laydate.render(options);
         },
         createDefault: function (domId,onChangeFunc) {
             laydate.render({
@@ -139,7 +139,7 @@ jQuery.extend({
         },
         getValue:function(domId){
             return $('#' + domId).val();
-        },
+        }
     },
     /******************************/
     /*表格*/

@@ -68,6 +68,14 @@ public class WaybilCodeCheckExportLogConsumer extends MessageBaseConsumer {
 
     @Value("${jss.waybillcheck.export.zip.bucket}")
     private String bucket;
+
+    /**
+     * 每个csv存储条数
+     */
+    private static final  Integer PER_CSV_NUM = 50000;
+    /**
+     * csv表头
+     */
     public static List<Object> heads = new ArrayList<Object>();
 
     static {
@@ -142,8 +150,8 @@ public class WaybilCodeCheckExportLogConsumer extends MessageBaseConsumer {
      * @throws Exception
      */
     private ByteArrayOutputStream mutiCsvToByteArrayOutputStream(List<List<Object>> exportDataList, String exportCode) throws Exception {
-        Integer perSheetNum = 50000;
-        Integer csvCount = exportDataList.size() / perSheetNum + (exportDataList.size() % perSheetNum == 0 ? 0 : 1);
+
+        Integer csvCount = exportDataList.size() / PER_CSV_NUM + (exportDataList.size() % PER_CSV_NUM == 0 ? 0 : 1);
         InputStream fis = null;
         ZipOutputStream zipOut = null;
         ByteArrayOutputStream bos = null;
@@ -151,8 +159,8 @@ public class WaybilCodeCheckExportLogConsumer extends MessageBaseConsumer {
             bos = new ByteArrayOutputStream();
             zipOut = new ZipOutputStream(bos);
             for(Integer i = 0; i < csvCount; i++) {
-                int startIndex = i * perSheetNum;
-                int endIndex = (i + 1) * perSheetNum;
+                int startIndex = i * PER_CSV_NUM;
+                int endIndex = (i + 1) * PER_CSV_NUM;
                 if(endIndex >= exportDataList.size()) {
                     endIndex = exportDataList.size();
                 }
@@ -191,10 +199,6 @@ public class WaybilCodeCheckExportLogConsumer extends MessageBaseConsumer {
     private void uploadJss(List<List<Object>> exportDataList, String exportCode) throws Exception {
         ByteArrayOutputStream bos = mutiCsvToByteArrayOutputStream(exportDataList, exportCode);
         InputStream inputStream = new ByteArrayInputStream(bos.toByteArray());
-//        boolean hasBucketKey = jssService.hasBucket(bucket);
-//        if(!hasBucketKey) {
-//            jssService.createBucket(bucket);
-//        }
         jssService.uploadFile(bucket, exportCode, bos.toByteArray().length, inputStream);
     }
 
