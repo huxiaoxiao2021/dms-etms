@@ -49,7 +49,7 @@ public abstract class MessageBaseConsumer extends EnvMessageListener {
 	 */
 	protected boolean checkMessage(Message jmqMsg){
         if(jmqMsg == null || null == jmqMsg.getText() || "".equals(jmqMsg.getText()) ){
-        	this.log.warn("[{}-{}]:消息体为空！",jmqMsg.getTopic(),jmqMsg.getBusinessId());
+        	this.log.warn("[{}]:消息体为空！", com.jd.bluedragon.utils.JsonHelper.toJson(jmqMsg));
             return false;
         }
 		return true;

@@ -98,6 +98,9 @@ public class DeliveryResponse extends JdResponse {
     public static final Integer CODE_DELIVERY_ALL_PROCESSING = 30010;
     public static final String MESSAGE_DELIVERY_ALL_PROCESSING = "操作的所有单号正在发货处理中，请等待处理完成后再查看或操作";
 
+    public static final Integer CODE_DELIVERY_SEND_CODE_IS_COMMITTED = 30011;
+    public static final String MESSAGE_DELIVERY_SEND_CODE_IS_COMMITTED = "该批次的发货操作已提交，请勿重复操作";
+
     public static final Integer CODE_SCHEDULE_INCOMPLETE = 30007;
     public static final String MESSAGE_SCHEDULE_PACKAGE_INCOMPLETE = "包裹不齐是否强制发货？";
     public static final String MESSAGE_SCHEDULE_WAYBILL_INCOMPLETE = "运单不齐是否强制发货？";
