@@ -136,6 +136,10 @@ public class TextConstants {
      */
     public static final String TEXT_JZD="京准达";
     /**
+     * 京准达字符-‘京准达’
+     */
+    public static final String PROMISE_TEXT_FORMAT="预计%s送达";
+    /**
      * KA标识
      */
     public static final String KA_FLAG = "KA";

@@ -153,9 +153,14 @@ public class WrcpsPrintTestCase {
 				context.getBigWaybillDto().getWaybill().setRequireTime(DateHelper.parseAllFormatDateTime("2019-09-11 23:10:56.456"));
 				promiseWaybillHandler.dealJZD(sendPays[i], "", context.getBigWaybillDto().getWaybill(), context.getBasePrintWaybill());
 				//时效显示验证
-				boolean hasPromise = ("2019-09-10 09:10-2019-09-11 23:10".equals(context.getBasePrintWaybill().getPromiseText()));
+				String promiseTextResult = "2019-09-10 09:10-2019-09-11 23:10";
+				boolean hasPromise = (promiseTextResult.equals(context.getBasePrintWaybill().getPromiseText()));
 				Assert.assertEquals(hasPromise,isWrcps);
-				
+				//时效显示验证1
+				boolean hasPromise1 = (context.getBasePrintWaybill().getPromiseTextC()!=null 
+						&& context.getBasePrintWaybill().getPromiseTextC().contains(promiseTextResult));
+				Assert.assertEquals(hasPromise1,isWrcps);
+						
 				String targetAdress = "测试自提点地址"+i;
 				context.getBasePrintWaybill().setPrintAddress(null);
 				BaseEntity<BigWaybillDto> waybillReturn =new BaseEntity<BigWaybillDto>();
