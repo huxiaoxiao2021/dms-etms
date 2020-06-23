@@ -47,9 +47,18 @@
 	<if test="createUser != null">
 		AND create_user = #{createUser,jdbcType=VARCHAR}
 	</if>
+		<if test="startTime != null and endTime !=null">
+			and create_time BETWEEN #{startTime} and #{endTime}
+		</if>
+		<if test="startTime != null and endTime ==null">
+			and  <![CDATA[   create_time >= #{startTime}  ]]>
+		</if>
+		<if test="startTime == null and endTime !=null">
+			and  <![CDATA[   create_time <= #{endTime}  ]]>
+		</if>
 	</where>
 	</sql>
-	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
+	<select id="queryCountByCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
 		SELECT
 		COUNT(1) AS num
 		FROM
@@ -62,10 +71,22 @@
 		<include refid="Base_Column_List"/>
 		FROM
 		dms_export_log
+
 		<include refid="where_condition"/>
 		ORDER BY id DESC
 		LIMIT #{offset,jdbcType=INTEGER}, #{limit,jdbcType=INTEGER}
 	</select>
-
+	<select id="get"  parameterType="java.lang.Long" resultMap="exportLogResult">
+		SELECT
+		<include refid="Base_Column_List"/>
+		FROM
+		dms_export_log
+		where  id=#{id,jdbcType=BIGINT}
+	</select>
+	<update id="deleteById"  parameterType="java.lang.Long">
+        UPDATE dms_export_log
+        SET YN = 0
+        WHERE id = #{id,jdbcType=BIGINT}
+    </update>
 
 </mapper>

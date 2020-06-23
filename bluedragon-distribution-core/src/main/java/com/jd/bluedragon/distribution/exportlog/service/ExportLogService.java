@@ -30,4 +30,10 @@ public interface ExportLogService {
      * @return
      */
      ExportLog findOne(Long id);
+    /**
+     * 更新
+     * @param id
+     * @return
+     */
+    Integer delete(Long  id);
 }

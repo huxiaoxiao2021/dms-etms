@@ -24,6 +24,7 @@ import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.base.PageResult;
+import org.apache.tools.ant.util.DateUtils;
 import org.joda.time.DateTimeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +39,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 单号校验服务实现
@@ -112,11 +114,12 @@ public class WaybillCodeCheckServiceImpl implements WaybillCodeCheckService {
      */
     @Override
     public String exportApply(LoginUser loginUser, KaCodeCheckCondition condition) {
-        String exportCode = loginUser.getUserErp() + DateHelper.formatDate(new Date(), "yyyyMMddHHmm");
+        String exportCode = loginUser.getUserErp() + DateHelper.formatDate(new Date(), "yyyyMMddHHmm")+".zip";
         String repeatExport = jimdbCacheService.get(exportCode);
         if(!StringUtils.isBlank(repeatExport)) {
-            return "导出失败，一分钟之内只能导出一次";
+            return "一分钟内只能导出一次，请稍后再试";
         }
+        jimdbCacheService.setEx(exportCode, DateUtils.format(new Date(), "yyyyMMddHHmm"),1,TimeUnit.MINUTES);
         ExportLog exportLog = new ExportLog();
         exportLog.setExportCode(exportCode);
         exportLog.setCreateUser(loginUser.getUserErp());
@@ -126,6 +129,7 @@ public class WaybillCodeCheckServiceImpl implements WaybillCodeCheckService {
         try {
             waybillCodeCheckMq.send(exportCode, body);
         } catch (JMQException e) {
+            jimdbCacheService.del(exportCode);
             log.error("发送mq失败", e);
             return "导出失败，发送mq异常";
         }
@@ -168,7 +172,7 @@ public class WaybillCodeCheckServiceImpl implements WaybillCodeCheckService {
                 body.add(detail.getOperateSiteName());
                 body.add(detail.getCheckResult() == null ? FAIL_RESULT : (detail.getCheckResult() == SUCCESS_RESULT_NUM ? SUCCESS_RESULT : FAIL_RESULT));
                 body.add(detail.getOperateErp());
-                body.add(detail.getOperateTime() == null ? null : DateHelper.formatDate(detail.getCreateTime(), Constants.DATE_TIME_FORMAT));
+                body.add(detail.getOperateTime() == null ? null : DateHelper.formatDate(detail.getOperateTime(), Constants.DATE_TIME_FORMAT));
                 resList.add(body);
             }
         }
@@ -243,5 +247,15 @@ public class WaybillCodeCheckServiceImpl implements WaybillCodeCheckService {
         dto.setOperateTime(operateTime);
         dto.setUpdateTime(operateTime);
         return dto;
+    }
+    /**
+     * 查询数量
+     * @param condition
+     * @return
+     */
+    @Override
+    public Integer queryCountByCondition(KaCodeCheckCondition condition) {
+        Integer count = waybillCodeCheckDao.queryCountByCondition(condition);
+        return count;
     }
 }
