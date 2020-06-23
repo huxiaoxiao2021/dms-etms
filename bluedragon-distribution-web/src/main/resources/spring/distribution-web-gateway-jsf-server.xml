@@ -175,6 +175,7 @@
 
     <!-- 发布jsf到物流网关 外部公司调用start  -->
     <!-- 运单相关 -->
+    <bean id="waybillGateWayExternalService" class="com.jd.bluedragon.distribution.external.gateway.waybill.WaybillGateWayExternalServiceImpl"/>
     <jsf:provider id="jsfWaybillGateWayExternalService"
                   interface="com.jd.bluedragon.external.gateway.waybill.WaybillGateWayExternalService"
                   alias="${dms.gateway.jsf.alias}"

@@ -24,7 +24,6 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.Date;
 
@@ -33,7 +32,6 @@ import java.util.Date;
  * @author : xumigen
  * @date : 2020/1/2
  */
-@Service("waybillGateWayExternalService")
 public class WaybillGateWayExternalServiceImpl implements WaybillGateWayExternalService {
     private final Logger logger = LoggerFactory.getLogger(WaybillGateWayExternalServiceImpl.class);
 

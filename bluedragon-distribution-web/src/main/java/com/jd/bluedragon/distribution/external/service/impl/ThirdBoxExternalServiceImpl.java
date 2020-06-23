@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.third.service.impl;
+package com.jd.bluedragon.distribution.external.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.Response;
@@ -9,7 +9,6 @@ import com.jd.bluedragon.external.gateway.waybill.WaybillGateWayExternalService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -22,7 +21,6 @@ import java.util.Objects;
 public class ThirdBoxExternalServiceImpl implements ThirdBoxExternalService {
 
     @Autowired
-    @Qualifier("waybillGateWayExternalService")
     private WaybillGateWayExternalService waybillGateWayExternalService;
 
     @Override
