@@ -28,20 +28,19 @@ public class ThirdBoxExternalServiceImpl implements ThirdBoxExternalService {
     public Response<Void> syncWaybillCodeAndBoxCode(WaybillSyncRequest request, String pin) {
         Response<Void> response = new Response<>();
         response.toSucceed("操作成功");
-        WaybillSyncRequest paramSyncRequest = new  WaybillSyncRequest();
         com.jd.bluedragon.external.gateway.dto.request.WaybillSyncRequest gateWayParam =
                 new com.jd.bluedragon.external.gateway.dto.request.WaybillSyncRequest();
-        gateWayParam.setTenantCode(paramSyncRequest.getTenantCode());
-        gateWayParam.setStartSiteCode(paramSyncRequest.getStartSiteCode());
-        gateWayParam.setEndSiteCode(paramSyncRequest.getEndSiteCode());
-        gateWayParam.setOperatorId(paramSyncRequest.getOperatorId());
-        gateWayParam.setOperatorName(paramSyncRequest.getOperatorName());
-        gateWayParam.setOperatorUnitName(paramSyncRequest.getOperatorUnitName());
-        gateWayParam.setOperatorTime(paramSyncRequest.getOperatorTime());
-        gateWayParam.setBoxCode(paramSyncRequest.getBoxCode());
-        gateWayParam.setWaybillCode(paramSyncRequest.getWaybillCode());
-        gateWayParam.setPackageCode(paramSyncRequest.getPackageCode());
-        gateWayParam.setOperationType(paramSyncRequest.getOperationType());
+        gateWayParam.setTenantCode(request.getTenantCode());
+        gateWayParam.setStartSiteCode(request.getStartSiteCode());
+        gateWayParam.setEndSiteCode(request.getEndSiteCode());
+        gateWayParam.setOperatorId(request.getOperatorId());
+        gateWayParam.setOperatorName(request.getOperatorName());
+        gateWayParam.setOperatorUnitName(request.getOperatorUnitName());
+        gateWayParam.setOperatorTime(request.getOperatorTime());
+        gateWayParam.setBoxCode(request.getBoxCode());
+        gateWayParam.setWaybillCode(request.getWaybillCode());
+        gateWayParam.setPackageCode(request.getPackageCode());
+        gateWayParam.setOperationType(request.getOperationType());
         GateWayBaseResponse<Void>  gateWayBaseResponse = waybillGateWayExternalService.syncWaybillCodeAndBoxCode(gateWayParam,pin);
         if(!Objects.equals(gateWayBaseResponse.getResultCode(),GateWayBaseResponse.CODE_SUCCESS)){
             response.toError(gateWayBaseResponse.getMessage());
