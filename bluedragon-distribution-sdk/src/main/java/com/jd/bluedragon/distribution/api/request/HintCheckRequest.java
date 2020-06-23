@@ -1,12 +1,14 @@
 package com.jd.bluedragon.distribution.api.request;
 
-import com.jd.bluedragon.distribution.api.JdRequest;
+import java.io.Serializable;
 
 /**
  * @author lijie
  * @date 2020/6/18 16:07
  */
-public class HintCheckRequest extends JdRequest {
+public class HintCheckRequest implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private String packageCode;
 

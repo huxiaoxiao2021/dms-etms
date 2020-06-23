@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 import com.jd.bluedragon.distribution.api.request.HintCheckRequest;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecord;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
+import com.jd.bluedragon.distribution.external.service.DmsPackingConsumableService;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
 import com.jd.bluedragon.distribution.rest.inspection.InspectionResource;
 import com.jd.ql.dms.common.domain.JdResponse;
@@ -33,11 +34,16 @@ public class InspectionGatewayServiceImplTest {
     @Mock
     private InspectionResource inspectionResource;
 
+    @Mock
+    private DmsPackingConsumableService dmsPackingConsumableService;
+
     private WaybillConsumableRecord record;
 
     private HintCheckRequest request;
 
     private JdResponse<InspectionResult> result;
+
+    private JdResponse<Boolean> response;
 
     @Before
     public void before() {
@@ -52,6 +58,11 @@ public class InspectionGatewayServiceImplTest {
         InspectionResult inspectionResult = new InspectionResult("A999");
         inspectionResult.setHintMessage("请放至库位！");
         when(inspectionResource.getStorageCode(anyString(),anyInt())).thenReturn(result);
+
+        response = new JdResponse<>();
+        response.setData(false);
+        response.setMessage("包装耗材提示");
+        when(dmsPackingConsumableService.getConfirmStatusByWaybillCode(anyString())).thenReturn(response);
     }
 
     @Test
