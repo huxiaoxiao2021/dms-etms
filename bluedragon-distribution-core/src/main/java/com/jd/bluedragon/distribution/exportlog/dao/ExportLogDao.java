@@ -3,7 +3,6 @@ package com.jd.bluedragon.distribution.exportlog.dao;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.exportlog.domain.ExportLog;
 import com.jd.bluedragon.distribution.exportlog.domain.ExportLogCondition;
-import com.jd.bluedragon.distribution.rma.domain.RmaHandoverWaybill;
 
 
 import java.util.List;

@@ -15,7 +15,6 @@ import com.jd.bluedragon.distribution.financialForKA.domain.KaCodeCheckCondition
 import com.jd.bluedragon.distribution.financialForKA.domain.WaybillCodeCheckCondition;
 import com.jd.bluedragon.distribution.financialForKA.domain.WaybillCodeCheckDto;
 import com.jd.bluedragon.distribution.financialForKA.service.WaybillCodeCheckService;
-import com.jd.bluedragon.distribution.financialForKA.service.thread.ExportWaybillCodeCheckCallable;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.fastjson.JSON;
@@ -23,22 +22,17 @@ import com.jd.jmq.common.exception.JMQException;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
-import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.base.PageResult;
 import org.apache.tools.ant.util.DateUtils;
-import org.joda.time.DateTimeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -130,7 +124,7 @@ public class WaybillCodeCheckServiceImpl implements WaybillCodeCheckService {
             waybillCodeCheckMq.send(exportCode, body);
         } catch (JMQException e) {
             jimdbCacheService.del(exportCode);
-            log.error("发送mq失败", e);
+            log.error("发送mq失败,exportCode:{}",exportCode, e);
             return "导出失败，发送mq异常";
         }
         return "";
@@ -145,7 +139,7 @@ public class WaybillCodeCheckServiceImpl implements WaybillCodeCheckService {
     @Override
     public List<List<Object>> getExportData(KaCodeCheckCondition condition) {
         List<List<Object>> resList = new ArrayList<List<Object>>();
-        condition.setLimit(20000);
+        condition.setLimit(50000);
         Integer count = waybillCodeCheckDao.queryCountByCondition(condition);
         Integer pageCount = count / condition.getLimit() + (count % condition.getLimit() == 0 ? 0 : 1);
         long beginTime = System.currentTimeMillis();
@@ -158,7 +152,8 @@ public class WaybillCodeCheckServiceImpl implements WaybillCodeCheckService {
         return resList;
     }
 
-    private void getWaybillCodeCheckDTOList(KaCodeCheckCondition condition, List<List<Object>> resList) {
+    @Override
+    public void getWaybillCodeCheckDTOList(KaCodeCheckCondition condition, List<List<Object>> resList) {
         List<WaybillCodeCheckDto> dataList = waybillCodeCheckDao.exportByCondition(condition);
         if(dataList != null && dataList.size() > 0) {
             //表格信息

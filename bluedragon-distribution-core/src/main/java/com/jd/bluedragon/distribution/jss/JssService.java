@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.jss;
 
 import com.jd.bluedragon.distribution.exception.jss.JssStorageException;
-import com.jd.jss.JingdongStorageService;
+
 
 import java.io.InputStream;
 import java.net.URI;
@@ -81,20 +81,5 @@ public interface JssService {
      */
     String uploadImage(String bucket, byte[] bytes);
 
-    /**
-     * 是否存在bucket
-     *
-     * @param bucket
-     * @return
-     */
-     boolean hasBucket(String bucket);
-
-    /**
-     * 创建bucket
-     *
-     * @param bucket
-     * @return
-     */
-     void createBucket(String bucket);
 
 }

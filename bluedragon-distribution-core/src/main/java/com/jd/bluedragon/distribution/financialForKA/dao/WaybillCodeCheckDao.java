@@ -3,8 +3,7 @@ package com.jd.bluedragon.distribution.financialForKA.dao;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.financialForKA.domain.KaCodeCheckCondition;
 import com.jd.bluedragon.distribution.financialForKA.domain.WaybillCodeCheckDto;
-import com.jd.ql.dms.common.web.mvc.api.PagerCondition;
-import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+
 
 import java.util.List;
 

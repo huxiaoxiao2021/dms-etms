@@ -126,26 +126,4 @@ public class JssServiceImpl implements JssService {
         return null;
     }
 
-    /**
-     * 是否存在bucket
-     *
-     * @param bucket
-     * @return
-     */
-    public boolean hasBucket(String bucket) {
-        JingdongStorageService jss = jssStorageClient.getStorageService();
-        return jss.hasBucket(bucket);
-    }
-
-    /**
-     * 创建bucket
-     *
-     * @param bucket
-     * @return
-     */
-    public void createBucket(String bucket) {
-        JingdongStorageService jss = jssStorageClient.getStorageService();
-        jss.bucket(bucket).create();
-    }
-
 }
