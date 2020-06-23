@@ -89,6 +89,8 @@ public class PackingConsumableConsumer extends MessageBaseConsumer {
             WaybillConsumableRecord waybillConsumableRecord = convert2WaybillConsumableRecord(packingConsumable);
             if (isNeedConfirmConsumable(packingConsumable)) {
                 waybillConsumableRecord.setConfirmStatus(WaybillConsumableRecordService.TREATED_STATE);
+                waybillConsumableRecord.setConfirmUserErp(waybillConsumableRecord.getReceiveUserErp());
+                waybillConsumableRecord.setConfirmUserName(waybillConsumableRecord.getReceiveUserName());
             }
             //新增主表
             waybillConsumableRecordService.saveOrUpdate(waybillConsumableRecord);

@@ -5,18 +5,24 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.inspection.response.InspectionCheckResultDto;
 import com.jd.bluedragon.common.dto.inspection.response.ConsumableRecordResponseDto;
 import com.jd.bluedragon.common.dto.inspection.response.InspectionResultDto;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.request.HintCheckRequest;
-import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecord;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
+import com.jd.bluedragon.distribution.external.service.DmsPackingConsumableService;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
 import com.jd.bluedragon.distribution.rest.inspection.InspectionResource;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.InspectionGatewayService;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -30,17 +36,20 @@ import java.util.Objects;
  */
 public class InspectionGatewayServiceImpl implements InspectionGatewayService {
 
-    /**
-     * 运单是否存在待确认的包装任务
-     * */
-    public static final String HINT_MESSAGE = "此运单需要进行包装，包装后请在电脑端确认";
-
     @Autowired
     @Qualifier("inspectionResource")
     private InspectionResource inspectionResource;
 
     @Autowired
     private WaybillConsumableRecordService waybillConsumableRecordService;
+
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
+
+    @Autowired
+    private DmsPackingConsumableService dmsPackingConsumableService;
+
+    private final static Logger log = LoggerFactory.getLogger(InspectionGatewayServiceImpl.class);
 
     @Override
     @BusinessLog(sourceSys = 1, bizType = 500, operateType = 50011)
@@ -72,8 +81,6 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
         return jdCResponse;
     }
 
-    @Override
-    @JProfiler(jKey = "DMSWEB.InspectionGatewayServiceImpl.isExistConsumableRecord", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<ConsumableRecordResponseDto> isExistConsumableRecord(String waybillCode) {
         JdCResponse<ConsumableRecordResponseDto> jdCResponse = new JdCResponse<>();
         ConsumableRecordResponseDto consumableRecordResponseDto = new ConsumableRecordResponseDto();
@@ -84,19 +91,11 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
             return jdCResponse;
         }
 
-        try {
-            WaybillConsumableRecord waybillConsumableRecord = waybillConsumableRecordService.queryOneByWaybillCode(waybillCode);
-            // 运单不需要包装或者已包装确认，则无需在PDA提示
-            if (waybillConsumableRecord == null || waybillConsumableRecord.getConfirmStatus() == 1) {
-                consumableRecordResponseDto.setExistConsumableRecord(Boolean.FALSE);
-            } else {
-                consumableRecordResponseDto.setHintMessage(HINT_MESSAGE);
-                consumableRecordResponseDto.setExistConsumableRecord(Boolean.TRUE);
-            }
-        } catch (Exception e) {
-        jdCResponse.setCode(JdCResponse.CODE_ERROR);
-        jdCResponse.setMessage(JdCResponse.MESSAGE_ERROR);
-    }
+        JdResponse<Boolean> jdResponse = dmsPackingConsumableService.getConfirmStatusByWaybillCode(waybillCode);
+        if (jdCResponse.isSucceed()) {
+            consumableRecordResponseDto.setExistConsumableRecord(jdResponse.getData());
+            consumableRecordResponseDto.setHintMessage(jdResponse.getMessage());
+        }
 
         return jdCResponse;
     }
@@ -110,23 +109,21 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
         InspectionCheckResultDto inspectionCheckResultDto = new InspectionCheckResultDto();
         resultDto.setData(inspectionCheckResultDto);
 
+        //获取储位号
         JdCResponse<InspectionResultDto> response = this.getStorageCode(request.getPackageCode(), request.getCreateSiteCode());
         inspectionCheckResultDto.setInspectionResultDto(response.getData());
-        if (!JdCResponse.CODE_SUCCESS.equals(response.getCode())) {
-            resultDto.setCode(response.getCode());
-            resultDto.setMessage(response.getMessage());
+        if (!Objects.equals(response.getCode(), JdResponse.CODE_SUCCESS)) {
+            resultDto.toError(response.getMessage());
+            return resultDto;
         }
 
+        //运单是否存在待确认的包装任务
         String waybillCode = request.getPackageCode();
         if (WaybillUtil.isPackageCode(request.getPackageCode())) {
             waybillCode = WaybillUtil.getWaybillCode(request.getPackageCode());
         }
         JdCResponse<ConsumableRecordResponseDto> jdCResponse = this.isExistConsumableRecord(waybillCode);
         inspectionCheckResultDto.setConsumableRecordResponseDto(jdCResponse.getData());
-        if (!JdCResponse.CODE_SUCCESS.equals(jdCResponse.getCode())) {
-            resultDto.setCode(response.getCode());
-            resultDto.setMessage(response.getMessage());
-        }
 
         return resultDto;
     }

@@ -16,8 +16,5 @@ public interface InspectionGatewayService {
 
     JdCResponse<InspectionResultDto> getStorageCode(String packageBarOrWaybillCode, Integer siteCode);
 
-    /* 运单是否存在待确认的包装任务 */
-    JdCResponse<ConsumableRecordResponseDto> isExistConsumableRecord (String packageBarOrWaybillCode);
-
     JdCResponse<InspectionCheckResultDto> hintCheck(HintCheckRequest request);
 }
