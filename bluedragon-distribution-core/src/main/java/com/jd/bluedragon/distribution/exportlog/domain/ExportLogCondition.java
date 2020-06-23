@@ -1,9 +1,11 @@
 package com.jd.bluedragon.distribution.exportlog.domain;
 
+import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
+
 import java.io.Serializable;
 import java.util.Date;
 
-public class ExportLogCondition  implements Serializable {
+public class ExportLogCondition   extends BasePagerCondition {
 	private static final long serialVersionUID = 1L;
 	private Long id;
 	/**
@@ -14,6 +16,15 @@ public class ExportLogCondition  implements Serializable {
      * erp
 	 */
 	private String createUser;
+	/**
+	 * 操作时间
+	 * */
+	private String startTime;
+
+	/**
+	 * 操作时间
+	 * */
+	private String endTime;
 
 	public Long getId() {
 		return id;
@@ -37,5 +48,21 @@ public class ExportLogCondition  implements Serializable {
 
 	public void setCreateUser(String createUser) {
 		this.createUser = createUser;
+	}
+
+	public String getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(String startTime) {
+		this.startTime = startTime;
+	}
+
+	public String getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(String endTime) {
+		this.endTime = endTime;
 	}
 }

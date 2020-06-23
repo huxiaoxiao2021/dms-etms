@@ -25,13 +25,20 @@ public class ExportLogDao extends BaseDao<ExportLog> {
     public int update(ExportLog detail){
         return this.getSqlSession().update(namespace + ".update",detail);
     }
+    /**
+     * 删除
+     * @param id
+     * @return*/
+    public int delete(Long id){
+        return this.getSqlSession().delete(namespace + ".deleteById",id);
+    }
 
     /**
      * 查询
      * @param condition
      * @return*/
     public List<ExportLog> queryByCondition(ExportLogCondition condition){
-        return this.getSqlSession().selectList(namespace + ".queryByCondition",condition);
+        return this.getSqlSession().selectList(namespace + ".queryByPagerCondition",condition);
     }
 
     /**
@@ -50,7 +57,7 @@ public class ExportLogDao extends BaseDao<ExportLog> {
      * @return
      */
     public ExportLog getById(Long id) {
-        return this.get(namespace + ".getById", id);
+        return this.get(namespace, id);
     }
 
 }

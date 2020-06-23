@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedOutputStream;
 import java.io.OutputStream;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -70,7 +71,7 @@ public class MutiSheetExcelView extends AbstractExcelView {
 
         List<List<Object>> contents = (List<List<Object>>) map.get("contents");
         if(contents == null) {
-            throw new RuntimeException("DefaultExcelView Attribute[contents] in Model can't be null! ");
+            throw new RuntimeException("MutiSheetExcelView Attribute[contents] in Model can't be null! ");
         }
         long beginTime = System.currentTimeMillis();
         log.info("写入excel开始，执行时间：{}", beginTime);
@@ -85,8 +86,9 @@ public class MutiSheetExcelView extends AbstractExcelView {
             if(endIndex >= contents.size()) {
                 endIndex = contents.size();
             }
-            List<List<Object>> subContent = contents.subList(startIndex, endIndex);
+            List<List<Object>> subContent=new ArrayList<List<Object>>();
             subContent.add(0, heads);
+            subContent.addAll(contents.subList(startIndex, endIndex));
             exporter.writeSheet(sheetname + (i + 1), subContent);
         }
         log.info("写入excel结束，用时：{}", System.currentTimeMillis() - beginTime);

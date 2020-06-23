@@ -45,4 +45,10 @@ public interface WaybillCodeCheckService {
      * @return
      */
      String exportApply(LoginUser loginUser, KaCodeCheckCondition condition);
+    /**
+     * 查询数量
+     * @param condition
+     * @return
+     */
+    Integer queryCountByCondition(KaCodeCheckCondition condition);
 }
