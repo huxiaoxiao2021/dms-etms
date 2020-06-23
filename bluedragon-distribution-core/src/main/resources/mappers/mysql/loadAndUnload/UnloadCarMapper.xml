@@ -24,7 +24,160 @@
         <result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
         <result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
+        <result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 	</resultMap>
+
+    <sql id="Base_Column_List" >
+		unload_car_id,task_code,start_site_code,start_site_name,end_site_code,end_site_name,
+		seal_time,seal_code,batch_code,railWay_platForm,waybill_num,package_num,unload_user_erp,unload_user_name,
+		distribute_time,update_user_erp,update_user_name,operate_time,create_time,update_time,is_delete
+	</sql>
+
+    <sql id="Base_Condition_Sql" >
+			and is_delete=0
+	</sql>
+
+    <insert id="add" parameterType="com.jd.bluedragon.distribution.loadAndUnload.UnloadCar">
+        insert into unload_car
+        (
+        <trim suffixOverrides=",">
+            <if test="unloadCarId != null">
+                unload_car_id,
+            </if>
+            <if test="taskCode != null">
+                task_code,
+            </if>
+            <if test="startSiteCode != null">
+                start_site_code,
+            </if>
+            <if test="startSiteName != null">
+                start_site_name,
+            </if>
+            <if test="endSiteCode != null">
+                end_site_code,
+            </if>
+            <if test="endSiteName != null">
+                end_site_name,
+            </if>
+            <if test="sealTime != null">
+                seal_time,
+            </if>
+            <if test="sealCode != null">
+                seal_code,
+            </if>
+            <if test="batchCode != null">
+                batch_code,
+            </if>
+            <if test="railWayPlatForm != null">
+                railWay_platForm,
+            </if>
+            <if test="waybillNum != null">
+                waybill_num,
+            </if>
+            <if test="packageNum != null">
+                package_num,
+            </if>
+            <if test="unloadUserErp != null">
+                unload_user_erp,
+            </if>
+            <if test="unloadUserName != null">
+                unload_user_name,
+            </if>
+            <if test="distributeTime != null">
+                distribute_time,
+            </if>
+            <if test="updateUserErp != null">
+                update_user_erp,
+            </if>
+            <if test="updateUserName != null">
+                update_user_name,
+            </if>
+            <if test="operateTime != null">
+                operate_time,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="isDelete != null">
+                is_delete
+            </if>
+        </trim>
+        )
+        values
+        (
+        <trim suffixOverrides=",">
+            <if test="unloadCarId != null">
+                #{unloadCarId,jdbcType=BIGINT},
+            </if>
+            <if test="taskCode != null">
+                #{taskCode,jdbcType=BIGINT},
+            </if>
+            <if test="startSiteCode != null">
+                #{startSiteCode,jdbcType=BIGINT},
+            </if>
+            <if test="startSiteName != null">
+                #{startSiteName,jdbcType=VARCHAR},
+            </if>
+            <if test="endSiteCode != null">
+                #{endSiteCode,jdbcType=BIGINT},
+            </if>
+            <if test="endSiteName != null">
+                #{endSiteName,jdbcType=VARCHAR},
+            </if>
+            <if test="sealTime != null">
+                #{sealTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="sealCode != null">
+                #{sealCode,jdbcType=VARCHAR},
+            </if>
+            <if test="batchCode != null">
+                #{batchCode,jdbcType=VARCHAR},
+            </if>
+            <if test="railWayPlatForm != null">
+                #{railWayPlatForm,jdbcType=VARCHAR},
+            </if>
+            <if test="waybillNum != null">
+                #{waybillNum,jdbcType=BIGINT},
+            </if>
+            <if test="packageNum != null">
+                #{packageNum,jdbcType=BIGINT},
+            </if>
+            <if test="unloadUserErp != null">
+                #{unloadUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="unloadUserName != null">
+                #{unloadUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="distributeTime != null">
+                #{distributeTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateUserErp != null">
+                #{updateUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserName != null">
+                #{updateUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="operateTime != null">
+                #{operateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDelete != null">
+                #{isDelete,jdbcType=TINYINT}
+            </if>
+        </trim>
+        )
+    </insert>
 
 
 </mapper>

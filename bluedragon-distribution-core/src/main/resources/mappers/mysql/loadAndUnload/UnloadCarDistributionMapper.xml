@@ -11,7 +11,77 @@
         <result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
         <result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
+        <result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 	</resultMap>
 
+    <sql id="Base_Column_List" >
+		unload_distribute_id,unload_car_id,unload_user_erp,unload_user_name,
+		unload_user_type,create_time,update_time,is_delete
+	</sql>
+
+    <sql id="Base_Condition_Sql" >
+			and is_delete=0
+	</sql>
+
+    <insert id="add" parameterType="com.jd.bluedragon.distribution.loadAndUnload.UnloadCarDistribution">
+        insert into unload_car_distribute
+        (
+        <trim suffixOverrides=",">
+            <if test="unloadDistributeId != null">
+                unload_distribute_id,
+            </if>
+            <if test="unloadCarId != null">
+                unload_car_id,
+            </if>
+            <if test="unloadUserErp != null">
+                unload_user_erp,
+            </if>
+            <if test="unloadUserName != null">
+                unload_user_name,
+            </if>
+            <if test="unloadUserType != null">
+                unload_user_type,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="isDelete != null">
+                is_delete
+            </if>
+        </trim>
+        )
+        values
+        (
+        <trim suffixOverrides=",">
+            <if test="unloadDistributeId != null">
+                #{unloadDistributeId,jdbcType=BIGINT},
+            </if>
+            <if test="unloadCarId != null">
+                #{unloadCarId,jdbcType=BIGINT},
+            </if>
+            <if test="unloadUserErp != null">
+                #{unloadUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="unloadUserName != null">
+                #{unloadUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="unloadUserType != null">
+                #{unloadUserType,jdbcType=TINYINT},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDelete != null">
+                #{isDelete,jdbcType=TINYINT}
+            </if>
+        </trim>
+        )
+    </insert>
 
 </mapper>
