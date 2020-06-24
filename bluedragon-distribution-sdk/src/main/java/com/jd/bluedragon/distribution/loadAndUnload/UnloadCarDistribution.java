@@ -31,6 +31,10 @@ public class UnloadCarDistribution extends DbEntity {
      *  0：负责人 1：协助人
      * */
     private Integer unloadUserType;
+    /**
+     * 是否有效
+     * */
+    private Integer yn;
 
     public Long getUnloadDistributeId() {
         return unloadDistributeId;
@@ -70,5 +74,13 @@ public class UnloadCarDistribution extends DbEntity {
 
     public void setUnloadUserType(Integer unloadUserType) {
         this.unloadUserType = unloadUserType;
+    }
+
+    public Integer getYn() {
+        return yn;
+    }
+
+    public void setYn(Integer yn) {
+        this.yn = yn;
     }
 }

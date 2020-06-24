@@ -24,18 +24,18 @@
         <result column="operate_time" property="operateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
         <result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
         <result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
-		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
         <result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 	</resultMap>
 
     <sql id="Base_Column_List" >
 		unload_car_id,seal_car_code,start_site_code,start_site_name,end_site_code,end_site_name,
 		seal_time,seal_code,batch_code,railWay_platForm,waybill_num,package_num,unload_user_erp,unload_user_name,
-		distribute_time,update_user_erp,update_user_name,status,operate_time,create_time,update_time,is_delete
+		distribute_time,update_user_erp,update_user_name,status,operate_time,create_time,update_time,yn
 	</sql>
 
     <sql id="Base_Condition_Sql" >
-			and is_delete=0
+			and yn=1
 	</sql>
 
     <insert id="add" parameterType="com.jd.bluedragon.distribution.loadAndUnload.UnloadCar">
@@ -105,8 +105,8 @@
             <if test="updateTime != null">
                 update_time,
             </if>
-            <if test="isDelete != null">
-                is_delete
+            <if test="yn != null">
+                yn
             </if>
         </trim>
         )
@@ -176,8 +176,8 @@
             <if test="updateTime != null">
                 #{updateTime,jdbcType=TIMESTAMP},
             </if>
-            <if test="isDelete != null">
-                #{isDelete,jdbcType=TINYINT}
+            <if test="yn != null">
+                #{yn,jdbcType=TINYINT}
             </if>
         </trim>
         )
@@ -188,8 +188,9 @@
         <include refid="Base_Column_List"/>
         from
         unload_car
-        where 1=1
-        and seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
+        where
+        seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
+        <include refid="Base_Condition_Sql"/>
     </select>
 
 </mapper>

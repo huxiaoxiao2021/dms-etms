@@ -89,6 +89,10 @@ public class UnloadCar extends DbEntity {
      * @see UnloadCarStatusEnum
      * */
     private Integer status;
+    /**
+     * 是否有效
+     * */
+    private Integer yn;
 
     public Long getUnloadCarId() {
         return unloadCarId;
@@ -240,5 +244,13 @@ public class UnloadCar extends DbEntity {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public Integer getYn() {
+        return yn;
+    }
+
+    public void setYn(Integer yn) {
+        this.yn = yn;
     }
 }

@@ -37,6 +37,10 @@ public class UnloadCarTransBoard extends DbEntity {
      * 操作时间
      * */
     private Date operateTime;
+    /**
+     * 是否有效
+     * */
+    private Integer yn;
 
     public Long getUnloadBoardId() {
         return unloadBoardId;
@@ -84,5 +88,13 @@ public class UnloadCarTransBoard extends DbEntity {
 
     public void setOperateTime(Date operateTime) {
         this.operateTime = operateTime;
+    }
+
+    public Integer getYn() {
+        return yn;
+    }
+
+    public void setYn(Integer yn) {
+        this.yn = yn;
     }
 }

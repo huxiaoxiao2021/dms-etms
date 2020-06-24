@@ -10,17 +10,17 @@
 		<result column="unload_user_type" property="unloadUserType" javaType="java.lang.Integer" jdbcType="TINYINT" />
         <result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
         <result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
-		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
         <result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 	</resultMap>
 
     <sql id="Base_Column_List" >
 		unload_distribute_id,seal_car_code,unload_user_erp,unload_user_name,
-		unload_user_type,create_time,update_time,is_delete
+		unload_user_type,create_time,update_time,yn
 	</sql>
 
     <sql id="Base_Condition_Sql" >
-			and is_delete=0
+			and yn=1
 	</sql>
 
     <insert id="add" parameterType="com.jd.bluedragon.distribution.loadAndUnload.UnloadCarDistribution">
@@ -48,8 +48,8 @@
             <if test="updateTime != null">
                 update_time,
             </if>
-            <if test="isDelete != null">
-                is_delete
+            <if test="yn != null">
+                yn
             </if>
         </trim>
         )
@@ -77,8 +77,8 @@
             <if test="updateTime != null">
                 #{updateTime,jdbcType=TIMESTAMP},
             </if>
-            <if test="isDelete != null">
-                #{isDelete,jdbcType=TINYINT}
+            <if test="yn != null">
+                #{yn,jdbcType=TINYINT}
             </if>
         </trim>
         )
