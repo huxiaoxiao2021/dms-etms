@@ -71,6 +71,9 @@ public class WaybilCodeCheckExportLogConsumer extends MessageBaseConsumer {
      * 每个csv存储条数
      */
     private static final Integer PER_CSV_NUM = 50000;
+
+    @Value("${waybillcheck.export.maxNum}")
+    private Integer maxNum;
     /**
      * csv表头
      */
@@ -162,7 +165,7 @@ public class WaybilCodeCheckExportLogConsumer extends MessageBaseConsumer {
             KaCodeCheckCondition condition=new KaCodeCheckCondition();
 
             while(true) {
-                if(offSet>1000000){
+                if(offSet>maxNum){
                     return bos;
                 }
                 List<List<Object>> list = new ArrayList<>();
