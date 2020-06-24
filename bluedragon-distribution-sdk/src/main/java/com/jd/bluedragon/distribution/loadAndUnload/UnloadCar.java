@@ -55,11 +55,11 @@ public class UnloadCar extends DbEntity {
     /**
      * 运单数量
      * */
-    private String waybillNum;
+    private Integer waybillNum;
     /**
      * 包裹数量
      * */
-    private String packageNum;
+    private Integer packageNum;
     /**
      * 卸车人ERP
      * */
@@ -170,19 +170,19 @@ public class UnloadCar extends DbEntity {
         this.railWayPlatForm = railWayPlatForm;
     }
 
-    public String getWaybillNum() {
+    public Integer getWaybillNum() {
         return waybillNum;
     }
 
-    public void setWaybillNum(String waybillNum) {
+    public void setWaybillNum(Integer waybillNum) {
         this.waybillNum = waybillNum;
     }
 
-    public String getPackageNum() {
+    public Integer getPackageNum() {
         return packageNum;
     }
 
-    public void setPackageNum(String packageNum) {
+    public void setPackageNum(Integer packageNum) {
         this.packageNum = packageNum;
     }
 
