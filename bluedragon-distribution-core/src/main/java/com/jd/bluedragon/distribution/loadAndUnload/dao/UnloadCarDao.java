@@ -21,4 +21,7 @@ public class UnloadCarDao extends BaseDao<UnloadCar> {
         return this.getSqlSession().insert(namespace + ".add",detail);
     }
 
+    public UnloadCar selectBySealCarCode(String sealCarCode) {
+        return this.getSqlSession().selectOne(namespace + ".selectBySealCarCode",sealCarCode);
+    }
 }

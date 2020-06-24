@@ -342,5 +342,11 @@
 
         <!-- PDA功能使用白名单 -->
         <mapper resource="mappers/mysql/whiteList/WhiteListMapper.xml" />
+
+        <!-- 装卸车业务 -->
+        <mapper resource="mappers/mysql/loadAndUnload/UnloadCarMapper.xml" />
+        <mapper resource="mappers/mysql/loadAndUnload/UnloadCarDistributionMapper.xml" />
+        <mapper resource="mappers/mysql/loadAndUnload/UnloadCarTransBoardMapper.xml" />
+
     </mappers>
 </configuration>
