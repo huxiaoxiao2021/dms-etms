@@ -7,7 +7,6 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.exportlog.domain.ExportLog;
 import com.jd.bluedragon.distribution.exportlog.domain.ExportLogCondition;
 import com.jd.bluedragon.distribution.exportlog.service.ExportLogService;
-import com.jd.bluedragon.distribution.financialForKA.controller.WaybillCodeCheckController;
 import com.jd.bluedragon.distribution.jss.JssService;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
