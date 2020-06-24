@@ -4,7 +4,7 @@
 
 	<resultMap id="unloadCar" type="com.jd.bluedragon.distribution.loadAndUnload.UnloadCar" >
 		<id column="unload_car_id" property="unloadCarId" javaType="java.lang.Long" jdbcType="BIGINT" />
-		<result column="task_code" property="taskCode" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="seal_car_code" property="sealCarCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="start_site_code" property="startSiteCode" javaType="java.lang.Integer" jdbcType="BIGINT" />
 		<result column="start_site_name" property="startSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="end_site_code" property="endSiteCode" javaType="java.lang.Integer" jdbcType="BIGINT" />
@@ -29,7 +29,7 @@
 	</resultMap>
 
     <sql id="Base_Column_List" >
-		unload_car_id,task_code,start_site_code,start_site_name,end_site_code,end_site_name,
+		unload_car_id,seal_car_code,start_site_code,start_site_name,end_site_code,end_site_name,
 		seal_time,seal_code,batch_code,railWay_platForm,waybill_num,package_num,unload_user_erp,unload_user_name,
 		distribute_time,update_user_erp,update_user_name,status,operate_time,create_time,update_time,is_delete
 	</sql>
@@ -45,8 +45,8 @@
             <if test="unloadCarId != null">
                 unload_car_id,
             </if>
-            <if test="taskCode != null">
-                task_code,
+            <if test="sealCarCode != null">
+                seal_car_code,
             </if>
             <if test="startSiteCode != null">
                 start_site_code,
@@ -116,8 +116,8 @@
             <if test="unloadCarId != null">
                 #{unloadCarId,jdbcType=BIGINT},
             </if>
-            <if test="taskCode != null">
-                #{taskCode,jdbcType=BIGINT},
+            <if test="sealCarCode != null">
+                #{sealCarCode,jdbcType=VARCHAR},
             </if>
             <if test="startSiteCode != null">
                 #{startSiteCode,jdbcType=BIGINT},
