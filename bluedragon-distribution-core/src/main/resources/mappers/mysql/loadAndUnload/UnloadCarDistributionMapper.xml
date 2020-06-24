@@ -4,7 +4,7 @@
 
 	<resultMap id="unloadCar" type="com.jd.bluedragon.distribution.loadAndUnload.UnloadCarDistribution" >
 		<id column="unload_distribute_id" property="unloadDistributeId" javaType="java.lang.Long" jdbcType="BIGINT" />
-		<result column="unload_car_id" property="unloadCarId" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="seal_car_code" property="sealCarCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="unload_user_erp" property="unloadUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="unload_user_name" property="unloadUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="unload_user_type" property="unloadUserType" javaType="java.lang.Integer" jdbcType="TINYINT" />
@@ -15,7 +15,7 @@
 	</resultMap>
 
     <sql id="Base_Column_List" >
-		unload_distribute_id,unload_car_id,unload_user_erp,unload_user_name,
+		unload_distribute_id,seal_car_code,unload_user_erp,unload_user_name,
 		unload_user_type,create_time,update_time,is_delete
 	</sql>
 
@@ -30,8 +30,8 @@
             <if test="unloadDistributeId != null">
                 unload_distribute_id,
             </if>
-            <if test="unloadCarId != null">
-                unload_car_id,
+            <if test="sealCarCode != null">
+                seal_car_code,
             </if>
             <if test="unloadUserErp != null">
                 unload_user_erp,
@@ -59,8 +59,8 @@
             <if test="unloadDistributeId != null">
                 #{unloadDistributeId,jdbcType=BIGINT},
             </if>
-            <if test="unloadCarId != null">
-                #{unloadCarId,jdbcType=BIGINT},
+            <if test="sealCarCode != null">
+                #{sealCarCode,jdbcType=VARCHAR},
             </if>
             <if test="unloadUserErp != null">
                 #{unloadUserErp,jdbcType=VARCHAR},

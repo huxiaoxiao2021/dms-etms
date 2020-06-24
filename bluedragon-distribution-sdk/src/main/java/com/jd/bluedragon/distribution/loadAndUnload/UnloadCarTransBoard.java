@@ -17,9 +17,9 @@ public class UnloadCarTransBoard extends DbEntity {
      * */
     private Long unloadBoardId;
     /**
-     * 卸车任务主键ID
+     * 封车编码
      * */
-    private Long unloadCarId;
+    private String sealCarCode;
     /**
      * 组板号
      * */
@@ -46,12 +46,12 @@ public class UnloadCarTransBoard extends DbEntity {
         this.unloadBoardId = unloadBoardId;
     }
 
-    public Long getUnloadCarId() {
-        return unloadCarId;
+    public String getSealCarCode() {
+        return sealCarCode;
     }
 
-    public void setUnloadCarId(Long unloadCarId) {
-        this.unloadCarId = unloadCarId;
+    public void setSealCarCode(String sealCarCode) {
+        this.sealCarCode = sealCarCode;
     }
 
     public String getBoardCode() {

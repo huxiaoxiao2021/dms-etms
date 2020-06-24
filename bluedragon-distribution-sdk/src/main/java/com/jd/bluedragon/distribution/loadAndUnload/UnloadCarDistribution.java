@@ -15,9 +15,9 @@ public class UnloadCarDistribution extends DbEntity {
      * */
     private Long unloadDistributeId;
     /**
-     * 卸车任务主键ID
+     * 封车编码
      * */
-    private Long unloadCarId;
+    private String sealCarCode;
     /**
      * 卸车人ERP
      * */
@@ -40,12 +40,12 @@ public class UnloadCarDistribution extends DbEntity {
         this.unloadDistributeId = unloadDistributeId;
     }
 
-    public Long getUnloadCarId() {
-        return unloadCarId;
+    public String getSealCarCode() {
+        return sealCarCode;
     }
 
-    public void setUnloadCarId(Long unloadCarId) {
-        this.unloadCarId = unloadCarId;
+    public void setSealCarCode(String sealCarCode) {
+        this.sealCarCode = sealCarCode;
     }
 
     public String getUnloadUserErp() {

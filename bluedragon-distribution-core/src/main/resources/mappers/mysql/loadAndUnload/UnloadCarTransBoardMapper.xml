@@ -4,7 +4,7 @@
 
 	<resultMap id="unloadCar" type="com.jd.bluedragon.distribution.loadAndUnload.UnloadCarTransBoard" >
 		<id column="unload_board_id" property="unloadBoardId" javaType="java.lang.Long" jdbcType="BIGINT" />
-		<result column="unload_car_id" property="unloadCarId" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="seal_car_code" property="sealCarCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="board_code" property="boardCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="package_scan_count" property="packageScanCount" javaType="java.lang.Integer" jdbcType="BIGINT" />
 		<result column="surplus_package_scan_count" property="surplusPackageScanCount" javaType="java.lang.Integer" jdbcType="BIGINT" />
@@ -16,7 +16,7 @@
 	</resultMap>
 
     <sql id="Base_Column_List" >
-		unload_board_id,unload_car_id,board_code,package_scan_count,
+		unload_board_id,seal_car_code,board_code,package_scan_count,
 		surplus_package_scan_count,operate_time,create_time,update_time,is_delete
 	</sql>
 
@@ -31,8 +31,8 @@
             <if test="unloadBoardId != null">
                 unload_board_id,
             </if>
-            <if test="unloadCarId != null">
-                unload_car_id,
+            <if test="sealCarCode != null">
+                seal_car_code,
             </if>
             <if test="boardCode != null">
                 board_code,
@@ -63,8 +63,8 @@
             <if test="unloadBoardId != null">
                 #{unloadBoardId,jdbcType=BIGINT},
             </if>
-            <if test="unloadCarId != null">
-                #{unloadCarId,jdbcType=BIGINT},
+            <if test="sealCarCode != null">
+                #{sealCarCode,jdbcType=VARCHAR},
             </if>
             <if test="boardCode != null">
                 #{boardCode,jdbcType=VARCHAR},
