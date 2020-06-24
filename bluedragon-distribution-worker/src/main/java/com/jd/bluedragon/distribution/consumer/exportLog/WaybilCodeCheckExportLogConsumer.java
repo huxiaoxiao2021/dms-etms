@@ -117,8 +117,8 @@ public class WaybilCodeCheckExportLogConsumer extends MessageBaseConsumer {
             exportLog.setStatus(ExportLogStateEnum.DOING.getValue());
             exportLogService.update(exportLog);
             //List<List<Object>> exportDataList = waybillCodeCheckService.getExportData(kaCodeCheckCondition);
-            //uploadJss(exportDataList, message.getBusinessId());
-            uploadJss(message.getBusinessId(),kaCodeCheckCondition);
+            uploadJss(message.getBusinessId());
+            //uploadJss(message.getBusinessId(),kaCodeCheckCondition);
             ExportLog exportLogSuccess = new ExportLog();
             exportLogSuccess.setExportCode(message.getBusinessId());
             exportLogSuccess.setStatus(ExportLogStateEnum.SUCCESS.getValue());
@@ -146,7 +146,7 @@ public class WaybilCodeCheckExportLogConsumer extends MessageBaseConsumer {
      * @return
      * @throws Exception
      */
-    private <T> ByteArrayOutputStream mutiCsvToByteArrayOutputStream2(String csvFileName, T param, ExcelHelper<T> helper) throws Exception {
+    private <T> ByteArrayOutputStream mutiCsvToByteArrayOutputStream2(String csvFileName) throws Exception {
         InputStream fis = null;
         ZipOutputStream zipOut = null;
         ByteArrayOutputStream bos = null;
@@ -159,8 +159,16 @@ public class WaybilCodeCheckExportLogConsumer extends MessageBaseConsumer {
             //累计内存中导出的条数 ，达到50000条则写入csv并加入zip包
             Integer exportNum = 0;
             Integer offSet = 0;
+            KaCodeCheckCondition condition=new KaCodeCheckCondition();
+
             while(true) {
-                List<List<Object>> list = helper.selectList(param,offSet);
+                if(offSet>1000000){
+                    return bos;
+                }
+                List<List<Object>> list = new ArrayList<>();
+                condition.setOffset(offSet);
+                condition.setLimit(20000);
+                waybillCodeCheckService.getWaybillCodeCheckDTOList(condition, list);
                 if(CollectionUtils.isEmpty(list) && !CollectionUtils.isEmpty(tempList)) {
                     tempList.add(0, heads);
                     String content = buildCsvString(tempList);
@@ -210,7 +218,76 @@ public class WaybilCodeCheckExportLogConsumer extends MessageBaseConsumer {
             }
         }
     }
-
+    /**
+     * 将多个csv转换成ByteArrayOutputStream
+     *
+     * @return
+     * @throws Exception
+     */
+    private <T> ByteArrayOutputStream mutiCsvToByteArrayOutputStream3(String csvFileName, T param, ExcelHelper<T> helper) throws Exception {
+        InputStream fis = null;
+        ZipOutputStream zipOut = null;
+        ByteArrayOutputStream bos = null;
+        try {
+            bos = new ByteArrayOutputStream();
+            zipOut = new ZipOutputStream(bos);
+            //记录csv文件索引
+            int csvIndex = 0;
+            List<List<Object>> tempList = new ArrayList<>();
+            //累计内存中导出的条数 ，达到50000条则写入csv并加入zip包
+            Integer exportNum = 0;
+            Integer offSet = 0;
+            while(true) {
+                List<List<Object>> list = helper.selectList(param,offSet);
+                if(CollectionUtils.isEmpty(list) && !CollectionUtils.isEmpty(tempList)) {
+                    tempList.add(0, heads);
+                    String content = buildCsvString(tempList);
+                    if(!StringUtils.isBlank(content)) {
+                        fis = new ByteArrayInputStream(content.getBytes());
+                        zipFile(fis, zipOut, csvFileName + "-" + (csvIndex + 1) + ".csv");
+                        csvIndex++;
+                    }
+                    return bos;
+                }
+                offSet = offSet + list.size();
+                exportNum = exportNum + list.size();
+                //内存中超过50000则写入csv，不超过50000条继续从数据库拉取
+                if(exportNum >= PER_CSV_NUM) {
+                    List<List<Object>>  subContent=new ArrayList<>();
+                    tempList.addAll(list);
+                    subContent= tempList.subList(0,PER_CSV_NUM);
+                    subContent.add(0,heads);
+                    String content = buildCsvString(subContent);
+                    if(!StringUtils.isBlank(content)) {
+                        fis = new ByteArrayInputStream(content.getBytes());
+                        //50000条生成一个csv文件并写入zip
+                        zipFile(fis, zipOut, csvFileName + "-" + (csvIndex + 1) + ".csv");
+                        csvIndex++;
+                    }
+                    tempList=tempList.subList(PER_CSV_NUM+1,tempList.size());
+                    if(CollectionUtils.isEmpty(tempList)){
+                        exportNum=0;
+                    }else{
+                        exportNum = tempList.size();
+                    }
+                } else {
+                    tempList.addAll(list);
+                }
+            }
+        } catch (IOException e) {
+            throw e;
+        } finally {
+            try {
+                bos.flush();
+                bos.close();
+                fis.close();
+                zipOut.finish();
+                zipOut.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
     /**
      * 将多个csv转换成ByteArrayOutputStream
      *
@@ -262,16 +339,17 @@ public class WaybilCodeCheckExportLogConsumer extends MessageBaseConsumer {
     /**
      * 上传zip到jss云存储
      *
-     * @param exportDataList
+     * @param exportCode
      * @param exportCode
      * @throws Exception
      */
-    private void uploadJss2(List<List<Object>> exportDataList, String exportCode) throws Exception {
-        ByteArrayOutputStream bos = mutiCsvToByteArrayOutputStream(exportDataList, exportCode);
-
-        //TODO  关闭流
-        InputStream inputStream = new ByteArrayInputStream(bos.toByteArray());
-        jssService.uploadFile(bucket, exportCode, bos.toByteArray().length, inputStream);
+    private void uploadJss(String exportCode) throws Exception {
+        ByteArrayOutputStream bos = mutiCsvToByteArrayOutputStream2(exportCode);
+        try(InputStream inputStream = new ByteArrayInputStream(bos.toByteArray())){
+            jssService.uploadFile(bucket, exportCode, bos.toByteArray().length, inputStream);
+        }catch (Exception ex){
+            log.error("上传jss异常,exportCode:{}",exportCode,ex);
+        }
     }
 
     /**
@@ -281,8 +359,8 @@ public class WaybilCodeCheckExportLogConsumer extends MessageBaseConsumer {
      * @param exportCode
      * @throws Exception
      */
-    private void uploadJss(String exportCode, KaCodeCheckCondition kaCodeCheckCondition) throws Exception {
-        ByteArrayOutputStream bos = mutiCsvToByteArrayOutputStream2(exportCode, kaCodeCheckCondition, new ExcelHelper<KaCodeCheckCondition>() {
+    private void uploadJss2(String exportCode, KaCodeCheckCondition kaCodeCheckCondition) throws Exception {
+        ByteArrayOutputStream bos = mutiCsvToByteArrayOutputStream3(exportCode, kaCodeCheckCondition, new ExcelHelper<KaCodeCheckCondition>() {
             @Override
             public List selectList(KaCodeCheckCondition condition,Integer offSet) {
                 List<List<Object>> list = new ArrayList<>();
