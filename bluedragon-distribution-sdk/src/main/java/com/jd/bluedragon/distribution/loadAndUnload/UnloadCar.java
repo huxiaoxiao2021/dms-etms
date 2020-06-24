@@ -17,9 +17,9 @@ public class UnloadCar extends DbEntity {
      * */
     private Long unloadCarId;
     /**
-     * 解封车业务主键
+     * 封车编码
      * */
-    private Long taskCode;
+    private String sealCarCode;
     /**
      * 上游机构ID
      * */
@@ -98,12 +98,12 @@ public class UnloadCar extends DbEntity {
         this.unloadCarId = unloadCarId;
     }
 
-    public Long getTaskCode() {
-        return taskCode;
+    public String getSealCarCode() {
+        return sealCarCode;
     }
 
-    public void setTaskCode(Long taskCode) {
-        this.taskCode = taskCode;
+    public void setSealCarCode(String sealCarCode) {
+        this.sealCarCode = sealCarCode;
     }
 
     public Integer getStartSiteCode() {
