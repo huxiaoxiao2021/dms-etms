@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.exportLog.controller;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.exportlog.domain.ExportLog;
@@ -51,6 +52,9 @@ public class ExportLogController  extends DmsBaseController {
     @RequestMapping("/exportLogList")
     @ResponseBody
     public PagerResult<ExportLog> listData(@RequestBody ExportLogCondition condition) {
+        LoginUser loginUser = getLoginUser();
+        condition.setCreateUser(loginUser.getUserErp());
+        condition.setType(1);
         return exportLogService.listData(condition);
     }
     /**

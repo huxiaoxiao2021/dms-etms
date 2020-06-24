@@ -18,12 +18,13 @@
   </sql>
 	<insert id="add" parameterType="com.jd.bluedragon.distribution.exportlog.domain.ExportLog">
 		insert into dms_export_log (
-		export_code,create_user,create_time,update_time,query_where,yn,status
+		export_code,create_user,type,create_time,update_time,query_where,yn,status
 		)
 		values
 		(
 			#{exportCode,jdbcType=VARCHAR},
 			#{createUser,jdbcType=VARCHAR},
+			#{type,jdbcType=INTEGER},
 			NOW(),
 			NOW(),
 			#{queryWhere,jdbcType=VARCHAR},
@@ -47,6 +48,9 @@
 	<if test="createUser != null">
 		AND create_user = #{createUser,jdbcType=VARCHAR}
 	</if>
+		<if test="type != null">
+			AND tpye = #{type,jdbcType=INTEGER}
+		</if>
 		<if test="startTime != null and endTime !=null">
 			and create_time BETWEEN #{startTime} and #{endTime}
 		</if>

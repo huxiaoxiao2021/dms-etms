@@ -22,6 +22,11 @@ public class ExportLogCondition   extends BasePagerCondition {
 	private String startTime;
 
 	/**
+	 * 类型  1：银行卡校验导出
+	 */
+	private Integer type;
+
+	/**
 	 * 操作时间
 	 * */
 	private String endTime;
@@ -64,5 +69,13 @@ public class ExportLogCondition   extends BasePagerCondition {
 
 	public void setEndTime(String endTime) {
 		this.endTime = endTime;
+	}
+
+	public Integer getType() {
+		return type;
+	}
+
+	public void setType(Integer type) {
+		this.type = type;
 	}
 }

@@ -70,7 +70,7 @@ public class WaybilCodeCheckExportLogConsumer extends MessageBaseConsumer {
     /**
      * 每个csv存储条数
      */
-    private static final Integer PER_CSV_NUM = 5;
+    private static final Integer PER_CSV_NUM = 50000;
     /**
      * csv表头
      */
@@ -160,9 +160,6 @@ public class WaybilCodeCheckExportLogConsumer extends MessageBaseConsumer {
             Integer exportNum = 0;
             Integer offSet = 0;
             while(true) {
-                if(!csvFileName.equals("bjxings2010")){
-                    return null;
-                }
                 List<List<Object>> list = helper.selectList(param,offSet);
                 if(CollectionUtils.isEmpty(list) && !CollectionUtils.isEmpty(tempList)) {
                     tempList.add(0, heads);
@@ -290,7 +287,7 @@ public class WaybilCodeCheckExportLogConsumer extends MessageBaseConsumer {
             public List selectList(KaCodeCheckCondition condition,Integer offSet) {
                 List<List<Object>> list = new ArrayList<>();
                 condition.setOffset(offSet);
-                condition.setLimit(2);
+                condition.setLimit(20000);
                 waybillCodeCheckService.getWaybillCodeCheckDTOList(condition, list);
                 return list;
             }

@@ -124,7 +124,7 @@ public class WaybillCodeCheckController extends DmsBaseController {
     public @ResponseBody
     JdResponse<String> exortCheck(@RequestBody KaCodeCheckCondition condition) {
         LoginUser loginUser = getLoginUser();
-        String exportCode = loginUser.getUserErp() + DateHelper.formatDate(new Date(), "yyyyMMddHHmm");
+        String exportCode = loginUser.getUserErp() + DateHelper.formatDate(new Date(), "yyyyMMddHHmm")+".zip";
         JdResponse<String> rest = new JdResponse<String>();
         String repeatExport = jimdbCacheService.get(exportCode);
         if(!com.jd.bk.common.util.string.StringUtils.isBlank(repeatExport)) {

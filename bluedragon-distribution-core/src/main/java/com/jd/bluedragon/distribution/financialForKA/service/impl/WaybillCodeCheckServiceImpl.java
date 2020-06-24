@@ -22,6 +22,8 @@ import com.jd.jmq.common.exception.JMQException;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.tools.ant.util.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -153,6 +155,8 @@ public class WaybillCodeCheckServiceImpl implements WaybillCodeCheckService {
     }
 
     @Override
+    @JProfiler(jKey = "dmsWeb.waybillCodeCheckService.getWaybillCodeCheckDTOList",jAppName=Constants.UMP_APP_NAME_DMSWORKER,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
     public void getWaybillCodeCheckDTOList(KaCodeCheckCondition condition, List<List<Object>> resList) {
         List<WaybillCodeCheckDto> dataList = waybillCodeCheckDao.exportByCondition(condition);
         if(dataList != null && dataList.size() > 0) {
