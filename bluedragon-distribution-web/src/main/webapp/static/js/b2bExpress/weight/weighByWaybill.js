@@ -408,6 +408,8 @@ function existSubmit(insertParam,removeFailData,removeIndex){
         });
     }
 
+    var flag = false;
+
     /*提交按钮*/
     $('#waybill-weight-btn').linkbutton({
         iconCls: 'icon-edit',
@@ -418,39 +420,39 @@ function existSubmit(insertParam,removeFailData,removeIndex){
                 var weight = $('#waybill-weight-kg-input').numberbox('getValue');
                 var cbm = $('#waybill-weight-cbm-input').numberbox('getValue');
                 var codeStr = $('#waybill-weight-code-input').numberbox('getValue');
+
                 /*重量体积最大限额校验*/
-                isExcessResult(codeStr,weight,cbm);
-                if(flag){
-                    return;
-                }
+                var callback = function(flag){
+                    if(flag){
+                        return;
+                    }
+                    /*校验密度*/
+                    if( (weight/cbm < CBM_DIV_KG_MIN_LIMIT) || (weight/cbm > CBM_DIV_KG_MAX_LIMIT) ) {
+                        var messageBodyStr = '重泡比超过正常范围168:1到330:1，请确认是否强制录入';
 
-                /*校验密度*/
-                if( (weight/cbm < CBM_DIV_KG_MIN_LIMIT) || (weight/cbm > CBM_DIV_KG_MAX_LIMIT) ) {
-                    var messageBodyStr = '重泡比超过正常范围168:1到330:1，请确认是否强制录入';
-
-                    $.messager.confirm('请您仔细确认',messageBodyStr
-                        ,function(confirmFlag){
-                            if(confirmFlag == true){
-                                /*提交业务流程*/
-                                doAddProgressFunc();
-                                return;
-                            }else {
-                                return;
+                        $.messager.confirm('请您仔细确认',messageBodyStr
+                            ,function(confirmFlag){
+                                if(confirmFlag == true){
+                                    /*提交业务流程*/
+                                    doAddProgressFunc();
+                                    return;
+                                }else {
+                                    return;
+                                }
                             }
-                        }
-                    );
-                    return;
+                        );
+                        return;
+                    }
+                    /*提交业务流程*/
+                    doAddProgressFunc();
                 }
-                /*提交业务流程*/
-                doAddProgressFunc();
-            }
 
+                isExcessResult(codeStr,weight,cbm, callback);
         }
 
     });
     /*重量体积最大限额确定取消标识*/
-    var flag = false;
-    var isExcessResult = function(codeStr,weight,volume){
+    var isExcessResult = function(codeStr,weight,volume, callback){
         $.ajax({
             type: 'GET',
             contentType : 'application/json',
@@ -459,8 +461,9 @@ function existSubmit(insertParam,removeFailData,removeIndex){
             async : true,
             success : function(result) {
                 if(result.code == 300){
-                    $.messager.alert(result.message);
+                    $.messager.alert('错误',result.message);
                     flag = true;
+
                 }
                 if(result.code == 600){
                     $.messager.confirm('请您仔细确认',result.message
@@ -471,6 +474,7 @@ function existSubmit(insertParam,removeFailData,removeIndex){
                         }
                     );
                 }
+                callback(flag)
             }
         });
     }
