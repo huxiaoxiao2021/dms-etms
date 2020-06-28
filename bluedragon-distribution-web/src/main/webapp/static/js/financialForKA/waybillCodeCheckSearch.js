@@ -216,6 +216,9 @@ $(function () {
     function initExport(tableInit) {
         $('#btn_export').click(function () {
             var params = tableInit.getSearchCondition();
+            // 先请求校验，用现有参数
+            return reqCheckExport(params);
+            // 再请求导出，用现有参数
             var form = $("<form method='post'></form>"),
                 input;
             form.attr({"action": exportUrl});
@@ -230,6 +233,61 @@ $(function () {
             form.submit();
             document.body.removeChild(form[0]);
         });
+    }
+
+    // 请求校验导出是否超限制
+    function reqCheckExport(data) {
+        var loadingIndex = layer.load('请稍候...');
+        $.ajax({
+            url: '/waybillCodeCheckForKA/exortCheck',
+            type: 'POST',
+            dataType: 'json',
+            data: JSON.stringify(data),
+            contentType:"json/application",
+            success: function (result) {
+                layer.close(loadingIndex);
+                if (result && result.code == 200) {
+                    // 校验成功了，请求导出接口
+                    layer.close(loadingIndex);
+                    reqExportData(data);
+                } else {
+                    layer.close(loadingIndex);
+                    // 校验失败了，提示信息
+                    layer.msg(result.message)
+                }
+            },
+            error: function (e) {
+                layer.close(loadingIndex);
+                layer.msg('网络繁忙');
+            }
+        })
+    }
+
+    // 请求导出
+    function reqExportData(data) {
+        var loadingIndex = layer.load('请稍候...');
+        $.ajax({
+            url: '/waybillCodeCheckForKA/toExport',
+            type: 'POST',
+            dataType: 'json',
+            data: data,
+            success: function (result) {
+                layer.close(loadingIndex);
+                if (result && result.code == 200) {
+                    // 校验成功了，请求导出接口
+                    layer.close(loadingIndex);
+                    layer.msg('导出任务创建成功，请稍候点击[查看导出任务]查看');
+                } else {
+                    layer.close(loadingIndex);
+                    // 校验失败了，提示信息
+                    layer.msg(result.message)
+                }
+            },
+            error: function (e) {
+                layer.close(loadingIndex);
+                layer.msg('网络繁忙');
+            }
+        })
     }
 
     initSelect();
