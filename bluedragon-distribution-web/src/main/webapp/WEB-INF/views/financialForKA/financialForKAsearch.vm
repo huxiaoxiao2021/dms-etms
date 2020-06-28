@@ -105,6 +105,9 @@
             <button id="btn_export" type="button" class="btn btn-default">
                 <span class="glyphicon glyphicon-export" aria-hidden="true"></span>导出
             </button>
+            <button id="btn_to_export" type="button" class="btn btn-default">
+                <span class="glyphicon glyphicon-new-window" aria-hidden="true"></span>查看导出任务
+            </button>
             <button id="btn_reback" type="button" class="btn btn-default">
                 <span class="glyphicon glyphicon-backward" aria-hidden="true"></span>返回
             </button>
