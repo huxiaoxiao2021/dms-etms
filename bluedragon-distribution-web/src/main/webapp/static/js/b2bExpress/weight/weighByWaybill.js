@@ -467,13 +467,9 @@ function existSubmit(insertParam,removeFailData,removeIndex){
 
                 }
                 if(result.code == 600){
-                    $.messager.confirm('请您仔细确认',result.message
-                        ,function(confirmFlag){
-                            if(confirmFlag != true){
-                                flag = true;
-                            }
-                        }
-                    );
+                    if (!confirm(result.message)){
+                        flag = true;
+                    }
                 }
                 callback(flag)
             }
