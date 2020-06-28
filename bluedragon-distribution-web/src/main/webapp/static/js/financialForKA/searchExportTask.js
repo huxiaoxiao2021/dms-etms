@@ -130,7 +130,6 @@ $(function () {
             title: '操作',
             align: 'center',
             formatter: function (value, row, index) {
-                if (row.status != 2) return '';
                 return [
                     '<a class="btn-link btn-xs download" href="javascript:void(0)" title="下载">',
                     '下载',
@@ -143,7 +142,7 @@ $(function () {
             events: {
                 'click .download': function (e, value, row, index) {
                     // 下载按钮点击事件 ，直接打开页面，传一个东西过去
-                    window.open('/exportLog/downLoadFile?fileName=' + row.exportCode + '&_t=' + new Date().getTime(),'_blank');
+                    window.open('/exportLog/downLoadFile?fileName=' + row.fileName + '&_t=' + new Date().getTime(),'_blank');
                 },
                 'click .delete': function (e, value, row, index) {
                     // 调用删除接口，然后刷新列表
