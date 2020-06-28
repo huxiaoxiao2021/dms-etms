@@ -449,7 +449,6 @@ function existSubmit(insertParam,removeFailData,removeIndex){
 
                 isExcessResult(codeStr, weight, cbm, callback);
             }
-
         }
     });
     /*重量体积最大限额确定取消标识*/
