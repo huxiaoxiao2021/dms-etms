@@ -469,6 +469,9 @@ function existSubmit(insertParam,removeFailData,removeIndex){
                     if (!confirm(result.message)){
                         flag = true;
                     }
+                    else {
+                        flag = false;
+                    }
                 }
                 callback(flag)
             }
