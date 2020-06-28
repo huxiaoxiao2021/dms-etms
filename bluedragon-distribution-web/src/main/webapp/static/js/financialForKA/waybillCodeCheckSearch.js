@@ -198,10 +198,6 @@ $(function () {
                 if(days>7){
                     alert("选择时间不能超过7天");
                     return;
-                    //$("#endTime").val("");
-                    //endTimeControl.config.value="";
-                    //$.datePicker.setValue("endTime","");
-                    //$.datePicker.createNew(getLaydateOptions());
                 }
                 tableInit().refresh();
             });
