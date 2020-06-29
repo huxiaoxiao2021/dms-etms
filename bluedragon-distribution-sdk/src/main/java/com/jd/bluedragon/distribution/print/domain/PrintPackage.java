@@ -84,13 +84,11 @@ public class PrintPackage implements Serializable {
      */
     public void setWeightAndUnit(Double weight,String unit) {
     	this.weight = weight;
-    	if(weight != null){
-    		if(weight > 0){
-    			this.packageWeight = weight.toString();
-        		if(unit != null){
-        			this.packageWeight += unit;
-        		}
-    		}
+    	if(weight != null && weight > 0){
+    		this.packageWeight = weight.toString();
+        	if(unit != null){
+        		this.packageWeight += unit;
+        	}
     	}else{
     		this.packageWeight = "";
     	}
