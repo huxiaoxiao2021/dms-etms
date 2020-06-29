@@ -48,7 +48,7 @@ public class AirNewPickupRegisterGateWayServiceImpl implements AirNewPickupRegis
     private BasicQueryWSManager basicQueryWSManager;
 
     @Autowired
-    ArAbnormalResource arAbnormalResource;
+    private ArAbnormalResource arAbnormalResource;
 
     @Override
     @JProfiler(jKey = "DMS.BASE.AirNewPickupRegisterGateWayServiceImpl.getGoodsTypeFromTms", mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
