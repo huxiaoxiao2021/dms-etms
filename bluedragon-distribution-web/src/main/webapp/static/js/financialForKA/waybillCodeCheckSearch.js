@@ -202,6 +202,11 @@ $(function () {
                 tableInit().refresh();
             });
 
+            //查看导出任务
+            $('#btn_to_export').click(function () {
+                window.location.href="/waybillCodeCheckForKA/toSearchExportTaskIndex";
+            });
+
             //返回
             $('#btn_reback').click(function () {
                 window.location.href="/waybillCodeCheckForKA/toIndex";
