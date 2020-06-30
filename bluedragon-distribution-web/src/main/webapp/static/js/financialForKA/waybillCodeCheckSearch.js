@@ -248,10 +248,10 @@ $(function () {
             type: 'POST',
             dataType: 'json',
             data: JSON.stringify(data),
-            contentType:"json/application",
+            contentType:"application/json",
             success: function (result) {
                 layer.close(loadingIndex);
-                if (result && result.code == 200) {
+                if (result && result.succeed) {
                     // 校验成功了，请求导出接口
                     layer.close(loadingIndex);
                     reqExportData(data);

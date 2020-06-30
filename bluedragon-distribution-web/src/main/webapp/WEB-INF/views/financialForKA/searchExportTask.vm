@@ -20,8 +20,8 @@
         <form id="query-form" class="form-horizontal">
             <div class="row">
                 <div class="col-xs-12 col-md-12 col-lg-12">
-                    <button type="button" class="btn btn-default">刷新</button>
-                    <button type="button" class="btn btn-default">返回</button>
+                    <button id="btn_query" type="button" class="btn btn-default">刷新</button>
+                    <button id="btn_reback" type="button" class="btn btn-default">返回</button>
                 </div>
             </div>
         </form>
