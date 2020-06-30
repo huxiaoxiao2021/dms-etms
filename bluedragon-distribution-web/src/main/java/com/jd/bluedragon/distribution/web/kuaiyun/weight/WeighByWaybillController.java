@@ -65,12 +65,6 @@ public class WeighByWaybillController {
     private final Integer NO_NEED_WEIGHT = 201;
     private final Integer WAYBILL_STATE_FINISHED = 202;
 
-    private final Integer EXCEED_MAX_CODE = 300;
-    private static final String PACKAGE_WEIGHT_EXCEED_MAX = "您的包裹重量超过最大限制。包裹最大重量不能超过4吨";
-    private static final String PACKAGE_VOLUME_EXCEED_MAX = "您的包裹体积超过最大限制。包裹最大体积不能超过19.2立方";
-    private static final String WAYBILL_WEIGHT_EXCEED_MAX = "您的运单总重量超过最大限制。运单最大重量不能超过62.5吨";
-    private static final String WAYBILL_VOLUME_EXCEED_MAX = "您的运单总体积超过最大限制。运单最大体积不能超过300立方";
-
     private final Integer EXCESS_CODE = 600;
     private static final String PACKAGE_WEIGHT_VOLUME_EXCESS_HIT = "您的包裹超规，请确认。超过'200kg/包裹'或'1方/包裹'为超规件";
     private static final String WAYBILL_WEIGHT_VOLUME_EXCESS_HIT = "您的运单包裹超规，请确认。超过'包裹数*200kg/包裹'或'包裹数*1方/包裹'";
@@ -493,14 +487,6 @@ public class WeighByWaybillController {
 
             //校验重量体积是否超标
             InvokeResult invokeResult = checkIsExcess(codeStr, weight.toString(), volume.toString());
-            if(invokeResult != null && invokeResult.getCode() == EXCEED_MAX_CODE){
-                //没通过
-                waybillWeightVO.setErrorMessage(invokeResult.getMessage());
-                waybillWeightVO.setErrorCode(invokeResult.getCode());
-                //可让前台强制提交
-                waybillWeightVO.setCanSubmit(0);
-                return false;
-            }
             if(invokeResult != null && invokeResult.getCode() == EXCESS_CODE){
                 //没通过
                 waybillWeightVO.setErrorMessage(invokeResult.getMessage());
@@ -600,17 +586,6 @@ public class WeighByWaybillController {
         }
         try{
             if(WaybillUtil.isWaybillCode(codeStr)){
-                if(Double.parseDouble(weight)>62500){
-                    result.setCode(EXCEED_MAX_CODE);
-                    result.setMessage(WAYBILL_WEIGHT_EXCEED_MAX);
-                    return result;
-                }
-                if(Double.parseDouble(volume)>300){
-                    result.setCode(EXCEED_MAX_CODE);
-                    result.setMessage(WAYBILL_VOLUME_EXCEED_MAX);
-                    return result;
-                }
-
                 int packNum = 0;
                 BaseEntity<BigWaybillDto> entity = waybillQueryManager.getDataByChoice(codeStr, true, true, true, false);
                 if(entity!= null && entity.getData() != null && entity.getData().getWaybill() != null){
@@ -624,17 +599,6 @@ public class WeighByWaybillController {
                     result.setMessage("运单信息为空!");
                 }
             }else{
-                if(Double.parseDouble(weight)>4000){
-                    result.setCode(EXCEED_MAX_CODE);
-                    result.setMessage(PACKAGE_WEIGHT_EXCEED_MAX);
-                    return result;
-                }
-                if(Double.parseDouble(volume)>19.2){
-                    result.setCode(EXCEED_MAX_CODE);
-                    result.setMessage(PACKAGE_VOLUME_EXCEED_MAX);
-                    return result;
-                }
-
                 if(Double.parseDouble(weight) > 200 || Double.parseDouble(volume) > 1){
                     result.setCode(EXCESS_CODE);
                     result.setMessage(PACKAGE_WEIGHT_VOLUME_EXCESS_HIT);
