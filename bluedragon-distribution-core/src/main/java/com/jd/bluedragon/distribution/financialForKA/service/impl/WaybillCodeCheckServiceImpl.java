@@ -120,6 +120,7 @@ public class WaybillCodeCheckServiceImpl implements WaybillCodeCheckService {
         exportLog.setExportCode(exportCode);
         exportLog.setCreateUser(loginUser.getUserErp());
         exportLog.setQueryWhere(JSON.toJSONString(condition));
+        exportLog.setType(1);
         exportLogDao.add(exportLog);
         String body = exportLog.getQueryWhere();
         try {
