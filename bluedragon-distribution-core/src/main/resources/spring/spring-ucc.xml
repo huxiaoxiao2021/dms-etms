@@ -46,7 +46,7 @@
         <property name="b2bPushInspectionSwitch" value="${b2bPushInspectionSwitch:false}"/>
 		<property name="offlineTaskOperateTimeCorrectHours" value="${offlineTaskOperateTimeCorrectHours:24}"/>
 		<property name="automaticWeightVolumeExchangeSwitch" value="${automaticWeightVolumeExchangeSwitch:false}"/>
-		<property name="automaticWeightVolumeExchangeSiteCode" value="${automaticWeightVolumeExchangeSiteCode}"/>
+		<property name="automaticWeightVolumeExchangeSiteCode" value="${automaticWeightVolumeExchangeSiteCode:''}"/>
         <property name="sealVolumeCheckSwitch" value="${sealVolumeCheckSwitch:false}"/>
 	</bean>
 

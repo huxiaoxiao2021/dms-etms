@@ -1975,6 +1975,7 @@ CREATE TABLE `unload_car` (
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
   `operate_time` datetime NOT NULL COMMENT '操作时间',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '卸车任务状态：0-未分配，1-已开始，2-已完结',
+  `vehicle_number` varchar(32) DEFAULT NULL COMMENT '车牌号',
   `yn` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否删除：1-有效，0-删除',
   `ts` timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '数据库时间',
   PRIMARY KEY (`unload_car_id`)

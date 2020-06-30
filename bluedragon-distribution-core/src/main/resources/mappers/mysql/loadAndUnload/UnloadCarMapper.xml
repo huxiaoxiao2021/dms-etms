@@ -5,6 +5,7 @@
 	<resultMap id="unloadCar" type="com.jd.bluedragon.distribution.loadAndUnload.UnloadCar" >
 		<id column="unload_car_id" property="unloadCarId" javaType="java.lang.Long" jdbcType="BIGINT" />
 		<result column="seal_car_code" property="sealCarCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="vehicle_number" property="vehicleNumber" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="start_site_code" property="startSiteCode" javaType="java.lang.Integer" jdbcType="BIGINT" />
 		<result column="start_site_name" property="startSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="end_site_code" property="endSiteCode" javaType="java.lang.Integer" jdbcType="BIGINT" />
@@ -28,8 +29,34 @@
         <result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 	</resultMap>
 
+    <resultMap id="unloadCarTask" type="com.jd.bluedragon.distribution.loadAndUnload.UnloadCarTask" >
+        <id column="unload_car_id" property="unloadCarId" javaType="java.lang.Long" jdbcType="BIGINT" />
+        <result column="seal_car_code" property="sealCarCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="start_site_code" property="startSiteCode" javaType="java.lang.Integer" jdbcType="BIGINT" />
+        <result column="start_site_name" property="startSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="end_site_code" property="endSiteCode" javaType="java.lang.Integer" jdbcType="BIGINT" />
+        <result column="end_site_name" property="endSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="seal_time" property="sealTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="seal_code" property="sealCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="batch_code" property="batchCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="railWay_platForm" property="railWayPlatForm" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="waybill_num" property="waybillNum" javaType="java.lang.Integer" jdbcType="BIGINT" />
+        <result column="package_num" property="packageNum" javaType="java.lang.Integer" jdbcType="BIGINT" />
+        <result column="unload_user_erp" property="unloadUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="unload_user_name" property="unloadUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="distribute_time" property="distributeTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="update_user_erp" property="updateUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="update_user_name" property="updateUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="status" property="status" javaType="java.lang.Integer" jdbcType="TINYINT" />
+        <result column="operate_time" property="operateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
+        <result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+    </resultMap>
+
     <sql id="Base_Column_List" >
-		unload_car_id,seal_car_code,start_site_code,start_site_name,end_site_code,end_site_name,
+		unload_car_id,seal_car_code,vehicle_number,start_site_code,start_site_name,end_site_code,end_site_name,
 		seal_time,seal_code,batch_code,railWay_platForm,waybill_num,package_num,unload_user_erp,unload_user_name,
 		distribute_time,update_user_erp,update_user_name,status,operate_time,create_time,update_time,yn
 	</sql>
@@ -193,4 +220,84 @@
         <include refid="Base_Condition_Sql"/>
     </select>
 
+    <select id="queryByCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="unloadCarTask">
+        select
+        <include refid="Base_Column_List" />
+        from
+        unload_car
+        <where>
+            yn = 1
+            --车牌号缺少字段
+            --车牌号问题
+            --限制时间
+            AND receive_time <![CDATA[ >= ]]> #{startTime,jdbcType=TIMESTAMP}
+            AND receive_time <![CDATA[ <= ]]> #{endTime,jdbcType=TIMESTAMP}
+            AND status = #{status,jdbcType=TINYINT}
+            <if test="vehicleNumber != null">
+                AND car_code = #{vehicleNumber,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+
+    <update id="distributeTaskByParams" parameterType="java.util.Map">
+        UPDATE unload_car
+        SET
+        <if test="unloadUserErp != null">
+            unload_user_erp = #{unloadUserErp, jdbcType=VARCHAR},
+        </if>
+        <if test="railWayPlatForm != null">
+            railWay_platForm = #{railWayPlatForm, jdbcType=VARCHAR},
+        </if>
+        update_user_erp = #{updateUserErp, jdbcType=VARCHAR},
+        update_user_name = #{updateUserName, jdbcType=VARCHAR},
+        update_time = NOW()
+        WHERE
+        YN = 1
+        <if test="sealCarCodes != null">
+            AND seal_car_code in
+            <foreach item="item" index="index" collection="sealCarCodes"
+                     open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </update>
+    
+    <select id="getUnloadCarTaskByParams" parameterType="java.util.Map" resultMap="unloadCar">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        unload_car
+        where
+        unload_user_erp = #{unloadUserErp,jdbcType=VARCHAR}
+        and end_site_code = #{endSiteCode,jdbcType=BIGINT}
+        <include refid="Base_Condition_Sql"/>
+    </select>
+
+    <update id="updateUnloadCarTaskStatus" parameterType="java.util.Map">
+        UPDATE unload_car
+        SET
+        status = #{status,jdbcType=TINYINT},
+        update_user_erp = #{updateUserErp, jdbcType=VARCHAR},
+        update_user_name = #{updateUserName, jdbcType=VARCHAR},
+        update_time = #{updateTime, jdbcType=TIMESTAMP}
+        WHERE
+        YN = 1
+        AND seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
+        AND unload_user_erp = #{unloadUserErp, jdbcType=VARCHAR}
+        AND end_site_code = #{endSiteCode,jdbcType=BIGINT}
+    </update>
+
+    <select id="getUnloadCarTaskScan" resultMap="unloadCar">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM unload_car
+        WHERE
+        YN = 1
+        and status = 1
+        and seal_car_code in
+        <foreach collection="list" item="item" index="index" separator="," open="(" close=")">
+            #{item,jdbcType=VARCHAR}
+        </foreach>
+        order by create_time desc
+    </select>
 </mapper>
