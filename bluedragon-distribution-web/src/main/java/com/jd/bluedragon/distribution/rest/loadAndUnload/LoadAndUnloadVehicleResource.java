@@ -88,7 +88,7 @@ public class LoadAndUnloadVehicleResource {
             result.parameterError("封车编码不存在!");
             return result;
         }
-        return result;
+        return unloadCarService.searchUnloadDetail(sealCarCode);
     }
 
 }

@@ -91,4 +91,12 @@
         )
     </insert>
 
+    <select id="searchBoardsBySealCode" parameterType="String" resultType="String">
+        select distinct board_code
+        from
+        unload_car_board
+        where 1=1
+        and seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
+    </select>
+
 </mapper>

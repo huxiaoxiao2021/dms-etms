@@ -1,8 +1,10 @@
 package com.jd.bluedragon.core.jsf.dms;
 
-import com.jd.transboard.api.dto.OperatorInfo;
+import com.jd.transboard.api.dto.AddBoardBox;
 import com.jd.transboard.api.dto.AddBoardRequest;
 import com.jd.transboard.api.dto.Board;
+import com.jd.transboard.api.dto.MoveBoxRequest;
+import com.jd.transboard.api.dto.OperatorInfo;
 import com.jd.transboard.api.dto.Response;
 
 import java.util.List;
@@ -32,4 +34,25 @@ public interface GroupBoardManager {
      * @param operatorInfo 操作人信息
      */
     void resuseBoards(List<String> boardList, OperatorInfo operatorInfo);
+
+    /**
+     * 将板、箱/包裹关系推给TC
+     * @param addBoardBox
+     * @return
+     */
+    Response<Integer> addBoxToBoard(AddBoardBox addBoardBox);
+
+    /**
+     * 组板转移
+     * @param moveBoxRequest
+     * @return
+     */
+    Response<String> moveBoxToNewBoard(MoveBoxRequest moveBoxRequest);
+
+    /**
+     * 根据板号获取已绑定箱号/包裹号
+     * @param boardCode
+     * @return
+     */
+    Response<List<String>> getBoxesByBoardCode(String boardCode);
 }

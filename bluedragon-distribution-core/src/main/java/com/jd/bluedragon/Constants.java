@@ -1106,4 +1106,9 @@ public class Constants {
      * */
     public static final String BUSINESS_TYPE_PREFIX = "BUSINESS-TYPE";
 
+    /**
+     * 运单路由字段使用的分隔符
+     */
+    public static final String WAYBILL_ROUTER_SPLIT = "\\|";
+
 }

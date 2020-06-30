@@ -1,8 +1,11 @@
 package com.jd.bluedragon.distribution.loadAndUnload.service;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.loadAndUnload.UnloadCarDetailScanResult;
 import com.jd.bluedragon.distribution.loadAndUnload.UnloadCarScanRequest;
 import com.jd.bluedragon.distribution.loadAndUnload.UnloadCarScanResult;
+
+import java.util.List;
 
 /**
  * 卸车任务实现
@@ -27,4 +30,12 @@ public interface UnloadCarService {
      * @return
      */
     InvokeResult<UnloadCarScanResult> barCodeScan(UnloadCarScanRequest request);
+
+    /**
+     * 卸车扫描明细
+     *
+     * @param sealCarCode
+     * @return
+     */
+    InvokeResult<List<UnloadCarDetailScanResult>> searchUnloadDetail(String sealCarCode);
 }
