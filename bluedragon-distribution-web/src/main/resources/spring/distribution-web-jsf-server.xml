@@ -183,4 +183,11 @@
                   alias="${dms.jsf.alias}"
                   ref="dmsWeightVolumeJSFService" server="dmsjsf">
     </jsf:provider>
+
+    <!--  为自动化称重提供接口，上传重量体积并进行抽检  -->
+    <jsf:provider id="thirdBoxExternalServiceAPI"
+                  interface="com.jd.bluedragon.distribution.thirdBox.service.ThirdBoxExternalService"
+                  alias="${dms.jsf.alias}"
+                  ref="thirdBoxExternalService" server="dmsjsf">
+    </jsf:provider>
 </beans>
