@@ -37,15 +37,20 @@ public class CacheKeyConstants {
      * 卸车任务
      *  板号绑定的包裹号 key=前缀-板号
      */
-    public static final String REDIS_PREFIX_UNLOAD_BOARD_BINDINGS_COUNT = "unload.board.bindings.count";
+    public static final String REDIS_PREFIX_UNLOAD_BOARD_PACKAGE_COUNT = "unload.board.package.count-";
+    /**
+     * 卸车任务
+     *  板号绑定的多货包裹号 key=前缀-板号
+     */
+    public static final String REDIS_PREFIX_UNLOAD_BOARD_SURPLUS_PACKAGE_COUNT = "unload.board.surplusPackage.count-";
     /**
      * 卸车任务
      *  封车编码已扫的包裹号 key=前缀-封车编码
      */
-    public static final String REDIS_PREFIX_UNLOAD_SEAL_PACKAGE_COUNT = "unload.board.seal.package.count";
+    public static final String REDIS_PREFIX_UNLOAD_SEAL_PACKAGE_COUNT = "unload.board.seal.package.count-";
     /**
      * 卸车任务
      *  封车编码已扫的多货包裹号 key=前缀-封车编码
      */
-    public static final String REDIS_PREFIX_UNLOAD_SEAL_SURPLUS_PACKAGE_COUNT = "unload.board.seal.surplusPackage.count";
+    public static final String REDIS_PREFIX_UNLOAD_SEAL_SURPLUS_PACKAGE_COUNT = "unload.board.seal.surplusPackage.count-";
 }

@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.api.request;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * 组板公共请求
@@ -50,9 +49,9 @@ public class BoardCommonRequest implements Serializable {
      * */
     private String operateSiteName;
     /**
-     * 操作时间
+     * 操作时间 13位时间戳
      * */
-    private Date operateTime;
+    private Long operateTime;
     /**
      * 操作类型
      *  0：组板 1：取消组板
@@ -135,11 +134,11 @@ public class BoardCommonRequest implements Serializable {
         this.operateSiteName = operateSiteName;
     }
 
-    public Date getOperateTime() {
+    public Long getOperateTime() {
         return operateTime;
     }
 
-    public void setOperateTime(Date operateTime) {
+    public void setOperateTime(Long operateTime) {
         this.operateTime = operateTime;
     }
 

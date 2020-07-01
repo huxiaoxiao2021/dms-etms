@@ -46,7 +46,7 @@ public interface BoardCommonManager {
      * @param request
      * @return
      */
-    Board createBoardCode(BoardCommonRequest request);
+    InvokeResult<Board> createBoardCode(BoardCommonRequest request);
 
     /**
      * 组板转移

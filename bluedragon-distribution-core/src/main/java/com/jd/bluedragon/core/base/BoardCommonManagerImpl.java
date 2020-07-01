@@ -3,7 +3,6 @@ package com.jd.bluedragon.core.base;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
-import com.jd.bluedragon.core.redis.service.impl.RedisCommonUtil;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.request.BoardCommonRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
@@ -12,8 +11,8 @@ import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
-import com.jd.bluedragon.distribution.send.dao.SendMDao;
-import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -23,6 +22,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.transboard.api.dto.AddBoardRequest;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.MoveBoxRequest;
@@ -34,8 +34,10 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -70,10 +72,11 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
     private TaskService taskService;
 
     @Autowired
-    private SendMDao sendMDao;
+    private SendDatailDao sendDatailDao;
 
     @Autowired
-    private RedisCommonUtil redisCommonUtil;
+    @Qualifier("jimdbCacheService")
+    private CacheService jimdbCacheService;
 
     @Autowired
     private BoxService boxService;
@@ -82,21 +85,21 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
     private SortingService sortingService;
 
     /**
-     * 箱/包裹是否发货校验
+     * 包裹是否发货校验
      * @param request
      * @return
      */
     @Override
     public InvokeResult isSendCheck(BoardCommonRequest request) {
         InvokeResult result = new InvokeResult();
-        SendM sendM = new SendM();
-        sendM.setBoxCode(request.getBarCode());
-        sendM.setCreateSiteCode(request.getOperateSiteCode());
-        sendM.setReceiveSiteCode(request.getReceiveSiteCode());
-        List<SendM> sendMList = sendMDao.selectBySendSiteCode(sendM);
+        SendDetail sendDetail = new SendDetail();
+        sendDetail.setPackageBarcode(request.getBarCode());
+        sendDetail.setCreateSiteCode(request.getOperateSiteCode());
+        sendDetail.setReceiveSiteCode(request.getReceiveSiteCode());
+        List<SendDetail> sendDetailList = sendDatailDao.findByWaybillCodeOrPackageCode(sendDetail);
 
-        if (sendMList != null && sendMList.size() > 0) {
-            String logInfo = "包裹" + request.getBarCode() + "已经在批次" + sendMList.get(0).getSendCode()
+        if (sendDetailList != null && sendDetailList.size() > 0) {
+            String logInfo = "包裹" + request.getBarCode() + "已经在批次" + sendDetailList.get(0).getSendCode()
                     + "中发货，站点：" + request.getOperateSiteCode();
             logger.warn(logInfo);
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,logInfo);
@@ -114,7 +117,15 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
     public InvokeResult packageCountCheck(String boardCode, Integer maxCount) {
         InvokeResult result = new InvokeResult();
         //数量限制校验，每次的数量记录的redis中
-        Integer count = redisCommonUtil.getData(CacheKeyConstants.REDIS_PREFIX_UNLOAD_BOARD_BINDINGS_COUNT + "-" + boardCode);
+        int count = 0;
+        try {
+            String countStr = jimdbCacheService.get(CacheKeyConstants.REDIS_PREFIX_UNLOAD_BOARD_PACKAGE_COUNT.concat(boardCode));
+            if(StringUtils.isNotEmpty(countStr)){
+                count = Integer.valueOf(countStr);
+            }
+        }catch (Exception e){
+            logger.error("从缓存中获取板号【{}】绑定的包裹数异常!",boardCode,e);
+        }
         logger.debug("板号【{}】已经绑定的包裹个数为【{}】" ,boardCode, count);
         //超上限提示
         if (count >= maxCount) {
@@ -204,7 +215,7 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
 
         tWaybillStatus.setOperatorId(request.getOperateUserCode());
         tWaybillStatus.setOperator(request.getOperateUserName());
-        tWaybillStatus.setOperateTime(request.getOperateTime());
+        tWaybillStatus.setOperateTime(new Date(request.getOperateTime()));
         tWaybillStatus.setOperateType(operateType);
 
         if (operateType.equals(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION)) {
@@ -232,19 +243,24 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
      * @return
      */
     @Override
-    public Board createBoardCode(BoardCommonRequest request) {
+    public InvokeResult<Board> createBoardCode(BoardCommonRequest request) {
+        InvokeResult<Board> result = new InvokeResult<Board>();
+        result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"生成板号失败!");
         AddBoardRequest addBoardRequest = new AddBoardRequest();
         try {
             String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
             Integer nextSiteCode = getNextSiteCodeByRouter(waybillCode, request.getOperateSiteCode());
             if(nextSiteCode == null){
                 logger.warn("根据运单号【{}】操作站点【{}】获取路由下一节点为空!",waybillCode,request.getOperateSiteCode());
-                return null;
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,
+                        "此单路由信息获取失败,无法判断流向生成板号,请扫描其他包裹号尝试开板");
+                return result;
             }
             BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(nextSiteCode);
             if(baseSite == null || StringUtils.isEmpty(baseSite.getSiteName())){
                 logger.warn("根据站点【{}】获取站点名称为空!",nextSiteCode);
-                return null;
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"站点【" + nextSiteCode + "】不存在!");
+                return result;
             }
             addBoardRequest.setBoardCount(SINGLE_BOARD_CODE);
             addBoardRequest.setDestinationId(nextSiteCode);
@@ -256,12 +272,12 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
             Response<List<Board>> response = groupBoardManager.createBoards(addBoardRequest);
             if(response != null && response.getCode() == ResponseEnum.SUCCESS.getIndex()
                     && !response.getData().isEmpty()){
-                return response.getData().get(0);
+                result.setData(response.getData().get(0));
             }
         }catch (Exception e){
             logger.error("根据参数【{}】生成板号异常", JsonHelper.toJson(addBoardRequest),e);
         }
-        return null;
+        return result;
     }
 
     /**

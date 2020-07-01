@@ -193,13 +193,4 @@
         <include refid="Base_Condition_Sql"/>
     </select>
 
-    <select id="searchBatchsBySealCode" parameterType="String" resultMap="unloadCar">
-        select
-        <include refid="Base_Column_List"/>
-        from
-        unload_car
-        where 1=1
-        and seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
-    </select>
-
 </mapper>
