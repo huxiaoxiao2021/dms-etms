@@ -17,7 +17,7 @@ public interface UnloadCarGatwayService {
 
     JdCResponse<List<UnloadCarTaskDto>> getUnloadCarTask(UnloadCarTaskReq unloadCarTaskReq);
 
-    JdCResponse<Boolean> updateUnloadCarTaskStatus(UnloadCarTaskReq unloadCarTaskReq);
+    JdCResponse<List<UnloadCarTaskDto>> updateUnloadCarTaskStatus(UnloadCarTaskReq unloadCarTaskReq);
 
     JdCResponse<List<HelperDto>> getUnloadCarTaskHelpers(String taskCode);
 

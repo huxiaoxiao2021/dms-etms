@@ -32,6 +32,7 @@
     <resultMap id="unloadCarTask" type="com.jd.bluedragon.distribution.loadAndUnload.UnloadCarTask" >
         <id column="unload_car_id" property="unloadCarId" javaType="java.lang.Long" jdbcType="BIGINT" />
         <result column="seal_car_code" property="sealCarCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="vehicle_number" property="vehicleNumber" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="start_site_code" property="startSiteCode" javaType="java.lang.Integer" jdbcType="BIGINT" />
         <result column="start_site_name" property="startSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="end_site_code" property="endSiteCode" javaType="java.lang.Integer" jdbcType="BIGINT" />
@@ -227,14 +228,14 @@
         unload_car
         <where>
             yn = 1
-            --车牌号缺少字段
-            --车牌号问题
-            --限制时间
-            AND receive_time <![CDATA[ >= ]]> #{startTime,jdbcType=TIMESTAMP}
-            AND receive_time <![CDATA[ <= ]]> #{endTime,jdbcType=TIMESTAMP}
-            AND status = #{status,jdbcType=TINYINT}
+            AND create_time <![CDATA[ >= ]]> #{startTime,jdbcType=TIMESTAMP}
+            AND create_time <![CDATA[ <= ]]> #{endTime,jdbcType=TIMESTAMP}
+            AND status in
+            <foreach collection="status" item="item" index="index" separator="," open="(" close=")">
+                #{item,jdbcType=TINYINT}
+            </foreach>
             <if test="vehicleNumber != null">
-                AND car_code = #{vehicleNumber,jdbcType=VARCHAR}
+                AND vehicle_number = #{vehicleNumber,jdbcType=VARCHAR}
             </if>
         </where>
     </select>
@@ -270,7 +271,9 @@
         where
         unload_user_erp = #{unloadUserErp,jdbcType=VARCHAR}
         and end_site_code = #{endSiteCode,jdbcType=BIGINT}
+        and status in (1,2)
         <include refid="Base_Condition_Sql"/>
+        group by status
     </select>
 
     <update id="updateUnloadCarTaskStatus" parameterType="java.util.Map">
@@ -293,7 +296,7 @@
         FROM unload_car
         WHERE
         YN = 1
-        and status = 1
+        and status = 2
         and seal_car_code in
         <foreach collection="list" item="item" index="index" separator="," open="(" close=")">
             #{item,jdbcType=VARCHAR}

@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.UnloadCar;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.request.User;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.inventory.controller.inventoryTaskController;
@@ -10,6 +12,7 @@ import com.jd.bluedragon.distribution.loadAndUnload.domain.DistributeTaskRequest
 import com.jd.bluedragon.distribution.loadAndUnload.service.UnloadCarService;
 import com.jd.bluedragon.distribution.unloadCar.domain.UnloadCarCondition;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
@@ -22,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.ws.rs.QueryParam;
 import java.util.List;
 
 /**
@@ -37,6 +41,9 @@ public class UnloadCarTaskController extends DmsBaseController {
     @Autowired
     private UnloadCarService unloadCarService;
 
+    @Autowired
+    protected BaseMajorManager baseMajorManager;
+
     /* 返回主页面 */
     @Authorization(Constants.DMS_WEB_UNLOAD_CAR_TASK_R)
     @RequestMapping("/toIndex")
@@ -50,8 +57,9 @@ public class UnloadCarTaskController extends DmsBaseController {
 
         PagerResult<UnloadCarTask> result = new PagerResult<>();
         try {
-            result.setRows(unloadCarService.queryByCondition(condition));
-            result.setTotal(unloadCarService.queryByCondition(condition).size());
+            List<UnloadCarTask> unloadCarTasks = unloadCarService.queryByCondition(condition);
+            result.setRows(unloadCarTasks);
+            result.setTotal(unloadCarTasks.size());
         } catch (Exception e) {
             log.error("查询卸车任务异常", e);
         }
@@ -78,5 +86,15 @@ public class UnloadCarTaskController extends DmsBaseController {
         return result;
     }
 
+    @RequestMapping("/getUserName")
+    @ResponseBody
+    public JdResponse<String> distributeTask(@QueryParam("unloadUser") String unloadUser) {
+        JdResponse<String> result = new JdResponse<>();
+        BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseStaffByErpNoCache(unloadUser);
+        if(baseStaffSiteOrgDto != null){
+            result.setData(baseStaffSiteOrgDto.getStaffName());
+        }
+        return result;
+    }
 
 }

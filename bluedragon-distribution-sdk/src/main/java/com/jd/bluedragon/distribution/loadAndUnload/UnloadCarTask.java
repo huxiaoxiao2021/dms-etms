@@ -17,7 +17,7 @@ public class UnloadCarTask extends DbEntity {
     /**
      * 车牌号
      * */
-    private String carCode;
+    private String vehicleNumber;
     /**
      * 封车编码
      * */
@@ -112,12 +112,12 @@ public class UnloadCarTask extends DbEntity {
         this.unloadCarId = unloadCarId;
     }
 
-    public String getCarCode() {
-        return carCode;
+    public String getVehicleNumber() {
+        return vehicleNumber;
     }
 
-    public void setCarCode(String carCode) {
-        this.carCode = carCode;
+    public void setVehicleNumber(String vehicleNumber) {
+        this.vehicleNumber = vehicleNumber;
     }
 
     public String getSealCarCode() {

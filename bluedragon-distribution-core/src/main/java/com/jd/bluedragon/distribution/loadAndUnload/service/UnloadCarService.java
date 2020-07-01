@@ -76,7 +76,7 @@ public interface UnloadCarService {
      * @param unloadCarTaskReq
      * @return
      */
-    InvokeResult<Boolean> updateUnloadCarTaskStatus(UnloadCarTaskReq unloadCarTaskReq);
+    InvokeResult<List<UnloadCarTaskDto>> updateUnloadCarTaskStatus(UnloadCarTaskReq unloadCarTaskReq);
 
     /**
      * 获取任务协助人列表

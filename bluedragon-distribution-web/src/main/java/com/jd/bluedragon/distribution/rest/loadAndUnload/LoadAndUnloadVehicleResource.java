@@ -120,8 +120,8 @@ public class LoadAndUnloadVehicleResource {
      */
     @POST
     @Path("")
-    public InvokeResult<Boolean> updateUnloadCarTaskStatus(UnloadCarTaskReq unloadCarTaskReq) {
-        InvokeResult<Boolean> result = new InvokeResult<>();
+    public InvokeResult<List<UnloadCarTaskDto>> updateUnloadCarTaskStatus(UnloadCarTaskReq unloadCarTaskReq) {
+        InvokeResult<List<UnloadCarTaskDto>> result = new InvokeResult<>();
         if (unloadCarTaskReq == null || unloadCarTaskReq.getTaskCode() == null || unloadCarTaskReq.getTaskStatus() == null
             || unloadCarTaskReq.getUser() == null || unloadCarTaskReq.getUser().getUserErp() == null
             || unloadCarTaskReq.getCurrentOperate().getSiteCode() <=0

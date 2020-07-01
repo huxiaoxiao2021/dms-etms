@@ -66,14 +66,21 @@ $(function () {
                     params[_k] = _v;
                 }
             });
+            $(_selector).each(function () {
+                var _k = this.id;
+                var _v = $(this).val();
+                if(_k && _v){
+                    if(_k == 'startTime' || _k =='endTime'){
+                        params[_k]=new Date(_v).getTime();;
+                    }else{
+                        params[_k]=_v;
+                    }
+                }
+            });
             return params;
         };
         oTableInit.tableColums = [{
             checkbox: true
-        }, {
-            field: 'orgName',
-            title: '类型',
-            align: 'center'
         }, {
             field: 'vehicleNumber',
             title: '车牌号',
@@ -85,7 +92,10 @@ $(function () {
         },{
             field: 'sealTime',
             title: '上游封车时间',
-            align: 'center'
+            align: 'center',
+            formatter : function(value,row,index){
+                return $.dateHelper.formateDateTimeOfTs(value);
+            }
     //        visible: false
         },{
             field: 'sealCode',
@@ -97,7 +107,7 @@ $(function () {
             align: 'center',
             formatter: function (value, row, index) {
                 if (value != null )
-                    return value.replace(/,/g,"\r\n");
+                    return value.replace(/,/g,"<br>");
             }
         },{
             field: 'waybillNum',
@@ -118,7 +128,10 @@ $(function () {
         },{
             field: 'distributeTime',
             title: '分配时间',
-            align: 'center'
+            align: 'center',
+            formatter : function(value,row,index){
+                return $.dateHelper.formateDateTimeOfTs(value);
+            }
         },{
             field: 'operaterErp',
             title: '操作人',
@@ -139,20 +152,22 @@ $(function () {
                 elem: '#startTime',
                 theme: '#3f92ea',
                 type: 'datetime',
+                // min: -60,//最近30天内
+                // max: 0,//最近30天内
                 btns: ['now', 'confirm'],
                 done: function(value, date, endDate){
                     /*重置表单验证状态*/
-
                 }
             });
             $.datePicker.createNew({
                 elem: '#endTime',
                 theme: '#3f92ea',
                 type: 'datetime',
+                // min: -60,//最近30天内
+                // max: 0,//最近30天内
                 btns: ['now', 'confirm'],
                 done: function(value, date, endDate){
                     /*重置表单验证状态*/
-
                 }
             });
 
@@ -168,6 +183,7 @@ $(function () {
     };
 
 
+    initSelect();
     initDateQuery();
     tableInit().init();
     pageInit().init();
@@ -189,7 +205,7 @@ $(function () {
         if (flag == true) {
             var sealCarCodes = [];
             for(var i in rows){
-                sealCarCodes.push(rows[i].id);
+                sealCarCodes.push(rows[i].sealCarCode);
             };
             var request = new Object();
             request.unloadUserErp = unloadUser;
@@ -201,7 +217,7 @@ $(function () {
                     alert('操作成功,处理'+res.data+'条。');
                     tableInit().refresh();
                 }else{
-                    alert('操作异常！');
+                    alert(res.message);
                 }
             });
         }
@@ -215,23 +231,34 @@ $(function () {
             return;
         }
 
-        $.ajaxHelper.doPostSync(distributeUrl,JSON.stringify(unloadUser),function(res){
-            if(res && res.succeed && res.data){
-                alert('操作成功,处理'+res.data+'条。');
-                tableInit().refresh();
-            }else{
-                alert('操作异常！');
+        var userUrl = '/unloadCarTask/getUserName?unloadUser=' + $("#unloadUser").val();
+        $.ajaxHelper.doGetSync(userUrl,null,function(res){
+            if(res && !res.succeed){
+                alert(res.message);
             }
+            $("#unloadUserName").val(res.data);
         });
     });
 });
 
 
 function initDateQuery(){
-    var v = $.dateHelper.formatDate(new Date());
-    $("#createStartTime").val(v+" 00:00:00");
-    $("#createEndTime").val(v+" 23:59:59");
-    $("#completeStartTime").val(v+" 00:00:00");
-    $("#completeEndTime").val(v+" 23:59:59");
+    var startTime = $.dateHelper.formatDateTime(new Date(new Date().toLocaleDateString()));
+    var endTime = $.dateHelper.formatDateTime(new Date(new Date(new Date().toLocaleDateString()).getTime()+24*60*60*1000-1));
+    $("#startTime").val(startTime);
+    $("#endTime").val(endTime);
 
+}
+
+function initSelect() {
+    var defualt = $("#query-form #distributeTypeSelect").val();
+    $("#query-form #distributeType").val(defualt);
+    $("#query-form #distributeTypeSelect").on('change', function (e) {
+        var v = $("#query-form #distributeTypeSelect").val();
+        if (v == 0 || v == 1 || v == 2) {
+            $("#query-form #distributeType").val(v);
+        } else {
+            $("#query-form #distributeType").val(null);
+        }
+    });
 }

@@ -41,13 +41,13 @@ public class UnloadCarGatwayServiceImpl implements UnloadCarGatwayService {
     }
 
     @Override
-    public JdCResponse<Boolean> updateUnloadCarTaskStatus(UnloadCarTaskReq unloadCarTaskReq) {
-        JdCResponse<Boolean> jdCResponse = new JdCResponse<>();
+    public JdCResponse<List<UnloadCarTaskDto>> updateUnloadCarTaskStatus(UnloadCarTaskReq unloadCarTaskReq) {
+        JdCResponse<List<UnloadCarTaskDto>> jdCResponse = new JdCResponse<>();
         if (unloadCarTaskReq == null) {
             jdCResponse.toError("参数错误");
             return jdCResponse;
         }
-        InvokeResult<Boolean> result = loadAndUnloadVehicleResource.updateUnloadCarTaskStatus(unloadCarTaskReq);
+        InvokeResult<List<UnloadCarTaskDto>> result = loadAndUnloadVehicleResource.updateUnloadCarTaskStatus(unloadCarTaskReq);
         if (!Objects.equals(result.getCode(), InvokeResult.RESULT_SUCCESS_CODE)) {
             jdCResponse.toError(result.getMessage());
             return jdCResponse;

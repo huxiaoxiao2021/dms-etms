@@ -4,12 +4,19 @@ import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.unloadCar.TaskHelpersReq;
 import com.jd.bluedragon.common.dto.unloadCar.UnloadCarTaskReq;
+import com.jd.bluedragon.core.base.VosManager;
+import com.jd.bluedragon.distribution.loadAndUnload.TmsSealCar;
 import com.jd.bluedragon.distribution.loadAndUnload.UnloadCar;
 import com.jd.bluedragon.distribution.loadAndUnload.UnloadCarDistribution;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDao;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDistributionDao;
+import com.jd.bluedragon.distribution.loadAndUnload.domain.DistributeTaskRequest;
 import com.jd.bluedragon.distribution.loadAndUnload.service.impl.UnloadCarServiceImpl;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
+import com.jd.bluedragon.distribution.unloadCar.domain.UnloadCarCondition;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.etms.vos.dto.CommonDto;
+import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.etms.vos.ws.VosQueryWS;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +53,7 @@ public class UnloadCarServiceImplTest {
     private UnloadCarDistributionDao unloadCarDistributionDao;
 
     @Mock
-    private VosQueryWS vosQueryWS;
+    private VosManager vosManager;
 
     private User user;
 
@@ -57,6 +64,8 @@ public class UnloadCarServiceImplTest {
     private List<UnloadCarDistribution> unloadCarDistributions;
 
     private List<String> sealCarCodes;
+
+    private CommonDto<SealCarDto> sealCarDtoCommonDto;
 
     @Before
     public void before(){
@@ -106,6 +115,15 @@ public class UnloadCarServiceImplTest {
         sealCarCodes.add("SC12345678");
         sealCarCodes.add("SC12345671");
 
+        sealCarDtoCommonDto = new CommonDto();
+        sealCarDtoCommonDto.setCode(1);
+        sealCarDtoCommonDto.setMessage("成功！");
+        SealCarDto sealCarDto = new SealCarDto();
+        sealCarDto.setEndSiteId(910);
+        sealCarDto.setEndSiteName("马驹桥分拣中心");
+        sealCarDtoCommonDto.setData(sealCarDto);
+
+
 
         when(unloadCarDao.getUnloadCarTaskByParams(ArgumentMatchers.<String, Object>anyMap())).thenReturn(unloadCars);
         when(unloadCarDao.updateUnloadCarTaskStatus(ArgumentMatchers.<String, Object>anyMap())).thenReturn(1);
@@ -114,6 +132,10 @@ public class UnloadCarServiceImplTest {
         when(unloadCarDistributionDao.add(any(UnloadCarDistribution.class))).thenReturn(1);
         when(unloadCarDistributionDao.selectTasksByUser(anyString())).thenReturn(sealCarCodes);
         when(unloadCarDao.getUnloadCarTaskScan(ArgumentMatchers.<String>anyList())).thenReturn(unloadCars);
+        when(sendDatailDao.queryWaybillNumBybatchCodes(ArgumentMatchers.<String>anyList())).thenReturn(123);
+        when(sendDatailDao.queryPackageNumBybatchCodes(ArgumentMatchers.<String>anyList())).thenReturn(234);
+        when(vosManager.querySealCarInfoBySealCarCode(anyString())).thenReturn(sealCarDtoCommonDto);
+        when(unloadCarDao.distributeTaskByParams(ArgumentMatchers.<String, Object>anyMap())).thenReturn(1);
     }
 
     @Test
@@ -159,5 +181,45 @@ public class UnloadCarServiceImplTest {
         taskHelpersReq.setUser(user);
         taskHelpersReq.setCurrentOperate(currentOperate);
         unloadCarService.getUnloadCarTaskScan(taskHelpersReq);
+    }
+
+    @Test
+    public void testQueryByCondition() {
+        UnloadCarCondition unloadCarCondition = new UnloadCarCondition();
+        unloadCarCondition.setStartTime(DateHelper.parseDateTime("2020-06-01 12:12:12"));
+        unloadCarCondition.setEndTime(DateHelper.parseDateTime("2020-07-01 22:12:12"));
+        unloadCarCondition.setDistributeType(0);
+        unloadCarService.queryByCondition(unloadCarCondition);
+    }
+
+    @Test
+    public void testDistributeTask() {
+        DistributeTaskRequest request = new DistributeTaskRequest();
+        List<String> sealCarCodes = new ArrayList<>();
+        sealCarCodes.add("SC12345678");
+        sealCarCodes.add("SC12345677");
+        request.setSealCarCodes(sealCarCodes);
+        request.setUnloadUserErp("bjxings");
+        request.setRailWayPlatForm("月-12");
+        request.setUpdateUserErp("bjxings");
+        request.setUpdateUserName("邢松");
+
+        unloadCarService.distributeTask(request);
+    }
+
+    @Test
+    public void testInsertUnloadCar() {
+        TmsSealCar tmsSealCar = new TmsSealCar();
+        tmsSealCar.setSealCarCode("SC12345678");
+        tmsSealCar.setVehicleNumber("京A66666");
+        List<String> batchCodes = new ArrayList<>();
+        batchCodes.add("121212-131313-123456789");
+        batchCodes.add("121212-131313-666666666");
+        tmsSealCar.setBatchCodes(batchCodes);
+        tmsSealCar.setOperateTime(DateHelper.parseDate("2020-07-01 12:12:12"));
+        tmsSealCar.setOperateSiteId(910);
+        tmsSealCar.setOperateSiteName("马驹桥分拣中心");
+        unloadCarService.insertUnloadCar(tmsSealCar);
+
     }
 }

@@ -73,5 +73,12 @@ public class UnloadCarDistributionDaoTest  extends AbstractDaoIntegrationH2Test 
         Assert.assertTrue(sealCarCodes.size() > 0);
     }
 
+    @Test
+    public void testSelectHelperBySealCarCode() {
+        String sealCarCode = "SC12345678";
+        List<String> helpers = unloadCarDistributionDao.selectHelperBySealCarCode(sealCarCode);
+    }
+
+
 
 }

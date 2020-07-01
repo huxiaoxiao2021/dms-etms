@@ -10,9 +10,11 @@ public enum UnloadCarStatusEnum {
 
     UNLOAD_CAR_UN_DISTRIBUTE(0, "未分配"),
 
-    UNLOAD_CAR_STARTED(1, "已开始"),
+    UNLOAD_CAR_UN_START(1,"未开始"),
 
-    UNLOAD_CAR_END(2, "已完成");
+    UNLOAD_CAR_STARTED(2, "已开始"),
+
+    UNLOAD_CAR_END(3, "已完成");
 
     private int type;
 
