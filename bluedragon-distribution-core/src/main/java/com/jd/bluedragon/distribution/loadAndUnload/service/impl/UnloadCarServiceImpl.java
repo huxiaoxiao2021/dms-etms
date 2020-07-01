@@ -221,6 +221,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         params.put("unloadUserErp",unloadCarTaskReq.getUser().getUserErp());
         params.put("updateUserErp",unloadCarTaskReq.getUser().getUserErp());
         params.put("updateUserName",unloadCarTaskReq.getUser().getUserName());
+        params.put("operateUserErp",unloadCarTaskReq.getUser().getUserErp());
+        params.put("operateUserName",unloadCarTaskReq.getUser().getUserName());
         params.put("endSiteCode",unloadCarTaskReq.getCurrentOperate().getSiteCode());
         Date updateTime = DateHelper.parseDate(unloadCarTaskReq.getOperateTime());
         params.put("updateTime",updateTime);

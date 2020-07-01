@@ -22,6 +22,8 @@
         <result column="update_user_erp" property="updateUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="update_user_name" property="updateUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="status" property="status" javaType="java.lang.Integer" jdbcType="TINYINT" />
+        <result column="operate_user_erp" property="operateUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="operate_user_name" property="operateUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="operate_time" property="operateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
         <result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
         <result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
@@ -49,6 +51,8 @@
         <result column="update_user_erp" property="updateUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="update_user_name" property="updateUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="status" property="status" javaType="java.lang.Integer" jdbcType="TINYINT" />
+        <result column="operate_user_erp" property="operateUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="operate_user_name" property="operateUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="operate_time" property="operateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
         <result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
         <result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
@@ -251,6 +255,9 @@
         </if>
         update_user_erp = #{updateUserErp, jdbcType=VARCHAR},
         update_user_name = #{updateUserName, jdbcType=VARCHAR},
+        operate_user_erp = #{operateUserErp, jdbcType=VARCHAR},
+        operate_user_name = #{operateUserName, jdbcType=VARCHAR},
+        status = 1,
         update_time = NOW()
         WHERE
         YN = 1

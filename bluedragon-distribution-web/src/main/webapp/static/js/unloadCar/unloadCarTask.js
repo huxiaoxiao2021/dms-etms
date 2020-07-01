@@ -133,7 +133,7 @@ $(function () {
                 return $.dateHelper.formateDateTimeOfTs(value);
             }
         },{
-            field: 'operaterErp',
+            field: 'operateUserErp',
             title: '操作人',
             align: 'center'
         }];

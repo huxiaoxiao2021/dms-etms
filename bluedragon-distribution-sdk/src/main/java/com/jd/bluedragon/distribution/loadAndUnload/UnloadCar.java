@@ -89,6 +89,14 @@ public class UnloadCar extends DbEntity {
      * */
     private Date operateTime;
     /**
+     * 操作人ERP
+     * */
+    private String operateUserErp;
+    /**
+     * 操作人姓名
+     * */
+    private String operateUserName;
+    /**
      * 卸车任务状态
      * @see UnloadCarStatusEnum
      * */
@@ -248,6 +256,22 @@ public class UnloadCar extends DbEntity {
 
     public void setOperateTime(Date operateTime) {
         this.operateTime = operateTime;
+    }
+
+    public String getOperateUserErp() {
+        return operateUserErp;
+    }
+
+    public void setOperateUserErp(String operateUserErp) {
+        this.operateUserErp = operateUserErp;
+    }
+
+    public String getOperateUserName() {
+        return operateUserName;
+    }
+
+    public void setOperateUserName(String operateUserName) {
+        this.operateUserName = operateUserName;
     }
 
     public Integer getStatus() {
