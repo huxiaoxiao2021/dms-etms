@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.consumer.exportLog;
 
 import IceInternal.Ex;
+import com.alibaba.fastjson.JSON;
 import com.google.common.io.FileBackedOutputStream;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -120,8 +121,8 @@ public class WaybilCodeCheckExportLogConsumer extends MessageBaseConsumer {
             exportLog.setStatus(ExportLogStateEnum.DOING.getValue());
             exportLogService.update(exportLog);
             //List<List<Object>> exportDataList = waybillCodeCheckService.getExportData(kaCodeCheckCondition);
-            uploadJss(message.getBusinessId());
-            //uploadJss(message.getBusinessId(),kaCodeCheckCondition);
+            //uploadJss(message.getBusinessId());
+            uploadJss(message.getBusinessId(),kaCodeCheckCondition);
             ExportLog exportLogSuccess = new ExportLog();
             exportLogSuccess.setExportCode(message.getBusinessId());
             exportLogSuccess.setStatus(ExportLogStateEnum.SUCCESS.getValue());
@@ -149,7 +150,7 @@ public class WaybilCodeCheckExportLogConsumer extends MessageBaseConsumer {
      * @return
      * @throws Exception
      */
-    private <T> ByteArrayOutputStream mutiCsvToByteArrayOutputStream2(String csvFileName) throws Exception {
+    private <T> ByteArrayOutputStream mutiCsvToByteArrayOutputStream2(String csvFileName, KaCodeCheckCondition kaCodeCheckCondition) throws Exception {
         InputStream fis = null;
         ZipOutputStream zipOut = null;
         ByteArrayOutputStream bos = null;
@@ -162,16 +163,16 @@ public class WaybilCodeCheckExportLogConsumer extends MessageBaseConsumer {
             //累计内存中导出的条数 ，达到50000条则写入csv并加入zip包
             Integer exportNum = 0;
             Integer offSet = 0;
-            KaCodeCheckCondition condition=new KaCodeCheckCondition();
 
             while(true) {
                 if(offSet>maxNum){
                     return bos;
                 }
                 List<List<Object>> list = new ArrayList<>();
-                condition.setOffset(offSet);
-                condition.setLimit(20000);
-                waybillCodeCheckService.getWaybillCodeCheckDTOList(condition, list);
+                kaCodeCheckCondition.setOffset(offSet);
+                kaCodeCheckCondition.setLimit(20000);
+                waybillCodeCheckService.getWaybillCodeCheckDTOList(kaCodeCheckCondition, list);
+                log.info("导出获取数据中，{}", JSON.toJSONString(list));
                 if(CollectionUtils.isEmpty(list) && !CollectionUtils.isEmpty(tempList)) {
                     tempList.add(0, heads);
                     String content = buildCsvString(tempList);
@@ -346,8 +347,8 @@ public class WaybilCodeCheckExportLogConsumer extends MessageBaseConsumer {
      * @param exportCode
      * @throws Exception
      */
-    private void uploadJss(String exportCode) throws Exception {
-        ByteArrayOutputStream bos = mutiCsvToByteArrayOutputStream2(exportCode);
+    private void uploadJss(String exportCode, KaCodeCheckCondition kaCodeCheckCondition) throws Exception {
+        ByteArrayOutputStream bos = mutiCsvToByteArrayOutputStream2(exportCode,kaCodeCheckCondition);
         try(InputStream inputStream = new ByteArrayInputStream(bos.toByteArray())){
             jssService.uploadFile(bucket, exportCode, bos.toByteArray().length, inputStream);
         }catch (Exception ex){
