@@ -29,8 +29,7 @@ public class UnloadCarConsumer extends MessageBaseConsumer {
     @Autowired
     private UnloadCarService unloadCarService;
 
-    @Autowired
-    private SendDatailDao sendDatailDao;
+    private static final int SEAL_CAR_STATUS = 10;
 
     @Override
     public void consume(Message message) throws Exception {
@@ -47,26 +46,15 @@ public class UnloadCarConsumer extends MessageBaseConsumer {
                 return;
             }
 
-            this.doConsume(tmsSealCar);
+            if (!tmsSealCar.getStauts().equals(SEAL_CAR_STATUS)) {
+                log.warn("封车解封车状态变化下发消息体为非封车，不需要消费，内容为【{}】", message.getText());
+                return;
+            }
+
+            unloadCarService.insertUnloadCar(tmsSealCar);
         } catch (Exception e) {
             log.error("[卸车任务]消费封车解封车状态变化MQ时发生异常,内容为【{}】", message.getText(), e);
             throw new RuntimeException(e);
         }
-    }
-
-    private void doConsume(TmsSealCar tmsSealCar) throws Exception {
-
-        String sealCarCode = tmsSealCar.getSealCarCode();
-        if (StringUtils.isEmpty(sealCarCode)) {
-            log.warn("[卸车任务]消费封车解封车状态变化MQ-封车编码为null");
-            return;
-        }
-
-        List<String> batchCodes = tmsSealCar.getBatchCodes();
-        if (CollectionUtils.isEmpty(batchCodes)) {
-            log.warn("[卸车任务]消费封车解封车状态变化MQ-批次号集合为null");
-        }
-        unloadCarService.insertUnloadCar(tmsSealCar);
-
     }
 }
