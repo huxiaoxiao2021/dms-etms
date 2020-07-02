@@ -29,7 +29,7 @@ public class UnloadCarConsumer extends MessageBaseConsumer {
     @Autowired
     private UnloadCarService unloadCarService;
 
-    private static final int SEAL_CAR_STATUS = 10;
+    private static final Integer SEAL_CAR_STATUS = 10;
 
     @Override
     public void consume(Message message) throws Exception {
@@ -46,7 +46,7 @@ public class UnloadCarConsumer extends MessageBaseConsumer {
                 return;
             }
 
-            if (!tmsSealCar.getStauts().equals(SEAL_CAR_STATUS)) {
+            if (!SEAL_CAR_STATUS.equals(tmsSealCar.getStatus())) {
                 log.warn("封车解封车状态变化下发消息体为非封车，不需要消费，内容为【{}】", message.getText());
                 return;
             }
