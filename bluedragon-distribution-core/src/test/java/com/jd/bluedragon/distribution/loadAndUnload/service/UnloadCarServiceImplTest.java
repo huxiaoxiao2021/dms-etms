@@ -132,8 +132,8 @@ public class UnloadCarServiceImplTest {
         when(unloadCarDistributionDao.add(any(UnloadCarDistribution.class))).thenReturn(1);
         when(unloadCarDistributionDao.selectTasksByUser(anyString())).thenReturn(sealCarCodes);
         when(unloadCarDao.getUnloadCarTaskScan(ArgumentMatchers.<String>anyList())).thenReturn(unloadCars);
-        when(sendDatailDao.queryWaybillNumBybatchCodes(ArgumentMatchers.<String>anyList())).thenReturn(123);
-        when(sendDatailDao.queryPackageNumBybatchCodes(ArgumentMatchers.<String>anyList())).thenReturn(234);
+        when(sendDatailDao.queryWaybillNumBybatchCodes(ArgumentMatchers.<String, Object>anyMap())).thenReturn(123);
+        when(sendDatailDao.queryPackageNumBybatchCodes(ArgumentMatchers.<String, Object>anyMap())).thenReturn(234);
         when(vosManager.querySealCarInfoBySealCarCode(anyString())).thenReturn(sealCarDtoCommonDto);
         when(unloadCarDao.distributeTaskByParams(ArgumentMatchers.<String, Object>anyMap())).thenReturn(1);
     }

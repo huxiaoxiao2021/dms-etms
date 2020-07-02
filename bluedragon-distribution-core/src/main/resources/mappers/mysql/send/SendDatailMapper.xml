@@ -1034,7 +1034,7 @@
 		and yn = 1
 	</select>
     
-    <select id="queryWaybillNumBybatchCodes" parameterType="java.util.List" resultType="java.lang.Integer">
+    <select id="queryWaybillNumBybatchCodes" parameterType="java.util.Map" resultType="java.lang.Integer">
         select count(1)
         from send_d
         where create_site_code = #{createSiteCode,jdbcType=INTEGER}
@@ -1047,7 +1047,7 @@
 		group by waybill_code
     </select>
 
-    <select id="queryPackageNumBybatchCodes" parameterType="java.util.List" resultType="java.lang.Integer">
+    <select id="queryPackageNumBybatchCodes" parameterType="java.util.Map" resultType="java.lang.Integer">
         select count(1)
         from send_d
         where create_site_code = #{createSiteCode,jdbcType=INTEGER}
