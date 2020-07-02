@@ -63,7 +63,7 @@
     <sql id="Base_Column_List" >
 		unload_car_id,seal_car_code,vehicle_number,start_site_code,start_site_name,end_site_code,end_site_name,
 		seal_time,seal_code,batch_code,railWay_platForm,waybill_num,package_num,unload_user_erp,unload_user_name,
-		distribute_time,update_user_erp,update_user_name,status,operate_time,create_time,update_time,yn
+		distribute_time,update_user_erp,update_user_name,status,operate_user_erp,operate_user_name,operate_time,create_time,update_time,yn
 	</sql>
 
     <sql id="Base_Condition_Sql" >
