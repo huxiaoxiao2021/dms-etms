@@ -49,7 +49,7 @@
 		AND create_user = #{createUser,jdbcType=VARCHAR}
 	</if>
 		<if test="type != null">
-			AND tpye = #{type,jdbcType=INTEGER}
+			AND type = #{type,jdbcType=INTEGER}
 		</if>
 		<if test="startTime != null and endTime !=null">
 			and create_time BETWEEN #{startTime} and #{endTime}
