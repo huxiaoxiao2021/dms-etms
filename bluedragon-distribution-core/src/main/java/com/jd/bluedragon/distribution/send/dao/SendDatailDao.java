@@ -460,7 +460,7 @@ public class SendDatailDao extends BaseDao<SendDetail> {
      * @param params
      * @return
      */
-    public Integer queryWaybillNumBybatchCodes (List<String> params) {
+    public Integer queryWaybillNumBybatchCodes (Map<String,Object> params) {
         return this.getSqlSession().selectOne(namespace + ".queryWaybillNumBybatchCodes", params);
     }
 
@@ -469,7 +469,7 @@ public class SendDatailDao extends BaseDao<SendDetail> {
      * @param params
      * @return
      */
-    public Integer queryPackageNumBybatchCodes (List<String> params) {
+    public Integer queryPackageNumBybatchCodes (Map<String,Object> params) {
         return this.getSqlSession().selectOne(namespace + ".queryPackageNumBybatchCodes", params);
     }
 }

@@ -257,7 +257,7 @@
         update_user_name = #{updateUserName, jdbcType=VARCHAR},
         operate_user_erp = #{operateUserErp, jdbcType=VARCHAR},
         operate_user_name = #{operateUserName, jdbcType=VARCHAR},
-        status = 1,
+        status = 2,
         update_time = NOW()
         WHERE
         YN = 1

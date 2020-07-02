@@ -144,8 +144,11 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 
         UnloadCar unloadCar = new UnloadCar();
         try {
-            Integer waybillNum = sendDatailDao.queryWaybillNumBybatchCodes(tmsSealCar.getBatchCodes());
-            Integer packageNum = sendDatailDao.queryPackageNumBybatchCodes(tmsSealCar.getBatchCodes());
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("createSiteCode",tmsSealCar.getOperateSiteId());
+            params.put("sendCodes",tmsSealCar.getBatchCodes());
+            Integer waybillNum = sendDatailDao.queryWaybillNumBybatchCodes(params);
+            Integer packageNum = sendDatailDao.queryPackageNumBybatchCodes(params);
             unloadCar.setWaybillNum(waybillNum);
             unloadCar.setPackageNum(packageNum);
         } catch (Exception e) {
@@ -338,15 +341,15 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             //根据责任人/协助人查找任务编码
             List<String> sealCarCodes = unloadCarDistributionDao.selectTasksByUser(taskHelpersReq.getUser().getUserErp());
             if (CollectionUtils.isEmpty(sealCarCodes)) {
-                result.setCode(InvokeResult.RESULT_NULL_CODE);
-                result.setMessage("未查询到任务，请检查");
+                result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+                result.setMessage("未查询到任务");
                 return result;
             }
             //根据任务编码查询
             List<UnloadCar> unloadCars = unloadCarDao.getUnloadCarTaskScan(sealCarCodes);
             if (CollectionUtils.isEmpty(unloadCars)) {
-                result.setCode(InvokeResult.RESULT_NULL_CODE);
-                result.setMessage("未查询到任务，请检查");
+                result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+                result.setMessage("未查询到任务");
                 return result;
             }
             int serialNumber = 1;
