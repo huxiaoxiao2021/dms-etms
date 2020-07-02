@@ -1039,7 +1039,7 @@
         from send_d
         where create_site_code = #{createSiteCode,jdbcType=INTEGER}
         and send_code in
-        <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+        <foreach collection="sendCodes" item="item" index="index" open="(" separator="," close=")">
             #{item,jdbcType=VARCHAR}
         </foreach>
 		and yn = 1
@@ -1052,7 +1052,7 @@
         from send_d
         where create_site_code = #{createSiteCode,jdbcType=INTEGER}
         and send_code in
-        <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+        <foreach collection="sendCodes" item="item" index="index" open="(" separator="," close=")">
             #{item,jdbcType=VARCHAR}
         </foreach>
 		and yn = 1

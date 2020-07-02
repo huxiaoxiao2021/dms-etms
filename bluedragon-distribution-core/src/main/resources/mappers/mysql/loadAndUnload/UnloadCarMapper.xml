@@ -308,6 +308,5 @@
         <foreach collection="list" item="item" index="index" separator="," open="(" close=")">
             #{item,jdbcType=VARCHAR}
         </foreach>
-        order by create_time desc
     </select>
 </mapper>
