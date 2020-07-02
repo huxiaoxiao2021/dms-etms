@@ -129,6 +129,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         params.put("sealCarCodes",request.getSealCarCodes());
         params.put("updateUserErp",request.getUpdateUserErp());
         params.put("updateUserName",request.getUpdateUserName());
+        params.put("operateUserErp",request.getUpdateUserErp());
+        params.put("operateUserName",request.getUpdateUserName());
         int result = unloadCarDao.distributeTaskByParams(params);
         if (result < 1) {
             logger.warn("分配任务失败，请求体：{}",JsonHelper.toJson(request));
@@ -221,8 +223,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         params.put("unloadUserErp",unloadCarTaskReq.getUser().getUserErp());
         params.put("updateUserErp",unloadCarTaskReq.getUser().getUserErp());
         params.put("updateUserName",unloadCarTaskReq.getUser().getUserName());
-        params.put("operateUserErp",unloadCarTaskReq.getUser().getUserErp());
-        params.put("operateUserName",unloadCarTaskReq.getUser().getUserName());
         params.put("endSiteCode",unloadCarTaskReq.getCurrentOperate().getSiteCode());
         Date updateTime = DateHelper.parseDate(unloadCarTaskReq.getOperateTime());
         params.put("updateTime",updateTime);
