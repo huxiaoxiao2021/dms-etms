@@ -1441,4 +1441,38 @@
 	</build>
 	<groupId>com.jd.bluedragon</groupId>
 	<version>1.0.0</version>
+
+    <repositories>
+        <repository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>jd-central</id>
+            <name>libs-releases</name>
+            <url>http://artifactory.jd.com/libs-releases</url>
+        </repository>
+        <repository>
+            <snapshots />
+            <id>jd-snapshots</id>
+            <name>libs-snapshots</name>
+            <url>http://artifactory.jd.com/libs-snapshots</url>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>jd-central</id>
+            <name>plugins-releases</name>
+            <url>http://artifactory.jd.com/plugins-releases</url>
+        </pluginRepository>
+        <pluginRepository>
+            <snapshots />
+            <id>jd-snapshots</id>
+            <name>plugins-snapshots</name>
+            <url>http://artifactory.jd.com/plugins-snapshots</url>
+        </pluginRepository>
+    </pluginRepositories>
 </project>

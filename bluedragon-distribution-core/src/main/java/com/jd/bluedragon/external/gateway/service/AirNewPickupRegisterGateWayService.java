@@ -4,6 +4,7 @@ import com.jd.bluedragon.common.dto.air.request.AirDepartRequest;
 import com.jd.bluedragon.common.dto.air.request.AirPortRequest;
 import com.jd.bluedragon.common.dto.air.request.AirTplBillRequest;
 import com.jd.bluedragon.common.dto.air.request.TmsDictRequest;
+import com.jd.bluedragon.common.dto.air.response.AirContrabandReason;
 import com.jd.bluedragon.common.dto.air.response.AirPortResponseDto;
 import com.jd.bluedragon.common.dto.air.response.AirTplBillRespDto;
 import com.jd.bluedragon.common.dto.air.response.TmsDictDto;
@@ -53,4 +54,11 @@ public interface AirNewPickupRegisterGateWayService {
      * @return
      */
     JdCResponse<AirTplBillRespDto> getAirTplBillDetailInfo(AirTplBillRequest airTplBillRequest);
+
+    /**
+     * 获取运输方式变更原因列表
+     * @param request
+     * @return
+     */
+    JdCResponse<List<AirContrabandReason>> getArContrabandReasonList(String request);
 }
