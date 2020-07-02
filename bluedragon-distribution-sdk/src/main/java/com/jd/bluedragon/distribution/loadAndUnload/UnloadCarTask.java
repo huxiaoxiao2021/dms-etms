@@ -5,12 +5,10 @@ import com.jd.ql.dms.common.web.mvc.api.DbEntity;
 import java.util.Date;
 
 /**
- * 卸车任务表
- *
- * @author: hujiping
- * @date: 2020/6/23 10:54
+ * @author lijie
+ * @date 2020/6/24 14:14
  */
-public class UnloadCar extends DbEntity {
+public class UnloadCarTask extends DbEntity {
 
     /**
      * 卸车任务主键ID
@@ -21,7 +19,7 @@ public class UnloadCar extends DbEntity {
      * */
     private String vehicleNumber;
     /**
-     * 封车编码（任务编码）
+     * 封车编码
      * */
     private String sealCarCode;
     /**
@@ -72,6 +70,14 @@ public class UnloadCar extends DbEntity {
      * 卸车人名称
      * */
     private String unloadUserName;
+    /**
+     * 协助人ERP
+     * */
+    private String helperErps;
+    /**
+     * 协助人名称
+     * */
+    private String helperNames;
     /**
      * 分配时间
      * */
@@ -224,6 +230,22 @@ public class UnloadCar extends DbEntity {
 
     public void setUnloadUserName(String unloadUserName) {
         this.unloadUserName = unloadUserName;
+    }
+
+    public String getHelperErps() {
+        return helperErps;
+    }
+
+    public void setHelperErps(String helperErps) {
+        this.helperErps = helperErps;
+    }
+
+    public String getHelperNames() {
+        return helperNames;
+    }
+
+    public void setHelperNames(String helperNames) {
+        this.helperNames = helperNames;
     }
 
     public Date getDistributeTime() {

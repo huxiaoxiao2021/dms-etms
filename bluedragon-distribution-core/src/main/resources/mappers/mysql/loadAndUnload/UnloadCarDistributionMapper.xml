@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDistributionDao">
 
-	<resultMap id="unloadCar" type="com.jd.bluedragon.distribution.loadAndUnload.UnloadCarDistribution" >
+	<resultMap id="unloadCarDistribution" type="com.jd.bluedragon.distribution.loadAndUnload.UnloadCarDistribution" >
 		<id column="unload_distribute_id" property="unloadDistributeId" javaType="java.lang.Long" jdbcType="BIGINT" />
 		<result column="seal_car_code" property="sealCarCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="unload_user_erp" property="unloadUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -48,9 +48,7 @@
             <if test="updateTime != null">
                 update_time,
             </if>
-            <if test="yn != null">
-                yn
-            </if>
+            yn
         </trim>
         )
         values
@@ -77,11 +75,57 @@
             <if test="updateTime != null">
                 #{updateTime,jdbcType=TIMESTAMP},
             </if>
-            <if test="yn != null">
-                #{yn,jdbcType=TINYINT}
-            </if>
+            1
         </trim>
         )
     </insert>
+
+    <select id="selectHelperBySealCarCode" parameterType="String" resultType="String">
+        select
+        unload_user_erp
+        from
+        unload_car_distribute
+        <where>
+            seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
+            and unload_user_type = 1
+            <include refid="Base_Condition_Sql"/>
+        </where>
+    </select>
+
+    <select id="selectUnloadCarTaskHelpers" parameterType="String" resultMap="unloadCarDistribution">
+        select
+        <include refid="Base_Column_List" />
+        from
+        unload_car_distribute
+        <where>
+            seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
+            and unload_user_type = 1
+            <include refid="Base_Condition_Sql"/>
+        </where>
+    </select>
+
+    <update id="deleteUnloadCarTaskHelpers" parameterType="java.util.Map">
+		update unload_car_distribute
+		set
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+		yn = 0
+		where
+        seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
+        and unload_user_erp = #{unloadUserErp,jdbcType=VARCHAR}
+        <include refid="Base_Condition_Sql"/>
+	</update>
+
+    <select id="selectTasksByUser" parameterType="String" resultType="String">
+        select
+        seal_car_code
+        from
+        unload_car_distribute
+        <where>
+            unload_user_erp = #{unloadUserErp,jdbcType=VARCHAR}
+            and create_time <![CDATA[<=]]> timestampadd(minute, 0, now())
+            and create_time <![CDATA[>=]]>  timestampadd(DAY, -3, now())
+            <include refid="Base_Condition_Sql"/>
+        </where>
+    </select>
 
 </mapper>

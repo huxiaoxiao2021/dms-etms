@@ -55,6 +55,7 @@
         <dd><a href="#springUrl('/merchantWeightAndVolume/whiteList/toIndex')" target="mainFrame">商家称重量方白名单</a></dd>
 
         <dt><a href="#" class="curr">快运中心相关功能</a></dt>
+        <dd><a href="#springUrl('/unloadCarTask/toIndex')" target="mainFrame">卸车任务分配</a></dd>
         <dd><a href="#springUrl('/inventoryTask/toIndex')" target="mainFrame">转运清场任务查询</a></dd>
 		<dd><a href="#springUrl('/inventoryException/toIndex')" target="mainFrame">转运清场异常查询</a></dd>
         <dd><a href="#springUrl('/coldchain/quarantinelicense/index')" target="mainFrame">冷链卡班检疫证票号管理</a></dd>
