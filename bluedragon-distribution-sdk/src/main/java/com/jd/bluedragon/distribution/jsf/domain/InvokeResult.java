@@ -66,6 +66,15 @@ public class InvokeResult<T> implements Serializable {
     }
 
     /**
+     * 发生异常
+     * @param message
+     */
+    public void error(String message){
+        this.code=500;
+        this.message= message;
+    }
+
+    /**
      * 参数错误
      * @param message
      */
