@@ -86,7 +86,7 @@ public class UnloadCar extends DbEntity {
     private Date operateTime;
     /**
      * 卸车任务状态
-     * @see UnloadCarStatusEnum
+     * @see com.jd.bluedragon.common.dto.unloadcar.UnloadCarStatusEnum
      * */
     private Integer status;
     /**

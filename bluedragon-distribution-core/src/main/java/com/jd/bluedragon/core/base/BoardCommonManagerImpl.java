@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
+import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
@@ -90,7 +91,7 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
      * @return
      */
     @Override
-    public InvokeResult isSendCheck(BoardCommonRequest request) {
+    public InvokeResult isSendCheck(BoardCommonRequest request) throws LoadIllegalException {
         InvokeResult result = new InvokeResult();
         SendDetail sendDetail = new SendDetail();
         sendDetail.setPackageBarcode(request.getBarCode());
@@ -99,10 +100,9 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
         List<SendDetail> sendDetailList = sendDatailDao.findByWaybillCodeOrPackageCode(sendDetail);
 
         if (sendDetailList != null && sendDetailList.size() > 0) {
-            String logInfo = "包裹" + request.getBarCode() + "已经在批次" + sendDetailList.get(0).getSendCode()
-                    + "中发货，站点：" + request.getOperateSiteCode();
-            logger.warn(logInfo);
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,logInfo);
+            logger.warn("包裹【{}】已经在批次【{}】发货,站点【{}】",
+                    request.getBarCode(),sendDetailList.get(0).getSendCode(),request.getOperateSiteCode());
+            throw new LoadIllegalException(String.format(LoadIllegalException.BOARD_PACK_SEND_INTERCEPT_MESSAGE,request.getBarCode()));
         }
         return result;
     }
@@ -114,7 +114,7 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
      * @return
      */
     @Override
-    public InvokeResult packageCountCheck(String boardCode, Integer maxCount) {
+    public InvokeResult packageCountCheck(String boardCode, Integer maxCount) throws LoadIllegalException {
         InvokeResult result = new InvokeResult();
         //数量限制校验，每次的数量记录的redis中
         int count = 0;
@@ -125,13 +125,15 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
             }
         }catch (Exception e){
             logger.error("从缓存中获取板号【{}】绑定的包裹数异常!",boardCode,e);
+            throw new LoadIllegalException(InvokeResult.SERVER_ERROR_MESSAGE);
         }
-        logger.debug("板号【{}】已经绑定的包裹个数为【{}】" ,boardCode, count);
+        if(logger.isDebugEnabled()){
+            logger.debug("板号【{}】已经绑定的包裹个数为【{}】" ,boardCode, count);
+        }
         //超上限提示
         if (count >= maxCount) {
-            String logInfo = "板号" + boardCode + "已经绑定的包裹个数为" + count + "达到上限";
-            logger.warn(logInfo);
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,logInfo);
+            logger.warn("板号【{}】已经绑定的包裹数【{}】达到上限",boardCode,count);
+            throw new LoadIllegalException(String.format(LoadIllegalException.BOARD_PACKNUM_EXCEED_INTERCEPT_MESSAGE,boardCode,count));
         }
         return result;
     }
@@ -176,14 +178,12 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
                 result.customMessage(BoardResponse.CODE_BOX_PACKAGECODE_ERROR, BoardResponse.MESSAGE_BOX_PACKAGECODE_ERROR);
                 return result;
             }
-            String logInfo = null;
             try {
                 response = jsfSortingResourceService.boardCombinationCheck(checkParam);
-                logInfo = "组板校验,板号：" + request.getBoardCode() + ",箱号/包裹号：" + request.getBarCode() +
-                        ",IsForceCombination:" + request.getIsForceCombination() +
-                        ",站点：" + request.getOperateSiteCode() + ".校验结果:" + response.getMessage();
-
-                logger.debug(logInfo);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("组板校验,板号【{}】,箱号/包裹号【{}】,站点【{}】.校验结果【{}】",
+                            request.getBoardCode(),request.getBarCode(),request.getOperateSiteCode(),response.getMessage());
+                }
             } catch (Exception e) {
                 logger.error("调用总部VER验证JSF服务失败：{}", com.jd.bluedragon.distribution.api.utils.JsonHelper.toJson(checkParam), e);
             }
@@ -248,6 +248,11 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
         result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"生成板号失败!");
         AddBoardRequest addBoardRequest = new AddBoardRequest();
         try {
+            if(!WaybillUtil.isWaybillCode(request.getBarCode())
+                    && !WaybillUtil.isPackageCode(request.getBarCode())){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"单号不符合规则");
+                return result;
+            }
             String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
             Integer nextSiteCode = getNextSiteCodeByRouter(waybillCode, request.getOperateSiteCode());
             if(nextSiteCode == null){
@@ -272,6 +277,7 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
             Response<List<Board>> response = groupBoardManager.createBoards(addBoardRequest);
             if(response != null && response.getCode() == ResponseEnum.SUCCESS.getIndex()
                     && !response.getData().isEmpty()){
+                result.success();
                 result.setData(response.getData().get(0));
             }
         }catch (Exception e){
@@ -342,7 +348,7 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
                 return null;
             }
             for (int i = 0; i < routerSplit.length - 1; i++) {
-                if(siteCode.equals(routerSplit[i])){
+                if(siteCode.equals(Integer.valueOf(routerSplit[i]))){
                     return Integer.valueOf(routerSplit[i+1]);
                 }
             }

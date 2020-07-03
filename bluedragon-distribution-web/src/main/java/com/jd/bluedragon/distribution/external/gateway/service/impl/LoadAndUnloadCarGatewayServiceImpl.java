@@ -1,10 +1,10 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.unloadcar.UnloadCarDetailScanResult;
+import com.jd.bluedragon.common.dto.unloadcar.UnloadCarScanRequest;
+import com.jd.bluedragon.common.dto.unloadcar.UnloadCarScanResult;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.loadAndUnload.UnloadCarDetailScanResult;
-import com.jd.bluedragon.distribution.loadAndUnload.UnloadCarScanRequest;
-import com.jd.bluedragon.distribution.loadAndUnload.UnloadCarScanResult;
 import com.jd.bluedragon.distribution.rest.loadAndUnload.LoadAndUnloadVehicleResource;
 import com.jd.bluedragon.external.gateway.service.LoadAndUnloadCarGatewayService;
 import org.springframework.beans.factory.annotation.Autowired;

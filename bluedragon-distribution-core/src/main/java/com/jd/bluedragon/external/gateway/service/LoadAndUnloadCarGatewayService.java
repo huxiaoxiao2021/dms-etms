@@ -1,9 +1,9 @@
 package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.distribution.loadAndUnload.UnloadCarDetailScanResult;
-import com.jd.bluedragon.distribution.loadAndUnload.UnloadCarScanRequest;
-import com.jd.bluedragon.distribution.loadAndUnload.UnloadCarScanResult;
+import com.jd.bluedragon.common.dto.unloadcar.UnloadCarDetailScanResult;
+import com.jd.bluedragon.common.dto.unloadcar.UnloadCarScanRequest;
+import com.jd.bluedragon.common.dto.unloadcar.UnloadCarScanResult;
 
 import java.util.List;
 

@@ -1,10 +1,10 @@
 package com.jd.bluedragon.distribution.rest.loadAndUnload;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.unloadcar.UnloadCarDetailScanResult;
+import com.jd.bluedragon.common.dto.unloadcar.UnloadCarScanRequest;
+import com.jd.bluedragon.common.dto.unloadcar.UnloadCarScanResult;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.loadAndUnload.UnloadCarDetailScanResult;
-import com.jd.bluedragon.distribution.loadAndUnload.UnloadCarScanRequest;
-import com.jd.bluedragon.distribution.loadAndUnload.UnloadCarScanResult;
 import com.jd.bluedragon.distribution.loadAndUnload.service.UnloadCarService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.dms.logger.annotation.BusinessLog;
