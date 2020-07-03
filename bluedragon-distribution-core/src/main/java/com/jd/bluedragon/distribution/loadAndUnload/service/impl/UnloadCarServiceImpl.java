@@ -140,6 +140,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             unloadCarDistribution.setUnloadUserErp(request.getUpdateUserErp());
             unloadCarDistribution.setUnloadUserName(request.getUpdateUserName());
             unloadCarDistribution.setUnloadUserType(UnloadUserTypeEnum.UNLOAD_MASTER.getType());
+            unloadCarDistribution.setCreateTime(new Date());
             unloadCarDistributionDao.add(unloadCarDistribution);
         }
 
