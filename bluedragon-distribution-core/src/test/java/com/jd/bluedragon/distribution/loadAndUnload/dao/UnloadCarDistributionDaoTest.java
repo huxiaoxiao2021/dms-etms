@@ -46,11 +46,12 @@ public class UnloadCarDistributionDaoTest  extends AbstractDaoIntegrationH2Test 
 
     @Test
     public void testDeleteUnloadCarTaskHelpers() {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("sealCarCode","SC12345678");
-        params.put("unloadUserErp","bjxings");
-        params.put("updateTime",new Date());
-        boolean result = unloadCarDistributionDao.deleteUnloadCarTaskHelpers(params);
+        UnloadCarDistribution unloadCarDistribution = new UnloadCarDistribution();
+        unloadCarDistribution.setSealCarCode("SC12345678");
+        unloadCarDistribution.setUnloadUserErp("bjxings");
+        unloadCarDistribution.setUpdateTime(new Date());
+
+        boolean result = unloadCarDistributionDao.deleteUnloadCarTaskHelpers(unloadCarDistribution);
         Assert.assertTrue(result);
     }
 

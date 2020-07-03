@@ -270,7 +270,7 @@
         </if>
     </update>
     
-    <select id="getUnloadCarTaskByParams" parameterType="java.util.Map" resultMap="unloadCar">
+    <select id="getUnloadCarTaskByParams" parameterType="unloadCar" resultMap="unloadCar">
         select
         <include refid="Base_Column_List"/>
         from
@@ -283,7 +283,7 @@
         group by status
     </select>
 
-    <update id="updateUnloadCarTaskStatus" parameterType="java.util.Map">
+    <update id="updateUnloadCarTaskStatus" parameterType="unloadCar">
         UPDATE unload_car
         SET
         status = #{status,jdbcType=TINYINT},

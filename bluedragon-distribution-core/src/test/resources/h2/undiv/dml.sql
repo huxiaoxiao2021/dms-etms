@@ -18,4 +18,4 @@ insert into unload_car_distribute
 (		unload_distribute_id,seal_car_code,unload_user_erp,unload_user_name,
 		unload_user_type,create_time,update_time,yn)
 values
-(       1,'SC12345678','bjxings','邢松',1,'2020-06-28 11:12:13','2020-01-01 11:12:13',1);
+(       1,'SC12345678','bjxings','邢松',1,'2020-07-02 11:12:13','2020-01-01 11:12:13',1);

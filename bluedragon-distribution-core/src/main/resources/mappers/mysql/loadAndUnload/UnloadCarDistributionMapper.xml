@@ -104,7 +104,7 @@
         </where>
     </select>
 
-    <update id="deleteUnloadCarTaskHelpers" parameterType="java.util.Map">
+    <update id="deleteUnloadCarTaskHelpers" parameterType="unloadCarDistribution">
 		update unload_car_distribute
 		set
         update_time = #{updateTime,jdbcType=TIMESTAMP},

@@ -32,7 +32,7 @@ public class UnloadCarDistributionDao extends BaseDao<UnloadCarDistribution> {
         return this.getSqlSession().selectList(namespace + ".selectUnloadCarTaskHelpers",sealCarCode);
     }
 
-    public boolean deleteUnloadCarTaskHelpers(Map<String, Object> params) {
+    public boolean deleteUnloadCarTaskHelpers(UnloadCarDistribution params) {
         return this.getSqlSession().update(namespace + ".deleteUnloadCarTaskHelpers",params) > 0;
     }
 

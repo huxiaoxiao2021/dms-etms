@@ -29,6 +29,7 @@ public class UnloadCarConsumer extends MessageBaseConsumer {
     @Autowired
     private UnloadCarService unloadCarService;
 
+    //操作状态：10-封车，20-解封，30-出围栏，40-进围栏
     private static final Integer SEAL_CAR_STATUS = 10;
 
     @Override

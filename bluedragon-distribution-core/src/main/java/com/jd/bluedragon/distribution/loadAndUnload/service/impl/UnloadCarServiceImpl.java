@@ -1,9 +1,6 @@
 package com.jd.bluedragon.distribution.loadAndUnload.service.impl;
 
-import com.jd.bluedragon.common.dto.unloadCar.HelperDto;
-import com.jd.bluedragon.common.dto.unloadCar.TaskHelpersReq;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarTaskDto;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarTaskReq;
+import com.jd.bluedragon.common.dto.unloadCar.*;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -18,7 +15,6 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.SealCarDto;
-import com.jd.etms.vos.ws.VosQueryWS;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -136,6 +132,17 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             logger.warn("分配任务失败，请求体：{}",JsonHelper.toJson(request));
             return false;
         }
+
+        //同步卸车负责人与卸车任务之间关系
+        for (int i=0;i<request.getSealCarCodes().size();i++) {
+            UnloadCarDistribution unloadCarDistribution = new UnloadCarDistribution();
+            unloadCarDistribution.setSealCarCode(request.getSealCarCodes().get(i));
+            unloadCarDistribution.setUnloadUserErp(request.getUpdateUserErp());
+            unloadCarDistribution.setUnloadUserName(request.getUpdateUserName());
+            unloadCarDistribution.setUnloadUserType(UnloadUserTypeEnum.UNLOAD_MASTER.getType());
+            unloadCarDistributionDao.add(unloadCarDistribution);
+        }
+
         return true;
     }
 
@@ -169,7 +176,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             logger.error("调用运输的接口获取下游机构信息失败，请求体：{}，返回值：{}",tmsSealCar.getSealCarCode(),JsonHelper.toJson(sealCarDto));
             return false;
         }
-        unloadCar.setBatchCode(StringUtils.strip(tmsSealCar.getBatchCodes().toString(),"[]"));
+        unloadCar.setBatchCode(getStrByBatchCodes(tmsSealCar.getBatchCodes()));
         unloadCar.setCreateTime(new Date());
         try {
             unloadCarDao.add(unloadCar);
@@ -189,10 +196,10 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         List<UnloadCarTaskDto> unloadCarTaskDtos = new ArrayList<>();
         result.setData(unloadCarTaskDtos);
 
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("unloadUserErp",unloadCarTaskReq.getUser().getUserErp());
-        params.put("endSiteCode",unloadCarTaskReq.getCurrentOperate().getSiteCode());
-        List<UnloadCar> unloadCars = unloadCarDao.getUnloadCarTaskByParams(params);
+        UnloadCar unload = new UnloadCar();
+        unload.setUnloadUserErp(unloadCarTaskReq.getUser().getUserErp());
+        unload.setEndSiteCode(unloadCarTaskReq.getCurrentOperate().getSiteCode());
+        List<UnloadCar> unloadCars = unloadCarDao.getUnloadCarTaskByParams(unload);
         int serialNumber = 1;
         for (UnloadCar unloadCar : unloadCars) {
             UnloadCarTaskDto unloadCarTaskDto = new UnloadCarTaskDto();
@@ -201,7 +208,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             unloadCarTaskDto.setCarCode(unloadCar.getVehicleNumber());
             unloadCarTaskDto.setPlatformName(unloadCar.getRailWayPlatForm());
             unloadCarTaskDto.setBatchCode(unloadCar.getBatchCode());
-            unloadCarTaskDto.setBatchNum(getBatchNumber(unloadCar.getBatchCode()));
+            if (unloadCar != null && unloadCar.getBatchCode() != null) {
+                unloadCarTaskDto.setBatchNum(getBatchNumber(unloadCar.getBatchCode()));
+            }
             unloadCarTaskDto.setWaybillNum(unloadCar.getWaybillNum());
             unloadCarTaskDto.setPackageNum(unloadCar.getPackageNum());
             unloadCarTaskDto.setTaskStatus(unloadCar.getStatus());
@@ -220,16 +229,16 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
         result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
 
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("sealCarCode",unloadCarTaskReq.getTaskCode());
-        params.put("status",unloadCarTaskReq.getTaskStatus());
-        params.put("unloadUserErp",unloadCarTaskReq.getUser().getUserErp());
-        params.put("updateUserErp",unloadCarTaskReq.getUser().getUserErp());
-        params.put("updateUserName",unloadCarTaskReq.getUser().getUserName());
-        params.put("endSiteCode",unloadCarTaskReq.getCurrentOperate().getSiteCode());
+        UnloadCar unloadCar = new UnloadCar();
+        unloadCar.setSealCarCode(unloadCarTaskReq.getTaskCode());
+        unloadCar.setStatus(unloadCarTaskReq.getTaskStatus());
+        unloadCar.setUnloadUserErp(unloadCarTaskReq.getUser().getUserErp());
+        unloadCar.setUpdateUserErp(unloadCarTaskReq.getUser().getUserErp());
+        unloadCar.setUpdateUserName(unloadCarTaskReq.getUser().getUserName());
+        unloadCar.setEndSiteCode(unloadCarTaskReq.getCurrentOperate().getSiteCode());
         Date updateTime = DateHelper.parseDate(unloadCarTaskReq.getOperateTime());
-        params.put("updateTime",updateTime);
-        int count = unloadCarDao.updateUnloadCarTaskStatus(params);
+        unloadCar.setUpdateTime(updateTime);
+        int count = unloadCarDao.updateUnloadCarTaskStatus(unloadCar);
         if (count < 1) {
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
@@ -279,31 +288,33 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         List<HelperDto> helperDtos = new ArrayList<HelperDto>();
         result.setData(helperDtos);
 
-        //校验协助人
-        BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseStaffByErpNoCache(taskHelpersReq.getHelperERP());
-        if (baseStaffSiteOrgDto == null || baseStaffSiteOrgDto.getStaffName() == null){
-            logger.error("根据协助人的erp未查询到员工信息，请求信息：{}",JsonHelper.toJson(taskHelpersReq));
-            result.setCode(InvokeResult.RESULT_NULL_CODE);
-            result.setMessage("未查询到员工信息");
-            return result;
-        }
 
         try {
-            if (taskHelpersReq.getOperateType() == 0) {
+            if (taskHelpersReq.getOperateType() == OperateTypeEnum.DELETE_HELPER.getType()) {
                 //删除协助人
-                Map<String, Object> params = new HashMap<String, Object>();
-                params.put("sealCarCode",taskHelpersReq.getTaskCode());
-                params.put("unloadUserErp",taskHelpersReq.getHelperERP());
-                Date updateTime = DateHelper.parseDate(taskHelpersReq.getOperateTime());
-                params.put("updateTime",updateTime);
 
-                if (!unloadCarDistributionDao.deleteUnloadCarTaskHelpers(params)) {
+                UnloadCarDistribution unloadCarDistribution = new UnloadCarDistribution();
+                unloadCarDistribution.setSealCarCode(taskHelpersReq.getTaskCode());
+                unloadCarDistribution.setUnloadUserErp(taskHelpersReq.getHelperERP());
+                Date updateTime = DateHelper.parseDate(taskHelpersReq.getOperateTime());
+                unloadCarDistribution.setUpdateTime(updateTime);
+
+                if (!unloadCarDistributionDao.deleteUnloadCarTaskHelpers(unloadCarDistribution)) {
                     result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
                     result.setMessage("删除协助人失败");
                     return result;
                 }
+            } else if (taskHelpersReq.getOperateType() == OperateTypeEnum.INSERT_HELPER.getType()) {
 
-            } else if (taskHelpersReq.getOperateType() == 1) {
+                //校验协助人
+                BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseStaffByErpNoCache(taskHelpersReq.getHelperERP());
+                if (baseStaffSiteOrgDto == null || baseStaffSiteOrgDto.getStaffName() == null){
+                    logger.error("根据协助人的erp未查询到员工信息，请求信息：{}",JsonHelper.toJson(taskHelpersReq));
+                    result.setCode(InvokeResult.RESULT_NULL_CODE);
+                    result.setMessage("未查询到员工信息");
+                    return result;
+                }
+
                 //添加协助人
                 UnloadCarDistribution unloadCarDistribution = new UnloadCarDistribution();
                 unloadCarDistribution.setSealCarCode(taskHelpersReq.getTaskCode());
@@ -336,6 +347,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
         result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
         List<UnloadCarTaskDto> unloadCarTaskDtos = new ArrayList<>();
+        result.setData(unloadCarTaskDtos);
 
         try {
             //根据责任人/协助人查找任务编码
@@ -360,7 +372,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 unloadCarTaskDto.setPlatformName(unloadCar.getRailWayPlatForm());
                 unloadCarTaskDto.setCarCode(unloadCar.getVehicleNumber());
                 unloadCarTaskDto.setBatchCode(unloadCar.getBatchCode());
-                unloadCarTaskDto.setBatchNum(getBatchNumber(unloadCar.getBatchCode()));
+                if (unloadCar != null && unloadCar.getBatchCode() != null) {
+                    unloadCarTaskDto.setBatchNum(getBatchNumber(unloadCar.getBatchCode()));
+                }
                 unloadCarTaskDto.setPackageNum(unloadCar.getPackageNum());
                 unloadCarTaskDto.setWaybillNum(unloadCar.getWaybillNum());
                 unloadCarTaskDto.setTaskStatus(unloadCar.getStatus());
@@ -382,5 +396,18 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     private int getBatchNumber(String batchCode) {
         String[] batchList = batchCode.split(",");
         return batchList.length;
+    }
+
+    //将批次号的数组类型转换为字符串类型
+    private String getStrByBatchCodes(List<String> batchCodes) {
+        String sendCode = "";
+        for(int i=0;i<batchCodes.size();i++){
+            if(i < batchCodes.size()-1){
+                sendCode += batchCodes.get(i) + ",";
+            }else{
+                sendCode += batchCodes.get(i);
+            }
+        }
+        return sendCode;
     }
 }
