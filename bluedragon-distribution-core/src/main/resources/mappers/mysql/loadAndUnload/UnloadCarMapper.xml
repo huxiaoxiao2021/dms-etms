@@ -80,6 +80,9 @@
             <if test="sealCarCode != null">
                 seal_car_code,
             </if>
+            <if test="vehicleNumber != null">
+                vehicle_number,
+            </if>
             <if test="startSiteCode != null">
                 start_site_code,
             </if>
@@ -150,6 +153,9 @@
             </if>
             <if test="sealCarCode != null">
                 #{sealCarCode,jdbcType=VARCHAR},
+            </if>
+            <if test="vehicleNumber != null">
+                #{vehicleNumber,jdbcType=VARCHAR},
             </if>
             <if test="startSiteCode != null">
                 #{startSiteCode,jdbcType=BIGINT},
