@@ -44,31 +44,32 @@ public class UnloadCarDaoTest extends AbstractDaoIntegrationH2Test {
 
     @Test
     public void testGetUnloadCarTaskByParams() {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("unloadUserErp","bjxings");
-        params.put("endSiteCode",364605);
-        List<UnloadCar> unloadCars = unloadCarDao.getUnloadCarTaskByParams(params);
+
+        UnloadCar unload = new UnloadCar();
+        unload.setUnloadUserErp("bjxings");
+        unload.setEndSiteCode(364605);
+        List<UnloadCar> unloadCars = unloadCarDao.getUnloadCarTaskByParams(unload);
         System.out.println(unloadCars);
     }
 
     @Test
     public void testUpdateUnloadCarTaskStatus() {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("sealCarCode","SC12345678");
-        params.put("status",1);
-        params.put("unloadUserErp","bjxings");
-        params.put("updateUserErp","lijie357");
-        params.put("updateUserName","李杰");
-        params.put("endSiteCode",364605);
-        params.put("endSiteName","天坛分拣中心");
 
-        params.put("updateTime",new Date());
-        int count = unloadCarDao.updateUnloadCarTaskStatus(params);
+        UnloadCar unloadCar = new UnloadCar();
+        unloadCar.setSealCarCode("SC12345678");
+        unloadCar.setStatus(1);
+        unloadCar.setUnloadUserErp("bjxings");
+        unloadCar.setUpdateUserErp("lijie357");
+        unloadCar.setUpdateUserName("李杰");
+        unloadCar.setEndSiteCode(364605);
+        unloadCar.setOperateTime(new Date());
+
+        int count = unloadCarDao.updateUnloadCarTaskStatus(unloadCar);
 
         Map<String, Object> p = new HashMap<String, Object>();
         p.put("unloadUserErp","bjxings");
         p.put("endSiteCode",364605);
-        List<UnloadCar> unloadCars = unloadCarDao.getUnloadCarTaskByParams(p);
+        List<UnloadCar> unloadCars = unloadCarDao.getUnloadCarTaskByParams(unloadCar);
     }
 
     @Test
@@ -104,7 +105,9 @@ public class UnloadCarDaoTest extends AbstractDaoIntegrationH2Test {
         params.put("sealCarCodes",sealCarCodes);
         params.put("updateUserErp","bjxings");
         params.put("updateUserName","邢松");
+        params.put("distributeTime",new Date());
         unloadCarDao.distributeTaskByParams(params);
+        unloadCarDao.selectBySealCarCode("SC12345678");
     }
 
     @Test

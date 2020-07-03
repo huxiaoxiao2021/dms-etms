@@ -101,7 +101,7 @@ public class LoadAndUnloadVehicleResource {
      * @return
      */
     @POST
-    @Path("")
+    @Path("/unload/getUnloadCarTask")
     public InvokeResult<List<UnloadCarTaskDto>> getUnloadCarTask(UnloadCarTaskReq unloadCarTaskReq) {
         InvokeResult<List<UnloadCarTaskDto>> result = new InvokeResult<List<UnloadCarTaskDto>>();
         if (unloadCarTaskReq == null || unloadCarTaskReq.getUser() == null ||
@@ -119,7 +119,7 @@ public class LoadAndUnloadVehicleResource {
      * @return
      */
     @POST
-    @Path("")
+    @Path("/unload/updateUnloadCarTaskStatus")
     public InvokeResult<List<UnloadCarTaskDto>> updateUnloadCarTaskStatus(UnloadCarTaskReq unloadCarTaskReq) {
         InvokeResult<List<UnloadCarTaskDto>> result = new InvokeResult<>();
         if (unloadCarTaskReq == null || unloadCarTaskReq.getTaskCode() == null || unloadCarTaskReq.getTaskStatus() == null
@@ -139,7 +139,7 @@ public class LoadAndUnloadVehicleResource {
      * @return
      */
     @GET
-    @Path("/unload/getUnloadCarDetail/{taskCode}")
+    @Path("/unload/getUnloadCarTaskHelpers/{taskCode}")
     public InvokeResult<List<HelperDto>> getUnloadCarTaskHelpers(@PathParam("taskCode") String taskCode) {
         InvokeResult<List<HelperDto>> result = new InvokeResult<>();
         if(StringUtils.isEmpty(taskCode)){
@@ -156,7 +156,7 @@ public class LoadAndUnloadVehicleResource {
      * @return
      */
     @POST
-    @Path("")
+    @Path("/unload/updateUnloadCarTaskHelpers")
     public InvokeResult<List<HelperDto>> updateUnloadCarTaskHelpers(TaskHelpersReq taskHelpersReq) {
         InvokeResult<List<HelperDto>> result = new InvokeResult<>();
         if (taskHelpersReq == null || taskHelpersReq.getTaskCode() == null || taskHelpersReq.getOperateType() == null
@@ -175,7 +175,7 @@ public class LoadAndUnloadVehicleResource {
      * @return
      */
     @POST
-    @Path("")
+    @Path("/unload/getUnloadCarTaskScan")
     public InvokeResult<List<UnloadCarTaskDto>> getUnloadCarTaskScan(TaskHelpersReq taskHelpersReq) {
         InvokeResult<List<UnloadCarTaskDto>> result = new InvokeResult<>();
         if (taskHelpersReq == null || taskHelpersReq.getUser() == null || taskHelpersReq.getUser().getUserErp() == null

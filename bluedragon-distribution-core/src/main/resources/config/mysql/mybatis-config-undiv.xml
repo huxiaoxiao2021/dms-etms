@@ -114,6 +114,10 @@
 
         <!-- 冷链发货 -->
         <typeAlias type="com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend" alias="ColdChainSend"/>
+
+        <!-- 卸车任务 -->
+        <typeAlias type="com.jd.bluedragon.distribution.loadAndUnload.UnloadCar" alias="unloadCar"/>
+        <typeAlias type="com.jd.bluedragon.distribution.loadAndUnload.UnloadCarDistribution" alias="unloadCarDistribution"/>
     </typeAliases>
 
     <plugins>

@@ -98,7 +98,7 @@ $(function () {
             }
     //        visible: false
         },{
-            field: 'sealCode',
+            field: 'sealCarCode',
             title: '封车号',
             align: 'center'
         },{
@@ -192,9 +192,10 @@ $(function () {
     $('#btn_distribute').click(function() {
         var rows = $('#dataTable').bootstrapTable('getSelections');
         var unloadUser = $('#unloadUser').val();
-        var railWayPlatForm = $('railWayPlatForm').val();
+        var railWayPlatForm = $('#railWayPlatForm').val();
         if(unloadUser.length < 1){
             alert("错误，未填卸车负责人ERP!");
+            $("#unloadUserName").val("");
             return;
         }
         if (rows.length < 1) {
@@ -204,17 +205,19 @@ $(function () {
         var flag = confirm("是否处理这些数据?");
         if (flag == true) {
             var sealCarCodes = [];
+            var unloadCarIds = [];
             for(var i in rows){
                 sealCarCodes.push(rows[i].sealCarCode);
+                unloadCarIds.push(rows[i].unloadCarId)
             };
             var request = new Object();
             request.unloadUserErp = unloadUser;
             request.railWayPlatForm = railWayPlatForm;
             request.sealCarCodes = sealCarCodes;
+            request.unloadCarIds = unloadCarIds;
 
             $.ajaxHelper.doPostSync(distributeUrl,JSON.stringify(request),function(res){
-                if(res && res.succeed && res.data){
-                    alert('操作成功,处理'+res.data+'条。');
+                if(res && res.succeed){
                     tableInit().refresh();
                 }else{
                     alert(res.message);
@@ -228,13 +231,14 @@ $(function () {
         var unloadUser = $('#unloadUser').val();
         if(unloadUser.length < 1){
             alert("错误，未填卸车负责人ERP!");
+            $("#unloadUserName").val("");
             return;
         }
 
         var userUrl = '/unloadCarTask/getUserName?unloadUser=' + $("#unloadUser").val();
         $.ajaxHelper.doGetSync(userUrl,null,function(res){
             if(res && !res.succeed){
-                alert(res.message);
+                alert('操作成功!');
             }
             $("#unloadUserName").val(res.data);
         });

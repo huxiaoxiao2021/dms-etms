@@ -53,6 +53,7 @@ public class UnloadCarTaskController extends DmsBaseController {
 
     @RequestMapping("/listData")
     @ResponseBody
+    @Authorization(Constants.DMS_WEB_UNLOAD_CAR_TASK_R)
     public PagerResult<UnloadCarTask> listData(@RequestBody UnloadCarCondition condition) {
 
         PagerResult<UnloadCarTask> result = new PagerResult<>();
@@ -68,6 +69,7 @@ public class UnloadCarTaskController extends DmsBaseController {
 
     @RequestMapping("/distributeTask")
     @ResponseBody
+    @Authorization(Constants.DMS_WEB_UNLOAD_CAR_TASK_R)
     public JdResponse distributeTask(@RequestBody DistributeTaskRequest request) {
         JdResponse result = new JdResponse<>();
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
@@ -88,6 +90,7 @@ public class UnloadCarTaskController extends DmsBaseController {
 
     @RequestMapping("/getUserName")
     @ResponseBody
+    @Authorization(Constants.DMS_WEB_UNLOAD_CAR_TASK_R)
     public JdResponse<String> distributeTask(@QueryParam("unloadUser") String unloadUser) {
         JdResponse<String> result = new JdResponse<>();
         BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseStaffByErpNoCache(unloadUser);

@@ -63,7 +63,7 @@
     <sql id="Base_Column_List" >
 		unload_car_id,seal_car_code,vehicle_number,start_site_code,start_site_name,end_site_code,end_site_name,
 		seal_time,seal_code,batch_code,railWay_platForm,waybill_num,package_num,unload_user_erp,unload_user_name,
-		distribute_time,update_user_erp,update_user_name,status,operate_time,create_time,update_time,yn
+		distribute_time,update_user_erp,update_user_name,status,operate_user_erp,operate_user_name,operate_time,create_time,update_time,yn
 	</sql>
 
     <sql id="Base_Condition_Sql" >
@@ -79,6 +79,9 @@
             </if>
             <if test="sealCarCode != null">
                 seal_car_code,
+            </if>
+            <if test="vehicleNumber != null">
+                vehicle_number,
             </if>
             <if test="startSiteCode != null">
                 start_site_code,
@@ -137,9 +140,7 @@
             <if test="updateTime != null">
                 update_time,
             </if>
-            <if test="yn != null">
-                yn
-            </if>
+            yn
         </trim>
         )
         values
@@ -150,6 +151,9 @@
             </if>
             <if test="sealCarCode != null">
                 #{sealCarCode,jdbcType=VARCHAR},
+            </if>
+            <if test="vehicleNumber != null">
+                #{vehicleNumber,jdbcType=VARCHAR},
             </if>
             <if test="startSiteCode != null">
                 #{startSiteCode,jdbcType=BIGINT},
@@ -208,9 +212,7 @@
             <if test="updateTime != null">
                 #{updateTime,jdbcType=TIMESTAMP},
             </if>
-            <if test="yn != null">
-                #{yn,jdbcType=TINYINT}
-            </if>
+            1
         </trim>
         )
     </insert>
@@ -257,20 +259,21 @@
         update_user_name = #{updateUserName, jdbcType=VARCHAR},
         operate_user_erp = #{operateUserErp, jdbcType=VARCHAR},
         operate_user_name = #{operateUserName, jdbcType=VARCHAR},
+        distribute_time = #{distributeTime, jdbcType=TIMESTAMP},
         status = 1,
         update_time = NOW()
         WHERE
         YN = 1
-        <if test="sealCarCodes != null">
-            AND seal_car_code in
-            <foreach item="item" index="index" collection="sealCarCodes"
+        <if test="unloadCarIds != null">
+            AND unload_car_id in
+            <foreach item="item" index="index" collection="unloadCarIds"
                      open="(" separator="," close=")">
                 #{item}
             </foreach>
         </if>
     </update>
     
-    <select id="getUnloadCarTaskByParams" parameterType="java.util.Map" resultMap="unloadCar">
+    <select id="getUnloadCarTaskByParams" parameterType="unloadCar" resultMap="unloadCar">
         select
         <include refid="Base_Column_List"/>
         from
@@ -283,7 +286,7 @@
         group by status
     </select>
 
-    <update id="updateUnloadCarTaskStatus" parameterType="java.util.Map">
+    <update id="updateUnloadCarTaskStatus" parameterType="unloadCar">
         UPDATE unload_car
         SET
         status = #{status,jdbcType=TINYINT},
@@ -308,6 +311,5 @@
         <foreach collection="list" item="item" index="index" separator="," open="(" close=")">
             #{item,jdbcType=VARCHAR}
         </foreach>
-        order by create_time desc
     </select>
 </mapper>

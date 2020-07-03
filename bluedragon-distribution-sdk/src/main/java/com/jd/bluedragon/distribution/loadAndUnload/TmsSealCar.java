@@ -21,7 +21,7 @@ public class TmsSealCar implements Serializable {
     /**
      * 操作状态：10-封车，20-解封，30-出围栏，40-进围栏
      * */
-    private Integer stauts;
+    private Integer status;
 
     /**
      * 操作人ERP
@@ -102,12 +102,12 @@ public class TmsSealCar implements Serializable {
         this.sealCarCode = sealCarCode;
     }
 
-    public Integer getStauts() {
-        return stauts;
+    public Integer getStatus() {
+        return status;
     }
 
-    public void setStauts(Integer stauts) {
-        this.stauts = stauts;
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 
     public String getOperateUserCode() {

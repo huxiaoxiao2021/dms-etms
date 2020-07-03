@@ -38,11 +38,11 @@ public class UnloadCarDao extends BaseDao<UnloadCar> {
          return this.getSqlSession().update(namespace + ".distributeTaskByParams", params);
     }
 
-    public List<UnloadCar> getUnloadCarTaskByParams(Map<String, Object> params) {
+    public List<UnloadCar> getUnloadCarTaskByParams(UnloadCar params) {
         return this.getSqlSession().selectList(namespace + ".getUnloadCarTaskByParams",params);
     }
 
-    public int updateUnloadCarTaskStatus(Map<String, Object> params) {
+    public int updateUnloadCarTaskStatus(UnloadCar params) {
         return this.getSqlSession().update(namespace + ".updateUnloadCarTaskStatus", params);
     }
 
