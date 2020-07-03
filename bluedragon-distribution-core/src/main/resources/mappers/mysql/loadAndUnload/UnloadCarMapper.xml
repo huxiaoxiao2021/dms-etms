@@ -140,9 +140,7 @@
             <if test="updateTime != null">
                 update_time,
             </if>
-            <if test="yn != null">
-                yn
-            </if>
+            yn
         </trim>
         )
         values
@@ -214,9 +212,7 @@
             <if test="updateTime != null">
                 #{updateTime,jdbcType=TIMESTAMP},
             </if>
-            <if test="yn != null">
-                #{yn,jdbcType=TINYINT}
-            </if>
+            1
         </trim>
         )
     </insert>
