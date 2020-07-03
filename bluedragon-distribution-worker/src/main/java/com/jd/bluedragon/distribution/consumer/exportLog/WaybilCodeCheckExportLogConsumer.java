@@ -155,6 +155,9 @@ public class WaybilCodeCheckExportLogConsumer extends MessageBaseConsumer {
         ZipOutputStream zipOut = null;
         ByteArrayOutputStream bos = null;
         try {
+            if(StringUtils.isNotBlank(csvFileName)&&csvFileName.contains(".zip")){
+                csvFileName=csvFileName.replace(".zip","");
+            }
             bos = new ByteArrayOutputStream();
             zipOut = new ZipOutputStream(bos);
             //记录csv文件索引
