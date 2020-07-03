@@ -33,6 +33,10 @@ public class DistributeTaskRequest implements Serializable {
      * 封车编码
      * */
     private List<String> sealCarCodes;
+    /**
+     * 封车任务主键ID
+     * */
+    private List<Integer> unloadCarIds;
 
     public String getUnloadUserErp() {
         return unloadUserErp;
@@ -72,5 +76,13 @@ public class DistributeTaskRequest implements Serializable {
 
     public void setSealCarCodes(List<String> sealCarCodes) {
         this.sealCarCodes = sealCarCodes;
+    }
+
+    public List<Integer> getUnloadCarIds() {
+        return unloadCarIds;
+    }
+
+    public void setUnloadCarIds(List<Integer> unloadCarIds) {
+        this.unloadCarIds = unloadCarIds;
     }
 }

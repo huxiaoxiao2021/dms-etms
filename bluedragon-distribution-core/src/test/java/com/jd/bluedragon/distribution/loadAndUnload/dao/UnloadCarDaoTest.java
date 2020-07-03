@@ -105,7 +105,9 @@ public class UnloadCarDaoTest extends AbstractDaoIntegrationH2Test {
         params.put("sealCarCodes",sealCarCodes);
         params.put("updateUserErp","bjxings");
         params.put("updateUserName","邢松");
+        params.put("distributeTime",new Date());
         unloadCarDao.distributeTaskByParams(params);
+        unloadCarDao.selectBySealCarCode("SC12345678");
     }
 
     @Test

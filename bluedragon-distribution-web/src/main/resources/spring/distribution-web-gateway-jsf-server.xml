@@ -259,12 +259,4 @@
                   server="dmsjsf">
     </jsf:provider>
 
-    <!--卸车任务-->
-    <bean id="unloadCarGatwayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.UnloadCarGatwayServiceImpl" />
-    <jsf:provider id="jsfUnloadCarGatwayService"
-                  interface="com.jd.bluedragon.external.gateway.service.UnloadCarGatwayService"
-                  alias="${dms.gateway.jsf.alias}"
-                  ref="unloadCarGatwayService"
-                  server="dmsjsf">
-    </jsf:provider>
 </beans>

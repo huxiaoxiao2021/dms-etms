@@ -259,13 +259,14 @@
         update_user_name = #{updateUserName, jdbcType=VARCHAR},
         operate_user_erp = #{operateUserErp, jdbcType=VARCHAR},
         operate_user_name = #{operateUserName, jdbcType=VARCHAR},
-        status = 2,
+        distribute_time = #{distributeTime, jdbcType=TIMESTAMP},
+        status = 1,
         update_time = NOW()
         WHERE
         YN = 1
-        <if test="sealCarCodes != null">
-            AND seal_car_code in
-            <foreach item="item" index="index" collection="sealCarCodes"
+        <if test="unloadCarIds != null">
+            AND unload_car_id in
+            <foreach item="item" index="index" collection="unloadCarIds"
                      open="(" separator="," close=")">
                 #{item}
             </foreach>

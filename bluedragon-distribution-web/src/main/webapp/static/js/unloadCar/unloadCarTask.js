@@ -192,7 +192,7 @@ $(function () {
     $('#btn_distribute').click(function() {
         var rows = $('#dataTable').bootstrapTable('getSelections');
         var unloadUser = $('#unloadUser').val();
-        var railWayPlatForm = $('railWayPlatForm').val();
+        var railWayPlatForm = $('#railWayPlatForm').val();
         if(unloadUser.length < 1){
             alert("错误，未填卸车负责人ERP!");
             $("#unloadUserName").val("");
@@ -205,13 +205,16 @@ $(function () {
         var flag = confirm("是否处理这些数据?");
         if (flag == true) {
             var sealCarCodes = [];
+            var unloadCarIds = [];
             for(var i in rows){
                 sealCarCodes.push(rows[i].sealCarCode);
+                unloadCarIds.push(rows[i].unloadCarId)
             };
             var request = new Object();
             request.unloadUserErp = unloadUser;
             request.railWayPlatForm = railWayPlatForm;
             request.sealCarCodes = sealCarCodes;
+            request.unloadCarIds = unloadCarIds;
 
             $.ajaxHelper.doPostSync(distributeUrl,JSON.stringify(request),function(res){
                 if(res && res.succeed){

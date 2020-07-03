@@ -22,6 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -117,16 +119,18 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     }
 
     @Override
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public boolean distributeTask(DistributeTaskRequest request) {
 
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("unloadUserErp",request.getUnloadUserErp());
         params.put("railWayPlatForm",request.getRailWayPlatForm());
-        params.put("sealCarCodes",request.getSealCarCodes());
+        params.put("unloadCarIds",request.getUnloadCarIds());
         params.put("updateUserErp",request.getUpdateUserErp());
         params.put("updateUserName",request.getUpdateUserName());
         params.put("operateUserErp",request.getUpdateUserErp());
         params.put("operateUserName",request.getUpdateUserName());
+        params.put("distributeTime",new Date());
         int result = unloadCarDao.distributeTaskByParams(params);
         if (result < 1) {
             logger.warn("分配任务失败，请求体：{}",JsonHelper.toJson(request));
@@ -143,7 +147,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             unloadCarDistribution.setCreateTime(new Date());
             unloadCarDistributionDao.add(unloadCarDistribution);
         }
-
         return true;
     }
 
