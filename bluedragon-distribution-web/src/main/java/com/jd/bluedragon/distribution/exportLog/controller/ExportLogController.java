@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.exportlog.domain.ExportLog;
 import com.jd.bluedragon.distribution.exportlog.domain.ExportLogCondition;
 import com.jd.bluedragon.distribution.exportlog.service.ExportLogService;
 import com.jd.bluedragon.distribution.jss.JssService;
+import com.jd.common.util.StringUtils;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
 import org.apache.commons.io.IOUtils;
@@ -65,6 +66,9 @@ public class ExportLogController  extends DmsBaseController {
      */
     @RequestMapping(value = "/downLoadFile")
     public void downLoad(@RequestParam("fileName") String fileName, HttpServletResponse response, HttpServletRequest request) {
+        if(!StringUtils.isBlank(fileName)){
+            fileName=fileName+".zip";
+        }
         response.setContentType("multipart/form-data");
         response.setHeader("Content-Disposition", "attachment;filename=" + fileName);
         InputStream inputStream=null;

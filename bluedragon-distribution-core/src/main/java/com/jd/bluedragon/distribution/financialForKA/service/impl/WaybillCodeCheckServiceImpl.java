@@ -110,7 +110,7 @@ public class WaybillCodeCheckServiceImpl implements WaybillCodeCheckService {
      */
     @Override
     public String exportApply(LoginUser loginUser, KaCodeCheckCondition condition) {
-        String exportCode = loginUser.getUserErp() + DateHelper.formatDate(new Date(), "yyyyMMddHHmm")+".zip";
+        String exportCode = loginUser.getUserErp() + DateHelper.formatDate(new Date(), "yyyyMMddHHmm");
         String repeatExport = jimdbCacheService.get(exportCode);
         if(!StringUtils.isBlank(repeatExport)) {
             return "一分钟内只能导出一次，请稍后再试";

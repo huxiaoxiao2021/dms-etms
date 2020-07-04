@@ -353,6 +353,7 @@ public class WaybilCodeCheckExportLogConsumer extends MessageBaseConsumer {
     private void uploadJss(String exportCode, KaCodeCheckCondition kaCodeCheckCondition) throws Exception {
         ByteArrayOutputStream bos = mutiCsvToByteArrayOutputStream2(exportCode,kaCodeCheckCondition);
         try(InputStream inputStream = new ByteArrayInputStream(bos.toByteArray())){
+            exportCode=exportCode+".zip";
             jssService.uploadFile(bucket, exportCode, bos.toByteArray().length, inputStream);
         }catch (Exception ex){
             log.error("上传jss异常,exportCode:{}",exportCode,ex);
