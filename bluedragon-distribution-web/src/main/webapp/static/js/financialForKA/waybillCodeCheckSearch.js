@@ -132,27 +132,6 @@ $(function () {
                 type: 'datetime',
                 btns: ['now', 'confirm'],
                 done: function(value, date, endDate){
-                    /*重置表单验证状态*/
-                    var endDate = $("#endTime").val();
-                    if (!endDate || endDate == '') return;
-                    var oneDay=1000 * 60 * 60 * 24;
-                    var startTimeStr=$("#startTime").val();
-                    var startDate = new Date(value.replace('-', '/'));
-                    var endDate = new Date($("#endTime").val().replace('-', '/'));
-                    console.log(startDate, endDate);
-                    if ((startDate.getTime() - endDate.getTime()) > 0) {
-                        setTimeout(function () {
-                            $("#startTime").val(startTimeStr);
-                        }, 0);
-                        return layer.msg("开始时间不能超过结束时间");
-                    }
-                    var days = parseInt((endDate.getTime() - startDate.getTime()) / (oneDay));
-                    if (days > 7) {
-                        setTimeout(function () {
-                            $("#startTime").val(startTimeStr);
-                        }, 0);
-                        return layer.msg('查询天数不可超过7天');
-                    }
                 }
             });
             endTimeControl= $.datePicker.createNew({
@@ -161,43 +140,25 @@ $(function () {
                 type: 'datetime',
                 btns: ['now', 'confirm'],
                 done: function(value, date){
-                    var startDateStr = $("#startTime").val();
-                    if (!startDateStr || startDateStr == '') return;
-                    var oneDay=1000 * 60 * 60 * 24;
-                    var endTimeStr=$("#endTime").val();
-                    var endDate = new Date(value.replace('-', '/'));
-                    var startDate = new Date($("#startTime").val().replace('-', '/'));
-                    console.log(startDate, endDate);
-                    if ((startDate.getTime() - endDate.getTime()) > 0) {
-                        setTimeout(function () {
-                            $("#endTime").val(endTimeStr);
-                        }, 0);
-                        return layer.msg("结束时间不能早于开始时间");
-                    }
-                    var days = parseInt((endDate.getTime() - startDate.getTime()) / (oneDay));
-                    if (days > 7) {
-                        setTimeout(function () {
-                            $("#endTime").val(endTimeStr);
-                        }, 0);
-                        return layer.msg('查询天数不可超过7天');
-                    }
                 }
             });
 
             //查询
             $('#btn_query').click(function () {
-                if($("#endTime").val()==""){
-                    alert("请选择结束时间");
-                    return ;
-                }
+                /*重置表单验证状态*/
+                var endTimeStr = $("#endTime").val();
+                if (!endTimeStr || endTimeStr == '') return layer.msg('请选择结束时间');
                 var oneDay=1000 * 60 * 60 * 24;
                 var startTimeStr=$("#startTime").val();
                 var startDate = new Date(startTimeStr.replace('-', '/'));
-                var endDate = new Date($("#endTime").val().replace('-', '/'));
-                var days = parseInt((endDate.getTime() - startDate.getTime()) / (oneDay));
-                if(days>7){
-                    alert("选择时间不能超过7天");
-                    return;
+                var endDate = new Date(endTimeStr.replace('-', '/'));
+                console.log(startDate, endDate);
+                if ((startDate.getTime() - endDate.getTime()) > 0) {
+                    return layer.msg("开始时间不能超过结束时间");
+                }
+                var days = parseInt((endDate.getTime() - startDate.getTime()) / oneDay);
+                if (days > 7) {
+                    return layer.msg('查询天数不可超过7天');
                 }
                 tableInit().refresh();
             });
