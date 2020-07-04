@@ -122,6 +122,17 @@ public class WaybillCodeCheckController extends DmsBaseController {
         return "/financialForKA/financialForKAsearch";
     }
 
+    /**
+     * 跳转导出明细查看页面
+     *
+     * @return
+     */
+    @Authorization(Constants.DMS_WEB_TOOL_WAYBILLCODECHECK_R)
+    @RequestMapping("/toSearchExportTaskIndex")
+    public String toSearchExportTaskIndex() {
+        return "/financialForKA/searchExportTask";
+    }
+
 
     /**
      * 获取明细
