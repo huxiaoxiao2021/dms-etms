@@ -67,7 +67,7 @@ public class C2cInterceptHandler implements Handler<WaybillPrintContext, JdResul
             List<PackageStateDto> collectHandoverCompleteResult = waybillTraceManager.getPkStateDtoByWCodeAndState(context.getWaybill().getWaybillCode(), Constants.WAYBILL_TRACE_STATE_BMZT_COLLECT_HANDOVER_COMPLETE);
             //存在揽收完成或交接完成的全程跟踪，都可以进行打印，反之，进行拦截提示，禁止打印
             if (! (collectCompleteResult.size() != 0 || collectHandoverCompleteResult.size() != 0)) {
-                interceptResult.toWeakSuccess().toFail(InterceptResult.STATUS_NO_PASSED, WaybillPrintMessages.MESSAGE_NEED_RECEIVE);
+                interceptResult.toFail(InterceptResult.STATUS_NO_PASSED, WaybillPrintMessages.MESSAGE_NEED_RECEIVE);
                 return interceptResult;
             }
         }
