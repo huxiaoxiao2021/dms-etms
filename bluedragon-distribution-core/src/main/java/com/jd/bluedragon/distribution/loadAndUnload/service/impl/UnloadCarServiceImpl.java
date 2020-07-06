@@ -562,6 +562,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             if(board == null || StringUtils.isEmpty(board.getCode())){
                 throw new LoadIllegalException(LoadIllegalException.BOARD_CREATE_FAIL_INTERCEPT_MESSAGE);
             }
+            request.setBoardCode(board.getCode());
+            request.setReceiveSiteCode(board.getDestinationId());
+            request.setReceiveSiteName(board.getDestination());
             UnloadCarScanResult unloadCarScanResult = result.getData();
             unloadCarScanResult.setSealCarCode(request.getSealCarCode());
             unloadCarScanResult.setBarCode(request.getBarCode());
