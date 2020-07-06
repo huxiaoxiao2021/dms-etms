@@ -43,21 +43,52 @@ $(document).ready(function() {
 			/* 设置content的填充内容 */
 			var contentType = rule.contentType;
 			var contentHTML = "";
+			//针对不同的contentType识别不同的输入类型
 			if (1 === contentType) {
-				$("#rule_content").attr("placeholder", "请键入站点编号，以英文逗号分隔");
+				contentHTML = "<input id=\"rule_content\" name=\"content\" type=\"text\" class=\"form-control\" placeholder=\"请键入站点编号，以英文逗号分隔\"/>"
 			} else if (2 === contentType) {
-				$("#rule_content").attr("placeholder", "请键入站点类型，以英文逗号分隔");
+				contentHTML = "<select name=\"content\" class=\"form-control\" id=\"rule_content\" multiple=\"multiple\" placeholder=\"请键入站点类型，以英文逗号分隔\">"
+                				$.ajaxHelper.doGetSync('#springUrl("/services/getBaseDataDictList/6/2/6")',null,function (res) {
+                                		if (res != null) {
+                                			var temp = "";
+                                			$.each (res, function (index, item) {
+                                				contentHTML += "<option value='"+ item.typeCode +"'>" + item.typeName + "</option>";
+                                			})
+                                		}
+                                	})
+                                contentHTML += "</select>";
 			} else if (3 === contentType) {
-				$("#rule_content").attr("placeholder", "请键入站点子类型，以英文逗号分隔");
+                contentHTML = "<select name=\"content\" class=\"form-control\" id=\"rule_content\" multiple=\"multiple\" placeholder=\"请键入站点子类型，以英文逗号分隔\">"
+				$.ajaxHelper.doGetSync('#springUrl("/services/getBaseDataDictList/4/3/6")',null,function (res) {
+                		if (res != null) {
+                			var temp = "";
+                			$.each (res, function (index, item) {
+                				contentHTML += "<option value='"+ item.typeCode +"'>" + item.typeName + "</option>";
+                			})
+                		}
+                	})
+                contentHTML += "</select>";
 			} else if (4 === contentType) {
-				$("#rule_content").attr("placeholder", "请键入0或1，以英文逗号分隔");
+				contentHTML = "<input id=\"rule_content\" name=\"content\" list=\"contentList\" type=\"text\""
+                				 + " class=\"form-control\" placeholder=\"请键入0或1\"/> "
+                                 + "<datalist id=\"contentList\">"
+                                 + "<option value=\"0\">0</option>"
+                                 + "<option value=\"1\">1</option>"
+                                 + "</datalist>";
 			} else if (5 === contentType) {
-				$("#rule_content").attr("placeholder", "请键入true或者false，以英文逗号分隔");
+				contentHTML = "<input id=\"rule_content\" name=\"content\" list=\"contentList\" type=\"text\""
+				 + " class=\"form-control\" placeholder=\"请键入true或者false\"/> "
+                 + "<datalist id=\"contentList\">"
+                 + "<option value=\"true\">true</option>"
+                 + "<option value=\"false\">false</option>"
+                 + "</datalist>";
 			} else if (6 === contentType) {
-				$("#rule_content").attr("placeholder", "请键入字符串，无需分隔符");
+				contentHTML = "<input id=\"rule_content\" name=\"content\" type=\"text\" class=\"form-control\" placeholder=\"请键入字符串，无需分隔符\"/>"
 			} else if (7 === contentType) {
-				$("#rule_content").attr("placeholder", "请键入数字，无需分隔符");
+                contentHTML = "<input id=\"rule_content\" name=\"content\" type=\"text\" class=\"form-control\" placeholder=\"请键入数字，无需分隔符\"/>"
 			}
+			jQuery("#rule_content_div").html(contentHTML);
+
 			/* 设置默认备注 */
 			jQuery("#memo").val(rule.memo);
 		}
@@ -115,11 +146,7 @@ $(document).ready(function() {
 			  <div class="row">
 				  <label class="control-label col-md-2 col-md-offset-1">规则内容:</label>
 				  <div class="col-md-4" id="rule_content_div">
-					  <input id="rule_content" name="content" type="text" class="form-control"/>
 				  </div>
-##				  <div class="col-md-2">
-##					  <select name="content" id="rule_content" multiple="multiple"></select>
-##				  </div>
 			  </div>
 			  <div class="row">
 				  <label class="control-label col-md-2 col-md-offset-1">备注内容:</label>
