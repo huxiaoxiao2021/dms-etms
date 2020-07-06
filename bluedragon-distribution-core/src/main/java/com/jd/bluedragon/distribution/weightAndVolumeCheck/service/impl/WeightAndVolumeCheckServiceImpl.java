@@ -64,6 +64,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.text.NumberFormat.getPercentInstance;
+
 /**
  * @ClassName: WeightAndVolumeCheckServiceImpl
  * @Description: 类描述信息
@@ -74,6 +76,36 @@ import java.util.Map;
 public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckService {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
+
+    /**
+     * C网抽检阈值
+     * */
+    @Value("${spotCheck.firstThresholdWeight:1.0}")
+    private double firstThresholdWeight;
+    @Value("${spotCheck.firstStage:0.5}")
+    private double firstStage;
+    @Value("${spotCheck.secondThresholdWeight:20.0}")
+    private double secondThresholdWeight;
+    @Value("${spotCheck.secondStage:1.0}")
+    private double secondStage;
+    @Value("${spotCheck.thirdThresholdWeight:50.0}")
+    private double thirdThresholdWeight;
+    @Value("${spotCheck.thirdStage:0.02}")
+    private double thirdStage;
+
+    /**
+     * 抽检导出最大阈值
+     * */
+    @Value("${export.spot.check:10000}")
+    private long exportSpotCheckMaxSize;
+
+    private static final String WEIGHT_STANDARD_PREFIX = "重量:";
+    private static final String VOLUME_WEIGHT_STANDARD_PREFIX = "体积重量:";
+
+    /**
+     * 导出分页阈值
+     * */
+    private static final Integer EXPORT_THRESHOLD_SIZE = 2000;
 
     /** 对象存储 **/
     /**外部 访问域名 */
@@ -488,9 +520,10 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                     if(isExcess(reviewVolumeWeight,diffVolumeWeight)){
                         result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
                         result.setData(false);
-                        result.setMessage("此次操作的体积重量为"+reviewVolumeWeight+"kg,计费的体积重量为"+billingVolume/volumeRate+"kg，"
-                                +"经校验误差值"+diffVolumeWeight+"kg已超出规定"+ (reviewVolumeWeight <=5 ? "0.3":reviewVolumeWeight<=20 ?
-                                "0.5":reviewVolumeWeight<=50 ? "1":reviewVolumeWeight * 0.02)+"kg！");
+                        String baseMessage = "此次操作的体积重量为"+reviewVolumeWeight+"kg,计费的体积重量为"+billingVolume/volumeRate+"kg，经校验误差值"+diffVolumeWeight+"kg已超出规定";
+                        StringBuilder hitMessage = getStandardVal(reviewVolumeWeight).append("kg!");
+                        StringBuilder warnMessage = new StringBuilder().append(baseMessage).append(hitMessage);
+                        result.setMessage(warnMessage.toString());
                         weightVolumeCollectDto.setIsExcess(1);
                         weightVolumeCollectDto.setVolumeWeightIsExcess(1);
                     }
@@ -509,9 +542,10 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                     if(isExcess(maxReviewWeight,diffOfWeight)){
                         result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
                         result.setData(false);
-                        result.setMessage("此次操作的泡重比为"+reviewVolumeWeight+"kg,计费的泡重比为"+billVolumeWeight+"kg，"
-                                +"经校验误差值"+diffOfWeight+"kg已超出规定"+ (reviewVolumeWeight <=5 ? "0.3":reviewVolumeWeight<=20 ?
-                                "0.5":reviewVolumeWeight<=50 ? "1":reviewVolumeWeight * 0.02)+"kg！");
+                        String baseMessage = "此次操作的泡重比为"+reviewVolumeWeight+"kg,计费的泡重比为"+billVolumeWeight+"kg，经校验误差值"+diffOfWeight+"kg已超出规定";
+                        StringBuilder hitMessage = getStandardVal(reviewVolumeWeight).append("kg!");
+                        StringBuilder warnMessage = new StringBuilder().append(baseMessage).append(hitMessage);
+                        result.setMessage(warnMessage.toString());
                         weightVolumeCollectDto.setIsExcess(1);
                     }
 
@@ -520,9 +554,10 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                     if(isExcess(reviewWeightStr,diffWeight)){
                         result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
                         result.setData(false);
-                        result.setMessage("此次操作的复核重量为"+reviewWeightStr+"kg,计费的重量为"+billingWeight+"kg，"
-                                +"经校验误差值"+diffWeight+"kg已超出规定"+ (reviewWeightStr <=5 ? "0.3":reviewWeightStr<=20 ?
-                                "0.5":reviewWeightStr<=50 ? "1":reviewWeightStr * 0.02)+"kg！");
+                        String baseMessage = "此次操作的复核重量为"+reviewWeightStr+"kg,计费的重量为"+billingWeight+"kg，经校验误差值"+diffWeight+"kg已超出规定";
+                        StringBuilder hitMessage = getStandardVal(reviewWeightStr).append("kg!");
+                        StringBuilder warnMessage = new StringBuilder().append(baseMessage).append(hitMessage);
+                        result.setMessage(warnMessage.toString());
                         weightVolumeCollectDto.setIsExcess(1);
                     }
                 }
@@ -538,28 +573,13 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
 
 
             weightVolumeCollectDto.setWeightDiff(new DecimalFormat("#0.00").format(reviewWeightStr - billingWeight));
-            StringBuilder diffStandardOfWeight = new StringBuilder("");
-            if(reviewWeightStr <= 5){
-                diffStandardOfWeight.append("重量:0.3");
-            }else if(reviewWeightStr > 5 && reviewWeightStr <= 20){
-                diffStandardOfWeight.append("重量:0.5");
-            }else if(reviewWeightStr > 20 && reviewWeightStr <= 50){
-                diffStandardOfWeight.append("重量:1");
-            }else if(reviewWeightStr > 50){
-                diffStandardOfWeight.append("重量:2%");
-            }
 
             weightVolumeCollectDto.setReviewVolumeWeight(getVolumeAndWeight(reviewVolume/volumeRate));
             weightVolumeCollectDto.setBillingVolumeWeight(getVolumeAndWeight(billingVolume/volumeRate));
-            if(reviewVolume/volumeRate <= 5){
-                diffStandardOfWeight.append("体积重量:0.3");
-            }else if(reviewVolume/volumeRate > 5 && reviewVolume/volumeRate <= 20){
-                diffStandardOfWeight.append("体积重量:0.5");
-            }else if(reviewVolume/volumeRate > 20 && reviewVolume/volumeRate <= 50){
-                diffStandardOfWeight.append("体积重量:1");
-            }else if(reviewVolume/volumeRate > 50){
-                diffStandardOfWeight.append("体积重量:2%");
-            }
+
+            StringBuilder diffStandardOfWeight = new StringBuilder();
+            diffStandardOfWeight.append(WEIGHT_STANDARD_PREFIX).append(getStandardVal(reviewWeightStr));
+            diffStandardOfWeight.append(VOLUME_WEIGHT_STANDARD_PREFIX).append(getStandardVal(reviewVolume/volumeRate));
             weightVolumeCollectDto.setDiffStandard(diffStandardOfWeight.toString());
             weightVolumeCollectDto.setVolumeWeightDiff(new DecimalFormat("#0.00").format(reviewVolume/volumeRate - billingVolume/volumeRate));
             setProductType(weightVolumeCollectDto);
@@ -580,16 +600,42 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
 
     /**
      * 重量超标判断(true:超标；false：未超标)
+     * <p>
+     *     1、1kg~20kg（含）的（+-）0.5kg（含）误差为正常
+     *     2、20kg~50kg（含）的（+-）1kg（含）误差为正常
+     *     3、50kg以上，允许误差值为总重量的2%（含）进行上下浮动
+     * <p/>
+     * @param weight 复核重量
+     * @param diffOfWeight 重量差异
+     * @return
      */
     private boolean isExcess(double weight,double diffOfWeight){
-        //当抽拣重量<=5kg时，重量差异>0.3kg为超标；当抽拣重量在5-20kg之间时，重量差异>0.5kg为超标；
-        //当抽拣重量在20-50kg之间时，重量差异>1kg为超标；当抽拣重量>50kg之间时，重量差异>(0.02*抽检重量)为超标；
-        if((weight <= 5 && diffOfWeight> 0.3) || (weight > 5 && weight <= 20 && diffOfWeight> 0.5)
-                || (weight > 20 && weight <= 50 && diffOfWeight> 1)
-                || (weight > 50 && diffOfWeight > weight * 0.02)){
+        if((weight > firstThresholdWeight && weight <= secondThresholdWeight && diffOfWeight > firstStage)
+                || (weight > secondThresholdWeight && weight <= thirdThresholdWeight && diffOfWeight > secondStage)
+                || (weight > thirdThresholdWeight && diffOfWeight > weight * thirdStage)){
             return true;
         }
         return false;
+    }
+
+    /**
+     * 获取误差标准值
+     *
+     * @param weight 复核重量
+     * @return
+     */
+    private StringBuilder getStandardVal(double weight){
+        StringBuilder stringBuilder = new StringBuilder();
+        if(weight > firstThresholdWeight && weight <= secondThresholdWeight){
+            return stringBuilder.append(firstStage);
+        }
+        if(weight > secondThresholdWeight && weight <= thirdThresholdWeight){
+            return stringBuilder.append(secondStage);
+        }
+        if(weight > thirdThresholdWeight){
+            return stringBuilder.append(getPercentInstance().format(thirdStage));
+        }
+        return stringBuilder;
     }
 
     /**
@@ -787,9 +833,10 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         heads.add("有无图片");
         heads.add("图片链接");
         resList.add(heads);
-        WeightVolumeQueryCondition transform = transform(condition);
-        BaseEntity<List<WeightVolumeCollectDto>> baseEntity = reportExternalService.getByParamForWeightVolume(transform);
-        if(baseEntity.getData() != null && baseEntity.getData().size() > 0){
+
+        BaseEntity<List<WeightVolumeCollectDto>> baseEntity = getByParamForWeightVolume(condition);
+
+        if(baseEntity.isSuccess() && CollectionUtils.isNotEmpty(baseEntity.getData())){
             List<WeightVolumeCollectDto> list = baseEntity.getData();
             //表格信息
             for(WeightVolumeCollectDto weightVolumeCollectDto : list){
@@ -833,6 +880,65 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         }
         return  resList;
     }
+
+    /**
+     * 分页获取导出数据
+     *
+     * @param condition
+     */
+    private BaseEntity<List<WeightVolumeCollectDto>> getByParamForWeightVolume(WeightAndVolumeCheckCondition condition) {
+        BaseEntity<List<WeightVolumeCollectDto>> response = new BaseEntity<>();
+        List<WeightVolumeCollectDto> list = new ArrayList<>();
+        try {
+            int pageNo = 1;
+            WeightVolumeQueryCondition transform = transform(condition);
+            Pager<WeightVolumeQueryCondition> pager = new Pager<>();
+            pager.setSearchVo(transform);
+            pager.setPageSize(EXPORT_THRESHOLD_SIZE);
+            pager.setPageNo(pageNo);
+            BaseEntity<Pager<WeightVolumeCollectDto>> baseEntity
+                    = reportExternalService.getPagerByConditionForWeightVolume(pager);
+            if(baseEntity == null || baseEntity.getData() == null
+                    || baseEntity.getData().getTotal() == null
+                    || CollectionUtils.isEmpty(baseEntity.getData().getData())){
+                response.setCode(BaseEntity.CODE_SERVICE_ERROR);
+                response.setMessage("导出数据为空!");
+                return response;
+            }
+
+            Long total = baseEntity.getData().getTotal();
+            list.addAll(baseEntity.getData().getData());
+
+            // 设置最大导出数量
+            if(total > exportSpotCheckMaxSize){
+                log.info("导出超出" + exportSpotCheckMaxSize + "条");
+                total = exportSpotCheckMaxSize;
+            }
+
+            long totalPageNum = (total + EXPORT_THRESHOLD_SIZE - 1) / EXPORT_THRESHOLD_SIZE;
+            for (int i = 2; i <= totalPageNum; i++) {
+                pager.setPageNo(i);
+                BaseEntity<Pager<WeightVolumeCollectDto>> nextBaseEntity
+                        = reportExternalService.getPagerByConditionForWeightVolume(pager);
+                if(nextBaseEntity != null && nextBaseEntity.getData() != null
+                        && CollectionUtils.isNotEmpty(nextBaseEntity.getData().getData())){
+                    list.addAll(nextBaseEntity.getData().getData());
+                }else {
+                    log.warn("获取重量体积抽检数据第【{}】页数据为空，共【{}】页，查询条件【{}】",i,totalPageNum,JsonHelper.toJson(pager));
+                    response.setCode(BaseEntity.CODE_SERVICE_ERROR);
+                    response.setMessage("导出数据失败!");
+                    return response;
+                }
+            }
+            response.setData(list);
+        }catch (Exception e){
+            log.error("分页获取导出数据失败",e);
+            response.setCode(BaseEntity.CODE_SERVICE_ERROR);
+            response.setMessage("导出数据失败!");
+        }
+        return response;
+    }
+
 
     /**
      * 查询条件转换

@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.external.gateway;
 
-import sun.misc.BASE64Encoder;
+import org.apache.commons.codec.binary.Base64;
 
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
@@ -101,7 +101,7 @@ public class HmacUtil {
             try {
                 byte[] digest = HmacSHA1Encrypt(txt, secret);
                 //对摘要进行base64编码
-                sign = new BASE64Encoder().encode(digest);
+                sign = Base64.encodeBase64String(digest);
             }catch (Exception e){
                 throw new RuntimeException(e);
             }

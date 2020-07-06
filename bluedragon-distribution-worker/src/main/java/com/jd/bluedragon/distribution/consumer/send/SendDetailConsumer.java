@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.consumer.send;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.SmsMessageManager;
@@ -23,6 +24,10 @@ import com.jd.bluedragon.distribution.send.domain.SendDispatchDto;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.sms.domain.SMSDto;
 import com.jd.bluedragon.distribution.sms.service.SmsConfigService;
+import com.jd.bluedragon.distribution.storage.domain.KYStorageMessage;
+import com.jd.bluedragon.distribution.storage.domain.PutawayDTO;
+import com.jd.bluedragon.distribution.storage.domain.StoragePutStatusEnum;
+import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -105,6 +110,17 @@ public class SendDetailConsumer extends MessageBaseConsumer {
     @Autowired
     @Qualifier("ccInAndOutBoundProducer")
     private DefaultJMQProducer ccInAndOutBoundProducer;
+
+    @Autowired
+    @Qualifier("kyStorageProducer")
+    private DefaultJMQProducer kyStorageProducer;
+
+    @Autowired
+    private StoragePackageMService storagePackageMService;
+
+    @Autowired
+    private WaybillCommonService waybillCommonService;
+
 
     /**
      * 缓存redis的key
@@ -241,6 +257,8 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                 }
                 // 推送冷链操作MQ消息 - B2B冷链卸货出入库业务相关
                 this.pushColdChainOperateMQ(sendDetail, waybill.getWaybillSign());
+                // 快运暂存发货则下架
+                this.kyStoragePutDown(sendDetail);
             } else {
                 log.warn("[dmsWorkSendDetail消费]根据运单号获取运单信息为空，packageBarCode:{},boxCode:{}", packageBarCode, sendDetail.getBoxCode());
             }
@@ -441,13 +459,14 @@ public class SendDetailConsumer extends MessageBaseConsumer {
 
                 Integer orgId = oldSiteDto.getOrgId();
                 SMSDto sMSDto = smsConfigService.getSMSConstantsByOrgId(orgId);
-                String senderNum = sMSDto.getAccount();
-                Long templateId = sMSDto.getTemplateId();
-                String token = sMSDto.getToken();
                 if(sMSDto == null){
                     log.warn("目的分拣中心不属于7大区,目的分拣中心：{}所属区域：{}",operateSiteCode,orgId);
                     return;
                 }
+                String senderNum = sMSDto.getAccount();
+                Long templateId = sMSDto.getTemplateId();
+                String token = sMSDto.getToken();
+
                 BaseStaffSiteOrgDto operateSite = baseMajorManager.getBaseSiteBySiteId(operateSiteCode);
                 if(operateSite == null){
                     return;
@@ -534,6 +553,49 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         body.setPackageNo(sendDetail.getPackageBarcode());
         body.setWaybillNo(WaybillUtil.getWaybillCode(sendDetail.getPackageBarcode()));
         ccInAndOutBoundProducer.send(sendDetail.getPackageBarcode(), JSON.toJSONString(body));
+    }
+
+    /**
+     * 快运暂存发货即下架
+     * <p>
+     *     1、下架全程跟踪时间点比发货时间早3-5秒
+     *     2、更新全部下架时间
+     *     3、运单下所有包裹下架则对外发MQ
+     * </p>
+     * @param sendDetail
+     */
+    private void kyStoragePutDown(SendDetailMessage sendDetail) {
+        try {
+            String waybillCode = WaybillUtil.getWaybillCode(sendDetail.getPackageBarcode());
+            if(waybillCommonService.isStorageWaybill(waybillCode)){
+                updateWaybillStatusOfKYZC(sendDetail);
+                if(storagePackageMService.isAllPutAwayAll(waybillCode)
+                        && storagePackageMService.packageIsAllSend(waybillCode,sendDetail.getCreateSiteCode())){
+                    storagePackageMService.updateDownAwayTimeByWaybillCode(waybillCode);
+                    KYStorageMessage message = new KYStorageMessage();
+                    message.setWaybillCode(WaybillUtil.getWaybillCode(sendDetail.getPackageBarcode()));
+                    message.setOperateErp(sendDetail.getCreateUser());
+                    message.setOperateTime(new Date(sendDetail.getOperateTime() - 3000));
+                    message.setOperateSiteCode(sendDetail.getCreateSiteCode());
+                    message.setStorageStatus(StoragePutStatusEnum.STORAGE_DOWN_AWAY.getCode());
+                    this.log.info("运单暂存全部下架发送MQ【{}】,业务ID【{}】,消息体【{}】",
+                            kyStorageProducer.getTopic(),waybillCode,JsonHelper.toJson(message));
+                    kyStorageProducer.sendOnFailPersistent(message.getWaybillCode(), JSON.toJSONString(message));
+                }
+            }
+        }catch (Exception e){
+            log.error("快运暂存发货即下架异常,异常信息:【{}】",e.getMessage(),e);
+        }
+
+    }
+
+    private void updateWaybillStatusOfKYZC(SendDetailMessage sendDetail) {
+        PutawayDTO putawayDTO = new PutawayDTO();
+        putawayDTO.setOperateTime(sendDetail.getOperateTime() - 3000);
+        putawayDTO.setCreateSiteCode(sendDetail.getCreateSiteCode());
+        putawayDTO.setBarCode(sendDetail.getPackageBarcode());
+        putawayDTO.setOperatorErp(sendDetail.getCreateUser());
+        storagePackageMService.updateWaybillStatusOfKYZC(putawayDTO,false);
     }
 
 }

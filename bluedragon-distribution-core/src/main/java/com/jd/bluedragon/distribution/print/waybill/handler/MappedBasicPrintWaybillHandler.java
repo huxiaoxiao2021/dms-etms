@@ -88,13 +88,6 @@ public class MappedBasicPrintWaybillHandler implements Handler<WaybillPrintConte
         /* 新加字段：hasPrintInvoice 从：isPrintInvoice */
         printWaybill.setHasPrintInvoice(printWaybill.isPrintInvoice());
 
-        /* 新加字段：packList.packageWeight */
-        if (printWaybill.getPackList() != null) {
-            for (PrintPackage packItem : printWaybill.getPackList()) {
-                packItem.setPackageWeight(String.valueOf(packItem.getWeight()) + Constants.MEASURE_UNIT_NAME_KG);
-            }
-        }
-
         /* 加工字段：dmsName */
         if (StringHelper.isNotEmpty(printWaybill.getOriginalDmsName())) {
             String originalDmsName = printWaybill.getOriginalDmsName().replace("分拣中心","")

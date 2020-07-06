@@ -24,6 +24,7 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.OrderParentChildDto;
 import com.jd.etms.waybill.dto.SkuPackRelationDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.ql.trace.api.WaybillTraceBusinessQueryApi;
 import com.jd.ql.trace.api.core.APIResultDTO;
 import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
@@ -685,5 +686,17 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
         }
 
         return busiId;
+    }
+
+    /**
+     * 根据运单号查询运单增值服务信息
+     * @param waybillCode
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.getWaybillVasInfosByWaybillCode" , jAppName = Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public BaseEntity<List<WaybillVasDto>> getWaybillVasInfosByWaybillCode(String waybillCode) {
+        return waybillQueryApi.getWaybillVasInfosByWaybillCode(waybillCode);
     }
 }

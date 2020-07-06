@@ -1,13 +1,5 @@
 package com.jd.bluedragon.distribution.test.print;
 
-import junit.framework.Assert;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-
 import com.jd.bluedragon.common.service.impl.WaybillCommonServiceImpl;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BasicSafInterfaceManager;
@@ -26,9 +18,22 @@ import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.bluedragon.distribution.test.utils.UtilsForTestCase;
 import com.jd.bluedragon.distribution.testCore.base.EntityUtil;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
+import com.jd.ql.dms.common.cache.CacheService;
+import junit.framework.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.concurrent.TimeUnit;
+
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
 /**
  * 
  * @ClassName: CustomerAndConsignerInfoHandlerTestCase
@@ -83,6 +88,8 @@ public class WaybillCommonServiceImplTestCase {
 
     @Mock
     private VrsRouteTransferRelationManager vrsRouteTransferRelationManager;
+    @Mock
+    private CacheService jimdbCacheService;
 	
 	public static void main(String[] args) throws Exception{
 
@@ -93,6 +100,8 @@ public class WaybillCommonServiceImplTestCase {
 	 */
     @Test
     public void testPrintH() throws Exception{
+        when(jimdbCacheService.get(anyString())).thenReturn("true");
+        when(jimdbCacheService.setEx(anyString(),anyString(),anyLong(), TimeUnit.SECONDS));
     	WaybillPrintContext context = EntityUtil.getInstance(WaybillPrintContext.class);
 		String[] sendPays = {
 				null,
@@ -164,4 +173,9 @@ public class WaybillCommonServiceImplTestCase {
 				Assert.assertEquals(waybillSignChecks[i],hasFlag);
 			}
 		}
+
+    @Test
+    public void testisStorageWaybill(){
+        waybillCommonServiceImpl.isStorageWaybill("1111");
+    }
 }

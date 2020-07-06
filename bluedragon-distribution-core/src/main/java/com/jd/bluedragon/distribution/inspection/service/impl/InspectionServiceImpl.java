@@ -4,22 +4,26 @@ import com.google.common.base.Strings;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.DmsRouter;
 import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.core.base.AssertQueryManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
-import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.auto.domain.UploadedPackage;
 import com.jd.bluedragon.distribution.base.domain.DmsStorageArea;
 import com.jd.bluedragon.distribution.base.service.DmsStorageAreaService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
+import com.jd.bluedragon.distribution.inspection.InsepctionCheckDto;
 import com.jd.bluedragon.distribution.inspection.InspectionCheckCondition;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
-import com.jd.bluedragon.distribution.inspection.domain.*;
+import com.jd.bluedragon.distribution.inspection.domain.Inspection;
+import com.jd.bluedragon.distribution.inspection.domain.InspectionAS;
+import com.jd.bluedragon.distribution.inspection.domain.InspectionEC;
+import com.jd.bluedragon.distribution.inspection.domain.InspectionPackProgress;
+import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
 import com.jd.bluedragon.distribution.inspection.exception.InspectionException;
-import com.jd.bluedragon.distribution.inspection.InsepctionCheckDto;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.inspection.service.WaybillPackageBarcodeService;
@@ -36,13 +40,20 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ioms.jsf.export.domain.Order;
+import com.jd.ql.asset.dto.MatterPackageRelationDto;
+import com.jd.ql.asset.dto.ResultData;
+import com.jd.ql.asset.enums.ResultStateEnum;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ump.annotation.JProEnum;
@@ -58,7 +69,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * 验货Service
@@ -112,6 +128,9 @@ public class InspectionServiceImpl implements InspectionService {
 
     @Autowired
     private StoragePackageMService storagePackageMService;
+
+    @Autowired
+    private AssertQueryManager assertQueryManager;
 
 	/**
 	 * 运单包裹关联信息
@@ -303,6 +322,7 @@ public class InspectionServiceImpl implements InspectionService {
 		return result;
 	}
 
+	@JProfiler(jKey = "DMSWEB.InspectionServiceImpl.gatherCheck", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public SortingJsfResponse gatherCheck(PdaOperateRequest pdaOperateRequest,SortingJsfResponse sortingJsfResponse){
 
         //校验运单验货是否集齐
@@ -698,9 +718,9 @@ public class InspectionServiceImpl implements InspectionService {
 			}else if(BusinessUtil.isEdn(waybill.getSendPay(), waybill.getWaybillSign())){
 				BaseStaffSiteOrgDto destinationDmsInfo = siteService.getSite(destinationDmsId);
 				//判断末级分拣中心、企配仓类型
-				if(destinationDmsInfo != null 
-						&& destinationDmsId.equals(dmsSiteCode)
-						&& BusinessUtil.isEdnDmsSite(destinationDmsInfo.getSubType())){
+				if(destinationDmsInfo != null
+						&& Objects.equals(destinationDmsId,dmsSiteCode)
+                        && BusinessUtil.isEdnDmsSite(destinationDmsInfo.getSubType())){
 					hintMessage = "此单为企配仓运单，必须操作暂存上架";
 				}
 			}
@@ -761,4 +781,36 @@ public class InspectionServiceImpl implements InspectionService {
         result.setUnCheckedPackNos(unCheckedPacks);
         return result;
 	}
+
+    /**
+     * 校验运单号是否绑定集包袋
+     *
+     * @param waybillCode
+     * @return
+     */
+    @Override
+    public boolean checkIsBindMaterial(String waybillCode) {
+
+        try {
+            MatterPackageRelationDto dto = new MatterPackageRelationDto();
+            dto.setWaybillCode(waybillCode);
+            ResultData<List<String>> result = assertQueryManager.queryBindMaterialByCode(dto);
+            if(result == null){
+                log.warn("校验运单号【{}】是否绑定集包袋返回值为空...",waybillCode);
+                return false;
+            }
+            if(!ResultStateEnum.RESULT_SUCCESS.getStatusCode().equals(result.getStatusCode())){
+                log.warn("校验运单号【{}】是否绑定集包袋失败,失败信息:【{}】",waybillCode,result.getResultMsg());
+                return false;
+            }
+            if(CollectionUtils.isNotEmpty(result.getData())){
+                return true;
+            }else {
+                return false;
+            }
+        }catch (Exception e){
+            log.error("校验运单号【{}】是否绑定集包袋异常",waybillCode,e);
+        }
+        return true;
+    }
 }

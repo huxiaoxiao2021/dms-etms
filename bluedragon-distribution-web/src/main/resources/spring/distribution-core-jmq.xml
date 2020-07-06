@@ -444,4 +444,9 @@
     <bean id="strandReportDetailProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.strand.report.detail}"/>
     </bean>
+
+    <!-- 快运暂存上架完成消息 -->
+    <bean id="kyStorageProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.ky.storage.putAway}"/>
+    </bean>
 </beans>

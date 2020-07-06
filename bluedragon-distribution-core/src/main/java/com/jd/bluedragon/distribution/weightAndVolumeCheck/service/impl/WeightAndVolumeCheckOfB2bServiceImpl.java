@@ -88,7 +88,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
     /**
      * 重量阈值
      * */
-    private static final double WEIGHT_THRESHOLD = 25;
+    private static final double WEIGHT_THRESHOLD = 30;
     /**
      * 重量误差标准值
      * */
@@ -560,8 +560,8 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
 
     /**
      * 1、重量超标校验：
-     *      录入重量<25kg,允许误差值(+-)1kg(含)
-     *      录入重量>=25kg,允许误差值(+-)4%(含)
+     *      录入重量<30kg,允许误差值(+-)1kg(含)
+     *      录入重量>=30kg,允许误差值(+-)4%(含)
      * 2、体积超标校验：
      *      录入体积<0.1方,允许误差值(+-)0.1方(含)
      *      录入体积>=0.1方,允许误差值(+-)10%(含)

@@ -41,6 +41,16 @@ public class StoragePutawayRequest implements Serializable {
      */
     private CurrentOperate currentOperate;
 
+    /**
+     * 暂存来源
+     * */
+    private Integer storageSource;
+
+    /**
+     * 是否强制暂存
+     * */
+    private Boolean forceStorage;
+
     @Override
     public String toString() {
         return "StoragePutawayRequest{" +
@@ -90,5 +100,21 @@ public class StoragePutawayRequest implements Serializable {
 
     public void setCurrentOperate(CurrentOperate currentOperate) {
         this.currentOperate = currentOperate;
+    }
+
+    public Integer getStorageSource() {
+        return storageSource;
+    }
+
+    public void setStorageSource(Integer storageSource) {
+        this.storageSource = storageSource;
+    }
+
+    public Boolean getForceStorage() {
+        return forceStorage;
+    }
+
+    public void setForceStorage(Boolean forceStorage) {
+        this.forceStorage = forceStorage;
     }
 }

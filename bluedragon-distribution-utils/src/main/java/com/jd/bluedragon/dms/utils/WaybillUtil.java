@@ -39,7 +39,14 @@ public class WaybillUtil {
     public static boolean isSurfaceCode(String waybillCode) {
         return WaybillCodeRuleValidateUtil.isSurfaceCode(waybillCode);
     }
-
+    /**
+     * 判断是否VY售后取件单
+     * @param waybillCode
+     * @return
+     */
+    public static boolean isBusiSurfaceCode(String waybillCode) {
+        return UniformValidateUtil.isWaybillCodeMatchType(waybillCode,WaybillCodePattern.BUSI_PICKUP_WAYBILL_CODE);
+    }
     public static boolean isReturnCode(String waybillCode) {
         return WaybillCodeRuleValidateUtil.isReturnCode(waybillCode);
     }
@@ -324,6 +331,15 @@ public class WaybillUtil {
      */
     public static boolean isPDDWaybillCode(String waybillCode) {
         return UniformValidateUtil.isWaybillCodeMatchType(waybillCode, WaybillCodePattern.PDD_WAYBILL_CODE);
+    }
+
+    /**
+     * 根据单号判断是否是经济网运单单号
+     * @param waybillCode 单号
+     * @return 是经济网则返回true 否则返回false
+     */
+    public static boolean isEconomicNet(String waybillCode) {
+        return UniformValidateUtil.isWaybillCodeMatchType(waybillCode, WaybillCodePattern.ENOCOMIC_WAYBILL_CODE);
     }
 
 

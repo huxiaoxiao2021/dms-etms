@@ -3,6 +3,7 @@ package com.jd.bluedragon.core.base;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.api.bnet.VrsBNetQueryAPI;
 import com.jd.etms.api.bnet.req.BnetPerFormanceConfigJsfReq;
@@ -16,9 +17,15 @@ import com.jd.etms.api.transferwavemonitor.req.TransferWaveMonitorReq;
 import com.jd.etms.api.transferwavemonitor.resp.TransferWaveMonitorDetailResp;
 import com.jd.etms.api.transferwavemonitor.resp.TransferWaveMonitorResp;
 import com.jd.etms.api.waybill.VrsWaybillQueryAPI;
+import com.jd.etms.api.waybillroutelink.WaybillRouteLinkCustAPI;
+import com.jd.etms.api.waybillroutelink.req.WaybillRouteLinkConditionReq;
+import com.jd.etms.api.waybillroutelink.resp.WaybillRouteLinkCustDetailResp;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.sdk.compute.RouteComputeUtil;
 import com.jd.etms.sdk.util.PerformanceTimeUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
@@ -63,6 +70,9 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
 
     @Autowired
     private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    private WaybillRouteLinkCustAPI waybillRouteLinkCustAPI;
 
     @Value("${jsf.router.token}")
     private String vrsRouteTransferRelationApiToken;
@@ -402,5 +412,40 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
             }
         }
         return dmsSiteNameList;
+    }
+
+    /**
+     * 查询路由节点信息
+     *
+     * @param packageCode 包裹号
+     * @param siteCode 站点
+     * @param operateType 操作类型
+     * @see "https://cf.jd.com/pages/viewpage.action?pageId=295585165"
+     * @return
+     */
+    @JProfiler(jKey = "DMS.BASE.vrsWaybillQueryAPI.waybillRouteLinkQueryCondition", jAppName = Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Cache(key = "VrsRouteTransferRelationManagerImpl.waybillRouteLinkQueryCondition@args0@args1@args2", memoryEnable = true, memoryExpiredTime = 30 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 60 * 60 * 1000)
+    @Override
+    public List<WaybillRouteLinkCustDetailResp> waybillRouteLinkQueryCondition(String packageCode,String siteCode,Integer operateType) {
+        if(operateType == null|| StringUtils.isEmpty(packageCode)
+                || StringUtils.isEmpty(siteCode)){
+            log.warn("包裹号、计划网点、操作节点不能为空");
+            return null;
+        }
+        WaybillRouteLinkConditionReq condition = new WaybillRouteLinkConditionReq();
+        condition.setWaybillCode(WaybillUtil.getWaybillCode(packageCode));
+        condition.setPackageCode(packageCode);
+        condition.setPlanNodeCode(siteCode);
+        condition.setOperateType(operateType);
+        CommonDto<List<WaybillRouteLinkCustDetailResp>> commonDto
+                = waybillRouteLinkCustAPI.waybillRouteLinkQueryCondition(condition);
+        if(commonDto != null && commonDto.getCode() == CommonDto.CODE_SUCCESS){
+            return commonDto.getData();
+        }else {
+            log.warn("查询路由节点信息失败,异常信息commonDto[{}]",JsonHelper.toJson(commonDto));
+            return null;
+        }
     }
 }

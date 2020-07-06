@@ -29,6 +29,7 @@ public class BusinessNetInterceptHandler implements InterceptHandler<WaybillPrin
             basePrintWaybill.setPopularizeMatrixCode("");
             basePrintWaybill.setAdditionalComment("");
             basePrintWaybill.setComment("");
+            basePrintWaybill.setTransportMode("");
         }
         return result;
     }

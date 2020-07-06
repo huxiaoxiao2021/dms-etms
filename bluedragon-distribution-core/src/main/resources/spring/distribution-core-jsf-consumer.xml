@@ -284,6 +284,9 @@
     <jsf:consumer id="vrsWaybillQueryAPI" interface="com.jd.etms.api.waybill.VrsWaybillQueryAPI"
                   protocol="jsf" alias="${jsf.router.vrsWaybillQueryAPI.alias}" timeout="${jsf.router.vrsWaybillQueryAPI.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
+    <jsf:consumer id="waybillRouteLinkCustAPI" interface="com.jd.etms.api.waybillroutelink.WaybillRouteLinkCustAPI"
+                  protocol="jsf" alias="${jsf.router.waybillRouteLinkCustAPI.alias}" timeout="${jsf.router.waybillRouteLinkCustAPI.timeout}" retries="${jsf.retries}">
+    </jsf:consumer>
     <!-- 外单逆向换单接口-->
     <jsf:consumer id="waybillReverseApi" interface="com.jd.ldop.center.api.reverse.WaybillReverseApi"
                   protocol="jsf" alias="${jsf.waybillReverseApi.alias}" timeout="${jsf.waybillReverseApi.timeout}" retries="${jsf.retries}">
@@ -608,8 +611,24 @@
                   alias="${jsf.jpEdnDeliveryReceiptService.alias}" timeout="${jsf.jpEdnDeliveryReceiptService.timeout}"
                   retries="${jsf.retries}">
     </jsf:consumer>
+
+    <jsf:consumer id="basicSiteUpdateService" interface="com.jd.etms.basic.jsf.BasicSiteUpdateService"
+                  protocol="jsf" alias="${jsf.basicSite.alias}" timeout="${jsf.basicSite.timeout}" retries="${jsf.retries}">
+        <jsf:parameter key="token" value="${jsf.basicSite.token}" hide="true" />
+    </jsf:consumer>
+
     <jsf:consumer id="ecpRailWayWS" interface="com.jd.tms.ecp.ws.EcpRailWayWS" protocol="jsf"
                   alias="${tms.ecp.jsf.alias}" timeout="${tms.ecp.jsf.timeout}"
                   retries="${jsf.retries}">
+    </jsf:consumer>
+    <jsf:consumer id="expInfoSummaryJsfService" interface="com.jd.ps.data.epf.service.ExpInfoSummaryJsfService"
+                  protocol="jsf" alias="${epf.jsf.alias}" timeout="${epf.exp.info.timeout}" retries="${jsf.retries}">
+
+    </jsf:consumer>
+
+    <!-- 运输 - 循环集包袋 -->
+    <jsf:consumer id="assetApplyQueryApi" interface="com.jd.ql.asset.api.AssetApplyQueryApi" protocol="jsf"
+                  alias="${assetApply.jsf.alias}" timeout="${assetApply.jsf.timeout}"
+                  retries="${jsf.retries}" >
     </jsf:consumer>
 </beans>

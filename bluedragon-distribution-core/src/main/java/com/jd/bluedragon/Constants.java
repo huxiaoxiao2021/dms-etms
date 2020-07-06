@@ -1091,4 +1091,19 @@ public class Constants {
      */
     public final static String NEGATIVE_SIGN = "-";
 
+    /**
+     * 暂存 增值服务编码
+     * */
+    public static final String STORAGE_INCRE_SERVICE = "fr-a-0009";
+
+    /**
+     * j-one应用编码
+     * */
+    public static final String SYS_DMS = "dms.etms";
+
+    /**
+     * businessType缓存前缀
+     * */
+    public static final String BUSINESS_TYPE_PREFIX = "BUSINESS-TYPE";
+
 }
