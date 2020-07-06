@@ -7,9 +7,10 @@
 	<meta http-equiv="cache-control" content="no-cache">
 	<meta http-equiv="expires" content="0">
 	#parse("system/common/baseImport.vm")
+	<link rel="stylesheet" href="/static/imports/bootstrap/v3.3.7/plugin/boostrap-select/css/bootstrap-select.min.css">
+    <script type="text/javascript" src="#springUrl('')/static/imports/bootstrap/v3.3.7/plugin/boostrap-select/js/bootstrap-select.min.js"></script>
+    <script type="text/javascript" src="#springUrl('')/static/imports/bootstrap/v3.3.7/plugin/boostrap-select/js/i18n/defaults-*.min.js"></script>
 </head>
-<script type="text/javascript" src="#springUrl('')/static/imports/bootstrap/v3.3.7/plugin/boostrap-select/bootstrap-select.min.js"></script>
-<link rel="stylesheet" href="/static/imports/bootstrap/v3.3.7/plugin/boostrap-select/bootstrap-select.min.css">
 <script type="text/javascript">
 $(document).ready(function() {
 	var ruleTypeMap = {};
