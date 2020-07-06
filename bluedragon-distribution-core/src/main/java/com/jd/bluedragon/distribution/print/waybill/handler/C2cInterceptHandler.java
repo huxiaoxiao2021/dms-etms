@@ -5,9 +5,12 @@ import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
+import com.jd.bluedragon.distribution.print.domain.WayBillFinishedEnum;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.etms.waybill.domain.PackageState;
 import com.jd.etms.waybill.dto.PackageStateDto;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,11 +67,19 @@ public class C2cInterceptHandler implements Handler<WaybillPrintContext, JdResul
             List<PackageStateDto> collectHandoverCompleteResult = waybillTraceManager.getPkStateDtoByWCodeAndState(context.getWaybill().getWaybillCode(), Constants.WAYBILL_TRACE_STATE_BMZT_COLLECT_HANDOVER_COMPLETE);
             //存在揽收完成或交接完成的全程跟踪，都可以进行打印，反之，进行拦截提示，禁止打印
             if (! (collectCompleteResult.size() != 0 || collectHandoverCompleteResult.size() != 0)) {
-                interceptResult.toFail(InterceptResult.STATUS_NO_PASSED, WaybillPrintMessages.MESSAGE_NEED_RECEIVE);
+                interceptResult.toWeakSuccess().toFail(InterceptResult.STATUS_NO_PASSED, WaybillPrintMessages.MESSAGE_NEED_RECEIVE);
                 return interceptResult;
             }
         }
-
+        if (WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType().equals(context.getRequest().getOperateType()))
+        {
+            List<PackageState> collectCompleteResult = waybillTraceManager.getAllOperationsByOpeCodeAndState(context.getWaybill().getWaybillCode(),WayBillFinishedEnum.WAYBILLSTATES);
+            //判断该运单是否是终结点
+            if (CollectionUtils.isNotEmpty(collectCompleteResult)) {
+                interceptResult.toWeakSuccess().toFail(InterceptResult.STATUS_WEAK_PASSED, WaybillPrintMessages.MESSAGE_WAYBILL_FINISHED);
+                return interceptResult;
+            }
+        }
         log.debug("C2cInterceptHandler-校验运单是否已经妥投");
         if(needCheckWaybillFinished.contains(context.getRequest().getOperateType()) && waybillTraceManager.isWaybillFinished(context.getWaybill().getWaybillCode())){
             interceptResult.toFail(InterceptResult.STATUS_NO_PASSED, WaybillPrintMessages.MESSAGE_WAYBILL_STATE_FINISHED);

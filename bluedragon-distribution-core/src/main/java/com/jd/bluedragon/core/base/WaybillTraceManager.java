@@ -43,6 +43,14 @@ public interface WaybillTraceManager {
     BaseEntity<List<PackageState>> getPkStateByPCode(String packageCode);
 
     /**
+     * 根据操作号、状态 查全程跟踪
+     * @param opeCode
+     * @param states
+     * @return
+     */
+    List<PackageState> getAllOperationsByOpeCodeAndState(String opeCode, String states);
+
+    /**
      * 获取包裹的全程跟踪操作明细
      * @param packageCode
      * @return

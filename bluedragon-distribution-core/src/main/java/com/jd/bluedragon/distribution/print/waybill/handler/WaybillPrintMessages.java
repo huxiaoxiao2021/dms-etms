@@ -50,4 +50,9 @@ public class WaybillPrintMessages{
 	 * 超长包裹
 	 * */
 	public static final String MESSAGE_PACKAGE_OVER_LENGTH_REMIND = "此包裹超过{0}*{1}*{2}厘米，为超长揽收包裹";
+	/**
+	 * 该运单已是终结点时提示信息MESASAGE_WAYBILL_FINISHED
+	 * */
+	public static final JdMessage MESSAGE_WAYBILL_FINISHED = new JdMessage(21001003,"外单包裹号）已【%s】，是否再次打印？");
+
 }

@@ -91,6 +91,25 @@ public class WaybillTraceManagerImpl implements WaybillTraceManager {
     }
 
     /**
+     * 根据操作号、状态 查询所有操作（对内标准接口）
+     * @param opeCode
+     * @param states
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMS.BASE.WaybillTraceManagerImpl.getAllOperationsByOpeCodeAndState",jAppName=Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public List<PackageState> getAllOperationsByOpeCodeAndState(String opeCode, String states) {
+        BaseEntity<List<PackageState>> baseEntity = waybillTraceApi.getAllOperationsByOpeCodeAndState(opeCode, states);
+        if (baseEntity != null && baseEntity.getResultCode() == RESULT_SUCCESS && baseEntity.getData() != null ) {
+            return baseEntity.getData();
+        } else {
+            log.warn("WaybillTraceManagerImpl.getAllOperationsByOpeCodeAndState，baseEntity：{}，opeCode：{}，states：{}，"+JsonHelper.toJson(baseEntity),opeCode,states);
+            return Lists.newArrayList();
+        }
+    }
+
+    /**
      * 获取包裹的全程跟踪操作明细
      * @param packageCode
      * @return
