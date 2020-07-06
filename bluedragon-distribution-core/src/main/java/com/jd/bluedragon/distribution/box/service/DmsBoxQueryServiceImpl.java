@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.Objects;
 
 /**
+ * 箱号查询服务
  * @author : xumigen
  * @date : 2020/7/2
  */
@@ -51,6 +52,7 @@ public class DmsBoxQueryServiceImpl implements DmsBoxQueryService{
             return response;
         }
         response.setData(Boolean.FALSE);
+        response.setMessage(String.format("箱号始发网点【%s】不是众邮类型网点！",startSite.getSiteName()));
         return response;
     }
 }
