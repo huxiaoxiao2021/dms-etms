@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -35,6 +36,11 @@ public class DmsBoxQueryServiceImpl implements DmsBoxQueryService{
             response.toWarn("箱号不能为空");
             return response;
         }
+        if(!BusinessUtil.isBoxcode(boxCode)){
+            response.toWarn(String.format("【%s】不符合箱号编码规则",boxCode));
+            return response;
+        }
+
         Box box = boxService.findBoxByCode(boxCode);
         if(box == null){
             response.toError("箱号不存在");
