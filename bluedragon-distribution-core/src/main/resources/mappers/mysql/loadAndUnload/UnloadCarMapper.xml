@@ -283,7 +283,7 @@
         and end_site_code = #{endSiteCode,jdbcType=BIGINT}
         and status in (1,2)
         <include refid="Base_Condition_Sql"/>
-        group by status
+        order by status desc
     </select>
 
     <update id="updateUnloadCarTaskStatus" parameterType="unloadCar">
