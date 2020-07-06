@@ -180,10 +180,13 @@ public class WaybilCodeCheckExportLogConsumer extends MessageBaseConsumer {
                     tempList.add(0, heads);
                     String content = buildCsvString(tempList);
                     if(!StringUtils.isBlank(content)) {
-                        fis = new ByteArrayInputStream(content.getBytes());
+                        fis = new ByteArrayInputStream(content.getBytes("GB2312"));
                         zipFile(fis, zipOut, csvFileName + "-" + (csvIndex + 1) + ".csv");
                         csvIndex++;
                     }
+                    return bos;
+                }
+                if(CollectionUtils.isEmpty(list) && CollectionUtils.isEmpty(tempList)) {
                     return bos;
                 }
                 offSet = offSet + list.size();
