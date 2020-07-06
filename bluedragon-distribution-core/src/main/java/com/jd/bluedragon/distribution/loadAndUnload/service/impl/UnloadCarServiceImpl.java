@@ -206,14 +206,10 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         try {
             //获取封车编码下已扫描运单明细
             Map<String, Integer> scanMap = getScanWaybillBySealCarCode(sealCarCode);
-            if(scanMap == null || scanMap.isEmpty()){
-                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"封车编码【" + sealCarCode + "】未扫描包裹!");
-                return result;
-            }
             //获取封车编码下所有运单明细
             Map<String, Integer> allMap = getAllWaybillBySealCarCode(sealCarCode);
             if(allMap == null || allMap.isEmpty()){
-                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"封车编码【" + sealCarCode + "】没有对应批次号!");
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"封车编码【" + sealCarCode + "】绑定的批次没有包裹!");
                 return result;
             }
             // 组装卸车明细
@@ -297,11 +293,12 @@ public class UnloadCarServiceImpl implements UnloadCarService {
      * @return
      */
     private Map<String,Integer> getScanWaybillBySealCarCode(String sealCarCode){
+        Map<String,Integer> scanMap = new HashMap<>();
         List<String> boardCodeList = unloadCarTransBoardDao.searchBoardsBySealCode(sealCarCode);
         if(CollectionUtils.isEmpty(boardCodeList)){
-            return null;
+            logger.warn("封车编码【{}】未扫描包裹",sealCarCode);
+            return scanMap;
         }
-        Map<String,Integer> scanMap = new HashMap<>();
         for (String boardCode : boardCodeList){
             Response<List<String>> response = groupBoardManager.getBoxesByBoardCode(boardCode);
             if(response == null || response.getCode() != ResponseEnum.SUCCESS.getIndex()
@@ -352,16 +349,18 @@ public class UnloadCarServiceImpl implements UnloadCarService {
      * @return
      */
     private List<String> searchAllPackage(String sealCarCode){
+        List<String> allPackage = new ArrayList<>();
         UnloadCar unloadCar = unloadCarDao.selectBySealCarCode(sealCarCode);
         if(unloadCar == null || StringUtils.isEmpty(unloadCar.getBatchCode())){
-            return null;
+            logger.warn("封车编码【{}】未绑定批次!",sealCarCode);
+            return allPackage;
         }
         Integer createSiteCode = unloadCar.getStartSiteCode();
         String[] batchSplit = unloadCar.getBatchCode().split(",");
         if(batchSplit == null || batchSplit.length == 0){
-            return null;
+            logger.warn("封车编码【{}】绑定批次为空!",sealCarCode);
+            return allPackage;
         }
-        List<String> allPackage = new ArrayList<>();
         for (String batchCode : batchSplit){
             allPackage.addAll(querySendPackageBySendCode(createSiteCode,batchCode));
         }
