@@ -2,7 +2,6 @@ package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.unloadCar.*;
-import com.jd.bluedragon.distribution.loadAndUnload.*;
 
 import java.util.List;
 

@@ -3,10 +3,8 @@ package com.jd.bluedragon.distribution.loadAndUnload.service;
 import com.jd.bluedragon.common.dto.unloadCar.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.loadAndUnload.TmsSealCar;
-import com.jd.bluedragon.distribution.loadAndUnload.UnloadCarScanRequest;
-import com.jd.bluedragon.distribution.loadAndUnload.UnloadCarScanResult;
 import com.jd.bluedragon.distribution.loadAndUnload.UnloadCarTask;
-import com.jd.bluedragon.distribution.loadAndUnload.domain.*;
+import com.jd.bluedragon.distribution.loadAndUnload.domain.DistributeTaskRequest;
 import com.jd.bluedragon.distribution.unloadCar.domain.UnloadCarCondition;
 
 import java.util.List;
