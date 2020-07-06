@@ -39,7 +39,7 @@ public class WayBillStateInterceptHandler implements Handler<WaybillPrintContext
         log.info("WayBillStateInterceptHandler-获取运单是否是终节点状态", JSON.toJSONString(context));
         InterceptResult<String> interceptResult = new InterceptResult<String>();
         interceptResult.toSuccess();
-        if (WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType().equals(context.getRequest().getOperateType())
+        if (WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType().equals(context.getRequest().getOperateType()))
                  {
             List<PackageState> collectCompleteResult = waybillTraceManager.getAllOperationsByOpeCodeAndState(context.getWaybill().getWaybillCode(),WayBillFinishedEnum.WAYBILLSTATES);
             //判断该运单是否是终结点
