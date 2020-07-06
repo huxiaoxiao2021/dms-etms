@@ -5,7 +5,11 @@ import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
-import com.jd.bluedragon.core.base.*;
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.BasicSafInterfaceManager;
+import com.jd.bluedragon.core.base.PreseparateWaybillManager;
+import com.jd.bluedragon.core.base.VrsRouteTransferRelationManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
@@ -23,13 +27,26 @@ import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.SendPayConstants;
 import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.BigDecimalHelper;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.ObjectHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.api.common.enums.RouteProductEnum;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
-import com.jd.etms.waybill.domain.*;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.DeliveryPackageD;
+import com.jd.etms.waybill.domain.Goods;
+import com.jd.etms.waybill.domain.PackageWeigh;
+import com.jd.etms.waybill.domain.PickupTask;
+import com.jd.etms.waybill.domain.WaybillExt;
+import com.jd.etms.waybill.domain.WaybillManageDomain;
+import com.jd.etms.waybill.domain.WaybillPickup;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.PackageUpdateDto;
@@ -37,22 +54,29 @@ import com.jd.etms.waybill.dto.WChoice;
 import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.preseparate.vo.external.AnalysisAddressResult;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
-
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 
 @Service("waybillCommonService")
 public class WaybillCommonServiceImpl implements WaybillCommonService {
@@ -99,6 +123,12 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 
     @Autowired
     private VrsRouteTransferRelationManager vrsRouteTransferRelationManager;
+
+    @Autowired
+    @Qualifier("jimdbCacheService")
+    private CacheService jimdbCacheService;
+
+    private static final String STORAGEWAYBILL_REDIS_KEY_PREFIX = "STORAGEWAY_KEY_";
 
 
     @Value("${WaybillCommonServiceImpl.additionalComment:http://www.jdwl.com   客服电话：950616}")
@@ -1177,9 +1207,26 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
      * @return
      */
     @Override
-    @Cache(key = "WaybillCommonServiceImpl.isStorageWaybill@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
-            redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+    @JProfiler(jKey = "DMS.BASE.WaybillCommonServiceImpl.isStorageWaybill" , jAppName = Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
     public boolean isStorageWaybill(String waybillCode) {
+        boolean flag = false;
+        try {
+            String key = STORAGEWAYBILL_REDIS_KEY_PREFIX.concat(waybillCode);
+            String redisValue = jimdbCacheService.get(key);
+            if(StringUtils.isNotEmpty(redisValue)){
+                return Boolean.valueOf(redisValue);
+            }
+            flag = getStorageWaybill(waybillCode);
+            jimdbCacheService.setEx(key,String.valueOf(flag),2*24*20*60,TimeUnit.SECONDS);
+        } catch (Exception e) {
+            log.error("是否快运暂存运单查询-waybillCode[{}]",waybillCode,e);
+            return flag;
+        }
+        return flag;
+    }
+
+    private boolean getStorageWaybill(String waybillCode) {
         BaseEntity<List<WaybillVasDto>> baseEntity = waybillQueryManager.getWaybillVasInfosByWaybillCode(waybillCode);
         if(baseEntity == null || baseEntity.getResultCode() != EnumBusiCode.BUSI_SUCCESS.getCode()
                 || CollectionUtils.isEmpty(baseEntity.getData())){

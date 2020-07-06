@@ -35,28 +35,29 @@ public class BuilderMysqlCreateDbSql {
     private static void builderMysqlAlterSqlToFile()throws Exception{
         String createfileNamePrefix = "D:\\工作\\需求\\分库分表添加字段\\11111111\\";
         String fileNameIn = "D:\\工作\\需求\\分库分表添加字段\\send_d-alter.txt";
-        BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(fileNameIn),"utf-8"));
-        String str;
-        StringBuffer sb = new StringBuffer();
-        while ((str = br.readLine()) != null) {
-            sb.append(str + "\n");
-        }
-        br.close();
-        int fileNum = 1;
-        for(Map.Entry<String,String> entry:ipTODataBase.entrySet()){
-            String[] dbNames = entry.getValue().split(",");
-            StringBuffer ipRelativeSql = new StringBuffer();
-            for(String dbName : dbNames){
-                ipRelativeSql.append(String.format(sb.toString(),dbName.trim()));
+        try(BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(fileNameIn),"utf-8"))){
+            String str;
+            StringBuffer sb = new StringBuffer();
+            while ((str = br.readLine()) != null) {
+                sb.append(str + "\n");
             }
-            String name = createfileNamePrefix +fileNum +"-"+entry.getKey()+ ".txt";
-            BufferedWriter bw = new BufferedWriter(new FileWriter(name));
-            bw.write(ipRelativeSql.toString());
-            bw.write("\n");
-            bw.close();
-            fileNum++;
+            br.close();
+            int fileNum = 1;
+            for(Map.Entry<String,String> entry:ipTODataBase.entrySet()){
+                String[] dbNames = entry.getValue().split(",");
+                StringBuffer ipRelativeSql = new StringBuffer();
+                for(String dbName : dbNames){
+                    ipRelativeSql.append(String.format(sb.toString(),dbName.trim()));
+                }
+                String name = createfileNamePrefix +fileNum +"-"+entry.getKey()+ ".txt";
+                try (BufferedWriter bw = new BufferedWriter(new FileWriter(name))){
+                    bw.write(ipRelativeSql.toString());
+                    bw.write("\n");
+                    bw.close();
+                }
+                fileNum++;
+            }
         }
-
     }
 
 

@@ -107,7 +107,7 @@ public class WaybillGateWayExternalServiceImpl implements WaybillGateWayExternal
     private GateWayBaseResponse<Void> coreParamCheck(WaybillSyncRequest request){
         GateWayBaseResponse<Void> response = new GateWayBaseResponse<Void>();
         if(!Constants.TENANT_CODE_ECONOMIC.equals(request.getTenantCode())){
-            response.toError(GateWayBaseResponse.MESSAGE_ERROR);
+            response.toError("请传入正确的租户");
             return response;
         }
         if(StringUtils.isBlank(request.getStartSiteCode())){
@@ -125,7 +125,7 @@ public class WaybillGateWayExternalServiceImpl implements WaybillGateWayExternal
         if(StringUtils.isBlank(request.getEndSiteCode()) || StringUtils.isBlank(request.getOperatorId())
                 || StringUtils.isBlank(request.getOperatorName()) || StringUtils.isBlank(request.getOperatorUnitName())
                 || StringUtils.isBlank(request.getWaybillCode()) || request.getOperatorTime() == null ){
-            response.toError(GateWayBaseResponse.MESSAGE_ERROR);
+            response.toError("endSiteCode,operatorId,operatorName,operatorUnitName,waybillCode,operatorTime 都不能为空");
             return response;
         }
         return response;

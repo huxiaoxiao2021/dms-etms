@@ -459,13 +459,14 @@ public class SendDetailConsumer extends MessageBaseConsumer {
 
                 Integer orgId = oldSiteDto.getOrgId();
                 SMSDto sMSDto = smsConfigService.getSMSConstantsByOrgId(orgId);
-                String senderNum = sMSDto.getAccount();
-                Long templateId = sMSDto.getTemplateId();
-                String token = sMSDto.getToken();
                 if(sMSDto == null){
                     log.warn("目的分拣中心不属于7大区,目的分拣中心：{}所属区域：{}",operateSiteCode,orgId);
                     return;
                 }
+                String senderNum = sMSDto.getAccount();
+                Long templateId = sMSDto.getTemplateId();
+                String token = sMSDto.getToken();
+
                 BaseStaffSiteOrgDto operateSite = baseMajorManager.getBaseSiteBySiteId(operateSiteCode);
                 if(operateSite == null){
                     return;

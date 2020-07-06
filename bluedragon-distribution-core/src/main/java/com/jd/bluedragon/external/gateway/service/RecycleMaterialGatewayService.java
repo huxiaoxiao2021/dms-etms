@@ -1,6 +1,7 @@
 package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.recyclematerial.request.BoxMaterialRelationJSFRequest;
 import com.jd.bluedragon.common.dto.recyclematerial.request.RecycleMaterialRequest;
 
 /**
@@ -12,4 +13,8 @@ import com.jd.bluedragon.common.dto.recyclematerial.request.RecycleMaterialReque
 public interface RecycleMaterialGatewayService {
 
     JdCResponse<String> updateStatus(RecycleMaterialRequest request);
+
+    JdCResponse<String> getBoxMaterialRelation( String boxCode);
+
+    JdCResponse<Boolean> boxMaterialRelationAlter(BoxMaterialRelationJSFRequest request);
 }
