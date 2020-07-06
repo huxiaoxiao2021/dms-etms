@@ -76,7 +76,8 @@ public class C2cInterceptHandler implements Handler<WaybillPrintContext, JdResul
             List<PackageState> collectCompleteResult = waybillTraceManager.getAllOperationsByOpeCodeAndState(context.getWaybill().getWaybillCode(),WayBillFinishedEnum.WAYBILLSTATES);
             //判断该运单是否是终结点
             if (CollectionUtils.isNotEmpty(collectCompleteResult)) {
-                interceptResult.toWeakSuccess().toFail(InterceptResult.STATUS_WEAK_PASSED, WaybillPrintMessages.MESSAGE_WAYBILL_FINISHED);
+                String  message=String.format(WaybillPrintMessages.MESSAGE_WAYBILL_FINISHED.getMsgFormat(),collectCompleteResult.get(0).getStateName());
+                interceptResult.toWeakSuccess(WaybillPrintMessages.MESSAGE_WAYBILL_FINISHED.getMsgCode(),message);
                 return interceptResult;
             }
         }
