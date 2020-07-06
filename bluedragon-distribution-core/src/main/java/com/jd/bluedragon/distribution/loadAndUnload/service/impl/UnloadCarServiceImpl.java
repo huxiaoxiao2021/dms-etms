@@ -1,9 +1,9 @@
 package com.jd.bluedragon.distribution.loadAndUnload.service.impl;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.dto.unloadcar.UnloadCarDetailScanResult;
-import com.jd.bluedragon.common.dto.unloadcar.UnloadCarScanRequest;
-import com.jd.bluedragon.common.dto.unloadcar.UnloadCarScanResult;
+import com.jd.bluedragon.common.dto.unloadCar.UnloadCarDetailScanResult;
+import com.jd.bluedragon.common.dto.unloadCar.UnloadCarScanRequest;
+import com.jd.bluedragon.common.dto.unloadCar.UnloadCarScanResult;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BoardCommonManager;
 import com.jd.bluedragon.core.base.BoardCommonManagerImpl;

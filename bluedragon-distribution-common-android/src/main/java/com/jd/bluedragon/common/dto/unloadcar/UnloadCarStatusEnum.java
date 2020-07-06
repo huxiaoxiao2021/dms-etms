@@ -1,4 +1,4 @@
-package com.jd.bluedragon.common.dto.unloadcar;
+package com.jd.bluedragon.common.dto.unloadCar;
 
 /**
  * 卸车任务状态枚举
