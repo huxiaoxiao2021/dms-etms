@@ -1,28 +1,23 @@
-package com.jd.bluedragon.distribution.loadAndUnload;
+package com.jd.bluedragon.distribution.api.request;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
- * 卸车扫描请求对象
+ * 组板公共请求
  *
  * @author: hujiping
- * @date: 2020/6/23 15:25
+ * @date: 2020/6/29 12:24
  */
-public class UnloadCarScanRequest implements Serializable {
+public class BoardCommonRequest implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * 封车编码
-     * */
-    private String sealCarCode;
     /**
      * 板号
      * */
     private String boardCode;
     /**
-     * 运单号/包裹号
+     * 单号
      * */
     private String barCode;
     /**
@@ -34,6 +29,10 @@ public class UnloadCarScanRequest implements Serializable {
      * */
     private String receiveSiteName;
     /**
+     * 操作人编码
+     * */
+    private Integer operateUserCode;
+    /**
      * 操作人ERP
      * */
     private String operateUserErp;
@@ -44,15 +43,15 @@ public class UnloadCarScanRequest implements Serializable {
     /**
      * 操作人所属站点
      * */
-    private String operateSiteCode;
+    private Integer operateSiteCode;
     /**
      * 操作人所属站点名称
      * */
     private String operateSiteName;
     /**
-     * 操作时间
+     * 操作时间 13位时间戳
      * */
-    private Date operateTime;
+    private Long operateTime;
     /**
      * 操作类型
      *  0：组板 1：取消组板
@@ -62,14 +61,6 @@ public class UnloadCarScanRequest implements Serializable {
      * 是否强制组板
      * **/
     private boolean isForceCombination = false;
-
-    public String getSealCarCode() {
-        return sealCarCode;
-    }
-
-    public void setSealCarCode(String sealCarCode) {
-        this.sealCarCode = sealCarCode;
-    }
 
     public String getBoardCode() {
         return boardCode;
@@ -103,6 +94,14 @@ public class UnloadCarScanRequest implements Serializable {
         this.receiveSiteName = receiveSiteName;
     }
 
+    public Integer getOperateUserCode() {
+        return operateUserCode;
+    }
+
+    public void setOperateUserCode(Integer operateUserCode) {
+        this.operateUserCode = operateUserCode;
+    }
+
     public String getOperateUserErp() {
         return operateUserErp;
     }
@@ -119,11 +118,11 @@ public class UnloadCarScanRequest implements Serializable {
         this.operateUserName = operateUserName;
     }
 
-    public String getOperateSiteCode() {
+    public Integer getOperateSiteCode() {
         return operateSiteCode;
     }
 
-    public void setOperateSiteCode(String operateSiteCode) {
+    public void setOperateSiteCode(Integer operateSiteCode) {
         this.operateSiteCode = operateSiteCode;
     }
 
@@ -135,11 +134,11 @@ public class UnloadCarScanRequest implements Serializable {
         this.operateSiteName = operateSiteName;
     }
 
-    public Date getOperateTime() {
+    public Long getOperateTime() {
         return operateTime;
     }
 
-    public void setOperateTime(Date operateTime) {
+    public void setOperateTime(Long operateTime) {
         this.operateTime = operateTime;
     }
 
@@ -151,11 +150,11 @@ public class UnloadCarScanRequest implements Serializable {
         this.businessType = businessType;
     }
 
-    public boolean isForceCombination() {
+    public boolean getIsForceCombination() {
         return isForceCombination;
     }
 
-    public void setForceCombination(boolean forceCombination) {
+    public void setIsForceCombination(boolean forceCombination) {
         isForceCombination = forceCombination;
     }
 }

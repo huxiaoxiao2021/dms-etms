@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.loadAndUnload;
+package com.jd.bluedragon.common.dto.unloadCar;
 
 import java.io.Serializable;
 

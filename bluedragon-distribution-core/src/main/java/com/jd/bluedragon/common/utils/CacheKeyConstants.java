@@ -33,4 +33,24 @@ public class CacheKeyConstants {
 	 * 箱号状态缓存redis的key
 	 */
 	public static final String CACHE_KEY_BOX_STATUS = "BoxStatus";
+    /**
+     * 卸车任务
+     *  板号绑定的包裹号 key=前缀-板号
+     */
+    public static final String REDIS_PREFIX_UNLOAD_BOARD_PACKAGE_COUNT = "board.package.count-";
+    /**
+     * 卸车任务
+     *  板号绑定的多货包裹号 key=前缀-板号
+     */
+    public static final String REDIS_PREFIX_UNLOAD_BOARD_SURPLUS_PACKAGE_COUNT = "board.surplusPackage.count-";
+    /**
+     * 卸车任务
+     *  封车编码已扫的包裹号 key=前缀-封车编码
+     */
+    public static final String REDIS_PREFIX_UNLOAD_SEAL_PACKAGE_COUNT = "sealCar.package.count-";
+    /**
+     * 卸车任务
+     *  封车编码已扫的多货包裹号 key=前缀-封车编码
+     */
+    public static final String REDIS_PREFIX_UNLOAD_SEAL_SURPLUS_PACKAGE_COUNT = "sealCar.surplusPackage.count-";
 }

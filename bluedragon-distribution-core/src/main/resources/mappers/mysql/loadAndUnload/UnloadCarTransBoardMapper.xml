@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarTransBoardDao">
 
-	<resultMap id="unloadCar" type="com.jd.bluedragon.distribution.loadAndUnload.UnloadCarTransBoard" >
+	<resultMap id="unloadCarTransBoard" type="com.jd.bluedragon.distribution.loadAndUnload.UnloadCarTransBoard" >
 		<id column="unload_board_id" property="unloadBoardId" javaType="java.lang.Long" jdbcType="BIGINT" />
 		<result column="seal_car_code" property="sealCarCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="board_code" property="boardCode" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -90,5 +90,33 @@
         </trim>
         )
     </insert>
+
+    <select id="searchBoardsBySealCode" parameterType="String" resultType="String">
+        select distinct board_code
+        from
+        unload_car_board
+        where 1=1
+        and seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
+    </select>
+
+    <select id="searchBySealCode" parameterType="String" resultMap="unloadCarTransBoard">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        unload_car_board
+        where 1=1
+        and seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
+    </select>
+
+    <update id="updateCount" parameterType="com.jd.bluedragon.distribution.loadAndUnload.UnloadCarTransBoard">
+		UPDATE unload_car_board
+		SET
+			package_scan_count = #{packageScanCount,jdbcType=BIGINT},
+			surplus_package_scan_count = #{surplusPackageScanCount,jdbcType=BIGINT},
+			update_time = NOW()
+		where yn = 1
+		and seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
+		and board_code = #{boardCode,jdbcType=VARCHAR}
+    </update>
 
 </mapper>

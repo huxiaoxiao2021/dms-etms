@@ -39,7 +39,14 @@ public class WaybillUtil {
     public static boolean isSurfaceCode(String waybillCode) {
         return WaybillCodeRuleValidateUtil.isSurfaceCode(waybillCode);
     }
-
+    /**
+     * 判断是否VY售后取件单
+     * @param waybillCode
+     * @return
+     */
+    public static boolean isBusiSurfaceCode(String waybillCode) {
+        return UniformValidateUtil.isWaybillCodeMatchType(waybillCode,WaybillCodePattern.BUSI_PICKUP_WAYBILL_CODE);
+    }
     public static boolean isReturnCode(String waybillCode) {
         return WaybillCodeRuleValidateUtil.isReturnCode(waybillCode);
     }

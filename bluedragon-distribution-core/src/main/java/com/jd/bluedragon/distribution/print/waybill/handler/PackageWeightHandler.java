@@ -5,6 +5,8 @@ import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.print.domain.PrintPackage;
+import com.jd.bluedragon.utils.NumberHelper;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -53,10 +55,9 @@ public class PackageWeightHandler implements Handler<WaybillPrintContext, JdResu
         PrintPackage printPackage = context.getResponse().getPackList().get(context.getResponse().getWillPrintPackageIndex());
 
         /* 设置用户称重 */
-        printPackage.setWeight(context.getRequest().getWeightOperFlow().getWeight());
-        printPackage.setPackageWeight(String.valueOf(context.getRequest().getWeightOperFlow().getWeight())
-                + Constants.MEASURE_UNIT_NAME_KG);
-
+        if(context.getRequest().hasWeighted()){
+        	printPackage.setWeightAndUnit(context.getRequest().getWeightOperFlow().getWeight(), Constants.MEASURE_UNIT_NAME_KG);
+        }
         return result;
     }
 }
