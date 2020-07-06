@@ -8,7 +8,8 @@
 	<meta http-equiv="expires" content="0">
 	#parse("system/common/baseImport.vm")
 </head>
-<script type="text/javascript" src="#springUrl('')/static/js/bootstrap/multiselect.min.js"></script>
+<script type="text/javascript" src="#springUrl('')/static/imports/bootstrap/v3.3.7/plugin/boostrap-select/bootstrap-select.min.js"></script>
+<link rel="stylesheet" href="/static/imports/bootstrap/v3.3.7/plugin/boostrap-select/bootstrap-select.min.css">
 <script type="text/javascript">
 $(document).ready(function() {
 	var ruleTypeMap = {};
@@ -48,21 +49,18 @@ $(document).ready(function() {
 			if (1 === contentType) {
 				contentHTML = "<input id=\"rule_content\" name=\"content\" type=\"text\" class=\"form-control\" placeholder=\"请键入站点编号，以英文逗号分隔\"/>"
 			} else if (2 === contentType) {
-				contentHTML = "<select name=\"content\" id=\"rule_content\" class=\"mdb-select md-form\" multiple>";
-				contentHTML += "<option value=\"\" disabled selected>请键入站点类型，以英文逗号分隔</option>";
-                				$.ajaxHelper.doGetSync('#springUrl("/services/getBaseDataDictList/6/2/6")',null,function (res) {
-                                		if (res != null) {
-                                			var temp = "";
-                                			$.each (res.data, function (index, item) {
-                                				contentHTML += "<option value='"+ item.typeCode +"'>" + item.typeCode + "|" + item.typeName + "</option>";
-                                			})
-                                		}
-                                	})
-                                contentHTML += "</select>";
-                contentHTML += "<button class=\"btn-save btn btn-primary btn-sm\">确定</button>";
+				contentHTML = "<select name=\"content\" id=\"rule_content\" class=\"selectpicker\" placeholder=\"请键入站点类型，以英文逗号分隔\">";
+                $.ajaxHelper.doGetSync('#springUrl("/services/getBaseDataDictList/6/2/6")',null,function (res) {
+                        if (res != null) {
+                            var temp = "";
+                            $.each (res.data, function (index, item) {
+                                contentHTML += "<option value='"+ item.typeCode +"'>" + item.typeCode + "|" + item.typeName + "</option>";
+                            })
+                        }
+                    })
+                contentHTML += "</select>";
 			} else if (3 === contentType) {
-    			contentHTML = "<select name=\"content\" id=\"rule_content\" class=\"mdb-select md-form\" multiple>";
-    			contentHTML += "<option value=\"\" disabled selected>请键入站点子类型，以英文逗号分隔</option>";
+    			contentHTML = "<select name=\"content\" id=\"rule_content\" class=\"selectpicker\" placeholder=\"请键入站点子类型，以英文逗号分隔\">";
 				$.ajaxHelper.doGetSync('#springUrl("/services/getBaseDataDictList/4/3/6")',null,function (res) {
                 		if (res != null) {
                 			var temp = "";
@@ -72,7 +70,6 @@ $(document).ready(function() {
                 		}
                 	})
                 contentHTML += "</select>";
-                contentHTML += "<button class=\"btn-save btn btn-primary btn-sm\">确定</button>";
 			} else if (4 === contentType) {
 				contentHTML = "<input id=\"rule_content\" name=\"content\" list=\"contentList\" type=\"text\""
                 				 + " class=\"form-control\" placeholder=\"请键入0或1\"/> "
@@ -93,6 +90,7 @@ $(document).ready(function() {
                 contentHTML = "<input id=\"rule_content\" name=\"content\" type=\"text\" class=\"form-control\" placeholder=\"请键入数字，无需分隔符\"/>"
 			}
 			jQuery("#rule_content_div").html(contentHTML);
+            $('.rule_content').selectpicker();
 
 			/* 设置默认备注 */
 			jQuery("#memo").val(rule.memo);
