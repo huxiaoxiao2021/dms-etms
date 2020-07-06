@@ -51,7 +51,7 @@ $(document).ready(function() {
                 				$.ajaxHelper.doGetSync('#springUrl("/services/getBaseDataDictList/6/2/6")',null,function (res) {
                                 		if (res != null) {
                                 			var temp = "";
-                                			$.each (res, function (index, item) {
+                                			$.each (res.data, function (index, item) {
                                 				contentHTML += "<option value='"+ item.typeCode +"'>" + item.typeName + "</option>";
                                 			})
                                 		}
@@ -62,7 +62,7 @@ $(document).ready(function() {
 				$.ajaxHelper.doGetSync('#springUrl("/services/getBaseDataDictList/4/3/6")',null,function (res) {
                 		if (res != null) {
                 			var temp = "";
-                			$.each (res, function (index, item) {
+                			$.each (res.data, function (index, item) {
                 				contentHTML += "<option value='"+ item.typeCode +"'>" + item.typeName + "</option>";
                 			})
                 		}

@@ -31,7 +31,7 @@ $(document).ready(function() {
         })
         $("#type").val("$!rulemanagequeryDto.type");
 
-        var content = $!rulemanagequeryDto.content;
+        var content = "$!rulemanagequeryDto.content";
         var contentList = content.split(",");
 		var rule = ruleTypeMap[$!rulemanagequeryDto.type];
         if (rule != null) {
@@ -45,7 +45,7 @@ $(document).ready(function() {
                 contentHTML = "<select name=\"content\" class=\"form-control\" id=\"rule_content\" multiple=\"multiple\" placeholder=\"请键入站点类型，以英文逗号分隔\">"
                                 $.ajaxHelper.doGetSync('#springUrl("/services/getBaseDataDictList/6/2/6")',null,function (res) {
                                         if (res != null) {
-                                            $.each (res, function (index, item) {
+                                            $.each (res.data, function (index, item) {
                                                 contentHTML += "<option value='";
                                                 contentHTML += item.typeCode;
                                                 contentHTML += +"'";
@@ -62,7 +62,7 @@ $(document).ready(function() {
                 contentHTML = "<select name=\"content\" class=\"form-control\" id=\"rule_content\" multiple=\"multiple\" placeholder=\"请键入站点子类型，以英文逗号分隔\">"
                 $.ajaxHelper.doGetSync('#springUrl("/services/getBaseDataDictList/4/3/6")',null,function (res) {
                         if (res != null) {
-                            $.each (res, function (index, item) {
+                            $.each (res.data, function (index, item) {
                                 contentHTML += "<option value='";
                                 contentHTML += item.typeCode;
                                 contentHTML += +"'";
