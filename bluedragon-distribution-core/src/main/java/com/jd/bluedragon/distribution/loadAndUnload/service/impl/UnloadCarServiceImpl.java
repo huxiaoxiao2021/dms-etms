@@ -191,7 +191,18 @@ public class UnloadCarServiceImpl implements UnloadCarService {
      * @throws LoadIllegalException
      */
     private void packageIsScanBoard(UnloadCarScanRequest request) throws LoadIllegalException {
-        String boardCode = request.getBarCode();
+        String sealCarCode = request.getSealCarCode();
+        int unScanPackageCount = 0;
+        try {
+            unScanPackageCount = getUnScanPackageCount(sealCarCode);
+        }catch (LoadIllegalException e){
+            throw new LoadIllegalException(e.getMessage());
+        }
+        if(unScanPackageCount <= 0){
+            // 未扫包裹小于0提示拦截
+            throw new LoadIllegalException(String.format(LoadIllegalException.UNSCAN_PACK_ISNULL_INTERCEPT_MESSAGE,sealCarCode));
+        }
+        String boardCode = request.getBoardCode();
         String packageCode = request.getBarCode();
         if(StringUtils.isEmpty(request.getBoardCode())){
             return;
@@ -217,6 +228,34 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             // 包裹已扫描组板成功则提示拦截
             throw new LoadIllegalException(String.format(LoadIllegalException.PACKAGE_IS_SCAN_INTERCEPT_MESSAGE,packageCode,boardCode));
         }
+    }
+
+    /**
+     * 获取封车编码下未扫包裹数
+     * @param sealCarCode
+     * @return
+     */
+    private int getUnScanPackageCount(String sealCarCode) throws LoadIllegalException {
+        int totalCount = 0;
+        int scanPackageCount = 0;
+        try {
+            String scanCountStr = redisClientCache.get(CacheKeyConstants.REDIS_PREFIX_UNLOAD_SEAL_PACKAGE_COUNT.concat(sealCarCode));
+            if(StringUtils.isNotEmpty(scanCountStr)){
+                scanPackageCount = Integer.valueOf(scanCountStr);
+            }
+        }catch (Exception e){
+            logger.error("获取封车编码【{}】的缓存异常",sealCarCode,e);
+            throw new LoadIllegalException(InvokeResult.SERVER_ERROR_MESSAGE);
+        }
+        try {
+            UnloadCar unloadCar = unloadCarDao.selectBySealCarCode(sealCarCode);
+            totalCount = unloadCar.getPackageNum();
+        }catch (Exception e){
+            logger.error(InvokeResult.SERVER_ERROR_MESSAGE,e);
+            throw new LoadIllegalException(InvokeResult.SERVER_ERROR_MESSAGE);
+        }
+        return totalCount - scanPackageCount;
+
     }
 
     /**
