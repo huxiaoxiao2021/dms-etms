@@ -7,9 +7,6 @@
 	<meta http-equiv="cache-control" content="no-cache">
 	<meta http-equiv="expires" content="0">
 	#parse("system/common/baseImport.vm")
-	<link rel="stylesheet" href="/static/imports/bootstrap/v3.3.7/plugin/boostrap-select/css/bootstrap-select.min.css">
-    <script type="text/javascript" src="#springUrl('')/static/imports/bootstrap/v3.3.7/plugin/boostrap-select/js/bootstrap-select.min.js"></script>
-    <script type="text/javascript" src="#springUrl('')/static/imports/bootstrap/v3.3.7/plugin/boostrap-select/js/i18n/defaults-*.min.js"></script>
 </head>
 <script type="text/javascript">
 $(document).ready(function() {
@@ -49,28 +46,51 @@ $(document).ready(function() {
 			//针对不同的contentType识别不同的输入类型
 			if (1 === contentType) {
 				contentHTML = "<input id=\"rule_content\" name=\"content\" type=\"text\" class=\"form-control\" placeholder=\"请键入站点编号，以英文逗号分隔\"/>"
+				jQuery("#rule_content_div").html(contentHTML);
 			} else if (2 === contentType) {
-				contentHTML = "<select name=\"content\" id=\"rule_content\" class=\"selectpicker\" placeholder=\"请键入站点类型，以英文逗号分隔\">";
-                $.ajaxHelper.doGetSync('#springUrl("/services/getBaseDataDictList/6/2/6")',null,function (res) {
-                        if (res != null) {
-                            var temp = "";
-                            $.each (res.data, function (index, item) {
-                                contentHTML += "<option value='"+ item.typeCode +"'>" + item.typeCode + "|" + item.typeName + "</option>";
-                            })
-                        }
-                    })
+			    var data = [];
+			    $.ajaxHelper.doGetSync('#springUrl("/services/getBaseDataDictList/6/2/6")',null,function (res) {
+                    if (res != null) {
+                        $.each (res.data, function (index, item) {
+                            var temp = {};
+                            temp.id = item.typeCode;
+                            temp.text = item.typeCode + "|" + item.typeName;
+                            data.push(temp);
+                        })
+                    }
+                })
+
+				contentHTML = "<select name=\"content\" id=\"rule_content\" class=\"form-control\">";
                 contentHTML += "</select>";
+                jQuery("#rule_content_div").html(contentHTML);
+                $.combobox.createNew("rule_content",{
+                    placeholder:"请键入站点类型，以英文逗号分隔",
+                    allowClear:true,
+                    data:data,
+                    multiple:true,
+                })
 			} else if (3 === contentType) {
-    			contentHTML = "<select name=\"content\" id=\"rule_content\" class=\"selectpicker\" placeholder=\"请键入站点子类型，以英文逗号分隔\">";
-				$.ajaxHelper.doGetSync('#springUrl("/services/getBaseDataDictList/4/3/6")',null,function (res) {
-                		if (res != null) {
-                			var temp = "";
-                			$.each (res.data, function (index, item) {
-                				contentHTML += "<option value='"+ item.typeCode +"'>" + item.typeCode + "|" + item.typeName + "</option>";
-                			})
-                		}
-                	})
+			    var data = [];
+                $.ajaxHelper.doGetSync('#springUrl("/services/getBaseDataDictList/4/3/6")',null,function (res) {
+                    if (res != null) {
+                        $.each (res.data, function (index, item) {
+                            var temp = {};
+                            temp.id = item.typeCode;
+                            temp.text = item.typeCode + "|" + item.typeName;
+                            data.push(temp);
+                        })
+                    }
+                })
+
+                contentHTML = "<select name=\"content\" id=\"rule_content\" class=\"form-control\">";
                 contentHTML += "</select>";
+                jQuery("#rule_content_div").html(contentHTML);
+                $.combobox.createNew("rule_content",{
+                    placeholder:"请键入站点子类型，以英文逗号分隔",
+                    allowClear:true,
+                    data:data,
+                    multiple:true,
+                })
 			} else if (4 === contentType) {
 				contentHTML = "<input id=\"rule_content\" name=\"content\" list=\"contentList\" type=\"text\""
                 				 + " class=\"form-control\" placeholder=\"请键入0或1\"/> "
@@ -78,6 +98,7 @@ $(document).ready(function() {
                                  + "<option value=\"0\">0</option>"
                                  + "<option value=\"1\">1</option>"
                                  + "</datalist>";
+                 jQuery("#rule_content_div").html(contentHTML);
 			} else if (5 === contentType) {
 				contentHTML = "<input id=\"rule_content\" name=\"content\" list=\"contentList\" type=\"text\""
 				 + " class=\"form-control\" placeholder=\"请键入true或者false\"/> "
@@ -85,13 +106,14 @@ $(document).ready(function() {
                  + "<option value=\"true\">true</option>"
                  + "<option value=\"false\">false</option>"
                  + "</datalist>";
+                 jQuery("#rule_content_div").html(contentHTML);
 			} else if (6 === contentType) {
 				contentHTML = "<input id=\"rule_content\" name=\"content\" type=\"text\" class=\"form-control\" placeholder=\"请键入字符串，无需分隔符\"/>"
+				jQuery("#rule_content_div").html(contentHTML);
 			} else if (7 === contentType) {
                 contentHTML = "<input id=\"rule_content\" name=\"content\" type=\"text\" class=\"form-control\" placeholder=\"请键入数字，无需分隔符\"/>"
+                jQuery("#rule_content_div").html(contentHTML);
 			}
-			jQuery("#rule_content_div").html(contentHTML);
-            $('.rule_content').selectpicker();
 
 			/* 设置默认备注 */
 			jQuery("#memo").val(rule.memo);

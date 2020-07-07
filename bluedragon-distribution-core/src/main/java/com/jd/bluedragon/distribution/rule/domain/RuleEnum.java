@@ -10,7 +10,7 @@ import java.util.Map;
 public enum RuleEnum {
 
     RULE_1000(RulesTypeEnum.RULE_TYPE_1000, RuleContentType.CONTENT_WITH_SITE_CODE, "地铁自提规则"),
-    RULE_1005(RulesTypeEnum.RULE_TYPE_1005, RuleContentType.CONTENT_WITH_SITE_CODE, "自提目的地站点类型"),
+    RULE_1005(RulesTypeEnum.RULE_TYPE_1005, RuleContentType.CONTENT_WITH_SITE_TYPE, "自提目的地站点类型"),
     RULE_1006(RulesTypeEnum.RULE_TYPE_1006, RuleContentType.CONTENT_WITH_SITE_CODE, "好邻居便利自提点订单-站点编号"),
     RULE_1007(RulesTypeEnum.RULE_TYPE_1007, RuleContentType.CONTENT_WITH_SITE_TYPE, "社区合作自提点订单-站点类型"),
     RULE_1008(RulesTypeEnum.RULE_TYPE_1008, RuleContentType.CONTENT_WITH_SITE_TYPE, "地铁自提柜订单-站点类型"),
