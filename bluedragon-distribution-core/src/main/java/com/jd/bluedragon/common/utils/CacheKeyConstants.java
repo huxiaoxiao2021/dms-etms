@@ -58,4 +58,9 @@ public class CacheKeyConstants {
      *  组板绑定的包裹 key=前缀-板号-包裹号
      */
     public static final String REDIS_PREFIX_BOARD_PACK = "unload.board.package-";
+    /**
+     * 卸车任务
+     *  封车编码绑定的包裹 key=前缀-封车编码-包裹号
+     */
+    public static final String REDIS_PREFIX_SEALCAR_SURPLUS_PACK = "unload.sealCar.surplusPackage-";
 }

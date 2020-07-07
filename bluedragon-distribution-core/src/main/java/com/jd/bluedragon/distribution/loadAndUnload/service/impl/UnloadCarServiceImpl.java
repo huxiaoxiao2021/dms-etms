@@ -192,9 +192,12 @@ public class UnloadCarServiceImpl implements UnloadCarService {
      */
     private void packageIsScanBoard(UnloadCarScanRequest request) throws LoadIllegalException {
         String sealCarCode = request.getSealCarCode();
+        String boardCode = request.getBoardCode();
+        String packageCode = request.getBarCode();
         int unScanPackageCount = 0;
         try {
-            unScanPackageCount = getUnScanPackageCount(sealCarCode);
+            // 获取未扫包裹
+            unScanPackageCount = getUnScanPackageCount(sealCarCode,packageCode);
         }catch (LoadIllegalException e){
             throw new LoadIllegalException(e.getMessage());
         }
@@ -202,8 +205,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             // 未扫包裹小于0提示拦截
             throw new LoadIllegalException(String.format(LoadIllegalException.UNSCAN_PACK_ISNULL_INTERCEPT_MESSAGE,sealCarCode));
         }
-        String boardCode = request.getBoardCode();
-        String packageCode = request.getBarCode();
         if(StringUtils.isEmpty(request.getBoardCode())){
             return;
         }
@@ -235,7 +236,16 @@ public class UnloadCarServiceImpl implements UnloadCarService {
      * @param sealCarCode
      * @return
      */
-    private int getUnScanPackageCount(String sealCarCode) throws LoadIllegalException {
+    private int getUnScanPackageCount(String sealCarCode,String packageCode) throws LoadIllegalException {
+        try {
+            if(isSurfacePackage(sealCarCode, packageCode)){
+                // 未扫包裹跳过校验
+                return 1;
+            }
+        }catch (Exception e){
+            logger.error("判断包裹【{}】是否是组板【{}】多货包裹异常",packageCode,sealCarCode,e);
+            throw new LoadIllegalException(e.getMessage());
+        }
         int totalCount = 0;
         int scanPackageCount = 0;
         try {
@@ -698,15 +708,52 @@ public class UnloadCarServiceImpl implements UnloadCarService {
      * @return
      */
     private void surfacePackageCheck(UnloadCarScanRequest request, InvokeResult<UnloadCarScanResult> result) throws LoadIllegalException {
-        String sealCarCode = request.getSealCarCode();
+        boolean isSurplusPackage = false;
+        try {
+            isSurplusPackage = isSurfacePackage(request.getSealCarCode(),request.getBarCode());
+        }catch (Exception e){
+            throw new LoadIllegalException(e.getMessage());
+        }
+        if(isSurplusPackage){
+            // 201 成功并页面提示
+            result.customMessage(CODE_SUCCESS_HIT,LoadIllegalException.PACK_NOTIN_SEAL_INTERCEPT_MESSAGE);
+        }
+    }
+
+    /**
+     * 是否是多货包裹
+     * @param sealCarCode
+     * @param packageCode
+     * @return
+     * @throws LoadIllegalException
+     */
+    private boolean isSurfacePackage(String sealCarCode, String packageCode) throws LoadIllegalException {
+        boolean exist = false;
+        String key = CacheKeyConstants.REDIS_PREFIX_SEALCAR_SURPLUS_PACK + sealCarCode + Constants.SEPARATOR_HYPHEN + packageCode;
+        try {
+            String existStr = redisClientCache.get(key);
+            if(StringUtils.isNotEmpty(existStr)){
+                return Boolean.valueOf(existStr);
+            }
+        }catch (Exception e){
+            logger.error("获取缓存【{}】异常",key,e);
+            throw new LoadIllegalException(InvokeResult.SERVER_ERROR_MESSAGE);
+        }
         List<String> allPackage = searchAllPackage(sealCarCode);
         if(CollectionUtils.isEmpty(allPackage)){
             throw new LoadIllegalException(String.format(LoadIllegalException.SEAL_NOT_SCANPACK_INTERCEPT_MESSAGE,sealCarCode));
         }
-        if(!allPackage.contains(request.getBarCode())){
-            // 201 成功并页面提示
-            result.customMessage(CODE_SUCCESS_HIT,LoadIllegalException.PACK_NOTIN_SEAL_INTERCEPT_MESSAGE);
+        if(!allPackage.contains(packageCode)){
+            // 不包含则是多货包裹
+            exist = true;
         }
+        try {
+            redisClientCache.setEx(key,String.valueOf(exist),7,TimeUnit.DAYS);
+        }catch (Exception e){
+            logger.error("设置缓存【{}】异常",key,e);
+            throw new LoadIllegalException(InvokeResult.SERVER_ERROR_MESSAGE);
+        }
+        return exist;
     }
 
     /**
