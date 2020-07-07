@@ -312,4 +312,14 @@
             #{item,jdbcType=VARCHAR}
         </foreach>
     </select>
+
+    <select id="selectUnloadCar" parameterType="unloadCar" resultMap="unloadCar">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM unload_car
+        WHERE
+        YN = 1
+        and seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
+        and unload_user_erp = #{unloadUserErp, jdbcType=VARCHAR}
+    </select>
 </mapper>

@@ -49,4 +49,8 @@ public class UnloadCarDao extends BaseDao<UnloadCar> {
     public List<UnloadCar> getUnloadCarTaskScan(List<String> sealCarCodes) {
         return this.getSqlSession().selectList(namespace + ".getUnloadCarTaskScan", sealCarCodes);
     }
+
+    public List<UnloadCar> selectUnloadCar(UnloadCar unloadCar) {
+        return this.getSqlSession().selectList(namespace + ".selectUnloadCar", unloadCar);
+    }
 }
