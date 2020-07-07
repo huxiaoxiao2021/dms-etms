@@ -836,7 +836,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         try {
             List<UnloadCarDistribution> unloadCarDistributions = unloadCarDistributionDao.selectUnloadCarTaskHelpers(sealCarCode);
             if (CollectionUtils.isEmpty(unloadCarDistributions)) {
-                result.setCode(InvokeResult.RESULT_NULL_CODE);
+                result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
                 result.setMessage("未查询到协助人");
                 logger.warn("该任务：{}未查询到协助人",sealCarCode);
                 return result;
