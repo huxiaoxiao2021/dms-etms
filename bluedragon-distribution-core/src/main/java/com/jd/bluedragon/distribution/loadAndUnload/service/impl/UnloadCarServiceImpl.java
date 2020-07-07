@@ -195,13 +195,16 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         String boardCode = request.getBoardCode();
         String packageCode = request.getBarCode();
         int unScanPackageCount = 0;
+        boolean isSurfacePackage = false;
         try {
             // 获取未扫包裹
-            unScanPackageCount = getUnScanPackageCount(sealCarCode,packageCode);
+            unScanPackageCount = getUnScanPackageCount(sealCarCode);
+            // 是否多货包裹
+            isSurfacePackage = isSurfacePackage(sealCarCode, packageCode);
         }catch (LoadIllegalException e){
             throw new LoadIllegalException(e.getMessage());
         }
-        if(unScanPackageCount <= 0){
+        if(unScanPackageCount <= 0 && !isSurfacePackage){
             // 未扫包裹小于0提示拦截
             throw new LoadIllegalException(String.format(LoadIllegalException.UNSCAN_PACK_ISNULL_INTERCEPT_MESSAGE,sealCarCode));
         }
@@ -236,16 +239,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
      * @param sealCarCode
      * @return
      */
-    private int getUnScanPackageCount(String sealCarCode,String packageCode) throws LoadIllegalException {
-        try {
-            if(isSurfacePackage(sealCarCode, packageCode)){
-                // 未扫包裹跳过校验
-                return 1;
-            }
-        }catch (Exception e){
-            logger.error("判断包裹【{}】是否是组板【{}】多货包裹异常",packageCode,sealCarCode,e);
-            throw new LoadIllegalException(e.getMessage());
-        }
+    private int getUnScanPackageCount(String sealCarCode) throws LoadIllegalException {
         int totalCount = 0;
         int scanPackageCount = 0;
         try {
