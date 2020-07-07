@@ -838,7 +838,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         try {
             List<UnloadCarDistribution> unloadCarDistributions = unloadCarDistributionDao.selectUnloadCarTaskHelpers(sealCarCode);
             if (CollectionUtils.isEmpty(unloadCarDistributions)) {
-                result.setCode(InvokeResult.RESULT_NULL_CODE);
+                result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
                 result.setMessage("未查询到协助人");
                 logger.warn("该任务：{}未查询到协助人",sealCarCode);
                 return result;
@@ -885,13 +885,32 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 }
             } else if (taskHelpersReq.getOperateType() == OperateTypeEnum.INSERT_HELPER.getType()) {
 
-                //校验协助人
+                //校验协助人的ERP
                 BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseStaffByErpNoCache(taskHelpersReq.getHelperERP());
                 if (baseStaffSiteOrgDto == null || baseStaffSiteOrgDto.getStaffName() == null){
                     logger.error("根据协助人的erp未查询到员工信息，请求信息：{}",JsonHelper.toJson(taskHelpersReq));
                     result.setCode(InvokeResult.RESULT_NULL_CODE);
                     result.setMessage("未查询到员工信息");
                     return result;
+                }
+
+                //单个任务不超过20个人且添加协助人验重
+                InvokeResult<List<HelperDto>> helpers = this.getUnloadCarTaskHelpers(taskHelpersReq.getTaskCode());
+                if (helpers != null && helpers.getData() != null && helpers.getData().size() >= 20) {
+                    logger.warn("根据任务号：{}查询到的协助人已经达到20人",taskHelpersReq.getTaskCode());
+                    result.setCode(InvokeResult.RESULT_MULTI_ERROR);
+                    result.setMessage("单个任务的协助人不能超过20个！");
+                    return result;
+                } else if (helpers != null && helpers.getData() != null && helpers.getData().size() > 0) {
+                    List<HelperDto> helperDtoList = helpers.getData();
+                    for (HelperDto helperDto : helperDtoList) {
+                        if (taskHelpersReq.getHelperERP().equals(helperDto.getHelperERP())) {
+                            logger.warn("根据任务号：{}查询到，该协助人已存在",taskHelpersReq.getTaskCode());
+                            result.setCode(InvokeResult.RESULT_MULTI_ERROR);
+                            result.setMessage("该协助人已添加！");
+                            return result;
+                        }
+                    }
                 }
 
                 //添加协助人
