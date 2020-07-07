@@ -103,7 +103,7 @@ public class StoragePutawayGatewayServiceImpl implements StoragePutawayGatewaySe
             return jdCResponse;
         }
 
-        if (request.getUser().getUserCode()<=0 || StringUtils.isNotBlank(request.getUser().getUserName()) || request.getCurrentOperate().getSiteCode()<=0 || StringUtils.isNotBlank(request.getCurrentOperate().getSiteName())){
+        if (request.getUser().getUserCode()<=0 || StringUtils.isBlank(request.getUser().getUserName()) || request.getCurrentOperate().getSiteCode()<=0 || StringUtils.isBlank(request.getCurrentOperate().getSiteName())){
             jdCResponse.toFail("操作人信息和场地信息都不能为空");
             return jdCResponse;
         }

@@ -58,7 +58,7 @@ public class BatchForwardGatewayServiceImpl implements BatchForwardGatewayServic
     @JProfiler(jKey = "DMSWEB.BatchForwardGatewayServiceImpl.batchForwardSend",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<String> batchForwardSend(WholeBatchRetransRequest retransRequest) {
         JdCResponse<String> jdCResponse = new JdCResponse<>();
-        if (retransRequest.getUser().getUserCode()<=0 || StringUtils.isNotBlank(retransRequest.getUser().getUserName()) || retransRequest.getCurrentOperate().getSiteCode()<=0 || StringUtils.isNotBlank(retransRequest.getCurrentOperate().getSiteName())){
+        if (retransRequest.getUser().getUserCode()<=0 || StringUtils.isBlank(retransRequest.getUser().getUserName()) || retransRequest.getCurrentOperate().getSiteCode()<=0 || StringUtils.isBlank(retransRequest.getCurrentOperate().getSiteName())){
             jdCResponse.toFail("操作人信息和场地信息都不能为空");
             return jdCResponse;
         }

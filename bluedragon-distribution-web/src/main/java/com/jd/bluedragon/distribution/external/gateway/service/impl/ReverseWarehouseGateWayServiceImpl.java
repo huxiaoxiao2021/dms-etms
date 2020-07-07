@@ -45,7 +45,7 @@ public class ReverseWarehouseGateWayServiceImpl implements ReverseWarehouseGateW
             return jdCResponse;
         }
 
-        if (reverseWarehouseReq.getUser().getUserCode()<=0 || StringUtils.isNotBlank(reverseWarehouseReq.getUser().getUserName()) || reverseWarehouseReq.getCurrentOperate().getSiteCode()<=0 || StringUtils.isNotBlank(reverseWarehouseReq.getCurrentOperate().getSiteName())){
+        if (reverseWarehouseReq.getUser().getUserCode()<=0 || StringUtils.isBlank(reverseWarehouseReq.getUser().getUserName()) || reverseWarehouseReq.getCurrentOperate().getSiteCode()<=0 || StringUtils.isBlank(reverseWarehouseReq.getCurrentOperate().getSiteName())){
             jdCResponse.toFail("操作人信息和场地信息都不能为空");
             return jdCResponse;
         }
