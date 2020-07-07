@@ -53,4 +53,9 @@ public class CacheKeyConstants {
      *  封车编码已扫的多货包裹号 key=前缀-封车编码
      */
     public static final String REDIS_PREFIX_UNLOAD_SEAL_SURPLUS_PACKAGE_COUNT = "sealCar.surplusPackage.count-";
+    /**
+     * 卸车任务
+     *  组板绑定的包裹 key=前缀-板号-包裹号
+     */
+    public static final String REDIS_PREFIX_BOARD_PACK = "unload.board.package-";
 }

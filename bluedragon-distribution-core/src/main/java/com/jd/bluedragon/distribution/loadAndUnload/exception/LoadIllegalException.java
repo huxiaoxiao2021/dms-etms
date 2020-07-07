@@ -30,6 +30,8 @@ public class LoadIllegalException extends RuntimeException {
 
     public static final String BOARD_NOTE_EXIST_INTERCEPT_MESSAGE = "板号不存在!";
 
+    public static final String PACKAGE_IS_SCAN_INTERCEPT_MESSAGE = "包裹【%s】已组板【%s】,请勿重复扫描!";
+
     public LoadIllegalException(String message) {
         super(message);
     }

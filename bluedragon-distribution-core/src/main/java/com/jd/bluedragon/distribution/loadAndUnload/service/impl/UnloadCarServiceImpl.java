@@ -138,6 +138,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         InvokeResult<UnloadCarScanResult> result = new InvokeResult<UnloadCarScanResult>();
         result.setData(convertToUnloadCarResult(request));
         try {
+            // 包裹是否扫描成功
+            packageIsScanBoard(request);
             if(!request.getIsForceCombination()){
                 // 验货校验
                 inspectionIntercept(request);
@@ -181,6 +183,40 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.SERVER_ERROR_MESSAGE);
         }
         return result;
+    }
+
+    /**
+     * 判断包裹是否扫描并组板成功
+     * @param request
+     * @throws LoadIllegalException
+     */
+    private void packageIsScanBoard(UnloadCarScanRequest request) throws LoadIllegalException {
+        String boardCode = request.getBarCode();
+        String packageCode = request.getBarCode();
+        if(StringUtils.isEmpty(request.getBoardCode())){
+            return;
+        }
+        boolean scanIsSuccess = false;
+        String scanIsSuccessStr = null;
+        try {
+            String key = CacheKeyConstants.REDIS_PREFIX_BOARD_PACK + boardCode + Constants.SEPARATOR_HYPHEN + packageCode;
+            scanIsSuccessStr = redisClientCache.get(key);
+        }catch (Exception e){
+            logger.error("获取缓存【{}】异常","",e);
+        }
+        if(StringUtils.isEmpty(scanIsSuccessStr)){
+            // 包裹未扫描
+            scanIsSuccess = false;
+        }
+        try {
+            scanIsSuccess = Boolean.valueOf(scanIsSuccessStr);
+        }catch (Exception e){
+            logger.warn("组板【{}】包裹【{}】缓存转换异常",boardCode,packageCode);
+        }
+        if(scanIsSuccess){
+            // 包裹已扫描组板成功则提示拦截
+            throw new LoadIllegalException(String.format(LoadIllegalException.PACKAGE_IS_SCAN_INTERCEPT_MESSAGE,packageCode,boardCode));
+        }
     }
 
     /**
@@ -417,6 +453,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             if(response.getCode() == ResponseEnum.SUCCESS.getIndex()){
                 //组板成功
                 logger.info("组板成功、板号:【{}】包裹号:【{}】站点:【{}】" ,request.getBoardCode(), request.getBarCode(),request.getOperateSiteCode());
+                setCacheOfBoardAndPack(request.getBoardCode(),request.getBarCode());
                 boxToBoardSuccessAfter(request,null,isSurplusPackage);
                 // 组板全程跟踪
                 boardCommonManager.sendWaybillTrace(boardCommonRequest, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
@@ -442,6 +479,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 //重新组板成功处理
                 logger.info("组板转移成功.原板号【{}】新板号【{}】包裹号【{}】站点【{}】",
                         invokeResult.getData(),request.getBoardCode(),request.getBarCode(),request.getOperateSiteCode());
+                setCacheOfBoardAndPack(request.getBoardCode(),request.getBarCode());
                 boxToBoardSuccessAfter(request,invokeResult.getData(),isSurplusPackage);
                 return;
             }
@@ -452,6 +490,20 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             logger.error("推TC组板关系异常，入参【{}】",JsonHelper.toJson(addBoardBox),e);
         }
         throw new LoadIllegalException(LoadIllegalException.BOARD_TOTC_FAIL_INTERCEPT_MESSAGE);
+    }
+
+    /**
+     * 设置板包裹缓存：默认7天
+     * @param boardCode
+     * @param packageCode
+     */
+    private void setCacheOfBoardAndPack(String boardCode, String packageCode) {
+        try {
+            String key = CacheKeyConstants.REDIS_PREFIX_BOARD_PACK + boardCode + Constants.SEPARATOR_HYPHEN + packageCode;
+            redisClientCache.setEx(key,String.valueOf(true),7,TimeUnit.DAYS);
+        }catch (Exception e){
+            logger.error("设置板【{}】包裹【{}】缓存异常",boardCode,packageCode,e);
+        }
     }
 
     /**
@@ -575,27 +627,28 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         }
         // 非第一次则校验目的地是否一致
         String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
+        Integer nextSiteCode;
+        Integer destinationId = null;
         try {
-            Integer nextSiteCode = boardCommonManager.getNextSiteCodeByRouter(waybillCode,request.getOperateSiteCode());
+            nextSiteCode = boardCommonManager.getNextSiteCodeByRouter(waybillCode,request.getOperateSiteCode());
             if(nextSiteCode == null){
                 // 此处直接返回，因为ver组板校验链会判断
                 return;
             }
-            Integer destinationId = null;
             Response<Board> response = groupBoardManager.getBoard(request.getBoardCode());
             if(response != null && response.getCode() == ResponseEnum.SUCCESS.getIndex()
                     && response.getData() != null){
                 destinationId = response.getData().getDestinationId();
             }
-            if(destinationId == null){
-                throw new LoadIllegalException(LoadIllegalException.BOARD_RECIEVE_EMPEY_INTERCEPT_MESSAGE);
-            }
-            if(!nextSiteCode.equals(destinationId)){
-                throw new LoadIllegalException(LoadIllegalException.FORBID_BOARD_INTERCEPT_MESSAGE);
-            }
         }catch (Exception e){
             logger.error("运单号【{}】的路由下一跳和板号【{}】目的地校验异常",waybillCode,request.getBoardCode(),e);
             throw new LoadIllegalException(InvokeResult.SERVER_ERROR_MESSAGE);
+        }
+        if(destinationId == null){
+            throw new LoadIllegalException(LoadIllegalException.BOARD_RECIEVE_EMPEY_INTERCEPT_MESSAGE);
+        }
+        if(!nextSiteCode.equals(destinationId)){
+            throw new LoadIllegalException(LoadIllegalException.FORBID_BOARD_INTERCEPT_MESSAGE);
         }
     }
 
