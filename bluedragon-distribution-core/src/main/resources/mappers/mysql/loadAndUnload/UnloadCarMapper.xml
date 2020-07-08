@@ -321,7 +321,11 @@
         FROM unload_car
         WHERE
         YN = 1
-        and seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
-        and unload_user_erp = #{unloadUserErp, jdbcType=VARCHAR}
+        <if test="sealCarCode != null">
+            and seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
+        </if>
+        <if test="unloadUserErp != null">
+            and unload_user_erp = #{unloadUserErp,jdbcType=VARCHAR}
+        </if>
     </select>
 </mapper>
