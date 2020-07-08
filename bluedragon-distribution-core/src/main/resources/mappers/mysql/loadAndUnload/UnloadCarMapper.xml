@@ -224,7 +224,9 @@
         unload_car
         where
         seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
+        and status = 2
         <include refid="Base_Condition_Sql"/>
+        limit 1
     </select>
 
     <select id="queryByCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="unloadCarTask">
