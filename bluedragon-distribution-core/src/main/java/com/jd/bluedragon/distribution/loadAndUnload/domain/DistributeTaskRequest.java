@@ -17,6 +17,11 @@ public class DistributeTaskRequest implements Serializable {
     private String unloadUserErp;
 
     /**
+     * 卸车人姓名
+     * */
+    private String unloadUserName;
+
+    /**
      * 月台号
      * */
     private String railWayPlatForm;
@@ -44,6 +49,14 @@ public class DistributeTaskRequest implements Serializable {
 
     public void setUnloadUserErp(String unloadUserErp) {
         this.unloadUserErp = unloadUserErp;
+    }
+
+    public String getUnloadUserName() {
+        return unloadUserName;
+    }
+
+    public void setUnloadUserName(String unloadUserName) {
+        this.unloadUserName = unloadUserName;
     }
 
     public String getRailWayPlatForm() {

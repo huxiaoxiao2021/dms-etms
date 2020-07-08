@@ -192,6 +192,7 @@ $(function () {
     $('#btn_distribute').click(function() {
         var rows = $('#dataTable').bootstrapTable('getSelections');
         var unloadUser = $('#unloadUser').val();
+        var unloadUserName = $('#unloadUserName').val();
         var railWayPlatForm = $('#railWayPlatForm').val();
         if(unloadUser.length < 1){
             alert("错误，未填卸车负责人ERP!");
@@ -212,6 +213,7 @@ $(function () {
             };
             var request = new Object();
             request.unloadUserErp = unloadUser;
+            request.unloadUserName = unloadUserName;
             request.railWayPlatForm = railWayPlatForm;
             request.sealCarCodes = sealCarCodes;
             request.unloadCarIds = unloadCarIds;

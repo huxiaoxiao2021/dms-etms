@@ -27,6 +27,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.avro.data.Json;
 import org.apache.commons.collections.CollectionUtils;
 import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -714,8 +715,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         for (int i=0;i<request.getSealCarCodes().size();i++) {
             UnloadCarDistribution unloadCarDistribution = new UnloadCarDistribution();
             unloadCarDistribution.setSealCarCode(request.getSealCarCodes().get(i));
-            unloadCarDistribution.setUnloadUserErp(request.getUpdateUserErp());
-            unloadCarDistribution.setUnloadUserName(request.getUpdateUserName());
+            unloadCarDistribution.setUnloadUserErp(request.getUnloadUserErp());
+            unloadCarDistribution.setUnloadUserName(request.getUnloadUserName());
             unloadCarDistribution.setUnloadUserType(UnloadUserTypeEnum.UNLOAD_MASTER.getType());
             unloadCarDistribution.setCreateTime(new Date());
             unloadCarDistributionDao.add(unloadCarDistribution);
@@ -725,6 +726,14 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 
     @Override
     public boolean insertUnloadCar(TmsSealCar tmsSealCar) {
+
+        UnloadCar unloadCarCondition = new UnloadCar();
+        unloadCarCondition.setSealCarCode(tmsSealCar.getSealCarCode());
+        List<UnloadCar> unloadCarList = unloadCarDao.selectUnloadCar(unloadCarCondition);
+        if (CollectionUtils.isNotEmpty(unloadCarList)) {
+            logger.error("该卸车任务：{}已存在", JsonHelper.toJson(tmsSealCar));
+            return false;
+        }
 
         UnloadCar unloadCar = new UnloadCar();
         try {
