@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.print.domain;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -21,17 +22,19 @@ public enum WayBillFinishedEnum {
         this.value = value;
         this.name = name;
     }
-    public static Set<Integer> SET_WAYBILL_STATUS_FINISHED = new HashSet<Integer>();
+    public static Set<Integer> waybillStatusFinishedSet = new HashSet<Integer>();
     public static String WAYBILLSTATES="";
+
     /**
      * 初始化终结状态集合
      */
     static{
-        SET_WAYBILL_STATUS_FINISHED.add(DELIVERY.getValue());
-        SET_WAYBILL_STATUS_FINISHED.add(REFUSED.getValue());
-        SET_WAYBILL_STATUS_FINISHED.add(END_PICK_UP.getValue());
-        SET_WAYBILL_STATUS_FINISHED.add(ORDER_CANCEL.getValue());
-        SET_WAYBILL_STATUS_FINISHED.add(INTEERCEPTED_SUCCESS.getValue());
+
+        waybillStatusFinishedSet.add(DELIVERY.getValue());
+        waybillStatusFinishedSet.add(REFUSED.getValue());
+        waybillStatusFinishedSet.add(END_PICK_UP.getValue());
+        waybillStatusFinishedSet.add(ORDER_CANCEL.getValue());
+        waybillStatusFinishedSet.add(INTEERCEPTED_SUCCESS.getValue());
     }
 
    static {

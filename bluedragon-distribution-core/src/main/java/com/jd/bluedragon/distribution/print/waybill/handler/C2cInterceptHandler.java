@@ -69,20 +69,20 @@ public class C2cInterceptHandler implements InterceptHandler<WaybillPrintContext
                 return interceptResult;
             }
         }
-        if (WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType().equals(context.getRequest().getOperateType()))
-        {
-            List<PackageState> collectCompleteResult = waybillTraceManager.getAllOperationsByOpeCodeAndState(context.getWaybill().getWaybillCode(),WayBillFinishedEnum.WAYBILLSTATES);
-            //判断该运单是否是终结点
-            if (CollectionUtils.isNotEmpty(collectCompleteResult)) {
-                String  message=String.format(WaybillPrintMessages.MESSAGE_WAYBILL_FINISHED.getMsgFormat(),collectCompleteResult.get(0).getStateName());
-                interceptResult.toWeakSuccess(WaybillPrintMessages.MESSAGE_WAYBILL_FINISHED.getMsgCode(),message);
-                return interceptResult;
-            }
-        }
+
         log.debug("C2cInterceptHandler-校验运单是否已经妥投");
         if(needCheckWaybillFinished.contains(context.getRequest().getOperateType()) && waybillTraceManager.isWaybillFinished(context.getWaybill().getWaybillCode())){
             interceptResult.toFail(InterceptResult.STATUS_NO_PASSED, WaybillPrintMessages.MESSAGE_WAYBILL_STATE_FINISHED);
             return interceptResult;
+        }
+        if (WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType().equals(context.getRequest().getOperateType()))
+        {
+            List<PackageState> collectCompleteResult = waybillTraceManager.getAllOperationsByOpeCodeAndState(context.getWaybill().getWaybillCode(),WayBillFinishedEnum.waybillStatusFinishedSet);
+            //判断该运单是否是终结点
+            if (CollectionUtils.isNotEmpty(collectCompleteResult)) {
+                String  message=String.format(WaybillPrintMessages.MESSAGE_WAYBILL_FINISHED.getMsgFormat(),collectCompleteResult.get(0).getStateName());
+                interceptResult.toWeakSuccess(WaybillPrintMessages.MESSAGE_WAYBILL_FINISHED.getMsgCode(),message);
+            }
         }
         return interceptResult;
     }
