@@ -130,6 +130,7 @@ $(function () {
             title: '操作',
             align: 'center',
             formatter: function (value, row, index) {
+                if (row.status != 2) return '';
                 return [
                     '<a class="btn-link btn-xs download" href="javascript:void(0)" title="下载">',
                     '下载',
