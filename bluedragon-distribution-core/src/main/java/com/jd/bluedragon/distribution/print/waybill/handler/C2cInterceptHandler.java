@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
+import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.WayBillFinishedEnum;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
@@ -27,7 +28,7 @@ import java.util.Set;
  * @date: 2018年12月25日17:38:01
  */
 @Service("c2cInterceptHandler")
-public class C2cInterceptHandler implements Handler<WaybillPrintContext, JdResult<String>> {
+public class C2cInterceptHandler implements InterceptHandler<WaybillPrintContext, String> {
     private static final Logger log = LoggerFactory.getLogger(C2cInterceptHandler.class);
 
     @Autowired
@@ -47,7 +48,6 @@ public class C2cInterceptHandler implements Handler<WaybillPrintContext, JdResul
         needCheckWaybillFinished.add(WaybillPrintOperateTypeEnum.FAST_TRANSPORT_PRINT.getType());//快运称重打印
         needCheckWaybillFinished.add(WaybillPrintOperateTypeEnum.SITE_MASTER_REVERSE_CHANGE_PRINT.getType());//站长工作台换单打印
     }
-
 
     @Override
     public InterceptResult<String> handle(WaybillPrintContext context) {

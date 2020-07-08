@@ -53,6 +53,6 @@ public class WaybillPrintMessages{
 	/**
 	 * 该运单已是终结点时提示信息MESASAGE_WAYBILL_FINISHED
 	 * */
-	public static final JdMessage MESSAGE_WAYBILL_FINISHED = new JdMessage(21001003,"外单包裹号）已【%s】，是否再次打印？");
+	public static final JdMessage MESSAGE_WAYBILL_FINISHED = new JdMessage(21001003,"此订单号（外单包裹号）已【%s】，是否再次打印？");
 
 }

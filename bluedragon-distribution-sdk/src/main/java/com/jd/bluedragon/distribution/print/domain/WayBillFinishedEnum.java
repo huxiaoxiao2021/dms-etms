@@ -43,6 +43,9 @@ public enum WayBillFinishedEnum {
        }
     }
 
+    public static void main(String[] args) {
+        System.out.println(WAYBILLSTATES);
+    }
     public String getName() {
         return name;
     }
