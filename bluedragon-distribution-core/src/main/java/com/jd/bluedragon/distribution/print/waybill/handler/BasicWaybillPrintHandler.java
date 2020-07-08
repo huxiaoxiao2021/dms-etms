@@ -199,7 +199,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             commonWaybill.setPopSupName(tmsWaybill.getConsigner());
             commonWaybill.setBusiId(tmsWaybill.getBusiId());
             commonWaybill.setBusiName(tmsWaybill.getBusiName());
-            commonWaybill.setWaybillStatus(tmsWaybillManageDomain.getWaybillState());
+
             commonWaybill.setOriginalCrossType(BusinessUtil.getOriginalCrossType(tmsWaybill.getWaybillSign(), tmsWaybill.getSendPay()));
             //调用外单接口，根据商家id获取商家编码
             BasicTraderInfoDTO basicTraderInfoDTO = baseMinorManager.getBaseTraderById(tmsWaybill.getBusiId());
