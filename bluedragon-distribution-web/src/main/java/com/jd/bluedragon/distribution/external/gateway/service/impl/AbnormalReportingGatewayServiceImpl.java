@@ -145,9 +145,9 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
             jdCResponse.setCode(JdCResponse.CODE_ERROR);
             jdCResponse.setMessage("扫描条码不能为空！");
             return jdCResponse;
-        } else if (! WaybillUtil.isWaybillCode(barCode) && ! WaybillUtil.isPackageCode(barCode)) {
+        } else if (! WaybillUtil.isPackageCode(barCode)) {
             jdCResponse.setCode(JdCResponse.CODE_ERROR);
-            jdCResponse.setMessage("扫描条码必须是包裹号或运单号！");
+            jdCResponse.setMessage("扫描条码必须是包裹号！");
             return jdCResponse;
         }
 
