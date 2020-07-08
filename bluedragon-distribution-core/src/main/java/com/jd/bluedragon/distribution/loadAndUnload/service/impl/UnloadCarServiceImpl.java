@@ -1000,6 +1000,16 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         List<HelperDto> helperDtos = new ArrayList<HelperDto>();
         result.setData(helperDtos);
 
+        //校验操作人是否为卸车任务负责人
+        UnloadCar unloadCar = new UnloadCar();
+        unloadCar.setSealCarCode(taskHelpersReq.getTaskCode());
+        unloadCar.setUnloadUserErp(taskHelpersReq.getUser().getUserErp());
+        List<UnloadCar> unloadCars = unloadCarDao.selectUnloadCar(unloadCar);
+        if (CollectionUtils.isEmpty(unloadCars)) {
+            result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+            result.setMessage("该操作仅限卸车负责人使用！");
+            return result;
+        }
 
         try {
             if (taskHelpersReq.getOperateType() == OperateTypeEnum.DELETE_HELPER.getType()) {

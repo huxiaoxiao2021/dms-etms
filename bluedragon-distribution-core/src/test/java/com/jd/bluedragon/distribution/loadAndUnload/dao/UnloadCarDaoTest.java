@@ -127,6 +127,14 @@ public class UnloadCarDaoTest extends AbstractDaoIntegrationH2Test {
         unloadCarDao.add(unloadCar);
     }
 
+    @Test
+    public void testSelectUnloadCar() {
+        UnloadCar unloadCar = new UnloadCar();
+        unloadCar.setSealCarCode("SC12345678");
+        unloadCar.setUnloadUserErp("bjxings");
+        unloadCarDao.selectUnloadCar(unloadCar);
+    }
+
 }
 
 //Generated with love by TestMe :) Please report issues and submit feature requests at: http://weirddev.com/forum#!/testme
