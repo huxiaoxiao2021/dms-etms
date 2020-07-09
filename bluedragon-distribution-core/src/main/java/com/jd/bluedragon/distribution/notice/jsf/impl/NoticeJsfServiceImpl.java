@@ -40,6 +40,7 @@ public class NoticeJsfServiceImpl implements NoticeJsfService {
     @Override
     public Response<PageDto<Notice>> queryPageList(NoticeQuery query) {
         Response<PageDto<Notice>> response = new Response<>();
+        response.toSucceed();
         PageDto<Notice> noticePageDto = noticeService.queryPageList(query);
         response.setData(noticePageDto);
         return response;
@@ -69,6 +70,7 @@ public class NoticeJsfServiceImpl implements NoticeJsfService {
     @Override
     public Response<Notice> add(Notice notice) {
         Response<Notice> response = new Response<>();
+        response.toSucceed();
         noticeService.add(notice);
         response.setData(notice);
         return response;
@@ -111,6 +113,7 @@ public class NoticeJsfServiceImpl implements NoticeJsfService {
     @Override
     public Response<NoticeAttachment> getAttachmentById(Long id) {
         Response<NoticeAttachment> response = new Response<>();
+        response.toSucceed();
         NoticeAttachment attachment = noticeAttachmentService.getById(id);
         response.setData(attachment);
         return response;
@@ -127,6 +130,7 @@ public class NoticeJsfServiceImpl implements NoticeJsfService {
     @Override
     public Response<List<NoticeAttachment>> getAttachmentByNoticeId(Long noticeId) {
         Response<List<NoticeAttachment>> response = new Response<>();
+        response.toSucceed();
         List<NoticeAttachment> attachmentList = noticeAttachmentService.getByNoticeId(noticeId);
         response.setData(attachmentList);
         return response;
@@ -143,6 +147,7 @@ public class NoticeJsfServiceImpl implements NoticeJsfService {
     @Override
     public Response<List<NoticeAttachment>> batchAddAttachment(List<NoticeAttachment> attachments) {
         Response<List<NoticeAttachment>> response = new Response<>();
+        response.toSucceed();
         noticeAttachmentService.batchAdd(attachments);
         response.setData(attachments);
         return response;
@@ -159,6 +164,7 @@ public class NoticeJsfServiceImpl implements NoticeJsfService {
     @Override
     public Response<Integer> deleteAttachmentById(Long id) {
         Response<Integer> response = new Response<>();
+        response.toSucceed();
         Integer deleteCount = noticeAttachmentService.deleteById(id);
         response.setData(deleteCount);
         return response;
@@ -175,6 +181,7 @@ public class NoticeJsfServiceImpl implements NoticeJsfService {
     @Override
     public Response<Integer> deleteAttachmentByNoticeId(Long noticeId) {
         Response<Integer> response = new Response<>();
+        response.toSucceed();
         Integer deleteCount = noticeAttachmentService.deleteByNoticeId(noticeId);
         response.setData(deleteCount);
         return response;

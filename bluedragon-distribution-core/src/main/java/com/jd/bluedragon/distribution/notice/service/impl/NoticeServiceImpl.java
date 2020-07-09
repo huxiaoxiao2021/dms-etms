@@ -113,6 +113,7 @@ public class NoticeServiceImpl implements NoticeService {
     @Override
     public Response<Notice> getByPrimaryKey(Long id){
         Response<Notice> response = new Response<>();
+        response.toSucceed();
         Notice notice = noticeDao.getByPrimaryKey(id);
         response.setData(notice);
         return response;
@@ -214,6 +215,7 @@ public class NoticeServiceImpl implements NoticeService {
     @Override
     public Response<Boolean> updateByPrimaryKey(Notice notice) {
         Response<Boolean> response = new Response<>();
+        response.toSucceed();
         response.setData(false);
         int updateCount = noticeDao.updateByPrimaryKey(notice);
         if(updateCount == 1){
@@ -233,6 +235,7 @@ public class NoticeServiceImpl implements NoticeService {
     @Override
     public Response<Boolean> deleteByPrimaryKey(Notice notice) {
         Response<Boolean> response = new Response<>();
+        response.toSucceed();
         response.setData(false);
         int updateCount = noticeDao.deleteByPrimaryKey(notice);
         if(updateCount == 1){
