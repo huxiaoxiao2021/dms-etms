@@ -56,10 +56,7 @@ public class CancelWaybillJsfManagerImpl implements CancelWaybillJsfManager{
     }
 	@Override
     /**
-     * 查询包裹是否拦截完成
-     * @param packageCode
-     * @param featureType
-     * @return
+     * 查询运单当前拦截状态
      */
     @JProfiler(jKey = "dmsWeb.jsf.client.dmsver.waybillCancelJsfService.dealCancelWaybill",jAppName=Constants.UMP_APP_NAME_DMSWEB,
     		mState = {JProEnum.TP, JProEnum.FunctionError})
