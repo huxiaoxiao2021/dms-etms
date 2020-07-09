@@ -199,7 +199,7 @@ public class WaybilCodeCheckExportLogConsumer extends MessageBaseConsumer {
                     subContent.add(0,heads);
                     String content = buildCsvString(subContent);
                     if(!StringUtils.isBlank(content)) {
-                        fis = new ByteArrayInputStream(content.getBytes());
+                        fis = new ByteArrayInputStream(content.getBytes("GB2312"));
                         //50000条生成一个csv文件并写入zip
                         zipFile(fis, zipOut, csvFileName + "-" + (csvIndex + 1) + ".csv");
                         csvIndex++;
