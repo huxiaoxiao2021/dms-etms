@@ -20,7 +20,7 @@ public class MaterialServiceFactory {
 
         TYPE_BATCH_SEND((byte)2, "物资按类型批量发货"),
 
-        COLLECTION_BAG_SEND((byte)3, "集包袋发货");
+        COLLECTION_BAG_SEND((byte)4, "集包袋发货");
 
         private byte code;
 
