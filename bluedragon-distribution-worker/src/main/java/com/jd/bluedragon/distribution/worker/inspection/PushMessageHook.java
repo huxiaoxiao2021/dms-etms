@@ -5,6 +5,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.coldchain.dto.CCInAndOutBoundMessage;
 import com.jd.bluedragon.distribution.coldchain.dto.ColdChainOperateTypeEnum;
+import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationEnum;
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationMQ;
 import com.jd.bluedragon.distribution.framework.TaskHook;
@@ -20,6 +21,7 @@ import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +55,9 @@ public class PushMessageHook implements TaskHook<InspectionTaskExecuteContext> {
     @Autowired
     @Qualifier("cycleMaterialSendMQ")
     private DefaultJMQProducer cycleMaterialSendMQ;
+
+    @Autowired
+    private CycleBoxService cycleBoxService;
 
     @JProfiler(jKey = "dmsworker.PushMessageHook.hook")
     @Override
@@ -88,9 +93,18 @@ public class PushMessageHook implements TaskHook<InspectionTaskExecuteContext> {
         }
         List<Message> messageList = new ArrayList<>();
         for (CenConfirm cenConfirm : context.getCenConfirmList()) {
-            //循环集包袋在验货环节发送解绑MQ
+
             BoxMaterialRelationMQ loopPackageMq = new BoxMaterialRelationMQ();
-            loopPackageMq.setBusinessType(BoxMaterialRelationEnum.INSPECTION.getType());
+            // 如果验货的是箱号，则代表是分拣中转
+            if (StringUtils.isNotBlank(cenConfirm.getBoxCode()) && BusinessUtil.isBoxcode(cenConfirm.getBoxCode())) {
+                loopPackageMq.setBusinessType(BoxMaterialRelationEnum.TRANSFER.getType());
+                loopPackageMq.setBoxCode(cenConfirm.getBoxCode());
+                loopPackageMq.setMaterialCode(cycleBoxService.getBoxMaterialRelation(cenConfirm.getBoxCode()));
+            }
+            else {
+                //循环集包袋在验货环节发送解绑MQ
+                loopPackageMq.setBusinessType(BoxMaterialRelationEnum.INSPECTION.getType());
+            }
             loopPackageMq.setOperatorCode(cenConfirm.getInspectionUserCode()==null?0:cenConfirm.getInspectionUserCode());
             loopPackageMq.setOperatorName(cenConfirm.getInspectionUser());
             loopPackageMq.setSiteCode(String.valueOf(cenConfirm.getCreateSiteCode()));

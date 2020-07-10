@@ -258,4 +258,14 @@
                   ref="expInfoSummaryGatewayService"
                   server="dmsjsf">
     </jsf:provider>
+
+    <!-- 集包袋收空袋发空袋 -->
+    <bean id="collectionBagOperationGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.CollectionBagOperationGatewayServiceImpl" />
+    <jsf:provider id="jsfCollectionBagOperationGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.CollectionBagOperationGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="collectionBagOperationGatewayService"
+                  server="dmsjsf">
+    </jsf:provider>
+
 </beans>

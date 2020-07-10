@@ -1,8 +1,6 @@
 package com.jd.bluedragon.distribution.material.util;
 
 import com.jd.bluedragon.distribution.material.service.MaterialOperationService;
-import com.jd.bluedragon.distribution.material.service.MaterialSendService;
-import com.jd.bluedragon.distribution.material.service.WarmBoxInOutOperationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -18,9 +16,11 @@ public class MaterialServiceFactory {
 
     public enum MaterialSendModeEnum {
 
-        MATERIAL_SINGLE_SEND((byte)1, "物资单个扫描发货"),
+        WARM_BOX_SEND((byte)1, "保温箱发货"),
 
-        MATERIAL_TYPE_BATCH_SEND((byte)2, "物资按类型批量发货");
+        TYPE_BATCH_SEND((byte)2, "物资按类型批量发货"),
+
+        COLLECTION_BAG_SEND((byte)3, "集包袋发货");
 
         private byte code;
 
@@ -48,16 +48,23 @@ public class MaterialServiceFactory {
     @Qualifier("warmBoxInOutOperationService")
     private MaterialOperationService warmBoxInOutOperationService;
 
+    @Autowired
+    @Qualifier("collectionBagOperationService")
+    private MaterialOperationService collectionBagOperationService;
+
     public MaterialOperationService findMaterialOperationService(Byte sendBusinessType){
         if (null == sendBusinessType) {
             throw new IllegalArgumentException("缺少必要参数!");
         }
 
-        if (MaterialSendModeEnum.MATERIAL_SINGLE_SEND.code == sendBusinessType) {
+        if (MaterialSendModeEnum.WARM_BOX_SEND.code == sendBusinessType) {
             return warmBoxInOutOperationService;
         }
-        else if (MaterialSendModeEnum.MATERIAL_TYPE_BATCH_SEND.code == sendBusinessType) {
+        else if (MaterialSendModeEnum.TYPE_BATCH_SEND.code == sendBusinessType) {
             return materialBatchSendService;
+        }
+        else if (MaterialSendModeEnum.COLLECTION_BAG_SEND.code == sendBusinessType) {
+            return collectionBagOperationService;
         }
 
         return null;
