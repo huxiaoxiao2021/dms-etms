@@ -31,21 +31,6 @@
 		</dependency>
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
-			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>1.4.2-SNAPSHOT</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>log4j</artifactId>
-					<groupId>log4j</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>slf4j-log4j12</artifactId>
-					<groupId>org.slf4j</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-core</artifactId>
 			<version>1.0.0</version>
 			<exclusions>
