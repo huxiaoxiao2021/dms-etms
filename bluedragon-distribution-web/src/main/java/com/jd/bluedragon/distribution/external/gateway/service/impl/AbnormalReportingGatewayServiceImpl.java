@@ -15,14 +15,14 @@ import com.jd.bluedragon.distribution.jss.JssService;
 import com.jd.bluedragon.distribution.qualityControl.QcVersionFlagEnum;
 import com.jd.bluedragon.distribution.qualityControl.service.QualityControlService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.external.gateway.dao.SiteMapper;
+import com.jd.bluedragon.external.gateway.domain.Site;
 import com.jd.bluedragon.external.gateway.service.AbnormalReportingGatewayService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageState;
-import com.jd.etms.waybill.dto.BigPackageStateDto;
-import com.jd.etms.waybill.dto.StoreInfoDto;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.AbnormalReasonDto;
 import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.PdaResult;
@@ -68,6 +68,9 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
     @Autowired
     private QualityControlService qualityControlService;
 
+    @Autowired
+    SiteMapper siteMapper;
+
     @Value("${jss.pda.image.bucket}")
     private String bucket;
 
@@ -84,7 +87,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
 
         if (abnormalReasonDtoMap == null || abnormalReasonDtoMap.size() == 0) {
             jdCResponse.setCode(JdCResponse.CODE_ERROR);
-            jdCResponse.setMessage("获取质控系统异常原因列表失败，请通过质控系统维护ERP信息！ERP：" + userErp);
+            jdCResponse.setMessage("请联系权限接口人配置质控系统异常上报权限");
             return jdCResponse;
         }
         List<BaseDataDict> qcDateDictList = baseService.getBaseDictionaryTree(this.qcAbnormalReasonType);
@@ -100,7 +103,9 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
     }
 
     @Override
-    public String uploadExceptionImage(InputStream inStream) {
+    public String uploadExceptionMedia(InputStream inStream, String originalFileName) {
+        String extName=originalFileName.substring(originalFileName.lastIndexOf(".")+1);
+
         String url = null;
         ByteArrayOutputStream swapStream = null;
         try {
@@ -113,7 +118,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
             byte[] in2b = swapStream.toByteArray();
             inStream.close();
             swapStream.close();
-            url = jssService.uploadImage(bucket, in2b);
+            url = jssService.uploadFile(bucket, in2b, extName);
             log.info("[新-异常提报-图片上传]uploadExceptionImage上传成功 : url[{}]", url);
         } catch (Exception e) {
             log.error("[新-异常提报-图片上传]uploadExceptionImage图片上传时发生异常", e);
@@ -265,6 +270,15 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
         return jdCResponse;
     }
 
+    @Override
+    public JdCResponse querySite(String orgId, String siteName, String siteCode) {
+        JdCResponse<List<Site>> jdCResponse = new JdCResponse<>(JdCResponse.CODE_SUCCESS, JdCResponse.MESSAGE_SUCCESS);
+
+        List<String> siteTypeList=Arrays.asList("96","16");//96配送运输，16第三方
+        List<Site> siteList = siteMapper.getByOrgIdAnd(orgId, siteName, siteCode, siteTypeList);
+        jdCResponse.setData(siteList);
+        return jdCResponse;
+    }
 
     /**
      * 根据不同来源（质控，基础资料）获取原因列表
