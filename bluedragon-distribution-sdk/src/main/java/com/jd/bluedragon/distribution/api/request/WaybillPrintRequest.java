@@ -284,7 +284,12 @@ public class WaybillPrintRequest extends JdRequest{
 	public void setWeightOperFlow(WeightOperFlow weightOperFlow) {
 		this.weightOperFlow = weightOperFlow;
 	}
-
+	/**
+	 * 判断是否已称重：weightOperFlow不为空，weightOperFlow.weight > 0
+	 */
+	public boolean hasWeighted() {
+		return this.weightOperFlow != null && this.weightOperFlow.getWeight() > 0;
+	}
 	public String getTemplateName() {
 		return templateName;
 	}
