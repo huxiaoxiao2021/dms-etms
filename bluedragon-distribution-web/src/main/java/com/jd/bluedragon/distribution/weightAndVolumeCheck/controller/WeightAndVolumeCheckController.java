@@ -172,9 +172,7 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
             log.warn(formatMsg,e);
             return result;
         }
-        Long uploadTime  = new Date().getTime();
         String packageCode = request.getParameter("packageCode");
-        String reviewDate = request.getParameter("reviewDate");
         try {
             String operateTimeForm = DateHelper.formatDate(new Date(),DateHelper.DATE_FORMAT_YYYYMMDDHHmmss);
             imageName = packageCode + "_" + siteCode + "_" + operateTimeForm + "." + suffixName;
@@ -187,8 +185,8 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
             return result;
         }
         if(result.getCode() == InvokeResult.RESULT_SUCCESS_CODE){
-            //上传成功后给判责系统发消息并更新es数据
-            weightAndVolumeCheckService.sendMqAndUpdate(packageCode,siteCode,uploadTime,reviewDate);
+            //上传成功后给FXM发超标消息并更新es数据
+            weightAndVolumeCheckService.sendMqAndUpdate(packageCode,siteCode);
         }
 
         return result;

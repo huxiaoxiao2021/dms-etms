@@ -34,6 +34,7 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackageStateDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.report.ReportExternalService;
 import com.jd.ql.dms.report.domain.BaseEntity;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
@@ -59,6 +60,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 类描述信息
@@ -131,6 +133,11 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
      * */
     private static final int VOLUME_MAX_RATIO = 5;
 
+    /**
+     * B网抽检缓存前缀
+     * */
+    private static final String B2B_SPOT_CHECK_REDIS_KEY_PREFIX = "B2B_SPOT_CHECK_KEY";
+
     @Autowired
     private ReportExternalService reportExternalService;
 
@@ -155,6 +162,10 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
 
     @Autowired
     private WaybillTraceManager waybillTraceManager;
+
+    @Autowired
+    @Qualifier("jimdbCacheService")
+    private CacheService jimdbCacheService;
 
 
     @Override
@@ -250,12 +261,6 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
                 result.customMessage(600, MessageFormat.format("图片{0}的大小为{1}byte,超出单个图片最大限制{2}byte",
                         imageName, imageSize, SINGLE_IMAGE_SIZE_LIMIT));
                 log.warn("参数:{}, 异常信息:{}", waybillOrPackageCode, "上传的超标图片失败,单个图片超出限制大小");
-                return result;
-            }
-            //是否操作过抽检
-            String waybillCode = WaybillUtil.getWaybillCode(waybillOrPackageCode);
-            if(isSpotCheck(waybillCode,null)){
-                result.customMessage(600,"运单"+waybillCode+"已经进行过抽检，禁止上传!");
                 return result;
             }
             String operateTimeForm = DateHelper.formatDate(new Date(),DateHelper.DATE_FORMAT_YYYYMMDDHHmmss);
@@ -479,7 +484,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             result.parameterError("此运单已经妥投、请勿操作!");
             return result;
         }
-        if(isSpotCheck(waybillCode,null)){
+        if(isSpotCheck(waybillCode,condition.getCreateSiteCode())){
             result.customMessage(600,"运单"+waybillCode+"已经进行过抽检，请勿重复操作!");
             return result;
         }
@@ -512,6 +517,10 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         Double nowWeight = condition.getWaybillWeight();
         Double nowVolume = condition.getWaybillVolume();
         WaybillFlowDetail waybillFlowDetail = getFirstWeightAndVolumeDetail(waybillCode);
+        if(condition.getCreateSiteCode() != null && condition.getCreateSiteCode().equals(waybillFlowDetail.getOperateSiteCode())){
+            result.customMessage(600,"同组织禁止上报");
+            return result;
+        }
         Double beforeWeight = waybillFlowDetail.getTotalWeight()==null?0.00:waybillFlowDetail.getTotalWeight();
         Double beforeVolume = waybillFlowDetail.getTotalVolume()==null?0.00:waybillFlowDetail.getTotalVolume();
         Boolean sign = isExcess(nowWeight,beforeWeight,M3_TRANS_TO_CM3*nowVolume,beforeVolume);
@@ -549,6 +558,11 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         String waybillCode = WaybillUtil.getWaybillCode(params.get(0).getPackageCode());
         //获取运单中的体积和重量
         WaybillFlowDetail waybillFlowDetail = getFirstWeightAndVolumeDetail(waybillCode);
+        if(params != null && params.get(0) != null && params.get(0).getCreateSiteCode() != null
+                && params.get(0).getCreateSiteCode().equals(waybillFlowDetail.getOperateSiteCode())){
+            result.customMessage(600,"同组织禁止上报");
+            return result;
+        }
         Double beforeWeight = waybillFlowDetail.getTotalWeight()==null?0.00:waybillFlowDetail.getTotalWeight();
         Double beforeVolume = waybillFlowDetail.getTotalVolume()==null?0.00:waybillFlowDetail.getTotalVolume();
         //判断是否超标
@@ -718,11 +732,6 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             }
             if(waybillTraceManager.isWaybillFinished(waybillCode)){
                 result.parameterError("此运单已经妥投、请勿操作!");
-                return result;
-            }
-            //一单一检
-            if(isSpotCheck(waybillCode,null)){
-                result.customMessage(600,"运单"+waybillCode+"已经进行过抽检，请勿重复操作!");
                 return result;
             }
             List<DeliveryPackageD> packList = baseEntity.getData().getPackageList();
@@ -1007,19 +1016,33 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
     /**
      * 判断是否操作过抽检
      * @param waybillCode
+     * @param siteCode
      * @return
      */
-    private Boolean isSpotCheck(String waybillCode,Integer siteCode){
-        //是否操作过抽检
-        WeightVolumeQueryCondition weightVolumeQueryCondition = new WeightVolumeQueryCondition();
-        weightVolumeQueryCondition.setPackageCode(waybillCode);
-        weightVolumeQueryCondition.setReviewSiteCode(siteCode);
-        BaseEntity<List<WeightVolumeCollectDto>> entity = reportExternalService.getByParamForWeightVolume(weightVolumeQueryCondition);
-        if(entity != null && entity.getData() != null
-                && entity.getData().size() != 0){
-            return Boolean.TRUE;
+    private boolean isSpotCheck(String waybillCode,Integer siteCode){
+
+        boolean flag = false;
+        try {
+            String key = B2B_SPOT_CHECK_REDIS_KEY_PREFIX + "_" + waybillCode + "_" + siteCode;
+            String redisValue = jimdbCacheService.get(key);
+            if(StringUtils.isNotEmpty(redisValue)){
+               return Boolean.valueOf(redisValue);
+            }
+            WeightVolumeQueryCondition weightVolumeQueryCondition = new WeightVolumeQueryCondition();
+            weightVolumeQueryCondition.setPackageCode(waybillCode);
+            weightVolumeQueryCondition.setReviewSiteCode(siteCode);
+            BaseEntity<List<WeightVolumeCollectDto>> entity = reportExternalService.getByParamForWeightVolume(weightVolumeQueryCondition);
+            if(entity != null && entity.getCode() == 200
+                    && CollectionUtils.isNotEmpty(entity.getData())){
+                flag = true;
+            }else {
+                flag = false;
+            }
+            jimdbCacheService.setEx(key,String.valueOf(flag),10*60,TimeUnit.SECONDS);
+        } catch (Exception e) {
+            log.error("判断运单【{}】、站点【{}】是否操作过抽检缓存异常",waybillCode,siteCode,e);
         }
-        return Boolean.FALSE;
+        return flag;
     }
 
 
