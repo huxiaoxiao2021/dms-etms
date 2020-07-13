@@ -190,4 +190,10 @@
                   alias="${dms.jsf.alias}"
                   ref="thirdBoxExternalService" server="dmsjsf">
     </jsf:provider>
+    <!-- 通知栏及知识库接口 -->
+    <jsf:provider id="dmsNoticeJsfServiceAPI"
+                  interface="com.jd.bluedragon.distribution.notice.service.NoticeJsfService"
+                  alias="${jsf.config.dmsNoticeJsfService.alias}"
+                  ref="dmsNoticeJsfService" server="dmsjsf">
+    </jsf:provider>
 </beans>

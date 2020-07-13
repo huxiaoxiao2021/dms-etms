@@ -110,4 +110,14 @@
         AND notice_id = #{noticeId, jdbcType=BIGINT}
     </update>
 
+    <update id="deleteById" parameterType="java.util.Map">
+        UPDATE notice_attachment
+        SET
+            is_delete = 1,
+            update_time = NOW()
+        WHERE
+            is_delete = 0
+          AND id = #{id, jdbcType=BIGINT}
+    </update>
+
 </mapper>	
