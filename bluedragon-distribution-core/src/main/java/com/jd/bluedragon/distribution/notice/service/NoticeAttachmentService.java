@@ -49,15 +49,5 @@ public interface NoticeAttachmentService {
      * @param noticeId
      * @return
      */
-    Integer deleteByNoticeId(Long noticeId);
-
-    /**
-     * 按主键ID删除附件
-     *
-     * @param id 附件主键ID
-     * @return 影响条数
-     * @author fanggang7
-     * @date 2020-07-08 16:02:56 周三
-     */
-    Integer deleteById(Long id);
+    Integer delete(Long noticeId);
 }

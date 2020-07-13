@@ -1,18 +1,15 @@
 package com.jd.bluedragon.distribution.notice.service.impl;
 
-import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.api.request.NoticeRequest;
 import com.jd.bluedragon.distribution.basic.FileUtils;
 import com.jd.bluedragon.distribution.jss.JssService;
 import com.jd.bluedragon.distribution.notice.dao.NoticeDao;
 import com.jd.bluedragon.distribution.notice.domain.Notice;
 import com.jd.bluedragon.distribution.notice.domain.NoticeAttachment;
-import com.jd.bluedragon.distribution.notice.request.NoticeQuery;
 import com.jd.bluedragon.distribution.notice.service.NoticeAttachmentService;
 import com.jd.bluedragon.distribution.notice.service.NoticeService;
 import com.jd.bluedragon.distribution.notice.utils.NoticeLevelEnum;
 import com.jd.bluedragon.distribution.notice.utils.NoticeTypeEnum;
-import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -79,44 +76,6 @@ public class NoticeServiceImpl implements NoticeService {
             }
         }
         return data;
-    }
-
-    /**
-     * 分页查询通知数据
-     * @param query 查询参数
-     * @return 分页数据结果
-     * @author fanggang7
-     * @date 2020-07-02 16:41:33 周四
-     */
-    @Override
-    public PageDto<Notice> queryPageList(NoticeQuery query){
-        PageDto<Notice> noticePageDto = new PageDto<>();
-        List<Notice> noticeList = new ArrayList<>();
-        Long total = noticeDao.queryCount(query);
-        if(total > 0){
-            noticeList = noticeDao.queryList(query);
-        }
-        noticePageDto.setTotalRow(total.intValue());
-        noticePageDto.setPageSize(query.getPageSize());
-        noticePageDto.setCurrentPage(query.getPageNumber());
-        noticePageDto.setResult(noticeList);
-        return noticePageDto;
-    }
-
-    /**
-     * 按主键查询
-     * @param id 主键ID
-     * @return Notice 通知详情
-     * @author fanggang7
-     * @date 2020-07-07 19:52:00 周二
-     */
-    @Override
-    public Response<Notice> getByPrimaryKey(Long id){
-        Response<Notice> response = new Response<>();
-        response.toSucceed();
-        Notice notice = noticeDao.getByPrimaryKey(id);
-        response.setData(notice);
-        return response;
     }
 
     @Override
@@ -196,7 +155,7 @@ public class NoticeServiceImpl implements NoticeService {
             int result = noticeDao.logicDelete(parameter);
             if (result > 0) {
                 for (Long id : ids){
-                    noticeAttachmentService.deleteByNoticeId(id);
+                    noticeAttachmentService.delete(id);
                 }
             }
             return result;
@@ -204,43 +163,4 @@ public class NoticeServiceImpl implements NoticeService {
         return 0;
     }
 
-    /**
-     * 按主键更新
-     *
-     * @param notice Notice
-     * @return Response 更新条数
-     * @author fanggang7
-     * @date 2020-07-01 20:00:46 周三
-     */
-    @Override
-    public Response<Boolean> updateByPrimaryKey(Notice notice) {
-        Response<Boolean> response = new Response<>();
-        response.toSucceed();
-        response.setData(false);
-        int updateCount = noticeDao.updateByPrimaryKey(notice);
-        if(updateCount == 1){
-            response.setData(true);
-        }
-        return response;
-    }
-
-    /**
-     * 按主键伪删除
-     *
-     * @param notice Notice
-     * @return Response 更新条数
-     * @author fanggang7
-     * @date 2020-07-01 20:00:46 周三
-     */
-    @Override
-    public Response<Boolean> deleteByPrimaryKey(Notice notice) {
-        Response<Boolean> response = new Response<>();
-        response.toSucceed();
-        response.setData(false);
-        int updateCount = noticeDao.deleteByPrimaryKey(notice);
-        if(updateCount == 1){
-            response.setData(true);
-        }
-        return response;
-    }
 }

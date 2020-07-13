@@ -59,14 +59,4 @@ public class NoticeAttachmentDao extends BaseDao<NoticeAttachment> {
         return this.getSqlSession().update(NoticeAttachmentDao.NAMESPACE + ".deleteByNoticeId", parameter);
     }
 
-    /**
-     * 逻辑删除
-     *
-     * @param parameter
-     * @return
-     */
-    public int deleteById(Map<String, Object> parameter) {
-        return this.getSqlSession().update(NoticeAttachmentDao.NAMESPACE + ".deleteById", parameter);
-    }
-
 }
