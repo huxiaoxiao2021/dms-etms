@@ -51,6 +51,8 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 
+import javax.ws.rs.HEAD;
+
 public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTaskExecutor<T> {
 
 	private static Logger log = LoggerFactory.getLogger(BaseReceiveTaskExecutor.class);
@@ -153,7 +155,6 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 
             Receive receive = context.getBody();
             if (StringUtils.isNotBlank(receive.getBoxCode()) && BusinessUtil.isBoxcode(receive.getBoxCode())) {
-
                 String materialCode = cycleBoxService.getBoxMaterialRelation(receive.getBoxCode());
                 if (StringUtils.isNotBlank(materialCode)) {
                     BoxMaterialRelationMQ loopPackageMq = new BoxMaterialRelationMQ();
