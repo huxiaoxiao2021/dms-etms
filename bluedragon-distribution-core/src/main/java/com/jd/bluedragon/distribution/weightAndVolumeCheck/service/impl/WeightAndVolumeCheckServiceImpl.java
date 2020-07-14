@@ -464,9 +464,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      * @return
      */
     private boolean checkIsOverTime(Date reviewDate, Date uploadTime) {
-        long prefix = (uploadTime.getTime() - reviewDate.getTime())/(24*60*60*1000);
-        long suffix = (uploadTime.getTime() - reviewDate.getTime())%(24*60*60*1000);
-        return prefix > defaultIntervalDays || (prefix == defaultIntervalDays && suffix > 0);
+        return uploadTime.getTime() - reviewDate.getTime() > defaultIntervalDays*24*60*60*1000;
     }
 
     /**

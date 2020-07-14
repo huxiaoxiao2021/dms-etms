@@ -184,7 +184,14 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             AbnormalResultMq abnormalResultMq = new AbnormalResultMq();
             assembleData(spotCheckData,dto,abnormalResultMq);
             weightAndVolumeCheckService.setProductType(dto);
-            reportExternalService.insertOrUpdateForWeightVolume(dto);
+            BaseEntity<String> packageBaseEntity = reportExternalService.insertOrUpdateForWeightVolume(dto);
+            if(packageBaseEntity == null || packageBaseEntity.getCode() != 200){
+                log.warn("提交包裹【{}】的超标数据失败!",dto.getPackageCode());
+                result.customMessage(600,"提交超标数据失败!");
+                return result;
+            }
+            // 设置缓存
+            setSpotCheckCache(dto.getWaybillCode(),dto.getReviewSiteCode());
             //发运单维度匿名全程跟踪
             sendWaybillTrace(dto);
             //超标则给FXM发mq
@@ -676,7 +683,14 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             WeightVolumeCollectDto dto = new WeightVolumeCollectDto();
             assembleData(spotCheckData,dto,abnormalResultMq);
             weightAndVolumeCheckService.setProductType(dto);
-            reportExternalService.insertOrUpdateForWeightVolume(dto);
+            BaseEntity<String> baseEntity = reportExternalService.insertOrUpdateForWeightVolume(dto);
+            if(baseEntity == null || baseEntity.getCode() != 200){
+                log.warn("提交运单【{}】的超标数据失败!",dto.getWaybillCode());
+                result.customMessage(600,"提交超标数据失败!");
+                return result;
+            }
+            // 设置缓存
+            setSpotCheckCache(dto.getWaybillCode(),dto.getReviewSiteCode());
             //发运单维度全程跟踪
             sendWaybillTrace(dto);
             //超标给fxm发mq
@@ -688,6 +702,20 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             result.customMessage(600,"B网按运单抽检失败!");
         }
         return result;
+    }
+
+    /**
+     * 设置缓存
+     * @param waybillCode
+     * @param siteCode
+     */
+    private void setSpotCheckCache(String waybillCode, Integer siteCode) {
+        try {
+            String key = B2B_SPOT_CHECK_REDIS_KEY_PREFIX + "_" + waybillCode + "_" + siteCode;
+            jimdbCacheService.setEx(key,String.valueOf(true),24,TimeUnit.HOURS);
+        }catch (Exception e){
+            log.error("设置运单【{}】站点【{}】的超标缓存异常",waybillCode,siteCode,e);
+        }
     }
 
     /**
@@ -1020,8 +1048,6 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
      * @return
      */
     private boolean isSpotCheck(String waybillCode,Integer siteCode){
-
-        boolean flag = false;
         try {
             String key = B2B_SPOT_CHECK_REDIS_KEY_PREFIX + "_" + waybillCode + "_" + siteCode;
             String redisValue = jimdbCacheService.get(key);
@@ -1034,15 +1060,15 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             BaseEntity<List<WeightVolumeCollectDto>> entity = reportExternalService.getByParamForWeightVolume(weightVolumeQueryCondition);
             if(entity != null && entity.getCode() == 200
                     && CollectionUtils.isNotEmpty(entity.getData())){
-                flag = true;
+                jimdbCacheService.setEx(key,String.valueOf(true),24, TimeUnit.HOURS);
+                return true;
             }else {
-                flag = false;
+                return false;
             }
-            jimdbCacheService.setEx(key,String.valueOf(flag),10*60,TimeUnit.SECONDS);
         } catch (Exception e) {
             log.error("判断运单【{}】、站点【{}】是否操作过抽检缓存异常",waybillCode,siteCode,e);
         }
-        return flag;
+        return false;
     }
 
 
