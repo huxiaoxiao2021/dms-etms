@@ -566,7 +566,7 @@ public class NewSealVehicleResource {
             sealCarDto.setTransportCode(request.getTransportCode());
             sealCarDto.setBatchCodes(request.getBatchCodes());
             sealCarDto.setSealCodes(request.getSealCodes());
-            sealCarDto.setSealCarTime(DateHelper.parseDate(request.getSealCarTime(),"yyyy-MM-dd HH:mm:ss"));
+            sealCarDto.setSealCarTime(DateHelper.parseDate(request.getSealCarTime(),Constants.DATE_TIME_FORMAT));
             sealCarDto.setSealSiteId(request.getSealSiteId());
             sealCarDto.setSealSiteCode(request.getSealSiteCode());
             sealCarDto.setSealSiteName(request.getSealSiteName());
@@ -613,7 +613,7 @@ public class NewSealVehicleResource {
             return true;
         }
         List<String> siteCodes = Arrays.asList(sealVolumeCheckSites.split(Constants.SEPARATOR_COMMA));
-        if(siteCodes.contains(siteCode)){
+        if(siteCodes.contains(String.valueOf(siteCode))){
             return true;
         }
         return false;

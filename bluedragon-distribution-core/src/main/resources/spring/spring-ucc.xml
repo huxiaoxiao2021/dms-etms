@@ -47,7 +47,6 @@
 		<property name="offlineTaskOperateTimeCorrectHours" value="${offlineTaskOperateTimeCorrectHours:24}"/>
 		<property name="automaticWeightVolumeExchangeSwitch" value="${automaticWeightVolumeExchangeSwitch:false}"/>
 		<property name="automaticWeightVolumeExchangeSiteCode" value="${automaticWeightVolumeExchangeSiteCode}"/>
-        <property name="sealVolumeCheckSwitch" value="${sealVolumeCheckSwitch:false}"/>
         <property name="sealVolumeCheckSites" value="${sealVolumeCheckSites:-1}"/>
 	</bean>
 
@@ -80,7 +79,6 @@
 				<value>uccPropertyConfiguration.offlineTaskOperateTimeCorrectHours</value>
 				<value>uccPropertyConfiguration.automaticWeightVolumeExchangeSwitch</value>
 				<value>uccPropertyConfiguration.automaticWeightVolumeExchangeSiteCode</value>
-				<value>uccPropertyConfiguration.sealVolumeCheckSwitch</value>
 				<value>uccPropertyConfiguration.sealVolumeCheckSites</value>
 			</list>
 		</property>
