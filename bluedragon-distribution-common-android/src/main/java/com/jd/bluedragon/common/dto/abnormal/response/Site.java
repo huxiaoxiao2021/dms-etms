@@ -1,8 +1,15 @@
-package com.jd.bluedragon.external.gateway.domain;
+package com.jd.bluedragon.common.dto.abnormal.response;
 
 public class Site {
 
+    /**
+     * 站点名称
+     */
     String site_name;
+
+    /**
+     * 站点id
+     */
     Integer site_code;
 
     public String getSite_name() {

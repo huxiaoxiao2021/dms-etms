@@ -3,7 +3,7 @@
 <mapper namespace="com.jd.bluedragon.external.gateway.dao.SiteMapper">
 
 
-    <select id="getByOrgIdAnd" resultType="com.jd.bluedragon.external.gateway.domain.Site" >
+    <select id="getByOrgIdAnd" resultType="com.jd.bluedragon.common.dto.abnormal.response.Site" >
         select site_code, site_name
         from site
         where

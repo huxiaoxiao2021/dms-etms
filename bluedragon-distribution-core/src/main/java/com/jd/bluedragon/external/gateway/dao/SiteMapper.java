@@ -1,7 +1,7 @@
 package com.jd.bluedragon.external.gateway.dao;
 
 
-import com.jd.bluedragon.external.gateway.domain.Site;
+import com.jd.bluedragon.common.dto.abnormal.response.Site;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
