@@ -3,8 +3,12 @@ package com.jd.bluedragon.distribution.receive.service.impl;
 import java.util.*;
 
 import com.alibaba.fastjson.JSON;
+import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
+import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationEnum;
+import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationMQ;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionMQBody;
 import com.jd.bluedragon.distribution.inspection.service.InspectionNotifyService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.common.util.StringUtils;
@@ -97,6 +101,13 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 
 	@Autowired
 	private InspectionNotifyService inspectionNotifyService;
+
+    @Autowired
+    @Qualifier("cycleMaterialSendMQ")
+    private DefaultJMQProducer cycleMaterialSendMQ;
+
+    @Autowired
+    private CycleBoxService cycleBoxService;
 	
 	/**
 	 * 收货
@@ -128,8 +139,40 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 		pushTurnoverBoxInfo(taskContext);
 
 		pushReceiveInfo(cenConfirmList);
+
+		// 循环集包袋发送消息
+		pushCycleMaterialMQ(taskContext);
+
 		return true;
 	}
+
+	protected void pushCycleMaterialMQ(TaskContext<T> context) {
+
+	    try {
+	        if (null == context || null == context.getBody()) return;
+
+            Receive receive = context.getBody();
+            if (StringUtils.isNotBlank(receive.getBoxCode()) && BusinessUtil.isBoxcode(receive.getBoxCode())) {
+
+                String materialCode = cycleBoxService.getBoxMaterialRelation(receive.getBoxCode());
+                if (StringUtils.isNotBlank(materialCode)) {
+                    BoxMaterialRelationMQ loopPackageMq = new BoxMaterialRelationMQ();
+                    loopPackageMq.setBoxCode(receive.getBoxCode());
+                    loopPackageMq.setBusinessType(BoxMaterialRelationEnum.TRANSFER.getType());
+                    loopPackageMq.setMaterialCode(materialCode);
+                    loopPackageMq.setOperatorCode(receive.getCreateUserCode() == null ? 0: receive.getCreateUserCode());
+                    loopPackageMq.setOperatorName(receive.getCreateUser());
+                    loopPackageMq.setSiteCode(receive.getCreateSiteCode() + "");
+                    loopPackageMq.setOperatorTime(receive.getUpdateTime());
+
+                    cycleMaterialSendMQ.sendOnFailPersistent(loopPackageMq.getMaterialCode(), JsonHelper.toJson(loopPackageMq));
+                }
+            }
+        }
+	    catch (Exception ex) {
+	        log.error("push cycle material mq error.", ex);
+        }
+    }
 
 	/**
 	 * step1-保存收货记录
