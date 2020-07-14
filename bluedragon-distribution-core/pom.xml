@@ -210,7 +210,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-utils</artifactId>
-			<version>1.2.4-SNAPSHOT</version>
+			<version>1.2.5-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
