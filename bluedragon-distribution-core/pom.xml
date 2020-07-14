@@ -200,7 +200,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>1.3.10-SNAPSHOT</version>
+			<version>1.4.2-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.ldop.alpha</groupId>
@@ -1341,7 +1341,7 @@
 		<dependency>
 			<artifactId>dms-ver-sdk</artifactId>
 			<groupId>com.jd.bluedragon</groupId>
-			<version>1.0.0-SNAPSHOT</version>
+			<version>1.0.1-RELEASE</version>
 		</dependency>
 		<!--新意见反馈接口-->
 		<dependency>
