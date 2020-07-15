@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.weightAndVolumeCheck.service.impl;
 
-import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BusinessFinanceManager;
 import com.jd.bluedragon.core.base.QuoteCustomerApiServiceManager;
@@ -11,6 +10,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.DmsBaseDictService;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
+import com.jd.bluedragon.dms.receive.enums.VolumeFeeType;
 import com.jd.bluedragon.dms.receive.quote.dto.QuoteCustomerDto;
 import com.jd.etms.finance.dto.BizDutyDTO;
 import com.jd.etms.finance.util.ResponseDTO;
@@ -96,7 +96,7 @@ public class WeightAndVolumeCheckServiceImplTest {
 
         QuoteCustomerDto quoteCustomerDto = new QuoteCustomerDto();
         quoteCustomerDto.setVolumeFeeType(8000);
-        quoteCustomerDto.setVolumeFeeType(Constants.VOLUMEFEETYPE_VOLUME);
+        quoteCustomerDto.setVolumeFeeType(VolumeFeeType.volumeWeight.getType());
         when(quoteCustomerApiServiceManager.queryCustomerById(anyInt())).thenReturn(quoteCustomerDto);
 
         PackWeightVO packWeightVO = new PackWeightVO();

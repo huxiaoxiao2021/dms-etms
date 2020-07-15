@@ -603,13 +603,6 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 weightVolumeCollectDto.setBillingVolume(billingVolume);
             }
 
-            //当计费重量或计费体积为0时，不计算直接返回
-            if(billingWeight == 0 || billingVolume == 0){
-                result.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE,"计费重量/体积为0或空，无法进行校验");
-                result.setData(false);
-                return result;
-            }
-
             QuoteCustomerDto quoteCustomerDto = quoteCustomerApiServiceManager.queryCustomerById(weightVolumeCollectDto.getBusiCode());
             Integer volumeRate = (quoteCustomerDto==null || quoteCustomerDto.getVolumeRate()==null) ? DEFAULT_VOLUME_RATE : quoteCustomerDto.getVolumeRate();
             if(quoteCustomerDto == null){
@@ -622,7 +615,15 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 return result;
             }
 
-            weightVolumeCollectDto.setWeightDiff(new DecimalFormat("#0.00").format(reviewWeight - billingWeight));
+            //当计费重量或计费体积为0时，体积重量抽检超标
+            if(billingWeight == 0 || billingVolume == 0){
+                log.warn("运单【{}】获取计费重量/体积为空",waybillCode);
+                result.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE,"计费重量/体积为0或空，无法进行校验");
+                result.setData(false);
+                weightVolumeCollectDto.setIsExcess(1);
+            }
+
+            weightVolumeCollectDto.setWeightDiff(new DecimalFormat("#0.00").format(Math.abs(reviewWeight - billingWeight)));
 
             weightVolumeCollectDto.setReviewVolumeWeight(getVolumeAndWeight(reviewVolume/volumeRate));
             weightVolumeCollectDto.setBillingVolumeWeight(getVolumeAndWeight(billingVolume/volumeRate));
@@ -631,8 +632,10 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             diffStandardOfWeight.append(WEIGHT_STANDARD_PREFIX).append(getStandardVal(reviewWeight));
             diffStandardOfWeight.append(VOLUME_WEIGHT_STANDARD_PREFIX).append(getStandardVal(reviewVolume/volumeRate));
             weightVolumeCollectDto.setDiffStandard(diffStandardOfWeight.toString());
-            weightVolumeCollectDto.setVolumeWeightDiff(new DecimalFormat("#0.00").format(reviewVolume/volumeRate - billingVolume/volumeRate));
+            weightVolumeCollectDto.setVolumeWeightDiff(new DecimalFormat("#0.00").format(Math.abs(reviewVolume/volumeRate - billingVolume/volumeRate)));
             setProductType(weightVolumeCollectDto);
+            // 1KG以下特殊处理
+            specialSceneHandle(weightVolumeCollectDto);
             //将重量体积实体存入es中
             reportExternalService.insertOrUpdateForWeightVolume(weightVolumeCollectDto);
         }catch (Exception e){
@@ -641,6 +644,23 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
         }
         return result;
+    }
+
+    /**
+     * 特殊场景处理
+     * <p>
+     *     目前只针对1KG以下（含）
+     *     记录es但不超标
+     * </p>
+     * @param weightVolumeCollectDto
+     */
+    private void specialSceneHandle(WeightVolumeCollectDto weightVolumeCollectDto) {
+        // 1KG以下（含）设为不超标并记录es
+        if(weightVolumeCollectDto.getReviewVolume() <= 1){
+            weightVolumeCollectDto.setIsExcess(0);
+            weightVolumeCollectDto.setVolumeWeightIsExcess(0);
+            weightVolumeCollectDto.setDiffStandard("");
+        }
     }
 
     /**
