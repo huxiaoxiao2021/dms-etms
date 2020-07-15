@@ -94,12 +94,12 @@ $(document).ready(function() {
                 contentHTML += " class=\"form-control\" placeholder=\"请键入0或1\"/> ";
                 contentHTML += "<datalist id=\"contentList\">";
                 contentHTML += "<option value=\"0\"";
-                if(content === 0) {
+                if(content == 0) {
                     contentHTML += " selected=\"selected\" ";
                 }
                 contentHTML += ">0</option>";
                 contentHTML += "<option value=\"1\"";
-                if(content === 1) {
+                if(content == 1) {
                     contentHTML += " selected=\"selected\" ";
                 }
                 contentHTML += ">1</option>";
@@ -110,12 +110,12 @@ $(document).ready(function() {
                 contentHTML += " class=\"form-control\" placeholder=\"请键入true或false\"/> ";
                 contentHTML += "<datalist id=\"contentList\">";
                 contentHTML += "<option value=\"true\"";
-                if(content === true) {
+                if(content == true) {
                     contentHTML += " selected=\"selected\" ";
                 }
                 contentHTML += ">true</option>";
                 contentHTML += "<option value=\"false\"";
-                if(content === false) {
+                if(content == false) {
                     contentHTML += " selected=\"selected\" ";
                 }
                 contentHTML += ">false</option>";
