@@ -225,4 +225,9 @@ public class DmsConstants {
      * 企配仓拣货单模板-默认版本号1
      */
     public static final String TEMPLATE_VERSION_DEFAULT_EDN_PICKING = "1";
+
+    /**
+     * 集包袋前缀
+     */
+    public static final String COLLECTION_BAG_PREFIX = "AD";
 }

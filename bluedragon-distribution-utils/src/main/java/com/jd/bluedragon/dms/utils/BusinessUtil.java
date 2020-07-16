@@ -2,6 +2,7 @@ package com.jd.bluedragon.dms.utils;
 
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
 
+import com.sun.org.apache.regexp.internal.REUtil;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -1545,5 +1546,17 @@ public class BusinessUtil {
      */
     public static boolean isLetterExpress(String waybillSign) {
         return isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_B);
+    }
+
+    /**
+     * 判断是否是集包袋编号
+     * @param materialCode
+     * @return
+     */
+    public static boolean isCollectionBag(String materialCode) {
+        if (StringUtils.isBlank(materialCode)) {
+            return false;
+        }
+        return materialCode.toUpperCase().startsWith(COLLECTION_BAG_PREFIX) && materialCode.length() == 16;
     }
 }
