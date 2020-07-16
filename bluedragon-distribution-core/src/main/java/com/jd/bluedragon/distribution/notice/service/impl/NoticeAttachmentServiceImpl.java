@@ -76,7 +76,7 @@ public class NoticeAttachmentServiceImpl implements NoticeAttachmentService {
     }
 
     @Override
-    public Integer delete(Long noticeId) {
+    public Integer deleteByNoticeId(Long noticeId) {
         if (noticeId != null) {
             List<NoticeAttachment> attachments = this.getByNoticeId(noticeId);
             if (attachments.size() > 0) {
@@ -93,6 +93,34 @@ public class NoticeAttachmentServiceImpl implements NoticeAttachmentService {
                 Map<String, Object> parameter = new HashMap<>(1);
                 parameter.put("noticeId", noticeId);
                 return noticeAttachmentDao.deleteByNoticeId(parameter);
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * 按主键删除
+     * @param id 主键ID
+     * @return 影响条数
+     * @author fanggang7
+     * @date 2020-07-08 15:50:38 周三
+     */
+    @Override
+    public Integer deleteById(Long id) {
+        if (id != null) {
+            NoticeAttachment noticeAttachment = noticeAttachmentDao.getById(id);
+            if (noticeAttachment != null) {
+                if (StringUtils.isNotEmpty(noticeAttachment.getKeyName())) {
+                    // 删除附件
+                    try {
+                        jssService.deleteFile(bucket, noticeAttachment.getKeyName());
+                    } catch (JssStorageException e) {
+                        log.error("调用JSS服务删除附件失败", e);
+                    }
+                }
+                Map<String, Object> parameter = new HashMap<>(1);
+                parameter.put("id", id);
+                return noticeAttachmentDao.deleteById(parameter);
             }
         }
         return 0;

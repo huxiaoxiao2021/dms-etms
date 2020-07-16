@@ -8,6 +8,9 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.jsf.dms.CancelWaybillJsfManager;
 import com.jd.bluedragon.distribution.jsf.domain.BlockResponse;
 import com.jd.bluedragon.distribution.jsf.service.CancelWaybillJsfService;
+import com.jd.dms.ver.domain.JsfResponse;
+import com.jd.dms.ver.domain.WaybillCancelJsfResponse;
+import com.jd.dms.ver.service.WaybillCancelJsfService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 
@@ -25,6 +28,10 @@ public class CancelWaybillJsfManagerImpl implements CancelWaybillJsfManager{
     @Autowired
     @Qualifier("cancelWaybillJsfService")
     private CancelWaybillJsfService cancelWaybillJsfService;
+    
+    @Autowired
+    @Qualifier("waybillCancelJsfService")
+    private WaybillCancelJsfService waybillCancelJsfService;
     /**
      * 查询运单是否拦截完成
      * @param waybillCode
@@ -47,4 +54,13 @@ public class CancelWaybillJsfManagerImpl implements CancelWaybillJsfManager{
     public BlockResponse checkPackageBlock(String packageCode, Integer featureType){
     	return cancelWaybillJsfService.checkPackageBlock(packageCode, featureType);
     }
+	@Override
+    /**
+     * 查询运单当前拦截状态
+     */
+    @JProfiler(jKey = "dmsWeb.jsf.client.dmsver.waybillCancelJsfService.dealCancelWaybill",jAppName=Constants.UMP_APP_NAME_DMSWEB,
+    		mState = {JProEnum.TP, JProEnum.FunctionError})
+	public JsfResponse<WaybillCancelJsfResponse> dealCancelWaybill(String waybillCode) {
+		return waybillCancelJsfService.dealCancelWaybill(waybillCode);
+	}
 }
