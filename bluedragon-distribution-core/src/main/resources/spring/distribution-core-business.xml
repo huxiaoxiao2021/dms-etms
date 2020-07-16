@@ -68,7 +68,7 @@
     <!-- http://mybatis.org/spring/zh/mappers.html-->
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
         <!-- 多个basePackage分号或者逗号分隔-->
-        <property name="basePackage" value="com.jd.bluedragon.external.gateway.dao" />
+        <property name="basePackage" value="com.jd.bluedragon.distribution.site.dao" />
         <property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryBase" />
     </bean>
 

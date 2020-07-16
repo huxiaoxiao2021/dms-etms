@@ -1,4 +1,4 @@
-package com.jd.bluedragon.external.gateway.dao;
+package com.jd.bluedragon.distribution.site.dao;
 
 
 import com.jd.bluedragon.common.dto.abnormal.response.Site;

@@ -15,7 +15,7 @@ import com.jd.bluedragon.distribution.jss.JssService;
 import com.jd.bluedragon.distribution.qualityControl.QcVersionFlagEnum;
 import com.jd.bluedragon.distribution.qualityControl.service.QualityControlService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.external.gateway.dao.SiteMapper;
+import com.jd.bluedragon.distribution.site.dao.SiteMapper;
 import com.jd.bluedragon.common.dto.abnormal.response.Site;
 import com.jd.bluedragon.external.gateway.service.AbnormalReportingGatewayService;
 import com.jd.bluedragon.utils.DateHelper;
