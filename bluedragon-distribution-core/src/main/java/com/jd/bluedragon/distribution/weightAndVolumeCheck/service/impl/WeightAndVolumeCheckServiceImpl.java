@@ -428,7 +428,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             condition.setReviewSiteCode(siteCode);
             condition.setIsExcess(1);
             condition.setIsHasPicture(0);
-            condition.setPackageCode(packageCode);
+            condition.setWaybillCode(WaybillUtil.getWaybillCode(packageCode));
             BaseEntity<List<WeightVolumeCollectDto>> baseEntity = reportExternalService.getByParamForWeightVolume(condition);
             if(baseEntity == null || CollectionUtils.isEmpty(baseEntity.getData())
                     || baseEntity.getData().get(0) == null){
