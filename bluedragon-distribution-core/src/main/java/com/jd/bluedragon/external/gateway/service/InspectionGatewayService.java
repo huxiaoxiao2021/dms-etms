@@ -1,7 +1,10 @@
 package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.inspection.response.InspectionCheckResultDto;
+import com.jd.bluedragon.common.dto.inspection.response.ConsumableRecordResponseDto;
 import com.jd.bluedragon.common.dto.inspection.response.InspectionResultDto;
+import com.jd.bluedragon.distribution.api.request.HintCheckRequest;
 
 /**
  * 验货相关
@@ -12,4 +15,6 @@ import com.jd.bluedragon.common.dto.inspection.response.InspectionResultDto;
 public interface InspectionGatewayService {
 
     JdCResponse<InspectionResultDto> getStorageCode(String packageBarOrWaybillCode, Integer siteCode);
+
+    JdCResponse<InspectionCheckResultDto> hintCheck(HintCheckRequest request);
 }

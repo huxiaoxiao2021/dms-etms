@@ -3,10 +3,7 @@ package com.jd.bluedragon.distribution.consumer.packingConsumable;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
-import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableDetailDto;
-import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableDto;
-import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecord;
-import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelation;
+import com.jd.bluedragon.distribution.consumable.domain.*;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRelationService;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
@@ -21,6 +18,7 @@ import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,6 +87,11 @@ public class PackingConsumableConsumer extends MessageBaseConsumer {
             log.warn("B网包装耗材，重复的运单号：{}" , message.getText());
         }else{
             WaybillConsumableRecord waybillConsumableRecord = convert2WaybillConsumableRecord(packingConsumable);
+            if (isNeedConfirmConsumable(packingConsumable)) {
+                waybillConsumableRecord.setConfirmStatus(WaybillConsumableRecordService.TREATED_STATE);
+                waybillConsumableRecord.setConfirmUserErp(waybillConsumableRecord.getReceiveUserErp());
+                waybillConsumableRecord.setConfirmUserName(waybillConsumableRecord.getReceiveUserName());
+            }
             //新增主表
             waybillConsumableRecordService.saveOrUpdate(waybillConsumableRecord);
             //新增明细
@@ -172,5 +175,19 @@ public class PackingConsumableConsumer extends MessageBaseConsumer {
                 .methodName("PackingConsumableConsumer#consume")
                 .build();
         logEngine.addLog(businessLogProfiler);
+    }
+
+    /* 判断是否需要直接确认包装耗材，包含木质包装耗材（木架、木箱、木托盘） */
+    private boolean isNeedConfirmConsumable(WaybillConsumableDto packingConsumable) {
+        if (CollectionUtils.isNotEmpty(packingConsumable.getPackingChargeList())) {
+            for(WaybillConsumableDetailDto waybillConsumableDetailDto : packingConsumable.getPackingChargeList()) {
+                if(PackingTypeEnum.TY003.getTypeCode().equals(waybillConsumableDetailDto.getPackingType())
+                    || PackingTypeEnum.TY004.getTypeCode().equals(waybillConsumableDetailDto.getPackingType())
+                    || PackingTypeEnum.TY008.getTypeCode().equals(waybillConsumableDetailDto.getPackingType())) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }
