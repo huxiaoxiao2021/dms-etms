@@ -599,9 +599,9 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
 
                 billingWeight = responseDto.getData().getWeight()==null?0:responseDto.getData().getWeight().doubleValue();
                 billingVolume = responseDto.getData().getVolume()==null?0:responseDto.getData().getVolume().doubleValue();
-                weightVolumeCollectDto.setBillingWeight(billingWeight);
-                weightVolumeCollectDto.setBillingVolume(billingVolume);
             }
+            weightVolumeCollectDto.setBillingWeight(billingWeight);
+            weightVolumeCollectDto.setBillingVolume(billingVolume);
 
             QuoteCustomerDto quoteCustomerDto = quoteCustomerApiServiceManager.queryCustomerById(weightVolumeCollectDto.getBusiCode());
             Integer volumeRate = (quoteCustomerDto==null || quoteCustomerDto.getVolumeRate()==null) ? DEFAULT_VOLUME_RATE : quoteCustomerDto.getVolumeRate();
