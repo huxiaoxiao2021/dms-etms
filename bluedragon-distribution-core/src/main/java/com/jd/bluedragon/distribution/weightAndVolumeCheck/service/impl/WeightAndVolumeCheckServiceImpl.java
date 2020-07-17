@@ -604,7 +604,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             weightVolumeCollectDto.setBillingVolume(billingVolume);
 
             QuoteCustomerDto quoteCustomerDto = quoteCustomerApiServiceManager.queryCustomerById(weightVolumeCollectDto.getBusiCode());
-            Integer volumeRate = (quoteCustomerDto==null || quoteCustomerDto.getVolumeRate()==null) ? DEFAULT_VOLUME_RATE : quoteCustomerDto.getVolumeRate();
+            Integer volumeRate = (quoteCustomerDto==null || quoteCustomerDto.getVolumeRate()==null
+                    || quoteCustomerDto.getVolumeRate()==0) ? DEFAULT_VOLUME_RATE : quoteCustomerDto.getVolumeRate();
             if(quoteCustomerDto == null){
                 //商家信息为空按泡重比计算
                 checkIsExcess(weightVolumeCollectDto,result, VolumeFeeType.vmrate.getType(),volumeRate);
