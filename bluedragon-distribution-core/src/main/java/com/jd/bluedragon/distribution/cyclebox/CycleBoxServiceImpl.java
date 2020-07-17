@@ -7,6 +7,7 @@ import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
+import com.jd.bluedragon.distribution.api.request.OrderBindMessageRequest;
 import com.jd.bluedragon.distribution.api.request.RecyclableBoxRequest;
 import com.jd.bluedragon.distribution.api.request.WaybillCodeListRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -62,6 +63,10 @@ public class CycleBoxServiceImpl implements CycleBoxService {
     @Autowired
     @Qualifier("recyclableBoxSendMQ")
     private DefaultJMQProducer recyclableBoxSendMQ;
+
+    @Autowired
+    @Qualifier("dmsCycleBoxBindNotice")
+    private DefaultJMQProducer dmsCycleBoxBindNotice;
 
     @Autowired
     BoxMaterialRelationService boxMaterialRelationService;
@@ -362,6 +367,22 @@ public class CycleBoxServiceImpl implements CycleBoxService {
             return result;
         }
     }
+
+    /**
+     * 外单靑流箱绑定发MQ
+     * @param request
+     * @return
+     */
+    @Override
+    public InvokeResult cycleBoxBindToWD(OrderBindMessageRequest request)  throws Exception{
+        InvokeResult result = new InvokeResult();
+        result.success();
+
+        dmsCycleBoxBindNotice.send(request.getWaybillNo(),JsonHelper.toJson(request));
+        return result;
+    }
+
+
 
     /**
      * 发送青流箱状态的MQ消息
