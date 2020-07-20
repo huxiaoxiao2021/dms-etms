@@ -527,6 +527,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
     /**
      * 校验批次的体积是否超标
+     * @see 'https://cf.jd.com/pages/viewpage.action?pageId=246546459'
      * @param sealCarDto
      * @return
      */

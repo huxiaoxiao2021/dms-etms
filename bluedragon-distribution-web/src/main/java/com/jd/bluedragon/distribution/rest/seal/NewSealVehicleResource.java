@@ -54,6 +54,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
@@ -547,7 +548,7 @@ public class NewSealVehicleResource {
 
         SealVehicleVolumeVerifyResponse response = new SealVehicleVolumeVerifyResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
 
-        if(!uccPropertyConfiguration.getSealVolumeCheckSwitch()){
+        if(!isNeedCheck(request.getSealSiteId())){
             response.setCode(JdCResponse.CODE_SUCCESS);
             response.setMessage(JdCResponse.MESSAGE_SUCCESS);
             return response;
@@ -565,7 +566,7 @@ public class NewSealVehicleResource {
             sealCarDto.setTransportCode(request.getTransportCode());
             sealCarDto.setBatchCodes(request.getBatchCodes());
             sealCarDto.setSealCodes(request.getSealCodes());
-            sealCarDto.setSealCarTime(DateHelper.parseDate(request.getSealCarTime(),"yyyy-MM-dd HH:mm:ss"));
+            sealCarDto.setSealCarTime(DateHelper.parseDate(request.getSealCarTime(),Constants.DATE_TIME_FORMAT));
             sealCarDto.setSealSiteId(request.getSealSiteId());
             sealCarDto.setSealSiteCode(request.getSealSiteCode());
             sealCarDto.setSealSiteName(request.getSealSiteName());
@@ -598,6 +599,24 @@ public class NewSealVehicleResource {
             this.log.error("校验批次的体积异常，批次号:{}",request.getBatchCodes().toString(), e);
         }
         return response;
+    }
+
+    /**
+     * 是否需要校验封车批次体积
+     *
+     * @param siteCode
+     * @return
+     */
+    private boolean isNeedCheck(Integer siteCode) {
+        String sealVolumeCheckSites = uccPropertyConfiguration.getSealVolumeCheckSites();
+        if(StringUtils.isEmpty(sealVolumeCheckSites)){
+            return true;
+        }
+        List<String> siteCodes = Arrays.asList(sealVolumeCheckSites.split(Constants.SEPARATOR_COMMA));
+        if(siteCodes.contains(String.valueOf(siteCode))){
+            return true;
+        }
+        return false;
     }
 
 
