@@ -163,8 +163,11 @@ public class UserServiceImpl implements UserService{
 		if (response.getCode().equals(JdResponse.CODE_OK)) {
 			this.bindSite2LoginUser(response);
 		}
+
+        ClientInfo clientInfo = JsonHelper.fromJson(request.getClientInfo(), ClientInfo.class);
         String sysconfRunningMode = response.getDmsClientConfigInfo()!= null?response.getDmsClientConfigInfo().getRunningMode():"";
-        if(runningMode.contains(RUNNING_MODE_UAT) && !Objects.equals(runningMode,sysconfRunningMode)){
+        if(clientInfo != null && Objects.equals(clientInfo.getProgramType(),UserServiceImpl.ANDROID_LOGIN_PROGRAM_TYPE)
+                && runningMode.contains(RUNNING_MODE_UAT) && !Objects.equals(runningMode,sysconfRunningMode)){
             response.setCode(JdResponse.CODE_WRONG_STATUS);
             String msg = String.format("当前登录账号[%s]不支持[%s]登录,请尝试在登录首页右上角修改正式环境再登录！",request.getErpAccount(),runningMode);
             response.setMessage(msg);
