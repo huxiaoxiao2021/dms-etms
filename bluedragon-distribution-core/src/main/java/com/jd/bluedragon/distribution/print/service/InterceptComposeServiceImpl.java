@@ -8,10 +8,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /**
- * 取消锁定拦截
+ * 取消锁定拦截（不再维护旧打印逻辑，代码已迁移至InterceptWaybillHandler）
  * Created by wangtingwei on 2015/12/24.
  */
 @Service("interceptComposeService")
+@Deprecated
 public class InterceptComposeServiceImpl implements ComposeService {
 
     private static final Logger log = LoggerFactory.getLogger(InterceptComposeServiceImpl.class);

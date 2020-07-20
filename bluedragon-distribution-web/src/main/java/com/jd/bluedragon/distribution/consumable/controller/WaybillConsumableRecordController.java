@@ -197,7 +197,10 @@ public class WaybillConsumableRecordController extends DmsBaseController{
 					log.warn("调用getBaseSiteInfoBySiteId获取站点所属分拣中心信息为空，siteCode:{}", getLoginUser().getSiteCode());
 				}
 			}
-			waybillConsumableRecordCondition.setDmsId(siteCode);
+			//如果查询条件中未填运单号，则添加分拣中心查询条件；如果填了，则不需要添加按分拣中心查询，直接按运单号查询
+			if (StringUtils.isEmpty(waybillConsumableRecordCondition.getWaybillCode())) {
+				waybillConsumableRecordCondition.setDmsId(siteCode);
+			}
 			rest.setData(waybillConsumableRecordService.queryByPagerCondition(waybillConsumableRecordCondition));
 
 		} catch (Exception e) {

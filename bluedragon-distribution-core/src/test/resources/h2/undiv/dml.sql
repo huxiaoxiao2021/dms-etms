@@ -5,6 +5,43 @@ values (1217691424705740800, 'Mary', 1, 'Jax', 'Joe', 'Jim', 'Jone', 678, 557, 6
         '2020-01-16 14:13:53.841', NOW(), 1, 'Stone', 1);
 
 
+insert into waybill_consumable_record(
+    dms_id,
+    dms_name,
+    waybill_code,
+    confirm_status,
+    modify_status,
+    receive_user_code,
+    receive_user_erp,
+    receive_user_name,
+    confirm_user_name,
+    confirm_user_erp,
+    receive_time,
+    confirm_time,
+    create_time,
+    is_delete,
+    ts
+)
+values
+(
+    910,
+    '马驹桥分拣中心',
+    'JDVC03978826121',
+    0,
+    0,
+    24756,
+    'bjxings',
+    '邢松',
+    '邢松',
+    'bjxings',
+    now(),
+    now(),
+    now(),
+    0,
+    now(3)
+);
+
+
 insert into unload_car
 (		unload_car_id,seal_car_code,vehicle_number,start_site_code,start_site_name,end_site_code,end_site_name,
 		seal_time,seal_code,batch_code,railWay_platForm,waybill_num,package_num,unload_user_erp,unload_user_name,

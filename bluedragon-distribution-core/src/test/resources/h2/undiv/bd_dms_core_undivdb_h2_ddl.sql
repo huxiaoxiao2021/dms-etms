@@ -1952,6 +1952,35 @@ CREATE TABLE `code_check_record` (
   KEY `IDX_BUSI_CODE` (`BUSI_CODE`)
 ) ENGINE = INNODB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8  COMMENT='单号校验记录表';
 
+--
+-- Table structure for table `waybill_consumable_record`
+--
+
+DROP TABLE IF EXISTS `waybill_consumable_record`;
+
+CREATE TABLE `waybill_consumable_record` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '全局唯一ID',
+  `dms_id` int(11) NOT NULL COMMENT '分拣中心编号',
+  `dms_name` varchar(64) NOT NULL COMMENT '分拣中心名称',
+  `waybill_code` varchar(32) NOT NULL COMMENT '运单号',
+  `confirm_status` tinyint(4) NOT NULL DEFAULT '0' COMMENT '确认状态（0：未确认 1：已确认）',
+  `modify_status` tinyint(4) NOT NULL DEFAULT '0' COMMENT '修改状态（0：未修改 1：已修改）',
+  `receive_user_code` varchar(64) DEFAULT '' COMMENT '揽收人编号',
+  `receive_user_erp` varchar(64) DEFAULT '' COMMENT '揽收人erp',
+  `receive_user_name` varchar(64) DEFAULT NULL,
+  `confirm_user_name` varchar(64) DEFAULT '' COMMENT '确认人编号',
+  `confirm_user_erp` varchar(64) DEFAULT '' COMMENT '确认人erp',
+  `receive_time` datetime DEFAULT NULL COMMENT '揽收时间',
+  `confirm_time` datetime DEFAULT NULL COMMENT '操作时间',
+  `create_time` datetime DEFAULT NULL COMMENT '确认时间',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `is_delete` tinyint(1) DEFAULT '0' COMMENT '删除标识',
+  `ts` timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '数据库时间',
+  PRIMARY KEY (`id`),
+  KEY `IND_DMS_ID` (`dms_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=458 DEFAULT CHARSET=utf8 COMMENT='运单耗材记录表';
+
+
 DROP TABLE IF EXISTS `unload_car`;
 CREATE TABLE `unload_car` (
   `unload_car_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '卸车任务主键ID',

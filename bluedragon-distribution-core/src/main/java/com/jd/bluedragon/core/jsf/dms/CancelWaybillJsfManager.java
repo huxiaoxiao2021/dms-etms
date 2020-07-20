@@ -1,6 +1,8 @@
 package com.jd.bluedragon.core.jsf.dms;
 
 import com.jd.bluedragon.distribution.jsf.domain.BlockResponse;
+import com.jd.dms.ver.domain.JsfResponse;
+import com.jd.dms.ver.domain.WaybillCancelJsfResponse;
 
 /**
  * 
@@ -25,4 +27,11 @@ public interface CancelWaybillJsfManager {
      * @return
      */
     BlockResponse checkPackageBlock(String packageCode, Integer featureType);
+    /**
+     * 获取当前运单的WaybillCancel
+     *
+     * @param waybillCode
+     * @return
+     */
+    JsfResponse<WaybillCancelJsfResponse> dealCancelWaybill(String waybillCode);
 }

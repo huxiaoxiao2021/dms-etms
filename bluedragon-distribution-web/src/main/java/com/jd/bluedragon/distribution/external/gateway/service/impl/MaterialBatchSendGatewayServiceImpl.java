@@ -31,7 +31,7 @@ import java.util.List;
  **/
 public class MaterialBatchSendGatewayServiceImpl implements MaterialBatchSendGatewayService {
 
-    private static final byte SEND_MODE = MaterialServiceFactory.MaterialSendModeEnum.MATERIAL_TYPE_BATCH_SEND.getCode();
+    private static final byte SEND_MODE = MaterialServiceFactory.MaterialSendModeEnum.TYPE_BATCH_SEND.getCode();
 
     @Resource
     private MaterialBatchSendResource materialBatchSendResource;

@@ -35,7 +35,8 @@ public class DmsClientConfigInfo implements Serializable {
 	
 	 /** 版本说明  */
 	private String versionRemark;
-	
+	 /** 文件验证码 */
+	private String fileItemsCheckCode;
 	/**
 	 * @return the versionCode
 	 */
@@ -146,5 +147,19 @@ public class DmsClientConfigInfo implements Serializable {
 	 */
 	public void setVersionRemark(String versionRemark) {
 		this.versionRemark = versionRemark;
+	}
+
+	/**
+	 * @return the fileItemsCheckCode
+	 */
+	public String getFileItemsCheckCode() {
+		return fileItemsCheckCode;
+	}
+
+	/**
+	 * @param fileItemsCheckCode the fileItemsCheckCode to set
+	 */
+	public void setFileItemsCheckCode(String fileItemsCheckCode) {
+		this.fileItemsCheckCode = fileItemsCheckCode;
 	}
 }

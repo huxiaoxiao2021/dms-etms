@@ -14,7 +14,15 @@ public enum BoxMaterialRelationEnum {
 
     INSPECTION(3, "验货"),
 
-    SEND_SITE(4, "站点发货");
+    SEND_SITE(4, "站点发货"),
+
+    SORTING(5, "分拣"),
+
+    SEND_BAG(6, "发空袋"),
+
+    RECEIVE_BAG(7, "收空袋"),
+
+    TRANSFER(8, "分拣中转");
 
     private int type;
 
