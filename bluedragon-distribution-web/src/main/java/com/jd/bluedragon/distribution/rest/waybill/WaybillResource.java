@@ -2039,6 +2039,7 @@ public class WaybillResource {
      */
     @POST
     @Path("/package/weight/warn/check")
+    @BusinessLog(sourceSys = 1,bizType = 1017,operateType = 101701)
     public InvokeResult<Boolean> packageWeightCheck(PackWeightVO packWeightVO){
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
 		WeightVolumeCollectDto weightVolumeCollectDto = new WeightVolumeCollectDto();

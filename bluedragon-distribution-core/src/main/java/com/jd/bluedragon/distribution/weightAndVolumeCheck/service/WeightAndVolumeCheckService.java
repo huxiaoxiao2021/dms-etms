@@ -70,10 +70,8 @@ public interface WeightAndVolumeCheckService {
      * 发消息并更新
      * @param packageCode
      * @param siteCode
-     * @param uploadTime
-     * @param reviewDate
      */
-    void sendMqAndUpdate(String packageCode, Integer siteCode, Long uploadTime,String reviewDate);
+    void sendMqAndUpdate(String packageCode, Integer siteCode);
 
     /**
      * 称重体积数据处理
