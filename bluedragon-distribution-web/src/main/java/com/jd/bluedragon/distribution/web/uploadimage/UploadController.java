@@ -39,7 +39,7 @@ public class UploadController {
         try {
             List<MultipartFile> images = request.getFiles("file");
             if (images.size() > 0) {
-                String url = abnormalReportingGatewayService.uploadExceptionImage(images.get(0).getInputStream());
+                String url = abnormalReportingGatewayService.uploadExceptionMedia(images.get(0).getInputStream(), images.get(0).getOriginalFilename());
                 if (StringUtils.isEmpty(url)) {
                     jdCResponse.toFail("文件上传失败，请重试");
                 } else {
