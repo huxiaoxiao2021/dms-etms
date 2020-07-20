@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarTransBoardDao">
+
+	<resultMap id="unloadCarTransBoard" type="com.jd.bluedragon.distribution.loadAndUnload.UnloadCarTransBoard" >
+		<id column="unload_board_id" property="unloadBoardId" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="seal_car_code" property="sealCarCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="board_code" property="boardCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="package_scan_count" property="packageScanCount" javaType="java.lang.Integer" jdbcType="BIGINT" />
+		<result column="surplus_package_scan_count" property="surplusPackageScanCount" javaType="java.lang.Integer" jdbcType="BIGINT" />
+        <result column="operate_time" property="operateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
+        <result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+    <sql id="Base_Column_List" >
+		unload_board_id,seal_car_code,board_code,package_scan_count,
+		surplus_package_scan_count,operate_time,create_time,update_time,yn
+	</sql>
+
+    <sql id="Base_Condition_Sql" >
+			and yn=1
+	</sql>
+
+    <insert id="add" parameterType="com.jd.bluedragon.distribution.loadAndUnload.UnloadCarTransBoard">
+        insert into unload_car_board
+        (
+        <trim suffixOverrides=",">
+            <if test="unloadBoardId != null">
+                unload_board_id,
+            </if>
+            <if test="sealCarCode != null">
+                seal_car_code,
+            </if>
+            <if test="boardCode != null">
+                board_code,
+            </if>
+            <if test="packageScanCount != null">
+                package_scan_count,
+            </if>
+            <if test="surplusPackageScanCount != null">
+                surplus_package_scan_count,
+            </if>
+            <if test="operateTime != null">
+                operate_time,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="yn != null">
+                yn
+            </if>
+        </trim>
+        )
+        values
+        (
+        <trim suffixOverrides=",">
+            <if test="unloadBoardId != null">
+                #{unloadBoardId,jdbcType=BIGINT},
+            </if>
+            <if test="sealCarCode != null">
+                #{sealCarCode,jdbcType=VARCHAR},
+            </if>
+            <if test="boardCode != null">
+                #{boardCode,jdbcType=VARCHAR},
+            </if>
+            <if test="packageScanCount != null">
+                #{packageScanCount,jdbcType=BIGINT},
+            </if>
+            <if test="surplusPackageScanCount != null">
+                #{surplusPackageScanCount,jdbcType=BIGINT},
+            </if>
+            <if test="operateTime != null">
+                #{operateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="yn != null">
+                #{yn,jdbcType=TINYINT}
+            </if>
+        </trim>
+        )
+    </insert>
+
+    <select id="searchBoardsBySealCode" parameterType="String" resultType="String">
+        select distinct board_code
+        from
+        unload_car_board
+        where 1=1
+        and seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
+    </select>
+
+    <select id="searchBySealCode" parameterType="String" resultMap="unloadCarTransBoard">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        unload_car_board
+        where 1=1
+        and seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
+    </select>
+
+    <update id="updateCount" parameterType="com.jd.bluedragon.distribution.loadAndUnload.UnloadCarTransBoard">
+		UPDATE unload_car_board
+		SET
+			package_scan_count = #{packageScanCount,jdbcType=BIGINT},
+			surplus_package_scan_count = #{surplusPackageScanCount,jdbcType=BIGINT},
+			update_time = NOW()
+		where yn = 1
+		and seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
+		and board_code = #{boardCode,jdbcType=VARCHAR}
+    </update>
+
+</mapper>

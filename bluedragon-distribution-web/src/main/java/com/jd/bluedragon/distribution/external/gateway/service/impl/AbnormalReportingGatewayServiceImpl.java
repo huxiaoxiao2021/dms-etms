@@ -15,14 +15,14 @@ import com.jd.bluedragon.distribution.jss.JssService;
 import com.jd.bluedragon.distribution.qualityControl.QcVersionFlagEnum;
 import com.jd.bluedragon.distribution.qualityControl.service.QualityControlService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.distribution.site.dao.SiteMapper;
+import com.jd.bluedragon.common.dto.abnormal.response.Site;
 import com.jd.bluedragon.external.gateway.service.AbnormalReportingGatewayService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageState;
-import com.jd.etms.waybill.dto.BigPackageStateDto;
-import com.jd.etms.waybill.dto.StoreInfoDto;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.AbnormalReasonDto;
 import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.PdaResult;
@@ -68,6 +68,9 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
     @Autowired
     private QualityControlService qualityControlService;
 
+    @Autowired
+    SiteMapper siteMapper;
+
     @Value("${jss.pda.image.bucket}")
     private String bucket;
 
@@ -84,7 +87,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
 
         if (abnormalReasonDtoMap == null || abnormalReasonDtoMap.size() == 0) {
             jdCResponse.setCode(JdCResponse.CODE_ERROR);
-            jdCResponse.setMessage("获取质控系统异常原因列表失败，请通过质控系统维护ERP信息！ERP：" + userErp);
+            jdCResponse.setMessage("请联系权限接口人配置质控系统异常上报权限");
             return jdCResponse;
         }
         List<BaseDataDict> qcDateDictList = baseService.getBaseDictionaryTree(this.qcAbnormalReasonType);
@@ -100,7 +103,9 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
     }
 
     @Override
-    public String uploadExceptionImage(InputStream inStream) {
+    public String uploadExceptionMedia(InputStream inStream, String originalFileName) {
+        String extName = originalFileName.substring(originalFileName.lastIndexOf(".") + 1);
+
         String url = null;
         ByteArrayOutputStream swapStream = null;
         try {
@@ -113,7 +118,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
             byte[] in2b = swapStream.toByteArray();
             inStream.close();
             swapStream.close();
-            url = jssService.uploadImage(bucket, in2b);
+            url = jssService.uploadFile(bucket, in2b, extName);
             log.info("[新-异常提报-图片上传]uploadExceptionImage上传成功 : url[{}]", url);
         } catch (Exception e) {
             log.error("[新-异常提报-图片上传]uploadExceptionImage图片上传时发生异常", e);
@@ -145,9 +150,9 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
             jdCResponse.setCode(JdCResponse.CODE_ERROR);
             jdCResponse.setMessage("扫描条码不能为空！");
             return jdCResponse;
-        } else if (! WaybillUtil.isWaybillCode(barCode) && ! WaybillUtil.isPackageCode(barCode)) {
+        } else if (!WaybillUtil.isPackageCode(barCode)) {
             jdCResponse.setCode(JdCResponse.CODE_ERROR);
-            jdCResponse.setMessage("扫描条码必须是包裹号或运单号！");
+            jdCResponse.setMessage("扫描条码必须是包裹号！");
             return jdCResponse;
         }
 
@@ -163,13 +168,13 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
         List<DutyDepartmentInfo> dutyDepartmentInfos = new ArrayList<>();
         if (resultDTO != null && resultDTO.getData() != null) {
             List<PackageState> packageStateList = resultDTO.getData();
-            if (packageStateList != null && ! packageStateList.isEmpty()) {
+            if (packageStateList != null && !packageStateList.isEmpty()) {
                 for (PackageState packageState : packageStateList) {
                     Integer operateSiteId = packageState.getOperatorSiteId();
                     String operateSiteName = packageState.getOperatorSite();
                     if (operateSiteId != null && operateSiteId > 0 && StringHelper.isNotEmpty(operateSiteName)) {
                         //此处需要保留原有的全程跟踪顺序，所以不能用map，再获取信息即map的value集合
-                        if (! set.contains(operateSiteId)) {
+                        if (!set.contains(operateSiteId)) {
                             dutyDepartmentInfos.add(new DutyDepartmentInfo(operateSiteId.toString(), operateSiteName, DutyDepartmentTypeEnum.DISTRIBUTION_SITE.getType()));
                         }
                         set.add(operateSiteId);
@@ -182,7 +187,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
             log.warn("查询条码【{}】的全程跟踪记录为空，无法获取处理部门！", barCode);
         }
         //添加当前操作单位信息
-        if (! set.contains(siteCode)) {
+        if (!set.contains(siteCode)) {
             dutyDepartmentInfos.add(new DutyDepartmentInfo(siteCode.toString(), siteName, DutyDepartmentTypeEnum.DISTRIBUTION_SITE.getType()));
         }
 
@@ -265,6 +270,29 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
         return jdCResponse;
     }
 
+    @Override
+    public JdCResponse querySite(String orgId, String siteName, String siteCode) {
+        JdCResponse<List<Site>> jdCResponse = new JdCResponse<>(JdCResponse.CODE_SUCCESS, JdCResponse.MESSAGE_SUCCESS);
+
+        List<String> siteTypeList = Arrays.asList("96", "16");//96配送运输，16第三方
+
+        if ((StringUtils.isEmpty(siteName) && StringUtils.isEmpty(siteCode)) || StringUtils.isEmpty(orgId)) {
+            jdCResponse.toFail("参数不全");
+        }
+        List<Site> siteList = null;
+
+        if (StringUtils.isEmpty(siteName)) {
+            siteList = siteMapper.getByOrgIdAnd(orgId, null, siteCode, siteTypeList);
+        }
+
+        if (StringUtils.isEmpty(siteCode)) {
+            if (StringUtils.isNumeric(siteCode)) jdCResponse.toFail("站点id只能为数字");
+            siteList = siteMapper.getByOrgIdAnd(orgId, siteName, null, siteTypeList);
+        }
+
+        jdCResponse.setData(siteList);
+        return jdCResponse;
+    }
 
     /**
      * 根据不同来源（质控，基础资料）获取原因列表
@@ -384,19 +412,19 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
         qualityControlRequest.setQcName(dmsAbnormalReasonDto.getReasonName());
         //对接新质控的分拣退货任务都是false
         qualityControlRequest.setIsSortingReturn(false);
-        qualityControlRequest.setTrackContent("订单扫描异常【" + dmsAbnormalReasonDto.getReasonName() +"】");
+        qualityControlRequest.setTrackContent("订单扫描异常【" + dmsAbnormalReasonDto.getReasonName() + "】");
         return qualityControlRequest;
     }
 
     /*
-    * 协商再投校验
-    *
-    * */
-    private boolean isNeedRedeliveryIntercept(String barCode){
-        try{
+     * 协商再投校验
+     *
+     * */
+    private boolean isNeedRedeliveryIntercept(String barCode) {
+        try {
             String waybillCode = WaybillUtil.getWaybillCode(barCode);
             Integer busID = waybillQueryManager.getBusiId(waybillCode);
-            if (busID != null){
+            if (busID != null) {
                 return qualityControlService.getRedeliveryState(waybillCode, busID) == 0;
             }
         } catch (Exception ex) {

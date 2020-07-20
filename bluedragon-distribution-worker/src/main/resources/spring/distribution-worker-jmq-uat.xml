@@ -151,6 +151,10 @@
     <!--企配仓信息数据-->
     <jmq:consumer id="jmq.ednFahuoMsgMqConsumer" transport="jmq.uatDmsWeb.transport">
         <jmq:listener topic="${jmq.topic.ednFahuoMsgMqListener}" listener="ednFahuoMsgMqListener"/>
-    </jmq:consumer>    
+    </jmq:consumer>
+    <!--封车及解封车状态变化数据-->
+    <jmq:consumer id="jmq.unloadCarConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.unloadCar}" listener="unloadCarConsumer" />
+    </jmq:consumer>
 </beans>
 
