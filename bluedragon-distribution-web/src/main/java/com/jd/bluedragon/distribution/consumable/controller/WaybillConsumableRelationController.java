@@ -75,6 +75,10 @@ public class WaybillConsumableRelationController extends DmsBaseController{
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
 		try {
 			String packUserErp = waybillConsumableRelation.getPackUserErp();
+			if (packUserErp == null) {
+				rest.toError("打包人的ERP为空，请检查！");
+				return rest;
+			}
 			//验证ERP是否存在
 			BaseStaffSiteOrgDto userOrgInfo = baseMajorManager.getBaseStaffByErpNoCache(packUserErp);
 			if (userOrgInfo == null){

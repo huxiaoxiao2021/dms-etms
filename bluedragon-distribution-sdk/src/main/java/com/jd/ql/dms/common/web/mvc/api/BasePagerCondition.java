@@ -24,6 +24,12 @@ public class BasePagerCondition implements PagerCondition{
 	 * 分页参数-数据条数
 	 */
 	private int limit = 10;
+
+    /**
+     * 页码
+     */
+    private int pageNumber;
+
 	/**
 	 * @return the total
 	 */
@@ -59,5 +65,25 @@ public class BasePagerCondition implements PagerCondition{
 	 */
 	public void setLimit(int limit) {
 		this.limit = limit;
+		this.setOffset();
 	}
+
+    public int getPageNumber() {
+        return pageNumber;
+    }
+
+    public void setPageNumber(int pageNumber) {
+        this.pageNumber = pageNumber;
+        this.setOffset();
+    }
+
+    /**
+     * 设置分页起始值，自动设置
+     */
+    public void setOffset() {
+        if (this.pageNumber > 0) {
+            this.offset = this.limit * (this.pageNumber - 1);
+        }
+    }
+
 }

@@ -1266,6 +1266,10 @@ public class DeliveryServiceImpl implements DeliveryService {
              mq.setOperatorCode(sdm.getCreateUserCode());
              mq.setSiteCode(sdm.getCreateSiteCode().toString());
 
+             mq.setReceiveSiteCode(sdm.getReceiveSiteCode().longValue());
+             BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(sdm.getReceiveSiteCode());
+             mq.setReceiveSiteName(null != siteOrgDto ? siteOrgDto.getSiteName() : StringUtils.EMPTY);
+
              deliverGoodsNoticeSendMQ.send(businessId, JsonHelper.toJson(mq));
          } catch (JMQException e) {
              this.log.error("发送发货业务通知MQ 异常{}",JsonHelper.toJson(sdm), e);

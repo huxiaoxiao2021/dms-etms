@@ -381,11 +381,6 @@
         <property name="topic" value="${jmq.topic.weightVolume.excess}"/>
         <property name="timeout" value="1000"/>
     </bean>
-    <!-- 超标mq，提供给判责系统 -->
-    <bean id="dmsWeightVolumeAbnormal" parent="dmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.weightVolume.abnormal}"/>
-        <property name="timeout" value="1000"/>
-    </bean>
 
     <!-- 包裹状态MQ，提供给分拣报表系统，供清场需求使用 -->
     <bean id="dmsPackageStatusMQProducer" parent="dmsWorkerDefaultJMQProducer">
