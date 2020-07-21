@@ -1102,4 +1102,9 @@ public class Constants {
      */
     public static final String WAYBILL_ROUTER_SPLIT = "\\|";
 
+    /**
+     * 特安送 增值服务编码
+     * */
+    public static final String TE_AN_SONG_SERVICE = "fr-a-0010";
+
 }

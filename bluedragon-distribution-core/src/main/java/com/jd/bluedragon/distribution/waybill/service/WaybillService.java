@@ -101,4 +101,10 @@ public interface WaybillService {
      * @return
      */
     InvokeResult<Boolean> thirdCheckWaybillCancel(PdaOperateRequest pdaOperateRequest);
+
+    /*
+     * 是否是特安送服务的运单
+     * 33位等于2，且增值服务中某个对象的vosNo=fr-a-0010
+     * */
+    boolean isSpecialRequirementTeAnSongService(String waybillCode, String waybillSign);
 }
