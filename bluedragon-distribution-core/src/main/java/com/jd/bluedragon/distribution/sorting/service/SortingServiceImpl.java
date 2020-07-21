@@ -21,6 +21,8 @@ import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
+import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationEnum;
+import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationMQ;
 import com.jd.bluedragon.distribution.fastRefund.domain.FastRefundBlockerComplete;
 import com.jd.bluedragon.distribution.fastRefund.service.FastRefundService;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
@@ -43,6 +45,7 @@ import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
+import com.jd.bluedragon.distribution.sorting.domain.SortingVO;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
@@ -187,6 +190,10 @@ public class SortingServiceImpl implements SortingService {
 
     @Resource
     private UccPropertyConfiguration uccPropertyConfiguration;
+
+    @Autowired
+    @Qualifier("cycleMaterialSendMQ")
+    private DefaultJMQProducer cycleMaterialSendMQ;
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Integer add(Sorting sorting) {
@@ -1544,8 +1551,25 @@ public class SortingServiceImpl implements SortingService {
 		fillSortingIfPickup(sorting);
 		sortingAddInspection(sorting);
 		sortingAddSend(sorting);
+		// 分拣发送循环物资MQ
+        pushCycleMaterialMessage(sorting);
 		addOpetationLog(sorting,OperationLog.LOG_TYPE_SORTING,"SortingServiceImpl#doSortingAfter");
 	}
+
+    private void pushCycleMaterialMessage(Sorting sortingData) {
+        BoxMaterialRelationMQ mqBody = new BoxMaterialRelationMQ();
+        mqBody.setBusinessType(BoxMaterialRelationEnum.SORTING.getType());
+        mqBody.setBoxCode(sortingData.getBoxCode());
+        mqBody.setSiteCode(String.valueOf(sortingData.getCreateSiteCode()));
+        mqBody.setPackageCode(Collections.singletonList(sortingData.getPackageCode()));
+        mqBody.setWaybillCode(Collections.singletonList(sortingData.getWaybillCode()));
+        mqBody.setOperatorTime(sortingData.getOperateTime());
+        mqBody.setOperatorName(sortingData.getCreateUser());
+        mqBody.setOperatorCode(sortingData.getCreateUserCode());
+
+        String businessId = StringUtils.isBlank(sortingData.getPackageCode()) ? sortingData.getWaybillCode() : sortingData.getPackageCode();
+        cycleMaterialSendMQ.sendOnFailPersistent(businessId, JSON.toJSONString(mqBody));
+    }
 
 	/**
 	 * 分拣补验货

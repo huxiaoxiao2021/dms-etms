@@ -51,7 +51,7 @@ public class WarmBoxInOutResource {
 
     private static final int DEFAULT_RECEIVE_NUM = 1;
     private static final int DEFAULT_SEND_NUM = 1;
-    private static final byte SEND_MODE = MaterialServiceFactory.MaterialSendModeEnum.MATERIAL_SINGLE_SEND.getCode();
+    private static final byte SEND_MODE = MaterialServiceFactory.MaterialSendModeEnum.WARM_BOX_SEND.getCode();
 
     @Autowired
     private MaterialServiceFactory materialServiceFactory;
