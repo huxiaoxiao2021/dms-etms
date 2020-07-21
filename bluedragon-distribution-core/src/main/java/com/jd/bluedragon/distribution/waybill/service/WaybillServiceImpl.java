@@ -32,6 +32,7 @@ import com.jd.bluedragon.external.service.LossServiceManager;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -40,6 +41,7 @@ import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -493,6 +495,35 @@ public class WaybillServiceImpl implements WaybillService {
         }
 
         return result;
+    }
+
+
+    /*
+    * 是否是特安送服务的运单
+    * 33位等于2，且增值服务中某个对象的vosNo=fr-a-0010
+    * */
+    public boolean isSpecialRequirementTeAnSongService(String waybillCode, String waybillSign) {
+        //33位不为2直接跳过
+        if (! BusinessUtil.isSignChar(waybillSign, 33, '2')) {
+            return false;
+        }
+        try {
+            //获取增值服务信息
+            BaseEntity<List<WaybillVasDto>> baseEntity = waybillQueryManager.getWaybillVasInfosByWaybillCode(waybillCode);
+            if (baseEntity != null && baseEntity.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && baseEntity.getData() != null) {
+                List<WaybillVasDto> vasDtoList = baseEntity.getData();
+                for (WaybillVasDto waybillVasDto : vasDtoList) {
+                    if (waybillVasDto != null && Constants.TE_AN_SONG_SERVICE.equals(waybillVasDto.getVasNo())) {
+                        return true;
+                    }
+                }
+            } else {
+                log.warn("运单{}获取增值服务信息失败！返回baseEntity: ", waybillCode, JsonHelper.toJson(baseEntity));
+            }
+        } catch (Exception e) {
+            log.error("运单{}获取增值服务信息异常！", waybillCode, e);
+        }
+        return false;
     }
 
     /**
