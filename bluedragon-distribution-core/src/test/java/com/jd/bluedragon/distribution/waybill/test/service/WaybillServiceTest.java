@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.waybill.test.service;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
@@ -12,7 +13,9 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptModeE
 import com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeEnum;
 import com.jd.bluedragon.distribution.waybill.service.WaybillServiceImpl;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.dto.WaybillVasDto;
 import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -86,5 +89,19 @@ public class WaybillServiceTest {
         waybill.setOldSiteId(-136);
         waybill.setWaybillSign("30001000011900000000000000000002000000000002000000002000010000000100000000000010000000000000100000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
         Assert.assertTrue(waybillService.isOutZoneControl(waybill));
+    }
+
+    @Test
+    public void testIsSpecialRequirementTeAnSongService() {
+        String waybillCode = "JDV000465371593";
+        String waybillSign = "30001000011900000000000000000002200000000002000000002000010000000100000000000010000000000000100000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+        BaseEntity<List<WaybillVasDto>> baseEntity = new BaseEntity<>();
+        List<WaybillVasDto> list = new ArrayList<>();
+        WaybillVasDto waybillVasDto = new WaybillVasDto();
+        list.add(waybillVasDto);
+        baseEntity.setData(list);
+        waybillVasDto.setVasNo(Constants.TE_AN_SONG_SERVICE);
+        when(waybillQueryManager.getWaybillVasInfosByWaybillCode(waybillCode)).thenReturn(baseEntity);
+        Assert.assertTrue(waybillService.isSpecialRequirementTeAnSongService(waybillCode, waybillSign));
     }
 }
