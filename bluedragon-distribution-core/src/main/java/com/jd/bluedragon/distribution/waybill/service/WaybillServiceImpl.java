@@ -510,6 +510,7 @@ public class WaybillServiceImpl implements WaybillService {
         try {
             //获取增值服务信息
             BaseEntity<List<WaybillVasDto>> baseEntity = waybillQueryManager.getWaybillVasInfosByWaybillCode(waybillCode);
+            log.info("运单getWaybillVasInfosByWaybillCode返回的结果为：{}", JsonHelper.toJson(baseEntity));
             if (baseEntity != null && baseEntity.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && baseEntity.getData() != null) {
                 List<WaybillVasDto> vasDtoList = baseEntity.getData();
                 for (WaybillVasDto waybillVasDto : vasDtoList) {
