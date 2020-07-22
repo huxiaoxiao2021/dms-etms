@@ -81,10 +81,10 @@ public class C2cInterceptHandler implements InterceptHandler<WaybillPrintContext
         if (WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType().equals(context.getRequest().getOperateType()))
         {
 
-            if (StringHelper.isNotEmpty(context.getWaybill().getWaybillCode()) && reprintRecordService.isBarCodeRePrinted(context.getWaybill().getWaybillCode())) {
-                log.warn("C2cInterceptHandler.handler-->{}该单号重复打印",context.getWaybill().getWaybillCode());
-                interceptResult.toWeakSuccess(JdResponse.CODE_RE_PRINT_REPEAT, JdResponse.MESSAGE_RE_PRINT_REPEAT);
-            }
+//            if (StringHelper.isNotEmpty(context.getWaybill().getWaybillCode()) && reprintRecordService.isBarCodeRePrinted(context.getWaybill().getWaybillCode())) {
+//                log.warn("C2cInterceptHandler.handler-->{}该单号重复打印",context.getWaybill().getWaybillCode());
+//                interceptResult.toWeakSuccess(JdResponse.CODE_RE_PRINT_REPEAT, JdResponse.MESSAGE_RE_PRINT_REPEAT);
+//            }
             List<PackageState> collectCompleteResult = waybillTraceManager.getAllOperationsByOpeCodeAndState(context.getWaybill().getWaybillCode(),WayBillFinishedEnum.waybillStatusFinishedSet);
             //判断该运单是否是终结点
             if (CollectionUtils.isNotEmpty(collectCompleteResult)) {
