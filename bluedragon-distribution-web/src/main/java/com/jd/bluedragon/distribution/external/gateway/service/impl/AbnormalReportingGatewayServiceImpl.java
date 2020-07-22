@@ -294,6 +294,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
 
         if ((StringUtils.isEmpty(siteName) && StringUtils.isEmpty(siteCode))) {
             jdCResponse.toFail("参数不全");
+            return jdCResponse;
         }
         List<Site> siteList = null;
 
