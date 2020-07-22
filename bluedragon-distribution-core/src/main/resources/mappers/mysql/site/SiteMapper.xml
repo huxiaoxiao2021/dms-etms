@@ -7,8 +7,10 @@
         select site_code, site_name
         from site
         where
-        yn=1 and
-        org_id =#{orgId}
+        yn=1
+        <if test="orgId!=null and orgId!=''">
+            and org_id=#{orgId}
+        </if>
 
         <if test="siteCode!=null">
            and site_code=#{siteCode}
