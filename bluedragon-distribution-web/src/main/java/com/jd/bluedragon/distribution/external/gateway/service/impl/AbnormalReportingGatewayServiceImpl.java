@@ -145,6 +145,11 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
     public JdCResponse<List<DutyDepartmentInfo>> getDutyDepartment(String barCode, Integer siteCode, String siteName) {
 
         JdCResponse<List<DutyDepartmentInfo>> jdCResponse = new JdCResponse<>(JdCResponse.CODE_SUCCESS, JdCResponse.MESSAGE_SUCCESS);
+
+        if(null==siteCode || StringUtils.isBlank(siteName)){
+            jdCResponse.toFail("操作人场地信息都不能为空");
+            return jdCResponse;
+        }
         //判断barCode是不是运单或者包裹号
         if (StringHelper.isEmpty(barCode)) {
             jdCResponse.setCode(JdCResponse.CODE_ERROR);
@@ -215,6 +220,17 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
     public JdCResponse<String> saveAbnormalReportingInfo(AbnormalReportingRequest abnormalReportingRequest) {
         log.info("AbnormalReportingRequest：{}", JsonHelper.toJson(abnormalReportingRequest));
         JdCResponse<String> jdCResponse = new JdCResponse<>(JdCResponse.CODE_SUCCESS, JdCResponse.MESSAGE_SUCCESS);
+
+        if(abnormalReportingRequest == null){
+            jdCResponse.toFail("入参不能为空");
+            return jdCResponse;
+        }
+
+        if (null==abnormalReportingRequest.getUserCode() || StringUtils.isBlank(abnormalReportingRequest.getUserName()) || null==abnormalReportingRequest.getSiteCode()|| StringUtils.isBlank(abnormalReportingRequest.getSiteName())){
+            jdCResponse.toFail("操作人信息和场地信息都不能为空");
+            return jdCResponse;
+        }
+
         DmsAbnormalReasonDto dmsAbnormalReasonDto = abnormalReportingRequest.getDmsAbnormalReasonDto();
         //判断是不是质控
         Integer sourceType = dmsAbnormalReasonDto.getSourceType();
