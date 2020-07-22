@@ -9,6 +9,7 @@ import com.jd.bluedragon.external.gateway.service.ReverseWarehouseGateWayService
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,12 +31,27 @@ public class ReverseWarehouseGateWayServiceImpl implements ReverseWarehouseGateW
     public JdCResponse<Void> returnWarehouseCheck(ReverseWarehouseReq reverseWarehouseReq){
         JdCResponse<Void> jdCResponse = new JdCResponse<>();
         jdCResponse.toSucceed();
-        ReverseWarehouseRequest warehouseRequest = new ReverseWarehouseRequest();
-        warehouseRequest.setPackageOrWaybillCode(reverseWarehouseReq.getPackageOrWaybillCode());
+
+        if(reverseWarehouseReq == null){
+            jdCResponse.toFail("入参不能为空");
+            return jdCResponse;
+        }
+        if(reverseWarehouseReq.getUser() == null){
+            jdCResponse.toError("当前用户信息不能为空!");
+            return jdCResponse;
+        }
         if(reverseWarehouseReq.getCurrentOperate() == null){
             jdCResponse.toError("当前网点信息不能为空!");
             return jdCResponse;
         }
+
+        if (reverseWarehouseReq.getUser().getUserCode()<=0 || StringUtils.isBlank(reverseWarehouseReq.getUser().getUserName()) || reverseWarehouseReq.getCurrentOperate().getSiteCode()<=0 || StringUtils.isBlank(reverseWarehouseReq.getCurrentOperate().getSiteName())){
+            jdCResponse.toFail("操作人信息和场地信息都不能为空");
+            return jdCResponse;
+        }
+
+        ReverseWarehouseRequest warehouseRequest = new ReverseWarehouseRequest();
+        warehouseRequest.setPackageOrWaybillCode(reverseWarehouseReq.getPackageOrWaybillCode());
         warehouseRequest.setSiteCode(reverseWarehouseReq.getCurrentOperate().getSiteCode());
         JdResponse response = reverseWarehouseResource.returnWarehouseCheck(warehouseRequest);
         if(!Objects.equals(JdResponse.CODE_SUCCESS,response.getCode())){
