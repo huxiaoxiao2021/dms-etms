@@ -138,12 +138,38 @@ public class WaybillPrintRequest extends JdRequest{
      */
 	private Integer barCodeType;
 
+	/**
+	 * 靑流箱号 驻厂打印绑定靑流箱用
+	 */
+	private String reBoxCode;
+
+	/**
+	 * 用户ERP
+	 */
+	private String userERP;
+
 	public Boolean getTrustBusinessFlag() {
 		return trustBusinessFlag;
 	}
 
 	public void setTrustBusinessFlag(Boolean trustBusinessFlag) {
 		this.trustBusinessFlag = trustBusinessFlag;
+	}
+
+	public String getReBoxCode() {
+		return reBoxCode;
+	}
+
+	public void setReBoxCode(String reBoxCode) {
+		this.reBoxCode = reBoxCode;
+	}
+
+	public String getUserERP() {
+		return userERP;
+	}
+
+	public void setUserERP(String userERP) {
+		this.userERP = userERP;
 	}
 
 	/**
