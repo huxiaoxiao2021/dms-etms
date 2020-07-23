@@ -1096,4 +1096,9 @@ public class Constants {
      * */
     public static final String BUSINESS_TYPE_PREFIX = "BUSINESS-TYPE";
 
+    /**
+     * 特安送 增值服务编码
+     * */
+    public static final String TE_AN_SONG_SERVICE = "fr-a-0010";
+
 }

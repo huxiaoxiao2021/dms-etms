@@ -22,6 +22,7 @@ import com.jd.bluedragon.distribution.print.service.HideInfoService;
 import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.SendPayConstants;
@@ -125,6 +126,9 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     private VrsRouteTransferRelationManager vrsRouteTransferRelationManager;
 
     @Autowired
+    private WaybillService waybillService;
+
+    @Autowired
     @Qualifier("jimdbCacheService")
     private CacheService jimdbCacheService;
 
@@ -165,6 +169,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     private static final String SPECIAL_REQUIRMENT_LOAD_CAR = "装车";
     private static final String SPECIAL_REQUIRMENT_UNLOAD_CAR = "卸车";
     private static final String SPECIAL_REQUIRMENT_LOAD_UNLOAD_CAR = "装卸车";
+    private static final String SPECIAL_REQUIREMENT_TE_AN_SONG = "特安";
 
     /**
      * B网医药冷链温层
@@ -1447,6 +1452,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             //装卸车
             if(BusinessUtil.isSignChar(waybillSign,41,'3')){
                 specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_LOAD_UNLOAD_CAR + ",";
+            }
+            //特安送
+            if (waybill != null && StringHelper.isNotEmpty(waybill.getWaybillCode()) && waybillService.isSpecialRequirementTeAnSongService(waybill.getWaybillCode(), waybillSign)) {
+                specialRequirement = specialRequirement + SPECIAL_REQUIREMENT_TE_AN_SONG + ",";
             }
         }
         if(StringUtils.isNotBlank(specialRequirement)){

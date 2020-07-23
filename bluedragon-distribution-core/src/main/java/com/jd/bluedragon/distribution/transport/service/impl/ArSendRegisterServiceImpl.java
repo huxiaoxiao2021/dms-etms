@@ -39,6 +39,8 @@ import com.jd.tms.basic.ws.BasicSyncWS;
 import com.jd.tms.ecp.dto.BasicRailTrainDto;
 import com.jd.tms.ecp.dto.railway.RailWaySendRegisterDto;
 import com.jd.tms.ecp.ws.EcpRailWayWS;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections.CollectionUtils;
@@ -548,6 +550,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.ArSendRegisterServiceImpl.queryStartCityInfo", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public List<City> queryStartCityInfo() {
         List<ArSendRegister> arSendRegisters = arSendRegisterDao.queryStartCityInfo();
         List<City> cities = new ArrayList<City>();
@@ -601,6 +604,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.ArSendRegisterServiceImpl.queryWaitReceive", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public List<ArSendRegister> queryWaitReceive(ArSendRegister arSendRegister) {
         return arSendRegisterDao.queryWaitReceive(arSendRegister);
     }

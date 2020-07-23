@@ -494,13 +494,13 @@ function enOrDisGantry(params) {
         }
     } else if (params.lockStatus == 0) {
         /** 释放校验 **/
-        if (params.operateUserErp != gantryParams.lockUserErp) {
-            jQuery.messager.alert("警告：", "释放该龙门架请联系锁定人:" + gantryParams.lockUserName, "warning");
-            return;
-        } else {
+        // if (params.operateUserErp != gantryParams.lockUserErp) {
+        //     jQuery.messager.alert("警告：", "释放该龙门架请联系锁定人:" + gantryParams.lockUserName, "warning");
+        //     return;
+        // } else {
             /** 释放龙门架时清空异常数据 **/
             $("#exceptionNum").text(0);
-        }
+        // }
     }
     var url = $("#contextPath").val() + "/gantryAutoSend/updateOrInsertGantryDeviceStatus";
     CommonClient.post(url, params, function (data) {

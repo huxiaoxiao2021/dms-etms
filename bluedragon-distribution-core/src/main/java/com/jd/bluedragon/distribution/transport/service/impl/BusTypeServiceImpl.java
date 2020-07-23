@@ -1,11 +1,14 @@
 package com.jd.bluedragon.distribution.transport.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.etms.vts.dto.CommonDto;
 import com.jd.etms.vts.dto.DictDto;
 import com.jd.etms.vts.ws.VtsQueryWS;
 import com.jd.ql.dms.common.domain.BusType;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,6 +79,8 @@ public class BusTypeServiceImpl implements BusTypeService {
      * 根据配置文件获取需要的车型，并进行过滤
      * @return
      */
+    @Override
+    @JProfiler(jKey = "DMSWEB.BusTypeServiceImpl.getNeedsBusType", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public List<BusType> getNeedsBusType(){
         List<BusType> needsBusTypes = new ArrayList<BusType>();
         //获取所有摆渡车车型信息

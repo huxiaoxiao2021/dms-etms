@@ -32,7 +32,6 @@ public class IAbnPdaAPIManagerImpl implements IAbnPdaAPIManager {
     @Cache(key = "IAbnPdaAPIManager.selectAbnReasonByErp@args0", memoryEnable = true, memoryExpiredTime = 3 * 60 * 1000, redisEnable = true, redisExpiredTime = 5 * 60 * 1000)
     @Override
     public Map<String, AbnormalReasonDto> selectAbnReasonByErp(String userErp) {
-        logger.info("调用质控系统JSF接口获取质控侧异常原因，ERP：{}", userErp);
         List<AbnormalReasonDto> abnormalReasonDtoList = null;
         try {
             abnormalReasonDtoList = iAbnPdaAPI.selectAbnReasonByErpForZY(userErp, PROCESS_NODE);
