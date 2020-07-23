@@ -286,7 +286,8 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 		if(putawayDTO.getStorageSource() == null
                 || StorageSourceEnum.JP_STORAGE.getCode().equals(putawayDTO.getStorageSource())){
             return dealWithJPZC(putawayDTO, isWaybillCode, baseEntity.getData());
-        }else if(StorageSourceEnum.KY_STORAGE.getCode().equals(putawayDTO.getStorageSource())){
+        }else if(StorageSourceEnum.KY_STORAGE.getCode().equals(putawayDTO.getStorageSource())
+                || StorageSourceEnum.QPC_STORAGE.getCode().equals(putawayDTO.getStorageSource())){
             return dealWithKYZC(putawayDTO, isWaybillCode, baseEntity.getData());
         }else {
             throw new StorageException("目前只支持金鹏暂存、快运暂存订单");
@@ -311,8 +312,14 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
             sendKYStorageMQ(putawayDTO);
         }
 
-        // 15500 暂存上架状态
-        updateWaybillStatusOfKYZC(putawayDTO,true);
+        boolean qpcWaybill = StorageSourceEnum.QPC_STORAGE.getCode().equals(putawayDTO.getStorageSource());
+        if (qpcWaybill) {
+            updateWaybillStatus(putawayDTO, isWaybillCode, dto);
+        }
+        else {
+            // 15500 暂存上架状态
+            updateWaybillStatusOfKYZC(putawayDTO,true);
+        }
 
         return true;
     }
@@ -446,17 +453,26 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
     private void sendKYStorageMQ(PutawayDTO putawayDTO) {
         String waybillCode = WaybillUtil.getWaybillCode(putawayDTO.getBarCode());
         if(isAllPutAwayAll(waybillCode)) {
-            KYStorageMessage kYStorageMessage = new KYStorageMessage();
-            kYStorageMessage.setWaybillCode(waybillCode);
-            kYStorageMessage.setOperateSiteCode(putawayDTO.getCreateSiteCode());
-            kYStorageMessage.setOperateSiteName(putawayDTO.getCreateSiteName());
-            kYStorageMessage.setOperateTime(new Date(putawayDTO.getOperateTime()));
-            kYStorageMessage.setOperateErp(putawayDTO.getOperatorErp());
-            kYStorageMessage.setStorageStatus(StoragePutStatusEnum.STORAGE_PUT_AWAY.getCode());
-            this.log.info("运单暂存全部上架发送MQ【{}】,业务ID【{}】,消息体【{}】",
-                    kyStorageProducer.getTopic(),waybillCode,JsonHelper.toJson(kYStorageMessage));
-            kyStorageProducer.sendOnFailPersistent(waybillCode, JsonHelper.toJson(kYStorageMessage));
+
+            boolean qpcWaybill = StorageSourceEnum.QPC_STORAGE.getCode().equals(putawayDTO.getStorageSource());
+            if (!qpcWaybill) {
+
+                sendPutAwayMQ(putawayDTO, waybillCode);
+            }
         }
+    }
+
+    private void sendPutAwayMQ(PutawayDTO putawayDTO, String waybillCode) {
+        KYStorageMessage kYStorageMessage = new KYStorageMessage();
+        kYStorageMessage.setWaybillCode(waybillCode);
+        kYStorageMessage.setOperateSiteCode(putawayDTO.getCreateSiteCode());
+        kYStorageMessage.setOperateSiteName(putawayDTO.getCreateSiteName());
+        kYStorageMessage.setOperateTime(new Date(putawayDTO.getOperateTime()));
+        kYStorageMessage.setOperateErp(putawayDTO.getOperatorErp());
+        kYStorageMessage.setStorageStatus(StoragePutStatusEnum.STORAGE_PUT_AWAY.getCode());
+        this.log.info("运单暂存全部上架发送MQ【{}】,业务ID【{}】,消息体【{}】",
+                kyStorageProducer.getTopic(),waybillCode,JsonHelper.toJson(kYStorageMessage));
+        kyStorageProducer.sendOnFailPersistent(waybillCode, JsonHelper.toJson(kYStorageMessage));
     }
 
     /**
@@ -928,7 +944,9 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
             String waybillCode = WaybillUtil.getWaybillCode(barCode);
             Waybill waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
             storageCheckDto.setPlanDeliveryTime(DateHelper.formatDateTime(waybill.getRequireTime()));
-            if(waybillCommonService.isStorageWaybill(waybillCode)){
+            boolean qpcWaybill = BusinessUtil.isEdn(waybill.getSendPay(), waybill.getWaybillSign());
+            if(waybillCommonService.isStorageWaybill(waybillCode)
+                    || qpcWaybill){
                 storageCheckDto.setStorageSource(StorageSourceEnum.KY_STORAGE.getCode());
                 if(!loginSiteIsLast(waybill,waybillCode,siteCode)){
                     result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"当前场地非末级B网场地，禁止上架");
@@ -945,7 +963,7 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
                     StoragePackageM storagePackageM =  storagePackageMDao.queryByWaybillCode(waybillCode);
                     storageCheckDto.setStorageCode(storagePackageM==null?null:storagePackageM.getStorageCode());
                 }
-                if(!timeCheck(waybill,barCode,siteCode)){
+                if(!qpcWaybill && !timeCheck(waybill,barCode,siteCode)){
                     result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"货物距离预计送达时间较近，正常发运");
                     return result;
                 }
@@ -1280,6 +1298,11 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
         }else {
             status.setRemark("分拣中心下架");
             status.setOperateType(WaybillStatus.WAYBILL_STATUS_DOWNAWAY_STORAGE_KYZC);
+
+            // 企配仓暂存下架
+            if (null != putawayDTO.getStorageSource() && StorageSourceEnum.QPC_STORAGE.getCode().equals(putawayDTO.getStorageSource())) {
+                status.setOperateType(WaybillStatus.WAYBILL_INTERNAL_TRACK_OFF_SHELF);
+            }
         }
         status.setCreateSiteCode(putawayDTO.getCreateSiteCode());
         tTask.setBody(JsonHelper.toJson(status));

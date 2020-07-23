@@ -34,7 +34,9 @@ public enum BarCodeType {
     /**
      * 商家单号
      */
-    BUSINESS_ORDER_CODE(6, "商家单号");
+    BUSINESS_ORDER_CODE(6, "商家单号"),
+
+    THIRD_WAYBILL_CODE(7, "三方运单号");
 
     private int code;
 

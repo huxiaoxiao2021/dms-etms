@@ -27,6 +27,7 @@ import com.jd.bluedragon.distribution.sms.service.SmsConfigService;
 import com.jd.bluedragon.distribution.storage.domain.KYStorageMessage;
 import com.jd.bluedragon.distribution.storage.domain.PutawayDTO;
 import com.jd.bluedragon.distribution.storage.domain.StoragePutStatusEnum;
+import com.jd.bluedragon.distribution.storage.domain.StorageSourceEnum;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -567,20 +568,22 @@ public class SendDetailConsumer extends MessageBaseConsumer {
     private void kyStoragePutDown(SendDetailMessage sendDetail) {
         try {
             String waybillCode = WaybillUtil.getWaybillCode(sendDetail.getPackageBarcode());
-            if(waybillCommonService.isStorageWaybill(waybillCode)){
-                updateWaybillStatusOfKYZC(sendDetail);
+            Waybill waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
+            // 判断是否是企配仓订单，企配仓订单发送8410全流程跟踪
+            boolean qpcWaybill = BusinessUtil.isEdn(waybill.getSendPay(), waybill.getWaybillSign());
+            if(waybillCommonService.isStorageWaybill(waybillCode)
+                    || qpcWaybill){
+                updateWaybillStatusOfKYZC(sendDetail, qpcWaybill);
                 if(storagePackageMService.isAllPutAwayAll(waybillCode)
                         && storagePackageMService.packageIsAllSend(waybillCode,sendDetail.getCreateSiteCode())){
                     storagePackageMService.updateDownAwayTimeByWaybillCode(waybillCode);
-                    KYStorageMessage message = new KYStorageMessage();
-                    message.setWaybillCode(WaybillUtil.getWaybillCode(sendDetail.getPackageBarcode()));
-                    message.setOperateErp(sendDetail.getCreateUser());
-                    message.setOperateTime(new Date(sendDetail.getOperateTime() - 3000));
-                    message.setOperateSiteCode(sendDetail.getCreateSiteCode());
-                    message.setStorageStatus(StoragePutStatusEnum.STORAGE_DOWN_AWAY.getCode());
-                    this.log.info("运单暂存全部下架发送MQ【{}】,业务ID【{}】,消息体【{}】",
-                            kyStorageProducer.getTopic(),waybillCode,JsonHelper.toJson(message));
-                    kyStorageProducer.sendOnFailPersistent(message.getWaybillCode(), JSON.toJSONString(message));
+
+                    // 企配仓不发全部下架MQ
+                    if (!qpcWaybill) {
+
+                        sendOffShelfMQ(sendDetail, waybillCode);
+
+                    }
                 }
             }
         }catch (Exception e){
@@ -589,12 +592,32 @@ public class SendDetailConsumer extends MessageBaseConsumer {
 
     }
 
-    private void updateWaybillStatusOfKYZC(SendDetailMessage sendDetail) {
+    /**
+     * 运单全部下架发送MQ
+     * @param sendDetail
+     * @param waybillCode
+     */
+    private void sendOffShelfMQ(SendDetailMessage sendDetail, String waybillCode) {
+        KYStorageMessage message = new KYStorageMessage();
+        message.setWaybillCode(WaybillUtil.getWaybillCode(sendDetail.getPackageBarcode()));
+        message.setOperateErp(sendDetail.getCreateUser());
+        message.setOperateTime(new Date(sendDetail.getOperateTime() - 3000));
+        message.setOperateSiteCode(sendDetail.getCreateSiteCode());
+        message.setStorageStatus(StoragePutStatusEnum.STORAGE_DOWN_AWAY.getCode());
+        this.log.info("运单暂存全部下架发送MQ【{}】,业务ID【{}】,消息体【{}】",
+                kyStorageProducer.getTopic(),waybillCode,JsonHelper.toJson(message));
+        kyStorageProducer.sendOnFailPersistent(message.getWaybillCode(), JSON.toJSONString(message));
+    }
+
+    private void updateWaybillStatusOfKYZC(SendDetailMessage sendDetail, boolean qpcWaybill) {
         PutawayDTO putawayDTO = new PutawayDTO();
         putawayDTO.setOperateTime(sendDetail.getOperateTime() - 3000);
         putawayDTO.setCreateSiteCode(sendDetail.getCreateSiteCode());
         putawayDTO.setBarCode(sendDetail.getPackageBarcode());
         putawayDTO.setOperatorErp(sendDetail.getCreateUser());
+        if (qpcWaybill) {
+            putawayDTO.setStorageSource(StorageSourceEnum.QPC_STORAGE.getCode());
+        }
         storagePackageMService.updateWaybillStatusOfKYZC(putawayDTO,false);
     }
 
