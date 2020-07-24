@@ -19,7 +19,7 @@ public class TextConstants {
     public static final String FREIGHT_CONSIGER_CLEAR="寄付现结";
 
     /**
-     * B网运费 - 到付
+     * 运费 - 到付
      */
     public static final String FREIGHT_PAY = "到付";
 
@@ -37,7 +37,10 @@ public class TextConstants {
      * B网运费-临时欠款
      */
     public static final String FREIGHT_TEMPORARY_ARREARS="临欠";
-
+    /**
+     * COD-货到付款
+     */
+    public static final String GOODS_PAYMENT_COD_FLAG = "COD";
     /**
      * 货款-货到付款
      */
@@ -175,4 +178,8 @@ public class TextConstants {
      * 运输模式‘特快送 同城’
      */
     public static final String EXPRESS_DELIVERY_SAME_CITY = "特快送 同城";
+    /**
+     * 尊
+     */
+    public static final String SPECIAL_MARK_SENIOR ="尊";
 }
