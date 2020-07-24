@@ -80,21 +80,27 @@ public class C2cInterceptHandler implements InterceptHandler<WaybillPrintContext
 
         if (WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType().equals(context.getRequest().getOperateType()))
         {
-
-//            if (StringHelper.isNotEmpty(context.getWaybill().getWaybillCode()) && reprintRecordService.isBarCodeRePrinted(context.getWaybill().getWaybillCode())) {
-//                log.warn("C2cInterceptHandler.handler-->{}该单号重复打印",context.getWaybill().getWaybillCode());
-//                interceptResult.toWeakSuccess(JdResponse.CODE_RE_PRINT_REPEAT, JdResponse.MESSAGE_RE_PRINT_REPEAT);
-//            }
+            boolean  isRepeatPrint=false;
+            //当前面单已XX状态，且已操作过补打，请确认是否打印
+            if (StringHelper.isNotEmpty(context.getWaybill().getWaybillCode()) && reprintRecordService.isBarCodeRePrinted(context.getWaybill().getWaybillCode())) {
+                log.warn("C2cInterceptHandler.handler-->{}该单号重复打印",context.getWaybill().getWaybillCode());
+                isRepeatPrint=true;
+            }
             List<PackageState> collectCompleteResult = waybillTraceManager.getAllOperationsByOpeCodeAndState(context.getWaybill().getWaybillCode(),WayBillFinishedEnum.waybillStatusFinishedSet);
-            //判断该运单是否是终结点
-            if (CollectionUtils.isNotEmpty(collectCompleteResult)) {
+            if (CollectionUtils.isEmpty(collectCompleteResult)&&isRepeatPrint) {
+                interceptResult.toWeakSuccess(JdResponse.CODE_RE_PRINT_REPEAT, JdResponse.MESSAGE_RE_PRINT_REPEAT);
+            }
+            if(CollectionUtils.isNotEmpty(collectCompleteResult)){
                 Collections.sort(collectCompleteResult, new Comparator<PackageState>() {
                     @Override
                     public int compare(PackageState packageState, PackageState packageState2) {
                         return packageState.getCreateTime().compareTo(packageState2.getCreateTime());
                     }
                 });
-                String  message=String.format(WaybillPrintMessages.MESSAGE_WAYBILL_FINISHED.getMsgFormat(),collectCompleteResult.get(0).getStateName());
+                String  message =String.format(WaybillPrintMessages.MESSAGE_WAYBILL_FINISHED.getMsgFormat(),collectCompleteResult.get(0).getStateName());
+                if(isRepeatPrint){
+                    message =String.format(WaybillPrintMessages.MESSAGE_WAYBILL_FINISHED_REPRINT.getMsgFormat(),collectCompleteResult.get(0).getStateName());
+                }
                 interceptResult.toWeakSuccess(WaybillPrintMessages.MESSAGE_WAYBILL_FINISHED.getMsgCode(),message);
             }
         }
