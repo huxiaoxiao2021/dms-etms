@@ -85,10 +85,6 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
         if(BusinessUtil.isSignY(waybill.getWaybillSign(), 27)){
             waybill.appendSpecialMark(ALLOW_HALF_ACCEPT);
         }
-        //分拣补打的运单和包裹小标签上添加“尊”字样:waybillsign 第35为1 打“尊”逻辑 2017年9月21日17:59:39
-        if(BusinessUtil.isSignY(waybill.getWaybillSign(), 35)){
-            waybill.appendSpecialMark(SPECIAL_MARK_SENIOR);
-        }
         if(waybill.getIsSelfService() || BusinessUtil.isZiTiGuiByWaybillSign(waybill.getWaybillSign())){//城配与配送方式柜互斥，优先城配
             waybill.appendSpecialMark(SPECIAL_MARK_ARAYACAK_CABINET);
         }
