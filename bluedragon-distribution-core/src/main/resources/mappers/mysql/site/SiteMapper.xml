@@ -4,7 +4,7 @@
 
 
     <select id="getByOrgIdAnd" resultType="com.jd.bluedragon.common.dto.abnormal.response.Site" >
-        select site_code, site_name
+        select distinct site_code, site_name
         from site
         where
         yn=1
