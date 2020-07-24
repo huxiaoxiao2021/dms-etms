@@ -451,8 +451,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                             pack.setPackageWeight(d.getGoodWeight() + "kg");
                         }
                         if (StringUtils.isNotEmpty(d.getPackageBarcode())) {
-                            String[] pcs = d.getPackageBarcode().split("[-NS]");
-                            pack.setPackSerial(Integer.valueOf(pcs[1]));
+                            pack.setPackSerial(WaybillUtil.getPackIndexByPackCode(d.getPackageBarcode()));
                         } else {
                             this.log.warn("转换包裹信息 --> 运单号：{}生成包裹号,包裹号为空",waybill.getWaybillCode());
                         }
