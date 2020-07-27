@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.site.dao.SiteMapper">
+
+
+    <select id="getByOrgIdAnd" resultType="com.jd.bluedragon.common.dto.abnormal.response.Site" >
+        select distinct site_code, site_name
+        from site
+        where
+        yn=1
+        <if test="orgId!=null and orgId!=''">
+            and org_id=#{orgId}
+        </if>
+
+        <if test="siteCode!=null">
+           and site_code=#{siteCode}
+        </if>
+
+        <if test="siteName!=null">
+            and site_name like concat(concat('%',#{siteName}),'%')
+        </if>
+
+        and site_type in
+        <foreach collection="siteTypeList" item="siteTypeItem" open="(" close=")" separator=",">
+            #{siteTypeItem}
+        </foreach>
+        limit 200
+    </select>
+</mapper>
