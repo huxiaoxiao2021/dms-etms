@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.external.service.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.distribution.api.response.LoginUserResponse;
@@ -43,6 +44,11 @@ public class DmsBaseServiceImpl implements DmsBaseService {
     @Override
     @JProfiler(jKey = "DMSWEB.DmsBaseServiceImpl.getSite", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public BaseResponse getSite(String code) {
+        if (null==code){
+            BaseResponse response = new BaseResponse(JdResponse.CODE_PARAM_ERROR,
+                    JdResponse.MESSAGE_PARAM_ERROR);
+            return response;
+        }
         return baseResource.getSite(code);
     }
 

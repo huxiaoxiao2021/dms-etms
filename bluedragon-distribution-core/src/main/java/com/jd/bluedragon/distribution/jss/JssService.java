@@ -80,4 +80,16 @@ public interface JssService {
      */
     String uploadImage(String bucket, byte[] bytes);
 
+
+    /**
+     * 上传文件，
+     * @param bucket
+     * @param bytes
+     * @param extName 扩展名
+     * @return
+     */
+    String uploadFile(String bucket, byte[] bytes, String extName);
+
+
+
 }

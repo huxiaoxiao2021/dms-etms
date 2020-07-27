@@ -12,6 +12,7 @@ import com.jd.bluedragon.external.gateway.service.DifferentialQueryGatewayServic
 import com.jd.ql.basic.util.DateUtil;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +38,15 @@ public class DifferentialQueryGatewayServiceImpl implements DifferentialQueryGat
     public JdCResponse<DifferentialQueryResultDto> getDifferentialQuery(DifferentialQueryRequest request) {
         JdCResponse<DifferentialQueryResultDto> jdCResponse = new JdCResponse<>();
         DifferentialQueryResultDto differentialQueryResultDto = new DifferentialQueryResultDto();
+        if(request == null){
+            jdCResponse.toFail("入参不能为空");
+            return jdCResponse;
+        }
 
+        if (request.getUser().getUserCode()<=0 || StringUtils.isBlank(request.getUser().getUserName()) || request.getCurrentOperate().getSiteCode()<=0 || StringUtils.isBlank(request.getCurrentOperate().getSiteName())){
+            jdCResponse.toFail("操作人信息和场地信息都不能为空");
+            return jdCResponse;
+        }
 
         InvokeResult<WaybillNoCollectionResult> result = waybillResource.getWaybillNoCollectionInfo(convert(request));
         if (result.getCode() == InvokeResult.RESULT_SUCCESS_CODE) {
