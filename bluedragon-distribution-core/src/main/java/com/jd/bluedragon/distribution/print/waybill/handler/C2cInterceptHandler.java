@@ -89,6 +89,7 @@ public class C2cInterceptHandler implements InterceptHandler<WaybillPrintContext
             List<PackageState> collectCompleteResult = waybillTraceManager.getAllOperationsByOpeCodeAndState(context.getWaybill().getWaybillCode(),WayBillFinishedEnum.waybillStatusFinishedSet);
             if (CollectionUtils.isEmpty(collectCompleteResult)&&isRepeatPrint) {
                 interceptResult.toWeakSuccess(JdResponse.CODE_RE_PRINT_REPEAT, JdResponse.MESSAGE_RE_PRINT_REPEAT);
+                return interceptResult;
             }
             if(CollectionUtils.isNotEmpty(collectCompleteResult)){
                 Collections.sort(collectCompleteResult, new Comparator<PackageState>() {
