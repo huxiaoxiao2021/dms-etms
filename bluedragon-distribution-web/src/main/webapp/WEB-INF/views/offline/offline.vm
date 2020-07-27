@@ -87,7 +87,7 @@
 			</p>
 		</div>
         <div id="showNewPageTips" style="display: none">
-            <p>此功能将会下线，请使用新功能 <a href="javascript:;" onclick="window.top.open('http://dms-w.jd.com/#/page/report/SortingOfflineOperationLog')">点击此处</a>新功能支持导出功能，欢迎体验和反馈！
+            <p>此功能将会下线，请使用新功能 <a href="javascript:;" onclick="window.top.open('http://dms-w.jd.com/#/page/report/SortingOfflineOperationLog')">点击此处</a>，新功能支持导出功能，欢迎体验和反馈！
                 <br/>有疑问请联系 <a href="timline://chat/?topin=xumigen">徐迷根</a></p>
         </div>
 		<div id="content">
