@@ -1068,9 +1068,12 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }else if(Constants.ORIGINAL_CROSS_TYPE_FILL.equals(target.getOriginalCrossType())){
         	target.setTransportTypeText(ComposeService.SPECIAL_MARK_AIRTRANSPORT_FILL);
         }
-        //waybil_sign标识位，第八十四位为2，打‘高’字标
-        if(BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_84,WaybillSignConstants.CHAR_84_2)){
-            target.setTransportTypeText(ComposeService.SPECIAL_MARK_RAIL);
+        //waybil_sign标识位，第八十四位为1，打‘陆’字标
+        if(BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_84,WaybillSignConstants.CHAR_84_1)){
+            target.setTransportTypeText(ComposeService.SPECIAL_MARK_ROAD);
+        } else if(BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_84,WaybillSignConstants.CHAR_84_2)){
+        	//waybil_sign标识位，第八十四位为2，打‘高’字标
+        	target.setTransportTypeText(ComposeService.SPECIAL_MARK_RAIL);
         }
         //运输方式追加到specialMark中
         target.appendSpecialMark(target.getTransportTypeText(), false);
