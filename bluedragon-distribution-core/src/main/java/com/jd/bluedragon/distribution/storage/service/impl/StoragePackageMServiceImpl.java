@@ -948,6 +948,9 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
             if(waybillCommonService.isStorageWaybill(waybillCode)
                     || qpcWaybill){
                 storageCheckDto.setStorageSource(StorageSourceEnum.KY_STORAGE.getCode());
+                if (qpcWaybill) {
+                    storageCheckDto.setStorageSource(StorageSourceEnum.QPC_STORAGE.getCode());
+                }
                 if(!loginSiteIsLast(waybill,waybillCode,siteCode)){
                     result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"当前场地非末级B网场地，禁止上架");
                     return result;

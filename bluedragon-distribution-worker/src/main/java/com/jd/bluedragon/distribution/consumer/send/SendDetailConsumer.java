@@ -259,7 +259,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                 // 推送冷链操作MQ消息 - B2B冷链卸货出入库业务相关
                 this.pushColdChainOperateMQ(sendDetail, waybill.getWaybillSign());
                 // 快运暂存发货则下架
-                this.kyStoragePutDown(sendDetail);
+                this.kyStoragePutDown(sendDetail, waybill);
             } else {
                 log.warn("[dmsWorkSendDetail消费]根据运单号获取运单信息为空，packageBarCode:{},boxCode:{}", packageBarCode, sendDetail.getBoxCode());
             }
@@ -565,10 +565,9 @@ public class SendDetailConsumer extends MessageBaseConsumer {
      * </p>
      * @param sendDetail
      */
-    private void kyStoragePutDown(SendDetailMessage sendDetail) {
+    private void kyStoragePutDown(SendDetailMessage sendDetail, Waybill waybill) {
         try {
             String waybillCode = WaybillUtil.getWaybillCode(sendDetail.getPackageBarcode());
-            Waybill waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
             // 判断是否是企配仓订单，企配仓订单发送8410全流程跟踪
             boolean qpcWaybill = BusinessUtil.isEdn(waybill.getSendPay(), waybill.getWaybillSign());
             if(waybillCommonService.isStorageWaybill(waybillCode)
