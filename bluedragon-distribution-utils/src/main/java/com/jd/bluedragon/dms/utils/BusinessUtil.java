@@ -1559,4 +1559,13 @@ public class BusinessUtil {
         }
         return materialCode.toUpperCase().startsWith(COLLECTION_BAG_PREFIX) && materialCode.length() == 16;
     }
+    /**
+     * 判断是否无人车配送，sendpay第307位=1
+     *
+     * @param sendPay
+     * @return
+     */
+    public static boolean isWrcps(String sendPay) {
+        return isSignChar(sendPay, SendPayConstants.POSITION_307, SendPayConstants.CHAR_307_1);
+    }
 }
