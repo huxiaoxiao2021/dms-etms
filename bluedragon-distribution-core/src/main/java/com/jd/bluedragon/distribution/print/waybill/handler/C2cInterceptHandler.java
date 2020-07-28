@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.MessageFormat;
 import java.util.*;
 
 /**
@@ -98,11 +99,13 @@ public class C2cInterceptHandler implements InterceptHandler<WaybillPrintContext
                         return packageState.getCreateTime().compareTo(packageState2.getCreateTime());
                     }
                 });
-                String  message =String.format(WaybillPrintMessages.MESSAGE_WAYBILL_FINISHED.getMsgFormat(),collectCompleteResult.get(0).getStateName());
+                String  message =String.format(WaybillPrintMessages.MESSAGE_WAYBILL_FINISHED,collectCompleteResult.get(0).getStateName());
                 if(isRepeatPrint){
-                    message =String.format(WaybillPrintMessages.MESSAGE_WAYBILL_FINISHED_REPRINT.getMsgFormat(),collectCompleteResult.get(0).getStateName());
+                    message =String.format(WaybillPrintMessages.MESSAGE_WAYBILL_FINISHED_REPRINT,collectCompleteResult.get(0).getStateName());
+                    interceptResult.toWeakSuccess(WaybillPrintMessages.CODE_WAYBILL_FINISHED_REPRINT,message);
+                }else {
+                    interceptResult.toWeakSuccess(WaybillPrintMessages.CODE_WAYBILL_FINISHED, message);
                 }
-                interceptResult.toWeakSuccess(WaybillPrintMessages.MESSAGE_WAYBILL_FINISHED.getMsgCode(),message);
             }
         }
         return interceptResult;
