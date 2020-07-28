@@ -1,18 +1,16 @@
 package com.jd.bluedragon.distribution.print.service;
 
 import com.jd.bluedragon.TextConstants;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.dms.utils.WaybillSignConstants;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
 import com.jd.bluedragon.distribution.urban.domain.TransbillM;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.distribution.waybill.service.LabelPrintingService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * 合成特殊标记
@@ -67,7 +65,9 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
         }
         if(waybill.getDistributeType()!=null && waybill.getDistributeType().equals(LabelPrintingService.ARAYACAK_SIGN) && waybill.getSendPay().length()>=50){
         	if(!BusinessUtil.isSignChar(waybill.getSendPay(),22,'5') || BusinessUtil.isZiTiByWaybillSign(waybill.getWaybillSign())){
-        		waybill.appendSpecialMark(SPECIAL_MARK_ARAYACAK_SITE);
+        	    if (!BusinessUtil.isBusinessNet(waybill.getWaybillSign())) {
+                    waybill.appendSpecialMark(SPECIAL_MARK_ARAYACAK_SITE);
+                }
         	}
         }
         if(BusinessUtil.isSignY(waybill.getSendPay(),135)){
@@ -86,7 +86,9 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
             waybill.appendSpecialMark(ALLOW_HALF_ACCEPT);
         }
         if(waybill.getIsSelfService() || BusinessUtil.isZiTiGuiByWaybillSign(waybill.getWaybillSign())){//城配与配送方式柜互斥，优先城配
-            waybill.appendSpecialMark(SPECIAL_MARK_ARAYACAK_CABINET);
+            if (!BusinessUtil.isBusinessNet(waybill.getWaybillSign())) {
+                waybill.appendSpecialMark(SPECIAL_MARK_ARAYACAK_CABINET);
+            }
         }
         //城配标和柜冲突处理
         waybill.dealConflictSpecialMark(CITY_DISTRIBUTION_ZHI, SPECIAL_MARK_ARAYACAK_CABINET);
@@ -99,7 +101,8 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
             waybill.dealConflictSpecialMark(CITY_DISTRIBUTION_JI, SPECIAL_MARK_ARAYACAK_SITE);
             waybill.dealConflictSpecialMark(CITY_DISTRIBUTION_CHENG, SPECIAL_MARK_ARAYACAK_SITE);
         }
-        if (BusinessUtil.isZiTiDianByWaybillSign(waybill.getWaybillSign())) {
+        /* 众邮面单不打印“店”字 */
+        if (BusinessUtil.isZiTiDianByWaybillSign(waybill.getWaybillSign()) && !BusinessUtil.isBusinessNet(waybill.getWaybillSign())) {
             waybill.appendSpecialMark(SPECIAL_MARK_ARAYACAK_DIAN);
         }
         waybill.dealConflictSpecialMark(CITY_DISTRIBUTION_ZHI, SPECIAL_MARK_ARAYACAK_DIAN);
@@ -130,5 +133,9 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
         if(BusinessUtil.isC2CJZD(waybill.getWaybillSign())){
             waybill.appendSpecialMark(TextConstants.TEXT_JZD_SPECIAL_MARK);
         }
+        //Sendpay第307位=1，面单打印“车”标记
+        if(BusinessUtil.isWrcps(waybill.getSendPay())){
+            waybill.appendSpecialMark(TextConstants.WRCPS_FLAG);
+        }        
     }
 }

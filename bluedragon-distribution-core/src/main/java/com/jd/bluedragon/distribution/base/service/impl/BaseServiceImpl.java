@@ -400,6 +400,7 @@ public class BaseServiceImpl implements BaseService {
 
 
 	@Override
+	@JProfiler(jKey = "DMSWEB.BaseServiceImpl.getBaseDataDictListByDate", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
 	public BaseDataDict[] getBaseDataDictListByDate(List<Integer> typeGroups) {
 		/** 查询错误信息列表 */
 		try {

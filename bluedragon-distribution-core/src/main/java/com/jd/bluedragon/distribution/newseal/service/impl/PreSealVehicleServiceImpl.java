@@ -265,7 +265,7 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
         for (SealVehicles dto : sealVehiclesList) {
             if(StringUtils.isNotEmpty(dto.getSealDataCode())) {
                 try {
-                    redisManager.setex(Constants.CACHE_KEY_PRE_SEAL_SENDCODE + dto.getSealDataCode(), Constants.TIME_SECONDS_ONE_WEEK, String.valueOf(dto.getOperateTime().getTime()));
+                    redisManager.setex(Constants.CACHE_KEY_PRE_SEAL_SENDCODE + dto.getSealDataCode(), Constants.TIME_SECONDS_FIFTEEN_DAY, String.valueOf(dto.getOperateTime().getTime()));
                     log.info("已封车批次号存入缓存成功:{}" , dto.getSealDataCode());
                 } catch (Throwable e) {
                     log.warn("已封车批次号存入缓存失败:{};异常：{}" ,dto.getSealDataCode(), e.getMessage());

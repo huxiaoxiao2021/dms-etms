@@ -46,6 +46,7 @@ public class EcpQueryWSManagerImpl implements EcpQueryWSManager {
         basicRailTrainDto.setTrainNumber(trainNumber);
         basicRailTrainDto.setBeginCityId(beginCityId);
         basicRailTrainDto.setEndCityId(endCityId);
+        basicRailTrainDto.setStatus(1);
         CommonDto<List<BasicRailTrainDto>> commonDto = ecpQueryWS.getRailTrainListByCondition(basicRailTrainDto);
         if(commonDto == null || CommonDto.CODE_SUCCESS != commonDto.getCode() ){
             log.warn("获取列车车次信息失败trainNumber[{}]beginCityId[{}]endCityId[{}]",trainNumber,beginCityId,endCityId);

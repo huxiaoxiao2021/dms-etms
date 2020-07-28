@@ -5,11 +5,7 @@ import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.BasicSafInterfaceManager;
-import com.jd.bluedragon.core.base.PreseparateWaybillManager;
-import com.jd.bluedragon.core.base.VrsRouteTransferRelationManager;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
@@ -23,36 +19,14 @@ import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.dms.utils.DmsConstants;
-import com.jd.bluedragon.dms.utils.SendPayConstants;
-import com.jd.bluedragon.dms.utils.WaybillSignConstants;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BigDecimalHelper;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.bluedragon.utils.ObjectHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.dms.utils.*;
+import com.jd.bluedragon.utils.*;
 import com.jd.etms.api.common.enums.RouteProductEnum;
 import com.jd.etms.cache.util.EnumBusiCode;
-import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
-import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.domain.DeliveryPackageD;
-import com.jd.etms.waybill.domain.Goods;
-import com.jd.etms.waybill.domain.PackageWeigh;
-import com.jd.etms.waybill.domain.PickupTask;
-import com.jd.etms.waybill.domain.WaybillExt;
-import com.jd.etms.waybill.domain.WaybillManageDomain;
-import com.jd.etms.waybill.domain.WaybillPickup;
-import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.etms.waybill.dto.PackOpeFlowDto;
-import com.jd.etms.waybill.dto.PackageUpdateDto;
-import com.jd.etms.waybill.dto.WChoice;
-import com.jd.etms.waybill.dto.WaybillVasDto;
+import com.jd.etms.waybill.domain.*;
+import com.jd.etms.waybill.dto.*;
 import com.jd.preseparate.vo.external.AnalysisAddressResult;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
@@ -70,13 +44,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service("waybillCommonService")
@@ -483,8 +451,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                             pack.setPackageWeight(d.getGoodWeight() + "kg");
                         }
                         if (StringUtils.isNotEmpty(d.getPackageBarcode())) {
-                            String[] pcs = d.getPackageBarcode().split("[-NS]");
-                            pack.setPackSerial(Integer.valueOf(pcs[1]));
+                            pack.setPackSerial(WaybillUtil.getPackIndexByPackCode(d.getPackageBarcode()));
                         } else {
                             this.log.warn("转换包裹信息 --> 运单号：{}生成包裹号,包裹号为空",waybill.getWaybillCode());
                         }
@@ -884,9 +851,12 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         /* waybill_sign标识位，第七十九位为2，打提字标
            标位变更 ：2020-4-29
            详细见方法释义
+           2020-7-23 补 众邮单不打印【提】【店】【柜】以及自提地址
          */
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(), 79,'2') || BusinessUtil.isZiTiByWaybillSign(waybill.getWaybillSign())){
-            target.appendSpecialMark(ComposeService.SPECIAL_MARK_ARAYACAK_SITE);
+            if (!BusinessUtil.isBusinessNet(waybill.getWaybillSign())) {
+                target.appendSpecialMark(ComposeService.SPECIAL_MARK_ARAYACAK_SITE);
+            }
         }
         //waybill_sign标识位，第二十九位为8，打C字标
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(),29,'8')){

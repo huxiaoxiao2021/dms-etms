@@ -139,6 +139,10 @@ public class TextConstants {
      */
     public static final String TEXT_JZD="京准达";
     /**
+     * 预计送达时间展示，格式化
+     */
+    public static final String PROMISE_TEXT_FORMAT="配送时间：%s";
+    /**
      * KA标识
      */
     public static final String KA_FLAG = "KA";
@@ -178,6 +182,10 @@ public class TextConstants {
      * 运输模式‘特快送 同城’
      */
     public static final String EXPRESS_DELIVERY_SAME_CITY = "特快送 同城";
+    /**
+     * 无人车配送标识-车
+     */
+    public static final String WRCPS_FLAG = "车";
     /**
      * 尊
      */

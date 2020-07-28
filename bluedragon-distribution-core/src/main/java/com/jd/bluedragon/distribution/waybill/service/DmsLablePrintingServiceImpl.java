@@ -80,8 +80,10 @@ public class DmsLablePrintingServiceImpl extends AbstractLabelPrintingServiceTem
         	boolean sendPayBool = waybill.getSendPay().charAt(21)!='5';
         	boolean waybillSignBool = BusinessUtil.isZiTiByWaybillSign(waybill.getWaybillSign());
             if(sendPayBool || waybillSignBool){
-				labelPrinting.setPrintAddress("");
-				labelPrinting.appendSpecialMark(LabelPrintingService.SPECIAL_MARK_ARAYACAK_SITE);
+            	if (!BusinessUtil.isBusinessNet(waybill.getWaybillSign())) {
+					labelPrinting.setPrintAddress("");
+					labelPrinting.appendSpecialMark(LabelPrintingService.SPECIAL_MARK_ARAYACAK_SITE);
+				}
 			}
         }
         // 众包--运单 waybillSign 第 12位为 9--追打"众"字

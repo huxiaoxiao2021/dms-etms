@@ -49,4 +49,9 @@ public interface SendPayConstants {
 	int POSITION_314 = 314;
 	char CHAR_314_1 = '1';
 	char CHAR_314_2 = '2';
+	/**
+	 * 第307位,1-无人车配送
+	 */
+	int POSITION_307 = 307;
+	char CHAR_307_1 = '1';
 }

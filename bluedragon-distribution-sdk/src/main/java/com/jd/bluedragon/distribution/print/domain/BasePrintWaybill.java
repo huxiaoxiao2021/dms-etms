@@ -405,6 +405,10 @@ public class BasePrintWaybill implements Serializable {
     */
     private String promiseText ;
     /**
+    * 承诺配送信息-(C网模板展示)
+    */
+    private String promiseTextC ;
+    /**
     * 时效
     */
     private String timeCategory ;
@@ -1548,6 +1552,12 @@ public class BasePrintWaybill implements Serializable {
 	 */
 	public void setPromiseText(String promiseText) {
 		this.promiseText = promiseText;
+	}
+	public String getPromiseTextC() {
+		return promiseTextC;
+	}
+	public void setPromiseTextC(String promiseTextC) {
+		this.promiseTextC = promiseTextC;
 	}
 	/**
 	 * @return the timeCategory

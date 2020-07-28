@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.base.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.dao.DmsBaseDictDao;
 import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
 import com.jd.bluedragon.distribution.base.domain.DmsBaseDictCondition;
@@ -9,6 +10,8 @@ import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.api.PagerCondition;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -88,6 +91,7 @@ public class DmsBaseDictServiceImpl extends BaseService<DmsBaseDict> implements 
     @Cache(key = "dmsBaseDictService.queryLowerLevelListByTypeCode@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
             redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
     @Override
+	@JProfiler(jKey = "DMSWEB.DmsBaseDictServiceImpl.queryLowerLevelListByTypeCode", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public List<DmsBaseDict> queryLowerLevelListByTypeCode(Integer typeCode) {
         DmsBaseDict dmsBaseDict = this.queryRootOnlyByTypeCode(typeCode);
         if(dmsBaseDict == null){
