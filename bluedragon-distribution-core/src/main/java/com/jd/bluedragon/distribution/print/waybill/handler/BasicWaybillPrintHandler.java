@@ -453,7 +453,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             }
             if (BusinessUtil.isZiTiByWaybillSign(waybill.getWaybillSign()) || BusinessUtil.isZiTiGuiByWaybillSign(waybill.getWaybillSign())
                     || BusinessUtil.isZiTiDianByWaybillSign(waybill.getWaybillSign())) {
-                if (StringHelper.isNotEmpty(tag.getPrintAddress())) {
+                if (StringHelper.isNotEmpty(tag.getPrintAddress()) && !BusinessUtil.isBusinessNet(waybill.getWaybillSign())) {
                     waybill.setPrintAddress(tag.getPrintAddress());
                 }
             }
