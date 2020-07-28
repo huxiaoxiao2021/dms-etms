@@ -134,7 +134,7 @@ public class WeightServiceImpl implements WeightService {
             }
             goddess.setHead(MessageFormat.format("提交称重至运单:结果{0}", JsonHelper.toJson(goddessHeadList)));
 
-            Map<String, Object> map = waybillPackageManager.uploadOpe(weightJsonData.substring(1, weightJsonData.length() - 1));
+            // Map<String, Object> map = waybillPackageManager.uploadOpe(weightJsonData.substring(1, weightJsonData.length() - 1));
             // goddess.setHead(MessageFormat.format("提交称重至运单:结果{0}", JsonHelper.toJson(map)));
             this.sendMQ(weightJsonData);
 
