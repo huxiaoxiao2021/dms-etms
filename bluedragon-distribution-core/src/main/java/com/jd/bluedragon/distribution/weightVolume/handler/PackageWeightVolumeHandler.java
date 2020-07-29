@@ -149,7 +149,7 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
     private void setPackOpeSiteType(WeightVolumeEntity entity, PackOpeDto packOpeDto){
         BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByErpNoCache(entity.getOperatorCode());
         // 线上【青龙基础资料】-【数据字典】-【部门类型】
-        if (!BusinessUtil.isSortingSiteType(baseStaffByErp.getSiteType())) {
+        if (baseStaffByErp != null && !BusinessUtil.isSortingSiteType(baseStaffByErp.getSiteType())) {
             packOpeDto.setOpeType(2);
         }
     }

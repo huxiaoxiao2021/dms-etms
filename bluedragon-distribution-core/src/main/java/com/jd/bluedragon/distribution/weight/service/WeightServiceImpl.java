@@ -343,7 +343,7 @@ public class WeightServiceImpl implements WeightService {
     private int getPackOpeSiteType(Integer opeUserId){
         BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByStaffId(opeUserId);
         // 线上【青龙基础资料】-【数据字典】-【部门类型】
-        if (!BusinessUtil.isSortingSiteType(baseStaffByErp.getSiteType())) {
+        if (baseStaffByErp != null && !BusinessUtil.isSortingSiteType(baseStaffByErp.getSiteType())) {
             return OPE_TYPE_NOT_SORTING;
         }
         return OPE_TYPE_SORTING;
