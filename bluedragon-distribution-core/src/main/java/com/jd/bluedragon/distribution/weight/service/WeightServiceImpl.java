@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.api.response.WeightResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
 
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
@@ -113,6 +114,7 @@ public class WeightServiceImpl implements WeightService {
             	log.warn("doWeightTrack-fail:{}消息体：{}",weightInfo.getMessage(),taskBody);
             	return false;
             }
+            this.sendMQ(weightJsonData);
             // 增加opeType设置，单独处理传给运单逻辑
             OpeEntity opeEntity = (OpeEntity) weightInfo.getData().get(KEY_JSON_FOR_UPLOAD_WEIGHT_ENTITY);
             List<OpeEntity> opeEntityList = this.handleMultiUserOpeEntity(opeEntity);
@@ -135,11 +137,10 @@ public class WeightServiceImpl implements WeightService {
             }
             goddess.setHead(MessageFormat.format("提交称重至运单:结果{0}", JsonHelper.toJson(goddessHeadList)));
 
-            // Map<String, Object> map = waybillPackageManager.uploadOpe(weightJsonData.substring(1, weightJsonData.length() - 1));
+            /* Map<String, Object> map = waybillPackageManager.uploadOpe(weightJsonData.substring(1, weightJsonData.length() - 1));
             // goddess.setHead(MessageFormat.format("提交称重至运单:结果{0}", JsonHelper.toJson(map)));
-            this.sendMQ(weightJsonData);
 
-            /*if (map != null && map.containsKey("code") && WeightResponse.WEIGHT_TRACK_OK == Integer.parseInt(map.get("code").toString())) {
+            if (map != null && map.containsKey("code") && WeightResponse.WEIGHT_TRACK_OK == Integer.parseInt(map.get("code").toString())) {
                 if(log.isInfoEnabled()){
                     this.log.info("向运单系统回传包裹称重信息：{}", taskBody);
                     this.log.info("向运单系统回传包裹称重信息成功：{}" , JsonHelper.toJson(map));
@@ -338,7 +339,7 @@ public class WeightServiceImpl implements WeightService {
     private int getPackOpeSiteType(Integer opeUserId){
         BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByStaffId(opeUserId);
         // 线上【青龙基础资料】-【数据字典】-【部门类型】
-        if (baseStaffByErp.getSiteType() != 64) {
+        if (!BusinessUtil.isSortingSiteType(baseStaffByErp.getSiteType())) {
             return 2;
         }
         return 1;

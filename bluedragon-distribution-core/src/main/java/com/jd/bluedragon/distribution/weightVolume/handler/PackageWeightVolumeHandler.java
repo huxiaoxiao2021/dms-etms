@@ -15,6 +15,7 @@ import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -148,7 +149,7 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
     private void setPackOpeSiteType(WeightVolumeEntity entity, PackOpeDto packOpeDto){
         BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByErpNoCache(entity.getOperatorCode());
         // 线上【青龙基础资料】-【数据字典】-【部门类型】
-        if (baseStaffByErp.getSiteType() != 64) {
+        if (!BusinessUtil.isSortingSiteType(baseStaffByErp.getSiteType())) {
             packOpeDto.setOpeType(2);
         }
     }
