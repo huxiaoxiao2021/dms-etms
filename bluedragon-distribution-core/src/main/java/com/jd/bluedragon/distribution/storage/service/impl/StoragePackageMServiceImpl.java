@@ -312,14 +312,9 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
             sendKYStorageMQ(putawayDTO);
         }
 
-        boolean qpcWaybill = StorageSourceEnum.QPC_STORAGE.getCode().equals(putawayDTO.getStorageSource());
-        if (qpcWaybill) {
-            updateWaybillStatus(putawayDTO, isWaybillCode, dto);
-        }
-        else {
-            // 15500 暂存上架状态
-            updateWaybillStatusOfKYZC(putawayDTO,true);
-        }
+        // 15500 暂存上架状态
+        // 8410 企配仓上架状态，和金鹏订单共用一个状态码
+        updateWaybillStatusOfKYZC(putawayDTO,true);
 
         return true;
     }
@@ -1295,6 +1290,9 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
         status.setPackageCode(putawayDTO.getBarCode());
         status.setOperateTime(new Date(putawayDTO.getOperateTime()));
         status.setOperator(putawayDTO.getOperatorErp());
+
+        boolean qpcWaybill = null != putawayDTO.getStorageSource() && StorageSourceEnum.QPC_STORAGE.getCode().equals(putawayDTO.getStorageSource());
+
         if(isPutAway){
             status.setRemark("分拣中心上架");
             status.setOperateType(WaybillStatus.WAYBILL_STATUS_PUTAWAY_STORAGE_KYZC);
@@ -1303,9 +1301,15 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
             status.setOperateType(WaybillStatus.WAYBILL_STATUS_DOWNAWAY_STORAGE_KYZC);
 
             // 企配仓暂存下架
-            if (null != putawayDTO.getStorageSource() && StorageSourceEnum.QPC_STORAGE.getCode().equals(putawayDTO.getStorageSource())) {
+            if (qpcWaybill) {
                 status.setOperateType(WaybillStatus.WAYBILL_INTERNAL_TRACK_OFF_SHELF);
             }
+        }
+        // 企配仓订单上架发全程跟踪，不更新运单状态
+        if (isPutAway && qpcWaybill) {
+            tTask.setKeyword2(String.valueOf(WaybillStatus.WAYBILL_OPE_TYPE_PUTAWAY));
+            status.setRemark("分拣中心上架");
+            status.setOperateType(WaybillStatus.WAYBILL_OPE_TYPE_PUTAWAY);
         }
         status.setCreateSiteCode(putawayDTO.getCreateSiteCode());
         tTask.setBody(JsonHelper.toJson(status));

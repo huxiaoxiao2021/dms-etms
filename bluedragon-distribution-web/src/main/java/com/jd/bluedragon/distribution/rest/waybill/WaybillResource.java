@@ -2435,8 +2435,6 @@ public class WaybillResource {
             if (log.isWarnEnabled()) {
                 log.warn("获取三方单号的对应的京东包裹号为空. req:[{}]", JsonHelper.toJson(request));
             }
-            result.customMessage(InvokeResult.RESULT_NULL_CODE, InvokeResult.RESULT_NULL_MESSAGE);
-            return result;
         }
 
         result.setData(packageCode);
