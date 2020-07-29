@@ -82,6 +82,10 @@ public class WeightServiceImpl implements WeightService {
     @Autowired
     private BaseMajorManager baseMajorManager;
 
+    private static final int OPE_TYPE_SORTING = 1;
+
+    private static final int OPE_TYPE_NOT_SORTING = 2;
+
     private static final Type WAYBILL_WEIGHT=new TypeToken<List<OpeEntity>>(){}.getType();
 
     public boolean doWeightTrack(Task task) {
@@ -313,24 +317,24 @@ public class WeightServiceImpl implements WeightService {
         // 按人分组查询所属站点类型，合并相同类型opeType的数据
         for (Integer opeUserId : opeDetailsGBUserId.keySet()){
             int packOpeSiteType = this.getPackOpeSiteType(opeUserId);
-            if(packOpeSiteType == 1){
+            if(packOpeSiteType == OPE_TYPE_SORTING){
                 opeDetailsSiteType1List.addAll(opeDetailsGBUserId.get(opeUserId));
             }
-            if(packOpeSiteType == 2){
+            if(packOpeSiteType == OPE_TYPE_NOT_SORTING){
                 opeDetailsSiteType2List.addAll(opeDetailsGBUserId.get(opeUserId));
             }
         }
         // 生成两个类型的entity
         OpeEntity opeEntitySiteType1 = new OpeEntity();
-        opeEntitySiteType1.setOpeType(1);
+        opeEntitySiteType1.setOpeType(OPE_TYPE_SORTING);
         opeEntitySiteType1.setOpeDetails(opeDetailsSiteType1List);
         opeEntitySiteType1.setWaybillCode(opeEntity.getWaybillCode());
         opeEntityList.add(opeEntitySiteType1);
 
         OpeEntity opeEntitySiteType2 = new OpeEntity();
-        opeEntitySiteType1.setOpeType(2);
-        opeEntitySiteType1.setOpeDetails(opeDetailsSiteType2List);
-        opeEntitySiteType1.setWaybillCode(opeEntity.getWaybillCode());
+        opeEntitySiteType2.setOpeType(OPE_TYPE_NOT_SORTING);
+        opeEntitySiteType2.setOpeDetails(opeDetailsSiteType2List);
+        opeEntitySiteType2.setWaybillCode(opeEntity.getWaybillCode());
         opeEntityList.add(opeEntitySiteType2);
 
         return opeEntityList;
@@ -340,9 +344,9 @@ public class WeightServiceImpl implements WeightService {
         BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByStaffId(opeUserId);
         // 线上【青龙基础资料】-【数据字典】-【部门类型】
         if (!BusinessUtil.isSortingSiteType(baseStaffByErp.getSiteType())) {
-            return 2;
+            return OPE_TYPE_NOT_SORTING;
         }
-        return 1;
+        return OPE_TYPE_SORTING;
     }
 
     /**
