@@ -353,6 +353,10 @@ public class Constants {
      */
     public static final int TIME_SECONDS_ONE_WEEK = 7*TIME_SECONDS_ONE_DAY;
     /**
+     * 时间：15天的秒数
+     */
+    public static final int TIME_SECONDS_FIFTEEN_DAY = 15*TIME_SECONDS_ONE_DAY;
+    /**
      * 时间：一月的秒数
      */
     public static final int TIME_SECONDS_ONE_MONTH = 30*TIME_SECONDS_ONE_DAY;

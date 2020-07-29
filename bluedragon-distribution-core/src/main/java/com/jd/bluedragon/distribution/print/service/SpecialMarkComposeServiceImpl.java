@@ -137,5 +137,9 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
         if(BusinessUtil.isC2CJZD(waybill.getWaybillSign())){
             waybill.appendSpecialMark(TextConstants.TEXT_JZD_SPECIAL_MARK);
         }
+        //Sendpay第307位=1，面单打印“车”标记
+        if(BusinessUtil.isWrcps(waybill.getSendPay())){
+            waybill.appendSpecialMark(TextConstants.WRCPS_FLAG);
+        }        
     }
 }
