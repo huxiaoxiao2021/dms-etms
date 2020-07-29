@@ -108,6 +108,7 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
         packOpeDetail.setLongPackage(entity.getLongPackage());
         packOpeDto.setOpeDetails(Collections.singletonList(packOpeDetail));
         try {
+            logger.info("PackageWeightVolumeHandler handlerWeighVolume uploadOpe param: " + JsonHelper.toJson(packOpeDto));
             Map<String, Object> resultMap = waybillPackageManager.uploadOpe(JsonHelper.toJson(packOpeDto));
             if (resultMap != null && resultMap.containsKey("code")
                     && WeightResponse.WEIGHT_TRACK_OK == Integer.parseInt(resultMap.get("code").toString())) {

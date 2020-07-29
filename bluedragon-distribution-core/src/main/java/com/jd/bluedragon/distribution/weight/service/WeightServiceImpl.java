@@ -118,6 +118,7 @@ public class WeightServiceImpl implements WeightService {
             List<OpeEntity> opeEntityList = this.handleMultiUserOpeEntity(opeEntity);
             List<Map<String, Object>> goddessHeadList = new ArrayList<>();
             for (OpeEntity opeEntityTemp : opeEntityList){
+                log.info("WeightServiceImpl.doWeightTrack uploadOpe param: " + JsonHelper.toJson(opeEntityTemp));
                 Map<String, Object> waybillResultMap = waybillPackageManager.uploadOpe(JsonHelper.toJson(opeEntityTemp));
                 goddessHeadList.add(waybillResultMap);
                 if (waybillResultMap != null && waybillResultMap.containsKey("code") && WeightResponse.WEIGHT_TRACK_OK == Integer.parseInt(waybillResultMap.get("code").toString())) {
