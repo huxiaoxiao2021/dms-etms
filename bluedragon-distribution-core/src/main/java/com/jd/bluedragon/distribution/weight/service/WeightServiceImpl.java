@@ -30,6 +30,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheKeyGenerator;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.type.JavaType;
 import org.slf4j.Logger;
@@ -325,17 +326,21 @@ public class WeightServiceImpl implements WeightService {
             }
         }
         // 生成两个类型的entity
-        OpeEntity opeEntitySiteType1 = new OpeEntity();
-        opeEntitySiteType1.setOpeType(OPE_TYPE_SORTING);
-        opeEntitySiteType1.setOpeDetails(opeDetailsSiteType1List);
-        opeEntitySiteType1.setWaybillCode(opeEntity.getWaybillCode());
-        opeEntityList.add(opeEntitySiteType1);
+        if(CollectionUtils.isNotEmpty(opeDetailsSiteType1List)){
+            OpeEntity opeEntitySiteType1 = new OpeEntity();
+            opeEntitySiteType1.setOpeType(OPE_TYPE_SORTING);
+            opeEntitySiteType1.setOpeDetails(opeDetailsSiteType1List);
+            opeEntitySiteType1.setWaybillCode(opeEntity.getWaybillCode());
+            opeEntityList.add(opeEntitySiteType1);
+        }
 
-        OpeEntity opeEntitySiteType2 = new OpeEntity();
-        opeEntitySiteType2.setOpeType(OPE_TYPE_NOT_SORTING);
-        opeEntitySiteType2.setOpeDetails(opeDetailsSiteType2List);
-        opeEntitySiteType2.setWaybillCode(opeEntity.getWaybillCode());
-        opeEntityList.add(opeEntitySiteType2);
+        if(CollectionUtils.isNotEmpty(opeDetailsSiteType2List)){
+            OpeEntity opeEntitySiteType2 = new OpeEntity();
+            opeEntitySiteType2.setOpeType(OPE_TYPE_NOT_SORTING);
+            opeEntitySiteType2.setOpeDetails(opeDetailsSiteType2List);
+            opeEntitySiteType2.setWaybillCode(opeEntity.getWaybillCode());
+            opeEntityList.add(opeEntitySiteType2);
+        }
 
         return opeEntityList;
     }
