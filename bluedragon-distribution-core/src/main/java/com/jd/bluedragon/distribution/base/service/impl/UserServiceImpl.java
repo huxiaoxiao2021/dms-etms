@@ -42,6 +42,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -633,5 +634,9 @@ public class UserServiceImpl implements UserService{
 	    	}
 		}
 		return runningMode;
+	}
+	@Override
+	public String getServerRunningMode() {
+		return this.runningMode;
 	}
 }
