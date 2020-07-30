@@ -1,5 +1,31 @@
 package com.jd.bluedragon.distribution.rest.waybill;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DataAccessException;
+import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
+
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
 import com.jd.bd.dms.automatic.sdk.modules.areadest.AreaDestJsfService;
 import com.jd.bd.dms.automatic.sdk.modules.areadest.dto.AreaDestJsfRequest;
@@ -30,6 +56,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.cross.domain.CrossSortingDto;
 import com.jd.bluedragon.distribution.cross.service.CrossSortingService;
 import com.jd.bluedragon.distribution.eclpPackage.service.EclpPackageApiService;
@@ -45,11 +72,25 @@ import com.jd.bluedragon.distribution.receive.service.ReceiveWeightCheckService;
 import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
 import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
 import com.jd.bluedragon.distribution.reverse.domain.TwiceExchangeCheckDto;
+import com.jd.bluedragon.distribution.reverse.domain.TwiceExchangeRequest;
+import com.jd.bluedragon.distribution.reverse.domain.TwiceExchangeResponse;
+import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
 import com.jd.bluedragon.distribution.saf.WaybillSafResponse;
 import com.jd.bluedragon.distribution.saf.WaybillSafService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
-import com.jd.bluedragon.distribution.waybill.domain.*;
+import com.jd.bluedragon.distribution.waybill.domain.BaseResponseIncidental;
+import com.jd.bluedragon.distribution.waybill.domain.CancelFeatherLetterRequest;
+import com.jd.bluedragon.distribution.waybill.domain.InspectionNoCollectionResult;
+import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
+import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionCondition;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionException;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionQueryTypeEnum;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionRangeEnum;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionRequest;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionResult;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
 import com.jd.bluedragon.distribution.waybill.service.WaybillNoCollectionInfoService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
@@ -86,30 +127,6 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.dao.DataAccessException;
-import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
-
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
 
 @Component
 @Path(Constants.REST_URL)
@@ -204,7 +221,9 @@ public class WaybillResource {
 
     @Autowired
     private LdopWaybillUpdateManager ldopWaybillUpdateManager;
-
+    @Autowired
+    private ReversePrintService reversePrintService;
+    
     /**
      * 根据运单号获取运单包裹信息接口
      *
@@ -1738,6 +1757,15 @@ public class WaybillResource {
             return invokeResult;
         }
 		try {
+			//二次换单，校验是否超过次数限制
+			if(Boolean.TRUE.equals(request.getTwiceExchangeFlag())){
+				JdResult<Boolean> checkResult = reversePrintService.checkTwiceExchange(request.getWaybillCode());
+				if(!checkResult.isSucceed()){
+		            invokeResult.setCode(InvokeResult.SERVER_ERROR_CODE);
+		            invokeResult.setMessage(checkResult.getMessage());
+		            return invokeResult;
+				}
+			}
 			WaybillReverseDTO waybillReverseDTO = ldopManager.makeWaybillReverseDTOCanTwiceExchange(request);
 			StringBuilder errorMessage = new StringBuilder();
 			WaybillReverseResult waybillReverseResult = ldopManager.waybillReverse(waybillReverseDTO,errorMessage);
@@ -1794,7 +1822,16 @@ public class WaybillResource {
 		}
         return invokeResult;
 	}
-
+	/**
+	 * 获取二次换单信息
+	 * @param waybillCode
+	 * @return
+	 */
+	@POST
+	@Path("/waybill/exchange/getTwiceExchangeInfo")
+	public JdResult<TwiceExchangeResponse> getTwiceExchangeInfo(TwiceExchangeRequest twiceExchangeRequest){
+		return reversePrintService.getTwiceExchangeInfo(twiceExchangeRequest);
+	}
 	/**
 	 * 二次换单检查
 	 * @param waybillCode

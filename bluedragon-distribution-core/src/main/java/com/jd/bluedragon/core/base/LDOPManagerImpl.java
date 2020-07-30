@@ -1,8 +1,9 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
@@ -16,9 +17,14 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.eclp.bbp.notice.domain.dto.BatchImportDTO;
+import com.jd.eclp.core.ApiResponse;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.fastjson.JSONObject;
+import com.jd.ldop.business.api.BackAddressInfoApi;
+import com.jd.ldop.business.api.dto.request.BackAddressDTO;
+import com.jd.ldop.business.api.dto.response.ResponseStatus;
 import com.jd.ldop.center.api.ResponseDTO;
 import com.jd.ldop.center.api.print.WaybillPrintApi;
 import com.jd.ldop.center.api.print.dto.PrintResultDTO;
@@ -40,6 +46,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,6 +71,8 @@ public class LDOPManagerImpl implements LDOPManager {
     public static final int RETURN_TYPE_3 = 3;
     public static final int RETURN_TYPE_4 = 4;
     public static final int RETURN_TYPE_5 = 5;
+    
+    private static final String UMP_KEY_PREFIX = "dmsWeb.jsf.client.ldop.";
 
     @Autowired
     private LogEngine logEngine;
@@ -96,7 +105,10 @@ public class LDOPManagerImpl implements LDOPManager {
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
-
+    @Autowired
+    @Qualifier("obcsManager")
+    private BackAddressInfoApi backAddressInfoApi;
+    
     private final Logger log = LoggerFactory.getLogger(LDOPManagerImpl.class);
     /**
      * 触发外单逆向换单接口
@@ -465,7 +477,29 @@ public class LDOPManagerImpl implements LDOPManager {
         return waybillReturnSignatureApi.queryReturnSignatureMessage(waybillCode);
     }
 
-
+	@Override
+	public JdResult<List<BackAddressDTO>> queryBackAddressByType(Integer backType,String busiCode) {
+    	CallerInfo callerInfo = ProfilerHelper.registerInfo(UMP_KEY_PREFIX + "backAddressInfoApi.queryBackAddressByType");
+		JdResult<List<BackAddressDTO>> result = new JdResult<List<BackAddressDTO>>();
+		try {
+			com.jd.ldop.business.api.dto.response.Response<List<BackAddressDTO>>   rpcResult = backAddressInfoApi.queryBackAddressByType(backType, busiCode, null, null);
+			if(rpcResult != null
+					&& ResponseStatus.SUCCESS.equals(rpcResult.getStatus())){
+				result.setData(rpcResult.getResult());
+				result.toSuccess();
+			}else{
+				log.warn("调用ldop获取退货地址接口失败！return:{}",JsonHelper.toJson(rpcResult));
+				result.toFail("调用ldop获取退货地址接口失败！");
+			}
+		} catch (Exception e) {
+			log.error("调用ldop获取退货地址接口异常！",e);
+			result.toError("调用ldop获取退货地址接口异常！");
+			Profiler.functionError(callerInfo);
+		}finally{
+			Profiler.registerInfoEnd(callerInfo);
+		}
+		return result;
+	}
     /**
      * 记录日志
      *

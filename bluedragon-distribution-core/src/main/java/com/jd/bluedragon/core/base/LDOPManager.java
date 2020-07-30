@@ -1,7 +1,9 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
+import com.jd.ldop.business.api.dto.request.BackAddressDTO;
 import com.jd.ldop.center.api.ResponseDTO;
 import com.jd.ldop.center.api.print.dto.WaybillPrintDataDTO;
 import com.jd.ldop.center.api.reverse.dto.ReturnSignatureMessageDTO;
@@ -100,4 +102,11 @@ public interface LDOPManager {
      * @return
      */
     String queryWaybillCodeByOrderIdAndCustomerCode(Integer busiId,String busiCode);
+    /**
+     * 根据退货类型和商家编码获取退货地址信息
+     * @param backType 退货类型
+     * @param busiCode 商家编码
+     * @return
+     */
+	JdResult<List<BackAddressDTO>> queryBackAddressByType(Integer backType,String busiCode);
 }

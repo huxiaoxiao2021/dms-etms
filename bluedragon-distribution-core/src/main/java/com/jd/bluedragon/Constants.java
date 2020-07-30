@@ -671,7 +671,7 @@ public class Constants {
     public static final String DMS_WEB_COLLECT_REPORT="DMS_WEB_COLLECT_REPORT";  //集货报表
     public static final String DMS_WEB_RECYCLE_MATERIAL_SCAN_R = "DMS_WEB_RECYCLE_MATERIAL_SCAN_R"; //循环物资扫描查询
     public static final String DMS_WEB_EDN_PICKING_R = "DMS_WEB_EDN_PICKING_R"; //企配仓揽收
-
+    public static final String DMS_BUSINESS_RETURN_ADRESS_R = "DMS_BUSINESS_RETURN_ADRESS_R"; //商家二次换单地址查询
     /********************************************* 研发UIM权限资源码相关start ***********************************************/
     public static final String DMS_WEB_DEVELOP_REDIS_R ="DMS_WEB_DEVELOP_REDIS_R"; //分拣缓存查询
     public static final String DMS_WEB_DEVELOP_TASK_R ="DMS_WEB_DEVELOP_TASK_R"; //分拣任务监控

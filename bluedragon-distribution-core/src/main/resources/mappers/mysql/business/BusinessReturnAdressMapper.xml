@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.business.dao.BusinessReturnAdressDao" >
+
+	<resultMap id="BusinessReturnAdress" type="com.jd.bluedragon.distribution.business.entity.BusinessReturnAdress" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="dms_site_code" property="dmsSiteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="dms_site_name" property="dmsSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="business_id" property="businessId" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="business_code" property="businessCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="business_name" property="businessName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="last_notice_time" property="lastNoticeTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="last_operate_time" property="lastOperateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="return_adress_status" property="returnAdressStatus" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		id,dms_site_code,dms_site_name,business_id,business_code,business_name,
+		last_notice_time,last_operate_time,return_adress_status,create_time,yn,
+		ts
+	</sql>
+
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.business.entity.BusinessReturnAdress" useGeneratedKeys="true" keyProperty="id">
+		insert into business_return_adress
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null" >
+					id,
+				</if>
+				<if test="dmsSiteCode != null" >
+					dms_site_code,
+				</if>
+				<if test="dmsSiteName != null" >
+					dms_site_name,
+				</if>
+				<if test="businessId != null" >
+					business_id,
+				</if>
+				<if test="businessCode != null" >
+					business_code,
+				</if>				
+				<if test="businessName != null" >
+					business_name,
+				</if>
+				<if test="lastNoticeTime != null" >
+					last_notice_time,
+				</if>
+				<if test="lastOperateTime != null" >
+					last_operate_time,
+				</if>
+				<if test="returnAdressStatus != null" >
+					return_adress_status,
+				</if>
+				<if test="createTime != null" >
+					create_time,
+				</if>
+				<if test="yn != null" >
+					yn,
+				</if>
+				<if test="ts != null" >
+					ts,
+				</if>
+			</trim>
+			)
+			values
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null" >
+					#{id,jdbcType=BIGINT},
+				</if>
+				<if test="dmsSiteCode != null" >
+					#{dmsSiteCode,jdbcType=INTEGER},
+				</if>
+				<if test="dmsSiteName != null" >
+					#{dmsSiteName,jdbcType=VARCHAR},
+				</if>
+				<if test="businessId != null" >
+					#{businessId,jdbcType=INTEGER},
+				</if>
+				<if test="businessCode != null" >
+					#{businessCode,jdbcType=VARCHAR},
+				</if>				
+				<if test="businessName != null" >
+					#{businessName,jdbcType=VARCHAR},
+				</if>
+				<if test="lastNoticeTime != null" >
+					#{lastNoticeTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="lastOperateTime != null" >
+					#{lastOperateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="returnAdressStatus != null" >
+					#{returnAdressStatus,jdbcType=TINYINT},
+				</if>
+				<if test="createTime != null" >
+					#{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="yn != null" >
+					#{yn,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null" >
+					#{ts,jdbcType=TIMESTAMP},
+				</if>
+			</trim>
+			)
+	</insert>
+
+	<update id="update" parameterType="com.jd.bluedragon.distribution.business.entity.BusinessReturnAdress">
+		update business_return_adress
+			<set>
+				<if test="id != null" >
+					id = #{id,jdbcType=BIGINT},
+				</if>
+				<if test="dmsSiteCode != null" >
+					dms_site_code = #{dmsSiteCode,jdbcType=INTEGER},
+				</if>
+				<if test="dmsSiteName != null" >
+					dms_site_name = #{dmsSiteName,jdbcType=VARCHAR},
+				</if>
+				<if test="businessId != null" >
+					business_id = #{businessId,jdbcType=INTEGER},
+				</if>
+				<if test="businessCode != null" >
+					business_code = #{businessCode,jdbcType=VARCHAR},
+				</if>				
+				<if test="businessName != null" >
+					business_name = #{businessName,jdbcType=VARCHAR},
+				</if>
+				<if test="lastNoticeTime != null" >
+					last_notice_time = #{lastNoticeTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="lastOperateTime != null" >
+					last_operate_time = #{lastOperateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="returnAdressStatus != null" >
+					return_adress_status = #{returnAdressStatus,jdbcType=TINYINT},
+				</if>
+				<if test="createTime != null" >
+					create_time = #{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="yn != null" >
+					yn = #{yn,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null" >
+					ts = #{ts,jdbcType=TIMESTAMP},
+				</if>
+			</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteById" parameterType="java.lang.Long">
+		update business_return_adress
+			set yn = 0
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<select id="queryById" parameterType="java.lang.Long" resultMap="BusinessReturnAdress">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			business_return_adress t
+		where yn = 1 and id = #{id,jdbcType=BIGINT}
+	</select>
+	<select id="queryBusinessReturnAdressByBusiId" parameterType="java.lang.Long" resultMap="BusinessReturnAdress">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			business_return_adress t
+		where yn = 1 
+		    and business_id = #{businessId,jdbcType=BIGINT}
+		    order by last_operate_time desc
+		  limit 1
+	</select>	
+
+	<select id="queryListByConditionWithPage" parameterType="java.util.Map" resultMap="BusinessReturnAdress">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			business_return_adress t
+		<include refid="where_condition"/>
+		limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+	</select>
+	<select id="pageNum_queryListByConditionWithPage" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
+		select 
+		 count(1) as num
+		from 
+		  business_return_adress 
+        <include refid="where_condition"/>
+	</select>
+	<sql id="where_condition">
+		<where>
+                yn = 1 
+            and return_adress_status = 0
+		<if test="scheduleTimeGte != null" >
+			and last_operate_time >= #{lastOperateTimeGte,jdbcType=TIMESTAMP}
+		</if>
+		<if test="scheduleTimeLt != null" >
+			and last_operate_time &lt; #{lastOperateTimeLt,jdbcType=TIMESTAMP}
+		</if>
+		</where>
+	</sql>
+</mapper>

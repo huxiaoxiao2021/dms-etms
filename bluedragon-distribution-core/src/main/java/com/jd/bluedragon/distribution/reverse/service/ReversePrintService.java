@@ -3,7 +3,10 @@ package com.jd.bluedragon.distribution.reverse.service;
 import com.jd.bluedragon.common.domain.RepeatPrint;
 import com.jd.bluedragon.distribution.api.request.ReversePrintRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.message.OwnReverseTransferDomain;
+import com.jd.bluedragon.distribution.reverse.domain.TwiceExchangeRequest;
+import com.jd.bluedragon.distribution.reverse.domain.TwiceExchangeResponse;
 
 
 /**
@@ -48,4 +51,16 @@ public interface ReversePrintService {
      * @return
      */
     InvokeResult<Boolean> checkWayBillForExchange(String wayBillCode, Integer siteCode);
+    /**
+     * 获取二次换单信息
+     * @param twiceExchangeRequest
+     * @return
+     */
+    JdResult<TwiceExchangeResponse> getTwiceExchangeInfo(TwiceExchangeRequest twiceExchangeRequest);
+    /**
+     * 校验能否二次换单
+     * @param twiceExchangeRequest
+     * @return
+     */
+    JdResult<Boolean> checkTwiceExchange(String waybillCode);  
 }
