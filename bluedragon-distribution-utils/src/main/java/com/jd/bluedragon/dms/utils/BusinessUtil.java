@@ -1568,4 +1568,19 @@ public class BusinessUtil {
     public static boolean isWrcps(String sendPay) {
         return isSignChar(sendPay, SendPayConstants.POSITION_307, SendPayConstants.CHAR_307_1);
     }
+
+    /**
+     * 判断站点是否为分拣中心类型
+     * @param siteType 站点类型
+     * @return boolean
+     */
+    public static boolean isSortingSiteType(Integer siteType) {
+        if(null == siteType){
+            return true;
+        }
+        if(SORTING_SITE_TYPE_LIST.contains(siteType)) {
+            return true;
+        }
+        return false;
+    }
 }
