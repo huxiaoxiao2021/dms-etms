@@ -302,6 +302,12 @@
         <property name="timeout" value="1000"/>
     </bean>
 
+    <!--外单靑流箱绑定MQ-->
+    <bean id="dmsCycleBoxBindNotice" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dms.cyclebox.bind.notice}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
     <!--封车mq-->
     <bean id="sealCarProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.sealCar}"/>
