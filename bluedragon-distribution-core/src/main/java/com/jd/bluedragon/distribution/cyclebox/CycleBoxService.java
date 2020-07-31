@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.cyclebox;
 
 import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
+import com.jd.bluedragon.distribution.api.request.OrderBindMessageRequest;
 import com.jd.bluedragon.distribution.api.request.RecyclableBoxRequest;
 import com.jd.bluedragon.distribution.api.request.WaybillCodeListRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -62,6 +63,13 @@ public interface CycleBoxService {
      * @return
      */
     InvokeResult boxMaterialRelationAlter(BoxMaterialRelationRequest request);
+
+  /**
+   * 外单靑流箱绑定发MQ
+   * @param request
+   * @return
+   */
+    InvokeResult cycleBoxBindToWD(OrderBindMessageRequest request) throws Exception;
 
 
 }
