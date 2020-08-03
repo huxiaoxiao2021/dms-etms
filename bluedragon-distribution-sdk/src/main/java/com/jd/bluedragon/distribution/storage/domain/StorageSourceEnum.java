@@ -16,7 +16,8 @@ import java.util.Map;
 public enum StorageSourceEnum {
 
     JP_STORAGE(1,"金鹏暂存"),
-    KY_STORAGE(2,"快运暂存");
+    KY_STORAGE(2,"快运暂存"),
+    QPC_STORAGE(3, "企配仓暂存");
     private Integer code;
     private String name;
     private static Map<Integer, StorageSourceEnum> codeMap;
