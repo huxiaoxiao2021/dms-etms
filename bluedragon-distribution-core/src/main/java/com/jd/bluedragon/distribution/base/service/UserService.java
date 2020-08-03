@@ -54,4 +54,6 @@ public interface UserService {
 	 * @return
 	 */
 	JdResult<DmsClientHeartbeatResponse> sendHeartbeat(DmsClientHeartbeatRequest dmsClientHeartbeatRequest);
+
+    String getServerRunningMode();
 }

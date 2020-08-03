@@ -189,6 +189,12 @@ public class UserServiceImpl implements UserService{
                 && runningMode.contains(RUNNING_MODE_UAT) && !Objects.equals(runningMode,sysconfRunningMode);
     }
 
+
+    @Override
+    public String getServerRunningMode() {
+        return this.runningMode;
+    }
+
     /**
 	 *
 	 * @param response
