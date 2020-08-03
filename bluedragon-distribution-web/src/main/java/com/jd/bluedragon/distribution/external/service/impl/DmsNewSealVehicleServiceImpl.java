@@ -12,10 +12,8 @@ import com.jd.bluedragon.distribution.rest.seal.NewSealVehicleResource;
 import com.jd.bluedragon.distribution.rest.seal.SealBoxResource;
 import com.jd.bluedragon.distribution.rest.seal.SealVehicleResource;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
-import com.jd.etms.vos.dto.CommonDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -113,17 +111,17 @@ public class DmsNewSealVehicleServiceImpl implements DmsNewSealVehicleService {
     @Override
     @JProfiler(jKey = "DMSWEB.DmsNewSealVehicleServiceImpl.checkSendCodeIsSealed", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public boolean checkSendCodeIsSealed(String sendCode) {
-        if(StringUtils.isEmpty(sendCode)){
-            return false;
-        }
+//        if(StringUtils.isEmpty(sendCode)){
+//            return false;
+//        }
         if (newSealVehicleService.getSealCarTimeBySendCode(sendCode) != null) {
             return true;
         }
-        CommonDto<Boolean> commonDto = newSealVehicleService.isBatchCodeHasSealed(sendCode);
-        if(commonDto != null && commonDto.getCode() == CommonDto.CODE_SUCCESS
-                && commonDto.getData() != null){
-            return commonDto.getData();
-        }
+//        CommonDto<Boolean> commonDto = newSealVehicleService.isBatchCodeHasSealed(sendCode);
+//        if(commonDto != null && commonDto.getCode() == CommonDto.CODE_SUCCESS
+//                && commonDto.getData() != null){
+//            return commonDto.getData();
+//        }
         return false;
     }
 
