@@ -107,13 +107,19 @@ public class JssServiceImpl implements JssService {
 
     @Override
     public String uploadImage(String bucket, byte[] bytes) {
+        return uploadFile(bucket, bytes, "jpg");
+    }
+
+    @Override
+    public String uploadFile(String bucket, byte[] bytes, String extName) {
+        if(bytes == null) {
             if(bytes == null) {
                 log.info("上传的参数为空");
                 return null;
             }
             ByteArrayInputStream inStream = new ByteArrayInputStream(bytes);
             try {
-            String key = UUID.randomUUID().toString() + ".jpg";
+                String key = UUID.randomUUID().toString() + "." + extName;
                 JingdongStorageService jss = jssStorageClient.getStorageService();
 
                 jss.bucket(bucket).object(key).entity(bytes.length, inStream).put();
@@ -123,7 +129,30 @@ public class JssServiceImpl implements JssService {
             } catch (Exception e) {
                 log.error("异常上行处理异常:", e);
             }
-            return null;
+
         }
+        return null;
+    }
+    /**
+     * 是否存在bucket
+     *
+     * @param bucket
+     * @return
+     */
+    public boolean hasBucket(String bucket) {
+        JingdongStorageService jss = jssStorageClient.getStorageService();
+        return jss.hasBucket(bucket);
+    }
+
+    /**
+     * 创建bucket
+     *
+     * @param bucket
+     * @return
+     */
+    public void createBucket(String bucket) {
+        JingdongStorageService jss = jssStorageClient.getStorageService();
+        jss.bucket(bucket).create();
+    }
 
 }
