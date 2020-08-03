@@ -168,6 +168,7 @@
 				<ref bean="businessNetInterceptHandler"/>
                 <ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
+				<ref bean="cycleBoxBindToWaiDanHandler"/>
             </list>
         </property>
     </bean>

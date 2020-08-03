@@ -1288,7 +1288,8 @@ public class WaybillResource {
 					PackOpeDto packOpeDto = new PackOpeDto();
 					packOpeDtoList.add(packOpeDto);
 					packOpeDto.setWaybillCode(editWeightRequest.getWaybillCode());
-					packOpeDto.setOpeType(1);
+					// 增加按用户所属站点类型来传值，放置在task执行体中去做
+					// packOpeDto.setOpeType(1);
 					List<PackOpeDetail> packOpeDetailList = new ArrayList<PackOpeDetail>();
 					PackOpeDetail packOpeDetail = new PackOpeDetail();
 					packOpeDetail.setPackageCode(editWeightRequest.getPackageBarcode());
