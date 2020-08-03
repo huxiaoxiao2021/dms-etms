@@ -443,4 +443,16 @@
 		where transport_code = #{transportCode,jdbcType=VARCHAR} and vehicle_number = #{vehicleNumber,jdbcType=VARCHAR}
 		and is_delete = 0 and status = 0
 	</update>
+
+	<select id="getPreSealInfoByParams" parameterType="java.util.Map" resultMap="PreSealVehicle">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		pre_seal_vehicle
+		where transport_code = #{transportCode,jdbcType=VARCHAR}
+		<if test="vehicleNumber != null">
+			and vehicle_number = #{vehicleNumber,jdbcType=VARCHAR}
+		</if>
+		and is_delete = 0 and status = 0
+	</select>
 </mapper>

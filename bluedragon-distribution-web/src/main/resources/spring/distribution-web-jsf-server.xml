@@ -203,4 +203,12 @@
                   alias="${dms.jsf.alias}"
                   ref="dmsBoxQueryService" server="dmsjsf">
     </jsf:provider>
+
+    <!--  一键封车jsf：分拣工作台调用     -->
+    <jsf:provider id="dmsSealVehicleServiceJsf"
+                  interface="com.jd.bluedragon.distribution.sealVehicle.DmsSealVehicleService"
+                  alias="${dms.jsf.alias}"
+                  ref="dmsSealVehicleService" server="dmsjsf">
+    </jsf:provider>
+
 </beans>
