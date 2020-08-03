@@ -117,6 +117,7 @@ $(function () {
         };
         return oTableInit;
     };
+    var formStartDateStr = '';
     var pageInit = function () {
         var oInit = new Object();
         var startTimeControl;
@@ -131,41 +132,40 @@ $(function () {
                 type: 'datetime',
                 btns: ['now', 'confirm'],
                 done: function(value, date, endDate){
-
                 }
             });
-            getLaydateOptions =function(ele, initValue, valueReceiver) {
-                return
-            }
             endTimeControl= $.datePicker.createNew({
                 elem: '#endTime',
                 theme: '#3f92ea',
                 type: 'datetime',
                 btns: ['now', 'confirm'],
-                done: function(value, date, endDate){
+                done: function(value, date){
                 }
             });
 
             //查询
             $('#btn_query').click(function () {
-                if($("#endTime").val()==""){
-                    alert("请选择结束时间");
-                    return ;
-                }
+                /*重置表单验证状态*/
+                var endTimeStr = $("#endTime").val();
+                if (!endTimeStr || endTimeStr == '') return layer.msg('请选择结束时间');
                 var oneDay=1000 * 60 * 60 * 24;
                 var startTimeStr=$("#startTime").val();
                 var startDate = new Date(startTimeStr.replace('-', '/'));
-                var endDate = new Date($("#endTime").val().replace('-', '/'));
-                var days = parseInt((endDate.getTime() - startDate.getTime()) / (oneDay));
-                if(days>7){
-                    alert("选择时间不能超过7天");
-                    return;
-                    //$("#endTime").val("");
-                    //endTimeControl.config.value="";
-                    //$.datePicker.setValue("endTime","");
-                    //$.datePicker.createNew(getLaydateOptions());
+                var endDate = new Date(endTimeStr.replace('-', '/'));
+                console.log(startDate, endDate);
+                if ((startDate.getTime() - endDate.getTime()) > 0) {
+                    return layer.msg("开始时间不能超过结束时间");
+                }
+                var days = parseInt((endDate.getTime() - startDate.getTime()) / oneDay);
+                if (days > 7) {
+                    return layer.msg('查询天数不可超过7天');
                 }
                 tableInit().refresh();
+            });
+
+            //查看导出任务
+            $('#btn_to_export').click(function () {
+                window.location.href="/waybillCodeCheckForKA/toSearchExportTaskIndex";
             });
 
             //返回
@@ -182,6 +182,9 @@ $(function () {
     function initExport(tableInit) {
         $('#btn_export').click(function () {
             var params = tableInit.getSearchCondition();
+            // 先请求校验，用现有参数
+            return reqCheckExport(params);
+            // 再请求导出，用现有参数
             var form = $("<form method='post'></form>"),
                 input;
             form.attr({"action": exportUrl});
@@ -196,6 +199,61 @@ $(function () {
             form.submit();
             document.body.removeChild(form[0]);
         });
+    }
+
+    // 请求校验导出是否超限制
+    function reqCheckExport(data) {
+        var loadingIndex = layer.load('请稍候...');
+        $.ajax({
+            url: '/waybillCodeCheckForKA/exortCheck',
+            type: 'POST',
+            dataType: 'json',
+            data: JSON.stringify(data),
+            contentType:"application/json",
+            success: function (result) {
+                layer.close(loadingIndex);
+                if (result && result.succeed) {
+                    // 校验成功了，请求导出接口
+                    layer.close(loadingIndex);
+                    reqExportData(data);
+                } else {
+                    layer.close(loadingIndex);
+                    // 校验失败了，提示信息
+                    layer.msg(result.message)
+                }
+            },
+            error: function (e) {
+                layer.close(loadingIndex);
+                layer.msg('网络繁忙');
+            }
+        })
+    }
+
+    // 请求导出
+    function reqExportData(data) {
+        var loadingIndex = layer.load('请稍候...');
+        $.ajax({
+            url: '/waybillCodeCheckForKA/toExport',
+            type: 'POST',
+            dataType: 'json',
+            data: data,
+            success: function (result) {
+                layer.close(loadingIndex);
+                if (result && result.code == 200) {
+                    // 校验成功了，请求导出接口
+                    layer.close(loadingIndex);
+                    layer.msg('导出任务创建成功，请稍候点击[查看导出任务]查看');
+                } else {
+                    layer.close(loadingIndex);
+                    // 校验失败了，提示信息
+                    layer.msg(result.message)
+                }
+            },
+            error: function (e) {
+                layer.close(loadingIndex);
+                layer.msg('网络繁忙');
+            }
+        })
     }
 
     initSelect();
