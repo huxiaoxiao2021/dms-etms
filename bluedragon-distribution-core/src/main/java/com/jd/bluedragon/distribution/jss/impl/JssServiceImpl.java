@@ -107,51 +107,23 @@ public class JssServiceImpl implements JssService {
 
     @Override
     public String uploadImage(String bucket, byte[] bytes) {
-        return uploadFile(bucket, bytes, "jpg");
-    }
+            if(bytes == null) {
+                log.info("上传的参数为空");
+                return null;
+            }
+            ByteArrayInputStream inStream = new ByteArrayInputStream(bytes);
+            try {
+            String key = UUID.randomUUID().toString() + ".jpg";
+                JingdongStorageService jss = jssStorageClient.getStorageService();
 
-    @Override
-    public String uploadFile(String bucket, byte[] bytes, String extName) {
-        if (bytes == null) {
-        if(bytes == null) {
-            log.info("上传的参数为空");
+                jss.bucket(bucket).object(key).entity(bytes.length, inStream).put();
+                inStream.close();
+                URI uri = jss.bucket(bucket).object(key).generatePresignedUrl(315360000);
+                return uri.toString();
+            } catch (Exception e) {
+                log.error("异常上行处理异常:", e);
+            }
             return null;
         }
-        ByteArrayInputStream inStream = new ByteArrayInputStream(bytes);
-        try {
-            String key = UUID.randomUUID().toString() + "." + extName;
-            JingdongStorageService jss = jssStorageClient.getStorageService();
-
-            jss.bucket(bucket).object(key).entity(bytes.length, inStream).put();
-            inStream.close();
-            URI uri = jss.bucket(bucket).object(key).generatePresignedUrl(315360000);
-            return uri.toString();
-        } catch (Exception e) {
-            log.error("异常上行处理异常:", e);
-        }
-        return null;
-    }
-
-    /**
-     * 是否存在bucket
-     *
-     * @param bucket
-     * @return
-     */
-    public boolean hasBucket(String bucket) {
-        JingdongStorageService jss = jssStorageClient.getStorageService();
-        return jss.hasBucket(bucket);
-    }
-
-    /**
-     * 创建bucket
-     *
-     * @param bucket
-     * @return
-     */
-    public void createBucket(String bucket) {
-        JingdongStorageService jss = jssStorageClient.getStorageService();
-        jss.bucket(bucket).create();
-    }
 
 }
