@@ -22,6 +22,7 @@ import com.jd.ldop.business.api.dto.request.BackAddressDTO;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.ql.dms.print.utils.StringHelper;
 
 /**
  * @ClassName: BusinessReturnAdressServiceImpl
@@ -68,13 +69,14 @@ public class BusinessReturnAdressServiceImpl extends BaseService<BusinessReturnA
 			int rowNum = 1;
 			for(BusinessReturnAdress row : result.getRows()){
 				row.setRowNum(rowNum ++);
+				loadReturnAdressStatusDesc(row);
 				List<Object> body = new ArrayList<Object>();
 				body.add(row.getRowNum());
 				body.add(row.getDmsSiteName());
+				body.add(DateHelper.formatDateTime(row.getLastOperateTime()));
 				body.add(row.getBusinessId());
 				body.add(row.getBusinessName());
-				body.add(DateHelper.formatDateTime(row.getLastOperateTime()));
-				loadReturnAdressStatusDesc(row);
+				body.add(row.getReturnAdressStatusDesc());
 				resList.add(body);
 			}
 		}
@@ -83,6 +85,15 @@ public class BusinessReturnAdressServiceImpl extends BaseService<BusinessReturnA
 
 	@Override
 	public PagerResult<BusinessReturnAdress> queryBusinessReturnAdressListByPagerCondition(BusinessReturnAdressCondition businessReturnAdressCondition) {
+		if(businessReturnAdressCondition != null){
+			//设置调度时间条件
+			if(StringHelper.isNotEmpty(businessReturnAdressCondition.getLastOperateTimeGteStr())){
+				businessReturnAdressCondition.setLastOperateTimeGte(DateHelper.parseAllFormatDateTime(businessReturnAdressCondition.getLastOperateTimeGteStr()));
+			}
+			if(StringHelper.isNotEmpty(businessReturnAdressCondition.getLastOperateTimeLtStr())){
+				businessReturnAdressCondition.setLastOperateTimeLt(DateHelper.parseAllFormatDateTime(businessReturnAdressCondition.getLastOperateTimeLtStr()));
+			}
+		}
 		PagerResult<BusinessReturnAdress> result = this.businessReturnAdressDao.queryListByConditionWithPage(businessReturnAdressCondition);
 		if(result != null 
 				&& result.getRows() != null){

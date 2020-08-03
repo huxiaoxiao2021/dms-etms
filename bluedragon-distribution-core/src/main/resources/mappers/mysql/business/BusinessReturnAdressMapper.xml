@@ -179,7 +179,7 @@
 		select
 			<include refid="Base_Column_List"/>
 		from
-			business_return_adress t
+			business_return_adress
 		<include refid="where_condition"/>
 		limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
 	</select>
@@ -194,10 +194,10 @@
 		<where>
                 yn = 1 
             and return_adress_status = 0
-		<if test="scheduleTimeGte != null" >
+		<if test="lastOperateTimeGte != null" >
 			and last_operate_time >= #{lastOperateTimeGte,jdbcType=TIMESTAMP}
 		</if>
-		<if test="scheduleTimeLt != null" >
+		<if test="lastOperateTimeLt != null" >
 			and last_operate_time &lt; #{lastOperateTimeLt,jdbcType=TIMESTAMP}
 		</if>
 		</where>

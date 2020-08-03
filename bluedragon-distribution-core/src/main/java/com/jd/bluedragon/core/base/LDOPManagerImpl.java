@@ -106,7 +106,7 @@ public class LDOPManagerImpl implements LDOPManager {
     @Autowired
     private WaybillQueryManager waybillQueryManager;
     @Autowired
-    @Qualifier("obcsManager")
+    @Qualifier("backAddressInfoApi")
     private BackAddressInfoApi backAddressInfoApi;
     
     private final Logger log = LoggerFactory.getLogger(LDOPManagerImpl.class);

@@ -180,6 +180,11 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 	@Value("${beans.ReversePrintServiceImpl.noticeContent}")
     private String noticeContent;
     /**
+     * 退货地址维护通知-跳转链接
+     */
+	@Value("${beans.ReversePrintServiceImpl.noticeHandleLink}")
+    private String noticeHandleLink;
+    /**
      * 二次换单限制次数
      */
 	@Value("${beans.ReversePrintServiceImpl.twiceExchangeMaxTimes}")
@@ -625,8 +630,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 		JdResult<TwiceExchangeResponse> jdResult = new JdResult<TwiceExchangeResponse>();
 		jdResult.toSuccess();
 		if(twiceExchangeRequest == null 
-				|| StringHelper.isEmpty(twiceExchangeRequest.getWaybillCode())
-				|| StringHelper.isEmpty(twiceExchangeRequest.getUserErp())){
+				|| StringHelper.isEmpty(twiceExchangeRequest.getWaybillCode())){
 			jdResult.toFail("请求参数无效！");
 			return jdResult;
 		}
@@ -655,7 +659,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 			}else{
 				twiceExchangeResponse.setReturnDestinationTypes("011");
 				//获取商家退货地址
-				JdResult<BackAddressDTO> backInfo = getBackInfoAndNotice(busiId);
+				JdResult<BackAddressDTO> backInfo = getBackInfoAndNotice(busiId,twiceExchangeRequest.getDmsSiteCode(),twiceExchangeRequest.getDmsSiteName());
 				
 				if(backInfo != null 
 						&& backInfo.isSucceed() 
@@ -685,7 +689,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 	 * @param busiId
 	 * @return
 	 */
-	private JdResult<BackAddressDTO> getBackInfoAndNotice(Integer busiId){
+	private JdResult<BackAddressDTO> getBackInfoAndNotice(Integer busiId,Integer dmsSiteCode,String dmsSiteName){
 		JdResult<BackAddressDTO> jdResult = new JdResult<BackAddressDTO>();
 		jdResult.toSuccess();
         //调用外单接口，根据商家id获取商家编码
@@ -725,6 +729,8 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 			boolean needNotice = false;
 			if(businessReturnAdress == null){
 				businessReturnAdress = new BusinessReturnAdress();
+				businessReturnAdress.setDmsSiteCode(dmsSiteCode);
+				businessReturnAdress.setDmsSiteName(dmsSiteName);
 				businessReturnAdress.setBusinessId(busiId);
 				businessReturnAdress.setBusinessCode(busiCode);
 				businessReturnAdress.setBusinessName(busiName);
@@ -740,6 +746,10 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 				if(date.after(businessReturnAdress.getLastNoticeTime())){
 					needNotice = true;
 				}
+				businessReturnAdress.setDmsSiteCode(dmsSiteCode);
+				businessReturnAdress.setDmsSiteName(dmsSiteName);
+				businessReturnAdress.setLastOperateTime(currentDate);
+				businessReturnAdressService.update(businessReturnAdress);
 			}
 			//需要发站内信通知
 			if(needNotice){
@@ -750,7 +760,9 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 				noticeInfo.setKey(noticeKey);
 				noticeInfo.setTitle(noticeTitle);
 				noticeInfo.setContent(noticeContent);
+				noticeInfo.setHandleLink(noticeHandleLink);
 				noticeInfo.setReceivers(busiCode);
+				noticeInfo.setPostTime(currentDate);
 				eclpImportServiceManager.batchImport(noticeInfo);
 			}
 		}

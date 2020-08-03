@@ -1,8 +1,5 @@
 package com.jd.bluedragon.core.jsf.eclp;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,12 +8,10 @@ import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.schedule.vo.DmsEdnBatchVo;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.eclp.bbp.notice.domain.dto.BatchImportDTO;
 import com.jd.eclp.bbp.notice.open.ImportService;
 import com.jd.eclp.core.ApiResponse;
-import com.jd.ka.edn.sdk.dto.DeliveryReceiptResDto;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 

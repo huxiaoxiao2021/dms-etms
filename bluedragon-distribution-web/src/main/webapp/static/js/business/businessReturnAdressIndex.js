@@ -16,8 +16,8 @@ $(function() {
 				uniqueId : "ID", // 每一行的唯一标识，一般为主键列
 				pagination : true, // 是否显示分页（*）
 				pageNumber : 1, // 初始化加载第一页，默认第一页
-				pageSize : 10, // 每页的记录行数（*）
-				pageList : [ 10, 25, 50, 100 ], // 可供选择的每页的行数（*）
+				pageSize : 100, // 每页的记录行数（*）
+				pageList : [ 10, 25, 50, 100 ,500 ], // 可供选择的每页的行数（*）
 				cache : false, // 是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
 				sidePagination : "server", // 分页方式：client客户端分页，server服务端分页（*）
 				striped : true, // 是否显示行间隔色
@@ -140,72 +140,6 @@ $(function() {
 		    	}
 		    	tableInit().refresh();
 			});
-			$('#btn_add').click(function() {
-			    $('.edit-param').each(function () {
-			    	var _k = this.id;
-			        if(_k){
-			        	$(this).val('');
-			        }
-			    });
-			    $('#edit-form #typeGroup').val(null).trigger('change');
-			    $('#edit-form #parentId').val(null).trigger('change');
-				$('#dataTableDiv').hide();
-				$('#dataEditDiv').show();
-			});
-			// 修改操作
-			$('#btn_edit').click(function() {
-				var rows = $('#dataTable').bootstrapTable('getSelections');
-				if (rows.length > 1) {
-					alert("修改操作，只能选择一条数据");
-					return;
-				}
-				if (rows.length == 0) {
-					alert("请选择一条数据");
-					return;
-				}
-			    $.ajaxHelper.doPostSync(detailUrl+rows[0].id,null,function(res){
-			    	if(res&&res.succeed&&res.data){
-					    $('.edit-param').each(function () {
-					    	var _k = this.id;
-					        var _v = res.data[_k];
-					        if(_k){
-					        	if(_v != null && _v != undefined){
-						        	$(this).val(_v);
-						        }else{
-						        	$(this).val('');
-						        }
-					        } 
-					    });
-			    	}
-			    });
-				$('#dataTableDiv').hide();
-				$('#dataEditDiv').show();
-			});
-
-			// 删
-			$('#btn_delete').click(function() {
-				var rows = $('#dataTable').bootstrapTable('getSelections');
-				if (rows.length < 1) {
-					alert("错误，未选中数据");
-					return;
-				}
-				var flag = confirm("是否删除这些数据?");
-				if (flag == true) {
-					var params = [];
-					for(var i in rows){
-						params.push(rows[i].id);
-				    };
-					$.ajaxHelper.doPostSync(deleteUrl,JSON.stringify(params),function(res){
-				    	if(res&&res.succeed&&res.data){
-				    		alert('操作成功,删除'+res.data+'条。');
-				    		tableInit().refresh();
-				    	}else{
-				    		alert('操作异常！');
-				    	}
-				    });
-				}
-			});
-
             $("#btn_export").on("click",function(e){
 		    	if(!checkQueryParams()){
 		    		return;
@@ -228,31 +162,6 @@ $(function() {
                 document.body.removeChild(form[0]);
 
             });
-
-			$('#btn_submit').click(function() {
-				var params = {};
-				$('.edit-param').each(function () {
-			    	var _k = this.id;
-			        var _v = $(this).val();
-			        if(_k && _v){
-			        	params[_k]=_v;
-			        }
-			    });
-				$.ajaxHelper.doPostSync(saveUrl,JSON.stringify(params),function(res){
-			    	if(res&&res.succeed){
-			    		alert('操作成功');
-			    		tableInit().refresh();
-			    	}else{
-			    		alert('操作异常');
-			    	}
-			    });
-				$('#dataEditDiv').hide();
-				$('#dataTableDiv').show();
-			});	
-			$('#btn_return').click(function() {
-				$('#dataEditDiv').hide();
-				$('#dataTableDiv').show();
-			});		
 		};
 		return oInit;
 	};
@@ -272,104 +181,4 @@ function checkQueryParams(){
 		return false;
 	}	
 	return true;
-}
-function printPdf(pdfUrl){
-	window.open(pdfUrl);
-}
-function printEdnPickingList(scheduleBillCode,event){
-    //获取明细
-    var queryDUrl = '/schedule/dmsScheduleInfo/printEdnPickingList/'+scheduleBillCode;
-	var param = {};
-    $.ajaxHelper.doPostSync(queryDUrl,
-		JSON.stringify(param),
-			function(data){
-        if(data.code == 200){
-        	printPdf(data.data);
-        }else{
-            alert(data.message);
-        }        
-    });
-    event.stopPropagation();
-}
-function printEdnDeliveryReceipt(scheduleBillCode,event){
-    //获取明细
-    var queryDUrl = '/schedule/dmsScheduleInfo/printEdnDeliveryReceipt/'+scheduleBillCode;
-    $("#deliveryReceiptDetailTbody").html("<tr><td colspan='5'>努力加载中...</td></tr>");
-    $('#printEdnDeliveryReceipt').modal("show");
-	var param = {};
-    $.ajaxHelper.doPostSync(queryDUrl,
-		JSON.stringify(param),
-			function(data){
-        var tableBodyHtml = "";
-        if(data.code == 200){
-            if(data.data.length == 0){
-            	tableBodyHtml = "<tr><td colspan='5'>未获取到明细数据</td></tr>";
-            }
-            for(var i = 0 ; i<data.data.length ; i++ ){
-                var pojo = data.data[i];
-                tableBodyHtml += "<tr><td width=\"25%\">"+pojo.ednBatchNum+"</td>";
-                tableBodyHtml += "<td width=\"25%\">"+'<a href="#" class="show-storage-view" onclick="printPdf(\''+pojo.deliveryReceiptUrl+'\',event)">'+'打印</a>'+"</td>";
-                tableBodyHtml += "</tr>";
-
-            }
-        }else{
-        	tableBodyHtml = "<tr><td colspan='6'>"+data.message+"</td></tr>";
-        }        
-        $("#deliveryReceiptDetailTbody").html(tableBodyHtml);
-    });
-    event.stopPropagation();
-}
-function showView(scheduleBillCode,event){
-    //获取明细
-    var queryDUrl = '/schedule/dmsScheduleInfo/queryEdnPickingVo/'+scheduleBillCode;
-	$("#scheduleBillCodeView").text('');
-	$("#carrierNameView").text('');
-	$("#lastOperateTimeView").text('');
-    $("#scheduleInfoTbody").html("<tr><td colspan='5'>努力加载中...</td></tr>");
-    $("#operateLogTbody").html("<tr><td colspan='5'>努力加载中...</td></tr>");
-    $('#viewModal').modal("show");
-	var param = {};
-    $.ajaxHelper.doPostSync(queryDUrl,
-		JSON.stringify(param),
-			function(data){
-
-        var tbodyHtml = "";
-        var tlogBodyHtml = "";
-        if(data.code == 200){
-        	
-        	$("#scheduleBillCodeView").text(data.data.scheduleBillCode);
-        	$("#carrierNameView").text(data.data.carrierName);
-        	$("#lastOperateTimeView").text($.dateHelper.formatDateTime(new Date(data.data.lastOperateTime)));
-            if(data.data.dmsScheduleInfoList.length == 0){
-                tbodyHtml = "<tr><td colspan='5'>未获取到明细数据</td></tr>";
-            }
-            for(var i = 0 ; i<data.data.dmsScheduleInfoList.length ; i++ ){
-                var pojo = data.data.dmsScheduleInfoList[i];
-                tbodyHtml += "<tr><td width=\"25%\">"+pojo.rowNum+"</td>";
-                tbodyHtml += "<td width=\"25%\">"+pojo.businessBatchCode+"</td>";
-                tbodyHtml += "<td width=\"50%\">"+pojo.waybillCode+"</td>";
-                tbodyHtml += "</tr>";
-
-            }
-            if(data.data.dmsEdnOperateLogList.length == 0){
-            	tlogBodyHtml = "<tr><td colspan='5'>未获取到明细数据</td></tr>";
-            }
-            for(var i = 0 ; i<data.data.dmsEdnOperateLogList.length ; i++ ){
-                var pojo = data.data.dmsEdnOperateLogList[i];
-                tlogBodyHtml += "<tr><td width=\"25%\">"+pojo.operateTime+"</td>";
-                tlogBodyHtml += "<td width=\"25%\">"+pojo.operateUser+"</td>";
-                tlogBodyHtml += "<td width=\"50%\">"+pojo.operateContent+"</td>";
-                tlogBodyHtml += "</tr>";
-
-            }
-        }else{
-            tbodyHtml = "<tr><td colspan='6'>"+data.message+"</td></tr>";
-        }
-
-        $("#scheduleInfoTbody").html(tbodyHtml);
-        
-        $("#operateLogTbody").html(tlogBodyHtml);
-        
-    });
-    event.stopPropagation();
 }
