@@ -411,11 +411,6 @@
         <property name="topic" value="${jmq.topic.railway.sendRegist.Cost.fxm}"/>
     </bean>
     <!-- 银行卡运单号校验 -->
-    <bean id="waybillCodeCheckMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.waybill.check.exportlog}"/>
-        <property name="timeout" value="1000"/>
-    </bean>
-    <!-- 银行卡运单号校验 -->
     <bean id="waybillCodeCheckMQ" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.waybill.check.exportlog}"/>
         <property name="timeout" value="1000"/>
