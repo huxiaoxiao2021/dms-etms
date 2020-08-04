@@ -735,19 +735,16 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         	}
         }else{
             //C网货款
-            //货款：waybillSign 货款大于0时，25位为2或3时显示【货到付款】，25位不为2且不为3时显示应收金额，
-            //货款等于0时，显示0
+            //货款：货款大于0时，满足在线支付时显示【在线支付】，否则显示【货到付款￥】
+        	//货款：货款等于0时，则货款位置不显示
             if(NumberHelper.gt0(waybill.getCodMoney())){
-                if(BusinessUtil.isSignInChars(waybill.getWaybillSign(),25,'2','3')){
-                    goodsPaymentText = TextConstants.GOODS_PAYMENT_COD;
+                if (ComposeService.ONLINE_PAYMENT_SIGN.equals(waybill.getPayment())) {
+                    goodsPaymentText = TextConstants.GOODS_PAYMENT_ONLINE;
                 }else{
-                    goodsPaymentText = "￥"+ waybill.getCodMoney();
-                    if (ComposeService.ONLINE_PAYMENT_SIGN.equals(waybill.getPayment())) {
-                        goodsPaymentText = TextConstants.GOODS_PAYMENT_ONLINE;
-                    }
+                	goodsPaymentText = TextConstants.GOODS_PAYMENT_COD;
                 }
             } else{
-                goodsPaymentText = "0";
+                goodsPaymentText = "";
             }
         }
         target.setFreightText(freightText);
