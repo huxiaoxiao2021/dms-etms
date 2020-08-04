@@ -6,6 +6,10 @@ import com.jd.bluedragon.distribution.exportlog.dao.ExportLogDao;
 import com.jd.bluedragon.distribution.exportlog.domain.ExportLog;
 import com.jd.bluedragon.distribution.exportlog.domain.ExportLogCondition;
 import com.jd.bluedragon.distribution.exportlog.service.ExportLogService;
+
+import com.jd.bluedragon.distribution.financialForKA.service.impl.WaybillCodeCheckServiceImpl;
+import com.jd.bluedragon.distribution.jss.JssService;
+
 import com.jd.bluedragon.distribution.financialForKA.domain.WaybillCodeCheckDto;
 import com.jd.bluedragon.distribution.financialForKA.service.impl.WaybillCodeCheckServiceImpl;
 import com.jd.bluedragon.distribution.jss.JssService;
@@ -71,11 +75,11 @@ public class ExportLogServiceImpl implements ExportLogService {
     @Override
     public Integer delete(Long id) {
         ExportLog exportLog = exportLogDao.getById(id);
-        if(exportLog!=null) {
+        if(exportLog != null) {
             try {
                 jssService.deleteFile(bucket, exportLog.getExportCode());
-            }catch (Exception ex){
-                log.error("删除导出运单号校验记录失败",ex);
+            } catch (Exception ex) {
+                log.error("删除导出运单号校验记录失败,id:{}",id, ex);
             }
         }
         return exportLogDao.delete(id);

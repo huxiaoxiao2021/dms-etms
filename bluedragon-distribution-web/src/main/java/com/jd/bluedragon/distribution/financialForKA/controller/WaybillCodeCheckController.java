@@ -13,9 +13,7 @@ import com.jd.bluedragon.distribution.financialForKA.domain.WaybillCodeCheckCond
 import com.jd.bluedragon.distribution.financialForKA.domain.WaybillCodeCheckDto;
 import com.jd.bluedragon.distribution.financialForKA.service.WaybillCodeCheckService;
 import com.jd.bluedragon.distribution.jss.JssService;
-import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
-import com.jd.bluedragon.distribution.web.view.ExcelWriter;
-import com.jd.bluedragon.distribution.web.view.MutiSheetExcelView;
+
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.domain.JdResponse;
@@ -31,10 +29,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
@@ -66,21 +64,16 @@ public class WaybillCodeCheckController extends DmsBaseController {
         heads.add("操作时间");
     }
 
+
     @Autowired
     private WaybillCodeCheckService waybillCodeCheckService;
 
-    @Autowired
-    private ExportLogService exportLogService;
 
-    @Autowired
-    private JssService jssService;
-    @Value("${jss.waybillcheck.export.zip.bucket}")
-    private String bucket;
     @Autowired
     @Qualifier("jimdbCacheService")
     private CacheService jimdbCacheService;
 
-    @Value("${waybillcheck.export.maxNum}")
+    @Value("${waybillcheck.export.maxNum:300000}")
     private Integer exportMaxNum;
 
     /**
@@ -122,6 +115,17 @@ public class WaybillCodeCheckController extends DmsBaseController {
         return "/financialForKA/financialForKAsearch";
     }
 
+    /**
+     * 跳转导出明细查看页面
+     *
+     * @return
+     */
+    @Authorization(Constants.DMS_WEB_TOOL_WAYBILLCODECHECK_R)
+    @RequestMapping("/toSearchExportTaskIndex")
+    public String toSearchExportTaskIndex() {
+        return "/financialForKA/searchExportTask";
+    }
+
 
     /**
      * 获取明细
@@ -135,17 +139,6 @@ public class WaybillCodeCheckController extends DmsBaseController {
         return waybillCodeCheckService.listData(condition);
     }
 
-    /**
-     * 获取导出任务列表
-     *
-     * @return
-     */
-    @Authorization(Constants.DMS_WEB_TOOL_WAYBILLCODECHECK_R)
-    @RequestMapping("/exportLogList")
-    @ResponseBody
-    public PagerResult<ExportLog> listData(@RequestBody ExportLogCondition condition) {
-        return exportLogService.listData(condition);
-    }
 
     /**
      * 导出校验
@@ -157,7 +150,7 @@ public class WaybillCodeCheckController extends DmsBaseController {
     public @ResponseBody
     JdResponse<String> exortCheck(@RequestBody KaCodeCheckCondition condition) {
         LoginUser loginUser = getLoginUser();
-        String exportCode = loginUser.getUserErp() + DateHelper.formatDate(new Date(), "yyyyMMddHHmm");
+        String exportCode = loginUser.getUserErp() + DateHelper.formatDate(new Date(), "yyyyMMddHHmm")+".zip";
         JdResponse<String> rest = new JdResponse<String>();
         String repeatExport = jimdbCacheService.get(exportCode);
         if(!com.jd.bk.common.util.string.StringUtils.isBlank(repeatExport)) {
@@ -189,9 +182,6 @@ public class WaybillCodeCheckController extends DmsBaseController {
     public InvokeResult toExportNew(KaCodeCheckCondition condition, Model model) {
         LoginUser loginUser = getLoginUser();
         InvokeResult invokeResult = new InvokeResult();
-        exportLogService.delete(7L);
-        ExportLogCondition condition2=new ExportLogCondition();
-        PagerResult<ExportLog>  exportLogs= exportLogService.listData(condition2);
         String result = waybillCodeCheckService.exportApply(loginUser, condition);
         if(StringUtils.isBlank(result)) {
             invokeResult.setCode(InvokeResult.RESULT_SUCCESS_CODE);
@@ -203,72 +193,7 @@ public class WaybillCodeCheckController extends DmsBaseController {
         return invokeResult;
     }
 
-    /**
-     * 下载文件
-     *
-     * @param fileName
-     * @param response
-     * @param request
-     */
-    @RequestMapping(value = "/downLoadFile")
-    public void downLoad(@RequestParam("fileName") String fileName, HttpServletResponse response, HttpServletRequest request) {
-        response.setContentType("multipart/form-data");
-        response.setHeader("Content-Disposition", "attachment;filename=" + fileName);
-        try {
-            InputStream inputStream = jssService.downloadFile(bucket, fileName);
-            IOUtils.copy(inputStream, response.getOutputStream());
-        } catch (Exception e) {
-            log.info("下载运单号校验导出记录失败", e);
-        }
-    }
 
-    /**
-     * 删除文件
-     *
-     * @return
-     */
-    @Authorization(Constants.DMS_WEB_TOOL_WAYBILLCODECHECK_R)
-    @RequestMapping(value = "/deleteFile", method = RequestMethod.POST)
-    @ResponseBody
-    public InvokeResult deleteFile(Long id) {
-        InvokeResult invokeResult = new InvokeResult();
-        try {
-            exportLogService.delete(id);
-            invokeResult.setCode(InvokeResult.RESULT_SUCCESS_CODE);
-            invokeResult.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
-        } catch (Exception ex) {
-            invokeResult.setCode(InvokeResult.SERVER_ERROR_CODE);
-            invokeResult.setMessage("删除失败");
-            log.error("删除文件失败", ex);
-        }
-        return invokeResult;
-    }
 
-    /**
-     * 导出
-     *
-     * @return
-     */
-    @Authorization(Constants.DMS_WEB_TOOL_WAYBILLCODECHECK_R)
-    @RequestMapping(value = "/toExportOld", method = RequestMethod.POST)
-    @Deprecated
-    public ModelAndView toExportOld(KaCodeCheckCondition condition, Model model) {
-        LoginUser loginUser = getLoginUser();
-        log.info("KA条码对比校验操作记录统计表");
-        List<List<Object>> resultList;
-        try {
-            model.addAttribute("filename", "KA条码对比校验操作记录统计表.xls");
-            model.addAttribute("sheetname", "KA条码对比校验操作记录");
-            resultList = waybillCodeCheckService.getExportData(condition);
-        } catch (Exception e) {
-            log.error("导出KA条码对比校验操作记录统计表失败:", e);
-            List<Object> list = new ArrayList<>();
-            list.add("导出KA条码对比校验操作记录统计表失败!");
-            resultList = new ArrayList<>();
-            resultList.add(list);
-        }
-        model.addAttribute("contents", resultList);
-        return new ModelAndView(new MutiSheetExcelView(heads), model.asMap());
-    }
 
 }

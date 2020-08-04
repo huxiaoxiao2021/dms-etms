@@ -51,4 +51,11 @@ public interface WaybillCodeCheckService {
      * @return
      */
     Integer queryCountByCondition(KaCodeCheckCondition condition);
+
+    /**
+     * 获取数据
+     * @param condition
+     * @param resList
+     */
+     void getWaybillCodeCheckDTOList(KaCodeCheckCondition condition, List<List<Object>> resList);
 }

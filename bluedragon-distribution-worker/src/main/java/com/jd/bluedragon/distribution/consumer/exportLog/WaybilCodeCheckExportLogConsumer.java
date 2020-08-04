@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.consumer.exportLog;
 
 import IceInternal.Ex;
+import com.alibaba.fastjson.JSON;
 import com.google.common.io.FileBackedOutputStream;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -19,10 +20,7 @@ import com.jd.bluedragon.distribution.financialForKA.service.WaybillCodeCheckSer
 import com.jd.bluedragon.distribution.jss.JssService;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.enums.ExportLogStateEnum;
-import com.jd.bluedragon.utils.CsvExportUtil;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
@@ -30,6 +28,7 @@ import com.jd.fastjson.JSONObject;
 import com.jd.jmq.common.message.Message;
 import com.jd.ldop.utils.CollectionUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
@@ -68,6 +67,17 @@ public class WaybilCodeCheckExportLogConsumer extends MessageBaseConsumer {
 
     @Value("${jss.waybillcheck.export.zip.bucket}")
     private String bucket;
+
+    /**
+     * 每个csv存储条数
+     */
+    private static final Integer PER_CSV_NUM = 50000;
+
+    @Value("${waybillcheck.export.maxNum}")
+    private Integer maxNum;
+    /**
+     * csv表头
+     */
     public static List<Object> heads = new ArrayList<Object>();
 
     static {
@@ -110,29 +120,184 @@ public class WaybilCodeCheckExportLogConsumer extends MessageBaseConsumer {
             exportLog.setExportCode(message.getBusinessId());
             exportLog.setStatus(ExportLogStateEnum.DOING.getValue());
             exportLogService.update(exportLog);
-            List<List<Object>> exportDataList = waybillCodeCheckService.getExportData(kaCodeCheckCondition);
-            uploadJss(exportDataList, message.getBusinessId());
+            //List<List<Object>> exportDataList = waybillCodeCheckService.getExportData(kaCodeCheckCondition);
+            //uploadJss(message.getBusinessId());
+            uploadJss(message.getBusinessId(),kaCodeCheckCondition);
             ExportLog exportLogSuccess = new ExportLog();
             exportLogSuccess.setExportCode(message.getBusinessId());
             exportLogSuccess.setStatus(ExportLogStateEnum.SUCCESS.getValue());
             exportLogService.update(exportLogSuccess);
-        }catch (Exception ex){
+        } catch (Exception ex) {
             ExportLog exportLogSuccess = new ExportLog();
             exportLogSuccess.setExportCode(message.getBusinessId());
             exportLogSuccess.setStatus(ExportLogStateEnum.FAIL.getValue());
-            String errorMessage=ex.getMessage();
-            if(StringUtils.isNotBlank(ex.getMessage())){
-                if(ex.getMessage().length()>2000){
-                    errorMessage=ex.getMessage().substring(0,2000);
+            String errorMessage = ex.getMessage();
+            if(StringUtils.isNotBlank(ex.getMessage())) {
+                if(ex.getMessage().length() > 2000) {
+                    errorMessage = ex.getMessage().substring(0, 2000);
                 }
             }
             exportLogSuccess.setMessage(errorMessage);
             exportLogService.update(exportLogSuccess);
-            this.log.error("waybilCodeCheckExportLogConsumer consume -->message.businessId:",message.getBusinessId(),ex);
-            throw ex;
+            this.log.error("waybilCodeCheckExportLogConsumer consume -->message.businessId:", message.getBusinessId(), ex);
+            //throw ex;
         }
     }
 
+    /**
+     * 将多个csv转换成ByteArrayOutputStream
+     *
+     * @return
+     * @throws Exception
+     */
+    private <T> ByteArrayOutputStream mutiCsvToByteArrayOutputStream2(String csvFileName, KaCodeCheckCondition kaCodeCheckCondition) throws Exception {
+        InputStream fis = null;
+        ZipOutputStream zipOut = null;
+        ByteArrayOutputStream bos = null;
+        try {
+            if(StringUtils.isNotBlank(csvFileName)&&csvFileName.contains(".zip")){
+                csvFileName=csvFileName.replace(".zip","");
+            }
+            bos = new ByteArrayOutputStream();
+            zipOut = new ZipOutputStream(bos);
+            //记录csv文件索引
+            int csvIndex = 0;
+            List<List<Object>> tempList = new ArrayList<>();
+            //累计内存中导出的条数 ，达到50000条则写入csv并加入zip包
+            Integer exportNum = 0;
+            Integer offSet = 0;
+
+            while(true) {
+                if(offSet>maxNum){
+                    return bos;
+                }
+                List<List<Object>> list = new ArrayList<>();
+                kaCodeCheckCondition.setOffset(offSet);
+                kaCodeCheckCondition.setLimit(20000);
+                waybillCodeCheckService.getWaybillCodeCheckDTOList(kaCodeCheckCondition, list);
+                log.info("导出获取数据中，{}", JSON.toJSONString(list));
+                if(CollectionUtils.isEmpty(list) && !CollectionUtils.isEmpty(tempList)) {
+                    tempList.add(0, heads);
+                    String content = buildCsvString(tempList);
+                    if(!StringUtils.isBlank(content)) {
+                        fis = new ByteArrayInputStream(content.getBytes("GB2312"));
+                        zipFile(fis, zipOut, csvFileName + "-" + (csvIndex + 1) + ".csv");
+                        csvIndex++;
+                    }
+                    return bos;
+                }
+                if(CollectionUtils.isEmpty(list) && CollectionUtils.isEmpty(tempList)) {
+                    return bos;
+                }
+                offSet = offSet + list.size();
+                exportNum = exportNum + list.size();
+                //内存中超过50000则写入csv，不超过50000条继续从数据库拉取
+                if(exportNum >= PER_CSV_NUM) {
+                    List<List<Object>>  subContent=new ArrayList<>();
+                    tempList.addAll(list);
+                    subContent= tempList.subList(0,PER_CSV_NUM);
+                    subContent.add(0,heads);
+                    String content = buildCsvString(subContent);
+                    if(!StringUtils.isBlank(content)) {
+                        fis = new ByteArrayInputStream(content.getBytes("GB2312"));
+                        //50000条生成一个csv文件并写入zip
+                        zipFile(fis, zipOut, csvFileName + "-" + (csvIndex + 1) + ".csv");
+                        csvIndex++;
+                    }
+                    tempList=tempList.subList(PER_CSV_NUM+1,tempList.size());
+                    if(CollectionUtils.isEmpty(tempList)){
+                        exportNum=0;
+                    }else{
+                        exportNum = tempList.size();
+                    }
+                } else {
+                    tempList.addAll(list);
+                }
+            }
+        } catch (IOException e) {
+            throw e;
+        } finally {
+            try {
+                bos.flush();
+                bos.close();
+                fis.close();
+                zipOut.finish();
+                zipOut.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    /**
+     * 将多个csv转换成ByteArrayOutputStream
+     *
+     * @return
+     * @throws Exception
+     */
+    private <T> ByteArrayOutputStream mutiCsvToByteArrayOutputStream3(String csvFileName, T param, ExcelHelper<T> helper) throws Exception {
+        InputStream fis = null;
+        ZipOutputStream zipOut = null;
+        ByteArrayOutputStream bos = null;
+        try {
+            bos = new ByteArrayOutputStream();
+            zipOut = new ZipOutputStream(bos);
+            //记录csv文件索引
+            int csvIndex = 0;
+            List<List<Object>> tempList = new ArrayList<>();
+            //累计内存中导出的条数 ，达到50000条则写入csv并加入zip包
+            Integer exportNum = 0;
+            Integer offSet = 0;
+            while(true) {
+                List<List<Object>> list = helper.selectList(param,offSet);
+                if(CollectionUtils.isEmpty(list) && !CollectionUtils.isEmpty(tempList)) {
+                    tempList.add(0, heads);
+                    String content = buildCsvString(tempList);
+                    if(!StringUtils.isBlank(content)) {
+                        fis = new ByteArrayInputStream(content.getBytes());
+                        zipFile(fis, zipOut, csvFileName + "-" + (csvIndex + 1) + ".csv");
+                        csvIndex++;
+                    }
+                    return bos;
+                }
+                offSet = offSet + list.size();
+                exportNum = exportNum + list.size();
+                //内存中超过50000则写入csv，不超过50000条继续从数据库拉取
+                if(exportNum >= PER_CSV_NUM) {
+                    List<List<Object>>  subContent=new ArrayList<>();
+                    tempList.addAll(list);
+                    subContent= tempList.subList(0,PER_CSV_NUM);
+                    subContent.add(0,heads);
+                    String content = buildCsvString(subContent);
+                    if(!StringUtils.isBlank(content)) {
+                        fis = new ByteArrayInputStream(content.getBytes());
+                        //50000条生成一个csv文件并写入zip
+                        zipFile(fis, zipOut, csvFileName + "-" + (csvIndex + 1) + ".csv");
+                        csvIndex++;
+                    }
+                    tempList=tempList.subList(PER_CSV_NUM+1,tempList.size());
+                    if(CollectionUtils.isEmpty(tempList)){
+                        exportNum=0;
+                    }else{
+                        exportNum = tempList.size();
+                    }
+                } else {
+                    tempList.addAll(list);
+                }
+            }
+        } catch (IOException e) {
+            throw e;
+        } finally {
+            try {
+                bos.flush();
+                bos.close();
+                fis.close();
+                zipOut.finish();
+                zipOut.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
     /**
      * 将多个csv转换成ByteArrayOutputStream
      *
@@ -142,8 +307,8 @@ public class WaybilCodeCheckExportLogConsumer extends MessageBaseConsumer {
      * @throws Exception
      */
     private ByteArrayOutputStream mutiCsvToByteArrayOutputStream(List<List<Object>> exportDataList, String exportCode) throws Exception {
-        Integer perSheetNum = 50000;
-        Integer csvCount = exportDataList.size() / perSheetNum + (exportDataList.size() % perSheetNum == 0 ? 0 : 1);
+
+        Integer csvCount = exportDataList.size() / PER_CSV_NUM + (exportDataList.size() % PER_CSV_NUM == 0 ? 0 : 1);
         InputStream fis = null;
         ZipOutputStream zipOut = null;
         ByteArrayOutputStream bos = null;
@@ -151,8 +316,8 @@ public class WaybilCodeCheckExportLogConsumer extends MessageBaseConsumer {
             bos = new ByteArrayOutputStream();
             zipOut = new ZipOutputStream(bos);
             for(Integer i = 0; i < csvCount; i++) {
-                int startIndex = i * perSheetNum;
-                int endIndex = (i + 1) * perSheetNum;
+                int startIndex = i * PER_CSV_NUM;
+                int endIndex = (i + 1) * PER_CSV_NUM;
                 if(endIndex >= exportDataList.size()) {
                     endIndex = exportDataList.size();
                 }
@@ -184,18 +349,44 @@ public class WaybilCodeCheckExportLogConsumer extends MessageBaseConsumer {
     /**
      * 上传zip到jss云存储
      *
-     * @param exportDataList
+     * @param exportCode
      * @param exportCode
      * @throws Exception
      */
-    private void uploadJss(List<List<Object>> exportDataList, String exportCode) throws Exception {
-        ByteArrayOutputStream bos = mutiCsvToByteArrayOutputStream(exportDataList, exportCode);
-        InputStream inputStream = new ByteArrayInputStream(bos.toByteArray());
-//        boolean hasBucketKey = jssService.hasBucket(bucket);
-//        if(!hasBucketKey) {
-//            jssService.createBucket(bucket);
-//        }
-        jssService.uploadFile(bucket, exportCode, bos.toByteArray().length, inputStream);
+    private void uploadJss(String exportCode, KaCodeCheckCondition kaCodeCheckCondition) throws Exception {
+        ByteArrayOutputStream bos = mutiCsvToByteArrayOutputStream2(exportCode,kaCodeCheckCondition);
+        try(InputStream inputStream = new ByteArrayInputStream(bos.toByteArray())){
+            exportCode=exportCode+".zip";
+            jssService.uploadFile(bucket, exportCode, bos.toByteArray().length, inputStream);
+        }catch (Exception ex){
+            log.error("上传jss异常,exportCode:{}",exportCode,ex);
+        }
+    }
+
+    /**
+     * 上传zip到jss云存储
+     *
+     * @param kaCodeCheckCondition
+     * @param exportCode
+     * @throws Exception
+     */
+    private void uploadJss2(String exportCode, KaCodeCheckCondition kaCodeCheckCondition) throws Exception {
+        ByteArrayOutputStream bos = mutiCsvToByteArrayOutputStream3(exportCode, kaCodeCheckCondition, new ExcelHelper<KaCodeCheckCondition>() {
+            @Override
+            public List selectList(KaCodeCheckCondition condition,Integer offSet) {
+                List<List<Object>> list = new ArrayList<>();
+                condition.setOffset(offSet);
+                condition.setLimit(20000);
+                waybillCodeCheckService.getWaybillCodeCheckDTOList(condition, list);
+                return list;
+            }
+        });
+        try(InputStream inputStream = new ByteArrayInputStream(bos.toByteArray())){
+            jssService.uploadFile(bucket, exportCode, bos.toByteArray().length, inputStream);
+        }catch (Exception ex){
+            log.error("上传jss异常,exportCode:{}",exportCode,ex);
+        }
+
     }
 
     /**

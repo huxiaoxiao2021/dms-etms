@@ -41,6 +41,8 @@ public class ExportLog {
 	 */
 	private String message;
 
+	private Integer type;
+
 	public Long getId() {
 		return id;
 	}
@@ -123,4 +125,12 @@ public class ExportLog {
 	public void setStatus(Integer status) {
 		this.status = status;
 	}
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
+    }
 }

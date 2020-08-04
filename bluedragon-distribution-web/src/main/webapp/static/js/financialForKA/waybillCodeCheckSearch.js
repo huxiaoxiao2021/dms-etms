@@ -119,52 +119,33 @@ $(function () {
     };
     var pageInit = function () {
         var oInit = new Object();
-        var startTimeControl;
-        var endTimeControl;
         oInit.init = function () {
 
             /*起始时间*/
             /*截止时间*/
-            startTimeControl=  $.datePicker.createNew({
+            $.datePicker.createNew({
                 elem: '#startTime',
                 theme: '#3f92ea',
                 type: 'datetime',
                 btns: ['now', 'confirm'],
                 done: function(value, date, endDate){
+                    /*重置表单验证状态*/
 
                 }
             });
-            getLaydateOptions =function(ele, initValue, valueReceiver) {
-                return
-            }
-            endTimeControl= $.datePicker.createNew({
+            $.datePicker.createNew({
                 elem: '#endTime',
                 theme: '#3f92ea',
                 type: 'datetime',
                 btns: ['now', 'confirm'],
                 done: function(value, date, endDate){
+                    /*重置表单验证状态*/
+
                 }
             });
 
             //查询
             $('#btn_query').click(function () {
-                if($("#endTime").val()==""){
-                    alert("请选择结束时间");
-                    return ;
-                }
-                var oneDay=1000 * 60 * 60 * 24;
-                var startTimeStr=$("#startTime").val();
-                var startDate = new Date(startTimeStr.replace('-', '/'));
-                var endDate = new Date($("#endTime").val().replace('-', '/'));
-                var days = parseInt((endDate.getTime() - startDate.getTime()) / (oneDay));
-                if(days>7){
-                    alert("选择时间不能超过7天");
-                    return;
-                    //$("#endTime").val("");
-                    //endTimeControl.config.value="";
-                    //$.datePicker.setValue("endTime","");
-                    //$.datePicker.createNew(getLaydateOptions());
-                }
                 tableInit().refresh();
             });
 
