@@ -34,7 +34,7 @@
 		<crossbow.sdk.version>0.0.1-SNAPSHOT</crossbow.sdk.version>
 		<crossbow.api.version>0.0.1-SNAPSHOT</crossbow.api.version>
 		<crossbow.component.version>0.0.4-SNAPSHOT</crossbow.component.version>
-		<eclp.notice.api.version>0.0.1-TEST-SNAPSHOT</eclp.notice.api.version>
+		<eclp.notice.api.version>0.0.1-SNAPSHOT</eclp.notice.api.version>
 		<ps-epf.version>1.0-SNAPSHOT</ps-epf.version>
 	</properties>
 
