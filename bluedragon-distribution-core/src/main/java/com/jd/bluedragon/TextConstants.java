@@ -19,9 +19,9 @@ public class TextConstants {
     public static final String FREIGHT_CONSIGER_CLEAR="寄付现结";
 
     /**
-     * 运费 - 到付
+     * 运费 - 运费到付
      */
-    public static final String FREIGHT_PAY = "到付";
+    public static final String FREIGHT_PAY = "运费到付";
 
     /**
      * B网运费-寄付
@@ -44,7 +44,7 @@ public class TextConstants {
     /**
      * 货款-货到付款
      */
-    public static final String GOODS_PAYMENT_COD = "货到付款";
+    public static final String GOODS_PAYMENT_COD = "货到付款￥";
     /**
      * 货款-在线支付
      */
