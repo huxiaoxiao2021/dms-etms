@@ -114,19 +114,14 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
                 return jdResponse;
             }
 
-            VehicleBaseInfo vehicleBaseInfo = null;
             boolean isAllReady = false;
+            String vehicleNumber = null;
             //如果只有一个预封车记录，说明只有一个车牌，进一步判断体积是否大于0
             if (preSealVehicleList.size() == 1) {
                 PreSealVehicle preSealVehicle = preSealVehicleList.get(0);
                 //进行体积判断
                 if (! this.isNeedCheckVolume(preSealVehicle.getPreSealSource(), preSealVehicle.getTransWay()) || NumberHelper.gt0(preSealVehicle.getVolume())) {
-                    vehicleBaseInfo = new VehicleBaseInfo();
-                    vehicleBaseInfo.setVehicleNumber(preSealVehicle.getVehicleNumber());
-                    vehicleBaseInfo.setVolume(preSealVehicle.getVolume());
-                    vehicleBaseInfo.setWeight(preSealVehicle.getWeight());
-                    vehicleBaseInfo.setSealCode(preSealVehicle.getSealCodes());
-                    vehicleBaseInfo.setReady(true);
+                    vehicleNumber = preSealVehicle.getVehicleNumber();
                     isAllReady = true;
                 }
             }
@@ -140,7 +135,7 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
                 SealVehicleSendCodeInfo sealVehicleSendCodeInfo = new SealVehicleSendCodeInfo();
                 sealVehicleSendCodeInfo.setSendCode(unSealSendCode);
                 sealVehicleSendCodeInfo.setReady(isAllReady);
-                sealVehicleSendCodeInfo.setVehicleBaseInfo(vehicleBaseInfo);
+                sealVehicleSendCodeInfo.setVehicleNumber(vehicleNumber);
                 sealVehicleSendCodeInfoList.add(sealVehicleSendCodeInfo);
             }
             unSealVehicleDetail.setSendCodeInfoList(sealVehicleSendCodeInfoList);
