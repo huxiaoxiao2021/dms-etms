@@ -200,9 +200,6 @@ public class WaybillCodeCheckController extends DmsBaseController {
     public InvokeResult toExportNew(KaCodeCheckCondition condition, Model model) {
         LoginUser loginUser = getLoginUser();
         InvokeResult invokeResult = new InvokeResult();
-        exportLogService.delete(7L);
-        ExportLogCondition condition2=new ExportLogCondition();
-        PagerResult<ExportLog>  exportLogs= exportLogService.listData(condition2);
         String result = waybillCodeCheckService.exportApply(loginUser, condition);
         if(StringUtils.isBlank(result)) {
             invokeResult.setCode(InvokeResult.RESULT_SUCCESS_CODE);
