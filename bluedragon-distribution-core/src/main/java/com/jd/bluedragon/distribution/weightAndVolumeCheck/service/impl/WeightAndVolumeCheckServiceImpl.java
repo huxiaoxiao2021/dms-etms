@@ -12,9 +12,11 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.DmsBaseDictService;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.AbnormalResultMq;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckSourceEnum;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.SystemEnum;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
+import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.dms.receive.enums.VolumeFeeType;
 import com.jd.bluedragon.dms.receive.quote.dto.QuoteCustomerDto;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -36,6 +38,7 @@ import com.jd.jss.http.JssInputStreamEntity;
 import com.jd.jss.service.BucketService;
 import com.jd.jss.service.ObjectService;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.report.ReportExternalService;
 import com.jd.ql.dms.report.domain.BaseEntity;
@@ -63,6 +66,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static java.text.NumberFormat.getPercentInstance;
 
@@ -76,6 +80,11 @@ import static java.text.NumberFormat.getPercentInstance;
 public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckService {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
+
+    /**
+     * C网抽检是否下发MQ缓存前缀
+     * */
+    private static final String B2C_SPOT_CHECK_ISSUE = "B2C_SPOT_CHECK_ISSUE_";
 
     /**
      * 默认泡重比：8000
@@ -160,6 +169,10 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
 
     @Autowired
     private QuoteCustomerApiServiceManager quoteCustomerApiServiceManager;
+
+    @Autowired
+    @Qualifier("jimdbCacheService")
+    private CacheService jimdbCacheService;
 
 
     /**
@@ -450,6 +463,17 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             log.warn("通过运单【{}】站点【{}】更新超标数据异常",packageCode,siteCode,e);
         }
 
+        // 同一包裹只下发一次超标数据（一单一件）
+        String key = B2C_SPOT_CHECK_ISSUE.concat(WaybillUtil.getWaybillCode(packageCode));
+        try {
+            String redisValue = jimdbCacheService.get(key);
+            if(redisValue != null && Boolean.valueOf(redisValue) == true){
+                return;
+            }
+        }catch (Exception e){
+            log.error("获取C网抽检下发MQ缓存【{}】异常",key);
+        }
+
         // 发对外消息
         Date reviewDate = weightVolumeCollectDto.getReviewDate();
         Date uploadTime = new Date();
@@ -464,6 +488,13 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         }
         log.info("发送MQ【{}】,业务ID【{}】 ",dmsWeightVolumeExcess.getTopic(),abnormalResultMq.getAbnormalId());
         dmsWeightVolumeExcess.sendOnFailPersistent(abnormalResultMq.getAbnormalId(), JsonHelper.toJson(abnormalResultMq));
+
+        // 设置下发缓存
+        try {
+            jimdbCacheService.setEx(key,String.valueOf(true),15, TimeUnit.DAYS);
+        }catch (Exception e){
+            log.error("设置C网抽检下发MQ缓存【{}】异常",key);
+        }
 
     }
 
@@ -563,14 +594,27 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     }
 
     /**
-     * 称重体积数据处理
+     * 抽检数据处理
+     * <p>
+     *     1、校验拦截
+     *     2、超标校验并提示
+     *     3、组装数据落ES
+     * </p>
      * @param packWeightVO
+     * @param spotCheckSourceEnum
      * @param result
      */
     @Override
-    public InvokeResult<Boolean> insertAndSendMq(PackWeightVO packWeightVO,WeightVolumeCollectDto weightVolumeCollectDto, InvokeResult<Boolean> result) {
+    public InvokeResult<Boolean> dealSportCheck(PackWeightVO packWeightVO,
+                                                SpotCheckSourceEnum spotCheckSourceEnum, InvokeResult<Boolean> result) {
+        // 校验拦截
+        if(!paramCheck(packWeightVO,result)){
+            return result;
+        }
 
-        assemble(packWeightVO, weightVolumeCollectDto);
+        // 组装基本数据
+        WeightVolumeCollectDto weightVolumeCollectDto = assemble(packWeightVO);
+        weightVolumeCollectDto.setFromSource(spotCheckSourceEnum.name());
 
         //2.复核与计费比较
         Double reviewLengthStr = keeTwoDecimals(packWeightVO.getLength());
@@ -621,7 +665,6 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 log.warn("运单【{}】获取计费重量/体积为空",waybillCode);
                 result.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE,"计费重量/体积为0或空，无法进行校验");
                 result.setData(false);
-                weightVolumeCollectDto.setIsExcess(1);
             }
 
             weightVolumeCollectDto.setWeightDiff(new DecimalFormat("#0.00").format(Math.abs(reviewWeight - billingWeight)));
@@ -635,10 +678,13 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             weightVolumeCollectDto.setDiffStandard(diffStandardOfWeight.toString());
             weightVolumeCollectDto.setVolumeWeightDiff(new DecimalFormat("#0.00").format(Math.abs(reviewVolume/volumeRate - billingVolume/volumeRate)));
             setProductType(weightVolumeCollectDto);
-            // 1KG以下特殊处理
+            // 特殊处理
             specialSceneHandle(weightVolumeCollectDto);
             //将重量体积实体存入es中
-            reportExternalService.insertOrUpdateForWeightVolume(weightVolumeCollectDto);
+            BaseEntity<String> baseEntity = reportExternalService.insertOrUpdateForWeightVolume(weightVolumeCollectDto);
+            if(baseEntity == null || baseEntity.getCode() != BaseEntity.CODE_SUCCESS){
+                log.warn("单号【{}】录入抽检异常",packWeightVO.getCodeStr());
+            }
         }catch (Exception e){
             log.error("包裹称重提示警告信息异常:{}", JsonHelper.toJson(packWeightVO),e);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
@@ -648,16 +694,83 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     }
 
     /**
+     * 参数校验
+     *  校验通过 true
+     * @param packWeightVO
+     * @param result
+     * @return
+     */
+    private boolean paramCheck(PackWeightVO packWeightVO, InvokeResult<Boolean> result) {
+        if(!WaybillUtil.isWaybillCode(packWeightVO.getCodeStr())
+                && !WaybillUtil.isPackageCode(packWeightVO.getCodeStr())){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"运单号/包裹号不符合规则!");
+            return false;
+        }
+        String waybillCode = WaybillUtil.getWaybillCode(packWeightVO.getCodeStr());
+
+        String waybillSign = null;
+        int packNum = 0;
+        com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> baseEntity
+                = waybillQueryManager.getDataByChoice(waybillCode, true, false, false, false);
+        if(baseEntity != null && baseEntity.getData() != null
+                && baseEntity.getData().getWaybill() != null){
+            Waybill waybill = baseEntity.getData().getWaybill();
+            waybillSign = waybill.getWaybillSign();
+            packNum = waybill.getGoodNumber() == null ? 0 : waybill.getGoodNumber();
+        }
+        if(packNum > 1){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"重量体积抽查只支持一单一件!");
+            return false;
+        }
+        if(!BusinessUtil.isPureMatchLdop(waybillSign)){
+            // 非纯配外单不计入抽检 & 前台不提示
+            result.success();
+            return false;
+        }
+        if(hasSpotCheck(packWeightVO.getCodeStr(),packWeightVO.getOperatorSiteCode())){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"单号【" + packWeightVO.getCodeStr() + "】已操作过抽检");
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 判断是否操作过抽检
+     * @param packageCode
+     * @param siteCode
+     * @return
+     */
+    private boolean hasSpotCheck(String packageCode,Integer siteCode){
+        try {
+            WeightVolumeQueryCondition weightVolumeQueryCondition = new WeightVolumeQueryCondition();
+            weightVolumeQueryCondition.setWaybillCode(WaybillUtil.getWaybillCode(packageCode));
+            weightVolumeQueryCondition.setReviewSiteCode(siteCode);
+            BaseEntity<List<WeightVolumeCollectDto>> entity = reportExternalService.getByParamForWeightVolume(weightVolumeQueryCondition);
+            if(entity != null && entity.getCode() == 200
+                    && CollectionUtils.isNotEmpty(entity.getData())){
+                return true;
+            }else {
+                return false;
+            }
+        } catch (Exception e) {
+            log.error("判断单号【{}】、站点【{}】是否操作过抽检异常",packageCode,siteCode,e);
+        }
+        return false;
+    }
+
+    /**
      * 特殊场景处理
      * <p>
-     *     目前只针对1KG以下（含）
-     *     记录es但不超标
+     *     1、记录es但不超标
+     *          1）、1KG以下（含）
+     *          2）、计费体积为0或复重体积为0
      * </p>
      * @param weightVolumeCollectDto
      */
     private void specialSceneHandle(WeightVolumeCollectDto weightVolumeCollectDto) {
-        // 1KG以下（含）设为不超标并记录es
-        if(weightVolumeCollectDto.getReviewVolume() <= 1){
+        // 1KG以下（含）设为不超标并记录es | 计费体积为0或复重体积为0
+        if(weightVolumeCollectDto.getReviewVolume() <= 1
+                || weightVolumeCollectDto.getBillingVolume() == 0 || weightVolumeCollectDto.getReviewVolume() == 0){
             weightVolumeCollectDto.setIsExcess(0);
             weightVolumeCollectDto.setVolumeWeightIsExcess(0);
             weightVolumeCollectDto.setDiffStandard("");
@@ -802,9 +915,11 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     /**
      * 组装称重计费实体
      * @param packWeightVO
-     * @param weightVolumeCollectDto
      */
-    private void assemble(PackWeightVO packWeightVO, WeightVolumeCollectDto weightVolumeCollectDto) {
+    private WeightVolumeCollectDto assemble(PackWeightVO packWeightVO) {
+        WeightVolumeCollectDto weightVolumeCollectDto = new WeightVolumeCollectDto();
+        weightVolumeCollectDto.setWaybillCode(WaybillUtil.getWaybillCode(packWeightVO.getCodeStr()));
+        weightVolumeCollectDto.setPackageCode(packWeightVO.getCodeStr());
         weightVolumeCollectDto.setSpotCheckType(0);//C网
         weightVolumeCollectDto.setReviewDate(new Date());
         weightVolumeCollectDto.setReviewLWH(packWeightVO.getLength()+"*"+packWeightVO.getWidth()+"*"+packWeightVO.getHigh());
@@ -814,7 +929,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         if(baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null){
             weightVolumeCollectDto.setBusiCode(baseEntity.getData().getWaybill().getBusiId());
             weightVolumeCollectDto.setBusiName(baseEntity.getData().getWaybill().getBusiName());
-            weightVolumeCollectDto.setBusiCode(baseEntity.getData().getWaybill().getBusiId());
+            weightVolumeCollectDto.setMerchantCode(baseEntity.getData().getWaybill().getBusiOrderCode());
             if(BusinessUtil.isSignChar(baseEntity.getData().getWaybill().getWaybillSign(),56,'1')){
                 //信任商家
                 weightVolumeCollectDto.setIsTrustBusi(1);
@@ -842,10 +957,11 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         weightVolumeCollectDto.setReviewSiteName(packWeightVO.getOperatorSiteName());
         weightVolumeCollectDto.setReviewErp(packWeightVO.getErpCode());
         weightVolumeCollectDto.setIsExcess(0);
-        weightVolumeCollectDto.setVolumeWeightIsExcess(0);
         //设置无图片无图片链接
         weightVolumeCollectDto.setIsHasPicture(0);
         weightVolumeCollectDto.setPictureAddress("");
+
+        return weightVolumeCollectDto;
     }
 
     /**
@@ -895,7 +1011,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         heads.add("扫描条码");
         heads.add("业务类型");
         heads.add("产品标识");
-        heads.add("商家ID");
+        heads.add("配送商家编号");
         heads.add("商家名称");
         heads.add("信任商家");
         heads.add("复核区域");
@@ -917,6 +1033,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         heads.add("体积重量是否超标");
         heads.add("误差标准值");
         heads.add("是否超标");
+        heads.add("数据来源");
         heads.add("有无图片");
         heads.add("图片链接");
         resList.add(heads);
@@ -933,7 +1050,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 body.add(weightVolumeCollectDto.getPackageCode());
                 body.add(weightVolumeCollectDto.getSpotCheckType()==null?"C网":(weightVolumeCollectDto.getSpotCheckType()==1?"B网":"C网"));
                 body.add(weightVolumeCollectDto.getProductTypeName());
-                body.add(weightVolumeCollectDto.getBusiCode());
+                body.add(weightVolumeCollectDto.getMerchantCode());
                 body.add(weightVolumeCollectDto.getBusiName());
                 body.add(weightVolumeCollectDto.getIsTrustBusi()==null?"":weightVolumeCollectDto.getIsTrustBusi()==1?"是":"否");
                 body.add(weightVolumeCollectDto.getReviewOrgName());
@@ -955,6 +1072,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 body.add(weightVolumeCollectDto.getVolumeWeightIsExcess()==null?"":weightVolumeCollectDto.getVolumeWeightIsExcess()==1?"超标":"未超标");
                 body.add(weightVolumeCollectDto.getDiffStandard());
                 body.add(weightVolumeCollectDto.getIsExcess()==null?"":weightVolumeCollectDto.getIsExcess()==1?"超标":"未超标");
+                body.add(getFromSource(weightVolumeCollectDto.getFromSource()));
                 body.add(weightVolumeCollectDto.getIsHasPicture()==null?"":weightVolumeCollectDto.getIsHasPicture()==1?"有":"无");
                 body.add(StringHelper.isEmpty(weightVolumeCollectDto.getPictureAddress())?"":weightVolumeCollectDto.getPictureAddress());
                 resList.add(body);
@@ -966,6 +1084,28 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             resList.add(list);
         }
         return  resList;
+    }
+
+    /**
+     * 获取来源
+     * @param fromSource
+     * @return
+     */
+    private String getFromSource(String fromSource) {
+        if(StringUtils.isEmpty(fromSource)){
+            return null;
+        }
+        // 为了兼容之前定义的枚举。。。。。
+        if(FromSourceEnum.DMS_CLIENT_PLATE_PRINT.name().equals(fromSource)
+                || SpotCheckSourceEnum.SPOT_CHECK_CLIENT_PLATE.name().equals(fromSource)){
+            return "平台打印抽检";
+        }
+        if(FromSourceEnum.DMS_AUTOMATIC_MEASURE.name().equals(fromSource)
+                || SpotCheckSourceEnum.SPOT_CHECK_DWS.name().equals(fromSource)){
+            return "DWS抽检";
+        }
+        return SpotCheckSourceEnum.SPOT_CHECK_DMS_WEB.name().equals(fromSource) ? "B网网页抽检" :
+                SpotCheckSourceEnum.SPOT_CHECK_ANDROID.name().equals(fromSource) ? "B网安卓抽检" : "其它";
     }
 
     /**
