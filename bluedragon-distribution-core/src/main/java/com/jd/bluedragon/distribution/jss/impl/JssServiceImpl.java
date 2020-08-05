@@ -112,11 +112,10 @@ public class JssServiceImpl implements JssService {
 
     @Override
     public String uploadFile(String bucket, byte[] bytes, String extName) {
-        if(bytes == null) {
-            if(bytes == null) {
-                log.info("上传的参数为空");
-                return null;
-            }
+        if (bytes == null) {
+            log.info("上传的参数为空");
+            return null;
+        }
             ByteArrayInputStream inStream = new ByteArrayInputStream(bytes);
             try {
                 String key = UUID.randomUUID().toString() + "." + extName;
