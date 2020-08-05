@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.weightAndVolumeCheck.AbnormalResultMq;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.DutyTypeEnum;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckData;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckOfPackageDetail;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckSourceEnum;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.SystemEnum;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WaybillFlowDetail;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightVolumeCheckConditionB2b;
@@ -248,6 +249,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
      */
     private SpotCheckData trans2SpotCheckDataOfPackage(List<WeightVolumeCheckOfB2bPackage> params) {
         SpotCheckData spotCheckData = new SpotCheckData();
+        spotCheckData.setFromSource(SpotCheckSourceEnum.SPOT_CHECK_DMS_WEB.name());
         spotCheckData.setWaybillCode(WaybillUtil.getWaybillCode(params.get(0).getPackageCode()));
         Double totalWeight = 0.00;
         Double totalVolume = 0.00;
@@ -771,6 +773,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
      */
     private SpotCheckData trans2SpotCheckDataOfWaybill(WeightVolumeCheckConditionB2b param) {
         SpotCheckData spotCheckData = new SpotCheckData();
+        spotCheckData.setFromSource(SpotCheckSourceEnum.SPOT_CHECK_DMS_WEB.name());
         spotCheckData.setWaybillCode(WaybillUtil.getWaybillCode(param.getWaybillOrPackageCode()));
         spotCheckData.setTotalWeight(param.getWaybillWeight());
         spotCheckData.setTotalVolume(param.getWaybillVolume());
