@@ -25,7 +25,7 @@
                                 <div class="form-group">
                                     <label class="control-label col-xs-4 ">操作时间 ：</label>
                                     <div class=" col-xs-6">
-                                        <input type="text" id="startTime" name="startTime"  readonly="readonly" class="form-control search-param ">
+                                        <input type="text" id="startTime" name="startTime" class="form-control search-param ">
                                     </div>
                                 </div>
                             </div>
@@ -104,6 +104,9 @@
             </button>
             <button id="btn_export" type="button" class="btn btn-default">
                 <span class="glyphicon glyphicon-export" aria-hidden="true"></span>导出
+            </button>
+            <button id="btn_to_export" type="button" class="btn btn-default">
+                <span class="glyphicon glyphicon-new-window" aria-hidden="true"></span>查看导出任务
             </button>
             <button id="btn_reback" type="button" class="btn btn-default">
                 <span class="glyphicon glyphicon-backward" aria-hidden="true"></span>返回

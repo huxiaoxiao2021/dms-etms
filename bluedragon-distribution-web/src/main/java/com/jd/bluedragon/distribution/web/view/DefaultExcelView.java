@@ -56,6 +56,7 @@ public class DefaultExcelView extends AbstractExcelView {
 		if (contents == null) {
 			throw new RuntimeException("DefaultExcelView Attribute[contents] in Model can't be null! ");
 		}
+
 		ExcelWriter exporter = new ExcelWriter();
 		exporter.setWorkbook(workbook);
 		exporter.writeSheet(sheetname, contents);

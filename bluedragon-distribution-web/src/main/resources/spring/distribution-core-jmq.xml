@@ -450,4 +450,8 @@
     <bean id="kyStorageProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.ky.storage.putAway}"/>
     </bean>
+    <!-- 银行卡运单号校验 -->
+    <bean id="waybillCodeCheckMQ" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.waybill.check.exportlog}"/>
+    </bean>
 </beans>
