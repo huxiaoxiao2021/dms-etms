@@ -128,8 +128,6 @@ public class JssServiceImpl implements JssService {
             } catch (Exception e) {
                 log.error("异常上行处理异常:", e);
             }
-
-        }
         return null;
     }
     /**
