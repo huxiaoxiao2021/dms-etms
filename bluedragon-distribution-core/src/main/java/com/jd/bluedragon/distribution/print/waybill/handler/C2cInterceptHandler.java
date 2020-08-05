@@ -83,7 +83,7 @@ public class C2cInterceptHandler implements InterceptHandler<WaybillPrintContext
         {
             boolean  isRepeatPrint=false;
             //当前面单已XX状态，且已操作过补打，请确认是否打印
-            if (StringHelper.isNotEmpty(context.getWaybill().getWaybillCode()) && reprintRecordService.isBarCodeRePrinted(context.getWaybill().getWaybillCode())) {
+            if (StringHelper.isNotEmpty(context.getRequest().getBarCode()) && reprintRecordService.isBarCodeRePrinted(context.getRequest().getBarCode())) {
                 log.warn("C2cInterceptHandler.handler-->{}该单号重复打印",context.getWaybill().getWaybillCode());
                 isRepeatPrint=true;
             }
