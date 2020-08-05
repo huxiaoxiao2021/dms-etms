@@ -1287,7 +1287,8 @@ public class WaybillResource {
 					PackOpeDto packOpeDto = new PackOpeDto();
 					packOpeDtoList.add(packOpeDto);
 					packOpeDto.setWaybillCode(editWeightRequest.getWaybillCode());
-					packOpeDto.setOpeType(1);
+					// 增加按用户所属站点类型来传值，放置在task执行体中去做
+					// packOpeDto.setOpeType(1);
 					List<PackOpeDetail> packOpeDetailList = new ArrayList<PackOpeDetail>();
 					PackOpeDetail packOpeDetail = new PackOpeDetail();
 					packOpeDetail.setPackageCode(editWeightRequest.getPackageBarcode());
@@ -2039,6 +2040,7 @@ public class WaybillResource {
      */
     @POST
     @Path("/package/weight/warn/check")
+    @BusinessLog(sourceSys = 1,bizType = 1017,operateType = 101701)
     public InvokeResult<Boolean> packageWeightCheck(PackWeightVO packWeightVO){
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
 		WeightVolumeCollectDto weightVolumeCollectDto = new WeightVolumeCollectDto();

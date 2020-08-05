@@ -120,6 +120,18 @@
     <div id="food" width="300px" align="center" style="margin-right: auto;margin-left: auto;">
         <a href="javascript:void(0)" id="warning"">提示：一个批次最多用24个小时!</a>
     </div>
-    
+    <script type="text/javascript">
+        var jaq = jaq || [];
+        jaq.push(['account', 'JA2016_112453']);
+        jaq.push(['domain', 'dms.etms.jd.com']);
+        (function () {
+            var ja = document.createElement('script');
+            ja.type = 'text/javascript';
+            ja.async = true;
+            ja.src = '//wl.jd.com/joya.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ja, s);
+        })()
+    </script>
 </body>
 </html>

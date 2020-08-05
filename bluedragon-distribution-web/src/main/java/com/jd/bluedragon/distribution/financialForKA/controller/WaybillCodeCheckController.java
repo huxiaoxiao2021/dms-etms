@@ -4,25 +4,37 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.exportlog.domain.ExportLog;
+import com.jd.bluedragon.distribution.exportlog.domain.ExportLogCondition;
+import com.jd.bluedragon.distribution.exportlog.service.ExportLogService;
 import com.jd.bluedragon.distribution.financialForKA.domain.KaCodeCheckCondition;
 import com.jd.bluedragon.distribution.financialForKA.domain.WaybillCodeCheckCondition;
 import com.jd.bluedragon.distribution.financialForKA.domain.WaybillCodeCheckDto;
 import com.jd.bluedragon.distribution.financialForKA.service.WaybillCodeCheckService;
-import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
+import com.jd.bluedragon.distribution.jss.JssService;
+
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.ql.dms.common.cache.CacheService;
+import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -37,80 +49,136 @@ public class WaybillCodeCheckController extends DmsBaseController {
 
     private static final Logger log = LoggerFactory.getLogger(WaybillCodeCheckController.class);
 
+
     @Autowired
     private WaybillCodeCheckService waybillCodeCheckService;
 
+
+    @Autowired
+    @Qualifier("jimdbCacheService")
+    private CacheService jimdbCacheService;
+
+    @Value("${waybillcheck.export.maxNum:300000}")
+    private Integer exportMaxNum;
+
     /**
      * 返回主页面
+     *
      * @return
      */
     @Authorization(Constants.DMS_WEB_TOOL_WAYBILLCODECHECK_R)
     @RequestMapping("/toIndex")
-    public String toIndex(Model model){
+    public String toIndex(Model model) {
         LoginUser loginUser = getLoginUser();
-        model.addAttribute("operateSiteCode",loginUser.getSiteCode());
-        model.addAttribute("operateSiteName",loginUser.getSiteName());
-        model.addAttribute("operateErp",loginUser.getUserErp());
+        model.addAttribute("operateSiteCode", loginUser.getSiteCode());
+        model.addAttribute("operateSiteName", loginUser.getSiteName());
+        model.addAttribute("operateErp", loginUser.getUserErp());
         return "/financialForKA/waybillCodeCheck";
     }
 
     /**
      * 条码校验
+     *
      * @param condition
      * @return
      */
     @Authorization(Constants.DMS_WEB_TOOL_WAYBILLCODECHECK_R)
     @RequestMapping("/check")
     @ResponseBody
-    public InvokeResult waybillCodeCheck(@RequestBody WaybillCodeCheckCondition condition){
+    public InvokeResult waybillCodeCheck(@RequestBody WaybillCodeCheckCondition condition) {
         return waybillCodeCheckService.waybillCodeCheck(condition);
     }
 
     /**
      * 跳转查询页面
+     *
      * @return
      */
     @Authorization(Constants.DMS_WEB_TOOL_WAYBILLCODECHECK_R)
     @RequestMapping("/toSearchIndex")
-    public String toSearchIndex(){
+    public String toSearchIndex() {
         return "/financialForKA/financialForKAsearch";
+    }
+
+    /**
+     * 跳转导出明细查看页面
+     *
+     * @return
+     */
+    @Authorization(Constants.DMS_WEB_TOOL_WAYBILLCODECHECK_R)
+    @RequestMapping("/toSearchExportTaskIndex")
+    public String toSearchExportTaskIndex() {
+        return "/financialForKA/searchExportTask";
     }
 
 
     /**
      * 获取明细
+     *
      * @return
      */
     @Authorization(Constants.DMS_WEB_TOOL_WAYBILLCODECHECK_R)
     @RequestMapping("/listData")
     @ResponseBody
-    public PagerResult<WaybillCodeCheckDto> listData(@RequestBody KaCodeCheckCondition condition){
+    public PagerResult<WaybillCodeCheckDto> listData(@RequestBody KaCodeCheckCondition condition) {
         return waybillCodeCheckService.listData(condition);
+    }
+
+
+    /**
+     * 导出校验
+     *
+     * @return
+     */
+    @Authorization(Constants.DMS_WEB_TOOL_WAYBILLCODECHECK_R)
+    @RequestMapping("/exortCheck")
+    public @ResponseBody
+    JdResponse<String> exortCheck(@RequestBody KaCodeCheckCondition condition) {
+        LoginUser loginUser = getLoginUser();
+        String exportCode = loginUser.getUserErp() + DateHelper.formatDate(new Date(), "yyyyMMddHHmm")+".zip";
+        JdResponse<String> rest = new JdResponse<String>();
+        String repeatExport = jimdbCacheService.get(exportCode);
+        if(!com.jd.bk.common.util.string.StringUtils.isBlank(repeatExport)) {
+            rest.setCode(JdResponse.CODE_FAIL);
+            rest.setMessage("一分钟内只能导出一次，请稍后再试");
+            return rest;
+        }
+        Integer count = waybillCodeCheckService.queryCountByCondition(condition);
+        if(count > exportMaxNum) {
+            rest.setCode(JdResponse.CODE_FAIL);
+            rest.setMessage("导出KA条码对比校验操作记录统计表失败,最多只能导出" + exportMaxNum + "条");
+            return rest;
+        }
+        rest.setCode(JdResponse.CODE_SUCCESS);
+        if(count > 100000) {
+            rest.setMessage("正在导出数据中，您导出的数量比较大，可能需要1-3分钟，请耐心等待");
+        }
+        return rest;
     }
 
     /**
      * 导出
+     *
      * @return
      */
     @Authorization(Constants.DMS_WEB_TOOL_WAYBILLCODECHECK_R)
     @RequestMapping(value = "/toExport", method = RequestMethod.POST)
-    public ModelAndView toExport(KaCodeCheckCondition condition, Model model) {
-
-        this.log.info("KA条码对比校验操作记录统计表");
-        List<List<Object>> resultList;
-        try{
-            model.addAttribute("filename", "KA条码对比校验操作记录统计表.xls");
-            model.addAttribute("sheetname", "KA条码对比校验操作记录");
-            resultList = waybillCodeCheckService.getExportData(condition);
-        }catch (Exception e){
-            this.log.error("导出KA条码对比校验操作记录统计表失败:", e);
-            List<Object> list = new ArrayList<>();
-            list.add("导出KA条码对比校验操作记录统计表失败!");
-            resultList = new ArrayList<>();
-            resultList.add(list);
+    @ResponseBody
+    public InvokeResult toExportNew(KaCodeCheckCondition condition, Model model) {
+        LoginUser loginUser = getLoginUser();
+        InvokeResult invokeResult = new InvokeResult();
+        String result = waybillCodeCheckService.exportApply(loginUser, condition);
+        if(StringUtils.isBlank(result)) {
+            invokeResult.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+            invokeResult.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+        } else {
+            invokeResult.setCode(InvokeResult.SERVER_ERROR_CODE);
+            invokeResult.setMessage(result);
         }
-        model.addAttribute("contents", resultList);
-        return new ModelAndView(new DefaultExcelView(), model.asMap());
+        return invokeResult;
     }
+
+
+
 
 }

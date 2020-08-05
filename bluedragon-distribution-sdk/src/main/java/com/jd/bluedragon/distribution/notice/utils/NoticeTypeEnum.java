@@ -31,7 +31,12 @@ public enum NoticeTypeEnum {
     /**
      * 文档
      */
-    DOCUMENT(5, "文档");
+    DOCUMENT(5, "文档"),
+
+    /**
+     * 文档
+     */
+    KNOWLEDGE(6, "知识库");
 
     private int code;
 

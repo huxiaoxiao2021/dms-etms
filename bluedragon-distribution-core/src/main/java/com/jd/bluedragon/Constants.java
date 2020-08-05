@@ -353,6 +353,10 @@ public class Constants {
      */
     public static final int TIME_SECONDS_ONE_WEEK = 7*TIME_SECONDS_ONE_DAY;
     /**
+     * 时间：15天的秒数
+     */
+    public static final int TIME_SECONDS_FIFTEEN_DAY = 15*TIME_SECONDS_ONE_DAY;
+    /**
      * 时间：一月的秒数
      */
     public static final int TIME_SECONDS_ONE_MONTH = 30*TIME_SECONDS_ONE_DAY;
@@ -1023,16 +1027,6 @@ public class Constants {
      */
     public static final String DICTGROUP = "1209";
     /**
-     * 泡重比类型--按体积
-     */
-    public static final Integer VOLUMEFEETYPE_VOLUME = 1;
-
-    /**
-     * 泡重比类型--按重泡比
-     */
-    public static final Integer VOLUMEFEETYPE_VOLUMERATE = 2;
-
-    /**
      * 运单预分拣网点值 为-136代表超区
      */
     public static final int WAYBILL_SITE_ID_OUT_ZONE = -136;
@@ -1105,5 +1099,10 @@ public class Constants {
      * businessType缓存前缀
      * */
     public static final String BUSINESS_TYPE_PREFIX = "BUSINESS-TYPE";
+
+    /**
+     * 特安送 增值服务编码
+     * */
+    public static final String TE_AN_SONG_SERVICE = "fr-a-0010";
 
 }

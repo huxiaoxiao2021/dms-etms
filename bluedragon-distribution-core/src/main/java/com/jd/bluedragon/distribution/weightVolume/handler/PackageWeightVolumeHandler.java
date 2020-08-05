@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.weightVolume.handler;
 
 import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -14,6 +15,7 @@ import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -61,6 +63,9 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
     @Autowired
     private WaybillCommonService waybillCommonService;
 
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+
     @Override
     protected void handlerWeighVolume(WeightVolumeEntity entity) {
         /* 处理称重对象 */
@@ -87,6 +92,8 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
         PackOpeDto packOpeDto = new PackOpeDto();
         packOpeDto.setWaybillCode(entity.getWaybillCode());
         packOpeDto.setOpeType(1);//分拣操作环节赋值：1
+        // 根据用户ERP获取站点类型，分拣中心默认传1，非分拣中心都传2
+        this.setPackOpeSiteType(entity, packOpeDto);
 
         PackOpeDetail packOpeDetail = new PackOpeDetail();
         packOpeDetail.setPackageCode(entity.getPackageCode());
@@ -102,6 +109,7 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
         packOpeDetail.setLongPackage(entity.getLongPackage());
         packOpeDto.setOpeDetails(Collections.singletonList(packOpeDetail));
         try {
+            logger.info("PackageWeightVolumeHandler handlerWeighVolume uploadOpe param: " + JsonHelper.toJson(packOpeDto));
             Map<String, Object> resultMap = waybillPackageManager.uploadOpe(JsonHelper.toJson(packOpeDto));
             if (resultMap != null && resultMap.containsKey("code")
                     && WeightResponse.WEIGHT_TRACK_OK == Integer.parseInt(resultMap.get("code").toString())) {
@@ -137,6 +145,14 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
 
         return result != null ? result.getData():0;
     }*/
+
+    private void setPackOpeSiteType(WeightVolumeEntity entity, PackOpeDto packOpeDto){
+        BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByErpNoCache(entity.getOperatorCode());
+        // 线上【青龙基础资料】-【数据字典】-【部门类型】
+        if (baseStaffByErp != null && !BusinessUtil.isSortingSiteType(baseStaffByErp.getSiteType())) {
+            packOpeDto.setOpeType(2);
+        }
+    }
 
     //是否为首次称重量方，根据运单/包裹的全程跟踪状态值是否为“-160”
     public boolean isFirstWeightVolume(WeightVolumeEntity entity){

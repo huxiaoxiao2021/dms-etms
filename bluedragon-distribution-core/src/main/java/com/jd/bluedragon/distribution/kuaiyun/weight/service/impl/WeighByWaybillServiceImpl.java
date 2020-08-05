@@ -130,7 +130,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
 
         /*将重量体积单位转为 运单部门要求的单位*/
         Double weight = this.convertWeightUnitToRequired(vo.getWeight());
-        Double volume = this.convertVolumeUnitToRequired(vo.getVolume());
+        Double volume = vo.getVolume() == null ? null : this.convertVolumeUnitToRequired(vo.getVolume());
         WaybillWeightDTO waybillWeightDTO = new WaybillWeightDTO();
         BeanUtils.copyProperties(vo, waybillWeightDTO);
         waybillWeightDTO.setWaybillCode(waybillCode);

@@ -342,5 +342,7 @@
 
         <!-- PDA功能使用白名单 -->
         <mapper resource="mappers/mysql/whiteList/WhiteListMapper.xml" />
+        <!-- KA单号校验导出记录 -->
+        <mapper resource="mappers/mysql/export/DmsExportLog.xml"/>
     </mappers>
 </configuration>

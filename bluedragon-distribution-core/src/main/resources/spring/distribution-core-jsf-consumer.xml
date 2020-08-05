@@ -66,6 +66,10 @@
                   interface="com.jd.bluedragon.distribution.jsf.service.CancelWaybillJsfService"
                   alias="${dmsver.check.alias}" protocol="jsf" serialization="hessian" timeout="${dmsver.check.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
+    <jsf:consumer id="waybillCancelJsfService"
+                  interface="com.jd.dms.ver.service.WaybillCancelJsfService"
+                  alias="${dmsver.check.alias}" protocol="jsf" serialization="hessian" timeout="${dmsver.check.timeout}" retries="${jsf.retries}">
+    </jsf:consumer>    
     <!-- 青龙三方路由JSF接口 陈全峰 -->
     <jsf:consumer id="orderShipsServiceJsf" interface="com.jd.etms.third.jsf.OrderShipsServiceJsf"
                   protocol="jsf" alias="${3pl.jsf.alias}" timeout="${3pl.jsf.timeout}" retries="${jsf.retries}">

@@ -111,9 +111,17 @@ public class DmsNewSealVehicleServiceImpl implements DmsNewSealVehicleService {
     @Override
     @JProfiler(jKey = "DMSWEB.DmsNewSealVehicleServiceImpl.checkSendCodeIsSealed", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public boolean checkSendCodeIsSealed(String sendCode) {
+//        if(StringUtils.isEmpty(sendCode)){
+//            return false;
+//        }
         if (newSealVehicleService.getSealCarTimeBySendCode(sendCode) != null) {
             return true;
         }
+//        CommonDto<Boolean> commonDto = newSealVehicleService.isBatchCodeHasSealed(sendCode);
+//        if(commonDto != null && commonDto.getCode() == CommonDto.CODE_SUCCESS
+//                && commonDto.getData() != null){
+//            return commonDto.getData();
+//        }
         return false;
     }
 

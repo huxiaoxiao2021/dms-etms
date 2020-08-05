@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jss;
 
 import com.jd.bluedragon.distribution.exception.jss.JssStorageException;
 
+
 import java.io.InputStream;
 import java.net.URI;
 
@@ -79,5 +80,17 @@ public interface JssService {
      * @return
      */
     String uploadImage(String bucket, byte[] bytes);
+
+
+    /**
+     * 上传文件，
+     * @param bucket
+     * @param bytes
+     * @param extName 扩展名
+     * @return
+     */
+    String uploadFile(String bucket, byte[] bytes, String extName);
+
+
 
 }

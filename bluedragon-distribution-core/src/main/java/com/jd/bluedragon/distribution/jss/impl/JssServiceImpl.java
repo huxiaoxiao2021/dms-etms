@@ -41,7 +41,7 @@ public class JssServiceImpl implements JssService {
             throw new JssStorageException("[JSS存储服务]上传文件异常", e);
         } finally {
             try {
-                if (inputStream != null) {
+                if(inputStream != null) {
                     inputStream.close();
                 }
             } catch (IOException ioe) {
@@ -55,7 +55,7 @@ public class JssServiceImpl implements JssService {
         try {
             JingdongStorageService jss = jssStorageClient.getStorageService();
             ObjectService object = jss.bucket(bucket).object(keyName);
-            if (object.exist()) {
+            if(object.exist()) {
                 log.info("下载文件成功keyName:{}", keyName);
                 return object.get().getInputStream();
             } else {
@@ -107,22 +107,28 @@ public class JssServiceImpl implements JssService {
 
     @Override
     public String uploadImage(String bucket, byte[] bytes) {
+        return uploadFile(bucket, bytes, "jpg");
+    }
+
+    @Override
+    public String uploadFile(String bucket, byte[] bytes, String extName) {
         if (bytes == null) {
             log.info("上传的参数为空");
             return null;
         }
         ByteArrayInputStream inStream = new ByteArrayInputStream(bytes);
         try {
-            String key = UUID.randomUUID().toString() + ".jpg";
+            String key = UUID.randomUUID().toString() + "." + extName;
             JingdongStorageService jss = jssStorageClient.getStorageService();
 
             jss.bucket(bucket).object(key).entity(bytes.length, inStream).put();
             inStream.close();
             URI uri = jss.bucket(bucket).object(key).generatePresignedUrl(315360000);
             return uri.toString();
-        }catch (Exception e){
+        } catch (Exception e) {
             log.error("异常上行处理异常:", e);
         }
         return null;
     }
+
 }

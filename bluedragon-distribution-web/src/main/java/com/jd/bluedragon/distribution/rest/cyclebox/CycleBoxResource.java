@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.rest.cyclebox;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
+import com.jd.bluedragon.distribution.api.request.OrderBindMessageRequest;
 import com.jd.bluedragon.distribution.api.request.WaybillCodeListRequest;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -151,4 +152,32 @@ public class CycleBoxResource {
         }
         return result;
     }
+
+    /**
+     * 外单靑流箱绑定发MQ
+     * @param request
+     * @return
+     */
+    @POST
+    @Path("/cycleBox/cycleBoxBindToWD")
+    @BusinessLog(sourceSys = 1,bizType = 1015,operateType = 101506)
+    public InvokeResult cycleBoxBindToWD(OrderBindMessageRequest request) {
+        InvokeResult result = new InvokeResult();
+        result.success();
+
+        try {
+            //参数校验
+            if (request == null || StringUtils.isBlank(request.getWaybillNo()) || StringUtils.isBlank(request.getOperatorErp()) || null == request.getSealNos() || request.getSealNos().size()<=0 || request.getSiteCode()==null || request.getSiteCode()<0) {
+                result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
+                result.setMessage(InvokeResult.PARAM_ERROR);
+                return result;
+            }
+
+            result = cycleBoxService.cycleBoxBindToWD(request);
+        } catch (Exception e) {
+            result.error(InvokeResult.SERVER_ERROR_MESSAGE);
+        }
+        return result;
+    }
+
 }

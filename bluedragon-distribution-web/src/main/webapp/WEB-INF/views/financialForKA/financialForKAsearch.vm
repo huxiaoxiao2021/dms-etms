@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>金融客户运单号对比校验</title>
+    <title>金融客户运单号对比校验记录查询</title>
     <meta http-equiv="pragma" content="no-cache" />
     <meta http-equiv="cache-control" content="no-cache">
     <meta http-equiv="expires" content="0">
@@ -25,7 +25,7 @@
                                 <div class="form-group">
                                     <label class="control-label col-xs-4 ">操作时间 ：</label>
                                     <div class=" col-xs-6">
-                                        <input type="text" id="startTime" name="startTime"  readonly="readonly" class="form-control search-param ">
+                                        <input type="text" id="startTime" name="startTime" class="form-control search-param ">
                                     </div>
                                 </div>
                             </div>
@@ -105,11 +105,27 @@
             <button id="btn_export" type="button" class="btn btn-default">
                 <span class="glyphicon glyphicon-export" aria-hidden="true"></span>导出
             </button>
+            <button id="btn_to_export" type="button" class="btn btn-default">
+                <span class="glyphicon glyphicon-new-window" aria-hidden="true"></span>查看导出任务
+            </button>
             <button id="btn_reback" type="button" class="btn btn-default">
                 <span class="glyphicon glyphicon-backward" aria-hidden="true"></span>返回
             </button>
         </div>
         <table id="dataTable"></table>
 </div>
+<script type="text/javascript">
+    var jaq = jaq || [];
+    jaq.push(['account', 'JA2016_112453']);
+    jaq.push(['domain', 'dms.etms.jd.com']);
+    (function () {
+        var ja = document.createElement('script');
+        ja.type = 'text/javascript';
+        ja.async = true;
+        ja.src = '//wl.jd.com/joya.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(ja, s);
+    })()
+</script>
 </body>
 </html>

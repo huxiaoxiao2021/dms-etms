@@ -2,16 +2,25 @@ package com.jd.bluedragon.distribution.external.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecord;
 import com.jd.bluedragon.distribution.consumable.service.DmsConsumableRelationService;
 import com.jd.bluedragon.distribution.consumable.service.PackingConsumableInfoService;
+import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.external.service.DmsPackingConsumableService;
 import com.jd.bluedragon.distribution.packingconsumable.domain.DmsPackingConsumableInfo;
 import com.jd.bluedragon.distribution.packingconsumable.domain.PackingConsumableBaseInfo;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +36,10 @@ public class DmsPackingConsumableServiceImpl implements DmsPackingConsumableServ
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
+    public static final String CONFIRM_MESSAGE = "此运单需要进行包装，包装后请在电脑端确认";
+    public  static final  Integer HINT_CODE = 201;
+    public static final String  HINT_MESSAGE= "此运单需使用包装耗材，但不存在包装耗材任务";
+
     @Autowired
     private DmsConsumableRelationService dmsConsumableRelationService;
 
@@ -35,6 +48,12 @@ public class DmsPackingConsumableServiceImpl implements DmsPackingConsumableServ
 
     @Autowired
     private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    private WaybillConsumableRecordService waybillConsumableRecordService;
+
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
 
     @Override
     @JProfiler(jKey = "DMSWEB.DmsPackingConsumableServiceImpl.getPackingConsumableInfoByDmsId", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
@@ -118,6 +137,37 @@ public class DmsPackingConsumableServiceImpl implements DmsPackingConsumableServ
             log.error("获取耗材信息失败", e);
             jdResponse.setCode(JdResponse.CODE_ERROR);
             jdResponse.setMessage("获取耗材信息失败");
+        }
+
+        return jdResponse;
+    }
+
+    @Override
+    public JdResponse<Boolean> getConfirmStatusByWaybillCode(String waybillCode) {
+
+        JdResponse<Boolean> jdResponse = new JdResponse<>(JdResponse.CODE_FAIL, JdResponse.MESSAGE_FAIL);
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.DmsPackingConsumableServiceImpl.getConfirmStatusByWaybillCode",
+                Constants.UMP_APP_NAME_DMSWEB, false, true);
+        try {
+            Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(waybillCode);
+            if (waybill != null && BusinessHelper.isNeedConsumable(waybill.getWaybillSign())) {
+                WaybillConsumableRecord record =  waybillConsumableRecordService.queryOneByWaybillCode(waybillCode);
+                if (record != null && record.getConfirmStatus() == 0) {
+                    jdResponse.setData(Boolean.FALSE);
+                    jdResponse.setCode(JdResponse.CODE_SUCCESS);
+                    jdResponse.setMessage(CONFIRM_MESSAGE);
+                } else if (record == null) {
+                    jdResponse.setCode(HINT_CODE);
+                    jdResponse.setMessage(HINT_MESSAGE);
+                }
+            }
+        } catch (Exception e) {
+            log.error("查询运单：{}是否存在待确认包装任务失败",waybillCode);
+            jdResponse.setCode(JdResponse.CODE_ERROR);
+            jdResponse.setMessage(JdResponse.MESSAGE_ERROR);
+            Profiler.functionError(info);
+        } finally {
+            Profiler.registerInfoEnd(info);
         }
 
         return jdResponse;
