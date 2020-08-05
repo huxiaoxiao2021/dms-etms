@@ -6,6 +6,7 @@ import com.jd.etms.waybill.dto.BigPackageStateDto;
 import com.jd.etms.waybill.dto.PackageStateDto;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author tangchunqing
@@ -41,6 +42,14 @@ public interface WaybillTraceManager {
      * @return
      */
     BaseEntity<List<PackageState>> getPkStateByPCode(String packageCode);
+
+    /**
+     * 根据操作号、状态 查全程跟踪
+     * @param opeCode
+     * @param states
+     * @return
+     */
+    List<PackageState> getAllOperationsByOpeCodeAndState(String opeCode, Set<Integer> states);
 
     /**
      * 获取包裹的全程跟踪操作明细

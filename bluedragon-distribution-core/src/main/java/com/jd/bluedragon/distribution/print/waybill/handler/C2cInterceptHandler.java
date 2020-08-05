@@ -2,20 +2,24 @@ package com.jd.bluedragon.distribution.print.waybill.handler;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
-import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.handler.Handler;
+import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
+import com.jd.bluedragon.distribution.print.domain.WayBillFinishedEnum;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
+import com.jd.bluedragon.distribution.reprint.service.ReprintRecordService;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.waybill.domain.PackageState;
 import com.jd.etms.waybill.dto.PackageStateDto;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.text.MessageFormat;
+import java.util.*;
 
 /**
  * @ClassName: C2cInterceptHandler
@@ -24,12 +28,13 @@ import java.util.Set;
  * @date: 2018年12月25日17:38:01
  */
 @Service("c2cInterceptHandler")
-public class C2cInterceptHandler implements Handler<WaybillPrintContext, JdResult<String>> {
+public class C2cInterceptHandler implements InterceptHandler<WaybillPrintContext, String> {
     private static final Logger log = LoggerFactory.getLogger(C2cInterceptHandler.class);
 
     @Autowired
     WaybillTraceManager waybillTraceManager;
-
+    @Autowired
+    private ReprintRecordService reprintRecordService;
     /**
      * 需要校验运单是否已经妥投的类型
      */
@@ -44,7 +49,6 @@ public class C2cInterceptHandler implements Handler<WaybillPrintContext, JdResul
         needCheckWaybillFinished.add(WaybillPrintOperateTypeEnum.FAST_TRANSPORT_PRINT.getType());//快运称重打印
         needCheckWaybillFinished.add(WaybillPrintOperateTypeEnum.SITE_MASTER_REVERSE_CHANGE_PRINT.getType());//站长工作台换单打印
     }
-
 
     @Override
     public InterceptResult<String> handle(WaybillPrintContext context) {
@@ -73,6 +77,36 @@ public class C2cInterceptHandler implements Handler<WaybillPrintContext, JdResul
         if(needCheckWaybillFinished.contains(context.getRequest().getOperateType()) && waybillTraceManager.isWaybillFinished(context.getWaybill().getWaybillCode())){
             interceptResult.toFail(InterceptResult.STATUS_NO_PASSED, WaybillPrintMessages.MESSAGE_WAYBILL_STATE_FINISHED);
             return interceptResult;
+        }
+
+        if (WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType().equals(context.getRequest().getOperateType()))
+        {
+            boolean  isRepeatPrint=false;
+            //当前面单已XX状态，且已操作过补打，请确认是否打印
+            if (StringHelper.isNotEmpty(context.getRequest().getBarCode()) && reprintRecordService.isBarCodeRePrinted(context.getRequest().getBarCode())) {
+                log.warn("C2cInterceptHandler.handler-->{}该单号重复打印",context.getWaybill().getWaybillCode());
+                isRepeatPrint=true;
+            }
+            List<PackageState> collectCompleteResult = waybillTraceManager.getAllOperationsByOpeCodeAndState(context.getWaybill().getWaybillCode(),WayBillFinishedEnum.waybillStatusFinishedSet);
+            if (CollectionUtils.isEmpty(collectCompleteResult)&&isRepeatPrint) {
+                interceptResult.toWeakSuccess(JdResponse.CODE_RE_PRINT_REPEAT, JdResponse.MESSAGE_RE_PRINT_REPEAT);
+                return interceptResult;
+            }
+            if(CollectionUtils.isNotEmpty(collectCompleteResult)){
+                Collections.sort(collectCompleteResult, new Comparator<PackageState>() {
+                    @Override
+                    public int compare(PackageState packageState, PackageState packageState2) {
+                        return packageState.getCreateTime().compareTo(packageState2.getCreateTime());
+                    }
+                });
+                String  message =String.format(WaybillPrintMessages.MESSAGE_WAYBILL_FINISHED,collectCompleteResult.get(0).getStateName());
+                if(isRepeatPrint){
+                    message =String.format(WaybillPrintMessages.MESSAGE_WAYBILL_FINISHED_REPRINT,collectCompleteResult.get(0).getStateName());
+                    interceptResult.toWeakSuccess(WaybillPrintMessages.CODE_WAYBILL_FINISHED_REPRINT,message);
+                }else {
+                    interceptResult.toWeakSuccess(WaybillPrintMessages.CODE_WAYBILL_FINISHED, message);
+                }
+            }
         }
         return interceptResult;
     }
