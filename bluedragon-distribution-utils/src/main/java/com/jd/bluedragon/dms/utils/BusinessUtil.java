@@ -751,10 +751,10 @@ public class BusinessUtil {
             return false;
         }
         if(isSignChar(waybillSign,40,'2') && isSignInChars(waybillSign,80,'0','1')
-                || isSignInChars(waybillSign,40,'2','3') && isSignInChars(waybillSign,80,'2','9')
-                || isSignChar(waybillSign,89,'0') && isSignChar(waybillSign,99,'0')
+                || (isSignInChars(waybillSign,40,'2','3') && isSignInChars(waybillSign,80,'2','9'))
+                || (isSignChar(waybillSign,89,'0') && isSignChar(waybillSign,99,'0')
                 && isSignChar(waybillSign,54,'0') && isSignInChars(waybillSign,62,'0','1','4')
-                && isSignChar(waybillSign,29,'2') && isSignChar(waybillSign,10,'1')){
+                && isSignChar(waybillSign,29,'2') && isSignChar(waybillSign,10,'1'))){
             return true;
         }
         return false;
