@@ -769,7 +769,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      */
     private void specialSceneHandle(WeightVolumeCollectDto weightVolumeCollectDto) {
         // 1KG以下（含）设为不超标并记录es | 计费体积为0或复重体积为0
-        if(weightVolumeCollectDto.getReviewVolume() <= 1
+        if(weightVolumeCollectDto.getReviewWeight() <= 1
                 || weightVolumeCollectDto.getBillingVolume() == 0 || weightVolumeCollectDto.getReviewVolume() == 0){
             weightVolumeCollectDto.setIsExcess(0);
             weightVolumeCollectDto.setVolumeWeightIsExcess(0);
