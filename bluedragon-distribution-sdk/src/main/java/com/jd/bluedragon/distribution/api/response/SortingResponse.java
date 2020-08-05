@@ -53,12 +53,18 @@ public class SortingResponse extends JdResponse {
     public static final Integer CODE_293020 = 293020;
     public static final String MESSAGE_293020 = "此[包裹]或[运单]为[取消订单]，未出库，请退货";
     
+    public static final Integer CODE_39006 = 39006;
+    public static final String MESSAGE_39006 = "此单为取消订单，请逆向退回，确定强制继续？";
+    
     public static final Integer CODE_293040 = 293040;
     public static final String MESSAGE_293040 = "此[包裹]或[运单]为[未出库]，请联系客服";
     
     public static final Integer CODE_29303 = 29303;
     public static final String MESSAGE_29303 = "此[包裹]或[运单]为[退款100分订单]，请退货";
-
+    //病单拦截提示信息
+    public static final Integer CODE_29307 = 29307;
+    public static final String MESSAGE_29307 = "此单为[病单],请退货";
+    
     public static final Integer CODE_29121 = 29121;
     public static final String MESSAGE_29121 = "此单为[妥投状态]，请先核实异常，在PDA上提交配送异常后再进行逆向操作!";
 

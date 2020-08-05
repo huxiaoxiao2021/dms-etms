@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.task.request.TaskPdaRequest;
+import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.TaskResponse;
 import com.jd.bluedragon.distribution.rest.task.TaskResource;
@@ -27,6 +28,15 @@ public class TaskGatewayServiceImpl implements TaskGatewayService {
     @BusinessLog(sourceSys = 1,bizType = 2006,operateType = 20061)
     @JProfiler(jKey = "DMSWEB.TaskGatewayServiceImpl.addTasksCommonly", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public JdCResponse<String> addTasksCommonly(TaskPdaRequest pdaRequest) {
+        JdCResponse<String> jdCResponse = new JdCResponse<>();
+        if(pdaRequest == null){
+            jdCResponse.toFail(JdResponse.MESSAGE_PARAM_ERROR);
+            return jdCResponse;
+        }
+        if(pdaRequest.getReceiveSiteCode() == null || pdaRequest.getReceiveSiteCode() == 0){
+            jdCResponse.toFail(JdResponse.MESSAGE_PARAM_ERROR_2);
+            return jdCResponse;
+        }
         TaskRequest taskRequest = new TaskRequest();
         taskRequest.setBoxCode(pdaRequest.getBoxCode());
         taskRequest.setReceiveSiteCode(pdaRequest.getReceiveSiteCode());
@@ -46,7 +56,7 @@ public class TaskGatewayServiceImpl implements TaskGatewayService {
         taskRequest.setSiteCode(pdaRequest.getSiteCode());
 
         TaskResponse taskResponse = taskResource.add(taskRequest);
-        JdCResponse<String> jdCResponse = new JdCResponse<>();
+
         if(Objects.equals(taskResponse.getCode(),TaskResponse.CODE_OK)){
             jdCResponse.toSucceed(taskResponse.getMessage());
         }else{

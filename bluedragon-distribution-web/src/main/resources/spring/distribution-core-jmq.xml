@@ -284,6 +284,12 @@
         <property name="timeout" value="1000"/>
     </bean>
 
+    <!--外单靑流箱绑定MQ-->
+    <bean id="dmsCycleBoxBindNotice" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dms.cyclebox.bind.notice}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
     <!--配送员接货，打印后发送mq信息给sms-->
     <bean id="popPrintToSmsProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.dmsSmsPopPrint}"/>
@@ -380,11 +386,6 @@
     <!-- 超标mq，提供给fxm系统 -->
     <bean id="dmsWeightVolumeExcess" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.weightVolume.excess}"/>
-        <property name="timeout" value="1000"/>
-    </bean>
-    <!-- 超标mq，提供给判责系统 -->
-    <bean id="dmsWeightVolumeAbnormal" parent="dmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.weightVolume.abnormal}"/>
         <property name="timeout" value="1000"/>
     </bean>
     <!--包裹补打发送mq消息 -->

@@ -39,6 +39,8 @@ import com.jd.tms.basic.ws.BasicSyncWS;
 import com.jd.tms.ecp.dto.BasicRailTrainDto;
 import com.jd.tms.ecp.dto.railway.RailWaySendRegisterDto;
 import com.jd.tms.ecp.ws.EcpRailWayWS;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections.CollectionUtils;
@@ -129,6 +131,8 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
 
     @Autowired
     EcpRailWayWS ecpRailWayWS;
+
+
 
     /**
      * 分隔符 逗号
@@ -546,6 +550,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.ArSendRegisterServiceImpl.queryStartCityInfo", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public List<City> queryStartCityInfo() {
         List<ArSendRegister> arSendRegisters = arSendRegisterDao.queryStartCityInfo();
         List<City> cities = new ArrayList<City>();
@@ -599,6 +604,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.ArSendRegisterServiceImpl.queryWaitReceive", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public List<ArSendRegister> queryWaitReceive(ArSendRegister arSendRegister) {
         return arSendRegisterDao.queryWaitReceive(arSendRegister);
     }
@@ -628,34 +634,34 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                     return arTransportInfo;
                 }
             } else if (transportType == RAILWAY) {
-                BasicRailwayTrainDto param = new BasicRailwayTrainDto();
-                param.setTrainNumber(code);
-                param.setTrainSiteOrder(siteOrder);
-                CommonDto<BasicRailwayTrainDto> commonDto = basicQueryWS.getRailwayTrainByCondition(param);
-                if (commonDto != null && commonDto.getCode() == CommonDto.CODE_SUCCESS && commonDto.getData() != null) {
-                    BasicRailwayTrainDto railwayTrainDto = commonDto.getData();
-                    arTransportInfo.setTransCompany(railwayTrainDto.getRailwayActName());
-                    arTransportInfo.setTransCompanyCode(railwayTrainDto.getRailwayActCode());
-                    arTransportInfo.setStartCityId(railwayTrainDto.getBeginCityId());
-                    arTransportInfo.setStartCityName(railwayTrainDto.getBeginCityName());
-                    arTransportInfo.setEndCityId(railwayTrainDto.getEndCityId());
-                    arTransportInfo.setEndCityName(railwayTrainDto.getEndCityName());
-                    arTransportInfo.setStartStationId(railwayTrainDto.getBeginNodeCode());
-                    arTransportInfo.setStartStationName(railwayTrainDto.getBeginNodeName());
-                    arTransportInfo.setEndStationId(railwayTrainDto.getEndNodeCode());
-                    arTransportInfo.setEndStationName(railwayTrainDto.getEndNodeName());
-                    arTransportInfo.setPlanStartTime(railwayTrainDto.getPlanDepartTime());
-                    arTransportInfo.setPlanEndTime(railwayTrainDto.getPlanArriveTime());
-                    arTransportInfo.setAging(railwayTrainDto.getAging());
-                    return arTransportInfo;
+                BasicRailTrainDto railwayTrainDto = ecpQueryWSManager.getRailTrainListByCondition(code,
+                        null,null);
+                if(railwayTrainDto == null){
+                    log.warn("根据车次号{}查询车次信息失败", code);
+                    return null;
                 }
-                log.warn("根据车次号{}，和站序号查询车次{}信息失败，返回值：{}", code, siteOrder, JsonHelper.toJson(commonDto));
+                arTransportInfo.setTransCompany(railwayTrainDto.getRailwayActName());
+                arTransportInfo.setTransCompanyCode(railwayTrainDto.getRailwayActCode());
+                arTransportInfo.setStartCityId(railwayTrainDto.getBeginCityId());
+                arTransportInfo.setStartCityName(railwayTrainDto.getBeginCityName());
+                arTransportInfo.setEndCityId(railwayTrainDto.getEndCityId());
+                arTransportInfo.setEndCityName(railwayTrainDto.getEndCityName());
+                arTransportInfo.setStartStationId(railwayTrainDto.getBeginNodeCode());
+                arTransportInfo.setStartStationName(railwayTrainDto.getBeginNodeName());
+                arTransportInfo.setEndStationId(railwayTrainDto.getEndNodeCode());
+                arTransportInfo.setEndStationName(railwayTrainDto.getEndNodeName());
+                arTransportInfo.setPlanStartTime(railwayTrainDto.getPlanDepartTime());
+                arTransportInfo.setPlanEndTime(railwayTrainDto.getPlanArriveTime());
+                arTransportInfo.setAging(railwayTrainDto.getAging());
+                return arTransportInfo;
             }
         } catch (Exception e) {
             log.error("[空铁]调用TMS运输接口获取航班信息/铁路信息出现异常", e);
         }
         return null;
     }
+
+
 
     @Override
     public boolean executeOfflineTask(String body) {

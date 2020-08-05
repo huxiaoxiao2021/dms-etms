@@ -8,7 +8,8 @@ package com.jd.bluedragon.distribution.material.enums;
  **/
 public enum MaterialTypeEnum {
 
-    WARM_BOX((byte)1, "保温箱");
+    WARM_BOX((byte)1, "保温箱"),
+    COLLECTION_BAG((byte)3, "集包袋");
 
     private byte code;
 

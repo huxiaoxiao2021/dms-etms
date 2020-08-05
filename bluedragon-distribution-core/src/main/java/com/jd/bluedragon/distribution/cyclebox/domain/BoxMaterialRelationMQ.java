@@ -55,6 +55,13 @@ public class BoxMaterialRelationMQ {
      */
     private String siteCode;
 
+    /**
+     * 发货目的地
+     */
+    private Long receiveSiteCode;
+
+    private String receiveSiteName;
+
     public String getMaterialCode() {
         return materialCode;
     }
@@ -125,5 +132,21 @@ public class BoxMaterialRelationMQ {
 
     public void setSiteCode(String siteCode) {
         this.siteCode = siteCode;
+    }
+
+    public Long getReceiveSiteCode() {
+        return receiveSiteCode;
+    }
+
+    public void setReceiveSiteCode(Long receiveSiteCode) {
+        this.receiveSiteCode = receiveSiteCode;
+    }
+
+    public String getReceiveSiteName() {
+        return receiveSiteName;
+    }
+
+    public void setReceiveSiteName(String receiveSiteName) {
+        this.receiveSiteName = receiveSiteName;
     }
 }

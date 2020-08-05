@@ -95,7 +95,6 @@
 		<property name="handlers">
 			<list>
 				<ref bean="basicWaybillPrintHandler"/>
-				<ref bean="businessNetInterceptHandler"/>
 				<ref bean="c2cInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
 				<ref bean="specialMarkWaybillHandler"/>
@@ -104,6 +103,7 @@
 				<ref bean="customerAndConsignerInfoHandler"/>
 				<ref bean="specialFieldHandler"/>
 				<ref bean="remarkFieldHandler"/>
+				<ref bean="businessNetInterceptHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
 			</list>
@@ -114,7 +114,6 @@
 		<property name="handlers">
 			<list>
 				<ref bean="basicWaybillPrintHandler"/>
-				<ref bean="businessNetInterceptHandler"/>
 				<ref bean="c2cInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
 				<ref bean="oldWaybillQueryHandler"/>
@@ -125,6 +124,7 @@
 				<ref bean="specialFieldHandler"/>
 				<ref bean="remarkFieldHandler"/>
 				<ref bean="dealReversePrintInfoHandler"/>
+				<ref bean="businessNetInterceptHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
 			</list>
@@ -136,7 +136,6 @@
 			<list>
 				<ref bean="queryWaybillByBusiCodeHandler"/>
 				<ref bean="basicWaybillPrintHandler"/>
-				<ref bean="businessNetInterceptHandler"/>
 				<ref bean="c2cInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
 				<ref bean="specialMarkWaybillHandler"/>
@@ -145,6 +144,7 @@
 				<ref bean="customerAndConsignerInfoHandler"/>
 				<ref bean="specialFieldHandler"/>
 				<ref bean="remarkFieldHandler"/>
+				<ref bean="businessNetInterceptHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
 			</list>
@@ -155,7 +155,6 @@
         <property name="handlers">
             <list>
                 <ref bean="basicWaybillPrintHandler"/>
-				<ref bean="businessNetInterceptHandler"/>
                 <ref bean="waybillOutZoneHandler"/>
                 <ref bean="featherLetterHandler"/>
                 <ref bean="c2cInterceptHandler"/>
@@ -166,8 +165,10 @@
                 <ref bean="customerAndConsignerInfoHandler"/>
                 <ref bean="specialFieldHandler"/>
                 <ref bean="remarkFieldHandler"/>
+				<ref bean="businessNetInterceptHandler"/>
                 <ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
+				<ref bean="cycleBoxBindToWaiDanHandler"/>
             </list>
         </property>
     </bean>
@@ -177,7 +178,6 @@
 			<list>
 				<ref bean="basicWaybillPrintHandler"/>
 				<ref bean="overLengthRemindHandler"/>
-				<ref bean="businessNetInterceptHandler"/>
 				<ref bean="isNeedPrintHandler"/>
 				<ref bean="c2cInterceptHandler"/>
 				<!-- 三方超限拦截 -->
@@ -189,6 +189,7 @@
 				<ref bean="customerAndConsignerInfoHandler"/>
 				<ref bean="specialFieldHandler"/>
 				<ref bean="remarkFieldHandler"/>
+				<ref bean="businessNetInterceptHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
 			</list>
@@ -199,7 +200,6 @@
 		<property name="handlers">
 			<list>
 				<ref bean="basicWaybillPrintHandler"/>
-				<ref bean="businessNetInterceptHandler"/>
 				<ref bean="c2cInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
 				<ref bean="specialMarkWaybillHandler"/>
@@ -207,6 +207,7 @@
 				<ref bean="promiseWaybillHandler"/>
 				<ref bean="customerAndConsignerInfoHandler"/>
 				<ref bean="remarkFieldHandler"/>
+				<ref bean="businessNetInterceptHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
 			</list>
@@ -271,10 +272,10 @@
 		<property name="handlers">
 			<list>
 				<ref bean="sitePlateBasicHandler"/>
-				<ref bean="businessNetInterceptHandler"/>
 				<ref bean="customerAndConsignerInfoHandler"/>
 				<ref bean="promiseWaybillHandler"/>
 				<ref bean="specialFieldHandler"/>
+				<ref bean="businessNetInterceptHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
 			</list>

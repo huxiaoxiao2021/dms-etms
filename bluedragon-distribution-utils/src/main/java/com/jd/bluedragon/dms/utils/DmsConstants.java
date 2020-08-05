@@ -1,5 +1,7 @@
 package com.jd.bluedragon.dms.utils;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -225,4 +227,14 @@ public class DmsConstants {
      * 企配仓拣货单模板-默认版本号1
      */
     public static final String TEMPLATE_VERSION_DEFAULT_EDN_PICKING = "1";
+
+    /**
+     * 集包袋前缀
+     */
+    public static final String COLLECTION_BAG_PREFIX = "AD";
+
+    /**
+     * 分拣中心类型（数据字典-站点类型）
+     */
+    public static final List<Integer> SORTING_SITE_TYPE_LIST = Arrays.asList(64);
 }

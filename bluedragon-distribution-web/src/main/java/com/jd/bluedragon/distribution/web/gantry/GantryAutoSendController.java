@@ -151,11 +151,6 @@ public class GantryAutoSendController {
         if (request.getLockStatus() == 0) {/** 解锁龙门架操作 **/
             log.info("用户：{}正在尝试解锁龙门架，ID为{}",userCode, request.getMachineId());
             try {
-                BaseStaffSiteOrgDto lastLockUser = baseMajorManager.getBaseStaffByErpNoCache(gantryDeviceConfig.getLockUserErp());
-                //锁定人erp异常 或和当前同一人
-                if (lastLockUser == null || lastLockUser.getIsResign() == null || lastLockUser.getIsResign() != 1 ||
-                        gantryDeviceConfig.getLockUserErp().equals(userCode)) {//判断锁定人与解锁人是否是同一人
-                    //只更新该龙门架的锁定状态为0 解锁
                     gantryDeviceConfig.setLockStatus(request.getLockStatus());
                     gantryDeviceConfig.setEndTime(new Date());//解锁动作设置结束时间
                     gantryDeviceConfig.setOperateUserErp(userCode);//设置操作人员与更新人员
@@ -180,12 +175,6 @@ public class GantryAutoSendController {
                         result.setMessage("处理龙门架参数状态错误，更新失败");
                         result.setData(gantryDeviceConfig);
                     }
-                } else {
-                    log.info("此用户无法解锁由别人锁定的龙门架设备；解锁人{}锁定人{}",userName, gantryDeviceConfig.getLockUserName());
-                    result.setCode(1000);
-                    result.setMessage("解锁失败，请联系锁定人" + gantryDeviceConfig.getLockUserErp() + "解锁");
-                    result.setData(gantryDeviceConfig);
-                }
             } catch (Exception e) {
                 log.error("服务器处理异常：", e);
             }

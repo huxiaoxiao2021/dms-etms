@@ -2,6 +2,7 @@ package com.jd.bluedragon.dms.utils;
 
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
 
+import com.sun.org.apache.regexp.internal.REUtil;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -1545,5 +1546,41 @@ public class BusinessUtil {
      */
     public static boolean isLetterExpress(String waybillSign) {
         return isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_B);
+    }
+
+    /**
+     * 判断是否是集包袋编号
+     * @param materialCode
+     * @return
+     */
+    public static boolean isCollectionBag(String materialCode) {
+        if (StringUtils.isBlank(materialCode)) {
+            return false;
+        }
+        return materialCode.toUpperCase().startsWith(COLLECTION_BAG_PREFIX) && materialCode.length() == 16;
+    }
+    /**
+     * 判断是否无人车配送，sendpay第307位=1
+     *
+     * @param sendPay
+     * @return
+     */
+    public static boolean isWrcps(String sendPay) {
+        return isSignChar(sendPay, SendPayConstants.POSITION_307, SendPayConstants.CHAR_307_1);
+    }
+
+    /**
+     * 判断站点是否为分拣中心类型
+     * @param siteType 站点类型
+     * @return boolean
+     */
+    public static boolean isSortingSiteType(Integer siteType) {
+        if(null == siteType){
+            return true;
+        }
+        if(SORTING_SITE_TYPE_LIST.contains(siteType)) {
+            return true;
+        }
+        return false;
     }
 }
