@@ -222,8 +222,8 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         setSpotCheckCache(dto.getWaybillCode(),dto.getReviewSiteCode());
 
         String waybillSign = waybill == null ? null : waybill.getWaybillSign();
-        // 快运外单只记录es
-        if(BusinessUtil.isKyLdop(waybillSign)){
+        // 非快运外单只记录es
+        if(!BusinessUtil.isKyLdop(waybillSign)){
             return true;
         }
 
