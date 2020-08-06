@@ -29,6 +29,7 @@ import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
 import com.jd.bluedragon.distribution.api.request.ReversePrintRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.business.entity.BusinessReturnAdress;
 import com.jd.bluedragon.distribution.business.entity.BusinessReturnAdressStatusEnum;
@@ -41,6 +42,7 @@ import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.packageToMq.service.IPushPackageToMqService;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
 import com.jd.bluedragon.distribution.qualityControl.service.QualityControlService;
+import com.jd.bluedragon.distribution.reverse.domain.BackAddressDTOExt;
 import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
 import com.jd.bluedragon.distribution.reverse.domain.TwiceExchangeRequest;
 import com.jd.bluedragon.distribution.reverse.domain.TwiceExchangeResponse;
@@ -69,6 +71,8 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ldop.business.api.dto.request.BackAddressDTO;
+import com.jd.ql.basic.domain.Assort;
+import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
@@ -93,6 +97,8 @@ public class ReversePrintServiceImpl implements ReversePrintService {
     private static final Integer PICKUP_FINISHED_STATUS=Integer.valueOf(20); //取件单完成态
 
     private static final Integer PICKUP_DIFFER_DAYS = 15;   //取件单创建时间和现在相差天数
+    //退货站内通知间隔天数
+    private static final int NOTIC_DIFFER_DAYS = 1;
 
     @Autowired
     private TaskService taskService;
@@ -659,15 +665,15 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 			}else{
 				twiceExchangeResponse.setReturnDestinationTypes("011");
 				//获取商家退货地址
-				JdResult<BackAddressDTO> backInfo = getBackInfoAndNotice(busiId,twiceExchangeRequest.getDmsSiteCode(),twiceExchangeRequest.getDmsSiteName());
+				JdResult<BackAddressDTOExt> backInfo = getBackInfoAndNotice(busiId,twiceExchangeRequest.getDmsSiteCode(),twiceExchangeRequest.getDmsSiteName());
 				
 				if(backInfo != null 
 						&& backInfo.isSucceed() 
 						&& backInfo.getData() != null){
 					//设置退货信息
-					BackAddressDTO backInfoData = backInfo.getData();
-					twiceExchangeResponse.setAddress(backInfoData.getBackAddress());
-					twiceExchangeResponse.setHideAddress(BusinessUtil.getHideAddress(backInfoData.getBackAddress()));
+					BackAddressDTOExt backInfoData = backInfo.getData();
+					twiceExchangeResponse.setAddress(backInfoData.getFullBackAddress());
+					twiceExchangeResponse.setHideAddress(BusinessUtil.getHideAddress(backInfoData.getFullBackAddress()));
 					twiceExchangeResponse.setContact(backInfoData.getContractName());
 					twiceExchangeResponse.setHideContact(BusinessUtil.getHideName(backInfoData.getContractName()));
 					String phone = backInfoData.getContractPhone();
@@ -689,8 +695,8 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 	 * @param busiId
 	 * @return
 	 */
-	private JdResult<BackAddressDTO> getBackInfoAndNotice(Integer busiId,Integer dmsSiteCode,String dmsSiteName){
-		JdResult<BackAddressDTO> jdResult = new JdResult<BackAddressDTO>();
+	private JdResult<BackAddressDTOExt> getBackInfoAndNotice(Integer busiId,Integer dmsSiteCode,String dmsSiteName){
+		JdResult<BackAddressDTOExt> jdResult = new JdResult<BackAddressDTOExt>();
 		jdResult.toSuccess();
         //调用外单接口，根据商家id获取商家编码
         BasicTraderInfoDTO basicTraderInfoDTO = baseMinorManager.getBaseTraderById(busiId);
@@ -712,8 +718,11 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         		&& backAddressResult.isSucceed()
         		&& backAddressResult.getData() != null
         		&& backAddressResult.getData().size() > 0){
-        	hasBackInfo = true;
-        	jdResult.setData(backAddressResult.getData().get(0));
+        	BackAddressDTO backAddress = backAddressResult.getData().get(0);
+        	if(backAddress != null){
+        		hasBackInfo = true;
+        		jdResult.setData(lDOPManager.getBackAddressDTOExt(backAddress));
+        	}
         }
         //查询数据维护状态
 		BusinessReturnAdress businessReturnAdress = businessReturnAdressService.queryBusinessReturnAdressByBusiId(busiId);
@@ -742,13 +751,14 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 				needNotice = true;
 			}else{
 				//距离上次通知超过一天，需要发站内信通知
-				Date date = DateHelper.addDate(currentDate, -1);
+				Date date = DateHelper.addDate(currentDate, -NOTIC_DIFFER_DAYS);
 				if(date.after(businessReturnAdress.getLastNoticeTime())){
 					needNotice = true;
 				}
 				businessReturnAdress.setDmsSiteCode(dmsSiteCode);
 				businessReturnAdress.setDmsSiteName(dmsSiteName);
 				businessReturnAdress.setLastOperateTime(currentDate);
+				businessReturnAdress.setReturnAdressStatus(BusinessReturnAdressStatusEnum.NO.getStatusCode());
 				businessReturnAdressService.update(businessReturnAdress);
 			}
 			//需要发站内信通知

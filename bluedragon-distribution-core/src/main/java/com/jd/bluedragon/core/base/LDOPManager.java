@@ -2,6 +2,7 @@ package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.reverse.domain.BackAddressDTOExt;
 import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
 import com.jd.ldop.business.api.dto.request.BackAddressDTO;
 import com.jd.ldop.center.api.ResponseDTO;
@@ -109,4 +110,10 @@ public interface LDOPManager {
      * @return
      */
 	JdResult<List<BackAddressDTO>> queryBackAddressByType(Integer backType,String busiCode);
+	/**
+	 * 扩展backAddressDTO，获取全地址
+	 * @param backAddressDTO
+	 * @return
+	 */
+	BackAddressDTOExt getBackAddressDTOExt(BackAddressDTO backAddressDTO);
 }

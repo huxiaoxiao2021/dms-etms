@@ -3,10 +3,12 @@ package com.jd.bluedragon.core.base;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
+import com.jd.bluedragon.distribution.reverse.domain.BackAddressDTOExt;
 import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
 import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
 import com.jd.bluedragon.distribution.reverse.service.ReverseSpareEclp;
@@ -37,6 +39,7 @@ import com.jd.ldop.center.api.update.dto.WaybillAddress;
 import com.jd.ldop.center.api.waybill.GeneralWaybillQueryApi;
 import com.jd.ldop.center.api.waybill.dto.OrderInfoDTO;
 import com.jd.ldop.center.api.waybill.dto.WaybillQueryByOrderIdDTO;
+import com.jd.ql.basic.domain.Assort;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.receive.api.dto.OrderInfoPrintDTO;
 import com.jd.ql.dms.receive.api.dto.OrderInfoQueryDTO;
@@ -108,6 +111,8 @@ public class LDOPManagerImpl implements LDOPManager {
     @Autowired
     @Qualifier("backAddressInfoApi")
     private BackAddressInfoApi backAddressInfoApi;
+    @Autowired
+    private BaseService baseService;
     
     private final Logger log = LoggerFactory.getLogger(LDOPManagerImpl.class);
     /**
@@ -516,5 +521,41 @@ public class LDOPManagerImpl implements LDOPManager {
             log.error("逆向换单：cassandra操作日志记录失败：" ,e);
         }
     }
+
+	@Override
+	public BackAddressDTOExt getBackAddressDTOExt(BackAddressDTO backAddress) {
+    	BackAddressDTOExt addressData = new BackAddressDTOExt();
+    	if(backAddress != null){
+    		String fullBackAddress = "";
+    		if(backAddress.getProvinceId() != null){
+    			Assort provinceInfo = baseService.getOneAssortById(backAddress.getProvinceId());
+    			if(provinceInfo != null && provinceInfo.getAssDis() != null){
+    				fullBackAddress += provinceInfo.getAssDis();
+    			}
+    		}
+    		if(backAddress.getCityId() != null){
+    			Assort cityInfo = baseService.getOneAssortById(backAddress.getCityId());
+    			if(cityInfo != null && cityInfo.getAssDis() != null){
+    				fullBackAddress += cityInfo.getAssDis();
+    			}
+    		}
+    		if(backAddress.getAreaId() != null){
+    			Assort areaInfo = baseService.getOneAssortById(backAddress.getAreaId());
+    			if(areaInfo != null && areaInfo.getAssDis() != null){
+    				fullBackAddress += areaInfo.getAssDis();
+    			}
+    		}
+    		if(backAddress.getBackAddress() != null){
+    			fullBackAddress += backAddress.getBackAddress();
+    		}
+    		addressData.setFullBackAddress(fullBackAddress);
+    		addressData.setBackAddress(backAddress.getBackAddress());
+    		addressData.setContractMobile(backAddress.getContractMobile());
+    		addressData.setContractPhone(backAddress.getContractPhone());
+    		addressData.setContractName(backAddress.getContractName());
+    		return addressData;
+    	}
+    	return null;
+	}
 
 }
