@@ -354,7 +354,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
     private WeightVolumeCollectDto assembleWeightVolumeDto(SpotCheckData spotCheckData,Waybill waybill,
                                                            WaybillFlowDetail waybillFlowDetail,BaseStaffSiteOrgDto baseDto){
         WeightVolumeCollectDto collectDto = new WeightVolumeCollectDto();
-
+        collectDto.setFromSource(spotCheckData.getFromSource());
         collectDto.setBillingWeight(waybillFlowDetail.getTotalWeight()==null?0.00:waybillFlowDetail.getTotalWeight());
         collectDto.setBillingVolume(waybillFlowDetail.getTotalVolume()==null?0.00:waybillFlowDetail.getTotalVolume());
         collectDto.setBillingErp(waybillFlowDetail.getOperateErp());
