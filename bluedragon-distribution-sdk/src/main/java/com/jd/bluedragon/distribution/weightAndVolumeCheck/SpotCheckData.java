@@ -45,6 +45,19 @@ public class SpotCheckData implements Serializable {
      * 包裹数据
      * */
     private List<packageData> packageDataList;
+    /**
+     * 抽检来源
+     * @see SpotCheckSourceEnum
+     * */
+    private String fromSource;
+
+    public String getFromSource() {
+        return fromSource;
+    }
+
+    public void setFromSource(String fromSource) {
+        this.fromSource = fromSource;
+    }
 
     public Integer getIsWaybillSpotCheck() {
         return isWaybillSpotCheck;
