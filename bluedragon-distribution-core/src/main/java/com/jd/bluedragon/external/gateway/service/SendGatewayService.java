@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.dto.send.request.ColdChainSendRequest;
 import com.jd.bluedragon.common.dto.send.request.DeliveryVerifyRequest;
 import com.jd.bluedragon.common.dto.send.request.SinglePackageSendRequest;
 import com.jd.bluedragon.common.dto.send.request.TransPlanRequest;
+import com.jd.bluedragon.common.dto.send.response.CheckBeforeSendResponse;
 import com.jd.bluedragon.common.dto.send.response.SendThreeDetailDto;
 import com.jd.bluedragon.common.dto.send.response.TransPlanDto;
 import com.jd.bluedragon.common.dto.send.request.DeliveryRequest;
@@ -72,4 +73,17 @@ public interface SendGatewayService {
      */
     JdCResponse<List<SendThreeDetailDto>> differentialQuery(DifferentialQueryRequest request);
 
+    /**
+     *老发货\快运发货拦截接口
+     * @param request
+     * @return
+     */
+    JdCResponse<CheckBeforeSendResponse> checkBeforeSend(DeliveryRequest request);
+
+    /**
+     * 老发货\快运发货接口
+     * @param request
+     * @return
+     */
+    JdCResponse<Boolean> sendDeliveryInfo(ColdChainSendRequest request);
 }
