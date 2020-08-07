@@ -31,7 +31,7 @@ public class CycleBoxBindToWaiDanHandler implements InterceptHandler<WaybillPrin
     @Override
     public InterceptResult<String> handle(WaybillPrintContext context) {
         InterceptResult<String> result = context.getResult();
-        log.info("该单不是靑流箱绑定动作，不需要处理。扫描的条码[{}]", JsonHelper.toJson(context));
+        log.info("外单靑流箱绑定逻辑。请求内容[{}]", JsonHelper.toJson(context));
         if(StringUtils.isBlank(context.getRequest().getBarCode()) || StringUtils.isBlank(context.getRequest().getReBoxCode())){
             log.info("该单不是靑流箱绑定动作，不需要处理。扫描的条码{}", context.getRequest().getBarCode());
             return result;
