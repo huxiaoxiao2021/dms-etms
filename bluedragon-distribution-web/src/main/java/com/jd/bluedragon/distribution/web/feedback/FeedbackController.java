@@ -52,11 +52,12 @@ public class FeedbackController {
 
     @Authorization(Constants.DMS_WEB_INDEX_R)
     @RequestMapping("/addView")
-    public String addView(Model model) {
+    public String addView(Model model, Long appId) {
         try {
             ErpUserClient.ErpUser currUser = ErpUserClient.getCurrUser();
-            if (currUser != null){
-                model.addAttribute("typeMaps", feedbackService.getFeedbackTypeNew(APP_ID,ErpUserClient.getCurrUser().getUserCode(),ORG_TYPE_ERP));
+            if (currUser != null && appId != null) {
+                model.addAttribute("appId", appId);
+                model.addAttribute("typeMaps", feedbackService.getFeedbackTypeNew(appId, ErpUserClient.getCurrUser().getUserCode(), ORG_TYPE_ERP));
             }
         } catch (Exception e) {
             log.error("获取意见反馈类型时发生异常", e);
@@ -66,15 +67,16 @@ public class FeedbackController {
 
     @Authorization(Constants.DMS_WEB_INDEX_R)
     @RequestMapping("/index")
-    public String index(Model model) {
+    public String index(Model model, Long appId) {
         try {
             ErpUserClient.ErpUser currUser = ErpUserClient.getCurrUser();
-            if (currUser != null){
-                boolean res = feedbackService.checkHasFeedBack(APP_ID, currUser.getUserCode());
-                if (res){
+            if (currUser != null && appId != null) {
+                model.addAttribute("appId", appId);
+                boolean res = feedbackService.checkHasFeedBack(appId, currUser.getUserCode());
+                if (res) {
                     return "feedback/index";
-                }else {
-                    model.addAttribute("typeMaps", feedbackService.getFeedbackTypeNew(APP_ID,ErpUserClient.getCurrUser().getUserCode(),ORG_TYPE_ERP));
+                } else {
+                    model.addAttribute("typeMaps", feedbackService.getFeedbackTypeNew(appId, ErpUserClient.getCurrUser().getUserCode(), ORG_TYPE_ERP));
                     return "feedback/add";
                 }
             }
@@ -116,11 +118,13 @@ public class FeedbackController {
                 ErpUserClient.ErpUser erpUser =  ErpUserClient.getCurrUser();
                 if (erpUser != null) {
                     FeedbackNew feedback = JSONObject.parseObject(paramJson, FeedbackNew.class);
-                    feedback.setAppId(APP_ID);
                     feedback.setImgs(images);
                     feedback.setUserAccount(erpUser.getUserCode());
                     feedback.setUserName(erpUser.getUserName());
-                    if (!feedbackService.add(feedback)) {
+                    if (feedback.getAppId() == null) {
+                        result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+                        result.setMessage("获取系统类别ID失败，请提交正确的appId");
+                    }else if (!feedbackService.add(feedback)) {
                         result.setCode(InvokeResult.SERVER_ERROR_CODE);
                         result.setMessage("提交反馈意见失败，请重试");
                     }
