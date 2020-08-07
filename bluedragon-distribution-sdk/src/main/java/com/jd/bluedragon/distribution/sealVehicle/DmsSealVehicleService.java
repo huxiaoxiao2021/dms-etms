@@ -36,6 +36,6 @@ public interface DmsSealVehicleService {
     /*
      * 校验数据提交
      * */
-    JdResponse checkTransportVehicleSubmit(String transportCode, List<String> vehicleNumberList);
+    JdResponse checkTransportVehicleSubmit(String transportCode, List<String> vehicleNumberList, Boolean transportReady);
 
 }

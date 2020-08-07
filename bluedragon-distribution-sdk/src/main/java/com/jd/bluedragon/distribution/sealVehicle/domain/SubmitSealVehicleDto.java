@@ -54,6 +54,11 @@ public class SubmitSealVehicleDto implements Serializable {
 	 * */
 	private String operatorName;
 
+    /**
+     * 运力就绪状态；true：就绪 false：未就绪
+     */
+    private Boolean transportReady;
+
 	/*
 	* 封车批次信息
 	* */
@@ -132,7 +137,15 @@ public class SubmitSealVehicleDto implements Serializable {
 		this.operatorName = operatorName;
 	}
 
-	public List<SealVehicleSendCodeInfo> getSealVehicleSendCodeInfoList() {
+    public Boolean getTransportReady() {
+        return transportReady;
+    }
+
+    public void setTransportReady(Boolean transportReady) {
+        this.transportReady = transportReady;
+    }
+
+    public List<SealVehicleSendCodeInfo> getSealVehicleSendCodeInfoList() {
 		return sealVehicleSendCodeInfoList;
 	}
 

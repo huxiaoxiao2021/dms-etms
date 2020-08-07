@@ -116,12 +116,14 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
 
             boolean isAllReady = false;
             String vehicleNumber = null;
+            String sealCode = null;
             //如果只有一个预封车记录，说明只有一个车牌，进一步判断体积是否大于0
             if (preSealVehicleList.size() == 1) {
                 PreSealVehicle preSealVehicle = preSealVehicleList.get(0);
                 //进行体积判断
                 if (! this.isNeedCheckVolume(preSealVehicle.getPreSealSource(), preSealVehicle.getTransWay()) || NumberHelper.gt0(preSealVehicle.getVolume())) {
                     vehicleNumber = preSealVehicle.getVehicleNumber();
+                    sealCode = preSealVehicle.getSealCodes();
                     isAllReady = true;
                 }
             }
@@ -136,6 +138,7 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
                 sealVehicleSendCodeInfo.setSendCode(unSealSendCode);
                 sealVehicleSendCodeInfo.setReady(isAllReady);
                 sealVehicleSendCodeInfo.setVehicleNumber(vehicleNumber);
+                sealVehicleSendCodeInfo.setSealCode(sealCode);
                 sealVehicleSendCodeInfoList.add(sealVehicleSendCodeInfo);
             }
             unSealVehicleDetail.setSendCodeInfoList(sealVehicleSendCodeInfoList);
@@ -236,7 +239,7 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.WEB.DmsSealVehicleServiceImpl.checkTransportVehicleSubmit", mState = JProEnum.TP)
-    public JdResponse checkTransportVehicleSubmit(String transportCode, List<String> vehicleNumberList) {
+    public JdResponse checkTransportVehicleSubmit(String transportCode, List<String> vehicleNumberList, Boolean transportReady) {
         JdResponse jdResponse = new JdResponse(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
         if (StringHelper.isEmpty(transportCode) || vehicleNumberList == null || vehicleNumberList.isEmpty()) {
             jdResponse.setCode(JdResponse.CODE_FAIL);
