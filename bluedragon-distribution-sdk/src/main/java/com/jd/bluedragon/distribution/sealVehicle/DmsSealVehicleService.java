@@ -35,7 +35,9 @@ public interface DmsSealVehicleService {
 
     /*
      * 校验数据提交
+     *
+     * hasBatchInfo: 前台一键封车提交是否传递运力下的批次信息
      * */
-    JdResponse checkTransportVehicleSubmit(String transportCode, List<String> vehicleNumberList);
+    JdResponse checkTransportVehicleSubmit(String transportCode, List<String> vehicleNumberList, Boolean hasBatchInfo);
 
 }

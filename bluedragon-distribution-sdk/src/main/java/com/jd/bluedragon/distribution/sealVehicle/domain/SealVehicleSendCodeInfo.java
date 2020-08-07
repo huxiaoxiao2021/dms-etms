@@ -1,7 +1,5 @@
 package com.jd.bluedragon.distribution.sealVehicle.domain;
 
-import java.util.List;
-
 public class SealVehicleSendCodeInfo {
 
     private static final long serialVersionUID = 1L;
@@ -15,6 +13,11 @@ public class SealVehicleSendCodeInfo {
     * 车牌
     * */
     private String vehicleNumber;
+
+    /**
+     * 封签号
+     */
+    private String sealCode;
 
     /*
     * 批次信息是否就绪
@@ -35,6 +38,14 @@ public class SealVehicleSendCodeInfo {
 
     public void setVehicleNumber(String vehicleNumber) {
         this.vehicleNumber = vehicleNumber;
+    }
+
+    public String getSealCode() {
+        return sealCode;
+    }
+
+    public void setSealCode(String sealCode) {
+        this.sealCode = sealCode;
     }
 
     public Boolean getReady() {

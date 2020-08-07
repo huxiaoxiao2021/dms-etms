@@ -54,6 +54,16 @@ public class SubmitSealVehicleDto implements Serializable {
 	 * */
 	private String operatorName;
 
+    /**
+     * 前台一键封车提交是否传递运力下的批次信息 true：包含 false：未包含
+     *
+     * <ul>
+     *     <li>未就绪状态的任务，只有一辆车维护体积以后会提交批次</li>
+     *     <li>未就绪状态的任务，有多辆车，批次选择车辆以后会提交批次</li>
+     * </ul>
+     */
+    private Boolean hasBatchInfo;
+
 	/*
 	* 封车批次信息
 	* */
@@ -132,7 +142,15 @@ public class SubmitSealVehicleDto implements Serializable {
 		this.operatorName = operatorName;
 	}
 
-	public List<SealVehicleSendCodeInfo> getSealVehicleSendCodeInfoList() {
+    public Boolean getHasBatchInfo() {
+        return hasBatchInfo;
+    }
+
+    public void setHasBatchInfo(Boolean hasBatchInfo) {
+        this.hasBatchInfo = hasBatchInfo;
+    }
+
+    public List<SealVehicleSendCodeInfo> getSealVehicleSendCodeInfoList() {
 		return sealVehicleSendCodeInfoList;
 	}
 
