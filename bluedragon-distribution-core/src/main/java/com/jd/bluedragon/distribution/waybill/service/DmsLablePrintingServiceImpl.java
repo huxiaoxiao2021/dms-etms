@@ -90,11 +90,6 @@ public class DmsLablePrintingServiceImpl extends AbstractLabelPrintingServiceTem
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(),12,'9')) {
         	labelPrinting.appendSpecialMark(LabelPrintingService.SPECIAL_MARK_CROWD_SOURCING);
         }
-        //分拣补打的运单和包裹小标签上添加“尊”字样:waybillsign 第35为1 打“尊”逻辑 2017年9月21日17:59:39
-        if(BusinessUtil.isSignY(waybill.getWaybillSign(),35)){
-        	labelPrinting.appendSpecialMark(SPECIAL_MARK_SENIOR);
-        }
-
         //港澳售进合包,sendpay第108位为1或2或3时，且senpay第124位为4时，视为是全球售合包订单，面单上打印"合"
         if (BusinessUtil.isSignChar(waybill.getSendPay(),124,'4')
                 && BusinessUtil.isSignInChars(waybill.getSendPay(),108,'1','2','3')) {

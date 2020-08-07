@@ -13,9 +13,17 @@ public class TemporaryPackageTemplate implements Serializable {
      * 模板版本号
      */
     private Integer temporaryTemplateVersion;
+    /**
+     * 所有环境开启
+     */
+    private Boolean allRunningModeEnable = Boolean.TRUE;
 
     private List<Integer> siteCodeList;
-
+    /**
+     * 环境列表
+     */
+    private List<String> runningModeList;
+    
     public String getTemporaryTemplateName() {
         return temporaryTemplateName;
     }
@@ -44,5 +52,21 @@ public class TemporaryPackageTemplate implements Serializable {
 	 */
 	public void setTemporaryTemplateVersion(Integer temporaryTemplateVersion) {
 		this.temporaryTemplateVersion = temporaryTemplateVersion;
+	}
+
+	public List<String> getRunningModeList() {
+		return runningModeList;
+	}
+
+	public void setRunningModeList(List<String> runningModeList) {
+		this.runningModeList = runningModeList;
+	}
+
+	public Boolean getAllRunningModeEnable() {
+		return allRunningModeEnable;
+	}
+
+	public void setAllRunningModeEnable(Boolean allRunningModeEnable) {
+		this.allRunningModeEnable = allRunningModeEnable;
 	}
 }

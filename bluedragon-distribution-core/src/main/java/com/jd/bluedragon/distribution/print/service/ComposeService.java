@@ -31,8 +31,7 @@ public interface ComposeService {
     String SPECIAL_MARK_C ="C";
     String SPECIAL_MARK_AIRTRANSPORT ="航";
     String SPECIAL_MARK_ROAD = "陆";
-    String SPECIAL_MARK_RAIL = "高";
-    String SPECIAL_MARK_SENIOR ="尊";
+    String SPECIAL_MARK_RAIL = "铁";
     String SPECIAL_MARK_ARAYACAK_CABINET = "柜";
     String SPECIAL_MARK_LOCAL_SCHEDULE = "调";
     String SPECIAL_MARK_ARAYACAK_SITE = "提";
