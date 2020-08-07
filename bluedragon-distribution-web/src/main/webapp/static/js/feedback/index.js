@@ -1,6 +1,8 @@
 $(function () {
-    var queryUrl = '/feedback/listData';
-    var exportUrl = '/inventoryTask/toExport';
+    var appId = $('#appId').val();
+    var queryUrl = '/feedback/listData?appId=' + appId;
+    var exportUrl = '/inventoryTask/toExport?appId=' + appId;
+    console.info("appId:" + appId + " queryUrl:" + queryUrl);
 
     var tableInit = function () {
         var oTableInit = new Object();

@@ -88,11 +88,11 @@ public class FeedbackController {
 
     @RequestMapping(value = "/listData")
     public @ResponseBody
-    PagerResult<FeedBackResponse> listData(@RequestBody BasePagerCondition pagerCondition) {
+    PagerResult<FeedBackResponse> listData(@RequestBody BasePagerCondition pagerCondition, Long appId) {
         PagerResult<FeedBackResponse> pagerResult = null;
         try {
-            if (ErpUserClient.getCurrUser()!=null){
-                pagerResult = feedbackService.queryFeedBackPage(pagerCondition, ErpUserClient.getCurrUser().getUserCode(),APP_ID);
+            if (ErpUserClient.getCurrUser()!=null && appId != null){
+                pagerResult = feedbackService.queryFeedBackPage(pagerCondition, ErpUserClient.getCurrUser().getUserCode(),appId);
             }else {
                 pagerResult = new PagerResult<>();
                 pagerResult.setTotal(0);
