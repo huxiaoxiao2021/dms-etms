@@ -2,7 +2,6 @@ package com.jd.bluedragon.dms.utils;
 
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
 
-import com.sun.org.apache.regexp.internal.REUtil;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
