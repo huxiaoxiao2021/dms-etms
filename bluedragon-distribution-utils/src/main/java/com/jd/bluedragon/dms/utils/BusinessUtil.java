@@ -719,23 +719,6 @@ public class BusinessUtil {
     }
 
     /**
-     * 纯配外单判断 【waybillSign第1为为3、6、9、K、Y且第53位为2、0】
-     *  <p>
-     *      只用于C网抽检纯配外单使用
-     *  </p>
-     * */
-    public static boolean isPureMatchLdop(String waybillSign){
-        if(waybillSign == null){
-            return false;
-        }
-        if(isSignInChars(waybillSign,53,'2','0')
-                && isSignInChars(waybillSign,1,'3','6','9','K','Y')){
-            return true;
-        }
-        return false;
-    }
-
-    /**
      * 快运外单判断
      * <p>
      *      1、快运零担【waybillSign第40位为2且第80位为0】

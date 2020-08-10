@@ -722,7 +722,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"重量体积抽查只支持一单一件!");
             return false;
         }
-        if(!BusinessUtil.isPureMatchLdop(waybillSign)){
+        if(!BusinessUtil.isPurematch(waybillSign)){
             // 非纯配外单不计入抽检 & 前台不提示
             result.success();
             return false;
