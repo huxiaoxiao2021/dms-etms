@@ -134,7 +134,7 @@
     </div>
     <div id="add-form-wrapper">
         <form id="add-form" class="form-inline" enctype="multipart/form-data" method="POST">
-            <input type="hidden" name="appId" value="$!{appId}">
+            <input type="hidden" id="appId" name="appId" value="$!{appId}">
             <fieldset>
                 <div class="form-group" style="margin-left: 30px;">
                     <label class="control-label" for="type-select">建议类型：</label>
