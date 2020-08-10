@@ -662,11 +662,12 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 				return jdResult;
 			}else if(LocalClaimInfoRespDTO.LP_STATUS_DONE.equals(twiceExchangeResponse.getStatusOfLP()) && claimInfoRespDTO.getGoodOwner() == LocalClaimInfoRespDTO.GOOD_OWNER_JD){
 				twiceExchangeResponse.setReturnDestinationTypes("100");
-			}else{
+			}else if((LocalClaimInfoRespDTO.LP_STATUS_DONE.equals(twiceExchangeResponse.getStatusOfLP()) 
+						&& claimInfoRespDTO.getGoodOwner() == LocalClaimInfoRespDTO.GOOD_OWNER_BUSI)
+					|| LocalClaimInfoRespDTO.LP_STATUS_NONE.equals(twiceExchangeResponse.getStatusOfLP())){
 				twiceExchangeResponse.setReturnDestinationTypes("011");
 				//获取商家退货地址
 				JdResult<BackAddressDTOExt> backInfo = getBackInfoAndNotice(busiId,twiceExchangeRequest.getDmsSiteCode(),twiceExchangeRequest.getDmsSiteName());
-				
 				if(backInfo != null 
 						&& backInfo.isSucceed() 
 						&& backInfo.getData() != null){
