@@ -9,7 +9,6 @@ import com.jd.bluedragon.distribution.feedback.domain.FeedbackNew;
 import com.jd.bluedragon.distribution.feedback.service.FeedbackService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.fastjson.JSON;
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
@@ -118,7 +117,7 @@ public class FeedbackController {
                     feedback.setImgs(images);
                     feedback.setUserAccount(erpUser.getUserCode());
                     feedback.setUserName(erpUser.getUserName());
-                    log.info("feedback.add: feedback="+ JSON.toJSONString(feedback));
+                    log.info("feedback.add: feedback.appId=" + feedback.getAppId());
                     if (feedback.getAppId() == null) {
                         result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
                         result.setMessage("获取系统类别ID失败，请提交正确的appId");
