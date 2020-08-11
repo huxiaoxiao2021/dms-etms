@@ -108,6 +108,12 @@ public class UccPropertyConfiguration {
      */
     private String sealVolumeCheckSites;
 
+    /**
+     * 批次校验开关
+     *  默认false，true为开启
+     */
+    private boolean sendCodeCheckStatusSwitch;
+
     public boolean isLogToBusinessLogByKafka() {
         return logToBusinessLogByKafka;
     }
@@ -312,5 +318,13 @@ public class UccPropertyConfiguration {
 
     public void setSealVolumeCheckSites(String sealVolumeCheckSites) {
         this.sealVolumeCheckSites = sealVolumeCheckSites;
+    }
+
+    public boolean getSendCodeCheckStatusSwitch() {
+        return sendCodeCheckStatusSwitch;
+    }
+
+    public void setSendCodeCheckStatusSwitch(boolean sendCodeCheckStatusSwitch) {
+        this.sendCodeCheckStatusSwitch = sendCodeCheckStatusSwitch;
     }
 }

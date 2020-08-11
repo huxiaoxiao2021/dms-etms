@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.common.domain.ServiceResultEnum;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.DeliveryBatchRequest;
@@ -31,6 +32,7 @@ import com.jd.bluedragon.distribution.globaltrade.service.LoadBillService;
 import com.jd.bluedragon.distribution.inspection.service.WaybillPackageBarcodeService;
 import com.jd.bluedragon.distribution.jsf.domain.WhemsWaybillResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
+import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
@@ -54,6 +56,7 @@ import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
+import com.jd.etms.vos.dto.CommonDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
@@ -150,6 +153,12 @@ public class DeliveryResource {
     @Autowired
     @Qualifier("jimdbCacheService")
     private CacheService jimdbCacheService;
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
+    @Autowired
+    private NewSealVehicleService newSealVehicleService;
 
     /**
      * 原包发货【一车一件项目，发货专用】
@@ -264,6 +273,56 @@ public class DeliveryResource {
                 result.error(ex);
                 log.error("发货校验批次号异常：{}",sendCode, ex);
             }
+        }
+        return result;
+    }
+
+    /**
+     * 校验批次是否已封车
+     *  公用校验方法，目前用于以下场景
+     * <p>
+     *     1、批量一车一单
+     *     2、整批转发
+     * </p>
+     * @param sendCode
+     * @return
+     */
+    @GET
+    @Path("/delivery/checkSendCode/{sendCode}")
+    public InvokeResult<Boolean> checkSendCode(@PathParam("sendCode") String sendCode) {
+        InvokeResult<Boolean> result = new InvokeResult<Boolean>();
+        if(!uccPropertyConfiguration.getSendCodeCheckStatusSwitch()){
+            return result;
+        }
+        if(!BusinessHelper.isSendCode(sendCode)){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"批次号不符合规则!");
+            return result;
+        }
+        try {
+            // 获取批次创建时间
+            String[] sendCodeSplit = sendCode.split(Constants.SEPARATOR_HYPHEN);
+            Date createTime = DateHelper.parseDate(sendCodeSplit[2], DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS);
+            if(new Date().getTime() - createTime.getTime()
+                    > Constants.TIME_SECONDS_ONE_MONTH * 1000){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"批次号创建时间过早，请更换批次!");
+                return result;
+            }
+
+            // 查redis后查运输接口兜底
+            if(newSealVehicleService.getSealCarTimeBySendCode(sendCode) != null){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"批次号已封车，请更换批次!");
+                return result;
+            }
+            CommonDto<Boolean> isSealed = newSealVehicleService.isBatchCodeHasSealed(sendCode);
+            if(isSealed != null && isSealed.getCode() == CommonDto.CODE_SUCCESS
+                    && isSealed.getData() != null && isSealed.getData()){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"批次号已封车，请更换批次!");
+                return result;
+            }
+
+        }catch (Exception e){
+            log.error("校验批次【{}】是否封车异常", sendCode, e);
+            result.error(e);
         }
         return result;
     }
