@@ -38,6 +38,9 @@ public class EclpImportServiceManagerImpl implements EclpImportServiceManager{
 		JdResult<Boolean> result = new JdResult<Boolean>();
 		result.setData(Boolean.FALSE);
 		try {
+			if(log.isInfoEnabled()){
+				log.info("发送站内信："+JsonHelper.toJson(dto));
+			}
 			ApiResponse  rpcResult = importService.batchImport(dto);
 			if(rpcResult != null
 					&& rpcResult.isSuccess()){

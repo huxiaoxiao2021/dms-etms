@@ -29,7 +29,6 @@ import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
 import com.jd.bluedragon.distribution.api.request.ReversePrintRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.business.entity.BusinessReturnAdress;
 import com.jd.bluedragon.distribution.business.entity.BusinessReturnAdressStatusEnum;
@@ -71,8 +70,6 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ldop.business.api.dto.request.BackAddressDTO;
-import com.jd.ql.basic.domain.Assort;
-import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
@@ -755,6 +752,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 				Date date = DateHelper.addDate(currentDate, -NOTIC_DIFFER_DAYS);
 				if(date.after(businessReturnAdress.getLastNoticeTime())){
 					needNotice = true;
+					businessReturnAdress.setLastNoticeTime(currentDate);
 				}
 				businessReturnAdress.setDmsSiteCode(dmsSiteCode);
 				businessReturnAdress.setDmsSiteName(dmsSiteName);
