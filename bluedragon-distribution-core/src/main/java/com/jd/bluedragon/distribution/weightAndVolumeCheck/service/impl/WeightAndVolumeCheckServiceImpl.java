@@ -778,6 +778,26 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     }
 
     /**
+     * 重量超标判断(true:超标；false：未超标)
+     * <p>
+     *     1、1kg~20kg（含）的（+-）0.5kg（含）误差为正常
+     *     2、20kg~50kg（含）的（+-）1kg（含）误差为正常
+     *     3、50kg以上，允许误差值为总重量的2%（含）进行上下浮动
+     * <p/>
+     * @param weight 复核重量
+     * @param diffOfWeight 重量差异
+     * @return
+     */
+    private boolean isExcess(double weight,double diffOfWeight){
+        if((weight > firstThresholdWeight && weight <= secondThresholdWeight && diffOfWeight > firstStage)
+                || (weight > secondThresholdWeight && weight <= thirdThresholdWeight && diffOfWeight > secondStage)
+                || (weight > thirdThresholdWeight && diffOfWeight > weight * thirdStage)){
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * 根据泡重比类型判断是否超标
      * <p>
      *     泡重比类型:
@@ -844,26 +864,6 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             result.setData(false);
         }
 
-    }
-
-    /**
-     * 重量超标判断(true:超标；false：未超标)
-     * <p>
-     *     1、1kg~20kg（含）的（+-）0.5kg（含）误差为正常
-     *     2、20kg~50kg（含）的（+-）1kg（含）误差为正常
-     *     3、50kg以上，允许误差值为总重量的2%（含）进行上下浮动
-     * <p/>
-     * @param weight 复核重量
-     * @param diffOfWeight 重量差异
-     * @return
-     */
-    private boolean isExcess(double weight,double diffOfWeight){
-        if((weight > firstThresholdWeight && weight <= secondThresholdWeight && diffOfWeight > firstStage)
-                || (weight > secondThresholdWeight && weight <= thirdThresholdWeight && diffOfWeight > secondStage)
-                || (weight > thirdThresholdWeight && diffOfWeight > weight * thirdStage)){
-            return true;
-        }
-        return false;
     }
 
     /**

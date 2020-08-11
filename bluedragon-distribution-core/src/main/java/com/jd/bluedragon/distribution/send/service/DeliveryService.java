@@ -417,4 +417,11 @@ public interface DeliveryService {
      * @return
      */
     List<String> getWaybillCodesByBoxCodeAndFetchNum(String boxCode, Integer fetchNum);
+
+    /**
+     * 校验批次状态
+     * @param sendCode
+     * @return
+     */
+    com.jd.bluedragon.distribution.base.domain.InvokeResult<Boolean> checkSendCodeStatus(String sendCode);
 }

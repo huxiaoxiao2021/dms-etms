@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.ColdChainQuarantineManager;
 import com.jd.bluedragon.core.base.DmsInterturnManager;
@@ -52,10 +53,7 @@ import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
-
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
-import com.jd.bluedragon.utils.log.BusinessLogConstans;
-import com.jd.dms.logger.external.LogEngine;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.reverse.dao.ReverseSpareDao;
@@ -111,10 +109,12 @@ import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.XmlHelper;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
+import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -348,6 +348,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private SendCodeService sendCodeService;
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
 
     /**
      * 自动过期时间 15分钟
@@ -5388,5 +5391,54 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
 
         return coldChainQuarantineManager.isWaybillNeedAddQuarantine(waybillCode,siteCode);
+    }
+
+    /**
+     * 校验批次状态
+     * @param sendCode
+     * @return
+     */
+    public com.jd.bluedragon.distribution.base.domain.InvokeResult<Boolean> checkSendCodeStatus(String sendCode) {
+
+        com.jd.bluedragon.distribution.base.domain.InvokeResult<Boolean> result
+                = new com.jd.bluedragon.distribution.base.domain.InvokeResult<Boolean>();
+        if(!uccPropertyConfiguration.getSendCodeCheckStatusSwitch()){
+            return result;
+        }
+        if(!BusinessHelper.isSendCode(sendCode)){
+            result.customMessage(com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_INTERCEPT_CODE,
+                    "批次号不符合规则!");
+            return result;
+        }
+        try {
+            // 获取批次创建时间
+            String[] sendCodeSplit = sendCode.split(Constants.SEPARATOR_HYPHEN);
+            Date createTime = DateHelper.parseDate(sendCodeSplit[2], DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS);
+            if(new Date().getTime() - createTime.getTime()
+                    > (long)Constants.TIME_SECONDS_ONE_MONTH * 1000){
+                result.customMessage(com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_INTERCEPT_CODE,
+                        "批次号创建时间过早，请更换批次!");
+                return result;
+            }
+
+            // 查redis后查运输接口兜底
+            if(newSealVehicleService.getSealCarTimeBySendCode(sendCode) != null){
+                result.customMessage(com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_INTERCEPT_CODE,
+                        "批次号已封车，请更换批次!");
+                return result;
+            }
+            CommonDto<Boolean> isSealed = newSealVehicleService.isBatchCodeHasSealed(sendCode);
+            if(isSealed != null && isSealed.getCode() == CommonDto.CODE_SUCCESS
+                    && isSealed.getData() != null && isSealed.getData()){
+                result.customMessage(com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_INTERCEPT_CODE,
+                        "批次号已封车，请更换批次!");
+                return result;
+            }
+
+        }catch (Exception e){
+            log.error("校验批次【{}】是否封车异常", sendCode, e);
+            result.error(e);
+        }
+        return result;
     }
 }
