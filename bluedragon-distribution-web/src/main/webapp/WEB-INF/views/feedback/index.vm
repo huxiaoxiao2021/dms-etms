@@ -58,6 +58,7 @@
                 <span class="glyphicon glyphicon-export" aria-hidden="true"></span>提建议
             </button>
         </div>
+    <input id="appId" type="hidden" name="appId" value="$!{appId}">
     <table id="dataTable" class="table table-hover table-striped">
     </table>
 </div>
