@@ -1757,15 +1757,6 @@ public class WaybillResource {
             return invokeResult;
         }
 		try {
-			//二次换单，校验是否超过次数限制
-			if(Boolean.TRUE.equals(request.getTwiceExchangeFlag())){
-				JdResult<Boolean> checkResult = reversePrintService.checkTwiceExchange(request.getWaybillCode());
-				if(!checkResult.isSucceed()){
-		            invokeResult.setCode(InvokeResult.SERVER_ERROR_CODE);
-		            invokeResult.setMessage(checkResult.getMessage());
-		            return invokeResult;
-				}
-			}
 			WaybillReverseDTO waybillReverseDTO = ldopManager.makeWaybillReverseDTOCanTwiceExchange(request);
 			StringBuilder errorMessage = new StringBuilder();
 			WaybillReverseResult waybillReverseResult = ldopManager.waybillReverse(waybillReverseDTO,errorMessage);

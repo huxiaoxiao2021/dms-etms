@@ -56,11 +56,5 @@ public interface ReversePrintService {
      * @param twiceExchangeRequest
      * @return
      */
-    JdResult<TwiceExchangeResponse> getTwiceExchangeInfo(TwiceExchangeRequest twiceExchangeRequest);
-    /**
-     * 校验能否二次换单
-     * @param twiceExchangeRequest
-     * @return
-     */
-    JdResult<Boolean> checkTwiceExchange(String waybillCode);  
+    JdResult<TwiceExchangeResponse> getTwiceExchangeInfo(TwiceExchangeRequest twiceExchangeRequest);  
 }

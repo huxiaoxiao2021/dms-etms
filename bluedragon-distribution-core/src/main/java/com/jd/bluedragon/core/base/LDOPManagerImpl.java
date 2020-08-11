@@ -19,8 +19,6 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.dms.logger.external.BusinessLogProfiler;
-import com.jd.eclp.bbp.notice.domain.dto.BatchImportDTO;
-import com.jd.eclp.core.ApiResponse;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.fastjson.JSONObject;
@@ -55,6 +53,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -113,7 +112,11 @@ public class LDOPManagerImpl implements LDOPManager {
     private BackAddressInfoApi backAddressInfoApi;
     @Autowired
     private BaseService baseService;
-    
+    /**
+     * 二次换单限制次数
+     */
+	@Value("${beans.LDOPManagerImpl.twiceExchangeMaxTimes}")
+    private int twiceExchangeMaxTimes;
     private final Logger log = LoggerFactory.getLogger(LDOPManagerImpl.class);
     /**
      * 触发外单逆向换单接口
@@ -319,13 +322,18 @@ public class LDOPManagerImpl implements LDOPManager {
      */
     public WaybillReverseDTO makeWaybillReverseDTOCanTwiceExchange(ExchangeWaybillDto exchangeWaybillDto){
         WaybillReverseDTO waybillReverseDTO = new WaybillReverseDTO();
+        waybillReverseDTO.setLimitReverseFlag(Boolean.FALSE);
         waybillReverseDTO.setSource(2); //分拣中心
         if(exchangeWaybillDto.getIsTotalout()){
             waybillReverseDTO.setReverseType(1);// 整单拒收
         }else{
             waybillReverseDTO.setReverseType(2);// 包裹拒收
         }
-
+        //二次换单时设置换单次数限制
+        if(Boolean.TRUE.equals(exchangeWaybillDto.getTwiceExchangeFlag())){
+        	waybillReverseDTO.setLimitReverseFlag(Boolean.TRUE);
+        	waybillReverseDTO.setAllowReverseCount(twiceExchangeMaxTimes);
+        }
         waybillReverseDTO.setWaybillCode(exchangeWaybillDto.getWaybillCode());
         waybillReverseDTO.setOperateUserId(exchangeWaybillDto.getOperatorId());
         waybillReverseDTO.setOperateUser(exchangeWaybillDto.getOperatorName());

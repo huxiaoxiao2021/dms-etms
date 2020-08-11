@@ -188,11 +188,6 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 	@Value("${beans.ReversePrintServiceImpl.noticeHandleLink}")
     private String noticeHandleLink;
     /**
-     * 二次换单限制次数
-     */
-	@Value("${beans.ReversePrintServiceImpl.twiceExchangeMaxTimes}")
-    private int twiceExchangeMaxTimes;
-    /**
      * 处理逆向打印数据
      * 【1：发送全程跟踪 2：写分拣中心操作日志】
      * @param domain 打印提交数据
@@ -776,27 +771,5 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 			}
 		}
 		return jdResult;
-	}
-
-	@Override
-	public JdResult<Boolean> checkTwiceExchange(String waybillCode) {
-		JdResult<Boolean> checkResult = new JdResult<Boolean>();
-		checkResult.setData(Boolean.TRUE);
-		checkResult.toSuccess();
-		if(waybillCode != null){
-			JdResult<List<String>> waybillsInfo = this.waybillQueryManager.getOriginalAndReturnWaybillCodes(waybillCode);
-			//校验换单次数
-			if(waybillsInfo != null && waybillsInfo.isSucceed()){
-				if(waybillsInfo.getData() != null && (waybillsInfo.getData().size() - 1) >= twiceExchangeMaxTimes){
-					checkResult.setData(Boolean.FALSE);
-					checkResult.toFail("已进行过"+(waybillsInfo.getData().size() - 1)+"次换单，禁止再操作换单，请走理赔流程!");
-				}
-			}else{
-				checkResult.toFail("调用运单获取换单次数失败，请稍后重试！");
-			}
-		}else{
-			checkResult.toFail("传入运单号无效！");
-		}
-		return checkResult;
 	}
 }
