@@ -1,6 +1,7 @@
 package com.jd.bluedragon.dms.utils;
 
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
+
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -1417,7 +1418,7 @@ public class BusinessUtil {
 
     /**
      * @Description
-     * @param [boxCode]
+     * @param boxCode
      * @Author wyh
      * @Date 2020/2/21 14:07
      * @return java.lang.Boolean
