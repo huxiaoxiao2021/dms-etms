@@ -7,7 +7,6 @@ import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.ColdChainQuarantineManager;
 import com.jd.bluedragon.core.base.DmsInterturnManager;
@@ -348,9 +347,6 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private SendCodeService sendCodeService;
-
-    @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
 
     /**
      * 自动过期时间 15分钟
@@ -5394,51 +5390,40 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     /**
-     * 校验批次状态
+     * 校验批次创建时间
      * @param sendCode
      * @return
      */
-    public com.jd.bluedragon.distribution.base.domain.InvokeResult<Boolean> checkSendCodeStatus(String sendCode) {
-
-        com.jd.bluedragon.distribution.base.domain.InvokeResult<Boolean> result
-                = new com.jd.bluedragon.distribution.base.domain.InvokeResult<Boolean>();
-        if(!uccPropertyConfiguration.getSendCodeCheckStatusSwitch()){
-            return result;
+    public boolean checkSendCodeIsOld(String sendCode) {
+        // 获取批次创建时间
+        String[] sendCodeSplit = sendCode.split(Constants.SEPARATOR_HYPHEN);
+        Date createTime = DateHelper.parseDate(sendCodeSplit[2], DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS);
+        if(DateHelper.daysBetween(createTime,new Date()) > 30){
+            return true;
         }
-        if(!BusinessHelper.isSendCode(sendCode)){
-            result.customMessage(com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_INTERCEPT_CODE,
-                    "批次号不符合规则!");
-            return result;
+        return false;
+    }
+
+    /**
+     * 校验批次是否封车
+     *  查redis后查运输接口兜底
+     * @param sendCode
+     * @return
+     */
+    public boolean checkSendCodeIsSealed(String sendCode) {
+        // 查redis后查运输接口兜底
+        if(newSealVehicleService.getSealCarTimeBySendCode(sendCode) != null){
+            return true;
         }
         try {
-            // 获取批次创建时间
-            String[] sendCodeSplit = sendCode.split(Constants.SEPARATOR_HYPHEN);
-            Date createTime = DateHelper.parseDate(sendCodeSplit[2], DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS);
-            if(new Date().getTime() - createTime.getTime()
-                    > (long)Constants.TIME_SECONDS_ONE_MONTH * 1000){
-                result.customMessage(com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_INTERCEPT_CODE,
-                        "批次号创建时间过早，请更换批次!");
-                return result;
-            }
-
-            // 查redis后查运输接口兜底
-            if(newSealVehicleService.getSealCarTimeBySendCode(sendCode) != null){
-                result.customMessage(com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_INTERCEPT_CODE,
-                        "批次号已封车，请更换批次!");
-                return result;
-            }
             CommonDto<Boolean> isSealed = newSealVehicleService.isBatchCodeHasSealed(sendCode);
             if(isSealed != null && isSealed.getCode() == CommonDto.CODE_SUCCESS
                     && isSealed.getData() != null && isSealed.getData()){
-                result.customMessage(com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_INTERCEPT_CODE,
-                        "批次号已封车，请更换批次!");
-                return result;
+                return true;
             }
-
-        }catch (Exception e){
-            log.error("校验批次【{}】是否封车异常", sendCode, e);
-            result.error(e);
+        } catch (Exception e) {
+            log.error("查询批次号【{}】是否封车异常!",sendCode,e);
         }
-        return result;
+        return false;
     }
 }

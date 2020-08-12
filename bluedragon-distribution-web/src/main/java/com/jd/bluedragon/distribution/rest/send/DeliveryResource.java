@@ -66,6 +66,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 
 import javax.servlet.http.HttpServletRequest;
@@ -93,6 +94,9 @@ import java.util.Set;
 @Consumes({MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_JSON})
 public class DeliveryResource {
+
+    @Value("${send.checkSendCodeDate:false}")
+    private boolean checkSendCodeDate;
 
     @Autowired
     DeliveryService deliveryService;
@@ -273,7 +277,6 @@ public class DeliveryResource {
      *  公用校验方法，目前用于以下场景
      * <p>
      *     1、批量一车一单
-     *     2、整批转发
      * </p>
      * @param sendCode
      * @return
@@ -281,8 +284,19 @@ public class DeliveryResource {
     @GET
     @Path("/delivery/commonCheckSendCode/{sendCode}")
     public InvokeResult<Boolean> commonCheckSendCode(@PathParam("sendCode") String sendCode) {
-
-        return deliveryService.checkSendCodeStatus(sendCode);
+        InvokeResult<Boolean> result = new InvokeResult<Boolean>();
+        if(!BusinessHelper.isSendCode(sendCode)){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"批次号不符合规则!");
+            return result;
+        }
+        if(deliveryService.checkSendCodeIsOld(sendCode) && checkSendCodeDate){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"批次号创建时间过早，请更换批次!");
+            return result;
+        }
+        if(deliveryService.checkSendCodeIsSealed(sendCode)){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"批次号已封车，请更换批次!");
+        }
+        return result;
     }
 
     /**

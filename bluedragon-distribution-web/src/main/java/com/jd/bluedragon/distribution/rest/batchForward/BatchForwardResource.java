@@ -7,18 +7,13 @@ import com.jd.bluedragon.distribution.base.domain.CreateAndReceiveSiteInfo;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.batchForward.service.BatchForwardService;
-import com.jd.bluedragon.distribution.send.service.DeliveryService;
+import com.jd.bluedragon.utils.StringHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
 /**
@@ -35,8 +30,6 @@ public class BatchForwardResource {
     private BatchForwardService batchForwardService;
     @Autowired
     private SiteService siteService;
-    @Autowired
-    private DeliveryService deliveryService;
 
 
     @GET
@@ -46,9 +39,9 @@ public class BatchForwardResource {
 
         InvokeResult<CreateAndReceiveSiteInfo> result = new InvokeResult<CreateAndReceiveSiteInfo>();
         //验证sendCode
-        InvokeResult<Boolean> invokeResult = deliveryService.checkSendCodeStatus(sendCode);
-        if(invokeResult != null && InvokeResult.RESULT_SUCCESS_CODE != invokeResult.getCode()){
-            result.customMessage(invokeResult.getCode(),invokeResult.getMessage());
+        if(StringHelper.isEmpty(sendCode)){
+            log.warn("根据批次号获取始发和目的分拣信息失败，参数批次号为空");
+            result.error("根据批次号获取始发和目的分拣信息失败，参数批次号为空");
             return result;
         }
         //查询批次下是否有包裹和箱
