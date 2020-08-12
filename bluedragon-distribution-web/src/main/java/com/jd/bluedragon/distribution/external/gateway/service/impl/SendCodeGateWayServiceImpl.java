@@ -119,6 +119,20 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.SendCodeGateWayServiceImpl.commonCheckSendCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse commonCheckSendCode(String sendCode) {
+        JdCResponse<SendCodeCheckDto> jdCResponse = new JdCResponse<>();
+        InvokeResult<Boolean> result = deliveryResource.commonCheckSendCode(sendCode);
+        if(result == null){
+            jdCResponse.toError("接口返回错误！");
+            return jdCResponse;
+        }
+        jdCResponse.setCode(result.getCode());
+        jdCResponse.setMessage(result.getMessage());
+        return jdCResponse;
+    }
+
+    @Override
     @JProfiler(jKey = "DMSWEB.SendCodeGateWayServiceImpl.checkSendCodeAndAlliance",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdVerifyResponse<SendCodeCheckDto> checkSendCodeAndAlliance(String sendCode) {
         JdCResponse<SendCodeCheckDto> jdCResponse = this.checkSendCodeStatus(sendCode);
