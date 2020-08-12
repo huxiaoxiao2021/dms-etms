@@ -48,6 +48,20 @@ public class ReviewWeightSpotCheck extends DbEntity {
     private Integer trustPackageNumOfDiff;
     /** 信任商家抽查差异率 */
     private String trustCheckRateOfDiff;
+
+    /** 普通应抽查运单数 */
+    private Integer normalWaybillNum;
+    /** 普通实际抽查运单数 */
+    private Integer normalWaybillNumOfActual;
+    /** 普通抽查差异运单数 */
+    private Integer normalWaybillNumOfDiff;
+    /** 信任商家应抽查运单数 */
+    private Integer trustWaybillNum;
+    /** 信任商家实际抽查运单数 */
+    private Integer trustWaybillNumOfActual;
+    /** 信任商家抽查差异运单数 */
+    private Integer trustWaybillNumOfDiff;
+
     /** 总抽查率 */
     private String totalCheckRate;
     /** 业务类型 */
@@ -197,5 +211,53 @@ public class ReviewWeightSpotCheck extends DbEntity {
 
     public void setSpotCheckType(Integer spotCheckType) {
         this.spotCheckType = spotCheckType;
+    }
+
+    public Integer getNormalWaybillNum() {
+        return normalWaybillNum;
+    }
+
+    public void setNormalWaybillNum(Integer normalWaybillNum) {
+        this.normalWaybillNum = normalWaybillNum;
+    }
+
+    public Integer getNormalWaybillNumOfActual() {
+        return normalWaybillNumOfActual;
+    }
+
+    public void setNormalWaybillNumOfActual(Integer normalWaybillNumOfActual) {
+        this.normalWaybillNumOfActual = normalWaybillNumOfActual;
+    }
+
+    public Integer getNormalWaybillNumOfDiff() {
+        return normalWaybillNumOfDiff;
+    }
+
+    public void setNormalWaybillNumOfDiff(Integer normalWaybillNumOfDiff) {
+        this.normalWaybillNumOfDiff = normalWaybillNumOfDiff;
+    }
+
+    public Integer getTrustWaybillNum() {
+        return trustWaybillNum;
+    }
+
+    public void setTrustWaybillNum(Integer trustWaybillNum) {
+        this.trustWaybillNum = trustWaybillNum;
+    }
+
+    public Integer getTrustWaybillNumOfActual() {
+        return trustWaybillNumOfActual;
+    }
+
+    public void setTrustWaybillNumOfActual(Integer trustWaybillNumOfActual) {
+        this.trustWaybillNumOfActual = trustWaybillNumOfActual;
+    }
+
+    public Integer getTrustWaybillNumOfDiff() {
+        return trustWaybillNumOfDiff;
+    }
+
+    public void setTrustWaybillNumOfDiff(Integer trustWaybillNumOfDiff) {
+        this.trustWaybillNumOfDiff = trustWaybillNumOfDiff;
     }
 }

@@ -68,15 +68,15 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
         heads.add("机构类型");
         heads.add("机构名称");
         heads.add("业务类型");
-        heads.add("普通应抽查包裹数");
-        heads.add("普通实际抽查包裹数");
+        heads.add("普通应抽查运单数");
+        heads.add("普通实际抽查运单数");
         heads.add("普通抽查率");
-        heads.add("普通抽查差异包裹数");
+        heads.add("普通抽查差异运单数");
         heads.add("普通抽查差异率");
-        heads.add("信任商家应抽查包裹数");
-        heads.add("信任商家实际抽查包裹数");
+        heads.add("信任商家应抽查运单数");
+        heads.add("信任商家实际抽查运单数");
         heads.add("信任商家抽查率");
-        heads.add("信任商家抽查差异包裹数");
+        heads.add("信任商家抽查差异运单数");
         heads.add("信任商家抽查差异率");
         heads.add("总抽查率");
         resList.add(heads);
@@ -315,16 +315,29 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
                     reviewWeightSpotCheck.setReviewSiteCode(dto.getReviewSiteCode());
                     reviewWeightSpotCheck.setReviewSiteName(info.getSiteName());
 
-                    reviewWeightSpotCheck.setNormalPackageNum(normalNumOfShould);
-                    reviewWeightSpotCheck.setNormalPackageNumOfActual(normalNumOfActual);
+//                    reviewWeightSpotCheck.setNormalPackageNum(normalNumOfShould);
+//                    reviewWeightSpotCheck.setNormalPackageNumOfActual(normalNumOfActual);
+//                    reviewWeightSpotCheck.setNormalCheckRate(normalNumOfShould==null?null:convertPercentage(normalNumOfActual,normalNumOfShould));
+//                    reviewWeightSpotCheck.setNormalPackageNumOfDiff(normalNumOfExcess);
+//                    reviewWeightSpotCheck.setNormalCheckRateOfDiff(convertPercentage(normalNumOfExcess,normalNumOfActual));
+//
+//                    reviewWeightSpotCheck.setTrustPackageNum(trustNumOfShould);
+//                    reviewWeightSpotCheck.setTrustPackageNumOfActual(trustNumOfActual);
+//                    reviewWeightSpotCheck.setTrustCheckRate(trustNumOfShould==null?null:convertPercentage(trustNumOfActual,trustNumOfShould));
+//                    reviewWeightSpotCheck.setTrustPackageNumOfDiff(trustNumOfExcess);
+//                    reviewWeightSpotCheck.setTrustCheckRateOfDiff(convertPercentage(trustNumOfExcess,trustNumOfActual));
+
+                    // TODO  ReviewSpotCheckDto 依赖包版本升级 修改取值
+                    reviewWeightSpotCheck.setNormalWaybillNum(normalNumOfShould);
+                    reviewWeightSpotCheck.setNormalWaybillNumOfActual(normalNumOfActual);
                     reviewWeightSpotCheck.setNormalCheckRate(normalNumOfShould==null?null:convertPercentage(normalNumOfActual,normalNumOfShould));
-                    reviewWeightSpotCheck.setNormalPackageNumOfDiff(normalNumOfExcess);
+                    reviewWeightSpotCheck.setNormalWaybillNumOfDiff(normalNumOfExcess);
                     reviewWeightSpotCheck.setNormalCheckRateOfDiff(convertPercentage(normalNumOfExcess,normalNumOfActual));
 
-                    reviewWeightSpotCheck.setTrustPackageNum(trustNumOfShould);
-                    reviewWeightSpotCheck.setTrustPackageNumOfActual(trustNumOfActual);
+                    reviewWeightSpotCheck.setTrustWaybillNum(trustNumOfShould);
+                    reviewWeightSpotCheck.setTrustWaybillNumOfActual(trustNumOfActual);
                     reviewWeightSpotCheck.setTrustCheckRate(trustNumOfShould==null?null:convertPercentage(trustNumOfActual,trustNumOfShould));
-                    reviewWeightSpotCheck.setTrustPackageNumOfDiff(trustNumOfExcess);
+                    reviewWeightSpotCheck.setTrustWaybillNumOfDiff(trustNumOfExcess);
                     reviewWeightSpotCheck.setTrustCheckRateOfDiff(convertPercentage(trustNumOfExcess,trustNumOfActual));
 
                     reviewWeightSpotCheck.setTotalCheckRate(convertPercentage((IntegerHelper.integerToInt(trustNumOfActual) + IntegerHelper.integerToInt(normalNumOfActual)), (IntegerHelper.integerToInt(trustNumOfShould) + IntegerHelper.integerToInt(normalNumOfShould))));
