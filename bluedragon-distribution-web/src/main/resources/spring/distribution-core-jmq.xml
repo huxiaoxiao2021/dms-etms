@@ -454,4 +454,9 @@
     <bean id="waybillCodeCheckMQ" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.waybill.check.exportlog}"/>
     </bean>
+
+    <!-- 众邮箱号称重MQ -->
+    <bean id="economicNetBoxWeightProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.economicNet.box.weight}"/>
+    </bean>
 </beans>
