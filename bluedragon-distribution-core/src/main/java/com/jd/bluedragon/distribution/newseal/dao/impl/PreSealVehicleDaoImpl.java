@@ -122,4 +122,9 @@ public class PreSealVehicleDaoImpl extends BaseDao<PreSealVehicle> implements Pr
         return sqlSession.selectList(this.nameSpace+".getPreSealInfoByParams", params);
     }
 
+    @Override
+    public int completePreSealVehicleRecord(PreSealVehicle preSealVehicle) {
+        return sqlSession.update(this.nameSpace+".completePreSealVehicleRecord", preSealVehicle);
+
+    }
 }

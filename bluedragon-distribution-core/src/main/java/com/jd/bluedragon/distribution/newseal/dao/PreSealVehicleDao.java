@@ -106,4 +106,10 @@ public interface PreSealVehicleDao extends Dao<PreSealVehicle> {
      * 根据运力编码获取预封车信息
      * */
     List<PreSealVehicle> getPreSealInfoByParams(Map<String, Object> params);
+
+    /*
+     * 完成预封车任务
+     *
+     * */
+    int completePreSealVehicleRecord(PreSealVehicle preSealVehicle);
 }

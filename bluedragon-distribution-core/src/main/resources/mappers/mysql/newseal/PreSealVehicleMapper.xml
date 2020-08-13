@@ -455,4 +455,16 @@
 		</if>
 		and is_delete = 0 and status = 0
 	</select>
+
+	<update id="completePreSealRecord" parameterType="com.jd.bluedragon.distribution.newseal.domain.PreSealVehicle">
+		update pre_seal_vehicle
+		<set>
+			status = 1,
+			update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+			update_user_name = #{updateUserName,jdbcType=VARCHAR},
+			update_time = #{updateTime,jdbcType=TIMESTAMP},
+		</set>
+		where transport_code = #{transportCode,jdbcType=VARCHAR} and vehicle_number = #{vehicleNumber,jdbcType=VARCHAR}
+		and is_delete = 0
+	</update>
 </mapper>

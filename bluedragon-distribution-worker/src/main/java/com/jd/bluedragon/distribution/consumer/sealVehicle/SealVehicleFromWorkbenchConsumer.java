@@ -123,11 +123,13 @@ public class SealVehicleFromWorkbenchConsumer extends MessageBaseConsumer {
                     callBackNoticeFail(sealVehicleTaskCode, "该运力未抓取到待封车的批次，无法封车！");
                     return;
                 }
+                sealCarDto.setBatchCodes(sendCodeList);
                 sealCarDtoList.add(sealCarDto);
-
             }
             NewSealVehicleResponse newSealVehicleResponse = newSealVehicleService.doSealCarWithVehicleJob(sealCarDtoList);
-            if (newSealVehicleResponse != null && NewSealVehicleResponse.CODE_OK.equals(newSealVehicleResponse.getCode())){
+            if (newSealVehicleResponse != null && NewSealVehicleResponse.CODE_OK.equals(newSealVehicleResponse.getCode())) {
+                //更新预封车数据
+                completePreSealRecord(sealCarDtoList, submitSealVehicleDto);
                 //写成功回执
                 callBackNoticeSuccess(sealVehicleTaskCode);
             } else {
@@ -144,6 +146,9 @@ public class SealVehicleFromWorkbenchConsumer extends MessageBaseConsumer {
 
     }
 
+    /*
+     * 实体转换
+     * */
     private SealCarDto convert2SealCarDto(SubmitSealVehicleDto submitSealVehicleDto, PreSealVehicle preSealVehicle) {
         SealCarDto sealCarDto = new SealCarDto();
         sealCarDto.setSealCarTime(DateHelper.formatDate(submitSealVehicleDto.getOperateTime(), Constants.DATE_TIME_MS_FORMAT));
@@ -162,16 +167,15 @@ public class SealVehicleFromWorkbenchConsumer extends MessageBaseConsumer {
         return sealCarDto;
     }
 
+    /*
+     * 回调通知
+     * */
     private void callback(String taskCode, String remark, Integer taskStatus) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("taskCode", taskCode);
         jsonObject.put("remark", remark);
         jsonObject.put("taskStatus", taskStatus);
-        try {
-            wbSealVehicleCallbackProducer.send(taskCode, jsonObject.toJSONString());
-        } catch (JMQException e) {
-            log.error("发送一键封车任务回执消息失败，任务号：{}", taskCode, e);
-        }
+        wbSealVehicleCallbackProducer.sendOnFailPersistent(taskCode, jsonObject.toJSONString());
     }
 
     /*
@@ -186,5 +190,20 @@ public class SealVehicleFromWorkbenchConsumer extends MessageBaseConsumer {
      * */
     private void callBackNoticeFail(String taskCode, String remark) {
         callback(taskCode, remark, 30);
+    }
+
+    /*
+    * 更新预封车记录
+    * */
+    private void completePreSealRecord(List<SealCarDto> sealCarDtoList, SubmitSealVehicleDto submitSealVehicleDto) {
+        for (SealCarDto sealCarDto : sealCarDtoList) {
+            PreSealVehicle preSealVehicle = new PreSealVehicle();
+            preSealVehicle.setTransportCode(sealCarDto.getTransportCode());
+            preSealVehicle.setVehicleNumber(sealCarDto.getVehicleNumber());
+            preSealVehicle.setUpdateUserErp(submitSealVehicleDto.getOperatorErp());
+            preSealVehicle.setUpdateTime(new Date());
+            preSealVehicle.setUpdateUserName(sealCarDto.getSealUserName());
+            preSealVehicleService.completePreSealVehicleRecord(preSealVehicle);
+        }
     }
 }

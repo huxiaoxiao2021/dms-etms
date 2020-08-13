@@ -45,6 +45,11 @@ public class SubmitSealVehicleDto implements Serializable {
 	private Date operateTime;
 
 	/*
+	 * 操作人ERP
+	 * */
+	private String operatorErp;
+
+	/*
 	 * 操作人编号
 	 * */
 	private Integer operatorCode;
@@ -129,6 +134,14 @@ public class SubmitSealVehicleDto implements Serializable {
 
 	public void setOperateTime(Date operateTime) {
 		this.operateTime = operateTime;
+	}
+
+	public String getOperatorErp() {
+		return operatorErp;
+	}
+
+	public void setOperatorErp(String operatorErp) {
+		this.operatorErp = operatorErp;
 	}
 
 	public Integer getOperatorCode() {

@@ -436,4 +436,9 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
 
         return preSealVehicleList;
     }
+
+    @Override
+    public boolean completePreSealVehicleRecord(PreSealVehicle preSealVehicle) {
+        return preSealVehicleDao.completePreSealVehicleRecord(preSealVehicle) > 0;
+    }
 }
