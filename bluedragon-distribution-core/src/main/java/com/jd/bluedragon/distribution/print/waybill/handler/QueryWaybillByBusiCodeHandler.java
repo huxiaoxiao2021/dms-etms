@@ -1,19 +1,16 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
-import com.jd.bluedragon.distribution.eclpPackage.service.EclpLwbB2bPackageItemService;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.core.base.LDOPManager;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.ql.dms.print.utils.StringHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 /**
  * 
@@ -32,9 +29,6 @@ public class QueryWaybillByBusiCodeHandler implements InterceptHandler<WaybillPr
 	@Qualifier("ldopManager")
 	private LDOPManager ldopManager;
 
-    @Autowired
-    private EclpLwbB2bPackageItemService eclpLwbB2bPackageItemService;
-
     @Override
     public InterceptResult<String> handle(WaybillPrintContext context) {
         InterceptResult<String> result = context.getResult();
@@ -49,18 +43,6 @@ public class QueryWaybillByBusiCodeHandler implements InterceptHandler<WaybillPr
         		context.getRequest().setBarCode(waybillCode);
         	}
         }
-
-        if (request.getBarCodeType() != null && request.getBarCodeType() == BarCodeType.THIRD_WAYBILL_CODE.getCode()) {
-            String packageCode = eclpLwbB2bPackageItemService.findSellerPackageCode(request.getBarCode());
-            if (StringUtils.isBlank(packageCode)) {
-                result.toFail("根据三方运单号查询京东包裹号失败!");
-                logger.warn("根据三方运单号[{}]查询京东包裹号失败!", request.getBarCode());
-            }
-            else {
-                context.getRequest().setBarCode(packageCode);
-            }
-        }
-
         return result;
     }
 }
