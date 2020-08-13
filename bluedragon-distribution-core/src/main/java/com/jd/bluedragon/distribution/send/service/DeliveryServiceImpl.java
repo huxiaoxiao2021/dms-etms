@@ -5396,10 +5396,14 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     public boolean checkSendCodeIsOld(String sendCode) {
         // 获取批次创建时间
-        String[] sendCodeSplit = sendCode.split(Constants.SEPARATOR_HYPHEN);
-        Date createTime = DateHelper.parseDate(sendCodeSplit[2], DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS);
-        if(DateHelper.daysBetween(createTime,new Date()) > 30){
-            return true;
+        try{
+            String[] sendCodeSplit = sendCode.split(Constants.SEPARATOR_HYPHEN);
+            Date createTime = DateHelper.parseDate(sendCodeSplit[2], DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS);
+            if(DateHelper.daysBetween(createTime,new Date()) > 30){
+                return true;
+            }
+        }catch (Exception e){
+            log.error("校验批次【{}】创建时间异常!", sendCode, e);
         }
         return false;
     }

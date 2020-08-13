@@ -283,6 +283,7 @@ public class DeliveryResource {
      */
     @GET
     @Path("/delivery/commonCheckSendCode/{sendCode}")
+    @JProfiler(jKey = "DMSWEB.DeliveryResource.commonCheckSendCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> commonCheckSendCode(@PathParam("sendCode") String sendCode) {
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
         if(!BusinessHelper.isSendCode(sendCode)){
