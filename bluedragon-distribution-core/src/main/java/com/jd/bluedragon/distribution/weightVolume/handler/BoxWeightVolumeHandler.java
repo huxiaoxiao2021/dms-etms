@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.weightVolume.handler;
 
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
@@ -20,6 +21,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -55,6 +57,10 @@ public class BoxWeightVolumeHandler extends AbstractWeightVolumeHandler {
 
     @Autowired
     private EconomicNetBusinessManager economicNetBusinessManager;
+
+    @Autowired
+    @Qualifier("economicNetBoxWeightProducer")
+    private DefaultJMQProducer economicNetBoxWeightProducer;
 
     @Override
     protected void handlerWeighVolume(WeightVolumeEntity entity) {
@@ -139,6 +145,11 @@ public class BoxWeightVolumeHandler extends AbstractWeightVolumeHandler {
             weightVolumeDto.setScanType("包裹称重扫描");
             EconomicNetResult<EconomicNetErrorRes> result = economicNetBusinessManager.doRestInterface(weightVolumeDto);
             logger.info("推送箱号信息，经济网返回{}", JsonHelper.toJson(result));
+            if(logger.isInfoEnabled()){
+                logger.info("众邮箱号称重发送MQ【{}】,业务ID【{}】,消息体【{}】",
+                        economicNetBoxWeightProducer.getTopic(),weightVolumeDto.getBagCode(),JsonHelper.toJson(weightVolumeDto));
+            }
+            economicNetBoxWeightProducer.sendOnFailPersistent(weightVolumeDto.getBagCode(),JsonHelper.toJson(weightVolumeDto));
         }
 
     }
