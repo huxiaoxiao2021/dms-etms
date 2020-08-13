@@ -64,6 +64,11 @@ public class SubmitSealVehicleDto implements Serializable {
      */
     private Boolean hasBatchInfo;
 
+    /*
+    * 查询范围
+    * */
+    private Integer hourRange;
+
 	/*
 	* 封车批次信息
 	* */
@@ -150,7 +155,15 @@ public class SubmitSealVehicleDto implements Serializable {
         this.hasBatchInfo = hasBatchInfo;
     }
 
-    public List<SealVehicleSendCodeInfo> getSealVehicleSendCodeInfoList() {
+	public Integer getHourRange() {
+		return hourRange;
+	}
+
+	public void setHourRange(Integer hourRange) {
+		this.hourRange = hourRange;
+	}
+
+	public List<SealVehicleSendCodeInfo> getSealVehicleSendCodeInfoList() {
 		return sealVehicleSendCodeInfoList;
 	}
 

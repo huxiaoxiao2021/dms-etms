@@ -106,7 +106,7 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
             }
 
             Integer receiveSiteCode = preSealVehicleList.get(0).getReceiveSiteCode();
-            List<String> unSealSendCodeList = this.getUnSealSendCodeList(createSiteCode, receiveSiteCode, hourRange);
+            List<String> unSealSendCodeList = newSealVehicleService.getUnSealSendCodeList(createSiteCode, receiveSiteCode, hourRange);
 
             if (unSealSendCodeList == null || unSealSendCodeList.isEmpty()) {
                 jdResponse.setCode(JdResponse.CODE_FAIL);
@@ -241,12 +241,29 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.WEB.DmsSealVehicleServiceImpl.checkTransportVehicleSubmit", mState = JProEnum.TP)
     public JdResponse checkTransportVehicleSubmit(String transportCode, List<String> vehicleNumberList, Boolean hasBatchInfo) {
         JdResponse jdResponse = new JdResponse(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
-        if (StringHelper.isEmpty(transportCode) || vehicleNumberList == null || vehicleNumberList.isEmpty()) {
-            jdResponse.setCode(JdResponse.CODE_FAIL);
-            jdResponse.setMessage("运力编码和车牌信息不能为空！");
-            return jdResponse;
-        }
         try {
+            //如果没有车牌信息
+            if (StringHelper.isEmpty(transportCode) && ! hasBatchInfo) {
+                //根据运力编码查询预封车信息
+                List<PreSealVehicle> preSealVehicleList = preSealVehicleService.getPreSealInfoByParams(transportCode);
+                if (preSealVehicleList == null || preSealVehicleList.isEmpty()) {
+                    jdResponse.setCode(JdResponse.CODE_FAIL);
+                    jdResponse.setMessage("由于运力编码【"+ transportCode +"】没有车牌信息，请录入车牌后提交！");
+                    return jdResponse;
+                }
+                if (preSealVehicleList.size() > 1) {
+                    jdResponse.setCode(JdResponse.CODE_FAIL);
+                    jdResponse.setMessage("由于运力编码【"+ transportCode +"】有多个车牌信息，请选择后提交！");
+                }
+
+                vehicleNumberList.add(preSealVehicleList.get(0).getVehicleNumber());
+            }
+
+            if (StringHelper.isEmpty(transportCode) || vehicleNumberList == null || vehicleNumberList.isEmpty()) {
+                jdResponse.setCode(JdResponse.CODE_FAIL);
+                jdResponse.setMessage("运力编码和车牌信息不能为空！");
+                return jdResponse;
+            }
             for (String vehicleNumber : vehicleNumberList) {
                 List<PreSealVehicle> preSealVehicleList = preSealVehicleService.getPreSealInfoByParams(transportCode, vehicleNumber);
                 if (preSealVehicleList == null || preSealVehicleList.isEmpty()) {
@@ -276,39 +293,10 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
     }
 
     /**
-     * 查询全部的未封车批次号
-     */
-    private List<String> getUnSealSendCodeList(Integer createSiteCode, Integer receiveSiteCode, Integer hourRange) {
-
-        Date date = DateHelper.newTimeRangeHoursAgo(new Date(), hourRange);
-        Set<String> sendCodeSet = new HashSet<>();
-        //sendM获取所有批次信息
-        List<SendM> sendMList = sendMService.findAllSendCodesWithStartTime(createSiteCode, receiveSiteCode, date);
-        if (sendMList != null && ! sendMList.isEmpty()) {
-            for(SendM sendM : sendMList) {
-                //封车批次缓存中找出未封车的批次数据
-                if(! newSealVehicleService.checkSendCodeIsSealed(sendM.getSendCode())) {
-                    sendCodeSet.add(sendM.getSendCode());
-                }
-            }
-        } else {
-            return null;
-        }
-
-        List<String> result = new ArrayList<>(sendCodeSet);
-        //利用封车记录表再次筛选sendCode
-        List<String> sealedSendCodeList = sealVehiclesService.findBySealDataCodes(sendCodeSet);
-        if (sealedSendCodeList != null && ! sealedSendCodeList.isEmpty()) {
-            result.removeAll(sealedSendCodeList);
-        }
-        return result;
-    }
-
-    /**
-     * 查询全部的未封车批次号
+     * 查询全部的未封车批次号数量
      */
     private Integer getUnSealSendCodeCount(Integer createSiteCode, Integer receiveSiteCode, Integer hourRange) {
-        List<String> result = getUnSealSendCodeList(createSiteCode, receiveSiteCode, hourRange);
+        List<String> result = newSealVehicleService.getUnSealSendCodeList(createSiteCode, receiveSiteCode, hourRange);
         return result == null ? 0 : result.size();
     }
 

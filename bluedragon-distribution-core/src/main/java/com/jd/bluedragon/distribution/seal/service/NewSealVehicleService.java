@@ -183,4 +183,9 @@ public interface NewSealVehicleService {
      */
     com.jd.tms.tfc.dto.CommonDto<TransWorkItemWsDto> getVehicleNumberOrItemCodeByParam(TransWorkItemWsDto transWorkItemWsDto) throws Exception;
 
-    }
+    /**
+     * 查询全部的未封车批次号
+     */
+    List<String> getUnSealSendCodeList(Integer createSiteCode, Integer receiveSiteCode, Integer hourRange);
+
+}

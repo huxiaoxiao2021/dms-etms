@@ -449,4 +449,9 @@
     <bean id="kyStorageProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.ky.storage.putAway}"/>
     </bean>
+
+    <!-- 分拣工作台一键封车回执消息 -->
+    <bean id="wbSealVehicleCallbackProducer" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dms.wb.seal.vehicle.callback}"/>
+    </bean>
 </beans>

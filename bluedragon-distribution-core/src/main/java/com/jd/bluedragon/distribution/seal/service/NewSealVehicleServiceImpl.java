@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.api.request.cancelSealRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.distribution.send.service.SendMService;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicleEnum;
@@ -91,6 +92,10 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
     @Autowired
     private LogEngine logEngine;
+
+    @Autowired
+    private SendMService sendMService;
+
 
     private static final Integer UNSEAL_CAR_IN_RECIVE_AREA = 2;    //带解封的车辆在围栏里(1-是否在始发网点 2-是否在目的网点)
 
@@ -599,6 +604,37 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             log.error("redis取封车批次号失败：{}",sendCode, e);
         }
         return null;
+    }
+
+
+    /**
+     * 查询全部的未封车批次号
+     */
+    @Override
+    public List<String> getUnSealSendCodeList(Integer createSiteCode, Integer receiveSiteCode, Integer hourRange) {
+
+        Date date = DateHelper.newTimeRangeHoursAgo(new Date(), hourRange);
+        Set<String> sendCodeSet = new HashSet<>();
+        //sendM获取所有批次信息
+        List<SendM> sendMList = sendMService.findAllSendCodesWithStartTime(createSiteCode, receiveSiteCode, date);
+        if (sendMList != null && ! sendMList.isEmpty()) {
+            for(SendM sendM : sendMList) {
+                //封车批次缓存中找出未封车的批次数据
+                if(! this.checkSendCodeIsSealed(sendM.getSendCode())) {
+                    sendCodeSet.add(sendM.getSendCode());
+                }
+            }
+        } else {
+            return null;
+        }
+
+        List<String> result = new ArrayList<>(sendCodeSet);
+        //利用封车记录表再次筛选sendCode
+        List<String> sealedSendCodeList = sealVehiclesService.findBySealDataCodes(sendCodeSet);
+        if (sealedSendCodeList != null && ! sealedSendCodeList.isEmpty()) {
+            result.removeAll(sealedSendCodeList);
+        }
+        return result;
     }
 
     /**
