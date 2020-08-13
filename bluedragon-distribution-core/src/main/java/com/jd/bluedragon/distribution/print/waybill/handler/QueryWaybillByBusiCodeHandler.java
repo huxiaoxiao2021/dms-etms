@@ -32,9 +32,6 @@ public class QueryWaybillByBusiCodeHandler implements InterceptHandler<WaybillPr
 	@Qualifier("ldopManager")
 	private LDOPManager ldopManager;
 
-    @Autowired
-    private EclpLwbB2bPackageItemService eclpLwbB2bPackageItemService;
-
     @Override
     public InterceptResult<String> handle(WaybillPrintContext context) {
         InterceptResult<String> result = context.getResult();
@@ -49,18 +46,6 @@ public class QueryWaybillByBusiCodeHandler implements InterceptHandler<WaybillPr
         		context.getRequest().setBarCode(waybillCode);
         	}
         }
-
-        if (request.getBarCodeType() != null && request.getBarCodeType() == BarCodeType.THIRD_WAYBILL_CODE.getCode()) {
-            String packageCode = eclpLwbB2bPackageItemService.findSellerPackageCode(request.getBarCode());
-            if (StringUtils.isBlank(packageCode)) {
-                result.toFail("根据三方运单号查询京东包裹号失败!");
-                logger.warn("根据三方运单号[{}]查询京东包裹号失败!", request.getBarCode());
-            }
-            else {
-                context.getRequest().setBarCode(packageCode);
-            }
-        }
-
         return result;
     }
 }
