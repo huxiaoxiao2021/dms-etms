@@ -1,5 +1,11 @@
 package com.jd.bluedragon.distribution.saf;
 
+import java.util.Objects;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.DmsInterturnManager;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
@@ -20,7 +26,9 @@ import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.api.response.SysConfigResponse;
 import com.jd.bluedragon.distribution.api.response.TaskResponse;
 import com.jd.bluedragon.distribution.base.service.UserService;
+import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.internal.service.DmsInternalService;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
@@ -33,17 +41,14 @@ import com.jd.bluedragon.distribution.rest.product.LossProductResource;
 import com.jd.bluedragon.distribution.rest.task.TaskResource;
 import com.jd.bluedragon.distribution.rest.waybill.PreseparateWaybillResource;
 import com.jd.bluedragon.distribution.rest.waybill.WaybillResource;
+import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.wss.dto.BaseEntity;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.Objects;
 
 /**
  * @author dudong
@@ -100,6 +105,8 @@ public class DmsInternalServiceImpl implements DmsInternalService {
 
     @Autowired
     private AbnormalWayBillService abnormalWayBillService;
+    @Autowired
+    SortingService sortingService;
 
     @Override
     @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.getDatadict",mState = JProEnum.TP)
@@ -388,5 +395,30 @@ public class DmsInternalServiceImpl implements DmsInternalService {
         }
         return result;
     }
-
+	@Override
+	public JdResult<Integer> getSortingNumberInBox(String boxCode,Integer createSiteCode) {
+		JdResult<Integer> result = new JdResult<Integer>();
+		result.setData(0);
+		result.toSuccess();
+		if(BusinessUtil.isBoxcode(boxCode)){
+			Integer boxCreateSiteCode = createSiteCode;
+			/**
+			 * 箱号始发分拣为空，查询箱号获取始发分拣
+			 */
+			if(boxCreateSiteCode == null){
+				Box box = boxService.findBoxByCode(boxCode);
+				if(box == null){
+					result.toFail("未查询到箱号信息！");
+					return result;
+				}else{
+					boxCreateSiteCode = box.getCreateSiteCode();
+				}
+			}
+			result.setData(sortingService.findBoxPack(boxCreateSiteCode, boxCode));
+			return result;
+		}else{
+			result.toFail("传入的箱号编码无效！");
+		}
+		return result;
+	}
 }
