@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.core.base.DmsInterturnManager;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
@@ -107,7 +108,10 @@ public class DmsInternalServiceImpl implements DmsInternalService {
     private AbnormalWayBillService abnormalWayBillService;
     @Autowired
     SortingService sortingService;
-
+    /**
+     * jsf监控key前缀
+     */
+    private static final String UMP_KEY_PREFIX = UmpConstants.UMP_KEY_JSF_SERVER + "DmsInternalService.";
     @Override
     @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.getDatadict",mState = JProEnum.TP)
     public DatadictResponse getDatadict(Integer parentID, Integer nodeLevel, Integer typeGroup) {
@@ -395,6 +399,7 @@ public class DmsInternalServiceImpl implements DmsInternalService {
         }
         return result;
     }
+    @JProfiler(jKey = UMP_KEY_PREFIX + "getSortingNumberInBox", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
 	@Override
 	public JdResult<Integer> getSortingNumberInBox(String boxCode,Integer createSiteCode) {
 		JdResult<Integer> result = new JdResult<Integer>();
