@@ -644,4 +644,12 @@
                   timeout="${jsf.eclp.LwbB2bPackageItemService.timeout}"
                   retries="${jsf.eclp.LwbB2bPackageItemService.retries}">
     </jsf:consumer>
+    <!-- 退货地址维护相关接口https://cf.jd.com/pages/viewpage.action?pageId=196983641  -->
+    <jsf:consumer id="backAddressInfoApi" interface="com.jd.ldop.business.api.BackAddressInfoApi" protocol="jsf"
+                  alias="${jsf.ldop.backAddressInfoApi.alias}" serialization="hessian" timeout="${jsf.ldop.backAddressInfoApi.timeout}" retries="${jsf.retries}">
+    </jsf:consumer>
+    <!-- eclp站内信相关接口https://cf.jd.com/pages/viewpage.action?pageId=220750823  -->
+    <jsf:consumer id="importService" interface="com.jd.eclp.bbp.notice.open.ImportService" protocol="jsf"
+                  alias="${jsf.eclp.importService.alias}" serialization="hessian" timeout="${jsf.eclp.importService.timeout}" retries="${jsf.retries}">
+    </jsf:consumer>     
 </beans>
