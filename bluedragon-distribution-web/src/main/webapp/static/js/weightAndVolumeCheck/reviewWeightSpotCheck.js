@@ -94,7 +94,7 @@ $(function () {
             title: '机构类型',
             align: 'center',
             formatter: function (value, row, index) {
-                return (value == null || value == -1) ? "" : ((value == 0) ? "分拣中心" : "转运中心");
+                return (value == null || value == -1) ? "" : ((value == 1) ? "分拣中心" : "转运中心");
             }
         }, {
             field: 'reviewSiteName',
