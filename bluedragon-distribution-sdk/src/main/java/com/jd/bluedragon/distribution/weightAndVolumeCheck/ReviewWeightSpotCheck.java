@@ -22,7 +22,7 @@ public class ReviewWeightSpotCheck extends DbEntity {
     private Date reviewDate;
     /** 复核区域 */
     private String reviewOrgName;
-    /** 机构类型 */
+    /** 机构类型：1-分拣中心;0-转运中心 */
     private Integer reviewMechanismType;
     /** 机构编码 */
     private Integer reviewSiteCode;
