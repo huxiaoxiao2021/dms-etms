@@ -247,9 +247,10 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.WEB.DmsSealVehicleServiceImpl.checkTransportVehicleSubmit", mState = JProEnum.TP)
     public JdResponse checkTransportVehicleSubmit(String transportCode, List<String> vehicleNumberList, Boolean hasBatchInfo) {
         JdResponse jdResponse = new JdResponse(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
+        List<String> vehicleNumberListTemp = new ArrayList<>();
         try {
             //如果没有车牌信息
-            if (StringHelper.isEmpty(transportCode) && ! hasBatchInfo) {
+            if (! StringHelper.isEmpty(transportCode) && ! hasBatchInfo) {
                 //根据运力编码查询预封车信息
                 List<PreSealVehicle> preSealVehicleList = preSealVehicleService.getPreSealInfoByParams(transportCode);
                 if (preSealVehicleList == null || preSealVehicleList.isEmpty()) {
@@ -260,9 +261,10 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
                 if (preSealVehicleList.size() > 1) {
                     jdResponse.setCode(JdResponse.CODE_FAIL);
                     jdResponse.setMessage("由于运力编码【"+ transportCode +"】有多个车牌信息，请选择后提交！");
+                    return jdResponse;
                 }
 
-                vehicleNumberList.add(preSealVehicleList.get(0).getVehicleNumber());
+                vehicleNumberListTemp.add(preSealVehicleList.get(0).getVehicleNumber());
             }
 
             if (StringHelper.isEmpty(transportCode) || vehicleNumberList == null || vehicleNumberList.isEmpty()) {
@@ -270,7 +272,8 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
                 jdResponse.setMessage("运力编码和车牌信息不能为空！");
                 return jdResponse;
             }
-            for (String vehicleNumber : vehicleNumberList) {
+            vehicleNumberListTemp.addAll(vehicleNumberList);
+            for (String vehicleNumber : vehicleNumberListTemp) {
                 List<PreSealVehicle> preSealVehicleList = preSealVehicleService.getPreSealInfoByParams(transportCode, vehicleNumber);
                 if (preSealVehicleList == null || preSealVehicleList.isEmpty()) {
                     jdResponse.setCode(JdResponse.CODE_FAIL);
