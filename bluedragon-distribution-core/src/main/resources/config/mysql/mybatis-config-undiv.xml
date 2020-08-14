@@ -352,5 +352,7 @@
         <mapper resource="mappers/mysql/loadAndUnload/UnloadCarDistributionMapper.xml" />
         <mapper resource="mappers/mysql/loadAndUnload/UnloadCarTransBoardMapper.xml" />
 
+        <!-- KA单号校验导出记录 -->
+        <mapper resource="mappers/mysql/export/DmsExportLog.xml"/>
     </mappers>
 </configuration>

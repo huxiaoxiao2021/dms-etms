@@ -186,6 +186,12 @@ public class WaybillStatus {
     public static final Integer WAYBILL_OPE_TYPE_PUTAWAY= 8400;
 
     /**
+     * 暂存下架操作码
+     * 只对内展示
+     */
+    public static final Integer WAYBILL_INTERNAL_TRACK_OFF_SHELF = 8410;
+
+    /**
      * 审核完成状态
      */
     public static final Integer WAYBILL_STATUS_CONSULT = 135;

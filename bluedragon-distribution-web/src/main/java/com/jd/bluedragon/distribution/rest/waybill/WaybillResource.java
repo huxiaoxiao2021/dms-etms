@@ -18,10 +18,7 @@ import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.request.EditWeightRequest;
-import com.jd.bluedragon.distribution.api.request.ModifyOrderInfo;
-import com.jd.bluedragon.distribution.api.request.PopAddPackStateRequest;
-import com.jd.bluedragon.distribution.api.request.TaskRequest;
+import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.api.response.TaskResponse;
@@ -32,6 +29,7 @@ import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.cross.domain.CrossSortingDto;
 import com.jd.bluedragon.distribution.cross.service.CrossSortingService;
+import com.jd.bluedragon.distribution.eclpPackage.service.EclpLwbB2bPackageItemService;
 import com.jd.bluedragon.distribution.eclpPackage.service.EclpPackageApiService;
 import com.jd.bluedragon.distribution.fastRefund.service.WaybillCancelClient;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
@@ -204,6 +202,9 @@ public class WaybillResource {
 
     @Autowired
     private LdopWaybillUpdateManager ldopWaybillUpdateManager;
+
+    @Autowired
+    private EclpLwbB2bPackageItemService eclpLwbB2bPackageItemService;
 
     /**
      * 根据运单号获取运单包裹信息接口
@@ -1287,7 +1288,8 @@ public class WaybillResource {
 					PackOpeDto packOpeDto = new PackOpeDto();
 					packOpeDtoList.add(packOpeDto);
 					packOpeDto.setWaybillCode(editWeightRequest.getWaybillCode());
-					packOpeDto.setOpeType(1);
+					// 增加按用户所属站点类型来传值，放置在task执行体中去做
+					// packOpeDto.setOpeType(1);
 					List<PackOpeDetail> packOpeDetailList = new ArrayList<PackOpeDetail>();
 					PackOpeDetail packOpeDetail = new PackOpeDetail();
 					packOpeDetail.setPackageCode(editWeightRequest.getPackageBarcode());
@@ -2410,5 +2412,33 @@ public class WaybillResource {
             return result;
         }
         return waybillService.thirdCheckWaybillCancel(pdaOperateRequest);
+    }
+
+    /**
+     * 操作人所在部门类型为【企配仓】才会调此接口，返回三方运单号对应的京东包裹号
+     * 如果返回结果为空，则给出提示
+     *
+     * @param request
+     * @return
+     */
+    @POST
+    @Path("/waybill/getPackageCodeByThirdWaybill")
+    public InvokeResult<String> getPackageCodeByThirdWaybill(ThirdWaybillRequest request) {
+        InvokeResult<String> result = new InvokeResult<>();
+        result.success();
+
+        if (StringUtils.isBlank(request.getThirdWaybillCode())) {
+            result.parameterError("请输入三方运单号!");
+            return result;
+        }
+        String packageCode = eclpLwbB2bPackageItemService.findSellerPackageCode(request.getThirdWaybillCode());
+        if (StringUtils.isBlank(packageCode)) {
+            if (log.isWarnEnabled()) {
+                log.warn("获取三方单号的对应的京东包裹号为空. req:[{}]", JsonHelper.toJson(request));
+            }
+        }
+
+        result.setData(packageCode);
+        return result;
     }
 }

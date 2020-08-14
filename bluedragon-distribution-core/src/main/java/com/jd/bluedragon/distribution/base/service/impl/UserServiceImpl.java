@@ -164,10 +164,12 @@ public class UserServiceImpl implements UserService{
 			this.bindSite2LoginUser(response);
 		}
 
+        if (!Objects.equals(response.getCode(),JdResponse.CODE_OK)) {
+            return response;
+        }
         ClientInfo clientInfo = JsonHelper.fromJson(request.getClientInfo(), ClientInfo.class);
         String sysconfRunningMode = response.getDmsClientConfigInfo()!= null?response.getDmsClientConfigInfo().getRunningMode():"";
-        if(clientInfo != null && Objects.equals(clientInfo.getProgramType(),UserServiceImpl.ANDROID_LOGIN_PROGRAM_TYPE)
-                && runningMode.contains(RUNNING_MODE_UAT) && !Objects.equals(runningMode,sysconfRunningMode)){
+        if(isLoginFormAndroidAndCurrentIsUat(clientInfo, sysconfRunningMode)){
             response.setCode(JdResponse.CODE_WRONG_STATUS);
             String msg = String.format("当前登录账号[%s]不支持[%s]登录,请尝试在登录首页右上角修改正式环境再登录！",request.getErpAccount(),runningMode);
             response.setMessage(msg);
@@ -176,7 +178,24 @@ public class UserServiceImpl implements UserService{
 		return response;
 	}
 
-	/**
+    /**
+     * 只控制 登录来源是安卓的；逻辑为：系统给当前账户配置uat权限并且当前环境是uat，才能登录
+     * @param clientInfo
+     * @param sysconfRunningMode
+     * @return
+     */
+    private boolean isLoginFormAndroidAndCurrentIsUat(ClientInfo clientInfo, String sysconfRunningMode) {
+        return clientInfo != null && Objects.equals(clientInfo.getProgramType(), UserServiceImpl.ANDROID_LOGIN_PROGRAM_TYPE)
+                && runningMode.contains(RUNNING_MODE_UAT) && !Objects.equals(runningMode,sysconfRunningMode);
+    }
+
+
+    @Override
+    public String getServerRunningMode() {
+        return this.runningMode;
+    }
+
+    /**
 	 *
 	 * @param response
 	 */

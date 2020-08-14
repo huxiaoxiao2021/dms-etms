@@ -19,9 +19,9 @@ public class TextConstants {
     public static final String FREIGHT_CONSIGER_CLEAR="寄付现结";
 
     /**
-     * B网运费 - 到付
+     * 运费 - 运费到付
      */
-    public static final String FREIGHT_PAY = "到付";
+    public static final String FREIGHT_PAY = "运费到付";
 
     /**
      * B网运费-寄付
@@ -37,11 +37,14 @@ public class TextConstants {
      * B网运费-临时欠款
      */
     public static final String FREIGHT_TEMPORARY_ARREARS="临欠";
-
+    /**
+     * COD-货到付款
+     */
+    public static final String GOODS_PAYMENT_COD_FLAG = "COD";
     /**
      * 货款-货到付款
      */
-    public static final String GOODS_PAYMENT_COD = "货到付款";
+    public static final String GOODS_PAYMENT_COD = "货到付款￥";
     /**
      * 货款-在线支付
      */
@@ -136,6 +139,10 @@ public class TextConstants {
      */
     public static final String TEXT_JZD="京准达";
     /**
+     * 预计送达时间展示，格式化
+     */
+    public static final String PROMISE_TEXT_FORMAT="配送时间：%s";
+    /**
      * KA标识
      */
     public static final String KA_FLAG = "KA";
@@ -175,4 +182,12 @@ public class TextConstants {
      * 运输模式‘特快送 同城’
      */
     public static final String EXPRESS_DELIVERY_SAME_CITY = "特快送 同城";
+    /**
+     * 无人车配送标识-车
+     */
+    public static final String WRCPS_FLAG = "车";
+    /**
+     * 尊
+     */
+    public static final String SPECIAL_MARK_SENIOR ="尊";
 }

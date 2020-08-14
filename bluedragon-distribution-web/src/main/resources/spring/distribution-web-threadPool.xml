@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"
+	   default-lazy-init="false" default-autowire="byName">
+
+	<!-- 异步线程池 -->
+	<bean id="waybillBatchExecutor"  class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+		<!-- 核心线程数 -->
+		<property name="corePoolSize" value="${export.corePoolSize}" />
+		<!-- 最大线程数 -->
+		<property name="maxPoolSize" value="${export.maxPoolSize}" />
+		<!-- 队列最大长度 >=mainExecutor.maxSize -->
+		<property name="queueCapacity" value="${export.queueCapacity}" />
+		<!-- 线程池维护线程所允许的空闲时间 -->
+		<property name="keepAliveSeconds" value="${export.keepAliveSeconds}" />
+		<!-- 核心线程是否设置超期回收 -->
+		<property name="allowCoreThreadTimeOut" value="${export.allowCoreThreadTimeOut}"/>
+		<!-- 线程池对拒绝任务(无线程可用)的处理策略 -->
+		<property name="rejectedExecutionHandler">
+			<bean class="java.util.concurrent.ThreadPoolExecutor$AbortPolicy " />
+		</property>
+	</bean>
+
+	<bean id="forkJoinPool" class="org.springframework.scheduling.concurrent.ForkJoinPoolFactoryBean"/>
+
+	<!--
+	 ThreadPoolExecutor.AbortPolicy			处理程序遭到拒绝将抛出运行时RejectedExecutionException。
+	 ThreadPoolExecutor.CallerRunsPolicy	线程调用运行该任务的 execute 本身，此策略提供简单的反馈控制机制，能够减缓新任务的提交速度。
+	 ThreadPoolExecutor.DiscardPolicy		不能执行的任务将被删除。
+	 ThreadPoolExecutor.DiscardOldestPolicy	如果执行程序尚未关闭，则位于工作队列头部的任务将被删除，然后重试执行程序（如果再次失败，则重复此过程）
+	-->
+</beans>

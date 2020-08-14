@@ -134,6 +134,7 @@
     </div>
     <div id="add-form-wrapper">
         <form id="add-form" class="form-inline" enctype="multipart/form-data" method="POST">
+            <input type="hidden" id="appId" name="appId" value="$!{appId}">
             <fieldset>
                 <div class="form-group" style="margin-left: 30px;">
                     <label class="control-label" for="type-select">建议类型：</label>
@@ -200,6 +201,18 @@
         </button>
     </div>
 </div>
-
+<script type="text/javascript">
+    var jaq = jaq || [];
+    jaq.push(['account', 'JA2016_112453']);
+    jaq.push(['domain', 'dms.etms.jd.com']);
+    (function () {
+        var ja = document.createElement('script');
+        ja.type = 'text/javascript';
+        ja.async = true;
+        ja.src = '//wl.jd.com/joya.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(ja, s);
+    })()
+</script>
 </body>
 </html>

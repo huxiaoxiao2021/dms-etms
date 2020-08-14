@@ -262,5 +262,8 @@
     <jmq:consumer id="jmq.unloadCarConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.unloadCar}" listener="unloadCarConsumer" />
     </jmq:consumer>
+    <jmq:consumer id="jmq.waybilCodeCheckExportLogConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.waybill.check.exportlog}" listener="waybilCodeCheckExportLogConsumer"/>
+    </jmq:consumer>
 </beans>
 

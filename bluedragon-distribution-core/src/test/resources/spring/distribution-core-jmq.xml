@@ -381,6 +381,11 @@
         <property name="topic" value="${jmq.topic.weightVolume.excess}"/>
         <property name="timeout" value="1000"/>
     </bean>
+    <!-- 超标mq，提供给判责系统 -->
+    <bean id="dmsWeightVolumeAbnormal" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.weightVolume.abnormal}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
 
     <!-- 包裹状态MQ，提供给分拣报表系统，供清场需求使用 -->
     <bean id="dmsPackageStatusMQProducer" parent="dmsWorkerDefaultJMQProducer">
@@ -404,5 +409,10 @@
     <!-- 空铁项目 - 发货登记 推送计费信息给FXM -->
     <bean id="railwaySendRegistCostFxmMQ" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.railway.sendRegist.Cost.fxm}"/>
+    </bean>
+    <!-- 银行卡运单号校验 -->
+    <bean id="waybillCodeCheckMQ" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.waybill.check.exportlog}"/>
+        <property name="timeout" value="1000"/>
     </bean>
 </beans>

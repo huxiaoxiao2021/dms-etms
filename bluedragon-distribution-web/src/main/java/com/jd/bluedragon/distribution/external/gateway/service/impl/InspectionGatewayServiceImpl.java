@@ -5,12 +5,16 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.inspection.response.InspectionCheckResultDto;
 import com.jd.bluedragon.common.dto.inspection.response.ConsumableRecordResponseDto;
 import com.jd.bluedragon.common.dto.inspection.response.InspectionResultDto;
+import com.jd.bluedragon.common.dto.waybill.request.ThirdWaybillReq;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.request.HintCheckRequest;
+import com.jd.bluedragon.distribution.api.request.ThirdWaybillRequest;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.external.service.DmsPackingConsumableService;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
 import com.jd.bluedragon.distribution.rest.inspection.InspectionResource;
+import com.jd.bluedragon.distribution.rest.waybill.WaybillResource;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.InspectionGatewayService;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -48,6 +52,10 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
 
     @Autowired
     private DmsPackingConsumableService dmsPackingConsumableService;
+
+    @Autowired
+    @Qualifier("waybillResource")
+    private WaybillResource waybillResource;
 
     private final static Logger log = LoggerFactory.getLogger(InspectionGatewayServiceImpl.class);
 
@@ -126,5 +134,34 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
         inspectionCheckResultDto.setConsumableRecordResponseDto(jdCResponse.getData());
 
         return resultDto;
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.InspectionGatewayServiceImpl.getThirdWaybillPackageCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<String> getThirdWaybillPackageCode(ThirdWaybillReq request) {
+        JdCResponse<String> result = new JdCResponse<>();
+        result.toSucceed();
+        if (null == request || StringUtils.isBlank(request.getThirdWaybillCode())) {
+            result.toFail("运单号不能为空");
+            return result;
+        }
+
+        ThirdWaybillRequest waybillRequest = new ThirdWaybillRequest();
+        waybillRequest.setThirdWaybillCode(request.getThirdWaybillCode());
+        waybillRequest.setUserErp(request.getUser().getUserErp());
+        waybillRequest.setUserCode(request.getUser().getUserCode());
+        waybillRequest.setUserName(request.getUser().getUserName());
+        waybillRequest.setSiteCode(request.getCurrentOperate().getSiteCode());
+        waybillRequest.setSiteName(request.getCurrentOperate().getSiteName());
+        InvokeResult<String> invokeResult = waybillResource.getPackageCodeByThirdWaybill(waybillRequest);
+        if (!Objects.equals(invokeResult.getCode(), JdResponse.CODE_SUCCESS)) {
+            result.toError(result.getMessage());
+            return result;
+        }
+
+        result.toSucceed(result.getMessage());
+        result.setData(invokeResult.getData());
+
+        return result;
     }
 }

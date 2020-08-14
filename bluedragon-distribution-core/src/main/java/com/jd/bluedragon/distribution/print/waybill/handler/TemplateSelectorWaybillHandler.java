@@ -25,15 +25,13 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
     /** TC面单 **/
     private static final String TEMPlATE_NAME_TC = "dms-b2b-m";
     /** C网统一面单-10*11 **/
-    private static final String TEMPlATE_NAME_C_MAIN = "dms-unite-m";
+    private static final String TEMPlATE_NAME_C_MAIN = "dms-unite1011-new";
     /** C网统一面单-10*10 **/
-    private static final String TEMPlATE_NAME_C1010_MAIN = "dms-unite1010-m";
+    private static final String TEMPlATE_NAME_C1010_MAIN = "dms-unite1010-new";
     /** 一号店面单 -10*11**/
     private static final String TEMPlATE_NAME_C_BUSINESS = "dms-unite-business-m";
     /** 一号店面单 10*10 **/
     private static final String TEMPlATE_NAME_C1010_BUSINESS = "dms-unite1010-business-m";
-    /** C2C京准达面单 **/
-    private static final String TEMPlATE_NAME_C_2_C = "dms-c2c-m";
     /** 招商银行面单**/
     private static final String TEMPlATE_NAME_C_CMBC = "dms-nopaperyhd-m";
 
@@ -100,10 +98,7 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
                                 && !BusinessUtil.isLetterExpress(waybillSign)) {
                         //招商银行使用老模板
                         templateName = TEMPlATE_NAME_C_CMBC;
-                    } else if(BusinessUtil.isC2CJZD(waybillSign)){
-                        templateName = TEMPlATE_NAME_C_2_C;
-                    }
-                    else {
+                    } else {
                         //C网统一模板
                         templateName = TEMPlATE_NAME_C_MAIN;
                         //10*10模板
