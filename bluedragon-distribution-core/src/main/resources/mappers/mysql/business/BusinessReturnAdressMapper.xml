@@ -111,9 +111,6 @@
 	<update id="update" parameterType="com.jd.bluedragon.distribution.business.entity.BusinessReturnAdress">
 		update business_return_adress
 			<set>
-				<if test="id != null" >
-					id = #{id,jdbcType=BIGINT},
-				</if>
 				<if test="dmsSiteCode != null" >
 					dms_site_code = #{dmsSiteCode,jdbcType=INTEGER},
 				</if>
@@ -143,9 +140,6 @@
 				</if>
 				<if test="yn != null" >
 					yn = #{yn,jdbcType=TINYINT},
-				</if>
-				<if test="ts != null" >
-					ts = #{ts,jdbcType=TIMESTAMP},
 				</if>
 			</set>
 		where id = #{id,jdbcType=BIGINT}
