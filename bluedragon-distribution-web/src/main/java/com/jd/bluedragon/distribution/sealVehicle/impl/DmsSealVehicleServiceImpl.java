@@ -65,14 +65,20 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
                     } else {
                         //不存在运力编码，进行信息初始化
                         UnSealVehicleInfo unSealVehicleInfo = this.convert2UnSealVehicleInfo(preSealVehicle);
-                        //判断是否需要进行体积判断
-                        if (this.isNeedCheckVolume(preSealVehicle.getPreSealSource(), preSealVehicle.getTransWay())) {
-                            unSealVehicleInfo.setReady(NumberHelper.gt0(preSealVehicle.getVolume()));
-                        } else {
-                            unSealVehicleInfo.setReady(true);
-                        }
                         //设置批次数量
-                        unSealVehicleInfo.setSendCodeCount(this.getUnSealSendCodeCount(createSiteCode, preSealVehicle.getReceiveSiteCode(), hourRange));
+                        int sendCodeCount = this.getUnSealSendCodeCount(createSiteCode, preSealVehicle.getReceiveSiteCode(), hourRange);
+                        unSealVehicleInfo.setSendCodeCount(sendCodeCount);
+                        if (sendCodeCount > 0) {
+                            //判断是否需要进行体积判断
+                            if (this.isNeedCheckVolume(preSealVehicle.getPreSealSource(), preSealVehicle.getTransWay())) {
+                                unSealVehicleInfo.setReady(NumberHelper.gt0(preSealVehicle.getVolume()));
+                            } else {
+                                unSealVehicleInfo.setReady(true);
+                            }
+                        } else {
+                            unSealVehicleInfo.setReady(false);
+                        }
+                        
                         unSealVehicleInfoMap.put(transportCode, unSealVehicleInfo);
                     }
                 }
