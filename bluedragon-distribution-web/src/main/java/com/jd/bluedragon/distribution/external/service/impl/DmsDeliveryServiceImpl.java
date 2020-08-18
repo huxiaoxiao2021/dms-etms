@@ -131,7 +131,7 @@ public class DmsDeliveryServiceImpl implements DmsDeliveryService,SendGatewaySer
 
     @Override
     @Deprecated
-    public JdCResponse<CheckBeforeSendResponse> checkBeforeSend(com.jd.bluedragon.common.dto.send.request.DeliveryRequest request){
+    public JdVerifyResponse<CheckBeforeSendResponse> checkBeforeSend(com.jd.bluedragon.common.dto.send.request.DeliveryRequest request){
         return null;
     }
 

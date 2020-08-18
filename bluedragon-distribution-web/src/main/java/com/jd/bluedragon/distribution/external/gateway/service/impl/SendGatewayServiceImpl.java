@@ -409,12 +409,12 @@ public class SendGatewayServiceImpl implements SendGatewayService {
 
     @Override
     @JProfiler(jKey = "DMSWEB.SendGatewayServiceImpl.checkBeforeSend",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public JdCResponse<CheckBeforeSendResponse> checkBeforeSend(DeliveryRequest request){
-        JdCResponse<CheckBeforeSendResponse> res=new JdCResponse<>();
+    public JdVerifyResponse<CheckBeforeSendResponse> checkBeforeSend(DeliveryRequest request){
+        JdVerifyResponse<CheckBeforeSendResponse> res=new JdVerifyResponse<>();
 
-        JdCResponse<Boolean> ltemcheck=parameterCheck_kuaiyun(request);
+        JdCResponse<Boolean> ltemcheck=parameterCheckExpress(request);
         if (!JdCResponse.CODE_SUCCESS.equals(ltemcheck.getCode())){
-            res.setCode(ltemcheck.getCode());
+            res.setCode(JdVerifyResponse.CODE_ERROR);
             res.setMessage(ltemcheck.getMessage());
             return res;
         }
@@ -446,19 +446,24 @@ public class SendGatewayServiceImpl implements SendGatewayService {
             return res;
         }
         if(JdResponse.CODE_OK.equals(result.getCode())){
-            res.toSucceed();
+            res.toSuccess();
+        }else if(result.getCode()==300) {
+            res.toSuccess(result.getMessage());
+            CheckBeforeSendResponse res_Response=new CheckBeforeSendResponse();
+            res_Response.setSendCode(request.getSendCode());
+            res_Response.setPackageNum(result.getData().getPackageNum());
+            res_Response.setTipMessages(result.getData().getTipMessages());
+            res_Response.setWaybillType(result.getData().getWaybillType());
+            res.setData(res_Response);
+            if (null!=result.getData().getTipMessages()){
+                for (String itme : result.getData().getTipMessages()) {
+                    res.addBox(MsgBoxTypeEnum.CONFIRM,300,itme);
+                }
+            }
         }else {
-            res.setCode(result.getCode());
-            res.setMessage(result.getMessage());
+            res.toFail(result.getMessage());
+            return res;
         }
-
-        CheckBeforeSendResponse res_Response=new CheckBeforeSendResponse();
-        res_Response.setSendCode(request.getSendCode());
-        res_Response.setPackageNum(result.getData().getPackageNum());
-        res_Response.setTipMessages(result.getData().getTipMessages());
-        res_Response.setWaybillType(result.getData().getWaybillType());
-
-        res.setData(res_Response);
 
         return res;
     }
@@ -475,7 +480,7 @@ public class SendGatewayServiceImpl implements SendGatewayService {
         }
         List<com.jd.bluedragon.distribution.api.request.DeliveryRequest> listRequest =new ArrayList<>();
         for (DeliveryRequest ltem : request.getSendList()) {
-            JdCResponse<Boolean> ltemcheck=parameterCheck_kuaiyun(ltem);
+            JdCResponse<Boolean> ltemcheck=parameterCheckExpress(ltem);
             if (!JdCResponse.CODE_SUCCESS.equals(ltemcheck.getCode())){
                 return ltemcheck;
             }
@@ -503,8 +508,7 @@ public class SendGatewayServiceImpl implements SendGatewayService {
         }
 
         if (!JdResponse.CODE_OK.equals(rs.getCode())){
-            res.setCode(rs.getCode());
-            res.setMessage(rs.getMessage());
+            res.toFail(rs.getMessage());
             return res;
         }
 
@@ -557,7 +561,7 @@ public class SendGatewayServiceImpl implements SendGatewayService {
      * @param request
      * @return
      */
-    private JdCResponse<Boolean> parameterCheck_kuaiyun(DeliveryRequest request){
+    private JdCResponse<Boolean> parameterCheckExpress(DeliveryRequest request){
         JdCResponse<Boolean> res=new JdCResponse<>();
         res.toSucceed();
 

@@ -78,7 +78,7 @@ public interface SendGatewayService {
      * @param request
      * @return
      */
-    JdCResponse<CheckBeforeSendResponse> checkBeforeSend(DeliveryRequest request);
+    JdVerifyResponse<CheckBeforeSendResponse> checkBeforeSend(DeliveryRequest request);
 
     /**
      * 老发货\快运发货接口
