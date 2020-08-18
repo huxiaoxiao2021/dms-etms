@@ -96,8 +96,8 @@ import com.jd.bluedragon.distribution.web.kuaiyun.weight.WeighByWaybillControlle
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDetail;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDto;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckSourceEnum;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
-import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -120,7 +120,6 @@ import com.jd.ldop.center.api.reverse.dto.WaybillReverseDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseResponseDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseResult;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -2072,29 +2071,7 @@ public class WaybillResource {
     @BusinessLog(sourceSys = 1,bizType = 1017,operateType = 101701)
     public InvokeResult<Boolean> packageWeightCheck(PackWeightVO packWeightVO){
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
-		WeightVolumeCollectDto weightVolumeCollectDto = new WeightVolumeCollectDto();
-        //1.只针对一单一件
-        if(WaybillUtil.isWaybillCode(packWeightVO.getCodeStr()) || WaybillUtil.isPackageCode(packWeightVO.getCodeStr())){
-			weightVolumeCollectDto.setWaybillCode(WaybillUtil.getWaybillCode(packWeightVO.getCodeStr()));
-			weightVolumeCollectDto.setPackageCode(packWeightVO.getCodeStr());
-        }else {
-            result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
-            result.setMessage("运单号/包裹号不符合规则!");
-            return result;
-        }
-
-		String waybillCode = WaybillUtil.getWaybillCode(packWeightVO.getCodeStr());
-        InvokeResult<Integer> packNumResult = getPackNum(waybillCode);
-        if(packNumResult != null && packNumResult.getData() > 1){
-            result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
-            result.setMessage("重量体积抽查只支持一单一件!");
-            return result;
-        }
-        //设置抽检数据来源
-		weightVolumeCollectDto.setFromSource(FromSourceEnum.DMS_CLIENT_PACKAGE_WEIGH_PRINT.name());
-		result = weightAndVolumeCheckService.insertAndSendMq(packWeightVO,weightVolumeCollectDto,result);
-        return result;
-
+		return weightAndVolumeCheckService.dealSportCheck(packWeightVO,SpotCheckSourceEnum.SPOT_CHECK_CLIENT_PLATE,result);
     }
 
 
