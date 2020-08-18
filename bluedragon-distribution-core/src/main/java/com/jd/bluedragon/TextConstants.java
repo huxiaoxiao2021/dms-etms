@@ -135,10 +135,6 @@ public class TextConstants {
      */
     public static final String	TEXT_JZD_SPECIAL_MARK="准";
     /**
-     * 京准达字符-‘京准达’
-     */
-    public static final String TEXT_JZD="京准达";
-    /**
      * 预计送达时间展示，格式化
      */
     public static final String PROMISE_TEXT_FORMAT="配送时间：%s";
@@ -171,17 +167,57 @@ public class TextConstants {
      */
     public static final String PRE_SELL_FLAG = "预";
     /**
-     * 运输模式‘特快送 次晨’
+     * 产品名-特惠送
      */
-    public static final String EXPRESS_DELIVERY_NEXT_MORNING = "特快送 次晨";
+    public static final String PRODUCT_NAME_THS = "特惠送";
     /**
-     * 运输模式‘特快送’
+     * 产品名-函速达
      */
-    public static final String EXPRESS_DELIVERY = "特快送";
+    public static final String PRODUCT_NAME_HSD = "函速达";
     /**
-     * 运输模式‘特快送 同城’
+     * 产品名-极速达
      */
-    public static final String EXPRESS_DELIVERY_SAME_CITY = "特快送 同城";
+    public static final String PRODUCT_NAME_JSD = "极速达";
+    /**
+     * 产品名-同城速配
+     */
+    public static final String PRODUCT_NAME_TCSP = "同城速配";
+    /**
+     * 产品名-城际即日
+     */
+    public static final String PRODUCT_NAME_CJJR = "城际即日";
+    /**
+     * 产品名-生鲜特惠
+     */
+    public static final String PRODUCT_NAME_SXTH = "生鲜特惠";
+    /**
+     * 产品名-生鲜特快
+     */
+    public static final String PRODUCT_NAME_SXTK = "生鲜特快";
+    /**
+     * 产品名-生鲜专送
+     */
+    public static final String PRODUCT_NAME_SXZS = "生鲜专送";
+    /**
+     * 产品名-特快送
+     */
+    public static final String PRODUCT_NAME_TKS = "特快送";
+    /**
+     * 产品名-特快送即日
+     */
+    public static final String PRODUCT_NAME_TKSJR = "特快送即日";
+    /**
+     * 产品名-特快送次晨
+     */
+    public static final String PRODUCT_NAME_TKSCC = "特快送次晨";
+    /**
+     * 产品名-京准达
+     */
+    public static final String PRODUCT_NAME_JZD = "京准达";
+    /**
+     * 产品名-特惠包裹
+     */
+    public static final String PRODUCT_NAME_THBG = "特惠包裹";      
     /**
      * 无人车配送标识-车
      */
