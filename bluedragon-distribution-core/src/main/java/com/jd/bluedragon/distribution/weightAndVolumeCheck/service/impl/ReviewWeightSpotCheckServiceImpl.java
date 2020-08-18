@@ -68,15 +68,15 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
         heads.add("机构类型");
         heads.add("机构名称");
         heads.add("业务类型");
-        heads.add("普通应抽查包裹数");
-        heads.add("普通实际抽查包裹数");
+        heads.add("普通应抽查运单数");
+        heads.add("普通实际抽查运单数");
         heads.add("普通抽查率");
-        heads.add("普通抽查差异包裹数");
+        heads.add("普通抽查差异运单数");
         heads.add("普通抽查差异率");
-        heads.add("信任商家应抽查包裹数");
-        heads.add("信任商家实际抽查包裹数");
+        heads.add("信任商家应抽查运单数");
+        heads.add("信任商家实际抽查运单数");
         heads.add("信任商家抽查率");
-        heads.add("信任商家抽查差异包裹数");
+        heads.add("信任商家抽查差异运单数");
         heads.add("信任商家抽查差异率");
         heads.add("总抽查率");
         resList.add(heads);
@@ -300,12 +300,14 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
                 if(info != null){
                     ReviewWeightSpotCheck reviewWeightSpotCheck = new ReviewWeightSpotCheck();
 
-                    Integer trustNumOfActual = dto.getTrustPackageNumOfActual();    //信任商家实际抽查包裹数量
-                    Integer normalNumOfActual = dto.getNormalPackageNumOfActual();  //普通商家实际抽查包裹数量
-                    Integer trustNumOfShould = info.getTrustPackageNum();           //信任商家应抽查包裹数
-                    Integer normalNumOfShould = info.getNormalPackageNum();         //普通应抽查包裹数
-                    Integer trustNumOfExcess = dto.getTrustPackageNumOfDiff();      //信任商家超标数
-                    Integer normalNumOfExcess = dto.getNormalPackageNumOfDiff();    //普通商家超标数
+                    // 信任商家数据
+                    Integer trustNumOfShould = info.getTrustPackageNum();           //信任商家应抽查运单数
+                    Integer trustNumOfActual = dto.getTrustWaybillNumOfActual();    //信任商家实际抽查运单数量
+                    Integer trustNumOfExcess = dto.getTrustWaybillNumOfDiff();      //信任商家超标数
+                    // 普通商家数据
+                    Integer normalNumOfShould = info.getNormalPackageNum();         //普通应抽查运单数
+                    Integer normalNumOfActual = dto.getNormalWaybillNumOfActual();  //普通商家实际抽查运单数量
+                    Integer normalNumOfExcess = dto.getNormalWaybillNumOfDiff();    //普通商家超标数
 
                     reviewWeightSpotCheck.setReviewDate(dto.getReviewDate());
                     BaseStaffSiteOrgDto baseStaffSiteOrgDto = siteService.getSite(dto.getReviewSiteCode());
