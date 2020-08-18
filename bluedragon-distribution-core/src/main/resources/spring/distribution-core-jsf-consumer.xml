@@ -635,4 +635,13 @@
                   alias="${assetApply.jsf.alias}" timeout="${assetApply.jsf.timeout}"
                   retries="${jsf.retries}" >
     </jsf:consumer>
+
+    <jsf:consumer id="lwbB2bPackageItemService"
+                  interface="com.jd.eclp.bbp.co.lwb.service.LwbB2bPackageItemService"
+                  protocol="jsf"
+                  check="false"
+                  alias="${jsf.eclp.LwbB2bPackageItemService.alias}"
+                  timeout="${jsf.eclp.LwbB2bPackageItemService.timeout}"
+                  retries="${jsf.eclp.LwbB2bPackageItemService.retries}">
+    </jsf:consumer>
 </beans>
