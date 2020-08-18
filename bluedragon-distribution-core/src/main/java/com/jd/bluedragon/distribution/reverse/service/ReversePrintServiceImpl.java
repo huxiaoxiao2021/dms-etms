@@ -346,6 +346,8 @@ public class ReversePrintServiceImpl implements ReversePrintService {
                 if(result.getCode()==InvokeResult.RESULT_SUCCESS_CODE&&null!=result.getData()){
                     targetResult.setData(result.getData().getWaybillCode());
                     return targetResult;
+                }else{
+                	log.warn("获取新单号失败！waybillCommonService.getReverseWaybill。单号{}，返回结果：{}",oldWaybillCode,JsonHelper.toJson(result));
                 }
 
                 if(WaybillUtil.isBusiWaybillCode(oldWaybillCode)){
@@ -396,6 +398,8 @@ public class ReversePrintServiceImpl implements ReversePrintService {
                 targetResult.setData(repeatPrint);
                 isHasProductInfoOfPureMatch(targetResult);
                 return targetResult;
+            }else{
+            	log.warn("获取新单号失败！waybillCommonService.getReverseWaybill。单号{}，返回结果：{}",oldWaybillCode,JsonHelper.toJson(result));
             }
 
             if(WaybillUtil.isBusiWaybillCode(oldWaybillCode)){
