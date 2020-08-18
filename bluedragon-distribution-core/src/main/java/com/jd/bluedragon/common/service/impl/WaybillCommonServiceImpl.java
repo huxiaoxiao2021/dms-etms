@@ -1026,8 +1026,13 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     		transportMode = TextConstants.PRODUCT_NAME_JZD;
     	}else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_7)
     			 && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_29, WaybillSignConstants.CHAR_29_8)){
-    		//3-极速达
-    		transportMode = TextConstants.PRODUCT_NAME_JSD;
+    		if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_55, WaybillSignConstants.CHAR_55_0)){
+        		//4-同城速配
+        		transportMode = TextConstants.PRODUCT_NAME_TCSP;
+    		}else{
+        		//3-极速达
+        		transportMode = TextConstants.PRODUCT_NAME_JSD;
+    		}
     	}
         if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_55, WaybillSignConstants.CHAR_55_0)){
         	if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_5)){
@@ -1048,10 +1053,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         	}else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_C)){
         		//16-特惠包裹
         		transportMode = TextConstants.PRODUCT_NAME_THBG;
-        	}else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_7)
-        			&& BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_29, WaybillSignConstants.CHAR_29_8)){
-        		//4-同城速配
-        		transportMode = TextConstants.PRODUCT_NAME_TCSP;
         	}else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_1)
         			&& BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_0,WaybillSignConstants.CHAR_116_1)){
         		//10-特快送
@@ -1072,8 +1073,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 	    		transportMode = TextConstants.PRODUCT_NAME_TKSCC;
         	}else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_1)
 	         				&& BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_4)){
-		    		//15-特快送
-		    		transportMode = TextConstants.PRODUCT_NAME_TKS;
+		    	//15-特快送
+		    	transportMode = TextConstants.PRODUCT_NAME_TKS;
 	     	}
         	
         }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_55, WaybillSignConstants.CHAR_55_1)){
@@ -1543,16 +1544,12 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         if(BusinessUtil.isBMedicine(waybillSign)) {
             if (BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_43, WaybillSignConstants.CHAR_43_1)) {
                 printWaybill.setDistributTypeText(DISTRIBUTE_TYPE_COLD);
-                printWaybill.appendSpecialMark(DISTRIBUTE_TYPE_COLD,false);
             }else if(BusinessUtil.isSignChar(waybillSign,WaybillSignConstants.POSITION_43,WaybillSignConstants.CHAR_43_2)){
                 printWaybill.setDistributTypeText(DISTRIBUTE_TYPE_COOL);
-                printWaybill.appendSpecialMark(DISTRIBUTE_TYPE_COOL,false);
             }else if(BusinessUtil.isSignChar(waybillSign,WaybillSignConstants.POSITION_43,WaybillSignConstants.CHAR_43_3)){
                 printWaybill.setDistributTypeText(DISTRIBUTE_TYPE_CONTROL_TEMP);
-                printWaybill.appendSpecialMark(DISTRIBUTE_TYPE_CONTROL_TEMP,false);
             }else if(BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_43,WaybillSignConstants.CHAR_43_4)){
                 printWaybill.setDistributTypeText(DISTRIBUTE_TYPE_NORMAL);
-                printWaybill.appendSpecialMark(DISTRIBUTE_TYPE_NORMAL,false);
             }else if(BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_43,WaybillSignConstants.CHAR_43_5)){
                 printWaybill.setDistributTypeText(DISTRIBUTE_TYPE_FREEZING);
                 printWaybill.appendSpecialMark(DISTRIBUTE_TYPE_FREEZING);
