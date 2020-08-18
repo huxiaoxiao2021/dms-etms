@@ -1,6 +1,7 @@
 package com.jd.bluedragon.utils;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -616,5 +617,46 @@ public class BusinessHelper {
             return false;
         }
         return BusinessUtil.isSignChar(waybillSign, 24, '8');
+    }
+
+
+    /**
+     * 检查分拣自己存储的运单的数据是否完整。如果有关键字段为空则返回true,正常情况返回false.
+     * 普通运单检查机构ID、站点编码、站点编号、支付类型、特殊属性、重量;POP(23&&25)还检查数量、商家ID、商家名称.
+     *
+     * @param waybill
+     * @return boolean
+     */
+    public static boolean isInvalidCacheWaybill(Waybill waybill) {
+        if (waybill == null) {
+            return true;
+        }
+        Integer type = waybill.getType();
+        boolean isPop = false;
+
+        if (type != null && (type.equals(Constants.POP_FBP) || type.equals(Constants.POP_SOPL))) {
+            isPop = true;
+        }
+
+        Integer orgId = waybill.getOrgId();
+        Integer siteCode = waybill.getSiteCode();
+        Integer paymentType = waybill.getPaymentType();
+        String sendPay = waybill.getSendPay();
+        Double weight = waybill.getWeight();
+        if (orgId == null || siteCode == null || siteCode == 0 || sendPay == null || sendPay.trim().length() == 0
+                || paymentType == null || weight == null) {
+            return true;
+        }
+
+        if (isPop) {
+            Integer quantity = waybill.getQuantity();
+            Integer popSupId = waybill.getPopSupId();
+            String popSupName = waybill.getPopSupName();
+            if (quantity == null || popSupId == null || popSupName == null || popSupName.trim().length() == 0) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

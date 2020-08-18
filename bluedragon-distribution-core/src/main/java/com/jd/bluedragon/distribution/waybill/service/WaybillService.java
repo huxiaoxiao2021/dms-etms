@@ -5,8 +5,11 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
+import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+
+import java.util.List;
 
 public interface WaybillService {
 
@@ -107,4 +110,27 @@ public interface WaybillService {
      * 33位等于2，且增值服务中某个对象的vosNo=fr-a-0010
      * */
     boolean isSpecialRequirementTeAnSongService(String waybillCode, String waybillSign);
+
+    /**
+     * 从主从服务器抓数据
+     * @param waybillCode
+     * @return
+     */
+    com.jd.bluedragon.common.domain.Waybill getFromCache(String waybillCode);
+
+
+    /**
+     * 根据运单号获取包裹数据，通过调用运单的分页接口获得
+     * @param waybillCode
+     * @return
+     */
+    public List<DeliveryPackageD> getPackageByWaybillCode(String waybillCode);
+
+    /**
+     * 查运单接口 获取运单信息 不查缓存 rest用
+     * @return
+     */
+    public com.jd.bluedragon.common.domain.Waybill getNoCache(String waybillCode);
+
+
 }

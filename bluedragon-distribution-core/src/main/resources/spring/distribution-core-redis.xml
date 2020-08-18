@@ -58,4 +58,7 @@
     <bean id="jimdbCacheService" class="com.jd.bluedragon.common.service.JimdbCacheServiceImpl">
     	<constructor-arg index="0" ref="redisClientCache"></constructor-arg>
     </bean>
+	<bean id="redisStringUtil"  class="com.jd.bluedragon.distribution.ver.util.RedisStringUtil">
+		<property name="redisClient" ref="redisClient"></property>
+	</bean>
 </beans>

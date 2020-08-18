@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import org.springframework.beans.BeanUtils;
 
 public class ObjectHelper {
     /**
@@ -305,4 +306,16 @@ public class ObjectHelper {
 		}
 		return defaultVal;
     }
+
+	/**
+	 * 对象复制
+	 *
+	 * @param source
+	 * @return
+	 */
+	public static Object copyBeans(Object source) {
+		Object target = BeanUtils.instantiate(source.getClass());
+		BeanUtils.copyProperties(source, target);
+		return target;
+	}
 }

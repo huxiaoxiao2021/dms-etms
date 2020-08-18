@@ -9,6 +9,7 @@ import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.CapacityCodeRequest;
+import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
 import com.jd.bluedragon.distribution.base.domain.CreateAndReceiveSiteInfo;
 import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
@@ -17,6 +18,8 @@ import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.departure.domain.CapacityCodeResponse;
 import com.jd.bluedragon.distribution.departure.domain.CapacityDomain;
+import com.jd.bluedragon.distribution.site.dao.SiteMapper;
+import com.jd.bluedragon.distribution.ver.domain.Site;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
@@ -24,12 +27,16 @@ import com.jd.etms.vts.dto.CommonDto;
 import com.jd.etms.vts.dto.VtsTransportResourceDto;
 import com.jd.etms.vts.proxy.VtsQueryWSProxy;
 import com.jd.etms.vts.ws.VtsQueryWS;
+import com.jd.ldop.basic.api.BasicTraderAPI;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
+import com.jd.ldop.basic.dto.ResponseDTO;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.ws.BasicPrimaryWS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -49,6 +56,13 @@ public class SiteServiceImpl implements SiteService {
     private VtsQueryWSProxy vtsQueryWSProxy;
     @Autowired
     private SysConfigService sysConfigService;
+    @Autowired
+    SiteMapper siteMapper;
+    @Autowired
+    private BasicPrimaryWS basicPrimaryWS;
+
+    @Autowired
+    private BasicTraderAPI basicTraderAPI;
 
     public BaseStaffSiteOrgDto getSite(Integer siteCode) {
         return this.baseMajorManager.getBaseSiteBySiteId(siteCode);
@@ -417,4 +431,95 @@ public class SiteServiceImpl implements SiteService {
         }
         return res;
     }
+
+    @Override
+    public Site get(int siteCode) {
+
+        Site site = this.siteMapper.get(siteCode);
+        if (site == null) {
+            BaseStaffSiteOrgDto dto = null;
+            try {
+                dto = getBaseSiteBySiteId(Integer.valueOf(siteCode));
+                if (null == dto) {
+                    log.warn("根据编码获取site信息为空：{}", siteCode);
+                    return null;
+                } else {
+                    Site temp = new Site();
+                    temp.setCode(dto.getSiteCode());
+                    temp.setName(dto.getSiteName());
+                    temp.setDmsCode(dto.getDmsSiteCode() != null ? dto.getDmsSiteCode() : "");
+                    temp.setSubType(dto.getSubType());
+                    temp.setType(dto.getSiteType());
+                    temp.setOrgId(dto.getSubType());
+                    temp.setSiteBusinessType(dto.getSiteBusinessType());
+                    return temp;
+                }
+            } catch (Exception e) {
+                log.error("根据编码获取site信息失败：{}", siteCode, e);
+                return null;
+            }
+        }else {
+            return site;
+        }
+    }
+
+    public BaseStaffSiteOrgDto getBaseSiteBySiteId(Integer paramInteger) {
+        BaseStaffSiteOrgDto dtoStaff = basicPrimaryWS.getBaseSiteBySiteId(paramInteger);
+        ResponseDTO<BasicTraderInfoDTO> responseDTO = null;
+
+        if (dtoStaff != null){
+            return dtoStaff;
+        }else {
+            dtoStaff = basicPrimaryWS.getBaseStoreByDmsSiteId(paramInteger);
+        }
+
+        if (dtoStaff != null) {
+            return dtoStaff;
+        }else {
+            responseDTO = basicTraderAPI.getBasicTraderById(paramInteger);
+        }
+
+        if (responseDTO != null && responseDTO.getResult() != null){
+            dtoStaff = getBaseStaffSiteOrgDtoFromTrader(responseDTO.getResult());
+        }
+        return dtoStaff;
+    }
+
+    public BaseStaffSiteOrgDto getBaseSiteByDmsCode(String siteCode) {
+        BaseStaffSiteOrgDto dtoStaff = basicPrimaryWS.getBaseSiteByDmsCode(siteCode);
+        ResponseDTO<BasicTraderInfoDTO> responseDTO = null;
+        if (dtoStaff != null) {
+            return dtoStaff;
+        } else {
+            dtoStaff = basicPrimaryWS.getBaseStoreByDmsCode(siteCode);
+        }
+        if (dtoStaff != null){
+            return dtoStaff;
+        }else {
+            responseDTO = basicTraderAPI.getBaseTraderByCode(siteCode);
+        }
+        if (responseDTO != null && responseDTO.getResult() != null) {
+            dtoStaff = getBaseStaffSiteOrgDtoFromTrader(responseDTO.getResult());
+        }
+        return dtoStaff;
+    }
+
+    private BaseStaffSiteOrgDto getBaseStaffSiteOrgDtoFromTrader(BasicTraderInfoDTO trader) {
+        BaseStaffSiteOrgDto baseStaffSiteOrgDto = new BaseStaffSiteOrgDto();
+        baseStaffSiteOrgDto.setDmsSiteCode(trader.getTraderCode());
+        baseStaffSiteOrgDto.setSiteCode(trader.getId());
+        baseStaffSiteOrgDto.setSiteName(trader.getTraderName());
+        baseStaffSiteOrgDto.setSiteType(Constants.BASIC_B_TRADER_SITE_TYPE);
+        baseStaffSiteOrgDto.setOrgId(Constants.BASIC_B_TRADER_ORG);
+        baseStaffSiteOrgDto.setOrgName(Constants.BASIC_B_TRADER_ORG_NAME);
+        baseStaffSiteOrgDto.setTraderTypeEbs(trader.getTraderTypeEbs());
+        baseStaffSiteOrgDto.setAccountingOrg(trader.getAccountingOrg());
+        baseStaffSiteOrgDto.setAirTransport(trader.getAirTransport());
+        baseStaffSiteOrgDto.setSitePhone(trader.getTelephone());
+        baseStaffSiteOrgDto.setPhone(trader.getContactMobile());
+        return baseStaffSiteOrgDto;
+    }
+
+
+
 }

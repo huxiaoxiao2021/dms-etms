@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
 import com.jd.bluedragon.distribution.base.domain.CreateAndReceiveSiteInfo;
 import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
 import com.jd.bluedragon.distribution.departure.domain.CapacityCodeResponse;
+import com.jd.bluedragon.distribution.ver.domain.Site;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
@@ -114,4 +115,8 @@ public interface SiteService {
 	 * @return
 	 */
 	public List<BaseStaffSiteOrgDto> fuzzyGetSiteBySiteName(String siteName);
+
+
+	public Site get(int siteCode);
+
 }
