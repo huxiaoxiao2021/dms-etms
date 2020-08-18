@@ -449,4 +449,9 @@
     <bean id="kyStorageProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.ky.storage.putAway}"/>
     </bean>
+
+    <!-- 众邮箱号称重MQ -->
+    <bean id="economicNetBoxWeightProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.economicNet.box.weight}"/>
+    </bean>
 </beans>

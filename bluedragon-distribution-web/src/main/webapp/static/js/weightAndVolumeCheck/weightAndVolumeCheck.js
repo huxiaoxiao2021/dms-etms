@@ -100,6 +100,11 @@ $(function () {
         }, {
             field: 'busiCode',
             title: '商家ID',
+            align: 'center',
+            visible: false
+        }, {
+            field: 'merchantCode',
+            title: '配送商家编号',
             align: 'center'
         }, {
             field: 'busiName',
@@ -188,7 +193,7 @@ $(function () {
             title: '体积重量是否超标',
             align: 'center',
             formatter: function (value, row, index) {
-                return value == "1" ? "超标" : value == "0" ? "未超标" : "-";
+                return value == "1" ? "超标" : value == "0" ? "未超标" : "未知";
             }
         },{
             field: 'diffStandard',
@@ -199,14 +204,21 @@ $(function () {
             title: '是否超标',
             align: 'center',
             formatter: function (value, row, index) {
-                return value == "1" ? "超标" : value == "0" ? "未超标" : "-";
+                return value == "1" ? "超标" : value == "0" ? "未超标" : "未知";
             }
         },{
             field: 'fromSource',
             title: '数据来源',
             align: 'center',
             formatter: function (value, row, index) {
-                return value == "DMS_CLIENT_PACKAGE_WEIGH_PRINT" ? "客户端" : value == "DMS_AUTOMATIC_MEASURE" ? "自动化" : "-";
+                // 为了兼容之前定义的枚举。。。。
+                if(value == "DMS_CLIENT_PACKAGE_WEIGH_PRINT" || value == "SPOT_CHECK_CLIENT_PLATE"){
+                    return "平台打印抽检";
+                }
+                if(value == "DMS_AUTOMATIC_MEASURE" || value == "SPOT_CHECK_DWS"){
+                    return "DWS抽检";
+                }
+                return value == "SPOT_CHECK_DMS_WEB" ? "B网网页抽检" : value == "SPOT_CHECK_ANDROID" ? "B网安卓抽检" : "其它";
             }
         },{
             field: 'isHasPicture',

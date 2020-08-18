@@ -50,4 +50,22 @@ public class WaybillPrintMessages{
 	 * 超长包裹
 	 * */
 	public static final String MESSAGE_PACKAGE_OVER_LENGTH_REMIND = "此包裹超过{0}*{1}*{2}厘米，为超长揽收包裹";
+
+	/**
+	 * 该运单已是终结点时提示信息错误码
+	 * */
+	public static final Integer CODE_WAYBILL_FINISHED = 21001003;
+	/**
+	 * 该运单已是终结点时提示信息
+	 * */
+	public static final String MESSAGE_WAYBILL_FINISHED = "此订单号（外单包裹号）已【%s】，是否再次打印？";
+	/**
+	 * 该运单已是终结点并且是补打时错误码
+	 * */
+	public static final Integer CODE_WAYBILL_FINISHED_REPRINT = 21001004;
+	/**
+	 * 该运单已是终结点并且是补打时提示信息
+	 * */
+	public static final String MESSAGE_WAYBILL_FINISHED_REPRINT = "当前面单已【%s】状态，且已操作过补打，请确认是否打印";
+
 }

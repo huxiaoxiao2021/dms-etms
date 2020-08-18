@@ -593,7 +593,9 @@
     <bean id="waybillCodeCheckDao" class="com.jd.bluedragon.distribution.financialForKA.dao.WaybillCodeCheckDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
-
+    <bean id="exportLogDao" class="com.jd.bluedragon.distribution.exportlog.dao.ExportLogDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
 
     <!--  businessCode 业务单号表  -->
     <bean id="businessCodeDao" class="com.jd.bluedragon.distribution.businessCode.dao.BusinessCodeDao">
@@ -621,6 +623,7 @@
           class="com.jd.bluedragon.distribution.material.dao.impl.MaterialSendFlowDaoImpl" />
           
     <bean id="dmsScheduleInfoDao" parent="businessBaseDao"
-          class="com.jd.bluedragon.distribution.schedule.dao.impl.DmsScheduleInfoDaoImpl" />          
+          class="com.jd.bluedragon.distribution.schedule.dao.impl.DmsScheduleInfoDaoImpl" />
+
     <!--################################## bd_dms_business 相关DAO End ############################################ -->
 </beans>
