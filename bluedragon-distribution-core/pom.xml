@@ -1255,7 +1255,7 @@
         <dependency>
             <groupId>com.jd.eclp</groupId>
             <artifactId>eclp-co-api</artifactId>
-            <version>0.0.1-TEST-SNAPSHOT</version>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
 		<dependency>
