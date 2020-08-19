@@ -25,9 +25,9 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
     /** TC面单 **/
     private static final String TEMPlATE_NAME_TC = "dms-b2b-m";
     /** C网统一面单-10*11 **/
-    private static final String TEMPlATE_NAME_C_MAIN = "dms-unite-m";
+    private static final String TEMPlATE_NAME_C_MAIN = "dms-unite1011-new";
     /** C网统一面单-10*10 **/
-    private static final String TEMPlATE_NAME_C1010_MAIN = "dms-unite1010-m";
+    private static final String TEMPlATE_NAME_C1010_MAIN = "dms-unite1010-new";
     /** 一号店面单 -10*11**/
     private static final String TEMPlATE_NAME_C_BUSINESS = "dms-unite-business-m";
     /** 一号店面单 10*10 **/

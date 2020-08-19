@@ -156,5 +156,9 @@
     <jmq:consumer id="jmq.sealVehicleFromWorkbenchConsumer" transport="jmq.uatDmsWeb.transport">
         <jmq:listener topic="${jmq.topic.dms.wb.seal.vehicle}" listener="sealVehicleFromWorkbenchConsumer"/>
     </jmq:consumer>
+    </jmq:consumer>
+    <jmq:consumer id="jmq.waybilCodeCheckExportLogConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.waybill.check.exportlog}" listener="waybilCodeCheckExportLogConsumer"/>
+    </jmq:consumer>
 </beans>
 

@@ -173,7 +173,35 @@ public class WaybillCommonServiceImplTestCase {
 				Assert.assertEquals(waybillSignChecks[i],hasFlag);
 			}
 		}
-
+	/**
+	 * B网打印运单标识BcSign
+	 * @throws Exception
+	 */
+    @Test
+    public void testTransportTypeText() throws Exception{
+    	WaybillPrintContext context = EntityUtil.getInstance(WaybillPrintContext.class);
+		String[] waybillSigns = {
+				UtilsForTestCase.getSignString(500,84,'1'),
+				UtilsForTestCase.getSignString(500,84,'2'),
+				};
+		String[] transportTypeTexts ={
+				"陆",
+				"高",
+				};
+		for(int i=0 ; i < waybillSigns.length; i++ ){
+				System.err.println(waybillSigns[i]);
+				context.setBasePrintWaybill(context.getResponse());
+				context.getBigWaybillDto().getWaybill().setWaybillSign(waybillSigns[i]);
+				context.getBasePrintWaybill().setSpecialMark(null);
+				context.getBasePrintWaybill().setSpecialMarkNew(null);
+				context.getBasePrintWaybill().setTransportTypeText(null);
+				waybillCommonServiceImpl.setBasePrintInfoByWaybill(context.getBasePrintWaybill(), context.getBigWaybillDto().getWaybill());
+				//transportTypeText验证
+				Assert.assertEquals(transportTypeTexts[i],context.getBasePrintWaybill().getTransportTypeText());
+				//SpecialMark验证
+				Assert.assertEquals(true,context.getBasePrintWaybill().getSpecialMark().contains(transportTypeTexts[i]));
+			}
+    }
     @Test
     public void testisStorageWaybill(){
         waybillCommonServiceImpl.isStorageWaybill("1111");

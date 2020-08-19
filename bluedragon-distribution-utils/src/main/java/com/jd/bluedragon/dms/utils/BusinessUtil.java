@@ -1,8 +1,6 @@
 package com.jd.bluedragon.dms.utils;
 
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
-
-import com.sun.org.apache.regexp.internal.REUtil;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -719,6 +717,32 @@ public class BusinessUtil {
         }
         return Boolean.FALSE;
     }
+
+    /**
+     * 快运外单判断
+     * <p>
+     *      1、快运零担【waybillSign第40位为2且第80位为0】
+     *      2、特快重货【waybillSign第40位为2或3且第80位为9】
+     *      3、特运零担【waybillSign第40位为2或3且第80位为2】
+     *      4、特慧零担【waybillSign第40位为2且第80位为1】
+     *      5、其他【waybillSign：89=0 & 99=0 & 54=0 & 62=0,1,4 & 29=2 & 10=1】
+     * </p>
+     * @param waybillSign
+     * @return*/
+    public static boolean isKyLdop(String waybillSign){
+        if(waybillSign == null){
+            return false;
+        }
+        if(isSignChar(waybillSign,40,'2') && isSignInChars(waybillSign,80,'0','1')
+                || (isSignInChars(waybillSign,40,'2','3') && isSignInChars(waybillSign,80,'2','9'))
+                || (isSignChar(waybillSign,89,'0') && isSignChar(waybillSign,99,'0')
+                && isSignChar(waybillSign,54,'0') && isSignInChars(waybillSign,62,'0','1','4')
+                && isSignChar(waybillSign,29,'2') && isSignChar(waybillSign,10,'1'))){
+            return true;
+        }
+        return false;
+    }
+
     /**
      * 判断是否是移动仓内配单
      * @param waybillSign
@@ -1393,7 +1417,7 @@ public class BusinessUtil {
 
     /**
      * @Description
-     * @param [boxCode]
+     * @param boxCode
      * @Author wyh
      * @Date 2020/2/21 14:07
      * @return java.lang.Boolean

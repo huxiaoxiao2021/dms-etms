@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.weightandvolume;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckSourceEnum;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import org.junit.Test;
@@ -36,6 +37,6 @@ public class WeightAndVolumeCheckServiceImplTest {
         packWeightVO.setErpCode("lijie123");
         WeightVolumeCollectDto weightVolumeCollectDto = new WeightVolumeCollectDto();
         InvokeResult<Boolean> result = new InvokeResult<>();
-        weightAndVolumeCheckService.insertAndSendMq(packWeightVO,weightVolumeCollectDto,result);
+        weightAndVolumeCheckService.dealSportCheck(packWeightVO, SpotCheckSourceEnum.SPOT_CHECK_DWS,result);
     }
 }
