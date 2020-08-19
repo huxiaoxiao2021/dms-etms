@@ -1,5 +1,6 @@
 package rma;
 
+import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.SmsMessageManager;
@@ -12,11 +13,14 @@ import com.jd.bluedragon.distribution.rma.service.RmaHandOverWaybillService;
 import com.jd.bluedragon.distribution.send.domain.SendDetailMessage;
 import com.jd.bluedragon.distribution.sms.domain.SMSDto;
 import com.jd.bluedragon.distribution.sms.service.SmsConfigService;
+import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
+import com.jd.dms.logger.external.LogEngine;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Goods;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -64,12 +68,33 @@ public class RmaConsumerTest {
     private UccPropertyConfiguration uccPropertyConfiguration;
 
     @Mock
+    private LogEngine logEngine;
+
+    @Mock
     @Qualifier("dmsToVendor")
     private DefaultJMQProducer dmsToVendor;
 
     @Mock
     @Qualifier("dmsColdChainSendWaybill")
     private DefaultJMQProducer dmsColdChainSendWaybill;
+
+    @Mock
+    @Qualifier("redisClientCache")
+    private Cluster redisClientCache;
+
+    @Mock
+    @Qualifier("ccInAndOutBoundProducer")
+    private DefaultJMQProducer ccInAndOutBoundProducer;
+
+    @Mock
+    private WaybillCommonService waybillCommonService;
+
+    @Mock
+    @Qualifier("kyStorageProducer")
+    private DefaultJMQProducer kyStorageProducer;
+
+    @Mock
+    private StoragePackageMService storagePackageMService;
 
     @Before
     public void before() throws JMQException {
@@ -124,6 +149,15 @@ public class RmaConsumerTest {
             sMSDto.setToken("test");
             Mockito.when(smsConfigService.getSMSConstantsByOrgId(Mockito.anyInt()))
                     .thenReturn(sMSDto);
+
+            Waybill waybill1 = new Waybill();
+            waybill1.setSendPay("00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
+//            waybill1.setWaybillSign("30001000010900030000000000000000000000000002000000002000010000000000000000000010000100000000100000000000000010000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000");
+            waybill1.setWaybillSign("30001000010900030000000000000000000000000002000000002000010000000000000000000010000100000000100000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
+            Mockito.when(waybillQueryManager.getWaybillByWayCode(Mockito.anyString())).thenReturn(waybill1);
+            Mockito.when(waybillCommonService.isStorageWaybill(Mockito.anyString())).thenReturn(true);
+            Mockito.when(storagePackageMService.isAllPutAwayAll(Mockito.anyString())).thenReturn(true);
+            Mockito.when(storagePackageMService.packageIsAllSend(Mockito.anyString(), Mockito.anyInt())).thenReturn(true);
 
             Message message = new Message();
             message.setText("{\"boxCode\":\"JDV000050847830-1-5-\",\"createSiteCode\":910,\"createUser\":\"邢松\",\"createUserCode\":100531,\"operateTime\":1582594542000,\"packageBarcode\":\"JDV000050847830-1-5-\",\"receiveSiteCode\":39,\"sendCode\":\"910-39-20200225094934011\",\"source\":\"DMS\"}");

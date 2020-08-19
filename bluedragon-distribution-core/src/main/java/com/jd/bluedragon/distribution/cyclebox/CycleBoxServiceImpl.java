@@ -378,6 +378,7 @@ public class CycleBoxServiceImpl implements CycleBoxService {
         InvokeResult result = new InvokeResult();
         result.success();
 
+        log.info("发送外单靑流箱MQ：{}" , JsonHelper.toJson(request));
         dmsCycleBoxBindNotice.send(request.getWaybillNo(),JsonHelper.toJson(request));
         return result;
     }
