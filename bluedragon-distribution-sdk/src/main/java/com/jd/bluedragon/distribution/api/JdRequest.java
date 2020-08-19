@@ -9,7 +9,7 @@ public class JdRequest extends JdObject {
      */
     private String key;
     
-    /** 操作人编号_ERP帐号 */
+    /** 操作人编号 */
     private Integer userCode;
     
     /** 操作人姓名 */
