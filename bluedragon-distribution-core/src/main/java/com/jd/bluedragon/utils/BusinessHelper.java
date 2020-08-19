@@ -592,7 +592,7 @@ public class BusinessHelper {
             return false;
         }
         return !BusinessUtil.isSignChar(sendPay, 275, '0')
-                && BusinessUtil.isSignInChars(sendPay, 265, '3','5');
+                && BusinessUtil.isSignInChars(sendPay, 269, '3','5');
     }
 
     /**

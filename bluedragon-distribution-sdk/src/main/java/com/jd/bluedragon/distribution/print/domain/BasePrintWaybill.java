@@ -447,6 +447,10 @@ public class BasePrintWaybill implements Serializable {
 	 * 运输方式：航、航填、高、陆
 	 */
 	private String transportTypeText;
+	/**
+	 * 京准达标识-尊
+	 */
+	private String respectTypeText;
 	
 	public String getServiceCode() {
 		return serviceCode;
@@ -1641,5 +1645,11 @@ public class BasePrintWaybill implements Serializable {
 	}
 	public void setTransportTypeText(String transportTypeText) {
 		this.transportTypeText = transportTypeText;
+	}
+	public String getRespectTypeText() {
+		return respectTypeText;
+	}
+	public void setRespectTypeText(String respectTypeText) {
+		this.respectTypeText = respectTypeText;
 	}
 }

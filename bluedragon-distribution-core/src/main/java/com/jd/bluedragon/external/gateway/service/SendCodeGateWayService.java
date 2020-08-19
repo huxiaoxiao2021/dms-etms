@@ -32,6 +32,17 @@ public interface SendCodeGateWayService {
     JdCResponse<SendCodeCheckDto> checkSendCodeStatus(String sendCode);
 
     /**
+     * 判断批次号状态
+     *  公用校验方法，目前用于以下场景
+     * <p>
+     *     1、批量一车一单
+     * </p>
+     * @param sendCode
+     * @return
+     */
+    JdCResponse commonCheckSendCode(String sendCode);
+
+    /**
      * 判断批次号状态与是否是加盟商站点
      * @param sendCode
      * @return
