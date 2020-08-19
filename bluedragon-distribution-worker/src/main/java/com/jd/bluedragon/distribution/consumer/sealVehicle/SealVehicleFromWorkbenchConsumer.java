@@ -9,12 +9,11 @@ import com.jd.bluedragon.distribution.newseal.service.PreSealVehicleService;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.sealVehicle.domain.SealVehicleSendCodeInfo;
 import com.jd.bluedragon.distribution.sealVehicle.domain.SubmitSealVehicleDto;
-import com.jd.bluedragon.distribution.wss.dto.SealCarDto;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.fastjson.JSONObject;
-import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.dms.common.cache.CacheService;
 import org.slf4j.Logger;
@@ -67,7 +66,7 @@ public class SealVehicleFromWorkbenchConsumer extends MessageBaseConsumer {
             jimdbCacheService.setEx(redisKey, submitSealVehicleDto.getSealVehicleTaskCode(), 5 * 60);
         }
 
-        List<SealCarDto> sealCarDtoList = new ArrayList<>();
+        List<com.jd.etms.vos.dto.SealCarDto> sealCarDtoList = new ArrayList<>();
         try {
             //包含批次时，进行数据转换后进行封车
             if (submitSealVehicleDto.getHasBatchInfo()) {
@@ -126,7 +125,7 @@ public class SealVehicleFromWorkbenchConsumer extends MessageBaseConsumer {
                 sealCarDto.setBatchCodes(sendCodeList);
                 sealCarDtoList.add(sealCarDto);
             }
-            NewSealVehicleResponse newSealVehicleResponse = newSealVehicleService.doSealCarWithVehicleJob(sealCarDtoList);
+            NewSealVehicleResponse newSealVehicleResponse = newSealVehicleService.doSealCarFromDmsWorkBench(sealCarDtoList);
             if (newSealVehicleResponse != null && NewSealVehicleResponse.CODE_OK.equals(newSealVehicleResponse.getCode())) {
                 //更新预封车数据
                 completePreSealRecord(sealCarDtoList, submitSealVehicleDto);
@@ -151,7 +150,7 @@ public class SealVehicleFromWorkbenchConsumer extends MessageBaseConsumer {
      * */
     private SealCarDto convert2SealCarDto(SubmitSealVehicleDto submitSealVehicleDto, PreSealVehicle preSealVehicle) {
         SealCarDto sealCarDto = new SealCarDto();
-        sealCarDto.setSealCarTime(DateHelper.formatDate(submitSealVehicleDto.getOperateTime(), Constants.DATE_TIME_MS_FORMAT));
+        sealCarDto.setSealCarTime(submitSealVehicleDto.getOperateTime());
         if (StringHelper.isNotEmpty(preSealVehicle.getSealCodes())) {
             sealCarDto.setSealCodes(Arrays.asList(preSealVehicle.getSealCodes().split(Constants.SEPARATOR_COMMA)));
         }
@@ -160,6 +159,7 @@ public class SealVehicleFromWorkbenchConsumer extends MessageBaseConsumer {
         sealCarDto.setSealUserCode(submitSealVehicleDto.getOperatorCode().toString());
         sealCarDto.setSealUserName(submitSealVehicleDto.getOperatorName());
         sealCarDto.setSource(Constants.SEAL_SOURCE);
+        sealCarDto.setSealCarType(Constants.SEAL_TYPE_TRANSPORT);
         sealCarDto.setTransportCode(submitSealVehicleDto.getTransportCode());
         sealCarDto.setVehicleNumber(preSealVehicle.getVehicleNumber());
         sealCarDto.setVolume(preSealVehicle.getVolume());

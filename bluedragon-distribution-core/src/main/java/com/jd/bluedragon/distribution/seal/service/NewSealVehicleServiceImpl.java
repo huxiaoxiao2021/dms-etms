@@ -170,12 +170,28 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
      */
     @JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.doSealCarWithVehicleJob",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public NewSealVehicleResponse doSealCarWithVehicleJob(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars) {
-        long startTime=new Date().getTime();
         List<SealCarDto> paramList = convertList(sealCars);
         if(log.isDebugEnabled()){
             log.debug("VOS封车业务同时生成车次任务参数：{}", JsonHelper.toJson(paramList));
         }
 
+        return doSealCarWithVehicleJobCore(paramList);
+    }
+
+    /**
+     * 分拣工作台一键封车
+     */
+    @JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.doSealCarFromDmsWorkBench",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public NewSealVehicleResponse doSealCarFromDmsWorkBench(List<SealCarDto> sealCarDtoList) {
+        log.info("执行分拣工作台一键封车任务参数：{}", JsonHelper.toJson(sealCarDtoList));
+        return doSealCarWithVehicleJobCore(sealCarDtoList);
+    }
+
+    /*
+    * 执行传摆封车主体
+    * */
+    private NewSealVehicleResponse doSealCarWithVehicleJobCore(List<SealCarDto> paramList) {
+        long startTime=new Date().getTime();
         NewSealVehicleResponse sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
         String errorMsg = "";
         List<SealCarDto> successSealCarList = new ArrayList<>(); //封车成功的
@@ -308,35 +324,34 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     }
 
     /**
-     * 离线传摆封车
+     * 一键传摆封车
      * @param sealCars
      * @return
      */
     @Override
-    @JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.offlineFerrySeal",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
-    public NewSealVehicleResponse offlineFerrySeal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars) {
+    @JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.oneClickFerrySeal",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+    public NewSealVehicleResponse oneClickFerrySeal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars) {
         if(log.isDebugEnabled()){
-            log.debug("离线传摆封车参数：{}", JsonHelper.toJson(sealCars));
+            log.debug("一键传摆封车参数：{}", JsonHelper.toJson(sealCars));
         }
         NewSealVehicleResponse newSealVehicleResponse = null;
-        String msg = "离线传摆封车失败：";
+        String msg = "一键传摆封车失败：";
         try {
-            newSealVehicleResponse = this.doSealCarWithVehicleJob(sealCars);
+            List<SealCarDto> paramList = offlineConvertList(sealCars);
+            newSealVehicleResponse = this.doSealCarWithVehicleJobCore(paramList);
 
             if(newSealVehicleResponse == null) {
                 msg += "传摆封车JSF接口返回为空";
             } else if (NewSealVehicleResponse.CODE_OK.equals(newSealVehicleResponse.getCode())){
-                log.debug("离线传摆封车成功！");
-                msg = MESSAGE_OFFLINE_SEAL_SUCCESS;
+                log.debug("一键传摆封车成功！");
+                msg = MESSAGE_ONE_CLICK_FERRY_SEAL_SUCCESS;
             } else {
                 msg += "["+newSealVehicleResponse.getCode()+":"+newSealVehicleResponse.getMessage()+"]";
             }
         } catch (Exception e){
-            this.log.error("离线传摆封车-error参数：{}", JsonHelper.toJson(sealCars), e);
+            this.log.error("一键传摆封车-error参数：{}", JsonHelper.toJson(sealCars), e);
             msg += "["+ e.getMessage() +"]";
         } finally {
-
-
             addFerrySealSystemLog(sealCars, msg);
         }
         return newSealVehicleResponse;
@@ -737,18 +752,19 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
             JSONObject request=new JSONObject();
             request.put("siteCode",dto.getSealSiteId());
+            request.put("siteName",dto.getSealSiteName());
 
             JSONObject response=new JSONObject();
-            response.put("head", dto.getSealSiteId() + "-" + dto.getDesealSiteId());
-            response.put("body", JsonHelper.toJson(dto));
+            response.put("param",dto);
+            response.put("errmsg",remark);
 
             BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
-                    .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SEAL_FERRY_SEAL)
+                    .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.ONE_CLICK_SEAL_FERRY_SEAL)
+                    .methodName("NewSealVehicleServiceImpl#oneClickFerrySeal")
                     .operateRequest(request)
                     .operateResponse(response)
                     .processTime(endTime,startTime)
                     .build();
-
             logEngine.addLog(businessLogProfiler);
 
             goddessService.save(goddess);
