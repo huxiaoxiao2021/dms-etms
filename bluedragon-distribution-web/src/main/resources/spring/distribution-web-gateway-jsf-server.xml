@@ -189,6 +189,15 @@
                   server="dmsjsf">
     </jsf:provider>
 
+    <!-- 查询功能 -->
+    <bean id="searchGateWayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.SearchGateWayServiceImpl"/>
+    <jsf:provider id="jsfSearchGateWayService"
+                  interface="com.jd.bluedragon.external.gateway.service.SearchGateWayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="searchGateWayService"
+                  server="dmsjsf">
+    </jsf:provider>
+
     <!-- 发布jsf 到物流网关 安卓调用end -->
 
     <!-- 发布jsf到物流网关 外部公司调用start  -->
