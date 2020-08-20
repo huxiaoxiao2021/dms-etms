@@ -72,6 +72,7 @@ import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.jmq.common.exception.JMQException;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
@@ -194,6 +195,10 @@ public class SortingServiceImpl implements SortingService {
     @Autowired
     @Qualifier("cycleMaterialSendMQ")
     private DefaultJMQProducer cycleMaterialSendMQ;
+
+    @Autowired
+    @Qualifier("deliverGoodsNoticeSendMQ")
+    private DefaultJMQProducer deliverGoodsNoticeSendMQ;
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Integer add(Sorting sorting) {
@@ -983,8 +988,40 @@ public class SortingServiceImpl implements SortingService {
 				// 批量回传全程跟踪
 				this.deliveryService.updateWaybillStatus(sendDs);
 			}
+
+			// 先发货后分拣的场景，补发循环集包袋MQ
+			if (transitSendMs.size() > 0 || sendMs.size() > 0) {
+                this.deliverGoodsNoticeMQ(sorting);
+            }
 		}
 	}
+
+    /**
+     * 发送循环集包袋发货MQ
+     * @param sorting
+     */
+    private void deliverGoodsNoticeMQ(Sorting sorting) {
+        String boxCode = sorting.getBoxCode();
+        if (BusinessHelper.isBoxcode(boxCode)) {
+            try {
+                BoxMaterialRelationMQ mq = new BoxMaterialRelationMQ();
+                mq.setBoxCode(boxCode);
+                mq.setBusinessType(BoxMaterialRelationEnum.SEND.getType());
+                mq.setOperatorName(sorting.getCreateUser());
+                mq.setOperatorCode(sorting.getCreateUserCode());
+                mq.setSiteCode(sorting.getCreateSiteCode().toString());
+
+                mq.setReceiveSiteCode(sorting.getReceiveSiteCode().longValue());
+                BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(sorting.getReceiveSiteCode());
+                mq.setReceiveSiteName(null != siteOrgDto ? siteOrgDto.getSiteName() : StringUtils.EMPTY);
+
+                deliverGoodsNoticeSendMQ.send(boxCode, JsonHelper.toJson(mq));
+            }
+            catch (JMQException e) {
+                this.log.error("分拣补发货业务通知MQ 异常{}", JsonHelper.toJson(sorting), e);
+            }
+        }
+    }
 
 	/**
 	 * 获取直接发货和中转发货的SendM数据
