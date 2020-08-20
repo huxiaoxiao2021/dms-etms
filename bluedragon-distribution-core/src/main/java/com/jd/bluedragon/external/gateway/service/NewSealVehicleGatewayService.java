@@ -1,6 +1,7 @@
 package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.blockcar.request.CapacityInfoRequest;
 import com.jd.bluedragon.common.dto.blockcar.request.CheckTransportCodeRequest;
 import com.jd.bluedragon.common.dto.blockcar.request.PreSealMeasureInfoRequest;
@@ -49,7 +50,7 @@ public interface NewSealVehicleGatewayService {
      * @param sealCarRequest
      * @return
      */
-    JdCResponse preSealFerry(SealCarRequest sealCarRequest);
+    JdVerifyResponse preSealFerry(SealCarRequest sealCarRequest);
 
     /**
      * 传摆预封车更新服务

@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.blockcar.request.CapacityInfoRequest;
 import com.jd.bluedragon.common.dto.blockcar.request.CheckTransportCodeRequest;
 import com.jd.bluedragon.common.dto.blockcar.request.PreSealMeasureInfoRequest;
@@ -334,17 +335,22 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
     @Override
     @BusinessLog(sourceSys = 1,bizType = 1011,operateType = 1014)
     @JProfiler(jKey = "DMSWEB.NewSealVehicleGatewayServiceImpl.preSealFerry",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public JdCResponse preSealFerry(SealCarRequest sealCarRequest) {
-        JdCResponse jdCResponse = new JdCResponse();
+    public JdVerifyResponse preSealFerry(SealCarRequest sealCarRequest) {
+        JdVerifyResponse jdCResponse = new JdVerifyResponse();
 
         NewSealVehicleRequest newSealVehicleRequest = new NewSealVehicleRequest();
         List<SealCarDto> list = sealCarRequest.getSealCarDtoList();
         newSealVehicleRequest.setData(convert(list));
 
         NewSealVehicleResponse<Boolean> newSealVehicleResponse = preSealVehicleResource.preSealFerry(newSealVehicleRequest);
-
-        jdCResponse.setCode(newSealVehicleResponse.getCode());
-        jdCResponse.setMessage(newSealVehicleResponse.getMessage());
+        if(NewSealVehicleResponse.CODE_OK.equals(newSealVehicleResponse.getCode())){
+            jdCResponse.toSuccess(newSealVehicleResponse.getMessage());
+        }else if(newSealVehicleResponse.getCode()>300000){
+            jdCResponse.toSuccess(newSealVehicleResponse.getMessage());
+            jdCResponse.addConfirmBox(newSealVehicleResponse.getCode(),newSealVehicleResponse.getMessage());
+        }else {
+            jdCResponse.toFail(newSealVehicleResponse.getMessage());
+        }
 
         return jdCResponse;
     }
