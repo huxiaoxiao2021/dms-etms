@@ -50,7 +50,7 @@ public interface NewSealVehicleGatewayService {
      * @param sealCarRequest
      * @return
      */
-    JdVerifyResponse preSealFerry(SealCarRequest sealCarRequest);
+    JdVerifyResponse<Void> preSealFerry(SealCarRequest sealCarRequest);
 
     /**
      * 传摆预封车更新服务

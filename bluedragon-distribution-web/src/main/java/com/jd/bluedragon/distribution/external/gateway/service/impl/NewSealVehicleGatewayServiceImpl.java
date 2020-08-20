@@ -335,8 +335,8 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
     @Override
     @BusinessLog(sourceSys = 1,bizType = 1011,operateType = 1014)
     @JProfiler(jKey = "DMSWEB.NewSealVehicleGatewayServiceImpl.preSealFerry",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public JdVerifyResponse preSealFerry(SealCarRequest sealCarRequest) {
-        JdVerifyResponse jdCResponse = new JdVerifyResponse();
+    public JdVerifyResponse<Void> preSealFerry(SealCarRequest sealCarRequest) {
+        JdVerifyResponse<Void> jdvResponse = new JdVerifyResponse();
 
         NewSealVehicleRequest newSealVehicleRequest = new NewSealVehicleRequest();
         List<SealCarDto> list = sealCarRequest.getSealCarDtoList();
@@ -344,15 +344,19 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
 
         NewSealVehicleResponse<Boolean> newSealVehicleResponse = preSealVehicleResource.preSealFerry(newSealVehicleRequest);
         if(NewSealVehicleResponse.CODE_OK.equals(newSealVehicleResponse.getCode())){
-            jdCResponse.toSuccess(newSealVehicleResponse.getMessage());
-        }else if(newSealVehicleResponse.getCode()>300000){
-            jdCResponse.toSuccess(newSealVehicleResponse.getMessage());
-            jdCResponse.addConfirmBox(newSealVehicleResponse.getCode(),newSealVehicleResponse.getMessage());
-        }else {
-            jdCResponse.toFail(newSealVehicleResponse.getMessage());
+            jdvResponse.toSuccess(newSealVehicleResponse.getMessage());
+            return jdvResponse;
         }
 
-        return jdCResponse;
+        int confirmCode=30000;
+        if(newSealVehicleResponse.getCode()>confirmCode){
+            jdvResponse.toSuccess(newSealVehicleResponse.getMessage());
+            jdvResponse.addConfirmBox(newSealVehicleResponse.getCode(),newSealVehicleResponse.getMessage());
+        }else {
+            jdvResponse.toFail(newSealVehicleResponse.getMessage());
+        }
+
+        return jdvResponse;
     }
 
     /**
@@ -371,6 +375,10 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
         newSealVehicleRequest.setData(convert(list));
 
         NewSealVehicleResponse<Boolean> newSealVehicleResponse = preSealVehicleResource.updatePreSealFerry(newSealVehicleRequest);
+        if(NewSealVehicleResponse.CODE_OK.equals(newSealVehicleResponse.getCode())){
+            jdCResponse.toSucceed(newSealVehicleResponse.getMessage());
+            return jdCResponse;
+        }
 
         jdCResponse.setCode(newSealVehicleResponse.getCode());
         jdCResponse.setMessage(newSealVehicleResponse.getMessage());
@@ -424,8 +432,7 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
             return jdCResponse;
         }
 
-        com.jd.bluedragon.distribution.newseal.domain.PreSealMeasureInfoRequest resourceRequest = new com.jd.bluedragon.distribution.newseal.domain.PreSealMeasureInfoRequest();
-        resourceRequest=JSON.parseObject(JSON.toJSONString(request), com.jd.bluedragon.distribution.newseal.domain.PreSealMeasureInfoRequest.class);
+        com.jd.bluedragon.distribution.newseal.domain.PreSealMeasureInfoRequest resourceRequest =JSON.parseObject(JSON.toJSONString(request), com.jd.bluedragon.distribution.newseal.domain.PreSealMeasureInfoRequest.class);
         NewSealVehicleResponse<Boolean> newSealVehicleResponse = preSealVehicleResource.updatePreSealVehicleMeasureInfo(resourceRequest);
         if(newSealVehicleResponse.getCode().equals(NewSealVehicleResponse.CODE_OK)){
             jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
