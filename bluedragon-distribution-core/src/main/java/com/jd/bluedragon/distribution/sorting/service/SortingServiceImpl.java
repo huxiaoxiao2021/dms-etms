@@ -35,6 +35,7 @@ import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.distribution.material.service.DeliveryGoodsNoticeService;
 import com.jd.bluedragon.distribution.middleend.sorting.dao.DynamicSortingQueryDao;
 import com.jd.bluedragon.distribution.middleend.sorting.domain.SortingObjectExtend;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
@@ -197,8 +198,7 @@ public class SortingServiceImpl implements SortingService {
     private DefaultJMQProducer cycleMaterialSendMQ;
 
     @Autowired
-    @Qualifier("deliverGoodsNoticeSendMQ")
-    private DefaultJMQProducer deliverGoodsNoticeSendMQ;
+    private DeliveryGoodsNoticeService deliveryGoodsNoticeService;
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Integer add(Sorting sorting) {
@@ -1001,26 +1001,18 @@ public class SortingServiceImpl implements SortingService {
      * @param sorting
      */
     private void deliverGoodsNoticeMQ(Sorting sorting) {
-        String boxCode = sorting.getBoxCode();
-        if (BusinessHelper.isBoxcode(boxCode)) {
-            try {
-                BoxMaterialRelationMQ mq = new BoxMaterialRelationMQ();
-                mq.setBoxCode(boxCode);
-                mq.setBusinessType(BoxMaterialRelationEnum.SEND.getType());
-                mq.setOperatorName(sorting.getCreateUser());
-                mq.setOperatorCode(sorting.getCreateUserCode());
-                mq.setSiteCode(sorting.getCreateSiteCode().toString());
+        BoxMaterialRelationMQ mq = new BoxMaterialRelationMQ();
+        mq.setBoxCode(sorting.getBoxCode());
+        mq.setBusinessType(BoxMaterialRelationEnum.SEND.getType());
+        mq.setOperatorName(sorting.getCreateUser());
+        mq.setOperatorCode(sorting.getCreateUserCode());
+        mq.setSiteCode(sorting.getCreateSiteCode().toString());
 
-                mq.setReceiveSiteCode(sorting.getReceiveSiteCode().longValue());
-                BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(sorting.getReceiveSiteCode());
-                mq.setReceiveSiteName(null != siteOrgDto ? siteOrgDto.getSiteName() : StringUtils.EMPTY);
+        mq.setReceiveSiteCode(sorting.getReceiveSiteCode().longValue());
+        BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(sorting.getReceiveSiteCode());
+        mq.setReceiveSiteName(null != siteOrgDto ? siteOrgDto.getSiteName() : StringUtils.EMPTY);
 
-                deliverGoodsNoticeSendMQ.send(boxCode, JsonHelper.toJson(mq));
-            }
-            catch (JMQException e) {
-                this.log.error("分拣补发货业务通知MQ 异常{}", JsonHelper.toJson(sorting), e);
-            }
-        }
+        deliveryGoodsNoticeService.deliverySendGoodsMessage(mq);
     }
 
 	/**
