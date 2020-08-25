@@ -35,6 +35,7 @@ import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.distribution.material.service.DeliveryGoodsNoticeService;
 import com.jd.bluedragon.distribution.middleend.sorting.dao.DynamicSortingQueryDao;
 import com.jd.bluedragon.distribution.middleend.sorting.domain.SortingObjectExtend;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
@@ -72,6 +73,7 @@ import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.jmq.common.exception.JMQException;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
@@ -194,6 +196,9 @@ public class SortingServiceImpl implements SortingService {
     @Autowired
     @Qualifier("cycleMaterialSendMQ")
     private DefaultJMQProducer cycleMaterialSendMQ;
+
+    @Autowired
+    private DeliveryGoodsNoticeService deliveryGoodsNoticeService;
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Integer add(Sorting sorting) {
@@ -983,8 +988,32 @@ public class SortingServiceImpl implements SortingService {
 				// 批量回传全程跟踪
 				this.deliveryService.updateWaybillStatus(sendDs);
 			}
+
+			// 先发货后分拣的场景，补发循环集包袋MQ
+			if (transitSendMs.size() > 0 || sendMs.size() > 0) {
+                this.deliverGoodsNoticeMQ(sorting);
+            }
 		}
 	}
+
+    /**
+     * 发送循环集包袋发货MQ
+     * @param sorting
+     */
+    private void deliverGoodsNoticeMQ(Sorting sorting) {
+        BoxMaterialRelationMQ mq = new BoxMaterialRelationMQ();
+        mq.setBoxCode(sorting.getBoxCode());
+        mq.setBusinessType(BoxMaterialRelationEnum.SEND.getType());
+        mq.setOperatorName(sorting.getCreateUser());
+        mq.setOperatorCode(sorting.getCreateUserCode());
+        mq.setSiteCode(sorting.getCreateSiteCode().toString());
+
+        mq.setReceiveSiteCode(sorting.getReceiveSiteCode().longValue());
+        BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(sorting.getReceiveSiteCode());
+        mq.setReceiveSiteName(null != siteOrgDto ? siteOrgDto.getSiteName() : StringUtils.EMPTY);
+
+        deliveryGoodsNoticeService.deliverySendGoodsMessage(mq);
+    }
 
 	/**
 	 * 获取直接发货和中转发货的SendM数据

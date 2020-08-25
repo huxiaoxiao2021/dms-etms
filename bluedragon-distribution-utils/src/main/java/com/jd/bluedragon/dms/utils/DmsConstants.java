@@ -182,7 +182,7 @@ public class DmsConstants {
     /**
      * 封箱号正则
      */
-    public static final String  SEAL_BOX_NO="^(\\d{8}|\\d{10})[XZBJH]$";
+    public static final String  SEAL_BOX_NO="^(\\d{8}|\\d{10})[XZBJHC]$";
 
     /**
      * 冷链卡班

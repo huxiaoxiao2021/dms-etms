@@ -67,6 +67,9 @@ public class MaterialServiceFactory {
         else if (MaterialSendModeEnum.TYPE_BATCH_SEND.code == sendBusinessType) {
             return materialBatchSendService;
         }
+        else if (MaterialSendModeEnum.MATERIAL_TAG_SEND.code == sendBusinessType) {
+            return recyclingBoxInOutOperationService;
+        }
         else if (MaterialSendModeEnum.COLLECTION_BAG_SEND.code == sendBusinessType) {
             return collectionBagOperationService;
         }

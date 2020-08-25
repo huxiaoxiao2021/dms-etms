@@ -1,7 +1,8 @@
 package com.jd.bluedragon.dms.utils;
 
+import com.jd.etms.waybill.constant.WaybillCodePattern;
+import com.jd.etms.waybill.util.UniformValidateUtil;
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
-
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -1606,6 +1607,31 @@ public class BusinessUtil {
             return true;
         }
         return false;
+    }
+
+
+    /**
+     * 经济网需要拦截的运单范围
+     * 防止少拦截运单，采用反向抛出法判断，优先筛选不拦截类型运单
+     * @param waybillSign
+     * @return true 需要拦截判断
+     *          false 不需要拦截判断
+     */
+    public static boolean isEconomicNetValidateWeightVolume(String waybillCode,String waybillSign) {
+        //非经济网运单不拦截
+        if(!WaybillCodePattern.ENOCOMIC_WAYBILL_CODE.equals(
+                UniformValidateUtil.getSpecificWaybillCodePattern(waybillCode))){
+            return false;
+        }
+        //逆向不拦截
+        if (!BusinessUtil.isSignChar(waybillSign, 61, '0')) {
+            return false;
+        }
+        //不拦截 售后取件、合约返单等业务层面逆向单
+        if (!BusinessUtil.isSignChar(waybillSign, 15, '0')) {
+            return false;
+        }
+        return true;
     }
     /**
      * 隐藏手机号：7位以上手机号返回前3位+^_^+后四位，否则返回原值

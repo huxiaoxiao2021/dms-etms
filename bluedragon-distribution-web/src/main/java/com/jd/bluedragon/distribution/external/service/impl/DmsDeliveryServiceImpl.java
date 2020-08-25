@@ -8,6 +8,7 @@ import com.jd.bluedragon.common.dto.send.request.DeliveryVerifyRequest;
 import com.jd.bluedragon.common.dto.send.request.DifferentialQueryRequest;
 import com.jd.bluedragon.common.dto.send.request.SinglePackageSendRequest;
 import com.jd.bluedragon.common.dto.send.request.TransPlanRequest;
+import com.jd.bluedragon.common.dto.send.response.CheckBeforeSendResponse;
 import com.jd.bluedragon.common.dto.send.response.SendThreeDetailDto;
 import com.jd.bluedragon.common.dto.send.response.TransPlanDto;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
@@ -125,6 +126,18 @@ public class DmsDeliveryServiceImpl implements DmsDeliveryService,SendGatewaySer
     @Override
     @Deprecated
     public JdCResponse<List<SendThreeDetailDto>> differentialQuery(DifferentialQueryRequest request){
+        return null;
+    }
+
+    @Override
+    @Deprecated
+    public JdVerifyResponse<CheckBeforeSendResponse> checkBeforeSend(com.jd.bluedragon.common.dto.send.request.DeliveryRequest request){
+        return null;
+    }
+
+    @Override
+    @Deprecated
+    public JdCResponse<Boolean> sendDeliveryInfo(ColdChainSendRequest request){
         return null;
     }
 }
