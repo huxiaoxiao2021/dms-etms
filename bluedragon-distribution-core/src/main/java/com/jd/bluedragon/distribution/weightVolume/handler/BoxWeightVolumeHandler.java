@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.crossbow.economicNet.domain.EconomicNetBoxWeightVolumeDto;
+import com.jd.bluedragon.external.crossbow.economicNet.domain.EconomicNetBoxWeightVolumeMq;
 import com.jd.bluedragon.external.crossbow.economicNet.domain.EconomicNetErrorRes;
 import com.jd.bluedragon.external.crossbow.economicNet.domain.EconomicNetResult;
 import com.jd.bluedragon.external.crossbow.economicNet.manager.EconomicNetBusinessManager;
@@ -20,6 +21,7 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -145,11 +147,15 @@ public class BoxWeightVolumeHandler extends AbstractWeightVolumeHandler {
             weightVolumeDto.setScanType("包裹称重扫描");
             EconomicNetResult<EconomicNetErrorRes> result = economicNetBusinessManager.doRestInterface(weightVolumeDto);
             logger.info("推送箱号信息，经济网返回{}", JsonHelper.toJson(result));
+            EconomicNetBoxWeightVolumeMq economicNetBoxWeightVolumeMq = new EconomicNetBoxWeightVolumeMq();
+            BeanUtils.copyProperties(weightVolumeDto,economicNetBoxWeightVolumeMq);
+            economicNetBoxWeightVolumeMq.setScanManCode(entity.getOperatorCode());
+            economicNetBoxWeightVolumeMq.setScanManId(entity.getOperatorId());
             if(logger.isInfoEnabled()){
                 logger.info("众邮箱号称重发送MQ【{}】,业务ID【{}】,消息体【{}】",
-                        economicNetBoxWeightProducer.getTopic(),weightVolumeDto.getBagCode(),JsonHelper.toJson(weightVolumeDto));
+                        economicNetBoxWeightProducer.getTopic(),economicNetBoxWeightVolumeMq.getBagCode(),JsonHelper.toJson(economicNetBoxWeightVolumeMq));
             }
-            economicNetBoxWeightProducer.sendOnFailPersistent(weightVolumeDto.getBagCode(),JsonHelper.toJson(weightVolumeDto));
+            economicNetBoxWeightProducer.sendOnFailPersistent(economicNetBoxWeightVolumeMq.getBagCode(),JsonHelper.toJson(economicNetBoxWeightVolumeMq));
         }
 
     }
