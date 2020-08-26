@@ -38,7 +38,7 @@ public class DealReversePrintInfoHandlerTestCase {
 				false,
 				false,
 				true,
-				false,
+				true,
 				false,
 				false,};
 		for(int i=0 ; i < sendPays.length; i++ ){
@@ -51,7 +51,7 @@ public class DealReversePrintInfoHandlerTestCase {
 				boolean checkResult = sendPayChecks[i];
 				
 				//工具类业务方法校验
-				boolean utilsCheck = BusinessUtil.isPreSellWithNoPay(sendPays[i]);
+				boolean utilsCheck = BusinessUtil.isPreSell(sendPays[i]);
 				Assert.assertEquals(utilsCheck,checkResult);
 				
 				dealReversePrintInfoHandler.handle(context);
