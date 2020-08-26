@@ -445,9 +445,7 @@ public class SendGatewayServiceImpl implements SendGatewayService {
             res.toFail("发货校验异常");
             return res;
         }
-        if(JdResponse.CODE_OK.equals(result.getCode())){
-            res.toSuccess();
-        }else if(result.getCode()==300) {
+        if(JdResponse.CODE_OK.equals(result.getCode()) || result.getCode()==300){
             res.toSuccess(result.getMessage());
             CheckBeforeSendResponse res_Response=new CheckBeforeSendResponse();
             res_Response.setSendCode(request.getSendCode());
