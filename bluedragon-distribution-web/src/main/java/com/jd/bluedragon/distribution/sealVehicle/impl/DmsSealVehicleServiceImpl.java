@@ -38,9 +38,6 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
     @Autowired
     private NewSealVehicleService newSealVehicleService;
 
-    @Autowired
-    private SealVehiclesService sealVehiclesService;
-
     /*
      * 获取未封车信息列表
      *
