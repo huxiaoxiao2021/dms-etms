@@ -1,5 +1,7 @@
 package com.jd.bluedragon.dms.utils;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -180,7 +182,7 @@ public class DmsConstants {
     /**
      * 封箱号正则
      */
-    public static final String  SEAL_BOX_NO="^(\\d{8}|\\d{10})[XZBJH]$";
+    public static final String  SEAL_BOX_NO="^(\\d{8}|\\d{10})[XZBJHC]$";
 
     /**
      * 冷链卡班
@@ -230,4 +232,9 @@ public class DmsConstants {
      * 集包袋前缀
      */
     public static final String COLLECTION_BAG_PREFIX = "AD";
+
+    /**
+     * 分拣中心类型（数据字典-站点类型）
+     */
+    public static final List<Integer> SORTING_SITE_TYPE_LIST = Arrays.asList(64);
 }

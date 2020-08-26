@@ -52,10 +52,8 @@ import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
-
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
-import com.jd.bluedragon.utils.log.BusinessLogConstans;
-import com.jd.dms.logger.external.LogEngine;
+import com.jd.bluedragon.distribution.material.service.DeliveryGoodsNoticeService;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.reverse.dao.ReverseSpareDao;
@@ -111,10 +109,12 @@ import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.XmlHelper;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
+import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -334,20 +334,17 @@ public class DeliveryServiceImpl implements DeliveryService {
     private ColdChainSendService coldChainSendService;
 
     @Autowired
-    @Qualifier("deliverGoodsNoticeSendMQ")
-    private DefaultJMQProducer deliverGoodsNoticeSendMQ;
-
-
-    @Autowired
     @Qualifier("redisClientCache")
     private Cluster redisClientCache;
 
     @Autowired
     private LogEngine logEngine;
 
-
     @Autowired
     private SendCodeService sendCodeService;
+
+    @Autowired
+    private DeliveryGoodsNoticeService deliveryGoodsNoticeService;
 
     /**
      * 自动过期时间 15分钟
@@ -1257,23 +1254,18 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param sdm
      */
      private void deliverGoodsNoticeMQ(SendM sdm) {
-         String businessId = sdm.getBoxCode();
-         try {
-             BoxMaterialRelationMQ mq = new BoxMaterialRelationMQ();
-             mq.setBoxCode(businessId);
-             mq.setBusinessType(BoxMaterialRelationEnum.SEND.getType());
-             mq.setOperatorName(sdm.getCreateUser());
-             mq.setOperatorCode(sdm.getCreateUserCode());
-             mq.setSiteCode(sdm.getCreateSiteCode().toString());
+         BoxMaterialRelationMQ mq = new BoxMaterialRelationMQ();
+         mq.setBoxCode(sdm.getBoxCode());
+         mq.setBusinessType(BoxMaterialRelationEnum.SEND.getType());
+         mq.setOperatorName(sdm.getCreateUser());
+         mq.setOperatorCode(sdm.getCreateUserCode());
+         mq.setSiteCode(sdm.getCreateSiteCode().toString());
 
-             mq.setReceiveSiteCode(sdm.getReceiveSiteCode().longValue());
-             BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(sdm.getReceiveSiteCode());
-             mq.setReceiveSiteName(null != siteOrgDto ? siteOrgDto.getSiteName() : StringUtils.EMPTY);
+         mq.setReceiveSiteCode(sdm.getReceiveSiteCode().longValue());
+         BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(sdm.getReceiveSiteCode());
+         mq.setReceiveSiteName(null != siteOrgDto ? siteOrgDto.getSiteName() : StringUtils.EMPTY);
 
-             deliverGoodsNoticeSendMQ.send(businessId, JsonHelper.toJson(mq));
-         } catch (JMQException e) {
-             this.log.error("发送发货业务通知MQ 异常{}",JsonHelper.toJson(sdm), e);
-         }
+         deliveryGoodsNoticeService.deliverySendGoodsMessage(mq);
      }
 
     /***
@@ -5388,5 +5380,47 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
 
         return coldChainQuarantineManager.isWaybillNeedAddQuarantine(waybillCode,siteCode);
+    }
+
+    /**
+     * 校验批次创建时间
+     * @param sendCode
+     * @return
+     */
+    public boolean checkSendCodeIsOld(String sendCode) {
+        // 获取批次创建时间
+        try{
+            String[] sendCodeSplit = sendCode.split(Constants.SEPARATOR_HYPHEN);
+            Date createTime = DateHelper.parseDate(sendCodeSplit[2], DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS);
+            if(DateHelper.daysBetween(createTime,new Date()) > 30){
+                return true;
+            }
+        }catch (Exception e){
+            log.error("校验批次【{}】创建时间异常!", sendCode, e);
+        }
+        return false;
+    }
+
+    /**
+     * 校验批次是否封车
+     *  查redis后查运输接口兜底
+     * @param sendCode
+     * @return
+     */
+    public boolean checkSendCodeIsSealed(String sendCode) {
+        // 查redis后查运输接口兜底
+        if(newSealVehicleService.getSealCarTimeBySendCode(sendCode) != null){
+            return true;
+        }
+        try {
+            CommonDto<Boolean> isSealed = newSealVehicleService.isBatchCodeHasSealed(sendCode);
+            if(isSealed != null && isSealed.getCode() == CommonDto.CODE_SUCCESS
+                    && isSealed.getData() != null && isSealed.getData()){
+                return true;
+            }
+        } catch (Exception e) {
+            log.error("查询批次号【{}】是否封车异常!",sendCode,e);
+        }
+        return false;
     }
 }

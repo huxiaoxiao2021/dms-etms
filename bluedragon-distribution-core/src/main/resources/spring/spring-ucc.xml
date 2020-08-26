@@ -47,8 +47,8 @@
 		<property name="offlineTaskOperateTimeCorrectHours" value="${offlineTaskOperateTimeCorrectHours:24}"/>
 		<property name="automaticWeightVolumeExchangeSwitch" value="${automaticWeightVolumeExchangeSwitch:false}"/>
 		<property name="automaticWeightVolumeExchangeSiteCode" value="${automaticWeightVolumeExchangeSiteCode:''}"/>
-        <property name="sealVolumeCheckSwitch" value="${sealVolumeCheckSwitch:false}"/>
-	</bean>
+        <property name="sealVolumeCheckSites" value="${sealVolumeCheckSites:-1}"/>
+    </bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
 	<bean id="propertyConfig" class="com.jd.coo.ucc.client.config.UccPropertyConfig">
@@ -79,7 +79,7 @@
 				<value>uccPropertyConfiguration.offlineTaskOperateTimeCorrectHours</value>
 				<value>uccPropertyConfiguration.automaticWeightVolumeExchangeSwitch</value>
 				<value>uccPropertyConfiguration.automaticWeightVolumeExchangeSiteCode</value>
-				<value>uccPropertyConfiguration.sealVolumeCheckSwitch</value>
+				<value>uccPropertyConfiguration.sealVolumeCheckSites</value>
 			</list>
 		</property>
 	</bean>

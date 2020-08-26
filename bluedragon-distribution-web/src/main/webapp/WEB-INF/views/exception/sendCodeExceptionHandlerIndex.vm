@@ -171,5 +171,18 @@
             </div>
         </div>
     </div>
+    <script type="text/javascript">
+        var jaq = jaq || [];
+        jaq.push(['account', 'JA2016_112453']);
+        jaq.push(['domain', 'dms.etms.jd.com']);
+        (function () {
+            var ja = document.createElement('script');
+            ja.type = 'text/javascript';
+            ja.async = true;
+            ja.src = '//wl.jd.com/joya.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ja, s);
+        })()
+    </script>
 </body>
 </html>

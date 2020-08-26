@@ -1,8 +1,8 @@
 package com.jd.bluedragon.dms.utils;
 
+import com.jd.etms.waybill.constant.WaybillCodePattern;
+import com.jd.etms.waybill.util.UniformValidateUtil;
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
-
-import com.sun.org.apache.regexp.internal.REUtil;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -719,6 +719,32 @@ public class BusinessUtil {
         }
         return Boolean.FALSE;
     }
+
+    /**
+     * 快运外单判断
+     * <p>
+     *      1、快运零担【waybillSign第40位为2且第80位为0】
+     *      2、特快重货【waybillSign第40位为2或3且第80位为9】
+     *      3、特运零担【waybillSign第40位为2或3且第80位为2】
+     *      4、特慧零担【waybillSign第40位为2且第80位为1】
+     *      5、其他【waybillSign：89=0 & 99=0 & 54=0 & 62=0,1,4 & 29=2 & 10=1】
+     * </p>
+     * @param waybillSign
+     * @return*/
+    public static boolean isKyLdop(String waybillSign){
+        if(waybillSign == null){
+            return false;
+        }
+        if(isSignChar(waybillSign,40,'2') && isSignInChars(waybillSign,80,'0','1')
+                || (isSignInChars(waybillSign,40,'2','3') && isSignInChars(waybillSign,80,'2','9'))
+                || (isSignChar(waybillSign,89,'0') && isSignChar(waybillSign,99,'0')
+                && isSignChar(waybillSign,54,'0') && isSignInChars(waybillSign,62,'0','1','4')
+                && isSignChar(waybillSign,29,'2') && isSignChar(waybillSign,10,'1'))){
+            return true;
+        }
+        return false;
+    }
+
     /**
      * 判断是否是移动仓内配单
      * @param waybillSign
@@ -1393,7 +1419,7 @@ public class BusinessUtil {
 
     /**
      * @Description
-     * @param [boxCode]
+     * @param boxCode
      * @Author wyh
      * @Date 2020/2/21 14:07
      * @return java.lang.Boolean
@@ -1558,5 +1584,54 @@ public class BusinessUtil {
             return false;
         }
         return materialCode.toUpperCase().startsWith(COLLECTION_BAG_PREFIX) && materialCode.length() == 16;
+    }
+    /**
+     * 判断是否无人车配送，sendpay第307位=1
+     *
+     * @param sendPay
+     * @return
+     */
+    public static boolean isWrcps(String sendPay) {
+        return isSignChar(sendPay, SendPayConstants.POSITION_307, SendPayConstants.CHAR_307_1);
+    }
+
+    /**
+     * 判断站点是否为分拣中心类型
+     * @param siteType 站点类型
+     * @return boolean
+     */
+    public static boolean isSortingSiteType(Integer siteType) {
+        if(null == siteType){
+            return true;
+        }
+        if(SORTING_SITE_TYPE_LIST.contains(siteType)) {
+            return true;
+        }
+        return false;
+    }
+
+
+    /**
+     * 经济网需要拦截的运单范围
+     * 防止少拦截运单，采用反向抛出法判断，优先筛选不拦截类型运单
+     * @param waybillSign
+     * @return true 需要拦截判断
+     *          false 不需要拦截判断
+     */
+    public static boolean isEconomicNetValidateWeightVolume(String waybillCode,String waybillSign) {
+        //非经济网运单不拦截
+        if(!WaybillCodePattern.ENOCOMIC_WAYBILL_CODE.equals(
+                UniformValidateUtil.getSpecificWaybillCodePattern(waybillCode))){
+            return false;
+        }
+        //逆向不拦截
+        if (!BusinessUtil.isSignChar(waybillSign, 61, '0')) {
+            return false;
+        }
+        //不拦截 售后取件、合约返单等业务层面逆向单
+        if (!BusinessUtil.isSignChar(waybillSign, 15, '0')) {
+            return false;
+        }
+        return true;
     }
 }

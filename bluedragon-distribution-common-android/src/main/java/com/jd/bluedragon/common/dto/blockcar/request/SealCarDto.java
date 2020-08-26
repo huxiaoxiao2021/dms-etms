@@ -87,6 +87,16 @@ public class SealCarDto implements Serializable {
      */
     private String palletCount;
 
+    /**
+     * 运力类型
+     */
+    private Integer transWay;
+
+    /**
+     * 运力类型名称
+     */
+    private String transWayName;
+
     @Override
     public String toString() {
         return "SealCarDto{" +
@@ -105,6 +115,8 @@ public class SealCarDto implements Serializable {
                 ", sealUserCode='" + sealUserCode + '\'' +
                 ", sealUserName='" + sealUserName + '\'' +
                 ", palletCount='" + palletCount + '\'' +
+                ", transWay='" + transWay + '\'' +
+                ", transWayName='" + transWayName + '\'' +
                 '}';
     }
 
@@ -226,5 +238,21 @@ public class SealCarDto implements Serializable {
 
     public void setPalletCount(String palletCount) {
         this.palletCount = palletCount;
+    }
+
+    public Integer getTransWay() {
+        return transWay;
+    }
+
+    public void setTransWay(Integer transWay) {
+        this.transWay = transWay;
+    }
+
+    public String getTransWayName() {
+        return transWayName;
+    }
+
+    public void setTransWayName(String transWayName) {
+        this.transWayName = transWayName;
     }
 }

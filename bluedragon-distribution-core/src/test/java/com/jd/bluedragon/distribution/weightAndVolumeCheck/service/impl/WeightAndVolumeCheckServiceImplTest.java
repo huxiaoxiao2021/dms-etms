@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.DmsBaseDictService;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckSourceEnum;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
 import com.jd.bluedragon.dms.receive.enums.VolumeFeeType;
 import com.jd.bluedragon.dms.receive.quote.dto.QuoteCustomerDto;
@@ -107,7 +108,8 @@ public class WeightAndVolumeCheckServiceImplTest {
         packWeightVO.setCodeStr("JDVC03992440423");
         WeightVolumeCollectDto weightVolumeCollectDto = new WeightVolumeCollectDto();
         weightVolumeCollectDto.setBusiCode(123);
-        InvokeResult<Boolean> result = weightAndVolumeCheckServiceImpl.insertAndSendMq(packWeightVO,weightVolumeCollectDto,new InvokeResult<Boolean>());
+        InvokeResult<Boolean> result = weightAndVolumeCheckServiceImpl.dealSportCheck(packWeightVO,
+                SpotCheckSourceEnum.SPOT_CHECK_CLIENT_PLATE,new InvokeResult<Boolean>());
         Assert.assertTrue(result.getCode()!=200);
     }
 

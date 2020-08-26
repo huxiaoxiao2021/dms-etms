@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.weightAndVolumeCheck.service;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckSourceEnum;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
@@ -76,9 +77,10 @@ public interface WeightAndVolumeCheckService {
     /**
      * 称重体积数据处理
      * @param packWeightVO
+     * @param spotCheckSourceEnum
      * @param result
      */
-    InvokeResult<Boolean> insertAndSendMq(PackWeightVO packWeightVO,WeightVolumeCollectDto weightVolumeCollectDto, InvokeResult<Boolean> result);
+    InvokeResult<Boolean> dealSportCheck(PackWeightVO packWeightVO, SpotCheckSourceEnum spotCheckSourceEnum,InvokeResult<Boolean> result);
 
     void setProductType(WeightVolumeCollectDto weightVolumeCollectDto);
 }

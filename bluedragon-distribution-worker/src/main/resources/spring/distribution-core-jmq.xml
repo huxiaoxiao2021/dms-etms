@@ -302,6 +302,12 @@
         <property name="timeout" value="1000"/>
     </bean>
 
+    <!--外单靑流箱绑定MQ-->
+    <bean id="dmsCycleBoxBindNotice" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dms.cyclebox.bind.notice}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
     <!--封车mq-->
     <bean id="sealCarProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.sealCar}"/>
@@ -434,6 +440,7 @@
     <bean id="strandReportProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.strand.report}"/>
     </bean>
+
     <!-- 滞留上报明细消息 -->
     <bean id="strandReportDetailProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.strand.report.detail}"/>
@@ -442,5 +449,15 @@
     <!-- 快运暂存上架完成消息 -->
     <bean id="kyStorageProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.ky.storage.putAway}"/>
+    </bean>
+
+    <!-- 众邮箱号称重MQ -->
+    <bean id="economicNetBoxWeightProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.economicNet.box.weight}"/>
+    </bean>
+
+    <!-- 青流箱出入库消息 -->
+    <bean id="tagInOutProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.tag.inOut}"/>
     </bean>
 </beans>

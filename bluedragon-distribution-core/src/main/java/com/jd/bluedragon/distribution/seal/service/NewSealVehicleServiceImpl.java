@@ -527,6 +527,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
     /**
      * 校验批次的体积是否超标
+     * @see 'https://cf.jd.com/pages/viewpage.action?pageId=246546459'
      * @param sealCarDto
      * @return
      */
@@ -603,7 +604,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         for (SealCarDto dto : paramList) {
             for (String sendCode : dto.getBatchCodes()) {
                 try {
-                    redisManager.setex(Constants.CACHE_KEY_PRE_SEAL_SENDCODE + sendCode, Constants.TIME_SECONDS_ONE_WEEK, String.valueOf(dto.getSealCarTime().getTime()));
+                    redisManager.setex(Constants.CACHE_KEY_PRE_SEAL_SENDCODE + sendCode, Constants.TIME_SECONDS_FIFTEEN_DAY, String.valueOf(dto.getSealCarTime().getTime()));
                     log.debug("已封车批次号存入缓存成功:{}" , sendCode);
                 } catch (Throwable e) {
                     log.error("已封车批次号存入缓存失败:{}",sendCode,e);

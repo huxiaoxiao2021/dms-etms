@@ -353,6 +353,10 @@ public class Constants {
      */
     public static final int TIME_SECONDS_ONE_WEEK = 7*TIME_SECONDS_ONE_DAY;
     /**
+     * 时间：15天的秒数
+     */
+    public static final int TIME_SECONDS_FIFTEEN_DAY = 15*TIME_SECONDS_ONE_DAY;
+    /**
      * 时间：一月的秒数
      */
     public static final int TIME_SECONDS_ONE_MONTH = 30*TIME_SECONDS_ONE_DAY;
@@ -1101,5 +1105,10 @@ public class Constants {
      * 运单路由字段使用的分隔符
      */
     public static final String WAYBILL_ROUTER_SPLIT = "\\|";
+
+    /**
+     * 特安送 增值服务编码
+     * */
+    public static final String TE_AN_SONG_SERVICE = "fr-a-0010";
 
 }

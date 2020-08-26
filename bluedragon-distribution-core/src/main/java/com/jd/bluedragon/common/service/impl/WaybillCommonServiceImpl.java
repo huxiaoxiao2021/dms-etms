@@ -5,11 +5,7 @@ import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.BasicSafInterfaceManager;
-import com.jd.bluedragon.core.base.PreseparateWaybillManager;
-import com.jd.bluedragon.core.base.VrsRouteTransferRelationManager;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
@@ -22,36 +18,15 @@ import com.jd.bluedragon.distribution.print.service.HideInfoService;
 import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.dms.utils.DmsConstants;
-import com.jd.bluedragon.dms.utils.SendPayConstants;
-import com.jd.bluedragon.dms.utils.WaybillSignConstants;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BigDecimalHelper;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.bluedragon.utils.ObjectHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.dms.utils.*;
+import com.jd.bluedragon.utils.*;
 import com.jd.etms.api.common.enums.RouteProductEnum;
 import com.jd.etms.cache.util.EnumBusiCode;
-import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
-import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.domain.DeliveryPackageD;
-import com.jd.etms.waybill.domain.Goods;
-import com.jd.etms.waybill.domain.PackageWeigh;
-import com.jd.etms.waybill.domain.PickupTask;
-import com.jd.etms.waybill.domain.WaybillExt;
-import com.jd.etms.waybill.domain.WaybillManageDomain;
-import com.jd.etms.waybill.domain.WaybillPickup;
-import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.etms.waybill.dto.PackOpeFlowDto;
-import com.jd.etms.waybill.dto.PackageUpdateDto;
-import com.jd.etms.waybill.dto.WChoice;
-import com.jd.etms.waybill.dto.WaybillVasDto;
+import com.jd.etms.waybill.domain.*;
+import com.jd.etms.waybill.dto.*;
 import com.jd.preseparate.vo.external.AnalysisAddressResult;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
@@ -69,13 +44,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service("waybillCommonService")
@@ -125,6 +94,9 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     private VrsRouteTransferRelationManager vrsRouteTransferRelationManager;
 
     @Autowired
+    private WaybillService waybillService;
+
+    @Autowired
     @Qualifier("jimdbCacheService")
     private CacheService jimdbCacheService;
 
@@ -165,6 +137,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     private static final String SPECIAL_REQUIRMENT_LOAD_CAR = "装车";
     private static final String SPECIAL_REQUIRMENT_UNLOAD_CAR = "卸车";
     private static final String SPECIAL_REQUIRMENT_LOAD_UNLOAD_CAR = "装卸车";
+    private static final String SPECIAL_REQUIREMENT_TE_AN_SONG = "特安";
 
     /**
      * B网医药冷链温层
@@ -478,8 +451,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                             pack.setPackageWeight(d.getGoodWeight() + "kg");
                         }
                         if (StringUtils.isNotEmpty(d.getPackageBarcode())) {
-                            String[] pcs = d.getPackageBarcode().split("[-NS]");
-                            pack.setPackSerial(Integer.valueOf(pcs[1]));
+                            pack.setPackSerial(WaybillUtil.getPackIndexByPackCode(d.getPackageBarcode()));
                         } else {
                             this.log.warn("转换包裹信息 --> 运单号：{}生成包裹号,包裹号为空",waybill.getWaybillCode());
                         }
@@ -749,25 +721,11 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         //设置运费及货款信息
         String freightText = "";
         String goodsPaymentText = "";
-
-        //读取waybill_sign第25位，25位等于2时，面单显示【到付现结】
+        //运费：waybillSign 25位为2时【到付】,需求R2020072253033：只保留到付
+        if(BusinessUtil.isSignChar(waybill.getWaybillSign(), 25, '2')){
+            freightText = TextConstants.FREIGHT_PAY;
+        }
         if(BusinessUtil.isB2b(waybill.getWaybillSign())){
-            //B网运费和货款
-        	if(BusinessUtil.isSignChar(waybill.getWaybillSign(),25,'0')){
-                freightText = TextConstants.FREIGHT_MONTH;
-            }
-        	if(BusinessUtil.isSignChar(waybill.getWaybillSign(), 25, '2')){
-        		freightText = TextConstants.FREIGHT_PAY;
-        	}
-
-            if(BusinessUtil.isSignChar(waybill.getWaybillSign(), 25, '3')){
-                freightText = TextConstants.FREIGHT_SEND;
-            }
-
-            //25位为4时【临欠】
-            if (BusinessUtil.isSignChar(waybill.getWaybillSign(), 25, '4')) {
-                freightText = TextConstants.FREIGHT_TEMPORARY_ARREARS;
-            }
         	//货款字段金额等于0时，则货款位置不显示
         	//货款字段金额大于0时，则货款位置显示为【代收货款】
         	if(NumberHelper.gt0(waybill.getCodMoney())){
@@ -776,27 +734,17 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         		goodsPaymentText = "";
         	}
         }else{
-            //C网运费和货款
-            //运费：waybillSign 25位为2时【到付现结】；25位为3时【寄付现结】
-            if(BusinessUtil.isSignChar(waybill.getWaybillSign(), 25, '2')){
-                freightText = TextConstants.FREIGHT_PAY_CASH;
-            } else if(BusinessUtil.isSignChar(waybill.getWaybillSign(), 25, '3')){
-                freightText = TextConstants.FREIGHT_CONSIGER_CLEAR;
-            }
-
-            //货款：waybillSign 货款大于0时，25位为2或3时显示【货到付款】，25位不为2且不为3时显示应收金额，
-            //货款等于0时，显示0
+            //C网货款
+            //货款：货款大于0时，满足在线支付时显示【在线支付】，否则显示【货到付款￥】
+        	//货款：货款等于0时，则货款位置不显示
             if(NumberHelper.gt0(waybill.getCodMoney())){
-                if(BusinessUtil.isSignInChars(waybill.getWaybillSign(),25,'2','3')){
-                    goodsPaymentText = TextConstants.GOODS_PAYMENT_COD;
+                if (ComposeService.ONLINE_PAYMENT_SIGN.equals(waybill.getPayment())) {
+                    goodsPaymentText = TextConstants.GOODS_PAYMENT_ONLINE;
                 }else{
-                    goodsPaymentText = "￥"+ waybill.getCodMoney();
-                    if (ComposeService.ONLINE_PAYMENT_SIGN.equals(waybill.getPayment())) {
-                        goodsPaymentText = TextConstants.GOODS_PAYMENT_ONLINE;
-                    }
+                	goodsPaymentText = TextConstants.GOODS_PAYMENT_COD;
                 }
             } else{
-                goodsPaymentText = "0";
+                goodsPaymentText = "";
             }
         }
         target.setFreightText(freightText);
@@ -900,9 +848,12 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         /* waybill_sign标识位，第七十九位为2，打提字标
            标位变更 ：2020-4-29
            详细见方法释义
+           2020-7-23 补 众邮单不打印【提】【店】【柜】以及自提地址
          */
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(), 79,'2') || BusinessUtil.isZiTiByWaybillSign(waybill.getWaybillSign())){
-            target.appendSpecialMark(ComposeService.SPECIAL_MARK_ARAYACAK_SITE);
+            if (!BusinessUtil.isBusinessNet(waybill.getWaybillSign())) {
+                target.appendSpecialMark(ComposeService.SPECIAL_MARK_ARAYACAK_SITE);
+            }
         }
         //waybill_sign标识位，第二十九位为8，打C字标
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(),29,'8')){
@@ -977,21 +928,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             //一体化面单，显示生鲜专送
             target.setTransportMode(ComposeService.PREPARE_SITE_NAME_FRESH_SEND);
         }
-        //根据始发道口号类型，判断打‘航’还是‘航填’
-        //此处始发道口类型是根据waybillSign 或 sendPay判断的，道口类型也会影响获取基础资料大全表信息，请谨慎使用
-        if(Constants.ORIGINAL_CROSS_TYPE_AIR.equals(target.getOriginalCrossType())){
-        	target.appendSpecialMark(ComposeService.SPECIAL_MARK_AIRTRANSPORT);
-        }else if(Constants.ORIGINAL_CROSS_TYPE_FILL.equals(target.getOriginalCrossType())){
-        	target.appendSpecialMark(ComposeService.SPECIAL_MARK_AIRTRANSPORT_FILL);
-        }
-        //waybil_sign标识位，第八十四位为1，打‘陆’字标
-        if(BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_84,WaybillSignConstants.CHAR_84_1)){
-            target.appendSpecialMark(ComposeService.SPECIAL_MARK_ROAD);
-        }
-        //waybil_sign标识位，第八十四位为2，打‘高’字标
-        if(BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_84,WaybillSignConstants.CHAR_84_2)){
-            target.appendSpecialMark(ComposeService.SPECIAL_MARK_RAIL);
-        }
+        //设置运输方式
+        setTransportTypeText(target,waybill);
         //waybill_sign标识位，第十六位为1且第三十一位为2且第五十五位为0，打同字标
         if(!BusinessUtil.isB2b(waybill.getWaybillSign()) &&
                 BusinessUtil.isSignChar(waybill.getWaybillSign(),16,'1') &&
@@ -1019,7 +957,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }
         //waybill_sign标识位，第三十五位为1，一体化面单显示"尊"
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(),35,'1')){
-            target.appendSpecialMark(ComposeService.SPECIAL_MARK_SENIOR);
+        	target.appendSpecialMark(TextConstants.SPECIAL_MARK_SENIOR);
         }
 
         //waybill_sign标识位，第九十二位为2，一体化面单显示"器"
@@ -1080,12 +1018,32 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         //大件路区
         if(BusinessUtil.isHeavyCargo(waybill.getWaybillSign())){
             target.setBackupRoadCode(waybill.getRoadCode());
-        }
-
+        }      
         return target;
     }
-
     /**
+     * 设置面单运输标识transportTypeText
+     * @param target
+     * @param waybill
+     */
+    private void setTransportTypeText(BasePrintWaybill target,
+			com.jd.etms.waybill.domain.Waybill waybill) {
+        //根据始发道口号类型，判断打‘航’还是‘航填’
+        //此处始发道口类型是根据waybillSign 或 sendPay判断的，道口类型也会影响获取基础资料大全表信息，请谨慎使用
+        if(Constants.ORIGINAL_CROSS_TYPE_AIR.equals(target.getOriginalCrossType())){
+        	target.setTransportTypeText(ComposeService.SPECIAL_MARK_AIRTRANSPORT);
+        }else if(Constants.ORIGINAL_CROSS_TYPE_FILL.equals(target.getOriginalCrossType())){
+        	target.setTransportTypeText(ComposeService.SPECIAL_MARK_AIRTRANSPORT_FILL);
+        }
+		if(BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_84,WaybillSignConstants.CHAR_84_2)){
+        	//waybil_sign标识位，第八十四位为2，打‘铁’字标
+        	target.setTransportTypeText(ComposeService.SPECIAL_MARK_RAIL);
+        }
+        //运输方式追加到specialMark中
+        target.appendSpecialMark(target.getTransportTypeText(), false);
+	}
+
+	/**
      * 获取称重数据
      * @param waybillCode 运单号
      * @return
@@ -1415,6 +1373,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
      */
     public void loadSpecialRequirement(BasePrintWaybill printWaybill,String waybillSign,com.jd.etms.waybill.domain.Waybill waybill){
         String specialRequirement = "";
+        //货款是货到付款，设置COD
+        if(TextConstants.GOODS_PAYMENT_COD.equals(printWaybill.getGoodsPaymentText())){
+        	specialRequirement = specialRequirement + TextConstants.GOODS_PAYMENT_COD_FLAG + ",";
+        }
         if(StringUtils.isNotBlank(waybillSign)){
             //保价
             if(waybill != null && NumberHelper.gt0(waybill.getPriceProtectMoney())){
@@ -1447,6 +1409,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             //装卸车
             if(BusinessUtil.isSignChar(waybillSign,41,'3')){
                 specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_LOAD_UNLOAD_CAR + ",";
+            }
+            //特安送
+            if (waybill != null && StringHelper.isNotEmpty(waybill.getWaybillCode()) && waybillService.isSpecialRequirementTeAnSongService(waybill.getWaybillCode(), waybillSign)) {
+                specialRequirement = specialRequirement + SPECIAL_REQUIREMENT_TE_AN_SONG + ",";
             }
         }
         if(StringUtils.isNotBlank(specialRequirement)){

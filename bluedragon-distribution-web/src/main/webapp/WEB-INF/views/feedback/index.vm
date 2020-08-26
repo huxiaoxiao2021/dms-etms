@@ -58,8 +58,22 @@
                 <span class="glyphicon glyphicon-export" aria-hidden="true"></span>提建议
             </button>
         </div>
+    <input id="appId" type="hidden" name="appId" value="$!{appId}">
     <table id="dataTable" class="table table-hover table-striped">
     </table>
 </div>
+<script type="text/javascript">
+    var jaq = jaq || [];
+    jaq.push(['account', 'JA2016_112453']);
+    jaq.push(['domain', 'dms.etms.jd.com']);
+    (function () {
+        var ja = document.createElement('script');
+        ja.type = 'text/javascript';
+        ja.async = true;
+        ja.src = '//wl.jd.com/joya.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(ja, s);
+    })()
+</script>
 </body>
 </html>

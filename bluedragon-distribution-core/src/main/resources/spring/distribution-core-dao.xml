@@ -593,6 +593,9 @@
     <bean id="waybillCodeCheckDao" class="com.jd.bluedragon.distribution.financialForKA.dao.WaybillCodeCheckDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
+    <bean id="exportLogDao" class="com.jd.bluedragon.distribution.exportlog.dao.ExportLogDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
 
     <!-- 装卸车业务表 -->
     <bean id="unloadCarDao" class="com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDao">
@@ -631,6 +634,7 @@
           class="com.jd.bluedragon.distribution.material.dao.impl.MaterialSendFlowDaoImpl" />
           
     <bean id="dmsScheduleInfoDao" parent="businessBaseDao"
-          class="com.jd.bluedragon.distribution.schedule.dao.impl.DmsScheduleInfoDaoImpl" />          
+          class="com.jd.bluedragon.distribution.schedule.dao.impl.DmsScheduleInfoDaoImpl" />
+
     <!--################################## bd_dms_business 相关DAO End ############################################ -->
 </beans>

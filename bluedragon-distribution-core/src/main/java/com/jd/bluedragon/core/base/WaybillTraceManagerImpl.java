@@ -11,12 +11,14 @@ import com.jd.etms.waybill.dto.DChoice;
 import com.jd.etms.waybill.dto.PackageStateDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 import static com.jd.bluedragon.Constants.RESULT_SUCCESS;
 import static com.jd.bluedragon.Constants.WAYBILLTRACE_FINISHED;
@@ -88,6 +90,26 @@ public class WaybillTraceManagerImpl implements WaybillTraceManager {
     public BaseEntity<List<PackageState>> getPkStateByPCode(String packageCode){
 
         return waybillTraceApi.getPkStateByPCode(packageCode);
+    }
+
+    /**
+     * 根据操作号、状态 查询所有操作（对内标准接口）
+     * @param opeCode
+     * @param stateSet
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMS.BASE.WaybillTraceManagerImpl.getAllOperationsByOpeCodeAndState",jAppName=Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public List<PackageState> getAllOperationsByOpeCodeAndState(String opeCode, Set<Integer> stateSet) {
+        String states=StringUtils.join(stateSet.toArray(),",");
+        BaseEntity<List<PackageState>> baseEntity = waybillTraceApi.getAllOperationsByOpeCodeAndState(opeCode, states);
+        if (baseEntity != null && baseEntity.getResultCode() == RESULT_SUCCESS && baseEntity.getData() != null ) {
+            return baseEntity.getData();
+        } else {
+            log.warn("WaybillTraceManagerImpl.getAllOperationsByOpeCodeAndState，baseEntity：{}，opeCode：{}，states：{}，",JsonHelper.toJson(baseEntity),opeCode,states);
+            return Lists.newArrayList();
+        }
     }
 
     /**

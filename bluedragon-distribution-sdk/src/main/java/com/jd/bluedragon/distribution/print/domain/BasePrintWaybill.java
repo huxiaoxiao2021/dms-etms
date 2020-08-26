@@ -89,11 +89,18 @@ public class BasePrintWaybill implements Serializable {
     * 包裹特殊标识
     */
     private String specialMark = "";
-
+    /**
+    * 新包裹特殊标识，相比specialMark，去掉了部分标识（航、航填）
+    */
+    private String specialMarkNew = "";
     /**
     * 包裹特殊标识-builder类型
     */
     private StringBuilder specialMarkBuilder = new StringBuilder();
+    /**
+    * 新包裹特殊标识-builder类型
+    */
+    private StringBuilder specialMarkNewBuilder = new StringBuilder();  
     /**
      * 收件公司名称
      */
@@ -398,6 +405,10 @@ public class BasePrintWaybill implements Serializable {
     */
     private String promiseText ;
     /**
+    * 承诺配送信息-(C网模板展示)
+    */
+    private String promiseTextC ;
+    /**
     * 时效
     */
     private String timeCategory ;
@@ -428,7 +439,15 @@ public class BasePrintWaybill implements Serializable {
 	private String serviceCode;
 
 	private String comment;
-
+	/**
+	 * 集货地
+	 */
+	private String collectionAddress;
+	/**
+	 * 运输方式：航、航填、高、陆
+	 */
+	private String transportTypeText;
+	
 	public String getServiceCode() {
 		return serviceCode;
 	}
@@ -675,16 +694,40 @@ public class BasePrintWaybill implements Serializable {
 		}
 	}
     /**
-	 * 特殊标记字段追加标记，不包含时加入标记
+	 * 不包含markText时追加到specialMark，同时追加到specialMarkNew
 	 * @param markText
 	 */
 	public void appendSpecialMark(String markText){
+		//追加标识到specialMark，同时追加到SpecialMarkNew
+		appendSpecialMark(markText,true);
+	}
+    /**
+     * 不包含markText时追加到specialMark，根据appendSpecialMarkNew标识判断是否追加到specialMarkNew
+     * @param markText
+     * @param appendSpecialMarkNew 是否追加到specialMarkNew字段
+     */
+	public void appendSpecialMark(String markText,boolean appendSpecialMarkNew){
 		//标识不为空，并且不包含此标记时加入标记
 		if(markText!=null && markText.length()>0
 				&& specialMarkBuilder.indexOf(markText) < 0){
 			specialMarkBuilder.append(markText);
 			this.specialMark = specialMarkBuilder.toString();
-			this.waybillSignText = specialMarkBuilder.toString();
+			this.waybillSignText = this.specialMark;
+		}
+		if(appendSpecialMarkNew){
+			appendSpecialMarkNew(markText);
+		}
+	}	
+    /**
+	 * 不包含markText时追加到specialMarkNew
+	 * @param markText
+	 */
+	private void appendSpecialMarkNew(String markText){
+		//标识不为空，并且不包含此标记时加入标记
+		if(markText!=null && markText.length()>0
+				&& specialMarkNewBuilder.indexOf(markText) < 0){
+			specialMarkNewBuilder.append(markText);
+			this.specialMarkNew = specialMarkNewBuilder.toString();
 		}
 	}
     /**
@@ -1510,6 +1553,12 @@ public class BasePrintWaybill implements Serializable {
 	public void setPromiseText(String promiseText) {
 		this.promiseText = promiseText;
 	}
+	public String getPromiseTextC() {
+		return promiseTextC;
+	}
+	public void setPromiseTextC(String promiseTextC) {
+		this.promiseTextC = promiseTextC;
+	}
 	/**
 	 * @return the timeCategory
 	 */
@@ -1569,5 +1618,28 @@ public class BasePrintWaybill implements Serializable {
 	 */
 	public void setPrintAddressRemark(String printAddressRemark) {
 		this.printAddressRemark = printAddressRemark;
+	}
+	public String getSpecialMarkNew() {
+		return specialMarkNew;
+	}
+	public void setSpecialMarkNew(String specialMarkNew) {
+		this.specialMarkNew = specialMarkNew;
+		if(specialMarkNew != null){
+			specialMarkNewBuilder = new StringBuilder(specialMarkNew);
+		}else{
+			specialMarkNewBuilder = new StringBuilder();
+		}
+	}
+	public String getCollectionAddress() {
+		return collectionAddress;
+	}
+	public void setCollectionAddress(String collectionAddress) {
+		this.collectionAddress = collectionAddress;
+	}
+	public String getTransportTypeText() {
+		return transportTypeText;
+	}
+	public void setTransportTypeText(String transportTypeText) {
+		this.transportTypeText = transportTypeText;
 	}
 }

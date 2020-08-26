@@ -72,6 +72,10 @@
         <logger name="com.jd.tbschedule" level="ERROR" additivity="true"/>
         <Logger name="com.jd.dbs.transaction" level="ERROR" additivity="true"/>
         <Logger name="com.jd.etms.basic.cache" level="ERROR" additivity="true"/>
+
+        <!--dao-->
+        <logger name="com.jd.bluedragon.distribution.site.dao" level="DEBUG" additivity="true"/>
+
         <!-- 操作日志 -->
         <logger name="com.jd.dms.logger.aop.BusinessLogWriter" level="INFO" additivity="false">
             <appender-ref ref="business.log"/>
