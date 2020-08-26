@@ -38,7 +38,7 @@ public class MappedBasicPrintWaybillHandler implements Handler<WaybillPrintConte
 
     private static final String BUSINESS_ORDER_CODE_REMARK = "商家订单号：";
 
-    private static final String REVERSE_PRINT_COMMENT = "逆向换单，原单号【{0}】新单号【{1}】";
+    private static final String REVERSE_PRINT_COMMENT = "逆向换单，原单号【{0}】";
 
     private static final String SPLIT = "；";
 
@@ -147,7 +147,7 @@ public class MappedBasicPrintWaybillHandler implements Handler<WaybillPrintConte
 
             /*
                 加工字段：comment
-                逆向换单，原单号【{0}】新单号【{1}】
+                逆向换单，原单号【{0}】
             */
             String oldWaybillCode = context.getResponse().getOldWaybillCode();//获取原单号的运单号
             if (StringHelper.isEmpty(oldWaybillCode)) {
@@ -155,7 +155,7 @@ public class MappedBasicPrintWaybillHandler implements Handler<WaybillPrintConte
             }
 
             printWaybill.setComment(MessageFormat.format(REVERSE_PRINT_COMMENT,
-                    oldWaybillCode == null? "" : oldWaybillCode, newWaybillCode));
+                    oldWaybillCode == null? "" : oldWaybillCode));
         }
 
         return context.getResult();

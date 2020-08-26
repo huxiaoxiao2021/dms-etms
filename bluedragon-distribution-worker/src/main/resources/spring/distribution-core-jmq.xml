@@ -440,6 +440,7 @@
     <bean id="strandReportProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.strand.report}"/>
     </bean>
+
     <!-- 滞留上报明细消息 -->
     <bean id="strandReportDetailProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.strand.report.detail}"/>
@@ -453,6 +454,11 @@
     <!-- 众邮箱号称重MQ -->
     <bean id="economicNetBoxWeightProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.economicNet.box.weight}"/>
+    </bean>
+
+    <!-- 青流箱出入库消息 -->
+    <bean id="tagInOutProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.tag.inOut}"/>
     </bean>
 
     <!-- 分拣工作台一键封车回执消息 -->

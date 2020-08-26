@@ -459,4 +459,9 @@
     <bean id="economicNetBoxWeightProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.economicNet.box.weight}"/>
     </bean>
+
+    <!-- 青流箱出入库消息 -->
+    <bean id="tagInOutProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.tag.inOut}"/>
+    </bean>
 </beans>

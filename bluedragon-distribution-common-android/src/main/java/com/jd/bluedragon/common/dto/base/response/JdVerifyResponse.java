@@ -16,7 +16,7 @@ public class JdVerifyResponse<T> {
     只是调用验证接口是成功;理论上应该看msgBoxes 是否有返回数据。
      */
     public static final Integer CODE_SUCCESS = 200;
-    public static final String MESSAGE_SUCCESS = "调用";
+    public static final String MESSAGE_SUCCESS = "执行成功";
 
     public static final Integer CODE_FAIL = 400;
     public static final String MESSAGE_FAIL = "执行失败";
