@@ -34,6 +34,10 @@ public class UnloadCarDao extends BaseDao<UnloadCar> {
          return this.getSqlSession().selectList(namespace + ".queryByCondition",condition);
     }
 
+    public int queryCountByCondition(UnloadCarCondition condition) {
+         return this.getSqlSession().selectOne(namespace + ".queryCountByCondition",condition);
+    }
+
     public Integer distributeTaskByParams(Map<String, Object> params) {
          return this.getSqlSession().update(namespace + ".distributeTaskByParams", params);
     }

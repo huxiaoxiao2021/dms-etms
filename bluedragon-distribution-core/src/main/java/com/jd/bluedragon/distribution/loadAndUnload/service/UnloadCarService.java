@@ -1,11 +1,18 @@
 package com.jd.bluedragon.distribution.loadAndUnload.service;
 
-import com.jd.bluedragon.common.dto.unloadCar.*;
+import com.jd.bluedragon.common.dto.unloadCar.HelperDto;
+import com.jd.bluedragon.common.dto.unloadCar.TaskHelpersReq;
+import com.jd.bluedragon.common.dto.unloadCar.UnloadCarDetailScanResult;
+import com.jd.bluedragon.common.dto.unloadCar.UnloadCarScanRequest;
+import com.jd.bluedragon.common.dto.unloadCar.UnloadCarScanResult;
+import com.jd.bluedragon.common.dto.unloadCar.UnloadCarTaskDto;
+import com.jd.bluedragon.common.dto.unloadCar.UnloadCarTaskReq;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.loadAndUnload.TmsSealCar;
 import com.jd.bluedragon.distribution.loadAndUnload.UnloadCarTask;
 import com.jd.bluedragon.distribution.loadAndUnload.domain.DistributeTaskRequest;
 import com.jd.bluedragon.distribution.unloadCar.domain.UnloadCarCondition;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 
 import java.util.List;
 
@@ -47,7 +54,7 @@ public interface UnloadCarService {
      * @param condition
      * @return
      */
-    List<UnloadCarTask> queryByCondition(UnloadCarCondition condition);
+    PagerResult<UnloadCarTask> queryByCondition(UnloadCarCondition condition);
 
     /**
      * 分配卸车任务

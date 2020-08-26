@@ -245,6 +245,26 @@
             <if test="vehicleNumber != null">
                 AND vehicle_number = #{vehicleNumber,jdbcType=VARCHAR}
             </if>
+            <if test="limit != -1">
+                limit #{offset,jdbcType=BIGINT},#{limit,jdbcType=BIGINT}
+            </if>
+        </where>
+    </select>
+
+    <select id="queryCountByCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
+        select count(1) as num
+        from unload_car
+        <where>
+            yn = 1
+            AND create_time <![CDATA[ >= ]]> #{startTime,jdbcType=TIMESTAMP}
+            AND create_time <![CDATA[ <= ]]> #{endTime,jdbcType=TIMESTAMP}
+            AND status in
+            <foreach collection="status" item="item" index="index" separator="," open="(" close=")">
+                #{item,jdbcType=TINYINT}
+            </foreach>
+            <if test="vehicleNumber != null">
+                AND vehicle_number = #{vehicleNumber,jdbcType=VARCHAR}
+            </if>
         </where>
     </select>
 
