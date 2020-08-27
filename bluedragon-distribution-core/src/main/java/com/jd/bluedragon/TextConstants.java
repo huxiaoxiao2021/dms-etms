@@ -190,4 +190,8 @@ public class TextConstants {
      * 尊
      */
     public static final String SPECIAL_MARK_SENIOR ="尊";
+    /**
+     * 合约机 需激活
+     */
+    public static final String REMARK_CONTRACT_PHONE ="合约机 需激活";
 }
