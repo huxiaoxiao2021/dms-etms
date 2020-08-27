@@ -9,6 +9,20 @@
 		<SCRIPT type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></SCRIPT>
 		<script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
 		<script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+		<style>
+			.workbench-lead{
+				font-size: 16px;
+			}
+			.page-tips-container {
+				margin: 10px auto;
+			}
+			.page-tips-container .info{
+				background-color: #f6f8fa;
+				border-left: 5px solid #b9c7ff;
+				padding: 8px 16px;
+				color: #333;
+			}
+		</style>
 	</head>
 	<script type="text/javascript">
 		$(document).ready(function() {
@@ -78,6 +92,12 @@
 						<input type="hidden" id="pageNo" name="pageNo" />
 						<input type="hidden" id="pageSize" name="pageSize" />
                         $oldLogPageTips
+						<div class="workbench-lead page-tips-container">
+							<p class="info">分拣工作台系统有新版查询离线操作日志功能，且支持导出，欢迎访问体验和反馈！
+								地址：<a href="http://dms-w.jd.com/#/page/report/SortingOfflineOperationLog">新版查询离线操作日志</a>
+								<br/>有疑问请联系 <a href="timline://chat/?topin=xumigen"><i class="el-icon-chat-solid"></i> 徐迷根(xumigen)</a>
+							</p>
+						</div>
 						<table border="0" cellpadding="0" cellspacing="0" style="width: 100%;min-width:1100px;">
 							<tbody>
 								

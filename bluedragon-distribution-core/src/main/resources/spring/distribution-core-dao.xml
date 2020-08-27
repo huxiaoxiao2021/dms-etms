@@ -597,6 +597,17 @@
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
 
+    <!-- 装卸车业务表 -->
+    <bean id="unloadCarDao" class="com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+    <bean id="unloadCarDistributionDao" class="com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDistributionDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+    <bean id="unloadCarTransBoardDao" class="com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarTransBoardDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
     <!--  businessCode 业务单号表  -->
     <bean id="businessCodeDao" class="com.jd.bluedragon.distribution.businessCode.dao.BusinessCodeDao">
         <property name="sqlSession" ref="sessionTemplate"/>

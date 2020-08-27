@@ -114,6 +114,10 @@
 
         <!-- 冷链发货 -->
         <typeAlias type="com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend" alias="ColdChainSend"/>
+
+        <!-- 卸车任务 -->
+        <typeAlias type="com.jd.bluedragon.distribution.loadAndUnload.UnloadCar" alias="unloadCar"/>
+        <typeAlias type="com.jd.bluedragon.distribution.loadAndUnload.UnloadCarDistribution" alias="unloadCarDistribution"/>
     </typeAliases>
 
     <plugins>
@@ -344,5 +348,11 @@
         <mapper resource="mappers/mysql/whiteList/WhiteListMapper.xml" />
         <!-- KA单号校验导出记录 -->
         <mapper resource="mappers/mysql/export/DmsExportLog.xml"/>
+
+        <!-- 装卸车业务 -->
+        <mapper resource="mappers/mysql/loadAndUnload/UnloadCarMapper.xml" />
+        <mapper resource="mappers/mysql/loadAndUnload/UnloadCarDistributionMapper.xml" />
+        <mapper resource="mappers/mysql/loadAndUnload/UnloadCarTransBoardMapper.xml" />
+
     </mappers>
 </configuration>
