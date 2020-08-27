@@ -178,6 +178,15 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     @Qualifier("jimdbCacheService")
     private CacheService jimdbCacheService;
 
+    /**
+     * 不允许第二个分拣中心称重的返回码
+     */
+    private final int NOT_ALLOW_SECOND_SITE_CHECK_CODE = 30001;
+    /**
+     * 抽检发现超标返回码
+     */
+    private final int CHECK_OVER_STANDARD_CODE = 30002;
+
 
     /**
      * 上传超标图片
@@ -599,7 +608,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     }
 
     /**
-     * 抽检数据处理 todo 修改
+     * 抽检数据处理
      * <p>
      *     1、校验拦截
      *     2、超标校验并提示
@@ -620,7 +629,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         // 查看是否为第一个抽检的分拣中心，如果不是，则提示不允许抽检，提示"此单已操作过抽检，请勿重复操作"
         InvokeResult<Boolean> firstSiteCheckResult = this.isFirstSiteCheck(packWeightVO);
         if(!firstSiteCheckResult.getData()){
-            result.customMessage(InvokeResult.RESULT_MULTI_ERROR, firstSiteCheckResult.getMessage());
+            result.customMessage(this.NOT_ALLOW_SECOND_SITE_CHECK_CODE, firstSiteCheckResult.getMessage());
             return result;
         }
 
@@ -774,14 +783,16 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         String waybillCode = WaybillUtil.getWaybillCode(packWeightVO.getCodeStr());
         condition.setWaybillCode(waybillCode);
         InvokeResult<WeightVolumeCollectDto> weightVolumeCollectDtoInvokeResult = this.queryLatestHasUploadPictureCheckRecord(condition);
-        if(weightVolumeCollectDtoInvokeResult.getCode() == InvokeResult.SERVER_ERROR_CODE){
-            WeightVolumeCollectDto weightVolumeCollectDtoExist = weightVolumeCollectDtoInvokeResult.getData();
-            if(weightVolumeCollectDtoExist != null){
-                if (!Objects.equals(weightVolumeCollectDtoExist.getReviewSiteCode(), packWeightVO.getOperatorSiteCode())) {
-                    result.setData(false);
-                    result.setCode(InvokeResult.RESULT_MULTI_ERROR);
-                    result.setMessage("此单已操作过抽检，请勿重复操作");
-                }
+        if(weightVolumeCollectDtoInvokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE){
+            result.setData(false);
+            result.customMessage(this.NOT_ALLOW_SECOND_SITE_CHECK_CODE, "校验是否为第一个操作抽检的分拣中心失败");
+            return result;
+        }
+        WeightVolumeCollectDto weightVolumeCollectDtoExist = weightVolumeCollectDtoInvokeResult.getData();
+        if(weightVolumeCollectDtoExist != null){
+            if (!Objects.equals(weightVolumeCollectDtoExist.getReviewSiteCode(), packWeightVO.getOperatorSiteCode())) {
+                result.setData(false);
+                result.customMessage(this.NOT_ALLOW_SECOND_SITE_CHECK_CODE, "此单已操作过抽检，请勿重复操作");
             }
         }
         return result;
@@ -857,7 +868,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 String baseMessage = "此次操作的复核重量为"+reviewWeight+"kg,计费的重量为"+billingWeight+"kg，经校验误差值"+diffWeight+"kg已超出规定";
                 StringBuilder hitMessage = getStandardVal(reviewWeight).append("kg!");
                 StringBuilder warnMessage = new StringBuilder().append(baseMessage).append(hitMessage);
-                result.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE,warnMessage.toString());
+                result.customMessage(this.CHECK_OVER_STANDARD_CODE,warnMessage.toString());
                 result.setData(false);
                 weightVolumeCollectDto.setIsExcess(1);
             }
@@ -869,7 +880,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 String baseMessage = "此次操作的体积重量为"+reviewVolumeWeight+"kg,计费的体积重量为"+billingVolume/volumeRate+"kg，经校验误差值"+diffVolumeWeight+"kg已超出规定";
                 StringBuilder hitMessage = getStandardVal(reviewVolumeWeight).append("kg!");
                 StringBuilder warnMessage = new StringBuilder().append(baseMessage).append(hitMessage);
-                result.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE,warnMessage.toString());
+                result.customMessage(this.CHECK_OVER_STANDARD_CODE,warnMessage.toString());
                 result.setData(false);
                 weightVolumeCollectDto.setIsExcess(1);
                 weightVolumeCollectDto.setVolumeWeightIsExcess(1);
@@ -887,7 +898,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 String baseMessage = "此次操作的泡重比为"+reviewVolumeWeight+"kg,计费的泡重比为"+billVolumeWeight+"kg，经校验误差值"+diffOfWeight+"kg已超出规定";
                 StringBuilder hitMessage = getStandardVal(reviewVolumeWeight).append("kg!");
                 StringBuilder warnMessage = new StringBuilder().append(baseMessage).append(hitMessage);
-                result.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE,warnMessage.toString());
+                result.customMessage(this.CHECK_OVER_STANDARD_CODE,warnMessage.toString());
                 result.setData(false);
                 weightVolumeCollectDto.setIsExcess(1);
             }
