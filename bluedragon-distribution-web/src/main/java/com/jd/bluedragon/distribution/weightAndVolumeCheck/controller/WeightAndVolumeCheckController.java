@@ -2,14 +2,19 @@ package com.jd.bluedragon.distribution.weightAndVolumeCheck.controller;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.WeightAndVolumeCheckHandleMessage;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.fastjson.JSON;
+import com.jd.jmq.common.exception.JMQException;
 import com.jd.jss.util.ValidateValue;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
@@ -18,6 +23,7 @@ import com.jd.uim.annotation.Authorization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -54,6 +60,10 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
 
     @Autowired
     private WeightAndVolumeCheckService weightAndVolumeCheckService;
+
+    @Autowired
+    @Qualifier("weightAndVolumeCheckHandleProducer")
+    private DefaultJMQProducer weightAndVolumeCheckHandleProducer;
 
 
     /**
@@ -185,8 +195,24 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
             return result;
         }
         if(result.getCode() == InvokeResult.RESULT_SUCCESS_CODE){
-            //上传成功后给FXM发超标消息并更新es数据
-            weightAndVolumeCheckService.sendMqAndUpdate(packageCode,siteCode);
+            // 上传成功后，发送MQ消息，进行下一步操作
+            WeightAndVolumeCheckHandleMessage weightAndVolumeCheckHandleMessage = new WeightAndVolumeCheckHandleMessage();
+            weightAndVolumeCheckHandleMessage.setOpNode(WeightAndVolumeCheckHandleMessage.UPLOAD_IMG);
+            if(WaybillUtil.isPackageCode(packageCode)){
+                weightAndVolumeCheckHandleMessage.setPackageCode(packageCode);
+                weightAndVolumeCheckHandleMessage.setWaybillCode(WaybillUtil.getWaybillCodeByPackCode(packageCode));
+            }
+            if(WaybillUtil.isWaybillCode(packageCode)){
+                weightAndVolumeCheckHandleMessage.setWaybillCode(packageCode);
+            }
+            weightAndVolumeCheckHandleMessage.setSiteCode(siteCode);
+            try {
+                weightAndVolumeCheckHandleProducer.send(packageCode, JSON.toJSONString(weightAndVolumeCheckHandleMessage));
+            } catch (JMQException e) {
+                log.warn("uploadExcessPicture weightAndVolumeCheckHandleProducer send exception {}", e.getMessage(), e);
+            }
+            /*//上传成功后给FXM发超标消息并更新es数据
+            weightAndVolumeCheckService.sendMqAndUpdate(packageCode,siteCode);*/
         }
 
         return result;
