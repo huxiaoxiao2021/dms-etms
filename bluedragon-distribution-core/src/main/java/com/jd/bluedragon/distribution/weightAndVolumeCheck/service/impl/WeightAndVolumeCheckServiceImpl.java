@@ -782,7 +782,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         WeightVolumeQueryCondition condition = new WeightVolumeQueryCondition();
         String waybillCode = WaybillUtil.getWaybillCode(packWeightVO.getCodeStr());
         condition.setWaybillCode(waybillCode);
-        InvokeResult<WeightVolumeCollectDto> weightVolumeCollectDtoInvokeResult = this.queryLatestHasUploadPictureCheckRecord(condition);
+        InvokeResult<WeightVolumeCollectDto> weightVolumeCollectDtoInvokeResult = this.queryLatestCheckRecord(condition);
         if(weightVolumeCollectDtoInvokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE){
             result.setData(false);
             result.customMessage(this.NOT_ALLOW_SECOND_SITE_CHECK_CODE, "校验是否为第一个操作抽检的分拣中心失败");
@@ -1317,15 +1317,15 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     }
 
     /**
-     * 查询最新一条已上传图片的抽检记录数据，如果不存在则返回null
+     * 查询最新一条抽检记录数据，如果不存在则返回null
      * @param query 查询条件
      * @return 抽检记录
      * @author fanggang7
      * @time 2020-08-24 17:12:55 周一
      */
     @Override
-    public InvokeResult<WeightVolumeCollectDto> queryLatestHasUploadPictureCheckRecord(WeightVolumeQueryCondition query) {
-        log.info("queryLatestHasUploadPictureCheckRecord param: {}", JSON.toJSONString(query));
+    public InvokeResult<WeightVolumeCollectDto> queryLatestCheckRecord(WeightVolumeQueryCondition query) {
+        log.info("queryLatestCheckRecord param: {}", JSON.toJSONString(query));
         InvokeResult<WeightVolumeCollectDto> result = new InvokeResult<>();
         try {
             Pager<WeightVolumeQueryCondition> pager = new Pager<>();
@@ -1337,12 +1337,12 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 Pager<WeightVolumeCollectDto> pageData = baseEntity.getData();
                 if (CollectionUtils.isNotEmpty(pageData.getData())) {
                     WeightVolumeCollectDto weightVolumeCollectDto = pageData.getData().get(0);
+                    result.setData(weightVolumeCollectDto);
                     if(weightVolumeCollectDto.getIsHasPicture() == 1){
-                        result.setData(weightVolumeCollectDto);
                     }
                 }
             } else {
-                log.warn("queryLatestHasUploadPictureCheckRecord getPagerByConditionForWeightVolume warn {}根据查询条件查询es失败,失败原因:{}", JsonHelper.toJson(query), baseEntity.getMessage());
+                log.warn("queryLatestCheckRecord getPagerByConditionForWeightVolume warn {}根据查询条件查询es失败,失败原因:{}", JsonHelper.toJson(query), baseEntity.getMessage());
                 result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
                 result.setData(null);
             }

@@ -91,13 +91,13 @@ public interface WeightAndVolumeCheckService {
     void setProductType(WeightVolumeCollectDto weightVolumeCollectDto);
 
     /**
-     * 查询最新一条已上传图片的抽检记录数据
+     * 查询最新一条抽检记录数据
      * @param query 查询条件
      * @return 抽检记录
      * @author fanggang7
      * @time 2020-08-24 17:12:55 周一
      */
-    InvokeResult<WeightVolumeCollectDto> queryLatestHasUploadPictureCheckRecord(WeightVolumeQueryCondition query);
+    InvokeResult<WeightVolumeCollectDto> queryLatestCheckRecord(WeightVolumeQueryCondition query);
 
     /**
      * 处理消费称重抽检处理消息
