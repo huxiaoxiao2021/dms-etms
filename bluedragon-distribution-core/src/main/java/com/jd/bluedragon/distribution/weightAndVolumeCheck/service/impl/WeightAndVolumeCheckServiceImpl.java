@@ -8,6 +8,8 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.DmsBaseDictService;
+import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.AbnormalResultMq;
@@ -22,6 +24,7 @@ import com.jd.bluedragon.dms.receive.quote.dto.QuoteCustomerDto;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -173,6 +176,9 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
 
     @Autowired
     private QuoteCustomerApiServiceManager quoteCustomerApiServiceManager;
+
+    @Autowired
+    private TaskService taskService;
 
     @Autowired
     @Qualifier("jimdbCacheService")
@@ -703,6 +709,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             specialSceneHandle(weightVolumeCollectDto);
             //将重量体积实体存入es中
             BaseEntity<String> baseEntity = reportExternalService.insertOrUpdateForWeightVolume(weightVolumeCollectDto);
+            this.sendWaybillTrace(weightVolumeCollectDto);
             this.cachePackageOrWaybillCheckRecord(packWeightVO.getCodeStr());
             if(baseEntity == null || baseEntity.getCode() != BaseEntity.CODE_SUCCESS){
                 log.warn("单号【{}】录入抽检异常",packWeightVO.getCodeStr());
@@ -713,6 +720,32 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
         }
         return result;
+    }
+
+    private void sendWaybillTrace(WeightVolumeCollectDto dto) {
+
+        Task tTask = new Task();
+        tTask.setKeyword1(dto.getWaybillCode());
+        tTask.setKeyword2(String.valueOf(WaybillStatus.WAYBILL_STATUS_WEIGHT_VOLUME_SPOT_CHECK));
+        tTask.setCreateSiteCode(dto.getReviewSiteCode());
+        tTask.setCreateTime(dto.getReviewDate());
+        tTask.setType(Task.TASK_TYPE_WAYBILL_TRACK);
+        tTask.setTableName(Task.getTableName(Task.TASK_TYPE_WAYBILL_TRACK));
+        tTask.setSequenceName(Task.getSequenceName(Task.TABLE_NAME_POP));
+        String ownSign = BusinessHelper.getOwnSign();
+        tTask.setOwnSign(ownSign);
+
+        WaybillStatus status=new WaybillStatus();
+        status.setOperateType(WaybillStatus.WAYBILL_STATUS_WEIGHT_VOLUME_SPOT_CHECK);
+        status.setWaybillCode(dto.getWaybillCode());
+        status.setPackageCode(dto.getWaybillCode());
+        status.setOperateTime(dto.getReviewDate());
+        status.setOperator(dto.getReviewErp());
+        status.setRemark("重量体积抽检：重量"+dto.getReviewWeight()+"公斤，体积"+dto.getReviewVolume()+"立方厘米");
+        status.setCreateSiteCode(dto.getReviewSiteCode());
+        tTask.setBody(JsonHelper.toJson(status));
+        taskService.add(tTask);
+
     }
 
     /**
