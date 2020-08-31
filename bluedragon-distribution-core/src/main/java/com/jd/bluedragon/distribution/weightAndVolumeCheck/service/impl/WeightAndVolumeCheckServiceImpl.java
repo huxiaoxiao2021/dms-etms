@@ -826,10 +826,41 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             if (!Objects.equals(weightVolumeCollectDtoExist.getReviewSiteCode(), packWeightVO.getOperatorSiteCode())) {
                 result.setData(false);
                 result.customMessage(this.NOT_ALLOW_SECOND_SITE_CHECK_CODE, "此单已操作过抽检，请勿重复操作");
+                return result;
+            }
+            boolean waybillSendStatusFlag = this.getWaybillSendStatus(weightVolumeCollectDtoExist.getWaybillCode(), weightVolumeCollectDtoExist);
+            if(waybillSendStatusFlag){
+                result.setData(false);
+                result.customMessage(this.NOT_ALLOW_SECOND_SITE_CHECK_CODE, "此单已操作过抽检，请勿重复操作");
             }
         }
         return result;
     }
+
+    /**
+     * 获取包裹发货状态
+     * @param waybillCode 运单号
+     * @param weightVolumeCollectDto 抽检记录
+     * @return boolean 发货-true,未发货-false
+     * @author fanggang7
+     * @time 2020-08-26 15:08:54 周三
+     */
+    private boolean getWaybillSendStatus(String waybillCode, WeightVolumeCollectDto weightVolumeCollectDto){
+        String key = CacheKeyConstants.CACHE_KEY_WAYBILL_SEND_STATUS.concat(waybillCode);
+        try {
+            String redisValue = jimdbCacheService.get(key);
+            if(StringUtils.isNotEmpty(redisValue) && Integer.parseInt(redisValue) != Constants.YN_YES){
+                return true;
+            }
+        }catch (Exception e){
+            log.error("获取C网抽检下发MQ缓存【{}】异常",key);
+        }
+        if(Objects.equals(weightVolumeCollectDto.getWaybillStatus(), WaybillStatus.WAYBILL_STATUS_CODE_FORWORD_DELIVERY)){
+            return true;
+        }
+        return false;
+    }
+
 
     /**
      * 判断是否操作过抽检
