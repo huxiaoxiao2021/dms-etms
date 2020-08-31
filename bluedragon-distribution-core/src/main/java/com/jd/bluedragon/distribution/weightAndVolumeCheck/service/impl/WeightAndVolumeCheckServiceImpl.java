@@ -859,12 +859,12 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             Double diffVolumeWeight = Math.abs(reviewVolumeWeight - billingVolume/volumeRate);
 
             boolean isExcess = false;
-            // 三边之和大于等于100cm 使用 校验标准B
-            if (sumLWH.compareTo(new BigDecimal(firstSumLWH)) >= 0) {
-                if (isSumLWHExcess(sumLWH, diffVolumeWeight)) {
+            // 三边之和小于100cm 使用 校验标准A
+            if (sumLWH.compareTo(new BigDecimal(firstSumLWH)) < 0){
+                if(isExcess(reviewVolumeWeight,diffVolumeWeight)){
                     isExcess = true;
                 }
-            }else if(isExcess(reviewVolumeWeight,diffVolumeWeight)){
+            }else if (isSumLWHExcess(sumLWH, diffVolumeWeight)) {
                 isExcess = true;
             }
             if (isExcess) {
@@ -886,7 +886,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             double diffOfWeight = Math.abs(keeTwoDecimals(maxReviewWeight - maxBillingWeight));
 
             boolean isExcess = false;
-            // 体积为较大值，且 三边之和大于 100cm
+            // 体积为较大值，且 三边之和大于等于 100cm
             if (reviewVolumeWeight > reviewWeight && sumLWH.compareTo(new BigDecimal(firstSumLWH)) >= 0) {
                 if (isSumLWHExcess(sumLWH, diffOfWeight)) {
                     isExcess = true;
