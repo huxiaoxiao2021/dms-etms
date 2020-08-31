@@ -813,8 +813,13 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         InvokeResult<Boolean> result = new InvokeResult<>();
         result.setData(true);
         WeightVolumeQueryCondition condition = new WeightVolumeQueryCondition();
-        String waybillCode = WaybillUtil.getWaybillCode(packWeightVO.getCodeStr());
-        condition.setWaybillCode(waybillCode);
+        if(!WaybillUtil.isWaybillCode(packWeightVO.getCodeStr())){
+            condition.setWaybillCode(WaybillUtil.getWaybillCode(packWeightVO.getCodeStr()));
+        }
+        if(WaybillUtil.isPackageCode(packWeightVO.getCodeStr())){
+            condition.setPackageCode(packWeightVO.getCodeStr());
+            condition.setWaybillCode(WaybillUtil.getWaybillCode(packWeightVO.getCodeStr()));
+        }
         InvokeResult<WeightVolumeCollectDto> weightVolumeCollectDtoInvokeResult = this.queryLatestCheckRecord(condition);
         if(weightVolumeCollectDtoInvokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE){
             result.setData(false);
@@ -822,18 +827,23 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             return result;
         }
         WeightVolumeCollectDto weightVolumeCollectDtoExist = weightVolumeCollectDtoInvokeResult.getData();
+        log.info("WeightAndVolumeCheckServiceImpl isFirstSiteCheck: {}", JSON.toJSONString(weightVolumeCollectDtoExist));
         if(weightVolumeCollectDtoExist != null){
             if (!Objects.equals(weightVolumeCollectDtoExist.getReviewSiteCode(), packWeightVO.getOperatorSiteCode())) {
                 result.setData(false);
                 result.customMessage(this.NOT_ALLOW_SECOND_SITE_CHECK_CODE, "此单已操作过抽检，请勿重复操作");
                 return result;
             }
-            boolean waybillSendStatusFlag = this.getWaybillSendStatus(weightVolumeCollectDtoExist.getWaybillCode(), weightVolumeCollectDtoExist);
-            if(waybillSendStatusFlag){
-                result.setData(false);
-                result.customMessage(this.NOT_ALLOW_SECOND_SITE_CHECK_CODE, "此单已操作过抽检，请勿重复操作");
+            if (Objects.equals(weightVolumeCollectDtoExist.getReviewSiteCode(), packWeightVO.getOperatorSiteCode())) {
+                boolean waybillSendStatusFlag = this.getWaybillSendStatus(weightVolumeCollectDtoExist.getWaybillCode(), weightVolumeCollectDtoExist);
+                if(waybillSendStatusFlag){
+                    result.setData(false);
+                    result.customMessage(this.NOT_ALLOW_SECOND_SITE_CHECK_CODE, "此单已操作过抽检，请勿重复操作");
+                    return result;
+                }
             }
         }
+        log.info("WeightAndVolumeCheckServiceImpl isFirstSiteCheck: result {}", JSON.toJSONString(result));
         return result;
     }
 
@@ -1395,7 +1405,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             Pager<WeightVolumeQueryCondition> pager = new Pager<>();
             pager.setSearchVo(query);
             pager.setPageNo(1);
-            pager.setPageSize(1);
+            pager.setPageSize(50);
             BaseEntity<Pager<WeightVolumeCollectDto>> baseEntity = reportExternalService.getPagerByConditionForWeightVolume(pager);
             if (baseEntity.getCode() == BaseEntity.CODE_SUCCESS) {
                 Pager<WeightVolumeCollectDto> pageData = baseEntity.getData();
