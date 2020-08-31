@@ -630,6 +630,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
             String key = CacheKeyConstants.CACHE_KEY_WAYBILL_SEND_STATUS.concat(waybill.getWaybillCode());
             try {
                 redisClientCache.setEx(key, Constants.YN_YES.toString(), this.weightCheckSendStatusExpireTime, TimeUnit.DAYS);
+                log.info("cache waybill send status {}", waybill.getWaybillCode());
             }catch (Exception e){
                 log.error("存储运单发货状态【{}】异常", key);
             }
