@@ -843,7 +843,6 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 }
             }
         }
-        log.info("WeightAndVolumeCheckServiceImpl isFirstSiteCheck: result {}", JSON.toJSONString(result));
         return result;
     }
 
@@ -859,7 +858,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         String key = CacheKeyConstants.CACHE_KEY_WAYBILL_SEND_STATUS.concat(waybillCode);
         try {
             String redisValue = jimdbCacheService.get(key);
-            if(StringUtils.isNotEmpty(redisValue) && Integer.parseInt(redisValue) != Constants.YN_YES){
+            if(StringUtils.isNotEmpty(redisValue) && Integer.parseInt(redisValue) == Constants.YN_YES){
                 return true;
             }
         }catch (Exception e){
@@ -1604,7 +1603,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         String key = CacheKeyConstants.CACHE_KEY_WAYBILL_SEND_STATUS.concat(weightAndVolumeCheckHandleMessage.getWaybillCode());
         try {
             String redisValue = jimdbCacheService.get(key);
-            if(StringUtils.isNotEmpty(redisValue) && Integer.parseInt(redisValue) != Constants.YN_YES){
+            if(StringUtils.isNotEmpty(redisValue) && Integer.parseInt(redisValue) == Constants.YN_YES){
                 return true;
             }
         }catch (Exception e){
