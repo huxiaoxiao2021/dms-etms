@@ -13,43 +13,11 @@ import com.jd.ql.basic.domain.Assort;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.tms.basic.dto.BasicVehicleDto;
 
 import java.util.List;
 import java.util.Map;
 
-public interface BaseService {
-
-    /**
-     * 用户登录包括自营和3PL
-     * <pre>
-     *    如果是自营
-     *    1. 先调人事接口验证用户名和密码
-     *    2. 验证通过后，根据员工id调基础资料接口获取员工信息
-     *    如果是三方的
-     *    1. 先调用户组接口验证京东账号和密码
-     *    2. 验证通过后，根据京东账号调基础资料接口获取员工信息
-     * </pre>
-     *
-     * @param userid
-     * @param password
-     * @return
-     */
-    com.jd.bluedragon.distribution.base.domain.BasePdaUserDto pdaUserLogin(String userid, String password, ClientInfo clientInfo, Byte loginVersion);
-
-    /**
-	 * 账号密码是否存在
-	 *
-	 * @param String
-	 *            erpcode erp账号
-	 * @param String
-	 *            password erp密码
-	 *
-	 * @param loginVersion 登录接口的版本号
-	 *
-	 * @return StaffDto 是否登录成功
-	 */
-	PdaStaff login(String erpcode, String password, ClientInfo clientInfo, Byte loginVersion);
+public interface BaseService{
 
 	/**
 	 * 返回错误信息列表，便于PDA选择后，进行退货相关业务 根据日期进行增量查询
