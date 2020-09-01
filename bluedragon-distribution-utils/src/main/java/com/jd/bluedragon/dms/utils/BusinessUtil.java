@@ -3,6 +3,7 @@ package com.jd.bluedragon.dms.utils;
 import com.jd.etms.waybill.constant.WaybillCodePattern;
 import com.jd.etms.waybill.util.UniformValidateUtil;
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
+
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -1709,4 +1710,12 @@ public class BusinessUtil {
         }
         return str;
     }   
+    /**
+     * 合约机判断：Sendpay292位为1
+     * @param sendPay
+     * @return
+     */
+	public static boolean isContractPhone(String sendPay) {
+		return isSignChar(sendPay, SendPayConstants.POSITION_292, SendPayConstants.CHAR_292_1);
+	}
 }
