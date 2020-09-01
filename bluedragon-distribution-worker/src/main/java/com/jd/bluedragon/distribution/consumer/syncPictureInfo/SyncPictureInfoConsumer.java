@@ -1,18 +1,13 @@
 package com.jd.bluedragon.distribution.consumer.syncPictureInfo;
 
-import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.WeightAndVolumeCheckHandleMessage;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.fastjson.JSON;
-import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 /**
@@ -28,11 +23,6 @@ public class SyncPictureInfoConsumer extends MessageBaseConsumer {
 
     @Autowired
     private WeightAndVolumeCheckService weightAndVolumeCheckService;
-
-    @Autowired
-    @Qualifier("weightAndVolumeCheckHandleProducer")
-    private DefaultJMQProducer weightAndVolumeCheckHandleProducer;
-
 
     @Override
     public void consume(Message message) throws Exception {
@@ -65,21 +55,7 @@ public class SyncPictureInfoConsumer extends MessageBaseConsumer {
         // weightAndVolumeCheckService.sendMqAndUpdate(packageCode,siteCode);
 
         // 上传成功后，发送MQ消息，进行下一步操作
-        WeightAndVolumeCheckHandleMessage weightAndVolumeCheckHandleMessage = new WeightAndVolumeCheckHandleMessage();
-        weightAndVolumeCheckHandleMessage.setOpNode(WeightAndVolumeCheckHandleMessage.UPLOAD_IMG);
-        if(WaybillUtil.isPackageCode(packageCode)){
-            weightAndVolumeCheckHandleMessage.setPackageCode(packageCode);
-            weightAndVolumeCheckHandleMessage.setWaybillCode(WaybillUtil.getWaybillCodeByPackCode(packageCode));
-        }
-        if(WaybillUtil.isWaybillCode(packageCode)){
-            weightAndVolumeCheckHandleMessage.setWaybillCode(packageCode);
-        }
-        weightAndVolumeCheckHandleMessage.setSiteCode(siteCode);
-        try {
-            weightAndVolumeCheckHandleProducer.send(packageCode, JSON.toJSONString(weightAndVolumeCheckHandleMessage));
-        } catch (JMQException e) {
-            log.warn("exception");
-        }
+        weightAndVolumeCheckService.updateImgAndSendHandleMq(packageCode, siteCode);
     }
 
 

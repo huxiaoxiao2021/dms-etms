@@ -81,6 +81,13 @@ public interface WeightAndVolumeCheckService {
     void sendMqAndUpdate(String packageCode, Integer siteCode);
 
     /**
+     * 更新图片并发送处理消息
+     * @param packageCode
+     * @param siteCode
+     */
+    void updateImgAndSendHandleMq(String packageCode, Integer siteCode);
+
+    /**
      * 称重体积数据处理
      * @param packWeightVO
      * @param spotCheckSourceEnum

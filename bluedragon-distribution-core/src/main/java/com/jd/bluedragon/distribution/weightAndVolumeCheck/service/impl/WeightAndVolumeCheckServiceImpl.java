@@ -36,6 +36,7 @@ import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.fastjson.JSON;
+import com.jd.jmq.common.exception.JMQException;
 import com.jd.jss.JingdongStorageService;
 import com.jd.jss.client.Request;
 import com.jd.jss.domain.ObjectListing;
@@ -188,6 +189,10 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
 
     @Autowired
     private SendDetailService sendDetailService;
+
+    @Autowired
+    @Qualifier("weightAndVolumeCheckHandleProducer")
+    private DefaultJMQProducer weightAndVolumeCheckHandleProducer;
 
     /**
      * 不允许第二个分拣中心称重的返回码
@@ -524,6 +529,69 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     }
 
     /**
+     * 发消息并更新es
+     * @param packageCode
+     * @param siteCode
+     */
+    public void updateImgAndSendHandleMq(String packageCode, Integer siteCode){
+
+        //获取图片链接
+        InvokeResult<String> result = searchExcessPicture(packageCode,siteCode);
+        if(result == null || result.getCode() != InvokeResult.RESULT_SUCCESS_CODE
+                || StringUtils.isEmpty(result.getData())){
+            log.warn("运单【{}】站点【{}】的超标图片为空",packageCode,siteCode);
+            return;
+        }
+        String pictureAddress = result.getData();
+
+        WeightVolumeCollectDto weightVolumeCollectDto;
+        try {
+            WeightVolumeQueryCondition condition = new WeightVolumeQueryCondition();
+            condition.setReviewSiteCode(siteCode);
+            condition.setIsExcess(1);
+            condition.setIsHasPicture(0);
+            condition.setWaybillCode(WaybillUtil.getWaybillCode(packageCode));
+            BaseEntity<List<WeightVolumeCollectDto>> baseEntity = reportExternalService.getByParamForWeightVolume(condition);
+            if(baseEntity == null || CollectionUtils.isEmpty(baseEntity.getData())
+                    || baseEntity.getData().get(0) == null){
+                log.warn("通过运单【{}】站点【{}】查询超标数据为空",packageCode,siteCode);
+                return;
+            }
+            weightVolumeCollectDto = baseEntity.getData().get(0);
+        }catch (Exception e){
+            log.warn("通过运单【{}】站点【{}】查询超标数据异常",packageCode,siteCode,e);
+            return;
+        }
+
+        //更新es数据设置图片连接
+        try {
+            weightVolumeCollectDto.setPictureAddress(pictureAddress);
+            weightVolumeCollectDto.setIsHasPicture(1);
+            reportExternalService.updateForWeightVolume(weightVolumeCollectDto);
+        }catch (Exception e){
+            log.warn("通过运单【{}】站点【{}】更新超标数据异常",packageCode,siteCode,e);
+        }
+
+        // 上传成功后，发送MQ消息，进行下一步操作
+        WeightAndVolumeCheckHandleMessage weightAndVolumeCheckHandleMessage = new WeightAndVolumeCheckHandleMessage();
+        weightAndVolumeCheckHandleMessage.setOpNode(WeightAndVolumeCheckHandleMessage.UPLOAD_IMG);
+        if(WaybillUtil.isPackageCode(packageCode)){
+            weightAndVolumeCheckHandleMessage.setPackageCode(packageCode);
+            weightAndVolumeCheckHandleMessage.setWaybillCode(WaybillUtil.getWaybillCodeByPackCode(packageCode));
+        }
+        if(WaybillUtil.isWaybillCode(packageCode)){
+            weightAndVolumeCheckHandleMessage.setWaybillCode(packageCode);
+        }
+        weightAndVolumeCheckHandleMessage.setSiteCode(siteCode);
+        try {
+            weightAndVolumeCheckHandleProducer.send(packageCode, JSON.toJSONString(weightAndVolumeCheckHandleMessage));
+        } catch (JMQException e) {
+            log.warn("updateImgAndSendHandleMq weightAndVolumeCheckHandleProducer send exception {}", e.getMessage(), e);
+        }
+
+    }
+
+    /**
      * 判断是否超过默认天数
      * @param reviewDate
      * @param uploadTime
@@ -695,7 +763,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             //当计费重量或计费体积为0时，体积重量抽检超标
             if(billingWeight == 0 || billingVolume == 0){
                 log.warn("运单【{}】获取计费重量/体积为空",waybillCode);
-                result.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE,"计费重量/体积为0或空，无法进行校验");
+                result.customMessage(this.NOT_ALLOW_SECOND_SITE_CHECK_CODE,"计费重量/体积为0或空，无法进行校验");
                 result.setData(false);
             }
 

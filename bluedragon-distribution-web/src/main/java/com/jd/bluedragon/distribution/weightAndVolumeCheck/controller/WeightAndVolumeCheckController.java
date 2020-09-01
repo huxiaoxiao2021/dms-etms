@@ -61,11 +61,6 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
     @Autowired
     private WeightAndVolumeCheckService weightAndVolumeCheckService;
 
-    @Autowired
-    @Qualifier("weightAndVolumeCheckHandleProducer")
-    private DefaultJMQProducer weightAndVolumeCheckHandleProducer;
-
-
     /**
      * 返回主页面
      * @return
@@ -195,22 +190,8 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
             return result;
         }
         if(result.getCode() == InvokeResult.RESULT_SUCCESS_CODE){
-            // 上传成功后，发送MQ消息，进行下一步操作
-            WeightAndVolumeCheckHandleMessage weightAndVolumeCheckHandleMessage = new WeightAndVolumeCheckHandleMessage();
-            weightAndVolumeCheckHandleMessage.setOpNode(WeightAndVolumeCheckHandleMessage.UPLOAD_IMG);
-            if(WaybillUtil.isPackageCode(packageCode)){
-                weightAndVolumeCheckHandleMessage.setPackageCode(packageCode);
-                weightAndVolumeCheckHandleMessage.setWaybillCode(WaybillUtil.getWaybillCodeByPackCode(packageCode));
-            }
-            if(WaybillUtil.isWaybillCode(packageCode)){
-                weightAndVolumeCheckHandleMessage.setWaybillCode(packageCode);
-            }
-            weightAndVolumeCheckHandleMessage.setSiteCode(siteCode);
-            try {
-                weightAndVolumeCheckHandleProducer.send(packageCode, JSON.toJSONString(weightAndVolumeCheckHandleMessage));
-            } catch (JMQException e) {
-                log.warn("uploadExcessPicture weightAndVolumeCheckHandleProducer send exception {}", e.getMessage(), e);
-            }
+            // 上传成功后，更新图片，发送MQ消息，进行下一步操作
+            weightAndVolumeCheckService.updateImgAndSendHandleMq(packageCode, siteCode);
             /*//上传成功后给FXM发超标消息并更新es数据
             weightAndVolumeCheckService.sendMqAndUpdate(packageCode,siteCode);*/
         }
