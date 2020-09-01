@@ -18,6 +18,11 @@ public class PackBoxResponse implements Serializable {
     /** 包裹号 */
     private String packageCode;
 
+    /**
+     * 箱内包裹总数
+     */
+    private int packageTotal;
+
     /** 创建站点编号 */
     private Integer createSiteCode;
 
@@ -67,6 +72,14 @@ public class PackBoxResponse implements Serializable {
 
     public void setPackageCode(String packageCode) {
         this.packageCode = packageCode;
+    }
+
+    public int getPackageTotal() {
+        return packageTotal;
+    }
+
+    public void setPackageTotal(int packageTotal) {
+        this.packageTotal = packageTotal;
     }
 
     public Integer getCreateSiteCode() {
