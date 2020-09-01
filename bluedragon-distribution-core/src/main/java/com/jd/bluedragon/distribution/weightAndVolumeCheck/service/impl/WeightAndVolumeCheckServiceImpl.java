@@ -1541,6 +1541,44 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      * @author fanggang7
      * @time 2020-08-26 15:17:53 周三
      */
+    private WeightVolumeCollectDto getUploadImgRecord(String packageCode, Integer siteCode){
+        //获取图片链接
+        InvokeResult<String> result = searchExcessPicture(packageCode,siteCode);
+        if(result == null || result.getCode() != InvokeResult.RESULT_SUCCESS_CODE
+                || StringUtils.isEmpty(result.getData())){
+            log.warn("运单【{}】站点【{}】的超标图片为空",packageCode,siteCode);
+            return null;
+        }
+
+        WeightVolumeCollectDto weightVolumeCollectDto;
+        try {
+            WeightVolumeQueryCondition condition = new WeightVolumeQueryCondition();
+            condition.setReviewSiteCode(siteCode);
+            condition.setIsExcess(1);
+            condition.setIsHasPicture(1);
+            condition.setWaybillCode(WaybillUtil.getWaybillCode(packageCode));
+            BaseEntity<List<WeightVolumeCollectDto>> baseEntity = reportExternalService.getByParamForWeightVolume(condition);
+            if(baseEntity == null || CollectionUtils.isEmpty(baseEntity.getData())
+                    || baseEntity.getData().get(0) == null){
+                log.warn("通过运单【{}】站点【{}】查询超标数据为空",packageCode,siteCode);
+                return null;
+            }
+            weightVolumeCollectDto = baseEntity.getData().get(0);
+        }catch (Exception e){
+            log.warn("通过运单【{}】站点【{}】查询超标数据异常",packageCode,siteCode,e);
+            return null;
+        }
+        return weightVolumeCollectDto;
+    }
+
+    /**
+     * 更新抽检记录的图片
+     * @param packageCode 运单或包裹号
+     * @param siteCode 站点
+     * @return 更新后的抽检记录，可能为空
+     * @author fanggang7
+     * @time 2020-08-26 15:17:53 周三
+     */
     private WeightVolumeCollectDto updateCheckRecordImage(String packageCode, Integer siteCode){
         //获取图片链接
         InvokeResult<String> result = searchExcessPicture(packageCode,siteCode);
@@ -1600,7 +1638,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         // 上传图片环节
         if(weightAndVolumeCheckHandleMessage.getOpNode() == WeightAndVolumeCheckHandleMessage.UPLOAD_IMG){
             // 1.1 检查运单状态，如果运单状态为未发货，则仅更新图片URL，不下发
-            WeightVolumeCollectDto weightVolumeCollectDto = this.updateCheckRecordImage(weightAndVolumeCheckHandleMessage.getWaybillCode(), weightAndVolumeCheckHandleMessage.getSiteCode());
+            WeightVolumeCollectDto weightVolumeCollectDto = this.getUploadImgRecord(weightAndVolumeCheckHandleMessage.getWaybillCode(), weightAndVolumeCheckHandleMessage.getSiteCode());
             // 1.2 运单状态为已发货，则下发到FXM
             if(weightVolumeCollectDto != null){
                 boolean packageSendStatus = this.getWaybillSendStatus(weightAndVolumeCheckHandleMessage, weightVolumeCollectDto);
