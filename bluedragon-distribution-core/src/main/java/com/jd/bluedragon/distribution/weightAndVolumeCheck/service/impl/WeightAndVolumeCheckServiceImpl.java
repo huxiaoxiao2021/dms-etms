@@ -8,6 +8,8 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.DmsBaseDictService;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
@@ -183,6 +185,9 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     @Autowired
     @Qualifier("jimdbCacheService")
     private CacheService jimdbCacheService;
+
+    @Autowired
+    private SendDetailService sendDetailService;
 
     /**
      * 不允许第二个分拣中心称重的返回码
@@ -632,10 +637,10 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             return result;
         }
 
-        // 查看是否为第一个抽检的分拣中心，如果不是，则提示不允许抽检，提示"此单已操作过抽检，请勿重复操作"
-        InvokeResult<Boolean> firstSiteCheckResult = this.isFirstSiteCheck(packWeightVO);
-        if(!firstSiteCheckResult.getData()){
-            result.customMessage(this.NOT_ALLOW_SECOND_SITE_CHECK_CODE, firstSiteCheckResult.getMessage());
+        // 校验是否能操作抽检
+        InvokeResult<Boolean> canDealSportCheckResult = this.canDealSportCheck(packWeightVO);
+        if(!canDealSportCheckResult.getData()){
+            result.customMessage(this.NOT_ALLOW_SECOND_SITE_CHECK_CODE, canDealSportCheckResult.getMessage());
             return result;
         }
 
@@ -803,6 +808,39 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     }
 
     /**
+     * 校验是否能进行称重抽检
+     * @param packWeightVO 请求参数
+     * @return InvokeResult
+     * @author fanggang7
+     * @time 2020-08-24 19:44:29 周一
+     */
+    private InvokeResult<Boolean> canDealSportCheck(PackWeightVO packWeightVO){
+        InvokeResult<Boolean> result = new InvokeResult<>();
+        result.setData(true);
+        // 校验发货状态
+        String waybillCode = WaybillUtil.getWaybillCode(packWeightVO.getCodeStr());
+        String packageCode = null;
+        if(WaybillUtil.isPackageCode(packWeightVO.getCodeStr())){
+            packageCode = packWeightVO.getCodeStr();
+        }
+        List<SendDetail> sendDetailRecords = sendDetailService.findByWaybillCodeOrPackageCode(packWeightVO.getOperatorSiteCode(), waybillCode, packageCode);
+        if(CollectionUtils.isNotEmpty(sendDetailRecords)){
+            result.setData(false);
+            result.customMessage(this.NOT_ALLOW_SECOND_SITE_CHECK_CODE, "此单已操作过抽检，请勿重复操作");
+            return result;
+        }
+
+        // 查看是否为第一个抽检的分拣中心，如果不是，则提示不允许抽检，提示"此单已操作过抽检，请勿重复操作"
+        InvokeResult<Boolean> firstSiteCheckResult = this.isFirstSiteCheck(packWeightVO);
+        if(!firstSiteCheckResult.getData()){
+            result.setData(false);
+            result.customMessage(this.NOT_ALLOW_SECOND_SITE_CHECK_CODE, firstSiteCheckResult.getMessage());
+            return result;
+        }
+        return result;
+    }
+
+    /**
      * 校验是否为第一个操作称重抽检的分拣中心
      * @param packWeightVO 请求参数
      * @return InvokeResult
@@ -827,13 +865,14 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             return result;
         }
         WeightVolumeCollectDto weightVolumeCollectDtoExist = weightVolumeCollectDtoInvokeResult.getData();
-        log.info("WeightAndVolumeCheckServiceImpl isFirstSiteCheck: {}", JSON.toJSONString(weightVolumeCollectDtoExist));
         if(weightVolumeCollectDtoExist != null){
+            // 校验是否为第一个抽检的单位
             if (!Objects.equals(weightVolumeCollectDtoExist.getReviewSiteCode(), packWeightVO.getOperatorSiteCode())) {
                 result.setData(false);
                 result.customMessage(this.NOT_ALLOW_SECOND_SITE_CHECK_CODE, "此单已操作过抽检，请勿重复操作");
                 return result;
             }
+            // 校验发货状态
             if (Objects.equals(weightVolumeCollectDtoExist.getReviewSiteCode(), packWeightVO.getOperatorSiteCode())) {
                 boolean waybillSendStatusFlag = this.getWaybillSendStatus(weightVolumeCollectDtoExist.getWaybillCode(), weightVolumeCollectDtoExist);
                 if(waybillSendStatusFlag){
