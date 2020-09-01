@@ -14,12 +14,15 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.BoxPackResponse;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.express.domain.ExpressBoxDetail;
 import com.jd.bluedragon.distribution.express.domain.ExpressBoxDetailsResponse;
 import com.jd.bluedragon.distribution.express.domain.ExpressPackageDetailsResponse;
 import com.jd.bluedragon.distribution.rest.box.BoxPackResource;
 import com.jd.bluedragon.distribution.rest.express.ExpressCollectionResource;
 import com.jd.bluedragon.distribution.rest.send.DeliveryResource;
+import com.jd.bluedragon.distribution.rest.waybill.WaybillInterceptTipsResource;
 import com.jd.bluedragon.distribution.rest.waybill.WaybillResource;
 import com.jd.bluedragon.distribution.send.domain.SendThreeDetail;
 import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
@@ -56,6 +59,9 @@ public class SearchGateWayServiceImpl implements SearchGateWayService {
 
     @Autowired
     WaybillResource waybillResource;
+
+    @Autowired
+    WaybillInterceptTipsResource waybillInterceptTipsResource;
 
     /**
      * 根据运单号或包裹号查询箱号包裹信息
@@ -294,6 +300,11 @@ public class SearchGateWayServiceImpl implements SearchGateWayService {
         return res;
     }
 
+    /**
+     * 上传包裹称重信息
+     * @param request
+     * @return
+     */
     @Override
     @JProfiler(jKey = "DMSWEB.SearchGateWayServiceImpl.savePackageWeight",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<Boolean> savePackageWeight(PackWeightVORequest request){
@@ -324,6 +335,37 @@ public class SearchGateWayServiceImpl implements SearchGateWayService {
         }else {
             res.toFail(result.getMessage());
             res.setData(false);
+        }
+
+        return res;
+    }
+
+    /**
+     * 分拣机一键排障获取拦截信息
+     * @param request
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.SearchGateWayServiceImpl.getSortMachineInterceptTips",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<List<String>> getSortMachineInterceptTips(PackBoxRequest request){
+        JdCResponse<List<String>> res =new JdCResponse<>();
+        res.toSucceed();
+
+        JdCResponse<Void> checkRes=checkPackBoxRequest(request);
+        if(!JdCResponse.CODE_SUCCESS.equals(checkRes.getCode())){
+            res.toFail(checkRes.getMessage());
+            return res;
+        }
+
+        PdaOperateRequest resourceRequest=new PdaOperateRequest();
+        resourceRequest.setPackageCode(request.getWaybillNoOrPackNo());
+        resourceRequest.setCreateSiteCode(request.getCreateSiteCode());
+
+        JdResult<List<String>> result=waybillInterceptTipsResource.getWaybillAndPack(resourceRequest);
+        if(JdResult.CODE_SUC.equals(result.getCode())){
+            res.setData(result.getData());
+        }else {
+            res.toFail(result.getMessage());
         }
 
         return res;

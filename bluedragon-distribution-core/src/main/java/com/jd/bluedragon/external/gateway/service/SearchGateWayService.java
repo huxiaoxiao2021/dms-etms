@@ -65,4 +65,11 @@ public interface SearchGateWayService {
      * @return
      */
     JdCResponse<Boolean> savePackageWeight(PackWeightVORequest request);
+
+    /**
+     * 分拣机一键排障获取拦截信息
+     * @param request
+     * @return
+     */
+    JdCResponse<List<String>> getSortMachineInterceptTips(PackBoxRequest request);
 }
