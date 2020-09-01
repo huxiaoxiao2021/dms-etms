@@ -152,12 +152,17 @@
     <jmq:consumer id="jmq.ednFahuoMsgMqConsumer" transport="jmq.uatDmsWeb.transport">
         <jmq:listener topic="${jmq.topic.ednFahuoMsgMqListener}" listener="ednFahuoMsgMqListener"/>
     </jmq:consumer>
-    <!--封车及解封车状态变化数据-->
-    <jmq:consumer id="jmq.unloadCarConsumer" transport="jmq.dmsWorker.transport">
-        <jmq:listener topic="${jmq.topic.unloadCar}" listener="unloadCarConsumer" />
-    </jmq:consumer>
+    <!--银行单号异步导出-->
     <jmq:consumer id="jmq.waybilCodeCheckExportLogConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.waybill.check.exportlog}" listener="waybilCodeCheckExportLogConsumer"/>
+    </jmq:consumer>
+    <!--封车及解封车状态变化数据-->
+    <jmq:consumer id="jmq.unloadCarConsumer" transport="jmq.uatDmsWeb.transport">
+        <jmq:listener topic="${jmq.topic.unloadCar}" listener="unloadCarConsumer" />
+    </jmq:consumer>
+    <!-- 称重抽检处理消息 -->
+    <jmq:consumer id="jmq.weightAndVolumeCheckHandleConsumer" transport="jmq.dmsWeb.transport">
+        <jmq:listener topic="${jmq.topic.weightAndVolumeCheck.handle}" listener="weightAndVolumeCheckHandleConsumer"/>
     </jmq:consumer>
 </beans>
 

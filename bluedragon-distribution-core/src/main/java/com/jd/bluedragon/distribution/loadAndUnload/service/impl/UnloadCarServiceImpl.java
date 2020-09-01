@@ -1,46 +1,59 @@
 package com.jd.bluedragon.distribution.loadAndUnload.service.impl;
 
-import com.jd.bluedragon.common.dto.unloadCar.*;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.unloadCar.HelperDto;
+import com.jd.bluedragon.common.dto.unloadCar.OperateTypeEnum;
+import com.jd.bluedragon.common.dto.unloadCar.TaskHelpersReq;
+import com.jd.bluedragon.common.dto.unloadCar.UnloadCarDetailScanResult;
+import com.jd.bluedragon.common.dto.unloadCar.UnloadCarScanRequest;
+import com.jd.bluedragon.common.dto.unloadCar.UnloadCarScanResult;
+import com.jd.bluedragon.common.dto.unloadCar.UnloadCarStatusEnum;
+import com.jd.bluedragon.common.dto.unloadCar.UnloadCarTaskDto;
+import com.jd.bluedragon.common.dto.unloadCar.UnloadCarTaskReq;
+import com.jd.bluedragon.common.dto.unloadCar.UnloadUserTypeEnum;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BoardCommonManager;
 import com.jd.bluedragon.core.base.BoardCommonManagerImpl;
+import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.alliance.service.AllianceBusiDeliveryDetailService;
 import com.jd.bluedragon.distribution.api.request.BoardCommonRequest;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.loadAndUnload.*;
+import com.jd.bluedragon.distribution.loadAndUnload.TmsSealCar;
+import com.jd.bluedragon.distribution.loadAndUnload.UnloadCar;
+import com.jd.bluedragon.distribution.loadAndUnload.UnloadCarDistribution;
+import com.jd.bluedragon.distribution.loadAndUnload.UnloadCarTask;
+import com.jd.bluedragon.distribution.loadAndUnload.UnloadCarTransBoard;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDao;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDistributionDao;
-import com.jd.bluedragon.distribution.loadAndUnload.domain.*;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarTransBoardDao;
+import com.jd.bluedragon.distribution.loadAndUnload.domain.DistributeTaskRequest;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
 import com.jd.bluedragon.distribution.loadAndUnload.service.UnloadCarService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
+import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
+import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.unloadCar.domain.UnloadCarCondition;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.SealCarDto;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import org.apache.avro.data.Json;
-import org.apache.commons.collections.CollectionUtils;
-import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
-import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.bluedragon.distribution.task.service.TaskService;
-import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.jim.cli.Cluster;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.transboard.api.dto.AddBoardBox;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
 import com.jd.transboard.api.enums.ResponseEnum;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +65,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 
@@ -800,31 +819,39 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     }
 
     @Override
-    public List<UnloadCarTask> queryByCondition(UnloadCarCondition condition) {
+    public PagerResult<UnloadCarTask> queryByCondition(UnloadCarCondition condition) {
 
+        PagerResult<UnloadCarTask> result = new PagerResult<UnloadCarTask>();
         List<UnloadCarTask> unloadCarTasks = new ArrayList<>();
-
-        List<Integer> status = new ArrayList<>();
-        //查询卸车任务
-        if (condition.getDistributeType().equals(UNLOAD_CAR_UN_DISTRIBUTE)) {
-            status.add(UnloadCarStatusEnum.UNLOAD_CAR_UN_DISTRIBUTE.getType());
-        } else if (condition.getDistributeType().equals(UNLOAD_CAR_DISTRIBUTE)) {
-            status.add(UnloadCarStatusEnum.UNLOAD_CAR_UN_START.getType());
-            status.add(UnloadCarStatusEnum.UNLOAD_CAR_STARTED.getType());
-        } else if (condition.getDistributeType().equals(UNLOAD_CAR_ALL)) {
-            status.add(UnloadCarStatusEnum.UNLOAD_CAR_UN_DISTRIBUTE.getType());
-            status.add(UnloadCarStatusEnum.UNLOAD_CAR_UN_START.getType());
-            status.add(UnloadCarStatusEnum.UNLOAD_CAR_STARTED.getType());
+        int total = 0;
+        try {
+            List<Integer> status = new ArrayList<>();
+            //查询卸车任务
+            if (condition.getDistributeType().equals(UNLOAD_CAR_UN_DISTRIBUTE)) {
+                status.add(UnloadCarStatusEnum.UNLOAD_CAR_UN_DISTRIBUTE.getType());
+            } else if (condition.getDistributeType().equals(UNLOAD_CAR_DISTRIBUTE)) {
+                status.add(UnloadCarStatusEnum.UNLOAD_CAR_UN_START.getType());
+                status.add(UnloadCarStatusEnum.UNLOAD_CAR_STARTED.getType());
+            } else if (condition.getDistributeType().equals(UNLOAD_CAR_ALL)) {
+                status.add(UnloadCarStatusEnum.UNLOAD_CAR_UN_DISTRIBUTE.getType());
+                status.add(UnloadCarStatusEnum.UNLOAD_CAR_UN_START.getType());
+                status.add(UnloadCarStatusEnum.UNLOAD_CAR_STARTED.getType());
+            }
+            condition.setStatus(status);
+            total = unloadCarDao.queryCountByCondition(condition);
+            unloadCarTasks = unloadCarDao.queryByCondition(condition);
+            for (UnloadCarTask unloadCarTask : unloadCarTasks) {
+                String sealCarCode = unloadCarTask.getSealCarCode();
+                //查询卸车任务的协助人
+                List<String> helpers = unloadCarDistributionDao.selectHelperBySealCarCode(sealCarCode);
+                unloadCarTask.setHelperErps(StringUtils.strip(helpers.toString(),"[]"));
+            }
+        }catch (Exception e){
+            logger.error("分页查询卸车任务异常,查询条件【{}】",e,JsonHelper.toJson(condition));
         }
-        condition.setStatus(status);
-        unloadCarTasks = unloadCarDao.queryByCondition(condition);
-        for (UnloadCarTask unloadCarTask : unloadCarTasks) {
-            String sealCarCode = unloadCarTask.getSealCarCode();
-            //查询卸车任务的协助人
-            List<String> helpers = unloadCarDistributionDao.selectHelperBySealCarCode(sealCarCode);
-            unloadCarTask.setHelperErps(StringUtils.strip(helpers.toString(),"[]"));
-        }
-        return unloadCarTasks;
+        result.setRows(unloadCarTasks);
+        result.setTotal(total);
+        return result;
     }
 
     @Override

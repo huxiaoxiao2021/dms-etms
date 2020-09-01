@@ -1,12 +1,9 @@
 package com.jd.bluedragon.distribution.UnloadCar;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.inventory.controller.inventoryTaskController;
-import com.jd.bluedragon.distribution.loadAndUnload.UnloadCar;
 import com.jd.bluedragon.distribution.loadAndUnload.UnloadCarTask;
 import com.jd.bluedragon.distribution.loadAndUnload.domain.DistributeTaskRequest;
 import com.jd.bluedragon.distribution.loadAndUnload.service.UnloadCarService;
@@ -26,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.ws.rs.QueryParam;
-import java.util.List;
 
 /**
  * @author lijie
@@ -56,15 +52,7 @@ public class UnloadCarTaskController extends DmsBaseController {
     @Authorization(Constants.DMS_WEB_UNLOAD_CAR_TASK_R)
     public PagerResult<UnloadCarTask> listData(@RequestBody UnloadCarCondition condition) {
 
-        PagerResult<UnloadCarTask> result = new PagerResult<>();
-        try {
-            List<UnloadCarTask> unloadCarTasks = unloadCarService.queryByCondition(condition);
-            result.setRows(unloadCarTasks);
-            result.setTotal(unloadCarTasks.size());
-        } catch (Exception e) {
-            log.error("查询卸车任务异常", e);
-        }
-        return result;
+        return unloadCarService.queryByCondition(condition);
     }
 
     @RequestMapping("/distributeTask")

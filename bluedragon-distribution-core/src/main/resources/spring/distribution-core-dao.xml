@@ -635,7 +635,8 @@
           
     <bean id="dmsScheduleInfoDao" parent="businessBaseDao"
           class="com.jd.bluedragon.distribution.schedule.dao.impl.DmsScheduleInfoDaoImpl" />
+
     <bean id="businessReturnAdressDao" parent="businessBaseDao"
-          class="com.jd.bluedragon.distribution.business.dao.impl.BusinessReturnAdressDaoImpl" />                    
+          class="com.jd.bluedragon.distribution.business.dao.impl.BusinessReturnAdressDaoImpl" />
     <!--################################## bd_dms_business 相关DAO End ############################################ -->
 </beans>

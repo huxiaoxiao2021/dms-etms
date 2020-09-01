@@ -465,4 +465,9 @@
     <bean id="tagInOutProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.tag.inOut}"/>
     </bean>
+
+    <!-- 称重抽检处理消息 -->
+    <bean id="weightAndVolumeCheckHandleProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.weightAndVolumeCheck.handle}"/>
+    </bean>
 </beans>
