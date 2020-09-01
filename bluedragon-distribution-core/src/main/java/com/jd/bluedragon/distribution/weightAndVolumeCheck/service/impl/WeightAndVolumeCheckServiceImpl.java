@@ -851,7 +851,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         InvokeResult<Boolean> result = new InvokeResult<>();
         result.setData(true);
         WeightVolumeQueryCondition condition = new WeightVolumeQueryCondition();
-        if(!WaybillUtil.isWaybillCode(packWeightVO.getCodeStr())){
+        if(WaybillUtil.isWaybillCode(packWeightVO.getCodeStr())){
             condition.setWaybillCode(WaybillUtil.getWaybillCode(packWeightVO.getCodeStr()));
         }
         if(WaybillUtil.isPackageCode(packWeightVO.getCodeStr())){
