@@ -7,6 +7,9 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +19,7 @@ import com.jd.etms.receive.api.saf.GrossReturnSaf;
 
 @Service("receiveManager")
 public class ReceiveManagerImpl implements ReceiveManager{
-
+	private static final Logger log = LoggerFactory.getLogger(ReceiveManagerImpl.class);
 	/**
      * 接货中心换单接口
      */
@@ -83,6 +86,7 @@ public class ReceiveManagerImpl implements ReceiveManager{
                 targetResult.customMessage(InvokeResult.RESULT_NULL_CODE, InvokeResult.RESULT_NULL_MESSAGE);
             }
         }catch (Exception ex){
+        	log.error("获取新单号异常！queryDeliveryIdByOldDeliveryId1 入参：{}",oldWaybillCode, ex);
             targetResult.error(ex);
         }
         return targetResult;
