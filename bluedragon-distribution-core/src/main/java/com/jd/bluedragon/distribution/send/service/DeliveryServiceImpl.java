@@ -53,6 +53,7 @@ import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.distribution.material.service.DeliveryGoodsNoticeService;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.reverse.dao.ReverseSpareDao;
@@ -333,20 +334,17 @@ public class DeliveryServiceImpl implements DeliveryService {
     private ColdChainSendService coldChainSendService;
 
     @Autowired
-    @Qualifier("deliverGoodsNoticeSendMQ")
-    private DefaultJMQProducer deliverGoodsNoticeSendMQ;
-
-
-    @Autowired
     @Qualifier("redisClientCache")
     private Cluster redisClientCache;
 
     @Autowired
     private LogEngine logEngine;
 
-
     @Autowired
     private SendCodeService sendCodeService;
+
+    @Autowired
+    private DeliveryGoodsNoticeService deliveryGoodsNoticeService;
 
     /**
      * 自动过期时间 15分钟
@@ -1256,23 +1254,18 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param sdm
      */
      private void deliverGoodsNoticeMQ(SendM sdm) {
-         String businessId = sdm.getBoxCode();
-         try {
-             BoxMaterialRelationMQ mq = new BoxMaterialRelationMQ();
-             mq.setBoxCode(businessId);
-             mq.setBusinessType(BoxMaterialRelationEnum.SEND.getType());
-             mq.setOperatorName(sdm.getCreateUser());
-             mq.setOperatorCode(sdm.getCreateUserCode());
-             mq.setSiteCode(sdm.getCreateSiteCode().toString());
+         BoxMaterialRelationMQ mq = new BoxMaterialRelationMQ();
+         mq.setBoxCode(sdm.getBoxCode());
+         mq.setBusinessType(BoxMaterialRelationEnum.SEND.getType());
+         mq.setOperatorName(sdm.getCreateUser());
+         mq.setOperatorCode(sdm.getCreateUserCode());
+         mq.setSiteCode(sdm.getCreateSiteCode().toString());
 
-             mq.setReceiveSiteCode(sdm.getReceiveSiteCode().longValue());
-             BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(sdm.getReceiveSiteCode());
-             mq.setReceiveSiteName(null != siteOrgDto ? siteOrgDto.getSiteName() : StringUtils.EMPTY);
+         mq.setReceiveSiteCode(sdm.getReceiveSiteCode().longValue());
+         BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(sdm.getReceiveSiteCode());
+         mq.setReceiveSiteName(null != siteOrgDto ? siteOrgDto.getSiteName() : StringUtils.EMPTY);
 
-             deliverGoodsNoticeSendMQ.send(businessId, JsonHelper.toJson(mq));
-         } catch (JMQException e) {
-             this.log.error("发送发货业务通知MQ 异常{}",JsonHelper.toJson(sdm), e);
-         }
+         deliveryGoodsNoticeService.deliverySendGoodsMessage(mq);
      }
 
     /***

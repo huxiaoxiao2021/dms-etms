@@ -269,6 +269,15 @@
                   server="dmsjsf">
     </jsf:provider>
 
+    <!-- 装卸车 -->
+    <bean id="loadAndUnloadCarGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.LoadAndUnloadCarGatewayServiceImpl" />
+    <jsf:provider id="jsfLoadAndUnloadCarGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.LoadAndUnloadCarGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="loadAndUnloadCarGatewayService"
+                  server="dmsjsf">
+    </jsf:provider>
+
     <!-- 集包袋收空袋发空袋 -->
     <bean id="collectionBagOperationGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.CollectionBagOperationGatewayServiceImpl" />
     <jsf:provider id="jsfCollectionBagOperationGatewayService"

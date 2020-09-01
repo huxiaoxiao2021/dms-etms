@@ -1,13 +1,17 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.blockcar.request.CapacityInfoRequest;
 import com.jd.bluedragon.common.dto.blockcar.request.CheckTransportCodeRequest;
+import com.jd.bluedragon.common.dto.blockcar.request.PreSealMeasureInfoRequest;
 import com.jd.bluedragon.common.dto.blockcar.request.SealCarDto;
 import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
 import com.jd.bluedragon.common.dto.blockcar.request.SealCarRequest;
 import com.jd.bluedragon.common.dto.blockcar.request.SealCarTaskInfoRequest;
+import com.jd.bluedragon.common.dto.blockcar.response.PreSealVehicleMeasureDto;
 import com.jd.bluedragon.common.dto.blockcar.response.SealCarTaskInfoDto;
 import com.jd.bluedragon.common.dto.blockcar.response.TransportInfoDto;
 import com.jd.bluedragon.common.dto.seal.request.CancelSealRequest;
@@ -19,8 +23,11 @@ import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
 import com.jd.bluedragon.distribution.api.response.SealVehicleVolumeVerifyResponse;
 import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
+import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicleMeasureInfo;
 import com.jd.bluedragon.distribution.rest.seal.NewSealVehicleResource;
+import com.jd.bluedragon.distribution.rest.seal.PreSealVehicleResource;
 import com.jd.bluedragon.external.gateway.service.NewSealVehicleGatewayService;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -42,6 +49,10 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
     @Autowired
     @Qualifier("newSealVehicleResource")
     private NewSealVehicleResource newSealVehicleResource;
+
+    @Autowired
+    @Qualifier("preSealVehicleResource")
+    private PreSealVehicleResource preSealVehicleResource;
 
     @Override
     @BusinessLog(sourceSys = 1,bizType = 11011,operateType = 1101102)
@@ -147,7 +158,7 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
         RouteTypeResponse routeTypeResponse = newSealVehicleResource.getTransportCode(param);
         if(routeTypeResponse.getCode().equals(JdResponse.CODE_OK)){
             jdCResponse.toSucceed(routeTypeResponse.getMessage());
-        }else if(routeTypeResponse.getCode().equals(NewSealVehicleResponse.CODE_TRANSPORT_RANGE_CHECK)
+        }else if(routeTypeResponse.getCode().equals(NewSealVehicleResponse.CODE_UNSEAL_CAR_OUT_CHECK) || routeTypeResponse.getCode().equals(NewSealVehicleResponse.CODE_TRANSPORT_RANGE_CHECK)
                 || routeTypeResponse.getCode().equals(NewSealVehicleResponse.CODE_TRANSPORT_RANGE_ERROR)){
             jdCResponse.toConfirm(routeTypeResponse.getMessage());
         }else {
@@ -316,6 +327,123 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
         return jdCResponse;
     }
 
+    /**
+     * 传摆预封车
+     * @param sealCarRequest
+     * @return
+     */
+    @Override
+    @BusinessLog(sourceSys = 1,bizType = 1011,operateType = 1014)
+    @JProfiler(jKey = "DMSWEB.NewSealVehicleGatewayServiceImpl.preSealFerry",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdVerifyResponse<Void> preSealFerry(SealCarRequest sealCarRequest) {
+        JdVerifyResponse<Void> jdvResponse = new JdVerifyResponse();
+
+        NewSealVehicleRequest newSealVehicleRequest = new NewSealVehicleRequest();
+        List<SealCarDto> list = sealCarRequest.getSealCarDtoList();
+        newSealVehicleRequest.setData(convert(list));
+
+        NewSealVehicleResponse<Boolean> newSealVehicleResponse = preSealVehicleResource.preSealFerry(newSealVehicleRequest);
+        if(NewSealVehicleResponse.CODE_OK.equals(newSealVehicleResponse.getCode())){
+            jdvResponse.toSuccess(newSealVehicleResponse.getMessage());
+            return jdvResponse;
+        }
+
+        int confirmCode=30000;
+        if(newSealVehicleResponse.getCode()>confirmCode){
+            jdvResponse.toSuccess(newSealVehicleResponse.getMessage());
+            jdvResponse.addConfirmBox(newSealVehicleResponse.getCode(),newSealVehicleResponse.getMessage());
+        }else {
+            jdvResponse.toFail(newSealVehicleResponse.getMessage());
+        }
+
+        return jdvResponse;
+    }
+
+    /**
+     * 传摆预封车更新服务
+     * @param sealCarRequest
+     * @return
+     */
+    @Override
+    @BusinessLog(sourceSys = 1,bizType = 1011,operateType = 1015)
+    @JProfiler(jKey = "DMSWEB.NewSealVehicleGatewayServiceImpl.updatePreSealFerry",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse updatePreSealFerry(SealCarRequest sealCarRequest) {
+        JdCResponse jdCResponse = new JdCResponse();
+
+        NewSealVehicleRequest newSealVehicleRequest = new NewSealVehicleRequest();
+        List<SealCarDto> list = sealCarRequest.getSealCarDtoList();
+        newSealVehicleRequest.setData(convert(list));
+
+        NewSealVehicleResponse<Boolean> newSealVehicleResponse = preSealVehicleResource.updatePreSealFerry(newSealVehicleRequest);
+        if(NewSealVehicleResponse.CODE_OK.equals(newSealVehicleResponse.getCode())){
+            jdCResponse.toSucceed(newSealVehicleResponse.getMessage());
+            return jdCResponse;
+        }
+
+        jdCResponse.setCode(newSealVehicleResponse.getCode());
+        jdCResponse.setMessage(newSealVehicleResponse.getMessage());
+
+        return jdCResponse;
+    }
+
+    /**
+     * 根据运力编码获取车辆信息（车牌、重量体积）
+     * @param transportCode
+     * @return
+     */
+    @Override
+    @BusinessLog(sourceSys = 1,bizType = 1011,operateType = 1016)
+    @JProfiler(jKey = "DMSWEB.NewSealVehicleGatewayServiceImpl.getVehicleNumBySimpleCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<PreSealVehicleMeasureDto> getVehicleNumBySimpleCode(String transportCode){
+        JdCResponse<PreSealVehicleMeasureDto> response=new JdCResponse<PreSealVehicleMeasureDto>();
+
+        NewSealVehicleResponse<PreSealVehicleMeasureInfo> res=preSealVehicleResource.getVehicleNumBySimpleCode(transportCode);
+        if(res.getCode().equals(NewSealVehicleResponse.CODE_OK)){
+            response.setCode(JdCResponse.CODE_SUCCESS);
+            response.setMessage(res.getMessage());
+            response.setData(JSON.parseObject(JSON.toJSONString(res.getData()), PreSealVehicleMeasureDto.class));
+        }else {
+            response.setCode(res.getCode());
+            response.setMessage(res.getMessage());
+        }
+
+        return response;
+    }
+
+    /**
+     * 更新重量体积
+     * @param request
+     * @return
+     */
+    @Override
+    @BusinessLog(sourceSys = 1,bizType = 1011,operateType = 1017)
+    @JProfiler(jKey = "DMSWEB.NewSealVehicleGatewayServiceImpl.updatePreSealVehicleMeasureInfo",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse updatePreSealVehicleMeasureInfo(PreSealMeasureInfoRequest request) {
+        JdCResponse jdCResponse = new JdCResponse();
+        if (request.getTransportCode() == null || request.getVehicleNumber() == null) {
+            jdCResponse.setCode(JdCResponse.CODE_ERROR);
+            jdCResponse.setMessage("运力编码和车牌号不能为空！");
+            return jdCResponse;
+        }
+
+        if (request.getVolume() == null || ! NumberHelper.gt0(request.getVolume())) {
+            jdCResponse.setCode(JdCResponse.CODE_ERROR);
+            jdCResponse.setMessage("体积不能为空且必须大于0！");
+            return jdCResponse;
+        }
+
+        com.jd.bluedragon.distribution.newseal.domain.PreSealMeasureInfoRequest resourceRequest =JSON.parseObject(JSON.toJSONString(request), com.jd.bluedragon.distribution.newseal.domain.PreSealMeasureInfoRequest.class);
+        NewSealVehicleResponse<Boolean> newSealVehicleResponse = preSealVehicleResource.updatePreSealVehicleMeasureInfo(resourceRequest);
+        if(newSealVehicleResponse.getCode().equals(NewSealVehicleResponse.CODE_OK)){
+            jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
+        }else {
+            jdCResponse.setCode(newSealVehicleResponse.getCode());
+        }
+        jdCResponse.setMessage(newSealVehicleResponse.getMessage());
+
+        return jdCResponse;
+    }
+
     //参数转化
     private List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> convert(List<SealCarDto> list) {
         List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCarDtos = new ArrayList<>();
@@ -325,6 +453,8 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
             param.setSealCarType(sc.getSealCarType());
             param.setItemSimpleCode(sc.getItemSimpleCode());
             param.setTransportCode(sc.getTransportCode());
+            param.setTransWay(sc.getTransWay());
+            param.setTransWayName(sc.getTransWayName());
             param.setBatchCodes(sc.getBatchCodes());
             param.setVehicleNumber(sc.getVehicleNumber());
             param.setSealCodes(sc.getSealCodes());

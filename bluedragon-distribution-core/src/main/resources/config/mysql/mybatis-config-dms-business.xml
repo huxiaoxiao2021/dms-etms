@@ -20,5 +20,6 @@
         <mapper resource="mappers/mysql/material/MaterialSendMapper.xml" />
         <mapper resource="mappers/mysql/material/MaterialSendFlowMapper.xml" />
         <mapper resource="mappers/mysql/schedule/DmsScheduleInfoMapper.xml" />
+        <mapper resource="mappers/mysql/business/BusinessReturnAdressMapper.xml" />
     </mappers>
 </configuration>

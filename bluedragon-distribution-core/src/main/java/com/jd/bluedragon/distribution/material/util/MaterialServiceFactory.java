@@ -19,6 +19,7 @@ public class MaterialServiceFactory {
         WARM_BOX_SEND((byte)1, "保温箱发货"),
 
         TYPE_BATCH_SEND((byte)2, "物资按类型批量发货"),
+        MATERIAL_TAG_SEND((byte)3,"物资按标签发货"),
 
         COLLECTION_BAG_SEND((byte)4, "集包袋发货");
 
@@ -52,6 +53,10 @@ public class MaterialServiceFactory {
     @Qualifier("collectionBagOperationService")
     private MaterialOperationService collectionBagOperationService;
 
+    @Autowired
+    @Qualifier("recyclingBoxInOutOperationService")
+    private MaterialOperationService recyclingBoxInOutOperationService;
+
     public MaterialOperationService findMaterialOperationService(Byte sendBusinessType){
         if (null == sendBusinessType) {
             throw new IllegalArgumentException("缺少必要参数!");
@@ -62,6 +67,9 @@ public class MaterialServiceFactory {
         }
         else if (MaterialSendModeEnum.TYPE_BATCH_SEND.code == sendBusinessType) {
             return materialBatchSendService;
+        }
+        else if (MaterialSendModeEnum.MATERIAL_TAG_SEND.code == sendBusinessType) {
+            return recyclingBoxInOutOperationService;
         }
         else if (MaterialSendModeEnum.COLLECTION_BAG_SEND.code == sendBusinessType) {
             return collectionBagOperationService;

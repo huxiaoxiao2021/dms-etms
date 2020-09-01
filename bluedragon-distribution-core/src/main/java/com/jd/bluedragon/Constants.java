@@ -623,6 +623,7 @@ public class Constants {
     public static final String DMS_WEB_SORTING_WEIGHTANDVOLUMECHECKOFB2B_R="DMS-WEB-SORTING-WEIGHTANDVOLUMECHECKOFB2B-R"; //B网转运重量抽检
     public static final String DMS_WEB_SORTING_REVIEWWEIGHTSPOTCHECK_R="DMS-WEB-SORTING-REVIEWWEIGHTSPOTCHECK-R"; //复重抽检任务导入
     public static final String DMS_WEB_SORTING_REVIEWWEIGHTSPOTCHECK_SPECIAL_R="DMS-WEB-SORTING-REVIEWWEIGHTSPOTCHECK-SPECIAL-R"; //复重抽检任务的导入功能（单独申请权限）
+    public static final String DMS_WEB_UNLOAD_CAR_TASK_R="DMS_WEB_UNLOAD_CAR_TASK_R"; //卸车任务分配
     public static final String DMS_WEB_SORTING_INVENTORYTASK_R="DMS_WEB_SORTING_INVENTORYTASK_R"; //转运清场任务
     public static final String DMS_WEB_SORTING_INVENTORYEXCEPTION_R="DMS_WEB_SORTING_INVENTORYEXCEPTION_R"; //转运清场异常
     public static final String DMS_WEB_SORTING_CROSSBOX_R ="DMS-WEB-SORTING-CROSSBOX-R"; //跨箱号中转
@@ -688,7 +689,7 @@ public class Constants {
     public static final String DMS_WEB_COLLECT_REPORT="DMS_WEB_COLLECT_REPORT";  //集货报表
     public static final String DMS_WEB_RECYCLE_MATERIAL_SCAN_R = "DMS_WEB_RECYCLE_MATERIAL_SCAN_R"; //循环物资扫描查询
     public static final String DMS_WEB_EDN_PICKING_R = "DMS_WEB_EDN_PICKING_R"; //企配仓揽收
-
+    public static final String DMS_BUSINESS_RETURN_ADRESS_R = "DMS_BUSINESS_RETURN_ADRESS_R"; //商家二次换单地址查询
     /********************************************* 研发UIM权限资源码相关start ***********************************************/
     public static final String DMS_WEB_DEVELOP_REDIS_R ="DMS_WEB_DEVELOP_REDIS_R"; //分拣缓存查询
     public static final String DMS_WEB_DEVELOP_TASK_R ="DMS_WEB_DEVELOP_TASK_R"; //分拣任务监控
@@ -1116,6 +1117,11 @@ public class Constants {
      * businessType缓存前缀
      * */
     public static final String BUSINESS_TYPE_PREFIX = "BUSINESS-TYPE";
+
+    /**
+     * 运单路由字段使用的分隔符
+     */
+    public static final String WAYBILL_ROUTER_SPLIT = "\\|";
 
     /**
      * 特安送 增值服务编码

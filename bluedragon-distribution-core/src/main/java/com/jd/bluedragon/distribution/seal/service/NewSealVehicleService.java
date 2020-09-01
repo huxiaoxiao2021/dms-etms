@@ -19,6 +19,7 @@ public interface NewSealVehicleService {
     public static final String MESSAGE_SEAL_SUCCESS = "封车成功!";
     public static final String MESSAGE_CANCEL_SEAL_SUCCESS = "取消封车成功!";
     public static final String MESSAGE_UNSEAL_SUCCESS = "解封车成功!";
+    public static final String MESSAGE_ONE_CLICK_FERRY_SEAL_SUCCESS = "一键传摆封车成功!";
 
     /**
      * 封车
@@ -35,6 +36,10 @@ public interface NewSealVehicleService {
      */
     NewSealVehicleResponse doSealCarWithVehicleJob(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars);
 
+    /*
+    * 分拣工作台一键封车
+    * */
+    NewSealVehicleResponse doSealCarFromDmsWorkBench(List<SealCarDto> sealCarDtoList);
     /**
      * 取消封车
      * @param request
@@ -122,7 +127,7 @@ public interface NewSealVehicleService {
      * @param sealCars
      * @return
      */
-    public NewSealVehicleResponse offlineFerrySeal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars);
+    public NewSealVehicleResponse oneClickFerrySeal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars);
 
     /**
      * 根据任务简码查询任务信息
@@ -183,4 +188,9 @@ public interface NewSealVehicleService {
      */
     com.jd.tms.tfc.dto.CommonDto<TransWorkItemWsDto> getVehicleNumberOrItemCodeByParam(TransWorkItemWsDto transWorkItemWsDto) throws Exception;
 
-    }
+    /**
+     * 查询全部的未封车批次号
+     */
+    List<String> getUnSealSendCodeList(Integer createSiteCode, Integer receiveSiteCode, Integer hourRange);
+
+}

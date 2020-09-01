@@ -1,5 +1,7 @@
 package com.jd.bluedragon.dms.utils;
 
+import com.jd.etms.waybill.constant.WaybillCodePattern;
+import com.jd.etms.waybill.util.UniformValidateUtil;
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
 import org.apache.commons.lang.StringUtils;
 
@@ -16,7 +18,6 @@ import static com.jd.bluedragon.dms.utils.DmsConstants.*;
  * @date 2018年10月12日 18时:15分
  */
 public class BusinessUtil {
-
     /**
      * 是不是发货批次号
      *
@@ -1606,6 +1607,107 @@ public class BusinessUtil {
         }
         return false;
     }
+
+
+    /**
+     * 经济网需要拦截的运单范围
+     * 防止少拦截运单，采用反向抛出法判断，优先筛选不拦截类型运单
+     * @param waybillSign
+     * @return true 需要拦截判断
+     *          false 不需要拦截判断
+     */
+    public static boolean isEconomicNetValidateWeightVolume(String waybillCode,String waybillSign) {
+        //非经济网运单不拦截
+        if(!WaybillCodePattern.ENOCOMIC_WAYBILL_CODE.equals(
+                UniformValidateUtil.getSpecificWaybillCodePattern(waybillCode))){
+            return false;
+        }
+        //逆向不拦截
+        if (!BusinessUtil.isSignChar(waybillSign, 61, '0')) {
+            return false;
+        }
+        //不拦截 售后取件、合约返单等业务层面逆向单
+        if (!BusinessUtil.isSignChar(waybillSign, 15, '0')) {
+            return false;
+        }
+        return true;
+    }
+    /**
+     * 隐藏手机号：7位以上手机号返回前3位+^_^+后四位，否则返回原值
+     * @param phone 原手机号
+     * @return
+     */
+    public static String getHidePhone(String phone) {
+        return getHidePhone(phone,HIDE_SMILE);
+    }
+    /**
+     * 隐藏手机号：7位以上手机号返回前3位+hideStr+后四位，否则返回原值
+     * @param phone 原手机号
+     * @param hideStr 隐藏后替换字符串，传值为空时默认^_^
+     * @return
+     */
+    public static String getHidePhone(String phone,String hideStr) {
+        if(StringUtils.isNotBlank(phone)){
+        	String hidePlaceStr = hideStr;
+        	if(StringUtils.isBlank(hidePlaceStr)){
+        		hidePlaceStr = HIDE_SMILE;
+        	}
+            //去除号码中间的空白字符
+        	String hidePhone = phone.replaceAll("\\s*", "");
+            if(hidePhone.length() >= PHONE_LEAST_NUMBER ){
+                return hidePhone.substring(0,PHONE_FIRST_NUMBER) 
+                		+ hidePlaceStr
+                		+ hidePhone.substring(hidePhone.length() - PHONE_HIGHLIGHT_NUMBER);
+            }
+        }
+        return phone;
+    } 
+    /**
+     * 隐藏姓名：1位以上地址返回前1位+^_^，否则返回原值
+     * @param name 姓名
+     * @return
+     */
+    public static String getHideName(String name) {
+        if(StringUtils.isNotBlank(name)
+        		&& name.length() >= NAME_SHOW_LENGTH){
+            //保留前1位
+        	return name.substring(0,NAME_SHOW_LENGTH) + HIDE_SMILE;
+        }
+        return getHideStr(name,NAME_SHOW_LENGTH,HIDE_SMILE);
+    }
+    /**
+     * 隐藏地址：9位以上地址返回前9位+^_^，否则返回原值
+     * @param name 姓名
+     * @return
+     */
+    public static String getHideAddress(String address) {
+        if(StringUtils.isNotBlank(address)
+        		&& address.length() >= ADDRESS_SHOW_LENGTH){
+            //保留前9位
+        	return address.substring(0,ADDRESS_SHOW_LENGTH) + HIDE_SMILE;
+        }
+        return getHideStr(address,ADDRESS_SHOW_LENGTH,HIDE_SMILE);
+    }
+    /**
+     * 隐藏处理：显示前showLength位，后几位用hideStr替换，否则返回原值
+     * @param str 原字符串
+     * @param showLength 显示长度
+     * @param hideStr 隐藏后替换字符串，传值为空时默认^_^
+     * @return
+     */
+    public static String getHideStr(String str,int showLength,String hideStr) {
+        if(StringUtils.isNotBlank(str)
+        		&& showLength > 0
+        		&& str.length() >= showLength){
+        	String hidePlaceStr = hideStr;
+        	if(StringUtils.isBlank(hidePlaceStr)){
+        		hidePlaceStr = HIDE_SMILE;
+        	}
+            //保留前几位
+        	return str.substring(0,showLength) + hidePlaceStr;
+        }
+        return str;
+    }   
 
 
     /**

@@ -166,6 +166,7 @@ public class BusinessLogConstans {
 
         SEAL_SEAL(BizTypeEnum.SEAL,1011,"封车"),
         SEAL_FERRY_SEAL(BizTypeEnum.SEAL,1014,"传摆封车"),
+        ONE_CLICK_SEAL_FERRY_SEAL(BizTypeEnum.SEAL,1015,"一键传摆封车"),
         SEAL_OFFLINE_SEAL(BizTypeEnum.SEAL,101104,"离线封车"),
 
         DE_SEAL_DE_SEAL(BizTypeEnum.DE_SEAL,1012,"解封车"),

@@ -127,4 +127,19 @@ public class VosManagerImpl implements VosManager{
 		return commonDto;
 	}
 
+	/**
+	 * 获取封车信息
+	 */
+	@Override
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.VosManagerImpl.querySealCarInfoBySealCarCode",mState = {JProEnum.TP,JProEnum.FunctionError})
+	public CommonDto<SealCarDto> querySealCarInfoBySealCarCode(String sealCarCode) {
+		log.info("调用VOS获取封车信息接口,参数:{}" ,sealCarCode);
+		CommonDto<SealCarDto> commonDto = null;
+		try {
+			commonDto = vosQueryWS.querySealCarInfoBySealCarCode(sealCarCode);
+		} catch (Exception e) {
+			log.warn("调用VOS获取封车信息接口失败,参数:{},返回值：{}" ,sealCarCode, e);
+		}
+		return commonDto;
+	}
 }
