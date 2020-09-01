@@ -1,8 +1,5 @@
 package com.jd.bluedragon.distribution.jsf.service;
 
-import java.util.List;
-import java.util.Map;
-
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.domain.Rule;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
@@ -13,8 +10,13 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jsf.domain.BlockResponse;
 import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
 import com.jd.bluedragon.distribution.jsf.domain.MixedPackageConfigResponse;
+import com.jd.bluedragon.distribution.jsf.domain.MixedSite;
+import com.jd.bluedragon.distribution.jsf.domain.PrintQueryRequest;
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
+
+import java.util.List;
+import java.util.Map;
 
 public interface JsfSortingResourceService {
 	SortingJsfResponse check(SortingCheck sortingCheck);
@@ -120,4 +122,11 @@ public interface JsfSortingResourceService {
      * @return
      */
     JdResponse dealCancelWaybillByRequest(PdaOperateRequest pdaOperateRequest);
+
+    /**
+     * 查询面单上的集包地
+     * @param printQueryRequest
+     * @return
+     */
+    JdResult<MixedSite> queryMixedSiteCodeForPrint(PrintQueryRequest printQueryRequest);
 }
