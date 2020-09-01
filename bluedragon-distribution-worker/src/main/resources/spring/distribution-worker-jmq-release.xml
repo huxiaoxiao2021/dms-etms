@@ -266,7 +266,7 @@
         <jmq:listener topic="${jmq.topic.waybill.check.exportlog}" listener="waybilCodeCheckExportLogConsumer"/>
     </jmq:consumer>
     <!-- 称重抽检处理消息 -->
-    <jmq:consumer id="jmq.weightAndVolumeCheckHandleConsumer" transport="jmq.dmsWeb.transport">
+    <jmq:consumer id="jmq.weightAndVolumeCheckHandleConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.weightAndVolumeCheck.handle}" listener="weightAndVolumeCheckHandleConsumer"/>
     </jmq:consumer>
 </beans>

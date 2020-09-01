@@ -161,7 +161,7 @@
         <jmq:listener topic="${jmq.topic.unloadCar}" listener="unloadCarConsumer" />
     </jmq:consumer>
     <!-- 称重抽检处理消息 -->
-    <jmq:consumer id="jmq.weightAndVolumeCheckHandleConsumer" transport="jmq.dmsWeb.transport">
+    <jmq:consumer id="jmq.weightAndVolumeCheckHandleConsumer" transport="jmq.uatDmsWeb.transport">
         <jmq:listener topic="${jmq.topic.weightAndVolumeCheck.handle}" listener="weightAndVolumeCheckHandleConsumer"/>
     </jmq:consumer>
 </beans>
