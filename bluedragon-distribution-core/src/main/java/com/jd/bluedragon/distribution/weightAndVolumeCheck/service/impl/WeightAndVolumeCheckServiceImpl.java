@@ -859,17 +859,18 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             Double diffVolumeWeight = Math.abs(reviewVolumeWeight - billingVolume/volumeRate);
 
             boolean isExcess = false;
+            StringBuilder hitMessage = new StringBuilder();
             // 三边之和小于100cm 使用 校验标准A
             if (sumLWH.compareTo(new BigDecimal(firstSumLWH)) < 0){
                 if(isExcess(reviewVolumeWeight,diffVolumeWeight)){
                     isExcess = true;
+                    getStandardVal(reviewVolumeWeight).append("kg!");
                 }
-            }else if (isSumLWHExcess(sumLWH, diffVolumeWeight)) {
+            } else if (isSumLWHExcess(sumLWH, diffVolumeWeight, hitMessage)) {
                 isExcess = true;
             }
             if (isExcess) {
                 String baseMessage = "此次操作的体积重量为"+reviewVolumeWeight+"kg,计费的体积重量为"+billingVolume/volumeRate+"kg，经校验误差值"+diffVolumeWeight+"kg已超出规定";
-                StringBuilder hitMessage = getStandardVal(reviewVolumeWeight).append("kg!");
                 StringBuilder warnMessage = new StringBuilder().append(baseMessage).append(hitMessage);
                 result.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE,warnMessage.toString());
                 result.setData(false);
@@ -886,17 +887,18 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             double diffOfWeight = Math.abs(keeTwoDecimals(maxReviewWeight - maxBillingWeight));
 
             boolean isExcess = false;
+            StringBuilder hitMessage = new StringBuilder();
             // 体积为较大值，且 三边之和大于等于 100cm
             if (reviewVolumeWeight > reviewWeight && sumLWH.compareTo(new BigDecimal(firstSumLWH)) >= 0) {
-                if (isSumLWHExcess(sumLWH, diffOfWeight)) {
+                if (isSumLWHExcess(sumLWH, diffOfWeight, hitMessage)) {
                     isExcess = true;
                 }
             }else if(isExcess(maxReviewWeight,diffOfWeight)){
+                hitMessage = getStandardVal(reviewVolumeWeight).append("kg!");
                 isExcess = true;
             }
             if (isExcess) {
                 String baseMessage = "此次操作的泡重比为"+reviewVolumeWeight+"kg,计费的泡重比为"+billVolumeWeight+"kg，经校验误差值"+diffOfWeight+"kg已超出规定";
-                StringBuilder hitMessage = getStandardVal(reviewVolumeWeight).append("kg!");
                 StringBuilder warnMessage = new StringBuilder().append(baseMessage).append(hitMessage);
                 result.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE,warnMessage.toString());
                 result.setData(false);
@@ -916,11 +918,12 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      * 2. 120cm=<三边之和<200cm，泡重误差标准1.5kg（含）；
      * 3. 三边之和>200cm，泡重误差标准2kg（含）；
      *
-     * @param sumLWH 三边之和
+     * @param sumLWH     三边之和
      * @param diffWeight 误差值
-     * @return  超出标准：true
+     * @return 超出标准：true
      */
-    private boolean isSumLWHExcess(BigDecimal sumLWH, double diffWeight) {
+    private boolean isSumLWHExcess(BigDecimal sumLWH, double diffWeight, StringBuilder hitMessage) {
+
         BigDecimal diff = new BigDecimal(String.valueOf(diffWeight));
         // 三边之和 阈值
         BigDecimal sumLWH01 = new BigDecimal(firstSumLWH);
@@ -935,12 +938,22 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         if (sumLWH.compareTo(sumLWH01) < 0) {
             return false;
         } else if (sumLWH.compareTo(sumLWH01) >= 0 && sumLWH.compareTo(sumLWH02) < 0) {
-            return diff.compareTo(sumLWHStage01) > 0;
+            if (diff.compareTo(sumLWHStage01) > 0) {
+                hitMessage.append(sumLWHStage01).append("kg!");
+                return true;
+            }
         } else if (sumLWH.compareTo(sumLWH02) >= 0 && sumLWH.compareTo(sumLWH03) < 0) {
-            return diff.compareTo(sumLWHStage02) > 0;
+            if (diff.compareTo(sumLWHStage02) > 0) {
+                hitMessage.append(sumLWHStage02).append("kg!");
+                return true;
+            }
         } else {
-            return diff.compareTo(sumLWHStage03) > 0;
+            if (diff.compareTo(sumLWHStage03) > 0) {
+                hitMessage.append(sumLWHStage03).append("kg!");
+                return true;
+            }
         }
+        return false;
     }
 
     /**
