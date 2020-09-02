@@ -63,7 +63,7 @@ public class BusinessReturnAdressServiceImpl extends BaseService<BusinessReturnA
 		List<List<Object>> resList = new ArrayList<List<Object>>();
 		resList.add(EXCELL_HEADS);
 		businessReturnAdressCondition.setLimit(5000);
-		PagerResult<BusinessReturnAdress> result = this.businessReturnAdressDao.queryListByConditionWithPage(businessReturnAdressCondition);
+		PagerResult<BusinessReturnAdress> result = this.queryBusinessReturnAdressListByPagerCondition(businessReturnAdressCondition);
 		if(result != null 
 				&& result.getRows() != null){
 			int rowNum = 1;
