@@ -864,7 +864,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             if (sumLWH.compareTo(new BigDecimal(firstSumLWH)) < 0){
                 if(isExcess(reviewVolumeWeight,diffVolumeWeight)){
                     isExcess = true;
-                    getStandardVal(reviewVolumeWeight).append("kg!");
+                    hitMessage = getStandardVal(reviewVolumeWeight).append("kg!");
                 }
             } else if (isSumLWHExcess(sumLWH, diffVolumeWeight, hitMessage)) {
                 isExcess = true;
@@ -894,8 +894,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                     isExcess = true;
                 }
             }else if(isExcess(maxReviewWeight,diffOfWeight)){
-                hitMessage = getStandardVal(reviewVolumeWeight).append("kg!");
                 isExcess = true;
+                hitMessage = getStandardVal(reviewVolumeWeight).append("kg!");
             }
             if (isExcess) {
                 String baseMessage = "此次操作的泡重比为"+reviewVolumeWeight+"kg,计费的泡重比为"+billVolumeWeight+"kg，经校验误差值"+diffOfWeight+"kg已超出规定";
