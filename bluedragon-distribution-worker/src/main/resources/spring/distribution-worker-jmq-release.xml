@@ -258,12 +258,18 @@
     <jmq:consumer id="jmq.ednFahuoMsgMqConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.ednFahuoMsgMqListener}" listener="ednFahuoMsgMqListener"/>
     </jmq:consumer>
+
+    <!--分拣工作台一键封车任务-->
+    <jmq:consumer id="jmq.sealVehicleFromWorkbenchConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.dms.wb.seal.vehicle}" listener="sealVehicleFromWorkbenchConsumer"/>
+    </jmq:consumer>
+    <!--银行单号异步导出-->
+    <jmq:consumer id="jmq.waybilCodeCheckExportLogConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.waybill.check.exportlog}" listener="waybilCodeCheckExportLogConsumer"/>
+    </jmq:consumer>
     <!--封车及解封车状态变化数据-->
     <jmq:consumer id="jmq.unloadCarConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.unloadCar}" listener="unloadCarConsumer" />
-    </jmq:consumer>
-    <jmq:consumer id="jmq.waybilCodeCheckExportLogConsumer" transport="jmq.dmsWorker.transport">
-        <jmq:listener topic="${jmq.topic.waybill.check.exportlog}" listener="waybilCodeCheckExportLogConsumer"/>
     </jmq:consumer>
     <!-- 称重抽检处理消息 -->
     <jmq:consumer id="jmq.weightAndVolumeCheckHandleConsumer" transport="jmq.dmsWorker.transport">

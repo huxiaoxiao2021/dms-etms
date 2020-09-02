@@ -58,10 +58,6 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 	@Qualifier("baseService")
 	protected LoginService baseService;
 
-	@Autowired
-	@Qualifier("baseUserService")
-	protected LoginService baseUserService;
-
 	/**
 	 * 分拣客户端登录服务
 	 * @param request

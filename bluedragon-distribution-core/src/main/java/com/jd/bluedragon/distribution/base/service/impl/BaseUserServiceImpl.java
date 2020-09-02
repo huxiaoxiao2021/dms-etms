@@ -7,7 +7,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+/**
+ * @description:  新的登录逻辑调入口
+ * @author: lql
+ * @date: 2020/8/27 16:46
+ **/
 @Service("baseUserService")
+@Deprecated
 public class BaseUserServiceImpl extends AbstractClient{
 
     @Autowired

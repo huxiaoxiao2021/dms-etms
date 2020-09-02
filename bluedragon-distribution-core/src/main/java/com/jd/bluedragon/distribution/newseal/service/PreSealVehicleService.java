@@ -131,4 +131,23 @@ public interface PreSealVehicleService extends Service<PreSealVehicle> {
      *
      * */
     void notifyVosPreSealJob(PreSealVehicle preSealVehicle, int flag);
+
+
+    /*
+     * 根据运力编码获取预封车信息
+     * */
+    List<PreSealVehicle> getPreSealInfoByParams(String transportCode);
+
+    /*
+     * 根据运力编码和车牌信息获取预封车信息
+     * */
+    List<PreSealVehicle> getPreSealInfoByParams(String transportCode, String vehicleNumber);
+
+    /**
+     * 更新预封车记录为完成状态
+     * @param preSealVehicle
+     * @return
+     */
+    boolean completePreSealVehicleRecord(PreSealVehicle preSealVehicle);
+
 }

@@ -114,4 +114,17 @@ public class PreSealVehicleDaoImpl extends BaseDao<PreSealVehicle> implements Pr
         return sqlSession.update(this.nameSpace+".updatePreSealVehicleMeasureInfo", preSealVehicle);
     }
 
+    /*
+     * 根据运力编码获取预封车信息
+     * */
+    @Override
+    public List<PreSealVehicle> getPreSealInfoByParams(Map<String, Object> params) {
+        return sqlSession.selectList(this.nameSpace+".getPreSealInfoByParams", params);
+    }
+
+    @Override
+    public int completePreSealVehicleRecord(PreSealVehicle preSealVehicle) {
+        return sqlSession.update(this.nameSpace+".completePreSealVehicleRecord", preSealVehicle);
+
+    }
 }

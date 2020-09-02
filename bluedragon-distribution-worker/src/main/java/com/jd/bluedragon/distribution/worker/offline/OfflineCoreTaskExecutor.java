@@ -121,13 +121,13 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
     }
 
     /**
-     * 离线传摆封车
+     * 一键传摆封车
      * @param body
      * @return
      */
     private boolean offlineSealFerry(String body){
         boolean result = false;
-        NewSealVehicleResponse returnCommonDto = newsealVehicleService.offlineFerrySeal(convertSearCar(body));
+        NewSealVehicleResponse returnCommonDto = newsealVehicleService.oneClickFerrySeal(convertSearCar(body));
         if(returnCommonDto != null && NewSealVehicleResponse.CODE_OK.equals(returnCommonDto.getCode())){
             result = true;
         }
