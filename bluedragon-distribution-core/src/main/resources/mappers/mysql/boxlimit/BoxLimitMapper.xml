@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.boxlimit.dao.BoxLimitDao">
+
+	<resultMap id="BoxLimit" type="com.jd.bluedragon.distribution.boxlimit.domain.BoxLimit" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		id,barcode,barcode_type,
+		weight,volume,
+		length,width,height,
+		operate_type,create_site_code,
+		weight_user_code,weight_user_name,weight_time,
+		measure_user_code,measure_user_name,measure_time,
+		create_time,update_time,
+		is_delete
+	</sql>
+
+<!--TODO 完善SQL-->
+
+</mapper>
