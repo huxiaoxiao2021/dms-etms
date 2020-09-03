@@ -402,4 +402,43 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
         }
     }
 
+    /*
+     * 根据运力编码获取预封车信息
+     * */
+    @Override
+    public List<PreSealVehicle> getPreSealInfoByParams(String transportCode) {
+        List<PreSealVehicle> preSealVehicleList = null;
+        try {
+            Map<String, Object> params = new HashMap<>();
+            params.put("transportCode", transportCode);
+            preSealVehicleList = preSealVehicleDao.getPreSealInfoByParams(params);
+        } catch (Exception e) {
+            log.error("根据运力编码查询预封车信息异常，运力编号:{}", transportCode);
+        }
+
+        return preSealVehicleList;
+    }
+
+    /*
+     * 根据运力编码获取预封车信息
+     * */
+    @Override
+    public List<PreSealVehicle> getPreSealInfoByParams(String transportCode, String vehicleNumber) {
+        List<PreSealVehicle> preSealVehicleList = null;
+        try {
+            Map<String, Object> params = new HashMap<>();
+            params.put("transportCode", transportCode);
+            params.put("vehicleNumber", vehicleNumber);
+            preSealVehicleList = preSealVehicleDao.getPreSealInfoByParams(params);
+        } catch (Exception e) {
+            log.error("根据运力编码查询预封车信息异常，运力编号:{}，车牌号：", transportCode, vehicleNumber);
+        }
+
+        return preSealVehicleList;
+    }
+
+    @Override
+    public boolean completePreSealVehicleRecord(PreSealVehicle preSealVehicle) {
+        return preSealVehicleDao.completePreSealVehicleRecord(preSealVehicle) > 0;
+    }
 }

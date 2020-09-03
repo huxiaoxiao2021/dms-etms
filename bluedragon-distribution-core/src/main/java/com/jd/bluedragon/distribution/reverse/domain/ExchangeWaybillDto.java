@@ -41,6 +41,10 @@ public class ExchangeWaybillDto implements Serializable{
     private String contact; //联系人
 
     private String phone; //联系人电话
+    /**
+     * 二次换单标识
+     */
+    private Boolean twiceExchangeFlag = Boolean.FALSE;
 
     public String getWaybillCode() {
         return waybillCode;
@@ -137,4 +141,12 @@ public class ExchangeWaybillDto implements Serializable{
     public void setPhone(String phone) {
         this.phone = phone;
     }
+
+	public Boolean getTwiceExchangeFlag() {
+		return twiceExchangeFlag;
+	}
+
+	public void setTwiceExchangeFlag(Boolean twiceExchangeFlag) {
+		this.twiceExchangeFlag = twiceExchangeFlag;
+	}
 }

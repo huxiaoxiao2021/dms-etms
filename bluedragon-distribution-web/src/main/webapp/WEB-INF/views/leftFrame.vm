@@ -27,6 +27,7 @@
         <dd><a href="#springUrl('/popQueueManager/query')" target="mainFrame">平台排队号查询</a></dd>
         <dd><a href="#springUrl('/popReceive/getPopRecieveList')" target="mainFrame">平台实收查询</a></dd>
         <dt><a href="#" class="curr">分拣中心相关功能</a></dt>
+        <dd><a href="#springUrl('/business/businessReturnAdress/toBusinessReturnAdressIndex')" target="mainFrame">换单地址维护统计</a></dd>
 		<dd><a href="http://board.dms.jd.com" target="mainFrame">板标打印</a></dd>
         <dd><a href="#springUrl('/base/crossbox/index')" target="mainFrame">跨箱号中转</a></dd>
         <dd><a href="http://waybill.jd.com/waybill/trackInfo" target="mainFrame">青龙全程跟踪</a></dd>

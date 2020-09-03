@@ -158,16 +158,6 @@ public class PromiseWaybillHandler implements Handler<WaybillPrintContext,JdResu
                 if(log.isDebugEnabled()){
                     log.debug("调用promise获取外单时效返回数据：{}", JsonHelper.toJson(orderMarkingForeignResponse));
                 }
-
-                //C2C面单预计送达时间从运单获取REQUIRE_TIME
-                if(BusinessUtil.isSignChar(waybillSign,29,'8')){
-                    String foreCastTime = "";
-                    if(waybillData.getRequireTime() != null){
-                        foreCastTime =  DateHelper.formatDate(waybillData.getRequireTime()
-        						,DateHelper.DATE_TIME_FORMAT_YYYY_MM_DD_HH_MM);
-                    }
-                    basePrintWaybill.setPromiseText(foreCastTime);
-                }
             }//外单增加promise时效代码逻辑,包裹标签业务是核心业务，如果promise接口异常，仍要保证包裹标签业务。
         }catch (Exception e){
             log.error("外单调用promise接口异常:{}" , basePrintWaybill.getWaybillCode(),e);
@@ -205,7 +195,7 @@ public class PromiseWaybillHandler implements Handler<WaybillPrintContext,JdResu
 			}
 			if(promiseText != null){
 			    if(BusinessUtil.isC2CJZD(waybillSign)){
-                    basePrintWaybill.setPromiseText(TextConstants.TEXT_JZD + promiseText);
+                    basePrintWaybill.setPromiseText(TextConstants.PRODUCT_NAME_JZD + promiseText);
                     basePrintWaybill.setPromiseTextC(basePrintWaybill.getPromiseText());
                 }else{
                 	basePrintWaybill.setPromiseText(promiseText);

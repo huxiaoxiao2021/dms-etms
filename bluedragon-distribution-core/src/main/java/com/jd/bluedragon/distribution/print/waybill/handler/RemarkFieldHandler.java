@@ -108,6 +108,10 @@ public class RemarkFieldHandler implements Handler<WaybillPrintContext,JdResult<
 		}catch (Exception e){
 			log.error("版本号异常!");
 		}
+		//Sendpay292位为1，面单打印“合约机 需激活”
+		if(BusinessUtil.isContractPhone(sendPay)){
+			remark = StringHelper.appendIfNotExist(remark, TextConstants.REMARK_CONTRACT_PHONE);
+		}
 		basePrintWaybill.setRemark(remark);
 		return context.getResult();
 	}

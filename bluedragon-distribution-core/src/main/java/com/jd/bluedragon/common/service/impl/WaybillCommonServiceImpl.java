@@ -857,44 +857,13 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }
         //waybill_sign标识位，第二十九位为8，打C字标
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(),29,'8')){
-            target.appendSpecialMark(ComposeService.SPECIAL_MARK_C);
             //一体化面单中商家ID，商家订单不显示
             target.setBusiCode("");
             target.setBusiOrderCode("");
         }
+        //设置产品名称
+        setTransportMode(target,waybill);
 
-         /*
-         * 1. waybill_sign第31位=1 且 116位=3 且 16位=4 ，打印【特快送 次晨】
-         * 2. waybill_sign第31位=1 且 116位=3 且 16位不等于4 ，打印【特快送】
-         * 3. waybill_sign第31位=4 且 16位=4 ，打印【特快送 次晨】
-         * 4. waybill_sign第31位=4 且 16位不等于4 ，打印【特快送】
-         * 5. waybill_sign第31位=1 且 116位=2，打印【特快送 同城】
-         * 6. waybill_sign第31位=2，打印【特快送 同城】
-         * 7.以上都不满足时，waybill_sign第31位=1，打印【特快送】
-         */
-        if(BusinessUtil.isExpressDeliveryNextMorning(waybill.getWaybillSign())){
-            target.setTransportMode(TextConstants.EXPRESS_DELIVERY_NEXT_MORNING);
-        }else if(BusinessUtil.isExpressDeliverySameCity(waybill.getWaybillSign())){
-            target.setTransportMode(TextConstants.EXPRESS_DELIVERY_SAME_CITY);
-        }else if(BusinessUtil.isExpressDelivery(waybill.getWaybillSign())
-            ||BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_1)){
-            target.setTransportMode(TextConstants.EXPRESS_DELIVERY);
-        }
-
-        /*
-        识别waybillsign116位=2，面单“时效”字段处展示“同城”；
-	    识别waybillsign116位=3，面单“时效”字段处展示“次晨”； 回改 20200203
-        */
-        if(!BusinessUtil.isExpressDeliverySameCity(waybill.getWaybillSign())
-                && !BusinessUtil.isExpressDelivery(waybill.getWaybillSign())
-                && BusinessUtil.isSameCity(waybill.getWaybillSign())){
-            target.appendSpecialMark(ComposeService.SPECIAL_MARK_SAME_CITY);
-        }
-        if(!BusinessUtil.isExpressDeliveryNextMorning(waybill.getWaybillSign())
-                && !BusinessUtil.isExpressDelivery(waybill.getWaybillSign())
-                && BusinessUtil.isNextMorning(waybill.getWaybillSign())){
-            target.appendSpecialMark(ComposeService.SPECIAL_MARK_NEXT_DAY);
-        }
 
         /**
          * 1.waybill_sign第80位等于1时，面单打印“特惠运”
@@ -925,8 +894,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         if(!BusinessUtil.isB2b(waybill.getWaybillSign()) &&
                 BusinessUtil.isSignChar(waybill.getWaybillSign(),55,'1')){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_FRESH);
-            //一体化面单，显示生鲜专送
-            target.setTransportMode(ComposeService.PREPARE_SITE_NAME_FRESH_SEND);
         }
         //设置运输方式
         setTransportTypeText(target,waybill);
@@ -936,8 +903,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 BusinessUtil.isSignChar(waybill.getWaybillSign(),31,'2') &&
                 BusinessUtil.isSignChar(waybill.getWaybillSign(),55,'0') ){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_SAME);
-            //一体化面单，显示同城当日达
-            target.setTransportMode(ComposeService.PREPARE_SITE_NAME_SAMECITY_ARRIVE);
         }
         //waybill_sign标识位，第五十七位为1，打优字标
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(),57,'1')){
@@ -951,13 +916,11 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         if(BusinessUtil.isPartReverse(waybill.getWaybillSign())){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_PART_REVERSE);
         }
-        //waybill_sign标识位，第三十一位为5，一体化面单显示"微小件"
-        if(BusinessUtil.isSignChar(waybill.getWaybillSign(),31,'5')){
-            target.setTransportMode(ComposeService.PREPARE_SITE_NAME_SMALL_PACKAGE);
-        }
         //waybill_sign标识位，第三十五位为1，一体化面单显示"尊"
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(),35,'1')){
-        	target.appendSpecialMark(TextConstants.SPECIAL_MARK_SENIOR);
+        	//提出-尊标识
+        	target.setRespectTypeText(TextConstants.SPECIAL_MARK_SENIOR);
+        	target.appendSpecialMark(target.getRespectTypeText(),false);
         }
 
         //waybill_sign标识位，第九十二位为2，一体化面单显示"器"
@@ -990,7 +953,9 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 		}
         //waybill_sign第57位= 2，代表“KA运营特殊保障”，追加“KA”
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(), WaybillSignConstants.POSITION_57, WaybillSignConstants.CHAR_57_2)){
-        	target.appendSpecialMark(TextConstants.KA_FLAG);
+        	//新模板，提出KA标识
+        	target.setBcSign(TextConstants.KA_FLAG);
+        	target.appendSpecialMark(TextConstants.KA_FLAG,false);
         }
         //无接触面单，追加标识‘代’
         if(BusinessUtil.isNoTouchService(waybill.getSendPay(),waybill.getWaybillSign())){
@@ -1022,6 +987,104 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         return target;
     }
     /**
+     	设置C网产品名称:
+                判断waybill_sign,按以下规则设置产品名称
+               序号	标记位	            产品名称	面单打印形式             
+		1	55位=0且31位=5	微小件	特惠送
+		2	55位=0且31位=B	函速达	函速达
+		3	31=7且29位=8	特瞬送同城	极速达
+		4	55位=0且31位=7且29位=8	同城速配	同城速配
+		5	31=0	特惠送	特惠送
+		6	55位=0且31位=3	特瞬送城际	城际即日
+		7	55位=0且31位=A	生鲜特惠	生鲜特惠
+		8	55位=0且31位=9	生鲜特快	生鲜特快
+		9	55位=1且84位=3代表航空 55位=1且84位≠3代表非航空	生鲜专送	生鲜专送
+		10	（55位=0且31位=1且116位=0）或（55位=0且31位=1且116位=1）	特快送	特快送
+		11	（55位=0且31位=2且16位=1,2,3,7,8）或（55位=0且31位=1且116位=2）	特快送"同城即日"	特快送即日
+		12	55位=0且31位=4或55位=0且31位=1且116位=3	特快送“特快次晨”	特快送次晨
+		13	31=6	京准达+其他主产品	京准达
+		14	31=6	京准达	京准达
+		15	55位=0且31位=1且116位=4	特快陆运	特快送
+		16	55位=0且31位=C	特惠小包	特惠包裹
+     * @param target
+     * @param waybill
+     */
+    private void setTransportMode(BasePrintWaybill target,com.jd.etms.waybill.domain.Waybill waybill) {
+        if(target == null || waybill == null){
+        	return;
+        }
+        String waybillSign = waybill.getWaybillSign();
+        if(StringHelper.isEmpty(waybillSign)){
+        	return;
+        }
+        String transportMode = "";
+        if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_0)){
+    		//5-特惠送
+    		transportMode = TextConstants.PRODUCT_NAME_THS;
+    	}else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_6)){
+    		//13\14-京准达
+    		transportMode = TextConstants.PRODUCT_NAME_JZD;
+    	}else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_7)
+    			 && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_29, WaybillSignConstants.CHAR_29_8)){
+    		if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_55, WaybillSignConstants.CHAR_55_0)){
+        		//4-同城速配
+        		transportMode = TextConstants.PRODUCT_NAME_TCSP;
+    		}else{
+        		//3-极速达
+        		transportMode = TextConstants.PRODUCT_NAME_JSD;
+    		}
+    	}
+        if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_55, WaybillSignConstants.CHAR_55_0)){
+        	if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_5)){
+        		//1-特惠送
+        		transportMode = TextConstants.PRODUCT_NAME_THS;
+        	}else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_B)){
+        		//2-函速达
+        		transportMode = TextConstants.PRODUCT_NAME_HSD;
+        	}else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_3)){
+        		//6-城际即日
+        		transportMode = TextConstants.PRODUCT_NAME_CJJR;
+        	}else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_A)){
+        		//7-生鲜特惠
+        		transportMode = TextConstants.PRODUCT_NAME_SXTH;
+        	}else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_9)){
+        		//8-生鲜特快
+        		transportMode = TextConstants.PRODUCT_NAME_SXTK;
+        	}else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_C)){
+        		//16-特惠包裹
+        		transportMode = TextConstants.PRODUCT_NAME_THBG;
+        	}else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_1)
+        			&& BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_0,WaybillSignConstants.CHAR_116_1)){
+        		//10-特快送
+        		transportMode = TextConstants.PRODUCT_NAME_TKS;
+        	}else if((BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_2)
+        				&& BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_16, WaybillSignConstants.CHAR_16_1,WaybillSignConstants.CHAR_16_2
+        						,WaybillSignConstants.CHAR_16_3,WaybillSignConstants.CHAR_16_7,WaybillSignConstants.CHAR_16_8))
+        			 ||
+        			 	(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_1)
+                				&& BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_2))){
+        		//11-特快送即日
+        		transportMode = TextConstants.PRODUCT_NAME_TKSJR;
+        	}else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_4)
+	    			 ||
+	    			 	(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_1)
+	            				&& BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_3))){
+	    		//12-特快送次晨
+	    		transportMode = TextConstants.PRODUCT_NAME_TKSCC;
+        	}else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_1)
+	         				&& BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_4)){
+		    	//15-特快送
+		    	transportMode = TextConstants.PRODUCT_NAME_TKS;
+	     	}
+        	
+        }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_55, WaybillSignConstants.CHAR_55_1)){
+        	//9-生鲜专送
+        	transportMode = TextConstants.PRODUCT_NAME_SXZS;
+        }
+        target.setTransportMode(transportMode);
+	}
+
+	/**
      * 设置面单运输标识transportTypeText
      * @param target
      * @param waybill
@@ -1481,16 +1544,12 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         if(BusinessUtil.isBMedicine(waybillSign)) {
             if (BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_43, WaybillSignConstants.CHAR_43_1)) {
                 printWaybill.setDistributTypeText(DISTRIBUTE_TYPE_COLD);
-                printWaybill.appendSpecialMark(DISTRIBUTE_TYPE_COLD);
             }else if(BusinessUtil.isSignChar(waybillSign,WaybillSignConstants.POSITION_43,WaybillSignConstants.CHAR_43_2)){
                 printWaybill.setDistributTypeText(DISTRIBUTE_TYPE_COOL);
-                printWaybill.appendSpecialMark(DISTRIBUTE_TYPE_COOL);
             }else if(BusinessUtil.isSignChar(waybillSign,WaybillSignConstants.POSITION_43,WaybillSignConstants.CHAR_43_3)){
                 printWaybill.setDistributTypeText(DISTRIBUTE_TYPE_CONTROL_TEMP);
-                printWaybill.appendSpecialMark(DISTRIBUTE_TYPE_CONTROL_TEMP);
             }else if(BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_43,WaybillSignConstants.CHAR_43_4)){
                 printWaybill.setDistributTypeText(DISTRIBUTE_TYPE_NORMAL);
-                printWaybill.appendSpecialMark(DISTRIBUTE_TYPE_NORMAL);
             }else if(BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_43,WaybillSignConstants.CHAR_43_5)){
                 printWaybill.setDistributTypeText(DISTRIBUTE_TYPE_FREEZING);
                 printWaybill.appendSpecialMark(DISTRIBUTE_TYPE_FREEZING);

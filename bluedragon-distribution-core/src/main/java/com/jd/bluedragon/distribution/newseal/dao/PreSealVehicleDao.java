@@ -6,6 +6,8 @@ import com.jd.ql.dms.common.web.mvc.api.Dao;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+
 /**
  *
  * @ClassName: PreSealVehicleDao
@@ -99,4 +101,15 @@ public interface PreSealVehicleDao extends Dao<PreSealVehicle> {
      * @return
      */
     int updatePreSealVehicleMeasureInfo(PreSealVehicle preSealVehicle);
+
+    /*
+     * 根据运力编码获取预封车信息
+     * */
+    List<PreSealVehicle> getPreSealInfoByParams(Map<String, Object> params);
+
+    /*
+     * 完成预封车任务
+     *
+     * */
+    int completePreSealVehicleRecord(PreSealVehicle preSealVehicle);
 }
