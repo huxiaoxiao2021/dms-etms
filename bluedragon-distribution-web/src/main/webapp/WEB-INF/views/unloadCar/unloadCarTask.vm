@@ -11,6 +11,7 @@
     <script src="/static/js/unloadCar/unloadCarTask.js"></script>
 </head>
 <body>
+<input type="hidden" id="loginSiteCode" class="form-control search-param " value="$!{loginSiteCode}"/>
 <div id="dataTableDiv" class="main">
         <ol class="breadcrumb">
             <li><a href="#">转运中心</a></li>
