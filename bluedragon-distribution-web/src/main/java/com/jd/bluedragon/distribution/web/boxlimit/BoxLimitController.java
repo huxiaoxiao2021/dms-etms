@@ -57,6 +57,16 @@ public class BoxLimitController extends DmsBaseController {
         return boxLimitService.listData(dto);
     }
     /**
+     * 获取站点名称
+     */
+    @Authorization(Constants.DMS_WEB_SORTING_REVIEWWEIGHTSPOTCHECK_R)
+    @RequestMapping("/getSiteNameById")
+    @ResponseBody
+    public JdResponse getSiteNameById(Integer siteId){
+
+        return boxLimitService.getSiteNameById(siteId);
+    }
+    /**
      * 新建
      */
     @Authorization(Constants.DMS_WEB_SORTING_REVIEWWEIGHTSPOTCHECK_R)

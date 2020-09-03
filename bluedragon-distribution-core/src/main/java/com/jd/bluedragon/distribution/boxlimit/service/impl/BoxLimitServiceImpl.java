@@ -259,4 +259,17 @@ public class BoxLimitServiceImpl implements BoxLimitService {
         return new JdResponse();
     }
 
+    @Override
+    public JdResponse getSiteNameById(Integer siteId) {
+        JdResponse response = new JdResponse();
+        BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(siteId);
+        if (siteOrgDto == null || siteOrgDto.getSiteName() == null) {
+            response.setCode(JdResponse.CODE_FAIL);
+            response.setMessage("站点不存在!");
+        } else {
+           response.setData(siteOrgDto.getSiteName());
+        }
+        return response;
+    }
+
 }

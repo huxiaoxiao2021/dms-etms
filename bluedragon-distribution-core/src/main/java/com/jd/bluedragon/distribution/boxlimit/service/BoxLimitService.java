@@ -31,4 +31,6 @@ public interface BoxLimitService {
 
     JdResponse delete(List<Integer> ids);
 
+    JdResponse getSiteNameById(Integer siteId);
+
 }

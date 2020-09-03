@@ -7,7 +7,7 @@
     <meta http-equiv="cache-control" content="no-cache">
     <meta http-equiv="expires" content="0">
     #parse("system/common/baseImport.vm")
-    <script src="/static/js/boxlimit/boxLimitConfig.js"></script>
+    <script src="/static/js/boxlimit/boxLimit.js"></script>
 </head>
 <body>
 <div id="dataTableDiv" class="main">
