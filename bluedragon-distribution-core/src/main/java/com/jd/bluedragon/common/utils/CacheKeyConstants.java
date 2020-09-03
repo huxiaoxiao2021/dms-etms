@@ -63,4 +63,12 @@ public class CacheKeyConstants {
      *  封车编码绑定的包裹 key=前缀-封车编码-包裹号
      */
     public static final String REDIS_PREFIX_SEALCAR_SURPLUS_PACK = "unload.sealCar.surplusPackage-";
+	/**
+	 * 包裹抽检记录的缓存
+	 */
+	public static final String CACHE_KEY_PACKAGE_OR_WAYBILL_CHECK_FLAG = "dmsWeb:packageOrWaybillCheckFlag:";
+	/**
+	 * 包裹发货状态缓存redis的key
+	 */
+	public static final String CACHE_KEY_WAYBILL_SEND_STATUS = "dmsWeb:waybillSendStatus:";
 }
