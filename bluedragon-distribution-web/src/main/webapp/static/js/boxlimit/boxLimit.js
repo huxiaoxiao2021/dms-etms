@@ -74,28 +74,32 @@ $(function () {
         oTableInit.tableColums = [{
             checkbox: true
         }, {
-            field: 'menuName',
-            title: '功能',
-            align: 'center'
-        }, {
-            field: 'dimensionName',
-            title: '维度',
+            field: 'index',
+            title: '序号',
             align: 'center'
         }, {
             field: 'siteName',
             title: '机构名称',
             align: 'center'
         }, {
-            field: 'erp',
-            title: 'ERP账号',
-            align: 'center'
-        },{
-            field: 'createUser',
-            title: '添加人',
+            field: 'siteId',
+            title: '机构ID',
             align: 'center'
         }, {
-            field: 'createTime',
-            title: '添加时间',
+            field: 'limitNum',
+            title: '建箱包裹数',
+            align: 'center'
+        }, {
+            field: 'operatorErp',
+            title: '操作人ERP',
+            align: 'center'
+        },{
+            field: 'operatingTime',
+            title: '操作时间',
+            align: 'center'
+        }, {
+            field: 'operatorSiteName',
+            title: '操作机构',
             align: 'center',
             formatter : function(value,row,index){
                 return $.dateHelper.formateDateTimeOfTs(value);

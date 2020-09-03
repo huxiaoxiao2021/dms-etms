@@ -63,13 +63,15 @@
         <!-- 主页面操作按钮 -->
         <div id="toolbar" class="btn-group">
             <button id="btn_query" type="button" class="btn btn-default">
-                <span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;下载导入模板
+                <a href="#springUrl('')/static/importFileModel/reviewWeightSpotCheck.xlsx" type="application/vnd.ms-excel">
+                    <span class="glyphicon glyphicon-download" aria-hidden="true"></span>&nbsp;下载导入模板
+                </a>
             </button>
             <button id="btn_add" type="button" class="btn btn-default">
-                <span class="glyphicon  glyphicon-add" aria-hidden="true"></span>浏览文件
+                <span class="glyphicon  glyphicon-file" aria-hidden="true"></span>浏览文件
             </button>
             <button id="btn_delete" type="button" class="btn btn-default">
-                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>上传
+                <span class="glyphicon glyphicon-upload" aria-hidden="true"></span>上传
             </button>
         </div>
         <table id="dataTable"></table>
