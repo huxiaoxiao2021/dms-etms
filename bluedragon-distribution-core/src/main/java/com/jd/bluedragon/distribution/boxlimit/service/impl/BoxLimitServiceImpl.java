@@ -30,6 +30,9 @@ public class BoxLimitServiceImpl implements BoxLimitService {
 
     @Override
     public PagerResult<BoxLimitVO> listData(BoxLimitQueryDTO dto) {
+        if (dto.getSiteName() != null) {
+            dto.setSiteName(dto.getSiteName().replaceAll("_","\\_").replaceAll("\\?","\\?"));
+        }
         PagerResult<BoxLimitVO> result = new PagerResult<>();
         Integer count = boxLimitConfigDao.countByCondition(dto);
         result.setTotal(count);
@@ -228,7 +231,7 @@ public class BoxLimitServiceImpl implements BoxLimitService {
             response.setMessage("ID不能为空!");
             return response;
         }
-        BoxLimitConfig boxLimitConfig = boxLimitConfigDao.queryById(dto.getId());
+        BoxLimitConfig boxLimitConfig = boxLimitConfigDao.selectByPrimaryKey(dto.getId());
         if (boxLimitConfig == null) {
             response.setCode(JdResponse.CODE_FAIL);
             response.setMessage("数据不存在!");
@@ -246,7 +249,7 @@ public class BoxLimitServiceImpl implements BoxLimitService {
         boxLimitConfig.setOperatorSiteId(operator.getSiteCode());
         boxLimitConfig.setOperatorSiteName(operator.getSiteName());
 
-        boxLimitConfigDao.updateByIdSelective(boxLimitConfig);
+        boxLimitConfigDao.updateByPrimaryKeySelective(boxLimitConfig);
         return response;
     }
 

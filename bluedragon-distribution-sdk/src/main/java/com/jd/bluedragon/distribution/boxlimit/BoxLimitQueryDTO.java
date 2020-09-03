@@ -15,9 +15,11 @@ public class BoxLimitQueryDTO implements Serializable {
      */
     private Integer siteId;
 
-    private Integer pageNum;
+    private Integer pageNum = 1;
 
-    private Integer pageSize;
+    private Integer pageSize = 20;
+
+    private Integer offset;
 
     public String getSiteName() {
         return siteName;
@@ -49,5 +51,13 @@ public class BoxLimitQueryDTO implements Serializable {
 
     public void setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
+    }
+
+    public Integer getOffset() {
+        return offset;
+    }
+
+    public void setOffset() {
+        this.offset = (this.pageNum - 1) * this.pageSize;
     }
 }

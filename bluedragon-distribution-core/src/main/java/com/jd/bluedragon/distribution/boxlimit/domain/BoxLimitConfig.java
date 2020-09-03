@@ -4,47 +4,66 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 建箱包裹数 入库数据 dataObject
+ * box_limit_config
+ * @author 
  */
 public class BoxLimitConfig implements Serializable {
     /**
-     * id
+     * 自增ID
      */
     private Integer id;
+
     /**
-     * 机构名称
+     * 站点名称
      */
     private String siteName;
+
     /**
-     * 机构ID
+     * 站点ID
      */
     private Integer siteId;
+
     /**
-     * 建箱包裹上限
+     * 建箱包裹数上限
      */
     private Integer limitNum;
+
     /**
-     * 操作人erp
+     * 操作人ERP
      */
     private String operatorErp;
+
     /**
-     * 操作人机构ID
+     * 操作人所在站点ID
      */
     private Integer operatorSiteId;
+
     /**
-     * 操作机构
+     * 操作人所在站点名称
      */
     private String operatorSiteName;
+
     /**
      * 操作时间
      */
     private Date operatingTime;
 
+    /**
+     * 创建时间
+     */
     private Date createTime;
 
+    /**
+     * 更新时间
+     */
     private Date updateTime;
 
-    private boolean yn;
+    /**
+     * 记录是否有效：0-无效，已删除  1-有效
+     */
+    private Boolean yn;
+
+    private static final long serialVersionUID = 1L;
 
     public Integer getId() {
         return id;
@@ -126,11 +145,11 @@ public class BoxLimitConfig implements Serializable {
         this.updateTime = updateTime;
     }
 
-    public boolean isYn() {
+    public Boolean getYn() {
         return yn;
     }
 
-    public void setYn(boolean yn) {
+    public void setYn(Boolean yn) {
         this.yn = yn;
     }
 }

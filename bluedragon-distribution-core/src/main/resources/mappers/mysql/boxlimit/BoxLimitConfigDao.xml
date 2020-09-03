@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jd.bluedragon.distribution.boxlimit.dao.BoxLimitConfigDao">
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.boxlimit.domain.BoxLimitConfig">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="site_name" jdbcType="VARCHAR" property="siteName" />
+    <result column="site_id" jdbcType="INTEGER" property="siteId" />
+    <result column="limit_num" jdbcType="INTEGER" property="limitNum" />
+    <result column="operator_erp" jdbcType="VARCHAR" property="operatorErp" />
+    <result column="operator_site_id" jdbcType="INTEGER" property="operatorSiteId" />
+    <result column="operator_site_name" jdbcType="VARCHAR" property="operatorSiteName" />
+    <result column="operating_time" jdbcType="TIMESTAMP" property="operatingTime" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="yn" jdbcType="BOOLEAN" property="yn" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, site_name, site_id, limit_num, operator_erp, operator_site_id, operator_site_name, 
+    operating_time, create_time, update_time, yn
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from box_limit_config
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from box_limit_config
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.jd.bluedragon.distribution.boxlimit.domain.BoxLimitConfig" useGeneratedKeys="true">
+    insert into box_limit_config (site_name, site_id, limit_num, 
+      operator_erp, operator_site_id, operator_site_name, 
+      operating_time, create_time, update_time, 
+      yn)
+    values (#{siteName,jdbcType=VARCHAR}, #{siteId,jdbcType=INTEGER}, #{limitNum,jdbcType=INTEGER}, 
+      #{operatorErp,jdbcType=VARCHAR}, #{operatorSiteId,jdbcType=INTEGER}, #{operatorSiteName,jdbcType=VARCHAR}, 
+      #{operatingTime,jdbcType=TIMESTAMP}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, 
+      #{yn,jdbcType=BOOLEAN})
+  </insert>
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.jd.bluedragon.distribution.boxlimit.domain.BoxLimitConfig" useGeneratedKeys="true">
+    insert into box_limit_config
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="siteName != null">
+        site_name,
+      </if>
+      <if test="siteId != null">
+        site_id,
+      </if>
+      <if test="limitNum != null">
+        limit_num,
+      </if>
+      <if test="operatorErp != null">
+        operator_erp,
+      </if>
+      <if test="operatorSiteId != null">
+        operator_site_id,
+      </if>
+      <if test="operatorSiteName != null">
+        operator_site_name,
+      </if>
+      <if test="operatingTime != null">
+        operating_time,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="yn != null">
+        yn,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="siteName != null">
+        #{siteName,jdbcType=VARCHAR},
+      </if>
+      <if test="siteId != null">
+        #{siteId,jdbcType=INTEGER},
+      </if>
+      <if test="limitNum != null">
+        #{limitNum,jdbcType=INTEGER},
+      </if>
+      <if test="operatorErp != null">
+        #{operatorErp,jdbcType=VARCHAR},
+      </if>
+      <if test="operatorSiteId != null">
+        #{operatorSiteId,jdbcType=INTEGER},
+      </if>
+      <if test="operatorSiteName != null">
+        #{operatorSiteName,jdbcType=VARCHAR},
+      </if>
+      <if test="operatingTime != null">
+        #{operatingTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="yn != null">
+        #{yn,jdbcType=BOOLEAN},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.jd.bluedragon.distribution.boxlimit.domain.BoxLimitConfig">
+    update box_limit_config
+    <set>
+      <if test="siteName != null">
+        site_name = #{siteName,jdbcType=VARCHAR},
+      </if>
+      <if test="siteId != null">
+        site_id = #{siteId,jdbcType=INTEGER},
+      </if>
+      <if test="limitNum != null">
+        limit_num = #{limitNum,jdbcType=INTEGER},
+      </if>
+      <if test="operatorErp != null">
+        operator_erp = #{operatorErp,jdbcType=VARCHAR},
+      </if>
+      <if test="operatorSiteId != null">
+        operator_site_id = #{operatorSiteId,jdbcType=INTEGER},
+      </if>
+      <if test="operatorSiteName != null">
+        operator_site_name = #{operatorSiteName,jdbcType=VARCHAR},
+      </if>
+      <if test="operatingTime != null">
+        operating_time = #{operatingTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="yn != null">
+        yn = #{yn,jdbcType=BOOLEAN},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.jd.bluedragon.distribution.boxlimit.domain.BoxLimitConfig">
+    update box_limit_config
+    set site_name = #{siteName,jdbcType=VARCHAR},
+      site_id = #{siteId,jdbcType=INTEGER},
+      limit_num = #{limitNum,jdbcType=INTEGER},
+      operator_erp = #{operatorErp,jdbcType=VARCHAR},
+      operator_site_id = #{operatorSiteId,jdbcType=INTEGER},
+      operator_site_name = #{operatorSiteName,jdbcType=VARCHAR},
+      operating_time = #{operatingTime,jdbcType=TIMESTAMP},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      yn = #{yn,jdbcType=BOOLEAN}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <insert id="batchInsert" useGeneratedKeys="true">
+    insert into box_limit_config
+    (
+     site_name,
+     site_id,
+     limit_num,
+     operator_erp,
+     operator_site_id,
+     operator_site_name,
+     operating_time,
+     create_time,
+     update_time,
+     yn)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+       #{item.siteName,jdbcType=VARCHAR},
+       #{item.siteId,jdbcType=INTEGER},
+       #{item.limitNum,jdbcType=INTEGER},
+       #{item.operatorErp,jdbcType=VARCHAR},
+       #{item.operatorSiteId,jdbcType=INTEGER},
+       #{item.operatorSiteName,jdbcType=VARCHAR},
+       #{item.operatingTime,jdbcType=TIMESTAMP},
+       #{item.createTime,jdbcType=TIMESTAMP},
+       #{item.updateTime,jdbcType=TIMESTAMP},
+       #{item.yn,jdbcType=BOOLEAN})
+    </foreach>
+  </insert>
+
+  <delete id="batchDelete">
+    delete from box_limit_config
+    where id IN
+    <foreach collection="list" item="item" separator="," open="(" close=")">
+       #{item}
+    </foreach>
+  </delete>
+  
+  <select id="queryBySiteIds"  resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from box_limit_config
+    where id IN
+    <foreach collection="list" item="item" separator="," open="(" close=")">
+      #{item}
+    </foreach>
+  </select>
+
+  <select id="queryByCondition"  resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from box_limit_config
+    <where>
+      <if test="siteName != null">
+        AND site_name LIKE CONCAT('%',#{siteName},'%')
+      </if>
+      <if test="siteId != null">
+        AND site_id = #{siteId}
+      </if>
+    </where>
+    ORDER BY update_time DESC LIMIT #{offset},#{pageSize}
+  </select>
+
+  <select id="countByCondition"  resultType="java.lang.Integer">
+    select
+    COUNT(1)
+    from box_limit_config
+    <where>
+      <if test="siteName != null">
+        AND site_name LIKE CONCAT('%',#{siteName},'%')
+      </if>
+      <if test="siteId != null">
+        AND site_id = #{siteId}
+      </if>
+    </where>
+  </select>
+
+
+</mapper>

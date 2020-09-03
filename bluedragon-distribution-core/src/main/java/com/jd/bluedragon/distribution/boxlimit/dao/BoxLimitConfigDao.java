@@ -1,69 +1,45 @@
 package com.jd.bluedragon.distribution.boxlimit.dao;
 
-import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.boxlimit.BoxLimitQueryDTO;
 import com.jd.bluedragon.distribution.boxlimit.domain.BoxLimitConfig;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckInfo;
 
 import java.util.List;
 
-public class BoxLimitConfigDao extends BaseDao<SpotCheckInfo> {
+public interface BoxLimitConfigDao {
+    int deleteByPrimaryKey(Integer id);
 
-    public static final String namespace = BoxLimitConfigDao.class.getName();
+    int insert(BoxLimitConfig record);
 
+    int insertSelective(BoxLimitConfig record);
 
-    /**
-     * 新增一条数据
-     */
-    public int insert(BoxLimitConfig record) {
-        return this.getSqlSession().insert(namespace + ".insert", record);
-    }
+    BoxLimitConfig selectByPrimaryKey(Integer id);
+
+    int updateByPrimaryKeySelective(BoxLimitConfig record);
+
+    int updateByPrimaryKey(BoxLimitConfig record);
 
     /**
      * 批量新增
      */
-    public int batchInsert(List<BoxLimitConfig> dataList) {
-        return this.getSqlSession().insert(namespace + ".batchInsert", dataList);
-    }
-
-    /**
-     * 根据ID查询
-     */
-    public BoxLimitConfig queryById(Integer id) {
-        return this.getSqlSession().selectOne(namespace + ".queryById", id);
-    }
-    /**
-     * 根据条件查询
-     */
-    public List<BoxLimitConfig> queryByCondition(BoxLimitQueryDTO dto) {
-        return this.getSqlSession().selectList(namespace + ".queryByCondition", dto);
-    }
+    int batchInsert(List<BoxLimitConfig> dataList);
 
     /**
      * 根据条件查询
      */
-    public Integer countByCondition(BoxLimitQueryDTO dto) {
-        return this.getSqlSession().selectOne(namespace + ".countByCondition", dto);
-    }
+    List<BoxLimitConfig> queryByCondition(BoxLimitQueryDTO dto);
+
+    /**
+     * 根据条件查询
+     */
+    Integer countByCondition(BoxLimitQueryDTO dto);
 
     /**
      * 根据机构ID查询记录是否存在
      */
-    public List<BoxLimitConfig> queryBySiteIds(List<Integer> siteIds) {
-        return this.getSqlSession().selectOne(namespace + ".queryBySiteIds", siteIds);
-    }
-
-    /**
-     * 根据ID 修改记录
-     */
-    public int updateByIdSelective(BoxLimitConfig record) {
-        return this.getSqlSession().update(namespace + ".updateByIdSelective", record);
-    }
+    List<BoxLimitConfig> queryBySiteIds(List<Integer> siteIds);
 
     /**
      * 根据ID 批量删除
      */
-    public int batchDelete(List<Integer> ids) {
-        return this.getSqlSession().insert(namespace + ".batchDelete", ids);
-    }
+    int batchDelete(List<Integer> ids);
 }
