@@ -122,15 +122,22 @@ $(function () {
             });
             //新增
             $('#btn_add').click(function() {
-                $('.edit-param').each(function () {
-                    var _k = this.id;
-                    if(_k){
-                        $(this).val('');
-                    }
-                });
-                $('#dataTableDiv').hide();
-                $('#dataEditDiv').show();
-                initOrg();
+                $('#importExcelFile').val(null);
+                $('#edit_modal').modal('show');
+            });
+            //修改
+            $('#btn_update').click(function() {
+                $('#importExcelFile').val(null);
+                var rows = $('#dataTable').bootstrapTable('getSelections');
+                if (rows.length < 1) {
+                    alert("错误，未选中数据");
+                    return;
+                }
+                if (rows.length > 1) {
+                    alert("错误，仅可修改一条数据");
+                    return;
+                }
+                $('#edit_modal').modal('show');
             });
             // 删除
             $('#btn_delete').click(function() {
@@ -200,7 +207,6 @@ $(function () {
     initOrg();
     tableInit().init();
     pageInit().init();
-
 });
 
 function findSite(selectId,siteListUrl,initIdSelectId){
@@ -234,6 +240,9 @@ function findSite(selectId,siteListUrl,initIdSelectId){
         }
     });
 }
+
+
+
 
 // 初始化大区下拉框
 function initOrg() {

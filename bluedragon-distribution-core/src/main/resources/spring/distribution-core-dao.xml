@@ -514,7 +514,7 @@
     <bean id="reviewWeightSpotCheckDao" class="com.jd.bluedragon.distribution.weightAndVolumeCheck.dao.ReviewWeightSpotCheckDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
-    <bean id="boxLimitDao" class="com.jd.bluedragon.distribution.boxlimit.dao.BoxLimitDao">
+    <bean id="boxLimitDao" class="com.jd.bluedragon.distribution.boxlimit.dao.BoxLimitConfigDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
 

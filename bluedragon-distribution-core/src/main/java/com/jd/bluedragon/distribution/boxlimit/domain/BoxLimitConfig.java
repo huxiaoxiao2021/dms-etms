@@ -6,7 +6,7 @@ import java.util.Date;
 /**
  * 建箱包裹数 入库数据 dataObject
  */
-public class BoxLimit implements Serializable {
+public class BoxLimitConfig implements Serializable {
     /**
      * id
      */
