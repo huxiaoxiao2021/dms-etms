@@ -10,8 +10,6 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jsf.domain.BlockResponse;
 import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
 import com.jd.bluedragon.distribution.jsf.domain.MixedPackageConfigResponse;
-import com.jd.bluedragon.distribution.jsf.domain.MixedSite;
-import com.jd.bluedragon.distribution.jsf.domain.PrintQueryRequest;
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 
@@ -122,11 +120,4 @@ public interface JsfSortingResourceService {
      * @return
      */
     JdResponse dealCancelWaybillByRequest(PdaOperateRequest pdaOperateRequest);
-
-    /**
-     * 查询面单上的集包地
-     * @param printQueryRequest
-     * @return
-     */
-    JdResult<MixedSite> queryMixedSiteCodeForPrint(PrintQueryRequest printQueryRequest);
 }

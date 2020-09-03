@@ -11,7 +11,6 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
-import com.jd.bluedragon.distribution.print.service.PaperSheetParamGainedService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -75,9 +74,6 @@ public class SpecialTextWaybillHandler implements Handler<WaybillPrintContext,Jd
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
-
-    @Autowired
-    private PaperSheetParamGainedService paperSheetParamGainedService;
 
 	@Override
 	public JdResult<String> handle(WaybillPrintContext context) {
@@ -180,11 +176,6 @@ public class SpecialTextWaybillHandler implements Handler<WaybillPrintContext,Jd
         String popularizeMatrixCode = getPopularizeMatrixCode(request,basePrintWaybill,bigWaybillDto);
         if(StringUtils.isNotBlank(popularizeMatrixCode)){
             printInfo.setPopularizeMatrixCode(popularizeMatrixCode);
-        }
-        // 设置集包地（集包地不存在则设置为空字符串兼容多个特殊字符handler的处理）
-        if(printInfo.getCollectionAddress() == null){
-            String collectionAddress = paperSheetParamGainedService.getMixedSiteName(context);
-            printInfo.setCollectionAddress(collectionAddress == null ? Constants.EMPTY_FILL : collectionAddress);
         }
 		return context.getResult();
 	}

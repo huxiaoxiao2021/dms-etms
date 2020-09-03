@@ -1,11 +1,9 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
-import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
-import com.jd.bluedragon.distribution.print.service.PaperSheetParamGainedService;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import org.slf4j.Logger;
@@ -35,9 +33,6 @@ public class SpecialFieldHandler implements Handler<WaybillPrintContext,JdResult
      * 分拣中心标识-显示为滑道号的最大长度
      */
     private int crossCodeMaxLength = CROSS_CODE_MAX_LENGTH;
-
-    @Autowired
-    private PaperSheetParamGainedService paperSheetParamGainedService;
     
 	@Override
 	public JdResult<String> handle(WaybillPrintContext context) {
@@ -64,12 +59,7 @@ public class SpecialFieldHandler implements Handler<WaybillPrintContext,JdResult
 				}
 			}
 		}
-        // 设置集包地（集包地不存在则设置为空字符串兼容多个特殊字符handler的处理）
-        if(basePrintWaybill.getCollectionAddress() == null){
-            String collectionAddress = paperSheetParamGainedService.getMixedSiteName(context);
-            basePrintWaybill.setCollectionAddress(collectionAddress == null ? Constants.EMPTY_FILL : collectionAddress);
-        }
-        return context.getResult();
+		return context.getResult();
 	}
 
 	/**

@@ -36,19 +36,14 @@ public class PrintQueryRequest implements Serializable {
     private String destinationDmsName;
 
     /**
-     * 包裹重量
-     * */
-    private Double packageWeight;
-
-    /**
      * 运输类型
-     *  1、航空运输 2、公路运输
+     *  @see com.jd.bluedragon.distribution.mixedPackageConfig.enums.TransportTypeEnum
      * */
     private Integer transportType;
 
     /**
      * 规则类型
-     *  1、建包
+     *  @see com.jd.bluedragon.distribution.mixedPackageConfig.enums.RuleTypeEnum
      * */
     private Integer ruleType;
 
@@ -82,14 +77,6 @@ public class PrintQueryRequest implements Serializable {
 
     public void setDestinationDmsName(String destinationDmsName) {
         this.destinationDmsName = destinationDmsName;
-    }
-
-    public Double getPackageWeight() {
-        return packageWeight;
-    }
-
-    public void setPackageWeight(Double packageWeight) {
-        this.packageWeight = packageWeight;
     }
 
     public Integer getTransportType() {

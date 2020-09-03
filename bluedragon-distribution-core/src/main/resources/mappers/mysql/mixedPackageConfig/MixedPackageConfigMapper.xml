@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.mixedPackageConfig.dao.MixedPackageConfigMapper">
+
+    <resultMap id="mixedPackageConfigMap"
+               type="com.jd.bluedragon.distribution.mixedPackageConfig.domain.MixedPackageConfig">
+        <result column="ID" property="id"/>
+        <result column="CREATE_SITE_CODE" property="createSiteCode"/>
+        <result column="CREATE_SITE_NAME" property="createSiteName"/>
+        <result column="CREATE_SITE_AREA" property="createSiteArea"/>
+        <result column="RECEIVE_SITE_CODE" property="receiveSiteCode"/>
+        <result column="RECEIVE_SITE_NAME" property="receiveSiteName"/>
+        <result column="RECEIVE_SITE_AREA" property="receiveSiteArea"/>
+        <result column="MIXED_SITE_CODE" property="mixedSiteCode"/>
+        <result column="MIXED_SITE_NAME" property="mixedSiteName"/>
+        <result column="MIXED_SITE_AREA" property="mixedSiteArea"/>
+        <result column="MIXED_SITE_TYPE" property="siteType"/>
+        <result column="RULE_TYPE" property="ruleType"/>
+        <result column="TRANSPORT_TYPE" property="transportType"/>
+        <result column="CREATE_TIME" property="createTime"/>
+        <result column="CREATE_USER" property="createUser"/>
+        <result column="CREATE_USER_CODE" property="createUserCode"/>
+        <result column="UPDATE_TIME" property="updateTime"/>
+        <result column="UPDATE_USER" property="updateUser"/>
+        <result column="UPDATE_USER_CODE" property="updateUserCode"/>
+        <result column="YN" property="yn"/>
+        <result column="TS" property="ts"/>
+    </resultMap>
+    <sql id="querycolumn">
+        ID,
+        CREATE_SITE_CODE,
+        CREATE_SITE_NAME,
+        RECEIVE_SITE_CODE,
+        RECEIVE_SITE_NAME,
+        MIXED_SITE_CODE,
+        MIXED_SITE_NAME,
+        MIXED_SITE_TYPE,
+        RULE_TYPE,
+        TRANSPORT_TYPE,
+        CREATE_TIME,
+        CREATE_USER,
+        CREATE_USER_CODE,
+        UPDATE_TIME,
+        UPDATE_USER ,
+        UPDATE_USER_CODE
+    </sql>
+    <sql id="whereCondition">
+        WHERE YN = 1
+
+        <if test="createSiteCode!=null">
+            AND CREATE_SITE_CODE = #{createSiteCode, jdbcType=BIGINT}
+        </if>
+        <if test="receiveSiteCode!=null">
+            AND RECEIVE_SITE_CODE = #{receiveSiteCode, jdbcType=BIGINT}
+        </if>
+        <if test="transportType!=null">
+            AND TRANSPORT_TYPE = #{transportType, jdbcType=BIGINT}
+        </if>
+        <if test="ruleType!=null">
+            AND RULE_TYPE = #{ruleType, jdbcType=BIGINT}
+        </if>
+        <if test="mixedSiteCode!=null">
+            AND MIXED_SITE_CODE = #{mixedSiteCode, jdbcType=BIGINT}
+        </if>
+        <if test="siteType!=null">
+            AND MIXED_SITE_TYPE = #{siteType, jdbcType=BIGINT}
+        </if>
+
+        <if test="createSiteArea!=null">
+            AND CREATE_SITE_AREA = #{createSiteArea, jdbcType=BIGINT}
+        </if>
+        <if test="receiveSiteArea!=null">
+            AND RECEIVE_SITE_AREA = #{receiveSiteArea, jdbcType=BIGINT}
+        </if>
+        <if test="mixedSiteArea!=null">
+            AND MIXED_SITE_AREA = #{mixedSiteArea, jdbcType=BIGINT}
+        </if>
+    </sql>
+
+    <sql id="selectedConfigsWhereCondition">
+        WHERE YN = 1
+        <if test="createSiteCode!=null">
+            AND CREATE_SITE_CODE = #{createSiteCode, jdbcType=BIGINT}
+        </if>
+        <if test="receiveSiteCode!=null">
+            AND RECEIVE_SITE_CODE = #{receiveSiteCode, jdbcType=BIGINT}
+        </if>
+        <if test="ruleType!=null">
+            AND RULE_TYPE = #{ruleType, jdbcType=BIGINT}
+        </if>
+        <if test="transportType!=null">
+            AND TRANSPORT_TYPE = #{transportType, jdbcType=BIGINT}
+        </if>
+
+        <if test="mixedSiteArea!=null">
+            AND MIXED_SITE_AREA = #{mixedSiteArea, jdbcType=BIGINT}
+        </if>
+        GROUP BY CREATE_SITE_CODE,RECEIVE_SITE_CODE,MIXED_SITE_CODE
+        ORDER BY MIXED_SITE_CODE
+    </sql>
+
+    <sql id="insertcolumn">
+        CREATE_SITE_CODE,
+        CREATE_SITE_NAME,
+        CREATE_SITE_AREA,
+        RECEIVE_SITE_CODE,
+        RECEIVE_SITE_NAME,
+        RECEIVE_SITE_AREA,
+        MIXED_SITE_CODE,
+        MIXED_SITE_NAME,
+        MIXED_SITE_AREA,
+        MIXED_SITE_TYPE,
+        RULE_TYPE,
+        TRANSPORT_TYPE,
+        CREATE_TIME,
+        CREATE_USER,
+        CREATE_USER_CODE,
+        UPDATE_TIME,
+        UPDATE_USER ,
+        UPDATE_USER_CODE,
+        YN,
+        TS
+    </sql>
+
+    <select id="queryConfings" parameterType="mixedPackageConfig" resultType="Integer">
+        SELECT count(1) FROM MIXED_PACKAGE_CONFIG
+        <include refid="whereCondition"/>
+
+    </select>
+
+
+    <select id="queryMixedPackageConfigCountByRequest" resultType="int"
+            parameterType="com.jd.bluedragon.distribution.mixedPackageConfig.domain.MixedPackageConfigRequest">
+        SELECT
+        count(1)
+        FROM MIXED_PACKAGE_CONFIG
+        <include refid="whereCondition"/>
+    </select>
+    <select id="queryMixedPackageConfigCount" resultType="int"
+            parameterType="mixedPackageConfig">
+        SELECT
+        count(1)
+        FROM MIXED_PACKAGE_CONFIG
+        <include refid="whereCondition"/>
+    </select>
+
+
+    <select id="queryMixedPackageConfigs" resultMap="mixedPackageConfigMap"
+            parameterType="com.jd.bluedragon.distribution.mixedPackageConfig.domain.MixedPackageConfigRequest">
+        SELECT
+        <include refid="querycolumn"/>
+
+        FROM MIXED_PACKAGE_CONFIG
+        <include refid="whereCondition"/>
+        ORDER BY CREATE_SITE_CODE,RECEIVE_SITE_CODE,RULE_TYPE,MIXED_SITE_CODE
+        <if test="startIndex != null">
+            LIMIT #{startIndex}, #{pageSize}
+        </if>
+    </select>
+
+
+    <select id="querySelectedConfigs" resultMap="mixedPackageConfigMap"
+            parameterType="com.jd.bluedragon.distribution.mixedPackageConfig.domain.MixedPackageConfigRequest">
+        SELECT MIXED_SITE_CODE , MIXED_SITE_NAME , MIXED_SITE_TYPE ,MIXED_SITE_AREA
+        FROM MIXED_PACKAGE_CONFIG
+        <include refid="selectedConfigsWhereCondition"/>
+    </select>
+
+
+    <delete id="deleteConfigById" parameterType="Integer">
+        DELETE FROM MIXED_PACKAGE_CONFIG WHERE ID=  #{id, jdbcType=BIGINT}
+    </delete>
+
+    <update id="updateConfigYNById" parameterType="mixedPackageConfig">
+        UPDATE MIXED_PACKAGE_CONFIG SET YN=0 ,UPDATE_TIME= now(),UPDATE_USER= #{updateUser, jdbcType=VARCHAR}
+        ,UPDATE_USER_CODE= #{updateUserCode, jdbcType=BIGINT},TS= #{ts, jdbcType=BIGINT}
+        WHERE  ID=  #{id, jdbcType=BIGINT}
+    </update>
+
+
+    <insert id="saveConfigs" parameterType="java.util.List">
+        INSERT INTO MIXED_PACKAGE_CONFIG(
+        <include refid="insertcolumn"/>
+        )
+        VALUES
+        <foreach collection="list" item="mixedPackageConfig" index="index" separator=",">
+            (
+            #{mixedPackageConfig.createSiteCode, jdbcType=BIGINT},
+            #{mixedPackageConfig.createSiteName, jdbcType=VARCHAR},
+            #{mixedPackageConfig.createSiteArea, jdbcType=BIGINT},
+            #{mixedPackageConfig.receiveSiteCode, jdbcType=BIGINT},
+            #{mixedPackageConfig.receiveSiteName, jdbcType=VARCHAR},
+            #{mixedPackageConfig.receiveSiteArea, jdbcType=BIGINT},
+            #{mixedPackageConfig.mixedSiteCode, jdbcType=BIGINT},
+            #{mixedPackageConfig.mixedSiteName, jdbcType=VARCHAR},
+            #{mixedPackageConfig.mixedSiteArea, jdbcType=BIGINT},
+            #{mixedPackageConfig.siteType, jdbcType=BIGINT},
+            #{mixedPackageConfig.ruleType, jdbcType=BIGINT},
+            #{mixedPackageConfig.transportType, jdbcType=BIGINT},
+            NOW(),
+            #{mixedPackageConfig.createUser, jdbcType=VARCHAR},
+            #{mixedPackageConfig.createUserCode, jdbcType=BIGINT},
+            NOW(),
+            #{mixedPackageConfig.createUser, jdbcType=VARCHAR},
+            #{mixedPackageConfig.createUserCode, jdbcType=BIGINT},
+            1,
+            #{mixedPackageConfig.ts, jdbcType=BIGINT}
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateConfigs" parameterType="com.jd.bluedragon.distribution.mixedPackageConfig.domain.MixedPackageConfigRequest">
+        update MIXED_PACKAGE_CONFIG set YN =0 ,UPDATE_TIME= now(),UPDATE_USER= #{userName, jdbcType=BIGINT}
+        ,UPDATE_USER_CODE= #{userCode, jdbcType=BIGINT},TS=#{ts, jdbcType=BIGINT}
+        WHERE YN =1 AND CREATE_SITE_CODE = #{createSiteCode, jdbcType=BIGINT}
+        AND RECEIVE_SITE_CODE = #{receiveSiteCode, jdbcType=BIGINT}
+        <if test="transportType!=null">
+            AND TRANSPORT_TYPE = #{transportType, jdbcType=BIGINT}
+        </if>
+        <if test="ruleType!=null">
+            AND RULE_TYPE = #{ruleType, jdbcType=BIGINT}
+        </if>
+        <foreach collection="mixedSiteList" item="mixedSiteCode" open="and MIXED_SITE_CODE in (" close=")"
+                 separator=",">
+            #{mixedSiteCode}
+        </foreach>
+    </update>
+
+    <select id="queryConfigsForPrint" resultMap="mixedPackageConfigMap" parameterType="map">
+        SELECT
+        CREATE_SITE_CODE,
+        RECEIVE_SITE_CODE,
+        MIXED_SITE_CODE,
+        MIXED_SITE_NAME
+        FROM MIXED_PACKAGE_CONFIG
+        WHERE YN=1 AND CREATE_SITE_CODE=#{createSiteCode, jdbcType=BIGINT}
+        AND RECEIVE_SITE_CODE=#{receiveSiteCode, jdbcType=BIGINT}
+        AND TRANSPORT_TYPE=#{transportType, jdbcType=BIGINT}
+        AND RULE_TYPE = #{ruleType, jdbcType=BIGINT}
+        GROUP BY  CREATE_SITE_CODE,
+        RECEIVE_SITE_CODE,
+        MIXED_SITE_CODE
+    </select>
+
+
+</mapper>
+
