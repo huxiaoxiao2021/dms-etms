@@ -38,11 +38,19 @@ public class BoxLimitDao extends BaseDao<SpotCheckInfo> {
     public List<BoxLimit> queryByCondition(BoxLimitQueryDTO dto) {
         return this.getSqlSession().selectList(namespace + ".queryByCondition", dto);
     }
+
     /**
      * 根据条件查询
      */
     public Integer countByCondition(BoxLimitQueryDTO dto) {
         return this.getSqlSession().selectOne(namespace + ".countByCondition", dto);
+    }
+
+    /**
+     * 根据机构ID查询记录是否存在
+     */
+    public List<BoxLimit> queryBySiteIds(List<Integer> siteIds) {
+        return this.getSqlSession().selectOne(namespace + ".queryBySiteIds", siteIds);
     }
 
     /**

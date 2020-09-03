@@ -10,7 +10,7 @@ public class BoxLimit implements Serializable {
     /**
      * id
      */
-    private Long id;
+    private Integer id;
     /**
      * 机构名称
      */
@@ -45,6 +45,14 @@ public class BoxLimit implements Serializable {
     private Date updateTime;
 
     private boolean yn;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
     public String getSiteName() {
         return siteName;
