@@ -20,7 +20,6 @@
             <list>
                 <value>classpath:configured/app.properties</value>
                 <value>classpath:configured/db.properties</value>
-                <value>classpath:configured/dcam.properties</value>
                 <value>classpath:configured/dms_ip_mapper.properties</value>
                 <value>classpath:configured/order_service_config.properties</value>
                 <value>classpath:configured/popabnormal.properties</value>
@@ -41,7 +40,6 @@
     <bean class="org.springframework.context.annotation.CommonAnnotationBeanPostProcessor"/>
 
     <!--<import resource="classpath:spring/distribution-core-common.xml" />-->
-    <!--<import resource="classpath:spring/distribution-core-dao-test.xml" />-->
     <!--<import resource="classpath:spring/distribution-core-ws.xml" />-->
     <import resource="classpath:spring/distribution-core-dao.xml"/>
     <import resource="classpath:spring/order_service_config.xml"/>
