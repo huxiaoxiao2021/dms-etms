@@ -11,6 +11,8 @@ import java.util.List;
  */
 public class UnloadCarCondition extends BasePagerCondition {
 
+    private Integer loginSiteCode;
+
     private Date startTime;
 
     private Date endTime;
@@ -20,6 +22,14 @@ public class UnloadCarCondition extends BasePagerCondition {
     private Integer distributeType;
 
     private List<Integer> status;
+
+    public Integer getLoginSiteCode() {
+        return loginSiteCode;
+    }
+
+    public void setLoginSiteCode(Integer loginSiteCode) {
+        this.loginSiteCode = loginSiteCode;
+    }
 
     public Date getStartTime() {
         return startTime;

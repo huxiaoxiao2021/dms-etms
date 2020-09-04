@@ -61,7 +61,7 @@ public class SealVehicleFromWorkbenchConsumer extends MessageBaseConsumer {
 
         if (jimdbCacheService.exists(transportCode)) {
             log.warn("sealVehicleFromWorkbenchConsumer consume --> 运力编码：{}正在执行操作，任务编号：{}", transportCode, sealVehicleTaskCode);
-            callBackNoticeFail(sealVehicleTaskCode, "该运力正在执行中，无法再次提交该运力的封车任务");
+            callBackNoticeFail(sealVehicleTaskCode, "该运力正在执行中，无法再次提交该运力的封车任务", transportCode);
         } else {
             jimdbCacheService.setEx(redisKey, submitSealVehicleDto.getSealVehicleTaskCode(), 5 * 60);
         }
@@ -73,7 +73,7 @@ public class SealVehicleFromWorkbenchConsumer extends MessageBaseConsumer {
                 List<SealVehicleSendCodeInfo> sealVehicleSendCodeInfoList = submitSealVehicleDto.getSealVehicleSendCodeInfoList();
                 if (sealVehicleSendCodeInfoList == null || sealVehicleSendCodeInfoList.isEmpty()) {
                     //有批次提交但是列表为空，写失败回执
-                    callBackNoticeFail(sealVehicleTaskCode, "该运力需要提交批次信息，但是任务消息中批次信息为空");
+                    callBackNoticeFail(sealVehicleTaskCode, "该运力需要提交批次信息，但是任务消息中批次信息为空", transportCode);
                     return;
                 }
                 Map<String, SealCarDto> sealCarDtoMap = new HashMap<>();
@@ -87,7 +87,7 @@ public class SealVehicleFromWorkbenchConsumer extends MessageBaseConsumer {
                             List<PreSealVehicle> preSealVehicleList = preSealVehicleService.getPreSealInfoByParams(submitSealVehicleDto.getTransportCode(), vehicleNumber);
                             if (preSealVehicleList == null || preSealVehicleList.isEmpty()) {
                                 //运力和车牌没有预封车信息，写失败回执
-                                callBackNoticeFail(sealVehicleTaskCode, "该运力中，车牌：" + vehicleNumber + "没有预封车信息，无法封车！");
+                                callBackNoticeFail(sealVehicleTaskCode, "该运力中，车牌：" + vehicleNumber + "没有预封车信息，无法封车！", transportCode);
                                 return;
                             }
                             SealCarDto sealCarDto = convert2SealCarDto(submitSealVehicleDto, preSealVehicleList.get(0));
@@ -105,12 +105,12 @@ public class SealVehicleFromWorkbenchConsumer extends MessageBaseConsumer {
                 List<PreSealVehicle> preSealVehicleList = preSealVehicleService.getPreSealInfoByParams(submitSealVehicleDto.getTransportCode());
                 //如果预封车信息为空，无法取出车牌信息，写失败回执
                 if (preSealVehicleList == null || preSealVehicleList.isEmpty()) {
-                    callBackNoticeFail(sealVehicleTaskCode, "该运力没有预封车信息，无法封车！");
+                    callBackNoticeFail(sealVehicleTaskCode, "该运力没有预封车信息，无法封车！", transportCode);
                     return;
                 }
                 //如果预封车信息大于1，有多条预封车信息，写失败回执
                 if (preSealVehicleList.size() > 1) {
-                    callBackNoticeFail(sealVehicleTaskCode, "该运力存在多条预封车信息并且未提供批次与车牌关系，无法封车！");
+                    callBackNoticeFail(sealVehicleTaskCode, "该运力存在多条预封车信息并且未提供批次与车牌关系，无法封车！", transportCode);
                     return;
                 }
                 PreSealVehicle preSealVehicle = preSealVehicleList.get(0);
@@ -119,7 +119,7 @@ public class SealVehicleFromWorkbenchConsumer extends MessageBaseConsumer {
                 List<String> sendCodeList = newSealVehicleService.getUnSealSendCodeList(preSealVehicle.getCreateSiteCode(), preSealVehicle.getReceiveSiteCode(), submitSealVehicleDto.getHourRange());
                 if (sendCodeList == null || sendCodeList.isEmpty()) {
                     //无需要封车的批次，写失败回执
-                    callBackNoticeFail(sealVehicleTaskCode, "该运力未抓取到待封车的批次，无法封车！");
+                    callBackNoticeFail(sealVehicleTaskCode, "该运力未抓取到待封车的批次，无法封车！", transportCode);
                     return;
                 }
                 sealCarDto.setBatchCodes(sendCodeList);
@@ -130,10 +130,10 @@ public class SealVehicleFromWorkbenchConsumer extends MessageBaseConsumer {
                 //更新预封车数据
                 completePreSealRecord(sealCarDtoList, submitSealVehicleDto);
                 //写成功回执
-                callBackNoticeSuccess(sealVehicleTaskCode);
+                callBackNoticeSuccess(sealVehicleTaskCode, transportCode);
             } else {
                 //写失败回执
-                callBackNoticeFail(sealVehicleTaskCode, newSealVehicleResponse == null ? "运输系统未未响应，封车失败" : newSealVehicleResponse.getMessage());
+                callBackNoticeFail(sealVehicleTaskCode, newSealVehicleResponse == null ? "运输系统未未响应，封车失败" : newSealVehicleResponse.getMessage(), transportCode);
             }
 
         } catch (Exception e) {
@@ -170,9 +170,10 @@ public class SealVehicleFromWorkbenchConsumer extends MessageBaseConsumer {
     /*
      * 回调通知
      * */
-    private void callback(String taskCode, String remark, Integer taskStatus) {
+    private void callback(String taskCode, String remark, Integer taskStatus, String transportCode) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("taskCode", taskCode);
+        jsonObject.put("transportCode", transportCode);
         jsonObject.put("remark", remark);
         jsonObject.put("taskStatus", taskStatus);
         wbSealVehicleCallbackProducer.sendOnFailPersistent(taskCode, jsonObject.toJSONString());
@@ -181,15 +182,15 @@ public class SealVehicleFromWorkbenchConsumer extends MessageBaseConsumer {
     /*
     * 回调通知成功
     * */
-    private void callBackNoticeSuccess(String taskCode) {
-        callback(taskCode, "ok", 20);
+    private void callBackNoticeSuccess(String taskCode, String transportCode) {
+        callback(taskCode, "ok", 20, transportCode);
     }
 
     /*
      * 回调通知失败
      * */
-    private void callBackNoticeFail(String taskCode, String remark) {
-        callback(taskCode, remark, 30);
+    private void callBackNoticeFail(String taskCode, String remark, String transportCode) {
+        callback(taskCode, remark, 30, transportCode);
     }
 
     /*
