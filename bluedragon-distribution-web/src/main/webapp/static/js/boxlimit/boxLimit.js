@@ -1,8 +1,8 @@
 var queryUrl = '/boxlimit/listData';
-var saveUrl = '/boxlimit/create';
+var saveUrl = '/boxlimit/save';
 var deleteUrl = '/boxlimit/delete';
-var updateUrl = '/boxlimit/update';
 var importUrl = '/boxlimit/toImport';
+var siteNameUrl = '/boxlimit/getSiteNameById';
 $(function () {
 
     var tableInit = function () {
@@ -13,7 +13,7 @@ $(function () {
                 method: 'post', // 请求方式（*）
                 toolbar: '#toolbar', // 工具按钮用哪个容器
                 queryParams: oTableInit.getSearchParams, // 查询参数（*）
-                height: 500, // 行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+                // height: 500, // 行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
                 uniqueId: "ID", // 每一行的唯一标识，一般为主键列
                 pagination: true, // 是否显示分页（*）
                 pageNumber: 1, // 初始化加载第一页，默认第一页
@@ -49,23 +49,20 @@ $(function () {
                 temp = {};
             }
             temp.offset = params.offset;
-            temp.limit = params.limit;
+            temp.pageSize = params.pageSize;
             // 这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
             return temp;
         };
         /**
          * 获取查询参数
-         * @param _selector 选择器（默认为'.search-param'）
          */
-        oTableInit.getSearchCondition = function(_selector) {
+        oTableInit.getSearchCondition = function() {
             var params = {};
-            if (!_selector) {
-                _selector = ".search-param";
-            }
-            $(_selector).each(function () {
-                var _k = this.id;
+
+            $('#query-form input').each(function () {
+                var _k = this.name;
                 var _v = $(this).val();
-                if(_k && (_v != null && _v != '')){
+                if(_k && (_v != null && _v !== '')){
                     params[_k] = _v;
                 }
             });
@@ -100,10 +97,7 @@ $(function () {
         }, {
             field: 'operatorSiteName',
             title: '操作机构',
-            align: 'center',
-            formatter : function(value,row,index){
-                return $.dateHelper.formateDateTimeOfTs(value);
-            }
+            align: 'center'
         }];
         oTableInit.refresh = function () {
             $('#dataTable').bootstrapTable('refreshOptions', {pageNumber: 1});
@@ -123,6 +117,8 @@ $(function () {
             //新增
             $('#btn_add').click(function() {
                 $('#importExcelFile').val(null);
+                $('#box_limit_add_form').resetForm();
+                $('#edit_title').text('新增');
                 $('#edit_modal').modal('show');
             });
             //修改
@@ -130,20 +126,26 @@ $(function () {
                 $('#importExcelFile').val(null);
                 var rows = $('#dataTable').bootstrapTable('getSelections');
                 if (rows.length < 1) {
-                    alert("错误，未选中数据");
+                    Jd.alert("错误，未选中数据");
                     return;
                 }
                 if (rows.length > 1) {
-                    alert("错误，仅可修改一条数据");
+                    Jd.alert("错误，仅可修改一条数据");
                     return;
                 }
+                $('#edit_title').text('修改');
+                $('#site_name_span').text(rows[0].siteName);
+                $('#site_name_for_update').val(rows[0].siteName);
+                $('#limit_num_for_update').val(rows[0].limitNum);
+                $('#site_id_for_update').val(rows[0].siteId);
+                $('#id_for_update').val(rows[0].id);
                 $('#edit_modal').modal('show');
             });
             // 删除
             $('#btn_delete').click(function() {
                 var rows = $('#dataTable').bootstrapTable('getSelections');
                 if (rows.length < 1) {
-                    alert("错误，未选中数据");
+                    Jd.alert("错误，未选中数据");
                     return;
                 }
                 var flag = confirm("是否删除这些数据?");
@@ -154,10 +156,10 @@ $(function () {
                     };
                     $.ajaxHelper.doPostSync(deleteUrl,JSON.stringify(params),function(res){
                         if(res&&res.succeed&&res.data){
-                            alert('操作成功,删除'+res.data+'条。');
+                            Jd.alert('操作成功,删除'+res.data+'条。');
                             tableInit().refresh();
                         }else{
-                            alert(res.message);
+                            Jd.alert(res.message);
                         }
                     });
                 }
@@ -167,8 +169,8 @@ $(function () {
             $('#btn_submit').click(function() {
                 $('#btn_submit').attr("disabled",true);
                 var params = {};
-                $('.edit-param').each(function () {
-                    var _k = this.id;
+                $('#box_limit_add_form input').each(function () {
+                    var _k = this.name;
                     var _v = $(this).val();
                     if(_k && _v){
                         if(_k == 'hintMark'){
@@ -204,5 +206,67 @@ $(function () {
     };
     tableInit().init();
     pageInit().init();
+    initImportExcel();
+
+    $('#site_id_for_update').change(function () {
+        var querySiteNameParam = {};
+        querySiteNameParam['siteId'] = $('#site_id_for_update').val();
+        $.ajaxHelper.doGetSync(siteNameUrl, querySiteNameParam, function (res) {
+            if (res.data) {
+                $('#site_name_span').text(res.data);
+                $('#site_name').val(res.data);
+            } else {
+                $('#site_name_span').class('alert alert-danger').text('机构不存在!');
+            }
+        });
+    });
 });
+
+function initImportExcel(){
+    //上传按钮
+    $('#btn_upload').on('click',function(e){
+        $('#btn_upload').attr("disabled",true);
+
+        var inputValue = $('#importExcelFile').val().trim();
+        var index1 = inputValue.lastIndexOf(".");
+        var index2 = inputValue.length;
+        var suffixName = inputValue.substring(index1+1,index2);
+        if(inputValue === ''){
+            Jd.alert('请先浏览文件在上传!');
+            $('#btn_upload').attr("disabled",false);
+            return;
+        }
+        if(suffixName !== 'xlsx'){
+            Jd.alert('请上传指定Excel文件!');
+            $('#btn_upload').attr("disabled",false);
+            return;
+        }
+
+        var form = document.getElementById('import_excel_file_form'),
+            formData = new FormData(form);
+        $.ajax({
+            url:importUrl,
+            type:"post",
+            data:formData,
+            processData:false,
+            contentType:false,
+            success:function(res){
+                if(res && res.code === 200){
+                    Jd.alert("上传成功!");
+                    tableInit().refresh();
+                }else{
+                    Jd.alert("上传失败!" + res.message);
+                }
+                $('#btn_upload').attr("disabled",false);
+            },
+            error:function(err){
+                Jd.alert("网络连接失败,稍后重试");
+                $('#btn_upload').attr("disabled",false);
+            }
+
+
+        });
+
+    });
+}
 

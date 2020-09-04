@@ -197,7 +197,7 @@
     select
     <include refid="Base_Column_List" />
     from box_limit_config
-    where id IN
+    where site_id IN
     <foreach collection="list" item="item" separator="," open="(" close=")">
       #{item}
     </foreach>

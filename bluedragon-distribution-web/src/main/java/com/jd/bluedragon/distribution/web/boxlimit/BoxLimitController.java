@@ -39,7 +39,6 @@ public class BoxLimitController extends DmsBaseController {
     /**
      * 返回主页面
      */
-    @Authorization(Constants.DMS_WEB_SORTING_REVIEWWEIGHTSPOTCHECK_R)
     @RequestMapping("/toIndex")
     public String toIndex(Model model){
 
@@ -49,7 +48,6 @@ public class BoxLimitController extends DmsBaseController {
     /**
      * 获取列表
      */
-    @Authorization(Constants.DMS_WEB_SORTING_REVIEWWEIGHTSPOTCHECK_R)
     @RequestMapping("/listData")
     @ResponseBody
     public PagerResult<BoxLimitVO> listData(@RequestBody BoxLimitQueryDTO dto){
@@ -59,7 +57,6 @@ public class BoxLimitController extends DmsBaseController {
     /**
      * 获取站点名称
      */
-    @Authorization(Constants.DMS_WEB_SORTING_REVIEWWEIGHTSPOTCHECK_R)
     @RequestMapping("/getSiteNameById")
     @ResponseBody
     public JdResponse getSiteNameById(Integer siteId){
@@ -67,29 +64,20 @@ public class BoxLimitController extends DmsBaseController {
         return boxLimitService.getSiteNameById(siteId);
     }
     /**
-     * 新建
+     * 新建/修改
      */
-    @Authorization(Constants.DMS_WEB_SORTING_REVIEWWEIGHTSPOTCHECK_R)
-    @RequestMapping("/create")
+    @RequestMapping("/save")
     @ResponseBody
-    public JdResponse create(@RequestBody BoxLimitDTO dto){
-
-        return boxLimitService.create(dto, getLoginUser());
-    }
-    /**
-     * 更新
-     */
-    @Authorization(Constants.DMS_WEB_SORTING_REVIEWWEIGHTSPOTCHECK_R)
-    @RequestMapping("/update")
-    @ResponseBody
-    public JdResponse update(@RequestBody BoxLimitDTO dto){
-
-        return boxLimitService.update(dto, getLoginUser());
+    public JdResponse save(@RequestBody BoxLimitDTO dto){
+        if (dto.getId() == null) {
+            return boxLimitService.create(dto, getLoginUser());
+        } else {
+            return boxLimitService.update(dto, getLoginUser());
+        }
     }
     /**
      * 删除
      */
-    @Authorization(Constants.DMS_WEB_SORTING_REVIEWWEIGHTSPOTCHECK_R)
     @RequestMapping("/delete")
     @ResponseBody
     public JdResponse delete(List<Integer> ids){
@@ -99,7 +87,6 @@ public class BoxLimitController extends DmsBaseController {
     /**
      * 导入
      */
-    @Authorization(Constants.DMS_WEB_SORTING_REVIEWWEIGHTSPOTCHECK_SPECIAL_R)
     @RequestMapping(value = "/toImport", method = RequestMethod.POST)
     @ResponseBody
     public JdResponse toImport(@RequestParam("importExcelFile") MultipartFile file) {

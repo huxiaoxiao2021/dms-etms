@@ -33,6 +33,7 @@ public class BoxLimitServiceImpl implements BoxLimitService {
         if (dto.getSiteName() != null) {
             dto.setSiteName(dto.getSiteName().replaceAll("_","\\_").replaceAll("\\?","\\?"));
         }
+        dto.setOffset();
         PagerResult<BoxLimitVO> result = new PagerResult<>();
         Integer count = boxLimitConfigDao.countByCondition(dto);
         result.setTotal(count);
@@ -45,6 +46,7 @@ public class BoxLimitServiceImpl implements BoxLimitService {
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         for (BoxLimitConfig b : boxLimitConfigs) {
             BoxLimitVO vo = new BoxLimitVO();
+            vo.setId(b.getId());
             vo.setSiteName(b.getSiteName());
             vo.setSiteId(b.getSiteId());
             vo.setLimitNum(b.getLimitNum());
@@ -136,7 +138,7 @@ public class BoxLimitServiceImpl implements BoxLimitService {
                 names.append(b.getSiteId());
             }
             response.setCode(JdResponse.CODE_FAIL);
-            response.setMessage(String.format("ID为:%s 的机构配置已经存在,不允许重复新增", names));
+            response.setMessage(String.format("ID为:%s 的机构配置已经存在,不允许重复配置", names));
             return;
         }
         row = 1;
@@ -149,7 +151,7 @@ public class BoxLimitServiceImpl implements BoxLimitService {
             }
             if (!vo.getSiteName().equals(siteOrgDto.getSiteName())) {
                 response.setCode(JdResponse.CODE_FAIL);
-                response.setMessage(String.format("excel中第%s行 ID为%s的机构ID与机构名称不匹配,实际机构名称应为:%s", row, vo.getSiteId(), siteOrgDto.getSiteName()));
+                response.setMessage(String.format("excel中第%s行 ID为%s的机构名称不匹配,实际机构名称应为:%s", row, vo.getSiteId(), siteOrgDto.getSiteName()));
                 return;
             }
         }
@@ -177,11 +179,13 @@ public class BoxLimitServiceImpl implements BoxLimitService {
             return;
         }
 
-        List<BoxLimitConfig> boxLimitConfigs = boxLimitConfigDao.queryBySiteIds(Collections.singletonList(dto.getId()));
-        if (!CollectionUtils.isEmpty(boxLimitConfigs) && !dto.getId().equals(boxLimitConfigs.get(0).getId())) {
-            response.setCode(JdResponse.CODE_FAIL);
-            response.setMessage(String.format("ID为:%s 的机构配置已经存在,不允许重复新增", dto.getId()));
-            return;
+        List<BoxLimitConfig> boxLimitConfigs = boxLimitConfigDao.queryBySiteIds(Collections.singletonList(dto.getSiteId()));
+        if (!CollectionUtils.isEmpty(boxLimitConfigs)) {
+            if (dto.getId() == null || !dto.getId().equals(boxLimitConfigs.get(0).getId())) {
+                response.setCode(JdResponse.CODE_FAIL);
+                response.setMessage(String.format("ID为:%s 的机构配置已经存在,不允许重复配置", dto.getSiteId()));
+                return;
+            }
         }
         BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(dto.getSiteId());
         if (siteOrgDto == null) {
