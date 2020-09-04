@@ -427,8 +427,10 @@ public class SiteServiceImpl implements SiteService {
 
     @Override
     @Cache(key = "SiteServiceImpl.get@args0",  memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000, redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
-    public Site get(int siteCode) {
-
+    public Site get(Integer siteCode) {
+        if (siteCode == null) {
+            return null;
+        }
         Site site = this.siteMapper.get(siteCode);
         if (site == null) {
             BaseStaffSiteOrgDto dto = null;

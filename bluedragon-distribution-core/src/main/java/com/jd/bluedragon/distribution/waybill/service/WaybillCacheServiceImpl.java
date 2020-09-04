@@ -67,7 +67,7 @@ public class WaybillCacheServiceImpl implements WaybillCacheService {
     public WaybillCache getNoCache(String waybillCode) {
         WaybillCache waybillCache = null;
         try {
-            BigWaybillDto bigWaybillDto = waybillService.getWaybill(waybillCode);
+            BigWaybillDto bigWaybillDto = waybillService.getWaybill(waybillCode, false);
             waybillCache = this.convertWaybillWS(bigWaybillDto, true);
 
         }catch(Exception e){

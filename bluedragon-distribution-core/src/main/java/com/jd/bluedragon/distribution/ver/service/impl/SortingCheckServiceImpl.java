@@ -132,7 +132,9 @@ public class SortingCheckServiceImpl implements SortingCheckService {
 
         // 箱子判断
         Box box = boxService.findBoxByCode(filterContext.getBoxCode());
-        if (box == null || StringHelper.isEmpty(box.getCode())) {
+
+        //只有boxCode符合箱号规则时才进行箱号不存在的判定
+        if (BusinessUtil.isBoxcode(filterContext.getBoxCode()) && (box == null || StringHelper.isEmpty(box.getCode()))) {
             throw new SortingCheckException(SortingResponse.CODE_29001, SortingResponse.MESSAGE_29001);
         } else {
             filterContext.setBox(box);

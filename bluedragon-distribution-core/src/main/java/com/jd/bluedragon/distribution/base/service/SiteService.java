@@ -117,6 +117,6 @@ public interface SiteService {
 	List<BaseStaffSiteOrgDto> fuzzyGetSiteBySiteName(String siteName);
 
 
-	Site get(int siteCode);
+	Site get(Integer siteCode);
 
 }
