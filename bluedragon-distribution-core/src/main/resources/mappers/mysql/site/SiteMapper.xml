@@ -46,31 +46,4 @@
 		LIMIT 1
 	</select>
 
-	<select id="getByName" resultMap="site" parameterType="String">
-		SELECT site_code, site_type, site_name, org_id, sub_type,city_id,province_id,air_sign,site_businesstype
-		FROM Site
-		WHERE site_name = #{name} AND yn = 1
-		LIMIT 1
-	</select>
-
-	<select id="fuzzyGetByName" resultMap="site" parameterType="String">
-		SELECT site_code, site_type, site_name, org_id, sub_type,city_id,province_id,air_sign,site_businesstype
-		FROM Site
-		WHERE site_name LIKE CONCAT('%',#{name},'%') AND yn = 1 GROUP BY site_code
-		LIMIT 20
-	</select>
-
-    <select id="getPrintSite" resultMap="site" parameterType="String">
-		SELECT site_code, site_type, site_name, org_id, sub_type,city_id,province_id,air_sign,site_businesstype
-		FROM Site
-		WHERE site_code = #{code} AND yn = 1
-	</select>
-
-    <select id="getAllDmsSite" resultMap="site">
-		SELECT site_code, site_type, site_name, org_id, sub_type,city_id,province_id,air_sign,site_businesstype
-		FROM Site
-		WHERE site_type = 64 AND yn = 1 ORDER BY site_code
-	</select>
-
-
 </mapper>

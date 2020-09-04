@@ -1,10 +1,9 @@
 package com.jd.bluedragon.distribution.ver.filter.chains;
 
 
-import com.jd.bluedragon.distribution.ver.domain.FilterRequest;
+import com.jd.bluedragon.distribution.ver.domain.FilterContext;
 import com.jd.bluedragon.distribution.ver.filter.Filter;
 import com.jd.bluedragon.distribution.ver.filter.FilterChain;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +16,7 @@ public class DeliveryFilterChain extends FilterChain {
     private int filterIndex = 0;
     private List<Filter> filterList = new ArrayList<Filter>();
     @Override
-    public void doFilter(FilterRequest request, FilterChain chain) throws Exception {
+    public void doFilter(FilterContext request, FilterChain chain) throws Exception {
         if (filterIndex == filterList.size())
             return;
         filterList.get(filterIndex++).doFilter(request, chain);

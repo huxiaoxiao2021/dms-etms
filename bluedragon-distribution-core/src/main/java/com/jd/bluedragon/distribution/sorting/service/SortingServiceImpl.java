@@ -49,6 +49,7 @@ import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.domain.SortingVO;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -183,6 +184,9 @@ public class SortingServiceImpl implements SortingService {
 
 	@Autowired
 	private JsfSortingResourceService jsfSortingResourceService;
+
+	@Autowired
+	private SortingCheckService sortingCheckService;
 
     /**
      * sorting任务处理告警时间，单位:ms，默认值100
@@ -1634,6 +1638,11 @@ public class SortingServiceImpl implements SortingService {
 		SortingJsfResponse sortingJsfResponse = new SortingJsfResponse();
 
 		try{
+			//调用web分拣验证校验链
+			sortingJsfResponse = sortingCheckService.sortingCheck(pdaOperateRequest);
+			if(sortingJsfResponse.getCode() != 200){
+				return sortingJsfResponse;
+			}
 			SortingCheck sortingCheck = convertToSortingCheck(pdaOperateRequest);
 			sortingJsfResponse = jsfSortingResourceService.check(sortingCheck);
 			if(sortingJsfResponse.getCode() != 200){

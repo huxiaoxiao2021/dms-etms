@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.waybill.router;
+package com.jd.bluedragon.common.router;
 
 public class HashStrategy {
 

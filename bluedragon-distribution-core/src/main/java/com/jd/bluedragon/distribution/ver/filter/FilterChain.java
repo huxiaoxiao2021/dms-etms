@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.ver.filter;
 
 
-import com.jd.bluedragon.distribution.ver.domain.FilterRequest;
+import com.jd.bluedragon.distribution.ver.domain.FilterContext;
 
 /**
  * @author dudong
@@ -10,5 +10,5 @@ import com.jd.bluedragon.distribution.ver.domain.FilterRequest;
 public abstract class FilterChain implements Filter {
 
     @Override
-    public abstract void doFilter(FilterRequest request, FilterChain chain) throws Exception;
+    public abstract void doFilter(FilterContext request, FilterChain chain) throws Exception;
 }

@@ -2413,7 +2413,7 @@ public class WaybillResource {
         }
 	    InvokeResult<Boolean> result = new InvokeResult<>();
         if (null == pdaOperateRequest || StringUtils.isBlank(pdaOperateRequest.getPackageCode())) {
-            result.customMessage(SortingResponse.CODE_PARAM_IS_NULL, SortingResponse.MESSAGE_PARAM_IS_NULL);
+            result.customMessage(SortingResponse.CODE_PACKAGE_CODE_OR_WAYBILL_CODE_IS_NULL, SortingResponse.MESSAGE_PACKAGE_CODE_OR_WAYBILL_CODE_IS_NULL);
             return result;
         }
         return waybillService.thirdCheckWaybillCancel(pdaOperateRequest);

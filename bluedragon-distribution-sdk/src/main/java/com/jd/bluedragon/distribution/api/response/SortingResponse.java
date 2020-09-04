@@ -11,10 +11,10 @@ public class SortingResponse extends JdResponse {
     private static final long serialVersionUID = 5954178829551983145L;
 
     public static final Integer CODE_PARAM_IS_NULL = 22001;
-    public static final String MESSAGE_PARAM_IS_NULL = "包裹号或运单号不能为空";
+    public static final String MESSAGE_PARAM_IS_NULL = "参数不能为空";
 
-    public static final Integer CODE_SORTING_NOT_FOUND = 22002;
-    public static final String MESSAGE_SORTING_NOT_FOUND = "无包裹或运单信息";
+    public static final Integer CODE_PACKAGE_CODE_OR_WAYBILL_CODE_IS_NULL = 22002;
+    public static final String MESSAGE_PACKAGE_CODE_OR_WAYBILL_CODE_IS_NULL = "包裹号或运单号不能为空";
 
     public static final Integer CODE_SORTING_WAITING_PROCESS = 22003;
     public static final String MESSAGE_SORTING_WAITING_PROCESS = "包裹或运单信息正在处理，请稍候";
@@ -363,6 +363,7 @@ public class SortingResponse extends JdResponse {
 
     public static final Integer CODE_29417 = 29417;
     public static final String MESSAGE_29417 = "此箱包裹数量超限，请更换箱号!";
+    public static final String MESSAGE_29417_WAYBILL = "集包数量超过上限{0}个，请按包裹操作建箱!";
 
     public static final Integer CODE_29418 = 29418;
     public static final String MESSAGE_29418 = "此单已拒收或妥投，请扫描正确面单或退商家打印正确面单或操作异常处理!";

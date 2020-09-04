@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.waybill.dao.WaybillCacheDao">
+    <resultMap id="waybillCache" type="com.jd.bluedragon.common.domain.WaybillCache">
+        <result column="org_id" property="orgId"/>
+        <result column="waybill_code" property="waybillCode"/>
+        <result column="waybill_type" property="type"/>
+        <result column="pop_sup_id" property="popSupId"/>
+        <result column="pop_sup_name" property="popSupName"/>
+        <result column="transfer_station_id" property="transferStationId"/>
+        <result column="site_code" property="siteCode"/>
+        <result column="road_code" property="roadCode"/>
+        <result column="site_name" property="siteName"/>
+        <result column="payment_type" property="paymentType"/>
+        <result column="send_pay" property="sendPay"/>
+        <result column="weight" property="weight"/>
+        <result column="good_volume" property="volume"/>
+        <!--<result column="freight" property="freight"/>-->
+        <result column="quantity" property="quantity"/>
+        <result column="address" property="address"/>
+        <result column="cross_code" property="crossCode"/>
+        <result column="distribute_store_id" property="distributeStoreId"/>
+        <result column="trolley_code" property="trolleyCode"/>
+        <result column="busi_id" property="busiId"/>
+        <result column="distribute_type" property="distributeType"/>
+        <result column="waybill_Sign" property="waybillSign"/>
+        <result column="distribute_store_name" property="distributeStoreName"/>
+        <result column="busi_name" property="busiName"/>
+        <result column="cky2" property="cky2"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <select id="findByWaybillCode" resultMap="waybillCache" parameterType="java.util.Map">
+		SELECT 
+			org_id, waybill_code, pop_sup_id, pop_sup_name, site_code, 
+			site_name, payment_type, send_pay, weight,good_volume, quantity, address,
+			waybill_type, transfer_station_id, cross_code
+			, distribute_store_id, trolley_code, busi_id,cky2,
+			distribute_type,road_code,waybill_Sign,distribute_store_name,busi_name
+		FROM ${tableName}
+		WHERE waybill_code = #{waybillCode}
+		LIMIT 1
+	</select>
+
+
+</mapper>

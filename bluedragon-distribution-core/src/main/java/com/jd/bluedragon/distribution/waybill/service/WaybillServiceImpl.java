@@ -14,7 +14,6 @@ import com.jd.bluedragon.distribution.api.response.OrderPackage;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
@@ -25,20 +24,16 @@ import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
-import com.jd.bluedragon.distribution.ver.domain.Site;
-import com.jd.bluedragon.distribution.waybill.dao.CWaybillExtendDao;
 import com.jd.bluedragon.distribution.waybill.dao.CancelWaybillDao;
 import com.jd.bluedragon.distribution.waybill.domain.*;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.service.LossServiceManager;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.api.WaybillPackageApi;
-import com.jd.etms.waybill.common.Page;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
@@ -101,12 +96,6 @@ public class WaybillServiceImpl implements WaybillService {
 
     @Resource
     private UccPropertyConfiguration uccPropertyConfiguration;
-
-    @Autowired
-    private CWaybillExtendDao cWaybillExtendDao;
-
-    @Autowired
-    SiteService siteService;
 
     /**
      * 普通运单类型（非移动仓内配）
@@ -537,188 +526,6 @@ public class WaybillServiceImpl implements WaybillService {
         }
         return false;
     }
-
-
-
-    @Override
-    public com.jd.bluedragon.common.domain.Waybill getFromCache(String waybillCode) {
-        if (StringUtils.isBlank(waybillCode)) {
-            this.log.error("WaybillServiceImpl --> getByWaybillCodeCommon：传入运单号参数错误");
-            return null;
-        }
-
-        com.jd.bluedragon.common.domain.Waybill waybill = null;
-        try {
-            waybill= cWaybillExtendDao.findByWaybillCode(waybillCode);
-            boolean isInvalid = false;
-            if (waybill != null) {
-                isInvalid = BusinessHelper.isInvalidCacheWaybill(waybill);
-            }
-
-            if (waybill == null || isInvalid) {
-                if (waybill == null) {
-                    this.log.info("运单号为[" + waybillCode + "]的缓存数据为空，调用运单WSS接口");
-                }
-                if (isInvalid) {
-                    this.log.info("运单号为[" + waybillCode + "]缓存数据不全，调用主缓存或者WSS服务查询");
-                }
-                // 调用运单接口
-                this.log.info("运单号为： " + waybillCode + "调用WSS接口获取运单信息");
-
-                BigWaybillDto bigWaybillDto=getWaybill(waybillCode);
-                waybill = this.convWaybillWS(bigWaybillDto, true);
-                return waybill;
-            }
-
-        }catch(Exception e){
-            log.error("getFromCache fail!"+waybillCode,e);
-        }finally {
-        }
-        return waybill;
-    }
-
-    @Override
-    public List<DeliveryPackageD> getPackageByWaybillCode(String waybillCode) {
-        log.info("调用外单接口--getPackageByParam,分页获取包裹数据,运单号:" + waybillCode);
-        List<DeliveryPackageD> packageList = new ArrayList<DeliveryPackageD>();
-
-        Page<DeliveryPackageDto> pageParam = new Page<DeliveryPackageDto>();
-        pageParam.setCurPage(1);
-        pageParam.setPageSize(Constants.PACKAGE_NUM_ONCE_QUERY);
-
-        BaseEntity<Page<DeliveryPackageDto>> baseEntity = waybillPackageApi.getPackageByParam(waybillCode, pageParam);
-        if(baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getResult() != null && baseEntity.getData().getResult().size()>0){
-            packageList.addAll(changeToDeliveryPackageDBatch(baseEntity.getData().getResult()));
-
-            int totalPage = baseEntity.getData().getTotalPage();
-
-            for(int i=2; i<= totalPage; i++){
-                pageParam.setCurPage(i);
-                List<DeliveryPackageDto> dtoList = waybillPackageApi.getPackageByParam(waybillCode,pageParam).getData().getResult();
-                packageList.addAll(changeToDeliveryPackageDBatch(dtoList));
-            }
-        }
-
-        log.info("getPackageByWaybillCode获取包裹数据共" + packageList.size() + "条.");
-        return packageList;
-    }
-
-    @Override
-    public com.jd.bluedragon.common.domain.Waybill getNoCache(String waybillCode) {
-        com.jd.bluedragon.common.domain.Waybill waybill=null;
-        BigWaybillDto waybillDto = getWaybill(waybillCode);
-        if (waybill != null ) {
-            waybill = this.convWaybillWS(waybillDto, true);
-            return waybill;
-        }
-        return null;
-    }
-
-
-    /**
-     * 将调用运单分页接口返回的dto转换成DeliveryPackageD
-     * @param dtoList
-     * @return
-     */
-    private List<DeliveryPackageD> changeToDeliveryPackageDBatch(List<DeliveryPackageDto> dtoList){
-        List<DeliveryPackageD> packageDList = new ArrayList<DeliveryPackageD>();
-
-        for(DeliveryPackageDto dto: dtoList) {
-            DeliveryPackageD packageD = new DeliveryPackageD();
-
-            packageD.setPackageBarcode(dto.getPackageBarcode());
-            packageD.setWaybillCode(dto.getWaybillCode());
-            packageD.setCky2(dto.getCky2());
-            packageD.setStoreId(dto.getStoreId());
-            packageD.setPackageState(dto.getPackageState());
-            packageD.setPackWkNo(dto.getPackwkNo());
-            packageD.setRemark(dto.getRemark());
-
-            packageD.setGoodWeight(dto.getGoodWeight());
-            packageD.setGoodVolume(dto.getGoodVolume());
-            packageD.setAgainWeight(dto.getAgainWeight());
-            packageD.setAgainVolume(dto.getAgainVolume());
-            packageD.setPackTime(dto.getPackTime());
-            packageD.setWeighTime(dto.getWeighTime());
-            packageD.setCreateTime(dto.getCreateTime());
-            packageD.setUpdateTime(dto.getUpdateTime());
-
-            packageD.setWeighUserName(dto.getWeighUserName());
-
-            packageDList.add(packageD);
-        }
-
-        return packageDList;
-
-    }
-
-    /**
-     * 转换运单基本信息
-     *
-     * @param
-     * @return
-     */
-    public com.jd.bluedragon.common.domain.Waybill convWaybillWS(BigWaybillDto bigWaybillDto, boolean isSetName) {
-        if (bigWaybillDto == null) {
-            this.log.debug("转换运单基本信息 --> 原始运单数据集bigWaybillDto为空");
-            return null;
-        }
-        com.jd.etms.waybill.domain.Waybill waybillWS = bigWaybillDto.getWaybill();
-        if (waybillWS == null) {
-            this.log.debug("转换运单基本信息 --> 原始运单数据集waybillWS为空");
-            return null;
-        }
-        WaybillManageDomain manageDomain = bigWaybillDto.getWaybillState();
-        if (manageDomain == null) {
-            this.log.debug("转换运单基本信息 --> 原始运单数据集manageDomain为空");
-            return null;
-        }
-        com.jd.bluedragon.common.domain.Waybill waybill = new com.jd.bluedragon.common.domain.Waybill();
-        waybill.setWaybillCode(waybillWS.getWaybillCode());
-        waybill.setPopSupId(waybillWS.getConsignerId());
-        waybill.setPopSupName(waybillWS.getConsigner());
-
-        // 设置站点
-        waybill.setSiteCode(waybillWS.getOldSiteId());
-        if (isSetName) {
-            dealWaybillSiteName(waybill);
-        }
-
-        waybill.setPaymentType(waybillWS.getPayment());
-        waybill.setQuantity(waybillWS.getGoodNumber());
-        waybill.setWeight(waybillWS.getGoodWeight());
-        waybill.setAddress(waybillWS.getReceiverAddress());
-        waybill.setOrgId(waybillWS.getArriveAreaId());
-        waybill.setSendPay(waybillWS.getSendPay());
-        waybill.setType(waybillWS.getWaybillType());
-        waybill.setTransferStationId(waybillWS.getTransferStationId());
-        waybill.setCrossCode(waybillWS.getSlideCode());
-        waybill.setDistributeStoreId(waybillWS.getDistributeStoreId());
-        waybill.setBusiId(waybillWS.getBusiId());
-        waybill.setDistributeType(waybillWS.getDistributeType());
-        waybill.setWaybillSign(waybillWS.getWaybillSign());
-        waybill.setDistributeStoreName(waybillWS.getDistributeStoreName());
-        waybill.setBusiName(waybillWS.getBusiName());
-        waybill.setRoadCode(waybillWS.getRoadCode());//added by wuzuxiang 2017-4-28 09:35:08
-        waybill.setAgainWeight(waybillWS.getAgainWeight());//added by tangchunqing 2018年4月24日
-        waybill.setSpareColumn2(waybillWS.getSpareColumn2());//added by tangchunqing 2018年4月24日
-        waybill.setFreight(waybillWS.getFreight());//added by shipeilin 2018年12月19日
-        return waybill;
-    }
-
-
-    private void dealWaybillSiteName(com.jd.bluedragon.common.domain.Waybill waybill) {
-        Integer siteCode = waybill.getSiteCode();
-        if (siteCode != null) {
-            Site site = siteService.get(siteCode);
-            if (site != null) {
-                waybill.setSiteName(site.getName());
-            } else {
-                this.log.info("查找不到站点[" + siteCode + "]相关信息");
-            }
-        }
-    }
-
 
     /**
      * 三方验货拦截，目前只强拦截四种类型

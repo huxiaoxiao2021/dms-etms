@@ -1,7 +1,7 @@
 package com.jd.bluedragon.utils;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.domain.Waybill;
+import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -624,39 +624,75 @@ public class BusinessHelper {
      * 检查分拣自己存储的运单的数据是否完整。如果有关键字段为空则返回true,正常情况返回false.
      * 普通运单检查机构ID、站点编码、站点编号、支付类型、特殊属性、重量;POP(23&&25)还检查数量、商家ID、商家名称.
      *
-     * @param waybill
+     * @param waybillCache
      * @return boolean
      */
-    public static boolean isInvalidCacheWaybill(Waybill waybill) {
-        if (waybill == null) {
+    public static boolean isInvalidCacheWaybill(WaybillCache waybillCache) {
+        if (waybillCache == null) {
             return true;
         }
-        Integer type = waybill.getType();
+        Integer type = waybillCache.getType();
         boolean isPop = false;
 
         if (type != null && (type.equals(Constants.POP_FBP) || type.equals(Constants.POP_SOPL))) {
             isPop = true;
         }
 
-        Integer orgId = waybill.getOrgId();
-        Integer siteCode = waybill.getSiteCode();
-        Integer paymentType = waybill.getPaymentType();
-        String sendPay = waybill.getSendPay();
-        Double weight = waybill.getWeight();
+        Integer orgId = waybillCache.getOrgId();
+        Integer siteCode = waybillCache.getSiteCode();
+        Integer paymentType = waybillCache.getPaymentType();
+        String sendPay = waybillCache.getSendPay();
+        Double weight = waybillCache.getWeight();
         if (orgId == null || siteCode == null || siteCode == 0 || sendPay == null || sendPay.trim().length() == 0
                 || paymentType == null || weight == null) {
             return true;
         }
 
         if (isPop) {
-            Integer quantity = waybill.getQuantity();
-            Integer popSupId = waybill.getPopSupId();
-            String popSupName = waybill.getPopSupName();
+            Integer quantity = waybillCache.getQuantity();
+            Integer popSupId = waybillCache.getPopSupId();
+            String popSupName = waybillCache.getPopSupName();
             if (quantity == null || popSupId == null || popSupName == null || popSupName.trim().length() == 0) {
                 return true;
             }
         }
 
+        return false;
+    }
+
+    /**
+     * 是否验证运单数据包含-到付运费，WaybillSign40=2或3时，并且WaybillSign25=2时， 返回true
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isCheckFreightForB2b(String waybillSign) {
+        if (StringHelper.isNotEmpty(waybillSign)) {
+            //WaybillSign40=2或3时，并且WaybillSign25=2时（只外单快运纯配、外单快运仓配并且运费到付），需校验
+            if ((BusinessUtil.isSignChar(waybillSign, 40, '2') || BusinessUtil.isSignChar(waybillSign, 40, '3'))
+                    && BusinessUtil.isSignChar(waybillSign, 25, '2')
+                    && !reverseB2bNoInterceptFreight(waybillSign)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 是否验证运单数据包含-寄付运费，WaybillSign62=1，且WaybillSign25=3时， 返回true
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isCheckSendFreightForB2b(String waybillSign) {
+        if (StringHelper.isNotEmpty(waybillSign)) {
+            //WaybillSign62=1时，并且WaybillSign25=3时（只外单快运纯配、外单快运仓配并且运费寄付），需校验
+            if (BusinessUtil.isSignChar(waybillSign, 62, '1')
+                    && BusinessUtil.isSignChar(waybillSign, 25, '3')
+                    && !reverseB2bNoInterceptFreight(waybillSign)) {
+                return true;
+            }
+        }
         return false;
     }
 }

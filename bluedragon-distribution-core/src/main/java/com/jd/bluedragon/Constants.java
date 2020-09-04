@@ -1286,7 +1286,7 @@ public class Constants {
     /**
      * 运单全程跟踪 揽收完成state枚举
      */
-    public static final String WAYBILLTRACE_STATE_RECEIVE = "-640";
+    public static final Integer WAYBILL_TRACE_STATE_RECEIVE = -640;
 
     /**
      * 运单全程跟踪 妥投state枚举
@@ -1303,7 +1303,8 @@ public class Constants {
     public static final String   BASIC_B_TRADER_ORG_NAME = "B商家机构"; //B商家对应机构名称
     public static final int  BASIC_B_TRADER_SITE_TYPE = 1024; //B商家对应站点类型
 
-
-
-
+    /**
+     * 一车一单操作类型
+     */
+    public static final int OPERATE_TYPE_NEW_PACKAGE_SEND = 60;
 }

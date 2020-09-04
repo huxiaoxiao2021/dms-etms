@@ -13,12 +13,4 @@ public interface SiteMapper {
 
     Site get(Integer siteCode);
 
-    Site getByName(String name);
-
-    List<Site> fuzzyGetByName(String name);
-
-    List<Site> getPrintSite(Integer siteCode);
-
-    List<Site> getAllDmsSite();
-
 }

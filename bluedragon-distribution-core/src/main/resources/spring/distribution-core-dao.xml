@@ -638,4 +638,13 @@
     <bean id="businessReturnAdressDao" parent="businessBaseDao"
           class="com.jd.bluedragon.distribution.business.dao.impl.BusinessReturnAdressDaoImpl" />                    
     <!--################################## bd_dms_business 相关DAO End ############################################ -->
+
+
+    <!--################################## 总部waybill库 相关DAO Start ############################################ -->
+
+    <bean id="waybillCacheDao" class="com.jd.bluedragon.distribution.waybill.dao.WaybillCacheDao">
+        <property name="sqlSession" ref = "sessionTemplate_waybill"/>
+    </bean>
+    <!--################################## bd_dms_business 相关DAO End ############################################ -->
+
 </beans>

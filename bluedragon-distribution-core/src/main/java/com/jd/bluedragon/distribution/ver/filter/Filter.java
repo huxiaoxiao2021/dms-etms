@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.ver.filter;
 
 
-import com.jd.bluedragon.distribution.ver.domain.FilterRequest;
+import com.jd.bluedragon.distribution.ver.domain.FilterContext;
 
 /**
  * @author dudong
@@ -9,5 +9,5 @@ import com.jd.bluedragon.distribution.ver.domain.FilterRequest;
  */
 public interface Filter {
 
-    public void doFilter(FilterRequest request, FilterChain chain) throws Exception;
+    public void doFilter(FilterContext request, FilterChain chain) throws Exception;
 }

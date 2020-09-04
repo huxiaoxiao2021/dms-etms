@@ -23,7 +23,7 @@ public class RuleDao extends BaseDao<Rule> {
     }
 
     public List<Rule>  queryByParamNoPage(Map map) {
-        return super.getSqlSession().selectList(RuleDao.NAMESPACE + ".queryByParam", map);
+        return super.getSqlSession().selectList(RuleDao.NAMESPACE + ".queryByParamNoPage", map);
     }
 
     public Integer queryAllSize(Map map) {

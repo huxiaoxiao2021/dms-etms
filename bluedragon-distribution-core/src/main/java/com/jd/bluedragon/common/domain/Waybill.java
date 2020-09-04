@@ -4,7 +4,6 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.product.domain.Product;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 /**

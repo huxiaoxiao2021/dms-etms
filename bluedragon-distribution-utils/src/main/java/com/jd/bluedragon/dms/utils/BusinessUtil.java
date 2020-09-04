@@ -1418,6 +1418,7 @@ public class BusinessUtil {
 
     /**
      * @Description
+     * @param boxCode
      * @Author wyh
      * @Date 2020/2/21 14:07
      * @return java.lang.Boolean
@@ -1707,15 +1708,5 @@ public class BusinessUtil {
         	return str.substring(0,showLength) + hidePlaceStr;
         }
         return str;
-    }   
-
-
-    /**
-     * 根据waybillSign和sendSign判断是否城配运单 waybillSign 36为1 或sendPay 146为1
-     * @return
-     */
-    public static boolean isTmsTransBill(String waybillSign,String sendPay) {
-        return BusinessUtil.isUrban(waybillSign, sendPay);
     }
-
 }

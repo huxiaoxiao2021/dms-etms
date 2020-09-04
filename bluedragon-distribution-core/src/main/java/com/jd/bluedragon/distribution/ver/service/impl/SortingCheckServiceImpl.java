@@ -1,40 +1,44 @@
 package com.jd.bluedragon.distribution.ver.service.impl;
 
-import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.domain.Waybill;
+import com.jd.bluedragon.common.domain.WaybillCache;
+import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
-import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
+import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
-import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.rule.domain.Rule;
 import com.jd.bluedragon.distribution.rule.service.RuleService;
-import com.jd.bluedragon.distribution.ver.domain.FilterRequest;
+import com.jd.bluedragon.distribution.ver.domain.FilterContext;
+import com.jd.bluedragon.distribution.ver.domain.Site;
 import com.jd.bluedragon.distribution.ver.exception.IllegalWayBillCodeException;
 import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.ver.filter.chains.DeliveryFilterChain;
 import com.jd.bluedragon.distribution.ver.filter.chains.ForwardFilterChain;
-import com.jd.bluedragon.distribution.ver.filter.chains.ProceedFilterChain;
 import com.jd.bluedragon.distribution.ver.filter.chains.ReverseFilterChain;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
-
-import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
-import com.jd.bluedragon.distribution.ver.service.SortingCheckStatisticsService;
+import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.preseparate.jsf.PresortRoadQueryServiceAPI;
-import com.jd.bluedragon.utils.ExperienceUtil;
-import com.jd.dms.logger.aop.BusinessLogWriter;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
+import com.jd.etms.cache.util.EnumBusiCode;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.fastjson.JSONObject;
-import com.jd.ump.profiler.CallerInfo;
-import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -45,184 +49,208 @@ import java.util.Map;
 
 @Service("sortingCheckService")
 public class SortingCheckServiceImpl implements SortingCheckService {
-    private final Log logger = LogFactory.getLog(this.getClass());
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    ProceedFilterChain proceedFilterChain;
-    @Autowired
-    ForwardFilterChain forwardFilterChain;
-    @Autowired
-    ReverseFilterChain reverseFilterChain;
-    @Autowired
-    DeliveryFilterChain deliveryFilterChain;
-
+    private RuleService ruleService;
 
     @Autowired
-    JsfSortingResourceService jsfSortingResourceService;
-
-    /**
-     * 一车一单发货入口operaterType标识
-     **/
-    private static final int OPERATE_TYPE_NEW_PACKAGE_SEND = 60;
-
+    private BoxService boxService;
 
     @Autowired
-    RuleService ruleService;
+    private SiteService siteService;
 
+    @Qualifier("forwardFilterChain")
+    @Autowired()
+    private ForwardFilterChain forwardFilterChain;
+
+    @Qualifier("reverseFilterChain")
+    @Autowired()
+    private ReverseFilterChain reverseFilterChain;
+
+    @Qualifier("deliveryFilterChain")
+    @Autowired()
+    private DeliveryFilterChain deliveryFilterChain;
 
     @Autowired
-    private SortingCheckStatisticsService sortingCheckStatisticsService;
+    private WaybillPackageManager waybillPackageManager;
 
+    @Autowired
+    private WaybillCacheService waybillCacheService;
 
-    public SortingCheck convertToSortingCheck(PdaOperateRequest request) {
-        SortingCheck sortingCheck = new SortingCheck();
-        sortingCheck.setBoxCode(request.getBoxCode());
-        sortingCheck.setBusinessType(request.getBusinessType());
-        sortingCheck.setCreateSiteCode(request.getCreateSiteCode());
-        sortingCheck.setCreateSiteName(request.getCreateSiteName());
-        sortingCheck.setOperateTime(request.getOperateTime());
-        sortingCheck.setOperateType(request.getOperateType());
-        sortingCheck.setOperateUserCode(request.getOperateUserCode());
-        sortingCheck.setOperateUserName(request.getOperateUserName());
-        sortingCheck.setPackageCode(request.getPackageCode());
-        sortingCheck.setReceiveSiteCode(request.getReceiveSiteCode());
-        sortingCheck.setIsLoss(request.getIsLoss());
-        return sortingCheck;
-    }
+    @Autowired
+    private LogEngine logEngine;
 
-
+    @Override
     public SortingJsfResponse sortingCheck(PdaOperateRequest pdaOperateRequest) {
-
-
-        SortingJsfResponse sortingJsfResponse = dmsSortingCheck(pdaOperateRequest);
-        sortingCheckStatisticsService.addSortingCheckStatisticsLog(pdaOperateRequest, sortingJsfResponse);
-
-        return sortingJsfResponse;
-    }
-
-    //校验
-    public SortingJsfResponse dmsSortingCheck(PdaOperateRequest pdaOperateRequest) {
-        SortingJsfResponse sortingJsfResponse = jsfSortingResourceService.check(convertToSortingCheck(pdaOperateRequest));
-
-        if (sortingJsfResponse.getCode() != 200) {
-            return sortingJsfResponse;
-        }
-
-        String boxCode = pdaOperateRequest.getBoxCode();
-        Integer createSiteCode = pdaOperateRequest.getCreateSiteCode();
-        Integer receiveSiteCode = pdaOperateRequest.getReceiveSiteCode();
-        Integer businessType = pdaOperateRequest.getBusinessType();
-        String packageCode = pdaOperateRequest.getPackageCode();
-
-        String roadCode = null;
-        FilterRequest request = null;
-        String bizKey = createSiteCode + "_" + packageCode;
-        BusinessLogProfiler businessLogProfiler = ExperienceUtil.bulidBusinessLogProfiler(ExperienceUtil.SORTING_BIZ_TYPE, ExperienceUtil.SORTING_OPERATE_TYPE, bizKey);
-
-        CallerInfo callerInfo = null;
+        SortingJsfResponse response = new SortingJsfResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
         try {
-            callerInfo = Profiler.registerInfo("Dmsver.MasterSortingCheckStrategy.dmsExecuteSortingCheck", Constants.UMP_APP_NAME_DMSVER, false, true);
-            request = initFilterParam(boxCode, createSiteCode, receiveSiteCode
-                    , businessType, packageCode, pdaOperateRequest);
+            //初始化拦截链上下文
+            FilterContext filterContext = this.initContext(pdaOperateRequest);
+            Integer businessType = pdaOperateRequest.getBusinessType();
 
-            proceedFilterChain.doFilter(request, proceedFilterChain);
             //根据operateType判断入口，如果入口是一车一单发货，则走deliveryFilterChain
-            if (pdaOperateRequest != null && pdaOperateRequest.getOperateType() != null
-                    && pdaOperateRequest.getOperateType() == OPERATE_TYPE_NEW_PACKAGE_SEND) {
-                deliveryFilterChain.doFilter(request, deliveryFilterChain);
-                businessLogProfiler.setBizType(ExperienceUtil.SEND_BIZ_TYPE);
-                businessLogProfiler.setOperateType(ExperienceUtil.SEND_OPERATE_TYPE);
+            if (pdaOperateRequest.getOperateType() != null && businessType == Constants.OPERATE_TYPE_NEW_PACKAGE_SEND) {
+                deliveryFilterChain.doFilter(filterContext, deliveryFilterChain);
             } else {
                 if (BusinessUtil.isForward(businessType)) {
-                    forwardFilterChain.doFilter(request, forwardFilterChain);
+                    forwardFilterChain.doFilter(filterContext, forwardFilterChain);
                 } else if (BusinessUtil.isReverse(businessType)) {
-                    reverseFilterChain.doFilter(request, reverseFilterChain);
+                    reverseFilterChain.doFilter(filterContext, reverseFilterChain);
                 }
-            }
-            Waybill waybill = request.getWaybill();
-            if (BusinessUtil.isTmsTransBill(waybill.getWaybillSign(), waybill.getSendPay())) {
-                roadCode = request.getWaybill().getRoadCode();
             }
         } catch (IllegalWayBillCodeException e) {
             logger.error("非法运单号：IllegalWayBillCodeException", e);
-            SortingJsfResponse sortingJsfResponse1 = new SortingJsfResponse(JdResponse.CODE_PARAM_ERROR, e.getMessage());
-            return sortingJsfResponse1;
+            response.setCode(JdResponse.CODE_PARAM_ERROR);
+            response.setMessage(e.getMessage());
         } catch (Exception ex) {
             if (ex instanceof SortingCheckException) {
-                businessLogProfiler.setLogType(ExperienceUtil.LOG_TYPE_ZA);
                 SortingCheckException checkException = (SortingCheckException) ex;
-                SortingJsfResponse response = new SortingJsfResponse();
                 response.setCode(checkException.getCode());
                 response.setMessage(checkException.getMessage());
-//                if (request != null && request.getTipMessages() != null && request.getTipMessages().size() > 0) {
-//                    response.setTipMessages(request.getTipMessages());
-//                    response.setMessageShowType(SortingResponse.MESSAGE_SHOW_TYPE_TIP);
-//                }
-                if (!(checkException.getCode() >= 30000 && checkException.getCode() < 40000)) {
-                    //强制拦截的
-//                    response.setMessageShowType(SortingResponse.MESSAGE_SHOW_TYPE_INTERCEPT);
-                    businessLogProfiler.setLogType(ExperienceUtil.LOG_TYPE_KD);
-                }
-                return response;
             } else {
-                sortingJsfResponse.setCode(SortingJsfResponse.CODE_SERVICE_ERROR);
-                sortingJsfResponse.setMessage(SortingJsfResponse.MESSAGE_SERVICE_ERROR_C);
-                return sortingJsfResponse;
+                logger.error("服务异常，参数：{}", JsonHelper.toJson(pdaOperateRequest), ex);
+                response.setCode(JdResponse.CODE_SERVICE_ERROR);
+                response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
             }
-        } finally {
-            BusinessLogWriter.writeLog(businessLogProfiler);
-            Profiler.registerInfoEnd(callerInfo);
         }
-        SortingJsfResponse response = new SortingJsfResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
-//        if (request.getTipMessages() != null && request.getTipMessages().size() > 0) {
-//            response.setTipMessages(request.getTipMessages());
-//            response.setMessageShowType(SortingResponse.MESSAGE_SHOW_TYPE_TIP);
-//        }
-        if (StringUtils.isNotBlank(roadCode)) {
-            response.setMessage(roadCode);
-        }
+        this.addSortingCheckStatisticsLog(pdaOperateRequest, response);
         return response;
     }
 
-    /**
-     * 构建分拣链的上下文FilterRequest
-     *
-     * @param boxCode
-     * @param createSiteCode
-     * @param receiveSiteCode
-     * @param businessType
-     * @param packageCode
-     * @param pdaOperateRequest
-     * @return
-     * @throws SortingCheckException
-     */
-    protected FilterRequest initFilterParam(String boxCode,
-                                            Integer createSiteCode,
-                                            Integer receiveSiteCode,
-                                            Integer businessType,
-                                            String packageCode,
-                                            PdaOperateRequest pdaOperateRequest) throws SortingCheckException {
 
-        FilterRequest request = new FilterRequest();
-        request.setRuleMap(getRuleList(createSiteCode));
-        request.setBoxCode(boxCode);
-        request.setCreateSiteCode(createSiteCode);
-        request.setReceiveSiteCode(receiveSiteCode);
-        request.setBusinessType(businessType);
-        request.setPackageCode(packageCode);
-        request.setPdaOperateRequest(pdaOperateRequest);
-        return request;
+    /*
+    * 初始化拦截链上下文
+    * */
+    private FilterContext initContext(PdaOperateRequest pdaOperateRequest) throws Exception {
+
+        FilterContext filterContext = initFilterParam(pdaOperateRequest);
+
+        //分拣规则
+        filterContext.setRuleMap(this.getRuleList(filterContext.getCreateSiteCode()));
+
+        // 箱子判断
+        Box box = boxService.findBoxByCode(filterContext.getBoxCode());
+        if (box == null || StringHelper.isEmpty(box.getCode())) {
+            throw new SortingCheckException(SortingResponse.CODE_29001, SortingResponse.MESSAGE_29001);
+        } else {
+            filterContext.setBox(box);
+        }
+
+        // 站点判断
+        Site receiveSite = this.siteService.get(filterContext.getReceiveSiteCode());
+        if (receiveSite == null) {
+            throw new SortingCheckException(SortingResponse.CODE_29202, filterContext.getReceiveSiteCode() + SortingResponse.MESSAGE_29202);
+        } else {
+            filterContext.setReceiveSite(receiveSite);
+        }
+
+        String sReceiveSiteSubType = String.valueOf(receiveSite.getSubType());
+        filterContext.setsReceiveSiteSubType(sReceiveSiteSubType);
+
+        Integer sReceiveSiteCode = filterContext.getReceiveSiteCode();
+        if (BusinessUtil.isBoxcode(filterContext.getBoxCode()) && box.getReceiveSiteCode() != null) {
+            sReceiveSiteCode = box.getReceiveSiteCode();
+        }
+        filterContext.setsReceiveSiteCode(sReceiveSiteCode.toString());
+        // 箱子的收货站点和站点类型 (中转站和速递中心判断使用)
+        Site sReceiveBoxSite = this.siteService.get(sReceiveSiteCode);
+        filterContext.setsReceiveBoxSite(sReceiveBoxSite);
+
+        //运单判断
+        WaybillCache waybillCache = this.waybillCacheService.getFromCache(filterContext.getWaybillCode());
+        filterContext.setWaybillCache(waybillCache);
+        if (waybillCache == null) {
+            throw new SortingCheckException(SortingResponse.CODE_39002, SortingResponse.MESSAGE_39002);
+        }
+
+        if (waybillCache.getOrgId() == null) {
+            throw new SortingCheckException(JdResponse.CODE_PARAM_ERROR, SortingResponse.WAYBILL_ERROR_ORGID);
+        }
+
+        if (waybillCache.getWaybillCode() == null) {
+            throw new SortingCheckException(JdResponse.CODE_PARAM_ERROR, SortingResponse.WAYBILL_ERROR_WAYBILLCODE);
+        }
+
+        if (WaybillUtil.isWaybillCode(filterContext.getPackageCode())) {
+            if (waybillCache.getQuantity() != null) {
+                filterContext.setPackageNum(waybillCache.getQuantity());
+            }
+            if (! BusinessUtil.isBoxcode(filterContext.getPackageCode())) {
+                if(waybillCache.getQuantity() == null || waybillCache.getQuantity().equals(0)) {
+                    //防止特殊情况，需再去调用运单接口确认数据
+                    WaybillCache waybillNoCache = waybillCacheService.getNoCache(filterContext.getPackageCode());
+                    if (waybillNoCache == null || waybillNoCache.getQuantity() == null || waybillNoCache.getQuantity().equals(0)) {
+                        //此时认为无运单数据
+                        throw new SortingCheckException(SortingResponse.CODE_29412, SortingResponse.MESSAGE_29412);
+                    } else{
+                        filterContext.setPackageNum(waybillNoCache.getQuantity());
+                    }
+                }
+            }
+        } else if (WaybillUtil.isPackageCode(filterContext.getPackageCode())){
+            filterContext.setPackageNum(1);
+            String packageCode = filterContext.getPackageCode();
+            BaseEntity<List<DeliveryPackageD>> baseEntity = this.getPageBaseEntityByPackageCode(packageCode);
+
+            if(baseEntity == null){
+                logger.error(String.format("没有查询到包裹数据packageCode[{%s}]",packageCode));
+                throw new SortingCheckException(SortingResponse.CODE_29409, SortingResponse.MESSAGE_29409);
+            }
+            if(baseEntity.getResultCode() != EnumBusiCode.BUSI_SUCCESS.getCode()){
+                logger.error(String.format("查询运单接口返回失败packageCode[{%s}]resultCode[{%s}]message[{%s}]", packageCode,baseEntity.getResultCode(),
+                        baseEntity.getMessage()));
+                throw new SortingCheckException(SortingResponse.CODE_29409, SortingResponse.MESSAGE_29409);
+            }
+            if(CollectionUtils.isEmpty(baseEntity.getData())){
+                logger.error(String.format("包裹号不存在packageCode[{%s}]", packageCode));
+                throw new SortingCheckException(SortingResponse.CODE_29409, SortingResponse.MESSAGE_29409);
+            }
+        }
+
+        return filterContext;
+    }
+
+    /**
+     * 上下文参数判断
+     */
+    private FilterContext initFilterParam(PdaOperateRequest pdaOperateRequest) throws SortingCheckException {
+
+        if (pdaOperateRequest == null) {
+            throw new SortingCheckException(SortingResponse.CODE_PARAM_IS_NULL, SortingResponse.MESSAGE_PARAM_IS_NULL);
+        }
+        if (StringHelper.isEmpty(pdaOperateRequest.getBoxCode())) {
+            throw new SortingCheckException(SortingResponse.CODE_29000, SortingResponse.MESSAGE_29000);
+        }
+        if (! NumberHelper.isPositiveNumber(pdaOperateRequest.getCreateSiteCode())) {
+            throw new SortingCheckException(SortingResponse.CODE_29200, SortingResponse.MESSAGE_29200);
+        }
+        if (! NumberHelper.isPositiveNumber(pdaOperateRequest.getReceiveSiteCode())) {
+            throw new SortingCheckException(SortingResponse.CODE_29201, SortingResponse.MESSAGE_29201);
+        }
+        String waybillCode = WaybillUtil.getWaybillCode(pdaOperateRequest.getPackageCode());
+
+        if (StringHelper.isEmpty(waybillCode)) {
+            throw  new SortingCheckException(SortingResponse.CODE_29100, SortingResponse.MESSAGE_29100);
+        }
+        FilterContext filterContext = new FilterContext();
+        filterContext.setWaybillCode(waybillCode);
+        filterContext.setCreateSiteCode(pdaOperateRequest.getCreateSiteCode());
+        filterContext.setBoxCode(pdaOperateRequest.getBoxCode());
+        filterContext.setReceiveSiteCode(pdaOperateRequest.getReceiveSiteCode());
+        filterContext.setBusinessType(pdaOperateRequest.getBusinessType());
+        filterContext.setPackageCode(pdaOperateRequest.getPackageCode());
+        filterContext.setPdaOperateRequest(pdaOperateRequest);
+        return filterContext;
     }
 
     /**
      * 获取当前分拣中心的校验规则
      *
-     * @param createSiteCode
-     * @return
-     * @throws SortingCheckException
      */
-    protected Map<String, Rule> getRuleList(Integer createSiteCode) throws SortingCheckException {
-        Map<String, Integer> queryParam = new HashMap<String, Integer>();
+    private Map<String, Rule> getRuleList(Integer createSiteCode) throws SortingCheckException {
+        Map<String, Integer> queryParam = new HashMap<>();
         queryParam.put("siteCode", createSiteCode);
         List<Rule> ruleList = ruleService.queryByParamNoPage(queryParam);
         if (ruleList == null || ruleList.size() == 0) {//未配置分拣规则
@@ -236,4 +264,37 @@ public class SortingCheckServiceImpl implements SortingCheckService {
     }
 
 
+    private BaseEntity<List<DeliveryPackageD>> getPageBaseEntityByPackageCode(String packageCode) {
+        if(StringUtils.isBlank(packageCode)){
+            return null;
+        }
+        List<String> packageCodes = Lists.newArrayList(packageCode);
+        return  waybillPackageManager.queryPackageListForParcodes(packageCodes);
+    }
+
+    private void addSortingCheckStatisticsLog(PdaOperateRequest pdaOperateRequest, SortingJsfResponse sortingJsfResponse) {
+
+        //日志
+        JSONObject request = new JSONObject();
+        request.put("operatorCode", pdaOperateRequest.getOperateUserCode());
+        request.put("pakcageCode", pdaOperateRequest.getPackageCode());
+        request.put("boxCode", pdaOperateRequest.getBoxCode());
+        request.put("siteCode", pdaOperateRequest.getCreateSiteCode());
+        request.put("siteName", pdaOperateRequest.getCreateSiteName());
+        request.put("operatorName", pdaOperateRequest.getOperateUserName());
+
+        request.put("responseCode", sortingJsfResponse.getCode());
+        request.put("responseMessage", sortingJsfResponse.getMessage());
+
+        BusinessLogProfiler businessLogProfiler = new BusinessLogProfiler();
+        businessLogProfiler.setSourceSys(Constants.BUSINESS_LOG_SOURCE_SYS_VERINWEB);
+        businessLogProfiler.setBizType(Constants.BUSINESS_LOG_BIZ_VER_FILTER_STATISTICS);
+        businessLogProfiler.setOperateType(Constants.BUSINESS_LOG_OPERATE_TYPE_VER_FILTER_STATISTICS);
+        businessLogProfiler.setTimeStamp(new Date().getTime());
+        businessLogProfiler.setRequestTime(new Date().getTime());
+        businessLogProfiler.setOperateRequest(JSONObject.toJSONString(request));
+
+        logEngine.addLog(businessLogProfiler);
+
+    }
 }

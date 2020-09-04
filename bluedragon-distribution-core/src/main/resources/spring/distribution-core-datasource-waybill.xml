@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+    <bean id="dataSourceWaybillParent" class="org.apache.commons.dbcp.BasicDataSource" abstract="true">
+        <property name="driverClassName" value="${db.mysql.driverClassName}"/>
+        <property name="defaultAutoCommit" value="true"/>
+        <property name="maxIdle" value="${dms.mysql.db.waybill.maxIdle}"/>
+        <property name="minIdle" value="${dms.mysql.db.waybill.minIdle}"/>
+        <property name="maxActive" value="${dms.mysql.db.waybill.maxActive}"/>
+        <property name="maxWait" value="${dms.mysql.db.waybill.maxWait}"/>
+        <property name= "testWhileIdle" value="${dms.mysql.db.waybill.testWhileIdle}" />
+        <property name= "validationQuery" value="${dms.mysql.db.waybill.validationQuery}" />
+        <property name= "minEvictableIdleTimeMillis" value="${dms.mysql.db.waybill.minEvictableIdleTimeMillis}"/>
+        <property name= "timeBetweenEvictionRunsMillis" value="${dms.mysql.db.waybill.timeBetweenEvictionRunsMillis}"/>
+    </bean>
+
+    <!-- waybill 新增8套运单缓存库，每个库128张waybill表，共1024张表  added by zhongyicun 2017-09-15` start-->
+    <!--总部Ver开启 waybill_main_1_db ~ waybill_main_8_db 的配置-->
+    <bean id="waybill_main_1_db" parent="dataSourceWaybillParent" lazy-init="true">
+        <property name="url" value="${waybill_main_1.db.url}" />
+        <property name="username" value="${waybill_main_1.db.username}" />
+        <property name="password" value="${waybill_main_1.db.password}" />
+    </bean>
+
+    <bean id="waybill_main_2_db" parent="dataSourceWaybillParent">
+        <property name="url" value="${waybill_main_2.db.url}" />
+        <property name="username" value="${waybill_main_2.db.username}" />
+        <property name="password" value="${waybill_main_2.db.password}" />
+    </bean>
+
+    <bean id="waybill_main_3_db" parent="dataSourceWaybillParent">
+        <property name="url" value="${waybill_main_3.db.url}" />
+        <property name="username" value="${waybill_main_3.db.username}" />
+        <property name="password" value="${waybill_main_3.db.password}" />
+    </bean>
+
+    <bean id="waybill_main_4_db" parent="dataSourceWaybillParent">
+        <property name="url" value="${waybill_main_4.db.url}" />
+        <property name="username" value="${waybill_main_4.db.username}" />
+        <property name="password" value="${waybill_main_4.db.password}" />
+    </bean>
+
+    <bean id="waybill_main_5_db" parent="dataSourceWaybillParent">
+        <property name="url" value="${waybill_main_5.db.url}" />
+        <property name="username" value="${waybill_main_5.db.username}" />
+        <property name="password" value="${waybill_main_5.db.password}" />
+    </bean>
+
+    <bean id="waybill_main_6_db" parent="dataSourceWaybillParent">
+        <property name="url" value="${waybill_main_6.db.url}" />
+        <property name="username" value="${waybill_main_6.db.username}" />
+        <property name="password" value="${waybill_main_6.db.password}" />
+    </bean>
+
+    <bean id="waybill_main_7_db" parent="dataSourceWaybillParent">
+        <property name="url" value="${waybill_main_7.db.url}" />
+        <property name="username" value="${waybill_main_7.db.username}" />
+        <property name="password" value="${waybill_main_7.db.password}" />
+    </bean>
+
+    <bean id="waybill_main_8_db" parent="dataSourceWaybillParent">
+        <property name="url" value="${waybill_main_8.db.url}" />
+        <property name="username" value="${waybill_main_8.db.username}" />
+        <property name="password" value="${waybill_main_8.db.password}" />
+    </bean>
+    <!--新增的8套运单缓存库，每个库128张waybill表，共1024张表  added by zhongyicun 2017-09-15 end-->
+
+    <bean id="dataSources" class="com.jd.bluedragon.common.utils.routingDao.RoutingDataSource">
+        <property name="targetDataSources">
+            <map key-type="java.lang.String">
+                <!-- <entry key="dataSource_waybill" value-ref="dataSource_waybill"/>-->
+                <!--waybill_main_1_db ~ waybill_main_8_db 的配置-->
+                <entry key="waybill_main_1_db" value-ref="waybill_main_1_db"/>
+                <entry key="waybill_main_2_db" value-ref="waybill_main_2_db"/>
+                <entry key="waybill_main_3_db" value-ref="waybill_main_3_db"/>
+                <entry key="waybill_main_4_db" value-ref="waybill_main_4_db"/>
+                <entry key="waybill_main_5_db" value-ref="waybill_main_5_db"/>
+                <entry key="waybill_main_6_db" value-ref="waybill_main_6_db"/>
+                <entry key="waybill_main_7_db" value-ref="waybill_main_7_db"/>
+                <entry key="waybill_main_8_db" value-ref="waybill_main_8_db"/>
+            </map>
+        </property>
+        <property name="defaultTargetDataSource" ref="waybill_main_1_db"></property>
+    </bean>
+
+    <bean id="sqlSessionFactory_waybill" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="configLocation" value="classpath:config/mysql/mybatis-config-waybill.xml"/>
+        <property name="dataSource" ref="dataSources"/>
+    </bean>
+
+    <bean id="sessionTemplate_waybill" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="sqlSessionFactory_waybill"/>
+    </bean>
+</beans>

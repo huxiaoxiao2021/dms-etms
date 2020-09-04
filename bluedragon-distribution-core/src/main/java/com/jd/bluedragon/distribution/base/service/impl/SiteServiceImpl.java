@@ -9,7 +9,6 @@ import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.CapacityCodeRequest;
-import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
 import com.jd.bluedragon.distribution.base.domain.CreateAndReceiveSiteInfo;
 import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
@@ -36,7 +35,6 @@ import com.jd.ql.basic.ws.BasicPrimaryWS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -58,11 +56,6 @@ public class SiteServiceImpl implements SiteService {
     private SysConfigService sysConfigService;
     @Autowired
     SiteMapper siteMapper;
-    @Autowired
-    private BasicPrimaryWS basicPrimaryWS;
-
-    @Autowired
-    private BasicTraderAPI basicTraderAPI;
 
     public BaseStaffSiteOrgDto getSite(Integer siteCode) {
         return this.baseMajorManager.getBaseSiteBySiteId(siteCode);
@@ -433,13 +426,14 @@ public class SiteServiceImpl implements SiteService {
     }
 
     @Override
+    @Cache(key = "SiteServiceImpl.get@args0",  memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000, redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
     public Site get(int siteCode) {
 
         Site site = this.siteMapper.get(siteCode);
         if (site == null) {
             BaseStaffSiteOrgDto dto = null;
             try {
-                dto = getBaseSiteBySiteId(Integer.valueOf(siteCode));
+                dto = baseMajorManager.getBaseSiteBySiteId(siteCode);
                 if (null == dto) {
                     log.warn("根据编码获取site信息为空：{}", siteCode);
                     return null;
@@ -462,64 +456,4 @@ public class SiteServiceImpl implements SiteService {
             return site;
         }
     }
-
-    public BaseStaffSiteOrgDto getBaseSiteBySiteId(Integer paramInteger) {
-        BaseStaffSiteOrgDto dtoStaff = basicPrimaryWS.getBaseSiteBySiteId(paramInteger);
-        ResponseDTO<BasicTraderInfoDTO> responseDTO = null;
-
-        if (dtoStaff != null){
-            return dtoStaff;
-        }else {
-            dtoStaff = basicPrimaryWS.getBaseStoreByDmsSiteId(paramInteger);
-        }
-
-        if (dtoStaff != null) {
-            return dtoStaff;
-        }else {
-            responseDTO = basicTraderAPI.getBasicTraderById(paramInteger);
-        }
-
-        if (responseDTO != null && responseDTO.getResult() != null){
-            dtoStaff = getBaseStaffSiteOrgDtoFromTrader(responseDTO.getResult());
-        }
-        return dtoStaff;
-    }
-
-    public BaseStaffSiteOrgDto getBaseSiteByDmsCode(String siteCode) {
-        BaseStaffSiteOrgDto dtoStaff = basicPrimaryWS.getBaseSiteByDmsCode(siteCode);
-        ResponseDTO<BasicTraderInfoDTO> responseDTO = null;
-        if (dtoStaff != null) {
-            return dtoStaff;
-        } else {
-            dtoStaff = basicPrimaryWS.getBaseStoreByDmsCode(siteCode);
-        }
-        if (dtoStaff != null){
-            return dtoStaff;
-        }else {
-            responseDTO = basicTraderAPI.getBaseTraderByCode(siteCode);
-        }
-        if (responseDTO != null && responseDTO.getResult() != null) {
-            dtoStaff = getBaseStaffSiteOrgDtoFromTrader(responseDTO.getResult());
-        }
-        return dtoStaff;
-    }
-
-    private BaseStaffSiteOrgDto getBaseStaffSiteOrgDtoFromTrader(BasicTraderInfoDTO trader) {
-        BaseStaffSiteOrgDto baseStaffSiteOrgDto = new BaseStaffSiteOrgDto();
-        baseStaffSiteOrgDto.setDmsSiteCode(trader.getTraderCode());
-        baseStaffSiteOrgDto.setSiteCode(trader.getId());
-        baseStaffSiteOrgDto.setSiteName(trader.getTraderName());
-        baseStaffSiteOrgDto.setSiteType(Constants.BASIC_B_TRADER_SITE_TYPE);
-        baseStaffSiteOrgDto.setOrgId(Constants.BASIC_B_TRADER_ORG);
-        baseStaffSiteOrgDto.setOrgName(Constants.BASIC_B_TRADER_ORG_NAME);
-        baseStaffSiteOrgDto.setTraderTypeEbs(trader.getTraderTypeEbs());
-        baseStaffSiteOrgDto.setAccountingOrg(trader.getAccountingOrg());
-        baseStaffSiteOrgDto.setAirTransport(trader.getAirTransport());
-        baseStaffSiteOrgDto.setSitePhone(trader.getTelephone());
-        baseStaffSiteOrgDto.setPhone(trader.getContactMobile());
-        return baseStaffSiteOrgDto;
-    }
-
-
-
 }

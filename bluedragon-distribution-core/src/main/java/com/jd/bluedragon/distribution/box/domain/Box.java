@@ -402,5 +402,4 @@ public class Box {
 		this.packageNum = packageNum;
 	}
 
-
 }

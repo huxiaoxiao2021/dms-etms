@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.ver.domain;
 
-import com.jd.bluedragon.common.domain.Waybill;
+import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.rule.domain.Rule;
@@ -12,49 +12,49 @@ import java.util.Map;
  * @author dudong
  * @date 2016/2/29
  */
-public class FilterRequest {
+public class FilterContext {
 
     /**箱号*/
-    String boxCode;
+    private String boxCode;
     /**创建站点编号*/
-    Integer createSiteCode;
+    private Integer createSiteCode;
     /**收货站点编号*/
-    Integer receiveSiteCode;
+    private Integer receiveSiteCode;
     /**操作类型，正/逆向*/
-    Integer businessType;
+    private Integer businessType;
     /**包裹号*/
-    String packageCode;
+    private String packageCode;
     /**运单号*/
-    String waybillCode;
+    private String waybillCode;
     /**接收站点receiveSite的子类型SubType*/
-    String sReceiveSiteSubType;
+    private String sReceiveSiteSubType;
     /**箱号的receiveSiteCode或者是receiveSiteCode*/
-    String sReceiveSiteCode;
+    private String sReceiveSiteCode;
     /**是否是自提柜订单分拣到与自提柜绑定的站点*/
-    Boolean isSelfOrderDisToSelfOrderSite;
+    private Boolean isSelfOrderDisToSelfOrderSite;
     /**是否是便民自提订单分拣到与便民自提绑定的站点*/
-    Boolean isSelfOrderDisToSelfOrderSiteBianMin;
+    private Boolean isSelfOrderDisToSelfOrderSiteBianMin;
     /**是否是合作代收订单分拣到与合作代收绑定的站点*/
-    Boolean isSelfOrderDisToSelfOrderSiteDaiShou;
+    private Boolean isSelfOrderDisToSelfOrderSiteDaiShou;
     /**是否是合作站点订单分拣到与合作站点绑定的自营站点*/
-    Boolean isPartnerOrderDisToSelfOrderSite = Boolean.FALSE;
+    private Boolean isPartnerOrderDisToSelfOrderSite = Boolean.FALSE;
 
     /**根据boxCode获取箱子*/
-    Box box;
+    private Box box;
     /**pda操作人信息*/
-    PdaOperateRequest pdaOperateRequest;
+    private PdaOperateRequest pdaOperateRequest;
     /**根据receiveSiteCode获取收货站点,pda页面取的就是箱号目的网点*/
-    Site receiveSite;
+    private Site receiveSite;
     /**根据sReceiveSiteCode获取的站点*/
-    Site sReceiveBoxSite;
+    private Site sReceiveBoxSite;
     /**根据waybillCode获取运单*/
-    Waybill waybill;
+    private WaybillCache waybillCache;
     /**根据createSiteCode获取所有规则*/
-    Map<String, Rule> ruleMap;
+    private Map<String, Rule> ruleMap;
     /**运单预分拣站点或者null*/
-    Site waybillSite;
+    private Site waybillSite;
     /**纯提示语**/
-    List<String> tipMessages;
+    private List<String> tipMessages;
     /**
      * 存放当前运单的包裹数，传入包裹号时为1
      */
@@ -160,12 +160,12 @@ public class FilterRequest {
         this.sReceiveBoxSite = sReceiveBoxSite;
     }
 
-    public Waybill getWaybill() {
-        return waybill;
+    public WaybillCache getWaybillCache() {
+        return waybillCache;
     }
 
-    public void setWaybill(Waybill waybill) {
-        this.waybill = waybill;
+    public void setWaybillCache(WaybillCache waybillCache) {
+        this.waybillCache = waybillCache;
     }
 
     public Map<String, Rule> getRuleMap() {

@@ -1,5 +1,4 @@
-package com.jd.bluedragon.distribution.waybill.router;
-
+package com.jd.bluedragon.common.router;
 
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.ver.exception.IllegalWayBillCodeException;

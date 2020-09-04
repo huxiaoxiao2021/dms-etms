@@ -114,9 +114,9 @@ public interface SiteService {
 	 * @param siteName 站点名称
 	 * @return
 	 */
-	public List<BaseStaffSiteOrgDto> fuzzyGetSiteBySiteName(String siteName);
+	List<BaseStaffSiteOrgDto> fuzzyGetSiteBySiteName(String siteName);
 
 
-	public Site get(int siteCode);
+	Site get(int siteCode);
 
 }
