@@ -191,8 +191,12 @@
     <select id="selectRecordsByBoardCode" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord" resultMap="goodsLoadScanRecord">
     select
         <include refid="Base_Column_List"/>
-    from load_scan_record where yn = 1 and  board_code = #{boardCode,jdbcType=VARCHAR}
+    from load_scan_record where yn = 1
     and create_site_code =  #{createSiteCode,jdbcType=BIGINT}
+    and package_code IN
+    <foreach collection="packageCodeList" item="item" index="index" open="(" separator="," close=")">
+        #{item,jdbcType=VARCHAR}
+    </foreach>
     </select>
 
     <select id="selectRecordByWaybillCodeAndPackCode" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord" resultMap="goodsLoadScanRecord">

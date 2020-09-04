@@ -26,6 +26,7 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.WaybillServiceRelationDto;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.domain.BaseDmsStore;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
@@ -199,6 +200,15 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             commonWaybill.setPopSupName(tmsWaybill.getConsigner());
             commonWaybill.setBusiId(tmsWaybill.getBusiId());
             commonWaybill.setBusiName(tmsWaybill.getBusiName());
+
+            //备注拼接服务单号
+            BaseEntity<List<WaybillServiceRelationDto>> serviceCodeInfoByWaybillCode = waybillQueryManager.getServiceCodeInfoByWaybillCode(waybillCode);
+            if(serviceCodeInfoByWaybillCode!=null&&serviceCodeInfoByWaybillCode.getData()!=null){
+                if(serviceCodeInfoByWaybillCode.getData().size()>0){
+                    //抛弃一对多关系--只打印第一服务单号
+                    commonWaybill.setServiceCode(serviceCodeInfoByWaybillCode.getData().get(0).getServiceCode());
+                }
+            }
 
             commonWaybill.setOriginalCrossType(BusinessUtil.getOriginalCrossType(tmsWaybill.getWaybillSign(), tmsWaybill.getSendPay()));
             //调用外单接口，根据商家id获取商家编码

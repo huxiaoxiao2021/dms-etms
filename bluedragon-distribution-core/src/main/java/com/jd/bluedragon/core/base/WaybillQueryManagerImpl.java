@@ -22,12 +22,7 @@ import com.jd.etms.waybill.domain.PackageState;
 import com.jd.etms.waybill.domain.SkuSn;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillExtPro;
-import com.jd.etms.waybill.dto.BdTraceDto;
-import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.etms.waybill.dto.OrderParentChildDto;
-import com.jd.etms.waybill.dto.SkuPackRelationDto;
-import com.jd.etms.waybill.dto.WChoice;
-import com.jd.etms.waybill.dto.WaybillVasDto;
+import com.jd.etms.waybill.dto.*;
 import com.jd.ql.trace.api.WaybillTraceBusinessQueryApi;
 import com.jd.ql.trace.api.core.APIResultDTO;
 import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
@@ -731,4 +726,15 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 		}
 		return result;
 	}
+
+    /***
+     * 根据运单号获取服务单号
+     * @param waybillCode
+     * @return
+     */
+    @Override
+    public BaseEntity<List<WaybillServiceRelationDto>> getServiceCodeInfoByWaybillCode(String waybillCode) {
+        return waybillQueryApi.getServiceCodeInfoByWaybillCode(waybillCode);
+    }
+
 }

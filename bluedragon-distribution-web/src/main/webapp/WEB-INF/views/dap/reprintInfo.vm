@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PDD补打记录</title>
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    #parse("system/common/baseImport.vm")
+    <script src="/static/js/dap/reprintInfo.js"></script>
+</head>
+<body>
+<div id="dataTableDiv" class="main" style="margin-left: 20px;">
+        <ol class="breadcrumb">
+            <li><a href="#">PDD补打记录</a></li>
+            <li class="active">PDD补打记录</li>
+        </ol>
+		<!-- 查询条件 -->
+
+	<!-- 主页面操作按钮 -->
+    <div id="toolbar" class="btn-group">
+        <fieldset>
+            <div class="form-group" style="margin-left: 31px;">
+                <label class="control-label"> 时间 ：</label>
+                <select id="dateGap" name="dateGap" class="form-control search-param "></select>
+                <button id="btn_query" type="button" class="btn btn-default">
+                    <span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;查询
+                </button>
+                <button id="btn_export" type="button" class="btn btn-default">
+                    <span class="glyphicon glyphicon-export" aria-hidden="true"></span>导出
+                </button>
+            </div>
+        </fieldset>
+    </div>
+    <table id="dataTable"></table>
+</div>
+</body>
+</html>
