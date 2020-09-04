@@ -17,7 +17,6 @@ import com.jd.bluedragon.distribution.unloadCar.domain.UnloadCarCondition;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.SealCarDto;
-import com.jd.etms.vos.ws.VosQueryWS;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,7 +29,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 /**
@@ -210,13 +210,14 @@ public class UnloadCarServiceImplTest {
     @Test
     public void testInsertUnloadCar() {
         TmsSealCar tmsSealCar = new TmsSealCar();
-        tmsSealCar.setSealCarCode("SC12345678");
+        tmsSealCar.setSealCarCode("SC12345678121");
         tmsSealCar.setVehicleNumber("京A66666");
         List<String> batchCodes = new ArrayList<>();
-        batchCodes.add("121212-131313-123456789");
-        batchCodes.add("121212-131313-666666666");
+        batchCodes.add("364605-910-20200901164236161");
+        batchCodes.add("364605-910-20200901164236162");
+        batchCodes.add("R364605910123456789");
         tmsSealCar.setBatchCodes(batchCodes);
-        tmsSealCar.setOperateTime(DateHelper.parseDate("2020-07-01 12:12:12"));
+        tmsSealCar.setOperateTime(DateHelper.parseDate("2020-09-01 12:12:12"));
         tmsSealCar.setOperateSiteId(910);
         tmsSealCar.setOperateSiteName("马驹桥分拣中心");
         unloadCarService.insertUnloadCar(tmsSealCar);
