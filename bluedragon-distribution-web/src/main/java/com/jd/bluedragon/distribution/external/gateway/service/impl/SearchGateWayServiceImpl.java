@@ -203,7 +203,6 @@ public class SearchGateWayServiceImpl implements SearchGateWayService {
             info.setBoxCode(itme.getBoxCode());
             info.setPackageBarcode(itme.getPackageBarcode());
             info.setScanStatusStr(itme.getMark());
-            info.setIsWaybillFull(itme.getIsWaybillFull());
 
             res.add(info);
         }
