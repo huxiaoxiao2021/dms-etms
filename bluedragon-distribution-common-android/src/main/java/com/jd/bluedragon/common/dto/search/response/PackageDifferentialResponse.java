@@ -17,11 +17,6 @@ public class PackageDifferentialResponse implements Serializable {
     /** 扫描状态说明 */
     private String scanStatusStr;
 
-    /**
-     * 运单是否全
-     */
-    private int isWaybillFull;
-
     public String getBoxCode() {
         return boxCode;
     }
@@ -52,13 +47,5 @@ public class PackageDifferentialResponse implements Serializable {
 
     public void setScanStatusStr(String scanStatusStr) {
         this.scanStatusStr = scanStatusStr;
-    }
-
-    public int getIsWaybillFull() {
-        return isWaybillFull;
-    }
-
-    public void setIsWaybillFull(int isWaybillFull) {
-        this.isWaybillFull = isWaybillFull;
     }
 }

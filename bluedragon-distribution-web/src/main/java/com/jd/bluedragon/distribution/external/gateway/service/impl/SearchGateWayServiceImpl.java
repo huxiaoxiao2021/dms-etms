@@ -49,19 +49,19 @@ public class SearchGateWayServiceImpl implements SearchGateWayService {
     private final Logger logger = LoggerFactory.getLogger(SearchGateWayServiceImpl.class);
 
     @Autowired
-    BoxPackResource boxPackResource;
+    private BoxPackResource boxPackResource;
 
     @Autowired
-    DeliveryResource deliveryResource;
+    private DeliveryResource deliveryResource;
 
     @Autowired
-    ExpressCollectionResource expressCollectionResource;
+    private ExpressCollectionResource expressCollectionResource;
 
     @Autowired
-    WaybillResource waybillResource;
+    private WaybillResource waybillResource;
 
     @Autowired
-    WaybillInterceptTipsResource waybillInterceptTipsResource;
+    private WaybillInterceptTipsResource waybillInterceptTipsResource;
 
     /**
      * 根据运单号或包裹号查询箱号包裹信息
