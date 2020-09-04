@@ -326,7 +326,7 @@ public class InspectionServiceImpl implements InspectionService {
     public SortingJsfResponse gatherCheck(PdaOperateRequest pdaOperateRequest,SortingJsfResponse sortingJsfResponse){
 
         //校验运单验货是否集齐
-        if(pdaOperateRequest != null && pdaOperateRequest.getIsGather() == 1){
+        if(pdaOperateRequest != null && pdaOperateRequest.getIsGather() != null && pdaOperateRequest.getIsGather() == 1){
             String packageCode = pdaOperateRequest.getPackageCode();
             String waybillCode = WaybillUtil.getWaybillCode(packageCode);
             Integer createSiteCode = pdaOperateRequest.getCreateSiteCode();
