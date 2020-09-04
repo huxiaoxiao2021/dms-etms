@@ -435,7 +435,6 @@ public class SortingServiceImpl implements SortingService {
 		List<SendDetail> sendDList = new ArrayList<SendDetail>();
 		for (Sorting sorting : sortings) {
 			if (sorting.getIsCancel().equals(SORTING_CANCEL_NORMAL)) {
-				this.b2bPushInspection(sorting);//B网建箱自动触发验货全程跟踪
 				this.addSorting(sorting, null); // 添加分拣记录
 				this.addSortingAdditionalTask(sorting); // 添加回传分拣的运单状态
 				// this.updatedBoxStatus(sorting); // 将箱号更新为分拣状态
@@ -874,67 +873,6 @@ public class SortingServiceImpl implements SortingService {
 		return transitSendD;
 	}
 
-	/**
-	 * B网建箱自动触发验货全程跟踪
-	 * 推验货任务
-	 * @param sorting
-	 */
-	public void b2bPushInspection(Sorting sorting) {
-    	//ucc判断B网分拣是否需要补验货
-    	if(!uccPropertyConfiguration.isB2bPushInspectionSwitch()){
-    		return;
-    	}
-		BaseStaffSiteOrgDto createSite = null;
-		try {
-			createSite = this.baseMajorManager.getBaseSiteBySiteId(sorting.getCreateSiteCode());
-		} catch (Exception e) {
-			this.log.error("sortingServiceImpl.pushInspection:查询始发站点异常：{}",JsonHelper.toJson(sorting), e);
-		}
-		//B网建箱自动触发验货全程跟踪
-		if (createSite==null ||Constants.B2B_SITE_TYPE!=createSite.getSubType()){
-			return;
-		}
-		Inspection inspectionQ=new Inspection();
-		inspectionQ.setWaybillCode(sorting.getWaybillCode());
-		inspectionQ.setPackageBarcode(sorting.getPackageCode());
-		inspectionQ.setCreateSiteCode(sorting.getCreateSiteCode());
-		boolean have=inspectionDao.haveInspectionByPackageCode(inspectionQ);
-		//如果已经验过货  就不用补了
-		if (have){
-			return;
-		}
-		InspectionRequest inspection=new InspectionRequest();
-		inspection.setUserCode(sorting.getCreateUserCode());
-		inspection.setUserName(sorting.getCreateUser());
-		inspection.setSiteCode(sorting.getCreateSiteCode());
-		inspection.setSiteName(createSite.getSiteName());
-		//验货操作提前5秒
-		inspection.setOperateTime(DateHelper.formatDateTime(new Date(sorting.getOperateTime().getTime()-5000)));
-		inspection.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
-		inspection.setPackageBarOrWaybillCode(sorting.getPackageCode());
-
-		TaskRequest request=new TaskRequest();
-		request.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
-		request.setKeyword1(String.valueOf(sorting.getCreateUserCode()));
-		request.setKeyword2(sorting.getPackageCode());
-		request.setType(Task.TASK_TYPE_INSPECTION);
-		request.setOperateTime(inspection.getOperateTime());
-		request.setSiteCode(sorting.getCreateSiteCode());
-		request.setSiteName(createSite.getSiteName());
-		request.setUserCode(sorting.getCreateUserCode());
-		request.setUserName(sorting.getCreateUser());
-		//request.setBody();
-		String eachJson = Constants.PUNCTUATION_OPEN_BRACKET
-				+ JsonHelper.toJson(inspection)
-				+ Constants.PUNCTUATION_CLOSE_BRACKET;
-		Task task=this.taskService.toTask(request, eachJson);
-
-		int result= this.taskService.add(task, true);
-		if(log.isDebugEnabled()){
-			log.debug("B网建箱自动触发验货全程跟踪-验货任务插入条数:{}条,请求参数:{}",result,JsonHelper.toJson(task));
-		}
-        addBusinessLog(sorting,task);
-	}
 	/**
 	 * 记录业务日志
 	 *
@@ -1607,7 +1545,6 @@ public class SortingServiceImpl implements SortingService {
 	 * @param sorting
 	 */
 	private void sortingAddInspection(Sorting sorting){
-		b2bPushInspection(sorting);
 		saveOrUpdateInspectionEC(sorting);
 	}
 

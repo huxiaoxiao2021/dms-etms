@@ -119,8 +119,6 @@ public class RmaConsumerTest {
     @Test
     public void testConsumer(){
         try {
-            Mockito.when(uccPropertyConfiguration.isColdChainStorageSmsSwitch())
-                    .thenReturn(Boolean.TRUE);
             BaseEntity<BigWaybillDto> baseEntity = new BaseEntity<BigWaybillDto>();
             BigWaybillDto bigWaybillDto = new BigWaybillDto();
             Waybill waybill = new Waybill();
