@@ -1398,6 +1398,18 @@
             <artifactId>ql-asset-client</artifactId>
             <version>1.5-SNAPSHOT</version>
         </dependency>
+		<!--京东数据库加密安全包-->
+		<dependency>
+			<groupId>com.jd.security</groupId>
+			<artifactId>aces-mybatisclient</artifactId>
+			<version>1.0.1-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.google.code.gson</groupId>
+					<artifactId>gson</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 	</dependencies>
 
 	<profiles>

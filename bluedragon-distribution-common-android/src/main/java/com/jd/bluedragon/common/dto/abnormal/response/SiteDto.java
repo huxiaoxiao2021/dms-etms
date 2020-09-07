@@ -1,6 +1,6 @@
 package com.jd.bluedragon.common.dto.abnormal.response;
 
-public class Site {
+public class SiteDto {
 
     /**
      * 站点名称
