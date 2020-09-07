@@ -185,13 +185,13 @@
     </foreach>
   </insert>
 
-  <delete id="batchDelete">
-    delete from box_limit_config
+  <update id="batchDelete">
+    update box_limit_config set yn = 0
     where id IN
     <foreach collection="list" item="item" separator="," open="(" close=")">
        #{item}
     </foreach>
-  </delete>
+  </update>
   
   <select id="queryBySiteIds"  resultMap="BaseResultMap">
     select
@@ -201,6 +201,11 @@
     <foreach collection="list" item="item" separator="," open="(" close=")">
       #{item}
     </foreach>
+    AND yn = 1
+  </select>
+
+  <select id="queryLimitNumBySiteId"  resultType="java.lang.Integer">
+    select limit_num from box_limit_config where yn = 1 AND site_id = #{siteId}
   </select>
 
   <select id="queryByCondition"  resultMap="BaseResultMap">
@@ -208,6 +213,7 @@
     <include refid="Base_Column_List" />
     from box_limit_config
     <where>
+      AND yn = 1
       <if test="siteName != null">
         AND site_name LIKE CONCAT('%',#{siteName},'%')
       </if>
@@ -223,6 +229,7 @@
     COUNT(1)
     from box_limit_config
     <where>
+      AND yn = 1
       <if test="siteName != null">
         AND site_name LIKE CONCAT('%',#{siteName},'%')
       </if>

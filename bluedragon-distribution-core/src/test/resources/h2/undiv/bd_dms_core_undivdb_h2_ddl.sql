@@ -2039,3 +2039,17 @@ CREATE TABLE `unload_car_board` (
   PRIMARY KEY (`unload_board_id`)
 ) ENGINE = INNODB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8  COMMENT='卸车任务与板关系表';
 
+CREATE TABLE `box_limit_config` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+  `site_name` varchar(50) DEFAULT NULL COMMENT '站点名称',
+  `site_id` int(11) DEFAULT NULL COMMENT '站点ID',
+  `limit_num` int(11) DEFAULT NULL COMMENT '建箱包裹数上限',
+  `operator_erp` varchar(50) DEFAULT NULL COMMENT '操作人ERP',
+  `operator_site_id` int(11) DEFAULT NULL COMMENT '操作人所在站点ID',
+  `operator_site_name` varchar(50) DEFAULT NULL COMMENT '操作人所在站点名称',
+  `operating_time` datetime DEFAULT NULL COMMENT '操作时间',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `yn` tinyint(1) DEFAULT NULL COMMENT '记录是否有效：0-无效，已删除 1-有效',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='PDA建箱包裹数配置表';

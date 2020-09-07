@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.boxlimit.service.impl;
 
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
+import com.jd.bluedragon.distribution.boxlimit.service.BoxLimitService;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,8 @@ public class SortingNumberLimitFilter {
 
     @Autowired
     private SortingService sortingService;
+    @Autowired
+    private BoxLimitService boxLimitService;
 
     public void doFilter(Object request, Object chain) throws Exception {
         // TODO 从 request 中 获取参数
@@ -35,11 +38,13 @@ public class SortingNumberLimitFilter {
         // 存放当前运单的包裹数，传入包裹号时为1
         Integer packageNum = 1;
 
-        //存放限制的数量列表
-        List<Integer> limitNums = new ArrayList<>();
+        // 获取 包裹限制数量
         if (siteType != null && receiveSiteTypMap.containsKey(siteType) && receiveSiteTypMap.get(siteType).contains(siteSubType)) {
-            // TODO 获取 包裹数限制
-            Integer limitNum = DEFAULT_LIMIT_NUM;
+            Integer limitNum = boxLimitService.queryLimitNumBySiteId(createSiteCode);
+            if (limitNum == null) {
+                limitNum = DEFAULT_LIMIT_NUM;
+            }
+
             //箱号已分拣的数量
             int hasSorting = sortingService.findBoxPack(createSiteCode, boxCode);
             limitNumCheck(hasSorting, packageNum, limitNum);

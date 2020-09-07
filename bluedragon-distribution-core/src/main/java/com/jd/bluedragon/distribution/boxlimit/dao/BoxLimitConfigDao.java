@@ -61,6 +61,12 @@ public class BoxLimitConfigDao extends BaseDao<BoxLimitConfig> {
     public List<BoxLimitConfig> queryBySiteIds(List<Integer> siteIds){
         return this.getSqlSession().selectList(namespace+".queryBySiteIds", siteIds);
     }
+    /**
+     * 根据机构ID查询 包裹限制数量
+     */
+    public Integer queryLimitNumBySiteId(Integer siteId){
+        return this.getSqlSession().selectOne(namespace+".queryLimitNumBySiteId", siteId);
+    }
 
     /**
      * 根据ID 批量删除

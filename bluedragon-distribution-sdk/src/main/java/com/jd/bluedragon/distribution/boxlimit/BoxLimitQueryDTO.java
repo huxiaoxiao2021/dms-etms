@@ -19,7 +19,7 @@ public class BoxLimitQueryDTO implements Serializable {
 
     private Integer pageSize = 20;
 
-    private Integer offset;
+    private Integer offset = 0;
 
     public String getSiteName() {
         return siteName;

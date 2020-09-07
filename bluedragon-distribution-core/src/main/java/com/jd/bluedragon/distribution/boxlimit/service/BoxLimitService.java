@@ -19,18 +19,33 @@ public interface BoxLimitService {
 
     /**
      * 导入模板数据
-     * @param data
-     * @param operator
-     * @return
      */
     JdResponse importData(List<BoxLimitTemplateVO> data, LoginUser operator);
 
+    /**
+     * PDA建箱包裹数 创建配置
+     */
     JdResponse create(BoxLimitDTO dto, LoginUser operator);
 
+    /**
+     * PDA建箱包裹数 更新配置
+     */
     JdResponse update(BoxLimitDTO dto, LoginUser operator);
 
-    JdResponse delete(List<Integer> ids);
+    /**
+     * 根据ID批量删除
+     */
+    JdResponse delete(List<Integer> ids, String operatorErp);
 
-    JdResponse getSiteNameById(Integer siteId);
+    /**
+     *  查询展示名称
+     */
+    JdResponse querySiteNameById(Integer siteId);
+
+    /**
+     *  根据站点ID 查询 包裹数量限制
+     *  未配置 返回 null
+     */
+    Integer queryLimitNumBySiteId(Integer siteId);
 
 }

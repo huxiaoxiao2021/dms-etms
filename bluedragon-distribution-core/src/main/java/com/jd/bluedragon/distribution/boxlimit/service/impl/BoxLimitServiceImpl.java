@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.boxlimit.service.impl;
 
+import com.google.gson.Gson;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.boxlimit.BoxLimitDTO;
@@ -12,6 +13,8 @@ import com.jd.bluedragon.distribution.boxlimit.service.BoxLimitService;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -23,6 +26,7 @@ import java.util.*;
 
 @Service
 public class BoxLimitServiceImpl implements BoxLimitService {
+    private static final Logger log = LoggerFactory.getLogger(BoxLimitServiceImpl.class);
     @Autowired
     private BaseMajorManager baseMajorManager;
     @Autowired
@@ -63,6 +67,7 @@ public class BoxLimitServiceImpl implements BoxLimitService {
     public JdResponse importData(List<BoxLimitTemplateVO> data, LoginUser operator) {
         JdResponse response = new JdResponse();
         checkTemplateData(data, response);
+        log.info("建箱包裹数限制：导入数据校验结果为:{}",new Gson().toJson(response));
         if (!response.isSucceed()) {
             return response;
         }
@@ -204,6 +209,7 @@ public class BoxLimitServiceImpl implements BoxLimitService {
     public JdResponse create(BoxLimitDTO dto, LoginUser operator) {
         JdResponse response = new JdResponse();
         checkDtoData(dto, response);
+        log.info("建箱包裹数限制：create数据校验结果为:{}",new Gson().toJson(response));
         if (!response.isSucceed()) {
             return response;
         }
@@ -230,6 +236,7 @@ public class BoxLimitServiceImpl implements BoxLimitService {
     @Override
     public JdResponse update(BoxLimitDTO dto, LoginUser operator) {
         JdResponse response = new JdResponse();
+        log.info("建箱包裹数限制：update数据校验结果为:{}",new Gson().toJson(response));
         if (dto.getId() == null) {
             response.setCode(JdResponse.CODE_FAIL);
             response.setMessage("ID不能为空!");
@@ -258,13 +265,14 @@ public class BoxLimitServiceImpl implements BoxLimitService {
     }
 
     @Override
-    public JdResponse delete(List<Integer> ids) {
+    public JdResponse delete(List<Integer> ids,String operatorErp) {
+        log.info("建箱包裹数限制 delete操作, 参数 ids={},操作人:{}", ids, operatorErp);
         boxLimitConfigDao.batchDelete(ids);
         return new JdResponse();
     }
 
     @Override
-    public JdResponse getSiteNameById(Integer siteId) {
+    public JdResponse querySiteNameById(Integer siteId) {
         JdResponse response = new JdResponse();
         BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(siteId);
         if (siteOrgDto == null || siteOrgDto.getSiteName() == null) {
@@ -274,6 +282,11 @@ public class BoxLimitServiceImpl implements BoxLimitService {
            response.setData(siteOrgDto.getSiteName());
         }
         return response;
+    }
+
+    @Override
+    public Integer queryLimitNumBySiteId(Integer siteId) {
+        return boxLimitConfigDao.queryLimitNumBySiteId(siteId);
     }
 
 }

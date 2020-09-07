@@ -60,7 +60,7 @@ public class BoxLimitController extends DmsBaseController {
     @ResponseBody
     public JdResponse getSiteNameById(Integer siteId){
 
-        return boxLimitService.getSiteNameById(siteId);
+        return boxLimitService.querySiteNameById(siteId);
     }
     /**
      * 新建/修改
@@ -81,7 +81,7 @@ public class BoxLimitController extends DmsBaseController {
     @ResponseBody
     public JdResponse delete(@RequestBody ArrayList<Integer> ids){
 
-        return boxLimitService.delete(ids);
+        return boxLimitService.delete(ids, getLoginUser().getUserErp());
     }
     /**
      * 导入
