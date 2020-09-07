@@ -61,7 +61,7 @@
         <hr />
         <!-- 主页面操作按钮 -->
         <div id="toolbar" class="btn-group">
-            <button id="btn_query" type="button" class="btn btn-default">
+            <button id="btn_download" type="button" class="btn btn-default">
                 <a href="#springUrl('')/static/importFileModel/boxLimitTemplate.xlsx" type="application/vnd.ms-excel">
                     <span class="glyphicon glyphicon-download" aria-hidden="true"></span>&nbsp;下载导入模板
                 </a>

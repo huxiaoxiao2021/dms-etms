@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.web.boxlimit;
 
-import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.basic.DataResolver;
 import com.jd.bluedragon.distribution.basic.ExcelDataResolverFactory;
@@ -12,7 +11,6 @@ import com.jd.bluedragon.distribution.boxlimit.BoxLimitVO;
 import com.jd.bluedragon.distribution.boxlimit.service.BoxLimitService;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
-import com.jd.uim.annotation.Authorization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +19,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -80,7 +79,7 @@ public class BoxLimitController extends DmsBaseController {
      */
     @RequestMapping("/delete")
     @ResponseBody
-    public JdResponse delete(List<Integer> ids){
+    public JdResponse delete(@RequestBody ArrayList<Integer> ids){
 
         return boxLimitService.delete(ids);
     }

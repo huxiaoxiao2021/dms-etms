@@ -71,9 +71,11 @@ $(function () {
         oTableInit.tableColums = [{
             checkbox: true
         }, {
-            field: 'index',
             title: '序号',
-            align: 'center'
+            align: 'center',
+            formatter: function (value,row,index) {
+                return index + 1;
+            }
         }, {
             field: 'siteName',
             title: '机构名称',
@@ -150,13 +152,13 @@ $(function () {
                 }
                 var flag = confirm("是否删除这些数据?");
                 if (flag == true) {
-                    var params = [];
+                    var deleteIds = [];
                     for(var i in rows){
-                        params.push(rows[i].id);
+                        deleteIds.push(rows[i].id);
                     };
-                    $.ajaxHelper.doPostSync(deleteUrl,JSON.stringify(params),function(res){
-                        if(res&&res.succeed&&res.data){
-                            Jd.alert('操作成功,删除'+res.data+'条。');
+                    $.ajaxHelper.doPostSync(deleteUrl,JSON.stringify(deleteIds),function(res){
+                        if(res.succeed){
+                            Jd.alert('操作成功,删除'+rows.length+'条。');
                             tableInit().refresh();
                         }else{
                             Jd.alert(res.message);
@@ -180,26 +182,24 @@ $(function () {
                         }
                     }
                 });
-                var url = saveUrl;
-                $.ajaxHelper.doPostSync(url,JSON.stringify(params),function(res){
+                $.ajaxHelper.doPostSync(saveUrl,JSON.stringify(params),function(res){
                     if(res&&res.succeed){
                         Jd.alert('操作成功');
                         tableInit().refresh();
+                        $('#edit_modal').modal('hide');
                     }else if(res){
                         Jd.alert(res.message);
                     }else{
                         Jd.alert('服务异常');
                     }
                     $('#btn_submit').attr("disabled",false);
-                    $('#dataEditDiv').hide();
-                    $('#dataTableDiv').show();
 
                 });
             });
             //取消
             $('#btn_return').click(function() {
-                $('#dataEditDiv').hide();
-                $('#dataTableDiv').show();
+                // $('#dataEditDiv').hide();
+                // $('#dataTableDiv').show();
             });
         };
         return oInit;
@@ -212,11 +212,12 @@ $(function () {
         var querySiteNameParam = {};
         querySiteNameParam['siteId'] = $('#site_id_for_update').val();
         $.ajaxHelper.doGetSync(siteNameUrl, querySiteNameParam, function (res) {
-            if (res.data) {
-                $('#site_name_span').text(res.data);
-                $('#site_name').val(res.data);
+            var spanEle = $('#site_name_span');
+            if (res.succeed) {
+                spanEle.text(res.data);
+                $('#site_name_for_update').val(res.data);
             } else {
-                $('#site_name_span').class('alert alert-danger').text('机构不存在!');
+                spanEle.text('机构不存在!');
             }
         });
     });
@@ -242,8 +243,7 @@ function initImportExcel(){
             return;
         }
 
-        var form = document.getElementById('import_excel_file_form'),
-            formData = new FormData(form);
+        var form = document.getElementById('import_excel_file_form'), formData = new FormData(form);
         $.ajax({
             url:importUrl,
             type:"post",
