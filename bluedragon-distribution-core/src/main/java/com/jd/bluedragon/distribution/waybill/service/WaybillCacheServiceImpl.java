@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.ver.domain.Site;
@@ -8,6 +9,8 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +32,7 @@ public class WaybillCacheServiceImpl implements WaybillCacheService {
     private WaybillService waybillService;
 
     @Override
+    @JProfiler(jKey = "DMSWEB.WaybillCacheServiceImpl.getFromCache", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public WaybillCache getFromCache(String waybillCode) {
         if (StringUtils.isBlank(waybillCode)) {
             this.log.error("WaybillServiceImpl --> getByWaybillCodeCommon：传入运单号参数错误");
@@ -52,7 +56,7 @@ public class WaybillCacheServiceImpl implements WaybillCacheService {
                 // 调用运单接口
                 this.log.info("运单号为： " + waybillCode + "调用WSS接口获取运单信息");
 
-                BigWaybillDto bigWaybillDto = waybillService.getWaybill(waybillCode);
+                BigWaybillDto bigWaybillDto = waybillService.getWaybill(waybillCode, false);
                 waybillCache = this.convertWaybillWS(bigWaybillDto, true);
                 return waybillCache;
             }
@@ -64,6 +68,7 @@ public class WaybillCacheServiceImpl implements WaybillCacheService {
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.WaybillCacheServiceImpl.getNoCache", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public WaybillCache getNoCache(String waybillCode) {
         WaybillCache waybillCache = null;
         try {
@@ -71,7 +76,7 @@ public class WaybillCacheServiceImpl implements WaybillCacheService {
             waybillCache = this.convertWaybillWS(bigWaybillDto, true);
 
         }catch(Exception e){
-            log.error("getFromCache fail!"+waybillCode,e);
+            log.error("getNoCache fail!" + waybillCode, e);
         }
         return waybillCache;
     }

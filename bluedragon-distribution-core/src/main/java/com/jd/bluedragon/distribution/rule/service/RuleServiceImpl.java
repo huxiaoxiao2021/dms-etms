@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.rule.service;
 
 import com.jd.bluedragon.distribution.rule.dao.RuleDao;
 import com.jd.bluedragon.distribution.rule.domain.Rule;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -42,8 +43,12 @@ public class RuleServiceImpl implements RuleService {
         return ruleDao.queryAllSize(map);
     }
 
-    public List<Rule> queryByParamNoPage(Map map) {
-        return ruleDao.queryByParamNoPage(map);
+    @Cache(key = "RuleServiceImpl.queryByParamNoPage@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
+    public List<Rule> queryByParamNoPage(Integer createSiteCode) {
+        Map<String, Integer> queryParam = new HashMap<>();
+        queryParam.put("siteCode", createSiteCode);
+        return ruleDao.queryByParamNoPage(queryParam);
     }
 
     @Override
