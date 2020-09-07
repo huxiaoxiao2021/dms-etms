@@ -42,7 +42,8 @@
         CREATE_USER_CODE,
         UPDATE_TIME,
         UPDATE_USER ,
-        UPDATE_USER_CODE
+        UPDATE_USER_CODE,
+        TS
     </sql>
     <sql id="whereCondition">
         WHERE YN = 1
