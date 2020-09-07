@@ -18,7 +18,7 @@ $(function () {
                 pagination: true, // 是否显示分页（*）
                 pageNumber: 1, // 初始化加载第一页，默认第一页
                 pageSize: 20, // 每页的记录行数（*）
-                pageList: [50, 100 ,500], // 可供选择的每页的行数（*）
+                pageList: [50, 100, 500], // 可供选择的每页的行数（*）
                 cache: false, // 是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
                 sidePagination: "server", // 分页方式：client客户端分页，server服务端分页（*）
                 striped: true, // 是否显示行间隔色
@@ -49,7 +49,7 @@ $(function () {
                 temp = {};
             }
             temp.offset = params.offset;
-            temp.pageSize = params.pageSize;
+            temp.pageSize = params.limit;
             // 这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
             return temp;
         };
@@ -206,8 +206,8 @@ $(function () {
     };
     tableInit().init();
     pageInit().init();
-    initImportExcel();
 
+    // 根据机构ID查询机构名称
     $('#site_id_for_update').change(function () {
         var querySiteNameParam = {};
         querySiteNameParam['siteId'] = $('#site_id_for_update').val();
@@ -221,9 +221,7 @@ $(function () {
             }
         });
     });
-});
 
-function initImportExcel(){
     //上传按钮
     $('#btn_upload').on('click',function(e){
         $('#btn_upload').attr("disabled",true);
@@ -251,7 +249,7 @@ function initImportExcel(){
             processData:false,
             contentType:false,
             success:function(res){
-                if(res && res.code === 200){
+                if(res.succeed){
                     Jd.alert("上传成功!");
                     tableInit().refresh();
                 }else{
@@ -263,10 +261,7 @@ function initImportExcel(){
                 Jd.alert("网络连接失败,稍后重试");
                 $('#btn_upload').attr("disabled",false);
             }
-
-
         });
 
     });
-}
-
+});

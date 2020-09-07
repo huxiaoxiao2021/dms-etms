@@ -37,7 +37,6 @@ public class BoxLimitServiceImpl implements BoxLimitService {
         if (dto.getSiteName() != null) {
             dto.setSiteName(dto.getSiteName().replaceAll("_","\\_").replaceAll("\\?","\\?"));
         }
-        dto.setOffset();
         PagerResult<BoxLimitVO> result = new PagerResult<>();
         Integer count = boxLimitConfigDao.countByCondition(dto);
         result.setTotal(count);
@@ -259,6 +258,9 @@ public class BoxLimitServiceImpl implements BoxLimitService {
         boxLimitConfig.setOperatorErp(operator.getUserErp());
         boxLimitConfig.setOperatorSiteId(operator.getSiteCode());
         boxLimitConfig.setOperatorSiteName(operator.getSiteName());
+        boxLimitConfig.setSiteId(dto.getSiteId());
+        boxLimitConfig.setSiteName(dto.getSiteName());
+        boxLimitConfig.setLimitNum(dto.getLimitNum());
 
         boxLimitConfigDao.updateByPrimaryKeySelective(boxLimitConfig);
         return response;

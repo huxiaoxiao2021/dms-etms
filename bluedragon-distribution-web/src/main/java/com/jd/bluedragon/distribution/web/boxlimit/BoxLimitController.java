@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.web.boxlimit;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.basic.DataResolver;
 import com.jd.bluedragon.distribution.basic.ExcelDataResolverFactory;
@@ -11,6 +12,7 @@ import com.jd.bluedragon.distribution.boxlimit.BoxLimitVO;
 import com.jd.bluedragon.distribution.boxlimit.service.BoxLimitService;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.uim.annotation.Authorization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +40,7 @@ public class BoxLimitController extends DmsBaseController {
     /**
      * 返回主页面
      */
+    @Authorization(Constants.DMS_WEB_TOOL_BOXLMIT_R)
     @RequestMapping("/toIndex")
     public String toIndex(Model model){
 
@@ -47,6 +50,7 @@ public class BoxLimitController extends DmsBaseController {
     /**
      * 获取列表
      */
+    @Authorization(Constants.DMS_WEB_TOOL_BOXLMIT_R)
     @RequestMapping("/listData")
     @ResponseBody
     public PagerResult<BoxLimitVO> listData(@RequestBody BoxLimitQueryDTO dto){
@@ -56,6 +60,7 @@ public class BoxLimitController extends DmsBaseController {
     /**
      * 获取站点名称
      */
+    @Authorization(Constants.DMS_WEB_TOOL_BOXLMIT_R)
     @RequestMapping("/getSiteNameById")
     @ResponseBody
     public JdResponse getSiteNameById(Integer siteId){
@@ -65,6 +70,7 @@ public class BoxLimitController extends DmsBaseController {
     /**
      * 新建/修改
      */
+    @Authorization(Constants.DMS_WEB_TOOL_BOXLMIT_R)
     @RequestMapping("/save")
     @ResponseBody
     public JdResponse save(@RequestBody BoxLimitDTO dto){
@@ -77,6 +83,7 @@ public class BoxLimitController extends DmsBaseController {
     /**
      * 删除
      */
+    @Authorization(Constants.DMS_WEB_TOOL_BOXLMIT_R)
     @RequestMapping("/delete")
     @ResponseBody
     public JdResponse delete(@RequestBody ArrayList<Integer> ids){
@@ -86,6 +93,7 @@ public class BoxLimitController extends DmsBaseController {
     /**
      * 导入
      */
+    @Authorization(Constants.DMS_WEB_TOOL_BOXLMIT_R)
     @RequestMapping(value = "/toImport", method = RequestMethod.POST)
     @ResponseBody
     public JdResponse toImport(@RequestParam("importExcelFile") MultipartFile file) {
@@ -102,5 +110,4 @@ public class BoxLimitController extends DmsBaseController {
             return new JdResponse(JdResponse.CODE_FAIL, e.getMessage());
         }
     }
-
 }
