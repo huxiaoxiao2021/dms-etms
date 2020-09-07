@@ -36,12 +36,10 @@ public class AllianceBusiFilter implements Filter {
 
     private boolean check(WaybillCache waybillCache) {
         //校验是否为加盟商运单
-        if(BusinessUtil.isForeignForward(waybillCache.getWaybillSign()) && BusinessUtil.isAllianceBusi(waybillCache.getWaybillSign())){
+        if (BusinessUtil.isForeignForward(waybillCache.getWaybillSign()) && BusinessUtil.isAllianceBusi(waybillCache.getWaybillSign())) {
             try {
-                if (! allianceBusiDeliveryDetailService.checkExist(waybillCache.getWaybillCode())) {
-                    //未入池 提示操作称重交接
-                    return false;
-                }
+                //未入池 提示操作称重交接
+                return allianceBusiDeliveryDetailService.checkExist(waybillCache.getWaybillCode());
             } catch (Exception e){
                 logger.error("校验加盟商运单异常"+waybillCache.getWaybillCode(), e);
             }

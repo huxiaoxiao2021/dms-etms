@@ -10,13 +10,13 @@
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillPackStateFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.SortingNumberLimitFilter" />
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.AllianceBusiFilter" />
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.TipMessageFilter" />
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.BusinessHallFreightSendReceiveFilter" />
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.PreSellInterceptFilter" />
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.LPNewWaybillFilter" />
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.JinPengWaybillFilter" />
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.SevenFreshFilter" />
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillConsumableFilter" />
+        <!--<bean class="com.jd.bluedragon.distribution.ver.filter.filters.TipMessageFilter" />-->
+        <!--<bean class="com.jd.bluedragon.distribution.ver.filter.filters.BusinessHallFreightSendReceiveFilter" />-->
+        <!--<bean class="com.jd.bluedragon.distribution.ver.filter.filters.PreSellInterceptFilter" />-->
+        <!--<bean class="com.jd.bluedragon.distribution.ver.filter.filters.LPNewWaybillFilter" />-->
+        <!--<bean class="com.jd.bluedragon.distribution.ver.filter.filters.JinPengWaybillFilter" />-->
+        <!--<bean class="com.jd.bluedragon.distribution.ver.filter.filters.SevenFreshFilter" />-->
+        <!--<bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillConsumableFilter" />-->
     </util:list>
 
     <bean id="forwardFilterChain" class="com.jd.bluedragon.distribution.ver.filter.chains.ForwardFilterChain" scope="prototype" destroy-method="destory">
@@ -26,7 +26,7 @@
 
     <util:list id="reverseFilterList">
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillPackStateFilter"/>
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.LPNewWaybillFilter" />
+        <!--<bean class="com.jd.bluedragon.distribution.ver.filter.filters.LPNewWaybillFilter" />-->
 
     </util:list>
 
@@ -37,12 +37,12 @@
 
     <util:list id="deliveryFilterList">
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.AllianceBusiFilter" />
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.BusinessHallFreightSendReceiveFilter" />
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.PreSellInterceptFilter" />
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.LPNewWaybillFilter" />
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.JinPengWaybillFilter" />
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.SevenFreshFilter" />
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillConsumableFilter" />
+        <!--<bean class="com.jd.bluedragon.distribution.ver.filter.filters.BusinessHallFreightSendReceiveFilter" />-->
+        <!--<bean class="com.jd.bluedragon.distribution.ver.filter.filters.PreSellInterceptFilter" />-->
+        <!--<bean class="com.jd.bluedragon.distribution.ver.filter.filters.LPNewWaybillFilter" />-->
+        <!--<bean class="com.jd.bluedragon.distribution.ver.filter.filters.JinPengWaybillFilter" />-->
+        <!--<bean class="com.jd.bluedragon.distribution.ver.filter.filters.SevenFreshFilter" />-->
+        <!--<bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillConsumableFilter" />-->
     </util:list>
 
     <bean id="deliveryFilterChain" class="com.jd.bluedragon.distribution.ver.filter.chains.DeliveryFilterChain" scope="prototype" destroy-method="destory">

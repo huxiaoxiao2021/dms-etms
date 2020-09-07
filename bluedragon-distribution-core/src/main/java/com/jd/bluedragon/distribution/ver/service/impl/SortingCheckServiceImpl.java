@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.ver.service.impl;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.WaybillCache;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
@@ -43,10 +44,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 @Service("sortingCheckService")
@@ -84,10 +82,23 @@ public class SortingCheckServiceImpl implements SortingCheckService {
     @Autowired
     private LogEngine logEngine;
 
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
+
     @Override
     @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.sortingCheck", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public SortingJsfResponse sortingCheck(PdaOperateRequest pdaOperateRequest) {
+
+        if (pdaOperateRequest == null) {
+            return new SortingJsfResponse(SortingResponse.CODE_PARAM_IS_NULL, SortingResponse.MESSAGE_PARAM_IS_NULL);
+        }
+
         SortingJsfResponse response = new SortingJsfResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+
+        if (this.isNotNeedCheck(pdaOperateRequest.getCreateSiteCode())) {
+            return response;
+        }
         try {
             //初始化拦截链上下文
             FilterContext filterContext = this.initContext(pdaOperateRequest);
@@ -222,9 +233,6 @@ public class SortingCheckServiceImpl implements SortingCheckService {
      */
     private FilterContext initFilterParam(PdaOperateRequest pdaOperateRequest) throws SortingCheckException {
 
-        if (pdaOperateRequest == null) {
-            throw new SortingCheckException(SortingResponse.CODE_PARAM_IS_NULL, SortingResponse.MESSAGE_PARAM_IS_NULL);
-        }
         if (StringHelper.isEmpty(pdaOperateRequest.getBoxCode())) {
             throw new SortingCheckException(SortingResponse.CODE_29000, SortingResponse.MESSAGE_29000);
         }
@@ -302,4 +310,22 @@ public class SortingCheckServiceImpl implements SortingCheckService {
         logEngine.addLog(businessLogProfiler);
 
     }
+
+    /**
+     * 是否是切换试用站点
+     */
+    private boolean isNotNeedCheck(Integer siteCode) {
+        if (siteCode == null) {
+            return true;
+        }
+        String switchVerToWebSites = uccPropertyConfiguration.getSwitchVerToWebSites();
+        if(StringUtils.isEmpty(switchVerToWebSites)){
+            return true;
+        } else if ("1".equals(switchVerToWebSites)) {
+            return false;
+        }
+        List<String> siteCodes = Arrays.asList(switchVerToWebSites.split(Constants.SEPARATOR_COMMA));
+        return ! siteCodes.contains(String.valueOf(siteCode));
+    }
+
 }

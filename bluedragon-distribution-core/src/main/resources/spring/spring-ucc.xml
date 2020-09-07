@@ -48,7 +48,8 @@
 		<property name="automaticWeightVolumeExchangeSwitch" value="${automaticWeightVolumeExchangeSwitch:false}"/>
 		<property name="automaticWeightVolumeExchangeSiteCode" value="${automaticWeightVolumeExchangeSiteCode:''}"/>
         <property name="sealVolumeCheckSites" value="${sealVolumeCheckSites:-1}"/>
-    </bean>
+		<property name="switchVerToWebSites" value="${switchVerToWebSites}"/>
+	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
 	<bean id="propertyConfig" class="com.jd.coo.ucc.client.config.UccPropertyConfig">
@@ -80,6 +81,8 @@
 				<value>uccPropertyConfiguration.automaticWeightVolumeExchangeSwitch</value>
 				<value>uccPropertyConfiguration.automaticWeightVolumeExchangeSiteCode</value>
 				<value>uccPropertyConfiguration.sealVolumeCheckSites</value>
+				<value>uccPropertyConfiguration.switchVerToWebSites</value>
+
 			</list>
 		</property>
 	</bean>
