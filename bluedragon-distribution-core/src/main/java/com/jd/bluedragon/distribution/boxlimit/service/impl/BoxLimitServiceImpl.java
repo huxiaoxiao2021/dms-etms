@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.boxlimit.BoxLimitVO;
 import com.jd.bluedragon.distribution.boxlimit.dao.BoxLimitConfigDao;
 import com.jd.bluedragon.distribution.boxlimit.domain.BoxLimitConfig;
 import com.jd.bluedragon.distribution.boxlimit.service.BoxLimitService;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
@@ -284,6 +285,8 @@ public class BoxLimitServiceImpl implements BoxLimitService {
     }
 
     @Override
+    @Cache(key = "BoxLimitServiceImpl.queryLimitNumBySiteId@args0", memoryEnable = true, memoryExpiredTime = 2 * 60 * 1000
+            ,redisEnable = true, redisExpiredTime = 2 * 60 * 1000)
     public Integer queryLimitNumBySiteId(Integer siteId) {
         return boxLimitConfigDao.queryLimitNumBySiteId(siteId);
     }

@@ -8,7 +8,6 @@ import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.ver.config.NumberLimitConfig;
 import com.jd.bluedragon.distribution.ver.config.SortingNumberLimitConfig;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
-import com.jd.bluedragon.distribution.ver.domain.Site;
 import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.ver.filter.Filter;
 import com.jd.bluedragon.distribution.ver.filter.FilterChain;
@@ -19,24 +18,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class SortingNumberLimitFilter implements Filter {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    /**
-     * 需拦截的目的地网点类型: 二级分类(编号)-[三级分类(编号)]
-     * 营业部(4)-[营业部(4)]
-     * 分拣中心(64)-[中转站(256),一级分拣中心(64),航空分拣中心(6408),二级分拨中心(6409),三级中转场(6410)]
-     */
-    private final Map<Integer, Set<Integer>> receiveSiteTypMap = Collections.unmodifiableMap(new HashMap<Integer, Set<Integer>>(){{
-        put(4, new HashSet<>(Collections.singletonList(4)));
-        put(64, new HashSet<>(Arrays.asList(256, 64, 6408, 6409, 6410)));
-    }});
-    /**
-     * 默认建箱包裹数量
-     */
-    private static final Integer DEFAULT_LIMIT_NUM = 100;
+
     /**
      * 包裹数验证配置开关
      */
@@ -66,11 +56,21 @@ public class SortingNumberLimitFilter implements Filter {
         	Integer siteType = null;
         	if (request.getReceiveSite() != null) {
         		siteType = request.getReceiveSite().getType();
-        		if(siteType != null && sortingNumberLimitConfig.getSiteTypes().contains(siteType)){
+
+        		Integer subSiteType = request.getReceiveSite().getType();
+                Map<Integer, Set<Integer>> siteTypes = sortingNumberLimitConfig.getSiteTypes();
+
+                if(siteType != null && siteTypes != null && siteTypes.containsKey(siteType) && siteTypes.get(siteType).contains(subSiteType)){
                     //校验开关是否开启
                     NumberLimitConfig siteCheckConfig = this.getSwitchStatus(CONFIG_SITE_PACKAGE_NUM_CHECK);
                     if (siteCheckConfig != null && Boolean.TRUE.equals(siteCheckConfig.getIsOpen())) {
-                    	limitNums.add(siteCheckConfig.getMaxNum());
+                        Integer limitNum = boxLimitService.queryLimitNumBySiteId(request.getCreateSiteCode());
+                        if (limitNum != null) {
+                            limitNums.add(limitNum);
+                        } else {
+                            limitNums.add(siteCheckConfig.getMaxNum());
+                        }
+
                     }
         		}
         	}
@@ -79,7 +79,7 @@ public class SortingNumberLimitFilter implements Filter {
             if(config != null && Boolean.TRUE.equals(config.getIsOpen())) {
             	limitNums.add(config.getMaxNum());
             }
-            if(limitNums.size() > 0 || needBoxLimitCheck(request.getReceiveSite())){
+            if(limitNums.size() > 0){
                 int currentNum = 0;
             	//箱号已分拣的数量
             	int hasSorting = sortingService.findBoxPack(request.getBox().getCreateSiteCode(), request.getBoxCode());
@@ -87,18 +87,12 @@ public class SortingNumberLimitFilter implements Filter {
                 if (request.getPackageNum() != null) {
                 	currentNum = request.getPackageNum();
                 }
-                if (limitNums.size() > 0) {
-                    //多个限制，按限制数量排序
-                    if (limitNums.size() > 1) {
-                        CollectionUtils.sort(limitNums);
-                    }
-                    for (Integer limitNum : limitNums){
-                        limitNumCheck(hasSorting, currentNum, limitNum);
-                    }
+                //多个限制，按限制数量排序
+                if (limitNums.size() > 1) {
+                	CollectionUtils.sort(limitNums);
                 }
-
-                if (needBoxLimitCheck(request.getReceiveSite())) {
-                    boxLimitCheck(hasSorting, currentNum, request.getCreateSiteCode());
+                for (Integer limitNum : limitNums){
+                	limitNumCheck(hasSorting, currentNum, limitNum);
                 }
             }
         }
@@ -134,39 +128,5 @@ public class SortingNumberLimitFilter implements Filter {
         }
 
         return JsonHelper.fromJson(sysConfigs.get(0).getConfigContent(), NumberLimitConfig.class);
-    }
-
-    /**
-     * PDA建箱包裹数上限限制二期
-     *
-     * @param hasSorting     已分拣数量
-     * @param currentSorting 当前分拣数量
-     * @param createSiteCode 当前建箱站点Id
-     */
-    private void boxLimitCheck(int hasSorting, int currentSorting,Integer createSiteCode) throws SortingCheckException {
-        Integer limitNum = boxLimitService.queryLimitNumBySiteId(createSiteCode);
-        if (limitNum == null) {
-            limitNum = DEFAULT_LIMIT_NUM;
-        }
-        if (hasSorting + currentSorting > limitNum) {
-            //提示换箱号
-            throw new SortingCheckException(SortingResponse.CODE_29417, MessageFormat.format(SortingResponse.MESSAGE_29417_BOXLIMIT,limitNum));
-        }
-    }
-
-    /**
-     * 根据目的地站点类型判断是否需要 建箱包裹数 校验
-     * @param receiveSite 目的地站点类型
-     * @return  false-不需要校验, true-需要校验
-     */
-    private boolean needBoxLimitCheck(Site receiveSite) {
-        if (receiveSite == null) {
-            return false;
-        }
-        // 二级分类
-        Integer siteType = receiveSite.getType();
-        // 三级分类
-        Integer siteSubType = receiveSite.getType();
-        return  (receiveSiteTypMap.containsKey(siteType) && receiveSiteTypMap.get(siteType).contains(siteSubType));
     }
 }
