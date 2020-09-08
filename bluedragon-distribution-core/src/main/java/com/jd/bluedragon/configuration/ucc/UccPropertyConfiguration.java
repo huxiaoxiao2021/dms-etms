@@ -108,6 +108,12 @@ public class UccPropertyConfiguration {
      */
     private String sealVolumeCheckSites;
 
+    /**
+     * 开启集包地场地开关
+     *  例：910,39 （-1代表全国）
+     */
+    private String collectionAddressSiteCodes;
+
     public boolean isLogToBusinessLogByKafka() {
         return logToBusinessLogByKafka;
     }
@@ -312,5 +318,13 @@ public class UccPropertyConfiguration {
 
     public void setSealVolumeCheckSites(String sealVolumeCheckSites) {
         this.sealVolumeCheckSites = sealVolumeCheckSites;
+    }
+
+    public String getCollectionAddressSiteCodes() {
+        return collectionAddressSiteCodes;
+    }
+
+    public void setCollectionAddressSiteCodes(String collectionAddressSiteCodes) {
+        this.collectionAddressSiteCodes = collectionAddressSiteCodes;
     }
 }
