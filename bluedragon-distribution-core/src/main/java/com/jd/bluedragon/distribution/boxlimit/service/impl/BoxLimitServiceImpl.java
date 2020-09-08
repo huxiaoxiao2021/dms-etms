@@ -34,9 +34,6 @@ public class BoxLimitServiceImpl implements BoxLimitService {
 
     @Override
     public PagerResult<BoxLimitVO> listData(BoxLimitQueryDTO dto) {
-        if (dto.getSiteName() != null) {
-            dto.setSiteName(dto.getSiteName().replaceAll("_","\\_").replaceAll("\\?","\\?"));
-        }
         PagerResult<BoxLimitVO> result = new PagerResult<>();
         Integer count = boxLimitConfigDao.countByCondition(dto);
         result.setTotal(count);

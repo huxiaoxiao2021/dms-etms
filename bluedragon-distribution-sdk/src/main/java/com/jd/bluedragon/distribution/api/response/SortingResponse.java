@@ -364,6 +364,7 @@ public class SortingResponse extends JdResponse {
     public static final Integer CODE_29417 = 29417;
     public static final String MESSAGE_29417 = "此箱包裹数量超限，请更换箱号!";
     public static final String MESSAGE_29417_WAYBILL = "集包数量超过上限{0}个，请按包裹操作建箱!";
+    public static final String MESSAGE_29417_BOXLIMIT = "集包数量超过上限{0}个，请更换箱号后建箱";
 
     public static final Integer CODE_29418 = 29418;
     public static final String MESSAGE_29418 = "此单已拒收或妥投，请扫描正确面单或退商家打印正确面单或操作异常处理!";
