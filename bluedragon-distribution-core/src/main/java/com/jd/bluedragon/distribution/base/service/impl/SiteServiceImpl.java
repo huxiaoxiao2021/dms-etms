@@ -17,6 +17,8 @@ import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.departure.domain.CapacityCodeResponse;
 import com.jd.bluedragon.distribution.departure.domain.CapacityDomain;
+import com.jd.bluedragon.distribution.site.dao.SiteMapper;
+import com.jd.bluedragon.distribution.ver.domain.Site;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
@@ -24,9 +26,12 @@ import com.jd.etms.vts.dto.CommonDto;
 import com.jd.etms.vts.dto.VtsTransportResourceDto;
 import com.jd.etms.vts.proxy.VtsQueryWSProxy;
 import com.jd.etms.vts.ws.VtsQueryWS;
+import com.jd.ldop.basic.api.BasicTraderAPI;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
+import com.jd.ldop.basic.dto.ResponseDTO;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.ws.BasicPrimaryWS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +54,8 @@ public class SiteServiceImpl implements SiteService {
     private VtsQueryWSProxy vtsQueryWSProxy;
     @Autowired
     private SysConfigService sysConfigService;
+    @Autowired
+    SiteMapper siteMapper;
 
     public BaseStaffSiteOrgDto getSite(Integer siteCode) {
         return this.baseMajorManager.getBaseSiteBySiteId(siteCode);
@@ -416,5 +423,39 @@ public class SiteServiceImpl implements SiteService {
             res.add(siteOrgDto);
         }
         return res;
+    }
+
+    @Override
+    @Cache(key = "SiteServiceImpl.get@args0",  memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000, redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
+    public Site get(Integer siteCode) {
+        if (siteCode == null) {
+            return null;
+        }
+        Site site = this.siteMapper.get(siteCode);
+        if (site == null) {
+            BaseStaffSiteOrgDto dto = null;
+            try {
+                dto = baseMajorManager.getBaseSiteBySiteId(siteCode);
+                if (null == dto) {
+                    log.warn("根据编码获取site信息为空：{}", siteCode);
+                    return null;
+                } else {
+                    Site temp = new Site();
+                    temp.setCode(dto.getSiteCode());
+                    temp.setName(dto.getSiteName());
+                    temp.setDmsCode(dto.getDmsSiteCode() != null ? dto.getDmsSiteCode() : "");
+                    temp.setSubType(dto.getSubType());
+                    temp.setType(dto.getSiteType());
+                    temp.setOrgId(dto.getSubType());
+                    temp.setSiteBusinessType(dto.getSiteBusinessType());
+                    return temp;
+                }
+            } catch (Exception e) {
+                log.error("根据编码获取site信息失败：{}", siteCode, e);
+                return null;
+            }
+        }else {
+            return site;
+        }
     }
 }

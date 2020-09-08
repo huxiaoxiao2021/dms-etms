@@ -16,7 +16,7 @@ import com.jd.bluedragon.distribution.qualityControl.QcVersionFlagEnum;
 import com.jd.bluedragon.distribution.qualityControl.service.QualityControlService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.distribution.site.dao.SiteMapper;
-import com.jd.bluedragon.common.dto.abnormal.response.Site;
+import com.jd.bluedragon.common.dto.abnormal.response.SiteDto;
 import com.jd.bluedragon.external.gateway.service.AbnormalReportingGatewayService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -288,7 +288,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
 
     @Override
     public JdCResponse querySite(String orgId, String siteName, String siteCode) {
-        JdCResponse<List<Site>> jdCResponse = new JdCResponse<>(JdCResponse.CODE_SUCCESS, JdCResponse.MESSAGE_SUCCESS);
+        JdCResponse<List<SiteDto>> jdCResponse = new JdCResponse<>(JdCResponse.CODE_SUCCESS, JdCResponse.MESSAGE_SUCCESS);
 
         List<String> siteTypeList = Arrays.asList("96", "16");//96配送运输，16第三方
 
@@ -296,18 +296,18 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
             jdCResponse.toFail("参数不全");
             return jdCResponse;
         }
-        List<Site> siteList = null;
+        List<SiteDto> siteDtoList = null;
 
         if (StringUtils.isEmpty(siteName)) {
-            siteList = siteMapper.getByOrgIdAnd(orgId, null, siteCode, siteTypeList);
+            siteDtoList = siteMapper.getByOrgIdAnd(orgId, null, siteCode, siteTypeList);
         } else if (StringUtils.isEmpty(siteCode)) {
             if (StringUtils.isNumeric(siteCode)) jdCResponse.toFail("站点id只能为数字");
-            siteList = siteMapper.getByOrgIdAnd(orgId, siteName, null, siteTypeList);
+            siteDtoList = siteMapper.getByOrgIdAnd(orgId, siteName, null, siteTypeList);
         } else {
-            siteList = siteMapper.getByOrgIdAnd(orgId, siteName, siteCode, siteTypeList);
+            siteDtoList = siteMapper.getByOrgIdAnd(orgId, siteName, siteCode, siteTypeList);
         }
 
-        jdCResponse.setData(siteList);
+        jdCResponse.setData(siteDtoList);
         return jdCResponse;
     }
 

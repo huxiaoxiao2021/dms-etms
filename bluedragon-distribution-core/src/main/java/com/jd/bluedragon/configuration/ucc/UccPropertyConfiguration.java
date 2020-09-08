@@ -93,6 +93,18 @@ public class UccPropertyConfiguration {
      */
     private String sealVolumeCheckSites;
 
+    /*
+    * 分拣验证切换到web试用站点
+    * */
+    private String switchVerToWebSites;
+
+    /**
+     * 禁用老版本登陆
+     * @return
+     */
+    private boolean disablePdaOldLogin;
+
+
     public boolean isLogToBusinessLogByKafka() {
         return logToBusinessLogByKafka;
     }
@@ -267,5 +279,21 @@ public class UccPropertyConfiguration {
 
     public void setSealVolumeCheckSites(String sealVolumeCheckSites) {
         this.sealVolumeCheckSites = sealVolumeCheckSites;
+    }
+
+    public String getSwitchVerToWebSites() {
+        return switchVerToWebSites;
+    }
+
+    public void setSwitchVerToWebSites(String switchVerToWebSites) {
+        this.switchVerToWebSites = switchVerToWebSites;
+    }
+
+    public boolean isDisablePdaOldLogin() {
+        return disablePdaOldLogin;
+    }
+
+    public void setDisablePdaOldLogin(boolean disablePdaOldLogin) {
+        this.disablePdaOldLogin = disablePdaOldLogin;
     }
 }
