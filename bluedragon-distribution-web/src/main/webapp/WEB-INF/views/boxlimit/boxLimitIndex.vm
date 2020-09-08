@@ -58,19 +58,20 @@
         <hr />
         <!-- 主页面操作按钮 -->
         <div id="toolbar" class="btn-group">
-            <button id="btn_download" type="button" class="btn btn-default">
+            <button id="btn_download" type="button" class="btn btn-default" style="height: 35px;">
                 <a href="#springUrl('')/static/importFileModel/boxLimitTemplate.xlsx" type="application/vnd.ms-excel">
                     <span class="glyphicon glyphicon-download" aria-hidden="true"></span>&nbsp;下载导入模板
                 </a>
             </button>
-
-            <button id="btn_upload" type="button" class="btn btn-default">
+            <button type="button" class="btn btn-default"class="btn btn-default" style="height: 35px;">
+                <form id="import_excel_file_form" enctype="multipart/form-data" method="POST">
+                    <input  type="file" id="importExcelFile" name="importExcelFile">
+                </form>
+            </button>
+            <button id="btn_upload" type="button" class="btn btn-default" style="height: 35px;">
                 <span class="glyphicon glyphicon-upload" aria-hidden="true"></span>上传
             </button>
         </div>
-        <form id="import_excel_file_form" enctype="multipart/form-data" method="POST">
-            <input  type="file" id="importExcelFile" name="importExcelFile">
-        </form>
         <table id="dataTable"></table>
 </div>
 
