@@ -28,6 +28,7 @@ import java.util.*;
 @Service
 public class BoxLimitServiceImpl implements BoxLimitService {
     private static final Logger log = LoggerFactory.getLogger(BoxLimitServiceImpl.class);
+    private final int maxImportSize = 5000;
     @Autowired
     private BaseMajorManager baseMajorManager;
     @Autowired
@@ -104,7 +105,13 @@ public class BoxLimitServiceImpl implements BoxLimitService {
             response.setMessage("上传数据为空!");
             return;
         }
+        if (data.size() > maxImportSize) {
+            response.setCode(JdResponse.CODE_FAIL);
+            response.setMessage("最大导入数量不允许超过" + maxImportSize);
+            return;
+        }
         int row = 1;
+        StringBuilder duplicateIds = new StringBuilder();
         Set<Integer> siteIdSet = new HashSet<>();
         for (BoxLimitTemplateVO vo : data) {
             if (vo.getSiteId() == null) {
@@ -122,25 +129,30 @@ public class BoxLimitServiceImpl implements BoxLimitService {
                 response.setMessage(String.format("excel中第%s行 建箱包裹上限不正确!", row));
                 return;
             }
-            siteIdSet.add(vo.getSiteId());
+            // 记录重复的站点ID
+            if (!siteIdSet.add(vo.getSiteId())) {
+                if (duplicateIds.length() > 0) {
+                    duplicateIds.append(",");
+                }
+                duplicateIds.append(vo.getSiteId());
+            }
             row++;
         }
         if (siteIdSet.size() != data.size()) {
             response.setCode(JdResponse.CODE_FAIL);
-            response.setMessage("导入的excel表格中存在相同的机构编码!");
+            response.setMessage("导入的excel表格中以下机构编码重复:" + duplicateIds.toString());
             return;
         }
         List<BoxLimitConfig> boxLimitConfigs = boxLimitConfigDao.queryBySiteIds(new ArrayList<>(siteIdSet));
         if (!CollectionUtils.isEmpty(boxLimitConfigs)) {
-            StringBuilder names = new StringBuilder();
             for (BoxLimitConfig b : boxLimitConfigs) {
-                if (names.length() > 0) {
-                    names.append(",");
+                if (duplicateIds.length() > 0) {
+                    duplicateIds.append(",");
                 }
-                names.append(b.getSiteId());
+                duplicateIds.append(b.getSiteId());
             }
             response.setCode(JdResponse.CODE_FAIL);
-            response.setMessage(String.format("ID为:%s 的机构配置已经存在,不允许重复配置", names));
+            response.setMessage(String.format("ID为:%s 的机构配置已经存在,不允许重复配置", duplicateIds));
             return;
         }
         row = 1;

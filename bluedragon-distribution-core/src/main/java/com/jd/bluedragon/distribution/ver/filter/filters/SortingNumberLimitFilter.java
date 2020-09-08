@@ -60,7 +60,8 @@ public class SortingNumberLimitFilter implements Filter {
         		Integer subSiteType = request.getReceiveSite().getType();
                 Map<Integer, Set<Integer>> siteTypes = sortingNumberLimitConfig.getSiteTypes();
 
-                if(siteType != null && siteTypes != null && siteTypes.containsKey(siteType) && siteTypes.get(siteType).contains(subSiteType)){
+                if (siteType != null && subSiteType != null && siteTypes != null
+                        && siteTypes.containsKey(siteType) && siteTypes.get(siteType).contains(subSiteType)) {
                     //校验开关是否开启
                     NumberLimitConfig siteCheckConfig = this.getSwitchStatus(CONFIG_SITE_PACKAGE_NUM_CHECK);
                     if (siteCheckConfig != null && Boolean.TRUE.equals(siteCheckConfig.getIsOpen())) {
@@ -72,7 +73,7 @@ public class SortingNumberLimitFilter implements Filter {
                         }
 
                     }
-        		}
+                }
         	}
             //校验开关是否开启
             NumberLimitConfig config =this.getSwitchStatus(CONFIG_SEND_PACKAGE_NUM_CHECK);
