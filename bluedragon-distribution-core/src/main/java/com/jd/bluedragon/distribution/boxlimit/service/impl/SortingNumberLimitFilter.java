@@ -13,10 +13,9 @@ import java.util.*;
 public class SortingNumberLimitFilter {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    // TODO 目的地站点类型配置
     private final Map<Integer, Set<Integer>> receiveSiteTypMap = Collections.unmodifiableMap(new HashMap<Integer, Set<Integer>>(){{
-        put(1, new HashSet<>(Arrays.asList(1, 2, 3)));
-        put(2, new HashSet<>(Arrays.asList(21, 22, 23)));
+        put(4, new HashSet<>(Arrays.asList(4)));
+        put(64, new HashSet<>(Arrays.asList(256, 64, 6408, 6409, 6410)));
     }});
     private static final Integer DEFAULT_LIMIT_NUM = 100;
 
