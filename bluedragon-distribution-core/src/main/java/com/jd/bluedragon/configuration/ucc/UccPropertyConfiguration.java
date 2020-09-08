@@ -98,6 +98,13 @@ public class UccPropertyConfiguration {
     * */
     private String switchVerToWebSites;
 
+    /**
+     * 禁用老版本登陆
+     * @return
+     */
+    private boolean disablePdaOldLogin;
+
+
     public boolean isLogToBusinessLogByKafka() {
         return logToBusinessLogByKafka;
     }
@@ -280,5 +287,13 @@ public class UccPropertyConfiguration {
 
     public void setSwitchVerToWebSites(String switchVerToWebSites) {
         this.switchVerToWebSites = switchVerToWebSites;
+    }
+
+    public boolean isDisablePdaOldLogin() {
+        return disablePdaOldLogin;
+    }
+
+    public void setDisablePdaOldLogin(boolean disablePdaOldLogin) {
+        this.disablePdaOldLogin = disablePdaOldLogin;
     }
 }

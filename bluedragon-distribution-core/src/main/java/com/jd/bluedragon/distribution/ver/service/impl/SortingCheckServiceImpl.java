@@ -263,9 +263,7 @@ public class SortingCheckServiceImpl implements SortingCheckService {
      *
      */
     private Map<String, Rule> getRuleList(Integer createSiteCode) throws SortingCheckException {
-        Map<String, Integer> queryParam = new HashMap<>();
-        queryParam.put("siteCode", createSiteCode);
-        List<Rule> ruleList = ruleService.queryByParamNoPage(queryParam);
+        List<Rule> ruleList = ruleService.queryByParamNoPage(createSiteCode);
         if (ruleList == null || ruleList.size() == 0) {//未配置分拣规则
             throw new SortingCheckException(SortingResponse.CODE_29402, SortingResponse.MESSAGE_29402);
         }

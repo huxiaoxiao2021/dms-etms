@@ -45,6 +45,7 @@
 		<property name="automaticWeightVolumeExchangeSwitch" value="${automaticWeightVolumeExchangeSwitch:false}"/>
 		<property name="automaticWeightVolumeExchangeSiteCode" value="${automaticWeightVolumeExchangeSiteCode:''}"/>
         <property name="sealVolumeCheckSites" value="${sealVolumeCheckSites:-1}"/>
+        <property name="disablePdaOldLogin" value="${pda.disableOldLogin:false}"/>
 		<property name="switchVerToWebSites" value="${switchVerToWebSites}"/>
 	</bean>
 
@@ -76,7 +77,7 @@
 				<value>uccPropertyConfiguration.automaticWeightVolumeExchangeSiteCode</value>
 				<value>uccPropertyConfiguration.sealVolumeCheckSites</value>
 				<value>uccPropertyConfiguration.switchVerToWebSites</value>
-
+				<value>uccPropertyConfiguration.disablePdaOldLogin</value>
 			</list>
 		</property>
 	</bean>
