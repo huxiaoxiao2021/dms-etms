@@ -469,4 +469,15 @@
     <bean id="weightAndVolumeCheckHandleProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.weightAndVolumeCheck.handle}"/>
     </bean>
+
+    <!--  分拣建箱环节发送包裹信息  -->
+    <bean id="dmsSortingPackageProducer" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.sorting.package}" />
+    </bean>
+
+    <!--  分拣验货环节发送包裹信息  -->
+    <bean id="dmsInspectionPackageProducer" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.inspection.package}" />
+    </bean>
+
 </beans>
