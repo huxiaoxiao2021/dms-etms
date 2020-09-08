@@ -11,7 +11,7 @@
  
 	<bean class="org.springframework.context.annotation.CommonAnnotationBeanPostProcessor"/>
 	
-	<import resource="classpath:spring/distribution-core-datasource-jddl.xml" />
+	<import resource="classpath:spring/distribution-core-datasource-jddl-${profiles.env}.xml" />
 	<import resource="classpath:spring/distribution-core-datasource-task-config.xml" />
 	<import resource="classpath:spring/distribution-core-datasource-undiv.xml" />
 	<import resource="classpath:spring/distribution-core-datasource-task.xml" />
@@ -28,7 +28,6 @@
 	<import resource="classpath:spring/distribution-core-log.xml" />
 
     <!--<import resource="classpath:spring/distribution-core-asynBuffer-producer.xml"/>-->
-    <!--<import resource="classpath:spring/distribution-core-dcam.xml"/>-->
 
 	<import resource="classpath:spring/distribution-core-jss.xml"/>
 	<import resource="classpath:spring/distribution-core-ucc.xml"/>
@@ -37,6 +36,9 @@
 	<import resource="classpath:spring/distribution-core-handler.xml" />
 	<import resource="classpath:spring/distribution-core-sequence-gen-redis.xml" />
 	<import resource="classpath*:cdf/crossbow.comp" />
+	<import resource="distribution-sorting-filter.xml" />
+	<import resource="distribution-beans.xml" />
+	<import resource="distribution-core-datasource-waybill.xml" />
 
 	<context:component-scan base-package="com.jd.bluedragon.distribution.popAbnormal.helper" />
 	<context:component-scan base-package="com.jd.bluedragon.distribution.*.dao" />

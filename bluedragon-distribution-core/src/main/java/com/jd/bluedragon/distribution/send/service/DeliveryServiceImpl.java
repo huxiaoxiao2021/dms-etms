@@ -365,8 +365,6 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     private static final int OPERATE_TYPE_CANCEL_Y = 1;
 
-    private static final int OPERATE_TYPE_NEW_PACKAGE_SEND=60;
-
     private final Integer BATCH_NUM = 999;
 
     private final Integer BATCH_NUM_M = 99;
@@ -756,7 +754,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             if (siteInfo == null || siteInfo.getSiteType() != 64) {
                 sortingCheck.setOperateType(1);
             } else {
-                sortingCheck.setOperateType(OPERATE_TYPE_NEW_PACKAGE_SEND);
+                sortingCheck.setOperateType(Constants.OPERATE_TYPE_NEW_PACKAGE_SEND);
             }
         } else {
             sortingCheck.setOperateType(1);

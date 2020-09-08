@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.UnloadCar;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.inventory.controller.inventoryTaskController;
 import com.jd.bluedragon.distribution.loadAndUnload.UnloadCarTask;
@@ -9,6 +10,7 @@ import com.jd.bluedragon.distribution.loadAndUnload.domain.DistributeTaskRequest
 import com.jd.bluedragon.distribution.loadAndUnload.service.UnloadCarService;
 import com.jd.bluedragon.distribution.unloadCar.domain.UnloadCarCondition;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
+import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
@@ -44,6 +46,12 @@ public class UnloadCarTaskController extends DmsBaseController {
     @Authorization(Constants.DMS_WEB_UNLOAD_CAR_TASK_R)
     @RequestMapping("/toIndex")
     public String toIndex(Model model){
+        int loginSiteCode = -1;
+        LoginUser loginUser = getLoginUser();
+        if(loginUser != null && DmsConstants.SITE_TYPE_DMS.equals(loginUser.getSiteType())){
+            loginSiteCode = loginUser.getSiteCode();
+        }
+        model.addAttribute("loginSiteCode",loginSiteCode);
         return "/unloadCar/unloadCarTask";
     }
 

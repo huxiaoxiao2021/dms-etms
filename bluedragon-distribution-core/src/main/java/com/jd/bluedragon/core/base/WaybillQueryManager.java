@@ -1,5 +1,6 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.SkuSn;
@@ -271,5 +272,11 @@ public interface WaybillQueryManager{
      * @return
      */
     BaseEntity<List<WaybillVasDto>> getWaybillVasInfosByWaybillCode(String waybillCode);
+    /**
+     * 根据运单号查询出关联的原单和返单单号
+     * @param waybillCode
+     * @return
+     */
+	JdResult<List<String>> getOriginalAndReturnWaybillCodes(String waybillCode);
 
 }

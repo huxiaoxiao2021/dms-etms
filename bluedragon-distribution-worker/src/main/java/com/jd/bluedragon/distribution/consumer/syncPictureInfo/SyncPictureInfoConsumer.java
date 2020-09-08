@@ -24,7 +24,6 @@ public class SyncPictureInfoConsumer extends MessageBaseConsumer {
     @Autowired
     private WeightAndVolumeCheckService weightAndVolumeCheckService;
 
-
     @Override
     public void consume(Message message) throws Exception {
 
@@ -53,7 +52,10 @@ public class SyncPictureInfoConsumer extends MessageBaseConsumer {
         }
 
         // 给FXM发消息并更新es数据
-        weightAndVolumeCheckService.sendMqAndUpdate(packageCode,siteCode);
+        // weightAndVolumeCheckService.sendMqAndUpdate(packageCode,siteCode);
+
+        // 上传成功后，发送MQ消息，进行下一步操作
+        weightAndVolumeCheckService.updateImgAndSendHandleMq(packageCode, siteCode);
     }
 
 

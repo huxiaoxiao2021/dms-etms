@@ -54,4 +54,9 @@ public interface SendPayConstants {
 	 */
 	int POSITION_307 = 307;
 	char CHAR_307_1 = '1';
+	/**
+	 * 第292位,1-合约机业务
+	 */
+	int POSITION_292 = 292;
+	char CHAR_292_1 = 1;
 }

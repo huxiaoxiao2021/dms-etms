@@ -34,9 +34,6 @@ public class FeatherLetterHandler implements Handler<WaybillPrintContext,JdResul
     public InterceptResult<String> handle(WaybillPrintContext context) {
         InterceptResult<String> result = new InterceptResult<String>();
         result.toSuccess();
-        if(!uccPropertyConfiguration.isStationPrintFeatherLetterCheck()){
-            return result;
-        }
         String waybillSign = context.getWaybill().getWaybillSign();
         if(!BusinessUtil.isFeatherLetter(waybillSign)){
             context.getResponse().setFeatherLetterWaybill(Boolean.FALSE);

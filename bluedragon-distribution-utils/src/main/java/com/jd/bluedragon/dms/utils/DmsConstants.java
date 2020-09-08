@@ -237,4 +237,22 @@ public class DmsConstants {
      * 分拣中心类型（数据字典-站点类型）
      */
     public static final List<Integer> SORTING_SITE_TYPE_LIST = Arrays.asList(64);
+    /**
+     * 退货地址类型6-二次换单退货地址
+     */
+    public static final int RETURN_BACK_ADDRESS_TYPE_6 = 6;
+    /**
+     * 微笑符号-^_^
+     */
+    public static final String  HIDE_SMILE = "^_^";
+    /**
+     * 微笑符号-****
+     */
+    public static final String  HIDE_STAR = "****";
+    public static final int PHONE_FIRST_NUMBER = 3;//收件人联系方式前几位需要显示
+    public static final int PHONE_HIGHLIGHT_NUMBER = 4;//收件人联系方式需要突出显示的位数(即手机尾数要保留的位数)
+    public static final int PHONE_LEAST_NUMBER = PHONE_FIRST_NUMBER + PHONE_HIGHLIGHT_NUMBER;//隐藏处理的最小长度
+    public static final int ADDRESS_SHOW_LENGTH = 9; //地址信息需要显示的前几位，超过部分用微笑符号替代
+    public static final int ADDRESS_HIDE_LENGTH = 6; //地址信息需要隐藏的后几位，用微笑符号替代
+    public static final int NAME_SHOW_LENGTH = 1; //姓名信息需要隐藏的位数
 }

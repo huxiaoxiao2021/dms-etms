@@ -22,7 +22,7 @@
 		<slf4j.version>1.6.4</slf4j.version>
 		<aspectj.version>1.6.11</aspectj.version>
 		<jmq.version>2.3.1</jmq.version>
-		<etms.waybill.agent.version>4.2.172</etms.waybill.agent.version>
+		<etms.waybill.agent.version>4.2.177</etms.waybill.agent.version>
 		<jddl-client.version>2.0.1-SNAPSHOT</jddl-client.version>
 		<configure-client.version>1.0.0-SNAPSHOT</configure-client.version>
 		<configure-utils.version>1.0.0-SNAPSHOT</configure-utils.version>
@@ -34,6 +34,7 @@
 		<crossbow.sdk.version>0.0.1-SNAPSHOT</crossbow.sdk.version>
 		<crossbow.api.version>0.0.1-SNAPSHOT</crossbow.api.version>
 		<crossbow.component.version>0.0.4-SNAPSHOT</crossbow.component.version>
+		<eclp.notice.api.version>0.0.1-SNAPSHOT</eclp.notice.api.version>
 		<ps-epf.version>1.0-SNAPSHOT</ps-epf.version>
 	</properties>
 
@@ -227,7 +228,7 @@
 		<dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>bluedragon-distribution-common-android</artifactId>
-            <version>1.1.3-SNAPSHOT</version>
+            <version>1.1.4-SNAPSHOT</version>
         </dependency>
 		<dependency>
 			<groupId>com.jd.etms.waybill</groupId>
@@ -791,7 +792,11 @@
             <artifactId>tms-ecp-client</artifactId>
             <version>1.0.1-SNAPSHOT</version>
 		</dependency>
-
+		<dependency>
+			<groupId>com.jd.eclp</groupId>
+			<artifactId>eclp-notice-api</artifactId>
+			<version>${eclp.notice.api.version}</version>
+		</dependency>
         <!-- cassandra -->
 		<dependency>
             <groupId>com.datastax.cassandra</groupId>
@@ -1038,7 +1043,7 @@
 		<dependency>
 			<groupId>com.jd.ldop.center</groupId>
 			<artifactId>ldop-center-api</artifactId>
-			<version>1.4.98-SNAPSHOT</version>
+			<version>1.6.0-SNAPSHOT</version>
 		</dependency>
 		<!-- 理赔系统接口 -->
 		<dependency>
@@ -1200,7 +1205,7 @@
 		<dependency>
 			<groupId>com.jd.ldop.business</groupId>
 			<artifactId>ldop-business-api</artifactId>
-			<version>1.0.38-SNAPSHOT</version>
+			<version>1.0.40-SNAPSHOT</version>
 		</dependency>
 		<!-- 打印引擎    start-->
         <dependency>
@@ -1393,6 +1398,18 @@
             <artifactId>ql-asset-client</artifactId>
             <version>1.5-SNAPSHOT</version>
         </dependency>
+		<!--京东数据库加密安全包-->
+		<dependency>
+			<groupId>com.jd.security</groupId>
+			<artifactId>aces-mybatisclient</artifactId>
+			<version>1.0.1-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.google.code.gson</groupId>
+					<artifactId>gson</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 	</dependencies>
 
 	<profiles>

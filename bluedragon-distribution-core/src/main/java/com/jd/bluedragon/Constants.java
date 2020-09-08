@@ -126,6 +126,11 @@ public class Constants {
     public static final int BUSINESS_LOG_SOURCE_SYS_DMSWEB = 1;
 
     /**
+     * 业务操作日志系统编码-分拣web中的ver
+     */
+    public static final int BUSINESS_LOG_SOURCE_SYS_VERINWEB = 2;
+
+    /**
      * 业务操作日志系统编码-分拣worker
      */
     public static final int BUSINESS_LOG_SOURCE_SYS_DMSWORKER = 66;
@@ -138,6 +143,11 @@ public class Constants {
      * 操作日志业务编码-打印
      */
     public static final Integer BUSINESS_LOG_BIZ_TYPE_PRINT=2001;
+
+    /**
+     * 校验链调用biz
+     */
+    public static final Integer BUSINESS_LOG_BIZ_VER_FILTER_STATISTICS=400;
 
     /**
      * 操作日志记录
@@ -158,6 +168,13 @@ public class Constants {
      * 操作日志业务编码-航空转陆运
      */
     public static final Integer BUSINESS_LOG_OPERATE_TYPE_ARABNORMAL=101401;
+
+    /**
+     * 统计校验链接调用operatetype
+     */
+    public static final Integer BUSINESS_LOG_OPERATE_TYPE_VER_FILTER_STATISTICS=101401;
+
+
     /**
      * 操作日志业务编码-航空转陆运
      */
@@ -679,7 +696,7 @@ public class Constants {
     public static final String DMS_WEB_COLLECT_REPORT="DMS_WEB_COLLECT_REPORT";  //集货报表
     public static final String DMS_WEB_RECYCLE_MATERIAL_SCAN_R = "DMS_WEB_RECYCLE_MATERIAL_SCAN_R"; //循环物资扫描查询
     public static final String DMS_WEB_EDN_PICKING_R = "DMS_WEB_EDN_PICKING_R"; //企配仓揽收
-
+    public static final String DMS_BUSINESS_RETURN_ADRESS_R = "DMS_BUSINESS_RETURN_ADRESS_R"; //商家二次换单地址查询
     /********************************************* 研发UIM权限资源码相关start ***********************************************/
     public static final String DMS_WEB_DEVELOP_REDIS_R ="DMS_WEB_DEVELOP_REDIS_R"; //分拣缓存查询
     public static final String DMS_WEB_DEVELOP_TASK_R ="DMS_WEB_DEVELOP_TASK_R"; //分拣任务监控
@@ -1118,4 +1135,183 @@ public class Constants {
      * */
     public static final String TE_AN_SONG_SERVICE = "fr-a-0010";
 
+
+    public static final String INSPECTION_TOKEN1="D945A448A7D952F1F88CCE5EBE551FE9AA6FF322A21210B0";
+    public static final String INSPECTION_TOKEN2="E945A448A7D952F1F88CCE5EBE551FE9AA6FF322A21210B0";
+    public static final String INSPECTION_TOKEN3="F945A448A7D952F1F88CCE5EBE551FE9AA6FF322A21210B0";
+    public static final String INSPECTION_TOKEN4="E40D832CAFF2C90C95685C28630EFEAC3DC8E7C5D91BD";
+    public static final String INSPECTION_TOKEN5="3EE26F5B18252B6CEE09A0CAD88C91A774E1D31977C5D";
+    public static final String INSPECTION_TOKEN6="3EE26F5B18252B6CEE09A0CAD88C91A774E1D31977C5D";
+
+    public static final String CONFIGNAME_MQ = "mq.properties";
+
+    public static final String OWNSIGN = "ownSign";
+    public static final String AUTOMATIC_WORKER_OWNSIGN = "DMSAUTOWORK";
+
+    // 接口调用
+    /**
+     * 传入参数错误代码
+     */
+    public static final Integer PARAM_ERROR_CODE = -2;
+    /**
+     * 传入参数错误
+     */
+    public static final String PARAM_ERROR = "传入参数错误";
+    /**
+     * 调用服务异常代码
+     */
+    public static final Integer SERVICE_ERROR_CODE = -1;
+    /**
+     * 调用服务异常
+     */
+    public static final String SERVICE_ERROR = "调用服务异常";
+    /**
+     * 调用接口成功代码
+     */
+    public static final Integer SUCCESS_NO_CODE = 0;
+    /**
+     * 调用接口成功，无数据
+     */
+    public static final String SUCCESS_NO = "调用接口成功，无数据";
+    /**
+     * 调用接口成功代码
+     */
+    public static final Integer SUCCESS_CODE = 200;
+    /**
+     * 调用接口成功
+     */
+    public static final String SUCCESS = "调用接口成功，有数据";
+
+
+    /**
+     * 外单类型
+     */
+
+    public static final Integer POP_B = 10000;
+
+    /**
+     * 拍卖订单（多宝岛）
+     */
+    public static final Integer AUCTION = 2;
+
+    public static final Integer BJ = 1;
+    public static final Integer TJ = 3;
+    public static final Integer SH = 2;
+    public static final Integer CQ = 4;
+    /**
+     * 运单类型-B商家
+     */
+    public static final Integer WAYBILL_TYPE_BIZ = 10000;
+
+    /**
+     * 站点类型-B商家
+     */
+    public static final Integer SITE_TYPE_BIZ = 1024;
+
+    public static final String DATE_TIME_FORMATLong = "yyyyMMddHHmmssSSS";
+
+
+
+    /******************* 订单查询参数中的加载明细参数,可以多个 end ******************/
+
+    /**
+     * 混包箱号
+     */
+    public static final Integer MixBoxType = 1;
+
+
+    /**
+     * local库数据精简，对应的rules里的规则
+     */
+    public static final Integer LOCAL_STREAMELINE = 1130;
+
+    /**
+     * waybill库精简，对应的rules里的规则
+     */
+    public static final Integer WAYBILL_STREAMELINE = 1140;
+
+    /**
+     * 53位等于2 纯配外单
+     */
+    public static final char WAYBILL_SIGN_53_2 = '2';
+    /**
+     * 56位等于1 受信任商家
+     */
+    public static final char WAYBILL_SIGN_56_1 = '1';
+
+
+
+    /**
+     * 调用运单的分页接口一次获取的包裹数量
+     */
+    public static final Integer PACKAGE_NUM_ONCE_QUERY = 5000;
+
+    /**
+     * ump ver系统key
+     */
+    public static final String UMP_APP_NAME_DMSVER = "dmsver.etms";
+
+    /**
+     * C网无计泡拦截 存入scan_lists的exp_type
+     */
+    public static final String WEIGHT_VOLUME_INTERCEPT_SCAN_LISTS_EXP_TYPE = "BL_WV";
+    /**WaybillCancel 存入scan_lists的exp_type*/
+    public static final String WAYBILL_CANCEL_INTERCEPT_SCAN_LISTS_EXP_TYPE = "BL_BW";
+
+    /*
+     * 自动发货校验天数
+     */
+    public static final long THIRTY_DAYS_TIME = 2592000000L; //30天
+
+    /*
+     * 龙门架和分拣机的任务类型（在自动化系统中）
+     * */
+    public static final String SCANNER_FRAME_TASK_TYPE = "ScannerFrameTask";
+
+    /*
+        龙门架和分拣机的任务类型（在分拣系统中）
+     */
+    @Deprecated
+    public static final int SCANNER_FRAME_TASK_TYPE_IN_DMS = 7779;
+
+    /*
+     * 自动化任务上传的接口
+     */
+    public static final String DMS_AUTO_JSF_INTERFACE_TASKSTOREJSFSERVICE = "com.jd.bd.dms.automatic.sdk.modules.task.TaskStoreJsfService";
+
+    /*
+        自动化任务上传的方法
+     */
+    public static final String DMS_AUTO_JSF_METHOD_STORETASK = "storeTask";
+
+    /**
+     * 基础资料默认分拣中心所属类型
+     */
+    public static final Integer DISTRIBUTE_CENTER_SITE_TYPE = 64;
+
+
+    /**
+     * 运单全程跟踪 揽收完成state枚举
+     */
+    public static final Integer WAYBILL_TRACE_STATE_RECEIVE = -640;
+
+    /**
+     * 运单全程跟踪 妥投state枚举
+     * */
+    public static final String WAYBILL_TRACE_STATE_APPROPRIVATED = "150";
+
+
+    /**
+     * 终端加盟-落local库运单预分拣前缀
+     */
+    public static final String FRANCHISEE_WAYBILL_BLOCK_SITE_CODE = "EXPFB";
+
+    public static final int  BASIC_B_TRADER_ORG = -100; //B商家对应机构
+    public static final String   BASIC_B_TRADER_ORG_NAME = "B商家机构"; //B商家对应机构名称
+    public static final int  BASIC_B_TRADER_SITE_TYPE = 1024; //B商家对应站点类型
+
+    /**
+     * 一车一单操作类型
+     */
+    public static final int OPERATE_TYPE_NEW_PACKAGE_SEND = 60;
 }

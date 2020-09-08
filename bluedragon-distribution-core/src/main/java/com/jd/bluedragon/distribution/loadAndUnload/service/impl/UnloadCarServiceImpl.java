@@ -40,6 +40,7 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.unloadCar.domain.UnloadCarCondition;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.vos.dto.CommonDto;
@@ -70,8 +71,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 
@@ -889,25 +892,41 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     @Override
     public boolean insertUnloadCar(TmsSealCar tmsSealCar) {
 
-        UnloadCar unloadCarCondition = new UnloadCar();
-        unloadCarCondition.setSealCarCode(tmsSealCar.getSealCarCode());
-        List<UnloadCar> unloadCarList = unloadCarDao.selectUnloadCar(unloadCarCondition);
+        UnloadCar unloadCar = new UnloadCar();
+        unloadCar.setSealCarCode(tmsSealCar.getSealCarCode());
+        List<UnloadCar> unloadCarList = unloadCarDao.selectByUnloadCar(unloadCar);
         if (CollectionUtils.isNotEmpty(unloadCarList)) {
-            logger.error("该卸车任务：{}已存在", JsonHelper.toJson(tmsSealCar));
+            logger.warn("封车编码【{}】已存在", unloadCar.getSealCarCode());
             return false;
         }
 
-        UnloadCar unloadCar = new UnloadCar();
+        List<String> batchCodes = tmsSealCar.getBatchCodes();
+        if(CollectionUtils.isEmpty(batchCodes)){
+            logger.warn("封车编码【{}】下的批次为空!",unloadCar.getSealCarCode());
+            return false;
+        }
+        Set<String> requiredBatchCodes = new HashSet<>();
+        for (String batchCode : batchCodes){
+            if(BusinessHelper.isSendCode(batchCode)){
+                requiredBatchCodes.add(batchCode);
+            }
+        }
+        if(CollectionUtils.isEmpty(requiredBatchCodes)){
+            logger.warn("封车编码【{}】没有符合的批次!",unloadCar.getSealCarCode());
+            return false;
+        }
+        unloadCar.setBatchCode(getStrByBatchCodes(new ArrayList<String>(requiredBatchCodes)));
+
         try {
             Map<String, Object> params = new HashMap<String, Object>();
             params.put("createSiteCode",tmsSealCar.getOperateSiteId());
-            params.put("sendCodes",tmsSealCar.getBatchCodes());
+            params.put("sendCodes",requiredBatchCodes);
             Integer waybillNum = sendDatailDao.queryWaybillNumBybatchCodes(params);
             Integer packageNum = sendDatailDao.queryPackageNumBybatchCodes(params);
             unloadCar.setWaybillNum(waybillNum);
             unloadCar.setPackageNum(packageNum);
         } catch (Exception e) {
-            logger.error("查询运单数或者包裹数失败，返回值：{}",e);
+            logger.error("查询运单数或者包裹数失败!",e);
             return false;
         }
         unloadCar.setSealCarCode(tmsSealCar.getSealCarCode());
@@ -915,6 +934,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         unloadCar.setSealTime(tmsSealCar.getOperateTime());
         unloadCar.setStartSiteCode(tmsSealCar.getOperateSiteId());
         unloadCar.setStartSiteName(tmsSealCar.getOperateSiteName());
+        unloadCar.setCreateTime(new Date());
 
         CommonDto<SealCarDto> sealCarDto = vosManager.querySealCarInfoBySealCarCode(tmsSealCar.getSealCarCode());
         if (CommonDto.CODE_SUCCESS == sealCarDto.getCode() && sealCarDto.getData() != null) {
@@ -924,8 +944,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             logger.error("调用运输的接口获取下游机构信息失败，请求体：{}，返回值：{}",tmsSealCar.getSealCarCode(),JsonHelper.toJson(sealCarDto));
             return false;
         }
-        unloadCar.setBatchCode(getStrByBatchCodes(tmsSealCar.getBatchCodes()));
-        unloadCar.setCreateTime(new Date());
         try {
             unloadCarDao.add(unloadCar);
         } catch (Exception e) {
@@ -1040,7 +1058,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         UnloadCar unloadCar = new UnloadCar();
         unloadCar.setSealCarCode(taskHelpersReq.getTaskCode());
         unloadCar.setUnloadUserErp(taskHelpersReq.getUser().getUserErp());
-        List<UnloadCar> unloadCars = unloadCarDao.selectUnloadCar(unloadCar);
+        List<UnloadCar> unloadCars = unloadCarDao.selectByUnloadCar(unloadCar);
         if (CollectionUtils.isEmpty(unloadCars)) {
             result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
             result.setMessage("该操作仅限卸车负责人使用！");
