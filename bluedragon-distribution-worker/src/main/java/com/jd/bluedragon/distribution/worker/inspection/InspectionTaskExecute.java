@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.framework.AbstractTaskExecute;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
+import com.jd.bluedragon.distribution.inspection.exception.InspectionException;
 import com.jd.bluedragon.distribution.inspection.exception.WayBillCodeIllegalException;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
@@ -256,7 +257,7 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
                     log.warn("验货包裹数【{}】大于阈值，抛出异常落库执行，任务：{}", size, JsonHelper.toJson(domain));
                     CallerInfo callerInfo = ProfilerHelper.registerInfo("DMSWORKER.InspectionTaskExecute.prepare.check.big.package", Constants.UMP_APP_NAME_DMSWORKER);
                     Profiler.registerInfoEnd(callerInfo);
-                    throw new RuntimeException("验货包裹数大于阈值，抛出异常落库执行");
+                    throw new InspectionException("验货包裹数大于阈值，抛出异常落库执行");
                 }
             }
         }

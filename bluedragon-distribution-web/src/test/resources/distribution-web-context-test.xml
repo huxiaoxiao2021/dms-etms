@@ -20,7 +20,6 @@
 				<value>classpath:authen.properties</value>
 				<value>classpath:configured/app.properties</value>
 				<value>classpath:configured/db.properties</value>
-				<value>classpath:configured/dcam.properties</value>
 				<value>classpath:configured/dms_ip_mapper.properties</value>
 				<value>classpath:configured/jsf.properties</value>
 				<value>classpath:configured/mq.properties</value>

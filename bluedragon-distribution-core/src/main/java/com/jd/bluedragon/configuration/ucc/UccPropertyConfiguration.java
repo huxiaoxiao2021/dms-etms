@@ -55,11 +55,6 @@ public class UccPropertyConfiguration {
     /** 出管新接口-页面查询方法开关 true 调用新接口，false 调用老接口**/
     private boolean chuguanNewPageQuerySwitch;
 
-    /**
-     * 驻场打印 是否开启校验 鸡毛信必输设备号；true 开启,false 不开启
-     */
-    private boolean stationPrintFeatherLetterCheck;
-
     /** 分拣查询的模式配置，支持DMS、MIDDLEEND、FAILOVER三个值 **/
     private String sortingQueryMode;
 
@@ -77,16 +72,6 @@ public class UccPropertyConfiguration {
      */
     private String oldLogPageTips;
     
-    /**
-     * b2b分拣补验货开关
-     */
-    private boolean b2bPushInspectionSwitch;
-
-    /**
-     * 冷链卡班短信开关;true 开启
-     */
-    private boolean coldChainStorageSmsSwitch;
-
     /**
      * 离线任务的操作时间的更正时间范围
      */
@@ -224,14 +209,6 @@ public class UccPropertyConfiguration {
         this.chuguanNewInterfaceQuerySwitch = chuguanNewInterfaceQuerySwitch;
     }
 
-    public boolean isStationPrintFeatherLetterCheck() {
-        return stationPrintFeatherLetterCheck;
-    }
-
-    public void setStationPrintFeatherLetterCheck(boolean stationPrintFeatherLetterCheck) {
-        this.stationPrintFeatherLetterCheck = stationPrintFeatherLetterCheck;
-    }
-
     public String getSortingQueryMode() {
         return sortingQueryMode;
     }
@@ -271,28 +248,6 @@ public class UccPropertyConfiguration {
     public void setOldLogPageTips(String oldLogPageTips) {
         this.oldLogPageTips = oldLogPageTips;
     }
-
-    public boolean isColdChainStorageSmsSwitch() {
-        return coldChainStorageSmsSwitch;
-    }
-
-    public void setColdChainStorageSmsSwitch(boolean coldChainStorageSmsSwitch) {
-        this.coldChainStorageSmsSwitch = coldChainStorageSmsSwitch;
-    }
-
-	/**
-	 * @return the b2bPushInspectionSwitch
-	 */
-	public boolean isB2bPushInspectionSwitch() {
-		return b2bPushInspectionSwitch;
-	}
-
-	/**
-	 * @param b2bPushInspectionSwitch the b2bPushInspectionSwitch to set
-	 */
-	public void setB2bPushInspectionSwitch(boolean b2bPushInspectionSwitch) {
-		this.b2bPushInspectionSwitch = b2bPushInspectionSwitch;
-	}
 
     public int getOfflineTaskOperateTimeCorrectHours() {
         return offlineTaskOperateTimeCorrectHours;
