@@ -45,15 +45,29 @@ public enum WaybillPrintOperateTypeEnum {
         this.type = type;
         this.name = name;
     }
+    /**
+     * 换单打印类型集合
+     */
     private static Set<Integer> SET_EXCHAGE_PRINT_TYPES = new HashSet<Integer>();
     /**
-     * 初始化换单打印类型
+     * 补打类型集合
      */
+    private static Set<Integer> SET_REPRINT_TYPES = new HashSet<Integer>();
     static{
+        /**
+         * 初始化换单打印类型
+         */
     	SET_EXCHAGE_PRINT_TYPES.add(SWITCH_BILL_PRINT.getType());
     	SET_EXCHAGE_PRINT_TYPES.add(SITE_MASTER_REVERSE_CHANGE_PRINT.getType());
     	SET_EXCHAGE_PRINT_TYPES.add(SMS_REVERSE_CHANGE_PRINT.getType());
     	SET_EXCHAGE_PRINT_TYPES.add(SMS_REVERSE_CHANGE_REPRINT.getType());
+        /**
+         * 初始化补打类型
+         */
+    	SET_REPRINT_TYPES.add(PACKAGE_AGAIN_PRINT.getType());
+    	SET_REPRINT_TYPES.add(SITE_MASTER_PACKAGE_REPRINT.getType());
+    	SET_REPRINT_TYPES.add(BATCH_PACKAGE_AGAIN_PRINT.getType());
+    	SET_REPRINT_TYPES.add(SITE_3PL_PACKAGE_AGAIN_REPRINT.getType());
     }
     /**
      * 判断是否换单打印
@@ -61,6 +75,13 @@ public enum WaybillPrintOperateTypeEnum {
      */
     public static boolean isExchangePrint(Integer type){
     	return type != null && SET_EXCHAGE_PRINT_TYPES.contains(type);
+    }
+    /**
+     * 判断是否补打
+     * @return
+     */
+    public static boolean isRePrint(Integer type){
+    	return type != null && SET_REPRINT_TYPES.contains(type);
     }
     public static Integer PLATE_PRINT_TYPE = 100101;      //平台打印操作类型
     public static Integer SITE_PLATE_PRINT_TYPE = 100102;//站点平台打印操作类型
