@@ -51,14 +51,13 @@ public class SortingNumberLimitFilter implements Filter {
 
     @Override
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
-        logger.info("分拣数量限制拦截 request: {}" , new Gson().toJson(request));
         if (request.getBox() != null) {
         	//存放限制的数量列表
         	List<Integer> limitNums = new ArrayList<>();
         	Integer siteType = null;
         	if (request.getReceiveSite() != null) {
         		siteType = request.getReceiveSite().getType();
-
+                logger.info("分拣数量限制拦截 siteType: {}, subType：{}", siteType, request.getReceiveSite().getSubType());
         		Integer subSiteType = request.getReceiveSite().getType();
                 Map<Integer, Set<Integer>> siteTypes = sortingNumberLimitConfig.getSiteTypes();
                 logger.info("分拣数量限制拦截,siteTypes:{}", siteTypes);

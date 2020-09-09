@@ -20,7 +20,6 @@ public class ForwardFilterChain extends FilterChain {
     private List<Filter> filterList = new ArrayList<Filter>();
     @Override
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
-        logger.info("正向拦截器链路：{}, filterIndex={},filterList={}", this, filterIndex, filterList);
         if (filterIndex == filterList.size())
             return;
         filterList.get(filterIndex++).doFilter(request, chain);
