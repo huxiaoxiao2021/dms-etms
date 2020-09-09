@@ -41,6 +41,9 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -49,9 +52,11 @@ import java.util.*;
 
 
 @Service("sortingCheckService")
-public class SortingCheckServiceImpl implements SortingCheckService {
+public class SortingCheckServiceImpl implements SortingCheckService , BeanFactoryAware {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private BeanFactory beanFactory;
 
     @Autowired
     private RuleService ruleService;
@@ -61,18 +66,18 @@ public class SortingCheckServiceImpl implements SortingCheckService {
 
     @Autowired
     private SiteService siteService;
+//
+//    @Qualifier("forwardFilterChain")
+//    @Autowired()
+//    private ForwardFilterChain forwardFilterChain;
 
-    @Qualifier("forwardFilterChain")
-    @Autowired()
-    private ForwardFilterChain forwardFilterChain;
+//    @Qualifier("reverseFilterChain")
+//    @Autowired()
+//    private ReverseFilterChain reverseFilterChain;
 
-    @Qualifier("reverseFilterChain")
-    @Autowired()
-    private ReverseFilterChain reverseFilterChain;
-
-    @Qualifier("deliveryFilterChain")
-    @Autowired()
-    private DeliveryFilterChain deliveryFilterChain;
+//    @Qualifier("deliveryFilterChain")
+//    @Autowired()
+//    private DeliveryFilterChain deliveryFilterChain;
 
     @Autowired
     private WaybillPackageManager waybillPackageManager;
@@ -108,13 +113,16 @@ public class SortingCheckServiceImpl implements SortingCheckService {
             logger.info("分拣检测-完成初始化filterContext:businessType={}", businessType);
             //根据operateType判断入口，如果入口是一车一单发货，则走deliveryFilterChain
             if (pdaOperateRequest.getOperateType() != null && businessType == Constants.OPERATE_TYPE_NEW_PACKAGE_SEND) {
+                DeliveryFilterChain deliveryFilterChain = getDeliveryFilterChain();
                 deliveryFilterChain.doFilter(filterContext, deliveryFilterChain);
             } else {
                 if (BusinessUtil.isForward(businessType)) {
                     logger.info("分拣检测-调用正向处理链路开始");
+                    ForwardFilterChain forwardFilterChain = getForwardFilterChain();
                     forwardFilterChain.doFilter(filterContext, forwardFilterChain);
                     logger.info("分拣检测-调用正向处理链路结束");
                 } else if (BusinessUtil.isReverse(businessType)) {
+                    ReverseFilterChain reverseFilterChain = getReverseFilterChain();
                     reverseFilterChain.doFilter(filterContext, reverseFilterChain);
                 }
             }
@@ -328,6 +336,36 @@ public class SortingCheckServiceImpl implements SortingCheckService {
         }
         List<String> siteCodes = Arrays.asList(switchVerToWebSites.split(Constants.SEPARATOR_COMMA));
         return ! siteCodes.contains(String.valueOf(siteCode));
+    }
+
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+        this.beanFactory = beanFactory;
+    }
+
+    /**
+     * 获取正向分拣校验链
+     * @return
+     */
+    public ForwardFilterChain getForwardFilterChain() {
+        return (ForwardFilterChain) beanFactory.getBean("forwardFilterChain");
+    }
+
+
+    /**
+     * 获取逆向分拣校验链
+     * @return
+     */
+    public ReverseFilterChain getReverseFilterChain() {
+        return (ReverseFilterChain) beanFactory.getBean("reverseFilterChain");
+    }
+
+    /**
+     * 获取发货校验链
+     * @return
+     */
+    public DeliveryFilterChain getDeliveryFilterChain(){
+        return (DeliveryFilterChain) beanFactory.getBean("deliveryFilterChain");
     }
 
 }
