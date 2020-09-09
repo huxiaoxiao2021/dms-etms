@@ -34,6 +34,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -43,6 +44,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -53,7 +55,16 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     
     private static final int REST_CODE_SUC = 1;
-
+    /**
+     * 需要显示特快送标识的产品名称
+     */
+	private static final Set<String> TKS_PRODUCT_NAMES = new HashSet<String>();
+	static {
+		TKS_PRODUCT_NAMES.add(TextConstants.PRODUCT_NAME_TKS);
+		TKS_PRODUCT_NAMES.add(TextConstants.PRODUCT_NAME_TKSJR);
+		TKS_PRODUCT_NAMES.add(TextConstants.PRODUCT_NAME_TKSCC);
+		TKS_PRODUCT_NAMES.add(TextConstants.PRODUCT_NAME_SXTK);
+	}
     @Autowired
     private ProductService productService;
 
@@ -719,37 +730,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 
 
         //设置运费及货款信息
-        String freightText = "";
-        String goodsPaymentText = "";
-        //运费：waybillSign 25位为2时【到付】,需求R2020072253033：只保留到付
-        if(BusinessUtil.isSignChar(waybill.getWaybillSign(), 25, '2')){
-            freightText = TextConstants.FREIGHT_PAY;
-        }
-        if(BusinessUtil.isB2b(waybill.getWaybillSign())){
-        	//货款字段金额等于0时，则货款位置不显示
-        	//货款字段金额大于0时，则货款位置显示为【代收货款】
-        	if(NumberHelper.gt0(waybill.getCodMoney())){
-        		goodsPaymentText = TextConstants.GOODS_PAYMENT_NEED_PAY;
-        	}else{
-        		goodsPaymentText = "";
-        	}
-        }else{
-            //C网货款
-            //货款：货款大于0时，满足在线支付时显示【在线支付】，否则显示【货到付款￥】
-        	//货款：货款等于0时，则货款位置不显示
-            if(NumberHelper.gt0(waybill.getCodMoney())){
-                if (ComposeService.ONLINE_PAYMENT_SIGN.equals(waybill.getPayment())) {
-                    goodsPaymentText = TextConstants.GOODS_PAYMENT_ONLINE;
-                }else{
-                	goodsPaymentText = TextConstants.GOODS_PAYMENT_COD;
-                }
-            } else{
-                goodsPaymentText = "";
-            }
-        }
-        target.setFreightText(freightText);
-        target.setGoodsPaymentText(goodsPaymentText);
-
+        setFreightAndGoodsPayment(target,waybill);
         /**
          * B2B生鲜运输产品类型
          * waybill_sign36位=0 且waybill_sign40位=1 且 waybill_sign54位=2：冷链整车
@@ -863,7 +844,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }
         //设置产品名称
         setTransportMode(target,waybill);
-
 
         /**
          * 1.waybill_sign第80位等于1时，面单打印“特惠运”
@@ -987,6 +967,71 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         return target;
     }
     /**
+     * 设置运费和货款信息
+     * @param target
+     * @param waybill
+     */
+    private void setFreightAndGoodsPayment(BasePrintWaybill target,com.jd.etms.waybill.domain.Waybill waybill) {
+    	String freightText = "";
+        String goodsPaymentText = "";
+        String codMoneyText = "";
+        String totalChargeText = "";
+        String codMoney = "0.00";
+        String totalCharge = "0.00";
+        if(waybill.getCodMoney() != null){
+        	codMoney = waybill.getCodMoney();
+        }
+        //运费：waybillSign 25位为2时【到付】,需求R2020072253033：只保留到付
+        if(BusinessUtil.isSignChar(waybill.getWaybillSign(), 25, '2')){
+            freightText = TextConstants.FREIGHT_PAY;
+        }
+        if(BusinessUtil.isB2b(waybill.getWaybillSign())){
+        	//货款字段金额等于0时，则货款位置不显示
+        	//货款字段金额大于0时，则货款位置显示为【代收货款】
+        	if(NumberHelper.gt0(codMoney)){
+        		goodsPaymentText = TextConstants.GOODS_PAYMENT_NEED_PAY;
+        	}else{
+        		goodsPaymentText = "";
+        	}
+        }else{
+            //C网货款
+            //货款：货款大于0时，满足在线支付时显示【在线支付】，否则显示【货到付款￥】
+        	//货款：货款等于0时，则货款位置不显示
+            if(NumberHelper.gt0(codMoney)){
+                if (ComposeService.ONLINE_PAYMENT_SIGN.equals(waybill.getPayment())) {
+                    goodsPaymentText = TextConstants.GOODS_PAYMENT_ONLINE;
+                }else{
+                	goodsPaymentText = TextConstants.GOODS_PAYMENT_COD;
+                }
+            } else{
+                goodsPaymentText = "";
+            }
+        }
+        //运费合计计算
+        Double topayTotalReceivable = waybill.getTopayTotalReceivable();
+        if(topayTotalReceivable != null){
+        	Double totalChargeVal = topayTotalReceivable;
+        	if(NumberHelper.isBigDecimal(codMoney)){
+        		Double codMoneyVal = Double.valueOf(codMoney);
+        		if(topayTotalReceivable.doubleValue() >= codMoneyVal.doubleValue()){
+        			totalChargeVal = topayTotalReceivable.doubleValue() - codMoneyVal.doubleValue();
+        		}else{
+        			totalChargeVal = 0.00;
+        		}
+        	}
+        	totalCharge = NumberHelper.doubleFormat.format(totalChargeVal);
+        }
+        //代收货款、运费合计格式化
+        codMoneyText = MessageFormat.format(TextConstants.CODMONEY_FORMAT,codMoney);
+        totalChargeText = MessageFormat.format(TextConstants.TOTAL_CHARGE_FORMAT,totalCharge);
+        //运费、货款赋值
+        target.setFreightText(freightText);
+        target.setGoodsPaymentText(goodsPaymentText);
+        target.setCodMoneyText(codMoneyText);
+        target.setTotalChargeText(totalChargeText);
+	}
+
+	/**
      	设置C网产品名称:
                 判断waybill_sign,按以下规则设置产品名称
                序号	标记位	            产品名称	面单打印形式             
@@ -1082,6 +1127,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         	transportMode = TextConstants.PRODUCT_NAME_SXZS;
         }
         target.setTransportMode(transportMode);
+        //判断是否特快送，打印特快速标识
+        if(TKS_PRODUCT_NAMES.contains(transportMode)){
+        	target.setTransportModeFlag(TextConstants.PRODUCT_NAME_TKS_FLAG);
+        }
 	}
 
 	/**
