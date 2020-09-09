@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.ver.service.impl;
 
 import com.google.common.collect.Lists;
+import com.google.gson.Gson;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
@@ -101,15 +102,18 @@ public class SortingCheckServiceImpl implements SortingCheckService {
         }
         try {
             //初始化拦截链上下文
+            logger.info("分拣检测-初始化filterContext:pdaOperateRequest={}", new Gson().toJson(pdaOperateRequest));
             FilterContext filterContext = this.initContext(pdaOperateRequest);
             Integer businessType = pdaOperateRequest.getBusinessType();
-
+            logger.info("分拣检测-完成初始化filterContext:businessType={}", businessType);
             //根据operateType判断入口，如果入口是一车一单发货，则走deliveryFilterChain
             if (pdaOperateRequest.getOperateType() != null && businessType == Constants.OPERATE_TYPE_NEW_PACKAGE_SEND) {
                 deliveryFilterChain.doFilter(filterContext, deliveryFilterChain);
             } else {
                 if (BusinessUtil.isForward(businessType)) {
+                    logger.info("分拣检测-调用正向处理链路开始");
                     forwardFilterChain.doFilter(filterContext, forwardFilterChain);
+                    logger.info("分拣检测-调用正向处理链路结束");
                 } else if (BusinessUtil.isReverse(businessType)) {
                     reverseFilterChain.doFilter(filterContext, reverseFilterChain);
                 }
