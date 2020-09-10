@@ -727,8 +727,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         String printTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
         target.setPrintTime(printTime);
 
-
-
         //设置运费及货款信息
         setFreightAndGoodsPayment(target,waybill);
         /**
@@ -974,13 +972,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     private void setFreightAndGoodsPayment(BasePrintWaybill target,com.jd.etms.waybill.domain.Waybill waybill) {
     	String freightText = "";
         String goodsPaymentText = "";
-        String codMoneyText = "";
-        String totalChargeText = "";
-        String codMoney = "0.00";
-        String totalCharge = "0.00";
-        if(waybill.getCodMoney() != null){
-        	codMoney = waybill.getCodMoney();
-        }
         //运费：waybillSign 25位为2时【到付】,需求R2020072253033：只保留到付
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(), 25, '2')){
             freightText = TextConstants.FREIGHT_PAY;
@@ -988,7 +979,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         if(BusinessUtil.isB2b(waybill.getWaybillSign())){
         	//货款字段金额等于0时，则货款位置不显示
         	//货款字段金额大于0时，则货款位置显示为【代收货款】
-        	if(NumberHelper.gt0(codMoney)){
+        	if(NumberHelper.gt0(waybill.getCodMoney())){
         		goodsPaymentText = TextConstants.GOODS_PAYMENT_NEED_PAY;
         	}else{
         		goodsPaymentText = "";
@@ -997,7 +988,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             //C网货款
             //货款：货款大于0时，满足在线支付时显示【在线支付】，否则显示【货到付款￥】
         	//货款：货款等于0时，则货款位置不显示
-            if(NumberHelper.gt0(codMoney)){
+            if(NumberHelper.gt0(waybill.getCodMoney())){
                 if (ComposeService.ONLINE_PAYMENT_SIGN.equals(waybill.getPayment())) {
                     goodsPaymentText = TextConstants.GOODS_PAYMENT_ONLINE;
                 }else{
@@ -1007,7 +998,17 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 goodsPaymentText = "";
             }
         }
-        //运费合计计算
+        String codMoneyText = "";
+        String totalChargeText = "";
+        String codMoney = "0.00";
+        String totalCharge = "0.00";
+        if(waybill.getCodMoney() != null){
+        	String codMoneyF = NumberHelper.formatMoney(waybill.getCodMoney());
+        	if(codMoneyF != null){
+        		codMoney = codMoneyF;
+        	}
+        }
+        //运费合计计算(topayTotalReceivable减去codMoney)
         Double topayTotalReceivable = waybill.getTopayTotalReceivable();
         if(topayTotalReceivable != null){
         	Double totalChargeVal = topayTotalReceivable;
@@ -1019,7 +1020,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         			totalChargeVal = 0.00;
         		}
         	}
-        	totalCharge = NumberHelper.doubleFormat.format(totalChargeVal);
+        	totalCharge = NumberHelper.formatMoney(totalChargeVal);
         }
         //代收货款、运费合计格式化
         codMoneyText = MessageFormat.format(TextConstants.CODMONEY_FORMAT,codMoney);

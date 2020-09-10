@@ -60,14 +60,15 @@ public enum WaybillPrintOperateTypeEnum {
     	SET_EXCHAGE_PRINT_TYPES.add(SWITCH_BILL_PRINT.getType());
     	SET_EXCHAGE_PRINT_TYPES.add(SITE_MASTER_REVERSE_CHANGE_PRINT.getType());
     	SET_EXCHAGE_PRINT_TYPES.add(SMS_REVERSE_CHANGE_PRINT.getType());
-    	SET_EXCHAGE_PRINT_TYPES.add(SMS_REVERSE_CHANGE_REPRINT.getType());
         /**
          * 初始化补打类型
          */
     	SET_REPRINT_TYPES.add(PACKAGE_AGAIN_PRINT.getType());
     	SET_REPRINT_TYPES.add(SITE_MASTER_PACKAGE_REPRINT.getType());
     	SET_REPRINT_TYPES.add(BATCH_PACKAGE_AGAIN_PRINT.getType());
+    	SET_REPRINT_TYPES.add(FAST_TRANSPORT_PRINT.getType());
     	SET_REPRINT_TYPES.add(SITE_3PL_PACKAGE_AGAIN_REPRINT.getType());
+    	SET_REPRINT_TYPES.add(SMS_REVERSE_CHANGE_REPRINT.getType());
     }
     /**
      * 判断是否换单打印

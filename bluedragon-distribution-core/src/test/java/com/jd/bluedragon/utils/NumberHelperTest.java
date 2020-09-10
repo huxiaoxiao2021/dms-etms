@@ -116,4 +116,44 @@ public class NumberHelperTest {
 			++cn;
 		}
 	}
+	@Test
+	public void testFormatMoney() {
+		System.out.println("========NumberHelper.formatMoney()========");
+		Double[] numbers = new Double[]{
+				0.11111,
+				0.2,
+				.2555,
+				1.2222,
+				00.5555,
+				10.525655,
+				1100.555545
+			};
+		String[] strs = new String[]{
+				"0.11111",
+				"0.2",
+				"0.2555",
+				"1.2222",
+				"00.5555",
+				"10.525655",
+				"1100.555545"
+			};
+		String[] results = new String[]{
+				"0.11",
+				"0.20",
+				"0.26",
+				"1.22",
+				"0.56",
+				"10.53",
+				"1100.56"
+			};
+		int cn = 0;
+		for (Double number : numbers) {
+			System.err.println("数字："+number+":"+NumberHelper.formatMoney(number));
+			System.err.println("字符串："+number+":"+NumberHelper.formatMoney(strs[cn]));
+			Assert.assertEquals(results[cn], NumberHelper.formatMoney(number));
+			Assert.assertEquals(results[cn], NumberHelper.formatMoney(strs[cn]));
+			cn++;
+		}
+			
+	}
 }

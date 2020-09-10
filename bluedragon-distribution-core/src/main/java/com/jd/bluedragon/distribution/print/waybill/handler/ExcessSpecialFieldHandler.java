@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
+
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.command.JdResult;
@@ -10,6 +12,8 @@ import com.jd.bluedragon.distribution.jsf.domain.PrintQueryRequest;
 import com.jd.bluedragon.distribution.mixedPackageConfig.enums.TransportTypeEnum;
 import com.jd.bluedragon.distribution.mixedPackageConfig.service.MixedPackageConfigService;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,19 +50,42 @@ public class ExcessSpecialFieldHandler implements Handler<WaybillPrintContext, J
         // 是否开启集包地打印
         WaybillPrintRequest request = context.getRequest();
         Integer siteCode = request == null ? null : request.getDmsSiteCode();
-        if(!checkCollectionAddressIsSwitchOn(siteCode)){
-            return context.getResult();
-        }
         BasePrintWaybill basePrintWaybill = context.getBasePrintWaybill();
+        //设置逆向信息
+        setReverseInfo(request,basePrintWaybill);
+        //设置集包地信息
+        setCollectionAddress(siteCode,basePrintWaybill);
+        return context.getResult();
+    }
+    /**
+     * 设置逆向信息
+     * @param request
+     * @param basePrintWaybill
+     */
+    private void setReverseInfo(WaybillPrintRequest request,BasePrintWaybill basePrintWaybill) {
+    	// 是T、F单，追加‘退’标识
+        if (WaybillUtil.isReturnCode(basePrintWaybill.getWaybillCode())
+        		|| WaybillUtil.isSwitchCode(basePrintWaybill.getWaybillCode())){
+        	basePrintWaybill.appendSpecialMark(TextConstants.REVERSE_FLAG);
+        }
+	}
+	/**
+     * 设置集包地信息
+     * @param siteCode 操作人站点
+     * @param basePrintWaybill 打印数据对象
+     */
+    private void setCollectionAddress(Integer siteCode,BasePrintWaybill basePrintWaybill) {
+        if(!checkCollectionAddressIsSwitchOn(siteCode)){
+            return;
+        }
         // 获取集包地
         if(basePrintWaybill != null){
             String collectionAddress = getMixedSiteName(basePrintWaybill);
             basePrintWaybill.setCollectionAddress(collectionAddress == null ? Constants.EMPTY_FILL : collectionAddress);
         }
-        return context.getResult();
-    }
+	}
 
-    /**
+	/**
      * 校验场地是否开启集包地配置
      * @param siteCode
      * @return
