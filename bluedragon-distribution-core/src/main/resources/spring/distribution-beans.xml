@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+    <bean name="sortingNumberLimitConfig" class="com.jd.bluedragon.distribution.ver.config.SortingNumberLimitConfig" >
+    	<property name="siteTypes">
+    		<list>
+    			<value>4</value>
+    			<value>8</value>
+    			<value>16</value>
+    			<value>80</value>
+    			<value>101</value>
+    			<value>108</value>
+    			<value>10000</value>
+    		</list>
+    	</property>
+    </bean>
+</beans>

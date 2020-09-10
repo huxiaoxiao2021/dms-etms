@@ -40,38 +40,12 @@ public class SortingPackServiceImpl extends SortingCommonSerivce{
             //补发货
             getSortingService().fixSendDAndSendTrack(sorting, sendDList);
 
-            //补验货
-            if(sorting.getNeedInspection() && isNeedInspection(sorting)){
-                b2bPushInspection(sorting);
-            }
-
         }else if (sorting.getIsCancel().equals(SortingService.SORTING_CANCEL)) {
             // 取消分拣
             getSortingService().canCancel(sorting);
         }
         return true;
     }
-
-    @Override
-    public boolean isNeedInspection(SortingVO sorting) {
-        BaseStaffSiteOrgDto createSite = sorting.getCreateSite();
-        //B网建箱自动触发验货全程跟踪
-        if (createSite==null || Constants.B2B_SITE_TYPE!=createSite.getSubType()){
-            return false;
-        }
-        Inspection inspectionQ=new Inspection();
-        inspectionQ.setWaybillCode(sorting.getWaybillCode());
-        inspectionQ.setCreateSiteCode(sorting.getCreateSiteCode());
-        inspectionQ.setYn(Integer.valueOf(1));
-        //按运单和按包裹分离
-        inspectionQ.setPackageBarcode(sorting.getPackageCode());
-        if(inspectionDao.haveInspectionByPackageCode(inspectionQ)){
-            //如果已经验过货  就不用补了
-            return false;
-        }
-        return true;
-    }
-
 
     private void saveOrUpdate(Sorting sorting) {
         if (Constants.NO_MATCH_DATA == getSortingService().update(sorting).intValue()) {

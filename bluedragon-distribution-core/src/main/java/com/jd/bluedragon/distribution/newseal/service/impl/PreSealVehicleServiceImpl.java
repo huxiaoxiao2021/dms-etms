@@ -143,6 +143,16 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
     }
 
     @Override
+    public List<PreSealVehicle> queryByParam(PreSealVehicle preSealVehicle) {
+        PreSealVehicle query = new PreSealVehicle();
+        query.setCreateSiteCode(preSealVehicle.getCreateSiteCode());
+        query.setCreateUserErp(preSealVehicle.getCreateUserErp());
+        query.setStatus(SealVehicleEnum.PRE_SEAL.getCode());
+
+        return preSealVehicleDao.queryByCondition(query);
+    }
+
+    @Override
     public List<PreSealVehicle> queryBySiteCodeAndVehicleNumber(Integer createSiteCode, String vehicleNumber) {
 
         PreSealVehicle query = new PreSealVehicle();

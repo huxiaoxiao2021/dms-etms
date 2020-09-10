@@ -202,6 +202,59 @@ public class JdResponse extends JdObject {
     public static final Integer CODE_RE_PRINT_REPEAT = 30122;
     public static final String MESSAGE_RE_PRINT_REPEAT = "此条码已操作过补打，是否再次打印？";
 
+    public static final Integer CODE_DATA_OVERFLOW = 10001;
+    public static final String MESSAGE_DATA_OVERFLOW = "每批上传包裹数量不能超过200";
+
+    public static final Integer CODE_SORTING_DATA_OVERFLOW = 10002;
+    public static final String MESSAGE_SORTING_DATA_OVERFLOW = "每批上传包裹数量不能超过";
+
+    public static final Integer BOX_CODE_ISEXISTS = 10003;
+    public static final String MESSAGE_BOX_CODE_ISEXISTS = "箱号已存在";
+
+    public static final Integer SCHEDULE_CODE_FAILED = 10004;
+    public static final String MESSAGE_SCHEDULE_CODE_FAILED = "城配项目获取派车单号失败!";
+
+    public static final String MESSAGE_SERVICE_ERROR_C = "服务异常!";
+
+
+    public static final Integer CODE_EXPID_EMPTY = 409;
+    public static final String MESSAGE_CODE_INTERNAL_ERROR = "内部错误";
+
+    public static final Integer CODE_MACHINE_CODE_ERROR = 700;
+    public static final String MESSAGE_MACHINE_CODE_ERROR = "机器码配置错误";
+
+    public static final Integer CODE_NotExists = 400;
+    public static final String MESSAGE_CODE_NotExists = "运单包裹不存在";
+
+    public static final Integer CODE_Exception = 401;
+    public static final String MESSAGE_CODE_Exception = "Exception 异常捕获";
+    public static final String MESSAGE_BILLCODE_EXCEPTION = "运单号错误!";
+
+
+    public static final Integer CODE_WAYBILL_INFO_NOT_EXISTS = 401;
+    public static final String  MESSAGE_SORT_SCHEME_NOT_EXISTS = "没有对应的分拣计划！EXPID没有对应格口";
+    public static final Integer CODE_SORT_SCHEME_NOT_EXISTS = 402;
+    public static final String MESSAGE_WAYBILL_INFO_NOT_EXISTS = "无此运单信息！EXPDE没有对应格口";
+    public static final Integer CODE_BOX_CODE_IS_EXISTS = 403;
+    public static final String MESSAGE_BOX_CODE_IS_EXISTS = "存在箱号数据，确认是否是重复建包或使用了旧箱号";
+    public static final Integer CODE_BOX_CODE_IS_NOT_EXISTS = 405;
+    public static final String MESSAGE_BOX_CODE_IS_NOT_EXISTS = "该箱号无建包信息";
+    public static final Integer CODE_PACKAGE_CODE_IS_NOT_EXISTS = 405;
+    public static final String MESSAGE_PACKAGE_CODE_IS_NOT_EXISTS = "该包裹号无分拣信息";
+    public static final Integer CODE_NO_WEIGHT_HEIGHT_CHUTE = 406;
+    public static final String MESSAGE_O_WEIGHT_HEIGHT_CHUTE = "无计泡数据而且未配置无称重量方EXPWV格口";
+    public static final Integer CODE_UPDATE_DISPATCH_INTERCEPT = 407;
+    public static final String MESSAGE_UPDATE_DISPATCH_INTERCEPT = "运单拦截，所有包裹都需要补打，且EXP130或EXP120没有格口";
+
+    public static final Integer CODE_WAYBILL_NOT_ONE_PACKAGE = 408;
+    public static final String MESSAGE_CODE_WAYBILL_NOT_ONE_PACKAGE= "{0}非一单一件，不能按运单分拣";
+    public static final Integer CODE_WAYBILL_NOT_ONE_EXTERNAL = 409;
+    public static final String MESSAGE_WAYBILL_NOT_ONE_EXTERNAL= "{0}非外单，不能按运单分拣";
+    public static final Integer CODE_FRANCHISEE_WAYBILL_BLOCK = 411;
+    public static final String MESSAGE_FRANCHISEE_WAYBILL_BLOCK = "{0}为加盟运单，未交接";
+
+
+
     /** 请求服务URL */
     private String request;
     

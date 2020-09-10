@@ -53,7 +53,7 @@ import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
-import com.jd.bluedragon.distribution.material.service.DeliveryGoodsNoticeService;
+import com.jd.bluedragon.distribution.material.service.CycleMaterialNoticeService;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.reverse.dao.ReverseSpareDao;
@@ -344,7 +344,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     private SendCodeService sendCodeService;
 
     @Autowired
-    private DeliveryGoodsNoticeService deliveryGoodsNoticeService;
+    private CycleMaterialNoticeService cycleMaterialNoticeService;
 
     /**
      * 自动过期时间 15分钟
@@ -364,8 +364,6 @@ public class DeliveryServiceImpl implements DeliveryService {
     private static final int OPERATE_TYPE_CANCEL_L = 0;
 
     private static final int OPERATE_TYPE_CANCEL_Y = 1;
-
-    private static final int OPERATE_TYPE_NEW_PACKAGE_SEND=60;
 
     private final Integer BATCH_NUM = 999;
 
@@ -756,7 +754,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             if (siteInfo == null || siteInfo.getSiteType() != 64) {
                 sortingCheck.setOperateType(1);
             } else {
-                sortingCheck.setOperateType(OPERATE_TYPE_NEW_PACKAGE_SEND);
+                sortingCheck.setOperateType(Constants.OPERATE_TYPE_NEW_PACKAGE_SEND);
             }
         } else {
             sortingCheck.setOperateType(1);
@@ -1265,7 +1263,7 @@ public class DeliveryServiceImpl implements DeliveryService {
          BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(sdm.getReceiveSiteCode());
          mq.setReceiveSiteName(null != siteOrgDto ? siteOrgDto.getSiteName() : StringUtils.EMPTY);
 
-         deliveryGoodsNoticeService.deliverySendGoodsMessage(mq);
+         cycleMaterialNoticeService.deliverySendGoodsMessage(mq);
      }
 
     /***

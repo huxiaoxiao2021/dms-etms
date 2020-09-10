@@ -391,6 +391,9 @@
 		<if test="vehicleNumber != null">
 			and vehicle_number = #{vehicleNumber,jdbcType=VARCHAR}
 		</if>
+        <if test="createUserErp != null and createUserErp != '' ">
+            AND create_user_erp = #{createUserErp,jdbcType=VARCHAR}
+        </if>
         and status = #{status,jdbcType=TINYINT}
         and is_delete=0
     </select>

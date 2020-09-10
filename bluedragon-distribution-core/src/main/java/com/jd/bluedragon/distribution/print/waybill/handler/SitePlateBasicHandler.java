@@ -3,8 +3,6 @@ package com.jd.bluedragon.distribution.print.waybill.handler;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.PreseparateWaybillManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
@@ -53,12 +51,6 @@ public class SitePlateBasicHandler implements Handler<WaybillPrintContext,JdResu
     @Autowired
     private LabelPrinting labelPrinting;
 
-    @Autowired
-    private PreseparateWaybillManager preseparateWaybillManager;
-
-    @Autowired
-    private BaseMajorManager baseMajorManager;
-    
     @Autowired
     private WaybillQueryManager waybillQueryManager;
     

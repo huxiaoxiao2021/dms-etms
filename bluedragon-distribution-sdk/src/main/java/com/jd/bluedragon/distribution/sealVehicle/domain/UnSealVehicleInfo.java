@@ -68,6 +68,11 @@ public class UnSealVehicleInfo implements Serializable {
 	* */
 	private Boolean isReady;
 
+    /**
+     * 预封车录入人员
+     */
+	private String createUserErp;
+
 	public String getTransportCode() {
 		return transportCode;
 	}
@@ -163,4 +168,12 @@ public class UnSealVehicleInfo implements Serializable {
 	public void setReady(Boolean ready) {
 		isReady = ready;
 	}
+
+    public String getCreateUserErp() {
+        return createUserErp;
+    }
+
+    public void setCreateUserErp(String createUserErp) {
+        this.createUserErp = createUserErp;
+    }
 }
