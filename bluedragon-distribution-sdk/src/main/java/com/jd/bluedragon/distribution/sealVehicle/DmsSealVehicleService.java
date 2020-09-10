@@ -13,7 +13,7 @@ public interface DmsSealVehicleService {
     * 获取未封车信息列表
     *
     * */
-    JdResponse<List<UnSealVehicleInfo>> getUnSealVehicleInfo(Integer createSiteCode, Integer hourRange);
+    JdResponse<List<UnSealVehicleInfo>> getUnSealVehicleInfo(Integer createSiteCode, Integer hourRange, String createUserErp);
 
     /*
      * 获取未封车信息明细
