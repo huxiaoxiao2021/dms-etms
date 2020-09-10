@@ -11,7 +11,6 @@ import com.jd.bluedragon.distribution.print.waybill.handler.ExcessSpecialFieldHa
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.distribution.test.utils.UtilsForTestCase;
 import com.jd.bluedragon.distribution.testCore.base.EntityUtil;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ExcessSpecialFieldHandlerTestCase {
@@ -24,22 +23,24 @@ public class ExcessSpecialFieldHandlerTestCase {
     @Test
     public void testSetReverseInfo() throws Exception{
     	WaybillPrintContext context = EntityUtil.getInstance(WaybillPrintContext.class);
-		String[] waybillCodes = {
+		String[] waybillSigns = {
 				null,
-				"",
-				"000",
-				"JDF000000015384",
-				"JDT000000030722"};
+				"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+				UtilsForTestCase.markSignChar(UtilsForTestCase.markSignChar("", 61, '1'),4,'0'),
+				UtilsForTestCase.markSignChar(UtilsForTestCase.markSignChar("", 15, '1'),4,'0'),
+				UtilsForTestCase.markSignChar(UtilsForTestCase.markSignChar("", 61, '1'),4,'1'),
+				UtilsForTestCase.markSignChar(UtilsForTestCase.markSignChar("", 61, '1'),4,'9')};
 		boolean[] checkResults ={
 				false,
 				false,
-				false,
 				true,
-				true};
-		for(int i=0 ; i < waybillCodes.length; i++ ){
-				System.err.println(waybillCodes[i]);
+				true,
+				false,
+				false};
+		for(int i=0 ; i < waybillSigns.length; i++ ){
+				System.err.println(waybillSigns[i]);
 				context.setBasePrintWaybill(context.getResponse());
-				context.getBasePrintWaybill().setWaybillCode(waybillCodes[i]);
+				context.getBigWaybillDto().getWaybill().setWaybillSign(waybillSigns[i]);
 				context.getBasePrintWaybill().setSpecialMarkNew(null);
 				
 				//预期验证结果

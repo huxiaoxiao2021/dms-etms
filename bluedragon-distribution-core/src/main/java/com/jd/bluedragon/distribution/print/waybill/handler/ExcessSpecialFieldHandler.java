@@ -12,8 +12,7 @@ import com.jd.bluedragon.distribution.jsf.domain.PrintQueryRequest;
 import com.jd.bluedragon.distribution.mixedPackageConfig.enums.TransportTypeEnum;
 import com.jd.bluedragon.distribution.mixedPackageConfig.service.MixedPackageConfigService;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
-
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,8 +50,12 @@ public class ExcessSpecialFieldHandler implements Handler<WaybillPrintContext, J
         WaybillPrintRequest request = context.getRequest();
         Integer siteCode = request == null ? null : request.getDmsSiteCode();
         BasePrintWaybill basePrintWaybill = context.getBasePrintWaybill();
+        /**
+         * 获取waybillSign信息
+         */
+        String waybillSign = context.getWaybillSign();
         //设置逆向信息
-        setReverseInfo(request,basePrintWaybill);
+        setReverseInfo(waybillSign,basePrintWaybill);
         //设置集包地信息
         setCollectionAddress(siteCode,basePrintWaybill);
         return context.getResult();
@@ -62,10 +65,11 @@ public class ExcessSpecialFieldHandler implements Handler<WaybillPrintContext, J
      * @param request
      * @param basePrintWaybill
      */
-    private void setReverseInfo(WaybillPrintRequest request,BasePrintWaybill basePrintWaybill) {
-    	// 是T、F单，追加‘退’标识
-        if (WaybillUtil.isReturnCode(basePrintWaybill.getWaybillCode())
-        		|| WaybillUtil.isSwitchCode(basePrintWaybill.getWaybillCode())){
+    private void setReverseInfo(String waybillSign,BasePrintWaybill basePrintWaybill) {
+    	// 逆向并且非签单返还，追加‘退’标识
+        if (waybillSign != null 
+        		&& !BusinessUtil.isForeignForwardAndWaybillMarkForward(waybillSign)
+        		&& !BusinessUtil.isSignBack(waybillSign)){
         	basePrintWaybill.appendSpecialMark(TextConstants.REVERSE_FLAG);
         }
 	}

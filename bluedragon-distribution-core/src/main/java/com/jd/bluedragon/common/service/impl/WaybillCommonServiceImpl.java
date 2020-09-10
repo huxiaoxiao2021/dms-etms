@@ -1018,7 +1018,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         		if(totalChargeVal.compareTo(codMoneyVal) >= 0){
         			totalChargeVal = totalChargeVal.subtract(codMoneyVal);
         		}else{
-        			log.warn("运单{0}金额topayTotalReceivable={}小于codMoney={}的值", target.getWaybillCode(),topayTotalReceivable,codMoney);
+        			log.warn("运单{}金额topayTotalReceivable={}小于codMoney={}的值", target.getWaybillCode(),topayTotalReceivable,codMoney);
         			//运费小于总额，赋值为null
         			totalChargeVal = null;
         		}
@@ -1505,7 +1505,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_PRICE_PROTECT_MONEY + ",";
             }
             //签单返还
-            if(BusinessUtil.isSignInChars(waybillSign,4,'1','2','3','4','9')){
+            if(BusinessUtil.isSignBack(waybillSign)){
                 specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_SIGNBACK + ",";
             }
             //包装服务

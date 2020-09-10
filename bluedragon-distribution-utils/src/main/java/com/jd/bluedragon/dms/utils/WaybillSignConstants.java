@@ -31,6 +31,18 @@ public interface WaybillSignConstants {
 	char CHAR_1_8 = '8';
 	char CHAR_1_A = 'A';
 	/**
+	 * 运单标识第4位
+	 */
+	int POSITION_4 = 4;
+	/**
+	 * 签单返回，waybillSign第4位：1,2,3,4,9
+	 */
+	char CHAR_4_1 = '1';
+	char CHAR_4_2 = '2';
+	char CHAR_4_3 = '3';
+	char CHAR_4_4 = '4';
+	char CHAR_4_9 = '9';
+	/**
 	 * B网标识 1、2、3、4、5
 	 */
 	int POSITION_40 = 40;
@@ -156,20 +168,20 @@ public interface WaybillSignConstants {
 	/**
 	 * 逆向运单类型（外单）
      */
-	int BACKWARD_TYPE_POSITION_61 = 61;
+	int POSITION_61 = 61;
     /**
      * 正向
      */
-	char BACKWARD_TYPE_NO_CHAR_61_0 = '0';
+	char CHAR_61_0 = '0';
 
 	/**
 	 * 逆向类型(运单打标)
 	 */
-	int BACKWARD_TYPE_WAYBILL_MARK_POSITION_15 = 15;
+	int POSITION_15 = 15;
 	/**
 	 * 正向
 	 */
-	char BACKWARD_TYPE_WAYBILL_MARK_POSITION_15_0 = '0';
+	char CHAR_15_0 = '0';
 
 	/**
 	 * 毕业寄
