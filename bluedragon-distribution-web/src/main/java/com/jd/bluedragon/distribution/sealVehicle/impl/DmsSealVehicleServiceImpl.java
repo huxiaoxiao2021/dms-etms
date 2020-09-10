@@ -17,6 +17,7 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,11 +45,16 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
      * */
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.WEB.DmsSealVehicleServiceImpl.getUnSealVehicleInfo", mState = JProEnum.TP)
-    public JdResponse<List<UnSealVehicleInfo>> getUnSealVehicleInfo(Integer createSiteCode, Integer hourRange) {
+    public JdResponse<List<UnSealVehicleInfo>> getUnSealVehicleInfo(Integer createSiteCode, Integer hourRange, String createUserErp) {
         JdResponse<List<UnSealVehicleInfo>> jdResponse = new JdResponse<>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
         try {
             //获取该场地所有预封车信息
-            List<PreSealVehicle> preSealVehicleList = preSealVehicleService.queryBySiteCode(createSiteCode);
+            PreSealVehicle param = new PreSealVehicle();
+            param.setCreateSiteCode(createSiteCode);
+            if (StringUtils.isNotBlank(createUserErp)) {
+                param.setCreateUserErp(createUserErp);
+            }
+            List<PreSealVehicle> preSealVehicleList = preSealVehicleService.queryByParam(param);
             Map<String, UnSealVehicleInfo> unSealVehicleInfoMap = new HashMap<>();
             if (preSealVehicleList != null) {
                 //遍历所有预封车记录
@@ -336,6 +342,7 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
         unSealVehicleInfo.setSendCarTime(preSealVehicle.getSendCarTime());
         unSealVehicleInfo.setPreSealSource(preSealVehicle.getPreSealSource());
         unSealVehicleInfo.setSource(preSealVehicle.getSource());
+        unSealVehicleInfo.setCreateUserErp(preSealVehicle.getCreateUserErp());
         return unSealVehicleInfo;
     }
 }

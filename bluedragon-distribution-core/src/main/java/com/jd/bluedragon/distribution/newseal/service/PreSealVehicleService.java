@@ -83,6 +83,13 @@ public interface PreSealVehicleService extends Service<PreSealVehicle> {
     List<PreSealVehicle> queryBySiteCode(Integer createSiteCode);
 
     /**
+     *
+     * @param preSealVehicle
+     * @return
+     */
+    List<PreSealVehicle> queryByParam(PreSealVehicle preSealVehicle);
+
+    /**
      * 查询场地和车牌号查询预封车数据
      *
      */
