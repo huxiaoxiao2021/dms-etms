@@ -11,7 +11,7 @@ public class BoxLimitConfig implements Serializable {
     /**
      * 自增ID
      */
-    private Integer id;
+    private Long id;
 
     /**
      * 站点名称
@@ -65,11 +65,11 @@ public class BoxLimitConfig implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

@@ -67,7 +67,7 @@ public class BoxLimitConfigDaoTest extends AbstractDaoIntegrationH2Test {
         insertTest();
         selectByPrimaryKeyTest();
         BoxLimitConfig config = new BoxLimitConfig();
-        config.setId(1);
+        config.setId(1L);
         config.setOperatorErp("update - test0001");
         boxLimitConfigDao.updateByPrimaryKeySelective(config);
         selectByPrimaryKeyTest();
@@ -144,12 +144,12 @@ public class BoxLimitConfigDaoTest extends AbstractDaoIntegrationH2Test {
 
     @Test
     public void deleteByPrimaryKeyTest() {
-        boxLimitConfigDao.deleteByPrimaryKey(1);
+        boxLimitConfigDao.deleteByPrimaryKey(1L);
     }
 
     @Test
     public void batchDeleteTest() {
-        boxLimitConfigDao.batchDelete(Arrays.asList(1));
+        boxLimitConfigDao.batchDelete(Arrays.asList(1L));
     }
 }
 

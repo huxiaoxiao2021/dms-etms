@@ -86,7 +86,7 @@ public class BoxLimitController extends DmsBaseController {
     @Authorization(Constants.DMS_WEB_TOOL_BOXLMIT_R)
     @RequestMapping("/delete")
     @ResponseBody
-    public JdResponse delete(@RequestBody ArrayList<Integer> ids){
+    public JdResponse delete(@RequestBody ArrayList<Long> ids){
 
         return boxLimitService.delete(ids, getLoginUser().getUserErp());
     }

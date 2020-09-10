@@ -82,7 +82,7 @@ public class BoxLimitServiceTest{
 
     private BoxLimitConfig getBoxLimitConfig() {
         BoxLimitConfig config = new BoxLimitConfig();
-        config.setId(0);
+        config.setId(0L);
         config.setSiteName("mockSiteName");
         config.setSiteId(0);
         config.setLimitNum(0);
@@ -143,8 +143,8 @@ public class BoxLimitServiceTest{
 
     @Test
     public void delete() {
-        Mockito.when(boxLimitConfigDao.batchDelete(Mockito.<Integer>anyList())).thenReturn(1);
-        JdResponse response = boxLimitService.delete(Arrays.asList(1), "testERP");
+        Mockito.when(boxLimitConfigDao.batchDelete(Mockito.<Long>anyList())).thenReturn(1);
+        JdResponse response = boxLimitService.delete(Arrays.asList(1L), "testERP");
         log.info("delete:{}", new Gson().toJson(response));
     }
 
