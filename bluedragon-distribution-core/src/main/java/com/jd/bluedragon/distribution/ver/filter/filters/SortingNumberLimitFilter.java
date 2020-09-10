@@ -57,18 +57,16 @@ public class SortingNumberLimitFilter implements Filter {
         	Integer siteType = null;
         	if (request.getReceiveSite() != null) {
         		siteType = request.getReceiveSite().getType();
-                logger.info("分拣数量限制拦截 siteType: {}, subType：{}", siteType, request.getReceiveSite().getSubType());
         		Integer subSiteType = request.getReceiveSite().getType();
                 Map<Integer, Set<Integer>> siteTypes = sortingNumberLimitConfig.getSiteTypes();
-                logger.info("分拣数量限制拦截,siteTypes:{}", siteTypes);
+                logger.info("分拣数量限制拦截 siteType: {},subType：{},siteTypes:{}", siteType, request.getReceiveSite().getSubType(), siteTypes);
                 if (siteType != null && subSiteType != null && siteTypes != null
                         && siteTypes.containsKey(siteType) && siteTypes.get(siteType).contains(subSiteType)) {
                     //校验开关是否开启
                     NumberLimitConfig siteCheckConfig = this.getSwitchStatus(CONFIG_SITE_PACKAGE_NUM_CHECK);
-                    logger.info("分拣数量限制拦截,siteCheckConfig:{}", new Gson().toJson(siteCheckConfig));
                     if (siteCheckConfig != null && Boolean.TRUE.equals(siteCheckConfig.getIsOpen())) {
                         Integer limitNum = boxLimitService.queryLimitNumBySiteId(request.getCreateSiteCode());
-                        logger.info("分拣数量限制拦截,createSiteCode:{},queryLimitNumBySiteId:{}", request.getCreateSiteCode(), new Gson().toJson(siteCheckConfig));
+                        logger.info("分拣数量限制拦截 createSiteCode:{},queryLimitNumBySiteId:{},sysConfigNum:{}", request.getCreateSiteCode(), limitNum, siteCheckConfig.getMaxNum());
                         if (limitNum != null) {
                             limitNums.add(limitNum);
                         } else {
@@ -110,7 +108,7 @@ public class SortingNumberLimitFilter implements Filter {
      * @throws SortingCheckException
      */
     private void limitNumCheck(int hasSorting,int currentSorting,int limitNum) throws SortingCheckException {
-        logger.info("分拣数量限制拦截,hasSorting:{},currentSorting:{},limitNum:{}", hasSorting, currentSorting, limitNum);
+        logger.info("分拣数量限制拦截 hasSorting:{},currentSorting:{},limitNum:{}", hasSorting, currentSorting, limitNum);
     	if(currentSorting > limitNum) {
             //当前分拣数量大于限制数量，提示按包裹分拣
             throw new SortingCheckException(SortingResponse.CODE_29417, MessageFormat.format(SortingResponse.MESSAGE_29417_WAYBILL,limitNum));
