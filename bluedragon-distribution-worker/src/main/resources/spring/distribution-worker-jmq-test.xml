@@ -64,16 +64,6 @@
         <jmq:listener topic="${jmq.topic.dms.pop.abnormal.order}" listener="popAbnormalConsumer"/>
     </jmq:consumer>
 
-    <!-- POP差异包裹审核结果处理新 -->
-    <jmq:consumer id="jmq.popAbnormalNewConsumer" transport="jmq.dmsWorker.transport">
-        <jmq:listener topic="${jmq.topic.pop.bd.abnormal.deal}" listener="popAbnormalNewConsumer"/>
-    </jmq:consumer>
-
-    <!-- B商家订单差异审核结果处理分发地址 -->
-    <jmq:consumer id="jmq.RecAbnormalDealConsumer" transport="jmq.dmsWorker.transport">
-        <jmq:listener topic="${jmq.topic.rec.abnormal.deal}" listener="popAbnormalNewConsumer"/>
-    </jmq:consumer>
-
     <!-- 逆向报损订单 -->
     <jmq:consumer id="jmq.lossOrderConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.ldms.to.bluedragon}" listener="lossOrderConsumer"/>
@@ -88,11 +78,6 @@
     <!-- DMS同步外部系统 -->
     <jmq:consumer id="jmq.dmsRouterConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.dms.router}" listener="dmsRouterConsumer"/>
-    </jmq:consumer>
-
-    <!-- 华中_DMS同步外部系统 -->
-    <jmq:consumer id="jmq.dmsRouterConsumer1" transport="jmq.dmsWorker.transport">
-        <jmq:listener topic="${jmq.topic.dms.router1}" listener="dmsRouterConsumer"/>
     </jmq:consumer>
 
 	<!-- PDA推送POP收货消息 -->
