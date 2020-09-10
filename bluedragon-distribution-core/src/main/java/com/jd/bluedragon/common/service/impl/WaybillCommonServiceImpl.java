@@ -44,6 +44,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -1000,8 +1001,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }
         String codMoneyText = "";
         String totalChargeText = "";
-        String codMoney = "0.00";
-        String totalCharge = "0.00";
+        String codMoney = null;
+        String totalCharge = null;
         if(waybill.getCodMoney() != null){
         	String codMoneyF = NumberHelper.formatMoney(waybill.getCodMoney());
         	if(codMoneyF != null){
@@ -1010,21 +1011,29 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }
         //运费合计计算(topayTotalReceivable减去codMoney)
         Double topayTotalReceivable = waybill.getTopayTotalReceivable();
-        if(topayTotalReceivable != null){
-        	Double totalChargeVal = topayTotalReceivable;
+        if(topayTotalReceivable != null && topayTotalReceivable.doubleValue() >= 0){
+        	BigDecimal totalChargeVal = BigDecimal.valueOf(topayTotalReceivable);
         	if(NumberHelper.isBigDecimal(codMoney)){
-        		Double codMoneyVal = Double.valueOf(codMoney);
-        		if(topayTotalReceivable.doubleValue() >= codMoneyVal.doubleValue()){
-        			totalChargeVal = topayTotalReceivable.doubleValue() - codMoneyVal.doubleValue();
+        		BigDecimal codMoneyVal = new BigDecimal(codMoney);
+        		if(totalChargeVal.compareTo(codMoneyVal) >= 0){
+        			totalChargeVal = totalChargeVal.subtract(codMoneyVal);
         		}else{
-        			totalChargeVal = 0.00;
+        			log.warn("运单{0}金额topayTotalReceivable={}小于codMoney={}的值", target.getWaybillCode(),topayTotalReceivable,codMoney);
+        			//运费小于总额，赋值为null
+        			totalChargeVal = null;
         		}
         	}
-        	totalCharge = NumberHelper.formatMoney(totalChargeVal);
+        	if(totalChargeVal != null){
+        		totalCharge = NumberHelper.formatMoney(totalChargeVal);
+        	}
         }
         //代收货款、运费合计格式化
-        codMoneyText = MessageFormat.format(TextConstants.CODMONEY_FORMAT,codMoney);
-        totalChargeText = MessageFormat.format(TextConstants.TOTAL_CHARGE_FORMAT,totalCharge);
+        if(codMoney != null){
+        	codMoneyText = MessageFormat.format(TextConstants.CODMONEY_FORMAT,codMoney);
+        }
+        if(totalCharge != null){
+        	totalChargeText = MessageFormat.format(TextConstants.TOTAL_CHARGE_FORMAT,totalCharge);
+        }
         //运费、货款赋值
         target.setFreightText(freightText);
         target.setGoodsPaymentText(goodsPaymentText);

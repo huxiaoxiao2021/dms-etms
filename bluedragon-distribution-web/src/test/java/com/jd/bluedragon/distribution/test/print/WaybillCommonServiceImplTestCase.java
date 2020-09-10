@@ -227,7 +227,7 @@ public class WaybillCommonServiceImplTestCase {
 				null
 				};
 		String[] checkResults1 = {
-				"代收货款：0.00￥",
+				"",
 				"代收货款：1.00￥",
 				"代收货款：15.01￥",
 				"代收货款：15.01￥"
@@ -235,8 +235,8 @@ public class WaybillCommonServiceImplTestCase {
 		String[] checkResults2 = {
 				"运费合计：2.01￥",
 				"运费合计：1.01￥",
-				"运费合计：0.00￥",
-				"运费合计：0.00￥"
+				"",
+				""
 		};
 		for(int i=0 ; i < codMoneys.length; i++ ){
 				System.err.println(codMoneys[i]);

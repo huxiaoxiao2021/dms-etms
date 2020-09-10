@@ -231,8 +231,19 @@ public class NumberHelper {
      */
 	public static String formatMoney(String doubleStr) {
 		if(doubleStr != null && isBigDecimal(doubleStr)){
-			return MONEY_FORMAT.format(Double.valueOf(doubleStr));
+			return MONEY_FORMAT.format(new BigDecimal(doubleStr));
 		}
 		return null;
-	}	
+	}
+    /**
+     * 返回格式化后的金额（保留2位小数）
+     * @param doubleStr
+     * @return
+     */
+	public static String formatMoney(BigDecimal val) {
+		if(val != null){
+			return MONEY_FORMAT.format(val);
+		}
+		return null;
+	}
 }
