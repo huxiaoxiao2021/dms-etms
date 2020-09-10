@@ -9,7 +9,7 @@ import java.util.List;
 public class BoxLimitConfigDao extends BaseDao<BoxLimitConfig> {
     public static final String namespace = BoxLimitConfigDao.class.getName();
 
-    public int deleteByPrimaryKey(Integer id){
+    public int deleteByPrimaryKey(Long id){
         return this.getSqlSession().delete(namespace+".deleteByPrimaryKey", id);
     }
 
@@ -71,7 +71,7 @@ public class BoxLimitConfigDao extends BaseDao<BoxLimitConfig> {
     /**
      * 根据ID 批量删除
      */
-    public int batchDelete(List<Integer> ids){
+    public int batchDelete(List<Long> ids){
         return this.getSqlSession().delete(namespace+".batchDelete", ids);
     }
 }

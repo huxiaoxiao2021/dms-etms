@@ -277,7 +277,7 @@ public class BoxLimitServiceImpl implements BoxLimitService {
     }
 
     @Override
-    public JdResponse delete(List<Integer> ids,String operatorErp) {
+    public JdResponse delete(List<Long> ids,String operatorErp) {
         log.info("建箱包裹数限制 delete操作, 参数 ids={},操作人:{}", ids, operatorErp);
         boxLimitConfigDao.batchDelete(ids);
         return new JdResponse();

@@ -35,7 +35,7 @@ public interface BoxLimitService {
     /**
      * 根据ID批量删除
      */
-    JdResponse delete(List<Integer> ids, String operatorErp);
+    JdResponse delete(List<Long> ids, String operatorErp);
 
     /**
      *  查询展示名称

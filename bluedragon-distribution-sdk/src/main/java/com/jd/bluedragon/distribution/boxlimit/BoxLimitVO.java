@@ -6,7 +6,7 @@ import java.io.Serializable;
  * 建箱包裹数配置VO
  */
 public class BoxLimitVO implements Serializable {
-    private Integer id;
+    private Long id;
     /**
      * 机构名称
      */
@@ -32,11 +32,11 @@ public class BoxLimitVO implements Serializable {
      */
     private String operatorSiteName;
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
