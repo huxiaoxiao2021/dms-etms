@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
 import com.google.gson.Gson;
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
@@ -17,12 +19,10 @@ import com.jd.fce.zookeeper.common.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class SortingNumberLimitFilter implements Filter {
 
@@ -49,6 +49,9 @@ public class SortingNumberLimitFilter implements Filter {
     @Autowired
     private BoxLimitService boxLimitService;
 
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
     @Override
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
         if (request.getBox() != null) {
@@ -56,6 +59,11 @@ public class SortingNumberLimitFilter implements Filter {
         	List<Integer> limitNums = new ArrayList<>();
         	Integer siteType = null;
         	if (request.getReceiveSite() != null) {
+        	    // ucc 未配置的 站点 不需要拦截
+                if (!needCheckSitesFromUcc(request.getCreateSiteCode())) {
+                    chain.doFilter(request, chain);
+                    return;
+                }
         		siteType = request.getReceiveSite().getType();
         		Integer subSiteType = request.getReceiveSite().getType();
                 Map<Integer, Set<Integer>> siteTypes = sortingNumberLimitConfig.getSiteTypes();
@@ -131,5 +139,23 @@ public class SortingNumberLimitFilter implements Filter {
         }
 
         return JsonHelper.fromJson(sysConfigs.get(0).getConfigContent(), NumberLimitConfig.class);
+    }
+
+    /**
+     *  ucc配置的站点 才需要走 拦截器流程
+     *  ucc 配置 all 表示 所有站点都需走拦截流程
+     * @param siteCode 始发站点ID
+     * @return ucc中配置中包含此站点ID 则 返回 true , 表示需要走 包裹限制流程
+     */
+    private boolean needCheckSitesFromUcc(Integer siteCode) {
+        String sites = uccPropertyConfiguration.getBoxLimitSites();
+        if (StringUtils.isEmpty(sites)) {
+            return false;
+        }
+        if ("all".equalsIgnoreCase(sites)) {
+            return true;
+        }
+        List<String> siteCodes = Arrays.asList(sites.split(Constants.SEPARATOR_COMMA));
+        return siteCodes.contains(String.valueOf(siteCode));
     }
 }

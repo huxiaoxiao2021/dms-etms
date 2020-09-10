@@ -104,6 +104,11 @@ public class UccPropertyConfiguration {
      */
     private boolean disablePdaOldLogin;
 
+    /*
+     * PDA建箱包裹数量限制 试用站点
+     * */
+    private String boxLimitSites;
+
 
     public boolean isLogToBusinessLogByKafka() {
         return logToBusinessLogByKafka;
@@ -295,5 +300,13 @@ public class UccPropertyConfiguration {
 
     public void setDisablePdaOldLogin(boolean disablePdaOldLogin) {
         this.disablePdaOldLogin = disablePdaOldLogin;
+    }
+
+    public String getBoxLimitSites() {
+        return boxLimitSites;
+    }
+
+    public void setBoxLimitSites(String boxLimitSites) {
+        this.boxLimitSites = boxLimitSites;
     }
 }
