@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.ver.config;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 站点分拣数量限制配置
@@ -14,13 +16,13 @@ public class SortingNumberLimitConfig implements Serializable {
 	/**
 	 * 需要限制的站点类型
 	 */
-	private List<Integer> siteTypes;
-	
-	public List<Integer> getSiteTypes() {
+	private Map<Integer, Set<Integer>> siteTypes;
+
+	public Map<Integer, Set<Integer>> getSiteTypes() {
 		return siteTypes;
 	}
-	public void setSiteTypes(List<Integer> siteTypes) {
+
+	public void setSiteTypes(Map<Integer, Set<Integer>> siteTypes) {
 		this.siteTypes = siteTypes;
 	}
-	
 }

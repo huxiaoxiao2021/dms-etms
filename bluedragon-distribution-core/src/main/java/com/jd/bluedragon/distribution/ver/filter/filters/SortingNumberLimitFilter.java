@@ -1,8 +1,10 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
+import com.google.gson.Gson;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.boxlimit.service.BoxLimitService;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.ver.config.NumberLimitConfig;
 import com.jd.bluedragon.distribution.ver.config.SortingNumberLimitConfig;
@@ -19,6 +21,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class SortingNumberLimitFilter implements Filter {
 
@@ -42,6 +46,9 @@ public class SortingNumberLimitFilter implements Filter {
     @Autowired
     private SysConfigService sysConfigService;
 
+    @Autowired
+    private BoxLimitService boxLimitService;
+
     @Override
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
         if (request.getBox() != null) {
@@ -50,13 +57,24 @@ public class SortingNumberLimitFilter implements Filter {
         	Integer siteType = null;
         	if (request.getReceiveSite() != null) {
         		siteType = request.getReceiveSite().getType();
-        		if(siteType != null && sortingNumberLimitConfig.getSiteTypes().contains(siteType)){
+        		Integer subSiteType = request.getReceiveSite().getType();
+                Map<Integer, Set<Integer>> siteTypes = sortingNumberLimitConfig.getSiteTypes();
+                logger.info("分拣数量限制拦截 siteType: {},subType：{},siteTypes:{}", siteType, request.getReceiveSite().getSubType(), siteTypes);
+                if (siteType != null && subSiteType != null && siteTypes != null
+                        && siteTypes.containsKey(siteType) && siteTypes.get(siteType).contains(subSiteType)) {
                     //校验开关是否开启
                     NumberLimitConfig siteCheckConfig = this.getSwitchStatus(CONFIG_SITE_PACKAGE_NUM_CHECK);
                     if (siteCheckConfig != null && Boolean.TRUE.equals(siteCheckConfig.getIsOpen())) {
-                    	limitNums.add(siteCheckConfig.getMaxNum());
+                        Integer limitNum = boxLimitService.queryLimitNumBySiteId(request.getCreateSiteCode());
+                        logger.info("分拣数量限制拦截 createSiteCode:{},queryLimitNumBySiteId:{},sysConfigNum:{}", request.getCreateSiteCode(), limitNum, siteCheckConfig.getMaxNum());
+                        if (limitNum != null) {
+                            limitNums.add(limitNum);
+                        } else {
+                            limitNums.add(siteCheckConfig.getMaxNum());
+                        }
+
                     }
-        		}
+                }
         	}
             //校验开关是否开启
             NumberLimitConfig config =this.getSwitchStatus(CONFIG_SEND_PACKAGE_NUM_CHECK);
@@ -90,6 +108,7 @@ public class SortingNumberLimitFilter implements Filter {
      * @throws SortingCheckException
      */
     private void limitNumCheck(int hasSorting,int currentSorting,int limitNum) throws SortingCheckException {
+        logger.info("分拣数量限制拦截 hasSorting:{},currentSorting:{},limitNum:{}", hasSorting, currentSorting, limitNum);
     	if(currentSorting > limitNum) {
             //当前分拣数量大于限制数量，提示按包裹分拣
             throw new SortingCheckException(SortingResponse.CODE_29417, MessageFormat.format(SortingResponse.MESSAGE_29417_WAYBILL,limitNum));
