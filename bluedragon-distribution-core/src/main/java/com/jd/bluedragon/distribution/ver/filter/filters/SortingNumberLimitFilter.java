@@ -149,6 +149,7 @@ public class SortingNumberLimitFilter implements Filter {
      */
     private boolean needCheckSitesFromUcc(Integer siteCode) {
         String sites = uccPropertyConfiguration.getBoxLimitSites();
+        logger.info("分拣数量限制ucc配置站点:{},当前站点:{}", sites, siteCode);
         if (StringUtils.isEmpty(sites)) {
             return false;
         }
