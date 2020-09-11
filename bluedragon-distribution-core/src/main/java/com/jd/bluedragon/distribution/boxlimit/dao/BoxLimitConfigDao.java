@@ -22,7 +22,7 @@ public class BoxLimitConfigDao extends BaseDao<BoxLimitConfig> {
         return this.getSqlSession().insert(namespace+".insertSelective", record);
     }
 
-    public BoxLimitConfig selectByPrimaryKey(Integer id){
+    public BoxLimitConfig selectByPrimaryKey(Long id){
         return this.getSqlSession().selectOne(namespace+".selectByPrimaryKey", id);
     }
 
