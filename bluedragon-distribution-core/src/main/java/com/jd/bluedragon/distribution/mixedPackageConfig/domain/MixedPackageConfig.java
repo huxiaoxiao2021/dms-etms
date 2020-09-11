@@ -1,4 +1,4 @@
-package com.jd.bluedragon.domain;
+package com.jd.bluedragon.distribution.mixedPackageConfig.domain;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -109,6 +109,8 @@ public class MixedPackageConfig implements Serializable {
      * 是否有效
      */
     private Integer yn;
+
+    private Long ts;
 
     public Integer getId() {
         return id;
@@ -292,5 +294,13 @@ public class MixedPackageConfig implements Serializable {
 
     public void setYn(Integer yn) {
         this.yn = yn;
+    }
+
+    public Long getTs() {
+        return ts;
+    }
+
+    public void setTs(Long ts) {
+        this.ts = ts;
     }
 }

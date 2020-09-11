@@ -39,7 +39,9 @@ public class Constants {
     public static final String PUNCTUATION_CLOSE_BRACKET_SMALL = ")";
     public static final String OPERATE_SUCCESS = "1";
     public static final String OPERATE_FAIL = "0";
-    
+    public static final String EMPTY_FILL = "";
+    public static final String MIXED_SITE_NAME_PREFIX = "【集】";
+
     public static final int RESULT_SUCCESS = 1; //成功
     public static final int RESULT_FAIL = 0;    //接口异常或者失败
     public static final int RESULT_ERROR = -1;  //接口内部错误
@@ -521,6 +523,11 @@ public class Constants {
      * 是否启用称重量方：启用量方和量方
      */
     public static final Integer WEIGHT_VOLUME_ENABLE = 3;
+
+    /**
+     * 面单特殊字符"航"
+     * */
+    public static final String SPECIAL_MARK_AIRTRANSPORT = "航";
 
     /**
      * Text-保价
