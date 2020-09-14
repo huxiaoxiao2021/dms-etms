@@ -8,7 +8,7 @@
 
     <util:list id="forwardFilterList">
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillPackStateFilter"/>
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.SortingNumberLimitFilter" />
+<!--        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.SortingNumberLimitFilter" />-->
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.AllianceBusiFilter" />
         <!--<bean class="com.jd.bluedragon.distribution.ver.filter.filters.TipMessageFilter" />-->
         <!--<bean class="com.jd.bluedragon.distribution.ver.filter.filters.BusinessHallFreightSendReceiveFilter" />-->
