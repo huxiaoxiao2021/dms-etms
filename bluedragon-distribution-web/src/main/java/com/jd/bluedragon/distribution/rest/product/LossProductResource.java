@@ -6,6 +6,7 @@ import com.jd.bluedragon.core.message.MessageDto;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.LossProductResponse;
 import com.jd.bluedragon.distribution.api.response.ProductResponse;
+import com.jd.bluedragon.distribution.consumer.reverse.LossOrderConsumer;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.jmq.common.message.Message;
@@ -39,6 +40,9 @@ public class LossProductResource {
 	private ProductService productService;
 	
 	@Autowired
+	private LossOrderConsumer lossOrderConsumer;
+
+	@Autowired
 	@Qualifier("waybillCommonService")
 	private WaybillCommonService waybillCommonService;
 
@@ -49,6 +53,7 @@ public class LossProductResource {
 	public JdResponse add(MessageDto message) {
 		Message newMessage = new Message();
 		newMessage.setText(message.getContent());
+		this.lossOrderConsumer.consume(newMessage);
 
 		return new JdResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 	}
@@ -57,6 +62,7 @@ public class LossProductResource {
 	@Path("/lossProduct/add")
     @JProfiler(jKey = "DMS.WEB.LossProductResource.add", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public JdResponse add(Message message) {
+		this.lossOrderConsumer.consume(message);
 
 		return new JdResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 	}
