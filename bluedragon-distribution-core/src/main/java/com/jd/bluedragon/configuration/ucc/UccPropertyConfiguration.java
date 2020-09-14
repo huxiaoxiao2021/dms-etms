@@ -109,6 +109,11 @@ public class UccPropertyConfiguration {
      *  例：910,39 （-1代表全国）
      */
     private String collectionAddressSiteCodes;
+    /*
+     * PDA建箱包裹数量限制 试用站点
+     * */
+    private String boxLimitSites;
+
 
     public boolean isLogToBusinessLogByKafka() {
         return logToBusinessLogByKafka;
@@ -308,5 +313,13 @@ public class UccPropertyConfiguration {
 
     public void setCollectionAddressSiteCodes(String collectionAddressSiteCodes) {
         this.collectionAddressSiteCodes = collectionAddressSiteCodes;
+    }
+
+    public String getBoxLimitSites() {
+        return boxLimitSites;
+    }
+
+    public void setBoxLimitSites(String boxLimitSites) {
+        this.boxLimitSites = boxLimitSites;
     }
 }
