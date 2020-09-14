@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
-import com.google.gson.Gson;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;

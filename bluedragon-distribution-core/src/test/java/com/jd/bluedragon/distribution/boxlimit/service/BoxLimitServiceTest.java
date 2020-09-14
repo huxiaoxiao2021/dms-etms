@@ -125,7 +125,7 @@ public class BoxLimitServiceTest{
         BoxLimitDTO dto = new BoxLimitDTO();
         dto.setSiteName("mockSiteName");
         dto.setSiteId(0);
-        dto.setId(0);
+        dto.setId(0L);
         dto.setLimitNum(100);
         return dto;
     }
@@ -136,7 +136,7 @@ public class BoxLimitServiceTest{
 
         Mockito.when(boxLimitConfigDao.queryBySiteIds(Mockito.<Integer>anyList())).thenReturn(null);
         Mockito.when(boxLimitConfigDao.insert(Mockito.<BoxLimitConfig>any())).thenReturn(1);
-        Mockito.when(boxLimitConfigDao.selectByPrimaryKey(Mockito.<Integer>any())).thenReturn(getBoxLimitConfig());
+        Mockito.when(boxLimitConfigDao.selectByPrimaryKey(Mockito.<Long>any())).thenReturn(getBoxLimitConfig());
         JdResponse response = boxLimitService.update(dto, getLoginUser());
         log.info("update:{}", new Gson().toJson(response));
     }
