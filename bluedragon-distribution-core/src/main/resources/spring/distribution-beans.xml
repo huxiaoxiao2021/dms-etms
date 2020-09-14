@@ -5,16 +5,23 @@
     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
 
     <bean name="sortingNumberLimitConfig" class="com.jd.bluedragon.distribution.ver.config.SortingNumberLimitConfig" >
-    	<property name="siteTypes">
-    		<list>
-    			<value>4</value>
-    			<value>8</value>
-    			<value>16</value>
-    			<value>80</value>
-    			<value>101</value>
-    			<value>108</value>
-    			<value>10000</value>
-    		</list>
+		<property name="siteTypes">
+			<map>
+				<entry key="4">
+					<set>
+						<value>4</value>
+					</set>
+				</entry>
+				<entry key="64">
+					<set>
+						<value>256</value>
+						<value>64</value>
+						<value>6408</value>
+						<value>6409</value>
+						<value>6410</value>
+					</set>
+				</entry>
+			</map>
     	</property>
     </bean>
 </beans>

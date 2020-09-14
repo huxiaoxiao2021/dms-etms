@@ -56,3 +56,5 @@ insert into unload_car_distribute
 		unload_user_type,create_time,update_time,yn)
 values
 (       1,'SC12345678','bjxings','邢松',1,'2020-07-02 11:12:13','2020-01-01 11:12:13',1);
+
+INSERT INTO `box_limit_config` (`id`, `site_name`, `site_id`, `limit_num`, `operator_erp`, `operator_site_id`, `operator_site_name`, `operating_time`, `create_time`, `update_time`, `yn`) VALUES ('23', '测试站点', '1', '400', 'test123', '100', '操作人站点', '2020-09-07 15:04:41', '2020-09-07 15:04:44', '2020-09-07 15:04:46', '1');
