@@ -213,7 +213,7 @@ public class BusinessLogConstans {
         EDN_PRINT_PICKING_LIST(BizTypeEnum.EDN_BUSINESS,20161,"打印拣货单"),
         EDN_PRINT_DELIVERY_RECEIPT(BizTypeEnum.EDN_BUSINESS,20162,"打印配送单"),
 
-        ECONOMIC_NET_BOX_WEIGHT(BizTypeEnum.EDN_BUSINESS,20171,"经济网推送箱号")
+        ECONOMIC_NET_BOX_WEIGHT(BizTypeEnum.ECONOMIC_NET,20171,"经济网推送箱号")
         ;
         
         private static Map<Integer,OperateTypeEnum> CODE_MAPPING = new HashMap<Integer,OperateTypeEnum>();
