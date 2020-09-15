@@ -20,7 +20,7 @@ public class BoxWeightVolumeHandlerTest {
         long startTime = 0;
         Exception e = null;
 
-        boxWeightVolumeHandler.retryOnFailDoRestInterface(result, null,null, startTime, e);
+//        boxWeightVolumeHandler.retryOnFailDoRestInterface(result, null,null, startTime, e);
 
     }
 }
