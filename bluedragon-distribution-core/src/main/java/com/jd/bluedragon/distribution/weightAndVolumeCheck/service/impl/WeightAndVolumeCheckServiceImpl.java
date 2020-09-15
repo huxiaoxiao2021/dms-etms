@@ -1885,13 +1885,13 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         if(abnormalResultMq == null){
             return;
         }
-        //如果是操作人是属于营业厅-推送到京牛
+        //如果是操作人是属于营业-推送到京牛
         String erpStr  = abnormalResultMq.getDutyErp();
         BaseStaffSiteOrgDto baseStaffByErpNoCache = baseMajorManager.getBaseStaffByErpNoCache(erpStr);
-        if(baseStaffByErpNoCache!=null&&baseStaffByErpNoCache.getUserType()==1){
-            AbnormalResultMqToJN abnormalResultMqToJN  = convertToAbnormalResultMqToJN(abnormalResultMq);
-            log.info("发送到京牛的MQ【{}】,业务ID【{}】 ",dmsWeightVolumeExcessToJN.getTopic(),abnormalResultMq.getAbnormalId());
-            dmsWeightVolumeExcessToJN.sendOnFailPersistent(abnormalResultMq.getAbnormalId(),JsonHelper.toJson(abnormalResultMqToJN));
+        if(baseStaffByErpNoCache!=null&&baseStaffByErpNoCache.getSiteType()!=null&&baseStaffByErpNoCache.getSiteType()==Constants.BASE_SITE_SITE){//自营营业部
+                AbnormalResultMqToJN abnormalResultMqToJN  = convertToAbnormalResultMqToJN(abnormalResultMq);
+                log.info("发送到京牛的MQ【{}】,业务ID【{}】 ",dmsWeightVolumeExcessToJN.getTopic(),abnormalResultMq.getAbnormalId());
+                dmsWeightVolumeExcessToJN.sendOnFailPersistent(abnormalResultMq.getAbnormalId(),JsonHelper.toJson(abnormalResultMqToJN));
         }else { //否则直接推送FXM
             log.info("发送MQ【{}】,业务ID【{}】 ",dmsWeightVolumeExcess.getTopic(),abnormalResultMq.getAbnormalId());
             dmsWeightVolumeExcess.sendOnFailPersistent(abnormalResultMq.getAbnormalId(), JsonHelper.toJson(abnormalResultMq));

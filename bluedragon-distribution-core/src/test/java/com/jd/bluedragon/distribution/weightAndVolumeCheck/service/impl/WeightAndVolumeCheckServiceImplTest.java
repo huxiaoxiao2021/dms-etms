@@ -16,6 +16,7 @@ import com.jd.bluedragon.dms.receive.quote.dto.QuoteCustomerDto;
 import com.jd.etms.finance.dto.BizDutyDTO;
 import com.jd.etms.finance.util.ResponseDTO;
 import com.jd.jss.JingdongStorageService;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.report.ReportExternalService;
 import com.jd.ql.dms.report.domain.BaseEntity;
 import com.jd.ql.dms.report.domain.Pager;
@@ -24,10 +25,15 @@ import com.jd.ql.dms.report.domain.WeightVolumeQueryCondition;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -111,6 +117,51 @@ public class WeightAndVolumeCheckServiceImplTest {
         InvokeResult<Boolean> result = weightAndVolumeCheckServiceImpl.dealSportCheck(packWeightVO,
                 SpotCheckSourceEnum.SPOT_CHECK_CLIENT_PLATE,new InvokeResult<Boolean>());
         Assert.assertTrue(result.getCode()!=200);
+    }
+
+
+    //测试自营推送京牛
+    @Test
+    public void testInsertAndSendMqToJN() throws Exception {
+        when(dmsBaseDictService.queryListByParentId(anyInt())).thenReturn(Arrays.<DmsBaseDict>asList(new DmsBaseDict()));
+
+        ResponseDTO<BizDutyDTO> responseDto = new ResponseDTO<>();
+        BizDutyDTO bizDutyDTO = new BizDutyDTO();
+        bizDutyDTO.setWeight(new BigDecimal(1.0));
+        bizDutyDTO.setVolume(new BigDecimal(8000.0));
+        responseDto.setStatusCode(0);
+        responseDto.setData(bizDutyDTO);
+
+        when(businessFinanceManager.queryDutyInfo(anyString())).thenReturn(responseDto);
+        BaseStaffSiteOrgDto baseStaffSiteOrgDto = new BaseStaffSiteOrgDto();
+        baseStaffSiteOrgDto.setSiteType(4);
+        baseStaffSiteOrgDto.setSiteType(1);
+        baseStaffSiteOrgDto.setSiteType(null);
+
+        when(baseMajorManager.getBaseStaffByErpNoCache(anyString())).thenReturn(baseStaffSiteOrgDto);
+        when(baseMajorManager.getBaseSiteBySiteId(anyInt())).thenReturn(null);
+        when(waybillQueryManager.getDataByChoice(anyString(), anyBoolean(), anyBoolean(), anyBoolean(), anyBoolean())).thenReturn(null);
+        when(waybillQueryManager.getOnlyWaybillByWaybillCode(anyString())).thenReturn(null);
+        when(dmsWeightVolumeAbnormal.getTopic()).thenReturn("dms_weightVolume_abnormal");
+        when(dmsWeightVolumeExcess.getTopic()).thenReturn("ldop_abnormal_fail_toJN");
+
+        QuoteCustomerDto quoteCustomerDto = new QuoteCustomerDto();
+        quoteCustomerDto.setVolumeFeeType(8000);
+        quoteCustomerDto.setVolumeFeeType(VolumeFeeType.volumeWeight.getType());
+        when(quoteCustomerApiServiceManager.queryCustomerById(anyInt())).thenReturn(quoteCustomerDto);
+
+        PackWeightVO packWeightVO = new PackWeightVO();
+        packWeightVO.setWeight(10.0);
+        packWeightVO.setHigh(20.0);
+        packWeightVO.setLength(40.0);
+        packWeightVO.setWidth(20.0);
+        packWeightVO.setCodeStr("JDVC03992440423");
+        WeightVolumeCollectDto weightVolumeCollectDto = new WeightVolumeCollectDto();
+        weightVolumeCollectDto.setBusiCode(123);
+        InvokeResult<Boolean> result = weightAndVolumeCheckServiceImpl.dealSportCheck(packWeightVO,
+                SpotCheckSourceEnum.SPOT_CHECK_CLIENT_PLATE,new InvokeResult<Boolean>());
+        System.out.println(result.getCode());
+        //Assert.assertTrue(result.getCode()!=200);
     }
 
 
