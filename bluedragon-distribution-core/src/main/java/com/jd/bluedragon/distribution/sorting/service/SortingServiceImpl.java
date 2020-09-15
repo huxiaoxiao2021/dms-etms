@@ -96,13 +96,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service("sortingService")
@@ -1575,11 +1569,14 @@ public class SortingServiceImpl implements SortingService {
 		SortingJsfResponse sortingJsfResponse = new SortingJsfResponse();
 
 		try{
-			//调用web分拣验证校验链
-			sortingJsfResponse = sortingCheckService.sortingCheck(pdaOperateRequest);
-			if(sortingJsfResponse.getCode() != 200){
-				return sortingJsfResponse;
+			if (this.isNeedCheck(pdaOperateRequest.getCreateSiteCode())) {
+				//调用web分拣验证校验链
+				sortingJsfResponse = sortingCheckService.sortingCheck(pdaOperateRequest);
+				if (sortingJsfResponse.getCode() != 200) {
+					return sortingJsfResponse;
+				}
 			}
+
 			SortingCheck sortingCheck = convertToSortingCheck(pdaOperateRequest);
 			sortingJsfResponse = jsfSortingResourceService.check(sortingCheck);
 			if(sortingJsfResponse.getCode() != 200){
@@ -1614,5 +1611,22 @@ public class SortingServiceImpl implements SortingService {
 		sortingCheck.setReceiveSiteCode(request.getReceiveSiteCode());
 		sortingCheck.setIsLoss(request.getIsLoss());
 		return sortingCheck;
+	}
+
+	/**
+	 * 是否是切换试用站点
+	 */
+	private boolean isNeedCheck(Integer siteCode) {
+		if (siteCode == null) {
+			return false;
+		}
+		String switchVerToWebSites = uccPropertyConfiguration.getSwitchVerToWebSites();
+		if(StringUtils.isEmpty(switchVerToWebSites)){
+			return false;
+		} else if ("1".equals(switchVerToWebSites)) {
+			return true;
+		}
+		List<String> siteCodes = Arrays.asList(switchVerToWebSites.split(Constants.SEPARATOR_COMMA));
+		return siteCodes.contains(String.valueOf(siteCode));
 	}
 }

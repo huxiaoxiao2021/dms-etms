@@ -82,10 +82,6 @@ public class SortingCheckServiceImpl implements SortingCheckService {
     @Autowired
     private LogEngine logEngine;
 
-    @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
-
-
     @Override
     @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.sortingCheck", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public SortingJsfResponse sortingCheck(PdaOperateRequest pdaOperateRequest) {
@@ -96,9 +92,6 @@ public class SortingCheckServiceImpl implements SortingCheckService {
 
         SortingJsfResponse response = new SortingJsfResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 
-        if (this.isNotNeedCheck(pdaOperateRequest.getCreateSiteCode())) {
-            return response;
-        }
         try {
             //初始化拦截链上下文
             FilterContext filterContext = this.initContext(pdaOperateRequest);
@@ -307,23 +300,6 @@ public class SortingCheckServiceImpl implements SortingCheckService {
 
         logEngine.addLog(businessLogProfiler);
 
-    }
-
-    /**
-     * 是否是切换试用站点
-     */
-    private boolean isNotNeedCheck(Integer siteCode) {
-        if (siteCode == null) {
-            return true;
-        }
-        String switchVerToWebSites = uccPropertyConfiguration.getSwitchVerToWebSites();
-        if(StringUtils.isEmpty(switchVerToWebSites)){
-            return true;
-        } else if ("1".equals(switchVerToWebSites)) {
-            return false;
-        }
-        List<String> siteCodes = Arrays.asList(switchVerToWebSites.split(Constants.SEPARATOR_COMMA));
-        return ! siteCodes.contains(String.valueOf(siteCode));
     }
 
 }
