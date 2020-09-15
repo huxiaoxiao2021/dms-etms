@@ -155,9 +155,9 @@ public class BoxServiceImpl implements BoxService {
 		if(isCreateBoxFromSSC()){
             CallerInfo callerInfoFromSSC = Profiler.registerInfo("DMSWEB.BoxService.batchAddNewFromSSC", Constants.UMP_APP_NAME_DMSWEB,false,true);
             try{
-                Set<Integer> siteSet = siteService.getBoxFromSSCAllowedList();
-                //未配置站点列表时默认全部开启，否则取配置的列表
-                if(siteSet.isEmpty() || siteSet.contains(param.getCreateSiteCode())){
+                Set<Integer> siteSet = siteService.getBoxFromDMSAllowedList();
+                //未配置站点列表时默认全部不使用中台模式，否则取配置的列表中的数据不使用中台
+                if(!siteSet.isEmpty() && !siteSet.contains(param.getCreateSiteCode())){
                     //通过中台生产箱号
                     boxes = batchAddNewFromSSC(param, systemType);
                 }
@@ -564,9 +564,9 @@ public class BoxServiceImpl implements BoxService {
 	private void updateBoxStatusSSC(String boxCode, Integer operateSiteCode, Integer boxStatus, String userErp){
 	    try{
             if(isCreateBoxFromSSC()) {
-                Set<Integer> siteSet = siteService.getBoxFromSSCAllowedList();
-                //未配置站点列表时默认全部开启，否则取配置的列表
-                if (siteSet.isEmpty() || siteSet.contains(operateSiteCode)) {
+                Set<Integer> siteSet = siteService.getBoxFromDMSAllowedList();
+                //未配置站点列表时默认全部关闭，否则取配置的列表不存在的使用中台模式
+                if (!siteSet.isEmpty() && !siteSet.contains(operateSiteCode)) {
                     if(boxStatus == BoxStatusEnum.SENT_STATUS.getCode()){
                         containerManager.updateBoxSend(boxCode,userErp,userErp,operateSiteCode);
                     }else if(boxStatus == BoxStatusEnum.CANCELED_STATUS.getCode()){
