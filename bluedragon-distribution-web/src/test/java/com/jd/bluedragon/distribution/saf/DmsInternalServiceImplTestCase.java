@@ -8,12 +8,11 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.saf.DmsInternalServiceImpl;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 
 @RunWith(MockitoJUnitRunner.class)

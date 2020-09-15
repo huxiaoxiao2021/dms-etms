@@ -122,8 +122,18 @@ public class PackagePrintServiceImpl implements PackagePrintService {
             return result;
         }
         String commandResult = jdCommandService.execute(JsonHelper.toJson(printRequest));
-        log.info("查询包裹信息结果：{}", commandResult);
         JdResult jdResult = JsonHelper.fromJson(commandResult, JdResult.class);
+        if(jdResult == null){
+            result.toFail("获取打印数据为空！");
+            return result;
+        }
+        //调用不成功，返回相应的信息
+        if(!jdResult.isSucceed()){
+            result.setCode(jdResult.getCode());
+            result.setMessageCode(jdResult.getMessageCode());
+            result.setMessage(jdResult.getMessage());
+            return result;
+        }
         String data = JSONObject.parseObject(commandResult).getString("data");
         Map map = JsonHelper.json2MapNormal(data);
 
