@@ -1,10 +1,13 @@
 package com.jd.bluedragon.distribution.weightVolume.handler;
 
+import com.google.gson.Gson;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
+import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.distribution.third.domain.ThirdBoxDetail;
 import com.jd.bluedragon.distribution.third.service.ThirdBoxDetailService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
@@ -20,12 +23,17 @@ import com.jd.bluedragon.utils.BaseContants;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
+import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.dms.logger.external.LogEngine;
+import com.jd.fastjson.JSONObject;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -63,6 +71,9 @@ public class BoxWeightVolumeHandler extends AbstractWeightVolumeHandler {
     @Autowired
     @Qualifier("economicNetBoxWeightProducer")
     private DefaultJMQProducer economicNetBoxWeightProducer;
+
+    @Autowired
+    private LogEngine logEngine;
 
     @Override
     protected void handlerWeighVolume(WeightVolumeEntity entity) {
@@ -145,8 +156,12 @@ public class BoxWeightVolumeHandler extends AbstractWeightVolumeHandler {
             weightVolumeDto.setScanSite(entity.getOperateSiteName());
             weightVolumeDto.setScanSiteCode(String.valueOf(entity.getOperateSiteCode()));
             weightVolumeDto.setScanType("包裹称重扫描");
+            long startTime = System.currentTimeMillis();
             EconomicNetResult<EconomicNetErrorRes> result = economicNetBusinessManager.doRestInterface(weightVolumeDto);
             logger.info("推送箱号信息，经济网返回{}", JsonHelper.toJson(result));
+
+            retryOnFailDoRestInterface(result, weightVolumeDto, startTime);
+
             EconomicNetBoxWeightVolumeMq economicNetBoxWeightVolumeMq = new EconomicNetBoxWeightVolumeMq();
             BeanUtils.copyProperties(weightVolumeDto,economicNetBoxWeightVolumeMq);
             economicNetBoxWeightVolumeMq.setScanManCode(entity.getOperatorCode());
@@ -158,6 +173,28 @@ public class BoxWeightVolumeHandler extends AbstractWeightVolumeHandler {
             economicNetBoxWeightProducer.sendOnFailPersistent(economicNetBoxWeightVolumeMq.getBagCode(),JsonHelper.toJson(economicNetBoxWeightVolumeMq));
         }
 
+    }
+
+    /**
+     * 推送经济网箱号信息失败重试
+     * 抛出异常 框架会自动重试
+     * @param result doRestInterface方法 响应结果
+     * @param request doRestInterface方法 请求参数
+     * @param startTime doRestInterface方法 执行开始时间
+     */
+    private void retryOnFailDoRestInterface(EconomicNetResult<EconomicNetErrorRes> result, Object request,long startTime) {
+        if (result == null || !result.getSuccess()) {
+            // 写入 业务日志
+            BusinessLogProfiler logProfiler = new BusinessLogProfilerBuilder()
+                    .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.ECONOMIC_NET_BOX_WEIGHT)
+                    .processTime(System.currentTimeMillis(), startTime)
+                    .operateRequest(request)
+                    .operateResponse(result)
+                    .methodName("EconomicNetBusinessManager#doRestInterface")
+                    .build();
+            logEngine.addLog(logProfiler);
+            throw new RuntimeException(MessageFormat.format("推送箱号信息至经济网失败,异常原因：{0}",JsonHelper.toJson(result)));
+        }
     }
 
 }
