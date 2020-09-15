@@ -55,11 +55,6 @@ public class UccPropertyConfiguration {
     /** 出管新接口-页面查询方法开关 true 调用新接口，false 调用老接口**/
     private boolean chuguanNewPageQuerySwitch;
 
-    /**
-     * 驻场打印 是否开启校验 鸡毛信必输设备号；true 开启,false 不开启
-     */
-    private boolean stationPrintFeatherLetterCheck;
-
     /** 分拣查询的模式配置，支持DMS、MIDDLEEND、FAILOVER三个值 **/
     private String sortingQueryMode;
 
@@ -76,16 +71,6 @@ public class UccPropertyConfiguration {
      * 老log查询页面提示
      */
     private String oldLogPageTips;
-    
-    /**
-     * b2b分拣补验货开关
-     */
-    private boolean b2bPushInspectionSwitch;
-
-    /**
-     * 冷链卡班短信开关;true 开启
-     */
-    private boolean coldChainStorageSmsSwitch;
 
     /**
      * 离线任务的操作时间的更正时间范围
@@ -107,6 +92,28 @@ public class UccPropertyConfiguration {
      *  验证场地，例：910,39
      */
     private String sealVolumeCheckSites;
+
+    /*
+    * 分拣验证切换到web试用站点
+    * */
+    private String switchVerToWebSites;
+
+    /**
+     * 禁用老版本登陆
+     * @return
+     */
+    private boolean disablePdaOldLogin;
+
+    /**
+     * 开启集包地场地开关
+     *  例：910,39 （-1代表全国）
+     */
+    private String collectionAddressSiteCodes;
+    /*
+     * PDA建箱包裹数量限制 试用站点
+     * */
+    private String boxLimitSites;
+
 
     public boolean isLogToBusinessLogByKafka() {
         return logToBusinessLogByKafka;
@@ -212,14 +219,6 @@ public class UccPropertyConfiguration {
         this.chuguanNewInterfaceQuerySwitch = chuguanNewInterfaceQuerySwitch;
     }
 
-    public boolean isStationPrintFeatherLetterCheck() {
-        return stationPrintFeatherLetterCheck;
-    }
-
-    public void setStationPrintFeatherLetterCheck(boolean stationPrintFeatherLetterCheck) {
-        this.stationPrintFeatherLetterCheck = stationPrintFeatherLetterCheck;
-    }
-
     public String getSortingQueryMode() {
         return sortingQueryMode;
     }
@@ -260,28 +259,6 @@ public class UccPropertyConfiguration {
         this.oldLogPageTips = oldLogPageTips;
     }
 
-    public boolean isColdChainStorageSmsSwitch() {
-        return coldChainStorageSmsSwitch;
-    }
-
-    public void setColdChainStorageSmsSwitch(boolean coldChainStorageSmsSwitch) {
-        this.coldChainStorageSmsSwitch = coldChainStorageSmsSwitch;
-    }
-
-	/**
-	 * @return the b2bPushInspectionSwitch
-	 */
-	public boolean isB2bPushInspectionSwitch() {
-		return b2bPushInspectionSwitch;
-	}
-
-	/**
-	 * @param b2bPushInspectionSwitch the b2bPushInspectionSwitch to set
-	 */
-	public void setB2bPushInspectionSwitch(boolean b2bPushInspectionSwitch) {
-		this.b2bPushInspectionSwitch = b2bPushInspectionSwitch;
-	}
-
     public int getOfflineTaskOperateTimeCorrectHours() {
         return offlineTaskOperateTimeCorrectHours;
     }
@@ -312,5 +289,37 @@ public class UccPropertyConfiguration {
 
     public void setSealVolumeCheckSites(String sealVolumeCheckSites) {
         this.sealVolumeCheckSites = sealVolumeCheckSites;
+    }
+
+    public String getSwitchVerToWebSites() {
+        return switchVerToWebSites;
+    }
+
+    public void setSwitchVerToWebSites(String switchVerToWebSites) {
+        this.switchVerToWebSites = switchVerToWebSites;
+    }
+
+    public boolean isDisablePdaOldLogin() {
+        return disablePdaOldLogin;
+    }
+
+    public void setDisablePdaOldLogin(boolean disablePdaOldLogin) {
+        this.disablePdaOldLogin = disablePdaOldLogin;
+    }
+
+    public String getCollectionAddressSiteCodes() {
+        return collectionAddressSiteCodes;
+    }
+
+    public void setCollectionAddressSiteCodes(String collectionAddressSiteCodes) {
+        this.collectionAddressSiteCodes = collectionAddressSiteCodes;
+    }
+
+    public String getBoxLimitSites() {
+        return boxLimitSites;
+    }
+
+    public void setBoxLimitSites(String boxLimitSites) {
+        this.boxLimitSites = boxLimitSites;
     }
 }

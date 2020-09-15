@@ -935,12 +935,12 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             }
             // 防止ERP字段为空,根据id获取ERP
             try {
-                if(StringUtils.isEmpty(operateErp)){
+                if(StringUtils.isEmpty(operateErp) && StringUtils.isNotEmpty(operateId)){
                     BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByStaffId(Integer.valueOf(operateId));
                     operateErp = baseStaff.getAccountNumber();
                 }
             }catch (Exception e){
-                log.error("根据操作人id获取操作人信息异常,异常信息:【{}】",e.getMessage(),e);
+                log.error("根据操作人id【{}】获取操作人信息异常!",operateId,e);
             }
 
             waybillFlowDetail.setOperateErp(operateErp);

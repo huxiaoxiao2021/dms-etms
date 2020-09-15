@@ -132,7 +132,7 @@ public class UnloadCarDaoTest extends AbstractDaoIntegrationH2Test {
         UnloadCar unloadCar = new UnloadCar();
         unloadCar.setSealCarCode("SC12345678");
         unloadCar.setUnloadUserErp("bjxings");
-        unloadCarDao.selectUnloadCar(unloadCar);
+        unloadCarDao.selectByUnloadCar(unloadCar);
     }
 
 }

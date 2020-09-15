@@ -1,20 +1,15 @@
 package com.jd.bluedragon.core.message;
 
 
-import com.jd.client.entity.Message;
-
 public enum MessageDestinationConstant {
 
 	ReverseReceive("bd_dms_reverse_receive", "逆向收货消息"), 
 	PopAbnormal("dms_pop_abnormal_order", "POP差异包裹审核结果处理分发地址"),
-	PopAbnormalNew("pop_bd_abnormal_deal", "POP差异包裹审核结果处理新分发地址"),
 	LossOrder("ldms_to_bluedragon", "逆向报损订单"),
 	FxmAbnormal("FXMDmsAoFB","配送外呼回传"),
 	PickWare("sph_reverse_1","备件库取件单交接拆包"),
 	DmsRouter("dms_router","DMS同步外部系统"),
-	DmsRouter1("dms_router_1","华中_DMS同步外部系统"),
 	PopPickup("dms_pop_pickup","PDA推送POP收货消息"),
-	ReceiveAbnormal("rec_abnormal_deal", "B商家订单差异审核结果处理分发地址"),
     ReceiveToArteryMQ("receive_artery_info", "收货发送给财务计费系统运输信息"),
     QualityControlMQ("bd_exception_to_qc","异常页面、备件库分拣发送给质控MQ"),
     QualityControlFXMMQ("bd_dms_abnormal_order_to_qc","配送外呼发送给质控MQ"),

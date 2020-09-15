@@ -1709,7 +1709,7 @@ public class BusinessUtil {
         	return str.substring(0,showLength) + hidePlaceStr;
         }
         return str;
-    }   
+    }
     /**
      * 合约机判断：Sendpay292位为1
      * @param sendPay

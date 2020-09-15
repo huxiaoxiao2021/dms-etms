@@ -35,20 +35,21 @@
 		<property name="sortingServiceMode" value="${sorting.service.mode}"/>
 		<property name="chuguanNewInterfaceInsertSwitch" value="${chuguanNewInterfaceInsertSwitch:false}"/>
 		<property name="chuguanNewInterfaceQuerySwitch" value="${chuguanNewInterfaceQuerySwitch:false}"/>
-		<property name="stationPrintFeatherLetterCheck" value="${stationPrintFeatherLetterCheck:true}"/>
 		<property name="sortingQueryMode" value="${sorting.query.mode}"/>
         <property name="chuguanNewPageQuerySwitch" value="${chuguanNewPageQuerySwitch:false}"/>
         <property name="preOutZoneSwitch" value="${preOutZoneSwitch:true}"/>
         <property name="logToBusinessLogByKafka" value="${logtobusinesslog.global.on}"/>
         <property name="newLogPageTips" value="${newLogPageTips:''}"/>
         <property name="oldLogPageTips" value="${newLogPageTips:''}"/>
-        <property name="coldChainStorageSmsSwitch" value="${coldChainStorageSmsSwitch:false}"/>
-        <property name="b2bPushInspectionSwitch" value="${b2bPushInspectionSwitch:false}"/>
 		<property name="offlineTaskOperateTimeCorrectHours" value="${offlineTaskOperateTimeCorrectHours:24}"/>
 		<property name="automaticWeightVolumeExchangeSwitch" value="${automaticWeightVolumeExchangeSwitch:false}"/>
 		<property name="automaticWeightVolumeExchangeSiteCode" value="${automaticWeightVolumeExchangeSiteCode:''}"/>
         <property name="sealVolumeCheckSites" value="${sealVolumeCheckSites:-1}"/>
-    </bean>
+        <property name="disablePdaOldLogin" value="${pda.disableOldLogin:false}"/>
+		<property name="switchVerToWebSites" value="${switchVerToWebSites}"/>
+        <property name="collectionAddressSiteCodes" value="${collectionAddressSiteCodes}"/>
+		<property name="boxLimitSites" value="${boxLimitSites:''}"/>
+	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
 	<bean id="propertyConfig" class="com.jd.coo.ucc.client.config.UccPropertyConfig">
@@ -67,19 +68,20 @@
                 <value>uccPropertyConfiguration.sortingServiceMode</value>
                 <value>uccPropertyConfiguration.chuguanNewInterfaceInsertSwitch</value>
                 <value>uccPropertyConfiguration.chuguanNewInterfaceQuerySwitch</value>
-                <value>uccPropertyConfiguration.stationPrintFeatherLetterCheck</value>
 				<value>uccPropertyConfiguration.sortingQueryMode</value>
 				<value>uccPropertyConfiguration.chuguanNewPageQuerySwitch</value>
 				<value>uccPropertyConfiguration.preOutZoneSwitch</value>
 				<value>uccPropertyConfiguration.logToBusinessLogByKafka</value>
 				<value>uccPropertyConfiguration.newLogPageTips</value>
 				<value>uccPropertyConfiguration.oldLogPageTips</value>
-				<value>uccPropertyConfiguration.coldChainStorageSmsSwitch</value>
-				<value>uccPropertyConfiguration.b2bPushInspectionSwitch</value>
 				<value>uccPropertyConfiguration.offlineTaskOperateTimeCorrectHours</value>
 				<value>uccPropertyConfiguration.automaticWeightVolumeExchangeSwitch</value>
 				<value>uccPropertyConfiguration.automaticWeightVolumeExchangeSiteCode</value>
 				<value>uccPropertyConfiguration.sealVolumeCheckSites</value>
+				<value>uccPropertyConfiguration.switchVerToWebSites</value>
+				<value>uccPropertyConfiguration.disablePdaOldLogin</value>
+				<value>uccPropertyConfiguration.collectionAddressSiteCodes</value>
+				<value>uccPropertyConfiguration.boxLimitSites</value>
 			</list>
 		</property>
 	</bean>

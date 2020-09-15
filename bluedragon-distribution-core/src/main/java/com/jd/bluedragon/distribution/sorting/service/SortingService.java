@@ -184,12 +184,6 @@ public interface SortingService {
 
     void backwardSendMQ(Sorting sorting);
 
-    /**
-     * B网建箱自动触发验货全程跟踪
-     * @param sorting
-     */
-    void b2bPushInspection(Sorting sorting);
-
     void saveOrUpdateInspectionEC(Sorting sorting);
 
     SortingResponse doCancelSorting(Sorting sorting);

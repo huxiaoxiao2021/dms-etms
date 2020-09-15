@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>建箱包裹数配置</title>
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    #parse("system/common/baseImport.vm")
+    <script src="/static/js/boxlimit/boxLimit.js"></script>
+</head>
+<body>
+<div id="dataTableDiv" class="main">
+        <ol class="breadcrumb">
+            <li><a href="#">分拣中心</a></li>
+            <li class="active">PDA建箱包裹数配置表</li>
+        </ol>
+		<!-- 查询条件 -->
+        <div id="query-condition">
+            <form id="query-form" class="form-horizontal" >
+                <fieldset>
+                        <div class="col-xs-12">
+                            <div class="col-xs-4">
+                                <div class="form-group" >
+                                    <label class="control-label col-xs-4" for="site_name_query">机构名称：</label>
+                                    <div class="col-xs-6 ">
+                                        <input type="text" id="site_name_query" name="siteName" placeholder="模糊搜索"
+                                               class="form-control search-param" >
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="form-group">
+                                    <label class="control-label col-xs-4" for="site_id">机构ID：</label>
+                                    <div class="col-xs-6">
+                                        <input type="text" id="site_id" name="siteId" class="form-control search-param " onkeyup="if(/\D/.test(this.value)){alert('只能输入整数');this.value='';}">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <button id="btn_query" type="button" class="btn btn-default">
+                                    <span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;查询
+                                </button>
+                                <button id="btn_add" type="button" class="btn btn-default">
+                                    <span class="glyphicon  glyphicon-add" aria-hidden="true"></span>新增
+                                </button>
+                                <button id="btn_delete" type="button" class="btn btn-default">
+                                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>删除
+                                </button>
+                                <button id="btn_update" type="button" class="btn btn-default">
+                                    <span class="glyphicon  glyphicon-add" aria-hidden="true"></span>修改
+                                </button>
+                            </div>
+                        </div>
+                </fieldset>
+            </form>
+        </div>
+        <hr />
+        <!-- 主页面操作按钮 -->
+        <div id="toolbar" class="btn-group">
+            <button id="btn_download" type="button" class="btn btn-default" style="height: 35px;">
+                <a href="#springUrl('')/static/importFileModel/boxLimitTemplate.xlsx" type="application/vnd.ms-excel">
+                    <span class="glyphicon glyphicon-download" aria-hidden="true"></span>&nbsp;下载导入模板
+                </a>
+            </button>
+            <button type="button" class="btn btn-default"class="btn btn-default" style="height: 35px;">
+                <form id="import_excel_file_form" enctype="multipart/form-data" method="POST">
+                    <input  type="file" id="importExcelFile" name="importExcelFile">
+                </form>
+            </button>
+            <button id="btn_upload" type="button" class="btn btn-default" style="height: 35px;">
+                <span class="glyphicon glyphicon-upload" aria-hidden="true"></span>上传
+            </button>
+        </div>
+        <table id="dataTable"></table>
+</div>
+
+<div class="modal fade" tabindex="-1" id="edit_modal" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="edit_title">新增</h4>
+            </div>
+            <div class="modal-body">
+                <form id="box_limit_add_form" enctype="multipart/form-data" method="POST">
+
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="col-xs-8">
+                                <div class="form-group" >
+                                    <label class="control-label col-xs-6" for="site_id_for_update">机构ID ：</label>
+                                    <div class="col-xs-6 ">
+                                        <input type="text" id="site_id_for_update" name="siteId" class="form-control search-param " onkeyup="if(/\D/.test(this.value)){alert('只能输入整数');this.value='';}">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <input type="hidden" id="site_name_for_update" name="siteName">
+                                <input type="hidden" id="id_for_update" name="id">
+                                <span id="site_name_span"></span>
+                            </div>
+                        </div>
+                        <div class="col-xs-12">
+                            <div class="col-xs-8">
+                                <div class="form-group">
+                                    <label class="control-label col-xs-6" for="limit_num_for_update">建箱包裹上限：</label>
+                                    <div class="col-xs-6">
+                                        <input type="text" id="limit_num_for_update" name="limitNum" class="form-control search-param " onkeyup="if(/\D/.test(this.value)){alert('只能输入整数');this.value='';}">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" id="btn_submit">保存</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var jaq = jaq || [];
+    jaq.push(['account', 'JA2016_112453']);
+    jaq.push(['domain', 'dms.etms.jd.com']);
+    (function () {
+        var ja = document.createElement('script');
+        ja.type = 'text/javascript';
+        ja.async = true;
+        ja.src = '//wl.jd.com/joya.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(ja, s);
+    })()
+</script>
+</body>
+</html>

@@ -263,9 +263,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                 // 龙门架、分拣机发货更新发货异常状态
                 this.updateGantryExceptionStatus(sendDetail);
                 // 冷链暂存收费发短信
-                if(uccPropertyConfiguration.isColdChainStorageSmsSwitch()){
-                    this.coldChainStorageSMS(sendDetail,waybill);
-                }
+                this.coldChainStorageSMS(sendDetail,waybill);
                 // 推送冷链操作MQ消息 - B2B冷链卸货出入库业务相关
                 this.pushColdChainOperateMQ(sendDetail, waybill.getWaybillSign());
                 // 快运暂存发货则下架

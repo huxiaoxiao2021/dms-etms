@@ -1,20 +1,19 @@
 package com.jd.bluedragon.distribution.consumer.UnloadCar;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.loadAndUnload.TmsSealCar;
 import com.jd.bluedragon.distribution.loadAndUnload.service.UnloadCarService;
-import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-
-import java.util.List;
 
 /**
  * @author lijie
@@ -33,6 +32,7 @@ public class UnloadCarConsumer extends MessageBaseConsumer {
     private static final Integer SEAL_CAR_STATUS = 10;
 
     @Override
+    @JProfiler(jKey = "DmsWork.UnloadCarConsumer.consume",jAppName = Constants.UMP_APP_NAME_DMSWORKER,mState = {JProEnum.TP,JProEnum.Heartbeat})
     public void consume(Message message) throws Exception {
         if (!JsonHelper.isJsonString(message.getText())) {
             log.warn("封车解封车状态变化下发消息体非JSON格式，内容为【{}】", message.getText());
