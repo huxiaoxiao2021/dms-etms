@@ -7,7 +7,7 @@
 
 
     http://www.springframework.org/schema/context
-	http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+	http://www.springframework.org/schema/context/spring-context-3.1.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd">
 
 	<bean id="propertyConfigurer"
 		  class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
@@ -17,47 +17,50 @@
 				<value>classpath:authen.properties</value>
 				<value>classpath:configured/app.properties</value>
 				<value>classpath:configured/db.properties</value>
-				<value>classpath:configured/dcam.properties</value>
 				<value>classpath:configured/dms_ip_mapper.properties</value>
+				<value>classpath:configured/jsf.properties</value>
 				<value>classpath:configured/mq.properties</value>
 				<value>classpath:configured/order_service_config.properties</value>
 				<value>classpath:configured/popabnormal.properties</value>
 				<value>classpath:configured/snowflake.properties</value>
 				<value>classpath:configured/ucc.properties</value>
+				<value>classpath:configured/print.properties</value>
+				<value>classpath:configured/dms_crossbow.properties</value>
+				<value>classpath:configured/kafka.properties</value>
+				<value>classpath:configured/sms.properties</value>
+				<value>classpath:configured/important.properties</value>
 			</list>
 		</property>
-		<property name="properties" ref="secApplicationProperties"/>
 	</bean>
 	<!--公司安全要求 importants文件未防止运行环境泄露 应用secsdk加密-->
-	<bean id ="secApplicationProperties" class="com.jd.security.configsec.spring.config.JDSecurityPropertyFactoryBean">
-		<property name="ignoreResourceNotFound" value="true" />
-		<property name="secLocation" value="classpath:configured/important.properties"/>
-	</bean>
+
 
 	<context:component-scan base-package="com.jd.bluedragon.distribution.web" />
 	<context:component-scan base-package="com.jd.bluedragon.distribution.rest" />
 	<context:component-scan base-package="com.jd.bluedragon.distribution.external" />
 	<context:component-scan base-package="com.jd.common.authorization"/>
+	<context:component-scan base-package="com.jd.dms.logger"/>
 
-	<!-- 扩容Mysql主备配置表 -->
-	<import resource="classpath:spring/mysql/distribution-core-common.xml" />
-	<!-- <import resource="classpath:spring/mysql8/distribution-core-common.xml" /> -->
-	<!-- <import resource="classpath:spring/mysql16/distribution-core-common.xml" /> -->
 
+	<!-- 引入特殊配置 -->
+	<import resource="classpath:spring/distribution-web-context-special.xml" />
+
+	<!-- 引入相关配置 -->
 	<import resource="classpath:spring/distribution-core-context.xml" />
+<!--
 	<import resource="classpath:spring/distribution-web-mvc.xml" />
-	<!--<import resource="classpath:spring/distribution-web-new-authen.xml" />-->
+-->
+	<import resource="classpath:spring/distribution-web-new-authen.xml" />
+<!--
 	<import resource="classpath:spring/distribution-web-resteasy.xml" />
+-->
 	<import resource="classpath:spring/distribution-web-wss-service.xml" />
 	<import resource="classpath:spring/distribution-web-jsf-server.xml" />
 	<import resource="classpath:spring/distribution-web-jmq.xml" />
+	<import resource="classpath:spring/distribution-core-jmq.xml" />
 	<import resource="classpath:spring/distribution-core-asynBuffer-producer.xml" />
+	<import resource="classpath:spring/distribution-web-rest-filter.xml"/>
+	<import resource="classpath:spring/distribution-web-special-jsf.xml"/>
 
-	<!-- ump monitor begin -->
-	<!--  监控注解处理器 -->
-	<bean class="com.jd.ump.annotation.JAnnotation">
-		<property name="jvmKey" value="Bluedragon_dms_web.jvm"></property>
-		<property name="systemKey" value="Bluedragon_dms_web.system"></property>
-	</bean>
-	<!-- ump monitor end -->
+	<import resource="classpath:spring/distribution-web-gateway-jsf-server.xml"/>
 </beans>
