@@ -50,7 +50,12 @@ public class PDDServiceImpl implements PDDService {
         PDDWaybillQueryDto pddWaybillQueryDto = new PDDWaybillQueryDto();
         pddWaybillQueryDto.setWaybillCode(waybillCode);
 
-        PDDResponse<PDDWaybillDetailDto> response = pddWaybillQueryManager.doRestInterface(pddWaybillQueryDto);
+        PDDResponse<PDDWaybillDetailDto> response = null;
+        try {
+            response = pddWaybillQueryManager.doRestInterface(pddWaybillQueryDto);
+        } catch (Exception e) {
+            log.error("获取拼多多电子面信息失败，信息获取为空,waybillCode={},e:{}", waybillCode, e.getMessage());
+        }
         if(log.isDebugEnabled()){
             log.debug("获取拼多多的电子面单处理信息，参数为：{}，返回结果为：{}",waybillCode, JsonHelper.toJson(response));
         }
