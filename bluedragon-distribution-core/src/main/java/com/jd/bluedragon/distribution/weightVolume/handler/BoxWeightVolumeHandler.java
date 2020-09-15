@@ -1,13 +1,11 @@
 package com.jd.bluedragon.distribution.weightVolume.handler;
 
-import com.google.gson.Gson;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
-import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.distribution.third.domain.ThirdBoxDetail;
 import com.jd.bluedragon.distribution.third.service.ThirdBoxDetailService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
@@ -26,7 +24,6 @@ import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
-import com.jd.fastjson.JSONObject;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -183,7 +180,7 @@ public class BoxWeightVolumeHandler extends AbstractWeightVolumeHandler {
      * @param startTime doRestInterface方法 执行开始时间
      */
     private void retryOnFailDoRestInterface(EconomicNetResult<EconomicNetErrorRes> result, Object request,long startTime) {
-        if (result == null || !result.getSuccess()) {
+        if (result == null || Boolean.FALSE.equals(result.getSuccess())) {
             // 写入 业务日志
             BusinessLogProfiler logProfiler = new BusinessLogProfilerBuilder()
                     .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.ECONOMIC_NET_BOX_WEIGHT)
