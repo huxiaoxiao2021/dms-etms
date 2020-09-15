@@ -4,6 +4,8 @@ package com.jd.bluedragon.distribution.ver.filter.chains;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
 import com.jd.bluedragon.distribution.ver.filter.Filter;
 import com.jd.bluedragon.distribution.ver.filter.FilterChain;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +15,7 @@ import java.util.List;
  * @date 2016/2/29
  */
 public class ForwardFilterChain extends FilterChain {
-
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private int filterIndex = 0;
     private List<Filter> filterList = new ArrayList<Filter>();
     @Override

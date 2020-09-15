@@ -558,6 +558,9 @@
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
 
+    <bean id="boxLimitDao" class="com.jd.bluedragon.distribution.boxlimit.dao.BoxLimitConfigDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
 
     <!--################################## bd_dms_business 相关DAO Start ############################################ -->
     <bean id="businessBaseDao" class="com.jd.ql.dms.common.web.mvc.mybatis.BaseDao" abstract="true">

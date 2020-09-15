@@ -13,10 +13,6 @@
 	<!--address="${jmq.BlueDragonDistribution.address}" user="${jmq.BlueDragonDistribution.user}"-->
 	<!--password="${jmq.BlueDragonDistribution.password}" app="${jmq.BlueDragonDistribution.app}" />-->
 
-	<jmq:transport id="jmq.bd.transport"
-		address="192.168.166.40:50088" user="bd"
-		password="24B1F02B" app="bd" />
-
     <!--dmsWeb mq消费应用-->
     <jmq:transport id="jmq.dmsWeb.transport"
                    address="192.168.166.40:50088" user="bd"
@@ -52,14 +48,14 @@
     <!--</jmq:consumer>-->
     
     <!-- 逆向大库收货消息内部系统消费 -->
-    <!--<jmq:consumer id="jmq.reverseReceiveConsumer" transport="jmq.bd.transport">-->
+    <!--<jmq:consumer id="jmq.reverseReceiveConsumer" transport="jmq.dmsWorker.transport">-->
         <!--<jmq:listener topic="bd_dms_reverse_receive" listener="reverseReceiveConsumer"/>-->
     <!--</jmq:consumer>-->
 
     
     
     <!-- 配送外呼订单回传 -->
-    <!--<jmq:consumer id="jmq.fxmAbnormalConsumer" transport="jmq.bd.transport">-->
+    <!--<jmq:consumer id="jmq.fxmAbnormalConsumer" transport="jmq.dmsWorker.transport">-->
         <!--<jmq:listener topic="FXMDmsAoFB" listener="fxmAbnormalConsumer"/>-->
     <!--</jmq:consumer>-->
 
@@ -68,44 +64,29 @@
         <!--<jmq:listener topic="dms_pop_abnormal_order" listener="popAbnormalConsumer"/>-->
     <!--</jmq:consumer>-->
 
-    <!-- POP差异包裹审核结果处理新 -->
-    <!--<jmq:consumer id="jmq.popAbnormalNewConsumer" transport="jmq.bd.transport">-->
-        <!--<jmq:listener topic="pop_bd_abnormal_deal" listener="popAbnormalNewConsumer"/>-->
-    <!--</jmq:consumer>-->
-
-    <!-- B商家订单差异审核结果处理分发地址 -->
-    <!--<jmq:consumer id="jmq.RecAbnormalDealConsumer" transport="jmq.bd.transport">-->
-        <!--<jmq:listener topic="rec_abnormal_deal" listener="popAbnormalNewConsumer"/>-->
-    <!--</jmq:consumer>-->
-    
     <!-- 逆向报损订单 -->
-    <!--<jmq:consumer id="jmq.lossOrderConsumer" transport="jmq.bd.transport">-->
+    <!--<jmq:consumer id="jmq.lossOrderConsumer" transport="jmq.dmsWorker.transport">-->
         <!--<jmq:listener topic="ldms_to_bluedragon" listener="lossOrderConsumer"/>-->
     <!--</jmq:consumer>-->
 
 
     <!-- 备件库取件单 -->
-    <!--<jmq:consumer id="jmq.pickWareConsumer" transport="jmq.bd.transport">-->
+    <!--<jmq:consumer id="jmq.pickWareConsumer" transport="jmq.dmsWorker.transport">-->
         <!--<jmq:listener topic="sph_reverse_1" listener="pickWareConsumer"/>-->
     <!--</jmq:consumer>-->
 
     <!-- DMS同步外部系统 -->
-    <!--<jmq:consumer id="jmq.dmsRouterConsumer" transport="jmq.bd.transport">-->
+    <!--<jmq:consumer id="jmq.dmsRouterConsumer" transport="jmq.dmsWorker.transport">-->
         <!--<jmq:listener topic="dms_router" listener="dmsRouterConsumer"/>-->
     <!--</jmq:consumer>-->
-    
-    <!-- 华中_DMS同步外部系统 -->
-    <!--<jmq:consumer id="jmq.dmsRouterConsumer1" transport="jmq.bd.transport">-->
-        <!--<jmq:listener topic="dms_router_1" listener="dmsRouterConsumer"/>-->
-    <!--</jmq:consumer>-->
-	
+
 	<!-- PDA推送POP收货消息 -->
-    <!--<jmq:consumer id="jmq.popPickupConsumer" transport="jmq.bd.transport">-->
+    <!--<jmq:consumer id="jmq.popPickupConsumer" transport="jmq.dmsWorker.transport">-->
         <!--<jmq:listener topic="dms_pop_pickup" listener="popPickupConsumer"/>-->
     <!--</jmq:consumer>-->
 	
 	<!-- 逆向拒收货消息 -->
-    <!--<jmq:consumer id="jmq.reverseRejectConsumer" transport="jmq.bd.transport">-->
+    <!--<jmq:consumer id="jmq.reverseRejectConsumer" transport="jmq.dmsWorker.transport">-->
         <!--<jmq:listener topic="bd_dms_reverse_reject" listener="reverseRejectConsumer"/>-->
     <!--</jmq:consumer>-->
 

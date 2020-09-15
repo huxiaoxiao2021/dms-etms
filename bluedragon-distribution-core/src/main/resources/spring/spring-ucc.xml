@@ -47,6 +47,8 @@
         <property name="sealVolumeCheckSites" value="${sealVolumeCheckSites:-1}"/>
         <property name="disablePdaOldLogin" value="${pda.disableOldLogin:false}"/>
 		<property name="switchVerToWebSites" value="${switchVerToWebSites}"/>
+        <property name="collectionAddressSiteCodes" value="${collectionAddressSiteCodes}"/>
+		<property name="boxLimitSites" value="${boxLimitSites:''}"/>
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -78,6 +80,8 @@
 				<value>uccPropertyConfiguration.sealVolumeCheckSites</value>
 				<value>uccPropertyConfiguration.switchVerToWebSites</value>
 				<value>uccPropertyConfiguration.disablePdaOldLogin</value>
+				<value>uccPropertyConfiguration.collectionAddressSiteCodes</value>
+				<value>uccPropertyConfiguration.boxLimitSites</value>
 			</list>
 		</property>
 	</bean>

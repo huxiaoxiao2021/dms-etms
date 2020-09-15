@@ -35,7 +35,7 @@ import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
-import com.jd.bluedragon.distribution.material.service.DeliveryGoodsNoticeService;
+import com.jd.bluedragon.distribution.material.service.CycleMaterialNoticeService;
 import com.jd.bluedragon.distribution.middleend.sorting.dao.DynamicSortingQueryDao;
 import com.jd.bluedragon.distribution.middleend.sorting.domain.SortingObjectExtend;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
@@ -46,7 +46,6 @@ import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
-import com.jd.bluedragon.distribution.sorting.domain.SortingVO;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
@@ -74,7 +73,6 @@ import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.jmq.common.exception.JMQException;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
@@ -192,11 +190,7 @@ public class SortingServiceImpl implements SortingService {
     private UccPropertyConfiguration uccPropertyConfiguration;
 
     @Autowired
-    @Qualifier("cycleMaterialSendMQ")
-    private DefaultJMQProducer cycleMaterialSendMQ;
-
-    @Autowired
-    private DeliveryGoodsNoticeService deliveryGoodsNoticeService;
+    private CycleMaterialNoticeService cycleMaterialNoticeService;
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Integer add(Sorting sorting) {
@@ -948,7 +942,7 @@ public class SortingServiceImpl implements SortingService {
         BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(sorting.getReceiveSiteCode());
         mq.setReceiveSiteName(null != siteOrgDto ? siteOrgDto.getSiteName() : StringUtils.EMPTY);
 
-        deliveryGoodsNoticeService.deliverySendGoodsMessage(mq);
+        cycleMaterialNoticeService.deliverySendGoodsMessage(mq);
     }
 
 	/**
@@ -1532,8 +1526,7 @@ public class SortingServiceImpl implements SortingService {
         mqBody.setOperatorName(sortingData.getCreateUser());
         mqBody.setOperatorCode(sortingData.getCreateUserCode());
 
-        String businessId = StringUtils.isBlank(sortingData.getPackageCode()) ? sortingData.getWaybillCode() : sortingData.getPackageCode();
-        cycleMaterialSendMQ.sendOnFailPersistent(businessId, JSON.toJSONString(mqBody));
+        cycleMaterialNoticeService.sendSortingMaterialMessage(mqBody);
     }
 
 	/**

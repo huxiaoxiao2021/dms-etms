@@ -39,7 +39,9 @@ public class Constants {
     public static final String PUNCTUATION_CLOSE_BRACKET_SMALL = ")";
     public static final String OPERATE_SUCCESS = "1";
     public static final String OPERATE_FAIL = "0";
-    
+    public static final String EMPTY_FILL = "";
+    public static final String MIXED_SITE_NAME_PREFIX = "【集】";
+
     public static final int RESULT_SUCCESS = 1; //成功
     public static final int RESULT_FAIL = 0;    //接口异常或者失败
     public static final int RESULT_ERROR = -1;  //接口内部错误
@@ -523,6 +525,11 @@ public class Constants {
     public static final Integer WEIGHT_VOLUME_ENABLE = 3;
 
     /**
+     * 面单特殊字符"航"
+     * */
+    public static final String SPECIAL_MARK_AIRTRANSPORT = "航";
+
+    /**
      * Text-保价
      */
     public static final String TEXT_PRICE_PROTECT = "保价";
@@ -670,6 +677,7 @@ public class Constants {
     public static final String DMS_WEB_TOOL_AREADESTPLAN_R ="DMS-WEB-TOOL-AREADESTPLAN-R"; //龙门架发货关系维护
     public static final String DMS_WEB_TOOL_B2BWEIGHT_R ="DMS-WEB-TOOL-B2BWEIGHT-R"; //快运运单称重
     public static final String DMS_WEB_TOOL_DMSOPERATEHINT_R="DMS-WEB-TOOL-DMSOPERATEHINT-R";//PDA验货提示语
+    public static final String DMS_WEB_TOOL_BOXLMIT_R="DMS-WEB-TOOL-BOXLMIT-R";//PDA建箱包裹数上限限制
     public static final String DMS_WEB_TOOL_RECYCLEMATERIAL_R="DMS-WEB-TOOL-RECYCLEMATERIAL-R";//循环物资管理
     public static final String DMS_WEB_ISV_CONTROL_R ="DMS-WEB-ISV-CONTROL-R"; //ISV版本控制
     public static final String DMS_WEB_ISV_MANAGE_R ="DMS-WEB-ISV-MANAGE-R"; //ISV版本管理

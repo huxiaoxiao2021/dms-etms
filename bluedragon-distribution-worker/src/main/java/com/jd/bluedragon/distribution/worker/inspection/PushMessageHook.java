@@ -51,8 +51,8 @@ public class PushMessageHook implements TaskHook<InspectionTaskExecuteContext> {
     private BaseMajorManager baseMajorManager;
 
     @Autowired
-    @Qualifier("cycleMaterialSendMQ")
-    private DefaultJMQProducer cycleMaterialSendMQ;
+    @Qualifier("dmsInspectionPackageProducer")
+    private DefaultJMQProducer inspectionMaterialSendMQ;
 
     @JProfiler(jKey = "dmsworker.PushMessageHook.hook")
     @Override
@@ -100,11 +100,11 @@ public class PushMessageHook implements TaskHook<InspectionTaskExecuteContext> {
             Message message = new Message();
             message.setBusinessId(cenConfirm.getPackageBarcode());
             message.setText(JSON.toJSONString(loopPackageMq));
-            message.setTopic(cycleMaterialSendMQ.getTopic());
+            message.setTopic(inspectionMaterialSendMQ.getTopic());
             messageList.add(message);
         }
         try {
-            cycleMaterialSendMQ.batchSend(messageList);
+            inspectionMaterialSendMQ.batchSend(messageList);
         } catch (JMQException e) {
             log.error("循环集包袋验货对外MQ异常" ,e);
             throw new RuntimeException(e);

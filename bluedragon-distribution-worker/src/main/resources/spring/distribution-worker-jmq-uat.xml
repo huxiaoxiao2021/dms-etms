@@ -12,10 +12,6 @@
 	address="${jmq.BlueDragonDistribution.address}" user="${jmq.BlueDragonDistribution.user}"
 	password="${jmq.BlueDragonDistribution.password}" app="${jmq.BlueDragonDistribution.app}" />
 
-	<jmq:transport id="jmq.bd.transport"
-		address="${jmq.bd.address}" user="${jmq.bd.user}"
-		password="${jmq.bd.password}" app="${jmq.bd.app}" />
-
     <!--dmsWeb mq消费应用-->
     <jmq:transport id="jmq.dmsWeb.transport"
                    address="${jmq.dmsWeb.address}" user="${jmq.dmsWeb.user}"
