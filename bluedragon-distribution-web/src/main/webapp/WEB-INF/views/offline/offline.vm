@@ -70,9 +70,13 @@
                 type: 0,
                 title: '功能通知',
                 shade: 0.7,
+                closeBtn: false,
                 shadeClose: false,
                 // area: ['800px', '500px'],
-                content: $('#showNewPageTips').html()
+                content: $('#showNewPageTips').html(),
+                yes: function() {
+                    window.top.open('http://dms-w.jd.com/#/page/report/SortingOfflineOperationLog')
+                }
             });
 		});
         function selectInt(obj){
