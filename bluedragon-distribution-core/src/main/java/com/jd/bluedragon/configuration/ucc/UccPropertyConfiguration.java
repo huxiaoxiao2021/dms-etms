@@ -71,7 +71,7 @@ public class UccPropertyConfiguration {
      * 老log查询页面提示
      */
     private String oldLogPageTips;
-    
+
     /**
      * 离线任务的操作时间的更正时间范围
      */
@@ -104,6 +104,11 @@ public class UccPropertyConfiguration {
      */
     private boolean disablePdaOldLogin;
 
+    /**
+     * 开启集包地场地开关
+     *  例：910,39 （-1代表全国）
+     */
+    private String collectionAddressSiteCodes;
     /*
      * PDA建箱包裹数量限制 试用站点
      * */
@@ -300,6 +305,14 @@ public class UccPropertyConfiguration {
 
     public void setDisablePdaOldLogin(boolean disablePdaOldLogin) {
         this.disablePdaOldLogin = disablePdaOldLogin;
+    }
+
+    public String getCollectionAddressSiteCodes() {
+        return collectionAddressSiteCodes;
+    }
+
+    public void setCollectionAddressSiteCodes(String collectionAddressSiteCodes) {
+        this.collectionAddressSiteCodes = collectionAddressSiteCodes;
     }
 
     public String getBoxLimitSites() {

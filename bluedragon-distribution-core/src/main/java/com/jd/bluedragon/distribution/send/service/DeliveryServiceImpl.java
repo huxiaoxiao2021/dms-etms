@@ -53,7 +53,7 @@ import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
-import com.jd.bluedragon.distribution.material.service.DeliveryGoodsNoticeService;
+import com.jd.bluedragon.distribution.material.service.CycleMaterialNoticeService;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.reverse.dao.ReverseSpareDao;
@@ -344,7 +344,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     private SendCodeService sendCodeService;
 
     @Autowired
-    private DeliveryGoodsNoticeService deliveryGoodsNoticeService;
+    private CycleMaterialNoticeService cycleMaterialNoticeService;
 
     /**
      * 自动过期时间 15分钟
@@ -1263,7 +1263,7 @@ public class DeliveryServiceImpl implements DeliveryService {
          BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(sdm.getReceiveSiteCode());
          mq.setReceiveSiteName(null != siteOrgDto ? siteOrgDto.getSiteName() : StringUtils.EMPTY);
 
-         deliveryGoodsNoticeService.deliverySendGoodsMessage(mq);
+         cycleMaterialNoticeService.deliverySendGoodsMessage(mq);
      }
 
     /***

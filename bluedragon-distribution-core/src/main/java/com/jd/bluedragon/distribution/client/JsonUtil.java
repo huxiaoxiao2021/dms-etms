@@ -1,15 +1,13 @@
 package com.jd.bluedragon.distribution.client;
 
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.type.TypeReference;
 
-import com.jd.bluedragon.utils.DateHelper;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author miaoyanchao json pojo转化类

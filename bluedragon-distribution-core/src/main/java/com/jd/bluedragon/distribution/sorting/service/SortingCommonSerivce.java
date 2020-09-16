@@ -20,6 +20,7 @@ import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
 
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.distribution.material.service.CycleMaterialNoticeService;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
@@ -131,8 +132,7 @@ public abstract class SortingCommonSerivce {
     private UccPropertyConfiguration uccPropertyConfiguration;
 
     @Autowired
-    @Qualifier("cycleMaterialSendMQ")
-    private DefaultJMQProducer cycleMaterialSendMQ;
+    private CycleMaterialNoticeService cycleMaterialNoticeService;
 
     public abstract boolean doSorting(SortingVO sorting);
 
@@ -261,8 +261,7 @@ public abstract class SortingCommonSerivce {
         mqBody.setOperatorName(sorting.getCreateUser());
         mqBody.setOperatorTime(sorting.getOperateTime());
 
-        String businessId = StringUtils.isBlank(sorting.getPackageCode()) ? sorting.getWaybillCode() : sorting.getPackageCode();
-        cycleMaterialSendMQ.sendOnFailPersistent(businessId, JSON.toJSONString(mqBody));
+        cycleMaterialNoticeService.sendSortingMaterialMessage(mqBody);
     }
 
 

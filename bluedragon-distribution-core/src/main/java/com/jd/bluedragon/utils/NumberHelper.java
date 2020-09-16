@@ -1,6 +1,7 @@
 package com.jd.bluedragon.utils;
 
 import com.jd.common.util.StringUtils;
+
 import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +15,7 @@ public class NumberHelper {
 	private static final Logger log = LoggerFactory.getLogger(NumberHelper.class);
 	
     public static DecimalFormat doubleFormat = new DecimalFormat("#.00");    //保留两位小数
+    private static final DecimalFormat MONEY_FORMAT = new DecimalFormat("0.00");   //保留两位小数
     public static Double getDoubleValue(Object object) {
         return ObjectHelper.isNotEmpty(object) ? Double.valueOf(object.toString()) : 0.0D;
     }
@@ -211,4 +213,37 @@ public class NumberHelper {
         }
         return defaultVal;
     }
+    /**
+     * 返回格式化后的金额（保留2位小数）
+     * @param val
+     * @return
+     */
+	public static String formatMoney(Double val) {
+		if(val != null){
+			return MONEY_FORMAT.format(val);
+		}
+		return null;
+	}
+    /**
+     * 返回格式化后的金额（保留2位小数）
+     * @param doubleStr
+     * @return
+     */
+	public static String formatMoney(String doubleStr) {
+		if(doubleStr != null && isBigDecimal(doubleStr)){
+			return MONEY_FORMAT.format(new BigDecimal(doubleStr));
+		}
+		return null;
+	}
+    /**
+     * 返回格式化后的金额（保留2位小数）
+     * @param doubleStr
+     * @return
+     */
+	public static String formatMoney(BigDecimal val) {
+		if(val != null){
+			return MONEY_FORMAT.format(val);
+		}
+		return null;
+	}
 }

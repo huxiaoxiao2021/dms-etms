@@ -59,7 +59,7 @@ public class BoxLimitConfigDaoTest extends AbstractDaoIntegrationH2Test {
     @Test
     public void selectByPrimaryKeyTest() {
         insertTest();
-        BoxLimitConfig config = boxLimitConfigDao.selectByPrimaryKey(1);
+        BoxLimitConfig config = boxLimitConfigDao.selectByPrimaryKey(1L);
         log.info("=============>>>> 查询结果:{}", new Gson().toJson(config));
     }
     @Test

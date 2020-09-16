@@ -39,7 +39,9 @@ public class Constants {
     public static final String PUNCTUATION_CLOSE_BRACKET_SMALL = ")";
     public static final String OPERATE_SUCCESS = "1";
     public static final String OPERATE_FAIL = "0";
-    
+    public static final String EMPTY_FILL = "";
+    public static final String MIXED_SITE_NAME_PREFIX = "【集】";
+
     public static final int RESULT_SUCCESS = 1; //成功
     public static final int RESULT_FAIL = 0;    //接口异常或者失败
     public static final int RESULT_ERROR = -1;  //接口内部错误
@@ -523,6 +525,11 @@ public class Constants {
     public static final Integer WEIGHT_VOLUME_ENABLE = 3;
 
     /**
+     * 面单特殊字符"航"
+     * */
+    public static final String SPECIAL_MARK_AIRTRANSPORT = "航";
+
+    /**
      * Text-保价
      */
     public static final String TEXT_PRICE_PROTECT = "保价";
@@ -766,6 +773,11 @@ public class Constants {
      * 启用中台创建箱号的场地集合 key
      */
     public static final String CREATE_BOX_FROM_SSC_SITE = "CREATE_BOX_FROM_SSC_SITE";
+
+    /**
+     * 启用分拣创建箱号的场地集合 key
+     */
+    public static final String CREATE_BOX_FROM_DMS_SITE = "CREATE_BOX_FROM_DMS_SITE";
 
     /**
      * 配置信息-一车一单发货 自动取消组板功能开启的分拣中心

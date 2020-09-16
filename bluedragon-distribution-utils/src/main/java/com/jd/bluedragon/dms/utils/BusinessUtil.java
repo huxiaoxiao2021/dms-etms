@@ -1005,7 +1005,7 @@ public class BusinessUtil {
      * @return true 是，false 不是
      */
     public static boolean isForeignForward(String waybillSign) {
-        return isSignChar(waybillSign,WaybillSignConstants.BACKWARD_TYPE_POSITION_61,WaybillSignConstants.BACKWARD_TYPE_NO_CHAR_61_0);
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_61,WaybillSignConstants.CHAR_61_0);
     }
 
     /**
@@ -1015,7 +1015,7 @@ public class BusinessUtil {
      * @return true 是，false 不是
      */
     private static boolean isWaybillMarkForward(String waybillSign) {
-        return isSignChar(waybillSign,WaybillSignConstants.BACKWARD_TYPE_WAYBILL_MARK_POSITION_15,WaybillSignConstants.BACKWARD_TYPE_WAYBILL_MARK_POSITION_15_0);
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_15,WaybillSignConstants.CHAR_15_0);
     }
 
     /**
@@ -1716,5 +1716,14 @@ public class BusinessUtil {
      */
 	public static boolean isContractPhone(String sendPay) {
 		return isSignChar(sendPay, SendPayConstants.POSITION_292, SendPayConstants.CHAR_292_1);
+	}
+	/**
+	 * 判断是否签单返回，waybillSign第4位：1,2,3,4,9
+	 * @param waybillSign
+	 * @return
+	 */
+	public static boolean isSignBack(String waybillSign){
+		return BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_4,
+				WaybillSignConstants.CHAR_4_1,WaybillSignConstants.CHAR_4_2,WaybillSignConstants.CHAR_4_3,WaybillSignConstants.CHAR_4_4,WaybillSignConstants.CHAR_4_9);
 	}
 }
