@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.rest.center;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -13,6 +14,7 @@ import javax.ws.rs.core.MediaType;
 
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.dto.WChoice;
@@ -151,6 +153,7 @@ public class CenterServiceResource {
 		try {
 			result = waybillQueryManager.getDataByChoice(waybillCode,
 					isWaybillC, isWaybillE, isWaybillM, isGoodList, isPackList, isPickupTask, isServiceBillPay);
+			log.info("获取运单数据waybillCode[{}],data[{}]result[{}]",waybillCode, result.getData() == null, JsonHelper.toJson(result));
 		} catch (Exception e) {
 			StringBuilder errorMsg = new StringBuilder(
 					"中心服务调用运单getDataByChoice出错").append("waybillCode=")
