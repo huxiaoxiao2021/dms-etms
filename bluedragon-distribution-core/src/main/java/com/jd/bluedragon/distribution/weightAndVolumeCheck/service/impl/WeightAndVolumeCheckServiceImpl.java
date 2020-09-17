@@ -8,6 +8,7 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.DmsBaseDictService;
+import com.jd.bluedragon.distribution.basic.ExcelStringUtils;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -1887,17 +1888,31 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         }
         //如果是操作人是属于营业-推送到京牛
         String erpStr  = abnormalResultMq.getDutyErp();
-        BaseStaffSiteOrgDto baseStaffByErpNoCache = baseMajorManager.getBaseStaffByErpNoCache(erpStr);
-        if(baseStaffByErpNoCache!=null&&baseStaffByErpNoCache.getSiteType()!=null&&baseStaffByErpNoCache.getSiteType()==Constants.BASE_SITE_SITE){//自营营业部
+        if(ExcelStringUtils.isNotNull(erpStr)){ //存在部分没有erp的
+            BaseStaffSiteOrgDto baseStaffByErpNoCache = baseMajorManager.getBaseStaffByErpNoCache(erpStr);
+            if(baseStaffByErpNoCache!=null&&baseStaffByErpNoCache.getSiteType()!=null&&baseStaffByErpNoCache.getSiteType()==Constants.BASE_SITE_SITE){//自营营业部
                 AbnormalResultMqToJN abnormalResultMqToJN  = convertToAbnormalResultMqToJN(abnormalResultMq);
                 log.info("发送到京牛的MQ【{}】,业务ID【{}】 ",dmsWeightVolumeExcessToJN.getTopic(),abnormalResultMq.getAbnormalId());
                 dmsWeightVolumeExcessToJN.sendOnFailPersistent(abnormalResultMq.getAbnormalId(),JsonHelper.toJson(abnormalResultMqToJN));
-        }else { //否则直接推送FXM
-            log.info("发送MQ【{}】,业务ID【{}】 ",dmsWeightVolumeExcess.getTopic(),abnormalResultMq.getAbnormalId());
-            dmsWeightVolumeExcess.sendOnFailPersistent(abnormalResultMq.getAbnormalId(), JsonHelper.toJson(abnormalResultMq));
+            }else {
+                sendMqToFxmNotJN(abnormalResultMq);
+            }
+        }else {
+            sendMqToFxmNotJN(abnormalResultMq);
         }
 
     }
+
+    /**
+     * 对于没有ErpId的或者站点类型不是自营的推送到FXM
+     * @param abnormalResultMq
+     */
+    private void sendMqToFxmNotJN(AbnormalResultMq abnormalResultMq){
+        //否则直接推送FXM
+        log.info("发送MQ【{}】,业务ID【{}】 ",dmsWeightVolumeExcess.getTopic(),abnormalResultMq.getAbnormalId());
+        dmsWeightVolumeExcess.sendOnFailPersistent(abnormalResultMq.getAbnormalId(), JsonHelper.toJson(abnormalResultMq));
+    }
+
 
     /**
      * 组装推送京牛的mq实体
@@ -1920,5 +1935,4 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         abnormalResultMqToJN.setReviewSecondLevelId(abnormalResultMq.getReviewSecondLevelId());
         return  abnormalResultMqToJN;
     }
-
 }

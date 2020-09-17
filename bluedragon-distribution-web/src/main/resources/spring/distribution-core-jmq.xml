@@ -388,6 +388,12 @@
         <property name="topic" value="${jmq.topic.weightVolume.excess}"/>
         <property name="timeout" value="1000"/>
     </bean>
+    <!-- 超标mq，提供给京牛系统，由京牛确认后发送FXM -->
+    <bean id="dmsWeightVolumeExcessToJN" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.weightVolume.excess.toJN}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
     <!--包裹补打发送mq消息 -->
     <bean id="packageRePrintProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.packageRePrintProducer}"/>
