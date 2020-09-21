@@ -140,4 +140,10 @@ public class DmsDeliveryServiceImpl implements DmsDeliveryService,SendGatewaySer
     public JdCResponse<Boolean> sendDeliveryInfo(ColdChainSendRequest request){
         return null;
     }
+
+    @Override
+    @Deprecated
+    public JdVerifyResponse<Void> boardCodeSend(com.jd.bluedragon.common.dto.send.request.DeliveryRequest request){
+        return null;
+    }
 }

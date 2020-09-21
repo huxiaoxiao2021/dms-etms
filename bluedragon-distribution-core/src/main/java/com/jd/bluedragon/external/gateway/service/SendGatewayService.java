@@ -86,4 +86,11 @@ public interface SendGatewayService {
      * @return
      */
     JdCResponse<Boolean> sendDeliveryInfo(ColdChainSendRequest request);
+
+    /**
+     * 快运发货按板号发货
+     * @param request
+     * @return
+     */
+    JdVerifyResponse<Void> boardCodeSend(DeliveryRequest request);
 }

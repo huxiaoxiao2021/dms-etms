@@ -25,9 +25,11 @@ import com.jd.bluedragon.distribution.coldchain.domain.TransPlanDetailResult;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.rest.send.ColdChainDeliveryResource;
 import com.jd.bluedragon.distribution.rest.send.DeliveryResource;
+import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.distribution.send.domain.SendThreeDetail;
 import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
+import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.service.DeliveryVerifyService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.external.gateway.service.SendGatewayService;
@@ -65,6 +67,10 @@ public class SendGatewayServiceImpl implements SendGatewayService {
     @Autowired
     @Qualifier("coldChainDeliveryResource")
     private ColdChainDeliveryResource coldChainDeliveryResource;
+
+    @Autowired
+    @Qualifier("deliveryService")
+    private DeliveryService deliveryService;
 
     @Override
     @JProfiler(jKey = "DMSWEB.SendGatewayServiceImpl.packageSendVerifyForBox",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -512,6 +518,55 @@ public class SendGatewayServiceImpl implements SendGatewayService {
 
         return res;
 
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.SendGatewayServiceImpl.boardCodeSend",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdVerifyResponse<Void> boardCodeSend(DeliveryRequest request){
+        JdVerifyResponse<Void> res=new JdVerifyResponse<>();
+        res.toSuccess();
+
+        JdCResponse<Boolean> ltemcheck=parameterCheckExpress(request);
+        if (!JdCResponse.CODE_SUCCESS.equals(ltemcheck.getCode())){
+            res.setCode(JdVerifyResponse.CODE_ERROR);
+            res.setMessage(ltemcheck.getMessage());
+            return res;
+        }
+
+        if(StringUtils.isBlank(request.getSendCode())){
+            request.setSendCode(SerialRuleUtil.generateSendCode(request.getCurrentOperate().getSiteCode(), request.getReceiveSiteCode(), new Date()));
+        }
+
+        SendM domain = new SendM();
+        domain.setReceiveSiteCode(request.getReceiveSiteCode());
+        domain.setSendCode(request.getSendCode());
+        domain.setCreateSiteCode(request.getCurrentOperate().getSiteCode());
+
+        domain.setCreateUser(request.getUser().getUserName());
+        domain.setCreateUserCode(request.getUser().getUserCode());
+        domain.setSendType(request.getBusinessType());
+        domain.setTransporttype(request.getTransporttype());
+
+        domain.setYn(1);
+        domain.setCreateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
+        domain.setOperateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
+
+        boolean isForceSend=false;
+        if (request.getOpType()==1){
+            isForceSend=true;
+        }
+        SendResult rs=deliveryService.boardSend(domain,isForceSend);
+        if(SendResult.CODE_OK.equals(rs.getKey())){
+            res.toSuccess(rs.getValue());
+        }else if(SendResult.CODE_SENDED.equals(rs.getKey())){
+            res.toSuccess(rs.getValue());
+            res.addBox(MsgBoxTypeEnum.INTERCEPT,300,rs.getValue());
+        }else if(SendResult.CODE_CONFIRM.equals(rs.getKey())){
+            res.toSuccess(rs.getValue());
+            res.addBox(MsgBoxTypeEnum.CONFIRM,300,rs.getValue());
+        }
+
+        return res;
     }
 
     /**
