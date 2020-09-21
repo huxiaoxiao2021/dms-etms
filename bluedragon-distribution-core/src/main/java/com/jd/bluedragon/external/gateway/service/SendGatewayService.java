@@ -2,6 +2,7 @@ package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.send.request.BoardCodeSendRequest;
 import com.jd.bluedragon.common.dto.send.request.ColdChainSendRequest;
 import com.jd.bluedragon.common.dto.send.request.DeliveryVerifyRequest;
 import com.jd.bluedragon.common.dto.send.request.SinglePackageSendRequest;
@@ -92,5 +93,5 @@ public interface SendGatewayService {
      * @param request
      * @return
      */
-    JdVerifyResponse<Void> boardCodeSend(DeliveryRequest request);
+    JdVerifyResponse<Void> boardCodeSend(BoardCodeSendRequest request);
 }
