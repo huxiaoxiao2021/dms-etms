@@ -61,7 +61,12 @@ public enum WaybillCancelInterceptTypeEnum {
     /**
      * 取消订单拦截；仓已拦截成功
      */
-    CANCEL_STORAGE(11, "取消订单拦截；仓已拦截成功");
+    CANCEL_STORAGE(11, "取消订单拦截；仓已拦截成功"),
+
+    /**
+     * 理赔破损拦截
+     */
+    CLAIM_DAMAGED(12, "理赔破损拦截");
 
     private final int code;
 

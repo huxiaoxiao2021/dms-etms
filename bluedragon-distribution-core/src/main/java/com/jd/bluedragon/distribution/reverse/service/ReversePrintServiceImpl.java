@@ -3,8 +3,13 @@ package com.jd.bluedragon.distribution.reverse.service;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
+import com.jd.bluedragon.distribution.waybill.domain.CancelWaybill;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeEnum;
+import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,6 +131,9 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 
     @Autowired
     AbnormalWayBillService abnormalWayBillService;
+
+    @Autowired
+    private WaybillCancelService waybillCancelService;
 
     @Autowired
     @Qualifier("ownWaybillTransformMQ")
@@ -602,9 +610,65 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         }else{
             reverseSpareEclp.checkIsPureMatch(waybillDto.getWaybill().getWaybillCode(),waybillDto.getWaybill().getWaybillSign(),result);
         }
+        // 4. 校验运单暂存拦截，如果存在则不允许逆向换单
+        InvokeResult<Boolean> checkClaimDamagedCancelResult = this.checkClaimDamagedCancel(wayBillCode, siteCode);
+        if(!checkClaimDamagedCancelResult.getData()){
+            result.setData(false);
+            result.setMessage(checkClaimDamagedCancelResult.getMessage());
+            return result;
+        }
         return result;
     }
 
+    /**
+     * 检查理赔破损拦截
+     * @param wayBillCode 运单号
+     * @param siteCode 分拣中心或站点
+     * @return Boolean true-校验通过，false-校验不通过
+     * @author fanggang7
+     * @time 2020-09-09 14:29:19 周三
+     */
+    private InvokeResult<Boolean> checkClaimDamagedCancel(String wayBillCode, Integer siteCode){
+        InvokeResult<Boolean> result = new InvokeResult<>();
+        result.setData(true);
+        // 判断是否有理赔破损拦截
+        if(this.hasClaimDamagedCancel(wayBillCode)){
+            result.setData(false);
+
+            // 判断站点类型，分拣和站点登录人分别提示
+            BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteBySiteId(siteCode);
+            boolean isSortingSite = BusinessUtil.isSortingSiteType(siteInfo.getSiteType());
+            if(isSortingSite){
+                result.setMessage("此单为暂存拦截运单请先暂存，分拣工作台收到可操作消息后直接操作换单打印");
+            } else {
+                result.setMessage("此单为京权破损需拦截派送，请滞留站点等待异常管理平台系统通知");
+            }
+            return result;
+        }
+        return result;
+    }
+
+    /**
+     * 是否有理赔破损拦截
+     * @param waybillCode 运单号
+     * @return boolean true-有，false-无
+     * @author fanggang7
+     * @time 2020-09-09 14:29:19 周三
+     */
+    private boolean hasClaimDamagedCancel(String waybillCode){
+        boolean hasClaimDamagedCancel = false;
+        List<CancelWaybill> cancelWaybillList = waybillCancelService.getByWaybillCode(waybillCode);
+        if(CollectionUtils.isNotEmpty(cancelWaybillList)){
+            // 过滤是否有理赔类型的记录
+            for (CancelWaybill cancelWaybill : cancelWaybillList) {
+                if(Objects.equals(WaybillCancelInterceptTypeEnum.CLAIM_DAMAGED.getCode(), cancelWaybill.getInterceptType())) {
+                    hasClaimDamagedCancel = true;
+                    break;
+                }
+            }
+        }
+        return hasClaimDamagedCancel;
+    }
 
 
     private String createMqBody(String orderId) {

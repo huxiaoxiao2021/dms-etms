@@ -22,4 +22,9 @@ public class CancelWaybillDao extends BaseDao<CancelWaybill> {
         paramMap.put("waybillCode", waybillCode);
         return super.getSqlSession().selectList(NAMESPACE + ".getByWaybillCode", paramMap);
     }
+
+    public boolean add(CancelWaybill cancelWaybill) {
+        cancelWaybill.setTs(System.currentTimeMillis());
+        return super.getSqlSession().update(NAMESPACE + ".add", cancelWaybill) > 0 ? true : false;
+    }
 }
