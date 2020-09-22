@@ -66,7 +66,6 @@ public class SortingNumberLimitFilter implements Filter {
         		siteType = request.getReceiveSite().getType();
         		Integer subSiteType = request.getReceiveSite().getType();
                 Map<Integer, Set<Integer>> siteTypes = sortingNumberLimitConfig.getSiteTypes();
-                logger.info("分拣数量限制拦截 siteType: {},subType：{},siteTypes:{}", siteType, request.getReceiveSite().getSubType(), siteTypes);
                 if (siteType != null && subSiteType != null && siteTypes != null
                         && siteTypes.containsKey(siteType) && siteTypes.get(siteType).contains(subSiteType)) {
                     //校验开关是否开启
@@ -148,7 +147,6 @@ public class SortingNumberLimitFilter implements Filter {
      */
     private boolean needCheckSitesFromUcc(Integer siteCode) {
         String sites = uccPropertyConfiguration.getBoxLimitSites();
-        logger.info("分拣数量限制ucc配置站点:{},当前站点:{}", sites, siteCode);
         if (StringUtils.isEmpty(sites)) {
             return false;
         }
