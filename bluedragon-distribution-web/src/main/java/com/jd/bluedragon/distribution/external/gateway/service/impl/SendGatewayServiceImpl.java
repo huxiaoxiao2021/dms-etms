@@ -541,6 +541,7 @@ public class SendGatewayServiceImpl implements SendGatewayService {
         SendM domain = new SendM();
         domain.setReceiveSiteCode(request.getReceiveSiteCode());
         domain.setSendCode(request.getSendCode());
+        domain.setBoardCode(request.getBoardCode());
         domain.setCreateSiteCode(request.getCurrentOperate().getSiteCode());
         domain.setCreateUser(request.getUser().getUserName());
         domain.setCreateUserCode(request.getUser().getUserCode());
