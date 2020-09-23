@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.external.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.send.request.BoardCodeSendRequest;
 import com.jd.bluedragon.common.dto.send.request.ColdChainSendRequest;
 import com.jd.bluedragon.common.dto.send.request.DeliveryVerifyRequest;
 import com.jd.bluedragon.common.dto.send.request.DifferentialQueryRequest;
@@ -138,6 +139,12 @@ public class DmsDeliveryServiceImpl implements DmsDeliveryService,SendGatewaySer
     @Override
     @Deprecated
     public JdCResponse<Boolean> sendDeliveryInfo(ColdChainSendRequest request){
+        return null;
+    }
+
+    @Override
+    @Deprecated
+    public JdVerifyResponse<Void> boardCodeSend(BoardCodeSendRequest request){
         return null;
     }
 }
