@@ -180,4 +180,11 @@ public interface InspectionService {
      * @return
      */
     boolean checkIsBindMaterial(String waybillCode);
+
+    /**
+     * 站点是否开启运单多包裹拆分验货
+     * @param siteCode
+     * @return
+     */
+    boolean siteEnableInspectionSplitWaybill(Integer siteCode);
 }

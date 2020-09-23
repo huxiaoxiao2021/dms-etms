@@ -29,11 +29,15 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.weight.service.WeightService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeService;
+import com.jd.bluedragon.distribution.worker.inspection.InspectionSplitWaybillExecutor;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.ump.UmpMonitorHandler;
+import com.jd.bluedragon.utils.ump.UmpMonitorHelper;
 import com.jd.dms.logger.aop.BusinessLogWriter;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,6 +124,32 @@ public class AsynBufferServiceImpl implements AsynBufferService {
         }finally{
         	Profiler.registerInfoEnd(callerInfo);
         }
+        return true;
+    }
+
+    /**
+     * 运单多包裹验货拆分任务
+     */
+    @Qualifier("inspectionSplitWaybillExecutor")
+    @Autowired
+    private InspectionSplitWaybillExecutor inspectionExecutor;
+
+    public boolean inspectionSplitWaybillProcess(final Task task) {
+        try {
+            String umpKey = "DmsWorker.Task.inspectionSplitWaybillProcess.execute";
+            String umpApp = Constants.UMP_APP_NAME_DMSWORKER;
+            UmpMonitorHelper.doWithUmpMonitor(umpKey, umpApp, new UmpMonitorHandler() {
+                @Override
+                public void process() {
+                    inspectionExecutor.execute(task);
+                }
+            });
+        }
+        catch (Exception ex) {
+            log.error("验货拆分任务执行失败, task: {}. 异常: ", task.getBody() , ex);
+            return false;
+        }
+
         return true;
     }
 

@@ -2,10 +2,10 @@ package com.jd.bluedragon.distribution.worker.inspection;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.framework.AbstractTaskExecute;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
-import com.jd.bluedragon.distribution.inspection.exception.InspectionException;
 import com.jd.bluedragon.distribution.inspection.exception.WayBillCodeIllegalException;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
@@ -13,27 +13,20 @@ import com.jd.bluedragon.distribution.receive.service.CenConfirmService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.Resource;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by wangtingwei on 2017/1/16.
@@ -52,11 +45,17 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
     @Resource(name="storeIdSet")
     private Set<Integer> storeIdSet;
 
-    @Value("${inspection.save.task.to.db.package.num:500}")
-    private int INSPECTION_SAVE_TASK_TO_DB_PACKAGE_NUM;
+    /**
+     * 运单多包裹限制数量
+     */
+    private static final int BIG_WAYBILL_LIMIT_NUM = 100;
+
+    @Autowired
+    private UccPropertyConfiguration uccConfig;
 
     @Autowired
     private TaskService taskService;
+
     @Override
     protected InspectionTaskExecuteContext prepare(Task domain) {
         InspectionTaskExecuteContext context=new InspectionTaskExecuteContext();
@@ -94,17 +93,133 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
         }
         context.setBigWaybillDto(bigWaybillDto);
 
-        //校验验货是否是运单且为大运单包裹，直接落库不走MQ
-        if (isByWayBillCode) {
-            this.inspectionCheckBigPackage(domain, bigWaybillDto);
+        // 大运单包裹数超过上限，验货拆分任务执行
+        boolean executeBySplitTask = isByWayBillCode && satisfyWaybillSplitCondition(request, bigWaybillDto);
+
+        if (executeBySplitTask) {
+
+            context.setExecuteBySplitTask(true);
+
+            this.saveSplitWaybillTask(request, bigWaybillDto);
         }
-        resetBusinessType(request, bigWaybillDto);/*验货businessType存在非50的数据吗，需要验证*/
-        resetStoreId(request, bigWaybillDto);
-        builderInspectionList(request, context);
-        builderCenConfirmList(context);
+        else {
+            resetBusinessType(request, bigWaybillDto);/*验货businessType存在非50的数据吗，需要验证*/
+            resetStoreId(request, bigWaybillDto);
+            builderInspectionList(request, context);
+            builderCenConfirmList(context);
+        }
+
         return context;
     }
 
+    /**
+     * 多包裹拆分分批执行
+     * @param request
+     * @param bigWaybillDto
+     */
+    private void saveSplitWaybillTask(InspectionRequest request, BigWaybillDto bigWaybillDto) {
+
+        int oneTaskSize = getWaybillLimitNum();
+        int totalPackageNum = bigWaybillDto.getPackageList().size();
+
+        int pageTotal = (totalPackageNum % oneTaskSize) == 0 ? (totalPackageNum / oneTaskSize) : (totalPackageNum / oneTaskSize) + 1;
+
+        for (int i = 0; i < pageTotal; i++) {
+            InspectionRequest splitTask = new InspectionRequest();
+            BeanCopyUtil.copy(request, splitTask);
+            splitTask.setPageNo(i + 1);
+            splitTask.setPageSize(oneTaskSize);
+            splitTask.setTotalPage(pageTotal);
+            splitTask.setWaybillCode(request.getWaybillCode());
+
+            Task task = new Task();
+            task.setType(Task.TASK_TYPE_INSPECTION_SPLIT);
+            task.setTableName(Task.getTableName(task.getType()));
+            task.setSequenceName(Task.getSequenceName(task.getTableName()));
+            task.setBoxCode(splitTask.getBoxCode());
+            task.setCreateSiteCode(splitTask.getSiteCode());
+            task.setReceiveSiteCode(splitTask.getReceiveSiteCode());
+            task.setKeyword2(String.valueOf(splitTask.getSiteCode()));
+            task.setKeyword1(splitTask.getWaybillCode());
+            task.setOwnSign(BusinessHelper.getOwnSign());
+            task.setBody(JsonHelper.toJson(splitTask));
+
+            StringBuilder fingerprint = new StringBuilder();
+            fingerprint.append(task.getCreateSiteCode())
+                    .append(Constants.UNDER_LINE).append(task.getReceiveSiteCode())
+                    .append(Constants.UNDER_LINE).append(task.getBusinessType())
+                    .append(Constants.UNDER_LINE).append(task.getBoxCode())
+                    .append(Constants.UNDER_LINE).append(task.getKeyword1())
+                    .append(Constants.UNDER_LINE).append(DateHelper.formatDateTimeMs(task.getOperateTime()));
+            if (null != task.getOperateType()) {
+                fingerprint.append(Constants.UNDER_LINE).append(task.getOperateType());
+            }
+            fingerprint.append(Constants.UNDER_LINE).append(splitTask.getPageNo());
+            task.setFingerprint(Md5Helper.encode(fingerprint.toString()));
+
+            taskService.add(task);
+
+            if (log.isInfoEnabled()) {
+                log.info("add inspection split task. [{}]", JsonHelper.toJson(task));
+            }
+        }
+
+    }
+
+    /**
+     * 满足拆分验货任务的条件
+     * <ul>
+     *     <li>UCC配置站点开启拆分任务开关</li>
+     *     <li>运单包裹数量超过配置的数量</li>
+     * </ul>
+     * @param request
+     * @param bigWaybillDto
+     * @return
+     */
+    private boolean satisfyWaybillSplitCondition(InspectionRequest request, BigWaybillDto bigWaybillDto) {
+        return siteEnableSplitWaybill(request)
+                && bigWaybillTask(bigWaybillDto);
+    }
+
+    /**
+     * 判断运单是否是大包裹
+     * @param bigWaybillDto
+     * @return
+     */
+    private boolean bigWaybillTask(BigWaybillDto bigWaybillDto) {
+
+        if (bigWaybillDto != null
+                && bigWaybillDto.getWaybill() != null
+                && bigWaybillDto.getWaybill().getGoodNumber() != null) {
+
+            return bigWaybillDto.getWaybill().getGoodNumber() >= getWaybillLimitNum();
+        }
+
+        return false;
+    }
+
+    /**
+     * 判断分拣中心是否开启验货拆分任务
+     * <ul>
+     *     <li>配置ALL全部开启</li>
+     * </ul>
+     * @param request
+     * @return
+     */
+    private boolean siteEnableSplitWaybill(InspectionRequest request) {
+
+        return inspectionService.siteEnableInspectionSplitWaybill(request.getSiteCode());
+    }
+
+    /**
+     * 取得运单多包裹数量触发上限
+     * @return
+     */
+    private int getWaybillLimitNum() {
+        return 0 == uccConfig.getWaybillSplitPageSize() ?
+                BIG_WAYBILL_LIMIT_NUM :
+                uccConfig.getWaybillSplitPageSize();
+    }
 
 
     /**
@@ -132,7 +247,7 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
      * @param request
      * @param bigWaybillDto
      */
-    private final void resetBusinessType(InspectionRequest request,BigWaybillDto bigWaybillDto){
+    void resetBusinessType(InspectionRequest request,BigWaybillDto bigWaybillDto){
         if(Integer.valueOf(Constants.BUSSINESS_TYPE_NEWTRANSFER).equals(request.getBusinessType())&&bigWaybillDto != null && bigWaybillDto.getWaybill()!=null)//包裹交接类型 以前是 1130： 50库房， 51夺宝岛 52协同仓  现在是50
         {
                 if (Integer.valueOf(Constants.BUSSINESS_TYPE_DBD_ORDERTYPE).equals(bigWaybillDto.getWaybill().getWaybillType())) { //夺宝岛交接 51 : 2
@@ -154,7 +269,7 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
      * @param request
      * @param bigWaybillDto
      */
-    private final void resetStoreId(InspectionRequest request,BigWaybillDto bigWaybillDto){
+    void resetStoreId(InspectionRequest request,BigWaybillDto bigWaybillDto){
         if (Integer.valueOf(Constants.BUSSINESS_TYPE_FC).equals(request.getBusinessType().intValue())){
                 if(null!=bigWaybillDto
                         &&null!=bigWaybillDto.getWaybill()
@@ -168,7 +283,7 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
      * @param request
      * @param context
      */
-    private final void builderInspectionList(InspectionRequest request,InspectionTaskExecuteContext context){
+    void builderInspectionList(InspectionRequest request,InspectionTaskExecuteContext context){
         List<Inspection> inspectionList=new ArrayList<Inspection>();
         context.setInspectionList(inspectionList);
         BigWaybillDto bigWaybillDto=context.getBigWaybillDto();
@@ -200,7 +315,7 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
     }
 
 
-    private final void builderCenConfirmList(InspectionTaskExecuteContext context){
+    void builderCenConfirmList(InspectionTaskExecuteContext context){
         List<CenConfirm> cenList=new ArrayList<CenConfirm>(context.getInspectionList().size());
 
         for (Inspection inspection:context.getInspectionList()) {
@@ -225,7 +340,7 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
         context.setCenConfirmList(cenList);
     }
 
-    private final void builderSite(InspectionRequest request,InspectionTaskExecuteContext context){
+    void builderSite(InspectionRequest request,InspectionTaskExecuteContext context){
         BaseStaffSiteOrgDto site=this.getSite(request.getSiteCode());
         context.setCreateSite(site);
         if(null==site||null==site.getSiteCode()){
@@ -237,29 +352,6 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
                 context.setPassCheck(false);
             }
             context.setReceiveSite(rsite);
-        }
-    }
-
-    /**
-     * 校验验货是否是大包裹
-     * 1.验货运单
-     * 2.任务ID是否为空，为空或0，认为是MQ消费
-     * 3.是否有包裹列表，运单的包裹数是否存在
-     * 4.数量是否大于阈值
-     *
-     * */
-    private void inspectionCheckBigPackage(Task domain, BigWaybillDto bigWaybillDto) {
-
-        if (domain.getId() == null || domain.getId() == 0) {
-            if (bigWaybillDto.getWaybill() != null && bigWaybillDto.getWaybill().getGoodNumber() != null) {
-                Integer size = bigWaybillDto.getWaybill().getGoodNumber();
-                if (size >= INSPECTION_SAVE_TASK_TO_DB_PACKAGE_NUM) {
-                    log.warn("验货包裹数【{}】大于阈值，抛出异常落库执行，任务：{}", size, JsonHelper.toJson(domain));
-                    CallerInfo callerInfo = ProfilerHelper.registerInfo("DMSWORKER.InspectionTaskExecute.prepare.check.big.package", Constants.UMP_APP_NAME_DMSWORKER);
-                    Profiler.registerInfoEnd(callerInfo);
-                    throw new InspectionException("验货包裹数大于阈值，抛出异常落库执行");
-                }
-            }
         }
     }
 

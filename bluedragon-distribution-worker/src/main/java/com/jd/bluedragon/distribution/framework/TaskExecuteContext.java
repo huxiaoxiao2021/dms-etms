@@ -27,6 +27,11 @@ public abstract class TaskExecuteContext {
         return passCheck;
     }
 
+    /**
+     * 运单验货是否按拆分任务执行
+     */
+    private Boolean executeBySplitTask = Boolean.FALSE;
+
     public void setPassCheck(boolean passCheck) {
         this.passCheck = passCheck;
     }
@@ -46,4 +51,22 @@ public abstract class TaskExecuteContext {
     public void setReceiveSite(BaseStaffSiteOrgDto receiveSite) {
         this.receiveSite = receiveSite;
     }
+
+    public Boolean getExecuteBySplitTask() {
+        return executeBySplitTask;
+    }
+
+    public void setExecuteBySplitTask(Boolean executeBySplitTask) {
+        this.executeBySplitTask = executeBySplitTask;
+    }
+
+    /**
+     * 运单大包裹验货拆分执行
+     *
+     * @return
+     */
+    public Boolean executeBySplit() {
+        return getExecuteBySplitTask();
+    }
+
 }

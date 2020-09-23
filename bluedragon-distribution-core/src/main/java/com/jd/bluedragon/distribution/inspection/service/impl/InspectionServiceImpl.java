@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.DmsRouter;
 import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.AssertQueryManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -46,6 +47,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.etms.cache.util.EnumBusiCode;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
@@ -146,6 +148,9 @@ public class InspectionServiceImpl implements InspectionService {
 
 	@Autowired
     private WaybillPackageManager waybillPackageManager;
+
+    @Autowired
+    private UccPropertyConfiguration uccConfig;
 
     public boolean isExists(Integer Storeid)
     {
@@ -812,5 +817,32 @@ public class InspectionServiceImpl implements InspectionService {
             log.error("校验运单号【{}】是否绑定集包袋异常",waybillCode,e);
         }
         return true;
+    }
+
+    @Override
+    @Cache(key = "InspectionServiceImpl.siteEnableInspectionSplitWaybill@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, redisEnable = false)
+    public boolean siteEnableInspectionSplitWaybill(Integer siteCode) {
+        String configSite = uccConfig.getInspectionBigWaybillEffectiveSites();
+        if (StringUtils.isBlank(configSite)) {
+            return false;
+        }
+        // 验货拆分任务对全部分拣中心开启
+        if (Constants.STR_ALL.equalsIgnoreCase(configSite)) {
+            return true;
+        }
+
+        List<String> sites = null;
+        try {
+            sites = Arrays.asList(StringUtils.split(configSite, Constants.SEPARATOR_COMMA));
+        }
+        catch (Exception ex) {
+            log.error("transfer inspection split waybill site error.", ex);
+        }
+
+        if (CollectionUtils.isEmpty(sites) || null == siteCode) {
+            return false;
+        }
+
+        return sites.contains(siteCode.toString());
     }
 }

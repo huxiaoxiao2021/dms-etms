@@ -13,6 +13,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.annotation.Resource;
 import java.text.MessageFormat;
 import java.util.List;
 
@@ -23,6 +24,7 @@ public abstract class AbstractTaskExecute<T extends  TaskExecuteContext> {
 
     private static final Log LOGGER= LogFactory.getLog(AbstractTaskExecute.class);
 
+    @Resource(name="hooks")
     private List<TaskHook<T>> hooks;
 
     @Autowired
@@ -82,11 +84,13 @@ public abstract class AbstractTaskExecute<T extends  TaskExecuteContext> {
      */
     public boolean execute(Task domain){
         T context= prepare(domain);
-        if(context.isPassCheck()){
-            executeCoreFlow(context);
-            if(null!=hooks){
-                for (TaskHook<T> hook :hooks){
-                    hook.hook(context);
+        if (context.isPassCheck()) {
+            if (!context.executeBySplit()) {
+                executeCoreFlow(context);
+                if (null!=hooks) {
+                    for (TaskHook<T> hook :hooks){
+                        hook.hook(context);
+                    }
                 }
             }
         }else{
@@ -96,13 +100,5 @@ public abstract class AbstractTaskExecute<T extends  TaskExecuteContext> {
             return false;
         }
         return  true;
-    }
-
-    public List<TaskHook<T>> getHooks() {
-        return hooks;
-    }
-
-    public void setHooks(List<TaskHook<T>> hooks) {
-        this.hooks = hooks;
     }
 }

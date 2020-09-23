@@ -35,6 +35,15 @@
                     </bean>
                 </entry>
 
+                <!-- 验货多包裹拆分任务 -->
+                <entry key="${jmq.task.topic.inspection.split.pre}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="asynBufferService"></constructor-arg>
+                        <constructor-arg name="methodName" value="inspectionSplitWaybillProcess"></constructor-arg>
+                    </bean>
+                </entry>
+
                 <!-- 处理运单号关联包裹任务 -->
                 <entry key="${jmq.task.topic.partnerWaybill.pre}">
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"

@@ -114,6 +114,10 @@ public class UccPropertyConfiguration {
      * */
     private String boxLimitSites;
 
+    /**
+     * 验货运单多包裹拆分任务生效的分拣中心
+     */
+    private String inspectionBigWaybillEffectiveSites;
 
     public boolean isLogToBusinessLogByKafka() {
         return logToBusinessLogByKafka;
@@ -321,5 +325,13 @@ public class UccPropertyConfiguration {
 
     public void setBoxLimitSites(String boxLimitSites) {
         this.boxLimitSites = boxLimitSites;
+    }
+
+    public String getInspectionBigWaybillEffectiveSites() {
+        return inspectionBigWaybillEffectiveSites;
+    }
+
+    public void setInspectionBigWaybillEffectiveSites(String inspectionBigWaybillEffectiveSites) {
+        this.inspectionBigWaybillEffectiveSites = inspectionBigWaybillEffectiveSites;
     }
 }
