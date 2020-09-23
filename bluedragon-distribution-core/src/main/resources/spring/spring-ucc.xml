@@ -49,6 +49,7 @@
 		<property name="switchVerToWebSites" value="${switchVerToWebSites}"/>
         <property name="collectionAddressSiteCodes" value="${collectionAddressSiteCodes}"/>
 		<property name="boxLimitSites" value="${boxLimitSites:''}"/>
+		<property name="weightVolumeFilterWholeCountryFlag" value="${weightVolumeFilterWholeCountryFlag}" />
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -82,6 +83,7 @@
 				<value>uccPropertyConfiguration.disablePdaOldLogin</value>
 				<value>uccPropertyConfiguration.collectionAddressSiteCodes</value>
 				<value>uccPropertyConfiguration.boxLimitSites</value>
+				<value>uccPropertyConfiguration.weightVolumeFilterWholeCountryFlag</value>
 			</list>
 		</property>
 	</bean>

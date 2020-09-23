@@ -1562,13 +1562,13 @@ public class SortingServiceImpl implements SortingService {
 		SortingJsfResponse sortingJsfResponse = new SortingJsfResponse();
 
 		try{
-			if (this.isNeedCheck(pdaOperateRequest.getCreateSiteCode())) {
+//			if (this.isNeedCheck(pdaOperateRequest.getCreateSiteCode())) {
 				//调用web分拣验证校验链
 				sortingJsfResponse = sortingCheckService.sortingCheck(pdaOperateRequest);
 				if (sortingJsfResponse.getCode() != 200) {
 					return sortingJsfResponse;
 				}
-			}
+//			}
 
 			SortingCheck sortingCheck = convertToSortingCheck(pdaOperateRequest);
 			sortingJsfResponse = jsfSortingResourceService.check(sortingCheck);

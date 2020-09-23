@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
 import com.jd.bluedragon.distribution.api.response.DmsWaybillInfoResponse;
+import com.jd.bluedragon.distribution.base.domain.BlockResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
@@ -107,4 +109,17 @@ public interface WaybillService {
      * 33位等于2，且增值服务中某个对象的vosNo=fr-a-0010
      * */
     boolean isSpecialRequirementTeAnSongService(String waybillCode, String waybillSign);
+
+    JdCancelWaybillResponse dealCancelWaybill(String waybillCode);
+
+    JdCancelWaybillResponse dealCancelWaybill(PdaOperateRequest pdaOperate);
+
+    /**
+     * 查询运单是否拦截完成
+     * @param waybillCode
+     * @param featureType
+     * @return
+     */
+    BlockResponse checkWaybillBlock(String waybillCode, Integer featureType);
+
 }

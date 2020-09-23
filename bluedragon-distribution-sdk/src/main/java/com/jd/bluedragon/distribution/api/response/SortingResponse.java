@@ -35,6 +35,7 @@ public class SortingResponse extends JdResponse {
     public static final String MESSAGE_PACKAGE_NUM_LIMIT = "运单/箱子的包裹数大于2万，请联系IT人员报备此操作";
 
     public static final Integer CODE_29212 = 29212;
+    public static final String MESSAGE_29212 = "此箱号已经分拣了其他的派车单";
 
     public static final Integer CODE_29300 = 29300;
     public static final String MESSAGE_29300 = "此[包裹]或[运单]已经[锁定]或[取消]，请联系客服或退货";
