@@ -678,6 +678,7 @@ public class Constants {
     public static final String DMS_WEB_TOOL_B2BWEIGHT_R ="DMS-WEB-TOOL-B2BWEIGHT-R"; //快运运单称重
     public static final String DMS_WEB_TOOL_DMSOPERATEHINT_R="DMS-WEB-TOOL-DMSOPERATEHINT-R";//PDA验货提示语
     public static final String DMS_WEB_TOOL_BOXLMIT_R="DMS-WEB-TOOL-BOXLMIT-R";//PDA建箱包裹数上限限制
+    public static final String DMS_WEB_TOOL_INTERCEPT_CONFIG_R="DMS-WEB-TOOL-FUNC-SWITCH-CONFIG-R";//分拣功能开关配置
     public static final String DMS_WEB_TOOL_RECYCLEMATERIAL_R="DMS-WEB-TOOL-RECYCLEMATERIAL-R";//循环物资管理
     public static final String DMS_WEB_ISV_CONTROL_R ="DMS-WEB-ISV-CONTROL-R"; //ISV版本控制
     public static final String DMS_WEB_ISV_MANAGE_R ="DMS-WEB-ISV-MANAGE-R"; //ISV版本管理

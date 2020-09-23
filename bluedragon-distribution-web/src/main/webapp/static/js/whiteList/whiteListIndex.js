@@ -190,12 +190,20 @@ $(function () {
         return oInit;
     };
 
-
+    // 此功能屏蔽使用
+    initTips();
     initOrg();
     tableInit().init();
     pageInit().init();
 
 });
+
+function initTips() {
+    $('#btn_query').hide();
+    $('#btn_add').hide();
+    $('#btn_delete').hide();
+    $.msg.warn("此功能暂不提供新增功能，请迁移至【功能开关配置】页面操作!");
+}
 
 function findSite(selectId,siteListUrl,initIdSelectId){
     $(selectId).html("");

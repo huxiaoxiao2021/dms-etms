@@ -12,8 +12,11 @@ import com.jd.bluedragon.distribution.api.response.ReverseReceiveResponse;
 import com.jd.bluedragon.distribution.api.response.SysConfigResponse;
 import com.jd.bluedragon.distribution.api.response.TaskResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigDto;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.wss.dto.BaseEntity;
+
+import java.util.List;
 
 /**
  * @author dudong
@@ -230,4 +233,11 @@ public interface DmsInternalService {
      * @return
      */
     JdResult<Integer> getSortingNumberInBox(String boxCode,Integer createSiteCode);
+
+    /**
+     * 查询符合条件的功能开关配置
+     * @param funcSwitchConfigDto
+     * @return
+     */
+    InvokeResult<List<FuncSwitchConfigDto>> getFuncSwitchConfigs(FuncSwitchConfigDto funcSwitchConfigDto);
 }

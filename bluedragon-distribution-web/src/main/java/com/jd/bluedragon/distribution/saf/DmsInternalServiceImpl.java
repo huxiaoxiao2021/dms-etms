@@ -1,11 +1,5 @@
 package com.jd.bluedragon.distribution.saf;
 
-import java.util.Objects;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.core.base.DmsInterturnManager;
@@ -31,6 +25,9 @@ import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
+import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigDto;
+import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
+import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.internal.service.DmsInternalService;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.rest.audit.AuditResource;
@@ -50,6 +47,12 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author dudong
@@ -108,6 +111,10 @@ public class DmsInternalServiceImpl implements DmsInternalService {
     private AbnormalWayBillService abnormalWayBillService;
     @Autowired
     SortingService sortingService;
+
+    @Autowired
+    private FuncSwitchConfigService funcSwitchConfigService;
+
     /**
      * jsf监控key前缀
      */
@@ -426,4 +433,22 @@ public class DmsInternalServiceImpl implements DmsInternalService {
 		}
 		return result;
 	}
+
+    /**
+     * 查询符合条件的功能开关配置
+     * @param dto
+     * @return
+     */
+    @JProfiler(jKey = UMP_KEY_PREFIX + "getFuncSwitchConfigs", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    @Override
+    public InvokeResult<List<FuncSwitchConfigDto>> getFuncSwitchConfigs(FuncSwitchConfigDto dto) {
+        InvokeResult<List<FuncSwitchConfigDto>> result = new InvokeResult<List<FuncSwitchConfigDto>>();
+        if(dto == null || dto.getMenuCode() == null
+                || !FuncSwitchConfigEnum.codeMap.containsKey(dto.getMenuCode())){
+            result.parameterError("参数错误!");
+            return result;
+        }
+        result.setData(funcSwitchConfigService.getFuncSwitchConfigs(dto));
+        return result;
+    }
 }

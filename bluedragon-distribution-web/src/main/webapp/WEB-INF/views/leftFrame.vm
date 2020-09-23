@@ -81,6 +81,7 @@
         <dt><a href="#" class="curr">工具</a></dt>
         <dd><a href="#springUrl('/notice/manage')" target="mainFrame">通知栏管理</a></dd>
         <dd><a href="#springUrl('/inspectionCheck/toIndex')" target="mainFrame">验货集齐查询</a></dd>
+        <dd><a href="#springUrl('/funcSwitchConfig/toIndex')" target="mainFrame">功能开关配置</a></dd>
         <dd><a href="#springUrl('/whiteList/toIndex')" target="mainFrame">PDA白名单管理</a></dd>
         <dd><a href="#springUrl('/boxlimit/toIndex')" target="mainFrame">PDA建箱包裹数配置</a></dd>
         <dd><a href="#springUrl('/reviewWeightSpotCheck/toIndex')" target="mainFrame">复重抽检任务导入</a></dd>
