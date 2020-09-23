@@ -41,7 +41,7 @@ public interface SendPayConstants {
 	int POSITION_297 = 297;
 	char CHAR_297_1 = '1';
 	char CHAR_297_2 = '2';
-    int POSITION_288 = 288;
+    int POSITION_228 = 228;
     char CHAR_228_1 = '1';
     char CHAR_228_2 = '2';
     char CHAR_228_4 = '4';
