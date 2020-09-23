@@ -1471,22 +1471,22 @@ public class BusinessUtil {
         return isSignChar(sendPay,SendPayConstants.POSITION_297,SendPayConstants.CHAR_297_1);
     }
     /**
-     * 预售未付款退仓,297位为1 且 288位为1或2
+     * 预售未付款退仓,297位为1 且 228位为1或2
      * @param sendPay
      * @return
      */
     public static boolean isPreSellWithNoPayToWms(String sendPay) {
         return isSignChar(sendPay,SendPayConstants.POSITION_297,SendPayConstants.CHAR_297_1)
-                && isSignInChars(sendPay,SendPayConstants.POSITION_288,SendPayConstants.CHAR_288_1,SendPayConstants.CHAR_288_2);
+                && isSignInChars(sendPay,SendPayConstants.POSITION_288,SendPayConstants.CHAR_228_1,SendPayConstants.CHAR_228_2);
     }
     /**
-     * 预售未付款暂存分拣,297位为1 且 288位为4
+     * 预售未付款暂存分拣,297位为1 且 228位为4
      * @param sendPay
      * @return
      */
     public static boolean isPreSellWithNoPayStorage(String sendPay) {
         return isSignChar(sendPay,SendPayConstants.POSITION_297,SendPayConstants.CHAR_297_1)
-                && isSignChar(sendPay,SendPayConstants.POSITION_288,SendPayConstants.CHAR_288_4);
+                && isSignChar(sendPay,SendPayConstants.POSITION_288,SendPayConstants.CHAR_228_4);
     }
     /**
      * 根据sendPay判断是否预售已付款,第297位等于2

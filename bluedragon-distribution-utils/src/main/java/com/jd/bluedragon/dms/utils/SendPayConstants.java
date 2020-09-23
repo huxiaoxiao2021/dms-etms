@@ -34,17 +34,17 @@ public interface SendPayConstants {
 	char CHAR_295_4 = '4';
 	/**
 	 * 预售未付款：
-     *  1、退仓-297位为1 且 288位为1或2
-     *  2、暂存分拣 297位1 且 288位为4
+     *  1、退仓-297位为1 且 228位为1或2
+     *  2、暂存分拣 297位1 且 228位为4
      * 预售已付款： 297位为2
 	 */
 	int POSITION_297 = 297;
 	char CHAR_297_1 = '1';
 	char CHAR_297_2 = '2';
     int POSITION_288 = 288;
-    char CHAR_288_1 = '1';
-    char CHAR_288_2 = '2';
-    char CHAR_288_4 = '4';
+    char CHAR_228_1 = '1';
+    char CHAR_228_2 = '2';
+    char CHAR_228_4 = '4';
 	/**
 	 * SendPay第293位,1-海运标识
 	 */
