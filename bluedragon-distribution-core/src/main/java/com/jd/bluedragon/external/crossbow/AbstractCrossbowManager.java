@@ -108,7 +108,7 @@ public abstract class AbstractCrossbowManager<P,R> implements InitializingBean {
         } catch (RuntimeException e) {
             Profiler.functionError(callerInfo);
             logger.warn("通过物流网关crossBow组件调用外部接口异常:", e);
-            return null;
+            throw e;
         } finally {
             Profiler.registerInfoEnd(callerInfo);
         }

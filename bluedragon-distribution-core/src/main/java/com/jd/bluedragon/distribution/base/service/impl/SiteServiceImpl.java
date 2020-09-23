@@ -299,6 +299,25 @@ public class SiteServiceImpl implements SiteService {
     }
 
     /**
+     * 从sysconfig表里查出来箱号需要由DMS生产的分拣中心列表
+     *
+     * @return
+     */
+    @Cache(key = "SiteServiceImpl.getBoxFromDMSAllowedList", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000, redisEnable = false)
+    @Override
+    public Set<Integer> getBoxFromDMSAllowedList() {
+        Set<Integer> result = new TreeSet<>();
+        List<SysConfig> sysConfigList = sysConfigService.getListByConfigName(Constants.CREATE_BOX_FROM_DMS_SITE);
+        if (sysConfigList != null && !sysConfigList.isEmpty()) {
+            Set<String> sites = StringHelper.splitToSet(sysConfigList.get(0).getConfigContent(), Constants.SEPARATOR_COMMA);
+            for (String site : sites) {
+                result.add(Integer.valueOf(site));
+            }
+        }
+        return result;
+    }
+
+    /**
      * 获取区域内的所有分拣中心
      * 如果orgId为-1，则获取全国所有的分拣中心
      *

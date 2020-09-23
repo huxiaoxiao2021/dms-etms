@@ -775,6 +775,11 @@ public class Constants {
     public static final String CREATE_BOX_FROM_SSC_SITE = "CREATE_BOX_FROM_SSC_SITE";
 
     /**
+     * 启用分拣创建箱号的场地集合 key
+     */
+    public static final String CREATE_BOX_FROM_DMS_SITE = "CREATE_BOX_FROM_DMS_SITE";
+
+    /**
      * 配置信息-一车一单发货 自动取消组板功能开启的分拣中心
      */
     public static final String SYS_CONFIG_BOARD_COM_CANCEL_ATUO_OPEN_DMS_CODES="packageSend.board.com.cancel.auto.sites";

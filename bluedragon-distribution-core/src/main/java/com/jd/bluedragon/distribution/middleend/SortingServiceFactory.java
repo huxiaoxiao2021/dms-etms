@@ -31,6 +31,8 @@ public class SortingServiceFactory {
     private UccPropertyConfiguration uccPropertyConfiguration;
 
     private static final String SYSTEM_CONFIG_MIDDLE_END_SORTING_OPEN = "failover.sorting.service.site.open";
+    private static final String SYSTEM_CONFIG_MIDDLE_END_SORTING_CLOSE = "failover.sorting.service.site.close";
+
     private static final String SORTING_SERVICE_MODE_DMS ="DMS";
     private static final String SORTING_SERVICE_MODE_MIDDLEEND="MIDDLEEND";
     private static final String SORTING_SERVICE_MODE_FAILOVER="FAILOVER";
@@ -44,9 +46,9 @@ public class SortingServiceFactory {
         }
 
         if(serviceMode.equals(SORTING_SERVICE_MODE_FAILOVER)){
-            Set<Integer> siteSet = siteService.getSiteCodesFromSysConfig(SYSTEM_CONFIG_MIDDLE_END_SORTING_OPEN);
+            Set<Integer> siteSet = siteService.getSiteCodesFromSysConfig(SYSTEM_CONFIG_MIDDLE_END_SORTING_CLOSE);
             //站点set为空即代表全部场地开启
-            if (!siteSet.isEmpty() && (createSiteCode == null || !siteSet.contains(createSiteCode))) {
+            if (siteSet.isEmpty() || (createSiteCode == null || siteSet.contains(createSiteCode))) {
                 serviceMode = SORTING_SERVICE_MODE_DMS;
             }
         }

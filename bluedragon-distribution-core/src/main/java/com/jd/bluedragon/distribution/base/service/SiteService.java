@@ -61,6 +61,12 @@ public interface SiteService {
 	 * @return
 	 */
 	public Set<Integer> getBoxFromSSCAllowedList();
+
+	/**
+	 * 从sysconfig表里查出来需要通过DMS生产箱号的分拣中心列表
+	 * @return
+	 */
+	public Set<Integer> getBoxFromDMSAllowedList();
 	/**
 	 * 根据省id获取分拣中心
 	 * @param provinceId
