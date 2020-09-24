@@ -187,34 +187,48 @@ public class BoxWeightVolumeHandler extends AbstractWeightVolumeHandler {
      * @param e           异常
      */
     private void retryOnFailDoRestInterface(EconomicNetResult<EconomicNetErrorRes> result, EconomicNetBoxWeightVolumeDto requestBody, WeightVolumeEntity entity, long startTime, Exception e) {
-        // 出现异常、无响应结果、响应结果非成功code码 则 写入 业务日志
+        Object responseBody = (e == null ? result : e.getMessage());
+
+        JSONObject request = new JSONObject();
+        request.put("waybillCode", entity.getWaybillCode());
+        request.put("packageCode", entity.getPackageCode());
+        request.put("boxCode", entity.getBoxCode());
+
+        request.put("operatorName", requestBody.getScanMan());
+        request.put("siteCode", requestBody.getScanSiteCode());
+        request.put("siteName", requestBody.getScanSite());
+        request.put("operateTime", requestBody.getScanDate());
+
+        JSONObject response = new JSONObject();
+        response.put("bagCode", requestBody.getBagCode());
+        response.put("scanSiteCode", requestBody.getScanSiteCode());
+        response.put("content", JsonHelper.toJson(responseBody));
+
+        if (e != null) {
+            response.put("msg", e.getMessage());
+            response.put("code", "500");
+        } else if (result == null) {
+            response.put("msg", "NULL");
+            response.put("code", "500");
+        } else if (!"0000".equals(result.getCode())) {
+            response.put("msg", result.getMsg());
+            response.put("code", result.getCode());
+        } else {
+            response.put("msg", "成功");
+            response.put("code", "200");
+        }
+
+        BusinessLogProfiler logProfiler = new BusinessLogProfilerBuilder()
+                .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.ECONOMIC_NET_BOX_WEIGHT)
+                .processTime(System.currentTimeMillis(), startTime)
+                .operateRequest(request)
+                .operateResponse(response)
+                .methodName("EconomicNetBusinessManager#doRestInterface")
+                .build();
+        logEngine.addLog(logProfiler);
+        logger.warn("推送箱号信息至经济网异常:{}", JsonHelper.toJson(response));
+        // 出现异常、无响应结果、响应结果非成功code码 则 抛出异常 自动重试
         if (e != null || result == null || !"0000".equals(result.getCode())) {
-            Object responseBody = (e == null ? result : e.getMessage());
-
-            JSONObject request = new JSONObject();
-            request.put("waybillCode", entity.getWaybillCode());
-            request.put("packageCode", entity.getPackageCode());
-            request.put("boxCode", entity.getBoxCode());
-
-            request.put("operatorName", requestBody.getScanMan());
-            request.put("siteCode", requestBody.getScanSiteCode());
-            request.put("siteName", requestBody.getScanSite());
-            request.put("operateTime", requestBody.getScanDate());
-
-            JSONObject response = new JSONObject();
-            response.put("bagCode", requestBody.getBagCode());
-            response.put("scanSiteCode", requestBody.getScanSiteCode());
-            response.put("content", JsonHelper.toJson(responseBody));
-
-            BusinessLogProfiler logProfiler = new BusinessLogProfilerBuilder()
-                    .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.ECONOMIC_NET_BOX_WEIGHT)
-                    .processTime(System.currentTimeMillis(), startTime)
-                    .operateRequest(request)
-                    .operateResponse(response)
-                    .methodName("EconomicNetBusinessManager#doRestInterface")
-                    .build();
-            logEngine.addLog(logProfiler);
-            logger.warn("推送箱号信息至经济网异常:{}", JsonHelper.toJson(response));
             throw new RuntimeException(MessageFormat.format("推送箱号信息至经济网失败,异常原因：{0}", JsonHelper.toJson(response)));
         }
     }
