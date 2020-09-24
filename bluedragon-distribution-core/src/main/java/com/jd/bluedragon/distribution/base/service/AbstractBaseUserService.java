@@ -185,7 +185,7 @@ public abstract class AbstractBaseUserService implements LoginService {
             log.info("erpAccount is {} 验证成功",erpAccount);
             try{
                 //检查客户端版本信息，版本不一致，不允许登录
-                JdResult<String> checkResult = checkClientInfo(clientInfo,loginResult);
+                JdResult<String> checkResult = checkClientInfo(request,clientInfo,loginResult);
                 if(!checkResult.isSucceed()){
                     clientInfo.setMatchFlag(SysLoginLog.MATCHFLAG_LOGIN_FAIL);
                     sysLoginLogService.insert(loginResult, clientInfo);
@@ -262,7 +262,7 @@ public abstract class AbstractBaseUserService implements LoginService {
      * @param loginResult erp登录结果
      * @return
      */
-    private JdResult<String> checkClientInfo(ClientInfo clientInfo,PdaStaff loginResult) {
+    private JdResult<String> checkClientInfo(LoginRequest request,ClientInfo clientInfo,PdaStaff loginResult) {
         JdResult<String> checkResult = new JdResult<String>();
         checkResult.toSuccess();
         //1、查询客户端登录验证配置信息
@@ -271,6 +271,10 @@ public abstract class AbstractBaseUserService implements LoginService {
             LoginCheckConfig loginCheckConfig =
                     JsonHelper.fromJson(checkConfig.getConfigContent(), LoginCheckConfig.class);
             boolean needCheck = loginCheckConfig.getMasterSwitch();
+            if(!needCheck
+            		&& Boolean.TRUE.equals(request.getCheckVersion())){
+            	needCheck = true;
+            }
             //2、校验总开关开启或者programTypes里包含登录客户端所属类型则进行校验
             if(!needCheck
                     && loginCheckConfig.getProgramTypes() != null
