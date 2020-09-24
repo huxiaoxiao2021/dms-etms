@@ -49,7 +49,6 @@ import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-
 @Service("waybillCommonService")
 public class WaybillCommonServiceImpl implements WaybillCommonService {
 
@@ -973,11 +972,11 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     private void setFreightAndGoodsPayment(BasePrintWaybill target,com.jd.etms.waybill.domain.Waybill waybill) {
     	String freightText = "";
         String goodsPaymentText = "";
-        //运费：waybillSign 25位为2时【到付】,需求R2020072253033：只保留到付
-        if(BusinessUtil.isSignChar(waybill.getWaybillSign(), 25, '2')){
-            freightText = TextConstants.FREIGHT_PAY;
-        }
         if(BusinessUtil.isB2b(waybill.getWaybillSign())){
+            //运费：waybillSign 25位为2【到付】
+            if(BusinessUtil.isSignInChars(waybill.getWaybillSign(), WaybillSignConstants.POSITION_25, WaybillSignConstants.CHAR_25_2)){
+                freightText = TextConstants.FREIGHT_PAY;
+            }
         	//货款字段金额等于0时，则货款位置不显示
         	//货款字段金额大于0时，则货款位置显示为【代收货款】
         	if(NumberHelper.gt0(waybill.getCodMoney())){
@@ -986,6 +985,16 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         		goodsPaymentText = "";
         	}
         }else{
+            //运费：waybillSign 25位为2、5时【到付】
+            if(BusinessUtil.isSignInChars(waybill.getWaybillSign(), WaybillSignConstants.POSITION_25, WaybillSignConstants.CHAR_25_2,WaybillSignConstants.CHAR_25_5)){
+                freightText = TextConstants.FREIGHT_PAY;
+            }
+            //c2c运费：waybillSign 25位为0或1或3或4时【寄付】
+            if(BusinessUtil.isC2C(waybill.getWaybillSign())
+            		&& BusinessUtil.isSignInChars(waybill.getWaybillSign(), WaybillSignConstants.POSITION_25, 
+            				WaybillSignConstants.CHAR_25_0,WaybillSignConstants.CHAR_25_1,WaybillSignConstants.CHAR_25_3,WaybillSignConstants.CHAR_25_4)){
+            	freightText = TextConstants.FREIGHT_SEND;
+            }
             //C网货款
             //货款：货款大于0时，满足在线支付时显示【在线支付】，否则显示【货到付款￥】
         	//货款：货款等于0时，则货款位置不显示
@@ -1003,7 +1012,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         String totalChargeText = "";
         String codMoney = null;
         String totalCharge = null;
-        if(waybill.getCodMoney() != null){
+        //大于0才展示
+        if(waybill.getCodMoney() != null && NumberHelper.gt0(waybill.getCodMoney())){
         	String codMoneyF = NumberHelper.formatMoney(waybill.getCodMoney());
         	if(codMoneyF != null){
         		codMoney = codMoneyF;
@@ -1023,7 +1033,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         			totalChargeVal = null;
         		}
         	}
-        	if(totalChargeVal != null){
+        	//大于0才展示
+        	if(totalChargeVal != null && totalChargeVal.compareTo(BigDecimal.ZERO)>0){
         		totalCharge = NumberHelper.formatMoney(totalChargeVal);
         	}
         }
@@ -1500,10 +1511,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         	specialRequirement = specialRequirement + TextConstants.GOODS_PAYMENT_COD_FLAG + ",";
         }
         if(StringUtils.isNotBlank(waybillSign)){
-            //保价
-            if(waybill != null && NumberHelper.gt0(waybill.getPriceProtectMoney())){
-                specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_PRICE_PROTECT_MONEY + ",";
-            }
             //签单返还
             if(BusinessUtil.isSignBack(waybillSign)){
                 specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_SIGNBACK + ",";
