@@ -622,7 +622,12 @@ public class BusinessUtil {
     public static Boolean isC2CJZD(String waybillSign){
         return isSignChar(waybillSign,113,'2');
     }
-
+    /**
+     * 判断是否C2C:waybill_sign 第29位等于8
+     */
+    public static Boolean isC2C(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_29,WaybillSignConstants.CHAR_29_8);
+    }
     /**
      * 是否为三方-合作站点
      * @param type
@@ -996,7 +1001,7 @@ public class BusinessUtil {
      * 是否寄付
      */
     public static boolean isFreightSend(String waybillSign) {
-        return isSignChar(waybillSign,WaybillSignConstants.C_COLLECT_FEES_POSITION_25,WaybillSignConstants.C_COLLECT_FEES_CHAR_25_3);
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_25,WaybillSignConstants.CHAR_25_3);
     }
 
     /**
