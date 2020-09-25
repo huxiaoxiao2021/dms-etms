@@ -63,7 +63,7 @@ public class FuncSwitchConfigDao extends BaseDao<FuncSwitchConfigDto> {
      * @return
      */
     public List<FuncSwitchConfigDto> selectByFuncSwitchConfig(FuncSwitchConfigDto dto) {
-        return this.getSqlSession().selectOne(namespace + ".selectByFuncSwitchConfig",dto);
+        return this.getSqlSession().selectList(namespace + ".selectByFuncSwitchConfig",dto);
     }
 
     /**

@@ -2,8 +2,7 @@ package com.jd.bluedragon.distribution.ver.filter.filters;
 
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigDto;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
-import com.jd.bluedragon.distribution.internal.service.DmsInternalService;
-import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
+import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
 import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.ver.filter.Filter;
@@ -27,7 +26,7 @@ public class PreSellInterceptFilter implements Filter {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private DmsInternalService dmsInternalService;
+    private FuncSwitchConfigService funcSwitchConfigService;
 
     @Override
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
@@ -59,12 +58,15 @@ public class PreSellInterceptFilter implements Filter {
             }
             FuncSwitchConfigDto dto = new FuncSwitchConfigDto();
             dto.setMenuCode(FuncSwitchConfigEnum.FUNCTION_PRE_SELL.getCode());
-            InvokeResult<List<FuncSwitchConfigDto>> result = dmsInternalService.getFuncSwitchConfigs(dto);
-            if(result == null || CollectionUtils.isEmpty(result.getData())
-                    || !result.getData().contains(siteCode)){
+            List<FuncSwitchConfigDto> funcSwitchConfigs = funcSwitchConfigService.getFuncSwitchConfigs(dto);
+            if(CollectionUtils.isEmpty(funcSwitchConfigs)){
                 return false;
             }
-            return true;
+            for(FuncSwitchConfigDto funcSwitchConfigDto : funcSwitchConfigs){
+                if(siteCode.equals(funcSwitchConfigDto.getSiteCode())){
+                    return true;
+                }
+            }
         }catch (Exception e){
             logger.error("查询当前站点是否配置预售分拣暂存拦截异常!",e);
         }
