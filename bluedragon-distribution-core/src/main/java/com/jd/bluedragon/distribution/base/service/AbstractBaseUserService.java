@@ -57,7 +57,10 @@ public abstract class AbstractBaseUserService implements LoginService {
      *  程序类型-安卓登录接口
      */
     protected static final Integer ANDROID_LOGIN_PROGRAM_TYPE = 60;
-
+    /**
+     *  默认基础底包版本号-jsf登录接口
+     */
+    protected static final String JSF_LOGIN_DEFAULT_BASE_VERSION_CODE = "60-20200925";
     /**
      *  默认版本号-jsf登录接口
      */
@@ -185,7 +188,7 @@ public abstract class AbstractBaseUserService implements LoginService {
             log.info("erpAccount is {} 验证成功",erpAccount);
             try{
                 //检查客户端版本信息，版本不一致，不允许登录
-                JdResult<String> checkResult = checkClientInfo(clientInfo,loginResult);
+                JdResult<String> checkResult = checkClientInfo(request,clientInfo,loginResult);
                 if(!checkResult.isSucceed()){
                     clientInfo.setMatchFlag(SysLoginLog.MATCHFLAG_LOGIN_FAIL);
                     sysLoginLogService.insert(loginResult, clientInfo);
@@ -262,7 +265,7 @@ public abstract class AbstractBaseUserService implements LoginService {
      * @param loginResult erp登录结果
      * @return
      */
-    private JdResult<String> checkClientInfo(ClientInfo clientInfo,PdaStaff loginResult) {
+    private JdResult<String> checkClientInfo(LoginRequest request,ClientInfo clientInfo,PdaStaff loginResult) {
         JdResult<String> checkResult = new JdResult<String>();
         checkResult.toSuccess();
         //1、查询客户端登录验证配置信息
@@ -270,6 +273,13 @@ public abstract class AbstractBaseUserService implements LoginService {
         if(checkConfig!=null && StringHelper.isNotEmpty(checkConfig.getConfigContent())){
             LoginCheckConfig loginCheckConfig =
                     JsonHelper.fromJson(checkConfig.getConfigContent(), LoginCheckConfig.class);
+            //校验底包版本号
+            if(StringHelper.isEmpty(request.getBaseVersionCode())
+            		||(loginCheckConfig.getBaseVersionCodes() != null 
+            			&&!loginCheckConfig.getBaseVersionCodes().contains(request.getBaseVersionCode()))){
+            	checkResult.toFail("应用版本过低，请联系运维重新安装！");
+            	return checkResult;
+            }
             boolean needCheck = loginCheckConfig.getMasterSwitch();
             //2、校验总开关开启或者programTypes里包含登录客户端所属类型则进行校验
             if(!needCheck
@@ -293,6 +303,11 @@ public abstract class AbstractBaseUserService implements LoginService {
                     && loginResult.getSiteId() != null
                     && loginCheckConfig.getSiteCodes().contains(loginResult.getSiteId())){
                 needCheck = true;
+            }
+            //客户端设置了不校验版本，改为false
+            if(needCheck
+            		&& Boolean.FALSE.equals(request.getCheckVersion())){
+            	needCheck = false;
             }
             /**
              * 4、版本校验：
