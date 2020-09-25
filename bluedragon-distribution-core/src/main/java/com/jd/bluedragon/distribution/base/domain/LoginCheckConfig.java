@@ -30,6 +30,10 @@ public class LoginCheckConfig implements Serializable {
      * 需要检查的客户端的站点列表
      */
     private List<Integer> siteCodes;
+    /**
+     * 基础版本信息
+     */
+    private List<String> baseVersionCodes;    
 	/**
 	 * @return the masterSwitch
 	 */
@@ -77,6 +81,12 @@ public class LoginCheckConfig implements Serializable {
 	 */
 	public void setSiteCodes(List<Integer> siteCodes) {
 		this.siteCodes = siteCodes;
+	}
+	public List<String> getBaseVersionCodes() {
+		return baseVersionCodes;
+	}
+	public void setBaseVersionCodes(List<String> baseVersionCodes) {
+		this.baseVersionCodes = baseVersionCodes;
 	}
 
 }

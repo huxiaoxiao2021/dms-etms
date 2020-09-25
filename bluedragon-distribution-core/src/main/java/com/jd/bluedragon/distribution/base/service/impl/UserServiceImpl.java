@@ -89,6 +89,11 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
     @JProfiler(jKey = "DMS.BASE.UserServiceImpl.jsfLogin",
             mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
 	public LoginUserResponse jsfLogin(LoginRequest request){
+    	//安卓pda登录，不校验版本号并设置默认底包版本
+    	if(request != null){
+    		request.setCheckVersion(Boolean.FALSE);
+    		request.setBaseVersionCode(JSF_LOGIN_DEFAULT_BASE_VERSION_CODE);
+    	}
 		return baseService.clientLoginIn(request);
 	}
 

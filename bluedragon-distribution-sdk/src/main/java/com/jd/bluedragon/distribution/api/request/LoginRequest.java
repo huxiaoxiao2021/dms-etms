@@ -18,7 +18,11 @@ public class LoginRequest extends BaseRequest{
      * 校验版本
      */
     private Boolean checkVersion = Boolean.TRUE;
-
+    /**
+     * 基础版本号
+     */
+    private String baseVersionCode = "01-20010101";
+    
     public String getClientInfo() {
         return clientInfo;
     }
@@ -41,5 +45,13 @@ public class LoginRequest extends BaseRequest{
 
 	public void setCheckVersion(Boolean checkVersion) {
 		this.checkVersion = checkVersion;
+	}
+
+	public String getBaseVersionCode() {
+		return baseVersionCode;
+	}
+
+	public void setBaseVersionCode(String baseVersionCode) {
+		this.baseVersionCode = baseVersionCode;
 	}
 }
