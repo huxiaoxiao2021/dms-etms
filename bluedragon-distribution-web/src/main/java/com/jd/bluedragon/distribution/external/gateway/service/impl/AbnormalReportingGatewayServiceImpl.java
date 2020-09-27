@@ -319,11 +319,12 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
         }
 
         try{
-            List<BasicSite> basicSites = siteQueryService.querySiteByConditionFromEs(siteQueryCondition,200);
+            List<BasicSite> basicSites = siteQueryService.querySiteByConditionFromEs(siteQueryCondition,20);
             if( basicSites!=null && !basicSites.isEmpty()){
                 for(BasicSite basicSite : basicSites){
                     SiteDto siteDto = new SiteDto();
-                    BeanUtils.copyProperties(basicSite,siteCode);
+                    siteDto.setSite_code(basicSite.getSiteCode());
+                    siteDto.setSite_name(basicSite.getSiteName());
                     siteDtoList.add(siteDto);
                 }
             }
