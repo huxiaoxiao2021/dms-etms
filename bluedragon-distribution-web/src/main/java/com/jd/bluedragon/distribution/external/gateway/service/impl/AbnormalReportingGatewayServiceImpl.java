@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.abnormal.AbnormalReasonSourceEnum;
 import com.jd.bluedragon.common.dto.abnormal.DmsAbnormalReasonDto;
 import com.jd.bluedragon.common.dto.abnormal.DutyDepartmentInfo;
@@ -15,7 +16,6 @@ import com.jd.bluedragon.distribution.jss.JssService;
 import com.jd.bluedragon.distribution.qualityControl.QcVersionFlagEnum;
 import com.jd.bluedragon.distribution.qualityControl.service.QualityControlService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.distribution.site.dao.SiteMapper;
 import com.jd.bluedragon.common.dto.abnormal.response.SiteDto;
 import com.jd.bluedragon.external.gateway.service.AbnormalReportingGatewayService;
 import com.jd.bluedragon.utils.DateHelper;
@@ -24,12 +24,18 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageState;
 import com.jd.ql.basic.domain.BaseDataDict;
+import com.jd.ql.dms.report.SiteQueryService;
+import com.jd.ql.dms.report.domain.BasicSite;
+import com.jd.ql.dms.report.domain.SiteQueryCondition;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.AbnormalReasonDto;
 import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.PdaResult;
 import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.WpAbnormalRecordPda;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -69,7 +75,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
     private QualityControlService qualityControlService;
 
     @Autowired
-    SiteMapper siteMapper;
+    private SiteQueryService siteQueryService;
 
     @Value("${jss.pda.image.bucket}")
     private String bucket;
@@ -287,24 +293,42 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.AbnormalReportingGatewayService.querySite", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public JdCResponse querySite(String orgId, String siteName, String siteCode) {
         JdCResponse<List<SiteDto>> jdCResponse = new JdCResponse<>(JdCResponse.CODE_SUCCESS, JdCResponse.MESSAGE_SUCCESS);
 
-        List<String> siteTypeList = Arrays.asList("96", "16");//96配送运输，16第三方
+        List<Integer> siteTypeList = Arrays.asList(96, 16);//96配送运输，16第三方
 
         if ((StringUtils.isEmpty(siteName) && StringUtils.isEmpty(siteCode))) {
             jdCResponse.toFail("参数不全");
             return jdCResponse;
         }
-        List<SiteDto> siteDtoList = null;
+        List<SiteDto> siteDtoList = new ArrayList<>();
+        SiteQueryCondition siteQueryCondition = new SiteQueryCondition();
 
-        if (StringUtils.isEmpty(siteName)) {
-            siteDtoList = siteMapper.getByOrgIdAnd(orgId, null, siteCode, siteTypeList);
-        } else if (StringUtils.isEmpty(siteCode)) {
-            if (StringUtils.isNumeric(siteCode)) jdCResponse.toFail("站点id只能为数字");
-            siteDtoList = siteMapper.getByOrgIdAnd(orgId, siteName, null, siteTypeList);
-        } else {
-            siteDtoList = siteMapper.getByOrgIdAnd(orgId, siteName, siteCode, siteTypeList);
+        siteQueryCondition.setSiteTypes(siteTypeList);
+
+        if(StringUtils.isNotBlank(orgId) && StringUtils.isNumeric(orgId)){
+            siteQueryCondition.setOrgIds(Arrays.asList(Integer.valueOf(orgId)));
+        }
+        if (StringUtils.isNotBlank(siteName)) {
+            siteQueryCondition.setSiteNameLike(siteName);
+        }
+        if (StringUtils.isNotBlank(siteCode) && StringUtils.isNumeric(siteCode)) {
+            siteQueryCondition.setSiteCodes(Arrays.asList(Integer.valueOf(siteCode)));
+        }
+
+        try{
+            List<BasicSite> basicSites = siteQueryService.querySiteByConditionFromEs(siteQueryCondition,200);
+            if( basicSites!=null && !basicSites.isEmpty()){
+                for(BasicSite basicSite : basicSites){
+                    SiteDto siteDto = new SiteDto();
+                    BeanUtils.copyProperties(basicSite,siteCode);
+                    siteDtoList.add(siteDto);
+                }
+            }
+        }catch (Exception e){
+            log.error("AbnormalReportingGatewayServiceImpl#querySite获取站点数据异常{}，{}",JsonHelper.toJson(siteQueryCondition),e.getMessage(),e);
         }
 
         jdCResponse.setData(siteDtoList);

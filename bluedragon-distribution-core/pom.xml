@@ -565,14 +565,8 @@
 		<dependency>
             <groupId>com.jd.ump</groupId>
             <artifactId>profiler</artifactId>
-            <version>4.1.0</version>
+            <version>6.2.9</version>
         </dependency>
-
-		<dependency>
-               <groupId>com.jd.ump</groupId>
-               <artifactId>jannotation</artifactId>
-               <version>4.1.0</version>
-    	</dependency>
 
         <dependency>
             <groupId>com.jd.jim.cli</groupId>
@@ -1261,7 +1255,13 @@
             <groupId>com.jd.eclp</groupId>
             <artifactId>eclp-co-api</artifactId>
             <version>0.0.1-PRE-SNAPSHOT</version>
-        </dependency>
+            <exclusions>
+				<exclusion>
+					<artifactId>fastjson</artifactId>
+					<groupId>com.alibaba</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 
 		<dependency>
 			<groupId>com.jd.lop</groupId>
@@ -1299,6 +1299,10 @@
 					<artifactId>jboss-logging</artifactId>
 					<groupId>org.jboss.logging</groupId>
 				</exclusion>
+				<exclusion>
+					<artifactId>jackson-annotations</artifactId>
+					<groupId>com.fasterxml.jackson.core</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 
@@ -1327,6 +1331,30 @@
 				<exclusion>
 					<artifactId>fastjson</artifactId>
 					<groupId>com.alibaba</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jackson-annotations</artifactId>
+					<groupId>com.fasterxml.jackson.core</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jackson-core</artifactId>
+					<groupId>com.fasterxml.jackson.core</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jackson-databind</artifactId>
+					<groupId>com.fasterxml.jackson.core</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jackson-dataformat-cbor</artifactId>
+					<groupId>com.fasterxml.jackson.dataformat</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jackson-dataformat-smile</artifactId>
+					<groupId>com.fasterxml.jackson.dataformat</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jackson-dataformat-yaml</artifactId>
+					<groupId>com.fasterxml.jackson.dataformat</groupId>
 				</exclusion>
 			</exclusions>
 		</dependency>
