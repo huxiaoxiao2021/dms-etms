@@ -651,5 +651,9 @@
     <!-- eclp站内信相关接口https://cf.jd.com/pages/viewpage.action?pageId=220750823  -->
     <jsf:consumer id="importService" interface="com.jd.eclp.bbp.notice.open.ImportService" protocol="jsf"
                   alias="${jsf.eclp.importService.alias}" serialization="hessian" timeout="${jsf.eclp.importService.timeout}" retries="${jsf.retries}">
-    </jsf:consumer>     
+    </jsf:consumer>
+
+    <jsf:consumer id="siteQueryService" interface="com.jd.ql.dms.report.SiteQueryService"
+                  protocol="jsf" alias="${jsf.reportExternalService.alias}" timeout="${jsf.reportExternalService.timeout}" retries="${jsf.retries}" >
+    </jsf:consumer>
 </beans>
