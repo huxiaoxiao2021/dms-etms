@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.collect.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.collect.dao.CollectGoodsAreaDao;
@@ -11,7 +12,6 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
-import com.jd.fastjson.JSONObject;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import org.apache.commons.lang.StringUtils;
@@ -74,14 +74,11 @@ public class CollectGoodsAreaServiceImpl extends BaseService<CollectGoodsArea> i
 	}
 
     /**
-     * 校验场地权限并记录日志
-     * @param userErp
+     * 校验场地权限
      * @param createSiteCode
-     * @param codes
      */
     @Override
-    public boolean checkAuthority(String userErp,Integer createSiteCode,List<String> codes) {
-        long startTime = System.currentTimeMillis();
+    public boolean checkAuthority(Integer createSiteCode) {
         String collectGoodsDeleteSites = uccPropertyConfiguration.getCollectGoodsDeleteSites();
         if(StringUtils.isEmpty(collectGoodsDeleteSites)){
             return true;
@@ -92,7 +89,19 @@ public class CollectGoodsAreaServiceImpl extends BaseService<CollectGoodsArea> i
                 && !siteCodes.contains(String.valueOf(createSiteCode))){
             return true;
         }
+        return false;
+    }
+
+    /**
+     * 记录businessLog日志
+     * @param userErp
+     * @param createSiteCode
+     * @param codes
+     */
+    @Override
+    public void writeLog(String userErp, Integer createSiteCode, List<String> codes) {
         try {
+            long startTime = System.currentTimeMillis();
             JSONObject request = new JSONObject();
             request.put("operatorCode",userErp);
             request.put("siteCode", createSiteCode);
@@ -115,6 +124,5 @@ public class CollectGoodsAreaServiceImpl extends BaseService<CollectGoodsArea> i
         }catch (Exception e){
             log.error("集货区删除记录businessLog异常!",e);
         }
-        return false;
     }
 }
