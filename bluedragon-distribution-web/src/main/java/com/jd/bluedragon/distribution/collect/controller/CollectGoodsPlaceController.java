@@ -1,14 +1,17 @@
 package com.jd.bluedragon.distribution.collect.controller;
 
-import java.util.List;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.distribution.collect.domain.*;
+import com.jd.bluedragon.distribution.collect.domain.CollectGoodsPlace;
+import com.jd.bluedragon.distribution.collect.domain.CollectGoodsPlaceCondition;
+import com.jd.bluedragon.distribution.collect.domain.CollectGoodsPlaceStatusEnum;
 import com.jd.bluedragon.distribution.collect.service.CollectGoodsAreaService;
 import com.jd.bluedragon.distribution.collect.service.CollectGoodsDetailService;
+import com.jd.bluedragon.distribution.collect.service.CollectGoodsPlaceService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,9 +23,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.jd.bluedragon.distribution.collect.service.CollectGoodsPlaceService;
-import com.jd.ql.dms.common.domain.JdResponse;
-import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -214,6 +216,19 @@ public class CollectGoodsPlaceController {
 	public @ResponseBody JdResponse<Integer> deleteByIds(@RequestBody List<Long> ids) {
 		JdResponse<Integer> rest = new JdResponse<Integer>();
 		try {
+            ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+            if(erpUser == null){
+                rest.toError("未获取到登录人信息！");
+                return rest;
+            }
+            String userCode = erpUser.getUserCode();
+            Integer createSiteCode = getLoginUserSiteCode(userCode);
+            // 没有删除权限，直接返回
+            if(collectGoodsAreaService.checkAuthority(createSiteCode)){
+                rest.toFail("不可删除，可邮件express_dms@jd.com申请开启场地的删除权限!");
+                return rest;
+            }
+
 			for(Long id : ids){
 				CollectGoodsPlace collectGoodsPlace = collectGoodsPlaceService.findById(id);
 				if(!collectGoodsPlace.getCollectGoodsPlaceStatus().toString().equals(CollectGoodsPlaceStatusEnum.FREE_0.getCode())){
@@ -221,15 +236,34 @@ public class CollectGoodsPlaceController {
 					return rest;
 				}
 			}
-
-
 			rest.setData(collectGoodsPlaceService.deleteByIds(ids));
+
+            // 记录businessLog日志
+            List<String> codes = new ArrayList<>();
+            for (Long id : ids){
+                codes.add(String.valueOf(id));
+            }
+            collectGoodsAreaService.writeLog(userCode,createSiteCode,codes);
 		} catch (Exception e) {
 			log.error("fail to delete！",e);
 			rest.toError("删除失败，服务异常！");
 		}
 		return rest;
 	}
+
+    /**
+     * 获取登录人所在站点
+     * @param userCode
+     * @return
+     */
+    private Integer getLoginUserSiteCode(String userCode) {
+        BaseStaffSiteOrgDto baseDto = baseMajorManager.getBaseStaffByErpNoCache(userCode);
+        if (baseDto!=null && baseDto.getSiteType() == Constants.TRANS_SORTING_SITE_TYPE) {
+            return baseDto.getSiteCode();
+        }
+        return new Integer(0);
+    }
+
 	/**
 	 * 根据条件分页查询数据信息
 	 * @param collectGoodsPlaceCondition

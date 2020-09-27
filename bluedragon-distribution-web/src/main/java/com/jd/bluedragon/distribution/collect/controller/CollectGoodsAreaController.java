@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -95,25 +94,7 @@ public class CollectGoodsAreaController {
 	public @ResponseBody JdResponse<Integer> deleteByIds(@RequestBody List<Long> ids) {
 		JdResponse<Integer> rest = new JdResponse<Integer>();
 		try {
-            ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-            if(erpUser == null){
-                rest.toError("未获取到登录人信息！");
-                return rest;
-            }
-            String userCode = erpUser.getUserCode();
-            Integer createSiteCode = getLoginUserSiteCode(userCode);
-            // 没有删除权限，直接返回
-            if(collectGoodsAreaService.checkAuthority(createSiteCode)){
-                rest.toFail("不可删除，可邮件express_dms@jd.com申请开启场地的删除权限!");
-                return rest;
-            }
 			rest.setData(collectGoodsAreaService.deleteByIds(ids));
-            // 记录businessLog日志
-            List<String> codes = new ArrayList<>();
-            for (Long id : ids){
-                codes.add(String.valueOf(id));
-            }
-            collectGoodsAreaService.writeLog(userCode,createSiteCode,codes);
 		} catch (Exception e) {
 			log.error("fail to delete！",e);
 			rest.toError("删除失败，服务异常！");
@@ -130,15 +111,20 @@ public class CollectGoodsAreaController {
 	public @ResponseBody JdResponse<Boolean> deleteByCodes(@RequestBody List<String> codes) {
 		JdResponse<Boolean> rest = new JdResponse<>();
 		try {
+			Integer createSiteCode = 0;
+
 			ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
 			String userCode;
 			if(erpUser!=null){
 				userCode = erpUser.getUserCode();
+				BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(userCode);
+				if (bssod!=null && bssod.getSiteType() == 64) {/** 站点类型为64的时候为分拣中心 **/
+					createSiteCode = bssod.getSiteCode();
+				}
 			}else {
 				rest.toError("未获取到登录人信息！");
 				return rest;
 			}
-            Integer createSiteCode = getLoginUserSiteCode(userCode);
 
 			for(String code : codes){
 				//校验货区是否有货
@@ -168,20 +154,7 @@ public class CollectGoodsAreaController {
 		return rest;
 	}
 
-    /**
-     * 获取登录人所在站点
-     * @param userCode
-     * @return
-     */
-    private Integer getLoginUserSiteCode(String userCode) {
-        BaseStaffSiteOrgDto baseDto = baseMajorManager.getBaseStaffByErpNoCache(userCode);
-        if (baseDto!=null && baseDto.getSiteType() == Constants.TRANS_SORTING_SITE_TYPE) {
-            return baseDto.getSiteCode();
-        }
-	    return new Integer(0);
-    }
-
-    /**
+	/**
 	 * 根据条件分页查询数据信息
 	 * @param collectGoodsAreaCondition
 	 * @return
