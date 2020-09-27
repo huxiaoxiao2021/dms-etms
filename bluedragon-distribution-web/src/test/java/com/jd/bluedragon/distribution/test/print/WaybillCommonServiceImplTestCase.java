@@ -219,23 +219,27 @@ public class WaybillCommonServiceImplTestCase {
 				"1.00",
 				"15.01",
 				"15.01",
+				"1.00",
 				};
 		Double[] topayTotalReceivables ={
 				2.01111111,
 				2.01111111,
 				2.0111111,
-				null
+				null,
+				1.0
 				};
 		String[] checkResults1 = {
 				"",
 				"代收货款：1.00￥",
 				"代收货款：15.01￥",
-				"代收货款：15.01￥"
+				"代收货款：15.01￥",
+				"代收货款：1.00￥"
 			};
 		String[] checkResults2 = {
 				"运费合计：2.01￥",
 				"运费合计：1.01￥",
 				"",
+				"",				
 				""
 		};
 		for(int i=0 ; i < codMoneys.length; i++ ){

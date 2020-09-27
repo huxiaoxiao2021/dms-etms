@@ -157,15 +157,6 @@ public interface WaybillSignConstants {
 	char CHAR_43_6 = '6';
 
 	/**
-	 * C端收运费
-     */
-	int C_COLLECT_FEES_POSITION_25 = 25;
-    /**
-     *寄付运费
-     */
-	char C_COLLECT_FEES_CHAR_25_3 = '3';
-
-	/**
 	 * 逆向运单类型（外单）
      */
 	int POSITION_61 = 61;
@@ -287,6 +278,10 @@ public interface WaybillSignConstants {
 	 * */
 	int POSITION_25 = 25;
 	char CHAR_25_0 = '0';
+	char CHAR_25_1 = '1';
+	char CHAR_25_2 = '2';
+	char CHAR_25_3 = '3';
+	char CHAR_25_4 = '4';
 	char CHAR_25_5 = '5';
 	
 	int POSITION_16 = 16;
