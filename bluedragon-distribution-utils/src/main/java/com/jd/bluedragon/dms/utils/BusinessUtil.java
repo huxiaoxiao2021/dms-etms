@@ -1575,6 +1575,16 @@ public class BusinessUtil {
     }
 
     /**
+     * 判断是否函速达用户拒收运单，waybill_sign第31位等于B且waybill_sign第5位等于5
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isLetterExpressReject(String waybillSign) {
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_B) && isSignChar(waybillSign, WaybillSignConstants.POSITION_5, WaybillSignConstants.CHAR_5_5);
+    }
+
+    /**
      * 判断是否是集包袋编号
      * @param materialCode
      * @return

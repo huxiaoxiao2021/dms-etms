@@ -549,6 +549,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
      * 逆向换单限制校验
      * 拒收和异常处理的运单才可以执行逆向换单（该限制仅限手工逆向换单操作）
      * （纯配外单 且 理赔完成 且 物权归京东的才可以执行逆向换单）
+     * 函速达拒收件不允许换单
      * @param wayBillCode
      * @return
      */
@@ -588,7 +589,15 @@ public class ReversePrintServiceImpl implements ReversePrintService {
             result.setMessage("该订单已经妥投，不能触发逆向新单");
             return result;
         }
-        //2.2拒收运单，可以操作逆向换单
+
+        //2.2函速达拒收件不允许换单
+        if(BusinessUtil.isLetterExpressReject(waybillDto.getWaybill().getWaybillSign())){
+            result.setData(false);
+            result.setMessage("此为函速达运单，拒收请报废");
+            return result;
+        }
+
+        //2.3拒收运单，可以操作逆向换单
         if(wdomain != null && Constants.WAYBILL_REJECT_CODE.equals(wdomain.getWaybillState())){
             reverseSpareEclp.checkIsPureMatch(waybillDto.getWaybill().getWaybillCode(),waybillDto.getWaybill().getWaybillSign(),result);
             return result;
