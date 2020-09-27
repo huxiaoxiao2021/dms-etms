@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.ver.filter.Filter;
 import com.jd.bluedragon.distribution.ver.filter.FilterChain;
 import com.jd.bluedragon.distribution.waybill.domain.CancelWaybill;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.slf4j.Logger;
@@ -38,7 +39,12 @@ public class WaybillDistributeTypeChangeFilter implements Filter {
         logger.info("TransferHandler处理开始");
 
         String waybillCode = request.getWaybillCode();
-        BlockResponse response = waybillService.checkWaybillBlock(waybillCode, CancelWaybill.FEATURE_TYPE_ORDER_MODIFY);
+        BlockResponse response = null;
+        if (WaybillUtil.isPackageCode(request.getPackageCode())) {
+            response = waybillService.checkPackageBlock(request.getPackageCode(), CancelWaybill.FEATURE_TYPE_ORDER_MODIFY);
+        } else {
+            response = waybillService.checkWaybillBlock(waybillCode, CancelWaybill.FEATURE_TYPE_ORDER_MODIFY);
+        }
         logger.info(MessageFormat.format("查询运单号：{0},是否为修改配送方式拦截，返回值{1}", waybillCode, JSON.toJSONString(response)));
 
         if (response != null && response.getResult()!= null &&!response.getResult()) {
@@ -52,7 +58,7 @@ public class WaybillDistributeTypeChangeFilter implements Filter {
                     }
                     warnMessage.append(",").append(noPrintPackages.get(i));
                 }
-                throw new SortingCheckException(SortingResponse.CODE_29411, MessageFormat.format(SortingResponse.MESSAGE_29411,waybillCode, warnMessage.toString(),countNoReprint));
+                throw new SortingCheckException(SortingResponse.CODE_29411, MessageFormat.format(SortingResponse.MESSAGE_29411,waybillCode,warnMessage,countNoReprint));
             }
         }
 

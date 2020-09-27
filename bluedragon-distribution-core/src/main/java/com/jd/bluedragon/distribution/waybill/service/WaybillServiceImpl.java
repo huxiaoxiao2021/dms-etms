@@ -629,6 +629,45 @@ public class WaybillServiceImpl implements WaybillService {
         return cancelResponse;
     }
 
+    @Override
+    public BlockResponse checkPackageBlock(String packageCode, Integer featureType) {
+        BlockResponse cancelResponse = new BlockResponse();
+        if (featureType == null) {
+            cancelResponse.setMessage("入参的业务类型featureType不能为空");
+            cancelResponse.setCode(BlockResponse.ERROR_PARAM);
+            log.error(MessageFormat.format("按包裹号{0}查询拦截,featureType为空", packageCode));
+            return cancelResponse;
+        }
+        if (StringUtils.isBlank(packageCode) || !WaybillUtil.isPackageCode(packageCode)) {
+            cancelResponse.setMessage("包裹号为空或格式非法");
+            cancelResponse.setCode(BlockResponse.ERROR_PARAM);
+            log.error(MessageFormat.format("按包裹号{0}查询拦截,packageCode为空或格式非法", packageCode));
+            return cancelResponse;
+        }
+        //根据包裹号查询拦截记录
+        CancelWaybill cancelWaybill = cancelWaybillDao.findPackageBlockedByCodeAndFeatureType(packageCode, featureType);
+        if (cancelWaybill == null) {
+            cancelResponse.setMessage("没有拦截记录无需拦截");
+            cancelResponse.setCode(BlockResponse.NO_NEED_BLOCK);
+            log.info(MessageFormat.format("根据包裹号：{0}未查到拦截记录", packageCode));
+            return cancelResponse;
+        }
+        //锁定状态
+        if (CancelWaybill.BUSINESS_TYPE_LOCK.equals(cancelWaybill.getBusinessType())) {
+            cancelResponse.setMessage("该包裹拦截待处理");
+            cancelResponse.setCode(BlockResponse.BLOCK);
+            cancelResponse.setBlockPackageCount(1L);
+            cancelResponse.setBlockPackages(Collections.singletonList(packageCode));
+            log.info(MessageFormat.format("根据包裹号：{0}该包裹为拦截状态", packageCode));
+            return cancelResponse;
+        }
+        //解锁状态
+        cancelResponse.setMessage("该包裹拦截已解除");
+        cancelResponse.setCode(BlockResponse.UNBLOCK);
+        log.info(MessageFormat.format("根据包裹号：{0}查询拦截状态，该包裹拦截已解除", packageCode));
+        return cancelResponse;
+    }
+
     /**
      * 根据FeatureType获取拦截结果
      *

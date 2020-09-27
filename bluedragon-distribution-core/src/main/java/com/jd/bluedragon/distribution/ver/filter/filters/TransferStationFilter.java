@@ -49,9 +49,10 @@ public class TransferStationFilter implements Filter {
                     throw new SortingCheckException(SortingResponse.CODE_39118,
                             SortingResponse.MESSAGE_39118);
                 }
+            } else {
+                throw new SortingCheckException(SortingResponse.CODE_39003,
+                        SortingResponse.MESSAGE_39003);
             }
-            throw new SortingCheckException(SortingResponse.CODE_39003,
-                    SortingResponse.MESSAGE_39003);
         }
         //endregion
 

@@ -6,9 +6,17 @@
     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
     http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
 
+    <util:list id="proceedFilterList">
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.SortingNumberLimitFilter" />
+    </util:list>
+
+    <bean id="proceedFilterChain" class="com.jd.bluedragon.distribution.ver.filter.chains.ProceedFilterChain" scope="prototype" destroy-method="destory">
+        <property name="filterList" ref="proceedFilterList">
+        </property>
+    </bean>
+
     <util:list id="forwardFilterList">
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillPackStateFilter"/>
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.SortingNumberLimitFilter" />
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.AllianceBusiFilter" />
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.TipMessageFilter" />
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.BusinessHallFreightSendReceiveFilter" />
@@ -37,6 +45,7 @@
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ContractFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CODFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.AirBoxFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.DmsToVendorFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CrossDistributionFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FastTransferStationFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ChangeWaybillSignFilter"/>

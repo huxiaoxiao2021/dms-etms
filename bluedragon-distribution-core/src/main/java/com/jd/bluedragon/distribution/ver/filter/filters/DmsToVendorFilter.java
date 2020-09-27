@@ -66,11 +66,16 @@ public class DmsToVendorFilter implements Filter {
         request.setDmsId(siteCode);
         request.setVendorId(vendorId);
         request.setWaybillSign(waybillSign);
-
-        BaseResponse<Boolean> dmsToVendor =  dmsToVendorDispatchService.dispatchToExpress(request);
-        if(dmsToVendor.getCode() != BaseResponse.OK_CODE || dmsToVendor.getData() ==null || !dmsToVendor.getData()) {
-            logger.warn("C网转B网校验不通过，参数：{}；结果：{}", JsonHelper.toJson(request), JsonHelper.toJson(dmsToVendor));
+        try {
+            BaseResponse<Boolean> dmsToVendor =  dmsToVendorDispatchService.dispatchToExpress(request);
+            if(dmsToVendor.getCode() == BaseResponse.OK_CODE && dmsToVendor.getData() != null && ! dmsToVendor.getData()) {
+                logger.warn("C网转B网校验不通过，参数：{}；结果：{}", JsonHelper.toJson(request), JsonHelper.toJson(dmsToVendor));
+                return true;
+            }
+        } catch (Exception e) {
+            logger.error("C网转B网调用异常，参数：{}", JsonHelper.toJson(request), e);
         }
-        return dmsToVendor.getData();
+
+        return false;
     }
 }

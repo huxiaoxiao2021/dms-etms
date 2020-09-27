@@ -50,6 +50,7 @@
         <property name="collectionAddressSiteCodes" value="${collectionAddressSiteCodes}"/>
 		<property name="boxLimitSites" value="${boxLimitSites:''}"/>
 		<property name="weightVolumeFilterWholeCountryFlag" value="${weightVolumeFilterWholeCountryFlag}" />
+		<property name="singleSendSwitchVerToWebSites" value="${singleSendSwitchVerToWebSites}" />
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -84,6 +85,7 @@
 				<value>uccPropertyConfiguration.collectionAddressSiteCodes</value>
 				<value>uccPropertyConfiguration.boxLimitSites</value>
 				<value>uccPropertyConfiguration.weightVolumeFilterWholeCountryFlag</value>
+				<value>uccPropertyConfiguration.singleSendSwitchVerToWebSites</value>
 			</list>
 		</property>
 	</bean>

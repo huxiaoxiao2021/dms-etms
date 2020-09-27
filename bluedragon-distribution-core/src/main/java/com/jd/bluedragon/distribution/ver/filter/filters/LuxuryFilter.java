@@ -2,18 +2,18 @@ package com.jd.bluedragon.distribution.ver.filter.filters;
 
 
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
+import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.rule.domain.Rule;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
+import com.jd.bluedragon.distribution.ver.domain.Site;
 import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.ver.filter.Filter;
 import com.jd.bluedragon.distribution.ver.filter.FilterChain;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.utils.BoxHelper;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.SiteHelper;
-import com.jd.bluedragon.utils.WaybillCacheHelper;
+import com.jd.bluedragon.utils.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author dudong
@@ -22,6 +22,9 @@ import org.slf4j.LoggerFactory;
 public class LuxuryFilter implements Filter {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    private SiteService siteService;
 
     @Override
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
@@ -39,7 +42,8 @@ public class LuxuryFilter implements Filter {
                 throw new SortingCheckException(SortingResponse.CODE_29109,
                         SortingResponse.MESSAGE_29109);
             } else if (BoxHelper.isLuxuryForForward(request.getBox())) {
-                if (! SiteHelper.isPartnerBySiteSubType(request.getReceiveSite())) {
+                Site site = siteService.get(request.getBox().getReceiveSiteCode());
+                if ((site == null || site.getType() == null) && ! SiteHelper.isPartnerBySiteSubType(request.getReceiveSite())) {
                     String sBoxReceiveSiteType =  request.getsReceiveSiteSubType();
                     if (!SiteHelper.matchSiteTypeRule(rule1.getContent(), sBoxReceiveSiteType)) {
                         throw new SortingCheckException(SortingResponse.CODE_29109,

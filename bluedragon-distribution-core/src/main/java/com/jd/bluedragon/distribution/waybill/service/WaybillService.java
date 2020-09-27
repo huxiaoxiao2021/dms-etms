@@ -122,4 +122,6 @@ public interface WaybillService {
      */
     BlockResponse checkWaybillBlock(String waybillCode, Integer featureType);
 
+    BlockResponse checkPackageBlock(String packageCode, Integer featureType);
+
 }

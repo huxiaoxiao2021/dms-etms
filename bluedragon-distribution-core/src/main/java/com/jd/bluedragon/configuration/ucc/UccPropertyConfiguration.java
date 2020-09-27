@@ -117,6 +117,8 @@ public class UccPropertyConfiguration {
     /** 漏称重量方校验 开通全国开关；true打开全国 */
     private boolean weightVolumeFilterWholeCountryFlag;
 
+    private String singleSendSwitchVerToWebSites;
+
     public boolean isLogToBusinessLogByKafka() {
         return logToBusinessLogByKafka;
     }
@@ -331,5 +333,13 @@ public class UccPropertyConfiguration {
 
     public void setWeightVolumeFilterWholeCountryFlag(boolean weightVolumeFilterWholeCountryFlag) {
         this.weightVolumeFilterWholeCountryFlag = weightVolumeFilterWholeCountryFlag;
+    }
+
+    public String getSingleSendSwitchVerToWebSites() {
+        return singleSendSwitchVerToWebSites;
+    }
+
+    public void setSingleSendSwitchVerToWebSites(String singleSendSwitchVerToWebSites) {
+        this.singleSendSwitchVerToWebSites = singleSendSwitchVerToWebSites;
     }
 }

@@ -354,7 +354,7 @@ public class SortingResponse extends JdResponse {
     public static final String MESSAGE_29414 = "运单为寄付营业厅运单，未操作揽收完成不允许发货/建箱!";
 
     public static final Integer CODE_29411 = 29411;
-    public static final String MESSAGE_29411 = "运单{0}配送方式或时间变化,共{2}个包裹需换面单，请【包裹补打】换面单!";
+    public static final String MESSAGE_29411 = "运单{0}配送方式或时间变化,{1}共{2}个包裹需换面单，请【包裹补打】换面单!";
 
     public static final Integer CODE_29415 = 29415;
     public static final String MESSAGE_29415 = "此箱号内为半退单，需单独建箱，其他类型运单禁止混装";

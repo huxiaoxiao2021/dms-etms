@@ -31,6 +31,8 @@ public class ZiTiGuiFilter implements Filter {
     @Autowired
     private BaseService baseService;
 
+    private static String ZITIGUI = "28";
+
     @Override
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
 
@@ -52,7 +54,7 @@ public class ZiTiGuiFilter implements Filter {
                         SortingResponse.MESSAGE_29116);
             }
             // 自提柜跨分拣取消提示
-            if (! "28".equals(request.getsReceiveSiteSubType()) && !DISTRIBUTE_CENTER_TYPE.equals(request.getReceiveSite().getType())) {
+            if (! ZITIGUI.equals(request.getsReceiveSiteSubType()) && !DISTRIBUTE_CENTER_TYPE.equals(request.getReceiveSite().getType())) {
                 Integer selfhelpBoxBelongSiteCode = null;
                 if(waybillSite != null){
                     selfhelpBoxBelongSiteCode = baseService.getSiteSelfDBySiteCode(waybillSite.getCode());
@@ -63,7 +65,7 @@ public class ZiTiGuiFilter implements Filter {
                     isSelfOrderDisToSelfOrderSite = Boolean.TRUE;
                 }
             }
-        } else if (! BusinessUtil.isZiTiGui(request.getWaybillCache().getSendPay()) && "28".equals(request.getsReceiveSiteSubType())) {
+        } else if (! BusinessUtil.isZiTiGui(request.getWaybillCache().getSendPay()) && ZITIGUI.equals(request.getsReceiveSiteSubType())) {
             throw new SortingCheckException(SortingResponse.CODE_29209,
                     SortingResponse.MESSAGE_29209);
         }

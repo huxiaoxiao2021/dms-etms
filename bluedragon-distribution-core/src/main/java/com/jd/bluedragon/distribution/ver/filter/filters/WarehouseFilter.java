@@ -4,6 +4,8 @@ import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
+import com.jd.bluedragon.distribution.receive.domain.CanReceiveTypeEnum;
+import com.jd.bluedragon.distribution.receive.domain.ReceiveTypeEnum;
 import com.jd.bluedragon.distribution.reverse.dao.ReverseReceiveDao;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
 import com.jd.bluedragon.distribution.reverse.service.ReverseReceiveService;
@@ -49,9 +51,10 @@ public class WarehouseFilter implements Filter {
             } catch (Exception e) {
                 logger.error("获取逆向收货信息失败，运单号{}", request.getWaybillCode(), e);
             }
-            //reveser_receive.can_receive==3时代表备件库已收货
-            if (reverseReceive != null && reverseReceive.getReceiveType() == 3 && reverseReceive.getCanReceive() == 1) {
-                throw new SortingCheckException(SortingResponse.CODE_10008 , SortingResponse.MESSAGE_WAYBILL_SPS_RECEIVED);
+            if (reverseReceive != null
+                    && reverseReceive.getReceiveType() == ReceiveTypeEnum.REVERSE_RECEIVE_WMS.getCode()
+                    && reverseReceive.getCanReceive() == CanReceiveTypeEnum.REVERSE_RECEIVE.getCode()) {
+                throw new SortingCheckException(SortingResponse.CODE_10009 , SortingResponse.MESSAGE_WAYBILL_STOREHOUSE_RECEIVED);
             }
 
             Integer result = productService.getWaybillLossResult(request.getWaybillCode());

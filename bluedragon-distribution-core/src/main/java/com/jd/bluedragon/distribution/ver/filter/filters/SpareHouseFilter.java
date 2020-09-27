@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.ver.filter.filters;
 
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.product.service.ProductService;
+import com.jd.bluedragon.distribution.receive.domain.CanReceiveTypeEnum;
+import com.jd.bluedragon.distribution.receive.domain.ReceiveTypeEnum;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
 import com.jd.bluedragon.distribution.reverse.service.ReverseReceiveService;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
@@ -34,11 +36,13 @@ public class SpareHouseFilter implements Filter {
         if (isSpsHouse) {
             ReverseReceive reverseReceive = reverseReceiveService.findByPackageCode(request.getWaybillCode());
             //reveser_receive.can_receive==1时库已收货
-            if (reverseReceive != null && reverseReceive.getReceiveType() == 1 && reverseReceive.getCanReceive() == 1) {
-                throw new SortingCheckException(SortingResponse.CODE_10010,SortingResponse.MESSAGE_WAYBILL_STOREHOUSE_RECEIVED);
+            if (reverseReceive != null
+                    && reverseReceive.getReceiveType() == ReceiveTypeEnum.REVERSE_RECEIVE_SPWMS.getCode()
+                    && reverseReceive.getCanReceive() == CanReceiveTypeEnum.REVERSE_RECEIVE.getCode()) {
+                throw new SortingCheckException(SortingResponse.CODE_10008,SortingResponse.MESSAGE_WAYBILL_SPS_RECEIVED);
             }
             Integer result = productService.getWaybillLossResult(request.getWaybillCode());
-            if(result != -1)
+            if(result!=-1)
                 throw new SortingCheckException(SortingResponse.CODE_10011,SortingResponse.MESSAGE_WAYBILL_HAS_LOSS);
         }
 

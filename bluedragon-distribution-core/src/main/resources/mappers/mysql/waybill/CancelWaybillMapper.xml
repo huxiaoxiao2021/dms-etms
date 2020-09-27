@@ -92,4 +92,26 @@
 		AND yn = 1
 		AND business_type= #{businessType,jdbcType=VARCHAR}
 	</select>
+
+	<select id="findPackageBlockedByCodeAndFeatureType" parameterType="java.util.Map" resultMap="cancelWaybill">
+		SELECT
+		waybill_code,
+		package_code,
+		feature_type,
+		create_time,
+		update_time,
+		business_type,
+		intercept_type,
+		intercept_mode,
+		operate_time,
+		operate_time_order,
+		yn,
+		ts
+		FROM Waybill_Cancel
+		WHERE
+		package_code = #{packageCode,jdbcType=VARCHAR}
+		AND feature_type = #{featureType,jdbcType=INTEGER}
+		AND yn = 1
+		order by operate_time_order desc limit 1
+	</select>
 </mapper>
