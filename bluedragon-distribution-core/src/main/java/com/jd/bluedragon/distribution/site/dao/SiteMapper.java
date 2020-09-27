@@ -9,8 +9,6 @@ import java.util.List;
 
 public interface SiteMapper {
 
-    List<SiteDto> getByOrgIdAnd(@Param("orgId") String orgId, @Param("siteName") String siteName, @Param("siteCode") String siteCode, @Param("siteTypeList") List<String> siteTypeList);
-
     Site get(Integer siteCode);
 
 }
