@@ -49,6 +49,7 @@
 		<property name="switchVerToWebSites" value="${switchVerToWebSites}"/>
         <property name="collectionAddressSiteCodes" value="${collectionAddressSiteCodes}"/>
 		<property name="boxLimitSites" value="${boxLimitSites:''}"/>
+		<property name="collectGoodsDeleteSites" value="${collectGoodsDeleteSites}"/>
 		<property name="weightVolumeFilterWholeCountryFlag" value="${weightVolumeFilterWholeCountryFlag}" />
 		<property name="singleSendSwitchVerToWebSites" value="${singleSendSwitchVerToWebSites}" />
 	</bean>
@@ -84,6 +85,7 @@
 				<value>uccPropertyConfiguration.disablePdaOldLogin</value>
 				<value>uccPropertyConfiguration.collectionAddressSiteCodes</value>
 				<value>uccPropertyConfiguration.boxLimitSites</value>
+				<value>uccPropertyConfiguration.collectGoodsDeleteSites</value>
 				<value>uccPropertyConfiguration.weightVolumeFilterWholeCountryFlag</value>
 				<value>uccPropertyConfiguration.singleSendSwitchVerToWebSites</value>
 			</list>

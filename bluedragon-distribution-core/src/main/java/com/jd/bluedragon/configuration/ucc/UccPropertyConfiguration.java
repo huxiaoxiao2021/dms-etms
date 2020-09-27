@@ -116,6 +116,12 @@ public class UccPropertyConfiguration {
 
     /** 漏称重量方校验 开通全国开关；true打开全国 */
     private boolean weightVolumeFilterWholeCountryFlag;
+    /**
+     * 集货区可删除站点
+     *  例：910,39（-1代表全国）
+     */
+    private String collectGoodsDeleteSites;
+
 
     private String singleSendSwitchVerToWebSites;
 
@@ -325,6 +331,14 @@ public class UccPropertyConfiguration {
 
     public void setBoxLimitSites(String boxLimitSites) {
         this.boxLimitSites = boxLimitSites;
+    }
+
+    public String getCollectGoodsDeleteSites() {
+        return collectGoodsDeleteSites;
+    }
+
+    public void setCollectGoodsDeleteSites(String collectGoodsDeleteSites) {
+        this.collectGoodsDeleteSites = collectGoodsDeleteSites;
     }
 
     public boolean getWeightVolumeFilterWholeCountryFlag() {
