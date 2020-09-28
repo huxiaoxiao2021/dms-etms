@@ -89,35 +89,10 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
                 result.init(JdCResponse.CODE_FAIL, checkResult.getMessage());
                 return result;
             }
-
-
-            reportResponse.setLength(25.34);
-            reportResponse.setWidth(29.46);
-            reportResponse.setHeight(2.52);
-            reportResponse.setWeight(454.32);
-            reportResponse.setUpstreamBoxCode("BC35436436");
-            reportResponse.setPackageCode(query.getPackageCode());
-            reportResponse.setSiteCode(query.getCurrentOperate().getSiteCode());
-            reportResponse.setBoxEndSiteId(235);
-            reportResponse.setBoxStartSiteName("通州分拣中心");
-            reportResponse.setBoxEndSiteName("顺义分拣中心");
-            reportResponse.setBoxEndSiteId(2345);
-            switch (query.getPackageCode()){
-                case "JD0003334827912-1-1-": {
-                    reportResponse.setReportType(CollectionBagExceptionReportTypeEnum.UPSTREAM_FAKE.getCode());
-                    reportResponse.setReportTypeName(CollectionBagExceptionReportTypeEnum.UPSTREAM_FAKE.getName());
-                }
-                case "JD0003334827913-1-1-": {
-                    reportResponse.setReportType(CollectionBagExceptionReportTypeEnum.UPSTREAM_NOT_DONE.getCode());
-                    reportResponse.setReportTypeName(CollectionBagExceptionReportTypeEnum.UPSTREAM_NOT_DONE.getName());
-                }
-                case "JD0003334827914-1-1-": {
-                    reportResponse.setReportType(CollectionBagExceptionReportTypeEnum.NO_EXCEPTION.getCode());
-                    reportResponse.setReportTypeName(CollectionBagExceptionReportTypeEnum.NO_EXCEPTION.getName());
-                }
-            }
-            result.setData(reportResponse);
+            
+            this.setSampleData(query, reportResponse);
             if(result != null){
+                result.setData(reportResponse);
                 return result;
             }
 
@@ -182,6 +157,37 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
         }
         result.setData(reportResponse);
         return result;
+    }
+
+    private void setSampleData(QueryBoxCollectionReportRequest query, QueryBoxCollectionReportResponse reportResponse) {
+        reportResponse.setLength(25.34);
+        reportResponse.setWidth(29.46);
+        reportResponse.setHeight(2.52);
+        reportResponse.setWeight(454.32);
+        reportResponse.setUpstreamBoxCode("BC35436436");
+        reportResponse.setPackageCode(query.getPackageCode());
+        reportResponse.setSiteCode(234);
+        reportResponse.setBoxEndSiteId(235);
+        reportResponse.setBoxStartSiteName("通州分拣中心");
+        reportResponse.setBoxEndSiteName("顺义分拣中心");
+        reportResponse.setBoxEndSiteId(2345);
+        switch (query.getPackageCode()){
+            case "JD0003334827912-1-1-": {
+                reportResponse.setReportType(CollectionBagExceptionReportTypeEnum.UPSTREAM_FAKE.getCode());
+                reportResponse.setReportTypeName(CollectionBagExceptionReportTypeEnum.UPSTREAM_FAKE.getName());
+                break;
+            }
+            case "JD0003334827913-1-1-": {
+                reportResponse.setReportType(CollectionBagExceptionReportTypeEnum.UPSTREAM_NOT_DONE.getCode());
+                reportResponse.setReportTypeName(CollectionBagExceptionReportTypeEnum.UPSTREAM_NOT_DONE.getName());
+                break;
+            }
+            case "JD0003334827914-1-1-": {
+                reportResponse.setReportType(CollectionBagExceptionReportTypeEnum.NO_EXCEPTION.getCode());
+                reportResponse.setReportTypeName(CollectionBagExceptionReportTypeEnum.NO_EXCEPTION.getName());
+                break;
+            }
+        }
     }
 
     /**
