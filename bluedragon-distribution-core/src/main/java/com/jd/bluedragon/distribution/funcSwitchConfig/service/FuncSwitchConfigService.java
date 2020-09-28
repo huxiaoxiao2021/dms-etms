@@ -75,4 +75,11 @@ public interface FuncSwitchConfigService {
      * @return
      */
     List<FuncSwitchConfigDto> getFuncSwitchConfigs(FuncSwitchConfigDto funcSwitchConfigDto);
+
+    /**
+     * 校验是否配置功能
+     * @param funcSwitchConfigDto
+     * @return
+     */
+    boolean checkIsConfigured(FuncSwitchConfigDto funcSwitchConfigDto);
 }

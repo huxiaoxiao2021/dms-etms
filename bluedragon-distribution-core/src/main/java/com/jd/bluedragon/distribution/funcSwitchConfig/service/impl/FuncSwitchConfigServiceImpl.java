@@ -7,6 +7,8 @@ import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.dao.FuncSwitchConfigDao;
 import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigCondition;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
+import com.jd.bluedragon.distribution.rule.dao.RuleDao;
+import com.jd.bluedragon.distribution.rule.domain.Rule;
 import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -36,12 +38,19 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
 
     // 导入限制 1000条
     private static final Integer IMPORT_LIMIT_MAX = 1000;
+    //预售暂存分拣规则：2100 content为1表示开启
+    private static final Integer PRE_SELL_RULE_TYPE = 2100;
+    private static final String PRE_SELL_RULE_OPEN = "1";
+    private static final String PRE_SELL_RULE_CONTENT = "预售暂存分拣规则，1表示开启";
 
     @Value("${checkAuthoritySwitch:true}")
     private boolean checkAuthoritySwitch;
 
     @Autowired
     private FuncSwitchConfigDao funcSwitchConfigDao;
+
+    @Autowired
+    private RuleDao ruleDao;
 
 //    @Autowired
 //    private HrmPrivilegeHelper hrmPrivilegeHelper;
@@ -82,6 +91,18 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
             funcSwitchConfigDto.setCreateTime(date);
             funcSwitchConfigDto.setUpdateTime(date);
             funcSwitchConfigDao.add(funcSwitchConfigDto);
+            if(FuncSwitchConfigEnum.FUNCTION_PRE_SELL.getCode() == funcSwitchConfigDto.getMenuCode()){
+                // 预售分拣暂存功能 记录预售的分拣规则
+                Rule rule = new Rule();
+                rule.setSiteCode(funcSwitchConfigDto.getSiteCode());
+                rule.setType(PRE_SELL_RULE_TYPE);
+                rule.setContent(PRE_SELL_RULE_OPEN);
+                rule.setInOut(Rule.IN);
+                rule.setMemo(PRE_SELL_RULE_CONTENT);
+                rule.setCreateUser(funcSwitchConfigDto.getCreateErp());
+                rule.setUpdateUser(funcSwitchConfigDto.getCreateErp());
+                ruleDao.add(rule);
+            }
         }catch (Exception e){
             logger.error("新增功能开关配置异常,入参【】", JsonHelper.toJson(funcSwitchConfigDto),e);
         }
@@ -270,6 +291,20 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
             return null;
         }
         return funcSwitchConfigDao.selectByFuncSwitchConfig(dto);
+    }
+
+    /**
+     * 校验是否配置功能
+     * @param dto
+     * @return
+     */
+    @Override
+    public boolean checkIsConfigured(FuncSwitchConfigDto dto) {
+        if(dto == null || dto.getMenuCode() == null
+                || dto.getDimensionCode() == null || dto.getSiteCode() == null){
+            return false;
+        }
+        return funcSwitchConfigDao.selectConfiguredCount(dto) > 0;
     }
 
 }

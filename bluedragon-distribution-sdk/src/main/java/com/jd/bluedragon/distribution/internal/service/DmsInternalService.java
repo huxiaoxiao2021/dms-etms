@@ -16,8 +16,6 @@ import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigDto;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.wss.dto.BaseEntity;
 
-import java.util.List;
-
 /**
  * @author dudong
  * @date 2016/1/4
@@ -235,9 +233,9 @@ public interface DmsInternalService {
     JdResult<Integer> getSortingNumberInBox(String boxCode,Integer createSiteCode);
 
     /**
-     * 查询符合条件的功能开关配置
+     * 校验是否有配置
      * @param funcSwitchConfigDto
      * @return
      */
-    InvokeResult<List<FuncSwitchConfigDto>> getFuncSwitchConfigs(FuncSwitchConfigDto funcSwitchConfigDto);
+    InvokeResult<Boolean> checkIsConfigured(FuncSwitchConfigDto funcSwitchConfigDto);
 }

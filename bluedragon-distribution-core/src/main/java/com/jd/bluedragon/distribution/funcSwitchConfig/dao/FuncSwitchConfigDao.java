@@ -74,4 +74,8 @@ public class FuncSwitchConfigDao extends BaseDao<FuncSwitchConfigDto> {
     public int updateByFuncSwitchConfig(FuncSwitchConfigDto funcSwitchConfigDto) {
         return this.getSqlSession().update(namespace + ".updateByFuncSwitchConfig",funcSwitchConfigDto);
     }
+
+    public int selectConfiguredCount(FuncSwitchConfigDto dto) {
+        return this.getSqlSession().selectOne(namespace + ".selectConfiguredCount",dto);
+    }
 }

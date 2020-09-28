@@ -39,6 +39,7 @@ public class Constants {
     public static final String PUNCTUATION_CLOSE_BRACKET_SMALL = ")";
     public static final String OPERATE_SUCCESS = "1";
     public static final String OPERATE_FAIL = "0";
+    public static final String UNDERLINE_FILL = "_";
     public static final String EMPTY_FILL = "";
     public static final String MIXED_SITE_NAME_PREFIX = "【集】";
 
