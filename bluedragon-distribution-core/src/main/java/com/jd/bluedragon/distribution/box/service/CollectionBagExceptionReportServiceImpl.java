@@ -43,6 +43,7 @@ public class CollectionBagExceptionReportServiceImpl implements CollectionBagExc
     public Response<PageDto<CollectionBagExceptionReportVo>> queryPageList(CollectionBagExceptionReportQuery query) {
         log.info("CollectionBagExceptionReportServiceImpl.queryPageList param: {}", JSON.toJSONString(query));
         Response<PageDto<CollectionBagExceptionReportVo>> result = new Response<>();
+        result.toSucceed();
         PageDto<CollectionBagExceptionReportVo> pageData = new PageDto<>();
         pageData.setCurrentPage(query.getPageNumber());
         pageData.setPageSize(query.getLimit());
@@ -58,8 +59,10 @@ public class CollectionBagExceptionReportServiceImpl implements CollectionBagExc
             }
 
         }catch (Exception e){
+            result.toError(e.getMessage());
             log.error("CollectionBagExceptionReportServiceImpl.queryPageList exception: {}", e.getMessage(), e);
         }
+        pageData.setTotalRow((int)total);
         pageData.setResult(dataList);
         return result;
     }
@@ -84,10 +87,12 @@ public class CollectionBagExceptionReportServiceImpl implements CollectionBagExc
     public Response<CollectionBagExceptionReport> selectByPrimaryKey(Long id) {
         log.info("CollectionBagExceptionReportServiceImpl.selectByPrimaryKey param: {}", id);
         Response<CollectionBagExceptionReport> result = new Response<>();
+        result.toSucceed();
         try {
             CollectionBagExceptionReport exceptionReport = collectionBagExceptionReportDao.selectByPrimaryKey(id);
             result.setData(exceptionReport);
         }catch (Exception e){
+            result.toError(e.getMessage());
             log.error("CollectionBagExceptionReportServiceImpl.selectByPrimaryKey exception: {}", e.getMessage(), e);
         }
         return result;
@@ -105,10 +110,12 @@ public class CollectionBagExceptionReportServiceImpl implements CollectionBagExc
     public Response<Integer> add(CollectionBagExceptionReport collectionBagExceptionReport) {
         log.info("CollectionBagExceptionReportServiceImpl.add param: {}", JSON.toJSONString(collectionBagExceptionReport));
         Response<Integer> result = new Response<>();
+        result.toSucceed();
         try {
             int insertCount = collectionBagExceptionReportDao.insertSelective(collectionBagExceptionReport);
             result.setData(insertCount);
         }catch (Exception e){
+            result.toError(e.getMessage());
             log.error("CollectionBagExceptionReportServiceImpl.add exception: {}", e.getMessage(), e);
         }
         return result;
@@ -126,10 +133,12 @@ public class CollectionBagExceptionReportServiceImpl implements CollectionBagExc
     public Response<Integer> updateByPrimaryKey(CollectionBagExceptionReport collectionBagExceptionReport) {
         log.info("CollectionBagExceptionReportServiceImpl.updateByPrimaryKey param: {}", JSON.toJSONString(collectionBagExceptionReport));
         Response<Integer> result = new Response<>();
+        result.toSucceed();
         try {
             int updateCount = collectionBagExceptionReportDao.updateByPrimaryKey(collectionBagExceptionReport);
             result.setData(updateCount);
         }catch (Exception e){
+            result.toError(e.getMessage());
             log.error("CollectionBagExceptionReportServiceImpl.updateByPrimaryKey exception: {}", e.getMessage(), e);
         }
         return result;

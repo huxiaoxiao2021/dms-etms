@@ -28,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -55,9 +56,6 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
     private WaybillPackageManager waybillPackageManager;
 
     @Autowired
-    private BaseMajorManager baseMajorManager;
-
-    @Autowired
     private SortingService sortingService;
 
     @Autowired
@@ -66,7 +64,8 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
     // 揽收品类
     private final static Integer DICT_PRODUCT_TYPE = 70550731;
     // 易碎类型
-    private final static Integer DICT_PRODUCT_TYPE_FRAGILE = 24;
+    @Value("${waybill.cargo_type.dict_product_type_fragile=24}")
+    private static Integer DICT_PRODUCT_TYPE_FRAGILE;
     private final static String DICT_PRODUCT_TYPE_FRAGILE_NAME = "易碎物品";
 
     /**
@@ -172,17 +171,17 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
         reportResponse.setBoxEndSiteName("顺义分拣中心");
         reportResponse.setBoxEndSiteId(2345);
         switch (query.getPackageCode()){
-            case "JD0003334827912-1-1-": {
+            case "JD0003334827912-1-3-": {
                 reportResponse.setReportType(CollectionBagExceptionReportTypeEnum.UPSTREAM_FAKE.getCode());
                 reportResponse.setReportTypeName(CollectionBagExceptionReportTypeEnum.UPSTREAM_FAKE.getName());
                 break;
             }
-            case "JD0003334827913-1-1-": {
+            case "JD0003334827912-2-3-": {
                 reportResponse.setReportType(CollectionBagExceptionReportTypeEnum.UPSTREAM_NOT_DONE.getCode());
                 reportResponse.setReportTypeName(CollectionBagExceptionReportTypeEnum.UPSTREAM_NOT_DONE.getName());
                 break;
             }
-            case "JD0003334827914-1-1-": {
+            case "JD0003334827912-3-3-": {
                 reportResponse.setReportType(CollectionBagExceptionReportTypeEnum.NO_EXCEPTION.getCode());
                 reportResponse.setReportTypeName(CollectionBagExceptionReportTypeEnum.NO_EXCEPTION.getName());
                 break;
