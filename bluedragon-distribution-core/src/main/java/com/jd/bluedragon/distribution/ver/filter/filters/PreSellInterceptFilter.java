@@ -7,14 +7,12 @@ import com.jd.bluedragon.distribution.ver.domain.FilterContext;
 import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.ver.filter.Filter;
 import com.jd.bluedragon.distribution.ver.filter.FilterChain;
+import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsMessageConstants;
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.List;
 
 /**
  * 预售发货拦截处理
@@ -58,15 +56,9 @@ public class PreSellInterceptFilter implements Filter {
             }
             FuncSwitchConfigDto dto = new FuncSwitchConfigDto();
             dto.setMenuCode(FuncSwitchConfigEnum.FUNCTION_PRE_SELL.getCode());
-            List<FuncSwitchConfigDto> funcSwitchConfigs = funcSwitchConfigService.getFuncSwitchConfigs(dto);
-            if(CollectionUtils.isEmpty(funcSwitchConfigs)){
-                return false;
-            }
-            for(FuncSwitchConfigDto funcSwitchConfigDto : funcSwitchConfigs){
-                if(siteCode.equals(funcSwitchConfigDto.getSiteCode())){
-                    return true;
-                }
-            }
+            dto.setDimensionCode(DimensionEnum.SITE.getCode());
+            dto.setSiteCode(siteCode);
+            return funcSwitchConfigService.checkIsConfigured(dto);
         }catch (Exception e){
             logger.error("查询当前站点是否配置预售分拣暂存拦截异常!",e);
         }
