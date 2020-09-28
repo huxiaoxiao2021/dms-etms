@@ -9,6 +9,7 @@ import com.jd.bluedragon.core.base.AssertQueryManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.auto.domain.UploadedPackage;
 import com.jd.bluedragon.distribution.base.domain.DmsStorageArea;
@@ -17,6 +18,7 @@ import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.inspection.InsepctionCheckDto;
 import com.jd.bluedragon.distribution.inspection.InspectionCheckCondition;
+import com.jd.bluedragon.distribution.inspection.constants.InspectionExeModeEnum;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
@@ -41,13 +43,8 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.bluedragon.utils.PropertiesHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.etms.cache.util.EnumBusiCode;
-import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
@@ -820,8 +817,60 @@ public class InspectionServiceImpl implements InspectionService {
     }
 
     @Override
-    @Cache(key = "InspectionServiceImpl.siteEnableInspectionSplitWaybill@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, redisEnable = false)
-    public boolean siteEnableInspectionSplitWaybill(Integer siteCode) {
+    public InspectionExeModeEnum findInspectionExeMode(InspectionRequest request) {
+
+        if (request.getPageNo() > 0 && request.getPageSize() > 0) {
+            return InspectionExeModeEnum.PACKAGE_PAGE_MODE;
+        }
+
+        String code = request.getPackageBarOrWaybillCode();
+        boolean isByWayBillCode = WaybillUtil.isWaybillCode(code);
+        // 大运单包裹数超过上限，验货拆分任务执行
+        boolean executeBySplitTask = isByWayBillCode && satisfyWaybillSplitCondition(request);
+
+        if (executeBySplitTask) {
+            return InspectionExeModeEnum.INIT_SPLIT_MODE;
+        }
+        else {
+            return InspectionExeModeEnum.NONE_SPLIT_MODE;
+        }
+    }
+
+    /**
+     * 满足拆分验货任务的条件
+     * <ul>
+     *     <li>UCC配置站点开启拆分任务开关</li>
+     *     <li>运单包裹数量超过配置的数量</li>
+     * </ul>
+     * @param request
+     * @return
+     */
+    private boolean satisfyWaybillSplitCondition(InspectionRequest request) {
+        return siteEnableSplitWaybill(request.getSiteCode())
+                && bigWaybillTask(request);
+    }
+
+    /**
+     * 判断运单是否是大包裹
+     * @param request
+     * @return
+     */
+    private boolean bigWaybillTask(InspectionRequest request) {
+
+        String waybillCode = WaybillUtil.getWaybillCode(request.getPackageBarOrWaybillCode());
+        BigWaybillDto bigWaybillDto = getWaybill(waybillCode);
+
+        if (bigWaybillDto != null
+                && bigWaybillDto.getWaybill() != null
+                && bigWaybillDto.getWaybill().getGoodNumber() != null) {
+
+            return bigWaybillDto.getWaybill().getGoodNumber() >= getInspectionTaskPackageSplitNum();
+        }
+
+        return false;
+    }
+
+    private boolean siteEnableSplitWaybill(Integer siteCode) {
         String configSite = uccConfig.getInspectionBigWaybillEffectiveSites();
         if (StringUtils.isBlank(configSite)) {
             return false;
@@ -844,5 +893,21 @@ public class InspectionServiceImpl implements InspectionService {
         }
 
         return sites.contains(siteCode.toString());
+    }
+
+    /**
+     * 运单多包裹限制数量
+     */
+    private static final int BIG_WAYBILL_LIMIT_NUM = 100;
+
+    /**
+     * 取得运单多包裹数量触发上限
+     * @return
+     */
+    @Override
+    public int getInspectionTaskPackageSplitNum() {
+        return 0 == uccConfig.getWaybillSplitPageSize() ?
+                BIG_WAYBILL_LIMIT_NUM :
+                uccConfig.getWaybillSplitPageSize();
     }
 }

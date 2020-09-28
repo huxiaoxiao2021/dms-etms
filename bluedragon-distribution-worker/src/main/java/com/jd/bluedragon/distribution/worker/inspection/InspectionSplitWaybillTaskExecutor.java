@@ -1,9 +1,7 @@
 package com.jd.bluedragon.distribution.worker.inspection;
 
 import com.jd.bluedragon.core.base.WaybillPackageManager;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
-import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -11,47 +9,31 @@ import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 /**
- * @ClassName InspectionSplitWaybillExecutor
- * @Description 验货多包裹拆分任务
+ * @ClassName InspectionSplitWaybillTaskExecutor
+ * @Description
  * @Author wyh
- * @Date 2020/9/18 11:27
+ * @Date 2020/9/25 9:43
  **/
-@Component("inspectionSplitWaybillExecutor")
-public class InspectionSplitWaybillExecutor extends InspectionTaskExecute {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(InspectionSplitWaybillExecutor.class);
-
-    @Autowired
-    private WaybillQueryManager waybillQueryManager;
+@Service("splitWaybillTaskExecutor")
+public class InspectionSplitWaybillTaskExecutor extends InspectionTaskCommonExecutor {
 
     @Autowired
     WaybillPackageManager waybillPackageManager;
 
     @Override
-    protected InspectionTaskExecuteContext prepare(Task domain) {
+    protected InspectionTaskExecuteContext prepare(InspectionRequest request) {
         InspectionTaskExecuteContext context = new InspectionTaskExecuteContext();
         context.setPassCheck(true);
 
-        InspectionRequest request = JsonHelper.fromJsonUseGson(domain.getBody(), InspectionRequest.class);
-        if (null == request) {
-            if (LOGGER.isWarnEnabled()) {
-                LOGGER.warn("验货拆分任务JSON解析后对象为空, task:{}", domain.getBody());
-            }
-            context.setPassCheck(false);
-            return context;
-        }
-
         if (0 == request.getPageNo() || 0 == request.getPageSize()) {
             if (LOGGER.isWarnEnabled()) {
-                LOGGER.warn("拆分任务缺少分页参数, task:{}", domain.getBody());
+                LOGGER.warn("拆分任务缺少分页参数, task body:{}", JsonHelper.toJson(request));
             }
             context.setPassCheck(false);
             return context;
@@ -70,6 +52,7 @@ public class InspectionSplitWaybillExecutor extends InspectionTaskExecute {
         resetStoreId(request, bigWaybillDto);
         builderInspectionList(request, context);
         builderCenConfirmList(context);
+
         return context;
     }
 
@@ -78,7 +61,9 @@ public class InspectionSplitWaybillExecutor extends InspectionTaskExecute {
             return request.getWaybillCode();
         }
         else {
-            return WaybillUtil.getWaybillCode(request.getPackageBarOrWaybillCode());
+            String waybillCode = WaybillUtil.getWaybillCode(request.getPackageBarOrWaybillCode());
+            request.setWaybillCode(waybillCode);
+            return waybillCode;
         }
     }
 
@@ -101,7 +86,7 @@ public class InspectionSplitWaybillExecutor extends InspectionTaskExecute {
         if (baseEntity != null && baseEntity.getData()!= null) {
             bigWaybillDto = baseEntity.getData();
             BaseEntity<List<DeliveryPackageD>> pageLists =
-                    waybillPackageManager.getPackListByWaybillCodeOfPage(waybillCode, pageNo, pageSize);
+                    this.waybillPackageManager.getPackListByWaybillCodeOfPage(waybillCode, pageNo, pageSize);
             if (pageLists != null && pageLists.getData() != null ) {
                 bigWaybillDto.setPackageList(pageLists.getData());
             }

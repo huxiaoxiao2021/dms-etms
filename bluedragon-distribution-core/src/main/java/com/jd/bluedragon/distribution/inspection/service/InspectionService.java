@@ -1,8 +1,10 @@
 package com.jd.bluedragon.distribution.inspection.service;
 
+import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.inspection.InsepctionCheckDto;
 import com.jd.bluedragon.distribution.inspection.InspectionCheckCondition;
+import com.jd.bluedragon.distribution.inspection.constants.InspectionExeModeEnum;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionPackProgress;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
@@ -182,9 +184,16 @@ public interface InspectionService {
     boolean checkIsBindMaterial(String waybillCode);
 
     /**
-     * 站点是否开启运单多包裹拆分验货
-     * @param siteCode
+     * 确认验货任务执行模式
+     *
+     * @param request
      * @return
      */
-    boolean siteEnableInspectionSplitWaybill(Integer siteCode);
+    InspectionExeModeEnum findInspectionExeMode(InspectionRequest request);
+
+    /**
+     * 验货运单多包裹拆分任务，分页数量
+     * @return
+     */
+    int getInspectionTaskPackageSplitNum();
 }
