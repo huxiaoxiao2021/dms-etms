@@ -139,7 +139,14 @@ public class CollectGoodsAreaController {
 					}
 				}
 			}
+			// 没有删除权限，直接返回
+            if(collectGoodsAreaService.checkAuthority(createSiteCode)){
+                rest.toFail("不可删除，可邮件express_dms@jd.com申请开启场地的删除权限!");
+                return rest;
+            }
 			rest.setData(collectGoodsAreaService.deleteByCode(codes));
+            // 记录businessLog日志
+            collectGoodsAreaService.writeLog(userCode,createSiteCode,codes);
 		} catch (Exception e) {
 			log.error("fail to delete！",e);
 			rest.toError("删除失败，服务异常！");

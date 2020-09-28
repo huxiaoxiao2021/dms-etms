@@ -219,6 +219,10 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      * 抽检发现超标返回码
      */
     private final int CHECK_OVER_STANDARD_CODE = 30002;
+    /**
+     * 无计费数据返回码
+     */
+    private final int NO_CHARGE_SYSTEM_DATA_CODE = 30003;
 
 
     /**
@@ -471,6 +475,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      * @param siteCode
      * @deprecated
      */
+    @Override
     public void sendMqAndUpdate(String packageCode, Integer siteCode){
 
         //获取图片链接
@@ -550,6 +555,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      * @param packageCode
      * @param siteCode
      */
+    @Override
     public void updateImgAndSendHandleMq(String packageCode, Integer siteCode){
 
         //获取图片链接
@@ -725,7 +731,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         // 校验是否能操作抽检
         InvokeResult<Boolean> canDealSportCheckResult = this.canDealSportCheck(packWeightVO);
         if(!canDealSportCheckResult.getData()){
-            result.customMessage(this.NOT_ALLOW_SECOND_SITE_CHECK_CODE, canDealSportCheckResult.getMessage());
+            result.customMessage(canDealSportCheckResult.getCode(), canDealSportCheckResult.getMessage());
             return result;
         }
 
@@ -780,7 +786,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             //当计费重量或计费体积为0时，体积重量抽检超标
             if(billingWeight == 0 || billingVolume == 0){
                 log.warn("运单【{}】获取计费重量/体积为空",waybillCode);
-                result.customMessage(this.NOT_ALLOW_SECOND_SITE_CHECK_CODE,"计费重量/体积为0或空，无法进行校验");
+                result.customMessage(this.NO_CHARGE_SYSTEM_DATA_CODE,"计费重量/体积为0或空，无法进行校验");
                 result.setData(false);
             }
 
@@ -828,7 +834,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         WaybillStatus status=new WaybillStatus();
         status.setOperateType(WaybillStatus.WAYBILL_STATUS_WEIGHT_VOLUME_SPOT_CHECK);
         status.setWaybillCode(dto.getWaybillCode());
-        status.setPackageCode(dto.getWaybillCode());
+        status.setPackageCode(dto.getPackageCode());
         status.setOperateTime(dto.getReviewDate());
         status.setOperator(dto.getReviewErp());
         status.setRemark("重量体积抽检：重量"+dto.getReviewWeight()+"公斤，体积"+dto.getReviewVolume()+"立方厘米");
@@ -908,10 +914,11 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         if(WaybillUtil.isPackageCode(packWeightVO.getCodeStr())){
             packageCode = packWeightVO.getCodeStr();
         }
+        // 没有抽检过，通过发货明细校验是否已发货
         List<SendDetail> sendDetailRecords = sendDetailService.findByWaybillCodeOrPackageCode(packWeightVO.getOperatorSiteCode(), waybillCode, packageCode);
         if(CollectionUtils.isNotEmpty(sendDetailRecords)){
             result.setData(false);
-            result.customMessage(this.NOT_ALLOW_SECOND_SITE_CHECK_CODE, "此单已操作过抽检，请勿重复操作");
+            result.customMessage(this.NOT_ALLOW_SECOND_SITE_CHECK_CODE, "抽检失败，此单已发货，不可再抽检，请在发货操作前进行抽检");
             return result;
         }
 
@@ -919,7 +926,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         InvokeResult<Boolean> firstSiteCheckResult = this.isFirstSiteCheck(packWeightVO);
         if(!firstSiteCheckResult.getData()){
             result.setData(false);
-            result.customMessage(this.NOT_ALLOW_SECOND_SITE_CHECK_CODE, firstSiteCheckResult.getMessage());
+            result.customMessage(firstSiteCheckResult.getCode(), firstSiteCheckResult.getMessage());
             return result;
         }
         return result;
@@ -936,17 +943,13 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         InvokeResult<Boolean> result = new InvokeResult<>();
         result.setData(true);
         WeightVolumeQueryCondition condition = new WeightVolumeQueryCondition();
-        if(WaybillUtil.isWaybillCode(packWeightVO.getCodeStr())){
-            condition.setWaybillCode(WaybillUtil.getWaybillCode(packWeightVO.getCodeStr()));
-        }
-        if(WaybillUtil.isPackageCode(packWeightVO.getCodeStr())){
-            condition.setPackageCode(packWeightVO.getCodeStr());
-            condition.setWaybillCode(WaybillUtil.getWaybillCode(packWeightVO.getCodeStr()));
-        }
+        condition.setWaybillCode(WaybillUtil.getWaybillCode(packWeightVO.getCodeStr()));
+        // B网抽检是按运单号存入packageCode字段，如果以后不是一单一件，则需要更改此处
+
         InvokeResult<WeightVolumeCollectDto> weightVolumeCollectDtoInvokeResult = this.queryLatestCheckRecord(condition);
         if(weightVolumeCollectDtoInvokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE){
             result.setData(false);
-            result.customMessage(this.NOT_ALLOW_SECOND_SITE_CHECK_CODE, "校验是否为第一个操作抽检的分拣中心失败");
+            result.customMessage(this.NOT_ALLOW_SECOND_SITE_CHECK_CODE, "抽检失败，校验是否为第一个操作抽检的分拣中心失败");
             return result;
         }
         WeightVolumeCollectDto weightVolumeCollectDtoExist = weightVolumeCollectDtoInvokeResult.getData();
@@ -954,15 +957,15 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             // 校验是否为第一个抽检的单位
             if (!Objects.equals(weightVolumeCollectDtoExist.getReviewSiteCode(), packWeightVO.getOperatorSiteCode())) {
                 result.setData(false);
-                result.customMessage(this.NOT_ALLOW_SECOND_SITE_CHECK_CODE, "此单已操作过抽检，请勿重复操作");
+                result.customMessage(this.NOT_ALLOW_SECOND_SITE_CHECK_CODE, "抽检失败，此单已操作过抽检，请勿重复操作");
                 return result;
             }
-            // 校验发货状态
+            // 有抽检记录，校验抽检记录上的发货状态
             if (Objects.equals(weightVolumeCollectDtoExist.getReviewSiteCode(), packWeightVO.getOperatorSiteCode())) {
                 boolean waybillSendStatusFlag = this.getWaybillSendStatus(weightVolumeCollectDtoExist.getWaybillCode(), weightVolumeCollectDtoExist);
                 if(waybillSendStatusFlag){
                     result.setData(false);
-                    result.customMessage(this.NOT_ALLOW_SECOND_SITE_CHECK_CODE, "此单已操作过抽检，请勿重复操作");
+                    result.customMessage(this.NOT_ALLOW_SECOND_SITE_CHECK_CODE, "抽检失败，此单已发货，不可再抽检，请在发货操作前进行抽检");
                     return result;
                 }
             }
@@ -1885,4 +1888,5 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         log.info("发送MQ【{}】,业务ID【{}】 ",dmsWeightVolumeExcess.getTopic(),abnormalResultMq.getAbnormalId());
         dmsWeightVolumeExcess.sendOnFailPersistent(abnormalResultMq.getAbnormalId(), JsonHelper.toJson(abnormalResultMq));
     }
+
 }
