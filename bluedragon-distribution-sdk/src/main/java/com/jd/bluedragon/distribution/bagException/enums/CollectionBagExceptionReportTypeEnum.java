@@ -26,7 +26,7 @@ public enum CollectionBagExceptionReportTypeEnum {
     /**
      * 无异常
      */
-    NO_EXCEPTION(0, "无异常");
+    NO_EXCEPTION(3, "无异常");
 
     public static Map<Integer, String> ENUM_MAP;
 
