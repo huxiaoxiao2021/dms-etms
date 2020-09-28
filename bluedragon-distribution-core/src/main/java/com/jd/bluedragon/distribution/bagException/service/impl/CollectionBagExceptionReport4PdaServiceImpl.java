@@ -9,24 +9,20 @@ import com.jd.bluedragon.common.dto.box.response.QueryBoxCollectionReportRespons
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
-import com.jd.bluedragon.distribution.bagException.service.CollectionBagExceptionReport4PdaService;
+import com.jd.bluedragon.distribution.bagException.dao.CollectionBagExceptionReportDao;
 import com.jd.bluedragon.distribution.bagException.domain.CollectionBagExceptionReport;
 import com.jd.bluedragon.distribution.bagException.enums.CollectionBagExceptionReportTypeEnum;
-import com.jd.bluedragon.distribution.bagException.dao.CollectionBagExceptionReportDao;
+import com.jd.bluedragon.distribution.bagException.service.CollectionBagExceptionReport4PdaService;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.common.Page;
 import com.jd.etms.waybill.domain.PackFlowDetail;
 import com.jd.etms.waybill.domain.Waybill;
-import com.jd.etms.waybill.domain.WaybillTransWay;
-import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.fastjson.JSON;
 import com.jd.ql.dms.report.DmsDisSendJsfService;
-import com.jd.ql.dms.report.domain.BaseEntity;
 import com.jd.ql.dms.report.domain.dmsDisSend.DmsDisSend;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -93,6 +89,38 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
                 result.init(JdCResponse.CODE_FAIL, checkResult.getMessage());
                 return result;
             }
+
+
+            reportResponse.setLength(25.34);
+            reportResponse.setWidth(29.46);
+            reportResponse.setHeight(2.52);
+            reportResponse.setWeight(454.32);
+            reportResponse.setUpstreamBoxCode("BC35436436");
+            reportResponse.setPackageCode(query.getPackageCode());
+            reportResponse.setSiteCode(query.getCurrentOperate().getSiteCode());
+            reportResponse.setBoxEndSiteId(235);
+            reportResponse.setBoxStartSiteName("通州分拣中心");
+            reportResponse.setBoxEndSiteName("顺义分拣中心");
+            reportResponse.setBoxEndSiteId(2345);
+            switch (query.getPackageCode()){
+                case "JD0003334827912-1-1-": {
+                    reportResponse.setReportType(CollectionBagExceptionReportTypeEnum.UPSTREAM_FAKE.getCode());
+                    reportResponse.setReportTypeName(CollectionBagExceptionReportTypeEnum.UPSTREAM_FAKE.getName());
+                }
+                case "JD0003334827913-1-1-": {
+                    reportResponse.setReportType(CollectionBagExceptionReportTypeEnum.UPSTREAM_NOT_DONE.getCode());
+                    reportResponse.setReportTypeName(CollectionBagExceptionReportTypeEnum.UPSTREAM_NOT_DONE.getName());
+                }
+                case "JD0003334827914-1-1-": {
+                    reportResponse.setReportType(CollectionBagExceptionReportTypeEnum.NO_EXCEPTION.getCode());
+                    reportResponse.setReportTypeName(CollectionBagExceptionReportTypeEnum.NO_EXCEPTION.getName());
+                }
+            }
+            result.setData(reportResponse);
+            if(result != null){
+                return result;
+            }
+
             String packageCode = query.getPackageCode();
             Integer siteCode = query.getCurrentOperate().getSiteCode();
             reportResponse.setPackageCode(packageCode);
