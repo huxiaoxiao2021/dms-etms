@@ -2,14 +2,13 @@ package com.jd.bluedragon.distribution.funcSwitchConfig.service.impl;
 
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
-import com.jd.bluedragon.distribution.funcSwitchConfig.dao.FuncSwitchConfigDao;
-import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigCondition;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigDto;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
+import com.jd.bluedragon.distribution.funcSwitchConfig.dao.FuncSwitchConfigDao;
+import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigCondition;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.common.hrm.HrmPrivilegeHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
@@ -44,8 +43,8 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
     @Autowired
     private FuncSwitchConfigDao funcSwitchConfigDao;
 
-    @Autowired
-    private HrmPrivilegeHelper hrmPrivilegeHelper;
+//    @Autowired
+//    private HrmPrivilegeHelper hrmPrivilegeHelper;
 
     @Autowired
     private BaseMajorManager baseMajorManager;
@@ -143,14 +142,14 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
             jdResponse.toFail("无用的功能编码!");
             return true;
         }
-        // 测试环境跳过权限验证
-        if(!checkAuthoritySwitch){
-            return false;
-        }
-        if(!hrmPrivilegeHelper.hasHrmPrivilege(loginErp, funcSwitchConfigEnum.getAuthCode())){
-            jdResponse.toFail(String.format("无权限操作，请申请【%s】的权限!", funcSwitchConfigEnum.getAuthCode()));
-            return true;
-        }
+//        // 测试环境跳过权限验证
+//        if(!checkAuthoritySwitch){
+//            return false;
+//        }
+//        if(!hrmPrivilegeHelper.hasHrmPrivilege(loginErp, funcSwitchConfigEnum.getAuthCode())){
+//            jdResponse.toFail(String.format("无权限操作，请申请【%s】的权限!", funcSwitchConfigEnum.getAuthCode()));
+//            return true;
+//        }
         return false;
     }
 
