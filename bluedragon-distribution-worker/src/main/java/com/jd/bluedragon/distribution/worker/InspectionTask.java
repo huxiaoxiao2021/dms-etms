@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.inspection.exception.InspectionException;
 import com.jd.bluedragon.distribution.inspection.exception.WayBillCodeIllegalException;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.worker.inspection.InspectionTaskExeStrategy;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
@@ -34,13 +35,10 @@ public class InspectionTask extends DBSingleScheduler {
 
     private static final Type LIST_INSPECTIONREQUEST_TYPE=new TypeToken<List<InspectionRequest>>(){}.getType();
 
-	@Autowired
-	private InspectionService inspectionService;
     private static final String SPLIT_CHAR="$";
 
-    @Qualifier("inspectionTaskExecute")
-    @Autowired()
-    private AbstractTaskExecute taskExecute;
+    @Autowired
+    private InspectionTaskExeStrategy inspectionTaskExeStrategy;
     
 	@Override
 	protected boolean executeSingleTask(Task task, String ownSign)
@@ -61,11 +59,9 @@ public class InspectionTask extends DBSingleScheduler {
                 if(null==middleRequests||middleRequests.size()==0){
                     return true;
                 }
-                Task domain=new Task();
-                domain.setId(task.getId());
                 for (InspectionRequest request:middleRequests){
-                    domain.setBody(JsonHelper.toJson(request));
-                    taskExecute.execute(domain);
+
+                    inspectionTaskExeStrategy.decideExecutor(request).process(request);
                 }
 			}catch (WayBillCodeIllegalException wayBillCodeIllegalEx){
                 StringBuilder sb=new StringBuilder("验货执行失败,已知异常");

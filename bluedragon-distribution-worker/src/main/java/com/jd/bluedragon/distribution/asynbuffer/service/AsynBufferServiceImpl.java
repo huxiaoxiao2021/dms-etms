@@ -29,7 +29,7 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.weight.service.WeightService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeService;
-import com.jd.bluedragon.distribution.worker.inspection.InspectionSplitWaybillExecutor;
+import com.jd.bluedragon.distribution.worker.inspection.InspectionTaskExeStrategy;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ump.UmpMonitorHandler;
 import com.jd.bluedragon.utils.ump.UmpMonitorHelper;
@@ -64,6 +64,9 @@ public class AsynBufferServiceImpl implements AsynBufferService {
 //    private ReceiveService receiveService;
     @Autowired
     private ReceiveTaskExecutor receiveTaskExecutor;
+
+    @Autowired
+    private InspectionTaskExeStrategy inspectionTaskExeStrategy;
     
 
     public boolean receiveTaskProcess(Task task)
@@ -77,9 +80,6 @@ public class AsynBufferServiceImpl implements AsynBufferService {
     }
 
     //分拣中心验货
-    @Qualifier("inspectionTaskExecute")
-    @Autowired()
-    private AbstractTaskExecute taskExecute;
     public boolean inspectionTaskProcess(Task task)
             throws Exception {
 		CallerInfo callerInfo = ProfilerHelper.registerInfo("DmsWorker.Task.InspectionTask.execute",
@@ -94,11 +94,9 @@ public class AsynBufferServiceImpl implements AsynBufferService {
             if (null == middleRequests || middleRequests.size() == 0) {
                 return true;
             }
-            Task domain = new Task();
-            domain.setId(task.getId());
             for (InspectionRequest request : middleRequests) {
-                domain.setBody(JsonHelper.toJson(request));
-                taskExecute.execute(domain);
+
+                inspectionTaskExeStrategy.decideExecutor(request).process(request);
             }
         } catch (InspectionException inspectionEx) {
             StringBuilder sb = new StringBuilder("验货执行失败,已知异常");
@@ -130,18 +128,23 @@ public class AsynBufferServiceImpl implements AsynBufferService {
     /**
      * 运单多包裹验货拆分任务
      */
-    @Qualifier("inspectionSplitWaybillExecutor")
-    @Autowired
-    private InspectionSplitWaybillExecutor inspectionExecutor;
-
     public boolean inspectionSplitWaybillProcess(final Task task) {
+
+        if (null == task || StringUtils.isBlank(task.getBody())) {
+            return true;
+        }
+
         try {
             String umpKey = "DmsWorker.Task.inspectionSplitWaybillProcess.execute";
             String umpApp = Constants.UMP_APP_NAME_DMSWORKER;
             UmpMonitorHelper.doWithUmpMonitor(umpKey, umpApp, new UmpMonitorHandler() {
                 @Override
                 public void process() {
-                    inspectionExecutor.execute(task);
+
+                    InspectionRequest request = JsonHelper.fromJsonUseGson(task.getBody(), InspectionRequest.class);
+
+                    inspectionTaskExeStrategy.decideExecutor(request).process(request);
+
                 }
             });
         }
