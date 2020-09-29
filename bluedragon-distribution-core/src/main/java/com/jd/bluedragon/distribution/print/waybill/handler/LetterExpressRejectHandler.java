@@ -4,6 +4,7 @@ import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +26,10 @@ public class LetterExpressRejectHandler implements InterceptHandler<WaybillPrint
     public InterceptResult<String> handle(WaybillPrintContext context) {
         InterceptResult<String> result = context.getResult();
 
+        log.info("letterExpressRejectHandler-->函速达拒收件换单校验，新单号为:{}",context.getRequest().getBarCode());
         BigWaybillDto waybillDto = context.getOldBigWaybillDto();
 
+        log.info("letterExpressRejectHandler-->函速达拒收件换单校验，原单信息:{}", JsonHelper.toJson(waybillDto));
         //2.2函速达拒收件不允许换单
         if(waybillDto != null && null!=waybillDto.getWaybill() && BusinessUtil.isLetterExpressReject(waybillDto.getWaybill().getWaybillSign())){
             result.toFail(SortingResponse.CODE_29319,SortingResponse.MESSAGE_29319);
