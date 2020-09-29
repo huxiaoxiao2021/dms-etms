@@ -49,6 +49,7 @@ public class CollectionBagExceptionReportServiceImpl implements CollectionBagExc
         pageData.setPageSize(query.getLimit());
         List<CollectionBagExceptionReportVo> dataList = new ArrayList<>();
         long total = 0;
+        query.setYn(1);
         try {
             total = collectionBagExceptionReportDao.queryCount(query);
             if(total > 0){

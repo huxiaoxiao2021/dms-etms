@@ -460,9 +460,6 @@
         <if test="orgCode != null and orgCode != ''">
         AND org_code = #{orgCode}
         </if>
-        <if test="orgName != null and orgName != ''">
-        AND org_name = #{orgName}
-        </if>
         <if test="siteCode != null">
         AND site_code = #{siteCode}
         </if>
@@ -475,32 +472,8 @@
         <if test="boxEndId != null">
         AND box_end_id = #{boxEndId}
         </if>
-        <if test="weight != null">
-        AND weight = #{weight}
-        </if>
-        <if test="length != null">
-        AND length = #{length}
-        </if>
-        <if test="width != null">
-        AND width = #{width}
-        </if>
-        <if test="height != null">
-        AND height = #{height}
-        </if>
         <if test="reportType != null">
         AND report_type = #{reportType}
-        </if>
-        <if test="operatorErp != null and operatorErp != ''">
-        AND operator_erp = #{operatorErp}
-        </if>
-        <if test="operatorName != null and operatorName != ''">
-        AND operator_name = #{operatorName}
-        </if>
-        <if test="operateTime != null">
-        AND operate_time = #{operateTime}
-        </if>
-        <if test="reportImg != null and reportImg != ''">
-        AND report_img = #{reportImg}
         </if>
         <if test="createTime != null">
         AND create_time = #{createTime}
@@ -511,20 +484,11 @@
         <if test="createTimeTo != null">
             AND create_time &lt; #{createTimeTo}
         </if>
-        <if test="updateTime != null">
-        AND update_time = #{updateTime}
-        </if>
         <if test="createUserErp != null and createUserErp != ''">
         AND create_user_erp = #{createUserErp}
         </if>
-        <if test="updateUserErp != null and updateUserErp != ''">
-        AND update_user_erp = #{updateUserErp}
-        </if>
         <if test="createUserName != null and createUserName != ''">
         AND create_user_name = #{createUserName}
-        </if>
-        <if test="updateUserName != null and updateUserName != ''">
-        AND update_user_name = #{updateUserName}
         </if>
         <if test="yn != null">
         AND yn = #{yn}

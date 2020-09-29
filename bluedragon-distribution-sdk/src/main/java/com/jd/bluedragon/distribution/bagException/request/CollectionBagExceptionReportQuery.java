@@ -14,6 +14,9 @@ import java.util.Date;
 public class CollectionBagExceptionReportQuery extends BasePagerCondition implements Serializable {
     private static final long serialVersionUID = 8821327385424621084L;
 
+
+    private Long id;
+
     /**
      * 区域code
      */
@@ -25,10 +28,35 @@ public class CollectionBagExceptionReportQuery extends BasePagerCondition implem
     private Integer siteCode;
 
     /**
+     * 上游箱号  db_column: upstream_box_code
+     */
+    private String upstreamBoxCode;
+    /**
+     * 箱号始发ID  db_column: box_start_id
+     */
+    private Long boxStartId;
+    /**
+     * 箱号目的ID  db_column: box_end_id
+     */
+    private Long boxEndId;
+
+    /**
      * 举报类型
      */
     private Integer reportType;
 
+    /**
+     * 创建时间  db_column: create_time
+     */
+    private Date createTime;
+    /**
+     * 创建人ERP  db_column: create_user_erp
+     */
+    private String createUserErp;
+    /**
+     * 创建人  db_column: create_user_name
+     */
+    private String createUserName;
     /**
      * 举报时间开始
      */
@@ -44,6 +72,8 @@ public class CollectionBagExceptionReportQuery extends BasePagerCondition implem
     private Date createTimeTo;
 
     private String currentUserErp;
+
+    private Integer yn;
 
     private Integer pageSize;
 
@@ -119,18 +149,67 @@ public class CollectionBagExceptionReportQuery extends BasePagerCondition implem
         this.pageSize = pageSize;
     }
 
-    @Override
-    public String toString() {
-        return "CollectionBagExceptionReportQuery{" +
-                "orgCode=" + orgCode +
-                ", siteCode=" + siteCode +
-                ", reportType=" + reportType +
-                ", createTimeFromStr='" + createTimeFromStr + '\'' +
-                ", createTimeFrom=" + createTimeFrom +
-                ", createTimeToStr='" + createTimeToStr + '\'' +
-                ", createTimeTo=" + createTimeTo +
-                ", currentUserErp=" + currentUserErp +
-                ", pageSize=" + pageSize +
-                '}';
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getUpstreamBoxCode() {
+        return upstreamBoxCode;
+    }
+
+    public void setUpstreamBoxCode(String upstreamBoxCode) {
+        this.upstreamBoxCode = upstreamBoxCode;
+    }
+
+    public Long getBoxStartId() {
+        return boxStartId;
+    }
+
+    public void setBoxStartId(Long boxStartId) {
+        this.boxStartId = boxStartId;
+    }
+
+    public Long getBoxEndId() {
+        return boxEndId;
+    }
+
+    public void setBoxEndId(Long boxEndId) {
+        this.boxEndId = boxEndId;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    public String getCreateUserErp() {
+        return createUserErp;
+    }
+
+    public void setCreateUserErp(String createUserErp) {
+        this.createUserErp = createUserErp;
+    }
+
+    public String getCreateUserName() {
+        return createUserName;
+    }
+
+    public void setCreateUserName(String createUserName) {
+        this.createUserName = createUserName;
+    }
+
+    public Integer getYn() {
+        return yn;
+    }
+
+    public void setYn(Integer yn) {
+        this.yn = yn;
     }
 }

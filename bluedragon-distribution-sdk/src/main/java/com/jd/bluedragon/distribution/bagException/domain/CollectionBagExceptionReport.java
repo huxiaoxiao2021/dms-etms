@@ -114,7 +114,7 @@ public class CollectionBagExceptionReport implements Serializable{
     /**
      * 是否逻辑删除：0-已删除，1-已存在  db_column: yn
      */
-    private Boolean yn;
+    private Integer yn;
     /**
      * 数据库时间  db_column: ts
      */
@@ -314,11 +314,11 @@ public class CollectionBagExceptionReport implements Serializable{
         this.updateUserName = updateUserName;
     }
 
-    public Boolean getYn() {
+    public Integer getYn() {
         return yn;
     }
 
-    public void setYn(Boolean yn) {
+    public void setYn(Integer yn) {
         this.yn = yn;
     }
 
