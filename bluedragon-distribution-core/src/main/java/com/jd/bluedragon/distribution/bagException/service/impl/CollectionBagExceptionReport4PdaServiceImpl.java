@@ -17,9 +17,13 @@ import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.common.Page;
+import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackFlowDetail;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.domain.WaybillTransWay;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.fastjson.JSON;
 import com.jd.ql.dms.report.DmsDisSendJsfService;
@@ -89,12 +93,6 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
                 return result;
             }
             
-            this.setSampleData(query, reportResponse);
-            if(result != null){
-                result.setData(reportResponse);
-                return result;
-            }
-
             String packageCode = query.getPackageCode();
             Integer siteCode = query.getCurrentOperate().getSiteCode();
             reportResponse.setPackageCode(packageCode);
@@ -215,7 +213,7 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
         // 查询是否为易碎品
         WChoice wChoice = new WChoice();
         wChoice.setQueryWaybillT(true);
-        /*BaseEntity<BigWaybillDto> bigWaybillDtoBaseEntity = waybillQueryManager.getDataByChoice(waybill.getWaybillCode(), wChoice);
+        BaseEntity<BigWaybillDto> bigWaybillDtoBaseEntity = waybillQueryManager.getDataByChoice(waybill.getWaybillCode(), wChoice);
         if(EnumBusiCode.BUSI_SUCCESS.getCode() == bigWaybillDtoBaseEntity.getResultCode()){
             BigWaybillDto bigWaybillDto = bigWaybillDtoBaseEntity.getData();
             WaybillTransWay waybillTransWay = bigWaybillDto.getWaybillTransWay();
@@ -225,7 +223,7 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
         }
         if(fragileWaybill){
             return false;
-        }*/
+        }
 
         return true;
     }
