@@ -29,7 +29,7 @@ public class LetterExpressRejectHandler implements InterceptHandler<WaybillPrint
 
         //2.2函速达拒收件不允许换单
         if(waybillDto != null && null!=waybillDto.getWaybill() && BusinessUtil.isLetterExpressReject(waybillDto.getWaybill().getWaybillSign())){
-            result.toFail(SortingResponse.CODE_29318,SortingResponse.MESSAGE_29318);
+            result.toFail(SortingResponse.CODE_29319,SortingResponse.MESSAGE_29319);
         }
 
         return result;
