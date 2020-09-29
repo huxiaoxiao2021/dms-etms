@@ -28,6 +28,11 @@ public class CollectionBagExceptionReportQuery extends BasePagerCondition implem
     private Integer siteCode;
 
     /**
+     * 包裹号
+     */
+    private String packageCode;
+
+    /**
      * 上游箱号  db_column: upstream_box_code
      */
     private String upstreamBoxCode;
@@ -155,6 +160,14 @@ public class CollectionBagExceptionReportQuery extends BasePagerCondition implem
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getPackageCode() {
+        return packageCode;
+    }
+
+    public void setPackageCode(String packageCode) {
+        this.packageCode = packageCode;
     }
 
     public String getUpstreamBoxCode() {
