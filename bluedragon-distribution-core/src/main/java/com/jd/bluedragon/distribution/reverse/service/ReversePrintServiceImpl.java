@@ -593,7 +593,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         //2.2函速达拒收件不允许换单
         if(BusinessUtil.isLetterExpressReject(waybillDto.getWaybill().getWaybillSign())){
             result.setData(false);
-            result.setMessage("此为函速达运单，拒收请报废");
+            result.setMessage("此单为函速达运单，拒收请报废");
             return result;
         }
 

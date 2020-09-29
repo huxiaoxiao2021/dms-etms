@@ -84,8 +84,6 @@ public class SortingResponse extends JdResponse {
     public static final Integer CODE_31123 = 31123;
     public static final String MESSAGE_31123 = "验货未集齐是否继续操作";
 
-
-
     /**************************************配送拦截新逻辑START****************************/
 
     public static final Integer CODE_29311 = 29311;
@@ -101,6 +99,9 @@ public class SortingResponse extends JdResponse {
     public static final String MESSAGE_29316 = "此单为[白条强制拦截],请退货";
 
     /**************************************配送拦截新逻辑END******************************/
+
+    public static final Integer CODE_29318 = 29318;
+    public static final String MESSAGE_29318 = "此单为函速达运单，拒收请报废";
 
 
     /** 箱号 */
