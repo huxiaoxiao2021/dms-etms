@@ -523,6 +523,7 @@
         <include refid="Base_Column_List" />
         FROM `collection_bag_exception_report`
         <include refid="where"/>
+        order by id desc
         <if test="pageNumber > 0">
             limit #{startRecord}, #{pageSize}
         </if>

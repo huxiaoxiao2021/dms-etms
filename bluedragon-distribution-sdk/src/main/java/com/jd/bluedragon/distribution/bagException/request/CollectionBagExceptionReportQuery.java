@@ -4,6 +4,8 @@ import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 /**
  * 集包异常举报查询
@@ -81,6 +83,12 @@ public class CollectionBagExceptionReportQuery extends BasePagerCondition implem
     private Integer yn;
 
     private Integer pageSize;
+
+    /**
+     * 有序的按字段匹配值条件查询，如{id: [1,2,3], name: ["aaa", "bbb"]}，
+     * 表示select * from someTable where id in (1,2,3) and name in ("aaa", "bbb")
+     */
+    private LinkedHashMap<String, List<Object>> columnValueMap;
 
     public Integer getOrgCode() {
         return orgCode;
@@ -224,5 +232,13 @@ public class CollectionBagExceptionReportQuery extends BasePagerCondition implem
 
     public void setYn(Integer yn) {
         this.yn = yn;
+    }
+
+    public LinkedHashMap<String, List<Object>> getColumnValueMap() {
+        return columnValueMap;
+    }
+
+    public void setColumnValueMap(LinkedHashMap<String, List<Object>> columnValueMap) {
+        this.columnValueMap = columnValueMap;
     }
 }
