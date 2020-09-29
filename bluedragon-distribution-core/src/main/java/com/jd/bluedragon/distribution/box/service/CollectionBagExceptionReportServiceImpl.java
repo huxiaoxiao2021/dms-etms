@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.box.service;
 
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.bagException.enums.CollectionBagExceptionReportTypeEnum;
 import com.jd.bluedragon.distribution.bagException.service.CollectionBagExceptionReportService;
@@ -9,6 +10,7 @@ import com.jd.bluedragon.distribution.bagException.domain.CollectionBagException
 import com.jd.bluedragon.distribution.bagException.request.CollectionBagExceptionReportQuery;
 import com.jd.etms.sdk.util.DateUtil;
 import com.jd.fastjson.JSON;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -30,6 +32,9 @@ public class CollectionBagExceptionReportServiceImpl implements CollectionBagExc
 
     @Autowired
     private CollectionBagExceptionReportDao collectionBagExceptionReportDao;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
 
     /**
      * 分页查询通知数据
@@ -65,6 +70,7 @@ public class CollectionBagExceptionReportServiceImpl implements CollectionBagExc
         }
         pageData.setTotalRow((int)total);
         pageData.setResult(dataList);
+        result.setData(pageData);
         return result;
     }
 
@@ -73,6 +79,16 @@ public class CollectionBagExceptionReportServiceImpl implements CollectionBagExc
         BeanUtils.copyProperties(collectionBagExceptionReport, vo);
         vo.setReportTypeName(CollectionBagExceptionReportTypeEnum.getEnumNameByCode(vo.getReportType()));
         vo.setReportTimeFormative(DateUtil.format(collectionBagExceptionReport.getCreateTime(), DateUtil.FORMAT_DATE_TIME));
+        vo.setReportImgUrlList(JSON.parseArray(vo.getReportImg(), String.class));
+        // 查询箱号始发地、目的地站点名称
+        BaseStaffSiteOrgDto siteStart = baseMajorManager.getBaseSiteBySiteId(vo.getBoxStartId().intValue());
+        if(siteStart != null){
+            vo.setBoxEndSiteName(siteStart.getSiteName());
+        }
+        BaseStaffSiteOrgDto siteEnd = baseMajorManager.getBaseSiteBySiteId(vo.getBoxEndId().intValue());
+        if(siteEnd != null){
+            vo.setBoxEndSiteName(siteEnd.getSiteName());
+        }
         return vo;
     }
 

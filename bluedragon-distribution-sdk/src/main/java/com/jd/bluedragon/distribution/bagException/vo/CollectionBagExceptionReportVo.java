@@ -121,6 +121,12 @@ public class CollectionBagExceptionReportVo implements Serializable {
     private Date ts;
     //columns END
 
+    /**
+     * 起始站点名称
+     */
+    private String boxStartSiteName;
+    private String boxEndSiteName;
+
 
     private String reportTypeName;
 
@@ -204,6 +210,22 @@ public class CollectionBagExceptionReportVo implements Serializable {
 
     public void setBoxEndId(Long boxEndId) {
         this.boxEndId = boxEndId;
+    }
+
+    public String getBoxEndSiteName() {
+        return boxEndSiteName;
+    }
+
+    public void setBoxEndSiteName(String boxEndSiteName) {
+        this.boxEndSiteName = boxEndSiteName;
+    }
+
+    public String getBoxStartSiteName() {
+        return boxStartSiteName;
+    }
+
+    public void setBoxStartSiteName(String boxStartSiteName) {
+        this.boxStartSiteName = boxStartSiteName;
     }
 
     public Double getWeight() {
