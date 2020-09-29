@@ -10,9 +10,11 @@ import com.jd.bluedragon.distribution.bagException.domain.CollectionBagException
 import com.jd.bluedragon.distribution.bagException.request.CollectionBagExceptionReportQuery;
 import com.jd.etms.sdk.util.DateUtil;
 import com.jd.fastjson.JSON;
+import com.jd.jss.util.DateUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -56,6 +58,11 @@ public class CollectionBagExceptionReportServiceImpl implements CollectionBagExc
         long total = 0;
         query.setYn(1);
         try {
+            Response<Boolean> checkResult = this.checkParam4QueryPageList(query);
+            if(!checkResult.isSucceed()){
+                result.toError(checkResult.getMessage());
+                return result;
+            }
             total = collectionBagExceptionReportDao.queryCount(query);
             if(total > 0){
                 List<CollectionBagExceptionReport> recordList = collectionBagExceptionReportDao.queryList(query);
@@ -74,6 +81,19 @@ public class CollectionBagExceptionReportServiceImpl implements CollectionBagExc
         return result;
     }
 
+    private Response<Boolean> checkParam4QueryPageList(CollectionBagExceptionReportQuery query){
+        Response<Boolean> result = new Response<>();
+        result.toSucceed();
+
+        if(StringUtils.isNotEmpty(query.getCreateTimeFromStr())){
+            query.setCreateTimeFrom(DateUtil.parse(query.getCreateTimeFromStr(), DateUtil.FORMAT_DATE_TIME));
+        }
+        if(StringUtils.isNotEmpty(query.getCreateTimeToStr())){
+            query.setCreateTimeTo(DateUtil.parse(query.getCreateTimeToStr(), DateUtil.FORMAT_DATE_TIME));
+        }
+        return result;
+    }
+
     private CollectionBagExceptionReportVo generateCollectionBagExceptionReportVo(CollectionBagExceptionReport collectionBagExceptionReport){
         CollectionBagExceptionReportVo vo = new CollectionBagExceptionReportVo();
         BeanUtils.copyProperties(collectionBagExceptionReport, vo);
@@ -83,7 +103,7 @@ public class CollectionBagExceptionReportServiceImpl implements CollectionBagExc
         // 查询箱号始发地、目的地站点名称
         BaseStaffSiteOrgDto siteStart = baseMajorManager.getBaseSiteBySiteId(vo.getBoxStartId().intValue());
         if(siteStart != null){
-            vo.setBoxEndSiteName(siteStart.getSiteName());
+            vo.setBoxStartSiteName(siteStart.getSiteName());
         }
         BaseStaffSiteOrgDto siteEnd = baseMajorManager.getBaseSiteBySiteId(vo.getBoxEndId().intValue());
         if(siteEnd != null){
