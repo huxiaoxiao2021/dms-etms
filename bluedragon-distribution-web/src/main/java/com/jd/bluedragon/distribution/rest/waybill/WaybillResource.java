@@ -1499,7 +1499,7 @@ public class WaybillResource {
 			if (null == waybill || null == waybill.getSiteCode() || waybill.getSiteCode() < 0) {
                 log.warn("WaybillResource.getBarCodeAllRouters-->运单:{}信息为空或者预分拣站点信息为空", barCode);
 				result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
-				result.setMessage("运单信息为空");
+				result.setMessage("运单"+waybillCode+"信息为空，请联系 配送系统运营");
 				return result;
 			}
 			/* 预分拣站点 */
