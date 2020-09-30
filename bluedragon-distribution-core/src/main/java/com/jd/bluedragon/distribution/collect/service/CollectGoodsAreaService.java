@@ -20,4 +20,8 @@ public interface CollectGoodsAreaService extends Service<CollectGoodsArea> {
     List<CollectGoodsArea> findBySiteCode(CollectGoodsArea e);
 
     boolean deleteByCode(List<String> codes);
+
+    boolean checkAuthority(Integer createSiteCode);
+
+    void writeLog(String userCode, Integer createSiteCode, List<String> codes);
 }

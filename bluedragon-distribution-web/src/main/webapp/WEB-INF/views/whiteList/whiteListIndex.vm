@@ -65,6 +65,9 @@
             <button id="btn_delete" type="button" class="btn btn-default">
                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>删除
             </button>
+            此功能暂不提供新增功能，请迁移至
+            <a href="/funcSwitchConfig/toIndex"
+               style="color: red;font-weight: bold;">【功能开关配置】</a>页面操作!
         </div>
         <table id="dataTable"></table>
 </div>

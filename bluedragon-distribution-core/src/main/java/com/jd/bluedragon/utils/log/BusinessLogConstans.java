@@ -81,7 +81,9 @@ public class BusinessLogConstans {
         //金鹏业务
         EDN_BUSINESS(SourceSys.DMS_OPERATE,2016,"企配仓业务"),
 
-        ECONOMIC_NET(SourceSys.DMS_OPERATE,2017,"经济网业务");
+        ECONOMIC_NET(SourceSys.DMS_OPERATE,2017,"经济网业务"),
+
+        COLLECT_GOODS(SourceSys.DMS_OPERATE,2018,"集货业务");
 
         /**
          * 所属系统；
@@ -213,9 +215,10 @@ public class BusinessLogConstans {
         EDN_PRINT_PICKING_LIST(BizTypeEnum.EDN_BUSINESS,20161,"打印拣货单"),
         EDN_PRINT_DELIVERY_RECEIPT(BizTypeEnum.EDN_BUSINESS,20162,"打印配送单"),
 
-        ECONOMIC_NET_BOX_WEIGHT(BizTypeEnum.ECONOMIC_NET,20171,"经济网推送箱号")
-        ;
-        
+        ECONOMIC_NET_BOX_WEIGHT(BizTypeEnum.ECONOMIC_NET,20171,"经济网推送箱号"),
+
+        COLLECT_GOODS_DELETE(BizTypeEnum.COLLECT_GOODS,20181,"集货区删除");
+
         private static Map<Integer,OperateTypeEnum> CODE_MAPPING = new HashMap<Integer,OperateTypeEnum>();
         /**
          * 业务类型编码；

@@ -1,10 +1,12 @@
 package com.jd.bluedragon.distribution.rest.pdaAuthority;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.abnormalorder.domain.AbnormalOrder;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.whiteList.dao.WhiteListDao;
+import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigDto;
+import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
+import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
+import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.distribution.whitelist.WhiteList;
 import com.jd.bluedragon.utils.JsonHelper;
 import org.apache.commons.collections.CollectionUtils;
@@ -18,7 +20,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.HashMap;
 
 /**
  * @author lijie
@@ -33,7 +34,7 @@ public class PdaAuthorityResource {
     private static final Logger log = LoggerFactory.getLogger(PdaAuthorityResource.class);
 
     @Autowired
-    private WhiteListDao whiteListDao;
+    private FuncSwitchConfigService funcSwitchConfigService;
 
     @POST
     @Path("/pdaAuthority/inspectionAuthority")
@@ -57,8 +58,12 @@ public class PdaAuthorityResource {
         }
         try{
             //查询PDA登陆人是否有验货权限
-            int count = whiteListDao.query(whiteListrequest);
-            if(count>0){
+            FuncSwitchConfigDto dto = new FuncSwitchConfigDto();
+            dto.setMenuCode(FuncSwitchConfigEnum.FUNCTION_INSPECTION.getCode());
+            dto.setDimensionCode(DimensionEnum.PERSON.getCode());
+            dto.setOperateErp(whiteListrequest.getErp());
+            dto.setSiteCode(whiteListrequest.getSiteCode());
+            if(CollectionUtils.isEmpty(funcSwitchConfigService.getFuncSwitchConfigs(dto))){
                 result.setData(true);
             }else {
                 result.setData(false);
