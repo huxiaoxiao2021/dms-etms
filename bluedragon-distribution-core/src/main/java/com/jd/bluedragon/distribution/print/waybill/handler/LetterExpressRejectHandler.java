@@ -26,13 +26,14 @@ public class LetterExpressRejectHandler implements InterceptHandler<WaybillPrint
     public InterceptResult<String> handle(WaybillPrintContext context) {
         InterceptResult<String> result = context.getResult();
 
-        log.info("letterExpressRejectHandler-->函速达拒收件换单校验，新单号为:{}",context.getRequest().getBarCode());
+//        log.info("letterExpressRejectHandler-->函速达拒收件换单校验，新单号为:{}",context.getRequest().getBarCode());
         BigWaybillDto waybillDto = context.getOldBigWaybillDto();
 
-        log.info("letterExpressRejectHandler-->函速达拒收件换单校验，原单信息:{}", JsonHelper.toJson(waybillDto));
+//        log.info("letterExpressRejectHandler-->函速达拒收件换单校验，原单信息:{}", JsonHelper.toJson(waybillDto));
         //2.2函速达拒收件不允许换单
         if(waybillDto != null && null!=waybillDto.getWaybill() && BusinessUtil.isLetterExpressReject(waybillDto.getWaybill().getWaybillSign())){
             result.toFail(SortingResponse.CODE_29319,SortingResponse.MESSAGE_29319);
+            log.info("letterExpressRejectHandler-->函速达拒收件换单校验，无运单信息或不是函速达拒收件。原单信息:{}", JsonHelper.toJson(waybillDto));
         }
 
         return result;
