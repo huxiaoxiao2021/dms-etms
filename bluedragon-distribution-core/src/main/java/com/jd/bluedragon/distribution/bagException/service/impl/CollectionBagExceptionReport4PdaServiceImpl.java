@@ -68,8 +68,8 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
     // 揽收品类
     private final static Integer DICT_PRODUCT_TYPE = 70550731;
     // 易碎类型
-    @Value("${waybill.cargo_type.dict_product_type_fragile=24}")
-    private static Integer DICT_PRODUCT_TYPE_FRAGILE;
+    @Value("${waybill.cargo_type.dict_product_type_fragile:24}")
+    private Integer DICT_PRODUCT_TYPE_FRAGILE;
     private final static String DICT_PRODUCT_TYPE_FRAGILE_NAME = "易碎物品";
 
     /**
@@ -217,7 +217,7 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
         if(EnumBusiCode.BUSI_SUCCESS.getCode() == bigWaybillDtoBaseEntity.getResultCode()){
             BigWaybillDto bigWaybillDto = bigWaybillDtoBaseEntity.getData();
             WaybillTransWay waybillTransWay = bigWaybillDto.getWaybillTransWay();
-            if(waybillTransWay.getCargoType() == dictProductTypeFragile){
+            if(waybillTransWay != null && waybillTransWay.getCargoType() == dictProductTypeFragile){
                 fragileWaybill = true;
             }
         }
