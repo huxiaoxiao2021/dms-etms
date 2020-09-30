@@ -212,6 +212,16 @@ public interface WaybillSignConstants {
 	 * waybillsign第31位
 	 */
 	int POSITION_31 = 31;
+
+	/**
+	 * waybillsign第5位
+	 */
+	int POSITION_5 = 5;
+
+	/**
+	 * waybillsign第5位为5
+	 */
+	char CHAR_5_5 = '5';
 	/**
 	 * 是否是特惠送
 	 * */

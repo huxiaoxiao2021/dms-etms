@@ -114,6 +114,12 @@ public class UccPropertyConfiguration {
      * */
     private String boxLimitSites;
 
+    /**
+     * 集货区可删除站点
+     *  例：910,39（-1代表全国）
+     */
+    private String collectGoodsDeleteSites;
+
 
     public boolean isLogToBusinessLogByKafka() {
         return logToBusinessLogByKafka;
@@ -321,5 +327,13 @@ public class UccPropertyConfiguration {
 
     public void setBoxLimitSites(String boxLimitSites) {
         this.boxLimitSites = boxLimitSites;
+    }
+
+    public String getCollectGoodsDeleteSites() {
+        return collectGoodsDeleteSites;
+    }
+
+    public void setCollectGoodsDeleteSites(String collectGoodsDeleteSites) {
+        this.collectGoodsDeleteSites = collectGoodsDeleteSites;
     }
 }

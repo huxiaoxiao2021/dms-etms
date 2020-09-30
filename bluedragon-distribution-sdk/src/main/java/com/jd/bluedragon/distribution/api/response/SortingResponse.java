@@ -100,6 +100,9 @@ public class SortingResponse extends JdResponse {
 
     /**************************************配送拦截新逻辑END******************************/
 
+    public static final Integer CODE_29319 = 29319;
+    public static final String MESSAGE_29319 = "此单为函速达运单，拒收请报废";
+
 
     /** 箱号 */
     private String boxCode;
