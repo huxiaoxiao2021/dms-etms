@@ -35,10 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * 集包异常举报
@@ -97,6 +94,7 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
             Integer siteCode = query.getCurrentOperate().getSiteCode();
             reportResponse.setPackageCode(packageCode);
             reportResponse.setSiteCode(siteCode);
+            this.setNoExceptionResponse(reportResponse);
             // 过滤是否能举报的必要条件：1. 外单标位 2. 非生鲜（运单及货物类型）、非易碎
             String waybillCode = WaybillUtil.getWaybillCodeByPackCode(query.getPackageCode());
             Waybill waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
@@ -120,11 +118,11 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
 
             if(canReportFlag){
                 // 查询包裹起始、目的地信息及上游箱号
-                com.jd.ql.dms.report.domain.BaseEntity<List<DmsDisSend>> listBaseEntity =
+                com.jd.ql.dms.report.domain.BaseEntity<List<DmsDisSend>> disSendResult =
                         dmsDisSendJsfService.queryByPackageCodeAndDesSiteId(query.getPackageCode(), query.getCurrentOperate().getSiteCode() + "");
-                if(listBaseEntity != null && listBaseEntity.getCode() == com.jd.ql.dms.report.domain.BaseEntity.CODE_SUCCESS
-                        && CollectionUtils.isNotEmpty(listBaseEntity.getData())){
-                    DmsDisSend dmsDisSend = listBaseEntity.getData().get(0);
+                if(disSendResult != null && disSendResult.getCode() == com.jd.ql.dms.report.domain.BaseEntity.CODE_SUCCESS
+                        && CollectionUtils.isNotEmpty(disSendResult.getData())){
+                    DmsDisSend dmsDisSend = disSendResult.getData().get(0);
                     int createSiteCode = dmsDisSend.getDmsSiteId();
 
                     Sorting sortingParam = new Sorting();
@@ -217,7 +215,7 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
         if(EnumBusiCode.BUSI_SUCCESS.getCode() == bigWaybillDtoBaseEntity.getResultCode()){
             BigWaybillDto bigWaybillDto = bigWaybillDtoBaseEntity.getData();
             WaybillTransWay waybillTransWay = bigWaybillDto.getWaybillTransWay();
-            if(waybillTransWay != null && waybillTransWay.getCargoType() == dictProductTypeFragile){
+            if(waybillTransWay != null && Objects.equals(waybillTransWay.getCargoType(), dictProductTypeFragile)){
                 fragileWaybill = true;
             }
         }
@@ -311,6 +309,11 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
         // 查询包裹称重流水，得到长宽高数据
         Page<PackFlowDetail> packagePage = new Page<>();
         packagePage.setPageSize(1000);
+        // 查询是否为一单一件，是则按运单号查所有流水
+        boolean isOneBillOnePackFlag = WaybillUtil.getPackNumByPackCode(waybillCodeOrPackageCode) == 1;
+        if(isOneBillOnePackFlag){
+            waybillCodeOrPackageCode = WaybillUtil.getWaybillCodeByPackCode(waybillCodeOrPackageCode);
+        }
         Page<PackFlowDetail> packageOpePageList = waybillPackageManager.getOpeDetailByCode(waybillCodeOrPackageCode, packagePage);
         if(packageOpePageList != null) {
             List<PackFlowDetail> packageOpeList = packageOpePageList.getResult();
