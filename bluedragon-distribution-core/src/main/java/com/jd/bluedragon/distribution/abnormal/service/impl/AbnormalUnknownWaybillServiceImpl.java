@@ -226,8 +226,12 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
             //批量添加用
             List<AbnormalUnknownWaybill> addList = Lists.newArrayList();
             //获取用户信息
-            LoginContext loginContext = LoginContext.getLoginContext();
             BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache(loginUser.getUserErp());
+            if (userDto == null) {
+                rest.toFail("登录用户无效：" + loginUser.getUserErp());
+                log.warn(rest.getMessage());
+                return rest;
+            }
             //站点区域查出来
             BaseStaffSiteOrgDto org = baseMajorManager.getBaseSiteBySiteId(userDto.getSiteCode());
             if (org == null) {
