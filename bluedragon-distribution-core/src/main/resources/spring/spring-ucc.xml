@@ -50,6 +50,8 @@
         <property name="collectionAddressSiteCodes" value="${collectionAddressSiteCodes}"/>
 		<property name="boxLimitSites" value="${boxLimitSites:''}"/>
 		<property name="collectGoodsDeleteSites" value="${collectGoodsDeleteSites}"/>
+        <property name="offlineLogGlobalSwitch" value="${offlineLogGlobalSwitch}" />
+        <property name="systemLogGlobalSwitch" value="${systemLogGlobalSwitch}" />
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -84,6 +86,8 @@
 				<value>uccPropertyConfiguration.collectionAddressSiteCodes</value>
 				<value>uccPropertyConfiguration.boxLimitSites</value>
 				<value>uccPropertyConfiguration.collectGoodsDeleteSites</value>
+                <value>uccPropertyConfiguration.offlineLogGlobalSwitch</value>
+                <value>uccPropertyConfiguration.systemLogGlobalSwitch</value>
 			</list>
 		</property>
 	</bean>

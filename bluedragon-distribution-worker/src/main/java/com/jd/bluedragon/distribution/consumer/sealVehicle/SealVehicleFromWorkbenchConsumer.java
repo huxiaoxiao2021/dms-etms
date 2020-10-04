@@ -176,7 +176,7 @@ public class SealVehicleFromWorkbenchConsumer extends MessageBaseConsumer {
         jsonObject.put("transportCode", transportCode);
         jsonObject.put("remark", remark);
         jsonObject.put("taskStatus", taskStatus);
-        wbSealVehicleCallbackProducer.sendOnFailPersistent(taskCode, jsonObject.toJSONString());
+        wbSealVehicleCallbackProducer.sendOnFailPersistent(transportCode, jsonObject.toJSONString());
     }
 
     /*
