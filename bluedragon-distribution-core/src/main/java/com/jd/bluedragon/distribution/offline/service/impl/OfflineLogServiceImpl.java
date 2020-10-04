@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.offline.service.impl;
 
 import com.jd.bluedragon.Constants;
 
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.offline.dao.OfflineDao;
 import com.jd.bluedragon.distribution.offline.domain.OfflineLog;
@@ -12,6 +13,8 @@ import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.fastjson.JSONObject;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +46,9 @@ public class OfflineLogServiceImpl implements OfflineLogService {
 
     @Autowired
     private LogEngine logEngine;
+
+    @Resource
+    private UccPropertyConfiguration uccPropertyConfiguration;
 
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
@@ -123,7 +130,12 @@ public class OfflineLogServiceImpl implements OfflineLogService {
 
         logEngine.addLog(businessLogProfiler);
 
-        return offlineDao.add(OfflineDao.namespace, offlineLog);
+        if (uccPropertyConfiguration.isOfflineLogGlobalSwitch()) {
+
+            return offlineDao.add(OfflineDao.namespace, offlineLog);
+        }
+
+        return 0;
     }
 
     @Override

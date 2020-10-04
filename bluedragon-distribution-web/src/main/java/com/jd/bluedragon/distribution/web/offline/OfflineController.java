@@ -21,6 +21,8 @@ import com.jd.dms.logger.aop.BusinessLogWriter;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.uim.annotation.Authorization;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,6 +74,7 @@ public class OfflineController {
 
 	@Authorization(Constants.DMS_WEB_SORTING_OFFLINELOG_R)
 	@RequestMapping(value = "/goListPage", method = RequestMethod.GET)
+    @JProfiler(jKey = "DMSWEB.OfflineController.goListpage", mState = JProEnum.TP)
 	public String goListpage(Model model) {
 
 		initSelectObject(null, model);
@@ -92,6 +95,7 @@ public class OfflineController {
 
 	@Authorization(Constants.DMS_WEB_SORTING_OFFLINELOG_R)
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
+    @JProfiler(jKey = "DMSWEB.OfflineController.list", mState = JProEnum.TP)
 	public String queryOperateLog(OfflineLog offlineLog,
 			Pager<OperationLog> pager, Model model) {
 		Map<String, Object> params = ObjectMapHelper.makeObject2Map(offlineLog);
@@ -122,6 +126,7 @@ public class OfflineController {
 
 	@Authorization(Constants.DMS_WEB_SORTING_OFFLINELOG_R)
 	@RequestMapping(value = "/detail", method = RequestMethod.GET)
+    @JProfiler(jKey = "DMSWEB.OfflineController.detail", mState = JProEnum.TP)
 	public String addOrDetail(Model model, Long offlineLogId) {
 		OfflineLog offlineLog = new OfflineLog();
 		offlineLog.setOfflineLogId(offlineLogId);
@@ -133,6 +138,7 @@ public class OfflineController {
 	@Authorization(Constants.DMS_WEB_SORTING_OFFLINELOG_R)
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
 	@ResponseBody
+    @JProfiler(jKey = "DMSWEB.OfflineController.save", mState = JProEnum.TP)
 	public JsonResult save(OfflineLog offlineLog) {
 		this.log.info("saveOfflineLog --> 保存 开始");
 		try {
