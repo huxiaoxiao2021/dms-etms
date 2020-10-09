@@ -29,6 +29,14 @@ public class Box {
 	public static final Integer BOX_STATUS_DEPARTURE_PROCESSING = 6; // 发车处理中
 	public static final Integer BOX_STATUS_DEPARTURE = 7; // 发车完成
 
+	public static final String TYPE_BC = "BC"; // 正向普通箱号
+	public static final String TYPE_BS = "BS"; // 正向奢侈品箱号
+	public static final String TYPE_TC = "TC"; // 退货普通箱号
+	public static final String TYPE_TS = "TS"; // 退货奢侈品箱号
+	public static final String TYPE_GC = "GC"; // 取件普通箱号
+	public static final String TYPE_GS = "GS"; // 取件奢侈品箱号
+
+	public static final Integer TRANSPORT_TYPE_AIR = 1;//运输方式  航空
 
 	/** 全局唯一ID */
 	private Long id;

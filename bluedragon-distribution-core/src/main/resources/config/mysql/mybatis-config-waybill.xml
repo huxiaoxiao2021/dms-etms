@@ -13,6 +13,7 @@
 
 	<typeAliases>
 		<typeAlias type="com.jd.bluedragon.common.domain.WaybillCache" alias="waybillCache" />
+		<typeAlias type="com.jd.bluedragon.distribution.packageWeighting.domain.PackageWeighting" alias="PackageWeighting" />
 	</typeAliases>
 
 	<typeHandlers>
@@ -26,7 +27,8 @@
 	</plugins>
 
 	<mappers>
-			<mapper resource="mappers/mysql/waybill/WaybillCacheMapper.xml"/>
+		<mapper resource="mappers/mysql/waybill/WaybillCacheMapper.xml"/>
+		<mapper resource="mappers/mysql/packageWeighting/PackageWeightingMapper.xml"/>
 	</mappers>
 
 </configuration>

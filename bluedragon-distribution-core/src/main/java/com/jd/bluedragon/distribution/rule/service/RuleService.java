@@ -22,4 +22,6 @@ public interface RuleService {
     List<Rule>  queryByParamNoPage(Integer createSiteCode);
 
     Integer addRuleByReferSite(Integer siteCode, Integer referSiteCode);
+
+    Rule get(Integer siteCode,String type) throws Exception;
 }

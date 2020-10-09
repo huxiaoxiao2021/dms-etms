@@ -68,6 +68,17 @@ public class WaybillCacheServiceImpl implements WaybillCacheService {
     }
 
     @Override
+    public String getRouterByWaybillCode(String waybillCode) {
+        String router = null;
+        try {
+            router = waybillCacheDao.getRouterByWaybillCode(waybillCode);
+        } catch (Exception e) {
+            log.error("获取路由信息失败，运单号{}", waybillCode, e);
+        }
+        return router;
+    }
+
+    @Override
     @JProfiler(jKey = "DMSWEB.WaybillCacheServiceImpl.getNoCache", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public WaybillCache getNoCache(String waybillCode) {
         WaybillCache waybillCache = null;
