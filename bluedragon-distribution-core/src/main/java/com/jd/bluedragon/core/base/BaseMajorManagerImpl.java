@@ -640,7 +640,7 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
      * @return
      */
     @Override
-    @Cache(key = "baseMajorManagerImpl.getPartnerSiteBySiteId@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+    @Cache(key = "baseMajorManagerImpl.getPartnerSiteBySiteId@args0", memoryEnable = false, memoryExpiredTime = 10 * 60 * 1000,
             redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
     @JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getPartnerSiteBySiteId", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public Integer getPartnerSiteBySiteId(Integer sitecode){
