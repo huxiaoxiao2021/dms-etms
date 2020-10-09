@@ -115,6 +115,12 @@ public class UccPropertyConfiguration {
     private String boxLimitSites;
 
     /**
+     * 集货区可删除站点
+     *  例：910,39（-1代表全国）
+     */
+    private String collectGoodsDeleteSites;
+
+    /**
      * 验货运单多包裹拆分任务生效的分拣中心
      */
     private String inspectionBigWaybillEffectiveSites;
@@ -325,6 +331,14 @@ public class UccPropertyConfiguration {
 
     public void setBoxLimitSites(String boxLimitSites) {
         this.boxLimitSites = boxLimitSites;
+    }
+
+    public String getCollectGoodsDeleteSites() {
+        return collectGoodsDeleteSites;
+    }
+
+    public void setCollectGoodsDeleteSites(String collectGoodsDeleteSites) {
+        this.collectGoodsDeleteSites = collectGoodsDeleteSites;
     }
 
     public String getInspectionBigWaybillEffectiveSites() {

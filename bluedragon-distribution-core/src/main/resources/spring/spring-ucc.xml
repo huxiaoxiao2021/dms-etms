@@ -49,6 +49,7 @@
 		<property name="switchVerToWebSites" value="${switchVerToWebSites}"/>
         <property name="collectionAddressSiteCodes" value="${collectionAddressSiteCodes}"/>
 		<property name="boxLimitSites" value="${boxLimitSites:''}"/>
+		<property name="collectGoodsDeleteSites" value="${collectGoodsDeleteSites}"/>
         <property name="inspectionBigWaybillEffectiveSites" value="${inspectionBigWaybillEffectiveSites:''}" />
 	</bean>
 
@@ -83,6 +84,7 @@
 				<value>uccPropertyConfiguration.disablePdaOldLogin</value>
 				<value>uccPropertyConfiguration.collectionAddressSiteCodes</value>
 				<value>uccPropertyConfiguration.boxLimitSites</value>
+				<value>uccPropertyConfiguration.collectGoodsDeleteSites</value>
                 <value>uccPropertyConfiguration.inspectionBigWaybillEffectiveSites</value>
 			</list>
 		</property>

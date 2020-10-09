@@ -36,7 +36,8 @@ public class EntryRestrictionWeightVolumeChecker implements IWeightVolumeChecker
         /* 按箱称重的目前只能在经济网项目新开的那个客户端页面中称重 */
         if (BusinessUtil.isBoxcode(entity.getBarCode())
                 && !FromSourceEnum.DMS_CLIENT_WEIGHT_VOLUME.equals(entity.getSourceCode())
-                && !FromSourceEnum.DMS_CLIENT_PLATE_PRINT.equals(entity.getSourceCode())){
+                && !FromSourceEnum.DMS_CLIENT_PLATE_PRINT.equals(entity.getSourceCode())
+                && !FromSourceEnum.CLPS_WEIGHT_BY_BOX.equals(entity.getSourceCode())){
             result.error("当前页面不允许操作按箱称重");
             result.setData(Boolean.FALSE);
             return result;
