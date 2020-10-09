@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.packageWeighting.dao.PackageWeightingDao">
+
+    <resultMap id="packageWeighting" type="com.jd.bluedragon.distribution.packageWeighting.domain.PackageWeighting">
+        <result column="id" property="id"/>
+        <result column="business_type" property="businessType"/>
+        <result column="business_desc" property="businessDesc"/>
+        <result column="operate_type" property="operateType"/>
+        <result column="ope_desc" property="opeDesc"/>
+        <result column="waybill_code" property="waybillCode"/>
+        <result column="package_code" property="packageCode"/>
+        <result column="weight" property="weight"/>
+        <result column="volume" property="volume"/>
+        <result column="length" property="length"/>
+        <result column="width" property="width"/>
+        <result column="height" property="height"/>
+        <result column="create_site_code" property="createSiteCode"/>
+        <result column="create_site_name" property="createSiteName"/>
+        <result column="weight_user_code" property="weightUserCode"/>
+        <result column="weight_user_erp" property="weightUserErp"/>
+        <result column="weight_user_name" property="weightUserName"/>
+        <result column="weight_time" property="weightTime"/>
+        <result column="measure_user_code" property="measureUserCode"/>
+        <result column="measure_user_erp" property="measureUserErp"/>
+        <result column="measure_user_name" property="measureUserName"/>
+        <result column="measure_time" property="measureTime"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="ts" property="ts"/>
+        <result column="is_delete" property="isDelete"/>
+    </resultMap>
+    <sql id="Base_Column_Exclude_ID">
+        business_type,
+        business_desc,
+        operate_type,
+        ope_desc,
+        waybill_code,
+        package_code,
+        weight,
+        volume,
+        length,
+        width,
+        height,
+        create_site_code,
+        create_site_name,
+        weight_user_code,
+        weight_user_erp,
+        weight_user_name,
+        weight_time,
+        measure_user_code,
+        measure_user_erp,
+        measure_user_name,
+        measure_time,
+        create_time,
+        update_time,
+        is_delete
+    </sql>
+    <insert id="insert" parameterType="PackageWeighting">
+        INSERT INTO ${tableName}(
+        <include refid="Base_Column_Exclude_ID"/>
+        )values(
+        #{businessType, jdbcType=INTEGER},
+        #{businessDesc, jdbcType=VARCHAR},
+        #{operateType, jdbcType=INTEGER},
+        #{opeDesc, jdbcType=VARCHAR},
+        #{waybillCode, jdbcType=VARCHAR},
+        #{packageCode, jdbcType=VARCHAR},
+        #{weight, jdbcType=DOUBLE},
+        #{volume, jdbcType=DOUBLE},
+        #{length, jdbcType=DOUBLE},
+        #{width, jdbcType=DOUBLE},
+        #{height, jdbcType=DOUBLE},
+        #{createSiteCode, jdbcType=INTEGER},
+        #{createSiteName, jdbcType=VARCHAR},
+        #{weightUserCode, jdbcType=BIGINT},
+        #{weightUserErp, jdbcType=VARCHAR},
+        #{weightUserName, jdbcType=VARCHAR},
+        #{weightTime, jdbcType=TIMESTAMP},
+        #{measureUserCode, jdbcType=BIGINT},
+        #{measureUserErp, jdbcType=VARCHAR},
+        #{measureUserName, jdbcType=VARCHAR},
+        #{measureTime, jdbcType=TIMESTAMP},
+        now(),
+        now(),
+        0
+        )
+    </insert>
+    <select id="findWeightVolume" resultMap="packageWeighting" parameterType="java.util.Map">
+        SELECT
+        COALESCE(MAX(weight),0) weight,
+        COALESCE(MAX(volume),0) volume,
+        COALESCE(MAX(length),0) length,
+        COALESCE(MAX(width),0) width,
+        COALESCE(MAX(height),0) height,
+        package_code
+        FROM ${tableName}
+        WHERE is_delete = 0
+        and waybill_code=#{waybillCode, jdbcType=VARCHAR}
+        <choose>
+            <when test="null != packageCode">
+                AND (package_code = #{packageCode,jdbcType=VARCHAR} or package_code=#{waybillCode,jdbcType=VARCHAR})
+            </when>
+            <otherwise>
+                AND package_code like  CONCAT(#{waybillCode, jdbcType=VARCHAR},'%')
+            </otherwise>
+        </choose>
+        AND business_type in
+        <foreach item="item" index="index" collection="list" open="("
+                 separator="," close=")">
+            #{item}
+        </foreach>
+        group by package_code
+    </select>
+
+
+</mapper>

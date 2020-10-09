@@ -23,6 +23,63 @@ public class CancelWaybillDao extends BaseDao<CancelWaybill> {
         return super.getSqlSession().selectList(NAMESPACE + ".getByWaybillCode", paramMap);
     }
 
+    /**
+     * 根据单号和featureType查询运单拦截记录
+     * @param waybillCode
+     * @param featureType
+     * @return
+     */
+    public CancelWaybill findWaybillCancelByCodeAndFeatureType(String waybillCode, Integer featureType) {
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("waybillCode", waybillCode);
+        paramMap.put("featureType", featureType);
+        return super.getSqlSession().selectOne(NAMESPACE + ".findWaybillCancelByCodeAndFeatureType", paramMap);
+    }
+
+    /**
+     * 根据运单号查询未完成的包裹号
+     * @param waybillCode
+     * @param featureType
+     * @param businessType
+     * @param limitCount 最多查询数量
+     * @return
+     */
+    public List<CancelWaybill> findPackageCodesByFeatureTypeAndWaybillCode(String waybillCode, Integer featureType, String businessType, Integer limitCount) {
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("waybillCode", waybillCode);
+        paramMap.put("featureType", featureType);
+        paramMap.put("businessType", businessType);
+        paramMap.put("limitCount", limitCount);
+        return super.getSqlSession().selectOne(NAMESPACE + ".findPackageCodesByFeatureTypeAndWaybillCode", paramMap);
+    }
+    /**
+     * 根据运单号查询锁定状态为businessType的包裹号数量
+     * @param waybillCode
+     * @param featureType
+     * @param businessType
+     * @return
+     */
+    public Long findPackageCodeCountByFeatureTypeAndWaybillCode(String waybillCode, Integer featureType, String businessType) {
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("waybillCode", waybillCode);
+        paramMap.put("featureType", featureType);
+        paramMap.put("businessType", businessType);
+        return super.getSqlSession().selectOne(NAMESPACE + ".findPackageCodeCountByFeatureTypeAndWaybillCode", paramMap);
+    }
+
+    /**
+     * 根据单号和featureType查询运单拦截记录
+     * @param packageCode
+     * @param featureType
+     * @return
+     */
+    public CancelWaybill findPackageBlockedByCodeAndFeatureType(String packageCode, Integer featureType) {
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("packageCode", packageCode);
+        paramMap.put("featureType", featureType);
+        return super.getSqlSession().selectOne(NAMESPACE + ".findPackageBlockedByCodeAndFeatureType", paramMap);
+    }
+
     public boolean add(CancelWaybill cancelWaybill) {
         cancelWaybill.setTs(System.currentTimeMillis());
         return super.getSqlSession().update(NAMESPACE + ".add", cancelWaybill) > 0 ? true : false;

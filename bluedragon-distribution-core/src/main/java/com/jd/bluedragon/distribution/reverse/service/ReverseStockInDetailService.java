@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.reverse.service;
 
 import com.jd.bluedragon.distribution.reverse.domain.ReverseStockInDetail;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseStockInDetailStatusEnum;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseStockInDetailTypeEnum;
 import com.jd.ql.dms.common.web.mvc.api.Service;
 
 import java.util.List;
@@ -71,4 +72,12 @@ public interface ReverseStockInDetailService extends Service<ReverseStockInDetai
      */
     List<ReverseStockInDetail> findByWaybillCodeAndType(ReverseStockInDetail reverseStockInDetail);
 
+    /**
+     * 检查是否存在收货数据
+     *
+     * @param waybillCode 运单号
+     * @param type        类型
+     * @return
+     */
+    boolean isReceive(String waybillCode, ReverseStockInDetailTypeEnum type);
 }

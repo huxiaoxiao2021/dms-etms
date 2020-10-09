@@ -15,6 +15,10 @@ public class WaybillCacheDao extends BaseDao<WaybillCache> {
         return super.getSqlSession().selectOne(namespace + ".findByWaybillCode", generateParamMap(waybillCode));
     }
 
+    public String getRouterByWaybillCode(String waybillCode) {
+        return super.getSqlSession().selectOne(namespace+".getRouterByWaybillCode", generateParamMap(waybillCode));
+    }
+
     private Map generateParamMap(String waybillCode) {
         Map<String, String> paramMap = new HashMap<>();
         paramMap.put("waybillCode", waybillCode);
