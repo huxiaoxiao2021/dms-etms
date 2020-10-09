@@ -12,7 +12,6 @@ import com.jd.bluedragon.distribution.print.waybill.handler.reverse.DealReverseP
 import com.jd.bluedragon.distribution.test.utils.UtilsForTestCase;
 import com.jd.bluedragon.distribution.testCore.base.EntityUtil;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DealReversePrintInfoHandlerTestCase {
