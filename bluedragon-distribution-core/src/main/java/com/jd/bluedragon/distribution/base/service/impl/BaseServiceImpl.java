@@ -205,7 +205,7 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 	}
 
 	@Override
-	@Cache(key = "basicMajorServiceProxy.getDmsBaseSiteAllByOrgId@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000, 
+	@Cache(key = "basicMajorServiceProxy.getDmsBaseSiteAllByOrgId@args0", memoryEnable = false, memoryExpiredTime = 5 * 60 * 1000,
 	redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
 	public BaseStaffSiteOrgDto[] querySiteByOrgID(Integer orgid) {
 		/** 查询所有站点的信息 */
