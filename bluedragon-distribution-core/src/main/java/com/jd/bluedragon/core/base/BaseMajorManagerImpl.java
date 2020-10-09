@@ -185,14 +185,14 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         return basicPrimaryWSProxy.getBaseSiteAll();
     }
 
-    @Cache(key = "baseMajorManagerImpl.getBaseSiteByOrgIdSubType@args0@args1", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
+    @Cache(key = "baseMajorManagerImpl.getBaseSiteByOrgIdSubType@args0@args1", memoryEnable = false, memoryExpiredTime = 5 * 60 * 1000,
             redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
     @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseSiteByOrgId", mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<BaseStaffSiteOrgDto> getBaseSiteByOrgIdSubType(Integer orgId, Integer targetType) {
 		return basicPrimaryWSProxy.getBaseSiteByOrgIdSubType(orgId,targetType);
     }
 
-    @Cache(key = "baseMajorManagerImpl.getBaseSiteByOrgIdSiteType@args0@args1", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
+    @Cache(key = "baseMajorManagerImpl.getBaseSiteByOrgIdSiteType@args0@args1", memoryEnable = false, memoryExpiredTime = 5 * 60 * 1000,
             redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
     @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseSiteByOrgIdSiteType", mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<BaseStaffSiteOrgDto> getBaseSiteByOrgIdSiteType(Integer orgId, Integer siteType) {
@@ -287,7 +287,7 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 
         return null;
     }
-    @Cache(key = "baseMajorManagerImpl.getDmsListByOrgId@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
+    @Cache(key = "baseMajorManagerImpl.getDmsListByOrgId@args0", memoryEnable = false, memoryExpiredTime = 5 * 60 * 1000,
             redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
     @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getDmsListByOrgId", mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<SimpleBaseSite> getDmsListByOrgId(Integer orgId) {
@@ -640,7 +640,7 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
      * @return
      */
     @Override
-    @Cache(key = "baseMajorManagerImpl.getPartnerSiteBySiteId@args0", memoryEnable = false, memoryExpiredTime = 10 * 60 * 1000,
+    @Cache(key = "baseMajorManagerImpl.getPartnerSiteBySiteId@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
             redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
     @JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getPartnerSiteBySiteId", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public Integer getPartnerSiteBySiteId(Integer sitecode){
