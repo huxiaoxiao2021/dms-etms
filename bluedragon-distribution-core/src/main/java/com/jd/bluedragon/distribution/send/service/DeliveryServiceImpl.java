@@ -705,9 +705,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         try {
             if (sortingCheckService.isNeedCheck(uccPropertyConfiguration.getSingleSendSwitchVerToWebSites(), sortingCheck.getCreateSiteCode())) {
                 response = sortingCheckService.singleSendCheck(sortingCheck);
-            }
-
-            if (response == null || response.getCode() != 200) {
+            } else {
                 response = jsfSortingResourceService.check(sortingCheck);
             }
 
