@@ -114,12 +114,16 @@ public class UccPropertyConfiguration {
      * */
     private String boxLimitSites;
 
+    /** 漏称重量方校验 开通全国开关；true打开全国 */
+    private boolean weightVolumeFilterWholeCountryFlag;
     /**
      * 集货区可删除站点
      *  例：910,39（-1代表全国）
      */
     private String collectGoodsDeleteSites;
 
+
+    private String singleSendSwitchVerToWebSites;
 
     public boolean isLogToBusinessLogByKafka() {
         return logToBusinessLogByKafka;
@@ -335,5 +339,21 @@ public class UccPropertyConfiguration {
 
     public void setCollectGoodsDeleteSites(String collectGoodsDeleteSites) {
         this.collectGoodsDeleteSites = collectGoodsDeleteSites;
+    }
+
+    public boolean getWeightVolumeFilterWholeCountryFlag() {
+        return weightVolumeFilterWholeCountryFlag;
+    }
+
+    public void setWeightVolumeFilterWholeCountryFlag(boolean weightVolumeFilterWholeCountryFlag) {
+        this.weightVolumeFilterWholeCountryFlag = weightVolumeFilterWholeCountryFlag;
+    }
+
+    public String getSingleSendSwitchVerToWebSites() {
+        return singleSendSwitchVerToWebSites;
+    }
+
+    public void setSingleSendSwitchVerToWebSites(String singleSendSwitchVerToWebSites) {
+        this.singleSendSwitchVerToWebSites = singleSendSwitchVerToWebSites;
     }
 }

@@ -17,4 +17,6 @@ public interface ReverseStockInDetailDao extends Dao<ReverseStockInDetail> {
     List<ReverseStockInDetail> findByWaybillCodeAndType(ReverseStockInDetail reverseStockInDetail);
 
     boolean updateStatus(ReverseStockInDetail reverseStockInDetail);
+
+    List<ReverseStockInDetail> findByParam(ReverseStockInDetail reverseStockInDetail);
 }
