@@ -50,7 +50,7 @@
         <property name="collectionAddressSiteCodes" value="${collectionAddressSiteCodes}"/>
 		<property name="boxLimitSites" value="${boxLimitSites:''}"/>
 		<property name="collectGoodsDeleteSites" value="${collectGoodsDeleteSites}"/>
-        <property name="inspectionBigWaybillEffectiveSites" value="${inspectionBigWaybillEffectiveSites:''}" />
+        <property name="inspectionBigWaybillEffectiveSites" value="${inspectionBigWaybillEffectiveSites}" />
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
