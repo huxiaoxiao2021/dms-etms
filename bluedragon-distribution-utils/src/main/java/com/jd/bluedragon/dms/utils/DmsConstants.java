@@ -185,6 +185,16 @@ public class DmsConstants {
     public static final String  SEAL_BOX_NO="^(\\d{8}|\\d{10})[XZBJHC]$";
 
     /**
+     * 集货区编码正则
+     */
+    public static final String RULE_COLLECT_AREA_CODE_REGEX ="^[A-Z]$";
+
+    /**
+     * 集货位编码正则
+     */
+    public static final String RULE_COLLECT_PLACE_CODE_REGEX ="^[A-Z][0-9]{3}$";
+
+    /**
      * 冷链卡班
      */
     public static final String PRODUCT_TYPE_COLD_CHAIN_KB = "LL-KB-M";
