@@ -162,10 +162,6 @@ public class SortingServiceImpl implements SortingService {
 	@Autowired
 	private LogEngine logEngine;
 
-
-	@Autowired
-	private JsfSortingResourceService jsfSortingResourceService;
-
 	@Autowired
 	private SortingCheckService sortingCheckService;
 
@@ -1554,12 +1550,6 @@ public class SortingServiceImpl implements SortingService {
 				return sortingJsfResponse;
 			}
 
-			SortingCheck sortingCheck = convertToSortingCheck(pdaOperateRequest);
-			sortingJsfResponse = jsfSortingResourceService.check(sortingCheck);
-			if(sortingJsfResponse.getCode() != 200){
-				return sortingJsfResponse;
-			}
-
 			//校验运单验货是否集齐
 			sortingJsfResponse = inspectionService.gatherCheck(pdaOperateRequest,sortingJsfResponse);
 			if(sortingJsfResponse != null && sortingJsfResponse.getCode().equals(SortingResponse.CODE_31123)){
@@ -1574,19 +1564,4 @@ public class SortingServiceImpl implements SortingService {
 		return sortingJsfResponse;
 	}
 
-	public SortingCheck convertToSortingCheck(PdaOperateRequest request){
-		SortingCheck sortingCheck = new SortingCheck();
-		sortingCheck.setBoxCode(request.getBoxCode());
-		sortingCheck.setBusinessType(request.getBusinessType());
-		sortingCheck.setCreateSiteCode(request.getCreateSiteCode());
-		sortingCheck.setCreateSiteName(request.getCreateSiteName());
-		sortingCheck.setOperateTime(request.getOperateTime());
-		sortingCheck.setOperateType(request.getOperateType());
-		sortingCheck.setOperateUserCode(request.getOperateUserCode());
-		sortingCheck.setOperateUserName(request.getOperateUserName());
-		sortingCheck.setPackageCode(request.getPackageCode());
-		sortingCheck.setReceiveSiteCode(request.getReceiveSiteCode());
-		sortingCheck.setIsLoss(request.getIsLoss());
-		return sortingCheck;
-	}
 }
