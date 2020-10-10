@@ -27,6 +27,8 @@
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillConsumableFilter" />
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CancelWaybillFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillTransferFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillDistributeTypeChangeFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillTypeFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WeightVolumeFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FreightFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.TrustToThirdFilter"/>
