@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
+import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.rule.domain.Rule;
 import com.jd.bluedragon.distribution.rule.service.RuleService;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
@@ -80,6 +81,9 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
     @Resource
     private UccPropertyConfiguration uccPropertyConfiguration;
 
+    @Autowired
+    private JsfSortingResourceService jsfSortingResourceService;
+
     @Override
     @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.sortingCheck", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public SortingJsfResponse sortingCheck(PdaOperateRequest pdaOperateRequest) {
@@ -102,6 +106,9 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
                     ReverseFilterChain reverseFilterChain = getReverseFilterChain();
                     reverseFilterChain.doFilter(filterContext, reverseFilterChain);
                 }
+            } else {
+                SortingCheck sortingCheck = convertToSortingCheck(pdaOperateRequest);
+                response = jsfSortingResourceService.check(sortingCheck);
             }
 
 
@@ -406,6 +413,22 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
      */
     private ProceedFilterChain getProceedFilterChain(){
         return (ProceedFilterChain) beanFactory.getBean("proceedFilterChain");
+    }
+
+    private SortingCheck convertToSortingCheck(PdaOperateRequest request){
+        SortingCheck sortingCheck = new SortingCheck();
+        sortingCheck.setBoxCode(request.getBoxCode());
+        sortingCheck.setBusinessType(request.getBusinessType());
+        sortingCheck.setCreateSiteCode(request.getCreateSiteCode());
+        sortingCheck.setCreateSiteName(request.getCreateSiteName());
+        sortingCheck.setOperateTime(request.getOperateTime());
+        sortingCheck.setOperateType(request.getOperateType());
+        sortingCheck.setOperateUserCode(request.getOperateUserCode());
+        sortingCheck.setOperateUserName(request.getOperateUserName());
+        sortingCheck.setPackageCode(request.getPackageCode());
+        sortingCheck.setReceiveSiteCode(request.getReceiveSiteCode());
+        sortingCheck.setIsLoss(request.getIsLoss());
+        return sortingCheck;
     }
 
 }
