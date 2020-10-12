@@ -43,5 +43,8 @@
 		LIMIT 1
 	</select>
 
+    <select id = "getRouterByWaybillCode" resultType="String" parameterType="java.util.Map">
+        select router from ${tableName} where waybill_code = #{waybillCode} limit 1
+    </select>
 
 </mapper>

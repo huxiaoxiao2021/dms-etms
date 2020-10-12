@@ -125,4 +125,16 @@ public interface SiteService {
 
 	Site get(Integer siteCode);
 
+	Site getNoCache(Integer siteCode);
+	/*
+	* 获取返调度站点
+	* */
+	Integer getLastScheduleSite(String packageCode);
+
+	/**
+	 * 根据分拣中心编码获取分拣中心名称并截取掉 ”分拣中心","中转场","分拨中心"等
+	 * @param dmsCode
+	 * @return
+	 */
+	String getDmsShortNameByCode(Integer dmsCode);
 }

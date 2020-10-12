@@ -11,6 +11,10 @@ public class UccPropertyConfiguration {
     /** cassandra服务的全局开关 **/
     private boolean cassandraGlobalSwitch;
 
+    private boolean offlineLogGlobalSwitch;
+
+    private boolean systemLogGlobalSwitch;
+
     /** 将日志通过kafka写入businesslog开关 **/
     private boolean logToBusinessLogByKafka;
 
@@ -114,6 +118,8 @@ public class UccPropertyConfiguration {
      * */
     private String boxLimitSites;
 
+    /** 漏称重量方校验 开通全国开关；true打开全国 */
+    private boolean weightVolumeFilterWholeCountryFlag;
     /**
      * 集货区可删除站点
      *  例：910,39（-1代表全国）
@@ -124,6 +130,8 @@ public class UccPropertyConfiguration {
      * 验货运单多包裹拆分任务生效的分拣中心
      */
     private String inspectionBigWaybillEffectiveSites;
+
+    private String singleSendSwitchVerToWebSites;
 
     public boolean isLogToBusinessLogByKafka() {
         return logToBusinessLogByKafka;
@@ -347,5 +355,37 @@ public class UccPropertyConfiguration {
 
     public void setInspectionBigWaybillEffectiveSites(String inspectionBigWaybillEffectiveSites) {
         this.inspectionBigWaybillEffectiveSites = inspectionBigWaybillEffectiveSites;
+    }
+
+    public boolean isOfflineLogGlobalSwitch() {
+        return offlineLogGlobalSwitch;
+    }
+
+    public void setOfflineLogGlobalSwitch(boolean offlineLogGlobalSwitch) {
+        this.offlineLogGlobalSwitch = offlineLogGlobalSwitch;
+    }
+
+    public boolean isSystemLogGlobalSwitch() {
+        return systemLogGlobalSwitch;
+    }
+
+    public void setSystemLogGlobalSwitch(boolean systemLogGlobalSwitch) {
+        this.systemLogGlobalSwitch = systemLogGlobalSwitch;
+    }
+
+    public boolean getWeightVolumeFilterWholeCountryFlag() {
+        return weightVolumeFilterWholeCountryFlag;
+    }
+
+    public void setWeightVolumeFilterWholeCountryFlag(boolean weightVolumeFilterWholeCountryFlag) {
+        this.weightVolumeFilterWholeCountryFlag = weightVolumeFilterWholeCountryFlag;
+    }
+
+    public String getSingleSendSwitchVerToWebSites() {
+        return singleSendSwitchVerToWebSites;
+    }
+
+    public void setSingleSendSwitchVerToWebSites(String singleSendSwitchVerToWebSites) {
+        this.singleSendSwitchVerToWebSites = singleSendSwitchVerToWebSites;
     }
 }

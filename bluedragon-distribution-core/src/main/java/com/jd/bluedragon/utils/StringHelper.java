@@ -1,5 +1,6 @@
 package com.jd.bluedragon.utils;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
 import com.jd.bluedragon.Constants;
@@ -446,6 +447,22 @@ public class StringHelper {
             return value;
         }
         return value.substring(start,end);
+    }
+
+    /**
+     * 判断字符串是否是数值类型转换成的
+     */
+    public static boolean isNumberic(String str) {
+        if (str == null || str.length() == 0) {
+            return false;
+        }
+        int sz = str.length();
+        for (int i = 0; i < sz; i++) {
+            if (!Character.isDigit(str.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public static final void main(String[] args) {
