@@ -126,6 +126,10 @@ public class UccPropertyConfiguration {
      */
     private String collectGoodsDeleteSites;
 
+    /**
+     * 验货运单多包裹拆分任务生效的分拣中心
+     */
+    private String inspectionBigWaybillEffectiveSites;
 
     private String singleSendSwitchVerToWebSites;
 
@@ -343,6 +347,14 @@ public class UccPropertyConfiguration {
 
     public void setCollectGoodsDeleteSites(String collectGoodsDeleteSites) {
         this.collectGoodsDeleteSites = collectGoodsDeleteSites;
+    }
+
+    public String getInspectionBigWaybillEffectiveSites() {
+        return inspectionBigWaybillEffectiveSites;
+    }
+
+    public void setInspectionBigWaybillEffectiveSites(String inspectionBigWaybillEffectiveSites) {
+        this.inspectionBigWaybillEffectiveSites = inspectionBigWaybillEffectiveSites;
     }
 
     public boolean isOfflineLogGlobalSwitch() {

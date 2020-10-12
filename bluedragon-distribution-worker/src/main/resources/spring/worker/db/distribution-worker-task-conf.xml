@@ -45,8 +45,10 @@
         <property name="firstInterval" value="1"/>
     </bean>
 
-    <bean id="inspectionTaskExecute" class="com.jd.bluedragon.distribution.worker.inspection.InspectionTaskExecute">
-        <property name="hooks">
+    <bean id="inspectionTaskExecute" class="com.jd.bluedragon.distribution.worker.inspection.InspectionTaskExecute" />
+
+    <bean id="hooks" class="java.util.ArrayList">
+        <constructor-arg type="java.util.Collection">
             <list>
                 <bean class="com.jd.bluedragon.distribution.worker.inspection.InspectionLogHook"/>
                 <bean class="com.jd.bluedragon.distribution.worker.inspection.MeasureHook"/>
@@ -55,8 +57,7 @@
                 <bean class="com.jd.bluedragon.distribution.worker.inspection.ThirdDifferenceHook"/>
                 <bean class="com.jd.bluedragon.distribution.worker.inspection.TraceHook"/>
             </list>
-        </property>
-
+        </constructor-arg>
     </bean>
 
     <bean id="storeIdSet"  class="java.util.HashSet">

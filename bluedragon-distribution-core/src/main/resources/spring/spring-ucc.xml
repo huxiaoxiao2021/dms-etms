@@ -50,6 +50,7 @@
         <property name="collectionAddressSiteCodes" value="${collectionAddressSiteCodes}"/>
 		<property name="boxLimitSites" value="${boxLimitSites:''}"/>
 		<property name="collectGoodsDeleteSites" value="${collectGoodsDeleteSites}"/>
+        <property name="inspectionBigWaybillEffectiveSites" value="${inspectionBigWaybillEffectiveSites}" />
         <property name="offlineLogGlobalSwitch" value="${offlineLogGlobalSwitch}" />
         <property name="systemLogGlobalSwitch" value="${systemLogGlobalSwitch}" />
 		<property name="weightVolumeFilterWholeCountryFlag" value="${weightVolumeFilterWholeCountryFlag}" />
@@ -88,6 +89,7 @@
 				<value>uccPropertyConfiguration.collectionAddressSiteCodes</value>
 				<value>uccPropertyConfiguration.boxLimitSites</value>
 				<value>uccPropertyConfiguration.collectGoodsDeleteSites</value>
+                <value>uccPropertyConfiguration.inspectionBigWaybillEffectiveSites</value>
                 <value>uccPropertyConfiguration.offlineLogGlobalSwitch</value>
                 <value>uccPropertyConfiguration.systemLogGlobalSwitch</value>
 				<value>uccPropertyConfiguration.weightVolumeFilterWholeCountryFlag</value>

@@ -1,41 +1,49 @@
 package com.jd.bluedragon.distribution.worker.inspection;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
-import com.jd.bluedragon.distribution.framework.AbstractTaskExecute;
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
+import com.jd.bluedragon.distribution.inspection.domain.InspectionMQBody;
 import com.jd.bluedragon.distribution.inspection.exception.WayBillCodeIllegalException;
+import com.jd.bluedragon.distribution.inspection.service.InspectionNotifyService;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
 import com.jd.bluedragon.distribution.receive.service.CenConfirmService;
-import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.ump.UmpMonitorHandler;
+import com.jd.bluedragon.utils.ump.UmpMonitorHelper;
+import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ump.profiler.CallerInfo;
-import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.text.MessageFormat;
+import java.util.*;
 
 /**
- * Created by wangtingwei on 2017/1/16.
- */
-public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExecuteContext> {
+ * @ClassName InspectionTaskCommonExecutor
+ * @Description
+ * @Author wyh
+ * @Date 2020/9/27 13:47
+ **/
+public abstract class InspectionTaskCommonExecutor extends AbstractInspectionTaskExecutor<InspectionTaskExecuteContext> {
 
+    @Resource(name = "storeIdSet")
+    private Set<Integer> storeIdSet;
 
-    private static final Logger log = LoggerFactory.getLogger(InspectionTaskExecute.class);
+    @Autowired
+    WaybillQueryManager waybillQueryManager;
+
+    @Autowired
+    private BaseService baseService;
 
     @Autowired
     private InspectionService inspectionService;
@@ -43,72 +51,66 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
     @Autowired
     private CenConfirmService cenConfirmService;
 
-    @Resource(name="storeIdSet")
-    private Set<Integer> storeIdSet;
-
     @Override
-    protected InspectionTaskExecuteContext prepare(Task domain) {
-        InspectionTaskExecuteContext context=new InspectionTaskExecuteContext();
-        context.setPassCheck(true);
-        InspectionRequest request= JsonHelper.fromJsonUseGson(domain.getBody(),InspectionRequest.class);
-        if(null==request){
-            if(log.isWarnEnabled()){
-                log.warn("验货JSON解析后对象为空{}",domain.getBody());
-            }
-            context.setPassCheck(false);
-            return context;
-        }
-        builderSite(request,context);
-        String code = request.getPackageBarOrWaybillCode();
-        /** 是否按运单验货 */
-        boolean isByWayBillCode = false;
-        // 如果是包裹号获取取件单号，则存在包裹号属性中
-        if (WaybillUtil.isPackageCode(code)|| WaybillUtil.isSurfaceCode(code)) {
-            request.setPackageBarcode(code);
-        } else if (WaybillUtil.isWaybillCode(code)) {// 否则为运单号
-            isByWayBillCode = true;
-            request.setWaybillCode(code);
-        } else {
-            String errorMsg = "验货条码不符合规则:" + code;
-            log.warn(errorMsg);
-            throw new WayBillCodeIllegalException(errorMsg);
-        }
-
-        String waybillCode = WaybillUtil.getWaybillCode(request.getPackageBarOrWaybillCode());
-
-        BigWaybillDto bigWaybillDto = getWaybill(waybillCode, isByWayBillCode);
-        if(bigWaybillDto == null){    //没有查到运单信息，可能运单号不存在或者服务暂不可用等
-            context.setPassCheck(false);
-            return context;
-        }
-        context.setBigWaybillDto(bigWaybillDto);
-
-        resetBusinessType(request, bigWaybillDto);/*验货businessType存在非50的数据吗，需要验证*/
-        resetStoreId(request, bigWaybillDto);
-        builderInspectionList(request, context);
-        builderCenConfirmList(context);
-        return context;
+    protected InspectionTaskExecuteContext prepare(InspectionRequest request) {
+        return null;
     }
 
+    @Override
+    protected boolean executeCoreFlow(final InspectionTaskExecuteContext context) {
 
+        String umpKey = "DMSWORKER.InspectionTaskExecute.executeCoreFlow";
+
+        UmpMonitorHelper.doWithUmpMonitor(umpKey, Constants.UMP_APP_NAME_DMSWORKER, new UmpMonitorHandler() {
+            @Override
+            public void process() {
+                for (Inspection domain : context.getInspectionList()) {
+                    inspectionService.insertOrUpdate(domain);
+                }
+                for (CenConfirm confirm: context.getCenConfirmList()) {
+                    cenConfirmService.updateOrInsert(confirm);
+                }
+            }
+        });
+
+        return true;
+    }
+
+    @Override
+    protected boolean otherOperation(InspectionRequest request, InspectionTaskExecuteContext context) {
+
+        return true;
+    }
 
     /**
-     * 保存数据至Inspection及Cen_confirm
-     * @param inspectionTaskExecuteContext
+     * 获取运单信息
+     * @param waybillCode 运单号
      * @return
      */
-    @Override
-    protected boolean executeCoreFlow(InspectionTaskExecuteContext inspectionTaskExecuteContext) {
-        CallerInfo callerInfo = ProfilerHelper.registerInfo("DMSWORKER.InspectionTaskExecute.executeCoreFlow", Constants.UMP_APP_NAME_DMSWORKER);
+    protected BigWaybillDto getWaybill(String waybillCode, boolean queryPackList){
+        if (!SerialRuleUtil.isMatchCommonWaybillCode(waybillCode)) {
+            String errorMsg = "运单号正则校验不通过:" + waybillCode;
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info(errorMsg);
+            }
+            throw new WayBillCodeIllegalException(errorMsg);
+        }
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info(MessageFormat.format("获取运单信息{0}", waybillCode));
+        }
+        BigWaybillDto result = null;
+        BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,true, false, true, queryPackList);
+        if (baseEntity != null) {
+            result= baseEntity.getData();
+        }
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info(MessageFormat.format("获取运单信息{0}, 结果为{1}", waybillCode, JsonHelper.toJson(result)));
+        }
+        return result;
+    }
 
-        for(Inspection domain : inspectionTaskExecuteContext.getInspectionList()){
-            inspectionService.insertOrUpdate(domain);
-        }
-        for (CenConfirm confirm:inspectionTaskExecuteContext.getCenConfirmList()){
-            cenConfirmService.updateOrInsert(confirm);
-        }
-        Profiler.registerInfoEnd(callerInfo);
-        return true;
+    protected BaseStaffSiteOrgDto getSite(Integer siteCode){
+        return baseService.getSiteBySiteID(siteCode);
     }
 
     /**
@@ -117,18 +119,18 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
      * @param request
      * @param bigWaybillDto
      */
-    private final void resetBusinessType(InspectionRequest request,BigWaybillDto bigWaybillDto){
+    protected void resetBusinessType(InspectionRequest request,BigWaybillDto bigWaybillDto){
         if(Integer.valueOf(Constants.BUSSINESS_TYPE_NEWTRANSFER).equals(request.getBusinessType())&&bigWaybillDto != null && bigWaybillDto.getWaybill()!=null)//包裹交接类型 以前是 1130： 50库房， 51夺宝岛 52协同仓  现在是50
         {
-                if (Integer.valueOf(Constants.BUSSINESS_TYPE_DBD_ORDERTYPE).equals(bigWaybillDto.getWaybill().getWaybillType())) { //夺宝岛交接 51 : 2
-                    request.setBusinessType(Constants.BUSSINESS_TYPE_BDB);
-                } else if (Integer.valueOf(Constants.BUSSINESS_TYPE_ZY_ORDERTYPE).equals(bigWaybillDto.getWaybill().getWaybillType())) {  //正向库房或者协同仓交接
-                    if (storeIdSet.contains(bigWaybillDto.getWaybillState().getStoreId())) {
-                        request.setBusinessType(Constants.BUSSINESS_TYPE_OEM_52);
-                    } else {
-                        request.setBusinessType(Constants.BUSSINESS_TYPE_TRANSFER);
-                    }
+            if (Integer.valueOf(Constants.BUSSINESS_TYPE_DBD_ORDERTYPE).equals(bigWaybillDto.getWaybill().getWaybillType())) { //夺宝岛交接 51 : 2
+                request.setBusinessType(Constants.BUSSINESS_TYPE_BDB);
+            } else if (Integer.valueOf(Constants.BUSSINESS_TYPE_ZY_ORDERTYPE).equals(bigWaybillDto.getWaybill().getWaybillType())) {  //正向库房或者协同仓交接
+                if (storeIdSet.contains(bigWaybillDto.getWaybillState().getStoreId())) {
+                    request.setBusinessType(Constants.BUSSINESS_TYPE_OEM_52);
+                } else {
+                    request.setBusinessType(Constants.BUSSINESS_TYPE_TRANSFER);
                 }
+            }
         }
     }
 
@@ -139,13 +141,13 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
      * @param request
      * @param bigWaybillDto
      */
-    private final void resetStoreId(InspectionRequest request,BigWaybillDto bigWaybillDto){
+    protected void resetStoreId(InspectionRequest request,BigWaybillDto bigWaybillDto){
         if (Integer.valueOf(Constants.BUSSINESS_TYPE_FC).equals(request.getBusinessType().intValue())){
-                if(null!=bigWaybillDto
-                        &&null!=bigWaybillDto.getWaybill()
-                        &&null!=bigWaybillDto.getWaybill().getDistributeStoreId()) {
-                    request.setReceiveSiteCode(bigWaybillDto.getWaybill().getDistributeStoreId());
-                }
+            if(null!=bigWaybillDto
+                    &&null!=bigWaybillDto.getWaybill()
+                    &&null!=bigWaybillDto.getWaybill().getDistributeStoreId()) {
+                request.setReceiveSiteCode(bigWaybillDto.getWaybill().getDistributeStoreId());
+            }
         }
     }
     /**
@@ -153,13 +155,13 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
      * @param request
      * @param context
      */
-    private final void builderInspectionList(InspectionRequest request,InspectionTaskExecuteContext context){
+    protected void builderInspectionList(InspectionRequest request, InspectionTaskExecuteContext context){
         List<Inspection> inspectionList=new ArrayList<Inspection>();
         context.setInspectionList(inspectionList);
         BigWaybillDto bigWaybillDto=context.getBigWaybillDto();
         if (StringUtils.isNotBlank(request.getWaybillCode())) {
             if (null == bigWaybillDto||null==bigWaybillDto.getPackageList()||bigWaybillDto.getPackageList().size()==0) {
-                log.warn("验货包裹信息为空{}",context.getBusinessKey());
+                LOGGER.warn("验货包裹信息为空{}",context.getBusinessKey());
                 context.setPassCheck(false);
                 return;
             }
@@ -179,13 +181,13 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
         }
         Collections.sort(inspectionList);
         context.setInspectionList(inspectionList);
-        if(log.isInfoEnabled()){
-            log.info("验货明细为{}",JsonHelper.toJson(inspectionList));
+        if(LOGGER.isInfoEnabled()){
+            LOGGER.info("验货明细为{}", com.jd.bluedragon.utils.JsonHelper.toJson(inspectionList));
         }
     }
 
 
-    private final void builderCenConfirmList(InspectionTaskExecuteContext context){
+    protected void builderCenConfirmList(InspectionTaskExecuteContext context){
         List<CenConfirm> cenList=new ArrayList<CenConfirm>(context.getInspectionList().size());
 
         for (Inspection inspection:context.getInspectionList()) {
@@ -210,7 +212,7 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
         context.setCenConfirmList(cenList);
     }
 
-    private final void builderSite(InspectionRequest request,InspectionTaskExecuteContext context){
+    protected void builderSite(InspectionRequest request, InspectionTaskExecuteContext context){
         BaseStaffSiteOrgDto site=this.getSite(request.getSiteCode());
         context.setCreateSite(site);
         if(null==site||null==site.getSiteCode()){
@@ -224,5 +226,4 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
             context.setReceiveSite(rsite);
         }
     }
-
 }
