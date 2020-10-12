@@ -49,6 +49,11 @@
 		<property name="switchVerToWebSites" value="${switchVerToWebSites}"/>
         <property name="collectionAddressSiteCodes" value="${collectionAddressSiteCodes}"/>
 		<property name="boxLimitSites" value="${boxLimitSites:''}"/>
+		<property name="collectGoodsDeleteSites" value="${collectGoodsDeleteSites}"/>
+        <property name="offlineLogGlobalSwitch" value="${offlineLogGlobalSwitch}" />
+        <property name="systemLogGlobalSwitch" value="${systemLogGlobalSwitch}" />
+		<property name="weightVolumeFilterWholeCountryFlag" value="${weightVolumeFilterWholeCountryFlag}" />
+		<property name="singleSendSwitchVerToWebSites" value="${singleSendSwitchVerToWebSites}" />
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -82,6 +87,11 @@
 				<value>uccPropertyConfiguration.disablePdaOldLogin</value>
 				<value>uccPropertyConfiguration.collectionAddressSiteCodes</value>
 				<value>uccPropertyConfiguration.boxLimitSites</value>
+				<value>uccPropertyConfiguration.collectGoodsDeleteSites</value>
+                <value>uccPropertyConfiguration.offlineLogGlobalSwitch</value>
+                <value>uccPropertyConfiguration.systemLogGlobalSwitch</value>
+				<value>uccPropertyConfiguration.weightVolumeFilterWholeCountryFlag</value>
+				<value>uccPropertyConfiguration.singleSendSwitchVerToWebSites</value>
 			</list>
 		</property>
 	</bean>

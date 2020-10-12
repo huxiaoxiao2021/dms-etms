@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.product.service;
 
+import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.distribution.order.ws.OrderWebService;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
@@ -37,6 +38,9 @@ public class ProductService {
 	
 	@Autowired
 	private WaybillService waybillService;
+
+	@Autowired
+	private WaybillCommonService waybillCommonService;
 
 	public List<Product> getProductsByWaybillCode(String waybillCode){
 		List<Product> products = new ArrayList<Product>();
@@ -179,6 +183,52 @@ public class ProductService {
 		}
 		
 		return products;
+	}
+
+	/*
+	* 获取报损后的商品数量
+	* */
+	public Integer getWaybillLossResult(String waybillCode) {
+		try {
+
+			Long orderId = waybillCommonService.findOrderIdByWaybillCode(waybillCode);
+			if(orderId == null){
+				return -1;
+			}
+			log.info("获取订单商品详情及报损详情, 订单号：{}", orderId);
+
+			List<Product> actualProducts = this.getOrderProducts(orderId);
+			List<Product> lossProducts = this.getLossOrderProducts(orderId);
+
+			if (actualProducts == null || actualProducts.isEmpty()) {
+				return -1;
+			}
+
+			Integer actualQuantity = getProductQuantity(actualProducts);
+			Integer LossQuantity = getProductQuantity(lossProducts);
+			Integer returnQuantity = getProductQuantity(actualProducts) - getProductQuantity(lossProducts);
+
+			if (LossQuantity == null || LossQuantity == 0) {
+				return -1;
+			}
+			if (LossQuantity < actualQuantity) {
+				return 0;
+			}
+			if (actualQuantity.equals(returnQuantity)) {
+				return 1;
+			}
+		} catch (Exception e) {
+			log.error("获取报丢订单商品明细失败"+waybillCode, e);
+		}
+		return -1;
+	}
+
+	private Integer getProductQuantity(List<Product> products) {
+		Integer quantity = 0;
+		for (Product aProduct : products) {
+			quantity += aProduct.getQuantity();
+		}
+		return quantity;
 	}
 	
 }
