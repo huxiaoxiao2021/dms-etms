@@ -98,7 +98,7 @@ public class PopReceiveAbnormalController {
 	 */
     @Authorization(Constants.DMS_WEB_PTORDER_DIFF_R)
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
-    @JProfiler(jKey = "DMSWEB.PopReceiveAbnormalController.list", mState = JProEnum.TP)
+    @JProfiler(jKey = "DMSWEB.PopReceiveAbnormalController.list", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = JProEnum.TP)
 	public String list(PopAbnormalQuery popAbnormalQuery, Model model) {
 		this.log.info("PopReceiveAbnormalController --> list 按条件查询平台订单差异订单数据集合");
 
