@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
+
+    <util:list id="proceedFilterList">
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.SortingNumberLimitFilter" />
+    </util:list>
+
+    <bean id="proceedFilterChain" class="com.jd.bluedragon.distribution.ver.filter.chains.ProceedFilterChain" scope="prototype" destroy-method="destory">
+        <property name="filterList" ref="proceedFilterList">
+        </property>
+    </bean>
+
+    <util:list id="forwardFilterList">
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillPackStateFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.AllianceBusiFilter" />
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.TipMessageFilter" />
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.BusinessHallFreightSendReceiveFilter" />
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.PreSellInterceptFilter" />
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.LPNewWaybillFilter" />
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.JinPengWaybillFilter" />
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.SevenFreshFilter" />
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillConsumableFilter" />
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CancelWaybillFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillTransferFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillDistributeTypeChangeFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillTypeFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WeightVolumeFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FreightFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.TrustToThirdFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FWaybillFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CityDistributionFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FBoxFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.LuxuryFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.TransferStationFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ZiTiGuiFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.BianMinZiTiFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.HeZuoDaiShouFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.PartnerSiteFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.PickupFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.DoorReplaceFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.OldReplaceFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ContractFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CODFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.AirBoxFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.DmsToVendorFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CrossDistributionFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FastTransferStationFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ChangeWaybillSignFilter"/>
+
+    </util:list>
+
+    <bean id="forwardFilterChain" class="com.jd.bluedragon.distribution.ver.filter.chains.ForwardFilterChain" scope="prototype" destroy-method="destory">
+        <property name="filterList" ref="forwardFilterList">
+        </property>
+    </bean>
+
+    <util:list id="reverseFilterList">
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillPackStateFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillTypeFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ReverseInStockCheckFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ReverseOperationAllowedFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.RWaybillFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.LPNewWaybillFilter" />
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.AuctionFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.RBoxFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WarehouseFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.SpareHouseFilter"/>
+    </util:list>
+
+    <bean id="reverseFilterChain" class="com.jd.bluedragon.distribution.ver.filter.chains.ReverseFilterChain" scope="prototype" destroy-method="destory">
+        <property name="filterList" ref="reverseFilterList">
+        </property>
+    </bean>
+
+    <util:list id="deliveryFilterList">
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.AllianceBusiFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.OneWaybillMultiPackFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.BusinessHallFreightSendReceiveFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CancelWaybillFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.PreSellInterceptFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillTransferFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillDistributeTypeChangeFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillTypeFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.LPNewWaybillFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.SevenFreshFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WeightVolumeFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FreightFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.TrustToThirdFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FWaybillFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CityDistributionFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FBoxFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.LuxuryFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.TransferStationFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ZiTiGuiFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.BianMinZiTiFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.HeZuoDaiShouFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.PartnerSiteFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.PickupFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.DoorReplaceFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.OldReplaceFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ContractFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CODFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.AirBoxFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.RouterFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FastTransferStationFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ChangeWaybillSignFilter"/>
+    </util:list>
+
+    <bean id="deliveryFilterChain" class="com.jd.bluedragon.distribution.ver.filter.chains.DeliveryFilterChain" scope="prototype" destroy-method="destory">
+        <property name="filterList" ref="deliveryFilterList">
+        </property>
+    </bean>
+
+
+    <util:list id="boardCombinationFilterList">
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillParamFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.LPNewWaybillFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CancelWaybillFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.PreSellInterceptFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.JinPengWaybillFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WeightVolumeFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FreightFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.TrustToThirdFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FWaybillFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.BoardCombinationRouterFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ChangeWaybillSignFilter"/>
+    </util:list>
+
+    <bean id="boardCombinationChain" class="com.jd.bluedragon.distribution.ver.filter.chains.BoardCombinationChain" scope="prototype" destroy-method="destory">
+        <property name="filterList" ref="boardCombinationFilterList">
+        </property>
+    </bean>
+</beans>

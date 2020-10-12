@@ -36,7 +36,6 @@
 	<import resource="classpath:spring/distribution-core-handler.xml" />
 	<import resource="classpath:spring/distribution-core-sequence-gen-redis.xml" />
 	<import resource="classpath*:cdf/crossbow.comp" />
-	<import resource="distribution-sorting-filter.xml" />
 	<import resource="distribution-beans.xml" />
 	<import resource="distribution-core-datasource-waybill.xml" />
 

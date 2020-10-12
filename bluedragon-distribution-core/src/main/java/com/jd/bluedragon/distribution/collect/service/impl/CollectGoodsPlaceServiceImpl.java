@@ -261,7 +261,7 @@ public class CollectGoodsPlaceServiceImpl extends BaseService<CollectGoodsPlace>
         }
         //最后获取最大扫描运单数
         for(CollectGoodsPlaceType collectGoodsPlaceType : allPlaceTypes){
-            if(collectGoodsPlaceType.getCollectGoodsPlaceType().equals(belongsPlace.getCollectGoodsPlaceType())){
+            if(Objects.equals(collectGoodsPlaceType.getCollectGoodsPlaceType(),belongsPlace.getCollectGoodsPlaceType())){
                 maxScanWaybillNum = collectGoodsPlaceType.getMaxWaybillNum();
             }
         }

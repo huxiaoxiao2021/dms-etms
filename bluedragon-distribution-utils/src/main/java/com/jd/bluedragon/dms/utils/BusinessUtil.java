@@ -127,6 +127,30 @@ public class BusinessUtil {
         return false;
     }
 
+    /**
+     * 判断是否为集货区编码
+     * @param code
+     * @return
+     */
+    public static final boolean isCollectAreaCode(String code){
+        if (StringUtils.isBlank(code)) {
+            return false;
+        }
+        return code.matches(RULE_COLLECT_AREA_CODE_REGEX);
+    }
+
+    /**
+     * 判断是否为集货位编码
+     * @param code
+     * @return
+     */
+    public static final boolean isCollectPlaceCode(String code){
+        if (StringUtils.isBlank(code)) {
+            return false;
+        }
+        return code.matches(RULE_COLLECT_PLACE_CODE_REGEX);
+    }
+
 
     /**
      * 判断是否逆向箱号（TC\TS\TW)
