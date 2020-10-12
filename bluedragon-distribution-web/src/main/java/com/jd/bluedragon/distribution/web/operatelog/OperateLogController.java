@@ -45,7 +45,7 @@ public class OperateLogController {
 
 	@Authorization("DMS-WEB-QUERY-OPERATE-LOG1")
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
-    @JProfiler(jKey = "DMSWEB.OperateLogController.queryOperateLog", mState = JProEnum.TP)
+    @JProfiler(jKey = "DMSWEB.OperateLogController.queryOperateLog", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = JProEnum.TP)
 	public String queryOperateLog(OperationLog operationLog, Pager<OperationLog> pager, Model model) {
 		Map<String, Object> params = ObjectMapHelper.makeObject2Map(operationLog);
 
@@ -83,14 +83,14 @@ public class OperateLogController {
 
 	@Authorization("DMS-WEB-QUERY-OPERATE-LOG1")
 	@RequestMapping(value = "/goListPage1", method = RequestMethod.GET)
-    @JProfiler(jKey = "DMSWEB.OperateLogController.goListPage1", mState = JProEnum.TP)
+    @JProfiler(jKey = "DMSWEB.OperateLogController.goListPage1", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = JProEnum.TP)
 	public String goListpage1(Model model) {
 		return "operateLog/operatelog1";
 	}
 
 	@Authorization("DMS-WEB-QUERY-OPERATE-LOG1")
 	@RequestMapping(value = "/list1", method = RequestMethod.GET)
-    @JProfiler(jKey = "DMSWEB.OperateLogController.queryOperateLog1", mState = JProEnum.TP)
+    @JProfiler(jKey = "DMSWEB.OperateLogController.queryOperateLog1", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = JProEnum.TP)
 	public String queryOperateLog1(OperationLog operationLog, Pager<OperationLog> pager, Model model) {
 		try {
 			Map<String, Object> params = ObjectMapHelper.makeObject2Map(operationLog);
@@ -133,7 +133,7 @@ public class OperateLogController {
 
 	@Authorization(Constants.DMS_WEB_SORTING_OPERATELOG_R)
 	@RequestMapping(value = "/goListPage2", method = RequestMethod.GET)
-    @JProfiler(jKey = "DMSWEB.OperateLogController.goListPage2", mState = JProEnum.TP)
+    @JProfiler(jKey = "DMSWEB.OperateLogController.goListPage2", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = JProEnum.TP)
 	public String goListpage2(Model model) {
 
 		ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
@@ -152,7 +152,7 @@ public class OperateLogController {
 
     @Authorization(Constants.DMS_WEB_SORTING_OPERATELOG_R)
 	@RequestMapping(value = "/list2", method = RequestMethod.GET)
-    @JProfiler(jKey = "DMSWEB.OperateLogController.list2", mState = JProEnum.TP)
+    @JProfiler(jKey = "DMSWEB.OperateLogController.list2", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = JProEnum.TP)
 	public String queryOperateLog2(OperationLog operationLog, Pager<OperationLog> pager, Model model) {
 		try {
 

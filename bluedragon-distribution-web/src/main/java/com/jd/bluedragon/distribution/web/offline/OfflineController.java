@@ -74,7 +74,7 @@ public class OfflineController {
 
 	@Authorization(Constants.DMS_WEB_SORTING_OFFLINELOG_R)
 	@RequestMapping(value = "/goListPage", method = RequestMethod.GET)
-    @JProfiler(jKey = "DMSWEB.OfflineController.goListpage", mState = JProEnum.TP)
+    @JProfiler(jKey = "DMSWEB.OfflineController.goListpage", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = JProEnum.TP)
 	public String goListpage(Model model) {
 
 		initSelectObject(null, model);
@@ -95,7 +95,7 @@ public class OfflineController {
 
 	@Authorization(Constants.DMS_WEB_SORTING_OFFLINELOG_R)
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
-    @JProfiler(jKey = "DMSWEB.OfflineController.list", mState = JProEnum.TP)
+    @JProfiler(jKey = "DMSWEB.OfflineController.list", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = JProEnum.TP)
 	public String queryOperateLog(OfflineLog offlineLog,
 			Pager<OperationLog> pager, Model model) {
 		Map<String, Object> params = ObjectMapHelper.makeObject2Map(offlineLog);
@@ -126,7 +126,7 @@ public class OfflineController {
 
 	@Authorization(Constants.DMS_WEB_SORTING_OFFLINELOG_R)
 	@RequestMapping(value = "/detail", method = RequestMethod.GET)
-    @JProfiler(jKey = "DMSWEB.OfflineController.detail", mState = JProEnum.TP)
+    @JProfiler(jKey = "DMSWEB.OfflineController.detail", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = JProEnum.TP)
 	public String addOrDetail(Model model, Long offlineLogId) {
 		OfflineLog offlineLog = new OfflineLog();
 		offlineLog.setOfflineLogId(offlineLogId);
@@ -138,7 +138,7 @@ public class OfflineController {
 	@Authorization(Constants.DMS_WEB_SORTING_OFFLINELOG_R)
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
 	@ResponseBody
-    @JProfiler(jKey = "DMSWEB.OfflineController.save", mState = JProEnum.TP)
+    @JProfiler(jKey = "DMSWEB.OfflineController.save", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = JProEnum.TP)
 	public JsonResult save(OfflineLog offlineLog) {
 		this.log.info("saveOfflineLog --> 保存 开始");
 		try {
