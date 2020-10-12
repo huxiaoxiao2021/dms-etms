@@ -17,9 +17,12 @@ import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.departure.domain.CapacityCodeResponse;
 import com.jd.bluedragon.distribution.departure.domain.CapacityDomain;
+import com.jd.bluedragon.distribution.reassignWaybill.domain.ReassignWaybill;
+import com.jd.bluedragon.distribution.reassignWaybill.service.ReassignWaybillService;
 import com.jd.bluedragon.distribution.site.dao.SiteMapper;
 import com.jd.bluedragon.distribution.ver.domain.Site;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.vts.dto.CommonDto;
@@ -56,6 +59,9 @@ public class SiteServiceImpl implements SiteService {
     private SysConfigService sysConfigService;
     @Autowired
     SiteMapper siteMapper;
+
+    @Autowired
+    private ReassignWaybillService reassignWaybillService;
 
     public BaseStaffSiteOrgDto getSite(Integer siteCode) {
         return this.baseMajorManager.getBaseSiteBySiteId(siteCode);
@@ -452,29 +458,80 @@ public class SiteServiceImpl implements SiteService {
         }
         Site site = this.siteMapper.get(siteCode);
         if (site == null) {
-            BaseStaffSiteOrgDto dto = null;
-            try {
-                dto = baseMajorManager.getBaseSiteBySiteId(siteCode);
-                if (null == dto) {
-                    log.warn("根据编码获取site信息为空：{}", siteCode);
-                    return null;
-                } else {
-                    Site temp = new Site();
-                    temp.setCode(dto.getSiteCode());
-                    temp.setName(dto.getSiteName());
-                    temp.setDmsCode(dto.getDmsSiteCode() != null ? dto.getDmsSiteCode() : "");
-                    temp.setSubType(dto.getSubType());
-                    temp.setType(dto.getSiteType());
-                    temp.setOrgId(dto.getSubType());
-                    temp.setSiteBusinessType(dto.getSiteBusinessType());
-                    return temp;
-                }
-            } catch (Exception e) {
-                log.error("根据编码获取site信息失败：{}", siteCode, e);
-                return null;
-            }
+            return getNoCache(siteCode);
         }else {
             return site;
         }
+    }
+
+    @Override
+    public Site getNoCache(Integer siteCode) {
+        BaseStaffSiteOrgDto dto = null;
+        try {
+            dto = baseMajorManager.getBaseSiteBySiteId(siteCode);
+            if (null == dto) {
+                log.warn("根据编码获取site信息为空：{}", siteCode);
+                return null;
+            } else {
+                Site temp = new Site();
+                temp.setCode(dto.getSiteCode());
+                temp.setName(dto.getSiteName());
+                temp.setDmsCode(dto.getDmsSiteCode() != null ? dto.getDmsSiteCode() : "");
+                temp.setSubType(dto.getSubType());
+                temp.setType(dto.getSiteType());
+                temp.setOrgId(dto.getSubType());
+                temp.setSiteBusinessType(dto.getSiteBusinessType());
+                return temp;
+            }
+        } catch (Exception e) {
+            log.error("根据编码获取site信息失败：{}", siteCode, e);
+            return null;
+        }
+    }
+
+    @Override
+    public Integer getLastScheduleSite(String packageCode) {
+        if(StringHelper.isEmpty(packageCode)){
+            log.warn("获取包裹最后一次反调度站点失败，参数包裹号为空。");
+            return null;
+        }
+
+        ReassignWaybill reassignWaybill = null;
+        try{
+            if(WaybillUtil.isPackageCode(packageCode))//判断是否是包裹号
+                reassignWaybill = reassignWaybillService.queryByPackageCode(packageCode);
+            else                                         //否则默认按运单号处理
+                reassignWaybill = reassignWaybillService.queryByWaybillCode(packageCode);
+        }catch(Exception e){
+            log.error("获取包裹 [{}] 最后一次反调度站点异常，原因：",packageCode, e);
+            return null;
+        }
+        if(null == reassignWaybill){
+            log.warn("获取包裹 [{}] 最后一次反调度站点失败，反调度站点为空", packageCode);
+            return null;
+        }
+        return reassignWaybill.getChangeSiteCode();
+    }
+
+    /**
+     * 根据分拣中心编码获取分拣中心名称并截取掉 ”分拣中心","中转场","分拨中心"等
+     * @param dmsCode
+     * @return
+     */
+    @Override
+    public String getDmsShortNameByCode(Integer dmsCode){
+        Site site = get(dmsCode);
+        if(site == null){
+            return null;
+        }
+
+        //读取站点名称
+        String siteName = site.getName();
+
+        if (StringHelper.isEmpty(siteName)){
+            return null;
+        }
+        //截取分拣中心、分拨中心、中转场
+        return siteName.replace(Constants.SUFFIX_DMS_ONE,"").replace(Constants.SUFFIX_DMS_TWO,"").replace(Constants.SUFFIX_TRANSIT,"");
     }
 }

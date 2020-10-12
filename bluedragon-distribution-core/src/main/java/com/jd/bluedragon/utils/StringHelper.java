@@ -449,6 +449,22 @@ public class StringHelper {
         return value.substring(start,end);
     }
 
+    /**
+     * 判断字符串是否是数值类型转换成的
+     */
+    public static boolean isNumberic(String str) {
+        if (str == null || str.length() == 0) {
+            return false;
+        }
+        int sz = str.length();
+        for (int i = 0; i < sz; i++) {
+            if (!Character.isDigit(str.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static final void main(String[] args) {
         System.out.println(phoneEncrypt("18600399842"));
         System.out.println(phoneEncrypt("1860039942  d"));
