@@ -1,10 +1,12 @@
 package com.jd.bluedragon.core.cassandra;
 
 import com.datastax.driver.core.*;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.jsf.gd.util.StringUtils;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.util.*;
@@ -22,6 +24,9 @@ public class BaseCassandraDao{
     @Value("${cassandra.ttl}")
     protected long  ttl;
 
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
     private  Session session ;
 
 	public void close(){
@@ -34,7 +39,11 @@ public class BaseCassandraDao{
     @Deprecated
 	@JProfiler(jKey = "baseCassandra.batchInsert", mState = { JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError })
 	public void batchInsert(List<BoundStatement> bstatementList, Map<String, Object> values) throws Exception {
-		BatchStatement batch = new BatchStatement();
+		// UCC开关控制保存Cassandra
+	    if (!uccPropertyConfiguration.getCassandraGlobalSwitch()) {
+		    return;
+        }
+	    BatchStatement batch = new BatchStatement();
 		for (BoundStatement statement : bstatementList) {
 			batch.add(statement);
 		}
@@ -52,6 +61,10 @@ public class BaseCassandraDao{
     @Deprecated
     @JProfiler(jKey = "baseCassandra.insert", mState = { JProEnum.TP,JProEnum.Heartbeat, JProEnum.FunctionError })
     public void insert(String tableName,Map<String,Object> values) throws Exception{
+        // UCC开关控制保存Cassandra
+        if (!uccPropertyConfiguration.getCassandraGlobalSwitch()) {
+            return;
+        }
         if(StringUtils.isBlank(tableName)){
             throw new Exception("cassandra insert tableName must be not empty");
         }
