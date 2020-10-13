@@ -1015,7 +1015,7 @@ public class BusinessUtil {
      * @param waybillSign waybillSign
      * @return true 是，false 不是
      */
-    private static boolean isWaybillMarkForward(String waybillSign) {
+    public static boolean isWaybillMarkForward(String waybillSign) {
         return isSignChar(waybillSign,WaybillSignConstants.BACKWARD_TYPE_WAYBILL_MARK_POSITION_15,WaybillSignConstants.BACKWARD_TYPE_WAYBILL_MARK_POSITION_15_0);
     }
 
