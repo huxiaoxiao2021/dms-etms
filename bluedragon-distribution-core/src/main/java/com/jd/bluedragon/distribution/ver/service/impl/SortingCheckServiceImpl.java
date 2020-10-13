@@ -356,14 +356,16 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         //日志
         JSONObject request = new JSONObject();
         request.put("operatorCode", pdaOperateRequest.getOperateUserCode());
-        request.put("pakcageCode", pdaOperateRequest.getPackageCode());
+        request.put("packageCode", pdaOperateRequest.getPackageCode());
         request.put("boxCode", pdaOperateRequest.getBoxCode());
         request.put("siteCode", pdaOperateRequest.getCreateSiteCode());
         request.put("siteName", pdaOperateRequest.getCreateSiteName());
         request.put("operatorName", pdaOperateRequest.getOperateUserName());
-
+        request.put("receiveSiteCode", pdaOperateRequest.getReceiveSiteCode());
+        request.put("businessType", pdaOperateRequest.getBusinessType());
         request.put("responseCode", sortingJsfResponse.getCode());
         request.put("responseMessage", sortingJsfResponse.getMessage());
+
 
         BusinessLogProfiler businessLogProfiler = new BusinessLogProfiler();
         businessLogProfiler.setSourceSys(Constants.BUSINESS_LOG_SOURCE_SYS_VERINWEB);

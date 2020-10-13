@@ -198,6 +198,15 @@
                   server="dmsjsf">
     </jsf:provider>
 
+    <!-- 集货作业功能 -->
+    <bean id="collectGateWayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.CollectGateWayServiceImpl"/>
+    <jsf:provider id="jsfCollectGateWayService"
+                  interface="com.jd.bluedragon.external.gateway.service.CollectGateWayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="collectGateWayService"
+                  server="dmsjsf">
+    </jsf:provider>
+
     <!-- 发布jsf 到物流网关 安卓调用end -->
 
     <!-- 发布jsf到物流网关 外部公司调用start  -->
@@ -293,6 +302,15 @@
                   interface="com.jd.bluedragon.external.gateway.service.CollectionBagOperationGatewayService"
                   alias="${dms.gateway.jsf.alias}"
                   ref="collectionBagOperationGatewayService"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 集包异常举报，给pda用 -->
+    <bean id="collectionBagExceptionReportGatewayService" class="com.jd.bluedragon.distribution.external.gateway.box.CollectionBagExceptionReportServiceImpl" />
+    <jsf:provider id="jsfCollectionBagExceptionReportService"
+                  interface="com.jd.bluedragon.external.gateway.box.CollectionBagExceptionReportGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="collectionBagExceptionReportGatewayService"
                   server="dmsjsf">
     </jsf:provider>
 

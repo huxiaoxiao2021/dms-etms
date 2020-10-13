@@ -7,6 +7,8 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.ws.rs.QueryParam;
 
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +55,7 @@ public class LogController {
 
     @Authorization(Constants.DMS_WEB_SORTING_OPERATELOG_R)
     @RequestMapping(value = "/goListPage", method = RequestMethod.GET)
+    @JProfiler(jKey = "DMSWEB.LogController.goListPage", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = JProEnum.TP)
     public String goListpage(Model model) {
         ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
         BusinessLogProfiler businessLogProfiler = new BusinessLogProfiler();
@@ -79,6 +82,7 @@ public class LogController {
      */
     @RequestMapping(value = "/getBizTypeConfigBySystemCode")
     @ResponseBody
+    @JProfiler(jKey = "DMSWEB.LogController.getBizTypeConfigBySystemCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = JProEnum.TP)
     public JdResponse<Map<Integer, String>> getBizTypeConfigBySystemCode(Integer systemCode) {
         logger.info("根据系统编码查询业务类型配置.systemCode:" + systemCode);
         JdResponse<Map<Integer, String>> response = new JdResponse<Map<Integer, String>>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
@@ -107,6 +111,7 @@ public class LogController {
      */
     @RequestMapping(value = "/getOpeBySysAndBiz")
     @ResponseBody
+    @JProfiler(jKey = "DMSWEB.LogController.getOpeBySysAndBiz", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = JProEnum.TP)
     public JdResponse<Map<Integer, String>> getOpeBySysAndBiz(Integer systemCode, Integer bizTypeCode) {
         logger.info("根据系统编码和业务类型编码查询操作类型配置.systemCode:" + systemCode + ",bizTypeCode:" + bizTypeCode);
         JdResponse<Map<Integer, String>> response = new JdResponse<Map<Integer, String>>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
@@ -131,6 +136,7 @@ public class LogController {
     @Authorization(Constants.DMS_WEB_SORTING_OPERATELOG_R)
     @RequestMapping("/getBusinessLog")
     @ResponseBody
+    @JProfiler(jKey = "DMSWEB.LogController.getBusinessLog", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = JProEnum.TP)
     public TableResult getBusinessLog(@RequestBody HashMap request) {
         request.put("sourceSys","112"); //只从实操日志里面查
         TableResult businessLogList=new TableResult();
@@ -156,15 +162,19 @@ public class LogController {
         }
         return businessLogList;
     }
+
     @Authorization(Constants.DMS_WEB_SORTING_OPERATELOG_R)
     @RequestMapping("/addLog")
     @ResponseBody
+    @JProfiler(jKey = "DMSWEB.LogController.addLog", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = JProEnum.TP)
     public boolean addLog(@RequestBody BusinessLogDto log) {
     	return this.businessLogManager.addLog(log);
     }
+
     @Authorization(Constants.DMS_WEB_SORTING_OPERATELOG_R)
     @RequestMapping("/queryLogs")
     @ResponseBody
+    @JProfiler(jKey = "DMSWEB.LogController.addLog", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = JProEnum.TP)
     public List<BusinessLogDto> queryLogs(@QueryParam("businessKey") String businessKey,@QueryParam("operateType") Integer operateType) {
     	return this.businessLogManager.queryLogs(businessKey,operateType);
     }
