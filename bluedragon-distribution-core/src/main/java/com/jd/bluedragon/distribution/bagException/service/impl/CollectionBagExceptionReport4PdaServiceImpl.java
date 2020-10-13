@@ -28,6 +28,7 @@ import com.jd.etms.waybill.dto.WChoice;
 import com.jd.fastjson.JSON;
 import com.jd.ql.dms.report.DmsDisSendJsfService;
 import com.jd.ql.dms.report.domain.dmsDisSend.DmsDisSend;
+import com.jd.ql.dms.report.domain.dmsDisSend.DmsDisSendQueryCondition;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -118,8 +119,12 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
 
             if(canReportFlag){
                 // 查询包裹起始、目的地信息及上游箱号
+                DmsDisSendQueryCondition dmsDisSendQueryCondition = new DmsDisSendQueryCondition();
+                dmsDisSendQueryCondition.setPackageCode(query.getPackageCode());
+                dmsDisSendQueryCondition.setDesSendSiteId(query.getCurrentOperate().getSiteCode());
+                dmsDisSendQueryCondition.setIsCancel(0);
                 com.jd.ql.dms.report.domain.BaseEntity<List<DmsDisSend>> disSendResult =
-                        dmsDisSendJsfService.queryByPackageCodeAndDesSiteId(query.getPackageCode(), query.getCurrentOperate().getSiteCode() + "");
+                        dmsDisSendJsfService.queryByConditionFromEs(dmsDisSendQueryCondition, 100);
                 if(disSendResult != null && disSendResult.getCode() == com.jd.ql.dms.report.domain.BaseEntity.CODE_SUCCESS
                         && CollectionUtils.isNotEmpty(disSendResult.getData())){
                     DmsDisSend dmsDisSend = disSendResult.getData().get(0);
@@ -373,15 +378,19 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
                 exceptionReport.setHeight(latestPackFlowDetail.getpHigh());
             }
             // 查询包裹起始、目的地信息及上游箱号
-            com.jd.ql.dms.report.domain.BaseEntity<List<DmsDisSend>> listBaseEntity =
-                    dmsDisSendJsfService.queryByPackageCodeAndDesSiteId(reportRequest.getPackageCode(), reportRequest.getCurrentOperate().getSiteCode() + "");
-            if(listBaseEntity == null || listBaseEntity.getCode() != com.jd.ql.dms.report.domain.BaseEntity.CODE_SUCCESS
-                || CollectionUtils.isEmpty(listBaseEntity.getData())){
+            DmsDisSendQueryCondition dmsDisSendQueryCondition = new DmsDisSendQueryCondition();
+            dmsDisSendQueryCondition.setPackageCode(reportRequest.getPackageCode());
+            dmsDisSendQueryCondition.setDesSendSiteId(reportRequest.getCurrentOperate().getSiteCode());
+            dmsDisSendQueryCondition.setIsCancel(0);
+            com.jd.ql.dms.report.domain.BaseEntity<List<DmsDisSend>> disSendResult =
+                    dmsDisSendJsfService.queryByConditionFromEs(dmsDisSendQueryCondition, 100);
+            if(disSendResult == null || disSendResult.getCode() != com.jd.ql.dms.report.domain.BaseEntity.CODE_SUCCESS
+                || CollectionUtils.isEmpty(disSendResult.getData())){
                 result.init(JdCResponse.CODE_FAIL, "未查询到此包裹的起始、目的地信息，不可举报");
                 return result;
             }
 
-            DmsDisSend dmsDisSend = listBaseEntity.getData().get(0);
+            DmsDisSend dmsDisSend = disSendResult.getData().get(0);
             int createSiteCode = dmsDisSend.getDmsSiteId();
 
             Sorting sortingParam = new Sorting();
