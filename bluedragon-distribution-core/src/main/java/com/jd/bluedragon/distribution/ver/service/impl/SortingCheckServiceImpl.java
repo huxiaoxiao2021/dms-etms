@@ -6,10 +6,12 @@ import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
@@ -19,10 +21,8 @@ import com.jd.bluedragon.distribution.ver.domain.FilterContext;
 import com.jd.bluedragon.distribution.ver.domain.Site;
 import com.jd.bluedragon.distribution.ver.exception.IllegalWayBillCodeException;
 import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
-import com.jd.bluedragon.distribution.ver.filter.chains.DeliveryFilterChain;
-import com.jd.bluedragon.distribution.ver.filter.chains.ForwardFilterChain;
-import com.jd.bluedragon.distribution.ver.filter.chains.ProceedFilterChain;
-import com.jd.bluedragon.distribution.ver.filter.chains.ReverseFilterChain;
+import com.jd.bluedragon.distribution.ver.filter.FilterChain;
+import com.jd.bluedragon.distribution.ver.filter.chains.*;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
@@ -111,7 +111,6 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
                 response = jsfSortingResourceService.check(sortingCheck);
             }
 
-
         } catch (IllegalWayBillCodeException e) {
             logger.error("分拣验证服务异常，非法运单号：IllegalWayBillCodeException", e);
             response.setCode(JdResponse.CODE_PARAM_ERROR);
@@ -127,7 +126,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
                 response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
             }
         }
-        this.addSortingCheckStatisticsLog(pdaOperateRequest, response);
+        this.addSortingCheckStatisticsLog(pdaOperateRequest, response.getCode(), response.getMessage());
         return response;
     }
 
@@ -141,27 +140,74 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
 
         SortingJsfResponse response = new SortingJsfResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
         PdaOperateRequest pdaOperateRequest = this.getPdaOperateRequest(sortingCheck);
+
+        if (pdaOperateRequest.getOperateType() != null && pdaOperateRequest.getOperateType() == Constants.OPERATE_TYPE_NEW_PACKAGE_SEND) {
+            try {
+                //初始化拦截链上下文
+                FilterContext filterContext = this.initContext(pdaOperateRequest);
+                DeliveryFilterChain deliveryFilterChain = getDeliveryFilterChain();
+                deliveryFilterChain.doFilter(filterContext, deliveryFilterChain);
+            } catch (IllegalWayBillCodeException e) {
+                logger.error("新发货验证服务异常，非法运单号：IllegalWayBillCodeException", e);
+                response.setCode(JdResponse.CODE_PARAM_ERROR);
+                response.setMessage(e.getMessage());
+            } catch (Exception ex) {
+                if (ex instanceof SortingCheckException) {
+                    SortingCheckException checkException = (SortingCheckException) ex;
+                    response.setCode(checkException.getCode());
+                    response.setMessage(checkException.getMessage());
+                } else {
+                    logger.error("新发货验证服务异常，参数：{}", JsonHelper.toJson(pdaOperateRequest), ex);
+                    response.setCode(JdResponse.CODE_SERVICE_ERROR);
+                    response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+                }
+            }
+        } else {
+            //调用装箱的分拣验证
+            return this.sortingCheck(pdaOperateRequest);
+        }
+
+        this.addSortingCheckStatisticsLog(pdaOperateRequest, response.getCode(), response.getMessage());
+        return response;
+    }
+
+    @Override
+    public BoardCombinationJsfResponse boardCombinationCheck(BoardCombinationRequest boardCombinationRequest) {
+
+        if (boardCombinationRequest == null) {
+            return new BoardCombinationJsfResponse(SortingResponse.CODE_PARAM_IS_NULL, SortingResponse.MESSAGE_PARAM_IS_NULL);
+        }
+        BoardCombinationJsfResponse response = new BoardCombinationJsfResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
         try {
-            //初始化拦截链上下文
-            FilterContext filterContext = this.initContext(pdaOperateRequest);
-            DeliveryFilterChain deliveryFilterChain = getDeliveryFilterChain();
-            deliveryFilterChain.doFilter(filterContext, deliveryFilterChain);
+            if (this.isNeedCheck(uccPropertyConfiguration.getBoardCombinationSwitchVerToWebSites(), boardCombinationRequest.getSiteCode())) {
+                //初始化拦截链上下文
+                FilterContext filterContext = this.initFilterParam(boardCombinationRequest);
+                //获取校验链
+                FilterChain boardCombinationChain = getBoardCombinationFilterChain();
+                //校验过程
+                boardCombinationChain.doFilter(filterContext, boardCombinationChain);
+            } else {
+                return jsfSortingResourceService.boardCombinationCheck(boardCombinationRequest);
+            }
+
         } catch (IllegalWayBillCodeException e) {
-            logger.error("新发货验证服务异常，非法运单号：IllegalWayBillCodeException", e);
-            response.setCode(JdResponse.CODE_PARAM_ERROR);
-            response.setMessage(e.getMessage());
+            logger.error("非法运单号：IllegalWayBillCodeException", e);
         } catch (Exception ex) {
             if (ex instanceof SortingCheckException) {
                 SortingCheckException checkException = (SortingCheckException) ex;
-                response.setCode(checkException.getCode());
-                response.setMessage(checkException.getMessage());
+                return new BoardCombinationJsfResponse(checkException.getCode(), checkException.getMessage());
             } else {
-                logger.error("新发货验证服务异常，参数：{}", JsonHelper.toJson(pdaOperateRequest), ex);
+                logger.error("组板验证服务异常，参数：{}", JsonHelper.toJson(boardCombinationRequest), ex);
                 response.setCode(JdResponse.CODE_SERVICE_ERROR);
                 response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
             }
         }
-        this.addSortingCheckStatisticsLog(pdaOperateRequest, response);
+
+        if(response.getMessage() != null && response.getMessage().contains("装箱")) {
+            response.setMessage(response.getMessage().replace("装箱", "组板"));
+        }
+
+        this.addSortingCheckStatisticsLog(this.convertPdaOperateRequest(boardCombinationRequest), response.getCode(), response.getMessage());
         return response;
     }
 
@@ -327,6 +373,33 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
     }
 
     /**
+     * 上下文参数判断
+     */
+    private FilterContext initFilterParam(BoardCombinationRequest boardCombinationRequest) throws SortingCheckException {
+
+        if (StringHelper.isEmpty(boardCombinationRequest.getBoxOrPackageCode())) {
+            throw new SortingCheckException(SortingResponse.CODE_29000, SortingResponse.MESSAGE_29000);
+        }
+        if (! NumberHelper.isPositiveNumber(boardCombinationRequest.getSiteCode())) {
+            throw new SortingCheckException(SortingResponse.CODE_29200, SortingResponse.MESSAGE_29200);
+        }
+        if (! NumberHelper.isPositiveNumber(boardCombinationRequest.getReceiveSiteCode())) {
+            throw new SortingCheckException(SortingResponse.CODE_29201, SortingResponse.MESSAGE_29201);
+        }
+
+        FilterContext filterContext = new FilterContext();
+        filterContext.setRuleMap(getRuleList(boardCombinationRequest.getSiteCode()));
+        filterContext.setBoxCode(boardCombinationRequest.getBoxOrPackageCode());
+        filterContext.setCreateSiteCode(boardCombinationRequest.getSiteCode());
+        filterContext.setReceiveSiteCode(boardCombinationRequest.getReceiveSiteCode());
+        filterContext.setBusinessType(boardCombinationRequest.getBusinessType());
+        filterContext.setPackageCode(boardCombinationRequest.getBoxOrPackageCode());
+        filterContext.setPdaOperateRequest(this.convertPdaOperateRequest(boardCombinationRequest));
+
+        return filterContext;
+    }
+
+    /**
      * 获取当前分拣中心的校验规则
      *
      */
@@ -351,7 +424,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         return  waybillPackageManager.queryPackageListForParcodes(packageCodes);
     }
 
-    private void addSortingCheckStatisticsLog(PdaOperateRequest pdaOperateRequest, SortingJsfResponse sortingJsfResponse) {
+    private void addSortingCheckStatisticsLog(PdaOperateRequest pdaOperateRequest, Integer responseCode, String responseMessage) {
 
         //日志
         JSONObject request = new JSONObject();
@@ -363,8 +436,8 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         request.put("operatorName", pdaOperateRequest.getOperateUserName());
         request.put("receiveSiteCode", pdaOperateRequest.getReceiveSiteCode());
         request.put("businessType", pdaOperateRequest.getBusinessType());
-        request.put("responseCode", sortingJsfResponse.getCode());
-        request.put("responseMessage", sortingJsfResponse.getMessage());
+        request.put("responseCode", responseCode);
+        request.put("responseMessage", responseMessage);
 
 
         BusinessLogProfiler businessLogProfiler = new BusinessLogProfiler();
@@ -379,6 +452,21 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
 
     }
 
+    /*
+    * 参数转换
+    * */
+    private PdaOperateRequest convertPdaOperateRequest(BoardCombinationRequest boardCombinationRequest) {
+
+        PdaOperateRequest pdaOperateRequest = new PdaOperateRequest();
+        pdaOperateRequest.setReceiveSiteCode(boardCombinationRequest.getReceiveSiteCode());
+        pdaOperateRequest.setCreateSiteCode(boardCombinationRequest.getSiteCode());
+        pdaOperateRequest.setBoxCode(boardCombinationRequest.getBoxOrPackageCode());
+        pdaOperateRequest.setPackageCode(boardCombinationRequest.getBoxOrPackageCode());
+        pdaOperateRequest.setBusinessType(boardCombinationRequest.getBusinessType());
+        pdaOperateRequest.setOperateUserCode(boardCombinationRequest.getUserCode());
+        pdaOperateRequest.setOperateUserName(boardCombinationRequest.getUserName());
+        return pdaOperateRequest;
+    }
     @Override
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
         this.beanFactory = beanFactory;
@@ -415,6 +503,14 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
      */
     private ProceedFilterChain getProceedFilterChain(){
         return (ProceedFilterChain) beanFactory.getBean("proceedFilterChain");
+    }
+
+    /**
+     * 获取组板校验链
+     * @return
+     */
+    public FilterChain getBoardCombinationFilterChain(){
+        return (BoardCombinationChain) beanFactory.getBean("boardCombinationChain");
     }
 
     private SortingCheck convertToSortingCheck(PdaOperateRequest request){
