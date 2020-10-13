@@ -1,4 +1,5 @@
 package com.jd.bluedragon.distribution.asynbuffer.service;
+import IceInternal.Ex;
 import com.jd.bluedragon.distribution.task.domain.Task;
 
 /**
@@ -58,5 +59,13 @@ public interface AsynBufferService {
 
         //平台打印补验货数据
         boolean popPrintInspection(Task task) throws Exception;
+
+    /**
+     *  验货多包裹拆分任务
+     * @param task
+     * @return
+     * @throws Exception
+     */
+    boolean inspectionSplitWaybillProcess(Task task) throws Exception;
 
 }

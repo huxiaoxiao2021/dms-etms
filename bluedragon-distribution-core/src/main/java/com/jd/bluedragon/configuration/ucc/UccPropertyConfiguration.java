@@ -11,6 +11,10 @@ public class UccPropertyConfiguration {
     /** cassandra服务的全局开关 **/
     private boolean cassandraGlobalSwitch;
 
+    private boolean offlineLogGlobalSwitch;
+
+    private boolean systemLogGlobalSwitch;
+
     /** 将日志通过kafka写入businesslog开关 **/
     private boolean logToBusinessLogByKafka;
 
@@ -122,6 +126,10 @@ public class UccPropertyConfiguration {
      */
     private String collectGoodsDeleteSites;
 
+    /**
+     * 验货运单多包裹拆分任务生效的分拣中心
+     */
+    private String inspectionBigWaybillEffectiveSites;
 
     private String singleSendSwitchVerToWebSites;
 
@@ -341,6 +349,30 @@ public class UccPropertyConfiguration {
 
     public void setCollectGoodsDeleteSites(String collectGoodsDeleteSites) {
         this.collectGoodsDeleteSites = collectGoodsDeleteSites;
+    }
+
+    public String getInspectionBigWaybillEffectiveSites() {
+        return inspectionBigWaybillEffectiveSites;
+    }
+
+    public void setInspectionBigWaybillEffectiveSites(String inspectionBigWaybillEffectiveSites) {
+        this.inspectionBigWaybillEffectiveSites = inspectionBigWaybillEffectiveSites;
+    }
+
+    public boolean isOfflineLogGlobalSwitch() {
+        return offlineLogGlobalSwitch;
+    }
+
+    public void setOfflineLogGlobalSwitch(boolean offlineLogGlobalSwitch) {
+        this.offlineLogGlobalSwitch = offlineLogGlobalSwitch;
+    }
+
+    public boolean isSystemLogGlobalSwitch() {
+        return systemLogGlobalSwitch;
+    }
+
+    public void setSystemLogGlobalSwitch(boolean systemLogGlobalSwitch) {
+        this.systemLogGlobalSwitch = systemLogGlobalSwitch;
     }
 
     public boolean getWeightVolumeFilterWholeCountryFlag() {
