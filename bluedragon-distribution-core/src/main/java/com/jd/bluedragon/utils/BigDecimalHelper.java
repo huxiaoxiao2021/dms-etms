@@ -51,6 +51,9 @@ public class BigDecimalHelper {
 	}
 
 	public static BigDecimal toBigDecimal(String sNumber) {
+		if(StringHelper.isEmpty(sNumber)){
+			return null;
+		}
 		return new BigDecimal(sNumber).setScale(2, BigDecimal.ROUND_HALF_UP);
 	}
 

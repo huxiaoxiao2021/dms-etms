@@ -437,7 +437,7 @@ public class SiteServiceImpl implements SiteService {
         String url = PropertiesHelper.newInstance().getValue("DMSVER_ADDRESS") + "/services/bases/siteFuzzyByName/" + siteName;
         List<SiteEntity> siteEntities = RestHelper.jsonGetForEntity(url,new TypeToken<List<SiteEntity>>(){}.getType());
         if (null == siteEntities || siteEntities.isEmpty()) {
-            return null;
+        	return Collections.emptyList();
         }
         List<BaseStaffSiteOrgDto> res = new ArrayList<>();
         for (SiteEntity siteEntity : siteEntities) {

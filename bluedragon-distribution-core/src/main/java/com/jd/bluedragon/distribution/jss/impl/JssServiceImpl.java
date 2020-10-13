@@ -112,8 +112,8 @@ public class JssServiceImpl implements JssService {
 
     @Override
     public String uploadFile(String bucket, byte[] bytes, String extName) {
-        if (bytes == null) {
-            log.info("上传的参数为空");
+        if (bytes == null||bytes.length==0) {
+            log.info("上传的数据为空");
             return null;
         }
             ByteArrayInputStream inStream = new ByteArrayInputStream(bytes);
