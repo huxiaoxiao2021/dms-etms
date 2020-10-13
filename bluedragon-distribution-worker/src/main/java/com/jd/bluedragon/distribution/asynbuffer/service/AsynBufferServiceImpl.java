@@ -8,7 +8,6 @@ import com.jd.bluedragon.distribution.auto.domain.UploadData;
 import com.jd.bluedragon.distribution.auto.service.ScannerFrameDispatchService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
-import com.jd.bluedragon.distribution.framework.AbstractTaskExecute;
 import com.jd.bluedragon.distribution.inspection.exception.InspectionException;
 import com.jd.bluedragon.distribution.inspection.exception.WayBillCodeIllegalException;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
@@ -29,7 +28,10 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.weight.service.WeightService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeService;
+import com.jd.bluedragon.distribution.worker.inspection.InspectionTaskExeStrategy;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.ump.UmpMonitorHandler;
+import com.jd.bluedragon.utils.ump.UmpMonitorHelper;
 import com.jd.dms.logger.aop.BusinessLogWriter;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -38,7 +40,6 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -60,6 +61,9 @@ public class AsynBufferServiceImpl implements AsynBufferService {
 //    private ReceiveService receiveService;
     @Autowired
     private ReceiveTaskExecutor receiveTaskExecutor;
+
+    @Autowired
+    private InspectionTaskExeStrategy inspectionTaskExeStrategy;
     
 
     public boolean receiveTaskProcess(Task task)
@@ -73,9 +77,6 @@ public class AsynBufferServiceImpl implements AsynBufferService {
     }
 
     //分拣中心验货
-    @Qualifier("inspectionTaskExecute")
-    @Autowired()
-    private AbstractTaskExecute taskExecute;
     public boolean inspectionTaskProcess(Task task)
             throws Exception {
 		CallerInfo callerInfo = ProfilerHelper.registerInfo("DmsWorker.Task.InspectionTask.execute",
@@ -90,11 +91,9 @@ public class AsynBufferServiceImpl implements AsynBufferService {
             if (null == middleRequests || middleRequests.size() == 0) {
                 return true;
             }
-            Task domain = new Task();
-            domain.setId(task.getId());
             for (InspectionRequest request : middleRequests) {
-                domain.setBody(JsonHelper.toJson(request));
-                taskExecute.execute(domain);
+
+                inspectionTaskExeStrategy.decideExecutor(request).process(request);
             }
         } catch (InspectionException inspectionEx) {
             StringBuilder sb = new StringBuilder("验货执行失败,已知异常");
@@ -120,6 +119,37 @@ public class AsynBufferServiceImpl implements AsynBufferService {
         }finally{
         	Profiler.registerInfoEnd(callerInfo);
         }
+        return true;
+    }
+
+    /**
+     * 运单多包裹验货拆分任务
+     */
+    public boolean inspectionSplitWaybillProcess(final Task task) {
+
+        if (null == task || StringUtils.isBlank(task.getBody())) {
+            return true;
+        }
+
+        try {
+            String umpKey = "DmsWorker.Task.inspectionSplitWaybillProcess.execute";
+            String umpApp = Constants.UMP_APP_NAME_DMSWORKER;
+            UmpMonitorHelper.doWithUmpMonitor(umpKey, umpApp, new UmpMonitorHandler() {
+                @Override
+                public void process() {
+
+                    InspectionRequest request = JsonHelper.fromJsonUseGson(task.getBody(), InspectionRequest.class);
+
+                    inspectionTaskExeStrategy.decideExecutor(request).process(request);
+
+                }
+            });
+        }
+        catch (Exception ex) {
+            log.error("验货拆分任务执行失败, task: {}. 异常: ", task.getBody() , ex);
+            return false;
+        }
+
         return true;
     }
 
