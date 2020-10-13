@@ -7,47 +7,94 @@ public class GoodsLoadingScanningReq implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    //包裹号
-    private String packageNo;
+    /**
+     * 主键
+     */
+    private Long id;
 
-    //任务号
-    private String taskNo;
+    /**
+     * 包裹号
+     */
+    private String packageCode;
 
-    //批次号
-    private String batchNo;
+    /**
+     * 任务号
+     */
+    private Long taskId;
 
-    //运单号
-    private List<String> transBillNoList;
+    /**
+     * 批次号
+     */
+    private String sendCode;
 
-    public String getPackageNo() {
-        return packageNo;
+    /**
+     * 运单号
+     */
+    private String wayBillCode;
+
+    /**
+     * 板号
+     */
+    private String boardCode;
+
+    /**
+     * 包裹明细
+     */
+    private List<GoodsDetailReq> packageDetails;
+
+    public Long getId() {
+        return id;
     }
 
-    public void setPackageNo(String packageNo) {
-        this.packageNo = packageNo;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public String getTaskNo() {
-        return taskNo;
+    public String getPackageCode() {
+        return packageCode;
     }
 
-    public void setTaskNo(String taskNo) {
-        this.taskNo = taskNo;
+    public void setPackageCode(String packageCode) {
+        this.packageCode = packageCode;
     }
 
-    public String getBatchNo() {
-        return batchNo;
+    public Long getTaskId() {
+        return taskId;
     }
 
-    public void setBatchNo(String batchNo) {
-        this.batchNo = batchNo;
+    public void setTaskId(Long taskId) {
+        this.taskId = taskId;
     }
 
-    public List<String> getTransBillNoList() {
-        return transBillNoList;
+    public String getSendCode() {
+        return sendCode;
     }
 
-    public void setTransBillNoList(List<String> transBillNoList) {
-        this.transBillNoList = transBillNoList;
+    public void setSendCode(String sendCode) {
+        this.sendCode = sendCode;
+    }
+
+    public String getWayBillCode() {
+        return wayBillCode;
+    }
+
+    public void setWayBillCode(String wayBillCode) {
+        this.wayBillCode = wayBillCode;
+    }
+
+    public String getBoardCode() {
+        return boardCode;
+    }
+
+    public void setBoardCode(String boardCode) {
+        this.boardCode = boardCode;
+    }
+
+    public List<GoodsDetailReq> getPackageDetails() {
+        return packageDetails;
+    }
+
+    public void setPackageDetails(List<GoodsDetailReq> packageDetails) {
+        this.packageDetails = packageDetails;
     }
 }

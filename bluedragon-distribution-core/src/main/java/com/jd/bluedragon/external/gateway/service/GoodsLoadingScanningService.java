@@ -43,4 +43,24 @@ public interface GoodsLoadingScanningService {
     JdCResponse goodsLoading(GoodsLoadingReq req);
 
 
+    /**
+     * 装车扫描接口
+     */
+    JdCResponse goodsLoadingScan(GoodsLoadingReq req);
+
+    /**
+     * 批次号/板号/包裹号校验接口--发货校验
+     */
+    JdCResponse checkBySendCodeOrBoardcodeOrPackageBarcode(GoodsLoadingReq req);
+
+    /**
+     * 包裹明细暂存接口
+     */
+    JdCResponse saveForLoadingScanGoodsDetail(GoodsLoadingReq req);
+
+    /**
+     * 装车完成接口--不齐校验
+     */
+    JdCResponse checkLoadingScanComplete(GoodsLoadingReq req);
+
 }

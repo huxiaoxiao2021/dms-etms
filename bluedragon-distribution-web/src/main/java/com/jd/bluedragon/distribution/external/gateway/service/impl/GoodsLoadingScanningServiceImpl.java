@@ -30,5 +30,25 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         return null;
     }
 
+    @Override
+    public JdCResponse goodsLoadingScan(GoodsLoadingReq req) {
+        return null;
+    }
+
+    @Override
+    public JdCResponse checkBySendCodeOrBoardcodeOrPackageBarcode(GoodsLoadingReq req) {
+        return null;
+    }
+
+    @Override
+    public JdCResponse saveForLoadingScanGoodsDetail(GoodsLoadingReq req) {
+        return null;
+    }
+
+    @Override
+    public JdCResponse checkLoadingScanComplete(GoodsLoadingReq req) {
+        return null;
+    }
+
 
 }
