@@ -1,5 +1,8 @@
 package com.jd.bluedragon.distribution.print.domain;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * 打印平台操作类型
  * Created by shipeilin on 2018/2/5.
@@ -29,7 +32,11 @@ public enum WaybillPrintOperateTypeEnum {
     SITE_3PL_MASTER_RESCHEDULE_REPRINT(100307, "终端3PL：现场预分拣"),
     SITE_3PL_PACKAGE_AGAIN_REPRINT(100308, "终端3PL：包裹补打"),
     
-    PDF_DJ_JDB_PACKAGE_REPRINT(100315, "大件：大件京东帮");
+    PDF_DJ_JDB_PACKAGE_REPRINT(100315, "大件：大件京东帮"),
+    /**
+     * 100316-终端外部渠道B2C打印，调用系统o2o-provider
+     */
+    SMS_O2O_PRIVIDER_PACKAGE_REPRINT(100316, "终端外部渠道B2C打印");
 
     private Integer type;//操作类型
     private String name;//操作名称
@@ -38,7 +45,45 @@ public enum WaybillPrintOperateTypeEnum {
         this.type = type;
         this.name = name;
     }
-
+    /**
+     * 换单打印类型集合
+     */
+    private static Set<Integer> SET_EXCHAGE_PRINT_TYPES = new HashSet<Integer>();
+    /**
+     * 补打类型集合
+     */
+    private static Set<Integer> SET_REPRINT_TYPES = new HashSet<Integer>();
+    static{
+        /**
+         * 初始化换单打印类型
+         */
+    	SET_EXCHAGE_PRINT_TYPES.add(SWITCH_BILL_PRINT.getType());
+    	SET_EXCHAGE_PRINT_TYPES.add(SITE_MASTER_REVERSE_CHANGE_PRINT.getType());
+    	SET_EXCHAGE_PRINT_TYPES.add(SMS_REVERSE_CHANGE_PRINT.getType());
+        /**
+         * 初始化补打类型
+         */
+    	SET_REPRINT_TYPES.add(PACKAGE_AGAIN_PRINT.getType());
+    	SET_REPRINT_TYPES.add(SITE_MASTER_PACKAGE_REPRINT.getType());
+    	SET_REPRINT_TYPES.add(BATCH_PACKAGE_AGAIN_PRINT.getType());
+    	SET_REPRINT_TYPES.add(FAST_TRANSPORT_PRINT.getType());
+    	SET_REPRINT_TYPES.add(SITE_3PL_PACKAGE_AGAIN_REPRINT.getType());
+    	SET_REPRINT_TYPES.add(SMS_REVERSE_CHANGE_REPRINT.getType());
+    }
+    /**
+     * 判断是否换单打印
+     * @return
+     */
+    public static boolean isExchangePrint(Integer type){
+    	return type != null && SET_EXCHAGE_PRINT_TYPES.contains(type);
+    }
+    /**
+     * 判断是否补打
+     * @return
+     */
+    public static boolean isRePrint(Integer type){
+    	return type != null && SET_REPRINT_TYPES.contains(type);
+    }
     public static Integer PLATE_PRINT_TYPE = 100101;      //平台打印操作类型
     public static Integer SITE_PLATE_PRINT_TYPE = 100102;//站点平台打印操作类型
     public static Integer PACKAGE_AGAIN_PRINT_TYPE = 100103;//包裹补打操作类型

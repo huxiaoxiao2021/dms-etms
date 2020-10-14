@@ -115,5 +115,11 @@ public interface DmsNewSealVehicleService {
      * @return
      */
     boolean checkSendCodeIsSealed(String sendCode);
-
+    /**
+     * 根据车牌号获取派车明细编码或根据派车明细编码获取车牌号
+     *
+     * @param request
+     * @return
+     */
+    TransWorkItemResponse getVehicleNumberOrItemCode(NewSealVehicleRequest request);
 }

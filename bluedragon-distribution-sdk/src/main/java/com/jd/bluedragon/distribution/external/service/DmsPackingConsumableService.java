@@ -29,4 +29,9 @@ public interface DmsPackingConsumableService {
     */
     JdResponse<PackingConsumableBaseInfo> getPackingConsumableInfoByCode(String consumableCode);
 
+    /*
+     * 获取运单的包装耗材确认状态
+     */
+    JdResponse<Boolean> getConfirmStatusByWaybillCode(String waybillCode);
+
 }

@@ -66,6 +66,10 @@
                   interface="com.jd.bluedragon.distribution.jsf.service.CancelWaybillJsfService"
                   alias="${dmsver.check.alias}" protocol="jsf" serialization="hessian" timeout="${dmsver.check.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
+    <jsf:consumer id="waybillCancelJsfService"
+                  interface="com.jd.dms.ver.service.WaybillCancelJsfService"
+                  alias="${dmsver.check.alias}" protocol="jsf" serialization="hessian" timeout="${dmsver.check.timeout}" retries="${jsf.retries}">
+    </jsf:consumer>    
     <!-- 青龙三方路由JSF接口 陈全峰 -->
     <jsf:consumer id="orderShipsServiceJsf" interface="com.jd.etms.third.jsf.OrderShipsServiceJsf"
                   protocol="jsf" alias="${3pl.jsf.alias}" timeout="${3pl.jsf.timeout}" retries="${jsf.retries}">
@@ -283,6 +287,9 @@
     </jsf:consumer>
     <jsf:consumer id="vrsWaybillQueryAPI" interface="com.jd.etms.api.waybill.VrsWaybillQueryAPI"
                   protocol="jsf" alias="${jsf.router.vrsWaybillQueryAPI.alias}" timeout="${jsf.router.vrsWaybillQueryAPI.timeout}" retries="${jsf.retries}">
+    </jsf:consumer>
+    <jsf:consumer id="waybillRouteLinkCustAPI" interface="com.jd.etms.api.waybillroutelink.WaybillRouteLinkCustAPI"
+                  protocol="jsf" alias="${jsf.router.waybillRouteLinkCustAPI.alias}" timeout="${jsf.router.waybillRouteLinkCustAPI.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
     <!-- 外单逆向换单接口-->
     <jsf:consumer id="waybillReverseApi" interface="com.jd.ldop.center.api.reverse.WaybillReverseApi"
@@ -608,6 +615,12 @@
                   alias="${jsf.jpEdnDeliveryReceiptService.alias}" timeout="${jsf.jpEdnDeliveryReceiptService.timeout}"
                   retries="${jsf.retries}">
     </jsf:consumer>
+
+    <jsf:consumer id="basicSiteUpdateService" interface="com.jd.etms.basic.jsf.BasicSiteUpdateService"
+                  protocol="jsf" alias="${jsf.basicSite.alias}" timeout="${jsf.basicSite.timeout}" retries="${jsf.retries}">
+        <jsf:parameter key="token" value="${jsf.basicSite.token}" hide="true" />
+    </jsf:consumer>
+
     <jsf:consumer id="ecpRailWayWS" interface="com.jd.tms.ecp.ws.EcpRailWayWS" protocol="jsf"
                   alias="${tms.ecp.jsf.alias}" timeout="${tms.ecp.jsf.timeout}"
                   retries="${jsf.retries}">
@@ -621,5 +634,26 @@
     <jsf:consumer id="assetApplyQueryApi" interface="com.jd.ql.asset.api.AssetApplyQueryApi" protocol="jsf"
                   alias="${assetApply.jsf.alias}" timeout="${assetApply.jsf.timeout}"
                   retries="${jsf.retries}" >
+    </jsf:consumer>
+
+    <jsf:consumer id="lwbB2bPackageItemService"
+                  interface="com.jd.eclp.bbp.co.lwb.service.LwbB2bPackageItemService"
+                  protocol="jsf"
+                  check="false"
+                  alias="${jsf.eclp.LwbB2bPackageItemService.alias}"
+                  timeout="${jsf.eclp.LwbB2bPackageItemService.timeout}"
+                  retries="${jsf.eclp.LwbB2bPackageItemService.retries}">
+    </jsf:consumer>
+    <!-- 退货地址维护相关接口https://cf.jd.com/pages/viewpage.action?pageId=196983641  -->
+    <jsf:consumer id="backAddressInfoApi" interface="com.jd.ldop.business.api.BackAddressInfoApi" protocol="jsf"
+                  alias="${jsf.ldop.backAddressInfoApi.alias}" serialization="hessian" timeout="${jsf.ldop.backAddressInfoApi.timeout}" retries="${jsf.retries}">
+    </jsf:consumer>
+    <!-- eclp站内信相关接口https://cf.jd.com/pages/viewpage.action?pageId=220750823  -->
+    <jsf:consumer id="importService" interface="com.jd.eclp.bbp.notice.open.ImportService" protocol="jsf"
+                  alias="${jsf.eclp.importService.alias}" serialization="hessian" timeout="${jsf.eclp.importService.timeout}" retries="${jsf.retries}">
+    </jsf:consumer>
+
+    <jsf:consumer id="siteQueryService" interface="com.jd.ql.dms.report.SiteQueryService"
+                  protocol="jsf" alias="${jsf.reportExternalService.alias}" timeout="${jsf.reportExternalService.timeout}" retries="${jsf.retries}" >
     </jsf:consumer>
 </beans>

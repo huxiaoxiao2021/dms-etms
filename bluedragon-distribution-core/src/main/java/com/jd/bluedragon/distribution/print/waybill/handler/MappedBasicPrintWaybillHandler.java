@@ -1,10 +1,8 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
-import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
-import com.jd.bluedragon.distribution.print.domain.PrintPackage;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -32,15 +30,7 @@ public class MappedBasicPrintWaybillHandler implements Handler<WaybillPrintConte
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MappedBasicPrintWaybillHandler.class);
 
-    private static final String BAD_WAREHOURSE_FOR_PORT = "保税";
-
-    private static final String PICKUP_CUSTOMER_COMMET = "服务单号：";
-
-    private static final String BUSINESS_ORDER_CODE_REMARK = "商家订单号：";
-
-    private static final String REVERSE_PRINT_COMMENT = "逆向换单，原单号【{0}】新单号【{1}】";
-
-    private static final String SPLIT = "；";
+    private static final String REVERSE_PRINT_COMMENT = "逆向换单，原单号【{0}】";
 
     @Override
     public JdResult<String> handle(WaybillPrintContext context) {
@@ -88,13 +78,6 @@ public class MappedBasicPrintWaybillHandler implements Handler<WaybillPrintConte
         /* 新加字段：hasPrintInvoice 从：isPrintInvoice */
         printWaybill.setHasPrintInvoice(printWaybill.isPrintInvoice());
 
-        /* 新加字段：packList.packageWeight */
-        if (printWaybill.getPackList() != null) {
-            for (PrintPackage packItem : printWaybill.getPackList()) {
-                packItem.setPackageWeight(String.valueOf(packItem.getWeight()) + Constants.MEASURE_UNIT_NAME_KG);
-            }
-        }
-
         /* 加工字段：dmsName */
         if (StringHelper.isNotEmpty(printWaybill.getOriginalDmsName())) {
             String originalDmsName = printWaybill.getOriginalDmsName().replace("分拣中心","")
@@ -141,8 +124,6 @@ public class MappedBasicPrintWaybillHandler implements Handler<WaybillPrintConte
         /* 加工字段：barCode */
         printWaybill.setBarCode(WaybillUtil.getWaybillCode(context.getRequest().getBarCode()));
 
-        String newWaybillCode = context.getResponse().getWaybillCode();//获取新单号的运单号
-
         /* 包裹补打且是T、F单 或者是换单打印 */
         boolean bool = (SITE_MASTER_PACKAGE_REPRINT.getType().equals(context.getRequest().getOperateType())
                         && (WaybillUtil.isReturnCode(WaybillUtil.getWaybillCode(context.getRequest().getBarCode()))
@@ -154,7 +135,7 @@ public class MappedBasicPrintWaybillHandler implements Handler<WaybillPrintConte
 
             /*
                 加工字段：comment
-                逆向换单，原单号【{0}】新单号【{1}】
+                逆向换单，原单号【{0}】
             */
             String oldWaybillCode = context.getResponse().getOldWaybillCode();//获取原单号的运单号
             if (StringHelper.isEmpty(oldWaybillCode)) {
@@ -162,7 +143,7 @@ public class MappedBasicPrintWaybillHandler implements Handler<WaybillPrintConte
             }
 
             printWaybill.setComment(MessageFormat.format(REVERSE_PRINT_COMMENT,
-                    oldWaybillCode == null? "" : oldWaybillCode, newWaybillCode));
+                    oldWaybillCode == null? "" : oldWaybillCode));
         }
 
         return context.getResult();

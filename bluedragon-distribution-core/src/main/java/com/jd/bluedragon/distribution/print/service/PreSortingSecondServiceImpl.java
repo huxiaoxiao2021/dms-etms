@@ -357,6 +357,9 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
 		String waybillCode = context.getWaybill().getWaybillCode();
 		List<Pack> packageList = context.getWaybill().getPackList();
 		int packageNum = context.getWaybill().getPackageNum();
+		if(packageNum == 0 || packageList == null || packageList.isEmpty()){
+			return null;
+		}
 		//一单一件返回当前称重信息/取当前包裹的分拣中心称重信息
 		if(packageNum == 1){
 			if(BusinessHelper.hasWeightOrVolume(context.getRequest())){

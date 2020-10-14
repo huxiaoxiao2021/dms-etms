@@ -31,6 +31,18 @@ public interface WaybillSignConstants {
 	char CHAR_1_8 = '8';
 	char CHAR_1_A = 'A';
 	/**
+	 * 运单标识第4位
+	 */
+	int POSITION_4 = 4;
+	/**
+	 * 签单返回，waybillSign第4位：1,2,3,4,9
+	 */
+	char CHAR_4_1 = '1';
+	char CHAR_4_2 = '2';
+	char CHAR_4_3 = '3';
+	char CHAR_4_4 = '4';
+	char CHAR_4_9 = '9';
+	/**
 	 * B网标识 1、2、3、4、5
 	 */
 	int POSITION_40 = 40;
@@ -145,31 +157,22 @@ public interface WaybillSignConstants {
 	char CHAR_43_6 = '6';
 
 	/**
-	 * C端收运费
-     */
-	int C_COLLECT_FEES_POSITION_25 = 25;
-    /**
-     *寄付运费
-     */
-	char C_COLLECT_FEES_CHAR_25_3 = '3';
-
-	/**
 	 * 逆向运单类型（外单）
      */
-	int BACKWARD_TYPE_POSITION_61 = 61;
+	int POSITION_61 = 61;
     /**
      * 正向
      */
-	char BACKWARD_TYPE_NO_CHAR_61_0 = '0';
+	char CHAR_61_0 = '0';
 
 	/**
 	 * 逆向类型(运单打标)
 	 */
-	int BACKWARD_TYPE_WAYBILL_MARK_POSITION_15 = 15;
+	int POSITION_15 = 15;
 	/**
 	 * 正向
 	 */
-	char BACKWARD_TYPE_WAYBILL_MARK_POSITION_15_0 = '0';
+	char CHAR_15_0 = '0';
 
 	/**
 	 * 毕业寄
@@ -199,17 +202,38 @@ public interface WaybillSignConstants {
 	 * 3 次晨
 	 */
 	int POSITION_116 = 116;
+	char CHAR_116_0 = '0';
+	char CHAR_116_1 = '1';	
 	char CHAR_116_2 = '2';
 	char CHAR_116_3 = '3';
-
+	char CHAR_116_4 = '4';
+	
 	/**
 	 * waybillsign第31位
 	 */
 	int POSITION_31 = 31;
-	char CHAR_31_9 = '9';
+	/**
+	 * 是否是特惠送
+	 * */
+	char CHAR_31_0 = '0';
+	/**
+	 * 是否是次晨达
+	 * */
+	char CHAR_31_1 = '1';
+	/**
+	 * 是否是同城当日达
+	 * */
+	char CHAR_31_2 = '2';
+	char CHAR_31_3 = '3';	
+	char CHAR_31_4 = '4';	
+	char CHAR_31_5 = '5';
+	char CHAR_31_6 = '6';
+	char CHAR_31_7 = '7';
+	char CHAR_31_8 = '8';
+	char CHAR_31_9 = '9';	
 	char CHAR_31_A = 'A';
 	char CHAR_31_B = 'B';
-
+	char CHAR_31_C = 'C';
 	/**
 	 * waybillsign第36位
 	 */
@@ -254,24 +278,19 @@ public interface WaybillSignConstants {
 	 * */
 	int POSITION_25 = 25;
 	char CHAR_25_0 = '0';
+	char CHAR_25_1 = '1';
+	char CHAR_25_2 = '2';
+	char CHAR_25_3 = '3';
+	char CHAR_25_4 = '4';
 	char CHAR_25_5 = '5';
-	/**
-	 * 是否是特惠送
-	 * */
-	char CHAR_31_0 = '0';
-	/**
-	 * 是否是次晨达
-	 * */
-	char CHAR_31_1 = '1';
-	char CHAR_31_4 = '4';
-	/**
-	 * 是否是同城当日达
-	 * */
-	char CHAR_31_2 = '2';
+	
 	int POSITION_16 = 16;
 	char CHAR_16_1 = '1';
+	char CHAR_16_2 = '2';
+	char CHAR_16_3 = '3';	
 	char CHAR_16_4 = '4';
-
+	char CHAR_16_7 = '7';
+	char CHAR_16_8 = '8';
 	/**
 	 * 寄付月结 waybillSign第14位为0
 	 * 自提 waybillSign第79位为2
@@ -292,6 +311,7 @@ public interface WaybillSignConstants {
 	 * 生鲜专送：55位为1
 	 */
 	int POSITION_55 = 55;
+	char CHAR_55_0 = '0';	
 	char CHAR_55_1 = '1';
 
 	/**
@@ -318,4 +338,9 @@ public interface WaybillSignConstants {
 	char CHAR_23_5 = '5';
 	char CHAR_23_6 = '6';
 	char CHAR_23_7 = '7';
+	/**
+	 * 29
+	 */
+	int POSITION_29 = 29;
+	char CHAR_29_8 = '8';
 }

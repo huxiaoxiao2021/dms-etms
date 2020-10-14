@@ -1024,4 +1024,46 @@
 		and yn = 1
 		and is_cancel = #{isCancel}
 	</select>
+
+    <select id="queryPackageByWaybillCode" parameterType="SendDetail" resultType="String">
+		select distinct package_barcode from send_d
+		where  create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		and waybill_code = #{waybillCode,jdbcType=VARCHAR}
+		and is_cancel = #{isCancel}
+		and sendd_status = #{status}
+		and yn = 1
+	</select>
+    
+    <select id="queryWaybillNumBybatchCodes" parameterType="java.util.Map" resultType="java.lang.Integer">
+        select
+         count(1)
+        from (
+            select waybill_code
+            from send_d
+            where create_site_code = #{createSiteCode,jdbcType=INTEGER}
+            and send_code in
+            <foreach collection="sendCodes" item="item" index="index" open="(" separator="," close=")">
+                #{item,jdbcType=VARCHAR}
+            </foreach>
+            and yn = 1
+            and is_cancel = 0
+            group by waybill_code
+        ) t
+    </select>
+
+    <select id="queryPackageNumBybatchCodes" parameterType="java.util.Map" resultType="java.lang.Integer">
+        select
+        count(1)
+        from (
+            select package_barcode
+            from send_d
+            where create_site_code = #{createSiteCode,jdbcType=INTEGER}
+            and send_code in
+            <foreach collection="sendCodes" item="item" index="index" open="(" separator="," close=")">
+                #{item,jdbcType=VARCHAR}
+            </foreach>
+            and yn = 1
+            and is_cancel = 0
+        ) t
+    </select>
 </mapper>

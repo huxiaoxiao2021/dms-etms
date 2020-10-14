@@ -147,7 +147,7 @@
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
                         <constructor-arg name="target" ref="asynBufferService"/>
-                        <constructor-arg name="methodName" value="weightTaskProcess"/>
+                        <constructor-arg name="methodName" value="weightVolumeTaskProcess"/>
                     </bean>
                 </entry>
 

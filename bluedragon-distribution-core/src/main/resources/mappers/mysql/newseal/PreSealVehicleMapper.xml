@@ -391,6 +391,9 @@
 		<if test="vehicleNumber != null">
 			and vehicle_number = #{vehicleNumber,jdbcType=VARCHAR}
 		</if>
+        <if test="createUserErp != null and createUserErp != '' ">
+            AND create_user_erp = #{createUserErp,jdbcType=VARCHAR}
+        </if>
         and status = #{status,jdbcType=TINYINT}
         and is_delete=0
     </select>
@@ -442,5 +445,29 @@
 		</set>
 		where transport_code = #{transportCode,jdbcType=VARCHAR} and vehicle_number = #{vehicleNumber,jdbcType=VARCHAR}
 		and is_delete = 0 and status = 0
+	</update>
+
+	<select id="getPreSealInfoByParams" parameterType="java.util.Map" resultMap="PreSealVehicle">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		pre_seal_vehicle
+		where transport_code = #{transportCode,jdbcType=VARCHAR}
+		<if test="vehicleNumber != null">
+			and vehicle_number = #{vehicleNumber,jdbcType=VARCHAR}
+		</if>
+		and is_delete = 0 and status = 0
+	</select>
+
+	<update id="completePreSealVehicleRecord" parameterType="com.jd.bluedragon.distribution.newseal.domain.PreSealVehicle">
+		update pre_seal_vehicle
+		<set>
+			status = 1,
+			update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+			update_user_name = #{updateUserName,jdbcType=VARCHAR},
+			update_time = #{updateTime,jdbcType=TIMESTAMP}
+		</set>
+		where transport_code = #{transportCode,jdbcType=VARCHAR} and vehicle_number = #{vehicleNumber,jdbcType=VARCHAR}
+		and is_delete = 0
 	</update>
 </mapper>

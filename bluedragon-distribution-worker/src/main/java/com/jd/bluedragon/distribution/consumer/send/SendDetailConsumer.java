@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.consumer.send;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.SmsMessageManager;
@@ -23,6 +25,12 @@ import com.jd.bluedragon.distribution.send.domain.SendDispatchDto;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.sms.domain.SMSDto;
 import com.jd.bluedragon.distribution.sms.service.SmsConfigService;
+import com.jd.bluedragon.distribution.storage.domain.KYStorageMessage;
+import com.jd.bluedragon.distribution.storage.domain.PutawayDTO;
+import com.jd.bluedragon.distribution.storage.domain.StoragePutStatusEnum;
+import com.jd.bluedragon.distribution.storage.domain.StorageSourceEnum;
+import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.WeightAndVolumeCheckHandleMessage;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -42,6 +50,7 @@ import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.report.ReportExternalService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,6 +115,19 @@ public class SendDetailConsumer extends MessageBaseConsumer {
     @Qualifier("ccInAndOutBoundProducer")
     private DefaultJMQProducer ccInAndOutBoundProducer;
 
+    @Autowired
+    @Qualifier("kyStorageProducer")
+    private DefaultJMQProducer kyStorageProducer;
+
+    @Autowired
+    private StoragePackageMService storagePackageMService;
+
+    @Autowired
+    private WaybillCommonService waybillCommonService;
+
+    @Autowired
+    private ReportExternalService reportExternalService;
+
     /**
      * 缓存redis的key
      */
@@ -125,6 +147,11 @@ public class SendDetailConsumer extends MessageBaseConsumer {
      * */
     @Value("${sendDetailConsumer.smsExpireTime:24}")
     private Integer smsExpireTime;
+
+    /**
+     * 称重抽检所需运单发货状态有效时间（单位为天）
+     */
+    private Integer weightCheckSendStatusExpireTime = 15;
 
     /**
      * 分隔符号
@@ -236,11 +263,13 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                 // 龙门架、分拣机发货更新发货异常状态
                 this.updateGantryExceptionStatus(sendDetail);
                 // 冷链暂存收费发短信
-                if(uccPropertyConfiguration.isColdChainStorageSmsSwitch()){
-                    this.coldChainStorageSMS(sendDetail,waybill);
-                }
+                this.coldChainStorageSMS(sendDetail,waybill);
                 // 推送冷链操作MQ消息 - B2B冷链卸货出入库业务相关
                 this.pushColdChainOperateMQ(sendDetail, waybill.getWaybillSign());
+                // 快运暂存发货则下架
+                this.kyStoragePutDown(sendDetail, waybill);
+                // 发送称重抽检mq消息
+                this.pushWeightCheckMq(sendDetail, waybill);
             } else {
                 log.warn("[dmsWorkSendDetail消费]根据运单号获取运单信息为空，packageBarCode:{},boxCode:{}", packageBarCode, sendDetail.getBoxCode());
             }
@@ -441,13 +470,14 @@ public class SendDetailConsumer extends MessageBaseConsumer {
 
                 Integer orgId = oldSiteDto.getOrgId();
                 SMSDto sMSDto = smsConfigService.getSMSConstantsByOrgId(orgId);
-                String senderNum = sMSDto.getAccount();
-                Long templateId = sMSDto.getTemplateId();
-                String token = sMSDto.getToken();
                 if(sMSDto == null){
                     log.warn("目的分拣中心不属于7大区,目的分拣中心：{}所属区域：{}",operateSiteCode,orgId);
                     return;
                 }
+                String senderNum = sMSDto.getAccount();
+                Long templateId = sMSDto.getTemplateId();
+                String token = sMSDto.getToken();
+
                 BaseStaffSiteOrgDto operateSite = baseMajorManager.getBaseSiteBySiteId(operateSiteCode);
                 if(operateSite == null){
                     return;
@@ -534,6 +564,113 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         body.setPackageNo(sendDetail.getPackageBarcode());
         body.setWaybillNo(WaybillUtil.getWaybillCode(sendDetail.getPackageBarcode()));
         ccInAndOutBoundProducer.send(sendDetail.getPackageBarcode(), JSON.toJSONString(body));
+    }
+
+    /**
+     * 快运暂存发货即下架
+     * <p>
+     *     1、下架全程跟踪时间点比发货时间早3-5秒
+     *     2、更新全部下架时间
+     *     3、运单下所有包裹下架则对外发MQ
+     * </p>
+     * @param sendDetail
+     */
+    private void kyStoragePutDown(SendDetailMessage sendDetail, Waybill waybill) {
+        try {
+            String waybillCode = WaybillUtil.getWaybillCode(sendDetail.getPackageBarcode());
+            // 判断是否是企配仓订单，企配仓订单发送8410全流程跟踪
+            boolean qpcWaybill = BusinessUtil.isEdn(waybill.getSendPay(), waybill.getWaybillSign());
+            if(waybillCommonService.isStorageWaybill(waybillCode)
+                    || qpcWaybill){
+                updateWaybillStatusOfKYZC(sendDetail, qpcWaybill);
+                if(storagePackageMService.isAllPutAwayAll(waybillCode)
+                        && storagePackageMService.packageIsAllSend(waybillCode,sendDetail.getCreateSiteCode())){
+                    storagePackageMService.updateDownAwayTimeByWaybillCode(waybillCode);
+
+                    // 企配仓不发全部下架MQ
+                    if (!qpcWaybill) {
+
+                        sendOffShelfMQ(sendDetail, waybillCode);
+
+                    }
+                }
+            }
+        }catch (Exception e){
+            log.error("快运暂存发货即下架异常,异常信息:【{}】",e.getMessage(),e);
+        }
+
+    }
+
+    @Autowired
+    @Qualifier("weightAndVolumeCheckHandleProducer")
+    private DefaultJMQProducer weightAndVolumeCheckHandleProducer;
+
+    /**
+     * 称重抽检结果需要等待发货完成才下发给FXM，故发货完成后需要触发称重抽检相关消息
+     * @author fanggang7
+     * @time 2020-08-26 09:20:00 周三
+     */
+    private void pushWeightCheckMq(SendDetailMessage sendDetail, Waybill waybill){
+        // 查询是否已有抽检记录，如果有，则发送，无则不发送
+        try {
+            String checkPackageRecordKey = CacheKeyConstants.CACHE_KEY_PACKAGE_OR_WAYBILL_CHECK_FLAG.concat(sendDetail.getPackageBarcode());
+            String cachedRecordFlag = redisClientCache.get(checkPackageRecordKey);
+
+            if(StringUtils.isEmpty(cachedRecordFlag) || Integer.parseInt(cachedRecordFlag) != Constants.YN_YES){
+                String checkWaybillRecordKey = CacheKeyConstants.CACHE_KEY_PACKAGE_OR_WAYBILL_CHECK_FLAG.concat(waybill.getWaybillCode());
+                cachedRecordFlag = redisClientCache.get(checkWaybillRecordKey);
+                if(StringUtils.isEmpty(cachedRecordFlag) || Integer.parseInt(cachedRecordFlag) != Constants.YN_YES){
+                    return;
+                }
+            }
+
+            // 先存一遍缓存
+            String key = CacheKeyConstants.CACHE_KEY_WAYBILL_SEND_STATUS.concat(waybill.getWaybillCode());
+            try {
+                redisClientCache.setEx(key, Constants.YN_YES.toString(), this.weightCheckSendStatusExpireTime, TimeUnit.DAYS);
+            }catch (Exception e){
+                log.error("存储运单发货状态【{}】异常", key);
+            }
+
+            String packageCode = sendDetail.getPackageBarcode();
+            WeightAndVolumeCheckHandleMessage weightAndVolumeCheckHandleMessage = new WeightAndVolumeCheckHandleMessage();
+            weightAndVolumeCheckHandleMessage.setOpNode(WeightAndVolumeCheckHandleMessage.SEND);
+            weightAndVolumeCheckHandleMessage.setWaybillCode(waybill.getWaybillCode());
+            weightAndVolumeCheckHandleMessage.setPackageCode(packageCode);
+            weightAndVolumeCheckHandleMessage.setSiteCode(sendDetail.getCreateSiteCode());
+            weightAndVolumeCheckHandleProducer.send(sendDetail.getPackageBarcode(), JSON.toJSONString(weightAndVolumeCheckHandleMessage));
+        } catch (JMQException e) {
+            log.warn("pushWeightCheckMq exception: {}", e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 运单全部下架发送MQ
+     * @param sendDetail
+     * @param waybillCode
+     */
+    private void sendOffShelfMQ(SendDetailMessage sendDetail, String waybillCode) {
+        KYStorageMessage message = new KYStorageMessage();
+        message.setWaybillCode(WaybillUtil.getWaybillCode(sendDetail.getPackageBarcode()));
+        message.setOperateErp(sendDetail.getCreateUser());
+        message.setOperateTime(new Date(sendDetail.getOperateTime() - 3000));
+        message.setOperateSiteCode(sendDetail.getCreateSiteCode());
+        message.setStorageStatus(StoragePutStatusEnum.STORAGE_DOWN_AWAY.getCode());
+        this.log.info("运单暂存全部下架发送MQ【{}】,业务ID【{}】,消息体【{}】",
+                kyStorageProducer.getTopic(),waybillCode,JsonHelper.toJson(message));
+        kyStorageProducer.sendOnFailPersistent(message.getWaybillCode(), JSON.toJSONString(message));
+    }
+
+    private void updateWaybillStatusOfKYZC(SendDetailMessage sendDetail, boolean qpcWaybill) {
+        PutawayDTO putawayDTO = new PutawayDTO();
+        putawayDTO.setOperateTime(sendDetail.getOperateTime() - 3000);
+        putawayDTO.setCreateSiteCode(sendDetail.getCreateSiteCode());
+        putawayDTO.setBarCode(sendDetail.getPackageBarcode());
+        putawayDTO.setOperatorErp(sendDetail.getCreateUser());
+        if (qpcWaybill) {
+            putawayDTO.setStorageSource(StorageSourceEnum.QPC_STORAGE.getCode());
+        }
+        storagePackageMService.updateWaybillStatusOfKYZC(putawayDTO,false);
     }
 
 }

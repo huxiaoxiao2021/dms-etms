@@ -12,10 +12,6 @@
 	address="${jmq.BlueDragonDistribution.address}" user="${jmq.BlueDragonDistribution.user}"
 	password="${jmq.BlueDragonDistribution.password}" app="${jmq.BlueDragonDistribution.app}" />
 
-	<jmq:transport id="jmq.bd.transport"
-		address="${jmq.bd.address}" user="${jmq.bd.user}"
-		password="${jmq.bd.password}" app="${jmq.bd.app}" />
-
     <!--dmsWeb mq消费应用-->
     <jmq:transport id="jmq.dmsWeb.transport"
                    address="${jmq.dmsWeb.address}" user="${jmq.dmsWeb.user}"
@@ -151,6 +147,22 @@
     <!--企配仓信息数据-->
     <jmq:consumer id="jmq.ednFahuoMsgMqConsumer" transport="jmq.uatDmsWeb.transport">
         <jmq:listener topic="${jmq.topic.ednFahuoMsgMqListener}" listener="ednFahuoMsgMqListener"/>
-    </jmq:consumer>    
+    </jmq:consumer>
+    <!--分拣工作台一键封车任务-->
+    <jmq:consumer id="jmq.sealVehicleFromWorkbenchConsumer" transport="jmq.uatDmsWeb.transport">
+        <jmq:listener topic="${jmq.topic.dms.wb.seal.vehicle}" listener="sealVehicleFromWorkbenchConsumer"/>
+    </jmq:consumer>
+    <!--银行单号异步导出-->
+    <jmq:consumer id="jmq.waybilCodeCheckExportLogConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.waybill.check.exportlog}" listener="waybilCodeCheckExportLogConsumer"/>
+    </jmq:consumer>
+    <!--封车及解封车状态变化数据-->
+    <jmq:consumer id="jmq.unloadCarConsumer" transport="jmq.uatDmsWeb.transport">
+        <jmq:listener topic="${jmq.topic.unloadCar}" listener="unloadCarConsumer" />
+    </jmq:consumer>
+    <!-- 称重抽检处理消息 -->
+    <jmq:consumer id="jmq.weightAndVolumeCheckHandleConsumer" transport="jmq.uatDmsWeb.transport">
+        <jmq:listener topic="${jmq.topic.weightAndVolumeCheck.handle}" listener="weightAndVolumeCheckHandleConsumer"/>
+    </jmq:consumer>
 </beans>
 

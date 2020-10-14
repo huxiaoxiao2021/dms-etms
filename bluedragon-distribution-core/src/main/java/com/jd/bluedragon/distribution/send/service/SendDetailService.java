@@ -50,4 +50,11 @@ public interface SendDetailService {
      * @return
      */
     List<String> queryPackageCodeByboxCode(SendDetailDto params);
+
+    /**
+     * 根据运单号查询 包裹号
+     * @param params
+     * @return
+     */
+    List<String> queryPackageByWaybillCode(SendDetailDto params);
 }

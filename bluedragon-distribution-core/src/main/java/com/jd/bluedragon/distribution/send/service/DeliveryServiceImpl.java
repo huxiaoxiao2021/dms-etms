@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.ColdChainQuarantineManager;
 import com.jd.bluedragon.core.base.DmsInterturnManager;
@@ -52,10 +53,8 @@ import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
-
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
-import com.jd.bluedragon.utils.log.BusinessLogConstans;
-import com.jd.dms.logger.external.LogEngine;
+import com.jd.bluedragon.distribution.material.service.CycleMaterialNoticeService;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.reverse.dao.ReverseSpareDao;
@@ -97,7 +96,9 @@ import com.jd.bluedragon.distribution.third.domain.ThirdBoxDetail;
 import com.jd.bluedragon.distribution.third.service.ThirdBoxDetailService;
 import com.jd.bluedragon.distribution.transBillSchedule.service.TransBillScheduleService;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
+import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -111,10 +112,12 @@ import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.XmlHelper;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
+import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -334,21 +337,26 @@ public class DeliveryServiceImpl implements DeliveryService {
     private ColdChainSendService coldChainSendService;
 
     @Autowired
-    @Qualifier("deliverGoodsNoticeSendMQ")
-    private DefaultJMQProducer deliverGoodsNoticeSendMQ;
-
-
-    @Autowired
     @Qualifier("redisClientCache")
     private Cluster redisClientCache;
 
     @Autowired
     private LogEngine logEngine;
 
-
     @Autowired
     private SendCodeService sendCodeService;
 
+    @Autowired
+    private CycleMaterialNoticeService cycleMaterialNoticeService;
+
+    @Autowired
+    private SortingCheckService sortingCheckService;
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
+    @Autowired
+    private WaybillCacheService waybillCacheService;
     /**
      * 自动过期时间 15分钟
      */
@@ -367,8 +375,6 @@ public class DeliveryServiceImpl implements DeliveryService {
     private static final int OPERATE_TYPE_CANCEL_L = 0;
 
     private static final int OPERATE_TYPE_CANCEL_Y = 1;
-
-    private static final int OPERATE_TYPE_NEW_PACKAGE_SEND=60;
 
     private final Integer BATCH_NUM = 999;
 
@@ -698,9 +704,14 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     private boolean sortingVerificationByPackage(SortingCheck sortingCheck, SendResult result) {
         CallerInfo info1 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.callsortingcheck", false, true);
-        SortingJsfResponse response;
+        SortingJsfResponse response = null;
         try {
-            response = jsfSortingResourceService.check(sortingCheck);
+            if (sortingCheckService.isNeedCheck(uccPropertyConfiguration.getSingleSendSwitchVerToWebSites(), sortingCheck.getCreateSiteCode())) {
+                response = sortingCheckService.singleSendCheck(sortingCheck);
+            } else {
+                response = jsfSortingResourceService.check(sortingCheck);
+            }
+
         } catch (Exception ex) {
             log.error("调用总部VER验证JSF服务失败,sortingCheck:{}",JsonHelper.toJson(sortingCheck), ex);
             result.init(DeliveryResponse.CODE_VER_CHECK_EXCEPTION, DeliveryResponse.MESSAGE_VER_CHECK_EXCEPTION, 100, 0);
@@ -759,7 +770,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             if (siteInfo == null || siteInfo.getSiteType() != 64) {
                 sortingCheck.setOperateType(1);
             } else {
-                sortingCheck.setOperateType(OPERATE_TYPE_NEW_PACKAGE_SEND);
+                sortingCheck.setOperateType(Constants.OPERATE_TYPE_NEW_PACKAGE_SEND);
             }
         } else {
             sortingCheck.setOperateType(1);
@@ -1257,19 +1268,18 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param sdm
      */
      private void deliverGoodsNoticeMQ(SendM sdm) {
-         String businessId = sdm.getBoxCode();
-         try {
-             BoxMaterialRelationMQ mq = new BoxMaterialRelationMQ();
-             mq.setBoxCode(businessId);
-             mq.setBusinessType(BoxMaterialRelationEnum.SEND.getType());
-             mq.setOperatorName(sdm.getCreateUser());
-             mq.setOperatorCode(sdm.getCreateUserCode());
-             mq.setSiteCode(sdm.getCreateSiteCode().toString());
+         BoxMaterialRelationMQ mq = new BoxMaterialRelationMQ();
+         mq.setBoxCode(sdm.getBoxCode());
+         mq.setBusinessType(BoxMaterialRelationEnum.SEND.getType());
+         mq.setOperatorName(sdm.getCreateUser());
+         mq.setOperatorCode(sdm.getCreateUserCode());
+         mq.setSiteCode(sdm.getCreateSiteCode().toString());
 
-             deliverGoodsNoticeSendMQ.send(businessId, JsonHelper.toJson(mq));
-         } catch (JMQException e) {
-             this.log.error("发送发货业务通知MQ 异常{}",JsonHelper.toJson(sdm), e);
-         }
+         mq.setReceiveSiteCode(sdm.getReceiveSiteCode().longValue());
+         BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(sdm.getReceiveSiteCode());
+         mq.setReceiveSiteName(null != siteOrgDto ? siteOrgDto.getSiteName() : StringUtils.EMPTY);
+
+         cycleMaterialNoticeService.deliverySendGoodsMessage(mq);
      }
 
     /***
@@ -3131,8 +3141,8 @@ public class DeliveryServiceImpl implements DeliveryService {
         String waybillCodeForVerify = null;
         if (waybillCodes != null && !waybillCodes.isEmpty()) {
             for(String  waybillCode : waybillCodes){
-                //获取路由信息
-                routerStr = jsfSortingResourceService.getRouterByWaybillCode(waybillCode);
+                //根据waybillCode查库获取路由信息
+                routerStr = waybillCacheService.getRouterByWaybillCode(waybillCode);
 
                 //如果路由为空，则取下一单
                 if(StringHelper.isNotEmpty(routerStr)){
@@ -5384,5 +5394,47 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
 
         return coldChainQuarantineManager.isWaybillNeedAddQuarantine(waybillCode,siteCode);
+    }
+
+    /**
+     * 校验批次创建时间
+     * @param sendCode
+     * @return
+     */
+    public boolean checkSendCodeIsOld(String sendCode) {
+        // 获取批次创建时间
+        try{
+            String[] sendCodeSplit = sendCode.split(Constants.SEPARATOR_HYPHEN);
+            Date createTime = DateHelper.parseDate(sendCodeSplit[2], DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS);
+            if(DateHelper.daysBetween(createTime,new Date()) > 30){
+                return true;
+            }
+        }catch (Exception e){
+            log.error("校验批次【{}】创建时间异常!", sendCode, e);
+        }
+        return false;
+    }
+
+    /**
+     * 校验批次是否封车
+     *  查redis后查运输接口兜底
+     * @param sendCode
+     * @return
+     */
+    public boolean checkSendCodeIsSealed(String sendCode) {
+        // 查redis后查运输接口兜底
+        if(newSealVehicleService.getSealCarTimeBySendCode(sendCode) != null){
+            return true;
+        }
+        try {
+            CommonDto<Boolean> isSealed = newSealVehicleService.isBatchCodeHasSealed(sendCode);
+            if(isSealed != null && isSealed.getCode() == CommonDto.CODE_SUCCESS
+                    && isSealed.getData() != null && isSealed.getData()){
+                return true;
+            }
+        } catch (Exception e) {
+            log.error("查询批次号【{}】是否封车异常!",sendCode,e);
+        }
+        return false;
     }
 }

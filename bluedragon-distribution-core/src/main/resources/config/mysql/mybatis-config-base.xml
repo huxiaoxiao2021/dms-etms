@@ -10,14 +10,17 @@
 		<setting name="autoMappingBehavior" value="FULL"/>
 		<setting name="defaultStatementTimeout" value="30"/>
 	</settings>
-	
+
 	<typeAliases>
 	    <typeAlias type="com.jd.bluedragon.distribution.rule.domain.Rule" alias="rule" />
+        <typeAlias type="com.jd.bluedragon.distribution.mixedPackageConfig.domain.MixedPackageConfig" alias="mixedPackageConfig" />
 	</typeAliases>
-	
+
 	<mappers>
+		<mapper resource="mappers/mysql/site/SiteMapper.xml"/>
 		<mapper resource="mappers/mysql/rule/RuleMapper.xml"/>
         <mapper resource="mappers/mysql/waybill/CancelWaybillMapper.xml"/>
+        <mapper resource="mappers/mysql/mixedPackageConfig/MixedPackageConfigMapper.xml"/>
 	</mappers>
-	
+
 </configuration>

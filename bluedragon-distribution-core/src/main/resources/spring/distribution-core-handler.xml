@@ -71,7 +71,9 @@
 				<!-- bnet官网打印 -->
 				<entry key="100314"  value-ref="getBasicPrintInfo"/>
 				<!-- 大件-京东帮打印 -->
-				<entry key="100315"  value-ref="generatePdfJdCloudPackagePrint"/>				
+				<entry key="100315"  value-ref="generatePdfJdCloudPackagePrint"/>
+				<!-- 100316-终端外部渠道B2C打印，调用系统o2o-provider -->
+				<entry key="100316"  value-ref="getBasicPrintInfo"/>								
 			</map>
 		</property>
 	</bean>
@@ -95,7 +97,6 @@
 		<property name="handlers">
 			<list>
 				<ref bean="basicWaybillPrintHandler"/>
-				<ref bean="businessNetInterceptHandler"/>
 				<ref bean="c2cInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
 				<ref bean="specialMarkWaybillHandler"/>
@@ -104,6 +105,8 @@
 				<ref bean="customerAndConsignerInfoHandler"/>
 				<ref bean="specialFieldHandler"/>
 				<ref bean="remarkFieldHandler"/>
+				<ref bean="businessNetInterceptHandler"/>
+                <ref bean="excessSpecialFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
 			</list>
@@ -114,7 +117,6 @@
 		<property name="handlers">
 			<list>
 				<ref bean="basicWaybillPrintHandler"/>
-				<ref bean="businessNetInterceptHandler"/>
 				<ref bean="c2cInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
 				<ref bean="oldWaybillQueryHandler"/>
@@ -125,6 +127,8 @@
 				<ref bean="specialFieldHandler"/>
 				<ref bean="remarkFieldHandler"/>
 				<ref bean="dealReversePrintInfoHandler"/>
+				<ref bean="businessNetInterceptHandler"/>
+                <ref bean="excessSpecialFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
 			</list>
@@ -136,7 +140,6 @@
 			<list>
 				<ref bean="queryWaybillByBusiCodeHandler"/>
 				<ref bean="basicWaybillPrintHandler"/>
-				<ref bean="businessNetInterceptHandler"/>
 				<ref bean="c2cInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
 				<ref bean="specialMarkWaybillHandler"/>
@@ -145,6 +148,8 @@
 				<ref bean="customerAndConsignerInfoHandler"/>
 				<ref bean="specialFieldHandler"/>
 				<ref bean="remarkFieldHandler"/>
+				<ref bean="businessNetInterceptHandler"/>
+                <ref bean="excessSpecialFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
 			</list>
@@ -155,7 +160,6 @@
         <property name="handlers">
             <list>
                 <ref bean="basicWaybillPrintHandler"/>
-				<ref bean="businessNetInterceptHandler"/>
                 <ref bean="waybillOutZoneHandler"/>
                 <ref bean="featherLetterHandler"/>
                 <ref bean="c2cInterceptHandler"/>
@@ -166,8 +170,11 @@
                 <ref bean="customerAndConsignerInfoHandler"/>
                 <ref bean="specialFieldHandler"/>
                 <ref bean="remarkFieldHandler"/>
+				<ref bean="businessNetInterceptHandler"/>
+                <ref bean="excessSpecialFieldHandler"/>
                 <ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
+				<ref bean="cycleBoxBindToWaiDanHandler"/>
             </list>
         </property>
     </bean>
@@ -177,7 +184,6 @@
 			<list>
 				<ref bean="basicWaybillPrintHandler"/>
 				<ref bean="overLengthRemindHandler"/>
-				<ref bean="businessNetInterceptHandler"/>
 				<ref bean="isNeedPrintHandler"/>
 				<ref bean="c2cInterceptHandler"/>
 				<!-- 三方超限拦截 -->
@@ -189,6 +195,8 @@
 				<ref bean="customerAndConsignerInfoHandler"/>
 				<ref bean="specialFieldHandler"/>
 				<ref bean="remarkFieldHandler"/>
+				<ref bean="businessNetInterceptHandler"/>
+                <ref bean="excessSpecialFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
 			</list>
@@ -199,7 +207,6 @@
 		<property name="handlers">
 			<list>
 				<ref bean="basicWaybillPrintHandler"/>
-				<ref bean="businessNetInterceptHandler"/>
 				<ref bean="c2cInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
 				<ref bean="specialMarkWaybillHandler"/>
@@ -207,6 +214,8 @@
 				<ref bean="promiseWaybillHandler"/>
 				<ref bean="customerAndConsignerInfoHandler"/>
 				<ref bean="remarkFieldHandler"/>
+				<ref bean="businessNetInterceptHandler"/>
+                <ref bean="excessSpecialFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
 			</list>
@@ -225,6 +234,7 @@
 				<ref bean="promiseWaybillHandler"/>
 				<ref bean="customerAndConsignerInfoHandler"/>
 				<ref bean="remarkFieldHandler"/>
+                <ref bean="excessSpecialFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
 			</list>
@@ -243,6 +253,7 @@
 				<ref bean="promiseWaybillHandler"/>
 				<ref bean="customerAndConsignerInfoHandler"/>
 				<ref bean="remarkFieldHandler"/>
+                <ref bean="excessSpecialFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
 			</list>
@@ -260,6 +271,7 @@
 				<ref bean="promiseWaybillHandler"/>
 				<ref bean="customerAndConsignerInfoHandler"/>
 				<ref bean="remarkFieldHandler"/>
+                <ref bean="excessSpecialFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
 				<ref bean="pdfLocalGenerateHandler"/>
@@ -271,10 +283,11 @@
 		<property name="handlers">
 			<list>
 				<ref bean="sitePlateBasicHandler"/>
-				<ref bean="businessNetInterceptHandler"/>
 				<ref bean="customerAndConsignerInfoHandler"/>
 				<ref bean="promiseWaybillHandler"/>
 				<ref bean="specialFieldHandler"/>
+				<ref bean="businessNetInterceptHandler"/>
+                <ref bean="excessSpecialFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
 			</list>
@@ -302,6 +315,7 @@
 				<ref bean="specialFieldHandler"/>
 				<ref bean="mappedBasicPrintWaybillHandler"/>
 				<ref bean="remarkFieldHandler"/>
+                <ref bean="excessSpecialFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
 			</list>
@@ -323,6 +337,7 @@
 				<ref bean="customerAndConsignerInfoHandler"/>
 				<ref bean="mappedBasicPrintWaybillHandler"/>
 				<ref bean="remarkFieldHandler"/>
+                <ref bean="excessSpecialFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
 				<ref bean="pdfLocalGenerateHandler"/>
@@ -345,6 +360,7 @@
 				<ref bean="customerAndConsignerInfoHandler"/>
 				<ref bean="mappedBasicPrintWaybillHandler"/>
 				<ref bean="remarkFieldHandler"/>
+                <ref bean="excessSpecialFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
 				<ref bean="pdfJdCloudGenerateHandler"/>
@@ -369,6 +385,7 @@
 				<ref bean="mappedBasicPrintWaybillHandler"/>
 				<ref bean="remarkFieldHandler"/>
 				<ref bean="dealReversePrintInfoHandler"/>
+                <ref bean="excessSpecialFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
 			</list>
@@ -391,6 +408,7 @@
 				<ref bean="customerAndConsignerInfoHandler"/>
 				<ref bean="mappedBasicPrintWaybillHandler"/>
 				<ref bean="remarkFieldHandler"/>
+                <ref bean="excessSpecialFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
 			</list>
@@ -410,6 +428,7 @@
 				<ref bean="customerAndConsignerInfoHandler"/>
 				<ref bean="mappedBasicPrintWaybillHandler"/>
 				<ref bean="remarkFieldHandler"/>
+                <ref bean="excessSpecialFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
             </list>
@@ -429,6 +448,7 @@
 				<ref bean="customerAndConsignerInfoHandler"/>
 				<ref bean="mappedBasicPrintWaybillHandler"/>
 				<ref bean="remarkFieldHandler"/>
+                <ref bean="excessSpecialFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
 				<ref bean="pdfLocalGenerateHandler"/>
@@ -450,6 +470,7 @@
 				<ref bean="specialFieldHandler"/>
 				<ref bean="mappedBasicPrintWaybillHandler"/>
 				<ref bean="remarkFieldHandler"/>
+                <ref bean="excessSpecialFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
 			</list>

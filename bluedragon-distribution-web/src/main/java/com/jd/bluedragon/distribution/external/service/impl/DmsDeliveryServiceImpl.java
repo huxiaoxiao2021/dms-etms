@@ -3,11 +3,13 @@ package com.jd.bluedragon.distribution.external.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.send.request.BoardCodeSendRequest;
 import com.jd.bluedragon.common.dto.send.request.ColdChainSendRequest;
 import com.jd.bluedragon.common.dto.send.request.DeliveryVerifyRequest;
 import com.jd.bluedragon.common.dto.send.request.DifferentialQueryRequest;
 import com.jd.bluedragon.common.dto.send.request.SinglePackageSendRequest;
 import com.jd.bluedragon.common.dto.send.request.TransPlanRequest;
+import com.jd.bluedragon.common.dto.send.response.CheckBeforeSendResponse;
 import com.jd.bluedragon.common.dto.send.response.SendThreeDetailDto;
 import com.jd.bluedragon.common.dto.send.response.TransPlanDto;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
@@ -125,6 +127,24 @@ public class DmsDeliveryServiceImpl implements DmsDeliveryService,SendGatewaySer
     @Override
     @Deprecated
     public JdCResponse<List<SendThreeDetailDto>> differentialQuery(DifferentialQueryRequest request){
+        return null;
+    }
+
+    @Override
+    @Deprecated
+    public JdVerifyResponse<CheckBeforeSendResponse> checkBeforeSend(com.jd.bluedragon.common.dto.send.request.DeliveryRequest request){
+        return null;
+    }
+
+    @Override
+    @Deprecated
+    public JdCResponse<Boolean> sendDeliveryInfo(ColdChainSendRequest request){
+        return null;
+    }
+
+    @Override
+    @Deprecated
+    public JdVerifyResponse<Void> boardCodeSend(BoardCodeSendRequest request){
         return null;
     }
 }

@@ -143,6 +143,16 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
     }
 
     @Override
+    public List<PreSealVehicle> queryByParam(PreSealVehicle preSealVehicle) {
+        PreSealVehicle query = new PreSealVehicle();
+        query.setCreateSiteCode(preSealVehicle.getCreateSiteCode());
+        query.setCreateUserErp(preSealVehicle.getCreateUserErp());
+        query.setStatus(SealVehicleEnum.PRE_SEAL.getCode());
+
+        return preSealVehicleDao.queryByCondition(query);
+    }
+
+    @Override
     public List<PreSealVehicle> queryBySiteCodeAndVehicleNumber(Integer createSiteCode, String vehicleNumber) {
 
         PreSealVehicle query = new PreSealVehicle();
@@ -265,7 +275,7 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
         for (SealVehicles dto : sealVehiclesList) {
             if(StringUtils.isNotEmpty(dto.getSealDataCode())) {
                 try {
-                    redisManager.setex(Constants.CACHE_KEY_PRE_SEAL_SENDCODE + dto.getSealDataCode(), Constants.TIME_SECONDS_ONE_WEEK, String.valueOf(dto.getOperateTime().getTime()));
+                    redisManager.setex(Constants.CACHE_KEY_PRE_SEAL_SENDCODE + dto.getSealDataCode(), Constants.TIME_SECONDS_FIFTEEN_DAY, String.valueOf(dto.getOperateTime().getTime()));
                     log.info("已封车批次号存入缓存成功:{}" , dto.getSealDataCode());
                 } catch (Throwable e) {
                     log.warn("已封车批次号存入缓存失败:{};异常：{}" ,dto.getSealDataCode(), e.getMessage());
@@ -402,4 +412,43 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
         }
     }
 
+    /*
+     * 根据运力编码获取预封车信息
+     * */
+    @Override
+    public List<PreSealVehicle> getPreSealInfoByParams(String transportCode) {
+        List<PreSealVehicle> preSealVehicleList = null;
+        try {
+            Map<String, Object> params = new HashMap<>();
+            params.put("transportCode", transportCode);
+            preSealVehicleList = preSealVehicleDao.getPreSealInfoByParams(params);
+        } catch (Exception e) {
+            log.error("根据运力编码查询预封车信息异常，运力编号:{}", transportCode);
+        }
+
+        return preSealVehicleList;
+    }
+
+    /*
+     * 根据运力编码获取预封车信息
+     * */
+    @Override
+    public List<PreSealVehicle> getPreSealInfoByParams(String transportCode, String vehicleNumber) {
+        List<PreSealVehicle> preSealVehicleList = null;
+        try {
+            Map<String, Object> params = new HashMap<>();
+            params.put("transportCode", transportCode);
+            params.put("vehicleNumber", vehicleNumber);
+            preSealVehicleList = preSealVehicleDao.getPreSealInfoByParams(params);
+        } catch (Exception e) {
+            log.error("根据运力编码查询预封车信息异常，运力编号:{}，车牌号：", transportCode, vehicleNumber);
+        }
+
+        return preSealVehicleList;
+    }
+
+    @Override
+    public boolean completePreSealVehicleRecord(PreSealVehicle preSealVehicle) {
+        return preSealVehicleDao.completePreSealVehicleRecord(preSealVehicle) > 0;
+    }
 }

@@ -1,9 +1,10 @@
 package com.jd.bluedragon.distribution.storage.domain;
 
+import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 /**
  *
  * @ClassName: StoragePackageMCondition
@@ -59,6 +60,15 @@ public class StoragePackageMCondition extends BasePagerCondition {
 	private Date putawayDateGE;
 
 	private Date putawayDateLE;
+
+	/**
+     * 预计送达时间
+     * */
+    private String planDeliveryTimeGEStr;
+    private String planDeliveryTimeLEStr;
+    private Date planDeliveryTimeGE;
+    private Date planDeliveryTimeLE;
+
 	/**
 	 * The set method for performanceCode.
 	 * @param performanceCode
@@ -290,4 +300,44 @@ public class StoragePackageMCondition extends BasePagerCondition {
 		}
 		this.putawayDateLEStr = putawayDateLEStr;
 	}
+
+    public String getPlanDeliveryTimeGEStr() {
+        return planDeliveryTimeGEStr;
+    }
+
+    public void setPlanDeliveryTimeGEStr(String planDeliveryTimeGEStr) {
+        try {
+            setPlanDeliveryTimeGE(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(planDeliveryTimeGEStr));
+        } catch (ParseException e) {
+        }
+        this.planDeliveryTimeGEStr = planDeliveryTimeGEStr;
+    }
+
+    public String getPlanDeliveryTimeLEStr() {
+        return planDeliveryTimeLEStr;
+    }
+
+    public void setPlanDeliveryTimeLEStr(String planDeliveryTimeLEStr) {
+        try {
+            setPlanDeliveryTimeLE(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(planDeliveryTimeLEStr));
+        } catch (ParseException e) {
+        }
+        this.planDeliveryTimeLEStr = planDeliveryTimeLEStr;
+    }
+
+    public Date getPlanDeliveryTimeGE() {
+        return planDeliveryTimeGE;
+    }
+
+    public void setPlanDeliveryTimeGE(Date planDeliveryTimeGE) {
+        this.planDeliveryTimeGE = planDeliveryTimeGE;
+    }
+
+    public Date getPlanDeliveryTimeLE() {
+        return planDeliveryTimeLE;
+    }
+
+    public void setPlanDeliveryTimeLE(Date planDeliveryTimeLE) {
+        this.planDeliveryTimeLE = planDeliveryTimeLE;
+    }
 }

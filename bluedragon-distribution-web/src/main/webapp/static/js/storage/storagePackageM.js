@@ -4,6 +4,7 @@ $(function() {
   	var forceSendUrl = '/storage/storagePackageM/forceSend';
   	var queryUrl = '/storage/storagePackageM/listData';
 	var cancelUrl = '/storage/storagePackageM/cancelPutaway'; //取消上架
+	var exportUrl = '/storage/storagePackageM/toExport';
 
 	var tableInit = function() {
 		var oTableInit = new Object();
@@ -74,48 +75,79 @@ $(function() {
 		oTableInit.tableColums = [ {
 				checkbox : true
 			}, {
+                field : 'source',
+                title : '来源',
+                align: 'center',
+                formatter : function(value,row,index){
+                    return value=="1"?"金鹏暂存":value=="2"?"快运暂存":"";
+                }
+            }, {
 				field : 'performanceCode',
-				title : '履约单号'
+				title : '履约单号',
+                align: 'center'
 			}, {
 				field : 'waybillCode',
-				title : '运单号'
+				title : '运单号',
+                align: 'center'
 			}, {
 				field : 'packageSum',
-				title : '系统包裹数'
+				title : '系统包裹数',
+                align: 'center'
 			}, {
 				field : 'putawayPackageSum',
 				title : '上架包裹数',
+                align: 'center',
 				formatter : function(value,row,index){
 					return '<a href="#" class="show-storage-view" onclick="showView(\''+row.waybillCode+'\',event)">'+value+'</a>';
 				}
 			}, {
 				field : 'storageCode',
-				title : '储位号'
+				title : '储位号',
+                align: 'center'
 			}, {
 				field : 'status',
 				title : '暂存状态',
+                align: 'center',
 				formatter : function(value,row,index){
 					return value=="1"?"已上架":value=="2"?"可发货":value=="3"?"强制可发货":value=="4"?"已发货":"未知状态";
 				}
 			}, {
 				field : 'planDeliveryTime',
 				title : '预计送达时间',
+                align: 'center',
             	formatter : function(value,row,index){
 					return $.dateHelper.formateDateOfTs(value);
 					}
 			}, {
 				field : 'updateTime',
 				title : '上架时间',
+                align: 'center',
 				formatter : function(value,row,index){
 					return $.dateHelper.formateDateTimeOfTs(value);
 				}
 			}, {
 				field : 'updateUser',
-				title : '上架人erp'
+				title : '上架人erp',
+                align: 'center'
 			}, {
 				field : 'createSiteName',
-				title : '所属分拣中心'
-			}];
+				title : '所属分拣中心',
+                align: 'center'
+			}, {
+                field : 'putAwayCompleteTime',
+                title : '全部上架完成时间',
+                align: 'center',
+                formatter : function(value,row,index){
+                    return $.dateHelper.formateDateTimeOfTs(value);
+                }
+            }, {
+                field : 'downAwayCompleteTime',
+                title : '全部下架完成时间',
+                align: 'center',
+                formatter : function(value,row,index){
+                    return $.dateHelper.formateDateTimeOfTs(value);
+                }
+            }];
 		oTableInit.refresh = function() {
 			$('#dataTable').bootstrapTable('refresh');
 		};
@@ -147,6 +179,22 @@ $(function() {
                 done: function(value, date, endDate){
                     /*重置表单验证状态*/
 
+                }
+            });
+            $.datePicker.createNew({
+                elem: '#planDeliveryTimeGEStr',
+                theme: '#3f92ea',
+                type: 'datetime',
+                btns: ['now', 'confirm'],
+                done: function(value, date, endDate){
+                }
+            });
+            $.datePicker.createNew({
+                elem: '#planDeliveryTimeLEStr',
+                theme: '#3f92ea',
+                type: 'datetime',
+                btns: ['now', 'confirm'],
+                done: function(value, date, endDate){
                 }
             });
 
@@ -307,7 +355,57 @@ $(function() {
 			    });
 				$('#dataEditDiv').hide();
 				$('#dataTableDiv').show();
-			});	
+			});
+
+			// 导出
+            $('#btn_export').click(function () {
+                var params = tableInit().getSearchCondition();
+                var form = $("<form method='post'></form>"),
+                    input;
+                form.attr({"action": exportUrl});
+
+                $.each(params, function (key, value) {
+                    input = $("<input type='hidden' class='search-param'>");
+                    input.attr({"name": key});
+                    input.val(value);
+                    form.append(input);
+                });
+                form.appendTo(document.body);
+                form.submit();
+                document.body.removeChild(form[0]);
+            });
+
+            // 储位充足变更
+            $('#btn_edit').click(function() {
+                initStorageIsEnough();
+                $('#editStorageCap').modal('show');
+            });
+            // 储位充足变更保存
+            $('#storageIsEnoughSave').click(function() {
+                var isEnough;
+                if($('#storageIsEnough').attr("checked")){
+                    isEnough = 1;
+                }else {
+                    isEnough = 0;
+                }
+                var url = "/storage/storagePackageM/updateStorageStatusBySiteCode/"+$('#loginUserCreateSiteCode').val() + "/" + isEnough;
+                $.post(url,function(data){
+                    if(data.data){
+                        if($('#storageIsEnough').attr("checked")){
+                            $('#btn_edit').css("color","blue");
+                            $('#btn_edit').text('储位充足客户可下单');
+                        }else {
+                            $('#btn_edit').css("color","red");
+                            $('#btn_edit').text('储位已满停止客户下单');
+                        }
+                        Jd.alert("保存成功");
+                        $('#editStorageCap').modal('hide');
+                    }else{
+                        Jd.alert("保存失败");
+                    }
+                },"json");
+            });
+
 			$('#btn_return').click(function() {
 				$('#dataEditDiv').hide();
 				$('#dataTableDiv').show();
@@ -320,6 +418,7 @@ $(function() {
     initDateQuery();
 	tableInit().init();
 	pageInit().init();
+    initStorageIsEnough();
 
 
 });
@@ -366,12 +465,30 @@ function showView(waybillCode,event){
 
 }
 
+//初始化储位是否充足
+function initStorageIsEnough(){
+    var url = "/storage/storagePackageM/getStorageStatusBySiteCode/"+$('#loginUserCreateSiteCode').val();
+    $.post(url,function(data){
+        if(data.data){
+            $('#storageIsEnough').attr("checked","checked");
+            $('#btn_edit').css("color","blue");
+            $('#btn_edit').text('储位充足客户可下单');
+        }else{
+            $('#storageIsEmpty').attr("checked","checked");
+            $('#btn_edit').css("color","red");
+            $('#btn_edit').text('储位已满停止客户下单');
+        }
+    },"json");
+
+}
 
 function initDateQuery(){
     var v = $.dateHelper.formatDate(new Date());
 
     $("#putawayDateGEStr").val(v+" 00:00:00");
     $("#putawayDateLEStr").val(v+" 23:59:59");
+    $("#planDeliveryTimeGEStr").val(v+" 00:00:00");
+    $("#planDeliveryTimeLEStr").val(v+" 23:59:59");
 }
 
 var initLogin = true;

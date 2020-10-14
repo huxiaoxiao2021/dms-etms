@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+
+    <bean id="propertyConfigurer"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="ignoreUnresolvablePlaceholders" value="true" />
+        <property name="locations">
+            <list>
+                <value>classpath:configured/app.properties</value>
+                <value>classpath:configured/db.properties</value>
+                <value>classpath:configured/dms_ip_mapper.properties</value>
+                <value>classpath:configured/jsf.properties</value>
+                <value>classpath:configured/print.properties</value>
+                <value>classpath:configured/mq.properties</value>
+                <value>classpath:configured/order_service_config.properties</value>
+                <value>classpath:configured/popabnormal.properties</value>
+                <value>classpath:configured/snowflake.properties</value>
+                <value>classpath:configured/ucc.properties</value>
+                <value>classpath:configured/dms_crossbow.properties</value>
+                <value>classpath:configured/kafka.properties</value>
+                <value>classpath:configured/sms.properties</value>
+                <value>classpath:configured/important.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <!-- 引入特殊配置 -->
+    <import resource="classpath:spring/distribution-worker-context-special.xml" />
+
+    <!-- 扩容Mysql主备配置表 -->
+    <import resource="classpath:spring/distribution-core-context.xml" />
+    <import resource="classpath:spring/distribution-core-jmq.xml" />
+    <import resource="classpath:spring/distribution-core-asynBuffer-producer.xml" />
+    <import resource="classpath:spring/distribution-worker-jmq-test.xml" />
+    <import resource="classpath:spring/worker/distribution-worker-execute-conf.xml" />
+    <import resource="classpath:spring/distribution-worker-wss.xml"/>
+    <import resource="classpath:spring/distribution-worker-special-jsf.xml"/>
+    <import resource="classpath:spring/distribution-core-log.xml" />
+<!--    <import resource="classpath:spring/distribution-worker-mvc.xml"/>-->
+
+</beans>

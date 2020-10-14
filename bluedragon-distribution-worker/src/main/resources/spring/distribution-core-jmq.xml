@@ -302,6 +302,12 @@
         <property name="timeout" value="1000"/>
     </bean>
 
+    <!--外单靑流箱绑定MQ-->
+    <bean id="dmsCycleBoxBindNotice" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dms.cyclebox.bind.notice}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
     <!--封车mq-->
     <bean id="sealCarProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.sealCar}"/>
@@ -381,11 +387,6 @@
         <property name="topic" value="${jmq.topic.weightVolume.excess}"/>
         <property name="timeout" value="1000"/>
     </bean>
-    <!-- 超标mq，提供给判责系统 -->
-    <bean id="dmsWeightVolumeAbnormal" parent="dmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.weightVolume.abnormal}"/>
-        <property name="timeout" value="1000"/>
-    </bean>
 
     <!-- 包裹状态MQ，提供给分拣报表系统，供清场需求使用 -->
     <bean id="dmsPackageStatusMQProducer" parent="dmsWorkerDefaultJMQProducer">
@@ -439,8 +440,44 @@
     <bean id="strandReportProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.strand.report}"/>
     </bean>
+
     <!-- 滞留上报明细消息 -->
     <bean id="strandReportDetailProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.strand.report.detail}"/>
+    </bean>
+
+    <!-- 快运暂存上架完成消息 -->
+    <bean id="kyStorageProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.ky.storage.putAway}"/>
+    </bean>
+
+    <!-- 众邮箱号称重MQ -->
+    <bean id="economicNetBoxWeightProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.economicNet.box.weight}"/>
+    </bean>
+
+    <!-- 青流箱出入库消息 -->
+    <bean id="tagInOutProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.tag.inOut}"/>
+    </bean>
+
+    <!-- 分拣工作台一键封车回执消息 -->
+    <bean id="wbSealVehicleCallbackProducer" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dms.wb.seal.vehicle.callback}"/>
+    </bean>
+
+    <!-- 称重抽检处理消息 -->
+    <bean id="weightAndVolumeCheckHandleProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.weightAndVolumeCheck.handle}"/>
+    </bean>
+
+    <!--  分拣建箱环节发送包裹信息  -->
+    <bean id="dmsSortingPackageProducer" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.sorting.package}" />
+    </bean>
+
+    <!--  分拣验货环节发送包裹信息  -->
+    <bean id="dmsInspectionPackageProducer" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.inspection.package}" />
     </bean>
 </beans>

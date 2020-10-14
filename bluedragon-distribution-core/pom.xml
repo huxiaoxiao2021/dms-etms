@@ -21,8 +21,8 @@
 		<org.springframework.version>3.2.18.RELEASE</org.springframework.version>
 		<slf4j.version>1.6.4</slf4j.version>
 		<aspectj.version>1.6.11</aspectj.version>
-		<jmq.version>2.2.0</jmq.version>
-		<etms.waybill.agent.version>4.2.149</etms.waybill.agent.version>
+		<jmq.version>2.3.1</jmq.version>
+		<etms.waybill.agent.version>4.2.182</etms.waybill.agent.version>
 		<jddl-client.version>2.0.1-SNAPSHOT</jddl-client.version>
 		<configure-client.version>1.0.0-SNAPSHOT</configure-client.version>
 		<configure-utils.version>1.0.0-SNAPSHOT</configure-utils.version>
@@ -34,6 +34,7 @@
 		<crossbow.sdk.version>0.0.1-SNAPSHOT</crossbow.sdk.version>
 		<crossbow.api.version>0.0.1-SNAPSHOT</crossbow.api.version>
 		<crossbow.component.version>0.0.4-SNAPSHOT</crossbow.component.version>
+		<eclp.notice.api.version>0.0.1-SNAPSHOT</eclp.notice.api.version>
 		<ps-epf.version>1.0-SNAPSHOT</ps-epf.version>
 	</properties>
 
@@ -57,7 +58,7 @@
 		<dependency>
 			<groupId>ql-dms-report</groupId>
 			<artifactId>report-sdk</artifactId>
-			<version>1.1.5-SNAPSHOT</version>
+			<version>1.1.10-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -70,6 +71,12 @@
             <groupId>com.jd.mrd</groupId>
             <artifactId>mrd-delivery-rpc-sdk</artifactId>
             <version>1.0.0-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.alibaba</groupId>
+					<artifactId>fastjson</artifactId>
+				</exclusion>
+			</exclusions>
         </dependency>
 
 		<dependency>
@@ -80,7 +87,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>1.2.60</version>
+            <version>1.2.70</version>
         </dependency>
         <dependency>
 			<groupId>com.jd.fms.ivc</groupId>
@@ -138,6 +145,12 @@
             <groupId>com.jd.jmq</groupId>
             <artifactId>jmq-client-spring</artifactId>
             <version>${jmq.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.alibaba</groupId>
+					<artifactId>fastjson</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
         <dependency>
@@ -188,7 +201,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>1.3.8-SNAPSHOT</version>
+			<version>1.5.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.ldop.alpha</groupId>
@@ -198,7 +211,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-utils</artifactId>
-			<version>1.2.4-SNAPSHOT</version>
+			<version>1.2.7-RELEASE</version>
 		</dependency>
 
 		<dependency>
@@ -215,7 +228,7 @@
 		<dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>bluedragon-distribution-common-android</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+            <version>1.1.4-SNAPSHOT</version>
         </dependency>
 		<dependency>
 			<groupId>com.jd.etms.waybill</groupId>
@@ -482,7 +495,7 @@
 		<dependency>
 			<groupId>com.jd.ql.basic</groupId>
 			<artifactId>ql-basic-client</artifactId>
-			<version>1.2.27-SNAPSHOT</version>
+			<version>1.2.28-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.ldop.basic</groupId>
@@ -495,12 +508,18 @@
 			<groupId>com.jd.ql.erp</groupId>
 			<artifactId>ql-erp-client</artifactId>
 			<version>5.4.8-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>fastjson</artifactId>
+					<groupId>com.alibaba</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<!--jsf  -->
 		<dependency>
 			<groupId>com.jd</groupId>
 			<artifactId>jsf</artifactId>
-			<version>1.6.6-HOTFIX-T1</version>
+			<version>1.6.6-HOTFIX-T3</version>
             <exclusions>
                 <exclusion>
                     <artifactId>slf4j-api</artifactId>
@@ -546,24 +565,18 @@
 		<dependency>
             <groupId>com.jd.ump</groupId>
             <artifactId>profiler</artifactId>
-            <version>4.1.0</version>
+            <version>6.2.9</version>
         </dependency>
-
-		<dependency>
-               <groupId>com.jd.ump</groupId>
-               <artifactId>jannotation</artifactId>
-               <version>4.1.0</version>
-    	</dependency>
 
         <dependency>
             <groupId>com.jd.jim.cli</groupId>
             <artifactId>jim-cli-jedis</artifactId>
-            <version>1.4.7-SNAPSHOT</version>
+            <version>1.5.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.jd.jim.cli</groupId>
             <artifactId>jim-cli-api</artifactId>
-            <version>1.4.7-SNAPSHOT</version>
+            <version>1.5.0-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <artifactId>fastjson</artifactId>
@@ -692,6 +705,10 @@
 					<artifactId>jsf</artifactId>
 					<groupId>com.jd</groupId>
 				</exclusion>
+				<exclusion>
+					<artifactId>fastjson</artifactId>
+					<groupId>com.alibaba</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
         <!-- 国际化-库存出管 -->
@@ -703,6 +720,10 @@
 				<exclusion>
 					<artifactId>jsf</artifactId>
 					<groupId>com.jd</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>fastjson</artifactId>
+					<groupId>com.alibaba</groupId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -765,7 +786,11 @@
             <artifactId>tms-ecp-client</artifactId>
             <version>1.0.1-SNAPSHOT</version>
 		</dependency>
-
+		<dependency>
+			<groupId>com.jd.eclp</groupId>
+			<artifactId>eclp-notice-api</artifactId>
+			<version>${eclp.notice.api.version}</version>
+		</dependency>
         <!-- cassandra -->
 		<dependency>
             <groupId>com.datastax.cassandra</groupId>
@@ -970,6 +995,12 @@
 			<groupId>com.jd.coo</groupId>
 			<artifactId>ucc-client</artifactId>
 			<version>0.0.3-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>fastjson</artifactId>
+					<groupId>com.alibaba</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<!-- TC -->
@@ -984,12 +1015,29 @@
 			<groupId>com.jd.etms.vrs</groupId>
 			<artifactId>etms-vrs-sdk</artifactId>
 			<version>1.1.74-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>fastjson</artifactId>
+					<groupId>com.alibaba</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+        <dependency>
+            <groupId>com.jd.etms.vrs</groupId>
+            <artifactId>etms-vrs-api</artifactId>
+            <version>1.2.10-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>fastjson</artifactId>
+					<groupId>com.alibaba</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
 			<groupId>com.jd.ldop.center</groupId>
 			<artifactId>ldop-center-api</artifactId>
-			<version>1.4.98-SNAPSHOT</version>
+			<version>1.6.0-SNAPSHOT</version>
 		</dependency>
 		<!-- 理赔系统接口 -->
 		<dependency>
@@ -1007,7 +1055,13 @@
 		<dependency>
 			<groupId>com.jd.ql.dms.opLog</groupId>
 			<artifactId>opLog-agent</artifactId>
-		</dependency>
+            <exclusions>
+                <exclusion>
+                    <artifactId>fastjson</artifactId>
+                    <groupId>com.alibaba</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
 		<dependency>
 			<groupId>com.jd.bd.dms.automatic</groupId>
@@ -1093,7 +1147,7 @@
         <dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>business-sdk</artifactId>
-            <version>1.0.7-RELEASE</version>
+            <version>1.0.8-RELEASE</version>
         </dependency>
 
 		<!--JMQ-Split组件  -->
@@ -1145,14 +1199,20 @@
 		<dependency>
 			<groupId>com.jd.ldop.business</groupId>
 			<artifactId>ldop-business-api</artifactId>
-			<version>1.0.38-SNAPSHOT</version>
+			<version>1.0.40-SNAPSHOT</version>
 		</dependency>
 		<!-- 打印引擎    start-->
         <dependency>
 			<groupId>com.jd.ql.dms.print</groupId>
 			<artifactId>label-print-engine</artifactId>
 			<version>1.2.3-RELEASE</version>
-        </dependency>
+			<exclusions>
+				<exclusion>
+					<artifactId>fastjson</artifactId>
+					<groupId>com.alibaba</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 		<!-- 打印引擎    start-->
 		<dependency>
 			<groupId>com.jd.fms</groupId>
@@ -1180,6 +1240,26 @@
 					<artifactId>jsf</artifactId>
 					<groupId>com.jd</groupId>
 				</exclusion>
+				<exclusion>
+					<artifactId>fastjson</artifactId>
+					<groupId>com.alibaba</groupId>
+				</exclusion>
+                <exclusion>
+                    <artifactId>eclp-co-api</artifactId>
+                    <groupId>com.jd.eclp</groupId>
+                </exclusion>
+            </exclusions>
+		</dependency>
+
+        <dependency>
+            <groupId>com.jd.eclp</groupId>
+            <artifactId>eclp-co-api</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>fastjson</artifactId>
+					<groupId>com.alibaba</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 
@@ -1197,6 +1277,12 @@
 			<groupId>com.jd.lsb</groupId>
 			<artifactId>lsb-component</artifactId>
 			<version>${crossbow.component.version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>fastjson</artifactId>
+					<groupId>com.alibaba</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.lsb.component</groupId>
@@ -1212,6 +1298,10 @@
 				<exclusion>
 					<artifactId>jboss-logging</artifactId>
 					<groupId>org.jboss.logging</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jackson-annotations</artifactId>
+					<groupId>com.fasterxml.jackson.core</groupId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -1237,6 +1327,34 @@
 				<exclusion>
 					<groupId>org.apache.kafka</groupId>
 					<artifactId>kafka-clients</artifactId>
+				</exclusion>
+				<exclusion>
+					<artifactId>fastjson</artifactId>
+					<groupId>com.alibaba</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jackson-annotations</artifactId>
+					<groupId>com.fasterxml.jackson.core</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jackson-core</artifactId>
+					<groupId>com.fasterxml.jackson.core</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jackson-databind</artifactId>
+					<groupId>com.fasterxml.jackson.core</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jackson-dataformat-cbor</artifactId>
+					<groupId>com.fasterxml.jackson.dataformat</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jackson-dataformat-smile</artifactId>
+					<groupId>com.fasterxml.jackson.dataformat</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jackson-dataformat-yaml</artifactId>
+					<groupId>com.fasterxml.jackson.dataformat</groupId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -1266,7 +1384,7 @@
 		<dependency>
 			<artifactId>dms-ver-sdk</artifactId>
 			<groupId>com.jd.bluedragon</groupId>
-			<version>1.0.0-SNAPSHOT</version>
+			<version>1.0.1-RELEASE</version>
 		</dependency>
 		<!--新意见反馈接口-->
 		<dependency>
@@ -1308,6 +1426,18 @@
             <artifactId>ql-asset-client</artifactId>
             <version>1.5-SNAPSHOT</version>
         </dependency>
+		<!--京东数据库加密安全包-->
+		<dependency>
+			<groupId>com.jd.security</groupId>
+			<artifactId>aces-mybatisclient</artifactId>
+			<version>1.0.1-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.google.code.gson</groupId>
+					<artifactId>gson</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 	</dependencies>
 
 	<profiles>
@@ -1366,4 +1496,38 @@
 	</build>
 	<groupId>com.jd.bluedragon</groupId>
 	<version>1.0.0</version>
+
+    <repositories>
+        <repository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>jd-central</id>
+            <name>libs-releases</name>
+            <url>http://artifactory.jd.com/libs-releases</url>
+        </repository>
+        <repository>
+            <snapshots />
+            <id>jd-snapshots</id>
+            <name>libs-snapshots</name>
+            <url>http://artifactory.jd.com/libs-snapshots</url>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>jd-central</id>
+            <name>plugins-releases</name>
+            <url>http://artifactory.jd.com/plugins-releases</url>
+        </pluginRepository>
+        <pluginRepository>
+            <snapshots />
+            <id>jd-snapshots</id>
+            <name>plugins-snapshots</name>
+            <url>http://artifactory.jd.com/plugins-snapshots</url>
+        </pluginRepository>
+    </pluginRepositories>
 </project>

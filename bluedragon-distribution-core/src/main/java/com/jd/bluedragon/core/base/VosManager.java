@@ -60,4 +60,11 @@ public interface VosManager {
      * @return
      */
     CommonDto<String> cancelPreSealVehicleJob(PreSealVehicleJobDto preSealVehicleJobDto);
+
+    /**
+     * 根据封车编码获取封车信息
+     * @param sealCarCode 封车编码
+     * @return
+     */
+    CommonDto<SealCarDto> querySealCarInfoBySealCarCode(String sealCarCode);
 }

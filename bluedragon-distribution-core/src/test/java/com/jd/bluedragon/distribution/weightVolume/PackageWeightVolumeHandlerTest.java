@@ -5,6 +5,7 @@ import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckSourceEnum;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightVolume.handler.PackageWeightVolumeHandler;
@@ -12,7 +13,6 @@ import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.etms.waybill.dto.PackageStateDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -78,8 +78,8 @@ public class PackageWeightVolumeHandlerTest {
         site.setOrgId(6);
         site.setOrgName("华北区");
 
-        when(weightAndVolumeCheckService.insertAndSendMq(any(PackWeightVO.class),
-                any(WeightVolumeCollectDto.class),any(InvokeResult.class))).thenReturn(booleanResult);
+        when(weightAndVolumeCheckService.dealSportCheck(any(PackWeightVO.class),
+                SpotCheckSourceEnum.SPOT_CHECK_CLIENT_PLATE,any(InvokeResult.class))).thenReturn(booleanResult);
 
         when(waybillCommonService.getPackNum(any(String.class))).thenReturn(intResult);
 

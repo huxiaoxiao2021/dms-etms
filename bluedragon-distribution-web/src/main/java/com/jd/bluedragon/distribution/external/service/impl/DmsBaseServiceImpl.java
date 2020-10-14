@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.external.service.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.distribution.api.response.LoginUserResponse;
@@ -26,13 +28,27 @@ public class DmsBaseServiceImpl implements DmsBaseService {
     @Autowired
     @Qualifier("baseResource")
     private BaseResource baseResource;
-    
+
 	@Autowired
 	private UserService userService;
+
+	@Autowired
+    UccPropertyConfiguration uccPropertyConfiguration;
 
     @Override
     @JProfiler(jKey = "DMSWEB.DmsBaseServiceImpl.login", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public BaseResponse login(LoginRequest request) {
+        if (uccPropertyConfiguration.isDisablePdaOldLogin()) {
+            //登陆已经切换到新clientlogin,此接口关闭,提示强制升级
+            BaseResponse response = new BaseResponse();
+            response.setErpAccount(request.getErpAccount());
+            response.setPassword(request.getPassword());
+
+            response.setCode(301);
+            response.setMessage("此版本pda已停用,请点击左上角检查更新版本");
+            return response;
+        }
+
         return userService.oldJsfLogin(request);
     }
     @Override
@@ -43,6 +59,11 @@ public class DmsBaseServiceImpl implements DmsBaseService {
     @Override
     @JProfiler(jKey = "DMSWEB.DmsBaseServiceImpl.getSite", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public BaseResponse getSite(String code) {
+        if (null==code){
+            BaseResponse response = new BaseResponse(JdResponse.CODE_PARAM_ERROR,
+                    JdResponse.MESSAGE_PARAM_ERROR);
+            return response;
+        }
         return baseResource.getSite(code);
     }
 

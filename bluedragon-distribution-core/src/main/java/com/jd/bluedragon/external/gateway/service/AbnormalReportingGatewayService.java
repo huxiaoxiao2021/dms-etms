@@ -1,6 +1,5 @@
 package com.jd.bluedragon.external.gateway.service;
 
-import com.jd.bluedragon.common.domain.SiteEntity;
 import com.jd.bluedragon.common.dto.abnormal.DmsAbnormalReasonDto;
 import com.jd.bluedragon.common.dto.abnormal.DutyDepartmentInfo;
 import com.jd.bluedragon.common.dto.abnormal.request.AbnormalReportingRequest;
@@ -14,11 +13,13 @@ public interface AbnormalReportingGatewayService {
 
     JdCResponse<List<DmsAbnormalReasonDto>> getAllAbnormalReason(String userErp);
 
-    String uploadExceptionImage(InputStream inStream) throws IOException;
+    String uploadExceptionMedia(InputStream inStream, String originalFileName) throws IOException;
 
     JdCResponse<List<DutyDepartmentInfo>> getDutyDepartment(String barCode, Integer siteCode, String siteName);
 
     JdCResponse saveAbnormalReportingInfo(AbnormalReportingRequest abnormalReportingRequest);
+
+    JdCResponse querySite(String orgId, String siteName, String siteCode);
 
     JdCResponse trace(String key, String packageCode);
 }

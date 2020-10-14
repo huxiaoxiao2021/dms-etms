@@ -125,6 +125,15 @@
                   alias="${dms.gateway.jsf.alias}"
                   ref="dmsBaseDictGatewayService" server="dmsjsf">
     </jsf:provider>
+
+    <!-- 空铁-新发货登记 -->
+    <bean id="airNewPickupRegisterGateWayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.AirNewPickupRegisterGateWayServiceImpl"/>
+    <jsf:provider id="jsfairNewPickupRegisterGateWayService"
+                  interface="com.jd.bluedragon.external.gateway.service.AirNewPickupRegisterGateWayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="airNewPickupRegisterGateWayService" server="dmsjsf">
+    </jsf:provider>
+
     <!-- 基础数据服务 -->
     <bean id="baseDataGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.BaseDataGatewayServiceImpl"/>
     <jsf:provider id="jsfbaseDataGatewayService" interface="com.jd.bluedragon.external.gateway.service.BaseDataGatewayService"
@@ -153,6 +162,15 @@
                   ref="exceptionHandleGatewayService" server="dmsjsf">
     </jsf:provider>
 
+    <!-- 白名单相关 -->
+    <bean id="whiteListGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.WhiteListGatewayServiceImpl"/>
+    <jsf:provider id="jsfWhiteListGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.WhiteListGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="whiteListGatewayService"
+                  server="dmsjsf">
+    </jsf:provider>
+
     <!-- 参数配置 -->
     <bean id="sysConfigManageGateWayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.SysConfigManageGateWayServiceImpl"/>
     <jsf:provider id="jsfSysConfigManageGateWayService"
@@ -168,6 +186,24 @@
                   interface="com.jd.bluedragon.external.gateway.service.StrandReportGateWayService"
                   alias="${dms.gateway.jsf.alias}"
                   ref="strandReportGateWayService"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 查询功能 -->
+    <bean id="searchGateWayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.SearchGateWayServiceImpl"/>
+    <jsf:provider id="jsfSearchGateWayService"
+                  interface="com.jd.bluedragon.external.gateway.service.SearchGateWayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="searchGateWayService"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 集货作业功能 -->
+    <bean id="collectGateWayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.CollectGateWayServiceImpl"/>
+    <jsf:provider id="jsfCollectGateWayService"
+                  interface="com.jd.bluedragon.external.gateway.service.CollectGateWayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="collectGateWayService"
                   server="dmsjsf">
     </jsf:provider>
 
@@ -197,15 +233,6 @@
                   ref="deviceGatewayService"
                   server="dmsjsf"/>
 
-    <!-- 空铁-新发货登记 -->
-    <bean id="airNewPickupRegisterGateWayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.AirNewPickupRegisterGateWayServiceImpl"/>
-    <jsf:provider id="jsfairNewPickupRegisterGateWayService"
-                  interface="com.jd.bluedragon.external.gateway.service.AirNewPickupRegisterGateWayService"
-                  alias="${dms.gateway.jsf.alias}"
-                  ref="airNewPickupRegisterGateWayService" server="dmsjsf">
-    </jsf:provider>
-
-
     <!-- 异常提交（新质控） -->
     <bean id="abnormalReportingGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.AbnormalReportingGatewayServiceImpl"/>
     <jsf:provider id="jsfAbnormalReportingGatewayService"
@@ -223,6 +250,7 @@
                   server="dmsjsf">
     </jsf:provider>
 
+    <!-- 冷链操作 -->
 
     <!-- 智能园区 -->
     <bean id="queueManagementGateWayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.QueueManagementGateWayServiceImpl"/>
@@ -258,4 +286,23 @@
                   ref="expInfoSummaryGatewayService"
                   server="dmsjsf">
     </jsf:provider>
+
+    <!-- 装卸车 -->
+    <bean id="loadAndUnloadCarGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.LoadAndUnloadCarGatewayServiceImpl" />
+    <jsf:provider id="jsfLoadAndUnloadCarGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.LoadAndUnloadCarGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="loadAndUnloadCarGatewayService"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 集包袋收空袋发空袋 -->
+    <bean id="collectionBagOperationGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.CollectionBagOperationGatewayServiceImpl" />
+    <jsf:provider id="jsfCollectionBagOperationGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.CollectionBagOperationGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="collectionBagOperationGatewayService"
+                  server="dmsjsf">
+    </jsf:provider>
+
 </beans>

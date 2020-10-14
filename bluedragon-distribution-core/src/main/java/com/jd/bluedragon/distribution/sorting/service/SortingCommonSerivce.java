@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.sorting.service;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
@@ -11,12 +12,15 @@ import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationEnum;
+import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationMQ;
 import com.jd.bluedragon.distribution.fastRefund.domain.FastRefundBlockerComplete;
 import com.jd.bluedragon.distribution.fastRefund.service.FastRefundService;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
 
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.distribution.material.service.CycleMaterialNoticeService;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
@@ -39,6 +43,7 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.fastjson.JSONObject;
+import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.profiler.CallerInfo;
@@ -52,6 +57,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -124,14 +131,10 @@ public abstract class SortingCommonSerivce {
     @Resource
     private UccPropertyConfiguration uccPropertyConfiguration;
 
-    public abstract boolean doSorting(SortingVO sorting);
+    @Autowired
+    private CycleMaterialNoticeService cycleMaterialNoticeService;
 
-    /**
-     * 是否需要补验货数据
-     * @param sorting
-     * @return
-     */
-    public abstract boolean isNeedInspection(SortingVO sorting);
+    public abstract boolean doSorting(SortingVO sorting);
 
     /**
      * 执行方法
@@ -239,65 +242,28 @@ public abstract class SortingCommonSerivce {
             backwardSendMQ(sorting);
             //更新运单状态
             sortingService.addSortingAdditionalTask(sorting);
+
+            // 分拣发送循环集包袋MQ
+            pushCycleMaterialMessage(sorting);
         }
 
 
     }
 
+    private void pushCycleMaterialMessage(SortingVO sorting) {
+        BoxMaterialRelationMQ mqBody = new BoxMaterialRelationMQ();
+        mqBody.setBusinessType(BoxMaterialRelationEnum.SORTING.getType());
+        mqBody.setSiteCode(String.valueOf(sorting.getCreateSiteCode()));
+        mqBody.setBoxCode(sorting.getBoxCode());
+        mqBody.setWaybillCode(Collections.singletonList(sorting.getWaybillCode()));
+        mqBody.setPackageCode(Collections.singletonList(sorting.getPackageCode()));
+        mqBody.setOperatorCode(sorting.getCreateUserCode());
+        mqBody.setOperatorName(sorting.getCreateUser());
+        mqBody.setOperatorTime(sorting.getOperateTime());
 
-    /**
-     * B网建箱自动触发验货全程跟踪
-     * 推验货任务
-     * @param sorting
-     */
-    protected void b2bPushInspection(SortingVO sorting){
-    	//ucc判断B网分拣是否需要补验货
-    	if(!uccPropertyConfiguration.isB2bPushInspectionSwitch()){
-    		return;
-    	}
-        InspectionRequest inspection=new InspectionRequest();
-        TaskRequest request=new TaskRequest();
-
-        inspection.setUserCode(sorting.getCreateUserCode());
-        inspection.setUserName(sorting.getCreateUser());
-        inspection.setSiteCode(sorting.getCreateSiteCode());
-        inspection.setSiteName(sorting.getCreateSiteName());
-
-        //验货操作提前5秒
-        inspection.setOperateTime(DateHelper.formatDateTime(new Date(sorting.getOperateTime().getTime()-5000)));
-        inspection.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
-
-        if(SortingVO.SORTING_TYPE_PACK == sorting.getSortingType()){
-            inspection.setPackageBarOrWaybillCode(sorting.getPackageCode());
-            request.setKeyword2(sorting.getPackageCode());
-        }else if(SortingVO.SORTING_TYPE_WAYBILL == sorting.getSortingType()){
-            inspection.setPackageBarOrWaybillCode(sorting.getWaybillCode());
-            request.setKeyword2(sorting.getWaybillCode());
-        }else if(SortingVO.SORTING_TYPE_WAYBILL_SPLIT == sorting.getSortingType()){
-            inspection.setPackageBarOrWaybillCode(sorting.getPackageCode());
-            request.setKeyword2(sorting.getPackageCode());
-        }
-
-        request.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
-        request.setKeyword1(String.valueOf(sorting.getCreateUserCode()));
-        request.setType(Task.TASK_TYPE_INSPECTION);
-        request.setOperateTime(inspection.getOperateTime());
-        request.setSiteCode(sorting.getCreateSiteCode());
-        request.setSiteName(sorting.getCreateSiteName());
-        request.setUserCode(sorting.getCreateUserCode());
-        request.setUserName(sorting.getCreateUser());
-        //request.setBody();
-        String eachJson = Constants.PUNCTUATION_OPEN_BRACKET
-                + JsonHelper.toJson(inspection)
-                + Constants.PUNCTUATION_CLOSE_BRACKET;
-        Task task=this.taskService.toTask(request, eachJson);
-
-        int result= this.taskService.add(task, true);
-        if(log.isDebugEnabled()){
-            log.debug("B网建箱自动触发验货全程跟踪-验货任务插入条数:{}条,请求参数:{}", result, JsonHelper.toJson(task));
-        }
-        addBusinessLog(sorting,task);
+        cycleMaterialNoticeService.sendSortingMaterialMessage(mqBody);
     }
+
 
 
     public void notifyBlocker(SortingVO sorting) {

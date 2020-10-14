@@ -7,14 +7,17 @@ import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.StringHelper;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+
 import java.util.Date;
 
 @Component
@@ -35,10 +38,9 @@ public class ReverseRepairResource {
 	@GET
 	@Path("/reverse/repair/sendcode")
 	public JdResponse repairSendCode(@QueryParam("sendCode") String sendCode) {
-		if (StringHelper.isEmpty(sendCode)) {
-			return new JdResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
+		if (!BusinessUtil.isSendCode(sendCode)) {
+			return new JdResponse(JdResponse.CODE_PARAM_ERROR, "不是有效的批次号！");
 		}
-
 		Task task = this.taskService.findReverseSendTask(sendCode.trim());
 		if (task != null) {
 			task.setType(Task.TASK_TYPE_DEPARTURE);
@@ -47,13 +49,15 @@ public class ReverseRepairResource {
 			task.setExecuteTime(new Date());
 			this.taskService.updateBySelective(task);
 		} else {
-			this.getCreateSiteCode(sendCode);
-
+			Integer[] sites = BusinessUtil.getSiteCodeBySendCode(sendCode);
+			if(sites[0]<=0 || sites[1]<=0){
+				return new JdResponse(JdResponse.CODE_PARAM_ERROR, "不是有效的批次号！");
+			}
 			task = new Task();
 			task.setKeyword1(ReverseRepairResource.TASK_REVERSE_SEND_NODIFY);
 			task.setKeyword2(ReverseRepairResource.TASK_REVERSE_SEND_BUSINESS);
-			task.setCreateSiteCode(this.getCreateSiteCode(sendCode));
-			task.setReceiveSiteCode(this.getReceiveSiteCode(sendCode));
+			task.setCreateSiteCode(sites[0]);
+			task.setReceiveSiteCode(sites[1]);
 			task.setBoxCode(sendCode);
 			task.setBody(sendCode);
 			task.setExecuteCount(Task.INITIAL_COUNT);
@@ -90,26 +94,4 @@ public class ReverseRepairResource {
 	private String getFingerprint(String sendCode) {
 		return Md5Helper.encode(sendCode + Constants.SEPARATOR_HYPHEN + ReverseRepairResource.TASK_REVERSE_SEND_NODIFY);
 	}
-
-	private Integer getCreateSiteCode(String sendCode) {
-		sendCode = sendCode.replace("Y", "");
-		String[] sendCodeArray = sendCode.split(Constants.SEPARATOR_HYPHEN);
-
-		if (sendCodeArray == null || sendCodeArray[0] == null) {
-			return 0;
-		}
-
-		return Integer.valueOf(sendCodeArray[0]);
-	}
-
-	private Integer getReceiveSiteCode(String sendCode) {
-		String[] sendCodeArray = sendCode.split(Constants.SEPARATOR_HYPHEN);
-
-		if (sendCodeArray == null || sendCodeArray[1] == null) {
-			return 0;
-		}
-
-		return  Integer.valueOf(sendCodeArray[1]);
-	}
-
 }

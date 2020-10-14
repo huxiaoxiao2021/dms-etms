@@ -55,6 +55,7 @@ import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -64,6 +65,8 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 
 import javax.servlet.http.HttpServletRequest;
@@ -91,6 +94,9 @@ import java.util.Set;
 @Consumes({MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_JSON})
 public class DeliveryResource {
+
+    @Value("${send.checkSendCodeDate:false}")
+    private boolean checkSendCodeDate;
 
     @Autowired
     DeliveryService deliveryService;
@@ -145,6 +151,9 @@ public class DeliveryResource {
     @Autowired
     private SendDetailService sendDetailService;
 
+    @Autowired
+    @Qualifier("jimdbCacheService")
+    private CacheService jimdbCacheService;
 
     /**
      * 原包发货【一车一件项目，发货专用】
@@ -259,6 +268,34 @@ public class DeliveryResource {
                 result.error(ex);
                 log.error("发货校验批次号异常：{}",sendCode, ex);
             }
+        }
+        return result;
+    }
+
+    /**
+     * 校验批次是否已封车
+     *  公用校验方法，目前用于以下场景
+     * <p>
+     *     1、批量一车一单
+     * </p>
+     * @param sendCode
+     * @return
+     */
+    @GET
+    @Path("/delivery/commonCheckSendCode/{sendCode}")
+    @JProfiler(jKey = "DMSWEB.DeliveryResource.commonCheckSendCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<Boolean> commonCheckSendCode(@PathParam("sendCode") String sendCode) {
+        InvokeResult<Boolean> result = new InvokeResult<Boolean>();
+        if(!BusinessHelper.isSendCode(sendCode)){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"批次号不符合规则!");
+            return result;
+        }
+        if(deliveryService.checkSendCodeIsOld(sendCode) && checkSendCodeDate){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"批次号创建时间过早，请更换批次!");
+            return result;
+        }
+        if(deliveryService.checkSendCodeIsSealed(sendCode)){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"批次号已封车，请更换批次!");
         }
         return result;
     }
@@ -428,19 +465,41 @@ public class DeliveryResource {
             return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR,
                     JdResponse.MESSAGE_PARAM_ERROR);
         }
-        DeliveryResponse tDeliveryResponse;
+        DeliveryResponse tDeliveryResponse = null;
 
-        Integer opType = request.get(0).getOpType();
+        DeliveryRequest deliveryRequest = request.get(0);
+        Integer opType = deliveryRequest.getOpType();
         if (KY_DELIVERY.equals(opType)) {
             tDeliveryResponse = this.sendDeliveryInfoForKY(request);
         } else {
-            Integer businessType = request.get(0).getBusinessType();
-            if (businessType != null && Constants.BUSSINESS_TYPE_REVERSE == businessType) {
-                // 逆向发货
-                tDeliveryResponse = deliveryService.dellDeliveryMessage(SendBizSourceEnum.REVERSE_SEND, toSendDetailList(request));
-            } else {
-                // 正向老发货
-                tDeliveryResponse = deliveryService.dellDeliveryMessage(SendBizSourceEnum.OLD_PACKAGE_SEND, toSendDetailList(request));
+
+            Integer businessType = deliveryRequest.getBusinessType();
+            //获取批量参数中的批次号
+            String sendCode = deliveryRequest.getSendCode();
+            String redisKey = Constants.BUSINESS_TYPE_PREFIX + Constants.SEPARATOR_HYPHEN + businessType + Constants.SEPARATOR_HYPHEN + sendCode;
+
+            try {
+                //查询redis中是否存在key
+                if (jimdbCacheService.exists(redisKey)) {
+                    log.warn("发货任务已提交，批次号：{}", sendCode);
+                    tDeliveryResponse = new DeliveryResponse(DeliveryResponse.CODE_DELIVERY_SEND_CODE_IS_COMMITTED, DeliveryResponse.MESSAGE_DELIVERY_SEND_CODE_IS_COMMITTED);
+                } else {
+                    jimdbCacheService.setEx(redisKey, sendCode, 5 * DateHelper.ONE_MINUTES_MILLI);
+                    if (businessType != null && Constants.BUSSINESS_TYPE_REVERSE == businessType) {
+                        // 逆向发货
+                        tDeliveryResponse = deliveryService.dellDeliveryMessage(SendBizSourceEnum.REVERSE_SEND, toSendDetailList(request));
+                    } else {
+                        // 正向老发货
+                        tDeliveryResponse = deliveryService.dellDeliveryMessage(SendBizSourceEnum.OLD_PACKAGE_SEND, toSendDetailList(request));
+                    }
+
+                    if (! JdResponse.CODE_OK.equals(tDeliveryResponse.getCode())) {
+                        //业务拦截，删除缓存中的key
+                        jimdbCacheService.del(redisKey);
+                    }
+                }
+            } catch (Exception e) {
+                log.error("老发货执行失败，请求：{}", JsonHelper.toJson(request), e);
             }
         }
         this.log.debug("结束写入发货信息");

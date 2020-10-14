@@ -5,12 +5,14 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
 import com.jd.bluedragon.common.dto.base.response.ResponseCodeConstants;
+import com.jd.bluedragon.common.dto.send.request.BoardCodeSendRequest;
 import com.jd.bluedragon.common.dto.send.request.ColdChainSendRequest;
 import com.jd.bluedragon.common.dto.send.request.DeliveryRequest;
 import com.jd.bluedragon.common.dto.send.request.DeliveryVerifyRequest;
 import com.jd.bluedragon.common.dto.send.request.DifferentialQueryRequest;
 import com.jd.bluedragon.common.dto.send.request.SinglePackageSendRequest;
 import com.jd.bluedragon.common.dto.send.request.TransPlanRequest;
+import com.jd.bluedragon.common.dto.send.response.CheckBeforeSendResponse;
 import com.jd.bluedragon.common.dto.send.response.SendThreeDetailDto;
 import com.jd.bluedragon.common.dto.send.response.TransPlanDto;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -21,15 +23,19 @@ import com.jd.bluedragon.distribution.api.response.ColdChainSendResponse;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.coldchain.domain.TransPlanDetailResult;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.rest.send.ColdChainDeliveryResource;
 import com.jd.bluedragon.distribution.rest.send.DeliveryResource;
+import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.distribution.send.domain.SendThreeDetail;
 import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
+import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.service.DeliveryVerifyService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.external.gateway.service.SendGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ql.basic.util.DateUtil;
 import com.jd.ump.annotation.JProEnum;
@@ -41,6 +47,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -61,6 +68,10 @@ public class SendGatewayServiceImpl implements SendGatewayService {
     @Autowired
     @Qualifier("coldChainDeliveryResource")
     private ColdChainDeliveryResource coldChainDeliveryResource;
+
+    @Autowired
+    @Qualifier("deliveryService")
+    private DeliveryService deliveryService;
 
     @Override
     @JProfiler(jKey = "DMSWEB.SendGatewayServiceImpl.packageSendVerifyForBox",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -114,7 +125,7 @@ public class SendGatewayServiceImpl implements SendGatewayService {
         }
 
         if(Objects.equals(sendResult.getKey(),SendResult.CODE_CONFIRM)){
-            if(sendResult.getInterceptCode() == ResponseCodeConstants.JdVerifyResponseMsgBox.SEND_WRONG_SITE.getCode()){
+            if(sendResult.getInterceptCode()!= null && sendResult.getInterceptCode().intValue()== ResponseCodeConstants.JdVerifyResponseMsgBox.SEND_WRONG_SITE.getCode()){
                 JdVerifyResponse.MsgBox msgBox = new JdVerifyResponse.MsgBox();
                 msgBox.setType(MsgBoxTypeEnum.CONFIRM);
                 msgBox.setCode(sendResult.getKey());
@@ -403,6 +414,159 @@ public class SendGatewayServiceImpl implements SendGatewayService {
         return res;
     }
 
+    @Override
+    @JProfiler(jKey = "DMSWEB.SendGatewayServiceImpl.checkBeforeSend",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdVerifyResponse<CheckBeforeSendResponse> checkBeforeSend(DeliveryRequest request){
+        JdVerifyResponse<CheckBeforeSendResponse> res=new JdVerifyResponse<>();
+
+        JdCResponse<Boolean> ltemcheck=parameterCheckExpress(request);
+        if (!JdCResponse.CODE_SUCCESS.equals(ltemcheck.getCode())){
+            res.setCode(JdVerifyResponse.CODE_ERROR);
+            res.setMessage(ltemcheck.getMessage());
+            return res;
+        }
+
+        if(StringUtils.isBlank(request.getSendCode())){
+            request.setSendCode(SerialRuleUtil.generateSendCode(request.getCurrentOperate().getSiteCode(), request.getReceiveSiteCode(), new Date()));
+        }
+
+        com.jd.bluedragon.distribution.api.request.DeliveryRequest deliveryRequest=new com.jd.bluedragon.distribution.api.request.DeliveryRequest();
+        deliveryRequest.setSiteCode(request.getCurrentOperate().getSiteCode());
+        deliveryRequest.setReceiveSiteCode(request.getReceiveSiteCode());
+        deliveryRequest.setBoxCode(request.getBoxCode());
+        deliveryRequest.setSendCode(request.getSendCode());
+        deliveryRequest.setBusinessType(request.getBusinessType());
+        deliveryRequest.setTurnoverBoxCode(request.getTurnoverBoxCode());
+        deliveryRequest.setTransporttype(request.getTransporttype());
+        deliveryRequest.setOpType(request.getOpType());
+        deliveryRequest.setHasSendPackageNum(request.getHasSendPackageNum());
+        deliveryRequest.setScannedPackageNum(request.getScannedPackageNum());
+        deliveryRequest.setUserCode(request.getUser().getUserCode());
+        deliveryRequest.setUserName(request.getUser().getUserName());
+        deliveryRequest.setSiteName(request.getCurrentOperate().getSiteName());
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        deliveryRequest.setOperateTime(sdf.format(request.getCurrentOperate().getOperateTime()));
+
+        JdResult<com.jd.bluedragon.distribution.api.response.CheckBeforeSendResponse> result=deliveryResource.checkBeforeSend(deliveryRequest);
+        if (null==result){
+            res.toFail("发货校验异常");
+            return res;
+        }
+        if(JdResponse.CODE_OK.equals(result.getCode()) || result.getCode()==300){
+            res.toSuccess(result.getMessage());
+            CheckBeforeSendResponse res_Response=new CheckBeforeSendResponse();
+            res_Response.setSendCode(request.getSendCode());
+            res_Response.setPackageNum(result.getData().getPackageNum());
+            res_Response.setTipMessages(result.getData().getTipMessages());
+            res_Response.setWaybillType(result.getData().getWaybillType());
+            res.setData(res_Response);
+            if (null!=result.getData().getTipMessages()){
+                for (String itme : result.getData().getTipMessages()) {
+                    res.addBox(MsgBoxTypeEnum.CONFIRM,300,itme);
+                }
+            }
+        }else {
+            res.toFail(result.getMessage());
+            return res;
+        }
+
+        return res;
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.SendGatewayServiceImpl.sendDeliveryInfo",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<Boolean> sendDeliveryInfo(ColdChainSendRequest request){
+        JdCResponse<Boolean> res=new JdCResponse<>();
+        res.toSucceed();
+
+        if (null==request || null==request.getSendList() || request.getSendList().size()<=0){
+            res.toFail("入参不能为空");
+            return res;
+        }
+        List<com.jd.bluedragon.distribution.api.request.DeliveryRequest> listRequest =new ArrayList<>();
+        for (DeliveryRequest ltem : request.getSendList()) {
+            JdCResponse<Boolean> ltemcheck=parameterCheckExpress(ltem);
+            if (!JdCResponse.CODE_SUCCESS.equals(ltemcheck.getCode())){
+                return ltemcheck;
+            }
+
+            com.jd.bluedragon.distribution.api.request.DeliveryRequest req=new com.jd.bluedragon.distribution.api.request.DeliveryRequest();
+            BeanUtils.copyProperties(ltem, req);
+            if(null!=ltem.getUser()){
+                req.setUserCode(ltem.getUser().getUserCode());
+                req.setUserName(ltem.getUser().getUserName());
+            }
+            if(null!=ltem.getCurrentOperate()){
+                req.setSiteCode(ltem.getCurrentOperate().getSiteCode());
+                req.setSiteName(ltem.getCurrentOperate().getSiteName());
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                req.setOperateTime(sdf.format(ltem.getCurrentOperate().getOperateTime()));
+            }
+
+            listRequest.add(req);
+        }
+
+        DeliveryResponse rs=deliveryResource.sendDeliveryInfo(listRequest);
+        if (null==rs){
+            res.toFail("发货异常");
+            return res;
+        }
+
+        if (!JdResponse.CODE_OK.equals(rs.getCode())){
+            res.toFail(rs.getMessage());
+            return res;
+        }
+
+        return res;
+
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.SendGatewayServiceImpl.boardCodeSend",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdVerifyResponse<Void> boardCodeSend(BoardCodeSendRequest request){
+        JdVerifyResponse<Void> res=new JdVerifyResponse<>();
+        res.toSuccess();
+
+        JdCResponse<Boolean> ltemcheck=parameterCheckBoardCodeSend(request);
+        if (!JdCResponse.CODE_SUCCESS.equals(ltemcheck.getCode())){
+            res.setCode(JdVerifyResponse.CODE_ERROR);
+            res.setMessage(ltemcheck.getMessage());
+            return res;
+        }
+
+        if(StringUtils.isBlank(request.getSendCode())){
+            request.setSendCode(SerialRuleUtil.generateSendCode(request.getCurrentOperate().getSiteCode(), request.getReceiveSiteCode(), new Date()));
+        }
+
+        SendM domain = new SendM();
+        domain.setReceiveSiteCode(request.getReceiveSiteCode());
+        domain.setSendCode(request.getSendCode());
+        domain.setBoardCode(request.getBoardCode());
+        domain.setCreateSiteCode(request.getCurrentOperate().getSiteCode());
+        domain.setCreateUser(request.getUser().getUserName());
+        domain.setCreateUserCode(request.getUser().getUserCode());
+        domain.setSendType(request.getBusinessType());
+
+        domain.setYn(1);
+        domain.setCreateTime(new Date(System.currentTimeMillis()));
+        domain.setOperateTime(new Date(System.currentTimeMillis()));
+
+        SendResult rs=deliveryService.boardSend(domain,request.getForceSend());
+        if(SendResult.CODE_OK.equals(rs.getKey())){
+            res.toSuccess(rs.getValue());
+        }else if(SendResult.CODE_SENDED.equals(rs.getKey())){
+            res.toSuccess(rs.getValue());
+            res.addBox(MsgBoxTypeEnum.INTERCEPT,300,rs.getValue());
+        }else if(SendResult.CODE_CONFIRM.equals(rs.getKey())){
+            res.toSuccess(rs.getValue());
+            res.addBox(MsgBoxTypeEnum.CONFIRM,300,rs.getValue());
+        }else {
+            res.toFail(rs.getValue());
+        }
+
+        return res;
+    }
+
     /**
      * 参数校验
      * @param request
@@ -416,6 +580,12 @@ public class SendGatewayServiceImpl implements SendGatewayService {
             res.toFail("入参不能为空");
             return res;
         }
+
+        if (request.getUser().getUserCode()<=0 || StringUtils.isBlank(request.getUser().getUserName()) || request.getCurrentOperate().getSiteCode()<=0 || StringUtils.isBlank(request.getCurrentOperate().getSiteName())){
+            res.toFail("操作人信息或场地信息缺失，请重新登录分拣系统");
+            return res;
+        }
+
         if(StringUtils.isBlank(request.getBoxCode())){
             res.toFail("箱号不能为空");
             return res;
@@ -431,6 +601,72 @@ public class SendGatewayServiceImpl implements SendGatewayService {
         }
         if(request.getReceiveSiteCode() == null){
             res.toFail("目的地站点ID不能为空");
+            return res;
+        }
+
+        return res;
+    }
+
+    /**
+     * 老发货、快运发货参数校验
+     * @param request
+     * @return
+     */
+    private JdCResponse<Boolean> parameterCheckExpress(DeliveryRequest request){
+        JdCResponse<Boolean> res=new JdCResponse<>();
+        res.toSucceed();
+
+        if (request == null) {
+            res.toFail("入参不能为空");
+            return res;
+        }
+        if (request.getUser().getUserCode()<=0 || StringUtils.isBlank(request.getUser().getUserName()) || request.getCurrentOperate().getSiteCode()<=0 || StringUtils.isBlank(request.getCurrentOperate().getSiteName())){
+            res.toFail("操作人信息或场地信息缺失，请重新登录分拣系统");
+            return res;
+        }
+        if(StringUtils.isBlank(request.getBoxCode())){
+            res.toFail("货物号不能为空");
+            return res;
+        }
+        if (null==request.getCurrentOperate().getOperateTime()){
+            res.toFail("操作时间不能为空");
+            return res;
+        }
+        if(request.getReceiveSiteCode() == null && StringUtils.isBlank(request.getSendCode())){
+            res.toFail("请输入批次号或目的地站点ID");
+            return res;
+        }
+
+        return res;
+    }
+
+    /**
+     * 快运发货按板号发货参数校验
+     * @param request
+     * @return
+     */
+    private JdCResponse<Boolean> parameterCheckBoardCodeSend(BoardCodeSendRequest request){
+        JdCResponse<Boolean> res=new JdCResponse<>();
+        res.toSucceed();
+
+        if (request == null) {
+            res.toFail("入参不能为空");
+            return res;
+        }
+        if (request.getUser().getUserCode()<=0 || StringUtils.isBlank(request.getUser().getUserName()) || request.getCurrentOperate().getSiteCode()<=0 || StringUtils.isBlank(request.getCurrentOperate().getSiteName())){
+            res.toFail("操作人信息或场地信息缺失，请重新登录分拣系统");
+            return res;
+        }
+        if(StringUtils.isBlank(request.getBoardCode())){
+            res.toFail("板号不能为空");
+            return res;
+        }
+        if (null==request.getCurrentOperate().getOperateTime()){
+            res.toFail("操作时间不能为空");
+            return res;
+        }
+        if(request.getReceiveSiteCode() == null && StringUtils.isBlank(request.getSendCode())){
+            res.toFail("请输入批次号或目的地站点ID");
             return res;
         }
 

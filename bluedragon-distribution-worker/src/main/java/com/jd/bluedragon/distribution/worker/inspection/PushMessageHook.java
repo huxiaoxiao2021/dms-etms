@@ -8,12 +8,10 @@ import com.jd.bluedragon.distribution.coldchain.dto.ColdChainOperateTypeEnum;
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationEnum;
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationMQ;
 import com.jd.bluedragon.distribution.framework.TaskHook;
-import com.jd.bluedragon.distribution.inspection.domain.InspectionMQBody;
 import com.jd.bluedragon.distribution.inspection.service.InspectionNotifyService;
 import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
@@ -27,10 +25,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * 推送验货MQ消息
@@ -51,28 +46,34 @@ public class PushMessageHook implements TaskHook<InspectionTaskExecuteContext> {
     private BaseMajorManager baseMajorManager;
 
     @Autowired
-    @Qualifier("cycleMaterialSendMQ")
-    private DefaultJMQProducer cycleMaterialSendMQ;
+    @Qualifier("dmsInspectionPackageProducer")
+    private DefaultJMQProducer inspectionMaterialSendMQ;
 
     @JProfiler(jKey = "dmsworker.PushMessageHook.hook")
     @Override
     public int hook(InspectionTaskExecuteContext context) {
-        Set sendInspectionKey = new HashSet();
-        for (CenConfirm cenConfirm : context.getCenConfirmList()) {
-            InspectionMQBody inspectionMQBody = new InspectionMQBody();
-            inspectionMQBody.setWaybillCode(null != cenConfirm.getWaybillCode() ? cenConfirm.getWaybillCode() : SerialRuleUtil.getWaybillCode(cenConfirm.getPackageBarcode()));
-            if (inspectionMQBody.getWaybillCode() == null || sendInspectionKey.contains(inspectionMQBody.getWaybillCode())) {
-                continue;
-            }
-            sendInspectionKey.add(inspectionMQBody.getWaybillCode() != null ? inspectionMQBody.getWaybillCode() : "");
-            inspectionMQBody.setInspectionSiteCode(cenConfirm.getCreateSiteCode());
-            inspectionMQBody.setCreateUserCode(cenConfirm.getInspectionUserCode());
-            inspectionMQBody.setCreateUserName(cenConfirm.getInspectionUser());
-            inspectionMQBody.setOperateTime(null != cenConfirm.getInspectionTime() ? cenConfirm.getInspectionTime() : new Date());
-            inspectionMQBody.setSource("DMS-INSPECTION");
+        /**
+         * 切换运单维度验货消息发送的逻辑
+         * {@link InspectionTaskExeStrategyImpl#decideExecutor} 包裹拆分任务提前发送消息
+         * {@link InspectionWaybillTaskExecutor#otherOperation} 非拆分任务延迟发送运单验货消息
+         */
+//        Set sendInspectionKey = new HashSet();
+//        for (CenConfirm cenConfirm : context.getCenConfirmList()) {
+//            InspectionMQBody inspectionMQBody = new InspectionMQBody();
+//            inspectionMQBody.setWaybillCode(null != cenConfirm.getWaybillCode() ? cenConfirm.getWaybillCode() : SerialRuleUtil.getWaybillCode(cenConfirm.getPackageBarcode()));
+//            if (inspectionMQBody.getWaybillCode() == null || sendInspectionKey.contains(inspectionMQBody.getWaybillCode())) {
+//                continue;
+//            }
+//            sendInspectionKey.add(inspectionMQBody.getWaybillCode() != null ? inspectionMQBody.getWaybillCode() : "");
+//            inspectionMQBody.setInspectionSiteCode(cenConfirm.getCreateSiteCode());
+//            inspectionMQBody.setCreateUserCode(cenConfirm.getInspectionUserCode());
+//            inspectionMQBody.setCreateUserName(cenConfirm.getInspectionUser());
+//            inspectionMQBody.setOperateTime(null != cenConfirm.getInspectionTime() ? cenConfirm.getInspectionTime() : new Date());
+//            inspectionMQBody.setSource("DMS-INSPECTION");
+//
+//            inspectionNotifyService.send(inspectionMQBody);/*此处MQ推送时，失败将添加任务，以确保MQ发送成功*/
+//        }
 
-            inspectionNotifyService.send(inspectionMQBody);/*此处MQ推送时，失败将添加任务，以确保MQ发送成功*/
-        }
         this.pushCycleMaterialMQ(context);
         this.pushColdChainOperateMQ(context);
         return 0;
@@ -100,11 +101,11 @@ public class PushMessageHook implements TaskHook<InspectionTaskExecuteContext> {
             Message message = new Message();
             message.setBusinessId(cenConfirm.getPackageBarcode());
             message.setText(JSON.toJSONString(loopPackageMq));
-            message.setTopic(cycleMaterialSendMQ.getTopic());
+            message.setTopic(inspectionMaterialSendMQ.getTopic());
             messageList.add(message);
         }
         try {
-            cycleMaterialSendMQ.batchSend(messageList);
+            inspectionMaterialSendMQ.batchSend(messageList);
         } catch (JMQException e) {
             log.error("循环集包袋验货对外MQ异常" ,e);
             throw new RuntimeException(e);

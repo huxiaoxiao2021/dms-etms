@@ -15,7 +15,7 @@ public class DmsMaterialSend extends DbEntity implements Serializable {
     private String materialCode;
 
     /**
-    * 物资类型；1：保温箱
+    * 物资类型(1：保温箱；2：封签号)
     */
     private Byte materialType;
 

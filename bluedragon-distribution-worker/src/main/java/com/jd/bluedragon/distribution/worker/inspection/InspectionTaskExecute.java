@@ -10,25 +10,20 @@ import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
 import com.jd.bluedragon.distribution.receive.service.CenConfirmService;
 import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.Resource;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -51,11 +46,6 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
     @Resource(name="storeIdSet")
     private Set<Integer> storeIdSet;
 
-    @Value("${inspection.save.task.to.db.package.num:500}")
-    private int INSPECTION_SAVE_TASK_TO_DB_PACKAGE_NUM;
-
-    @Autowired
-    private TaskService taskService;
     @Override
     protected InspectionTaskExecuteContext prepare(Task domain) {
         InspectionTaskExecuteContext context=new InspectionTaskExecuteContext();
@@ -93,14 +83,6 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
         }
         context.setBigWaybillDto(bigWaybillDto);
 
-        //校验验货是否是运单且为大运单包裹，直接落库不走MQ
-        if (isByWayBillCode) {
-            boolean checkResult = this.inspectionCheckBigPackage(domain, bigWaybillDto);
-            if (! checkResult) {
-                context.setPassCheck(false);
-                return context;
-            }
-        }
         resetBusinessType(request, bigWaybillDto);/*验货businessType存在非50的数据吗，需要验证*/
         resetStoreId(request, bigWaybillDto);
         builderInspectionList(request, context);
@@ -241,31 +223,6 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
             }
             context.setReceiveSite(rsite);
         }
-    }
-
-    /**
-     * 校验验货是否是大包裹
-     * 1.验货运单
-     * 2.任务ID是否为空，为空或0，认为是MQ消费
-     * 3.是否有包裹列表，运单的包裹数是否存在
-     * 4.数量是否大于阈值
-     *
-     * */
-    private boolean inspectionCheckBigPackage(Task domain, BigWaybillDto bigWaybillDto) {
-
-        if (domain.getId() == null || domain.getId() == 0) {
-            if (bigWaybillDto.getWaybill() != null && bigWaybillDto.getWaybill().getGoodNumber() != null) {
-                Integer size = bigWaybillDto.getWaybill().getGoodNumber();
-                if (size >= INSPECTION_SAVE_TASK_TO_DB_PACKAGE_NUM) {
-                    log.warn("验货包裹数【{}】大于阈值，抛出异常落库执行，任务：{}", size, JsonHelper.toJson(domain));
-                    CallerInfo callerInfo = ProfilerHelper.registerInfo("DMSWORKER.InspectionTaskExecute.prepare.check.big.package", Constants.UMP_APP_NAME_DMSWORKER);
-                    Profiler.registerInfoEnd(callerInfo);
-                    throw new RuntimeException("验货包裹数大于阈值，抛出异常落库执行");
-                }
-            }
-        }
-
-        return true;
     }
 
 }

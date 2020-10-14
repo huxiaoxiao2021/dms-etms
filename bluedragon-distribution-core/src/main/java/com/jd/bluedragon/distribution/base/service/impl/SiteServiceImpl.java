@@ -17,16 +17,24 @@ import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.departure.domain.CapacityCodeResponse;
 import com.jd.bluedragon.distribution.departure.domain.CapacityDomain;
+import com.jd.bluedragon.distribution.reassignWaybill.domain.ReassignWaybill;
+import com.jd.bluedragon.distribution.reassignWaybill.service.ReassignWaybillService;
+import com.jd.bluedragon.distribution.site.dao.SiteMapper;
+import com.jd.bluedragon.distribution.ver.domain.Site;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.vts.dto.CommonDto;
 import com.jd.etms.vts.dto.VtsTransportResourceDto;
 import com.jd.etms.vts.proxy.VtsQueryWSProxy;
 import com.jd.etms.vts.ws.VtsQueryWS;
+import com.jd.ldop.basic.api.BasicTraderAPI;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
+import com.jd.ldop.basic.dto.ResponseDTO;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.ws.BasicPrimaryWS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +57,11 @@ public class SiteServiceImpl implements SiteService {
     private VtsQueryWSProxy vtsQueryWSProxy;
     @Autowired
     private SysConfigService sysConfigService;
+    @Autowired
+    SiteMapper siteMapper;
+
+    @Autowired
+    private ReassignWaybillService reassignWaybillService;
 
     public BaseStaffSiteOrgDto getSite(Integer siteCode) {
         return this.baseMajorManager.getBaseSiteBySiteId(siteCode);
@@ -286,6 +299,25 @@ public class SiteServiceImpl implements SiteService {
     }
 
     /**
+     * 从sysconfig表里查出来箱号需要由DMS生产的分拣中心列表
+     *
+     * @return
+     */
+    @Cache(key = "SiteServiceImpl.getBoxFromDMSAllowedList", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000, redisEnable = false)
+    @Override
+    public Set<Integer> getBoxFromDMSAllowedList() {
+        Set<Integer> result = new TreeSet<>();
+        List<SysConfig> sysConfigList = sysConfigService.getListByConfigName(Constants.CREATE_BOX_FROM_DMS_SITE);
+        if (sysConfigList != null && !sysConfigList.isEmpty()) {
+            Set<String> sites = StringHelper.splitToSet(sysConfigList.get(0).getConfigContent(), Constants.SEPARATOR_COMMA);
+            for (String site : sites) {
+                result.add(Integer.valueOf(site));
+            }
+        }
+        return result;
+    }
+
+    /**
      * 获取区域内的所有分拣中心
      * 如果orgId为-1，则获取全国所有的分拣中心
      *
@@ -405,7 +437,7 @@ public class SiteServiceImpl implements SiteService {
         String url = PropertiesHelper.newInstance().getValue("DMSVER_ADDRESS") + "/services/bases/siteFuzzyByName/" + siteName;
         List<SiteEntity> siteEntities = RestHelper.jsonGetForEntity(url,new TypeToken<List<SiteEntity>>(){}.getType());
         if (null == siteEntities || siteEntities.isEmpty()) {
-            return null;
+        	return Collections.emptyList();
         }
         List<BaseStaffSiteOrgDto> res = new ArrayList<>();
         for (SiteEntity siteEntity : siteEntities) {
@@ -416,5 +448,100 @@ public class SiteServiceImpl implements SiteService {
             res.add(siteOrgDto);
         }
         return res;
+    }
+
+    @Override
+    @Cache(key = "SiteServiceImpl.get@args0",  memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000, redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
+    public Site get(Integer siteCode) {
+        if (siteCode == null) {
+            return null;
+        }
+        Site site = this.siteMapper.get(siteCode);
+        if (site == null) {
+            site = getNoCache(siteCode);
+        }
+        //需要补上site的subType
+        return dealSiteType(site);
+    }
+
+    @Override
+    public Site getNoCache(Integer siteCode) {
+        BaseStaffSiteOrgDto dto = null;
+        try {
+            dto = baseMajorManager.getBaseSiteBySiteId(siteCode);
+            if (null == dto) {
+                log.warn("根据编码获取site信息为空：{}", siteCode);
+                return null;
+            } else {
+                Site temp = new Site();
+                temp.setCode(dto.getSiteCode());
+                temp.setName(dto.getSiteName());
+                temp.setDmsCode(dto.getDmsSiteCode() != null ? dto.getDmsSiteCode() : "");
+                temp.setSubType(dto.getSubType());
+                temp.setType(dto.getSiteType());
+                temp.setOrgId(dto.getSubType());
+                temp.setSiteBusinessType(dto.getSiteBusinessType());
+                return temp;
+            }
+        } catch (Exception e) {
+            log.error("根据编码获取site信息失败：{}", siteCode, e);
+            return null;
+        }
+    }
+
+    @Override
+    public Integer getLastScheduleSite(String packageCode) {
+        if(StringHelper.isEmpty(packageCode)){
+            log.warn("获取包裹最后一次反调度站点失败，参数包裹号为空。");
+            return null;
+        }
+
+        ReassignWaybill reassignWaybill = null;
+        try{
+            if(WaybillUtil.isPackageCode(packageCode))//判断是否是包裹号
+                reassignWaybill = reassignWaybillService.queryByPackageCode(packageCode);
+            else                                         //否则默认按运单号处理
+                reassignWaybill = reassignWaybillService.queryByWaybillCode(packageCode);
+        }catch(Exception e){
+            log.error("获取包裹 [{}] 最后一次反调度站点异常，原因：",packageCode, e);
+            return null;
+        }
+        if(null == reassignWaybill){
+            log.warn("获取包裹 [{}] 最后一次反调度站点失败，反调度站点为空", packageCode);
+            return null;
+        }
+        return reassignWaybill.getChangeSiteCode();
+    }
+
+    /**
+     * 根据分拣中心编码获取分拣中心名称并截取掉 ”分拣中心","中转场","分拨中心"等
+     * @param dmsCode
+     * @return
+     */
+    @Override
+    public String getDmsShortNameByCode(Integer dmsCode){
+        Site site = get(dmsCode);
+        if(site == null){
+            return null;
+        }
+
+        //读取站点名称
+        String siteName = site.getName();
+
+        if (StringHelper.isEmpty(siteName)){
+            return null;
+        }
+        //截取分拣中心、分拨中心、中转场
+        return siteName.replace(Constants.SUFFIX_DMS_ONE,"").replace(Constants.SUFFIX_DMS_TWO,"").replace(Constants.SUFFIX_TRANSIT,"");
+    }
+
+    private Site dealSiteType(Site site) {
+        if (site == null) {
+            return null;
+        }
+        if (site.getSubType() == null && site.getType() != null) {
+            site.setSubType(site.getType());
+        }
+        return site;
     }
 }

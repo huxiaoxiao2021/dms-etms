@@ -279,6 +279,7 @@
 		<if test="scheduleTimeLt != null" >
 			and schedule_time &lt; #{scheduleTimeLt,jdbcType=TIMESTAMP}
 		</if>
+        AND schedule_bill_code NOT LIKE 'ZD%'
 	</sql>
 	<!-- 查询单个调度对象 -->
 	<select id="queryDmsEdnPickingVo" parameterType="java.lang.String" resultMap="DmsEdnPickingVo">

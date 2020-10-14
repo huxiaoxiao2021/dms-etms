@@ -62,5 +62,9 @@ public enum FromSourceEnum {
     /**
      * 分拣内部拆分
      */
-    DMS_INNER_SPLIT;
+    DMS_INNER_SPLIT,
+    /**
+     * 云分拣-按箱号称重
+     */
+    CLPS_WEIGHT_BY_BOX;
 }

@@ -1,5 +1,32 @@
 package com.jd.bluedragon.distribution.rest.waybill;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
+import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DataAccessException;
+import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
+
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
 import com.jd.bd.dms.automatic.sdk.modules.areadest.AreaDestJsfService;
 import com.jd.bd.dms.automatic.sdk.modules.areadest.dto.AreaDestJsfRequest;
@@ -18,10 +45,7 @@ import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.request.EditWeightRequest;
-import com.jd.bluedragon.distribution.api.request.ModifyOrderInfo;
-import com.jd.bluedragon.distribution.api.request.PopAddPackStateRequest;
-import com.jd.bluedragon.distribution.api.request.TaskRequest;
+import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.api.response.TaskResponse;
@@ -30,8 +54,10 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.cross.domain.CrossSortingDto;
 import com.jd.bluedragon.distribution.cross.service.CrossSortingService;
+import com.jd.bluedragon.distribution.eclpPackage.service.EclpLwbB2bPackageItemService;
 import com.jd.bluedragon.distribution.eclpPackage.service.EclpPackageApiService;
 import com.jd.bluedragon.distribution.fastRefund.service.WaybillCancelClient;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
@@ -45,11 +71,25 @@ import com.jd.bluedragon.distribution.receive.service.ReceiveWeightCheckService;
 import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
 import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
 import com.jd.bluedragon.distribution.reverse.domain.TwiceExchangeCheckDto;
+import com.jd.bluedragon.distribution.reverse.domain.TwiceExchangeRequest;
+import com.jd.bluedragon.distribution.reverse.domain.TwiceExchangeResponse;
+import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
 import com.jd.bluedragon.distribution.saf.WaybillSafResponse;
 import com.jd.bluedragon.distribution.saf.WaybillSafService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
-import com.jd.bluedragon.distribution.waybill.domain.*;
+import com.jd.bluedragon.distribution.waybill.domain.BaseResponseIncidental;
+import com.jd.bluedragon.distribution.waybill.domain.CancelFeatherLetterRequest;
+import com.jd.bluedragon.distribution.waybill.domain.InspectionNoCollectionResult;
+import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
+import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionCondition;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionException;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionQueryTypeEnum;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionRangeEnum;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionRequest;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionResult;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
 import com.jd.bluedragon.distribution.waybill.service.WaybillNoCollectionInfoService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
@@ -57,8 +97,8 @@ import com.jd.bluedragon.distribution.web.kuaiyun.weight.WeighByWaybillControlle
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDetail;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDto;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckSourceEnum;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
-import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -81,35 +121,10 @@ import com.jd.ldop.center.api.reverse.dto.WaybillReverseDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseResponseDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseResult;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.dao.DataAccessException;
-import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
-
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
 
 @Component
 @Path(Constants.REST_URL)
@@ -204,6 +219,14 @@ public class WaybillResource {
 
     @Autowired
     private LdopWaybillUpdateManager ldopWaybillUpdateManager;
+    @Autowired
+    private ReversePrintService reversePrintService;
+    
+    @Autowired
+    private EclpLwbB2bPackageItemService eclpLwbB2bPackageItemService;
+
+	@Autowired
+	private WaybillCacheService waybillCacheService;
 
     /**
      * 根据运单号获取运单包裹信息接口
@@ -1287,7 +1310,8 @@ public class WaybillResource {
 					PackOpeDto packOpeDto = new PackOpeDto();
 					packOpeDtoList.add(packOpeDto);
 					packOpeDto.setWaybillCode(editWeightRequest.getWaybillCode());
-					packOpeDto.setOpeType(1);
+					// 增加按用户所属站点类型来传值，放置在task执行体中去做
+					// packOpeDto.setOpeType(1);
 					List<PackOpeDetail> packOpeDetailList = new ArrayList<PackOpeDetail>();
 					PackOpeDetail packOpeDetail = new PackOpeDetail();
 					packOpeDetail.setPackageCode(editWeightRequest.getPackageBarcode());
@@ -1389,7 +1413,7 @@ public class WaybillResource {
 				if(waybill != null && StringHelper.isNotEmpty(waybill.getWaybillCode())){
 					preSortingSiteCode = waybill.getSiteCode();
 					//获得路由中的下一节点
-					String routerStr = jsfSortingResourceService.getRouterByWaybillCode(waybill.getWaybillCode());
+					String routerStr = waybillCacheService.getRouterByWaybillCode(waybill.getWaybillCode());
 					if(StringUtils.isNotBlank(routerStr)){
 						String[] routers = routerStr.split(WAYBILL_ROUTER_SPLITER);
 						if(routers != null && routers.length > 0) {
@@ -1479,7 +1503,7 @@ public class WaybillResource {
 			if (null == waybill || null == waybill.getSiteCode() || waybill.getSiteCode() < 0) {
                 log.warn("WaybillResource.getBarCodeAllRouters-->运单:{}信息为空或者预分拣站点信息为空", barCode);
 				result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
-				result.setMessage("运单信息为空");
+				result.setMessage("运单"+waybillCode+"信息为空，请联系 配送系统运营");
 				return result;
 			}
 			/* 预分拣站点 */
@@ -1515,7 +1539,7 @@ public class WaybillResource {
 		InvokeResult<List<Integer>> result = new InvokeResult<List<Integer>>();
 
 		try {
-			String routerStr = jsfSortingResourceService.getRouterByWaybillCode(waybillCode);
+			String routerStr = waybillCacheService.getRouterByWaybillCode(waybillCode);
 			if(StringHelper.isNotEmpty(routerStr)){
 				String[] routers = routerStr.split(WAYBILL_ROUTER_SPLITER);
 				if(routers.length > 0) {
@@ -1794,7 +1818,16 @@ public class WaybillResource {
 		}
         return invokeResult;
 	}
-
+	/**
+	 * 获取二次换单信息
+	 * @param waybillCode
+	 * @return
+	 */
+	@POST
+	@Path("/waybill/exchange/getTwiceExchangeInfo")
+	public JdResult<TwiceExchangeResponse> getTwiceExchangeInfo(TwiceExchangeRequest twiceExchangeRequest){
+		return reversePrintService.getTwiceExchangeInfo(twiceExchangeRequest);
+	}
 	/**
 	 * 二次换单检查
 	 * @param waybillCode
@@ -2039,31 +2072,10 @@ public class WaybillResource {
      */
     @POST
     @Path("/package/weight/warn/check")
+    @BusinessLog(sourceSys = 1,bizType = 1017,operateType = 101701)
     public InvokeResult<Boolean> packageWeightCheck(PackWeightVO packWeightVO){
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
-		WeightVolumeCollectDto weightVolumeCollectDto = new WeightVolumeCollectDto();
-        //1.只针对一单一件
-        if(WaybillUtil.isWaybillCode(packWeightVO.getCodeStr()) || WaybillUtil.isPackageCode(packWeightVO.getCodeStr())){
-			weightVolumeCollectDto.setWaybillCode(WaybillUtil.getWaybillCode(packWeightVO.getCodeStr()));
-			weightVolumeCollectDto.setPackageCode(packWeightVO.getCodeStr());
-        }else {
-            result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
-            result.setMessage("运单号/包裹号不符合规则!");
-            return result;
-        }
-
-		String waybillCode = WaybillUtil.getWaybillCode(packWeightVO.getCodeStr());
-        InvokeResult<Integer> packNumResult = getPackNum(waybillCode);
-        if(packNumResult != null && packNumResult.getData() > 1){
-            result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
-            result.setMessage("重量体积抽查只支持一单一件!");
-            return result;
-        }
-        //设置抽检数据来源
-		weightVolumeCollectDto.setFromSource(FromSourceEnum.DMS_CLIENT_PACKAGE_WEIGH_PRINT.name());
-		result = weightAndVolumeCheckService.insertAndSendMq(packWeightVO,weightVolumeCollectDto,result);
-        return result;
-
+		return weightAndVolumeCheckService.dealSportCheck(packWeightVO,SpotCheckSourceEnum.SPOT_CHECK_CLIENT_PLATE,result);
     }
 
 
@@ -2405,9 +2417,37 @@ public class WaybillResource {
         }
 	    InvokeResult<Boolean> result = new InvokeResult<>();
         if (null == pdaOperateRequest || StringUtils.isBlank(pdaOperateRequest.getPackageCode())) {
-            result.customMessage(SortingResponse.CODE_PARAM_IS_NULL, SortingResponse.MESSAGE_PARAM_IS_NULL);
+            result.customMessage(SortingResponse.CODE_PACKAGE_CODE_OR_WAYBILL_CODE_IS_NULL, SortingResponse.MESSAGE_PACKAGE_CODE_OR_WAYBILL_CODE_IS_NULL);
             return result;
         }
         return waybillService.thirdCheckWaybillCancel(pdaOperateRequest);
+    }
+
+    /**
+     * 操作人所在部门类型为【企配仓】才会调此接口，返回三方运单号对应的京东包裹号
+     * 如果返回结果为空，则给出提示
+     *
+     * @param request
+     * @return
+     */
+    @POST
+    @Path("/waybill/getPackageCodeByThirdWaybill")
+    public InvokeResult<String> getPackageCodeByThirdWaybill(ThirdWaybillRequest request) {
+        InvokeResult<String> result = new InvokeResult<>();
+        result.success();
+
+        if (StringUtils.isBlank(request.getThirdWaybillCode())) {
+            result.parameterError("请输入三方运单号!");
+            return result;
+        }
+        String packageCode = eclpLwbB2bPackageItemService.findSellerPackageCode(request.getThirdWaybillCode());
+        if (StringUtils.isBlank(packageCode)) {
+            if (log.isWarnEnabled()) {
+                log.warn("获取三方单号的对应的京东包裹号为空. req:[{}]", JsonHelper.toJson(request));
+            }
+        }
+
+        result.setData(packageCode);
+        return result;
     }
 }

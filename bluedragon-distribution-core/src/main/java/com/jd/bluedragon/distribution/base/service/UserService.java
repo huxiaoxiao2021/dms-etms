@@ -42,16 +42,14 @@ public interface UserService {
 	public JdResult<LoginUserResponse> getLoginUser(LoginRequest request);
 
 	/**
-	 * 新登录接口，同时返回用户的站点和分拣中心
-	 *
-	 * @param request
-	 * @return
-	 */
-	LoginUserResponse clientLoginIn(LoginRequest request);
-	/**
 	 * 发送心跳信息
 	 * @param dmsClientHeartbeatRequest
 	 * @return
 	 */
 	JdResult<DmsClientHeartbeatResponse> sendHeartbeat(DmsClientHeartbeatRequest dmsClientHeartbeatRequest);
+	/**
+	 * 获取当前服务运行环境
+	 * @return
+	 */
+	String getServerRunningMode();
 }

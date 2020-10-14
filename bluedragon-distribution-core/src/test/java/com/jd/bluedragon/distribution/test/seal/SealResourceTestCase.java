@@ -52,16 +52,16 @@ public class SealResourceTestCase {
 
     @Test
     public void test_udpate_seal_box() {
-        String url = "http://10.10.224.118:20050/services/seal/box";
-
-        SealBoxRequest request = new SealBoxRequest();
-        request.setSealCode("1009");
-        request.setBoxCode("123456789N1S1");
-        request.setSiteCode(1001);
-        request.setUserCode(1002);
-        request.setUserName("777");
-
-        this.template.put(url, request);
+//        String url = "http://10.10.224.118:20050/services/seal/box";
+//
+//        SealBoxRequest request = new SealBoxRequest();
+//        request.setSealCode("1009");
+//        request.setBoxCode("123456789N1S1");
+//        request.setSiteCode(1001);
+//        request.setUserCode(1002);
+//        request.setUserName("777");
+//
+//        this.template.put(url, request);
     }
 
     public void test_udpate_seal_vehicle() {

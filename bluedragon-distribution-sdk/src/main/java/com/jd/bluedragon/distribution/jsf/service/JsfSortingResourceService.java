@@ -1,8 +1,5 @@
 package com.jd.bluedragon.distribution.jsf.service;
 
-import java.util.List;
-import java.util.Map;
-
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.domain.Rule;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
@@ -15,6 +12,9 @@ import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
 import com.jd.bluedragon.distribution.jsf.domain.MixedPackageConfigResponse;
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
+
+import java.util.List;
+import java.util.Map;
 
 public interface JsfSortingResourceService {
 	SortingJsfResponse check(SortingCheck sortingCheck);

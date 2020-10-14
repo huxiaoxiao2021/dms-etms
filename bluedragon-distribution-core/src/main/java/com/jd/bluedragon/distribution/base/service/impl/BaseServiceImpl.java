@@ -3,12 +3,13 @@ package com.jd.bluedragon.distribution.base.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.redis.TaskMode;
+import com.jd.bluedragon.distribution.api.request.LoginRequest;
+import com.jd.bluedragon.distribution.api.response.LoginUserResponse;
 import com.jd.bluedragon.distribution.base.dao.SysConfigDao;
 import com.jd.bluedragon.distribution.base.domain.BasePdaUserDto;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.base.domain.PdaStaff;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
-import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.base.service.*;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
 import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.bluedragon.distribution.reverse.domain.Product;
@@ -31,19 +32,20 @@ import com.jd.ql.basic.domain.Assort;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.domain.BaseResult;
-import com.jd.ql.basic.dto.*;
+import com.jd.ql.basic.dto.BaseGoodsPositionDto;
+import com.jd.ql.basic.dto.BaseSelfDDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.dto.BaseStoreInfoDto;
 import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
 import com.jd.ql.basic.proxy.BasicSecondaryWSProxy;
 import com.jd.ql.basic.ws.BasicMixedWS;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
 import com.jd.ssa.domain.UserInfo;
-import com.jd.tms.basic.dto.BasicVehicleDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +57,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 @Service("baseService")
-public class BaseServiceImpl implements BaseService {
+public class BaseServiceImpl extends AbstractClient implements BaseService, ErpValidateService {
 
 	/** 日志 */
 	private Logger log = LoggerFactory.getLogger(BaseServiceImpl.class);
@@ -95,70 +97,44 @@ public class BaseServiceImpl implements BaseService {
 	@Qualifier("basicSecondaryWSProxy")
 	private BasicSecondaryWSProxy basicSecondaryWSProxy;
 
-
     @Autowired
 	private UserVerifyManager userVerifyManager;
-    
+
     @Autowired
 	private VtsQueryWS vtsQueryWS;
 
 	@Autowired
-	private BasicQueryWSManager basicQueryWSManager;
+	@Qualifier("thirdValidateService")
+	private ErpValidateService thirdValidateService;
 
+	/**
+	 * @description: erp登录校验处理逻辑
+	 * @return: com.jd.bluedragon.distribution.base.domain.BasePdaUserDto
+	 * @author: lql
+	 * @date: 2020/8/20 13:23
+	 **/
     @Override
     public BasePdaUserDto pdaUserLogin(String userid, String password, ClientInfo clientInfo, Byte loginVersion) {
         BasePdaUserDto basePdaUserDto = new BasePdaUserDto();
-        if (log.isInfoEnabled()){
-            log.info("用户登录新接口，用户名 {}" , userid);
-        }
-
-        if (StringHelper.isEmpty(userid) || StringHelper.isEmpty(password)) {
-			basePdaUserDto.setErrorCode(Constants.PDA_USER_EMPTY);
-			basePdaUserDto.setMessage(Constants.PDA_USER_EMPTY_MSG);
-            return basePdaUserDto;
-        }
-
         try {
-            userid = userid.toLowerCase();
-            // 3PL登录
-            if (userid.contains(Constants.PDA_THIRDPL_TYPE)) {
-                String thirdUserId = userid.replaceAll(Constants.PDA_THIRDPL_TYPE, "");
-                // 京东用户组接口验证
-				BasePdaUserDto basePdaUserDtoNew = userVerifyManager.passportVerify(thirdUserId, password, clientInfo, loginVersion);
-				if (basePdaUserDtoNew.getErrorCode().equals(Constants.PDA_USER_GETINFO_SUCCESS)) {
-					// 用户组接口验证通过后，从基础资料获取具体信息
-					BaseStaffSiteOrgDto baseStaffDto = baseMajorManager.getThirdStaffByJdAccountNoCache(thirdUserId);
-					if (null == baseStaffDto) {
-						basePdaUserDto.setErrorCode(Constants.PDA_USER_GETINFO_FAILUE);
-						basePdaUserDto.setMessage(Constants.PDA_USER_GETINFO_FAILUE_MSG);
-					} else {
-						fillPdaUserDto(basePdaUserDto, baseStaffDto, password);
-					}
-				} else {
-					basePdaUserDto.setErrorCode(basePdaUserDtoNew.getErrorCode());
-					basePdaUserDto.setMessage(basePdaUserDtoNew.getMessage());
-				}
-                // 自营登录
-            } else {
-                // 调用人事接口验证用户
-                //User user = userVerifyManager.baseVerify(userid, password);
-            	//调用sso的SsoService验证用户
-				InvokeResult<UserInfo> result = userVerifyManager.baseVerify(userid, password, loginVersion);
-                if (result != null && result.getCode() != InvokeResult.RESULT_SUCCESS_CODE) {
-                    basePdaUserDto.setErrorCode(Constants.PDA_USER_LOGIN_FAILUE);
-                    basePdaUserDto.setMessage(result.getMessage());
-                // 人事接口验证通过，获取基础资料信息
-                } else {
+			// 调用人事接口验证用户
+			//User user = userVerifyManager.baseVerify(userid, password);
+			//调用sso的SsoService验证用户
+			InvokeResult<UserInfo> result = userVerifyManager.baseVerify(userid, password, loginVersion);
+			if (result != null && result.getCode() != InvokeResult.RESULT_SUCCESS_CODE) {
+				basePdaUserDto.setErrorCode(Constants.PDA_USER_LOGIN_FAILUE);
+				basePdaUserDto.setMessage(result.getMessage());
+			// 人事接口验证通过，获取基础资料信息
+			} else {
 //                    BaseStaffSiteOrgDto basestaffDto = baseMajorManager.getBaseStaffByStaffIdNoCache(Integer.parseInt(String.valueOf(user.getUserId())));
-                    BaseStaffSiteOrgDto basestaffDto = baseMajorManager.getBaseStaffByErpNoCache(userid);
-                    if (null == basestaffDto) {
-                        basePdaUserDto.setErrorCode(Constants.PDA_USER_GETINFO_FAILUE );
-                        basePdaUserDto.setMessage(Constants.PDA_USER_GETINFO_FAILUE_MSG);
-                    } else {
-                        fillPdaUserDto(basePdaUserDto, basestaffDto,password);
-                    }
-                }
-            }
+				BaseStaffSiteOrgDto basestaffDto = baseMajorManager.getBaseStaffByErpNoCache(userid);
+				if (null == basestaffDto) {
+					basePdaUserDto.setErrorCode(Constants.PDA_USER_GETINFO_FAILUE );
+					basePdaUserDto.setMessage(Constants.PDA_USER_GETINFO_FAILUE_MSG);
+				} else {
+					fillPdaUserDto(basePdaUserDto, basestaffDto,password);
+				}
+			}
         } catch (Exception e) {
             log.error("user login error {}" , userid, e);
 			basePdaUserDto.setErrorCode(Constants.PDA_USER_ABNORMAL);
@@ -166,100 +142,20 @@ public class BaseServiceImpl implements BaseService {
         }
         return basePdaUserDto;
     }
-
-    private void fillPdaUserDto(BasePdaUserDto basePdaUserDto, BaseStaffSiteOrgDto baseStaffDto, String password) {
-        basePdaUserDto.setSiteId(baseStaffDto.getSiteCode());
-        basePdaUserDto.setSiteName(baseStaffDto.getSiteName());
-        basePdaUserDto.setDmsCode(baseStaffDto.getDmsSiteCode());
-        basePdaUserDto.setLoginTime(new Date());
-        basePdaUserDto.setStaffId(baseStaffDto.getStaffNo());
-        basePdaUserDto.setPassword(password);
-        basePdaUserDto.setStaffName(baseStaffDto.getStaffName());
-        basePdaUserDto.setErrorCode(Constants.PDA_USER_GETINFO_SUCCESS);
-        basePdaUserDto.setMessage(Constants.PDA_USER_GETINFO_SUCCESS_MSG);
-        basePdaUserDto.setOrganizationId(baseStaffDto.getOrgId());
-        basePdaUserDto.setOrganizationName(baseStaffDto.getOrgName());
-        basePdaUserDto.setSiteType(baseStaffDto.getSiteType());
-        basePdaUserDto.setSubType(baseStaffDto.getSubType());
-    }
-
-    @Override
-	public PdaStaff login(String erpcode, String password, ClientInfo clientInfo, Byte loginVersion) {
-		// TODO Auto-generated method stub
-		/** 验证结果 */
-		PdaStaff result = new PdaStaff();
-		/** 调用基础信息接口查询PDA用户 */
-		// 测试接口代码 baseMinorServiceProxy.getServerDate() 取服务器时间
-		BasePdaUserDto pdadata = null;
-		try {
-			pdadata = pdaUserLogin(erpcode, password, clientInfo, loginVersion);
-		} catch (Exception e) {
-			log.error("调用baseMinorServiceProxy.pdaUserLogin接口出现异常！erpcode:{}",erpcode, e);
-		}
-		if(pdadata == null){
-            /** 返回空数据 */
-            // 设置错误标示和错误信息
-            result.setError(true);
-            result.setErrormsg("基础信息服务异常");
-            // 返回结果
-            return result;
-        }
-		/** 错误标示 */
-		Integer errorcode = pdadata.getErrorCode();
-		/** 根据返回的错误标示进行处理 */
-		switch (errorcode) {
-			case 1110: //无可用验证方式(命中风险检查)
-			case 1100: //需要验证(命中风险检查)
-			case 105: //ip在黑名单中
-			case 100://系统繁忙
-			case 14://账号已经注销
-			case 8://因安全原因账号被锁
-			case 7://未验证的企业用户
-			case 6://密码错误
-			case 3: //密码错误超过十次pin被锁
-			case 2://用户不存在
-			case 0: //获取基础资料数据失败
-			case -4: //用户名或密码为空
-			case -3://获取基础账号JSF数据失败
-			case -2://登录异常
-			case -1:
-				/** errorcode=-1表示验证失败 */
-				// 设置错误标示和错误信息
-				result.setError(true);
-				result.setErrormsg(pdadata.getMessage());
-				// 返回结果
-				return result;
-			case 1:
-				/** errorcode=1表示验证成功，返回用户ID和名称，分拣中心ID和名称 */
-				result.setError(false);
-				// 用户ID
-				result.setStaffId(pdadata.getStaffId());
-				// 用户名称
-				result.setStaffName(pdadata.getStaffName());
-				// 分拣中心ID
-				result.setSiteId(pdadata.getSiteId());
-				// 分拣中心名称
-				result.setSiteName(pdadata.getSiteName());
-				// 机构ID
-				result.setOrganizationId(pdadata.getOrganizationId());
-				// 机构名称
-				result.setOrganizationName(pdadata.getOrganizationName());
-				// DMS编码
-				result.setDmsCod(pdadata.getDmsCode());
-				// 站点类型
-                result.setSiteType(pdadata.getSiteType());
-                // 站点子类型
-                result.setSubType(pdadata.getSubType());
-				// 返回结果
-				return result;
-			default:
-				/** 未知状态 */
-				// 设置错误标示和错误信息
-				result.setError(true);
-				result.setErrormsg("调用服务出现未知状态.错误信息为[" + pdadata.getMessage() + "]");
-				// 返回结果集
-				return result;
-		}
+	protected void fillPdaUserDto(BasePdaUserDto basePdaUserDto, BaseStaffSiteOrgDto baseStaffDto, String password) {
+		basePdaUserDto.setSiteId(baseStaffDto.getSiteCode());
+		basePdaUserDto.setSiteName(baseStaffDto.getSiteName());
+		basePdaUserDto.setDmsCode(baseStaffDto.getDmsSiteCode());
+		basePdaUserDto.setLoginTime(new Date());
+		basePdaUserDto.setStaffId(baseStaffDto.getStaffNo());
+		basePdaUserDto.setPassword(password);
+		basePdaUserDto.setStaffName(baseStaffDto.getStaffName());
+		basePdaUserDto.setErrorCode(Constants.PDA_USER_GETINFO_SUCCESS);
+		basePdaUserDto.setMessage(Constants.PDA_USER_GETINFO_SUCCESS_MSG);
+		basePdaUserDto.setOrganizationId(baseStaffDto.getOrgId());
+		basePdaUserDto.setOrganizationName(baseStaffDto.getOrgName());
+		basePdaUserDto.setSiteType(baseStaffDto.getSiteType());
+		basePdaUserDto.setSubType(baseStaffDto.getSubType());
 	}
 
 	public List<SysConfig> queryConfigByKey(Map<String, Object> params) {
@@ -309,7 +205,7 @@ public class BaseServiceImpl implements BaseService {
 	}
 
 	@Override
-	@Cache(key = "basicMajorServiceProxy.getDmsBaseSiteAllByOrgId@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000, 
+	@Cache(key = "basicMajorServiceProxy.getDmsBaseSiteAllByOrgId@args0", memoryEnable = false, memoryExpiredTime = 5 * 60 * 1000,
 	redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
 	public BaseStaffSiteOrgDto[] querySiteByOrgID(Integer orgid) {
 		/** 查询所有站点的信息 */
@@ -400,6 +296,7 @@ public class BaseServiceImpl implements BaseService {
 
 
 	@Override
+	@JProfiler(jKey = "DMSWEB.BaseServiceImpl.getBaseDataDictListByDate", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
 	public BaseDataDict[] getBaseDataDictListByDate(List<Integer> typeGroups) {
 		/** 查询错误信息列表 */
 		try {
@@ -971,4 +868,19 @@ public class BaseServiceImpl implements BaseService {
 				.replace(Constants.SUFFIX_TRANSIT,"");
 	}
 
+
+	@Override
+	protected ErpValidateService setOwnErpValidateService() {
+		return this;
+	}
+
+	@Override
+	protected ErpValidateService setThirdErpValidateService() {
+		return thirdValidateService;
+	}
+
+	@Override
+	protected LoginClientService selectLoginClient() {
+		return this;
+	}
 }

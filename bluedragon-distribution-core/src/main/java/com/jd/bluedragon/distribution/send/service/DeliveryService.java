@@ -417,4 +417,18 @@ public interface DeliveryService {
      * @return
      */
     List<String> getWaybillCodesByBoxCodeAndFetchNum(String boxCode, Integer fetchNum);
+
+    /**
+     * 校验批次创建时间
+     * @param sendCode
+     * @return
+     */
+    boolean checkSendCodeIsOld(String sendCode);
+
+    /**
+     * 校验批次是否封车
+     * @param sendCode
+     * @return
+     */
+    boolean checkSendCodeIsSealed(String sendCode);
 }

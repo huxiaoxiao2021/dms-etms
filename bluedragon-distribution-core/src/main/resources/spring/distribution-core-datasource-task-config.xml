@@ -31,12 +31,13 @@
         <property name="url" value="${mysqlTaskDb.url}"/>
         <property name="username" value="${mysqlTaskDb.username}" />
         <property name="password" value="${mysqlTaskDb.password}" />
+        <property name="defaultTransactionIsolation" value="${mysqlTaskDb.isolationLevel}" />
     </bean>
-
+	<!-- 
     <bean id="mysqlTaskDataTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="taskDataSource" />
         <qualifier value="worker"></qualifier>
-    </bean>
+    </bean> -->
 
     <bean id="workerSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="dataSource" ref="taskDataSource" />

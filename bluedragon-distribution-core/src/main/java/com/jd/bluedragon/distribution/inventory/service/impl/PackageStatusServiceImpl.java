@@ -9,10 +9,10 @@ import com.jd.bluedragon.distribution.inventory.domain.PackStatusEnum;
 import com.jd.bluedragon.distribution.inventory.domain.PackageStatus;
 import com.jd.bluedragon.distribution.inventory.domain.SiteWithDirection;
 import com.jd.bluedragon.distribution.inventory.service.PackageStatusService;
-import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -43,9 +43,6 @@ public class PackageStatusServiceImpl implements PackageStatusService {
     private SendDetailService sendDetailService;
 
     @Autowired
-    private JsfSortingResourceService jsfSortingResourceService;
-
-    @Autowired
     private WaybillQueryManager waybillQueryManager;
 
     @Autowired
@@ -54,6 +51,9 @@ public class PackageStatusServiceImpl implements PackageStatusService {
     @Autowired
     @Qualifier("dmsPackageStatusMQProducer")
     private DefaultJMQProducer dmsPackageStatusMQProducer;
+
+    @Autowired
+    private WaybillCacheService waybillCacheService;
 
     /**
      * 运单路由字段使用的分隔符
@@ -316,7 +316,7 @@ public class PackageStatusServiceImpl implements PackageStatusService {
 
         //2.查自己的表
         if (receiveSiteCode == null || receiveSiteCode.equals(0)) {
-            String routerStr = jsfSortingResourceService.getRouterByWaybillCode(waybillCode);
+            String routerStr = waybillCacheService.getRouterByWaybillCode(waybillCode);
             if (StringUtils.isNotBlank(routerStr)) {
                 String[] routerNodes = routerStr.split(WAYBILL_ROUTER_SPLITER);
                 //当前分拣中心下一网点

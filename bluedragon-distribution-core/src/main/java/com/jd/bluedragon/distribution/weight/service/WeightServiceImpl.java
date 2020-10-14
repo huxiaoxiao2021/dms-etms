@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.weight.service;
 import com.google.gson.reflect.TypeToken;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.domain.WeightOperFlow;
@@ -10,6 +11,7 @@ import com.jd.bluedragon.distribution.api.response.WeightResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
 
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
@@ -24,9 +26,11 @@ import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.fastjson.JSONObject;
 import com.jd.jmq.common.exception.JMQException;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheKeyGenerator;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.type.JavaType;
 import org.slf4j.Logger;
@@ -50,6 +54,7 @@ public class WeightServiceImpl implements WeightService {
      * 存放待上传重量的json数据
      */
     private static final String KEY_JSON_FOR_UPLOAD_WEIGHT = "weightJsonData";
+    private static final String KEY_JSON_FOR_UPLOAD_WEIGHT_ENTITY = "weightEntity";
     /**
      * 存保存的数据对象
      */
@@ -75,6 +80,12 @@ public class WeightServiceImpl implements WeightService {
     @Autowired
     private LogEngine logEngine;
 
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+
+    private static final int OPE_TYPE_SORTING = 1;
+
+    private static final int OPE_TYPE_NOT_SORTING = 2;
 
     private static final Type WAYBILL_WEIGHT=new TypeToken<List<OpeEntity>>(){}.getType();
 
@@ -108,9 +119,31 @@ public class WeightServiceImpl implements WeightService {
             	log.warn("doWeightTrack-fail:{}消息体：{}",weightInfo.getMessage(),taskBody);
             	return false;
             }
-            Map<String, Object> map = waybillPackageManager.uploadOpe(weightJsonData.substring(1, weightJsonData.length() - 1));
-            goddess.setHead(MessageFormat.format("提交称重至运单:结果{0}", JsonHelper.toJson(map)));
             this.sendMQ(weightJsonData);
+            // 增加opeType设置，单独处理传给运单逻辑
+            OpeEntity opeEntity = (OpeEntity) weightInfo.getData().get(KEY_JSON_FOR_UPLOAD_WEIGHT_ENTITY);
+            List<OpeEntity> opeEntityList = this.handleMultiUserOpeEntity(opeEntity);
+            List<Map<String, Object>> goddessHeadList = new ArrayList<>();
+            for (OpeEntity opeEntityTemp : opeEntityList){
+                log.info("WeightServiceImpl.doWeightTrack uploadOpe param: " + JsonHelper.toJson(opeEntityTemp));
+                Map<String, Object> waybillResultMap = waybillPackageManager.uploadOpe(JsonHelper.toJson(opeEntityTemp));
+                goddessHeadList.add(waybillResultMap);
+                if (waybillResultMap != null && waybillResultMap.containsKey("code") && WeightResponse.WEIGHT_TRACK_OK == Integer.parseInt(waybillResultMap.get("code").toString())) {
+                    if(log.isInfoEnabled()){
+                        this.log.info("向运单系统回传包裹称重信息：{}", taskBody);
+                        this.log.info("向运单系统回传包裹称重信息成功：{}" , JsonHelper.toJson(waybillResultMap));
+                    }
+                    return true;
+                } else {
+                    this.log.info("向运单系统回传包裹称重信息：{}", taskBody);
+                    this.log.warn("向运单系统回传包裹称重信息失败： {}", JsonHelper.toJson(waybillResultMap));
+                    return false;
+                }
+            }
+            goddess.setHead(MessageFormat.format("提交称重至运单:结果{0}", JsonHelper.toJson(goddessHeadList)));
+
+            /* Map<String, Object> map = waybillPackageManager.uploadOpe(weightJsonData.substring(1, weightJsonData.length() - 1));
+            // goddess.setHead(MessageFormat.format("提交称重至运单:结果{0}", JsonHelper.toJson(map)));
 
             if (map != null && map.containsKey("code") && WeightResponse.WEIGHT_TRACK_OK == Integer.parseInt(map.get("code").toString())) {
                 if(log.isInfoEnabled()){
@@ -122,7 +155,7 @@ public class WeightServiceImpl implements WeightService {
                 this.log.info("向运单系统回传包裹称重信息：{}", taskBody);
                 this.log.warn("向运单系统回传包裹称重信息失败： {}", JsonHelper.toJson(map));
                 return false;
-            }
+            }*/
         } catch (Exception e) {
             this.log.info("向运单系统回传包裹称重信息：{}" , taskBody);
             this.log.error("处理称重回传任务发生异常，异常信息为：", e);
@@ -253,6 +286,7 @@ public class WeightServiceImpl implements WeightService {
                 if(newOpeDetails.size()>0){
                 	opeEntity.setOpeDetails(newOpeDetails);
                 	mapData.put(KEY_JSON_FOR_UPLOAD_WEIGHT, JsonHelper.toJson(opeEntities));
+                	mapData.put(KEY_JSON_FOR_UPLOAD_WEIGHT_ENTITY, opeEntity);
                 	mapData.put(KEY_LIST_WEIGHT_OBJECT_FOR_SAVE, weightFlowList);
                 }
             }
@@ -262,6 +296,64 @@ public class WeightServiceImpl implements WeightService {
         }
         return result;
     }
+
+    private List<OpeEntity> handleMultiUserOpeEntity(OpeEntity opeEntity){
+        List<OpeObject> opeDetails = opeEntity.getOpeDetails();
+        // 得到按人分组的detail列表
+        Map<Integer, List<OpeObject>> opeDetailsGBUserId = new HashMap<>();
+        for (OpeObject opeDetail : opeDetails) {
+            List<OpeObject> detailListExist = opeDetailsGBUserId.get(opeDetail.getOpeUserId());
+            if(detailListExist != null){
+                detailListExist.add(opeDetail);
+            }
+            else {
+                detailListExist = new ArrayList<>();
+                detailListExist.add(opeDetail);
+                opeDetailsGBUserId.put(opeDetail.getOpeUserId(), detailListExist);
+            }
+        }
+        List<OpeObject> opeDetailsSiteType1List = new ArrayList<>();
+        List<OpeObject> opeDetailsSiteType2List = new ArrayList<>();
+        List<OpeEntity> opeEntityList = new ArrayList<>();
+        // 按人分组查询所属站点类型，合并相同类型opeType的数据
+        for (Integer opeUserId : opeDetailsGBUserId.keySet()){
+            int packOpeSiteType = this.getPackOpeSiteType(opeUserId);
+            if(packOpeSiteType == OPE_TYPE_SORTING){
+                opeDetailsSiteType1List.addAll(opeDetailsGBUserId.get(opeUserId));
+            }
+            if(packOpeSiteType == OPE_TYPE_NOT_SORTING){
+                opeDetailsSiteType2List.addAll(opeDetailsGBUserId.get(opeUserId));
+            }
+        }
+        // 生成两个类型的entity
+        if(CollectionUtils.isNotEmpty(opeDetailsSiteType1List)){
+            OpeEntity opeEntitySiteType1 = new OpeEntity();
+            opeEntitySiteType1.setOpeType(OPE_TYPE_SORTING);
+            opeEntitySiteType1.setOpeDetails(opeDetailsSiteType1List);
+            opeEntitySiteType1.setWaybillCode(opeEntity.getWaybillCode());
+            opeEntityList.add(opeEntitySiteType1);
+        }
+
+        if(CollectionUtils.isNotEmpty(opeDetailsSiteType2List)){
+            OpeEntity opeEntitySiteType2 = new OpeEntity();
+            opeEntitySiteType2.setOpeType(OPE_TYPE_NOT_SORTING);
+            opeEntitySiteType2.setOpeDetails(opeDetailsSiteType2List);
+            opeEntitySiteType2.setWaybillCode(opeEntity.getWaybillCode());
+            opeEntityList.add(opeEntitySiteType2);
+        }
+
+        return opeEntityList;
+    }
+
+    private int getPackOpeSiteType(Integer opeUserId){
+        BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByStaffId(opeUserId);
+        // 线上【青龙基础资料】-【数据字典】-【部门类型】
+        if (baseStaffByErp != null && !BusinessUtil.isSortingSiteType(baseStaffByErp.getSiteType())) {
+            return OPE_TYPE_NOT_SORTING;
+        }
+        return OPE_TYPE_SORTING;
+    }
+
     /**
      * 根据字符串类型日期转换为时间戳
      * @param dateStr

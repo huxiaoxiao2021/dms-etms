@@ -20,6 +20,9 @@
 		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="update_user" property="updateUser" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="source" property="source" javaType="java.lang.Integer" jdbcType="TIMESTAMP" />
+		<result column="putaway_complete_time" property="putAwayCompleteTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="downaway_complete_time" property="downAwayCompleteTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
 		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 	</resultMap>
@@ -27,7 +30,7 @@
 	<sql id="Base_Column_List" >
 		id,performance_code,storage_code,waybill_code,package_sum,putaway_package_sum,
 		status,force_send_reason,plan_delivery_time,create_site_code,create_site_name,send_time,putaway_time,
-		create_user,create_time,update_user,update_time,is_delete,
+		create_user,create_time,update_user,update_time,source,putaway_complete_time,downaway_complete_time,is_delete,
 		ts
 	</sql>
 
@@ -72,6 +75,15 @@
 				<if test="sendTime != null">
 					send_time,
 				</if>
+                <if test="source != null">
+                    source,
+                </if>
+                <if test="putAwayCompleteTime != null">
+                    putaway_complete_time,
+                </if>
+                <if test="downAwayCompleteTime != null">
+                    downaway_complete_time,
+                </if>
 
 					create_user,
 
@@ -127,6 +139,15 @@
 				<if test="sendTime != null">
 					#{sendTime,jdbcType=TIMESTAMP},
 				</if>
+                <if test="source != null">
+                    #{source,jdbcType=BIGINT},
+                </if>
+                <if test="putAwayCompleteTime != null">
+                    #{putAwayCompleteTime,jdbcType=TIMESTAMP},
+                </if>
+                <if test="downAwayCompleteTime != null">
+                    #{downAwayCompleteTime,jdbcType=TIMESTAMP},
+                </if>
 
 				#{createUser,jdbcType=VARCHAR},
 
@@ -146,7 +167,7 @@
 			(
 				performance_code,storage_code,waybill_code,package_sum,
 				putaway_package_sum,status,force_send_reason,plan_delivery_time,create_site_code,create_site_name,putaway_time,
-				send_time,create_user,create_time,update_user,update_time,
+				send_time,create_user,create_time,update_user,update_time,source,putaway_complete_time,downaway_complete_time,
 				is_delete,ts
 			)
 			values
@@ -168,6 +189,9 @@
 					#{item.createTime,jdbcType=TIMESTAMP},
 					#{item.updateUser,jdbcType=VARCHAR},
 					#{item.updateTime,jdbcType=TIMESTAMP},
+                    #{item.source,jdbcType=INTEGER},
+                    #{item.putAwayCompleteTime,jdbcType=TIMESTAMP},
+                    #{item.downAwayCompleteTime,jdbcType=TIMESTAMP},
 					#{item.isDelete,jdbcType=TINYINT},
 					#{item.ts,jdbcType=TIMESTAMP}
 				)
@@ -225,6 +249,15 @@
 				<if test="updateTime != null">
 					update_time = #{updateTime,jdbcType=TIMESTAMP},
 				</if>
+                <if test="source != null">
+                    source = #{source,jdbcType=BIGINT},
+                </if>
+                <if test="putAwayCompleteTime != null">
+                    putaway_complete_time = #{putAwayCompleteTime,jdbcType=TIMESTAMP},
+                </if>
+                <if test="downAwayCompleteTime != null">
+                    downaway_complete_time = #{downAwayCompleteTime,jdbcType=TIMESTAMP},
+                </if>
 				<if test="isDelete != null">
 					is_delete = #{isDelete,jdbcType=TINYINT},
 				</if>
@@ -296,6 +329,15 @@
 		<if test="putawayDateGE == null and putawayDateLE !=null">
 			and  <![CDATA[   update_time <= #{putawayDateLE}  ]]>
 		</if>
+        <if test="planDeliveryTimeGE != null and planDeliveryTimeLE !=null">
+            and plan_delivery_time BETWEEN #{planDeliveryTimeGE} and #{planDeliveryTimeLE}
+        </if>
+        <if test="planDeliveryTimeGE != null and planDeliveryTimeLE ==null">
+            and  <![CDATA[   plan_delivery_time >= #{planDeliveryTimeGE}  ]]>
+        </if>
+        <if test="planDeliveryTimeGE == null and planDeliveryTimeLE !=null">
+            and  <![CDATA[   plan_delivery_time <= #{planDeliveryTimeLE}  ]]>
+        </if>
 
 		<if test="performanceCode != null">
 			and performance_code = #{performanceCode,jdbcType=VARCHAR}
@@ -340,6 +382,18 @@
 		limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
 	</select>
 
+    <select id="queryExportByCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="StoragePackageM">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        storage_package_m
+        where 1=1
+        <include refid="Query_Params_Condition_Sql"/>
+
+        <include refid="Base_Condition_Sql"/>
+        limit 5000
+    </select>
+
 	<select id="queryByWaybillCode" parameterType="String" resultMap="StoragePackageM">
 		select
 		<include refid="Base_Column_List"/>
@@ -365,11 +419,37 @@
 		SET putaway_package_sum = putaway_package_sum + 1,
 		storage_code = #{storageCode},
 		putaway_time = #{putawayTime},
+        <if test="putAwayCompleteTime != null">
+            putaway_complete_time = #{putAwayCompleteTime},
+        </if>
 		update_user = #{updateUser},
 		update_time = now()
 		WHERE  waybill_code = #{waybillCode}
 		<include refid="Base_Condition_Sql"/>
 	</update>
+
+    <update id="updateKYStorageCode" parameterType="com.jd.bluedragon.distribution.storage.domain.StoragePackageM">
+        UPDATE storage_package_m
+        SET storage_code = #{storageCode},
+        <if test="putawayPackageSum != null">
+            putaway_package_sum = #{putawayPackageSum},
+        </if>
+        <if test="putAwayCompleteTime != null">
+            putaway_complete_time = #{putAwayCompleteTime},
+        </if>
+        putaway_time = #{putawayTime},
+        update_user = #{updateUser},
+        update_time = now()
+        WHERE  waybill_code = #{waybillCode}
+        <include refid="Base_Condition_Sql"/>
+    </update>
+
+    <update id="updateDownAwayTimeByWaybillCode" parameterType="String">
+        UPDATE storage_package_m
+        SET downaway_complete_time = now()
+        WHERE  waybill_code = #{waybillCode}
+        <include refid="Base_Condition_Sql"/>
+    </update>
 
 	<update id="updateStoragePackageMStatusForSendOfWaybill" parameterType="String">
 		UPDATE storage_package_m

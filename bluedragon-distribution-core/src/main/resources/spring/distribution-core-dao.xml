@@ -514,6 +514,9 @@
     <bean id="reviewWeightSpotCheckDao" class="com.jd.bluedragon.distribution.weightAndVolumeCheck.dao.ReviewWeightSpotCheckDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
+    <bean id="boxLimitDao" class="com.jd.bluedragon.distribution.boxlimit.dao.BoxLimitConfigDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
 
     <!-- 清场 -->
     <bean id="inventoryTaskDao" parent="unDivBaseDao"
@@ -593,7 +596,20 @@
     <bean id="waybillCodeCheckDao" class="com.jd.bluedragon.distribution.financialForKA.dao.WaybillCodeCheckDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
+    <bean id="exportLogDao" class="com.jd.bluedragon.distribution.exportlog.dao.ExportLogDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
 
+    <!-- 装卸车业务表 -->
+    <bean id="unloadCarDao" class="com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+    <bean id="unloadCarDistributionDao" class="com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDistributionDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+    <bean id="unloadCarTransBoardDao" class="com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarTransBoardDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
 
     <!--  businessCode 业务单号表  -->
     <bean id="businessCodeDao" class="com.jd.bluedragon.distribution.businessCode.dao.BusinessCodeDao">
@@ -621,6 +637,22 @@
           class="com.jd.bluedragon.distribution.material.dao.impl.MaterialSendFlowDaoImpl" />
           
     <bean id="dmsScheduleInfoDao" parent="businessBaseDao"
-          class="com.jd.bluedragon.distribution.schedule.dao.impl.DmsScheduleInfoDaoImpl" />          
+          class="com.jd.bluedragon.distribution.schedule.dao.impl.DmsScheduleInfoDaoImpl" />
+    <bean id="businessReturnAdressDao" parent="businessBaseDao"
+          class="com.jd.bluedragon.distribution.business.dao.impl.BusinessReturnAdressDaoImpl" />                    
     <!--################################## bd_dms_business 相关DAO End ############################################ -->
+
+
+    <!--################################## 总部waybill库 相关DAO Start ############################################ -->
+
+    <bean id="waybillCacheDao" class="com.jd.bluedragon.distribution.waybill.dao.WaybillCacheDao">
+        <property name="sqlSession" ref = "sessionTemplate_waybill"/>
+    </bean>
+
+    <!-- 包裹重量体积流水 -->
+    <bean id="packageWeightingDao" class="com.jd.bluedragon.distribution.packageWeighting.dao.PackageWeightingDao">
+        <property name="sqlSession" ref = "sessionTemplate_waybill"/>
+    </bean>
+    <!--################################## bd_dms_business 相关DAO End ############################################ -->
+
 </beans>
