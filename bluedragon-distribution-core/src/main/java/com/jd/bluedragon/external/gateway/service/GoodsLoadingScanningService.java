@@ -56,12 +56,7 @@ public interface GoodsLoadingScanningService {
     /**
      * 批次号/板号/包裹号校验接口--发货校验
      */
-    JdCResponse checkBySendCodeOrBoardcodeOrPackageBarcode(GoodsLoadingScanningReq req);
-
-    /**
-     * 包裹明细暂存接口
-     */
-    JdCResponse saveForLoadingScanGoodsDetail(GoodsLoadingScanningReq req);
+    JdCResponse checkByBatchCodeOrBoardCodeOrPackageCode(GoodsLoadingScanningReq req);
 
 
 }
