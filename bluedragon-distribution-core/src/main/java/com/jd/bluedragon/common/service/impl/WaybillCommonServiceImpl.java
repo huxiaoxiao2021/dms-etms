@@ -823,7 +823,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         		target.setBcSign(TextConstants.PECIAL_B_MARK);
         	}
         }
-
+        //SendPay第297位等于1或2时，为预售订单， 面单打印【预】字
+        if(BusinessUtil.isPreSell(waybill.getSendPay())){
+        	target.setBcSign(TextConstants.PRE_SELL_FLAG);
+        }
         /* waybill_sign标识位，第七十九位为2，打提字标
            标位变更 ：2020-4-29
            详细见方法释义
