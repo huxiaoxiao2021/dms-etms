@@ -56,6 +56,7 @@
         <property name="systemLogGlobalSwitch" value="${systemLogGlobalSwitch}" />
 		<property name="weightVolumeFilterWholeCountryFlag" value="${weightVolumeFilterWholeCountryFlag}" />
 		<property name="singleSendSwitchVerToWebSites" value="${singleSendSwitchVerToWebSites}" />
+        <property name="clickIntervalSecond" value="${clickIntervalSecond}" />
 		<property name="boardCombinationSwitchVerToWebSites" value="${boardCombinationSwitchVerToWebSites}" />
 	</bean>
 
@@ -96,6 +97,7 @@
                 <value>uccPropertyConfiguration.systemLogGlobalSwitch</value>
 				<value>uccPropertyConfiguration.weightVolumeFilterWholeCountryFlag</value>
 				<value>uccPropertyConfiguration.singleSendSwitchVerToWebSites</value>
+                <value>uccPropertyConfiguration.clickIntervalSecond</value>
 				<value>uccPropertyConfiguration.boardCombinationSwitchVerToWebSites</value>
 			</list>
 		</property>

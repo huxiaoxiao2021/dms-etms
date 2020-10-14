@@ -184,7 +184,11 @@ $(function () {
                     if (res && !res.succeed) {
                         alert(res.message);
                     }else{
-                        refreshTable();
+                        let clickStrict = ClickFrequencyUtil.controlClick($('#query-form'), $('#btn_query'));
+                        if (!clickStrict) {
+
+                            refreshTable();
+                        }
                     }
                 });
             });

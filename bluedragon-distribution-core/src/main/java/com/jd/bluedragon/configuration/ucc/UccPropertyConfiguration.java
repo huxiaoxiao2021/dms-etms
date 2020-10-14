@@ -133,6 +133,11 @@ public class UccPropertyConfiguration {
     private String collectGoodsDeleteSites;
 
     /**
+     * 按钮点击间隔(秒)，配置为-1则关闭控制
+     */
+    private int clickIntervalSecond;
+
+    /**
      * 验货运单多包裹拆分任务生效的分拣中心
      */
     private String inspectionBigWaybillEffectiveSites;
@@ -403,6 +408,14 @@ public class UccPropertyConfiguration {
 
     public void setSingleSendSwitchVerToWebSites(String singleSendSwitchVerToWebSites) {
         this.singleSendSwitchVerToWebSites = singleSendSwitchVerToWebSites;
+    }
+
+    public int getClickIntervalSecond() {
+        return clickIntervalSecond;
+    }
+
+    public void setClickIntervalSecond(int clickIntervalSecond) {
+        this.clickIntervalSecond = clickIntervalSecond;
     }
 
     public String getBoardCombinationSwitchVerToWebSites() {

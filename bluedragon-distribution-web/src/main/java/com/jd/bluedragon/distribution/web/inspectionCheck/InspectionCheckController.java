@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.web.inspectionCheck;
 
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
@@ -10,6 +11,8 @@ import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import com.jd.uim.annotation.Authorization;
 import org.slf4j.Logger;
@@ -48,6 +51,7 @@ public class InspectionCheckController extends DmsBaseController {
     @Authorization()
     @RequestMapping("/listData")
     @ResponseBody
+    @JProfiler(jKey = "com.jd.bluedragon.distribution.web.InspectionCheckController.listData", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
     public PagerResult<InsepctionCheckDto> listData(@RequestBody InspectionCheckCondition condition){
 
         LoginUser user = getLoginUser();
