@@ -105,6 +105,12 @@ public class UccPropertyConfiguration {
     private boolean disablePdaOldLogin;
 
     /**
+     * 客户端打印清单查询时间间隔
+     * @return
+     */
+    private int clientPrintQueryGapTime;
+
+    /**
      * 开启集包地场地开关
      *  例：910,39 （-1代表全国）
      */
@@ -331,6 +337,14 @@ public class UccPropertyConfiguration {
 
     public void setBoxLimitSites(String boxLimitSites) {
         this.boxLimitSites = boxLimitSites;
+    }
+
+    public int getClientPrintQueryGapTime() {
+        return clientPrintQueryGapTime;
+    }
+
+    public void setClientPrintQueryGapTime(int clientPrintQueryGapTime) {
+        this.clientPrintQueryGapTime = clientPrintQueryGapTime;
     }
 
     public String getCollectGoodsDeleteSites() {
