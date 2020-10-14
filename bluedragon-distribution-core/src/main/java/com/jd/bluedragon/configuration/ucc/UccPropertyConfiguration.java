@@ -122,6 +122,11 @@ public class UccPropertyConfiguration {
      */
     private String collectGoodsDeleteSites;
 
+    /**
+     * 按钮点击间隔(秒)，配置为-1则关闭控制
+     */
+    private int clickIntervalSecond;
+
 
     private String singleSendSwitchVerToWebSites;
 
@@ -355,5 +360,13 @@ public class UccPropertyConfiguration {
 
     public void setSingleSendSwitchVerToWebSites(String singleSendSwitchVerToWebSites) {
         this.singleSendSwitchVerToWebSites = singleSendSwitchVerToWebSites;
+    }
+
+    public int getClickIntervalSecond() {
+        return clickIntervalSecond;
+    }
+
+    public void setClickIntervalSecond(int clickIntervalSecond) {
+        this.clickIntervalSecond = clickIntervalSecond;
     }
 }
