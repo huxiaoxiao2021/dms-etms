@@ -26,7 +26,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
     }
 
     @Override
-    public JdCResponse goodsLoading(GoodsLoadingReq req) {
+    public JdCResponse goodsLoadingDeliver(GoodsLoadingReq req) {
         return null;
     }
 
@@ -42,11 +42,6 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
 
     @Override
     public JdCResponse saveForLoadingScanGoodsDetail(GoodsLoadingReq req) {
-        return null;
-    }
-
-    @Override
-    public JdCResponse checkLoadingScanComplete(GoodsLoadingReq req) {
         return null;
     }
 

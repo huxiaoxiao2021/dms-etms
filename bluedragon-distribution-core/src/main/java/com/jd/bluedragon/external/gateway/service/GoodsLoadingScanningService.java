@@ -44,7 +44,7 @@ public interface GoodsLoadingScanningService {
      * @return
      * @Author zhengchengfa
      */
-    JdCResponse goodsLoading(GoodsLoadingReq req);
+    JdCResponse goodsLoadingDeliver(GoodsLoadingReq req);
 
 
     /**
@@ -62,9 +62,5 @@ public interface GoodsLoadingScanningService {
      */
     JdCResponse saveForLoadingScanGoodsDetail(GoodsLoadingReq req);
 
-    /**
-     * 装车完成接口--不齐校验
-     */
-    JdCResponse checkLoadingScanComplete(GoodsLoadingReq req);
 
 }
