@@ -9,6 +9,10 @@
 <SCRIPT type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></SCRIPT>
 <script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
 <script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+<script type="text/javascript" src="#springUrl('/static/js/jd/jd.js')"></script>
+<script type="text/javascript" src="#springUrl('/static/js/common/plugin-helper.js')"></script>
+<script type="text/javascript" src="#springUrl('/static/js/jquery-plugins/jquery.md5.js')"></script>
+<script type="text/javascript" src="#springUrl('/static/js/utils/clickFrequency.js')"></script>
 </head>
 
 <script type="text/javascript">
@@ -114,7 +118,12 @@ $(document).ready(function() {
 		$("#pageNo").val("");
 		$("#selectPopList").attr("action", '#springUrl("/popReceiveAbnormal/list")');
 		$("#selectPopList").attr("method", "GET");
-		$("#selectPopList").submit();
+
+        let clickStrict = ClickFrequencyUtil.controlClick($('#selectPopList'), $('#search'))
+        if (!clickStrict) {
+
+            $("#selectPopList").submit();
+        }
 	});
 	// 进入反馈页面
 	$("#insertPop").click(function() {

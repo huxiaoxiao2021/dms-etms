@@ -332,7 +332,10 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             Collections.sort(detailScanList, new Comparator<UnloadCarDetailScanResult>() {
                 @Override
                 public int compare(UnloadCarDetailScanResult o1, UnloadCarDetailScanResult o2) {
-                    if (o1.getPackageUnScanCount() == 0 || o2.getPackageUnScanCount() == 0) {
+                    if (o1.getPackageUnScanCount() == null
+                    		||o1.getPackageUnScanCount() == 0
+                    		||o2.getPackageUnScanCount() == null
+                    		||o2.getPackageUnScanCount() == 0) {
                         return -1;
                     }
                     return o1.getPackageUnScanCount() - o2.getPackageUnScanCount();

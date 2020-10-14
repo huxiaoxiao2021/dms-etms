@@ -13,7 +13,9 @@ import com.jd.bluedragon.distribution.api.response.DmsWaybillInfoResponse;
 import com.jd.bluedragon.distribution.api.response.OrderPackage;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.base.domain.BlockResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
@@ -50,7 +52,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -525,6 +529,190 @@ public class WaybillServiceImpl implements WaybillService {
             log.error("运单{}获取增值服务信息异常！", waybillCode, e);
         }
         return false;
+    }
+
+    /**
+     * 1.从本地分拣中心获取WaybillCancel数据
+     * 2.如果Waybillcancel为null,直接返回OK
+     * 3.如果不为null,则从订单中间件获取Order数据
+     * 4.结合WaybillCancel.featureType和Order的数据,联合判断
+     * 4.1.订单取消和订单删除,这两种情况,订单中间件对应的字段是yn,且yn = 0,而featureType分别是-1和-2
+     * 4.2.订单锁定,这种情况,订单中间件对应的字段是state (注意不是state2),且state > 100, 而featureType = -3
+     * 4.3.退款100分订单和订单拦截,这两种情况,不用加订单中间件校验 (订单拦截是外单业务范畴)
+     *
+     * @param waybillCode
+     * @return
+     */
+    @Override
+    public JdCancelWaybillResponse dealCancelWaybill(String waybillCode) {
+        JdCancelWaybillResponse response = new JdCancelWaybillResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+        CancelWaybill cancelWaybill = this.getCancelWaybillByWaybillCode(waybillCode);
+        if (cancelWaybill == null) {
+            return response;
+        }
+
+        Integer featureType = cancelWaybill.getFeatureType();
+        Integer interceptType = cancelWaybill.getInterceptType();
+
+        if (interceptType != null) {
+            // 走新逻辑
+            InvokeResult<Boolean> invokeResult = this.getResponseByInterceptType(interceptType, cancelWaybill.getInterceptMode());
+            response.setCode(invokeResult.getCode());
+            response.setMessage(invokeResult.getMessage());
+        } else {
+            //走旧逻辑
+            response = this.getResponseByFeatureType(featureType);
+        }
+        response.setFeatureType(featureType);
+        response.setInterceptType(interceptType);
+        return response;
+    }
+
+    @Override
+    public JdCancelWaybillResponse dealCancelWaybill(PdaOperateRequest pdaOperate) {
+        String waybillCode = WaybillUtil.getWaybillCode(pdaOperate.getPackageCode());
+
+        JdCancelWaybillResponse jdResponse = dealCancelWaybill(waybillCode);
+        if (!jdResponse.getCode().equals(JdResponse.CODE_OK)) {
+            this.pushSortingInterceptByFeatureType(pdaOperate, jdResponse.getFeatureType());
+        }
+        return jdResponse;
+    }
+
+    @Override
+    public BlockResponse checkWaybillBlock(String waybillCode, Integer featureType) {
+        BlockResponse cancelResponse = new BlockResponse();
+        //参数错误
+        if (featureType == null) {
+            cancelResponse.setMessage("入参的业务类型featureType不能为空");
+            cancelResponse.setCode(BlockResponse.ERROR_PARAM);
+            log.error(MessageFormat.format("按运单号{0}查询拦截,featureType为空", waybillCode));
+            return cancelResponse;
+        }
+        //参数错误
+        if (StringUtils.isBlank(waybillCode) || !WaybillUtil.isWaybillCode(waybillCode)) {
+            cancelResponse.setMessage("运单号为空或格式非法");
+            cancelResponse.setCode(BlockResponse.ERROR_PARAM);
+            log.error(MessageFormat.format("按包裹号{0}查询拦截,waybillCode为空或格式非法", waybillCode));
+            return cancelResponse;
+        }
+        CancelWaybill cancelWaybill = cancelWaybillDao.findWaybillCancelByCodeAndFeatureType(waybillCode, featureType);
+        //无需拦截
+        if (cancelWaybill == null) {
+            cancelResponse.setMessage("没有拦截记录无需拦截");
+            cancelResponse.setCode(BlockResponse.NO_NEED_BLOCK);
+            log.info(MessageFormat.format("根据运单号：{0}未查到拦截记录", waybillCode));
+            return cancelResponse;
+        }
+        //有拦截 锁定状态
+        if (CancelWaybill.BUSINESS_TYPE_LOCK.equals(cancelWaybill.getBusinessType())) {
+            //如果是包裹维度也需要拦截的业务类型
+            if (CancelWaybill.FEATURE_TYPES_NEED_PACKAGE_DEAL.contains(featureType)) {
+                log.info(MessageFormat.format("运单{0}拦截未完成，有包裹未处理。", waybillCode));
+                List<CancelWaybill> cancelWaybills = cancelWaybillDao.findPackageCodesByFeatureTypeAndWaybillCode(
+                        waybillCode, featureType, CancelWaybill.BUSINESS_TYPE_LOCK, CancelWaybill.BLOCK_PACKAGE_QUERY_NUMBER);
+                List<String> packageCodes = getPackageCodes(cancelWaybills);
+                Long PackageCount = cancelWaybillDao.findPackageCodeCountByFeatureTypeAndWaybillCode(waybillCode,
+                        featureType, CancelWaybill.BUSINESS_TYPE_LOCK);
+                cancelResponse.setBlockPackageCount(PackageCount);
+                cancelResponse.setBlockPackages(packageCodes);
+            }
+            cancelResponse.setMessage("该运单拦截待处理");
+            cancelResponse.setCode(BlockResponse.BLOCK);
+            log.info(MessageFormat.format("根据运单号：{0}查询到该包裹未拦截状态", waybillCode));
+            return cancelResponse;
+        }
+        //有拦截 解锁状态
+        cancelResponse.setMessage("该运单拦截已解除");
+        cancelResponse.setCode(BlockResponse.UNBLOCK);
+        log.info(MessageFormat.format("根据包裹号：{0}该包裹拦截已解除", waybillCode));
+        return cancelResponse;
+    }
+
+    @Override
+    public BlockResponse checkPackageBlock(String packageCode, Integer featureType) {
+        BlockResponse cancelResponse = new BlockResponse();
+        if (featureType == null) {
+            cancelResponse.setMessage("入参的业务类型featureType不能为空");
+            cancelResponse.setCode(BlockResponse.ERROR_PARAM);
+            log.error(MessageFormat.format("按包裹号{0}查询拦截,featureType为空", packageCode));
+            return cancelResponse;
+        }
+        if (StringUtils.isBlank(packageCode) || !WaybillUtil.isPackageCode(packageCode)) {
+            cancelResponse.setMessage("包裹号为空或格式非法");
+            cancelResponse.setCode(BlockResponse.ERROR_PARAM);
+            log.error(MessageFormat.format("按包裹号{0}查询拦截,packageCode为空或格式非法", packageCode));
+            return cancelResponse;
+        }
+        //根据包裹号查询拦截记录
+        CancelWaybill cancelWaybill = cancelWaybillDao.findPackageBlockedByCodeAndFeatureType(packageCode, featureType);
+        if (cancelWaybill == null) {
+            cancelResponse.setMessage("没有拦截记录无需拦截");
+            cancelResponse.setCode(BlockResponse.NO_NEED_BLOCK);
+            log.info(MessageFormat.format("根据包裹号：{0}未查到拦截记录", packageCode));
+            return cancelResponse;
+        }
+        //锁定状态
+        if (CancelWaybill.BUSINESS_TYPE_LOCK.equals(cancelWaybill.getBusinessType())) {
+            cancelResponse.setMessage("该包裹拦截待处理");
+            cancelResponse.setCode(BlockResponse.BLOCK);
+            cancelResponse.setBlockPackageCount(1L);
+            cancelResponse.setBlockPackages(Collections.singletonList(packageCode));
+            log.info(MessageFormat.format("根据包裹号：{0}该包裹为拦截状态", packageCode));
+            return cancelResponse;
+        }
+        //解锁状态
+        cancelResponse.setMessage("该包裹拦截已解除");
+        cancelResponse.setCode(BlockResponse.UNBLOCK);
+        log.info(MessageFormat.format("根据包裹号：{0}查询拦截状态，该包裹拦截已解除", packageCode));
+        return cancelResponse;
+    }
+
+    /**
+     * 根据FeatureType获取拦截结果
+     *
+     * @param featureType
+     * @return
+     */
+    private JdCancelWaybillResponse getResponseByFeatureType(Integer featureType) {
+        Integer code = JdResponse.CODE_OK;
+        String message = JdResponse.MESSAGE_OK;
+        if (featureType != null) {
+            if (CancelWaybill.FEATURE_TYPE_CANCELED.equals(featureType)) {
+                code = SortingResponse.CODE_29302;
+                message = SortingResponse.MESSAGE_29302;
+            } else if (CancelWaybill.FEATURE_TYPE_DELETED.equals(featureType)) {
+                code = SortingResponse.CODE_29302;
+                message = SortingResponse.MESSAGE_29302;
+            } else if (CancelWaybill.FEATURE_TYPE_REFUND100.equals(featureType)) {
+                code = SortingResponse.CODE_29303;
+                message = SortingResponse.MESSAGE_29303;
+            } else if (CancelWaybill.FEATURE_TYPE_INTERCEPT.equals(featureType)) {
+                code = SortingResponse.CODE_29305;
+                message = SortingResponse.MESSAGE_29305;
+            } else if (CancelWaybill.FEATURE_TYPE_INTERCEPT_BUSINESS.equals(featureType)) {
+                code = SortingResponse.CODE_29306;
+                message = SortingResponse.MESSAGE_29306;
+            } else if (CancelWaybill.FEATURE_TYPE_SICK.equals(featureType)) {
+                code = SortingResponse.CODE_29307;
+                message = SortingResponse.MESSAGE_29307;
+            } else if (CancelWaybill.FEATURE_TYPE_INTERCEPT_LP.equals(featureType)) {
+                code = SortingResponse.CODE_29308;
+                message = SortingResponse.MESSAGE_29308;
+            }
+        }
+        return new JdCancelWaybillResponse(code, message);
+    }
+
+    private List<String> getPackageCodes(List<CancelWaybill> cancelWaybills) {
+        if (cancelWaybills == null || cancelWaybills.isEmpty()) {
+            return Collections.EMPTY_LIST;
+        }
+        List<String> packageCodes = new ArrayList<String>(cancelWaybills.size());
+        for (CancelWaybill cancelWaybill : cancelWaybills) {
+            packageCodes.add(cancelWaybill.getPackageCode());
+        }
+        return packageCodes;
     }
 
     /**

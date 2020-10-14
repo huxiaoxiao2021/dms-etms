@@ -19,9 +19,9 @@ public class TextConstants {
     public static final String FREIGHT_CONSIGER_CLEAR="寄付现结";
 
     /**
-     * 运费 - 运费到付
+     * 运费 - 到付
      */
-    public static final String FREIGHT_PAY = "运费到付";
+    public static final String FREIGHT_PAY = "到付";
 
     /**
      * B网运费-寄付
@@ -166,6 +166,22 @@ public class TextConstants {
      * 预售标识‘预’
      */
     public static final String PRE_SELL_FLAG = "预";
+    /**
+     * codMoney格式化
+     */
+    public static final String CODMONEY_FORMAT = "代收货款：{0}￥";
+    /**
+     * 运费合计格式化
+     */
+    public static final String TOTAL_CHARGE_FORMAT = "运费合计：{0}￥";
+    /**
+     * 退货标识‘退’
+     */
+    public static final String REVERSE_FLAG = "退";
+    /**
+     * 产品名-特快送标识
+     */
+    public static final String PRODUCT_NAME_TKS_FLAG = "T";
     /**
      * 产品名-特惠送
      */

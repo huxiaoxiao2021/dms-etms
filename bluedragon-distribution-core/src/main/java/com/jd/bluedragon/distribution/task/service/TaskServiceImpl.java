@@ -33,8 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
@@ -89,13 +87,11 @@ public class TaskServiceImpl implements TaskService {
 	private WaybillTraceManager waybillTraceManager;
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void addBatch(List<Task> tasks) {
 		this.addBatch(tasks, false);
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void addBatch(List<Task> tasks, boolean ifCheckTaskMode) {
 		if (tasks != null && !tasks.isEmpty()) {
 			Task firstTask = tasks.get(0);
@@ -132,7 +128,6 @@ public class TaskServiceImpl implements TaskService {
      * @return
      */
     @JProfiler(jKey= "DMSCORE.TaskService.add",mState = {JProEnum.TP})
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	@Override
     public Integer add(Task task, boolean ifCheckTaskMode) {
         Assert.notNull(task, "task must not be null");
@@ -232,7 +227,6 @@ public class TaskServiceImpl implements TaskService {
 		}
 	}
 
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Integer add(Task task) {
 		return add(task, false);
 	}
@@ -314,20 +308,17 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @JProfiler(jKey = "Bluedragon_dms_center.dms.method.task.update",mState = {JProEnum.TP,JProEnum.FunctionError})
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Boolean updateBySelective(Task task) {
         TaskDao routerDao = taskDao;
         routerDao.updateBySelective(task);
         return Boolean.TRUE;
     }
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Boolean doLock(Task task) {
         task.setStatus(Task.TASK_STATUS_PROCESSING);
         return this.updateBySelective(task);
     }
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Boolean doRevert(Task task) {
         task.setStatus(Task.TASK_STATUS_UNHANDLED);
         task.setExecuteCount(this.getExecuteCount(task));
@@ -335,7 +326,6 @@ public class TaskServiceImpl implements TaskService {
         return this.updateBySelective(task);
     }
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Boolean doDone(Task task) {
         task.setStatus(Task.TASK_STATUS_FINISHED);
         task.setExecuteCount(this.getExecuteCount(task));
@@ -343,7 +333,6 @@ public class TaskServiceImpl implements TaskService {
         return this.updateBySelective(task);
     }
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     @Override
     public Integer doAddWithStatus(Task task) {
 		if (StringHelper.isNotEmpty(task.getBody()) && task.getBody().length() > 2000) {
@@ -358,7 +347,6 @@ public class TaskServiceImpl implements TaskService {
         return routerDao.addWithStatus(task);
     }
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Boolean doError(Task task) {
         task.setStatus(Task.TASK_STATUS_PARSE_ERROR);
         task.setExecuteCount(this.getExecuteCount(task));
@@ -563,7 +551,6 @@ public class TaskServiceImpl implements TaskService {
 		return routerDao.findFailTasksNumsIgnoreType(type, ownSign);
 	}
 
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void addInspectSortingTask(TaskRequest request) {
 		UploadedPackage uPackage = JsonHelper.fromJson(request.getBody(),UploadedPackage.class);
 		// 交接任务
@@ -606,7 +593,6 @@ public class TaskServiceImpl implements TaskService {
 
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void addInspectSortingTaskDirectly(AutoSortingPackageDto packageDtos) throws Exception{
 		String waybillCode = WaybillUtil.getWaybillCode(packageDtos.getWaybillCode());
 		if(StringUtils.isBlank(waybillCode)){

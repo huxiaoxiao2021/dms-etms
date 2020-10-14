@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.ColdChainQuarantineManager;
 import com.jd.bluedragon.core.base.DmsInterturnManager;
@@ -95,7 +96,9 @@ import com.jd.bluedragon.distribution.third.domain.ThirdBoxDetail;
 import com.jd.bluedragon.distribution.third.service.ThirdBoxDetailService;
 import com.jd.bluedragon.distribution.transBillSchedule.service.TransBillScheduleService;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
+import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -346,6 +349,14 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Autowired
     private CycleMaterialNoticeService cycleMaterialNoticeService;
 
+    @Autowired
+    private SortingCheckService sortingCheckService;
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
+    @Autowired
+    private WaybillCacheService waybillCacheService;
     /**
      * 自动过期时间 15分钟
      */
@@ -693,9 +704,14 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     private boolean sortingVerificationByPackage(SortingCheck sortingCheck, SendResult result) {
         CallerInfo info1 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.callsortingcheck", false, true);
-        SortingJsfResponse response;
+        SortingJsfResponse response = null;
         try {
-            response = jsfSortingResourceService.check(sortingCheck);
+            if (sortingCheckService.isNeedCheck(uccPropertyConfiguration.getSingleSendSwitchVerToWebSites(), sortingCheck.getCreateSiteCode())) {
+                response = sortingCheckService.singleSendCheck(sortingCheck);
+            } else {
+                response = jsfSortingResourceService.check(sortingCheck);
+            }
+
         } catch (Exception ex) {
             log.error("调用总部VER验证JSF服务失败,sortingCheck:{}",JsonHelper.toJson(sortingCheck), ex);
             result.init(DeliveryResponse.CODE_VER_CHECK_EXCEPTION, DeliveryResponse.MESSAGE_VER_CHECK_EXCEPTION, 100, 0);
@@ -3125,8 +3141,8 @@ public class DeliveryServiceImpl implements DeliveryService {
         String waybillCodeForVerify = null;
         if (waybillCodes != null && !waybillCodes.isEmpty()) {
             for(String  waybillCode : waybillCodes){
-                //获取路由信息
-                routerStr = jsfSortingResourceService.getRouterByWaybillCode(waybillCode);
+                //根据waybillCode查库获取路由信息
+                routerStr = waybillCacheService.getRouterByWaybillCode(waybillCode);
 
                 //如果路由为空，则取下一单
                 if(StringHelper.isNotEmpty(routerStr)){

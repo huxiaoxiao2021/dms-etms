@@ -5,12 +5,14 @@ import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.ver.domain.Site;
 import com.jd.bluedragon.distribution.waybill.dao.WaybillCacheDao;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,8 +36,8 @@ public class WaybillCacheServiceImpl implements WaybillCacheService {
     @Override
     @JProfiler(jKey = "DMSWEB.WaybillCacheServiceImpl.getFromCache", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public WaybillCache getFromCache(String waybillCode) {
-        if (StringUtils.isBlank(waybillCode)) {
-            this.log.error("WaybillServiceImpl --> getByWaybillCodeCommon：传入运单号参数错误");
+        if (!WaybillUtil.isWaybillCode(waybillCode)) {
+            this.log.warn("WaybillServiceImpl --> getByWaybillCodeCommon：传入运单号参数错误");
             return null;
         }
         WaybillCache waybillCache = null;
@@ -65,6 +67,17 @@ public class WaybillCacheServiceImpl implements WaybillCacheService {
             log.error("getFromCache fail!" + waybillCode, e);
         }
         return waybillCache;
+    }
+
+    @Override
+    public String getRouterByWaybillCode(String waybillCode) {
+        String router = null;
+        try {
+            router = waybillCacheDao.getRouterByWaybillCode(waybillCode);
+        } catch (Exception e) {
+            log.error("获取路由信息失败，运单号{}", waybillCode, e);
+        }
+        return router;
     }
 
     @Override

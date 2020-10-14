@@ -127,6 +127,30 @@ public class BusinessUtil {
         return false;
     }
 
+    /**
+     * 判断是否为集货区编码
+     * @param code
+     * @return
+     */
+    public static final boolean isCollectAreaCode(String code){
+        if (StringUtils.isBlank(code)) {
+            return false;
+        }
+        return code.matches(RULE_COLLECT_AREA_CODE_REGEX);
+    }
+
+    /**
+     * 判断是否为集货位编码
+     * @param code
+     * @return
+     */
+    public static final boolean isCollectPlaceCode(String code){
+        if (StringUtils.isBlank(code)) {
+            return false;
+        }
+        return code.matches(RULE_COLLECT_PLACE_CODE_REGEX);
+    }
+
 
     /**
      * 判断是否逆向箱号（TC\TS\TW)
@@ -622,7 +646,12 @@ public class BusinessUtil {
     public static Boolean isC2CJZD(String waybillSign){
         return isSignChar(waybillSign,113,'2');
     }
-
+    /**
+     * 判断是否C2C:waybill_sign 第29位等于8
+     */
+    public static Boolean isC2C(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_29,WaybillSignConstants.CHAR_29_8);
+    }
     /**
      * 是否为三方-合作站点
      * @param type
@@ -996,7 +1025,7 @@ public class BusinessUtil {
      * 是否寄付
      */
     public static boolean isFreightSend(String waybillSign) {
-        return isSignChar(waybillSign,WaybillSignConstants.C_COLLECT_FEES_POSITION_25,WaybillSignConstants.C_COLLECT_FEES_CHAR_25_3);
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_25,WaybillSignConstants.CHAR_25_3);
     }
 
     /**
@@ -1006,7 +1035,7 @@ public class BusinessUtil {
      * @return true 是，false 不是
      */
     public static boolean isForeignForward(String waybillSign) {
-        return isSignChar(waybillSign,WaybillSignConstants.BACKWARD_TYPE_POSITION_61,WaybillSignConstants.BACKWARD_TYPE_NO_CHAR_61_0);
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_61,WaybillSignConstants.CHAR_61_0);
     }
 
     /**
@@ -1016,7 +1045,7 @@ public class BusinessUtil {
      * @return true 是，false 不是
      */
     public static boolean isWaybillMarkForward(String waybillSign) {
-        return isSignChar(waybillSign,WaybillSignConstants.BACKWARD_TYPE_WAYBILL_MARK_POSITION_15,WaybillSignConstants.BACKWARD_TYPE_WAYBILL_MARK_POSITION_15_0);
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_15,WaybillSignConstants.CHAR_15_0);
     }
 
     /**
@@ -1735,5 +1764,14 @@ public class BusinessUtil {
      */
 	public static boolean isContractPhone(String sendPay) {
 		return isSignChar(sendPay, SendPayConstants.POSITION_292, SendPayConstants.CHAR_292_1);
+	}
+	/**
+	 * 判断是否签单返回，waybillSign第4位：1,2,3,4,9
+	 * @param waybillSign
+	 * @return
+	 */
+	public static boolean isSignBack(String waybillSign){
+		return BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_4,
+				WaybillSignConstants.CHAR_4_1,WaybillSignConstants.CHAR_4_2,WaybillSignConstants.CHAR_4_3,WaybillSignConstants.CHAR_4_4,WaybillSignConstants.CHAR_4_9);
 	}
 }

@@ -653,6 +653,11 @@
     <bean id="waybillCacheDao" class="com.jd.bluedragon.distribution.waybill.dao.WaybillCacheDao">
         <property name="sqlSession" ref = "sessionTemplate_waybill"/>
     </bean>
+
+    <!-- 包裹重量体积流水 -->
+    <bean id="packageWeightingDao" class="com.jd.bluedragon.distribution.packageWeighting.dao.PackageWeightingDao">
+        <property name="sqlSession" ref = "sessionTemplate_waybill"/>
+    </bean>
     <!--################################## bd_dms_business 相关DAO End ############################################ -->
 
 </beans>
