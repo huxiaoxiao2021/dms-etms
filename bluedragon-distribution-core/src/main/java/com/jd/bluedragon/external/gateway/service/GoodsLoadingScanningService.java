@@ -4,6 +4,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsExceptionScanningReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingScanningReq;
+import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsDetailDto;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
 
 import java.util.List;
@@ -51,7 +52,7 @@ public interface GoodsLoadingScanningService {
     /**
      * 装车扫描接口
      */
-    JdCResponse goodsLoadingScan(GoodsLoadingScanningReq req);
+    JdCResponse<List<GoodsDetailDto>> goodsLoadingScan(GoodsLoadingScanningReq req);
 
     /**
      * 批次号/板号/包裹号校验接口--发货校验

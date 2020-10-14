@@ -38,6 +38,11 @@ public class GoodsLoadingScanningReq implements Serializable {
     private String boardCode;
 
     /**
+     * 包裹号转板号标识
+     */
+    private Integer transfer;
+
+    /**
      * 包裹明细
      */
     private List<GoodsDetailReq> packageDetails;
@@ -96,5 +101,13 @@ public class GoodsLoadingScanningReq implements Serializable {
 
     public void setPackageDetails(List<GoodsDetailReq> packageDetails) {
         this.packageDetails = packageDetails;
+    }
+
+    public Integer getTransfer() {
+        return transfer;
+    }
+
+    public void setTransfer(Integer transfer) {
+        this.transfer = transfer;
     }
 }
