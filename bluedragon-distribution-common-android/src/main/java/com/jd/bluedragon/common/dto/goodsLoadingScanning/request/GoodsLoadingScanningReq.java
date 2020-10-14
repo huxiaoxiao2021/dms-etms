@@ -38,7 +38,7 @@ public class GoodsLoadingScanningReq implements Serializable {
     private String boardCode;
 
     /**
-     * 包裹号转板号标识
+     * 包裹号转板号标识updateUnloadCarTaskHelpers
      */
     private Integer transfer;
 

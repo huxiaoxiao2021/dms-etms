@@ -59,5 +59,10 @@ public interface GoodsLoadingScanningService {
      */
     JdCResponse checkByBatchCodeOrBoardCodeOrPackageCode(GoodsLoadingScanningReq req);
 
+    /**
+     * 包裹暂存接口
+     */
+    JdCResponse saveByPackageCode(GoodsLoadingScanningReq req);
+
 
 }
