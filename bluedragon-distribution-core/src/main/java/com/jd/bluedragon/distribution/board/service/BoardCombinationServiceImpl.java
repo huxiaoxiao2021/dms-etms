@@ -18,6 +18,7 @@ import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
@@ -118,6 +119,8 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
     @Value("${board.combination.bindings.count.max}")
     private Integer boardBindingsMaxCount;
 
+    @Autowired
+    private SortingCheckService sortingCheckService;
 
     /**
      * 板号校验，如果校验成功则返回目的地信息
@@ -314,16 +317,15 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
             CallerInfo info1 = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.sendBoardBindings.boardCombinationCheck", false, true);
             try {
-                response = jsfSortingResourceService.boardCombinationCheck(checkParam);
+                response = sortingCheckService.boardCombinationCheck(checkParam);
                 logInfo = "组板校验,板号：" + boardCode + ",箱号/包裹号：" + boxOrPackageCode +
                         ",IsForceCombination:" + request.getIsForceCombination() +
                         ",站点：" + request.getSiteCode() + ".校验结果:" + response.getMessage();
 
-                this.log.debug(logInfo);
                 addSystemLog(request, logInfo);
             } catch (Exception ex) {
                 Profiler.functionError(info1);
-                log.error("调用总部VER验证JSF服务失败：{}",JsonHelper.toJson(checkParam), ex);
+                log.error("调用组板校验服务失败：{}",JsonHelper.toJson(checkParam), ex);
                 throw ex;
             } finally {
                 Profiler.registerInfoEnd(info1);
@@ -473,16 +475,14 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
             CallerInfo info1 = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.sendBoardBindings.boardCombinationCheck", false, true);
             try {
-                response = jsfSortingResourceService.boardCombinationCheck(checkParam);
+                response = sortingCheckService.boardCombinationCheck(checkParam);
                 logInfo = "组板校验,板号：" + boardCode + ",运单号：" + waybillCode +
                         ",IsForceCombination:" + request.getIsForceCombination() +
                         ",站点：" + request.getSiteCode() + ".校验结果:" + response.getMessage();
-
-                log.debug(logInfo);
                 addSystemLog(request, logInfo);
             } catch (Exception ex) {
                 Profiler.functionError(info1);
-                log.error("调用总部VER验证JSF服务失败:{}",JsonHelper.toJson(checkParam), ex);
+                log.error("调用组板校验服务失败:{}",JsonHelper.toJson(checkParam), ex);
                 throw ex;
             } finally {
                 Profiler.registerInfoEnd(info1);

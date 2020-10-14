@@ -133,6 +133,8 @@ public class UccPropertyConfiguration {
 
     private String singleSendSwitchVerToWebSites;
 
+    private String boardCombinationSwitchVerToWebSites;
+
     public boolean isLogToBusinessLogByKafka() {
         return logToBusinessLogByKafka;
     }
@@ -387,5 +389,13 @@ public class UccPropertyConfiguration {
 
     public void setSingleSendSwitchVerToWebSites(String singleSendSwitchVerToWebSites) {
         this.singleSendSwitchVerToWebSites = singleSendSwitchVerToWebSites;
+    }
+
+    public String getBoardCombinationSwitchVerToWebSites() {
+        return boardCombinationSwitchVerToWebSites;
+    }
+
+    public void setBoardCombinationSwitchVerToWebSites(String boardCombinationSwitchVerToWebSites) {
+        this.boardCombinationSwitchVerToWebSites = boardCombinationSwitchVerToWebSites;
     }
 }

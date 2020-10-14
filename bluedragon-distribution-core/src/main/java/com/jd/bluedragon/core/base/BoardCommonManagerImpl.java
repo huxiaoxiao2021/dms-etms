@@ -18,7 +18,9 @@ import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -84,6 +86,12 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
 
     @Autowired
     private SortingService sortingService;
+
+    @Autowired
+    private WaybillCacheService waybillCacheService;
+
+    @Autowired
+    private SortingCheckService sortingCheckService;
 
     /**
      * 包裹是否发货校验
@@ -179,13 +187,13 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
                 return result;
             }
             try {
-                response = jsfSortingResourceService.boardCombinationCheck(checkParam);
+                response = sortingCheckService.boardCombinationCheck(checkParam);
                 if (logger.isDebugEnabled()) {
                     logger.debug("组板校验,板号【{}】,箱号/包裹号【{}】,站点【{}】.校验结果【{}】",
                             request.getBoardCode(),request.getBarCode(),request.getOperateSiteCode(),response.getMessage());
                 }
             } catch (Exception e) {
-                logger.error("调用总部VER验证JSF服务失败：{}", com.jd.bluedragon.distribution.api.utils.JsonHelper.toJson(checkParam), e);
+                logger.error("调用组板验证服务失败：{}", com.jd.bluedragon.distribution.api.utils.JsonHelper.toJson(checkParam), e);
             }
 
             if (!response.getCode().equals(200)) {
@@ -337,7 +345,7 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
     @Override
     public Integer getNextSiteCodeByRouter(String waybillCode, Integer siteCode) {
         try {
-            String router = jsfSortingResourceService.getRouterByWaybillCode(waybillCode);
+            String router = waybillCacheService.getRouterByWaybillCode(waybillCode);
             if(StringUtils.isEmpty(router)){
                 logger.warn("根据运单号【{}】获取路由信息为空",waybillCode);
                 return null;
