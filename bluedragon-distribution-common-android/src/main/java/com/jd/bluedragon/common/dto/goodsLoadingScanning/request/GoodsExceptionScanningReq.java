@@ -11,9 +11,6 @@ public class GoodsExceptionScanningReq {
 //    任务号
     private String taskId;
 
-//    批次号
-    private String batchCode;
-
 //    运单号集合
     private List<String> waybillCode;
 
@@ -26,14 +23,6 @@ public class GoodsExceptionScanningReq {
 
     public void setTaskId(String taskId) {
         this.taskId = taskId;
-    }
-
-    public String getBatchCode() {
-        return batchCode;
-    }
-
-    public void setBatchCode(String batchCode) {
-        this.batchCode = batchCode;
     }
 
     public List<String> getWaybillCode() {
