@@ -22,4 +22,8 @@ public class CreateLoadTaskDto implements Serializable {
      */
     private String endSiteName;
 
+    /**
+     * 任务id
+     */
+    private Integer id;
 }
