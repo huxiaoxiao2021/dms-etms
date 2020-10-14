@@ -57,6 +57,11 @@
 					<entry key="task_inspection_1601_PRE" value="${jmq.task.topic.partnerWaybillSynchro.pre}"/>
 					<entry key="task_inspection_1601_UAT" value="${jmq.task.topic.partnerWaybillSynchro.uat}"/>
 
+                    <!-- 验货多包裹拆分任务 -->
+                    <entry key="task_inspection_1136_DMS" value="${jmq.task.topic.inspection.split.dms}" />
+                    <entry key="task_inspection_1136_PRE" value="${jmq.task.topic.inspection.split.pre}" />
+                    <entry key="task_inspection_1136_UAT" value="${jmq.task.topic.inspection.split.uat}" />
+
 					<!-- 发货新老数据同步任务/中转发货补全任务/回传周转箱项目任务/发货回传运单状态任务-->
 					<entry key="task_send_1300_DMS" value="${jmq.task.topic.send.dms}"/>
 					<entry key="task_send_1300_PRE" value="${jmq.task.topic.send.pre}"/>

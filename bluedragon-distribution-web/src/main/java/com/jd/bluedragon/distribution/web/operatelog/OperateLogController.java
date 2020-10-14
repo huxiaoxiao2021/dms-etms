@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.ObjectMapHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.dms.logger.aop.BusinessLogWriter;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.uim.annotation.Authorization;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.annotation.Resource;
+
 import java.util.Map;
 
 @Controller
@@ -155,14 +157,9 @@ public class OperateLogController {
     @JProfiler(jKey = "DMSWEB.OperateLogController.list2", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = JProEnum.TP)
 	public String queryOperateLog2(OperationLog operationLog, Pager<OperationLog> pager, Model model) {
 		try {
-
-			if (operationLog.getWaybillCode() == null && operationLog.getPickupCode() == null
-					&& operationLog.getPackageCode() == null && operationLog.getBoxCode() == null) {
-				return "operateLog/operatelog2";
-			}
-			
-			if (operationLog.getWaybillCode().equals("") && operationLog.getPickupCode().equals("")
-					&& operationLog.getPackageCode().equals("") && operationLog.getBoxCode().equals("")) {
+			//参数全部为空
+			if (StringHelper.isEmpty(operationLog.getWaybillCode())&& StringHelper.isEmpty(operationLog.getPickupCode())
+					&& StringHelper.isEmpty(operationLog.getPackageCode()) && StringHelper.isEmpty(operationLog.getBoxCode())) {
 				return "operateLog/operatelog2";
 			}
 			String code = operationLog.getWaybillCode();

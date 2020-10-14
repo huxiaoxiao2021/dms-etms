@@ -126,8 +126,14 @@ public class UccPropertyConfiguration {
      */
     private String collectGoodsDeleteSites;
 
+    /**
+     * 验货运单多包裹拆分任务生效的分拣中心
+     */
+    private String inspectionBigWaybillEffectiveSites;
 
     private String singleSendSwitchVerToWebSites;
+
+    private String boardCombinationSwitchVerToWebSites;
 
     public boolean isLogToBusinessLogByKafka() {
         return logToBusinessLogByKafka;
@@ -345,6 +351,14 @@ public class UccPropertyConfiguration {
         this.collectGoodsDeleteSites = collectGoodsDeleteSites;
     }
 
+    public String getInspectionBigWaybillEffectiveSites() {
+        return inspectionBigWaybillEffectiveSites;
+    }
+
+    public void setInspectionBigWaybillEffectiveSites(String inspectionBigWaybillEffectiveSites) {
+        this.inspectionBigWaybillEffectiveSites = inspectionBigWaybillEffectiveSites;
+    }
+
     public boolean isOfflineLogGlobalSwitch() {
         return offlineLogGlobalSwitch;
     }
@@ -375,5 +389,13 @@ public class UccPropertyConfiguration {
 
     public void setSingleSendSwitchVerToWebSites(String singleSendSwitchVerToWebSites) {
         this.singleSendSwitchVerToWebSites = singleSendSwitchVerToWebSites;
+    }
+
+    public String getBoardCombinationSwitchVerToWebSites() {
+        return boardCombinationSwitchVerToWebSites;
+    }
+
+    public void setBoardCombinationSwitchVerToWebSites(String boardCombinationSwitchVerToWebSites) {
+        this.boardCombinationSwitchVerToWebSites = boardCombinationSwitchVerToWebSites;
     }
 }

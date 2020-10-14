@@ -21,6 +21,7 @@ public class DateHelper {
     public static final String[] DATE_TIME_FORMAT = new String[]{
             "yyyy-MM-dd HH:mm:ss",
             "yyyy/MM/dd HH:mm:ss",
+            "yyyy-MM-dd HH:mm:ss SSS",
             "yyyy/MM/dd HH:mm:ss.SSS",
             "yyyy-MM-dd HH:mm:ss.SSS",
             "yyyyMMddHHmmss",
@@ -223,7 +224,7 @@ public class DateHelper {
     }
 
     public static Date parseDate(String dateString, String format) {
-        if (dateString == null || format == null) {
+        if (StringHelper.isEmpty(dateString) || StringHelper.isEmpty(format)) {
             return null;
         }
 
@@ -235,7 +236,7 @@ public class DateHelper {
         }
     }
     public static Date parseDate(String dateString, String... formats) {
-        if (dateString == null || formats == null) {
+        if (StringHelper.isEmpty(dateString) || formats == null) {
             return null;
         }
         for(String format : formats){
