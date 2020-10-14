@@ -90,6 +90,7 @@
 				<value>uccPropertyConfiguration.switchVerToWebSites</value>
 				<value>uccPropertyConfiguration.disablePdaOldLogin</value>
 				<value>uccPropertyConfiguration.collectionAddressSiteCodes</value>
+				<value>uccPropertyConfiguration.clientPrintQueryGapTime</value>
 				<value>uccPropertyConfiguration.boxLimitSites</value>
 				<value>uccPropertyConfiguration.collectGoodsDeleteSites</value>
                 <value>uccPropertyConfiguration.inspectionBigWaybillEffectiveSites</value>
