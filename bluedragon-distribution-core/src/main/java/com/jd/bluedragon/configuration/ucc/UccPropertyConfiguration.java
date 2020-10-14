@@ -137,6 +137,11 @@ public class UccPropertyConfiguration {
      */
     private String inspectionBigWaybillEffectiveSites;
 
+    /**
+     * 按钮点击间隔(秒)，配置为-1则关闭控制
+     */
+    private int clickIntervalSecond;
+
     private String singleSendSwitchVerToWebSites;
 
     private String boardCombinationSwitchVerToWebSites;
@@ -411,5 +416,13 @@ public class UccPropertyConfiguration {
 
     public void setBoardCombinationSwitchVerToWebSites(String boardCombinationSwitchVerToWebSites) {
         this.boardCombinationSwitchVerToWebSites = boardCombinationSwitchVerToWebSites;
+    }
+
+    public int getClickIntervalSecond() {
+        return clickIntervalSecond;
+    }
+
+    public void setClickIntervalSecond(int clickIntervalSecond) {
+        this.clickIntervalSecond = clickIntervalSecond;
     }
 }
