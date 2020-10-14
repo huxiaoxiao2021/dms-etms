@@ -92,7 +92,6 @@
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FreightFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.TrustToThirdFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FWaybillFilter"/>
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CityDistributionFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FBoxFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.LuxuryFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.TransferStationFilter"/>

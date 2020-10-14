@@ -458,10 +458,10 @@ public class SiteServiceImpl implements SiteService {
         }
         Site site = this.siteMapper.get(siteCode);
         if (site == null) {
-            return getNoCache(siteCode);
-        }else {
-            return site;
+            site = getNoCache(siteCode);
         }
+        //需要补上site的subType
+        return dealSiteType(site);
     }
 
     @Override
@@ -533,5 +533,15 @@ public class SiteServiceImpl implements SiteService {
         }
         //截取分拣中心、分拨中心、中转场
         return siteName.replace(Constants.SUFFIX_DMS_ONE,"").replace(Constants.SUFFIX_DMS_TWO,"").replace(Constants.SUFFIX_TRANSIT,"");
+    }
+
+    private Site dealSiteType(Site site) {
+        if (site == null) {
+            return null;
+        }
+        if (site.getSubType() == null && site.getType() != null) {
+            site.setSubType(site.getType());
+        }
+        return site;
     }
 }

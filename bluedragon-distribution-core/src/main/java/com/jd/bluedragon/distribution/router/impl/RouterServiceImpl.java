@@ -2,8 +2,8 @@ package com.jd.bluedragon.distribution.router.impl;
 
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.distribution.base.service.SiteService;
-import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.router.RouterService;
+import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.profiler.CallerInfo;
@@ -29,7 +29,7 @@ public class RouterServiceImpl implements RouterService {
     private SiteService siteService;
 
     @Autowired
-    private JsfSortingResourceService jsfSortingResourceService;
+    private WaybillCacheService waybillCacheService;
 
     /**
      * 运单路由字段使用的分隔符
@@ -45,7 +45,7 @@ public class RouterServiceImpl implements RouterService {
         Integer nextRouterSiteCode = null;
         CallerInfo info = ProfilerHelper.registerInfo("DMSWEB.RouterServiceImpl.getRouterNextSite");
         try{
-            String routerStr = jsfSortingResourceService.getRouterByWaybillCode(waybillCode);
+            String routerStr = waybillCacheService.getRouterByWaybillCode(waybillCode);;
 
             if(StringUtils.isNotBlank(routerStr)){
                 String[] routers = routerStr.split(WAYBILL_ROUTER_SPLITER);

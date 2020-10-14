@@ -98,6 +98,7 @@ import com.jd.bluedragon.distribution.transBillSchedule.service.TransBillSchedul
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -354,6 +355,8 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration;
 
+    @Autowired
+    private WaybillCacheService waybillCacheService;
     /**
      * 自动过期时间 15分钟
      */
@@ -3138,8 +3141,8 @@ public class DeliveryServiceImpl implements DeliveryService {
         String waybillCodeForVerify = null;
         if (waybillCodes != null && !waybillCodes.isEmpty()) {
             for(String  waybillCode : waybillCodes){
-                //获取路由信息
-                routerStr = jsfSortingResourceService.getRouterByWaybillCode(waybillCode);
+                //根据waybillCode查库获取路由信息
+                routerStr = waybillCacheService.getRouterByWaybillCode(waybillCode);
 
                 //如果路由为空，则取下一单
                 if(StringHelper.isNotEmpty(routerStr)){
