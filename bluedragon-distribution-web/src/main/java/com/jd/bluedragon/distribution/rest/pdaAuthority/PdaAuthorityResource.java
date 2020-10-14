@@ -3,13 +3,9 @@ package com.jd.bluedragon.distribution.rest.pdaAuthority;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigDto;
-import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
-import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
-import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
+import com.jd.bluedragon.distribution.whiteList.dao.WhiteListDao;
 import com.jd.bluedragon.distribution.whitelist.WhiteList;
 import com.jd.bluedragon.utils.JsonHelper;
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +30,7 @@ public class PdaAuthorityResource {
     private static final Logger log = LoggerFactory.getLogger(PdaAuthorityResource.class);
 
     @Autowired
-    private FuncSwitchConfigService funcSwitchConfigService;
+    private WhiteListDao whiteListDao;
 
     @POST
     @Path("/pdaAuthority/inspectionAuthority")
@@ -58,12 +54,8 @@ public class PdaAuthorityResource {
         }
         try{
             //查询PDA登陆人是否有验货权限
-            FuncSwitchConfigDto dto = new FuncSwitchConfigDto();
-            dto.setMenuCode(FuncSwitchConfigEnum.FUNCTION_INSPECTION.getCode());
-            dto.setDimensionCode(DimensionEnum.PERSON.getCode());
-            dto.setOperateErp(whiteListrequest.getErp());
-            dto.setSiteCode(whiteListrequest.getSiteCode());
-            if(CollectionUtils.isEmpty(funcSwitchConfigService.getFuncSwitchConfigs(dto))){
+            int count = whiteListDao.query(whiteListrequest);
+            if(count>0){
                 result.setData(true);
             }else {
                 result.setData(false);
