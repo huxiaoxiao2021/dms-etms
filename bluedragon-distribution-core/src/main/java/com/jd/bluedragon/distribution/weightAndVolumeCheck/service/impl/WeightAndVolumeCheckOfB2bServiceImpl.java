@@ -937,7 +937,9 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             try {
                 if(StringUtils.isEmpty(operateErp) && StringUtils.isNotEmpty(operateId)){
                     BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByStaffId(Integer.valueOf(operateId));
-                    operateErp = baseStaff.getAccountNumber();
+                    if(baseStaff != null){
+                    	operateErp = baseStaff.getAccountNumber();
+                    }
                 }
             }catch (Exception e){
                 log.error("根据操作人id【{}】获取操作人信息异常!",operateId,e);

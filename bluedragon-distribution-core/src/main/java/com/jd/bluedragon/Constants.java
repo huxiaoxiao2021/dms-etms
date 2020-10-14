@@ -1320,4 +1320,8 @@ public class Constants {
      * 一车一单操作类型
      */
     public static final int OPERATE_TYPE_NEW_PACKAGE_SEND = 60;
+
+    public static final String STR_ALL = "ALL";
+
+    public static final String UNDER_LINE = "_";
 }

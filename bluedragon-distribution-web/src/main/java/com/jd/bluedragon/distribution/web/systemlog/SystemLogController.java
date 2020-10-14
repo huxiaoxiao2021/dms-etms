@@ -8,6 +8,8 @@ import com.jd.bluedragon.distribution.systemLog.service.SystemLogService;
 import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.uim.annotation.Authorization;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,7 @@ public class SystemLogController {
 
 	@Authorization(Constants.DMS_WEB_DEVELOP_SYSTEMLOG_R)
 	@RequestMapping(value = "/goListPage", method = RequestMethod.GET)
+    @JProfiler(jKey = "DMSWEB.SystemLogController.goListpage", mState = JProEnum.TP)
 	public String goListpage(Model model) {
         model.addAttribute("oldLogPageTips",uccPropertyConfiguration.getOldLogPageTips());
 		return "systemLog/systemLog";
@@ -41,6 +44,7 @@ public class SystemLogController {
 
     @Authorization(Constants.DMS_WEB_DEVELOP_SYSTEMLOG_R)
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
+    @JProfiler(jKey = "DMSWEB.SystemLogController.list", mState = JProEnum.TP)
 	public String queryOperateLog(SystemLog systemLog, Pager<SystemLog> pager, Model model) {
 		try{
 		Map<String, Object> params = ObjectMapHelper.makeObject2Map(systemLog);
@@ -77,12 +81,14 @@ public class SystemLogController {
 
     @Authorization(Constants.DMS_WEB_DEVELOP_SYSTEMLOG_R)
 	@RequestMapping(value = "/goListPage1", method = RequestMethod.GET)
+    @JProfiler(jKey = "DMSWEB.SystemLogController.goListPage1", mState = JProEnum.TP)
 	public String goListpage1(Model model) {
 		return "systemLog/systemLog1";
 	}
 
     @Authorization(Constants.DMS_WEB_DEVELOP_SYSTEMLOG_R)
 	@RequestMapping(value = "/list1", method = RequestMethod.GET)
+    @JProfiler(jKey = "DMSWEB.SystemLogController.list1", mState = JProEnum.TP)
 	public String queryOperateLog1(SystemLog systemLog, Pager<SystemLog> pager, Model model) {
 		try{
 		// 设置分页对象

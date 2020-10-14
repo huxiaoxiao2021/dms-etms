@@ -57,6 +57,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
 
     /** 验货相关　 */
     public static final Integer TASK_TYPE_INSPECTION = 1130; // 分拣中心验货
+    public static final Integer TASK_TYPE_INSPECTION_SPLIT = 1136; // 验货拆分任务
     public static final Integer TASK_TYPE_SHIELDS_BOX_ERROR = 1140;// 分拣中心验货箱号封签异常
     public static final Integer TASK_TYPE_PARTNER_WAY_BILL = 1600;// 运单号关联包裹信息
     public static final Integer TASK_TYPE_PARTNER_WAY_BILL_NOTIFY = 1601;// 运单号关联包裹回传
@@ -517,7 +518,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
         if (Task.TASK_TYPE_SORTING.equals(type) || Task.TASK_TYPE_SEAL_BOX.equals(type)
                 || Task.TASK_TYPE_RETURNS.equals(type) || Task.TASK_TYPE_SORTING_SPLIT.equals(type) || TASK_TYPE_SORTING_CORE_SUCCESS.equals(type)) {
             return Task.TABLE_NAME_SORTING;
-        } else if (Task.TASK_TYPE_RECEIVE.equals(type) || Task.TASK_TYPE_INSPECTION.equals(type)
+        } else if (Task.TASK_TYPE_RECEIVE.equals(type) || Task.TASK_TYPE_INSPECTION.equals(type) || Task.TASK_TYPE_INSPECTION_SPLIT.equals(type)
                 || Task.TASK_TYPE_SHIELDS_CAR_ERROR.equals(type)
                 || Task.TASK_TYPE_SHIELDS_BOX_ERROR.equals(type)
                 || Task.TASK_TYPE_PARTNER_WAY_BILL.equals(type)
@@ -799,7 +800,11 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return "PushMQ2ArteryBillingSysTask";
         }else if(TASK_TYPE_INSPECTION.equals(type)){
             return "InspectionTaskN";
-        }else if(TASK_TYPE_SHIELDS_BOX_ERROR.equals(type)){
+        }
+        else if (TASK_TYPE_INSPECTION_SPLIT.equals(type)) {
+            return "InspectionSplitTaskN";
+        }
+        else if(TASK_TYPE_SHIELDS_BOX_ERROR.equals(type)){
             return "ShieldsBoxErrorTask";
         }else if(TASK_TYPE_PARTNER_WAY_BILL.equals(type)){
             return "PartnerWaybillTaskN";
