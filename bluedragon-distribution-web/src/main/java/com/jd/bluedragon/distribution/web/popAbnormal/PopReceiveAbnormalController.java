@@ -23,6 +23,8 @@ import com.jd.pop.sortcenter.ws.VenderOperateInfo;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.uim.annotation.Authorization;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,6 +98,7 @@ public class PopReceiveAbnormalController {
 	 */
     @Authorization(Constants.DMS_WEB_PTORDER_DIFF_R)
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
+    @JProfiler(jKey = "com.jd.bluedragon.distribution.web.PopReceiveAbnormalController.list", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
 	public String list(PopAbnormalQuery popAbnormalQuery, Model model) {
 		this.log.info("PopReceiveAbnormalController --> list 按条件查询平台订单差异订单数据集合");
 

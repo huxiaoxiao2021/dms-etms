@@ -52,6 +52,7 @@
 		<property name="collectGoodsDeleteSites" value="${collectGoodsDeleteSites}"/>
 		<property name="weightVolumeFilterWholeCountryFlag" value="${weightVolumeFilterWholeCountryFlag}" />
 		<property name="singleSendSwitchVerToWebSites" value="${singleSendSwitchVerToWebSites}" />
+        <property name="clickIntervalSecond" value="${clickIntervalSecond}" />
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -88,6 +89,7 @@
 				<value>uccPropertyConfiguration.collectGoodsDeleteSites</value>
 				<value>uccPropertyConfiguration.weightVolumeFilterWholeCountryFlag</value>
 				<value>uccPropertyConfiguration.singleSendSwitchVerToWebSites</value>
+                <value>uccPropertyConfiguration.clickIntervalSecond</value>
 			</list>
 		</property>
 	</bean>
