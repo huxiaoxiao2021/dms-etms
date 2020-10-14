@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsExceptionScanningReq;
+import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingScanningReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
 import com.jd.bluedragon.external.gateway.service.GoodsLoadingScanningService;
 
@@ -31,17 +32,17 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
     }
 
     @Override
-    public JdCResponse goodsLoadingScan(GoodsLoadingReq req) {
+    public JdCResponse goodsLoadingScan(GoodsLoadingScanningReq req) {
         return null;
     }
 
     @Override
-    public JdCResponse checkBySendCodeOrBoardcodeOrPackageBarcode(GoodsLoadingReq req) {
+    public JdCResponse checkBySendCodeOrBoardcodeOrPackageBarcode(GoodsLoadingScanningReq req) {
         return null;
     }
 
     @Override
-    public JdCResponse saveForLoadingScanGoodsDetail(GoodsLoadingReq req) {
+    public JdCResponse saveForLoadingScanGoodsDetail(GoodsLoadingScanningReq req) {
         return null;
     }
 

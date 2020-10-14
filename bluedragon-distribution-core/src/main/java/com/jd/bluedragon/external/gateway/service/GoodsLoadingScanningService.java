@@ -3,6 +3,7 @@ package com.jd.bluedragon.external.gateway.service;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsExceptionScanningReq;
+import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingScanningReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
 
 import java.util.List;
@@ -50,17 +51,17 @@ public interface GoodsLoadingScanningService {
     /**
      * 装车扫描接口
      */
-    JdCResponse goodsLoadingScan(GoodsLoadingReq req);
+    JdCResponse goodsLoadingScan(GoodsLoadingScanningReq req);
 
     /**
      * 批次号/板号/包裹号校验接口--发货校验
      */
-    JdCResponse checkBySendCodeOrBoardcodeOrPackageBarcode(GoodsLoadingReq req);
+    JdCResponse checkBySendCodeOrBoardcodeOrPackageBarcode(GoodsLoadingScanningReq req);
 
     /**
      * 包裹明细暂存接口
      */
-    JdCResponse saveForLoadingScanGoodsDetail(GoodsLoadingReq req);
+    JdCResponse saveForLoadingScanGoodsDetail(GoodsLoadingScanningReq req);
 
 
 }
