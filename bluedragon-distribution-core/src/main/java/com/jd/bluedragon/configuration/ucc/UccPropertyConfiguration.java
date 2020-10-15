@@ -146,6 +146,11 @@ public class UccPropertyConfiguration {
 
     private String boardCombinationSwitchVerToWebSites;
 
+    /**
+     * 众邮称重拦截开关
+     */
+    private boolean economicNetValidateWeightSwitch;
+
     public boolean isLogToBusinessLogByKafka() {
         return logToBusinessLogByKafka;
     }
@@ -424,5 +429,13 @@ public class UccPropertyConfiguration {
 
     public void setBoardCombinationSwitchVerToWebSites(String boardCombinationSwitchVerToWebSites) {
         this.boardCombinationSwitchVerToWebSites = boardCombinationSwitchVerToWebSites;
+    }
+
+    public boolean getEconomicNetValidateWeightSwitch() {
+        return economicNetValidateWeightSwitch;
+    }
+
+    public void setEconomicNetValidateWeightSwitch(boolean economicNetValidateWeightSwitch) {
+        this.economicNetValidateWeightSwitch = economicNetValidateWeightSwitch;
     }
 }
