@@ -39,7 +39,7 @@ public interface LoadCarTaskService {
      * @param endSiteCode
      * @return
      */
-    JdCResponse getEndSiteName(Long endSiteCode);
+    JdCResponse<String> getEndSiteName(Long endSiteCode);
 
     /**
      * 车牌号转换
@@ -47,7 +47,7 @@ public interface LoadCarTaskService {
      * @param licenseNumber
      * @return
      */
-    JdCResponse checkLicenseNumber(String licenseNumber);
+    JdCResponse<String> checkLicenseNumber(String licenseNumber);
 
     /**
      * 装卸任务列表

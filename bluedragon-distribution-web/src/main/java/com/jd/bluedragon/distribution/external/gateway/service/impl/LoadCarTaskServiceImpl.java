@@ -27,12 +27,12 @@ public class LoadCarTaskServiceImpl implements LoadCarTaskService {
     }
 
     @Override
-    public JdCResponse getEndSiteName(Long endSiteCode) {
+    public JdCResponse<String> getEndSiteName(Long endSiteCode) {
         return null;
     }
 
     @Override
-    public JdCResponse checkLicenseNumber(String licenseNumber) {
+    public JdCResponse<String> checkLicenseNumber(String licenseNumber) {
         return null;
     }
 
