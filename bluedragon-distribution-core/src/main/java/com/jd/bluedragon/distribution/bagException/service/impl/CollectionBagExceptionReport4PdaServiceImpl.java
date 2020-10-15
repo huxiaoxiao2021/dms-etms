@@ -197,8 +197,8 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
      */
     private boolean canReportException(Waybill waybill){
         String waybillSign = waybill.getWaybillSign();
-        boolean foreignWaybill = BusinessUtil.isForeignWaybill(waybillSign);
-        if(foreignWaybill){
+        boolean isForeignWaybill = BusinessUtil.isForeignWaybill(waybillSign);
+        if(!isForeignWaybill){
             return false;
         }
         boolean freshWaybill = BusinessUtil.isFreshWaybill(waybillSign);
