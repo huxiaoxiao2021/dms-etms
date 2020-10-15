@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDistributionDao">
+
+	<resultMap id="goodsLoadScan" type="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan" >
+		<id column="id" property="unloadDistributeId" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="task_id" property="taskId" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="waybill_code" property="wayBillCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="package_codes" property="packageCodes" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="package_amount" property="packageAmount" javaType="java.lang.Integer" jdbcType="INT" />
+        <result column="goods_amount" property="goodsAmount" javaType="java.lang.Integer" jdbcType="INT" />
+        <result column="load_amount" property="loadAmount" javaType="java.lang.Integer" jdbcType="INT" />
+        <result column="unload_amount" property="unloadAmount" javaType="java.lang.Integer" jdbcType="INT" />
+        <result column="force_amount" property="forceAmount" javaType="java.lang.Integer" jdbcType="INT" />
+        <result column="status" property="status" javaType="java.lang.Integer" jdbcType="TINYINT" />
+        <result column="create_user_code" javaType="java.lang.String" jdbcType="VARCHAR" property="createUserCode"/>
+        <result column="create_user_name" javaType="java.lang.String" jdbcType="VARCHAR" property="createUserName"/>
+        <result column="update_user_code" javaType="java.lang.String" jdbcType="VARCHAR" property="updateUserCode"/>
+        <result column="update_user_name" javaType="java.lang.String" jdbcType="VARCHAR" property="updateUserName"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="yn" jdbcType="INTEGER" property="yn"/>
+    </resultMap>
+
+    <sql id="Base_Column_List" >
+		unload_distribute_id,seal_car_code,unload_user_erp,unload_user_name,
+		unload_user_type,create_time,update_time,yn
+	</sql>
+
+    <sql id="Base_Condition_Sql" >
+			and yn=1
+	</sql>
+
+    <insert id="add" parameterType="com.jd.bluedragon.distribution.loadAndUnload.UnloadCarDistribution">
+        insert into unload_car_distribute
+        (
+        <trim suffixOverrides=",">
+            <if test="unloadDistributeId != null">
+                unload_distribute_id,
+            </if>
+            <if test="sealCarCode != null">
+                seal_car_code,
+            </if>
+            <if test="unloadUserErp != null">
+                unload_user_erp,
+            </if>
+            <if test="unloadUserName != null">
+                unload_user_name,
+            </if>
+            <if test="unloadUserType != null">
+                unload_user_type,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            yn
+        </trim>
+        )
+        values
+        (
+        <trim suffixOverrides=",">
+            <if test="unloadDistributeId != null">
+                #{unloadDistributeId,jdbcType=BIGINT},
+            </if>
+            <if test="sealCarCode != null">
+                #{sealCarCode,jdbcType=VARCHAR},
+            </if>
+            <if test="unloadUserErp != null">
+                #{unloadUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="unloadUserName != null">
+                #{unloadUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="unloadUserType != null">
+                #{unloadUserType,jdbcType=TINYINT},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            1
+        </trim>
+        )
+    </insert>
+
+    <select id="selectHelperBySealCarCode" parameterType="String" resultType="String">
+        select
+        unload_user_erp
+        from
+        unload_car_distribute
+        <where>
+            seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
+            and unload_user_type = 1
+            <include refid="Base_Condition_Sql"/>
+        </where>
+    </select>
+
+    <select id="selectUnloadCarTaskHelpers" parameterType="String" resultMap="unloadCarDistribution">
+        select
+        <include refid="Base_Column_List" />
+        from
+        unload_car_distribute
+        <where>
+            seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
+            and unload_user_type = 1
+            <include refid="Base_Condition_Sql"/>
+        </where>
+    </select>
+
+    <update id="deleteUnloadCarTaskHelpers" parameterType="unloadCarDistribution">
+		update unload_car_distribute
+		set
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+		yn = 0
+		where
+        seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
+        and unload_user_erp = #{unloadUserErp,jdbcType=VARCHAR}
+        <include refid="Base_Condition_Sql"/>
+	</update>
+
+    <select id="selectTasksByUser" parameterType="String" resultType="String">
+        select
+        seal_car_code
+        from
+        unload_car_distribute
+        <where>
+            unload_user_erp = #{unloadUserErp,jdbcType=VARCHAR}
+            and create_time <![CDATA[<=]]> timestampadd(minute, 0, now())
+            and create_time <![CDATA[>=]]>  timestampadd(DAY, -3, now())
+            <include refid="Base_Condition_Sql"/>
+        </where>
+    </select>
+
+</mapper>
