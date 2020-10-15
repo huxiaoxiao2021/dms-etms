@@ -15,7 +15,7 @@ public class LoadDeleteReq implements Serializable {
     /**
      * 删除的任务Id
      */
-    private Integer id;
+    private Long id;
 
     /**
      * 操作人erp

@@ -25,5 +25,5 @@ public class CreateLoadTaskDto implements Serializable {
     /**
      * 任务id
      */
-    private Integer id;
+    private Long id;
 }

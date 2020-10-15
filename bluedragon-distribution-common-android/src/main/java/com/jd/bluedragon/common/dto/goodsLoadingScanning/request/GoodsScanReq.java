@@ -2,6 +2,9 @@ package com.jd.bluedragon.common.dto.goodsLoadingScanning.request;
 
 import java.io.Serializable;
 
+/**
+ *
+ */
 public class GoodsScanReq implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -30,5 +33,6 @@ public class GoodsScanReq implements Serializable {
      * 板号
      */
     private String boardCode;
+
 
 }

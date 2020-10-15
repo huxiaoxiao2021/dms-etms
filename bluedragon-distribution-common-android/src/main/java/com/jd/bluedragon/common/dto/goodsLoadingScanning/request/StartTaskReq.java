@@ -16,7 +16,7 @@ public class StartTaskReq implements Serializable {
     /**
      * 任务Id
      */
-    private String id;
+    private Long id;
 
     /**
      * 创建人erp
