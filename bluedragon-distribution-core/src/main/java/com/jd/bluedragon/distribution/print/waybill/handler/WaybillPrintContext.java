@@ -66,6 +66,16 @@ public class WaybillPrintContext implements Context{
 		}
 		return null;
 	}
+	/**
+	 * 获取SendPay信息
+	 * @return
+	 */
+	public String getSendPay(){
+		if(bigWaybillDto != null && bigWaybillDto.getWaybill() != null){
+			return bigWaybillDto.getWaybill().getSendPay();
+		}
+		return null;
+	}
 	public String getBusiCode() {
 		return busiCode;
 	}
