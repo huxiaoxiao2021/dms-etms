@@ -126,6 +126,15 @@ public class DeliveryResponse extends JdResponse {
 
     public static final String MESSAGE_29120 = "请先在电脑上确认此运单包装服务是否完成!";
 
+    /**取消发货校验提示语*/
+    public static final Integer CODE_CancelDeliveryCheck = 29120;
+
+    public static final String MESSAGE_CancelDeliveryCheck = "请先在电脑上确认此运单包装服务是否完成!";
+
+
+    /**取消发货校验提示语*/
+
+
     /**
      * 单纯的提示语
      */

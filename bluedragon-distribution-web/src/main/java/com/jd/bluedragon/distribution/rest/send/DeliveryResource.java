@@ -350,6 +350,14 @@ public class DeliveryResource {
         }
         /*****/
 
+        /**
+         * 取消发货校验封车业务
+         */
+        DeliveryResponse checkResponse = deliveryService.dellCancelDeliveryCheckSealCar(toSendM(request));
+        if (!checkResponse.getCode().equals(JdResponse.CODE_OK)) {
+            return new ThreeDeliveryResponse(checkResponse.getCode(),checkResponse.getMessage(), null);
+        }
+
         ThreeDeliveryResponse tDeliveryResponse = null;
         try {
             tDeliveryResponse = deliveryService.dellCancelDeliveryMessage(toSendM(request), true);
