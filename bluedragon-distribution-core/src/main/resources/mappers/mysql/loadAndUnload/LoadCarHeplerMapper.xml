@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarHelperDao">
+
+    <resultMap id="loadCarHelper" type="com.jd.bluedragon.distribution.loadAndUnload.LoadCarHelper">
+        <id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+        <result column="task_id" property="taskId" javaType="java.lang.Long" jdbcType="BIGINT"/>
+        <result column="helper_name" property="helperName" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="helper_erp" property="helperErp" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result column="create_user_erp" property="createUserErp" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="create_user_name" property="createUserName" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT"/>
+        <result column="exp" property="exp" javaType="java.lang.String" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <insert id="add" parameterType="com.jd.bluedragon.distribution.loadAndUnload.LoadCarHelper">
+        insert into load_car_helper (
+        <trim suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="taskId != null">
+                task_id,
+            </if>
+            <if test="helperName !=null and helperName !=''">
+                helper_name,
+            </if>
+            <if test="helperErp  !=null and helperErp !=''">
+                helper_erp,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="createUserErp !=null and createUserErp !=''">
+                create_user_erp,
+            </if>
+            <if test="createUserName  !=null and createUserName !=''">
+                create_user_name,
+            </if>
+            <if test="yn !=null">
+                yn
+            </if>
+        </trim>
+        )values(
+        <trim suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="taskId != null">
+                #{taskId,jdbcType=INTEGER},
+            </if>
+            <if test="helperName !=null and helperName !=''">
+                #{helperName,jdbcType=VARCHAR},
+            </if>
+            <if test="helperErp  !=null and helperErp !=''">
+                #{helperErp,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createUserErp !=null and createUserErp !=''">
+                #{createUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="createUserName  !=null and createUserName !=''">
+                #{createUserName,jdbcType=VARCHAR},
+            </if>
+            1
+        </trim>
+        )
+    </insert>
+
+
+</mapper>
