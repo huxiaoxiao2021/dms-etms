@@ -23,32 +23,57 @@
     </resultMap>
 
     <sql id="Base_Column_List" >
-		unload_distribute_id,seal_car_code,unload_user_erp,unload_user_name,
-		unload_user_type,create_time,update_time,yn
+		id,task_id,waybill_code,package_codes,package_amount,goods_amount,load_amount,unload_amount,
+		force_amount,status,create_user_code,create_user_name,update_user_code,update_user_name,
+		create_time,update_time,yn
 	</sql>
 
     <sql id="Base_Condition_Sql" >
 			and yn=1
 	</sql>
 
-    <insert id="add" parameterType="com.jd.bluedragon.distribution.loadAndUnload.UnloadCarDistribution">
-        insert into unload_car_distribute
+    <insert id="add" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan">
+        insert into load_scan
         (
         <trim suffixOverrides=",">
-            <if test="unloadDistributeId != null">
-                unload_distribute_id,
+            <if test="taskId != null">
+                task_id,
             </if>
-            <if test="sealCarCode != null">
-                seal_car_code,
+            <if test="waybillCode != null">
+                waybill_code,
             </if>
-            <if test="unloadUserErp != null">
-                unload_user_erp,
+            <if test="packageCodes != null">
+                package_codes,
             </if>
-            <if test="unloadUserName != null">
-                unload_user_name,
+            <if test="packageAmount != null">
+                package_amount,
             </if>
-            <if test="unloadUserType != null">
-                unload_user_type,
+            <if test="goodsAmount != null">
+                goods_amount,
+            </if>
+            <if test="loadAmount != null">
+                load_amount,
+            </if>
+            <if test="unloadAmount != null">
+                unload_amount,
+            </if>
+            <if test="forceAmount != null">
+                force_amount,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="createUserCode != null">
+                create_user_code,
+            </if>
+            <if test="createUserName != null">
+                create_user_name,
+            </if>
+            <if test="updateUserCode != null">
+                update_user_code,
+            </if>
+            <if test="updateUserName != null">
+                update_user_name,
             </if>
             <if test="createTime != null">
                 create_time,
@@ -62,20 +87,44 @@
         values
         (
         <trim suffixOverrides=",">
-            <if test="unloadDistributeId != null">
-                #{unloadDistributeId,jdbcType=BIGINT},
+            <if test="taskId != null">
+                #{taskId,jdbcType=BIGINT},
             </if>
-            <if test="sealCarCode != null">
-                #{sealCarCode,jdbcType=VARCHAR},
+            <if test="waybillCode != null">
+                #{waybillCode,jdbcType=VARCHAR},
             </if>
-            <if test="unloadUserErp != null">
-                #{unloadUserErp,jdbcType=VARCHAR},
+            <if test="packageCodes != null">
+                #{packageCodes,jdbcType=VARCHAR},
             </if>
-            <if test="unloadUserName != null">
-                #{unloadUserName,jdbcType=VARCHAR},
+            <if test="packageAmount != null">
+                #{packageAmount,jdbcType=INTEGER},
             </if>
-            <if test="unloadUserType != null">
-                #{unloadUserType,jdbcType=TINYINT},
+            <if test="goodsAmount != null">
+                #{goodsAmount,jdbcType=INTEGER},
+            </if>
+            <if test="loadAmount != null">
+                #{loadAmount,jdbcType=INTEGER},
+            </if>
+            <if test="unloadAmount != null">
+                #{unloadAmount,jdbcType=INTEGER},
+            </if>
+            <if test="forceAmount != null">
+                #{forceAmount,jdbcType=INTEGER},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=INTEGER},
+            </if>
+            <if test="createUserCode != null">
+                #{createUserCode,jdbcType=VARCHAR},
+            </if>
+            <if test="createUserName != null">
+                #{createUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserCode != null">
+                #{updateUserCode,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserName != null">
+                #{updateUserName,jdbcType=VARCHAR},
             </if>
             <if test="createTime != null">
                 #{createTime,jdbcType=TIMESTAMP},
