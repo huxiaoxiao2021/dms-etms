@@ -5,6 +5,8 @@ import java.util.Date;
 
 /**
  * 装车扫描明细表
+ * @author lvyuan21
+ * @date 2020-10-15 22:05
  */
 public class GoodsLoadScan {
     /**
@@ -25,7 +27,7 @@ public class GoodsLoadScan {
     /**
      * 包裹号集合
      */
-    private String packageCode;
+    private String packageCodes;
 
     /**
      * 总包裹数量
@@ -116,12 +118,12 @@ public class GoodsLoadScan {
         this.wayBillCode = wayBillCode;
     }
 
-    public String getPackageCode() {
-        return packageCode;
+    public String getPackageCodes() {
+        return packageCodes;
     }
 
-    public void setPackageCode(String packageCode) {
-        this.packageCode = packageCode;
+    public void setPackageCodes(String packageCodes) {
+        this.packageCodes = packageCodes;
     }
 
     public Integer getPackageAmount() {
