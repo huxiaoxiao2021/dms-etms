@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.CreateLoadTaskReq;
+import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadCarTaskCreateReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadDeleteReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadTaskListReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadTaskListDto;
@@ -17,12 +18,12 @@ import java.util.List;
  */
 public class LoadCarTaskServiceImpl implements LoadCarTaskService {
     @Override
-    public JdCResponse createLoadCarTask(CreateLoadTaskReq createLoadTaskReq) {
+    public JdCResponse startTask(CreateLoadTaskReq req) {
         return null;
     }
 
     @Override
-    public JdCResponse deleteLoadCarTask(LoadDeleteReq loadDeleteReq) {
+    public JdCResponse deleteLoadCarTask(LoadDeleteReq req) {
         return null;
     }
 
@@ -37,7 +38,17 @@ public class LoadCarTaskServiceImpl implements LoadCarTaskService {
     }
 
     @Override
-    public JdCResponse<List<LoadTaskListDto>> loadCarTaskList(LoadTaskListReq loadTaskListReq) {
+    public JdCResponse<List<LoadTaskListDto>> loadCarTaskList(LoadTaskListReq req) {
+        return null;
+    }
+
+    @Override
+    public JdCResponse<Long> loadCarTaskCreate(LoadCarTaskCreateReq req) {
+        return null;
+    }
+
+    @Override
+    public JdCResponse<String> getNameByErp(String erp) {
         return null;
     }
 }

@@ -2,6 +2,7 @@ package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.CreateLoadTaskReq;
+import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadCarTaskCreateReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadDeleteReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadTaskListReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadTaskListDto;
@@ -18,23 +19,23 @@ import java.util.List;
 public interface LoadCarTaskService {
 
     /**
-     * 创建转装车任务接口
+     * 创建装车任务接口
      *
-     * @param createLoadTaskReq
+     * @param req
      * @return
      */
-    JdCResponse createLoadCarTask(CreateLoadTaskReq createLoadTaskReq);
+    JdCResponse startTask(CreateLoadTaskReq req);
 
     /**
      * 删除装车任务接口
      *
-     * @param loadDeleteReq
+     * @param req
      * @return
      */
-    JdCResponse deleteLoadCarTask(LoadDeleteReq loadDeleteReq);
+    JdCResponse deleteLoadCarTask(LoadDeleteReq req);
 
     /**
-     * 转运中心
+     * 获取转运中心名称
      *
      * @param endSiteCode
      * @return
@@ -52,9 +53,25 @@ public interface LoadCarTaskService {
     /**
      * 装卸任务列表
      *
-     * @param loadTaskListReq
+     * @param req
      * @return
      */
-    JdCResponse<List<LoadTaskListDto>> loadCarTaskList(LoadTaskListReq loadTaskListReq);
+    JdCResponse<List<LoadTaskListDto>> loadCarTaskList(LoadTaskListReq req);
 
+
+    /**
+     * 装车任务创建,返回任务Id
+     *
+     * @param req
+     * @return
+     */
+    JdCResponse<Long> loadCarTaskCreate(LoadCarTaskCreateReq req);
+
+    /**
+     * 根据erp获取姓名
+     *
+     * @param erp
+     * @return
+     */
+    JdCResponse<String> getNameByErp(String erp);
 }

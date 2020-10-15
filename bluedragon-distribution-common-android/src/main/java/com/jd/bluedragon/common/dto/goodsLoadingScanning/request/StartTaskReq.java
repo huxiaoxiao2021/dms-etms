@@ -1,5 +1,7 @@
 package com.jd.bluedragon.common.dto.goodsLoadingScanning.request;
 
+import com.jd.bluedragon.common.dto.unloadCar.HelperDto;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -31,7 +33,7 @@ public class StartTaskReq implements Serializable {
     /**
      * 协助人信息
      */
-    private List<AssistorInfoReq> assistorInfo;
+    private List<HelperDto> assistorInfo;
 
     public Long getId() {
         return id;
@@ -57,11 +59,11 @@ public class StartTaskReq implements Serializable {
         this.createUserName = createUserName;
     }
 
-    public List<AssistorInfoReq> getAssistorInfo() {
+    public List<HelperDto> getAssistorInfo() {
         return assistorInfo;
     }
 
-    public void setAssistorInfo(List<AssistorInfoReq> assistorInfo) {
+    public void setAssistorInfo(List<HelperDto> assistorInfo) {
         this.assistorInfo = assistorInfo;
     }
 }
