@@ -655,4 +655,9 @@
     </bean>
     <!--################################## bd_dms_business 相关DAO End ############################################ -->
 
+    <!--装车任务-->
+    <bean id="loadCarDao" parent="businessBaseDao"
+          class="com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarDao" />
+    <bean id="loadCarHelperDao" parent="businessBaseDao"
+          class="com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarHelperDao" />
 </beans>
