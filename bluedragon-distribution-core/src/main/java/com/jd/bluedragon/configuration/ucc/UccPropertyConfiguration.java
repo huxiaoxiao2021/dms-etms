@@ -147,7 +147,7 @@ public class UccPropertyConfiguration {
     private String boardCombinationSwitchVerToWebSites;
 
     /**
-     * 众邮称重拦截开关
+     * 众邮称重拦截开关。true 拦截，false 不拦截
      */
     private boolean economicNetValidateWeightSwitch;
 

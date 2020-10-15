@@ -58,7 +58,7 @@
 		<property name="singleSendSwitchVerToWebSites" value="${singleSendSwitchVerToWebSites}" />
         <property name="clickIntervalSecond" value="${clickIntervalSecond}" />
 		<property name="boardCombinationSwitchVerToWebSites" value="${boardCombinationSwitchVerToWebSites}" />
-		<property name="economicNetValidateWeightSwitch" value="${economicNetValidateWeightSwitch:false}"/>
+		<property name="economicNetValidateWeightSwitch" value="${economicNetValidateWeightSwitch:true}"/>
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
