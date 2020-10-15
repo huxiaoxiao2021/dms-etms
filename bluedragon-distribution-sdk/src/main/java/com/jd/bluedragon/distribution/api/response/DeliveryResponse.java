@@ -33,6 +33,7 @@ public class DeliveryResponse extends JdResponse {
     public static final String MESSAGE_Delivery_NO_MESAGE = "无该箱号发货的记录";
     public static final String MESSAGE_Delivery_IS_MESAGE = "发货处理中请稍后再试";
     public static final String MESSAGE_Delivery_NO_PACKAGE= "无该包裹的发货记录";
+    public static final String MESSAGE_Delivery_NO_WAYBILL= "无该运单的发货记录";
     public static final String MESSAGE_Delivery_NO_REQUEST= "输入参数错误";
     public static final String MESSAGE_Delivery_NO_BATCH = "无该波次的发货明细";
     public static final String MESSAGE_DELIVERY_NO_SENDCODE = "无该批次号的发货记录";
@@ -126,13 +127,25 @@ public class DeliveryResponse extends JdResponse {
 
     public static final String MESSAGE_29120 = "请先在电脑上确认此运单包装服务是否完成!";
 
-    /**取消发货校验提示语*/
-    public static final Integer CODE_CancelDeliveryCheck = 29120;
+    /**取消发货校验提示语 Start*/
 
-    public static final String MESSAGE_CancelDeliveryCheck = "请先在电脑上确认此运单包装服务是否完成!";
+    public static final Integer CODE_CANCELDELIVERYCHECK_ERROR = 40014;
+    public static final String MESSAGE_CANCELDELIVERYCHECK_ERROR = "根据批次号获取封车状态时异常";
+    public static final String MESSAGE_CANCELDELIVERYCHECK_ERR = "取消发货校验封车异常";
 
+    public static final Integer CODE_CANCELDELIVERYCHECK_SEAL = 40015;
+    public static final String MESSAGE_CANCELDELIVERYCHECK_SEAL = "操作封车已超过一小时，不允许取消发货。请先操作 取消封车";
 
-    /**取消发货校验提示语*/
+    public static final Integer CODE_CANCELDELIVERYCHECK_UNSEAL = 40016;
+    public static final String MESSAGE_CANCELDELIVERYCHECK_UNSEAL = "下游已解封车，不允许取消发货";
+
+    public static final Integer CODE_CANCELDELIVERYCHECK_ONLY = 40017;
+    public static final String MESSAGE_CANCELDELIVERYCHECK_ONLY_PACKAGE = "当前包裹是封车批次中的唯一包裹，不允许取消发货。请先操作 取消封车";
+    public static final String MESSAGE_CANCELDELIVERYCHECK_ONLY_WAYBILL = "当前运单是封车批次中的唯一运单，不允许取消发货。请先操作 取消封车";
+    public static final String MESSAGE_CANCELDELIVERYCHECK_ONLY_BOX = "当前箱号是封车批次中的唯一箱号，不允许取消发货。请先操作 取消封车";
+    public static final String MESSAGE_CANCELDELIVERYCHECK_ONLY_BOARD = "当前板号是封车批次中的唯一板号，不允许取消发货。请先操作 取消封车";
+
+    /**取消发货校验提示语 End*/
 
 
     /**
