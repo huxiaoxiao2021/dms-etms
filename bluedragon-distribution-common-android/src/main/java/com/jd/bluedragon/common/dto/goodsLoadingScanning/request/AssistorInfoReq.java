@@ -40,6 +40,4 @@ public class AssistorInfoReq implements Serializable {
     public void setOperateUserName(String operateUserName) {
         this.operateUserName = operateUserName;
     }
-
-
 }

@@ -25,7 +25,7 @@ public class GoodsLoadingScanningReq implements Serializable {
     /**
      * 批次号
      */
-    private String sendCode;
+    private String batchCode;
 
     /**
      * 运单号
@@ -38,7 +38,7 @@ public class GoodsLoadingScanningReq implements Serializable {
     private String boardCode;
 
     /**
-     * 包裹号转板号标识
+     * 包裹号转板号标识updateUnloadCarTaskHelpers
      */
     private Integer transfer;
 
@@ -71,12 +71,12 @@ public class GoodsLoadingScanningReq implements Serializable {
         this.taskId = taskId;
     }
 
-    public String getSendCode() {
-        return sendCode;
+    public String getBatchCode() {
+        return batchCode;
     }
 
-    public void setSendCode(String sendCode) {
-        this.sendCode = sendCode;
+    public void setBatchCode(String batchCode) {
+        this.batchCode = batchCode;
     }
 
     public String getWayBillCode() {

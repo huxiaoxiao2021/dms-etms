@@ -16,7 +16,7 @@ public class StartTaskReq implements Serializable {
     /**
      * 任务Id
      */
-    private String id;
+    private Long id;
 
     /**
      * 创建人erp
@@ -32,4 +32,36 @@ public class StartTaskReq implements Serializable {
      * 协助人信息
      */
     private List<AssistorInfoReq> assistorInfo;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getCreateUserErp() {
+        return createUserErp;
+    }
+
+    public void setCreateUserErp(String createUserErp) {
+        this.createUserErp = createUserErp;
+    }
+
+    public String getCreateUserName() {
+        return createUserName;
+    }
+
+    public void setCreateUserName(String createUserName) {
+        this.createUserName = createUserName;
+    }
+
+    public List<AssistorInfoReq> getAssistorInfo() {
+        return assistorInfo;
+    }
+
+    public void setAssistorInfo(List<AssistorInfoReq> assistorInfo) {
+        this.assistorInfo = assistorInfo;
+    }
 }

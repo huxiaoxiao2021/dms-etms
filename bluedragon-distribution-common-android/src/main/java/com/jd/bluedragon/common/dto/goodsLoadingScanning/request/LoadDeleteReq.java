@@ -27,9 +27,12 @@ public class LoadDeleteReq implements Serializable {
      */
     private String operateUserName;
 
+<<<<<<< HEAD
     public LoadDeleteReq() {
     }
 
+=======
+>>>>>>> 19a5e83495b6c785a36b24139bc43b13b30d297a
     public Long getId() {
         return id;
     }

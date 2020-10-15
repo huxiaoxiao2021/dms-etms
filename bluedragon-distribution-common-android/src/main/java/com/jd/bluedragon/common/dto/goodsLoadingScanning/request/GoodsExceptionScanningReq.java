@@ -9,7 +9,7 @@ public class GoodsExceptionScanningReq {
     private static final long serialVersionUID = 1L;
 
 //    任务号
-    private String taskId;
+    private Long taskId;
 
 //    运单号集合
     private List<String> waybillCode;
@@ -17,11 +17,11 @@ public class GoodsExceptionScanningReq {
 //    包裹号
     private String packageCode;
 
-    public String getTaskId() {
+    public Long getTaskId() {
         return taskId;
     }
 
-    public void setTaskId(String taskId) {
+    public void setTaskId(Long taskId) {
         this.taskId = taskId;
     }
 
