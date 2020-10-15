@@ -26,4 +26,28 @@ public class LoadDeleteReq implements Serializable {
      * 操作人姓名
      */
     private String operateUserName;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getOperateUserErp() {
+        return operateUserErp;
+    }
+
+    public void setOperateUserErp(String operateUserErp) {
+        this.operateUserErp = operateUserErp;
+    }
+
+    public String getOperateUserName() {
+        return operateUserName;
+    }
+
+    public void setOperateUserName(String operateUserName) {
+        this.operateUserName = operateUserName;
+    }
 }

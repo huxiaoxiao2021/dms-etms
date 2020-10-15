@@ -41,4 +41,52 @@ public class CreateLoadTaskReq implements Serializable {
      * 创建人所属转运中心名称
      */
     private String currentSiteName;
+
+    public String getLicenseNumber() {
+        return licenseNumber;
+    }
+
+    public void setLicenseNumber(String licenseNumber) {
+        this.licenseNumber = licenseNumber;
+    }
+
+    public Long getEndSiteCode() {
+        return endSiteCode;
+    }
+
+    public void setEndSiteCode(Long endSiteCode) {
+        this.endSiteCode = endSiteCode;
+    }
+
+    public String getCreateUserErp() {
+        return createUserErp;
+    }
+
+    public void setCreateUserErp(String createUserErp) {
+        this.createUserErp = createUserErp;
+    }
+
+    public String getCreateUserName() {
+        return createUserName;
+    }
+
+    public void setCreateUserName(String createUserName) {
+        this.createUserName = createUserName;
+    }
+
+    public Long getCurrentSiteCode() {
+        return currentSiteCode;
+    }
+
+    public void setCurrentSiteCode(Long currentSiteCode) {
+        this.currentSiteCode = currentSiteCode;
+    }
+
+    public String getCurrentSiteName() {
+        return currentSiteName;
+    }
+
+    public void setCurrentSiteName(String currentSiteName) {
+        this.currentSiteName = currentSiteName;
+    }
 }

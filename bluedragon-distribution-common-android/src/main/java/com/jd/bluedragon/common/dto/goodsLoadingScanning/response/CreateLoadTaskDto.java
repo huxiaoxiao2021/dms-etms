@@ -26,4 +26,28 @@ public class CreateLoadTaskDto implements Serializable {
      * 任务id
      */
     private Long id;
+
+    public String getLicenseNumber() {
+        return licenseNumber;
+    }
+
+    public void setLicenseNumber(String licenseNumber) {
+        this.licenseNumber = licenseNumber;
+    }
+
+    public String getEndSiteName() {
+        return endSiteName;
+    }
+
+    public void setEndSiteName(String endSiteName) {
+        this.endSiteName = endSiteName;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 }

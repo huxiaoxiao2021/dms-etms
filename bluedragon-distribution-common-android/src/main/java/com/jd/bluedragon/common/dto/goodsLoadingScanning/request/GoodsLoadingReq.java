@@ -16,7 +16,7 @@ public class GoodsLoadingReq {
     /**
      * 任务号
      */
-    private String taskId;
+    private Long taskId;
 
     /**
      * 操作人
@@ -62,4 +62,92 @@ public class GoodsLoadingReq {
      * 是否删除 '0' 删除 '1' 使用
      */
     private Integer yn;
+
+    public Integer getBizSource() {
+        return bizSource;
+    }
+
+    public void setBizSource(Integer bizSource) {
+        this.bizSource = bizSource;
+    }
+
+    public Long getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(Long taskId) {
+        this.taskId = taskId;
+    }
+
+    public String getCreateUser() {
+        return createUser;
+    }
+
+    public void setCreateUser(String createUser) {
+        this.createUser = createUser;
+    }
+
+    public Integer getCreateUserCode() {
+        return createUserCode;
+    }
+
+    public void setCreateUserCode(Integer createUserCode) {
+        this.createUserCode = createUserCode;
+    }
+
+    public Integer getSendType() {
+        return sendType;
+    }
+
+    public void setSendType(Integer sendType) {
+        this.sendType = sendType;
+    }
+
+    public Integer getCreateSiteCode() {
+        return createSiteCode;
+    }
+
+    public void setCreateSiteCode(Integer createSiteCode) {
+        this.createSiteCode = createSiteCode;
+    }
+
+    public String getSendCode() {
+        return sendCode;
+    }
+
+    public void setSendCode(String sendCode) {
+        this.sendCode = sendCode;
+    }
+
+    public Integer getReceiveSiteCode() {
+        return receiveSiteCode;
+    }
+
+    public void setReceiveSiteCode(Integer receiveSiteCode) {
+        this.receiveSiteCode = receiveSiteCode;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    public Date getOperateTime() {
+        return operateTime;
+    }
+
+    public void setOperateTime(Date operateTime) {
+        this.operateTime = operateTime;
+    }
+
+    public Integer getYn() {
+        return yn;
+    }
+
+    public void setYn(Integer yn) {
+        this.yn = yn;
+    }
 }

@@ -9,7 +9,7 @@ public class GoodsExceptionScanningDto {
     private Long id;
 
     //    任务号
-    private String taskId;
+    private Long taskId;
 
     //    运单号
     private String waybillCode;
@@ -31,11 +31,11 @@ public class GoodsExceptionScanningDto {
         this.id = id;
     }
 
-    public String getTaskId() {
+    public Long getTaskId() {
         return taskId;
     }
 
-    public void setTaskId(String taskId) {
+    public void setTaskId(Long taskId) {
         this.taskId = taskId;
     }
 
