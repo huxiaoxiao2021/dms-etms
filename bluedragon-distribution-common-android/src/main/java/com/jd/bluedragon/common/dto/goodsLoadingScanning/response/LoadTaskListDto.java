@@ -27,5 +27,43 @@ public class LoadTaskListDto implements Serializable {
      */
     private Integer status;
 
+    /**
+     * 任务Id
+     */
+    private Long id;
 
+    public LoadTaskListDto() {
+    }
+
+    public String getLicenseNumber() {
+        return licenseNumber;
+    }
+
+    public void setLicenseNumber(String licenseNumber) {
+        this.licenseNumber = licenseNumber;
+    }
+
+    public String getEndSiteName() {
+        return endSiteName;
+    }
+
+    public void setEndSiteName(String endSiteName) {
+        this.endSiteName = endSiteName;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 }

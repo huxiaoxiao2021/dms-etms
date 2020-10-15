@@ -18,4 +18,22 @@ public class LoadTaskListReq implements Serializable {
     /** 操作人名字 */
     private String loginUserName;
 
+    public LoadTaskListReq() {
+    }
+
+    public String getLoginUserErp() {
+        return loginUserErp;
+    }
+
+    public void setLoginUserErp(String loginUserErp) {
+        this.loginUserErp = loginUserErp;
+    }
+
+    public String getLoginUserName() {
+        return loginUserName;
+    }
+
+    public void setLoginUserName(String loginUserName) {
+        this.loginUserName = loginUserName;
+    }
 }

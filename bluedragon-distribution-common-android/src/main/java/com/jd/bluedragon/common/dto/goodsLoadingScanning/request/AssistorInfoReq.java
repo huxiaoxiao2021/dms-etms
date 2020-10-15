@@ -21,4 +21,25 @@ public class AssistorInfoReq implements Serializable {
      * 协助人姓名
      */
     private String operateUserName;
+
+    public AssistorInfoReq() {
+    }
+
+    public String getOperateUserErp() {
+        return operateUserErp;
+    }
+
+    public void setOperateUserErp(String operateUserErp) {
+        this.operateUserErp = operateUserErp;
+    }
+
+    public String getOperateUserName() {
+        return operateUserName;
+    }
+
+    public void setOperateUserName(String operateUserName) {
+        this.operateUserName = operateUserName;
+    }
+
+
 }
