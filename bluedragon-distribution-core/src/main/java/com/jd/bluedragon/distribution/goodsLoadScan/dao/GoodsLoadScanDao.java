@@ -35,4 +35,7 @@ public class GoodsLoadScanDao extends BaseDao<GoodsLoadScan> {
     public boolean updateByPrimaryKey(GoodsLoadScan goodsLoadScan) {
         return super.getSqlSession().update(NAMESPACE + ".updateByPrimaryKey", goodsLoadScan) > 0;
     }
+
 }
+
+
