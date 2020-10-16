@@ -220,6 +220,7 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
         if(EnumBusiCode.BUSI_SUCCESS.getCode() == bigWaybillDtoBaseEntity.getResultCode()){
             BigWaybillDto bigWaybillDto = bigWaybillDtoBaseEntity.getData();
             WaybillTransWay waybillTransWay = bigWaybillDto.getWaybillTransWay();
+            log.info("CollectionBagExceptionReportServiceImpl waybillTransWay {}", JSON.toJSONString(waybillTransWay));
             if(waybillTransWay != null && Objects.equals(waybillTransWay.getCargoType(), dictProductTypeFragile)){
                 fragileWaybill = true;
             }
