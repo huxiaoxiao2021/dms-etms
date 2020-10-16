@@ -10,13 +10,15 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsException
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanDao;
-import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsScanRecordDao;
+import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.ExceptionScanDto;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.ExceptionScanService;
 import com.jd.bluedragon.external.gateway.service.GoodsLoadingScanningService;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.common.util.JacksonUtils;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
@@ -39,10 +41,10 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
     private GoodsLoadScanDao goodsLoadScanDao;
 
     @Autowired
-    private GoodsScanRecordDao goodsScanRecordDao;
+    private GoodsLoadScanRecordDao goodsScanRecordDao;
 
-    @Autowired
-    private LoadScanPackageDetailService loadScanPackageDetailService;
+//    @Autowired
+//    private LoadScanPackageDetailService loadScanPackageDetailService;
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
@@ -75,7 +77,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         GoodsLoadScanRecord record = new GoodsLoadScanRecord();
         record.setTaskId(req.getTaskId());
         record.setPackageCode(req.getPackageCode());
-        log.info("GoodsLoadingScanningServiceImpl#goodsRemoveScanning- 取消发货查询任务号【"+ req.getTaskId() +"】-包裹号【" + req.getPackageCode() +"】是否被扫描装车");
+        log.info("GoodsLoadingScanningServiceImpl#goodsRemoveScanning- 取消发货查询任务号- 参数【" + JsonHelper.toJson(req) + "】");
         ExceptionScanDto exceptionScanDto = exceptionScanService.findExceptionGoodsScan(record);//入参 包裹号  包裹状态=1 yn
 
         if(exceptionScanDto == null) {
@@ -83,14 +85,14 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
             return response;
         }
 
-        log.info("GoodsLoadingScanningServiceImpl#goodsRemoveScanning- 取消发货更改不齐异常数据，任务号【"+ exceptionScanDto.getTaskId() +"】-运单号【" + exceptionScanDto.getPackageCode() +"】");
+        log.info("GoodsLoadingScanningServiceImpl#goodsRemoveScanning- 取消发货更改不齐异常数据，参数【" + JsonHelper.toJson(exceptionScanDto) + "】");
         boolean removeRes =  exceptionScanService.removeGoodsScan(exceptionScanDto);
 
         if(removeRes == true) {
-            log.info("GoodsLoadingScanningServiceImpl#goodsRemoveScanning- 取消包裹扫描成功【"+ req.getTaskId() +"】-包裹号【" + req.getPackageCode() +"】是否被扫描装车");
+            log.info("GoodsLoadingScanningServiceImpl#goodsRemoveScanning- 取消包裹扫描成功,【" + JsonHelper.toJson(exceptionScanDto) + "】");
             response.toSucceed("取消包裹扫描成功");
         } else {
-            log.info("GoodsLoadingScanningServiceImpl#goodsRemoveScanning- 取消包裹扫描失败【"+ req.getTaskId() +"】-包裹号【" + req.getPackageCode() +"】是否被扫描装车");
+            log.info("GoodsLoadingScanningServiceImpl#goodsRemoveScanning- 取消包裹扫描失败,【" + JsonHelper.toJson(exceptionScanDto) + "】");
             response.toError("取消包裹扫描失败");
         }
         return response;
@@ -100,6 +102,28 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
 
     @Override
     public JdCResponse goodsCompulsoryDeliver(GoodsExceptionScanningReq req) {
+
+        JdCResponse response = new JdCResponse<Boolean>();
+
+        if(req.getTaskId() == null) {
+            response.toFail("任务号不能为空");
+            return response;
+        }
+
+        if(req.getWaybillCode() == null || req.getWaybillCode().size() <=0) {
+            response.toFail("运单号不能为空");
+            return response;
+        }
+
+        log.info("GoodsLoadingScanningServiceImpl#goodsCompulsoryDeliver-强制下发--begin:入参【" + JsonHelper.toJson(req) + "】");
+        boolean res = exceptionScanService.goodsCompulsoryDeliver(req);
+
+        if(res != true) {
+            response.toError("强制下发失败");
+            return response;
+        }
+
+        response.toSucceed("强制下发成功");
         return null;
     }
 
@@ -121,7 +145,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         // 根据任务号查找当前任务所在网点和下一网点
 
         // 从es查
-        List<GoodsDetailDto> detailList = loadScanPackageDetailService.findLoadScanPackageDetail();
+//        List<GoodsDetailDto> detailList = loadScanPackageDetailService.findLoadScanPackageDetail();
         // 保存到装车扫描表
 
         // 返回列表给端上
