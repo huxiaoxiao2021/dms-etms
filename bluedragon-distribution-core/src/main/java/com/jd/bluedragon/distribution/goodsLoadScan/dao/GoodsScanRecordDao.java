@@ -35,4 +35,9 @@ public class GoodsScanRecordDao extends BaseDao {
     public GoodsLoadScan findGoodLoadScan(GoodsLoadScan loadScan) {
         return null;
     }
+
+    public int insert(GoodsLoadScanRecord record) {
+
+        return this.getSqlSession().update(namespace + ".add", record);
+    }
 }

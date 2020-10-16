@@ -11,6 +11,7 @@ import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsExceptionScanDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanDao;
+import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsScanRecordDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.ExceptionScanDto;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
@@ -38,6 +39,9 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
 
     @Autowired
     private GoodsLoadScanDao goodsLoadScanDao;
+
+    @Autowired
+    private GoodsScanRecordDao goodsScanRecordDao;
 
     @Autowired
     private LoadScanPackageDetailService loadScanPackageDetailService;
@@ -177,7 +181,8 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
             GoodsLoadScan goodsLoadScan = createGoodsLoadScan(taskId, waybillCode, packageCode, goodsAmount);
             goodsLoadScanDao.insert(goodsLoadScan);
             // 装车记录表新增一条记录 todo
-
+            GoodsLoadScanRecord loadScanRecord = new GoodsLoadScanRecord();
+            goodsScanRecordDao.insert(loadScanRecord);
         } else {
             // 计算已装、未装
             String packageCodes = loadScan.getPackageCodes();
@@ -194,6 +199,10 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         return null;
     }
 
+    /**
+     * 设置运单状态
+     * @param goodsLoadScan 装车扫描运单记录
+     */
     private void setWaybillStatus(GoodsLoadScan goodsLoadScan) {
         Integer goodsAmount = goodsLoadScan.getGoodsAmount();
         Integer loadAmount = goodsLoadScan.getLoadAmount();
