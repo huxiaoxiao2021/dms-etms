@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsExceptionS
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingScanningReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsDetailDto;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
+import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan;
 
 import java.util.List;
 
@@ -38,7 +39,7 @@ public interface GoodsLoadingScanningService {
      * @return
      * @Author zhengchengfa
      */
-    JdCResponse<List<GoodsExceptionScanningDto>> findExceptionGoodsLoading(GoodsExceptionScanningReq req);
+    JdCResponse<List<GoodsLoadScan>> findExceptionGoodsLoading(GoodsExceptionScanningReq req);
 
     /**
      * 装车发货

@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.goodsLoadScan.service.impl;
 
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsExceptionScanningReq;
+import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
@@ -12,6 +13,9 @@ import com.jd.bluedragon.utils.JsonHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ExceptionScanServiceImpl implements ExceptionScanService {
     private final static Logger log = LoggerFactory.getLogger(ExceptionScanServiceImpl.class);
@@ -121,4 +125,12 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
         }
         return true;
     }
+
+    @Override
+    public List<GoodsLoadScan> findAllExceptionGoodsScan(Long taskId) {
+
+        return goodsLoadScanDao.findLoadScanByTaskId(taskId);
+    }
+
+
 }

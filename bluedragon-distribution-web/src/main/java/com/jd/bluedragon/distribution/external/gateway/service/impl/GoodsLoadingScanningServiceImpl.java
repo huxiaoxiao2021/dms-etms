@@ -128,8 +128,22 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
     }
 
     @Override
-    public JdCResponse<List<GoodsExceptionScanningDto>> findExceptionGoodsLoading(GoodsExceptionScanningReq req) {
-        return null;
+    public JdCResponse<List<GoodsLoadScan>> findExceptionGoodsLoading(GoodsExceptionScanningReq req) {
+        JdCResponse<List<GoodsLoadScan>> response = new JdCResponse<>();
+
+        if(req.getTaskId() == null) {
+            response.toFail("任务号不能为空");
+            return response;
+        }
+
+        List<GoodsLoadScan> list = exceptionScanService.findAllExceptionGoodsScan(req.getTaskId());
+        if(list == null || list.size() <= 0) {
+            response.toError("不齐异常数据查找失败");
+            return response;
+        }
+        response.toSucceed("不齐异常数据查找成功");
+        response.setData(list);
+        return response;
     }
 
     @Override
