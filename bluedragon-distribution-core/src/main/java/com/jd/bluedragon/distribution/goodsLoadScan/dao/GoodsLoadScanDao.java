@@ -8,7 +8,7 @@ import java.util.List;
 
 public class GoodsLoadScanDao extends BaseDao<GoodsLoadScan> {
 
-    private static final String NAMESPACE = GoodsExceptionScanDao.class.getName();
+    private static final String NAMESPACE = GoodsLoadScanDao.class.getName();
 
 
     public GoodsLoadScan findLoadScanByTaskIdAndWaybillCode(Long taskId, String waybillCode) {
@@ -35,4 +35,7 @@ public class GoodsLoadScanDao extends BaseDao<GoodsLoadScan> {
     public boolean updateByPrimaryKey(GoodsLoadScan goodsLoadScan) {
         return super.getSqlSession().update(NAMESPACE + ".updateByPrimaryKey", goodsLoadScan) > 0;
     }
+
 }
+
+
