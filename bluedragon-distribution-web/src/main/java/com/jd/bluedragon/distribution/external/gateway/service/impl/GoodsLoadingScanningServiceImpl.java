@@ -166,6 +166,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         }
         Waybill waybill = baseEntity.getData();
         String waybillCode = waybill.getWaybillCode();
+        // todo 是库存还是总包裹
         Integer goodsAmount = waybill.getGoodNumber();
 
         // 根据任务号和运单号查找包裹是否属于当前批次
@@ -185,18 +186,36 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
                 // 已装 + 1
                 loadScan.setLoadAmount(loadScan.getLoadAmount() + 1);
                 // 计算单子状态
-
+                setWaybillStatus(loadScan);
+                goodsLoadScanDao.updateByPrimaryKey(loadScan);
             }
         }
 
         return null;
     }
 
-    private int getWaybillStatus(GoodsLoadScan goodsLoadScan) {
-        Integer packageAmount = goodsLoadScan.getPackageAmount();
+    private void setWaybillStatus(GoodsLoadScan goodsLoadScan) {
+        Integer goodsAmount = goodsLoadScan.getGoodsAmount();
         Integer loadAmount = goodsLoadScan.getLoadAmount();
         Integer unloadAmount = goodsLoadScan.getUnloadAmount();
-        return 0;
+        Integer forceAmount = goodsLoadScan.getForceAmount();
+        // 已装和未装都大于0  -- 没扫齐 -- 红色
+        if (loadAmount > 0 && unloadAmount > 0) {
+            goodsLoadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_RED);
+        }
+        // 已装和未装都大于0，操作强发 -- 没扫齐强发 -- 橙色
+        if (loadAmount > 0 && unloadAmount > 0 && forceAmount > 0) {
+            goodsLoadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_ORANGE);
+        }
+        // 已装等于库存，未装=0 -- 已扫描完 -- 绿色 todo 待确认
+        if (goodsAmount.equals(loadAmount) && unloadAmount == 0) {
+            goodsLoadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_GREEN);
+        }
+        // 已装等于0且总包裹=库存 -- 货到齐没开始扫 或 扫完取消 -- 无特殊颜色
+        // 已装等于0且总包裹≠库存 -- 货没到齐没开始扫 或 扫完取消 -- 无特殊颜色
+        if (loadAmount == 0) {
+            goodsLoadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK);
+        }
     }
 
     private GoodsLoadScan createGoodsLoadScan(Long taskId, String waybillCode, String packageCode, Integer goodsAmount) {

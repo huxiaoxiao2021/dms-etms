@@ -223,7 +223,7 @@
     </select>
 
 
-    <update id="updateByTaskIdAndWaybillCode" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan">
+    <update id="updateByPrimaryKey" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan">
         update load_scan
         <set>
             <if test="taskId != null">task_id = #{taskId,jdbcType=BIGINT},</if>
@@ -243,7 +243,7 @@
             <if test="updateTime != null">update_time = #{updateTime,jdbcType=TIMESTAMP},</if>
             <if test="yn != null">yn = #{yn,jdbcType=INTEGER},</if>
         </set>
-        where task_id = #{taskId,jdbcType=BIGINT} and waybill_code = #{waybillCode,jdbcType=VARCHAR} and yn = 1
+        where id = #{id,jdbcType=BIGINT} and yn = 1
     </update>
 
 
