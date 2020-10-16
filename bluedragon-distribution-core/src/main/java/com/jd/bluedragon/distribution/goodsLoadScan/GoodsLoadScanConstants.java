@@ -9,7 +9,7 @@ public class GoodsLoadScanConstants {
     public static final Integer GOODS_SCAN_LOAD_BLANK = 0;
     public static final Integer GOODS_SCAN_LOAD_GREEN = 1;
     public static final Integer GOODS_SCAN_LOAD_ORANGE = 2;
-    public static final Integer GOODS_SCAN_LOAD_YOLLOW = 3;
+    public static final Integer GOODS_SCAN_LOAD_YELLOW = 3;
     public static final Integer GOODS_SCAN_LOAD_RED = 4;
 
 }
