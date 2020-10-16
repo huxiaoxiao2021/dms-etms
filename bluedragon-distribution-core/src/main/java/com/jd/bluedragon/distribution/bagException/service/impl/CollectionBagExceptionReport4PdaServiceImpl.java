@@ -490,7 +490,7 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
         CollectionBagExceptionReport model = new CollectionBagExceptionReport();
         model.setPackageCode(reportRequest.getPackageCode());
         model.setReportType(reportRequest.getReportType());
-        model.setReportImg(StringUtils.join(reportRequest.getReportImgUrls(), ","));
+        model.setReportImg(JSON.toJSONString(reportRequest.getReportImgUrls()));
         Date currentDate = new Date();
         User user = reportRequest.getUser();
         model.setCreateUserErp(user.getUserErp());
