@@ -508,8 +508,8 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
         BaseStaffSiteOrgDto operateSiteData = baseMajorManager.getBaseSiteBySiteId(currentOperate.getSiteCode());
         if(operateSiteData != null){
             model.setOrgCode(operateSiteData.getOrgId());
-            model.setOrgName(currentOperate.getOrgName());
-            model.setSiteName(currentOperate.getSiteName());
+            model.setOrgName(operateSiteData.getOrgName());
+            model.setSiteName(operateSiteData.getSiteName());
         }
 
         // 根据包裹号查询上游箱号，补全数据
