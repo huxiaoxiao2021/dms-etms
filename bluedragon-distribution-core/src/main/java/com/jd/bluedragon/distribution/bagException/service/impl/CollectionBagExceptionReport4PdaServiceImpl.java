@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.box.request.BoxCollectionReportRequest;
 import com.jd.bluedragon.common.dto.box.request.QueryBoxCollectionReportRequest;
 import com.jd.bluedragon.common.dto.box.response.QueryBoxCollectionReportResponse;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
@@ -24,6 +25,7 @@ import com.jd.etms.waybill.domain.*;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.fastjson.JSON;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.report.DmsDisSendJsfService;
 import com.jd.ql.dms.report.domain.dmsDisSend.DmsDisSend;
 import com.jd.ql.dms.report.domain.dmsDisSend.DmsDisSendQueryCondition;
@@ -57,6 +59,9 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
 
     @Autowired
     private WaybillTraceManager waybillTraceManager;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
 
     @Autowired
     private SortingService sortingService;
@@ -137,9 +142,11 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
                         Sorting sortingData = boxPackList.get(0);
                         Boolean isBoxCode = BusinessUtil.isBoxcode(sortingData.getBoxCode());
                         reportResponse.setBoxStartId(sortingData.getCreateSiteCode());
-                        reportResponse.setBoxStartSiteName(sortingData.getCreateSiteName());
+                        BaseStaffSiteOrgDto createSiteData = baseMajorManager.getBaseSiteBySiteId(sortingData.getCreateSiteCode());
+                        reportResponse.setBoxStartSiteName(createSiteData != null ? createSiteData.getSiteName() : "未查到站点" + sortingData.getCreateSiteCode() + "的数据");
                         reportResponse.setBoxEndSiteId(sortingData.getReceiveSiteCode());
-                        reportResponse.setBoxEndSiteName(sortingData.getReceiveSiteName());
+                        BaseStaffSiteOrgDto receiveSiteData = baseMajorManager.getBaseSiteBySiteId(sortingData.getReceiveSiteCode());
+                        reportResponse.setBoxEndSiteName(receiveSiteData != null ? receiveSiteData.getSiteName() :  "未查到站点" + sortingData.getReceiveSiteCode() + "的数据");
                         if(isBoxCode){
                             reportResponse.setUpstreamBoxCode(sortingData.getBoxCode());
                         }
@@ -149,12 +156,12 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
                 // 判断3种情况的逻辑，1. 虚假集包 2. 上游未集包 3. 无异常
                 this.judgeBoxException(reportResponse, waybill);
             }
-            log.info("queryBagCollectionHasException result: {}", JSON.toJSONString(result));
         } catch (Exception e) {
             log.error("CollectionBagExceptionReportServiceImpl.queryBagCollectionHasException exception {}", e.getMessage(), e);
             result.toFail("查询异常");
         }
         result.setData(reportResponse);
+        log.info("queryBagCollectionHasException result: {}", JSON.toJSONString(result));
         return result;
     }
 
@@ -438,6 +445,8 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
                 exceptionReport.setWeight(latestPackFlowDetail.getpWeight());
             } else {
                 log.info("waybillPackageManager.getOpeDetailByCode 无称重明细 packageCode {}", reportRequest.getPackageCode());
+                result.init(JdCResponse.CODE_FAIL, "未查询到此包裹的称重明细数据，不可举报");
+                return result;
             }
             // 查询包裹起始、目的地信息及上游箱号
             Integer preSendSiteId = this.getPreSendSiteId(reportRequest.getPackageCode(), reportRequest.getCurrentOperate().getSiteCode());
