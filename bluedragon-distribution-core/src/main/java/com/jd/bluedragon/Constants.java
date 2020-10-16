@@ -1133,6 +1133,8 @@ public class Constants {
      * */
     public static final String BUSINESS_TYPE_PREFIX = "BUSINESS-TYPE";
 
+    public static final String THIRD_ENET_BOX_WAYBILL_PREFIX = "THIRD_ENET_BOX_WAYBILL";
+
     /**
      * 运单路由字段使用的分隔符
      */
