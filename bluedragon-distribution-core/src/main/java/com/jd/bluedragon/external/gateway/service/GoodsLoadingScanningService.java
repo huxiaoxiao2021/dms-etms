@@ -58,12 +58,12 @@ public interface GoodsLoadingScanningService {
     /**
      * 批次号/板号/包裹号校验接口--发货校验
      */
-    JdCResponse checkByBatchCodeOrBoardCodeOrPackageCode(GoodsLoadingScanningReq req);
+    JdCResponse<Void> checkByBatchCodeOrBoardCodeOrPackageCode(GoodsLoadingScanningReq req);
 
     /**
      * 包裹暂存接口
      */
-    JdCResponse saveByPackageCode(GoodsLoadingScanningReq req);
+    JdCResponse<Void> saveByPackageCode(GoodsLoadingScanningReq req);
 
 
 }

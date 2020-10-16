@@ -14,6 +14,8 @@ import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.ExceptionScanDto;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
+import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
+import com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarDao;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.ExceptionScanService;
 import com.jd.bluedragon.external.gateway.service.GoodsLoadingScanningService;
@@ -22,6 +24,7 @@ import com.jd.common.util.JacksonUtils;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.ql.dms.report.LoadScanPackageDetailService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,13 +44,16 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
     private GoodsLoadScanDao goodsLoadScanDao;
 
     @Autowired
-    private GoodsLoadScanRecordDao goodsScanRecordDao;
+    private GoodsLoadScanRecordDao goodsLoadScanRecordDao;
 
-//    @Autowired
-//    private LoadScanPackageDetailService loadScanPackageDetailService;
+    @Autowired
+    private LoadScanPackageDetailService loadScanPackageDetailService;
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
+
+    @Autowired
+    private LoadCarDao loadCarDao;
 
 
     @Override
@@ -153,21 +159,42 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
 
     @Override
     public JdCResponse<List<GoodsDetailDto>> goodsLoadingScan(GoodsLoadingScanningReq req) {
+        JdCResponse<List<GoodsDetailDto>> response = new JdCResponse<>();
+        Long taskId = req.getTaskId();
         // 根据任务号查找装车扫描表
-
+        List<GoodsLoadScan> scanList = goodsLoadScanDao.findLoadScanByTaskId(taskId);
+        // 如果已初始化，直接返回
+        if (!scanList.isEmpty()) {
+            List<GoodsDetailDto> details = tansformDtoToEntity(scanList);
+            response.setData(details);
+            return response;
+        }
         // 如果如果此任务尚未初始化
         // 根据任务号查找当前任务所在网点和下一网点
-
+        LoadCar loadCar = loadCarDao.get();
         // 从es查
-//        List<GoodsDetailDto> detailList = loadScanPackageDetailService.findLoadScanPackageDetail();
-        // 保存到装车扫描表
+        com.jd.ql.dms.report.domain.BaseEntity<List<com.jd.ql.dms.report.domain.GoodsDetailDto>> detailList = loadScanPackageDetailService
+                .findLoadScanPackageDetail(loadCar.getCurrentSiteCode().intValue(), loadCar.getEndSiteCode().intValue());
+        if (detailList.getCode() == Constants.SUCCESS_CODE) {
+            List<com.jd.ql.dms.report.domain.GoodsDetailDto> list = detailList.getData();
+            if (!list.isEmpty()) {
+                // 组装数据
+                List<GoodsLoadScan> loadScans = tansformEntityToDto(list);
+                // 保存到装车扫描表
+                goodsLoadScanDao.batchInsert(loadScans);
+                // 返回列表给端上
+                response.setData(list);
+                return response;
+            }
+        }
 
         // 返回列表给端上
-        return null;
+        response.setData(detailList);
+        return response;
     }
 
     @Override
-    public JdCResponse checkByBatchCodeOrBoardCodeOrPackageCode(GoodsLoadingScanningReq req) {
+    public JdCResponse<Void> checkByBatchCodeOrBoardCodeOrPackageCode(GoodsLoadingScanningReq req) {
         // 如果是批次号
         // 系统校验批次号的目的地与输入的目的场地是否一致，如果不一致则系统提示：“批次号目的地与目的场地不一致，请检查后重新扫描”
 
@@ -189,7 +216,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
     }
 
     @Override
-    public JdCResponse saveByPackageCode(GoodsLoadingScanningReq req) {
+    public JdCResponse<Void> saveByPackageCode(GoodsLoadingScanningReq req) {
         Long taskId = req.getTaskId();
         String packageCode = req.getPackageCode();
         // 根据包裹号查找运单号
@@ -215,8 +242,9 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
             GoodsLoadScan goodsLoadScan = createGoodsLoadScan(taskId, waybillCode, packageCode, goodsAmount);
             goodsLoadScanDao.insert(goodsLoadScan);
             // 装车记录表新增一条记录 todo
-            GoodsLoadScanRecord loadScanRecord = new GoodsLoadScanRecord();
-            goodsScanRecordDao.insert(loadScanRecord);
+            GoodsLoadScanRecord loadScanRecord = createGoodsLoadScanRecord(taskId, waybillCode, packageCode,
+                    goodsAmount, req.getTransfer());
+            goodsLoadScanRecordDao.insert(loadScanRecord);
         } else {
             // 计算已装、未装
             String packageCodes = loadScan.getPackageCodes();
@@ -285,5 +313,25 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         return goodsLoadScan;
     }
 
+    private GoodsLoadScanRecord createGoodsLoadScanRecord(Long taskId, String waybillCode, String packageCode,
+                                                          Integer goodsAmount, Integer transfer) {
+        GoodsLoadScanRecord loadScanRecord = new GoodsLoadScanRecord();
+        loadScanRecord.setTaskId(taskId);
+        loadScanRecord.setWayBillCode(waybillCode);
+        loadScanRecord.setPackageCode(packageCode);
+        // todo 是库存还是总包裹
+        loadScanRecord.setPackageAmount(1);
+        // 装车动作
+        loadScanRecord.setScanAction(GoodsLoadScanConstants.GOODS_SCAN_LOAD);
+        loadScanRecord.setTransfer(transfer);
+        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+        if (erpUser != null) {
+            loadScanRecord.setCreateUserCode(erpUser.getUserCode());
+            loadScanRecord.setCreateUserName(erpUser.getUserName());
+        }
+        loadScanRecord.setCreateTime(new Date());
+        loadScanRecord.setYn(Constants.YN_YES);
+        return loadScanRecord;
+    }
 
 }
