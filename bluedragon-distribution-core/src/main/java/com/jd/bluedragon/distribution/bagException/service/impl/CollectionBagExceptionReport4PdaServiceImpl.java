@@ -491,18 +491,26 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
         model.setPackageCode(reportRequest.getPackageCode());
         model.setReportType(reportRequest.getReportType());
         model.setReportImg(StringUtils.join(reportRequest.getReportImgUrls(), ","));
+        Date currentDate = new Date();
         User user = reportRequest.getUser();
         model.setCreateUserErp(user.getUserErp());
         model.setCreateUserName(user.getUserName());
         model.setOperatorErp(user.getUserErp());
         model.setOperatorName(user.getUserName());
-        model.setOperateTime(new Date());
+        model.setOperateTime(currentDate);
+        model.setCreateTime(currentDate);
+        model.setUpdateTime(currentDate);
 
         CurrentOperate currentOperate = reportRequest.getCurrentOperate();
-        model.setOrgCode(currentOperate.getOrgId());
-        model.setOrgName(currentOperate.getOrgName());
         model.setSiteCode(currentOperate.getSiteCode());
         model.setSiteName(currentOperate.getSiteName());
+
+        BaseStaffSiteOrgDto operateSiteData = baseMajorManager.getBaseSiteBySiteId(currentOperate.getSiteCode());
+        if(operateSiteData != null){
+            model.setOrgCode(operateSiteData.getOrgId());
+            model.setOrgName(currentOperate.getOrgName());
+            model.setSiteName(currentOperate.getSiteName());
+        }
 
         // 根据包裹号查询上游箱号，补全数据
 
