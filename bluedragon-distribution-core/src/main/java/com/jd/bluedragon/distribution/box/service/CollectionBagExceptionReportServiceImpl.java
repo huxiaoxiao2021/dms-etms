@@ -100,7 +100,7 @@ public class CollectionBagExceptionReportServiceImpl implements CollectionBagExc
         vo.setReportTypeName(CollectionBagExceptionReportTypeEnum.getEnumNameByCode(vo.getReportType()));
         vo.setReportTimeFormative(DateUtil.format(collectionBagExceptionReport.getCreateTime(), DateUtil.FORMAT_DATE_TIME));
         List<String> imgUrlList = new ArrayList<>();
-        if(StringUtils.isEmpty(vo.getReportImg())){
+        if(StringUtils.isNotBlank(vo.getReportImg())){
             // imgUrlList = Arrays.asList(vo.getReportImg().split(","));
             imgUrlList = JSON.parseArray(vo.getReportImg(), String.class);
         }
