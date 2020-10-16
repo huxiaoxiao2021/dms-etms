@@ -1,5 +1,9 @@
 package com.jd.bluedragon.distribution.funcSwitchConfig.service.impl;
 
+import com.jd.bd.dms.automatic.sdk.common.constant.WeightValidateSwitchEnum;
+import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
+import com.jd.bd.dms.automatic.sdk.modules.device.DeviceConfigInfoJsfService;
+import com.jd.bd.dms.automatic.sdk.modules.device.dto.DeviceConfigDto;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigDto;
@@ -20,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -42,6 +47,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
     private static final Integer PRE_SELL_RULE_TYPE = 2100;
     private static final String PRE_SELL_RULE_OPEN = "1";
     private static final String PRE_SELL_RULE_CONTENT = "预售暂存分拣规则，1表示开启";
+    private static final Integer YN_OFF = 1;//开关有效标识
 
     @Value("${checkAuthoritySwitch:true}")
     private boolean checkAuthoritySwitch;
@@ -57,6 +63,9 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
 
     @Autowired
     private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    private DeviceConfigInfoJsfService deviceConfigInfoJsfService;
 
     /**
      * 根据条件分页查询
@@ -76,6 +85,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
      * @param funcSwitchConfigDto
      * @return
      */
+    @Transactional
     @Override
     public JdResponse insert(FuncSwitchConfigDto funcSwitchConfigDto) {
         JdResponse jdResponse = new JdResponse();
@@ -90,6 +100,30 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
             Date date = new Date();
             funcSwitchConfigDto.setCreateTime(date);
             funcSwitchConfigDto.setUpdateTime(date);
+
+            //众邮调度分拣机开关
+            if(FuncSwitchConfigEnum.FUNCTION_ALL_MAIL.getCode()==funcSwitchConfigDto.getMenuCode()){
+                BaseDmsAutoJsfResponse<Long> longBaseDmsAutoJsfResponse = null;
+                if(funcSwitchConfigDto.getDimensionCode()==DimensionEnum.NATIONAL.getCode()){
+                    longBaseDmsAutoJsfResponse = deviceConfigInfoJsfService.maintainWeightSwitch(funcSwitchConfigDto.getYn()==YN_OFF?WeightValidateSwitchEnum.OFF:WeightValidateSwitchEnum.ON);
+                    if(longBaseDmsAutoJsfResponse.getStatusCode()!=BaseDmsAutoJsfResponse.SUCCESS_CODE){
+                        jdResponse.toFail("众邮分拣机开关调用失败,全国");
+                        return jdResponse;
+                    }
+                }else {
+                    Integer[] siteCodes = {funcSwitchConfigDto.getSiteCode()};
+                    if(!(siteCodes.length>0)){
+                        jdResponse.toFail("众邮分拣机开关调用失败,缺少站点编码:");
+                        return jdResponse;
+                    }
+                    longBaseDmsAutoJsfResponse = deviceConfigInfoJsfService.maintainSiteWeightSwitch(siteCodes,funcSwitchConfigDto.getYn()==YN_OFF?WeightValidateSwitchEnum.OFF:WeightValidateSwitchEnum.ON);
+                    if(longBaseDmsAutoJsfResponse.getStatusCode()!=BaseDmsAutoJsfResponse.SUCCESS_CODE){
+                        jdResponse.toFail("众邮分拣机开关调用失败,站点:"+siteCodes);
+                        return jdResponse;
+                    }
+                }
+            }
+
             funcSwitchConfigDao.add(funcSwitchConfigDto);
             if(FuncSwitchConfigEnum.FUNCTION_PRE_SELL.getCode() == funcSwitchConfigDto.getMenuCode()){
                 // 预售分拣暂存功能 记录预售的分拣规则
@@ -121,6 +155,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
             jdResponse.toFail("参数为空!");
             return jdResponse;
         }
+
         int count = funcSwitchConfigDao.batchAdd(list);
         if(count != list.size()){
             jdResponse.toFail("批量新增部分成功!");
@@ -190,18 +225,45 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
                 return jdResponse;
             }
             List<Long> ids = new ArrayList<>();
+
+            //站点编码集合
+            List<Integer> siteCodes = new ArrayList<>();
+            BaseDmsAutoJsfResponse  longBaseDmsAutoJsfResponse = null;
             for(FuncSwitchConfigDto dto : funcSwitchConfigDtos){
                 if(checkAuthority(dto.getMenuCode(),loginErp,jdResponse)){
                     return jdResponse;
                 }
+                //众邮-调用分拣机开关进行更新
+                if(FuncSwitchConfigEnum.FUNCTION_ALL_MAIL.getCode()==dto.getMenuCode()){
+                    if(dto.getDimensionCode()==DimensionEnum.NATIONAL.getCode()){
+                        longBaseDmsAutoJsfResponse = deviceConfigInfoJsfService.maintainWeightSwitch(WeightValidateSwitchEnum.ON);
+                        if(longBaseDmsAutoJsfResponse.getStatusCode()!=BaseDmsAutoJsfResponse.SUCCESS_CODE){
+                            jdResponse.toFail("众邮分拣机开关调用失败,全国");
+                            return jdResponse;
+                        }
+                    }else {
+                        siteCodes.add(dto.getSiteCode());
+                    }
+                }
                 ids.add(dto.getId());
             }
-            funcSwitchConfigDao.logicalDelete(ids);
+
+            if(siteCodes.size()>0){
+                Integer[] siteCodesArray = (Integer[]) siteCodes.toArray();
+                longBaseDmsAutoJsfResponse = deviceConfigInfoJsfService.maintainSiteWeightSwitch(siteCodesArray,WeightValidateSwitchEnum.ON);
+                if(longBaseDmsAutoJsfResponse.getStatusCode()!=BaseDmsAutoJsfResponse.SUCCESS_CODE){
+                    jdResponse.toFail("众邮分拣机开关调用失败,站点:"+siteCodes);
+                    return jdResponse;
+                }
+            }
+
+            if(ids.size()>0){
+                funcSwitchConfigDao.logicalDelete(ids);
+            }
         }catch (Exception e){
             logger.error("逻辑删除异常,入参【{}】", JsonHelper.toJson(funcSwitchConfigDtos),e);
         }
         return jdResponse;
-
     }
 
     /**

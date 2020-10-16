@@ -429,6 +429,10 @@ function initDimension(menu) {
                 allowClear: true,
                 data: result
             });
+            if($(menu).val()=='全国'){
+                $('#orgId-EG').hide();
+                $('#siteCode-EG').hide();
+            }
             $(menu).val(null).trigger('change');
         }
     });
