@@ -65,9 +65,14 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
         record.setTaskId(exceptionScanDto.getTaskId());
         record.setWayBillCode(exceptionScanDto.getWayBillCode());
         record.setScanAction(GoodsLoadScanConstants.GOODS_SCAN_REMOVE);
+        log.info("ExceptionScanServiceImpl#removeGoodsScan 取消扫描修改包裹记录表--begin--，包裹号【"+ exceptionScanDto.getPackageCode()
+                +"】，任务号【" + exceptionScanDto.getTaskId() + "】");
+
         int num = goodsExceptionScanDao.updateGoodsScanRecord(record);
 
         if( num > 0) {
+            log.info("ExceptionScanServiceImpl#removeGoodsScan 取消扫描修改包裹记录表成功--success--，包裹号【"+ exceptionScanDto.getPackageCode()
+                    +"】，任务号【" + exceptionScanDto.getTaskId() + "】");
             GoodsLoadScan lc = new GoodsLoadScan();
             lc.setWayBillCode(exceptionScanDto.getWayBillCode());
             lc.setTaskId(exceptionScanDto.getTaskId());
@@ -76,14 +81,25 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
             if(exceptionScanDto.getLoadAmount() == 1) {
                 lc.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK);
             }
+
+            log.info("ExceptionScanServiceImpl#removeGoodsScan 取消扫描修改包裹明细表 --begin--，包裹号【"+ record.getPackageCode()
+                    +"】,运单号【" + lc.getWayBillCode() + "】，任务号【" + lc.getTaskId() + "】");
             int scNum = goodsExceptionScanDao.updateGoodsScan(lc);
             if(scNum > 0) {
+                log.info("ExceptionScanServiceImpl#removeGoodsScan 取消扫描修改包裹明细表 --success--，包裹号【"+ record.getPackageCode()
+                        +"】,运单号【" + lc.getWayBillCode() + "】，任务号【" + lc.getTaskId() + "】");
+                flag = true;
+            }else {
+                log.info("ExceptionScanServiceImpl#removeGoodsScan 取消扫描修改包裹明细表 --error--，包裹号【"+ record.getPackageCode()
+                        +"】,运单号【" + lc.getWayBillCode() + "】，任务号【" + lc.getTaskId() + "】");
                 flag = false;
             }
+        }else {
+            log.info("ExceptionScanServiceImpl#removeGoodsScan 取消扫描修改包裹记录表成功--error--，包裹号【"+ exceptionScanDto.getPackageCode()
+                    +"】，任务号【" + exceptionScanDto.getTaskId() + "】");
         }
 
         return flag;
     }
-
 
 }
