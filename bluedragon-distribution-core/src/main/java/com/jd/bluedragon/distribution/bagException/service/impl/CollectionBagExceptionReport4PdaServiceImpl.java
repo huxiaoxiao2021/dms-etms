@@ -333,6 +333,8 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
                 });
                 return packageOpeList.get(0);
             }
+        } else {
+            log.info("waybillPackageManager.getOpeDetailByCode 无称重明细 waybillCodeOrPackageCode {}", waybillCodeOrPackageCode);
         }
         return null;
     }
