@@ -6,7 +6,6 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingReq
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsExceptionScanningReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingScanningReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsDetailDto;
-import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanDao;
@@ -20,7 +19,6 @@ import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.ExceptionScanService;
 import com.jd.bluedragon.external.gateway.service.GoodsLoadingScanningService;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.common.util.JacksonUtils;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
@@ -30,8 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningService {
 
@@ -157,21 +154,23 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public JdCResponse<List<GoodsDetailDto>> goodsLoadingScan(GoodsLoadingScanningReq req) {
         JdCResponse<List<GoodsDetailDto>> response = new JdCResponse<>();
+        response.setCode(JdCResponse.CODE_SUCCESS);
         Long taskId = req.getTaskId();
         // 根据任务号查找装车扫描表
         List<GoodsLoadScan> scanList = goodsLoadScanDao.findLoadScanByTaskId(taskId);
         // 如果已初始化，直接返回
         if (!scanList.isEmpty()) {
-            List<GoodsDetailDto> details = tansformDtoToEntity(scanList);
+            List<GoodsDetailDto> details = transformDtoToEntity(scanList);
             response.setData(details);
             return response;
         }
         // 如果如果此任务尚未初始化
         // 根据任务号查找当前任务所在网点和下一网点
-        LoadCar loadCar = loadCarDao.get();
+        LoadCar loadCar = loadCarDao.findLoadCarById(taskId);
         // 从es查
         com.jd.ql.dms.report.domain.BaseEntity<List<com.jd.ql.dms.report.domain.GoodsDetailDto>> detailList = loadScanPackageDetailService
                 .findLoadScanPackageDetail(loadCar.getCurrentSiteCode().intValue(), loadCar.getEndSiteCode().intValue());
@@ -179,17 +178,18 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
             List<com.jd.ql.dms.report.domain.GoodsDetailDto> list = detailList.getData();
             if (!list.isEmpty()) {
                 // 组装数据
-                List<GoodsLoadScan> loadScans = tansformEntityToDto(list);
+                Map<String, Object> map = transformEntityToDto(list, taskId);
                 // 保存到装车扫描表
-                goodsLoadScanDao.batchInsert(loadScans);
+                goodsLoadScanDao.batchInsert((List<GoodsLoadScan>) map.get("insert"));
                 // 返回列表给端上
-                response.setData(list);
+                response.setData((List<GoodsDetailDto>) map.get("return"));
                 return response;
             }
         }
 
-        // 返回列表给端上
-        response.setData(detailList);
+        // 没有数据的情况
+        response.setMessage("根据任务ID没有找到对应的数据");
+        response.setData(null);
         return response;
     }
 
@@ -199,6 +199,8 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         // 系统校验批次号的目的地与输入的目的场地是否一致，如果不一致则系统提示：“批次号目的地与目的场地不一致，请检查后重新扫描”
 
         //批次号校验通过，则和任务绑定
+
+        // 扫描第一个包裹时，将任务状态改为已开始
 
         // 多扫逻辑校验
 
@@ -217,16 +219,22 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
 
     @Override
     public JdCResponse<Void> saveByPackageCode(GoodsLoadingScanningReq req) {
+        JdCResponse<Void> response = new JdCResponse<>();
+        response.setCode(JdCResponse.CODE_SUCCESS);
         Long taskId = req.getTaskId();
         String packageCode = req.getPackageCode();
         // 根据包裹号查找运单号
         BaseEntity<Waybill> baseEntity = waybillQueryManager.getWaybillByPackCode(req.getPackageCode());
         if(baseEntity == null){
-            log.warn("查询运单信息接口返回空waybillCode[{}]", baseEntity);
-            return null;
+            log.warn("根据包裹号查询运单信息接口返回空packageCode[{}]", req.getPackageCode());
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("根据包裹号查询运单信息接口返回空");
+            return response;
         }
         if(baseEntity.getResultCode() != EnumBusiCode.BUSI_SUCCESS.getCode() || baseEntity.getData() == null){
-            log.warn("查询运单信息接口失败waybillCode[{}]code[{}]", baseEntity, baseEntity.getResultCode());
+            log.warn("查询运单信息接口失败packageCode[{}]code[{}]", req.getPackageCode(), baseEntity.getResultCode());
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage(baseEntity.getMessage());
             return null;
         }
         Waybill waybill = baseEntity.getData();
@@ -258,7 +266,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
             }
         }
 
-        return null;
+        return response;
     }
 
     /**
@@ -301,7 +309,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         // 未装：库存包裹数 – 装车已扫包裹数
         goodsLoadScan.setUnloadAmount(goodsAmount - 1);
         goodsLoadScan.setForceAmount(0);
-        // '运单状态颜色：此时 多扫 3黄色
+        // 运单状态颜色：此时 多扫 3黄色
         goodsLoadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW);
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
         if (erpUser != null) {
@@ -334,4 +342,58 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         return loadScanRecord;
     }
 
+    private Map<String, Object> transformEntityToDto(List<com.jd.ql.dms.report.domain.GoodsDetailDto> list, Long taskId) {
+        Map<String, Object> map = new HashMap<>(16);
+        List<GoodsLoadScan> scanList = new ArrayList<>();
+        List<GoodsDetailDto> goodsDetails = new ArrayList<>();
+        Date date = new Date();
+        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+        for (com.jd.ql.dms.report.domain.GoodsDetailDto detailDto : list) {
+            // 组装入库的对象
+            GoodsLoadScan goodsLoadScan = new GoodsLoadScan();
+            goodsLoadScan.setTaskId(taskId);
+            goodsLoadScan.setWayBillCode(detailDto.getWayBillCode());
+            goodsLoadScan.setPackageCodes(detailDto.getPackageCodes());
+            goodsLoadScan.setPackageAmount(detailDto.getPackageAmount());
+            goodsLoadScan.setGoodsAmount(detailDto.getGoodsAmount());
+            goodsLoadScan.setLoadAmount(0);
+            goodsLoadScan.setUnloadAmount(0);
+            goodsLoadScan.setForceAmount(0);
+            goodsLoadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK);
+            goodsLoadScan.setYn(Constants.YN_YES);
+            goodsLoadScan.setCreateTime(date);
+            if (erpUser != null) {
+                goodsLoadScan.setCreateUserCode(erpUser.getUserCode());
+                goodsLoadScan.setCreateUserName(erpUser.getUserName());
+            }
+            scanList.add(goodsLoadScan);
+            // 组装给端上返回的数据
+            GoodsDetailDto goodsDetailDto = new GoodsDetailDto();
+            goodsDetailDto.setWayBillCode(detailDto.getWayBillCode());
+            goodsDetailDto.setPackageAmount(detailDto.getPackageAmount());
+            goodsDetailDto.setGoodsAmount(detailDto.getGoodsAmount());
+            goodsDetailDto.setLoadAmount(0);
+            goodsDetailDto.setUnloadAmount(0);
+            goodsLoadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK);
+            goodsDetails.add(goodsDetailDto);
+        }
+        map.put("insert", scanList);
+        map.put("return", goodsDetails);
+        return map;
+    }
+
+    private List<GoodsDetailDto> transformDtoToEntity(List<GoodsLoadScan> loadScans) {
+        List<GoodsDetailDto> goodsDetails = new ArrayList<>();
+        for (GoodsLoadScan loadScan : loadScans) {
+            GoodsDetailDto goodsDetail = new GoodsDetailDto();
+            goodsDetail.setWayBillCode(loadScan.getWayBillCode());
+            goodsDetail.setPackageAmount(loadScan.getPackageAmount());
+            goodsDetail.setGoodsAmount(loadScan.getGoodsAmount());
+            goodsDetail.setLoadAmount(loadScan.getLoadAmount());
+            goodsDetail.setUnloadAmount(loadScan.getUnloadAmount());
+            goodsDetail.setStatus(loadScan.getStatus());
+            goodsDetails.add(goodsDetail);
+        }
+        return goodsDetails;
+    }
 }
