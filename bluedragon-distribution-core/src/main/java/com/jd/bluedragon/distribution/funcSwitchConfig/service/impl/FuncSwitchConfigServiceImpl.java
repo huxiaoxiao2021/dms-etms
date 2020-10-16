@@ -249,7 +249,8 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
             }
 
             if(siteCodes.size()>0){
-                Integer[] siteCodesArray = (Integer[]) siteCodes.toArray();
+                Integer[] siteCodesArray = new Integer[siteCodes.size()];
+                siteCodes.toArray(siteCodesArray);
                 longBaseDmsAutoJsfResponse = deviceConfigInfoJsfService.maintainSiteWeightSwitch(siteCodesArray,WeightValidateSwitchEnum.ON);
                 if(longBaseDmsAutoJsfResponse.getStatusCode()!=BaseDmsAutoJsfResponse.SUCCESS_CODE){
                     jdResponse.toFail("众邮分拣机开关调用失败,站点:"+siteCodes);
