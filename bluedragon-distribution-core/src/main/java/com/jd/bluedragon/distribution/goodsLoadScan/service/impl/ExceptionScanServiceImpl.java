@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.goodsLoadScan.service.impl;
 
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
-import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsExceptionScanDao;
+import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsScanRecordDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.ExceptionScanDto;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
@@ -15,7 +15,7 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
 
 
     @Autowired
-    private GoodsExceptionScanDao goodsExceptionScanDao;
+    private GoodsScanRecordDao goodsExceptionScanDao;
 
     /*
      * 取消扫描查询是否存在：先插记录表  再查扫描表

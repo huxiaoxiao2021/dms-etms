@@ -11,11 +11,11 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-public class GoodsExceptionScanDao extends BaseDao {
+public class GoodsScanRecordDao extends BaseDao {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private static final String namespace = GoodsExceptionScanDao.class.getName();
+    private static final String namespace = GoodsScanRecordDao.class.getName();
 
 
     public int updateGoodsScanRecord(GoodsLoadScanRecord record) {
