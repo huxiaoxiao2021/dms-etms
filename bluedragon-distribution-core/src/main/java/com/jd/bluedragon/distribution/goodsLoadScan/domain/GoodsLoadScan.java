@@ -1,12 +1,15 @@
 package com.jd.bluedragon.distribution.goodsLoadScan.domain;
 
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * 装车扫描明细表
  */
-public class GoodsLoadScan {
+public class GoodsLoadScan implements Serializable {
+    private static final long serialVersionUID = -7623509285189482980L;
+
     /**
      * 主键
      */
