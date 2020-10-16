@@ -32,6 +32,8 @@ public class LoadTaskListDto implements Serializable {
      */
     private Long id;
 
+    private Long endSiteCode;
+
     public LoadTaskListDto() {
     }
 
@@ -65,5 +67,13 @@ public class LoadTaskListDto implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getEndSiteCode() {
+        return endSiteCode;
+    }
+
+    public void setEndSiteCode(Long endSiteCode) {
+        this.endSiteCode = endSiteCode;
     }
 }

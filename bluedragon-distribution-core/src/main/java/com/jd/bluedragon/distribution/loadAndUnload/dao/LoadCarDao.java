@@ -1,7 +1,10 @@
 package com.jd.bluedragon.distribution.loadAndUnload.dao;
 
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadTaskListDto;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
+
+import java.util.List;
 
 /**
  * @program: bluedragon-distribution
@@ -13,9 +16,19 @@ public class LoadCarDao extends BaseDao<LoadCar> {
 
     public static final String namespace = LoadCarDao.class.getName();
 
-    public int add(LoadCar detail) {
-        return this.getSqlSession().insert(namespace + ".add", detail);
+
+    public int add(LoadCar detail){
+        return this.getSqlSession().insert(namespace + ".add",detail);
     }
 
+    /**
+     * 根据创建人身份erp查看关联的任务
+     *
+     * @param loginUserErp
+     * @return
+     */
+    public List<LoadTaskListDto> queryByErp(String loginUserErp) {
+        return this.getSqlSession().selectList(namespace + ".queryByErp", loginUserErp);
+    }
 
 }

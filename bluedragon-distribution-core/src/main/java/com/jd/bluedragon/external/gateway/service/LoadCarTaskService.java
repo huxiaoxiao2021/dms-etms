@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadCarTaskCrea
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadDeleteReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadTaskListReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadTaskListDto;
+import com.jd.bluedragon.common.dto.unloadCar.HelperDto;
 
 import java.util.List;
 
@@ -73,5 +74,5 @@ public interface LoadCarTaskService {
      * @param erp
      * @return
      */
-    JdCResponse<String> getNameByErp(String erp);
+    JdCResponse<HelperDto> getNameByErp(String erp);
 }
