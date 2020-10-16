@@ -10,7 +10,6 @@ import com.jd.bluedragon.distribution.bagException.domain.CollectionBagException
 import com.jd.bluedragon.distribution.bagException.request.CollectionBagExceptionReportQuery;
 import com.jd.etms.sdk.util.DateUtil;
 import com.jd.fastjson.JSON;
-import com.jd.jss.util.DateUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -99,7 +99,12 @@ public class CollectionBagExceptionReportServiceImpl implements CollectionBagExc
         BeanUtils.copyProperties(collectionBagExceptionReport, vo);
         vo.setReportTypeName(CollectionBagExceptionReportTypeEnum.getEnumNameByCode(vo.getReportType()));
         vo.setReportTimeFormative(DateUtil.format(collectionBagExceptionReport.getCreateTime(), DateUtil.FORMAT_DATE_TIME));
-        vo.setReportImgUrlList(JSON.parseArray(vo.getReportImg(), String.class));
+        List<String> imgUrlList = new ArrayList<>();
+        if(StringUtils.isEmpty(vo.getReportImg())){
+            // imgUrlList = Arrays.asList(vo.getReportImg().split(","));
+            imgUrlList = JSON.parseArray(vo.getReportImg(), String.class);
+        }
+        vo.setReportImgUrlList(imgUrlList);
         // 查询箱号始发地、目的地站点名称
         BaseStaffSiteOrgDto siteStart = baseMajorManager.getBaseSiteBySiteId(vo.getBoxStartId().intValue());
         if(siteStart != null){
