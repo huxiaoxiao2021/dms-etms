@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarDao">
+
+    <resultMap id="unloadCar" type="com.jd.bluedragon.distribution.loadAndUnload.LoadCar">
+        <id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+        <result column="license_number" property="licenseNumber" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="end_site_code" property="endSiteCode" javaType="java.lang.Long" jdbcType="BIGINT"/>
+        <result column="end_site_name" property="endSiteName" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="status" property="status" javaType="java.lang.Integer" jdbcType="TINYINT"/>
+        <result column="operate_user_erp" property="operateUserErp" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="operate_user_name" property="operateUserName" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="operate_time" property="operateTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result column="create_user_erp" property="createUserErp" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="current_site_name" property="currentSiteName" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="current_site_code" property="currentSiteCode" javaType="java.lang.Long" jdbcType="BIGINT"/>
+        <result column="batch_code" property="batchCode" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="create_user_name" property="createUserName" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT"/>
+        <result column="exp" property="exp" javaType="java.lang.String" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <insert id="add" parameterType="com.jd.bluedragon.distribution.loadAndUnload.LoadCar">
+        insert into load_car (
+        <trim suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="licenseNumber != null and licenseNumber != ''">
+                license_number,
+            </if>
+            <if test="endSiteCode != null ">
+                end_site_code,
+            </if>
+            <if test="endSiteName != null and endSiteName !=''">
+                end_site_name,
+            </if>
+            <if test="status !=null">
+                status,
+            </if>
+            <if test="operateUserErp !=null and operateUserErp !=''">
+                operate_user_erp,
+            </if>
+            <if test="operateUserName  !=null and operateUserName !=''">
+                operate_user_name,
+            </if>
+            <if test="operateTime  !=null">
+                operate_time,
+            </if>
+            <if test="createTime  !=null">
+                create_time,
+            </if>
+            <if test="createUserErp !=null and createUserErp !=''">
+                create_user_erp,
+            </if>
+            <if test="currentSiteName  !=null and currentSiteName !=''">
+                current_site_name,
+            </if>
+            <if test="currentSiteCode  !=null">
+                current_site_code,
+            </if>
+            <if test="batchCode !=null and batchCode !=''">
+                batch_code,
+            </if>
+            <if test="createUserName !=null and createUserName !=''">
+                create_user_name,
+            </if>
+            <if test="yn !=null">
+                yn
+            </if>
+        </trim>
+        )values (
+        <trim suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="licenseNumber != null and licenseNumber != ''">
+                #{licenseNumber,jdbcType=VARCHAR},
+            </if>
+            <if test="endSiteCode != null ">
+                #{endSiteCode,jdbcType=BIGINT},
+            </if>
+            <if test="endSiteName != null ">
+                #{endSiteName,jdbcType=VARCHAR},
+            </if>
+            <if test="status !=null">
+                #{status,jdbcType=TINYINT},
+            </if>
+            <if test="operateUserErp !=null and operateUserErp !=''">
+                #{operateUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="operateUserName  !=null and operateUserName !=''">
+                #{operateUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="operateTime  !=null">
+                #{operateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createTime  !=null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createUserErp !=null and createUserErp !=''">
+                #{createUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="currentSiteName  !=null and currentSiteName !=''">
+                #{currentSiteName,jdbcType=VARCHAR},
+            </if>
+            <if test="currentSiteCode  !=null">
+                #{currentSiteCode,jdbcType=BIGINT},
+            </if>
+            <if test="batchCode !=null and batchCode !=''">
+                #{batchCode,jdbcType=VARCHAR},
+            </if>
+            <if test="createUserName !=null and createUserName !=''">
+                #{createUserName,jdbcType=VARCHAR},
+            </if>
+               1
+        </trim>
+        )
+    </insert>
+
+
+</mapper>
