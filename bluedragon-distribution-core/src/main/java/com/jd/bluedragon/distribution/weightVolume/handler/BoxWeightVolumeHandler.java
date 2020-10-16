@@ -106,11 +106,6 @@ public class BoxWeightVolumeHandler extends AbstractWeightVolumeHandler {
             }
         }
 
-        if (waybillList.isEmpty()) {
-            logger.warn("获取此箱号的装箱明细数据为空：{}",entity.getBarCode());
-            return;
-        }
-
         Double itemWeight = entity.getWeight() == null? null :  entity.getWeight() / waybillList.size();
         Double itemLength = entity.getLength();
         Double itemWidth = entity.getWidth();

@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.external.gateway.waybill;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -24,6 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.Date;
 
@@ -46,6 +48,10 @@ public class WaybillGateWayExternalServiceImpl implements WaybillGateWayExternal
 
     @Autowired
     private TaskService taskService;
+
+    @Autowired
+    @Qualifier(value = "thirdBoxWeightProducer")
+    private DefaultJMQProducer thirdBoxWeightDealProducer;
 
     private static final Integer OPERATION_SORTING = 1;//集包
     private static final Integer OPERATION_CANCEL = 2;//取消集包
@@ -90,6 +96,8 @@ public class WaybillGateWayExternalServiceImpl implements WaybillGateWayExternal
         }
         //业务操作
         if(OPERATION_SORTING.equals(request.getOperationType())){
+            //处理箱号明细：如果箱号已经操作了称重，则需要将明细也进行分拣内部称重，不回传给运单
+            thirdBoxWeightDealProducer.sendOnFailPersistent(request.getWaybillCode(),JsonHelper.toJson(request));
             return sorting(request, startSite, box);
         }else if(OPERATION_CANCEL.equals(request.getOperationType())){
             return cancelSorting(request, startSite.getSiteCode(), box);
