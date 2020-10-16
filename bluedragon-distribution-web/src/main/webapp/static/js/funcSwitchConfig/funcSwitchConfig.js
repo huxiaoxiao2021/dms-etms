@@ -429,11 +429,13 @@ function initDimension(menu) {
                 allowClear: true,
                 data: result
             });
-            if($(menu).val()=='全国'){
-                $('#orgId-EG').hide();
-                $('#siteCode-EG').hide();
-            }
             $(menu).val(null).trigger('change');
+            $(menu).on("change", function(e) {
+                if($(menu).val()=='全国'){
+                    $('#orgId-EG').hide();
+                    $('#siteCode-EG').hide();
+                }
+            });
         }
     });
 }

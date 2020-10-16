@@ -13,6 +13,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @Author: liming522
  * @Description:
@@ -51,6 +54,18 @@ public class FuncSwitchConfigTest {
                     System.out.println("众邮分拣机开关调用失败,站点:"+siteCodes);
                 }
             }
+        }
+    }
+    
+
+    @Test
+    public void test02(){
+        List<Integer> siteCodes = new ArrayList<>();
+        siteCodes.add(111);
+        Integer[] siteCodesArray = new Integer[siteCodes.size()];
+        siteCodes.toArray(siteCodesArray);
+        for (int s = 0; s < siteCodesArray.length; s++) {
+            System.out.println(siteCodesArray[s]);
         }
     }
 }
