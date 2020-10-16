@@ -13,6 +13,7 @@ import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigCo
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.rule.dao.RuleDao;
 import com.jd.bluedragon.distribution.rule.domain.Rule;
+import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -47,7 +48,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
     private static final Integer PRE_SELL_RULE_TYPE = 2100;
     private static final String PRE_SELL_RULE_OPEN = "1";
     private static final String PRE_SELL_RULE_CONTENT = "预售暂存分拣规则，1表示开启";
-    private static final Integer YN_OFF = 1;//开关有效标识
+    private static final Integer YN_ON = 1;//开关有效标识
 
     @Value("${checkAuthoritySwitch:true}")
     private boolean checkAuthoritySwitch;
@@ -100,31 +101,11 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
             Date date = new Date();
             funcSwitchConfigDto.setCreateTime(date);
             funcSwitchConfigDto.setUpdateTime(date);
-
-            //众邮调度分拣机开关
-            if(FuncSwitchConfigEnum.FUNCTION_ALL_MAIL.getCode()==funcSwitchConfigDto.getMenuCode()){
-                BaseDmsAutoJsfResponse<Long> longBaseDmsAutoJsfResponse = null;
-                if(funcSwitchConfigDto.getDimensionCode()==DimensionEnum.NATIONAL.getCode()){
-                    longBaseDmsAutoJsfResponse = deviceConfigInfoJsfService.maintainWeightSwitch(funcSwitchConfigDto.getYn()==YN_OFF?WeightValidateSwitchEnum.OFF:WeightValidateSwitchEnum.ON);
-                    if(longBaseDmsAutoJsfResponse.getStatusCode()!=BaseDmsAutoJsfResponse.SUCCESS_CODE){
-                        jdResponse.toFail("众邮分拣机开关调用失败,全国");
-                        return jdResponse;
-                    }
-                }else {
-                    Integer[] siteCodes = {funcSwitchConfigDto.getSiteCode()};
-                    if(!(siteCodes.length>0)){
-                        jdResponse.toFail("众邮分拣机开关调用失败,缺少站点编码:");
-                        return jdResponse;
-                    }
-                    longBaseDmsAutoJsfResponse = deviceConfigInfoJsfService.maintainSiteWeightSwitch(siteCodes,funcSwitchConfigDto.getYn()==YN_OFF?WeightValidateSwitchEnum.OFF:WeightValidateSwitchEnum.ON);
-                    if(longBaseDmsAutoJsfResponse.getStatusCode()!=BaseDmsAutoJsfResponse.SUCCESS_CODE){
-                        jdResponse.toFail("众邮分拣机开关调用失败,站点:"+siteCodes);
-                        return jdResponse;
-                    }
-                }
-            }
-
             funcSwitchConfigDao.add(funcSwitchConfigDto);
+
+            //调用分拣机拦截开关
+            siteWeightSwitch(funcSwitchConfigDto);
+
             if(FuncSwitchConfigEnum.FUNCTION_PRE_SELL.getCode() == funcSwitchConfigDto.getMenuCode()){
                 // 预售分拣暂存功能 记录预售的分拣规则
                 Rule rule = new Rule();
@@ -225,27 +206,34 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
                 return jdResponse;
             }
             List<Long> ids = new ArrayList<>();
-
             //站点编码集合
-            List<Integer> siteCodes = new ArrayList<>();
+            List<Integer> siteCodes = null;
             BaseDmsAutoJsfResponse  longBaseDmsAutoJsfResponse = null;
+
             for(FuncSwitchConfigDto dto : funcSwitchConfigDtos){
                 if(checkAuthority(dto.getMenuCode(),loginErp,jdResponse)){
                     return jdResponse;
                 }
                 //众邮-调用分拣机开关进行更新
                 if(FuncSwitchConfigEnum.FUNCTION_ALL_MAIL.getCode()==dto.getMenuCode()){
-                    if(dto.getDimensionCode()==DimensionEnum.NATIONAL.getCode()){
+                    if (dto.getDimensionCode() == DimensionEnum.NATIONAL.getCode()) {
                         longBaseDmsAutoJsfResponse = deviceConfigInfoJsfService.maintainWeightSwitch(WeightValidateSwitchEnum.ON);
-                        if(longBaseDmsAutoJsfResponse.getStatusCode()!=BaseDmsAutoJsfResponse.SUCCESS_CODE){
-                            jdResponse.toFail("众邮分拣机开关调用失败,全国");
+                        if (longBaseDmsAutoJsfResponse.getStatusCode() != BaseDmsAutoJsfResponse.SUCCESS_CODE) {
+                            jdResponse.toFail("分拣机开关-置为开on调用失败,全国");
                             return jdResponse;
                         }
-                    }else {
+                    } else if(dto.getDimensionCode()==DimensionEnum.SITE.getCode()){
+                        if(CollectionUtils.isEmpty(siteCodes)){
+                            siteCodes = new ArrayList<>();
+                        }
                         siteCodes.add(dto.getSiteCode());
                     }
                 }
                 ids.add(dto.getId());
+            }
+
+            if(ids.size()>0){
+                funcSwitchConfigDao.logicalDelete(ids);
             }
 
             if(siteCodes.size()>0){
@@ -253,14 +241,10 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
                 siteCodes.toArray(siteCodesArray);
                 longBaseDmsAutoJsfResponse = deviceConfigInfoJsfService.maintainSiteWeightSwitch(siteCodesArray,WeightValidateSwitchEnum.ON);
                 if(longBaseDmsAutoJsfResponse.getStatusCode()!=BaseDmsAutoJsfResponse.SUCCESS_CODE){
-                    jdResponse.toFail("众邮分拣机开关调用失败,站点:"+siteCodes);
-                    return jdResponse;
+                    throw  new Exception("分拣机开关-置为开on调用失败,站点:"+siteCodes);
                 }
             }
 
-            if(ids.size()>0){
-                funcSwitchConfigDao.logicalDelete(ids);
-            }
         }catch (Exception e){
             logger.error("逻辑删除异常,入参【{}】", JsonHelper.toJson(funcSwitchConfigDtos),e);
         }
@@ -329,17 +313,76 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
         if(CollectionUtils.isEmpty(dataList)){
             return;
         }
-        // 设置默认参数
-        for (FuncSwitchConfigDto dto : dataList){
-            dto.setMenuName(FuncSwitchConfigEnum.interceptMenuEnumMap.get(dto.getMenuCode()));
-            dto.setDimensionName(DimensionEnum.dimensionEnumMap.get(dto.getDimensionCode()));
-            dto.setCreateErp(loginUser.getUserErp());
-            dto.setCreateUser(loginUser.getUserName());
-            Date date = new Date();
-            dto.setCreateTime(date);
-            dto.setUpdateTime(date);
+        List<Integer> siteCodes = null;
+        BaseDmsAutoJsfResponse  longBaseDmsAutoJsfResponse = null;
+        try {
+            // 设置默认参数
+            for (FuncSwitchConfigDto dto : dataList){
+                dto.setMenuName(FuncSwitchConfigEnum.interceptMenuEnumMap.get(dto.getMenuCode()));
+                dto.setDimensionName(DimensionEnum.dimensionEnumMap.get(dto.getDimensionCode()));
+                dto.setCreateErp(loginUser.getUserErp());
+                dto.setCreateUser(loginUser.getUserName());
+                Date date = new Date();
+                dto.setCreateTime(date);
+                dto.setUpdateTime(date);
+
+                //封装调用分拣机站点集合
+                if(dto.getMenuCode()==FuncSwitchConfigEnum.FUNCTION_ALL_MAIL.getCode()){
+                    if(dto.getDimensionCode()==DimensionEnum.SITE.getCode()){
+                        if(CollectionUtils.isEmpty(siteCodes)){
+                            siteCodes =   new ArrayList<>();
+                        }
+                        siteCodes.add(dto.getSiteCode());
+                    }else if(dto.getDimensionCode()==DimensionEnum.NATIONAL.getCode()){
+                        longBaseDmsAutoJsfResponse = deviceConfigInfoJsfService.maintainWeightSwitch(WeightValidateSwitchEnum.ON);
+                        if (longBaseDmsAutoJsfResponse.getStatusCode() != BaseDmsAutoJsfResponse.SUCCESS_CODE) {
+                            throw  new Exception("分拣机开关调用失败,全国");
+                        }
+                    }
+                }
+            }
+
+            if(!CollectionUtils.isEmpty(siteCodes)){
+                Integer[] siteCodesArray = new Integer[siteCodes.size()];
+                siteCodes.toArray(siteCodesArray);
+                longBaseDmsAutoJsfResponse = deviceConfigInfoJsfService.maintainSiteWeightSwitch(siteCodesArray,WeightValidateSwitchEnum.ON);
+                if(longBaseDmsAutoJsfResponse.getStatusCode()!=BaseDmsAutoJsfResponse.SUCCESS_CODE){
+                    throw  new Exception("分拣机开关调用失败,站点:"+siteCodes);
+                }
+            }
+            funcSwitchConfigDao.batchAdd(dataList);
+        }catch (Exception e){
+            logger.error("批量插入表格数据异常!");
         }
-        funcSwitchConfigDao.batchAdd(dataList);
+    }
+
+    /**
+     * 单个调用分拣机拦截开关
+     * @param funcSwitchConfigDto
+     * @throws Exception
+     */
+    public void siteWeightSwitch(FuncSwitchConfigDto funcSwitchConfigDto)throws Exception{
+        //众邮调度分拣机开关
+        if(FuncSwitchConfigEnum.FUNCTION_ALL_MAIL.getCode()==funcSwitchConfigDto.getMenuCode()){
+            BaseDmsAutoJsfResponse<Long> longBaseDmsAutoJsfResponse = null;
+            //全国维度
+            if(funcSwitchConfigDto.getDimensionCode()==DimensionEnum.NATIONAL.getCode()){
+                longBaseDmsAutoJsfResponse = deviceConfigInfoJsfService.maintainWeightSwitch(funcSwitchConfigDto.getYn()==YN_ON?WeightValidateSwitchEnum.OFF:WeightValidateSwitchEnum.ON);
+                if(longBaseDmsAutoJsfResponse.getStatusCode()!=BaseDmsAutoJsfResponse.SUCCESS_CODE){
+                    throw  new  Exception("分拣机开关调用失败,全国");
+                }
+                //场景维度
+            }else if(funcSwitchConfigDto.getDimensionCode()==DimensionEnum.SITE.getCode()){
+                Integer[] siteCodes = {funcSwitchConfigDto.getSiteCode()};
+                if(!(siteCodes.length>0)){
+                    throw  new Exception("分拣机开关调用失败,缺少站点编码:");
+                }
+                longBaseDmsAutoJsfResponse = deviceConfigInfoJsfService.maintainSiteWeightSwitch(siteCodes,funcSwitchConfigDto.getYn()==YN_ON?WeightValidateSwitchEnum.OFF:WeightValidateSwitchEnum.ON);
+                if(longBaseDmsAutoJsfResponse.getStatusCode()!=BaseDmsAutoJsfResponse.SUCCESS_CODE){
+                    throw  new  Exception("分拣机开关调用失败,站点:"+siteCodes);
+                }
+            }
+        }
     }
 
     /**
