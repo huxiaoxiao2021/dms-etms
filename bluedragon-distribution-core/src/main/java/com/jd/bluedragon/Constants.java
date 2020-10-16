@@ -1326,4 +1326,8 @@ public class Constants {
     public static final String STR_ALL = "ALL";
 
     public static final String UNDER_LINE = "_";
+
+    public static final String ALL_MAIL_CACHE_KEY="ALL_MAIL_CACHE_KEY_";
+
+    public static final int  ALL_MAIL_CACHE_SECONDS = 5*60;
 }

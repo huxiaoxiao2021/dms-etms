@@ -9,7 +9,8 @@ import java.util.Map;
  */
 public enum DimensionEnum {
     PERSON(1,"个人"),
-    SITE(2,"场地");
+    SITE(2,"场地"),
+    NATIONAL(3,"全国");
 
     private int code;
     private String name;
