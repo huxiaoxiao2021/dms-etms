@@ -30,7 +30,7 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
         ExceptionScanDto res = null;
 
         record.setScanAction(GoodsLoadScanConstants.GOODS_SCAN_LOAD); //扫描动作：1是装车扫描，0是取消扫描
-        GoodsLoadScanRecord goodsRecord = goodsLoadScanRecordDao.findExceptionGoodsScanRecord(record);
+        GoodsLoadScanRecord goodsRecord = goodsLoadScanRecordDao.selectListByCondition(record);
 
         if(goodsRecord != null && goodsRecord.getWayBillCode() != null) {
             log.info("ExceptionScanServiceImpl#findExceptionGoodsScan 取消扫描查询包裹记录表成功，包裹号【"+ record.getPackageCode() +"】");
@@ -69,7 +69,7 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
         log.info("ExceptionScanServiceImpl#removeGoodsScan 取消扫描修改包裹记录表--begin--，包裹号【"+ exceptionScanDto.getPackageCode()
                 +"】，任务号【" + exceptionScanDto.getTaskId() + "】");
 
-        int num = goodsLoadScanRecordDao.updateGoodsScanRecord(record);
+        int num = goodsLoadScanRecordDao.updateGoodsScanRecordById(record);
 
         if( num > 0) {
             log.info("ExceptionScanServiceImpl#removeGoodsScan 取消扫描修改包裹记录表成功--success--，包裹号【"+ exceptionScanDto.getPackageCode()
