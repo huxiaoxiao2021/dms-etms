@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.goodsLoadScan.dao;
 
 import com.jd.bluedragon.common.dao.BaseDao;
-import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,11 +21,6 @@ public class GoodsLoadScanRecordDao extends BaseDao {
 
     public GoodsLoadScanRecord findExceptionGoodsScanRecord(GoodsLoadScanRecord record) {
 
-        return null;
-    }
-
-
-    public GoodsLoadScan findGoodLoadScan(GoodsLoadScan loadScan) {
         return null;
     }
 
