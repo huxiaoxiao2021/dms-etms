@@ -9,7 +9,6 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsDetailDto
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
-import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsExceptionScanDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsScanRecordDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.ExceptionScanDto;
@@ -28,7 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningService {
 
@@ -49,8 +47,6 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
     @Autowired
     private WaybillQueryManager waybillQueryManager;
 
-    @Autowired
-    private ErpUserClient erpUserClient;
 
     @Override
     public JdCResponse goodsRemoveScanning(GoodsExceptionScanningReq req) {
