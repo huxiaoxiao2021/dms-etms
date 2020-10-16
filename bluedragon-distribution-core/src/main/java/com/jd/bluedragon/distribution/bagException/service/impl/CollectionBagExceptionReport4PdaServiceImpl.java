@@ -115,9 +115,12 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
             PackFlowDetail latestPackFlowDetail = this.getLatestPackFlowDetail(query.getPackageCode());
             if(latestPackFlowDetail != null){
                 // 设置长宽高信息
+                reportResponse.setWeight(latestPackFlowDetail.getpWeight());
                 reportResponse.setLength(latestPackFlowDetail.getpLength());
                 reportResponse.setWidth(latestPackFlowDetail.getpWidth());
                 reportResponse.setHeight(latestPackFlowDetail.getpHigh());
+            } else{
+                log.info("waybillPackageManager.getOpeDetailByCode 无称重明细 packageCode {}", packageCode);
             }
 
             if(canReportFlag){
@@ -386,8 +389,6 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
                 });
                 return packageOpeList.get(0);
             }
-        } else {
-            log.info("waybillPackageManager.getOpeDetailByCode 无称重明细 waybillCodeOrPackageCode {}", waybillCodeOrPackageCode);
         }
         return null;
     }
@@ -427,12 +428,16 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
             }
             // 转化数据
             CollectionBagExceptionReport exceptionReport = this.genModelForReport(reportRequest);
+            exceptionReport.setWeight(waybill.getAgainWeight());
             // 查询包裹称重流水，得到长宽高数据
             PackFlowDetail latestPackFlowDetail = this.getLatestPackFlowDetail(reportRequest.getPackageCode());
             if(latestPackFlowDetail != null){
                 exceptionReport.setLength(latestPackFlowDetail.getpLength());
                 exceptionReport.setWidth(latestPackFlowDetail.getpWidth());
                 exceptionReport.setHeight(latestPackFlowDetail.getpHigh());
+                exceptionReport.setWeight(latestPackFlowDetail.getpWeight());
+            } else {
+                log.info("waybillPackageManager.getOpeDetailByCode 无称重明细 packageCode {}", reportRequest.getPackageCode());
             }
             // 查询包裹起始、目的地信息及上游箱号
             Integer preSendSiteId = this.getPreSendSiteId(reportRequest.getPackageCode(), reportRequest.getCurrentOperate().getSiteCode());
