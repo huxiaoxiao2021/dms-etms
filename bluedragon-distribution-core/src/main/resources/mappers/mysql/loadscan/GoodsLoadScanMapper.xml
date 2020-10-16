@@ -29,7 +29,7 @@
 	</sql>
 
     <sql id="Base_Condition_Sql" >
-			and yn=1
+			and yn=1 order by status desc
 	</sql>
 
     <insert id="add" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan">
@@ -137,52 +137,114 @@
         )
     </insert>
 
-    <select id="selectHelperBySealCarCode" parameterType="String" resultType="String">
+    <insert id="batchInsert" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan">
+        insert into load_scan (task_id, waybill_code, package_code, package_amount,
+        goods_amount, load_amount, unload_amount, force_amount, status, create_user_code, create_user_name, update_user_code, update_user_name, create_time,
+        update_time, yn)  VALUES
+        <foreach collection="list" item="info" separator=",">
+            (#{info.taskId,jdbcType=BIGINT}, #{info.waybillCode,jdbcType=VARCHAR},
+            #{info.packageCode,jdbcType=VARCHAR}, #{info.packageAmount,jdbcType=INTEGER}, #{info.goodsAmount,jdbcType=INTEGER},
+            #{info.loadAmount,jdbcType=INTEGER}, #{info.unloadAmount,jdbcType=INTEGER}, #{info.forceAmount,jdbcType=INTEGER},
+            #{info.status,jdbcType=INTEGER}, #{info.createUserCode,jdbcType=VARCHAR},
+            #{info.createUserName,jdbcType=VARCHAR}, #{info.updateUserCode,jdbcType=VARCHAR}, #{info.updateUserName,jdbcType=VARCHAR},
+            #{info.createTime,jdbcType=TIMESTAMP}, #{info.updateTime,jdbcType=TIMESTAMP}, #{info.yn,jdbcType=INTEGER})
+        </foreach>
+    </insert>
+
+
+    <select id="selectLoadScanByTaskId" parameterType="java.lang.Long" resultMap="goodsLoadScan">
         select
-        unload_user_erp
+        <include refid="Base_Column_List"/>
         from
-        unload_car_distribute
+        load_scan
         <where>
-            seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
-            and unload_user_type = 1
+            task_id = #{taskId,jdbcType=BIGINT}
             <include refid="Base_Condition_Sql"/>
         </where>
     </select>
 
-    <select id="selectUnloadCarTaskHelpers" parameterType="String" resultMap="unloadCarDistribution">
+    <select id="selectListByCondition" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan" resultMap="goodsLoadScan">
         select
-        <include refid="Base_Column_List" />
-        from
-        unload_car_distribute
+        <include refid="Base_Column_List"/>
+        from load_scan
         <where>
-            seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
-            and unload_user_type = 1
-            <include refid="Base_Condition_Sql"/>
+            <if test="id != null">
+                and id = #{id,jdbcType=BIGINT}
+            </if>
+            <if test="taskId != null">
+                and task_id = #{taskId,jdbcType=BIGINT}
+            </if>
+            <if test="waybillCode != null and waybillCode != ''">
+                and waybill_code = #{waybillCode,jdbcType=VARCHAR}
+            </if>
+            <if test="packageCode != null and packageCode != ''">
+                and package_code = #{packageCode,jdbcType=VARCHAR}
+            </if>
+            <if test="packageAmount != null">
+                and package_amount = #{packageAmount,jdbcType=INTEGER}
+            </if>
+            <if test="goodsAmount != null">
+                and goods_amount = #{goodsAmount,jdbcType=INTEGER}
+            </if>
+            <if test="loadAmount != null">
+                and load_amount = #{loadAmount,jdbcType=INTEGER}
+            </if>
+            <if test="unloadAmount != null">
+                and unload_amount = #{unloadAmount,jdbcType=INTEGER}
+            </if>
+            <if test="forceAmount != null">
+                and force_amount = #{forceAmount,jdbcType=INTEGER}
+            </if>
+            <if test="status != null">
+                and status = #{status,jdbcType=INTEGER}
+            </if>
+            <if test="createUserCode != null and createUserCode != ''">
+                and create_user_code = #{createUserCode,jdbcType=VARCHAR}
+            </if>
+            <if test="createUserName != null and createUserName != ''">
+                and create_user_name = #{createUserName,jdbcType=VARCHAR}
+            </if>
+            <if test="updateUserCode != null and updateUserCode != ''">
+                and update_user_name = #{updateUserCode,jdbcType=VARCHAR}
+            </if>
+            <if test="updateUserName != null and updateUserName != ''">
+                and update_user_name = #{updateUserName,jdbcType=VARCHAR}
+            </if>
+            <if test="createTime != null">
+                and create_time = #{createTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="updateTime != null">
+                and update_time = #{updateTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="yn != null">
+                and yn = #{yn,jdbcType=INTEGER}
+            </if>
         </where>
     </select>
 
-    <update id="deleteUnloadCarTaskHelpers" parameterType="unloadCarDistribution">
-		update unload_car_distribute
-		set
-        update_time = #{updateTime,jdbcType=TIMESTAMP},
-		yn = 0
-		where
-        seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
-        and unload_user_erp = #{unloadUserErp,jdbcType=VARCHAR}
-        <include refid="Base_Condition_Sql"/>
-	</update>
 
-    <select id="selectTasksByUser" parameterType="String" resultType="String">
-        select
-        seal_car_code
-        from
-        unload_car_distribute
-        <where>
-            unload_user_erp = #{unloadUserErp,jdbcType=VARCHAR}
-            and create_time <![CDATA[<=]]> timestampadd(minute, 0, now())
-            and create_time <![CDATA[>=]]>  timestampadd(DAY, -3, now())
-            <include refid="Base_Condition_Sql"/>
-        </where>
-    </select>
+    <update id="updateByTaskIdAndWaybillCode" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan">
+        update load_scan
+        <set>
+            <if test="taskId != null">task_id = #{taskId,jdbcType=BIGINT},</if>
+            <if test="waybillCode != null">waybill_code = #{waybillCode,jdbcType=VARCHAR},</if>
+            <if test="packageCode != null">package_code = #{packageCode,jdbcType=VARCHAR},</if>
+            <if test="packageAmount != null">package_amount = #{packageAmount,jdbcType=INTEGER},</if>
+            <if test="goodsAmount != null">goods_amount = #{goodsAmount,jdbcType=INTEGER},</if>
+            <if test="loadAmount != null">load_amount = #{loadAmount,jdbcType=INTEGER},</if>
+            <if test="unloadAmount != null">unload_amount = #{unloadAmount,jdbcType=INTEGER},</if>
+            <if test="forceAmount != null">force_amount = #{forceAmount,jdbcType=INTEGER},</if>
+            <if test="status != null">status = #{status,jdbcType=INTEGER},</if>
+            <if test="createUserCode != null">create_user_code = #{createUserCode,jdbcType=VARCHAR},</if>
+            <if test="createUserName != null">create_user_name = #{createUserName,jdbcType=VARCHAR},</if>
+            <if test="updateUserCode != null">update_user_code = #{updateUserCode,jdbcType=VARCHAR},</if>
+            <if test="updateUserName != null">update_user_name = #{updateUserName,jdbcType=VARCHAR},</if>
+            <if test="createTime != null">create_time = #{createTime,jdbcType=TIMESTAMP},</if>
+            <if test="updateTime != null">update_time = #{updateTime,jdbcType=TIMESTAMP},</if>
+            <if test="yn != null">yn = #{yn,jdbcType=INTEGER},</if>
+        </set>
+        where task_id = #{taskId,jdbcType=BIGINT} and waybill_code = #{waybillCode,jdbcType=VARCHAR} and yn = 1
+    </update>
+
 
 </mapper>
