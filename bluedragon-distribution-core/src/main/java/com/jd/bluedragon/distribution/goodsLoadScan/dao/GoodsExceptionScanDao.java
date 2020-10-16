@@ -23,12 +23,12 @@ public class GoodsExceptionScanDao extends BaseDao {
         return this.getSqlSession().update(namespace + ".goodsRemoveScanning",record);
     }
 
-    public int updateGoodsScan(GoodsExceptionScanningReq req) {
+    public int updateGoodsScan(GoodsLoadScan req) {
         return 0;
     }
 
     public GoodsLoadScanRecord findExceptionGoodsScanRecord(GoodsLoadScanRecord record) {
-        record.setScanAction(1); //扫描动作：1是装车扫描，0是取消扫描
+
         return null;
     }
 
