@@ -127,8 +127,18 @@
         where yn=1 and  b.create_user_erp= #{loginUserErp,jdbcType=VARCHAR}  or  b.helper_erp= #{loginUserErp,jdbcType=VARCHAR}
     </select>
 
-    <update id="deleteById" parameterType="Long">
-        update load_car set yn=0 where id= #{id,jdbcType=BIGINT}
+    <update id="deleteById" parameterType="com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadDeleteReq">
+        update load_car
+        <set>
+            yn=0
+            <if test="operateUserErp != null and operateUserErp != ''">
+                and operate_user_erp = #{operateUserErp,jdbcType=VARCHAR}
+            </if>
+            <if test="operateUserName != null and operateUserName != ''">
+                and operate_user_name = #{operateUserName,jdbcType=VARCHAR}
+            </if>
+        </set>
+        where id= #{id,jdbcType=BIGINT}
     </update>
 
     <select id="selectListByCondition" parameterType="com.jd.bluedragon.distribution.loadAndUnload.LoadCar" resultMap="loadCar">
