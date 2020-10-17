@@ -10,7 +10,6 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsException
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.base.domain.CreateAndReceiveSiteInfo;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanDao;
@@ -18,6 +17,7 @@ import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.ExceptionScanDto;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
+import com.jd.bluedragon.distribution.goodsLoadScan.domain.LoadScan;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanService;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.NoRepeatSubmitService;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
@@ -33,6 +33,7 @@ import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.dms.report.LoadScanPackageDetailService;
+import com.jd.ql.dms.report.domain.LoadScanDetailDto;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
 import com.jd.transboard.api.enums.ResponseEnum;
@@ -220,42 +221,73 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         return loadScanService.goodsLoadingDeliver(req);
     }
 
-    @SuppressWarnings("unchecked")
+
     @Override
     public JdCResponse<List<GoodsDetailDto>> goodsLoadingScan(GoodsLoadingScanningReq req) {
+
         JdCResponse<List<GoodsDetailDto>> response = new JdCResponse<>();
-        response.setCode(JdCResponse.CODE_SUCCESS);
+
         Long taskId = req.getTaskId();
-        // 根据任务号查找装车扫描表
-        List<GoodsLoadScan> scanList = goodsLoadScanDao.findLoadScanByTaskId(taskId);
-        // 如果已初始化，直接返回
-        if (!scanList.isEmpty()) {
-            List<GoodsDetailDto> details = transformDtoToEntity(scanList);
-            response.setData(details);
-            return response;
-        }
-        // 如果如果此任务尚未初始化
         // 根据任务号查找当前任务所在网点和下一网点
         LoadCar loadCar = loadCarDao.findLoadCarById(taskId);
-        // 从es查
-        com.jd.ql.dms.report.domain.BaseEntity<List<com.jd.ql.dms.report.domain.GoodsDetailDto>> detailList = loadScanPackageDetailService
-                .findLoadScanPackageDetail(loadCar.getCurrentSiteCode().intValue(), loadCar.getEndSiteCode().intValue());
+        if (loadCar == null) {
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("根据任务号找不到对应的装车任务");
+            return response;
+        }
+
+        // 根据任务号查找装车扫描明细暂存表
+        List<GoodsLoadScan> tempList = goodsLoadScanDao.findLoadScanByTaskId(taskId);
+        // 从分拣报表中根据当前网点和下一网点查询最新的已验未发的运单记录
+        com.jd.ql.dms.report.domain.BaseEntity<List<LoadScanDetailDto>> detailList
+                = loadScanPackageDetailService.findLoadScanPackageDetail(loadCar.getCurrentSiteCode().intValue(),
+                loadCar.getEndSiteCode().intValue());
+
+        List<GoodsDetailDto> goodsDetailDtoList;
         if (detailList.getCode() == Constants.SUCCESS_CODE) {
-            List<com.jd.ql.dms.report.domain.GoodsDetailDto> list = detailList.getData();
-            if (!list.isEmpty()) {
-                // 组装数据
-                Map<String, Object> map = transformEntityToDto(list, taskId);
-                // 保存到装车扫描表
-                goodsLoadScanDao.batchInsert((List<GoodsLoadScan>) map.get("insert"));
-                // 返回列表给端上
-                response.setData((List<GoodsDetailDto>) map.get("return"));
+            List<LoadScanDetailDto> reportList = detailList.getData();
+            if (reportList.isEmpty()) {
+                // 分拣报表查询返回为空
+                response.setCode(JdCResponse.CODE_FAIL);
+                response.setMessage("根据任务ID没有找到相应的运单记录");
                 return response;
             }
+            // 如果当前任务装车明细还没初始化，直接返回
+            if (tempList.isEmpty()) {
+                goodsDetailDtoList = transformData(reportList);
+                response.setCode(JdCResponse.CODE_SUCCESS);
+                response.setData(goodsDetailDtoList);
+                return response;
+            }
+            // 如果已初始化，组装数据
+            goodsDetailDtoList = new ArrayList<>();
+            for (LoadScanDetailDto detailDto : reportList) {
+                String reportWaybillCode = detailDto.getWayBillCode();
+                GoodsDetailDto goodsDetailDto;
+                for (GoodsLoadScan loadScan : tempList) {
+                    String waybillCode = loadScan.getWayBillCode();
+                    if (reportWaybillCode.equals(waybillCode)) {
+                        // 库存取报表返回的最新数据
+                        goodsDetailDto = createGoodsDetailDto(waybillCode, detailDto.getPackageAmount(),
+                                detailDto.getGoodsAmount(), loadScan.getLoadAmount(), loadScan.getUnloadAmount(), loadScan.getStatus());
+                        goodsDetailDtoList.add(goodsDetailDto);
+                        break;
+                    }
+                }
+                // 报表里最新增加的数据
+                goodsDetailDto = createGoodsDetailDto(reportWaybillCode, detailDto.getPackageAmount(),
+                        detailDto.getGoodsAmount(), detailDto.getLoadAmount(), detailDto.getUnloadAmount(),
+                        GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK);
+                goodsDetailDtoList.add(goodsDetailDto);
+            }
+            response.setCode(JdCResponse.CODE_SUCCESS);
+            response.setData(goodsDetailDtoList);
+            return response;
         }
 
         // 没有数据的情况
         response.setMessage("根据任务ID没有找到对应的数据");
-        response.setData(null);
+        response.setCode(JdCResponse.CODE_FAIL);
         return response;
     }
 
@@ -293,7 +325,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         // 根据包裹号查板号
         String boardCode = "";
         Response<Board> tcResponse = groupBoardManager.getBoard(boardCode);
-        if(tcResponse == null){
+        if (tcResponse == null){
             log.error("获取板信息失败，boardCode:{}",boardCode);
             response.setCode(JdCResponse.CODE_FAIL);
             response.setMessage("根据板号获取板信息失败");
@@ -307,7 +339,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
             response.setMessage("根据任务号找不到对应的装车任务");
             return response;
         }
-        if(tcResponse.getCode() == JdCResponse.CODE_SUCCESS && board != null){
+        if (tcResponse.getCode() == JdCResponse.CODE_SUCCESS && board != null){
             log.info("获取板信息成功，boardCode:{}", boardCode);
             // 校验板号流向与批次号流向是否一致，如不一致进行错发弹框提醒（“错发！请核实！板号与批次目的地不一致，请确认是否继续发货！”，特殊提示音），点击“确定”后完成发货，点击取消清空当前操作的板号
             if (loadCar.getEndSiteCode().intValue() != board.getDestinationId()) {
@@ -317,14 +349,14 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
             }
         }
         Response<List<String>> result = groupBoardManager.getBoxesByBoardCode(boardCode);
-        if(result == null || result.getCode() != ResponseEnum.SUCCESS.getIndex()
+        if (result == null || result.getCode() != ResponseEnum.SUCCESS.getIndex()
                 || CollectionUtils.isEmpty(result.getData())) {
             response.setCode(JdCResponse.CODE_FAIL);
             response.setMessage("根据板号没有找到对应的板信息");
             return response;
         }
         for (String packCode : result.getData()) {
-            if(!WaybillUtil.isPackageCode(packCode)) {
+            if (!WaybillUtil.isPackageCode(packCode)) {
                 continue;
             }
             String waybillCode = WaybillUtil.getWaybillCode(packCode);
@@ -571,6 +603,19 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         }
         return response;
     }
+
+    private GoodsDetailDto createGoodsDetailDto(String waybillCode, Integer packageAmount, Integer goodsAmount,
+                                                Integer loadAmount, Integer unloadAmount, Integer status) {
+        GoodsDetailDto goodsDetailDto = new GoodsDetailDto();
+        goodsDetailDto.setWayBillCode(waybillCode);
+        goodsDetailDto.setPackageAmount(packageAmount);
+        goodsDetailDto.setGoodsAmount(goodsAmount);
+        goodsDetailDto.setLoadAmount(loadAmount);
+        goodsDetailDto.setUnloadAmount(unloadAmount);
+        goodsDetailDto.setStatus(status);
+        return goodsDetailDto;
+    }
+
     private GoodsLoadScan createGoodsLoadScan(Long taskId, String waybillCode, String packageCode, Integer goodsAmount) {
         GoodsLoadScan goodsLoadScan = new GoodsLoadScan();
         goodsLoadScan.setTaskId(taskId);
@@ -616,6 +661,21 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         return loadScanRecord;
     }
 
+
+    private  List<GoodsDetailDto> transformData(List<LoadScanDetailDto> list) {
+        List<GoodsDetailDto> goodsDetails = new ArrayList<>();
+        for (LoadScanDetailDto detailDto : list) {
+            GoodsDetailDto goodsDetailDto = new GoodsDetailDto();
+            goodsDetailDto.setWayBillCode(detailDto.getWayBillCode());
+            goodsDetailDto.setPackageAmount(detailDto.getPackageAmount());
+            goodsDetailDto.setGoodsAmount(detailDto.getGoodsAmount());
+            goodsDetailDto.setLoadAmount(0);
+            goodsDetailDto.setUnloadAmount(0);
+            goodsDetailDto.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK);
+            goodsDetails.add(goodsDetailDto);
+        }
+        return goodsDetails;
+    }
     private Map<String, Object> transformEntityToDto(List<com.jd.ql.dms.report.domain.GoodsDetailDto> list, Long taskId) {
         Map<String, Object> map = new HashMap<>(16);
         List<GoodsLoadScan> scanList = new ArrayList<>();
