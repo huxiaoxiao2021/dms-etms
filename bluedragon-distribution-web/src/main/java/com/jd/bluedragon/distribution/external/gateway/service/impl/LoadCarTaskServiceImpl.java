@@ -9,7 +9,9 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadTaskListDt
 import com.jd.bluedragon.common.dto.unloadCar.HelperDto;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
+import com.jd.bluedragon.distribution.loadAndUnload.LoadCarHelper;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarDao;
+import com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarHelperDao;
 import com.jd.bluedragon.enums.LicenseNumberAreaCodeEnum;
 import com.jd.bluedragon.external.gateway.service.LoadCarTaskService;
 import com.jd.fastjson.JSON;
@@ -39,20 +41,57 @@ public class LoadCarTaskServiceImpl implements LoadCarTaskService {
     private LoadCarDao loadCarDao;
 
     @Autowired
+    private LoadCarHelperDao loadCarHelperDao;
+
+    @Autowired
     BaseMajorManager baseMajorManager;
 
-
+    /**
+     * 添加装车任务协助人
+     *
+     * @param req
+     * @return
+     */
     @Override
     public JdCResponse startTask(CreateLoadTaskReq req) {
-
-
-        return null;
+        JdCResponse jdCResponse = new JdCResponse();
+        if (null == req || CollectionUtils.isEmpty(req.getAssistorInfo())) {
+            jdCResponse.setCode(JdCResponse.CODE_ERROR);
+            jdCResponse.setMessage("添加协助人信息不完整,请检查必填信息！");
+        }
+        List<HelperDto> helperList = req.getAssistorInfo();
+        LoadCarHelper loadCarHelper = new LoadCarHelper();
+        loadCarHelper.setTaskId(req.getId());
+        loadCarHelper.setCreateTime(new Date());
+        loadCarHelper.setCreateTime(new Date());
+        for (HelperDto helperDto : helperList) {
+            loadCarHelper.setCreateUserErp(req.getCreateUserErp());
+            loadCarHelper.setCreateUserName(req.getCreateUserName());
+            loadCarHelper.setHelperErp(helperDto.getHelperERP());
+            loadCarHelper.setHelperName(helperDto.getHelperName());
+            loadCarHelperDao.insert(loadCarHelper);
+        }
+        jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
+        jdCResponse.setMessage(JdCResponse.MESSAGE_SUCCESS);
+        return jdCResponse;
     }
 
+    /**
+     * 删除任务列表任务
+     *
+     * @param req
+     * @return
+     */
     @Override
     public JdCResponse deleteLoadCarTask(LoadDeleteReq req) {
-        loadCarDao.deleteById(req);
-        return null;
+        JdCResponse jdCResponse = new JdCResponse();
+        jdCResponse.setData(JdCResponse.CODE_ERROR);
+        jdCResponse.setMessage("删除任务失败,稍后请重试");
+        if (loadCarDao.deleteById(req) > 0) {
+            jdCResponse.setData(JdCResponse.CODE_SUCCESS);
+            jdCResponse.setMessage(JdCResponse.MESSAGE_SUCCESS);
+        }
+        return jdCResponse;
     }
 
     /**
@@ -93,13 +132,13 @@ public class LoadCarTaskServiceImpl implements LoadCarTaskService {
             for (LicenseNumberAreaCodeEnum licenseNumberAreaCodeEnum : LicenseNumberAreaCodeEnum.values()) {
                 if (licenseNumberAreaCodeEnum.getAreaName().equals(licenseNumber.substring(0, 3))) {
                     licenseNumber = licenseNumber.replace(licenseNumber.substring(0, 3), licenseNumberAreaCodeEnum.getAreaName());
-                    jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
-                    jdCResponse.setMessage(JdCResponse.MESSAGE_SUCCESS);
-                    jdCResponse.setData(licenseNumber);
                     break;
                 }
             }
         }
+        jdCResponse.setData(licenseNumber);
+        jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
+        jdCResponse.setMessage(JdCResponse.MESSAGE_SUCCESS);
         return jdCResponse;
     }
 
@@ -114,7 +153,7 @@ public class LoadCarTaskServiceImpl implements LoadCarTaskService {
         JdCResponse<List<LoadTaskListDto>> jdCResponse = new JdCResponse<>();
         if (null == req || StringUtils.isBlank(req.getLoginUserErp())) {
             jdCResponse.setCode(JdCResponse.CODE_ERROR);
-            jdCResponse.setMessage("当前登录人信息为空");
+            jdCResponse.setMessage("当前登录人信息为空！");
             return jdCResponse;
         }
         List<LoadTaskListDto> taskList = loadCarDao.queryByErp(req.getLoginUserErp());
@@ -133,16 +172,21 @@ public class LoadCarTaskServiceImpl implements LoadCarTaskService {
     @Override
     public JdCResponse<Long> loadCarTaskCreate(LoadCarTaskCreateReq req) {
         JdCResponse<Long> jdCResponse = new JdCResponse<>();
-        jdCResponse.setCode(JdCResponse.CODE_ERROR);
         if (null == req) {
-            jdCResponse.setMessage("请求参数不能为空");
+            jdCResponse.setCode(JdCResponse.CODE_ERROR);
+            jdCResponse.setMessage("装车任务信息不完整,请检查必填信息！");
+            return jdCResponse;
         }
-        LoadCar loadCar=new LoadCar();
-        BeanUtils.copyProperties(req,loadCar);
+        LoadCar loadCar = new LoadCar();
+        BeanUtils.copyProperties(req, loadCar);
         loadCar.setCreateTime(new Date());
         loadCar.setOperateTime(new Date());
         loadCar.setStatus(0);
-        return null;
+        int id = loadCarDao.insert(loadCar);
+        jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
+        jdCResponse.setMessage(JdCResponse.MESSAGE_SUCCESS);
+        jdCResponse.setData((long) id);
+        return jdCResponse;
     }
 
     /**
@@ -156,9 +200,9 @@ public class LoadCarTaskServiceImpl implements LoadCarTaskService {
         JdCResponse<HelperDto> jdCResponse = new JdCResponse<>();
         BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(erp);
         log.info("装车添加协助人-获取员工信息接口响应结果={}", JSON.toJSONString(bssod));
-        if (null == bssod) {
+        if (null == bssod || StringUtils.isBlank(bssod.getStaffName())) {
             jdCResponse.setCode(JdCResponse.CODE_ERROR);
-            jdCResponse.setMessage("员工信息不存在");
+            jdCResponse.setMessage("暂未查询到员工姓名,稍后请重试！");
             return jdCResponse;
         }
         HelperDto helperDto = new HelperDto();

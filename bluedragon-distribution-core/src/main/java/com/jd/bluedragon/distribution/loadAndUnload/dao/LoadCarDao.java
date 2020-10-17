@@ -18,8 +18,8 @@ public class LoadCarDao extends BaseDao<LoadCar> {
     public static final String namespace = LoadCarDao.class.getName();
 
 
-    public int add(LoadCar detail){
-        return this.getSqlSession().insert(namespace + ".add",detail);
+    public int insert(LoadCar detail){
+        return this.getSqlSession().insert(namespace + ".insert",detail);
     }
 
     /**
@@ -33,7 +33,7 @@ public class LoadCarDao extends BaseDao<LoadCar> {
     }
 
     public int deleteById(LoadDeleteReq req){
-        return this.getSqlSession().update(namespace + ".queryByErp", req);
+        return this.getSqlSession().update(namespace + ".deleteById", req);
     }
 
     public LoadCar findLoadCarById(Long id) {

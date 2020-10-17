@@ -15,8 +15,8 @@ public class LoadCarHelperDao extends BaseDao<LoadCarHelper> {
 
     public static final String namespace = LoadCarHelperDao.class.getName();
 
-    public int add(LoadCarHelper detail) {
-        return this.getSqlSession().insert(namespace + ".add", detail);
+    public int insert(LoadCarHelper loadCarHelper) {
+        return this.getSqlSession().insert(namespace + ".insert", loadCarHelper);
     }
 
 

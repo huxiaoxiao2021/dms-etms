@@ -15,7 +15,7 @@
         <result column="exp" property="exp" javaType="java.lang.String" jdbcType="VARCHAR"/>
     </resultMap>
 
-    <insert id="add" parameterType="com.jd.bluedragon.distribution.loadAndUnload.LoadCarHelper">
+    <insert id="insert" parameterType="com.jd.bluedragon.distribution.loadAndUnload.LoadCarHelper">
         insert into load_car_helper (
         <trim suffixOverrides=",">
             <if test="id != null">
@@ -42,9 +42,7 @@
             <if test="createUserName  !=null and createUserName !=''">
                 create_user_name,
             </if>
-            <if test="yn !=null">
                 yn
-            </if>
         </trim>
         )values(
         <trim suffixOverrides=",">
