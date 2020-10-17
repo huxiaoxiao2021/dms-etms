@@ -41,6 +41,12 @@ public class CustomerServiceResource {
             this.log.info("oldBillCode's {}", oldBillCode);
 
             BaseEntity<PickupTask> task = this.waybillPickupTaskApi.getPickTaskByPickCode(oldBillCode);
+            if(task == null || task.getData() == null){
+                response.setCode(CustomerServiceResponse.CODE_NEW_BILL_CODE_NOT_FOUND);
+                response.setMessage(CustomerServiceResponse.MESSAGE_NEW_BILL_CODE_NOT_FOUND);
+                log.warn("外单逆向换单获取新运单号为空,旧单号：{}", oldBillCode);
+                return response;
+            }
             String surFaceCode="";
             PickupTask pickupTask = task.getData();
             surFaceCode = pickupTask.getSurfaceCode();

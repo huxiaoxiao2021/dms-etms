@@ -204,7 +204,7 @@ public class NumberHelper {
      * @return
      */
     public static Integer convertToInteger(String str,Integer defaultVal) {
-    	if (str != null && StringUtils.isNumeric(str)) {
+    	if (str != null && str.length() > 0 && StringUtils.isNumeric(str)) {
             try {
 				return Integer.valueOf(str);
 			} catch (NumberFormatException e) {

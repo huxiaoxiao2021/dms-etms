@@ -56,12 +56,6 @@ public class CityDistributionFilter implements Filter {
                 }
 
             }
-            String firstPackageSchedule = default_schedule;
-
-            this.logger.info("箱号的派车单号为：" + firstPackageSchedule + " ，此单的派车单号为：" + response.getScheduleCode());
-            if (! firstPackageSchedule.equals(response.getScheduleCode())) {
-                throw new SortingCheckException(SortingResponse.CODE_29212, SortingResponse.MESSAGE_29212);
-            }
         }
         chain.doFilter(request, chain);
     }

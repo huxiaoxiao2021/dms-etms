@@ -109,7 +109,10 @@ public class ExportExcelDownFee {
                         if (currentCell.getCellType() == HSSFCell.CELL_TYPE_STRING) {
                             int length = 0;
                             try {
-                                length = currentCell.getStringCellValue().getBytes().length;
+                            	//增加空判断
+                            	if(currentCell.getStringCellValue()!=null){
+                            		length = currentCell.getStringCellValue().getBytes().length;
+                            	}
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }

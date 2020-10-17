@@ -14,14 +14,17 @@ public enum DimensionEnum {
     private int code;
     private String name;
 
-    private static Map<Integer, DimensionEnum> codeMap;
+    public static Map<Integer, DimensionEnum> codeMap;
+    public static Map<Integer, String> dimensionEnumMap;
 
     static {
         //将所有枚举装载到map中
         codeMap = new HashMap<Integer, DimensionEnum>();
+        dimensionEnumMap = new HashMap<Integer, String>();
 
         for (DimensionEnum _enum : DimensionEnum.values()) {
             codeMap.put(_enum.getCode(), _enum);
+            dimensionEnumMap.put(_enum.getCode(),_enum.getName());
         }
     }
 

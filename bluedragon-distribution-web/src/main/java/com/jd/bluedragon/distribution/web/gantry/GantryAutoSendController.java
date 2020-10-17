@@ -22,12 +22,14 @@ import com.jd.bluedragon.distribution.gantry.service.GantryDeviceService;
 import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.UsingState;
 import com.jd.common.util.StringUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.uim.annotation.Authorization;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,7 +106,7 @@ public class GantryAutoSendController {
                 userCode = erpUser.getUserCode() == null ? "none" : erpUser.getUserCode();
                 userName = erpUser.getUserName() == null ? "none" : erpUser.getUserName();
                 BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(userCode);
-                if (bssod.getSiteType() == 64) {/** 站点类型为64的时候为分拣中心 **/
+                if (bssod != null && BusinessUtil.isDistrubutionCenter(bssod.getSiteType())) {/** 站点类型为64的时候为分拣中心 **/
                     siteCode = bssod.getSiteCode();
                     siteName = bssod.getSiteName();
                 }

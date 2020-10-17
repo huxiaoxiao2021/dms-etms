@@ -49,9 +49,12 @@ public abstract class AbstractExcelDataResolver implements DataResolver{
 		}
 		int cellNum = sheet.getRow(0).getLastCellNum();
 		Map<String, MetaData> metaMap = metaDataFactory.getMetaDataMap();
-
 		for (int i = 1; i <= sheet.getLastRowNum(); i++) {
 			Row row = sheet.getRow(i);
+			if(row == null){
+				log.warn("第{}行为空！" ,i+1);
+				continue;
+			}
 			ExcelContext.setCurrentRow(row);
 			String resultMessage = "";
 			T t = this.newObject(cls);

@@ -12,7 +12,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import com.jd.bluedragon.core.base.*;
-import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
+import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.dto.WChoice;
@@ -64,7 +64,7 @@ public class CenterServiceResource {
 	private WaybillPackageManager waybillPackageManager;
 
 	@Autowired
-	private JsfSortingResourceService jsfSortingResourceService;
+	private WaybillCacheService waybillCacheService;
 
 	@GET
 	@Path("/centerService/getBaseSiteBySiteId/")
@@ -253,6 +253,6 @@ public class CenterServiceResource {
 	@Path("/centerService/getRouterByWaybillCode/{waybillCode}")
 	@GZIP
 	public String getRouterByWaybillCode(@PathParam("waybillCode") String waybillCode){
-		return jsfSortingResourceService.getRouterByWaybillCode(waybillCode);
+		return waybillCacheService.getRouterByWaybillCode(waybillCode);
 	}
 }
