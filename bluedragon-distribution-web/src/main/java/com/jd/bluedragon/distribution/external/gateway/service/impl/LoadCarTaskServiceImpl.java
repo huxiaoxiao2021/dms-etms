@@ -8,6 +8,7 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadTaskListReq
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadTaskListDto;
 import com.jd.bluedragon.common.dto.unloadCar.HelperDto;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCarHelper;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarDao;
@@ -181,7 +182,7 @@ public class LoadCarTaskServiceImpl implements LoadCarTaskService {
         BeanUtils.copyProperties(req, loadCar);
         loadCar.setCreateTime(new Date());
         loadCar.setOperateTime(new Date());
-        loadCar.setStatus(0);
+        loadCar.setStatus(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BLANK);
         int id = loadCarDao.insert(loadCar);
         jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
         jdCResponse.setMessage(JdCResponse.MESSAGE_SUCCESS);
