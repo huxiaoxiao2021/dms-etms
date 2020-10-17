@@ -68,7 +68,7 @@ public class WaybillGateWayExternalServiceImpl implements WaybillGateWayExternal
     private static final Integer OPERATOR_ID= -1;//经济网操作人回传全称跟踪默认ID：-1
 
     @Override
-    @JProfiler(jKey = "DMSWEB.WaybillGateWayExternalServiceImpl.syncWaybillCodeAndBoxCode", jAppName = Constants.UMP_APP_NAME_DMSWEB , mState = {JProEnum.TP})
+    @JProfiler(jKey = "DMSWEB.WaybillGateWayExternalServiceImpl.syncWaybillCodeAndBoxCode", jAppName = Constants.UMP_APP_NAME_DMSWEB , mState = {JProEnum.TP, JProEnum.FunctionError})
     public GateWayBaseResponse<Void> syncWaybillCodeAndBoxCode(WaybillSyncRequest request,String pin) {
         logger.info("同步运单与箱号信息waybillCode[{}]boxCode[{}]",request.getWaybillCode(),request.getBoxCode());
         GateWayBaseResponse<Void> response = null;
@@ -152,7 +152,8 @@ public class WaybillGateWayExternalServiceImpl implements WaybillGateWayExternal
     private GateWayBaseResponse<Void> sorting(WaybillSyncRequest request, BaseStaffSiteOrgDto startSite, Box box){
         CallerInfo info = Profiler.registerInfo("DMSWORKER.WaybillGateWayExternalServiceImpl.sorting", false, true);
         GateWayBaseResponse<Void> response = new GateWayBaseResponse<Void>();
-        String redisKey = THIRD_ENET_BOX_WAYBILL_PREFIX.concat(request.getBoxCode()).concat(request.getOperationType().toString())
+        String redisKey = THIRD_ENET_BOX_WAYBILL_PREFIX.concat(request.getBoxCode()).concat(Constants.SEPARATOR_HYPHEN)
+                .concat(request.getOperationType().toString()).concat(Constants.SEPARATOR_HYPHEN)
                 .concat(request.getPackageCode());
         try {
             if(jimdbCacheService.exists(redisKey)){
