@@ -12,4 +12,5 @@ public class GoodsLoadScanConstants {
     public static final Integer GOODS_SCAN_LOAD_YELLOW = 3;
     public static final Integer GOODS_SCAN_LOAD_RED = 4;
 
+
 }

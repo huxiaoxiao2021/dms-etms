@@ -20,7 +20,6 @@ import java.util.List;
 public class ExceptionScanServiceImpl implements ExceptionScanService {
     private final static Logger log = LoggerFactory.getLogger(ExceptionScanServiceImpl.class);
 
-
     @Autowired
     private GoodsLoadScanRecordDao goodsLoadScanRecordDao;
 
@@ -129,7 +128,10 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
     @Override
     public List<GoodsExceptionScanningDto> findAllExceptionGoodsScan(Long taskId) {
         List<GoodsExceptionScanningDto> res= new ArrayList<>();
+
+        log.info("ExceptionScanServiceImpl#findAllExceptionGoodsScan--begin 根据任务号查询不齐异常数据： 参数【" + taskId + "】");
         List<GoodsLoadScan> list = goodsLoadScanDao.findLoadScanByTaskId(taskId);
+        log.info("ExceptionScanServiceImpl#findAllExceptionGoodsScan--begin 根据任务号【" + taskId + "】查询不齐异常数据： 出参【" + JsonHelper.toJson(list) + "】");
 
         if(list != null && list.size() > 0) {
             GoodsExceptionScanningDto resDto = new GoodsExceptionScanningDto();
