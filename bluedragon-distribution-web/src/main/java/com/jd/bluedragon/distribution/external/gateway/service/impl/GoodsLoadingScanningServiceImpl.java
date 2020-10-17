@@ -17,7 +17,6 @@ import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.ExceptionScanDto;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
-import com.jd.bluedragon.distribution.goodsLoadScan.domain.LoadScan;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanService;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.NoRepeatSubmitService;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
@@ -465,27 +464,31 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
             return response;
         }
         String batchCode = req.getBatchCode();
-        CreateAndReceiveSiteInfo siteInfo = siteService.getCreateAndReceiveSiteBySendCode(batchCode);
 
-        if (siteInfo != null) {
-            // 系统校验批次号的目的地与输入的目的场地是否一致，如果不一致则系统提示：“批次号目的地与目的场地不一致，请检查后重新扫描”
-            if (!siteInfo.getReceiveSiteCode().equals(loadCar.getEndSiteCode().intValue())) {
-                response.setCode(JdCResponse.CODE_FAIL);
-                response.setMessage("批次号目的地与目的场地不一致，请检查后重新扫描");
-                return response;
-            }
-            // 批次号校验通过，则和任务绑定
-            loadCar.setBatchCode(batchCode);
-            ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-            if (erpUser != null) {
-                loadCar.setOperateUserErp(erpUser.getUserCode());
-                loadCar.setOperateUserName(erpUser.getUserName());
-            }
-            loadCar.setOperateTime(new Date());
-            loadCarDao.updateLoadCarById(loadCar);
-            response.setCode(JdCResponse.CODE_SUCCESS);
+        // 根据批次号查询下一网点信息
+        CreateAndReceiveSiteInfo siteInfo = siteService.getCreateAndReceiveSiteBySendCode(batchCode);
+        if (siteInfo == null) {
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("根据批次号没有找到对应的网点信息");
             return response;
         }
+
+        // 系统校验批次号的目的地与输入的目的场地是否一致，如果不一致则系统提示：“批次号目的地与目的场地不一致，请检查后重新扫描”
+        if (!siteInfo.getReceiveSiteCode().equals(loadCar.getEndSiteCode().intValue())) {
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("批次号目的地与目的场地不一致，请检查后重新扫描");
+            return response;
+        }
+        // 批次号校验通过，则和任务绑定
+        loadCar.setBatchCode(batchCode);
+        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+        if (erpUser != null) {
+            loadCar.setOperateUserErp(erpUser.getUserCode());
+            loadCar.setOperateUserName(erpUser.getUserName());
+        }
+        loadCar.setOperateTime(new Date());
+        loadCarDao.updateLoadCarById(loadCar);
+        response.setCode(JdCResponse.CODE_SUCCESS);
 
         return response;
     }
