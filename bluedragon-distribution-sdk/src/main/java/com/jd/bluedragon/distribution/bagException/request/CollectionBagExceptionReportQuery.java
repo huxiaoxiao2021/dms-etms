@@ -160,6 +160,7 @@ public class CollectionBagExceptionReportQuery extends BasePagerCondition implem
 
     public void setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
+        this.setLimit(pageSize);
     }
 
     public Long getId() {
