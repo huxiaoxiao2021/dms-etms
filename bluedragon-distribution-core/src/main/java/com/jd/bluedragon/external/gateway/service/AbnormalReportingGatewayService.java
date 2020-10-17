@@ -20,6 +20,4 @@ public interface AbnormalReportingGatewayService {
     JdCResponse saveAbnormalReportingInfo(AbnormalReportingRequest abnormalReportingRequest);
 
     JdCResponse querySite(String orgId, String siteName, String siteCode);
-
-    JdCResponse trace(String key, String packageCode);
 }
