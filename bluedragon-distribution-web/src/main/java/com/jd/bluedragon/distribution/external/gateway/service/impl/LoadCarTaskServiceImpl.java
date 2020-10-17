@@ -51,6 +51,7 @@ public class LoadCarTaskServiceImpl implements LoadCarTaskService {
 
     @Override
     public JdCResponse deleteLoadCarTask(LoadDeleteReq req) {
+        loadCarDao.deleteById(req);
         return null;
     }
 

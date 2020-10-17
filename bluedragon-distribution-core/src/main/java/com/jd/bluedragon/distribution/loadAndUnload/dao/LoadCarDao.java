@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.loadAndUnload.dao;
 
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadDeleteReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadTaskListDto;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
 
@@ -29,6 +30,10 @@ public class LoadCarDao extends BaseDao<LoadCar> {
      */
     public List<LoadTaskListDto> queryByErp(String loginUserErp) {
         return this.getSqlSession().selectList(namespace + ".queryByErp", loginUserErp);
+    }
+
+    public int deleteById(LoadDeleteReq req){
+        return this.getSqlSession().update(namespace + ".queryByErp", req);
     }
 
 }

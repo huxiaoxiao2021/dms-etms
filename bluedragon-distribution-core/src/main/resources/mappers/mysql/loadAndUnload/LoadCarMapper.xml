@@ -124,8 +124,11 @@
             resultType="com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadTaskListDto">
         select a.end_site_code as endSiteCode, a.end_site_name as endSiteName, a.status as status, a.license_number as licenseNumber, a.id as id
         from load_car a left join   load_car_helper  b on a.id=b.task_id
-        where  b.create_user_erp= #{loginUserErp,jdbcType=VARCHAR}  or  b.helper_erp= #{loginUserErp,jdbcType=VARCHAR}
+        where  b.create_user_erp= #{loginUserErp,jdbcType=VARCHAR}  or  b.helper_erp= #{loginUserErp,jdbcType=VARCHAR} and yn=1
     </select>
 
+    <update id="deleteById" parameterType="Long">
+        update load_car set yn=0 where id= #{id,jdbcType=BIGINT}
+    </update>
 
 </mapper>
