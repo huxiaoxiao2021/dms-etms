@@ -292,26 +292,30 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
 
     @Override
     public JdCResponse<Void> checkByBatchCodeOrBoardCodeOrPackageCode(GoodsLoadingScanningReq req) {
+
         JdCResponse<Void> response = new JdCResponse<>();
 
-        // 如果批次号不为空
+        // 如果批次号不为空，校验批次号
         if (StringUtils.isNotBlank(req.getBatchCode())) {
             return checkBatchCode(req, response);
         }
 
         // 如果是包裹号
-        // 如果没勾选【包裹号转板号】
-        if (req.getTransfer() == null || req.getTransfer() != 1) {
-            return checkPackageCode(req, response);
-        }
-
-        // 如果勾选【包裹号转板号】
-        // 校验板号
-        if (StringUtils.isNotBlank(req.getPackageCode()) && req.getTransfer() == 1) {
+        if (StringUtils.isNotBlank(req.getPackageCode())) {
+            // 如果没勾选【包裹号转板号】
+            if (req.getTransfer() == null || req.getTransfer() != 1) {
+                // 校验包裹号
+                return checkPackageCode(req, response);
+            }
+            // 如果勾选【包裹号转板号】
+            // 校验板号
             return checkBoardCode(req, response);
         }
+
+        // 其他情况就是参数错误
         response.setCode(JdCResponse.CODE_FAIL);
         response.setMessage("参数校验错误，请检查必填参数是否填写");
+
         return response;
     }
 
