@@ -540,7 +540,7 @@
         <include refid="where"/>
         order by id desc
         <if test="pageNumber > 0">
-            limit #{startRecord}, #{pageSize}
+            limit #{limit}, #{pageSize}
         </if>
     </select>
     <!-- 伪删除（更新删除行的识别码） -->
