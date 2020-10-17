@@ -43,7 +43,7 @@ public class ThirdBoxWeightConsumer extends MessageBaseConsumer {
             return;
         }
         try {
-            WaybillSyncRequest messageDto = JsonHelper.fromJsonUseGson(message.getText(), WaybillSyncRequest.class);
+            WaybillSyncRequest messageDto = JsonHelper.fromJson(message.getText(), WaybillSyncRequest.class);
 
             if (messageDto == null || StringHelper.isEmpty(messageDto.getBoxCode()) || StringHelper.isEmpty(messageDto.getWaybillCode())) {
                 LOGGER.error("消息中缺少关键字，将抛弃：{}", message.getText());
@@ -59,8 +59,7 @@ public class ThirdBoxWeightConsumer extends MessageBaseConsumer {
 
             //如果存在箱号的称重记录，不存在运单的称重记录，则补称重记录
             if (boxBool && !waybillBool) {
-                Integer staffId = Integer.valueOf(messageDto.getOperatorId());
-                BaseStaffSiteOrgDto staffSiteDTO = baseMajorManager.getBaseStaffByStaffId(staffId);
+                BaseStaffSiteOrgDto endSite = baseMajorManager.getBaseSiteByDmsCode(messageDto.getEndSiteCode());
 
                 WeightVolumeEntity itemEntity = new WeightVolumeEntity();
                 itemEntity.setBarCode(waybillCode);
@@ -71,12 +70,10 @@ public class ThirdBoxWeightConsumer extends MessageBaseConsumer {
                 itemEntity.setLength(1D);
                 itemEntity.setWidth(1D);
                 itemEntity.setHeight(1D);
-                itemEntity.setOperateSiteCode(Integer.valueOf(messageDto.getStartSiteCode()));
-                itemEntity.setOperateSiteName(messageDto.getOperatorUnitName());
-                itemEntity.setOperatorId(Integer.valueOf(messageDto.getOperatorId()));
-                if (staffSiteDTO != null && StringHelper.isNotEmpty(staffSiteDTO.getErp())) {
-                    itemEntity.setOperatorCode(staffSiteDTO.getErp());
-                }
+                itemEntity.setOperateSiteCode(endSite.getSiteCode());
+                itemEntity.setOperateSiteName(endSite.getSiteName());
+                itemEntity.setOperatorId(-1);
+                itemEntity.operatorName(messageDto.getOperatorName());
                 itemEntity.setOperateTime(messageDto.getOperatorTime());
                 itemEntity.setBusinessType(WeightVolumeBusinessTypeEnum.BY_WAYBILL);
                 itemEntity.setSourceCode(FromSourceEnum.DMS_INNER_SPLIT);
