@@ -86,7 +86,9 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
      */
     @Override
     public JdCResponse<QueryBoxCollectionReportResponse> queryBagCollectionHasException(QueryBoxCollectionReportRequest query) {
-        log.error("CollectionBagExceptionReportServiceImpl.queryBagCollectionHasException param {}", JSON.toJSONString(query));
+        if(log.isInfoEnabled()){
+            log.info("CollectionBagExceptionReportServiceImpl.queryBagCollectionHasException param {}", JSON.toJSONString(query));
+        }
         JdCResponse<QueryBoxCollectionReportResponse> result = new JdCResponse<>(JdCResponse.CODE_SUCCESS, null);
         QueryBoxCollectionReportResponse reportResponse = new QueryBoxCollectionReportResponse();
         try {
@@ -125,7 +127,9 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
                 reportResponse.setWidth(latestPackFlowDetail.getpWidth());
                 reportResponse.setHeight(latestPackFlowDetail.getpHigh());
             } else{
-                log.info("waybillPackageManager.getOpeDetailByCode 无称重明细 packageCode {}", packageCode);
+                if(log.isInfoEnabled()) {
+                    log.info("waybillPackageManager.getOpeDetailByCode 无称重明细 packageCode {}", packageCode);
+                }
             }
 
             if(canReportFlag){
@@ -161,7 +165,6 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
             result.toFail("查询异常");
         }
         result.setData(reportResponse);
-        log.info("queryBagCollectionHasException result: {}", JSON.toJSONString(result));
         return result;
     }
 
@@ -410,7 +413,9 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
      */
     @Override
     public JdCResponse<Boolean> reportBagCollectionException(BoxCollectionReportRequest reportRequest) {
-        log.error("CollectionBagExceptionReportServiceImpl.reportBagCollectionException param {}", JSON.toJSONString(reportRequest));
+        if(log.isInfoEnabled()){
+            log.info("CollectionBagExceptionReportServiceImpl.reportBagCollectionException param {}", JSON.toJSONString(reportRequest));
+        }
         JdCResponse<Boolean> result = new JdCResponse<>(JdCResponse.CODE_SUCCESS, null);
         try {
             // 验证参数
@@ -444,7 +449,9 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
                 exceptionReport.setHeight(latestPackFlowDetail.getpHigh());
                 exceptionReport.setWeight(latestPackFlowDetail.getpWeight());
             } else {
-                log.info("waybillPackageManager.getOpeDetailByCode 无称重明细 packageCode {}", reportRequest.getPackageCode());
+                if(log.isInfoEnabled()) {
+                    log.info("waybillPackageManager.getOpeDetailByCode 无称重明细 packageCode {}", reportRequest.getPackageCode());
+                }
                 result.init(JdCResponse.CODE_FAIL, "未查询到此包裹的称重明细数据，不可举报");
                 return result;
             }
@@ -471,7 +478,6 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
             // 落库
             collectionBagExceptionReportDao.insertSelective(exceptionReport);
             result.toSucceed("举报成功");
-            log.info("reportBagCollectionException result: {}", JSON.toJSONString(result));
         } catch (Exception e) {
             log.error("CollectionBagExceptionReportServiceImpl.reportBagCollectionException exception {}", e.getMessage(), e);
             result.toFail("举报异常");
