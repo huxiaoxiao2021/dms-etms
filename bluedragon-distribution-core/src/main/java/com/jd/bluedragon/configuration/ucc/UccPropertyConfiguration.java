@@ -132,19 +132,21 @@ public class UccPropertyConfiguration {
      */
     private String collectGoodsDeleteSites;
 
+    private int clickIntervalSecond;
+
     /**
      * 验货运单多包裹拆分任务生效的分拣中心
      */
     private String inspectionBigWaybillEffectiveSites;
 
-    /**
-     * 按钮点击间隔(秒)，配置为-1则关闭控制
-     */
-    private int clickIntervalSecond;
-
     private String singleSendSwitchVerToWebSites;
 
     private String boardCombinationSwitchVerToWebSites;
+
+    /**
+     * 众邮称重拦截开关。true 拦截，false 不拦截
+     */
+    private boolean economicNetValidateWeightSwitch;
 
     public boolean isLogToBusinessLogByKafka() {
         return logToBusinessLogByKafka;
@@ -410,6 +412,14 @@ public class UccPropertyConfiguration {
         this.singleSendSwitchVerToWebSites = singleSendSwitchVerToWebSites;
     }
 
+    public int getClickIntervalSecond() {
+        return clickIntervalSecond;
+    }
+
+    public void setClickIntervalSecond(int clickIntervalSecond) {
+        this.clickIntervalSecond = clickIntervalSecond;
+    }
+
     public String getBoardCombinationSwitchVerToWebSites() {
         return boardCombinationSwitchVerToWebSites;
     }
@@ -418,11 +428,11 @@ public class UccPropertyConfiguration {
         this.boardCombinationSwitchVerToWebSites = boardCombinationSwitchVerToWebSites;
     }
 
-    public int getClickIntervalSecond() {
-        return clickIntervalSecond;
+    public boolean getEconomicNetValidateWeightSwitch() {
+        return economicNetValidateWeightSwitch;
     }
 
-    public void setClickIntervalSecond(int clickIntervalSecond) {
-        this.clickIntervalSecond = clickIntervalSecond;
+    public void setEconomicNetValidateWeightSwitch(boolean economicNetValidateWeightSwitch) {
+        this.economicNetValidateWeightSwitch = economicNetValidateWeightSwitch;
     }
 }

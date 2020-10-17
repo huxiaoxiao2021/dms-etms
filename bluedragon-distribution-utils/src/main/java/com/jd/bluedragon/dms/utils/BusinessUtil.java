@@ -1043,7 +1043,7 @@ public class BusinessUtil {
      * @param waybillSign waybillSign
      * @return true 是，false 不是
      */
-    private static boolean isWaybillMarkForward(String waybillSign) {
+    public static boolean isWaybillMarkForward(String waybillSign) {
         return isSignChar(waybillSign,WaybillSignConstants.POSITION_15,WaybillSignConstants.CHAR_15_0);
     }
 

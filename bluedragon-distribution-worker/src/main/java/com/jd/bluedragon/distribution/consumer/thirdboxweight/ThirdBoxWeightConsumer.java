@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.consumer.thirdboxweight;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
@@ -12,6 +13,8 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.report.weightVolumeFlow.WeightVolumeFlowJSFService;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +35,7 @@ public class ThirdBoxWeightConsumer extends MessageBaseConsumer {
     private BaseMajorManager baseMajorManager;
 
     @Override
+    @JProfiler(jKey = "DMSWORKER.ThirdBoxWeightConsumer.consume", jAppName = Constants.UMP_APP_NAME_DMSWORKER , mState = {JProEnum.TP, JProEnum.FunctionError})
     public void consume(Message message) throws Exception {
 
         if (!JsonHelper.isJsonString(message.getText())) {
