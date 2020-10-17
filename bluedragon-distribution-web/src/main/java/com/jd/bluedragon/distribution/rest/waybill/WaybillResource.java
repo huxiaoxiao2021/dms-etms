@@ -17,6 +17,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -223,6 +224,9 @@ public class WaybillResource {
     
     @Autowired
     private EclpLwbB2bPackageItemService eclpLwbB2bPackageItemService;
+
+	@Autowired
+	private WaybillCacheService waybillCacheService;
 
     /**
      * 根据运单号获取运单包裹信息接口
@@ -1409,7 +1413,7 @@ public class WaybillResource {
 				if(waybill != null && StringHelper.isNotEmpty(waybill.getWaybillCode())){
 					preSortingSiteCode = waybill.getSiteCode();
 					//获得路由中的下一节点
-					String routerStr = jsfSortingResourceService.getRouterByWaybillCode(waybill.getWaybillCode());
+					String routerStr = waybillCacheService.getRouterByWaybillCode(waybill.getWaybillCode());
 					if(StringUtils.isNotBlank(routerStr)){
 						String[] routers = routerStr.split(WAYBILL_ROUTER_SPLITER);
 						if(routers != null && routers.length > 0) {
@@ -1535,7 +1539,7 @@ public class WaybillResource {
 		InvokeResult<List<Integer>> result = new InvokeResult<List<Integer>>();
 
 		try {
-			String routerStr = jsfSortingResourceService.getRouterByWaybillCode(waybillCode);
+			String routerStr = waybillCacheService.getRouterByWaybillCode(waybillCode);
 			if(StringHelper.isNotEmpty(routerStr)){
 				String[] routers = routerStr.split(WAYBILL_ROUTER_SPLITER);
 				if(routers.length > 0) {

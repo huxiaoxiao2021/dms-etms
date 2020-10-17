@@ -16,6 +16,7 @@ import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.transBillSchedule.domain.TransBillScheduleRequest;
 import com.jd.bluedragon.distribution.transBillSchedule.service.TransBillScheduleService;
+import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.fastjson.JSON;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
@@ -51,6 +52,8 @@ public class DmsForMiddleEndServiceImpl implements DmsForMiddleEndService {
     @Qualifier("cancelWaybillJsfService")
     private CancelWaybillJsfService cancelWaybillJsfService;
 
+    @Autowired
+    private WaybillCacheService waybillCacheService;
 
     /**
      * 校验金鹏订单是否可发货
@@ -485,7 +488,7 @@ public class DmsForMiddleEndServiceImpl implements DmsForMiddleEndService {
         CallerInfo info = Profiler.registerInfo("DMSWEB.DmsForMiddleEndServiceImpl.getRouterByWaybillCode",Constants.UMP_APP_NAME_DMSWEB,false,true);
         try {
             result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
-            result.setData(jsfSortingResourceService.getRouterByWaybillCode(waybillCode));
+            result.setData(waybillCacheService.getRouterByWaybillCode(waybillCode));
         } catch (Exception e) {
             log.error("getRouterByWaybillCode执行异常.参数waybillCode:{}",waybillCode, e);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
