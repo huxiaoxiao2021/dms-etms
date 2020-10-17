@@ -8,6 +8,8 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingSca
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsDetailDto;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.distribution.base.domain.CreateAndReceiveSiteInfo;
+import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
@@ -52,6 +54,9 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
 
     @Autowired
     private LoadCarDao loadCarDao;
+
+    @Autowired
+    private SiteService siteService;
 
 
     @Override
@@ -198,10 +203,32 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
 
     @Override
     public JdCResponse<Void> checkByBatchCodeOrBoardCodeOrPackageCode(GoodsLoadingScanningReq req) {
-        // 如果是批次号
-        // 系统校验批次号的目的地与输入的目的场地是否一致，如果不一致则系统提示：“批次号目的地与目的场地不一致，请检查后重新扫描”
+        JdCResponse<Void> response = new JdCResponse<>();
+        // 根据任务号查询当前任务下一网点
+        LoadCar loadCar = loadCarDao.findLoadCarById(req.getTaskId());
+        // 如果是批次号 todo 批次号是否可以多次更改覆盖
+        String batchCode = req.getBatchCode();
+        CreateAndReceiveSiteInfo siteInfo = siteService.getCreateAndReceiveSiteBySendCode(batchCode);
 
-        //批次号校验通过，则和任务绑定
+        if (siteInfo != null) {
+            // 系统校验批次号的目的地与输入的目的场地是否一致，如果不一致则系统提示：“批次号目的地与目的场地不一致，请检查后重新扫描”
+            if (!siteInfo.getReceiveSiteCode().equals(loadCar.getEndSiteCode().intValue())) {
+                response.setCode(JdCResponse.CODE_FAIL);
+                response.setMessage("批次号目的地与目的场地不一致，请检查后重新扫描");
+                return response;
+            }
+            // 批次号校验通过，则和任务绑定
+            loadCar.setBatchCode(batchCode);
+            ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+            if (erpUser != null) {
+                loadCar.setOperateUserErp(erpUser.getUserCode());
+                loadCar.setOperateUserName(erpUser.getUserName());
+            }
+            loadCar.setOperateTime(new Date());
+            loadCarDao.updateLoadCarById(loadCar);
+        }
+
+        // 如果是包裹号
 
         // 扫描第一个包裹时，将任务状态改为已开始
 

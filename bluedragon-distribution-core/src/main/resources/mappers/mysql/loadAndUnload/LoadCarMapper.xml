@@ -184,5 +184,53 @@
         </where>
     </select>
 
+    <update id="updateByPrimaryKey" parameterType="com.jd.bluedragon.distribution.loadAndUnload.LoadCar">
+        update load_car
+        <set>
+            <if test="licenseNumber != null and licenseNumber != ''">
+                license_number = #{licenseNumber,jdbcType=VARCHAR},
+            </if>
+            <if test="endSiteCode != null">
+                end_site_code = #{endSiteCode,jdbcType=BIGINT},
+            </if>
+            <if test="endSiteName != null and endSiteName != ''">
+                end_site_name = #{endSiteName,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=INTEGER},
+            </if>
+            <if test="operateUserErp != null and operateUserErp != ''">
+                operate_user_erp = #{operateUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="operateUserName != null and operateUserName != ''">
+                operate_user_name = #{operateUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="operateTime != null">
+                operate_time = #{operateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createUserErp != null and createUserErp != ''">
+                create_user_erp = #{createUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="createUserName != null and createUserName != ''">
+                create_user_name = #{createUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="currentSiteCode != null">
+                current_site_code = #{currentSiteCode,jdbcType=BIGINT},
+            </if>
+            <if test="currentSiteName != null and currentSiteName != ''">
+                current_site_name = #{currentSiteName,jdbcType=VARCHAR},
+            </if>
+            <if test="batchCode != null and batchCode != ''">
+                batch_code = #{batchCode,jdbcType=VARCHAR},
+            </if>
+            <if test="yn != null">
+                yn = #{yn,jdbcType=INTEGER},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT} and yn = 1
+    </update>
 
 </mapper>

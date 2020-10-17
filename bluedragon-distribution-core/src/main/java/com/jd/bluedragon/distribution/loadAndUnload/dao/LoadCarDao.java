@@ -41,6 +41,8 @@ public class LoadCarDao extends BaseDao<LoadCar> {
         loadCar.setId(id);
         return this.getSqlSession().selectOne(namespace + ".selectListByCondition", loadCar);
     }
-
+    public boolean updateLoadCarById(LoadCar loadCar) {
+        return this.getSqlSession().update(namespace + ".updateByPrimaryKey", loadCar) > 0;
+    }
 
 }
