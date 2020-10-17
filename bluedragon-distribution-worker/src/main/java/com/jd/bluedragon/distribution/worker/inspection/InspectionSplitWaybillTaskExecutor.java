@@ -79,7 +79,7 @@ public class InspectionSplitWaybillTaskExecutor extends InspectionTaskCommonExec
         WChoice wChoice = new WChoice();
         wChoice.setQueryWaybillC(true);
         wChoice.setQueryWaybillE(false);
-        wChoice.setQueryWaybillM(false);
+        wChoice.setQueryWaybillM(true); // 查询waybillState
 
         BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, wChoice);
         BigWaybillDto bigWaybillDto = null;
