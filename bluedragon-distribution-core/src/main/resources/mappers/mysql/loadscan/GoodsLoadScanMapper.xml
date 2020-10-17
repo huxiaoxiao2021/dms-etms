@@ -163,6 +163,16 @@
         </where>
     </select>
 
+    <select id="selectWaybillCodesByTaskId" parameterType="java.lang.Long" resultType="java.lang.String">
+        select waybill_code
+        from
+        load_scan
+        <where>
+            task_id = #{taskId,jdbcType=BIGINT}
+            <include refid="Base_Condition_Sql"/>
+        </where>
+    </select>
+
     <select id="selectListByCondition" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan" resultMap="goodsLoadScan">
         select
         <include refid="Base_Column_List"/>
