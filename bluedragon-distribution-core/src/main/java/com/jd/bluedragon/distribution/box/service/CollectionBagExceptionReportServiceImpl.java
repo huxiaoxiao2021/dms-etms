@@ -48,7 +48,9 @@ public class CollectionBagExceptionReportServiceImpl implements CollectionBagExc
      */
     @Override
     public Response<PageDto<CollectionBagExceptionReportVo>> queryPageList(CollectionBagExceptionReportQuery query) {
-        log.info("CollectionBagExceptionReportServiceImpl.queryPageList param: {}", JSON.toJSONString(query));
+        if(log.isInfoEnabled()) {
+            log.info("CollectionBagExceptionReportServiceImpl.queryPageList param: {}", JSON.toJSONString(query));
+        }
         Response<PageDto<CollectionBagExceptionReportVo>> result = new Response<>();
         result.toSucceed();
         PageDto<CollectionBagExceptionReportVo> pageData = new PageDto<>();
@@ -127,7 +129,9 @@ public class CollectionBagExceptionReportServiceImpl implements CollectionBagExc
      */
     @Override
     public Response<CollectionBagExceptionReport> selectByPrimaryKey(Long id) {
-        log.info("CollectionBagExceptionReportServiceImpl.selectByPrimaryKey param: {}", id);
+        if(log.isInfoEnabled()) {
+            log.info("CollectionBagExceptionReportServiceImpl.selectByPrimaryKey param: {}", id);
+        }
         Response<CollectionBagExceptionReport> result = new Response<>();
         result.toSucceed();
         try {
@@ -150,7 +154,9 @@ public class CollectionBagExceptionReportServiceImpl implements CollectionBagExc
      */
     @Override
     public Response<Integer> add(CollectionBagExceptionReport collectionBagExceptionReport) {
-        log.info("CollectionBagExceptionReportServiceImpl.add param: {}", JSON.toJSONString(collectionBagExceptionReport));
+        if(log.isInfoEnabled()) {
+            log.info("CollectionBagExceptionReportServiceImpl.add param: {}", JSON.toJSONString(collectionBagExceptionReport));
+        }
         Response<Integer> result = new Response<>();
         result.toSucceed();
         try {
@@ -173,7 +179,9 @@ public class CollectionBagExceptionReportServiceImpl implements CollectionBagExc
      */
     @Override
     public Response<Integer> updateByPrimaryKey(CollectionBagExceptionReport collectionBagExceptionReport) {
-        log.info("CollectionBagExceptionReportServiceImpl.updateByPrimaryKey param: {}", JSON.toJSONString(collectionBagExceptionReport));
+        if(log.isInfoEnabled()) {
+            log.info("CollectionBagExceptionReportServiceImpl.updateByPrimaryKey param: {}", JSON.toJSONString(collectionBagExceptionReport));
+        }
         Response<Integer> result = new Response<>();
         result.toSucceed();
         try {
