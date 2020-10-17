@@ -17,5 +17,5 @@ public interface ExceptionScanService {
     //强发
     boolean goodsCompulsoryDeliver(GoodsExceptionScanningReq req);
     //查询不齐异常数据
-    List<GoodsLoadScan> findAllExceptionGoodsScan(Long taskId);
+    List<GoodsExceptionScanningDto> findAllExceptionGoodsScan(Long taskId);
 }

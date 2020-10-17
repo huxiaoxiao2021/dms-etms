@@ -15,13 +15,13 @@ public class GoodsExceptionScanningDto {
     private String waybillCode;
 
     //已装车包裹数量
-    private String loadAmount;
+    private Integer loadAmount;
 
     //未装车包裹数量
-    private String unloadAmount;
+    private Integer unloadAmount;
 
     //强发包裹数量
-    private String forceAmount;
+    private Integer forceAmount;
 
     public Long getId() {
         return id;
@@ -47,27 +47,27 @@ public class GoodsExceptionScanningDto {
         this.waybillCode = waybillCode;
     }
 
-    public String getLoadAmount() {
+    public Integer getLoadAmount() {
         return loadAmount;
     }
 
-    public void setLoadAmount(String loadAmount) {
+    public void setLoadAmount(Integer loadAmount) {
         this.loadAmount = loadAmount;
     }
 
-    public String getUnloadAmount() {
+    public Integer getUnloadAmount() {
         return unloadAmount;
     }
 
-    public void setUnloadAmount(String unloadAmount) {
+    public void setUnloadAmount(Integer unloadAmount) {
         this.unloadAmount = unloadAmount;
     }
 
-    public String getForceAmount() {
+    public Integer getForceAmount() {
         return forceAmount;
     }
 
-    public void setForceAmount(String forceAmount) {
+    public void setForceAmount(Integer forceAmount) {
         this.forceAmount = forceAmount;
     }
 }

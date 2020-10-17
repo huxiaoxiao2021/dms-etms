@@ -127,10 +127,23 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
     }
 
     @Override
-    public List<GoodsLoadScan> findAllExceptionGoodsScan(Long taskId) {
+    public List<GoodsExceptionScanningDto> findAllExceptionGoodsScan(Long taskId) {
+        List<GoodsExceptionScanningDto> res= new ArrayList<>();
+        List<GoodsLoadScan> list = goodsLoadScanDao.findLoadScanByTaskId(taskId);
 
-        return goodsLoadScanDao.findLoadScanByTaskId(taskId);
+        if(list != null && list.size() > 0) {
+            GoodsExceptionScanningDto resDto = new GoodsExceptionScanningDto();
+            for(GoodsLoadScan glc : list) {
+                resDto.setId(glc.getId());
+                resDto.setTaskId(glc.getTaskId());
+                resDto.setWaybillCode(glc.getWayBillCode());
+                resDto.setLoadAmount(glc.getLoadAmount());
+                resDto.setUnloadAmount(glc.getUnloadAmount());
+                resDto.setForceAmount(glc.getForceAmount());
+            }
+            res.add(resDto);
+        }
+        return res;
     }
-
 
 }

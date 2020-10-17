@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingReq
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsExceptionScanningReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingScanningReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsDetailDto;
+import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanDao;
@@ -131,15 +132,15 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
     }
 
     @Override
-    public JdCResponse<List<GoodsLoadScan>> findExceptionGoodsLoading(GoodsExceptionScanningReq req) {
-        JdCResponse<List<GoodsLoadScan>> response = new JdCResponse<>();
+    public JdCResponse<List<GoodsExceptionScanningDto>> findExceptionGoodsLoading(GoodsExceptionScanningReq req) {
+        JdCResponse<List<GoodsExceptionScanningDto>> response = new JdCResponse<>();
 
         if(req.getTaskId() == null) {
             response.toFail("任务号不能为空");
             return response;
         }
 
-        List<GoodsLoadScan> list = exceptionScanService.findAllExceptionGoodsScan(req.getTaskId());
+        List<GoodsExceptionScanningDto> list = exceptionScanService.findAllExceptionGoodsScan(req.getTaskId());
         if(list == null || list.size() <= 0) {
             response.toError("不齐异常数据查找失败");
             return response;
@@ -151,6 +152,8 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
 
     @Override
     public JdCResponse goodsLoadingDeliver(GoodsLoadingReq req) {
+
+
         return null;
     }
 

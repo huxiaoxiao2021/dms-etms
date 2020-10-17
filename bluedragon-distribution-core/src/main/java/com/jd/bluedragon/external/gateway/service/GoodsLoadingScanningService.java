@@ -39,7 +39,7 @@ public interface GoodsLoadingScanningService {
      * @return
      * @Author zhengchengfa
      */
-    JdCResponse<List<GoodsLoadScan>> findExceptionGoodsLoading(GoodsExceptionScanningReq req);
+    JdCResponse<List<GoodsExceptionScanningDto>> findExceptionGoodsLoading(GoodsExceptionScanningReq req);
 
     /**
      * 装车发货
