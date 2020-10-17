@@ -168,7 +168,7 @@
     </select>
 
 
-    <update id="updateById" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord">
+    <update id="updateGoodsScanRecordById" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord">
         update load_scan_record
         <set>
             <if test="taskId != null">task_id = #{taskId,jdbcType=BIGINT},</if>

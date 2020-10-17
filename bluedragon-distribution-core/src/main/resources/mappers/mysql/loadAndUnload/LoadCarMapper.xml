@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarDao">
 
-    <resultMap id="unloadCar" type="com.jd.bluedragon.distribution.loadAndUnload.LoadCar">
+    <resultMap id="loadCar" type="com.jd.bluedragon.distribution.loadAndUnload.LoadCar">
         <id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT"/>
         <result column="license_number" property="licenseNumber" javaType="java.lang.String" jdbcType="VARCHAR"/>
         <result column="end_site_code" property="endSiteCode" javaType="java.lang.Long" jdbcType="BIGINT"/>
@@ -130,5 +130,59 @@
     <update id="deleteById" parameterType="Long">
         update load_car set yn=0 where id= #{id,jdbcType=BIGINT}
     </update>
+
+    <select id="selectListByCondition" parameterType="com.jd.bluedragon.distribution.loadAndUnload.LoadCar" resultMap="loadCar">
+        select
+        <include refid="Base_Column_List"/>
+        from load_car
+        <where>
+            <if test="id != null">
+                and id = #{id,jdbcType=BIGINT}
+            </if>
+            <if test="licenseNumber != null and licenseNumber != ''">
+                and license_number = #{licenseNumber,jdbcType=VARCHAR}
+            </if>
+            <if test="endSiteCode != null">
+                and end_site_code = #{endSiteCode,jdbcType=BIGINT}
+            </if>
+            <if test="endSiteName != null and endSiteName != ''">
+                and end_site_name = #{endSiteName,jdbcType=VARCHAR}
+            </if>
+            <if test="status != null">
+                and status = #{status,jdbcType=INTEGER}
+            </if>
+            <if test="operateUserErp != null and operateUserErp != ''">
+                and operate_user_erp = #{operateUserErp,jdbcType=VARCHAR}
+            </if>
+            <if test="operateUserName != null and operateUserName != ''">
+                and operate_user_name = #{operateUserName,jdbcType=VARCHAR}
+            </if>
+            <if test="operateTime != null">
+                and operate_time = #{operateTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="createUserErp != null and createUserErp != ''">
+                and create_user_erp = #{createUserErp,jdbcType=VARCHAR}
+            </if>
+            <if test="createUserName != null and createUserName != ''">
+                and create_user_name = #{createUserName,jdbcType=VARCHAR}
+            </if>
+            <if test="createTime != null">
+                and create_time = #{createTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="currentSiteCode != null">
+                and current_site_code = #{currentSiteCode,jdbcType=BIGINT}
+            </if>
+            <if test="currentSiteName != null and currentSiteName != ''">
+                and current_site_name = #{currentSiteName,jdbcType=VARCHAR}
+            </if>
+            <if test="batchCode != null and batchCode != ''">
+                and batch_code = #{batchCode,jdbcType=VARCHAR}
+            </if>
+            <if test="yn != null">
+                and yn = #{yn,jdbcType=INTEGER}
+            </if>
+        </where>
+    </select>
+
 
 </mapper>

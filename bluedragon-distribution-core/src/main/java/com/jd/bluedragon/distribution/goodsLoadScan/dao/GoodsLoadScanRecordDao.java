@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.goodsLoadScan.dao;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
+import com.jd.bluedragon.distribution.loadAndUnload.UnloadCar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,16 +13,14 @@ public class GoodsLoadScanRecordDao extends BaseDao {
     private static final String namespace = GoodsLoadScanRecordDao.class.getName();
 
 
-    public int updateGoodsScanRecord(GoodsLoadScanRecord record) {
+    public int updateGoodsScanRecordById(GoodsLoadScanRecord record) {
 
-        return this.getSqlSession().update(namespace + ".goodsRemoveScanning",record);
+        return this.getSqlSession().update(namespace + ".updateGoodsScanRecordById",record);
     }
 
+    public GoodsLoadScanRecord selectListByCondition(GoodsLoadScanRecord record) {
 
-
-    public GoodsLoadScanRecord findExceptionGoodsScanRecord(GoodsLoadScanRecord record) {
-
-        return null;
+        return this.getSqlSession().selectOne(namespace + ".selectListByCondition",record);
     }
 
     public int insert(GoodsLoadScanRecord record) {

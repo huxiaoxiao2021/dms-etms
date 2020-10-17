@@ -36,4 +36,11 @@ public class LoadCarDao extends BaseDao<LoadCar> {
         return this.getSqlSession().update(namespace + ".queryByErp", req);
     }
 
+    public LoadCar findLoadCarById(Long id) {
+        LoadCar loadCar = new LoadCar();
+        loadCar.setId(id);
+        return this.getSqlSession().selectOne(namespace + ".selectListByCondition", loadCar);
+    }
+
+
 }
