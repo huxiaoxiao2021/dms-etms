@@ -259,26 +259,25 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
 
             // 多扫逻辑校验
             GoodsLoadScan loadScan = goodsLoadScanDao.findLoadScanByTaskIdAndWaybillCode(taskId, waybillCode);
-            if (!waybillCodes.isEmpty()) {
-                // 1.运单号在任务列表内的，且此运单本场地未操作验货
-                // 此类包裹，页面弹出提示：“此包裹未操作验货，无法扫描，请先操作验货”
-                if (waybillCodes.contains(waybillCode) && !isInspected) {
-                    log.warn("[多扫逻辑校验]|此包裹未操作验货，无法扫描，请先操作验货packageCode[{}]", packageCode);
-                    response.setCode(JdCResponse.CODE_FAIL);
-                    response.setMessage("此包裹未操作验货，无法扫描，请先操作验货");
-                    return response;
-                }
+
+            // 1.运单号在任务列表内的，且此运单本场地未操作验货
+            // 此类包裹，页面弹出提示：“此包裹未操作验货，无法扫描，请先操作验货”
+            if (loadScan != null && !isInspected) {
+                log.warn("[多扫逻辑校验]|此包裹未操作验货，无法扫描，请先操作验货packageCode[{}]", packageCode);
+                response.setCode(JdCResponse.CODE_FAIL);
+                response.setMessage("此包裹未操作验货，无法扫描，请先操作验货");
+                return response;
+            }
+            if (loadScan == null ) {
                 // 2.运单号不在任务列表内的，且此运单本场地未操作验货
                 // 此类包裹，页面弹出提示：“此包裹未操作验货，无法扫描，请先操作验货”
-                if (!waybillCodes.contains(waybillCode) && !isInspected) {
+                if (!isInspected) {
                     log.warn("【多扫逻辑校验】-【运单号不在任务列表内，且此运单本场地未操作验货】|此包裹未操作验货，无法扫描，请先操作验货packageCode[{}]", packageCode);
                     response.setCode(JdCResponse.CODE_FAIL);
                     response.setMessage("此包裹未操作验货，无法扫描，请先操作验货");
-                    return response;
-                }
-                //  3.运单号不在任务列表内的，且此运单本场地已操作验货
-                //  此类包裹未多扫包裹，正常记录的统计表中，底色标位黄色
-                if (!waybillCodes.contains(waybillCode) && isInspected) {
+                } else {
+                    //  3.运单号不在任务列表内的，且此运单本场地已操作验货
+                    //  此类包裹未多扫包裹，正常记录的统计表中，底色标位黄色
                     log.info("【多扫逻辑校验】-【运单号不在任务列表内的，且此运单本场地已操作验货】|此类包裹未多扫包裹，正常记录的统计表中，底色标位黄色packageCode[{}]", req.getPackageCode());
                     saveExternalWaybill(taskId, waybillCode, packageCode, goodsAmount, transfer);
                     // 扫描第一个包裹时，将任务状态改为已开始
@@ -291,8 +290,8 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
                     loadCar.setOperateTime(new Date());
                     loadCarDao.updateLoadCarById(loadCar);
                     response.setCode(JdCResponse.CODE_SUCCESS);
-                    return response;
                 }
+                return response;
             }
 
             // 发货校验
@@ -324,72 +323,6 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         return null;
     }
 
-    @Override
-    public JdCResponse<Void> saveByPackageCode(GoodsLoadingScanningReq req) {
-        JdCResponse<Void> response = new JdCResponse<>();
-        response.setCode(JdCResponse.CODE_SUCCESS);
-        Long taskId = req.getTaskId();
-        String packageCode = req.getPackageCode();
-        // 根据包裹号查找运单号
-        Waybill waybill = getWaybillByPackageCode(req.getPackageCode());
-        if(waybill == null){
-            log.warn("根据包裹号查询运单信息返回空packageCode[{}]", req.getPackageCode());
-            response.setCode(JdCResponse.CODE_FAIL);
-            response.setMessage("根据包裹号查询运单信息返回空");
-            return response;
-        }
-        String waybillCode = waybill.getWaybillCode();
-        // todo 是库存还是总包裹
-        Integer goodsAmount = waybill.getGoodNumber();
-
-        // 根据任务号和运单号查找包裹是否属于当前批次
-        GoodsLoadScan loadScan = goodsLoadScanDao.findLoadScanByTaskIdAndWaybillCode(taskId, waybillCode);
-
-        // 如果不属于当前批次，为当前任务添加一条运单
-        if (loadScan == null) {
-            saveExternalWaybill(taskId, waybillCode, packageCode, goodsAmount, req.getTransfer());
-        } else {
-            computeAndUpdateLoadScan(loadScan, packageCode);
-        }
-
-
-    /**
-     * 保存不属于本任务的运单
-     * @param taskId 任务ID
-     * @param waybillCode 运单号
-     * @param packageCode 包裹号
-     * @param goodsAmount 库存
-     * @param transfer 包裹号转板号标识
-     */
-    private void saveExternalWaybill(Long taskId, String waybillCode, String packageCode,
-                                     Integer goodsAmount, Integer transfer) {
-        GoodsLoadScan goodsLoadScan = createGoodsLoadScan(taskId, waybillCode, packageCode, goodsAmount);
-        goodsLoadScanDao.insert(goodsLoadScan);
-        // 装车记录表新增一条记录 todo
-        GoodsLoadScanRecord loadScanRecord = createGoodsLoadScanRecord(taskId, waybillCode, packageCode,
-                goodsAmount, transfer);
-        goodsLoadScanRecordDao.insert(loadScanRecord);
-    }
-
-    /**
-     * 根据包裹号获取运单
-     * @param packageCode  包裹号
-     * @return 运单
-     */
-    private Waybill getWaybillByPackageCode(String packageCode) {
-        // 根据包裹号查找运单号
-        BaseEntity<Waybill> baseEntity = waybillQueryManager.getWaybillByPackCode(packageCode);
-        if(baseEntity == null){
-            log.warn("根据包裹号查询运单信息接口返回空packageCode[{}]", packageCode);
-            return null;
-        }
-        if(baseEntity.getResultCode() != EnumBusiCode.BUSI_SUCCESS.getCode() || baseEntity.getData() == null){
-            log.error("查询运单信息接口失败packageCode[{}]code[{}]", packageCode, baseEntity.getResultCode());
-            return null;
-        }
-        return baseEntity.getData();
-    }
-
     /**
      * 计算已装、未装并更新装车扫描运单明细
      * @param loadScan  装车扫描运单明细记录
@@ -407,7 +340,6 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
             goodsLoadScanDao.updateByPrimaryKey(loadScan);
         }
     }
-
 
     /**
      * 保存不属于本任务的运单
@@ -474,6 +406,36 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         }
     }
 
+
+    @Override
+    public JdCResponse<Void> saveByPackageCode(GoodsLoadingScanningReq req) {
+        JdCResponse<Void> response = new JdCResponse<>();
+        response.setCode(JdCResponse.CODE_SUCCESS);
+        Long taskId = req.getTaskId();
+        String packageCode = req.getPackageCode();
+        // 根据包裹号查找运单号
+        Waybill waybill = getWaybillByPackageCode(req.getPackageCode());
+        if (waybill == null) {
+            log.warn("根据包裹号查询运单信息返回空packageCode[{}]", req.getPackageCode());
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("根据包裹号查询运单信息返回空");
+            return response;
+        }
+        String waybillCode = waybill.getWaybillCode();
+        // todo 是库存还是总包裹
+        Integer goodsAmount = waybill.getGoodNumber();
+
+        // 根据任务号和运单号查找包裹是否属于当前批次
+        GoodsLoadScan loadScan = goodsLoadScanDao.findLoadScanByTaskIdAndWaybillCode(taskId, waybillCode);
+
+        // 如果不属于当前批次，为当前任务添加一条运单
+        if (loadScan == null) {
+            saveExternalWaybill(taskId, waybillCode, packageCode, goodsAmount, req.getTransfer());
+        } else {
+            computeAndUpdateLoadScan(loadScan, packageCode);
+        }
+        return response;
+    }
     private GoodsLoadScan createGoodsLoadScan(Long taskId, String waybillCode, String packageCode, Integer goodsAmount) {
         GoodsLoadScan goodsLoadScan = new GoodsLoadScan();
         goodsLoadScan.setTaskId(taskId);
