@@ -8,6 +8,7 @@
         <result property="orgCode" column="org_code"/>
         <result property="orgName" column="org_name"/>
         <result property="siteCode" column="site_code"/>
+        <result property="siteName" column="site_name"/>
         <result property="upstreamBoxCode" column="upstream_box_code"/>
         <result property="boxStartId" column="box_start_id"/>
         <result property="boxEndId" column="box_end_id"/>
@@ -32,7 +33,7 @@
 
     <!-- 用于select查询公用抽取的列 -->
     <sql id="Base_Column_List">
-        `id`, `package_code`, `org_code`, `org_name`, `site_code`, `upstream_box_code`, `box_start_id`, `box_end_id`, `weight`, `length`, `width`, `height`, `report_type`, `operator_erp`, `operator_name`, `operate_time`, `report_img`, `create_time`, `update_time`, `create_user_erp`, `update_user_erp`, `create_user_name`, `update_user_name`, `yn`, `ts`
+        `id`, `package_code`, `org_code`, `org_name`, `site_code`, `site_name`, `upstream_box_code`, `box_start_id`, `box_end_id`, `weight`, `length`, `width`, `height`, `report_type`, `operator_erp`, `operator_name`, `operate_time`, `report_img`, `create_time`, `update_time`, `create_user_erp`, `update_user_erp`, `create_user_name`, `update_user_name`, `yn`, `ts`
     </sql>
 
     <!-- 增加 -->
@@ -53,6 +54,9 @@
             </if>
             <if test="siteCode != null">
                 site_code,
+            </if>
+            <if test="siteName != null">
+                site_name,
             </if>
             <if test="upstreamBoxCode != null and upstreamBoxCode != ''">
                 upstream_box_code,
@@ -131,6 +135,9 @@
             <if test="siteCode != null">
                 #{siteCode},
             </if>
+            <if test="siteName != null">
+                #{siteName},
+            </if>
             <if test="upstreamBoxCode != null and upstreamBoxCode != ''">
                 #{upstreamBoxCode},
             </if>
@@ -202,6 +209,7 @@
             org_code,
             org_name,
             site_code,
+            site_name,
             upstream_box_code,
             box_start_id,
             box_end_id,
@@ -231,6 +239,7 @@
                     #{item.orgCode},
                     #{item.orgName},
                     #{item.siteCode},
+                    #{item.siteName},
                     #{item.upstreamBoxCode},
                     #{item.boxStartId},
                     #{item.boxEndId},
@@ -269,6 +278,9 @@
             </if>
             <if test="siteCode != null ">
             site_code = #{siteCode},
+            </if>
+            <if test="siteName != null ">
+                site_name = #{siteName},
             </if>
             <if test="upstreamBoxCode != null and upstreamBoxCode != ''">
             upstream_box_code = #{upstreamBoxCode},
@@ -350,6 +362,9 @@
                 </if>
                 <if test="item.siteCode != null">
                 site_code = #{item.siteCode},
+                </if>
+                <if test="item.siteName != null">
+                    site_name = #{item.siteName},
                 </if>
                 <if test="item.upstreamBoxCode != null and item.upstreamBoxCode != ''">
                 upstream_box_code = #{item.upstreamBoxCode},

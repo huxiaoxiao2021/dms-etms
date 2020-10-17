@@ -65,7 +65,7 @@ public class WeightVolumeFilter implements Filter {
         String waybillSign = request.getWaybillCache().getWaybillSign();
         String packageCode = request.getPackageCode();
         //判断waybillSign是否满足条件 判断 是否是经济网单号 20200824增加无需拦截经济网逆向运单
-        boolean isEconomicNetNeedWeight = BusinessUtil.isEconomicNetValidateWeightVolume(waybillCode,waybillSign);
+        boolean isEconomicNetNeedWeight = isEconomicNetValidateWeight(waybillCode, waybillSign);
         boolean isNeedWeight = StringUtils.isNotBlank(waybillSign) && BusinessHelper.isValidateWeightVolume(waybillSign,switchOn)
                 && !WaybillUtil.isReturnCode(waybillCode);
         if( isEconomicNetNeedWeight ){
@@ -97,6 +97,16 @@ public class WeightVolumeFilter implements Filter {
             }
         }
         chain.doFilter(request, chain);
+    }
+
+    /**
+     * 众邮运单是否拦截
+     * @param waybillCode
+     * @param waybillSign
+     * @return
+     */
+    private boolean isEconomicNetValidateWeight(String waybillCode, String waybillSign) {
+        return BusinessUtil.isEconomicNetValidateWeightVolume(waybillCode, waybillSign) && uccPropertyConfiguration.getEconomicNetValidateWeightSwitch();
     }
 
 }

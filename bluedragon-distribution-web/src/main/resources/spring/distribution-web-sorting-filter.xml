@@ -20,12 +20,12 @@
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.AllianceBusiFilter" />
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.TipMessageFilter" />
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.BusinessHallFreightSendReceiveFilter" />
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.PreSellInterceptFilter" />
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.LPNewWaybillFilter" />
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.JinPengWaybillFilter" />
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.SevenFreshFilter" />
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillConsumableFilter" />
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CancelWaybillFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.PreSellInterceptFilter" />
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillTransferFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillDistributeTypeChangeFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillTypeFilter"/>

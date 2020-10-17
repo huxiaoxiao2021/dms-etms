@@ -481,4 +481,9 @@
         <property name="topic" value="${jmq.topic.inspection.package}" />
     </bean>
 
+    <!--  众邮箱号回传重量处理消息  -->
+    <bean id="thirdBoxWeightProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.third.box.weight.deal}"/>
+    </bean>
+
 </beans>

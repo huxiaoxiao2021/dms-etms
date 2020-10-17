@@ -10,7 +10,6 @@ import com.jd.bluedragon.distribution.bagException.domain.CollectionBagException
 import com.jd.bluedragon.distribution.bagException.request.CollectionBagExceptionReportQuery;
 import com.jd.etms.sdk.util.DateUtil;
 import com.jd.fastjson.JSON;
-import com.jd.jss.util.DateUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -48,7 +48,9 @@ public class CollectionBagExceptionReportServiceImpl implements CollectionBagExc
      */
     @Override
     public Response<PageDto<CollectionBagExceptionReportVo>> queryPageList(CollectionBagExceptionReportQuery query) {
-        log.info("CollectionBagExceptionReportServiceImpl.queryPageList param: {}", JSON.toJSONString(query));
+        if(log.isInfoEnabled()) {
+            log.info("CollectionBagExceptionReportServiceImpl.queryPageList param: {}", JSON.toJSONString(query));
+        }
         Response<PageDto<CollectionBagExceptionReportVo>> result = new Response<>();
         result.toSucceed();
         PageDto<CollectionBagExceptionReportVo> pageData = new PageDto<>();
@@ -99,7 +101,12 @@ public class CollectionBagExceptionReportServiceImpl implements CollectionBagExc
         BeanUtils.copyProperties(collectionBagExceptionReport, vo);
         vo.setReportTypeName(CollectionBagExceptionReportTypeEnum.getEnumNameByCode(vo.getReportType()));
         vo.setReportTimeFormative(DateUtil.format(collectionBagExceptionReport.getCreateTime(), DateUtil.FORMAT_DATE_TIME));
-        vo.setReportImgUrlList(JSON.parseArray(vo.getReportImg(), String.class));
+        List<String> imgUrlList = new ArrayList<>();
+        if(StringUtils.isNotBlank(vo.getReportImg())){
+            // imgUrlList = Arrays.asList(vo.getReportImg().split(","));
+            imgUrlList = JSON.parseArray(vo.getReportImg(), String.class);
+        }
+        vo.setReportImgUrlList(imgUrlList);
         // 查询箱号始发地、目的地站点名称
         BaseStaffSiteOrgDto siteStart = baseMajorManager.getBaseSiteBySiteId(vo.getBoxStartId().intValue());
         if(siteStart != null){
@@ -122,7 +129,9 @@ public class CollectionBagExceptionReportServiceImpl implements CollectionBagExc
      */
     @Override
     public Response<CollectionBagExceptionReport> selectByPrimaryKey(Long id) {
-        log.info("CollectionBagExceptionReportServiceImpl.selectByPrimaryKey param: {}", id);
+        if(log.isInfoEnabled()) {
+            log.info("CollectionBagExceptionReportServiceImpl.selectByPrimaryKey param: {}", id);
+        }
         Response<CollectionBagExceptionReport> result = new Response<>();
         result.toSucceed();
         try {
@@ -145,7 +154,9 @@ public class CollectionBagExceptionReportServiceImpl implements CollectionBagExc
      */
     @Override
     public Response<Integer> add(CollectionBagExceptionReport collectionBagExceptionReport) {
-        log.info("CollectionBagExceptionReportServiceImpl.add param: {}", JSON.toJSONString(collectionBagExceptionReport));
+        if(log.isInfoEnabled()) {
+            log.info("CollectionBagExceptionReportServiceImpl.add param: {}", JSON.toJSONString(collectionBagExceptionReport));
+        }
         Response<Integer> result = new Response<>();
         result.toSucceed();
         try {
@@ -168,7 +179,9 @@ public class CollectionBagExceptionReportServiceImpl implements CollectionBagExc
      */
     @Override
     public Response<Integer> updateByPrimaryKey(CollectionBagExceptionReport collectionBagExceptionReport) {
-        log.info("CollectionBagExceptionReportServiceImpl.updateByPrimaryKey param: {}", JSON.toJSONString(collectionBagExceptionReport));
+        if(log.isInfoEnabled()) {
+            log.info("CollectionBagExceptionReportServiceImpl.updateByPrimaryKey param: {}", JSON.toJSONString(collectionBagExceptionReport));
+        }
         Response<Integer> result = new Response<>();
         result.toSucceed();
         try {
