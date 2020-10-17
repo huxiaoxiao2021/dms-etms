@@ -16,6 +16,7 @@ import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.ExceptionScanDto;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
+import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanService;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarDao;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
@@ -39,6 +40,8 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
 
     @Autowired
     private ExceptionScanService exceptionScanService;
+    @Autowired
+    private LoadScanService loadScanService;
 
     @Autowired
     private GoodsLoadScanDao goodsLoadScanDao;
@@ -66,7 +69,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
             2： 存在该包裹，去修改下该包裹扫描取消的动作
             2：在通过该包裹运单号，去暂存表中修改该包裹对应运单
          */
-        JdCResponse response = new JdCResponse<Boolean>();
+        JdCResponse response = new JdCResponse();
 
         if(req.getTaskId() == null){
             response.toFail("任务号不能为空");
@@ -112,7 +115,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
     @Override
     public JdCResponse goodsCompulsoryDeliver(GoodsExceptionScanningReq req) {
 
-        JdCResponse response = new JdCResponse<Boolean>();
+        JdCResponse response = new JdCResponse();
 
         if(req.getTaskId() == null) {
             response.toFail("任务号不能为空");
@@ -155,11 +158,43 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         return response;
     }
 
+    //发货
     @Override
     public JdCResponse goodsLoadingDeliver(GoodsLoadingReq req) {
 
+        JdCResponse response = new JdCResponse();
 
-        return null;
+        if(req.getTaskId() == null) {
+            response.toFail("任务号不能为空");
+            return response;
+        }
+
+        if(req.getCreateUser() == null) {
+            response.toFail("操作人不能为空");
+            return response;
+        }
+
+        if(req.getCreateUserCode() == null) {
+            response.toFail("操作人编码不能为空");
+            return response;
+        }
+
+        if(req.getCreateSiteCode() == null) {
+            response.toFail("发货单位编码不能为空");
+            return response;
+        }
+
+        if(req.getSendCode() == null) {
+            response.toFail("发货批次号不能为空");
+            return response;
+        }
+
+        if(req.getReceiveSiteCode() == null) {
+            response.toFail("收货单位编码不能为空");
+            return response;
+        }
+
+        return loadScanService.goodsLoadingDeliver(req);
     }
 
     @SuppressWarnings("unchecked")
