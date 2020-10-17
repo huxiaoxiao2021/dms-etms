@@ -50,7 +50,7 @@
         <property name="collectionAddressSiteCodes" value="${collectionAddressSiteCodes}"/>
 		<property name="boxLimitSites" value="${boxLimitSites:''}"/>
 		<property name="clientPrintQueryGapTime" value="${client.print.query.gap.time:10}"/>
-		<property name="collectGoodsDeleteSites" value="${collectGoodsDeleteSites}"/>
+		<property name="collectGoodsDeleteSites" value="${collectGoodsDeleteSites:-1}"/>
         <property name="inspectionBigWaybillEffectiveSites" value="${inspectionBigWaybillEffectiveSites}" />
         <property name="offlineLogGlobalSwitch" value="${offlineLogGlobalSwitch}" />
         <property name="systemLogGlobalSwitch" value="${systemLogGlobalSwitch}" />
