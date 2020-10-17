@@ -18,6 +18,8 @@ import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.ExceptionScanDto;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
+import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanService;
+import com.jd.bluedragon.distribution.goodsLoadScan.service.NoRepeatSubmitService;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
@@ -73,6 +75,11 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
     @Autowired
     private GroupBoardManager groupBoardManager;
 
+    @Autowired
+    private NoRepeatSubmitService noRepeatSubmitService;
+
+    @Autowired
+    private LoadScanService loadScanService;
 
     @Override
     public JdCResponse goodsRemoveScanning(GoodsExceptionScanningReq req) {
@@ -173,8 +180,44 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
     @Override
     public JdCResponse goodsLoadingDeliver(GoodsLoadingReq req) {
 
+        JdCResponse response = new JdCResponse();
 
-        return null;
+        if(req.getTaskId() == null) {
+            response.toFail("任务号不能为空");
+            return response;
+        }
+        //防重复提交，返回true表示可以提交，false表示已经提交过，缓存中未过期，不允许再重复提交
+        if(noRepeatSubmitService.checkRepeatSubmit(req.getTaskId()) != 1L) {
+            response.toFail("任务发货重复提交");
+            return response;
+        }
+
+        if(req.getCreateUser() == null) {
+            response.toFail("操作人不能为空");
+            return response;
+        }
+
+        if(req.getCreateUserCode() == null) {
+            response.toFail("操作人编码不能为空");
+            return response;
+        }
+
+        if(req.getCreateSiteCode() == null) {
+            response.toFail("发货单位编码不能为空");
+            return response;
+        }
+
+        if(req.getSendCode() == null) {
+            response.toFail("发货批次号不能为空");
+            return response;
+        }
+
+        if(req.getReceiveSiteCode() == null) {
+            response.toFail("收货单位编码不能为空");
+            return response;
+        }
+
+        return loadScanService.goodsLoadingDeliver(req);
     }
 
     @SuppressWarnings("unchecked")

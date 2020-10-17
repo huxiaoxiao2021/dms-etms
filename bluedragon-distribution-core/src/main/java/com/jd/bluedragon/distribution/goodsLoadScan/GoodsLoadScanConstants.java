@@ -16,4 +16,9 @@ public class GoodsLoadScanConstants {
     public static final Integer GOODS_LOAD_TASK_STATUS_BLANK = 0;
     public static final Integer GOODS_LOAD_TASK_STATUS_BEGIN = 1;
     public static final Integer GOODS_LOAD_TASK_STATUS_END = 2;
+
+    //yn
+    public static final Integer YN_Y = 1;
+    public static final Integer YN_N = 0;
+
 }

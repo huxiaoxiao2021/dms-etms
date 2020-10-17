@@ -38,7 +38,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         domain.setCreateUser(req.getCreateUser());
         domain.setCreateUserCode(req.getCreateUserCode());
         domain.setSendType(Constants.BUSSINESS_TYPE_POSITIVE);
-        domain.setYn(1);
+        domain.setYn(GoodsLoadScanConstants.YN_Y);
         domain.setCreateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
         domain.setOperateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
 
