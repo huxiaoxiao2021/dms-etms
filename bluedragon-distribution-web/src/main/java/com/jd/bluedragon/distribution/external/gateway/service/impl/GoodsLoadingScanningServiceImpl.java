@@ -8,7 +8,9 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingSca
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsDetailDto;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.base.domain.CreateAndReceiveSiteInfo;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanDao;
@@ -22,12 +24,17 @@ import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarDao;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.ExceptionScanService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.GoodsLoadingScanningService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.dms.report.LoadScanPackageDetailService;
+import com.jd.transboard.api.dto.Board;
+import com.jd.transboard.api.dto.Response;
+import com.jd.transboard.api.enums.ResponseEnum;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,6 +69,9 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
 
     @Autowired
     private InspectionService inspectionService;
+
+    @Autowired
+    private GroupBoardManager groupBoardManager;
 
 
     @Override
@@ -223,17 +233,60 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
 
         // 如果勾选【包裹号转板号】
         // 校验板号
-        return checkBoardCode(req, response);
+        if (StringUtils.isNotBlank(req.getPackageCode()) && req.getTransfer() == 1) {
+            return checkBoardCode(req, response);
+        }
+        response.setCode(JdCResponse.CODE_FAIL);
+        response.setMessage("参数校验错误，请检查必填参数是否填写");
+        return response;
     }
 
     /**
      *校验板号
      */
     private JdCResponse<Void> checkBoardCode(GoodsLoadingScanningReq req, JdCResponse<Void> response) {
+        Long taskId = req.getTaskId();
+        String packageCode = req.getPackageCode();
+        // 根据包裹号查板号
+        String boardCode = "";
+        Response<Board> tcResponse = groupBoardManager.getBoard(boardCode);
+        if(tcResponse == null){
+            log.error("获取板信息失败，boardCode:{}",boardCode);
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("根据板号获取板信息失败");
+            return response;
+        }
+        Board board = tcResponse.getData();
+        // 根据任务号查询装车任务记录
+        LoadCar loadCar = loadCarDao.findLoadCarById(taskId);
+        if (loadCar == null) {
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("根据任务号找不到对应的装车任务");
+            return response;
+        }
+        if(tcResponse.getCode() == JdCResponse.CODE_SUCCESS && board != null){
+            log.info("获取板信息成功，boardCode:{}", boardCode);
+            // 校验板号流向与批次号流向是否一致，如不一致进行错发弹框提醒（“错发！请核实！板号与批次目的地不一致，请确认是否继续发货！”，特殊提示音），点击“确定”后完成发货，点击取消清空当前操作的板号
+            if (loadCar.getEndSiteCode().intValue() != board.getDestinationId()) {
+                response.setCode(JdCResponse.CODE_CONFIRM);
+                response.setMessage("错发！请核实！板号与批次目的地不一致，请确认是否继续发货！");
+                return response;
+            }
+        }
+        Response<List<String>> result = groupBoardManager.getBoxesByBoardCode(boardCode);
+        if(result == null || result.getCode() != ResponseEnum.SUCCESS.getIndex()
+                || CollectionUtils.isEmpty(result.getData())) {
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("根据板号没有找到对应的板信息");
+            return response;
+        }
+        for (String packCode : result.getData()) {
+            if(!WaybillUtil.isPackageCode(packCode)) {
+                continue;
+            }
+            String waybillCode = WaybillUtil.getWaybillCode(packCode);
 
-        // 当扫描板号/包裹号转化为板号进行发货时，校验板号流向与批次号流向是否一致，如不一致进行错发弹框提醒（“错发！请核实！板号与批次目的地不一致，请确认是否继续发货！”，特殊提示音），点击“确定”后完成发货，点击取消清空当前操作的板号
-        // todo
-
+        }
         return response;
     }
 
@@ -272,7 +325,8 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         // 1.运单号在任务列表内的，且此运单本场地未操作验货
         // 此类包裹，页面弹出提示：“此包裹未操作验货，无法扫描，请先操作验货”
         if (loadScan != null && !isInspected) {
-            log.warn("[多扫逻辑校验]|此包裹未操作验货，无法扫描，请先操作验货packageCode[{}]", packageCode);
+            log.warn("[多扫逻辑校验]|此包裹未操作验货，无法扫描，请先操作验货packageCode={},waybillCode={}",
+                    packageCode, waybillCode);
             response.setCode(JdCResponse.CODE_FAIL);
             response.setMessage("此包裹未操作验货，无法扫描，请先操作验货");
             return response;
@@ -281,13 +335,15 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
             // 2.运单号不在任务列表内的，且此运单本场地未操作验货
             // 此类包裹，页面弹出提示：“此包裹未操作验货，无法扫描，请先操作验货”
             if (!isInspected) {
-                log.warn("【多扫逻辑校验】-【运单号不在任务列表内，且此运单本场地未操作验货】|此包裹未操作验货，无法扫描，请先操作验货packageCode[{}]", packageCode);
+                log.warn("【运单号不在任务列表内，且此运单本场地未操作验货】|此包裹未操作验货，无法扫描，"
+                        + "请先操作验货packageCode={},waybillCode={}", packageCode, waybillCode);
                 response.setCode(JdCResponse.CODE_FAIL);
                 response.setMessage("此包裹未操作验货，无法扫描，请先操作验货");
             } else {
                 //  3.运单号不在任务列表内的，且此运单本场地已操作验货
                 //  此类包裹未多扫包裹，正常记录的统计表中，底色标位黄色
-                log.info("【多扫逻辑校验】-【运单号不在任务列表内的，且此运单本场地已操作验货】|此类包裹未多扫包裹，正常记录的统计表中，底色标位黄色packageCode[{}]", req.getPackageCode());
+                log.info("【运单号不在任务列表内的，且此运单本场地已操作验货】|此类包裹未多扫包裹，正常记录的统计表中，"
+                        + "底色标位黄色packageCode={},waybillCode={}", packageCode, waybillCode);
                 saveExternalWaybill(taskId, waybillCode, packageCode, goodsAmount, transfer);
                 // 扫描第一个包裹时，将任务状态改为已开始
                 loadCar.setStatus(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN);
@@ -322,7 +378,17 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         Long taskId = req.getTaskId();
         // 根据任务号查询装车任务记录
         LoadCar loadCar = loadCarDao.findLoadCarById(taskId);
-        // 如果是批次号 todo 批次号是否可以多次更改覆盖
+        if (loadCar == null) {
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("根据任务号找不到对应的装车任务");
+            return response;
+        }
+        // 如果批次号已绑定，直接返回
+        if (StringUtils.isNotBlank(loadCar.getBatchCode())) {
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("该批次号已绑定此任务");
+            return response;
+        }
         String batchCode = req.getBatchCode();
         CreateAndReceiveSiteInfo siteInfo = siteService.getCreateAndReceiveSiteBySendCode(batchCode);
 
@@ -345,8 +411,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
             response.setCode(JdCResponse.CODE_SUCCESS);
             return response;
         }
-        response.setCode(JdCResponse.CODE_FAIL);
-        response.setMessage("根据批次号找不到对应的目的地信息");
+
         return response;
     }
 
