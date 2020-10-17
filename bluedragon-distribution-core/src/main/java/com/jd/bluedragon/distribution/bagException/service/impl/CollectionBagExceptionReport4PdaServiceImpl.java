@@ -127,6 +127,8 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
                 reportResponse.setWidth(latestPackFlowDetail.getpWidth());
                 reportResponse.setHeight(latestPackFlowDetail.getpHigh());
             } else{
+                result.setMessage("不符合条件，无称重记录");
+                this.setNoExceptionResponse(reportResponse);
                 if(log.isInfoEnabled()) {
                     log.info("waybillPackageManager.getOpeDetailByCode 无称重明细 packageCode {}", packageCode);
                 }
@@ -305,23 +307,24 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
      * @return
      */
     private void judgeBoxException(QueryBoxCollectionReportResponse reportResponse, Waybill waybill){
+        // 长宽高及重量未获取到为无异常
+        if(reportResponse.getLength() == null || reportResponse.getWidth() == null || reportResponse.getHeight() == null
+                || reportResponse.getWeight() == null){
+            this.setNoExceptionResponse(reportResponse);
+            return;
+        }
         // 上游有建箱，则为虚假集包
         if(StringUtils.isNotEmpty(reportResponse.getUpstreamBoxCode())){
             reportResponse.setReportType(CollectionBagExceptionReportTypeEnum.UPSTREAM_FAKE.getCode());
             reportResponse.setReportTypeName(CollectionBagExceptionReportTypeEnum.UPSTREAM_FAKE.getName());
         } else {
-            // 长宽高及重量未获取到为无异常
-            if(reportResponse.getLength() == null || reportResponse.getWidth() == null || reportResponse.getHeight() == null
-                    || reportResponse.getWeight() == null){
-                this.setNoExceptionResponse(reportResponse);
+            // 小件
+            if (this.checkIsSmallPackage(reportResponse)) {
+                reportResponse.setReportType(CollectionBagExceptionReportTypeEnum.UPSTREAM_NOT_DONE.getCode());
+                reportResponse.setReportTypeName(CollectionBagExceptionReportTypeEnum.UPSTREAM_NOT_DONE.getName());
             } else {
-                // 小件
-                if (this.checkIsSmallPackage(reportResponse)) {
-                    reportResponse.setReportType(CollectionBagExceptionReportTypeEnum.UPSTREAM_NOT_DONE.getCode());
-                    reportResponse.setReportTypeName(CollectionBagExceptionReportTypeEnum.UPSTREAM_NOT_DONE.getName());
-                }
+                this.setNoExceptionResponse(reportResponse);
             }
-
         }
     }
 
