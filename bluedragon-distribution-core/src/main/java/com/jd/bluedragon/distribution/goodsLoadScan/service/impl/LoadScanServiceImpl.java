@@ -3,7 +3,10 @@ package com.jd.bluedragon.distribution.goodsLoadScan.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingReq;
+import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanService;
+import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
+import com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
@@ -19,10 +22,15 @@ public class LoadScanServiceImpl implements LoadScanService {
 
     @Autowired
     private DeliveryService deliveryService;
+
+    @Autowired
+    private LoadCarDao loadCarDao;
+
     @Override
     public JdCResponse goodsLoadingDeliver(GoodsLoadingReq req) {
-        SendBizSourceEnum bizSource = SendBizSourceEnum.ANDROID_PDA_SEND;
+        JdCResponse response = new JdCResponse();
 
+        SendBizSourceEnum bizSource = SendBizSourceEnum.ANDROID_PDA_SEND;
         SendM domain = new SendM();
         domain.setReceiveSiteCode(req.getReceiveSiteCode());
         domain.setCreateSiteCode(req.getCreateSiteCode());
@@ -38,7 +46,15 @@ public class LoadScanServiceImpl implements LoadScanService {
         deliveryService.packageSend(bizSource, domain);
         log.info("LoadScanServiceImpl#goodsLoadingDeliver--end 装车调用发货:来源【" + bizSource +  "】参数" + JsonHelper.toJson(domain) + "】");
 
-        JdCResponse response = new JdCResponse();
+        LoadCar loadCar = new LoadCar();
+        loadCar.setId(req.getTaskId());
+        loadCar.setStatus(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END);
+        boolean flagRes = loadCarDao.updateLoadCarById(loadCar);
+        if(flagRes == false) {
+            response.toSucceed("发货状态修改失败");
+            return response;
+        }
+
         response.toSucceed("发货成功");
         return response;
     }

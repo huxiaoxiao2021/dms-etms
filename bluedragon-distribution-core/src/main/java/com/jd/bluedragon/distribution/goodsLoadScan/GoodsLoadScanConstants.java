@@ -12,5 +12,8 @@ public class GoodsLoadScanConstants {
     public static final Integer GOODS_SCAN_LOAD_YELLOW = 3;
     public static final Integer GOODS_SCAN_LOAD_RED = 4;
 
-
+    //任务状态
+    public static final Integer GOODS_LOAD_TASK_STATUS_BLANK = 0;
+    public static final Integer GOODS_LOAD_TASK_STATUS_BEGIN = 1;
+    public static final Integer GOODS_LOAD_TASK_STATUS_END = 2;
 }
