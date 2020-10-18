@@ -9,6 +9,7 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsException
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 货物装车扫描相关
@@ -58,7 +59,7 @@ public interface GoodsLoadingScanningService {
     /**
      * 批次号/板号/包裹号校验接口--发货校验
      */
-    JdCResponse<Void> checkByBatchCodeOrBoardCodeOrPackageCode(GoodsLoadingScanningReq req);
+    JdCResponse<Map<String, Object>> checkByBatchCodeOrBoardCodeOrPackageCode(GoodsLoadingScanningReq req);
 
     /**
      * 包裹暂存接口
