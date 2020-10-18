@@ -280,6 +280,14 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
                         GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK);
                 goodsDetailDtoList.add(goodsDetailDto);
             }
+            // 按照颜色排序
+            Collections.sort(goodsDetailDtoList, new Comparator<GoodsDetailDto>() {
+                @Override
+                public int compare(GoodsDetailDto o1, GoodsDetailDto o2) {
+                    // status：0无特殊颜色,1绿色,2橙色,3黄色,4红色
+                    return o2.getStatus().compareTo(o1.getStatus());
+                }
+            });
             response.setCode(JdCResponse.CODE_SUCCESS);
             response.setData(goodsDetailDtoList);
             return response;
