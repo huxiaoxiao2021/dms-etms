@@ -19,7 +19,7 @@ public class GoodsLoadScanDao extends BaseDao<GoodsLoadScan> {
     }
 
     public List<String> findWaybillCodesByTaskId(Long taskId) {
-        return super.getSqlSession().selectOne(NAMESPACE + ".selectWaybillCodesByTaskId", taskId);
+        return super.getSqlSession().selectList(NAMESPACE + ".selectWaybillCodesByTaskId", taskId);
     }
 
     public List<GoodsLoadScan> findLoadScanByTaskId(Long taskId) {

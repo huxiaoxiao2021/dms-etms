@@ -6,6 +6,8 @@ import com.jd.bluedragon.distribution.loadAndUnload.UnloadCar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 public class GoodsLoadScanRecordDao extends BaseDao {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -18,9 +20,9 @@ public class GoodsLoadScanRecordDao extends BaseDao {
         return this.getSqlSession().update(namespace + ".updateGoodsScanRecordById",record);
     }
 
-    public GoodsLoadScanRecord selectListByCondition(GoodsLoadScanRecord record) {
+    public List<GoodsLoadScanRecord> selectListByCondition(GoodsLoadScanRecord record) {
 
-        return this.getSqlSession().selectOne(namespace + ".selectListByCondition",record);
+        return this.getSqlSession().selectList(namespace + ".selectListByCondition",record);
     }
 
     public int insert(GoodsLoadScanRecord record) {
