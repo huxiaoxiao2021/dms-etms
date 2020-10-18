@@ -47,6 +47,11 @@ public class GoodsLoadingScanningReq implements Serializable {
      */
     private List<GoodsDetailReq> packageDetails;
 
+    /**
+     * 是否多扫的标识：1标识多扫 0标识不是多扫
+     */
+    private Integer flowDisaccord;
+
     public Long getId() {
         return id;
     }
@@ -109,5 +114,13 @@ public class GoodsLoadingScanningReq implements Serializable {
 
     public void setTransfer(Integer transfer) {
         this.transfer = transfer;
+    }
+
+    public Integer getFlowDisaccord() {
+        return flowDisaccord;
+    }
+
+    public void setFlowDisaccord(Integer flowDisaccord) {
+        this.flowDisaccord = flowDisaccord;
     }
 }
