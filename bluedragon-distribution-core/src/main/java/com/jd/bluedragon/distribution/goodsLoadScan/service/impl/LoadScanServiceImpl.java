@@ -58,4 +58,18 @@ public class LoadScanServiceImpl implements LoadScanService {
         response.toSucceed("发货成功");
         return response;
     }
+
+    @Override
+    public Integer findTaskStatus(Long taskId) {
+
+        LoadCar lc = loadCarDao.findLoadCarById(taskId);
+        log.info("LoadScanServiceImpl#findTaskStatus--根据任务号【" + JsonHelper.toJson(taskId) + "】查询任务信息,出参【" + JsonHelper.toJson(lc) +"】");
+
+        if(lc != null && lc.getStatus() != null) {
+            return lc.getStatus();
+        }
+        return null;
+    }
+
+
 }

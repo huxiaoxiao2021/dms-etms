@@ -193,6 +193,16 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
             return response;
         }
 
+        //防止PDA-1用户在发货页面停留过久，期间PDA-2用户操作了发货，此时发货状态已经改变为已完成，PDA不能再进行发货动作
+        Integer taskStatus = loadScanService.findTaskStatus(req.getTaskId());
+        if(taskStatus == null) {
+            response.toFail("该任务存在异常,无法发货");
+            return response;
+        }else if(taskStatus == GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END) {
+            response.toFail("该任务已经完成发货，请勿重复发货");
+            return response;
+        }
+
         if(req.getCreateUser() == null) {
             response.toFail("操作人不能为空");
             return response;
