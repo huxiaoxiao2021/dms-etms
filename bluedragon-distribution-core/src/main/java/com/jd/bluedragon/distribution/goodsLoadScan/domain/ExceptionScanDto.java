@@ -30,6 +30,16 @@ public class ExceptionScanDto implements Serializable {
      */
     private Integer unloadAmount;
 
+    /**
+     * 当前操作人
+     */
+    private String operator;
+
+    /**
+     * 当前操作人编码
+     */
+    private String operatorCode;
+
 
 
     public Long getTaskId() {
@@ -70,5 +80,21 @@ public class ExceptionScanDto implements Serializable {
 
     public void setUnloadAmount(Integer unloadAmount) {
         this.unloadAmount = unloadAmount;
+    }
+
+    public String getOperator() {
+        return operator;
+    }
+
+    public void setOperator(String operator) {
+        this.operator = operator;
+    }
+
+    public String getOperatorCode() {
+        return operatorCode;
+    }
+
+    public void setOperatorCode(String operatorCode) {
+        this.operatorCode = operatorCode;
     }
 }

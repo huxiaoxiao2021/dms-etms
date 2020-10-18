@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class ExceptionScanServiceImpl implements ExceptionScanService {
@@ -71,6 +72,10 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
         record.setTaskId(exceptionScanDto.getTaskId());
         record.setWayBillCode(exceptionScanDto.getWayBillCode());
         record.setScanAction(GoodsLoadScanConstants.GOODS_SCAN_REMOVE);
+        record.setUpdateUserCode(exceptionScanDto.getOperatorCode());
+        record.setUpdateUserName(exceptionScanDto.getOperator());
+        record.setUpdateTime(new Date());
+
         log.info("ExceptionScanServiceImpl#removeGoodsScan 取消扫描修改包裹记录表--begin--，入参【"+ JsonHelper.toJson(record) + "】");
         int num = goodsLoadScanRecordDao.updateGoodsScanRecordById(record);
 
@@ -82,9 +87,12 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
             lc.setTaskId(exceptionScanDto.getTaskId());
             lc.setLoadAmount(exceptionScanDto.getLoadAmount() - 1);
             lc.setUnloadAmount(exceptionScanDto.getUnloadAmount() + 1);
-            if(exceptionScanDto.getLoadAmount() == 1) {
+            if(exceptionScanDto.getLoadAmount() == 1) {//  当前已装为1时，取消发货后已装为0，不属于不齐异常，变更状态
                 lc.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK);
             }
+            lc.setUpdateUserCode(exceptionScanDto.getOperatorCode());
+            lc.setUpdateUserName(exceptionScanDto.getOperator());
+            lc.setUpdateTime(new Date());
 
             log.info("ExceptionScanServiceImpl#removeGoodsScan 取消扫描修改包裹明细表 --begin--，入参【"+ JsonHelper.toJson(lc) + "】");
             boolean scNum = goodsLoadScanDao.updateByPrimaryKey(lc);
@@ -126,6 +134,9 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
                         GoodsLoadScanRecord record = new GoodsLoadScanRecord();
                         record.setId(goodsRecordList.get(k).getId());
                         record.setForceStatus(GoodsLoadScanConstants.GOODS_LOAD_SCAN_FORCE_STATUS_Y);//强发
+                        record.setUpdateTime(new Date());
+                        record.setUpdateUserName(req.getOperator());
+                        record.setUpdateUserCode(req.getOperatorCode());
                         log.info("ExceptionScanServiceImpl#goodsCompulsoryDeliver 强发包裹状态记录--begin--参数【"+ JsonHelper.toJson(record) + "】");
                         goodsLoadScanRecordDao.updateGoodsScanRecordById(record);
                         log.info("ExceptionScanServiceImpl#goodsCompulsoryDeliver 强发包裹状态记录--end--参数【"+ JsonHelper.toJson(record) + "】");
@@ -133,6 +144,9 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
                 }
 
                 gls.setForceAmount(gls.getLoadAmount());
+                gls.setUpdateTime(new Date());
+                gls.setUpdateUserName(req.getOperator());
+                gls.setUpdateUserCode(req.getOperatorCode());
                 gls.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_ORANGE);
                 log.info("ExceptionScanServiceImpl#goodsCompulsoryDeliver 强发运单状态记录--begin--参数【"+ JsonHelper.toJson(gls) + "】");
                 boolean res = goodsLoadScanDao.updateByPrimaryKey(gls);

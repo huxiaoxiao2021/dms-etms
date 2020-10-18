@@ -117,6 +117,12 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
             return response;
         }
 
+        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+        if (erpUser != null) {
+            exceptionScanDto.setOperator(erpUser.getUserName());
+            exceptionScanDto.setOperatorCode(erpUser.getUserCode());
+        }
+
         log.info("GoodsLoadingScanningServiceImpl#goodsRemoveScanning- 取消发货更改不齐异常数据，参数【" + JsonHelper.toJson(exceptionScanDto) + "】");
         boolean removeRes =  exceptionScanService.removeGoodsScan(exceptionScanDto);
 
@@ -145,6 +151,12 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         if(req.getWaybillCode() == null || req.getWaybillCode().size() <=0) {
             response.toFail("运单号不能为空");
             return response;
+        }
+
+        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+        if (erpUser != null) {
+            req.setOperator(erpUser.getUserName());
+            req.setOperatorCode(erpUser.getUserCode());
         }
 
         log.info("GoodsLoadingScanningServiceImpl#goodsCompulsoryDeliver-强制下发--begin:入参【" + JsonHelper.toJson(req) + "】");

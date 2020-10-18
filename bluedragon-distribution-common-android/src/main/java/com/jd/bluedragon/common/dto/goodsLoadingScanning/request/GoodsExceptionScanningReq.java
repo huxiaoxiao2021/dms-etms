@@ -16,6 +16,10 @@ public class GoodsExceptionScanningReq {
 
 //    包裹号
     private String packageCode;
+//    当前操作人
+    private String operator;
+//    当前操作人编码
+    private String operatorCode;
 
     public Long getTaskId() {
         return taskId;
@@ -39,5 +43,21 @@ public class GoodsExceptionScanningReq {
 
     public void setPackageCode(String packageCode) {
         this.packageCode = packageCode;
+    }
+
+    public String getOperator() {
+        return operator;
+    }
+
+    public void setOperator(String operator) {
+        this.operator = operator;
+    }
+
+    public String getOperatorCode() {
+        return operatorCode;
+    }
+
+    public void setOperatorCode(String operatorCode) {
+        this.operatorCode = operatorCode;
     }
 }
