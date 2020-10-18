@@ -25,6 +25,11 @@ public class GoodsLoadScanRecordDao extends BaseDao {
         return this.getSqlSession().selectList(namespace + ".selectListByCondition",record);
     }
 
+    public GoodsLoadScanRecord findLoadScanRecordByTaskIdAndWaybillCodeAndPackCode(GoodsLoadScanRecord record) {
+
+        return this.getSqlSession().selectOne(namespace + ".selectListByCondition",record);
+    }
+
     public int insert(GoodsLoadScanRecord record) {
 
         return this.getSqlSession().update(namespace + ".add", record);
