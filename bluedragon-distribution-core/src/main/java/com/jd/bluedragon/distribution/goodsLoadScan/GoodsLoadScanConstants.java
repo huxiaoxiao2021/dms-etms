@@ -21,4 +21,12 @@ public class GoodsLoadScanConstants {
     public static final Integer YN_Y = 1;
     public static final Integer YN_N = 0;
 
+    //记录多扫标记
+    public static final Integer GOODS_LOAD_SCAN_FOLW_DISACCORD_Y = 1;
+    public static final Integer GOODS_LOAD_SCAN_FOLW_DISACCORD_N = 1;
+
+    //记录强发标记
+    public static final Integer GOODS_LOAD_SCAN_FORCE_STATUS_Y = 1;
+    public static final Integer GOODS_LOAD_SCAN_FORCE_STATUS_N = 0;
+
 }

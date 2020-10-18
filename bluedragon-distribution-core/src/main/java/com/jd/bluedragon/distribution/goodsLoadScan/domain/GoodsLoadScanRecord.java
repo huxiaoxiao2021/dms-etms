@@ -78,6 +78,16 @@ public class GoodsLoadScanRecord implements Serializable {
      */
     private Integer yn;
 
+    /**
+     * 多扫状态标记：流向不一致
+     */
+    private Integer flowDisaccord;
+
+    /**
+     * 强发状态标记
+     */
+    private Integer forceStatus;
+
     public Long getId() {
         return id;
     }
@@ -188,5 +198,21 @@ public class GoodsLoadScanRecord implements Serializable {
 
     public void setYn(Integer yn) {
         this.yn = yn;
+    }
+
+    public Integer getFlowDisaccord() {
+        return flowDisaccord;
+    }
+
+    public void setFlowDisaccord(Integer flowDisaccord) {
+        this.flowDisaccord = flowDisaccord;
+    }
+
+    public Integer getForceStatus() {
+        return forceStatus;
+    }
+
+    public void setForceStatus(Integer forceStatus) {
+        this.forceStatus = forceStatus;
     }
 }

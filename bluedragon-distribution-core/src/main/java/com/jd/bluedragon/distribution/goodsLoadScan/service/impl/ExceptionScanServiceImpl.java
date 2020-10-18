@@ -103,12 +103,30 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
 
     @Override
     public boolean goodsCompulsoryDeliver(GoodsExceptionScanningReq req) {
+        /**
+         * 遍历list1运单数据,根据运单号任务号查运单表 ，返回单个运单信息waybill
+         * 存在：  根据运单号查询包裹表返回lsit2包裹，
+         * 遍历list2 根据包裹id更改包裹表
+         * 根据waybill id改运单表
+         */
         Long taskNo = req.getTaskId();
         for(int i=0; i<req.getWaybillCode().size(); i++) {
             log.info("ExceptionScanServiceImpl#goodsCompulsoryDeliver 强发查询运单信息--begin--任务号【"+ taskNo + "】，运单号【" + req.getWaybillCode().get(i) + "】");
             GoodsLoadScan gls = goodsLoadScanDao.findLoadScanByTaskIdAndWaybillCode(taskNo, req.getWaybillCode().get(i));
 
             if(gls != null) {//更改强发数量 和 该运单状态
+                List<GoodsLoadScanRecord> goodsRecordList  = null;
+//                        goodsLoadScanRecordDao.selectRecordListByTaskIdAndWayBill(taskNo, gls.getWayBillCode());
+
+                if(goodsRecordList != null && goodsRecordList.size() > 0) {
+                    for(int k = 0; k < goodsRecordList.size(); k++) {
+                        GoodsLoadScanRecord record = new GoodsLoadScanRecord();
+                        record.setId(goodsRecordList.get(k).getId());
+                        record.setForceStatus(GoodsLoadScanConstants.GOODS_LOAD_SCAN_FORCE_STATUS_Y);//强发
+                        goodsLoadScanRecordDao.updateGoodsScanRecordById(record);
+                    }
+                }
+
                 gls.setForceAmount(gls.getLoadAmount());
                 gls.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_ORANGE);
                 log.info("ExceptionScanServiceImpl#goodsCompulsoryDeliver 修改强发货物数据及状态--begin--参数【"+ JsonHelper.toJson(gls) + "】");
