@@ -118,6 +118,8 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         }
 
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+        log.info("GoodsLoadingScanningServiceImpl#goodsRemoveScanning 取消发货当前操作人【" + JsonHelper.toJson(erpUser) + "】");
+
         if (erpUser != null) {
             exceptionScanDto.setOperator(erpUser.getUserName());
             exceptionScanDto.setOperatorCode(erpUser.getUserCode());
@@ -154,6 +156,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         }
 
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+        log.info("GoodsLoadingScanningServiceImpl#goodsCompulsoryDeliver 强发当前操作人【" + JsonHelper.toJson(erpUser) + "】");
         if (erpUser != null) {
             req.setOperator(erpUser.getUserName());
             req.setOperatorCode(erpUser.getUserCode());
@@ -220,15 +223,15 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
             return response;
         }
 
-        if(req.getCreateUserCode() == null) {
-            response.toFail("操作人编码不能为空");
-            return response;
-        }
-
-        if(req.getCreateSiteCode() == null) {
-            response.toFail("发货单位编码不能为空");
-            return response;
-        }
+//        if(req.getCreateUserCode() == null) {
+//            response.toFail("操作人编码不能为空");
+//            return response;
+//        }
+//
+//        if(req.getCreateSiteCode() == null) {
+//            response.toFail("发货单位编码不能为空");
+//            return response;
+//        }
 
         if(req.getSendCode() == null) {
             response.toFail("发货批次号不能为空");
@@ -238,6 +241,13 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         if(req.getReceiveSiteCode() == null) {
             response.toFail("收货单位编码不能为空");
             return response;
+        }
+
+        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+        log.info("GoodsLoadingScanningServiceImpl#goodsLoadingDeliver 装车发货当前操作人【" + JsonHelper.toJson(erpUser) + "】");
+        if (erpUser != null) {
+            req.setOperator(erpUser.getUserName());
+            req.setOperatorCode(erpUser.getUserCode());
         }
 
         return loadScanService.goodsLoadingDeliver(req);

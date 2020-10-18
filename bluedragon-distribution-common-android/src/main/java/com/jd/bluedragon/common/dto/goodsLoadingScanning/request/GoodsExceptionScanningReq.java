@@ -10,10 +10,8 @@ public class GoodsExceptionScanningReq {
 
 //    任务号
     private Long taskId;
-
 //    运单号集合
     private List<String> waybillCode;
-
 //    包裹号
     private String packageCode;
 //    当前操作人
