@@ -21,7 +21,7 @@ public class GoodsLoadingReq {
     /**
      * 操作人编码
      */
-    private Integer createUserCode;
+    private String createUserCode;
 
     /**
      * 发货单位编码
@@ -59,11 +59,11 @@ public class GoodsLoadingReq {
         this.createUser = createUser;
     }
 
-    public Integer getCreateUserCode() {
+    public String getCreateUserCode() {
         return createUserCode;
     }
 
-    public void setCreateUserCode(Integer createUserCode) {
+    public void setCreateUserCode(String createUserCode) {
         this.createUserCode = createUserCode;
     }
 

@@ -96,10 +96,10 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
             return response;
         }
 
-        if(req.getWaybillCode() == null || req.getWaybillCode().size() == 0 ){
-            response.toFail("运单号不能为空");
-            return response;
-        }
+//        if(req.getWaybillCode() == null || req.getWaybillCode().size() == 0 ){
+//            response.toFail("运单号不能为空");
+//            return response;
+//        }
 
         if(StringUtils.isBlank(req.getPackageCode())){
             response.toFail("包裹号不能为空");
