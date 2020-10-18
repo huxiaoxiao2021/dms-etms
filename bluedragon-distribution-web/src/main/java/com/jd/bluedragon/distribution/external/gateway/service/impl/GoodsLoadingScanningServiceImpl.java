@@ -17,6 +17,7 @@ import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.ExceptionScanDto;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
+import com.jd.bluedragon.distribution.goodsLoadScan.domain.LoadScan;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanService;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.NoRepeatSubmitService;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
@@ -246,8 +247,8 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         List<GoodsDetailDto> goodsDetailDtoList;
         if (detailList.getCode() == Constants.SUCCESS_CODE) {
             List<LoadScanDetailDto> reportList = detailList.getData();
+            // 分拣报表查询返回为空
             if (reportList.isEmpty()) {
-                // 分拣报表查询返回为空
                 response.setCode(JdCResponse.CODE_FAIL);
                 response.setMessage("根据任务ID没有找到相应的运单记录");
                 return response;
@@ -489,7 +490,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
                 //  此类包裹未多扫包裹，正常记录的统计表中，底色标位黄色
                 log.info("【运单号不在任务列表内的，且此运单本场地已操作验货】|此类包裹未多扫包裹，正常记录的统计表中，"
                         + "底色标位黄色packageCode={},waybillCode={}", packageCode, waybillCode);
-                saveExternalWaybill(taskId, waybillCode, packageCode, loadScanDto.getPackageAmount(), transfer);
+                saveExternalWaybill(taskId, waybillCode, packageCode, loadScanDto.getGoodsAmount(), transfer);
                 // 扫描第一个包裹时，将任务状态改为已开始
                 loadCar.setStatus(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN);
                 ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
@@ -568,15 +569,12 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
      */
     private void computeAndUpdateLoadScan(GoodsLoadScan loadScan, String packageCode) {
         // 计算已装、未装
-        String packageCodes = loadScan.getPackageCodes();
         // 如果要装车的包裹号在库存中
-        if (StringUtils.isNotBlank(packageCodes) && packageCodes.contains(packageCode)) {
-            // 已装 + 1
-            loadScan.setLoadAmount(loadScan.getLoadAmount() + 1);
-            // 计算单子状态
-            setWaybillStatus(loadScan);
-            goodsLoadScanDao.updateByPrimaryKey(loadScan);
-        }
+        // 已装 + 1
+        loadScan.setLoadAmount(loadScan.getLoadAmount() + 1);
+        // 计算单子状态
+        setWaybillStatus(loadScan);
+        goodsLoadScanDao.updateByPrimaryKey(loadScan);
     }
 
     /**
@@ -584,16 +582,15 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
      * @param taskId 任务ID
      * @param waybillCode 运单号
      * @param packageCode 包裹号
-     * @param goodsAmount 库存
+     * @param goodsAmount 库存数
      * @param transfer 包裹号转板号标识
      */
     private void saveExternalWaybill(Long taskId, String waybillCode, String packageCode,
                                      Integer goodsAmount, Integer transfer) {
-        GoodsLoadScan goodsLoadScan = createGoodsLoadScan(taskId, waybillCode, packageCode, goodsAmount);
+        GoodsLoadScan goodsLoadScan = createGoodsLoadScan(taskId, waybillCode, goodsAmount);
         goodsLoadScanDao.insert(goodsLoadScan);
         // 装车记录表新增一条记录 todo
-        GoodsLoadScanRecord loadScanRecord = createGoodsLoadScanRecord(taskId, waybillCode, packageCode,
-                goodsAmount, transfer);
+        GoodsLoadScanRecord loadScanRecord = createGoodsLoadScanRecord(taskId, waybillCode, packageCode, transfer);
         goodsLoadScanRecordDao.insert(loadScanRecord);
     }
 
@@ -666,29 +663,38 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
 
     @Override
     public JdCResponse<Void> saveByPackageCode(GoodsLoadingScanningReq req) {
+
         JdCResponse<Void> response = new JdCResponse<>();
         response.setCode(JdCResponse.CODE_SUCCESS);
         Long taskId = req.getTaskId();
         String packageCode = req.getPackageCode();
+
         // 根据包裹号查找运单号
-        Waybill waybill = getWaybillByPackageCode(req.getPackageCode());
+        Waybill waybill = getWaybillByPackageCode(packageCode);
         if (waybill == null) {
-            log.warn("根据包裹号查询运单信息返回空packageCode[{}]", req.getPackageCode());
+            log.warn("根据包裹号查询运单信息返回空packageCode[{}]", packageCode);
             response.setCode(JdCResponse.CODE_FAIL);
             response.setMessage("根据包裹号查询运单信息返回空");
             return response;
         }
         String waybillCode = waybill.getWaybillCode();
-        // todo 是库存还是总包裹
-        Integer goodsAmount = waybill.getGoodNumber();
+
+        LoadScanDto loadScanDto = getLoadScanByWaybillCodeAndPackageCode(waybillCode, packageCode);
+        if (loadScanDto == null) {
+            log.error("根据包裹号和运单号从分拣报表查询运单信息返回空packageCode={},waybillCode={}", packageCode, waybillCode);
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("根据包裹号查询运单信息返回空");
+            return response;
+        }
 
         // 根据任务号和运单号查找包裹是否属于当前批次
         GoodsLoadScan loadScan = goodsLoadScanDao.findLoadScanByTaskIdAndWaybillCode(taskId, waybillCode);
 
         // 如果不属于当前批次，为当前任务添加一条运单
         if (loadScan == null) {
-            saveExternalWaybill(taskId, waybillCode, packageCode, goodsAmount, req.getTransfer());
+            saveExternalWaybill(taskId, waybillCode, packageCode, loadScanDto.getGoodsAmount(), req.getTransfer());
         } else {
+            // 如果属于校验当前批次，直接计算修改
             computeAndUpdateLoadScan(loadScan, packageCode);
         }
         return response;
@@ -706,14 +712,10 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         return goodsDetailDto;
     }
 
-    private GoodsLoadScan createGoodsLoadScan(Long taskId, String waybillCode, String packageCode, Integer goodsAmount) {
+    private GoodsLoadScan createGoodsLoadScan(Long taskId, String waybillCode, Integer goodsAmount) {
         GoodsLoadScan goodsLoadScan = new GoodsLoadScan();
         goodsLoadScan.setTaskId(taskId);
         goodsLoadScan.setWayBillCode(waybillCode);
-        goodsLoadScan.setPackageCodes(packageCode);
-        // todo 是库存还是总包裹
-        goodsLoadScan.setPackageAmount(goodsAmount);
-        goodsLoadScan.setGoodsAmount(1);
         goodsLoadScan.setLoadAmount(1);
         // 未装：库存包裹数 – 装车已扫包裹数
         goodsLoadScan.setUnloadAmount(goodsAmount - 1);
@@ -730,14 +732,12 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         return goodsLoadScan;
     }
 
-    private GoodsLoadScanRecord createGoodsLoadScanRecord(Long taskId, String waybillCode, String packageCode,
-                                                          Integer goodsAmount, Integer transfer) {
+    private GoodsLoadScanRecord createGoodsLoadScanRecord(Long taskId, String waybillCode,
+                                                          String packageCode, Integer transfer) {
         GoodsLoadScanRecord loadScanRecord = new GoodsLoadScanRecord();
         loadScanRecord.setTaskId(taskId);
         loadScanRecord.setWayBillCode(waybillCode);
         loadScanRecord.setPackageCode(packageCode);
-        // todo 是库存还是总包裹
-        loadScanRecord.setPackageAmount(1);
         // 装车动作
         loadScanRecord.setScanAction(GoodsLoadScanConstants.GOODS_SCAN_LOAD);
         loadScanRecord.setTransfer(transfer);

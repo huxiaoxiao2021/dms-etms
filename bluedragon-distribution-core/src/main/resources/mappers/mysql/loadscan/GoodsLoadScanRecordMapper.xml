@@ -8,7 +8,6 @@
 		<result column="waybill_code" property="wayBillCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="package_code" property="packageCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="board_code" property="boardCode" javaType="java.lang.String" jdbcType="VARCHAR" />
-        <result column="package_amount" property="packageAmount" javaType="java.lang.Integer" jdbcType="TINYINT" />
         <result column="scan_action" property="scanAction" javaType="java.lang.Integer" jdbcType="TINYINT" />
         <result column="transfer" property="transfer" javaType="java.lang.Integer" jdbcType="TINYINT" />
         <result column="create_user_code" javaType="java.lang.String" jdbcType="VARCHAR" property="createUserCode"/>
@@ -21,7 +20,7 @@
     </resultMap>
 
     <sql id="Base_Column_List" >
-		id,task_id,waybill_code,package_code,board_code,package_amount,scan_action,transfer,
+		id,task_id,waybill_code,package_code,board_code,scan_action,transfer,
 		create_user_code,create_user_name,update_user_code,update_user_name,create_time,update_time,yn
 	</sql>
 
@@ -39,9 +38,6 @@
             </if>
             <if test="boardCode != null">
                 board_code,
-            </if>
-            <if test="packageAmount != null">
-                package_amount,
             </if>
             <if test="scanAction != null">
                 scan_action,
@@ -82,9 +78,6 @@
             </if>
             <if test="boardCode != null">
                 #{boardCode,jdbcType=INTEGER},
-            </if>
-            <if test="packageAmount != null">
-                #{packageAmount,jdbcType=INTEGER},
             </if>
             <if test="scanAction != null">
                 #{scanAction,jdbcType=INTEGER},
@@ -134,9 +127,6 @@
             <if test="boardCode != null">
                 #{boardCode,jdbcType=INTEGER},
             </if>
-            <if test="packageAmount != null">
-                #{packageAmount,jdbcType=INTEGER},
-            </if>
             <if test="scanAction != null">
                 #{scanAction,jdbcType=INTEGER},
             </if>
@@ -175,7 +165,6 @@
             <if test="waybillCode != null">waybill_code = #{waybillCode,jdbcType=VARCHAR},</if>
             <if test="packageCode != null">package_code = #{packageCode,jdbcType=VARCHAR},</if>
             <if test="boardCode != null">board_code = #{boardCode,jdbcType=INTEGER},</if>
-            <if test="packageAmount != null">package_amount = #{packageAmount,jdbcType=INTEGER},</if>
             <if test="scanAction != null">scan_action = #{scanAction,jdbcType=INTEGER},</if>
             <if test="transfer != null">transfer = #{transfer,jdbcType=INTEGER},</if>
             <if test="createUserCode != null">create_user_code = #{createUserCode,jdbcType=VARCHAR},</if>

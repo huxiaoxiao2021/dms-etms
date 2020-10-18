@@ -28,11 +28,6 @@ public class GoodsLoadScan implements Serializable {
     private String wayBillCode;
 
     /**
-     * 包裹号集合
-     */
-    private String packageCodes;
-
-    /**
      * 总包裹数量
      */
     private Integer packageAmount;
@@ -119,14 +114,6 @@ public class GoodsLoadScan implements Serializable {
 
     public void setWayBillCode(String wayBillCode) {
         this.wayBillCode = wayBillCode;
-    }
-
-    public String getPackageCodes() {
-        return packageCodes;
-    }
-
-    public void setPackageCodes(String packageCodes) {
-        this.packageCodes = packageCodes;
     }
 
     public Integer getPackageAmount() {

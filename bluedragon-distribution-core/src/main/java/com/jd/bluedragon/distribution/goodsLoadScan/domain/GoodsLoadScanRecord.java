@@ -33,11 +33,6 @@ public class GoodsLoadScanRecord implements Serializable {
     private String boardCode;
 
     /**
-     * 包裹数量
-     */
-    private Integer packageAmount;
-
-    /**
      * 扫描动作 1是装车扫描，0是取消扫描
      */
     private Integer scanAction;
@@ -121,14 +116,6 @@ public class GoodsLoadScanRecord implements Serializable {
 
     public void setBoardCode(String boardCode) {
         this.boardCode = boardCode;
-    }
-
-    public Integer getPackageAmount() {
-        return packageAmount;
-    }
-
-    public void setPackageAmount(Integer packageAmount) {
-        this.packageAmount = packageAmount;
     }
 
     public Integer getScanAction() {
