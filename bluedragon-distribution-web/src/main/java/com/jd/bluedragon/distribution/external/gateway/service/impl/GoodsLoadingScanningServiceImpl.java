@@ -25,7 +25,6 @@ import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarDao;
-import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.ExceptionScanService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.GoodsLoadingScanningService;
@@ -35,7 +34,6 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.report.LoadScanPackageDetailService;
-import com.jd.ql.dms.report.domain.LoadScanDetailDto;
 import com.jd.ql.dms.report.domain.LoadScanDto;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
@@ -307,13 +305,13 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         // 根据任务号查找装车扫描明细暂存表
         List<GoodsLoadScan> tempList = goodsLoadScanDao.findLoadScanByTaskId(taskId);
         // 从分拣报表中根据当前网点和下一网点查询最新的已验未发的运单记录
-        com.jd.ql.dms.report.domain.BaseEntity<List<LoadScanDetailDto>> detailList
+        com.jd.ql.dms.report.domain.BaseEntity<List<LoadScanDto>> detailList
                 = loadScanPackageDetailService.findLoadScanPackageDetail(loadCar.getCreateSiteCode().intValue(),
                 loadCar.getEndSiteCode().intValue());
 
         List<GoodsDetailDto> goodsDetailDtoList;
         if (detailList.getCode() == Constants.SUCCESS_CODE) {
-            List<LoadScanDetailDto> reportList = detailList.getData();
+            List<LoadScanDto> reportList = detailList.getData();
             // 分拣报表查询返回为空
             if (reportList.isEmpty()) {
                 log.error("根据任务ID所在的当前网点和下一网点去分拣报表没有找到相应的运单记录，taskId={},currentSiteCode={},endSiteCode={}",
@@ -331,7 +329,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
             }
             // 如果已初始化，组装数据
             goodsDetailDtoList = new ArrayList<>();
-            for (LoadScanDetailDto detailDto : reportList) {
+            for (LoadScanDto detailDto : reportList) {
                 String reportWaybillCode = detailDto.getWayBillCode();
                 GoodsDetailDto goodsDetailDto;
                 for (GoodsLoadScan loadScan : tempList) {
@@ -346,7 +344,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
                 }
                 // 报表里最新增加的数据
                 goodsDetailDto = createGoodsDetailDto(reportWaybillCode, detailDto.getPackageAmount(),
-                        detailDto.getGoodsAmount(), detailDto.getLoadAmount(), detailDto.getUnloadAmount(),
+                        detailDto.getGoodsAmount(), 0, 0,
                         GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK);
                 goodsDetailDtoList.add(goodsDetailDto);
             }
@@ -484,7 +482,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         }
 
         // 扫描第一个包裹时，修改任务状态为已开始
-        updateTaskStatus(loadCar);
+        updateTaskStatus(loadCar, user);
 
         // 循环处理板上的每一个包裹
         GoodsLoadScanRecord record = new GoodsLoadScanRecord();
@@ -656,7 +654,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         Integer goodsAmount = loadScanDto.getGoodsAmount();
 
         // 扫描第一个包裹时，修改任务状态为已开始
-        updateTaskStatus(loadCar);
+        updateTaskStatus(loadCar, user);
 
         return saveLoadScanByPackCode(taskId, waybillCode, packageCode, goodsAmount, transfer, flowDisAccord, user);
     }
@@ -665,16 +663,13 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
      * 修改任务状态
      * @param loadCar 任务
      */
-    private void updateTaskStatus(LoadCar loadCar) {
+    private void updateTaskStatus(LoadCar loadCar, User user) {
         // 扫描第一个包裹时，将任务状态改为已开始
         List<String> waybillCodeList = goodsLoadScanDao.findWaybillCodesByTaskId(loadCar.getId());
         if (waybillCodeList.isEmpty()) {
             loadCar.setStatus(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN);
-            ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-            if (erpUser != null) {
-                loadCar.setOperateUserErp(erpUser.getUserCode());
-                loadCar.setOperateUserName(erpUser.getUserName());
-            }
+            loadCar.setOperateUserErp(user.getUserErp());
+            loadCar.setOperateUserName(user.getUserName());
             loadCar.setUpdateTime(new Date());
             loadCarDao.updateLoadCarById(loadCar);
         }
@@ -689,6 +684,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
 
         Long taskId = req.getTaskId();
         String batchCode = req.getBatchCode();
+        User user = req.getUser();
 
         // 根据任务号查询装车任务记录
         LoadCar loadCar = loadCarDao.findLoadCarById(taskId);
@@ -724,13 +720,12 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         }
         // 批次号校验通过，则和任务绑定
         loadCar.setBatchCode(batchCode);
-        // todo user不对
+
         // todo 校验批次封车
-        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-        if (erpUser != null) {
-            loadCar.setOperateUserErp(erpUser.getUserCode());
-            loadCar.setOperateUserName(erpUser.getUserName());
-        }
+
+        loadCar.setOperateUserErp(user.getUserErp());
+        loadCar.setOperateUserName(user.getUserName());
+
         loadCar.setUpdateTime(new Date());
         loadCarDao.updateLoadCarById(loadCar);
         response.setCode(JdCResponse.CODE_SUCCESS);
@@ -1000,9 +995,9 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
     }
 
 
-    private  List<GoodsDetailDto> transformData(List<LoadScanDetailDto> list) {
+    private  List<GoodsDetailDto> transformData(List<LoadScanDto> list) {
         List<GoodsDetailDto> goodsDetails = new ArrayList<>();
-        for (LoadScanDetailDto detailDto : list) {
+        for (LoadScanDto detailDto : list) {
             GoodsDetailDto goodsDetailDto = new GoodsDetailDto();
             goodsDetailDto.setWayBillCode(detailDto.getWayBillCode());
             goodsDetailDto.setPackageAmount(detailDto.getPackageAmount());
