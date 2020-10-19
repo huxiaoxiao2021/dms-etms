@@ -363,8 +363,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
             }
             funcSwitchConfigDao.batchAdd(dataList);
         }catch (Exception e){
-            logger.error("批量插入表格数据异常");
-            throw  new Exception("批量插入表格数据异常");
+            logger.error("批量插入表格数据异常",e);
         }
     }
 
