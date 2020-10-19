@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
+import com.jd.bluedragon.distribution.funcSwitchConfig.YnEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.dao.FuncSwitchConfigDao;
 import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigCondition;
 import com.jd.bluedragon.distribution.packageWeighting.PackageWeightingService;
@@ -122,30 +123,33 @@ public class WeightVolumeFilter implements Filter {
      * @param waybillSign
      * @return
      */
-    private boolean isEconomicNetValidateWeight(String waybillCode, String waybillSign,FilterContext request) {
-        boolean isAllMailFilter = false;
-        if(request.getReceiveSiteCode()!=null){
-            Integer  siteCode = request.getReceiveSiteCode();
-            //当缓存中存在时
-            String cacheValue = jimdbCacheService.get(Constants.ALL_MAIL_CACHE_KEY+siteCode);
-            if(StringUtils.isNotEmpty(cacheValue)){
-                isAllMailFilter = Boolean.valueOf(cacheValue);
-            }else {
-                FuncSwitchConfigCondition condition = new FuncSwitchConfigCondition();
-                condition.setSiteCode(siteCode);
-                if(request.getRuleMap()!=null&&request.getRuleMap().get(FuncSwitchConfigEnum.FUNCTION_ALL_MAIL.getCode())!=null){
-                    condition.setMenuCode(Integer.valueOf(request.getRuleMap().get(FuncSwitchConfigEnum.FUNCTION_ALL_MAIL.getCode()).getMemo()));
-                }
-                condition.setOffset(0);
-                condition.setLimit(1);
-                if(funcSwitchConfigDao.queryByCondition(condition).size()>0){
-                    isAllMailFilter = funcSwitchConfigDao.queryByCondition(condition).get(0).getYn()==1 ? true: false;
-                    jimdbCacheService.setEx(Constants.ALL_MAIL_CACHE_KEY+siteCode,String.valueOf(isAllMailFilter),Constants.TIME_SECONDS_ONE_DAY,TimeUnit.SECONDS);
+    private boolean isEconomicNetValidateWeight(String waybillCode, String waybillSign,FilterContext request) throws Exception {
+        //默认拦截
+        boolean isAllMailFilter = true;
+        try {
+            if(request.getCreateSiteCode()!=null){
+                Integer  siteCode = request.getCreateSiteCode();
+                //当缓存中存在时
+                String cacheValue = jimdbCacheService.get(Constants.ALL_MAIL_CACHE_KEY+siteCode);
+                if(StringUtils.isNotEmpty(cacheValue)){
+                    isAllMailFilter = Boolean.valueOf(cacheValue);
+                }else {
+                    FuncSwitchConfigCondition condition = new FuncSwitchConfigCondition();
+                    condition.setSiteCode(siteCode);
+                    condition.setMenuCode(FuncSwitchConfigEnum.FUNCTION_ALL_MAIL.getCode());
+                    condition.setOffset(0);
+                    condition.setLimit(1);
+                    if(funcSwitchConfigDao.queryByCondition(condition).size()>0){
+                        isAllMailFilter = funcSwitchConfigDao.queryByCondition(condition).get(0).getYn()==YnEnum.YN_ON.getCode() ? true: false;
+                        jimdbCacheService.setEx(Constants.ALL_MAIL_CACHE_KEY+siteCode,String.valueOf(isAllMailFilter),Constants.TIME_SECONDS_ONE_DAY,TimeUnit.SECONDS);
+                    }
                 }
             }
+            return BusinessUtil.isEconomicNetValidateWeightVolume(waybillCode, waybillSign) && isAllMailFilter;
+        }catch (Exception e){
+            logger.error("众邮运单拦截判断异常waybillCode:{},waybillSign:{}",waybillCode,waybillSign,e);
+            throw  new Exception("众邮运单拦截判断异常waybillCode:"+waybillCode+";waybillSign:"+waybillSign+"Exception:"+e.getMessage());
         }
-
-        return BusinessUtil.isEconomicNetValidateWeightVolume(waybillCode, waybillSign) && isAllMailFilter;
     }
 
 }

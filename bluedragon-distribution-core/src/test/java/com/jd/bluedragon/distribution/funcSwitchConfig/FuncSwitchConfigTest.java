@@ -6,6 +6,7 @@ import com.jd.bd.dms.automatic.sdk.modules.device.DeviceConfigInfoJsfService;
 import com.jd.bluedragon.distribution.funcSwitchConfig.dao.FuncSwitchConfigDao;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.impl.FuncSwitchConfigServiceImpl;
 import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
+import com.jd.common.util.StringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -67,6 +68,48 @@ public class FuncSwitchConfigTest {
         for (int s = 0; s < siteCodesArray.length; s++) {
             System.out.println(siteCodesArray[s]);
         }
+    }
+
+
+    @Test
+    public void test03(){
+         ObjectTest obj = new ObjectTest();
+         if(StringUtils.isEmpty(obj.getName())){
+             System.out.println("这是一个空值");
+        }
+    }
+
+
+    public boolean test04() throws Exception {
+        try {
+            int i = 1/0;
+            System.out.println("还能执行到这吗");
+        }catch (Exception e){
+            System.out.println("抛异常");
+            //throw  new Exception("抛出异常");
+        }
+        return  true;
+    }
+
+    @Test
+    public void test05() throws Exception {
+
+        System.out.println(test04());
+    }
+
+
+
+    public class ObjectTest{
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        String name;
+
     }
 }
     

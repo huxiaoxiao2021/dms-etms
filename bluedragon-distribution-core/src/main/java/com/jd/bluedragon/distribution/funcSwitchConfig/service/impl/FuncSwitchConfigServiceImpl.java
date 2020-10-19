@@ -8,6 +8,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigDto;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
+import com.jd.bluedragon.distribution.funcSwitchConfig.YnEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.dao.FuncSwitchConfigDao;
 import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigCondition;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
@@ -48,7 +49,6 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
     private static final Integer PRE_SELL_RULE_TYPE = 2100;
     private static final String PRE_SELL_RULE_OPEN = "1";
     private static final String PRE_SELL_RULE_CONTENT = "预售暂存分拣规则，1表示开启";
-    private static final Integer YN_ON = 1;//开关有效标识
 
     @Value("${checkAuthoritySwitch:true}")
     private boolean checkAuthoritySwitch;
@@ -208,6 +208,9 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
             List<Long> ids = new ArrayList<>();
             //站点编码集合
             List<Integer> siteCodes = null;
+            //调用全国接口返回结果
+            BaseDmsAutoJsfResponse  longBaseDmsAutoJsfResponseAll = null;
+            //调用站点集合接口返回结果
             BaseDmsAutoJsfResponse  longBaseDmsAutoJsfResponse = null;
 
             for(FuncSwitchConfigDto dto : funcSwitchConfigDtos){
@@ -217,8 +220,8 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
                 //众邮-调用分拣机开关进行更新
                 if(FuncSwitchConfigEnum.FUNCTION_ALL_MAIL.getCode()==dto.getMenuCode()){
                     if (dto.getDimensionCode() == DimensionEnum.NATIONAL.getCode()) {
-                        longBaseDmsAutoJsfResponse = deviceConfigInfoJsfService.maintainWeightSwitch(WeightValidateSwitchEnum.ON);
-                        if (longBaseDmsAutoJsfResponse.getStatusCode() != BaseDmsAutoJsfResponse.SUCCESS_CODE) {
+                        longBaseDmsAutoJsfResponseAll = deviceConfigInfoJsfService.maintainWeightSwitch(WeightValidateSwitchEnum.ON);
+                        if (longBaseDmsAutoJsfResponseAll.getStatusCode() != BaseDmsAutoJsfResponse.SUCCESS_CODE) {
                             jdResponse.toFail("分拣机开关-置为开on调用失败,全国");
                             return jdResponse;
                         }
@@ -367,7 +370,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
             BaseDmsAutoJsfResponse<Long> longBaseDmsAutoJsfResponse = null;
             //全国维度
             if(funcSwitchConfigDto.getDimensionCode()==DimensionEnum.NATIONAL.getCode()){
-                longBaseDmsAutoJsfResponse = deviceConfigInfoJsfService.maintainWeightSwitch(funcSwitchConfigDto.getYn()==YN_ON?WeightValidateSwitchEnum.OFF:WeightValidateSwitchEnum.ON);
+                longBaseDmsAutoJsfResponse = deviceConfigInfoJsfService.maintainWeightSwitch(funcSwitchConfigDto.getYn()== YnEnum.YN_ON.getCode()?WeightValidateSwitchEnum.OFF:WeightValidateSwitchEnum.ON);
                 if(longBaseDmsAutoJsfResponse.getStatusCode()!=BaseDmsAutoJsfResponse.SUCCESS_CODE){
                     throw  new  Exception("分拣机开关调用失败,全国");
                 }
@@ -377,7 +380,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
                 if(!(siteCodes.length>0)){
                     throw  new Exception("分拣机开关调用失败,缺少站点编码:");
                 }
-                longBaseDmsAutoJsfResponse = deviceConfigInfoJsfService.maintainSiteWeightSwitch(siteCodes,funcSwitchConfigDto.getYn()==YN_ON?WeightValidateSwitchEnum.OFF:WeightValidateSwitchEnum.ON);
+                longBaseDmsAutoJsfResponse = deviceConfigInfoJsfService.maintainSiteWeightSwitch(siteCodes,funcSwitchConfigDto.getYn()==YnEnum.YN_ON.getCode()?WeightValidateSwitchEnum.OFF:WeightValidateSwitchEnum.ON);
                 if(longBaseDmsAutoJsfResponse.getStatusCode()!=BaseDmsAutoJsfResponse.SUCCESS_CODE){
                     throw  new  Exception("分拣机开关调用失败,站点:"+siteCodes);
                 }
