@@ -221,7 +221,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
                 if(FuncSwitchConfigEnum.FUNCTION_ALL_MAIL.getCode()==dto.getMenuCode()){
                     if (dto.getDimensionCode() == DimensionEnum.NATIONAL.getCode()) {
                         longBaseDmsAutoJsfResponseAll = deviceConfigInfoJsfService.maintainWeightSwitch(WeightValidateSwitchEnum.ON);
-                        if (longBaseDmsAutoJsfResponseAll.getStatusCode() != BaseDmsAutoJsfResponse.SUCCESS_CODE) {
+                        if (longBaseDmsAutoJsfResponseAll == null || longBaseDmsAutoJsfResponseAll.getStatusCode() != BaseDmsAutoJsfResponse.SUCCESS_CODE) {
                             jdResponse.toFail("分拣机开关-置为开on调用失败,全国");
                             return jdResponse;
                         }
@@ -243,7 +243,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
                 Integer[] siteCodesArray = new Integer[siteCodes.size()];
                 siteCodes.toArray(siteCodesArray);
                 longBaseDmsAutoJsfResponse = deviceConfigInfoJsfService.maintainSiteWeightSwitch(siteCodesArray,WeightValidateSwitchEnum.ON);
-                if(longBaseDmsAutoJsfResponse.getStatusCode()!=BaseDmsAutoJsfResponse.SUCCESS_CODE){
+                if(longBaseDmsAutoJsfResponse == null || longBaseDmsAutoJsfResponse.getStatusCode()!=BaseDmsAutoJsfResponse.SUCCESS_CODE){
                     throw  new Exception("分拣机开关-置为开on调用失败,站点:"+siteCodes);
                 }
             }
@@ -316,7 +316,10 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
         if(CollectionUtils.isEmpty(dataList)){
             return;
         }
-        List<Integer> siteCodes = null;
+        //调用分拣机开关置为开启的List
+        List<Integer> siteCodesOnList = null;
+        //调用分拣机开关置为关闭的List
+        List<Integer> siteCodesOffList = null;
         BaseDmsAutoJsfResponse  longBaseDmsAutoJsfResponse = null;
         try {
             // 设置默认参数
@@ -332,32 +335,62 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
                 //封装调用分拣机站点集合
                 if(dto.getMenuCode()==FuncSwitchConfigEnum.FUNCTION_ALL_MAIL.getCode()){
                     if(dto.getDimensionCode()==DimensionEnum.SITE.getCode()){
-                        if(CollectionUtils.isEmpty(siteCodes)){
-                            siteCodes =   new ArrayList<>();
+                        if(CollectionUtils.isEmpty(siteCodesOnList)){
+                            siteCodesOnList =   new ArrayList<>();
+                        }else if(CollectionUtils.isEmpty(siteCodesOffList)){
+                            siteCodesOffList = new ArrayList<>();
                         }
-                        siteCodes.add(dto.getSiteCode());
+
+                        if(dto.getYn()== YnEnum.YN_ON.getCode()){
+                            // 调用不拦截
+                            siteCodesOffList.add(dto.getSiteCode());
+                        }else {
+                            //调用拦截接口
+                            siteCodesOnList.add(dto.getSiteCode());
+                        }
                     }else if(dto.getDimensionCode()==DimensionEnum.NATIONAL.getCode()){
-                        longBaseDmsAutoJsfResponse = deviceConfigInfoJsfService.maintainWeightSwitch(WeightValidateSwitchEnum.ON);
-                        if (longBaseDmsAutoJsfResponse.getStatusCode() != BaseDmsAutoJsfResponse.SUCCESS_CODE) {
+                        WeightValidateSwitchEnum weightValidateSwitchEnum  = dto.getYn()== YnEnum.YN_ON.getCode()?WeightValidateSwitchEnum.OFF:WeightValidateSwitchEnum.ON;
+                        longBaseDmsAutoJsfResponse = deviceConfigInfoJsfService.maintainWeightSwitch(weightValidateSwitchEnum);
+                        if (longBaseDmsAutoJsfResponse == null || longBaseDmsAutoJsfResponse.getStatusCode() != BaseDmsAutoJsfResponse.SUCCESS_CODE) {
                             throw  new Exception("分拣机开关调用失败,全国");
                         }
                     }
                 }
             }
 
-            if(!CollectionUtils.isEmpty(siteCodes)){
-                Integer[] siteCodesArray = new Integer[siteCodes.size()];
-                siteCodes.toArray(siteCodesArray);
-                longBaseDmsAutoJsfResponse = deviceConfigInfoJsfService.maintainSiteWeightSwitch(siteCodesArray,WeightValidateSwitchEnum.ON);
-                if(longBaseDmsAutoJsfResponse.getStatusCode()!=BaseDmsAutoJsfResponse.SUCCESS_CODE){
-                    throw  new Exception("分拣机开关调用失败,站点:"+siteCodes);
-                }
+            //批量调用分拣机接口
+            if(!CollectionUtils.isEmpty(siteCodesOnList)){
+                importExcelToSiteWeightSwitch(siteCodesOnList,WeightValidateSwitchEnum.ON);
+            }
+            if(!CollectionUtils.isEmpty(siteCodesOffList)){
+                importExcelToSiteWeightSwitch(siteCodesOffList,WeightValidateSwitchEnum.OFF);
             }
             funcSwitchConfigDao.batchAdd(dataList);
         }catch (Exception e){
             logger.error("批量插入表格数据异常!");
         }
     }
+
+    /**
+     * 调用分拣机批量接口
+     */
+    public void importExcelToSiteWeightSwitch(List<Integer> list,WeightValidateSwitchEnum weightValidateSwitchEnum) throws Exception {
+        //众邮称重拦截-调用分拣机开关
+        Integer[] siteCodesArray = new Integer[list.size()];
+        list.toArray(siteCodesArray);
+        if(logger.isInfoEnabled()){
+            logger.info("调用分拣机开关入参:siteCodesArray:{},WeightValidateSwitchEnum:{}",siteCodesArray,JsonHelper.toJson(weightValidateSwitchEnum));
+        }
+        BaseDmsAutoJsfResponse  longBaseDmsAutoJsfResponse = deviceConfigInfoJsfService.maintainSiteWeightSwitch(siteCodesArray,weightValidateSwitchEnum);
+        if(logger.isInfoEnabled()){
+            logger.info("调用分拣机开关入参:siteCodesArray:{},WeightValidateSwitchEnum:{},出参longBaseDmsAutoJsfResponse:{}",siteCodesArray,JsonHelper.toJson(weightValidateSwitchEnum),JsonHelper.toJson(longBaseDmsAutoJsfResponse));
+        }
+        if(longBaseDmsAutoJsfResponse == null || longBaseDmsAutoJsfResponse.getStatusCode()!=BaseDmsAutoJsfResponse.SUCCESS_CODE){
+            throw  new Exception("分拣机开关调用失败,站点:"+siteCodesArray);
+        }
+    }
+
+
 
     /**
      * 单个调用分拣机拦截开关
@@ -368,10 +401,17 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
         //众邮调度分拣机开关
         if(FuncSwitchConfigEnum.FUNCTION_ALL_MAIL.getCode()==funcSwitchConfigDto.getMenuCode()){
             BaseDmsAutoJsfResponse<Long> longBaseDmsAutoJsfResponse = null;
+            WeightValidateSwitchEnum weightValidateSwitchEnum  = funcSwitchConfigDto.getYn()== YnEnum.YN_ON.getCode()?WeightValidateSwitchEnum.OFF:WeightValidateSwitchEnum.ON;
             //全国维度
             if(funcSwitchConfigDto.getDimensionCode()==DimensionEnum.NATIONAL.getCode()){
-                longBaseDmsAutoJsfResponse = deviceConfigInfoJsfService.maintainWeightSwitch(funcSwitchConfigDto.getYn()== YnEnum.YN_ON.getCode()?WeightValidateSwitchEnum.OFF:WeightValidateSwitchEnum.ON);
-                if(longBaseDmsAutoJsfResponse.getStatusCode()!=BaseDmsAutoJsfResponse.SUCCESS_CODE){
+                if(logger.isInfoEnabled()){
+                    logger.info("调用分拣机全国开关入参:funcSwitchConfigDto:{},WeightValidateSwitchEnum:{}",JsonHelper.toJson(funcSwitchConfigDto),JsonHelper.toJson(weightValidateSwitchEnum));
+                }
+                longBaseDmsAutoJsfResponse = deviceConfigInfoJsfService.maintainWeightSwitch(weightValidateSwitchEnum);
+                if(logger.isInfoEnabled()){
+                    logger.info("调用分拣机全国开关入参:funcSwitchConfigDto{},WeightValidateSwitchEnum:{},出参longBaseDmsAutoJsfResponse:{}",JsonHelper.toJson(funcSwitchConfigDto),JsonHelper.toJson(weightValidateSwitchEnum),JsonHelper.toJson(longBaseDmsAutoJsfResponse));
+                }
+                if(longBaseDmsAutoJsfResponse == null || longBaseDmsAutoJsfResponse.getStatusCode()!=BaseDmsAutoJsfResponse.SUCCESS_CODE){
                     throw  new  Exception("分拣机开关调用失败,全国");
                 }
                 //场景维度
@@ -380,8 +420,14 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
                 if(!(siteCodes.length>0)){
                     throw  new Exception("分拣机开关调用失败,缺少站点编码:");
                 }
-                longBaseDmsAutoJsfResponse = deviceConfigInfoJsfService.maintainSiteWeightSwitch(siteCodes,funcSwitchConfigDto.getYn()==YnEnum.YN_ON.getCode()?WeightValidateSwitchEnum.OFF:WeightValidateSwitchEnum.ON);
-                if(longBaseDmsAutoJsfResponse.getStatusCode()!=BaseDmsAutoJsfResponse.SUCCESS_CODE){
+                if(logger.isInfoEnabled()){
+                    logger.info("调用分拣机开关入参:funcSwitchConfigDto:{},WeightValidateSwitchEnum:{}",JsonHelper.toJson(funcSwitchConfigDto),JsonHelper.toJson(weightValidateSwitchEnum));
+                }
+                longBaseDmsAutoJsfResponse = deviceConfigInfoJsfService.maintainSiteWeightSwitch(siteCodes,weightValidateSwitchEnum);
+                if(logger.isInfoEnabled()){
+                    logger.info("调用分拣机开关入参:funcSwitchConfigDto:{},WeightValidateSwitchEnum:{},出参longBaseDmsAutoJsfResponse:{}",JsonHelper.toJson(funcSwitchConfigDto),JsonHelper.toJson(weightValidateSwitchEnum),JsonHelper.toJson(longBaseDmsAutoJsfResponse));
+                }
+                if(longBaseDmsAutoJsfResponse == null || longBaseDmsAutoJsfResponse.getStatusCode()!=BaseDmsAutoJsfResponse.SUCCESS_CODE){
                     throw  new  Exception("分拣机开关调用失败,站点:"+siteCodes);
                 }
             }
