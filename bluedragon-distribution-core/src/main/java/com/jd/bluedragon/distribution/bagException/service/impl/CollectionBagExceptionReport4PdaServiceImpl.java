@@ -291,7 +291,7 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
     private JdCResponse<Boolean> canReportException(Waybill waybill){
         JdCResponse<Boolean> result = new JdCResponse<>(JdCResponse.CODE_SUCCESS, null, true);
         String waybillSign = waybill.getWaybillSign();
-        boolean isForeignWaybill = BusinessUtil.isForeignWaybill(waybillSign);
+        boolean isForeignWaybill = BusinessUtil.isSopOrExternal(waybillSign);
         if(!isForeignWaybill){
             result.init(JdCResponse.CODE_FAIL, "不符合条件，不是外单", false);
             return result;
