@@ -88,6 +88,11 @@ public class GoodsLoadScanRecord implements Serializable {
      */
     private Integer forceStatus;
 
+    /**
+     * 数据库时间
+     */
+    private Date ts;
+
     public Long getId() {
         return id;
     }
@@ -214,5 +219,13 @@ public class GoodsLoadScanRecord implements Serializable {
 
     public void setForceStatus(Integer forceStatus) {
         this.forceStatus = forceStatus;
+    }
+
+    public Date getTs() {
+        return ts;
+    }
+
+    public void setTs(Date ts) {
+        this.ts = ts;
     }
 }

@@ -7,7 +7,6 @@
 		<result column="task_id" property="taskId" javaType="java.lang.Long" jdbcType="BIGINT" />
 		<result column="waybill_code" property="wayBillCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="package_amount" property="packageAmount" javaType="java.lang.Integer" jdbcType="INT" />
-        <result column="goods_amount" property="goodsAmount" javaType="java.lang.Integer" jdbcType="INT" />
         <result column="load_amount" property="loadAmount" javaType="java.lang.Integer" jdbcType="INT" />
         <result column="unload_amount" property="unloadAmount" javaType="java.lang.Integer" jdbcType="INT" />
         <result column="force_amount" property="forceAmount" javaType="java.lang.Integer" jdbcType="INT" />
@@ -19,10 +18,11 @@
         <result column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="update_time" javaType="java.util.Date" jdbcType="TIMESTAMP" property="updateTime"/>
         <result column="yn" javaType="java.lang.Integer" jdbcType="TINYINT" property="yn"/>
+        <result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
     </resultMap>
 
     <sql id="Base_Column_List" >
-		id,task_id,waybill_code,package_amount,goods_amount,load_amount,unload_amount,
+		id,task_id,waybill_code,package_amount,load_amount,unload_amount,
 		force_amount,status,create_user_code,create_user_name,update_user_code,update_user_name,
 		create_time,update_time,yn
 	</sql>
@@ -77,7 +77,8 @@
             <if test="updateTime != null">
                 update_time,
             </if>
-            yn
+            yn,
+            ts
         </trim>
         )
         values
@@ -125,7 +126,8 @@
             <if test="updateTime != null">
                 #{updateTime,jdbcType=TIMESTAMP},
             </if>
-            1
+            1,
+            now(3)
         </trim>
         )
     </insert>
@@ -133,14 +135,14 @@
     <insert id="batchInsert" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan">
         insert into load_scan (task_id, waybill_code, package_amount,
         goods_amount, load_amount, unload_amount, force_amount, status, create_user_code, create_user_name, update_user_code, update_user_name, create_time,
-        update_time, yn)  VALUES
+        update_time, yn, ts)  VALUES
         <foreach collection="list" item="info" separator=",">
             (#{info.taskId,jdbcType=BIGINT}, #{info.waybillCode,jdbcType=VARCHAR},
             #{info.packageAmount,jdbcType=INTEGER}, #{info.goodsAmount,jdbcType=INTEGER},
             #{info.loadAmount,jdbcType=INTEGER}, #{info.unloadAmount,jdbcType=INTEGER}, #{info.forceAmount,jdbcType=INTEGER},
             #{info.status,jdbcType=INTEGER}, #{info.createUserCode,jdbcType=VARCHAR},
             #{info.createUserName,jdbcType=VARCHAR}, #{info.updateUserCode,jdbcType=VARCHAR}, #{info.updateUserName,jdbcType=VARCHAR},
-            #{info.createTime,jdbcType=TIMESTAMP}, #{info.updateTime,jdbcType=TIMESTAMP}, #{info.yn,jdbcType=INTEGER})
+            #{info.createTime,jdbcType=TIMESTAMP}, #{info.updateTime,jdbcType=TIMESTAMP}, #{info.yn,jdbcType=INTEGER}), now(3)
         </foreach>
     </insert>
 

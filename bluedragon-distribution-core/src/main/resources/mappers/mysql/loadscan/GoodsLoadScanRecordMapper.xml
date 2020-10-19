@@ -17,6 +17,7 @@
         <result column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="update_time" javaType="java.util.Date" jdbcType="TIMESTAMP" property="updateTime"/>
         <result column="yn" javaType="java.lang.Integer" jdbcType="TINYINT" property="yn"/>
+        <result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
     </resultMap>
 
     <sql id="Base_Column_List" >
@@ -63,7 +64,8 @@
             <if test="updateTime != null">
                 update_time,
             </if>
-            yn
+            yn,
+            ts
         </trim>
 
         <trim prefix="values (" suffix=")"  suffixOverrides=",">
@@ -103,7 +105,8 @@
             <if test="updateTime != null">
                 #{updateTime,jdbcType=TIMESTAMP},
             </if>
-            1
+            1,
+            now(3)
         </trim>
     </insert>
 
