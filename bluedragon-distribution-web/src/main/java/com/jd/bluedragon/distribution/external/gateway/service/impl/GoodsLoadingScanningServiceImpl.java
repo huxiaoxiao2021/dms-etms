@@ -418,8 +418,8 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
             response.setMessage("根据任务号找不到对应的装车任务");
             return response;
         }
-        // 根据包裹号查板号 todo 网点信息是指当前还是下一网点   当前网点
-        Board board = getBoardCodeByPackageCode(loadCar.getEndSiteCode().intValue(), packageCode);
+        // 根据包裹号查板号
+        Board board = getBoardCodeByPackageCode(loadCar.getCreateSiteCode().intValue(), packageCode);
         if (board == null) {
             log.error("根据包裹号没有找到对应的板号！taskId={},packageCode={}", taskId, packageCode);
             response.setCode(JdCResponse.CODE_FAIL);
@@ -465,8 +465,8 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         Integer flowDisAccord = req.getFlowDisaccord();
         User user = req.getUser();
 
-        // 根据包裹号查板号 todo 网点信息是指当前还是下一网点
-        Board board = getBoardCodeByPackageCode(loadCar.getEndSiteCode().intValue(), packageCode);
+        // 根据包裹号查板号
+        Board board = getBoardCodeByPackageCode(loadCar.getCreateSiteCode().intValue(), packageCode);
         if (board == null) {
             log.error("根据包裹号没有找到对应的板号！taskId={},packageCode={}", taskId, packageCode);
             response.setCode(JdCResponse.CODE_FAIL);
@@ -849,7 +849,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
 
     /**
      * 根据包裹号查板号信息
-     * @param siteCode 站点信息
+     * @param siteCode 当前站点信息
      * @param packageCode 包裹号
      * @return 板信息
      */
