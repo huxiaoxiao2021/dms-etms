@@ -1,0 +1,561 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.bagException.dao.CollectionBagExceptionReportDao">
+    <!-- table映射实体对象 -->
+    <resultMap id="RM_CollectionBagExceptionReport" type="com.jd.bluedragon.distribution.bagException.domain.CollectionBagExceptionReport">
+        <result property="id" column="id"/>
+        <result property="packageCode" column="package_code"/>
+        <result property="orgCode" column="org_code"/>
+        <result property="orgName" column="org_name"/>
+        <result property="siteCode" column="site_code"/>
+        <result property="siteName" column="site_name"/>
+        <result property="upstreamBoxCode" column="upstream_box_code"/>
+        <result property="boxStartId" column="box_start_id"/>
+        <result property="boxEndId" column="box_end_id"/>
+        <result property="weight" column="weight"/>
+        <result property="length" column="length"/>
+        <result property="width" column="width"/>
+        <result property="height" column="height"/>
+        <result property="reportType" column="report_type"/>
+        <result property="operatorErp" column="operator_erp"/>
+        <result property="operatorName" column="operator_name"/>
+        <result property="operateTime" column="operate_time"/>
+        <result property="reportImg" column="report_img"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="createUserErp" column="create_user_erp"/>
+        <result property="updateUserErp" column="update_user_erp"/>
+        <result property="createUserName" column="create_user_name"/>
+        <result property="updateUserName" column="update_user_name"/>
+        <result property="yn" column="yn"/>
+        <result property="ts" column="ts"/>
+    </resultMap>
+
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="Base_Column_List">
+        `id`, `package_code`, `org_code`, `org_name`, `site_code`, `site_name`, `upstream_box_code`, `box_start_id`, `box_end_id`, `weight`, `length`, `width`, `height`, `report_type`, `operator_erp`, `operator_name`, `operate_time`, `report_img`, `create_time`, `update_time`, `create_user_erp`, `update_user_erp`, `create_user_name`, `update_user_name`, `yn`, `ts`
+    </sql>
+
+    <!-- 增加 -->
+    <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id" parameterType="com.jd.bluedragon.distribution.bagException.domain.CollectionBagExceptionReport">
+        insert into `collection_bag_exception_report`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="packageCode != null and packageCode != ''">
+                package_code,
+            </if>
+            <if test="orgCode != null and orgCode != ''">
+                org_code,
+            </if>
+            <if test="orgName != null and orgName != ''">
+                org_name,
+            </if>
+            <if test="siteCode != null">
+                site_code,
+            </if>
+            <if test="siteName != null">
+                site_name,
+            </if>
+            <if test="upstreamBoxCode != null and upstreamBoxCode != ''">
+                upstream_box_code,
+            </if>
+            <if test="boxStartId != null">
+                box_start_id,
+            </if>
+            <if test="boxEndId != null">
+                box_end_id,
+            </if>
+            <if test="weight != null">
+                weight,
+            </if>
+            <if test="length != null">
+                length,
+            </if>
+            <if test="width != null">
+                width,
+            </if>
+            <if test="height != null">
+                height,
+            </if>
+            <if test="reportType != null">
+                report_type,
+            </if>
+            <if test="operatorErp != null and operatorErp != ''">
+                operator_erp,
+            </if>
+            <if test="operatorName != null and operatorName != ''">
+                operator_name,
+            </if>
+            <if test="operateTime != null">
+                operate_time,
+            </if>
+            <if test="reportImg != null and reportImg != ''">
+                report_img,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="createUserErp != null and createUserErp != ''">
+                create_user_erp,
+            </if>
+            <if test="updateUserErp != null and updateUserErp != ''">
+                update_user_erp,
+            </if>
+            <if test="createUserName != null and createUserName != ''">
+                create_user_name,
+            </if>
+            <if test="updateUserName != null and updateUserName != ''">
+                update_user_name,
+            </if>
+            <if test="yn != null">
+                yn,
+            </if>
+            <if test="ts != null">
+                ts,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="packageCode != null and packageCode != ''">
+                #{packageCode},
+            </if>
+            <if test="orgCode != null and orgCode != ''">
+                #{orgCode},
+            </if>
+            <if test="orgName != null and orgName != ''">
+                #{orgName},
+            </if>
+            <if test="siteCode != null">
+                #{siteCode},
+            </if>
+            <if test="siteName != null">
+                #{siteName},
+            </if>
+            <if test="upstreamBoxCode != null and upstreamBoxCode != ''">
+                #{upstreamBoxCode},
+            </if>
+            <if test="boxStartId != null">
+                #{boxStartId},
+            </if>
+            <if test="boxEndId != null">
+                #{boxEndId},
+            </if>
+            <if test="weight != null">
+                #{weight},
+            </if>
+            <if test="length != null">
+                #{length},
+            </if>
+            <if test="width != null">
+                #{width},
+            </if>
+            <if test="height != null">
+                #{height},
+            </if>
+            <if test="reportType != null">
+                #{reportType},
+            </if>
+            <if test="operatorErp != null and operatorErp != ''">
+                #{operatorErp},
+            </if>
+            <if test="operatorName != null and operatorName != ''">
+                #{operatorName},
+            </if>
+            <if test="operateTime != null">
+                #{operateTime},
+            </if>
+            <if test="reportImg != null and reportImg != ''">
+                #{reportImg},
+            </if>
+            <if test="createTime != null">
+                #{createTime},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime},
+            </if>
+            <if test="createUserErp != null and createUserErp != ''">
+                #{createUserErp},
+            </if>
+            <if test="updateUserErp != null and updateUserErp != ''">
+                #{updateUserErp},
+            </if>
+            <if test="createUserName != null and createUserName != ''">
+                #{createUserName},
+            </if>
+            <if test="updateUserName != null and updateUserName != ''">
+                #{updateUserName},
+            </if>
+            <if test="yn != null">
+                #{yn},
+            </if>
+            <if test="ts != null">
+                #{ts},
+            </if>
+        </trim>
+    </insert>
+    <!-- 批量增加 -->
+    <insert id="batchInsertSelective" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.List">
+        insert into `collection_bag_exception_report`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            package_code,
+            org_code,
+            org_name,
+            site_code,
+            site_name,
+            upstream_box_code,
+            box_start_id,
+            box_end_id,
+            weight,
+            length,
+            width,
+            height,
+            report_type,
+            operator_erp,
+            operator_name,
+            operate_time,
+            report_img,
+            create_time,
+            update_time,
+            create_user_erp,
+            update_user_erp,
+            create_user_name,
+            update_user_name,
+            yn,
+            ts,
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix=" (" suffix=")" suffixOverrides=",">
+                    #{item.id},
+                    #{item.packageCode},
+                    #{item.orgCode},
+                    #{item.orgName},
+                    #{item.siteCode},
+                    #{item.siteName},
+                    #{item.upstreamBoxCode},
+                    #{item.boxStartId},
+                    #{item.boxEndId},
+                    #{item.weight},
+                    #{item.length},
+                    #{item.width},
+                    #{item.height},
+                    #{item.reportType},
+                    #{item.operatorErp},
+                    #{item.operatorName},
+                    #{item.operateTime},
+                    #{item.reportImg},
+                    #{item.createTime},
+                    #{item.updateTime},
+                    #{item.createUserErp},
+                    #{item.updateUserErp},
+                    #{item.createUserName},
+                    #{item.updateUserName},
+                    #{item.yn},
+                    #{item.ts},
+            </trim>
+        </foreach>
+    </insert>
+    <!-- 更新 -->
+    <update id="updateByPrimaryKey" parameterType="com.jd.bluedragon.distribution.bagException.domain.CollectionBagExceptionReport">
+        UPDATE `collection_bag_exception_report`
+        <set>
+            <if test="packageCode != null and packageCode != ''">
+            package_code = #{packageCode},
+            </if>
+            <if test="orgCode != null and orgCode != ''">
+                org_code = #{orgCode},
+            </if>
+            <if test="orgName != null and orgName != ''">
+            org_name = #{orgName},
+            </if>
+            <if test="siteCode != null ">
+            site_code = #{siteCode},
+            </if>
+            <if test="siteName != null ">
+                site_name = #{siteName},
+            </if>
+            <if test="upstreamBoxCode != null and upstreamBoxCode != ''">
+            upstream_box_code = #{upstreamBoxCode},
+            </if>
+            <if test="boxStartId != null ">
+            box_start_id = #{boxStartId},
+            </if>
+            <if test="boxEndId != null ">
+            box_end_id = #{boxEndId},
+            </if>
+            <if test="weight != null ">
+            weight = #{weight},
+            </if>
+            <if test="length != null ">
+            length = #{length},
+            </if>
+            <if test="width != null ">
+            width = #{width},
+            </if>
+            <if test="height != null ">
+            height = #{height},
+            </if>
+            <if test="reportType != null ">
+            report_type = #{reportType},
+            </if>
+            <if test="operatorErp != null and operatorErp != ''">
+            operator_erp = #{operatorErp},
+            </if>
+            <if test="operatorName != null and operatorName != ''">
+            operator_name = #{operatorName},
+            </if>
+            <if test="operateTime != null ">
+            operate_time = #{operateTime},
+            </if>
+            <if test="reportImg != null and reportImg != ''">
+            report_img = #{reportImg},
+            </if>
+            <if test="createTime != null ">
+            create_time = #{createTime},
+            </if>
+            <if test="updateTime != null ">
+            update_time = #{updateTime},
+            </if>
+            <if test="createUserErp != null and createUserErp != ''">
+            create_user_erp = #{createUserErp},
+            </if>
+            <if test="updateUserErp != null and updateUserErp != ''">
+            update_user_erp = #{updateUserErp},
+            </if>
+            <if test="createUserName != null and createUserName != ''">
+            create_user_name = #{createUserName},
+            </if>
+            <if test="updateUserName != null and updateUserName != ''">
+            update_user_name = #{updateUserName},
+            </if>
+            <if test="yn != null ">
+            yn = #{yn},
+            </if>
+            <if test="ts != null ">
+            ts = #{ts}
+            </if>
+        </set>
+        WHERE
+            id = #{id}
+    </update>
+    <!-- 批量更新 -->
+    <update id="batchUpdate" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index"  separator=";">
+            UPDATE `collection_bag_exception_report`
+            <set>
+                <if test="item.packageCode != null and item.packageCode != ''">
+                package_code = #{item.packageCode},
+                </if>
+                <if test="item.orgCode != null and item.orgCode != ''">
+                    org_code = #{item.orgCode},
+                </if>
+                <if test="item.orgName != null and item.orgName != ''">
+                org_name = #{item.orgName},
+                </if>
+                <if test="item.siteCode != null">
+                site_code = #{item.siteCode},
+                </if>
+                <if test="item.siteName != null">
+                    site_name = #{item.siteName},
+                </if>
+                <if test="item.upstreamBoxCode != null and item.upstreamBoxCode != ''">
+                upstream_box_code = #{item.upstreamBoxCode},
+                </if>
+                <if test="item.boxStartId != null">
+                box_start_id = #{item.boxStartId},
+                </if>
+                <if test="item.boxEndId != null">
+                box_end_id = #{item.boxEndId},
+                </if>
+                <if test="item.weight != null">
+                weight = #{item.weight},
+                </if>
+                <if test="item.length != null">
+                length = #{item.length},
+                </if>
+                <if test="item.width != null">
+                width = #{item.width},
+                </if>
+                <if test="item.height != null">
+                height = #{item.height},
+                </if>
+                <if test="item.reportType != null">
+                report_type = #{item.reportType},
+                </if>
+                <if test="item.operatorErp != null and item.operatorErp != ''">
+                operator_erp = #{item.operatorErp},
+                </if>
+                <if test="item.operatorName != null and item.operatorName != ''">
+                operator_name = #{item.operatorName},
+                </if>
+                <if test="item.operateTime != null">
+                operate_time = #{item.operateTime},
+                </if>
+                <if test="item.reportImg != null and item.reportImg != ''">
+                report_img = #{item.reportImg},
+                </if>
+                <if test="item.createTime != null">
+                create_time = #{item.createTime},
+                </if>
+                <if test="item.updateTime != null">
+                update_time = #{item.updateTime},
+                </if>
+                <if test="item.createUserErp != null and item.createUserErp != ''">
+                create_user_erp = #{item.createUserErp},
+                </if>
+                <if test="item.updateUserErp != null and item.updateUserErp != ''">
+                update_user_erp = #{item.updateUserErp},
+                </if>
+                <if test="item.createUserName != null and item.createUserName != ''">
+                create_user_name = #{item.createUserName},
+                </if>
+                <if test="item.updateUserName != null and item.updateUserName != ''">
+                update_user_name = #{item.updateUserName},
+                </if>
+                <if test="item.yn != null">
+                yn = #{item.yn},
+                </if>
+                <if test="item.ts != null">
+                ts = #{item.ts}
+                </if>
+            </set>
+            WHERE
+                id = #{item.id}
+        </foreach>
+    </update>
+    <!-- 按主键查询 -->
+    <select id="selectByPrimaryKey" resultMap="RM_CollectionBagExceptionReport" parameterType="com.jd.bluedragon.distribution.bagException.domain.CollectionBagExceptionReport">
+        SELECT
+        <include refid="Base_Column_List"/>
+        <![CDATA[
+            FROM `collection_bag_exception_report`
+            WHERE
+                id = #{id} 
+        ]]>
+    </select>
+    <!-- 按表中的XXX列查询集合 -->
+    <select id="selectByColumn" resultMap="RM_CollectionBagExceptionReport" parameterType="com.jd.bluedragon.distribution.bagException.request.CollectionBagExceptionReportQuery">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `collection_bag_exception_report`
+        <where>
+            <include refid="whereByColumnValueMap"/>
+        </where>
+    </select>
+    <!-- 按条件查询单条记录 -->
+    <select id="selectOne" resultMap="RM_CollectionBagExceptionReport" parameterType="com.jd.bluedragon.distribution.bagException.request.CollectionBagExceptionReportQuery">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `collection_bag_exception_report`
+        <include refid="where"/>
+    </select>
+    <!-- where条件 -->
+    <sql id="where">
+        <where>
+            <include refid="sql_if_not_null"/>
+            <include refid="whereByColumnValueMap"/>
+        </where>
+    </sql>
+    <!-- 判断空值 -->
+    <sql id="sql_if_not_null">
+        <if test="id != null">
+        AND id = #{id}
+        </if>
+        <if test="packageCode != null and packageCode != ''">
+        AND package_code = #{packageCode}
+        </if>
+        <if test="orgCode != null and orgCode != ''">
+        AND org_code = #{orgCode}
+        </if>
+        <if test="siteCode != null">
+        AND site_code = #{siteCode}
+        </if>
+        <if test="upstreamBoxCode != null and upstreamBoxCode != ''">
+        AND upstream_box_code = #{upstreamBoxCode}
+        </if>
+        <if test="boxStartId != null">
+        AND box_start_id = #{boxStartId}
+        </if>
+        <if test="boxEndId != null">
+        AND box_end_id = #{boxEndId}
+        </if>
+        <if test="reportType != null">
+        AND report_type = #{reportType}
+        </if>
+        <if test="createTime != null">
+        AND create_time = #{createTime}
+        </if>
+        <if test="createTimeFrom != null">
+            AND create_time >= #{createTimeFrom}
+        </if>
+        <if test="createTimeTo != null">
+            AND create_time &lt; #{createTimeTo}
+        </if>
+        <if test="createUserErp != null and createUserErp != ''">
+        AND create_user_erp = #{createUserErp}
+        </if>
+        <if test="createUserName != null and createUserName != ''">
+        AND create_user_name = #{createUserName}
+        </if>
+        <if test="yn != null">
+        AND yn = #{yn}
+        </if>
+    </sql>
+    <!-- 按字段值参数查询条件 -->
+    <sql id="whereByColumnValueMap">
+        <if test="columnValueMap != null">
+            <foreach collection="columnValueMap.entrySet()" item="itemList" index="field">
+                AND #{field}
+                <if test="itemList.size() == 1 ">
+                    = <foreach collection="itemList" item="item" index="index" separator=",">#{item}</foreach>
+                </if>
+                <if test="itemList.size() > 1 ">
+                    in (
+                    <foreach collection="itemList" item="item" index="index" separator=",">
+                        #{item}
+                    </foreach>
+                    )
+                </if>
+            </foreach>
+        </if>
+    </sql>
+    <!-- 查询行数 -->
+    <select id="queryCount" resultType="long" parameterType="com.jd.bluedragon.distribution.bagException.request.CollectionBagExceptionReportQuery">
+        SELECT count(1) FROM `collection_bag_exception_report`
+        <include refid="where"/>
+    </select>
+    <!-- 查询集合 如果pageNumber小于或等于0,则不进行分页操作 -->
+    <select id="queryList" resultMap="RM_CollectionBagExceptionReport" parameterType="com.jd.bluedragon.distribution.bagException.request.CollectionBagExceptionReportQuery">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM `collection_bag_exception_report`
+        <include refid="where"/>
+        order by id desc
+        <if test="pageNumber > 0">
+            limit #{offset}, #{limit}
+        </if>
+    </select>
+    <!-- 伪删除（更新删除行的识别码） -->
+    <update id="deleteByPrimaryKey" parameterType="com.jd.bluedragon.distribution.bagException.domain.CollectionBagExceptionReport">
+        UPDATE `collection_bag_exception_report` SET yn = 1
+        WHERE
+        id = #{id} 
+    </update>
+    <!-- 批量伪删除 -->
+    <update id="batchDelete" parameterType="com.jd.bluedragon.distribution.bagException.request.CollectionBagExceptionReportQuery">
+        UPDATE `collection_bag_exception_report` SET yn = 1
+        WHERE id IN
+        <foreach collection="columnValueList" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+</mapper>
+

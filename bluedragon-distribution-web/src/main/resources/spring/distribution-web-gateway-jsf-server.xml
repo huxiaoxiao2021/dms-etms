@@ -305,4 +305,13 @@
                   server="dmsjsf">
     </jsf:provider>
 
+    <!-- 集包异常举报，给pda用 -->
+    <bean id="collectionBagExceptionReportGatewayService" class="com.jd.bluedragon.distribution.external.gateway.box.CollectionBagExceptionReportServiceImpl" />
+    <jsf:provider id="jsfCollectionBagExceptionReportService"
+                  interface="com.jd.bluedragon.external.gateway.box.CollectionBagExceptionReportGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="collectionBagExceptionReportGatewayService"
+                  server="dmsjsf">
+    </jsf:provider>
+
 </beans>
