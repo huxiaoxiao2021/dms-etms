@@ -260,5 +260,10 @@
     <jmq:consumer id="jmq.waybillSiteTrackConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.otherSystem.exception.waybillSiteTrack}" listener="waybillSiteTrackConsumer"/>
     </jmq:consumer>
+
+    <!--  众邮箱号回传重量处理消息  -->
+    <jmq:consumer id="jmq.thirdBoxWeightConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.third.box.weight.deal}" listener="ThirdBoxWeightConsumer"/>
+    </jmq:consumer>
 </beans>
 

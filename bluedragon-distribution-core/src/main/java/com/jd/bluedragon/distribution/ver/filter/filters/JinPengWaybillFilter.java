@@ -55,7 +55,7 @@ public class JinPengWaybillFilter implements Filter {
                     String waybillSign = request.getWaybillCache().getWaybillSign();
                     boolean result = storagePackageMService.checkWaybillCanSend(waybillCode,waybillSign);
                     //判断运单是否发货
-                    if(Boolean.FALSE.equals(result)){
+                    if(! result){
                         throw new SortingCheckException(SortingResponse.CODE_29310, SortingResponse.MESSAGE_29310);
                     }
                 }

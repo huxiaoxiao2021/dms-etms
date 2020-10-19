@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
 import com.jd.bluedragon.common.dto.base.response.ResponseCodeConstants;
+import com.jd.bluedragon.common.dto.send.request.BoardCodeSendRequest;
 import com.jd.bluedragon.common.dto.send.request.ColdChainSendRequest;
 import com.jd.bluedragon.common.dto.send.request.DeliveryRequest;
 import com.jd.bluedragon.common.dto.send.request.DeliveryVerifyRequest;
@@ -25,9 +26,11 @@ import com.jd.bluedragon.distribution.coldchain.domain.TransPlanDetailResult;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.rest.send.ColdChainDeliveryResource;
 import com.jd.bluedragon.distribution.rest.send.DeliveryResource;
+import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.distribution.send.domain.SendThreeDetail;
 import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
+import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.service.DeliveryVerifyService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.external.gateway.service.SendGatewayService;
@@ -65,6 +68,10 @@ public class SendGatewayServiceImpl implements SendGatewayService {
     @Autowired
     @Qualifier("coldChainDeliveryResource")
     private ColdChainDeliveryResource coldChainDeliveryResource;
+
+    @Autowired
+    @Qualifier("deliveryService")
+    private DeliveryService deliveryService;
 
     @Override
     @JProfiler(jKey = "DMSWEB.SendGatewayServiceImpl.packageSendVerifyForBox",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -118,7 +125,7 @@ public class SendGatewayServiceImpl implements SendGatewayService {
         }
 
         if(Objects.equals(sendResult.getKey(),SendResult.CODE_CONFIRM)){
-            if(sendResult.getInterceptCode() == ResponseCodeConstants.JdVerifyResponseMsgBox.SEND_WRONG_SITE.getCode()){
+            if(sendResult.getInterceptCode()!= null && sendResult.getInterceptCode().intValue()== ResponseCodeConstants.JdVerifyResponseMsgBox.SEND_WRONG_SITE.getCode()){
                 JdVerifyResponse.MsgBox msgBox = new JdVerifyResponse.MsgBox();
                 msgBox.setType(MsgBoxTypeEnum.CONFIRM);
                 msgBox.setCode(sendResult.getKey());
@@ -514,6 +521,52 @@ public class SendGatewayServiceImpl implements SendGatewayService {
 
     }
 
+    @Override
+    @JProfiler(jKey = "DMSWEB.SendGatewayServiceImpl.boardCodeSend",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdVerifyResponse<Void> boardCodeSend(BoardCodeSendRequest request){
+        JdVerifyResponse<Void> res=new JdVerifyResponse<>();
+        res.toSuccess();
+
+        JdCResponse<Boolean> ltemcheck=parameterCheckBoardCodeSend(request);
+        if (!JdCResponse.CODE_SUCCESS.equals(ltemcheck.getCode())){
+            res.setCode(JdVerifyResponse.CODE_ERROR);
+            res.setMessage(ltemcheck.getMessage());
+            return res;
+        }
+
+        if(StringUtils.isBlank(request.getSendCode())){
+            request.setSendCode(SerialRuleUtil.generateSendCode(request.getCurrentOperate().getSiteCode(), request.getReceiveSiteCode(), new Date()));
+        }
+
+        SendM domain = new SendM();
+        domain.setReceiveSiteCode(request.getReceiveSiteCode());
+        domain.setSendCode(request.getSendCode());
+        domain.setBoardCode(request.getBoardCode());
+        domain.setCreateSiteCode(request.getCurrentOperate().getSiteCode());
+        domain.setCreateUser(request.getUser().getUserName());
+        domain.setCreateUserCode(request.getUser().getUserCode());
+        domain.setSendType(request.getBusinessType());
+
+        domain.setYn(1);
+        domain.setCreateTime(new Date(System.currentTimeMillis()));
+        domain.setOperateTime(new Date(System.currentTimeMillis()));
+
+        SendResult rs=deliveryService.boardSend(domain,request.getForceSend());
+        if(SendResult.CODE_OK.equals(rs.getKey())){
+            res.toSuccess(rs.getValue());
+        }else if(SendResult.CODE_SENDED.equals(rs.getKey())){
+            res.toSuccess(rs.getValue());
+            res.addBox(MsgBoxTypeEnum.INTERCEPT,300,rs.getValue());
+        }else if(SendResult.CODE_CONFIRM.equals(rs.getKey())){
+            res.toSuccess(rs.getValue());
+            res.addBox(MsgBoxTypeEnum.CONFIRM,300,rs.getValue());
+        }else {
+            res.toFail(rs.getValue());
+        }
+
+        return res;
+    }
+
     /**
      * 参数校验
      * @param request
@@ -573,6 +626,39 @@ public class SendGatewayServiceImpl implements SendGatewayService {
         }
         if(StringUtils.isBlank(request.getBoxCode())){
             res.toFail("货物号不能为空");
+            return res;
+        }
+        if (null==request.getCurrentOperate().getOperateTime()){
+            res.toFail("操作时间不能为空");
+            return res;
+        }
+        if(request.getReceiveSiteCode() == null && StringUtils.isBlank(request.getSendCode())){
+            res.toFail("请输入批次号或目的地站点ID");
+            return res;
+        }
+
+        return res;
+    }
+
+    /**
+     * 快运发货按板号发货参数校验
+     * @param request
+     * @return
+     */
+    private JdCResponse<Boolean> parameterCheckBoardCodeSend(BoardCodeSendRequest request){
+        JdCResponse<Boolean> res=new JdCResponse<>();
+        res.toSucceed();
+
+        if (request == null) {
+            res.toFail("入参不能为空");
+            return res;
+        }
+        if (request.getUser().getUserCode()<=0 || StringUtils.isBlank(request.getUser().getUserName()) || request.getCurrentOperate().getSiteCode()<=0 || StringUtils.isBlank(request.getCurrentOperate().getSiteName())){
+            res.toFail("操作人信息或场地信息缺失，请重新登录分拣系统");
+            return res;
+        }
+        if(StringUtils.isBlank(request.getBoardCode())){
+            res.toFail("板号不能为空");
             return res;
         }
         if (null==request.getCurrentOperate().getOperateTime()){

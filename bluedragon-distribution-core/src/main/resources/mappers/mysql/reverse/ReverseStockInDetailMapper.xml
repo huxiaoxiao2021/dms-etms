@@ -290,4 +290,33 @@
 		</if>
 
 	</update>
+
+	<select id="findByParam" parameterType="com.jd.bluedragon.distribution.reverse.domain.ReverseStockInDetail" resultMap="ReverseStockInDetail">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		reverse_stock_in_detail
+		where is_delete = 0
+
+		and waybill_code = #{waybillCode,jdbcType=VARCHAR}
+
+		<if test="packageCode != null">
+			and package_code = #{packageCode,jdbcType=VARCHAR}
+		</if>
+		<if test="externalCode != null">
+			and external_code = #{externalCode,jdbcType=VARCHAR}
+		</if>
+		<if test="sendCode != null">
+			and send_code = #{sendCode,jdbcType=VARCHAR}
+		</if>
+		<if test="busiType != null">
+			and busi_type = #{busiType,jdbcType=TINYINT}
+		</if>
+		<if test="createSiteCode != null">
+			and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		</if>
+		<if test="status != null">
+			and status = #{status,jdbcType=TINYINT}
+		</if>
+	</select>
 </mapper>

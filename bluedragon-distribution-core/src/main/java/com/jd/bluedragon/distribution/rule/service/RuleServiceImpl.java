@@ -64,4 +64,12 @@ public class RuleServiceImpl implements RuleService {
         param.put("ts", System.currentTimeMillis());
         return ruleDao.addRuleByReferSite(param);
     }
+
+    @Override
+    public Rule get(Integer siteCode, String type) {
+        Map<String, Object> param = new HashMap<String, Object>();
+        param.put("siteCode", siteCode);
+        param.put("type", type);
+        return ruleDao.get(param);
+    }
 }

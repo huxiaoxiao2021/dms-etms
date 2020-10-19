@@ -451,6 +451,18 @@ public class BasePrintWaybill implements Serializable {
 	 * 京准达标识-尊
 	 */
 	private String respectTypeText;
+	/**
+	 * 代收货款:codMoney
+	 */
+	private String codMoneyText;
+	/**
+	 * 运费合计：totalCharge
+	 */
+	private String totalChargeText;
+	/**
+	 * 产品标识
+	 */
+	private String transportModeFlag;
 	
 	public String getServiceCode() {
 		return serviceCode;
@@ -1651,5 +1663,23 @@ public class BasePrintWaybill implements Serializable {
 	}
 	public void setRespectTypeText(String respectTypeText) {
 		this.respectTypeText = respectTypeText;
+	}
+	public String getCodMoneyText() {
+		return codMoneyText;
+	}
+	public void setCodMoneyText(String codMoneyText) {
+		this.codMoneyText = codMoneyText;
+	}
+	public String getTotalChargeText() {
+		return totalChargeText;
+	}
+	public void setTotalChargeText(String totalChargeText) {
+		this.totalChargeText = totalChargeText;
+	}
+	public String getTransportModeFlag() {
+		return transportModeFlag;
+	}
+	public void setTransportModeFlag(String transportModeFlag) {
+		this.transportModeFlag = transportModeFlag;
 	}
 }

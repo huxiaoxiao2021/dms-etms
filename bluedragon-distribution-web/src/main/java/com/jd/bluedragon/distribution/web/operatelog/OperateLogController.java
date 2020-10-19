@@ -8,9 +8,12 @@ import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.ObjectMapHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.dms.logger.aop.BusinessLogWriter;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.uim.annotation.Authorization;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.annotation.Resource;
+
 import java.util.Map;
 
 @Controller
@@ -43,6 +47,7 @@ public class OperateLogController {
 
 	@Authorization("DMS-WEB-QUERY-OPERATE-LOG1")
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
+    @JProfiler(jKey = "DMSWEB.OperateLogController.queryOperateLog", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = JProEnum.TP)
 	public String queryOperateLog(OperationLog operationLog, Pager<OperationLog> pager, Model model) {
 		Map<String, Object> params = ObjectMapHelper.makeObject2Map(operationLog);
 
@@ -80,12 +85,14 @@ public class OperateLogController {
 
 	@Authorization("DMS-WEB-QUERY-OPERATE-LOG1")
 	@RequestMapping(value = "/goListPage1", method = RequestMethod.GET)
+    @JProfiler(jKey = "DMSWEB.OperateLogController.goListPage1", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = JProEnum.TP)
 	public String goListpage1(Model model) {
 		return "operateLog/operatelog1";
 	}
 
 	@Authorization("DMS-WEB-QUERY-OPERATE-LOG1")
 	@RequestMapping(value = "/list1", method = RequestMethod.GET)
+    @JProfiler(jKey = "DMSWEB.OperateLogController.queryOperateLog1", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = JProEnum.TP)
 	public String queryOperateLog1(OperationLog operationLog, Pager<OperationLog> pager, Model model) {
 		try {
 			Map<String, Object> params = ObjectMapHelper.makeObject2Map(operationLog);
@@ -128,6 +135,7 @@ public class OperateLogController {
 
 	@Authorization(Constants.DMS_WEB_SORTING_OPERATELOG_R)
 	@RequestMapping(value = "/goListPage2", method = RequestMethod.GET)
+    @JProfiler(jKey = "DMSWEB.OperateLogController.goListPage2", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = JProEnum.TP)
 	public String goListpage2(Model model) {
 
 		ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
@@ -146,16 +154,12 @@ public class OperateLogController {
 
     @Authorization(Constants.DMS_WEB_SORTING_OPERATELOG_R)
 	@RequestMapping(value = "/list2", method = RequestMethod.GET)
+    @JProfiler(jKey = "DMSWEB.OperateLogController.list2", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = JProEnum.TP)
 	public String queryOperateLog2(OperationLog operationLog, Pager<OperationLog> pager, Model model) {
 		try {
-
-			if (operationLog.getWaybillCode() == null && operationLog.getPickupCode() == null
-					&& operationLog.getPackageCode() == null && operationLog.getBoxCode() == null) {
-				return "operateLog/operatelog2";
-			}
-			
-			if (operationLog.getWaybillCode().equals("") && operationLog.getPickupCode().equals("")
-					&& operationLog.getPackageCode().equals("") && operationLog.getBoxCode().equals("")) {
+			//参数全部为空
+			if (StringHelper.isEmpty(operationLog.getWaybillCode())&& StringHelper.isEmpty(operationLog.getPickupCode())
+					&& StringHelper.isEmpty(operationLog.getPackageCode()) && StringHelper.isEmpty(operationLog.getBoxCode())) {
 				return "operateLog/operatelog2";
 			}
 			String code = operationLog.getWaybillCode();

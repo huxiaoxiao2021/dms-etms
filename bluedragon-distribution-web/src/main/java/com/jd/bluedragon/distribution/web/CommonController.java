@@ -2,11 +2,13 @@ package com.jd.bluedragon.distribution.web;
 
 import com.google.common.reflect.TypeToken;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.uim.annotation.Authorization;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -109,5 +111,17 @@ public class CommonController {
             }
         }
         return data;
+    }
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
+    @RequestMapping("/getClickInterval")
+    @JProfiler(jKey = "com.jd.bluedragon.distribution.web.CommonController.getClickInterval", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+    public @ResponseBody JdResponse<Integer> getClickInterval() {
+        JdResponse<Integer> response = new JdResponse<>();
+        response.toSucceed();
+        response.setData(uccPropertyConfiguration.getClickIntervalSecond());
+        return response;
     }
 }

@@ -12,4 +12,6 @@ public interface WaybillCacheService {
 
     WaybillCache getFromCache(String waybillCode);
 
+    String getRouterByWaybillCode(String waybillCode);
+
 }

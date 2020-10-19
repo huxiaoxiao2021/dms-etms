@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.systemLog.service.impl;
 
 import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.systemLog.dao.SystemLogDao;
@@ -8,6 +9,8 @@ import com.jd.bluedragon.distribution.systemLog.dao.SystemlogCassandra;
 import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.distribution.systemLog.service.SystemLogService;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
 
@@ -45,12 +49,20 @@ public class SystemLogServiceImpl implements SystemLogService {
 	
 	@Autowired
 	private BaseService baseService;
+
+    @Resource
+    private UccPropertyConfiguration uccPropertyConfiguration;
 	
 	//cassandra开关
 	public static final String CASSANDRA_SWITCH = "CASSANDRA_SWITCH";
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int add(SystemLog systemLog) {
+
+	    if (uccPropertyConfiguration.isSystemLogGlobalSwitch()) {
+	        return 0;
+        }
+
 		if(StringUtils.isBlank(systemLog.getContent())){
 			systemLog.setContent("content 为空!");
 		}

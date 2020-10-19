@@ -611,6 +611,11 @@
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
 
+    <!-- 功能开关配置表 -->
+    <bean id="funcSwitchConfigDao" class="com.jd.bluedragon.distribution.funcSwitchConfig.dao.FuncSwitchConfigDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
     <!--  businessCode 业务单号表  -->
     <bean id="businessCodeDao" class="com.jd.bluedragon.distribution.businessCode.dao.BusinessCodeDao">
         <property name="sqlSession" ref="sessionTemplate"/>
@@ -646,6 +651,11 @@
     <!--################################## 总部waybill库 相关DAO Start ############################################ -->
 
     <bean id="waybillCacheDao" class="com.jd.bluedragon.distribution.waybill.dao.WaybillCacheDao">
+        <property name="sqlSession" ref = "sessionTemplate_waybill"/>
+    </bean>
+
+    <!-- 包裹重量体积流水 -->
+    <bean id="packageWeightingDao" class="com.jd.bluedragon.distribution.packageWeighting.dao.PackageWeightingDao">
         <property name="sqlSession" ref = "sessionTemplate_waybill"/>
     </bean>
     <!--################################## bd_dms_business 相关DAO End ############################################ -->

@@ -257,6 +257,12 @@
         <jmq:listener topic="${jmq.topic.weightAndVolumeCheck.handle}" listener="weightAndVolumeCheckHandleConsumer"/>
     </jmq:consumer>
 
+    <!--  众邮箱号回传重量处理消息  -->
+    <jmq:consumer id="jmq.thirdBoxWeightConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.third.box.weight.deal}" listener="ThirdBoxWeightConsumer"/>
+    </jmq:consumer>
+
+
     <!-- 来自异常系统的可换单消息 -->
     <jmq:consumer id="jmq.waybillSiteTrackConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.otherSystem.exception.waybillSiteTrack}" listener="waybillSiteTrackConsumer"/>

@@ -18,15 +18,20 @@ import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.bluedragon.distribution.test.utils.UtilsForTestCase;
 import com.jd.bluedragon.distribution.testCore.base.EntityUtil;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.ql.dms.common.cache.CacheService;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.concurrent.TimeUnit;
 
@@ -76,7 +81,8 @@ public class WaybillCommonServiceImplTestCase {
     private WaybillPrintService waybillPrintService;
     @Mock
     private WaybillPickupTaskApi waybillPickupTaskApi;
-
+    @Mock
+    private WaybillService waybillService;
     @Mock
     HideInfoService hideInfoService;
 
@@ -100,8 +106,6 @@ public class WaybillCommonServiceImplTestCase {
 	 */
     @Test
     public void testPrintH() throws Exception{
-        when(jimdbCacheService.get(anyString())).thenReturn("true");
-        when(jimdbCacheService.setEx(anyString(),anyString(),anyLong(), TimeUnit.SECONDS));
     	WaybillPrintContext context = EntityUtil.getInstance(WaybillPrintContext.class);
 		String[] sendPays = {
 				null,
@@ -181,12 +185,10 @@ public class WaybillCommonServiceImplTestCase {
     public void testTransportTypeText() throws Exception{
     	WaybillPrintContext context = EntityUtil.getInstance(WaybillPrintContext.class);
 		String[] waybillSigns = {
-				UtilsForTestCase.getSignString(500,84,'1'),
 				UtilsForTestCase.getSignString(500,84,'2'),
 				};
 		String[] transportTypeTexts ={
-				"陆",
-				"高",
+				"铁",
 				};
 		for(int i=0 ; i < waybillSigns.length; i++ ){
 				System.err.println(waybillSigns[i]);
@@ -205,5 +207,98 @@ public class WaybillCommonServiceImplTestCase {
     @Test
     public void testisStorageWaybill(){
         waybillCommonServiceImpl.isStorageWaybill("1111");
+    }
+	/**
+	 * B网打印运单标识BcSign
+	 * @throws Exception
+	 */
+    @Test
+    public void testSetFreightAndGoodsPayment() throws Exception{
+    	WaybillPrintContext context = EntityUtil.getInstance(WaybillPrintContext.class);
+		String[] codMoneys = {
+				null,
+				"1.00",
+				"15.01",
+				"15.01",
+				"1.00",
+				};
+		Double[] topayTotalReceivables ={
+				2.01111111,
+				2.01111111,
+				2.0111111,
+				null,
+				1.0
+				};
+		String[] checkResults1 = {
+				"",
+				"代收货款：1.00￥",
+				"代收货款：15.01￥",
+				"代收货款：15.01￥",
+				"代收货款：1.00￥"
+			};
+		String[] checkResults2 = {
+				"运费合计：2.01￥",
+				"运费合计：1.01￥",
+				"",
+				"",				
+				""
+		};
+		for(int i=0 ; i < codMoneys.length; i++ ){
+				System.err.println(codMoneys[i]);
+				context.setBasePrintWaybill(context.getResponse());
+				context.getBigWaybillDto().getWaybill().setCodMoney(codMoneys[i]);
+				context.getBigWaybillDto().getWaybill().setTopayTotalReceivable(topayTotalReceivables[i]);
+				context.getBasePrintWaybill().setCodMoneyText(null);
+				context.getBasePrintWaybill().setTotalChargeText(null);
+				
+				waybillCommonServiceImpl.setBasePrintInfoByWaybill(context.getBasePrintWaybill(), context.getBigWaybillDto().getWaybill());
+				//codMoneyText验证
+				Assert.assertEquals(checkResults1[i],context.getBasePrintWaybill().getCodMoneyText());
+				//totalChargeText验证
+				Assert.assertEquals(checkResults2[i],context.getBasePrintWaybill().getTotalChargeText());
+			}
+    }
+	/**
+	 * 打印显示预
+	 * @throws Exception
+	 */
+    @Test
+    public void testPreSell() throws Exception{
+    	WaybillPrintContext context = EntityUtil.getInstance(WaybillPrintContext.class);
+		String[] sendPays = {
+				null,
+				"",
+				"000",
+				UtilsForTestCase.getSignString(500,297,'1'),
+				UtilsForTestCase.getSignString(500,297,'2'),
+				UtilsForTestCase.getSignString(500,297,'3'),
+				UtilsForTestCase.getSignString(500,297,'4'),};
+		boolean[] sendPayChecks ={
+				false,
+				false,
+				false,
+				true,
+				true,
+				false,
+				false,};
+		for(int i=0 ; i < sendPays.length; i++ ){
+				System.err.println(sendPays[i]);
+				context.setBasePrintWaybill(context.getResponse());
+				context.getBigWaybillDto().getWaybill().setSendPay(sendPays[i]);
+				context.getBasePrintWaybill().setBcSign(null);
+				
+				//预期验证结果
+				boolean checkResult = sendPayChecks[i];
+				
+				//工具类业务方法校验
+				boolean utilsCheck = BusinessUtil.isPreSell(sendPays[i]);
+				Assert.assertEquals(utilsCheck,checkResult);
+				
+				waybillCommonServiceImpl.setBasePrintInfoByWaybill(context.getBasePrintWaybill(), context.getBigWaybillDto().getWaybill());
+				//打标‘预’验证
+				boolean hasFlag = (context.getBasePrintWaybill().getBcSign() != null 
+						&& context.getBasePrintWaybill().getBcSign().equals("预"));
+				Assert.assertEquals(hasFlag,checkResult);
+		}
     }
 }
