@@ -421,7 +421,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
      * @param req 板号入参
      * @param response 返回
      */
-    private JdCResponse<Void> saveLoadScanByBoardCode(GoodsLoadingScanningReq req, JdCResponse<Void> response) {
+    private JdCResponse<Void> saveLoadScanByBoardCode(GoodsLoadingScanningReq req, JdCResponse<Void> response, LoadCar loadCar) {
 
         Long taskId = req.getTaskId();
         String packageCode = req.getPackageCode();
@@ -431,7 +431,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         Integer flowDisAccord = req.getFlowDisaccord();
 
         // 根据包裹号查板号 todo 网点信息是指当前还是下一网点
-        Board board = getBoardCodeByPackageCode(null, packageCode);
+        Board board = getBoardCodeByPackageCode(loadCar.getEndSiteCode().intValue(), packageCode);
         if (board == null) {
             log.error("根据包裹号没有找到对应的板号！taskId={},packageCode={}", taskId, packageCode);
             response.setCode(JdCResponse.CODE_FAIL);
@@ -447,6 +447,9 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
             response.setMessage("根据板号没有找到对应的包裹列表");
             return response;
         }
+
+        // 扫描第一个包裹时，修改任务状态为已开始
+        updateTaskStatus(loadCar);
 
         // 循环处理板上的每一个包裹
         GoodsLoadScanRecord record = new GoodsLoadScanRecord();
@@ -555,7 +558,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
      * @param req 包裹号入参
      * @param response 返回
      */
-    private JdCResponse<Void> checkInspectAndSave(GoodsLoadingScanningReq req, JdCResponse<Void> response) {
+    private JdCResponse<Void> checkInspectAndSave(GoodsLoadingScanningReq req, JdCResponse<Void> response, LoadCar loadCar) {
 
         Long taskId = req.getTaskId();
         String packageCode = req.getPackageCode();
@@ -607,6 +610,9 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         // 校验通过，暂存
         Integer goodsAmount = loadScanDto.getGoodsAmount();
 
+        // 扫描第一个包裹时，修改任务状态为已开始
+        updateTaskStatus(loadCar);
+
         return saveLoadScanByPackCode(taskId, waybillCode, packageCode, goodsAmount, transfer, flowDisAccord);
     }
 
@@ -615,7 +621,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
      * @param loadCar 任务
      */
     private void updateTaskStatus(LoadCar loadCar) {
-        // 扫描第一个包裹时，将任务状态改为已开始 todo
+        // 扫描第一个包裹时，将任务状态改为已开始
         List<String> waybillCodeList = goodsLoadScanDao.findWaybillCodesByTaskId(loadCar.getId());
         if (waybillCodeList.isEmpty()) {
             loadCar.setStatus(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN);
@@ -869,11 +875,11 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         // 如果没有勾选【包裹号转板号】
         if (transfer == null || transfer != 1) {
             // 校验是否已验货,并暂存包裹号
-            return checkInspectAndSave(req, response);
+            return checkInspectAndSave(req, response, loadCar);
         }
 
         // 勾选【包裹号转板号】
-        return saveLoadScanByBoardCode(req, response);
+        return saveLoadScanByBoardCode(req, response, loadCar);
     }
 
     private GoodsDetailDto createGoodsDetailDto(String waybillCode, Integer packageAmount, Integer goodsAmount,
