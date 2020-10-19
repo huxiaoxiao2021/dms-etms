@@ -17,7 +17,7 @@ public class GoodsExceptionScanningReq {
 //    当前操作人
     private String operator;
 //    当前操作人编码
-    private String operatorCode;
+    private Integer operatorCode;
 
     public Long getTaskId() {
         return taskId;
@@ -51,11 +51,11 @@ public class GoodsExceptionScanningReq {
         this.operator = operator;
     }
 
-    public String getOperatorCode() {
+    public Integer getOperatorCode() {
         return operatorCode;
     }
 
-    public void setOperatorCode(String operatorCode) {
+    public void setOperatorCode(Integer operatorCode) {
         this.operatorCode = operatorCode;
     }
 }

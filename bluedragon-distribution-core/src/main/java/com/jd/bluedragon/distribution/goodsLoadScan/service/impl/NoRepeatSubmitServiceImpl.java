@@ -53,6 +53,7 @@ public class NoRepeatSubmitServiceImpl implements NoRepeatSubmitService {
         /**
          * execute lua script
          */
+        //todo jimdbCacheService
         Object result = jimClient.evalsha(sha,keysList,argsList,false);
 
         log.info("execute result is:{}", JSON.toJSONString(result));

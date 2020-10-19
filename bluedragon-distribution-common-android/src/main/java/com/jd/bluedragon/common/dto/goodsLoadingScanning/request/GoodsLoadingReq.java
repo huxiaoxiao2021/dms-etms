@@ -14,16 +14,6 @@ public class GoodsLoadingReq {
     private Long taskId;
 
     /**
-     * 操作人
-     */
-    private String createUser;
-
-    /**
-     * 操作人编码
-     */
-    private String createUserCode;
-
-    /**
      * 发货单位编码
      */
     private Integer createSiteCode;
@@ -41,7 +31,7 @@ public class GoodsLoadingReq {
     //    当前操作人
     private String operator;
     //    当前操作人编码
-    private String operatorCode;
+    private Integer operatorCode;
 
     public Long getTaskId() {
         return taskId;
@@ -49,22 +39,6 @@ public class GoodsLoadingReq {
 
     public void setTaskId(Long taskId) {
         this.taskId = taskId;
-    }
-
-    public String getCreateUser() {
-        return createUser;
-    }
-
-    public void setCreateUser(String createUser) {
-        this.createUser = createUser;
-    }
-
-    public String getCreateUserCode() {
-        return createUserCode;
-    }
-
-    public void setCreateUserCode(String createUserCode) {
-        this.createUserCode = createUserCode;
     }
 
     public Integer getCreateSiteCode() {
@@ -99,11 +73,11 @@ public class GoodsLoadingReq {
         this.operator = operator;
     }
 
-    public String getOperatorCode() {
+    public Integer getOperatorCode() {
         return operatorCode;
     }
 
-    public void setOperatorCode(String operatorCode) {
+    public void setOperatorCode(Integer operatorCode) {
         this.operatorCode = operatorCode;
     }
 }
