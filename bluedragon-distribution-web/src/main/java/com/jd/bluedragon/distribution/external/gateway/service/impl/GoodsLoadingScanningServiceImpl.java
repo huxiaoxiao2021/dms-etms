@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsExceptionScanningReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingScanningReq;
@@ -375,39 +377,45 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
     }
 
     @Override
-    public JdCResponse<Map<String, Object>> checkCode(GoodsLoadingScanningReq req) {
+    public JdVerifyResponse<Void> checkBatchCode(GoodsLoadingScanningReq req) {
 
-        JdCResponse<Map<String, Object>> response = new JdCResponse<>();
+        JdVerifyResponse<Void> response = new JdVerifyResponse<>();
+
+        if (StringUtils.isBlank(req.getBatchCode())) {
+            response.setCode(JdVerifyResponse.CODE_FAIL);
+            response.setMessage("参数校验错误，请检查批次号是否填写");
+            return response;
+        }
 
         // 如果批次号不为空，校验批次号
-        if (StringUtils.isNotBlank(req.getBatchCode())) {
-            return checkBatchCode(req, response);
+       return checkBatchCode(req, response);
+    }
+
+    @Override
+    public JdVerifyResponse<Void> checkPackageCode(GoodsLoadingScanningReq req) {
+
+        JdVerifyResponse<Void> response = new JdVerifyResponse<>();
+
+        if (StringUtils.isBlank(req.getPackageCode())) {
+            response.setCode(JdVerifyResponse.CODE_FAIL);
+            response.setMessage("参数校验错误，请检查包裹号是否填写");
+            return response;
         }
 
-        // 如果是包裹号
-        if (StringUtils.isNotBlank(req.getPackageCode())) {
-            // 如果没勾选【包裹号转板号】
-            if (req.getTransfer() == null || req.getTransfer() != 1) {
-                // 校验包裹号
-                return checkPackageCode(req, response);
-            }
-            // 如果勾选【包裹号转板号】
-            // 校验板号
-            return checkBoardCode(req, response);
+        // 如果没勾选【包裹号转板号】
+        if (req.getTransfer() == null || req.getTransfer() != 1) {
+            // 校验包裹号
+            return checkPackageCode(req, response);
         }
-
-        // 其他情况就是参数错误
-        response.setCode(JdCResponse.CODE_FAIL);
-        response.setMessage("参数校验错误，请检查必填参数是否填写");
-
-        return response;
+        // 如果勾选【包裹号转板号】
+        // 校验板号
+        return checkBoardCode(req, response);
     }
 
     /**
      *校验板号
      */
-    private JdCResponse<Map<String, Object>> checkBoardCode(GoodsLoadingScanningReq req,
-                                                            JdCResponse<Map<String, Object>> response) {
+    private JdVerifyResponse<Void> checkBoardCode(GoodsLoadingScanningReq req, JdVerifyResponse<Void> response) {
 
         Long taskId = req.getTaskId();
         String packageCode = req.getPackageCode();
@@ -438,13 +446,10 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
             log.warn("错发！请核实！板号与批次目的地不一致，请确认是否继续发货！taskId={},packageCode={},boardCode={},taskSite={}, boardSite={}",
                     taskId, packageCode, boardCode, loadCar.getEndSiteCode(), board.getDestinationId());
             response.setCode(JdCResponse.CODE_CONFIRM);
-            response.setMessage("错发！请核实！板号与批次目的地不一致，请确认是否继续发货！");
-            // todo msgbox
-            resultMap = new HashMap<>();
-            // todo 去掉
-            resultMap.put("flowDisaccord", 1);
-            response.setData(resultMap);
-            // todo jdvc
+            JdVerifyResponse.MsgBox msgBox = new JdVerifyResponse.MsgBox();
+            msgBox.setMsg("错发！请核实！板号与批次目的地不一致，请确认是否继续发货！");
+            msgBox.setType(MsgBoxTypeEnum.CONFIRM);
+            response.addBox(msgBox);
             return response;
         }
 
@@ -544,7 +549,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
     /**
      *校验包裹号
      */
-    private JdCResponse<Map<String, Object>> checkPackageCode(GoodsLoadingScanningReq req, JdCResponse<Map<String, Object>> response) {
+    private JdVerifyResponse<Void> checkPackageCode(GoodsLoadingScanningReq req, JdVerifyResponse<Void> response) {
 
         Long taskId = req.getTaskId();
         String packageCode = req.getPackageCode();
@@ -585,14 +590,11 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         if (loadCar.getEndSiteCode().intValue() != loadScanDto.getNextSiteId()) {
             log.warn("包裹下一动态路由节点与批次号下一场站不一致taskId={},packageCode={},waybillCode={},packageNextSite={},taskEndSite={}",
                     taskId, packageCode, waybillCode, loadScanDto.getNextSiteId(), loadCar.getEndSiteCode());
-            response.setCode(JdCResponse.CODE_FAIL);
-            // todo msgbox
-            response.setMessage("错发！请核实！此包裹流向与发货流向不一致，请确认是否继续发货！");
-            resultMap = new HashMap<>();
-            // todo 去掉这个返回
-            resultMap.put("flowDisaccord", 1);
-            response.setData(resultMap);
-            // todo jdvc
+            response.setCode(JdCResponse.CODE_CONFIRM);
+            JdVerifyResponse.MsgBox msgBox = new JdVerifyResponse.MsgBox();
+            msgBox.setMsg("错发！请核实！此包裹流向与发货流向不一致，请确认是否继续发货！");
+            msgBox.setType(MsgBoxTypeEnum.CONFIRM);
+            response.addBox(msgBox);
             return response;
         }
 
@@ -685,7 +687,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
     /**
      * 校验批次号并绑定任务
      */
-    private JdCResponse<Map<String, Object>> checkBatchCode(GoodsLoadingScanningReq req, JdCResponse<Map<String, Object>> response) {
+    private JdVerifyResponse<Void> checkBatchCode(GoodsLoadingScanningReq req, JdVerifyResponse<Void> response) {
 
         Long taskId = req.getTaskId();
         String batchCode = req.getBatchCode();

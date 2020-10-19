@@ -1,6 +1,7 @@
 package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsExceptionScanningReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingScanningReq;
@@ -57,9 +58,14 @@ public interface GoodsLoadingScanningService {
     JdCResponse<List<GoodsDetailDto>> goodsLoadingScan(GoodsLoadingScanningReq req);
 
     /**
-     * 批次号/板号/包裹号校验接口--发货校验
+     * 校验批次号接口--发货校验
      */
-    JdCResponse<Map<String, Object>> checkCode(GoodsLoadingScanningReq req);
+    JdVerifyResponse<Void> checkBatchCode(GoodsLoadingScanningReq req);
+
+    /**
+     * 校验板号/包裹号接口--发货校验
+     */
+    JdVerifyResponse<Void> checkPackageCode(GoodsLoadingScanningReq req);
 
     /**
      * 包裹暂存接口
