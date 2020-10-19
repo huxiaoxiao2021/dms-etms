@@ -42,6 +42,16 @@ public class LoadCarHelper extends DbEntity {
      */
     private Integer yn;
 
+    /**
+     * 创建人所属转运中心Id
+     */
+    private Long createSiteCode;
+
+    /**
+     * 创建人所属转运中心名称
+     */
+    private String createSiteName;
+
 
     public LoadCarHelper() {
     }
@@ -92,5 +102,21 @@ public class LoadCarHelper extends DbEntity {
 
     public void setYn(Integer yn) {
         this.yn = yn;
+    }
+
+    public Long getCreateSiteCode() {
+        return createSiteCode;
+    }
+
+    public void setCreateSiteCode(Long createSiteCode) {
+        this.createSiteCode = createSiteCode;
+    }
+
+    public String getCreateSiteName() {
+        return createSiteName;
+    }
+
+    public void setCreateSiteName(String createSiteName) {
+        this.createSiteName = createSiteName;
     }
 }

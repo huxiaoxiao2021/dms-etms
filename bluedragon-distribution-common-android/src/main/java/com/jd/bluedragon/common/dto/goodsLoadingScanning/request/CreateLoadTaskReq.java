@@ -35,6 +35,16 @@ public class CreateLoadTaskReq implements Serializable {
      */
     private List<HelperDto> assistorInfo;
 
+    /**
+     * 创建人所属转运中心Id
+     */
+    private Long createSiteCode;
+
+    /**
+     * 创建人所属转运中心名称
+     */
+    private String createSiteName;
+
     public CreateLoadTaskReq() {
     }
 
@@ -68,5 +78,21 @@ public class CreateLoadTaskReq implements Serializable {
 
     public void setAssistorInfo(List<HelperDto> assistorInfo) {
         this.assistorInfo = assistorInfo;
+    }
+
+    public Long getCreateSiteCode() {
+        return createSiteCode;
+    }
+
+    public void setCreateSiteCode(Long createSiteCode) {
+        this.createSiteCode = createSiteCode;
+    }
+
+    public String getCreateSiteName() {
+        return createSiteName;
+    }
+
+    public void setCreateSiteName(String createSiteName) {
+        this.createSiteName = createSiteName;
     }
 }

@@ -85,16 +85,18 @@
 
     <insert id="batchInsert" parameterType="List">
         insert into load_car_helper (
-        task_id, helper_name, helper_erp, create_time, update_time, create_user_erp, create_user_name, yn
+        task_id, helper_name, helper_erp, create_time, update_time, create_user_erp, create_user_name, create_site_code, create_site_name, yn
         )
         values
         <foreach collection="list" item="item" index="index" separator=",">
             ( #{taskId,jdbcType=INTEGER},
             #{helperName,jdbcType=VARCHAR},
             #{helperErp,jdbcType=VARCHAR},
-            #{createTime,jdbcType=TIMESTAMP},
-            #{updateTime,jdbcType=TIMESTAMP},
+            NOW(),
+            NOW(),
             #{createUserErp,jdbcType=VARCHAR},
+            #{createUserName,jdbcType=VARCHAR},
+            #{createSiteCode,jdbcType=BIGINT},
             #{createUserName,jdbcType=VARCHAR},
             1 )
         </foreach>
@@ -105,6 +107,12 @@
         select task_id from load_car_helper
         where   b.create_user_erp= #{loginUserErp,jdbcType=VARCHAR}  or  b.helper_erp= #{loginUserErp,jdbcType=VARCHAR}  and yn=1
     </select>
+
+    <update id="deleteById" parameterType="java.lang.Long" >
+        update load_car_helper
+			set yn = 0
+		where id = #{taskId,jdbcType=BIGINT}
+    </update>
 
 
 </mapper>

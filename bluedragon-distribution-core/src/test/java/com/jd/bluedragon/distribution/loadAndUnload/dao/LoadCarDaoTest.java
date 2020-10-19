@@ -38,8 +38,8 @@ public class LoadCarDaoTest extends AbstractDaoIntegrationH2Test {
         loadCar.setLicenseNumber("京A00001");
         loadCar.setCreateUserErp("zhangsan1");
         loadCar.setCreateUserName("张三");
-        loadCar.setCurrentSiteCode(910L);
-        loadCar.setCurrentSiteName("北京马驹桥分拣中心");
+        loadCar.setCreateSiteCode(910L);
+        loadCar.setCreateSiteName("北京马驹桥分拣中心");
         loadCarDao.insert(loadCar);
     }
 

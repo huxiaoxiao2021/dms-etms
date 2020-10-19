@@ -25,11 +25,11 @@ public class LoadCarDao extends BaseDao<LoadCar> {
     /**
      * 根据创建人身份erp查看关联的任务
      *
-     * @param loginUserErp
+     * @param list
      * @return
      */
-    public List<LoadTaskListDto> queryByErp(String loginUserErp) {
-        return this.getSqlSession().selectList(namespace + ".queryByErp", loginUserErp);
+    public List<LoadTaskListDto> selectByIds(List<Long> list) {
+        return this.getSqlSession().selectList(namespace + ".queryByErp", list);
     }
 
     public int deleteById(LoadDeleteReq req){
@@ -44,5 +44,7 @@ public class LoadCarDao extends BaseDao<LoadCar> {
     public boolean updateLoadCarById(LoadCar loadCar) {
         return this.getSqlSession().update(namespace + ".updateByPrimaryKey", loadCar) > 0;
     }
+
+
 
 }
