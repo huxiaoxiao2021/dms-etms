@@ -316,8 +316,6 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
         if(CollectionUtils.isEmpty(dataList)){
             return;
         }
-        //调用分拣机开关置为开启的List
-        List<Integer> siteCodesOnList = null;
         //调用分拣机开关置为关闭的List
         List<Integer> siteCodesOffList = null;
         try {
@@ -334,19 +332,11 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
                 //封装调用分拣机站点集合
                 if(dto.getMenuCode()==FuncSwitchConfigEnum.FUNCTION_ALL_MAIL.getCode()){
                     if(dto.getDimensionCode()==DimensionEnum.SITE.getCode()){
-                        if(CollectionUtils.isEmpty(siteCodesOnList)){
-                            siteCodesOnList =   new ArrayList<>();
-                        }else if(CollectionUtils.isEmpty(siteCodesOffList)){
+                        if(CollectionUtils.isEmpty(siteCodesOffList)){
                             siteCodesOffList = new ArrayList<>();
                         }
-
-                        if(dto.getYn()== YnEnum.YN_ON.getCode()){
-                            // 调用不拦截
-                            siteCodesOffList.add(dto.getSiteCode());
-                        }else {
-                            //调用拦截接口
-                            siteCodesOnList.add(dto.getSiteCode());
-                        }
+                        //调用不拦截
+                       siteCodesOffList.add(dto.getSiteCode());
                     }else if(dto.getDimensionCode()==DimensionEnum.NATIONAL.getCode()){
                         logger.error("批量导入不支持全国数据,请手动添加");
                         throw  new Exception("批量导入不支持全国数据,请手动添加");
@@ -355,9 +345,6 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
             }
 
             //批量调用分拣机接口
-            if(!CollectionUtils.isEmpty(siteCodesOnList)){
-                importExcelToSiteWeightSwitch(siteCodesOnList,WeightValidateSwitchEnum.ON);
-            }
             if(!CollectionUtils.isEmpty(siteCodesOffList)){
                 importExcelToSiteWeightSwitch(siteCodesOffList,WeightValidateSwitchEnum.OFF);
             }
