@@ -136,8 +136,8 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
                         record.setId(goodsRecordList.get(k).getId());
                         record.setForceStatus(GoodsLoadScanConstants.GOODS_LOAD_SCAN_FORCE_STATUS_Y);//强发
                         record.setUpdateTime(new Date());
-                        record.setUpdateUserName(req.getOperator());
-                        record.setUpdateUserCode(req.getOperatorCode());
+                        record.setUpdateUserName(req.getUser().getUserName());
+                        record.setUpdateUserCode(req.getUser().getUserCode());
                         log.info("ExceptionScanServiceImpl#goodsCompulsoryDeliver 强发包裹状态记录--begin--参数【"+ JsonHelper.toJson(record) + "】");
                         goodsLoadScanRecordDao.updateGoodsScanRecordById(record);
                         log.info("ExceptionScanServiceImpl#goodsCompulsoryDeliver 强发包裹状态记录--end--参数【"+ JsonHelper.toJson(record) + "】");
@@ -146,8 +146,8 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
 
                 gls.setForceAmount(gls.getLoadAmount());
                 gls.setUpdateTime(new Date());
-                gls.setUpdateUserName(req.getOperator());
-                gls.setUpdateUserCode(req.getOperatorCode());
+                gls.setUpdateUserName(req.getUser().getUserName());
+                gls.setUpdateUserCode(req.getUser().getUserCode());
                 gls.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_ORANGE);
                 log.info("ExceptionScanServiceImpl#goodsCompulsoryDeliver 强发运单状态记录--begin--参数【"+ JsonHelper.toJson(gls) + "】");
                 boolean res = goodsLoadScanDao.updateByPrimaryKey(gls);

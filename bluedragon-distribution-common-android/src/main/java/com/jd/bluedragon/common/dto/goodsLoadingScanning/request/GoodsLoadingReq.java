@@ -1,5 +1,8 @@
 package com.jd.bluedragon.common.dto.goodsLoadingScanning.request;
 
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.User;
+
 import java.util.Date;
 
 /**
@@ -28,10 +31,15 @@ public class GoodsLoadingReq {
      */
     private Integer receiveSiteCode;
 
-    //    当前操作人
-    private String operator;
-    //    当前操作人编码
-    private Integer operatorCode;
+    /**
+     * 当前分拣中心
+     */
+    private CurrentOperate currentOperate;
+
+    /**
+     * 当前用户信息
+     */
+    private User user;
 
     public Long getTaskId() {
         return taskId;
@@ -65,19 +73,20 @@ public class GoodsLoadingReq {
         this.receiveSiteCode = receiveSiteCode;
     }
 
-    public String getOperator() {
-        return operator;
+    public CurrentOperate getCurrentOperate() {
+        return currentOperate;
     }
 
-    public void setOperator(String operator) {
-        this.operator = operator;
+    public void setCurrentOperate(CurrentOperate currentOperate) {
+        this.currentOperate = currentOperate;
     }
 
-    public Integer getOperatorCode() {
-        return operatorCode;
+    public User getUser() {
+        return user;
     }
 
-    public void setOperatorCode(Integer operatorCode) {
-        this.operatorCode = operatorCode;
+    public void setUser(User user) {
+        this.user = user;
     }
+
 }

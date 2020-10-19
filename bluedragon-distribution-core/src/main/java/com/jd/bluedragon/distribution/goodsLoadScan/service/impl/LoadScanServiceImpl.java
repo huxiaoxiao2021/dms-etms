@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingReq;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
+import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanService;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarDao;
@@ -11,9 +12,11 @@ import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.ql.dms.common.cache.CacheService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.Date;
 
@@ -26,6 +29,10 @@ public class LoadScanServiceImpl implements LoadScanService {
     @Autowired
     private LoadCarDao loadCarDao;
 
+    @Autowired
+    @Qualifier("jimdbCacheService")
+    private CacheService jimdbCacheService;
+
     @Override
     public JdCResponse goodsLoadingDeliver(GoodsLoadingReq req) {
         JdCResponse response = new JdCResponse();
@@ -35,8 +42,8 @@ public class LoadScanServiceImpl implements LoadScanService {
         domain.setReceiveSiteCode(req.getReceiveSiteCode());
         domain.setCreateSiteCode(req.getCreateSiteCode());
         domain.setSendCode(req.getSendCode());
-        domain.setCreateUser(req.getOperator());
-        domain.setCreateUserCode(req.getOperatorCode());
+        domain.setCreateUser(req.getUser().getUserName());
+        domain.setCreateUserCode(req.getUser().getUserCode());
         domain.setSendType(Constants.BUSSINESS_TYPE_POSITIVE);
         domain.setYn(GoodsLoadScanConstants.YN_Y);
         domain.setCreateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
@@ -71,5 +78,23 @@ public class LoadScanServiceImpl implements LoadScanService {
         return null;
     }
 
+    @Override
+    public GoodsLoadScan queryByWaybillCodeAndTaskId(String waybillCode, Long taskId) {
+        String key = taskId + "_" + waybillCode;
+        return jimdbCacheService.get(key, GoodsLoadScan.class);
+    }
+
+    @Override
+    public boolean updateGoodsLoadScanAmount(GoodsLoadScan param) {
+        /*
+        加锁
+        查缓存
+        更改已装 未装数量（缓存中库存-已装）
+        缓存记录变更
+        库中数据变更
+         */
+
+                return false;
+    }
 
 }

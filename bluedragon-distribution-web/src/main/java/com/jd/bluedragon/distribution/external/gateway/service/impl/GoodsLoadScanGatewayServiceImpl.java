@@ -112,13 +112,19 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             return response;
         }
 
-//        if(req.getWaybillCode() == null || req.getWaybillCode().size() == 0 ){
-//            response.toFail("运单号不能为空");
-//            return response;
-//        }
 
         if(StringUtils.isBlank(req.getPackageCode())){
             response.toFail("包裹号不能为空");
+            return response;
+        }
+
+        if(req.getUser() == null) {
+            response.toFail("当前操作用户信息不能为空");
+            return response;
+        }
+
+        if(req.getCurrentOperate() == null) {
+            response.toFail("当前分拣中心信息不能为空");
             return response;
         }
 
@@ -133,24 +139,8 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             return response;
         }
 
-//        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-//        log.info("GoodsLoadingScanningServiceImpl#goodsRemoveScanning 取消发货当前操作人【" + JsonHelper.toJson(erpUser) + "】");
-//
-//        if (erpUser != null) {
-//            exceptionScanDto.setOperator(erpUser.getUserName());
-//            exceptionScanDto.setOperatorCode(erpUser.getUserCode());
-//        }
-
-        if(req.getOperator() == null) {
-            response.toFail("当前操作人不能为空");
-            return response;
-        }
-
-        if(req.getOperatorCode() == null) {
-            response.toFail("当前操作人编码不能为空");
-            return response;
-        }
-
+        exceptionScanDto.setOperator(req.getUser().getUserName());
+        exceptionScanDto.setOperatorCode(req.getUser().getUserCode());
         log.info("GoodsLoadingScanningServiceImpl#goodsRemoveScanning- 取消发货更改不齐异常数据，参数【" + JsonHelper.toJson(exceptionScanDto) + "】");
         boolean removeRes =  exceptionScanService.removeGoodsScan(exceptionScanDto);
 
@@ -183,20 +173,13 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             return response;
         }
 
-//        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-//        log.info("GoodsLoadingScanningServiceImpl#goodsCompulsoryDeliver 强发当前操作人【" + JsonHelper.toJson(erpUser) + "】");
-//        if (erpUser != null) {
-//            req.setOperator(erpUser.getUserName());
-//            req.setOperatorCode(erpUser.getUserCode());
-//        }
-
-        if(req.getOperator() == null) {
-            response.toFail("当前操作人不能为空");
+        if(req.getUser() == null) {
+            response.toFail("当前操作用户信息不能为空");
             return response;
         }
 
-        if(req.getOperatorCode() == null) {
-            response.toFail("当前操作人编码不能为空");
+        if(req.getCurrentOperate() == null) {
+            response.toFail("当前分拣中心信息不能为空");
             return response;
         }
 
@@ -220,6 +203,16 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
 
         if(req.getTaskId() == null) {
             response.toFail("任务号不能为空");
+            return response;
+        }
+
+        if(req.getUser() == null) {
+            response.toFail("当前操作用户信息不能为空");
+            return response;
+        }
+
+        if(req.getCurrentOperate() == null) {
+            response.toFail("当前分拣中心信息不能为空");
             return response;
         }
 
@@ -275,27 +268,16 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             return response;
         }
 
-//        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-//        log.info("GoodsLoadingScanningServiceImpl#goodsLoadingDeliver 装车发货当前操作人【" + JsonHelper.toJson(erpUser) + "】");
-//        if (erpUser != null) {
-//            req.setOperator(erpUser.getUserName());
-//            req.setOperatorCode(erpUser.getUserCode());
-//        }
-        if(req.getOperator() == null) {
-            response.toFail("当前操作人不能为空");
+        if(req.getUser() == null) {
+            response.toFail("当前操作用户信息不能为空");
             return response;
         }
 
-        if(req.getOperatorCode() == null) {
-            response.toFail("当前操作人编码不能为空");
+        if(req.getCurrentOperate() == null) {
+            response.toFail("当前分拣中心信息不能为空");
             return response;
         }
-        /**
-         * undo
-         * 增加一个方法，发货前校验是否有不齐异常数据
-         * 逻辑：
-         *  根据任务号查询运单暂存表， 查询该任务对应运单List中 运单颜色状态为 3黄色多扫,4红色不齐
-         */
+
         if(exceptionScanService.checkException(req.getTaskId())) {
             response.toFail("本次装车存在不齐运单，请点击不齐异常处理操作");
             return response;
