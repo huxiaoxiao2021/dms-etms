@@ -2021,7 +2021,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
             boolean isPackageCode=WaybillUtil.isPackageCode(tSendM.getBoxCode());
             boolean isWaybillCode=WaybillUtil.isWaybillCode(tSendM.getBoxCode());
-            boolean isSurfaceCode=WaybillUtil.isSurfaceCode(tSendM.getBoxCode();
+            boolean isSurfaceCode=WaybillUtil.isSurfaceCode(tSendM.getBoxCode());
             boolean isBoxcode=BusinessHelper.isBoxcode(tSendM.getBoxCode());
             boolean isBoardCode=BusinessUtil.isBoardCode(tSendM.getBoxCode());
 
