@@ -13,7 +13,6 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCarHelper;
-import com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarDao;
 import com.jd.bluedragon.distribution.loadAndUnload.service.LoadCarHelperService;
 import com.jd.bluedragon.distribution.loadAndUnload.service.LoadService;
 import com.jd.bluedragon.external.gateway.service.LoadCarTaskService;
@@ -146,7 +145,7 @@ public class LoadCarTaskServiceImpl implements LoadCarTaskService {
             jdCResponse.setMessage("车牌号不能为空");
             return jdCResponse;
         }
-        if (licenseNumber.trim().length() == 9) {
+        if (licenseNumber.length() == 9) {
             licenseNumber = transferLicenseNumber(licenseNumber);
         }
         jdCResponse.setData(licenseNumber);
@@ -201,6 +200,25 @@ public class LoadCarTaskServiceImpl implements LoadCarTaskService {
             jdCResponse.setMessage("装车任务信息不完整,请检查必填信息！");
             return jdCResponse;
         }
+        List<Long> taskIds = loadCarHelperService.selectTasksByErp(req.getCreateUserErp());
+        Date now = new Date();
+        //库中如果存在
+        if (CollectionUtils.isNotEmpty(taskIds)) {
+            List<LoadTaskListDto> taskList = loadService.selectByIds(taskIds);
+            if (CollectionUtils.isNotEmpty(taskList)) {
+                for (LoadTaskListDto loadTaskListDto : taskList) {
+                    //判断是否有3天还没结束的任务,有的话直接删除任务
+                    if (daysDiff(now, loadTaskListDto.getUpdateTime()) >= 3) {
+                        loadCarHelperService.deleteById(loadTaskListDto.getId());
+                        LoadDeleteReq loadDeleteReq = new LoadDeleteReq();
+                        loadDeleteReq.setOperateUserErp(req.getCreateUserErp());
+                        loadDeleteReq.setOperateUserName(req.getCreateUserName());
+                        loadDeleteReq.setId(loadTaskListDto.getId());
+                        loadService.deleteById(loadDeleteReq);
+                    }
+                }
+            }
+        }
         LoadCar loadCar = new LoadCar();
         BeanUtils.copyProperties(req, loadCar);
         loadCar.setCreateTime(new Date());
@@ -211,6 +229,7 @@ public class LoadCarTaskServiceImpl implements LoadCarTaskService {
             jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
             jdCResponse.setMessage(JdCResponse.MESSAGE_SUCCESS);
             jdCResponse.setData((long) id);
+            return jdCResponse;
         }
         jdCResponse.setCode(JdCResponse.CODE_ERROR);
         jdCResponse.setMessage("操作失败,请稍后重试！");
@@ -243,4 +262,21 @@ public class LoadCarTaskServiceImpl implements LoadCarTaskService {
         jdCResponse.setData(helperDto);
         return jdCResponse;
     }
+
+
+    /**
+     * 两个日期天数差
+     *
+     * @param startDate
+     * @param endDate
+     * @return
+     */
+    public int daysDiff(Date startDate, Date endDate) {
+        if (startDate == null || endDate == null) {
+            return 0;
+        }
+        int days = (int) ((endDate.getTime() - startDate.getTime()) / (24 * 3600 * 1000));
+        return days;
+    }
+
 }

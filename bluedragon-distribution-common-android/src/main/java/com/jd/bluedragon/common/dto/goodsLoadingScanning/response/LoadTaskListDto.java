@@ -1,6 +1,7 @@
 package com.jd.bluedragon.common.dto.goodsLoadingScanning.response;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * @program: bluedragon-distribution
@@ -33,6 +34,11 @@ public class LoadTaskListDto implements Serializable {
     private Long id;
 
     private Long endSiteCode;
+
+    /**
+     * 操作时间
+     */
+    private Date updateTime;
 
     public LoadTaskListDto() {
     }
@@ -75,5 +81,13 @@ public class LoadTaskListDto implements Serializable {
 
     public void setEndSiteCode(Long endSiteCode) {
         this.endSiteCode = endSiteCode;
+    }
+
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
     }
 }

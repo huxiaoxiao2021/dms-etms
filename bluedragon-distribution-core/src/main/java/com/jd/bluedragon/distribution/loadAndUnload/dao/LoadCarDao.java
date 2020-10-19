@@ -29,7 +29,7 @@ public class LoadCarDao extends BaseDao<LoadCar> {
      * @return
      */
     public List<LoadTaskListDto> selectByIds(List<Long> list) {
-        return this.getSqlSession().selectList(namespace + ".queryByErp", list);
+        return this.getSqlSession().selectList(namespace + ".selectByIds", list);
     }
 
     public int deleteById(LoadDeleteReq req){
@@ -44,7 +44,5 @@ public class LoadCarDao extends BaseDao<LoadCar> {
     public boolean updateLoadCarById(LoadCar loadCar) {
         return this.getSqlSession().update(namespace + ".updateByPrimaryKey", loadCar) > 0;
     }
-
-
 
 }
