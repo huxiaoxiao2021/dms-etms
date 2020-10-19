@@ -39,6 +39,7 @@ public class Constants {
     public static final String PUNCTUATION_CLOSE_BRACKET_SMALL = ")";
     public static final String OPERATE_SUCCESS = "1";
     public static final String OPERATE_FAIL = "0";
+    public static final String UNDERLINE_FILL = "_";
     public static final String EMPTY_FILL = "";
     public static final String MIXED_SITE_NAME_PREFIX = "【集】";
 
@@ -678,6 +679,7 @@ public class Constants {
     public static final String DMS_WEB_TOOL_B2BWEIGHT_R ="DMS-WEB-TOOL-B2BWEIGHT-R"; //快运运单称重
     public static final String DMS_WEB_TOOL_DMSOPERATEHINT_R="DMS-WEB-TOOL-DMSOPERATEHINT-R";//PDA验货提示语
     public static final String DMS_WEB_TOOL_BOXLMIT_R="DMS-WEB-TOOL-BOXLMIT-R";//PDA建箱包裹数上限限制
+    public static final String DMS_WEB_TOOL_INTERCEPT_CONFIG_R="DMS-WEB-TOOL-FUNC-SWITCH-CONFIG-R";//分拣功能开关配置
     public static final String DMS_WEB_TOOL_RECYCLEMATERIAL_R="DMS-WEB-TOOL-RECYCLEMATERIAL-R";//循环物资管理
     public static final String DMS_WEB_ISV_CONTROL_R ="DMS-WEB-ISV-CONTROL-R"; //ISV版本控制
     public static final String DMS_WEB_ISV_MANAGE_R ="DMS-WEB-ISV-MANAGE-R"; //ISV版本管理
@@ -1130,6 +1132,8 @@ public class Constants {
      * businessType缓存前缀
      * */
     public static final String BUSINESS_TYPE_PREFIX = "BUSINESS-TYPE";
+
+    public static final String THIRD_ENET_BOX_WAYBILL_PREFIX = "THIRD_ENET_BOX_WAYBILL";
 
     /**
      * 运单路由字段使用的分隔符
