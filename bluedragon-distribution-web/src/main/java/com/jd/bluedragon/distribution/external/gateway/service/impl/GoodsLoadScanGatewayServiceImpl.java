@@ -121,12 +121,17 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
         if(req.getUser() == null) {
             response.toFail("当前操作用户信息不能为空");
             return response;
+        }else {
+            if(req.getUser().getUserName() == null) {
+                response.toFail("当前操作用户名称不能为空");
+                return response;
+            }
         }
 
-        if(req.getCurrentOperate() == null) {
-            response.toFail("当前分拣中心信息不能为空");
-            return response;
-        }
+//        if(req.getCurrentOperate() == null) {
+//            response.toFail("当前分拣中心信息不能为空");
+//            return response;
+//        }
 
         GoodsLoadScanRecord record = new GoodsLoadScanRecord();
         record.setTaskId(req.getTaskId());
@@ -176,12 +181,17 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
         if(req.getUser() == null) {
             response.toFail("当前操作用户信息不能为空");
             return response;
+        }else {
+            if(req.getUser().getUserName() == null) {
+                response.toFail("当前操作用户名称不能为空");
+                return response;
+            }
         }
 
-        if(req.getCurrentOperate() == null) {
-            response.toFail("当前分拣中心信息不能为空");
-            return response;
-        }
+//        if(req.getCurrentOperate() == null) {
+//            response.toFail("当前分拣中心信息不能为空");
+//            return response;
+//        }
 
         log.info("GoodsLoadingScanningServiceImpl#goodsCompulsoryDeliver-强制下发--begin:入参【" + JsonHelper.toJson(req) + "】");
         boolean res = exceptionScanService.goodsCompulsoryDeliver(req);
@@ -209,12 +219,17 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
         if(req.getUser() == null) {
             response.toFail("当前操作用户信息不能为空");
             return response;
+        }else {
+            if(req.getUser().getUserName() == null) {
+                response.toFail("当前操作用户名称不能为空");
+                return response;
+            }
         }
 
-        if(req.getCurrentOperate() == null) {
-            response.toFail("当前分拣中心信息不能为空");
-            return response;
-        }
+//        if(req.getCurrentOperate() == null) {
+//            response.toFail("当前分拣中心信息不能为空");
+//            return response;
+//        }
 
         List<GoodsExceptionScanningDto> list = exceptionScanService.findAllExceptionGoodsScan(req.getTaskId());
         if(list == null || list.size() <= 0) {
@@ -253,11 +268,6 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             return response;
         }
 
-        if(req.getCreateSiteCode() == null) {
-            response.toFail("发货单位编码不能为空");
-            return response;
-        }
-
         if(req.getSendCode() == null) {
             response.toFail("发货批次号不能为空");
             return response;
@@ -271,11 +281,21 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
         if(req.getUser() == null) {
             response.toFail("当前操作用户信息不能为空");
             return response;
+        }else {
+            if(req.getUser().getUserName() == null) {
+                response.toFail("当前操作用户名称不能为空");
+                return response;
+            }
         }
 
         if(req.getCurrentOperate() == null) {
             response.toFail("当前分拣中心信息不能为空");
             return response;
+        }else {
+            if(req.getCurrentOperate().getSiteName() == null) {
+                response.toFail("发货单位名称不能为空");
+                return response;
+            }
         }
 
         if(exceptionScanService.checkException(req.getTaskId())) {
