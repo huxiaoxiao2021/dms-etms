@@ -70,7 +70,7 @@ public class LoadCarTaskServiceImpl implements LoadCarTaskService {
         }
         List<HelperDto> helperList = req.getAssistorInfo();
         LoadCarHelper loadCarHelper = new LoadCarHelper();
-        List<LoadCarHelper> list = new ArrayList<>(helperList.size());
+        List<LoadCarHelper> list = Lists.newArrayListWithExpectedSize(helperList.size());
         loadCarHelper.setTaskId(req.getId());
         loadCarHelper.setCreateTime(new Date());
         loadCarHelper.setCreateTime(new Date());
@@ -170,6 +170,13 @@ public class LoadCarTaskServiceImpl implements LoadCarTaskService {
             jdCResponse.setMessage("当前登录人信息为空！");
             return jdCResponse;
         }
+        List<Long>taskIds=loadCarHelperDao.selectTasksByErp(req.getLoginUserErp());
+
+
+
+
+
+
         List<LoadTaskListDto> taskList = loadCarDao.queryByErp(req.getLoginUserErp());
         jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
         jdCResponse.setMessage(JdCResponse.MESSAGE_SUCCESS);

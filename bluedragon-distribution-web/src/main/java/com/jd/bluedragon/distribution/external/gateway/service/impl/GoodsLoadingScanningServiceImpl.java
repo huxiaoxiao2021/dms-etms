@@ -277,7 +277,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         List<GoodsLoadScan> tempList = goodsLoadScanDao.findLoadScanByTaskId(taskId);
         // 从分拣报表中根据当前网点和下一网点查询最新的已验未发的运单记录
         com.jd.ql.dms.report.domain.BaseEntity<List<LoadScanDetailDto>> detailList
-                = loadScanPackageDetailService.findLoadScanPackageDetail(loadCar.getCurrentSiteCode().intValue(),
+                = loadScanPackageDetailService.findLoadScanPackageDetail(loadCar.getCreateSiteCode().intValue(),
                 loadCar.getEndSiteCode().intValue());
 
         List<GoodsDetailDto> goodsDetailDtoList;
@@ -286,7 +286,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
             // 分拣报表查询返回为空
             if (reportList.isEmpty()) {
                 log.error("根据任务ID所在的当前网点和下一网点去分拣报表没有找到相应的运单记录，taskId={},currentSiteCode={},endSiteCode={}",
-                        taskId, loadCar.getCurrentSiteCode(), loadCar.getEndSiteCode());
+                        taskId, loadCar.getCreateSiteCode(), loadCar.getEndSiteCode());
                 response.setCode(JdCResponse.CODE_FAIL);
                 response.setMessage("根据任务ID没有找到相应的运单记录");
                 return response;
