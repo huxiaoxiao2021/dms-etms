@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsExceptionScanningReq;
@@ -307,7 +308,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         List<GoodsLoadScan> tempList = goodsLoadScanDao.findLoadScanByTaskId(taskId);
         // 从分拣报表中根据当前网点和下一网点查询最新的已验未发的运单记录
         com.jd.ql.dms.report.domain.BaseEntity<List<LoadScanDetailDto>> detailList
-                = loadScanPackageDetailService.findLoadScanPackageDetail(loadCar.getCurrentSiteCode().intValue(),
+                = loadScanPackageDetailService.findLoadScanPackageDetail(loadCar.getCreateSiteCode().intValue(),
                 loadCar.getEndSiteCode().intValue());
 
         List<GoodsDetailDto> goodsDetailDtoList;
@@ -316,7 +317,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
             // 分拣报表查询返回为空
             if (reportList.isEmpty()) {
                 log.error("根据任务ID所在的当前网点和下一网点去分拣报表没有找到相应的运单记录，taskId={},currentSiteCode={},endSiteCode={}",
-                        taskId, loadCar.getCurrentSiteCode(), loadCar.getEndSiteCode());
+                        taskId, loadCar.getCreateSiteCode(), loadCar.getEndSiteCode());
                 response.setCode(JdCResponse.CODE_FAIL);
                 response.setMessage("根据任务ID没有找到相应的运单记录");
                 return response;
@@ -364,14 +365,14 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
 
         // 没有数据的情况
         log.error("根据任务ID所在的当前网点和下一网点没有找到相应的运单记录，taskId={},currentSiteCode={},endSiteCode={}",
-                taskId, loadCar.getCurrentSiteCode(), loadCar.getEndSiteCode());
+                taskId, loadCar.getCreateSiteCode(), loadCar.getEndSiteCode());
         response.setMessage("根据任务ID没有找到对应的数据");
         response.setCode(JdCResponse.CODE_FAIL);
         return response;
     }
 
     @Override
-    public JdCResponse<Map<String, Object>> checkByBatchCodeOrBoardCodeOrPackageCode(GoodsLoadingScanningReq req) {
+    public JdCResponse<Map<String, Object>> checkCode(GoodsLoadingScanningReq req) {
 
         JdCResponse<Map<String, Object>> response = new JdCResponse<>();
 
@@ -417,7 +418,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
             response.setMessage("根据任务号找不到对应的装车任务");
             return response;
         }
-        // 根据包裹号查板号 todo 网点信息是指当前还是下一网点
+        // 根据包裹号查板号 todo 网点信息是指当前还是下一网点   当前网点
         Board board = getBoardCodeByPackageCode(loadCar.getEndSiteCode().intValue(), packageCode);
         if (board == null) {
             log.error("根据包裹号没有找到对应的板号！taskId={},packageCode={}", taskId, packageCode);
@@ -435,9 +436,12 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
                     taskId, packageCode, boardCode, loadCar.getEndSiteCode(), board.getDestinationId());
             response.setCode(JdCResponse.CODE_CONFIRM);
             response.setMessage("错发！请核实！板号与批次目的地不一致，请确认是否继续发货！");
+            // todo msgbox
             resultMap = new HashMap<>();
+            // todo 去掉
             resultMap.put("flowDisaccord", 1);
             response.setData(resultMap);
+            // todo jdvc
             return response;
         }
 
@@ -459,6 +463,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         Integer transfer = req.getTransfer();
         // 多扫标识
         Integer flowDisAccord = req.getFlowDisaccord();
+        User user = req.getUser();
 
         // 根据包裹号查板号 todo 网点信息是指当前还是下一网点
         Board board = getBoardCodeByPackageCode(loadCar.getEndSiteCode().intValue(), packageCode);
@@ -496,6 +501,9 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
             record.setScanAction(GoodsLoadScanConstants.GOODS_SCAN_LOAD);
             record.setYn(Constants.YN_YES);
             // 根据任务号、运单号、包裹号查找扫描记录
+            // todo 根据板号判断
+            // todo redis缓存
+            // todo 取消扫描 删除缓存
             GoodsLoadScanRecord loadScanRecord = goodsLoadScanRecordDao
                     .findLoadScanRecordByTaskIdAndWaybillCodeAndPackCode(record);
             if (loadScanRecord != null) {
@@ -503,23 +511,24 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
                 continue;
             }
             // 根据包裹号和运单号去分拣报表查找已验未发对应的记录
+            // todo 批量   处理完再批量查
             LoadScanDto loadScanDto = getLoadScanByWaybillCodeAndPackageCode(waybillCode, packCode);
             if (loadScanDto != null) {
                 // 保存扫描记录
                 GoodsLoadScanRecord goodsLoadScanRecord = createGoodsLoadScanRecord(taskId, waybillCode, packCode,
-                        boardCode, transfer, flowDisAccord);
+                        boardCode, transfer, flowDisAccord, user);
                 goodsLoadScanRecordDao.insert(goodsLoadScanRecord);
                 // 根据任务ID和运单号查询暂存表
+                // todo 循环包裹，在锁里 根据缓存 进行计算
                 GoodsLoadScan loadScan = goodsLoadScanDao.findLoadScanByTaskIdAndWaybillCode(taskId, waybillCode);
                 if (loadScan != null) {
                     // 修改已存在的记录
                     loadScan.setLoadAmount(loadScan.getLoadAmount() + 1);
                     loadScan.setUpdateTime(new Date());
-                    ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-                    if (erpUser != null) {
-                        loadScan.setUpdateUserCode(erpUser.getUserCode());
-                        loadScan.setUpdateUserName(erpUser.getUserName());
-                    }
+
+                    loadScan.setUpdateUserCode(user.getUserCode());
+                    loadScan.setUpdateUserName(user.getUserName());
+
                     // 设置运单颜色状态
                     setWaybillStatus(loadScan);
                     goodsLoadScanDao.updateByPrimaryKey(loadScan);
@@ -558,6 +567,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         String waybillCode = waybill.getWaybillCode();
 
         // 根据运单号和包裹号查询已验未发的唯一一条记录
+        // todo 必须是当前场地
         LoadScanDto loadScanDto = getLoadScanByWaybillCodeAndPackageCode(waybillCode, packageCode);
         if (loadScanDto == null) {
             log.error("根据包裹号和运单号从分拣报表查询运单信息返回空taskId={},packageCode={},waybillCode={}",
@@ -573,10 +583,13 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
             log.warn("包裹下一动态路由节点与批次号下一场站不一致taskId={},packageCode={},waybillCode={},packageNextSite={},taskEndSite={}",
                     taskId, packageCode, waybillCode, loadScanDto.getNextSiteId(), loadCar.getEndSiteCode());
             response.setCode(JdCResponse.CODE_FAIL);
+            // todo msgbox
             response.setMessage("错发！请核实！此包裹流向与发货流向不一致，请确认是否继续发货！");
             resultMap = new HashMap<>();
+            // todo 去掉这个返回
             resultMap.put("flowDisaccord", 1);
             response.setData(resultMap);
+            // todo jdvc
             return response;
         }
 
@@ -596,6 +609,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         Integer transfer = req.getTransfer();
         // 是否多扫标识
         Integer flowDisAccord = req.getFlowDisaccord();
+        User user = req.getUser();
 
         // 根据包裹号查找运单
         Waybill waybill = getWaybillByPackageCode(packageCode);
@@ -620,6 +634,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         // todo inspectionCountByWaybill 这两个接口区别
         // 查看包裹是否已验货
         Inspection inspection = new Inspection();
+        // todo 当前网点
         inspection.setPackageBarcode(packageCode);
         boolean isInspected = inspectionService.haveInspection(inspection);
 
@@ -643,7 +658,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         // 扫描第一个包裹时，修改任务状态为已开始
         updateTaskStatus(loadCar);
 
-        return saveLoadScanByPackCode(taskId, waybillCode, packageCode, goodsAmount, transfer, flowDisAccord);
+        return saveLoadScanByPackCode(taskId, waybillCode, packageCode, goodsAmount, transfer, flowDisAccord, user);
     }
 
     /**
@@ -660,7 +675,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
                 loadCar.setOperateUserErp(erpUser.getUserCode());
                 loadCar.setOperateUserName(erpUser.getUserName());
             }
-            loadCar.setOperateTime(new Date());
+            loadCar.setUpdateTime(new Date());
             loadCarDao.updateLoadCarById(loadCar);
         }
     }
@@ -709,12 +724,14 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         }
         // 批次号校验通过，则和任务绑定
         loadCar.setBatchCode(batchCode);
+        // todo user不对
+        // todo 校验批次封车
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
         if (erpUser != null) {
             loadCar.setOperateUserErp(erpUser.getUserCode());
             loadCar.setOperateUserName(erpUser.getUserName());
         }
-        loadCar.setOperateTime(new Date());
+        loadCar.setUpdateTime(new Date());
         loadCarDao.updateLoadCarById(loadCar);
         response.setCode(JdCResponse.CODE_SUCCESS);
 
@@ -735,6 +752,8 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         // 计算单子状态
         setWaybillStatus(loadScan);
         goodsLoadScanDao.updateByPrimaryKey(loadScan);
+        // todo 包裹记录新增
+        // todo redis锁   任务号+运单号   重试一次  失败大日志
     }
 
     /**
@@ -747,7 +766,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
      * @param transfer 包裹号转板号标识
      */
     private JdCResponse<Void> saveLoadScanByPackCode(Long taskId, String waybillCode, String packageCode,
-                                     Integer goodsAmount, Integer transfer, Integer flowDisAccord) {
+                                     Integer goodsAmount, Integer transfer, Integer flowDisAccord, User user) {
 
         JdCResponse<Void> response = new JdCResponse<>();
 
@@ -771,10 +790,11 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         if (goodsLoadScan == null) {
             // 包裹扫描记录表新增一条记录
             GoodsLoadScanRecord newLoadScanRecord = createGoodsLoadScanRecord(taskId, waybillCode, packageCode,
-                    null, transfer, flowDisAccord);
+                    null, transfer, flowDisAccord, user);
             goodsLoadScanRecordDao.insert(newLoadScanRecord);
             // 运单暂存表新增
-            GoodsLoadScan newLoadScan = createGoodsLoadScan(taskId, waybillCode, packageCode, goodsAmount, flowDisAccord);
+            GoodsLoadScan newLoadScan = createGoodsLoadScan(taskId, waybillCode, packageCode,
+                    goodsAmount, flowDisAccord, user);
             goodsLoadScanDao.insert(newLoadScan);
             response.setCode(JdCResponse.CODE_SUCCESS);
             return response;
@@ -925,7 +945,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
     }
 
     private GoodsLoadScan createGoodsLoadScan(Long taskId, String waybillCode, String packageCode,
-                                              Integer goodsAmount, Integer flowDisAccord) {
+                                              Integer goodsAmount, Integer flowDisAccord, User user) {
         GoodsLoadScan goodsLoadScan = new GoodsLoadScan();
         goodsLoadScan.setTaskId(taskId);
         goodsLoadScan.setWayBillCode(waybillCode);
@@ -941,13 +961,12 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
                     + "底色标位黄色taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
             goodsLoadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW);
         }
-        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-        if (erpUser != null) {
-            goodsLoadScan.setCreateUserCode(erpUser.getUserCode());
-            goodsLoadScan.setCreateUserName(erpUser.getUserName());
-            goodsLoadScan.setUpdateUserCode(erpUser.getUserCode());
-            goodsLoadScan.setUpdateUserName(erpUser.getUserName());
-        }
+
+        goodsLoadScan.setCreateUserCode(user.getUserCode());
+        goodsLoadScan.setCreateUserName(user.getUserName());
+        goodsLoadScan.setUpdateUserCode(user.getUserCode());
+        goodsLoadScan.setUpdateUserName(user.getUserName());
+
         goodsLoadScan.setCreateTime(new Date());
         goodsLoadScan.setUpdateTime(new Date());
         goodsLoadScan.setYn(Constants.YN_YES);
@@ -955,7 +974,8 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
     }
 
     private GoodsLoadScanRecord createGoodsLoadScanRecord(Long taskId, String waybillCode, String packageCode,
-                                                          String boardCode, Integer transfer, Integer flowDisAccord) {
+                                                          String boardCode, Integer transfer, Integer flowDisAccord,
+                                                          User user) {
         GoodsLoadScanRecord loadScanRecord = new GoodsLoadScanRecord();
         loadScanRecord.setTaskId(taskId);
         loadScanRecord.setWayBillCode(waybillCode);
@@ -967,13 +987,12 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         loadScanRecord.setTransfer(transfer == null ? 0 : transfer);
         // 多扫标识
         loadScanRecord.setFlowDisaccord(flowDisAccord == null ? 0 : flowDisAccord);
-        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-        if (erpUser != null) {
-            loadScanRecord.setCreateUserCode(erpUser.getUserCode());
-            loadScanRecord.setCreateUserName(erpUser.getUserName());
-            loadScanRecord.setUpdateUserCode(erpUser.getUserCode());
-            loadScanRecord.setUpdateUserName(erpUser.getUserName());
-        }
+
+        loadScanRecord.setCreateUserCode(user.getUserCode());
+        loadScanRecord.setCreateUserName(user.getUserName());
+        loadScanRecord.setUpdateUserCode(user.getUserCode());
+        loadScanRecord.setUpdateUserName(user.getUserName());
+
         loadScanRecord.setCreateTime(new Date());
         loadScanRecord.setUpdateTime(new Date());
         loadScanRecord.setYn(Constants.YN_YES);

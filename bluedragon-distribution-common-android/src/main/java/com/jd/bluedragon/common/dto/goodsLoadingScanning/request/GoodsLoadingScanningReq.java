@@ -1,5 +1,7 @@
 package com.jd.bluedragon.common.dto.goodsLoadingScanning.request;
 
+import com.jd.bluedragon.common.dto.base.request.User;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -51,6 +53,8 @@ public class GoodsLoadingScanningReq implements Serializable {
      * 是否多扫的标识：1标识多扫 0标识不是多扫
      */
     private Integer flowDisaccord;
+
+    private User user;
 
     public Long getId() {
         return id;
@@ -122,5 +126,13 @@ public class GoodsLoadingScanningReq implements Serializable {
 
     public void setFlowDisaccord(Integer flowDisaccord) {
         this.flowDisaccord = flowDisaccord;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

@@ -59,7 +59,7 @@ public interface GoodsLoadingScanningService {
     /**
      * 批次号/板号/包裹号校验接口--发货校验
      */
-    JdCResponse<Map<String, Object>> checkByBatchCodeOrBoardCodeOrPackageCode(GoodsLoadingScanningReq req);
+    JdCResponse<Map<String, Object>> checkCode(GoodsLoadingScanningReq req);
 
     /**
      * 包裹暂存接口
