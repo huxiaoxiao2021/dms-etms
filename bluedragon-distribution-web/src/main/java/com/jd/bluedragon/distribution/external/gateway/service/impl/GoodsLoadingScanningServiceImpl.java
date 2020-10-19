@@ -794,6 +794,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         record.setScanAction(GoodsLoadScanConstants.GOODS_SCAN_LOAD);
         record.setYn(Constants.YN_YES);
         GoodsLoadScanRecord loadScanRecord = goodsLoadScanRecordDao.findLoadScanRecordByTaskIdAndWaybillCodeAndPackCode(record);
+        // 如果是重复扫，返回错误
         if (loadScanRecord != null) {
             log.warn("该包裹号已扫描装车，请勿重复扫描！taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
             response.setCode(JdCResponse.CODE_SUCCESS);
@@ -801,13 +802,14 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
             return response;
         }
 
+        // 如果不是重复扫，包裹扫描记录表新增一条记录
+        GoodsLoadScanRecord newLoadScanRecord = createGoodsLoadScanRecord(taskId, waybillCode, packageCode,
+                null, transfer, flowDisAccord, user);
+        goodsLoadScanRecordDao.insert(newLoadScanRecord);
+
         // 查看暂存表是否初始化过此运单
         GoodsLoadScan goodsLoadScan = goodsLoadScanDao.findLoadScanByTaskIdAndWaybillCode(taskId, waybillCode);
         if (goodsLoadScan == null) {
-            // 包裹扫描记录表新增一条记录
-            GoodsLoadScanRecord newLoadScanRecord = createGoodsLoadScanRecord(taskId, waybillCode, packageCode,
-                    null, transfer, flowDisAccord, user);
-            goodsLoadScanRecordDao.insert(newLoadScanRecord);
             // 运单暂存表新增
             GoodsLoadScan newLoadScan = createGoodsLoadScan(taskId, waybillCode, packageCode,
                     goodsAmount, flowDisAccord, user);
