@@ -18,4 +18,7 @@ public interface ExceptionScanService {
     boolean goodsCompulsoryDeliver(GoodsExceptionScanningReq req);
     //查询不齐异常数据
     List<GoodsExceptionScanningDto> findAllExceptionGoodsScan(Long taskId);
+
+    //根据任务号查询是否存在不齐异常数据
+    boolean checkException(Long taskId);
 }

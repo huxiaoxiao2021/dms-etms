@@ -183,4 +183,13 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
         return res;
     }
 
+    @Override
+    public boolean checkException(Long taskId) {
+        List<String> goodsRecord = goodsLoadScanDao.findWaybillCodesByTaskId(taskId);
+        if(goodsRecord == null || goodsRecord.size() <=0) {
+            return false;
+        }
+        return true;
+    }
+
 }

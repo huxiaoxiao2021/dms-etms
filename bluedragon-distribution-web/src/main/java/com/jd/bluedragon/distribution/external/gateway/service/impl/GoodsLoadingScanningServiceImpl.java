@@ -45,22 +45,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.annotation.Resource;
 import java.util.*;
 
 public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningService {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
+    @Resource
     private ExceptionScanService exceptionScanService;
 
-    @Autowired
+    @Resource
     private GoodsLoadScanDao goodsLoadScanDao;
 
-    @Autowired
+    @Resource
     private GoodsLoadScanRecordDao goodsLoadScanRecordDao;
 
-    @Autowired
+    @Resource
     private LoadScanPackageDetailService loadScanPackageDetailService;
 
     @Autowired
@@ -78,10 +79,10 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
     @Autowired
     private GroupBoardManager groupBoardManager;
 
-    @Autowired
+    @Resource
     private NoRepeatSubmitService noRepeatSubmitService;
 
-    @Autowired
+    @Resource
     private LoadScanService loadScanService;
 
     @Autowired
@@ -122,12 +123,22 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
             return response;
         }
 
-        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-        log.info("GoodsLoadingScanningServiceImpl#goodsRemoveScanning 取消发货当前操作人【" + JsonHelper.toJson(erpUser) + "】");
+//        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+//        log.info("GoodsLoadingScanningServiceImpl#goodsRemoveScanning 取消发货当前操作人【" + JsonHelper.toJson(erpUser) + "】");
+//
+//        if (erpUser != null) {
+//            exceptionScanDto.setOperator(erpUser.getUserName());
+//            exceptionScanDto.setOperatorCode(erpUser.getUserCode());
+//        }
 
-        if (erpUser != null) {
-            exceptionScanDto.setOperator(erpUser.getUserName());
-            exceptionScanDto.setOperatorCode(erpUser.getUserCode());
+        if(req.getOperator() == null) {
+            response.toFail("当前操作人不能为空");
+            return response;
+        }
+
+        if(req.getOperatorCode() == null) {
+            response.toFail("当前操作人编码不能为空");
+            return response;
         }
 
         log.info("GoodsLoadingScanningServiceImpl#goodsRemoveScanning- 取消发货更改不齐异常数据，参数【" + JsonHelper.toJson(exceptionScanDto) + "】");
@@ -160,11 +171,21 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
             return response;
         }
 
-        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-        log.info("GoodsLoadingScanningServiceImpl#goodsCompulsoryDeliver 强发当前操作人【" + JsonHelper.toJson(erpUser) + "】");
-        if (erpUser != null) {
-            req.setOperator(erpUser.getUserName());
-            req.setOperatorCode(erpUser.getUserCode());
+//        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+//        log.info("GoodsLoadingScanningServiceImpl#goodsCompulsoryDeliver 强发当前操作人【" + JsonHelper.toJson(erpUser) + "】");
+//        if (erpUser != null) {
+//            req.setOperator(erpUser.getUserName());
+//            req.setOperatorCode(erpUser.getUserCode());
+//        }
+
+        if(req.getOperator() == null) {
+            response.toFail("当前操作人不能为空");
+            return response;
+        }
+
+        if(req.getOperatorCode() == null) {
+            response.toFail("当前操作人编码不能为空");
+            return response;
         }
 
         log.info("GoodsLoadingScanningServiceImpl#goodsCompulsoryDeliver-强制下发--begin:入参【" + JsonHelper.toJson(req) + "】");
@@ -223,20 +244,10 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
             return response;
         }
 
-        if(req.getCreateUser() == null) {
-            response.toFail("操作人不能为空");
+        if(req.getCreateSiteCode() == null) {
+            response.toFail("发货单位编码不能为空");
             return response;
         }
-
-//        if(req.getCreateUserCode() == null) {
-//            response.toFail("操作人编码不能为空");
-//            return response;
-//        }
-//
-//        if(req.getCreateSiteCode() == null) {
-//            response.toFail("发货单位编码不能为空");
-//            return response;
-//        }
 
         if(req.getSendCode() == null) {
             response.toFail("发货批次号不能为空");
@@ -248,11 +259,30 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
             return response;
         }
 
-        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-        log.info("GoodsLoadingScanningServiceImpl#goodsLoadingDeliver 装车发货当前操作人【" + JsonHelper.toJson(erpUser) + "】");
-        if (erpUser != null) {
-            req.setOperator(erpUser.getUserName());
-            req.setOperatorCode(erpUser.getUserCode());
+//        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+//        log.info("GoodsLoadingScanningServiceImpl#goodsLoadingDeliver 装车发货当前操作人【" + JsonHelper.toJson(erpUser) + "】");
+//        if (erpUser != null) {
+//            req.setOperator(erpUser.getUserName());
+//            req.setOperatorCode(erpUser.getUserCode());
+//        }
+        if(req.getOperator() == null) {
+            response.toFail("当前操作人不能为空");
+            return response;
+        }
+
+        if(req.getOperatorCode() == null) {
+            response.toFail("当前操作人编码不能为空");
+            return response;
+        }
+        /**
+         * undo
+         * 增加一个方法，发货前校验是否有不齐异常数据
+         * 逻辑：
+         *  根据任务号查询运单暂存表， 查询该任务对应运单List中 运单颜色状态为 3黄色多扫,4红色不齐
+         */
+        if(exceptionScanService.checkException(req.getTaskId())) {
+            response.toFail("本次装车存在不齐运单，请点击不齐异常处理操作");
+            return response;
         }
 
         return loadScanService.goodsLoadingDeliver(req);

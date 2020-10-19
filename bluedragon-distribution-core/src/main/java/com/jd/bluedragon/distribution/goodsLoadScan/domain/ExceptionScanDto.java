@@ -38,7 +38,7 @@ public class ExceptionScanDto implements Serializable {
     /**
      * 当前操作人编码
      */
-    private String operatorCode;
+    private Integer operatorCode;
 
 
 
@@ -90,11 +90,11 @@ public class ExceptionScanDto implements Serializable {
         this.operator = operator;
     }
 
-    public String getOperatorCode() {
+    public Integer getOperatorCode() {
         return operatorCode;
     }
 
-    public void setOperatorCode(String operatorCode) {
+    public void setOperatorCode(Integer operatorCode) {
         this.operatorCode = operatorCode;
     }
 }

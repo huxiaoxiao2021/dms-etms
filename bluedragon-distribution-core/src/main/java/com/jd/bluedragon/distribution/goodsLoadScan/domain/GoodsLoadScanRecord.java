@@ -46,7 +46,7 @@ public class GoodsLoadScanRecord implements Serializable {
     /**
      * 创建人账号
      */
-    private String createUserCode;
+    private Integer createUserCode;
 
     /**
      * 创建人姓名
@@ -56,7 +56,7 @@ public class GoodsLoadScanRecord implements Serializable {
     /**
      * 更新人账号
      */
-    private String updateUserCode;
+    private Integer updateUserCode;
 
     /**
      * 更新人名称
@@ -144,11 +144,11 @@ public class GoodsLoadScanRecord implements Serializable {
         this.transfer = transfer;
     }
 
-    public String getCreateUserCode() {
+    public Integer getCreateUserCode() {
         return createUserCode;
     }
 
-    public void setCreateUserCode(String createUserCode) {
+    public void setCreateUserCode(Integer createUserCode) {
         this.createUserCode = createUserCode;
     }
 
@@ -160,11 +160,11 @@ public class GoodsLoadScanRecord implements Serializable {
         this.createUserName = createUserName;
     }
 
-    public String getUpdateUserCode() {
+    public Integer getUpdateUserCode() {
         return updateUserCode;
     }
 
-    public void setUpdateUserCode(String updateUserCode) {
+    public void setUpdateUserCode(Integer updateUserCode) {
         this.updateUserCode = updateUserCode;
     }
 

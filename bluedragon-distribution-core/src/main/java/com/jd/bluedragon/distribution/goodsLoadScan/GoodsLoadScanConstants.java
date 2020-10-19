@@ -5,7 +5,7 @@ public class GoodsLoadScanConstants {
     public static final Integer GOODS_SCAN_REMOVE = 0;
     public static final Integer GOODS_SCAN_LOAD = 1;
 
-    //运单颜色状态--0无特殊颜色,1绿色,2橙色,3黄色,4红色
+    //运单颜色状态--0无特殊颜色：已装=0, 1绿色：已扫完（未装=0）,2橙色：不齐强发, 3黄色：多扫, 4红色：不齐
     public static final Integer GOODS_SCAN_LOAD_BLANK = 0;
     public static final Integer GOODS_SCAN_LOAD_GREEN = 1;
     public static final Integer GOODS_SCAN_LOAD_ORANGE = 2;
