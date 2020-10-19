@@ -6,6 +6,7 @@ import com.jd.bd.dms.automatic.sdk.modules.device.DeviceConfigInfoJsfService;
 import com.jd.bluedragon.distribution.funcSwitchConfig.dao.FuncSwitchConfigDao;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.impl.FuncSwitchConfigServiceImpl;
 import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.util.StringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -93,7 +94,11 @@ public class FuncSwitchConfigTest {
 
     @Test
     public void test05() throws Exception {
-
+        FuncSwitchConfigDto funcSwitchConfigDto = new FuncSwitchConfigDto();
+        funcSwitchConfigDto.setDimensionCode(1111);
+        funcSwitchConfigDto.setYn(1);
+        System.out.println(JsonHelper.toJson(funcSwitchConfigDto));
+        System.out.println(JsonHelper.toJsonMs(funcSwitchConfigDto));
         System.out.println(test04());
     }
 
