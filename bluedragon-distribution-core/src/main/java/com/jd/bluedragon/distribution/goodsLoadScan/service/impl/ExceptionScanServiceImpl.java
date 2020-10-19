@@ -80,6 +80,7 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
         int num = goodsLoadScanRecordDao.updateGoodsScanRecordById(record);
 
         if( num > 0) {
+            //todo  调用远哥公共方法  加锁
             log.info("ExceptionScanServiceImpl#removeGoodsScan 取消扫描修改包裹记录表成功--success--，包裹号【"+ exceptionScanDto.getPackageCode()
                     +"】，任务号【" + exceptionScanDto.getTaskId() + "】");
             GoodsLoadScan lc = new GoodsLoadScan();
@@ -167,7 +168,7 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
         log.info("ExceptionScanServiceImpl#findAllExceptionGoodsScan--begin 根据任务号查询不齐异常数据： 参数【" + taskId + "】");
         List<GoodsLoadScan> list = goodsLoadScanDao.findLoadScanByTaskId(taskId);
         log.info("ExceptionScanServiceImpl#findAllExceptionGoodsScan--begin 根据任务号【" + taskId + "】查询不齐异常数据： 出参【" + JsonHelper.toJson(list) + "】");
-
+//todo  日志
         if(list != null && list.size() > 0) {
             GoodsExceptionScanningDto resDto = new GoodsExceptionScanningDto();
             for(GoodsLoadScan glc : list) {
