@@ -17,11 +17,6 @@ public class GoodsLoadingReq {
     private Long taskId;
 
     /**
-     * 发货单位编码
-     */
-    private Integer createSiteCode;
-
-    /**
      * 发货交接单号-发货批次号
      */
     private String sendCode;
@@ -47,14 +42,6 @@ public class GoodsLoadingReq {
 
     public void setTaskId(Long taskId) {
         this.taskId = taskId;
-    }
-
-    public Integer getCreateSiteCode() {
-        return createSiteCode;
-    }
-
-    public void setCreateSiteCode(Integer createSiteCode) {
-        this.createSiteCode = createSiteCode;
     }
 
     public String getSendCode() {

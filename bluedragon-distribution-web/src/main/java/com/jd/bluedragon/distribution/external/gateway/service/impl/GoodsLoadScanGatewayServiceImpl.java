@@ -36,6 +36,7 @@ import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.report.LoadScanPackageDetailService;
 import com.jd.ql.dms.report.domain.LoadScanDto;
@@ -49,6 +50,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -95,6 +97,10 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
 
     @Autowired
     private VosManager vosManager;
+
+    @Autowired
+    @Qualifier("jimdbCacheService")
+    private CacheService jimdbCacheService;
 
     @Override
     @JProfiler(jKey = "DMS.BASE.GoodsLoadScanGatewayServiceImpl.goodsRemoveScanning",
@@ -253,20 +259,26 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             return response;
         }
         //防重复提交，返回true表示可以提交，false表示已经提交过，缓存中未过期，不允许再重复提交
-        if(noRepeatSubmitService.checkRepeatSubmit(req.getTaskId()) != 1L) {
+//        if(noRepeatSubmitService.checkRepeatSubmit(req.getTaskId()) != 1L) {
+//            response.toFail("任务发货重复提交");
+//            return response;
+//        }
+        if(jimdbCacheService.get(req.getTaskId().toString()) != null) {
             response.toFail("任务发货重复提交");
             return response;
+        }else {
+            //防止PDA-1用户在发货页面停留过久，期间PDA-2用户操作了发货，此时发货状态已经改变为已完成，PDA不能再进行发货动作
+            Integer taskStatus = loadScanService.findTaskStatus(req.getTaskId());
+            if(taskStatus == null) {
+                response.toFail("该任务存在异常,无法发货");
+                return response;
+            }else if(taskStatus == GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END) {
+                response.toFail("该任务已经完成发货，请勿重复发货");
+                return response;
+            }
         }
 
-        //防止PDA-1用户在发货页面停留过久，期间PDA-2用户操作了发货，此时发货状态已经改变为已完成，PDA不能再进行发货动作
-        Integer taskStatus = loadScanService.findTaskStatus(req.getTaskId());
-        if(taskStatus == null) {
-            response.toFail("该任务存在异常,无法发货");
-            return response;
-        }else if(taskStatus == GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END) {
-            response.toFail("该任务已经完成发货，请勿重复发货");
-            return response;
-        }
+        jimdbCacheService.setEx(req.getTaskId().toString(), 1, 60);
 
         if(req.getSendCode() == null) {
             response.toFail("发货批次号不能为空");

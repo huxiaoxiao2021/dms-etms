@@ -37,17 +37,17 @@ public class LoadScanServiceImpl implements LoadScanService {
     public JdCResponse goodsLoadingDeliver(GoodsLoadingReq req) {
         JdCResponse response = new JdCResponse();
 
-        SendBizSourceEnum bizSource = SendBizSourceEnum.ANDROID_PDA_SEND;
+        SendBizSourceEnum bizSource = SendBizSourceEnum.ANDROID_PDA_LOAD_SEND;
         SendM domain = new SendM();
         domain.setReceiveSiteCode(req.getReceiveSiteCode());
-        domain.setCreateSiteCode(req.getCreateSiteCode());
+        domain.setCreateSiteCode(req.getCurrentOperate().getSiteCode());
         domain.setSendCode(req.getSendCode());
         domain.setCreateUser(req.getUser().getUserName());
         domain.setCreateUserCode(req.getUser().getUserCode());
         domain.setSendType(Constants.BUSSINESS_TYPE_POSITIVE);
         domain.setYn(GoodsLoadScanConstants.YN_Y);
-        domain.setCreateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
-        domain.setOperateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
+        domain.setCreateTime(new Date());
+        domain.setOperateTime(new Date());
 
         log.info("LoadScanServiceImpl#goodsLoadingDeliver--begin 装车调用发货:来源【" + bizSource +  "】参数" + JsonHelper.toJson(domain) + "】");
         deliveryService.packageSend(bizSource, domain);
@@ -58,10 +58,11 @@ public class LoadScanServiceImpl implements LoadScanService {
         loadCar.setStatus(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END);
         boolean flagRes = loadCarDao.updateLoadCarById(loadCar);
         if(flagRes == false) {
+            log.info("LoadScanServiceImpl#goodsLoadingDeliver--发货完成后修改任务状态失败，发货信息【" + JsonHelper.toJson(domain) + "】");
             response.toSucceed("发货状态修改失败");
             return response;
         }
-
+        log.info("LoadScanServiceImpl#goodsLoadingDeliver--发货成功，发货信息【" + JsonHelper.toJson(domain) + "】");
         response.toSucceed("发货成功");
         return response;
     }
