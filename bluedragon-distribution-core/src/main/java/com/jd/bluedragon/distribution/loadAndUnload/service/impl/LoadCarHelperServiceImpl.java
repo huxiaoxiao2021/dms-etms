@@ -33,8 +33,17 @@ public class LoadCarHelperServiceImpl implements LoadCarHelperService {
     }
 
     @Override
-    public List<Long> selectTasksByErp(String loginUserErp) {
-        return loadCarHelperDao.selectTasksByErp(loginUserErp);
+    public List<Long> selectByCreateUserErp(String loginUserErp) {
+        return loadCarHelperDao.selectByCreateUserErp(loginUserErp);
+    }
+
+    @Override
+    public List<Long> selectByHelperErp(String loginUserErp) {
+        return loadCarHelperDao.selectByHelperErp(loginUserErp);
+    }
+
+    public List<Long> selectIdsByErp(String loginUserErp) {
+        return loadCarHelperDao.selectIdsByErp(loginUserErp);
     }
 
     @Override

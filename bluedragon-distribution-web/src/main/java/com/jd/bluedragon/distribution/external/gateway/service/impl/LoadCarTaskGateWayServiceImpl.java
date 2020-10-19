@@ -170,14 +170,16 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
             jdCResponse.setMessage("当前登录人信息为空！");
             return jdCResponse;
         }
-        List<Long> taskIds = loadCarHelperService.selectTasksByErp(req.getLoginUserErp());
-        if (CollectionUtils.isEmpty(taskIds)) {
+        List<Long> creatorList = loadCarHelperService.selectByCreateUserErp(req.getLoginUserErp());
+        List<Long> helperList = loadCarHelperService.selectByHelperErp(req.getLoginUserErp());
+        if (CollectionUtils.isEmpty(creatorList) && CollectionUtils.isEmpty(helperList)) {
             jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
             jdCResponse.setMessage(JdCResponse.MESSAGE_SUCCESS);
             jdCResponse.setData(new ArrayList<LoadTaskListDto>());
             return jdCResponse;
         }
-        List<LoadTaskListDto> taskList = loadService.selectByIds(taskIds);
+        creatorList.addAll(helperList);
+        List<LoadTaskListDto> taskList = loadService.selectByIds(creatorList);
         jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
         jdCResponse.setMessage(JdCResponse.MESSAGE_SUCCESS);
         jdCResponse.setData(CollectionUtils.isEmpty(taskList) ? new ArrayList<LoadTaskListDto>() : taskList);
@@ -200,7 +202,7 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
             jdCResponse.setMessage("装车任务信息不完整,请检查必填信息！");
             return jdCResponse;
         }
-        List<Long> taskIds = loadCarHelperService.selectTasksByErp(req.getCreateUserErp());
+        List<Long> taskIds = loadCarHelperService.selectIdsByErp(req.getCreateUserErp());
         Date now = new Date();
         //库中如果存在
         if (CollectionUtils.isNotEmpty(taskIds)) {

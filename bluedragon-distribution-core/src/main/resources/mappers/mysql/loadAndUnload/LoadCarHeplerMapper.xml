@@ -103,11 +103,20 @@
     </insert>
 
 
-    <select id="selectTasksByErp" parameterType="java.lang.String" resultType="java.lang.Long">
+    <select id="selectByCreateUserErp" parameterType="java.lang.String" resultType="java.lang.Long">
         select  task_id from  load_car_helper
-        where  yn=1 and  create_user_erp= #{loginUserErp,jdbcType=VARCHAR}  or  helper_erp= #{loginUserErp,jdbcType=VARCHAR}
+        where  yn=1 and  create_user_erp= #{loginUserErp,jdbcType=VARCHAR}
     </select>
 
+    <select id="selectByHelperErp" parameterType="java.lang.String" resultType="java.lang.Long">
+        select  task_id from  load_car_helper
+        where  yn=1 and   helper_erp= #{loginUserErp,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectIdsByErp" parameterType="java.lang.String" resultType="java.lang.Long">
+        select  task_id from  load_car_helper
+        where  yn=1 and   helper_erp= #{loginUserErp,jdbcType=VARCHAR} or create_user_erp= #{loginUserErp,jdbcType=VARCHAR}
+    </select>
     <update id="deleteById" parameterType="java.lang.Long" >
         update load_car_helper
 			set yn = 0

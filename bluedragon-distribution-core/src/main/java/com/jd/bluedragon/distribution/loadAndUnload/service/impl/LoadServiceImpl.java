@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.loadAndUnload.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadDeleteReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadTaskListDto;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
@@ -33,11 +34,13 @@ public class LoadServiceImpl implements LoadService {
 
     @Override
     public int insert(LoadCar detail) {
+        log.info("创建装车任务入库参数={}", JSON.toJSONString(detail));
         return loadCarDao.insert(detail);
     }
 
     @Override
     public List<LoadTaskListDto> selectByIds(List<Long> list) {
+        log.info("查询装车任务列表taskIds={}", JSON.toJSONString(list));
         return loadCarDao.selectByIds(list);
     }
 }

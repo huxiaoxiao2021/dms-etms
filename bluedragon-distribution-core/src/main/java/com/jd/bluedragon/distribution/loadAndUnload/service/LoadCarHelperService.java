@@ -26,8 +26,11 @@ public interface LoadCarHelperService {
      * @param loginUserErp
      * @return
      */
-    List<Long> selectTasksByErp(String loginUserErp);
+    List<Long> selectByCreateUserErp(String loginUserErp);
 
+    List<Long> selectByHelperErp(String loginUserErp);
+
+    List<Long> selectIdsByErp(String loginUserErp);
     /**
      * 删除任务同步更新协助人表
      *
@@ -35,5 +38,6 @@ public interface LoadCarHelperService {
      * @return
      */
     int deleteById(Long taskId);
+
 
 }
