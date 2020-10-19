@@ -305,4 +305,12 @@
                   server="dmsjsf">
     </jsf:provider>
 
+    <bean id="loadCarTaskService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.LoadCarTaskServiceImpl" />
+    <jsf:provider id="loadCarTaskService"
+                  interface="com.jd.bluedragon.external.gateway.service.CollectionBagOperationGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="collectionBagOperationGatewayService"
+                  server="dmsjsf">
+    </jsf:provider>
+
 </beans>
