@@ -27,5 +27,9 @@ public class LoadCarHelperDao extends BaseDao<LoadCarHelper> {
         return this.getSqlSession().insert(namespace+".batchInsert", dataList);
     }
 
+    public List<Long> selectTasksByErp(String loginUserErp){
+        return this.getSqlSession().selectList(namespace+".selectByIds", loginUserErp);
+    }
+
 
 }

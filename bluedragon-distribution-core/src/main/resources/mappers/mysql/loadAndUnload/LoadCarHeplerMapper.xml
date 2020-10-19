@@ -15,6 +15,14 @@
         <result column="exp" property="exp" javaType="java.lang.String" jdbcType="VARCHAR"/>
     </resultMap>
 
+
+    <resultMap id="getTestBean" type="com.TestBean">
+        <id column="task_id" jdbcType="BIGINT" property="taskId"/>
+        <collection column="second_id" property="secondIds" ofType="long">
+            <result column="second_id"/>
+        </collection>
+    </resultMap>
+
     <insert id="insert" parameterType="com.jd.bluedragon.distribution.loadAndUnload.LoadCarHelper">
         insert into load_car_helper (
         <trim suffixOverrides=",">
@@ -50,7 +58,7 @@
                 #{id,jdbcType=BIGINT},
             </if>
             <if test="taskId != null">
-                #{taskId,jdbcType=INTEGER},
+                #{taskId,jdbcType=BIGINT},
             </if>
             <if test="helperName !=null and helperName !=''">
                 #{helperName,jdbcType=VARCHAR},
@@ -91,6 +99,12 @@
             1 )
         </foreach>
     </insert>
+
+
+    <select id="selectTasksByErp" parameterType="java.lang.String" resultType="java.lang.Long">
+        select task_id from load_car_helper
+        where   b.create_user_erp= #{loginUserErp,jdbcType=VARCHAR}  or  b.helper_erp= #{loginUserErp,jdbcType=VARCHAR}  and yn=1
+    </select>
 
 
 </mapper>

@@ -10,7 +10,7 @@
         <result column="status" property="status" javaType="java.lang.Integer" jdbcType="TINYINT"/>
         <result column="operate_user_erp" property="operateUserErp" javaType="java.lang.String" jdbcType="VARCHAR"/>
         <result column="operate_user_name" property="operateUserName" javaType="java.lang.String" jdbcType="VARCHAR"/>
-        <result column="operate_time" property="operateTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
         <result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
         <result column="create_user_erp" property="createUserErp" javaType="java.lang.String" jdbcType="VARCHAR"/>
         <result column="create_site_name" property="createSiteName" javaType="java.lang.String" jdbcType="VARCHAR"/>
@@ -20,6 +20,11 @@
         <result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT"/>
         <result column="exp" property="exp" javaType="java.lang.String" jdbcType="VARCHAR"/>
     </resultMap>
+
+    <sql id="Base_Column_List">
+        id, license_number, end_site_code, end_site_name, status, operate_user_erp, operate_user_name, create_user_erp, create_site_name,
+        create_site_code, batch_code, create_user_name, create_time, update_time
+    </sql>
 
     <insert id="insert" parameterType="com.jd.bluedragon.distribution.loadAndUnload.LoadCar" useGeneratedKeys="true"
             keyProperty="id">
@@ -46,8 +51,8 @@
             <if test="operateUserName  !=null and operateUserName !=''">
                 operate_user_name,
             </if>
-            <if test="operateTime  !=null">
-                operate_time,
+            <if test="updateTime  !=null">
+                update_time,
             </if>
             <if test="createTime  !=null">
                 create_time,
@@ -94,8 +99,8 @@
             <if test="operateUserName  !=null and operateUserName !=''">
                 #{operateUserName,jdbcType=VARCHAR},
             </if>
-            <if test="operateTime  !=null">
-                #{operateTime,jdbcType=TIMESTAMP},
+            <if test="updateTime  !=null">
+                #{updateTime,jdbcType=TIMESTAMP},
             </if>
             <if test="createTime  !=null">
                 #{createTime,jdbcType=TIMESTAMP},
@@ -167,8 +172,8 @@
             <if test="operateUserName != null and operateUserName != ''">
                 and operate_user_name = #{operateUserName,jdbcType=VARCHAR}
             </if>
-            <if test="operateTime != null">
-                and operate_time = #{operateTime,jdbcType=TIMESTAMP}
+            <if test="updateTime != null">
+                and update_time = #{updateTime,jdbcType=TIMESTAMP}
             </if>
             <if test="createUserErp != null and createUserErp != ''">
                 and create_user_erp = #{createUserErp,jdbcType=VARCHAR}
@@ -215,8 +220,8 @@
             <if test="operateUserName != null and operateUserName != ''">
                 operate_user_name = #{operateUserName,jdbcType=VARCHAR},
             </if>
-            <if test="operateTime != null">
-                operate_time = #{operateTime,jdbcType=TIMESTAMP},
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
             </if>
             <if test="createUserErp != null and createUserErp != ''">
                 create_user_erp = #{createUserErp,jdbcType=VARCHAR},
@@ -242,5 +247,18 @@
         </set>
         where id = #{id,jdbcType=BIGINT} and yn = 1
     </update>
+
+    <select id="selectByIds" parameterType="List" resultMap="loadCar">
+        select
+        <include refid="Base_Column_List"/>
+        from load_car
+        where id in
+        <foreach collection="list" item="items" index="index" open="("
+                 close=")" separator=",">
+            #{items,jdbcType=VARCHAR}
+        </foreach>
+        group by update_time
+    </select>
+
 
 </mapper>
