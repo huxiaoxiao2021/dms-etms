@@ -8,6 +8,7 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsExceptionS
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingScanningReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsDetailDto;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
+import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.base.domain.CreateAndReceiveSiteInfo;
@@ -30,6 +31,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.GoodsLoadingScanningService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.cache.util.EnumBusiCode;
+import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.dms.common.domain.JdResponse;
@@ -86,6 +88,9 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
 
     @Autowired
     private BoardCombinationService boardCombinationService;
+
+    @Autowired
+    private VosManager vosManager;
 
     @Override
     public JdCResponse goodsRemoveScanning(GoodsExceptionScanningReq req) {
@@ -632,7 +637,7 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         // todo inspectionCountByWaybill 这两个接口区别
         // 查看包裹是否已验货
         Inspection inspection = new Inspection();
-        // todo 当前网点
+        inspection.setCreateSiteCode(req.getCreateSiteCode());
         inspection.setPackageBarcode(packageCode);
         boolean isInspected = inspectionService.haveInspection(inspection);
 
@@ -711,6 +716,22 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
             return response;
         }
 
+        // 校验批次是否已封车 todo 查到封车信息以后，根据哪个字段判断是否封车
+        try {
+            SealCarDto sealCarDto = vosManager.querySealCarByBatchCode(batchCode);
+            if(sealCarDto != null) {
+                log.warn("该批次号已经封车，不可绑定任务！，taskId={},batchCode={}", taskId, batchCode);
+                response.setCode(JdCResponse.CODE_FAIL);
+                response.setMessage("该批次号已经封车，不可绑定任务！");
+                return response;
+            }
+        } catch (Exception e) {
+            log.error("根据批次号查找封车信息发生错误，taskId={},batchCode={}", taskId, batchCode);
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("根据批次号查找封车信息发生错误");
+            return response;
+        }
+
         // 系统校验批次号的目的地与输入的目的场地是否一致，如果不一致则系统提示：“批次号目的地与目的场地不一致，请检查后重新扫描”
         if (!siteInfo.getReceiveSiteCode().equals(loadCar.getEndSiteCode().intValue())) {
             log.error("批次号目的地与目的场地不一致，请检查后重新扫描，taskId={},batchCode={}", taskId, batchCode);
@@ -720,8 +741,6 @@ public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningServ
         }
         // 批次号校验通过，则和任务绑定
         loadCar.setBatchCode(batchCode);
-
-        // todo 校验批次封车
 
         loadCar.setOperateUserErp(user.getUserErp());
         loadCar.setOperateUserName(user.getUserName());

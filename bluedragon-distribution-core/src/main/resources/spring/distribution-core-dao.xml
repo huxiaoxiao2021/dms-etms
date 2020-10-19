@@ -660,4 +660,8 @@
           class="com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarDao" />
     <bean id="loadCarHelperDao" parent="businessBaseDao"
           class="com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarHelperDao" />
+    <bean id="goodsLoadScanDao" parent="businessBaseDao"
+          class="com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanDao" />
+    <bean id="goodsLoadScanRecordDao" parent="businessBaseDao"
+          class="com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao"/>
 </beans>

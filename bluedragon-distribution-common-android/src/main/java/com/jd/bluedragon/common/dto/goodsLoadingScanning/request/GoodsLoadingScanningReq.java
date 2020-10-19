@@ -54,7 +54,15 @@ public class GoodsLoadingScanningReq implements Serializable {
      */
     private Integer flowDisaccord;
 
+    /**
+     * 当前操作用户
+     */
     private User user;
+
+    /**
+     * 当前网点ID
+     */
+    private Integer createSiteCode;
 
     public Long getId() {
         return id;
@@ -134,5 +142,13 @@ public class GoodsLoadingScanningReq implements Serializable {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public Integer getCreateSiteCode() {
+        return createSiteCode;
+    }
+
+    public void setCreateSiteCode(Integer createSiteCode) {
+        this.createSiteCode = createSiteCode;
     }
 }
