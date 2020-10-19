@@ -56,6 +56,7 @@
 		<property name="weightVolumeFilterWholeCountryFlag" value="${weightVolumeFilterWholeCountryFlag}" />
 		<property name="singleSendSwitchVerToWebSites" value="${singleSendSwitchVerToWebSites}" />
 		<property name="boardCombinationSwitchVerToWebSites" value="${boardCombinationSwitchVerToWebSites}" />
+		<property name="dellCancelDeliveryCheckSealCar" value="${dellCancelDeliveryCheckSealCar}" />
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -96,6 +97,7 @@
 				<value>uccPropertyConfiguration.weightVolumeFilterWholeCountryFlag</value>
 				<value>uccPropertyConfiguration.singleSendSwitchVerToWebSites</value>
 				<value>uccPropertyConfiguration.boardCombinationSwitchVerToWebSites</value>
+				<value>uccPropertyConfiguration.dellCancelDeliveryCheckSealCar</value>
 			</list>
 		</property>
 	</bean>

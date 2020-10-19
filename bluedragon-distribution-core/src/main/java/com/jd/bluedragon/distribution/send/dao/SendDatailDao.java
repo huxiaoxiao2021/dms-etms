@@ -87,11 +87,15 @@ public class SendDatailDao extends BaseDao<SendDetail> {
                 SendDatailDao.namespace + ".querySendDatailsBySelective", querySendDatail);
     }
 
+    public String querySendCodeBySelective(SendDetail querySendDatail){
+        return this.getSqlSession().selectOne(
+                SendDatailDao.namespace + ".querySendCodeBySelective", querySendDatail);
+    }
+
     public Integer queryCountExclusion(SendDetail querySendDatail){
         return this.getSqlSession().selectOne(
                 SendDatailDao.namespace + ".queryCountExclusion", querySendDatail);
     }
-
 
     public boolean updateSendDatail(SendDetail SendDatail) {
         return this.getSqlSession().update(SendDatailDao.namespace + ".updateSendDatail",

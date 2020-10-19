@@ -145,6 +145,9 @@ public class DeliveryResponse extends JdResponse {
     public static final String MESSAGE_CANCELDELIVERYCHECK_ONLY_BOX = "当前箱号是封车批次中的唯一箱号，不允许取消发货。请先操作 取消封车";
     public static final String MESSAGE_CANCELDELIVERYCHECK_ONLY_BOARD = "当前板号是封车批次中的唯一板号，不允许取消发货。请先操作 取消封车";
 
+    public static final Integer CODE_CANCELDELIVERYCHECK_NOSEAL = 40018;
+    public static final String MESSAGE_CANCELDELIVERYCHECK_NOSEAL = "该批次还没有封车，可取消发货";
+
     /**取消发货校验提示语 End*/
 
 

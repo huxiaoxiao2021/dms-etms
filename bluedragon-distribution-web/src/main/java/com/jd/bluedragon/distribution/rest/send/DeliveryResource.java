@@ -354,7 +354,7 @@ public class DeliveryResource {
          * 取消发货校验封车业务
          */
         DeliveryResponse checkResponse = deliveryService.dellCancelDeliveryCheckSealCar(toSendM(request));
-        if (!checkResponse.getCode().equals(JdResponse.CODE_OK)) {
+        if (checkResponse!=null && !JdResponse.CODE_OK.equals(checkResponse.getCode())) {
             return new ThreeDeliveryResponse(checkResponse.getCode(),checkResponse.getMessage(), null);
         }
 

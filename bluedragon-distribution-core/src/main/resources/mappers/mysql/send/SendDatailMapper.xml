@@ -362,30 +362,36 @@
 		</where>
 	</select>
 
+	<select id="querySendCodeBySelective" parameterType="SendDetail" resultType="String">
+		SELECT
+		send_code
+		FROM send_d
+		<where>
+			yn=1
+			AND is_cancel = 0
+            and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+			<if test="boxCode!=null">
+				and box_code = #{boxCode,jdbcType=VARCHAR}
+			</if>
+			<if test="packageBarcode!=null">
+				and package_barcode = #{packageBarcode,jdbcType=VARCHAR}
+			</if>
+			<if test="waybillCode!=null">
+				and waybill_code = #{waybillCode,jdbcType=VARCHAR}
+			</if>
+		</where>
+		LIMIT 1
+	</select>
+
 	<select id="queryCountExclusion" resultType="Integer">
 		SELECT
 		count(package_barcode)
 		FROM send_d
 		<where>
 			yn=1
-			<if test="createSiteCode!=null">
-				and create_site_code = #{createSiteCode,jdbcType=INTEGER}
-			</if>
-			<if test="receiveSiteCode!=null">
-				and receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
-			</if>
-			<if test="sendCode!=null">
-				and send_code = #{sendCode,jdbcType=VARCHAR}
-			</if>
-			<if test="sendType!=null">
-				and send_type = #{sendType,jdbcType=INTEGER}
-			</if>
-			<if test="isCancel == 0">
-				and is_cancel = 0
-			</if>
-			<if test="isCancel == 1">
-				and is_cancel != 1
-			</if>
+			and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+			and send_code = #{sendCode,jdbcType=VARCHAR}
+			and is_cancel = 0
 			<if test="packageBarcode!=null">
 				and package_barcode != #{packageBarcode,jdbcType=VARCHAR}
 			</if>
@@ -840,20 +846,13 @@
 	</select>
 
 	<select id="queryBoxCodeSingleBySendCode" parameterType="SendDetail" resultType="java.lang.String">
-		SELECT DISTINCT box_code
+		SELECT box_code
 		FROM send_d
 		WHERE is_cancel=0
 		AND yn = 1
 		AND send_code = #{sendCode,jdbcType=VARCHAR}
-		<if test="createSiteCode!=null">
-			and create_site_code = #{createSiteCode,jdbcType=INTEGER}
-		</if>
-		<if test="receiveSiteCode!=null">
-			and receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
-		</if>
-		<if test="sendCode!=null">
-			and send_code = #{sendCode,jdbcType=VARCHAR}
-		</if>
+		and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		group by box_code
 	</select>
     
     <select id="queryWaybillsByDepartID" parameterType="java.lang.Long" resultMap="SendDetail">
