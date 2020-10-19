@@ -67,7 +67,7 @@ public interface FuncSwitchConfigService {
      * @param dataList
      * @param loginUser
      */
-    void importExcel(List<FuncSwitchConfigDto> dataList, LoginUser loginUser);
+    void importExcel(List<FuncSwitchConfigDto> dataList, LoginUser loginUser) throws Exception;
 
     /**
      * 根据条件查询
