@@ -433,17 +433,19 @@ function initDimension(menu) {
                 allowClear: true,
                 data: result
             });
-            $(menu).val(null).trigger('change');
             $(menu).on("change", function(e) {
                 //选择全国时,将区域和分拣中心置灰不可选
                 if($(menu).val()=='3'){
                     $('#orgId-EG').attr("disabled","disabled").css("background-color","#EEEEEE;");
                     $('#siteCode-EG').attr("disabled","disabled").css("background-color","#EEEEEE;");
+                    $('#orgId-EG').val(null).trigger('change');
+                    $('#siteCode-EG').val(null).trigger('change');
                 }else{
                     $('#orgId-EG').attr("disabled",false).css("background-color","#FFFFFF;");
                     $('#siteCode-EG').attr("disabled",false).css("background-color","#FFFFFF;");
                 }
             });
+            $(menu).val(null).trigger('change');
         }
     });
 }
