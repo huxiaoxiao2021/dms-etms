@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.CreateLoadTaskReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadCarTaskCreateReq;
@@ -17,6 +18,8 @@ import com.jd.bluedragon.enums.LicenseNumberAreaCodeEnum;
 import com.jd.bluedragon.external.gateway.service.LoadCarTaskService;
 import com.jd.fastjson.JSON;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -27,6 +30,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import static com.jd.bluedragon.enums.LicenseNumberAreaCodeEnum.transferLicenseNumber;
 
 /**
  * @program: bluedragon-distribution
@@ -53,6 +58,8 @@ public class LoadCarTaskServiceImpl implements LoadCarTaskService {
      * @param req
      * @return
      */
+    @JProfiler(jKey = "DMSWEB.LoadCarTaskServiceImpl.startTask",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public JdCResponse startTask(CreateLoadTaskReq req) {
         JdCResponse jdCResponse = new JdCResponse();
@@ -84,6 +91,8 @@ public class LoadCarTaskServiceImpl implements LoadCarTaskService {
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.LoadCarTaskServiceImpl.deleteLoadCarTask",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse deleteLoadCarTask(LoadDeleteReq req) {
         JdCResponse jdCResponse = new JdCResponse();
         jdCResponse.setData(JdCResponse.CODE_ERROR);
@@ -102,6 +111,8 @@ public class LoadCarTaskServiceImpl implements LoadCarTaskService {
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.LoadCarTaskServiceImpl.getEndSiteName",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<String> getEndSiteName(Long endSiteCode) {
         JdCResponse<String> jdCResponse = new JdCResponse<>();
         BaseStaffSiteOrgDto toSite = baseMajorManager.getBaseSiteBySiteId(endSiteCode.intValue());
@@ -122,6 +133,8 @@ public class LoadCarTaskServiceImpl implements LoadCarTaskService {
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.LoadCarTaskServiceImpl.checkLicenseNumber",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<String> checkLicenseNumber(String licenseNumber) {
         JdCResponse<String> jdCResponse = new JdCResponse<>();
         if (StringUtils.isBlank(licenseNumber)) {
@@ -129,13 +142,8 @@ public class LoadCarTaskServiceImpl implements LoadCarTaskService {
             jdCResponse.setMessage("车牌号不能为空");
             return jdCResponse;
         }
-        if (licenseNumber.length() == 9) {
-            for (LicenseNumberAreaCodeEnum licenseNumberAreaCodeEnum : LicenseNumberAreaCodeEnum.values()) {
-                if (licenseNumberAreaCodeEnum.getAreaName().equals(licenseNumber.substring(0, 3))) {
-                    licenseNumber = licenseNumber.replace(licenseNumber.substring(0, 3), licenseNumberAreaCodeEnum.getAreaName());
-                    break;
-                }
-            }
+        if (licenseNumber.trim().length() == 9) {
+            licenseNumber = transferLicenseNumber(licenseNumber);
         }
         jdCResponse.setData(licenseNumber);
         jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
@@ -150,6 +158,8 @@ public class LoadCarTaskServiceImpl implements LoadCarTaskService {
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.LoadCarTaskServiceImpl.loadCarTaskList",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<List<LoadTaskListDto>> loadCarTaskList(LoadTaskListReq req) {
         JdCResponse<List<LoadTaskListDto>> jdCResponse = new JdCResponse<>();
         if (null == req || StringUtils.isBlank(req.getLoginUserErp())) {
@@ -171,6 +181,8 @@ public class LoadCarTaskServiceImpl implements LoadCarTaskService {
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.LoadCarTaskServiceImpl.loadCarTaskCreate",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<Long> loadCarTaskCreate(LoadCarTaskCreateReq req) {
         JdCResponse<Long> jdCResponse = new JdCResponse<>();
         if (null == req) {
@@ -201,6 +213,8 @@ public class LoadCarTaskServiceImpl implements LoadCarTaskService {
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.LoadCarTaskServiceImpl.getNameByErp",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<HelperDto> getNameByErp(String erp) {
         JdCResponse<HelperDto> jdCResponse = new JdCResponse<>();
         BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(erp);
