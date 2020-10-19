@@ -119,7 +119,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
                 ruleDao.add(rule);
             }
         }catch (Exception e){
-            logger.error("新增功能开关配置异常,入参【】", JsonHelper.toJson(funcSwitchConfigDto),e);
+            logger.error("新增功能开关配置异常,入参funcSwitchConfigDto:{}", JsonHelper.toJson(funcSwitchConfigDto),e);
         }
         return jdResponse;
     }
@@ -158,7 +158,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
 //            }
 //            funcSwitchConfigDao.updateByFuncSwitchConfig(funcSwitchConfigDto);
         }catch (Exception e){
-            logger.error("变更功能开关配置异常,入参【】", JsonHelper.toJson(funcSwitchConfigDto),e);
+            logger.error("变更功能开关配置异常,入参funcSwitchConfigDto:{}", JsonHelper.toJson(funcSwitchConfigDto),e);
         }
         return jdResponse;
     }
@@ -249,7 +249,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
             }
 
         }catch (Exception e){
-            logger.error("逻辑删除异常,入参【{}】", JsonHelper.toJson(funcSwitchConfigDtos),e);
+            logger.error("逻辑删除异常,入参funcSwitchConfigDtos:{}", JsonHelper.toJson(funcSwitchConfigDtos),e);
         }
         return jdResponse;
     }
@@ -312,7 +312,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
      * @param loginUser
      */
     @Override
-    public void importExcel(List<FuncSwitchConfigDto> dataList, LoginUser loginUser) {
+    public void importExcel(List<FuncSwitchConfigDto> dataList, LoginUser loginUser) throws Exception {
         if(CollectionUtils.isEmpty(dataList)){
             return;
         }
@@ -320,7 +320,6 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
         List<Integer> siteCodesOnList = null;
         //调用分拣机开关置为关闭的List
         List<Integer> siteCodesOffList = null;
-        BaseDmsAutoJsfResponse  longBaseDmsAutoJsfResponse = null;
         try {
             // 设置默认参数
             for (FuncSwitchConfigDto dto : dataList){
@@ -349,11 +348,8 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
                             siteCodesOnList.add(dto.getSiteCode());
                         }
                     }else if(dto.getDimensionCode()==DimensionEnum.NATIONAL.getCode()){
-                        WeightValidateSwitchEnum weightValidateSwitchEnum  = dto.getYn()== YnEnum.YN_ON.getCode()?WeightValidateSwitchEnum.OFF:WeightValidateSwitchEnum.ON;
-                        longBaseDmsAutoJsfResponse = deviceConfigInfoJsfService.maintainWeightSwitch(weightValidateSwitchEnum);
-                        if (longBaseDmsAutoJsfResponse == null || longBaseDmsAutoJsfResponse.getStatusCode() != BaseDmsAutoJsfResponse.SUCCESS_CODE) {
-                            throw  new Exception("分拣机开关调用失败,全国");
-                        }
+                        logger.error("批量导入不支持全国数据,请手动添加");
+                        throw  new Exception("批量导入不支持全国数据,请手动添加");
                     }
                 }
             }
@@ -367,7 +363,8 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
             }
             funcSwitchConfigDao.batchAdd(dataList);
         }catch (Exception e){
-            logger.error("批量插入表格数据异常!");
+            logger.error("批量插入表格数据异常");
+            throw  new Exception("批量插入表格数据异常");
         }
     }
 

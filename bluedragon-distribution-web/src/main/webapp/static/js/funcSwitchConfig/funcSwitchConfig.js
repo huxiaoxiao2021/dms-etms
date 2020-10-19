@@ -219,6 +219,7 @@ $(function () {
                     var data = {};
                     data["id"] = rows[i].id;
                     data["menuCode"] = rows[i].menuCode;
+                    data["dimensionCode"] = rows[i].dimensionCode;
                     data["siteCode"] = rows[i].siteCode;
                     params.push(data);
                 };
