@@ -185,10 +185,18 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
 
     @Override
     public boolean checkException(Long taskId) {
-        List<String> goodsRecord = goodsLoadScanDao.findWaybillCodesByTaskId(taskId);
-        if(goodsRecord == null || goodsRecord.size() <=0) {
+        //根据任务号查询运单表中 不齐和多扫的运单记录
+        //如果存在 返回true
+        //否则  返回false
+        ArrayList<Integer> list = new ArrayList<>();
+        list.add(GoodsLoadScanConstants.GOODS_SCAN_LOAD_RED);
+        list.add(GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW);
+
+        List<GoodsLoadScan> res = goodsLoadScanDao.findException(taskId, list);
+        if(res == null || res.size() <= 0) {
             return false;
         }
+
         return true;
     }
 

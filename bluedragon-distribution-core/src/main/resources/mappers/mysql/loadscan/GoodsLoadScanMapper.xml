@@ -245,5 +245,16 @@
         where id = #{id,jdbcType=BIGINT} and yn = 1
     </update>
 
+    <select id="findException" parameterType="java.util.Map" resultMap="goodsLoadScan">
+        select
+        <include refid="Base_Column_List"/>
+        from  load_scan
+        where task_id = #{taskId,jdbcType=BIGINT} and yn = 1
+        and status IN
+        <foreach collection="statusList" item="item" index="index" open="(" separator="," close=")">
+            #{item,jdbcType=VARCHAR}
+        </foreach>
+    </select>
+
 
 </mapper>
