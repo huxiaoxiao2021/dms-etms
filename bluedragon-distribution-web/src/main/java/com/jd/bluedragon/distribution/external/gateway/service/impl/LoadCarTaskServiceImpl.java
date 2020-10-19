@@ -14,8 +14,8 @@ import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCarHelper;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarDao;
-import com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarHelperDao;
-import com.jd.bluedragon.enums.LicenseNumberAreaCodeEnum;
+import com.jd.bluedragon.distribution.loadAndUnload.service.LoadCarHelperService;
+import com.jd.bluedragon.distribution.loadAndUnload.service.LoadService;
 import com.jd.bluedragon.external.gateway.service.LoadCarTaskService;
 import com.jd.fastjson.JSON;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -45,10 +45,10 @@ public class LoadCarTaskServiceImpl implements LoadCarTaskService {
     private Logger log = LoggerFactory.getLogger(LoadCarTaskServiceImpl.class);
 
     @Autowired
-    private LoadCarDao loadCarDao;
+    private LoadService loadService;
 
     @Autowired
-    private LoadCarHelperDao loadCarHelperDao;
+    private LoadCarHelperService loadCarHelperService;
 
     @Autowired
     BaseMajorManager baseMajorManager;
@@ -71,9 +71,9 @@ public class LoadCarTaskServiceImpl implements LoadCarTaskService {
         List<HelperDto> helperList = req.getAssistorInfo();
         LoadCarHelper loadCarHelper = new LoadCarHelper();
         List<LoadCarHelper> list = Lists.newArrayListWithExpectedSize(helperList.size());
+        loadCarHelper.setCreateSiteName(req.getCreateSiteName());
+        loadCarHelper.setCreateSiteCode(req.getCreateSiteCode());
         loadCarHelper.setTaskId(req.getId());
-        loadCarHelper.setCreateTime(new Date());
-        loadCarHelper.setCreateTime(new Date());
         for (HelperDto helperDto : helperList) {
             loadCarHelper.setCreateUserErp(req.getCreateUserErp());
             loadCarHelper.setCreateUserName(req.getCreateUserName());
@@ -81,7 +81,7 @@ public class LoadCarTaskServiceImpl implements LoadCarTaskService {
             loadCarHelper.setHelperName(helperDto.getHelperName());
             list.add(loadCarHelper);
         }
-        loadCarHelperDao.batchInsert(list);
+        loadCarHelperService.batchInsert(list);
         jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
         jdCResponse.setMessage(JdCResponse.MESSAGE_SUCCESS);
         return jdCResponse;
@@ -100,7 +100,8 @@ public class LoadCarTaskServiceImpl implements LoadCarTaskService {
         JdCResponse jdCResponse = new JdCResponse();
         jdCResponse.setData(JdCResponse.CODE_ERROR);
         jdCResponse.setMessage("删除任务失败,稍后请重试");
-        if (loadCarDao.deleteById(req) > 0) {
+        if (loadService.deleteById(req) > 0) {
+            loadCarHelperService.deleteById(req.getId());
             jdCResponse.setData(JdCResponse.CODE_SUCCESS);
             jdCResponse.setMessage(JdCResponse.MESSAGE_SUCCESS);
         }
@@ -170,14 +171,14 @@ public class LoadCarTaskServiceImpl implements LoadCarTaskService {
             jdCResponse.setMessage("当前登录人信息为空！");
             return jdCResponse;
         }
-        List<Long>taskIds=loadCarHelperDao.selectTasksByErp(req.getLoginUserErp());
-
-
-
-
-
-
-        List<LoadTaskListDto> taskList = loadCarDao.queryByErp(req.getLoginUserErp());
+        List<Long> taskIds = loadCarHelperService.selectTasksByErp(req.getLoginUserErp());
+        if (CollectionUtils.isEmpty(taskIds)) {
+            jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
+            jdCResponse.setMessage(JdCResponse.MESSAGE_SUCCESS);
+            jdCResponse.setData(new ArrayList<LoadTaskListDto>());
+            return jdCResponse;
+        }
+        List<LoadTaskListDto> taskList = loadService.selectByIds(taskIds);
         jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
         jdCResponse.setMessage(JdCResponse.MESSAGE_SUCCESS);
         jdCResponse.setData(CollectionUtils.isEmpty(taskList) ? new ArrayList<LoadTaskListDto>() : taskList);
@@ -205,7 +206,7 @@ public class LoadCarTaskServiceImpl implements LoadCarTaskService {
         loadCar.setCreateTime(new Date());
         loadCar.setUpdateTime(new Date());
         loadCar.setStatus(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BLANK);
-        int id = loadCarDao.insert(loadCar);
+        int id = loadService.insert(loadCar);
         if (id > 0) {
             jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
             jdCResponse.setMessage(JdCResponse.MESSAGE_SUCCESS);

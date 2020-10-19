@@ -1,11 +1,7 @@
 package com.jd.bluedragon.distribution.loadAndUnload.dao;
 
 import com.jd.bluedragon.common.dao.BaseDao;
-import com.jd.bluedragon.distribution.boxlimit.BoxLimitQueryDTO;
-import com.jd.bluedragon.distribution.boxlimit.domain.BoxLimitConfig;
-import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCarHelper;
-import com.jd.bluedragon.distribution.loadAndUnload.UnloadCar;
 
 import java.util.List;
 
@@ -31,5 +27,8 @@ public class LoadCarHelperDao extends BaseDao<LoadCarHelper> {
         return this.getSqlSession().selectList(namespace+".selectByIds", loginUserErp);
     }
 
+    public int deleteById(Long taskId){
+        return this.getSqlSession().update(namespace+".deleteById",taskId);
+    }
 
 }
