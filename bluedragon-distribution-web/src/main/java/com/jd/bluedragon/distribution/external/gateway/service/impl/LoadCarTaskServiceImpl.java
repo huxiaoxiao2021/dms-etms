@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.CreateLoadTaskReq;
@@ -69,6 +70,7 @@ public class LoadCarTaskServiceImpl implements LoadCarTaskService {
         }
         List<HelperDto> helperList = req.getAssistorInfo();
         LoadCarHelper loadCarHelper = new LoadCarHelper();
+        List<LoadCarHelper> list = new ArrayList<>(helperList.size());
         loadCarHelper.setTaskId(req.getId());
         loadCarHelper.setCreateTime(new Date());
         loadCarHelper.setCreateTime(new Date());
@@ -77,8 +79,9 @@ public class LoadCarTaskServiceImpl implements LoadCarTaskService {
             loadCarHelper.setCreateUserName(req.getCreateUserName());
             loadCarHelper.setHelperErp(helperDto.getHelperERP());
             loadCarHelper.setHelperName(helperDto.getHelperName());
-            loadCarHelperDao.insert(loadCarHelper);
+            list.add(loadCarHelper);
         }
+        loadCarHelperDao.batchInsert(list);
         jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
         jdCResponse.setMessage(JdCResponse.MESSAGE_SUCCESS);
         return jdCResponse;

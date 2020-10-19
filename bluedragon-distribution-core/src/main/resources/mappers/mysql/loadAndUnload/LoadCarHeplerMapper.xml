@@ -42,7 +42,7 @@
             <if test="createUserName  !=null and createUserName !=''">
                 create_user_name,
             </if>
-                yn
+            yn
         </trim>
         )values(
         <trim suffixOverrides=",">
@@ -73,6 +73,23 @@
             1
         </trim>
         )
+    </insert>
+
+    <insert id="batchInsert" parameterType="List">
+        insert into load_car_helper (
+        task_id, helper_name, helper_erp, create_time, update_time, create_user_erp, create_user_name, yn
+        )
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            ( #{taskId,jdbcType=INTEGER},
+            #{helperName,jdbcType=VARCHAR},
+            #{helperErp,jdbcType=VARCHAR},
+            #{createTime,jdbcType=TIMESTAMP},
+            #{updateTime,jdbcType=TIMESTAMP},
+            #{createUserErp,jdbcType=VARCHAR},
+            #{createUserName,jdbcType=VARCHAR},
+            1 )
+        </foreach>
     </insert>
 
 

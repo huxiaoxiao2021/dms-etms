@@ -1,9 +1,13 @@
 package com.jd.bluedragon.distribution.loadAndUnload.dao;
 
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.distribution.boxlimit.BoxLimitQueryDTO;
+import com.jd.bluedragon.distribution.boxlimit.domain.BoxLimitConfig;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCarHelper;
 import com.jd.bluedragon.distribution.loadAndUnload.UnloadCar;
+
+import java.util.List;
 
 /**
  * @program: bluedragon-distribution
@@ -17,6 +21,10 @@ public class LoadCarHelperDao extends BaseDao<LoadCarHelper> {
 
     public int insert(LoadCarHelper loadCarHelper) {
         return this.getSqlSession().insert(namespace + ".insert", loadCarHelper);
+    }
+
+    public int batchInsert(List<LoadCarHelper> dataList){
+        return this.getSqlSession().insert(namespace+".batchInsert", dataList);
     }
 
 
