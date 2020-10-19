@@ -92,6 +92,11 @@ public class GoodsLoadScan implements Serializable {
      */
     private Integer yn;
 
+    /**
+     * 数据库时间
+     */
+    private Date ts;
+
     public Long getId() {
         return id;
     }
@@ -218,5 +223,13 @@ public class GoodsLoadScan implements Serializable {
 
     public void setYn(Integer yn) {
         this.yn = yn;
+    }
+
+    public Date getTs() {
+        return ts;
+    }
+
+    public void setTs(Date ts) {
+        this.ts = ts;
     }
 }
