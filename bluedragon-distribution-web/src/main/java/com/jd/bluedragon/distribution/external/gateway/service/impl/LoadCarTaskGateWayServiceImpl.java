@@ -15,7 +15,7 @@ import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCarHelper;
 import com.jd.bluedragon.distribution.loadAndUnload.service.LoadCarHelperService;
 import com.jd.bluedragon.distribution.loadAndUnload.service.LoadService;
-import com.jd.bluedragon.external.gateway.service.LoadCarTaskService;
+import com.jd.bluedragon.external.gateway.service.LoadCarTaskGateWayService;
 import com.jd.fastjson.JSON;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
@@ -39,9 +39,9 @@ import static com.jd.bluedragon.enums.LicenseNumberAreaCodeEnum.transferLicenseN
  * @author: wuming
  * @create: 2020-10-15 14:09
  */
-public class LoadCarTaskServiceImpl implements LoadCarTaskService {
+public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService {
 
-    private Logger log = LoggerFactory.getLogger(LoadCarTaskServiceImpl.class);
+    private Logger log = LoggerFactory.getLogger(LoadCarTaskGateWayServiceImpl.class);
 
     @Autowired
     private LoadService loadService;

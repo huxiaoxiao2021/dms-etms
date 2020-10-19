@@ -17,7 +17,7 @@ import java.util.List;
  * @author: wuming
  * @create: 2020-10-15 13:37
  */
-public interface LoadCarTaskService {
+public interface LoadCarTaskGateWayService {
 
     /**
      * 创建装车任务接口

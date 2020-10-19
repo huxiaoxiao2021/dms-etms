@@ -306,9 +306,9 @@
     </jsf:provider>
 
     <!--装车任务相关接口-->
-    <bean id="loadCarTaskService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.LoadCarTaskServiceImpl" />
-    <jsf:provider id="loadCarTaskService"
-                  interface="com.jd.bluedragon.external.gateway.service.LoadCarTaskService"
+    <bean id="loadCarTaskGateWayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.LoadCarTaskGateWayServiceImpl" />
+    <jsf:provider id="loadCarTaskGateWayService"
+                  interface="com.jd.bluedragon.external.gateway.service.LoadCarTaskGateWayService"
                   alias="${dms.gateway.jsf.alias}"
                   ref="loadCarTaskService"
                   server="dmsjsf">
