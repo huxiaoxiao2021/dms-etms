@@ -7,15 +7,17 @@ import com.jd.bluedragon.external.gateway.service.GoodsLoadingScanningService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.annotation.Resource;
 import java.util.List;
 
-//@ContextConfiguration( {"classpath:distribution-web-context-test.xml"})
+@ContextConfiguration( {"classpath:distribution-web-context-test.xml"})
 @RunWith(SpringJUnit4ClassRunner.class)
 public class GoodsLoadingScanningServiceImplTest {
 
-    @Autowired
+    @Resource
     private GoodsLoadingScanningService goodsLoadingScanningService;
 
     @Test
