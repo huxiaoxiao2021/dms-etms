@@ -315,11 +315,11 @@
     </jsf:provider>
 
     <!-- 装车扫描发货、不齐异常数据展示变更 -->
-    <bean id="goodsLoadingScanningService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.GoodsLoadingScanningServiceImpl" />
+    <bean id="goodsLoadScanGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.GoodsLoadScanGatewayServiceImpl" />
     <jsf:provider id="jsfGoodsLoadingScanningService"
-                  interface="com.jd.bluedragon.external.gateway.service.GoodsLoadingScanningService"
+                  interface="com.jd.bluedragon.external.gateway.service.GoodsLoadScanGatewayService"
                   alias="${dms.gateway.jsf.alias}"
-                  ref="goodsLoadingScanningService"
+                  ref="goodsLoadScanGatewayService"
                   server="dmsjsf">
     </jsf:provider>
 

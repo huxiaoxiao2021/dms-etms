@@ -30,7 +30,7 @@ import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.ExceptionScanService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.external.gateway.service.GoodsLoadingScanningService;
+import com.jd.bluedragon.external.gateway.service.GoodsLoadScanGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.vos.dto.SealCarDto;
@@ -51,7 +51,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.annotation.Resource;
 import java.util.*;
 
-public class GoodsLoadingScanningServiceImpl implements GoodsLoadingScanningService {
+public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayService {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 

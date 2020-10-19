@@ -16,7 +16,7 @@ import java.util.Map;
  * 货物装车扫描相关
  * 发布到物流网关 由安卓调用
  */
-public interface GoodsLoadingScanningService {
+public interface GoodsLoadScanGatewayService {
 
 
     /**
