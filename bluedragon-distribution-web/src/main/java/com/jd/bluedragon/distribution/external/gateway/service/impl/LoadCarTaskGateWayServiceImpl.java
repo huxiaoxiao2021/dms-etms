@@ -58,12 +58,12 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
      * @param req
      * @return
      */
-    @JProfiler(jKey = "DMSWEB.LoadCarTaskServiceImpl.startTask",
+    @JProfiler(jKey = "DMSWEB.LoadCarTaskGateWayServiceImpl.startTask",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public JdCResponse startTask(CreateLoadTaskReq req) {
         JdCResponse jdCResponse = new JdCResponse();
-        if (null == req || CollectionUtils.isEmpty(req.getAssistorInfo())) {
+        if (null == req) {
             jdCResponse.setCode(JdCResponse.CODE_ERROR);
             jdCResponse.setMessage("添加协助人信息不完整,请检查必填信息！");
         }
@@ -93,7 +93,7 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
      * @return
      */
     @Override
-    @JProfiler(jKey = "DMSWEB.LoadCarTaskServiceImpl.deleteLoadCarTask",
+    @JProfiler(jKey = "DMSWEB.LoadCarTaskGateWayServiceImpl.deleteLoadCarTask",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse deleteLoadCarTask(LoadDeleteReq req) {
         JdCResponse jdCResponse = new JdCResponse();
@@ -114,7 +114,7 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
      * @return
      */
     @Override
-    @JProfiler(jKey = "DMSWEB.LoadCarTaskServiceImpl.getEndSiteName",
+    @JProfiler(jKey = "DMSWEB.LoadCarTaskGateWayServiceImpl.getEndSiteName",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<String> getEndSiteName(Long endSiteCode) {
         JdCResponse<String> jdCResponse = new JdCResponse<>();
@@ -136,7 +136,7 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
      * @return
      */
     @Override
-    @JProfiler(jKey = "DMSWEB.LoadCarTaskServiceImpl.checkLicenseNumber",
+    @JProfiler(jKey = "DMSWEB.LoadCarTaskGateWayServiceImpl.checkLicenseNumber",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<String> checkLicenseNumber(String licenseNumber) {
         JdCResponse<String> jdCResponse = new JdCResponse<>();
@@ -161,7 +161,7 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
      * @return
      */
     @Override
-    @JProfiler(jKey = "DMSWEB.LoadCarTaskServiceImpl.loadCarTaskList",
+    @JProfiler(jKey = "DMSWEB.LoadCarTaskGateWayServiceImpl.loadCarTaskList",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<List<LoadTaskListDto>> loadCarTaskList(LoadTaskListReq req) {
         JdCResponse<List<LoadTaskListDto>> jdCResponse = new JdCResponse<>();
@@ -191,7 +191,7 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
      * @return
      */
     @Override
-    @JProfiler(jKey = "DMSWEB.LoadCarTaskServiceImpl.loadCarTaskCreate",
+    @JProfiler(jKey = "DMSWEB.LoadCarTaskGateWayServiceImpl.loadCarTaskCreate",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<Long> loadCarTaskCreate(LoadCarTaskCreateReq req) {
         JdCResponse<Long> jdCResponse = new JdCResponse<>();
@@ -243,7 +243,7 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
      * @return
      */
     @Override
-    @JProfiler(jKey = "DMSWEB.LoadCarTaskServiceImpl.getNameByErp",
+    @JProfiler(jKey = "DMSWEB.LoadCarTaskGateWayServiceImpl.getNameByErp",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<HelperDto> getNameByErp(String erp) {
         JdCResponse<HelperDto> jdCResponse = new JdCResponse<>();
