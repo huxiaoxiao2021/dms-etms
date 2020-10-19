@@ -111,7 +111,6 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
                 result.init(JdCResponse.CODE_FAIL, "查询失败，根据此包裹查不到运单信息");
                 return result;
             }
-            reportResponse.setWeight(waybill.getAgainWeight());
             JdCResponse<Boolean> checkCanReportResult = this.canReportException(waybill);
             boolean canReportFlag = checkCanReportResult.getData();
             if(!canReportFlag){
@@ -127,41 +126,63 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
                 reportResponse.setWidth(latestPackFlowDetail.getpWidth());
                 reportResponse.setHeight(latestPackFlowDetail.getpHigh());
             } else{
-                result.setMessage("不符合条件，无称重记录");
+                if(canReportFlag) {
+                    result.setMessage("不符合条件，无称重记录");
+                }
                 this.setNoExceptionResponse(reportResponse);
                 if(log.isInfoEnabled()) {
                     log.info("waybillPackageManager.getOpeDetailByCode 无称重明细 packageCode {}", packageCode);
                 }
+                return result;
             }
 
-            if(canReportFlag){
-                // 查询包裹起始、目的地信息及上游箱号。
-                Integer preSendSiteId = this.getPreSendSiteId(packageCode, siteCode);
-
+            if(!canReportFlag){
+                result.setData(reportResponse);
+                return result;
+            }
+            // 查询包裹起始、目的地信息及上游箱号。
+            Integer preSendSiteId = this.getPreSendSiteId(packageCode, siteCode);
+            if(preSendSiteId != null) {
                 // 查询分拣数据
-                if(preSendSiteId != null){
-                    Sorting sortingParam = new Sorting();
-                    sortingParam.setCreateSiteCode(preSendSiteId);
-                    sortingParam.setPackageCode(query.getPackageCode());
-                    List<Sorting> boxPackList = sortingService.findBoxPackList(sortingParam);
-                    if(CollectionUtils.isNotEmpty(boxPackList)){
-                        Sorting sortingData = boxPackList.get(0);
-                        Boolean isBoxCode = BusinessUtil.isBoxcode(sortingData.getBoxCode());
-                        reportResponse.setBoxStartId(sortingData.getCreateSiteCode());
-                        BaseStaffSiteOrgDto createSiteData = baseMajorManager.getBaseSiteBySiteId(sortingData.getCreateSiteCode());
-                        reportResponse.setBoxStartSiteName(createSiteData != null ? createSiteData.getSiteName() : "未查到站点" + sortingData.getCreateSiteCode() + "的数据");
-                        reportResponse.setBoxEndSiteId(sortingData.getReceiveSiteCode());
-                        BaseStaffSiteOrgDto receiveSiteData = baseMajorManager.getBaseSiteBySiteId(sortingData.getReceiveSiteCode());
-                        reportResponse.setBoxEndSiteName(receiveSiteData != null ? receiveSiteData.getSiteName() :  "未查到站点" + sortingData.getReceiveSiteCode() + "的数据");
-                        if(isBoxCode){
-                            reportResponse.setUpstreamBoxCode(sortingData.getBoxCode());
-                        }
+                Sorting sortingParam = new Sorting();
+                sortingParam.setCreateSiteCode(preSendSiteId);
+                sortingParam.setPackageCode(query.getPackageCode());
+                List<Sorting> boxPackList = sortingService.findBoxPackList(sortingParam);
+                if(CollectionUtils.isNotEmpty(boxPackList)){
+                    Sorting sortingData = boxPackList.get(0);
+                    reportResponse.setBoxStartId(sortingData.getCreateSiteCode());
+                    reportResponse.setBoxEndSiteId(sortingData.getReceiveSiteCode());
+                    Boolean isBoxCode = BusinessUtil.isBoxcode(sortingData.getBoxCode());
+                    if(isBoxCode){
+                        reportResponse.setUpstreamBoxCode(sortingData.getBoxCode());
                     }
                 }
-
-                // 判断3种情况的逻辑，1. 虚假集包 2. 上游未集包 3. 无异常
-                this.judgeBoxException(reportResponse, waybill);
             }
+
+            // 查询分拣数据
+            if(preSendSiteId == null || reportResponse.getBoxStartId() == null || reportResponse.getBoxEndSiteId() == null){
+                PackageState packageState = this.getPreSendSiteTrackData(packageCode, siteCode);
+                if(packageState != null){
+                    reportResponse.setBoxStartId(packageState.getOperatorSiteId());
+                    reportResponse.setBoxEndSiteId(siteCode);
+                    Boolean isBoxCode = BusinessUtil.isBoxcode(packageState.getPackageBarcode());
+                    if(isBoxCode){
+                        reportResponse.setUpstreamBoxCode(packageState.getPackageBarcode());
+                    }
+                }
+            }
+
+            if(reportResponse.getBoxStartId() != null) {
+                BaseStaffSiteOrgDto createSiteData = baseMajorManager.getBaseSiteBySiteId(reportResponse.getBoxStartId());
+                reportResponse.setBoxStartSiteName(createSiteData != null ? createSiteData.getSiteName() : "未查到站点" + reportResponse.getBoxStartId() + "的数据");
+            }
+            if(reportResponse.getBoxEndSiteId() != null) {
+                BaseStaffSiteOrgDto receiveSiteData = baseMajorManager.getBaseSiteBySiteId(reportResponse.getBoxEndSiteId());
+                reportResponse.setBoxEndSiteName(receiveSiteData != null ? receiveSiteData.getSiteName() :  "未查到站点" + reportResponse.getBoxEndSiteId() + "的数据");
+            }
+
+            // 判断3种情况的逻辑，1. 虚假集包 2. 上游未集包 3. 无异常
+            this.judgeBoxException(result, reportResponse, waybill);
         } catch (Exception e) {
             log.error("CollectionBagExceptionReportServiceImpl.queryBagCollectionHasException exception {}", e.getMessage(), e);
             result.toFail("查询异常");
@@ -191,37 +212,44 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
                 && CollectionUtils.isNotEmpty(disSendResult.getData())){
             DmsDisSend dmsDisSend = disSendResult.getData().get(0);
             createSiteCode = dmsDisSend.getDmsSiteId();
-        } else {
-            // 从es查不到，可能是上游未营业部，再查全程跟踪
-            BaseEntity<List<PackageState>> waybillTrackResult = waybillTraceManager.getPkStateByPCode(packageCode);
-            // 解析全程跟踪数据
-            if(waybillTrackResult != null && waybillTrackResult.getData() != null && waybillTrackResult.getData().size() > 0){
-                List<PackageState> packageStateList = waybillTrackResult.getData();
-                // 按全程跟踪的创建时间降序排列排序
-                Collections.sort(packageStateList, new Comparator<PackageState>() {
-                    @Override
-                    public int compare(PackageState v1, PackageState v2) {
-                        return v2.getCreateTime().compareTo(v1.getCreateTime());
-                    }
-                });
-                // 遍历，找到当前分拣中心之前的操作数据
-                boolean findCurrentSiteOpLog = false;
-                List<String> matchedSendStatus = new ArrayList<>(Arrays.asList(Constants.WAYBILL_TRACE_STATE_SEND_BY_SITE));
-                for(PackageState packageState : packageStateList){
-                    if(Objects.equals(packageState.getOperatorSiteId(), currentSiteCode)) {
-                        //  找到当前分拣中心的操作记录，往后就是上游节点的数据
-                        findCurrentSiteOpLog = true;
-                        continue;
-                    }
-                    if(findCurrentSiteOpLog && matchedSendStatus.contains(packageState.getState())){
-                        log.info("CollectionBagExceptionReportServiceImpl 当前分拣中心的上一场地发货全程跟踪数据: {}", JSON.toJSONString(packageState));
-                        createSiteCode = packageState.getOperatorSiteId();
-                        break;
-                    }
-                }
-            }
         }
         return createSiteCode;
+    }
+
+    private PackageState getPreSendSiteTrackData(String packageCode, Integer currentSiteCode) {
+        Integer createSiteCode = null;
+        PackageState packageStateData = null;
+        // 从es查不到，可能是上游未营业部，再查全程跟踪
+        BaseEntity<List<PackageState>> waybillTrackResult = waybillTraceManager.getPkStateByPCode(packageCode);
+        // 解析全程跟踪数据
+        if(waybillTrackResult != null && waybillTrackResult.getData() != null && waybillTrackResult.getData().size() > 0){
+            List<PackageState> packageStateList = waybillTrackResult.getData();
+            // 按全程跟踪的创建时间降序排列排序
+            Collections.sort(packageStateList, new Comparator<PackageState>() {
+                @Override
+                public int compare(PackageState v1, PackageState v2) {
+                    return v2.getCreateTime().compareTo(v1.getCreateTime());
+                }
+            });
+            // 遍历，找到当前分拣中心之前的操作数据
+            boolean findCurrentSiteOpLog = false;
+            List<String> matchedSendStatus = new ArrayList<>(Arrays.asList(Constants.WAYBILL_TRACE_STATE_SEND_BY_SITE));
+            for(PackageState packageState : packageStateList){
+                if(Objects.equals(packageState.getOperatorSiteId(), currentSiteCode)) {
+                    //  找到当前分拣中心的操作记录，往后就是上游节点的数据
+                    findCurrentSiteOpLog = true;
+                }
+                if(findCurrentSiteOpLog && matchedSendStatus.contains(packageState.getState())){
+                    createSiteCode = packageState.getOperatorSiteId();
+                    packageStateData = packageState;
+                    break;
+                }
+            }
+            if(!findCurrentSiteOpLog || createSiteCode == null) {
+                log.warn("CollectionBagExceptionReportServiceImpl 未找到上游操作地: {}", JSON.toJSONString(waybillTrackResult));
+            }
+        }
+        return packageStateData;
     }
 
     private void setSampleData(QueryBoxCollectionReportRequest query, QueryBoxCollectionReportResponse reportResponse) {
@@ -306,7 +334,13 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
      * @param waybill
      * @return
      */
-    private void judgeBoxException(QueryBoxCollectionReportResponse reportResponse, Waybill waybill){
+    private void judgeBoxException(JdCResponse<QueryBoxCollectionReportResponse> result, QueryBoxCollectionReportResponse reportResponse, Waybill waybill){
+        // 无上游，也为无异常
+        if(reportResponse.getBoxStartId() == null || reportResponse.getBoxEndSiteId() == null) {
+            this.setNoExceptionResponse(reportResponse);
+            result.setMessage("不符合条件，未找到上游操作信息");
+            return;
+        }
         // 长宽高及重量未获取到为无异常
         if(reportResponse.getLength() == null || reportResponse.getWidth() == null || reportResponse.getHeight() == null
                 || reportResponse.getWeight() == null){
@@ -427,6 +461,7 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
                 result.init(JdCResponse.CODE_FAIL, checkResult.getMessage());
                 return result;
             }
+            int siteCode = reportRequest.getCurrentOperate().getSiteCode();
             // 验证举报条件
             // 过滤是否能举报的必要条件：1. 外单标位 2. 非生鲜（运单及货物类型）、非易碎
             String waybillCode = WaybillUtil.getWaybillCodeByPackCode(reportRequest.getPackageCode());
@@ -443,7 +478,6 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
             }
             // 转化数据
             CollectionBagExceptionReport exceptionReport = this.genModelForReport(reportRequest);
-            exceptionReport.setWeight(waybill.getAgainWeight());
             // 查询包裹称重流水，得到长宽高数据
             PackFlowDetail latestPackFlowDetail = this.getLatestPackFlowDetail(reportRequest.getPackageCode());
             if(latestPackFlowDetail != null){
@@ -459,25 +493,38 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
                 return result;
             }
             // 查询包裹起始、目的地信息及上游箱号
-            Integer preSendSiteId = this.getPreSendSiteId(reportRequest.getPackageCode(), reportRequest.getCurrentOperate().getSiteCode());
-            if(preSendSiteId == null){
+            Integer preSendSiteId = this.getPreSendSiteId(reportRequest.getPackageCode(), siteCode);
+            if(preSendSiteId != null){
+                Sorting sortingParam = new Sorting();
+                sortingParam.setCreateSiteCode(preSendSiteId);
+                sortingParam.setPackageCode(reportRequest.getPackageCode());
+                List<Sorting> boxPackList = sortingService.findBoxPackList(sortingParam);
+                if(CollectionUtils.isNotEmpty(boxPackList)){
+                    Sorting sortingData = boxPackList.get(0);
+                    exceptionReport.setBoxStartId(preSendSiteId.longValue());
+                    exceptionReport.setBoxEndId((long)sortingData.getReceiveSiteCode());
+                    Boolean isBoxCode = BusinessUtil.isBoxcode(sortingData.getBoxCode());
+                    if(isBoxCode){
+                        exceptionReport.setUpstreamBoxCode(sortingData.getBoxCode());
+                    }
+                }
+            }
+            if(preSendSiteId == null || exceptionReport.getBoxStartId() == null || exceptionReport.getBoxEndId() == null){
+                PackageState packageState = this.getPreSendSiteTrackData(reportRequest.getPackageCode(), siteCode);
+                if(packageState != null){
+                    exceptionReport.setBoxStartId(packageState.getOperatorSiteId().longValue());
+                    exceptionReport.setBoxEndId((long)siteCode);
+                    Boolean isBoxCode = BusinessUtil.isBoxcode(packageState.getPackageBarcode());
+                    if(isBoxCode){
+                        exceptionReport.setUpstreamBoxCode(packageState.getPackageBarcode());
+                    }
+                }
+            }
+            if (exceptionReport.getBoxStartId() == null || exceptionReport.getBoxEndId() == null) {
                 result.init(JdCResponse.CODE_FAIL, "未查询到此包裹的上游发货场地数据，不可举报");
                 return result;
             }
 
-            Sorting sortingParam = new Sorting();
-            sortingParam.setCreateSiteCode(preSendSiteId);
-            sortingParam.setPackageCode(reportRequest.getPackageCode());
-            List<Sorting> boxPackList = sortingService.findBoxPackList(sortingParam);
-            if(CollectionUtils.isNotEmpty(boxPackList)){
-                Sorting sortingData = boxPackList.get(0);
-                Boolean isBoxCode = BusinessUtil.isBoxcode(sortingData.getBoxCode());
-                if(isBoxCode){
-                    exceptionReport.setUpstreamBoxCode(sortingData.getBoxCode());
-                }
-                exceptionReport.setBoxStartId((long)sortingData.getCreateSiteCode());
-                exceptionReport.setBoxEndId((long)sortingData.getReceiveSiteCode());
-            }
             // 落库
             collectionBagExceptionReportDao.insertSelective(exceptionReport);
             result.toSucceed("举报成功");
