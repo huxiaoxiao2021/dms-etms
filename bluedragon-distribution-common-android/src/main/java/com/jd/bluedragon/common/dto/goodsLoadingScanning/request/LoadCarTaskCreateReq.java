@@ -30,12 +30,12 @@ public class LoadCarTaskCreateReq implements Serializable {
     /**
      * 创建人所属转运中心Id
      */
-    private Long currentSiteCode;
+    private Long createSiteCode;
 
     /**
      * 创建人所属转运中心名称
      */
-    private String currentSiteName;
+    private String createSiteName;
 
     /**
      * 创建人erp
@@ -49,7 +49,6 @@ public class LoadCarTaskCreateReq implements Serializable {
 
     public LoadCarTaskCreateReq() {
     }
-
 
     public String getLicenseNumber() {
         return licenseNumber;
@@ -75,20 +74,20 @@ public class LoadCarTaskCreateReq implements Serializable {
         this.endSiteName = endSiteName;
     }
 
-    public Long getCurrentSiteCode() {
-        return currentSiteCode;
+    public Long getCreateSiteCode() {
+        return createSiteCode;
     }
 
-    public void setCurrentSiteCode(Long currentSiteCode) {
-        this.currentSiteCode = currentSiteCode;
+    public void setCreateSiteCode(Long createSiteCode) {
+        this.createSiteCode = createSiteCode;
     }
 
-    public String getCurrentSiteName() {
-        return currentSiteName;
+    public String getCreateSiteName() {
+        return createSiteName;
     }
 
-    public void setCurrentSiteName(String currentSiteName) {
-        this.currentSiteName = currentSiteName;
+    public void setCreateSiteName(String createSiteName) {
+        this.createSiteName = createSiteName;
     }
 
     public String getCreateUserErp() {

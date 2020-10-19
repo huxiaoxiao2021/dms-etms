@@ -30,12 +30,12 @@ public class LoadCar extends DbEntity {
     /**
      * 创建人所属转运中心Id
      */
-    private Long currentSiteCode;
+    private Long createSiteCode;
 
     /**
      * 创建人所属转运中心名称
      */
-    private String currentSiteName;
+    private String createSiteName;
 
     /**
      * 创建人erp
@@ -55,7 +55,7 @@ public class LoadCar extends DbEntity {
     /**
      * 操作时间
      */
-    private Date operateTime;
+    private Date updateTime;
 
     /**
      * 批次号
@@ -77,10 +77,6 @@ public class LoadCar extends DbEntity {
      */
     private String operateUserErp;
 
-    /**
-     * 扩展字段
-     */
-    private String exp;
 
     public LoadCar() {
     }
@@ -109,20 +105,20 @@ public class LoadCar extends DbEntity {
         this.endSiteName = endSiteName;
     }
 
-    public Long getCurrentSiteCode() {
-        return currentSiteCode;
+    public Long getCreateSiteCode() {
+        return createSiteCode;
     }
 
-    public void setCurrentSiteCode(Long currentSiteCode) {
-        this.currentSiteCode = currentSiteCode;
+    public void setCreateSiteCode(Long createSiteCode) {
+        this.createSiteCode = createSiteCode;
     }
 
-    public String getCurrentSiteName() {
-        return currentSiteName;
+    public String getCreateSiteName() {
+        return createSiteName;
     }
 
-    public void setCurrentSiteName(String currentSiteName) {
-        this.currentSiteName = currentSiteName;
+    public void setCreateSiteName(String createSiteName) {
+        this.createSiteName = createSiteName;
     }
 
     public String getCreateUserErp() {
@@ -149,12 +145,14 @@ public class LoadCar extends DbEntity {
         this.status = status;
     }
 
-    public Date getOperateTime() {
-        return operateTime;
+    @Override
+    public Date getUpdateTime() {
+        return updateTime;
     }
 
-    public void setOperateTime(Date operateTime) {
-        this.operateTime = operateTime;
+    @Override
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
     }
 
     public String getBatchCode() {
@@ -187,13 +185,5 @@ public class LoadCar extends DbEntity {
 
     public void setOperateUserErp(String operateUserErp) {
         this.operateUserErp = operateUserErp;
-    }
-
-    public String getExp() {
-        return exp;
-    }
-
-    public void setExp(String exp) {
-        this.exp = exp;
     }
 }

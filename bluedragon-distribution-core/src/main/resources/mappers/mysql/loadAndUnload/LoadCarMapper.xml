@@ -13,8 +13,8 @@
         <result column="operate_time" property="operateTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
         <result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
         <result column="create_user_erp" property="createUserErp" javaType="java.lang.String" jdbcType="VARCHAR"/>
-        <result column="current_site_name" property="currentSiteName" javaType="java.lang.String" jdbcType="VARCHAR"/>
-        <result column="current_site_code" property="currentSiteCode" javaType="java.lang.Long" jdbcType="BIGINT"/>
+        <result column="create_site_name" property="createSiteName" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="create_site_code" property="createSiteCode" javaType="java.lang.Long" jdbcType="BIGINT"/>
         <result column="batch_code" property="batchCode" javaType="java.lang.String" jdbcType="VARCHAR"/>
         <result column="create_user_name" property="createUserName" javaType="java.lang.String" jdbcType="VARCHAR"/>
         <result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT"/>
@@ -55,11 +55,11 @@
             <if test="createUserErp !=null and createUserErp !=''">
                 create_user_erp,
             </if>
-            <if test="currentSiteName  !=null and currentSiteName !=''">
-                current_site_name,
+            <if test="createSiteName  !=null and createSiteName !=''">
+                create_site_code,
             </if>
-            <if test="currentSiteCode  !=null">
-                current_site_code,
+            <if test="createSiteCode  !=null">
+                create_site_code,
             </if>
             <if test="batchCode !=null and batchCode !=''">
                 batch_code,
@@ -103,11 +103,11 @@
             <if test="createUserErp !=null and createUserErp !=''">
                 #{createUserErp,jdbcType=VARCHAR},
             </if>
-            <if test="currentSiteName  !=null and currentSiteName !=''">
-                #{currentSiteName,jdbcType=VARCHAR},
+            <if test="createSiteName  !=null and createSiteName !=''">
+                #{createSiteName,jdbcType=VARCHAR},
             </if>
-            <if test="currentSiteCode  !=null">
-                #{currentSiteCode,jdbcType=BIGINT},
+            <if test="createSiteCode  !=null">
+                #{createSiteCode,jdbcType=BIGINT},
             </if>
             <if test="batchCode !=null and batchCode !=''">
                 #{batchCode,jdbcType=VARCHAR},
@@ -179,11 +179,11 @@
             <if test="createTime != null">
                 and create_time = #{createTime,jdbcType=TIMESTAMP}
             </if>
-            <if test="currentSiteCode != null">
-                and current_site_code = #{currentSiteCode,jdbcType=BIGINT}
+            <if test="createSiteCode != null">
+                and create_site_code = #{createSiteCode,jdbcType=BIGINT}
             </if>
-            <if test="currentSiteName != null and currentSiteName != ''">
-                and current_site_name = #{currentSiteName,jdbcType=VARCHAR}
+            <if test="createSiteName != null and createSiteName != ''">
+                and create_site_name = #{createSiteName,jdbcType=VARCHAR}
             </if>
             <if test="batchCode != null and batchCode != ''">
                 and batch_code = #{batchCode,jdbcType=VARCHAR}
@@ -227,11 +227,11 @@
             <if test="createTime != null">
                 create_time = #{createTime,jdbcType=TIMESTAMP},
             </if>
-            <if test="currentSiteCode != null">
-                current_site_code = #{currentSiteCode,jdbcType=BIGINT},
+            <if test="createSiteCode != null">
+                create_site_code = #{createSiteCode,jdbcType=BIGINT},
             </if>
-            <if test="currentSiteName != null and currentSiteName != ''">
-                current_site_name = #{currentSiteName,jdbcType=VARCHAR},
+            <if test="createSiteName != null and createSiteName != ''">
+                create_site_name = #{createSiteName,jdbcType=VARCHAR},
             </if>
             <if test="batchCode != null and batchCode != ''">
                 batch_code = #{batchCode,jdbcType=VARCHAR},

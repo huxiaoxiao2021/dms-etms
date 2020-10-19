@@ -181,12 +181,16 @@ public class LoadCarTaskServiceImpl implements LoadCarTaskService {
         LoadCar loadCar = new LoadCar();
         BeanUtils.copyProperties(req, loadCar);
         loadCar.setCreateTime(new Date());
-        loadCar.setOperateTime(new Date());
+        loadCar.setUpdateTime(new Date());
         loadCar.setStatus(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BLANK);
         int id = loadCarDao.insert(loadCar);
-        jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
-        jdCResponse.setMessage(JdCResponse.MESSAGE_SUCCESS);
-        jdCResponse.setData((long) id);
+        if (id > 0) {
+            jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
+            jdCResponse.setMessage(JdCResponse.MESSAGE_SUCCESS);
+            jdCResponse.setData((long) id);
+        }
+        jdCResponse.setCode(JdCResponse.CODE_ERROR);
+        jdCResponse.setMessage("操作失败,请稍后重试！");
         return jdCResponse;
     }
 

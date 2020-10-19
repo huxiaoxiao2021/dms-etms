@@ -20,12 +20,12 @@ public class LoadCarHelper extends DbEntity {
     /**
      * 协助人姓名
      */
-    private String  helperName;
+    private String helperName;
 
     /**
      * 协助人erp
      */
-    private String  helperErp;
+    private String helperErp;
 
     /**
      * 创建人erp
@@ -42,10 +42,6 @@ public class LoadCarHelper extends DbEntity {
      */
     private Integer yn;
 
-    /**
-     * 扩展字段
-     */
-    private String exp;
 
     public LoadCarHelper() {
     }
@@ -96,13 +92,5 @@ public class LoadCarHelper extends DbEntity {
 
     public void setYn(Integer yn) {
         this.yn = yn;
-    }
-
-    public String getExp() {
-        return exp;
-    }
-
-    public void setExp(String exp) {
-        this.exp = exp;
     }
 }
