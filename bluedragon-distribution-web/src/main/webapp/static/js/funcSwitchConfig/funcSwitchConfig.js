@@ -241,8 +241,12 @@ $(function () {
             $('#btn_add_submit').click(function() {
                 $('#btn_add_submit').attr("disabled",true);
                 var param = convert2param();
-                if(param["menuCode"] == null || param["dimensionCode"] == null || param["orgId"] == null
-                    || param['siteCode'] == null || param['yn'] == null){
+                if(param["dimensionCode"]=='3'&&(param["menuCode"] == null || param["dimensionCode"] == null || param['yn'] == null)){
+                    $.msg.warn("带 * 号选项必填!");
+                    $('#btn_add_submit').attr("disabled",false);
+                    return;
+                }else if(param["dimensionCode"]!='3'&&(param["menuCode"] == null || param["dimensionCode"] == null || param["orgId"] == null
+                    || param['siteCode'] == null || param['yn'] == null)){
                     $.msg.warn("带 * 号选项必填!");
                     $('#btn_add_submit').attr("disabled",false);
                     return;
@@ -431,9 +435,13 @@ function initDimension(menu) {
             });
             $(menu).val(null).trigger('change');
             $(menu).on("change", function(e) {
-                if($(menu).val()=='全国'){
-                    $('#orgId-EG').hide();
-                    $('#siteCode-EG').hide();
+                //选择全国时,将区域和分拣中心置灰不可选
+                if($(menu).val()=='3'){
+                    $('#orgId-EG').attr("disabled","disabled").css("background-color","#EEEEEE;");
+                    $('#siteCode-EG').attr("disabled","disabled").css("background-color","#EEEEEE;");
+                }else{
+                    $('#orgId-EG').attr("disabled",false).css("background-color","#FFFFFF;");
+                    $('#siteCode-EG').attr("disabled",false).css("background-color","#FFFFFF;");
                 }
             });
         }
