@@ -160,7 +160,7 @@ public class LoadScanServiceImpl implements LoadScanService {
 
         try{
             String lockKey = goodsLoadScan.getTaskId().toString();
-            if(!jimdbCacheService.setNx(lockKey, StringUtils.EMPTY,2, TimeUnit.SECONDS)){
+            if(!jimdbCacheService.setNx(lockKey, "0",2, TimeUnit.SECONDS)){
                 Thread.sleep(100);
                 boolean res = jimdbCacheService.setNx(lockKey,StringUtils.EMPTY,2, TimeUnit.SECONDS);
                 if(res != true) {
@@ -392,6 +392,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         LoadScanDto loadScan = new LoadScanDto();
         loadScan.setWayBillCode(waybillCode);
         Integer createSiteId = loadCar.getCreateSiteCode().intValue();
+        scanDtoList.add(loadScan);
         List<LoadScanDto> loadScanDto = getLoadScanListByWaybillCode(scanDtoList, createSiteId);
         if (loadScanDto.isEmpty()) {
             log.error("根据包裹号和运单号从分拣报表查询运单信息返回空taskId={},packageCode={},waybillCode={}",
