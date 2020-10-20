@@ -366,7 +366,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         // todo inspectionCountByWaybill 这两个接口区别
         // 查看包裹是否已验货
         Inspection inspection = new Inspection();
-        inspection.setCreateSiteCode(req.getCreateSiteCode());
+        inspection.setCreateSiteCode(createSiteId);
         inspection.setPackageBarcode(packageCode);
         boolean isInspected = inspectionService.haveInspection(inspection);
 
