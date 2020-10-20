@@ -1329,5 +1329,8 @@ public class Constants {
 
     public static final String ALL_MAIL_CACHE_KEY="ALL_MAIL_CACHE_KEY_";
 
+    /**
+     * 5分钟的秒数
+     */
     public static final int  ALL_MAIL_CACHE_SECONDS = 5*60;
 }
