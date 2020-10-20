@@ -355,6 +355,7 @@
         <mapper resource="mappers/mysql/loadAndUnload/UnloadCarMapper.xml" />
         <mapper resource="mappers/mysql/loadAndUnload/UnloadCarDistributionMapper.xml" />
         <mapper resource="mappers/mysql/loadAndUnload/UnloadCarTransBoardMapper.xml" />
-
+        <mapper resource="mappers/mysql/loadAndUnload/LoadCarHelperMapper.xml" />
+        <mapper resource="mappers/mysql/loadAndUnload/LoadCarMapper.xml" />
     </mappers>
 </configuration>

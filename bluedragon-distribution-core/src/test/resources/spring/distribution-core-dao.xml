@@ -582,4 +582,9 @@
     <bean id="materialSendFlowDao" parent="businessBaseDao"
           class="com.jd.bluedragon.distribution.material.dao.impl.MaterialSendFlowDaoImpl" />
     <!--################################## bd_dms_business 相关DAO End ############################################ -->
+
+    <bean id="loadCarDao" parent="businessBaseDao"
+          class="com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarDao" />
+    <bean id="loadCarHelperDao" parent="businessBaseDao"
+          class="com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarHelperDao" />
 </beans>

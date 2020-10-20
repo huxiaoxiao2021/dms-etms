@@ -197,52 +197,56 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<Long> loadCarTaskCreate(LoadCarTaskCreateReq req) {
         JdCResponse<Long> jdCResponse = new JdCResponse<>();
-        if (null == req) {
-            jdCResponse.setCode(JdCResponse.CODE_ERROR);
-            jdCResponse.setMessage("装车任务信息不完整,请检查必填信息！");
-            return jdCResponse;
-        }
-        List<Long>taskIds=new ArrayList<>();
-        List<Long> creatorList = loadCarHelperService.selectByCreateUserErp(req.getCreateUserErp());
-        List<Long> helperList = loadCarHelperService.selectByHelperErp(req.getCreateUserErp());
-        if(CollectionUtils.isNotEmpty(creatorList)){
-            taskIds.addAll(creatorList);
-        }
-        if(CollectionUtils.isNotEmpty(helperList)){
-            taskIds.addAll(helperList);
-        }
-        Date now = new Date();
-        //库中如果存在
-        if (CollectionUtils.isNotEmpty(taskIds)) {
-            List<LoadTaskListDto> taskList = loadService.selectByIds(taskIds);
-            if (CollectionUtils.isNotEmpty(taskList)) {
-                for (LoadTaskListDto loadTaskListDto : taskList) {
-                    //判断是否有3天还没结束的任务,有的话直接删除任务
-                    if (daysDiff(now, loadTaskListDto.getUpdateTime()) >= 3) {
-                        loadCarHelperService.deleteById(loadTaskListDto.getId());
-                        LoadDeleteReq loadDeleteReq = new LoadDeleteReq();
-                        loadDeleteReq.setOperateUserErp(req.getCreateUserErp());
-                        loadDeleteReq.setOperateUserName(req.getCreateUserName());
-                        loadDeleteReq.setId(loadTaskListDto.getId());
-                        loadService.deleteById(loadDeleteReq);
+        try {
+            if (null == req) {
+                jdCResponse.setCode(JdCResponse.CODE_ERROR);
+                jdCResponse.setMessage("装车任务信息不完整,请检查必填信息！");
+                return jdCResponse;
+            }
+            List<Long>taskIds=new ArrayList<>();
+            List<Long> creatorList = loadCarHelperService.selectByCreateUserErp(req.getCreateUserErp());
+            List<Long> helperList = loadCarHelperService.selectByHelperErp(req.getCreateUserErp());
+            if(CollectionUtils.isNotEmpty(creatorList)){
+                taskIds.addAll(creatorList);
+            }
+            if(CollectionUtils.isNotEmpty(helperList)){
+                taskIds.addAll(helperList);
+            }
+            Date now = new Date();
+            //库中如果存在
+            if (CollectionUtils.isNotEmpty(taskIds)) {
+                List<LoadTaskListDto> taskList = loadService.selectByIds(taskIds);
+                if (CollectionUtils.isNotEmpty(taskList)) {
+                    for (LoadTaskListDto loadTaskListDto : taskList) {
+                        //判断是否有3天还没结束的任务,有的话直接删除任务
+                        if (daysDiff(now, loadTaskListDto.getUpdateTime()) >= 3) {
+                            loadCarHelperService.deleteById(loadTaskListDto.getId());
+                            LoadDeleteReq loadDeleteReq = new LoadDeleteReq();
+                            loadDeleteReq.setOperateUserErp(req.getCreateUserErp());
+                            loadDeleteReq.setOperateUserName(req.getCreateUserName());
+                            loadDeleteReq.setId(loadTaskListDto.getId());
+                            loadService.deleteById(loadDeleteReq);
+                        }
                     }
                 }
             }
+            LoadCar loadCar = new LoadCar();
+            BeanUtils.copyProperties(req, loadCar);
+            loadCar.setCreateTime(new Date());
+            loadCar.setUpdateTime(new Date());
+            loadCar.setStatus(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BLANK);
+            int id = loadService.insert(loadCar);
+            if (id > 0) {
+                jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
+                jdCResponse.setMessage(JdCResponse.MESSAGE_SUCCESS);
+                jdCResponse.setData((long) id);
+                return jdCResponse;
+            }
+            jdCResponse.setCode(JdCResponse.CODE_ERROR);
+            jdCResponse.setMessage("操作失败,请稍后重试！");
+        }catch (Exception e){
+            log.error("装卸任务创建请求异常={}",e);
         }
-        LoadCar loadCar = new LoadCar();
-        BeanUtils.copyProperties(req, loadCar);
-        loadCar.setCreateTime(new Date());
-        loadCar.setUpdateTime(new Date());
-        loadCar.setStatus(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BLANK);
-        int id = loadService.insert(loadCar);
-        if (id > 0) {
-            jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
-            jdCResponse.setMessage(JdCResponse.MESSAGE_SUCCESS);
-            jdCResponse.setData((long) id);
-            return jdCResponse;
-        }
-        jdCResponse.setCode(JdCResponse.CODE_ERROR);
-        jdCResponse.setMessage("操作失败,请稍后重试！");
         return jdCResponse;
     }
 
