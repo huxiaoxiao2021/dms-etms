@@ -252,27 +252,32 @@ public class LoadScanServiceImpl implements LoadScanService {
         List<GoodsLoadScan> tempList = goodsLoadScanDao.findLoadScanByTaskId(taskId);
 
         List<LoadScanDto> reportList;
+        List<GoodsDetailDto> goodsDetailDtoList = new ArrayList<>();
+        // 暂存表运单号，运单号对应的已装数
+        Map<String, Integer> map = new HashMap<>();
 
         // 如果暂存表不为空，则去分拣报表拉取最新的库存数据
         if (!tempList.isEmpty()) {
-            reportList = getLoadScanByWaybillCodes(getWaybillCodes(tempList), createSiteId, nextSiteId, null);
+            reportList = getLoadScanByWaybillCodes(getWaybillCodes(tempList, map), createSiteId, nextSiteId, null);
+            if (!reportList.isEmpty()) {
+                goodsDetailDtoList = transformData(reportList, map);
+            }
         } else {
             // 如果暂存表为空，则去分拣报表拉取100条数据
             reportList = getLoadScanByWaybillCodes(null, createSiteId, nextSiteId, 100);
+           if (!reportList.isEmpty()) {
+               goodsDetailDtoList = transformDataForNew(reportList);
+           }
         }
 
-        List<GoodsDetailDto> goodsDetailDtoList;
-
         // 分拣报表查询返回为空
-        if (reportList.isEmpty()) {
+        if (goodsDetailDtoList.isEmpty()) {
             log.error("根据任务ID所在的当前网点和下一网点去分拣报表没有找到相应的运单记录或发生错误，taskId={},currentSiteCode={},endSiteCode={}",
                     taskId, loadCar.getCreateSiteCode(), loadCar.getEndSiteCode());
             response.setCode(JdCResponse.CODE_FAIL);
             response.setMessage("根据任务ID没有找到相应的运单记录");
             return response;
         }
-        // 如果当前任务装车明细还没初始化，直接返回
-        goodsDetailDtoList = transformData(reportList);
         // 按照颜色排序
         Collections.sort(goodsDetailDtoList, new Comparator<GoodsDetailDto>() {
             @Override
@@ -334,6 +339,9 @@ public class LoadScanServiceImpl implements LoadScanService {
             return response;
         }
 
+        List<LoadScanDto> loadScanDtoList = new ArrayList<>();
+        // 运单，包裹数
+        Map<String, Integer> map = new HashMap<>();
         // 循环处理板上的每一个包裹
         for (String packCode : result.getData()) {
             if (!WaybillUtil.isPackageCode(packCode)) {
@@ -345,6 +353,16 @@ public class LoadScanServiceImpl implements LoadScanService {
             // 根据包裹号和运单号去分拣报表查找已验未发对应的记录
             // todo 批量   处理完再批量查
             LoadScanDto loadScanDto = new LoadScanDto();
+            loadScanDto.setWayBillCode(waybillCode);
+            loadScanDtoList.add(loadScanDto);
+            // 当前板子上同一个运单上的包裹数
+            Integer packageNum = map.get(waybillCode);
+            if (packageCode == null) {
+                map.put(waybillCode, 1);
+            } else {
+                packageNum = packageNum + 1;
+                map.put(waybillCode, packageNum);
+            }
                    // getLoadScanByWaybillCodeAndPackageCode(waybillCode, packCode);
             if (loadScanDto != null) {
                 // 保存扫描记录
@@ -765,7 +783,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         return baseEntity.getData();
     }
 
-    private  List<GoodsDetailDto> transformData(List<LoadScanDto> list) {
+    private  List<GoodsDetailDto> transformDataForNew(List<LoadScanDto> list) {
         List<GoodsDetailDto> goodsDetails = new ArrayList<>();
         for (LoadScanDto detailDto : list) {
             GoodsDetailDto goodsDetailDto = new GoodsDetailDto();
@@ -774,6 +792,23 @@ public class LoadScanServiceImpl implements LoadScanService {
             goodsDetailDto.setGoodsAmount(detailDto.getGoodsAmount());
             goodsDetailDto.setLoadAmount(0);
             goodsDetailDto.setUnloadAmount(0);
+            goodsDetailDto.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK);
+            goodsDetails.add(goodsDetailDto);
+        }
+        return goodsDetails;
+    }
+
+    private  List<GoodsDetailDto> transformData(List<LoadScanDto> list, Map<String, Integer> map) {
+        List<GoodsDetailDto> goodsDetails = new ArrayList<>();
+        for (LoadScanDto detailDto : list) {
+            GoodsDetailDto goodsDetailDto = new GoodsDetailDto();
+            goodsDetailDto.setWayBillCode(detailDto.getWayBillCode());
+            goodsDetailDto.setPackageAmount(detailDto.getPackageAmount());
+            goodsDetailDto.setGoodsAmount(detailDto.getGoodsAmount());
+            Integer loadAmount = map.get(detailDto.getWayBillCode());
+            goodsDetailDto.setLoadAmount(loadAmount);
+            goodsDetailDto.setUnloadAmount(detailDto.getGoodsAmount() - loadAmount);
+            setWaybillStatus();
             goodsDetailDto.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK);
             goodsDetails.add(goodsDetailDto);
         }
@@ -847,10 +882,11 @@ public class LoadScanServiceImpl implements LoadScanService {
         return goodsDetailDto;
     }
 
-    private List<String> getWaybillCodes(List<GoodsLoadScan> scans) {
+    private List<String> getWaybillCodes(List<GoodsLoadScan> scans, Map<String, Integer> map) {
         List<String> list = new ArrayList<>();
         for (GoodsLoadScan scan : scans) {
             list.add(scan.getWayBillCode());
+            map.put(scan.getWayBillCode(), scan.getLoadAmount());
         }
         return list;
     }
@@ -875,7 +911,7 @@ public class LoadScanServiceImpl implements LoadScanService {
      * 设置运单状态
      * @param goodsLoadScan 装车扫描运单记录
      */
-    private void setWaybillStatus(GoodsLoadScan goodsLoadScan) {
+    private Integer getWaybillStatus(GoodsLoadScan goodsLoadScan) {
         Integer goodsAmount = goodsLoadScan.getGoodsAmount();
         Integer loadAmount = goodsLoadScan.getLoadAmount();
         Integer unloadAmount = goodsLoadScan.getUnloadAmount();
