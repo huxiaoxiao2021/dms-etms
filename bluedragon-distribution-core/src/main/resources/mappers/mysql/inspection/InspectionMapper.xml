@@ -33,6 +33,7 @@
         <result column="driver_name" property="driverName" jdbcType="VARCHAR"/>
         <result column="busi_id" property="busiId" jdbcType="INTEGER"/>
         <result column="busi_name" property="busiName" jdbcType="VARCHAR"/>
+        <result column="biz_source" property="bizSource" jdbcType="INTEGER" />
     </resultMap>
 
     <resultMap id="WaybillNoCollectionInfo" type="com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionInfo">
@@ -56,7 +57,7 @@
     receive_site_code, update_user, 
     update_user_code, update_time, yn, third_waybill_code, pop_flag,
     pop_sup_id, pop_sup_name, quantity, cross_code, waybill_type, 
-    pop_receive_type, queue_no, driver_code, driver_name, busi_id, busi_name
+    pop_receive_type, queue_no, driver_code, driver_name, busi_id, busi_name, biz_source
   </sql>
     <sql id="where_condition">
         <where>
@@ -380,9 +381,6 @@
     </select>
 
     <insert id="add" parameterType="Inspection">
-        <!--<selectKey resultType="long"  keyProperty="inspectionId" order="BEFORE" statementType="PREPARED">      -->
-        <!--<![CDATA[select dms_core_inspection.nextval]]>-->
-        <!--</selectKey>-->
         INSERT into inspection (
         <include refid="Base_Column_List"/>
         )
@@ -397,7 +395,8 @@
         #{popFlag,jdbcType=INTEGER}, #{popSupId,jdbcType=INTEGER}, #{popSupName,jdbcType=VARCHAR},
         #{quantity,jdbcType=INTEGER}, #{crossCode,jdbcType=VARCHAR}, #{waybillType,jdbcType=INTEGER},
         #{popReceiveType, jdbcType=INTEGER}, #{queueNo,jdbcType=VARCHAR}, #{driverCode, jdbcType=VARCHAR},
-        #{driverName,jdbcType=VARCHAR}, #{busiId, jdbcType=INTEGER}, #{busiName, jdbcType=VARCHAR}
+        #{driverName,jdbcType=VARCHAR}, #{busiId, jdbcType=INTEGER}, #{busiName, jdbcType=VARCHAR},
+        #{bizSource, jdbcType=INTEGER}
         )
     </insert>
 
@@ -434,6 +433,9 @@
             <if test="yn != null">
                 yn = #{yn,jdbcType=INTEGER},
             </if>
+            <if test="bizSource != null and bizSource != '' ">
+                biz_source = #{bizSource, jdbcType=INTEGER},
+            </if>
         </set>
         WHERE box_code = #{boxCode,jdbcType=VARCHAR} AND package_barcode = #{packageBarcode,jdbcType=VARCHAR}
     </update>
@@ -445,6 +447,9 @@
             update_user =#{updateUser,jdbcType=VARCHAR},
             update_user_code = #{updateUserCode,jdbcType=INTEGER},
             update_time = #{updateTime,jdbcType=TIMESTAMP},
+            <if test="bizSource != null and bizSource != '' ">
+                biz_source = #{bizSource, jdbcType=INTEGER},
+            </if>
         </set>
         WHERE yn = 1
         <if test="null!=boxCode and ''!=boxCode">
@@ -500,6 +505,9 @@
             </if>
             <if test="driverName != null">
                 driver_name = #{driverName,jdbcType=VARCHAR},
+            </if>
+            <if test="bizSource != null and bizSource != '' ">
+                biz_source = #{bizSource, jdbcType=INTEGER},
             </if>
         </set>
         WHERE yn = 1
