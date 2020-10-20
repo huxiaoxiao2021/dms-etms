@@ -497,6 +497,11 @@ public class InspectionServiceImpl implements InspectionService {
 		return this.inspectionDao.haveInspection(inspection);
 	}
 
+	@Override
+	public boolean haveInspectionByPackageCode(Inspection inspection) {
+		return this.inspectionDao.haveInspectionByPackageCode(inspection);
+	}
+
 
 	@Override
 	public boolean dealHandoverPackages(Task task) {

@@ -401,12 +401,13 @@ public class LoadScanServiceImpl implements LoadScanService {
             return response;
         }
         LoadScanDto scanDto = loadScanDto.get(0);
-        // todo inspectionCountByWaybill 这两个接口区别
+
         // 查看包裹是否已验货
         Inspection inspection = new Inspection();
         inspection.setCreateSiteCode(createSiteId);
         inspection.setPackageBarcode(packageCode);
-        boolean isInspected = inspectionService.haveInspection(inspection);
+        inspection.setWaybillCode(waybillCode);
+        boolean isInspected = inspectionService.haveInspectionByPackageCode(inspection);
 
         // 未操作验货
         // 此类包裹，页面弹出提示：“此包裹未操作验货，无法扫描，请先操作验货”
@@ -517,7 +518,6 @@ public class LoadScanServiceImpl implements LoadScanService {
 
         Long taskId = req.getTaskId();
         String packageCode = req.getPackageCode();
-        Map<String, Object> resultMap;
 
         // 根据任务号查询装车任务记录
         LoadCar loadCar = loadCarDao.findLoadCarById(taskId);

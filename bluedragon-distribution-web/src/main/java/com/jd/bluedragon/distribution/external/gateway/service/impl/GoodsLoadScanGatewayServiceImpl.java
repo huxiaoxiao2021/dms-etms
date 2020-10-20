@@ -6,17 +6,12 @@ import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsExceptionScanningReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingScanningReq;
-import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsDetailDto;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
-import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
-import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.ExceptionScanDto;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanService;
-import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
-import com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.ExceptionScanService;
 import com.jd.bluedragon.distribution.loadAndUnload.service.LoadService;
 import com.jd.bluedragon.external.gateway.service.GoodsLoadScanGatewayService;
@@ -29,8 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
 import javax.annotation.Resource;
 import java.util.*;
 
@@ -40,19 +33,6 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
 
     @Resource
     private ExceptionScanService exceptionScanService;
-
-    @Autowired
-    private LoadCarDao loadCarDao;
-
-    @Autowired
-    private SiteService siteService;
-
-    @Autowired
-    private InspectionService inspectionService;
-
-    @Autowired
-    private GroupBoardManager groupBoardManager;
-
 
     @Resource
     private LoadScanService loadScanService;
