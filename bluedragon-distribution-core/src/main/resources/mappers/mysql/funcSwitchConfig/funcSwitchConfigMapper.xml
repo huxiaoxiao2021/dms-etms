@@ -151,11 +151,11 @@
             <if test="siteName != null">
                 #{siteName,jdbcType=VARCHAR},
             </if>
-            <if test="operateErp != null">
-                #{operateErp,jdbcType=VARCHAR},
-            </if>
             <if test="createErp != null">
                 #{createErp,jdbcType=VARCHAR},
+            </if>
+            <if test="operateErp != null">
+                #{operateErp,jdbcType=VARCHAR},
             </if>
             <if test="createUser != null">
                 #{createUser,jdbcType=VARCHAR},
@@ -297,7 +297,7 @@
      select yn
      from
      func_switch_config
-     where 1=1
+     where 1=1 and yn = 1
      <include refid="Query_Yn_Condition_Sql"/>
     </select>
 </mapper>
