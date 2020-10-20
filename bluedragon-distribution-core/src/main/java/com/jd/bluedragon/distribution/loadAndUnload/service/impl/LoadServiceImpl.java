@@ -43,4 +43,9 @@ public class LoadServiceImpl implements LoadService {
         log.info("查询装车任务列表taskIds={}", JSON.toJSONString(list));
         return loadCarDao.selectByIds(list);
     }
+
+    @Override
+    public LoadCar findLoadCarById(Long id) {
+        return loadCarDao.findLoadCarById(id);
+    }
 }

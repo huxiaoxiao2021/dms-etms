@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.goodsLoadScan.dao;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
 import com.jd.bluedragon.distribution.loadAndUnload.UnloadCar;
@@ -27,6 +28,14 @@ public class GoodsLoadScanRecordDao extends BaseDao {
 
     public GoodsLoadScanRecord findLoadScanRecordByTaskIdAndWaybillCodeAndPackCode(GoodsLoadScanRecord record) {
 
+        return this.getSqlSession().selectOne(namespace + ".selectListByCondition",record);
+    }
+
+    public GoodsLoadScanRecord findLoadScanRecordByTaskIdAndBoardCode(Long taskId, String boardCode) {
+        GoodsLoadScanRecord record = new GoodsLoadScanRecord();
+        record.setTaskId(taskId);
+        record.setBoardCode(boardCode);
+        record.setYn(Constants.YN_YES);
         return this.getSqlSession().selectOne(namespace + ".selectListByCondition",record);
     }
 

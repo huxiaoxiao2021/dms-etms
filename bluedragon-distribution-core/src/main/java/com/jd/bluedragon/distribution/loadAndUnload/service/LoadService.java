@@ -19,4 +19,6 @@ public interface LoadService {
     int insert(LoadCar detail);
 
     List<LoadTaskListDto> selectByIds(List<Long> list);
+
+    LoadCar findLoadCarById(Long id);
 }
