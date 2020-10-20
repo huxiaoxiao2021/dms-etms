@@ -134,6 +134,7 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
                 if(log.isInfoEnabled()) {
                     log.info("waybillPackageManager.getOpeDetailByCode 无称重明细 packageCode {}", packageCode);
                 }
+                result.setData(reportResponse);
                 return result;
             }
 
