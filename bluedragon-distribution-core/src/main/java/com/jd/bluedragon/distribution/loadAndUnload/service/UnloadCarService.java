@@ -112,4 +112,11 @@ public interface UnloadCarService {
      */
     InvokeResult<List<UnloadCarTaskDto>> getUnloadCarTaskScan(TaskHelpersReq taskHelpersReq);
 
+
+    /**
+     * 卸车的拦截校验
+     * @param barCode
+     * @return
+     */
+    InvokeResult<String> interceptValidateUnloadCar(String barCode);
 }

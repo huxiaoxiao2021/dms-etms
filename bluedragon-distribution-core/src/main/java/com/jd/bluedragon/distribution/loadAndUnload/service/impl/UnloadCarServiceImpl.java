@@ -69,15 +69,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 
@@ -178,8 +170,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             // 包裹是否扫描成功
             packageIsScanBoard(request);
             if(!request.getIsForceCombination()){
-                // 拦截校验
-                interceptValidate(request);
                 // 验货校验
                 inspectionIntercept(request);
                 // 路由校验、生成板号
@@ -201,6 +191,10 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             }else {
                 surfacePackageCheck(request,result);
             }
+
+            //拦截校验
+            InvokeResult<String> invokeResult = interceptValidateUnloadCar(request.getBarCode());
+
             if(StringUtils.isEmpty(request.getBoardCode())){
                 result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,LoadIllegalException.BOARD_NOTE_EXIST_INTERCEPT_MESSAGE);
                 return result;
@@ -210,8 +204,12 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             if(result.getCode() == CODE_SUCCESS_HIT){
                 isSurplusPackage = true;
             }
-            // 卸车处理并回传TC组板关系
-            dealUnloadAndBoxToBoard(request,isSurplusPackage);
+            if(invokeResult == null || Objects.equals(invokeResult.getCode(), InvokeResult.RESULT_SUCCESS_CODE)){
+                // 卸车处理并回传TC组板关系
+                dealUnloadAndBoxToBoard(request,isSurplusPackage);
+            }else{
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,invokeResult.getMessage());
+            }
             //设置包裹数
             setPackageCount(result.getData());
 
@@ -1225,21 +1223,24 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         return sendCode;
     }
 
-    /**
-     * 拦截校验
-     * @return
-     */
-    private void interceptValidate(UnloadCarScanRequest request){
-        String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
+    @Override
+    public InvokeResult<String> interceptValidateUnloadCar(String barCode) {
+        InvokeResult<String> result = new InvokeResult<String>();
+        result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+        result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+        if(StringUtils.isBlank(barCode)){
+            return result;
+        }
+        String waybillCode = WaybillUtil.getWaybillCode(barCode);
         WaybillCache waybillNoCache = waybillCacheService.getNoCache(waybillCode);
         if(waybillNoCache == null){
             logger.warn("interceptValidate卸车根据单号获取运单信息失败单号：{}",waybillCode);
-            return;
+            return result;
         }
         String waybillSign = waybillNoCache.getWaybillSign();
         if(StringUtils.isBlank(waybillSign)){
             logger.warn("interceptValidate卸车根据单号获取运单信息失败单号：{}",waybillCode);
-            return;
+            return result;
         }
         //信任运单标识
         boolean isTrust = BusinessUtil.isSignChar(waybillSign, 66, '1');
@@ -1248,7 +1249,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         //无重量禁止发货判断
         if(!isTrust && isB2BPure && waybillNoCache.getAgainWeight() != null && waybillNoCache.getAgainWeight() < 0){
             logger.warn("interceptValidate卸车无重量禁止发货单号：{}",waybillCode);
-            throw new LoadIllegalException(LoadIllegalException.NO_WEIGHT_FORBID_SEND_MESSAGE);
+            result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+            result.setMessage(LoadIllegalException.NO_WEIGHT_FORBID_SEND_MESSAGE);
+            return result;
         }
         //B网营业厅
         boolean isBnet = BusinessUtil.isSignChar(waybillSign, 62, '1');
@@ -1261,7 +1264,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         //运费寄付无运费金额禁止发货
         if(isBnet && isSendPay && !isBnetCancel && !isBnetJDCancel && StringUtils.isNotBlank(waybillNoCache.getFreight()) && !NumberHelper.gt0(waybillNoCache.getFreight())){
             logger.warn("interceptValidate卸车运费寄付无运费金额禁止发货单号：{}",waybillCode);
-            throw new LoadIllegalException(LoadIllegalException.FREIGTH_SEND_PAY_NO_MONEY_FORBID_SEND_MESSAGE);
+            result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+            result.setMessage(LoadIllegalException.FREIGTH_SEND_PAY_NO_MONEY_FORBID_SEND_MESSAGE);
+            return result;
         }
 
         //是仓配零担
@@ -1270,34 +1275,45 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         boolean isArrivePay = BusinessUtil.isSignChar(waybillSign, 25, '2');
         if((isB2BPure || isWarehouse) && isArrivePay && !isBnetCancel && !isBnetJDCancel && StringUtils.isNotBlank(waybillNoCache.getFreight()) && !NumberHelper.gt0(waybillNoCache.getFreight())){
             logger.warn("interceptValidate卸车运费到付无运费金额禁止发货单号：{}",waybillCode);
-            throw new LoadIllegalException(LoadIllegalException.FREIGTH_ARRIVE_PAY_NO_MONEY_FORBID_SEND_MESSAGE);
+            result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+            result.setMessage(LoadIllegalException.FREIGTH_ARRIVE_PAY_NO_MONEY_FORBID_SEND_MESSAGE);
+            return result;
         }
 
         //寄付临欠
-       boolean isSendPayTemporaryDebt = BusinessUtil.isSignChar(waybillSign, 25, '4');
+        boolean isSendPayTemporaryDebt = BusinessUtil.isSignChar(waybillSign, 25, '4');
         if(!isTrust && isBnet && isSendPayTemporaryDebt && (waybillNoCache.getAgainWeight() == null || waybillNoCache.getAgainWeight() <= 0
                 || StringUtils.isEmpty(waybillNoCache.getSpareColumn2()) || Double.parseDouble(waybillNoCache.getSpareColumn2()) <= 0)){
             logger.warn("interceptValidate卸车运费临时欠款无重量体积禁止发货单号：{}",waybillCode);
-            throw new LoadIllegalException(LoadIllegalException.FREIGTH_TEMPORARY_PAY_NO_WEIGHT_VOLUME_FORBID_SEND_MESSAGE);
+            result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+            result.setMessage(LoadIllegalException.FREIGTH_TEMPORARY_PAY_NO_WEIGHT_VOLUME_FORBID_SEND_MESSAGE);
+            return result;
         }
 
         //有包装服务
         boolean isPackService = BusinessUtil.isSignChar(waybillSign, 72, '1');
         if(isPackService && !waybillConsumableRecordService.isConfirmed(waybillCode)){
             logger.warn("interceptValidate卸车包装服务运单未确认包装完成禁止发货单号：{}",waybillCode);
-            throw new LoadIllegalException(LoadIllegalException.PACK_SERVICE_NO_CONFIRM_FORBID_SEND_MESSAGE);
+            result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+            result.setMessage(LoadIllegalException.PACK_SERVICE_NO_CONFIRM_FORBID_SEND_MESSAGE);
+            return result;
         }
 
         //金鹏订单
         if(!storagePackageMService.checkWaybillCanSend(waybillCode, waybillSign)){
             logger.warn("interceptValidate卸车金鹏订单未上架集齐禁止发货单号：{}",waybillCode);
-            throw new LoadIllegalException(LoadIllegalException.JIN_PENG_NO_TOGETHER_FORBID_SEND_MESSAGE);
+            result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+            result.setMessage(LoadIllegalException.JIN_PENG_NO_TOGETHER_FORBID_SEND_MESSAGE);
+            return result;
         }
 
         if(businessHallFreightSendReceiveCheck(waybillCode, waybillSign)){
             logger.warn("interceptValidate卸车B网营业厅寄付未揽收完成禁止发货单号：{}",waybillCode);
-            throw new LoadIllegalException(LoadIllegalException.BNET_SEND_PAY_NO_RECEIVE_FINISH_MESSAGE);
+            result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+            result.setMessage(LoadIllegalException.BNET_SEND_PAY_NO_RECEIVE_FINISH_MESSAGE);
+            return result;
         }
+        return result;
     }
 
     /**
