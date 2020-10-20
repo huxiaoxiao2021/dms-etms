@@ -85,6 +85,42 @@ public class AbnormalResultMqToJN implements Serializable {
      * 4、5为空
      * */
     private Integer reviewSecondLevelId;
+    /**
+     * 复核长cm
+     * */
+    private Double reviewLength;
+    /**
+     * 复核宽cm
+     * */
+    private Double reviewWidth;
+    /**
+     * 复核高cm
+     * */
+    private Double reviewHeight;
+
+    public Double getReviewLength() {
+        return reviewLength;
+    }
+
+    public void setReviewLength(Double reviewLength) {
+        this.reviewLength = reviewLength;
+    }
+
+    public Double getReviewWidth() {
+        return reviewWidth;
+    }
+
+    public void setReviewWidth(Double reviewWidth) {
+        this.reviewWidth = reviewWidth;
+    }
+
+    public Double getReviewHeight() {
+        return reviewHeight;
+    }
+
+    public void setReviewHeight(Double reviewHeight) {
+        this.reviewHeight = reviewHeight;
+    }
 
     public static long getSerialVersionUID() {
         return serialVersionUID;

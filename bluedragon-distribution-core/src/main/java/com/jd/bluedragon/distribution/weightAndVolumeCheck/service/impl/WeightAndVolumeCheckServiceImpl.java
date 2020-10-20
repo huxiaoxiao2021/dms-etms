@@ -1921,6 +1921,9 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      */
     private AbnormalResultMqToJN convertToAbnormalResultMqToJN(AbnormalResultMq abnormalResultMq) {
         AbnormalResultMqToJN abnormalResultMqToJN = new AbnormalResultMqToJN();
+        abnormalResultMqToJN.setReviewHeight(abnormalResultMq.getReviewHeight());
+        abnormalResultMqToJN.setReviewLength(abnormalResultMq.getReviewLength());
+        abnormalResultMqToJN.setReviewWidth(abnormalResultMq.getReviewWidth());
         abnormalResultMqToJN.setBillCode(abnormalResultMq.getBillCode());
         abnormalResultMqToJN.setReviewDate(abnormalResultMq.getReviewDate());
         abnormalResultMqToJN.setWeight(abnormalResultMq.getWeight());
