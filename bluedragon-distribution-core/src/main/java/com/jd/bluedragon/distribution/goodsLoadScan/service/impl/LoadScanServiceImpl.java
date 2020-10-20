@@ -51,7 +51,7 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.*;
 
-@Service("LoadScanServiceImpl")
+@Service("LoadScanService")
 public class LoadScanServiceImpl implements LoadScanService {
     private final static Logger log = LoggerFactory.getLogger(LoadScanServiceImpl.class);
 
