@@ -2628,6 +2628,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         	//body里是任务
 	        if (JsonHelper.isJsonString(task.getBody())) {
 	            SendTaskBody body = JsonHelper.fromJson(task.getBody(), SendTaskBody.class);
+	            sendCode = body.getSendCode();
 	            if(body.getHandleCategory() != null){
 	            	sendTaskCategory = SendTaskCategoryEnum.getEnum(body.getHandleCategory());
 	            }
@@ -2640,6 +2641,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 	                tSendM.add(body);
 	            }
 	        } else {
+	        	sendCode = task.getBoxCode();
 	        	info = startMonitor(SendTaskCategoryEnum.BATCH_SEND);
 	            tSendM = this.sendMDao.selectBySiteAndSendCodeBYtime(task.getCreateSiteCode(), task.getBoxCode());
 	        }
