@@ -10,6 +10,7 @@ import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingScanningReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsDetailDto;
+import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadScanDetailDto;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.base.domain.CreateAndReceiveSiteInfo;
@@ -236,8 +237,8 @@ public class LoadScanServiceImpl implements LoadScanService {
     }
 
     @Override
-    public JdCResponse<Map<String, Object>> goodsLoadingScan(GoodsLoadingScanningReq req) {
-        JdCResponse<Map<String, Object>> response = new JdCResponse<>();
+    public JdCResponse<LoadScanDetailDto> goodsLoadingScan(GoodsLoadingScanningReq req) {
+        JdCResponse<LoadScanDetailDto> response = new JdCResponse<>();
         Long taskId = req.getTaskId();
         // 根据任务号查找当前任务所在网点和下一网点
         LoadCar loadCar = loadCarDao.findLoadCarById(taskId);
@@ -283,12 +284,12 @@ public class LoadScanServiceImpl implements LoadScanService {
             }
         });
 
-        Map<String, Object> resultMap = new HashMap<>();
-        resultMap.put("batchCode", loadCar.getBatchCode());
-        resultMap.put("loadScan", loadCar.getBatchCode());
+        LoadScanDetailDto scanDetailDto = new LoadScanDetailDto();
+        scanDetailDto.setBatchCode(loadCar.getBatchCode());
+        scanDetailDto.setGoodsDetailDtoList(goodsDetailDtoList);
 
         response.setCode(JdCResponse.CODE_SUCCESS);
-        response.setData(resultMap);
+        response.setData(scanDetailDto);
 
         return response;
     }
@@ -573,7 +574,7 @@ public class LoadScanServiceImpl implements LoadScanService {
      * 校验批次号并绑定任务
      */
     @Override
-    public JdVerifyResponse<Void> checkBatchCode(GoodsLoadingScanningReq req, JdVerifyResponse<Void> response) {
+    public JdCResponse<Void> checkBatchCode(GoodsLoadingScanningReq req, JdCResponse<Void> response) {
 
         Long taskId = req.getTaskId();
         String batchCode = req.getBatchCode();

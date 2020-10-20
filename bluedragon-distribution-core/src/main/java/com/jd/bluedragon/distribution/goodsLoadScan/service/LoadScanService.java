@@ -4,13 +4,10 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingScanningReq;
-import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsDetailDto;
+import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadScanDetailDto;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
-
-import java.util.List;
-import java.util.Map;
 
 public interface LoadScanService {
     //装车发货
@@ -25,7 +22,7 @@ public interface LoadScanService {
     //修改装车运单记录，计算已装车、未装车数量
     boolean updateGoodsLoadScanAmount(GoodsLoadScan goodsLoadScan, GoodsLoadScanRecord goodsLoadScanRecord, Integer currentSiteCode);
 
-    JdCResponse<Map<String, Object>> goodsLoadingScan(GoodsLoadingScanningReq req);
+    JdCResponse<LoadScanDetailDto> goodsLoadingScan(GoodsLoadingScanningReq req);
 
     JdCResponse<Void> saveLoadScanByBoardCode(GoodsLoadingScanningReq req, JdCResponse<Void> response, LoadCar loadCar);
 
@@ -35,7 +32,7 @@ public interface LoadScanService {
 
     JdVerifyResponse<Void> checkBoardCode(GoodsLoadingScanningReq req, JdVerifyResponse<Void> response);
 
-    JdVerifyResponse<Void> checkBatchCode(GoodsLoadingScanningReq req, JdVerifyResponse<Void> response);
+    JdCResponse<Void> checkBatchCode(GoodsLoadingScanningReq req, JdCResponse<Void> response);
 
 
 

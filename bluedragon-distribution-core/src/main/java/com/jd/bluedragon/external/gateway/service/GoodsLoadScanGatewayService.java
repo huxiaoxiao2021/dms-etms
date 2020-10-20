@@ -5,12 +5,10 @@ import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsExceptionScanningReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingScanningReq;
-import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsDetailDto;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
-import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan;
+import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadScanDetailDto;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 货物装车扫描相关
@@ -55,12 +53,12 @@ public interface GoodsLoadScanGatewayService {
     /**
      * 装车扫描接口
      */
-    JdCResponse<Map<String, Object>> goodsLoadingScan(GoodsLoadingScanningReq req);
+    JdCResponse<LoadScanDetailDto> goodsLoadingScan(GoodsLoadingScanningReq req);
 
     /**
      * 校验批次号接口--发货校验
      */
-    JdVerifyResponse<Void> checkBatchCode(GoodsLoadingScanningReq req);
+    JdCResponse<Void> checkBatchCode(GoodsLoadingScanningReq req);
 
     /**
      * 校验板号/包裹号接口--发货校验
