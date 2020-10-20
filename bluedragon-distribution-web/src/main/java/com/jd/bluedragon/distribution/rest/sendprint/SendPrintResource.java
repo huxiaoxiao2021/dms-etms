@@ -7,6 +7,8 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
 import com.jd.bluedragon.distribution.sendprint.domain.*;
 import com.jd.bluedragon.distribution.sendprint.service.SendPrintService;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.QueryGapTimeUtil;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
@@ -37,6 +39,9 @@ public class SendPrintResource {
 
     @Autowired
     WaybillQueryManager waybillQueryManager;
+
+    @Autowired
+    private QueryGapTimeUtil queryGapTimeUtil;
 
 	@POST
 	@GZIP
@@ -300,6 +305,12 @@ public class SendPrintResource {
 			tBasicQueryEntityResponse.setData(null);
             return tBasicQueryEntityResponse;
 		}
+        if(!queryGapTimeUtil.checkPass(JsonHelper.toJson(criteria),QueryGapTimeUtil.SEND_PRINT_RESOURCE_SOP_PRINT_QUERY)){
+            BasicQueryEntityResponse response = new BasicQueryEntityResponse();
+            response.setCode(JdResponse.CODE_PARAM_ERROR);
+            response.setMessage("您操作的太快了！稍作休息后再操作！");
+            return response;
+        }
 		return sendPrintService.sopPrintQuery(criteria);
 	}
 

@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.loadAndUnload.service.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.common.dto.unloadCar.HelperDto;
 import com.jd.bluedragon.common.dto.unloadCar.OperateTypeEnum;
 import com.jd.bluedragon.common.dto.unloadCar.TaskHelpersReq;
@@ -12,16 +13,14 @@ import com.jd.bluedragon.common.dto.unloadCar.UnloadCarTaskDto;
 import com.jd.bluedragon.common.dto.unloadCar.UnloadCarTaskReq;
 import com.jd.bluedragon.common.dto.unloadCar.UnloadUserTypeEnum;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.BoardCommonManager;
-import com.jd.bluedragon.core.base.BoardCommonManagerImpl;
-import com.jd.bluedragon.core.base.VosManager;
+import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.alliance.service.AllianceBusiDeliveryDetailService;
 import com.jd.bluedragon.distribution.api.request.BoardCommonRequest;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.loadAndUnload.TmsSealCar;
 import com.jd.bluedragon.distribution.loadAndUnload.UnloadCar;
 import com.jd.bluedragon.distribution.loadAndUnload.UnloadCarDistribution;
@@ -35,14 +34,18 @@ import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalExcepti
 import com.jd.bluedragon.distribution.loadAndUnload.service.UnloadCarService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
+import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.unloadCar.domain.UnloadCarCondition;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.jim.cli.Cluster;
@@ -66,15 +69,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 
@@ -140,6 +135,17 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     @Autowired
     protected BaseMajorManager baseMajorManager;
 
+    @Autowired
+    private WaybillCacheService waybillCacheService;
+
+    @Autowired
+    private WaybillConsumableRecordService waybillConsumableRecordService;
+
+    @Autowired
+    private StoragePackageMService storagePackageMService;
+
+    private WaybillTraceManager waybillTraceManager;
+
     @Override
     public InvokeResult<UnloadCarScanResult> getUnloadCarBySealCarCode(String sealCarCode) {
         InvokeResult<UnloadCarScanResult> result = new InvokeResult<>();
@@ -185,6 +191,10 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             }else {
                 surfacePackageCheck(request,result);
             }
+
+            //拦截校验
+            InvokeResult<String> invokeResult = interceptValidateUnloadCar(request.getBarCode());
+
             if(StringUtils.isEmpty(request.getBoardCode())){
                 result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,LoadIllegalException.BOARD_NOTE_EXIST_INTERCEPT_MESSAGE);
                 return result;
@@ -194,8 +204,12 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             if(result.getCode() == CODE_SUCCESS_HIT){
                 isSurplusPackage = true;
             }
-            // 卸车处理并回传TC组板关系
-            dealUnloadAndBoxToBoard(request,isSurplusPackage);
+            if(invokeResult == null || Objects.equals(invokeResult.getCode(), InvokeResult.RESULT_SUCCESS_CODE)){
+                // 卸车处理并回传TC组板关系
+                dealUnloadAndBoxToBoard(request,isSurplusPackage);
+            }else{
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,invokeResult.getMessage());
+            }
             //设置包裹数
             setPackageCount(result.getData());
 
@@ -1207,5 +1221,114 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             }
         }
         return sendCode;
+    }
+
+    @Override
+    public InvokeResult<String> interceptValidateUnloadCar(String barCode) {
+        InvokeResult<String> result = new InvokeResult<String>();
+        result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+        result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+        if(StringUtils.isBlank(barCode)){
+            return result;
+        }
+        String waybillCode = WaybillUtil.getWaybillCode(barCode);
+        WaybillCache waybillNoCache = waybillCacheService.getNoCache(waybillCode);
+        if(waybillNoCache == null){
+            logger.warn("interceptValidate卸车根据单号获取运单信息失败单号：{}",waybillCode);
+            return result;
+        }
+        String waybillSign = waybillNoCache.getWaybillSign();
+        if(StringUtils.isBlank(waybillSign)){
+            logger.warn("interceptValidate卸车根据单号获取运单信息失败单号：{}",waybillCode);
+            return result;
+        }
+        //信任运单标识
+        boolean isTrust = BusinessUtil.isSignChar(waybillSign, 66, '1');
+        //纯配快运零担
+        boolean isB2BPure = BusinessUtil.isSignChar(waybillSign, 40, '2');
+        //无重量禁止发货判断
+        if(!isTrust && isB2BPure && waybillNoCache.getAgainWeight() != null && waybillNoCache.getAgainWeight() < 0){
+            logger.warn("interceptValidate卸车无重量禁止发货单号：{}",waybillCode);
+            result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+            result.setMessage(LoadIllegalException.NO_WEIGHT_FORBID_SEND_MESSAGE);
+            return result;
+        }
+        //B网营业厅
+        boolean isBnet = BusinessUtil.isSignChar(waybillSign, 62, '1');
+        //寄付
+        boolean isSendPay = BusinessUtil.isSignChar(waybillSign, 25, '3');
+        //B网营业厅（原单作废，逆向单不计费）
+        boolean isBnetCancel = BusinessUtil.isSignChar(waybillSign, 14, 'D');
+        //B网营业厅（原单拒收因京东原因产生的逆向单，不计费）
+        boolean isBnetJDCancel = BusinessUtil.isSignChar(waybillSign, 14, 'E');
+        //运费寄付无运费金额禁止发货
+        if(isBnet && isSendPay && !isBnetCancel && !isBnetJDCancel && StringUtils.isNotBlank(waybillNoCache.getFreight()) && !NumberHelper.gt0(waybillNoCache.getFreight())){
+            logger.warn("interceptValidate卸车运费寄付无运费金额禁止发货单号：{}",waybillCode);
+            result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+            result.setMessage(LoadIllegalException.FREIGTH_SEND_PAY_NO_MONEY_FORBID_SEND_MESSAGE);
+            return result;
+        }
+
+        //是仓配零担
+        boolean isWarehouse = BusinessUtil.isSignChar(waybillSign, 40, '3');
+        //到付
+        boolean isArrivePay = BusinessUtil.isSignChar(waybillSign, 25, '2');
+        if((isB2BPure || isWarehouse) && isArrivePay && !isBnetCancel && !isBnetJDCancel && StringUtils.isNotBlank(waybillNoCache.getFreight()) && !NumberHelper.gt0(waybillNoCache.getFreight())){
+            logger.warn("interceptValidate卸车运费到付无运费金额禁止发货单号：{}",waybillCode);
+            result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+            result.setMessage(LoadIllegalException.FREIGTH_ARRIVE_PAY_NO_MONEY_FORBID_SEND_MESSAGE);
+            return result;
+        }
+
+        //寄付临欠
+        boolean isSendPayTemporaryDebt = BusinessUtil.isSignChar(waybillSign, 25, '4');
+        if(!isTrust && isBnet && isSendPayTemporaryDebt && (waybillNoCache.getAgainWeight() == null || waybillNoCache.getAgainWeight() <= 0
+                || StringUtils.isEmpty(waybillNoCache.getSpareColumn2()) || Double.parseDouble(waybillNoCache.getSpareColumn2()) <= 0)){
+            logger.warn("interceptValidate卸车运费临时欠款无重量体积禁止发货单号：{}",waybillCode);
+            result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+            result.setMessage(LoadIllegalException.FREIGTH_TEMPORARY_PAY_NO_WEIGHT_VOLUME_FORBID_SEND_MESSAGE);
+            return result;
+        }
+
+        //有包装服务
+        boolean isPackService = BusinessUtil.isSignChar(waybillSign, 72, '1');
+        if(isPackService && !waybillConsumableRecordService.isConfirmed(waybillCode)){
+            logger.warn("interceptValidate卸车包装服务运单未确认包装完成禁止发货单号：{}",waybillCode);
+            result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+            result.setMessage(LoadIllegalException.PACK_SERVICE_NO_CONFIRM_FORBID_SEND_MESSAGE);
+            return result;
+        }
+
+        //金鹏订单
+        if(!storagePackageMService.checkWaybillCanSend(waybillCode, waybillSign)){
+            logger.warn("interceptValidate卸车金鹏订单未上架集齐禁止发货单号：{}",waybillCode);
+            result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+            result.setMessage(LoadIllegalException.JIN_PENG_NO_TOGETHER_FORBID_SEND_MESSAGE);
+            return result;
+        }
+
+        if(!businessHallFreightSendReceiveCheck(waybillCode, waybillSign)){
+            logger.warn("interceptValidate卸车B网营业厅寄付未揽收完成禁止发货单号：{}",waybillCode);
+            result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+            result.setMessage(LoadIllegalException.BNET_SEND_PAY_NO_RECEIVE_FINISH_MESSAGE);
+            return result;
+        }
+        return result;
+    }
+
+    /**
+     * B网营业厅增加寄付揽收完成校验
+     * @param waybillCode
+     * @param waybillSign
+     * @return
+     */
+    private boolean businessHallFreightSendReceiveCheck(String waybillCode,String waybillSign) {
+        if(! BusinessUtil.isBusinessHallFreightSendAndForward(waybillSign)) {
+            return Boolean.TRUE;
+        }
+        Set<Integer> stateSet = new HashSet<>();
+        stateSet.add(Constants.WAYBILL_TRACE_STATE_RECEIVE);
+        List result = waybillTraceManager.getAllOperationsByOpeCodeAndState(waybillCode, stateSet);
+        return com.jd.service.common.utils.CollectionUtils.isNotEmpty(result)? Boolean.TRUE : Boolean.FALSE;
     }
 }

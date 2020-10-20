@@ -34,6 +34,20 @@ public class LoadIllegalException extends RuntimeException {
 
     public static final String UNSCAN_PACK_ISNULL_INTERCEPT_MESSAGE = "封车编码【%s】没有未扫包裹,请操作完成卸车任务!";
 
+    public static final String NO_WEIGHT_FORBID_SEND_MESSAGE = "无重量禁止发货!";
+
+    public static final String FREIGTH_SEND_PAY_NO_MONEY_FORBID_SEND_MESSAGE = "运费寄付无运费金额禁止发货";
+
+    public static final String FREIGTH_ARRIVE_PAY_NO_MONEY_FORBID_SEND_MESSAGE = "运费到付无运费金额禁止发货";
+
+    public static final String FREIGTH_TEMPORARY_PAY_NO_WEIGHT_VOLUME_FORBID_SEND_MESSAGE = "运费临时欠款无重量体积禁止发货";
+
+    public static final String PACK_SERVICE_NO_CONFIRM_FORBID_SEND_MESSAGE = "包装服务运单未确认包装完成禁止发货";
+
+    public static final String JIN_PENG_NO_TOGETHER_FORBID_SEND_MESSAGE = "金鹏订单未上架集齐禁止发货";
+
+    public static final String BNET_SEND_PAY_NO_RECEIVE_FINISH_MESSAGE = "B网营业厅寄付未揽收完成禁止发货";
+
     public LoadIllegalException(String message) {
         super(message);
     }
