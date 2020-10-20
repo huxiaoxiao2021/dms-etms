@@ -34,7 +34,6 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.*;
 
-@Service("goodsLoadScanGatewayService")
 public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayService {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
