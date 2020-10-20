@@ -15,7 +15,7 @@ import java.util.List;
 
 /**
  * @ClassName: NeedCollectionCompletedInterceptHandler
- * @Description: 对
+ * @Description: 对 揽收时采集商品信息运单 未揽收完成禁止打印限制
  * @author: zhangzhongkai
  * @date: 2018年12月25日17:38:01
  */
