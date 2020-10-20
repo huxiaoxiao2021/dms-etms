@@ -115,6 +115,11 @@ public interface InspectionService {
 	public boolean haveInspection(Inspection inspection);
 
 	/**
+	 * 根根据包裹号查询验货记录 是否验货
+	 */
+	public boolean haveInspectionByPackageCode(Inspection inspection);
+
+	/**
 	 * 从自动分拣机总部数据抓数据放到 交接表
 	 * @param  task
 	 * */

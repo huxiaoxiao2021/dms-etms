@@ -1,13 +1,11 @@
 package com.jd.bluedragon.distribution.rest.pdaAuthority;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.abnormalorder.domain.AbnormalOrder;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.whiteList.dao.WhiteListDao;
 import com.jd.bluedragon.distribution.whitelist.WhiteList;
 import com.jd.bluedragon.utils.JsonHelper;
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +16,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.HashMap;
 
 /**
  * @author lijie

@@ -49,13 +49,16 @@
 		<property name="switchVerToWebSites" value="${switchVerToWebSites}"/>
         <property name="collectionAddressSiteCodes" value="${collectionAddressSiteCodes}"/>
 		<property name="boxLimitSites" value="${boxLimitSites:''}"/>
+		<property name="clientPrintQueryGapTime" value="${client.print.query.gap.time:10}"/>
 		<property name="collectGoodsDeleteSites" value="${collectGoodsDeleteSites}"/>
         <property name="inspectionBigWaybillEffectiveSites" value="${inspectionBigWaybillEffectiveSites}" />
         <property name="offlineLogGlobalSwitch" value="${offlineLogGlobalSwitch}" />
         <property name="systemLogGlobalSwitch" value="${systemLogGlobalSwitch}" />
 		<property name="weightVolumeFilterWholeCountryFlag" value="${weightVolumeFilterWholeCountryFlag}" />
 		<property name="singleSendSwitchVerToWebSites" value="${singleSendSwitchVerToWebSites}" />
+        <property name="clickIntervalSecond" value="${clickIntervalSecond}" />
 		<property name="boardCombinationSwitchVerToWebSites" value="${boardCombinationSwitchVerToWebSites}" />
+		<property name="economicNetValidateWeightSwitch" value="${economicNetValidateWeightSwitch:true}"/>
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -88,6 +91,7 @@
 				<value>uccPropertyConfiguration.switchVerToWebSites</value>
 				<value>uccPropertyConfiguration.disablePdaOldLogin</value>
 				<value>uccPropertyConfiguration.collectionAddressSiteCodes</value>
+				<value>uccPropertyConfiguration.clientPrintQueryGapTime</value>
 				<value>uccPropertyConfiguration.boxLimitSites</value>
 				<value>uccPropertyConfiguration.collectGoodsDeleteSites</value>
                 <value>uccPropertyConfiguration.inspectionBigWaybillEffectiveSites</value>
@@ -95,7 +99,9 @@
                 <value>uccPropertyConfiguration.systemLogGlobalSwitch</value>
 				<value>uccPropertyConfiguration.weightVolumeFilterWholeCountryFlag</value>
 				<value>uccPropertyConfiguration.singleSendSwitchVerToWebSites</value>
+                <value>uccPropertyConfiguration.clickIntervalSecond</value>
 				<value>uccPropertyConfiguration.boardCombinationSwitchVerToWebSites</value>
+				<value>uccPropertyConfiguration.economicNetValidateWeightSwitch</value>
 			</list>
 		</property>
 	</bean>

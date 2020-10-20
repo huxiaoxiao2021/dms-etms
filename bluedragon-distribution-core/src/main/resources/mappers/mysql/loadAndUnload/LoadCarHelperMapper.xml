@@ -103,12 +103,12 @@
     </insert>
 
 
-    <select id="selectByCreateUserErp" parameterType="java.lang.String" resultType="java.lang.Long">
+    <select id="selectByCreateUserErp" parameterType="java.lang.String" resultType="long">
         select  task_id from  load_car_helper
         where  yn=1 and  create_user_erp= #{loginUserErp,jdbcType=VARCHAR}
     </select>
 
-    <select id="selectByHelperErp" parameterType="java.lang.String" resultType="java.lang.Long">
+    <select id="selectByHelperErp" parameterType="java.lang.String" resultType="long">
         select  task_id from  load_car_helper
         where  yn=1 and   helper_erp= #{loginUserErp,jdbcType=VARCHAR}
     </select>

@@ -6,17 +6,13 @@ import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsExceptionScanningReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingScanningReq;
-import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsDetailDto;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
-import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
-import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadScanDetailDto;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.ExceptionScanDto;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanService;
-import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
-import com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.ExceptionScanService;
 import com.jd.bluedragon.distribution.loadAndUnload.service.LoadService;
 import com.jd.bluedragon.external.gateway.service.GoodsLoadScanGatewayService;
@@ -29,8 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
 import javax.annotation.Resource;
 import java.util.*;
 
@@ -40,19 +34,6 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
 
     @Resource
     private ExceptionScanService exceptionScanService;
-
-    @Autowired
-    private LoadCarDao loadCarDao;
-
-    @Autowired
-    private SiteService siteService;
-
-    @Autowired
-    private InspectionService inspectionService;
-
-    @Autowired
-    private GroupBoardManager groupBoardManager;
-
 
     @Resource
     private LoadScanService loadScanService;
@@ -301,7 +282,7 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
     @Override
     @JProfiler(jKey = "DMS.BASE.GoodsLoadScanGatewayServiceImpl.goodsLoadingScan",
             mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
-    public JdCResponse<Map<String, Object>> goodsLoadingScan(GoodsLoadingScanningReq req) {
+    public JdCResponse<LoadScanDetailDto> goodsLoadingScan(GoodsLoadingScanningReq req) {
 
 
         return loadScanService.goodsLoadingScan(req);
@@ -310,9 +291,9 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
     @Override
     @JProfiler(jKey = "DMS.BASE.GoodsLoadScanGatewayServiceImpl.checkBatchCode",
             mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
-    public JdVerifyResponse<Void> checkBatchCode(GoodsLoadingScanningReq req) {
+    public JdCResponse<Void> checkBatchCode(GoodsLoadingScanningReq req) {
 
-        JdVerifyResponse<Void> response = new JdVerifyResponse<>();
+        JdCResponse<Void> response = new JdCResponse<>();
 
         if (StringUtils.isBlank(req.getBatchCode())) {
             response.setCode(JdVerifyResponse.CODE_FAIL);

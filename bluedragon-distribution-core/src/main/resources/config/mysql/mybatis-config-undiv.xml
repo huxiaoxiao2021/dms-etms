@@ -355,6 +355,11 @@
         <mapper resource="mappers/mysql/loadAndUnload/UnloadCarMapper.xml" />
         <mapper resource="mappers/mysql/loadAndUnload/UnloadCarDistributionMapper.xml" />
         <mapper resource="mappers/mysql/loadAndUnload/UnloadCarTransBoardMapper.xml" />
+        <mapper resource="mappers/mysql/loadAndUnload/LoadCarHelperMapper.xml" />
+        <mapper resource="mappers/mysql/loadAndUnload/LoadCarMapper.xml" />
+
+        <!-- 功能开关配置 -->
+        <mapper resource="mappers/mysql/funcSwitchConfig/funcSwitchConfigMapper.xml" />
 
     </mappers>
 </configuration>
