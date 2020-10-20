@@ -15,6 +15,7 @@ import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.ver.filter.Filter;
 import com.jd.bluedragon.distribution.ver.filter.FilterChain;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
+import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -123,33 +124,54 @@ public class WeightVolumeFilter implements Filter {
      * @param waybillSign
      * @return
      */
-    private boolean isEconomicNetValidateWeight(String waybillCode, String waybillSign,FilterContext request) throws Exception {
+    private boolean isEconomicNetValidateWeight(String waybillCode, String waybillSign,FilterContext request) {
         //默认拦截
         boolean isAllMailFilter = true;
-        try {
-            if(request.getCreateSiteCode()!=null){
-                Integer  siteCode = request.getCreateSiteCode();
-                //当缓存中存在时
-                String cacheValue = jimdbCacheService.get(Constants.ALL_MAIL_CACHE_KEY+siteCode);
-                if(StringUtils.isNotEmpty(cacheValue)){
-                    isAllMailFilter = Boolean.valueOf(cacheValue);
-                }else {
-                    FuncSwitchConfigCondition condition = new FuncSwitchConfigCondition();
-                    condition.setSiteCode(siteCode);
-                    condition.setMenuCode(FuncSwitchConfigEnum.FUNCTION_ALL_MAIL.getCode());
-                    condition.setOffset(0);
-                    condition.setLimit(1);
-                    if(funcSwitchConfigDao.queryByCondition(condition).size()>0){
-                        isAllMailFilter = funcSwitchConfigDao.queryByCondition(condition).get(0).getYn()==YnEnum.YN_ON.getCode() ? true: false;
-                        jimdbCacheService.setEx(Constants.ALL_MAIL_CACHE_KEY+siteCode,String.valueOf(isAllMailFilter),Constants.ALL_MAIL_CACHE_SECONDS,TimeUnit.SECONDS);
-                    }
-                }
-            }
-            return BusinessUtil.isEconomicNetValidateWeightVolume(waybillCode, waybillSign) && isAllMailFilter;
-        }catch (Exception e){
-            logger.error("众邮运单拦截判断异常waybillCode:{},waybillSign:{}",waybillCode,waybillSign,e);
-            throw  new Exception("众邮运单拦截判断异常waybillCode:"+waybillCode+";waybillSign:"+waybillSign+"Exception:"+e.getMessage());
+       //如果是全国
+        if(request.getCreateSiteCode()==null){
+            isAllMailFilter =  getFlagFromCacheOrDb(Constants.ALL_MATL_CACHE_COUNTRY_KEY,FuncSwitchConfigEnum.FUNCTION_ALL_MAIL.getCode(),null,DimensionEnum.NATIONAL.getCode());
+        }else {
+            Integer  siteCode = request.getCreateSiteCode();
+            //当缓存中存在时
+            isAllMailFilter =  getFlagFromCacheOrDb(Constants.ALL_MAIL_CACHE_KEY+siteCode,FuncSwitchConfigEnum.FUNCTION_ALL_MAIL.getCode(),siteCode,null);
         }
+        return BusinessUtil.isEconomicNetValidateWeightVolume(waybillCode, waybillSign) && isAllMailFilter;
     }
 
+    /**
+     * 从缓存或数据库中获取拦截标识
+     * @param cacheKey
+     * @param menuCode
+     * @param siteCode
+     * @param dimensionCode
+     * @return
+     */
+    public boolean getFlagFromCacheOrDb(String cacheKey,Integer menuCode,Integer siteCode,Integer dimensionCode){
+        boolean isAllMailFilter = true;
+        try {
+            String  cacheValue = jimdbCacheService.get(cacheKey);
+            if(StringUtils.isNotEmpty(cacheValue)) {
+                isAllMailFilter = Boolean.valueOf(cacheValue);
+            }else {
+                FuncSwitchConfigCondition condition = new FuncSwitchConfigCondition();
+                if(menuCode!=null){
+                   condition.setMenuCode(menuCode);
+                }
+                if(siteCode!=null){
+                   condition.setSiteCode(siteCode);
+                }
+                if(dimensionCode!=null){
+                   condition.setDimensionCode(dimensionCode);
+                }
+                Integer YnValue = funcSwitchConfigDao.queryYnByCondition(condition);
+                if(YnValue!=null){
+                    isAllMailFilter = YnValue==YnEnum.YN_ON.getCode() ? true: false;
+                    jimdbCacheService.setEx(cacheKey,String.valueOf(isAllMailFilter),Constants.ALL_MAIL_CACHE_SECONDS,TimeUnit.MINUTES);
+                }
+            }
+        }catch (Exception e){
+            logger.error("众邮运单拦截判断异常cacheKey:{},menuCode:{}",cacheKey,menuCode,e);
+        }
+        return isAllMailFilter;
+    }
 }
