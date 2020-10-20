@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.goodsLoadScan.service.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.ServiceMessage;
+import com.jd.bluedragon.common.domain.ServiceResultEnum;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
@@ -15,6 +17,7 @@ import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.base.domain.CreateAndReceiveSiteInfo;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
+import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
@@ -31,7 +34,6 @@ import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.cache.util.EnumBusiCode;
-import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.dms.common.cache.CacheService;
@@ -94,6 +96,9 @@ public class LoadScanServiceImpl implements LoadScanService {
 
     @Autowired
     private VosManager vosManager;
+
+    @Autowired
+    private DepartureService departureService;
 
     @Override
     public JdCResponse goodsLoadingDeliver(GoodsLoadingReq req) {
@@ -625,19 +630,12 @@ public class LoadScanServiceImpl implements LoadScanService {
             return response;
         }
 
-        // 校验批次是否已封车 todo 查到封车信息以后，根据哪个字段判断是否封车
-        try {
-            SealCarDto sealCarDto = vosManager.querySealCarByBatchCode(batchCode);
-            if(sealCarDto != null) {
-                log.warn("该批次号已经封车，不可绑定任务！，taskId={},batchCode={}", taskId, batchCode);
-                response.setCode(JdCResponse.CODE_FAIL);
-                response.setMessage("该批次号已经封车，不可绑定任务！");
-                return response;
-            }
-        } catch (Exception e) {
-            log.error("根据批次号查找封车信息发生错误，taskId={},batchCode={}", taskId, batchCode);
+        // 校验批次是否已封车
+        ServiceMessage<Boolean> result = departureService.checkSendStatusFromVOS(batchCode);
+        if (!ServiceResultEnum.SUCCESS.equals(result.getResult())) {
+            log.warn("该批次号已经封车，不可绑定任务！，taskId={},batchCode={}", taskId, batchCode);
             response.setCode(JdCResponse.CODE_FAIL);
-            response.setMessage("根据批次号查找封车信息发生错误");
+            response.setMessage("该批次号已经封车，不可绑定任务！");
             return response;
         }
 
