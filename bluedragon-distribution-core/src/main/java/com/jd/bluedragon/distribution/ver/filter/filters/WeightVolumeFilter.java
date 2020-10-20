@@ -141,7 +141,7 @@ public class WeightVolumeFilter implements Filter {
                     condition.setLimit(1);
                     if(funcSwitchConfigDao.queryByCondition(condition).size()>0){
                         isAllMailFilter = funcSwitchConfigDao.queryByCondition(condition).get(0).getYn()==YnEnum.YN_ON.getCode() ? true: false;
-                        jimdbCacheService.setEx(Constants.ALL_MAIL_CACHE_KEY+siteCode,String.valueOf(isAllMailFilter),Constants.TIME_SECONDS_ONE_DAY,TimeUnit.SECONDS);
+                        jimdbCacheService.setEx(Constants.ALL_MAIL_CACHE_KEY+siteCode,String.valueOf(isAllMailFilter),Constants.ALL_MAIL_CACHE_SECONDS,TimeUnit.SECONDS);
                     }
                 }
             }

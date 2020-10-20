@@ -373,8 +373,6 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
         }
     }
 
-
-
     /**
      * 单个调用分拣机拦截开关
      * @param funcSwitchConfigDto
@@ -444,5 +442,4 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
         }
         return funcSwitchConfigDao.selectConfiguredCount(dto) > 0;
     }
-
 }
