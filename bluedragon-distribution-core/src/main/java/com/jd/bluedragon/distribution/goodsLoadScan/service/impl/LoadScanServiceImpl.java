@@ -253,8 +253,8 @@ public class LoadScanServiceImpl implements LoadScanService {
 
         List<LoadScanDto> reportList;
         List<GoodsDetailDto> goodsDetailDtoList = new ArrayList<>();
-        // 暂存表运单号，运单号对应的已装数
-        Map<String, Integer> map = new HashMap<>();
+        // 暂存表运单号，运单号对应的暂存记录
+        Map<String, GoodsLoadScan> map = new HashMap<>();
 
         // 如果暂存表不为空，则去分拣报表拉取最新的库存数据
         if (!tempList.isEmpty()) {
@@ -381,7 +381,9 @@ public class LoadScanServiceImpl implements LoadScanService {
                     loadScan.setUpdateUserName(user.getUserName());
 
                     // 设置运单颜色状态
-                    setWaybillStatus(loadScan);
+                    Integer status = getWaybillStatus(loadScan.getGoodsAmount(), loadScan.getLoadAmount(),
+                            loadScan.getUnloadAmount(), loadScan.getForceAmount());
+                    loadScan.setStatus(status);
                     goodsLoadScanDao.updateByPrimaryKey(loadScan);
                 }
             }
@@ -711,9 +713,11 @@ public class LoadScanServiceImpl implements LoadScanService {
         // 已装 + 1
         loadScan.setLoadAmount(loadScan.getLoadAmount() + 1);
         // 未装 ：库存 - 已装
-        loadScan.setUnloadAmount(goodsAmount -loadScan.getLoadAmount());
+        loadScan.setUnloadAmount(goodsAmount - loadScan.getLoadAmount());
         // 计算单子状态
-        setWaybillStatus(loadScan);
+        Integer status = getWaybillStatus(loadScan.getGoodsAmount(), loadScan.getLoadAmount(),
+                loadScan.getUnloadAmount(), loadScan.getForceAmount());
+        loadScan.setStatus(status);
         goodsLoadScanDao.updateByPrimaryKey(loadScan);
         // todo redis锁   任务号+运单号   重试一次  失败大日志
     }
@@ -798,18 +802,21 @@ public class LoadScanServiceImpl implements LoadScanService {
         return goodsDetails;
     }
 
-    private  List<GoodsDetailDto> transformData(List<LoadScanDto> list, Map<String, Integer> map) {
+    private  List<GoodsDetailDto> transformData(List<LoadScanDto> list, Map<String, GoodsLoadScan> map) {
         List<GoodsDetailDto> goodsDetails = new ArrayList<>();
         for (LoadScanDto detailDto : list) {
             GoodsDetailDto goodsDetailDto = new GoodsDetailDto();
             goodsDetailDto.setWayBillCode(detailDto.getWayBillCode());
             goodsDetailDto.setPackageAmount(detailDto.getPackageAmount());
             goodsDetailDto.setGoodsAmount(detailDto.getGoodsAmount());
-            Integer loadAmount = map.get(detailDto.getWayBillCode());
-            goodsDetailDto.setLoadAmount(loadAmount);
-            goodsDetailDto.setUnloadAmount(detailDto.getGoodsAmount() - loadAmount);
-            setWaybillStatus();
-            goodsDetailDto.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK);
+            // 从map中获取运单号对应的暂存记录
+            GoodsLoadScan loadScan = map.get(detailDto.getWayBillCode());
+            goodsDetailDto.setLoadAmount(loadScan.getLoadAmount());
+            goodsDetailDto.setUnloadAmount(detailDto.getGoodsAmount() - loadScan.getLoadAmount());
+            // 重新计算颜色
+            Integer status = getWaybillStatus(detailDto.getGoodsAmount(), loadScan.getLoadAmount(),
+                    goodsDetailDto.getUnloadAmount(), loadScan.getForceAmount());
+            goodsDetailDto.setStatus(status);
             goodsDetails.add(goodsDetailDto);
         }
         return goodsDetails;
@@ -882,11 +889,11 @@ public class LoadScanServiceImpl implements LoadScanService {
         return goodsDetailDto;
     }
 
-    private List<String> getWaybillCodes(List<GoodsLoadScan> scans, Map<String, Integer> map) {
+    private List<String> getWaybillCodes(List<GoodsLoadScan> scans, Map<String, GoodsLoadScan> map) {
         List<String> list = new ArrayList<>();
         for (GoodsLoadScan scan : scans) {
             list.add(scan.getWayBillCode());
-            map.put(scan.getWayBillCode(), scan.getLoadAmount());
+            map.put(scan.getWayBillCode(), scan);
         }
         return list;
     }
@@ -908,31 +915,34 @@ public class LoadScanServiceImpl implements LoadScanService {
     }
 
     /**
-     * 设置运单状态
-     * @param goodsLoadScan 装车扫描运单记录
+     * 获取运单状态
+     * @param goodsAmount 库存
+     * @param loadAmount 已装
+     * @param unloadAmount 未装
+     * @param forceAmount 强发
+     * @return 状态
      */
-    private Integer getWaybillStatus(GoodsLoadScan goodsLoadScan) {
-        Integer goodsAmount = goodsLoadScan.getGoodsAmount();
-        Integer loadAmount = goodsLoadScan.getLoadAmount();
-        Integer unloadAmount = goodsLoadScan.getUnloadAmount();
-        Integer forceAmount = goodsLoadScan.getForceAmount();
+    private Integer getWaybillStatus(Integer goodsAmount, Integer loadAmount, Integer unloadAmount,
+                                     Integer forceAmount) {
         // 已装和未装都大于0  -- 没扫齐 -- 红色
         if (loadAmount > 0 && unloadAmount > 0) {
-            goodsLoadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_RED);
+            // 已装和未装都大于0，操作强发 -- 没扫齐强发 -- 橙色
+            if (forceAmount > 0) {
+                return GoodsLoadScanConstants.GOODS_SCAN_LOAD_ORANGE;
+            }
+            return GoodsLoadScanConstants.GOODS_SCAN_LOAD_RED;
         }
-        // 已装和未装都大于0，操作强发 -- 没扫齐强发 -- 橙色
-        if (loadAmount > 0 && unloadAmount > 0 && forceAmount > 0) {
-            goodsLoadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_ORANGE);
-        }
+
         // 已装等于库存，未装=0 -- 已扫描完 -- 绿色
         if (goodsAmount.equals(loadAmount) && unloadAmount == 0) {
-            goodsLoadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_GREEN);
+            return GoodsLoadScanConstants.GOODS_SCAN_LOAD_GREEN;
         }
         // 已装等于0且总包裹=库存 -- 货到齐没开始扫 或 扫完取消 -- 无特殊颜色
         // 已装等于0且总包裹≠库存 -- 货没到齐没开始扫 或 扫完取消 -- 无特殊颜色
         if (loadAmount == 0) {
-            goodsLoadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK);
+            return GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK;
         }
+        return GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK;
     }
 
     /**
