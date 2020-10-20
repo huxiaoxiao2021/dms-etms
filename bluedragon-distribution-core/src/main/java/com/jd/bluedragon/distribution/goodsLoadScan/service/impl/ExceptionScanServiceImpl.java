@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.goodsLoadScan.domain.ExceptionScanDto;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.ExceptionScanService;
+import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanService;
 import com.jd.bluedragon.utils.JsonHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +29,9 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
 
     @Autowired
     private GoodsLoadScanDao goodsLoadScanDao;
+
+    @Autowired
+    private LoadScanService loadScanService;
 
     /*
      * 取消扫描查询是否存在：先插记录表  再查扫描表
@@ -78,39 +82,21 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
         record.setUpdateUserName(exceptionScanDto.getOperator());
         record.setUpdateTime(new Date());
 
-        log.info("ExceptionScanServiceImpl#removeGoodsScan 取消扫描修改包裹记录表--begin--，入参【"+ JsonHelper.toJson(record) + "】");
-        int num = goodsLoadScanRecordDao.updateGoodsScanRecordById(record);
+        GoodsLoadScan lc = new GoodsLoadScan();
+        lc.setWayBillCode(exceptionScanDto.getWayBillCode());
+        lc.setTaskId(exceptionScanDto.getTaskId());
+        lc.setUpdateUserCode(exceptionScanDto.getOperatorCode());
+        lc.setUpdateUserName(exceptionScanDto.getOperator());
+        lc.setUpdateTime(new Date());
 
-        if( num > 0) {
-            //todo  调用远哥公共方法  加锁
-            log.info("ExceptionScanServiceImpl#removeGoodsScan 取消扫描修改包裹记录表成功--success--，包裹号【"+ exceptionScanDto.getPackageCode()
-                    +"】，任务号【" + exceptionScanDto.getTaskId() + "】");
-            GoodsLoadScan lc = new GoodsLoadScan();
-            lc.setWayBillCode(exceptionScanDto.getWayBillCode());
-            lc.setTaskId(exceptionScanDto.getTaskId());
-            lc.setLoadAmount(exceptionScanDto.getLoadAmount() - 1);
-            lc.setUnloadAmount(exceptionScanDto.getUnloadAmount() + 1);
-            if(exceptionScanDto.getLoadAmount() == 1) {//  当前已装为1时，取消发货后已装为0，不属于不齐异常，变更状态
-                lc.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK);
-            }
-            lc.setUpdateUserCode(exceptionScanDto.getOperatorCode());
-            lc.setUpdateUserName(exceptionScanDto.getOperator());
-            lc.setUpdateTime(new Date());
+        boolean res = loadScanService.updateGoodsLoadScanAmount(lc, record, record.getScanAction());
 
-            log.info("ExceptionScanServiceImpl#removeGoodsScan 取消扫描修改包裹明细表 --begin--，入参【"+ JsonHelper.toJson(lc) + "】");
-            boolean scNum = goodsLoadScanDao.updateByPrimaryKey(lc);
-            if(scNum == true) {
-                log.info("ExceptionScanServiceImpl#removeGoodsScan 取消扫描修改包裹明细表 --success--，参数【"+ JsonHelper.toJson(lc) + "】");
-                flag = true;
-            }else {
-                log.info("ExceptionScanServiceImpl#removeGoodsScan 取消扫描修改包裹明细表 --error--，参数【"+ JsonHelper.toJson(lc) + "】");
-                flag = false;
-            }
+        if(res) {
+            log.info("ExceptionScanServiceImpl#removeGoodsScan 取消扫描修改包裹明细表 --success--，参数【"+ JsonHelper.toJson(lc) + "】");
         }else {
-            log.info("ExceptionScanServiceImpl#removeGoodsScan 取消扫描修改包裹记录表成功--error--参数【"+ JsonHelper.toJson(record) + "】");
+            log.info("ExceptionScanServiceImpl#removeGoodsScan 取消扫描修改包裹明细表 --error--，参数【"+ JsonHelper.toJson(lc) + "】");
         }
-
-        return flag;
+        return res;
     }
 
 //    @Override
@@ -168,10 +154,6 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
         Long taskNo = req.getTaskId();
         for(int i=0; i<req.getWaybillCode().size(); i++) {
 
-//            log.info("ExceptionScanServiceImpl#goodsCompulsoryDeliver 强发查询运单信息--begin--任务号【"+ taskNo + "】，运单号【" + req.getWaybillCode().get(i) + "】");
-//            GoodsLoadScan gls = goodsLoadScanDao.findLoadScanByTaskIdAndWaybillCode(taskNo, req.getWaybillCode().get(i));
-//            这里强发数据由前端发过来，说明查库里肯定有，不在去查询
-
             GoodsLoadScan gls = new GoodsLoadScan();
             gls.setForceAmount(gls.getLoadAmount());
             gls.setUpdateTime(new Date());
@@ -181,7 +163,6 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
             log.info("ExceptionScanServiceImpl#goodsCompulsoryDeliver 强发运单状态记录--begin--参数【"+ JsonHelper.toJson(gls) + "】");
             boolean res = goodsLoadScanDao.updateByPrimaryKey(gls);
             log.info("ExceptionScanServiceImpl#goodsCompulsoryDeliver 强发运单状态记录--end--参数【"+ JsonHelper.toJson(gls) + "】");
-
 
             GoodsLoadScanRecord param = new GoodsLoadScanRecord();
             param.setTaskId(taskNo);
