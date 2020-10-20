@@ -145,12 +145,14 @@ public class UccPropertyConfiguration {
     private String singleSendSwitchVerToWebSites;
 
     private String boardCombinationSwitchVerToWebSites;
-
     /**
      * 众邮称重拦截开关。true 拦截，false 不拦截
      */
     private boolean economicNetValidateWeightSwitch;
-
+    /**
+     * 任务redis开关，1-开启
+     */
+    private String redisSwitchOn;
     public boolean isLogToBusinessLogByKafka() {
         return logToBusinessLogByKafka;
     }
@@ -438,4 +440,12 @@ public class UccPropertyConfiguration {
     public void setEconomicNetValidateWeightSwitch(boolean economicNetValidateWeightSwitch) {
         this.economicNetValidateWeightSwitch = economicNetValidateWeightSwitch;
     }
+
+	public String getRedisSwitchOn() {
+		return redisSwitchOn;
+	}
+
+	public void setRedisSwitchOn(String redisSwitchOn) {
+		this.redisSwitchOn = redisSwitchOn;
+	}
 }
