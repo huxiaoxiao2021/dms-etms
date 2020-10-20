@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingReq
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingScanningReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsDetailDto;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan;
+import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
 
 import java.util.List;
@@ -18,10 +19,10 @@ public interface LoadScanService {
     Integer findTaskStatus(Long taskId);
 
     //根据任务id和运单号查询缓存中运单数据
-    GoodsLoadScan queryByWaybillCodeAndTaskId(String waybillCode, Long taskId);
+    GoodsLoadScan queryByWaybillCodeAndTaskId(Long taskId, String waybillCode);
 
     //修改装车运单记录，计算已装车、未装车数量
-    boolean updateGoodsLoadScanAmount(GoodsLoadScan param);
+    boolean updateGoodsLoadScanAmount(GoodsLoadScan goodsLoadScan, GoodsLoadScanRecord goodsLoadScanRecord, Integer currentSiteCode);
 
     JdCResponse<List<GoodsDetailDto>> goodsLoadingScan(GoodsLoadingScanningReq req);
 

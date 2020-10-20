@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingReq;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingScanningReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsDetailDto;
 import com.jd.bluedragon.core.base.VosManager;
@@ -34,6 +35,7 @@ import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.dms.common.cache.CacheService;
+import org.apache.commons.lang.StringUtils;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.report.LoadScanPackageDetailService;
 import com.jd.ql.dms.report.domain.LoadScanDto;
@@ -41,15 +43,16 @@ import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
 import com.jd.transboard.api.enums.ResponseEnum;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import javax.annotation.Resource;
 import java.util.*;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 @Service("LoadScanServiceImpl")
 public class LoadScanServiceImpl implements LoadScanService {
@@ -65,7 +68,7 @@ public class LoadScanServiceImpl implements LoadScanService {
     @Qualifier("jimdbCacheService")
     private CacheService jimdbCacheService;
 
-    @Autowired
+    @Resource
     private LoadScanPackageDetailService loadScanPackageDetailService;
 
     @Autowired
@@ -139,13 +142,13 @@ public class LoadScanServiceImpl implements LoadScanService {
     }
 
     @Override
-    public GoodsLoadScan queryByWaybillCodeAndTaskId(String waybillCode, Long taskId) {
+    public GoodsLoadScan queryByWaybillCodeAndTaskId(Long taskId, String waybillCode) {
         String key = taskId + "_" + waybillCode;
         return jimdbCacheService.get(key, GoodsLoadScan.class);
     }
 
     @Override
-    public boolean updateGoodsLoadScanAmount(GoodsLoadScan param) {
+    public boolean updateGoodsLoadScanAmount(GoodsLoadScan goodsLoadScan, GoodsLoadScanRecord goodsLoadScanRecord, Integer currentSiteCode) {
         /*
         加锁
         查缓存
@@ -154,7 +157,76 @@ public class LoadScanServiceImpl implements LoadScanService {
         库中数据变更
          */
 
+        try{
+            String lockKey = goodsLoadScan.getTaskId().toString();
+            if(!jimdbCacheService.setNx(lockKey, StringUtils.EMPTY,2, TimeUnit.SECONDS)){
+                Thread.sleep(100);
+                boolean res = jimdbCacheService.setNx(lockKey,StringUtils.EMPTY,2, TimeUnit.SECONDS);
+                if(res != true) {
+                    log.info("装车发货扫描计算已安装、未安装数据写库操作lock失败，任务号【" + lockKey + "】");
+                    return false;
+                }
+            }
+
+            Integer scanAction = goodsLoadScanRecord.getScanAction();
+            String waybillCode = goodsLoadScan.getWayBillCode();
+            Long taskId = goodsLoadScan.getTaskId();
+
+            // 根据运单号和包裹号查询已验未发的唯一一条记录
+            List<LoadScanDto> scanDtoList = new ArrayList<>();
+            LoadScanDto loadScan = new LoadScanDto();
+            loadScan.setWayBillCode(waybillCode);
+            scanDtoList.add(loadScan);
+            Integer createSiteId = currentSiteCode;
+            //查ES拿最新库存
+            LoadScanDto scanDto = getLoadScanListByWaybillCode(scanDtoList, createSiteId).get(0);
+
+//            Integer loadAmount = scanDto.getLoadAmount();  这里已装车数ES查不出来，自己根据运单 任务号去查库或缓存
+
+            GoodsLoadScan glcTemp = this.queryByWaybillCodeAndTaskId(taskId, waybillCode);
+            Integer loadAmount = glcTemp.getLoadAmount();//缓存中取出已装货数量
+            Integer goodsAmount = scanDto.getGoodsAmount();//ES中拉的最新库存
+
+            if(scanAction == GoodsLoadScanConstants.GOODS_SCAN_LOAD) {//装车扫描
+                goodsLoadScan.setLoadAmount(loadAmount + 1);
+                goodsLoadScan.setUnloadAmount(goodsAmount - loadAmount);
+
+            } else if(scanAction == GoodsLoadScanConstants.GOODS_SCAN_REMOVE){//取消扫描
+                goodsLoadScan.setLoadAmount(loadAmount - 1);
+                goodsLoadScan.setUnloadAmount(goodsAmount - loadAmount);
+                if(loadAmount == 0) {//  当前已装为0时，取消发货后已装为0，不属于不齐异常，变更状态
+                    goodsLoadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK);
+                }
+
+            }else {
+                log.info("updateGoodsLoadScanAmount: 装车包裹扫描状态输入有误，1为装车扫描，0表示取消装车扫描，任务号【"
+                        + taskId + "】，运单号【" + waybillCode + "】, 扫描状态【" + scanAction + "】");
                 return false;
+            }
+
+            log.info("ExceptionScanServiceImpl#removeGoodsScan 装车扫描运单表 --begin--，入参【"+ JsonHelper.toJson(goodsLoadScan) + "】");
+            boolean scNum = goodsLoadScanDao.updateByPrimaryKey(goodsLoadScan);
+            log.info("ExceptionScanServiceImpl#removeGoodsScan 装车扫描运单表 --end--，入参【"+ JsonHelper.toJson(goodsLoadScan) + "】");
+            if(scNum != true) {
+                log.info("ExceptionScanServiceImpl#removeGoodsScan 装车扫描运单表 --end--，入参【"+ JsonHelper.toJson(goodsLoadScan) + "】");
+                return false;
+            }
+
+            log.info("ExceptionScanServiceImpl#removeGoodsScan 装车扫描修改包裹记录表--begin--，入参【"+ JsonHelper.toJson(goodsLoadScanRecord) + "】");
+            int num = goodsLoadScanRecordDao.updateGoodsScanRecordById(goodsLoadScanRecord);
+            log.info("ExceptionScanServiceImpl#removeGoodsScan 装车扫描修改包裹记录表--end--，入参【"+ JsonHelper.toJson(goodsLoadScanRecord) + "】");
+            if(num <= 0) {
+                log.info("ExceptionScanServiceImpl#removeGoodsScan 装车扫描修改包裹记录表--error--，入参【"+ JsonHelper.toJson(goodsLoadScanRecord) + "】");
+                return false;
+            }
+
+            return true;
+        }catch (Exception e){
+            log.error("装车发货扫描计算已安装、未安装数据写库操作lock异常",e);
+            return false;
+        }finally {
+
+        }
     }
 
     @Override

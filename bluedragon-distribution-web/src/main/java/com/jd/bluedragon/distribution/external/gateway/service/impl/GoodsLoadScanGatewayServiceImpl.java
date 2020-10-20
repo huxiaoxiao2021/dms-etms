@@ -99,10 +99,15 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             }
         }
 
-//        if(req.getCurrentOperate() == null) {
-//            response.toFail("当前分拣中心信息不能为空");
-//            return response;
-//        }
+        if(req.getCurrentOperate() == null) {
+            response.toFail("当前分拣中心信息不能为空");
+            return response;
+        } else {
+            if(req.getCurrentOperate().getSiteName() == null) {
+                response.toFail("当前分拣中心名称不能为空");
+                return response;
+            }
+        }
 
         GoodsLoadScanRecord record = new GoodsLoadScanRecord();
         record.setTaskId(req.getTaskId());
@@ -159,10 +164,15 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             }
         }
 
-//        if(req.getCurrentOperate() == null) {
-//            response.toFail("当前分拣中心信息不能为空");
-//            return response;
-//        }
+        if(req.getCurrentOperate() == null) {
+            response.toFail("当前分拣中心信息不能为空");
+            return response;
+        }else {
+            if(req.getCurrentOperate().getSiteName() == null) {
+                response.toFail("当前分拣中心名称不能为空");
+                return response;
+            }
+        }
 
         log.info("GoodsLoadingScanningServiceImpl#goodsCompulsoryDeliver-强制下发--begin:入参【" + JsonHelper.toJson(req) + "】");
         boolean res = exceptionScanService.goodsCompulsoryDeliver(req);
@@ -197,10 +207,15 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             }
         }
 
-//        if(req.getCurrentOperate() == null) {
-//            response.toFail("当前分拣中心信息不能为空");
-//            return response;
-//        }
+        if(req.getCurrentOperate() == null) {
+            response.toFail("当前分拣中心信息不能为空");
+            return response;
+        }else {
+            if(req.getCurrentOperate().getSiteName() == null) {
+                response.toFail("当前分拣中心名称不能为空");
+                return response;
+            }
+        }
 
         List<GoodsExceptionScanningDto> list = exceptionScanService.findAllExceptionGoodsScan(req.getTaskId());
         if(list == null || list.size() <= 0) {

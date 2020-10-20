@@ -77,7 +77,7 @@
             <appender-ref ref="business.log"/>
         </logger>
         <!-- 建立一个默认的root的Logger -->
-        <AsyncRoot level="DEBUG">
+        <AsyncRoot level="ERROR">
             <AppenderRef ref="console"/>
             <AppenderRef ref="bluedragon"/>
             <AppenderRef ref="bluedragon.error"/>
