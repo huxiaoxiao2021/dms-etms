@@ -610,6 +610,10 @@
     <bean id="unloadCarTransBoardDao" class="com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarTransBoardDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
+    <!-- 集包异常举报 -->
+    <bean id="collectionBagExceptionReportDao" class="com.jd.bluedragon.distribution.bagException.dao.CollectionBagExceptionReportDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
 
     <!-- 功能开关配置表 -->
     <bean id="funcSwitchConfigDao" class="com.jd.bluedragon.distribution.funcSwitchConfig.dao.FuncSwitchConfigDao">
