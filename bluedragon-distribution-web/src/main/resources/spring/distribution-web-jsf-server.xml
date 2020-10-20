@@ -211,4 +211,11 @@
                   ref="dmsSealVehicleService" server="dmsjsf">
     </jsf:provider>
 
+    <!-- 集包异常举报 分拣工作台web页面用 -->
+    <jsf:provider id="dmsCollectionBagExceptionReportJsfService"
+                  interface="com.jd.bluedragon.distribution.bagException.service.CollectionBagExceptionReportService"
+                  alias="${jsf.dmsCollectionBagExceptionReportService.alias}"
+                  ref="dmsCollectionBagExceptionReportService" server="dmsjsf">
+    </jsf:provider>
+
 </beans>

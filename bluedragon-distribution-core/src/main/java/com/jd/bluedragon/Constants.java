@@ -974,6 +974,10 @@ public class Constants {
      * 全程跟踪状态 站点发货
      * */
     public static final String WAYBILL_TRACE_STATE_SEND_BY_SITE = "200";
+    /**
+     * 全程跟踪状态 退货装箱
+     */
+    public static final String WAYBILL_TRACE_STATE_BOXING_BY_SITE = "180";
 
     /**
      * 全程跟踪状态  便民店、自寄柜揽收交接成功
@@ -1132,6 +1136,8 @@ public class Constants {
      * businessType缓存前缀
      * */
     public static final String BUSINESS_TYPE_PREFIX = "BUSINESS-TYPE";
+
+    public static final String THIRD_ENET_BOX_WAYBILL_PREFIX = "THIRD_ENET_BOX_WAYBILL";
 
     /**
      * 运单路由字段使用的分隔符
