@@ -8,10 +8,13 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsExceptionS
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingScanningReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsDetailDto;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
+import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
+import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.ExceptionScanDto;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanService;
+import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.ExceptionScanService;
@@ -26,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -39,6 +43,15 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
 
     @Autowired
     private LoadCarDao loadCarDao;
+
+    @Autowired
+    private SiteService siteService;
+
+    @Autowired
+    private InspectionService inspectionService;
+
+    @Autowired
+    private GroupBoardManager groupBoardManager;
 
 
     @Resource
@@ -85,10 +98,15 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             }
         }
 
-//        if(req.getCurrentOperate() == null) {
-//            response.toFail("当前分拣中心信息不能为空");
-//            return response;
-//        }
+        if(req.getCurrentOperate() == null) {
+            response.toFail("当前分拣中心信息不能为空");
+            return response;
+        } else {
+            if(req.getCurrentOperate().getSiteName() == null) {
+                response.toFail("当前分拣中心名称不能为空");
+                return response;
+            }
+        }
 
         GoodsLoadScanRecord record = new GoodsLoadScanRecord();
         record.setTaskId(req.getTaskId());
@@ -145,10 +163,15 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             }
         }
 
-//        if(req.getCurrentOperate() == null) {
-//            response.toFail("当前分拣中心信息不能为空");
-//            return response;
-//        }
+        if(req.getCurrentOperate() == null) {
+            response.toFail("当前分拣中心信息不能为空");
+            return response;
+        }else {
+            if(req.getCurrentOperate().getSiteName() == null) {
+                response.toFail("当前分拣中心名称不能为空");
+                return response;
+            }
+        }
 
         log.info("GoodsLoadingScanningServiceImpl#goodsCompulsoryDeliver-强制下发--begin:入参【" + JsonHelper.toJson(req) + "】");
         boolean res = exceptionScanService.goodsCompulsoryDeliver(req);
@@ -183,10 +206,15 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             }
         }
 
-//        if(req.getCurrentOperate() == null) {
-//            response.toFail("当前分拣中心信息不能为空");
-//            return response;
-//        }
+        if(req.getCurrentOperate() == null) {
+            response.toFail("当前分拣中心信息不能为空");
+            return response;
+        }else {
+            if(req.getCurrentOperate().getSiteName() == null) {
+                response.toFail("当前分拣中心名称不能为空");
+                return response;
+            }
+        }
 
         List<GoodsExceptionScanningDto> list = exceptionScanService.findAllExceptionGoodsScan(req.getTaskId());
         if(list == null || list.size() <= 0) {

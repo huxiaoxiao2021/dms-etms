@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author: wuming
  * @create: 2020-10-17 11:46
  */
+
 public class LoadCarDaoTest extends AbstractDaoIntegrationH2Test {
 
     private final Logger logger = LoggerFactory.getLogger(LoadCarDaoTest.class);
