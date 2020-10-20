@@ -150,17 +150,10 @@ public class LoadScanServiceImpl implements LoadScanService {
 
     @Override
     public boolean updateGoodsLoadScanAmount(GoodsLoadScan goodsLoadScan, GoodsLoadScanRecord goodsLoadScanRecord, Integer currentSiteCode) {
-        /*
-        加锁
-        查缓存
-        更改已装 未装数量（缓存中库存-已装）
-        缓存记录变更
-        库中数据变更
-         */
 
+        String lockKey = goodsLoadScan.getTaskId().toString();
         try{
-            String lockKey = goodsLoadScan.getTaskId().toString();
-            if(!jimdbCacheService.setNx(lockKey, StringUtils.EMPTY,2, TimeUnit.SECONDS)){
+            if(!jimdbCacheService.setNx(lockKey, "1",2, TimeUnit.SECONDS)){
                 Thread.sleep(100);
                 boolean res = jimdbCacheService.setNx(lockKey,StringUtils.EMPTY,2, TimeUnit.SECONDS);
                 if(res != true) {
@@ -169,65 +162,190 @@ public class LoadScanServiceImpl implements LoadScanService {
                 }
             }
 
-            Integer scanAction = goodsLoadScanRecord.getScanAction();
-            String waybillCode = goodsLoadScan.getWayBillCode();
-            Long taskId = goodsLoadScan.getTaskId();
-
-            // 根据运单号和包裹号查询已验未发的唯一一条记录
-            List<LoadScanDto> scanDtoList = new ArrayList<>();
-            LoadScanDto loadScan = new LoadScanDto();
-            loadScan.setWayBillCode(waybillCode);
-            scanDtoList.add(loadScan);
-            Integer createSiteId = currentSiteCode;
-            //查ES拿最新库存
-            LoadScanDto scanDto = getLoadScanListByWaybillCode(scanDtoList, createSiteId).get(0);
-
-//            Integer loadAmount = scanDto.getLoadAmount();  这里已装车数ES查不出来，自己根据运单 任务号去查库或缓存
-
-            GoodsLoadScan glcTemp = this.queryByWaybillCodeAndTaskId(taskId, waybillCode);
-            Integer loadAmount = glcTemp.getLoadAmount();//缓存中取出已装货数量
-            Integer goodsAmount = scanDto.getGoodsAmount();//ES中拉的最新库存
-
-            if(scanAction == GoodsLoadScanConstants.GOODS_SCAN_LOAD) {//装车扫描
-                goodsLoadScan.setLoadAmount(loadAmount + 1);
-                goodsLoadScan.setUnloadAmount(goodsAmount - loadAmount);
-
-            } else if(scanAction == GoodsLoadScanConstants.GOODS_SCAN_REMOVE){//取消扫描
-                goodsLoadScan.setLoadAmount(loadAmount - 1);
-                goodsLoadScan.setUnloadAmount(goodsAmount - loadAmount);
-                if(loadAmount == 0) {//  当前已装为0时，取消发货后已装为0，不属于不齐异常，变更状态
-                    goodsLoadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK);
+            boolean res = true;
+            //取消扫描
+            if(goodsLoadScanRecord.getScanAction() == GoodsLoadScanConstants.GOODS_SCAN_REMOVE) {
+                res = this.scanRemove(goodsLoadScan, goodsLoadScanRecord, currentSiteCode) ;
+                if(!res) {
+                    log.info("updateGoodsLoadScanAmount--取消扫描发货失败，包裹信息【" + JsonHelper.toJson(goodsLoadScanRecord) + "】");
+                    return false;
                 }
-
+            }else if(goodsLoadScanRecord.getScanAction() == GoodsLoadScanConstants.GOODS_SCAN_LOAD) { //装车扫描
+                res = this.scanLoad(goodsLoadScan, goodsLoadScanRecord, currentSiteCode) ;
+                log.info("updateGoodsLoadScanAmount--发货扫描失败，包裹信息【" + JsonHelper.toJson(goodsLoadScanRecord) + "】");
+                return false;
             }else {
-                log.info("updateGoodsLoadScanAmount: 装车包裹扫描状态输入有误，1为装车扫描，0表示取消装车扫描，任务号【"
-                        + taskId + "】，运单号【" + waybillCode + "】, 扫描状态【" + scanAction + "】");
+                log.info("updateGoodsLoadScanAmount--包裹扫描状态错误，请输入1(发货扫描)或0(取消扫描)，包裹信息【" + JsonHelper.toJson(goodsLoadScanRecord) + "】");
                 return false;
             }
 
-            log.info("ExceptionScanServiceImpl#removeGoodsScan 装车扫描运单表 --begin--，入参【"+ JsonHelper.toJson(goodsLoadScan) + "】");
-            boolean scNum = goodsLoadScanDao.updateByPrimaryKey(goodsLoadScan);
-            log.info("ExceptionScanServiceImpl#removeGoodsScan 装车扫描运单表 --end--，入参【"+ JsonHelper.toJson(goodsLoadScan) + "】");
-            if(scNum != true) {
-                log.info("ExceptionScanServiceImpl#removeGoodsScan 装车扫描运单表 --end--，入参【"+ JsonHelper.toJson(goodsLoadScan) + "】");
+            if(!res) {
+                log.info("updateGoodsLoadScanAmount--包裹扫描失败，包裹信息，包裹信息【" + JsonHelper.toJson(goodsLoadScanRecord) + "】");
                 return false;
             }
 
-            log.info("ExceptionScanServiceImpl#removeGoodsScan 装车扫描修改包裹记录表--begin--，入参【"+ JsonHelper.toJson(goodsLoadScanRecord) + "】");
-            int num = goodsLoadScanRecordDao.updateGoodsScanRecordById(goodsLoadScanRecord);
-            log.info("ExceptionScanServiceImpl#removeGoodsScan 装车扫描修改包裹记录表--end--，入参【"+ JsonHelper.toJson(goodsLoadScanRecord) + "】");
-            if(num <= 0) {
-                log.info("ExceptionScanServiceImpl#removeGoodsScan 装车扫描修改包裹记录表--error--，入参【"+ JsonHelper.toJson(goodsLoadScanRecord) + "】");
-                return false;
-            }
-
-            return true;
+            return res;
         }catch (Exception e){
             log.error("装车发货扫描计算已安装、未安装数据写库操作lock异常",e);
             return false;
         }finally {
+            jimdbCacheService.del(lockKey);
+        }
+    }
+
+    private boolean scanRemove(GoodsLoadScan goodsLoadScan, GoodsLoadScanRecord goodsLoadScanRecord, Integer currentSiteCode) {
+
+        String waybillCode = goodsLoadScan.getWayBillCode();
+        Long taskId = goodsLoadScan.getTaskId();
+
+
+        // 根据运单号和包裹号查询已验未发的唯一一条记录
+        List<LoadScanDto> scanDtoList = new ArrayList<>();
+        LoadScanDto loadScan = new LoadScanDto();
+        loadScan.setWayBillCode(waybillCode);
+        scanDtoList.add(loadScan);
+        Integer createSiteId = currentSiteCode;
+        LoadScanDto scanDto = getLoadScanListByWaybillCode(scanDtoList, createSiteId).get(0);
+        Integer goodsAmount = scanDto.getGoodsAmount();//ES中拉的最新库存
+
+        GoodsLoadScan glcTemp = this.queryByWaybillCodeAndTaskId(taskId, waybillCode);
+        //缓存失效查库
+        if(glcTemp == null) {
+            glcTemp = goodsLoadScanDao.findLoadScanByTaskIdAndWaybillCode(taskId, waybillCode);//这里上游查询确认库中不为空才会走到这里
+        }
+        Integer loadAmount = glcTemp.getLoadAmount();//缓存中取出已装货数量
+
+
+        goodsLoadScan.setLoadAmount(loadAmount - 1);
+        goodsLoadScan.setUnloadAmount(goodsAmount - loadAmount);
+        if(loadAmount == 0) {//  当前已装为0时，取消发货后已装为0，不属于不齐异常，变更状态
+            goodsLoadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK);
+        }else if(loadAmount == goodsAmount) {//已装等于库存时，说明已经扫描完成，绿色状态，取消一个改为红色状态
+            goodsLoadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_RED);
+        }
+//删除
+        log.info("ExceptionScanServiceImpl#scanRemove 取消发货扫描运单表修改 --begin--，参数【"+ JsonHelper.toJson(goodsLoadScan) + "】");
+        boolean scNum = goodsLoadScanDao.updateByPrimaryKey(goodsLoadScan);
+        if(!scNum) {
+            log.info("ExceptionScanServiceImpl#scanRemove 装车扫描运单表 --error--，参数【"+ JsonHelper.toJson(goodsLoadScan) + "】");
+            return false;
+        }
+        log.info("ExceptionScanServiceImpl#scanRemove 装车扫描运单表 --end--，参数【"+ JsonHelper.toJson(goodsLoadScan) + "】");
+
+        log.info("ExceptionScanServiceImpl#scanRemove 取消发货扫描包裹表修改--begin--，参数【"+ JsonHelper.toJson(goodsLoadScanRecord) + "】");
+        int num = goodsLoadScanRecordDao.updateGoodsScanRecordById(goodsLoadScanRecord);
+        if(num <= 0) {
+            log.info("ExceptionScanServiceImpl#scanRemove 取消发货扫描包裹表修改--error--，参数【"+ JsonHelper.toJson(goodsLoadScanRecord) + "】");
+            return false;
+        }
+        log.info("ExceptionScanServiceImpl#scanRemove 取消发货扫描包裹表修改--end--，参数【"+ JsonHelper.toJson(goodsLoadScanRecord) + "】");
+//清缓存
+        String waybillCacheKey = taskId + "_" + waybillCode;
+        if(!jimdbCacheService.del(waybillCacheKey)) {
+            log.info("ExceptionScanServiceImpl#scanRemove 取消发货取消运单缓存失败--error--，参数【"+ JsonHelper.toJson(goodsLoadScan) + "】");
+            return false;
+        }
+
+        String packageCacheKey = taskId + "_" + waybillCode + "_" + goodsLoadScanRecord.getPackageCode();
+        if(!jimdbCacheService.del(packageCacheKey)) {
+            log.info("ExceptionScanServiceImpl#scanRemove 取消发货取消包裹缓存失败--error--，参数【"+ JsonHelper.toJson(goodsLoadScanRecord) + "】");
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean scanLoad(GoodsLoadScan goodsLoadScan, GoodsLoadScanRecord goodsLoadScanRecord, Integer currentSiteCode) {
+
+        Long taskId = goodsLoadScan.getTaskId();
+        String waybillCode = goodsLoadScan.getWayBillCode();
+
+        String packageCacheKey = taskId + "_" + waybillCode + "_" + goodsLoadScanRecord.getPackageCode();
+        String waybillCacheKey = taskId + "_" + waybillCode;
+
+        // 根据运单号和包裹号查询已验未发的唯一一条记录
+        List<LoadScanDto> scanDtoList = new ArrayList<>();
+        LoadScanDto loadScan = new LoadScanDto();
+        loadScan.setWayBillCode(waybillCode);
+        scanDtoList.add(loadScan);
+        Integer createSiteId = currentSiteCode;
+        //查ES拿最新库存
+        LoadScanDto scanDto = getLoadScanListByWaybillCode(scanDtoList, createSiteId).get(0);
+
+        Integer goodsAmount = scanDto.getGoodsAmount();//ES中拉的最新库存
+
+        GoodsLoadScan glcTemp = this.queryByWaybillCodeAndTaskId(taskId, waybillCode);
+        boolean exist = false;
+        //缓存失效查库
+        if(glcTemp == null) {
+            glcTemp = goodsLoadScanDao.findLoadScanByTaskIdAndWaybillCode(taskId, waybillCode);
+            if(glcTemp == null) {
+                //写库+ 写缓存
+                goodsLoadScan.setLoadAmount(1);//首次添加已装1
+                goodsLoadScan.setUnloadAmount(goodsAmount - 1);
+                goodsLoadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_RED);//开始装车后为红色不齐状态
+//写库
+                log.info("ExceptionScanServiceImpl#scanLoad 装车扫描运单表 --begin--，入参【"+ JsonHelper.toJson(goodsLoadScan) + "】");
+                boolean scNum = goodsLoadScanDao.updateByPrimaryKey(goodsLoadScan);
+                if(!scNum) {
+                    log.info("ExceptionScanServiceImpl#scanLoad 装车扫描运单表 --error--，入参【"+ JsonHelper.toJson(goodsLoadScan) + "】");
+                    return false;
+                }
+                log.info("ExceptionScanServiceImpl#scanLoad 装车扫描运单表 --end--，参数【"+ JsonHelper.toJson(goodsLoadScan) + "】");
+
+                log.info("ExceptionScanServiceImpl#scanLoad 装车扫描修改包裹记录表--begin--，入参【"+ JsonHelper.toJson(goodsLoadScanRecord) + "】");
+                int num = goodsLoadScanRecordDao.updateGoodsScanRecordById(goodsLoadScanRecord);
+                if(num <= 0) {
+                    log.info("ExceptionScanServiceImpl#scanLoad 装车扫描修改包裹记录表--error--，入参【"+ JsonHelper.toJson(goodsLoadScanRecord) + "】");
+                    return false;
+                }
+                log.info("ExceptionScanServiceImpl#scanLoad 装车扫描修改包裹记录表--end--，入参【"+ JsonHelper.toJson(goodsLoadScanRecord) + "】");
+//写缓存
+                jimdbCacheService.setEx(waybillCacheKey, goodsLoadScan, 1, TimeUnit.DAYS);
+                jimdbCacheService.setEx(packageCacheKey, goodsLoadScanRecord, 1, TimeUnit.DAYS);
+
+            }else {
+                exist = true;
+            }
+        }
+
+        //缓存中查到  或者 库中查到两个动作 （1）更改数据库 （2）缓存没有失效更改缓存，缓存失效重新插入缓存--这里直接删除缓存重新添加
+        if(exist) {
+
+            Integer loadAmount = glcTemp.getLoadAmount() + 1;//已装数量
+            Integer unLoadAmount = goodsAmount-loadAmount;//未装数量
+            if(unLoadAmount == 0){//装完时 运单颜色状态为绿色已装扫描完成
+                goodsLoadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_GREEN);
+            }
+            goodsLoadScan.setLoadAmount(loadAmount);
+            goodsLoadScan.setUnloadAmount(unLoadAmount);
+
+//写库
+            log.info("ExceptionScanServiceImpl#scanLoad 装车扫描运单表 --begin--，入参【"+ JsonHelper.toJson(goodsLoadScan) + "】");
+            boolean scNum = goodsLoadScanDao.updateByPrimaryKey(goodsLoadScan);
+            if(!scNum) {
+                log.info("ExceptionScanServiceImpl#scanLoad 装车扫描运单表 --error--，入参【"+ JsonHelper.toJson(goodsLoadScan) + "】");
+                return false;
+            }
+            log.info("ExceptionScanServiceImpl#scanLoad 装车扫描运单表 --end--，参数【"+ JsonHelper.toJson(goodsLoadScan) + "】");
+
+
+            log.info("ExceptionScanServiceImpl#scanLoad 装车扫描修改包裹记录表--begin--，入参【"+ JsonHelper.toJson(goodsLoadScanRecord) + "】");
+            int num = goodsLoadScanRecordDao.updateGoodsScanRecordById(goodsLoadScanRecord);
+            if(num <= 0) {
+                log.info("ExceptionScanServiceImpl#scanLoad 装车扫描修改包裹记录表--error--，入参【"+ JsonHelper.toJson(goodsLoadScanRecord) + "】");
+                return false;
+            }
+            log.info("ExceptionScanServiceImpl#scanLoad 装车扫描修改包裹记录表--end--，入参【"+ JsonHelper.toJson(goodsLoadScanRecord) + "】");
+//缓存:先删除在写入
+            jimdbCacheService.del(waybillCacheKey);
+            jimdbCacheService.del(packageCacheKey);
+
+            jimdbCacheService.setEx(waybillCacheKey, goodsLoadScan, 1, TimeUnit.DAYS);
+            jimdbCacheService.setEx(packageCacheKey, goodsLoadScanRecord, 1, TimeUnit.DAYS);
 
         }
+        return true;
     }
 
     @Override
