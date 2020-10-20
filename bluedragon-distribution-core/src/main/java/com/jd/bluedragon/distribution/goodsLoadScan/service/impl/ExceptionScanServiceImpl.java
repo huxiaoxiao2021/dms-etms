@@ -13,11 +13,13 @@ import com.jd.bluedragon.utils.JsonHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+@Service("exceptionScanService")
 public class ExceptionScanServiceImpl implements ExceptionScanService {
     private final static Logger log = LoggerFactory.getLogger(ExceptionScanServiceImpl.class);
 
