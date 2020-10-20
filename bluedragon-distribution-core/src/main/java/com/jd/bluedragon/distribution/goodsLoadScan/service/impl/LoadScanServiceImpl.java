@@ -34,8 +34,6 @@ import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.etms.cache.util.EnumBusiCode;
-import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.dms.common.cache.CacheService;
 import org.apache.commons.lang.StringUtils;
@@ -453,17 +451,15 @@ public class LoadScanServiceImpl implements LoadScanService {
      * @return 运单
      */
     private Waybill getWaybillByPackageCode(String packageCode) {
-        // 根据包裹号查找运单号
-        BaseEntity<Waybill> baseEntity = waybillQueryManager.getWaybillByPackCode(packageCode);
-        if (baseEntity == null) {
-            log.warn("根据包裹号查询运单信息接口返回空packageCode[{}]", packageCode);
+        // 根据规则把包裹号转成运单号
+        String waybillCode = WaybillUtil.getWaybillCode(packageCode);
+        // 根据运单号查运单详情
+        Waybill waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
+        if (waybill == null) {
+            log.warn("根据包裹号查询运单信息接口返回空packageCode={},waybillCode={}", packageCode, waybillCode);
             return null;
         }
-        if (baseEntity.getResultCode() != EnumBusiCode.BUSI_SUCCESS.getCode() || baseEntity.getData() == null) {
-            log.error("查询运单信息接口失败packageCode[{}]code[{}]", packageCode, baseEntity.getResultCode());
-            return null;
-        }
-        return baseEntity.getData();
+        return waybill;
     }
 
     /**
@@ -716,12 +712,11 @@ public class LoadScanServiceImpl implements LoadScanService {
         com.jd.ql.dms.report.domain.BaseEntity<List<LoadScanDto>> baseEntity = loadScanPackageDetailService
                 .findLoadScanList(scanDtoList, currentSiteId);
         if (baseEntity == null) {
-            //log.warn("根据运单号和包裹号去分拣报表查询运单明细接口返回空packageCode={},waybillCode={}", packageCode, waybillCode);
+            log.warn("根据运单号和包裹号条件列表去分拣报表查询运单明细接口返回空currentSiteId={}", currentSiteId);
             return null;
         }
         if (baseEntity.getCode() != Constants.SUCCESS_CODE || baseEntity.getData() == null) {
-            //log.error("根据运单号和包裹号去分拣报表查询运单明细接口失败packageCode={},waybillCode={},code={}",
-                   // packageCode, waybillCode, baseEntity.getCode());
+            log.error("根据运单号和包裹号条件列表去分拣报表查询运单明细接口失败currentSiteId={}", currentSiteId);
             return null;
         }
         return baseEntity.getData();
@@ -735,37 +730,36 @@ public class LoadScanServiceImpl implements LoadScanService {
      */
     public List<LoadScanDto> getLoadScanByWaybillCodes(List<String> waybillCodes, Integer currentSiteId,
                                                         Integer nextSiteId, Integer rows) {
-        // 根据包裹号查找运单号
         com.jd.ql.dms.report.domain.BaseEntity<List<LoadScanDto>> baseEntity = loadScanPackageDetailService
                 .findLoadScanPackageDetail(waybillCodes, currentSiteId, nextSiteId, rows);
         if (baseEntity == null) {
-            // log.warn("根据运单号和包裹号去分拣报表查询运单明细接口返回空packageCode={},waybillCode={}", packageCode, waybillCode);
+            log.warn("根据暂存表记录去分拣报表查询运单明细接口返回空currentSiteId={},nextSiteId={}", currentSiteId, nextSiteId);
             return null;
         }
         if (baseEntity.getCode() != Constants.SUCCESS_CODE || baseEntity.getData() == null) {
-//            log.error("根据运单号和包裹号去分拣报表查询运单明细接口失败packageCode={},waybillCode={},code={}",
-//                    packageCode, waybillCode, baseEntity.getCode());
+            log.error("根据暂存表记录去分拣报表查询运单明细接口失败currentSiteId={},currentSiteId={},code={}",
+                    currentSiteId, nextSiteId, baseEntity.getCode());
             return null;
         }
         return baseEntity.getData();
     }
 
     /**
-     * 根据运单号获取装车扫描列表
+     * 根据运单号获取装车扫描
      * @param loadScanDto  查询条件列表
      * @return 运单
      */
     public LoadScanDto getLoadScanByWaybillAndPackageCode(LoadScanDto loadScanDto) {
-        // 根据包裹号查找运单号
         com.jd.ql.dms.report.domain.BaseEntity<LoadScanDto> baseEntity = loadScanPackageDetailService
                 .findLoadScan(loadScanDto);
         if (baseEntity == null) {
-            // log.warn("根据运单号和包裹号去分拣报表查询运单明细接口返回空packageCode={},waybillCode={}", packageCode, waybillCode);
+            log.warn("根据运单号和包裹号去分拣报表查询流向返回空packageCode={},waybillCode={}",
+                    loadScanDto.getPackageCode(), loadScanDto.getWayBillCode());
             return null;
         }
         if (baseEntity.getCode() != Constants.SUCCESS_CODE || baseEntity.getData() == null) {
-//            log.error("根据运单号和包裹号去分拣报表查询运单明细接口失败packageCode={},waybillCode={},code={}",
-//                    packageCode, waybillCode, baseEntity.getCode());
+            log.error("根据运单号和包裹号去分拣报表查询流向接口失败packageCode={},waybillCode={},code={}",
+                    loadScanDto.getPackageCode(), loadScanDto.getWayBillCode(), baseEntity.getCode());
             return null;
         }
         return baseEntity.getData();
