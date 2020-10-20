@@ -12,7 +12,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import javax.annotation.Resource;
 import java.util.List;
 
-@ContextConfiguration( {"classpath:distribution-web-context-test.xml"})
+@ContextConfiguration( locations = {"classpath:distribution-web-context.xml"})
 @RunWith(SpringJUnit4ClassRunner.class)
 public class GoodsLoadingScanningServiceImplTest {
 
