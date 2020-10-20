@@ -209,6 +209,7 @@
 				<ref bean="basicWaybillPrintHandler"/>
 				<ref bean="c2cInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
+				<ref bean="needCollectionCompletedInterceptHandler"/>
 				<ref bean="specialMarkWaybillHandler"/>
 				<ref bean="specialTextWaybillHandler"/>
 				<ref bean="promiseWaybillHandler"/>
@@ -462,6 +463,7 @@
 				<ref bean="basicWaybillPrintHandler"/>
 				<ref bean="pickWillPrintPackageInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
+				<ref bean="needCollectionCompletedInterceptHandler"/>
 				<ref bean="oldWaybillQueryHandler"/>
 				<ref bean="specialMarkWaybillHandler"/>
 				<ref bean="specialTextWaybillHandler"/>
