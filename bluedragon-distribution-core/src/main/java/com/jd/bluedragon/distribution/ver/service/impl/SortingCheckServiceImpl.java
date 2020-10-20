@@ -172,6 +172,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.boardCombinationCheck", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public BoardCombinationJsfResponse boardCombinationCheck(BoardCombinationRequest boardCombinationRequest) {
 
         if (boardCombinationRequest == null) {

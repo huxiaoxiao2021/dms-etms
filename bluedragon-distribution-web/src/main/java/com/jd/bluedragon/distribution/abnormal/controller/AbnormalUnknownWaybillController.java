@@ -12,6 +12,8 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -159,6 +161,7 @@ public class AbnormalUnknownWaybillController extends DmsBaseController{
      */
     @Authorization(Constants.DMS_WEB_SORTING_UNKNOWNWAYBILL_R)
     @RequestMapping(value = "/listData")
+    @JProfiler(jKey = "com.jd.bluedragon.distribution.web.AbnormalUnknownWaybillController.listData", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
     public @ResponseBody
     JdResponse<PagerResult<AbnormalUnknownWaybill>> listData(@RequestBody AbnormalUnknownWaybillCondition abnormalUnknownWaybillCondition) {
         JdResponse<PagerResult<AbnormalUnknownWaybill>> rest = new JdResponse<>();

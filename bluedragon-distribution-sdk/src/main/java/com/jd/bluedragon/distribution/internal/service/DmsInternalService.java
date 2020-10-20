@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.api.response.ReverseReceiveResponse;
 import com.jd.bluedragon.distribution.api.response.SysConfigResponse;
 import com.jd.bluedragon.distribution.api.response.TaskResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigDto;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.wss.dto.BaseEntity;
 
@@ -230,4 +231,11 @@ public interface DmsInternalService {
      * @return
      */
     JdResult<Integer> getSortingNumberInBox(String boxCode,Integer createSiteCode);
+
+    /**
+     * 校验是否有配置
+     * @param funcSwitchConfigDto
+     * @return
+     */
+    InvokeResult<Boolean> checkIsConfigured(FuncSwitchConfigDto funcSwitchConfigDto);
 }

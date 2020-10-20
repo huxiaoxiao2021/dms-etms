@@ -150,7 +150,11 @@ $(function () {
                     Jd.alert("查询时间不能超过2天，请缩小时间范围!");
                     return;
                 }
-                tableInit().refresh();
+                let clickStrict = ClickFrequencyUtil.controlClick($('#query-form'), $('#btn_query'));
+                if (!clickStrict) {
+
+                    tableInit().refresh();
+                }
             });
 
         };

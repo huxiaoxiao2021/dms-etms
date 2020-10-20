@@ -109,6 +109,12 @@ public class UccPropertyConfiguration {
     private boolean disablePdaOldLogin;
 
     /**
+     * 客户端打印清单查询时间间隔
+     * @return
+     */
+    private int clientPrintQueryGapTime;
+
+    /**
      * 开启集包地场地开关
      *  例：910,39 （-1代表全国）
      */
@@ -127,6 +133,11 @@ public class UccPropertyConfiguration {
     private String collectGoodsDeleteSites;
 
     /**
+     * 按钮点击间隔(秒)，配置为-1则关闭控制
+     */
+    private int clickIntervalSecond;
+
+    /**
      * 验货运单多包裹拆分任务生效的分拣中心
      */
     private String inspectionBigWaybillEffectiveSites;
@@ -134,6 +145,11 @@ public class UccPropertyConfiguration {
     private String singleSendSwitchVerToWebSites;
 
     private String boardCombinationSwitchVerToWebSites;
+
+    /**
+     * 众邮称重拦截开关。true 拦截，false 不拦截
+     */
+    private boolean economicNetValidateWeightSwitch;
 
     public boolean isLogToBusinessLogByKafka() {
         return logToBusinessLogByKafka;
@@ -343,6 +359,14 @@ public class UccPropertyConfiguration {
         this.boxLimitSites = boxLimitSites;
     }
 
+    public int getClientPrintQueryGapTime() {
+        return clientPrintQueryGapTime;
+    }
+
+    public void setClientPrintQueryGapTime(int clientPrintQueryGapTime) {
+        this.clientPrintQueryGapTime = clientPrintQueryGapTime;
+    }
+
     public String getCollectGoodsDeleteSites() {
         return collectGoodsDeleteSites;
     }
@@ -391,11 +415,27 @@ public class UccPropertyConfiguration {
         this.singleSendSwitchVerToWebSites = singleSendSwitchVerToWebSites;
     }
 
+    public int getClickIntervalSecond() {
+        return clickIntervalSecond;
+    }
+
+    public void setClickIntervalSecond(int clickIntervalSecond) {
+        this.clickIntervalSecond = clickIntervalSecond;
+    }
+
     public String getBoardCombinationSwitchVerToWebSites() {
         return boardCombinationSwitchVerToWebSites;
     }
 
     public void setBoardCombinationSwitchVerToWebSites(String boardCombinationSwitchVerToWebSites) {
         this.boardCombinationSwitchVerToWebSites = boardCombinationSwitchVerToWebSites;
+    }
+
+    public boolean getEconomicNetValidateWeightSwitch() {
+        return economicNetValidateWeightSwitch;
+    }
+
+    public void setEconomicNetValidateWeightSwitch(boolean economicNetValidateWeightSwitch) {
+        this.economicNetValidateWeightSwitch = economicNetValidateWeightSwitch;
     }
 }
