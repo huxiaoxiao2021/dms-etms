@@ -342,6 +342,8 @@ $(function () {
 
 // 重置状态
 function resetStatus(){
+    //当选择了操作人需要置空
+    $('#operateErp-EG').val(null);
     $('#menuCode-EG').attr("disabled",false);
     $('#dimensionCode-EG').attr("disabled",false);
     $('#orgId-EG').attr("disabled",false);
