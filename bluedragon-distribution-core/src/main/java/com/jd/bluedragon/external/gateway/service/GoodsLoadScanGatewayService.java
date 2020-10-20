@@ -55,7 +55,7 @@ public interface GoodsLoadScanGatewayService {
     /**
      * 装车扫描接口
      */
-    JdCResponse<List<GoodsDetailDto>> goodsLoadingScan(GoodsLoadingScanningReq req);
+    JdCResponse<Map<String, Object>> goodsLoadingScan(GoodsLoadingScanningReq req);
 
     /**
      * 校验批次号接口--发货校验

@@ -8,10 +8,8 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingReq;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingScanningReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsDetailDto;
-import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.base.domain.CreateAndReceiveSiteInfo;
@@ -94,8 +92,6 @@ public class LoadScanServiceImpl implements LoadScanService {
     @Autowired
     private WaybillQueryManager waybillQueryManager;
 
-    @Autowired
-    private VosManager vosManager;
 
     @Autowired
     private DepartureService departureService;
@@ -235,8 +231,8 @@ public class LoadScanServiceImpl implements LoadScanService {
     }
 
     @Override
-    public JdCResponse<List<GoodsDetailDto>> goodsLoadingScan(GoodsLoadingScanningReq req) {
-        JdCResponse<List<GoodsDetailDto>> response = new JdCResponse<>();
+    public JdCResponse<Map<String, Object>> goodsLoadingScan(GoodsLoadingScanningReq req) {
+        JdCResponse<Map<String, Object>> response = new JdCResponse<>();
         Long taskId = req.getTaskId();
         // 根据任务号查找当前任务所在网点和下一网点
         LoadCar loadCar = loadCarDao.findLoadCarById(taskId);
@@ -250,67 +246,29 @@ public class LoadScanServiceImpl implements LoadScanService {
         Integer nextSiteId = loadCar.getEndSiteCode().intValue();
         // 根据任务号查找装车扫描明细暂存表
         List<GoodsLoadScan> tempList = goodsLoadScanDao.findLoadScanByTaskId(taskId);
-        // 从分拣报表中根据当前网点和下一网点查询最新的已验未发的运单记录
-        List<LoadScanDto> reportList = new ArrayList<>();
+
+        List<LoadScanDto> reportList;
+
+        // 如果暂存表不为空，则去分拣报表拉取最新的库存数据
         if (!tempList.isEmpty()) {
             reportList = getLoadScanByWaybillCodes(getWaybillCodes(tempList), createSiteId, nextSiteId, null);
+        } else {
+            // 如果暂存表为空，则去分拣报表拉取100条数据
+            reportList = getLoadScanByWaybillCodes(null, createSiteId, nextSiteId, 100);
         }
 
         List<GoodsDetailDto> goodsDetailDtoList;
 
         // 分拣报表查询返回为空
         if (reportList.isEmpty()) {
-            log.error("根据任务ID所在的当前网点和下一网点去分拣报表没有找到相应的运单记录，taskId={},currentSiteCode={},endSiteCode={}",
+            log.error("根据任务ID所在的当前网点和下一网点去分拣报表没有找到相应的运单记录或发生错误，taskId={},currentSiteCode={},endSiteCode={}",
                     taskId, loadCar.getCreateSiteCode(), loadCar.getEndSiteCode());
             response.setCode(JdCResponse.CODE_FAIL);
             response.setMessage("根据任务ID没有找到相应的运单记录");
             return response;
         }
         // 如果当前任务装车明细还没初始化，直接返回
-        if (tempList.isEmpty()) {
-            goodsDetailDtoList = transformData(reportList);
-            response.setCode(JdCResponse.CODE_SUCCESS);
-            response.setData(goodsDetailDtoList);
-            return response;
-        }
-        // 如果已初始化，组装数据
-        goodsDetailDtoList = new ArrayList<>();
-        Map<String, LoadScanDto> waybillMap = new HashMap<>();
-
-        for (LoadScanDto detailDto : reportList) {
-            String reportWaybillCode = detailDto.getWayBillCode();
-            waybillMap.put(reportWaybillCode, detailDto);
-            GoodsDetailDto goodsDetailDto;
-            for (GoodsLoadScan loadScan : tempList) {
-                String waybillCode = loadScan.getWayBillCode();
-                if (reportWaybillCode.equals(waybillCode)) {
-                    // 库存取报表返回的最新数据
-                    goodsDetailDto = createGoodsDetailDto(waybillCode, detailDto.getPackageAmount(),
-                            detailDto.getGoodsAmount(), loadScan.getLoadAmount(), loadScan.getUnloadAmount(), loadScan.getStatus());
-                    goodsDetailDtoList.add(goodsDetailDto);
-                    break;
-                }
-            }
-            // 报表里最新增加的数据
-            goodsDetailDto = createGoodsDetailDto(reportWaybillCode, detailDto.getPackageAmount(),
-                    detailDto.getGoodsAmount(), 0, 0,
-                    GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK);
-            goodsDetailDtoList.add(goodsDetailDto);
-        }
-        GoodsDetailDto goodsDetailDto;
-        LoadScanDto scanDto;
-        for (GoodsLoadScan loadScan : tempList) {
-            String waybillCode = loadScan.getWayBillCode();
-            LoadScanDto loadScanDto = waybillMap.get(waybillCode);
-            if (loadScanDto != null) {
-                goodsDetailDto = createGoodsDetailDto(waybillCode, loadScanDto.getPackageAmount(),
-                        loadScanDto.getGoodsAmount(), loadScan.getLoadAmount(), loadScan.getUnloadAmount(), loadScan.getStatus());
-                goodsDetailDtoList.add(goodsDetailDto);
-            }
-            // 从分拣报表中拉取的数据没有找到，则根据
-            scanDto = new LoadScanDto();
-
-        }
+        goodsDetailDtoList = transformData(reportList);
         // 按照颜色排序
         Collections.sort(goodsDetailDtoList, new Comparator<GoodsDetailDto>() {
             @Override
@@ -319,13 +277,15 @@ public class LoadScanServiceImpl implements LoadScanService {
                 return o2.getStatus().compareTo(o1.getStatus());
             }
         });
-        // 没有数据的情况
-        log.error("根据任务ID所在的当前网点和下一网点没有找到相应的运单记录，taskId={},currentSiteCode={},endSiteCode={}",
-                taskId, loadCar.getCreateSiteCode(), loadCar.getEndSiteCode());
-        response.setMessage("根据任务ID没有找到对应的数据");
-        response.setCode(JdCResponse.CODE_FAIL);
-        return null;
 
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("batchCode", loadCar.getBatchCode());
+        resultMap.put("loadScan", loadCar.getBatchCode());
+
+        response.setCode(JdCResponse.CODE_SUCCESS);
+        response.setData(resultMap);
+
+        return response;
     }
 
     @Override

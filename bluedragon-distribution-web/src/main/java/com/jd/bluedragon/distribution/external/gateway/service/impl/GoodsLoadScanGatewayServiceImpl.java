@@ -301,7 +301,7 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
     @Override
     @JProfiler(jKey = "DMS.BASE.GoodsLoadScanGatewayServiceImpl.goodsLoadingScan",
             mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
-    public JdCResponse<List<GoodsDetailDto>> goodsLoadingScan(GoodsLoadingScanningReq req) {
+    public JdCResponse<Map<String, Object>> goodsLoadingScan(GoodsLoadingScanningReq req) {
 
 
         return loadScanService.goodsLoadingScan(req);

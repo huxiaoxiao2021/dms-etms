@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
 
 import java.util.List;
+import java.util.Map;
 
 public interface LoadScanService {
     //装车发货
@@ -24,7 +25,7 @@ public interface LoadScanService {
     //修改装车运单记录，计算已装车、未装车数量
     boolean updateGoodsLoadScanAmount(GoodsLoadScan goodsLoadScan, GoodsLoadScanRecord goodsLoadScanRecord, Integer currentSiteCode);
 
-    JdCResponse<List<GoodsDetailDto>> goodsLoadingScan(GoodsLoadingScanningReq req);
+    JdCResponse<Map<String, Object>> goodsLoadingScan(GoodsLoadingScanningReq req);
 
     JdCResponse<Void> saveLoadScanByBoardCode(GoodsLoadingScanningReq req, JdCResponse<Void> response, LoadCar loadCar);
 
