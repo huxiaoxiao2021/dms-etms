@@ -13,6 +13,7 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsDetailDto
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.base.domain.CreateAndReceiveSiteInfo;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
@@ -26,6 +27,7 @@ import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarDao;
+import com.jd.bluedragon.distribution.loadAndUnload.service.UnloadCarService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
@@ -95,6 +97,9 @@ public class LoadScanServiceImpl implements LoadScanService {
 
     @Autowired
     private DepartureService departureService;
+
+    @Autowired
+    private UnloadCarService unloadCarService;
 
     @Override
     public JdCResponse goodsLoadingDeliver(GoodsLoadingReq req) {
@@ -413,7 +418,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         // 未操作验货
         // 此类包裹，页面弹出提示：“此包裹未操作验货，无法扫描，请先操作验货”
         if (!isInspected) {
-            log.warn("[多扫逻辑校验]|此包裹未操作验货，无法扫描，请先操作验货taskId={},packageCode={},waybillCode={}",
+            log.warn("此包裹未操作验货，无法扫描，请先操作验货taskId={},packageCode={},waybillCode={}",
                     taskId, packageCode, waybillCode);
             response.setCode(JdCResponse.CODE_FAIL);
             response.setMessage("此包裹未操作验货，无法扫描，请先操作验货");
@@ -421,8 +426,16 @@ public class LoadScanServiceImpl implements LoadScanService {
         }
 
         // 校验拦截、包装服务、无重量等发货校验，发货校验规则同【B网快运发货】功能
-        // todo 复用长宇的逻辑，周一提供
-
+        InvokeResult<String> invokeResult = unloadCarService.interceptValidateUnloadCar(packageCode);
+        if (invokeResult != null) {
+            if (InvokeResult.RESULT_INTERCEPT_CODE.equals(invokeResult.getCode())) {
+                log.warn("{},taskId={},packageCode={},waybillCode={}", invokeResult.getMessage(),
+                        taskId, packageCode, waybillCode);
+                response.setCode(JdCResponse.CODE_FAIL);
+                response.setMessage(invokeResult.getMessage());
+                return response;
+            }
+        }
 
         // 校验通过，暂存
         Integer goodsAmount = scanDto.getGoodsAmount();
