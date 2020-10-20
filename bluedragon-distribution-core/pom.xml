@@ -201,7 +201,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>1.4.9-SNAPSHOT</version>
+			<version>1.5.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.ldop.alpha</groupId>

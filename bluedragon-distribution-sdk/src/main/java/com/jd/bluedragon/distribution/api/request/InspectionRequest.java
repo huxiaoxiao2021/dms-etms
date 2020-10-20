@@ -45,6 +45,8 @@ public class InspectionRequest extends JdRequest{
 
 	private Float volume;
 
+	private Integer bizSource;
+
 	public String getBoxCode() {
 		return boxCode;
 	}
@@ -147,6 +149,14 @@ public class InspectionRequest extends JdRequest{
 
 	public void setVolume(Float volume) {
 		this.volume = volume;
+	}
+
+	public Integer getBizSource() {
+		return bizSource;
+	}
+
+	public void setBizSource(Integer bizSource) {
+		this.bizSource = bizSource;
 	}
 
 	@Override

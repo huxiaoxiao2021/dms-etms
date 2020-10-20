@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.auto.domain.UploadedPackage;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionAS;
 import com.jd.bluedragon.distribution.task.asynBuffer.DmsDynamicProducer;
 import com.jd.bluedragon.distribution.task.dao.TaskDao;
@@ -714,6 +715,7 @@ public class TaskServiceImpl implements TaskService {
         inspectionAS.setUserCode(uPackage.getOperatorID());
         inspectionAS.setUserName(uPackage.getOperatorName());
         inspectionAS.setBusinessType(50);
+        inspectionAS.setBizSource(InspectionBizSourceEnum.AUTOMATIC_SORTING_MACHINE_INSPECTION.getCode());
         inspectionASes.add(inspectionAS);
         return inspectionASes;
     }
