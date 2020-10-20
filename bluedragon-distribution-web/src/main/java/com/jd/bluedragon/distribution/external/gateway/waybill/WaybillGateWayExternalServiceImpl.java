@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.external.gateway.waybill;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.core.redis.service.impl.RedisCommonUtil;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -13,9 +15,11 @@ import com.jd.bluedragon.external.gateway.base.GateWayBaseResponse;
 import com.jd.bluedragon.external.gateway.dto.request.WaybillSyncRequest;
 import com.jd.bluedragon.external.gateway.waybill.WaybillGateWayExternalService;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -24,8 +28,11 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.Date;
+
+import static com.jd.bluedragon.Constants.THIRD_ENET_BOX_WAYBILL_PREFIX;
 
 /**
  * 运单相关 发布物流网关
@@ -47,13 +54,21 @@ public class WaybillGateWayExternalServiceImpl implements WaybillGateWayExternal
     @Autowired
     private TaskService taskService;
 
+    @Autowired
+    @Qualifier(value = "thirdBoxWeightProducer")
+    private DefaultJMQProducer thirdBoxWeightDealProducer;
+
+    @Autowired
+    @Qualifier("jimdbCacheService")
+    private CacheService jimdbCacheService;
+
     private static final Integer OPERATION_SORTING = 1;//集包
     private static final Integer OPERATION_CANCEL = 2;//取消集包
     private static final Integer BOX_MAX_PACKAGE = 20000;//经济网集包上限
     private static final Integer OPERATOR_ID= -1;//经济网操作人回传全称跟踪默认ID：-1
 
     @Override
-    @JProfiler(jKey = "DMSWEB.WaybillGateWayExternalServiceImpl.syncWaybillCodeAndBoxCode", jAppName = Constants.UMP_APP_NAME_DMSWEB , mState = {JProEnum.TP})
+    @JProfiler(jKey = "DMSWEB.WaybillGateWayExternalServiceImpl.syncWaybillCodeAndBoxCode", jAppName = Constants.UMP_APP_NAME_DMSWEB , mState = {JProEnum.TP, JProEnum.FunctionError})
     public GateWayBaseResponse<Void> syncWaybillCodeAndBoxCode(WaybillSyncRequest request,String pin) {
         logger.info("同步运单与箱号信息waybillCode[{}]boxCode[{}]",request.getWaybillCode(),request.getBoxCode());
         GateWayBaseResponse<Void> response = null;
@@ -90,6 +105,8 @@ public class WaybillGateWayExternalServiceImpl implements WaybillGateWayExternal
         }
         //业务操作
         if(OPERATION_SORTING.equals(request.getOperationType())){
+            //处理箱号明细：如果箱号已经操作了称重，则需要将明细也进行分拣内部称重，不回传给运单
+            thirdBoxWeightDealProducer.sendOnFailPersistent(request.getWaybillCode(),JsonHelper.toJson(request));
             return sorting(request, startSite, box);
         }else if(OPERATION_CANCEL.equals(request.getOperationType())){
             return cancelSorting(request, startSite.getSiteCode(), box);
@@ -135,7 +152,17 @@ public class WaybillGateWayExternalServiceImpl implements WaybillGateWayExternal
     private GateWayBaseResponse<Void> sorting(WaybillSyncRequest request, BaseStaffSiteOrgDto startSite, Box box){
         CallerInfo info = Profiler.registerInfo("DMSWORKER.WaybillGateWayExternalServiceImpl.sorting", false, true);
         GateWayBaseResponse<Void> response = new GateWayBaseResponse<Void>();
+        String redisKey = THIRD_ENET_BOX_WAYBILL_PREFIX.concat(request.getBoxCode()).concat(Constants.SEPARATOR_HYPHEN)
+                .concat(request.getOperationType().toString()).concat(Constants.SEPARATOR_HYPHEN)
+                .concat(request.getPackageCode());
         try {
+            if(jimdbCacheService.exists(redisKey)){
+                if(logger.isInfoEnabled()){
+                    logger.info("经济网运单明细回传重复：{}", JsonHelper.toJson(request));
+                }
+                response.setMessage("运单明细回传重复");
+                return response;
+            }
             //集包校验
             response = sortingCheck(startSite, box);
             if(!GateWayBaseResponse.CODE_SUCCESS.equals(response.getResultCode())){
@@ -153,12 +180,14 @@ public class WaybillGateWayExternalServiceImpl implements WaybillGateWayExternal
             if(!result){
                 response.toFail(GateWayBaseResponse.MESSAGE_FAIL);
             }else {
+                jimdbCacheService.setEx(redisKey, request.getPackageCode(), DateHelper.ONE_DAY_SECONDS);
                 addSortingAdditionalTask(detail, startSite, endSite);
             }
         }catch (Exception e){
             logger.error("经济网集包异常：{}", JsonHelper.toJson(request), e);
             response.toFail(GateWayBaseResponse.MESSAGE_FAIL);
             Profiler.functionError(info);
+            jimdbCacheService.del(redisKey);
         }finally {
             Profiler.registerInfoEnd(info);
         }

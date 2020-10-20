@@ -31,6 +31,16 @@ public class DateHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(DateHelper.class);
 
     /**
+     * 五分钟秒数
+     */
+    public static final long FIVE_MINUTES_SECONDS = 5 * 60;
+
+    /**
+     * 一天的秒数
+     */
+    public static final long ONE_DAY_SECONDS = 24 * 60 * 60;
+
+    /**
      * 一分钟的毫秒数
      */
     public static final long ONE_MINUTES_MILLI = 60 * 1000;

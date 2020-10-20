@@ -205,7 +205,7 @@
 	</select>
 	
 	<select id="findBoxPackList" resultMap="sorting" parameterType="sorting">
-		SELECT box_code, package_code, waybill_code, create_time
+		SELECT box_code, package_code, waybill_code, create_time, create_site_code, receive_site_code
 		FROM Sorting
 		WHERE yn=1 AND is_cancel = 0
 		<if test="createSiteCode != null"> 
