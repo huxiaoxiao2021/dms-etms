@@ -19,7 +19,7 @@ import java.util.List;
  * @author: wuming
  * @create: 2020-10-19 20:39
  */
-@Service("loadServiceImpl")
+@Service("loadService")
 public class LoadServiceImpl implements LoadService {
 
     private static final Logger log = LoggerFactory.getLogger(LoadServiceImpl.class);
