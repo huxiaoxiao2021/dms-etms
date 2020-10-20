@@ -30,7 +30,6 @@ public interface LoadCarHelperService {
 
     List<Long> selectByHelperErp(String loginUserErp);
 
-    List<Long> selectIdsByErp(String loginUserErp);
     /**
      * 删除任务同步更新协助人表
      *

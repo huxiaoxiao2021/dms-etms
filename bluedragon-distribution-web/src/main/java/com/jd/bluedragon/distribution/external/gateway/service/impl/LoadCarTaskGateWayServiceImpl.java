@@ -202,7 +202,15 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
             jdCResponse.setMessage("装车任务信息不完整,请检查必填信息！");
             return jdCResponse;
         }
-        List<Long> taskIds = loadCarHelperService.selectIdsByErp(req.getCreateUserErp());
+        List<Long>taskIds=new ArrayList<>();
+        List<Long> creatorList = loadCarHelperService.selectByCreateUserErp(req.getCreateUserErp());
+        List<Long> helperList = loadCarHelperService.selectByHelperErp(req.getCreateUserErp());
+        if(CollectionUtils.isNotEmpty(creatorList)){
+            taskIds.addAll(creatorList);
+        }
+        if(CollectionUtils.isNotEmpty(helperList)){
+            taskIds.addAll(helperList);
+        }
         Date now = new Date();
         //库中如果存在
         if (CollectionUtils.isNotEmpty(taskIds)) {

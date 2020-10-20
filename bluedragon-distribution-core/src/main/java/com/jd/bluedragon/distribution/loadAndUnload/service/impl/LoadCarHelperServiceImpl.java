@@ -42,10 +42,6 @@ public class LoadCarHelperServiceImpl implements LoadCarHelperService {
         return loadCarHelperDao.selectByHelperErp(loginUserErp);
     }
 
-    public List<Long> selectIdsByErp(String loginUserErp) {
-        return loadCarHelperDao.selectIdsByErp(loginUserErp);
-    }
-
     @Override
     public int deleteById(Long taskId) {
         return loadCarHelperDao.deleteById(taskId);
