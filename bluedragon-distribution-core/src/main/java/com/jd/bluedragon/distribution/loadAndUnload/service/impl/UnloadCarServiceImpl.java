@@ -1307,7 +1307,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             return result;
         }
 
-        if(businessHallFreightSendReceiveCheck(waybillCode, waybillSign)){
+        if(!businessHallFreightSendReceiveCheck(waybillCode, waybillSign)){
             logger.warn("interceptValidate卸车B网营业厅寄付未揽收完成禁止发货单号：{}",waybillCode);
             result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
             result.setMessage(LoadIllegalException.BNET_SEND_PAY_NO_RECEIVE_FINISH_MESSAGE);
