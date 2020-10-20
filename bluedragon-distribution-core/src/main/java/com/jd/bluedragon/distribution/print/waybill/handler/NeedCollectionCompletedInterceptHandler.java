@@ -35,9 +35,9 @@ public class NeedCollectionCompletedInterceptHandler implements InterceptHandler
             //查询揽收完成（-640）全程跟踪结果
             List<PackageStateDto> collectCompleteResult = waybillTraceManager.getPkStateDtoByWCodeAndState(
                     context.getWaybill().getWaybillCode(), Constants.WAYBILL_TRACE_STATE_COLLECT_COMPLETE);
-            //存在揽收完成或交接完成的全程跟踪，都可以进行打印，反之，进行拦截提示，禁止打印
+            // 没有揽收完成 禁止打印
             if (collectCompleteResult.size() == 0) {
-                interceptResult.toFail(InterceptResult.STATUS_NO_PASSED, WaybillPrintMessages.MESSAGE_NEED_RECEIVE);
+                interceptResult.toFail(InterceptResult.STATUS_NO_PASSED, WaybillPrintMessages.MESSAGE_NEED_COLLECT_FINISHED);
                 return interceptResult;
             }
         }
