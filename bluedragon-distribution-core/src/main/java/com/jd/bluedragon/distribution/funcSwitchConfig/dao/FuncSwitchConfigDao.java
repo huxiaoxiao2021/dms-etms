@@ -33,6 +33,14 @@ public class FuncSwitchConfigDao extends BaseDao<FuncSwitchConfigDto> {
     }
 
     /**
+     * 根据条件查询某条记录YN
+     */
+    public Integer  queryYnByCondition(FuncSwitchConfigCondition condition){
+        return  this.getSqlSession().selectOne(namespace+".queryYnByCondition",condition);
+    }
+
+
+    /**
      * 查询总数
      * @param condition
      * @return*/

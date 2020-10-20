@@ -1327,10 +1327,20 @@ public class Constants {
 
     public static final String UNDER_LINE = "_";
 
+    /**
+     * 众邮称重拦截-缓存前缀
+     */
     public static final String ALL_MAIL_CACHE_KEY="ALL_MAIL_CACHE_KEY_";
 
     /**
-     * 5分钟的秒数
+     * 众邮称重拦截-全国缓存key
      */
-    public static final int  ALL_MAIL_CACHE_SECONDS = 5*60;
+    public static final String ALL_MATL_CACHE_COUNTRY_KEY="ALL_MAIL_CACHE_KEY_ALL_COUNTRY";
+
+    /**
+     * 众邮称重拦截缓存-生效时间  5分钟的秒数
+     */
+    public static final int  ALL_MAIL_CACHE_SECONDS = 5;
+
+
 }
