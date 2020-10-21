@@ -37,10 +37,10 @@ public class FuncSwitchConfigTest {
     @Autowired
     private DeviceConfigInfoJsfService deviceConfigInfoJsfService;
 
-    @InjectMocks
+    @Mock
     private CacheService jimdbCacheService;
 
-    @InjectMocks
+    @Mock
     private FuncSwitchConfigDao funcSwitchConfigDao;
 
     private static final Integer YN_OFF = 1;
@@ -147,7 +147,6 @@ public class FuncSwitchConfigTest {
                 jimdbCacheService.setEx(cacheKey,String.valueOf(isAllMailFilter), Constants.ALL_MAIL_CACHE_SECONDS, TimeUnit.MINUTES);
             }
         }
-
     }
 }
     
