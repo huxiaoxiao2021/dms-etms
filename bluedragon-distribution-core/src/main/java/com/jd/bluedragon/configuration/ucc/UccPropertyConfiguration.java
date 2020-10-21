@@ -428,7 +428,23 @@ public class UccPropertyConfiguration {
         this.economicNetValidateWeightSwitch = economicNetValidateWeightSwitch;
     }
 
-	public String getRedisSwitchOn() {
+    public int getClientPrintQueryGapTime() {
+        return clientPrintQueryGapTime;
+    }
+
+    public void setClientPrintQueryGapTime(int clientPrintQueryGapTime) {
+        this.clientPrintQueryGapTime = clientPrintQueryGapTime;
+    }
+
+    public int getClickIntervalSecond() {
+        return clickIntervalSecond;
+    }
+
+    public void setClickIntervalSecond(int clickIntervalSecond) {
+        this.clickIntervalSecond = clickIntervalSecond;
+    }
+
+    public String getRedisSwitchOn() {
 		return redisSwitchOn;
 	}
 
