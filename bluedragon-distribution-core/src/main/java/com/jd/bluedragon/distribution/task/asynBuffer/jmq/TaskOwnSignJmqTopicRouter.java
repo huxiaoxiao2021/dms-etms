@@ -33,6 +33,10 @@ public class TaskOwnSignJmqTopicRouter implements JmqTopicRouter<Task> {
         if(StringUtils.isBlank(ownSign)){
             ownSign = "DMS";
         }
+        if(Task.TABLE_NAME_SEND.equals(task.getTableName())
+        		&& task.getSubType()!=null){
+        	return routerMap.get(task.getTableName() + "_" + task.getSubType() + "_" + ownSign);
+        }
         return routerMap.get(task.getTableName() + "_" + task.getType() + "_" + ownSign);
     }
 }

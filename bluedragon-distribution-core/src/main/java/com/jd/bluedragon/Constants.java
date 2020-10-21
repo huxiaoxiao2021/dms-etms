@@ -477,11 +477,11 @@ public class Constants {
      */
     public static final Integer INTEGER_FLG_TRUE = 1;
     /**
-     * String类型标识-true
+     * String类型标识-1-true
      */
     public static final String STRING_FLG_TRUE = "1";
     /**
-     * String类型标识-false
+     * String类型标识-0-false
      */
     public static final String STRING_FLG_FALSE = "0";
     /**

@@ -8,7 +8,6 @@ import com.jd.bluedragon.distribution.api.request.AutoSortingPackageDto;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.auto.domain.UploadedPackage;
-import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionAS;
@@ -26,8 +25,6 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.framework.asynBuffer.producer.jmq.JmqTopicRouter;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import com.jd.ump.profiler.CallerInfo;
-import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,9 +44,6 @@ import java.util.Random;
 public class TaskServiceImpl implements TaskService {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
-
-	private static final String REDIS_SWITCH = "redis.switch";
-	private static final String REDIS_SWITCH_ON = "1";
 
 	/**
 	 * 批量提交 一次提交数量
@@ -197,36 +191,9 @@ public class TaskServiceImpl implements TaskService {
         }
         return 0;
     }
-
-    @JProfiler(jKey = "Bluedragon_dms_center.dms.method.task.redisSwitch", mState = {
-			JProEnum.TP, JProEnum.FunctionError })
-	public Boolean isRedisSwitchON(){
-		//加入监控，开始
-		CallerInfo info = Profiler.registerInfo("Bluedragon_dms_center.dms.method.task.redisSwitchOn", false, true);
-		SysConfig redisSwitch = getSwitchForRedis(REDIS_SWITCH);
-		//加入监控结束
-		Profiler.registerInfoEnd(info);
-		if(null == redisSwitch || StringHelper.isEmpty(redisSwitch.getConfigContent())
-				|| redisSwitch.getConfigContent().trim().equals(REDIS_SWITCH_ON)){
-			return true;
-		}
-		return false;
-
+	public boolean isRedisSwitchON(){
+		return Constants.STRING_FLG_TRUE.equals(this.uccPropertyConfiguration.getRedisSwitchOn());
 	}
-
-	public SysConfig getSwitchForRedis(String conName){
-		try {
-			List<SysConfig> sysConfigs = sysConfigService.getRedisSwitchList(conName);
-			if (null == sysConfigs || sysConfigs.size() <= 0) {
-				return null;
-			} else {
-				return sysConfigs.get(0);
-			}
-		} catch (Throwable ex) {
-			return null;
-		}
-	}
-
 	public Integer add(Task task) {
 		return add(task, false);
 	}
