@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.YnEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.dao.FuncSwitchConfigDao;
 import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigCondition;
+import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.packageWeighting.PackageWeightingService;
 import com.jd.bluedragon.distribution.rule.domain.Rule;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
@@ -50,11 +51,7 @@ public class WeightVolumeFilter implements Filter {
     private UccPropertyConfiguration uccPropertyConfiguration;
 
     @Autowired
-    private FuncSwitchConfigDao funcSwitchConfigDao;
-
-    @Autowired
-    @Qualifier("jimdbCacheService")
-    private CacheService jimdbCacheService;
+    private FuncSwitchConfigService funcSwitchConfigService;
 
     private static final String RULE_WEIGHT_VOLUMN_SWITCH = "1123";
     private static final String SWITCH_OFF = "1";
@@ -125,53 +122,23 @@ public class WeightVolumeFilter implements Filter {
      * @return
      */
     private boolean isEconomicNetValidateWeight(String waybillCode, String waybillSign,FilterContext request) {
-        //默认拦截
-        boolean isAllMailFilter = true;
-       //如果是全国
-        if(request.getCreateSiteCode()==null){
-            isAllMailFilter =  getFlagFromCacheOrDb(Constants.ALL_MATL_CACHE_COUNTRY_KEY,FuncSwitchConfigEnum.FUNCTION_ALL_MAIL.getCode(),null,DimensionEnum.NATIONAL.getCode());
-        }else {
+
+        //首先满足经济网的单子----
+        if(!BusinessUtil.isEconomicNetValidateWeightVolume(waybillCode, waybillSign)){
+            return  false;
+        }
+
+        //如果是全国拦截,直接返回
+        if(funcSwitchConfigService.getAllCountryFromCacheOrDb(FuncSwitchConfigEnum.FUNCTION_ALL_MAIL.getCode())){
+            return true;
+        }
+
+        //不是全国
+        if(request.getCreateSiteCode()!=null){
             Integer  siteCode = request.getCreateSiteCode();
             //当缓存中存在时
-            isAllMailFilter =  getFlagFromCacheOrDb(Constants.ALL_MAIL_CACHE_KEY+siteCode,FuncSwitchConfigEnum.FUNCTION_ALL_MAIL.getCode(),siteCode,null);
+            return funcSwitchConfigService.getSiteFlagFromCacheOrDb(FuncSwitchConfigEnum.FUNCTION_ALL_MAIL.getCode(),siteCode);
         }
-        return BusinessUtil.isEconomicNetValidateWeightVolume(waybillCode, waybillSign) && isAllMailFilter;
-    }
-
-    /**
-     * 从缓存或数据库中获取拦截标识
-     * @param cacheKey
-     * @param menuCode
-     * @param siteCode
-     * @param dimensionCode
-     * @return
-     */
-    public boolean getFlagFromCacheOrDb(String cacheKey,Integer menuCode,Integer siteCode,Integer dimensionCode){
-        boolean isAllMailFilter = true;
-        try {
-            String  cacheValue = jimdbCacheService.get(cacheKey);
-            if(StringUtils.isNotEmpty(cacheValue)) {
-                isAllMailFilter = Boolean.valueOf(cacheValue);
-            }else {
-                FuncSwitchConfigCondition condition = new FuncSwitchConfigCondition();
-                if(menuCode!=null){
-                   condition.setMenuCode(menuCode);
-                }
-                if(siteCode!=null){
-                   condition.setSiteCode(siteCode);
-                }
-                if(dimensionCode!=null){
-                   condition.setDimensionCode(dimensionCode);
-                }
-                Integer YnValue = funcSwitchConfigDao.queryYnByCondition(condition);
-                if(YnValue!=null){
-                    isAllMailFilter = YnValue==YnEnum.YN_ON.getCode() ? true: false;
-                    jimdbCacheService.setEx(cacheKey,String.valueOf(isAllMailFilter),Constants.ALL_MAIL_CACHE_SECONDS,TimeUnit.MINUTES);
-                }
-            }
-        }catch (Exception e){
-            logger.error("众邮运单拦截判断异常cacheKey:{},menuCode:{}",cacheKey,menuCode,e);
-        }
-        return isAllMailFilter;
+        return true;
     }
 }

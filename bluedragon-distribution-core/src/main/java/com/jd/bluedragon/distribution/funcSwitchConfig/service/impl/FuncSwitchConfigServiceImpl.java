@@ -24,6 +24,7 @@ import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 功能开关配置SERVICE
@@ -256,7 +258,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
                         if (longBaseDmsAutoJsfResponseAll == null || longBaseDmsAutoJsfResponseAll.getStatusCode() != BaseDmsAutoJsfResponse.SUCCESS_CODE) {
                             throw  new Exception("分拣机开关-置为开on调用失败,全国");
                         }
-                        jimdbCacheService.del(Constants.ALL_MATL_CACHE_COUNTRY_KEY);
+                        jimdbCacheService.del(DimensionEnum.NATIONAL.getCachePreKey());
                     } else if(dto.getDimensionCode()==DimensionEnum.SITE.getCode()){
                         if(CollectionUtils.isEmpty(siteCodes)){
                             siteCodes = new ArrayList<>();
@@ -281,7 +283,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
                     throw  new Exception("分拣机开关-置为开on调用失败,站点:"+siteCodes);
                 }
                 for (Integer siteCode:siteCodes){
-                    jimdbCacheService.del(Constants.ALL_MAIL_CACHE_KEY+siteCode);
+                    jimdbCacheService.del(DimensionEnum.SITE.getCachePreKey()+siteCode);
                 }
             }
         }catch (Exception e){
@@ -478,5 +480,108 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
                 }
             }
         }
+    }
+
+
+    /**
+     * 全国维度 从缓存或数据库中获取拦截标识
+     * @param menuCode
+     * @return
+     */
+    public boolean getAllCountryFromCacheOrDb(Integer menuCode){
+        boolean isAllMailFilter = true;
+        String cacheKey = DimensionEnum.NATIONAL.getCachePreKey()+menuCode;
+        try {
+            String  cacheValue = jimdbCacheService.get(cacheKey);
+            if(StringUtils.isNotEmpty(cacheValue)) {
+                isAllMailFilter = Boolean.valueOf(cacheValue);
+            }else {
+                FuncSwitchConfigCondition condition = new FuncSwitchConfigCondition();
+                if(menuCode!=null) {
+                    condition.setMenuCode(menuCode);
+                }
+                Integer YnValue = funcSwitchConfigDao.queryYnByCondition(condition);
+                if(YnValue!=null){
+                    isAllMailFilter = YnValue== YnEnum.YN_ON.getCode() ? true: false;
+                    jimdbCacheService.setEx(cacheKey,String.valueOf(isAllMailFilter),Constants.ALL_MAIL_CACHE_SECONDS, TimeUnit.MINUTES);
+                }
+            }
+        }catch (Exception e){
+            logger.error("众邮运单全国拦截判断异常cacheKey:{},menuCode:{}",cacheKey,menuCode,e);
+        }
+        return isAllMailFilter;
+    }
+
+
+    /**
+     * 站点维度 通过站点维度查询 开关状态
+     * @param menuCode
+     * @param siteCode
+     * @return
+     */
+    public boolean getSiteFlagFromCacheOrDb(Integer menuCode,Integer siteCode){
+        boolean isAllMailFilter = true;
+        String cacheKey = DimensionEnum.SITE.getCachePreKey()+menuCode+"_"+siteCode;
+        try {
+            String  cacheValue = jimdbCacheService.get(cacheKey);
+            if(StringUtils.isNotEmpty(cacheValue)) {
+                isAllMailFilter = Boolean.valueOf(cacheValue);
+            }else {
+                FuncSwitchConfigCondition condition = new FuncSwitchConfigCondition();
+                if(menuCode!=null){
+                    condition.setMenuCode(menuCode);
+                }
+                if(siteCode!=null){
+                    condition.setSiteCode(siteCode);
+                }
+
+                condition.setDimensionCode(DimensionEnum.SITE.getCode());
+
+                Integer YnValue = funcSwitchConfigDao.queryYnByCondition(condition);
+                if(YnValue!=null){
+                    isAllMailFilter = YnValue== YnEnum.YN_ON.getCode() ? true: false;
+                    jimdbCacheService.setEx(cacheKey,String.valueOf(isAllMailFilter),Constants.ALL_MAIL_CACHE_SECONDS, TimeUnit.MINUTES);
+                }
+            }
+        }catch (Exception e){
+            logger.error("众邮运单场地拦截判断异常cacheKey:{},menuCode:{}",cacheKey,menuCode,e);
+        }
+        return isAllMailFilter;
+    }
+
+    /**
+     * 个人维度拦截判断
+     * @param menuCode
+     * @param operateErp
+     * @return
+     */
+    public boolean getErpFlagFromCacheOrDb(Integer menuCode,String operateErp){
+        boolean isAllMailFilter = true;
+        String  cacheKey = DimensionEnum.PERSON.getCachePreKey()+menuCode+"_"+operateErp;
+        try {
+            String  cacheValue = jimdbCacheService.get(cacheKey);
+            if(StringUtils.isNotEmpty(cacheValue)) {
+                isAllMailFilter = Boolean.valueOf(cacheValue);
+            }else {
+                FuncSwitchConfigCondition condition = new FuncSwitchConfigCondition();
+                if(menuCode!=null){
+                    condition.setMenuCode(menuCode);
+                }
+                condition.setDimensionCode(DimensionEnum.PERSON.getCode());
+
+                if(StringUtils.isNotEmpty(operateErp)){
+                    condition.setOperateErp(operateErp);
+                }
+
+                Integer YnValue = funcSwitchConfigDao.queryYnByCondition(condition);
+                if(YnValue!=null){
+                    isAllMailFilter = YnValue== YnEnum.YN_ON.getCode() ? true: false;
+                    jimdbCacheService.setEx(cacheKey,String.valueOf(isAllMailFilter),Constants.ALL_MAIL_CACHE_SECONDS, TimeUnit.MINUTES);
+                }
+            }
+        }catch (Exception e){
+            logger.error("众邮运单个人维度拦截判断异常cacheKey:{},menuCode:{}",cacheKey,menuCode,e);
+        }
+        return isAllMailFilter;
     }
 }

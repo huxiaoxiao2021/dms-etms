@@ -3,20 +3,25 @@ package com.jd.bluedragon.distribution.funcSwitchConfig;
 import com.jd.bd.dms.automatic.sdk.common.constant.WeightValidateSwitchEnum;
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
 import com.jd.bd.dms.automatic.sdk.modules.device.DeviceConfigInfoJsfService;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.funcSwitchConfig.dao.FuncSwitchConfigDao;
+import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigCondition;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.impl.FuncSwitchConfigServiceImpl;
 import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.util.StringUtils;
+import com.jd.ql.dms.common.cache.CacheService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Author: liming522
@@ -31,6 +36,12 @@ public class FuncSwitchConfigTest {
 
     @Autowired
     private DeviceConfigInfoJsfService deviceConfigInfoJsfService;
+
+    @InjectMocks
+    private CacheService jimdbCacheService;
+
+    @InjectMocks
+    private FuncSwitchConfigDao funcSwitchConfigDao;
 
     private static final Integer YN_OFF = 1;
 
@@ -114,6 +125,28 @@ public class FuncSwitchConfigTest {
         }
 
         String name;
+
+    }
+
+    @Test
+    public void test06(){
+        Integer menuCode = FuncSwitchConfigEnum.FUNCTION_ALL_MAIL.getCode();
+        boolean isAllMailFilter = true;
+        String cacheKey = DimensionEnum.NATIONAL.getCachePreKey()+menuCode;
+         String  cacheValue = jimdbCacheService.get(cacheKey);
+        if(org.apache.commons.lang.StringUtils.isNotEmpty(cacheValue)) {
+            isAllMailFilter = Boolean.valueOf(cacheValue);
+        }else {
+            FuncSwitchConfigCondition condition = new FuncSwitchConfigCondition();
+            if(menuCode!=null) {
+                condition.setMenuCode(menuCode);
+            }
+            Integer YnValue = funcSwitchConfigDao.queryYnByCondition(condition);
+            if(YnValue!=null){
+                isAllMailFilter = YnValue== YnEnum.YN_ON.getCode() ? true: false;
+                jimdbCacheService.setEx(cacheKey,String.valueOf(isAllMailFilter), Constants.ALL_MAIL_CACHE_SECONDS, TimeUnit.MINUTES);
+            }
+        }
 
     }
 }

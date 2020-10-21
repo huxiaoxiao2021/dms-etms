@@ -82,4 +82,27 @@ public interface FuncSwitchConfigService {
      * @return
      */
     boolean checkIsConfigured(FuncSwitchConfigDto funcSwitchConfigDto);
+
+    /**
+     * 从缓存或数据库中查询拦截的状态
+     * @param menuCode   功能编码
+     * @return
+     */
+    boolean getAllCountryFromCacheOrDb( Integer menuCode);
+
+    /**
+     * 站点维度查询缓存或数据库拦截状态
+     * @param menuCode   功能编码
+     * @param siteCode   站点编码
+     * @return
+     */
+    boolean getSiteFlagFromCacheOrDb(Integer menuCode,Integer siteCode);
+
+    /**
+     * 个人维度从缓存或数据库中查询拦截的状态
+     * @param menuCode  功能编码
+     * @param operateErp 操作人erp
+     * @return
+     */
+    boolean getErpFlagFromCacheOrDb(Integer menuCode,String operateErp);
 }
