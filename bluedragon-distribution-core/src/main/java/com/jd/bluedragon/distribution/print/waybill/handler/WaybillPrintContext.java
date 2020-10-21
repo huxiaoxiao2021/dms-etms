@@ -99,6 +99,11 @@ public class WaybillPrintContext implements Context{
 	 * 站点平台打印-打印结果数据
 	 */
 	private LabelPrintingResponse labelPrintingResponse;
+
+	/**
+	 * 运单是否交接完成
+	 */
+	private Boolean isCollectComplete;
 	
 	public void appendMessage(String message){
 		if(StringHelper.isNotEmpty(message)){
@@ -221,5 +226,13 @@ public class WaybillPrintContext implements Context{
 
 	public void setTraderSign(String traderSign) {
 		this.traderSign = traderSign;
+	}
+
+	public Boolean getCollectComplete() {
+		return isCollectComplete;
+	}
+
+	public void setCollectComplete(Boolean collectComplete) {
+		isCollectComplete = collectComplete;
 	}
 }
