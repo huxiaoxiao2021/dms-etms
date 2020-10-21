@@ -402,6 +402,8 @@ public class DeliveryServiceImpl implements DeliveryService {
      * B网营业厅寄付现结运费发货拦截开关KEY（1开启，0关闭）
      */
     private static final  String FREIGHT_INTERCEPTION = "FREIGHT_INTERCEPTION";
+    
+    private final int BIG_SEND_NUM = 1000;
     /**
      * 发货任务类型-发货处理关系
      */
@@ -2680,12 +2682,16 @@ public class DeliveryServiceImpl implements DeliveryService {
 	        	sendDNum = sendDetailList.size();
 	        }
 	        log.info("发货任务处理{}:sendD{}条",sendCode,sendDNum);
+	        if(sendDNum > BIG_SEND_NUM){
+	        	log.warn("发货任务处理-sendD超过{}条,{}:sendD{}条",BIG_SEND_NUM,sendCode,sendDNum);
+	        }
 	        if (log.isDebugEnabled()) {
 	            log.debug("SEND_D明细:{}" , JsonHelper.toJson(sendDetailList));
 	        }
 	        updateWaybillStatus(sendDetailList);
         }catch(Exception e){
         	Profiler.functionError(info);
+        	log.error("发货任务处理异常！", e);
         	throw e;
         }finally{
         	Profiler.registerInfoEnd(info);
