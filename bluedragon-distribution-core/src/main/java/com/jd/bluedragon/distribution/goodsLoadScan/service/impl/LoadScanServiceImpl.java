@@ -624,7 +624,6 @@ public class LoadScanServiceImpl implements LoadScanService {
 
         Long taskId = req.getTaskId();
         String packageCode = req.getPackageCode();
-        Map<String, Object> resultMap;
 
         // 根据任务号查询装车任务记录
         LoadCar loadCar = loadCarDao.findLoadCarById(taskId);
