@@ -68,12 +68,12 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
             return jdCResponse;
         }
         List<HelperDto> helperList = req.getAssistorInfo();
-        LoadCarHelper loadCarHelper = new LoadCarHelper();
         List<LoadCarHelper> list = Lists.newArrayListWithExpectedSize(helperList.size());
-        loadCarHelper.setCreateSiteName(req.getCreateSiteName());
-        loadCarHelper.setCreateSiteCode(req.getCreateSiteCode());
-        loadCarHelper.setTaskId(req.getId());
         for (HelperDto helperDto : helperList) {
+            LoadCarHelper loadCarHelper = new LoadCarHelper();
+            loadCarHelper.setCreateSiteName(req.getCreateSiteName());
+            loadCarHelper.setCreateSiteCode(req.getCreateSiteCode());
+            loadCarHelper.setTaskId(req.getId());
             loadCarHelper.setCreateUserErp(req.getCreateUserErp());
             loadCarHelper.setCreateUserName(req.getCreateUserName());
             loadCarHelper.setHelperErp(helperDto.getHelperERP());
