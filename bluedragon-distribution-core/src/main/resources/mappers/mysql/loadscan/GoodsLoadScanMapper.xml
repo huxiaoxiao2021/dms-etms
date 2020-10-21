@@ -6,10 +6,10 @@
 		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
 		<result column="task_id" property="taskId" javaType="java.lang.Long" jdbcType="BIGINT" />
 		<result column="waybill_code" property="wayBillCode" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="package_amount" property="packageAmount" javaType="java.lang.Integer" jdbcType="INT" />
-        <result column="load_amount" property="loadAmount" javaType="java.lang.Integer" jdbcType="INT" />
-        <result column="unload_amount" property="unloadAmount" javaType="java.lang.Integer" jdbcType="INT" />
-        <result column="force_amount" property="forceAmount" javaType="java.lang.Integer" jdbcType="INT" />
+		<result column="package_amount" property="packageAmount" javaType="java.lang.Integer" jdbcType="INTEGER" />
+        <result column="load_amount" property="loadAmount" javaType="java.lang.Integer" jdbcType="INTEGER" />
+        <result column="unload_amount" property="unloadAmount" javaType="java.lang.Integer" jdbcType="INTEGER" />
+        <result column="force_amount" property="forceAmount" javaType="java.lang.Integer" jdbcType="INTEGER" />
         <result column="status" property="status" javaType="java.lang.Integer" jdbcType="TINYINT" />
         <result column="create_user_code" javaType="java.lang.String" jdbcType="VARCHAR" property="createUserCode"/>
         <result column="create_user_name" javaType="java.lang.String" jdbcType="VARCHAR" property="createUserName"/>
@@ -43,9 +43,6 @@
             </if>
             <if test="packageAmount != null">
                 package_amount,
-            </if>
-            <if test="goodsAmount != null">
-                goods_amount,
             </if>
             <if test="loadAmount != null">
                 load_amount,
@@ -93,9 +90,6 @@
             <if test="packageAmount != null">
                 #{packageAmount,jdbcType=INTEGER},
             </if>
-            <if test="goodsAmount != null">
-                #{goodsAmount,jdbcType=INTEGER},
-            </if>
             <if test="loadAmount != null">
                 #{loadAmount,jdbcType=INTEGER},
             </if>
@@ -134,11 +128,11 @@
 
     <insert id="batchInsert" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan">
         insert into load_scan (task_id, waybill_code, package_amount,
-        goods_amount, load_amount, unload_amount, force_amount, status, create_user_code, create_user_name, update_user_code, update_user_name, create_time,
+        load_amount, unload_amount, force_amount, status, create_user_code, create_user_name, update_user_code, update_user_name, create_time,
         update_time, yn, ts)  VALUES
         <foreach collection="list" item="info" separator=",">
             (#{info.taskId,jdbcType=BIGINT}, #{info.waybillCode,jdbcType=VARCHAR},
-            #{info.packageAmount,jdbcType=INTEGER}, #{info.goodsAmount,jdbcType=INTEGER},
+            #{info.packageAmount,jdbcType=INTEGER},
             #{info.loadAmount,jdbcType=INTEGER}, #{info.unloadAmount,jdbcType=INTEGER}, #{info.forceAmount,jdbcType=INTEGER},
             #{info.status,jdbcType=INTEGER}, #{info.createUserCode,jdbcType=VARCHAR},
             #{info.createUserName,jdbcType=VARCHAR}, #{info.updateUserCode,jdbcType=VARCHAR}, #{info.updateUserName,jdbcType=VARCHAR},
@@ -185,9 +179,6 @@
             <if test="packageAmount != null">
                 and package_amount = #{packageAmount,jdbcType=INTEGER}
             </if>
-            <if test="goodsAmount != null">
-                and goods_amount = #{goodsAmount,jdbcType=INTEGER}
-            </if>
             <if test="loadAmount != null">
                 and load_amount = #{loadAmount,jdbcType=INTEGER}
             </if>
@@ -231,7 +222,6 @@
             <if test="taskId != null">task_id = #{taskId,jdbcType=BIGINT},</if>
             <if test="waybillCode != null">waybill_code = #{waybillCode,jdbcType=VARCHAR},</if>
             <if test="packageAmount != null">package_amount = #{packageAmount,jdbcType=INTEGER},</if>
-            <if test="goodsAmount != null">goods_amount = #{goodsAmount,jdbcType=INTEGER},</if>
             <if test="loadAmount != null">load_amount = #{loadAmount,jdbcType=INTEGER},</if>
             <if test="unloadAmount != null">unload_amount = #{unloadAmount,jdbcType=INTEGER},</if>
             <if test="forceAmount != null">force_amount = #{forceAmount,jdbcType=INTEGER},</if>
