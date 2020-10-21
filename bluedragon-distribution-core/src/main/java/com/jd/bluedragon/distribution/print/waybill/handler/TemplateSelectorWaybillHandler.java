@@ -52,9 +52,9 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
     @Autowired
     private SiteService siteService;
 
-    @Value("begin.time.dubboEleven")
+    @Value("${begin.time.dubboEleven}")
     private Integer bginTimeOFDubboEleven;//开始时间
-    @Value("num.day.continued")
+    @Value("${num.day.continued}")
     private Integer numDayContinued;//持续时间
 
 	@Override
