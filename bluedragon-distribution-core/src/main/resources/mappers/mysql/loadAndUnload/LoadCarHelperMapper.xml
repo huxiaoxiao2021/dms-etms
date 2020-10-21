@@ -82,15 +82,15 @@
         )
         values
         <foreach collection="list" item="item" index="index" separator=",">
-            ( #{taskId,jdbcType=INTEGER},
-            #{helperName,jdbcType=VARCHAR},
-            #{helperErp,jdbcType=VARCHAR},
+            ( #{item.taskId,jdbcType=INTEGER},
+            #{item.helperName,jdbcType=VARCHAR},
+            #{item.helperErp,jdbcType=VARCHAR},
             NOW(),
             NOW(),
-            #{createUserErp,jdbcType=VARCHAR},
-            #{createUserName,jdbcType=VARCHAR},
-            #{createSiteCode,jdbcType=BIGINT},
-            #{createUserName,jdbcType=VARCHAR},
+            #{item.createUserErp,jdbcType=VARCHAR},
+            #{item.createUserName,jdbcType=VARCHAR},
+            #{item.createSiteCode,jdbcType=BIGINT},
+            #{item.createUserName,jdbcType=VARCHAR},
             1 )
         </foreach>
     </insert>
