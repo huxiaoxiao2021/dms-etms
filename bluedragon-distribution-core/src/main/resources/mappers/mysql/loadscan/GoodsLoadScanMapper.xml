@@ -6,10 +6,10 @@
 		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
 		<result column="task_id" property="taskId" javaType="java.lang.Long" jdbcType="BIGINT" />
 		<result column="waybill_code" property="wayBillCode" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="package_amount" property="packageAmount" javaType="java.lang.Integer" jdbcType="INT" />
-        <result column="load_amount" property="loadAmount" javaType="java.lang.Integer" jdbcType="INT" />
-        <result column="unload_amount" property="unloadAmount" javaType="java.lang.Integer" jdbcType="INT" />
-        <result column="force_amount" property="forceAmount" javaType="java.lang.Integer" jdbcType="INT" />
+		<result column="package_amount" property="packageAmount" javaType="java.lang.Integer" jdbcType="INTEGER" />
+        <result column="load_amount" property="loadAmount" javaType="java.lang.Integer" jdbcType="INTEGER" />
+        <result column="unload_amount" property="unloadAmount" javaType="java.lang.Integer" jdbcType="INTEGER" />
+        <result column="force_amount" property="forceAmount" javaType="java.lang.Integer" jdbcType="INTEGER" />
         <result column="status" property="status" javaType="java.lang.Integer" jdbcType="TINYINT" />
         <result column="create_user_code" javaType="java.lang.String" jdbcType="VARCHAR" property="createUserCode"/>
         <result column="create_user_name" javaType="java.lang.String" jdbcType="VARCHAR" property="createUserName"/>
