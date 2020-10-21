@@ -144,7 +144,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         if(lc != null && lc.getStatus() != null) {
             return lc.getStatus();
         }
-        return null;
+        return 0;
     }
 
     @Override

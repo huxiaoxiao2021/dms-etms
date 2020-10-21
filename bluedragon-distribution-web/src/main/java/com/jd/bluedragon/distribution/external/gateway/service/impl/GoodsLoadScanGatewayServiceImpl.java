@@ -235,10 +235,14 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             }else if(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END.equals(taskStatus)) {
                 response.toFail("该任务已经完成发货，请勿重复发货");
                 return response;
+            } else if(!GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN.equals(taskStatus)){
+                response.toFail("未开始任务无法进行发货发货");
+                return response;
             }
         }
 
         jimdbCacheService.setEx(req.getTaskId().toString(), 1, 60);
+//        jimdbCacheService.setEx(req.getTaskId().toString(), 1, 1000);
 
         if(req.getSendCode() == null) {
             response.toFail("发货批次号不能为空");

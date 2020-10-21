@@ -4,6 +4,7 @@ import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsExceptionScanningReq;
+import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
 import com.jd.bluedragon.external.gateway.service.GoodsLoadScanGatewayService;
 import org.junit.Test;
@@ -75,6 +76,29 @@ public class GoodsLoadingScanningServiceImplTest {
 
 
         JdCResponse res = goodsLoadingScanningService.goodsCompulsoryDeliver(param);
+        System.out.println(res.getCode() + "----" + res.getMessage());
+    }
+
+    @Test
+    public void testGoodsLoadingDeliver() {
+        GoodsLoadingReq param = new GoodsLoadingReq();
+
+        User user = new User();
+        user.setUserName("admin");
+        user.setUserCode(2020001);
+        param.setUser(user);
+
+        CurrentOperate currentOperate = new CurrentOperate();
+        currentOperate.setSiteCode(1241136);
+        currentOperate.setSiteName("这是哪里啊");
+        param.setCurrentOperate(currentOperate);
+
+        param.setTaskId(1L);
+        param.setSendCode("910-364605-20190111122142011");
+        param.setReceiveSiteCode(852798);
+
+        JdCResponse res = goodsLoadingScanningService.goodsLoadingDeliver(param);
+
         System.out.println(res.getCode() + "----" + res.getMessage());
     }
 
