@@ -21,7 +21,23 @@
 	
 	<bean id="uccConfig" class="com.jd.coo.ucc.client.config.UccConfig">
 		<property name="propertyConfig" ref="propertyConfig"/>
+		<property name="logConfig" ref="log2Config"/>
 	</bean>
+
+
+<!--	log4j2日志级别控制-->
+	<bean id="logConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.Log2ConfigProcessor"/>
+	<bean id="log2Config" class="com.jd.coo.ucc.client.config.UccLogConfig">
+		<property name="processor" ref="logConfigProcessor" />
+		<property name="weakList">
+			<list>
+				<value>test01</value>
+				<value>log4j2.Logger.com.jd.bluedragon.distribution.site.dao</value>
+				<value>log4j2.AsyncRoot.rootAsyncLogger</value>
+			</list>
+		</property>
+	</bean>
+
 	<bean name = "uccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration">
 		<property name="asynbufferEnabledTaskType" value="${asynBuffer.enabled.task.type}"/>
 		<property name="cassandraGlobalSwitch" value="${cassandra.global.on}"/>
