@@ -203,13 +203,13 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
                 jdCResponse.setMessage("装车任务信息不完整,请检查必填信息！");
                 return jdCResponse;
             }
-            List<Long>taskIds=new ArrayList<>();
+            List<Long> taskIds = new ArrayList<>();
             List<Long> creatorList = loadCarHelperService.selectByCreateUserErp(req.getCreateUserErp());
             List<Long> helperList = loadCarHelperService.selectByHelperErp(req.getCreateUserErp());
-            if(CollectionUtils.isNotEmpty(creatorList)){
+            if (CollectionUtils.isNotEmpty(creatorList)) {
                 taskIds.addAll(creatorList);
             }
-            if(CollectionUtils.isNotEmpty(helperList)){
+            if (CollectionUtils.isNotEmpty(helperList)) {
                 taskIds.addAll(helperList);
             }
             Date now = new Date();
@@ -235,6 +235,8 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
             loadCar.setCreateTime(new Date());
             loadCar.setUpdateTime(new Date());
             loadCar.setStatus(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BLANK);
+            loadCar.setOperateUserErp(req.getCreateUserErp());
+            loadCar.setOperateUserName(req.getCreateUserName());
             int id = loadService.insert(loadCar);
             if (id > 0) {
                 jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
@@ -242,10 +244,11 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
                 jdCResponse.setData((long) id);
                 return jdCResponse;
             }
+        } catch (Exception e) {
+            log.error("装卸任务创建请求异常={}", e);
             jdCResponse.setCode(JdCResponse.CODE_ERROR);
             jdCResponse.setMessage("操作失败,请稍后重试！");
-        }catch (Exception e){
-            log.error("装卸任务创建请求异常={}",e);
+            return jdCResponse;
         }
         return jdCResponse;
     }

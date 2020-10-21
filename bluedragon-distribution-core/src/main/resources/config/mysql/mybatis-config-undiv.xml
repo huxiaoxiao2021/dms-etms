@@ -118,6 +118,10 @@
         <!-- 卸车任务 -->
         <typeAlias type="com.jd.bluedragon.distribution.loadAndUnload.UnloadCar" alias="unloadCar"/>
         <typeAlias type="com.jd.bluedragon.distribution.loadAndUnload.UnloadCarDistribution" alias="unloadCarDistribution"/>
+
+        <typeAlias type="com.jd.bluedragon.distribution.loadAndUnload.LoadCar" alias="loadCar"/>
+        <typeAlias type="com.jd.bluedragon.distribution.loadAndUnload.LoadCarHelper" alias="loadHelper"/>
+
     </typeAliases>
 
     <plugins>

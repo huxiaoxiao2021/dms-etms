@@ -58,7 +58,7 @@
                 create_user_erp,
             </if>
             <if test="createSiteName  !=null and createSiteName !=''">
-                create_site_code,
+                create_site_name,
             </if>
             <if test="createSiteCode  !=null">
                 create_site_code,
@@ -69,9 +69,7 @@
             <if test="createUserName !=null and createUserName !=''">
                 create_user_name,
             </if>
-            <if test="yn !=null">
                 yn
-            </if>
         </trim>
         )values (
         <trim suffixOverrides=",">
