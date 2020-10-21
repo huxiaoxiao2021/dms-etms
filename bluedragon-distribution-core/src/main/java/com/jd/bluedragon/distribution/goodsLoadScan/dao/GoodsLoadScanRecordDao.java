@@ -3,7 +3,6 @@ package com.jd.bluedragon.distribution.goodsLoadScan.dao;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
-import com.jd.bluedragon.distribution.loadAndUnload.UnloadCar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,5 +41,9 @@ public class GoodsLoadScanRecordDao extends BaseDao {
     public int insert(GoodsLoadScanRecord record) {
 
         return this.getSqlSession().update(namespace + ".add", record);
+    }
+
+    public boolean batchInsert(List<GoodsLoadScanRecord> records) {
+        return super.getSqlSession().insert(namespace + ".batchInsert", records) > 0;
     }
 }

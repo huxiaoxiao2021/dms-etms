@@ -463,6 +463,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         }
 
         List<LoadScanDto> loadScanDtoList = new ArrayList<>();
+        List<GoodsLoadScanRecord> recordList = new ArrayList<>();
         // 运单，包裹数
         Map<String, Integer> map = new HashMap<>();
         // 循环处理板上的每一个包裹
@@ -473,11 +474,10 @@ public class LoadScanServiceImpl implements LoadScanService {
             String waybillCode = WaybillUtil.getWaybillCode(packCode);
 
             // 板上的包裹列表不需要再校验是否已验货，直接装车
-            // 根据包裹号和运单号去分拣报表查找已验未发对应的记录
-            // todo 批量   处理完再批量查
             LoadScanDto loadScanDto = new LoadScanDto();
             loadScanDto.setWayBillCode(waybillCode);
             loadScanDtoList.add(loadScanDto);
+
             // 当前板子上同一个运单上的包裹数
             Integer packageNum = map.get(waybillCode);
             if (packageCode == null) {
@@ -486,20 +486,30 @@ public class LoadScanServiceImpl implements LoadScanService {
                 packageNum = packageNum + 1;
                 map.put(waybillCode, packageNum);
             }
-                   // getLoadScanByWaybillCodeAndPackageCode(waybillCode, packCode);
-            if (loadScanDto != null) {
-                // 保存扫描记录
-                GoodsLoadScanRecord goodsLoadScanRecord = createGoodsLoadScanRecord(taskId, waybillCode, packCode,
-                        boardCode, transfer, flowDisAccord, user);
-                goodsLoadScanRecordDao.insert(goodsLoadScanRecord);
+            // 保存扫描记录
+            GoodsLoadScanRecord goodsLoadScanRecord = createGoodsLoadScanRecord(taskId, waybillCode, packCode,
+                    boardCode, transfer, flowDisAccord, user);
+            recordList.add(goodsLoadScanRecord);
+        }
+
+        // 批量保存板上的包裹记录
+        goodsLoadScanRecordDao.batchInsert(recordList);
+
+        // 根据运单号列表去分拣报表查找已验未发对应的库存数
+        List<LoadScanDto> scanDtoList = getLoadScanListByWaybillCode(loadScanDtoList, loadCar.getCreateSiteCode().intValue());
+
+        if (scanDtoList != null) {
+            for (LoadScanDto scanDto : scanDtoList) {
                 // 根据任务ID和运单号查询暂存表
                 // todo 循环包裹，在锁里 根据缓存 进行计算
-                GoodsLoadScan loadScan = goodsLoadScanDao.findLoadScanByTaskIdAndWaybillCode(taskId, waybillCode);
+                GoodsLoadScan loadScan = goodsLoadScanDao.findLoadScanByTaskIdAndWaybillCode(taskId, scanDto.getWayBillCode());
                 if (loadScan != null) {
+                    // 取出板子上该运单下的要装车包裹数量
+                    Integer packageNum = map.get(scanDto.getWayBillCode());
                     // 修改已存在的记录
-                    loadScan.setLoadAmount(loadScan.getLoadAmount() + 1);
+                    loadScan.setLoadAmount(loadScan.getLoadAmount() + packageNum);
                     loadScan.setUpdateTime(new Date());
-
+                    loadScan.setUnloadAmount(scanDto.getGoodsAmount() - loadScan.getLoadAmount());
                     loadScan.setUpdateUserCode(user.getUserCode());
                     loadScan.setUpdateUserName(user.getUserName());
 
@@ -511,6 +521,7 @@ public class LoadScanServiceImpl implements LoadScanService {
                 }
             }
         }
+
         return response;
     }
 
