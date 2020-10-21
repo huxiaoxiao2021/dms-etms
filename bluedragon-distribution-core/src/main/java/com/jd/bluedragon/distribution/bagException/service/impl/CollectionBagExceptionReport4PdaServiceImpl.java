@@ -37,6 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -240,17 +241,22 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
             boolean findSendBySite = false;
             List<String> matchedSendStatus = new ArrayList<>(Arrays.asList(Constants.WAYBILL_TRACE_STATE_SEND_BY_SITE));
             List<String> matchedGenBoxStatus = new ArrayList<>(Arrays.asList(Constants.WAYBILL_TRACE_STATE_BOXING_BY_SITE));
+            Integer preSiteCode = null;
             for(PackageState packageState : packageStateList){
                 if(Objects.equals(packageState.getOperatorSiteId(), currentSiteCode)) {
                     //  找到当前分拣中心的操作记录，往后就是上游节点的数据
                     findCurrentSiteOpLog = true;
                 }
-                if(findCurrentSiteOpLog && matchedSendStatus.contains(packageState.getState())){
+                if (findCurrentSiteOpLog && !Objects.equals(packageState.getOperatorSiteId(), currentSiteCode)){
+                    preSiteCode = packageState.getOperatorSiteId();
+                }
+                if(Objects.equals(packageState.getOperatorSiteId(), preSiteCode) && findCurrentSiteOpLog && matchedSendStatus.contains(packageState.getState())){
                     sendData = packageState;
                     findSendBySite = true;
                 }
-                if(findCurrentSiteOpLog && findSendBySite && matchedGenBoxStatus.contains(packageState.getState())){
+                if(Objects.equals(packageState.getOperatorSiteId(), preSiteCode) && findCurrentSiteOpLog && findSendBySite && matchedGenBoxStatus.contains(packageState.getState())){
                     boxingData = packageState;
+                    break;
                 }
             }
             if(!findCurrentSiteOpLog || !findSendBySite) {
@@ -399,7 +405,7 @@ public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBa
         if(reportResponse.getLength() > smallWidth || reportResponse.getWeight() > smallWidth || reportResponse.getHeight() > smallWidth){
             return false;
         }
-        if((reportResponse.getLength() + reportResponse.getWeight() + reportResponse.getHeight()) > smallWidthSum){
+        if(BigDecimal.valueOf(reportResponse.getLength()).add(BigDecimal.valueOf(reportResponse.getWeight())).add(BigDecimal.valueOf(reportResponse.getHeight())).doubleValue() > smallWidthSum){
             return false;
         }
         return true;
