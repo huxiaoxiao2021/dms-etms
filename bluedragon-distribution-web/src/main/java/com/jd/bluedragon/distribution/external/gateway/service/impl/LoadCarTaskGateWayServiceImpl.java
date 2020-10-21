@@ -139,6 +139,7 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
     @JProfiler(jKey = "DMSWEB.LoadCarTaskGateWayServiceImpl.checkLicenseNumber",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<String> checkLicenseNumber(String licenseNumber) {
+        log.info("车牌转换接口请求参数={}", licenseNumber);
         JdCResponse<String> jdCResponse = new JdCResponse<>();
         if (StringUtils.isBlank(licenseNumber)) {
             jdCResponse.setCode(JdCResponse.CODE_ERROR);
@@ -156,6 +157,7 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
         jdCResponse.setData(licenseNumber);
         jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
         jdCResponse.setMessage(JdCResponse.MESSAGE_SUCCESS);
+        log.info("车牌校验接口响应结果={}", JSON.toJSONString(jdCResponse));
         return jdCResponse;
     }
 
