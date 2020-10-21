@@ -9,9 +9,8 @@ import com.jd.bluedragon.distribution.print.domain.*;
 import com.jd.bluedragon.distribution.print.service.TemplateSelectService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.DateHelper;
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.joda.time.DateTimeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +18,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
+
+import static java.util.Arrays.asList;
 
 @Service
 public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintContext,JdResult<String>>{
@@ -52,10 +55,11 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
     @Autowired
     private SiteService siteService;
 
-    @Value("${begin.time.dubboEleven}")
-    private Integer bginTimeOFDubboEleven;//开始时间
-    @Value("${num.day.continued}")
-    private Integer numDayContinued;//持续时间
+    @Value("${time.dubboEleven}")
+    private String timeDubboEleven;//双十一期间需要达标的日期, 以逗号分隔
+    @Value("${mask.dubboEleven}")
+    private String maskDubboEleven;//每天对应的标签
+
 
 	@Override
 	public JdResult<String> handle(WaybillPrintContext context) {
@@ -156,16 +160,17 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
      * @param context
      */
     private void setMask(WaybillPrintContext context) {
-        Long currentTime = System.currentTimeMillis()/1000;//当前时间
-        Long beginTime = new Long(bginTimeOFDubboEleven);//双十一开始时间
-        for(int i =0;i < this.numDayContinued;i++){
-           if (beginTime <= currentTime && currentTime <= beginTime + 86400){
-               context.getBasePrintWaybill().setTransportTypeText("" + (i+1));
-               break;
-           }
-            beginTime += 86400;
+        String currentDate = DateHelper.formatDate(new Date(),DateHelper.DATE_FORMAT_YYYYMMDD);
+        List<String> dubboElevenTimes = Arrays.asList(this.timeDubboEleven.split(","));
+        List<String> masks = Arrays.asList(this.maskDubboEleven.split(","));
+        if (CollectionUtils.isEmpty(dubboElevenTimes) || CollectionUtils.isEmpty(masks)){
+            return;
         }
-
+        int index = dubboElevenTimes.indexOf(currentDate);
+        String mask = index < masks.size() ? masks.get(index) : null;
+        if (!StringUtils.isEmpty(mask)){
+            context.getBasePrintWaybill().setTransportTypeText(mask);
+        }
     }
 
     /**
@@ -175,15 +180,14 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
      * @return
      */
     private boolean isInDubboElevenTime() {
-	    if (null == this.bginTimeOFDubboEleven || null == this.numDayContinued){
+	    if (StringUtils.isEmpty(timeDubboEleven) || StringUtils.isEmpty(maskDubboEleven)){
 	        return Boolean.FALSE;
         }
-	    Long currentTime = System.currentTimeMillis()/1000;//当前时间
-	    Long bginTimeOFDubboElevenLong = new Long(bginTimeOFDubboEleven);//双十一开始时间
-	    //当前时间戳
-        if (currentTime >= bginTimeOFDubboElevenLong && currentTime <= bginTimeOFDubboElevenLong + this.numDayContinued * 86400){
+        String currentDate = DateHelper.formatDate(new Date(),DateHelper.DATE_FORMAT_YYYYMMDD);
+        List<String> dubboElevenTimes = Arrays.asList(this.timeDubboEleven.split(","));
+        if (dubboElevenTimes.contains(currentDate)){
             return Boolean.TRUE;
-        }
+        };
         return Boolean.FALSE;
     }
 }
