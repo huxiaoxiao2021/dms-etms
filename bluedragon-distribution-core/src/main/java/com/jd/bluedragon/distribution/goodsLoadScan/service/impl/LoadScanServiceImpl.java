@@ -1058,6 +1058,13 @@ public class LoadScanServiceImpl implements LoadScanService {
      */
     private Integer getWaybillStatus(Integer goodsAmount, Integer loadAmount, Integer unloadAmount,
                                      Integer forceAmount) {
+
+        // 已装等于0且总包裹=库存 -- 货到齐没开始扫 或 扫完取消 -- 无特殊颜色
+        // 已装等于0且总包裹≠库存 -- 货没到齐没开始扫 或 扫完取消 -- 无特殊颜色
+        if (loadAmount == 0) {
+            return GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK;
+        }
+
         // 已装和未装都大于0  -- 没扫齐 -- 红色
         if (loadAmount > 0 && unloadAmount > 0) {
             // 已装和未装都大于0，操作强发 -- 没扫齐强发 -- 橙色
@@ -1071,11 +1078,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         if (goodsAmount.equals(loadAmount) && unloadAmount == 0) {
             return GoodsLoadScanConstants.GOODS_SCAN_LOAD_GREEN;
         }
-        // 已装等于0且总包裹=库存 -- 货到齐没开始扫 或 扫完取消 -- 无特殊颜色
-        // 已装等于0且总包裹≠库存 -- 货没到齐没开始扫 或 扫完取消 -- 无特殊颜色
-        if (loadAmount == 0) {
-            return GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK;
-        }
+
         return GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK;
     }
 
