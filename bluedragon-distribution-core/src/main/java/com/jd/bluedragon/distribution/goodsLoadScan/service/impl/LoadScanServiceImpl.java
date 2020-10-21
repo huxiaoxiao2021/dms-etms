@@ -34,7 +34,6 @@ import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.JsonUtil;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.dms.common.cache.CacheService;
 import org.apache.commons.lang.StringUtils;
@@ -376,27 +375,37 @@ public class LoadScanServiceImpl implements LoadScanService {
         List<GoodsLoadScan> tempList = goodsLoadScanDao.findLoadScanByTaskId(taskId);
         log.info("根据任务ID查找暂存表，taskId={}", req.getTaskId());
         List<LoadScanDto> reportList;
-        List<GoodsDetailDto> goodsDetailDtoList = new ArrayList<>();
+        List<GoodsDetailDto> goodsDetailDtoList;
         // 暂存表运单号，运单号对应的暂存记录
         Map<String, GoodsLoadScan> map = new HashMap<>();
 
         // 如果暂存表不为空，则去分拣报表拉取最新的库存数据
         if (!tempList.isEmpty()) {
-            log.info("根据任务ID查找暂存表不为空，taskId={}", req.getTaskId());
+            log.info("根据任务ID查找暂存表不为空，taskId={},size={}", req.getTaskId(), tempList.size());
             reportList = getLoadScanByWaybillCodes(getWaybillCodes(tempList, map), createSiteId, nextSiteId, null);
-            log.info("根据暂存表记录反查结果,taskId={},reportList={},size={}", req.getTaskId(),  JsonHelper.toJson(reportList), reportList.size());
-            if (!reportList.isEmpty()) {
-                log.info("根据任务ID查找暂存表不为空，开始转换数据。taskId={}", req.getTaskId());
-                goodsDetailDtoList = transformData(reportList, map);
+            if (reportList == null || reportList.isEmpty()) {
+                log.info("根据暂存表记录反查分拣报表返回为空，taskId={}", req.getTaskId());
+                response.setCode(JdCResponse.CODE_FAIL);
+                response.setMessage("根据任务ID没有找到相应的运单记录");
+                return response;
             }
+
+            log.info("根据暂存表记录反查分拣报表不为空，开始转换数据。taskId={}", req.getTaskId());
+            goodsDetailDtoList = transformData(reportList, map);
+
         } else {
             log.info("根据任务ID查找暂存表为空，然后去分拣报表拉取100条。taskId={}", req.getTaskId());
             // 如果暂存表为空，则去分拣报表拉取100条数据
             reportList = getLoadScanByWaybillCodes(null, createSiteId, nextSiteId, 100);
-           if (!reportList.isEmpty()) {
-               log.info("去分拣报表拉取100条数据不为空，taskId={}", req.getTaskId());
-               goodsDetailDtoList = transformDataForNew(reportList);
-           }
+            if (reportList == null || reportList.isEmpty()) {
+                log.warn("去分拣报表拉取100条数据为空，taskId={}", req.getTaskId());
+                response.setCode(JdCResponse.CODE_FAIL);
+                response.setMessage("根据任务ID没有找到相应的运单记录");
+                return response;
+            }
+            log.info("去分拣报表拉取100条数据不为空，taskId={}", req.getTaskId());
+            goodsDetailDtoList = transformDataForNew(reportList);
+
         }
         log.info("根据任务ID查找装车扫描记录结束，taskId={}", req.getTaskId());
 
