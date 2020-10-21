@@ -132,7 +132,7 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
         }
         // 双十一1234项目使用四天后面删除此处代码
         if(isInDubboElevenTime() &&
-                (templateName == this.TEMPlATE_NAME_C1010_MAIN || templateName == this.TEMPlATE_NAME_C1010_MAIN)){
+                (templateName == this.TEMPlATE_NAME_C1010_MAIN || templateName == this.TEMPlATE_NAME_C_MAIN)){
             setMask(context);
         }
         //得到业务模板
