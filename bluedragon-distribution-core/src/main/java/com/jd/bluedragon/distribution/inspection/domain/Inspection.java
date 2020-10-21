@@ -1,13 +1,12 @@
 package com.jd.bluedragon.distribution.inspection.domain;
 
-import java.util.Date;
-
+import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import org.apache.commons.lang.StringUtils;
 
-import com.jd.bluedragon.distribution.api.request.InspectionRequest;
-import com.jd.bluedragon.utils.DateHelper;
+import java.util.Date;
 
 
 /**
@@ -146,6 +145,11 @@ public class Inspection implements java.io.Serializable,Comparable<Inspection>{
 	private Float high;
 	//包裹体积
 	private Float volume;
+
+	/**
+	 * @see com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum
+	 */
+	private Integer bizSource;
 
     public Date getOperateTime() {
         return operateTime;
@@ -530,7 +534,15 @@ public class Inspection implements java.io.Serializable,Comparable<Inspection>{
 		this.driverName = driverName;
 	}
 
-	public static Inspection toInspection(InspectionRequest requestBean,BigWaybillDto bigWaybillDto) {
+	public Integer getBizSource() {
+		return bizSource;
+	}
+
+	public void setBizSource(Integer bizSource) {
+		this.bizSource = bizSource;
+	}
+
+	public static Inspection toInspection(InspectionRequest requestBean, BigWaybillDto bigWaybillDto) {
 		Inspection inspection = new Inspection();
 		inspection.setWaybillCode(requestBean.getWaybillCode());
 		inspection.setBoxCode(requestBean.getBoxCode());
@@ -559,6 +571,7 @@ public class Inspection implements java.io.Serializable,Comparable<Inspection>{
         inspection.setOperateTime(operateTime);
 		inspection.setCreateTime(createTime);
 		inspection.setUpdateTime(operateTime);
+		inspection.setBizSource(requestBean.getBizSource());
 		return inspection;
 	}
 
@@ -601,6 +614,8 @@ public class Inspection implements java.io.Serializable,Comparable<Inspection>{
 	    /*更新人code*/
 	    private Integer updateUserCode;
 
+	    private Integer bizSource;
+
 		public Builder(String packageBarcode, Integer createSiteCode) {
 			super();
 			this.packageBarcode = packageBarcode;
@@ -636,6 +651,11 @@ public class Inspection implements java.io.Serializable,Comparable<Inspection>{
 	    	updateUserCode = val;
 	    	return this;
 	    }
+
+	    public Builder bizSource(Integer val) {
+			bizSource = val;
+			return this;
+		}
 	    
 	    public Inspection build(){
 	    	return new Inspection(this);
@@ -651,6 +671,7 @@ public class Inspection implements java.io.Serializable,Comparable<Inspection>{
 		this.updateTime = builder.updateTime;
 		this.updateUser = builder.updateUser;
 		this.updateUserCode = builder.updateUserCode;
+		this.bizSource = builder.bizSource;
 	}
 
 	@Override
