@@ -447,6 +447,7 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     }
 
     @Override
+    @JProfiler(jKey = "DMS.BASE.baseMajorManagerImpl.getBaseStaffByStaffIdNoCache", mState = {JProEnum.TP, JProEnum.FunctionError})
     public BaseStaffSiteOrgDto getBaseStaffByStaffIdNoCache(Integer paramInteger) {
         return basicPrimaryWS.getBaseStaffByStaffId(paramInteger);
     }
