@@ -359,6 +359,10 @@
         <mapper resource="mappers/mysql/loadAndUnload/LoadCarMapper.xml" />
         <mapper resource="mappers/mysql/bagException/CollectionBagExceptionReportMapper.xml" />
 
+        <!-- 装车扫描业务 -->
+        <mapper resource="mappers/mysql/loadscan/GoodsLoadScanMapper.xml" />
+        <mapper resource="mappers/mysql/loadscan/GoodsLoadScanRecordMapper.xml" />
+
         <!-- 功能开关配置 -->
         <mapper resource="mappers/mysql/funcSwitchConfig/funcSwitchConfigMapper.xml" />
 
