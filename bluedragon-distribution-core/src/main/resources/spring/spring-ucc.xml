@@ -76,6 +76,7 @@
         <property name="clickIntervalSecond" value="${clickIntervalSecond}" />
 		<property name="boardCombinationSwitchVerToWebSites" value="${boardCombinationSwitchVerToWebSites}" />
 		<property name="economicNetValidateWeightSwitch" value="${economicNetValidateWeightSwitch:true}"/>
+		<property name="dellCancelDeliveryCheckSealCar" value="${dellCancelDeliveryCheckSealCar}" />
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -120,6 +121,7 @@
                 <value>uccPropertyConfiguration.clickIntervalSecond</value>
 				<value>uccPropertyConfiguration.boardCombinationSwitchVerToWebSites</value>
 				<value>uccPropertyConfiguration.economicNetValidateWeightSwitch</value>
+				<value>uccPropertyConfiguration.dellCancelDeliveryCheckSealCar</value>
 			</list>
 		</property>
 	</bean>

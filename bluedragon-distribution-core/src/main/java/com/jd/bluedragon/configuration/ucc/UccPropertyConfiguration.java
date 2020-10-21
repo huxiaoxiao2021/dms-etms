@@ -150,6 +150,12 @@ public class UccPropertyConfiguration {
      * 任务redis开关，1-开启
      */
     private String redisSwitchOn;
+
+    /**
+     * 取消发货校验封车业务开关。1：开启 0：关闭
+     */
+    private String dellCancelDeliveryCheckSealCar;
+
     public boolean isLogToBusinessLogByKafka() {
         return logToBusinessLogByKafka;
     }
@@ -358,14 +364,6 @@ public class UccPropertyConfiguration {
         this.boxLimitSites = boxLimitSites;
     }
 
-    public int getClientPrintQueryGapTime() {
-        return clientPrintQueryGapTime;
-    }
-
-    public void setClientPrintQueryGapTime(int clientPrintQueryGapTime) {
-        this.clientPrintQueryGapTime = clientPrintQueryGapTime;
-    }
-
     public String getCollectGoodsDeleteSites() {
         return collectGoodsDeleteSites;
     }
@@ -414,14 +412,6 @@ public class UccPropertyConfiguration {
         this.singleSendSwitchVerToWebSites = singleSendSwitchVerToWebSites;
     }
 
-    public int getClickIntervalSecond() {
-        return clickIntervalSecond;
-    }
-
-    public void setClickIntervalSecond(int clickIntervalSecond) {
-        this.clickIntervalSecond = clickIntervalSecond;
-    }
-
     public String getBoardCombinationSwitchVerToWebSites() {
         return boardCombinationSwitchVerToWebSites;
     }
@@ -445,4 +435,12 @@ public class UccPropertyConfiguration {
 	public void setRedisSwitchOn(String redisSwitchOn) {
 		this.redisSwitchOn = redisSwitchOn;
 	}
+
+    public String getDellCancelDeliveryCheckSealCar() {
+        return dellCancelDeliveryCheckSealCar;
+    }
+
+    public void setDellCancelDeliveryCheckSealCar(String dellCancelDeliveryCheckSealCar) {
+        this.dellCancelDeliveryCheckSealCar = dellCancelDeliveryCheckSealCar;
+    }
 }

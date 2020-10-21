@@ -361,7 +361,49 @@
 			</if>
 		</where>
 	</select>
-    
+
+	<select id="querySendCodeBySelective" parameterType="SendDetail" resultType="String">
+		SELECT
+		send_code
+		FROM send_d
+		<where>
+			yn=1
+			AND is_cancel = 0
+            and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+			<if test="boxCode!=null">
+				and box_code = #{boxCode,jdbcType=VARCHAR}
+			</if>
+			<if test="packageBarcode!=null">
+				and package_barcode = #{packageBarcode,jdbcType=VARCHAR}
+			</if>
+			<if test="waybillCode!=null">
+				and waybill_code = #{waybillCode,jdbcType=VARCHAR}
+			</if>
+		</where>
+		LIMIT 1
+	</select>
+
+	<select id="queryCountExclusion" resultType="Integer">
+		SELECT
+		count(package_barcode)
+		FROM send_d
+		<where>
+			yn=1
+			and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+			and send_code = #{sendCode,jdbcType=VARCHAR}
+			and is_cancel = 0
+			<if test="packageBarcode!=null">
+				and package_barcode != #{packageBarcode,jdbcType=VARCHAR}
+			</if>
+			<if test="waybillCode!=null">
+				and waybill_code != #{waybillCode,jdbcType=VARCHAR}
+			</if>
+			<if test="boxCode!=null">
+				and box_code != #{boxCode,jdbcType=VARCHAR}
+			</if>
+		</where>
+	</select>
+
      <select id="findUpdatewaybillCodeMessage" resultMap="SendDetail" parameterType="java.util.Map">
 		<![CDATA[SELECT 
 		sed.send_d_id, sem.send_code, sed.box_code, sed.package_barcode,sed.pickup_code, sed.waybill_code, 
@@ -801,6 +843,16 @@
 		<if test="createSiteCode!=null">
 			and create_site_code = #{createSiteCode,jdbcType=INTEGER}
 		</if>
+	</select>
+
+	<select id="queryBoxCodeSingleBySendCode" parameterType="SendDetail" resultType="java.lang.String">
+		SELECT box_code
+		FROM send_d
+		WHERE is_cancel=0
+		AND yn = 1
+		AND send_code = #{sendCode,jdbcType=VARCHAR}
+		and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		group by box_code
 	</select>
     
     <select id="queryWaybillsByDepartID" parameterType="java.lang.Long" resultMap="SendDetail">
