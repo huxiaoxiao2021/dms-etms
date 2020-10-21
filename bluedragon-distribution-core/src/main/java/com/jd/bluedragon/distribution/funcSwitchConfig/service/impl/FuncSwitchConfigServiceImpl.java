@@ -110,11 +110,12 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
             Date date = new Date();
             funcSwitchConfigDto.setCreateTime(date);
             funcSwitchConfigDto.setUpdateTime(date);
-            funcSwitchConfigDao.add(funcSwitchConfigDto);
+            int count = funcSwitchConfigDao.add(funcSwitchConfigDto);
 
             //调用分拣机拦截开关
-            siteWeightSwitch(funcSwitchConfigDto);
-
+            if(count>0){
+                siteWeightSwitch(funcSwitchConfigDto);
+            }
             if(FuncSwitchConfigEnum.FUNCTION_PRE_SELL.getCode() == funcSwitchConfigDto.getMenuCode()){
                 // 预售分拣暂存功能 记录预售的分拣规则
                 Rule rule = new Rule();
