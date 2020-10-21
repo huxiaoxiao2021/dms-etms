@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsExceptionScanningReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
@@ -23,6 +25,17 @@ public class GoodsLoadingScanningServiceImplTest {
     public void testFindExceptionGoodsLoading() {
         GoodsExceptionScanningReq param = new GoodsExceptionScanningReq();
         param.setTaskId(123L);
+
+        User user = new User();
+        user.setUserName("admin");
+        user.setUserCode(2020001);
+        param.setUser(user);
+
+        CurrentOperate currentOperate = new CurrentOperate();
+        currentOperate.setSiteCode(1241136);
+        currentOperate.setSiteName("这是哪里啊");
+        param.setCurrentOperate(currentOperate);
+
         JdCResponse<List<GoodsExceptionScanningDto>> res =  goodsLoadingScanningService.findExceptionGoodsLoading(param);
 
         System.out.println("------------------");

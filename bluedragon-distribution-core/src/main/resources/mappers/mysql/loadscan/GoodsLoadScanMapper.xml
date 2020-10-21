@@ -31,7 +31,7 @@
 			and yn=1 order by status desc
 	</sql>
 
-    <insert id="add" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan">
+    <insert id="add" parameterType="goodsLoadScan">
         insert into load_scan
         (
         <trim suffixOverrides=",">
@@ -126,7 +126,7 @@
         )
     </insert>
 
-    <insert id="batchInsert" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan">
+    <insert id="batchInsert" parameterType="goodsLoadScan">
         insert into load_scan (task_id, waybill_code, package_amount,
         load_amount, unload_amount, force_amount, status, create_user_code, create_user_name, update_user_code, update_user_name, create_time,
         update_time, yn, ts)  VALUES
@@ -162,7 +162,7 @@
         </where>
     </select>
 
-    <select id="selectListByCondition" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan" resultMap="goodsLoadScan">
+    <select id="selectListByCondition" parameterType="goodsLoadScan" resultMap="goodsLoadScan">
         select
         <include refid="Base_Column_List"/>
         from load_scan
@@ -216,7 +216,7 @@
     </select>
 
 
-    <update id="updateByPrimaryKey" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan">
+    <update id="updateByPrimaryKey" parameterType="goodsLoadScan">
         update load_scan
         <set>
             <if test="taskId != null">task_id = #{taskId,jdbcType=BIGINT},</if>
