@@ -1,5 +1,7 @@
 package com.jd.bluedragon.enums;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * @program: bluedragon-distribution
  * @description: 车牌区域
@@ -66,13 +68,15 @@ public enum LicenseNumberAreaCodeEnum {
      * @return
      */
     public static String transferLicenseNumber(String licenseNumber) {
+        String str = licenseNumber.substring(0, 3);
         for (LicenseNumberAreaCodeEnum licenseNumberAreaCodeEnum : LicenseNumberAreaCodeEnum.values()) {
-            if (licenseNumberAreaCodeEnum.getAreaCode().equals(licenseNumber.substring(0, 3))) {
-                licenseNumber = licenseNumber.replace(licenseNumber.substring(0, 3), licenseNumberAreaCodeEnum.getAreaName());
+            if (licenseNumberAreaCodeEnum.getAreaCode().equals(str)) {
+                str = licenseNumberAreaCodeEnum.getAreaName();
                 break;
             }
         }
-        return licenseNumber;
+        String substring = StringUtils.substring(licenseNumber, 3, 9);
+        return str + substring;
     }
 
 }

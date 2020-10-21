@@ -18,8 +18,8 @@ public class LoadCarDao extends BaseDao<LoadCar> {
     public static final String namespace = LoadCarDao.class.getName();
 
 
-    public int insert(LoadCar detail){
-        return this.getSqlSession().insert(namespace + ".insert",detail);
+    public int insert(LoadCar detail) {
+        return this.getSqlSession().insert(namespace + ".insert", detail);
     }
 
     /**
@@ -32,7 +32,7 @@ public class LoadCarDao extends BaseDao<LoadCar> {
         return this.getSqlSession().selectList(namespace + ".selectByIds", list);
     }
 
-    public int deleteById(LoadDeleteReq req){
+    public int deleteById(LoadDeleteReq req) {
         return this.getSqlSession().update(namespace + ".deleteById", req);
     }
 
@@ -41,8 +41,17 @@ public class LoadCarDao extends BaseDao<LoadCar> {
         loadCar.setId(id);
         return this.getSqlSession().selectOne(namespace + ".selectListByCondition", loadCar);
     }
+
     public boolean updateLoadCarById(LoadCar loadCar) {
         return this.getSqlSession().update(namespace + ".updateByPrimaryKey", loadCar) > 0;
+    }
+
+    public List<Long> selectByCreateUserErp(String loginUserErp) {
+        return this.getSqlSession().selectList(namespace + ".selectByCreateUserErp", loginUserErp);
+    }
+
+    public List<LoadCar> selectByEndSiteCode(LoadCar loadCar) {
+        return this.getSqlSession().selectList(namespace + ".selectByEndSiteCode", loadCar);
     }
 
 }

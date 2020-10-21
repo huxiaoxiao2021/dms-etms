@@ -109,7 +109,7 @@
     <update id="deleteById" parameterType="java.lang.Long" >
         update load_car_helper
 			set yn = 0
-		where id = #{taskId,jdbcType=BIGINT}
+		where task_id = #{taskId,jdbcType=BIGINT}
     </update>
 
 
