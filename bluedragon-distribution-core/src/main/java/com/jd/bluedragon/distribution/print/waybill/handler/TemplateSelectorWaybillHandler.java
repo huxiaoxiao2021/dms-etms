@@ -8,12 +8,19 @@ import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.print.domain.*;
 import com.jd.bluedragon.distribution.print.service.TemplateSelectService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.utils.DateHelper;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
+import org.joda.time.DateTimeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.util.Date;
+
 @Service
 public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintContext,JdResult<String>>{
 	private static final Logger log = LoggerFactory.getLogger(TemplateSelectorWaybillHandler.class);
@@ -44,6 +51,11 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
 	
     @Autowired
     private SiteService siteService;
+
+    @Value("begin.time.dubboEleven")
+    private Integer bginTimeOFDubboEleven;//开始时间
+    @Value("num.day.continued")
+    private Integer numDayContinued;//持续时间
 
 	@Override
 	public JdResult<String> handle(WaybillPrintContext context) {
@@ -118,6 +130,11 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
                 .contains(context.getRequest().getDmsSiteCode())){
             basePrintWaybill.setUseNewTemplate(Boolean.FALSE);
         }
+        // 双十一1234项目使用四天后面删除此处代码
+        if(isInDubboElevenTime() &&
+                (templateName == this.TEMPlATE_NAME_C1010_MAIN || templateName == this.TEMPlATE_NAME_C1010_MAIN)){
+            setMask(context);
+        }
         //得到业务模板
         //根据key查config
         if (needMatchTemplate) {
@@ -132,4 +149,41 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
         basePrintWaybill.setTemplateName(templateName);
 		return context.getResult();
 	}
+
+    /**
+     * 打标
+     * 双十一第一天是1，逐天加1
+     * @param context
+     */
+    private void setMask(WaybillPrintContext context) {
+        Long currentTime = System.currentTimeMillis()/1000;//当前时间
+        Long beginTime = new Long(bginTimeOFDubboEleven);//双十一开始时间
+        for(int i =0;i < this.numDayContinued;i++){
+           if (beginTime <= currentTime && currentTime <= beginTime + 86400){
+               context.getBasePrintWaybill().setTransportTypeText("" + (i+1));
+               break;
+           }
+            beginTime += 86400;
+        }
+
+    }
+
+    /**
+     * 判断是否在双十一期间
+     * 双十一期间的定义（开始时间 <= 当前时间 <=开始时间+持续天数）
+     * 如果在双十一期间返回 true 否则返回 false
+     * @return
+     */
+    private boolean isInDubboElevenTime() {
+	    if (null == this.bginTimeOFDubboEleven || null == this.numDayContinued){
+	        return Boolean.FALSE;
+        }
+	    Long currentTime = System.currentTimeMillis()/1000;//当前时间
+	    Long bginTimeOFDubboElevenLong = new Long(bginTimeOFDubboEleven);//双十一开始时间
+	    //当前时间戳
+        if (currentTime >= bginTimeOFDubboElevenLong && currentTime <= bginTimeOFDubboElevenLong + this.numDayContinued * 86400){
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
 }

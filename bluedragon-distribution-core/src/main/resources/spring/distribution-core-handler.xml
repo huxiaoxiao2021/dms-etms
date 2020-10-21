@@ -61,7 +61,7 @@
                 <!-- IOT获取打印面单接口 -->
                 <entry key="100309"  value-ref="generatePdfPackagePrint"/>
 				<!-- 终端包裹打印 -->
-				<entry key="100310"  value-ref="getBasicPrintInfo"/>
+				<entry key="100310"  value-ref="smsPDAGetBasicPrintInfo"/>
 				<!-- 终端函速达包裹打印 -同站长工作台-->
 				<entry key="100311"  value-ref="packageReprint"/>
 				<!-- 乐加APP换单打印 -同站长工作台换单打印-->
@@ -99,6 +99,7 @@
 				<ref bean="basicWaybillPrintHandler"/>
 				<ref bean="c2cInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
+				<ref bean="needCollectionCompletedInterceptHandler"/>
 				<ref bean="specialMarkWaybillHandler"/>
 				<ref bean="specialTextWaybillHandler"/>
 				<ref bean="promiseWaybillHandler"/>
@@ -186,6 +187,7 @@
 				<ref bean="overLengthRemindHandler"/>
 				<ref bean="isNeedPrintHandler"/>
 				<ref bean="c2cInterceptHandler"/>
+				<ref bean="needCollectionCompletedInterceptHandler"/>
 				<!-- 三方超限拦截 -->
 				<ref bean="thirdOverRunInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
@@ -284,6 +286,7 @@
 		<property name="handlers">
 			<list>
 				<ref bean="sitePlateBasicHandler"/>
+				<ref bean="needCollectionCompletedInterceptHandler"/>
 				<ref bean="customerAndConsignerInfoHandler"/>
 				<ref bean="promiseWaybillHandler"/>
 				<ref bean="specialFieldHandler"/>
@@ -463,7 +466,6 @@
 				<ref bean="basicWaybillPrintHandler"/>
 				<ref bean="pickWillPrintPackageInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
-				<ref bean="needCollectionCompletedInterceptHandler"/>
 				<ref bean="oldWaybillQueryHandler"/>
 				<ref bean="specialMarkWaybillHandler"/>
 				<ref bean="specialTextWaybillHandler"/>
@@ -477,8 +479,31 @@
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
 			</list>
 		</property>
-	</bean>        
-    <!-- pdf调用云打印生成handler配置 -->
+	</bean>
+
+	<!-- 100310 终端获取打印信息 -->
+	<bean id="smsPDAGetBasicPrintInfo" class="com.jd.bluedragon.distribution.print.waybill.handler.PlatePrintOperateHandler">
+		<property name="handlers">
+			<list>
+				<ref bean="basicWaybillPrintHandler"/>
+				<ref bean="pickWillPrintPackageInterceptHandler"/>
+				<ref bean="interceptWaybillHandler"/>
+				<ref bean="needCollectionCompletedInterceptHandler"/>
+				<ref bean="oldWaybillQueryHandler"/>
+				<ref bean="specialMarkWaybillHandler"/>
+				<ref bean="specialTextWaybillHandler"/>
+				<ref bean="promiseWaybillHandler"/>
+				<ref bean="customerAndConsignerInfoHandler"/>
+				<ref bean="specialFieldHandler"/>
+				<ref bean="mappedBasicPrintWaybillHandler"/>
+				<ref bean="remarkFieldHandler"/>
+				<ref bean="excessSpecialFieldHandler"/>
+				<ref bean="templateSelectorWaybillHandler"/>
+				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
+			</list>
+		</property>
+	</bean>
+	<!-- pdf调用云打印生成handler配置 -->
 	<bean id="pdfJdCloudGenerateHandler" class="com.jd.bluedragon.distribution.print.waybill.handler.PdfLabelFileGenerateHandler">
 		<property name="jdCloudPrintService" ref="jdCloudPrintService"/>
 		<property name="pdfMaxPageNum" value="${beans.pdfJdCloudGenerateHandler.pdfMaxPageNum}"/>
