@@ -373,7 +373,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         Integer nextSiteId = loadCar.getEndSiteCode().intValue();
         // 根据任务号查找装车扫描明细暂存表
         List<GoodsLoadScan> tempList = goodsLoadScanDao.findLoadScanByTaskId(taskId);
-
+        log.info("根据任务ID查找暂存表，taskId={}", req.getTaskId());
         List<LoadScanDto> reportList;
         List<GoodsDetailDto> goodsDetailDtoList = new ArrayList<>();
         // 暂存表运单号，运单号对应的暂存记录
@@ -381,6 +381,7 @@ public class LoadScanServiceImpl implements LoadScanService {
 
         // 如果暂存表不为空，则去分拣报表拉取最新的库存数据
         if (!tempList.isEmpty()) {
+            log.info("根据任务ID查找暂存表不为空，taskId={}", req.getTaskId());
             reportList = getLoadScanByWaybillCodes(getWaybillCodes(tempList, map), createSiteId, nextSiteId, null);
             if (!reportList.isEmpty()) {
                 goodsDetailDtoList = transformData(reportList, map);
@@ -389,9 +390,11 @@ public class LoadScanServiceImpl implements LoadScanService {
             // 如果暂存表为空，则去分拣报表拉取100条数据
             reportList = getLoadScanByWaybillCodes(null, createSiteId, nextSiteId, 100);
            if (!reportList.isEmpty()) {
+               log.info("去分拣报表拉取100条数据不为空，taskId={}", req.getTaskId());
                goodsDetailDtoList = transformDataForNew(reportList);
            }
         }
+        log.info("根据任务ID查找装车扫描记录结束，taskId={}", req.getTaskId());
 
         // 分拣报表查询返回为空
         if (goodsDetailDtoList.isEmpty()) {
@@ -885,8 +888,16 @@ public class LoadScanServiceImpl implements LoadScanService {
      */
     public List<LoadScanDto> getLoadScanByWaybillCodes(List<String> waybillCodes, Integer currentSiteId,
                                                         Integer nextSiteId, Integer rows) {
-        com.jd.ql.dms.report.domain.BaseEntity<List<LoadScanDto>> baseEntity = loadScanPackageDetailService
-                .findLoadScanPackageDetail(waybillCodes, currentSiteId, nextSiteId, rows);
+        com.jd.ql.dms.report.domain.BaseEntity<List<LoadScanDto>> baseEntity;
+        try {
+            baseEntity = loadScanPackageDetailService
+                    .findLoadScanPackageDetail(waybillCodes, currentSiteId, nextSiteId, rows);
+        } catch (Exception e) {
+            log.error("根据暂存表记录去分拣报表查询运单明细接口发生异常currentSiteId={},currentSiteId={}",
+                    currentSiteId, nextSiteId);
+            return null;
+        }
+
         if (baseEntity == null) {
             log.warn("根据暂存表记录去分拣报表查询运单明细接口返回空currentSiteId={},nextSiteId={}", currentSiteId, nextSiteId);
             return null;
@@ -905,8 +916,15 @@ public class LoadScanServiceImpl implements LoadScanService {
      * @return 运单
      */
     public LoadScanDto getLoadScanByWaybillAndPackageCode(LoadScanDto loadScanDto) {
-        com.jd.ql.dms.report.domain.BaseEntity<LoadScanDto> baseEntity = loadScanPackageDetailService
-                .findLoadScan(loadScanDto);
+        com.jd.ql.dms.report.domain.BaseEntity<LoadScanDto> baseEntity;
+        try {
+            baseEntity = loadScanPackageDetailService.findLoadScan(loadScanDto);
+        } catch (Exception e) {
+            log.error("根据包裹号和运单号去分拣报表查询包裹流向发生异常packageCode={},waybillCode={}",
+                    loadScanDto.getPackageCode(), loadScanDto.getWayBillCode());
+            return null;
+        }
+
         if (baseEntity == null) {
             log.warn("根据运单号和包裹号去分拣报表查询流向返回空packageCode={},waybillCode={}",
                     loadScanDto.getPackageCode(), loadScanDto.getWayBillCode());

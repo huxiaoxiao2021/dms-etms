@@ -283,7 +283,8 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
     @JProfiler(jKey = "DMS.BASE.GoodsLoadScanGatewayServiceImpl.goodsLoadingScan",
             mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
     public JdCResponse<LoadScanDetailDto> goodsLoadingScan(GoodsLoadingScanningReq req) {
-
+        
+        log.info("根据任务ID查找装车扫描列表，taskId={}", req.getTaskId());
 
         return loadScanService.goodsLoadingScan(req);
     }
