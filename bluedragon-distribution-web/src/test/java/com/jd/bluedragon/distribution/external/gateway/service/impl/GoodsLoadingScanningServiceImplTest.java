@@ -24,7 +24,7 @@ public class GoodsLoadingScanningServiceImplTest {
     @Test
     public void testFindExceptionGoodsLoading() {
         GoodsExceptionScanningReq param = new GoodsExceptionScanningReq();
-        param.setTaskId(123L);
+        param.setTaskId(1021005L);
 
         User user = new User();
         user.setUserName("admin");
@@ -37,8 +37,23 @@ public class GoodsLoadingScanningServiceImplTest {
         param.setCurrentOperate(currentOperate);
 
         JdCResponse<List<GoodsExceptionScanningDto>> res =  goodsLoadingScanningService.findExceptionGoodsLoading(param);
+        System.out.println(res.getCode() + "----" + res.getMessage());
+        for(GoodsExceptionScanningDto r : res.getData()) {
+            System.out.println(r.getTaskId());
+            System.out.println("运单：" + r.getWaybillCode());
+            System.out.println("已装：" + r.getLoadAmount());
+            System.out.println("未装：" + r.getUnloadAmount());
+        }
 
         System.out.println("------------------");
+    }
+
+    @Test
+    public void goodsCompulsoryDeliver() {
+        GoodsExceptionScanningReq param = new GoodsExceptionScanningReq();
+
+//        param.setTaskId();
+        goodsLoadingScanningService.goodsCompulsoryDeliver(param);
     }
 
 
