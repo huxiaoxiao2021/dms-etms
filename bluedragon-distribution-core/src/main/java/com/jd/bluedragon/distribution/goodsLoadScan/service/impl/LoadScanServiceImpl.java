@@ -384,9 +384,11 @@ public class LoadScanServiceImpl implements LoadScanService {
             log.info("根据任务ID查找暂存表不为空，taskId={}", req.getTaskId());
             reportList = getLoadScanByWaybillCodes(getWaybillCodes(tempList, map), createSiteId, nextSiteId, null);
             if (!reportList.isEmpty()) {
+                log.info("根据任务ID查找暂存表不为空，开始转换数据。taskId={}", req.getTaskId());
                 goodsDetailDtoList = transformData(reportList, map);
             }
         } else {
+            log.info("根据任务ID查找暂存表为空，然后去分拣报表拉取100条。taskId={}", req.getTaskId());
             // 如果暂存表为空，则去分拣报表拉取100条数据
             reportList = getLoadScanByWaybillCodes(null, createSiteId, nextSiteId, 100);
            if (!reportList.isEmpty()) {
