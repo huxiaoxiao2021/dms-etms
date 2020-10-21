@@ -239,7 +239,7 @@
             and dimension_code = #{dimensionCode,jdbcType=TINYINT}
         </if>
         <if test="siteCode != null">
-            and site_code = #{menuCode,jdbcType=BIGINT}
+            and site_code = #{siteCode,jdbcType=BIGINT}
         </if>
         <if test="operateErp != null">
             and operate_erp = #{operateErp,jdbcType=VARCHAR}
