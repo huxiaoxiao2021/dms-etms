@@ -31,6 +31,8 @@ public class UploadedPackage implements Serializable{
     //交接人erp账号
     private String erpAccount;
 
+    private Integer bizSource;
+
     public Integer getOperatorID() {
         return operatorID;
     }
@@ -106,6 +108,14 @@ public class UploadedPackage implements Serializable{
 
     public void setSortCenterName(String sortCenterName) {
         this.sortCenterName = sortCenterName;
+    }
+
+    public Integer getBizSource() {
+        return bizSource;
+    }
+
+    public void setBizSource(Integer bizSource) {
+        this.bizSource = bizSource;
     }
 
 }

@@ -43,6 +43,8 @@ public class SortingRequest extends JdRequest {
     
     private List<String> packages;
 
+    private Integer bizSource;
+
     public String getBoxCode() {
         return this.boxCode;
     }
@@ -140,7 +142,15 @@ public class SortingRequest extends JdRequest {
 		this.bsendCode = bsendCode;
 	}
 
-	@Override
+    public Integer getBizSource() {
+        return bizSource;
+    }
+
+    public void setBizSource(Integer bizSource) {
+        this.bizSource = bizSource;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (obj == null) {
             return false;
