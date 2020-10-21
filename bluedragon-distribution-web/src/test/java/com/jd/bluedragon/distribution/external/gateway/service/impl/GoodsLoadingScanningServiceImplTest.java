@@ -12,6 +12,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 @ContextConfiguration( locations = {"classpath:distribution-web-context.xml"})
@@ -24,7 +25,7 @@ public class GoodsLoadingScanningServiceImplTest {
     @Test
     public void testFindExceptionGoodsLoading() {
         GoodsExceptionScanningReq param = new GoodsExceptionScanningReq();
-        param.setTaskId(1021005L);
+        param.setTaskId(1021001L);
 
         User user = new User();
         user.setUserName("admin");
@@ -36,7 +37,10 @@ public class GoodsLoadingScanningServiceImplTest {
         currentOperate.setSiteName("这是哪里啊");
         param.setCurrentOperate(currentOperate);
 
-        JdCResponse<List<GoodsExceptionScanningDto>> res =  goodsLoadingScanningService.findExceptionGoodsLoading(param);
+        JdCResponse<List<GoodsExceptionScanningDto>> res = null;
+        for(int i=0; i< 3; i++) {
+            res = goodsLoadingScanningService.findExceptionGoodsLoading(param);
+        }
         System.out.println(res.getCode() + "----" + res.getMessage());
         for(GoodsExceptionScanningDto r : res.getData()) {
             System.out.println(r.getTaskId());
@@ -52,8 +56,26 @@ public class GoodsLoadingScanningServiceImplTest {
     public void goodsCompulsoryDeliver() {
         GoodsExceptionScanningReq param = new GoodsExceptionScanningReq();
 
-//        param.setTaskId();
-        goodsLoadingScanningService.goodsCompulsoryDeliver(param);
+        User user = new User();
+        user.setUserName("admin");
+        user.setUserCode(2020001);
+        param.setUser(user);
+
+        CurrentOperate currentOperate = new CurrentOperate();
+        currentOperate.setSiteCode(1241136);
+        currentOperate.setSiteName("这是哪里啊");
+        param.setCurrentOperate(currentOperate);
+
+        param.setTaskId(1021001L);
+
+        List<String> list = new ArrayList<>();
+        list.add("JD0026827277756");
+        list.add("JD0026829398865");
+        param.setWaybillCode(list);
+
+
+        JdCResponse res = goodsLoadingScanningService.goodsCompulsoryDeliver(param);
+        System.out.println(res.getCode() + "----" + res.getMessage());
     }
 
 

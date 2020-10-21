@@ -157,13 +157,13 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
         log.info("GoodsLoadingScanningServiceImpl#goodsCompulsoryDeliver-强制下发--begin:入参【" + JsonHelper.toJson(req) + "】");
         boolean res = exceptionScanService.goodsCompulsoryDeliver(req);
 
-        if(res != true) {
+        if(!res) {
             response.toError("强制下发失败");
             return response;
         }
 
         response.toSucceed("强制下发成功");
-        return null;
+        return response;
     }
 
     @Override

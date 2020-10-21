@@ -31,7 +31,7 @@
             <if test="taskId != null">
                 task_id,
             </if>
-            <if test="waybillCode != null">
+            <if test="wayBillCode != null">
                 waybill_code,
             </if>
             <if test="packageCode != null">
@@ -72,8 +72,8 @@
             <if test="taskId != null">
                 #{taskId,jdbcType=BIGINT},
             </if>
-            <if test="waybillCode != null">
-                #{waybillCode,jdbcType=VARCHAR},
+            <if test="wayBillCode != null">
+                #{wayBillCode,jdbcType=VARCHAR},
             </if>
             <if test="packageCode != null">
                 #{packageCode,jdbcType=VARCHAR},
@@ -115,7 +115,7 @@
         board_code, scan_action, transfer, flow_disaccord, force_status, create_user_code, create_user_name, update_user_code, update_user_name, create_time,
         update_time, yn, ts)  VALUES
         <foreach collection="list" item="info" separator=",">
-            (#{info.taskId,jdbcType=BIGINT}, #{info.waybillCode,jdbcType=VARCHAR},
+            (#{info.taskId,jdbcType=BIGINT}, #{info.wayBillCode,jdbcType=VARCHAR},
             #{info.packageCode,jdbcType=VARCHAR}, #{info.boardCode,jdbcType=VARCHAR},
             #{info.scanAction,jdbcType=INTEGER}, #{info.transfer,jdbcType=INTEGER}, #{info.flow_disaccord,jdbcType=INTEGER},
             #{info.force_status,jdbcType=INTEGER}, #{info.createUserCode,jdbcType=VARCHAR},
@@ -133,40 +133,40 @@
                 and id = #{id,jdbcType=BIGINT}
             </if>
             <if test="taskId != null">
-                #{taskId,jdbcType=BIGINT},
+                and task_id = #{taskId,jdbcType=BIGINT}
             </if>
-            <if test="waybillCode != null">
-                #{waybillCode,jdbcType=VARCHAR},
+            <if test="wayBillCode != null">
+                and waybill_code = #{wayBillCode,jdbcType=VARCHAR}
             </if>
             <if test="packageCode != null">
-                #{packageCode,jdbcType=VARCHAR},
+                and package_code = #{packageCode,jdbcType=VARCHAR}
             </if>
             <if test="boardCode != null">
-                #{boardCode,jdbcType=INTEGER},
+                and board_code = #{boardCode,jdbcType=INTEGER}
             </if>
             <if test="scanAction != null">
-                #{scanAction,jdbcType=INTEGER},
+                and scan_action = #{scanAction,jdbcType=INTEGER}
             </if>
             <if test="transfer != null">
-                #{transfer,jdbcType=INTEGER},
+                and transfer = #{transfer,jdbcType=INTEGER}
             </if>
             <if test="createUserCode != null">
-                #{createUserCode,jdbcType=VARCHAR},
+                and create_user_code = #{createUserCode,jdbcType=VARCHAR}
             </if>
             <if test="createUserName != null">
-                #{createUserName,jdbcType=VARCHAR},
+                and create_user_name = #{createUserName,jdbcType=VARCHAR}
             </if>
             <if test="updateUserCode != null">
-                #{updateUserCode,jdbcType=VARCHAR},
+                and #{updateUserCode,jdbcType=VARCHAR}
             </if>
             <if test="updateUserName != null">
-                #{updateUserName,jdbcType=VARCHAR},
+                and update_user_code = update_user_name = #{updateUserName,jdbcType=VARCHAR}
             </if>
             <if test="createTime != null">
-                #{createTime,jdbcType=TIMESTAMP},
+                and create_time = #{createTime,jdbcType=TIMESTAMP}
             </if>
             <if test="updateTime != null">
-                #{updateTime,jdbcType=TIMESTAMP},
+                and update_time = #{updateTime,jdbcType=TIMESTAMP}
             </if>
             <if test="yn != null">
                 and yn = #{yn,jdbcType=INTEGER}
@@ -179,7 +179,7 @@
         update load_scan_record
         <set>
             <if test="taskId != null">task_id = #{taskId,jdbcType=BIGINT},</if>
-            <if test="waybillCode != null">waybill_code = #{waybillCode,jdbcType=VARCHAR},</if>
+            <if test="wayBillCode != null">waybill_code = #{wayBillCode,jdbcType=VARCHAR},</if>
             <if test="packageCode != null">package_code = #{packageCode,jdbcType=VARCHAR},</if>
             <if test="boardCode != null">board_code = #{boardCode,jdbcType=INTEGER},</if>
             <if test="scanAction != null">scan_action = #{scanAction,jdbcType=INTEGER},</if>
@@ -190,6 +190,8 @@
             <if test="updateUserName != null">update_user_name = #{updateUserName,jdbcType=VARCHAR},</if>
             <if test="createTime != null">create_time = #{createTime,jdbcType=TIMESTAMP},</if>
             <if test="updateTime != null">update_time = #{updateTime,jdbcType=TIMESTAMP},</if>
+            <if test="flowDisaccord != null">flow_disaccord = #{flowDisaccord,jdbcType=INTEGER},</if>
+            <if test="forceStatus != null">force_status = #{forceStatus,jdbcType=INTEGER},</if>
             <if test="yn != null">yn = #{yn,jdbcType=INTEGER},</if>
         </set>
         where id = #{id,jdbcType=BIGINT}
