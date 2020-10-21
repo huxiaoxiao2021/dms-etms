@@ -75,4 +75,11 @@ public class LoadCarTaskGateWayServiceTest {
     }
 
 
+    @Test
+    public void testLicenseNumber(){
+        String license="京N632H8";
+        loadCarTaskGateWayService.checkLicenseNumber(license);
+    }
+
+
 }

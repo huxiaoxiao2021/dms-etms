@@ -140,14 +140,14 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<String> checkLicenseNumber(String licenseNumber) {
         JdCResponse<String> jdCResponse = new JdCResponse<>();
-        if (StringUtils.isBlank(licenseNumber) || licenseNumber.length() != 9 || licenseNumber.length() != 7) {
+        if (StringUtils.isBlank(licenseNumber)) {
             jdCResponse.setCode(JdCResponse.CODE_ERROR);
             jdCResponse.setMessage("车牌号不合规,请检查后重试");
             return jdCResponse;
         }
         if (licenseNumber.length() == 9) {
             licenseNumber = transferLicenseNumber(licenseNumber);
-            if(licenseNumber.equals(licenseNumber)){
+            if (licenseNumber.equals(licenseNumber)) {
                 jdCResponse.setCode(JdCResponse.CODE_ERROR);
                 jdCResponse.setMessage("车牌号不合规,请检查后重试");
                 return jdCResponse;
