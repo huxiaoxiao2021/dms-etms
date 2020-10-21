@@ -34,6 +34,7 @@ import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.JsonUtil;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.dms.common.cache.CacheService;
 import org.apache.commons.lang.StringUtils;
@@ -383,6 +384,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         if (!tempList.isEmpty()) {
             log.info("根据任务ID查找暂存表不为空，taskId={}", req.getTaskId());
             reportList = getLoadScanByWaybillCodes(getWaybillCodes(tempList, map), createSiteId, nextSiteId, null);
+            log.info("根据暂存表记录反查结果,taskId={},reportList={},size={}", req.getTaskId(),  JsonHelper.toJson(reportList), reportList.size());
             if (!reportList.isEmpty()) {
                 log.info("根据任务ID查找暂存表不为空，开始转换数据。taskId={}", req.getTaskId());
                 goodsDetailDtoList = transformData(reportList, map);
@@ -406,6 +408,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             response.setMessage("根据任务ID没有找到相应的运单记录");
             return response;
         }
+        log.info("根据任务ID查找装车扫描记录结束,开始排序! taskId={}", req.getTaskId());
         // 按照颜色排序
         Collections.sort(goodsDetailDtoList, new Comparator<GoodsDetailDto>() {
             @Override
