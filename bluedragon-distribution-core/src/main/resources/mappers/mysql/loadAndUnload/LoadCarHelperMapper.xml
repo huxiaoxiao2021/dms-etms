@@ -16,13 +16,6 @@
     </resultMap>
 
 
-    <resultMap id="getTestBean" type="com.TestBean">
-        <id column="task_id" jdbcType="BIGINT" property="taskId"/>
-        <collection column="second_id" property="secondIds" ofType="long">
-            <result column="second_id"/>
-        </collection>
-    </resultMap>
-
     <insert id="insert" parameterType="com.jd.bluedragon.distribution.loadAndUnload.LoadCarHelper">
         insert into load_car_helper (
         <trim suffixOverrides=",">
