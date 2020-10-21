@@ -65,6 +65,7 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
         if (null == req) {
             jdCResponse.setCode(JdCResponse.CODE_ERROR);
             jdCResponse.setMessage("添加协助人信息不完整,请检查必填信息！");
+            return jdCResponse;
         }
         List<HelperDto> helperList = req.getAssistorInfo();
         LoadCarHelper loadCarHelper = new LoadCarHelper();
@@ -146,6 +147,11 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
         }
         if (licenseNumber.length() == 9) {
             licenseNumber = transferLicenseNumber(licenseNumber);
+            if(licenseNumber.equals(licenseNumber)){
+                jdCResponse.setCode(JdCResponse.CODE_ERROR);
+                jdCResponse.setMessage("车牌号不合规,请检查后重试");
+                return jdCResponse;
+            }
         }
         jdCResponse.setData(licenseNumber);
         jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
