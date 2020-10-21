@@ -21,4 +21,8 @@ public interface LoadService {
     List<LoadTaskListDto> selectByIds(List<Long> list);
 
     LoadCar findLoadCarById(Long id);
+
+    List<Long> selectByCreateUserErp(String loginUserErp);
+
+    List<LoadCar> selectByEndSiteCode(LoadCar loadCar);
 }

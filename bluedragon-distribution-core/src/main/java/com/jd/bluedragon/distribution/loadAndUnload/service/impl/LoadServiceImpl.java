@@ -48,4 +48,15 @@ public class LoadServiceImpl implements LoadService {
     public LoadCar findLoadCarById(Long id) {
         return loadCarDao.findLoadCarById(id);
     }
+
+    @Override
+    public List<Long> selectByCreateUserErp(String loginUserErp) {
+        return loadCarDao.selectByCreateUserErp(loginUserErp);
+    }
+
+    @Override
+    public List<LoadCar> selectByEndSiteCode(LoadCar loadCar) {
+        return loadCarDao.selectByEndSiteCode(loadCar);
+    }
+
 }

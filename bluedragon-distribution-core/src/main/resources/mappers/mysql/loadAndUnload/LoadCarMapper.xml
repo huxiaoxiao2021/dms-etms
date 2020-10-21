@@ -58,7 +58,7 @@
                 create_user_erp,
             </if>
             <if test="createSiteName  !=null and createSiteName !=''">
-                create_site_code,
+                create_site_name,
             </if>
             <if test="createSiteCode  !=null">
                 create_site_code,
@@ -69,9 +69,7 @@
             <if test="createUserName !=null and createUserName !=''">
                 create_user_name,
             </if>
-            <if test="yn !=null">
-                yn
-            </if>
+            yn
         </trim>
         )values (
         <trim suffixOverrides=",">
@@ -134,7 +132,8 @@
         where id= #{id,jdbcType=BIGINT}
     </update>
 
-    <select id="selectListByCondition" parameterType="com.jd.bluedragon.distribution.loadAndUnload.LoadCar" resultMap="loadCar">
+    <select id="selectListByCondition" parameterType="com.jd.bluedragon.distribution.loadAndUnload.LoadCar"
+            resultMap="loadCar">
         select
         <include refid="Base_Column_List"/>
         from load_car
@@ -240,7 +239,7 @@
         select
         <include refid="Base_Column_List"/>
         from load_car
-        where id in
+        where yn=1 and id in
         <foreach collection="list" item="items" index="index" open="("
                  close=")" separator=",">
             #{items,jdbcType=VARCHAR}
@@ -248,5 +247,18 @@
         group by update_time desc
     </select>
 
+    <select id="selectByCreateUserErp" parameterType="java.lang.String" resultType="long">
+        select  id from  load_car
+        where  yn=1 and  create_user_erp= #{loginUserErp,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectByEndSiteCode" parameterType="com.jd.bluedragon.distribution.loadAndUnload.LoadCar"
+            resultMap="loadCar">
+        select
+        <include refid="Base_Column_List"/>
+        from load_car
+        where yn=1 and end_site_code= #{endSiteCode,jdbcType=BIGINT} and
+        create_site_code = #{createSiteCode,jdbcType=BIGINT} and status!=2
+    </select>
 
 </mapper>

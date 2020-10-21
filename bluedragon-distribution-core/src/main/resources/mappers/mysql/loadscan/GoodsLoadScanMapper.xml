@@ -11,9 +11,9 @@
         <result column="unload_amount" property="unloadAmount" javaType="java.lang.Integer" jdbcType="INTEGER" />
         <result column="force_amount" property="forceAmount" javaType="java.lang.Integer" jdbcType="INTEGER" />
         <result column="status" property="status" javaType="java.lang.Integer" jdbcType="TINYINT" />
-        <result column="create_user_code" javaType="java.lang.String" jdbcType="VARCHAR" property="createUserCode"/>
+        <result column="create_user_code" javaType="java.lang.Integer" jdbcType="INTEGER" property="createUserCode"/>
         <result column="create_user_name" javaType="java.lang.String" jdbcType="VARCHAR" property="createUserName"/>
-        <result column="update_user_code" javaType="java.lang.String" jdbcType="VARCHAR" property="updateUserCode"/>
+        <result column="update_user_code" javaType="java.lang.Integer" jdbcType="INTEGER" property="updateUserCode"/>
         <result column="update_user_name" javaType="java.lang.String" jdbcType="VARCHAR" property="updateUserName"/>
         <result column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="update_time" javaType="java.util.Date" jdbcType="TIMESTAMP" property="updateTime"/>
@@ -31,14 +31,14 @@
 			and yn=1 order by status desc
 	</sql>
 
-    <insert id="add" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan">
+    <insert id="add" parameterType="goodsLoadScan">
         insert into load_scan
         (
         <trim suffixOverrides=",">
             <if test="taskId != null">
                 task_id,
             </if>
-            <if test="waybillCode != null">
+            <if test="wayBillCode != null">
                 waybill_code,
             </if>
             <if test="packageAmount != null">
@@ -84,8 +84,8 @@
             <if test="taskId != null">
                 #{taskId,jdbcType=BIGINT},
             </if>
-            <if test="waybillCode != null">
-                #{waybillCode,jdbcType=VARCHAR},
+            <if test="wayBillCode != null">
+                #{wayBillCode,jdbcType=VARCHAR},
             </if>
             <if test="packageAmount != null">
                 #{packageAmount,jdbcType=INTEGER},
@@ -126,12 +126,12 @@
         )
     </insert>
 
-    <insert id="batchInsert" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan">
+    <insert id="batchInsert" parameterType="goodsLoadScan">
         insert into load_scan (task_id, waybill_code, package_amount,
         load_amount, unload_amount, force_amount, status, create_user_code, create_user_name, update_user_code, update_user_name, create_time,
         update_time, yn, ts)  VALUES
         <foreach collection="list" item="info" separator=",">
-            (#{info.taskId,jdbcType=BIGINT}, #{info.waybillCode,jdbcType=VARCHAR},
+            (#{info.taskId,jdbcType=BIGINT}, #{info.wayBillCode,jdbcType=VARCHAR},
             #{info.packageAmount,jdbcType=INTEGER},
             #{info.loadAmount,jdbcType=INTEGER}, #{info.unloadAmount,jdbcType=INTEGER}, #{info.forceAmount,jdbcType=INTEGER},
             #{info.status,jdbcType=INTEGER}, #{info.createUserCode,jdbcType=VARCHAR},
@@ -162,7 +162,7 @@
         </where>
     </select>
 
-    <select id="selectListByCondition" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan" resultMap="goodsLoadScan">
+    <select id="selectListByCondition" parameterType="goodsLoadScan" resultMap="goodsLoadScan">
         select
         <include refid="Base_Column_List"/>
         from load_scan
@@ -173,8 +173,8 @@
             <if test="taskId != null">
                 and task_id = #{taskId,jdbcType=BIGINT}
             </if>
-            <if test="waybillCode != null and waybillCode != ''">
-                and waybill_code = #{waybillCode,jdbcType=VARCHAR}
+            <if test="wayBillCode != null and wayBillCode != ''">
+                and waybill_code = #{wayBillCode,jdbcType=VARCHAR}
             </if>
             <if test="packageAmount != null">
                 and package_amount = #{packageAmount,jdbcType=INTEGER}
@@ -216,11 +216,11 @@
     </select>
 
 
-    <update id="updateByPrimaryKey" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan">
+    <update id="updateByPrimaryKey" parameterType="goodsLoadScan">
         update load_scan
         <set>
             <if test="taskId != null">task_id = #{taskId,jdbcType=BIGINT},</if>
-            <if test="waybillCode != null">waybill_code = #{waybillCode,jdbcType=VARCHAR},</if>
+            <if test="wayBillCode != null">waybill_code = #{wayBillCode,jdbcType=VARCHAR},</if>
             <if test="packageAmount != null">package_amount = #{packageAmount,jdbcType=INTEGER},</if>
             <if test="loadAmount != null">load_amount = #{loadAmount,jdbcType=INTEGER},</if>
             <if test="unloadAmount != null">unload_amount = #{unloadAmount,jdbcType=INTEGER},</if>

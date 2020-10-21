@@ -27,9 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static com.jd.bluedragon.enums.LicenseNumberAreaCodeEnum.transferLicenseNumber;
 
@@ -62,18 +60,20 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public JdCResponse startTask(CreateLoadTaskReq req) {
+        log.info("添加装车协助人接口请求参数={}", JSON.toJSONString(req));
         JdCResponse jdCResponse = new JdCResponse();
         if (null == req) {
             jdCResponse.setCode(JdCResponse.CODE_ERROR);
             jdCResponse.setMessage("添加协助人信息不完整,请检查必填信息！");
+            return jdCResponse;
         }
         List<HelperDto> helperList = req.getAssistorInfo();
-        LoadCarHelper loadCarHelper = new LoadCarHelper();
         List<LoadCarHelper> list = Lists.newArrayListWithExpectedSize(helperList.size());
-        loadCarHelper.setCreateSiteName(req.getCreateSiteName());
-        loadCarHelper.setCreateSiteCode(req.getCreateSiteCode());
-        loadCarHelper.setTaskId(req.getId());
         for (HelperDto helperDto : helperList) {
+            LoadCarHelper loadCarHelper = new LoadCarHelper();
+            loadCarHelper.setCreateSiteName(req.getCreateSiteName());
+            loadCarHelper.setCreateSiteCode(req.getCreateSiteCode());
+            loadCarHelper.setTaskId(req.getId());
             loadCarHelper.setCreateUserErp(req.getCreateUserErp());
             loadCarHelper.setCreateUserName(req.getCreateUserName());
             loadCarHelper.setHelperErp(helperDto.getHelperERP());
@@ -139,10 +139,11 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
     @JProfiler(jKey = "DMSWEB.LoadCarTaskGateWayServiceImpl.checkLicenseNumber",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<String> checkLicenseNumber(String licenseNumber) {
+        log.info("车牌转换接口请求参数={}", licenseNumber);
         JdCResponse<String> jdCResponse = new JdCResponse<>();
         if (StringUtils.isBlank(licenseNumber)) {
             jdCResponse.setCode(JdCResponse.CODE_ERROR);
-            jdCResponse.setMessage("车牌号不能为空");
+            jdCResponse.setMessage("车牌号不合规,请检查后重试");
             return jdCResponse;
         }
         if (licenseNumber.length() == 9) {
@@ -151,6 +152,7 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
         jdCResponse.setData(licenseNumber);
         jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
         jdCResponse.setMessage(JdCResponse.MESSAGE_SUCCESS);
+        log.info("车牌校验接口响应结果={}", JSON.toJSONString(jdCResponse));
         return jdCResponse;
     }
 
@@ -164,6 +166,7 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
     @JProfiler(jKey = "DMSWEB.LoadCarTaskGateWayServiceImpl.loadCarTaskList",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<List<LoadTaskListDto>> loadCarTaskList(LoadTaskListReq req) {
+        log.info("装车任务列表接口请求参数={}", JSON.toJSONString(req));
         JdCResponse<List<LoadTaskListDto>> jdCResponse = new JdCResponse<>();
         if (null == req || StringUtils.isBlank(req.getLoginUserErp())) {
             jdCResponse.setCode(JdCResponse.CODE_ERROR);
@@ -172,14 +175,27 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
         }
         List<Long> creatorList = loadCarHelperService.selectByCreateUserErp(req.getLoginUserErp());
         List<Long> helperList = loadCarHelperService.selectByHelperErp(req.getLoginUserErp());
-        if (CollectionUtils.isEmpty(creatorList) && CollectionUtils.isEmpty(helperList)) {
+        List<Long> loadCarList = loadService.selectByCreateUserErp(req.getLoginUserErp());
+        if (CollectionUtils.isEmpty(creatorList) && CollectionUtils.isEmpty(helperList) && CollectionUtils.isEmpty(loadCarList)) {
             jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
             jdCResponse.setMessage(JdCResponse.MESSAGE_SUCCESS);
             jdCResponse.setData(new ArrayList<LoadTaskListDto>());
             return jdCResponse;
         }
-        creatorList.addAll(helperList);
-        List<LoadTaskListDto> taskList = loadService.selectByIds(creatorList);
+        List<Long> taskIds = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(creatorList)) {
+            taskIds.addAll(creatorList);
+        }
+        if (CollectionUtils.isNotEmpty(helperList)) {
+            taskIds.addAll(helperList);
+        }
+        if (CollectionUtils.isNotEmpty(loadCarList)) {
+            taskIds.addAll(loadCarList);
+        }
+        Set<Long> set = new HashSet<>(taskIds);
+        taskIds.clear();
+        taskIds.addAll(set);
+        List<LoadTaskListDto> taskList = loadService.selectByIds(taskIds);
         jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
         jdCResponse.setMessage(JdCResponse.MESSAGE_SUCCESS);
         jdCResponse.setData(CollectionUtils.isEmpty(taskList) ? new ArrayList<LoadTaskListDto>() : taskList);
@@ -196,45 +212,43 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
     @JProfiler(jKey = "DMSWEB.LoadCarTaskGateWayServiceImpl.loadCarTaskCreate",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<Long> loadCarTaskCreate(LoadCarTaskCreateReq req) {
+        log.info("装车任务创建接口请求参数={}", req);
         JdCResponse<Long> jdCResponse = new JdCResponse<>();
         try {
-            if (null == req) {
+            if (null == req || null == req.getCreateSiteCode()) {
                 jdCResponse.setCode(JdCResponse.CODE_ERROR);
                 jdCResponse.setMessage("装车任务信息不完整,请检查必填信息！");
                 return jdCResponse;
             }
-            List<Long>taskIds=new ArrayList<>();
-            List<Long> creatorList = loadCarHelperService.selectByCreateUserErp(req.getCreateUserErp());
-            List<Long> helperList = loadCarHelperService.selectByHelperErp(req.getCreateUserErp());
-            if(CollectionUtils.isNotEmpty(creatorList)){
-                taskIds.addAll(creatorList);
-            }
-            if(CollectionUtils.isNotEmpty(helperList)){
-                taskIds.addAll(helperList);
-            }
+            LoadCar loadCar = new LoadCar();
+            loadCar.setCreateSiteCode(req.getCreateSiteCode());
+            loadCar.setEndSiteCode(req.getEndSiteCode());
+            List<LoadCar> taskList = loadService.selectByEndSiteCode(loadCar);
             Date now = new Date();
             //库中如果存在
-            if (CollectionUtils.isNotEmpty(taskIds)) {
-                List<LoadTaskListDto> taskList = loadService.selectByIds(taskIds);
-                if (CollectionUtils.isNotEmpty(taskList)) {
-                    for (LoadTaskListDto loadTaskListDto : taskList) {
-                        //判断是否有3天还没结束的任务,有的话直接删除任务
-                        if (daysDiff(now, loadTaskListDto.getUpdateTime()) >= 3) {
-                            loadCarHelperService.deleteById(loadTaskListDto.getId());
-                            LoadDeleteReq loadDeleteReq = new LoadDeleteReq();
-                            loadDeleteReq.setOperateUserErp(req.getCreateUserErp());
-                            loadDeleteReq.setOperateUserName(req.getCreateUserName());
-                            loadDeleteReq.setId(loadTaskListDto.getId());
-                            loadService.deleteById(loadDeleteReq);
-                        }
+            if (CollectionUtils.isNotEmpty(taskList)) {
+                for (LoadCar taskInfo : taskList) {
+                    //判断是否有3天还没结束的任务,有的话直接删除任务
+                    if (daysDiff(taskInfo.getUpdateTime(), now) >= 3) {
+                        loadCarHelperService.deleteById(taskInfo.getId());
+                        LoadDeleteReq loadDeleteReq = new LoadDeleteReq();
+                        loadDeleteReq.setOperateUserErp(req.getCreateUserErp());
+                        loadDeleteReq.setOperateUserName(req.getCreateUserName());
+                        loadDeleteReq.setId(taskInfo.getId());
+                        loadService.deleteById(loadDeleteReq);
+                    } else {
+                        jdCResponse.setCode(JdCResponse.CODE_ERROR);
+                        jdCResponse.setMessage("同一个转运中心，一个目的场地只能创建一个任务！");
+                        return jdCResponse;
                     }
                 }
             }
-            LoadCar loadCar = new LoadCar();
             BeanUtils.copyProperties(req, loadCar);
             loadCar.setCreateTime(new Date());
             loadCar.setUpdateTime(new Date());
             loadCar.setStatus(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BLANK);
+            loadCar.setOperateUserErp(req.getCreateUserErp());
+            loadCar.setOperateUserName(req.getCreateUserName());
             int id = loadService.insert(loadCar);
             if (id > 0) {
                 jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
@@ -242,10 +256,10 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
                 jdCResponse.setData((long) id);
                 return jdCResponse;
             }
+        } catch (Exception e) {
+            log.error("装卸任务创建请求异常={}", e);
             jdCResponse.setCode(JdCResponse.CODE_ERROR);
             jdCResponse.setMessage("操作失败,请稍后重试！");
-        }catch (Exception e){
-            log.error("装卸任务创建请求异常={}",e);
         }
         return jdCResponse;
     }
@@ -269,7 +283,7 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
             return jdCResponse;
         }
         HelperDto helperDto = new HelperDto();
-        helperDto.setHelperERP(bssod.getErp());
+        helperDto.setHelperERP(erp);
         helperDto.setHelperName(bssod.getStaffName());
         jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
         jdCResponse.setMessage(JdCResponse.MESSAGE_SUCCESS);

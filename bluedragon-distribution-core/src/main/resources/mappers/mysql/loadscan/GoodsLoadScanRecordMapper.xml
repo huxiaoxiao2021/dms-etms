@@ -10,9 +10,9 @@
 		<result column="board_code" property="boardCode" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="scan_action" property="scanAction" javaType="java.lang.Integer" jdbcType="TINYINT" />
         <result column="transfer" property="transfer" javaType="java.lang.Integer" jdbcType="TINYINT" />
-        <result column="create_user_code" javaType="java.lang.String" jdbcType="VARCHAR" property="createUserCode"/>
+        <result column="create_user_code" javaType="java.lang.Integer" jdbcType="INTEGER" property="createUserCode"/>
         <result column="create_user_name" javaType="java.lang.String" jdbcType="VARCHAR" property="createUserName"/>
-        <result column="update_user_code" javaType="java.lang.String" jdbcType="VARCHAR" property="updateUserCode"/>
+        <result column="update_user_code" javaType="java.lang.Integer" jdbcType="INTEGER" property="updateUserCode"/>
         <result column="update_user_name" javaType="java.lang.String" jdbcType="VARCHAR" property="updateUserName"/>
         <result column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="update_time" javaType="java.util.Date" jdbcType="TIMESTAMP" property="updateTime"/>
