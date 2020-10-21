@@ -248,12 +248,13 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
         list.add(GoodsLoadScanConstants.GOODS_SCAN_LOAD_RED);
         list.add(GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW);
 
-        List<GoodsLoadScan> res = goodsLoadScanDao.findException(taskId, list);
-        if(res == null || res.size() <= 0) {
-            return false;
+        List<GoodsLoadScan> res = new ArrayList<>();
+        res = goodsLoadScanDao.findException(taskId, list);
+
+        if(res.size() > 0) {
+            return true;
         }
 
-        return true;
+        return false;
     }
-
 }
