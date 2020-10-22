@@ -130,12 +130,13 @@ public class WaybillCancelServiceImpl implements WaybillCancelService {
         cancelWaybill.setWaybillCode(waybillSiteTrackMq.getWaybillCode());
         cancelWaybill.setCreateTime(now.toString());
         cancelWaybill.setUpdateTime(now.toString());
-        cancelWaybill.setBusinessType(waybillSiteTrackMq.getWaybillCode());
+        // 理赔拦截后可换单通知
+        cancelWaybill.setBusinessType(CancelWaybill.BUSINESS_TYPE_LOCK);
         cancelWaybill.setOperateTime(waybillSiteTrackMq.getDispatchTime());
         cancelWaybill.setYn(Constants.YN_YES);
-        cancelWaybill.setFeatureType(CancelWaybill.FEATURE_TYPE_NORMAL);
+        cancelWaybill.setFeatureType(CancelWaybill.FEATURE_TYPE_INTERCEPT_LP);
         cancelWaybill.setInterceptType(WaybillCancelInterceptTypeEnum.CLAIM_DAMAGED.getCode());
-        cancelWaybill.setInterceptMode(WaybillCancelInterceptModeEnum.INTERCEPT.getCode());
+        cancelWaybill.setInterceptMode(WaybillCancelInterceptModeEnum.NOTICE.getCode());
         cancelWaybill.setOperateTimeOrder(currentTimeMillis);
     }
 }
