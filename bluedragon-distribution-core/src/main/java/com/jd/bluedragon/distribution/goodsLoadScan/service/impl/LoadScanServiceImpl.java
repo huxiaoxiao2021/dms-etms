@@ -762,31 +762,41 @@ public class LoadScanServiceImpl implements LoadScanService {
             return response;
         }
 
-        // 根据批次号查询下一网点信息
-        CreateAndReceiveSiteInfo siteInfo = siteService.getCreateAndReceiveSiteBySendCode(batchCode);
-        if (siteInfo == null) {
-            log.warn("根据批次号没有找到对应的网点信息，taskId={},batchCode={}", taskId, batchCode);
+        try {
+            log.info("开始根据批次号查询网点信息！，taskId={},batchCode={}", taskId, batchCode);
+            // 根据批次号查询下一网点信息
+            CreateAndReceiveSiteInfo siteInfo = siteService.getCreateAndReceiveSiteBySendCode(batchCode);
+            if (siteInfo == null) {
+                log.warn("根据批次号没有找到对应的网点信息，taskId={},batchCode={}", taskId, batchCode);
+                response.setCode(JdCResponse.CODE_FAIL);
+                response.setMessage("根据批次号没有找到对应的网点信息");
+                return response;
+            }
+
+            // 系统校验批次号的目的地与输入的目的场地是否一致，如果不一致则系统提示：“批次号目的地与目的场地不一致，请检查后重新扫描”
+            if (!siteInfo.getReceiveSiteCode().equals(loadCar.getEndSiteCode().intValue())) {
+                log.error("批次号目的地与目的场地不一致，请检查后重新扫描，taskId={},batchCode={}", taskId, batchCode);
+                response.setCode(JdCResponse.CODE_FAIL);
+                response.setMessage("批次号目的地与目的场地不一致，请检查后重新扫描");
+                return response;
+            }
+
+            log.info("开始校验批次号是否已封车！，taskId={},batchCode={}", taskId, batchCode);
+            // 校验批次是否已封车
+            ServiceMessage<Boolean> result = departureService.checkSendStatusFromVOS(batchCode);
+            if (!ServiceResultEnum.SUCCESS.equals(result.getResult())) {
+                log.warn("该批次号已经封车，不可绑定任务！，taskId={},batchCode={}", taskId, batchCode);
+                response.setCode(JdCResponse.CODE_FAIL);
+                response.setMessage("该批次号已经封车，不可绑定任务！");
+                return response;
+            }
+        } catch (Exception e) {
+            log.error("校验批次号发生异常，taskId={},batchCode={},error=", taskId, batchCode, e);
             response.setCode(JdCResponse.CODE_FAIL);
-            response.setMessage("根据批次号没有找到对应的网点信息");
+            response.setMessage("校验批次号发生异常！");
             return response;
         }
 
-        // 校验批次是否已封车
-        ServiceMessage<Boolean> result = departureService.checkSendStatusFromVOS(batchCode);
-        if (!ServiceResultEnum.SUCCESS.equals(result.getResult())) {
-            log.warn("该批次号已经封车，不可绑定任务！，taskId={},batchCode={}", taskId, batchCode);
-            response.setCode(JdCResponse.CODE_FAIL);
-            response.setMessage("该批次号已经封车，不可绑定任务！");
-            return response;
-        }
-
-        // 系统校验批次号的目的地与输入的目的场地是否一致，如果不一致则系统提示：“批次号目的地与目的场地不一致，请检查后重新扫描”
-        if (!siteInfo.getReceiveSiteCode().equals(loadCar.getEndSiteCode().intValue())) {
-            log.error("批次号目的地与目的场地不一致，请检查后重新扫描，taskId={},batchCode={}", taskId, batchCode);
-            response.setCode(JdCResponse.CODE_FAIL);
-            response.setMessage("批次号目的地与目的场地不一致，请检查后重新扫描");
-            return response;
-        }
         // 批次号校验通过，则和任务绑定
         loadCar.setBatchCode(batchCode);
 
