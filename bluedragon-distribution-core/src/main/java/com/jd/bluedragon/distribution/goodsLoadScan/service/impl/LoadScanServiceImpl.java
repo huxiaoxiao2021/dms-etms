@@ -147,9 +147,15 @@ public class LoadScanServiceImpl implements LoadScanService {
     }
 
     @Override
-    public GoodsLoadScan queryByWaybillCodeAndTaskId(Long taskId, String waybillCode) {
+    public GoodsLoadScan queryWaybillCache(Long taskId, String waybillCode) {
         String key = taskId + "_" + waybillCode;
         return jimdbCacheService.get(key, GoodsLoadScan.class);
+    }
+
+    @Override
+    public GoodsLoadScanRecord queryPackageCache(Long taskId, String waybillCode, String packageCode) {
+        String key = taskId + "_" + waybillCode + "_" + packageCode;
+        return jimdbCacheService.get(key, GoodsLoadScanRecord.class);
     }
 
     @Override
@@ -196,11 +202,10 @@ public class LoadScanServiceImpl implements LoadScanService {
             log.error("装车发货扫描计算已安装、未安装数据写库操作lock异常",e);
             return false;
         }finally {
-            if(res) {//取消成功删除缓存
+            if(res) {//取消成功删除锁
                 jimdbCacheService.del(lockKey);
             }else {
                 log.info("updateGoodsLoadScanAmount--包裹扫描失败，包裹信息，包裹信息【" + JsonHelper.toJson(goodsLoadScanRecord) + "】");
-                return false;
             }
         }
     }
@@ -210,7 +215,6 @@ public class LoadScanServiceImpl implements LoadScanService {
         String waybillCode = goodsLoadScan.getWayBillCode();
         Long taskId = goodsLoadScan.getTaskId();
 
-
         // 根据运单号和包裹号查询已验未发的唯一一条记录
         List<LoadScanDto> scanDtoList = new ArrayList<>();
         LoadScanDto loadScan = new LoadScanDto();
@@ -219,20 +223,20 @@ public class LoadScanServiceImpl implements LoadScanService {
         Integer createSiteId = currentSiteCode;
         LoadScanDto scanDto = getLoadScanListByWaybillCode(scanDtoList, createSiteId).get(0);
         Integer goodsAmount = scanDto.getGoodsAmount();//ES中拉的最新库存
-
-        GoodsLoadScan glcTemp = this.queryByWaybillCodeAndTaskId(taskId, waybillCode);
+//        Integer goodsAmount =3;   //ES跑不通，写死库存做测试用
+        GoodsLoadScan glcTemp = this.queryWaybillCache(taskId, waybillCode);
         //缓存失效查库
         if(glcTemp == null) {
             glcTemp = goodsLoadScanDao.findLoadScanByTaskIdAndWaybillCode(taskId, waybillCode);//这里上游查询确认库中不为空才会走到这里
         }
         Integer loadAmount = glcTemp.getLoadAmount();//缓存中取出已装货数量
 
-
+        goodsLoadScan.setId(glcTemp.getId());
         goodsLoadScan.setLoadAmount(loadAmount - 1);
-        goodsLoadScan.setUnloadAmount(goodsAmount - loadAmount);
-        if(loadAmount == 0) {//  当前已装为0时，取消发货后已装为0，不属于不齐异常，变更状态
+        goodsLoadScan.setUnloadAmount(goodsAmount - goodsLoadScan.getLoadAmount());
+        if(goodsLoadScan.getLoadAmount() == 0) {//  当前已装为0时，取消发货后已装为0，不属于不齐异常，变更状态
             goodsLoadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK);
-        }else if(loadAmount == goodsAmount) {//已装等于库存时，说明已经扫描完成，绿色状态，取消一个改为红色状态
+        }else if(goodsLoadScan.getLoadAmount()  == goodsAmount) {//已装等于库存时，说明已经扫描完成，绿色状态，取消一个改为红色状态
             goodsLoadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_RED);
         }
 //删除
@@ -243,6 +247,17 @@ public class LoadScanServiceImpl implements LoadScanService {
             return false;
         }
         log.info("ExceptionScanServiceImpl#scanRemove 装车扫描运单表 --end--，参数【"+ JsonHelper.toJson(goodsLoadScan) + "】");
+
+        GoodsLoadScanRecord packageRecord = this.queryPackageCache(taskId, waybillCode, goodsLoadScanRecord.getPackageCode());
+        if(packageRecord == null) {
+            packageRecord = new GoodsLoadScanRecord();
+            packageRecord.setPackageCode(goodsLoadScanRecord.getPackageCode());
+            packageRecord.setScanAction(GoodsLoadScanConstants.GOODS_SCAN_LOAD);
+            packageRecord.setTaskId(goodsLoadScanRecord.getTaskId());
+            packageRecord.setWayBillCode(goodsLoadScanRecord.getWayBillCode());
+            packageRecord = goodsLoadScanRecordDao.selectListByCondition(packageRecord).get(0);
+        }
+        goodsLoadScanRecord.setId(packageRecord.getId());
 
         log.info("ExceptionScanServiceImpl#scanRemove 取消发货扫描包裹表修改--begin--，参数【"+ JsonHelper.toJson(goodsLoadScanRecord) + "】");
         int num = goodsLoadScanRecordDao.updateGoodsScanRecordById(goodsLoadScanRecord);
@@ -286,7 +301,7 @@ public class LoadScanServiceImpl implements LoadScanService {
 
         Integer goodsAmount = scanDto.getGoodsAmount();//ES中拉的最新库存
 
-        GoodsLoadScan glcTemp = this.queryByWaybillCodeAndTaskId(taskId, waybillCode);
+        GoodsLoadScan glcTemp = this.queryWaybillCache(taskId, waybillCode);
         boolean exist = true;
         //缓存失效查库
         if(glcTemp == null) {
