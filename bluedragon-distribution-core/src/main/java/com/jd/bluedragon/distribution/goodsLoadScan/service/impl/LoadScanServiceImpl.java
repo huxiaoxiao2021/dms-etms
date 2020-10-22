@@ -722,6 +722,17 @@ public class LoadScanServiceImpl implements LoadScanService {
             response.setMessage("根据任务号找不到对应的装车任务");
             return response;
         }
+
+        log.info("开始校验包裹号--判断任务是否已经结束：taskId={},packageCode={}", taskId, packageCode);
+
+        // 任务是否已经结束
+        if (GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END.equals(loadCar.getStatus())) {
+            log.error("该装车任务已经结束，taskId={},packageCode={}", taskId, packageCode);
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("该装车任务已经结束");
+            return response;
+        }
+
         log.info("任务合法，常规包裹号开始检验：taskId={},packageCode={}", taskId, packageCode);
         // 根据包裹号查找运单
         Waybill waybill = getWaybillByPackageCode(packageCode);
@@ -785,6 +796,17 @@ public class LoadScanServiceImpl implements LoadScanService {
             response.setMessage("根据任务号找不到对应的装车任务");
             return response;
         }
+
+        log.info("开始校验板号--判断任务是否已经结束：taskId={},packageCode={}", taskId, packageCode);
+
+        // 任务是否已经结束
+        if (GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END.equals(loadCar.getStatus())) {
+            log.error("该装车任务已经结束，taskId={},packageCode={}", taskId, packageCode);
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("该装车任务已经结束");
+            return response;
+        }
+
         log.info("任务合法,包裹号转板号开始校验：taskId={},packageCode={}", req.getTaskId(), req.getPackageCode());
         // 根据包裹号查板号
         Board board = getBoardCodeByPackageCode(loadCar.getCreateSiteCode().intValue(), packageCode);
@@ -834,6 +856,17 @@ public class LoadScanServiceImpl implements LoadScanService {
             response.setMessage("根据任务号找不到对应的装车任务");
             return response;
         }
+
+        log.info("开始校验批次号--判断任务是否已经结束：taskId={},batchCode={}", taskId, batchCode);
+
+        // 任务是否已经结束
+        if (GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END.equals(loadCar.getStatus())) {
+            log.error("该装车任务已经结束，taskId={},batchCode={}", taskId, batchCode);
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("该装车任务已经结束");
+            return response;
+        }
+
         log.info("开始校验批次号！任务合法！，taskId={},batchCode={}", taskId, batchCode);
 
         // 如果批次号已绑定，直接返回
