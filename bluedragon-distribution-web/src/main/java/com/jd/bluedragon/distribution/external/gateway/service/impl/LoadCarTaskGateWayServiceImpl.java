@@ -69,6 +69,11 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
             return jdCResponse;
         }
         List<HelperDto> helperList = req.getAssistorInfo();
+        if (CollectionUtils.isEmpty(helperList)) {
+            jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
+            jdCResponse.setMessage(JdCResponse.MESSAGE_SUCCESS);
+            return jdCResponse;
+        }
         List<LoadCarHelper> list = Lists.newArrayListWithExpectedSize(helperList.size());
         for (HelperDto helperDto : helperList) {
             LoadCarHelper loadCarHelper = new LoadCarHelper();

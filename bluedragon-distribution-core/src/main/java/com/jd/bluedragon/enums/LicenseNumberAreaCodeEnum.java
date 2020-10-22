@@ -75,8 +75,9 @@ public enum LicenseNumberAreaCodeEnum {
                 break;
             }
         }
-        String substring = StringUtils.substring(licenseNumber, 3, 9);
-        return str + substring;
+        StringBuilder stringBuilder=new StringBuilder(str);
+        stringBuilder.append(StringUtils.substring(licenseNumber,3,9));
+        return stringBuilder.toString();
     }
 
 }
