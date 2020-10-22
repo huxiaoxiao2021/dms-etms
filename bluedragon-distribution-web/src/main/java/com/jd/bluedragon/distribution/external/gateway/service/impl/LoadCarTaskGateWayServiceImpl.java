@@ -308,7 +308,7 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
     public JdCResponse<HelperDto> getNameByErp(String erp) {
         JdCResponse<HelperDto> jdCResponse = new JdCResponse<>();
         if (StringUtils.isBlank(erp)) {
-            jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
+            jdCResponse.setCode(JdCResponse.CODE_ERROR);
             jdCResponse.setMessage("erp信息不能为空！");
             return jdCResponse;
         }
