@@ -753,6 +753,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         Long taskId = req.getTaskId();
         String batchCode = req.getBatchCode();
         User user = req.getUser();
+        log.info("开始校验批次号！，taskId={},batchCode={}", taskId, batchCode);
 
         // 根据任务号查询装车任务记录
         LoadCar loadCar = loadCarDao.findLoadCarById(taskId);
@@ -762,6 +763,8 @@ public class LoadScanServiceImpl implements LoadScanService {
             response.setMessage("根据任务号找不到对应的装车任务");
             return response;
         }
+        log.info("开始校验批次号！任务合法！，taskId={},batchCode={}", taskId, batchCode);
+
         // 如果批次号已绑定，直接返回
         if (StringUtils.isNotBlank(loadCar.getBatchCode())) {
             log.warn("该批次号已绑定此任务，taskId={},batchCode={}", taskId, batchCode);

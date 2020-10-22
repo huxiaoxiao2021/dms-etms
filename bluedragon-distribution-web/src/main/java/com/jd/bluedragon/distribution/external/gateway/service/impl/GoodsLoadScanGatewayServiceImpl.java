@@ -300,6 +300,8 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
     public JdCResponse<Void> checkBatchCode(GoodsLoadingScanningReq req) {
 
+        log.info("根据任务ID和批次号开始检验：taskId={},batchCode={}", req.getTaskId(), req.getBatchCode());
+
         JdCResponse<Void> response = new JdCResponse<>();
 
         if (StringUtils.isBlank(req.getBatchCode())) {
