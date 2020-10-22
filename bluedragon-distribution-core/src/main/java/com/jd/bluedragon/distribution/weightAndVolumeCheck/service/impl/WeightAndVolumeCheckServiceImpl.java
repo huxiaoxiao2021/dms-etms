@@ -1931,9 +1931,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         abnormalResultMqToJN.setReviewWeight(abnormalResultMq.getReviewWeight());
         abnormalResultMqToJN.setReviewVolume(abnormalResultMq.getReviewVolume());
         abnormalResultMqToJN.setPictureAddress(abnormalResultMq.getPictureAddress());
-        abnormalResultMqToJN.setFrom(abnormalResultMq.getFrom());
         abnormalResultMqToJN.setDutyErp(abnormalResultMq.getDutyErp());
-        abnormalResultMqToJN.setReviewSecondLevelId(abnormalResultMq.getReviewThreeLevelId());
+        abnormalResultMqToJN.setThreeLevelId(abnormalResultMq.getThreeLevelId());
         abnormalResultMqToJN.setReviewDutyErp(abnormalResultMq.getReviewDutyErp());
         abnormalResultMqToJN.setReviewSecondLevelId(abnormalResultMq.getReviewSecondLevelId());
         return  abnormalResultMqToJN;
