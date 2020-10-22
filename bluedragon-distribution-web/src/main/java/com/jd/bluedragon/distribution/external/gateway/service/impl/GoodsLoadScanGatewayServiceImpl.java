@@ -102,6 +102,8 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
 
         exceptionScanDto.setOperator(req.getUser().getUserName());
         exceptionScanDto.setOperatorCode(req.getUser().getUserCode());
+        exceptionScanDto.setCurrentSiteCode(req.getCurrentOperate().getSiteCode());
+        exceptionScanDto.setCurrentSiteName(req.getCurrentOperate().getSiteName());
         log.info("GoodsLoadingScanningServiceImpl#goodsRemoveScanning- 取消发货更改不齐异常数据，参数【" + JsonHelper.toJson(exceptionScanDto) + "】");
         boolean removeRes =  exceptionScanService.removeGoodsScan(exceptionScanDto);
 

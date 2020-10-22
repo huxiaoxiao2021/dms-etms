@@ -19,7 +19,13 @@ public interface LoadScanService {
     //根据任务id和运单号查询缓存中运单数据
     GoodsLoadScan queryByWaybillCodeAndTaskId(Long taskId, String waybillCode);
 
-    //修改装车运单记录，计算已装车、未装车数量
+    /**
+     * 修改装车运单记录，计算已装车、未装车数量
+     * @param goodsLoadScan 运单信息
+     * @param goodsLoadScanRecord   包裹信息
+     * @param currentSiteCode  当前分拣中心
+     * @return
+     */
     boolean updateGoodsLoadScanAmount(GoodsLoadScan goodsLoadScan, GoodsLoadScanRecord goodsLoadScanRecord, Integer currentSiteCode);
 
     JdCResponse<LoadScanDetailDto> goodsLoadingScan(GoodsLoadingScanningReq req);

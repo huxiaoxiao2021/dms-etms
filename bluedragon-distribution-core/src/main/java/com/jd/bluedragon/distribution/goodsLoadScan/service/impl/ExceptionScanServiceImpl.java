@@ -95,7 +95,7 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
         lc.setUpdateUserName(exceptionScanDto.getOperator());
         lc.setUpdateTime(new Date());
 
-        boolean res = loadScanService.updateGoodsLoadScanAmount(lc, record, record.getScanAction());
+        boolean res = loadScanService.updateGoodsLoadScanAmount(lc, record, exceptionScanDto.getCurrentSiteCode());
 
         if(res) {
             log.info("ExceptionScanServiceImpl#removeGoodsScan 取消扫描修改包裹明细表 --success--，参数【"+ JsonHelper.toJson(lc) + "】");

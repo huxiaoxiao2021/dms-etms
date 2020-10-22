@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.external;
 
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.CreateLoadTaskReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadCarTaskCreateReq;
+import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadDeleteReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadTaskListReq;
 import com.jd.bluedragon.common.dto.unloadCar.HelperDto;
 import com.jd.bluedragon.external.gateway.service.LoadCarTaskGateWayService;
@@ -39,11 +40,11 @@ public class LoadCarTaskGateWayServiceTest {
     @Test
     public void createTest() {
         LoadCarTaskCreateReq loadCarTaskCreateReq = new LoadCarTaskCreateReq();
-        loadCarTaskCreateReq.setCreateSiteCode(910L);
+        loadCarTaskCreateReq.setCreateSiteCode(66666L);
         loadCarTaskCreateReq.setCreateSiteName("北京马驹桥分拣中心");
         loadCarTaskCreateReq.setCreateUserErp("bjxings");
         loadCarTaskCreateReq.setCreateUserName("邢松");
-        loadCarTaskCreateReq.setEndSiteCode(345566L);
+        loadCarTaskCreateReq.setEndSiteCode(99999L);
         loadCarTaskCreateReq.setEndSiteName("北京通州分拣中心");
         loadCarTaskCreateReq.setLicenseNumber("豫A78868");
         loadCarTaskGateWayService.loadCarTaskCreate(loadCarTaskCreateReq);
