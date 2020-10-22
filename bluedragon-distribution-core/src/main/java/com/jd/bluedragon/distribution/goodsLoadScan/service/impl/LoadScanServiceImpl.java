@@ -100,6 +100,9 @@ public class LoadScanServiceImpl implements LoadScanService {
     @Autowired
     private UnloadCarService unloadCarService;
 
+    public static final String LOADS_CAN_LOCK_BEGIN = "LOADS_CAN_LOCK_";
+
+
     @Override
     public JdCResponse goodsLoadingDeliver(GoodsLoadingReq req) {
         JdCResponse response = new JdCResponse();
@@ -517,36 +520,45 @@ public class LoadScanServiceImpl implements LoadScanService {
             recordList.add(goodsLoadScanRecord);
         }
 
+        // 根据运单号列表去分拣报表查找已验未发对应的库存数
+        List<LoadScanDto> scanDtoList = getLoadScanListByWaybillCode(loadScanDtoList, loadCar.getCreateSiteCode().intValue());
+        if (scanDtoList == null || scanDtoList.isEmpty()) {
+            log.error("根据板号上的包裹号去反查分拣报表返回为空！taskId={},packageCode={},boardCode={}", taskId, packageCode, boardCode);
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("根据板号上的包裹号去反查分拣报表返回为空");
+            return response;
+        }
+        // 获取锁
+        if (!lock(recordList.get(0))) {
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("多人同时操作该包裹所在的板，请稍后重试！");
+            return response;
+        }
         // 批量保存板上的包裹记录
         goodsLoadScanRecordDao.batchInsert(recordList);
 
-        // 根据运单号列表去分拣报表查找已验未发对应的库存数
-        List<LoadScanDto> scanDtoList = getLoadScanListByWaybillCode(loadScanDtoList, loadCar.getCreateSiteCode().intValue());
+        for (LoadScanDto scanDto : scanDtoList) {
+            // 根据任务ID和运单号查询暂存表
+            GoodsLoadScan loadScan = goodsLoadScanDao.findLoadScanByTaskIdAndWaybillCode(taskId, scanDto.getWayBillCode());
+            if (loadScan != null) {
+                // 取出板子上该运单下的要装车包裹数量
+                Integer packageNum = map.get(scanDto.getWayBillCode());
+                // 修改已存在的记录
+                loadScan.setLoadAmount(loadScan.getLoadAmount() + packageNum);
+                loadScan.setUpdateTime(new Date());
+                loadScan.setUnloadAmount(scanDto.getGoodsAmount() - loadScan.getLoadAmount());
+                loadScan.setUpdateUserCode(user.getUserCode());
+                loadScan.setUpdateUserName(user.getUserName());
 
-        if (scanDtoList != null) {
-            for (LoadScanDto scanDto : scanDtoList) {
-                // 根据任务ID和运单号查询暂存表
-                // todo 循环包裹，在锁里 根据缓存 进行计算
-                GoodsLoadScan loadScan = goodsLoadScanDao.findLoadScanByTaskIdAndWaybillCode(taskId, scanDto.getWayBillCode());
-                if (loadScan != null) {
-                    // 取出板子上该运单下的要装车包裹数量
-                    Integer packageNum = map.get(scanDto.getWayBillCode());
-                    // 修改已存在的记录
-                    loadScan.setLoadAmount(loadScan.getLoadAmount() + packageNum);
-                    loadScan.setUpdateTime(new Date());
-                    loadScan.setUnloadAmount(scanDto.getGoodsAmount() - loadScan.getLoadAmount());
-                    loadScan.setUpdateUserCode(user.getUserCode());
-                    loadScan.setUpdateUserName(user.getUserName());
-
-                    // 设置运单颜色状态
-                    Integer status = getWaybillStatus(loadScan.getGoodsAmount(), loadScan.getLoadAmount(),
-                            loadScan.getUnloadAmount(), loadScan.getForceAmount());
-                    loadScan.setStatus(status);
-                    goodsLoadScanDao.updateByPrimaryKey(loadScan);
-                }
+                // 设置运单颜色状态
+                Integer status = getWaybillStatus(loadScan.getGoodsAmount(), loadScan.getLoadAmount(),
+                        loadScan.getUnloadAmount(), loadScan.getForceAmount());
+                loadScan.setStatus(status);
+                goodsLoadScanDao.updateByPrimaryKey(loadScan);
             }
         }
-
+        // 释放锁
+        unLock(recordList.get(0));
         return response;
     }
 
@@ -1175,5 +1187,29 @@ public class LoadScanServiceImpl implements LoadScanService {
         }
         log.error("根据包裹号查询板号发生错误！packageCode={},siteCode={},error={}", packageCode, siteCode, tcResponse.getMesseage());
         return null;
+    }
+
+    private boolean lock(GoodsLoadScanRecord req){
+        String lockKey = LOADS_CAN_LOCK_BEGIN + req.getTaskId() + "_" + req.getWayBillCode();
+        try {
+            if (!jimdbCacheService.setNx(lockKey, StringUtils.EMPTY, 60, TimeUnit.SECONDS)) {
+                Thread.sleep(100);
+                return jimdbCacheService.setNx(lockKey, StringUtils.EMPTY, 60, TimeUnit.SECONDS);
+            }
+        } catch (Exception e) {
+            log.error("装车扫描lock异常:{}", JsonHelper.toJson(req), e);
+            jimdbCacheService.del(lockKey);
+        }
+        return true;
+    }
+
+    private void unLock(GoodsLoadScanRecord req){
+        try {
+            String lockKey = LOADS_CAN_LOCK_BEGIN + req.getTaskId()+ "_" + req.getWayBillCode();
+            jimdbCacheService.del(lockKey);
+        } catch (Exception e) {
+            log.error("装车扫描unLock异常:{}", JsonHelper.toJson(req), e);
+        }
+
     }
 }
