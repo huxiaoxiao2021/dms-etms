@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.*;
 
 import static com.jd.bluedragon.enums.LicenseNumberAreaCodeEnum.transferLicenseNumber;
+import static com.jd.bluedragon.utils.DateHelper.daysDiff;
 
 /**
  * @program: bluedragon-distribution
@@ -320,22 +321,6 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
         jdCResponse.setMessage(JdCResponse.MESSAGE_SUCCESS);
         jdCResponse.setData(helperDto);
         return jdCResponse;
-    }
-
-
-    /**
-     * 两个日期天数差
-     *
-     * @param startDate
-     * @param endDate
-     * @return
-     */
-    public int daysDiff(Date startDate, Date endDate) {
-        if (startDate == null || endDate == null) {
-            return 0;
-        }
-        int days = (int) ((endDate.getTime() - startDate.getTime()) / (24 * 3600 * 1000));
-        return days;
     }
 
 }
