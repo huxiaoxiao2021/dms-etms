@@ -98,13 +98,13 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
     public JdCResponse deleteLoadCarTask(LoadDeleteReq req) {
         JdCResponse jdCResponse = new JdCResponse();
         if (null == req || null == req.getId()) {
-            jdCResponse.setData(JdCResponse.CODE_ERROR);
+            jdCResponse.setCode(JdCResponse.CODE_ERROR);
             jdCResponse.setMessage("删除任务失败,稍后请重试");
             return jdCResponse;
         }
         if (loadService.deleteById(req) > 0) {
             loadCarHelperService.deleteById(req.getId());
-            jdCResponse.setData(JdCResponse.CODE_SUCCESS);
+            jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
             jdCResponse.setMessage(JdCResponse.MESSAGE_SUCCESS);
         }
         return jdCResponse;
@@ -179,10 +179,11 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
         List<Long> creatorList = loadCarHelperService.selectByCreateUserErp(req.getLoginUserErp());
         List<Long> helperList = loadCarHelperService.selectByHelperErp(req.getLoginUserErp());
         List<Long> loadCarList = loadService.selectByCreateUserErp(req.getLoginUserErp());
+        List<LoadTaskListDto> taskListDto = new ArrayList<>();
         if (CollectionUtils.isEmpty(creatorList) && CollectionUtils.isEmpty(helperList) && CollectionUtils.isEmpty(loadCarList)) {
             jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
             jdCResponse.setMessage(JdCResponse.MESSAGE_SUCCESS);
-            jdCResponse.setData(new ArrayList<LoadTaskListDto>());
+            jdCResponse.setData(taskListDto);
             return jdCResponse;
         }
         List<Long> taskIds = new ArrayList<>();
@@ -195,13 +196,20 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
         if (CollectionUtils.isNotEmpty(loadCarList)) {
             taskIds.addAll(loadCarList);
         }
+        if (CollectionUtils.isEmpty(taskIds)) {
+            jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
+            jdCResponse.setMessage(JdCResponse.MESSAGE_SUCCESS);
+            jdCResponse.setData(taskListDto);
+            return jdCResponse;
+        }
         Set<Long> set = new HashSet<>(taskIds);
         taskIds.clear();
         taskIds.addAll(set);
-        List<LoadTaskListDto> taskList = loadService.selectByIds(taskIds);
+        taskListDto = loadService.selectByIds(taskIds);
         jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
         jdCResponse.setMessage(JdCResponse.MESSAGE_SUCCESS);
-        jdCResponse.setData(CollectionUtils.isEmpty(taskList) ? new ArrayList<LoadTaskListDto>() : taskList);
+        jdCResponse.setData(taskListDto);
+        log.info("装车任务列表接口返回结果={}", JSON.toJSONString(jdCResponse));
         return jdCResponse;
     }
 
