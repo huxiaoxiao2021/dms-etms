@@ -16,6 +16,11 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 装车发货相关功能测试
+ * @Author zhengchengfa
+ * @Date 2020年10月22日
+ */
 @ContextConfiguration( locations = {"classpath:distribution-web-context.xml"})
 @RunWith(SpringJUnit4ClassRunner.class)
 public class GoodsLoadingScanningServiceImplTest {
@@ -23,7 +28,7 @@ public class GoodsLoadingScanningServiceImplTest {
     @Resource
     private GoodsLoadScanGatewayService goodsLoadingScanningService;
 
-    @Test
+    @Test //不齐异常数据查询测试
     public void testFindExceptionGoodsLoading() {
         GoodsExceptionScanningReq param = new GoodsExceptionScanningReq();
         param.setTaskId(1021001L);
@@ -53,7 +58,7 @@ public class GoodsLoadingScanningServiceImplTest {
         System.out.println("------------------");
     }
 
-    @Test
+    @Test //强制下发测试
     public void goodsCompulsoryDeliver() {
         GoodsExceptionScanningReq param = new GoodsExceptionScanningReq();
 
@@ -79,7 +84,7 @@ public class GoodsLoadingScanningServiceImplTest {
         System.out.println(res.getCode() + "----" + res.getMessage());
     }
 
-    @Test
+    @Test //完成发货测试
     public void testGoodsLoadingDeliver() {
         GoodsLoadingReq param = new GoodsLoadingReq();
 
@@ -89,7 +94,7 @@ public class GoodsLoadingScanningServiceImplTest {
         param.setUser(user);
 
         CurrentOperate currentOperate = new CurrentOperate();
-        currentOperate.setSiteCode(1241136);
+        currentOperate.setSiteCode(755380);
         currentOperate.setSiteName("这是哪里啊");
         param.setCurrentOperate(currentOperate);
 
@@ -100,6 +105,36 @@ public class GoodsLoadingScanningServiceImplTest {
         JdCResponse res = goodsLoadingScanningService.goodsLoadingDeliver(param);
 
         System.out.println(res.getCode() + "----" + res.getMessage());
+    }
+
+    @Test //取消发货测试
+    public void testGoodsRemoveScanning() {
+        GoodsExceptionScanningReq param = new GoodsExceptionScanningReq();
+
+        User user = new User();
+        user.setUserName("admin");
+        user.setUserCode(2020001);
+        param.setUser(user);
+
+        CurrentOperate currentOperate = new CurrentOperate();
+        currentOperate.setSiteCode(755380);
+        currentOperate.setSiteName("这是哪里啊");
+        param.setCurrentOperate(currentOperate);
+
+        param.setTaskId(1L);
+
+        param.setPackageCode("PA002");//多个改数
+        for(int i=0; i<=2 ; i++) {
+            JdCResponse res = goodsLoadingScanningService.goodsRemoveScanning(param);
+            System.out.println(res.getCode() + "----" + res.getMessage());
+        }
+
+        param.setPackageCode("PA001");//多个改数
+        JdCResponse res = goodsLoadingScanningService.goodsRemoveScanning(param);
+        System.out.println(res.getCode() + "----" + res.getMessage());
+
+        System.out.println("-----------------end-----------------");
+
     }
 
 

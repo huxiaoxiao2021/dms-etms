@@ -40,7 +40,15 @@ public class ExceptionScanDto implements Serializable {
      */
     private Integer operatorCode;
 
+    /**
+     * 当前分拣中心name
+     */
+    private String currentSiteName;
 
+    /**
+     * 当前分拣中心name
+     */
+    private Integer currentSiteCode;
 
     public Long getTaskId() {
         return taskId;
@@ -96,5 +104,21 @@ public class ExceptionScanDto implements Serializable {
 
     public void setOperatorCode(Integer operatorCode) {
         this.operatorCode = operatorCode;
+    }
+
+    public String getCurrentSiteName() {
+        return currentSiteName;
+    }
+
+    public void setCurrentSiteName(String currentSiteName) {
+        this.currentSiteName = currentSiteName;
+    }
+
+    public Integer getCurrentSiteCode() {
+        return currentSiteCode;
+    }
+
+    public void setCurrentSiteCode(Integer currentSiteCode) {
+        this.currentSiteCode = currentSiteCode;
     }
 }

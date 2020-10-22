@@ -155,18 +155,19 @@ public class LoadScanServiceImpl implements LoadScanService {
     @Override
     public boolean updateGoodsLoadScanAmount(GoodsLoadScan goodsLoadScan, GoodsLoadScanRecord goodsLoadScanRecord, Integer currentSiteCode) {
 
+        boolean res = true;
+
         String lockKey = goodsLoadScan.getTaskId().toString();
         try{
             if(!jimdbCacheService.setNx(lockKey, "1",2, TimeUnit.SECONDS)){
                 Thread.sleep(100);
-                boolean res = jimdbCacheService.setNx(lockKey,StringUtils.EMPTY,2, TimeUnit.SECONDS);
-                if(res != true) {
+                boolean cacheResult = jimdbCacheService.setNx(lockKey,StringUtils.EMPTY,2, TimeUnit.SECONDS);
+                if(!cacheResult) {
                     log.info("装车发货扫描计算已安装、未安装数据写库操作lock失败，任务号【" + lockKey + "】");
                     return false;
                 }
             }
 
-            boolean res = true;
             //取消扫描
             if(goodsLoadScanRecord.getScanAction() == GoodsLoadScanConstants.GOODS_SCAN_REMOVE) {
                 res = this.scanRemove(goodsLoadScan, goodsLoadScanRecord, currentSiteCode) ;
@@ -174,10 +175,12 @@ public class LoadScanServiceImpl implements LoadScanService {
                     log.info("updateGoodsLoadScanAmount--取消扫描发货失败，包裹信息【" + JsonHelper.toJson(goodsLoadScanRecord) + "】");
                     return false;
                 }
+
             }else if(goodsLoadScanRecord.getScanAction() == GoodsLoadScanConstants.GOODS_SCAN_LOAD) { //装车扫描
                 res = this.scanLoad(goodsLoadScan, goodsLoadScanRecord, currentSiteCode) ;
                 log.info("updateGoodsLoadScanAmount--发货扫描失败，包裹信息【" + JsonHelper.toJson(goodsLoadScanRecord) + "】");
                 return false;
+
             }else {
                 log.info("updateGoodsLoadScanAmount--包裹扫描状态错误，请输入1(发货扫描)或0(取消扫描)，包裹信息【" + JsonHelper.toJson(goodsLoadScanRecord) + "】");
                 return false;
@@ -193,7 +196,12 @@ public class LoadScanServiceImpl implements LoadScanService {
             log.error("装车发货扫描计算已安装、未安装数据写库操作lock异常",e);
             return false;
         }finally {
-            jimdbCacheService.del(lockKey);
+            if(res) {//取消成功删除缓存
+                jimdbCacheService.del(lockKey);
+            }else {
+                log.info("updateGoodsLoadScanAmount--包裹扫描失败，包裹信息，包裹信息【" + JsonHelper.toJson(goodsLoadScanRecord) + "】");
+                return false;
+            }
         }
     }
 
