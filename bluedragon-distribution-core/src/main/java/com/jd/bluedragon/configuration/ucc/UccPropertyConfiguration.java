@@ -151,6 +151,20 @@ public class UccPropertyConfiguration {
      */
     private boolean economicNetValidateWeightSwitch;
 
+    /**
+     * 控制DTC积压 控制关闭 包裹号存在校验
+     * true  校验包裹号
+     * false 不校验包裹号
+     */
+    private boolean  controlCheckPackage;
+
+    /**
+     * 组板 开关控制是否校验路由
+     * true  校验
+     * false 不校验
+     */
+    private boolean   controlCheckRoute;
+
     public boolean isLogToBusinessLogByKafka() {
         return logToBusinessLogByKafka;
     }
@@ -437,5 +451,21 @@ public class UccPropertyConfiguration {
 
     public void setEconomicNetValidateWeightSwitch(boolean economicNetValidateWeightSwitch) {
         this.economicNetValidateWeightSwitch = economicNetValidateWeightSwitch;
+    }
+
+    public boolean isControlCheckPackage() {
+        return controlCheckPackage;
+    }
+
+    public void setControlCheckPackage(boolean controlCheckPackage) {
+        this.controlCheckPackage = controlCheckPackage;
+    }
+
+    public boolean isControlCheckRoute() {
+        return controlCheckRoute;
+    }
+
+    public void setControlCheckRoute(boolean controlCheckRoute) {
+        this.controlCheckRoute = controlCheckRoute;
     }
 }

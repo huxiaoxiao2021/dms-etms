@@ -73,6 +73,8 @@
         <property name="clickIntervalSecond" value="${clickIntervalSecond}" />
 		<property name="boardCombinationSwitchVerToWebSites" value="${boardCombinationSwitchVerToWebSites}" />
 		<property name="economicNetValidateWeightSwitch" value="${economicNetValidateWeightSwitch:true}"/>
+		<property name="controlCheckPackage" value="${controlCheckPackage:true}"/>
+		<property name="controlCheckRoute" value="${controlCheckRoute:true}"/>
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -116,6 +118,8 @@
                 <value>uccPropertyConfiguration.clickIntervalSecond</value>
 				<value>uccPropertyConfiguration.boardCombinationSwitchVerToWebSites</value>
 				<value>uccPropertyConfiguration.economicNetValidateWeightSwitch</value>
+				<value>uccPropertyConfiguration.controlCheckPackage</value>
+				<value>uccPropertyConfiguration.controlCheckRoute</value>
 			</list>
 		</property>
 	</bean>
