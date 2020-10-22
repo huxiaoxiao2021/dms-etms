@@ -322,21 +322,23 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
             }
         } else if (WaybillUtil.isPackageCode(filterContext.getPackageCode())){
             filterContext.setPackageNum(1);
-            String packageCode = filterContext.getPackageCode();
-            BaseEntity<List<DeliveryPackageD>> baseEntity = this.getPageBaseEntityByPackageCode(packageCode);
+            if(uccPropertyConfiguration.isControlCheckPackage()){
+                String packageCode = filterContext.getPackageCode();
+                BaseEntity<List<DeliveryPackageD>> baseEntity = this.getPageBaseEntityByPackageCode(packageCode);
 
-            if(baseEntity == null){
-                logger.error(String.format("没有查询到包裹数据packageCode[{%s}]",packageCode));
-                throw new SortingCheckException(SortingResponse.CODE_29409, SortingResponse.MESSAGE_29409);
-            }
-            if(baseEntity.getResultCode() != EnumBusiCode.BUSI_SUCCESS.getCode()){
-                logger.error(String.format("查询运单接口返回失败packageCode[{%s}]resultCode[{%s}]message[{%s}]", packageCode,baseEntity.getResultCode(),
-                        baseEntity.getMessage()));
-                throw new SortingCheckException(SortingResponse.CODE_29409, SortingResponse.MESSAGE_29409);
-            }
-            if(CollectionUtils.isEmpty(baseEntity.getData())){
-                logger.error(String.format("包裹号不存在packageCode[{%s}]", packageCode));
-                throw new SortingCheckException(SortingResponse.CODE_29409, SortingResponse.MESSAGE_29409);
+                if(baseEntity == null){
+                    logger.error(String.format("没有查询到包裹数据packageCode[{%s}]",packageCode));
+                    throw new SortingCheckException(SortingResponse.CODE_29409, SortingResponse.MESSAGE_29409);
+                }
+                if(baseEntity.getResultCode() != EnumBusiCode.BUSI_SUCCESS.getCode()){
+                    logger.error(String.format("查询运单接口返回失败packageCode[{%s}]resultCode[{%s}]message[{%s}]", packageCode,baseEntity.getResultCode(),
+                            baseEntity.getMessage()));
+                    throw new SortingCheckException(SortingResponse.CODE_29409, SortingResponse.MESSAGE_29409);
+                }
+                if(CollectionUtils.isEmpty(baseEntity.getData())){
+                    logger.error(String.format("包裹号不存在packageCode[{%s}]", packageCode));
+                    throw new SortingCheckException(SortingResponse.CODE_29409, SortingResponse.MESSAGE_29409);
+                }
             }
         }
 
