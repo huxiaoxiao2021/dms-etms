@@ -486,11 +486,12 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
 
     /**
      * 全国维度 从缓存或数据库中获取拦截标识
+     * true 全国拦截   false 全国不拦截-走站点维度
      * @param menuCode
      * @return
      */
     public boolean getAllCountryFromCacheOrDb(Integer menuCode){
-        boolean isAllMailFilter = true;
+        boolean isAllMailFilter = false;
         String cacheKey = DimensionEnum.NATIONAL.getCachePreKey()+menuCode;
         try {
             String  cacheValue = jimdbCacheService.get(cacheKey);
@@ -504,7 +505,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
                 condition.setDimensionCode(DimensionEnum.NATIONAL.getCode());
                 Integer YnValue = funcSwitchConfigDao.queryYnByCondition(condition);
                 if(YnValue!=null){
-                    isAllMailFilter = YnValue== YnEnum.YN_ON.getCode() ? true: false;
+                    isAllMailFilter = YnValue== YnEnum.YN_ON.getCode() ? false: true;
                     jimdbCacheService.setEx(cacheKey,String.valueOf(isAllMailFilter),Constants.ALL_MAIL_CACHE_SECONDS, TimeUnit.MINUTES);
                 }
             }
@@ -517,6 +518,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
 
     /**
      * 站点维度 通过站点维度查询 开关状态
+     * 站点维度默认拦截
      * @param menuCode
      * @param siteCode
      * @return
@@ -539,7 +541,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
                 condition.setDimensionCode(DimensionEnum.SITE.getCode());
                 Integer YnValue = funcSwitchConfigDao.queryYnByCondition(condition);
                 if(YnValue!=null){
-                    isAllMailFilter = YnValue== YnEnum.YN_ON.getCode() ? true: false;
+                    isAllMailFilter = YnValue== YnEnum.YN_ON.getCode() ? false: true;
                     jimdbCacheService.setEx(cacheKey,String.valueOf(isAllMailFilter),Constants.ALL_MAIL_CACHE_SECONDS, TimeUnit.MINUTES);
                 }
             }
@@ -575,7 +577,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
 
                 Integer YnValue = funcSwitchConfigDao.queryYnByCondition(condition);
                 if(YnValue!=null){
-                    isAllMailFilter = YnValue== YnEnum.YN_ON.getCode() ? true: false;
+                    isAllMailFilter = YnValue== YnEnum.YN_ON.getCode() ? false: true;
                     jimdbCacheService.setEx(cacheKey,String.valueOf(isAllMailFilter),Constants.ALL_MAIL_CACHE_SECONDS, TimeUnit.MINUTES);
                 }
             }
