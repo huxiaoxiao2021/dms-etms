@@ -142,11 +142,16 @@ public class FuncSwitchConfigTest {
                 condition.setMenuCode(menuCode);
             }
             Integer YnValue = funcSwitchConfigDao.queryYnByCondition(condition);
-            if(YnValue!=null){
+            if(YnValue ==null){
+                isAllMailFilter = true;
+            }else {
                 isAllMailFilter = YnValue== YnEnum.YN_ON.getCode() ? true: false;
                 jimdbCacheService.setEx(cacheKey,String.valueOf(isAllMailFilter), Constants.ALL_MAIL_CACHE_SECONDS, TimeUnit.MINUTES);
             }
+
         }
+        System.out.println(isAllMailFilter);
     }
+
 }
     
