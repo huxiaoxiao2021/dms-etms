@@ -109,6 +109,9 @@ public class Sorting implements Cloneable,java.io.Serializable,Comparable<Sortin
     private Integer whReverse;
 
     private List<String> boxCodeList;
+
+    /** 分拣来源 @See SortingBizSourceEnum **/
+    private Integer bizSource;
     
     public Sorting() {
         super();
@@ -338,6 +341,14 @@ public class Sorting implements Cloneable,java.io.Serializable,Comparable<Sortin
         this.boxCodeList = boxCodeList;
     }
 
+    public Integer getBizSource() {
+        return bizSource;
+    }
+
+    public void setBizSource(Integer bizSource) {
+        this.bizSource = bizSource;
+    }
+
     public Boolean isCancel() {
         if (this.isCancel == null) {
             return Boolean.FALSE;
@@ -420,6 +431,7 @@ public class Sorting implements Cloneable,java.io.Serializable,Comparable<Sortin
         if (WaybillUtil.isWaybillCode(aPackageCode)) {
             sorting.setWaybillCode(WaybillUtil.getWaybillCode(aPackageCode));
         }
+        sorting.setBizSource(request.getBizSource());
         
         return sorting;
     }
@@ -443,6 +455,8 @@ public class Sorting implements Cloneable,java.io.Serializable,Comparable<Sortin
         sorting.setUpdateUser(request.getUserName());
         sorting.setUpdateUserCode(request.getUserCode());
         sorting.setType(request.getBusinessType());
+
+        sorting.setBizSource(request.getBizSource());
         return sorting;
     }
     
@@ -578,6 +592,9 @@ public class Sorting implements Cloneable,java.io.Serializable,Comparable<Sortin
         
         /** 是否删除 '0' 删除 '1' 使用 */
         private Integer yn;
+
+        /** 分拣来源字段 **/
+        private Integer bizSource;
         
         public Builder(Integer createSiteCode) {
             super();
@@ -643,6 +660,11 @@ public class Sorting implements Cloneable,java.io.Serializable,Comparable<Sortin
             this.yn = val;
             return this;
         }
+
+        public Builder bizSource(Integer bizSource) {
+            this.bizSource = bizSource;
+            return this;
+        }
         
         public Sorting build() {
             return new Sorting(this);
@@ -661,6 +683,7 @@ public class Sorting implements Cloneable,java.io.Serializable,Comparable<Sortin
         this.updateUserCode = builder.updateUserCode;
         this.updateUser = builder.updateUser;
         this.updateTime = builder.updateTime;
+        this.bizSource = builder.bizSource;
         this.yn = builder.yn;
     }
     

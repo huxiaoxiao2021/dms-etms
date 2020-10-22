@@ -21,7 +21,21 @@
 	
 	<bean id="uccConfig" class="com.jd.coo.ucc.client.config.UccConfig">
 		<property name="propertyConfig" ref="propertyConfig"/>
+		<property name="logConfig" ref="log2Config"/>
 	</bean>
+
+
+<!--	log4j2日志级别控制-->
+	<bean id="logConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.Log2ConfigProcessor"/>
+	<bean id="log2Config" class="com.jd.coo.ucc.client.config.UccLogConfig">
+		<property name="processor" ref="logConfigProcessor"/>
+		<property name="weakList">
+			<list>
+				<value>log4j2.AsyncRoot.rootAsyncLogger</value>
+			</list>
+		</property>
+	</bean>
+
 	<bean name = "uccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration">
 		<property name="asynbufferEnabledTaskType" value="${asynBuffer.enabled.task.type}"/>
 		<property name="cassandraGlobalSwitch" value="${cassandra.global.on}"/>
@@ -59,6 +73,8 @@
         <property name="clickIntervalSecond" value="${clickIntervalSecond}" />
 		<property name="boardCombinationSwitchVerToWebSites" value="${boardCombinationSwitchVerToWebSites}" />
 		<property name="economicNetValidateWeightSwitch" value="${economicNetValidateWeightSwitch:true}"/>
+		<property name="controlCheckPackage" value="${controlCheckPackage:true}"/>
+		<property name="controlCheckRoute" value="${controlCheckRoute:true}"/>
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -102,6 +118,8 @@
                 <value>uccPropertyConfiguration.clickIntervalSecond</value>
 				<value>uccPropertyConfiguration.boardCombinationSwitchVerToWebSites</value>
 				<value>uccPropertyConfiguration.economicNetValidateWeightSwitch</value>
+				<value>uccPropertyConfiguration.controlCheckPackage</value>
+				<value>uccPropertyConfiguration.controlCheckRoute</value>
 			</list>
 		</property>
 	</bean>

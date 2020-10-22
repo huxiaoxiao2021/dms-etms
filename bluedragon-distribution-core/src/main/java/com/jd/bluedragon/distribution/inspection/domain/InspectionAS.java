@@ -74,6 +74,11 @@ public class InspectionAS implements Serializable {
      */
     public String operateTime;
 
+    /**
+     * 操作来源
+     */
+    public Integer bizSource;
+
     public String getSealBoxCode() {
         return sealBoxCode;
     }
@@ -176,5 +181,13 @@ public class InspectionAS implements Serializable {
 
     public void setOperateTime(String operateTime) {
         this.operateTime = operateTime;
+    }
+
+    public Integer getBizSource() {
+        return bizSource;
+    }
+
+    public void setBizSource(Integer bizSource) {
+        this.bizSource = bizSource;
     }
 }
