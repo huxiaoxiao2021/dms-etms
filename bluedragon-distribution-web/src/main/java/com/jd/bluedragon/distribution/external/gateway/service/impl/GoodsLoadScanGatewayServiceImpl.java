@@ -98,7 +98,11 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
         if(exceptionScanDto == null) {
             response.toFail("此包裹号未操作装车，无法取消");
             return response;
+        }else if(exceptionScanDto.getForceStatus() == GoodsLoadScanConstants.GOODS_LOAD_SCAN_FORCE_STATUS_Y){
+            response.toFail("此包裹已被操作强发，无法取消");
+            return response;
         }
+
 
         exceptionScanDto.setOperator(req.getUser().getUserName());
         exceptionScanDto.setOperatorCode(req.getUser().getUserCode());

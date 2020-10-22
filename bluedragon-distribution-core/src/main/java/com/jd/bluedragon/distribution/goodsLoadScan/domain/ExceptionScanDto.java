@@ -50,6 +50,11 @@ public class ExceptionScanDto implements Serializable {
      */
     private Integer currentSiteCode;
 
+    /**
+     * 是否强制发货
+     */
+    private Integer forceStatus;
+
     public Long getTaskId() {
         return taskId;
     }
@@ -120,5 +125,13 @@ public class ExceptionScanDto implements Serializable {
 
     public void setCurrentSiteCode(Integer currentSiteCode) {
         this.currentSiteCode = currentSiteCode;
+    }
+
+    public Integer getForceStatus() {
+        return forceStatus;
+    }
+
+    public void setForceStatus(Integer forceStatus) {
+        this.forceStatus = forceStatus;
     }
 }

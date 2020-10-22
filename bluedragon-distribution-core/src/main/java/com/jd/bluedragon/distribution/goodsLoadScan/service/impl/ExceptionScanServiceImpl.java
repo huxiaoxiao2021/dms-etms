@@ -67,6 +67,7 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
                 res.setPackageCode(goodsRecord.get(0).getPackageCode());
                 res.setLoadAmount(loadScanRes.getLoadAmount());
                 res.setUnloadAmount(loadScanRes.getUnloadAmount());
+                res.setForceStatus(goodsRecord.get(0).getForceStatus());
             }else {
                 log.info("ExceptionScanServiceImpl#findExceptionGoodsScan 取消扫描查询包裹扫描明细表失败，包裹号【"+ record.getPackageCode() + "】");
             }
