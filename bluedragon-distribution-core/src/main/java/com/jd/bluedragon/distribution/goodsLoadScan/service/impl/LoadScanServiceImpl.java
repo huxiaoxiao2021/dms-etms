@@ -560,6 +560,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         Integer flowDisAccord = req.getFlowDisaccord();
         User user = req.getUser();
 
+        log.info("常规包裹号后续校验开始：taskId={},packageCode={},flowDisAccord={}", taskId, packageCode, flowDisAccord);
         // 根据包裹号查找运单
         Waybill waybill = getWaybillByPackageCode(packageCode);
         if (waybill == null) {
@@ -569,22 +570,8 @@ public class LoadScanServiceImpl implements LoadScanService {
             return response;
         }
         String waybillCode = waybill.getWaybillCode();
-
-        // 根据运单号和包裹号查询已验未发的唯一一条记录
-        List<LoadScanDto> scanDtoList = new ArrayList<>();
-        LoadScanDto loadScan = new LoadScanDto();
-        loadScan.setWayBillCode(waybillCode);
         Integer createSiteId = loadCar.getCreateSiteCode().intValue();
-        scanDtoList.add(loadScan);
-        List<LoadScanDto> loadScanDto = getLoadScanListByWaybillCode(scanDtoList, createSiteId);
-        if (loadScanDto.isEmpty()) {
-            log.error("根据包裹号和运单号从分拣报表查询运单信息返回空taskId={},packageCode={},waybillCode={}",
-                    taskId, packageCode, waybillCode);
-            response.setCode(JdCResponse.CODE_FAIL);
-            response.setMessage("根据包裹号查询运单信息返回空");
-            return response;
-        }
-        LoadScanDto scanDto = loadScanDto.get(0);
+
 
         // 查看包裹是否已验货
         Inspection inspection = new Inspection();
@@ -592,6 +579,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         inspection.setPackageBarcode(packageCode);
         inspection.setWaybillCode(waybillCode);
         boolean isInspected = inspectionService.haveInspectionByPackageCode(inspection);
+        log.info("常规包裹号后续校验--是否验货校验完成：taskId={},packageCode={},waybillCode={},flowDisAccord={}", taskId, packageCode, waybillCode, flowDisAccord);
 
         // 未操作验货
         // 此类包裹，页面弹出提示：“此包裹未操作验货，无法扫描，请先操作验货”
@@ -602,6 +590,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             response.setMessage("此包裹未操作验货，无法扫描，请先操作验货");
             return response;
         }
+        log.info("常规包裹号后续校验--B网快运发货校验开始：taskId={},packageCode={},waybillCode={},flowDisAccord={}", taskId, packageCode, waybillCode, flowDisAccord);
 
         // 校验拦截、包装服务、无重量等发货校验，发货校验规则同【B网快运发货】功能
         InvokeResult<String> invokeResult = unloadCarService.interceptValidateUnloadCar(packageCode);
@@ -614,12 +603,36 @@ public class LoadScanServiceImpl implements LoadScanService {
                 return response;
             }
         }
+        log.info("常规包裹号后续校验--B网快运发货校验完成：taskId={},packageCode={},waybillCode={},flowDisAccord={}", taskId, packageCode, waybillCode, flowDisAccord);
 
+        // 根据运单号和包裹号查询已验未发的唯一一条记录
+        List<LoadScanDto> scanDtoList = new ArrayList<>();
+        LoadScanDto loadScan = new LoadScanDto();
+        loadScan.setWayBillCode(waybillCode);
+        scanDtoList.add(loadScan);
+
+        log.info("常规包裹号后续校验--根据运单查询库存：taskId={},packageCode={},waybillCode={},flowDisAccord={}", taskId, packageCode, waybillCode, flowDisAccord);
+
+        List<LoadScanDto> loadScanDto = getLoadScanListByWaybillCode(scanDtoList, createSiteId);
+        if (loadScanDto.isEmpty()) {
+            log.error("根据包裹号和运单号从分拣报表查询运单信息返回空taskId={},packageCode={},waybillCode={}",
+                    taskId, packageCode, waybillCode);
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("根据包裹号查询运单信息返回空");
+            return response;
+        }
+        log.info("常规包裹号后续校验--去分拣报表查询库存成功：taskId={},packageCode={},waybillCode={},flowDisAccord={}", taskId, packageCode, waybillCode, flowDisAccord);
+
+        LoadScanDto scanDto = loadScanDto.get(0);
         // 校验通过，暂存
         Integer goodsAmount = scanDto.getGoodsAmount();
 
+        log.info("常规包裹号后续校验--判断是否是第一个包裹开始：taskId={}", loadCar.getId());
+
         // 扫描第一个包裹时，修改任务状态为已开始
         updateTaskStatus(loadCar, user);
+
+        log.info("常规包裹号后续校验--开始暂存：taskId={}", loadCar.getId());
 
         return saveLoadScanByPackCode(taskId, waybillCode, packageCode, goodsAmount, transfer, flowDisAccord, user);
     }
@@ -1099,6 +1112,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         // 扫描第一个包裹时，将任务状态改为已开始
         List<String> waybillCodeList = goodsLoadScanDao.findWaybillCodesByTaskId(loadCar.getId());
         if (waybillCodeList.isEmpty()) {
+            log.info("常规包裹号后续校验--是第一个扫描包裹，开始修改任务状态：taskId={}", loadCar.getId());
             loadCar.setStatus(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN);
             loadCar.setOperateUserErp(user.getUserErp());
             loadCar.setOperateUserName(user.getUserName());
