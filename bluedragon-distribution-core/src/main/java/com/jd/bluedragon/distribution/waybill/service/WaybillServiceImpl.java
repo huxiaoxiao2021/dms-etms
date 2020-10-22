@@ -56,6 +56,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class WaybillServiceImpl implements WaybillService {
@@ -506,6 +507,7 @@ public class WaybillServiceImpl implements WaybillService {
     * 是否是特安送服务的运单
     * 33位等于2，且增值服务中某个对象的vosNo=fr-a-0010
     * */
+    @Override
     public boolean isSpecialRequirementTeAnSongService(String waybillCode, String waybillSign) {
         //33位不为2直接跳过
         if (! BusinessUtil.isSignChar(waybillSign, 33, '2')) {
@@ -547,6 +549,37 @@ public class WaybillServiceImpl implements WaybillService {
     public JdCancelWaybillResponse dealCancelWaybill(String waybillCode) {
         JdCancelWaybillResponse response = new JdCancelWaybillResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
         CancelWaybill cancelWaybill = this.getCancelWaybillByWaybillCode(waybillCode);
+        if (cancelWaybill == null) {
+            return response;
+        }
+
+        Integer featureType = cancelWaybill.getFeatureType();
+        Integer interceptType = cancelWaybill.getInterceptType();
+
+        if (interceptType != null) {
+            // 走新逻辑
+            InvokeResult<Boolean> invokeResult = this.getResponseByInterceptType(interceptType, cancelWaybill.getInterceptMode());
+            response.setCode(invokeResult.getCode());
+            response.setMessage(invokeResult.getMessage());
+        } else {
+            //走旧逻辑
+            response = this.getResponseByFeatureType(featureType);
+        }
+        response.setFeatureType(featureType);
+        response.setInterceptType(interceptType);
+        return response;
+    }
+
+    /**
+     * 理赔破损拦截专用拦截判断方法
+     * 1. 仅有破损拦截时，不允许换单
+     * 1. 收到可换单消息后，可以换单
+     * @param waybillCode 运单号
+     */
+    @Override
+    public JdCancelWaybillResponse dealCancelWaybillWithClaimDamaged(String waybillCode) {
+        JdCancelWaybillResponse response = new JdCancelWaybillResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+        CancelWaybill cancelWaybill = this.judgeCancelWaybillForClaimDamaged(waybillCode, true);
         if (cancelWaybill == null) {
             return response;
         }
@@ -759,6 +792,29 @@ public class WaybillServiceImpl implements WaybillService {
         return result;
     }
 
+    /**
+     * 获取理赔破损拦截数据
+     *
+     * @param cancelWaybills
+     * @return
+     */
+    private CancelWaybill getClaimDamagedCancelWaybill(List<CancelWaybill> cancelWaybills, boolean allowClaimDamagedChange) {
+        for (CancelWaybill cancelWaybill : cancelWaybills) {
+            if (Objects.equals(WaybillCancelInterceptTypeEnum.CLAIM_DAMAGED.getCode(), cancelWaybill.getInterceptType())) {
+                // 若有可换单数据
+                if(allowClaimDamagedChange && Objects.equals(WaybillCancelInterceptModeEnum.NOTICE.getCode(), cancelWaybill.getInterceptMode())) {
+                    return null;
+                }
+                // 如果仅有理赔拦截数据，且没有可换单数据
+                if(Objects.equals(WaybillCancelInterceptModeEnum.INTERCEPT.getCode(), cancelWaybill.getInterceptMode())) {
+                    return cancelWaybill;
+                }
+            }
+        }
+        return null;
+    }
+
+
     private CancelWaybill getCancelWaybillByWaybillCode(String waybillCode) {
         List<CancelWaybill> cancelWaybills = this.cancelWaybillDao.getByWaybillCode(waybillCode);
         if (cancelWaybills == null || cancelWaybills.isEmpty()) {
@@ -771,8 +827,41 @@ public class WaybillServiceImpl implements WaybillService {
             return cancelWaybill;
         }
 
+        // 获取理赔拦截
+        CancelWaybill claimDamagedCancelWaybill = this.getClaimDamagedCancelWaybill(cancelWaybills, false);
+        if (claimDamagedCancelWaybill != null) {
+            return claimDamagedCancelWaybill;
+        }
+
         return cancelWaybills.get(0);
     }
+
+    /**
+     * 判断运单拦截
+     * @param waybillCode 运单号
+     * @param allowClaimDamagedChange 是否允许拦截后换单
+     */
+    private CancelWaybill judgeCancelWaybillForClaimDamaged(String waybillCode, boolean allowClaimDamagedChange) {
+        List<CancelWaybill> cancelWaybills = this.cancelWaybillDao.getByWaybillCode(waybillCode);
+        if (cancelWaybills == null || cancelWaybills.isEmpty()) {
+            return null;
+        }
+
+        // 获取病单拦截
+        CancelWaybill cancelWaybill = this.getSickCancelWaybill(cancelWaybills);
+        if (cancelWaybill != null) {
+            return cancelWaybill;
+        }
+
+        // 获取理赔拦截
+        CancelWaybill claimDamagedCancelWaybill = this.getClaimDamagedCancelWaybill(cancelWaybills, allowClaimDamagedChange);
+        if (claimDamagedCancelWaybill != null) {
+            return claimDamagedCancelWaybill;
+        }
+
+        return cancelWaybills.get(0);
+    }
+
 
     /**
      * 获取病单，有病单则优先返回病单 30病单 31 取消病单
