@@ -319,6 +319,8 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
     public JdVerifyResponse<Void> checkPackageCode(GoodsLoadingScanningReq req) {
 
+        log.info("根据任务ID和包裹号开始检验：taskId={},packageCode={},transfer={}", req.getTaskId(), req.getPackageCode(), req.getTransfer());
+
         JdVerifyResponse<Void> response = new JdVerifyResponse<>();
 
         if (StringUtils.isBlank(req.getPackageCode())) {
@@ -329,9 +331,11 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
 
         // 如果没勾选【包裹号转板号】
         if (req.getTransfer() == null || req.getTransfer() != 1) {
+            log.info("根据任务ID和包裹号开始检验,常规包裹号：taskId={},packageCode={}", req.getTaskId(), req.getPackageCode());
             // 校验包裹号
             return loadScanService.checkPackageCode(req, response);
         }
+        log.info("根据任务ID和包裹号开始检验,包裹号转板号：taskId={},packageCode={}", req.getTaskId(), req.getPackageCode());
         // 如果勾选【包裹号转板号】
         // 校验板号
         return loadScanService.checkBoardCode(req, response);

@@ -658,7 +658,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             response.setMessage("根据任务号找不到对应的装车任务");
             return response;
         }
-
+        log.info("任务合法，常规包裹号开始检验：taskId={},packageCode={}", taskId, packageCode);
         // 根据包裹号查找运单
         Waybill waybill = getWaybillByPackageCode(packageCode);
         if (waybill == null) {
@@ -674,6 +674,10 @@ public class LoadScanServiceImpl implements LoadScanService {
         loadScan.setWayBillCode(waybillCode);
         loadScan.setPackageCode(packageCode);
         loadScan.setCreateSiteId(loadCar.getCreateSiteCode().intValue());
+
+        log.info("根据常规包裹号拿到运单号：开始获取包裹下一网点信息：taskId={},packageCode={},waybillCode={}",
+                taskId, packageCode, waybillCode);
+
         LoadScanDto loadScanDto = getLoadScanByWaybillAndPackageCode(loadScan);
         if (loadScanDto == null) {
             log.error("根据包裹号和运单号从分拣报表查询运单信息返回空taskId={},packageCode={},waybillCode={}",
@@ -682,7 +686,8 @@ public class LoadScanServiceImpl implements LoadScanService {
             response.setMessage("根据包裹号查询运单信息返回空");
             return response;
         }
-
+        log.info("获取常规包裹下一网点信息成功：taskId={},packageCode={},waybillCode={}",
+                taskId, packageCode, waybillCode);
         // 发货校验
         // 1.校验包裹下一动态路由节点与批次号下一场站是否一致，如不一致进行错发弹框提醒（“错发！请核实！此包裹流向与发货流向不一致，请确认是否继续发货！  是  否  ”，特殊提示音），点击“确定”后完成发货，点击取消清空当前操作的包裹号；
         if (loadCar.getEndSiteCode().intValue() != loadScanDto.getNextSiteId()) {
