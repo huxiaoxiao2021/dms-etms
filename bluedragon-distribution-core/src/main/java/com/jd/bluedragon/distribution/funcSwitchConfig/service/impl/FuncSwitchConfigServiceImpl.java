@@ -501,6 +501,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
                 if(menuCode!=null) {
                     condition.setMenuCode(menuCode);
                 }
+                condition.setDimensionCode(DimensionEnum.NATIONAL.getCode());
                 Integer YnValue = funcSwitchConfigDao.queryYnByCondition(condition);
                 if(YnValue!=null){
                     isAllMailFilter = YnValue== YnEnum.YN_ON.getCode() ? true: false;
@@ -535,9 +536,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
                 if(siteCode!=null){
                     condition.setSiteCode(siteCode);
                 }
-
                 condition.setDimensionCode(DimensionEnum.SITE.getCode());
-
                 Integer YnValue = funcSwitchConfigDao.queryYnByCondition(condition);
                 if(YnValue!=null){
                     isAllMailFilter = YnValue== YnEnum.YN_ON.getCode() ? true: false;
