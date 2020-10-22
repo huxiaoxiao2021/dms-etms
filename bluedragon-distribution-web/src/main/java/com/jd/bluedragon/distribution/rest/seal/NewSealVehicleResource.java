@@ -58,6 +58,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -636,12 +637,22 @@ public class NewSealVehicleResource {
                 return sealVehicleResponse;
             }
 
-            CommonDto<String> returnCommonDto = newsealVehicleService.seal(request.getData());
+            //批次为空的列表信息
+            Map<String, String> emptyBatchCode =new HashMap<String,String>();
+
+            CommonDto<String> returnCommonDto = newsealVehicleService.seal(request.getData(),emptyBatchCode);
             if (returnCommonDto != null) {
                 if (Constants.RESULT_SUCCESS == returnCommonDto.getCode()) {
-                    sealVehicleResponse.setCode(JdResponse.CODE_OK);
-                    sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_SEAL_SUCCESS);
-                    sealVehicleResponse.setData(returnCommonDto.getData());
+                    if(emptyBatchCode==null || emptyBatchCode.isEmpty()){
+                        sealVehicleResponse.setCode(JdResponse.CODE_OK);
+                        sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_SEAL_SUCCESS);
+                        sealVehicleResponse.setData(returnCommonDto.getData());
+                    }else {
+                        sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_SEAL_SUCCEED_BUT_WARN);
+                        sealVehicleResponse.setMessage(getMsgByList(emptyBatchCode));
+                        sealVehicleResponse.setData(returnCommonDto.getData());
+                    }
+
                 } else {
                     sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
                     sealVehicleResponse.setMessage("[" + returnCommonDto.getCode() + ":" + returnCommonDto.getMessage() + "]");
@@ -652,6 +663,17 @@ public class NewSealVehicleResource {
             this.log.error("NewSealVehicleResource.seal-error", e);
         }
         return sealVehicleResponse;
+    }
+
+    private String getMsgByList(Map<String, String> emptyBatchCode){
+        String msg="以下批次没有发货数据，已从封车信息中剔除\r\n";
+        for(Map.Entry<String, String> entry : emptyBatchCode.entrySet()){
+            String mapKey = entry.getKey();
+            String mapValue = entry.getValue();
+            msg=msg+mapValue+":"+mapKey+"\r\n";
+        }
+
+        return msg;
     }
 
     /**
@@ -670,7 +692,19 @@ public class NewSealVehicleResource {
                 return sealVehicleResponse;
             }
 
-            sealVehicleResponse = newsealVehicleService.doSealCarWithVehicleJob(request.getData());
+            //批次为空的列表信息
+            Map<String, String> emptyBatchCode =new HashMap<String,String>();
+
+            sealVehicleResponse = newsealVehicleService.doSealCarWithVehicleJob(request.getData(),emptyBatchCode);
+            if (sealVehicleResponse != null) {
+                if (Constants.RESULT_SUCCESS == sealVehicleResponse.getCode()) {
+                    if(emptyBatchCode!=null && !emptyBatchCode.isEmpty()){
+                        sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_SEAL_SUCCEED_BUT_WARN);
+                        sealVehicleResponse.setMessage(getMsgByList(emptyBatchCode));
+                        sealVehicleResponse.setData(sealVehicleResponse.getData());
+                    }
+                }
+            }
         } catch (Exception e) {
             this.log.error("NewSealVehicleResource.doSealCarWithVehicleJob-error", e);
         }

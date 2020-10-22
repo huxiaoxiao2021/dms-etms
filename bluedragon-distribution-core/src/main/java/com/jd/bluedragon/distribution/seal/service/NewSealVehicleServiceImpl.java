@@ -13,7 +13,9 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.cancelSealRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.distribution.material.service.SortingMaterialSendService;
 import com.jd.bluedragon.distribution.send.service.SendMService;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
@@ -96,6 +98,9 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     @Autowired
     private SendMService sendMService;
 
+    @Autowired
+    private SortingMaterialSendService sortingMaterialSendService;
+
 
     private static final Integer UNSEAL_CAR_IN_RECIVE_AREA = 2;    //带解封的车辆在围栏里(1-是否在始发网点 2-是否在目的网点)
 
@@ -105,8 +110,10 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
 	@Override
 	@JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.seal",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-	public CommonDto<String> seal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars) throws Exception{
+	public CommonDto<String> seal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars,Map<String, String> emptyBatchCode) throws Exception{
 	    long startTime=new Date().getTime();
+	    //去除空批次，并记录去除数据
+        removeEmptyBatchCode(sealCars,emptyBatchCode);
 	    List<SealCarDto> paramList = convertList(sealCars);
         if(log.isDebugEnabled()){
             log.debug("封车参数：{}", JsonHelper.toJson(paramList));
@@ -162,6 +169,50 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         return sealCarInfo;
 	}
 
+  /**
+   * 移除空批次
+   *
+   * @param sourceSealDtos
+   * @param emptyBatchCode
+   */
+  private void removeEmptyBatchCode(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sourceSealDtos,Map<String, String> emptyBatchCode) {
+      for (com.jd.bluedragon.distribution.wss.dto.SealCarDto sourceSealDto : sourceSealDtos) {
+          if (sourceSealDto != null && sourceSealDto.getBatchCodes() != null) {
+              // 循环验证封车批次号是否有发货记录，如果没有则删除批次
+              for (int i = 0, length = sourceSealDto.getBatchCodes().size(); i < length; i++) {
+                  String item = sourceSealDto.getBatchCodes().get(i);
+                  if (!checkBatchCodeIsSend(item)) {
+                      emptyBatchCode.put(item, sourceSealDto.getVehicleNumber());
+                      sourceSealDto.getBatchCodes().remove(item);
+                      length--;
+                      i--;
+                  }
+              }
+          }
+      }
+  }
+
+	/**
+     * 校验批次号是否存在发货记录
+	 */
+	private boolean checkBatchCodeIsSend(String batchCode){
+        boolean res=true;
+
+	    //批次号不存在sendm记录
+	    if(!checkSendIsExist(batchCode)) {
+            boolean existRecord = true;
+            JdResult<Integer> materialSendRet = sortingMaterialSendService.countMaterialSendRecordByBatchCode(batchCode, null);
+            if (materialSendRet.isSucceed() && materialSendRet.getData() == 0) {
+                existRecord = false;
+            }
+            return existRecord;
+        }
+
+        return res;
+    }
+
+
+
 
     /**
      * VOS封车业务同时生成车次任务
@@ -169,7 +220,9 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
      * @return
      */
     @JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.doSealCarWithVehicleJob",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public NewSealVehicleResponse doSealCarWithVehicleJob(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars) {
+    public NewSealVehicleResponse doSealCarWithVehicleJob(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars,Map<String, String> emptyBatchCode) {
+        //去除空批次，并记录去除数据
+        removeEmptyBatchCode(sealCars,emptyBatchCode);
         List<SealCarDto> paramList = convertList(sealCars);
         if(log.isDebugEnabled()){
             log.debug("VOS封车业务同时生成车次任务参数：{}", JsonHelper.toJson(paramList));
@@ -899,8 +952,11 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     private List<SealCarDto> convertList(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sourceSealDtos) {
         List<SealCarDto> sealCarDtos = new ArrayList<SealCarDto>();
         Date nowTime = new Date();//封车取当前服务器当前时间
+
         for (com.jd.bluedragon.distribution.wss.dto.SealCarDto sourceSealDto : sourceSealDtos) {
-            sealCarDtos.add(convert(sourceSealDto, nowTime));
+            if(sourceSealDto!=null && !sourceSealDto.getBatchCodes().isEmpty()){
+                sealCarDtos.add(convert(sourceSealDto, nowTime));
+            }
         }
         return sealCarDtos;
     }
