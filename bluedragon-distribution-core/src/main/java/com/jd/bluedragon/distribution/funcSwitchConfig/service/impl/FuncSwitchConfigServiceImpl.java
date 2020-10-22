@@ -522,7 +522,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
      * @return
      */
     public boolean getSiteFlagFromCacheOrDb(Integer menuCode,Integer siteCode){
-        boolean isAllMailFilter = true;
+        boolean isAllMailFilter = false;
         String cacheKey = getSiteCacheKey(DimensionEnum.SITE.getCachePreKey(),menuCode,siteCode);
         try {
             String  cacheValue = jimdbCacheService.get(cacheKey);
@@ -556,7 +556,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
      * @return
      */
     public boolean getErpFlagFromCacheOrDb(Integer menuCode,String operateErp){
-        boolean isAllMailFilter = true;
+        boolean isAllMailFilter = false;
         String  cacheKey = getErpOneCacheKey(DimensionEnum.PERSON.getCachePreKey(),menuCode,operateErp);
         try {
             String  cacheValue = jimdbCacheService.get(cacheKey);
