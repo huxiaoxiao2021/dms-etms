@@ -721,8 +721,10 @@ public class LoadScanServiceImpl implements LoadScanService {
             response.setMessage("根据任务号找不到对应的装车任务");
             return response;
         }
+        log.info("任务合法,包裹号转板号开始校验：taskId={},packageCode={}", req.getTaskId(), req.getPackageCode());
         // 根据包裹号查板号
         Board board = getBoardCodeByPackageCode(loadCar.getCreateSiteCode().intValue(), packageCode);
+        log.info("根据包裹号查询板号结束：taskId={},packageCode={}", req.getTaskId(), req.getPackageCode());
         if (board == null) {
             log.error("根据包裹号没有找到对应的板号！taskId={},packageCode={}", taskId, packageCode);
             response.setCode(JdCResponse.CODE_FAIL);
