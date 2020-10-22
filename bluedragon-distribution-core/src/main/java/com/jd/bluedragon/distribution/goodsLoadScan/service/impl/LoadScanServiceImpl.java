@@ -23,6 +23,7 @@ import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
+import com.jd.bluedragon.distribution.goodsLoadScan.domain.LoadScan;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanService;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
@@ -49,6 +50,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -448,6 +451,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         return response;
     }
 
+    @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED)
     @Override
     public JdCResponse<Void> saveLoadScanByBoardCode(GoodsLoadingScanningReq req, JdCResponse<Void> response, LoadCar loadCar) {
         Long taskId = req.getTaskId();
@@ -539,29 +543,27 @@ public class LoadScanServiceImpl implements LoadScanService {
 
         for (LoadScanDto scanDto : scanDtoList) {
             // 根据任务ID和运单号查询暂存表
-            GoodsLoadScan loadScan = goodsLoadScanDao.findLoadScanByTaskIdAndWaybillCode(taskId, scanDto.getWayBillCode());
-            if (loadScan != null) {
-                // 取出板子上该运单下的要装车包裹数量
-                Integer packageNum = map.get(scanDto.getWayBillCode());
-                // 修改已存在的记录
-                loadScan.setLoadAmount(loadScan.getLoadAmount() + packageNum);
-                loadScan.setUpdateTime(new Date());
-                loadScan.setUnloadAmount(scanDto.getGoodsAmount() - loadScan.getLoadAmount());
-                loadScan.setUpdateUserCode(user.getUserCode());
-                loadScan.setUpdateUserName(user.getUserName());
-
-                // 设置运单颜色状态
-                Integer status = getWaybillStatus(loadScan.getGoodsAmount(), loadScan.getLoadAmount(),
-                        loadScan.getUnloadAmount(), loadScan.getForceAmount());
-                loadScan.setStatus(status);
-                goodsLoadScanDao.updateByPrimaryKey(loadScan);
-            }
+            GoodsLoadScan loadScan = new GoodsLoadScan();
+            loadScan.setTaskId(taskId);
+            loadScan.setWayBillCode(scanDto.getWayBillCode());
+            // 取出板子上该运单下的要装车包裹数量
+            Integer packageNum = map.get(scanDto.getWayBillCode());
+            // 计算已装、未装
+            loadScan.setLoadAmount(loadScan.getLoadAmount() + packageNum);
+            loadScan.setUnloadAmount(scanDto.getGoodsAmount() - loadScan.getLoadAmount());
+            // 设置运单颜色状态
+            Integer status = getWaybillStatus(loadScan.getGoodsAmount(), loadScan.getLoadAmount(),
+                    loadScan.getUnloadAmount(), loadScan.getForceAmount());
+            loadScan.setStatus(status);
+            // 如果已存在就更新，不存在就插入
+            saveOrUpdate(loadScan, user);
         }
         // 释放锁
         unLock(recordList.get(0));
         return response;
     }
 
+    @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED)
     @Override
     public JdCResponse<Void> checkInspectAndSave(GoodsLoadingScanningReq req, JdCResponse<Void> response, LoadCar loadCar) {
         Long taskId = req.getTaskId();
@@ -1210,6 +1212,22 @@ public class LoadScanServiceImpl implements LoadScanService {
         } catch (Exception e) {
             log.error("装车扫描unLock异常:{}", JsonHelper.toJson(req), e);
         }
-
     }
+
+    public boolean saveOrUpdate(GoodsLoadScan e, User user) {
+        GoodsLoadScan oldData = goodsLoadScanDao.findLoadScanByTaskIdAndWaybillCode(e.getTaskId(), e.getWayBillCode());
+        e.setUpdateTime(new Date());
+        e.setUpdateUserCode(user.getUserCode());
+        e.setUpdateUserName(user.getUserName());
+        if (oldData != null) {
+            e.setId(oldData.getId());
+            return goodsLoadScanDao.updateByPrimaryKey(e);
+        } else {
+            e.setCreateTime(new Date());
+            e.setCreateUserCode(user.getUserCode());
+            e.setCreateUserName(user.getUserName());
+            return goodsLoadScanDao.insert(e);
+        }
+    }
+
 }
