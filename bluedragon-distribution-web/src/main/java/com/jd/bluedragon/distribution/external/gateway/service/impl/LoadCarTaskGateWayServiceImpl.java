@@ -282,19 +282,17 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
             loadCar.setOperateUserErp(req.getCreateUserErp());
             loadCar.setOperateUserName(req.getCreateUserName());
             int id = loadService.insert(loadCar);
-            Long taskId = loadCar.getId();
             if (id > 0) {
                 jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
                 jdCResponse.setMessage(JdCResponse.MESSAGE_SUCCESS);
-                jdCResponse.setData(taskId);
+                jdCResponse.setData(loadCar.getId());
                 return jdCResponse;
             }
-        } catch (
-                Exception e) {
+        } catch (Exception e) {
             log.error("装卸任务创建请求异常={}", e);
-            jdCResponse.setCode(JdCResponse.CODE_ERROR);
-            jdCResponse.setMessage("操作失败,请稍后重试！");
         }
+        jdCResponse.setCode(JdCResponse.CODE_ERROR);
+        jdCResponse.setMessage("操作失败,请稍后重试！");
         return jdCResponse;
     }
 
@@ -310,10 +308,12 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
     public JdCResponse<HelperDto> getNameByErp(String erp) {
         JdCResponse<HelperDto> jdCResponse = new JdCResponse<>();
         if (StringUtils.isBlank(erp)) {
-
+            jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
+            jdCResponse.setMessage("erp信息不能为空！");
+            return jdCResponse;
         }
         BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(erp);
-        log.info("装车添加协助人-获取员工信息接口响应结果={}", JSON.toJSONString(bssod));
+        log.info("获取员工信息接口基础接口响应结果={}", JSON.toJSONString(bssod));
         if (null == bssod || StringUtils.isBlank(bssod.getStaffName())) {
             jdCResponse.setCode(JdCResponse.CODE_ERROR);
             jdCResponse.setMessage("暂未查询到员工姓名,稍后请重试！");
