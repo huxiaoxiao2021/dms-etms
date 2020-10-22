@@ -284,7 +284,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
                     throw  new Exception("分拣机开关-置为开on调用失败,站点:"+siteCodes);
                 }
                 for (Integer siteCode:siteCodes){
-                    jimdbCacheService.del(getSiteCacheKey(DimensionEnum.SITE.getCachePreKey(),FuncSwitchConfigEnum.FUNCTION_ALL_MAIL.getCode(),siteCode);
+                    jimdbCacheService.del(getSiteCacheKey(DimensionEnum.SITE.getCachePreKey(),FuncSwitchConfigEnum.FUNCTION_ALL_MAIL.getCode(),siteCode));
                 }
             }
         }catch (Exception e){
