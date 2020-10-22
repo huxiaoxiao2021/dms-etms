@@ -23,6 +23,11 @@ public class CancelWaybillDao extends BaseDao<CancelWaybill> {
         return super.getSqlSession().selectList(NAMESPACE + ".getByWaybillCode", paramMap);
     }
 
+    public boolean add(CancelWaybill cancelWaybill) {
+        cancelWaybill.setTs(System.currentTimeMillis());
+        return super.getSqlSession().update(NAMESPACE + ".add", cancelWaybill) > 0 ? true : false;
+    }
+
     /**
      * 根据单号和featureType查询运单拦截记录
      * @param waybillCode
@@ -78,10 +83,5 @@ public class CancelWaybillDao extends BaseDao<CancelWaybill> {
         paramMap.put("packageCode", packageCode);
         paramMap.put("featureType", featureType);
         return super.getSqlSession().selectOne(NAMESPACE + ".findPackageBlockedByCodeAndFeatureType", paramMap);
-    }
-
-    public boolean add(CancelWaybill cancelWaybill) {
-        cancelWaybill.setTs(System.currentTimeMillis());
-        return super.getSqlSession().update(NAMESPACE + ".add", cancelWaybill) > 0 ? true : false;
     }
 }

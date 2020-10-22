@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.ver.filter.Filter;
 import com.jd.bluedragon.distribution.ver.filter.FilterChain;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.WaybillCacheHelper;
 import org.slf4j.Logger;
@@ -36,7 +37,7 @@ public class RouterFilter implements Filter {
 
     @Override
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
-
+        logger.info("分拣校验RouterFilter1packageCode[{}]pdaOperateRequest[{}]",request.getPackageCode(), JsonHelper.toJson(request));
         /* 判断如果是填航空仓订单则直接进行返回，不进行下面的下一跳校验 */
         if (WaybillCacheHelper.isAirWaybill(request.getWaybillCache())) {
             chain.doFilter(request,chain);
@@ -50,7 +51,7 @@ public class RouterFilter implements Filter {
         } catch (Exception e) {
             logger.warn("站点 [" + request.getCreateSiteCode() + "] 类型 [" + RULE_ROUTER + "] 没有匹配的规则");
         }
-
+        logger.info("分拣校验RouterFilter2packageCode[{}]pdaOperateRequest[{}]rule[{}]",request.getPackageCode(), JsonHelper.toJson(request), JsonHelper.toJson(request));
         //规则没有配，或者配置了内容不等于1才会进行校验
         if (rule == null || !SWITCH_ON.equals(rule.getContent())) {
             Integer createSiteCode = request.getCreateSiteCode();
