@@ -98,13 +98,13 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
     public JdCResponse deleteLoadCarTask(LoadDeleteReq req) {
         JdCResponse jdCResponse = new JdCResponse();
         if (null == req || null == req.getId()) {
-            jdCResponse.setData(JdCResponse.CODE_ERROR);
+            jdCResponse.setCode(JdCResponse.CODE_ERROR);
             jdCResponse.setMessage("删除任务失败,稍后请重试");
             return jdCResponse;
         }
         if (loadService.deleteById(req) > 0) {
             loadCarHelperService.deleteById(req.getId());
-            jdCResponse.setData(JdCResponse.CODE_SUCCESS);
+            jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
             jdCResponse.setMessage(JdCResponse.MESSAGE_SUCCESS);
         }
         return jdCResponse;
