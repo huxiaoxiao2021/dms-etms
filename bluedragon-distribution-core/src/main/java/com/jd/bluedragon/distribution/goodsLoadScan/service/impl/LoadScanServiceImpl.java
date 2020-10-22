@@ -24,7 +24,6 @@ import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanException;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
-import com.jd.bluedragon.distribution.goodsLoadScan.domain.LoadScan;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanService;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
@@ -670,7 +669,7 @@ public class LoadScanServiceImpl implements LoadScanService {
 
         log.info("常规包裹号后续校验--开始暂存：taskId={}", loadCar.getId());
 
-        return saveLoadScanByPackCode(taskId, waybillCode, packageCode, goodsAmount, transfer, flowDisAccord, user);
+        return saveLoadScanByPackCode(taskId, waybillCode, packageCode, goodsAmount, transfer, flowDisAccord, user, createSiteId);
     }
 
     /**
@@ -887,7 +886,8 @@ public class LoadScanServiceImpl implements LoadScanService {
      * @param transfer 包裹号转板号标识
      */
     private JdCResponse<Void> saveLoadScanByPackCode(Long taskId, String waybillCode, String packageCode,
-                                                     Integer goodsAmount, Integer transfer, Integer flowDisAccord, User user) {
+                                                     Integer goodsAmount, Integer transfer, Integer flowDisAccord,
+                                                     User user, Integer createSiteId) {
 
         JdCResponse<Void> response = new JdCResponse<>();
 
@@ -907,24 +907,12 @@ public class LoadScanServiceImpl implements LoadScanService {
             return response;
         }
 
+
         // 如果不是重复扫，包裹扫描记录表新增一条记录
         GoodsLoadScanRecord newLoadScanRecord = createGoodsLoadScanRecord(taskId, waybillCode, packageCode,
                 null, transfer, flowDisAccord, user);
-        goodsLoadScanRecordDao.insert(newLoadScanRecord);
-
-        // 查看暂存表是否初始化过此运单
-        GoodsLoadScan goodsLoadScan = goodsLoadScanDao.findLoadScanByTaskIdAndWaybillCode(taskId, waybillCode);
-        if (goodsLoadScan == null) {
-            // 运单暂存表新增
-            GoodsLoadScan newLoadScan = createGoodsLoadScan(taskId, waybillCode, packageCode,
-                    goodsAmount, flowDisAccord, user);
-            goodsLoadScanDao.insert(newLoadScan);
-            response.setCode(JdCResponse.CODE_SUCCESS);
-            return response;
-        }
-
-        // 如果已初始化，直接修改
-        computeAndUpdateLoadScan(goodsLoadScan, goodsAmount);
+        GoodsLoadScan newLoadScan = createGoodsLoadScan(taskId, waybillCode, packageCode, goodsAmount, flowDisAccord, user);
+        updateGoodsLoadScanAmount(newLoadScan, newLoadScanRecord, createSiteId);
 
         response.setCode(JdCResponse.CODE_SUCCESS);
         return response;
@@ -945,8 +933,6 @@ public class LoadScanServiceImpl implements LoadScanService {
         Integer status = getWaybillStatus(loadScan.getGoodsAmount(), loadScan.getLoadAmount(),
                 loadScan.getUnloadAmount(), loadScan.getForceAmount());
         loadScan.setStatus(status);
-        goodsLoadScanDao.updateByPrimaryKey(loadScan);
-        // todo redis锁   任务号+运单号   重试一次  失败大日志
     }
 
 
