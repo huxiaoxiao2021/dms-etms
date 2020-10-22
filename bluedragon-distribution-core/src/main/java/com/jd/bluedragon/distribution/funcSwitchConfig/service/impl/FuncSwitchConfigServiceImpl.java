@@ -490,7 +490,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
      * @return
      */
     public boolean getAllCountryFromCacheOrDb(Integer menuCode){
-        boolean isAllMailFilter = false;
+        boolean isAllMailFilter = true;
         String cacheKey = getAllCountTyCacheKey(DimensionEnum.NATIONAL.getCachePreKey(),menuCode);
         try {
             String  cacheValue = jimdbCacheService.get(cacheKey);
@@ -503,10 +503,14 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
                 }
                 condition.setDimensionCode(DimensionEnum.NATIONAL.getCode());
                 Integer YnValue = funcSwitchConfigDao.queryYnByCondition(condition);
-                if(YnValue!=null){
-                    isAllMailFilter = YnValue== YnEnum.YN_ON.getCode() ? false: true;
-                    jimdbCacheService.setEx(cacheKey,String.valueOf(isAllMailFilter),Constants.ALL_MAIL_CACHE_SECONDS, TimeUnit.MINUTES);
+
+                //全国数据没查到，还要查站点维度
+                if(YnValue == null){
+                    return false;
                 }
+
+                isAllMailFilter = YnValue == YnEnum.YN_ON.getCode() ? false: true;
+                jimdbCacheService.setEx(cacheKey,String.valueOf(isAllMailFilter),Constants.ALL_MAIL_CACHE_SECONDS, TimeUnit.MINUTES);
             }
         }catch (Exception e){
             logger.error("众邮运单全国拦截判断异常cacheKey:{},menuCode:{}",cacheKey,menuCode,e);
@@ -522,7 +526,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
      * @return
      */
     public boolean getSiteFlagFromCacheOrDb(Integer menuCode,Integer siteCode){
-        boolean isAllMailFilter = false;
+        boolean isAllMailFilter = true;
         String cacheKey = getSiteCacheKey(DimensionEnum.SITE.getCachePreKey(),menuCode,siteCode);
         try {
             String  cacheValue = jimdbCacheService.get(cacheKey);
@@ -538,10 +542,13 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
                 }
                 condition.setDimensionCode(DimensionEnum.SITE.getCode());
                 Integer YnValue = funcSwitchConfigDao.queryYnByCondition(condition);
-                if(YnValue!=null){
-                    isAllMailFilter = YnValue== YnEnum.YN_ON.getCode() ? false: true;
-                    jimdbCacheService.setEx(cacheKey,String.valueOf(isAllMailFilter),Constants.ALL_MAIL_CACHE_SECONDS, TimeUnit.MINUTES);
+
+                //站点维度没查到就拦截
+                if(YnValue == null){
+                    return true;
                 }
+                isAllMailFilter = YnValue == YnEnum.YN_ON.getCode() ? false: true;
+                jimdbCacheService.setEx(cacheKey,String.valueOf(isAllMailFilter),Constants.ALL_MAIL_CACHE_SECONDS, TimeUnit.MINUTES);
             }
         }catch (Exception e){
             logger.error("众邮运单场地拦截判断异常cacheKey:{},menuCode:{}",cacheKey,menuCode,e);
@@ -556,7 +563,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
      * @return
      */
     public boolean getErpFlagFromCacheOrDb(Integer menuCode,String operateErp){
-        boolean isAllMailFilter = false;
+        boolean isAllMailFilter = true;
         String  cacheKey = getErpOneCacheKey(DimensionEnum.PERSON.getCachePreKey(),menuCode,operateErp);
         try {
             String  cacheValue = jimdbCacheService.get(cacheKey);
@@ -574,10 +581,13 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
                 }
 
                 Integer YnValue = funcSwitchConfigDao.queryYnByCondition(condition);
-                if(YnValue!=null){
-                    isAllMailFilter = YnValue== YnEnum.YN_ON.getCode() ? false: true;
-                    jimdbCacheService.setEx(cacheKey,String.valueOf(isAllMailFilter),Constants.ALL_MAIL_CACHE_SECONDS, TimeUnit.MINUTES);
+
+                if(YnValue == null){
+                    return  true;
                 }
+
+                isAllMailFilter = YnValue== YnEnum.YN_ON.getCode() ? false: true;
+                jimdbCacheService.setEx(cacheKey,String.valueOf(isAllMailFilter),Constants.ALL_MAIL_CACHE_SECONDS, TimeUnit.MINUTES);
             }
         }catch (Exception e){
             logger.error("众邮运单个人维度拦截判断异常cacheKey:{},menuCode:{}",cacheKey,menuCode,e);
