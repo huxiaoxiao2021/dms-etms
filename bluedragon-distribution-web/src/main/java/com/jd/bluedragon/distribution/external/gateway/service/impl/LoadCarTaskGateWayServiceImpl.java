@@ -97,8 +97,11 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse deleteLoadCarTask(LoadDeleteReq req) {
         JdCResponse jdCResponse = new JdCResponse();
-        jdCResponse.setData(JdCResponse.CODE_ERROR);
-        jdCResponse.setMessage("删除任务失败,稍后请重试");
+        if (null == req || null == req.getId()) {
+            jdCResponse.setData(JdCResponse.CODE_ERROR);
+            jdCResponse.setMessage("删除任务失败,稍后请重试");
+            return jdCResponse;
+        }
         if (loadService.deleteById(req) > 0) {
             loadCarHelperService.deleteById(req.getId());
             jdCResponse.setData(JdCResponse.CODE_SUCCESS);
@@ -215,9 +218,24 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
         log.info("装车任务创建接口请求参数={}", req);
         JdCResponse<Long> jdCResponse = new JdCResponse<>();
         try {
-            if (null == req || null == req.getCreateSiteCode()) {
+            if (null == req) {
                 jdCResponse.setCode(JdCResponse.CODE_ERROR);
                 jdCResponse.setMessage("装车任务信息不完整,请检查必填信息！");
+                return jdCResponse;
+            }
+            if (null == req.getCreateUserErp() || StringUtils.isBlank(req.getCreateUserName())) {
+                jdCResponse.setCode(JdCResponse.CODE_ERROR);
+                jdCResponse.setMessage("当前登录人信息为空,请重新登录！");
+                return jdCResponse;
+            }
+            if (null == req.getEndSiteCode() || StringUtils.isBlank(req.getEndSiteName())) {
+                jdCResponse.setCode(JdCResponse.CODE_ERROR);
+                jdCResponse.setMessage("目的地站点编码或名称不能为空！");
+                return jdCResponse;
+            }
+            if (null == req.getCreateSiteCode() || StringUtils.isBlank(req.getCreateSiteName())) {
+                jdCResponse.setCode(JdCResponse.CODE_ERROR);
+                jdCResponse.setMessage("当前登录人所属站点信息不存在,请稍后重试！");
                 return jdCResponse;
             }
             LoadCar loadCar = new LoadCar();
@@ -238,7 +256,7 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
                         loadService.deleteById(loadDeleteReq);
                     } else {
                         jdCResponse.setCode(JdCResponse.CODE_ERROR);
-                        jdCResponse.setMessage("同一个转运中心，一个目的场地只能创建一个任务！");
+                        jdCResponse.setMessage("同一个转运中心，一个目的场地只能创建一个进行中任务！");
                         return jdCResponse;
                     }
                 }
@@ -250,13 +268,15 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
             loadCar.setOperateUserErp(req.getCreateUserErp());
             loadCar.setOperateUserName(req.getCreateUserName());
             int id = loadService.insert(loadCar);
+            Long taskId = loadCar.getId();
             if (id > 0) {
                 jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
                 jdCResponse.setMessage(JdCResponse.MESSAGE_SUCCESS);
-                jdCResponse.setData((long) id);
+                jdCResponse.setData(taskId);
                 return jdCResponse;
             }
-        } catch (Exception e) {
+        } catch (
+                Exception e) {
             log.error("装卸任务创建请求异常={}", e);
             jdCResponse.setCode(JdCResponse.CODE_ERROR);
             jdCResponse.setMessage("操作失败,请稍后重试！");
@@ -275,6 +295,9 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<HelperDto> getNameByErp(String erp) {
         JdCResponse<HelperDto> jdCResponse = new JdCResponse<>();
+        if (StringUtils.isBlank(erp)) {
+
+        }
         BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(erp);
         log.info("装车添加协助人-获取员工信息接口响应结果={}", JSON.toJSONString(bssod));
         if (null == bssod || StringUtils.isBlank(bssod.getStaffName())) {
