@@ -128,12 +128,12 @@ public class WeightVolumeFilter implements Filter {
             return  false;
         }
 
-        //如果是全国拦截,直接返回
-        if(funcSwitchConfigService.getAllCountryFromCacheOrDb(FuncSwitchConfigEnum.FUNCTION_ALL_MAIL.getCode())){
-            return true;
+        //如果是全国有效,直接返回不拦截
+        if(!funcSwitchConfigService.getAllCountryFromCacheOrDb(FuncSwitchConfigEnum.FUNCTION_ALL_MAIL.getCode())){
+            return false;
         }
 
-        //不是全国
+        //不是全国-查询站点维度
         if(request.getCreateSiteCode()!=null){
             Integer  siteCode = request.getCreateSiteCode();
             //当缓存中存在时

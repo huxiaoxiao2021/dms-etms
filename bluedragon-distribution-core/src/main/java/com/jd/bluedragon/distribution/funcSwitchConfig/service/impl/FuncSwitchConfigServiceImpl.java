@@ -506,7 +506,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
 
                 //全国数据没查到，还要查站点维度
                 if(YnValue == null){
-                    return false;
+                    return true;
                 }
 
                 isAllMailFilter = YnValue == YnEnum.YN_ON.getCode() ? false: true;
