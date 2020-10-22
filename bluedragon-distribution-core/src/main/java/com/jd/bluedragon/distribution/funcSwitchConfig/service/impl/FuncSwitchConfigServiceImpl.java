@@ -259,7 +259,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
                         if (longBaseDmsAutoJsfResponseAll == null || longBaseDmsAutoJsfResponseAll.getStatusCode() != BaseDmsAutoJsfResponse.SUCCESS_CODE) {
                             throw  new Exception("分拣机开关-置为开on调用失败,全国");
                         }
-                        jimdbCacheService.del(DimensionEnum.NATIONAL.getCachePreKey());
+                        jimdbCacheService.del(getAllCountTyCacheKey(DimensionEnum.NATIONAL.getCachePreKey(),FuncSwitchConfigEnum.FUNCTION_ALL_MAIL.getCode()));
                     } else if(dto.getDimensionCode()==DimensionEnum.SITE.getCode()){
                         if(CollectionUtils.isEmpty(siteCodes)){
                             siteCodes = new ArrayList<>();
@@ -284,7 +284,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
                     throw  new Exception("分拣机开关-置为开on调用失败,站点:"+siteCodes);
                 }
                 for (Integer siteCode:siteCodes){
-                    jimdbCacheService.del(DimensionEnum.SITE.getCachePreKey()+siteCode);
+                    jimdbCacheService.del(getSiteCacheKey(DimensionEnum.SITE.getCachePreKey(),FuncSwitchConfigEnum.FUNCTION_ALL_MAIL.getCode(),siteCode);
                 }
             }
         }catch (Exception e){
@@ -483,7 +483,6 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
         }
     }
 
-
     /**
      * 全国维度 从缓存或数据库中获取拦截标识
      * true 全国拦截   false 全国不拦截-走站点维度
@@ -492,7 +491,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
      */
     public boolean getAllCountryFromCacheOrDb(Integer menuCode){
         boolean isAllMailFilter = false;
-        String cacheKey = DimensionEnum.NATIONAL.getCachePreKey()+menuCode;
+        String cacheKey = getAllCountTyCacheKey(DimensionEnum.NATIONAL.getCachePreKey(),menuCode);
         try {
             String  cacheValue = jimdbCacheService.get(cacheKey);
             if(StringUtils.isNotEmpty(cacheValue)) {
@@ -515,7 +514,6 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
         return isAllMailFilter;
     }
 
-
     /**
      * 站点维度 通过站点维度查询 开关状态
      * 站点维度默认拦截
@@ -525,7 +523,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
      */
     public boolean getSiteFlagFromCacheOrDb(Integer menuCode,Integer siteCode){
         boolean isAllMailFilter = true;
-        String cacheKey = DimensionEnum.SITE.getCachePreKey()+menuCode+"_"+siteCode;
+        String cacheKey = getSiteCacheKey(DimensionEnum.SITE.getCachePreKey(),menuCode,siteCode);
         try {
             String  cacheValue = jimdbCacheService.get(cacheKey);
             if(StringUtils.isNotEmpty(cacheValue)) {
@@ -585,5 +583,24 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
             logger.error("众邮运单个人维度拦截判断异常cacheKey:{},menuCode:{}",cacheKey,menuCode,e);
         }
         return isAllMailFilter;
+    }
+
+    /**
+     * 返回全国维度缓存key
+     * @param menuCode
+     */
+    public String getAllCountTyCacheKey(String cachePre,Integer menuCode){
+        return  cachePre+menuCode;
+    }
+
+    /**
+     * 返回站点维度缓存key
+     * @param cachePre
+     * @param menuCode
+     * @param siteCode
+     * @return
+     */
+    public String getSiteCacheKey(String cachePre,Integer menuCode,Integer siteCode){
+       return cachePre + menuCode+"_"+siteCode;
     }
 }
