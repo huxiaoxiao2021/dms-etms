@@ -124,13 +124,11 @@ public class GoodsLoadingScanningServiceImplTest {
         param.setTaskId(1L);
 
         param.setPackageCode("PA002");//多个改数
-        for(int i=0; i<=2 ; i++) {
-            JdCResponse res = goodsLoadingScanningService.goodsRemoveScanning(param);
-            System.out.println(res.getCode() + "----" + res.getMessage());
-        }
+        JdCResponse res = goodsLoadingScanningService.goodsRemoveScanning(param);
+        System.out.println(res.getCode() + "----" + res.getMessage());
 
         param.setPackageCode("PA001");//多个改数
-        JdCResponse res = goodsLoadingScanningService.goodsRemoveScanning(param);
+        res = goodsLoadingScanningService.goodsRemoveScanning(param);
         System.out.println(res.getCode() + "----" + res.getMessage());
 
         System.out.println("-----------------end-----------------");

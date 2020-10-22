@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.ExceptionScanDto;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan;
+import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanException;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.ExceptionScanService;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanService;
@@ -17,6 +18,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -156,6 +159,7 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
 //    }
 
     @Override
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public boolean goodsCompulsoryDeliver(GoodsExceptionScanningReq req) {
         Long taskNo = req.getTaskId();
         for(int i=0; i<req.getWaybillCode().size(); i++) {
@@ -165,8 +169,9 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
             GoodsLoadScan cacheRes = jimdbCacheService.get(cacheKey, GoodsLoadScan.class);
             if(cacheRes == null || cacheRes.getId() == null) {
                 cacheRes = goodsLoadScanDao.findLoadScanByTaskIdAndWaybillCode(taskNo, req.getWaybillCode().get(i));
-                if(cacheRes == null) {
-                    return false;
+                if(cacheRes == null) {//强发操作时，必须有运单信息
+                    throw new GoodsLoadScanException("运单强发操作失败，未查到该运单");
+//                    return false;
                 }
             }
 
@@ -178,13 +183,14 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
             gls.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_ORANGE);
             gls.setId(cacheRes.getId());
 
-            log.info("ExceptionScanServiceImpl#goodsCompulsoryDeliver 强发运单状态记录--begin--参数【"+ JsonHelper.toJson(gls) + "】");
+            log.info("ExceptionScanServiceImpl#goodsCompulsoryDeliver 运单强制下发，运单记录表修改--begin--参数【"+ JsonHelper.toJson(gls) + "】");
             boolean res = goodsLoadScanDao.updateByPrimaryKey(gls);
             if(!res) {
-                log.info("ExceptionScanServiceImpl#goodsCompulsoryDeliver 强发运单状态记录--error--参数【"+ JsonHelper.toJson(gls) + "】");
-                return false;
+                log.info("ExceptionScanServiceImpl#goodsCompulsoryDeliver 运单强制下发，运单记录表修改--error--参数【"+ JsonHelper.toJson(gls) + "】");
+                throw new GoodsLoadScanException("运单强制下发，运单记录表修改失败");
+//                return false;
             }
-            log.info("ExceptionScanServiceImpl#goodsCompulsoryDeliver 强发运单状态记录--end--参数【"+ JsonHelper.toJson(gls) + "】");
+            log.info("ExceptionScanServiceImpl#goodsCompulsoryDeliver 运单强制下发，运单记录表修改--end--参数【"+ JsonHelper.toJson(gls) + "】");
 
 
             GoodsLoadScanRecord param = new GoodsLoadScanRecord();
@@ -204,7 +210,8 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
                     int resNum = goodsLoadScanRecordDao.updateGoodsScanRecordById(record);
                     if(resNum < 1) {
                         log.info("ExceptionScanServiceImpl#goodsCompulsoryDeliver 强发包裹状态记录--error--参数【"+ JsonHelper.toJson(record) + "】");
-                        return  false;
+                        throw new GoodsLoadScanException("运单强制下发包裹信息记录失败");
+//                        return  false;
                     }
                     log.info("ExceptionScanServiceImpl#goodsCompulsoryDeliver 强发包裹状态记录--end--参数【"+ JsonHelper.toJson(record) + "】");
                 }

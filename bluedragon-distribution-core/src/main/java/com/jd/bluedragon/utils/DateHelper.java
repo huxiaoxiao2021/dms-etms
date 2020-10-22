@@ -449,4 +449,20 @@ public class DateHelper {
         }
         return StringUtils.EMPTY;
     }
+
+
+    /**
+     * 两个日期天数差
+     *
+     * @param startDate
+     * @param endDate
+     * @return
+     */
+    public static int daysDiff(Date startDate, Date endDate) {
+        if (startDate == null || endDate == null) {
+            return 0;
+        }
+        int days = (int) ((endDate.getTime() - startDate.getTime()) / (24 * 3600 * 1000));
+        return days;
+    }
 }
