@@ -353,7 +353,10 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
         // 包裹号转板号标识
         Integer transfer = req.getTransfer();
 
+        log.info("开始调用暂存接口：taskId={},packageCode={},transfer={}", taskId, packageCode, transfer);
+
         if (StringUtils.isBlank(packageCode)) {
+            log.warn("开始调用暂存接口--参数校验--包裹号不能为空：taskId={},packageCode={},transfer={}", taskId, packageCode, transfer);
             response.setCode(JdCResponse.CODE_FAIL);
             response.setMessage("包裹号不能为空");
             return response;
@@ -367,12 +370,15 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             response.setMessage("根据任务号找不到对应的装车任务");
             return response;
         }
+        log.info("开始调用暂存接口--任务合法：taskId={},packageCode={},transfer={}", taskId, packageCode, transfer);
 
         // 如果没有勾选【包裹号转板号】
         if (transfer == null || transfer != 1) {
+            log.info("开始调用暂存接口--没有勾选【包裹号转板号】：taskId={},packageCode={},transfer={}", taskId, packageCode, transfer);
             // 校验是否已验货,并暂存包裹号
             return loadScanService.checkInspectAndSave(req, response, loadCar);
         }
+        log.info("开始调用暂存接口--勾选【包裹号转板号】：taskId={},packageCode={},transfer={}", taskId, packageCode, transfer);
 
         // 勾选【包裹号转板号】
         return loadScanService.saveLoadScanByBoardCode(req, response, loadCar);

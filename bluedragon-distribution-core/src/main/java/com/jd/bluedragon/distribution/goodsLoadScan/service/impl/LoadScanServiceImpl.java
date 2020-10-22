@@ -483,6 +483,8 @@ public class LoadScanServiceImpl implements LoadScanService {
         Integer flowDisAccord = req.getFlowDisaccord();
         User user = req.getUser();
 
+        log.info("板号暂存接口--根据包裹号找板号开始：taskId={},packageCode={},transfer={},flowDisAccord={}", taskId, packageCode, transfer, flowDisAccord);
+
         // 根据包裹号查板号
         Board board = getBoardCodeByPackageCode(loadCar.getCreateSiteCode().intValue(), packageCode);
         if (board == null) {
@@ -491,6 +493,8 @@ public class LoadScanServiceImpl implements LoadScanService {
             response.setMessage("根据包裹号没有找到对应的板号");
             return response;
         }
+        log.info("板号暂存接口--根据包裹号找板号结束：taskId={},packageCode={},transfer={},flowDisAccord={}", taskId, packageCode, transfer, flowDisAccord);
+
         String boardCode = board.getCode();
         Response<List<String>> result = groupBoardManager.getBoxesByBoardCode(boardCode);
         if (result == null || result.getCode() != ResponseEnum.SUCCESS.getIndex()
@@ -500,10 +504,13 @@ public class LoadScanServiceImpl implements LoadScanService {
             response.setMessage("根据板号没有找到对应的包裹列表");
             return response;
         }
+        log.info("板号暂存接口--根据板号找板上的所有包裹结束：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
+                packageCode, transfer, flowDisAccord, boardCode);
 
         // 扫描第一个包裹时，修改任务状态为已开始
         updateTaskStatus(loadCar, user);
-
+        log.info("板号暂存接口--更新任务状态结束：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
+                packageCode, transfer, flowDisAccord, boardCode);
         // 根据板号判断是否是重复扫
         GoodsLoadScanRecord loadScanRecord = goodsLoadScanRecordDao
                 .findLoadScanRecordByTaskIdAndBoardCode(taskId, boardCode);
@@ -514,7 +521,8 @@ public class LoadScanServiceImpl implements LoadScanService {
             response.setMessage("该板号属于重复扫！");
             return response;
         }
-
+        log.info("板号暂存接口--板号不属于重复扫：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
+                packageCode, transfer, flowDisAccord, boardCode);
         List<LoadScanDto> loadScanDtoList = new ArrayList<>();
         List<GoodsLoadScanRecord> recordList = new ArrayList<>();
         // 运单，包裹数
@@ -545,6 +553,8 @@ public class LoadScanServiceImpl implements LoadScanService {
             recordList.add(goodsLoadScanRecord);
         }
 
+        log.info("板号暂存接口--根据板号上的运单号去分拣报表反查开始：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
+                packageCode, transfer, flowDisAccord, boardCode);
         // 根据运单号列表去分拣报表查找已验未发对应的库存数
         List<LoadScanDto> scanDtoList = getLoadScanListByWaybillCode(loadScanDtoList, loadCar.getCreateSiteCode().intValue());
         if (scanDtoList == null || scanDtoList.isEmpty()) {
@@ -553,8 +563,12 @@ public class LoadScanServiceImpl implements LoadScanService {
             response.setMessage("根据板号上的包裹号去反查分拣报表返回为空");
             return response;
         }
+        log.info("板号暂存接口--根据板号上的运单号去分拣报表反查结束：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
+                packageCode, transfer, flowDisAccord, boardCode);
         // 获取锁
         if (!lock(recordList.get(0))) {
+            log.info("板号暂存接口--获取锁失败：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
+                    packageCode, transfer, flowDisAccord, boardCode);
             response.setCode(JdCResponse.CODE_FAIL);
             response.setMessage("多人同时操作该包裹所在的板，请稍后重试！");
             return response;
@@ -581,6 +595,8 @@ public class LoadScanServiceImpl implements LoadScanService {
         }
         // 释放锁
         unLock(recordList.get(0));
+        log.info("板号暂存接口--锁释放：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
+                packageCode, transfer, flowDisAccord, boardCode);
         return response;
     }
 
@@ -891,6 +907,7 @@ public class LoadScanServiceImpl implements LoadScanService {
 
         JdCResponse<Void> response = new JdCResponse<>();
 
+        log.info("常规包裹号后续校验--开始暂存前校验--是否属于重复扫：taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
         // 校验重复扫
         GoodsLoadScanRecord record = new GoodsLoadScanRecord();
         record.setTaskId(taskId);
@@ -906,13 +923,14 @@ public class LoadScanServiceImpl implements LoadScanService {
             response.setMessage("该包裹号已扫描装车，请勿重复扫描！");
             return response;
         }
-
+        log.info("常规包裹号后续校验--包裹不属于重复扫：taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
 
         // 如果不是重复扫，包裹扫描记录表新增一条记录
         GoodsLoadScanRecord newLoadScanRecord = createGoodsLoadScanRecord(taskId, waybillCode, packageCode,
                 null, transfer, flowDisAccord, user);
         GoodsLoadScan newLoadScan = createGoodsLoadScan(taskId, waybillCode, packageCode, goodsAmount, flowDisAccord, user);
         updateGoodsLoadScanAmount(newLoadScan, newLoadScanRecord, createSiteId);
+        log.info("常规包裹号后续校验--暂存结束：taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
 
         response.setCode(JdCResponse.CODE_SUCCESS);
         return response;
