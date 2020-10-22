@@ -98,15 +98,19 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
             ProceedFilterChain proceedFilterChain = getProceedFilterChain();
             proceedFilterChain.doFilter(filterContext, proceedFilterChain);
             if (this.isNeedCheck(uccPropertyConfiguration.getSwitchVerToWebSites(), pdaOperateRequest.getCreateSiteCode())) {
+                logger.info("分拣校验1packageCode[{}]pdaOperateRequest[{}]",pdaOperateRequest.getPackageCode(),JsonHelper.toJson(pdaOperateRequest));
                 Integer businessType = pdaOperateRequest.getBusinessType();
                 if (BusinessUtil.isForward(businessType)) {
+                    logger.info("分拣校验2packageCode[{}]pdaOperateRequest[{}]",pdaOperateRequest.getPackageCode(),JsonHelper.toJson(pdaOperateRequest));
                     ForwardFilterChain forwardFilterChain = getForwardFilterChain();
                     forwardFilterChain.doFilter(filterContext, forwardFilterChain);
                 } else if (BusinessUtil.isReverse(businessType)) {
+                    logger.info("分拣校验3packageCode[{}]pdaOperateRequest[{}]",pdaOperateRequest.getPackageCode(),JsonHelper.toJson(pdaOperateRequest));
                     ReverseFilterChain reverseFilterChain = getReverseFilterChain();
                     reverseFilterChain.doFilter(filterContext, reverseFilterChain);
                 }
             } else {
+                logger.info("分拣校验4packageCode[{}]pdaOperateRequest[{}]",pdaOperateRequest.getPackageCode(),JsonHelper.toJson(pdaOperateRequest));
                 SortingCheck sortingCheck = convertToSortingCheck(pdaOperateRequest);
                 response = jsfSortingResourceService.check(sortingCheck);
             }
