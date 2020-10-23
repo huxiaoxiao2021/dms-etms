@@ -165,6 +165,11 @@ public class UccPropertyConfiguration {
      */
     private boolean   controlCheckRoute;
 
+    /**
+     * 取消发货校验封车业务开关。1：开启 0：关闭
+     */
+    private String dellCancelDeliveryCheckSealCar;
+
     public boolean isLogToBusinessLogByKafka() {
         return logToBusinessLogByKafka;
     }
@@ -467,5 +472,13 @@ public class UccPropertyConfiguration {
 
     public void setControlCheckRoute(boolean controlCheckRoute) {
         this.controlCheckRoute = controlCheckRoute;
+    }
+
+    public String getDellCancelDeliveryCheckSealCar() {
+        return dellCancelDeliveryCheckSealCar;
+    }
+
+    public void setDellCancelDeliveryCheckSealCar(String dellCancelDeliveryCheckSealCar) {
+        this.dellCancelDeliveryCheckSealCar = dellCancelDeliveryCheckSealCar;
     }
 }

@@ -11,6 +11,7 @@ import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.ColdChainQuarantineManager;
 import com.jd.bluedragon.core.base.DmsInterturnManager;
+import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -118,6 +119,7 @@ import com.jd.dms.logger.external.LogEngine;
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
 import com.jd.etms.vos.dto.CommonDto;
+import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -173,6 +175,16 @@ public class DeliveryServiceImpl implements DeliveryService {
     private final int MAX_SHOW_NUM = 3;
 
     private final String PERFORMANCE_DMSSITECODE_SWITCH = "performance.dmsSiteCode.switch";
+
+    /**
+     * 封车状态 已封车
+     */
+    private final Integer SEAL_CAR_STATUS_SEAL=10;
+
+    /**
+     * 封车状态 已解封车
+     */
+    private final Integer SEAL_CAR_STATUS_UNSEAL=20;
 
     @Autowired
     B2BRouterService b2bRouterService;
@@ -357,6 +369,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private WaybillCacheService waybillCacheService;
+
+    @Autowired
+    private VosManager vosManager;
     /**
      * 自动过期时间 15分钟
      */
@@ -1984,6 +1999,183 @@ public class DeliveryServiceImpl implements DeliveryService {
         return new ThreeDeliveryResponse(
                 DeliveryResponse.CODE_Delivery_NO_MESAGE,
                 DeliveryResponse.MESSAGE_Delivery_NO_REQUEST, null);
+    }
+
+    /**
+     * 取消发货校验封车业务
+     * 1、已解封车不允许取消发货
+     * 2、封车超过一小时不允许取消发货
+     * 3、取消发货后批次内货物不允许为空
+     * @param tSendM
+     * @return
+     */
+    @JProfiler(jKey = "DMSWEB.DeliveryService.dellCancelDeliveryCheckSealCar", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    @Override
+    public DeliveryResponse dellCancelDeliveryCheckSealCar(SendM tSendM) {
+        try {
+
+            String isCheck=uccPropertyConfiguration.getDellCancelDeliveryCheckSealCar();
+            if(Constants.STRING_FLG_FALSE.equals(isCheck)){
+                return new DeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+            }
+
+            boolean isPackageCode=WaybillUtil.isPackageCode(tSendM.getBoxCode());
+            boolean isWaybillCode=WaybillUtil.isWaybillCode(tSendM.getBoxCode());
+            boolean isSurfaceCode=WaybillUtil.isSurfaceCode(tSendM.getBoxCode());
+            boolean isBoxcode=BusinessHelper.isBoxcode(tSendM.getBoxCode());
+            boolean isBoardCode=BusinessUtil.isBoardCode(tSendM.getBoxCode());
+
+            // 按照运单取消处理
+            if (isPackageCode || isWaybillCode || isSurfaceCode) {
+                SendDetail sendDetail = new SendDetail();
+                if (isWaybillCode) {
+                    sendDetail.setWaybillCode(tSendM.getBoxCode());
+                } else {
+                    sendDetail.setPackageBarcode(tSendM.getBoxCode());
+                }
+                sendDetail.setCreateSiteCode(tSendM.getCreateSiteCode());
+                sendDetail.setReceiveSiteCode(tSendM.getReceiveSiteCode());
+                sendDetail.setIsCancel(OPERATE_TYPE_CANCEL_L);
+                //查询Send_d表中的批次号
+                String sendCode = this.sendDatailDao.querySendCodeBySelective(sendDetail);
+                if (StringHelper.isEmpty(sendCode)) {
+                    if(isWaybillCode){
+                        return new DeliveryResponse(DeliveryResponse.CODE_Delivery_NO_MESAGE, DeliveryResponse.MESSAGE_Delivery_NO_WAYBILL);
+                    }else {
+                        return new DeliveryResponse(DeliveryResponse.CODE_Delivery_NO_MESAGE, DeliveryResponse.MESSAGE_Delivery_NO_PACKAGE);
+                    }
+                }
+
+                sendDetail.setSendCode(sendCode);
+                return checkAllow(sendDetail,isPackageCode || isSurfaceCode,isWaybillCode,isBoxcode);
+            } else if (isBoxcode) {
+                //查询Send_m表中的批次号
+                String sendCode = this.sendMDao.querySendCodeBySelective(tSendM);
+                if (StringHelper.isEmpty(sendCode)) {
+                    return new DeliveryResponse(DeliveryResponse.CODE_Delivery_NO_MESAGE, DeliveryResponse.MESSAGE_Delivery_NO_MESAGE);
+                }
+
+                SendDetail sendDetail = new SendDetail();
+                sendDetail.setBoxCode(tSendM.getBoxCode());
+                sendDetail.setSendCode(sendCode);
+                sendDetail.setCreateSiteCode(tSendM.getCreateSiteCode());
+                sendDetail.setReceiveSiteCode(tSendM.getReceiveSiteCode());
+                sendDetail.setIsCancel(OPERATE_TYPE_CANCEL_L);
+                return checkAllow(sendDetail,isPackageCode || isSurfaceCode,isWaybillCode,isBoxcode);
+            } else if (isBoardCode){
+                tSendM.setBoardCode(tSendM.getBoxCode());
+                DeliveryResponse checkResponse =sealCarCheck(tSendM.getSendCode());
+                //如果是未封车，则直接返回不拦截
+                if (checkResponse.getCode().equals(DeliveryResponse.CODE_CANCELDELIVERYCHECK_NOSEAL)) {
+                    return new DeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+                }
+                //如果封车状态校验不通过，则返回拦截
+                if (!checkResponse.getCode().equals(JdResponse.CODE_OK)) {
+                    return new DeliveryResponse(checkResponse.getCode(),checkResponse.getMessage());
+                }
+
+                List<String> sendMList = sendMDao.selectBoxCodeByBoardCodeAndSendCode(tSendM);
+                if(sendMList == null || sendMList.isEmpty()){
+                    //提示没有找到板号的发货明细
+                    return new DeliveryResponse(DeliveryResponse.CODE_Delivery_NO_MESAGE, DeliveryResponse.MESSAGE_NO_BOARDSEND_DETAIL_ERROR);
+                }
+
+                SendDetail sendDetail = new SendDetail();
+                sendDetail.setSendCode(tSendM.getSendCode());
+                sendDetail.setCreateSiteCode(tSendM.getCreateSiteCode());
+                sendDetail.setReceiveSiteCode(tSendM.getReceiveSiteCode());
+                sendDetail.setIsCancel(OPERATE_TYPE_CANCEL_L);
+
+                List<String> sendDList=sendDatailDao.queryBoxCodeSingleBySendCode(sendDetail);
+                if(sendDList == null || sendDList.isEmpty()){
+                    //提示没有找到板号的发货明细
+                    return new DeliveryResponse(DeliveryResponse.CODE_Delivery_NO_MESAGE, DeliveryResponse.MESSAGE_NO_BOARDSEND_DETAIL_ERROR);
+                }
+
+                sendDList.removeAll(sendMList);
+                if(sendDList == null || sendDList.isEmpty()){
+                    return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_ONLY, DeliveryResponse.MESSAGE_CANCELDELIVERYCHECK_ONLY_BOARD);
+                }
+
+                return new DeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+            }
+        } catch (Exception e) {
+            log.error("取消发货校验封车异常", e);
+            return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_ERROR, DeliveryResponse.MESSAGE_CANCELDELIVERYCHECK_ERR);
+        }
+
+        return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_ERROR, DeliveryResponse.MESSAGE_CANCELDELIVERYCHECK_ERR);
+    }
+
+    /**
+     * 校验是否允许取消发货
+     * @param querySendDatail
+     * @param isPackageCode
+     * @param isWaybillCode
+     * @param isBoxcode
+     * @return
+     */
+    public DeliveryResponse checkAllow(SendDetail querySendDatail,boolean isPackageCode,boolean isWaybillCode,boolean isBoxcode){
+        DeliveryResponse checkResponse =sealCarCheck(querySendDatail.getSendCode());
+        //如果是未封车，则直接返回不拦截
+        if (checkResponse.getCode().equals(DeliveryResponse.CODE_CANCELDELIVERYCHECK_NOSEAL)) {
+            return new DeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+        }
+        //如果封车状态校验不通过，则返回拦截
+        if (!checkResponse.getCode().equals(JdResponse.CODE_OK)) {
+            return new DeliveryResponse(checkResponse.getCode(),checkResponse.getMessage());
+        }
+
+        //如果取消后批次内无货物
+        if(sendDatailDao.queryCountExclusion(querySendDatail)<=0){
+            if(isPackageCode){
+                return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_ONLY, DeliveryResponse.MESSAGE_CANCELDELIVERYCHECK_ONLY_PACKAGE);
+            }
+
+            if(isWaybillCode){
+                return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_ONLY, DeliveryResponse.MESSAGE_CANCELDELIVERYCHECK_ONLY_WAYBILL);
+            }
+
+            if(isBoxcode){
+                return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_ONLY, DeliveryResponse.MESSAGE_CANCELDELIVERYCHECK_ONLY_BOX);
+            }
+        }
+
+        return new DeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+    }
+
+
+    /**
+     * 根据批次号获取封车状态并判断是否可以取消发货
+     * @param batchCode
+     * @return
+     */
+    public DeliveryResponse sealCarCheck(String batchCode){
+        try{
+            SealCarDto sealCarInfo= vosManager.querySealCarByBatchCode(batchCode);
+            if (sealCarInfo != null) {
+                //如果是已解封车状态返回拦截
+                if(SEAL_CAR_STATUS_UNSEAL.equals(sealCarInfo.getStatus())){
+                    return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_UNSEAL, DeliveryResponse.MESSAGE_CANCELDELIVERYCHECK_UNSEAL);
+                }
+
+                //已封车状态
+                if(SEAL_CAR_STATUS_SEAL.equals(sealCarInfo.getStatus())){
+                    long date = System.currentTimeMillis();
+                    //封车时间大于一小时
+                    if(date - (sealCarInfo.getSealCarTime()==null ? 0 :sealCarInfo.getSealCarTime().getTime()) > DateHelper.ONE_HOUR_MILLI){
+                        return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_SEAL, DeliveryResponse.MESSAGE_CANCELDELIVERYCHECK_SEAL);
+                    }
+                }
+            }else {
+                return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_NOSEAL, DeliveryResponse.MESSAGE_CANCELDELIVERYCHECK_NOSEAL);
+            }
+        }catch (Exception ex){
+            log.error("根据批次号获取封车状态时异常", ex);
+            return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_ERROR, DeliveryResponse.MESSAGE_CANCELDELIVERYCHECK_ERROR);
+        }
+
+        return new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
     }
 
     //将板号由“关闭”状态变更未“组板中”状态

@@ -75,6 +75,7 @@
 		<property name="economicNetValidateWeightSwitch" value="${economicNetValidateWeightSwitch:true}"/>
 		<property name="controlCheckPackage" value="${controlCheckPackage:true}"/>
 		<property name="controlCheckRoute" value="${controlCheckRoute:true}"/>
+		<property name="dellCancelDeliveryCheckSealCar" value="${dellCancelDeliveryCheckSealCar}" />
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -120,6 +121,7 @@
 				<value>uccPropertyConfiguration.economicNetValidateWeightSwitch</value>
 				<value>uccPropertyConfiguration.controlCheckPackage</value>
 				<value>uccPropertyConfiguration.controlCheckRoute</value>
+				<value>uccPropertyConfiguration.dellCancelDeliveryCheckSealCar</value>
 			</list>
 		</property>
 	</bean>
