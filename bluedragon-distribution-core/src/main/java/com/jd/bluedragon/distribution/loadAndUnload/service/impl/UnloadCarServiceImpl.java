@@ -237,6 +237,18 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         String sealCarCode = request.getSealCarCode();
         String boardCode = request.getBoardCode();
         String packageCode = request.getBarCode();
+
+        //拦截的包裹不能重复扫描
+        try {
+            String key = CacheKeyConstants.REDIS_PREFIX_SEAL_PACK_INTERCEPT + sealCarCode + Constants.SEPARATOR_HYPHEN + packageCode;
+            String isExistIntercept = redisClientCache.get(key);
+            if(StringUtils.isNotBlank(isExistIntercept)){
+                throw new LoadIllegalException(String.format(LoadIllegalException.BORCODE_SEALCAR_INTERCEPT_EXIST_MESSAGE,packageCode,boardCode));
+            }
+        }catch (Exception e){
+            logger.error("获取缓存【{}】异常","",e);
+        }
+
         int unScanPackageCount = 0;
         boolean isSurfacePackage = false;
         try {
@@ -254,18 +266,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         if(StringUtils.isEmpty(request.getBoardCode())){
             return;
         }
-
-        //拦截的包裹不能重复扫描
-        try {
-            String key = CacheKeyConstants.REDIS_PREFIX_SEAL_PACK_INTERCEPT + sealCarCode + Constants.SEPARATOR_HYPHEN + packageCode;
-            String isExistIntercept = redisClientCache.get(key);
-            if(StringUtils.isNotBlank(isExistIntercept)){
-                throw new LoadIllegalException(String.format(LoadIllegalException.BORCODE_SEALCAR_INTERCEPT_EXIST_MESSAGE,packageCode,boardCode));
-            }
-        }catch (Exception e){
-            logger.error("获取缓存【{}】异常","",e);
-        }
-
         boolean scanIsSuccess = false;
         String scanIsSuccessStr = null;
         try {
@@ -1363,7 +1363,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     private void setCacheOfSealCarAndPackageIntercet(String sealCarCode, String borCode){
         try {
             String key = CacheKeyConstants.REDIS_PREFIX_SEAL_PACK_INTERCEPT + sealCarCode + Constants.SEPARATOR_HYPHEN + borCode;
-            redisClientCache.setEx(key,String.valueOf(true),7,TimeUnit.DAYS);
+            redisClientCache.setEx(key, borCode,7,TimeUnit.DAYS);
         }catch (Exception e){
             logger.error("设置封车【{}】包裹【{}】拦截重复缓存异常",sealCarCode,borCode,e);
         }
