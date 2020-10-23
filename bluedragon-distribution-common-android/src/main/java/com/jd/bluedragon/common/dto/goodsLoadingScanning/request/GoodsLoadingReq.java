@@ -3,12 +3,13 @@ package com.jd.bluedragon.common.dto.goodsLoadingScanning.request;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * 装货完成发货请求入参
  */
-public class GoodsLoadingReq {
+public class GoodsLoadingReq implements Serializable  {
     private static final long serialVersionUID = 1L;
 
     /**

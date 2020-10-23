@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.goodsLoadScan.dao;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +22,7 @@ public class GoodsLoadScanRecordDao extends BaseDao {
     }
 
     public List<GoodsLoadScanRecord> selectListByCondition(GoodsLoadScanRecord record) {
-
+        record.setYn(GoodsLoadScanConstants.YN_Y);
         return this.getSqlSession().selectList(namespace + ".selectListByCondition",record);
     }
 

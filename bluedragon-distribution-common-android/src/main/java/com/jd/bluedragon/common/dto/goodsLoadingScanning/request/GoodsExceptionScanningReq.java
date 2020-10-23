@@ -3,12 +3,14 @@ package com.jd.bluedragon.common.dto.goodsLoadingScanning.request;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * 不齐异常扫描请求
+ *
  */
-public class GoodsExceptionScanningReq {
+public class GoodsExceptionScanningReq implements Serializable {
     private static final long serialVersionUID = 1L;
 
 //    任务号

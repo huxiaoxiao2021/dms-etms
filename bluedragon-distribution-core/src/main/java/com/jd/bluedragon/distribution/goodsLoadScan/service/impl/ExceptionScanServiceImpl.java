@@ -189,7 +189,6 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
             if(!res) {
                 log.info("ExceptionScanServiceImpl#goodsCompulsoryDeliver 运单强制下发，运单记录表修改--error--参数【"+ JsonHelper.toJson(gls) + "】");
                 throw new GoodsLoadScanException("运单强制下发，运单记录表修改失败");
-//                return false;
             }
             log.info("ExceptionScanServiceImpl#goodsCompulsoryDeliver 运单强制下发，运单记录表修改--end--参数【"+ JsonHelper.toJson(gls) + "】");
 
@@ -199,23 +198,20 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
             param.setWayBillCode(cacheRes.getWayBillCode());
             List<GoodsLoadScanRecord> goodsRecordList  =  goodsLoadScanRecordDao.selectListByCondition(param);
 
-            if(goodsRecordList != null && goodsRecordList.size() > 0) {
-                for(int k = 0; k < goodsRecordList.size(); k++) {
-                    GoodsLoadScanRecord record = new GoodsLoadScanRecord();
-                    record.setId(goodsRecordList.get(k).getId());
-                    record.setForceStatus(GoodsLoadScanConstants.GOODS_LOAD_SCAN_FORCE_STATUS_Y);//强发
-                    record.setUpdateTime(new Date());
-                    record.setUpdateUserName(req.getUser().getUserName());
-                    record.setUpdateUserCode(req.getUser().getUserCode());
-                    log.info("ExceptionScanServiceImpl#goodsCompulsoryDeliver 强发包裹状态记录--begin--参数【"+ JsonHelper.toJson(record) + "】");
-                    int resNum = goodsLoadScanRecordDao.updateGoodsScanRecordById(record);
-                    if(resNum < 1) {
-                        log.info("ExceptionScanServiceImpl#goodsCompulsoryDeliver 强发包裹状态记录--error--参数【"+ JsonHelper.toJson(record) + "】");
-                        throw new GoodsLoadScanException("运单强制下发包裹信息记录失败");
-//                        return  false;
-                    }
-                    log.info("ExceptionScanServiceImpl#goodsCompulsoryDeliver 强发包裹状态记录--end--参数【"+ JsonHelper.toJson(record) + "】");
+            for(int k = 0; k < goodsRecordList.size(); k++) {
+                GoodsLoadScanRecord record = new GoodsLoadScanRecord();
+                record.setId(goodsRecordList.get(k).getId());
+                record.setForceStatus(GoodsLoadScanConstants.GOODS_LOAD_SCAN_FORCE_STATUS_Y);//强发
+                record.setUpdateTime(new Date());
+                record.setUpdateUserName(req.getUser().getUserName());
+                record.setUpdateUserCode(req.getUser().getUserCode());
+                log.info("ExceptionScanServiceImpl#goodsCompulsoryDeliver 强发包裹状态记录--begin--参数【"+ JsonHelper.toJson(record) + "】");
+                int resNum = goodsLoadScanRecordDao.updateGoodsScanRecordById(record);
+                if(resNum < 1) {
+                    log.info("ExceptionScanServiceImpl#goodsCompulsoryDeliver 强发包裹状态记录--error--参数【"+ JsonHelper.toJson(record) + "】");
+                    throw new GoodsLoadScanException("运单强制下发包裹信息记录失败");
                 }
+                log.info("ExceptionScanServiceImpl#goodsCompulsoryDeliver 强发包裹状态记录--end--参数【"+ JsonHelper.toJson(record) + "】");
             }
 
         }
