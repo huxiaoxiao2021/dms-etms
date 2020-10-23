@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayService {
 
@@ -222,11 +223,17 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             return response;
         }
 
-        if(jimdbCacheService.get(req.getTaskId().toString()) != null) {
-            log.info("任务发货【{}】重复提交", req.getTaskId());
-            response.toFail("任务发货重复提交");
-            return response;
-        }else {
+        String lockKey = req.getTaskId().toString();
+
+        if(!jimdbCacheService.setNx(lockKey, "1",2, TimeUnit.SECONDS)){
+//            Thread.sleep(100);
+            boolean cacheResult = jimdbCacheService.setNx(lockKey, org.apache.commons.lang.StringUtils.EMPTY,2, TimeUnit.SECONDS);
+            if(!cacheResult) {
+                log.info("任务发货【{}】重复提交", req.getTaskId());
+                response.toFail("任务发货重复提交");
+            }
+        }
+
             //防止PDA-1用户在发货页面停留过久，期间PDA-2用户操作了发货，此时发货状态已经改变为已完成，PDA不能再进行发货动作
             Integer taskStatus = loadScanService.findTaskStatus(req.getTaskId());
             if(taskStatus == null) {
@@ -240,10 +247,7 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
 //                response.toFail("未开始任务无法进行发货发货");
 //                return response;
             }
-        }
-
-        jimdbCacheService.setEx(req.getTaskId().toString(), 1, 60);
-//        jimdbCacheService.setEx(req.getTaskId().toString(), 1, 1000);
+//        }
 
         if(req.getSendCode() == null) {
             response.toFail("发货批次号不能为空");
@@ -280,7 +284,10 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             return response;
         }
 
-        return loadScanService.goodsLoadingDeliver(req);
+        response = loadScanService.goodsLoadingDeliver(req);
+        jimdbCacheService.del(lockKey);
+
+        return response;
     }
 
 
