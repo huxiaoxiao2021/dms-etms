@@ -2166,16 +2166,16 @@ public class DeliveryServiceImpl implements DeliveryService {
                     if(date - (sealCarInfo.getSealCarTime()==null ? 0 :sealCarInfo.getSealCarTime().getTime()) > DateHelper.ONE_HOUR_MILLI){
                         return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_SEAL, DeliveryResponse.MESSAGE_CANCELDELIVERYCHECK_SEAL);
                     }
+
+                    return new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
                 }
-            }else {
-                return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_NOSEAL, DeliveryResponse.MESSAGE_CANCELDELIVERYCHECK_NOSEAL);
             }
         }catch (Exception ex){
             log.error("根据批次号获取封车状态时异常", ex);
             return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_ERROR, DeliveryResponse.MESSAGE_CANCELDELIVERYCHECK_ERROR);
         }
 
-        return new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
+        return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_NOSEAL, DeliveryResponse.MESSAGE_CANCELDELIVERYCHECK_NOSEAL);
     }
 
     //将板号由“关闭”状态变更未“组板中”状态
