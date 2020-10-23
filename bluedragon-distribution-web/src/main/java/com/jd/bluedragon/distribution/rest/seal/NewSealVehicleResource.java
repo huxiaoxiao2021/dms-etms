@@ -648,8 +648,8 @@ public class NewSealVehicleResource {
                         sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_SEAL_SUCCESS);
                         sealVehicleResponse.setData(returnCommonDto.getData());
                     }else {
-                        sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_SEAL_SUCCEED_BUT_WARN);
-                        sealVehicleResponse.setMessage(getMsgByList(emptyBatchCode));
+                        sealVehicleResponse.setCode(JdResponse.CODE_OK);
+                        sealVehicleResponse.setMessage(getMsgByList(emptyBatchCode)); //NewSealVehicleResponse.CODE_SEAL_SUCCEED_BUT_WARN
                         sealVehicleResponse.setData(returnCommonDto.getData());
                     }
 
@@ -699,9 +699,8 @@ public class NewSealVehicleResource {
             if (sealVehicleResponse != null) {
                 if (JdResponse.CODE_OK.equals(sealVehicleResponse.getCode())) {
                     if(emptyBatchCode!=null && !emptyBatchCode.isEmpty()){
-                        sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_SEAL_SUCCEED_BUT_WARN);
+                        //sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_SEAL_SUCCEED_BUT_WARN);
                         sealVehicleResponse.setMessage(getMsgByList(emptyBatchCode));
-                        sealVehicleResponse.setData(sealVehicleResponse.getData());
                     }
                 }
             }
