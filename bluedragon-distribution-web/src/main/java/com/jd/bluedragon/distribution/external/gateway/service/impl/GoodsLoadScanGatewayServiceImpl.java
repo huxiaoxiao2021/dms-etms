@@ -50,7 +50,7 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
     @Override
     @JProfiler(jKey = "DMS.BASE.GoodsLoadScanGatewayServiceImpl.goodsRemoveScanning",
             mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
-    public JdCResponse goodsRemoveScanning(GoodsExceptionScanningReq req) {
+    public JdCResponse<Void> goodsRemoveScanning(GoodsExceptionScanningReq req) {
         /*
             1: 先根据包裹号，去暂存记录表里查询该包裹是否存在  不存在未多扫   查询结果中含该包裹运单号
             2： 存在该包裹，去修改下该包裹扫描取消的动作
@@ -92,7 +92,7 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
         GoodsLoadScanRecord record = new GoodsLoadScanRecord();
         record.setTaskId(req.getTaskId());
         record.setPackageCode(req.getPackageCode());
-        log.info("GoodsLoadingScanningServiceImpl#goodsRemoveScanning- 取消发货查询任务号- 参数【" + JsonHelper.toJson(req) + "】");
+//        log.info("GoodsLoadingScanningServiceImpl#goodsRemoveScanning- 取消发货查询任务号- 参数【" + JsonHelper.toJson(req) + "】");
         ExceptionScanDto exceptionScanDto = exceptionScanService.findExceptionGoodsScan(record);//入参 包裹号  包裹状态=1 yn
 
         if(exceptionScanDto == null) {
@@ -108,16 +108,13 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
         exceptionScanDto.setOperatorCode(req.getUser().getUserCode());
         exceptionScanDto.setCurrentSiteCode(req.getCurrentOperate().getSiteCode());
         exceptionScanDto.setCurrentSiteName(req.getCurrentOperate().getSiteName());
-        log.info("GoodsLoadingScanningServiceImpl#goodsRemoveScanning- 取消发货更改不齐异常数据，参数【" + JsonHelper.toJson(exceptionScanDto) + "】");
+//        log.info("GoodsLoadingScanningServiceImpl#goodsRemoveScanning- 取消发货更改不齐异常数据，参数【" + JsonHelper.toJson(exceptionScanDto) + "】");
         boolean removeRes =  exceptionScanService.removeGoodsScan(exceptionScanDto);
 
-        if(removeRes == true) {
-            log.info("GoodsLoadingScanningServiceImpl#goodsRemoveScanning- 取消包裹扫描成功,【" + JsonHelper.toJson(exceptionScanDto) + "】");
-            response.toSucceed("取消包裹扫描成功");
-        } else {
-            log.info("GoodsLoadingScanningServiceImpl#goodsRemoveScanning- 取消包裹扫描失败,【" + JsonHelper.toJson(exceptionScanDto) + "】");
+        if(!removeRes) {
             response.toError("取消包裹扫描失败");
         }
+        response.toSucceed("取消包裹扫描成功");
         return response;
 
     }
@@ -126,7 +123,7 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
     @Override
     @JProfiler(jKey = "DMS.BASE.GoodsLoadScanGatewayServiceImpl.goodsCompulsoryDeliver",
             mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
-    public JdCResponse goodsCompulsoryDeliver(GoodsExceptionScanningReq req) {
+    public JdCResponse<Void> goodsCompulsoryDeliver(GoodsExceptionScanningReq req) {
 
         JdCResponse response = new JdCResponse<Boolean>();
 
@@ -160,7 +157,6 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             }
         }
 
-        log.info("GoodsLoadingScanningServiceImpl#goodsCompulsoryDeliver-强制下发--begin:入参【" + JsonHelper.toJson(req) + "】");
         boolean res = exceptionScanService.goodsCompulsoryDeliver(req);
 
         if(!res) {
@@ -216,7 +212,7 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
     @Override
     @JProfiler(jKey = "DMS.BASE.GoodsLoadScanGatewayServiceImpl.goodsLoadingDeliver",
             mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
-    public JdCResponse goodsLoadingDeliver(GoodsLoadingReq req) {
+    public JdCResponse<Void> goodsLoadingDeliver(GoodsLoadingReq req) {
 
         JdCResponse response = new JdCResponse();
 
@@ -224,11 +220,7 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             response.toFail("任务号不能为空");
             return response;
         }
-        //防重复提交，返回true表示可以提交，false表示已经提交过，缓存中未过期，不允许再重复提交
-//        if(noRepeatSubmitService.checkRepeatSubmit(req.getTaskId()) != 1L) {
-//            response.toFail("任务发货重复提交");
-//            return response;
-//        }
+
         if(jimdbCacheService.get(req.getTaskId().toString()) != null) {
             response.toFail("任务发货重复提交");
             return response;

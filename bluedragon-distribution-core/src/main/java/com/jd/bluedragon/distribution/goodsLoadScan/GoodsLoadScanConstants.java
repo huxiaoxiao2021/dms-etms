@@ -12,7 +12,7 @@ public class GoodsLoadScanConstants {
     public static final Integer GOODS_SCAN_LOAD_YELLOW = 3;
     public static final Integer GOODS_SCAN_LOAD_RED = 4;
 
-    //任务状态
+    //任务状态 未开始-0， 已开始-1， 已完成-2
     public static final Integer GOODS_LOAD_TASK_STATUS_BLANK = 0;
     public static final Integer GOODS_LOAD_TASK_STATUS_BEGIN = 1;
     public static final Integer GOODS_LOAD_TASK_STATUS_END = 2;
@@ -21,11 +21,11 @@ public class GoodsLoadScanConstants {
     public static final Integer YN_Y = 1;
     public static final Integer YN_N = 0;
 
-    //记录多扫标记
+    //记录多扫标记 多扫-1 非多扫-0
     public static final Integer GOODS_LOAD_SCAN_FOLW_DISACCORD_Y = 1;
-    public static final Integer GOODS_LOAD_SCAN_FOLW_DISACCORD_N = 1;
+    public static final Integer GOODS_LOAD_SCAN_FOLW_DISACCORD_N = 0;
 
-    //记录强发标记
+    //记录强发标记  强发-1， 非强发-0
     public static final Integer GOODS_LOAD_SCAN_FORCE_STATUS_Y = 1;
     public static final Integer GOODS_LOAD_SCAN_FORCE_STATUS_N = 0;
 
