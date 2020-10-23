@@ -549,7 +549,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             }
             // 保存扫描记录
             GoodsLoadScanRecord goodsLoadScanRecord = createGoodsLoadScanRecord(taskId, waybillCode, packCode,
-                    boardCode, transfer, flowDisAccord, user);
+                    boardCode, transfer, flowDisAccord, user,loadCar);
             recordList.add(goodsLoadScanRecord);
         }
 
@@ -685,7 +685,7 @@ public class LoadScanServiceImpl implements LoadScanService {
 
         log.info("常规包裹号后续校验--开始暂存：taskId={}", loadCar.getId());
 
-        return saveLoadScanByPackCode(taskId, waybillCode, packageCode, goodsAmount, transfer, flowDisAccord, user, createSiteId);
+        return saveLoadScanByPackCode(taskId, waybillCode, packageCode, goodsAmount, transfer, flowDisAccord, user, createSiteId,loadCar);
     }
 
     /**
@@ -939,7 +939,7 @@ public class LoadScanServiceImpl implements LoadScanService {
      */
     private JdCResponse<Void> saveLoadScanByPackCode(Long taskId, String waybillCode, String packageCode,
                                                      Integer goodsAmount, Integer transfer, Integer flowDisAccord,
-                                                     User user, Integer createSiteId) {
+                                                     User user, Integer createSiteId,LoadCar loadCar) {
 
         JdCResponse<Void> response = new JdCResponse<>();
 
@@ -963,7 +963,7 @@ public class LoadScanServiceImpl implements LoadScanService {
 
         // 如果不是重复扫，包裹扫描记录表新增一条记录
         GoodsLoadScanRecord newLoadScanRecord = createGoodsLoadScanRecord(taskId, waybillCode, packageCode,
-                null, transfer, flowDisAccord, user);
+                null, transfer, flowDisAccord, user,loadCar);
         GoodsLoadScan newLoadScan = createGoodsLoadScan(taskId, waybillCode, packageCode, goodsAmount, flowDisAccord, user);
         updateGoodsLoadScanAmount(newLoadScan, newLoadScanRecord, createSiteId);
         log.info("常规包裹号后续校验--暂存结束：taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
@@ -1106,7 +1106,7 @@ public class LoadScanServiceImpl implements LoadScanService {
 
     private GoodsLoadScanRecord createGoodsLoadScanRecord(Long taskId, String waybillCode, String packageCode,
                                                           String boardCode, Integer transfer, Integer flowDisAccord,
-                                                          User user) {
+                                                          User user,LoadCar loadCar) {
         GoodsLoadScanRecord loadScanRecord = new GoodsLoadScanRecord();
         loadScanRecord.setTaskId(taskId);
         loadScanRecord.setWayBillCode(waybillCode);
@@ -1127,6 +1127,15 @@ public class LoadScanServiceImpl implements LoadScanService {
         loadScanRecord.setCreateTime(new Date());
         loadScanRecord.setUpdateTime(new Date());
         loadScanRecord.setYn(Constants.YN_YES);
+
+
+        //2020 10-23为了装车名词报表增加始发和目的场地id以及各自名称
+        loadScanRecord.setCreateSiteCode(loadCar.getCreateSiteCode());
+        loadScanRecord.setCreateSiteName(loadCar.getCreateSiteName());
+        loadScanRecord.setEndSiteCode(loadCar.getEndSiteCode());
+        loadScanRecord.setEndSiteName(loadCar.getEndSiteName());
+
+
         return loadScanRecord;
     }
 

@@ -47,4 +47,8 @@ public class GoodsLoadScanRecordDao extends BaseDao {
     public boolean batchInsert(List<GoodsLoadScanRecord> records) {
         return super.getSqlSession().insert(namespace + ".batchInsert", records) > 0;
     }
+
+    public int updatePackageForceStatus(GoodsLoadScanRecord record) {
+        return this.getSqlSession().update(namespace + ".updatePackageForceStatus",record);
+    }
 }
