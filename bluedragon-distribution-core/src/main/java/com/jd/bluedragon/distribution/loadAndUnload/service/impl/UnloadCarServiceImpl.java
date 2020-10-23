@@ -208,7 +208,13 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 // 卸车处理并回传TC组板关系
                 dealUnloadAndBoxToBoard(request,isSurplusPackage);
             }else{
-                result.customMessage(InvokeResult.RESULT_SUCCESS_CODE,invokeResult.getMessage());
+                setCacheOfBoardAndPack("",request.getBarCode());
+                if(isSurplusPackage){
+                   updateCache(CacheKeyConstants.REDIS_PREFIX_UNLOAD_SEAL_SURPLUS_PACKAGE_COUNT.concat(request.getSealCarCode()),1);
+                }else {
+                   updateCache(CacheKeyConstants.REDIS_PREFIX_UNLOAD_SEAL_PACKAGE_COUNT.concat(request.getSealCarCode()),1);
+                }
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,invokeResult.getMessage());
             }
             //设置包裹数
             setPackageCount(result.getData());
