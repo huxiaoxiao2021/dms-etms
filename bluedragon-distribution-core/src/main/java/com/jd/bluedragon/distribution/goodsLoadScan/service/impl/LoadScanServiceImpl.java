@@ -935,7 +935,12 @@ public class LoadScanServiceImpl implements LoadScanService {
         GoodsLoadScanRecord newLoadScanRecord = createGoodsLoadScanRecord(taskId, waybillCode, packageCode,
                 null, transfer, flowDisAccord, user,loadCar);
         GoodsLoadScan newLoadScan = createGoodsLoadScan(taskId, waybillCode, packageCode, goodsAmount, flowDisAccord, user);
-        updateGoodsLoadScanAmount(newLoadScan, newLoadScanRecord, createSiteId);
+        try {
+            updateGoodsLoadScanAmount(newLoadScan, newLoadScanRecord, createSiteId);
+        } catch (Exception e) {
+            log.error("常规包裹号后续校验--保存发生异常：taskId={},packageCode={},waybillCode={},e=", taskId, packageCode, waybillCode, e);
+            e.printStackTrace();
+        }
         log.info("常规包裹号后续校验--暂存结束：taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
 
         response.setCode(JdCResponse.CODE_SUCCESS);
