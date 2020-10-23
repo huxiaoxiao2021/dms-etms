@@ -776,6 +776,8 @@ public class LoadScanServiceImpl implements LoadScanService {
             return response;
         }
 
+        response.setCode(JdVerifyResponse.CODE_SUCCESS);
+        response.setMessage(JdVerifyResponse.MESSAGE_SUCCESS);
         return response;
     }
 
@@ -834,6 +836,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         }
 
         response.setCode(JdCResponse.CODE_SUCCESS);
+        response.setMessage(JdCResponse.MESSAGE_SUCCESS);
         return response;
     }
 
