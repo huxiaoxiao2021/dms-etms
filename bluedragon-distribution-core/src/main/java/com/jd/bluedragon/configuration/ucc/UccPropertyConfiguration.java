@@ -132,6 +132,9 @@ public class UccPropertyConfiguration {
      */
     private String collectGoodsDeleteSites;
 
+    /**
+     * 按钮点击间隔(秒)，配置为-1则关闭控制
+     */
     private int clickIntervalSecond;
 
     /**
@@ -155,6 +158,20 @@ public class UccPropertyConfiguration {
      * 取消发货校验封车业务开关。1：开启 0：关闭
      */
     private String dellCancelDeliveryCheckSealCar;
+
+    /**
+     * 控制DTC积压 控制关闭 包裹号存在校验
+     * true  校验包裹号
+     * false 不校验包裹号
+     */
+    private boolean  controlCheckPackage;
+
+    /**
+     * 组板 开关控制是否校验路由
+     * true  校验
+     * false 不校验
+     */
+    private boolean   controlCheckRoute;
 
     public boolean isLogToBusinessLogByKafka() {
         return logToBusinessLogByKafka;
@@ -458,5 +475,21 @@ public class UccPropertyConfiguration {
 
     public void setDellCancelDeliveryCheckSealCar(String dellCancelDeliveryCheckSealCar) {
         this.dellCancelDeliveryCheckSealCar = dellCancelDeliveryCheckSealCar;
+    }
+
+    public boolean isControlCheckPackage() {
+        return controlCheckPackage;
+    }
+
+    public void setControlCheckPackage(boolean controlCheckPackage) {
+        this.controlCheckPackage = controlCheckPackage;
+    }
+
+    public boolean isControlCheckRoute() {
+        return controlCheckRoute;
+    }
+
+    public void setControlCheckRoute(boolean controlCheckRoute) {
+        this.controlCheckRoute = controlCheckRoute;
     }
 }

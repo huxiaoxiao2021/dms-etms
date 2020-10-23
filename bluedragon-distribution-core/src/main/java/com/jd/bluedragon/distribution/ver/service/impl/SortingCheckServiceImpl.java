@@ -98,15 +98,19 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
             ProceedFilterChain proceedFilterChain = getProceedFilterChain();
             proceedFilterChain.doFilter(filterContext, proceedFilterChain);
             if (this.isNeedCheck(uccPropertyConfiguration.getSwitchVerToWebSites(), pdaOperateRequest.getCreateSiteCode())) {
+                logger.info("分拣校验1packageCode[{}]pdaOperateRequest[{}]",pdaOperateRequest.getPackageCode(),JsonHelper.toJson(pdaOperateRequest));
                 Integer businessType = pdaOperateRequest.getBusinessType();
                 if (BusinessUtil.isForward(businessType)) {
+                    logger.info("分拣校验2packageCode[{}]pdaOperateRequest[{}]",pdaOperateRequest.getPackageCode(),JsonHelper.toJson(pdaOperateRequest));
                     ForwardFilterChain forwardFilterChain = getForwardFilterChain();
                     forwardFilterChain.doFilter(filterContext, forwardFilterChain);
                 } else if (BusinessUtil.isReverse(businessType)) {
+                    logger.info("分拣校验3packageCode[{}]pdaOperateRequest[{}]",pdaOperateRequest.getPackageCode(),JsonHelper.toJson(pdaOperateRequest));
                     ReverseFilterChain reverseFilterChain = getReverseFilterChain();
                     reverseFilterChain.doFilter(filterContext, reverseFilterChain);
                 }
             } else {
+                logger.info("分拣校验4packageCode[{}]pdaOperateRequest[{}]",pdaOperateRequest.getPackageCode(),JsonHelper.toJson(pdaOperateRequest));
                 SortingCheck sortingCheck = convertToSortingCheck(pdaOperateRequest);
                 response = jsfSortingResourceService.check(sortingCheck);
             }
@@ -322,21 +326,23 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
             }
         } else if (WaybillUtil.isPackageCode(filterContext.getPackageCode())){
             filterContext.setPackageNum(1);
-            String packageCode = filterContext.getPackageCode();
-            BaseEntity<List<DeliveryPackageD>> baseEntity = this.getPageBaseEntityByPackageCode(packageCode);
+            if(uccPropertyConfiguration.isControlCheckPackage()){
+                String packageCode = filterContext.getPackageCode();
+                BaseEntity<List<DeliveryPackageD>> baseEntity = this.getPageBaseEntityByPackageCode(packageCode);
 
-            if(baseEntity == null){
-                logger.error(String.format("没有查询到包裹数据packageCode[{%s}]",packageCode));
-                throw new SortingCheckException(SortingResponse.CODE_29409, SortingResponse.MESSAGE_29409);
-            }
-            if(baseEntity.getResultCode() != EnumBusiCode.BUSI_SUCCESS.getCode()){
-                logger.error(String.format("查询运单接口返回失败packageCode[{%s}]resultCode[{%s}]message[{%s}]", packageCode,baseEntity.getResultCode(),
-                        baseEntity.getMessage()));
-                throw new SortingCheckException(SortingResponse.CODE_29409, SortingResponse.MESSAGE_29409);
-            }
-            if(CollectionUtils.isEmpty(baseEntity.getData())){
-                logger.error(String.format("包裹号不存在packageCode[{%s}]", packageCode));
-                throw new SortingCheckException(SortingResponse.CODE_29409, SortingResponse.MESSAGE_29409);
+                if(baseEntity == null){
+                    logger.error(String.format("没有查询到包裹数据packageCode[{%s}]",packageCode));
+                    throw new SortingCheckException(SortingResponse.CODE_29409, SortingResponse.MESSAGE_29409);
+                }
+                if(baseEntity.getResultCode() != EnumBusiCode.BUSI_SUCCESS.getCode()){
+                    logger.error(String.format("查询运单接口返回失败packageCode[{%s}]resultCode[{%s}]message[{%s}]", packageCode,baseEntity.getResultCode(),
+                            baseEntity.getMessage()));
+                    throw new SortingCheckException(SortingResponse.CODE_29409, SortingResponse.MESSAGE_29409);
+                }
+                if(CollectionUtils.isEmpty(baseEntity.getData())){
+                    logger.error(String.format("包裹号不存在packageCode[{%s}]", packageCode));
+                    throw new SortingCheckException(SortingResponse.CODE_29409, SortingResponse.MESSAGE_29409);
+                }
             }
         }
 

@@ -8,16 +8,14 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.DmsBaseDictService;
+import com.jd.bluedragon.distribution.basic.ExcelStringUtils;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.AbnormalResultMq;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckSourceEnum;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.SystemEnum;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.*;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.WeightAndVolumeCheckHandleMessage;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
@@ -193,6 +191,10 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     @Autowired
     @Qualifier("dmsWeightVolumeExcess")
     private DefaultJMQProducer dmsWeightVolumeExcess;
+
+    @Autowired
+    @Qualifier("dmsWeightVolumeExcessToJN")
+    private DefaultJMQProducer  dmsWeightVolumeExcessToJN;
 
     @Autowired
     private QuoteCustomerApiServiceManager quoteCustomerApiServiceManager;
@@ -694,7 +696,6 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         abnormalResultMq.setReviewFirstLevelName(weightVolumeCollectDto.getReviewOrgName());
         abnormalResultMq.setReviewSecondLevelId(weightVolumeCollectDto.getReviewSiteCode());
         abnormalResultMq.setReviewSecondLevelName(weightVolumeCollectDto.getReviewSiteName());
-
         abnormalResultMq.setDiffStandard(weightVolumeCollectDto.getDiffStandard());
         abnormalResultMq.setWeightDiff(Double.parseDouble(weightVolumeCollectDto.getWeightDiff()));
         abnormalResultMq.setVolumeDiff(Double.parseDouble(weightVolumeCollectDto.getVolumeWeightDiff()));
@@ -1885,8 +1886,55 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         if(abnormalResultMq == null){
             return;
         }
+        //如果是操作人是属于营业-推送到京牛
+        String erpStr  = abnormalResultMq.getDutyErp();
+        if(ExcelStringUtils.isNotNull(erpStr)){ //存在部分没有erp的
+            BaseStaffSiteOrgDto baseStaffByErpNoCache = baseMajorManager.getBaseStaffByErpNoCache(erpStr);
+            if(baseStaffByErpNoCache!=null&&baseStaffByErpNoCache.getSiteType()!=null&&baseStaffByErpNoCache.getSiteType()==Constants.BASE_SITE_SITE){//自营营业部
+                AbnormalResultMqToJN abnormalResultMqToJN  = convertToAbnormalResultMqToJN(abnormalResultMq);
+                log.info("发送到京牛的MQ【{}】,业务ID【{}】 ",dmsWeightVolumeExcessToJN.getTopic(),abnormalResultMq.getAbnormalId());
+                dmsWeightVolumeExcessToJN.sendOnFailPersistent(abnormalResultMq.getAbnormalId(),JsonHelper.toJson(abnormalResultMqToJN));
+            }else {
+                sendMqToFxmNotJN(abnormalResultMq);
+            }
+        }else {
+            sendMqToFxmNotJN(abnormalResultMq);
+        }
+
+    }
+
+    /**
+     * 对于没有ErpId的或者站点类型不是自营的推送到FXM
+     * @param abnormalResultMq
+     */
+    private void sendMqToFxmNotJN(AbnormalResultMq abnormalResultMq){
+        //否则直接推送FXM
         log.info("发送MQ【{}】,业务ID【{}】 ",dmsWeightVolumeExcess.getTopic(),abnormalResultMq.getAbnormalId());
         dmsWeightVolumeExcess.sendOnFailPersistent(abnormalResultMq.getAbnormalId(), JsonHelper.toJson(abnormalResultMq));
     }
 
+
+    /**
+     * 组装推送京牛的mq实体
+     * @param abnormalResultMq
+     * @return
+     */
+    private AbnormalResultMqToJN convertToAbnormalResultMqToJN(AbnormalResultMq abnormalResultMq) {
+        AbnormalResultMqToJN abnormalResultMqToJN = new AbnormalResultMqToJN();
+        abnormalResultMqToJN.setReviewHeight(abnormalResultMq.getReviewHeight());
+        abnormalResultMqToJN.setReviewLength(abnormalResultMq.getReviewLength());
+        abnormalResultMqToJN.setReviewWidth(abnormalResultMq.getReviewWidth());
+        abnormalResultMqToJN.setBillCode(abnormalResultMq.getBillCode());
+        abnormalResultMqToJN.setReviewDate(abnormalResultMq.getReviewDate());
+        abnormalResultMqToJN.setWeight(abnormalResultMq.getWeight());
+        abnormalResultMqToJN.setVolume(abnormalResultMq.getVolume());
+        abnormalResultMqToJN.setReviewWeight(abnormalResultMq.getReviewWeight());
+        abnormalResultMqToJN.setReviewVolume(abnormalResultMq.getReviewVolume());
+        abnormalResultMqToJN.setPictureAddress(abnormalResultMq.getPictureAddress());
+        abnormalResultMqToJN.setDutyErp(abnormalResultMq.getDutyErp());
+        abnormalResultMqToJN.setThreeLevelId(abnormalResultMq.getThreeLevelId());
+        abnormalResultMqToJN.setReviewDutyErp(abnormalResultMq.getReviewDutyErp());
+        abnormalResultMqToJN.setReviewSecondLevelId(abnormalResultMq.getReviewSecondLevelId());
+        return  abnormalResultMqToJN;
+    }
 }
