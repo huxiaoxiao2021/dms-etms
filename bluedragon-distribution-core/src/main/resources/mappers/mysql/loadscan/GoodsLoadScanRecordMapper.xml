@@ -111,11 +111,13 @@
     </insert>
 
     <insert id="batchInsert" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord">
-        insert into load_scan_record (task_id, waybill_code, package_code,
+        insert into load_scan_record (task_id, waybill_code,end_site_code, end_site_name,create_site_name,create_site_code,package_code,
         board_code, scan_action, transfer, flow_disaccord, force_status, create_user_code, create_user_name, update_user_code, update_user_name, create_time,
         update_time, yn, ts)  VALUES
         <foreach collection="list" item="info" separator=",">
             (#{info.taskId,jdbcType=BIGINT}, #{info.wayBillCode,jdbcType=VARCHAR},
+            #{info.endSiteCode,jdbcType=BIGINT}, #{info.endSiteName,jdbcType=VARCHAR},
+            #{info.createSiteName,jdbcType=VARCHAR}, #{info.createSiteCode,jdbcType=BIGINT},
             #{info.packageCode,jdbcType=VARCHAR}, #{info.boardCode,jdbcType=VARCHAR},
             #{info.scanAction,jdbcType=INTEGER}, #{info.transfer,jdbcType=INTEGER}, #{info.flow_disaccord,jdbcType=INTEGER},
             #{info.force_status,jdbcType=INTEGER}, #{info.createUserCode,jdbcType=VARCHAR},
