@@ -31,7 +31,7 @@ public class GoodsLoadingScanningServiceImplTest {
     @Test //不齐异常数据查询测试
     public void testFindExceptionGoodsLoading() {
         GoodsExceptionScanningReq param = new GoodsExceptionScanningReq();
-        param.setTaskId(1021001L);
+        param.setTaskId(40L);
 
         User user = new User();
         user.setUserName("admin");

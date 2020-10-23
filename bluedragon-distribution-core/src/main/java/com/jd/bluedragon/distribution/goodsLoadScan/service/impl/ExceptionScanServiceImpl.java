@@ -178,7 +178,7 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
 
         log.info("根据任务号【{}】查询不齐异常数据 --begin--", taskId);
         List<GoodsLoadScan> list = goodsLoadScanDao.findLoadScanByTaskId(taskId);
-        log.info("根据任务号【{}】查询不齐异常数据 --end-- 出参【{}】", taskId, JsonHelper.toJson(list));
+
 
         if(list != null && list.size() > 0) {
             for(GoodsLoadScan glc : list) {
@@ -194,6 +194,7 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
                 }
             }
         }
+        log.info("根据任务号【{}】查询不齐异常数据 --end-- 返回【{}】", taskId, JsonHelper.toJson(res));
         return res;
     }
 
