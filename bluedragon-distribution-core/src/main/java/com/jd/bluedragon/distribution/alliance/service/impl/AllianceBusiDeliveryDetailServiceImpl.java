@@ -230,7 +230,9 @@ public class AllianceBusiDeliveryDetailServiceImpl extends BaseService<AllianceB
 
 		if(failDetailDtos.size()>0){
 			result.setCode(BaseEntity.CODE_PARAM_ERROR);
-			dto.getDatas().removeAll(removeLists);
+			if(removeLists.size()>0){
+				dto.getDatas().removeAll(removeLists);
+			}
 		}
 		return result;
 
