@@ -1059,20 +1059,6 @@ public class LoadScanServiceImpl implements LoadScanService {
         return baseEntity.getData();
     }
 
-    private  List<GoodsDetailDto> transformDataForNew(List<LoadScanDto> list) {
-        List<GoodsDetailDto> goodsDetails = new ArrayList<>();
-        for (LoadScanDto detailDto : list) {
-            GoodsDetailDto goodsDetailDto = new GoodsDetailDto();
-            goodsDetailDto.setWayBillCode(detailDto.getWayBillCode());
-            goodsDetailDto.setPackageAmount(detailDto.getPackageAmount());
-            goodsDetailDto.setGoodsAmount(detailDto.getGoodsAmount());
-            goodsDetailDto.setLoadAmount(0);
-            goodsDetailDto.setUnloadAmount(0);
-            goodsDetailDto.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK);
-            goodsDetails.add(goodsDetailDto);
-        }
-        return goodsDetails;
-    }
 
     private  List<GoodsDetailDto> transformData(List<LoadScanDto> list, Map<String, GoodsLoadScan> map) {
         List<GoodsDetailDto> goodsDetails = new ArrayList<>();
@@ -1158,17 +1144,6 @@ public class LoadScanServiceImpl implements LoadScanService {
         return goodsLoadScan;
     }
 
-    private GoodsDetailDto createGoodsDetailDto(String waybillCode, Integer packageAmount, Integer goodsAmount,
-                                                Integer loadAmount, Integer unloadAmount, Integer status) {
-        GoodsDetailDto goodsDetailDto = new GoodsDetailDto();
-        goodsDetailDto.setWayBillCode(waybillCode);
-        goodsDetailDto.setPackageAmount(packageAmount);
-        goodsDetailDto.setGoodsAmount(goodsAmount);
-        goodsDetailDto.setLoadAmount(loadAmount);
-        goodsDetailDto.setUnloadAmount(unloadAmount);
-        goodsDetailDto.setStatus(status);
-        return goodsDetailDto;
-    }
 
     private List<String> getWaybillCodes(List<GoodsLoadScan> scans, Map<String, GoodsLoadScan> map) {
         List<String> list = new ArrayList<>();
