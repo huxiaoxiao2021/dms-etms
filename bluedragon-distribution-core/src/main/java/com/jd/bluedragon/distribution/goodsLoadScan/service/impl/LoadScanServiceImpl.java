@@ -52,6 +52,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import sun.plugin.services.WIExplorerBrowserService;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -934,13 +935,41 @@ public class LoadScanServiceImpl implements LoadScanService {
         // 如果不是重复扫，包裹扫描记录表新增一条记录
         GoodsLoadScanRecord newLoadScanRecord = createGoodsLoadScanRecord(taskId, waybillCode, packageCode,
                 null, transfer, flowDisAccord, user,loadCar);
-        GoodsLoadScan newLoadScan = createGoodsLoadScan(taskId, waybillCode, packageCode, goodsAmount, flowDisAccord, user);
+//        GoodsLoadScan newLoadScan = createGoodsLoadScan(taskId, waybillCode, packageCode, goodsAmount, flowDisAccord, user);
+//        try {
+//            updateGoodsLoadScanAmount(newLoadScan, newLoadScanRecord, createSiteId);
+//        } catch (Exception e) {
+//            log.error("常规包裹号后续校验--保存发生异常：taskId={},packageCode={},waybillCode={},e=", taskId, packageCode, waybillCode, e);
+//            e.printStackTrace();
+//        }
         try {
-            updateGoodsLoadScanAmount(newLoadScan, newLoadScanRecord, createSiteId);
+            // 获取锁
+            if (!lock(newLoadScanRecord)) {
+                response.setCode(JdCResponse.CODE_FAIL);
+                response.setMessage("多人同时操作该包裹所在的运单，请稍后重试！");
+                return response;
+            }
+            goodsLoadScanRecordDao.insert(newLoadScanRecord);
+
+            // 运单暂存表新增或修改
+            GoodsLoadScan newLoadScan = createGoodsLoadScan(taskId, waybillCode, packageCode,
+                    goodsAmount, flowDisAccord, user);
+            GoodsLoadScan oldLoadScan = goodsLoadScanDao.findLoadScanByTaskIdAndWaybillCode(taskId, waybillCode);
+            if (oldLoadScan == null) {
+                goodsLoadScanDao.insert(newLoadScan);
+            } else {
+                computeAndUpdateLoadScan(oldLoadScan, goodsAmount);
+                goodsLoadScanDao.updateByPrimaryKey(oldLoadScan);
+            }
+            //saveOrUpdate(newLoadScan, user);
+
+            // 释放锁
+            unLock(newLoadScanRecord);
         } catch (Exception e) {
             log.error("常规包裹号后续校验--保存发生异常：taskId={},packageCode={},waybillCode={},e=", taskId, packageCode, waybillCode, e);
             e.printStackTrace();
         }
+
         log.info("常规包裹号后续校验--暂存结束：taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
 
         response.setCode(JdCResponse.CODE_SUCCESS);
